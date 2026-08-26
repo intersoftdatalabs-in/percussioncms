@@ -24,7 +24,7 @@ import com.percussion.cms.objectstore.ws.PSClientItem;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.webdav.PSWebdavServlet;
 import com.percussion.webdav.PSWebdavStatus;
-import com.percussion.webdav.error.IPSWebdavErrors;
+import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.percussion.webdav.error.PSWebdavException;
 import com.percussion.webdav.objectstore.PSWebdavContentType;
 
@@ -94,7 +94,7 @@ public class PSUnlockMethod extends PSWebdavMethod
          Object[] args = { new Long(id), compSummary.getName(),
                Integer.valueOf(locator.getId()), Integer.valueOf(locator.getRevision()) };
          throw new PSWebdavException(
-               IPSWebdavErrors.CONTENTTYPE_NOT_CONFIGURED, args,
+               WebdavErrorCodes.CONTENTTYPE_NOT_CONFIGURED, args,
                PSWebdavStatus.SC_PRECONDITION_FAILED);
       }
       try

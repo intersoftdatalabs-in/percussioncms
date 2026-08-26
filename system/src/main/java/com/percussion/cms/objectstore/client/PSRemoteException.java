@@ -16,6 +16,7 @@
  */
 package com.percussion.cms.objectstore.client;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /** Exceptions of this type will be thrown from the Remote Agent */
@@ -41,6 +42,35 @@ public class PSRemoteException extends PSException {
    */
   public PSRemoteException(int msgCode) {
     super(msgCode);
+  }
+
+  /**
+   * Typed construction from a catalogued {@link IPSErrorCode} (e.g. {@code RemoteErrorCodes}).
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSRemoteException(IPSErrorCode code) {
+    super(code);
+  }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg sole message argument; may be {@code null}
+   */
+  public PSRemoteException(IPSErrorCode code, Object singleArg) {
+    super(code, singleArg);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   */
+  public PSRemoteException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
   }
 
   /**

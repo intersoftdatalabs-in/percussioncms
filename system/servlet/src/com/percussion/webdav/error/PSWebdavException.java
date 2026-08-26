@@ -18,6 +18,7 @@
 package com.percussion.webdav.error;
 
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 import com.percussion.error.PSStandaloneException;
 import com.percussion.hooks.PSServletException;
@@ -55,6 +56,40 @@ public class PSWebdavException extends PSServletException
    public PSWebdavException(int msgCode)
    {
       super(msgCode);
+   }
+
+   /**
+    * Typed construction from a catalogued {@link IPSErrorCode} (e.g. {@code
+    * WebdavErrorCodes}).
+    */
+   public PSWebdavException(IPSErrorCode code)
+   {
+      super(code);
+   }
+
+   /**
+    * Typed construction with a single message argument.
+    */
+   public PSWebdavException(IPSErrorCode code, Object singleArg)
+   {
+      super(code, singleArg);
+   }
+
+   /**
+    * Typed construction with a single message argument and HTTP/WebDAV status.
+    */
+   public PSWebdavException(IPSErrorCode code, Object singleArg, int statusCode)
+   {
+      super(code, singleArg);
+      setStatusCode(statusCode);
+   }
+
+   /**
+    * Typed construction with message arguments.
+    */
+   public PSWebdavException(IPSErrorCode code, Object[] arrayArgs)
+   {
+      super(code, arrayArgs);
    }
 
    // see com.percussion.error.PSStandaloneException(PSException)

@@ -31,7 +31,7 @@ import com.percussion.util.PSXMLDomUtil;
 import com.percussion.utils.spring.PSUrlHandlerMapping;
 import com.percussion.webdav.PSWebdavServlet;
 import com.percussion.webdav.PSWebdavStatus;
-import com.percussion.webdav.error.IPSWebdavErrors;
+import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.percussion.webdav.error.PSWebdavException;
 import com.percussion.webdav.objectstore.PSDateProperty;
 import com.percussion.webdav.objectstore.PSPropertyFieldNameMapping;
@@ -127,7 +127,7 @@ public class PSPropFindMethod extends PSWebdavMethod
             else // unknown element
             {
                throw new PSWebdavException(
-                  IPSWebdavErrors.XML_INVALID_FORMAT,
+                  WebdavErrorCodes.XML_INVALID_FORMAT,
                   E_PROPFIND,
                   PSWebdavStatus.SC_BAD_REQUEST);
             }
@@ -283,7 +283,7 @@ public class PSPropFindMethod extends PSWebdavMethod
             comp = new ComponentStatus(summary, ct, uri);
          else // the item is an unsupported content type
             throw new PSWebdavException(
-               IPSWebdavErrors.RESOURCE_NOT_FIND,
+               WebdavErrorCodes.RESOURCE_NOT_FIND,
                compPath,
                PSWebdavStatus.SC_NOT_FOUND);
       }

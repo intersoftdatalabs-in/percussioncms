@@ -19,7 +19,7 @@ package com.percussion.webdav;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.hooks.PSServletBase;
 import com.percussion.servlet_utils.servlet.PSServletUtils;
-import com.percussion.webdav.error.IPSWebdavErrors;
+import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.percussion.webdav.error.PSWebdavException;
 import com.percussion.webdav.method.PSMethodFactory;
 import com.percussion.webdav.method.PSWebdavMethod;
@@ -133,7 +133,7 @@ public class PSWebdavServlet extends PSServletBase
          return in;
       }catch (IOException e)
       {
-         throw new PSWebdavException(IPSWebdavErrors.FILE_DOES_NOT_EXIST,
+         throw new PSWebdavException(WebdavErrorCodes.FILE_DOES_NOT_EXIST,
             filename);
       }
 

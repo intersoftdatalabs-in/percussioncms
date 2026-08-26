@@ -16,6 +16,7 @@
  */
 package com.percussion.hooks;
 
+import com.intsof.percussioncms.auditlog.codes.ServletErrorCodes;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -44,14 +45,14 @@ public class PSServletBase extends HttpServlet
          getVersionResources().getString("buildId")
       };
       String version = PSConnectionFactory.formatMessage(
-         IPSServletErrors.VERSION_STRING, versionArgs);
+         ServletErrorCodes.VERSION_STRING, versionArgs);
 
       Object[] args =
       {
          version
       };
       return PSConnectionFactory.formatMessage(
-         IPSServletErrors.SERVLET_INFORMATION, args);
+         ServletErrorCodes.SERVLET_INFORMATION, args);
    }
 
    /**

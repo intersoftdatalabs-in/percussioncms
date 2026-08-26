@@ -36,7 +36,7 @@ import com.percussion.util.IPSRemoteRequester;
 import com.percussion.utils.spring.PSUrlHandlerMapping;
 import com.percussion.webdav.IPSWebdavConstants;
 import com.percussion.webdav.PSWebdavStatus;
-import com.percussion.webdav.error.IPSWebdavErrors;
+import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.percussion.webdav.error.PSWebdavException;
 import com.percussion.webdav.objectstore.PSWebdavConfig;
 import org.apache.commons.lang3.StringUtils;
@@ -228,7 +228,7 @@ public class PSWebdavUtils
          if (summary == null)
          {
             throw new PSWebdavException(
-               IPSWebdavErrors.RESOURCE_NOT_FIND,
+               WebdavErrorCodes.RESOURCE_NOT_FIND,
                path,
                PSWebdavStatus.SC_NOT_FOUND);
          }
@@ -340,7 +340,7 @@ public class PSWebdavUtils
             String.valueOf(item.getContentId()),
             String.valueOf(item.getContentTypeId())
          };
-         throw new PSWebdavException(IPSWebdavErrors.ITEMFIELD_NOT_EXIST, args);
+         throw new PSWebdavException(WebdavErrorCodes.ITEMFIELD_NOT_EXIST, args);
       }
       else
       {
@@ -641,7 +641,7 @@ public class PSWebdavUtils
 
          if (transitionId == null)
             throw new PSWebdavException(
-                  IPSWebdavErrors.NO_PUBLIC_AUTO_TRANSITION);
+                  WebdavErrorCodes.NO_PUBLIC_AUTO_TRANSITION);
          
          remoteAgent.transitionItem(getLocator(summary, httpRequest),
                transitionId, WEBDAV_AUTO_COMMENT);
@@ -724,7 +724,7 @@ public class PSWebdavUtils
                .getPublicValidTokens(), true);
 
          if (transitionId == null)
-            throw new PSWebdavException(IPSWebdavErrors.NO_QE_AUTO_TRANSITION);
+            throw new PSWebdavException(WebdavErrorCodes.NO_QE_AUTO_TRANSITION);
 
          PSLocator locator = PSWebdavUtils.getLocator(summary, httpRequest);
          remoteAgent.transitionItem(locator, transitionId, null);

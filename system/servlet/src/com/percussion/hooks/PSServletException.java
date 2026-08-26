@@ -17,6 +17,7 @@
 package com.percussion.hooks;
 
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 import com.percussion.error.PSStandaloneException;
 
@@ -53,6 +54,30 @@ public class PSServletException extends PSStandaloneException
    public PSServletException(int msgCode)
    {
       super(msgCode);
+   }
+
+   /**
+    * @see com.percussion.error.PSStandaloneException#PSStandaloneException(IPSErrorCode)
+    */
+   public PSServletException(IPSErrorCode code)
+   {
+      super(code);
+   }
+
+   /**
+    * @see com.percussion.error.PSStandaloneException#PSStandaloneException(IPSErrorCode, Object)
+    */
+   public PSServletException(IPSErrorCode code, Object singleArg)
+   {
+      super(code, singleArg);
+   }
+
+   /**
+    * @see com.percussion.error.PSStandaloneException#PSStandaloneException(IPSErrorCode, Object[])
+    */
+   public PSServletException(IPSErrorCode code, Object[] arrayArgs)
+   {
+      super(code, arrayArgs);
    }
 
    /**

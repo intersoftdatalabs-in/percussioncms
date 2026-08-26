@@ -19,7 +19,7 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.webdav.PSWebdavServlet;
 import com.percussion.webdav.PSWebdavStatus;
-import com.percussion.webdav.error.IPSWebdavErrors;
+import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.percussion.webdav.error.PSWebdavException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
@@ -64,7 +64,7 @@ public class PSPropPatchMethod extends PSWebdavMethod
          if (root == null)
          {
             throw new PSWebdavException(
-               IPSWebdavErrors.XML_INVALID_FORMAT,
+               WebdavErrorCodes.XML_INVALID_FORMAT,
                E_PROPERTYUPDATE,
                PSWebdavStatus.SC_BAD_REQUEST);
          }
@@ -74,7 +74,7 @@ public class PSPropPatchMethod extends PSWebdavMethod
          if (childEl == null)
          {
             throw new PSWebdavException(
-               IPSWebdavErrors.XML_ELEMENT_CANNOT_BE_EMPTY,
+               WebdavErrorCodes.XML_ELEMENT_CANNOT_BE_EMPTY,
                E_PROPERTYUPDATE,
                PSWebdavStatus.SC_BAD_REQUEST);
          }
@@ -92,7 +92,7 @@ public class PSPropPatchMethod extends PSWebdavMethod
             else
             {
                throw new PSWebdavException(
-                  IPSWebdavErrors.XML_INVALID_FORMAT,
+                  WebdavErrorCodes.XML_INVALID_FORMAT,
                   E_PROPERTYUPDATE,
                   PSWebdavStatus.SC_BAD_REQUEST);
             }

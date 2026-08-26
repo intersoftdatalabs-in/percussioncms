@@ -22,7 +22,7 @@ import com.percussion.cms.objectstore.client.PSRemoteException;
 import com.percussion.system.utils.PSWorkflowInfo;
 import com.percussion.webdav.PSWebdavServlet;
 import com.percussion.webdav.PSWebdavStatus;
-import com.percussion.webdav.error.IPSWebdavErrors;
+import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.percussion.webdav.error.PSWebdavException;
 
 import java.io.IOException;
@@ -72,7 +72,7 @@ public class PSDeleteMethod extends PSWebdavMethod
       if (compSummary == null)
       {
          throw new PSWebdavException(
-            IPSWebdavErrors.RESOURCE_NOT_FIND,
+            WebdavErrorCodes.RESOURCE_NOT_FIND,
             compPath,
             PSWebdavStatus.SC_NOT_FOUND);
       }

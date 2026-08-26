@@ -32,7 +32,7 @@ import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.webdav.PSWebdavServlet;
 import com.percussion.webdav.PSWebdavStatus;
-import com.percussion.webdav.error.IPSWebdavErrors;
+import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.percussion.webdav.error.PSWebdavException;
 import com.percussion.webdav.objectstore.PSWebdavContentType;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -361,7 +361,7 @@ public class PSLockMethod extends PSWebdavMethod
                   Integer.valueOf(locator.getId()),
                   Integer.valueOf(locator.getRevision()) };
             throw new PSWebdavException(
-                  IPSWebdavErrors.CONTENTTYPE_NOT_CONFIGURED, args,
+                  WebdavErrorCodes.CONTENTTYPE_NOT_CONFIGURED, args,
                   PSWebdavStatus.SC_PRECONDITION_FAILED);
          }
          PSItemField field = item.getFieldByName(contentType.getOwnerField());
@@ -505,14 +505,14 @@ public class PSLockMethod extends PSWebdavMethod
          if (exclusiveEl == null)
          {
             throw new PSWebdavException(
-                  IPSWebdavErrors.XML_ELEMENT_CANNOT_BE_EMPTY, E_LOCKSCOPE,
+                  WebdavErrorCodes.XML_ELEMENT_CANNOT_BE_EMPTY, E_LOCKSCOPE,
                   PSWebdavStatus.SC_BAD_REQUEST);
          }
          String scopeName = PSXMLDomUtil.getUnqualifiedNodeName(exclusiveEl);
          if (!scopeName.equalsIgnoreCase(E_EXCLUSIVE))
          {
             String[] args = { scopeName, E_EXCLUSIVE };
-            throw new PSWebdavException(IPSWebdavErrors.LOCKSCOPE_NOT_ALLOWED,
+            throw new PSWebdavException(WebdavErrorCodes.LOCKSCOPE_NOT_ALLOWED,
                   args, PSWebdavStatus.SC_FORBIDDEN);
          }
 
@@ -521,7 +521,7 @@ public class PSLockMethod extends PSWebdavMethod
          if (typeEl == null)
          {
             throw new PSWebdavException(
-                  IPSWebdavErrors.XML_ELEMENT_CANNOT_BE_EMPTY, E_LOCKTYPE,
+                  WebdavErrorCodes.XML_ELEMENT_CANNOT_BE_EMPTY, E_LOCKTYPE,
                   PSWebdavStatus.SC_BAD_REQUEST);
          }
 
@@ -529,7 +529,7 @@ public class PSLockMethod extends PSWebdavMethod
          if (!typeName.equalsIgnoreCase(E_WRITE))
          {
             String[] args = { typeName, E_WRITE };
-            throw new PSWebdavException(IPSWebdavErrors.LOCKTYPE_NOT_ALLOWED,
+            throw new PSWebdavException(WebdavErrorCodes.LOCKTYPE_NOT_ALLOWED,
                   args, PSWebdavStatus.SC_FORBIDDEN);
          }
 

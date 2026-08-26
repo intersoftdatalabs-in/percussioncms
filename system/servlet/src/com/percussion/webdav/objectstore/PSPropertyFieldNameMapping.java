@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
-import com.percussion.webdav.error.IPSWebdavErrors;
+import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.percussion.webdav.error.PSWebdavException;
 
 import org.w3c.dom.Document;
@@ -141,7 +141,7 @@ public class PSPropertyFieldNameMapping extends PSWebdavComponent
       if(propName.trim().length() == 0)
          handleValidationExceptions(
             new PSWebdavException(
-               IPSWebdavErrors.XML_ATTRIBUTE_MUST_BE_SPECIFIED,
+               WebdavErrorCodes.XML_ATTRIBUTE_MUST_BE_SPECIFIED,
                new Object[] {IPSRxWebDavDTD.ATTR_NAME, getNodeName()}));
 
 
@@ -165,7 +165,7 @@ public class PSPropertyFieldNameMapping extends PSWebdavComponent
          if(fieldName.trim().length() == 0)
             handleValidationExceptions(
                new PSWebdavException(
-                  IPSWebdavErrors.FIELDNAME_CANNOT_BE_EMPTY_OR_MISSING,
+                  WebdavErrorCodes.FIELDNAME_CANNOT_BE_EMPTY_OR_MISSING,
                   propName));
 
          m_propertyName = propName;

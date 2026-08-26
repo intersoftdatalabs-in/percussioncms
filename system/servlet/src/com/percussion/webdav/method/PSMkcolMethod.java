@@ -25,7 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.webdav.PSWebdavServlet;
 import com.percussion.webdav.PSWebdavStatus;
-import com.percussion.webdav.error.IPSWebdavErrors;
+import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.percussion.webdav.error.PSWebdavException;
 
 
@@ -63,7 +63,7 @@ public class PSMkcolMethod extends PSWebdavMethod
             if (s.trim().length() > 0)
             {
                Object[] args = {s};
-               throw new PSWebdavException(IPSWebdavErrors.UNKNOWN_BODY_IN_MKCOL_REQ,
+               throw new PSWebdavException(WebdavErrorCodes.UNKNOWN_BODY_IN_MKCOL_REQ,
                      args, PSWebdavStatus.SC_UNSUPPORTED_MEDIA_TYPE);
             }
          }
@@ -71,7 +71,7 @@ public class PSMkcolMethod extends PSWebdavMethod
       catch (Exception e)  // this should not happen, in case it does, we don't
       {                    // care the content, just set the correct status
          Object[] args = {"...unknown..."};
-         throw new PSWebdavException(IPSWebdavErrors.UNKNOWN_BODY_IN_MKCOL_REQ,
+         throw new PSWebdavException(WebdavErrorCodes.UNKNOWN_BODY_IN_MKCOL_REQ,
                args, PSWebdavStatus.SC_UNSUPPORTED_MEDIA_TYPE);
       }
       

@@ -18,7 +18,7 @@ package com.percussion.webdav.method;
 
 import com.percussion.webdav.PSWebdavServlet;
 import com.percussion.webdav.PSWebdavStatus;
-import com.percussion.webdav.error.IPSWebdavErrors;
+import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.percussion.webdav.error.PSWebdavException;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -106,7 +106,7 @@ public class PSMethodFactory
       }
 
       PSWebdavException e = new PSWebdavException(
-         IPSWebdavErrors.UNSUPPORTED_METHOD, name);
+         WebdavErrorCodes.UNSUPPORTED_METHOD, name);
       e.setStatusCode(PSWebdavStatus.SC_METHOD_NOT_ALLOWED);
       
       throw e;
