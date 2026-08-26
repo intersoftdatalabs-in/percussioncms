@@ -44,15 +44,19 @@ export function shouldShowVirtualBuildChrome(
 
 /**
  * True when Preview assembled site should be shown.
- * Last-output preview for git-filesystem, csv-filesystem, and sql-database.
- * http-json Preview is a later slice. Repository / blank / unknown kinds
- * stay hidden.
+ * Last-output preview for git-filesystem, csv-filesystem, sql-database, and
+ * http-json. Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPreviewChrome(
   sourceKind: string | null | undefined,
 ): boolean {
   const v = normalizedSourceKind(sourceKind);
-  return v === "git-filesystem" || v === "csv-filesystem" || v === "sql-database";
+  return (
+    v === "git-filesystem" ||
+    v === "csv-filesystem" ||
+    v === "sql-database" ||
+    v === "http-json"
+  );
 }
 
 /**

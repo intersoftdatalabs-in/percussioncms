@@ -788,7 +788,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@SQL database uses the root path only (no Git remote). JDBC URL, user, and query stay in _config.yaml (in-memory H2). Save, then Build Virtual Site, then Publish Virtual Site to copy assembled files to the Site filesystem target. Passwords are never sent on the REST envelope.",
   SITE_VIRT_KIND_HTTP_JSON: "perc.ui.developer@HTTP JSON",
   SITE_VIRT_HTTP_JSON_HINT:
-    "perc.ui.developer@HTTP JSON uses the root path only (no Git remote). Put a local JSON catalog (http.file or default pages.json) or a loopback http.url in _config.yaml. Save sourceKind=http-json, then Build Virtual Site. Preview and Publish for HTTP JSON are a later phase. Open JSON only — no Authorization or API keys.",
+    "perc.ui.developer@HTTP JSON uses the root path only (no Git remote). Put a local JSON catalog (http.file or default pages.json) or a loopback http.url in _config.yaml. Save sourceKind=http-json, then Build Virtual Site, then Preview assembled site. Publish for HTTP JSON is a later phase. Open JSON only — no Authorization or API keys.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:
@@ -815,7 +815,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Save Virtual Site source before building so the server uses the latest properties.",
   SITE_VIRT_PREVIEW: "perc.ui.developer@Preview assembled site",
   SITE_VIRT_PREVIEW_HINT:
-    "perc.ui.developer@Opens the last assembled home in a new tab after Build (Git filesystem, CSV filesystem, or SQL database). Same-origin preview of the build output. Requires Admin.",
+    "perc.ui.developer@Opens the last assembled home in a new tab after Build (Git filesystem, CSV filesystem, SQL database, or HTTP JSON). Same-origin preview of the build output. Requires Admin.",
   SITE_VIRT_PREVIEW_MISSING:
     "perc.ui.developer@No assembled site to preview. Run Build Virtual Site first.",
   SITE_VIRT_PREVIEW_ERROR: "perc.ui.developer@Could not open Virtual Site preview.",
