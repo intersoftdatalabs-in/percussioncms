@@ -39,7 +39,8 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
  *
  * <p>Stateless: each {@link #load} / {@link #loadOrDefault} reads the current file (or current
  * child directories). No process-lifetime YAML cache — a second build after a config edit sees
- * the new title/versions without a JVM restart.
+ * the new title/versions (and current {@code sql:} / {@code http:} mapping) without a JVM
+ * restart.
  */
 public final class VirtualSiteConfigLoader {
 

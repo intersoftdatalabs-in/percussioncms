@@ -58,7 +58,11 @@ import org.json.JSONObject;
  * site root.
  *
  * <p>Stateless: {@link #discover} and {@link #load} always re-read the current HTTP response or
- * file bytes. No catalog cache is kept on the instance or in statics.
+ * local catalog file bytes via {@link Files#readString}. No path/mtime parse cache or catalog
+ * cache is kept on the instance or in statics — a second build in the same JVM after a JSON
+ * fixture ({@code http.file} / default {@code pages.json}) or {@code _config.yaml} edit, or
+ * after a new HTTP catalog body, must see the new bytes. File watchers are not used; {@code
+ * _config.yaml} is reloaded by {@link PSVirtualSiteBuildService}, not this source.
  */
 public class PSHttpJsonVirtualSiteSource implements IPSVirtualSiteSource {
 

@@ -94,12 +94,14 @@ public class PSVirtualSiteBuildService {
    * Build a Virtual Site from a filesystem root into {@code outputRoot}.
    *
    * <p>Every invocation reloads {@code _config.yaml}, optional {@code _redirects.yaml}, and
-   * re-discovers and re-loads Markdown, CSV rows, or the current sql-database SELECT (inline
-   * {@code sql.query} or {@code sql.queryFile} bytes plus H2 rows) from the current tree, then
-   * overwrites emitted HTML. Missing {@code _redirects.yaml} is a no-op. The same service
-   * instance does not reuse parsed pages from a previous build — operators do not need a JVM
-   * restart after {@code git pull}, a CSV/{@code _config.yaml} edit, a local Markdown edit, a
-   * SQL query-file/{@code _config.yaml} edit, or an H2 row change.
+   * re-discovers and re-loads Markdown, CSV rows, the current sql-database SELECT (inline
+   * {@code sql.query} or {@code sql.queryFile} bytes plus H2 rows), or the current http-json
+   * catalog ({@code http.url} / {@code http.file} or default {@code pages.json}) from the
+   * current tree, then overwrites emitted HTML. Missing {@code _redirects.yaml} is a no-op. The
+   * same service instance does not reuse parsed pages from a previous build — operators do not
+   * need a JVM restart after {@code git pull}, a CSV/{@code _config.yaml} edit, a local
+   * Markdown edit, a SQL query-file/{@code _config.yaml} edit, an H2 row change, or an HTTP
+   * JSON catalog/{@code _config.yaml} edit.
    *
    * @param siteRoot source tree ({@code _config.yaml} required for git-filesystem and
    *     sql-database; optional for csv-filesystem)

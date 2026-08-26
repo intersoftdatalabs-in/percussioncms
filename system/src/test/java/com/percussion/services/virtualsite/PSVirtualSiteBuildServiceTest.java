@@ -373,6 +373,88 @@ class PSVirtualSiteBuildServiceTest {
   }
 
   @Test
+  void secondBuildAfterHttpJsonAndConfigEditEmitsUpdatedHtmlWithoutRestart() throws Exception {
+    Path siteRoot = tempDir.resolve("http-json-live-site");
+    Files.createDirectories(siteRoot.resolve("8.2"));
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    Path configYaml = siteRoot.resolve("_config.yaml");
+    Path catalog = siteRoot.resolve("pages.json");
+    Files.writeString(
+        configYaml,
+        """
+        site:
+          title: First Site Title
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        http:
+          file: pages.json
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        catalog,
+        """
+        {"pages":[{"id":"live-home","path":"index.html","title":"First Title","body":"unique-token-AAA"}]}
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${siteTitle}</h1><h2>${pageTitle}</h2>${content}</body></html>",
+        StandardCharsets.UTF_8);
+
+    Path out = tempDir.resolve("http-json-live-out");
+    PSVirtualSiteBuildService service =
+        PSVirtualSiteBuildService.forSourceType(VirtualSiteSourceType.HTTP_JSON);
+
+    PSVirtualSiteBuildResult first = service.build(siteRoot, out, "http-live");
+    assertEquals(1, first.pageCount());
+    Path html = out.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(firstHtml.contains("First Site Title"), firstHtml);
+    assertTrue(firstHtml.contains("First Title"), firstHtml);
+    assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
+
+    Files.writeString(
+        catalog,
+        """
+        {"pages":[{"id":"live-home","path":"index.html","title":"Second Title","body":"unique-token-BBB"}]}
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        configYaml,
+        """
+        site:
+          title: Second Site Title
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        http:
+          file: pages.json
+        """,
+        StandardCharsets.UTF_8);
+
+    PSVirtualSiteBuildResult second = service.build(siteRoot, out, "http-live");
+    assertEquals(1, second.pageCount());
+    String secondHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(secondHtml.contains("Second Site Title"), secondHtml);
+    assertTrue(secondHtml.contains("Second Title"), secondHtml);
+    assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
+    assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
+    assertFalse(secondHtml.contains("First Title"), secondHtml);
+    assertFalse(secondHtml.contains("First Site Title"), secondHtml);
+    assertNotEquals(firstHtml, secondHtml);
+  }
+
+  @Test
   void linkReportListsProblemsWhenBrokenLinksPresent() throws Exception {
     Path siteRoot = tempDir.resolve("broken-site");
     Path versionDir = siteRoot.resolve("8.2");
