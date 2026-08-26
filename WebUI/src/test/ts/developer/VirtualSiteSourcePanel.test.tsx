@@ -504,7 +504,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
-  it("loads http-json values with root path and Build chrome (no Preview/Publish)", async () => {
+  it("loads http-json values with root path and Build/Preview chrome (no Publish)", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "http-json",
       rootPath: "C:/http-json-docs",
@@ -527,12 +527,15 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-http-json-hint").textContent).toContain(
       "Build Virtual Site",
     );
+    expect(screen.getByTestId("developer-site-virtual-http-json-hint").textContent).toContain(
+      "Preview assembled site",
+    );
     expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-config-file")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
@@ -591,7 +594,7 @@ describe("VirtualSiteSourcePanel", () => {
     ).toBe("C:/http-json-docs");
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
@@ -820,7 +823,7 @@ describe("VirtualSiteSourcePanel", () => {
     );
   });
 
-  it("shows Build chrome for http-json and success result without Preview/Publish", async () => {
+  it("shows Build and Preview chrome for http-json and success result without Publish", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "http-json",
       rootPath: "C:/http-json-docs",
@@ -839,7 +842,7 @@ describe("VirtualSiteSourcePanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     });
-    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     fireEvent.click(screen.getByTestId("developer-site-virtual-build"));
     await waitFor(() => {
@@ -1136,6 +1139,41 @@ describe("VirtualSiteSourcePanel", () => {
       expect(open).toHaveBeenCalled();
     });
     expect(previewStatus).toHaveBeenCalledWith("SqlHelp");
+    expect(String(open.mock.calls[0][0])).toContain("8.2/index.html");
+    expect(open.mock.calls[0][1]).toBe("_blank");
+  });
+
+  it("shows Preview chrome for http-json and opens last-build home", async () => {
+    const open = vi.fn();
+    window.open = open;
+    getVirtual.mockResolvedValue({
+      sourceKind: "http-json",
+      rootPath: "C:/http-json-docs",
+      virtual: true,
+    });
+    previewStatus.mockResolvedValue({
+      available: true,
+      homePath: "8.2/index.html",
+    });
+    render(<VirtualSiteSourcePanel siteName="HttpJsonHelp" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-http-json-hint").textContent).toContain(
+      DEV_MSG.SITE_VIRT_HTTP_JSON_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-preview-hint").textContent).toContain(
+      DEV_MSG.SITE_VIRT_PREVIEW_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-preview-hint").textContent).toContain(
+      "HTTP JSON",
+    );
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
+    await waitFor(() => {
+      expect(open).toHaveBeenCalled();
+    });
+    expect(previewStatus).toHaveBeenCalledWith("HttpJsonHelp");
     expect(String(open.mock.calls[0][0])).toContain("8.2/index.html");
     expect(open.mock.calls[0][1]).toBe("_blank");
   });
