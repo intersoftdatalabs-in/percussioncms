@@ -288,11 +288,17 @@ export function ContentTypeDetailPanel({
   }
 
   function removeTemplate(index: number) {
+    if (!heldLock) {
+      return;
+    }
     setTemplates((prev) => prev.filter((_, i) => i !== index));
     setNotice(null);
   }
 
   function addTemplate() {
+    if (!heldLock) {
+      return;
+    }
     const raw = newTplName.trim();
     if (!raw) return;
     const looksLikeGuid = PERC_GUID_RE.test(raw);
@@ -525,9 +531,9 @@ export function ContentTypeDetailPanel({
         </div>
       ) : null}
 
-      {/* Always mount lock/enabled chrome so Playwright and operators see it
-          before GET detail finishes and without scrolling past the fields table
-          (#3834 #3835). */}
+      {/* Always mount lock/enabled/template chrome so Playwright and operators
+          see it before GET detail finishes and without scrolling past the
+          fields table (#3834 #3835 #3836). */}
       <div
         role="toolbar"
         aria-label={DEV_MSG.CT_LOCK_TOOLBAR}
@@ -625,6 +631,126 @@ export function ContentTypeDetailPanel({
         </label>
       </div>
 
+      <div style={{ fontFamily: "monospace", color: catalogColors.muted, marginBottom: "12px" }}>
+        <span data-testid="developer-ct-detail-name">{detail?.name || idOrName}</span>
+        {detail ? (
+          <>
+            {" · "}
+            <span data-testid="developer-ct-detail-guid">{objectGuid || "—"}</span>
+          </>
+        ) : null}
+      </div>
+
+      <section style={{ marginBottom: "16px" }} data-testid="developer-ct-templates">
+        <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_TEMPLATES}</h3>
+        <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.CT_TEMPLATES_HINT}</p>
+        {templates.length === 0 ? (
+          <p style={{ color: catalogColors.empty }} data-testid="developer-ct-tpl-empty">
+            {DEV_MSG.CT_NONE}
+          </p>
+        ) : (
+          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+            {templates.map((t, i) => (
+              <li
+                key={refKey(t, i)}
+                data-testid={`developer-ct-tpl-row-${i}`}
+                style={{
+                  ...tableRow,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: "6px 0",
+                }}
+              >
+                <span>
+                  {t.label || t.name}
+                  {t.name ? (
+                    <span
+                      style={{
+                        fontFamily: "monospace",
+                        color: catalogColors.empty,
+                        marginLeft: "8px",
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      {t.name}
+                    </span>
+                  ) : null}
+                </span>
+                <button
+                  type="button"
+                  data-testid={`developer-ct-tpl-remove-${i}`}
+                  aria-label={`Remove template ${t.name || t.label}`}
+                  disabled={!canEdit}
+                  onClick={() => removeTemplate(i)}
+                  style={{
+                    ...smallBtnStyle,
+                    marginLeft: "auto",
+                    cursor: canEdit ? "pointer" : "not-allowed",
+                  }}
+                >
+                  {DEV_MSG.CT_ASSOC_REMOVE}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div
+          style={{
+            marginTop: "12px",
+            display: "grid",
+            gridTemplateColumns: "1fr auto",
+            gap: "8px",
+            alignItems: "end",
+          }}
+        >
+          <div>
+            <label htmlFor="ct-tpl-add" style={{ display: "block", marginBottom: 4 }}>
+              {DEV_MSG.CT_TEMPLATES}
+            </label>
+            <input
+              id="ct-tpl-add"
+              type="text"
+              autoComplete="off"
+              data-testid="developer-ct-tpl-add-name"
+              style={inputStyle}
+              placeholder={DEV_MSG.CT_TPL_NAME_PLACEHOLDER}
+              value={newTplName}
+              onChange={(e) => {
+                if (!canEdit) {
+                  return;
+                }
+                setNewTplName(e.target.value);
+              }}
+              disabled={!canEdit}
+              aria-disabled={canEdit ? undefined : true}
+              readOnly={!canEdit}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (canEdit) {
+                    addTemplate();
+                  }
+                }
+              }}
+            />
+          </div>
+          <button
+            type="button"
+            data-testid="developer-ct-tpl-add"
+            disabled={!canEdit || !newTplName.trim()}
+            onClick={addTemplate}
+            style={{
+              ...smallBtnStyle,
+              padding: "8px 12px",
+              cursor: !canEdit || !newTplName.trim() ? "not-allowed" : "pointer",
+            }}
+          >
+            {DEV_MSG.CT_ASSOC_ADD}
+          </button>
+        </div>
+      </section>
+
       {!error && detail == null ? (
         <div data-testid="developer-ct-detail-loading">{DEV_MSG.CT_DETAIL_LOADING}</div>
       ) : null}
@@ -635,11 +761,6 @@ export function ContentTypeDetailPanel({
             <h2 style={{ margin: "0 0 4px" }} data-testid="developer-ct-detail-title">
               {label || detail.name || idOrName}
             </h2>
-            <div style={{ fontFamily: "monospace", color: catalogColors.muted }}>
-              <span data-testid="developer-ct-detail-name">{detail.name}</span>
-              {" · "}
-              <span data-testid="developer-ct-detail-guid">{objectGuid || "—"}</span>
-            </div>
             <div style={{ marginTop: "12px" }}>
               <label htmlFor="ct-label" style={{ display: "block", marginBottom: 4 }}>
                 {DEV_MSG.CT_FORM_LABEL}
@@ -811,102 +932,6 @@ export function ContentTypeDetailPanel({
                   ...smallBtnStyle,
                   padding: "8px 12px",
                   cursor: !canEdit || !newWfName.trim() ? "not-allowed" : "pointer",
-                }}
-              >
-                {DEV_MSG.CT_ASSOC_ADD}
-              </button>
-            </div>
-          </section>
-
-          <section style={{ marginBottom: "16px" }} data-testid="developer-ct-templates">
-            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_TEMPLATES}</h3>
-            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.CT_TEMPLATES_HINT}</p>
-            {templates.length === 0 ? (
-              <p style={{ color: catalogColors.empty }} data-testid="developer-ct-tpl-empty">
-                {DEV_MSG.CT_NONE}
-              </p>
-            ) : (
-              <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                {templates.map((t, i) => (
-                  <li
-                    key={refKey(t, i)}
-                    data-testid={`developer-ct-tpl-row-${i}`}
-                    style={{ ...tableRow, display: "flex",
-                      alignItems: "center",
-                      gap: 12,
-                      padding: "6px 0"  }}
-                  >
-                    <span>
-                      {t.label || t.name}
-                      {t.name ? (
-                        <span
-                          style={{
-                            fontFamily: "monospace",
-                            color: catalogColors.empty,
-                            marginLeft: "8px",
-                            fontSize: "0.85rem",
-                          }}
-                        >
-                          {t.name}
-                        </span>
-                      ) : null}
-                    </span>
-                    <button
-                      type="button"
-                      data-testid={`developer-ct-tpl-remove-${i}`}
-                      aria-label={`Remove template ${t.name || t.label}`}
-                      disabled={!canEdit}
-                      onClick={() => removeTemplate(i)}
-                      style={{
-                        ...smallBtnStyle,
-                        marginLeft: "auto",
-                        cursor: canEdit ? "pointer" : "not-allowed",
-                      }}
-                    >
-                      {DEV_MSG.CT_ASSOC_REMOVE}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <div
-              style={{
-                marginTop: "12px",
-                display: "grid",
-                gridTemplateColumns: "1fr auto",
-                gap: "8px",
-                alignItems: "end",
-              }}
-            >
-              <div>
-                <label htmlFor="ct-tpl-add" style={{ display: "block", marginBottom: 4 }}>
-                  {DEV_MSG.CT_TEMPLATES}
-                </label>
-                <input
-                  id="ct-tpl-add"
-                  data-testid="developer-ct-tpl-add-name"
-                  style={inputStyle}
-                  placeholder={DEV_MSG.CT_TPL_NAME_PLACEHOLDER}
-                  value={newTplName}
-                  onChange={(e) => setNewTplName(e.target.value)}
-                  disabled={!canEdit}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addTemplate();
-                    }
-                  }}
-                />
-              </div>
-              <button
-                type="button"
-                data-testid="developer-ct-tpl-add"
-                disabled={!canEdit || !newTplName.trim()}
-                onClick={addTemplate}
-                style={{
-                  ...smallBtnStyle,
-                  padding: "8px 12px",
-                  cursor: !canEdit || !newTplName.trim() ? "not-allowed" : "pointer",
                 }}
               >
                 {DEV_MSG.CT_ASSOC_ADD}

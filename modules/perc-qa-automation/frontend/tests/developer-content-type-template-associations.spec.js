@@ -119,17 +119,38 @@ async function openContentTypeDetail(page, namePattern) {
   }
 
   const detail = page.locator('[data-testid="developer-ct-detail"]');
-  const detailError = page.locator('[data-testid="developer-ct-detail-error"]');
-  await expect(detail.or(detailError).first()).toBeVisible({ timeout: 30_000 });
-  if (await detailError.isVisible()) {
-    throw new Error(`Content type detail error: ${(await detailError.innerText()).trim()}`);
-  }
+  await expect(detail).toBeVisible({ timeout: 30_000 });
+  const detailError = detail.locator('[data-testid="developer-ct-detail-error"]');
   await expect(page.locator('[data-testid="developer-ct-lock-toolbar"]')).toBeVisible({
     timeout: 30_000,
   });
-  await expect(page.locator('[data-testid="developer-ct-lock"]')).toBeEnabled({
+  await expect(page.locator('[data-testid="developer-ct-detail-name"]')).toBeVisible({
     timeout: 30_000,
   });
+  await expect(page.locator('[data-testid="developer-ct-templates"]')).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(page.locator('[data-testid="developer-ct-tpl-add-name"]')).toBeDisabled({
+    timeout: 15_000,
+  });
+  // GET detail finished: Lock is enabled only after the type body is present.
+  try {
+    await expect(page.locator('[data-testid="developer-ct-lock"]')).toBeEnabled({
+      timeout: 30_000,
+    });
+  } catch (err) {
+    if (await detailError.isVisible()) {
+      throw new Error(`Content type detail error: ${(await detailError.innerText()).trim()}`);
+    }
+    throw err;
+  }
+  await expect(page.locator('[data-testid="developer-ct-detail-loading"]')).toBeHidden({
+    timeout: 15_000,
+  });
+  if (await detailError.isVisible()) {
+    throw new Error(`Content type detail error: ${(await detailError.innerText()).trim()}`);
+  }
+  return detail;
 }
 
 async function getAllowedTemplatesViaRest(page, typeName) {
@@ -194,6 +215,7 @@ test.describe("Developer content type template associations (CD-12 / #3783)", ()
 
     await expect(page.locator('[data-testid="developer-ct-templates"]')).toBeVisible();
     await expect(addName).toBeDisabled();
+    await expect(addName).toHaveAttribute("readonly", "");
     await expect(addBtn).toBeDisabled();
     await expect(saveBtn).toBeDisabled();
     await expect(status).toHaveText(/Not locked/i);
@@ -233,6 +255,9 @@ test.describe("Developer content type template associations (CD-12 / #3783)", ()
     const notice = page.locator('[data-testid="developer-ct-detail-notice"]');
     const saveError = page.locator('[data-testid="developer-ct-detail-error"]');
 
+    await expect(page.locator('[data-testid="developer-ct-detail-name"]')).toBeVisible({
+      timeout: 30_000,
+    });
     const typeName = (
       await page.locator('[data-testid="developer-ct-detail-name"]').innerText()
     ).trim();
@@ -241,9 +266,11 @@ test.describe("Developer content type template associations (CD-12 / #3783)", ()
     const original = await getAllowedTemplatesViaRest(page, typeName);
 
     await expect(addName).toBeDisabled();
+    await expect(lockBtn).toBeEnabled();
     await lockBtn.click();
     await expect(status).toHaveText(/Locked by you/i, { timeout: 20_000 });
     await expect(addName).toBeEnabled();
+    await expect(addName).toBeEditable();
     await expect(unlockBtn).toBeEnabled();
 
     const rows = page.locator('[data-testid^="developer-ct-tpl-row-"]');
