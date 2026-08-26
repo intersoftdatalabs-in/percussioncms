@@ -19,7 +19,7 @@ package com.percussion.webdav.objectstore;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.webdav.IPSWebdavConstants;
-import com.percussion.webdav.error.IPSWebdavErrors;
+import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.percussion.webdav.error.PSWebdavException;
 
 import java.util.ArrayList;
@@ -343,7 +343,7 @@ public class PSWebdavContentType
          {
             handleValidationExceptions(
                new PSWebdavException(
-                  IPSWebdavErrors.CANNOT_HAVE_DUPLICATE_PROPERTIES));
+                  WebdavErrorCodes.CANNOT_HAVE_DUPLICATE_PROPERTIES));
          }
          addPropertyFieldMapping(mapping);
 
@@ -355,25 +355,25 @@ public class PSWebdavContentType
       if(name.trim().length() == 0)
          handleValidationExceptions(
             new PSWebdavException(
-               IPSWebdavErrors.XML_ATTRIBUTE_MUST_BE_SPECIFIED,
+               WebdavErrorCodes.XML_ATTRIBUTE_MUST_BE_SPECIFIED,
                new Object[] {IPSRxWebDavDTD.ATTR_NAME, getNodeName()}));
 
       if(id.trim().length() == 0)
          handleValidationExceptions(
             new PSWebdavException(
-               IPSWebdavErrors.XML_ATTRIBUTE_MUST_BE_SPECIFIED,
+               WebdavErrorCodes.XML_ATTRIBUTE_MUST_BE_SPECIFIED,
                new Object[] {IPSRxWebDavDTD.ATTR_ID, getNodeName()}));
 
       if(contentfield.trim().length() == 0)
          handleValidationExceptions(
             new PSWebdavException(
-               IPSWebdavErrors.XML_ATTRIBUTE_MUST_BE_SPECIFIED,
+               WebdavErrorCodes.XML_ATTRIBUTE_MUST_BE_SPECIFIED,
                new Object[] {IPSRxWebDavDTD.ATTR_CONTENTFIELD, getNodeName()}));
 
       if(ownerfield.trim().length() == 0)
          handleValidationExceptions(
             new PSWebdavException(
-               IPSWebdavErrors.XML_ATTRIBUTE_MUST_BE_SPECIFIED,
+               WebdavErrorCodes.XML_ATTRIBUTE_MUST_BE_SPECIFIED,
                new Object[] {IPSRxWebDavDTD.ATTR_OWNERFIELD, getNodeName()}));
 
       validateRequiredProperties(name);
@@ -382,7 +382,7 @@ public class PSWebdavContentType
       if(!def && m_mimetypes.isEmpty())
          handleValidationExceptions(
             new PSWebdavException(
-               IPSWebdavErrors.MIMETYPES_REQUIRED));
+               WebdavErrorCodes.MIMETYPES_REQUIRED));
 
       try
       {
@@ -392,7 +392,7 @@ public class PSWebdavContentType
       {
          handleValidationExceptions(
             new PSWebdavException(
-               IPSWebdavErrors.XML_ATTRIBUTE_MUST_BE_SPECIFIED,
+               WebdavErrorCodes.XML_ATTRIBUTE_MUST_BE_SPECIFIED,
                new Object[] {IPSRxWebDavDTD.ATTR_ID, getNodeName()}));
       }
       
@@ -461,7 +461,7 @@ public class PSWebdavContentType
             
             handleValidationExceptions(
                new PSWebdavException(
-                  IPSWebdavErrors.MISSING_REQUIRED_PROPERTY,
+                  WebdavErrorCodes.MISSING_REQUIRED_PROPERTY,
                   new Object[] {required[i], name}));      
          }
       }

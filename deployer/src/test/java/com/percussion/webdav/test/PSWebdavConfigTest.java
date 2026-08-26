@@ -18,7 +18,7 @@ package com.percussion.webdav.test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.percussion.webdav.error.IPSWebdavErrors;
+import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.percussion.webdav.error.PSWebdavException;
 import com.percussion.webdav.objectstore.IPSRxWebDavDTD;
 import com.percussion.webdav.objectstore.PSWebdavConfigDef;
@@ -175,7 +175,11 @@ public class PSWebdavConfigTest {
     } catch (PSWebdavException e) {
       expectedEx = e;
     }
-    assertEquals(IPSWebdavErrors.FIELDNAME_CANNOT_BE_EMPTY_OR_MISSING, expectedEx.getErrorCode());
+    assertEquals(
+        WebdavErrorCodes.FIELDNAME_CANNOT_BE_EMPTY_OR_MISSING.numericCode(),
+        expectedEx.getErrorCode());
+    assertSame(WebdavErrorCodes.FIELDNAME_CANNOT_BE_EMPTY_OR_MISSING, expectedEx.getTypedErrorCode());
+    assertFalse(expectedEx.isAuditable());
   }
 
   /**
@@ -191,7 +195,10 @@ public class PSWebdavConfigTest {
     } catch (PSWebdavException e) {
       expectedEx = e;
     }
-    assertEquals(IPSWebdavErrors.MISSING_REQUIRED_PROPERTY, expectedEx.getErrorCode());
+    assertEquals(
+        WebdavErrorCodes.MISSING_REQUIRED_PROPERTY.numericCode(), expectedEx.getErrorCode());
+    assertSame(WebdavErrorCodes.MISSING_REQUIRED_PROPERTY, expectedEx.getTypedErrorCode());
+    assertFalse(expectedEx.isAuditable());
   }
 
   /**
@@ -207,7 +214,10 @@ public class PSWebdavConfigTest {
     } catch (PSWebdavException e) {
       expectedEx = e;
     }
-    assertEquals(IPSWebdavErrors.DUPLICATE_CONTENTTYPE_NAMES, expectedEx.getErrorCode());
+    assertEquals(
+        WebdavErrorCodes.DUPLICATE_CONTENTTYPE_NAMES.numericCode(), expectedEx.getErrorCode());
+    assertSame(WebdavErrorCodes.DUPLICATE_CONTENTTYPE_NAMES, expectedEx.getTypedErrorCode());
+    assertFalse(expectedEx.isAuditable());
   }
 
   /**
@@ -223,7 +233,11 @@ public class PSWebdavConfigTest {
     } catch (PSWebdavException e) {
       expectedEx = e;
     }
-    assertEquals(IPSWebdavErrors.CANNOT_HAVE_DUPLICATE_PROPERTIES, expectedEx.getErrorCode());
+    assertEquals(
+        WebdavErrorCodes.CANNOT_HAVE_DUPLICATE_PROPERTIES.numericCode(),
+        expectedEx.getErrorCode());
+    assertSame(WebdavErrorCodes.CANNOT_HAVE_DUPLICATE_PROPERTIES, expectedEx.getTypedErrorCode());
+    assertFalse(expectedEx.isAuditable());
   }
 
   /**
@@ -239,7 +253,9 @@ public class PSWebdavConfigTest {
     } catch (PSWebdavException e) {
       expectedEx = e;
     }
-    assertEquals(IPSWebdavErrors.MIMETYPES_REQUIRED, expectedEx.getErrorCode());
+    assertEquals(WebdavErrorCodes.MIMETYPES_REQUIRED.numericCode(), expectedEx.getErrorCode());
+    assertSame(WebdavErrorCodes.MIMETYPES_REQUIRED, expectedEx.getTypedErrorCode());
+    assertFalse(expectedEx.isAuditable());
   }
 
   /**
@@ -255,7 +271,12 @@ public class PSWebdavConfigTest {
     } catch (PSWebdavException e) {
       expectedEx = e;
     }
-    assertEquals(IPSWebdavErrors.CAN_ONLY_HAVE_ONE_DEFAULT_CONTENTTYPE, expectedEx.getErrorCode());
+    assertEquals(
+        WebdavErrorCodes.CAN_ONLY_HAVE_ONE_DEFAULT_CONTENTTYPE.numericCode(),
+        expectedEx.getErrorCode());
+    assertSame(
+        WebdavErrorCodes.CAN_ONLY_HAVE_ONE_DEFAULT_CONTENTTYPE, expectedEx.getTypedErrorCode());
+    assertFalse(expectedEx.isAuditable());
   }
 
   /**
