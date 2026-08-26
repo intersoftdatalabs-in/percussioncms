@@ -510,6 +510,7 @@ class PSSqlDatabaseVirtualSiteSourceTest {
     assertTrue(ex.getMessage().contains("sql-api"));
     assertTrue(ex.getMessage().contains("sql-database"));
     assertTrue(ex.getMessage().contains("http-json"));
+    assertTrue(ex.getMessage().contains("object-storage"));
   }
 
   @Test

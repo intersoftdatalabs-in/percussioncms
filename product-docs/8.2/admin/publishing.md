@@ -51,7 +51,9 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
   in-memory H2 only (`jdbc:h2:mem:`); Oracle / MySQL / SQL Server URLs return **400**.
   `http-json` Publish uses a local JSON fixture or loopback catalog (`http.url` /
   `http.file` in `_config.yaml`); leftover `virtual.remoteUrl` is **400** (no secrets on
-  the envelope). The endpoint does not accept an `outputRoot` body (always the default
+  the envelope). REST **GET/PUT** can persist `virtual.sourceKind=object-storage` with a
+  local `rootPath` (cloud URLs and credentials are **400**); Build/Publish for that kind
+  stay a later phase. The endpoint does not accept an `outputRoot` body (always the default
   staging root).
 
 ### Publish a Virtual Site to the Site filesystem target

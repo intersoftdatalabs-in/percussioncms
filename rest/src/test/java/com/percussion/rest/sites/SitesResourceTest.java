@@ -253,6 +253,39 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void getVirtualPropertiesRoundTripsObjectStorage() {
+    VirtualSiteProperties v = new VirtualSiteProperties();
+    v.setSourceKind("object-storage");
+    v.setRootPath("C:/object-docs");
+    v.setVirtual(true);
+    when(adaptor.getVirtualSiteProperties("ObjectHelp")).thenReturn(v);
+
+    VirtualSiteProperties out = resource.getVirtualProperties("ObjectHelp");
+    assertEquals("object-storage", out.getSourceKind());
+    assertEquals("C:/object-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).getVirtualSiteProperties("ObjectHelp");
+  }
+
+  @Test
+  public void updateVirtualPropertiesRoundTripsObjectStorage() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("object-storage");
+    body.setRootPath("C:/object-docs");
+    VirtualSiteProperties saved = new VirtualSiteProperties();
+    saved.setSourceKind("object-storage");
+    saved.setRootPath("C:/object-docs");
+    saved.setVirtual(true);
+    when(adaptor.updateVirtualSiteProperties(eq("ObjectHelp"), same(body))).thenReturn(saved);
+
+    VirtualSiteProperties out = resource.updateVirtualProperties("ObjectHelp", body);
+    assertEquals("object-storage", out.getSourceKind());
+    assertEquals("C:/object-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).updateVirtualSiteProperties("ObjectHelp", body);
+  }
+
+  @Test
   public void updateVirtualPropertiesUnknownKindPropagates400() {
     VirtualSiteProperties body = new VirtualSiteProperties();
     body.setSourceKind("sql-adapter");

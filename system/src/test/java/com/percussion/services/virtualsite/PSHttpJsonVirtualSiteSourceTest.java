@@ -546,6 +546,7 @@ class PSHttpJsonVirtualSiteSourceTest {
             () -> PSVirtualSiteSourceFactory.createFromWireName("sql-api"));
     assertTrue(ex.getMessage().contains("sql-api"));
     assertTrue(ex.getMessage().contains("http-json"));
+    assertTrue(ex.getMessage().contains("object-storage"));
   }
 
   @Test

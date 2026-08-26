@@ -212,6 +212,15 @@ class PSVirtualSiteHelperTest {
   }
 
   @Test
+  void validatePassesForObjectStorageDriveLetterStyleRoot() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "object-storage"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "C:/object-docs"));
+    assertDoesNotThrow(() -> PSVirtualSiteHelper.validate(site));
+  }
+
+  @Test
   void validateRejectsRemoteUrlForObjectStorage() {
     PSSite site =
         siteWith(
@@ -234,6 +243,42 @@ class PSVirtualSiteHelperTest {
         assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
     assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH));
     assertTrue(ex.getMessage().contains(".."));
+  }
+
+  @Test
+  void validateRejectsCloudUrlRootForObjectStorage() {
+    for (String cloud :
+        List.of(
+            "s3://bucket/docs",
+            "gs://bucket/docs",
+            "azure://account/container",
+            "https://s3.amazonaws.com/bucket/docs",
+            "http://minio.example/bucket")) {
+      PSSite site =
+          siteWith(
+              prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "object-storage"),
+              prop(PSVirtualSiteHelper.PROP_ROOT_PATH, cloud));
+      VirtualSiteException ex =
+          assertThrows(
+              VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site), cloud);
+      assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH), ex.getMessage());
+      assertTrue(ex.getMessage().toLowerCase().contains("cloud"), ex.getMessage());
+      assertFalse(ex.getMessage().contains("AKIA"), ex.getMessage());
+    }
+  }
+
+  @Test
+  void validateRejectsCredentialPropertyForObjectStorage() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "object-storage"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "object-docs"),
+            prop("aws_secret_access_key", "not-a-real-secret"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().toLowerCase().contains("credential"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("object-storage"), ex.getMessage());
+    assertFalse(ex.getMessage().contains("not-a-real-secret"), ex.getMessage());
   }
 
   @Test
