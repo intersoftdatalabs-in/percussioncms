@@ -17,6 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.content;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.utils.exceptions.PSBaseException;
 
 import java.util.Objects;
@@ -73,6 +74,27 @@ public class PSContentException extends PSBaseException {
     */
    public PSContentException(int msgCode, Throwable cause, Object... arrayArgs) {
       super(msgCode, cause, arrayArgs);
+   }
+
+   /**
+    * Typed construction from a catalogued {@link IPSErrorCode}.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param arrayArgs the arguments for message formatting, may be {@code null}
+    */
+   public PSContentException(IPSErrorCode code, Object... arrayArgs) {
+      super(code, arrayArgs);
+   }
+
+   /**
+    * Typed construction with a cause.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param cause the underlying cause, may be {@code null}
+    * @param arrayArgs the arguments for message formatting, may be {@code null}
+    */
+   public PSContentException(IPSErrorCode code, Throwable cause, Object... arrayArgs) {
+      super(code, cause, arrayArgs);
    }
 
    /**

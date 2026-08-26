@@ -20,7 +20,6 @@ import com.percussion.cms.PSCmsException;
 import com.percussion.extension.IPSExtension;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
-import com.percussion.services.assembly.IPSAssemblyErrors;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.PSAssemblyBindingMaps;
 import com.percussion.services.assembly.IPSAssemblyResult;
@@ -61,6 +60,7 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import static com.percussion.services.assembly.impl.finder.PSContentFinderUtils.getValue;
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 
 /**
  * The base content finder provides the common functionality needed 
@@ -359,7 +359,7 @@ public abstract class PSContentFinderBase<T extends Object>
       }
       catch (Exception e)
       {
-         throw new PSAssemblyException(IPSAssemblyErrors.ITEM_CREATION, e);
+         throw new PSAssemblyException(AssemblyErrorCodes.ITEM_CREATION, e);
       }
    }
 

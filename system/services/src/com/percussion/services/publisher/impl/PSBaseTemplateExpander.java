@@ -26,7 +26,6 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.contentmgr.IPSContentPropertyConstants;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
-import com.percussion.services.publisher.IPSPublisherServiceErrors;
 import com.percussion.services.publisher.IPSTemplateExpander;
 import com.percussion.services.publisher.PSPublisherException;
 import com.percussion.services.publisher.data.PSContentListItem;
@@ -46,6 +45,7 @@ import javax.jcr.query.Row;
 import javax.jcr.query.RowIterator;
 
 import org.apache.commons.lang3.StringUtils;
+import com.intsof.percussioncms.auditlog.codes.PublisherErrorCodes;
 
 /**
  * The base template expander services as a base class for writing template
@@ -139,7 +139,7 @@ public abstract class PSBaseTemplateExpander implements IPSTemplateExpander
       catch (RepositoryException e)
       {
          throw new PSPublisherException(
-               IPSPublisherServiceErrors.RUNTIME_ERROR, e,
+               PublisherErrorCodes.RUNTIME_ERROR, e,
                   e.getLocalizedMessage());
       }
 
@@ -219,13 +219,13 @@ public abstract class PSBaseTemplateExpander implements IPSTemplateExpander
       catch (RepositoryException e)
       {
          throw new PSPublisherException(
-               IPSPublisherServiceErrors.RUNTIME_ERROR, e,
+               PublisherErrorCodes.RUNTIME_ERROR, e,
                   e.getLocalizedMessage());
       }
       catch (PSAssemblyException e)
       {
          throw new PSPublisherException(
-               IPSPublisherServiceErrors.RUNTIME_ERROR, e,
+               PublisherErrorCodes.RUNTIME_ERROR, e,
                   e.getLocalizedMessage());
       }
 

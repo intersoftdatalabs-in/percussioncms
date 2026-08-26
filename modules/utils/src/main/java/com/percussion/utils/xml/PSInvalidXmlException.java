@@ -16,6 +16,7 @@
  */
 package com.percussion.utils.xml;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.utils.exceptions.PSBaseException;
 
 /** Exception to indicate general Xml format errors. */
@@ -49,6 +50,27 @@ public class PSInvalidXmlException extends PSBaseException {
    */
   public PSInvalidXmlException(int msgCode, Object[] arrayArgs, Throwable cause) {
     super(msgCode, cause, arrayArgs);
+  }
+
+  /**
+   * Typed construction from a catalogued {@link IPSErrorCode}.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs arguments for message formatting, may be {@code null}
+   */
+  public PSInvalidXmlException(IPSErrorCode code, Object... arrayArgs) {
+    super(code, arrayArgs);
+  }
+
+  /**
+   * Typed construction with a cause.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs arguments for message formatting, may be {@code null}
+   * @param cause original exception, may be {@code null}
+   */
+  public PSInvalidXmlException(IPSErrorCode code, Object[] arrayArgs, Throwable cause) {
+    super(code, cause, arrayArgs);
   }
 
   // see base class

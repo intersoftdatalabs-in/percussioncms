@@ -22,7 +22,6 @@ import com.percussion.services.assembly.IPSAssemblyTemplate.PublishWhen;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.data.PSGuid;
-import com.percussion.services.publisher.IPSPublisherServiceErrors;
 import com.percussion.services.publisher.PSPublisherException;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
@@ -37,6 +36,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.intsof.percussioncms.auditlog.codes.PublisherErrorCodes;
 
 /**
  * The site template expander adds the appropriate always publish page templates
@@ -96,7 +96,7 @@ public class PSSiteTemplateExpander extends PSBaseTemplateExpander
       }
       catch (PSNotFoundException e)
       {
-         throw new PSPublisherException(IPSPublisherServiceErrors.SITE_LOAD, e,
+         throw new PSPublisherException(PublisherErrorCodes.SITE_LOAD, e,
                siteg);
       }
 

@@ -31,7 +31,6 @@ import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
 import com.percussion.server.PSServer;
-import com.percussion.services.assembly.IPSAssemblyErrors;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.services.assembly.IPSAssemblyResult.Status;
@@ -81,6 +80,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 
 /**
  * Various functions for use in the assembly engine
@@ -133,7 +133,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
          }
          IPSSlotContentFinder finder = asm.loadFinder(findername);
          if (finder == null)
-            throw new PSAssemblyException(IPSAssemblyErrors.MISSING_FINDER,
+            throw new PSAssemblyException(AssemblyErrorCodes.MISSING_FINDER,
                   finder);
          if (!StringUtils.isBlank(item.getUserName()))
          {

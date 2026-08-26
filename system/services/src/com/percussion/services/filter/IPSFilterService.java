@@ -31,6 +31,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import com.percussion.services.filter.data.PSItemFilterRuleDef;
+import com.intsof.percussioncms.auditlog.codes.FilterServiceErrorCodes;
 /**
  * The filter service manages item filters and applies them to lists of content IDs.
  * This service provides a higher-level abstraction that uses other services to
@@ -110,7 +111,7 @@ public interface IPSFilterService extends IPSCataloger {
         } catch (PSFilterException e) {
             // Only "not found" is empty. Other filter errors must not look like a miss
             // (avoids callers inserting duplicates / masking DB failures).
-            if (e.getErrorCode() == IPSFilterServiceErrors.FILTER_MISSING) {
+            if (e.getErrorCode() == FilterServiceErrorCodes.FILTER_MISSING.numericCode()) {
                 return Optional.empty();
             }
             throw new IllegalStateException(

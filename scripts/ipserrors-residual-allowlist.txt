@@ -9,7 +9,6 @@
 #   #3740 deployer server/handlers + server/dependencies
 #   #3741 DCE/ContentUI/TableFactory leftover call sites
 #   #3770 leftover nav/sfp/workflow extension modules
-#   #3847 leftover system/services assembly leftovers
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -70,45 +69,6 @@ system/business/src/com/percussion/rx/delivery/impl/PSFileDeliveryHandler.java
 system/business/src/com/percussion/rx/delivery/impl/PSFtpsDeliveryHandler.java
 system/business/src/com/percussion/rx/delivery/impl/PSLocalDeliveryManager.java
 system/business/src/com/percussion/rx/design/impl/PSRelationshipConfigModel.java
-system/services/src/com/percussion/services/assembly/IPSAssemblyService.java
-system/services/src/com/percussion/services/assembly/data/PSAssemblyWorkItem.java
-system/services/src/com/percussion/services/assembly/impl/PSAssemblyService.java
-system/services/src/com/percussion/services/assembly/impl/finder/PSContentFinderBase.java
-system/services/src/com/percussion/services/assembly/impl/finder/PSNavFinderUtils.java
-system/services/src/com/percussion/services/assembly/impl/finder/PSTranslationSlotFinder.java
-system/services/src/com/percussion/services/assembly/impl/plugin/PSDebugAssembler.java
-system/services/src/com/percussion/services/assembly/jexl/PSAssemblerUtils.java
-system/services/src/com/percussion/services/assembly/jexl/PSLocationUtils.java
-system/services/src/com/percussion/services/content/impl/PSContentService.java
-system/services/src/com/percussion/services/filestorage/extensions/PSChecksumFileInfo.java
-system/services/src/com/percussion/services/filestorage/extensions/PSFileStorageTools.java
-system/services/src/com/percussion/services/filter/IPSFilterService.java
-system/services/src/com/percussion/services/filter/data/PSItemFilter.java
-system/services/src/com/percussion/services/filter/impl/PSFilterManager.java
-system/services/src/com/percussion/services/filter/impl/PSPublishableStateFilter.java
-system/services/src/com/percussion/services/legacy/impl/PSCmsObjectMgr.java
-system/services/src/com/percussion/services/locking/PSLockException.java
-system/services/src/com/percussion/services/locking/impl/PSObjectLockService.java
-system/services/src/com/percussion/services/publisher/data/PSEditionContentList.java
-system/services/src/com/percussion/services/publisher/data/PSEditionTaskDef.java
-system/services/src/com/percussion/services/publisher/impl/PSBaseTemplateExpander.java
-system/services/src/com/percussion/services/publisher/impl/PSContentListServlet.java
-system/services/src/com/percussion/services/publisher/impl/PSIncrementalPublishingFilter.java
-system/services/src/com/percussion/services/publisher/impl/PSJexlLocationGenerator.java
-system/services/src/com/percussion/services/publisher/impl/PSListTemplateExpander.java
-system/services/src/com/percussion/services/publisher/impl/PSPublisherService.java
-system/services/src/com/percussion/services/publisher/impl/PSQueryContentListGenerator.java
-system/services/src/com/percussion/services/publisher/impl/PSSiteTemplateExpander.java
-system/services/src/com/percussion/services/security/PSServiceSecurityException.java
-system/services/src/com/percussion/services/security/impl/PSAclService.java
-system/services/src/com/percussion/services/security/impl/PSBackEndRoleMgr.java
-system/services/src/com/percussion/services/sitemgr/impl/PSSiteManager.java
-system/services/src/com/percussion/services/system/PSAssignmentTypeHelper.java
-system/services/src/com/percussion/services/system/impl/PSSystemService.java
-system/services/src/com/percussion/services/ui/PSUiException.java
-system/services/src/com/percussion/services/ui/impl/PSUiService.java
-system/services/src/com/percussion/services/workflow/PSWorkflowException.java
-system/services/src/com/percussion/services/workflow/impl/PSWorkflowService.java
 system/servlet/src/com/percussion/hooks/PSConnectionFactory.java
 system/servlet/src/com/percussion/hooks/PSServletBase.java
 system/servlet/src/com/percussion/hooks/servlet/RhythmyxServlet.java

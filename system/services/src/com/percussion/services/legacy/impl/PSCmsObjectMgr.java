@@ -16,7 +16,6 @@
  */
 package com.percussion.services.legacy.impl;
 
-import com.percussion.cms.IPSCmsErrors;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.PSEditorChangeEvent;
@@ -131,6 +130,7 @@ import static com.percussion.services.utils.orm.PSDataCollectionHelper.clearIdSe
 import static com.percussion.services.utils.orm.PSDataCollectionHelper.createIdSet;
 import static com.percussion.services.utils.orm.PSDataCollectionHelper.executeQuery;
 import static org.apache.commons.lang3.Validate.notNull;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 
 /**
  * Implementation class for legacy object accessing
@@ -1313,7 +1313,7 @@ public class PSCmsObjectMgr
          {
             String[] args = new String[]
             {name.getName(), String.valueOf(name.getId()), e.getLocalizedMessage()};
-            throw new PSCmsException(IPSCmsErrors.FAILED_DELETE_REL_CONFIG_NAME, args);
+            throw new PSCmsException(CmsErrorCodes.FAILED_DELETE_REL_CONFIG_NAME, args);
          }
       }
 
@@ -1348,11 +1348,11 @@ public class PSCmsObjectMgr
             {
                String[] args = new String[]
                {String.valueOf(id), config.getName()};
-               throw new PSCmsException(IPSCmsErrors.INVALID_REL_CONFIG_ID, args);
+               throw new PSCmsException(CmsErrorCodes.INVALID_REL_CONFIG_ID, args);
             }
             if (c.getName().equalsIgnoreCase(config.getName()))
             {
-               throw new PSCmsException(IPSCmsErrors.INVALID_REL_CONFIG_NAME, config.getName());
+               throw new PSCmsException(CmsErrorCodes.INVALID_REL_CONFIG_NAME, config.getName());
             }
 
          }
@@ -1378,7 +1378,7 @@ public class PSCmsObjectMgr
          {
             String[] args = new String[]
             {sc.getName(), String.valueOf(sc.getId()), String.valueOf(c.getId())};
-            throw new PSCmsException(IPSCmsErrors.UNKOWN_SYS_REL_CONFIG_ID, args);
+            throw new PSCmsException(CmsErrorCodes.UNKOWN_SYS_REL_CONFIG_ID, args);
          }
       }
    }
@@ -1408,7 +1408,7 @@ public class PSCmsObjectMgr
       {
           logger.error(PSExceptionUtils.getMessageForLog(e));
           logger.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         throw new PSCmsException(IPSCmsErrors.FAILED_GET_REL_CONFIG_FROM_XML, e);
+         throw new PSCmsException(CmsErrorCodes.FAILED_GET_REL_CONFIG_FROM_XML, e);
       }
    }
 

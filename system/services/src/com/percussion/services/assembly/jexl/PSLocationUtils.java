@@ -29,7 +29,6 @@ import com.percussion.extension.IPSJexlParam;
 import com.percussion.extension.PSJexlUtilBase;
 import com.percussion.server.PSRequest;
 import com.percussion.server.webservices.PSServerFolderProcessor;
-import com.percussion.services.assembly.IPSAssemblyErrors;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
@@ -69,6 +68,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 
 /**
  * Functions for use by jexl to calculate locations in assembly. Note that these
@@ -713,7 +713,7 @@ public class PSLocationUtils extends PSJexlUtilBase
          String error_msg = "no templates associated with this content type.";
          ms_log.error(error_msg);
          throw new PSAssemblyException(
-               IPSAssemblyErrors.NO_DEFAULT_TEMPLATE, item.getPath(), ctype,
+               AssemblyErrorCodes.NO_DEFAULT_TEMPLATE, item.getPath(), ctype,
                error_msg);
       }
       else if (site_default_templates.size() > 0)
@@ -727,7 +727,7 @@ public class PSLocationUtils extends PSJexlUtilBase
                + siteid.toString();
          ms_log.error(error_msg);
          throw new PSAssemblyException(
-               IPSAssemblyErrors.NO_DEFAULT_TEMPLATE, item.getPath(), ctype,
+               AssemblyErrorCodes.NO_DEFAULT_TEMPLATE, item.getPath(), ctype,
                error_msg);
       }
       else if (ct_default_templates.size() > 0)
@@ -742,7 +742,7 @@ public class PSLocationUtils extends PSJexlUtilBase
          String error_msg = "Error in logic occurred";
          ms_log.error(error_msg);
          throw new PSAssemblyException(
-               IPSAssemblyErrors.NO_DEFAULT_TEMPLATE, item.getPath(), ctype,
+               AssemblyErrorCodes.NO_DEFAULT_TEMPLATE, item.getPath(), ctype,
                error_msg);
       }
 

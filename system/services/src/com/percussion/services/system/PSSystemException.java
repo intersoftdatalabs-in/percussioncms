@@ -16,6 +16,7 @@
  */
 package com.percussion.services.system;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.utils.exceptions.PSBaseException;
 
 public class PSSystemException extends PSBaseException
@@ -47,6 +48,29 @@ public class PSSystemException extends PSBaseException
    public PSSystemException(int msgCode, Throwable cause, Object... arrayArgs)
    {
       super(msgCode, cause, arrayArgs);
+   }
+
+   /**
+    * Typed construction from a catalogued {@link IPSErrorCode}.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param arrayArgs arguments for message formatting, may be {@code null}
+    */
+   public PSSystemException(IPSErrorCode code, Object... arrayArgs)
+   {
+      super(code, arrayArgs);
+   }
+
+   /**
+    * Typed construction with a cause.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param cause original exception, may be {@code null}
+    * @param arrayArgs arguments for message formatting, may be {@code null}
+    */
+   public PSSystemException(IPSErrorCode code, Throwable cause, Object... arrayArgs)
+   {
+      super(code, cause, arrayArgs);
    }
 
    @Override

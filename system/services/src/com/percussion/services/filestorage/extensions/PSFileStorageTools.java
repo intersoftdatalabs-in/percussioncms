@@ -34,7 +34,6 @@ import com.percussion.extension.IPSJexlParam;
 import com.percussion.extension.PSExtensionRef;
 import com.percussion.extension.PSJexlUtilBase;
 import com.percussion.server.PSServer;
-import com.percussion.services.assembly.IPSAssemblyErrors;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.filestorage.IPSFileMeta;
 import com.percussion.services.filestorage.IPSFileStorageService;
@@ -51,6 +50,7 @@ import javax.jcr.ValueFormatException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 
 /**
  * Tools for String manipulation. Just basics for now
@@ -92,7 +92,7 @@ public class PSFileStorageTools extends PSJexlUtilBase
                     ret = PSValueFactory.createValue(blob);
                 } catch (ValueFormatException e) {
                     log.error("Error getting hashed binary stream:", e);
-                    throw new PSAssemblyException(IPSAssemblyErrors.HASHED_BINARY_ERROR, "PSFileStorageTools",
+                    throw new PSAssemblyException(AssemblyErrorCodes.HASHED_BINARY_ERROR, "PSFileStorageTools",
                             e.getLocalizedMessage());
                 }
             } else {
@@ -101,7 +101,7 @@ public class PSFileStorageTools extends PSJexlUtilBase
             return ret;
         } catch (IOException e) {
             log.error("Error getting hashed binary stream:", e);
-            throw new PSAssemblyException(IPSAssemblyErrors.HASHED_BINARY_ERROR, "PSFileStorageTools",
+            throw new PSAssemblyException(AssemblyErrorCodes.HASHED_BINARY_ERROR, "PSFileStorageTools",
                     e.getLocalizedMessage());
         }
     }
@@ -111,7 +111,7 @@ public class PSFileStorageTools extends PSJexlUtilBase
     public Object getFileFromHash(String hash) throws PSAssemblyException
     {
         if (hash==null || StringUtils.isBlank(hash)) 
-            throw new PSAssemblyException(IPSAssemblyErrors.HASHED_BINARY_NO_HASH, new Object[] {});
+            throw new PSAssemblyException(AssemblyErrorCodes.HASHED_BINARY_NO_HASH, new Object[] {});
         Object ret = null;
         IPSFileStorageService fss = PSFileStorageServiceLocator.getFileStorageService();
         try(InputStream is = fss.getStream(hash)) {
@@ -121,16 +121,16 @@ public class PSFileStorageTools extends PSJexlUtilBase
                     ret = PSValueFactory.createValue(blob);
                 } catch (ValueFormatException e) {
                     log.error("Error getting hashed binary stream:", e);
-                    throw new PSAssemblyException(IPSAssemblyErrors.HASHED_BINARY_ERROR, "PSFileStorageTools",
+                    throw new PSAssemblyException(AssemblyErrorCodes.HASHED_BINARY_ERROR, "PSFileStorageTools",
                             e.getLocalizedMessage());
                 }
             } else {
-                throw new PSAssemblyException(IPSAssemblyErrors.HASHED_BINARY_NOT_FOUND, new Object[]{hash});
+                throw new PSAssemblyException(AssemblyErrorCodes.HASHED_BINARY_NOT_FOUND, new Object[]{hash});
             }
             return ret;
         } catch (IOException e) {
             log.error("Error getting hashed binary stream:", e);
-            throw new PSAssemblyException(IPSAssemblyErrors.HASHED_BINARY_ERROR, "PSFileStorageTools",
+            throw new PSAssemblyException(AssemblyErrorCodes.HASHED_BINARY_ERROR, "PSFileStorageTools",
                     e.getLocalizedMessage());
         }
     }

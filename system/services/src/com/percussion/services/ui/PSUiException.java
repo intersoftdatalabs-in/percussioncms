@@ -16,11 +16,13 @@
  */
 package com.percussion.services.ui;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.utils.exceptions.PSBaseException;
 import com.percussion.utils.guid.IPSGuid;
 
 import java.util.Objects;
 import java.util.Optional;
+import com.intsof.percussioncms.auditlog.codes.UiErrorCodes;
 
 /**
  * Exception thrown when UI service operations fail with modern Java 11 patterns.
@@ -83,6 +85,31 @@ public class PSUiException extends PSBaseException {
    }
 
    /**
+    * Typed construction from a catalogued {@link IPSErrorCode}.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param arrayArgs the message arguments, may be null
+    */
+   public PSUiException(IPSErrorCode code, Object... arrayArgs) {
+      super(code, arrayArgs);
+      this.operationContext = Optional.empty();
+      this.nodeId = Optional.empty();
+   }
+
+   /**
+    * Typed construction with a cause.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param cause the underlying cause, may be null
+    * @param arrayArgs the message arguments, may be null
+    */
+   public PSUiException(IPSErrorCode code, Throwable cause, Object... arrayArgs) {
+      super(code, cause, arrayArgs);
+      this.operationContext = Optional.empty();
+      this.nodeId = Optional.empty();
+   }
+
+   /**
     * Create a UI exception with enhanced context information.
     *
     * @param msgCode the error message code
@@ -109,6 +136,37 @@ public class PSUiException extends PSBaseException {
    public PSUiException(int msgCode, Throwable cause, Optional<String> operationContext,
          Optional<IPSGuid> nodeId, Object... arrayArgs) {
       super(msgCode, cause, arrayArgs);
+      this.operationContext = operationContext != null ? operationContext : Optional.empty();
+      this.nodeId = nodeId != null ? nodeId : Optional.empty();
+   }
+
+   /**
+    * Typed construction with enhanced context information.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param operationContext optional context about the failed operation
+    * @param nodeId optional node ID that caused the exception
+    * @param arrayArgs the message arguments, may be null
+    */
+   public PSUiException(IPSErrorCode code, Optional<String> operationContext, Optional<IPSGuid> nodeId,
+         Object... arrayArgs) {
+      super(code, arrayArgs);
+      this.operationContext = operationContext != null ? operationContext : Optional.empty();
+      this.nodeId = nodeId != null ? nodeId : Optional.empty();
+   }
+
+   /**
+    * Typed construction with enhanced context information and cause.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param cause the underlying cause, may be null
+    * @param operationContext optional context about the failed operation
+    * @param nodeId optional node ID that caused the exception
+    * @param arrayArgs the message arguments, may be null
+    */
+   public PSUiException(IPSErrorCode code, Throwable cause, Optional<String> operationContext,
+         Optional<IPSGuid> nodeId, Object... arrayArgs) {
+      super(code, cause, arrayArgs);
       this.operationContext = operationContext != null ? operationContext : Optional.empty();
       this.nodeId = nodeId != null ? nodeId : Optional.empty();
    }
@@ -142,7 +200,7 @@ public class PSUiException extends PSBaseException {
    public static PSUiException nodeNotFound(IPSGuid nodeId) {
       Objects.requireNonNull(nodeId, "Node ID cannot be null");
       return new PSUiException(
-         IPSUiErrors.NODE_NOT_FOUND,
+         UiErrorCodes.MISSING_HIERARCHY_NODE,
          Optional.of("Node lookup operation"),
          Optional.of(nodeId),
          nodeId.toString()
@@ -159,7 +217,7 @@ public class PSUiException extends PSBaseException {
    public static PSUiException duplicateNodeName(String nodeName, IPSGuid parentId) {
       Objects.requireNonNull(nodeName, "Node name cannot be null");
       return new PSUiException(
-         IPSUiErrors.DUPLICATE_NODE_NAME,
+         UiErrorCodes.DUPLICATE_NODE_NAME,
          Optional.of("Node creation operation"),
          Optional.ofNullable(parentId),
          nodeName, parentId != null ? parentId.toString() : "root"
@@ -178,7 +236,7 @@ public class PSUiException extends PSBaseException {
       Objects.requireNonNull(operation, "Operation cannot be null");
       Objects.requireNonNull(reason, "Reason cannot be null");
       return new PSUiException(
-         IPSUiErrors.INVALID_HIERARCHY_OPERATION,
+         UiErrorCodes.INVALID_HIERARCHY_OPERATION,
          Optional.of(operation),
          Optional.ofNullable(nodeId),
          operation, reason
@@ -198,7 +256,7 @@ public class PSUiException extends PSBaseException {
       Objects.requireNonNull(expectedType, "Expected type cannot be null");
       Objects.requireNonNull(actualType, "Actual type cannot be null");
       return new PSUiException(
-         IPSUiErrors.NODE_TYPE_MISMATCH,
+         UiErrorCodes.NODE_TYPE_MISMATCH,
          Optional.of("Node type validation"),
          Optional.of(nodeId),
          nodeId.toString(), expectedType, actualType
@@ -217,7 +275,7 @@ public class PSUiException extends PSBaseException {
       Objects.requireNonNull(operation, "Operation cannot be null");
       Objects.requireNonNull(details, "Details cannot be null");
       return new PSUiException(
-         IPSUiErrors.OPERATION_FAILED,
+         UiErrorCodes.OPERATION_FAILED,
          cause,
          Optional.of(operation),
          Optional.empty(),

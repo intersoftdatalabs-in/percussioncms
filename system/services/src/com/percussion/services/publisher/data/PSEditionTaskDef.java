@@ -23,7 +23,6 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.publisher.IPSEditionTaskDef;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.string.PSStringUtils;
-import com.percussion.utils.xml.IPSXmlErrors;
 import com.percussion.utils.xml.PSInvalidXmlException;
 import com.percussion.utils.xml.PSXmlUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -47,6 +46,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import com.intsof.percussioncms.auditlog.codes.XmlErrorCodes;
 
 /**
  * An edition task represents a single task to be run either before or after an
@@ -384,7 +384,7 @@ IPSEditionTaskDef
       NodeList nodes = doc.getElementsByTagName(XML_NODE_NAME);
       if (nodes.getLength() == 0)
       {
-         throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING,
+         throw new PSInvalidXmlException(XmlErrorCodes.XML_ELEMENT_MISSING,
                XML_NODE_NAME);
       }
       
