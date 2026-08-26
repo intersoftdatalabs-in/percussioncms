@@ -49,6 +49,7 @@ import {
   SOURCE_KIND_CSV_FILESYSTEM,
   SOURCE_KIND_GIT_FILESYSTEM,
   SOURCE_KIND_HTTP_JSON,
+  SOURCE_KIND_OBJECT_STORAGE,
   SOURCE_KIND_REPOSITORY,
   SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
@@ -56,6 +57,7 @@ import {
   isCsvFilesystemSourceKind,
   isGitFilesystemSourceKind,
   isHttpJsonSourceKind,
+  isObjectStorageSourceKind,
   isSqlDatabaseSourceKind,
   isVirtualSourceKind,
   validateVirtualSiteForm,
@@ -149,7 +151,8 @@ function validationMessage(
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
  * build ({@code POST …/virtual/build}) for git-filesystem, csv-filesystem,
  * sql-database, and http-json. Preview last-build HTML and Publish
- * ({@code POST …/virtual/publish}) for those kinds.
+ * ({@code POST …/virtual/publish}) for those kinds. object-storage is
+ * save/GET-roundtrip only (Build/Preview/Publish later).
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -338,11 +341,12 @@ export function VirtualSiteSourcePanel({
   const csvMode = isCsvFilesystemSourceKind(form.sourceKind);
   const sqlMode = isSqlDatabaseSourceKind(form.sourceKind);
   const httpJsonMode = isHttpJsonSourceKind(form.sourceKind);
-  /** Build chrome: git/csv/sql/http-json (never repository). */
+  const objectStorageMode = isObjectStorageSourceKind(form.sourceKind);
+  /** Build chrome: git/csv/sql/http-json (never repository or object-storage). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
-  /** Preview chrome: git/csv/sql/http-json (never repository). */
+  /** Preview chrome: git/csv/sql/http-json (never repository or object-storage). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
-  /** Publish chrome: git/csv/sql/http-json (never repository). */
+  /** Publish chrome: git/csv/sql/http-json (never repository or object-storage). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
   const busy = saving || building || publishing;
   const buildSummary = buildResult ? formatVirtualSiteBuildSummary(buildResult) : null;
@@ -427,6 +431,9 @@ export function VirtualSiteSourcePanel({
               <option value={SOURCE_KIND_HTTP_JSON}>
                 {DEV_MSG.SITE_VIRT_KIND_HTTP_JSON}
               </option>
+              <option value={SOURCE_KIND_OBJECT_STORAGE}>
+                {DEV_MSG.SITE_VIRT_KIND_OBJECT_STORAGE}
+              </option>
             </select>
           </div>
 
@@ -468,6 +475,14 @@ export function VirtualSiteSourcePanel({
                   data-testid="developer-site-virtual-http-json-hint"
                 >
                   {DEV_MSG.SITE_VIRT_HTTP_JSON_HINT}
+                </p>
+              ) : null}
+              {objectStorageMode ? (
+                <p
+                  style={{ ...mutedHintText, margin: "0 0 10px" }}
+                  data-testid="developer-site-virtual-object-storage-hint"
+                >
+                  {DEV_MSG.SITE_VIRT_OBJECT_STORAGE_HINT}
                 </p>
               ) : null}
               {gitMode ? (
