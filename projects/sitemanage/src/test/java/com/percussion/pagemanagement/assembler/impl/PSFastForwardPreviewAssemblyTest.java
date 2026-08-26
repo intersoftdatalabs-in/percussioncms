@@ -43,6 +43,22 @@ import org.junit.jupiter.api.Test;
 class PSFastForwardPreviewAssemblyTest {
 
   @Test
+  @DisplayName("associatedTemplatesSafe does not throw when the collection is lazy")
+  void associatedTemplatesSafeLazy() {
+    assertTrue(PSFastForwardPreviewAssembly.associatedTemplatesSafe(null).isEmpty());
+    IPSSite lazy = mock(IPSSite.class);
+    when(lazy.getAssociatedTemplates())
+        .thenThrow(new RuntimeException("Cannot lazily initialize collection (no session)"));
+    assertTrue(PSFastForwardPreviewAssembly.associatedTemplatesSafe(lazy).isEmpty());
+    IPSGuid guid = new PSGuid(PSTypeEnum.TEMPLATE, 505);
+    IPSAssemblyTemplate t =
+        template("rffPgCiHome", guid, PublishWhen.Default, OutputFormat.Page);
+    IPSSite site = mock(IPSSite.class);
+    when(site.getAssociatedTemplates()).thenReturn(java.util.Set.of(t));
+    assertEquals(1, PSFastForwardPreviewAssembly.associatedTemplatesSafe(site).size());
+  }
+
+  @Test
   @DisplayName("percPage and percPageTemplate use CM1 dispatcher; rffHome does not")
   void dispatcherByContentType() {
     assertTrue(

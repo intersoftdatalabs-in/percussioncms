@@ -189,6 +189,7 @@ public class PSRenderAssemblyBridge implements IPSRenderAssemblyBridge {
           PSAssemblyException,
           PSFilterException,
           IOException {
+    normalizeForPreview(work);
     var results = assemblyService.assemble(Collections.singletonList(work));
     var result = results.get(0);
     var charSet = result.getTemplate().getCharset();
@@ -288,7 +289,7 @@ public class PSRenderAssemblyBridge implements IPSRenderAssemblyBridge {
     try {
       var ctype = new PSGuid(PSTypeEnum.NODEDEF, summary.getContentTypeId());
       List<IPSAssemblyTemplate> byType = assemblyService.findTemplatesByContentType(ctype);
-      Collection<?> siteTemplates = site == null ? List.of() : site.getAssociatedTemplates();
+      Collection<?> siteTemplates = associatedTemplatesForPreview(site);
       IPSAssemblyTemplate def =
           PSFastForwardPreviewAssembly.pickDefaultPageTemplate(byType, siteTemplates);
       if (def != null && def.getGUID() != null) {
@@ -328,6 +329,39 @@ public class PSRenderAssemblyBridge implements IPSRenderAssemblyBridge {
       log.error("{} Error: {}", error, PSExceptionUtils.getMessageForLog(e));
       throw new PSPageException(error, e);
     }
+  }
+
+  /**
+   * {@link IPSAssemblyService#createAssemblyItem()} requires {@link IPSAssemblyItem#normalize()}
+   * before assemble. The assembler servlet does this; in-process Page Management Preview must too
+   * (#3809).
+   *
+   * @param work assembly item, never {@code null}
+   */
+  /**
+   * Prefer templates from a session-backed unmodifiable site load. {@code getItemSites} entities
+   * often have a lazy {@code templates} collection with no session (#3809).
+   */
+  Collection<?> associatedTemplatesForPreview(IPSSite site) {
+    Collection<?> fromSite = PSFastForwardPreviewAssembly.associatedTemplatesSafe(site);
+    if (!fromSite.isEmpty()) {
+      return fromSite;
+    }
+    if (site == null || site.getGUID() == null) {
+      return List.of();
+    }
+    try {
+      IPSSite loaded = siteManager.loadUnmodifiableSite(site.getGUID());
+      return PSFastForwardPreviewAssembly.associatedTemplatesSafe(loaded);
+    } catch (Exception e) {
+      log.debug("Unmodifiable site template load failed for {}: {}", site.getGUID(), e.toString());
+      return List.of();
+    }
+  }
+
+  static void normalizeForPreview(IPSAssemblyItem work) throws PSAssemblyException {
+    notNull(work, "work");
+    work.normalize();
   }
 
   public String getDispatchTemplate() {
