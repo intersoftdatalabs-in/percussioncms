@@ -44,28 +44,37 @@ export function shouldShowVirtualBuildChrome(
 
 /**
  * True when Preview assembled site should be shown.
- * Last-output preview for git-filesystem, csv-filesystem, and sql-database.
- * http-json Preview is a later slice. Repository / blank / unknown kinds
- * stay hidden.
+ * Last-output preview for git-filesystem, csv-filesystem, sql-database, and
+ * http-json. Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPreviewChrome(
   sourceKind: string | null | undefined,
 ): boolean {
   const v = normalizedSourceKind(sourceKind);
-  return v === "git-filesystem" || v === "csv-filesystem" || v === "sql-database";
+  return (
+    v === "git-filesystem" ||
+    v === "csv-filesystem" ||
+    v === "sql-database" ||
+    v === "http-json"
+  );
 }
 
 /**
  * True when the Publish Virtual Site control should be shown.
- * Git-filesystem, csv-filesystem, and sql-database all run POST /virtual/publish
- * (build then copy to IPSSite.root). http-json Publish is a later slice.
+ * Git-filesystem, csv-filesystem, sql-database, and http-json all run
+ * POST /virtual/publish (build then copy to IPSSite.root).
  * Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPublishChrome(
   sourceKind: string | null | undefined,
 ): boolean {
   const v = normalizedSourceKind(sourceKind);
-  return v === "git-filesystem" || v === "csv-filesystem" || v === "sql-database";
+  return (
+    v === "git-filesystem" ||
+    v === "csv-filesystem" ||
+    v === "sql-database" ||
+    v === "http-json"
+  );
 }
 
 /**

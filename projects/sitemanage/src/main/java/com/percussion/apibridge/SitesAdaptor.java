@@ -426,8 +426,9 @@ public class SitesAdaptor implements ISiteAdaptor {
 
   /**
    * Build then NIO-copy assembled files to {@link IPSSite#getRoot()} for git-filesystem,
-   * csv-filesystem, and sql-database Virtual Sites. Fail-closed on blank/unsafe/overlapping
-   * publish roots.
+   * csv-filesystem, sql-database, and http-json Virtual Sites. Fail-closed on
+   * blank/unsafe/overlapping publish roots. {@code http-json} uses a local JSON fixture (or
+   * loopback catalog from {@code _config.yaml}); leftover {@code virtual.remoteUrl} is 400.
    */
   @Override
   public VirtualSitePublishResult publishVirtualSite(String nameOrId) {

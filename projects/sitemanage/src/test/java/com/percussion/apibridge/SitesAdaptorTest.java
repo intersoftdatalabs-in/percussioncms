@@ -1682,6 +1682,127 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void publishVirtualSite_httpJsonInjectedBuildRunnerCopiesToSiteRoot() throws Exception {
+    Path siteRoot = createMinimalHttpJsonTree(tempDir.resolve("http-pub-src"));
+    Path staging = tempDir.resolve("http-pub-staging");
+    Path publishTo = tempDir.resolve("http-pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("HttpHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "http-json");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "http-docs");
+    when(siteManager.findSite("HttpHelp")).thenReturn(site);
+
+    SitesAdaptor.BuildRunner runner =
+        (config, outputRoot) -> {
+          Files.createDirectories(outputRoot.resolve("8.2"));
+          Files.writeString(
+              outputRoot.resolve("8.2").resolve("index.html"),
+              "<html>HTTP JSON published</html>",
+              StandardCharsets.UTF_8);
+          Files.createDirectories(outputRoot.resolve("_meta"));
+          Files.writeString(
+              outputRoot.resolve("_meta").resolve("skip.txt"),
+              "not published",
+              StandardCharsets.UTF_8);
+          return new PSVirtualSiteBuildResult(
+              outputRoot, 1, List.of(), List.of("8.2/index.html"));
+        };
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, runner);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("HttpHelp");
+    assertEquals("HttpHelp", result.getSiteName());
+    assertEquals("http-docs", result.getSiteKey());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    Path html = publishTo.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    assertTrue(
+        Files.readString(html, StandardCharsets.UTF_8).contains("HTTP JSON published"),
+        Files.readString(html, StandardCharsets.UTF_8));
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
+    assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
+  }
+
+  @Test
+  void publishVirtualSite_httpJsonBuildsThenCopiesToSiteRoot() throws Exception {
+    Path siteRoot = createMinimalHttpJsonTree(tempDir.resolve("http-real-pub-src"));
+    Path staging = tempDir.resolve("http-real-pub-staging");
+    Path publishTo = tempDir.resolve("http-real-pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("HttpHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "http-json");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "http-docs");
+    when(siteManager.findSite("HttpHelp")).thenReturn(site);
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, null);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("HttpHelp");
+    assertEquals("HttpHelp", result.getSiteName());
+    assertEquals("http-docs", result.getSiteKey());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    Path html = publishTo.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("HTTP Home"), body);
+    assertTrue(body.contains("Hello from JSON"), body);
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
+    assertTrue(Files.isRegularFile(staging.resolve("8.2").resolve("index.html")));
+    assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
+  }
+
+  @Test
+  void publishVirtualSite_httpJsonRejectsUnsafeSiteRoot() {
+    PSSite site = new PSSite();
+    site.setName("HttpHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(Path.of("a", "..", "..", "etc").toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "http-json");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, tempDir.resolve("http-src").toString());
+    when(siteManager.findSite("HttpHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("HttpHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void publishVirtualSite_httpJsonRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalHttpJsonTree(tempDir.resolve("http-pub-remote"));
+    Path publishTo = tempDir.resolve("http-pub-remote-target");
+    Files.createDirectories(publishTo);
+
+    PSSite site = new PSSite();
+    site.setName("HttpHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "http-json");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("HttpHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("HttpHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
   void toWirePublishResult_mapsRestDtoWithoutSystemCopyRecord() {
     VirtualSiteBuildResult built = new VirtualSiteBuildResult();
     built.setOutputPath(tempDir.resolve("staging").toString());
@@ -2358,8 +2479,9 @@ class SitesAdaptorTest {
   }
 
   /**
-   * Local JSON fixture for http-json REST Build. Catalog URL/file live in {@code _config.yaml};
-   * pass a loopback {@code catalogUrl} to use {@code http.url} instead of {@code http.file}.
+   * Local JSON fixture for http-json REST Build and Publish. Catalog URL/file live in {@code
+   * _config.yaml}; pass a loopback {@code catalogUrl} to use {@code http.url} instead of {@code
+   * http.file}.
    */
   private static Path createMinimalHttpJsonTree(Path siteRoot) throws Exception {
     return createMinimalHttpJsonTree(siteRoot, null);

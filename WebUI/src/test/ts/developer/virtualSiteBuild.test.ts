@@ -31,7 +31,7 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualBuildChrome("  http-json  ")).toBe(true);
   });
 
-  it("shouldShowVirtualPreviewChrome for git, csv, sql-database (not http-json or repository)", () => {
+  it("shouldShowVirtualPreviewChrome for git, csv, sql-database, and http-json (not repository)", () => {
     expect(shouldShowVirtualPreviewChrome(null)).toBe(false);
     expect(shouldShowVirtualPreviewChrome("")).toBe(false);
     expect(shouldShowVirtualPreviewChrome("repository")).toBe(false);
@@ -41,11 +41,12 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPreviewChrome("  CSV-Filesystem  ")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("sql-database")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("SQL-Database")).toBe(true);
-    expect(shouldShowVirtualPreviewChrome("http-json")).toBe(false);
-    expect(shouldShowVirtualPreviewChrome("HTTP-JSON")).toBe(false);
+    expect(shouldShowVirtualPreviewChrome("http-json")).toBe(true);
+    expect(shouldShowVirtualPreviewChrome("HTTP-JSON")).toBe(true);
+    expect(shouldShowVirtualPreviewChrome("  http-json  ")).toBe(true);
   });
 
-  it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, and sql-database", () => {
+  it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, and http-json", () => {
     expect(shouldShowVirtualPublishChrome(null)).toBe(false);
     expect(shouldShowVirtualPublishChrome("")).toBe(false);
     expect(shouldShowVirtualPublishChrome("repository")).toBe(false);
@@ -57,8 +58,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPublishChrome("CSV-Filesystem")).toBe(true);
     expect(shouldShowVirtualPublishChrome("sql-database")).toBe(true);
     expect(shouldShowVirtualPublishChrome("SQL-Database")).toBe(true);
-    expect(shouldShowVirtualPublishChrome("http-json")).toBe(false);
-    expect(shouldShowVirtualPublishChrome("HTTP-JSON")).toBe(false);
+    expect(shouldShowVirtualPublishChrome("http-json")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("HTTP-JSON")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("  http-json  ")).toBe(true);
   });
 
   it("formatVirtualSitePublishSummary reports files copied and dest path", () => {
