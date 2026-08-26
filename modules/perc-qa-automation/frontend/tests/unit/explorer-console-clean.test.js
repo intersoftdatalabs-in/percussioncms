@@ -20,6 +20,9 @@ const assert = require("node:assert/strict");
 const {
   isProductPathUrl,
   isTrackedHttpStatus,
+  isFindTypesUrl,
+  isFindTemplatesUrl,
+  isTrackedFindMenuStatus,
   formatHits,
   isKnownExplorerTransientNetworkConsoleNoise,
 } = require("../helpers/explorer-console-clean");
@@ -30,6 +33,27 @@ describe("explorer-console-clean helpers (#3458)", () => {
     assert.equal(isTrackedHttpStatus(404), true);
     assert.equal(isTrackedHttpStatus(200), false);
     assert.equal(isTrackedHttpStatus(500), false);
+  });
+
+  it("isFindTypesUrl / isFindTemplatesUrl match Explorer catalog calls (#3855)", () => {
+    const base = "http://127.0.0.1:9993";
+    assert.equal(
+      isFindTypesUrl(`${base}/Rhythmyx/services/actions/find/types`),
+      true,
+    );
+    assert.equal(
+      isFindTemplatesUrl(`${base}/Rhythmyx/services/actions/find/templates/551?isAA=false`),
+      true,
+    );
+    assert.equal(
+      isFindTemplatesUrl(`${base}/Rhythmyx/services/actions/find/templates/551?isAA=true`),
+      true,
+    );
+    assert.equal(isFindTypesUrl(`${base}/Rhythmyx/services/actions/find`), false);
+    assert.equal(isTrackedFindMenuStatus(400), true);
+    assert.equal(isTrackedFindMenuStatus(500), true);
+    assert.equal(isTrackedFindMenuStatus(200), false);
+    assert.equal(isTrackedFindMenuStatus(404), false);
   });
 
   it("isProductPathUrl keeps CMS services/rest/cm paths", () => {

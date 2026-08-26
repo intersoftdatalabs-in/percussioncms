@@ -21,6 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.rest.JacksonContextResolver;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Marshaller;
+import java.io.StringWriter;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
@@ -97,5 +100,19 @@ public class ActionMenuListSerialDeserialTest {
     JsonNode children = menu.get("children");
     assertTrue(children != null && children.isArray(), "nested children must stay a JSON array: " + json);
     assertEquals("open", children.get(0).get("name").asString());
+  }
+
+  @Test
+  public void jaxbMarshalsActionMenuListWithActionMenuSeeAlso() throws Exception {
+    ActionMenuList list = new ActionMenuList();
+    list.add(sampleMenu());
+    JAXBContext ctx = JAXBContext.newInstance(ActionMenuList.class);
+    Marshaller marshaller = ctx.createMarshaller();
+    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
+    StringWriter writer = new StringWriter();
+    marshaller.marshal(list, writer);
+    String xml = writer.toString();
+    assertTrue(xml.contains("ActionMenuList"), xml);
+    assertTrue(xml.contains("open") || xml.contains("ActionMenu"), xml);
   }
 }

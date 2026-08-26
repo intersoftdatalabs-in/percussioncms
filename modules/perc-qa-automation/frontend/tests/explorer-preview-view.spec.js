@@ -16,7 +16,7 @@
 
 /**
  * Playwright surface: #2733 / #3456 / #3463 / #3627 / #3688 / #3696 / #3716 /
- * #3719 / #3722 / #3809 — Explorer preview for a listed page on
+ * #3719 / #3722 / #3809 / #3855 — Explorer preview for a listed page on
  * {@code spa.jsp?entry=explorer}.
  *
  * <p>Verifies product shell chrome for Preview + Refresh, then opens
@@ -35,6 +35,10 @@
 
 const { test, expect, errors } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL, adminBasicAuthHeaders } = require("./helpers/auth");
+const {
+  attachFindMenuStatusCollector,
+  formatHits,
+} = require("./helpers/explorer-console-clean");
 const {
   TEST_IDS,
   explorerEntryUrl,
@@ -446,6 +450,7 @@ test.describe("modern React Content Explorer — preview + view residual (#2733 
       test.setTimeout(90_000);
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
+      const { hits: findMenuHits } = attachFindMenuStatusCollector(page, BASE_URL);
       const checkInFailures = [];
       page.on("response", (res) => {
         const u = res.url();
@@ -509,7 +514,40 @@ test.describe("modern React Content Explorer — preview + view residual (#2733 
         pageRow = byName;
       }
 
+      const typesPromise = page
+        .waitForResponse(
+          (res) => /\/actions\/find\/types(?:\?|$)/i.test(res.url()),
+          { timeout: 15_000 },
+        )
+        .catch(() => null);
+      const templatesPromise = page
+        .waitForResponse(
+          (res) => /\/actions\/find\/templates\//i.test(res.url()),
+          { timeout: 15_000 },
+        )
+        .catch(() => null);
       await pageRow.click({ force: true });
+      const typesRes = await typesPromise;
+      const templatesRes = await templatesPromise;
+      expect(
+        typesRes,
+        "selecting a listed page must POST /actions/find/types",
+      ).not.toBeNull();
+      expect(
+        typesRes.status(),
+        `POST find/types must be HTTP 200, not 400; ${typesRes.url()}`,
+      ).toBe(200);
+      if (templatesRes) {
+        expect(
+          templatesRes.status(),
+          `GET find/templates must not be HTTP 500; ${templatesRes.url()}`,
+        ).toBeLessThan(500);
+      }
+      await page.waitForLoadState("networkidle").catch(() => {});
+      expect(
+        findMenuHits,
+        `find/types 400 or find/templates 500 after select:\n${formatHits(findMenuHits)}`,
+      ).toEqual([]);
       const preview = page.locator(`[data-testid="${TEST_IDS.preview}"]`);
       await expect(preview).toBeEnabled({ timeout: 10_000 });
 

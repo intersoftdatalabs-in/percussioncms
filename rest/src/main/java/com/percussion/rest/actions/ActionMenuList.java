@@ -22,8 +22,10 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 
 /**
@@ -39,9 +41,15 @@ import java.util.Objects;
  * [...]}} for top-level {@code /actions/find/types} and {@code
  * /actions/find/templates/{id}}. Nested {@code children} stay a JSON array
  * because WRAP_ROOT_VALUE only wraps the document root.
+ *
+ * <p>{@link XmlSeeAlso} registers {@link ActionMenu} in the JAXB context so
+ * those list endpoints can marshal. Without it, CXF JAXB JSON fails with
+ * {@code ActionMenu nor any of its super class is known to this context} (HTTP
+ * 500, #3855). Peer: {@link com.percussion.rest.sites.SiteList}.
  */
 @XmlRootElement(name = "ActionMenuList")
 @JsonRootName("ActionMenuList")
+@XmlSeeAlso(ActionMenu.class)
 @ArraySchema(schema = @Schema(implementation = ActionMenu.class))
 @JsonFormat(shape = JsonFormat.Shape.ARRAY)
 public class ActionMenuList extends ArrayList<ActionMenu> {
@@ -59,7 +67,7 @@ public class ActionMenuList extends ArrayList<ActionMenu> {
    * @param c the source collection
    */
   public ActionMenuList(Collection<? extends ActionMenu> c) {
-    super(c);
+    super(c != null ? c : Collections.emptyList());
   }
 
   @Override

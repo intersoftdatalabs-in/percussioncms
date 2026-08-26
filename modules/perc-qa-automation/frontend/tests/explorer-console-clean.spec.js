@@ -16,9 +16,11 @@
  */
 
 /**
- * Playwright surface: #3468 / #3458 / parent #2745 — Explorer shell
+ * Playwright surface: #3468 / #3458 / parent #2745 / #3855 — Explorer shell
  * console-clean of product-path 404/400 (login → Explorer → sample site
  * folder → Refresh). Covers both /services and /Rhythmyx/services prefixes.
+ * Find/types 400 + find/templates 500 after page select is asserted in
+ * {@code explorer-preview-view.spec.js} (listed-page navigation).
  *
  * Does not blanket-skip 404/400 resource errors.
  *

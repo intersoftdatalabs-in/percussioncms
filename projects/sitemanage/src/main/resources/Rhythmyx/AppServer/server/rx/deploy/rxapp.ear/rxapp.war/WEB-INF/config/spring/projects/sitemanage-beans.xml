@@ -133,6 +133,10 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <!-- #3360 / #3361: Explorer folder create posts flat {name,parentPath};
                  JAXB expects AddFolderRequest root. Bind both envelopes. -->
             <ref bean="addFolderRequestJsonReader" />
+            <!-- #3855: Explorer POST /actions/find/types posts flat {contentIds} and
+                 GUID last-segment tokens; JAXB / UNWRAP_ROOT_VALUE expects
+                 AllowedContentTypeMenusRequest. Bind both envelopes. -->
+            <ref bean="allowedContentTypeMenusRequestJsonReader" />
             <ref bean="jacksonProvider" />
             <ref bean="jacksonContextResolver" />
             <ref bean="authorizationFilter" />

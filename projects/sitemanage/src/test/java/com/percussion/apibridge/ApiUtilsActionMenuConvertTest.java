@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.rest.actions.ActionMenu;
 import com.percussion.services.menus.PSActionMenu;
+import com.percussion.services.menus.PSActionMenuProperty;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
@@ -112,5 +113,19 @@ public class ApiUtilsActionMenuConvertTest {
   @Test
   public void convertListNullIsEmpty() {
     assertTrue(ApiUtils.convertPSActionMenuList(null).isEmpty());
+  }
+
+  @Test
+  public void convertSkipsPropertiesWithoutPrimaryKey() {
+    PSActionMenu leaf =
+        new PSActionMenu("preview", "Preview", TYPE_MENUITEM, "/p", "server", 0);
+    leaf.setActionId(12);
+    leaf.addProperty(new PSActionMenuProperty());
+    leaf.addProperty(new PSActionMenuProperty(12, "launchesWindow", "yes"));
+    ActionMenu converted = ApiUtils.convertPSActionMenu(leaf);
+    assertEquals("preview", converted.getName());
+    assertNotNull(converted.getProperties());
+    assertEquals(1, converted.getProperties().length);
+    assertEquals("launchesWindow", converted.getProperties()[0].getName());
   }
 }

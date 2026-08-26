@@ -214,9 +214,19 @@ public class ActionMenuResource {
         @ApiResponse(responseCode = "500", description = "Error searching for Action Menu")
       })
   public ActionMenuList getAllowedContentTypeMenus(AllowedContentTypeMenusRequest request) {
-    int[] raw = request.getContentIds() != null ? request.getContentIds() : new int[0];
-    var contentIds = Arrays.stream(raw).boxed().toArray(Integer[]::new);
-    return new ActionMenuList(adaptor.findAllowedContentTypes(contentIds));
+    try {
+      AllowedContentTypeMenusRequest body =
+          request != null ? request : new AllowedContentTypeMenusRequest();
+      int[] raw = body.getContentIds() != null ? body.getContentIds() : new int[0];
+      var contentIds = Arrays.stream(raw).boxed().toArray(Integer[]::new);
+      List<ActionMenu> menus = requireAdaptor().findAllowedContentTypes(contentIds);
+      return new ActionMenuList(menus != null ? menus : Collections.emptyList());
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Error finding content-type action menus: {}", e.getMessage(), e);
+      return new ActionMenuList();
+    }
   }
 
   @GET
@@ -242,6 +252,15 @@ public class ActionMenuResource {
           int contentId,
       @Parameter(description = "Set to true to include AA menus.") @QueryParam(value = "isAA")
           boolean isAA) {
-    return new ActionMenuList(adaptor.findAllowedTemplates(contentId, isAA));
+    try {
+      List<ActionMenu> menus = requireAdaptor().findAllowedTemplates(contentId, isAA);
+      return new ActionMenuList(menus != null ? menus : Collections.emptyList());
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Error finding template action menus for contentId {}: {}", contentId, e.getMessage(), e);
+      return new ActionMenuList();
+    }
   }
 }

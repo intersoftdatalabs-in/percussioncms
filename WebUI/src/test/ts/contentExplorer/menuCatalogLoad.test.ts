@@ -270,6 +270,57 @@ describe("loadExplorerMenuCatalog", () => {
     expect(actions[0]?.children?.map((c) => c.name)).toContain("open");
     expect(actions[0]?.children?.map((c) => c.name)).toContain("new-page");
     expect(global.fetch).toHaveBeenCalledTimes(4);
+    const typesInit = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[1]?.[1];
+    expect(JSON.parse(String(typesInit?.body))).toEqual({
+      AllowedContentTypeMenusRequest: { contentIds: [101] },
+    });
+  });
+
+  it("posts GUID last-segment as int contentIds for find/types (#3855)", async () => {
+    vi.spyOn(global, "fetch")
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ ActionMenu: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ ActionMenuList: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ ActionMenuList: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ ActionMenuList: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+    await loadExplorerMenuCatalog({
+      id: "16777215-101-551",
+      name: "Corporate Investments Home",
+      type: "percPage",
+      path: "/Sites/Corporate_Investments/Corporate Investments Home",
+      folderPath: "/Sites/Corporate_Investments",
+      displayProperties: { workflowId: "5" },
+    } as never);
+    const typesCall = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[1];
+    expect(String(typesCall?.[0])).toContain("/actions/find/types");
+    expect(JSON.parse(String(typesCall?.[1]?.body))).toEqual({
+      AllowedContentTypeMenusRequest: { contentIds: [551] },
+    });
+    expect(String((global.fetch as ReturnType<typeof vi.fn>).mock.calls[2]?.[0])).toContain(
+      "/actions/find/templates/551?isAA=false",
+    );
+    expect(String((global.fetch as ReturnType<typeof vi.fn>).mock.calls[3]?.[0])).toContain(
+      "/actions/find/templates/551?isAA=true",
+    );
   });
 
   it("uses only find() for folder-only selection", async () => {

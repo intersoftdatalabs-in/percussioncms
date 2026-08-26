@@ -859,6 +859,9 @@ public class ApiUtils {
     ArrayList<ActionMenuProperty> props = new ArrayList<>();
     if (pa.getProperties() != null) {
       for (PSActionMenuProperty pap : pa.getProperties()) {
+        if (pap == null || pap.getPrimaryKey() == null) {
+          continue;
+        }
         ActionMenuProperty p = new ActionMenuProperty();
         p.setActionId(pap.getPrimaryKey().getActionId());
         p.setName(pap.getPrimaryKey().getPropertyName());
@@ -873,6 +876,9 @@ public class ApiUtils {
     ArrayList<ActionMenuParameter> params = new ArrayList<>();
     if (pa.getParameters() != null) {
       for (PSActionMenuParam psparam : pa.getParameters()) {
+        if (psparam == null || psparam.getActionParamPK() == null) {
+          continue;
+        }
         ActionMenuParameter p = new ActionMenuParameter();
         p.setDescription(psparam.getDescription());
         p.setName(psparam.getActionParamPK().getParamName());
@@ -886,7 +892,9 @@ public class ApiUtils {
     ArrayList<ActionMenuVisibilityContext> vis = new ArrayList<>();
     if (pa.getVisibility() != null) {
       for (PSActionMenuVisibility v : pa.getVisibility()) {
-
+        if (v == null || v.getPrimaryKey() == null) {
+          continue;
+        }
         ActionMenuVisibilityContext vc = new ActionMenuVisibilityContext();
 
         vc.setDescription(v.getPrimaryKey().getDescription());

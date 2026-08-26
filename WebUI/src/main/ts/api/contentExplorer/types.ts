@@ -504,7 +504,8 @@ export interface ActionMenu {
 
 /**
  * Wire body for {@code POST /actions/find/types}. Mirrors
- * {@code AllowedContentTypeMenusRequest}.
+ * {@code AllowedContentTypeMenusRequest}. Live posts wrap this under
+ * {@code AllowedContentTypeMenusRequest} for UNWRAP_ROOT_VALUE (#3855).
  */
 export interface AllowedContentTypeMenusRequest {
   contentIds: number[];

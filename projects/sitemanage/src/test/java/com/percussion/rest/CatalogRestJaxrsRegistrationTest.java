@@ -65,6 +65,10 @@ class CatalogRestJaxrsRegistrationTest {
   /** Explorer folder create #3360 — must precede jacksonProvider. */
   private static final String ADD_FOLDER_JSON_READER = "addFolderRequestJsonReader";
 
+  /** Explorer find/types #3855 — must precede jacksonProvider. */
+  private static final String FIND_TYPES_JSON_READER =
+      "allowedContentTypeMenusRequestJsonReader";
+
   @Test
   void restJaxRsServiceBeansIncludeDeveloperCatalogResources() throws Exception {
     Path root = resolveRepoRoot();
@@ -112,6 +116,7 @@ class CatalogRestJaxrsRegistrationTest {
     int searchReader = providerBlock.indexOf("bean=\"" + SEARCH_EXECUTE_JSON_READER + "\"");
     int aclReader = providerBlock.indexOf("bean=\"" + ACL_LIST_JSON_READER + "\"");
     int addFolderReader = providerBlock.indexOf("bean=\"" + ADD_FOLDER_JSON_READER + "\"");
+    int findTypesReader = providerBlock.indexOf("bean=\"" + FIND_TYPES_JSON_READER + "\"");
     int jackson = providerBlock.indexOf("bean=\"jacksonProvider\"");
     assertTrue(
         reader >= 0,
@@ -133,6 +138,11 @@ class CatalogRestJaxrsRegistrationTest {
         "rest-jax-rs providers must ref "
             + ADD_FOLDER_JSON_READER
             + " (missing → folder create unexpected element name / AddFolderRequest)");
+    assertTrue(
+        findTypesReader >= 0,
+        "rest-jax-rs providers must ref "
+            + FIND_TYPES_JSON_READER
+            + " (missing → Explorer find/types flat contentIds / GUID 400)");
     assertTrue(jackson >= 0, "rest-jax-rs providers must still ref jacksonProvider");
     assertTrue(
         reader < jackson,
@@ -146,6 +156,9 @@ class CatalogRestJaxrsRegistrationTest {
     assertTrue(
         addFolderReader < jackson,
         ADD_FOLDER_JSON_READER + " must be listed before jacksonProvider");
+    assertTrue(
+        findTypesReader < jackson,
+        FIND_TYPES_JSON_READER + " must be listed before jacksonProvider");
   }
 
   private static Path resolveRepoRoot() {

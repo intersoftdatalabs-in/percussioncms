@@ -62,6 +62,34 @@ function isTrackedHttpStatus(status) {
 }
 
 /**
+ * Explorer action-menu catalog calls that human QA failed on #3716 / #3855.
+ *
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isFindTypesUrl(url) {
+  return /\/actions\/find\/types(?:\?|$)/i.test(String(url || ""));
+}
+
+/**
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isFindTemplatesUrl(url) {
+  return /\/actions\/find\/templates\//i.test(String(url || ""));
+}
+
+/**
+ * Track 400/500 on find/types and find/templates (not 404 — empty catalog is 200).
+ *
+ * @param {number} status
+ * @returns {boolean}
+ */
+function isTrackedFindMenuStatus(status) {
+  return status === 400 || status === 500;
+}
+
+/**
  * Attach response + pageerror collectors for product 400/404.
  *
  * @param {import("@playwright/test").Page} page
@@ -81,6 +109,41 @@ function attachProductStatusCollector(page, baseUrl) {
     }
     const url = res.url();
     if (!isProductPathUrl(url, baseUrl)) {
+      return;
+    }
+    hits.push({
+      status,
+      method: res.request().method(),
+      url,
+    });
+  });
+  return { hits, pageErrors };
+}
+
+/**
+ * Attach collectors for {@code POST /actions/find/types} 400 and
+ * {@code GET /actions/find/templates/{id}} 500 (#3855 / parent #3716).
+ *
+ * @param {import("@playwright/test").Page} page
+ * @param {string} baseUrl
+ * @returns {{ hits: {status:number, method:string, url:string}[], pageErrors: string[] }}
+ */
+function attachFindMenuStatusCollector(page, baseUrl) {
+  const hits = [];
+  const pageErrors = [];
+  page.on("pageerror", (err) => {
+    pageErrors.push(String(err && err.message ? err.message : err));
+  });
+  page.on("response", (res) => {
+    const url = res.url();
+    if (!isProductPathUrl(url, baseUrl)) {
+      return;
+    }
+    if (!isFindTypesUrl(url) && !isFindTemplatesUrl(url)) {
+      return;
+    }
+    const status = res.status();
+    if (!isTrackedFindMenuStatus(status)) {
       return;
     }
     hits.push({
@@ -116,7 +179,11 @@ module.exports = {
   explorerSpaUrl,
   isProductPathUrl,
   isTrackedHttpStatus,
+  isFindTypesUrl,
+  isFindTemplatesUrl,
+  isTrackedFindMenuStatus,
   attachProductStatusCollector,
+  attachFindMenuStatusCollector,
   formatHits,
   isKnownExplorerTransientNetworkConsoleNoise,
 };
