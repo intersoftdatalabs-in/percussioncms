@@ -27,7 +27,6 @@ import com.percussion.services.data.IPSCloneTuner;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.filter.IPSFilterItem;
 import com.percussion.services.filter.IPSFilterService;
-import com.percussion.services.filter.IPSFilterServiceErrors;
 import com.percussion.services.filter.IPSItemFilter;
 import com.percussion.services.filter.IPSItemFilterRuleDef;
 import com.percussion.services.filter.PSFilterException;
@@ -76,6 +75,7 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.intsof.percussioncms.auditlog.codes.FilterServiceErrorCodes;
 
 /**
  * Implementation for an item filter, this is a pure mapping object to bring
@@ -572,7 +572,7 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
          parent = parent.getParentFilter();
          if (count++ > 100)
          {
-            throw new PSFilterException(IPSFilterServiceErrors.PROBABLE_CYCLE,
+            throw new PSFilterException(FilterServiceErrorCodes.PROBABLE_CYCLE,
                   name);
          }
       }

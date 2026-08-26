@@ -24,7 +24,6 @@ import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipSet;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.services.assembly.IPSAssemblyErrors;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.assembly.PSAssemblyException;
@@ -46,6 +45,7 @@ import static com.percussion.services.assembly.impl.finder.PSContentFinderUtils.
 import static com.percussion.services.assembly.impl.finder.PSContentFinderUtils.getValue;
 import static com.percussion.services.assembly.impl.finder.PSContentFinderUtils.reorderItems;
 import static com.percussion.services.assembly.impl.finder.PSContentFinderUtils.setSiteFolderId;
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 
 /**
  * Find the items related to the source by a translation relationship
@@ -143,13 +143,13 @@ public class PSTranslationSlotFinder extends PSSlotContentFinderBase
       catch (PSCmsException | PSNotFoundException e)
       {
          ms_log.error("Problem retrieving relationship information", e);
-         throw new PSAssemblyException(IPSAssemblyErrors.FINDER_ERROR,
+         throw new PSAssemblyException(AssemblyErrorCodes.FINDER_ERROR,
                "sys_TranslationContentFinder", e.getLocalizedMessage());
       }
       catch (PSSiteManagerException e)
       {
          ms_log.error("Problem retrieving site info", e);
-         throw new PSAssemblyException(IPSAssemblyErrors.FINDER_ERROR,
+         throw new PSAssemblyException(AssemblyErrorCodes.FINDER_ERROR,
                "sys_TranslationContentFinder", e.getLocalizedMessage());
       }
 
@@ -205,13 +205,13 @@ public class PSTranslationSlotFinder extends PSSlotContentFinderBase
       catch (PSCmsException e)
       {
          ms_log.error("Problem retrieving relationship information", e);
-         throw new PSAssemblyException(IPSAssemblyErrors.FINDER_ERROR,
+         throw new PSAssemblyException(AssemblyErrorCodes.FINDER_ERROR,
                "sys_TranslationContentFinder", e.getLocalizedMessage());
       }
       catch (PSSiteManagerException e)
       {
          ms_log.error("Problem retrieving site info", e);
-         throw new PSAssemblyException(IPSAssemblyErrors.FINDER_ERROR,
+         throw new PSAssemblyException(AssemblyErrorCodes.FINDER_ERROR,
                "sys_TranslationContentFinder", e.getLocalizedMessage());
       }
 

@@ -55,6 +55,16 @@ public class PSCmsException extends PSException {
   }
 
   /**
+   * Typed construction with a cause and no extra message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param cause the underlying cause, may be {@code null}
+   */
+  public PSCmsException(IPSErrorCode code, Throwable cause) {
+    super(code, (Object[]) null, cause);
+  }
+
+  /**
    * Construct an exception with cause only.
    *
    * @param cause the underlying cause, may not be {@code null}

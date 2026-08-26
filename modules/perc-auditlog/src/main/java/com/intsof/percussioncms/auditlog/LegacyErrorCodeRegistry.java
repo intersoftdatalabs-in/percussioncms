@@ -47,6 +47,7 @@ import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServiceSecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServletErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SiteManageErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SiteManagerErrorCodes;
@@ -179,6 +180,8 @@ public final class LegacyErrorCodeRegistry {
       ContentExplorerErrorCodes.ensureRegistered();
       RemoteErrorCodes.ensureRegistered();
       SystemServiceErrorCodes.ensureRegistered();
+      // Service-security: enum-only (package-local 1–14 collide with WF / residuals).
+      ServiceSecurityErrorCodes.ensureRegistered();
 
     }
   }

@@ -35,7 +35,6 @@ import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.comments.data.PSCommentsSummary;
 import com.percussion.comments.service.IPSCommentsService;
 import com.percussion.error.PSNotFoundException;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.fastforward.managednav.IPSManagedNavService;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.IPSWorkflowHelper;

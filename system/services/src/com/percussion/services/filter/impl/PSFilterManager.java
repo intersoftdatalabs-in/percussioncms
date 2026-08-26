@@ -17,14 +17,12 @@
 package com.percussion.services.filter.impl;
 
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.services.catalog.IPSCatalogErrors;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSCatalogException;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.filter.IPSFilterService;
-import com.percussion.services.filter.IPSFilterServiceErrors;
 import com.percussion.services.filter.IPSItemFilter;
 import com.percussion.services.filter.IPSItemFilterRuleDef;
 import com.percussion.services.filter.PSFilterException;
@@ -49,6 +47,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.FilterServiceErrorCodes;
 
 /**
  * Filter service manager performs CRUD operations on item filters.
@@ -135,7 +135,7 @@ public class PSFilterManager
       }
       if (filter == null)
       {
-         throw new PSFilterException(IPSFilterServiceErrors.FILTER_MISSING, name);
+         throw new PSFilterException(FilterServiceErrorCodes.FILTER_MISSING, name);
       }
       return filter;
    }   
@@ -171,7 +171,7 @@ public class PSFilterManager
       try {
          authTypeInt = Integer.parseInt(authtype);
       } catch (NumberFormatException e) {
-         throw new PSFilterException(IPSFilterServiceErrors.AUTHTYPE_MISSING, authtype);
+         throw new PSFilterException(FilterServiceErrorCodes.AUTHTYPE_MISSING, authtype);
       }
 
       Session s = getSession();
@@ -182,7 +182,7 @@ public class PSFilterManager
        if (results.isEmpty())
        {
           throw new PSFilterException(
-                IPSFilterServiceErrors.AUTHTYPE_MISSING, authtype);
+                FilterServiceErrorCodes.AUTHTYPE_MISSING, authtype);
        }
        return results.get(0);
    }
@@ -272,7 +272,7 @@ public class PSFilterManager
                // Only FILTER_MISSING means "insert this row". Any other filter-service
                // error must not be treated as missing — that masks DB failures and
                // produces confusing unique-constraint / UnexpectedRollbackException later.
-               if (e.getErrorCode() != IPSFilterServiceErrors.FILTER_MISSING)
+               if (e.getErrorCode() != FilterServiceErrorCodes.FILTER_MISSING.numericCode())
                {
                   log.error("Exception finding item filter {}. Error: {}",
                           f.getName(),
@@ -437,17 +437,17 @@ public class PSFilterManager
          }
          else
          {
-            throw new PSCatalogException(IPSCatalogErrors.UNKNOWN_TYPE, type
+            throw new PSCatalogException(CatalogErrorCodes.UNKNOWN_TYPE, type
                   .toString());
          }
       }
       catch (IOException | PSNotFoundException e)
       {
-         throw new PSCatalogException(IPSCatalogErrors.IO, e, type);
+         throw new PSCatalogException(CatalogErrorCodes.IO, e, type);
       }
       catch (SAXException | PSInvalidXmlException e)
       {
-         throw new PSCatalogException(IPSCatalogErrors.XML, e, item);
+         throw new PSCatalogException(CatalogErrorCodes.XML, e, item);
       }
    }
 
@@ -471,16 +471,16 @@ public class PSFilterManager
          else
          {
             PSTypeEnum type = PSTypeEnum.valueOf(id.getType());
-            throw new PSCatalogException(IPSCatalogErrors.UNKNOWN_TYPE, type);
+            throw new PSCatalogException(CatalogErrorCodes.UNKNOWN_TYPE, type);
          }
       }
       catch (IOException | PSNotFoundException e)
       {
-         throw new PSCatalogException(IPSCatalogErrors.IO, e, id);
+         throw new PSCatalogException(CatalogErrorCodes.IO, e, id);
       }
       catch (SAXException e)
       {
-         throw new PSCatalogException(IPSCatalogErrors.TOXML, e);
+         throw new PSCatalogException(CatalogErrorCodes.TOXML, e);
       }
    }
 

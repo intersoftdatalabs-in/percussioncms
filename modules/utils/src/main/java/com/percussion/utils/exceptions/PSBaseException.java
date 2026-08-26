@@ -16,6 +16,7 @@
  */
 package com.percussion.utils.exceptions;
 
+import com.percussion.error.IPSErrorCode;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.MessageFormat;
@@ -76,6 +77,31 @@ public abstract class PSBaseException extends Exception {
     }
     m_code = msgCode;
     m_args = arrayArgs;
+  }
+
+  /**
+   * Typed construction from a catalogued {@link IPSErrorCode}. Sets the legacy numeric code for
+   * message lookup and retains the typed code for {@link #getTypedErrorCode()} / {@link
+   * #isAuditable()}.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs arguments for message formatting, may be {@code null}
+   */
+  public PSBaseException(IPSErrorCode code, Object... arrayArgs) {
+    this(requireCode(code).numericCode(), arrayArgs);
+    m_typedErrorCode = code;
+  }
+
+  /**
+   * Typed construction with a cause.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param cause original exception, may be {@code null}
+   * @param arrayArgs arguments for message formatting, may be {@code null}
+   */
+  public PSBaseException(IPSErrorCode code, Throwable cause, Object... arrayArgs) {
+    this(requireCode(code).numericCode(), cause, arrayArgs);
+    m_typedErrorCode = code;
   }
 
   /**
@@ -155,6 +181,29 @@ public abstract class PSBaseException extends Exception {
    */
   public int getErrorCode() {
     return m_code;
+  }
+
+  /**
+   * Typed error code when constructed via {@link #PSBaseException(IPSErrorCode, Object...)} (or the
+   * cause overload); otherwise {@code null} for legacy int construction.
+   */
+  public IPSErrorCode getTypedErrorCode() {
+    return m_typedErrorCode;
+  }
+
+  /**
+   * Whether dual-write should consider this exception auditable. Prefer the typed code when present;
+   * legacy int construction returns {@code false}.
+   */
+  public boolean isAuditable() {
+    return m_typedErrorCode != null && m_typedErrorCode.isAuditable();
+  }
+
+  private static IPSErrorCode requireCode(IPSErrorCode code) {
+    if (code == null) {
+      throw new IllegalArgumentException("code may not be null");
+    }
+    return code;
   }
 
   /**
@@ -284,6 +333,12 @@ public abstract class PSBaseException extends Exception {
 
   /** The error code of this exception, set during ctor, never modified after that. */
   private int m_code;
+
+  /**
+   * Typed catalog code when constructed via {@link IPSErrorCode} overloads; otherwise {@code null}
+   * for legacy int construction.
+   */
+  private transient IPSErrorCode m_typedErrorCode;
 
   /**
    * The array of arguments to use to format the message with. Set during ctor, may be <code>null

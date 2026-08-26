@@ -17,6 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.assembly;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.utils.exceptions.PSBaseException;
 
 import java.util.Objects;
@@ -84,6 +85,27 @@ public class PSAssemblyException extends PSBaseException {
     */
    public PSAssemblyException(int msgCode, Throwable cause, Object... arrayArgs) {
       super(msgCode, cause, arrayArgs);
+   }
+
+   /**
+    * Typed construction from a catalogued {@link IPSErrorCode}.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param arrayArgs arguments for message formatting, may be {@code null}
+    */
+   public PSAssemblyException(IPSErrorCode code, Object... arrayArgs) {
+      super(code, arrayArgs);
+   }
+
+   /**
+    * Typed construction with a cause.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param cause original exception, may be {@code null}
+    * @param arrayArgs arguments for message formatting, may be {@code null}
+    */
+   public PSAssemblyException(IPSErrorCode code, Throwable cause, Object... arrayArgs) {
+      super(code, cause, arrayArgs);
    }
 
    /**

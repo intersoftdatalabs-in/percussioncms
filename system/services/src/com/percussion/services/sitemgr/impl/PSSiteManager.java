@@ -29,7 +29,6 @@ import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
-import com.percussion.services.catalog.IPSCatalogErrors;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSCatalogException;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -50,7 +49,6 @@ import com.percussion.services.sitemgr.IPSLocationScheme;
 import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
-import com.percussion.services.sitemgr.IPSSiteManagerErrors;
 import com.percussion.services.sitemgr.PSSiteManagerException;
 import com.percussion.services.sitemgr.data.PSLocationScheme;
 import com.percussion.services.sitemgr.data.PSPublishingContext;
@@ -88,6 +86,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SiteManagerErrorCodes;
 
 /**
  * Modern site manager implementation providing comprehensive site and location scheme management
@@ -423,7 +423,7 @@ public class PSSiteManager implements IPSSiteManager {
             return loadSite(sitename);
         } catch (PSNotFoundException e) {
             throw new PSSiteManagerException(
-                IPSSiteManagerErrors.SITE_NAME_NOT_EXIST, sitename);
+                SiteManagerErrorCodes.SITE_NAME_NOT_EXIST, sitename);
         }
     }
 
@@ -779,7 +779,7 @@ public class PSSiteManager implements IPSSiteManager {
         try {
             return loadContext(contextname);
         } catch (PSNotFoundException e) {
-            throw new PSSiteManagerException(IPSSiteManagerErrors.NO_SUCH_CONTEXT,
+            throw new PSSiteManagerException(SiteManagerErrorCodes.NO_SUCH_CONTEXT,
                 "NAME", contextname);
         }
     }
@@ -832,15 +832,15 @@ public class PSSiteManager implements IPSSiteManager {
                 ((PSSite) temp).fromXML(item);
                 saveSite(temp);
             } else {
-                throw new PSCatalogException(IPSCatalogErrors.UNKNOWN_TYPE,
+                throw new PSCatalogException(CatalogErrorCodes.UNKNOWN_TYPE,
                     Optional.ofNullable(type).map(PSTypeEnum::toString).orElse("null"));
             }
         } catch (IOException e) {
-            throw new PSCatalogException(IPSCatalogErrors.IO, e, type);
+            throw new PSCatalogException(CatalogErrorCodes.IO, e, type);
         } catch (SAXException e) {
-            throw new PSCatalogException(IPSCatalogErrors.XML, e, item);
+            throw new PSCatalogException(CatalogErrorCodes.XML, e, item);
         } catch (com.percussion.utils.xml.PSInvalidXmlException e) {
-            throw new PSCatalogException(IPSCatalogErrors.XML, e, item);
+            throw new PSCatalogException(CatalogErrorCodes.XML, e, item);
         }
     }
 
@@ -856,13 +856,13 @@ public class PSSiteManager implements IPSSiteManager {
             }
 
             var type = PSTypeEnum.valueOf(id.getType());
-            throw new PSCatalogException(IPSCatalogErrors.UNKNOWN_TYPE, type.toString());
+            throw new PSCatalogException(CatalogErrorCodes.UNKNOWN_TYPE, type.toString());
         } catch (PSNotFoundException e) {
-            throw new PSCatalogException(IPSCatalogErrors.REPOSITORY, e, id);
+            throw new PSCatalogException(CatalogErrorCodes.REPOSITORY, e, id);
         } catch (IOException e) {
-            throw new PSCatalogException(IPSCatalogErrors.IO, e, id);
+            throw new PSCatalogException(CatalogErrorCodes.IO, e, id);
         } catch (SAXException e) {
-            throw new PSCatalogException(IPSCatalogErrors.TOXML, e);
+            throw new PSCatalogException(CatalogErrorCodes.TOXML, e);
         }
     }
 
@@ -901,7 +901,7 @@ public class PSSiteManager implements IPSSiteManager {
                 log.error("Failed to get publish file name for locator {}: {}",
                     locator.getId(), PSExceptionUtils.getMessageForLog(e));
                 log.debug("Full stack trace:", e);
-                throw new PSSiteManagerException(IPSSiteManagerErrors.UNEXPECTED_ERROR,
+                throw new PSSiteManagerException(SiteManagerErrorCodes.UNEXPECTED_ERROR,
                     e.getLocalizedMessage());
             }
         }
@@ -929,7 +929,7 @@ public class PSSiteManager implements IPSSiteManager {
             log.error("Failed to find root folder ID for site {}: {}",
                 site.getGUID(), PSExceptionUtils.getMessageForLog(e));
             log.debug("Full stack trace:", e);
-            throw new PSSiteManagerException(IPSSiteManagerErrors.FAILED_FIND_ROOT_FOLDER_ID,
+            throw new PSSiteManagerException(SiteManagerErrorCodes.FAILED_FIND_ROOT_FOLDER_ID,
                 site.getGUID(), site.getFolderRoot(), e.getLocalizedMessage());
         }
     }
@@ -969,7 +969,7 @@ public class PSSiteManager implements IPSSiteManager {
             }
 
             if (siteFolderPath.isEmpty()) {
-                throw new PSSiteManagerException(IPSSiteManagerErrors.NOT_SITE_FOLDER,
+                throw new PSSiteManagerException(SiteManagerErrorCodes.NOT_SITE_FOLDER,
                     folderId.getContentId(), site.getGUID(), site.getFolderRoot());
             }
 
@@ -978,7 +978,7 @@ public class PSSiteManager implements IPSSiteManager {
             log.error("Failed to get folder path for folder {}: {}",
                 folderId, PSExceptionUtils.getMessageForLog(e));
             log.debug("Full stack trace:", e);
-            throw new PSSiteManagerException(IPSSiteManagerErrors.FAILED_GET_FOLDER_PATH,
+            throw new PSSiteManagerException(SiteManagerErrorCodes.FAILED_GET_FOLDER_PATH,
                 folderId, e.getLocalizedMessage());
         }
     }
@@ -1014,7 +1014,7 @@ public class PSSiteManager implements IPSSiteManager {
             int contentIdValue = processor.getIdByPath(matchingPath);
             return new PSLegacyGuid(contentIdValue, -1);
         } catch (PSCmsException e) {
-            throw new PSSiteManagerException(IPSSiteManagerErrors.UNEXPECTED_ERROR, e);
+            throw new PSSiteManagerException(SiteManagerErrorCodes.UNEXPECTED_ERROR, e);
         }
     }
 

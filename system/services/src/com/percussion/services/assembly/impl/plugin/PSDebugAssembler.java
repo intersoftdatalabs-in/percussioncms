@@ -21,7 +21,6 @@ import com.percussion.extension.IPSExtension;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.services.assembly.IPSAssembler;
-import com.percussion.services.assembly.IPSAssemblyErrors;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.services.assembly.IPSAssemblyService;
@@ -67,6 +66,7 @@ import javax.jcr.nodetype.PropertyDefinition;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 
 /**
  * The debug assembler outputs text/html that has the input binding data,
@@ -380,7 +380,7 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
          }
          IPSSlotContentFinder finder = asm.loadFinder(findername);
          if (finder == null)
-            throw new PSAssemblyException(IPSAssemblyErrors.MISSING_FINDER,
+            throw new PSAssemblyException(AssemblyErrorCodes.MISSING_FINDER,
                   finder);
          try
          {

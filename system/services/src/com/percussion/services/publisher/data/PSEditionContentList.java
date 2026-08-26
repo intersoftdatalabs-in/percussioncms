@@ -23,7 +23,6 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.publisher.IPSEditionContentList;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.string.PSStringUtils;
-import com.percussion.utils.xml.IPSXmlErrors;
 import com.percussion.utils.xml.PSInvalidXmlException;
 import com.percussion.utils.xml.PSXmlUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -48,6 +47,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import com.intsof.percussioncms.auditlog.codes.XmlErrorCodes;
 
 /**
  * Configuration that associates a content list with an edition.
@@ -271,7 +271,7 @@ IPSEditionContentList, Cloneable
       NodeList nodes = doc.getElementsByTagName(XML_NODE_NAME);
       if (nodes.getLength() == 0)
       {
-         throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING,
+         throw new PSInvalidXmlException(XmlErrorCodes.XML_ELEMENT_MISSING,
                XML_NODE_NAME);
       }
       
@@ -311,7 +311,7 @@ IPSEditionContentList, Cloneable
          Object[] args =
          {elem.getNodeName(), XML_ATTR_ECL_PK_NAME, eclPk};
          throw new PSInvalidXmlException(
-               IPSXmlErrors.XML_ELEMENT_INVALID_ATTR, args);
+               XmlErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
       
       int seq = PSXmlUtils.checkAttributeInt(elem, XML_ATTR_SEQUENCE_NAME,

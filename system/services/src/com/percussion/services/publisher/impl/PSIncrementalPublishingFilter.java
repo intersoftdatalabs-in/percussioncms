@@ -34,7 +34,6 @@ import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.publisher.IPSPublisherService;
-import com.percussion.services.publisher.IPSPublisherServiceErrors;
 import com.percussion.services.publisher.IPSSiteItem;
 import com.percussion.services.publisher.PSPublisherException;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
@@ -59,6 +58,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.intsof.percussioncms.auditlog.codes.PublisherErrorCodes;
 
 /**
  * Filter a content list for incremental publishing
@@ -191,13 +191,13 @@ public class PSIncrementalPublishingFilter
       String siteidstr = params.get(IPSHtmlParameters.SYS_SITEID);
       if (StringUtils.isBlank(siteidstr))
       {
-         throw new PSPublisherException(IPSPublisherServiceErrors.SITE_MISSING);
+         throw new PSPublisherException(PublisherErrorCodes.SITE_MISSING);
       }
       String contextstr = params.get(IPSHtmlParameters.SYS_CONTEXT);
       if (StringUtils.isBlank(contextstr))
       {
          throw new PSPublisherException(
-               IPSPublisherServiceErrors.CONTEXT_MISSING);
+               PublisherErrorCodes.CONTEXT_MISSING);
       }
       int context = Integer.parseInt(contextstr);
 
@@ -235,12 +235,12 @@ public class PSIncrementalPublishingFilter
       }
       catch (PSNotFoundException e)
       {
-         throw new PSPublisherException(IPSPublisherServiceErrors.SITE_LOAD, e,
+         throw new PSPublisherException(PublisherErrorCodes.SITE_LOAD, e,
                siteidstr);
       }
       catch (RepositoryException e)
       {
-         throw new PSPublisherException(IPSPublisherServiceErrors.UNEXPECTED,
+         throw new PSPublisherException(PublisherErrorCodes.UNEXPECTED,
                e, e.getLocalizedMessage());
       }
    }

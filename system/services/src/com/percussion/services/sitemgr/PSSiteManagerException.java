@@ -16,6 +16,7 @@
  */
 package com.percussion.services.sitemgr;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.utils.exceptions.PSBaseException;
 
 /**
@@ -56,6 +57,27 @@ public class PSSiteManagerException extends PSBaseException
     */
    public PSSiteManagerException(int msgCode) {
       super(msgCode);
+   }
+
+   /**
+    * Typed construction from a catalogued {@link IPSErrorCode}.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param arrayArgs arguments for message
+    */
+   public PSSiteManagerException(IPSErrorCode code, Object... arrayArgs) {
+      super(code, arrayArgs);
+   }
+
+   /**
+    * Typed construction with a cause.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param cause the original exception, or {@code null} if there was no cause
+    * @param arrayArgs arguments for message
+    */
+   public PSSiteManagerException(IPSErrorCode code, Throwable cause, Object... arrayArgs) {
+      super(code, cause, arrayArgs);
    }
 
    @Override

@@ -16,7 +16,7 @@
  */
 package com.percussion.hooks.servlet;
 
-import com.percussion.hooks.IPSServletErrors;
+import com.intsof.percussioncms.auditlog.codes.ServletErrorCodes;
 import com.percussion.hooks.PSConnectionFactory;
 import com.percussion.hooks.PSServletBase;
 import com.percussion.security.xml.PSSecureXMLUtils;
@@ -144,7 +144,7 @@ public class RhythmyxServlet extends PSServletBase
    {
       if ((req == null) || (resp == null))
          throw new ServletException(PSConnectionFactory.formatMessage(
-            IPSServletErrors.INVALID_REQUEST_PARAMETERS, null));
+            ServletErrorCodes.INVALID_REQUEST_PARAMETERS, null));
 
       httpProcessRequest(req, resp);
    }
@@ -164,7 +164,7 @@ public class RhythmyxServlet extends PSServletBase
    {
       if ((req == null) || (resp == null))
          throw new ServletException(PSConnectionFactory.formatMessage(
-            IPSServletErrors.INVALID_REQUEST_PARAMETERS, null));
+            ServletErrorCodes.INVALID_REQUEST_PARAMETERS, null));
 
       httpProcessRequest(req, resp);
    }
@@ -182,7 +182,7 @@ public class RhythmyxServlet extends PSServletBase
       Socket sock = m_connFactory.getConnection(m_connFactory.useSSL());
       if (sock == null)
          throw new ServletException(PSConnectionFactory.formatMessage(
-            IPSServletErrors.CONNECTION_FAILURE, null));
+            ServletErrorCodes.CONNECTION_FAILURE, null));
       
       return sock;
    }
@@ -200,7 +200,7 @@ public class RhythmyxServlet extends PSServletBase
    {
       if (m_connFactory == null)
          throw new ServletException(PSConnectionFactory.formatMessage(
-            IPSServletErrors.SERVLET_DESTROYED, null));
+            ServletErrorCodes.SERVLET_DESTROYED, null));
 
       String rhythmyxRoles = getRhythmyxRoles(req);
       
@@ -411,7 +411,7 @@ public class RhythmyxServlet extends PSServletBase
             sTemp
          };
          throw new ServletException(PSConnectionFactory.formatMessage(
-            IPSServletErrors.INVALID_STATUS_CODE, args));
+            ServletErrorCodes.INVALID_STATUS_CODE, args));
       }
 
       return statusCode;

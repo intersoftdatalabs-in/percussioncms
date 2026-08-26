@@ -16,6 +16,8 @@
  */
 package com.percussion.hooks;
 
+import com.intsof.percussioncms.auditlog.codes.ServletErrorCodes;
+import com.percussion.error.IPSErrorCode;
 import com.percussion.hooks.servlet.RhythmyxServlet;
 
 import java.io.IOException;
@@ -113,7 +115,7 @@ public class PSConnectionFactory
             strPort
          };
          throw new ServletException(
-            formatMessage(IPSServletErrors.INVALID_PORT_NUMBER, args));
+            formatMessage(ServletErrorCodes.INVALID_PORT_NUMBER, args));
       }
       catch (UnknownHostException e)
       {
@@ -124,7 +126,7 @@ public class PSConnectionFactory
             e.getLocalizedMessage()
          };
          throw new ServletException(
-            formatMessage(IPSServletErrors.CONNECTION_ERROR, args));
+            formatMessage(ServletErrorCodes.CONNECTION_ERROR, args));
       }
    }
    
@@ -244,6 +246,20 @@ public class PSConnectionFactory
          return message;
       
       return MessageFormat.format(message, args);
+   }
+
+   /**
+    * Formats the message for a catalogued {@link IPSErrorCode}.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param args the message arguments, may be {@code null} or empty
+    * @return the formatted message string, never {@code null}
+    */
+   public static String formatMessage(IPSErrorCode code, Object[] args)
+   {
+      if (code == null)
+         throw new IllegalArgumentException("code may not be null");
+      return formatMessage(code.numericCode(), args);
    }
 
    /**

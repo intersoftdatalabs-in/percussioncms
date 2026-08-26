@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 
 /**
  * The assembly service acts as a top-level assembler that dispatches to
@@ -177,7 +178,7 @@ public interface IPSAssemblyService extends IPSAssembler, IPSTemplateService, IP
      * @throws PSAssemblyException if the finder cannot be loaded
      */
     default IPSSlotContentFinder loadFinder(String finder) throws PSAssemblyException {
-        throw new PSAssemblyException(IPSAssemblyErrors.MISSING_FINDER);
+        throw new PSAssemblyException(AssemblyErrorCodes.MISSING_FINDER);
     }
 
     /**
@@ -191,7 +192,7 @@ public interface IPSAssemblyService extends IPSAssembler, IPSTemplateService, IP
      * Build a landing page link for the given assembly result and node. Defaults to throwing an exception if not implemented.
      */
     default String getLandingPageLink(IPSAssemblyResult result, IPSNode node, IPSGuid templateId) throws PSAssemblyException {
-        throw new PSAssemblyException(IPSAssemblyErrors.LANDING_PAGE_URL_1);
+        throw new PSAssemblyException(AssemblyErrorCodes.LANDING_PAGE_URL_1);
     }
 
     /**

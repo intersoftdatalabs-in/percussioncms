@@ -20,7 +20,6 @@ package com.percussion.services.content.impl;
 import com.percussion.cms.IPSConstants;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.services.catalog.PSTypeEnum;
-import com.percussion.services.content.IPSContentErrors;
 import com.percussion.services.content.IPSContentService;
 import com.percussion.services.content.PSContentException;
 import com.percussion.services.content.data.PSAutoTranslation;
@@ -46,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 
 /**
  * Implementations for all content services.
@@ -169,7 +169,7 @@ public class PSContentService implements IPSContentService {
             .setParameter("id", id.longValue());
       List<PSKeyword> keywords = q.list();
       if (keywords.isEmpty()) {
-         throw new PSContentException(IPSContentErrors.MISSING_KEYWORD, id);
+         throw new PSContentException(ContentErrorCodes.MISSING_KEYWORD, id);
       }
 
       var keyword = keywords.get(0);

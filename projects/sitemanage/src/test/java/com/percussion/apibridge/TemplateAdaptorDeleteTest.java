@@ -25,7 +25,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.percussion.services.assembly.IPSAssemblyErrors;
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.data.PSAssemblyTemplate;
@@ -70,7 +70,8 @@ class TemplateAdaptorDeleteTest {
     IPSAssemblyService asm = mock(IPSAssemblyService.class);
     IPSContentWs contentWs = mock(IPSContentWs.class);
     when(asm.findTemplateByName("missing"))
-        .thenThrow(new PSAssemblyException(IPSAssemblyErrors.TEMPLATE_MISSING, "missing"));
+        .thenThrow(
+            new PSAssemblyException(AssemblyErrorCodes.TEMPLATE_MISSING.numericCode(), "missing"));
 
     TemplateAdaptor adaptor = new TemplateAdaptor(asm, contentWs);
     assertFalse(adaptor.deleteTemplate(null, "missing"));
@@ -102,7 +103,8 @@ class TemplateAdaptorDeleteTest {
     var guid = existing.getGUID();
     when(asm.findTemplateByName("site.html.snippet")).thenReturn(existing);
     org.mockito.Mockito.doThrow(
-            new PSAssemblyException(IPSAssemblyErrors.TEMPLATE_MISSING, "site.html.snippet"))
+            new PSAssemblyException(
+                AssemblyErrorCodes.TEMPLATE_MISSING.numericCode(), "site.html.snippet"))
         .when(asm)
         .deleteTemplate(guid);
 
@@ -127,7 +129,8 @@ class TemplateAdaptorDeleteTest {
     PSAssemblyTemplate existing = mockTemplate("site.html.snippet");
     when(asm.findTemplateByName("site.html.snippet")).thenReturn(existing);
     org.mockito.Mockito.doThrow(
-            new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_CRUD_ERROR, "constraint"))
+            new PSAssemblyException(
+                AssemblyErrorCodes.UNKNOWN_CRUD_ERROR.numericCode(), "constraint"))
         .when(asm)
         .deleteTemplate(org.mockito.ArgumentMatchers.any());
 

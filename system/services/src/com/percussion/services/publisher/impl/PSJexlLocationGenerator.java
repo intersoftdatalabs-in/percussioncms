@@ -20,7 +20,6 @@ import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.extension.IPSAssemblyLocation;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.webservices.PSServerFolderProcessor;
@@ -57,6 +56,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 
 /**
  * Generate a location using a jexl expression.
@@ -105,7 +105,7 @@ public class PSJexlLocationGenerator implements IPSAssemblyLocation
          Object[] args =
          {"" + 1, "" + params.length};
          throw new PSExtensionException(
-               IPSExtensionErrors.EXT_PARAM_VALUE_MISMATCH, args);
+               ExtensionErrorCodes.EXT_PARAM_VALUE_MISMATCH, args);
       }
       String expression = (String) params[0];
       String cidstr = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
@@ -172,7 +172,7 @@ public class PSJexlLocationGenerator implements IPSAssemblyLocation
       catch (Exception e)
       {
          throw new PSExtensionException(
-               IPSExtensionErrors.EXT_PARAM_VALUE_INVALID, e);
+               ExtensionErrorCodes.EXT_PARAM_VALUE_INVALID, e);
       }
 
       Iterator<Map.Entry<String, Object>> iter = request
@@ -210,7 +210,7 @@ public class PSJexlLocationGenerator implements IPSAssemblyLocation
       catch (PSAssemblyException e1)
       {
          throw new PSExtensionException(
-               IPSExtensionErrors.EXT_PARAM_VALUE_INVALID, e1
+               ExtensionErrorCodes.EXT_PARAM_VALUE_INVALID, e1
                      );
       }
 
@@ -273,7 +273,7 @@ public class PSJexlLocationGenerator implements IPSAssemblyLocation
       catch (RepositoryException e)
       {
          throw new PSExtensionException(
-               IPSExtensionErrors.EXT_PARAM_VALUE_INVALID, e);
+               ExtensionErrorCodes.EXT_PARAM_VALUE_INVALID, e);
       }
       catch (PSNotFoundException | PSCmsException | PSSiteManagerException e)
       {
@@ -293,12 +293,12 @@ public class PSJexlLocationGenerator implements IPSAssemblyLocation
          if (rval == null)
          {
             throw new PSExtensionException(
-                  IPSExtensionErrors.JEXL_WRONG_RETURN_TYPE, "null");
+                  ExtensionErrorCodes.JEXL_WRONG_RETURN_TYPE, "null");
          }
          else if (!(rval instanceof String))
          {
             throw new PSExtensionException(
-                  IPSExtensionErrors.JEXL_WRONG_RETURN_TYPE, "String");
+                  ExtensionErrorCodes.JEXL_WRONG_RETURN_TYPE, "String");
          }
          else
          {

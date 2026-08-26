@@ -20,6 +20,7 @@ import static org.apache.commons.lang3.Validate.noNullElements;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.intsof.percussioncms.auditlog.codes.PublisherErrorCodes;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.assembly.PSAssemblyException;
@@ -27,7 +28,6 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.contentmgr.IPSContentPropertyConstants;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
-import com.percussion.services.publisher.IPSPublisherServiceErrors;
 import com.percussion.services.publisher.IPSTemplateExpander;
 import com.percussion.services.publisher.PSPublisherException;
 import com.percussion.services.publisher.data.PSContentListItem;
@@ -127,7 +127,7 @@ public abstract class PSAbstractTemplateExpanderAdapter<CACHE> implements IPSTem
       }
     } catch (RepositoryException | PSDataServiceException e) {
       throw new PSPublisherException(
-          IPSPublisherServiceErrors.RUNTIME_ERROR, e, e.getLocalizedMessage());
+          PublisherErrorCodes.RUNTIME_ERROR.numericCode(), e, e.getLocalizedMessage());
     }
 
     return contentListItems;

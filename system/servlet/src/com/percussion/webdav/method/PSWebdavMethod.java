@@ -20,7 +20,7 @@ package com.percussion.webdav.method;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSRelationshipProcessorProxy;
-import com.percussion.cms.objectstore.client.IPSRemoteErrors;
+import com.intsof.percussioncms.auditlog.codes.RemoteErrorCodes;
 import com.percussion.cms.objectstore.client.PSRemoteAgent;
 import com.percussion.cms.objectstore.client.PSRemoteException;
 import com.percussion.design.objectstore.PSLocator;
@@ -34,7 +34,7 @@ import com.percussion.util.servlet.PSServletRequester;
 import com.percussion.webdav.IPSWebdavConstants;
 import com.percussion.webdav.PSWebdavServlet;
 import com.percussion.webdav.PSWebdavStatus;
-import com.percussion.webdav.error.IPSWebdavErrors;
+import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.percussion.webdav.error.PSWebdavException;
 import com.percussion.webdav.objectstore.PSWebdavConfig;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -372,7 +372,7 @@ public abstract class PSWebdavMethod
                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
                
                throw new PSWebdavException(
-                  IPSWebdavErrors.XML_FAILED_CREATE_DOC_FROM_CONTENT,
+                  WebdavErrorCodes.XML_FAILED_CREATE_DOC_FROM_CONTENT,
                   e.getLocalizedMessage(),
                   PSWebdavStatus.SC_BAD_REQUEST);
             }
@@ -442,7 +442,7 @@ public abstract class PSWebdavMethod
          catch (Exception e)
          {
             throw new PSRemoteException(
-                  IPSRemoteErrors.REMOTE_UNEXPECTED_ERROR,
+                  RemoteErrorCodes.REMOTE_UNEXPECTED_ERROR,
                   e.toString());
          }
          return ms_workflowInstance;
@@ -760,7 +760,7 @@ public abstract class PSWebdavMethod
          if (parentSummary == null) // the parent component may not exists 
          {
             throw new PSWebdavException(
-               IPSWebdavErrors.RESOURCE_NOT_FIND, 
+               WebdavErrorCodes.RESOURCE_NOT_FIND, 
                parentPath, 
                PSWebdavStatus.SC_CONFLICT);
          }
@@ -768,7 +768,7 @@ public abstract class PSWebdavMethod
       else // there is no parent path
       {
          throw new PSWebdavException(
-            IPSWebdavErrors.RESOURCE_NOT_FIND, 
+            WebdavErrorCodes.RESOURCE_NOT_FIND, 
             compPath, 
             PSWebdavStatus.SC_CONFLICT);
       }

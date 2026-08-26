@@ -32,7 +32,6 @@ import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
 import com.percussion.server.PSServer;
 import com.percussion.services.assembly.IPSAssembler;
-import com.percussion.services.assembly.IPSAssemblyErrors;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.services.assembly.IPSAssemblyService;
@@ -50,7 +49,6 @@ import com.percussion.services.assembly.data.PSTemplateBinding;
 import com.percussion.services.assembly.data.PSTemplateSlot;
 import com.percussion.services.assembly.impl.nav.PSNavConfig;
 import com.percussion.services.assembly.impl.nav.PSNavHelper;
-import com.percussion.services.catalog.IPSCatalogErrors;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSCatalogException;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -143,6 +141,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
 
 /**
  * The assembly service assembles items and provides methods for managing
@@ -497,12 +497,12 @@ public class PSAssemblyService implements IPSAssemblyService
       {
          log.error("Serious problem, cannot instantiate {} Error: {}", name, PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         throw new PSAssemblyException(IPSAssemblyErrors.ASSEMBLER_INST, name, e);
+         throw new PSAssemblyException(AssemblyErrorCodes.ASSEMBLER_INST, name, e);
       }
       catch (com.percussion.error.PSNotFoundException e)
       {
          log.error("Serious problem, cannot find {} Error: {}" ,name,PSExceptionUtils.getMessageForLog(e));
-         throw new PSAssemblyException(IPSAssemblyErrors.ASSEMBLER_INST, name, e);
+         throw new PSAssemblyException(AssemblyErrorCodes.ASSEMBLER_INST, name, e);
       }
    }
 
@@ -515,7 +515,7 @@ public class PSAssemblyService implements IPSAssemblyService
          if ((StringUtils.isBlank(variantidstr) && StringUtils.isBlank(templatename))
                || (!StringUtils.isBlank(variantidstr) && !StringUtils.isBlank(templatename)))
          {
-            throw new PSAssemblyException(IPSAssemblyErrors.PARAMS_VARIANT_OR_TEMPLATE);
+            throw new PSAssemblyException(AssemblyErrorCodes.PARAMS_VARIANT_OR_TEMPLATE);
          }
 
          var params = new PSFacadeMap<>(request.getParameterMap());
@@ -569,7 +569,7 @@ public class PSAssemblyService implements IPSAssemblyService
       {
          var cause = PSExceptionHelper.findRootCause(e, true);
          log.error("Failure while processing assembly item", cause);
-         throw new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_ERROR, cause, e.getLocalizedMessage());
+         throw new PSAssemblyException(AssemblyErrorCodes.UNKNOWN_ERROR, cause, e.getLocalizedMessage());
       }
    }
 
@@ -1420,20 +1420,20 @@ public class PSAssemblyService implements IPSAssemblyService
          }
          else
          {
-            throw new PSCatalogException(IPSCatalogErrors.UNKNOWN_TYPE, type.toString());
+            throw new PSCatalogException(CatalogErrorCodes.UNKNOWN_TYPE, type.toString());
          }
       }
       catch (PSAssemblyException e)
       {
-         throw new PSCatalogException(IPSCatalogErrors.REPOSITORY, e, type);
+         throw new PSCatalogException(CatalogErrorCodes.REPOSITORY, e, type);
       }
       catch (IOException e)
       {
-         throw new PSCatalogException(IPSCatalogErrors.IO, e, type);
+         throw new PSCatalogException(CatalogErrorCodes.IO, e, type);
       }
       catch (SAXException | PSInvalidXmlException e)
       {
-         throw new PSCatalogException(IPSCatalogErrors.XML, e, item);
+         throw new PSCatalogException(CatalogErrorCodes.XML, e, item);
       }
 
 
@@ -1457,20 +1457,20 @@ public class PSAssemblyService implements IPSAssemblyService
          else
          {
             var type = PSTypeEnum.valueOf(id.getType());
-            throw new PSCatalogException(IPSCatalogErrors.UNKNOWN_TYPE, type);
+            throw new PSCatalogException(CatalogErrorCodes.UNKNOWN_TYPE, type);
          }
       }
       catch (PSAssemblyException e)
       {
-         throw new PSCatalogException(IPSCatalogErrors.REPOSITORY, e, id);
+         throw new PSCatalogException(CatalogErrorCodes.REPOSITORY, e, id);
       }
       catch (IOException e)
       {
-         throw new PSCatalogException(IPSCatalogErrors.IO, e, id);
+         throw new PSCatalogException(CatalogErrorCodes.IO, e, id);
       }
       catch (SAXException e)
       {
-         throw new PSCatalogException(IPSCatalogErrors.TOXML, e);
+         throw new PSCatalogException(CatalogErrorCodes.TOXML, e);
       }
    }
 
@@ -1499,7 +1499,7 @@ public class PSAssemblyService implements IPSAssemblyService
       Hibernate.initialize(var);
       if (var == null)
       {
-         throw new PSAssemblyException(IPSAssemblyErrors.TEMPLATE_MISSING, id);
+         throw new PSAssemblyException(AssemblyErrorCodes.TEMPLATE_MISSING, id);
       }
       return var;
    }
@@ -1514,7 +1514,7 @@ public class PSAssemblyService implements IPSAssemblyService
       var var = findTemplate(tid);
       if (var == null)
       {
-         throw new PSAssemblyException(IPSAssemblyErrors.TEMPLATE_MISSING, tid);
+         throw new PSAssemblyException(AssemblyErrorCodes.TEMPLATE_MISSING, tid);
       }
       return var;
    }
@@ -1644,7 +1644,7 @@ public class PSAssemblyService implements IPSAssemblyService
                  var.getGUID(),
                  var.getName(),
                  PSExceptionUtils.getMessageForLog(e));
-         throw new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_CRUD_ERROR, e);
+         throw new PSAssemblyException(AssemblyErrorCodes.UNKNOWN_CRUD_ERROR, e);
       }
 
    }
@@ -1697,7 +1697,7 @@ public class PSAssemblyService implements IPSAssemblyService
       var template = session.bySimpleNaturalId(PSAssemblyTemplate.class).load(name);
       if (template == null)
       {
-         throw new PSAssemblyException(IPSAssemblyErrors.TEMPLATE_MISSING, name);
+         throw new PSAssemblyException(AssemblyErrorCodes.TEMPLATE_MISSING, name);
       }
       return template;
    }
@@ -1716,7 +1716,7 @@ public class PSAssemblyService implements IPSAssemblyService
          }
       }
 
-      throw new PSAssemblyException(IPSAssemblyErrors.TEMPLATE_BY_ID_MISSING, name, contenttype.longValue());
+      throw new PSAssemblyException(AssemblyErrorCodes.TEMPLATE_BY_ID_MISSING, name, contenttype.longValue());
    }
 
    @Transactional
@@ -1841,7 +1841,7 @@ public class PSAssemblyService implements IPSAssemblyService
       }
       catch (RepositoryException e)
       {
-         throw new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_ERROR, e, e.getMessage());
+         throw new PSAssemblyException(AssemblyErrorCodes.UNKNOWN_ERROR, e, e.getMessage());
       }
 
    }
@@ -1983,7 +1983,7 @@ public class PSAssemblyService implements IPSAssemblyService
       }
       catch (DataAccessException e)
       {
-         throw new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_CRUD_ERROR, e);
+         throw new PSAssemblyException(AssemblyErrorCodes.UNKNOWN_CRUD_ERROR, e);
       }
    }
 
@@ -2006,7 +2006,7 @@ public class PSAssemblyService implements IPSAssemblyService
       var slot = findSlot(id);
       if (slot == null)
       {
-         throw new PSAssemblyException(IPSAssemblyErrors.MISSING_SLOT);
+         throw new PSAssemblyException(AssemblyErrorCodes.MISSING_SLOT);
       }
 
       return slot;
@@ -2017,7 +2017,7 @@ public class PSAssemblyService implements IPSAssemblyService
       var slot = getSlotById(id);
       if (slot == null)
       {
-         throw new PSAssemblyException(IPSAssemblyErrors.MISSING_SLOT, id);
+         throw new PSAssemblyException(AssemblyErrorCodes.MISSING_SLOT, id);
       }
 
       return slot;
@@ -2078,7 +2078,7 @@ public class PSAssemblyService implements IPSAssemblyService
                  slot.getGUID(),
                  slot.getName(),
                  PSExceptionUtils.getMessageForLog(e));
-         throw new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_CRUD_ERROR, e);
+         throw new PSAssemblyException(AssemblyErrorCodes.UNKNOWN_CRUD_ERROR, e);
       }
       finally
       {
@@ -2095,7 +2095,7 @@ public class PSAssemblyService implements IPSAssemblyService
 
       if (slot == null)
       {
-         throw new PSAssemblyException(IPSAssemblyErrors.MISSING_SLOT, name);
+         throw new PSAssemblyException(AssemblyErrorCodes.MISSING_SLOT, name);
       }
       return slot;
 
@@ -2165,7 +2165,7 @@ public class PSAssemblyService implements IPSAssemblyService
       }
       catch (DataAccessException e)
       {
-         throw new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_CRUD_ERROR, e);
+         throw new PSAssemblyException(AssemblyErrorCodes.UNKNOWN_CRUD_ERROR, e);
       }
    }
 
@@ -2184,7 +2184,7 @@ public class PSAssemblyService implements IPSAssemblyService
       }
       catch (PSExtensionException | com.percussion.error.PSNotFoundException e)
       {
-         throw new PSAssemblyException(IPSAssemblyErrors.MISSING_FINDER, e);
+         throw new PSAssemblyException(AssemblyErrorCodes.MISSING_FINDER, e);
       }
    }
 
@@ -2215,7 +2215,7 @@ public class PSAssemblyService implements IPSAssemblyService
       }
       catch (Exception e)
       {
-         throw new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_CRUD_ERROR, e);
+         throw new PSAssemblyException(AssemblyErrorCodes.UNKNOWN_CRUD_ERROR, e);
       }
    }
 
@@ -2313,7 +2313,7 @@ public class PSAssemblyService implements IPSAssemblyService
             var results = assemble(items);
             if (results == null || results.isEmpty())
             {
-               throw new PSAssemblyException(IPSAssemblyErrors.LANDING_PAGE_URL_1, lg);
+               throw new PSAssemblyException(AssemblyErrorCodes.LANDING_PAGE_URL_1, lg);
             }
             else
             {
@@ -2355,7 +2355,7 @@ public class PSAssemblyService implements IPSAssemblyService
             url = (String) eval.evaluate(ms_pagelink);
             if (url == null)
             {
-               throw new PSAssemblyException(IPSAssemblyErrors.MISSING_PAGELINK, templateId);
+               throw new PSAssemblyException(AssemblyErrorCodes.MISSING_PAGELINK, templateId);
             }
          }
       }

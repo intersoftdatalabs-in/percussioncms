@@ -17,6 +17,8 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.locking;
 
+import com.intsof.percussioncms.auditlog.codes.LockErrorCodes;
+import com.percussion.error.IPSErrorCode;
 import com.percussion.services.locking.data.PSObjectLock;
 import com.percussion.utils.exceptions.PSBaseException;
 import com.percussion.utils.guid.IPSGuid;
@@ -60,7 +62,7 @@ public class PSLockException extends PSBaseException {
     * @throws IllegalArgumentException if errors is null or empty
     */
    public PSLockException(List<PSObjectLock> successes, Map<IPSGuid, PSLockException> errors) {
-      super(IPSLockErrors.MULTI_OPERATION);
+      super(LockErrorCodes.MULTI_OPERATION);
       Objects.requireNonNull(errors, "errors cannot be null");
       if (errors.isEmpty()) {
          throw new IllegalArgumentException("errors cannot be empty");
@@ -128,6 +130,56 @@ public class PSLockException extends PSBaseException {
    }
 
    /**
+    * Typed convenience constructor for simple lock failures.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param id the object id for which the lock failed
+    */
+   public PSLockException(IPSErrorCode code, long id) {
+      this(code, id, null, -1);
+   }
+
+   /**
+    * Typed convenience constructor for lock conflicts.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param id the object id for which the lock failed
+    * @param locker the name of the user who has the object locked, may be {@code null}
+    * @param remainingTime the remaining time of the current lock, -1 if not locked
+    */
+   public PSLockException(IPSErrorCode code, long id, String locker, long remainingTime) {
+      this(code, id, locker, remainingTime, null);
+   }
+
+   /**
+    * Typed construction for a single-object lock failure.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param id the object id for which the lock failed
+    * @param locker the name of the user who has the requested object locked, may be {@code null}
+    * @param remainingTime the remaining time of the current lock, -1 if not locked
+    * @param cause the original exception that caused this exception, may be {@code null}
+    */
+   public PSLockException(
+         IPSErrorCode code, long id, String locker, long remainingTime, Throwable cause) {
+      super(code, cause, new Object[] {id, locker, remainingTime});
+
+      if (locker != null && locker.trim().isEmpty()) {
+         throw new IllegalArgumentException("locker cannot be empty");
+      }
+
+      if (locker != null && !locker.trim().isEmpty() && remainingTime <= 0) {
+         throw new IllegalArgumentException("remainingTime must be > 0 when locker is specified");
+      }
+
+      this.id = id;
+      this.locker = locker != null ? locker.trim() : null;
+      this.remainingTime = remainingTime;
+      this.results = null;
+      this.errors = null;
+   }
+
+   /**
     * Creates a lock exception for object already locked scenarios.
     *
     * @param objectId the ID of the locked object
@@ -144,7 +196,7 @@ public class PSLockException extends PSBaseException {
       if (remainingTime <= 0) {
          throw new IllegalArgumentException("remainingTime must be > 0");
       }
-      return new PSLockException(IPSLockErrors.OBJECT_LOCKED, objectId, currentLocker, remainingTime);
+      return new PSLockException(LockErrorCodes.OBJECT_ALREADY_LOCKED, objectId, currentLocker, remainingTime);
    }
 
    /**
@@ -154,7 +206,7 @@ public class PSLockException extends PSBaseException {
     * @return a new PSLockException instance
     */
    public static PSLockException lockNotFound(long objectId) {
-      return new PSLockException(IPSLockErrors.LOCK_NOT_FOUND, objectId);
+      return new PSLockException(LockErrorCodes.LOCK_NOT_FOUND, objectId);
    }
 
    /**
@@ -164,7 +216,7 @@ public class PSLockException extends PSBaseException {
     * @return a new PSLockException instance
     */
    public static PSLockException lockExpired(long objectId) {
-      return new PSLockException(IPSLockErrors.LOCK_EXPIRED, objectId);
+      return new PSLockException(LockErrorCodes.LOCK_EXPIRED, objectId);
    }
 
    /**
@@ -180,7 +232,7 @@ public class PSLockException extends PSBaseException {
       if (attemptedUser.trim().isEmpty()) {
          throw new IllegalArgumentException("attemptedUser cannot be empty");
       }
-      return new PSLockException(IPSLockErrors.PERMISSION_DENIED, objectId, attemptedUser, -1);
+      return new PSLockException(LockErrorCodes.PERMISSION_DENIED, objectId, attemptedUser, -1);
    }
 
    /**

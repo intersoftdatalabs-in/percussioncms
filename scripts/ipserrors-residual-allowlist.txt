@@ -4,7 +4,6 @@
 # the gate until it is listed here with an issue link.
 #
 # Shrink this list as retype PRs merge:
-#   #3584 SiteManage IPSSiteManageErrors -> SiteManageErrorCodes
 #   #3585 webservices/transformation leftover call sites
 #   #3739 deployer catalog/client/objectstore/PSDeployService
 #   #3740 deployer server/handlers + server/dependencies
@@ -55,16 +54,6 @@ modules/utils/src/main/java/com/percussion/utils/spring/PSSpringBeanUtils.java
 modules/utils/src/main/java/com/percussion/utils/spring/PSSpringConfiguration.java
 modules/utils/src/main/java/com/percussion/utils/xml/PSXmlUtils.java
 modules/utils/src/main/java/com/percussion/xml/PSXmlTreeWalker.java
-projects/sitemanage/src/main/java/com/percussion/apibridge/TemplateAdaptor.java
-projects/sitemanage/src/main/java/com/percussion/pagemanagement/assembler/PSPageDatabaseAssembler.java
-projects/sitemanage/src/main/java/com/percussion/pagemanagement/assembler/PSPageUtils.java
-projects/sitemanage/src/main/java/com/percussion/pagemanagement/assembler/impl/PSAbstractTemplateExpanderAdapter.java
-projects/sitemanage/src/main/java/com/percussion/sitemanage/dao/impl/PSSiteDao.java
-projects/sitemanage/src/main/java/com/percussion/sitemanage/dao/impl/PSSitePublishDao.java
-projects/sitemanage/src/main/java/com/percussion/sitemanage/importer/PSSiteImporter.java
-projects/sitemanage/src/main/java/com/percussion/sitemanage/importer/helpers/impl/PSLinkExtractionHelper.java
-projects/sitemanage/src/main/java/com/percussion/sitemanage/service/impl/PSSiteDataRestService.java
-projects/sitemanage/src/main/java/com/percussion/sitemanage/service/impl/PSSiteSectionService.java
 system/Testing/Extensions/src/com/percussion/extensions/testing/PSMakeCERequest.java
 system/Testing/Extensions/src/com/percussion/extensions/testing/PSSortDocData.java
 system/Testing/Extensions/src/com/percussion/extensions/testing/TestMakeInternalRequest.java
@@ -80,62 +69,6 @@ system/business/src/com/percussion/rx/delivery/impl/PSFileDeliveryHandler.java
 system/business/src/com/percussion/rx/delivery/impl/PSFtpsDeliveryHandler.java
 system/business/src/com/percussion/rx/delivery/impl/PSLocalDeliveryManager.java
 system/business/src/com/percussion/rx/design/impl/PSRelationshipConfigModel.java
-system/services/src/com/percussion/services/assembly/IPSAssemblyService.java
-system/services/src/com/percussion/services/assembly/data/PSAssemblyWorkItem.java
-system/services/src/com/percussion/services/assembly/impl/PSAssemblyService.java
-system/services/src/com/percussion/services/assembly/impl/finder/PSContentFinderBase.java
-system/services/src/com/percussion/services/assembly/impl/finder/PSNavFinderUtils.java
-system/services/src/com/percussion/services/assembly/impl/finder/PSTranslationSlotFinder.java
-system/services/src/com/percussion/services/assembly/impl/plugin/PSDebugAssembler.java
-system/services/src/com/percussion/services/assembly/jexl/PSAssemblerUtils.java
-system/services/src/com/percussion/services/assembly/jexl/PSLocationUtils.java
-system/services/src/com/percussion/services/content/impl/PSContentService.java
-system/services/src/com/percussion/services/filestorage/extensions/PSChecksumFileInfo.java
-system/services/src/com/percussion/services/filestorage/extensions/PSFileStorageTools.java
-system/services/src/com/percussion/services/filter/IPSFilterService.java
-system/services/src/com/percussion/services/filter/data/PSItemFilter.java
-system/services/src/com/percussion/services/filter/impl/PSFilterManager.java
-system/services/src/com/percussion/services/filter/impl/PSPublishableStateFilter.java
-system/services/src/com/percussion/services/legacy/impl/PSCmsObjectMgr.java
-system/services/src/com/percussion/services/locking/PSLockException.java
-system/services/src/com/percussion/services/locking/impl/PSObjectLockService.java
-system/services/src/com/percussion/services/publisher/data/PSEditionContentList.java
-system/services/src/com/percussion/services/publisher/data/PSEditionTaskDef.java
-system/services/src/com/percussion/services/publisher/impl/PSBaseTemplateExpander.java
-system/services/src/com/percussion/services/publisher/impl/PSContentListServlet.java
-system/services/src/com/percussion/services/publisher/impl/PSIncrementalPublishingFilter.java
-system/services/src/com/percussion/services/publisher/impl/PSJexlLocationGenerator.java
-system/services/src/com/percussion/services/publisher/impl/PSListTemplateExpander.java
-system/services/src/com/percussion/services/publisher/impl/PSPublisherService.java
-system/services/src/com/percussion/services/publisher/impl/PSQueryContentListGenerator.java
-system/services/src/com/percussion/services/publisher/impl/PSSiteTemplateExpander.java
-system/services/src/com/percussion/services/security/PSServiceSecurityException.java
-system/services/src/com/percussion/services/security/impl/PSAclService.java
-system/services/src/com/percussion/services/security/impl/PSBackEndRoleMgr.java
-system/services/src/com/percussion/services/sitemgr/impl/PSSiteManager.java
-system/services/src/com/percussion/services/system/PSAssignmentTypeHelper.java
-system/services/src/com/percussion/services/system/impl/PSSystemService.java
-system/services/src/com/percussion/services/ui/PSUiException.java
-system/services/src/com/percussion/services/ui/impl/PSUiService.java
-system/services/src/com/percussion/services/workflow/PSWorkflowException.java
-system/services/src/com/percussion/services/workflow/impl/PSWorkflowService.java
-system/servlet/src/com/percussion/hooks/PSConnectionFactory.java
-system/servlet/src/com/percussion/hooks/PSServletBase.java
-system/servlet/src/com/percussion/hooks/servlet/RhythmyxServlet.java
-system/servlet/src/com/percussion/webdav/PSWebdavServlet.java
-system/servlet/src/com/percussion/webdav/method/PSCopyMethod.java
-system/servlet/src/com/percussion/webdav/method/PSDeleteMethod.java
-system/servlet/src/com/percussion/webdav/method/PSLockMethod.java
-system/servlet/src/com/percussion/webdav/method/PSMethodFactory.java
-system/servlet/src/com/percussion/webdav/method/PSMkcolMethod.java
-system/servlet/src/com/percussion/webdav/method/PSPropFindMethod.java
-system/servlet/src/com/percussion/webdav/method/PSPropPatchMethod.java
-system/servlet/src/com/percussion/webdav/method/PSUnlockMethod.java
-system/servlet/src/com/percussion/webdav/method/PSWebdavMethod.java
-system/servlet/src/com/percussion/webdav/method/PSWebdavUtils.java
-system/servlet/src/com/percussion/webdav/objectstore/PSPropertyFieldNameMapping.java
-system/servlet/src/com/percussion/webdav/objectstore/PSWebdavConfigDef.java
-system/servlet/src/com/percussion/webdav/objectstore/PSWebdavContentType.java
 system/src/main/java/com/percussion/cms/PSApplicationBuilder.java
 system/src/main/java/com/percussion/cms/PSChoiceBuilder.java
 system/src/main/java/com/percussion/cms/PSCompleteChildDocumentBuilder.java

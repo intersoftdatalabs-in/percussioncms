@@ -39,7 +39,6 @@ import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.guidmgr.PSGuidUtils;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.security.IPSBackEndRoleMgr;
-import com.percussion.services.security.IPSSecurityErrors;
 import com.percussion.services.security.PSJaasUtils;
 import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.data.PSBackEndRole;
@@ -73,6 +72,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.intsof.percussioncms.auditlog.codes.ServiceSecurityErrorCodes;
 
 
 /**
@@ -826,7 +826,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
          PSCommunity community = session.get(PSCommunity.class,id.longValue());
 
          if (community==null)
-            throw new PSServiceSecurityException(IPSSecurityErrors.MISSING_COMMUNITY,
+            throw new PSServiceSecurityException(ServiceSecurityErrorCodes.MISSING_COMMUNITY,
                 id);
 
          return community;

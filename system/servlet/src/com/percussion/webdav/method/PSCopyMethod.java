@@ -43,7 +43,7 @@ import com.percussion.error.PSException;
 import com.percussion.util.PSCharSets;
 import com.percussion.webdav.PSWebdavServlet;
 import com.percussion.webdav.PSWebdavStatus;
-import com.percussion.webdav.error.IPSWebdavErrors;
+import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.percussion.webdav.error.PSWebdavException;
 
 /**
@@ -84,7 +84,7 @@ public class PSCopyMethod extends PSWebdavMethod
 
       if (destination == null || destination.trim().length() == 0)
       {
-         throw new PSWebdavException(IPSWebdavErrors.HEADER_MISSING,
+         throw new PSWebdavException(WebdavErrorCodes.HEADER_MISSING,
             H_DESTINATION, PSWebdavStatus.SC_BAD_REQUEST);
       }
 
@@ -100,7 +100,7 @@ public class PSCopyMethod extends PSWebdavMethod
       catch (MalformedURLException e)
       {
          String[] args = {destination, H_DESTINATION};
-         throw new PSWebdavException(IPSWebdavErrors.MALFORMED_URL_FROM_HEADER,
+         throw new PSWebdavException(WebdavErrorCodes.MALFORMED_URL_FROM_HEADER,
                args, PSWebdavStatus.SC_BAD_REQUEST);
       }
       catch (UnsupportedEncodingException e)
@@ -122,7 +122,7 @@ public class PSCopyMethod extends PSWebdavMethod
       {
          String[] args = { m_sourcePath, getRequest().getMethod()};
          throw new PSWebdavException(
-            IPSWebdavErrors.FORBIDDEN_SRC_TARGET_SAME,
+            WebdavErrorCodes.FORBIDDEN_SRC_TARGET_SAME,
             args,
             PSWebdavStatus.SC_FORBIDDEN);
       }
@@ -136,7 +136,7 @@ public class PSCopyMethod extends PSWebdavMethod
       else if (! isOverwrite())
       {   // if request does not specify overwrite, fail with 412 status code
           throw new PSWebdavException(
-             IPSWebdavErrors.METHOD_FAIL_CANNOT_OVERWRITE,
+             WebdavErrorCodes.METHOD_FAIL_CANNOT_OVERWRITE,
              m_targetPath,
              PSWebdavStatus.SC_PRECONDITION_FAILED);
       }

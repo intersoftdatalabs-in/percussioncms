@@ -38,10 +38,10 @@ import com.intsof.percussioncms.auditlog.SystemErrorCode;
  * constructors and bundles stay stable. Every constant sets {@link #isAuditable()} explicitly:
  * lifecycle events dual-write; conversion/config noise does not.
  *
- * <p>Package-local {@code com.percussion.services.content.IPSContentErrors.MISSING_KEYWORD} uses
- * package-local int {@code 1} and is <strong>not</strong> registered in the flat {@link
- * LegacyErrorCodeRegistry} (would collide with other package-local catalogs). Prefer this enum (or
- * a future composite-key registry) for dual-write decisions on that code.
+ * <p>Package-local {@link #MISSING_KEYWORD} ({@code
+ * com.percussion.services.content.IPSContentErrors.MISSING_KEYWORD} = {@code 1}) is
+ * <strong>not</strong> registered in the flat {@link LegacyErrorCodeRegistry} (would collide with
+ * {@link WorkflowErrorCodes}). Prefer this enum directly for that leftover.
  */
 public enum ContentErrorCodes implements SystemErrorCode {
 
@@ -175,7 +175,19 @@ public enum ContentErrorCodes implements SystemErrorCode {
       null,
       AuditOutcome.UNKNOWN,
       "Unsupported content converter constructor",
-      "Unsupported content converter constructor");
+      "Unsupported content converter constructor"),
+
+  /**
+   * Package-local {@code com.percussion.services.content.IPSContentErrors.MISSING_KEYWORD}. Not
+   * flat-registered (collides with {@link WorkflowErrorCodes#WORKFLOW_NOT_FOUND}).
+   */
+  MISSING_KEYWORD(
+      1,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Missing keyword: {}",
+      "Missing keyword id={}");
 
   private final int numericCode;
   private final boolean auditable;
@@ -204,11 +216,15 @@ public enum ContentErrorCodes implements SystemErrorCode {
   }
 
   /**
-   * Register (or re-register) all constants in {@link LegacyErrorCodeRegistry}. Safe to call
-   * repeatedly — used by registry bootstrap and tests after {@code clearForTests}.
+   * Register (or re-register) globally unique constants in {@link LegacyErrorCodeRegistry}. Skips
+   * package-local {@link #MISSING_KEYWORD} ({@code 1}) that collides with {@link
+   * WorkflowErrorCodes}. Safe to call repeatedly.
    */
   public static void ensureRegistered() {
     for (ContentErrorCodes code : values()) {
+      if (code.numericCode == 1) {
+        continue;
+      }
       LegacyErrorCodeRegistry.register(code.numericCode(), code);
     }
   }

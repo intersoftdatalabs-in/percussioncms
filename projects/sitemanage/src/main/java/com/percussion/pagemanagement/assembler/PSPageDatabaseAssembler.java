@@ -17,10 +17,10 @@
 
 package com.percussion.pagemanagement.assembler;
 
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.pagemanagement.assembler.impl.PSAssemblyItemBridge;
-import com.percussion.services.assembly.IPSAssemblyErrors;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.impl.PSAssemblyJexlEvaluator;
@@ -68,7 +68,7 @@ public class PSPageDatabaseAssembler extends PSDatabaseAssembler {
           "Failed to create page assembly context ($perc). The underlying error is: "
               + e.getMessage();
       log.error(msg, e);
-      throw new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_ERROR, e, msg);
+      throw new PSAssemblyException(AssemblyErrorCodes.UNKNOWN_ERROR.numericCode(), e, msg);
     }
   }
 

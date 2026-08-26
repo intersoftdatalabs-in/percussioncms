@@ -23,7 +23,6 @@ import com.percussion.cms.objectstore.server.PSRelationshipProcessor;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.server.webservices.PSServerFolderProcessor;
-import com.percussion.services.assembly.IPSAssemblyErrors;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
@@ -39,7 +38,6 @@ import com.percussion.services.contentmgr.PSContentMgrLocator;
 import com.percussion.services.contentmgr.PSContentMgrOption;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.filter.IPSFilterService;
-import com.percussion.services.filter.IPSFilterServiceErrors;
 import com.percussion.services.filter.IPSItemFilter;
 import com.percussion.services.filter.PSFilterException;
 import com.percussion.services.filter.PSFilterServiceLocator;
@@ -82,6 +80,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.FilterServiceErrorCodes;
 
 /**
  * Concrete implementation class for assembly items and results. Allows the
@@ -1048,7 +1048,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
                      .isBlank(filter)))
          {
             throw new PSFilterException(
-                  IPSFilterServiceErrors.PARAMS_AUTHTYPE_OR_FILTER);
+                  FilterServiceErrorCodes.PARAMS_AUTHTYPE_OR_FILTER);
          }
 
          IPSFilterService filterservice = PSFilterServiceLocator
@@ -1528,7 +1528,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
             int lastslash = m_path.lastIndexOf("/");
             if (lastslash < 0)
             {
-               throw new PSAssemblyException(IPSAssemblyErrors.INVALID_PATH,
+               throw new PSAssemblyException(AssemblyErrorCodes.INVALID_PATH,
                      m_path);
             }
             String partialpath = m_path.substring(0, lastslash);
@@ -1538,12 +1538,12 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
                      PSRelationshipProcessorProxy.RELATIONSHIP_COMPTYPE,
                      partialpath, PSRelationshipConfig.TYPE_FOLDER_CONTENT);
                if (m_folderId == -1)
-                  throw new PSAssemblyException(IPSAssemblyErrors.MISSING_PATH,
+                  throw new PSAssemblyException(AssemblyErrorCodes.MISSING_PATH,
                         partialpath);
             }
             catch (PSCmsException ee)
             {
-               throw new PSAssemblyException(IPSAssemblyErrors.INVALID_PATH,
+               throw new PSAssemblyException(AssemblyErrorCodes.INVALID_PATH,
                      partialpath);
             }
             if (m_folderId != 0)
@@ -1582,17 +1582,17 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
          // At this point, all three identities should be assigned
          if (m_id == null)
-            throw new PSAssemblyException(IPSAssemblyErrors.PARAMS_ITEM_SPEC);
+            throw new PSAssemblyException(AssemblyErrorCodes.PARAMS_ITEM_SPEC);
          if (m_path == null)
-            throw new PSAssemblyException(IPSAssemblyErrors.PARAMS_ITEM_SPEC);
+            throw new PSAssemblyException(AssemblyErrorCodes.PARAMS_ITEM_SPEC);
          if (StringUtils.isBlank(getParameterValue(
                IPSHtmlParameters.SYS_CONTENTID, null)))
-            throw new PSAssemblyException(IPSAssemblyErrors.PARAMS_ITEM_SPEC);
+            throw new PSAssemblyException(AssemblyErrorCodes.PARAMS_ITEM_SPEC);
 
       }
       catch (PSCmsException e)
       {
-         throw new PSAssemblyException(IPSAssemblyErrors.ITEM_CREATION, e);
+         throw new PSAssemblyException(AssemblyErrorCodes.ITEM_CREATION, e);
       }
       finally
       {

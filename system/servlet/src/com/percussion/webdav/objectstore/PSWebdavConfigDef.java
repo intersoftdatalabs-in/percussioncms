@@ -36,7 +36,7 @@ import org.xml.sax.SAXException;
 
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
-import com.percussion.webdav.error.IPSWebdavErrors;
+import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.percussion.webdav.error.PSWebdavException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
@@ -102,7 +102,7 @@ public class PSWebdavConfigDef extends PSWebdavComponent
          throw new IllegalArgumentException("File cannot be null.");
       // Does the specified file actually exist?
       if (!xmlfile.exists() || !xmlfile.isFile())
-         throw new PSWebdavException(IPSWebdavErrors.FILE_DOES_NOT_EXIST,
+         throw new PSWebdavException(WebdavErrorCodes.FILE_DOES_NOT_EXIST,
                xmlfile.getAbsolutePath());
 
       try( FileInputStream in = new FileInputStream(xmlfile)){
@@ -114,14 +114,14 @@ public class PSWebdavConfigDef extends PSWebdavComponent
       {
          log.error(ie.getMessage());
          log.debug(ie.getMessage(), ie);
-         throw new PSWebdavException(IPSWebdavErrors.IO_EXCEPTION_OCCURED, ie
+         throw new PSWebdavException(WebdavErrorCodes.IO_EXCEPTION_OCCURED, ie
                .getMessage());
       }
       catch (SAXException se)
       {
          log.error(se.getMessage());
          log.debug(se.getMessage(), se);
-         throw new PSWebdavException(IPSWebdavErrors.SAX_EXCEPTION_OCCURED, se
+         throw new PSWebdavException(WebdavErrorCodes.SAX_EXCEPTION_OCCURED, se
                .getMessage());
       }
    }
@@ -183,14 +183,14 @@ public class PSWebdavConfigDef extends PSWebdavComponent
       {
          log.error(ie.getMessage());
          log.debug(ie.getMessage(), ie);
-         throw new PSWebdavException(IPSWebdavErrors.IO_EXCEPTION_OCCURED, ie
+         throw new PSWebdavException(WebdavErrorCodes.IO_EXCEPTION_OCCURED, ie
                .getMessage());
       }
       catch (SAXException se)
       {
          log.error(se.getMessage());
          log.debug(se.getMessage(), se);
-         throw new PSWebdavException(IPSWebdavErrors.SAX_EXCEPTION_OCCURED, se
+         throw new PSWebdavException(WebdavErrorCodes.SAX_EXCEPTION_OCCURED, se
                .getMessage());
       }
    }
@@ -469,22 +469,22 @@ public class PSWebdavConfigDef extends PSWebdavComponent
       // Validate that the required attributes are set
       if (rootPath == null || rootPath.trim().length() == 0)
          handleValidationExceptions(new PSWebdavException(
-               IPSWebdavErrors.XML_ATTRIBUTE_MUST_BE_SPECIFIED, new Object[] {
+               WebdavErrorCodes.XML_ATTRIBUTE_MUST_BE_SPECIFIED, new Object[] {
                      IPSRxWebDavDTD.ATTR_ROOT, getNodeName() }));
 
       if (community == null || community.trim().length() == 0)
          handleValidationExceptions(new PSWebdavException(
-               IPSWebdavErrors.XML_ATTRIBUTE_MUST_BE_SPECIFIED, new Object[] {
+               WebdavErrorCodes.XML_ATTRIBUTE_MUST_BE_SPECIFIED, new Object[] {
                      IPSRxWebDavDTD.ATTR_COMMUNITY_NAME, getNodeName() }));
 
       if (communityId == null || communityId.trim().length() == 0)
          handleValidationExceptions(new PSWebdavException(
-               IPSWebdavErrors.XML_ATTRIBUTE_MUST_BE_SPECIFIED, new Object[] {
+               WebdavErrorCodes.XML_ATTRIBUTE_MUST_BE_SPECIFIED, new Object[] {
                      IPSRxWebDavDTD.ATTR_COMMUNITY_ID, getNodeName() }));
 
       if (locale == null || locale.trim().length() == 0)
          handleValidationExceptions(new PSWebdavException(
-               IPSWebdavErrors.XML_ATTRIBUTE_MUST_BE_SPECIFIED, new Object[] {
+               WebdavErrorCodes.XML_ATTRIBUTE_MUST_BE_SPECIFIED, new Object[] {
                      IPSRxWebDavDTD.ATTR_LOCALE, getNodeName() }));
 
       if (deleteAs != null
@@ -529,7 +529,7 @@ public class PSWebdavConfigDef extends PSWebdavComponent
          if (typeNames.contains(ct.getName()))
          {
             handleValidationExceptions(new PSWebdavException(
-                  IPSWebdavErrors.DUPLICATE_CONTENTTYPE_NAMES, ct.getName()));
+                  WebdavErrorCodes.DUPLICATE_CONTENTTYPE_NAMES, ct.getName()));
          }
          typeNames.add(ct.getName());
          if (ct.isDefault())
@@ -537,7 +537,7 @@ public class PSWebdavConfigDef extends PSWebdavComponent
             if (gotDefault)
             {
                handleValidationExceptions(new PSWebdavException(
-                     IPSWebdavErrors.CAN_ONLY_HAVE_ONE_DEFAULT_CONTENTTYPE));
+                     WebdavErrorCodes.CAN_ONLY_HAVE_ONE_DEFAULT_CONTENTTYPE));
             }
             gotDefault = true;
          }

@@ -24,8 +24,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 import com.percussion.rest.templates.TemplateDetail;
-import com.percussion.services.assembly.IPSAssemblyErrors;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.data.PSAssemblyTemplate;
@@ -68,7 +68,9 @@ class TemplateAdaptorCreateTest {
     PSAssemblyTemplate created = mockTemplate("site.html.snippet");
     when(asm.createTemplate()).thenReturn(created);
     when(asm.findTemplateByName("site.html.snippet"))
-        .thenThrow(new PSAssemblyException(IPSAssemblyErrors.TEMPLATE_MISSING, "site.html.snippet"))
+        .thenThrow(
+            new PSAssemblyException(
+                AssemblyErrorCodes.TEMPLATE_MISSING.numericCode(), "site.html.snippet"))
         .thenReturn(created);
 
     TemplateAdaptor adaptor = new TemplateAdaptor(asm, contentWs);
@@ -117,7 +119,8 @@ class TemplateAdaptorCreateTest {
     PSAssemblyTemplate created = mockTemplate("md.note");
     when(asm.createTemplate()).thenReturn(created);
     when(asm.findTemplateByName("md.note"))
-        .thenThrow(new PSAssemblyException(IPSAssemblyErrors.TEMPLATE_MISSING, "md.note"))
+        .thenThrow(
+            new PSAssemblyException(AssemblyErrorCodes.TEMPLATE_MISSING.numericCode(), "md.note"))
         .thenReturn(created);
 
     TemplateAdaptor adaptor = new TemplateAdaptor(asm, contentWs);
@@ -136,7 +139,8 @@ class TemplateAdaptorCreateTest {
     IPSAssemblyService asm = mock(IPSAssemblyService.class);
     IPSContentWs contentWs = mock(IPSContentWs.class);
     when(asm.findTemplateByName("site.html.snippet"))
-        .thenThrow(new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_ERROR, "db down"));
+        .thenThrow(
+            new PSAssemblyException(AssemblyErrorCodes.UNKNOWN_ERROR.numericCode(), "db down"));
 
     TemplateAdaptor adaptor = new TemplateAdaptor(asm, contentWs);
     TemplateDetail body = new TemplateDetail();
@@ -157,10 +161,13 @@ class TemplateAdaptorCreateTest {
     PSAssemblyTemplate existing = mockTemplate("site.html.snippet");
     when(asm.createTemplate()).thenReturn(created);
     when(asm.findTemplateByName("site.html.snippet"))
-        .thenThrow(new PSAssemblyException(IPSAssemblyErrors.TEMPLATE_MISSING, "site.html.snippet"))
+        .thenThrow(
+            new PSAssemblyException(
+                AssemblyErrorCodes.TEMPLATE_MISSING.numericCode(), "site.html.snippet"))
         .thenReturn(existing);
     org.mockito.Mockito.doThrow(
-            new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_CRUD_ERROR, "constraint"))
+            new PSAssemblyException(
+                AssemblyErrorCodes.UNKNOWN_CRUD_ERROR.numericCode(), "constraint"))
         .when(asm)
         .saveTemplate(created);
 

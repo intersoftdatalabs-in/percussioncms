@@ -17,6 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.publisher;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.utils.exceptions.PSBaseException;
 
 import java.util.Objects;
@@ -74,6 +75,29 @@ public class PSPublisherException extends PSBaseException {
     */
    public PSPublisherException(int msgCode) {
       super(msgCode);
+   }
+
+   /**
+    * Typed construction from a catalogued {@link IPSErrorCode}.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param arrayArgs the arguments to the message code, may be empty but not {@code null}
+    */
+   public PSPublisherException(IPSErrorCode code, Object... arrayArgs) {
+      super(code, Objects.requireNonNull(arrayArgs, "arrayArgs cannot be null"));
+   }
+
+   /**
+    * Typed construction with a cause.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param cause the original exception cause, not {@code null}
+    * @param arrayArgs the arguments to the message code, may be empty but not {@code null}
+    */
+   public PSPublisherException(IPSErrorCode code, Throwable cause, Object... arrayArgs) {
+      super(code,
+            Objects.requireNonNull(cause, "cause cannot be null"),
+            Objects.requireNonNull(arrayArgs, "arrayArgs cannot be null"));
    }
 
    /**
