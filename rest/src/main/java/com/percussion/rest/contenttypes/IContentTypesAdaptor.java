@@ -66,8 +66,8 @@ public interface IContentTypesAdaptor {
    * <p>Supports label, description, enabled, per-field {@code searchable} (and optional
    * occurrence), allowed workflows (+ default workflow id), and allowed templates. Association
    * lists use full-replace semantics when non-null; omit them to leave associations unchanged.
-   * Field rule expressions remain read-only. Control property values use {@link
-   * #replaceFieldControlProperties}.
+   * Field rule expressions use {@link #replaceFieldRuleExpressions}. Control property values use
+   * {@link #replaceFieldControlProperties}.
    *
    * @return updated detail, or {@code null} when not found
    * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
@@ -186,4 +186,28 @@ public interface IContentTypesAdaptor {
    */
   ContentTypeFieldControlProperties replaceFieldControlProperties(
       URI baseUri, String idOrName, String fieldName, ContentTypeFieldControlProperties body);
+
+  /**
+   * Load field-level validation, visibility, and input/output translation expressions (CD-05–07).
+   * No design lock is required. Empty lists mean none configured.
+   *
+   * @return envelope, or {@code null} when the content type is not found
+   * @throws jakarta.ws.rs.WebApplicationException {@code 404} when the field name is unknown
+   */
+  ContentTypeFieldRuleExpressions getFieldRuleExpressions(
+      URI baseUri, String idOrName, String fieldName);
+
+  /**
+   * Replace field-level validation, visibility, and translation expressions. Requires a
+   * design-session lock already held by the current user. Does not acquire or release the lock.
+   * {@code validation}, {@code visibility}, {@code inputTranslation}, and {@code outputTranslation}
+   * are full replace (empty clears).
+   *
+   * @return persisted envelope, or {@code null} when the content type is not found
+   * @throws ContentTypeDesignLockException when no lock is held or another user owns the lock
+   * @throws IllegalArgumentException when required lists are missing, a rule is invalid, or the
+   *     field name is unknown
+   */
+  ContentTypeFieldRuleExpressions replaceFieldRuleExpressions(
+      URI baseUri, String idOrName, String fieldName, ContentTypeFieldRuleExpressions body);
 }

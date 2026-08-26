@@ -607,6 +607,143 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
+  public void getFieldRuleExpressionsReturnsEnvelope() {
+    ContentTypeFieldRuleExpressions envelope = new ContentTypeFieldRuleExpressions();
+    envelope.setFieldName("sys_title");
+    ContentTypeFieldRule rule = new ContentTypeFieldRule();
+    rule.setType(ContentTypeFieldRule.TYPE_CONDITIONAL);
+    rule.setConditionals(List.of(new ContentTypeFieldConditional("sys_title", "<>", "")));
+    envelope.setValidation(List.of(rule));
+    envelope.setVisibility(List.of());
+    envelope.setInputTranslation(List.of());
+    envelope.setOutputTranslation(List.of());
+    envelope.setValidationExpression("sys_title <> ");
+    when(adaptor.getFieldRuleExpressions(any(), eq("percPage"), eq("sys_title")))
+        .thenReturn(envelope);
+    ContentTypeFieldRuleExpressions out = resource.getFieldRuleExpressions("percPage", "sys_title");
+    assertEquals("sys_title", out.getFieldName());
+    assertEquals(1, out.getValidation().size());
+    assertEquals("<>", out.getValidation().get(0).getConditionals().get(0).getOperator());
+  }
+
+  @Test
+  public void getFieldRuleExpressionsContentTypeNotFound() {
+    when(adaptor.getFieldRuleExpressions(any(), eq("missing"), eq("sys_title"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.getFieldRuleExpressions("missing", "sys_title"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getFieldRuleExpressionsFieldNotFound() {
+    when(adaptor.getFieldRuleExpressions(any(), eq("percPage"), eq("nope")))
+        .thenThrow(new WebApplicationException("Unknown field: nope", 404));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.getFieldRuleExpressions("percPage", "nope"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceFieldRuleExpressionsSuccess() {
+    ContentTypeFieldRuleExpressions body = emptyRuleExpressionsBody();
+    ContentTypeFieldRuleExpressions updated = emptyRuleExpressionsBody();
+    updated.setFieldName("sys_title");
+    when(adaptor.replaceFieldRuleExpressions(any(), eq("percPage"), eq("sys_title"), any()))
+        .thenReturn(updated);
+    ContentTypeFieldRuleExpressions out =
+        resource.replaceFieldRuleExpressions("percPage", "sys_title", body);
+    assertEquals("sys_title", out.getFieldName());
+  }
+
+  @Test
+  public void replaceFieldRuleExpressionsRequiresLists() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.replaceFieldRuleExpressions(
+                    "percPage", "sys_title", new ContentTypeFieldRuleExpressions()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceFieldRuleExpressionsRequiresLock() {
+    ContentTypeFieldRuleExpressions body = emptyRuleExpressionsBody();
+    when(adaptor.replaceFieldRuleExpressions(any(), eq("percPage"), eq("sys_title"), any()))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not save field rule expressions; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldRuleExpressions("percPage", "sys_title", body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceFieldRuleExpressionsLockedByOtherUser() {
+    ContentTypeFieldRuleExpressions body = emptyRuleExpressionsBody();
+    when(adaptor.replaceFieldRuleExpressions(any(), eq("percPage"), eq("sys_title"), any()))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not save field rule expressions; locked by editor"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldRuleExpressions("percPage", "sys_title", body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceFieldRuleExpressionsUnknownField400() {
+    ContentTypeFieldRuleExpressions body = emptyRuleExpressionsBody();
+    when(adaptor.replaceFieldRuleExpressions(any(), eq("percPage"), eq("nope"), any()))
+        .thenThrow(new IllegalArgumentException("Unknown field: nope"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldRuleExpressions("percPage", "nope", body));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void fieldRuleExpressionsJsonSerializesRulesAndSummaries() throws Exception {
+    ContentTypeFieldRuleExpressions env = emptyRuleExpressionsBody();
+    env.setFieldName("sys_title");
+    ContentTypeFieldRule rule = new ContentTypeFieldRule();
+    rule.setType(ContentTypeFieldRule.TYPE_CONDITIONAL);
+    rule.setConditionals(List.of(new ContentTypeFieldConditional("sys_title", "<>", "")));
+    env.setValidation(List.of(rule));
+    env.setValidationExpression("sys_title <> ");
+    env.setDesignGaps(
+        List.of(
+            DesignGap.of(
+                "CT_FIELD_RULE_APPLY_WHEN",
+                "Apply-when on field validation is read-only")));
+
+    ObjectMapper mapper =
+        new JacksonContextResolver().getContext(ContentTypeFieldRuleExpressions.class);
+    String json = mapper.writeValueAsString(env);
+    assertTrue(json.contains("validation"), json);
+    assertTrue(json.contains("sys_title"), json);
+    assertTrue(json.contains("validationExpression"), json);
+    assertTrue(json.contains("CT_FIELD_RULE_APPLY_WHEN"), json);
+  }
+
+  private static ContentTypeFieldRuleExpressions emptyRuleExpressionsBody() {
+    ContentTypeFieldRuleExpressions body = new ContentTypeFieldRuleExpressions();
+    body.setValidation(List.of());
+    body.setVisibility(List.of());
+    body.setInputTranslation(List.of());
+    body.setOutputTranslation(List.of());
+    return body;
+  }
+
+  @Test
   public void unlockContentTypeConflictWhenLockedByOtherUser() {
     when(adaptor.unlockContentType(any(), eq("percPage")))
         .thenThrow(

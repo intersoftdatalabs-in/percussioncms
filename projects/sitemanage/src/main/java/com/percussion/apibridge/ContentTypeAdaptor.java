@@ -39,6 +39,7 @@ import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSFieldTranslation;
 import com.percussion.design.objectstore.PSFieldValidationRules;
+import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.design.objectstore.PSInputTranslations;
 import com.percussion.design.objectstore.PSOutputTranslations;
 import com.percussion.design.objectstore.PSParam;
@@ -63,7 +64,10 @@ import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeDesignLockException;
 import com.percussion.rest.contenttypes.ContentTypeField;
+import com.percussion.rest.contenttypes.ContentTypeFieldConditional;
 import com.percussion.rest.contenttypes.ContentTypeFieldControlProperties;
+import com.percussion.rest.contenttypes.ContentTypeFieldRule;
+import com.percussion.rest.contenttypes.ContentTypeFieldRuleExpressions;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
 import com.percussion.rest.contenttypes.ContentTypeItemExit;
 import com.percussion.rest.contenttypes.ContentTypeItemExitParam;
@@ -326,9 +330,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     gaps.add(
         DesignGap.of(
               "CT_FIELD_RULE_EXPR",
-              "Field rule expressions are read-only; rule write/save is not supported. Control"
-                  + " property values and choice catalogs: GET/PUT"
-                  + " .../fields/{fieldName}/controlProperties"));
+              "Field rule expressions: GET/PUT .../fields/{fieldName}/ruleExpressions"
+                  + " (held lock for write). Detail field rows remain summary strings."
+                  + " Apply-when on field validation is read-only. Control property values:"
+                  + " GET/PUT .../fields/{fieldName}/controlProperties"));
     gaps.add(
         DesignGap.of(
             "CT_ITEM_EXITS",
@@ -858,6 +863,95 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
   }
 
+  @Override
+  public ContentTypeFieldRuleExpressions getFieldRuleExpressions(
+      URI baseUri, String idOrName, String fieldName) {
+    if (StringUtils.isBlank(idOrName) || StringUtils.isBlank(fieldName)) {
+      return null;
+    }
+    try {
+      PSItemDefinition def = resolveItemDef(idOrName.trim());
+      if (def == null) {
+        return null;
+      }
+      return loadFieldRuleExpressions(def, fieldName.trim(), true);
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for field rule expressions: {}", idOrName);
+      return null;
+    }
+  }
+
+  @Override
+  public ContentTypeFieldRuleExpressions replaceFieldRuleExpressions(
+      URI baseUri, String idOrName, String fieldName, ContentTypeFieldRuleExpressions body) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    if (StringUtils.isBlank(fieldName)) {
+      throw new IllegalArgumentException("fieldName is required");
+    }
+    if (body == null
+        || body.getValidation() == null
+        || body.getVisibility() == null
+        || body.getInputTranslation() == null
+        || body.getOutputTranslation() == null) {
+      throw new IllegalArgumentException(
+          "validation, visibility, inputTranslation, and outputTranslation are required");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    String field = fieldName.trim();
+    String session = currentSession();
+    String user = currentUser();
+    requireSessionUserForLock();
+    try {
+      IPSGuid ctGuid = resolveExistingContentTypeGuid(trimmed);
+      if (ctGuid == null) {
+        return null;
+      }
+      requireHeldLock(ctGuid);
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        throw lockConflict(e, "Could not save field rule expressions");
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      PSField target = requireField(def, field, true);
+      applyFieldRuleExpressions(target, body);
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+      } catch (PSErrorsException e) {
+        if (hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not save field rule expressions");
+        }
+        log.error("Failed to save field rule expressions for {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save field rule expressions", e);
+      }
+      PSItemDefinition reloaded = reloadItemDef(trimmed);
+      PSField after = reloaded != null ? findField(reloaded, field) : null;
+      if (after == null) {
+        after = target;
+      }
+      return toFieldRuleExpressions(field, after);
+    } catch (ContentTypeDesignLockException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Failed to replace field rule expressions for {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to replace field rule expressions", e);
+    }
+  }
+
   /**
    * Apply default workflow id and/or allowed-workflow inclusion list.
    *
@@ -1039,7 +1133,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
   /**
    * Apply writable field patches only ({@code searchable}, occurrence / required). Rule
-   * expressions, control property names/values, and field labels on the wire DTO are ignored.
+   * expressions use {@link #replaceFieldRuleExpressions}; control property names/values use
+   * {@link #replaceFieldControlProperties}. Field labels on the wire DTO are ignored.
    */
   private void applyFieldUpdates(PSItemDefinition def, List<ContentTypeField> fields) {
     if (fields == null || fields.isEmpty()) {
@@ -1637,7 +1732,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   @SuppressWarnings("unchecked")
-  private static PSExtensionCallSet toCallSet(List<ContentTypeItemExit> items, String field) {
+  static PSExtensionCallSet toCallSet(List<ContentTypeItemExit> items, String field) {
     PSExtensionCallSet set = new PSExtensionCallSet();
     int i = 0;
     for (ContentTypeItemExit item : items) {
@@ -1897,6 +1992,358 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       throw new WebApplicationException("Field not found: " + fieldName, 404);
     }
     return mapping;
+  }
+
+  /**
+   * Locate a field by submit name on the parent field set and complex children.
+   *
+   * @param notFoundIsBadRequest {@code true} throws {@link IllegalArgumentException} (PUT);
+   *     {@code false} throws HTTP 404 (GET)
+   */
+  private PSField requireField(
+      PSItemDefinition def, String fieldName, boolean notFoundIsBadRequest) {
+    PSField field = findField(def, fieldName);
+    if (field == null) {
+      String msg = "Unknown field: " + fieldName;
+      if (notFoundIsBadRequest) {
+        throw new IllegalArgumentException(msg);
+      }
+      throw new WebApplicationException(msg, 404);
+    }
+    return field;
+  }
+
+  static PSField findField(PSItemDefinition def, String fieldName) {
+    if (def == null || StringUtils.isBlank(fieldName)) {
+      return null;
+    }
+    PSFieldSet parentFs = def.getFieldSet();
+    if (parentFs != null) {
+      PSField field = parentFs.findFieldByName(fieldName, false);
+      if (field != null) {
+        return field;
+      }
+    }
+    List<PSFieldSet> children = def.getComplexChildren();
+    if (children != null) {
+      for (PSFieldSet child : children) {
+        if (child == null) {
+          continue;
+        }
+        PSField field = child.findFieldByName(fieldName, false);
+        if (field != null) {
+          return field;
+        }
+      }
+    }
+    return null;
+  }
+
+  private ContentTypeFieldRuleExpressions loadFieldRuleExpressions(
+      PSItemDefinition def, String fieldName, boolean missingFieldIs404) {
+    PSField field = requireField(def, fieldName, !missingFieldIs404);
+    return toFieldRuleExpressions(fieldName, field);
+  }
+
+  static ContentTypeFieldRuleExpressions toFieldRuleExpressions(String fieldName, PSField field) {
+    ContentTypeFieldRuleExpressions out = new ContentTypeFieldRuleExpressions();
+    out.setFieldName(fieldName);
+    out.setDesignGaps(new ArrayList<>(fieldRuleDesignGaps()));
+    if (field == null) {
+      out.setValidation(List.of());
+      out.setVisibility(List.of());
+      out.setInputTranslation(List.of());
+      out.setOutputTranslation(List.of());
+      return out;
+    }
+    PSFieldValidationRules validation = field.getValidationRules();
+    out.setValidation(toValidationFieldRules(validation));
+    out.setVisibility(toVisibilityFieldRules(field.getVisibilityRules()));
+    out.setInputTranslation(mapExtensionCalls(translationCalls(field.getInputTranslation())));
+    out.setOutputTranslation(mapExtensionCalls(translationCalls(field.getOutputTranslation())));
+    out.setValidationExpression(summarizeValidationRules(validation));
+    out.setVisibilityExpression(summarizeVisibilityRules(field.getVisibilityRules()));
+    out.setInputTranslationExpression(summarizeTranslation(field.getInputTranslation()));
+    out.setOutputTranslationExpression(summarizeTranslation(field.getOutputTranslation()));
+    if (validation != null) {
+      out.setMaxErrorsToStop(validation.getMaxErrorsToStop());
+      if (validation.getErrorMessage() != null
+          && StringUtils.isNotBlank(validation.getErrorMessage().getText())) {
+        out.setErrorMessage(validation.getErrorMessage().getText());
+      }
+    }
+    return out;
+  }
+
+  static List<DesignGap> fieldRuleDesignGaps() {
+    return List.of(
+        DesignGap.of(
+            "CT_FIELD_RULE_APPLY_WHEN",
+            "Apply-when on field validation is not written; conditional variable/value are"
+                + " stored as text literals"));
+  }
+
+  static List<ContentTypeFieldRule> toValidationFieldRules(PSFieldValidationRules rules) {
+    List<ContentTypeFieldRule> out = new ArrayList<>();
+    if (rules == null) {
+      return out;
+    }
+    for (Iterator<?> it = rules.getRules(); it.hasNext(); ) {
+      Object o = it.next();
+      if (o instanceof PSRule rule) {
+        out.addAll(toFieldRules(rule));
+      }
+    }
+    for (Iterator<?> it = rules.getRuleReferences(); it.hasNext(); ) {
+      Object ref = it.next();
+      if (ref != null && StringUtils.isNotBlank(ref.toString())) {
+        ContentTypeFieldRule dto = new ContentTypeFieldRule();
+        dto.setType(ContentTypeFieldRule.TYPE_REFERENCE);
+        dto.setReference(ref.toString().trim());
+        dto.setSummary("ref:" + ref.toString().trim());
+        out.add(dto);
+      }
+    }
+    return out;
+  }
+
+  static List<ContentTypeFieldRule> toVisibilityFieldRules(PSVisibilityRules rules) {
+    List<ContentTypeFieldRule> out = new ArrayList<>();
+    if (rules == null || rules.isEmpty()) {
+      return out;
+    }
+    for (Object o : rules) {
+      if (o instanceof PSRule rule) {
+        out.addAll(toFieldRules(rule));
+      }
+    }
+    return out;
+  }
+
+  static List<ContentTypeFieldRule> toFieldRules(PSRule rule) {
+    if (rule == null) {
+      return List.of();
+    }
+    if (rule.isExtensionSetRule()) {
+      List<ContentTypeFieldRule> out = new ArrayList<>();
+      PSExtensionCallSet set = rule.getExtensionRules();
+      if (set == null || set.isEmpty()) {
+        return out;
+      }
+      for (Object o : set) {
+        if (o instanceof PSExtensionCall call) {
+          ContentTypeItemExit exit = toExitDto(call);
+          ContentTypeFieldRule dto = new ContentTypeFieldRule();
+          dto.setType(ContentTypeFieldRule.TYPE_EXTENSION);
+          dto.setExtension(exit.getExtension());
+          dto.setName(exit.getName());
+          dto.setParameters(exit.getParameters());
+          dto.setSummary(exit.getSummary());
+          out.add(dto);
+        }
+      }
+      return out;
+    }
+    ContentTypeFieldRule dto = new ContentTypeFieldRule();
+    dto.setType(ContentTypeFieldRule.TYPE_CONDITIONAL);
+    List<ContentTypeFieldConditional> conds = new ArrayList<>();
+    for (Iterator<?> it = rule.getConditionalRules(); it.hasNext(); ) {
+      Object o = it.next();
+      if (o instanceof PSConditional conditional) {
+        ContentTypeFieldConditional cond = new ContentTypeFieldConditional();
+        cond.setVariable(replacementText(conditional.getVariable()));
+        cond.setOperator(conditional.getOperator());
+        cond.setValue(replacementText(conditional.getValue()));
+        cond.setBooleanOperator(conditional.getBoolean());
+        conds.add(cond);
+      }
+    }
+    dto.setConditionals(conds);
+    dto.setSummary(summarizeRule(rule));
+    return List.of(dto);
+  }
+
+  static String replacementText(IPSReplacementValue value) {
+    if (value == null) {
+      return null;
+    }
+    String text = value.getValueText();
+    if (StringUtils.isNotBlank(text)) {
+      return text;
+    }
+    String display = value.getValueDisplayText();
+    return StringUtils.isNotBlank(display) ? display : null;
+  }
+
+  private static PSExtensionCallSet translationCalls(PSFieldTranslation translation) {
+    return translation != null ? translation.getTranslations() : null;
+  }
+
+  static void applyFieldRuleExpressions(PSField field, ContentTypeFieldRuleExpressions body) {
+    field.setValidationRules(toFieldValidationRules(body));
+    field.setVisibilityRules(toVisibilityRules(body.getVisibility(), "visibility"));
+    field.setInputTranslation(
+        toFieldTranslation(body.getInputTranslation(), "inputTranslation"));
+    field.setOutputTranslation(
+        toFieldTranslation(body.getOutputTranslation(), "outputTranslation"));
+  }
+
+  @SuppressWarnings("unchecked")
+  static PSFieldValidationRules toFieldValidationRules(ContentTypeFieldRuleExpressions body) {
+    List<ContentTypeFieldRule> items = body.getValidation();
+    if (items.isEmpty()
+        && body.getMaxErrorsToStop() == null
+        && body.getErrorMessage() == null) {
+      return null;
+    }
+    PSCollection<PSRule> rules = new PSCollection<>(PSRule.class);
+    PSCollection<String> refs = new PSCollection<>(String.class);
+    int i = 0;
+    for (ContentTypeFieldRule item : items) {
+      String field = "validation[" + i + "]";
+      String type = ruleType(item, field);
+      if (ContentTypeFieldRule.TYPE_REFERENCE.equals(type)) {
+        if (item == null || StringUtils.isBlank(item.getReference())) {
+          throw new IllegalArgumentException(field + ".reference is required");
+        }
+        refs.add(item.getReference().trim());
+      } else {
+        rules.add(toPsRule(item, field));
+      }
+      i++;
+    }
+    if (rules.isEmpty() && refs.isEmpty()) {
+      return null;
+    }
+    PSFieldValidationRules out = new PSFieldValidationRules();
+    out.setRules(rules);
+    out.setRuleReferences(refs);
+    if (body.getMaxErrorsToStop() != null) {
+      int max = body.getMaxErrorsToStop();
+      if (max <= 0) {
+        throw new IllegalArgumentException("maxErrorsToStop must be greater than 0");
+      }
+      out.setMaxErrorsToStop(max);
+    }
+    if (body.getErrorMessage() != null) {
+      if (StringUtils.isBlank(body.getErrorMessage())) {
+        out.setErrorMessage(null);
+      } else {
+        out.setErrorMessage(new PSDisplayText(body.getErrorMessage().trim()));
+      }
+    }
+    return out;
+  }
+
+  @SuppressWarnings("unchecked")
+  static PSVisibilityRules toVisibilityRules(List<ContentTypeFieldRule> items, String field) {
+    if (items.isEmpty()) {
+      return null;
+    }
+    PSVisibilityRules out = new PSVisibilityRules();
+    int i = 0;
+    for (ContentTypeFieldRule item : items) {
+      String path = field + "[" + i + "]";
+      String type = ruleType(item, path);
+      if (ContentTypeFieldRule.TYPE_REFERENCE.equals(type)) {
+        throw new IllegalArgumentException(path + " type=reference is not allowed on visibility");
+      }
+      out.add(toPsRule(item, path));
+      i++;
+    }
+    return out;
+  }
+
+  static PSFieldTranslation toFieldTranslation(List<ContentTypeItemExit> items, String field) {
+    if (items.isEmpty()) {
+      return null;
+    }
+    return new PSFieldTranslation(toCallSet(items, field));
+  }
+
+  static String ruleType(ContentTypeFieldRule item, String field) {
+    if (item == null) {
+      throw new IllegalArgumentException(field + " is null");
+    }
+    String type = StringUtils.trimToNull(item.getType());
+    if (type == null) {
+      throw new IllegalArgumentException(field + ".type is required");
+    }
+    String lower = type.toLowerCase();
+    if (ContentTypeFieldRule.TYPE_CONDITIONAL.equals(lower)
+        || ContentTypeFieldRule.TYPE_EXTENSION.equals(lower)
+        || ContentTypeFieldRule.TYPE_REFERENCE.equals(lower)) {
+      return lower;
+    }
+    throw new IllegalArgumentException(
+        field + ".type must be conditional, extension, or reference");
+  }
+
+  @SuppressWarnings("unchecked")
+  static PSRule toPsRule(ContentTypeFieldRule item, String field) {
+    String type = ruleType(item, field);
+    if (ContentTypeFieldRule.TYPE_EXTENSION.equals(type)) {
+      ContentTypeItemExit exit = new ContentTypeItemExit();
+      exit.setExtension(item.getExtension());
+      exit.setName(item.getName());
+      exit.setParameters(item.getParameters());
+      PSExtensionCallSet set = new PSExtensionCallSet();
+      set.add(toExtensionCall(exit, field));
+      return new PSRule(set);
+    }
+    if (!ContentTypeFieldRule.TYPE_CONDITIONAL.equals(type)) {
+      throw new IllegalArgumentException(field + ".type must be conditional or extension");
+    }
+    if (item.getConditionals() == null || item.getConditionals().isEmpty()) {
+      throw new IllegalArgumentException(field + ".conditionals is required");
+    }
+    PSCollection<PSConditional> conds = new PSCollection<>(PSConditional.class);
+    int i = 0;
+    for (ContentTypeFieldConditional conditional : item.getConditionals()) {
+      conds.add(toPsConditional(conditional, field + ".conditionals[" + i + "]"));
+      i++;
+    }
+    return new PSRule(conds);
+  }
+
+  static PSConditional toPsConditional(ContentTypeFieldConditional item, String field) {
+    if (item == null) {
+      throw new IllegalArgumentException(field + " is null");
+    }
+    if (StringUtils.isBlank(item.getVariable())) {
+      throw new IllegalArgumentException(field + ".variable is required");
+    }
+    if (StringUtils.isBlank(item.getOperator())) {
+      throw new IllegalArgumentException(field + ".operator is required");
+    }
+    String op = normalizeOperator(item.getOperator());
+    boolean nullOp =
+        PSConditional.OPTYPE_ISNULL.equalsIgnoreCase(op)
+            || PSConditional.OPTYPE_ISNOTNULL.equalsIgnoreCase(op);
+    IPSReplacementValue value =
+        item.getValue() != null
+            ? new PSTextLiteral(item.getValue())
+            : (nullOp ? null : new PSTextLiteral(""));
+    try {
+      return new PSConditional(
+          new PSTextLiteral(item.getVariable().trim()),
+          op,
+          value,
+          StringUtils.trimToNull(item.getBooleanOperator()));
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(field + " invalid conditional: " + e.getMessage(), e);
+    }
+  }
+
+  static String normalizeOperator(String operator) {
+    String op = operator.trim();
+    if ("!=".equals(op)) {
+      return PSConditional.OPTYPE_NOTEQUALS;
+    }
+    if ("==".equals(op)) {
+      return PSConditional.OPTYPE_EQUALS;
+    }
+    return op;
   }
 
   private static ContentTypeFieldControlProperties toFieldControlProperties(
