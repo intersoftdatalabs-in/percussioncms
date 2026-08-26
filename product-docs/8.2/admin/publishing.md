@@ -31,7 +31,7 @@ channels (static files, FTP, database, custom locations).
 
 ## Virtual Sites and docs builds
 
-For Git/filesystem, CSV/filesystem, or SQL/database Virtual Sites such as product documentation:
+For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites such as product documentation:
 
 - Offline / CI builds use `scripts/build-cms-docs.bat` / `scripts/build-cms-docs.sh` to emit static HTML without a full CMS UI session. CSV trees can use `PSVirtualSiteBuildMain … csv-filesystem`. SQL trees use `PSVirtualSiteBuildMain … sql-database` (in-memory H2 only).
 - **Build** (`POST /sites/{nameOrId}/virtual/build`) writes a staging tree under
@@ -49,22 +49,26 @@ For Git/filesystem, CSV/filesystem, or SQL/database Virtual Sites such as produc
   publishing root). Staging `_meta` files are not copied. Redirect HTML and `redirects.json`
   from optional `_redirects.yaml` are copied with the site. `sql-database` Publish is
   in-memory H2 only (`jdbc:h2:mem:`); Oracle / MySQL / SQL Server URLs return **400**.
-  The endpoint does not accept an `outputRoot` body (always the default staging root).
+  `http-json` Publish uses a local JSON fixture or loopback catalog (`http.url` /
+  `http.file` in `_config.yaml`); leftover `virtual.remoteUrl` is **400** (no secrets on
+  the envelope). The endpoint does not accept an `outputRoot` body (always the default
+  staging root).
 
 ### Publish a Virtual Site to the Site filesystem target
 
 1. Sign in as **Admin**.
-2. Configure the Site as a Git-filesystem, CSV-filesystem, or SQL-database Virtual Site (see [Sites](id:admin-sites)). After you save **SQL database**, **Build Virtual Site** on Developer Sites runs the same in-memory H2 REST Build as Git/CSV.
+2. Configure the Site as a Git-filesystem, CSV-filesystem, SQL-database, or HTTP JSON Virtual Site (see [Sites](id:admin-sites)). After you save **SQL database**, **Build Virtual Site** on Developer Sites runs the same in-memory H2 REST Build as Git/CSV. HTTP JSON Publish chrome is a later slice; integrators still call REST `POST …/virtual/publish`.
 3. Set the Site **publishing filesystem root** (Site root) to a dedicated directory on the CMS
    host. Relative roots (legacy values such as `../CI_Home`) are resolved against the CMS
    install directory. Do **not** point it at `virtual.rootPath` (the Markdown or CSV source tree).
 4. Confirm the source root exists on the host and that the publish directory is writable.
 5. From **Developer → Sites → Site detail**, choose **Publish Virtual Site** (visible for
-   **Git filesystem**, **CSV filesystem**, and **SQL database**; hidden for repository).
-   For **SQL database**, save the source, run **Build Virtual Site**, then **Publish Virtual
-   Site**. The panel reports files copied and the destination path, or a clear error.
-   Integrators can call `POST /services/sites/{nameOrId}/virtual/publish`
-   instead. Run **Build Virtual Site** first if you only want staging output.
+   **Git filesystem**, **CSV filesystem**, and **SQL database**; hidden for repository and
+   HTTP JSON chrome). For **SQL database**, save the source, run **Build Virtual Site**, then
+   **Publish Virtual Site**. The panel reports files copied and the destination path, or a
+   clear error. Integrators can call `POST /services/sites/{nameOrId}/virtual/publish`
+   instead (Git, CSV, SQL, and HTTP JSON). Run **Build Virtual Site** first if you only
+   want staging output.
 6. On success, the result includes `publishPath`, `filesCopied`, `pagesWritten`, and any
    link problems (`hasLinkProblems` can be true with HTTP 200).
 7. Spot-check `index.html` (and version folders such as `8.2/`) under the Site root. If the
