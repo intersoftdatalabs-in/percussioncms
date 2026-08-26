@@ -20,7 +20,7 @@ package com.percussion.delivery.metadata.solr.impl;
 import com.percussion.delivery.metadata.IPSMetadataEntry;
 import com.percussion.delivery.metadata.IPSMetadataProperty;
 import com.percussion.delivery.metadata.extractor.data.PSMetadataProperty;
-import com.percussion.rx.delivery.IPSDeliveryErrors;
+import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
 import com.percussion.rx.delivery.PSDeliveryException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSPurgableTempFile;
@@ -150,7 +150,7 @@ public class PSSolrDeliveryHandler {
       } catch (Exception e) {
         rollback();
         throw new PSDeliveryException(
-            IPSDeliveryErrors.SOLR_COMMUNICATION_EXCEPTION, e, PSExceptionUtils.getMessageForLog(e));
+            DeliveryErrorCodes.SOLR_COMMUNICATION_EXCEPTION, e, PSExceptionUtils.getMessageForLog(e));
       }
     }
   }
@@ -162,8 +162,8 @@ public class PSSolrDeliveryHandler {
 
     if (!serverConfig.isActive())
       throw new PSDeliveryException(
-          IPSDeliveryErrors.SOLR_COMMUNICATION_EXCEPTION,
-          null,
+          DeliveryErrorCodes.SOLR_COMMUNICATION_EXCEPTION,
+          (Throwable) null,
           "Skipped due to previous fatal error or max Solr errors reached");
 
     synchronized (this) {
@@ -228,7 +228,7 @@ public class PSSolrDeliveryHandler {
     } catch (SolrServerException | IOException e) {
       solrConfig.incrError();
       throw new PSDeliveryException(
-          IPSDeliveryErrors.SOLR_COMMUNICATION_EXCEPTION, e, PSExceptionUtils.getMessageForLog(e));
+          DeliveryErrorCodes.SOLR_COMMUNICATION_EXCEPTION, e, PSExceptionUtils.getMessageForLog(e));
     }
   }
 
@@ -256,7 +256,7 @@ public class PSSolrDeliveryHandler {
     } catch (SolrException | SolrServerException | IOException e) {
       solrConfig.incrError();
       throw new PSDeliveryException(
-          IPSDeliveryErrors.SOLR_COMMUNICATION_EXCEPTION, e, PSExceptionUtils.getMessageForLog(e));
+          DeliveryErrorCodes.SOLR_COMMUNICATION_EXCEPTION, e, PSExceptionUtils.getMessageForLog(e));
     }
     log.debug("Solr Result: {}", result);
     return true;
@@ -268,7 +268,7 @@ public class PSSolrDeliveryHandler {
 
     if (!serverConfig.isActive())
       throw new PSDeliveryException(
-          IPSDeliveryErrors.SOLR_COMMUNICATION_EXCEPTION, null, "Max Solr Errors Reached");
+          DeliveryErrorCodes.SOLR_COMMUNICATION_EXCEPTION, (Throwable) null, "Max Solr Errors Reached");
 
     synchronized (this) {
       SolrClient client = getClient();
@@ -281,7 +281,7 @@ public class PSSolrDeliveryHandler {
       } catch (SolrException | SolrServerException | IOException e) {
         serverConfig.incrError();
         throw new PSDeliveryException(
-            IPSDeliveryErrors.SOLR_COMMUNICATION_EXCEPTION, e, PSExceptionUtils.getMessageForLog(e));
+            DeliveryErrorCodes.SOLR_COMMUNICATION_EXCEPTION, e, PSExceptionUtils.getMessageForLog(e));
       }
     }
   }
@@ -295,7 +295,7 @@ public class PSSolrDeliveryHandler {
 
     if (!serverConfig.isActive())
       throw new PSDeliveryException(
-          IPSDeliveryErrors.SOLR_COMMUNICATION_EXCEPTION, null, "Max Solr Errors Reached");
+          DeliveryErrorCodes.SOLR_COMMUNICATION_EXCEPTION, (Throwable) null, "Max Solr Errors Reached");
 
     synchronized (this) {
       log.info(
@@ -310,7 +310,7 @@ public class PSSolrDeliveryHandler {
         }
       } catch (SolrException | SolrServerException | IOException e) {
         throw new PSDeliveryException(
-            IPSDeliveryErrors.SOLR_COMMUNICATION_EXCEPTION, e, PSExceptionUtils.getMessageForLog(e));
+            DeliveryErrorCodes.SOLR_COMMUNICATION_EXCEPTION, e, PSExceptionUtils.getMessageForLog(e));
       } finally {
         // Client was closed by try-with-resources; drop cached reference
         solrClient = null;

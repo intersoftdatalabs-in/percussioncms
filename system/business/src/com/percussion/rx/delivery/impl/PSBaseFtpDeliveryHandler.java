@@ -18,7 +18,7 @@
 package com.percussion.rx.delivery.impl;
 
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.rx.delivery.IPSDeliveryErrors;
+import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
 import com.percussion.rx.delivery.IPSDeliveryResult;
 import com.percussion.rx.delivery.IPSDeliveryResult.Outcome;
 import com.percussion.rx.delivery.PSDeliveryException;
@@ -798,7 +798,7 @@ public abstract class PSBaseFtpDeliveryHandler extends PSBaseDeliveryHandler
             {
                ms_log.error(NO_MORE_RETRIES);
                //tried few times, but we still fail - give up
-               throw new PSDeliveryException(IPSDeliveryErrors.UNEXPECTED_ERROR, 
+               throw new PSDeliveryException(DeliveryErrorCodes.UNEXPECTED_ERROR, 
                      e.getMessage());
             }
 
@@ -856,7 +856,7 @@ public abstract class PSBaseFtpDeliveryHandler extends PSBaseDeliveryHandler
       }
       else
       {
-         throw new PSDeliveryException(IPSDeliveryErrors.UNEXPECTED_ERROR, errorMsg);
+         throw new PSDeliveryException(DeliveryErrorCodes.UNEXPECTED_ERROR, errorMsg);
       }
    }
 

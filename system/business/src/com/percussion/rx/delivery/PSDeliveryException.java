@@ -17,6 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.rx.delivery;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.utils.exceptions.PSBaseException;
 
 /**
@@ -53,6 +54,42 @@ public class PSDeliveryException extends PSBaseException
     */
    public PSDeliveryException(int msgCode) {
       super(msgCode);
+   }
+
+   /**
+    * Typed construction from a catalogued {@link IPSErrorCode} (e.g. {@code
+    * DeliveryErrorCodes}). Sets the legacy numeric code for message lookup and
+    * retains the typed code for {@link #getTypedErrorCode()} / {@link
+    * #isAuditable()}.
+    *
+    * @param code catalogued error code, never {@code null}
+    */
+   public PSDeliveryException(IPSErrorCode code)
+   {
+      super(code);
+   }
+
+   /**
+    * Typed construction with message arguments.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param args message arguments; may be {@code null}
+    */
+   public PSDeliveryException(IPSErrorCode code, Object... args)
+   {
+      super(code, args);
+   }
+
+   /**
+    * Typed construction with a cause and message arguments.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param cause original exception, may be {@code null}
+    * @param args message arguments; may be {@code null}
+    */
+   public PSDeliveryException(IPSErrorCode code, Throwable cause, Object... args)
+   {
+      super(code, cause, args);
    }
 
    /**

@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
 import com.percussion.delivery.metadata.extractor.data.PSMetadataEntry;
 import com.percussion.delivery.metadata.extractor.data.PSMetadataProperty;
 import com.percussion.rx.delivery.PSDeliveryException;
@@ -158,7 +160,11 @@ public class PSSolrDeliveryHandlerTest {
     when(client.deleteById(any(String.class))).thenThrow(new SolrServerException("network down"));
     handler.setSolrClientForTests(client);
 
-    assertThrows(PSDeliveryException.class, () -> handler.delete("/x"));
+    PSDeliveryException ex = assertThrows(PSDeliveryException.class, () -> handler.delete("/x"));
+    assertSame(DeliveryErrorCodes.SOLR_COMMUNICATION_EXCEPTION, ex.getTypedErrorCode());
+    assertEquals(
+        DeliveryErrorCodes.SOLR_COMMUNICATION_EXCEPTION.numericCode(), ex.getErrorCode());
+    assertFalse(ex.isAuditable());
   }
 
   @Test
@@ -170,7 +176,9 @@ public class PSSolrDeliveryHandlerTest {
     SolrClient client = mock(SolrClient.class);
     handler.setSolrClientForTests(client);
 
-    assertThrows(PSDeliveryException.class, () -> handler.delete("/x"));
+    PSDeliveryException ex = assertThrows(PSDeliveryException.class, () -> handler.delete("/x"));
+    assertSame(DeliveryErrorCodes.SOLR_COMMUNICATION_EXCEPTION, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
     verify(client, never()).deleteById(any(String.class));
   }
 
@@ -360,9 +368,12 @@ public class PSSolrDeliveryHandlerTest {
     entry.setLinktext("Asset");
     tempFile = writeTempBody("x");
 
-    assertThrows(
-        PSDeliveryException.class,
-        () -> handler.sendMetadataToSolr("/siteA/folder/asset.pdf", entry, tempFile));
+    PSDeliveryException ex =
+        assertThrows(
+            PSDeliveryException.class,
+            () -> handler.sendMetadataToSolr("/siteA/folder/asset.pdf", entry, tempFile));
+    assertSame(DeliveryErrorCodes.SOLR_COMMUNICATION_EXCEPTION, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
   }
 
   @Test
