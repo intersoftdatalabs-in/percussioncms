@@ -646,9 +646,9 @@ public class SitesAdaptor implements ISiteAdaptor {
    * Admin + Virtual Site gate shared by preview status/file (missing output is handled by callers).
    *
    * <p>Preview is last-output based and applies to allow-listed Virtual kinds ({@code
-   * git-filesystem}, {@code csv-filesystem}, {@code sql-database}, and {@code http-json}), not
-   * git-only. Traditional {@code repository} Sites and unknown {@code virtual.sourceKind} values
-   * return 400 via {@link PSVirtualSiteHelper#validate}.
+   * git-filesystem}, {@code csv-filesystem}, {@code sql-database}, {@code http-json}, and {@code
+   * object-storage}), not git-only. Traditional {@code repository} Sites and unknown {@code
+   * virtual.sourceKind} values return 400 via {@link PSVirtualSiteHelper#validate}.
    */
   IPSSite requireVirtualAdminSite(String nameOrId) {
     requireAdmin();

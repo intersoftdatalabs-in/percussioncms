@@ -126,10 +126,10 @@ public interface ISiteAdaptor {
   /**
    * Reports whether the last Virtual Site static build can be previewed (assembled home exists).
    *
-   * <p>Last-output based: {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database}, and
-   * {@code http-json} sites are previewable after a successful assemble. Missing output is {@code
-   * available=false} with a message (not a 500). Repository and unknown source kinds are 400.
-   * Requires Admin.
+   * <p>Last-output based: {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
+   * {@code http-json}, and {@code object-storage} sites are previewable after a successful
+   * assemble. Missing output is {@code available=false} with a message (not a 500). Repository
+   * and unknown source kinds are 400. Requires Admin.
    *
    * @param nameOrId site name or GUID string, not blank
    * @return status (never null)
@@ -142,7 +142,7 @@ public interface ISiteAdaptor {
    * Streams one file from the last Virtual Site build output (path-traversal safe).
    *
    * <p>Same last-output contract as {@link #getVirtualSitePreviewStatus} for {@code git-filesystem},
-   * {@code csv-filesystem}, {@code sql-database}, and {@code http-json}.
+   * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, and {@code object-storage}.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param relativePath path under the output root ({@code 8.2/index.html}); blank means assembled

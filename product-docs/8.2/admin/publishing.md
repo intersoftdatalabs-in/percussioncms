@@ -56,10 +56,11 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
   `http.file` in `_config.yaml`); leftover `virtual.remoteUrl` is **400** (no secrets on
   the envelope). REST **GET/PUT** can persist `virtual.sourceKind=object-storage` with a
   local `rootPath` (cloud URLs and credentials are **400**); REST **Build** runs that local
-  bucket. Developer Sites can save **Object storage** (GET round-trips the kind);
-  REST Preview/Publish and Developer Sites Build/Preview/Publish chrome for that kind
-  stay a later phase. The endpoint does not accept an `outputRoot` body (always the default
-  staging root).
+  bucket. REST **Preview** streams last-build HTML for that kind after a successful Build
+  (`available=true`; missing build is `available=false` HTTP 200). Developer Sites can save
+  **Object storage** (GET round-trips the kind); REST Publish and Developer Sites
+  Build/Preview/Publish chrome for that kind stay a later phase. The endpoint does not
+  accept an `outputRoot` body (always the default staging root).
 
 ### Publish a Virtual Site to the Site filesystem target
 
