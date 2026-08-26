@@ -103,6 +103,14 @@ public class ActionMenuResourceTest {
         assertThrows(WebApplicationException.class, () -> bare.getActionMenu("x"));
     assertEquals(500, getEx.getResponse().getStatus());
     assertInstanceOf(IllegalStateException.class, getEx.getCause());
+
+    IllegalStateException typesEx =
+        assertThrows(IllegalStateException.class, () -> bare.getAllowedContentTypeMenus(null));
+    assertTrue(typesEx.getMessage().contains("not configured"));
+
+    IllegalStateException templatesEx =
+        assertThrows(IllegalStateException.class, () -> bare.getAllowedTemplateMenus(551, false));
+    assertTrue(templatesEx.getMessage().contains("not configured"));
   }
 
   @Test

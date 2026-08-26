@@ -214,12 +214,14 @@ public class ActionMenuResource {
         @ApiResponse(responseCode = "500", description = "Error searching for Action Menu")
       })
   public ActionMenuList getAllowedContentTypeMenus(AllowedContentTypeMenusRequest request) {
+    // Wiring must 500; helper failures below still return an empty catalog (Explorer robustness).
+    IActionMenuAdaptor menuAdaptor = requireAdaptor();
     try {
       AllowedContentTypeMenusRequest body =
           request != null ? request : new AllowedContentTypeMenusRequest();
       int[] raw = body.getContentIds() != null ? body.getContentIds() : new int[0];
       var contentIds = Arrays.stream(raw).boxed().toArray(Integer[]::new);
-      List<ActionMenu> menus = requireAdaptor().findAllowedContentTypes(contentIds);
+      List<ActionMenu> menus = menuAdaptor.findAllowedContentTypes(contentIds);
       return new ActionMenuList(menus != null ? menus : Collections.emptyList());
     } catch (WebApplicationException e) {
       throw e;
@@ -252,8 +254,10 @@ public class ActionMenuResource {
           int contentId,
       @Parameter(description = "Set to true to include AA menus.") @QueryParam(value = "isAA")
           boolean isAA) {
+    // Wiring must 500; helper failures below still return an empty catalog (Explorer robustness).
+    IActionMenuAdaptor menuAdaptor = requireAdaptor();
     try {
-      List<ActionMenu> menus = requireAdaptor().findAllowedTemplates(contentId, isAA);
+      List<ActionMenu> menus = menuAdaptor.findAllowedTemplates(contentId, isAA);
       return new ActionMenuList(menus != null ? menus : Collections.emptyList());
     } catch (WebApplicationException e) {
       throw e;
