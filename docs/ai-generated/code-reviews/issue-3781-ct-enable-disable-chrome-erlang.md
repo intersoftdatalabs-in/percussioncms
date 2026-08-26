@@ -29,8 +29,38 @@ None (hard-gate).
 
 ### Notes (non-blocking)
 
-- Combined save (bulk then enabled PUT) can leave a partial write if the dedicated PUT fails after a successful bulk save. Chrome already surfaces the error; lock is cleared on 409. Acceptable for this slice.
+- Combined save (enabled PUT first, then bulk) can still leave enabled persisted if bulk then fails. Chrome surfaces the error, keeps the description draft, and syncs the Enabled checkbox from the dedicated PUT. No shared rollback.
 - Playwright enable test restores the flag in `finally` so a failed assert does not leave `percPage` disabled on a shared H2 QA cell.
+
+## Re-review (PR #3828 Kilo threads)
+
+**Scope:** uncommitted review-response vs `HEAD` on `feat/issue-3781-ct-enable-disable-chrome-2`.
+**Change class:** same CD-13 chrome; review-thread mitigations only.
+**Memory patterns hit:** behavioral tests for new/changed non-trivial logic; swallowed exceptions must log.
+
+### Summary
+
+Kilo threads on PR #3828:
+1. Object-store fallback on `resolveItemDef` is now opt-in (`includeDisabledFromStore`). Only GET detail and `setContentTypeEnabled` pass `true`. Templates / item exits / control properties keep cache-only 404.
+2. Combined save runs enabled PUT first so a failed enable cannot leave bulk fields persisted. Bulk failure after enabled success syncs the checkbox from the dedicated PUT and keeps local drafts.
+3. `loadItemDefFromObjectStore` debug log includes exception class, message, and throwable stack.
+
+### Recommendation
+
+approve
+
+### Gate
+
+May commit/push: yes
+
+### Issues
+
+None (hard-gate).
+
+### Cross-platform path checklist
+
+- No new filesystem path joins.
+- No temp-dir or line-ending assertions.
 
 ## Cross-platform path checklist
 

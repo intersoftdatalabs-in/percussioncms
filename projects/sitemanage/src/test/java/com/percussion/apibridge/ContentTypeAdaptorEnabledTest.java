@@ -26,8 +26,10 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -198,6 +200,38 @@ class ContentTypeAdaptorEnabledTest {
     verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
   }
 
+  @Test
+  void get_cacheMiss_usesObjectStoreFallback() throws Exception {
+    when(itemDefManager.getItemDef(eq(311L), eq(PSItemDefManager.COMMUNITY_ANY)))
+        .thenThrow(new PSInvalidContentTypeException("311"));
+    PSItemDefinition storeDef = stubStoreDefinition(false);
+    ContentTypeAdaptor spy = spy(adaptor);
+    doReturn(storeDef).when(spy).loadItemDefFromObjectStore("311");
+
+    ContentTypeDetail get = spy.getContentType(null, "311");
+
+    assertEquals(Boolean.FALSE, get.getEnabled());
+    verify(spy).loadItemDefFromObjectStore("311");
+  }
+
+  @Test
+  void enable_cacheMiss_usesObjectStoreFallback() throws Exception {
+    stubHeldLock();
+    when(itemDefManager.getItemDef(eq(311L), eq(PSItemDefManager.COMMUNITY_ANY)))
+        .thenThrow(new PSInvalidContentTypeException("311"));
+    PSItemDefinition storeDef = stubStoreDefinition(false);
+    when(designWs.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(storeDef));
+    ContentTypeAdaptor spy = spy(adaptor);
+    doReturn(storeDef).when(spy).loadItemDefFromObjectStore("311");
+
+    ContentTypeDetail out = spy.setContentTypeEnabled(null, "311", true);
+
+    assertEquals(Boolean.TRUE, out.getEnabled());
+    verify(spy).loadItemDefFromObjectStore("311");
+    verify(storeDef).setEnabled(true);
+  }
+
   private void stubHeldLock() throws Exception {
     PSObjectSummary held = new PSObjectSummary(guid, "percPage");
     held.setLockedInfo("test-session", "Admin", 30);
@@ -205,6 +239,14 @@ class ContentTypeAdaptorEnabledTest {
   }
 
   private PSItemDefinition stubDefinition(boolean initiallyEnabled) throws Exception {
+    PSItemDefinition def = stubStoreDefinition(initiallyEnabled);
+    when(itemDefManager.getItemDef(eq(311L), eq(PSItemDefManager.COMMUNITY_ANY))).thenReturn(def);
+    when(designWs.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(def));
+    return def;
+  }
+
+  private PSItemDefinition stubStoreDefinition(boolean initiallyEnabled) {
     PSItemDefinition def = mock(PSItemDefinition.class);
     when(def.getName()).thenReturn("percPage");
     when(def.getLabel()).thenReturn("Page");
@@ -223,9 +265,6 @@ class ContentTypeAdaptorEnabledTest {
             })
         .when(def)
         .setEnabled(anyBoolean());
-    when(itemDefManager.getItemDef(eq(311L), eq(PSItemDefManager.COMMUNITY_ANY))).thenReturn(def);
-    when(designWs.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
-        .thenReturn(List.of(def));
     return def;
   }
 }

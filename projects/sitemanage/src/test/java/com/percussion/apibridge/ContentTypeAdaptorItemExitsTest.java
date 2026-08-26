@@ -26,8 +26,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -147,6 +149,16 @@ class ContentTypeAdaptorItemExitsTest {
     when(itemDefManager.getItemDef("missing", PSItemDefManager.COMMUNITY_ANY))
         .thenThrow(new PSInvalidContentTypeException("missing"));
     assertNull(adaptor.getItemExits(null, "missing"));
+  }
+
+  @Test
+  void getItemExits_cacheMiss_doesNotUseObjectStoreFallback() throws Exception {
+    when(itemDefManager.getItemDef(eq(311L), eq(PSItemDefManager.COMMUNITY_ANY)))
+        .thenThrow(new PSInvalidContentTypeException("311"));
+    ContentTypeAdaptor spy = spy(adaptor);
+    doReturn(percPage).when(spy).loadItemDefFromObjectStore("311");
+    assertNull(spy.getItemExits(null, "311"));
+    verify(spy, never()).loadItemDefFromObjectStore("311");
   }
 
   @Test

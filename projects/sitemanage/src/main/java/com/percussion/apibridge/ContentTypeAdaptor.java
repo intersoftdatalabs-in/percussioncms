@@ -244,7 +244,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       return null;
     }
     try {
-      PSItemDefinition def = resolveItemDef(idOrName.trim());
+      PSItemDefinition def = resolveItemDef(idOrName.trim(), true);
       if (def == null) {
         return null;
       }
@@ -260,6 +260,19 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   private PSItemDefinition resolveItemDef(String idOrName) throws PSInvalidContentTypeException {
+    return resolveItemDef(idOrName, false);
+  }
+
+  /**
+   * Resolve a content type from the running item-def cache.
+   *
+   * @param includeDisabledFromStore when {@code true}, a cache miss falls back to the
+   *     object store so disabled types (unregistered from the editor cache) still load.
+   *     Only GET detail and enable/disable (CD-13) pass {@code true}; other callers keep
+   *     the pre-CD-13 cache-only 404 for disabled types.
+   */
+  private PSItemDefinition resolveItemDef(String idOrName, boolean includeDisabledFromStore)
+      throws PSInvalidContentTypeException {
     try {
       // Prefer numeric uuid
       if (StringUtils.isNumeric(idOrName)) {
@@ -282,9 +295,11 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       }
       return itemDefManager.getItemDef(idOrName, PSItemDefManager.COMMUNITY_ANY);
     } catch (PSInvalidContentTypeException e) {
-      PSItemDefinition fromStore = loadItemDefFromObjectStore(idOrName);
-      if (fromStore != null) {
-        return fromStore;
+      if (includeDisabledFromStore) {
+        PSItemDefinition fromStore = loadItemDefFromObjectStore(idOrName);
+        if (fromStore != null) {
+          return fromStore;
+        }
       }
       throw e;
     }
@@ -293,9 +308,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   /**
    * Object-store load when the item-def cache no longer has a running editor
    * (disabled content types unregister). Used so GET {@code enabled} still
-   * reflects the saved application flag (CD-13).
+   * reflects the saved application flag (CD-13). Package-visible for tests.
    */
-  private PSItemDefinition loadItemDefFromObjectStore(String idOrName) {
+  PSItemDefinition loadItemDefFromObjectStore(String idOrName) {
     try {
       IPSGuid guid = resolveExistingContentTypeGuid(idOrName);
       if (guid == null) {
@@ -303,7 +318,12 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       }
       return PSContentTypeHelper.loadItemDef(guid);
     } catch (Exception e) {
-      log.debug("Object-store content type load after cache miss {}: {}", idOrName, e.getMessage());
+      log.debug(
+          "Object-store content type load after cache miss {}: {}: {}",
+          idOrName,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
       return null;
     }
   }
@@ -548,7 +568,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     String session = currentSession();
     String user = currentUser();
     try {
-      PSItemDefinition current = resolveItemDef(trimmed);
+      PSItemDefinition current = resolveItemDef(trimmed, true);
       if (current == null) {
         return null;
       }

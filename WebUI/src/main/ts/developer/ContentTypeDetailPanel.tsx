@@ -427,6 +427,11 @@ export function ContentTypeDetailPanel({
         }));
 
       let saved: ContentTypeDetail | null = null;
+      // Enabled PUT first so a failed enable/disable cannot leave bulk fields persisted
+      // (CD-13 two-call save; no shared rollback).
+      if (enabledDirty) {
+        saved = normalizeDetailLists(await setContentTypeEnabled(idOrName, enabled));
+      }
       if (otherDirty) {
         const body: ContentTypeUpdateBody = {
           label,
@@ -443,10 +448,15 @@ export function ContentTypeDetailPanel({
         if (templatesDirty) {
           body.allowedTemplates = toRefPayload(templates);
         }
-        saved = normalizeDetailLists(await updateContentTypeDetail(idOrName, body));
-      }
-      if (enabledDirty) {
-        saved = normalizeDetailLists(await setContentTypeEnabled(idOrName, enabled));
+        try {
+          saved = normalizeDetailLists(await updateContentTypeDetail(idOrName, body));
+        } catch (bulkErr) {
+          if (saved != null) {
+            setDetail(saved);
+            setEnabled(saved.enabled !== false);
+          }
+          throw bulkErr;
+        }
       }
       if (saved == null) {
         return;

@@ -25,8 +25,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -221,6 +223,16 @@ class ContentTypeAdaptorControlPropertiesTest {
     when(itemDefManager.getItemDef("missing", PSItemDefManager.COMMUNITY_ANY))
         .thenThrow(new PSInvalidContentTypeException("missing"));
     assertNull(adaptor.getFieldControlProperties(null, "missing", "sys_title"));
+  }
+
+  @Test
+  void get_cacheMiss_doesNotUseObjectStoreFallback() throws Exception {
+    when(itemDefManager.getItemDef(eq(311L), eq(PSItemDefManager.COMMUNITY_ANY)))
+        .thenThrow(new PSInvalidContentTypeException("311"));
+    ContentTypeAdaptor spy = spy(adaptor);
+    doReturn(mock(PSItemDefinition.class)).when(spy).loadItemDefFromObjectStore("311");
+    assertNull(spy.getFieldControlProperties(null, "311", "sys_title"));
+    verify(spy, never()).loadItemDefFromObjectStore("311");
   }
 
   @Test
