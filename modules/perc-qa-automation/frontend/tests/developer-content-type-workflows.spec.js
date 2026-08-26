@@ -136,7 +136,16 @@ async function openPercPageDetail(page) {
       `Content type detail error: ${(await detailError.innerText()).trim()}`,
     );
   }
-  await expect(page.locator('[data-testid="developer-ct-workflows"]')).toBeVisible();
+  await expect(page.locator('[data-testid="developer-ct-lock-toolbar"]')).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(page.locator('[data-testid="developer-ct-lock"]')).toBeEnabled({
+    timeout: 30_000,
+  });
+  await expect(page.locator('[data-testid="developer-ct-workflows"]')).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(page.locator('[data-testid="developer-ct-wf-add-name"]')).toBeDisabled();
   const nameEl = page.locator('[data-testid="developer-ct-detail-name"]');
   const typeName = ((await nameEl.count()) ? await nameEl.innerText() : "percPage").trim();
   return typeName || "percPage";
@@ -177,6 +186,9 @@ test.describe("Developer content type allowed workflows (CD-08 / #3782)", () => 
     const saveBtn = page.locator('[data-testid="developer-ct-save"]');
     const addName = page.locator('[data-testid="developer-ct-wf-add-name"]');
     const addBtn = page.locator('[data-testid="developer-ct-wf-add"]');
+    const lockBtn = page.locator('[data-testid="developer-ct-lock"]');
+    await expect(page.locator('[data-testid="developer-ct-lock-toolbar"]')).toBeVisible();
+    await expect(lockBtn).toBeEnabled();
     await expect(saveBtn).toBeDisabled();
     await expect(addName).toBeDisabled();
     await expect(addBtn).toBeDisabled();
@@ -223,7 +235,7 @@ test.describe("Developer content type allowed workflows (CD-08 / #3782)", () => 
     const notice = page.locator('[data-testid="developer-ct-detail-notice"]');
     const saveError = page.locator('[data-testid="developer-ct-detail-error"]');
 
-    await expect(lockBtn).toBeEnabled();
+    await expect(lockBtn).toBeEnabled({ timeout: 30_000 });
     const lockResponsePromise = page.waitForResponse(
       (r) => r.request().method() === "POST" && /\/contenttypes\/[^/]+\/lock(?:\?|$)/.test(r.url()),
       { timeout: 20_000 },

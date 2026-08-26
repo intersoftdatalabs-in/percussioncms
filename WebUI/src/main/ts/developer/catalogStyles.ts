@@ -40,6 +40,8 @@ export const catalogColors = {
   disabled: "#a0aec0",
   /** Default body text for inactive chrome (#2d3748). */
   text: "#2d3748",
+  /** Panel / sticky toolbar fill so chrome matches the catalog surface (#fff). */
+  surface: "#fff",
 } as const;
 
 /** Shared cell styles for Developer catalog tables. */
