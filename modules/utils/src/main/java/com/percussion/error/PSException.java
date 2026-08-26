@@ -407,7 +407,7 @@ public class PSException extends java.lang.Exception implements IPSException {
     return m_typedErrorCode != null && m_typedErrorCode.isAuditable();
   }
 
-  private static IPSErrorCode requireCode(IPSErrorCode code) {
+  protected static IPSErrorCode requireCode(IPSErrorCode code) {
     if (code == null) {
       throw new IllegalArgumentException("code may not be null");
     }

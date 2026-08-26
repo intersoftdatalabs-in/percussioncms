@@ -16,6 +16,7 @@
  */
 package com.percussion.workflow;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import static com.percussion.server.PSServer.getProperty;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.Validate.notNull;
@@ -24,7 +25,6 @@ import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.design.objectstore.PSAttribute;
 import com.percussion.design.objectstore.PSAttributeList;
 import com.percussion.design.objectstore.PSSubject;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.security.IPSTypedPrincipal;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
@@ -495,7 +495,7 @@ public class PSWorkflowRoleInfoStatic {
         // Throw exception: the unassigned users have no home
         throw new PSRoleException(
             lang,
-            IPSExtensionErrors.ADHOC_ASSIGNMENT_NOT_FOUND,
+            ExtensionErrorCodes.ADHOC_ASSIGNMENT_NOT_FOUND,
             PSWorkFlowUtils.listToDelimitedString(unassignedUserList, ", "));
       }
     }

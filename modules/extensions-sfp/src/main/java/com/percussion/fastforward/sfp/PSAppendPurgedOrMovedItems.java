@@ -16,7 +16,7 @@
  */
 package com.percussion.fastforward.sfp;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.cms.objectstore.PSRelationshipProcessorProxy;
@@ -339,7 +339,7 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
     if (irq == null) {
       // Fatal error
       String[] args = {resource, ""};
-      throw new PSExtensionProcessingException(IPSCmsErrors.CMS_INTERNAL_REQUEST_ERROR, args);
+      throw new PSExtensionProcessingException(CmsErrorCodes.CMS_INTERNAL_REQUEST_ERROR, args);
     }
     Document doc = null;
     try {
@@ -347,7 +347,7 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
     } catch (PSInternalRequestCallException e) {
       // Fatal error
       String[] args = {resource, e.getLocalizedMessage()};
-      throw new PSExtensionProcessingException(IPSCmsErrors.CMS_INTERNAL_REQUEST_ERROR, args);
+      throw new PSExtensionProcessingException(CmsErrorCodes.CMS_INTERNAL_REQUEST_ERROR, args);
     }
     return doc;
   }
@@ -372,7 +372,7 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
     if (irq == null) {
       // Fatal error
       String[] args = {resource, ""};
-      throw new PSExtensionProcessingException(IPSCmsErrors.CMS_INTERNAL_REQUEST_ERROR, args);
+      throw new PSExtensionProcessingException(CmsErrorCodes.CMS_INTERNAL_REQUEST_ERROR, args);
     }
     ResultSet rs = null;
     List<PageData> items = new ArrayList<>();
@@ -389,7 +389,7 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
     } catch (PSInternalRequestCallException e) {
       // Fatal error
       String[] args = {resource, e.getLocalizedMessage()};
-      throw new PSExtensionProcessingException(IPSCmsErrors.CMS_INTERNAL_REQUEST_ERROR, args);
+      throw new PSExtensionProcessingException(CmsErrorCodes.CMS_INTERNAL_REQUEST_ERROR, args);
     } catch (SQLException e) {
       // Should be very rare
       throw new PSExtensionProcessingException(m_def.getRef().getExtensionName(), e);

@@ -16,6 +16,7 @@
  */
 package com.percussion.workflow;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.handlers.PSConditionalCloneHandler;
 import com.percussion.cms.handlers.PSRelationshipCommandHandler;
@@ -29,7 +30,6 @@ import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.*;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSConsole;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
@@ -216,7 +216,7 @@ public class PSCreateTranslations implements IPSWorkflowAction {
         ir = request.getInternalRequest(ceurl);
         if (ir == null) {
           Object[] args = {ceurl, "No request handler found."};
-          throw new PSNotFoundException(IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+          throw new PSNotFoundException(ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
         }
         ir.makeRequest();
       }
@@ -247,7 +247,7 @@ public class PSCreateTranslations implements IPSWorkflowAction {
       ir = request.getInternalRequest(resource);
       if (ir == null) {
         Object[] args = {resource, "No request handler found."};
-        throw new PSNotFoundException(IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+        throw new PSNotFoundException(ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
       }
       doc = ir.getResultDoc();
     } catch (PSException e) {

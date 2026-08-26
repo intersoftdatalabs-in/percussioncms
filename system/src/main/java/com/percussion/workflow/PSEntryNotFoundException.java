@@ -16,6 +16,7 @@
  */
 package com.percussion.workflow;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 public class PSEntryNotFoundException extends PSException {
@@ -38,6 +39,15 @@ public class PSEntryNotFoundException extends PSException {
   }
 
   /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSEntryNotFoundException(IPSErrorCode code) {
+    super(code);
+  }
+
+  /**
    * Construct an exception for messages taking locale and msgCode arguments.
    *
    * @param language language string to use while lookingup for the message text in the resource
@@ -46,6 +56,17 @@ public class PSEntryNotFoundException extends PSException {
    */
   public PSEntryNotFoundException(String language, int msgCode) {
     super(language, msgCode);
+  }
+
+  /**
+   * Typed construction with locale and no message arguments.
+   *
+   * @param language language string to use while looking up the message text
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSEntryNotFoundException(String language, IPSErrorCode code) {
+    super(language, requireCode(code).numericCode());
+    m_typedErrorCode = code;
   }
 
   /**

@@ -17,6 +17,7 @@
 
 package com.percussion.workflow;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.extension.*;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.server.IPSRequestContext;
@@ -87,14 +88,14 @@ public class PSExitPrepareQueryFilters implements IPSRequestPreProcessor {
     }
 
     if (null == params[0] || 0 == params[0].toString().trim().length()) {
-      String key = Integer.toString(IPSExtensionErrors.EMPTY_USRNAME1);
+      String key = Integer.toString(ExtensionErrorCodes.EMPTY_USRNAME1.numericCode());
       String msg = PSI18nUtils.getString(key, lang);
       Object args[] = {ms_exitName, msg};
       throw new PSExtensionProcessingException(lang, IPSExtension.ERROR_INVALID_PARAMETER, args);
     }
 
     if (null == params[1] || 0 == params[1].toString().trim().length()) {
-      String key = Integer.toString(IPSExtensionErrors.ROLELIST_EMPTY);
+      String key = Integer.toString(ExtensionErrorCodes.ROLELIST_EMPTY.numericCode());
       String msg = PSI18nUtils.getString(key, lang);
       Object args[] = {ms_exitName, msg};
       throw new PSExtensionProcessingException(lang, IPSExtension.ERROR_INVALID_PARAMETER, args);

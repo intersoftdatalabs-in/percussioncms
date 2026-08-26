@@ -16,6 +16,7 @@
  */
 package com.percussion.workflow;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -37,6 +38,17 @@ public class PSCheckInCheckOutException extends PSException {
   }
 
   /**
+   * Typed construction with locale and no message arguments.
+   *
+   * @param language language string to use while looking up the message text
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSCheckInCheckOutException(String language, IPSErrorCode code) {
+    super(language, requireCode(code).numericCode());
+    m_typedErrorCode = code;
+  }
+
+  /**
    * Construct an exception for messages taking locale and message code arguments and and a single
    * argument.
    *
@@ -48,6 +60,18 @@ public class PSCheckInCheckOutException extends PSException {
    */
   public PSCheckInCheckOutException(String language, int msgCode, Object singleArg) {
     super(language, msgCode, singleArg);
+  }
+
+  /**
+   * Typed construction with locale and a single message argument.
+   *
+   * @param language language string to use while looking up the message text
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message
+   */
+  public PSCheckInCheckOutException(String language, IPSErrorCode code, Object singleArg) {
+    super(language, requireCode(code).numericCode(), singleArg);
+    m_typedErrorCode = code;
   }
 
   /**
@@ -63,5 +87,17 @@ public class PSCheckInCheckOutException extends PSException {
    */
   public PSCheckInCheckOutException(String language, int msgCode, Object[] arrayArgs) {
     super(language, msgCode, arrayArgs);
+  }
+
+  /**
+   * Typed construction with locale and message arguments.
+   *
+   * @param language language string to use while looking up the message text
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSCheckInCheckOutException(String language, IPSErrorCode code, Object[] arrayArgs) {
+    super(language, requireCode(code).numericCode(), arrayArgs);
+    m_typedErrorCode = code;
   }
 }

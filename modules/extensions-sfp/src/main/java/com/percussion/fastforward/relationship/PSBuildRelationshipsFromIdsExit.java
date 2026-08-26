@@ -16,12 +16,12 @@
  */
 package com.percussion.fastforward.relationship;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.handlers.PSContentEditorHandler;
 import com.percussion.cms.handlers.PSModifyCommandHandler;
 import com.percussion.cms.handlers.PSQueryCommandHandler;
 import com.percussion.cms.objectstore.server.PSRelationshipProcessor;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -103,21 +103,21 @@ public class PSBuildRelationshipsFromIdsExit extends PSDefaultExtension
         String fieldName = paramMap.get("fieldname");
         if (StringUtils.isBlank(fieldName)) {
           throw new PSParameterMismatchException(
-              IPSExtensionErrors.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
+              ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
               new Object[] {"fieldname", "is a required parameter"});
         }
 
         String slotName = paramMap.get("slotname");
         if (StringUtils.isBlank(slotName)) {
           throw new PSParameterMismatchException(
-              IPSExtensionErrors.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
+              ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
               new Object[] {"slotname", "is a required parameter"});
         }
 
         String templateName = paramMap.get("templatename");
         if (StringUtils.isBlank(templateName)) {
           throw new PSParameterMismatchException(
-              IPSExtensionErrors.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
+              ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
               new Object[] {"templatename", "is a required parameter"});
         }
 

@@ -16,7 +16,7 @@
  */
 package com.percussion.fastforward.calendar;
 
-import com.percussion.extension.IPSExtensionErrors;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -87,11 +87,11 @@ public class PSExpandRecurringEvents extends PSDefaultExtension
     // it is an error if either parameter is missing
     if (calendarStartString == null)
       throw new PSParameterMismatchException(
-          IPSExtensionErrors.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
+          ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
           new Object[] {"calendarStart", "is a required parameter"});
     if (calendarEndString == null)
       throw new PSParameterMismatchException(
-          IPSExtensionErrors.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
+          ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
           new Object[] {"calendarEnd", "is a required parameter"});
 
     // try to parse the parameters into Dates
@@ -99,16 +99,16 @@ public class PSExpandRecurringEvents extends PSDefaultExtension
     Date calendarEnd = PSDataTypeConverter.parseStringToDate(calendarEndString);
     if (calendarStart == null)
       throw new PSParameterMismatchException(
-          IPSExtensionErrors.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
+          ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
           new Object[] {"calendarStart", "could not be parsed as a Date"});
     if (calendarEnd == null)
       throw new PSParameterMismatchException(
-          IPSExtensionErrors.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
+          ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
           new Object[] {"calendarEnd", "could not be parsed as a Date"});
 
     if (calendarEnd.before(calendarStart))
       throw new PSExtensionProcessingException(
-          IPSExtensionErrors.EXT_PROCESSOR_EXCEPTION,
+          ExtensionErrorCodes.EXT_PROCESSOR_EXCEPTION,
           new Object[] {
             "ExpandRecurringEvents", "Calendar end must be greater than than calendar start"
           });

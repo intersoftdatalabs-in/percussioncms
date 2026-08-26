@@ -17,10 +17,10 @@
 
 package com.percussion.workflow;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.extension.IPSExtension;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSRequestPreProcessor;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -86,7 +86,7 @@ public class PSExitDisallowUpdatePublished implements IPSRequestPreProcessor {
     if (lang == null) lang = PSI18nUtils.DEFAULT_LANG;
 
     if (null == params) {
-      String key = Integer.toString(IPSExtensionErrors.EXIT_PARAM_NULL);
+      String key = Integer.toString(ExtensionErrorCodes.EXIT_PARAM_NULL.numericCode());
       String msg = PSI18nUtils.getString(key, lang);
       Object[] args = {ms_exitName, msg};
 
@@ -97,7 +97,7 @@ public class PSExitDisallowUpdatePublished implements IPSRequestPreProcessor {
       throw new PSParameterMismatchException(lang, ms_correctParamCount, params.length);
 
     if (null == params[0] || 0 == params[0].toString().trim().length()) {
-      String key = Integer.toString(IPSExtensionErrors.CONTENTID_NULL);
+      String key = Integer.toString(ExtensionErrorCodes.CONTENTID_NULL.numericCode());
       String msg = PSI18nUtils.getString(key, lang);
       Object[] args = {ms_exitName, msg};
       throw new PSExtensionProcessingException(lang, IPSExtension.ERROR_INVALID_PARAMETER, args);
@@ -140,7 +140,7 @@ public class PSExitDisallowUpdatePublished implements IPSRequestPreProcessor {
     } else {
       IPSStatesContext sc = scOpt.get();
       if (sc.getIsValid()) {
-        String key = Integer.toString(IPSExtensionErrors.PUBDOC_UPDATE_ERROR);
+        String key = Integer.toString(ExtensionErrorCodes.PUBDOC_UPDATE_ERROR.numericCode());
         String msg = PSI18nUtils.getString(key, lang);
         throw new PSExtensionProcessingException(lang, ms_exitName, new Exception(msg));
       }

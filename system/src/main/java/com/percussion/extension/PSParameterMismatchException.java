@@ -16,6 +16,7 @@
  */
 package com.percussion.extension;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -87,5 +88,25 @@ public class PSParameterMismatchException extends PSException {
   /** See {@link com.percussion.error.PSException#PSException(int, Object)} for documentation. */
   public PSParameterMismatchException(int msgCode, Object[] arrayArgs) {
     super(msgCode, arrayArgs);
+  }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message
+   */
+  public PSParameterMismatchException(IPSErrorCode code, Object singleArg) {
+    super(code, singleArg);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSParameterMismatchException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
   }
 }

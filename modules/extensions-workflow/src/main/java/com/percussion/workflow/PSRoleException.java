@@ -16,6 +16,7 @@
  */
 package com.percussion.workflow;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -44,6 +45,15 @@ public class PSRoleException extends PSException {
   }
 
   /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSRoleException(IPSErrorCode code) {
+    super(code);
+  }
+
+  /**
    * Construct an exception for messages taking locale and msgCode arguments.
    *
    * @param language language string to use while lookingup for the message text in the resource
@@ -52,6 +62,29 @@ public class PSRoleException extends PSException {
    */
   public PSRoleException(String language, int msgCode) {
     super(language, msgCode);
+  }
+
+  /**
+   * Typed construction with locale and no message arguments.
+   *
+   * @param language language string to use while looking up the message text
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSRoleException(String language, IPSErrorCode code) {
+    super(language, requireCode(code).numericCode());
+    m_typedErrorCode = code;
+  }
+
+  /**
+   * Typed construction with locale and a single message argument.
+   *
+   * @param language language string to use while looking up the message text
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message
+   */
+  public PSRoleException(String language, IPSErrorCode code, Object singleArg) {
+    super(language, requireCode(code).numericCode(), singleArg);
+    m_typedErrorCode = code;
   }
 
   /**
@@ -94,5 +127,15 @@ public class PSRoleException extends PSException {
    */
   public PSRoleException(int msgCode, Object[] arrayArgs) {
     super(msgCode, arrayArgs);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSRoleException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
   }
 }

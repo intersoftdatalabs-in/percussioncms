@@ -17,6 +17,7 @@
 
 package com.percussion.workflow;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.data.PSConversionException;
@@ -25,7 +26,6 @@ import com.percussion.extension.IPSUdfProcessor;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import org.apache.commons.lang3.StringUtils;
@@ -95,7 +95,7 @@ public class PSGetCheckoutStatus extends PSSimpleJavaUdfExtension implements IPS
     } catch (RuntimeException | com.percussion.data.PSDataExtractionException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       throw new PSConversionException(
-          IPSServerErrors.SQL_PROBLEM, PSExceptionUtils.getMessageForLog(e));
+          ServerErrorCodes.SQL_PROBLEM, PSExceptionUtils.getMessageForLog(e));
     }
 
     return result;

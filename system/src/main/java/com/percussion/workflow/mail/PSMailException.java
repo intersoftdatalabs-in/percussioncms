@@ -17,6 +17,7 @@
 
 package com.percussion.workflow.mail;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 import java.util.Locale;
 
@@ -74,6 +75,15 @@ public class PSMailException extends PSException {
    */
   public PSMailException(int msgCode) {
     super(msgCode);
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSMailException(IPSErrorCode code) {
+    super(code);
   }
 
   /**

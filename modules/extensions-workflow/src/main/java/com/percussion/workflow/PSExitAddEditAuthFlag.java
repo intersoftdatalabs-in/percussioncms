@@ -17,9 +17,9 @@
 
 package com.percussion.workflow;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -106,18 +106,18 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
 
       // Set username
       if (null == params[0] || params[0].toString().trim().length() == 0) {
-        throw new PSInvalidParameterTypeException(lang, IPSExtensionErrors.EMPTY_USRNAME1);
+        throw new PSInvalidParameterTypeException(lang, ExtensionErrorCodes.EMPTY_USRNAME1);
       }
       localParams.m_userName = params[0].toString();
       localParams.m_userName = PSWorkFlowUtils.filterUserName(localParams.m_userName);
       if (0 == localParams.m_userName.length()) {
-        throw new PSInvalidParameterTypeException(lang, IPSExtensionErrors.EMPTY_USRNAME2);
+        throw new PSInvalidParameterTypeException(lang, ExtensionErrorCodes.EMPTY_USRNAME2);
       }
 
       // Set RoleNameList
       if (null == params[1] || params[1].toString().trim().length() == 0) {
         throw new PSInvalidParameterTypeException(
-            lang, IPSExtensionErrors.EMPTY_ROLE_LIST, localParams.m_userName);
+            lang, ExtensionErrorCodes.EMPTY_ROLE_LIST, localParams.m_userName);
       }
       localParams.m_roleNameList = params[1].toString();
 

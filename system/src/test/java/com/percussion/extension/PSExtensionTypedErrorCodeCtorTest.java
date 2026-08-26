@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
@@ -27,7 +28,10 @@ import com.intsof.percussioncms.auditlog.codes.XmlErrorCodes;
 import com.percussion.data.PSConversionException;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.error.IPSErrorCode;
+import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.PSRequestValidationException;
+import com.percussion.workflow.PSEntryNotFoundException;
+import com.percussion.workflow.mail.PSMailException;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -121,5 +125,44 @@ class PSExtensionTypedErrorCodeCtorTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> new PSRequestValidationException((IPSErrorCode) null));
+  }
+
+  @Test
+  void processingExceptionLanguageTypedCtor() {
+    PSExtensionProcessingException ex =
+        new PSExtensionProcessingException("en-us", ExtensionErrorCodes.WF_COMMENT_CANNOT_EXCEED_255);
+    assertSame(ExtensionErrorCodes.WF_COMMENT_CANNOT_EXCEED_255, ex.getTypedErrorCode());
+    assertEquals("en-us", ex.getLanguageString());
+    assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  void parameterMismatchTypedCtor() {
+    Object[] args = {"calendarStart", "is a required parameter"};
+    PSParameterMismatchException ex =
+        new PSParameterMismatchException(
+            ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR, args);
+    assertSame(ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  void authorizationLanguageTypedCtor() {
+    PSAuthorizationException ex =
+        new PSAuthorizationException(
+            "en-us", ExtensionErrorCodes.AUTHENTICATION_FAILED2, null);
+    assertSame(ExtensionErrorCodes.AUTHENTICATION_FAILED2, ex.getTypedErrorCode());
+    assertTrue(ex.isAuditable());
+  }
+
+  @Test
+  void mailAndEntryNotFoundTypedCtors() {
+    PSMailException mail = new PSMailException(ExtensionErrorCodes.MAIL_DOMAIN_EMPTY);
+    assertSame(ExtensionErrorCodes.MAIL_DOMAIN_EMPTY, mail.getTypedErrorCode());
+    assertFalse(mail.isAuditable());
+
+    PSEntryNotFoundException missing = new PSEntryNotFoundException(ExtensionErrorCodes.NO_RECORDS);
+    assertSame(ExtensionErrorCodes.NO_RECORDS, missing.getTypedErrorCode());
+    assertFalse(missing.isAuditable());
   }
 }

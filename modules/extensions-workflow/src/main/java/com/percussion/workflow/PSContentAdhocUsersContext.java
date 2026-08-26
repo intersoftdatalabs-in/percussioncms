@@ -16,7 +16,7 @@
  */
 package com.percussion.workflow;
 
-import com.percussion.extension.IPSExtensionErrors;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.system.PSSystemServiceLocator;
 import com.percussion.services.workflow.data.PSContentAdhocUser;
@@ -175,7 +175,7 @@ public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
       m_nCount = 0;
       while (moveNext()) {
         if (m_sUserName.length() == 0) {
-          throw new PSRoleException(IPSExtensionErrors.USERNAME_NULL_EMPTY_TRIM);
+          throw new PSRoleException(ExtensionErrorCodes.USERNAME_NULL_EMPTY_TRIM);
         }
         m_nCount++;
 
@@ -205,7 +205,7 @@ public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
             m_adhocAnonymousRoleIDs.add(roleID);
           }
         } else {
-          throw new PSRoleException(IPSExtensionErrors.INVALID_ADHOC);
+          throw new PSRoleException(ExtensionErrorCodes.INVALID_ADHOC);
         }
       }
     } finally {

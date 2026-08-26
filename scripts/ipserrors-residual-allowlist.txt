@@ -9,6 +9,7 @@
 #   #3739 deployer catalog/client/objectstore/PSDeployService
 #   #3740 deployer server/handlers + server/dependencies
 #   #3741 DCE/ContentUI/TableFactory leftover call sites
+#   #3770 leftover nav/sfp/workflow extension modules
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -38,34 +39,6 @@ modules/extensions-main/src/main/java/com/percussion/relationship/PSTranslationC
 modules/extensions-main/src/main/java/com/percussion/uicontext/PSGetAndSetCxOptions.java
 modules/extensions-main/src/main/java/com/percussion/uicontext/PSTranslationKeyValueAccessor.java
 modules/extensions-main/src/main/java/com/percussion/validate/PSValidateSlotName.java
-modules/extensions-nav/src/main/java/com/percussion/fastforward/managednav/PSNavTreeSlotMarker.java
-modules/extensions-sfp/src/main/java/com/percussion/fastforward/calendar/PSExpandRecurringEvents.java
-modules/extensions-sfp/src/main/java/com/percussion/fastforward/calendar/PSMakeCalendar.java
-modules/extensions-sfp/src/main/java/com/percussion/fastforward/relationship/PSBuildRelationshipsFromIdsExit.java
-modules/extensions-sfp/src/main/java/com/percussion/fastforward/sfp/PSAppendPurgedOrMovedItems.java
-modules/extensions-sfp/src/main/java/com/percussion/fastforward/sfp/PSSiteFolderCListBulk.java
-modules/extensions-sfp/src/main/java/com/percussion/fastforward/sfp/PSSiteFolderContentListBaseExit.java
-modules/extensions-workflow/src/main/java/com/percussion/relationship/effect/PSNotifyEffect.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSContentAdhocUsersContext.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSContentStatusHistoryContext.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSContentTypesContext.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSCreateTranslations.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSExecuteWorkflowActions.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSExitAddEditAuthFlag.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSExitAddPossibleTransitions.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSExitAddPossibleTransitionsEx.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSExitAuthenticateUser.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSExitDisallowUpdatePublished.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSExitNextNumber.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSExitNotifyAssignees.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSExitPerformTransition.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSExitPrepareQueryFilters.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSExitUpdateHistory.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSGetCheckoutStatus.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSStateRolesContext.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/PSWorkflowRoleInfoStatic.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/mail/PSJavaxMailProgram.java
-modules/extensions-workflow/src/main/java/com/percussion/workflow/mail/PSSecureMailProgram.java
 modules/perc-i18n/src/main/java/com/percussion/i18n/ui/PSI18NTranslationKeyValues.java
 modules/perc-toolkit/src/main/java/com/percussion/pso/jexl/PSOSlotTools.java
 modules/perc-toolkit/src/main/java/com/percussion/pso/relationshipbuilder/exit/PSAbstractBuildRelationshipsExtension.java

@@ -16,6 +16,7 @@
  */
 package com.percussion.workflow;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /** Exception thrown when a required XML node is missing while processing workflow data. */
@@ -31,6 +32,17 @@ public class PSXMLNodeMissingException extends PSException {
    */
   public PSXMLNodeMissingException(String language, int msgCode) {
     super(language, msgCode);
+  }
+
+  /**
+   * Typed construction with locale and no message arguments.
+   *
+   * @param language language string to use while looking up the message text
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSXMLNodeMissingException(String language, IPSErrorCode code) {
+    super(language, requireCode(code).numericCode());
+    m_typedErrorCode = code;
   }
 
   /**

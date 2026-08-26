@@ -17,8 +17,8 @@
 
 package com.percussion.relationship.effect;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.error.PSException;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSWorkFlowContext;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
@@ -91,14 +91,14 @@ public class PSNotifyEffect extends PSEffect {
       if (params.length < i + 1) {
         Object[] args = {REQUIRED_PARAMS[i], "missing"};
         throw new PSExtensionProcessingException(
-            IPSExtensionErrors.EXT_MISSING_REQUIRED_PARAMETER_ERROR, args);
+            ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR, args);
       }
 
       String parameter = params[i].toString().trim();
       if (parameter.length() == 0) {
         Object[] args = {REQUIRED_PARAMS[i], "empty"};
         throw new PSExtensionProcessingException(
-            IPSExtensionErrors.EXT_MISSING_REQUIRED_PARAMETER_ERROR, args);
+            ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR, args);
       }
 
       parameters.put(REQUIRED_PARAMS[i], parameter);
@@ -110,7 +110,7 @@ public class PSNotifyEffect extends PSEffect {
       if (parameter == null || parameter.length() == 0) {
         Object[] args = {REQUIRED_HTML_PARAMS[i], "null or empty"};
         throw new PSExtensionProcessingException(
-            IPSExtensionErrors.EXT_MISSING_HTML_PARAMETER_ERROR, args);
+            ExtensionErrorCodes.EXT_MISSING_HTML_PARAMETER_ERROR, args);
       }
 
       parameters.put(REQUIRED_HTML_PARAMS[i], parameter);
@@ -178,7 +178,7 @@ public class PSNotifyEffect extends PSEffect {
       return Integer.parseInt(value);
     } catch (NumberFormatException e) {
       Object[] args = {name, e.getLocalizedMessage()};
-      throw new PSExtensionProcessingException(IPSExtensionErrors.EXT_PARAM_VALUE_INVALID, args);
+      throw new PSExtensionProcessingException(ExtensionErrorCodes.EXT_PARAM_VALUE_INVALID, args);
     }
   }
 

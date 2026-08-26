@@ -16,6 +16,7 @@
  */
 package com.percussion.workflow;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /** This exception is throws when an invalid parameter is detected. */
@@ -36,6 +37,17 @@ public class PSInvalidParameterTypeException extends PSException {
   }
 
   /**
+   * Typed construction with locale and no message arguments.
+   *
+   * @param language language string to use while looking up the message text
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSInvalidParameterTypeException(String language, IPSErrorCode code) {
+    super(language, requireCode(code).numericCode());
+    m_typedErrorCode = code;
+  }
+
+  /**
    * Construct an exception for messages taking locale and message code arguments and and a single
    * argument.
    *
@@ -47,6 +59,18 @@ public class PSInvalidParameterTypeException extends PSException {
    */
   public PSInvalidParameterTypeException(String language, int msgCode, Object singleArg) {
     super(language, msgCode, singleArg);
+  }
+
+  /**
+   * Typed construction with locale and a single message argument.
+   *
+   * @param language language string to use while looking up the message text
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message
+   */
+  public PSInvalidParameterTypeException(String language, IPSErrorCode code, Object singleArg) {
+    super(language, requireCode(code).numericCode(), singleArg);
+    m_typedErrorCode = code;
   }
 
   /**

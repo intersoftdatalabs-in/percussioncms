@@ -16,9 +16,9 @@
  */
 package com.percussion.fastforward.sfp;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.design.objectstore.PSServerConfiguration;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -99,14 +99,14 @@ public abstract class PSSiteFolderContentListBaseExit implements IPSResultDocume
     String siteid = request.getParameter(IPSHtmlParameters.SYS_SITEID);
     if (siteid == null)
       throw new PSParameterMismatchException(
-          IPSExtensionErrors.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
+          ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
           new Object[] {"PSXParam/sys_siteid", "null"});
 
     String folderPath = PSSite.lookupFolderRootForSite(siteid, request);
 
     if (folderPath == null || folderPath.trim().length() == 0)
       throw new PSParameterMismatchException(
-          IPSExtensionErrors.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
+          ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
           new Object[] {"folderPath", "null"});
 
     String filenameContext =
