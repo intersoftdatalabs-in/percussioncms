@@ -29,9 +29,14 @@ use `GET`/`PUT /services/contenttypes/{idOrName}/itemExits`. This page does
 2. Open **Developer → Content types**, or deep-link
    `spa.jsp?entry=developer&section=content-types`.
 3. Open a catalog row.
-4. The detail toolbar shows **Lock**, **Save content type**, and **Unlock**.
-   The status line starts as **Not locked**. Label, description, enabled, field
-   flags, and association editors stay **read-only** until you hold the lock.
+4. The **detail toolbar at the top of the panel** (sticky) shows **Lock**,
+   **Save content type**, **Unlock**, and the **Enabled** checkbox. The type
+   name and **Allowed templates** add/remove chrome are visible immediately
+   (add/remove stay **disabled** until the type body has loaded and you hold
+   the lock). The status line starts as **Not locked**. Label, description,
+   enabled, field flags, and association editors stay **read-only** until you
+   hold the lock. A failed lock (**409**) does not steal another user's lock
+   or enable template add/remove or Save.
 5. Click **Lock**. Status becomes **Locked by you**. If another user already
    holds the lock, the panel shows an error and Save stays disabled (the product
    does **not** steal the lock).
@@ -41,11 +46,8 @@ use `GET`/`PUT /services/contenttypes/{idOrName}/itemExits`. This page does
    `PUT /services/contenttypes/{idOrName}/enabled` (CD-13), not the bulk
    content-type save. Without a lock the checkbox stays disabled and a toggle
    cannot persist.
-7. To change **Allowed templates**, lock the type, add or remove existing
-   template names or GUIDs (`type-host-uuid`, for example `0-10-347`), then
-   **Save content type**. Save replaces the whole allowed-template set. An empty
-   list clears associations. Unknown names return an error; the lock is not
-   stolen. This is not the full Workbench template picker.
+7. To change **Allowed templates**, follow **Allowed templates (after lock)**
+   below. Save does **not** unlock.
 8. Click **Unlock** when you are done. Status returns to **Not locked** and the
    form is read-only again. **Back to list** also releases a lock you hold.
 
@@ -65,6 +67,22 @@ The **Allowed workflows** list is read-only until you hold the lock. After
 
 This is not a full Workbench workflow picker. The name you add must already
 exist on the server. Template association chrome is a separate surface.
+
+### Allowed templates (after lock)
+
+The **Allowed templates** list and add field are **disabled** until you hold
+the lock (including while the type is still loading). After **Lock**:
+
+1. Add a template by its existing name or GUID (`type-host-uuid`, for example
+   `0-10-347`) and click **Add**, or **Remove** a row.
+2. Click **Save content type**. The product replaces the whole allowed-template
+   set (`PUT /services/contenttypes/{idOrName}/allowedTemplates`). Save does
+   **not** unlock. A following `GET .../allowedTemplates` lists the new set.
+3. Without a lock, Add / Remove / Save stay **disabled**. The product does
+   **not** steal another user's lock (lock failure is **409**). An empty list
+   clears associations. Unknown names return an error; the lock is not stolen.
+
+This is not the full Workbench template picker.
 
 Locks expire after **30 minutes**. If Save fails because the lock expired,
 click **Lock** again and retry.

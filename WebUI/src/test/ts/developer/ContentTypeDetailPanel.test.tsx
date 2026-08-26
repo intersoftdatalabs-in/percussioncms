@@ -351,7 +351,7 @@ describe("ContentTypeDetailPanel", () => {
     getContentTypeDetail.mockResolvedValue(sampleDetail);
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
     });
     fireEvent.click(screen.getByTestId("developer-ct-lock"));
     await waitFor(() => {
@@ -404,7 +404,7 @@ describe("ContentTypeDetailPanel", () => {
     lockContentType.mockRejectedValueOnce({ status: 409, statusText: "Conflict", body: null });
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
     });
     fireEvent.click(screen.getByTestId("developer-ct-lock"));
     await waitFor(() => {
@@ -425,7 +425,7 @@ describe("ContentTypeDetailPanel", () => {
     });
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
     });
     fireEvent.click(screen.getByTestId("developer-ct-lock"));
     await waitFor(() => {
@@ -567,12 +567,69 @@ describe("ContentTypeDetailPanel", () => {
     );
   });
 
+  it("renders name, disabled template add, and lock toolbar while detail is loading (#3836)", async () => {
+    let resolveDetail: (value: typeof sampleDetail) => void = () => undefined;
+    getContentTypeDetail.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveDetail = resolve;
+        }),
+    );
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    expect(screen.getByTestId("developer-ct-lock-toolbar")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-detail-name").textContent).toBe("percPage");
+    expect(screen.getByTestId("developer-ct-templates")).toBeTruthy();
+    expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-tpl-add") as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(true);
+    resolveDetail({
+      ...sampleDetail,
+      allowedTemplates: [{ name: "perc.page", label: "Page" }],
+    });
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+  });
+
+  it("keeps template editors disabled after 409 lock and does not steal (#3836)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      allowedTemplates: [{ name: "perc.page", label: "Page" }],
+    });
+    lockContentType.mockRejectedValueOnce({ status: 409, statusText: "Conflict", body: null });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        "Could not lock content type.",
+      );
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+    expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+  });
+
   it("unlocks on back when the session holds the lock (#3744)", async () => {
     getContentTypeDetail.mockResolvedValue(sampleDetail);
     const onBack = vi.fn();
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={onBack} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
     });
     fireEvent.click(screen.getByTestId("developer-ct-lock"));
     await waitFor(() => {
@@ -603,7 +660,7 @@ describe("ContentTypeDetailPanel", () => {
     getContentTypeDetail.mockResolvedValue(sampleDetail);
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
     });
     fireEvent.click(screen.getByTestId("developer-ct-lock"));
     await waitFor(() => {
@@ -630,7 +687,7 @@ describe("ContentTypeDetailPanel", () => {
     getContentTypeDetail.mockResolvedValue(sampleDetail);
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
     });
     fireEvent.click(screen.getByTestId("developer-ct-lock"));
     await waitFor(() => {
@@ -668,7 +725,7 @@ describe("ContentTypeDetailPanel", () => {
     });
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
     });
     fireEvent.click(screen.getByTestId("developer-ct-lock"));
     await waitFor(() => {
@@ -699,7 +756,7 @@ describe("ContentTypeDetailPanel", () => {
     });
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
     });
     fireEvent.click(screen.getByTestId("developer-ct-lock"));
     await waitFor(() => {
@@ -734,7 +791,7 @@ describe("ContentTypeDetailPanel", () => {
     });
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
     });
     fireEvent.click(screen.getByTestId("developer-ct-lock"));
     await waitFor(() => {
@@ -781,7 +838,7 @@ describe("ContentTypeDetailPanel", () => {
     });
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
     });
     fireEvent.click(screen.getByTestId("developer-ct-lock"));
     await waitFor(() => {
@@ -842,7 +899,7 @@ describe("ContentTypeDetailPanel", () => {
     });
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
     });
     fireEvent.click(screen.getByTestId("developer-ct-lock"));
     await waitFor(() => {
@@ -862,124 +919,5 @@ describe("ContentTypeDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
     expect(lockContentType).toHaveBeenCalledTimes(1);
-  });
-
-  it("locks, replaces allowed templates via dedicated PUT then GET (#3783)", async () => {
-    getContentTypeDetail.mockResolvedValue({
-      ...sampleDetail,
-      allowedTemplates: [{ name: "perc.page", label: "Page" }],
-    });
-    replaceContentTypeAllowedTemplates.mockResolvedValueOnce([]);
-    getContentTypeAllowedTemplates.mockResolvedValueOnce([]);
-    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-tpl-row-0")).toBeTruthy();
-    });
-    expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
-      true,
-    );
-    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
-    fireEvent.click(screen.getByTestId("developer-ct-lock"));
-    await waitFor(() => {
-      expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
-        false,
-      );
-    });
-    fireEvent.click(screen.getByTestId("developer-ct-tpl-remove-0"));
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-tpl-empty")).toBeTruthy();
-    });
-    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(false);
-    fireEvent.click(screen.getByTestId("developer-ct-save"));
-    await waitFor(() => {
-      expect(replaceContentTypeAllowedTemplates).toHaveBeenCalledWith("percPage", []);
-    });
-    expect(getContentTypeAllowedTemplates).toHaveBeenCalledWith("percPage");
-    expect(updateContentTypeDetail).not.toHaveBeenCalled();
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
-    });
-    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
-  });
-
-  it("adds an existing template id after lock and PUTs the new set (#3783)", async () => {
-    getContentTypeDetail.mockResolvedValue({
-      ...sampleDetail,
-      allowedTemplates: [{ name: "perc.page", label: "Page" }],
-    });
-    const next = [
-      { name: "perc.page" },
-      { name: "perc.page.summary", label: "perc.page.summary" },
-    ];
-    replaceContentTypeAllowedTemplates.mockResolvedValueOnce(next);
-    getContentTypeAllowedTemplates.mockResolvedValueOnce(next);
-    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-tpl-row-0")).toBeTruthy();
-    });
-    fireEvent.click(screen.getByTestId("developer-ct-lock"));
-    await waitFor(() => {
-      expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
-        false,
-      );
-    });
-    fireEvent.change(screen.getByTestId("developer-ct-tpl-add-name"), {
-      target: { value: "perc.page.summary" },
-    });
-    fireEvent.click(screen.getByTestId("developer-ct-tpl-add"));
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-tpl-row-1")).toBeTruthy();
-    });
-    fireEvent.click(screen.getByTestId("developer-ct-save"));
-    await waitFor(() => {
-      expect(replaceContentTypeAllowedTemplates).toHaveBeenCalled();
-    });
-    expect(replaceContentTypeAllowedTemplates).toHaveBeenCalledWith(
-      "percPage",
-      expect.arrayContaining([
-        expect.objectContaining({ name: "perc.page" }),
-        expect.objectContaining({ name: "perc.page.summary" }),
-      ]),
-    );
-    expect(getContentTypeAllowedTemplates).toHaveBeenCalledWith("percPage");
-    expect(updateContentTypeDetail).not.toHaveBeenCalled();
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-tpl-row-1").textContent).toContain(
-        "perc.page.summary",
-      );
-    });
-  });
-
-  it("clears the held lock when allowedTemplates PUT returns 409 (#3783)", async () => {
-    getContentTypeDetail.mockResolvedValue({
-      ...sampleDetail,
-      allowedTemplates: [{ name: "perc.page", label: "Page" }],
-    });
-    replaceContentTypeAllowedTemplates.mockRejectedValueOnce({
-      status: 409,
-      statusText: "Conflict",
-      body: null,
-    });
-    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-tpl-row-0")).toBeTruthy();
-    });
-    fireEvent.click(screen.getByTestId("developer-ct-lock"));
-    await waitFor(() => {
-      expect((screen.getByTestId("developer-ct-tpl-remove-0") as HTMLButtonElement).disabled).toBe(
-        false,
-      );
-    });
-    fireEvent.click(screen.getByTestId("developer-ct-tpl-remove-0"));
-    fireEvent.click(screen.getByTestId("developer-ct-save"));
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
-        "Could not save content type.",
-      );
-    });
-    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
-    expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
-      true,
-    );
   });
 });

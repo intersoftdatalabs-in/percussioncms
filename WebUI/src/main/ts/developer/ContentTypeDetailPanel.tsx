@@ -236,7 +236,7 @@ export function ContentTypeDetailPanel({
   const fieldRows = contentTypeFields(detail);
   const childSets = contentTypeChildSets(detail);
   const gapRows = contentTypeDesignGaps(detail);
-  const canEdit = heldLock && !busy;
+  const canEdit = heldLock && !busy && detail != null;
 
   function toggleField(key: string, prop: "searchable" | "required") {
     setFieldDrafts((prev) => {
@@ -516,6 +516,225 @@ export function ContentTypeDetailPanel({
         </div>
       ) : null}
 
+      {/* Always mount lock + template chrome so Playwright and operators see it
+          before GET detail finishes and without scrolling past the fields table. */}
+      <div
+        role="toolbar"
+        aria-label={DEV_MSG.CT_LOCK_TOOLBAR}
+        data-testid="developer-ct-lock-toolbar"
+        style={{
+          marginBottom: "16px",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "8px",
+          alignItems: "center",
+          position: "sticky",
+          top: 0,
+          zIndex: 2,
+          background: "#fff",
+          padding: "8px 0",
+        }}
+      >
+        <p style={{ margin: 0, width: "100%", color: catalogColors.muted, fontSize: "0.9rem" }}>
+          {DEV_MSG.CT_LOCK_HINT}
+        </p>
+        <div
+          role="status"
+          aria-live="polite"
+          data-testid="developer-ct-lock-status"
+          style={{ marginRight: "8px", fontSize: "0.9rem" }}
+        >
+          {heldLock ? DEV_MSG.CT_LOCKED : DEV_MSG.CT_UNLOCKED}
+        </div>
+        <button
+          type="button"
+          data-testid="developer-ct-lock"
+          aria-label={DEV_MSG.CT_LOCK}
+          disabled={busy || heldLock || detail == null}
+          onClick={() => void handleLock()}
+          style={{
+            padding: "8px 16px",
+            background: heldLock ? catalogColors.disabled : catalogColors.accent,
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: busy || heldLock || detail == null ? "not-allowed" : "pointer",
+          }}
+        >
+          {DEV_MSG.CT_LOCK}
+        </button>
+        <button
+          type="button"
+          data-testid="developer-ct-save"
+          aria-label={DEV_MSG.CT_SAVE}
+          disabled={busy || !heldLock || !dirty}
+          onClick={() => void handleSave()}
+          style={{
+            padding: "8px 16px",
+            background: heldLock && dirty ? catalogColors.accent : catalogColors.disabled,
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: busy || !heldLock || !dirty ? "not-allowed" : "pointer",
+          }}
+        >
+          {DEV_MSG.CT_SAVE}
+        </button>
+        <button
+          type="button"
+          data-testid="developer-ct-unlock"
+          aria-label={DEV_MSG.CT_UNLOCK}
+          disabled={busy || !heldLock}
+          onClick={() => void handleUnlock()}
+          style={{
+            padding: "8px 16px",
+            background: "transparent",
+            color: "inherit",
+            border: `1px solid ${catalogColors.softBorder}`,
+            borderRadius: "4px",
+            cursor: busy || !heldLock ? "not-allowed" : "pointer",
+          }}
+        >
+          {DEV_MSG.CT_UNLOCK}
+        </button>
+        <label style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "8px" }}>
+          <input
+            type="checkbox"
+            data-testid="developer-ct-enabled"
+            aria-label={DEV_MSG.CT_FORM_ENABLED}
+            checked={enabled}
+            onChange={() => {
+              if (!canEdit) {
+                return;
+              }
+              setEnabled((v) => !v);
+            }}
+            disabled={!canEdit}
+          />
+          {DEV_MSG.CT_FORM_ENABLED}
+        </label>
+      </div>
+
+      <div style={{ fontFamily: "monospace", color: catalogColors.muted, marginBottom: "12px" }}>
+        <span data-testid="developer-ct-detail-name">{detail?.name || idOrName}</span>
+        {detail ? (
+          <>
+            {" · "}
+            <span data-testid="developer-ct-detail-guid">{objectGuid || "—"}</span>
+          </>
+        ) : null}
+      </div>
+
+      <section style={{ marginBottom: "16px" }} data-testid="developer-ct-templates">
+        <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_TEMPLATES}</h3>
+        <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.CT_TEMPLATES_HINT}</p>
+        {templates.length === 0 ? (
+          <p style={{ color: catalogColors.empty }} data-testid="developer-ct-tpl-empty">
+            {DEV_MSG.CT_NONE}
+          </p>
+        ) : (
+          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+            {templates.map((t, i) => (
+              <li
+                key={refKey(t, i)}
+                data-testid={`developer-ct-tpl-row-${i}`}
+                style={{
+                  ...tableRow,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: "6px 0",
+                }}
+              >
+                <span>
+                  {t.label || t.name}
+                  {t.name ? (
+                    <span
+                      style={{
+                        fontFamily: "monospace",
+                        color: catalogColors.empty,
+                        marginLeft: "8px",
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      {t.name}
+                    </span>
+                  ) : null}
+                </span>
+                <button
+                  type="button"
+                  data-testid={`developer-ct-tpl-remove-${i}`}
+                  aria-label={`Remove template ${t.name || t.label}`}
+                  disabled={!canEdit}
+                  onClick={() => removeTemplate(i)}
+                  style={{
+                    ...smallBtnStyle,
+                    marginLeft: "auto",
+                    cursor: canEdit ? "pointer" : "not-allowed",
+                  }}
+                >
+                  {DEV_MSG.CT_ASSOC_REMOVE}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div
+          style={{
+            marginTop: "12px",
+            display: "grid",
+            gridTemplateColumns: "1fr auto",
+            gap: "8px",
+            alignItems: "end",
+          }}
+        >
+          <div>
+            <label htmlFor="ct-tpl-add" style={{ display: "block", marginBottom: 4 }}>
+              {DEV_MSG.CT_TEMPLATES}
+            </label>
+            <input
+              id="ct-tpl-add"
+              type="text"
+              autoComplete="off"
+              data-testid="developer-ct-tpl-add-name"
+              style={inputStyle}
+              placeholder={DEV_MSG.CT_TPL_NAME_PLACEHOLDER}
+              value={newTplName}
+              onChange={(e) => {
+                if (!canEdit) {
+                  return;
+                }
+                setNewTplName(e.target.value);
+              }}
+              disabled={!canEdit}
+              aria-disabled={canEdit ? undefined : true}
+              readOnly={!canEdit}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (canEdit) {
+                    addTemplate();
+                  }
+                }
+              }}
+            />
+          </div>
+          <button
+            type="button"
+            data-testid="developer-ct-tpl-add"
+            disabled={!canEdit || !newTplName.trim()}
+            onClick={addTemplate}
+            style={{
+              ...smallBtnStyle,
+              padding: "8px 12px",
+              cursor: !canEdit || !newTplName.trim() ? "not-allowed" : "pointer",
+            }}
+          >
+            {DEV_MSG.CT_ASSOC_ADD}
+          </button>
+        </div>
+      </section>
+
       {!error && detail == null ? (
         <div data-testid="developer-ct-detail-loading">{DEV_MSG.CT_DETAIL_LOADING}</div>
       ) : null}
@@ -526,11 +745,6 @@ export function ContentTypeDetailPanel({
             <h2 style={{ margin: "0 0 4px" }} data-testid="developer-ct-detail-title">
               {label || detail.name || idOrName}
             </h2>
-            <div style={{ fontFamily: "monospace", color: catalogColors.muted }}>
-              <span data-testid="developer-ct-detail-name">{detail.name}</span>
-              {" · "}
-              <span data-testid="developer-ct-detail-guid">{objectGuid || "—"}</span>
-            </div>
             <div style={{ marginTop: "12px" }}>
               <label htmlFor="ct-label" style={{ display: "block", marginBottom: 4 }}>
                 {DEV_MSG.CT_FORM_LABEL}
@@ -556,19 +770,6 @@ export function ContentTypeDetailPanel({
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={!canEdit}
               />
-            </div>
-            <div style={{ marginTop: "12px" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <input
-                  type="checkbox"
-                  data-testid="developer-ct-enabled"
-                  aria-label={DEV_MSG.CT_FORM_ENABLED}
-                  checked={enabled}
-                  onChange={() => setEnabled((v) => !v)}
-                  disabled={!canEdit}
-                />
-                {DEV_MSG.CT_FORM_ENABLED}
-              </label>
             </div>
             <dl
               style={{
@@ -713,102 +914,6 @@ export function ContentTypeDetailPanel({
             </div>
           </section>
 
-          <section style={{ marginBottom: "16px" }} data-testid="developer-ct-templates">
-            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_TEMPLATES}</h3>
-            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.CT_TEMPLATES_HINT}</p>
-            {templates.length === 0 ? (
-              <p style={{ color: catalogColors.empty }} data-testid="developer-ct-tpl-empty">
-                {DEV_MSG.CT_NONE}
-              </p>
-            ) : (
-              <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                {templates.map((t, i) => (
-                  <li
-                    key={refKey(t, i)}
-                    data-testid={`developer-ct-tpl-row-${i}`}
-                    style={{ ...tableRow, display: "flex",
-                      alignItems: "center",
-                      gap: 12,
-                      padding: "6px 0"  }}
-                  >
-                    <span>
-                      {t.label || t.name}
-                      {t.name ? (
-                        <span
-                          style={{
-                            fontFamily: "monospace",
-                            color: catalogColors.empty,
-                            marginLeft: "8px",
-                            fontSize: "0.85rem",
-                          }}
-                        >
-                          {t.name}
-                        </span>
-                      ) : null}
-                    </span>
-                    <button
-                      type="button"
-                      data-testid={`developer-ct-tpl-remove-${i}`}
-                      aria-label={`Remove template ${t.name || t.label}`}
-                      disabled={!canEdit}
-                      onClick={() => removeTemplate(i)}
-                      style={{
-                        ...smallBtnStyle,
-                        marginLeft: "auto",
-                        cursor: canEdit ? "pointer" : "not-allowed",
-                      }}
-                    >
-                      {DEV_MSG.CT_ASSOC_REMOVE}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <div
-              style={{
-                marginTop: "12px",
-                display: "grid",
-                gridTemplateColumns: "1fr auto",
-                gap: "8px",
-                alignItems: "end",
-              }}
-            >
-              <div>
-                <label htmlFor="ct-tpl-add" style={{ display: "block", marginBottom: 4 }}>
-                  {DEV_MSG.CT_TEMPLATES}
-                </label>
-                <input
-                  id="ct-tpl-add"
-                  data-testid="developer-ct-tpl-add-name"
-                  style={inputStyle}
-                  placeholder={DEV_MSG.CT_TPL_NAME_PLACEHOLDER}
-                  value={newTplName}
-                  onChange={(e) => setNewTplName(e.target.value)}
-                  disabled={!canEdit}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addTemplate();
-                    }
-                  }}
-                />
-              </div>
-              <button
-                type="button"
-                data-testid="developer-ct-tpl-add"
-                disabled={!canEdit || !newTplName.trim()}
-                onClick={addTemplate}
-                style={{
-                  ...smallBtnStyle,
-                  padding: "8px 12px",
-                  cursor: !canEdit || !newTplName.trim() ? "not-allowed" : "pointer",
-                }}
-              >
-                {DEV_MSG.CT_ASSOC_ADD}
-              </button>
-            </div>
-          </section>
-
           <section style={{ marginBottom: "16px" }}>
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_FIELDS}</h3>
             <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.CT_FIELDS_HINT}</p>
@@ -927,82 +1032,6 @@ export function ContentTypeDetailPanel({
               </table>
             </div>
           </section>
-
-          <div
-            role="toolbar"
-            aria-label={DEV_MSG.CT_LOCK_TOOLBAR}
-            data-testid="developer-ct-lock-toolbar"
-            style={{
-              marginBottom: "16px",
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "8px",
-              alignItems: "center",
-            }}
-          >
-            <p style={{ margin: 0, width: "100%", color: catalogColors.muted, fontSize: "0.9rem" }}>
-              {DEV_MSG.CT_LOCK_HINT}
-            </p>
-            <div
-              role="status"
-              aria-live="polite"
-              data-testid="developer-ct-lock-status"
-              style={{ marginRight: "8px", fontSize: "0.9rem" }}
-            >
-              {heldLock ? DEV_MSG.CT_LOCKED : DEV_MSG.CT_UNLOCKED}
-            </div>
-            <button
-              type="button"
-              data-testid="developer-ct-lock"
-              aria-label={DEV_MSG.CT_LOCK}
-              disabled={busy || heldLock || detail == null}
-              onClick={() => void handleLock()}
-              style={{
-                padding: "8px 16px",
-                background: heldLock ? catalogColors.disabled : catalogColors.accent,
-                color: "#fff",
-                border: "none",
-                borderRadius: "4px",
-                cursor: busy || heldLock ? "not-allowed" : "pointer",
-              }}
-            >
-              {DEV_MSG.CT_LOCK}
-            </button>
-            <button
-              type="button"
-              data-testid="developer-ct-save"
-              aria-label={DEV_MSG.CT_SAVE}
-              disabled={busy || !heldLock || !dirty}
-              onClick={() => void handleSave()}
-              style={{
-                padding: "8px 16px",
-                background: heldLock && dirty ? catalogColors.accent : catalogColors.disabled,
-                color: "#fff",
-                border: "none",
-                borderRadius: "4px",
-                cursor: busy || !heldLock || !dirty ? "not-allowed" : "pointer",
-              }}
-            >
-              {DEV_MSG.CT_SAVE}
-            </button>
-            <button
-              type="button"
-              data-testid="developer-ct-unlock"
-              aria-label={DEV_MSG.CT_UNLOCK}
-              disabled={busy || !heldLock}
-              onClick={() => void handleUnlock()}
-              style={{
-                padding: "8px 16px",
-                background: "transparent",
-                color: "inherit",
-                border: `1px solid ${catalogColors.softBorder}`,
-                borderRadius: "4px",
-                cursor: busy || !heldLock ? "not-allowed" : "pointer",
-              }}
-            >
-              {DEV_MSG.CT_UNLOCK}
-            </button>
-          </div>
 
           <ObjectAclSection
             objectGuid={objectGuid}
