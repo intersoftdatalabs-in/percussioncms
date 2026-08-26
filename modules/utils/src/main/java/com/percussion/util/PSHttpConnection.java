@@ -322,7 +322,7 @@ public class PSHttpConnection {
           // Make sure received all the data if specified "Content-Length"
           if ((contentLength > 0) && (long) contentLength != readData) {
             String[] args = {"" + readData, "" + contentLength};
-            throw new PSException(IPSUtilErrors.RECEIVE_DATA_ERROR, args);
+            throw new PSException(UtilErrorCode.RECEIVE_DATA_ERROR, args);
           }
 
           byte[] byteData = os.toByteArray();
@@ -344,13 +344,13 @@ public class PSHttpConnection {
           // then throw exception with error code and message
           if (respCode >= 400) {
             String[] args = {Integer.toString(respCode), msg};
-            throw new PSException(IPSUtilErrors.POST_DATA_ERROR, args);
+            throw new PSException(UtilErrorCode.POST_DATA_ERROR, args);
           }
         }
         return msg;
       }
     } catch (IOException | NumberFormatException | PSException e) {
-      throw new PSException(IPSUtilErrors.POST_DATA_ERROR, PSExceptionUtils.getMessageForLog(e));
+      throw new PSException(UtilErrorCode.POST_DATA_ERROR, PSExceptionUtils.getMessageForLog(e));
     }
   }
 
@@ -397,7 +397,7 @@ public class PSHttpConnection {
       // Make sure received all the data if specified "Content-Length"
       if ((contentLength > 0) && contentLength != readData) {
         String[] args = {"" + readData, "" + contentLength};
-        throw new PSException(IPSUtilErrors.RECEIVE_DATA_ERROR, args);
+        throw new PSException(UtilErrorCode.RECEIVE_DATA_ERROR, args);
       }
 
       // Get the character-set for the received data
@@ -418,7 +418,7 @@ public class PSHttpConnection {
       // then throw exception with error code and message
       if (respCode >= 400) {
         String[] args = {Integer.toString(respCode), msg};
-        throw new PSException(IPSUtilErrors.POST_DATA_ERROR, args);
+        throw new PSException(UtilErrorCode.POST_DATA_ERROR, args);
       }
     } finally {
       // don't call connection.disconnect() as this will not allow keep-alive

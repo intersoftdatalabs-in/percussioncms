@@ -17,8 +17,8 @@
 
 package com.percussion.utils.spring;
 
-import com.percussion.utils.xml.IPSXmlErrors;
 import com.percussion.utils.xml.PSInvalidXmlException;
+import com.percussion.utils.xml.XmlErrorCode;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.io.File;
@@ -88,7 +88,7 @@ public class PSSpringConfiguration {
     PSXmlTreeWalker tree = new PSXmlTreeWalker(doc);
     Element root = (Element) tree.getCurrent();
     if (!BEANS.equals(root.getNodeName())) {
-      throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, BEANS);
+      throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, BEANS);
     }
 
     m_beanDataMap = new LinkedHashMap<String, PSBeanData>();

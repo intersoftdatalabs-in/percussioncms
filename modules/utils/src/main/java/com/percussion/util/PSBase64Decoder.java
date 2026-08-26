@@ -74,7 +74,7 @@ public class PSBase64Decoder {
       else return new String(decoded);
     } catch (UnsupportedEncodingException e) {
       throw new PSRuntimeException(
-          IPSUtilErrors.BASE64_ENCODING_EXCEPTION, new Object[] {in, e.toString()});
+          UtilErrorCode.BASE64_ENCODING_EXCEPTION, new Object[] {in, e.toString()});
     }
   }
 

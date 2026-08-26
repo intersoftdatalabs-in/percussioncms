@@ -75,6 +75,48 @@ public class PSRuntimeException extends RuntimeException implements IPSException
   }
 
   /**
+   * Typed construction from a catalogued {@link IPSErrorCode}.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSRuntimeException(IPSErrorCode code) {
+    this(code, (Object[]) null);
+  }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg sole message argument; may be {@code null}
+   */
+  public PSRuntimeException(IPSErrorCode code, Object singleArg) {
+    this(code, singleArg == null ? null : new Object[] {singleArg});
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   */
+  public PSRuntimeException(IPSErrorCode code, Object[] arrayArgs) {
+    super();
+    m_exception = new PSException(code, arrayArgs);
+  }
+
+  /**
+   * Typed construction with message arguments and a cause.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   * @param cause causal throwable; may be {@code null}
+   */
+  public PSRuntimeException(IPSErrorCode code, Object[] arrayArgs, Throwable cause) {
+    super(cause);
+    m_exception = new PSException(code, arrayArgs, cause);
+  }
+
+  /**
    * Returns the localized detail message of this exception.
    *
    * @param locale the locale to generate the message in
@@ -122,6 +164,22 @@ public class PSRuntimeException extends RuntimeException implements IPSException
    */
   public int getErrorCode() {
     return m_exception.getErrorCode();
+  }
+
+  /**
+   * Typed error code when constructed via {@link #PSRuntimeException(IPSErrorCode)} (or overloads);
+   * otherwise {@code null} for legacy int construction.
+   */
+  public IPSErrorCode getTypedErrorCode() {
+    return m_exception.getTypedErrorCode();
+  }
+
+  /**
+   * Whether dual-write should consider this exception auditable. Prefer the typed code when
+   * present; legacy int construction returns {@code false}.
+   */
+  public boolean isAuditable() {
+    return m_exception.isAuditable();
   }
 
   /**

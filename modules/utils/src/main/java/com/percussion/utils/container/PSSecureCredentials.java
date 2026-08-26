@@ -18,8 +18,8 @@
 package com.percussion.utils.container;
 
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
-import com.percussion.utils.xml.IPSXmlErrors;
 import com.percussion.utils.xml.PSInvalidXmlException;
+import com.percussion.utils.xml.XmlErrorCode;
 import com.percussion.utils.xml.PSXmlUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -121,7 +121,7 @@ public class PSSecureCredentials {
     String policyName = getName(source);
     if (StringUtils.isBlank(policyName))
       throw new PSInvalidXmlException(
-          IPSXmlErrors.XML_ELEMENT_INVALID_ATTR,
+          XmlErrorCode.XML_ELEMENT_INVALID_ATTR,
           new Object[] {APP_POLICY_NODE_NAME, NAME_ATTR, policyName});
     m_securityDomain = policyName;
 
@@ -129,16 +129,16 @@ public class PSSecureCredentials {
 
     Element authEl = tree.getNextElement(AUTHENTICATION, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (authEl == null)
-      throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, AUTHENTICATION);
+      throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, AUTHENTICATION);
 
     Element loginModEl = tree.getNextElement(LOGIN_MODULE, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (loginModEl == null)
-      throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, LOGIN_MODULE);
+      throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, LOGIN_MODULE);
 
     Element moduleOptionEl =
         tree.getNextElement(MODULE_OPTION, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (moduleOptionEl == null)
-      throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, MODULE_OPTION);
+      throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, MODULE_OPTION);
     boolean foundPassword = false;
     while (moduleOptionEl != null) {
       String nameAttr = getName(moduleOptionEl);
@@ -159,15 +159,15 @@ public class PSSecureCredentials {
     // make sure we got user name, dsname, and at least empty pwd.
     if (m_userId == null) {
       throw new PSInvalidXmlException(
-          IPSXmlErrors.XML_ELEMENT_ATTR_INVALID_VAL,
+          XmlErrorCode.XML_ELEMENT_ATTR_INVALID_VAL,
           new Object[] {MODULE_OPTION, NAME_ATTR, USERNAME_ATTR_VAL, "null"});
     } else if (!foundPassword) {
       throw new PSInvalidXmlException(
-          IPSXmlErrors.XML_ELEMENT_ATTR_INVALID_VAL,
+          XmlErrorCode.XML_ELEMENT_ATTR_INVALID_VAL,
           new Object[] {MODULE_OPTION, NAME_ATTR, PASSWORD_ATTR_VAL, ""});
     } else if (m_securityDomain == null) {
       throw new PSInvalidXmlException(
-          IPSXmlErrors.XML_ELEMENT_ATTR_INVALID_VAL,
+          XmlErrorCode.XML_ELEMENT_ATTR_INVALID_VAL,
           new Object[] {MODULE_OPTION, NAME_ATTR, MANAGED_CONN_FACTORY_ATTR_VAL, "null"});
     }
   }

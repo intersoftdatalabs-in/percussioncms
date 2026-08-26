@@ -99,6 +99,20 @@ class PSExceptionTypedErrorCodeTest {
   }
 
   @Test
+  void runtimeExceptionTypedCtorSetsNumericAndRetainsCode() {
+    PSRuntimeException ex = new PSRuntimeException(SAMPLE, new Object[] {"in", "detail"});
+    assertEquals(2011, ex.getErrorCode());
+    assertSame(SAMPLE, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  void runtimeExceptionTypedCtorRejectsNullCode() {
+    assertThrows(
+        IllegalArgumentException.class, () -> new PSRuntimeException((IPSErrorCode) null));
+  }
+
+  @Test
   void typedSingleArgCtorRejectsNullCode() {
     assertThrows(
         IllegalArgumentException.class, () -> new PSException((IPSErrorCode) null, "arg"));

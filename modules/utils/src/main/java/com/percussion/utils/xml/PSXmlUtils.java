@@ -50,7 +50,7 @@ public class PSXmlUtils {
 
     if (source == null) {
       if (required) {
-        throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, name);
+        throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, name);
       }
 
       return null;
@@ -59,7 +59,7 @@ public class PSXmlUtils {
     data = PSXmlTreeWalker.getElementData(source);
     if (required && StringUtils.isEmpty(data)) {
       throw new PSInvalidXmlException(
-          IPSXmlErrors.XML_ELEMENT_INVALID_VALUE, new String[] {name, data});
+          XmlErrorCode.XML_ELEMENT_INVALID_VALUE, new Object[] {name, data});
     }
 
     return data;
@@ -85,7 +85,7 @@ public class PSXmlUtils {
     String val = el.getAttribute(name);
     if (required && (val == null || val.trim().length() == 0)) {
       Object[] args = {el.getNodeName(), name, val};
-      throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_INVALID_ATTR, args);
     }
     return (val == null) ? "" : val;
   }
