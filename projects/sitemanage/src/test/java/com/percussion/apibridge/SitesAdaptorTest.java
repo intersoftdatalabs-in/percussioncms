@@ -1465,6 +1465,85 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void buildVirtualSite_objectStorageWritesHtml() throws Exception {
+    Path siteRoot = createMinimalObjectStorageTree(tempDir.resolve("obj-src"));
+    Path out = tempDir.resolve("obj-out");
+
+    PSSite site = new PSSite();
+    site.setName("ObjectHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "object-storage");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "obj-docs");
+    when(siteManager.findSite("ObjectHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult result = adaptor.buildVirtualSite("ObjectHelp", req);
+    assertTrue(result.getPagesWritten().intValue() > 0, "pagesWritten=" + result.getPagesWritten());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertEquals(out.toAbsolutePath().normalize().toString(), result.getOutputPath());
+    assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
+    Path html = out.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("Object Home"), body);
+    assertTrue(body.contains("Hello from objects"), body);
+  }
+
+  @Test
+  void buildVirtualSite_objectStorageMissingConfig400() throws Exception {
+    Path siteRoot = tempDir.resolve("obj-noconfig");
+    Files.createDirectories(siteRoot);
+    Path out = tempDir.resolve("obj-noconfig-out");
+
+    PSSite site = new PSSite();
+    site.setName("ObjectHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "object-storage");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("ObjectHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("ObjectHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String missingMsg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(
+        missingMsg.contains("config") && missingMsg.contains("_config.yaml"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_objectStorageRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalObjectStorageTree(tempDir.resolve("obj-remote"));
+    Path out = tempDir.resolve("obj-remote-out");
+
+    PSSite site = new PSSite();
+    site.setName("ObjectHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "object-storage");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("ObjectHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("ObjectHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
   void buildVirtualSite_unknownSourceKind400() {
     Path siteRoot = tempDir.resolve("sql-root");
     PSSite site = new PSSite();
@@ -2484,6 +2563,101 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void previewObjectStorage_afterBuildAvailableWithHtml() throws Exception {
+    Path siteRoot = createMinimalObjectStorageTree(tempDir.resolve("obj-preview-src"));
+    Path defaultOut = tempDir.resolve("obj-preview-default");
+    Path built = tempDir.resolve("obj-preview-built");
+
+    PSSite site = virtualObjectStorageSite(siteRoot);
+    when(siteManager.findSite("ObjectHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(built.toAbsolutePath().normalize().toString());
+    VirtualSiteBuildResult result = previewing.buildVirtualSite("ObjectHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("ObjectHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath());
+
+    VirtualSitePreviewFile file = previewing.previewVirtualSiteFile("ObjectHelp", "8.2/index.html");
+    assertTrue(file.isHtml());
+    assertEquals("8.2/index.html", file.getRelativePath());
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("Object Home"), html);
+    assertTrue(html.contains("Hello from objects"), html);
+  }
+
+  @Test
+  void previewObjectStorage_missingBuildIsUnavailableNot500() throws Exception {
+    Path siteRoot = createMinimalObjectStorageTree(tempDir.resolve("obj-preview-empty-src"));
+    Path defaultOut = tempDir.resolve("obj-preview-default-empty");
+    PSSite site = virtualObjectStorageSite(siteRoot);
+    when(siteManager.findSite("ObjectHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("ObjectHelp");
+    assertEquals(Boolean.FALSE, status.getAvailable());
+    assertEquals(SitesAdaptor.MISSING_PREVIEW_MESSAGE, status.getMessage());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("ObjectHelp", "8.2/index.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewObjectStorage_rejectsTraversalAndMissingFile() throws Exception {
+    Path siteRoot = Files.createDirectories(tempDir.resolve("obj-preview-trav-src"));
+    Path defaultOut = tempDir.resolve("obj-preview-trav-default");
+    Path built = tempDir.resolve("obj-preview-trav-built");
+    writeAssembledPreviewTree(
+        built, "<html><body><h1>Object Home</h1>Hello from objects</body></html>");
+
+    PSSite site = virtualObjectStorageSite(siteRoot);
+    when(siteManager.findSite("ObjectHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+    previewing.recordLastOutputRoot("obj-docs", built);
+
+    WebApplicationException traversal =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("ObjectHelp", "../secret.txt"));
+    assertEquals(400, traversal.getResponse().getStatus());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("ObjectHelp", "no-such.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewObjectStorage_defaultOutputFallbackWithoutPointer() throws Exception {
+    Path siteRoot = Files.createDirectories(tempDir.resolve("obj-cli-src"));
+    Path built = tempDir.resolve("obj-cli-default");
+    writeAssembledPreviewTree(
+        built, "<html><body><h1>Object Home</h1>Hello from objects</body></html>");
+
+    PSSite site = virtualObjectStorageSite(siteRoot);
+    when(siteManager.findSite("ObjectHelp")).thenReturn(site);
+    SitesAdaptor previewing = new SitesAdaptor(siteManager, () -> true, key -> built, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("ObjectHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath());
+
+    VirtualSitePreviewFile file = previewing.previewVirtualSiteFile("ObjectHelp", "8.2/index.html");
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("Object Home"), html);
+  }
+
+  @Test
   void requireSafeRelativePreviewPath_rejectsAbsoluteAndDotDot() {
     WebApplicationException dots =
         assertThrows(
@@ -2571,6 +2745,19 @@ class SitesAdaptorTest {
         PSVirtualSiteHelper.PROP_ROOT_PATH,
         httpRoot.toAbsolutePath().normalize().toString());
     put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "http-docs");
+    return site;
+  }
+
+  private PSSite virtualObjectStorageSite(Path objectRoot) {
+    PSSite site = new PSSite();
+    site.setName("ObjectHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "object-storage");
+    put(
+        site,
+        PSVirtualSiteHelper.PROP_ROOT_PATH,
+        objectRoot.toAbsolutePath().normalize().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "obj-docs");
     return site;
   }
 
@@ -2697,6 +2884,45 @@ class SitesAdaptorTest {
     Files.writeString(
         siteRoot.resolve("_theme").resolve("page.html"),
         "<html><body><h1>${pageTitle}</h1>${content}</body></html>",
+        StandardCharsets.UTF_8);
+    return siteRoot;
+  }
+
+  /**
+   * Local object-key bucket for object-storage REST Build and last-build Preview. Markdown under
+   * {@code 8.2/} plus required {@code _config.yaml}; portable NIO {@link Path} / {@link Files}. No
+   * cloud URLs or credentials.
+   */
+  private static Path createMinimalObjectStorageTree(Path siteRoot) throws Exception {
+    Files.createDirectories(siteRoot.resolve("8.2"));
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: Object Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${pageTitle}</h1>${content}</body></html>",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("8.2").resolve("index.md"),
+        """
+        ---
+        id: home
+        title: Object Home
+        ---
+        Hello from objects.
+        """,
         StandardCharsets.UTF_8);
     return siteRoot;
   }

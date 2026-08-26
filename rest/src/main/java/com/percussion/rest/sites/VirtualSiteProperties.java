@@ -47,9 +47,12 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * http.file}); REST persists a safe {@code rootPath} JSON fixture directory. {@code
  * object-storage} persists a portable-safe local {@code rootPath} (NIO Path; no remaining {@code
  * ..}); cloud URLs and credential properties are 400. REST {@code POST …/virtual/build} runs
- * {@code http-json} through the existing {@code IPSVirtualSiteSource} factory (local fixture /
- * loopback). REST {@code POST …/virtual/publish} copies that last-build HTML to {@code
- * IPSSite.root}.
+ * {@code http-json} and {@code object-storage} through the existing {@code IPSVirtualSiteSource}
+ * factory (local fixture / loopback JSON; local object-key bucket). REST {@code GET
+ * …/virtual/preview} streams last-build HTML for {@code object-storage} after a successful
+ * assemble (missing build is {@code available=false}, HTTP 200). REST {@code POST
+ * …/virtual/publish} copies last-build HTML to {@code IPSSite.root} for git, CSV, SQL, and
+ * {@code http-json}.
  *
  * <p>Wire getters return plain {@code String} (not {@code Optional}) so JAXB/Jettison and Jackson
  * {@code WRAP_ROOT_VALUE} emit/accept child elements {@code sourceKind}, {@code rootPath},

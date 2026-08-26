@@ -27,11 +27,11 @@ import org.springframework.stereotype.Component;
  * bean. Production wiring is {@code SitesAdaptor} in sitemanage. PUT echoes the envelope
  * (including {@code sql-database}, {@code http-json}, and {@code object-storage} {@code
  * sourceKind}); JDBC credentials, HTTP secrets, and object-storage cloud credentials are never
- * logged. REST Build for {@code http-json} uses the same adaptor contract as git/CSV/SQL (local
- * JSON fixture / loopback; {@code virtual.remoteUrl} stays 400).
- * REST Publish copies last-build HTML to {@code IPSSite.root} for the same kinds. Preview status
- * is last-output based ({@code available=false} when no build), including {@code http-json}
- * last-build output.
+ * logged. REST Build for {@code http-json} and {@code object-storage} uses the same adaptor
+ * contract as git/CSV/SQL (local JSON fixture / loopback, or local object-key bucket; {@code
+ * virtual.remoteUrl} stays 400). REST Publish copies last-build HTML to {@code IPSSite.root} for
+ * git/CSV/SQL/{@code http-json}. Preview status is last-output based ({@code available=false} when
+ * no build), including {@code http-json} and {@code object-storage} last-build output.
  */
 @Component
 @Lazy
