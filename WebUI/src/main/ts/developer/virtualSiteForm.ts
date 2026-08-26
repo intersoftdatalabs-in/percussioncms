@@ -32,13 +32,17 @@ export const SOURCE_KIND_SQL_DATABASE = "sql-database";
 /** Virtual Site adapter wire name for HTTP JSON / local JSON catalog. */
 export const SOURCE_KIND_HTTP_JSON = "http-json";
 
+/** Virtual Site adapter wire name for a local object-key directory (no cloud secrets). */
+export const SOURCE_KIND_OBJECT_STORAGE = "object-storage";
+
 /** Form select values for source kind. */
 export type VirtualSourceKindOption =
   | typeof SOURCE_KIND_REPOSITORY
   | typeof SOURCE_KIND_GIT_FILESYSTEM
   | typeof SOURCE_KIND_CSV_FILESYSTEM
   | typeof SOURCE_KIND_SQL_DATABASE
-  | typeof SOURCE_KIND_HTTP_JSON;
+  | typeof SOURCE_KIND_HTTP_JSON
+  | typeof SOURCE_KIND_OBJECT_STORAGE;
 
 /** Editable form model for the Virtual Site source panel. */
 export interface VirtualSiteFormModel {
@@ -53,8 +57,8 @@ export interface VirtualSiteFormModel {
 /**
  * Normalize a wire/sourceKind string into a form select option.
  * Blank, missing, or {@code repository} → repository; git-filesystem,
- * csv-filesystem, sql-database, and http-json map to themselves; unknown kinds →
- * repository (safe default).
+ * csv-filesystem, sql-database, http-json, and object-storage map to themselves;
+ * unknown kinds → repository (safe default).
  */
 export function normalizeSourceKindOption(
   raw: string | null | undefined,
@@ -74,6 +78,9 @@ export function normalizeSourceKindOption(
   }
   if (v === SOURCE_KIND_HTTP_JSON) {
     return SOURCE_KIND_HTTP_JSON;
+  }
+  if (v === SOURCE_KIND_OBJECT_STORAGE) {
+    return SOURCE_KIND_OBJECT_STORAGE;
   }
   // Unknown kinds: surface as repository so operators do not accidentally
   // re-save an unsupported adapter without changing the select.
@@ -104,6 +111,11 @@ export function isSqlDatabaseSourceKind(kind: string | null | undefined): boolea
 /** True when source kind is the HTTP JSON adapter (root path + {@code _config.yaml} catalog). */
 export function isHttpJsonSourceKind(kind: string | null | undefined): boolean {
   return (kind ?? "").trim().toLowerCase() === SOURCE_KIND_HTTP_JSON;
+}
+
+/** True when source kind is the local object-storage adapter (root path only; no cloud secrets). */
+export function isObjectStorageSourceKind(kind: string | null | undefined): boolean {
+  return (kind ?? "").trim().toLowerCase() === SOURCE_KIND_OBJECT_STORAGE;
 }
 
 /**
@@ -163,6 +175,16 @@ export function formToVirtualProps(form: VirtualSiteFormModel): VirtualSitePrope
     // Authorization or API keys on this envelope.
     return {
       sourceKind: SOURCE_KIND_HTTP_JSON,
+      rootPath: form.rootPath.trim() || null,
+      remoteUrl: "",
+      branch: "",
+    };
+  }
+  if (kind === SOURCE_KIND_OBJECT_STORAGE) {
+    // Object storage rejects a non-blank virtual.remoteUrl (REST 400). Local
+    // object-key directory only — never send cloud URLs, IAM, or access keys.
+    return {
+      sourceKind: SOURCE_KIND_OBJECT_STORAGE,
       rootPath: form.rootPath.trim() || null,
       remoteUrl: "",
       branch: "",

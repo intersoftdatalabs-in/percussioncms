@@ -16,12 +16,12 @@
 
 /**
  * Developer Sites → Virtual Site source panel
- * (#2956 / #3020 / #3300 / #3687 / #3697 / #3699 / #3707 / #3735 / #3759 / #3778 / #3796 / #3808 / #3820 / epic #2678).
+ * (#2956 / #3020 / #3300 / #3687 / #3697 / #3699 / #3707 / #3735 / #3759 / #3778 / #3796 / #3808 / #3820 / #3856 / epic #2678).
  *
  * Opens Sites catalog detail and asserts the Virtual Site source section mounts
  * with source-kind control (repository default, git-filesystem, csv-filesystem,
- * sql-database, http-json), save chrome, Build + Preview + Publish chrome for git-filesystem,
- * csv-filesystem, sql-database, and http-json (never repository). Also intercepts build REST
+ * sql-database, http-json, object-storage), save chrome, Build + Preview + Publish chrome for git-filesystem,
+ * csv-filesystem, sql-database, and http-json (never repository or object-storage). Also intercepts build REST
  * to prove link-problem detail lines render on HTTP 200 and publish REST to prove
  * dest path + files copied on HTTP 200 (including csv-filesystem and http-json). Live H2 QA
  * deploys a CSV tree into the cell and asserts POST /virtual/build, GET
@@ -137,9 +137,11 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       await expect(kind.locator('option[value="csv-filesystem"]')).toHaveCount(1);
       await expect(kind.locator('option[value="sql-database"]')).toHaveCount(1);
       await expect(kind.locator('option[value="http-json"]')).toHaveCount(1);
+      await expect(kind.locator('option[value="object-storage"]')).toHaveCount(1);
+      await expect(kind.locator('option[value="sql-api"]')).toHaveCount(0);
       // Default traditional sites use repository option
       await expect(kind).toHaveValue(
-        /repository|git-filesystem|csv-filesystem|sql-database|http-json/,
+        /repository|git-filesystem|csv-filesystem|sql-database|http-json|object-storage/,
       );
       await expect(page.locator('[data-testid="developer-site-virtual-save"]')).toBeVisible();
 
@@ -201,6 +203,22 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+
+      // Switch to object-storage reveals root path (no Git remotes; Build later phase)
+      await kind.selectOption("object-storage");
+      await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+      await expect(
+        page.locator('[data-testid="developer-site-virtual-object-storage-hint"]'),
+      ).toBeVisible();
+      await expect(
+        page.locator('[data-testid="developer-site-virtual-object-storage-hint"]'),
+      ).toContainText("later phase");
+      await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-branch"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
 
       // Switch to git-filesystem reveals root path, optional remote, + Build / Publish
       await kind.selectOption("git-filesystem");
@@ -504,6 +522,97 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+
+    await kind.selectOption("repository");
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
+
+  test("object-storage live save+reload persists then restore repository (#3856)", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      test.info().annotations.push({
+        type: "note",
+        description: "No sites in catalog — live object-storage persist requires a site row",
+      });
+      return;
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    async function openFirstSite() {
+      const rows = page.locator(catalogRowsSelector("developer-site-row"));
+      await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+      await rows.first().locator('[data-testid="developer-site-open"]').click();
+      await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+        timeout: 20_000,
+      });
+    }
+
+    await openFirstSite();
+    const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
+    await kind.selectOption("object-storage");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="developer-site-virtual-object-storage-hint"]'),
+    ).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(0);
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill("C:/object-docs");
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(kind).toHaveValue("object-storage");
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+
+    await page.locator('[data-testid="developer-site-back"]').click();
+    await expect(page.locator(catalogRowsSelector("developer-site-row")).first()).toBeVisible({
+      timeout: 15_000,
+    });
+    await openFirstSite();
+    await expect(kind).toHaveValue("object-storage");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toHaveValue(
+      "C:/object-docs",
+    );
+    await expect(
+      page.locator('[data-testid="developer-site-virtual-object-storage-hint"]'),
+    ).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
 
     await kind.selectOption("repository");
     await page.locator('[data-testid="developer-site-virtual-save"]').click();

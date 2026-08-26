@@ -731,8 +731,10 @@ export interface SiteDef {
  * <p>Blank / missing {@code sourceKind} (or value {@code repository}) means a
  * traditional repository Site. Allow-listed virtual adapters:
  * {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
- * {@code http-json}. Developer Sites save chrome includes http-json;
- * Build, Preview, and Publish chrome are shown after save.
+ * {@code http-json}, {@code object-storage}. Developer Sites save chrome
+ * includes http-json and object-storage (local {@code rootPath} only; no
+ * cloud URLs or credentials). Build, Preview, and Publish chrome are shown
+ * after save for git/csv/sql/http-json — not object-storage (later phase).
  */
 export interface VirtualSiteProperties {
   sourceKind?: string | null;
