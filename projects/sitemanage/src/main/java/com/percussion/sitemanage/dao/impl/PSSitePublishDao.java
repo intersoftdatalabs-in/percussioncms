@@ -24,6 +24,7 @@ import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.pathmanagement.service.impl.PSAssetPathItemService;
 import com.percussion.pubserver.IPSPubServerService;
@@ -65,7 +66,6 @@ import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.util.PSPathUtil;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.service.impl.PSSiteConfigUtils;
-import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.publishing.IPSPublishingWs;
 import java.io.IOException;
@@ -198,7 +198,7 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
       // if (isValidPubSite(summary)) - Don't exclude sites without a pub server
       return summary;
     } catch (PSErrorException e) {
-      if (e.getCode() == IPSWebserviceErrors.OBJECT_NOT_FOUND_BY_NAME) return null;
+      if (e.getCode() == WebserviceErrorCodes.OBJECT_NOT_FOUND_BY_NAME.numericCode()) return null;
 
       throw new IPSGenericDao.LoadException("Failed to find item for id: " + name, e);
     }

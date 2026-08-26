@@ -20,7 +20,7 @@ package com.percussion.sitemanage.importer;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import com.percussion.server.IPSHttpErrors;
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.service.IPSSystemProperties;
 import com.percussion.sitemanage.data.PSPageContent;
@@ -204,8 +204,8 @@ public class PSSiteImporter {
       conn.get();
       var response = conn.response();
 
-      if (response.statusCode() != IPSHttpErrors.HTTP_MOVED_TEMPORARILY
-          && response.statusCode() != IPSHttpErrors.HTTP_MOVED_PERMANENTLY) {
+      if (response.statusCode() != HttpErrorCodes.HTTP_MOVED_TEMPORARILY.numericCode()
+          && response.statusCode() != HttpErrorCodes.HTTP_MOVED_PERMANENTLY.numericCode()) {
         return siteUrl;
       }
 

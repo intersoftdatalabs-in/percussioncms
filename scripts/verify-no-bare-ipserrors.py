@@ -19,7 +19,7 @@ Allow-list classes
 3. **Documented residual production call-sites** — exact paths in
    ``scripts/ipserrors-residual-allowlist.txt``. Prefer exact files so a
    **new** file under the same tree fails until it is listed with an issue
-   link. Shrink as retypes merge (#3584 SiteManage, #3585 webservices).
+   link. Shrink as retypes merge (#3584/#3846 SiteManage, #3585 webservices).
 
 ``IPSObjectStoreErrors`` is **excluded** (sibling #3143 gate). Tests and
 comment/javadoc-only mentions are ignored.
@@ -302,7 +302,7 @@ def _print_allowlist(residual_allow: frozenset[str]) -> None:
         print(f"  {name}  (scripts/verify-no-bare-ipsobjectstoreerrors.py #3143)")
     print("== Residual production allow-list exact (shrink as retypes land) ==")
     print(f"  file: scripts/ipserrors-residual-allowlist.txt ({len(residual_allow)} paths)")
-    print("  siblings: #3584 SiteManage, #3585 webservices/transformation")
+    print("  siblings: #3584/#3846 SiteManage, #3585 webservices/transformation")
     for path in sorted(residual_allow):
         print(f"  {path}")
     print("== Script self-allow ==")

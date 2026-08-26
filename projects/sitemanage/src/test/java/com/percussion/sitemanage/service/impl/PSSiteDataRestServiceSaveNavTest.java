@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-import com.percussion.fastforward.managednav.IPSNavigationErrors;
+import com.intsof.percussioncms.auditlog.codes.NavigationErrorCodes;
 import com.percussion.fastforward.managednav.PSNavException;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.service.IPSDataService;
@@ -57,7 +57,8 @@ class PSSiteDataRestServiceSaveNavTest {
     site.setName("QaSite3364");
     PSNavException nav =
         new PSNavException(
-            IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE);
+            NavigationErrorCodes.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE
+                .numericCode());
     when(siteDataService.save(site))
         .thenThrow(new IPSDataService.DataServiceSaveException("Error saving site", nav));
 
@@ -73,7 +74,8 @@ class PSSiteDataRestServiceSaveNavTest {
     site.setName("QaSite3364");
     PSNavException nav =
         new PSNavException(
-            IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVON);
+            NavigationErrorCodes.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVON
+                .numericCode());
     when(siteDataService.save(site))
         .thenThrow(
             new IPSDataService.DataServiceSaveException(
@@ -110,7 +112,8 @@ class PSSiteDataRestServiceSaveNavTest {
   void detectsInvalidNavCreateThroughCauseChain() {
     PSNavException nav =
         new PSNavException(
-            IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE);
+            NavigationErrorCodes.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE
+                .numericCode());
     IPSGenericDao.SaveException save =
         new IPSGenericDao.SaveException("Error saving site", nav);
     IPSDataService.DataServiceSaveException wrapped =

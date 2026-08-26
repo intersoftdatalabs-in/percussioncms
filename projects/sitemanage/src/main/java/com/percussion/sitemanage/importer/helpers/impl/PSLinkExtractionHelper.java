@@ -24,13 +24,13 @@ import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.get
 import static com.percussion.sitemanage.service.IPSSiteSectionMetaDataService.PAGE_CATALOG;
 import static com.percussion.sitemanage.service.IPSSiteSectionMetaDataService.SECTION_SYSTEM_FOLDER_NAME;
 
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.pagemanagement.dao.IPSPageDao;
 import com.percussion.pagemanagement.service.IPSPageCatalogService;
 import com.percussion.pathmanagement.service.impl.PSPathUtils;
 import com.percussion.queue.IPSPageImportQueue;
 import com.percussion.queue.impl.PSSiteQueue;
-import com.percussion.server.IPSHttpErrors;
 import com.percussion.services.assembly.impl.PSReplacementFilter;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.share.dao.IPSFolderHelper;
@@ -309,7 +309,7 @@ public class PSLinkExtractionHelper extends PSImportHelper {
     PSSite site = context.getSite().orElseThrow(() -> new IllegalStateException("Site required"));
     String siteName = site.getName();
     boolean isCataloged = false;
-    if (responseStatusCode == IPSHttpErrors.HTTP_OK) {
+    if (responseStatusCode == HttpErrorCodes.HTTP_OK.numericCode()) {
       try {
         if (context.isCanceled()) {
           return false;

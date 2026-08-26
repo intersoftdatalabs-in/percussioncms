@@ -19,7 +19,7 @@ package com.percussion.sitemanage.service.impl;
 
 import static com.percussion.share.web.service.PSRestServicePathConstants.*;
 
-import com.percussion.fastforward.managednav.IPSNavigationErrors;
+import com.intsof.percussioncms.auditlog.codes.NavigationErrorCodes;
 import com.percussion.fastforward.managednav.PSNavException;
 import com.percussion.foldermanagement.service.IPSFolderService;
 import com.percussion.itemmanagement.service.IPSItemService;
@@ -174,9 +174,12 @@ public class PSSiteDataRestService {
       return false;
     }
     int code = nav.getErrorCode();
-    return code == IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVON
+    return code
+            == NavigationErrorCodes.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVON
+                .numericCode()
         || code
-            == IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE;
+            == NavigationErrorCodes.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE
+                .numericCode();
   }
 
   static String invalidNavTreeCreateMessage(Throwable t) {
@@ -186,11 +189,13 @@ public class PSSiteDataRestService {
     }
     int code = nav.getErrorCode();
     if (code
-        == IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVON) {
+        == NavigationErrorCodes.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVON
+            .numericCode()) {
       return "Cannot add a NavTree to a folder that already has a navigation item.";
     }
     if (code
-        == IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE) {
+        == NavigationErrorCodes.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE
+            .numericCode()) {
       return "Cannot add a NavTree to a folder that already has a NavTree.";
     }
     return PSExceptionUtils.getMessageForLog(nav);

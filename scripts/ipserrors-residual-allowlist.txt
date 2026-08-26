@@ -5,6 +5,7 @@
 #
 # Shrink this list as retype PRs merge:
 #   #3584 SiteManage IPSSiteManageErrors -> SiteManageErrorCodes
+#   #3846 leftover sitemanage production IPS*Errors -> typed *ErrorCodes
 #   #3585 webservices/transformation leftover call sites
 #   #3739 deployer catalog/client/objectstore/PSDeployService
 #   #3740 deployer server/handlers + server/dependencies
@@ -55,16 +56,6 @@ modules/utils/src/main/java/com/percussion/utils/spring/PSSpringBeanUtils.java
 modules/utils/src/main/java/com/percussion/utils/spring/PSSpringConfiguration.java
 modules/utils/src/main/java/com/percussion/utils/xml/PSXmlUtils.java
 modules/utils/src/main/java/com/percussion/xml/PSXmlTreeWalker.java
-projects/sitemanage/src/main/java/com/percussion/apibridge/TemplateAdaptor.java
-projects/sitemanage/src/main/java/com/percussion/pagemanagement/assembler/PSPageDatabaseAssembler.java
-projects/sitemanage/src/main/java/com/percussion/pagemanagement/assembler/PSPageUtils.java
-projects/sitemanage/src/main/java/com/percussion/pagemanagement/assembler/impl/PSAbstractTemplateExpanderAdapter.java
-projects/sitemanage/src/main/java/com/percussion/sitemanage/dao/impl/PSSiteDao.java
-projects/sitemanage/src/main/java/com/percussion/sitemanage/dao/impl/PSSitePublishDao.java
-projects/sitemanage/src/main/java/com/percussion/sitemanage/importer/PSSiteImporter.java
-projects/sitemanage/src/main/java/com/percussion/sitemanage/importer/helpers/impl/PSLinkExtractionHelper.java
-projects/sitemanage/src/main/java/com/percussion/sitemanage/service/impl/PSSiteDataRestService.java
-projects/sitemanage/src/main/java/com/percussion/sitemanage/service/impl/PSSiteSectionService.java
 system/Testing/Extensions/src/com/percussion/extensions/testing/PSMakeCERequest.java
 system/Testing/Extensions/src/com/percussion/extensions/testing/PSSortDocData.java
 system/Testing/Extensions/src/com/percussion/extensions/testing/TestMakeInternalRequest.java
