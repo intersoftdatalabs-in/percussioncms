@@ -28,11 +28,21 @@ describe("parseExplorerContentId", () => {
     expect(parseExplorerContentId("42")).toBe(42);
     expect(parseExplorerContentId(7)).toBe(7);
     expect(parseExplorerContentId("1-101-708")).toBe(708);
+    expect(parseExplorerContentId("16777215-101-551")).toBe(551);
     expect(parseExplorerContentId(undefined)).toBeNull();
     expect(parseExplorerContentId("")).toBeNull();
     expect(parseExplorerContentId("nope")).toBeNull();
     expect(parseExplorerContentId("0")).toBeNull();
     expect(parseExplorerContentId("ci-home")).toBeNull();
+  });
+
+  it("does not treat timestamped asset names as GUIDs (#3811)", () => {
+    expect(
+      parseExplorerContentId("New-percSimpleTextAsset-20260820165542"),
+    ).toBeNull();
+    expect(parseExplorerContentId("p-1")).toBeNull();
+    expect(parseExplorerContentId("theme.css")).toBeNull();
+    expect(parseExplorerContentId(20260820165542)).toBeNull();
   });
 
   it("unwraps Jackson GUID objects (#3546)", () => {
@@ -138,5 +148,19 @@ describe("bindExplorerPathItemId (#3546)", () => {
     const item = page({ id: 708 as unknown as string });
     const bound = bindExplorerPathItemId(item);
     expect(bound).toBe(item);
+  });
+
+  it("binds sys_contentid when id is a timestamped asset title (#3811)", () => {
+    const asset: PSPathItem = {
+      id: "New-percSimpleTextAsset-20260820165542",
+      name: "New-percSimpleTextAsset-20260820165542",
+      path: "/Assets/uploads/New-percSimpleTextAsset-20260820165542",
+      type: "percSimpleTextAsset",
+      category: "ASSET",
+      displayProperties: { sys_contentid: "708" },
+    };
+    const bound = bindExplorerPathItemId(asset);
+    expect(bound.id).toBe("708");
+    expect(parseExplorerContentId(bound.id)).toBe(708);
   });
 });

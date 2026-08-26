@@ -38,7 +38,7 @@ describe("RelationshipsView", () => {
   it("renders the 4 IA-primary rows + a supplementary details panel for AA / reverse", async () => {
     render(
       <RelationshipsView
-        item={{ id: "p-1", folderPath: "/Sites/Foo" }}
+        item={{ id: "1-101-708", folderPath: "/Sites/Foo" }}
         aaLinkCount={3}
         loadServerSummary={mockLoad}
       />,
@@ -59,7 +59,7 @@ describe("RelationshipsView", () => {
 
   it("no longer renders the client-side preview banner (US8 ships)", async () => {
     render(
-      <RelationshipsView item={{ id: "x" }} loadServerSummary={mockLoad} />,
+      <RelationshipsView item={{ id: "42" }} loadServerSummary={mockLoad} />,
     );
     await waitFor(() =>
       expect(screen.queryByTestId("relationships-view")).toHaveAttribute(
@@ -75,7 +75,7 @@ describe("RelationshipsView", () => {
   it("passes the zero serious/critical axe-core gate", async () => {
     const { container } = render(
       <RelationshipsView
-        item={{ id: "x", folderPath: "/p" }}
+        item={{ id: "42", folderPath: "/p" }}
         aaLinkCount={3}
         loadServerSummary={mockLoad}
       />,
@@ -111,6 +111,29 @@ describe("RelationshipsView", () => {
   it("renders the auth placeholder and does not call loadServerSummary when item.id is missing", async () => {
     const loader = vi.fn();
     render(<RelationshipsView item={{}} loadServerSummary={loader} />);
+    await waitFor(() =>
+      expect(screen.queryByTestId("relationships-view")).toHaveAttribute(
+        "data-testid-state",
+        "auth",
+      ),
+    );
+    expect(loader).not.toHaveBeenCalled();
+  });
+
+  it("does not fetch a timestamped asset title as a content id (#3811)", async () => {
+    expect(
+      relationshipSummaryItemId("New-percSimpleTextAsset-20260820165542"),
+    ).toBe("");
+    const loader = vi.fn();
+    render(
+      <RelationshipsView
+        item={{
+          id: "New-percSimpleTextAsset-20260820165542",
+          path: "/Assets/uploads/New-percSimpleTextAsset-20260820165542",
+        }}
+        loadServerSummary={loader}
+      />,
+    );
     await waitFor(() =>
       expect(screen.queryByTestId("relationships-view")).toHaveAttribute(
         "data-testid-state",

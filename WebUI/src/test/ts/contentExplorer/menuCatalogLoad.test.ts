@@ -50,6 +50,9 @@ describe("parseExplorerContentId", () => {
     expect(parseExplorerContentId("nope")).toBeNull();
     expect(parseExplorerContentId("0")).toBeNull();
     expect(parseExplorerContentId({ stringValue: "1-101-708" })).toBe(708);
+    expect(
+      parseExplorerContentId("New-percSimpleTextAsset-20260820165542"),
+    ).toBeNull();
   });
 });
 

@@ -15,12 +15,14 @@
  */
 
 /**
- * Playwright surface: #2769 / #3546 / parent #2400 — Explorer IA Relationships view.
+ * Playwright surface: #2769 / #3546 / #3811 / parent #2400 — Explorer IA
+ * Relationships view.
  *
  * <p>Verifies the modern React Content Explorer shell exposes the Relationships
  * panel chrome (View → IA Relationships) and mounts {@code RelationshipsView}
- * for a selected item (or shows the select-item hint when none). Consumes
- * public REST {@code GET /rest/content-explorer/relationships/{id}/summary}.</p>
+ * for a selected page or asset (or shows the select-item hint when none).
+ * Admin on an asset must not see a permission toast. Consumes public REST
+ * {@code GET /rest/content-explorer/relationships/{id}/summary}.</p>
  *
  * <p>Tags: {@code @explorer-relationships} {@code @p-adv} {@code @smoke}</p>
  *
@@ -36,6 +38,64 @@ const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 /** Wait until the detail list region is present (folder navigation settled). */
 async function listWaitReady(page) {
   await page.locator('[data-testid="detail-list"]').waitFor({ timeout: 15_000 });
+}
+
+function attachPageErrors(page) {
+  const errors = [];
+  page.on("pageerror", (err) => {
+    errors.push(String(err && err.message ? err.message : err));
+  });
+  page.on("console", (msg) => {
+    if (msg.type() === "error") {
+      errors.push(msg.text());
+    }
+  });
+  return errors;
+}
+
+function unexpectedJsErrors(errors) {
+  return (errors || []).filter(
+    (t) =>
+      !/ResizeObserver/i.test(t) &&
+      !/Download the React DevTools/i.test(t) &&
+      !/favicon/i.test(t) &&
+      !/Failed to load resource/i.test(t),
+  );
+}
+
+/**
+ * Walk the already-mounted Explorer list until a selectable content row
+ * exists. Avoids spa.jsp?path= (error-bounds Explorer on this H2 cell).
+ */
+async function selectFirstContentItem(page, rootName, depth) {
+  const root = page.locator(
+    `[data-testid="explorer-tree"] [data-testid="tree-node-/${rootName}/"], [data-testid="explorer-tree"] [data-testid="tree-node-/${rootName}"]`,
+  );
+  await expect(root.first()).toBeVisible({ timeout: 15_000 });
+  await root.first().click();
+  await listWaitReady(page);
+
+  for (let remaining = depth; remaining >= 0; remaining -= 1) {
+    const itemRow = page.locator(
+      '[data-testid="detail-list"] tbody tr[data-testid^="detail-row-"][data-row-kind="item"]:not([aria-disabled="true"])',
+    );
+    if ((await itemRow.count()) > 0) {
+      await itemRow.first().click({ force: true, timeout: 10_000 });
+      return true;
+    }
+    if (remaining === 0) {
+      return false;
+    }
+    const folderRow = page.locator(
+      '[data-testid="detail-list"] tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]:not([aria-disabled="true"])',
+    );
+    if ((await folderRow.count()) === 0) {
+      return false;
+    }
+    await folderRow.first().dblclick({ force: true, timeout: 10_000 });
+    await listWaitReady(page);
+  }
+  return false;
 }
 
 test.describe("modern React Content Explorer — IA relationships (#2769)", () => {
@@ -90,95 +150,10 @@ test.describe("modern React Content Explorer — IA relationships (#2769)", () =
       const shell = page.locator('[data-testid="content-explorer-shell"]');
       await expect(shell).toBeVisible({ timeout: 15_000 });
 
-      async function fetchChildren(folderPath) {
-        const suffix = String(folderPath || "")
-          .replace(/^\/+/, "")
-          .replace(/\/+$/, "");
-        const url = `${BASE_URL}/Rhythmyx/services/pathmanagement/path/paginatedFolder/${suffix}?startIndex=0&maxResults=50`;
-        const res = await page.request.get(url, {
-          headers: { Accept: "application/json" },
-        });
-        if (!res.ok()) {
-          return [];
-        }
-        const body = await res.json();
-        return body?.PagedItemList?.childrenInPage ?? [];
-      }
-
-      function isContentChild(child) {
-        const type = String(child?.type ?? "").trim().toLowerCase();
-        const category = String(child?.category ?? "").trim().toLowerCase();
-        if (
-          type === "folder" ||
-          type === "fsfolder" ||
-          type === "site" ||
-          category === "folder" ||
-          category === "site" ||
-          category === "section_folder"
-        ) {
-          return false;
-        }
-        if (category === "page" || category === "asset" || category === "landing_page") {
-          return true;
-        }
-        return type.length > 0 && type !== "folder";
-      }
-
-      async function findFolderWithContent(startPath, depth) {
-        const children = await fetchChildren(startPath);
-        const items = children.filter(isContentChild);
-        if (items.length > 0) {
-          return { folderPath: startPath, items };
-        }
-        if (depth <= 0) {
-          return null;
-        }
-        for (const child of children) {
-          const next =
-            child.folderPath ||
-            child.path ||
-            (child.name ? `${startPath.replace(/\/+$/, "")}/${child.name}` : null);
-          if (!next) continue;
-          const found = await findFolderWithContent(next, depth - 1);
-          if (found) return found;
-        }
-        return null;
-      }
-
-      const found = await findFolderWithContent("/Sites", 4);
-      expect(
-        found,
-        "H2 sample sites should list at least one page/asset under Sites",
-      ).toBeTruthy();
-
-      const folderPath = found.folderPath.replace(/\/+$/, "") || "/Sites";
-      await page.goto(
-        `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=explorer&path=${encodeURIComponent(folderPath)}&_=${Date.now()}`,
+      const opened = await selectFirstContentItem(page, "Sites", 4);
+      expect(opened, "H2 sample sites should list at least one page/asset").toBe(
+        true,
       );
-      await page.waitForLoadState("networkidle");
-      await listWaitReady(page);
-
-      const list = page.locator('[data-testid="detail-list"]');
-      await expect(list).toBeVisible({ timeout: 15_000 });
-
-      const itemRow = list.locator(
-        'tbody tr[data-testid^="detail-row-"][data-row-kind="item"]:not([aria-disabled="true"])',
-      );
-
-      if ((await itemRow.count()) === 0) {
-        const first = found.items[0];
-        const idKey = first.id ?? first.path;
-        const byId = list.locator(`[data-testid="detail-row-${idKey}"]`);
-        if ((await byId.count()) > 0) {
-          await byId.first().click({ force: true, timeout: 10_000 });
-        }
-      } else {
-        await itemRow.first().click({ force: true, timeout: 10_000 });
-      }
-
-      await expect(itemRow.first().or(list.locator('[data-selected="true"]'))).toBeVisible({
-        timeout: 10_000,
-      });
 
       await page.locator('[data-testid="explorer-menu-view"]').click();
       await page
@@ -196,8 +171,53 @@ test.describe("modern React Content Explorer — IA relationships (#2769)", () =
       ).toHaveCount(0);
       await expect(panel).toHaveAttribute(
         "data-testid-state",
-        /ok|loading|auth|error/,
+        /ok|loading/,
       );
+      await expect(
+        page.getByText("You do not have permission to perform this action"),
+      ).toHaveCount(0);
+    },
+  );
+
+  test(
+    "Admin on a selected asset opens IA Relationships without a permission error (#3811)",
+    { tag: ["@explorer-relationships", "@p-adv"] },
+    async ({ page }) => {
+      test.setTimeout(90_000);
+      const jsErrors = attachPageErrors(page);
+      const shell = page.locator('[data-testid="content-explorer-shell"]');
+      await expect(shell).toBeVisible({ timeout: 15_000 });
+
+      // H2 Assets library is often folders-only; sample-site pages/files
+      // still exercise the same Admin IA Relationships path (#3811).
+      const opened = await selectFirstContentItem(page, "Sites", 4);
+      expect(
+        opened,
+        "H2 QA should list at least one selectable page or asset",
+      ).toBe(true);
+
+      await page.locator('[data-testid="explorer-menu-view"]').click();
+      await page
+        .locator('[data-testid="explorer-toggle-relationships"]')
+        .click();
+
+      const region = page.locator(
+        '[data-testid="explorer-relationships-panel"]',
+      );
+      const panel = page.locator('[data-testid="relationships-view"]');
+      await expect(region).toBeVisible({ timeout: 15_000 });
+      await expect(panel).toBeVisible({ timeout: 15_000 });
+      await expect(
+        page.locator('[data-testid="explorer-relationships-hint"]'),
+      ).toHaveCount(0);
+      await expect(panel).toHaveAttribute("data-testid-state", /ok|loading/);
+      await expect(
+        page.getByText("You do not have permission to perform this action"),
+      ).toHaveCount(0);
+      expect(
+        unexpectedJsErrors(jsErrors),
+        `JS console errors: ${unexpectedJsErrors(jsErrors).join("; ")}`,
+      ).toEqual([]);
     },
   );
 });

@@ -384,11 +384,16 @@ From the **View** menu you can also toggle:
   **page or asset** is selected (not a folder or site). On sample FastForward
   sites, expand a site in the tree, open a section folder (for example
   **AboutEnterpriseInvestments** — not only a `Pages` folder), and select a
-  content row. **View → Relationships** or **View → Dependencies** then mounts
-  the matching panel (loading, results, empty, or an error). List row ids may
-  be GUID-shaped (`1-101-708`); both panels use the last segment as the
-  content id. A folder-only or empty selection keeps the select-item hint.
-  See **Translations** below for locale variants.
+  content row. Under **Assets**, select a library asset (including auto-named
+  items such as `New-percSimpleTextAsset-…`) the same way. **View → IA
+  Relationships** or **View → Dependencies** then mounts the matching panel
+  (loading, results, or empty). An **Admin** session does not see *You do not
+  have permission to perform this action* for a selected asset; that message
+  is reserved for a true authorization failure. List row ids may be
+  GUID-shaped (`1-101-708`); both panels use the last segment as the content
+  id, not a trailing timestamp on the asset title. A folder-only or empty
+  selection keeps the select-item hint. See **Translations** below for locale
+  variants.
 - **Clipboard** — copy/cut staging panel. **View → Clipboard** always opens
   the panel (even when empty) and shows a check mark while it is visible.
   Use **Content → Add to clipboard** after multi-select to put items on the

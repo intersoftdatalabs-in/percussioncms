@@ -15,8 +15,9 @@
  */
 
 import { describe, expect, it } from "vitest";
-import type { MenuAction } from "../../../main/ts/api/contentExplorer/types";
+import type { MenuAction, PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import {
+  canOpenIaRelationships,
   filterContextMenuActions,
   filterEnabledMenuActions,
   filterToolbarActions,
@@ -31,6 +32,7 @@ import {
   isDesktopOnlyActionUrl,
   isWebExecutableLeaf,
 } from "../../../main/ts/contentExplorer/actionEnablement";
+import { bindExplorerPathItemId } from "../../../main/ts/api/contentExplorer/pathItemId";
 
 const BASE = "http://localhost:9992/Rhythmyx/cm/app/spa.jsp?entry=explorer";
 
@@ -421,6 +423,58 @@ describe("filterEnabledMenuActions", () => {
         name: "Sites",
         path: "/Sites",
         type: "folder",
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("canOpenIaRelationships (#3811)", () => {
+  const assetTitle: PSPathItem = {
+    id: "New-percSimpleTextAsset-20260820165542",
+    name: "New-percSimpleTextAsset-20260820165542",
+    path: "/Assets/uploads/New-percSimpleTextAsset-20260820165542",
+    type: "percSimpleTextAsset",
+    category: "ASSET",
+    leaf: true,
+  };
+
+  it("enables Admin for a selected asset with a GUID or numeric id", () => {
+    expect(
+      canOpenIaRelationships({
+        ...assetTitle,
+        id: "1-101-708",
+      }),
+    ).toBe(true);
+    expect(
+      canOpenIaRelationships({
+        id: "42",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+        category: "PAGE",
+        leaf: true,
+      }),
+    ).toBe(true);
+  });
+
+  it("stays off for timestamped asset titles until sys_contentid is bound", () => {
+    expect(canOpenIaRelationships(assetTitle)).toBe(false);
+    const bound = bindExplorerPathItemId({
+      ...assetTitle,
+      displayProperties: { sys_contentid: "708" },
+    });
+    expect(canOpenIaRelationships(bound)).toBe(true);
+  });
+
+  it("stays off for folders and empty selection", () => {
+    expect(canOpenIaRelationships(null)).toBe(false);
+    expect(
+      canOpenIaRelationships({
+        id: "uploads",
+        name: "uploads",
+        path: "/Assets/uploads",
+        type: "Folder",
+        category: "FOLDER",
       }),
     ).toBe(false);
   });

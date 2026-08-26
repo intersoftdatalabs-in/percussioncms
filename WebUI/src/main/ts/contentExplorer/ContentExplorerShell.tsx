@@ -84,6 +84,7 @@ import {
 } from "../api/contentExplorer/itemWorkflowApi";
 import { findItemByPath } from "../api/contentExplorer/pathApi";
 import { bindExplorerPathItemId } from "../api/contentExplorer/pathItemId";
+import { canOpenIaRelationships } from "./actionEnablement";
 import {
   executeView as executeViewApi,
   listViews as listViewsApi,
@@ -1285,10 +1286,7 @@ function ContentExplorerShellInner({
     [selection.folderPath, selection.item?.path, selection.item?.type],
   );
   const hasFolderContext = sourceFolderPathForCopy != null;
-  const hasRelationshipItem =
-    selection.item != null &&
-    !isFolder(selection.item) &&
-    parseExplorerContentId(selection.item.id) != null;
+  const hasRelationshipItem = canOpenIaRelationships(selection.item);
   // Same eligibility as Relationships: numeric id or GUID last-segment
   // (host-type-uuid). A non-empty slug such as theme.css is not enough
   // (#3571 / parent #2776).

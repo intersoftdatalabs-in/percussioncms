@@ -200,19 +200,49 @@ class PSRelationshipSummaryServiceTest {
 
   @Test
   void summariseJcrThrows_returnsEmptyOptional() {
-    // The taxonomy dimension treats infra / JCR failure as AuthZ-equivalent: returns empty
-    // so the rest façade translates to 403 (the same path as a missing item).
+    // Path-style ids still treat JCR failure as AuthZ-equivalent (empty Optional → 403).
     when(relationshipCataloger.findOwners(anyString(), anyString(), any(), any()))
         .thenReturn(Collections.emptyList());
     when(jcrNodeFinder.find(anyString(), org.mockito.ArgumentMatchers.<Map<String, String>>any()))
         .thenThrow(new RuntimeException("jcr down"));
 
-    Optional<PSNodeRelationshipSummary> out = service.summarise("ok");
+    Optional<PSNodeRelationshipSummary> out = service.summarise("/Sites/Demo");
 
     assertFalse(
         out.isPresent(),
         "taxonomy failure should propagate to empty-Optional at the consolidated endpoint");
-    assertFalse(service.summariseTaxonomy("ok").isPresent());
+    assertFalse(service.summariseTaxonomy("/Sites/Demo").isPresent());
+  }
+
+  @Test
+  void summariseTaxonomySkipsFinderForContentIdAndGuid() {
+    when(jcrNodeFinder.find(anyString(), org.mockito.ArgumentMatchers.<Map<String, String>>any()))
+        .thenThrow(new RuntimeException("must not query JCR for a content id"));
+
+    Optional<com.percussion.share.relationship.data.PSTaxonomySummary> numeric =
+        service.summariseTaxonomy("708");
+    Optional<com.percussion.share.relationship.data.PSTaxonomySummary> guid =
+        service.summariseTaxonomy("1-101-708");
+
+    assertTrue(numeric.isPresent());
+    assertEquals(0L, numeric.get().getCount());
+    assertTrue(guid.isPresent());
+    assertEquals(0L, guid.get().getCount());
+    org.mockito.Mockito.verify(jcrNodeFinder, org.mockito.Mockito.never())
+        .find(anyString(), org.mockito.ArgumentMatchers.<Map<String, String>>any());
+  }
+
+  @Test
+  void summariseContentIdDoesNotForbiddenWhenTaxonomyHasNoPath() {
+    when(relationshipCataloger.findOwners(anyString(), anyString(), any(), any()))
+        .thenReturn(Collections.emptyList());
+    when(jcrNodeFinder.find(anyString(), org.mockito.ArgumentMatchers.<Map<String, String>>any()))
+        .thenThrow(new RuntimeException("must not query JCR for a content id"));
+
+    Optional<PSNodeRelationshipSummary> out = service.summarise("708");
+
+    assertTrue(out.isPresent(), "Admin asset/page content ids must not 403 the IA summary");
+    assertEquals(0L, out.get().getTaxonomy().getCount());
   }
 
   @Test
