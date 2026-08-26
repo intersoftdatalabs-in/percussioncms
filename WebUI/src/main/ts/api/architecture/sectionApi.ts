@@ -221,10 +221,12 @@ export async function loadSectionProperties(
 
 /**
  * Create a regular (or blog) site section under {@code fields.folderPath}.
+ * Returns the parsed {@code SiteSection} when the POST body includes an id
+ * (used to auto-select the new navon after Create).
  */
 export async function createSiteSection(
   fields: CreateSiteSectionFields,
-): Promise<unknown> {
+): Promise<SiteSectionWire | null> {
   if (!fields.templateId?.trim()) {
     throw new Error("Template is required to create a section");
   }
@@ -232,7 +234,8 @@ export async function createSiteSection(
     throw new Error("Parent folder path is required to create a section");
   }
   const body = buildCreateSiteSectionBody(fields);
-  return post<unknown>(PATHS.SECTION_CREATE_SECTION, body);
+  const payload = await post<unknown>(PATHS.SECTION_CREATE_SECTION, body);
+  return parseSiteSectionPayload(payload);
 }
 
 /**

@@ -78,6 +78,22 @@ describe("sectionApi mutations (#3096)", () => {
     );
   });
 
+  it("createSiteSection parses SiteSection id from POST payload (#3821)", async () => {
+    vi.spyOn(client, "post").mockResolvedValue({
+      SiteSection: { id: "guid-new", title: "News" },
+    });
+    const created = await createSiteSection({
+      pageTitle: "News",
+      pageLinkTitle: "News",
+      pageName: "news",
+      pageUrlIdentifier: "news",
+      templateId: "tpl-1",
+      folderPath: "//Sites/Demo",
+    });
+    expect(created?.id).toBe("guid-new");
+    expect(created?.title).toBe("News");
+  });
+
   it("loadSectionProperties unwraps SiteSectionProperties", async () => {
     vi.spyOn(client, "get").mockResolvedValue({
       SiteSectionProperties: {

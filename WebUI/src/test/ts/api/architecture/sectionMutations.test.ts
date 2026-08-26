@@ -30,6 +30,7 @@ import {
   canConvertSectionToFolder,
   canCreateChildUnder,
   canDeleteNavNode,
+  resolveCreatedNavNodeId,
   canMoveNavNode,
   canMoveNavNodeDown,
   canMoveNavNodeUp,
@@ -111,6 +112,34 @@ describe("sectionMutations (#3096)", () => {
     expect(canMoveNavNodeUp(sampleTree, "b")).toBe(true);
     expect(canMoveNavNodeDown(sampleTree, "c")).toBe(false);
     expect(canMoveNavNodeDown(sampleTree, "a")).toBe(true);
+  });
+
+  it("resolves created child id after tree reload (#3821)", () => {
+    const after = node("root", "Home", [
+      node("a", "About"),
+      node("b", "News", [node("b1", "Press")]),
+      node("c", "Link", [], { sectionType: "sectionlink" }),
+      node("n1", "Products"),
+    ]);
+    expect(
+      resolveCreatedNavNodeId(sampleTree, after, "root", { id: "n1" }),
+    ).toBe("n1");
+    expect(
+      resolveCreatedNavNodeId(sampleTree, after, "root", {
+        title: "Products",
+      }),
+    ).toBe("n1");
+    expect(
+      resolveCreatedNavNodeId(sampleTree, after, "root", {}),
+    ).toBe("n1");
+    expect(
+      canDeleteNavNode(after, findNavNodeById(after, "n1")),
+    ).toBe(true);
+    expect(canDeleteNavNode(after, after)).toBe(false);
+    expect(
+      resolveCreatedNavNodeId(sampleTree, after, "root", { id: "root" }),
+    ).toBe("n1");
+    expect(resolveCreatedNavNodeId(sampleTree, after, "missing")).toBeNull();
   });
 
   it("gates convert-to-folder to regular non-root navons (#3302)", () => {
