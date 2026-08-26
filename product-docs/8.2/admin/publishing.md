@@ -52,9 +52,11 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
   `http-json` Publish uses a local JSON fixture or loopback catalog (`http.url` /
   `http.file` in `_config.yaml`); leftover `virtual.remoteUrl` is **400** (no secrets on
   the envelope). REST **GET/PUT** can persist `virtual.sourceKind=object-storage` with a
-  local `rootPath` (cloud URLs and credentials are **400**); Build/Publish for that kind
-  stay a later phase. The endpoint does not accept an `outputRoot` body (always the default
-  staging root).
+  local `rootPath` (cloud URLs and credentials are **400**). REST **Preview** streams
+  last-build HTML for that kind after a successful Build (`available=true`; missing
+  build is `available=false` HTTP 200). REST Publish and Developer Sites chrome for
+  object-storage stay a later phase. The endpoint does not accept an `outputRoot` body
+  (always the default staging root).
 
 ### Publish a Virtual Site to the Site filesystem target
 

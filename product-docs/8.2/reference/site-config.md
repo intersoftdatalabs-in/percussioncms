@@ -111,7 +111,7 @@ When a Percussion Site is configured as virtual (Phase 1 — no new `RXSITES` co
 
 | Property name | Required | Example | Meaning |
 |---------------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, or `object-storage` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips git, CSV, SQL, `http-json`, and `object-storage` (local `rootPath` only; cloud URLs and credential properties are **400**). REST **Build** (`POST …/virtual/build`) runs git/CSV/SQL and `http-json` (local JSON fixture or loopback catalog). REST **Publish** (`POST …/virtual/publish`) runs git/CSV/SQL and `http-json` adapters (copies assembled HTML to `IPSSite.root`; leftover `virtual.remoteUrl` on `http-json` is **400**). REST **Preview** streams last-build HTML after Build (git/CSV/SQL/`http-json`). `http-json` persist uses a portable-safe `rootPath` JSON fixture; catalog URL/file live in `_config.yaml` (`http.url` / `http.file`); `virtual.remoteUrl` is **400** (no secrets on the REST envelope). SPI/CLI assemble is installed. Developer Sites can select, save, **Build**, **Preview**, and **Publish** HTTP JSON. `sql-database` is in-memory H2 (`jdbc:h2:mem:`; required query columns `id`, `title`, `body`; JDBC URL/user/query in `_config.yaml`, never passwords on the REST envelope). Developer Sites can select and save **SQL database**. `csv-filesystem` required columns: `id`, `title`, `body`; optional `_config.yaml`. `object-storage` is a local object-key SPI (`PSVirtualSiteBuildMain … object-storage`; Markdown / HTML / JSON under `virtual.rootPath`; no cloud secrets). |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, or `object-storage` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips git, CSV, SQL, `http-json`, and `object-storage` (local `rootPath` only; cloud URLs and credential properties are **400**). REST **Build** (`POST …/virtual/build`) runs git/CSV/SQL and `http-json` (local JSON fixture or loopback catalog). REST **Publish** (`POST …/virtual/publish`) runs git/CSV/SQL and `http-json` adapters (copies assembled HTML to `IPSSite.root`; leftover `virtual.remoteUrl` on `http-json` is **400**). REST **Preview** streams last-build HTML after Build (git/CSV/SQL/`http-json`/`object-storage`). `http-json` persist uses a portable-safe `rootPath` JSON fixture; catalog URL/file live in `_config.yaml` (`http.url` / `http.file`); `virtual.remoteUrl` is **400** (no secrets on the REST envelope). SPI/CLI assemble is installed. Developer Sites can select, save, **Build**, **Preview**, and **Publish** HTTP JSON. `sql-database` is in-memory H2 (`jdbc:h2:mem:`; required query columns `id`, `title`, `body`; JDBC URL/user/query in `_config.yaml`, never passwords on the REST envelope). Developer Sites can select and save **SQL database**. `csv-filesystem` required columns: `id`, `title`, `body`; optional `_config.yaml`. `object-storage` is a local object-key SPI (`PSVirtualSiteBuildMain … object-storage`; Markdown / HTML / JSON under `virtual.rootPath`; no cloud secrets). REST Preview of last-build HTML is available after a successful assemble. |
 | `virtual.rootPath` | Yes when remote is blank | absolute or install-relative path to tree | Local filesystem source root when `virtual.remoteUrl` is blank. NIO `Path` normalize; no empty path / remaining `..`. When a remote is set, optional relative path inside the checkout. |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones/fetches into `{install}/tmp/virtual-site-checkouts/{siteKey}`. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. Fail-closed on `..`, `http`, option injection. Credentials are never logged. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. |
@@ -238,9 +238,10 @@ See [Sites & content structure](id:admin-sites).
 
 Admin-only. Reports whether the last build output can be opened (`available`, `homePath`,
 `outputPath`). Preview is **last-output based** and works for **`git-filesystem`**,
-**`csv-filesystem`**, **`sql-database`**, and **`http-json`** Virtual Sites (not git-only). Missing or failed
-builds return **200** with `available=false` and a message (not 500). Traditional
-repository Sites and unknown `virtual.sourceKind` values return **400**.
+**`csv-filesystem`**, **`sql-database`**, **`http-json`**, and **`object-storage`**
+Virtual Sites (not git-only). Missing or failed builds return **200** with
+`available=false` and a message (not 500). Traditional repository Sites and unknown
+`virtual.sourceKind` values return **400**.
 
 `GET …/virtual/preview/{relPath}` streams one file from that last output root (portable NIO
 resolution, no `..` after normalize). HTML root-relative `href`/`src` values are rewritten to
@@ -249,9 +250,10 @@ the preview prefix so the assembled site is navigable in the browser. Missing fi
 return **400**. The Developer UI **Preview assembled site** control uses these endpoints.
 
 After REST Build (`POST …/virtual/build`) for `git-filesystem`, `csv-filesystem`,
-`sql-database`, or `http-json`, the server records the last output path (including a custom
-`outputRoot`) so preview streams that tree. For `sql-database` (in-memory H2) and
-`http-json` (local JSON fixture or loopback catalog), a successful Build is followed by
+`sql-database`, `http-json`, or `object-storage`, the server records the last output path
+(including a custom `outputRoot`) so preview streams that tree. For `sql-database`
+(in-memory H2), `http-json` (local JSON fixture or loopback catalog), and `object-storage`
+(local object-key bucket), a successful Build is followed by
 `available=true` + assembled HTML; no last build is `available=false` HTTP **200**. Offline
 CLI assemble (`PSVirtualSiteBuildMain`) does **not** record that pointer:
 CLI output is previewable only when `outputRoot` is exactly the default

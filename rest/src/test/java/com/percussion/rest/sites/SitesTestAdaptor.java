@@ -29,9 +29,9 @@ import org.springframework.stereotype.Component;
  * sourceKind}); JDBC credentials, HTTP secrets, and object-storage cloud credentials are never
  * logged. REST Build for {@code http-json} uses the same adaptor contract as git/CSV/SQL (local
  * JSON fixture / loopback; {@code virtual.remoteUrl} stays 400).
- * REST Publish copies last-build HTML to {@code IPSSite.root} for the same kinds. Preview status
- * is last-output based ({@code available=false} when no build), including {@code http-json}
- * last-build output.
+ * REST Publish copies last-build HTML to {@code IPSSite.root} for git/CSV/SQL/{@code http-json}.
+ * Preview status is last-output based ({@code available=false} when no build), including {@code
+ * http-json} and {@code object-storage} last-build output.
  */
 @Component
 @Lazy
