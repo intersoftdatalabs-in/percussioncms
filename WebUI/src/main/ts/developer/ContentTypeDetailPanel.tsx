@@ -547,7 +547,7 @@ export function ContentTypeDetailPanel({
           position: "sticky",
           top: 0,
           zIndex: 2,
-          background: "#fff",
+          background: catalogColors.surface,
           padding: "8px 0",
         }}
       >
@@ -644,7 +644,7 @@ export function ContentTypeDetailPanel({
       <section style={{ marginBottom: "16px" }} data-testid="developer-ct-templates">
         <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_TEMPLATES}</h3>
         <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.CT_TEMPLATES_HINT}</p>
-        {templates.length === 0 ? (
+        {detail == null ? null : templates.length === 0 ? (
           <p style={{ color: catalogColors.empty }} data-testid="developer-ct-tpl-empty">
             {DEV_MSG.CT_NONE}
           </p>

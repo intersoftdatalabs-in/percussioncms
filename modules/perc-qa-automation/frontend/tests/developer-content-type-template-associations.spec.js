@@ -130,6 +130,11 @@ async function openContentTypeDetail(page, namePattern) {
   await expect(page.locator('[data-testid="developer-ct-templates"]')).toBeVisible({
     timeout: 30_000,
   });
+  const tplEmpty = page.locator('[data-testid="developer-ct-tpl-empty"]');
+  const detailLoading = page.locator('[data-testid="developer-ct-detail-loading"]');
+  if (await detailLoading.isVisible()) {
+    await expect(tplEmpty).toHaveCount(0);
+  }
   await expect(page.locator('[data-testid="developer-ct-tpl-add-name"]')).toBeDisabled({
     timeout: 15_000,
   });
@@ -147,6 +152,10 @@ async function openContentTypeDetail(page, namePattern) {
   await expect(page.locator('[data-testid="developer-ct-detail-loading"]')).toBeHidden({
     timeout: 15_000,
   });
+  const tplRows = page.locator('[data-testid^="developer-ct-tpl-row-"]');
+  if ((await tplRows.count()) > 0) {
+    await expect(tplEmpty).toHaveCount(0);
+  }
   if (await detailError.isVisible()) {
     throw new Error(`Content type detail error: ${(await detailError.innerText()).trim()}`);
   }

@@ -7,6 +7,7 @@ import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as contentTypesApi from "../../../main/ts/api/developer/contentTypesApi";
+import { catalogColors } from "../../../main/ts/developer/catalogStyles";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { ContentTypeDetailPanel } from "../../../main/ts/developer/ContentTypeDetailPanel";
 
@@ -610,6 +611,13 @@ describe("ContentTypeDetailPanel", () => {
     expect(screen.getByTestId("developer-ct-lock-toolbar")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-detail-name").textContent).toBe("percPage");
     expect(screen.getByTestId("developer-ct-templates")).toBeTruthy();
+    expect(screen.queryByTestId("developer-ct-tpl-empty")).toBeNull();
+    const toolbarBg = (screen.getByTestId("developer-ct-lock-toolbar") as HTMLElement).style
+      .background;
+    expect(
+      toolbarBg === catalogColors.surface ||
+        /rgb\(\s*255\s*,\s*255\s*,\s*255\s*\)/i.test(toolbarBg),
+    ).toBe(true);
     expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
       true,
     );
@@ -623,10 +631,31 @@ describe("ContentTypeDetailPanel", () => {
     await waitFor(() => {
       expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
     });
+    expect(screen.getByTestId("developer-ct-tpl-row-0")).toBeTruthy();
+    expect(screen.queryByTestId("developer-ct-tpl-empty")).toBeNull();
     expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
       true,
     );
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+  });
+
+  it("ignores template add/remove while unlocked (#3836)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      allowedTemplates: [{ name: "perc.page", label: "Page" }],
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-tpl-row-0")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-tpl-add-name"), {
+      target: { value: "perc.page.summary" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-tpl-add"));
+    fireEvent.click(screen.getByTestId("developer-ct-tpl-remove-0"));
+    expect(screen.queryByTestId("developer-ct-tpl-row-1")).toBeNull();
+    expect(screen.getByTestId("developer-ct-tpl-row-0").textContent).toContain("perc.page");
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
   });
 
   it("keeps template editors disabled after 409 lock and does not steal (#3836)", async () => {
