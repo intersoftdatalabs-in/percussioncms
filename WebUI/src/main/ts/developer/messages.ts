@@ -763,7 +763,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Workflow association is browsed under the Workflows catalog",
   SITE_VIRT_TITLE: "perc.ui.developer@Virtual Site source",
   SITE_VIRT_HINT:
-    "perc.ui.developer@Configure whether this Site reads content from the repository or from a Virtual Site adapter (Git filesystem, CSV filesystem, SQL database, or HTTP JSON). Blank/repository keeps traditional repository content.",
+    "perc.ui.developer@Configure whether this Site reads content from the repository or from a Virtual Site adapter (Git filesystem, CSV filesystem, SQL database, HTTP JSON, or object storage). Blank/repository keeps traditional repository content.",
   SITE_VIRT_LOADING: "perc.ui.developer@Loading Virtual Site source...",
   SITE_VIRT_ERROR: "perc.ui.developer@Could not load Virtual Site source.",
   SITE_VIRT_SAVE_ERROR: "perc.ui.developer@Could not save Virtual Site source.",
@@ -790,6 +790,9 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_KIND_HTTP_JSON: "perc.ui.developer@HTTP JSON",
   SITE_VIRT_HTTP_JSON_HINT:
     "perc.ui.developer@HTTP JSON uses the root path only (no Git remote). Put a local JSON catalog (http.file or default pages.json) or a loopback http.url in _config.yaml. Save sourceKind=http-json, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target. Open JSON only — no Authorization or API keys.",
+  SITE_VIRT_KIND_OBJECT_STORAGE: "perc.ui.developer@Object storage",
+  SITE_VIRT_OBJECT_STORAGE_HINT:
+    "perc.ui.developer@Object storage uses the root path only (no Git remote). Treat the directory as a local object-key bucket (Markdown, HTML, or JSON). Save sourceKind=object-storage. Cloud URLs and access keys are never sent on the REST envelope. Build, Preview, and Publish for this kind stay a later phase.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:
