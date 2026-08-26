@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Lock, save, and unlock a content type from Developer detail chrome
+description: Lock, enable or disable, save, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -35,14 +35,32 @@ use `GET`/`PUT /services/contenttypes/{idOrName}/itemExits`. This page does
 5. Click **Lock**. Status becomes **Locked by you**. If another user already
    holds the lock, the panel shows an error and Save stays disabled (the product
    does **not** steal the lock).
-6. Change the **Description** (and any other unlocked fields), then click
-   **Save content type**. Save writes while the lock is still held. It does
-   **not** unlock.
+6. Change the **Description**, **Enabled** checkbox, and any other unlocked
+   fields, then click **Save content type**. Save writes while the lock is still
+   held. It does **not** unlock. **Enabled** is written with a dedicated
+   `PUT /services/contenttypes/{idOrName}/enabled` (CD-13), not the bulk
+   content-type save. Without a lock the checkbox stays disabled and a toggle
+   cannot persist.
 7. Click **Unlock** when you are done. Status returns to **Not locked** and the
    form is read-only again. **Back to list** also releases a lock you hold.
 
 Locks expire after **30 minutes**. If Save fails because the lock expired,
 click **Lock** again and retry.
+
+## Enable or disable a content type
+
+The **Enabled** checkbox on Developer Content Type detail controls whether the
+type is available for runtime use.
+
+1. Hold the design-session **Lock**. The checkbox is read-only until you do.
+2. Toggle **Enabled**, then **Save content type**. The SPA calls
+   `PUT /services/contenttypes/{idOrName}/enabled` (Jackson root
+   `ContentTypeEnabled`) while the lock is still held.
+3. A following `GET /services/contenttypes/{idOrName}` reflects the new
+   `enabled` value.
+4. If another user already holds the lock, **Lock** returns **409**. The
+   product does **not** steal the lock, Save stays disabled, and **Enabled**
+   remains read-only.
 
 ## REST
 
@@ -51,7 +69,8 @@ The chrome calls:
 | Action | Request |
 |--------|---------|
 | Lock | `POST /services/contenttypes/{idOrName}/lock` |
-| Save | `PUT /services/contenttypes/{idOrName}` (requires a held lock) |
+| Save (label, description, fields, associations) | `PUT /services/contenttypes/{idOrName}` (requires a held lock; does not send `enabled`) |
+| Enable / disable | `PUT /services/contenttypes/{idOrName}/enabled` (CD-13; requires a held lock; does not acquire or release it) |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |
 
 Integrator notes: [REST API — Content types](id:developer-rest). Object ACL on
