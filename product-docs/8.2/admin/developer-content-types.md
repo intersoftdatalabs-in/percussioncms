@@ -15,10 +15,12 @@ use an explicit **design-session lock** so two Admins cannot overwrite the same
 type at once.
 
 This is **not** the full Workbench field-rule editor. Field validation /
-visibility / transform **expressions** stay read-only on the detail table.
-Item-level pre/post exits and validations (CD-09) are exposed on REST
-`GET`/`PUT /services/contenttypes/{idOrName}/itemExits` (held design lock for
-write). This page does **not** add Properties-tab chrome for those exits.
+visibility / transform **expressions** stay summary-only on the detail table.
+Integrators write them with REST
+`GET`/`PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions`
+(held design lock for PUT). Item-level pre/post exits and validations (CD-09)
+use `GET`/`PUT /services/contenttypes/{idOrName}/itemExits`. This page does
+**not** add Properties-tab or expression-editor chrome.
 
 ## Product path — lock, save, unlock
 
@@ -55,6 +57,10 @@ The chrome calls:
 Integrator notes: [REST API — Content types](id:developer-rest). Object ACL on
 the same detail panel: [Object ACL & default template](id:admin-object-acl).
 
-Field **control property values** and **choice catalogs** are not edited in this chrome.
-Integrators use `GET` / `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties`
-(hold the design-session lock before PUT). See [REST API — Content types](id:developer-rest).
+Field **control property values**, **choice catalogs**, and **rule expressions** are not
+edited in this chrome. Integrators use:
+
+* `GET` / `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties`
+* `GET` / `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions`
+
+Hold the design-session lock before either PUT. See [REST API — Content types](id:developer-rest).

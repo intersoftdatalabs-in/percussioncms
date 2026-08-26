@@ -196,11 +196,13 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Replace item-level exits | `PUT /services/contenttypes/{idOrName}/itemExits` | Full replace of item-level translations/validations via `IPSContentDesignWs.saveContentTypes` (CD-09). Requires a **held** design-session lock. Empty lists clear. **409** if unlocked or locked by another user. **400** if required lists are missing or an extension FQN is invalid. `preExits`/`postExits` omitted leave pipe extensions unchanged. Apply-when is not written. Does not acquire or release the lock. |
 | Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` | Full replace of associated templates (CD-12). Requires a **held** design-session lock. Empty list clears associations. **409** if unlocked or locked by another user. **400** if a template name/guid cannot be resolved. Does not acquire or release the lock. |
 | Lock | `POST /services/contenttypes/{idOrName}/lock` | **Admin.** Self-only design-session lock (`IPSContentDesignWs.loadContentTypes` with `lock=true`, `overrideLock=false`). Does **not** save. `200` + `ObjectLockSummary` (`session`, `locker`, `remainingTime` minutes from the lock service). Locks expire after **30 minutes** (`PSObjectLock.LOCK_INTERVAL`). Re-lock by the same session user extends the lock. |
-| Save | `PUT /services/contenttypes/{idOrName}` | **Admin.** Requires a lock already held by the current user. Saves label, description, enabled, per-field searchable/occurrence, workflows, and templates. Does **not** release the lock. POST `/lock` and PUT share the packed NODEDEF design-object id so a lock you hold is found on save. The save load (`lock=true`) **extends** a still-valid lock; a PUT after expiry returns `409` and the client must re-lock. Field rule expressions stay read-only. |
+| Save | `PUT /services/contenttypes/{idOrName}` | **Admin.** Requires a lock already held by the current user. Saves label, description, enabled, per-field searchable/occurrence, workflows, and templates. Does **not** release the lock. POST `/lock` and PUT share the packed NODEDEF design-object id so a lock you hold is found on save. The save load (`lock=true`) **extends** a still-valid lock; a PUT after expiry returns `409` and the client must re-lock. Field rule expressions use the dedicated path below (not this PUT). |
 | Allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` | **Admin** (CD-08 design action). Requires a held design-session lock (`POST .../lock` first). Does **not** acquire or release the lock. Full replace of `allowedWorkflows` (empty list clears). Optional `defaultWorkflow`. Workflow name/guid must exist. `200` + `ContentTypeDetail` with the new `allowedWorkflows` / `defaultWorkflow` (lock still held). |
 | Enable/disable | `PUT /services/contenttypes/{idOrName}/enabled` | **Admin** (CD-13 design action). Requires a held design-session lock — `POST .../lock` first, then `PUT .../enabled`, then `POST .../unlock` when done. Does **not** acquire or release the lock. `200` + `ContentTypeDetail` with the new `enabled` value (lock still held). |
 | Field control properties | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` | Control parameter **name/value** pairs and the choice catalog for one field (CD-07). No lock required. Empty `properties` means none. `choices` omitted when none. |
 | Replace field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` | **Admin** (CD-07). Requires a **held** design-session lock. Full replace of `properties` (empty clears). `choices` omitted leaves the catalog unchanged; `type: none` clears. **409** if unlocked or locked by another user. Does not acquire or release the lock. |
+| Field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` | Field-level validation, visibility, and input/output translation expressions (CD-05–07). No lock required. Empty lists mean none. Unknown field is **404**. Jackson root wrap is `ContentTypeFieldRuleExpressions`. |
+| Replace field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` | **Admin** (CD-05–07). Requires a **held** design-session lock. Full replace of `validation`, `visibility`, `inputTranslation`, and `outputTranslation` (empty lists clear). Unknown field names are **400**. **409** if unlocked or locked by another user. Does not acquire or release the lock. |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
 
 Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types).
@@ -357,10 +359,11 @@ Content type **detail** still lists `designGaps` code `CT_ITEM_EXITS` pointing
 at this dedicated path. This slice does **not** add Properties-tab chrome in
 Developer Content Types.
 
-### Field rule expressions (read-only)
+### Field rule expressions (CD-05–07)
 
 Content type **detail** field rows include boolean rule **flags** and, when rules exist,
-human-readable **expression summaries**:
+human-readable **expression summaries**. Those summary strings are **not** written by
+`PUT /contenttypes/{idOrName}`. Use the dedicated field path to persist rules.
 
 | Field | Meaning |
 |-------|---------|
@@ -372,9 +375,62 @@ human-readable **expression summaries**:
 | `controlPropertyNames` | Control parameter names (compat; prefer `controlProperties`) |
 | `controlProperties` | Control parameter **name and value** pairs |
 
-These expression fields are **null/omitted when empty** (`NON_NULL` JSON). Field rule
-expressions are **not** writable via `PUT` detail. Control property **values** and choice
-catalogs use the dedicated CD-07 path below.
+`GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` returns the
+structured rules for one field. No design lock is required. Empty arrays mean none.
+`404` means the content type or field was not found. GET also repeats the same summary
+strings as the detail field row.
+
+`PUT` on the same path replaces validation, visibility, and input/output translation
+expressions. Hold the design-session lock first; save keeps the lock so you can continue
+editing, then unlock.
+
+Typical flow: `POST .../lock` → `PUT .../fields/{fieldName}/ruleExpressions` → (optional
+further design writes) → `POST .../unlock`.
+
+Jackson root wrap:
+
+```json
+{
+  "ContentTypeFieldRuleExpressions": {
+    "fieldName": "sys_title",
+    "validation": [
+      {
+        "type": "conditional",
+        "conditionals": [
+          { "variable": "sys_title", "operator": "<>", "value": "" }
+        ]
+      }
+    ],
+    "visibility": [],
+    "inputTranslation": [
+      {
+        "extension": "Java/global/percussion/generic/sys_ToUpperCase",
+        "parameters": [{ "value": "sys_title" }]
+      }
+    ],
+    "outputTranslation": []
+  }
+}
+```
+
+`validation`, `visibility`, `inputTranslation`, and `outputTranslation` are required on
+PUT (empty list clears). Rule `type` is `conditional`, `extension`, or `reference`
+(validation only; visibility rejects `reference`). Conditional `variable` / `value` are
+stored as text literals. Operator `!=` is accepted as `<>`. Apply-when on field
+validation is not written (see `designGaps` code `CT_FIELD_RULE_APPLY_WHEN`).
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | GET envelope, or PUT replaced (lock still held) |
+| `400` | Missing required lists, invalid rule, or unknown field name |
+| `403` | Caller is not Admin (PUT) |
+| `404` | Content type not found (PUT), or content type / field not found (GET) |
+| `409` | No design lock, or locked by another user |
+| `500` | Unexpected error |
+
+This slice does **not** add a field-rule expression editor in Developer Content Types
+chrome. Control property **values** and choice catalogs use the dedicated CD-07 path
+below.
 
 ### Control property values (CD-07)
 

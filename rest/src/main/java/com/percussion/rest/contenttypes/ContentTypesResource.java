@@ -844,8 +844,8 @@ public class ContentTypesResource {
       description =
           "Content type detail including field catalog. Field rows include control property"
               + " names and values. Choice catalogs and property write use"
-              + " GET/PUT .../fields/{fieldName}/controlProperties. Field rule expressions remain"
-              + " read-only (see designGaps).",
+              + " GET/PUT .../fields/{fieldName}/controlProperties. Field rule expressions use"
+              + " GET/PUT .../fields/{fieldName}/ruleExpressions (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -887,9 +887,10 @@ public class ContentTypesResource {
               + " empty). Template associations are written after content-type save in a separate"
               + " design call — if that fails, meta/field/workflow changes may already be"
               + " committed (error message indicates partial success). Name/id and system field"
-              + " structure are not changed. Field rule expressions remain read-only. Control"
-              + " property values use PUT .../fields/{fieldName}/controlProperties. Create/delete"
-              + " remain unsupported (see designGaps).",
+              + " structure are not changed. Field rule expressions use PUT"
+              + " .../fields/{fieldName}/ruleExpressions. Control property values use PUT"
+              + " .../fields/{fieldName}/controlProperties. Create/delete remain unsupported (see"
+              + " designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -1334,6 +1335,97 @@ public class ContentTypesResource {
           requireAdaptor()
               .replaceFieldControlProperties(
                   uriInfo.getBaseUri(), idOrName, fieldName, body);
+      if (out == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return out;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      throw mapWriteFailure(e);
+    }
+  }
+
+  @GET
+  @Path("/{idOrName}/fields/{fieldName}/ruleExpressions")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get field rule expressions",
+      description =
+          "CD-05–07 GET: field-level validation, visibility, and input/output translation"
+              + " expressions for one field. No design lock is required. Empty lists mean none."
+              + " Summary strings match ContentTypeDetail field rows. Jackson root wrap is"
+              + " ContentTypeFieldRuleExpressions.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(schema = @Schema(implementation = ContentTypeFieldRuleExpressions.class))),
+        @ApiResponse(responseCode = "404", description = "Content type or field not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeFieldRuleExpressions getFieldRuleExpressions(
+      @PathParam("idOrName") String idOrName, @PathParam("fieldName") String fieldName) {
+    try {
+      ContentTypeFieldRuleExpressions out =
+          requireAdaptor().getFieldRuleExpressions(uriInfo.getBaseUri(), idOrName, fieldName);
+      if (out == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return out;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}/fields/{fieldName}/ruleExpressions")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Replace field rule expressions",
+      description =
+          "CD-05–07 PUT: full replace of field validation, visibility, and input/output"
+              + " translation expressions via IPSContentDesignWs.saveContentTypes. Requires a held"
+              + " design-session lock (POST .../lock). Does not acquire or release the lock. Empty"
+              + " lists clear. Unknown field names are rejected. Conditional variable/value are"
+              + " stored as text literals. Apply-when on field validation is not written. Jackson"
+              + " root wrap is ContentTypeFieldRuleExpressions.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Replaced (lock is still held)",
+            content =
+                @Content(schema = @Schema(implementation = ContentTypeFieldRuleExpressions.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Missing required lists, invalid rule, or unknown field name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock not held by the current user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeFieldRuleExpressions replaceFieldRuleExpressions(
+      @PathParam("idOrName") String idOrName,
+      @PathParam("fieldName") String fieldName,
+      ContentTypeFieldRuleExpressions body) {
+    if (body == null
+        || body.getValidation() == null
+        || body.getVisibility() == null
+        || body.getInputTranslation() == null
+        || body.getOutputTranslation() == null) {
+      throw new WebApplicationException(
+          "validation, visibility, inputTranslation, and outputTranslation are required", 400);
+    }
+    try {
+      ContentTypeFieldRuleExpressions out =
+          requireAdaptor()
+              .replaceFieldRuleExpressions(uriInfo.getBaseUri(), idOrName, fieldName, body);
       if (out == null) {
         throw new WebApplicationException("Content type not found: " + idOrName, 404);
       }

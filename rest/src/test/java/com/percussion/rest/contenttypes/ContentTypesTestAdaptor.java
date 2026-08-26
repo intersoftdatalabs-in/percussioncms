@@ -141,4 +141,22 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
       URI baseUri, String idOrName, String fieldName, ContentTypeFieldControlProperties body) {
     return body;
   }
+
+  @Override
+  public ContentTypeFieldRuleExpressions getFieldRuleExpressions(
+      URI baseUri, String idOrName, String fieldName) {
+    ContentTypeFieldRuleExpressions out = new ContentTypeFieldRuleExpressions();
+    out.setFieldName(fieldName);
+    out.setValidation(List.of());
+    out.setVisibility(List.of());
+    out.setInputTranslation(List.of());
+    out.setOutputTranslation(List.of());
+    return out;
+  }
+
+  @Override
+  public ContentTypeFieldRuleExpressions replaceFieldRuleExpressions(
+      URI baseUri, String idOrName, String fieldName, ContentTypeFieldRuleExpressions body) {
+    return body;
+  }
 }

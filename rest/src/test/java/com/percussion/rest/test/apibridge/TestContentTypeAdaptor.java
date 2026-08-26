@@ -25,6 +25,7 @@ import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeFieldControlProperties;
+import com.percussion.rest.contenttypes.ContentTypeFieldRuleExpressions;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
 import com.percussion.rest.contenttypes.ContentTypeItemExits;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
@@ -157,6 +158,24 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
   @Override
   public ContentTypeFieldControlProperties replaceFieldControlProperties(
       URI baseUri, String idOrName, String fieldName, ContentTypeFieldControlProperties body) {
+    return body;
+  }
+
+  @Override
+  public ContentTypeFieldRuleExpressions getFieldRuleExpressions(
+      URI baseUri, String idOrName, String fieldName) {
+    ContentTypeFieldRuleExpressions out = new ContentTypeFieldRuleExpressions();
+    out.setFieldName(fieldName);
+    out.setValidation(List.of());
+    out.setVisibility(List.of());
+    out.setInputTranslation(List.of());
+    out.setOutputTranslation(List.of());
+    return out;
+  }
+
+  @Override
+  public ContentTypeFieldRuleExpressions replaceFieldRuleExpressions(
+      URI baseUri, String idOrName, String fieldName, ContentTypeFieldRuleExpressions body) {
     return body;
   }
 }

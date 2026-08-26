@@ -71,23 +71,27 @@ public class ContentTypeField {
 
   @Schema(
       description =
-          "Read-only summary of field validation rule expressions (conditionals / extensions)."
-              + " Null when no validation rules are defined. Not writable via PUT.")
+          "Summary of field validation rule expressions (conditionals / extensions)."
+              + " Null when no validation rules are defined. Writable via PUT"
+              + " .../fields/{fieldName}/ruleExpressions (held design lock), not PUT detail.")
   private String validationExpression;
 
   @Schema(
       description =
-          "Read-only summary of visibility rule expressions. Null when none defined. Not writable.")
+          "Summary of visibility rule expressions. Null when none defined. Writable via PUT"
+              + " .../fields/{fieldName}/ruleExpressions, not PUT detail.")
   private String visibilityExpression;
 
   @Schema(
       description =
-          "Read-only summary of input translation extension calls. Null when none. Not writable.")
+          "Summary of input translation extension calls. Null when none. Writable via PUT"
+              + " .../fields/{fieldName}/ruleExpressions, not PUT detail.")
   private String inputTranslationExpression;
 
   @Schema(
       description =
-          "Read-only summary of output translation extension calls. Null when none. Not writable.")
+          "Summary of output translation extension calls. Null when none. Writable via PUT"
+              + " .../fields/{fieldName}/ruleExpressions, not PUT detail.")
   private String outputTranslationExpression;
 
   @Schema(
