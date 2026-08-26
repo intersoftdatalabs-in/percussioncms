@@ -104,33 +104,64 @@ export interface NodeRelationshipSummary {
  *       {@code incoming} for the canonical translation category.
  * </ul>
  */
+const EMPTY_RELATION: ServerRelationSummary = { count: 0, byType: [] };
+
+function relationOrEmpty(
+  value: ServerRelationSummary | null | undefined,
+): ServerRelationSummary {
+  if (value == null) {
+    return EMPTY_RELATION;
+  }
+  return {
+    count: typeof value.count === "number" ? value.count : 0,
+    byType: Array.isArray(value.byType) ? value.byType : [],
+  };
+}
+
+/**
+ * Content-id IA summaries return taxonomy with count 0 and may omit
+ * {@code nodes} (#3811). Do not throw — that error-bounds Explorer.
+ */
+function taxonomyNodes(
+  server: ServerNodeSummary | null | undefined,
+): string[] {
+  const raw = server?.taxonomy?.nodes;
+  return Array.isArray(raw) ? raw : [];
+}
+
 export function composeFromServerSummary(
   item: DependencyItemLike,
   server: ServerNodeSummary,
   aaLinkCount: number,
 ): NodeRelationshipSummary {
+  const taxonomy = server?.taxonomy;
+  const nodes = taxonomyNodes(server);
+  const taxCount =
+    typeof taxonomy?.count === "number" ? taxonomy.count : nodes.length;
+  const localCount =
+    typeof server?.local?.count === "number" ? server.local.count : 0;
   return {
     nodeId: item.id ?? "",
     nodePath: item.folderPath ?? item.path,
     clientSideOnly: false,
     dimensions: [
-      toRelationSummary("outgoing", server.outgoing),
-      toRelationSummary("incoming", server.incoming),
+      toRelationSummary("outgoing", relationOrEmpty(server?.outgoing)),
+      toRelationSummary("incoming", relationOrEmpty(server?.incoming)),
       {
         dimension: "aa",
         count: aaLinkCount,
         label: `${aaLinkCount} AA link${aaLinkCount === 1 ? "" : "s"}`,
       },
       toRelationSummary("taxonomy", {
-        count: server.taxonomy.count,
-        byType: server.taxonomy.nodes.map((node) => ({ type: node, count: 1 })),
+        count: taxCount,
+        byType: nodes.map((node) => ({ type: node, count: 1 })),
       }),
       {
         dimension: "local",
-        count: server.local.count,
-        label: `${server.local.count} local link${server.local.count === 1 ? "" : "s"}`,
+        count: localCount,
+        label: `${localCount} local link${localCount === 1 ? "" : "s"}`,
       },
-      toRelationSummary("reverse", server.reverse),
+      toRelationSummary("reverse", relationOrEmpty(server?.reverse)),
     ],
   };
 }

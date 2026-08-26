@@ -73,7 +73,10 @@ export function relationshipSummaryItemId(
   if (parsed != null) {
     return String(parsed);
   }
-  return String(raw).trim();
+  // Unparseable titles (timestamped percSimpleText names, slugs) must not
+  // be sent as /relationships/{id} — that 403s and looks like a permission
+  // error for Admin (#3811). Match DependencyViewer: empty id, no fetch.
+  return "";
 }
 
 async function defaultLoadServerSummary(

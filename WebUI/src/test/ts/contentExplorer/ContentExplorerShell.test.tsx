@@ -2109,6 +2109,91 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
+  it("relationships panel mounts for a selected percSimpleText asset (#3811)", async () => {
+    const relationshipUrls: string[] = [];
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "New-percSimpleTextAsset-20260820165542",
+                  name: "New-percSimpleTextAsset-20260820165542",
+                  path: "/Assets/uploads/New-percSimpleTextAsset-20260820165542",
+                  type: "percSimpleTextAsset",
+                  category: "ASSET",
+                  accessLevel: "ADMIN",
+                  displayProperties: { sys_contentid: "708" },
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("relationships")) {
+        relationshipUrls.push(url);
+        return new Response(
+          JSON.stringify({
+            outgoing: { count: 0, byType: [] },
+            incoming: { count: 0, byType: [] },
+            taxonomy: { count: 0, nodes: [] },
+            local: { count: 0, links: [] },
+            reverse: { count: 0, byType: [] },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Assets/uploads"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-708")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-708"));
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-relationships"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-relationships-panel"),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId("relationships-view")).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("relationships-view")).toHaveAttribute(
+        "data-testid-state",
+        "ok",
+      );
+    });
+    expect(screen.queryByTestId("explorer-relationships-hint")).toBeNull();
+    expect(
+      screen.queryByText(/You do not have permission to perform this action/i),
+    ).toBeNull();
+    expect(
+      relationshipUrls.some((u) => u.includes("/relationships/708/")),
+    ).toBe(true);
+    expect(
+      relationshipUrls.some((u) => u.includes("20260820165542")),
+    ).toBe(false);
+  });
+
   it("relationships panel binds slug rows via sys_contentid (#3546)", async () => {
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;

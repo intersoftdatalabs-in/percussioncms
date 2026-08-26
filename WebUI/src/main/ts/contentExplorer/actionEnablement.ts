@@ -40,6 +40,7 @@
  */
 
 import { collapseFlattenedMenuActionRoots } from "../api/contentExplorer/actionMenuApi";
+import { parseExplorerContentId } from "../api/contentExplorer/pathItemId";
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
 import { classifyUrl } from "../util/safeNavigate";
 import { resolvePublishKind } from "./itemPublish";
@@ -280,6 +281,25 @@ export function isToolbarEditorActionHidden(
     return false;
   }
   return !selectionItem || isFolder(selectionItem);
+}
+
+/**
+ * View → IA Relationships (and the matching panel) for a selected page or
+ * asset. Requires a parseable CMS content id / GUID — not an asset title
+ * whose last hyphenated token happens to be digits (#3811 / #2778).
+ *
+ * <p>{@code item} is the production {@link PSPathItem} from pathmanagement
+ * (same type the list and action catalog use). Folders and unparseable
+ * names stay disabled so the shell shows the select-item hint instead of
+ * a permission error.</p>
+ */
+export function canOpenIaRelationships(
+  item: PSPathItem | null | undefined,
+): boolean {
+  if (item == null || isFolder(item)) {
+    return false;
+  }
+  return parseExplorerContentId(item.id) != null;
 }
 
 /**

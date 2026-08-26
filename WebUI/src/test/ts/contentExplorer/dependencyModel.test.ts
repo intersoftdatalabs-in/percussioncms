@@ -137,4 +137,18 @@ describe("composeFromServerSummary (US8 / T102)", () => {
     expect(local?.count).toBe(4);
     expect(local?.label).toBe("4 local links");
   });
+
+  it("does not throw when taxonomy nodes are omitted (#3811)", () => {
+    const sparse = {
+      outgoing: { count: 0, byType: [] },
+      incoming: { count: 0, byType: [] },
+      taxonomy: { count: 0 },
+      local: { count: 0 },
+      reverse: { count: 0, byType: [] },
+    } as unknown as PSNodeRelationshipSummary;
+    const summary = composeFromServerSummary(item("708"), sparse, 0);
+    const tax = summary.dimensions.find((d) => d.dimension === "taxonomy");
+    expect(tax?.count).toBe(0);
+    expect(summary.clientSideOnly).toBe(false);
+  });
 });

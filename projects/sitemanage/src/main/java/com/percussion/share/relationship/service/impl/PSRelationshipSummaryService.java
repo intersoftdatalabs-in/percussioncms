@@ -218,11 +218,16 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
   @Override
   public Optional<PSTaxonomySummary> summariseTaxonomy(String itemId) {
     if (!isResolvable(itemId)) return Optional.empty();
-    // Path resolution is the rest-facade's responsibility (PR #1415 next pass): the resource
-    // resolves the supplied itemId to a JCR path via IPSPathService and calls this method only
-    // with a path it has already resolved. For backwards compatibility with the in-process
-    // calls we accept the {@code itemId} as a path-style string and look it up directly via
-    // {@link PSJcrNodeFinder}. The host shell wires this through the rest façade.
+    // PSJcrNodeFinder is path-only. Explorer View → IA Relationships sends a
+    // numeric content id or host-type-uuid GUID. Treating that string as a
+    // JCR path made the finder throw, the consolidated /summary returned
+    // empty, and REST translated that to HTTP 403 — Admin saw a permission
+    // error on assets (#3811 / parent #2778).
+    if (isContentIdOrGuid(itemId)) {
+      return Optional.of(new PSTaxonomySummary(0L, Collections.emptyList()));
+    }
+    // Path-style ids still go through the finder. Path resolution from
+    // content id remains a rest-facade follow-up.
     String path = itemId;
     List<com.percussion.services.contentmgr.IPSNode> children;
     try {
@@ -309,6 +314,33 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
       log.debug("Could not resolve id {}: {}", itemId, e.getMessage());
       return false;
     }
+  }
+
+  /**
+   * True when {@code itemId} is a bare CMS content id or {@code host-type-uuid}
+   * GUID. Those are not JCR paths.
+   */
+  static boolean isContentIdOrGuid(String itemId) {
+    if (itemId == null) {
+      return false;
+    }
+    String trimmed = itemId.trim();
+    if (trimmed.isEmpty()) {
+      return false;
+    }
+    if (trimmed.chars().allMatch(Character::isDigit)) {
+      return true;
+    }
+    String[] parts = trimmed.split("-", -1);
+    if (parts.length != 3) {
+      return false;
+    }
+    for (String part : parts) {
+      if (part.isEmpty() || !part.chars().allMatch(Character::isDigit)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**

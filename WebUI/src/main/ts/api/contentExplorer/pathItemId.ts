@@ -84,6 +84,29 @@ function guidPart(value: unknown): string | undefined {
 }
 
 /**
+ * CMS content ids are signed 32-bit locators. Timestamped asset names
+ * such as {@code New-percSimpleTextAsset-20260820165542} have a trailing
+ * digit run larger than this; treating that as a content id made
+ * Relationships REST 403 and the panel show a permission error (#3811).
+ */
+const MAX_CMS_CONTENT_ID = 2_147_483_647;
+
+/**
+ * Percussion GUID {@code host-type-uuid} (e.g. {@code 1-101-708} or
+ * {@code 16777215-101-551}). All three segments must be digits — do not
+ * take the last hyphen-separated token of an asset title.
+ */
+const GUID_HOST_TYPE_UUID = /^(\d+)-(\d+)-(\d+)$/;
+
+function asCmsContentId(n: number): number | null {
+  if (!Number.isFinite(n) || n <= 0 || n > MAX_CMS_CONTENT_ID) {
+    return null;
+  }
+  const truncated = Math.trunc(n);
+  return truncated === n ? truncated : null;
+}
+
+/**
  * Parse a content id from a numeric string, GUID {@code host-type-uuid}
  * (last segment), or Jackson GUID object.
  *
@@ -96,7 +119,7 @@ export function parseExplorerContentId(
     return null;
   }
   if (typeof id === "number") {
-    return Number.isFinite(id) && id > 0 ? Math.trunc(id) : null;
+    return asCmsContentId(id);
   }
   if (typeof id === "object") {
     const unwrapped = unwrapExplorerWireId(id);
@@ -109,17 +132,14 @@ export function parseExplorerContentId(
   if (!s) {
     return null;
   }
-  const whole = Number(s);
-  if (Number.isFinite(whole) && whole > 0) {
-    return Math.trunc(whole);
+  if (/^\d+$/.test(s)) {
+    return asCmsContentId(Number(s));
   }
-  // Percussion GUID host-type-uuid (e.g. 1-101-708) — content id is last segment.
-  const last = s.split("-").pop();
-  if (!last) {
+  const guid = GUID_HOST_TYPE_UUID.exec(s);
+  if (!guid) {
     return null;
   }
-  const n = Number(last);
-  return Number.isFinite(n) && n > 0 ? Math.trunc(n) : null;
+  return asCmsContentId(Number(guid[3]));
 }
 
 /**
