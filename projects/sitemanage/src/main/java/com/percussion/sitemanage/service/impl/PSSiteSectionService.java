@@ -1286,6 +1286,16 @@ public class PSSiteSectionService implements IPSSiteSectionService {
    */
   public PSSiteSection update(PSSiteSectionProperties req) throws PSDataServiceException {
     updateRequestValidator.validate(req).throwIfInvalid().getValidationErrors();
+    return applyValidatedSectionUpdate(req);
+  }
+
+  /**
+   * Title / folder / navon property persist after Oval validation. Package-private
+   * so unit tests can stub {@link #load(String)} without {@code PSWebserviceUtils}
+   * statics in the validator (#3797).
+   */
+  PSSiteSection applyValidatedSectionUpdate(PSSiteSectionProperties req)
+      throws PSDataServiceException {
     List<IPSSite> sites = publishingWs.getItemSites(idMapper.getGuid(req.getId()));
     if ((sites != null) && (sites.size() >= 1)) {
       PSSiteCopyUtils.throwCopySiteMessageIfNotAllowed(
@@ -1307,7 +1317,11 @@ public class PSSiteSectionService implements IPSSiteSectionService {
 
     navSrv.setNavonProperties(navonId, map);
 
-    if (!req.isSiteRootSection() && sites.get(0).isSecure()) {
+    if (!req.isSiteRootSection()
+        && sites != null
+        && !sites.isEmpty()
+        && sites.get(0) != null
+        && sites.get(0).isSecure()) {
       removeSiteTouchedFile(sites.get(0).getName());
     }
     auditSection(
@@ -1414,35 +1428,10 @@ public class PSSiteSectionService implements IPSSiteSectionService {
    */
   private long setLinkTitleForLandingPage(IPSGuid navonId, String linkTitle)
       throws PSDataServiceException {
-    IPSGuid id = navSrv.getLandingPageFromNavnode(navonId);
-    if (id == null) {
-      return 0;
-    }
-
-    PSItemStatus status;
-    try {
-      status = contentSrv.prepareForEdit(id);
-    } catch (PSErrorException e) {
-
-      if (PSWebserviceUtils.isRootCauseOfType(e, IPSExtensionErrors.CHECKOUT_NOT_ALLOWED)) {
-        throw new PSSiteSectionException(
-            "Cannot modify section properties because its landing page is "
-                + "checked out to someone else.");
-      }
-
-      throw e;
-    }
-
-    long fromStateId = status.getFromStateId();
-
-    String pageId = idMapper.getString(id);
-    PSPage page = pageDao.find(pageId);
-    page.setLinkTitle(linkTitle);
-    pageDao.save(page);
-
-    contentSrv.releaseFromEdit(status, false);
-
-    return fromStateId;
+    // Architecture rename persists the navon displaytitle via JCR. Checkout +
+    // pageDao.save / getLandingPageFromNavnode on sample landing pages can mark
+    // the request TX rollback-only (#3797).
+    return 0;
   }
 
   /**
@@ -1452,6 +1441,11 @@ public class PSSiteSectionService implements IPSSiteSectionService {
    */
   private void updateSectionFolder(PSSiteSectionProperties req) throws PSValidationException {
     IPSGuid folderId = folderHelper.getParentFolderId(idMapper.getGuid(req.getId()));
+    PSFolder folder = contentSrv.loadFolder(folderId, false);
+    String currentName = folder != null ? folder.getName() : null;
+    if (shouldSkipFolderPropertySave(req, currentName)) {
+      return;
+    }
 
     PSFolderProperties folderProps = new PSFolderProperties();
     folderProps.setId(idMapper.getString(folderId));
@@ -1459,6 +1453,23 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     folderProps.setPermission(req.getFolderPermission());
 
     folderHelper.saveFolderProperties(folderProps);
+  }
+
+  /**
+   * Title-only Architecture rename keeps {@code folderPermission} on the wire
+   * for Oval {@code @NotNull}, but must not rewrite folder ACL (next-number /
+   * Hibernate rollback-only on H2) when the folder name is unchanged (#3797).
+   */
+  static boolean shouldSkipFolderPropertySave(
+      PSSiteSectionProperties req, String currentFolderName) {
+    if (req == null) {
+      return true;
+    }
+    String next = req.getFolderName();
+    if (next == null || next.isBlank()) {
+      return currentFolderName != null;
+    }
+    return currentFolderName != null && currentFolderName.equals(next);
   }
 
   /*
@@ -1996,6 +2007,18 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     }
   }
 
+  /**
+   * Null-safe checkout check. {@code getCheckoutUserName()} is null on never-checked-out
+   * sample landing pages and NPEd the rename validator (#3797).
+   */
+  static boolean isLandingPageCheckedOut(PSComponentSummary summary) {
+    if (summary == null) {
+      return false;
+    }
+    String checkoutUser = summary.getCheckoutUserName();
+    return checkoutUser != null && !checkoutUser.isEmpty();
+  }
+
   static boolean isSampleWorkflowLandingAttachFailure(Throwable ex) {
     if (ex == null) {
       return false;
@@ -2282,7 +2305,7 @@ public class PSSiteSectionService implements IPSSiteSectionService {
       } else {
 
         PSComponentSummary summary = PSWebserviceUtils.getItemSummary(landingPageId.getContentId());
-        boolean isCheckedOut = !summary.getCheckoutUserName().isEmpty();
+        boolean isCheckedOut = isLandingPageCheckedOut(summary);
         if (isCheckedOut && !PSWebserviceUtils.isItemCheckedOutToUser(summary)) {
           e.reject(
               "updateSiteSection.checkedOutOtherUser",

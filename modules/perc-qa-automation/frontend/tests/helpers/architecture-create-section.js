@@ -47,6 +47,12 @@ const TEST_IDS = Object.freeze({
   treeEmpty: "architecture-nav-tree-empty",
   treeError: "architecture-nav-tree-error",
   actionCreate: "architecture-action-create",
+  actionRename: "architecture-action-rename",
+  actionMoveUp: "architecture-action-move-up",
+  actionMoveDown: "architecture-action-move-down",
+  renameDialog: "architecture-rename-dialog",
+  renameTitle: "architecture-rename-title-input",
+  renameSubmit: "architecture-rename-submit",
   createDialog: "architecture-create-dialog",
   createTitle: "architecture-create-title-input",
   createUrl: "architecture-create-url-input",
@@ -114,6 +120,57 @@ function sectionCreateUrl(baseUrl) {
  * @param {unknown} method
  * @returns {boolean}
  */
+function isSectionUpdateRequest(url, method) {
+  if (String(method || "").toUpperCase() !== "POST") {
+    return false;
+  }
+  const path = String(url || "");
+  return (
+    /\/section\/update(\/|\?|$)/i.test(path) &&
+    !/updateSectionLink|updateExternalLink/i.test(path)
+  );
+}
+
+function isSectionMoveRequest(url, method) {
+  return (
+    String(method || "").toUpperCase() === "POST" &&
+    /\/section\/move(\/|\?|$)/i.test(String(url || ""))
+  );
+}
+
+/**
+ * Direct child titles of the Navigation tree root (Jackson WRAP_ROOT).
+ *
+ * @param {unknown} payload
+ * @returns {string[]}
+ */
+function sectionChildTitles(payload) {
+  if (payload == null || typeof payload !== "object") {
+    return [];
+  }
+  const root =
+    payload.SectionNode || payload.sectionNode || payload;
+  if (!root || typeof root !== "object") {
+    return [];
+  }
+  let kids = root.childNodes || root.ChildNodes || root.SectionNode;
+  if (kids && typeof kids === "object" && !Array.isArray(kids) && kids.SectionNode) {
+    kids = kids.SectionNode;
+  }
+  const list = Array.isArray(kids) ? kids : kids ? [kids] : [];
+  return list
+    .map((row) => {
+      if (!row || typeof row !== "object") {
+        return "";
+      }
+      const nested = row.SectionNode && typeof row.SectionNode === "object"
+        ? row.SectionNode
+        : row;
+      return String(nested.title || nested.Title || "").trim();
+    })
+    .filter(Boolean);
+}
+
 function isCreateSiteSectionRequest(url, method) {
   if (String(method || "").toUpperCase() !== "POST") {
     return false;
@@ -225,6 +282,9 @@ module.exports = {
   sectionTreeUrl,
   sectionCreateUrl,
   isCreateSiteSectionRequest,
+  isSectionUpdateRequest,
+  isSectionMoveRequest,
+  sectionChildTitles,
   shouldRequireNavTree,
   firstSampleDemoSite,
   uniqueSectionTitle,

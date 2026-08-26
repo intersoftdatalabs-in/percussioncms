@@ -44,6 +44,7 @@ import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
 import com.percussion.server.cache.IPSFolderRelationshipCache;
@@ -78,6 +79,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Implements {@link IPSManagedNavService}.
@@ -215,9 +219,19 @@ public class PSManagedNavService implements IPSManagedNavService {
     notNull(srcId);
     notNull(targetId);
 
+    // Same-parent sibling reorder must not checkout the parent navon.
+    // prepareForEdit + releaseFromEdit on sample rffNavTree NPEs (CONTENTSTATEID
+    // 0) or applies SYS_SORTRANK on a checked-out revision that check-in
+    // discards, so Move up/down appears to succeed but GET order is unchanged
+    // (#3797). Also never fall through to moveNavonAndFolder for same parent
+    // (folder-move onto self is a silent no-op).
+    if (sameNavonContentId(srcParentId, targetId)) {
+      rearrangeSameParentChild(srcId, targetId, index);
+      return;
+    }
+
     List<PSItemStatus> statuses = null;
     try {
-      boolean isSameParent = srcParentId.toString().equals(targetId.toString());
       statuses = contentWs.prepareForEdit(Collections.singletonList(targetId));
       PSComponentSummary sum =
           cmsMgr.loadComponentSummary(((PSLegacyGuid) targetId).getContentId());
@@ -228,12 +242,12 @@ public class PSManagedNavService implements IPSManagedNavService {
         boolean duplicateFound = false;
 
         for (IPSGuid id : targetChildList) {
-          if (srcId.toString().equalsIgnoreCase(id.toString())) {
+          if (sameNavonContentId(srcId, id)) {
             duplicateFound = true;
             break;
           }
         }
-        if (!duplicateFound || isSameParent) {
+        if (!duplicateFound) {
           contentWs.reArrangeContentRelations(Collections.singletonList(rel), index);
         }
       } else {
@@ -251,6 +265,85 @@ public class PSManagedNavService implements IPSManagedNavService {
       throw (ne);
     } finally {
       if (statuses != null) contentWs.releaseFromEdit(statuses, false);
+    }
+  }
+
+  /**
+   * True when both GUIDs identify the same navon, ignoring revision. {@code
+   * PSLegacyGuid.toString()} includes revision so sibling move (same parent
+   * id string from the tree vs head locator) used to look like a reparent
+   * (#3797).
+   */
+  static boolean sameNavonContentId(IPSGuid left, IPSGuid right) {
+    if (left == null || right == null) {
+      return false;
+    }
+    if (left.equals(right)) {
+      return true;
+    }
+    if (left instanceof PSLegacyGuid && right instanceof PSLegacyGuid) {
+      return ((PSLegacyGuid) left).getContentId() == ((PSLegacyGuid) right).getContentId();
+    }
+    return left.toString().equalsIgnoreCase(right.toString());
+  }
+
+  /**
+   * Reorder {@code srcId} under {@code parentId} without checkout. {@code
+   * reArrangeContentRelations} requires the parent navon checked out and
+   * sample rffNavTree prepare NPEs (#3797). Persist {@code sys_sortrank} on
+   * the AA relationships directly so GET/reload sees the new sibling order.
+   */
+  void rearrangeSameParentChild(IPSGuid srcId, IPSGuid parentId, int index) {
+    IPSGuid head = parentId;
+    if (parentId instanceof PSLegacyGuid && cmsMgr != null) {
+      try {
+        PSComponentSummary sum =
+            cmsMgr.loadComponentSummary(((PSLegacyGuid) parentId).getContentId());
+        if (sum != null && sum.getHeadLocator() != null) {
+          head = new PSLegacyGuid(sum.getHeadLocator());
+        }
+      } catch (RuntimeException e) {
+        log.warn("Could not resolve head locator for navon reorder; id={}", parentId, e);
+      }
+    }
+    List<PSAaRelationship> existing = loadMenuSlotRelationships(head);
+    if ((existing == null || existing.isEmpty()) && !head.equals(parentId)) {
+      existing = loadMenuSlotRelationships(parentId);
+    }
+    if (existing == null || existing.isEmpty()) {
+      log.warn("No child navon relationship to reorder; src={} parent={}", srcId, parentId);
+      return;
+    }
+    int dependentId = ((PSLegacyGuid) srcId).getContentId();
+    PSAaRelationship moving = null;
+    List<PSAaRelationship> others = new ArrayList<>();
+    for (PSAaRelationship rel : existing) {
+      if (rel.getDependent().getId() == dependentId) {
+        moving = rel;
+      } else {
+        others.add(rel);
+      }
+    }
+    if (moving == null) {
+      log.warn("No child navon relationship to reorder; src={} parent={}", srcId, parentId);
+      return;
+    }
+    int insertAt = index;
+    if (insertAt < 0 || insertAt > others.size()) {
+      insertAt = others.size();
+    }
+    others.add(insertAt, moving);
+    for (int i = 0; i < others.size(); i++) {
+      others.get(i).setProperty(IPSHtmlParameters.SYS_SORTRANK, String.valueOf(i));
+    }
+    PSWebserviceUtils.saveAaRelationships(others);
+  }
+
+  private List<PSAaRelationship> loadMenuSlotRelationships(IPSGuid ownerId) {
+    try {
+      return contentWs.loadSlotContentRelationships(ownerId, getMenuSlot().getGUID());
+    } catch (PSErrorException e) {
+      throw new PSNavException("Failed to load menu-slot relationships for navon " + ownerId, e);
     }
   }
 
@@ -578,23 +671,115 @@ public class PSManagedNavService implements IPSManagedNavService {
    */
   public void setNavonProperties(IPSGuid nodeId, Map<String, String> propertyMap) {
     notNull(nodeId);
+    // JCR PSContentNode is a read-only wrapper (LockException). Persist via
+    // loadItems/saveItems. prepareForEdit on sample rffNavon NPEs and, if it
+    // joins the REST TX, Spring marks rollback-only (#3797). Isolate checkout.
     List<PSItemStatus> statuses = null;
-    try {
-      statuses = contentWs.prepareForEdit(Collections.singletonList(nodeId));
-      List<PSCoreItem> items =
-          contentWs.loadItems(Collections.singletonList(nodeId), false, false, false, false);
-      PSCoreItem item = items.get(0);
-      for (Entry<String, String> entry : propertyMap.entrySet()) {
-        item.setTextField(entry.getKey(), entry.getValue());
-      }
-      contentWs.saveItems(Collections.singletonList(item), false, false);
-    } catch (Exception e) {
-      String msg = "Failed to set properties for navon (id=" + nodeId + ").";
-      log.error(msg, e);
-      throw new PSNavException(msg, e);
-    } finally {
-      if (statuses != null) contentWs.releaseFromEdit(statuses, false);
+    if (!isNavonAlreadyCheckedOut(nodeId)) {
+      statuses = prepareForEditIsolated(nodeId);
     }
+    try {
+      applyNavonPropertyMap(nodeId, propertyMap);
+    } catch (Exception e) {
+      throw new PSNavException("Failed to set properties for navon (id=" + nodeId + ").", e);
+    } finally {
+      releaseFromEditIsolated(statuses);
+    }
+  }
+
+  /**
+   * Load the navon, set text fields, {@code saveItems} without check-in.
+   */
+  void applyNavonPropertyMap(IPSGuid nodeId, Map<String, String> propertyMap)
+      throws PSErrorResultsException {
+    List<PSCoreItem> items =
+        contentWs.loadItems(Collections.singletonList(nodeId), false, false, false, false);
+    if (items == null || items.isEmpty()) {
+      throw new PSNavException("Cannot find nav-node id = " + nodeId);
+    }
+    PSCoreItem item = items.get(0);
+    for (Entry<String, String> entry : propertyMap.entrySet()) {
+      String name = entry.getKey();
+      if (name == null || name.isBlank()) {
+        continue;
+      }
+      item.setTextField(name, entry.getValue() == null ? "" : entry.getValue());
+    }
+    contentWs.saveItems(Collections.singletonList(item), false, false);
+  }
+
+  /**
+   * {@code prepareForEdit} without joining the caller TX. Sample-workflow NPE
+   * would otherwise mark the Architecture {@code POST /section/update} TX
+   * rollback-only even when the exception is caught.
+   *
+   * @return checkout statuses, or {@code null} when sample-workflow prepare
+   *     was skipped
+   */
+  List<PSItemStatus> prepareForEditIsolated(IPSGuid nodeId) {
+    try {
+      return runWithoutJoiningCallerTx(
+          () -> {
+            try {
+              return contentWs.prepareForEdit(Collections.singletonList(nodeId));
+            } catch (PSErrorResultsException e) {
+              throw new PSNavException(
+                  "Failed to prepare navon for edit (id=" + nodeId + ").", e);
+            }
+          });
+    } catch (RuntimeException e) {
+      if (!PSNavFolderUtils.isSampleWorkflowAttachFailure(e)) {
+        throw e;
+      }
+      log.warn("Skipping prepareForEdit for navon properties (sample workflow); id={}", nodeId, e);
+      return null;
+    }
+  }
+
+  void releaseFromEditIsolated(List<PSItemStatus> statuses) {
+    if (statuses == null) {
+      return;
+    }
+    try {
+      runWithoutJoiningCallerTx(
+          () -> {
+            contentWs.releaseFromEdit(statuses, false);
+            return Boolean.TRUE;
+          });
+    } catch (RuntimeException e) {
+      if (!PSNavFolderUtils.isSampleWorkflowAttachFailure(e)) {
+        throw e;
+      }
+      log.warn("Skipping releaseFromEdit after navon property save", e);
+    }
+  }
+
+  boolean isNavonAlreadyCheckedOut(IPSGuid nodeId) {
+    if (cmsMgr == null || !(nodeId instanceof PSLegacyGuid)) {
+      return false;
+    }
+    try {
+      PSComponentSummary sum =
+          cmsMgr.loadComponentSummary(((PSLegacyGuid) nodeId).getContentId());
+      return sum != null && StringUtils.isNotBlank(sum.getCheckoutUserName());
+    } catch (RuntimeException e) {
+      log.debug("Could not read checkout user for navon {}", nodeId, e);
+      return false;
+    }
+  }
+
+  private <T> T runWithoutJoiningCallerTx(java.util.function.Supplier<T> work) {
+    if (transactionManager == null) {
+      return work.get();
+    }
+    TransactionTemplate tt = new TransactionTemplate(transactionManager);
+    tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_NOT_SUPPORTED);
+    return tt.execute(status -> work.get());
+  }
+
+  @Autowired(required = false)
+  public void setTransactionManager(PlatformTransactionManager transactionManager) {
+    this.transactionManager = transactionManager;
   }
 
   /*
@@ -771,14 +956,20 @@ public class PSManagedNavService implements IPSManagedNavService {
    * PSContentWs.prepareForEdit}/{@code checkinItems}; the item is already checked
    * out after percNavon save, so skip and still add the relationship (#3676).
    */
-  void prepareForEditIgnoringSampleWorkflow(IPSGuid id) {
+  /**
+   * @return {@code true} when checkout ran; {@code false} when sample-workflow
+   *     prepare was skipped.
+   */
+  boolean prepareForEditIgnoringSampleWorkflow(IPSGuid id) {
     try {
       contentWs.prepareForEdit(id);
+      return true;
     } catch (RuntimeException e) {
       if (!PSNavFolderUtils.isSampleWorkflowAttachFailure(e)) {
         throw e;
       }
       log.warn("Skipping prepareForEdit for landing attach (sample workflow); id={}", id, e);
+      return false;
     }
   }
 
@@ -1131,6 +1322,12 @@ public class PSManagedNavService implements IPSManagedNavService {
    * constructor.
    */
   private IPSCmsObjectMgr cmsMgr;
+
+  /**
+   * Optional Spring TX manager. Used to suspend the caller TX around sample
+   * workflow {@code prepareForEdit} so NPE cannot mark REST rollback-only.
+   */
+  private PlatformTransactionManager transactionManager;
 
   /**
    * The menu slot defined in the navigation configuration. Set in {@link #getMenuSlot()}. Never
