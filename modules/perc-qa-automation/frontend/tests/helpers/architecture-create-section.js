@@ -50,6 +50,7 @@ const TEST_IDS = Object.freeze({
   actionRename: "architecture-action-rename",
   actionMoveUp: "architecture-action-move-up",
   actionMoveDown: "architecture-action-move-down",
+  actionDelete: "architecture-action-delete",
   renameDialog: "architecture-rename-dialog",
   renameTitle: "architecture-rename-title-input",
   renameSubmit: "architecture-rename-submit",
@@ -136,6 +137,24 @@ function isSectionMoveRequest(url, method) {
     String(method || "").toUpperCase() === "POST" &&
     /\/section\/move(\/|\?|$)/i.test(String(url || ""))
   );
+}
+
+/**
+ * True for {@code DELETE …/section/{id}} (not deleteSectionLink).
+ *
+ * @param {unknown} url
+ * @param {unknown} method
+ * @returns {boolean}
+ */
+function isSectionDeleteRequest(url, method) {
+  if (String(method || "").toUpperCase() !== "DELETE") {
+    return false;
+  }
+  const path = String(url || "");
+  if (/deleteSectionLink/i.test(path)) {
+    return false;
+  }
+  return /\/section\/[^/?]+(\?|$)/i.test(path);
 }
 
 /**
@@ -284,6 +303,7 @@ module.exports = {
   isCreateSiteSectionRequest,
   isSectionUpdateRequest,
   isSectionMoveRequest,
+  isSectionDeleteRequest,
   sectionChildTitles,
   shouldRequireNavTree,
   firstSampleDemoSite,

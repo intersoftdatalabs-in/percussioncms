@@ -32,6 +32,7 @@ const {
   isCreateSiteSectionRequest,
   isSectionUpdateRequest,
   isSectionMoveRequest,
+  isSectionDeleteRequest,
   sectionChildTitles,
   shouldRequireNavTree,
   firstSampleDemoSite,
@@ -46,6 +47,7 @@ const {
 describe("architecture-create-section helpers (#3589)", () => {
   it("exports stable product test ids", () => {
     assert.equal(TEST_IDS.actionCreate, "architecture-action-create");
+    assert.equal(TEST_IDS.actionDelete, "architecture-action-delete");
     assert.equal(TEST_IDS.createDialog, "architecture-create-dialog");
     assert.equal(TEST_IDS.createPageName, "architecture-create-page-name-input");
     assert.equal(TEST_IDS.createCancel, "architecture-create-cancel");
@@ -226,6 +228,37 @@ describe("architecture-create-section helpers (#3589)", () => {
     assert.equal(
       isSectionMoveRequest(
         "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/move",
+        "GET",
+      ),
+      false,
+    );
+  });
+
+  it("matches DELETE /section/{id} and not deleteSectionLink (#3821)", () => {
+    assert.equal(
+      isSectionDeleteRequest(
+        "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/guid-1",
+        "DELETE",
+      ),
+      true,
+    );
+    assert.equal(
+      isSectionDeleteRequest(
+        "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/guid-1?x=1",
+        "delete",
+      ),
+      true,
+    );
+    assert.equal(
+      isSectionDeleteRequest(
+        "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/deleteSectionLink/s1/p1",
+        "DELETE",
+      ),
+      false,
+    );
+    assert.equal(
+      isSectionDeleteRequest(
+        "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/guid-1",
         "GET",
       ),
       false,

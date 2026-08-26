@@ -40,6 +40,7 @@ const {
   isCreateSiteSectionRequest,
   isSectionUpdateRequest,
   isSectionMoveRequest,
+  isSectionDeleteRequest,
   sectionChildTitles,
   isKnownArchitectureConsoleNoise,
   missingNavTreeFailMessage,
@@ -437,6 +438,173 @@ test.describe("Architecture nav structure mutations (#3096)", () => {
     expect(uiIdxB, "B visible after reload").toBeGreaterThanOrEqual(0);
     expect(uiIdxA, "renamed A visible after reload").toBeGreaterThanOrEqual(0);
     expect(uiIdxB, "Move up must survive reload").toBeLessThan(uiIdxA);
+
+    expect(
+      consoleErrors.filter((e) => !isKnownArchitectureConsoleNoise(e)),
+    ).toEqual([]);
+  });
+
+  test("create non-root section enables Delete; cancel keeps; confirm removes (#3821) @smoke @ui @architecture-nav-mutations", async ({
+    page,
+  }) => {
+    test.setTimeout(180_000);
+    const consoleErrors = [];
+    page.on("pageerror", (err) => {
+      consoleErrors.push(String(err && err.message ? err.message : err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        consoleErrors.push(msg.text());
+      }
+    });
+
+    expect(
+      shouldRequireNavTree(),
+      "this surface is the H2 no-skip gate; set TEST_DB_TYPE=h2",
+    ).toBe(true);
+
+    const sitesResp = await page.request.get(siteListUrl(BASE_URL));
+    expect(sitesResp.status(), "site list must be HTTP 200").toBe(200);
+    const names = siteNamesFromPayload(await sitesResp.json());
+    const demoSite = firstSampleDemoSite(names);
+    expect(
+      demoSite,
+      `QA cell must list a #3352 sample site; got ${JSON.stringify(names)}`,
+    ).toBeTruthy();
+
+    const treeResp = await page.request.get(sectionTreeUrl(BASE_URL, demoSite));
+    expect(treeResp.status(), `tree GET for ${demoSite}`).toBe(200);
+    expect(
+      isEmptyTreePayload(await treeResp.text()),
+      missingNavTreeFailMessage(),
+    ).toBe(false);
+
+    await page.goto(architectureSpaUrl(BASE_URL, { site: demoSite }), {
+      waitUntil: "domcontentloaded",
+    });
+    await expect(page.getByTestId(TEST_IDS.navTree)).toBeVisible({
+      timeout: 20_000,
+    });
+    const treeItems = page.locator(
+      `[data-testid="${TEST_IDS.navTree}"] [role="treeitem"]`,
+    );
+    await expect(treeItems.first()).toBeVisible({ timeout: 20_000 });
+    await treeItems.first().click();
+
+    const deleteBtn = page.getByTestId(TEST_IDS.actionDelete);
+    await expect(deleteBtn).toBeDisabled();
+
+    const title = uniqueSectionTitle(Date.now(), "QA3821");
+    const createBtn = page.getByTestId(TEST_IDS.actionCreate);
+    await expect(createBtn).toBeEnabled();
+    await createBtn.click();
+    const createDialog = page.getByTestId(TEST_IDS.createDialog);
+    await expect(createDialog).toBeVisible({ timeout: 10_000 });
+    await page.getByTestId(TEST_IDS.createTitle).fill(title);
+    await page.getByTestId(TEST_IDS.createUrl).fill(uniqueSectionUrlName(title));
+    await page
+      .getByTestId(TEST_IDS.createPageName)
+      .fill(uniqueLandingPageName(title));
+    await expect
+      .poll(
+        async () =>
+          (await page
+            .getByTestId(TEST_IDS.createTemplatesLoading)
+            .isVisible()
+            .catch(() => false))
+            ? "loading"
+            : "ready",
+        { timeout: 20_000 },
+      )
+      .toBe("ready");
+    const templateSelect = page.getByTestId(TEST_IDS.createTemplate);
+    await expect(templateSelect).toBeEnabled({ timeout: 20_000 });
+    await templateSelect.selectOption({ index: 0 });
+    const postPromise = page.waitForRequest(
+      (req) => isCreateSiteSectionRequest(req.url(), req.method()),
+      { timeout: 30_000 },
+    );
+    await page.getByTestId(TEST_IDS.createSubmit).click();
+    const postReq = await postPromise;
+    const postResp = await postReq.response();
+    expect(
+      postResp && postResp.status(),
+      "POST /section/create must be HTTP 200",
+    ).toBe(200);
+    await expect(createDialog).toHaveCount(0, { timeout: 30_000 });
+    const createdItem = page.getByRole("treeitem", {
+      name: new RegExp(title, "i"),
+    });
+    await expect(createdItem).toBeVisible({ timeout: 20_000 });
+
+    // Auto-select after Create — do not click the new node first (#3821).
+    await expect(deleteBtn).toBeEnabled({ timeout: 20_000 });
+
+    await treeItems.first().click();
+    await expect(deleteBtn).toBeDisabled();
+    await createdItem.click();
+    await expect(deleteBtn).toBeEnabled();
+
+    page.once("dialog", (dialog) => {
+      void dialog.dismiss();
+    });
+    await deleteBtn.click();
+    await expect(createdItem).toBeVisible();
+    const treeAfterCancel = await page.request.get(
+      sectionTreeUrl(BASE_URL, demoSite),
+    );
+    expect(treeAfterCancel.status()).toBe(200);
+    expect(
+      sectionChildTitles(await treeAfterCancel.json()).some((t) =>
+        t.includes(title),
+      ),
+      `cancel must keep ${title}`,
+    ).toBe(true);
+
+    const deletePromise = page.waitForRequest(
+      (req) => isSectionDeleteRequest(req.url(), req.method()),
+      { timeout: 30_000 },
+    );
+    page.once("dialog", (dialog) => {
+      void dialog.accept();
+    });
+    await deleteBtn.click();
+    const deleteReq = await deletePromise;
+    const deleteResp = await deleteReq.response();
+    const deleteStatus = deleteResp && deleteResp.status();
+    expect(
+      deleteStatus,
+      "DELETE /section/{id} must be HTTP 2xx (200 or 204)",
+    ).toBeGreaterThanOrEqual(200);
+    expect(deleteStatus).toBeLessThan(300);
+    await expect(createdItem).toHaveCount(0, { timeout: 20_000 });
+    await expect(page.getByTestId("architecture-mutation-error")).toHaveCount(0);
+
+    await expect
+      .poll(
+        async () => {
+          const resp = await page.request.get(
+            sectionTreeUrl(BASE_URL, demoSite),
+          );
+          if (!resp.ok()) {
+            return "http-error";
+          }
+          const titles = sectionChildTitles(await resp.json());
+          return titles.some((t) => t.includes(title)) ? "present" : "gone";
+        },
+        { timeout: 25_000 },
+      )
+      .toBe("gone");
+
+    await page.goto(architectureSpaUrl(BASE_URL, { site: demoSite }), {
+      waitUntil: "domcontentloaded",
+    });
+    await expect(page.getByTestId(TEST_IDS.navTree)).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(
+      page.getByRole("treeitem", { name: new RegExp(title, "i") }),
+    ).toHaveCount(0);
 
     expect(
       consoleErrors.filter((e) => !isKnownArchitectureConsoleNoise(e)),

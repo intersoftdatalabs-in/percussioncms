@@ -156,7 +156,7 @@ With a site selected, use the structure action bar above the tree:
 
 | Action | Behavior |
 |--------|----------|
-| **Create section** | Opens a dialog to add a regular section with a landing page under the selected section, or under the site root when nothing is selected. Enter **title**, **URL name** (folder segment), **landing page name** (file name, for example `products.html`), and a **template** from the site catalog. **Create** posts `POST /section/create` (`CreateSiteSection`) and returns **HTTP 200** on sample FastForward sites (`rffNavTree` type 315) — the dialog closes and the child appears in the tree. Empty required fields stay in the dialog (no HTTP 500). **Cancel** or **Escape** does not post. |
+| **Create section** | Opens a dialog to add a regular section with a landing page under the selected section, or under the site root when nothing is selected. Enter **title**, **URL name** (folder segment), **landing page name** (file name, for example `products.html`), and a **template** from the site catalog. **Create** posts `POST /section/create` (`CreateSiteSection`) and returns **HTTP 200** on sample FastForward sites (`rffNavTree` type 315) — the dialog closes, the child appears in the tree, and the **new section is selected** so **Delete** (and other non-root actions) are enabled. Empty required fields stay in the dialog (no HTTP 500). **Cancel** or **Escape** does not post. |
 | **Create section from folder** | Promotes an existing site folder to a section under the selected parent (or site root). Choose the folder and a landing page that already exists in that folder. The server creates a navon and attaches the folder. |
 | **Create section link** | Creates a link under the selected parent that points at another section in the same site tree (browse target in the section picker). |
 | **Create external link** | Creates a nav entry that points at an external or relative URL (link text, URL, target window). |
@@ -168,11 +168,13 @@ With a site selected, use the structure action bar above the tree:
 | **Move section** | Opens a target-parent picker for the selected **non-root** section. Choose a regular section (not the section you are moving or one of its children) as the new parent, optionally a position among that parent's children, then **Move**. The shell posts `POST /sitemanage/section/move` and **refreshes the tree**. **Cancel** (or Escape) does not post. An invalid parent shows a clear message in the dialog — it does not produce an error 500. |
 | **Move up / Move down** | Reorders the selected section among its siblings under the same parent (`POST /sitemanage/section/move`, one step). The tree order changes immediately after a successful POST and **survives Refresh / reload** (`GET /section/tree/{site}`). Same-parent reorder does not check out the parent navon. |
 | **Convert to folder** | After confirmation, removes the selected regular (non-root) section and its sub-sections from Navigation. The folder and its pages stay in the site. |
-| **Delete** | Deletes the selected non-root section after confirmation. Section links use the section-link delete path. |
+| **Delete** | Deletes the selected **non-root** section after confirmation. The site root cannot be deleted from Navigation. Section links use the section-link delete path. After **Create section**, the new child is selected automatically so **Delete** is enabled without clicking the tree again. **Cancel** on the confirm prompt leaves the section in the tree. |
 
 Server errors from create, convert, create-from-folder, rename, properties, move, delete, landing-page, or link mutations are
 shown in the panel (no silent failure). The tree reloads after a successful mutation
-and keeps the previously selected section when it still exists.
+and keeps the previously selected section when it still exists. After **Create section**,
+the new child is selected instead of the parent (so **Delete** is enabled for that
+non-root section). The site root stays not deletable.
 
 ### Create a section with a landing page
 
@@ -190,11 +192,23 @@ and keeps the previously selected section when it still exists.
 5. Choose **Create**. The shell posts `POST /sitemanage/section/create` with
    `CreateSiteSection` (`pageTitle`, `pageName`, `pageUrlIdentifier`,
    `templateId`) and **refreshes the tree**. The new section appears under the
-   parent.
+   parent and is **selected** so **Delete** is enabled (the site root stays not
+   deletable).
 6. **Cancel** or **Escape** closes without posting.
 7. If a required field is empty or invalid (title, URL name, landing page
    name, or template), the error stays in the dialog — the server is not
    called and this does not produce an HTTP 500.
+
+### Delete a section
+
+1. Select a **non-root** section in the Navigation tree (or create one — the
+   new child is selected automatically). **Delete** stays disabled on the site
+   root.
+2. Choose **Delete**. Confirm the prompt to remove the section from Navigation.
+3. **Cancel** on the confirm prompt leaves the section in the tree.
+4. Confirming posts `DELETE /sitemanage/section/{id}` (section links use the
+   section-link delete path) and **refreshes the tree**. The section is gone
+   after reload.
 
 ### Edit section properties
 

@@ -86,6 +86,7 @@ export {
   canConvertSectionToFolder,
   canCreateChildUnder,
   canDeleteNavNode,
+  resolveCreatedNavNodeId,
   canEditLinkNode,
   canMoveNavNode,
   canMoveNavNodeDown,

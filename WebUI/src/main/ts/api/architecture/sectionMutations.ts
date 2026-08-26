@@ -171,6 +171,67 @@ export function canDeleteNavNode(
 }
 
 /**
+ * Resolve the nav node created under {@code parentId} after a tree reload.
+ *
+ * Prefers a POST-returned id when it exists in {@code nextRoot} and is not
+ * the site root. Otherwise diffs the parent's children (optional title hint)
+ * so Create can auto-select when the create payload omits an id (#3821).
+ */
+export function resolveCreatedNavNodeId(
+  previousRoot: NavTreeNode | null | undefined,
+  nextRoot: NavTreeNode | null | undefined,
+  parentId: string,
+  hint?: { id?: string | null; title?: string | null },
+): string | null {
+  if (!nextRoot) {
+    return null;
+  }
+  const hintId = hint?.id != null ? String(hint.id).trim() : "";
+  if (
+    hintId &&
+    findNavNodeById(nextRoot, hintId) &&
+    !isRootNavNode(nextRoot, hintId)
+  ) {
+    return hintId;
+  }
+  const parentKey = parentId.trim();
+  if (!parentKey) {
+    return null;
+  }
+  const nextParent = findNavNodeById(nextRoot, parentKey);
+  if (!nextParent) {
+    return null;
+  }
+  const prevParent = previousRoot
+    ? findNavNodeById(previousRoot, parentKey)
+    : null;
+  const prevIds = new Set((prevParent?.children ?? []).map((c) => c.id));
+  const added = nextParent.children.filter((c) => !prevIds.has(c.id));
+  const hintTitle =
+    hint?.title != null ? String(hint.title).trim().toLowerCase() : "";
+  const pickNonRoot = (id: string): string | null =>
+    isRootNavNode(nextRoot, id) ? null : id;
+  if (hintTitle) {
+    const byTitle = added.find(
+      (c) => c.title.trim().toLowerCase() === hintTitle,
+    );
+    if (byTitle) {
+      return pickNonRoot(byTitle.id);
+    }
+    const amongChildren = nextParent.children.find(
+      (c) => c.title.trim().toLowerCase() === hintTitle,
+    );
+    if (amongChildren) {
+      return pickNonRoot(amongChildren.id);
+    }
+  }
+  if (added.length === 1) {
+    return pickNonRoot(added[0].id);
+  }
+  return null;
+}
+
+/**
  * Whether the node can move up among siblings (same parent).
  */
 export function canMoveNavNodeUp(

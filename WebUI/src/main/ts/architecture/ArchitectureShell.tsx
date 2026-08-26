@@ -58,10 +58,12 @@ import {
   findNavNodeById,
   findSiblingPlacement,
   isExternalLinkType,
+  isRootNavNode,
   isSectionLinkType,
   mapCreateSectionDialogToFields,
   resolveCreateFolderPath,
   resolveCreateParentFolderPath,
+  resolveCreatedNavNodeId,
 } from "../api/architecture/sectionMutations";
 import type {
   CreateSectionDialogFields,
@@ -217,6 +219,12 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const selectedNodeIdRef = useRef<string | null>(null);
   selectedNodeIdRef.current = selectedNodeId;
+  const previousTreeRootRef = useRef<NavTreeNode | null>(null);
+  const pendingCreateSelectRef = useRef<{
+    parentId: string;
+    title: string;
+    id?: string | null;
+  } | null>(null);
   const [landingStatus, setLandingStatus] = useState<{
     sectionId: string;
     pageId: string;
@@ -411,6 +419,8 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   useEffect(() => {
     setSelectedNodeId(null);
     setLandingStatus(null);
+    pendingCreateSelectRef.current = null;
+    previousTreeRootRef.current = null;
   }, [selectedSite]);
 
   // Load tree when site or refresh changes
@@ -426,7 +436,23 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
       try {
         const root = await loadSectionTree(selectedSite);
         if (cancelled) return;
+        const previous = previousTreeRootRef.current;
         setTreeState({ status: "ready", root });
+        previousTreeRootRef.current = root;
+        const pending = pendingCreateSelectRef.current;
+        if (pending) {
+          pendingCreateSelectRef.current = null;
+          const resolved = resolveCreatedNavNodeId(
+            previous,
+            root,
+            pending.parentId,
+            { id: pending.id, title: pending.title },
+          );
+          if (resolved && !isRootNavNode(root, resolved)) {
+            setSelectedNodeId(resolved);
+            return;
+          }
+        }
         const keep = selectedNodeIdRef.current;
         if (keep && root && !findNavNodeById(root, keep)) {
           setSelectedNodeId(null);
@@ -592,10 +618,20 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
           loadedFolderPath,
           selectedSite,
         );
-        await createSiteSection(
+        const created = await createSiteSection(
           mapCreateSectionDialogToFields(input, folderPath),
         );
         setCreateOpen(false);
+        const createdId =
+          created?.id != null ? String(created.id).trim() : "";
+        pendingCreateSelectRef.current = {
+          parentId: createParent.id,
+          title: input.title.trim(),
+          id: createdId || null,
+        };
+        if (createdId) {
+          setSelectedNodeId(createdId);
+        }
       });
     },
     [selectedSite, createParent, runMutation],

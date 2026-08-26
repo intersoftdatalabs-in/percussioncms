@@ -674,6 +674,135 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     });
   });
 
+  it("enables Delete after Create by selecting the new non-root section (#3821)", async () => {
+    const createdNode = {
+      id: "c-new",
+      title: "Products",
+      folderPath: "//Sites/Demo/Products",
+      sectionType: "section" as const,
+      requiresLogin: false,
+      children: [] as typeof treeFixture.children,
+    };
+    let currentTree: typeof treeFixture = treeFixture;
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockImplementation(async () => {
+      return currentTree;
+    });
+    vi.spyOn(homeApi, "fetchTemplatesForSectionCreate").mockResolvedValue([
+      { id: "tpl-1", name: "Base" },
+    ]);
+    vi.spyOn(sectionApi, "createSiteSection").mockImplementation(async () => {
+      currentTree = {
+        ...treeFixture,
+        children: [...treeFixture.children, createdNode],
+      };
+      return { id: "c-new", title: "Products" };
+    });
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-root")).toBeTruthy();
+    });
+    expect(
+      (screen.getByTestId("architecture-action-delete") as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+
+    fireEvent.click(screen.getByTestId("architecture-action-create"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-create-dialog")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("architecture-create-title-input"), {
+      target: { value: "Products" },
+    });
+    fireEvent.change(screen.getByTestId("architecture-create-url-input"), {
+      target: { value: "products" },
+    });
+    fireEvent.change(
+      screen.getByTestId("architecture-create-page-name-input"),
+      { target: { value: "products.html" } },
+    );
+    const tpl = screen.queryByTestId("architecture-create-template-select");
+    if (tpl) {
+      fireEvent.change(tpl, { target: { value: "tpl-1" } });
+    }
+    fireEvent.click(screen.getByTestId("architecture-create-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c-new")).toBeTruthy();
+    });
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("architecture-action-delete") as HTMLButtonElement)
+          .disabled,
+      ).toBe(false);
+    });
+
+    fireEvent.click(screen.getByTestId("nav-tree-item-root"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("architecture-action-delete") as HTMLButtonElement)
+          .disabled,
+      ).toBe(true);
+    });
+  });
+
+  it("selects created section by title when POST omits id (#3821)", async () => {
+    const createdNode = {
+      id: "c-untitled-id",
+      title: "Widget Hub",
+      folderPath: "//Sites/Demo/widget-hub",
+      sectionType: "section" as const,
+      requiresLogin: false,
+      children: [] as typeof treeFixture.children,
+    };
+    let currentTree: typeof treeFixture = treeFixture;
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockImplementation(async () => {
+      return currentTree;
+    });
+    vi.spyOn(homeApi, "fetchTemplatesForSectionCreate").mockResolvedValue([
+      { id: "tpl-1", name: "Base" },
+    ]);
+    vi.spyOn(sectionApi, "createSiteSection").mockImplementation(async () => {
+      currentTree = {
+        ...treeFixture,
+        children: [...treeFixture.children, createdNode],
+      };
+      return null;
+    });
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-root")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-create"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-create-dialog")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("architecture-create-title-input"), {
+      target: { value: "Widget Hub" },
+    });
+    fireEvent.change(screen.getByTestId("architecture-create-url-input"), {
+      target: { value: "widget-hub" },
+    });
+    fireEvent.change(
+      screen.getByTestId("architecture-create-page-name-input"),
+      { target: { value: "widget-hub.html" } },
+    );
+    const tpl = screen.queryByTestId("architecture-create-template-select");
+    if (tpl) {
+      fireEvent.change(tpl, { target: { value: "tpl-1" } });
+    }
+    fireEvent.click(screen.getByTestId("architecture-create-submit"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("architecture-action-delete") as HTMLButtonElement)
+          .disabled,
+      ).toBe(false);
+    });
+    expect(screen.getByTestId("nav-tree-item-c-untitled-id")).toBeTruthy();
+  });
+
   it("create under a selected non-root section posts that parent folderPath", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
     vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
