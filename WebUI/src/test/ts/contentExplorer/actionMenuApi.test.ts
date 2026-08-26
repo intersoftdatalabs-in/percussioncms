@@ -25,6 +25,7 @@ import {
   nestActionMenusByParentId,
   unwrapActionMenuChildren,
   unwrapActionMenuListPayload,
+  wrapAllowedContentTypeMenusRequest,
 } from "../../../main/ts/api/contentExplorer/actionMenuApi";
 import { PATHS } from "../../../main/ts/api/paths";
 
@@ -320,8 +321,30 @@ describe("actionMenuApi REST wrappers", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const init = fetchMock.mock.calls[0]?.[1];
     expect(init?.method).toBe("POST");
-    expect(JSON.parse(String(init?.body))).toEqual({ contentIds: [101, 102] });
+    expect(JSON.parse(String(init?.body))).toEqual({
+      AllowedContentTypeMenusRequest: { contentIds: [101, 102] },
+    });
     expect(result.map((m) => m.name)).toEqual(["trans1", "trans2"]);
+  });
+
+  it("findAllowedContentTypeMenus coerces GUID last-segment to int (#3855)", async () => {
+    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ ActionMenuList: [] }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await findAllowedContentTypeMenus(["16777215-101-551"]);
+    const init = fetchMock.mock.calls[0]?.[1];
+    expect(JSON.parse(String(init?.body))).toEqual({
+      AllowedContentTypeMenusRequest: { contentIds: [551] },
+    });
+  });
+
+  it("wrapAllowedContentTypeMenusRequest drops unparseable tokens", () => {
+    expect(wrapAllowedContentTypeMenusRequest(["16777215-101-551", 42, "nope"])).toEqual({
+      AllowedContentTypeMenusRequest: { contentIds: [551, 42] },
+    });
   });
 
   it("findAllowedTemplateMenus passes contentId + isAA query param and unwraps ActionMenuList", async () => {

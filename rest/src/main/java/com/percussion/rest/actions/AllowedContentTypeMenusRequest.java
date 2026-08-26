@@ -18,6 +18,7 @@
 package com.percussion.rest.actions;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -28,8 +29,13 @@ import java.util.Arrays;
  *
  * <p>Wire getters return plain nullable types (not {@code Optional}) so Jackson/CXF JSON emits
  * {@code contentIds} as a JSON array, not an Optional bean (issue #3388 slice 10 / #3432).
+ *
+ * <p>{@link JsonRootName} matches {@code JacksonContextResolver} WRAP/UNWRAP_ROOT_VALUE. Live
+ * Explorer may still POST a flat {@code {contentIds}} object or GUID strings — those bind via
+ * {@link AllowedContentTypeMenusRequestJsonReader} (#3855).
  */
-@XmlRootElement
+@XmlRootElement(name = "AllowedContentTypeMenusRequest")
+@JsonRootName("AllowedContentTypeMenusRequest")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema
 public class AllowedContentTypeMenusRequest {

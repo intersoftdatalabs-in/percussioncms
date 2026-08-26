@@ -103,6 +103,14 @@ public class ActionMenuResourceTest {
         assertThrows(WebApplicationException.class, () -> bare.getActionMenu("x"));
     assertEquals(500, getEx.getResponse().getStatus());
     assertInstanceOf(IllegalStateException.class, getEx.getCause());
+
+    IllegalStateException typesEx =
+        assertThrows(IllegalStateException.class, () -> bare.getAllowedContentTypeMenus(null));
+    assertTrue(typesEx.getMessage().contains("not configured"));
+
+    IllegalStateException templatesEx =
+        assertThrows(IllegalStateException.class, () -> bare.getAllowedTemplateMenus(551, false));
+    assertTrue(templatesEx.getMessage().contains("not configured"));
   }
 
   @Test
@@ -133,5 +141,46 @@ public class ActionMenuResourceTest {
     ArgumentCaptor<Integer[]> captor = ArgumentCaptor.forClass(Integer[].class);
     verify(adaptor).findAllowedContentTypes(captor.capture());
     assertArrayEquals(new Integer[0], captor.getValue());
+  }
+
+  @Test
+  public void getAllowedContentTypeMenusNullRequestIsEmptyNot500() {
+    when(adaptor.findAllowedContentTypes(any())).thenReturn(List.of());
+    ActionMenuList out = resource.getAllowedContentTypeMenus(null);
+    assertTrue(out.isEmpty());
+  }
+
+  @Test
+  public void getAllowedContentTypeMenusAdaptorFailureIsEmptyNot500() {
+    when(adaptor.findAllowedContentTypes(any())).thenThrow(new IllegalStateException("down"));
+    AllowedContentTypeMenusRequest request = new AllowedContentTypeMenusRequest();
+    request.setContentIds(new int[] {551});
+    ActionMenuList out = resource.getAllowedContentTypeMenus(request);
+    assertTrue(out.isEmpty());
+  }
+
+  @Test
+  public void getAllowedTemplateMenusDelegates() {
+    ActionMenu menu = new ActionMenu();
+    menu.setName("rffHome");
+    when(adaptor.findAllowedTemplates(eq(551), eq(false))).thenReturn(List.of(menu));
+    ActionMenuList out = resource.getAllowedTemplateMenus(551, false);
+    assertEquals(1, out.size());
+    assertEquals("rffHome", out.get(0).getName());
+  }
+
+  @Test
+  public void getAllowedTemplateMenusNullAdaptorResultIsEmpty() {
+    when(adaptor.findAllowedTemplates(eq(551), eq(true))).thenReturn(null);
+    ActionMenuList out = resource.getAllowedTemplateMenus(551, true);
+    assertTrue(out.isEmpty());
+  }
+
+  @Test
+  public void getAllowedTemplateMenusAdaptorFailureIsEmptyNot500() {
+    when(adaptor.findAllowedTemplates(eq(551), eq(false)))
+        .thenThrow(new IllegalArgumentException("Request can't be null"));
+    ActionMenuList out = resource.getAllowedTemplateMenus(551, false);
+    assertTrue(out.isEmpty());
   }
 }

@@ -52,11 +52,40 @@
 
 import { get, post } from "../client";
 import { PATHS } from "../paths";
+import { parseExplorerContentId } from "./pathItemId";
 import type {
   ActionMenu,
   AllowedContentTypeMenusRequest,
   MenuAction,
 } from "./types";
+
+/** Jackson WRAP_ROOT_VALUE root for {@link AllowedContentTypeMenusRequest}. */
+export const ALLOWED_CONTENT_TYPE_MENUS_REQUEST_ROOT =
+  "AllowedContentTypeMenusRequest";
+
+export type AllowedContentTypeMenusRequestEnvelope = {
+  AllowedContentTypeMenusRequest: AllowedContentTypeMenusRequest;
+};
+
+/**
+ * Wrap {@code contentIds} under {@link ALLOWED_CONTENT_TYPE_MENUS_REQUEST_ROOT}.
+ * Coerces GUID last-segments ({@code 16777215-101-551}) to ints so UNWRAP_ROOT_VALUE
+ * never sees a string array (#3855).
+ */
+export function wrapAllowedContentTypeMenusRequest(
+  contentIds: Array<number | string | undefined | null>,
+): AllowedContentTypeMenusRequestEnvelope {
+  const ids: number[] = [];
+  for (const raw of contentIds ?? []) {
+    const id = parseExplorerContentId(raw);
+    if (id != null) {
+      ids.push(id);
+    }
+  }
+  return {
+    AllowedContentTypeMenusRequest: { contentIds: ids },
+  };
+}
 
 // ---------- Wire envelopes (internal) ----------
 
@@ -143,9 +172,9 @@ export async function findActions(
  * menus allowed for the supplied contentIds.</p>
  */
 export async function findAllowedContentTypeMenus(
-  contentIds: number[],
+  contentIds: Array<number | string>,
 ): Promise<ActionMenu[]> {
-  const body: AllowedContentTypeMenusRequest = { contentIds };
+  const body = wrapAllowedContentTypeMenusRequest(contentIds);
   const res = await post<unknown>(`${PATHS.ACTIONS_ROOT}/find/types`, body);
   return unwrapActionMenuListPayload(res);
 }

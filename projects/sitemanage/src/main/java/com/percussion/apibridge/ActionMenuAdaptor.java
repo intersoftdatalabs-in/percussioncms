@@ -158,14 +158,28 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
 
   @Override
   public List<ActionMenu> findAllowedContentTypes(Integer[] contentIds) {
-    return ApiUtils.convertPSActionMenuList(
-        PSContentTypeActionMenuHelper.getInstance().getContentTypeMenus(null));
+    try {
+      return ApiUtils.convertPSActionMenuList(
+          PSContentTypeActionMenuHelper.getInstance().getContentTypeMenus(null));
+    } catch (RuntimeException e) {
+      log.error("Error finding allowed content-type menus: {}", e.getMessage(), e);
+      return Collections.emptyList();
+    }
   }
 
   @Override
   public List<ActionMenu> findAllowedTemplates(Integer contentId, boolean isAA) {
-    return ApiUtils.convertPSActionMenuList(
-        PSTemplateActionMenuHelper.getInstance().getTemplateMenus(contentId, isAA, null));
+    if (contentId == null || contentId <= 0) {
+      return Collections.emptyList();
+    }
+    try {
+      return ApiUtils.convertPSActionMenuList(
+          PSTemplateActionMenuHelper.getInstance().getTemplateMenus(contentId, isAA, null));
+    } catch (RuntimeException e) {
+      log.error(
+          "Error finding allowed templates for contentId {}: {}", contentId, e.getMessage(), e);
+      return Collections.emptyList();
+    }
   }
 
   @Override

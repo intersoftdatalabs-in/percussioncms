@@ -18,8 +18,10 @@ package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import com.percussion.rest.actions.ActionMenu;
+import com.percussion.webservices.ui.IPSUiDesignWs;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -110,6 +112,14 @@ public class ActionMenuAdaptorFilterTest {
         ActionMenuAdaptor.filterMenus(Collections.emptyList(), "x", null, null, null, null)
             .isEmpty());
     assertTrue(ActionMenuAdaptor.filterMenus(null, "x", null, null, null, null).isEmpty());
+  }
+
+  @Test
+  public void findAllowedTemplatesRejectsNonPositiveIds() {
+    ActionMenuAdaptor adaptor = new ActionMenuAdaptor(mock(IPSUiDesignWs.class));
+    assertTrue(adaptor.findAllowedTemplates(null, false).isEmpty());
+    assertTrue(adaptor.findAllowedTemplates(0, true).isEmpty());
+    assertTrue(adaptor.findAllowedTemplates(-1, false).isEmpty());
   }
 
   private static ActionMenu menu(String name, String label, String type, String url) {
