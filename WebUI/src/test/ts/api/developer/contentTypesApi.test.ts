@@ -8,6 +8,7 @@ import {
   normalizeContentTypeFields,
   normalizeContentTypeStringList,
   normalizeNamedObjectRefs,
+  setContentTypeAllowedWorkflows,
   setContentTypeEnabled,
   unwrapContentTypeDetail,
   unwrapContentTypeList,
@@ -15,6 +16,7 @@ import {
   updateContentTypeDetail,
   wrapContentTypeDetailForWire,
   wrapContentTypeEnabledForWire,
+  wrapContentTypeWorkflowsForWire,
 } from "../../../../main/ts/api/developer/contentTypesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -365,5 +367,71 @@ describe("setContentTypeEnabled CD-13 dedicated PUT (#3781)", () => {
     expect(String(fetchMock.mock.calls[0][0])).toContain(
       `${PATHS.CONTENT_TYPES}/${encodeURIComponent("perc Page")}/enabled`,
     );
+  });
+});
+
+describe("wrapContentTypeWorkflowsForWire", () => {
+  it("wraps allowedWorkflows under ContentTypeWorkflows", () => {
+    expect(
+      wrapContentTypeWorkflowsForWire({
+        allowedWorkflows: [{ name: "Simple Workflow" }],
+        defaultWorkflow: { name: "Simple Workflow" },
+      }),
+    ).toEqual({
+      ContentTypeWorkflows: {
+        allowedWorkflows: [{ name: "Simple Workflow" }],
+        defaultWorkflow: { name: "Simple Workflow" },
+      },
+    });
+  });
+});
+
+describe("setContentTypeAllowedWorkflows CD-08 dedicated PUT (#3782)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("PUTs /contenttypes/{id}/allowedWorkflows without lock or unlock", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeDetail: {
+          name: "percPage",
+          allowedWorkflows: [{ name: "Standard Workflow" }],
+          defaultWorkflow: { name: "Standard Workflow" },
+        },
+      }),
+    );
+
+    const saved = await setContentTypeAllowedWorkflows("percPage", {
+      allowedWorkflows: [{ name: "Standard Workflow" }],
+      defaultWorkflow: { name: "Standard Workflow" },
+    });
+    expect(saved.allowedWorkflows).toEqual([{ name: "Standard Workflow" }]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/percPage/allowedWorkflows`,
+    );
+    expect(JSON.parse(String(init.body))).toEqual({
+      ContentTypeWorkflows: {
+        allowedWorkflows: [{ name: "Standard Workflow" }],
+        defaultWorkflow: { name: "Standard Workflow" },
+      },
+    });
   });
 });

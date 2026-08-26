@@ -216,11 +216,17 @@ export type ContentTypeUpdateBody = {
   description?: string;
   enabled?: boolean;
   fields?: Pick<ContentTypeFieldSummary, "name" | "searchable" | "required" | "occurrence">[];
-  /** Omit to leave unchanged; non-null list is a full replace. */
+  /** Omit to leave unchanged; non-null list is a full replace. Prefer CD-08 PUT. */
   allowedWorkflows?: NamedObjectRef[];
   defaultWorkflow?: NamedObjectRef | null;
   /** Omit to leave unchanged; non-null list is a full replace. */
   allowedTemplates?: NamedObjectRef[];
+};
+
+/** Wire body for {@code PUT .../allowedWorkflows} (Jackson root {@code ContentTypeWorkflows}). */
+export type ContentTypeWorkflowsBody = {
+  allowedWorkflows: NamedObjectRef[];
+  defaultWorkflow?: NamedObjectRef | null;
 };
 
 /** Wire shape for {@code POST .../lock} ({@code ObjectLockSummary}). */
@@ -296,6 +302,8 @@ export function wrapContentTypeDetailForWire(
  * unlocked or locked by another user.
  *
  * <p>Do not send {@code enabled} here — use {@link setContentTypeEnabled} (CD-13).
+ * Do not send {@code allowedWorkflows} here — use
+ * {@link setContentTypeAllowedWorkflows} (CD-08).
  */
 export async function updateContentTypeDetail(
   idOrName: string,
@@ -339,6 +347,40 @@ export async function setContentTypeEnabled(
   const payload = await put<unknown>(
     `${PATHS.CONTENT_TYPES}/${key}/enabled`,
     wrapContentTypeEnabledForWire(enabled),
+  );
+  return unwrapContentTypeDetail(payload);
+}
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code ContentTypeWorkflows}. */
+export const CONTENT_TYPE_WORKFLOWS_ROOT = "ContentTypeWorkflows";
+
+/**
+ * Build the wire JSON body for {@code PUT .../allowedWorkflows} under
+ * {@link CONTENT_TYPE_WORKFLOWS_ROOT}. A flat body fails server UNWRAP_ROOT_VALUE.
+ */
+export function wrapContentTypeWorkflowsForWire(
+  body: ContentTypeWorkflowsBody,
+): Record<string, ContentTypeWorkflowsBody> {
+  return { [CONTENT_TYPE_WORKFLOWS_ROOT]: body };
+}
+
+/**
+ * PUT /services/contenttypes/{idOrName}/allowedWorkflows — CD-08 dedicated replace.
+ *
+ * <p>Requires a design-session lock already held by the current user
+ * ({@link lockContentType}). Does not acquire or release the lock. HTTP 409
+ * when unlocked or locked by another user. Empty {@code allowedWorkflows}
+ * clears associations. Response is {@code ContentTypeDetail} with the new set
+ * (lock still held).
+ */
+export async function setContentTypeAllowedWorkflows(
+  idOrName: string,
+  body: ContentTypeWorkflowsBody,
+): Promise<ContentTypeDetail> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}/allowedWorkflows`,
+    wrapContentTypeWorkflowsForWire(body),
   );
   return unwrapContentTypeDetail(payload);
 }

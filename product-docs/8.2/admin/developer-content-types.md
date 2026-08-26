@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Lock, enable or disable, save, and unlock a content type from Developer detail chrome
+description: Lock, enable or disable, save allowed workflows, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -44,6 +44,23 @@ use `GET`/`PUT /services/contenttypes/{idOrName}/itemExits`. This page does
 7. Click **Unlock** when you are done. Status returns to **Not locked** and the
    form is read-only again. **Back to list** also releases a lock you hold.
 
+### Allowed workflows (after lock)
+
+The **Allowed workflows** list is read-only until you hold the lock. After
+**Lock**:
+
+1. Add a workflow by its existing name (for example **Standard Workflow**) and
+   click **Add**, or **Remove** a row. Use **Default** to choose the default
+   workflow.
+2. Click **Save content type**. The product replaces the allowed-workflow set
+   (`PUT /services/contenttypes/{idOrName}/allowedWorkflows`). Save does **not**
+   unlock. Reloading the type (or GET detail) lists the new set.
+3. Without a lock, Add / Remove / Save stay **disabled**. The product does
+   **not** steal another user's lock (lock failure is **409**).
+
+This is not a full Workbench workflow picker. The name you add must already
+exist on the server. Template association chrome is a separate surface.
+
 Locks expire after **30 minutes**. If Save fails because the lock expired,
 click **Lock** again and retry.
 
@@ -69,8 +86,9 @@ The chrome calls:
 | Action | Request |
 |--------|---------|
 | Lock | `POST /services/contenttypes/{idOrName}/lock` |
-| Save (label, description, fields, associations) | `PUT /services/contenttypes/{idOrName}` (requires a held lock; does not send `enabled`) |
+| Save (label, description, fields, templates) | `PUT /services/contenttypes/{idOrName}` (requires a held lock; does not send `enabled` or `allowedWorkflows`) |
 | Enable / disable | `PUT /services/contenttypes/{idOrName}/enabled` (CD-13; requires a held lock; does not acquire or release it) |
+| Save allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` (requires a held lock; does not unlock) |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |
 
 Integrator notes: [REST API — Content types](id:developer-rest). Object ACL on

@@ -14,6 +14,7 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
   getContentTypeDetail: vi.fn(),
   updateContentTypeDetail: vi.fn(),
   setContentTypeEnabled: vi.fn(),
+  setContentTypeAllowedWorkflows: vi.fn(),
   lockContentType: vi.fn(),
   unlockContentType: vi.fn(),
 }));
@@ -38,6 +39,9 @@ const updateContentTypeDetail = contentTypesApi.updateContentTypeDetail as Retur
   typeof vi.fn
 >;
 const setContentTypeEnabled = contentTypesApi.setContentTypeEnabled as ReturnType<typeof vi.fn>;
+const setContentTypeAllowedWorkflows = contentTypesApi.setContentTypeAllowedWorkflows as ReturnType<
+  typeof vi.fn
+>;
 const lockContentType = contentTypesApi.lockContentType as ReturnType<typeof vi.fn>;
 const unlockContentType = contentTypesApi.unlockContentType as ReturnType<typeof vi.fn>;
 
@@ -63,6 +67,7 @@ describe("ContentTypeDetailPanel", () => {
     getContentTypeDetail.mockReset();
     updateContentTypeDetail.mockReset();
     setContentTypeEnabled.mockReset();
+    setContentTypeAllowedWorkflows.mockReset();
     lockContentType.mockReset();
     unlockContentType.mockReset();
     lockContentType.mockResolvedValue({ locker: "Admin", remainingTime: 30 });
@@ -74,6 +79,11 @@ describe("ContentTypeDetailPanel", () => {
     setContentTypeEnabled.mockImplementation(async (_id, enabled: boolean) => ({
       ...sampleDetail,
       enabled,
+    }));
+    setContentTypeAllowedWorkflows.mockImplementation(async (_id, body) => ({
+      ...sampleDetail,
+      allowedWorkflows: body.allowedWorkflows,
+      defaultWorkflow: body.defaultWorkflow ?? null,
     }));
   });
 
@@ -609,5 +619,116 @@ describe("ContentTypeDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
     expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).disabled).toBe(true);
+  });
+
+  it("keeps workflow editors disabled until lock (#3782)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      allowedWorkflows: [{ name: "Simple Workflow", label: "Simple Workflow", isDefault: true }],
+      defaultWorkflow: { name: "Simple Workflow", isDefault: true },
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-wf-row-0")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-ct-wf-add-name") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-wf-add") as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByTestId("developer-ct-wf-remove-0") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("saves allowed workflows via CD-08 PUT without bulk PUT or unlock (#3782)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      allowedWorkflows: [{ name: "Simple Workflow", label: "Simple Workflow", isDefault: true }],
+      defaultWorkflow: { name: "Simple Workflow", isDefault: true },
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-wf-add-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-wf-add-name"), {
+      target: { value: "Standard Workflow" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-wf-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-wf-row-1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(setContentTypeAllowedWorkflows).toHaveBeenCalled();
+    });
+    expect(setContentTypeAllowedWorkflows).toHaveBeenCalledWith(
+      "percPage",
+      expect.objectContaining({
+        allowedWorkflows: expect.arrayContaining([
+          expect.objectContaining({ name: "Simple Workflow" }),
+          expect.objectContaining({ name: "Standard Workflow" }),
+        ]),
+        defaultWorkflow: expect.objectContaining({ name: "Simple Workflow" }),
+      }),
+    );
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(unlockContentType).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+  });
+
+  it("blocks save without a held lock (#3782)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-save")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    expect(setContentTypeAllowedWorkflows).not.toHaveBeenCalled();
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(lockContentType).not.toHaveBeenCalled();
+  });
+
+  it("clears the held lock when allowedWorkflows PUT returns 409 (#3782)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      allowedWorkflows: [{ name: "Simple Workflow", isDefault: true }],
+    });
+    setContentTypeAllowedWorkflows.mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+      body: null,
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-wf-add-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-wf-add-name"), {
+      target: { value: "Standard Workflow" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-wf-add"));
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        "Could not save content type.",
+      );
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+    expect(lockContentType).toHaveBeenCalledTimes(1);
   });
 });

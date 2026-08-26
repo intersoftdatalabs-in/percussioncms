@@ -108,6 +108,35 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
       allowedTemplates: [{ name: "perc.page", label: "Page" }],
       designGaps: [],
     })),
+    setContentTypeAllowedWorkflows: vi.fn().mockImplementation(async (_id, body) => ({
+      name: "percPage",
+      label: "Page",
+      description: "A page",
+      enabled: true,
+      guid: { stringValue: "0-2-301", uuid: 301 },
+      fields: [
+        {
+          name: "sys_title",
+          label: "Title",
+          fieldType: "system",
+          searchable: true,
+          required: true,
+          occurrence: "required",
+        },
+        {
+          name: "page_title",
+          label: "Page title",
+          fieldType: "local",
+          searchable: false,
+          required: false,
+          occurrence: "optional",
+        },
+      ],
+      allowedWorkflows: body.allowedWorkflows,
+      defaultWorkflow: body.defaultWorkflow ?? null,
+      allowedTemplates: [{ name: "perc.page", label: "Page" }],
+      designGaps: [],
+    })),
     lockContentType: vi.fn().mockResolvedValue({ locker: "Admin", remainingTime: 30 }),
     unlockContentType: vi.fn().mockResolvedValue(undefined),
   };
@@ -887,10 +916,11 @@ it("loads views catalog section", async () => {
   });
 
   it("edits content type workflow and template associations on save", async () => {
-    const { updateContentTypeDetail } = await import(
+    const { updateContentTypeDetail, setContentTypeAllowedWorkflows } = await import(
       "../../../main/ts/api/developer/contentTypesApi"
     );
     (updateContentTypeDetail as ReturnType<typeof vi.fn>).mockClear();
+    (setContentTypeAllowedWorkflows as ReturnType<typeof vi.fn>).mockClear();
     render(<DeveloperShell embedded />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
@@ -921,18 +951,25 @@ it("loads views catalog section", async () => {
     });
     fireEvent.click(screen.getByTestId("developer-ct-save"));
     await waitFor(() => {
-      expect(updateContentTypeDetail).toHaveBeenCalled();
+      expect(setContentTypeAllowedWorkflows).toHaveBeenCalled();
     });
-    const body = (updateContentTypeDetail as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1];
-    expect(body.allowedWorkflows).toEqual(
+    const wfBody = (setContentTypeAllowedWorkflows as ReturnType<typeof vi.fn>).mock.calls.at(
+      -1,
+    )?.[1];
+    expect(wfBody.allowedWorkflows).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ name: "Simple Workflow" }),
         expect.objectContaining({ name: "Standard Workflow" }),
       ]),
     );
-    expect(body.defaultWorkflow).toEqual(
+    expect(wfBody.defaultWorkflow).toEqual(
       expect.objectContaining({ name: "Simple Workflow" }),
     );
+    await waitFor(() => {
+      expect(updateContentTypeDetail).toHaveBeenCalled();
+    });
+    const body = (updateContentTypeDetail as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1];
+    expect(body.allowedWorkflows).toBeUndefined();
     expect(body.allowedTemplates).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ name: "perc.page" }),
