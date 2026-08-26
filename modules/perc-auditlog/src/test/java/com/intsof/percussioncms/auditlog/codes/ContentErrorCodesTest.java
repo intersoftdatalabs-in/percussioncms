@@ -80,5 +80,7 @@ class ContentErrorCodesTest {
     assertEquals(2006, ContentErrorCodes.PAGE_REMOVAL_SCHEDULE.numericCode());
     assertEquals(17001, ContentErrorCodes.UNSUPPORTED_FILE_TYPE.numericCode());
     assertEquals(17010, ContentErrorCodes.UNSUPPORTED_CONVERT_CONSTRUCTOR.numericCode());
+    assertEquals(1, ContentErrorCodes.MISSING_KEYWORD.numericCode());
+    assertFalse(ContentErrorCodes.MISSING_KEYWORD.isAuditable());
   }
 }

@@ -37,7 +37,6 @@ import com.percussion.rx.publisher.data.PSDemandWork;
 import com.percussion.server.PSServer;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
-import com.percussion.services.catalog.IPSCatalogErrors;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSCatalogException;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -70,7 +69,6 @@ import com.percussion.services.publisher.IPSPubItemStatus;
 import com.percussion.services.publisher.IPSPubStatus;
 import com.percussion.services.publisher.IPSPubStatus.EndingState;
 import com.percussion.services.publisher.IPSPublisherService;
-import com.percussion.services.publisher.IPSPublisherServiceErrors;
 import com.percussion.services.publisher.IPSSiteItem;
 import com.percussion.services.publisher.IPSSiteItem.Operation;
 import com.percussion.services.publisher.IPSSiteItem.Status;
@@ -157,6 +155,8 @@ import static com.percussion.services.utils.orm.PSDataCollectionHelper.executeQu
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
+import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.PublisherErrorCodes;
 
 /**`
  * Implementation of content list service, see interface for contracts.
@@ -725,7 +725,7 @@ public class PSPublisherService
       catch (Exception e)
       {
          throw new PSPublisherException(
-               IPSPublisherServiceErrors.EXTENSION_LOOKUP, e);
+               PublisherErrorCodes.EXTENSION_LOOKUP, e);
       }
       final Map<String, String> genparams = list.getGeneratorParams();
       genparams.putAll(overrideParams);
@@ -796,7 +796,7 @@ public class PSPublisherService
       catch (RepositoryException e)
       {
          throw new PSPublisherException(
-               IPSPublisherServiceErrors.ROW_RETRIEVAL, e);
+               PublisherErrorCodes.ROW_RETRIEVAL, e);
       }
       catch (PSRuntimePublisherException re) {
           throw re.getPublisherException();
@@ -873,10 +873,10 @@ public class PSPublisherService
          return rval;
       } catch (RepositoryException e) {
          throw new PSPublisherException(
-                 IPSPublisherServiceErrors.ROW_RETRIEVAL, e);
+                 PublisherErrorCodes.ROW_RETRIEVAL, e);
       } catch (PSFilterException e) {
          throw new PSPublisherException(
-                 IPSPublisherServiceErrors.FILTER_MALFUNCTION, e, list
+                 PublisherErrorCodes.FILTER_FAILED, e, list
                  .getFilter().getName());
       }
    }
@@ -1373,17 +1373,17 @@ public class PSPublisherService
          }
          else
          {
-            throw new PSCatalogException(IPSCatalogErrors.UNKNOWN_TYPE, type
+            throw new PSCatalogException(CatalogErrorCodes.UNKNOWN_TYPE, type
                   .toString());
          }
       }
       catch (IOException e)
       {
-         throw new PSCatalogException(IPSCatalogErrors.IO, e, type);
+         throw new PSCatalogException(CatalogErrorCodes.IO, e, type);
       }
       catch (SAXException | PSInvalidXmlException e)
       {
-         throw new PSCatalogException(IPSCatalogErrors.XML, e, item);
+         throw new PSCatalogException(CatalogErrorCodes.XML, e, item);
       }
    }
 
@@ -1408,17 +1408,17 @@ public class PSPublisherService
          else
          {
             PSTypeEnum type = PSTypeEnum.valueOf(id.getType());
-            throw new PSCatalogException(IPSCatalogErrors.UNKNOWN_TYPE, type
+            throw new PSCatalogException(CatalogErrorCodes.UNKNOWN_TYPE, type
                   .toString());
          }
       }
       catch (IOException e)
       {
-         throw new PSCatalogException(IPSCatalogErrors.IO, e, id);
+         throw new PSCatalogException(CatalogErrorCodes.IO, e, id);
       }
       catch (SAXException e)
       {
-         throw new PSCatalogException(IPSCatalogErrors.TOXML, e);
+         throw new PSCatalogException(CatalogErrorCodes.TOXML, e);
       }
    }
 
@@ -2102,7 +2102,7 @@ public class PSPublisherService
       catch (SQLException e)
       {
          /* Never expect this so didn't create a specific msg. */
-         throw new PSPublisherException(IPSPublisherServiceErrors.RUNTIME_ERROR, 
+         throw new PSPublisherException(PublisherErrorCodes.RUNTIME_ERROR, 
                e.getLocalizedMessage());
       }
       }

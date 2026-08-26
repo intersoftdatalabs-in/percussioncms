@@ -21,7 +21,6 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.services.contentmgr.IPSContentMgr;
 import com.percussion.services.contentmgr.PSContentMgrLocator;
 import com.percussion.services.publisher.IPSContentListGenerator;
-import com.percussion.services.publisher.IPSPublisherServiceErrors;
 import com.percussion.services.publisher.PSPublisherException;
 
 import java.io.File;
@@ -33,6 +32,7 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 
 import org.apache.commons.lang3.StringUtils;
+import com.intsof.percussioncms.auditlog.codes.PublisherErrorCodes;
 
 /**
  * Content list generator based on JSR-170 queries
@@ -67,12 +67,12 @@ public class PSQueryContentListGenerator implements IPSContentListGenerator
       }
       catch (InvalidQueryException e)
       {
-         throw new PSPublisherException(IPSPublisherServiceErrors.BAD_QUERY, e,
+         throw new PSPublisherException(PublisherErrorCodes.BAD_QUERY, e,
                query);
       }
       catch (RepositoryException e)
       {
-         throw new PSPublisherException(IPSPublisherServiceErrors.REPOSITORY,
+         throw new PSPublisherException(PublisherErrorCodes.REPOSITORY,
                e, e.getLocalizedMessage());
       }
    }

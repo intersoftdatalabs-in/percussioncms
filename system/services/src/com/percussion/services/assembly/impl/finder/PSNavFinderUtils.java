@@ -18,7 +18,6 @@ package com.percussion.services.assembly.impl.finder;
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.services.assembly.IPSAssemblyErrors;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSProxyNode;
@@ -37,6 +36,7 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 
 /**
  * This class provide utility method for navigation finder plugins.
@@ -114,7 +114,7 @@ public class PSNavFinderUtils
       }
       catch (PSCmsException e)
       {
-         throw new PSAssemblyException(IPSAssemblyErrors.ITEM_CREATION, e);
+         throw new PSAssemblyException(AssemblyErrorCodes.ITEM_CREATION, e);
       }
    }
 

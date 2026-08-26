@@ -20,7 +20,6 @@ import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.PSItemField;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.cms.objectstore.server.PSServerItem;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSRequestPreProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -46,6 +45,7 @@ import java.util.StringTokenizer;
 
 import static org.apache.commons.lang3.StringUtils.*;
 import static org.apache.commons.lang3.Validate.isTrue;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 
 /**
  * Similar to PSFleInfo but a single copy of the
@@ -407,7 +407,7 @@ public class PSChecksumFileInfo extends PSDefaultExtension
          catch (Exception e)
          {
             throw new PSExtensionProcessingException(
-                  IPSExtensionErrors.EXT_PROCESSOR_EXCEPTION, e);
+                  ExtensionErrorCodes.EXT_PROCESSOR_EXCEPTION, e);
          }
 
       }

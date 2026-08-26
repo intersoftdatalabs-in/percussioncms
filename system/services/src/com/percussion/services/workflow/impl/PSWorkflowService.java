@@ -31,7 +31,6 @@ import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.memory.IPSCacheAccess;
-import com.percussion.services.workflow.IPSWorkflowErrors;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowActionsHelper;
 import com.percussion.services.workflow.PSWorkflowException;
@@ -81,6 +80,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
 
 /**
  * Implementation of the workflow service
@@ -1061,7 +1061,7 @@ public class PSWorkflowService
          Object[] args = new Object[]
          {stateId, workflowId};
          throw new PSWorkflowException(
-               IPSWorkflowErrors.ERROR_LOADING_WORKFLOW_STATE, args);
+               WorkflowErrorCodes.STATE_NOT_FOUND, args);
       }
       return state.isPublishable();
    }

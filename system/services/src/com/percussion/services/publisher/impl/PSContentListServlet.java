@@ -33,7 +33,6 @@ import com.percussion.services.memory.IPSCacheAccess;
 import com.percussion.services.memory.PSCacheAccessLocator;
 import com.percussion.services.publisher.IPSContentList;
 import com.percussion.services.publisher.IPSPublisherService;
-import com.percussion.services.publisher.IPSPublisherServiceErrors;
 import com.percussion.services.publisher.PSPublisherException;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.services.publisher.data.PSContentListItem;
@@ -62,6 +61,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.intsof.percussioncms.auditlog.codes.PublisherErrorCodes;
 
 /**
  * Takes parameters and constructs a content list suitable for the publisher. It
@@ -381,7 +381,7 @@ public class PSContentListServlet extends HttpServlet
       String tid = Long.toString(item.getTemplateId().longValue());
       if (tid == null)
       {
-         throw new PSPublisherException(IPSPublisherServiceErrors.RUNTIME_ERROR,
+         throw new PSPublisherException(PublisherErrorCodes.RUNTIME_ERROR,
                "no template id found");
       }
       IPSAssemblyTemplate template = asm.loadUnmodifiableTemplate(new PSGuid(

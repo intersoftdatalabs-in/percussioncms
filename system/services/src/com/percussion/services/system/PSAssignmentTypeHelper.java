@@ -58,6 +58,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.intsof.percussioncms.auditlog.codes.SystemServiceErrorCodes;
 
 /**
  * This class computes the assignment type for one or more content items. This
@@ -221,7 +222,7 @@ public class PSAssignmentTypeHelper
       catch (SQLException e)
       {
          throw new PSSystemException(
-               IPSSystemErrors.ERROR_DETERMINING_FOLDER_READ, e, contentid);
+               SystemServiceErrorCodes.ERROR_DETERMINING_FOLDER_READ, e, contentid);
       }
       finally
       {

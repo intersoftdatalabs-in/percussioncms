@@ -17,6 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.catalog;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.utils.exceptions.PSBaseException;
 import com.percussion.utils.guid.IPSGuid;
 
@@ -85,6 +86,27 @@ public class PSCatalogException extends PSBaseException {
     */
    public PSCatalogException(int msgCode) {
       super(msgCode);
+   }
+
+   /**
+    * Typed construction from a catalogued {@link IPSErrorCode}.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param arrayArgs optional arguments for the error message
+    */
+   public PSCatalogException(IPSErrorCode code, Object... arrayArgs) {
+      super(code, arrayArgs);
+   }
+
+   /**
+    * Typed construction with a cause.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param cause the underlying cause of this exception
+    * @param arrayArgs optional arguments for the error message
+    */
+   public PSCatalogException(IPSErrorCode code, Throwable cause, Object... arrayArgs) {
+      super(code, cause, arrayArgs);
    }
 
    /**

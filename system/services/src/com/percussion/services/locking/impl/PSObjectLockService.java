@@ -20,7 +20,6 @@ import com.percussion.server.PSUserSession;
 import com.percussion.server.PSUserSessionManager;
 import com.percussion.services.guidmgr.PSGuidUtils;
 import com.percussion.services.guidmgr.data.PSDesignGuid;
-import com.percussion.services.locking.IPSLockErrors;
 import com.percussion.services.locking.IPSObjectLockService;
 import com.percussion.services.locking.PSLockException;
 import com.percussion.services.locking.data.PSObjectLock;
@@ -47,6 +46,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import com.intsof.percussioncms.auditlog.codes.LockErrorCodes;
 
 /**
  * Implements all services used to manage object locks
@@ -141,14 +141,14 @@ public class PSObjectLockService
             if (!lock.getLocker().equals(locker))
             {
                errors.put(id, new PSLockException(
-                  IPSLockErrors.LOCK_EXTENSION_LOCKED_BY_SOMEBODY_ELSE,
+                  LockErrorCodes.LOCK_EXTENSION_LOCKED_BY_SOMEBODY_ELSE,
                   new PSDesignGuid(id).getValue(), lock.getLocker(),
                   lock.getRemainingTime()));
             }
             else if (!overrideLock && !lock.getLockSession().equals(lockSession))
             {
                errors.put(id, new PSLockException(
-                  IPSLockErrors.LOCK_EXTENSION_INVALID_SESSION,
+                  LockErrorCodes.LOCK_EXTENSION_INVALID_SESSION,
                   new PSDesignGuid(id).getValue()));
             }
             else if (overrideLock && !lock.getLockSession().equals(lockSession))
@@ -316,7 +316,7 @@ public class PSObjectLockService
          if (lock == null)
          {
             errors.put(id, new PSLockException(
-               IPSLockErrors.LOCK_EXTENSION_NOT_LOCKED,
+               LockErrorCodes.LOCK_EXTENSION_NOT_LOCKED,
                new PSDesignGuid(id).getValue()));
             continue;
          }
@@ -324,7 +324,7 @@ public class PSObjectLockService
          if (!lock.getLocker().equals(locker))
          {
             errors.put(id, new PSLockException(
-               IPSLockErrors.LOCK_EXTENSION_LOCKED_BY_SOMEBODY_ELSE,
+               LockErrorCodes.LOCK_EXTENSION_LOCKED_BY_SOMEBODY_ELSE,
                new PSDesignGuid(id).getValue(), lock.getLocker(),
                lock.getRemainingTime()));
             continue;
@@ -333,7 +333,7 @@ public class PSObjectLockService
          if (!lock.getLockSession().equals(normalizedSession))
          {
             errors.put(id, new PSLockException(
-               IPSLockErrors.LOCK_EXTENSION_INVALID_SESSION,
+               LockErrorCodes.LOCK_EXTENSION_INVALID_SESSION,
                new PSDesignGuid(id).getValue()));
             continue;
          }
@@ -429,7 +429,7 @@ public class PSObjectLockService
    public Integer getLockedVersionImpl(IPSGuid id) throws PSLockException {
       if (id == null) throw new IllegalArgumentException("id cannot be null");
       PSObjectLock lock = findLockByObjectId(id);
-      if (lock == null) throw new PSLockException(IPSLockErrors.LOCK_NOT_FOUND, new PSDesignGuid(id).getValue());
+      if (lock == null) throw new PSLockException(LockErrorCodes.LOCK_NOT_FOUND, new PSDesignGuid(id).getValue());
       return lock.getLockedVersion();
    }
 
@@ -594,7 +594,7 @@ public class PSObjectLockService
 
       PSObjectLock lock = findLockByObjectId(id);
       if (lock == null)
-         throw new PSLockException(IPSLockErrors.OBJECT_NOT_LOCKED,
+         throw new PSLockException(LockErrorCodes.OBJECT_NOT_LOCKED,
             new PSDesignGuid(id).getValue());
 
       return lock.getLockedVersion();

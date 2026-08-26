@@ -31,7 +31,6 @@ import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.security.IPSAcl;
 import com.percussion.services.security.IPSAclEntry;
 import com.percussion.services.security.IPSAclService;
-import com.percussion.services.security.IPSSecurityErrors;
 import com.percussion.services.security.PSAclPersistMerger;
 import com.percussion.services.security.PSPermissions;
 import com.percussion.services.security.PSServiceSecurityException;
@@ -69,6 +68,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.Optional;
 import java.util.stream.Stream;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.intsof.percussioncms.auditlog.codes.ServiceSecurityErrorCodes;
 
 /**
  * Implementation of the interface
@@ -307,7 +307,7 @@ public class PSAclService implements IPSAclService
       List<IPSAcl> results = doLoadModifiableAcls(aclGuids, false);
       if (aclGuids != null && results.size() != aclGuids.size())
       {
-         throw new PSServiceSecurityException(IPSSecurityErrors.ACL_NOT_FOUND, aclGuids);
+         throw new PSServiceSecurityException(ServiceSecurityErrorCodes.ACL_NOT_FOUND, aclGuids);
       }
 
       return results;
@@ -465,7 +465,7 @@ public class PSAclService implements IPSAclService
 
       if (aclGuids != null && aclList.size() != aclGuids.size())
       {
-         throw new PSServiceSecurityException(IPSSecurityErrors.ACL_NOT_FOUND, -1);
+         throw new PSServiceSecurityException(ServiceSecurityErrorCodes.ACL_NOT_FOUND, -1);
       }
       return aclList;
    }
@@ -577,7 +577,7 @@ public class PSAclService implements IPSAclService
       List<IPSAcl> result = loadAcls(Collections.singletonList(aclGuid));
       if (result == null)
       {
-         throw new PSServiceSecurityException(IPSSecurityErrors.ACL_NOT_FOUND, aclGuid.toString());
+         throw new PSServiceSecurityException(ServiceSecurityErrorCodes.ACL_NOT_FOUND, aclGuid.toString());
       }
       return result.get(0);
    }
@@ -681,7 +681,7 @@ public class PSAclService implements IPSAclService
                   ms_logger.error("Error persisting Acl: {} " , iacl.getId());
                }
                throw new PSServiceSecurityException(
-                  IPSSecurityErrors.ACL_SAVE_ERROR, ex, iacl.getId(), ex.getLocalizedMessage());
+                  ServiceSecurityErrorCodes.ACL_SAVE_ERROR, ex, iacl.getId(), ex.getLocalizedMessage());
             }
          }
       }
@@ -768,7 +768,7 @@ public class PSAclService implements IPSAclService
             getSession().remove(acl);
          }
       } catch (DataAccessException e) {
-         throw new PSServiceSecurityException(IPSSecurityErrors.ACL_DELETE_ERROR, e, aclGuid.longValue(),
+         throw new PSServiceSecurityException(ServiceSecurityErrorCodes.ACL_DELETE_ERROR, e, aclGuid.longValue(),
                  e.getLocalizedMessage());
       }
    }
@@ -855,7 +855,7 @@ public class PSAclService implements IPSAclService
             }
          }
       } catch (DataAccessException e) {
-         throw new PSServiceSecurityException(IPSSecurityErrors.ACL_DELETE_ERROR, e,
+         throw new PSServiceSecurityException(ServiceSecurityErrorCodes.ACL_DELETE_ERROR, e,
             objectGuids.toString(), e.getLocalizedMessage());
       }
    }

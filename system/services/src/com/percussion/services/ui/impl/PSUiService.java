@@ -19,7 +19,6 @@ package com.percussion.services.ui.impl;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
-import com.percussion.services.ui.IPSUiErrors;
 import com.percussion.services.ui.IPSUiService;
 import com.percussion.services.ui.PSUiException;
 import com.percussion.services.ui.data.PSHierarchyNode;
@@ -40,6 +39,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
+import com.intsof.percussioncms.auditlog.codes.UiErrorCodes;
 
 /**
  * Implementations for all ui services.
@@ -243,7 +243,7 @@ public class PSUiService implements IPSUiService
 
       PSHierarchyNode node = session.get(PSHierarchyNode.class, id.longValue());
       if (node == null)
-         throw new PSUiException(IPSUiErrors.MISSING_HIERARCHY_NODE, id);
+         throw new PSUiException(UiErrorCodes.MISSING_HIERARCHY_NODE, id);
 
       loadHierarchyNodeProperties(node);
       return node;

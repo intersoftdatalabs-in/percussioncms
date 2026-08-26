@@ -17,7 +17,6 @@
 package com.percussion.services.filter.impl;
 
 import com.percussion.services.filter.IPSFilterItem;
-import com.percussion.services.filter.IPSFilterServiceErrors;
 import com.percussion.services.filter.PSFilterException;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
@@ -28,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import com.intsof.percussioncms.auditlog.codes.FilterServiceErrorCodes;
 
 /**
  * Filter content by the publishable state of the workflow state
@@ -45,7 +45,7 @@ public class PSPublishableStateFilter extends PSBaseFilter
       String flagstr = params.get("sys_flagValues");
       if (StringUtils.isBlank(flagstr))
       {
-         throw new PSFilterException(IPSFilterServiceErrors.ARGUMENT_MISSING, 
+         throw new PSFilterException(FilterServiceErrorCodes.ARGUMENT_MISSING, 
                null, "sys_flagValues", "sys_filterByFolderPaths");
       }
       List<String> flags = new ArrayList<>();
@@ -61,7 +61,7 @@ public class PSPublishableStateFilter extends PSBaseFilter
       }
       catch (PSORMException e)
       {
-         throw new PSFilterException(IPSFilterServiceErrors.DATABASE, e);
+         throw new PSFilterException(FilterServiceErrorCodes.DATABASE, e);
       }
    }
 

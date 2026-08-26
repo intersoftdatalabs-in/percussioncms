@@ -19,7 +19,6 @@ package com.percussion.services.publisher.impl;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
-import com.percussion.services.publisher.IPSPublisherServiceErrors;
 import com.percussion.services.publisher.PSPublisherException;
 import com.percussion.utils.guid.IPSGuid;
 
@@ -28,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import com.intsof.percussioncms.auditlog.codes.PublisherErrorCodes;
 
 /**
  * The list template expander takes a list of templates as a parameter and
@@ -61,7 +61,7 @@ public class PSListTemplateExpander extends PSBaseTemplateExpander
          catch (PSAssemblyException e)
          {
             throw new PSPublisherException(
-                  IPSPublisherServiceErrors.RUNTIME_ERROR, e,
+                  PublisherErrorCodes.RUNTIME_ERROR, e,
                      e.getLocalizedMessage());
          }
       }

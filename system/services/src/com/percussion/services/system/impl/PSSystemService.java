@@ -31,7 +31,6 @@ import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.notification.PSNotificationHelper;
 import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.PSRoleMgrLocator;
-import com.percussion.services.system.IPSSystemErrors;
 import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.system.PSAssignmentTypeHelper;
 import com.percussion.services.system.PSSystemException;
@@ -102,6 +101,7 @@ import static com.percussion.webservices.PSWebserviceUtils.getUserName;
 import static com.percussion.webservices.PSWebserviceUtils.getUserRoles;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
+import com.intsof.percussioncms.auditlog.codes.SystemServiceErrorCodes;
 
 /**
  * Implements all services defined with the <code>IPSSystemService</code>
@@ -169,7 +169,7 @@ public class PSSystemService
          List<PSSharedProperty> properties = entityManager.createQuery(criteria).getResultList();
          if (properties.isEmpty())
             throw new PSSystemException(
-               IPSSystemErrors.MISSING_SHARED_PROPERTY, id);
+               SystemServiceErrorCodes.MISSING_SHARED_PROPERTY, id);
          return properties.get(0);
    }
 
