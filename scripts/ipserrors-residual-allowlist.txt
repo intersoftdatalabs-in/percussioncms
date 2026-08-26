@@ -4,13 +4,12 @@
 # the gate until it is listed here with an issue link.
 #
 # Shrink this list as retype PRs merge:
-#   #3584 SiteManage IPSSiteManageErrors -> SiteManageErrorCodes
-#   #3846 leftover sitemanage production IPS*Errors -> typed *ErrorCodes
 #   #3585 webservices/transformation leftover call sites
 #   #3739 deployer catalog/client/objectstore/PSDeployService
 #   #3740 deployer server/handlers + server/dependencies
 #   #3741 DCE/ContentUI/TableFactory leftover call sites
 #   #3770 leftover nav/sfp/workflow extension modules
+#   #3847 leftover system/services assembly leftovers
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).

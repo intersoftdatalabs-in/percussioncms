@@ -17,39 +17,58 @@
 package com.percussion.pagemanagement.assembler;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
+import com.percussion.pagemanagement.assembler.impl.PSAssemblyItemBridge;
+import com.percussion.services.assembly.IPSAssemblyItem;
+import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.PSAssemblyException;
+import com.percussion.services.assembly.PSAssemblyServiceLocator;
+import com.percussion.services.assembly.impl.PSAssemblyJexlEvaluator;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 /**
- * Page assembler leftover throw sites use typed {@link AssemblyErrorCodes} (issue #3846). {@link
- * PSPageDatabaseAssembler} needs a Spring context to construct; {@link PSAssemblyException} is the
- * production exception type.
+ * {@link PSPageDatabaseAssembler#preProcessItemBinding} wraps context failures as typed {@link
+ * AssemblyErrorCodes#UNKNOWN_ERROR} (issue #3846). Parent {@code PSAssemblerBase} static init
+ * looks up the assembly service; stub the locator so this stays a unit test.
  */
 @Tag("UnitTest")
 class PSPageDatabaseAssemblerTypedErrorCodeTest {
 
   @Test
-  void unknownErrorUsesTypedAssemblyException() {
-    PSAssemblyException ex =
-        new PSAssemblyException(
-            AssemblyErrorCodes.UNKNOWN_ERROR.numericCode(),
-            new RuntimeException("boom"),
-            "Failed to create page assembly context ($perc).");
-    assertEquals(AssemblyErrorCodes.UNKNOWN_ERROR.numericCode(), ex.getErrorCode());
-    assertEquals(5, ex.getErrorCode());
-    assertFalse(AssemblyErrorCodes.UNKNOWN_ERROR.isAuditable());
-  }
+  void preProcessItemBindingWrapsFailureAsTypedUnknownError() throws Exception {
+    IPSAssemblyItem pageItem = mock(IPSAssemblyItem.class);
+    IPSAssemblyItem cloned = mock(IPSAssemblyItem.class);
+    when(pageItem.clone()).thenReturn(cloned);
 
-  @Test
-  void missingFinderUsesTypedAssemblyCode() {
-    PSAssemblyException ex =
-        new PSAssemblyException(AssemblyErrorCodes.MISSING_FINDER.numericCode(), (Object) null);
-    assertEquals(AssemblyErrorCodes.MISSING_FINDER.numericCode(), ex.getErrorCode());
-    assertEquals(12, ex.getErrorCode());
-    assertFalse(AssemblyErrorCodes.MISSING_FINDER.isAuditable());
+    PSAssemblyItemBridge bridge = mock(PSAssemblyItemBridge.class);
+    when(bridge.getTemplateAndPage(cloned)).thenThrow(new RuntimeException("boom"));
+
+    try (MockedStatic<PSAssemblyServiceLocator> locator =
+        mockStatic(PSAssemblyServiceLocator.class)) {
+      locator
+          .when(PSAssemblyServiceLocator::getAssemblyService)
+          .thenReturn(mock(IPSAssemblyService.class));
+
+      PSPageDatabaseAssembler assembler = new PSPageDatabaseAssembler();
+      assembler.setAssemblyItemBridge(bridge);
+
+      PSAssemblyException thrown =
+          assertThrows(
+              PSAssemblyException.class,
+              () ->
+                  assembler.preProcessItemBinding(
+                      pageItem, mock(PSAssemblyJexlEvaluator.class)));
+      assertEquals(AssemblyErrorCodes.UNKNOWN_ERROR.numericCode(), thrown.getErrorCode());
+      assertEquals(5, thrown.getErrorCode());
+      assertInstanceOf(RuntimeException.class, thrown.getCause());
+    }
   }
 }

@@ -110,14 +110,22 @@ def test_list_allowlist_exits_zero() -> None:
     assert "IPS*Errors.java" in combined
     assert "ErrorCodes.java" in combined
     assert "IPSObjectStoreErrors" in combined
-    assert "#3584" in combined
+    assert "#3847" in combined
     assert "#3585" in combined
-    assert SYSTEM_SERVICES_RESIDUAL.replace("\\", "/") in combined.replace("\\", "/")
-    assert WEBSERVICE_RESIDUAL.replace("\\", "/") in combined.replace("\\", "/")
-    # Prefix freeze: listing must not advertise a directory wildcard.
-    assert "system/services/src/com/percussion/services/" not in combined or (
-        SYSTEM_SERVICES_RESIDUAL in combined
-    )
+    combined_posix = combined.replace("\\", "/")
+    assert SYSTEM_SERVICES_RESIDUAL.replace("\\", "/") in combined_posix
+    assert WEBSERVICE_RESIDUAL.replace("\\", "/") in combined_posix
+    # Prefix freeze: printed residuals are files, not directory wildcards, and an
+    # unlisted probe under the same tree is not advertised as covered.
+    residual_lines = [
+        ln.strip()
+        for ln in combined_posix.splitlines()
+        if ln.strip().endswith(".java") or ln.strip().endswith("/")
+    ]
+    for ln in residual_lines:
+        assert not ln.endswith("/"), ln
+    probe = "system/services/src/com/percussion/services/assembly/impl/NewBare.java"
+    assert probe not in combined_posix
 
 
 def test_clean_repo_passes() -> None:

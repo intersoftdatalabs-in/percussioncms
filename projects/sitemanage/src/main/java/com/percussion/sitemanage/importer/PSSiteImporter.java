@@ -20,7 +20,6 @@ package com.percussion.sitemanage.importer;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.service.IPSSystemProperties;
 import com.percussion.sitemanage.data.PSPageContent;
@@ -30,6 +29,7 @@ import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogObjectType;
 import com.percussion.sitemanage.importer.dao.IPSImportLogDao;
 import com.percussion.sitemanage.importer.data.PSImportLogEntry;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.util.Date;
@@ -204,8 +204,7 @@ public class PSSiteImporter {
       conn.get();
       var response = conn.response();
 
-      if (response.statusCode() != HttpErrorCodes.HTTP_MOVED_TEMPORARILY.numericCode()
-          && response.statusCode() != HttpErrorCodes.HTTP_MOVED_PERMANENTLY.numericCode()) {
+      if (!isMovedHttpRedirect(response.statusCode())) {
         return siteUrl;
       }
 
@@ -226,6 +225,15 @@ public class PSSiteImporter {
     } finally {
       restoreConnectionProperties(properties);
     }
+  }
+
+  /**
+   * 301/302 are HTTP protocol statuses, not error-catalog codes. JDK constants avoid loading {@code
+   * HttpErrorCodes} (and its registry) on the import path.
+   */
+  static boolean isMovedHttpRedirect(int statusCode) {
+    return statusCode == HttpURLConnection.HTTP_MOVED_TEMP
+        || statusCode == HttpURLConnection.HTTP_MOVED_PERM;
   }
 
   /** Generates a JSoup Connection using the given parameters. */

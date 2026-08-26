@@ -9,7 +9,7 @@
 
 ## Summary
 
-Ten leftover `projects/sitemanage` production `IPS*Errors` call-sites now compare/throw via existing typed catalogs (`AssemblyErrorCodes`, `NavigationErrorCodes`, `WebserviceErrorCodes`, `HttpErrorCodes`, `PublisherErrorCodes`). `PSSiteSectionService` only dropped an unused `IPSExtensionErrors` import. Numeric codes are unchanged (`*.numericCode()`), so REST/UI contracts are untouched. Allow-list rows for those exact paths were removed; freeze-gate pytest now uses a remaining `system/services` residual.
+Ten leftover `projects/sitemanage` production `IPS*Errors` call-sites now compare/throw via existing typed catalogs (`AssemblyErrorCodes`, `NavigationErrorCodes`, `WebserviceErrorCodes`, `PublisherErrorCodes`) or JDK `HttpURLConnection` protocol constants for 200/301/302. `PSSiteSectionService` only dropped an unused `IPSExtensionErrors` import. Numeric codes are unchanged (`*.numericCode()`), so REST/UI contracts are untouched. Allow-list rows for those exact paths were removed; freeze-gate pytest now uses a remaining `system/services` residual.
 
 ## Change class
 
@@ -25,7 +25,7 @@ N/A — no filesystem path / I/O changes. Allow-list remains POSIX relative path
 
 None.
 
-Nit: `PSPageDatabaseAssemblerTypedErrorCodeTest` constructs `PSAssemblyException` rather than invoking `preProcessItemBinding` (parent assembler static init needs Spring). Production throw/compare paths are covered by `TemplateAdaptor*`, `PSSitePublishDaoFindSummaryTypedErrorCodeTest`, `PSAbstractTemplateExpanderAdapterTypedErrorCodeTest`, `PSSiteDaoLoadSiteBadNavTest`, and `PSSiteDataRestServiceSaveNavTest`.
+Review follow-up: `PSPageDatabaseAssemblerTypedErrorCodeTest` drives `preProcessItemBinding`; `PSPageUtilsMissingFinderTest` covers the real missing-finder branch; importer 301/302/200 compares use JDK protocol constants with Jsoup-mocked `getRedirectedUrl` and `catalogPage` status branches.
 
 ## Verification
 

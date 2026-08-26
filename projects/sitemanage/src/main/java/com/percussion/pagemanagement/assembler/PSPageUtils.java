@@ -1266,8 +1266,7 @@ public class PSPageUtils extends PSJexlUtilBase {
       }
 
       IPSWidgetContentFinder finder = getWidgetContentFinder(finderName);
-      if (finder == null)
-        throw new PSAssemblyException(AssemblyErrorCodes.MISSING_FINDER.numericCode(), finder);
+      if (finder == null) throw missingFinder(finderName);
       if (!isBlank(item.getUserName())) {
         // Need user name for preview filter rule
         params.put(IPSHtmlParameters.SYS_USER, item.getUserName());
@@ -2226,6 +2225,15 @@ public class PSPageUtils extends PSJexlUtilBase {
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       return new PSRenderAsset();
     }
+  }
+
+  /**
+   * Typed missing-finder exception. Package-visible so tests can assert the finder name is the
+   * message argument ({@code getWidgetContentFinder} has already returned {@code null} on this
+   * branch).
+   */
+  static PSAssemblyException missingFinder(String finderName) {
+    return new PSAssemblyException(AssemblyErrorCodes.MISSING_FINDER.numericCode(), finderName);
   }
 
   /**
