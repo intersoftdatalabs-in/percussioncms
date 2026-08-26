@@ -20,8 +20,8 @@ package com.percussion.utils.container.jboss;
 import com.percussion.utils.container.IPSJndiDatasource;
 import com.percussion.utils.container.PSJndiDatasourceImpl;
 import com.percussion.utils.jdbc.PSJdbcUtils;
-import com.percussion.utils.xml.IPSXmlErrors;
 import com.percussion.utils.xml.PSInvalidXmlException;
+import com.percussion.utils.xml.XmlErrorCode;
 import com.percussion.utils.xml.PSXmlUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -153,7 +153,7 @@ public class PSJBossJndiDatasource extends PSJndiDatasourceImpl
     walker.setCurrent(source);
     element = walker.getNextElement(METADATA, firstFlag);
     if (element == null)
-      throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, METADATA);
+      throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, METADATA);
   }
 
   /**
@@ -355,7 +355,7 @@ public class PSJBossJndiDatasource extends PSJndiDatasourceImpl
       intVal = Integer.parseInt(val);
     } catch (NumberFormatException e) {
       throw new PSInvalidXmlException(
-          IPSXmlErrors.XML_ELEMENT_INVALID_VALUE, new String[] {name, val});
+          XmlErrorCode.XML_ELEMENT_INVALID_VALUE, new Object[] {name, val});
     }
 
     return intVal;

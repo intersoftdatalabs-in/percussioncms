@@ -98,7 +98,7 @@ public class PSBase64Encoder {
         source = in.getBytes(encoding);
       } catch (UnsupportedEncodingException e) {
         throw new PSRuntimeException(
-            IPSUtilErrors.BASE64_ENCODING_EXCEPTION, new Object[] {in, e.toString()});
+            UtilErrorCode.BASE64_ENCODING_EXCEPTION, new Object[] {in, e.toString()});
       }
     }
 

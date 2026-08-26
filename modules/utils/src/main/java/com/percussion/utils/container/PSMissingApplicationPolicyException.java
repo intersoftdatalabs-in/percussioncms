@@ -16,7 +16,7 @@
  */
 package com.percussion.utils.container;
 
-import com.percussion.utils.container.jboss.IPSJBossErrors;
+import com.percussion.utils.container.jboss.JBossErrorCode;
 import com.percussion.utils.exceptions.PSBaseException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -34,7 +34,7 @@ public class PSMissingApplicationPolicyException extends PSBaseException {
    *     <code>null</code> or empty.
    */
   public PSMissingApplicationPolicyException(String policyName, String fileName) {
-    super(IPSJBossErrors.APP_POLICY_ELEMENT_MISSING, policyName, fileName);
+    super(JBossErrorCode.APP_POLICY_ELEMENT_MISSING, policyName, fileName);
 
     if (StringUtils.isBlank(policyName))
       throw new IllegalArgumentException("policyName may not be null or empty");

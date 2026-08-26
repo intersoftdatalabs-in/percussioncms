@@ -9,6 +9,7 @@
 #   #3740 deployer server/handlers + server/dependencies
 #   #3741 DCE/ContentUI/TableFactory leftover call sites
 #   #3770 leftover nav/sfp/workflow extension modules
+#   #3859 leftover modules/utils production call sites
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -43,17 +44,6 @@ modules/perc-toolkit/src/main/java/com/percussion/pso/jexl/PSOSlotTools.java
 modules/perc-toolkit/src/main/java/com/percussion/pso/relationshipbuilder/exit/PSAbstractBuildRelationshipsExtension.java
 modules/segmentation-rx/src/main/java/com/percussion/soln/relationshipbuilder/exit/PSAbstractBuildRelationshipsExtension.java
 modules/servletutils/src/main/java/com/percussion/servlet_utils/tomcat/PSTomcatUtils.java
-modules/utils/src/main/java/com/percussion/util/PSBase64Decoder.java
-modules/utils/src/main/java/com/percussion/util/PSBase64Encoder.java
-modules/utils/src/main/java/com/percussion/util/PSHttpConnection.java
-modules/utils/src/main/java/com/percussion/utils/container/PSAbstractXmlConnectors.java
-modules/utils/src/main/java/com/percussion/utils/container/PSMissingApplicationPolicyException.java
-modules/utils/src/main/java/com/percussion/utils/container/PSSecureCredentials.java
-modules/utils/src/main/java/com/percussion/utils/container/jboss/PSJBossJndiDatasource.java
-modules/utils/src/main/java/com/percussion/utils/spring/PSSpringBeanUtils.java
-modules/utils/src/main/java/com/percussion/utils/spring/PSSpringConfiguration.java
-modules/utils/src/main/java/com/percussion/utils/xml/PSXmlUtils.java
-modules/utils/src/main/java/com/percussion/xml/PSXmlTreeWalker.java
 system/Testing/Extensions/src/com/percussion/extensions/testing/PSMakeCERequest.java
 system/Testing/Extensions/src/com/percussion/extensions/testing/PSSortDocData.java
 system/Testing/Extensions/src/com/percussion/extensions/testing/TestMakeInternalRequest.java

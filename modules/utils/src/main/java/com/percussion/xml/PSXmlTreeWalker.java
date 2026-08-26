@@ -19,8 +19,8 @@ package com.percussion.xml;
 
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.utils.tools.IPSUtilsConstants;
-import com.percussion.utils.xml.IPSXmlErrors;
 import com.percussion.utils.xml.PSInvalidXmlException;
+import com.percussion.utils.xml.XmlErrorCode;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -848,7 +848,7 @@ public class PSXmlTreeWalker implements Serializable {
           if (newBase == null) { // there are elements in different trees here!?
             Object[] args = {getRootNodeName(baseElement), getRootNodeName(el)};
             PSInvalidXmlException ex =
-                new PSInvalidXmlException(IPSXmlErrors.XML_TWO_ROOT_ELEMENTS, args);
+                new PSInvalidXmlException(XmlErrorCode.XML_TWO_ROOT_ELEMENTS, args);
             throw new RuntimeException(ex.getLocalizedMessage());
           }
 

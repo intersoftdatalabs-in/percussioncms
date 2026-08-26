@@ -18,8 +18,8 @@
 package com.percussion.utils.container;
 
 import com.percussion.utils.tomcat.PSTomcatConnector;
-import com.percussion.utils.xml.IPSXmlErrors;
 import com.percussion.utils.xml.PSInvalidXmlException;
+import com.percussion.utils.xml.XmlErrorCode;
 import com.percussion.utils.xml.PSXmlUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -125,7 +125,7 @@ public abstract class PSAbstractXmlConnectors extends PSAbstractConnectors imple
     PSXmlTreeWalker tree = new PSXmlTreeWalker(curDoc);
     Element root = (Element) tree.getCurrent();
     if (root == null || !root.getNodeName().equals(SERVER_NODE_NAME))
-      throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, SERVER_NODE_NAME);
+      throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, SERVER_NODE_NAME);
     copyAttributes(root, newServerEl);
 
     // create a new service element
@@ -136,7 +136,7 @@ public abstract class PSAbstractXmlConnectors extends PSAbstractConnectors imple
     Element serviceEl =
         tree.getNextElement(SERVICE_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (serviceEl == null)
-      throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, SERVICE_NODE_NAME);
+      throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, SERVICE_NODE_NAME);
     copyAttributes(serviceEl, newServiceEl);
 
     // append new connector list
@@ -181,12 +181,12 @@ public abstract class PSAbstractXmlConnectors extends PSAbstractConnectors imple
     PSXmlTreeWalker tree = new PSXmlTreeWalker(doc);
     Element root = (Element) tree.getCurrent();
     if (root == null || !root.getNodeName().equals(SERVER_NODE_NAME))
-      throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, SERVER_NODE_NAME);
+      throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, SERVER_NODE_NAME);
 
     Element serviceEl =
         tree.getNextElement(SERVICE_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (serviceEl == null)
-      throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, SERVICE_NODE_NAME);
+      throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, SERVICE_NODE_NAME);
 
     int firstFlag =
         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;

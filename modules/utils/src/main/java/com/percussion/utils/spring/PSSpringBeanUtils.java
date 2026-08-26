@@ -18,8 +18,8 @@ package com.percussion.utils.spring;
 
 import com.percussion.utils.jdbc.PSDatasourceConfig;
 import com.percussion.utils.jdbc.PSDatasourceResolver;
-import com.percussion.utils.xml.IPSXmlErrors;
 import com.percussion.utils.xml.PSInvalidXmlException;
+import com.percussion.utils.xml.XmlErrorCode;
 import com.percussion.utils.xml.PSXmlUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -65,7 +65,7 @@ public class PSSpringBeanUtils {
       args[1] = e.getLocalizedMessage();
       args[2] = PSXmlDocumentBuilder.toString(data);
 
-      throw new PSInvalidXmlException(IPSXmlErrors.XML_RESTORE_ERROR, args, e);
+      throw new PSInvalidXmlException(XmlErrorCode.XML_RESTORE_ERROR, args, e);
     }
   }
 
@@ -237,11 +237,11 @@ public class PSSpringBeanUtils {
 
     Element nextPropEl = tree.getNextElement(BEAN_PROPERTY, flag);
     if (nextPropEl == null) {
-      throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, BEAN_PROPERTY);
+      throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, BEAN_PROPERTY);
     } else if (!name.equals(getBeanPropertyName(nextPropEl))) {
       throw new PSInvalidXmlException(
-          IPSXmlErrors.XML_ELEMENT_INVALID_ATTR,
-          new String[] {BEAN_PROPERTY, BEAN_PROP_NAME_ATTR, name});
+          XmlErrorCode.XML_ELEMENT_INVALID_ATTR,
+          new Object[] {BEAN_PROPERTY, BEAN_PROP_NAME_ATTR, name});
     }
 
     return nextPropEl;
@@ -297,7 +297,7 @@ public class PSSpringBeanUtils {
     PSXmlTreeWalker tree = new PSXmlTreeWalker(source);
     Element mapEl = tree.getNextElement(BEAN_PROP_VAL_MAP, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (mapEl == null)
-      throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, BEAN_PROP_VAL_MAP);
+      throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, BEAN_PROP_VAL_MAP);
 
     Element entryEl =
         tree.getNextElement(BEAN_PROP_VAL_MAP_ENTRY, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
@@ -311,7 +311,7 @@ public class PSSpringBeanUtils {
             tree.getNextElement(BEAN_PROP_VAL_MAP_VAL, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
 
         if (valEl == null)
-          throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, BEAN_PROP_VAL_MAP_VAL);
+          throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, BEAN_PROP_VAL_MAP_VAL);
 
         value = PSXmlUtils.getElementData(valEl, BEAN_PROP_VAL_MAP_VAL, true);
       }
@@ -346,7 +346,7 @@ public class PSSpringBeanUtils {
       Element listEl =
           tree.getNextElement(BEAN_PROP_VAL_LIST, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
       if (listEl == null)
-        throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, BEAN_PROP_VAL_LIST);
+        throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, BEAN_PROP_VAL_LIST);
     } else {
       tree.setCurrent(curEl);
       flags = PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS;
@@ -371,7 +371,7 @@ public class PSSpringBeanUtils {
     while (entryEl != null) {
       if (!entryEl.getNodeName().equals(IPSBeanConfig.BEAN_NODE_NAME)) {
         throw new PSInvalidXmlException(
-            IPSXmlErrors.XML_ELEMENT_MISSING, IPSBeanConfig.BEAN_NODE_NAME);
+            XmlErrorCode.XML_ELEMENT_MISSING, IPSBeanConfig.BEAN_NODE_NAME);
       }
 
       list.add(createBean(getClassName(entryEl), entryEl));
@@ -443,14 +443,14 @@ public class PSSpringBeanUtils {
     test = getBeanName(source);
     if (!beanName.equals(test))
       throw new PSInvalidXmlException(
-          IPSXmlErrors.XML_ELEMENT_INVALID_ATTR,
-          new String[] {IPSBeanConfig.BEAN_NODE_NAME, BEAN_ID_ATTR, test});
+          XmlErrorCode.XML_ELEMENT_INVALID_ATTR,
+          new Object[] {IPSBeanConfig.BEAN_NODE_NAME, BEAN_ID_ATTR, test});
 
     test = getClassName(source);
     if (!className.equals(test))
       throw new PSInvalidXmlException(
-          IPSXmlErrors.XML_ELEMENT_INVALID_ATTR,
-          new String[] {IPSBeanConfig.BEAN_NODE_NAME, BEAN_CLASSNAME_ATTR, test});
+          XmlErrorCode.XML_ELEMENT_INVALID_ATTR,
+          new Object[] {IPSBeanConfig.BEAN_NODE_NAME, BEAN_CLASSNAME_ATTR, test});
   }
 
   private static String mapMovedClasses(String className) {
