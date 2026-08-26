@@ -30,7 +30,6 @@ import com.percussion.pagemanagement.service.IPSPageCatalogService;
 import com.percussion.pathmanagement.service.impl.PSPathUtils;
 import com.percussion.queue.IPSPageImportQueue;
 import com.percussion.queue.impl.PSSiteQueue;
-import com.percussion.server.IPSHttpErrors;
 import com.percussion.services.assembly.impl.PSReplacementFilter;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.share.dao.IPSFolderHelper;
@@ -55,6 +54,7 @@ import com.percussion.sitemanage.importer.utils.PSLinkExtractor;
 import com.percussion.sitesummaryservice.service.IPSSiteImportSummaryService;
 import com.percussion.theme.service.IPSThemeService;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.util.*;
 import org.jsoup.Connection;
@@ -299,7 +299,11 @@ public class PSLinkExtractionHelper extends PSImportHelper {
     return concatPath(site.getFolderPath(), CATALOG_FOLDERS);
   }
 
-  private boolean catalogPage(
+  static boolean isSuccessfulCatalogHttpStatus(int responseStatusCode) {
+    return responseStatusCode == HttpURLConnection.HTTP_OK;
+  }
+
+  boolean catalogPage(
       final PSSiteImportCtx context,
       final IPSSiteImportLogger log,
       PSLink link,
@@ -309,7 +313,7 @@ public class PSLinkExtractionHelper extends PSImportHelper {
     PSSite site = context.getSite().orElseThrow(() -> new IllegalStateException("Site required"));
     String siteName = site.getName();
     boolean isCataloged = false;
-    if (responseStatusCode == IPSHttpErrors.HTTP_OK) {
+    if (isSuccessfulCatalogHttpStatus(responseStatusCode)) {
       try {
         if (context.isCanceled()) {
           return false;

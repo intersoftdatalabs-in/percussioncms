@@ -20,10 +20,10 @@ package com.percussion.sitemanage.dao.impl;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.intsof.percussioncms.auditlog.codes.NavigationErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SiteManageErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.error.PSException;
-import com.percussion.fastforward.managednav.IPSNavigationErrors;
 import com.percussion.fastforward.managednav.PSNavException;
 import com.percussion.pathmanagement.service.impl.PSPathUtils;
 import com.percussion.pubserver.IPSPubServerService;
@@ -158,7 +158,8 @@ public class PSSiteDao implements IPSiteDao {
     try {
       return summaryToFull(sum);
     } catch (PSNavException e) {
-      if (e.getErrorCode() == IPSNavigationErrors.NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH) {
+      if (e.getErrorCode()
+          == NavigationErrorCodes.NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH.numericCode()) {
         var ex =
             new PSException(
                 SiteManageErrorCodes.SITE_MANAGE_SERVICE_DELETING_BAD_SITE_RECORD, name);

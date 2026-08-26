@@ -19,6 +19,7 @@
 
 package com.percussion.apibridge;
 
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 import com.percussion.rest.DesignGap;
 import com.percussion.rest.templates.ITemplatesAdaptor;
 import com.percussion.rest.templates.TemplateBindingSummary;
@@ -26,7 +27,6 @@ import com.percussion.rest.templates.TemplateDetail;
 import com.percussion.rest.templates.TemplateFilter;
 import com.percussion.rest.templates.TemplateSlotSummary;
 import com.percussion.rest.templates.TemplateSummary;
-import com.percussion.services.assembly.IPSAssemblyErrors;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSTemplateSlot;
@@ -269,7 +269,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
     } catch (IllegalStateException e) {
       throw e;
     } catch (PSAssemblyException e) {
-      if (e.getErrorCode() == IPSAssemblyErrors.TEMPLATE_MISSING) {
+      if (e.getErrorCode() == AssemblyErrorCodes.TEMPLATE_MISSING.numericCode()) {
         return false;
       }
       log.error("Failed to delete template {}: {}", idOrName, e.getMessage(), e);
@@ -308,7 +308,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
     try {
       return asmSvc.findTemplateByName(name) != null;
     } catch (PSAssemblyException e) {
-      if (e.getErrorCode() == IPSAssemblyErrors.TEMPLATE_MISSING) {
+      if (e.getErrorCode() == AssemblyErrorCodes.TEMPLATE_MISSING.numericCode()) {
         return false;
       }
       throw new IllegalStateException("Failed to look up template name: " + name, e);

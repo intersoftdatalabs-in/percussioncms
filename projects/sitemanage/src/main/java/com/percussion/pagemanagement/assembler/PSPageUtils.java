@@ -27,6 +27,7 @@ import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 import com.percussion.analytics.service.IPSAnalyticsProviderService;
 import com.percussion.category.data.PSCategory;
 import com.percussion.category.data.PSCategoryNode;
@@ -71,7 +72,6 @@ import com.percussion.security.SecureStringUtils;
 import com.percussion.security.ToDoVulnerability;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
-import com.percussion.services.assembly.IPSAssemblyErrors;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSProxyNode;
 import com.percussion.services.assembly.PSAssemblyException;
@@ -1266,7 +1266,7 @@ public class PSPageUtils extends PSJexlUtilBase {
       }
 
       IPSWidgetContentFinder finder = getWidgetContentFinder(finderName);
-      if (finder == null) throw new PSAssemblyException(IPSAssemblyErrors.MISSING_FINDER, finder);
+      if (finder == null) throw missingFinder(finderName);
       if (!isBlank(item.getUserName())) {
         // Need user name for preview filter rule
         params.put(IPSHtmlParameters.SYS_USER, item.getUserName());
@@ -2225,6 +2225,15 @@ public class PSPageUtils extends PSJexlUtilBase {
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       return new PSRenderAsset();
     }
+  }
+
+  /**
+   * Typed missing-finder exception. Package-visible so tests can assert the finder name is the
+   * message argument ({@code getWidgetContentFinder} has already returned {@code null} on this
+   * branch).
+   */
+  static PSAssemblyException missingFinder(String finderName) {
+    return new PSAssemblyException(AssemblyErrorCodes.MISSING_FINDER.numericCode(), finderName);
   }
 
   /**

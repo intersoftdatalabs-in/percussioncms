@@ -23,11 +23,12 @@ REPO_ROOT = SCRIPT_DIR.parent
 SCRIPT = SCRIPT_DIR / "verify-no-bare-ipserrors.py"
 ALLOWLIST = SCRIPT_DIR / "ipserrors-residual-allowlist.txt"
 
-# Representative leftover from sibling #3584 — must stay exact-listed, not
-# a sitemanage/ prefix (a new file under that tree must fail).
-SITEMANAGE_RESIDUAL = (
-    "projects/sitemanage/src/main/java/com/percussion/sitemanage/dao/impl/"
-    "PSSiteDao.java"
+# Representative leftover from sibling #3847 (system/services) — must stay
+# exact-listed, not a directory prefix (a new file under that tree must fail).
+# Sitemanage production leftovers were converted in #3846.
+SYSTEM_SERVICES_RESIDUAL = (
+    "system/services/src/com/percussion/services/assembly/impl/"
+    "PSAssemblyService.java"
 )
 
 # Representative leftover from sibling #3585.
@@ -109,14 +110,22 @@ def test_list_allowlist_exits_zero() -> None:
     assert "IPS*Errors.java" in combined
     assert "ErrorCodes.java" in combined
     assert "IPSObjectStoreErrors" in combined
-    assert "#3584" in combined
+    assert "#3847" in combined
     assert "#3585" in combined
-    assert SITEMANAGE_RESIDUAL.replace("\\", "/") in combined.replace("\\", "/")
-    assert WEBSERVICE_RESIDUAL.replace("\\", "/") in combined.replace("\\", "/")
-    # Prefix freeze: listing must not advertise a directory wildcard.
-    assert "projects/sitemanage/src/main/java/" not in combined or (
-        SITEMANAGE_RESIDUAL in combined
-    )
+    combined_posix = combined.replace("\\", "/")
+    assert SYSTEM_SERVICES_RESIDUAL.replace("\\", "/") in combined_posix
+    assert WEBSERVICE_RESIDUAL.replace("\\", "/") in combined_posix
+    # Prefix freeze: printed residuals are files, not directory wildcards, and an
+    # unlisted probe under the same tree is not advertised as covered.
+    residual_lines = [
+        ln.strip()
+        for ln in combined_posix.splitlines()
+        if ln.strip().endswith(".java") or ln.strip().endswith("/")
+    ]
+    for ln in residual_lines:
+        assert not ln.endswith("/"), ln
+    probe = "system/services/src/com/percussion/services/assembly/impl/NewBare.java"
+    assert probe not in combined_posix
 
 
 def test_clean_repo_passes() -> None:
@@ -373,7 +382,7 @@ def test_residual_allowlist_is_exact_paths_only() -> None:
         if ln.strip() and not ln.strip().startswith("#")
     ]
     assert len(entries) > 0
-    assert SITEMANAGE_RESIDUAL in entries
+    assert SYSTEM_SERVICES_RESIDUAL in entries
     assert WEBSERVICE_RESIDUAL in entries
     for entry in entries:
         assert not entry.endswith("/"), entry
@@ -389,7 +398,7 @@ def test_empty_allowlist_fails_on_real_residuals(tmp_path: Path) -> None:
     assert result.returncode == 1, result.stdout + result.stderr
     combined = result.stdout + result.stderr
     assert "FAIL" in combined
-    assert "PSSiteDao.java" in combined or "sitemanage" in combined
+    assert "PSAssemblyService.java" in combined or "system/services" in combined
 
 
 if __name__ == "__main__":

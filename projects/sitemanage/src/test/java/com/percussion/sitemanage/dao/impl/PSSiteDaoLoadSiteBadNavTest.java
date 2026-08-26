@@ -24,9 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
+import com.intsof.percussioncms.auditlog.codes.NavigationErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SiteManageErrorCodes;
 import com.percussion.error.PSException;
-import com.percussion.fastforward.managednav.IPSNavigationErrors;
 import com.percussion.fastforward.managednav.PSNavException;
 import com.percussion.sitemanage.dao.IPSSiteContentDao;
 import com.percussion.sitemanage.dao.IPSSitePublishDao;
@@ -63,7 +63,8 @@ class PSSiteDaoLoadSiteBadNavTest {
     when(siteContentDao.getNavTitle(sum))
         .thenThrow(
             new PSNavException(
-                IPSNavigationErrors.NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH));
+                NavigationErrorCodes.NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH
+                    .numericCode()));
 
     PSSite result = dao.loadSite("BrokenSite");
 
@@ -79,11 +80,13 @@ class PSSiteDaoLoadSiteBadNavTest {
     when(siteContentDao.getNavTitle(sum))
         .thenThrow(
             new PSNavException(
-                IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE));
+                NavigationErrorCodes.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE
+                    .numericCode()));
 
     PSNavException thrown = assertThrows(PSNavException.class, () -> dao.loadSite("OtherNav"));
     assertEquals(
-        IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE,
+        NavigationErrorCodes.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE
+            .numericCode(),
         thrown.getErrorCode());
     assertTrue(dao.deletedIds.isEmpty());
   }
