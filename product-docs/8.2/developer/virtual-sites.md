@@ -48,6 +48,17 @@ Site** chrome are shown after save (same as Git/CSV/SQL). Open JSON only (no API
 fail-closed (`http`/`https`, no userinfo, no off-loopback redirects).
 `virtual.remoteUrl` stays **400** (no secrets on the REST envelope).
 
+An **object-storage** adapter (`object-storage`) treats a local directory as an object-key
+bucket. Object keys are portable relative paths under `virtual.rootPath` (NIO `Path` /
+`Files`; no remaining `..`). Discover loads Markdown, HTML, and JSON (catalog or
+single-page object). Page `id` comes from frontmatter / JSON `id` or the filename stem;
+`title` + `body` assemble like HTTP JSON / CSV. Optional `_config.yaml` `objects.keys`
+lists keys instead of walking version folders. **No cloud SDK, access keys, or network**
+— this is a local fixture contract, not live S3/MinIO/Azure. SPI/CLI assemble is
+`PSVirtualSiteBuildMain … object-storage`. Site property validation allow-lists the
+kind (`virtual.remoteUrl` is rejected). REST GET/PUT persist of `object-storage` is a
+later slice.
+
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
 After the site folder is created, an optional Git root is saved with
@@ -67,7 +78,8 @@ After the site folder is created, an optional Git root is saved with
   (`sourceKind=http-json` plus a safe `rootPath`; local JSON fixture / loopback). Developer
   Sites can save/GET-roundtrip `sourceKind=http-json` and then **Build Virtual Site**,
   **Preview assembled site**, and **Publish Virtual Site**. REST **Publish** copies
-  assembled HTML to `IPSSite.root`.
+  assembled HTML to `IPSSite.root`. Object storage (`object-storage`) is implemented as a
+  local object-key SPI (CLI assemble); REST persist is a later slice.
 
 ## Source tree contract
 
@@ -117,7 +129,7 @@ HTML path in the **virtual participant registry** (`IPSVirtualParticipantService
 | **Process-scoped (default)** | Registrations live in memory until the process exits, or until `clear(siteKey)` / `clearAll()` is called (SPI reset API). Unit tests and one-shot builds use this mode when no store directory is supplied. |
 | **Path-backed (optional)** | Construct the registry with a portable `java.nio.file.Path` base (CLI uses `outputRoot/_meta`). Existing `participants-<siteKey>.jsonl` files are loaded on construct; `flush(siteKey)` rewrites that site’s file. Survives JVM restart when the same Path base is reused. |
 | **Full rebuild** | A complete site build **clears** that site key, then upserts every discovered page, then flushes. A second build therefore does not keep pages removed from the source tree, and does not lose current ids. |
-| **Current filesystem** | Each build reloads `_config.yaml` and re-reads every Markdown/frontmatter file, CSV row, sql-database `SELECT` (`sql.query` or current `sql.queryFile` bytes plus H2 rows), and http-json catalog (`http.url` / `http.file` or default `pages.json`). The CMS process does **not** keep a parsed-page cache across builds. After `git pull`, a CSV/`_config.yaml` edit, a SQL `_config.yaml`/`queryFile` or H2 row edit, a JSON catalog edit, or a local Markdown edit under `virtual.rootPath`, run **Build Virtual Site** (or the offline docs script) again — **no JVM / CMS restart** is required. File watchers are not used; the next explicit build is the refresh. |
+| **Current filesystem** | Each build reloads `_config.yaml` and re-reads every Markdown/frontmatter file, CSV row, sql-database `SELECT` (`sql.query` or current `sql.queryFile` bytes plus H2 rows), http-json catalog (`http.url` / `http.file` or default `pages.json`), and object-storage blobs (Markdown / HTML / JSON keys under `virtual.rootPath`). The CMS process does **not** keep a parsed-page cache across builds. After `git pull`, a CSV/`_config.yaml` edit, a SQL `_config.yaml`/`queryFile` or H2 row edit, a JSON catalog edit, an object-key edit, or a local Markdown edit under `virtual.rootPath`, run **Build Virtual Site** (or the offline docs script) again — **no JVM / CMS restart** is required. File watchers are not used; the next explicit build is the refresh. |
 
 Operators can treat the JSONL under the build meta directory as a diagnostic dump of stable ids after
 an offline docs build. The registry is **not** a substitute for Git as the system of record.
@@ -131,7 +143,7 @@ treated as a safe Virtual Site source.
 
 | Property | Required | Example | Meaning |
 |----------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, or `http-json` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, SQL (H2), and HTTP JSON adapters (local JSON fixture or loopback catalog). Preview REST streams last-build HTML for git, CSV, SQL, and HTTP JSON. REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for git, CSV, SQL, and HTTP JSON. Developer Sites can save and build Git, CSV, SQL, and HTTP JSON, then **Preview assembled site** and **Publish Virtual Site**. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400`). |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, or `object-storage` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, SQL (H2), and HTTP JSON adapters (local JSON fixture or loopback catalog). Preview REST streams last-build HTML for git, CSV, SQL, and HTTP JSON. REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for git, CSV, SQL, and HTTP JSON. Developer Sites can save and build Git, CSV, SQL, and HTTP JSON, then **Preview assembled site** and **Publish Virtual Site**. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400`). `object-storage` is an SPI/CLI adapter (local object-key directory; no cloud secrets); REST persist of that kind is a later slice. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` (or install-relative) | Local filesystem root when `virtual.remoteUrl` is blank. When a remote is set, optional **relative** path inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. When set, **Build** clones or fetches into a contained work directory, then reuses git-filesystem discover. Blank keeps local-path mode. Allowed: `https://`, `ssh://`, `file://`, or `git@host:path`. `http` and other schemes are rejected. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. Simple ref name only (no `..` or leading `-`). |
@@ -143,12 +155,14 @@ Empty / missing `virtual.sourceKind` (or value `repository`) means a traditional
 ### Validation rules
 
 - **Source kind allow-list** — only registered adapter wire names are accepted for Virtual Sites
-  (`git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`). Unknown values are
-  rejected. `csv-filesystem`, `sql-database`, and `http-json` do not accept
-  `virtual.remoteUrl` (Git remotes apply to `git-filesystem` only). `sql-database` is
+  (`git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`). Unknown
+  values are rejected. `csv-filesystem`, `sql-database`, `http-json`, and `object-storage` do
+  not accept `virtual.remoteUrl` (Git remotes apply to `git-filesystem` only). `sql-database` is
   in-memory H2 only (`jdbc:h2:mem:`); Oracle / MySQL / SQL Server URLs are rejected.
   `http-json` fetches open JSON only (no secrets); remote catalogs must be `http`/`https`
   without userinfo. Catalog URL/file live in `_config.yaml` (no secrets on the REST envelope).
+  `object-storage` reads a local object-key directory only (no AWS SDK, access keys, or
+  network). REST persist of `object-storage` is a later slice.
 - **Required root** — when `virtual.sourceKind` is virtual and `virtual.remoteUrl` is blank,
   `virtual.rootPath` must be non-blank.
 - **Optional Git remote** — `virtual.remoteUrl` + `virtual.branch` fetch or clone before Build.
@@ -348,6 +362,52 @@ PSVirtualSiteBuildMain <siteRoot> <outputRoot> [siteKey] http-json
 Site property validation allow-lists `http-json` (same helper as Git/CSV/SQL). Unknown
 kinds remain rejected.
 
+### Offline build from object storage (`object-storage`)
+
+The `object-storage` adapter treats `virtual.rootPath` as a local object-key bucket. Object
+keys are portable relative paths (logical `/`, NIO `Path` / `Files`; no remaining `..`, no
+Windows/Unix absolute roots). There is **no** AWS/S3 SDK, access key, IAM, signed URL, or
+network fetch — live cloud buckets are out of scope.
+
+`_config.yaml` is **required** (versions / site title). Optional `objects.keys` lists keys
+to load; when omitted, the adapter walks each version folder for `*.md`, `*.html` /
+`*.htm`, and `*.json`. Files under `_theme`, `assets`, and names starting with `_` or `.`
+are skipped. Git remotes are not used (`virtual.remoteUrl` is rejected). REST GET/PUT
+persist of `sourceKind=object-storage` is a later slice.
+
+Page identity:
+
+| Source | `id` | `title` | `body` |
+|--------|------|---------|--------|
+| Markdown with YAML frontmatter | frontmatter `id` | frontmatter `title` | Markdown after fences |
+| Markdown / HTML without frontmatter | filename stem | first heading, HTML `<title>`, or stem | file bytes |
+| JSON catalog (`pages` array) | required `id` | required `title` | optional `body` (same as http-json / CSV) |
+| JSON single object | required `id` | required `title` | optional `body` |
+
+JSON catalog fields match HTTP JSON (`path` optional ⇒ `{version}/{id}.html`; `order`;
+`version`). Missing `id`/`title`, duplicate ids, unsafe keys, or objects larger than 2 MB
+fail closed (`VirtualSiteException`). Each discover/load re-reads current file bytes (no
+process-lifetime cache).
+
+Example `_config.yaml` fragment (optional key list):
+
+```yaml
+objects:
+  keys:
+    - 8.2/index.md
+    - 8.2/getting-started/install.html
+    - 8.2/pages.json
+```
+
+CLI:
+
+```text
+PSVirtualSiteBuildMain <siteRoot> <outputRoot> [siteKey] object-storage
+```
+
+Site property validation allow-lists `object-storage` (same helper as Git/CSV/SQL/HTTP
+JSON). Unknown kinds remain rejected.
+
 ### REST persist for HTTP JSON (`http-json`)
 
 REST `PUT` / `GET /sites/{nameOrId}/virtual` round-trips `sourceKind=http-json` with a
@@ -470,8 +530,8 @@ The Git/filesystem, CSV/filesystem, SQL/database, and HTTP JSON adapters always 
    `virtual.rootPath` (`git pull`, copy, or an editor), **or** change the remote branch and
    Build again so the server fetches (Git only).
 2. Run **Build Virtual Site** again (UI, `POST …/virtual/build`, `scripts/build-cms-docs.*`,
-   `PSVirtualSiteBuildMain … csv-filesystem`, `PSVirtualSiteBuildMain … sql-database`, or
-   `PSVirtualSiteBuildMain … http-json`).
+   `PSVirtualSiteBuildMain … csv-filesystem`, `PSVirtualSiteBuildMain … sql-database`,
+   `PSVirtualSiteBuildMain … http-json`, or `PSVirtualSiteBuildMain … object-storage`).
 3. Preview or publish the new output.
 
 You do **not** restart the CMS JVM for those file or H2 row changes to appear. A restart is

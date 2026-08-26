@@ -39,8 +39,8 @@ import org.apache.commons.lang3.StringUtils;
  *
  * <ul>
  *   <li>{@code virtual.sourceKind} — allow-listed adapter wire name ({@code git-filesystem},
- *       {@code csv-filesystem}, {@code sql-database}, {@code http-json}); blank or {@code
- *       repository} ⇒ traditional repository Site
+ *       {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage});
+ *       blank or {@code repository} ⇒ traditional repository Site
  *   <li>{@code virtual.rootPath} — filesystem path to Virtual Site root when no remote is set
  *       (required when virtual and {@code virtual.remoteUrl} is blank); when a remote is set,
  *       an optional relative path inside the checkout
@@ -73,8 +73,8 @@ public final class PSVirtualSiteHelper {
 
   /**
    * Allow-listed {@link #PROP_SOURCE_KIND} wire names for Virtual adapters ({@code git-filesystem},
-   * {@code csv-filesystem}, {@code sql-database}, {@code http-json}). Does not include {@link
-   * #SOURCE_KIND_REPOSITORY}.
+   * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage}). Does
+   * not include {@link #SOURCE_KIND_REPOSITORY}.
    *
    * @return unmodifiable list of wire names in enum declaration order
    */
@@ -173,8 +173,8 @@ public final class PSVirtualSiteHelper {
    *
    * <ul>
    *   <li>use an allow-listed {@code virtual.sourceKind} (see {@link #allowedSourceKindWireNames()};
-   *       {@code csv-filesystem}, {@code sql-database}, and {@code http-json} do not accept {@code
-   *       virtual.remoteUrl})
+   *       {@code csv-filesystem}, {@code sql-database}, {@code http-json}, and {@code
+   *       object-storage} do not accept {@code virtual.remoteUrl})
    *   <li>when {@code virtual.remoteUrl} is blank: provide a non-blank safe {@code virtual.rootPath}
    *   <li>when {@code virtual.remoteUrl} is set: a safe Git URL (https / ssh / file / {@code
    *       git@host:path}); optional {@code virtual.branch}; optional relative {@code
