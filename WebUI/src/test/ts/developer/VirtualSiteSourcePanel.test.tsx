@@ -504,7 +504,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
-  it("loads http-json values with root path and Build chrome (no Preview/Publish)", async () => {
+  it("loads http-json values with root path and Build/Publish chrome (no Preview)", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "http-json",
       rootPath: "C:/http-json-docs",
@@ -527,13 +527,16 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-http-json-hint").textContent).toContain(
       "Build Virtual Site",
     );
+    expect(screen.getByTestId("developer-site-virtual-http-json-hint").textContent).toContain(
+      "Publish Virtual Site",
+    );
     expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-config-file")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
@@ -592,7 +595,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
@@ -820,7 +823,7 @@ describe("VirtualSiteSourcePanel", () => {
     );
   });
 
-  it("shows Build chrome for http-json and success result without Preview/Publish", async () => {
+  it("shows Build chrome for http-json and success result with Publish (no Preview)", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "http-json",
       rootPath: "C:/http-json-docs",
@@ -840,7 +843,7 @@ describe("VirtualSiteSourcePanel", () => {
       expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     });
     expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-site-virtual-build"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-site-virtual-build-result")).toBeTruthy();
@@ -852,6 +855,84 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-build-pages").textContent).toBe("1");
     expect(screen.getByTestId("developer-site-virtual-build-output").textContent).toContain(
       "http-json-docs",
+    );
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+  });
+
+  it("shows Publish chrome for http-json and success dest path", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "http-json",
+      rootPath: "C:/http-json-docs",
+      virtual: true,
+    });
+    publishVirtual.mockResolvedValue({
+      siteName: "Help",
+      publishPath: "C:/inetpub/wwwroot/http-json-help",
+      filesCopied: 3,
+      pagesWritten: 1,
+      hasLinkProblems: false,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-site-virtual-publish"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish-result")).toBeTruthy();
+    });
+    expect(publishVirtual).toHaveBeenCalledWith("Help");
+    expect(screen.getByTestId("developer-site-virtual-publish-success").textContent).toContain(
+      DEV_MSG.SITE_VIRT_PUBLISH_SUCCESS,
+    );
+    expect(screen.getByTestId("developer-site-virtual-publish-files").textContent).toBe("3");
+    expect(screen.getByTestId("developer-site-virtual-publish-dest").textContent).toContain(
+      "http-json-help",
+    );
+  });
+
+  it("keeps Publish chrome after http-json Build success and copies dest path (#3820)", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "http-json",
+      rootPath: "C:/http-json-docs",
+      virtual: true,
+    });
+    buildVirtual.mockResolvedValue({
+      siteName: "Help",
+      siteKey: "http-json-docs",
+      outputPath: "C:/tmp/virtual-sites/http-json-docs",
+      pagesWritten: 1,
+      linkProblemCount: 0,
+      hasLinkProblems: false,
+      linkProblems: [],
+    });
+    publishVirtual.mockResolvedValue({
+      siteName: "Help",
+      publishPath: "/opt/Percussion/fastforward/http-json-help",
+      filesCopied: 3,
+      pagesWritten: 1,
+      hasLinkProblems: false,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-site-virtual-build"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-build-result")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-site-virtual-publish"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish-result")).toBeTruthy();
+    });
+    expect(buildVirtual).toHaveBeenCalledWith("Help");
+    expect(publishVirtual).toHaveBeenCalledWith("Help");
+    expect(screen.getByTestId("developer-site-virtual-publish-files").textContent).toBe("3");
+    expect(screen.getByTestId("developer-site-virtual-publish-dest").textContent).toContain(
+      "http-json-help",
     );
   });
 

@@ -148,8 +148,8 @@ function validationMessage(
  * Site detail section: view/edit Virtual Site source fields via public Site REST
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
  * build ({@code POST …/virtual/build}) for git-filesystem, csv-filesystem,
- * sql-database, and http-json. Publish ({@code POST …/virtual/publish}) and
- * Preview remain git/csv/sql in this slice (http-json Preview/Publish later).
+ * sql-database, and http-json. Publish ({@code POST …/virtual/publish}) is
+ * git/csv/sql/http-json. Preview remains git/csv/sql (http-json Preview later).
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -342,7 +342,7 @@ export function VirtualSiteSourcePanel({
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
   /** Preview chrome: git/csv/sql (http-json Preview is a later slice). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
-  /** Publish chrome: git/csv/sql (http-json Publish is a later slice). */
+  /** Publish chrome: git/csv/sql/http-json (never repository). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
   const busy = saving || building || publishing;
   const buildSummary = buildResult ? formatVirtualSiteBuildSummary(buildResult) : null;

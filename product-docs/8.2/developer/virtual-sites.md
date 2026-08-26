@@ -18,7 +18,9 @@ Preview REST (`GET …/virtual/preview`) is last-output based and works for
 `git-filesystem`, `csv-filesystem`, `sql-database`, and `http-json` after a successful Build
 (CLI preview requires the default output root). Developer **Sites** shows **Build Virtual
 Site**, **Publish Virtual Site**, and **Preview assembled site** for **CSV filesystem**,
-**SQL database**, and Git filesystem. Traditional **Repository** hides that chrome.
+**SQL database**, and Git filesystem. **HTTP JSON** shows **Build Virtual Site** and
+**Publish Virtual Site** after save (Preview chrome remains a later slice). Traditional
+**Repository** hides that chrome.
 
 A **SQL / database** adapter (`sql-database`) discovers rows from a JDBC `SELECT` against
 **in-memory H2** (`jdbc:h2:mem:`). Required columns match CSV (`id`, `title`, `body`).
@@ -41,7 +43,8 @@ local JSON fixture or loopback catalog (`pagesWritten > 0`). REST **Preview**
 (`GET …/virtual/preview`) streams last-build HTML after that Build (`available=true`
 + home HTML; missing build is `available=false` HTTP 200). REST **Publish**
 (`POST …/virtual/publish`) copies that last-build HTML to the Site filesystem root
-(`IPSSite.root`). Developer Sites Preview/Publish chrome for `http-json` remains a
+(`IPSSite.root`). Developer Sites **Publish Virtual Site** chrome is shown after a
+successful Build (same as Git/CSV/SQL). Preview chrome for `http-json` remains a
 later phase. Open JSON only (no API keys). Remote URLs are SSRF
 fail-closed (`http`/`https`, no userinfo, no off-loopback redirects).
 `virtual.remoteUrl` stays **400** (no secrets on the REST envelope).
@@ -65,7 +68,8 @@ After the site folder is created, an optional Git root is saved with
   (`sourceKind=http-json` plus a safe `rootPath`; local JSON fixture / loopback). Developer
   Sites can save/GET-roundtrip `sourceKind=http-json` and then **Build Virtual Site**.
   REST **Publish** copies assembled HTML to `IPSSite.root`. Developer Sites
-  Preview/Publish chrome for HTTP JSON remains a later slice.
+  can **Publish Virtual Site** for HTTP JSON after Build. Preview chrome for
+  HTTP JSON remains a later slice.
 
 ## Source tree contract
 
@@ -129,7 +133,7 @@ treated as a safe Virtual Site source.
 
 | Property | Required | Example | Meaning |
 |----------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, or `http-json` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, SQL (H2), and HTTP JSON adapters (local JSON fixture or loopback catalog). Preview REST streams last-build HTML for git, CSV, SQL, and HTTP JSON. REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for git, CSV, SQL, and HTTP JSON. Developer Sites can save and build Git, CSV, SQL, and HTTP JSON. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400`). Developer Sites **Preview/Publish** chrome for HTTP JSON remains a later phase. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, or `http-json` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, SQL (H2), and HTTP JSON adapters (local JSON fixture or loopback catalog). Preview REST streams last-build HTML for git, CSV, SQL, and HTTP JSON. REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for git, CSV, SQL, and HTTP JSON. Developer Sites can save and build Git, CSV, SQL, and HTTP JSON. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400`). Developer Sites **Publish Virtual Site** chrome is shown for HTTP JSON after Build. Preview chrome for HTTP JSON remains a later phase. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` (or install-relative) | Local filesystem root when `virtual.remoteUrl` is blank. When a remote is set, optional **relative** path inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. When set, **Build** clones or fetches into a contained work directory, then reuses git-filesystem discover. Blank keeps local-path mode. Allowed: `https://`, `ssh://`, `file://`, or `git@host:path`. `http` and other schemes are rejected. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. Simple ref name only (no `..` or leading `-`). |
@@ -287,7 +291,8 @@ streams last-build HTML after that Build (`available=true`; missing build is
 `available=false` HTTP 200). Developer Sites can select **HTTP JSON**, save a
 safe `rootPath`, GET-roundtrip the kind, and then **Build Virtual Site**. REST
 **Publish** (`POST …/virtual/publish`) copies assembled HTML to `IPSSite.root`.
-Developer Sites Preview/Publish chrome for `http-json` remains a later phase.
+Developer Sites **Publish Virtual Site** chrome is shown after a successful
+Build. Preview chrome for `http-json` remains a later phase.
 
 Supply **one** of:
 
@@ -351,7 +356,8 @@ Authorization on this envelope. Unknown kinds remain **400**. Developer Sites ca
 save and GET-roundtrip `http-json`, then **Build Virtual Site**. REST **Build**
 (`POST …/virtual/build`), REST **Preview** (`GET …/virtual/preview`), and REST
 **Publish** (`POST …/virtual/publish`) are available for `http-json`. Developer Sites
-Preview/Publish chrome for that kind remains a later phase.
+**Publish Virtual Site** chrome is shown after a successful Build. Preview
+chrome for that kind remains a later phase.
 
 ## CMS-integrated build (REST and WebUI)
 
@@ -500,7 +506,8 @@ The server:
 
 For `http-json`, catalog URL/file stay in `_config.yaml`; leftover `virtual.remoteUrl` is
 **400** (no secrets on the REST envelope). Developer Sites **Publish Virtual Site** chrome
-is shown for Git, CSV, and SQL; HTTP JSON Publish chrome remains a later slice.
+is shown for Git, CSV, SQL, and HTTP JSON after a successful Build. Preview chrome for
+HTTP JSON remains a later slice.
 
 The response includes `publishPath`, `buildOutputPath`, `pagesWritten`, `filesCopied`, and
 link-problem fields. Failures return **400/403/404** with an operator-readable message (never a
