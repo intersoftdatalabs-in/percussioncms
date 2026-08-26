@@ -101,7 +101,7 @@ public interface ISiteAdaptor {
 
   /**
    * Builds a Virtual Site from configured {@code virtual.*} properties ({@code git-filesystem},
-   * {@code csv-filesystem}, {@code sql-database}, or {@code http-json}).
+   * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, or {@code object-storage}).
    *
    * <p>Loads the site, validates via {@code PSVirtualSiteHelper}, optionally clones/fetches {@code
    * virtual.remoteUrl} into a contained work directory (git-filesystem only), runs {@code
@@ -109,8 +109,11 @@ public interface ISiteAdaptor {
    * pages-written plus link-problem summary. {@code sql-database} uses in-memory H2 ({@code
    * jdbc:h2:mem:}) only; Oracle / MySQL / SQL Server URLs return 400. {@code http-json} discovers a
    * local JSON fixture or loopback catalog from {@code _config.yaml} ({@code http.url} / {@code
-   * http.file}); {@code virtual.remoteUrl} is 400 (no secrets on this envelope). Unknown source
-   * kinds return 400. Requires Admin (or equivalent site-manage) authorization.
+   * http.file}); {@code virtual.remoteUrl} is 400 (no secrets on this envelope). {@code
+   * object-storage} discovers Markdown / HTML / JSON object keys under a portable-safe local {@code
+   * rootPath} (optional {@code objects.keys} in {@code _config.yaml}); {@code virtual.remoteUrl} is
+   * 400 (no cloud URLs or credentials on this envelope). Unknown source kinds return 400. Requires
+   * Admin (or equivalent site-manage) authorization.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param request optional body (output root override); may be null

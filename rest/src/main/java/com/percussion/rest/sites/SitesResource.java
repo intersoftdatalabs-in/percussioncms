@@ -265,20 +265,23 @@ public class SitesResource {
       summary = "Build Virtual Site",
       description =
           "Runs the Virtual Site static build for a site configured with"
-              + " virtual.sourceKind=git-filesystem, csv-filesystem, sql-database, or http-json."
-              + " git-filesystem: when virtual.remoteUrl is set, the server clones or fetches that"
-              + " branch into a contained work directory, then discovers Markdown. csv-filesystem:"
-              + " rootPath is a CSV tree (optional _config.yaml; required columns id, title, body;"
-              + " fail-closed on unsafe paths). sql-database: rootPath holds required _config.yaml"
-              + " sql: mapping (in-memory H2 jdbc:h2:mem: only; user/query in yaml, never logged"
-              + " passwords). http-json: rootPath holds required _config.yaml (versions plus"
-              + " http.url or http.file / default pages.json); local JSON fixture or loopback"
-              + " catalog; virtual.remoteUrl is 400 (no secrets on this envelope). Unknown source"
-              + " kinds return 400. Uses PSVirtualSiteBuildService.forSourceType with portable NIO"
-              + " Path I/O. Requires Admin. Traditional repository Sites and invalid source"
-              + " kinds/paths return 4xx. Optional body may set outputRoot; otherwise the server"
-              + " writes under {install}/tmp/virtual-sites/{siteKey}. Link problems are reported in"
-              + " the result (HTTP 200) without failing the build.",
+              + " virtual.sourceKind=git-filesystem, csv-filesystem, sql-database, http-json, or"
+              + " object-storage. git-filesystem: when virtual.remoteUrl is set, the server clones"
+              + " or fetches that branch into a contained work directory, then discovers Markdown."
+              + " csv-filesystem: rootPath is a CSV tree (optional _config.yaml; required columns"
+              + " id, title, body; fail-closed on unsafe paths). sql-database: rootPath holds"
+              + " required _config.yaml sql: mapping (in-memory H2 jdbc:h2:mem: only; user/query in"
+              + " yaml, never logged passwords). http-json: rootPath holds required _config.yaml"
+              + " (versions plus http.url or http.file / default pages.json); local JSON fixture or"
+              + " loopback catalog; virtual.remoteUrl is 400 (no secrets on this envelope)."
+              + " object-storage: rootPath is a local object-key bucket (required _config.yaml;"
+              + " Markdown / HTML / JSON keys; optional objects.keys); portable NIO Path/Files;"
+              + " virtual.remoteUrl is 400 (no secrets / no cloud URLs on this envelope). Unknown"
+              + " source kinds return 400. Uses PSVirtualSiteBuildService.forSourceType with"
+              + " portable NIO Path I/O. Requires Admin. Traditional repository Sites and invalid"
+              + " source kinds/paths return 4xx. Optional body may set outputRoot; otherwise the"
+              + " server writes under {install}/tmp/virtual-sites/{siteKey}. Link problems are"
+              + " reported in the result (HTTP 200) without failing the build.",
       responses = {
         @ApiResponse(
             responseCode = "200",

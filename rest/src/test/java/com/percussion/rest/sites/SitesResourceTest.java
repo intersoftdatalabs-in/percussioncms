@@ -443,6 +443,53 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void buildVirtualSiteObjectStorageFixtureDelegates() throws Exception {
+    Path objectRoot = tempDir.resolve("object-site");
+    Files.createDirectories(objectRoot.resolve("8.2"));
+    Files.writeString(
+        objectRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: Object Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        objectRoot.resolve("8.2").resolve("index.md"),
+        """
+        ---
+        id: home
+        title: Object Home
+        ---
+        Hello from objects.
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("object-out");
+    Files.createDirectories(out);
+
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setSiteName("ObjectHelp");
+    built.setPagesWritten(1);
+    built.setLinkProblemCount(0);
+    built.setHasLinkProblems(false);
+    built.setOutputPath(out.toAbsolutePath().toString());
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+    when(adaptor.buildVirtualSite(eq("ObjectHelp"), same(req))).thenReturn(built);
+
+    VirtualSiteBuildResult result = resource.buildVirtualSite("ObjectHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertEquals(out.toAbsolutePath().toString(), result.getOutputPath());
+    assertTrue(Files.isRegularFile(objectRoot.resolve("_config.yaml")));
+    assertTrue(Files.isRegularFile(objectRoot.resolve("8.2").resolve("index.md")));
+    verify(adaptor).buildVirtualSite("ObjectHelp", req);
+  }
+
+  @Test
   public void buildVirtualSiteUnknownKindPropagates400() {
     when(adaptor.buildVirtualSite(eq("Help"), any()))
         .thenThrow(
@@ -695,6 +742,9 @@ public class SitesResourceTest {
     assertTrue(
         buildBlock.contains("http-json"),
         "buildVirtualSite OpenAPI description must mention http-json");
+    assertTrue(
+        buildBlock.contains("object-storage"),
+        "buildVirtualSite OpenAPI description must mention object-storage");
     assertTrue(
         buildBlock.contains("jdbc:h2:mem:"),
         "buildVirtualSite OpenAPI description must mention in-memory H2 jdbc:h2:mem:");

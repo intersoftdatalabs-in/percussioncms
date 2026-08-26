@@ -503,9 +503,10 @@ public class SitesAdaptor implements ISiteAdaptor {
   }
 
   /**
-   * Load {@code _config.yaml} (required for git-filesystem, sql-database, and http-json). CSV trees
-   * may omit the file and infer versions from child directories. HTTP JSON catalog URL/file live in
-   * the yaml ({@code http.url} / {@code http.file} or default {@code pages.json}).
+   * Load {@code _config.yaml} (required for git-filesystem, sql-database, http-json, and
+   * object-storage). CSV trees may omit the file and infer versions from child directories. HTTP
+   * JSON catalog URL/file live in the yaml ({@code http.url} / {@code http.file} or default {@code
+   * pages.json}). Object-storage optional {@code objects.keys} live in the yaml.
    */
   static VirtualSiteConfig loadBuildConfig(
       VirtualSiteSourceType type, Path siteRoot, String configFile, String siteKey)
