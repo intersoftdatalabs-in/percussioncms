@@ -646,11 +646,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     String session = currentSession();
     String user = currentUser();
     try {
-      PSItemDefinition current = resolveItemDef(idOrName.trim());
-      if (current == null) {
+      IPSGuid ctGuid = resolveExistingContentTypeGuid(idOrName.trim());
+      if (ctGuid == null) {
         return null;
       }
-      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
       requireHeldLock(ctGuid);
       List<IPSGuid> templateGuids = resolveTemplateGuids(templates);
       try {
@@ -668,9 +667,6 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         | IllegalArgumentException
         | WebApplicationException e) {
       throw e;
-    } catch (PSInvalidContentTypeException e) {
-      log.debug("Content type not found for template association replace: {}", idOrName);
-      return null;
     } catch (Exception e) {
       log.error(
           "Failed to replace template associations for {}: {}", idOrName, e.getMessage(), e);

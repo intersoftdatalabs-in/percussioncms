@@ -18,8 +18,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
+  getContentTypeAllowedTemplates,
   getContentTypeDetail,
   lockContentType,
+  replaceContentTypeAllowedTemplates,
   setContentTypeAllowedWorkflows,
   setContentTypeEnabled,
   unlockContentType,
@@ -362,9 +364,8 @@ export function ContentTypeDetailPanel({
     const bulkNeeded =
       label !== (detail.label || "") ||
       description !== (detail.description || "") ||
-      fieldsDirty ||
-      templatesDirty;
-    if (!enabledDirty && !workflowsDirty && !bulkNeeded) {
+      fieldsDirty;
+    if (!enabledDirty && !workflowsDirty && !templatesDirty && !bulkNeeded) {
       return;
     }
     setBusy(true);
@@ -419,9 +420,6 @@ export function ContentTypeDetailPanel({
           description,
           fields: fieldPatches,
         };
-        if (templatesDirty) {
-          body.allowedTemplates = toNamedObjectRefPayload(templates);
-        }
         try {
           const bulkSaved = normalizeDetailLists(await updateContentTypeDetail(idOrName, body));
           saved = {
@@ -439,6 +437,28 @@ export function ContentTypeDetailPanel({
             );
           }
           throw bulkErr;
+        }
+      }
+      if (templatesDirty) {
+        try {
+          await replaceContentTypeAllowedTemplates(
+            idOrName,
+            toNamedObjectRefPayload(templates),
+          );
+          const listed = await getContentTypeAllowedTemplates(idOrName);
+          saved =
+            saved != null
+              ? { ...saved, allowedTemplates: listed }
+              : { ...normalizeDetailLists(detail), allowedTemplates: listed };
+        } catch (tplErr) {
+          if (saved != null) {
+            setDetail(saved);
+            setEnabled(saved.enabled !== false);
+            setWorkflows(
+              withDefaultWorkflowFlags(saved.allowedWorkflows, saved.defaultWorkflow),
+            );
+          }
+          throw tplErr;
         }
       }
       if (saved == null) {

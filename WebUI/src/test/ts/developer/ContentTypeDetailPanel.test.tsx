@@ -17,6 +17,8 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
   setContentTypeAllowedWorkflows: vi.fn(),
   lockContentType: vi.fn(),
   unlockContentType: vi.fn(),
+  getContentTypeAllowedTemplates: vi.fn(),
+  replaceContentTypeAllowedTemplates: vi.fn(),
 }));
 
 // ObjectAclSection loads ACL via separate API; stub so detail success path stays isolated.
@@ -44,6 +46,10 @@ const setContentTypeAllowedWorkflows = contentTypesApi.setContentTypeAllowedWork
 >;
 const lockContentType = contentTypesApi.lockContentType as ReturnType<typeof vi.fn>;
 const unlockContentType = contentTypesApi.unlockContentType as ReturnType<typeof vi.fn>;
+const getContentTypeAllowedTemplates =
+  contentTypesApi.getContentTypeAllowedTemplates as ReturnType<typeof vi.fn>;
+const replaceContentTypeAllowedTemplates =
+  contentTypesApi.replaceContentTypeAllowedTemplates as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   name: "percPage",
@@ -70,6 +76,8 @@ describe("ContentTypeDetailPanel", () => {
     setContentTypeAllowedWorkflows.mockReset();
     lockContentType.mockReset();
     unlockContentType.mockReset();
+    getContentTypeAllowedTemplates.mockReset();
+    replaceContentTypeAllowedTemplates.mockReset();
     lockContentType.mockResolvedValue({ locker: "Admin", remainingTime: 30 });
     unlockContentType.mockResolvedValue(undefined);
     updateContentTypeDetail.mockImplementation(async (_id, body) => ({
@@ -85,6 +93,8 @@ describe("ContentTypeDetailPanel", () => {
       allowedWorkflows: body.allowedWorkflows,
       defaultWorkflow: body.defaultWorkflow ?? null,
     }));
+    replaceContentTypeAllowedTemplates.mockImplementation(async (_id, templates) => templates);
+    getContentTypeAllowedTemplates.mockImplementation(async () => []);
   });
 
   it("loads detail on success and supports back", async () => {
@@ -367,9 +377,12 @@ describe("ContentTypeDetailPanel", () => {
     );
     const saveBody = updateContentTypeDetail.mock.calls.at(-1)?.[1] as {
       enabled?: boolean;
+      allowedTemplates?: unknown;
     };
     expect(saveBody.enabled).toBeUndefined();
+    expect(saveBody.allowedTemplates).toBeUndefined();
     expect(setContentTypeEnabled).not.toHaveBeenCalled();
+    expect(replaceContentTypeAllowedTemplates).not.toHaveBeenCalled();
     expect(unlockContentType).not.toHaveBeenCalled();
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
@@ -431,6 +444,125 @@ describe("ContentTypeDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
     expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+  });
+
+  it("locks, replaces allowed templates via dedicated PUT then GET (#3783)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      allowedTemplates: [{ name: "perc.page", label: "Page" }],
+    });
+    replaceContentTypeAllowedTemplates.mockResolvedValueOnce([]);
+    getContentTypeAllowedTemplates.mockResolvedValueOnce([]);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-tpl-row-0")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-tpl-remove-0"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-tpl-empty")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(replaceContentTypeAllowedTemplates).toHaveBeenCalledWith("percPage", []);
+    });
+    expect(getContentTypeAllowedTemplates).toHaveBeenCalledWith("percPage");
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+  });
+
+  it("adds an existing template id after lock and PUTs the new set (#3783)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      allowedTemplates: [{ name: "perc.page", label: "Page" }],
+    });
+    const next = [
+      { name: "perc.page" },
+      { name: "perc.page.summary", label: "perc.page.summary" },
+    ];
+    replaceContentTypeAllowedTemplates.mockResolvedValueOnce(next);
+    getContentTypeAllowedTemplates.mockResolvedValueOnce(next);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-tpl-row-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-tpl-add-name"), {
+      target: { value: "perc.page.summary" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-tpl-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-tpl-row-1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(replaceContentTypeAllowedTemplates).toHaveBeenCalled();
+    });
+    expect(replaceContentTypeAllowedTemplates).toHaveBeenCalledWith(
+      "percPage",
+      expect.arrayContaining([
+        expect.objectContaining({ name: "perc.page" }),
+        expect.objectContaining({ name: "perc.page.summary" }),
+      ]),
+    );
+    expect(getContentTypeAllowedTemplates).toHaveBeenCalledWith("percPage");
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-tpl-row-1").textContent).toContain(
+        "perc.page.summary",
+      );
+    });
+  });
+
+  it("clears the held lock when allowedTemplates PUT returns 409 (#3783)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      allowedTemplates: [{ name: "perc.page", label: "Page" }],
+    });
+    replaceContentTypeAllowedTemplates.mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+      body: null,
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-tpl-row-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-tpl-remove-0") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-tpl-remove-0"));
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        "Could not save content type.",
+      );
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+    expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
       true,
     );
   });
@@ -730,5 +862,124 @@ describe("ContentTypeDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
     expect(lockContentType).toHaveBeenCalledTimes(1);
+  });
+
+  it("locks, replaces allowed templates via dedicated PUT then GET (#3783)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      allowedTemplates: [{ name: "perc.page", label: "Page" }],
+    });
+    replaceContentTypeAllowedTemplates.mockResolvedValueOnce([]);
+    getContentTypeAllowedTemplates.mockResolvedValueOnce([]);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-tpl-row-0")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-tpl-remove-0"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-tpl-empty")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(replaceContentTypeAllowedTemplates).toHaveBeenCalledWith("percPage", []);
+    });
+    expect(getContentTypeAllowedTemplates).toHaveBeenCalledWith("percPage");
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+  });
+
+  it("adds an existing template id after lock and PUTs the new set (#3783)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      allowedTemplates: [{ name: "perc.page", label: "Page" }],
+    });
+    const next = [
+      { name: "perc.page" },
+      { name: "perc.page.summary", label: "perc.page.summary" },
+    ];
+    replaceContentTypeAllowedTemplates.mockResolvedValueOnce(next);
+    getContentTypeAllowedTemplates.mockResolvedValueOnce(next);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-tpl-row-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-tpl-add-name"), {
+      target: { value: "perc.page.summary" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-tpl-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-tpl-row-1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(replaceContentTypeAllowedTemplates).toHaveBeenCalled();
+    });
+    expect(replaceContentTypeAllowedTemplates).toHaveBeenCalledWith(
+      "percPage",
+      expect.arrayContaining([
+        expect.objectContaining({ name: "perc.page" }),
+        expect.objectContaining({ name: "perc.page.summary" }),
+      ]),
+    );
+    expect(getContentTypeAllowedTemplates).toHaveBeenCalledWith("percPage");
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-tpl-row-1").textContent).toContain(
+        "perc.page.summary",
+      );
+    });
+  });
+
+  it("clears the held lock when allowedTemplates PUT returns 409 (#3783)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      allowedTemplates: [{ name: "perc.page", label: "Page" }],
+    });
+    replaceContentTypeAllowedTemplates.mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+      body: null,
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-tpl-row-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-tpl-remove-0") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-tpl-remove-0"));
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        "Could not save content type.",
+      );
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+    expect((screen.getByTestId("developer-ct-tpl-add-name") as HTMLInputElement).disabled).toBe(
+      true,
+    );
   });
 });

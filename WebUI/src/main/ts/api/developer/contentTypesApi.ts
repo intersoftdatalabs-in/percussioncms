@@ -219,7 +219,10 @@ export type ContentTypeUpdateBody = {
   /** Omit to leave unchanged; non-null list is a full replace. Prefer CD-08 PUT. */
   allowedWorkflows?: NamedObjectRef[];
   defaultWorkflow?: NamedObjectRef | null;
-  /** Omit to leave unchanged; non-null list is a full replace. */
+  /**
+   * Omit to leave unchanged. Prefer {@link replaceContentTypeAllowedTemplates}
+   * (CD-12 dedicated PUT) instead of sending this on the bulk detail PUT.
+   */
   allowedTemplates?: NamedObjectRef[];
 };
 
@@ -304,6 +307,8 @@ export function wrapContentTypeDetailForWire(
  * <p>Do not send {@code enabled} here — use {@link setContentTypeEnabled} (CD-13).
  * Do not send {@code allowedWorkflows} here — use
  * {@link setContentTypeAllowedWorkflows} (CD-08).
+ * Do not send {@code allowedTemplates} here — use
+ * {@link replaceContentTypeAllowedTemplates} (CD-12).
  */
 export async function updateContentTypeDetail(
   idOrName: string,
@@ -383,4 +388,75 @@ export async function setContentTypeAllowedWorkflows(
     wrapContentTypeWorkflowsForWire(body),
   );
   return unwrapContentTypeDetail(payload);
+}
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code NamedObjectRefList}. */
+export const NAMED_OBJECT_REF_LIST_ROOT = "NamedObjectRefList";
+
+/**
+ * Build the wire JSON body for {@code PUT .../allowedTemplates} under
+ * {@link NAMED_OBJECT_REF_LIST_ROOT}. A bare array fails server UNWRAP_ROOT_VALUE.
+ */
+export function wrapNamedObjectRefListForWire(
+  items: NamedObjectRef[],
+): Record<string, NamedObjectRef[]> {
+  return { [NAMED_OBJECT_REF_LIST_ROOT]: items };
+}
+
+/**
+ * Flatten GET/PUT {@code .../allowedTemplates} JSON to {@link NamedObjectRef}[].
+ *
+ * <p>Handles WRAP_ROOT {@code NamedObjectRefList}, JAXB {@code NamedObjectRef}
+ * envelope, bare array, singleton object, and empty-collection beans.
+ */
+export function unwrapNamedObjectRefList(payload: unknown): NamedObjectRef[] {
+  if (payload == null) {
+    return [];
+  }
+  if (Array.isArray(payload)) {
+    return normalizeNamedObjectRefs(payload);
+  }
+  const root = asRecord(payload);
+  if (!root) {
+    return [];
+  }
+  if (root[NAMED_OBJECT_REF_LIST_ROOT] != null) {
+    return normalizeNamedObjectRefs(root[NAMED_OBJECT_REF_LIST_ROOT]);
+  }
+  if (root.namedObjectRefList != null) {
+    return normalizeNamedObjectRefs(root.namedObjectRefList);
+  }
+  return normalizeNamedObjectRefs(payload);
+}
+
+/**
+ * GET /services/contenttypes/{idOrName}/allowedTemplates — CD-12 read.
+ * No design lock required. Empty list means none.
+ */
+export async function getContentTypeAllowedTemplates(
+  idOrName: string,
+): Promise<NamedObjectRef[]> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await get<unknown>(`${PATHS.CONTENT_TYPES}/${key}/allowedTemplates`);
+  return unwrapNamedObjectRefList(payload);
+}
+
+/**
+ * PUT /services/contenttypes/{idOrName}/allowedTemplates — CD-12 full replace.
+ *
+ * <p>Requires a design-session lock already held by the current user
+ * ({@link lockContentType}). Does not acquire or release the lock. HTTP 409
+ * when unlocked or locked by another user. HTTP 400 when a template name/guid
+ * cannot be resolved. Empty list clears associations.
+ */
+export async function replaceContentTypeAllowedTemplates(
+  idOrName: string,
+  templates: NamedObjectRef[],
+): Promise<NamedObjectRef[]> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}/allowedTemplates`,
+    wrapNamedObjectRefListForWire(templates),
+  );
+  return unwrapNamedObjectRefList(payload);
 }

@@ -4,19 +4,23 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  getContentTypeAllowedTemplates,
   normalizeContentTypeDesignGaps,
   normalizeContentTypeFields,
   normalizeContentTypeStringList,
   normalizeNamedObjectRefs,
+  replaceContentTypeAllowedTemplates,
   setContentTypeAllowedWorkflows,
   setContentTypeEnabled,
   unwrapContentTypeDetail,
   unwrapContentTypeList,
+  unwrapNamedObjectRefList,
   unwrapObjectLockSummary,
   updateContentTypeDetail,
   wrapContentTypeDetailForWire,
   wrapContentTypeEnabledForWire,
   wrapContentTypeWorkflowsForWire,
+  wrapNamedObjectRefListForWire,
 } from "../../../../main/ts/api/developer/contentTypesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -433,5 +437,95 @@ describe("setContentTypeAllowedWorkflows CD-08 dedicated PUT (#3782)", () => {
         defaultWorkflow: { name: "Standard Workflow" },
       },
     });
+  });
+});
+
+describe("wrapNamedObjectRefListForWire / unwrapNamedObjectRefList (CD-12)", () => {
+  it("wraps a list under NamedObjectRefList", () => {
+    expect(wrapNamedObjectRefListForWire([{ name: "perc.page" }])).toEqual({
+      NamedObjectRefList: [{ name: "perc.page" }],
+    });
+  });
+
+  it("wraps an empty list (clears associations)", () => {
+    expect(wrapNamedObjectRefListForWire([])).toEqual({ NamedObjectRefList: [] });
+  });
+
+  it("unwraps WRAP_ROOT NamedObjectRefList", () => {
+    expect(
+      unwrapNamedObjectRefList({
+        NamedObjectRefList: [{ name: "perc.page", label: "Page" }],
+      }),
+    ).toEqual([{ name: "perc.page", label: "Page" }]);
+  });
+
+  it("unwraps a bare array", () => {
+    expect(unwrapNamedObjectRefList([{ name: "perc.page" }])).toEqual([{ name: "perc.page" }]);
+  });
+
+  it("unwraps JAXB NamedObjectRef singleton and empty beans", () => {
+    expect(
+      unwrapNamedObjectRefList({ NamedObjectRef: { name: "perc.page" } }),
+    ).toEqual([{ name: "perc.page" }]);
+    expect(unwrapNamedObjectRefList({ empty: true })).toEqual([]);
+    expect(unwrapNamedObjectRefList(null)).toEqual([]);
+  });
+});
+
+describe("allowedTemplates GET/PUT (CD-12)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("GETs allowedTemplates and unwraps the list", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ NamedObjectRefList: [{ name: "perc.page", label: "Page" }] }),
+    );
+    const listed = await getContentTypeAllowedTemplates("percPage");
+    expect(listed).toEqual([{ name: "perc.page", label: "Page" }]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect((fetchMock.mock.calls[0][1] as RequestInit).method).toBe("GET");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/percPage/allowedTemplates`,
+    );
+  });
+
+  it("PUTs allowedTemplates wrapped under NamedObjectRefList and returns the set", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ NamedObjectRefList: [{ name: "perc.page.summary" }] }),
+    );
+    const listed = await replaceContentTypeAllowedTemplates("percPage", [
+      { name: "perc.page.summary" },
+    ]);
+    expect(listed).toEqual([{ name: "perc.page.summary" }]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(init.method).toBe("PUT");
+    expect(String(url)).toContain(`${PATHS.CONTENT_TYPES}/percPage/allowedTemplates`);
+    expect(JSON.parse(String(init.body))).toEqual({
+      NamedObjectRefList: [{ name: "perc.page.summary" }],
+    });
+  });
+
+  it("PUTs an empty list to clear associations", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ NamedObjectRefList: [] }));
+    const listed = await replaceContentTypeAllowedTemplates("percPage", []);
+    expect(listed).toEqual([]);
+    const body = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body));
+    expect(body).toEqual({ NamedObjectRefList: [] });
   });
 });

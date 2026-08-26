@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Lock, enable or disable, save allowed workflows, and unlock a content type from Developer detail chrome
+description: Lock, enable or disable, save allowed workflows and templates, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -41,7 +41,12 @@ use `GET`/`PUT /services/contenttypes/{idOrName}/itemExits`. This page does
    `PUT /services/contenttypes/{idOrName}/enabled` (CD-13), not the bulk
    content-type save. Without a lock the checkbox stays disabled and a toggle
    cannot persist.
-7. Click **Unlock** when you are done. Status returns to **Not locked** and the
+7. To change **Allowed templates**, lock the type, add or remove existing
+   template names or GUIDs (`type-host-uuid`, for example `0-10-347`), then
+   **Save content type**. Save replaces the whole allowed-template set. An empty
+   list clears associations. Unknown names return an error; the lock is not
+   stolen. This is not the full Workbench template picker.
+8. Click **Unlock** when you are done. Status returns to **Not locked** and the
    form is read-only again. **Back to list** also releases a lock you hold.
 
 ### Allowed workflows (after lock)
@@ -86,9 +91,11 @@ The chrome calls:
 | Action | Request |
 |--------|---------|
 | Lock | `POST /services/contenttypes/{idOrName}/lock` |
-| Save (label, description, fields, templates) | `PUT /services/contenttypes/{idOrName}` (requires a held lock; does not send `enabled` or `allowedWorkflows`) |
+| Save (label, description, fields) | `PUT /services/contenttypes/{idOrName}` (requires a held lock; does not send `enabled`, `allowedWorkflows`, or `allowedTemplates`) |
 | Enable / disable | `PUT /services/contenttypes/{idOrName}/enabled` (CD-13; requires a held lock; does not acquire or release it) |
 | Save allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` (requires a held lock; does not unlock) |
+| Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` (held lock; full replace) |
+| Confirm allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |
 
 Integrator notes: [REST API — Content types](id:developer-rest). Object ACL on
