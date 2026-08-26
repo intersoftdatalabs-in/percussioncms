@@ -39,11 +39,11 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
   current Git/filesystem, CSV tree (`csv-filesystem`), H2 `SELECT` (`sql-database`), or HTTP
   JSON catalog (`http-json`: local fixture / loopback `http.url`). After
   `git pull`, a local Markdown edit, a CSV change, a `_config.yaml` change, a SQL
-  `queryFile` / `sql.query` change, an H2 row change, or a JSON catalog edit, run Build
-  (or Publish) again — no CMS restart. `sql-database` requires
-  `_config.yaml` with a `sql:` mapping (`jdbc:h2:mem:`; Oracle / MySQL / SQL Server URLs
-  return **400**). `http-json` requires `_config.yaml` (versions plus `http.url` or
-  `http.file`); `virtual.remoteUrl` is **400**.
+  `queryFile` / `sql.query` change, an H2 row change, or a JSON catalog / `_config.yaml`
+  edit, run Build (or Publish) again — no CMS restart. File watchers are not used.
+  `sql-database` requires `_config.yaml` with a `sql:` mapping (`jdbc:h2:mem:`; Oracle /
+  MySQL / SQL Server URLs return **400**). `http-json` requires `_config.yaml` (versions
+  plus `http.url` or `http.file`); `virtual.remoteUrl` is **400**.
 - **Publish** (`POST /sites/{nameOrId}/virtual/publish`) runs that build, then copies the
   assembled HTML/assets to the Site **filesystem publish location** (`IPSSite.root` / Site
   publishing root). Staging `_meta` files are not copied. Redirect HTML and `redirects.json`

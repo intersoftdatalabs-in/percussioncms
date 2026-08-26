@@ -19,6 +19,7 @@ package com.percussion.services.virtualsite;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -32,6 +33,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -229,6 +231,124 @@ class PSHttpJsonVirtualSiteSourceTest {
             VirtualSiteException.class,
             () -> new PSHttpJsonVirtualSiteSource().discover(config(root, null, "pages.json")));
     assertTrue(ex.getMessage().toLowerCase().contains("duplicate"), ex.getMessage());
+  }
+
+  @Test
+  void secondBuildAfterJsonAndConfigEditEmitsUpdatedHtmlWithoutRestart() throws Exception {
+    Path root = writeSite(tempDir.resolve("json-rebuild"), null, "pages.json");
+    writeHttpYaml(root, "First Site Title", "pages.json");
+    Files.writeString(
+        root.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${siteTitle}</h1><h2>${pageTitle}</h2>${content}</body></html>",
+        StandardCharsets.UTF_8);
+    Path catalog = root.resolve("pages.json");
+    Files.writeString(
+        catalog,
+        """
+        {"pages":[{"id":"live-home","path":"index.html","title":"First Title","body":"unique-token-AAA"}]}
+        """,
+        StandardCharsets.UTF_8);
+
+    Path out = tempDir.resolve("json-rebuild-out");
+    PSHttpJsonVirtualSiteSource source = new PSHttpJsonVirtualSiteSource();
+    PSVirtualSiteBuildService service =
+        new PSVirtualSiteBuildService(source, new PSInMemoryVirtualParticipantService());
+
+    PSVirtualSiteBuildResult first = service.build(root, out, "http-docs");
+    assertEquals(1, first.pageCount());
+    Path html = out.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(firstHtml.contains("First Site Title"), firstHtml);
+    assertTrue(firstHtml.contains("First Title"), firstHtml);
+    assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
+
+    Files.writeString(
+        catalog,
+        """
+        {"pages":[{"id":"live-home","path":"index.html","title":"Second Title","body":"unique-token-BBB"}]}
+        """,
+        StandardCharsets.UTF_8);
+    writeHttpYaml(root, "Second Site Title", "pages.json");
+
+    VirtualSiteConfig reloaded =
+        VirtualSiteConfigLoader.load(root, VirtualSiteConfigLoader.DEFAULT_CONFIG_FILE, "http-docs");
+    assertEquals("Second Site Title", reloaded.siteTitle());
+    VirtualItem loaded = source.load(reloaded, source.discover(reloaded).get(0));
+    assertEquals("Second Title", loaded.frontmatter().title());
+    assertTrue(loaded.markdownBody().contains("unique-token-BBB"), loaded.markdownBody());
+    assertFalse(loaded.markdownBody().contains("unique-token-AAA"), loaded.markdownBody());
+
+    PSVirtualSiteBuildResult second = service.build(root, out, "http-docs");
+    assertEquals(1, second.pageCount());
+    String secondHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(secondHtml.contains("Second Site Title"), secondHtml);
+    assertTrue(secondHtml.contains("Second Title"), secondHtml);
+    assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
+    assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
+    assertFalse(secondHtml.contains("First Title"), secondHtml);
+    assertFalse(secondHtml.contains("First Site Title"), secondHtml);
+    assertNotEquals(firstHtml, secondHtml);
+  }
+
+  @Test
+  void secondBuildAfterLoopbackHttpCatalogEditEmitsUpdatedHtmlWithoutRestart() throws Exception {
+    AtomicReference<String> catalog =
+        new AtomicReference<>(
+            """
+            {"pages":[{"id":"live-home","path":"index.html","title":"First Title","body":"unique-token-AAA"}]}
+            """);
+    HttpServer server = loopbackServer();
+    try {
+      server.createContext(
+          "/pages.json",
+          exchange -> {
+            byte[] bytes = catalog.get().getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().set("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, bytes.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+              os.write(bytes);
+            }
+          });
+      server.start();
+      String url = loopbackUrl(server, "/pages.json");
+      Path root = writeSite(tempDir.resolve("http-rebuild"), url, null);
+      writeHttpYamlWithUrl(root, "First Site Title", url);
+      Files.writeString(
+          root.resolve("_theme").resolve("page.html"),
+          "<html><body><h1>${siteTitle}</h1><h2>${pageTitle}</h2>${content}</body></html>",
+          StandardCharsets.UTF_8);
+
+      Path out = tempDir.resolve("http-rebuild-out");
+      PSVirtualSiteBuildService service =
+          PSVirtualSiteBuildService.forSourceType(VirtualSiteSourceType.HTTP_JSON);
+
+      PSVirtualSiteBuildResult first = service.build(root, out, "http-docs");
+      assertEquals(1, first.pageCount());
+      Path html = out.resolve("8.2").resolve("index.html");
+      assertTrue(Files.isRegularFile(html), "missing " + html);
+      String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
+      assertTrue(firstHtml.contains("First Site Title"), firstHtml);
+      assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
+
+      catalog.set(
+          """
+          {"pages":[{"id":"live-home","path":"index.html","title":"Second Title","body":"unique-token-BBB"}]}
+          """);
+      writeHttpYamlWithUrl(root, "Second Site Title", url);
+
+      PSVirtualSiteBuildResult second = service.build(root, out, "http-docs");
+      assertEquals(1, second.pageCount());
+      String secondHtml = Files.readString(html, StandardCharsets.UTF_8);
+      assertTrue(secondHtml.contains("Second Site Title"), secondHtml);
+      assertTrue(secondHtml.contains("Second Title"), secondHtml);
+      assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
+      assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
+      assertFalse(secondHtml.contains("First Title"), secondHtml);
+      assertNotEquals(firstHtml, secondHtml);
+    } finally {
+      server.stop(0);
+    }
   }
 
   @Test
@@ -581,6 +701,47 @@ class PSHttpJsonVirtualSiteSourceTest {
             .formatted(httpBlock),
         StandardCharsets.UTF_8);
     return root;
+  }
+
+  private static void writeHttpYaml(Path root, String siteTitle, String file) throws Exception {
+    Files.writeString(
+        root.resolve("_config.yaml"),
+        """
+        site:
+          title: %s
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        http:
+          file: %s
+        """
+            .formatted(siteTitle, file),
+        StandardCharsets.UTF_8);
+  }
+
+  private static void writeHttpYamlWithUrl(Path root, String siteTitle, String url)
+      throws Exception {
+    Files.writeString(
+        root.resolve("_config.yaml"),
+        """
+        site:
+          title: %s
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        http:
+          url: "%s"
+        """
+            .formatted(siteTitle, url),
+        StandardCharsets.UTF_8);
   }
 
   private static VirtualSiteConfig config(Path root, String url, String file) {

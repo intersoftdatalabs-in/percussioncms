@@ -303,6 +303,10 @@ Supply **one** of:
 
 Do not set both `http.url` and `http.file`. Catalogs larger than 2 MB fail closed. Each
 discover/load re-reads the current HTTP body or file bytes (no process-lifetime cache).
+After you edit the JSON catalog (`http.file` / default `pages.json` / loopback `http.url`
+body) or `_config.yaml` on the CMS host, run **Build Virtual Site** again (UI,
+`POST …/virtual/build`, or `PSVirtualSiteBuildMain … http-json`) — **no JVM restart**.
+File watchers are not used; the next explicit build is the refresh.
 
 JSON contract:
 

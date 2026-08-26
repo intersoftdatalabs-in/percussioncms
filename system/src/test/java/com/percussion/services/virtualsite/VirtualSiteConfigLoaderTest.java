@@ -236,6 +236,50 @@ class VirtualSiteConfigLoaderTest {
   }
 
   @Test
+  void secondLoadAfterHttpFileAndConfigEditSeesCurrentHttpWithoutCache() throws Exception {
+    Path root = tempDir.resolve("live-http-config");
+    Files.createDirectories(root);
+    Path yaml = root.resolve("_config.yaml");
+    Files.writeString(
+        yaml,
+        """
+        site:
+          title: HTTP First
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        http:
+          file: pages.json
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig first = VirtualSiteConfigLoader.load(root, null, "k");
+    assertEquals("HTTP First", first.siteTitle());
+    assertEquals("pages.json", first.http().file());
+    assertTrue(first.http().url() == null || first.http().url().isBlank());
+
+    Files.writeString(
+        yaml,
+        """
+        site:
+          title: HTTP Second
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        http:
+          file: catalog.json
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig second = VirtualSiteConfigLoader.load(root, null, "k");
+    assertEquals("HTTP Second", second.siteTitle());
+    assertEquals("catalog.json", second.http().file());
+    assertTrue(second.http().url() == null || second.http().url().isBlank());
+  }
+
+  @Test
   void nullRootFails() {
     assertThrows(
         VirtualSiteException.class,

@@ -219,7 +219,9 @@ Each build re-reads current Markdown/frontmatter, CSV rows, `_config.yaml`, the
 sql-database `SELECT` (`sql.query` or current `sql.queryFile` plus H2 rows), and the
 http-json catalog (`http.url` / `http.file` or default `pages.json`) from
 `virtual.rootPath` (no CMS restart after `git pull`, a CSV/`_config.yaml` edit, a SQL
-query-file/`_config.yaml` or H2 row edit, a JSON catalog edit, or a local Markdown edit).
+query-file/`_config.yaml` or H2 row edit, a JSON catalog/`_config.yaml` edit, or a local
+Markdown edit). File watchers are not used; run **Build Virtual Site** again after those
+edits.
 The Developer Sites UI exposes this operation as **Build Virtual Site** when source kind
 is Git, CSV, SQL, or HTTP JSON (never for traditional repository Sites). After a
 successful HTTP JSON Build, **Preview assembled site** opens last-build home HTML
