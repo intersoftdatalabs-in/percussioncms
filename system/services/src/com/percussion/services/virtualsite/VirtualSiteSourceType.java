@@ -18,8 +18,8 @@ package com.percussion.services.virtualsite;
 
 /**
  * Registered Virtual Site adapter kinds. {@link #GIT_FILESYSTEM}, {@link #CSV_FILESYSTEM}, {@link
- * #SQL_DATABASE}, and {@link #HTTP_JSON} are wired through {@link PSVirtualSiteSourceFactory} and
- * allow-listed for Site property validation (REST GET/PUT persist).
+ * #SQL_DATABASE}, {@link #HTTP_JSON}, and {@link #OBJECT_STORAGE} are wired through {@link
+ * PSVirtualSiteSourceFactory} and allow-listed for Site property validation.
  */
 public enum VirtualSiteSourceType {
   GIT_FILESYSTEM("git-filesystem"),
@@ -36,7 +36,13 @@ public enum VirtualSiteSourceType {
    * {@code http}/{@code https}, no userinfo, {@code URLValidation}, redirects off-loopback rejected.
    * Git {@code virtual.remoteUrl} is not accepted.
    */
-  HTTP_JSON("http-json");
+  HTTP_JSON("http-json"),
+  /**
+   * Local directory treated as an object-key bucket ({@code object-storage}). Object keys are
+   * portable relative paths under {@code virtual.rootPath}. No cloud SDK, access keys, or network.
+   * Git {@code virtual.remoteUrl} is not accepted. REST persist of this kind is a later slice.
+   */
+  OBJECT_STORAGE("object-storage");
 
   private final String wireName;
 

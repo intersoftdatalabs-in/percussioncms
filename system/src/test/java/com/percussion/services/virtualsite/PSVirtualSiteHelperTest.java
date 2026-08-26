@@ -129,10 +129,16 @@ class PSVirtualSiteHelperTest {
   }
 
   @Test
-  void allowedSourceKindsIncludeGitCsvSqlAndHttpJson() {
+  void allowedSourceKindsIncludeGitCsvSqlHttpJsonAndObjectStorage() {
     List<String> allowed = PSVirtualSiteHelper.allowedSourceKindWireNames();
     assertEquals(
-        List.of("git-filesystem", "csv-filesystem", "sql-database", "http-json"), allowed);
+        List.of(
+            "git-filesystem",
+            "csv-filesystem",
+            "sql-database",
+            "http-json",
+            "object-storage"),
+        allowed);
   }
 
   @Test
@@ -191,6 +197,43 @@ class PSVirtualSiteHelperTest {
     assertEquals(
         VirtualSiteSourceType.HTTP_JSON,
         PSVirtualSiteHelper.virtualSourceType(site).orElseThrow());
+  }
+
+  @Test
+  void validatePassesForObjectStorageWithSafeRoot() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "object-storage"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "object-docs"));
+    assertDoesNotThrow(() -> PSVirtualSiteHelper.validate(site));
+    assertEquals(
+        VirtualSiteSourceType.OBJECT_STORAGE,
+        PSVirtualSiteHelper.virtualSourceType(site).orElseThrow());
+  }
+
+  @Test
+  void validateRejectsRemoteUrlForObjectStorage() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "object-storage"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "object-docs"),
+            prop(PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_REMOTE_URL));
+    assertTrue(ex.getMessage().contains("object-storage"));
+  }
+
+  @Test
+  void validateRejectsPathTraversalForObjectStorage() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "object-storage"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "../outside"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH));
+    assertTrue(ex.getMessage().contains(".."));
   }
 
   @Test
@@ -270,6 +313,7 @@ class PSVirtualSiteHelperTest {
     assertTrue(ex.getMessage().contains("csv-filesystem"));
     assertTrue(ex.getMessage().contains("sql-database"));
     assertTrue(ex.getMessage().contains("http-json"));
+    assertTrue(ex.getMessage().contains("object-storage"));
   }
 
   @Test

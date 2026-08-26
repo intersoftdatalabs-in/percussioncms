@@ -36,6 +36,7 @@ public final class VirtualSiteConfig {
   private final String siteKey;
   private final SqlSpec sql;
   private final HttpSpec http;
+  private final ObjectsSpec objects;
 
   public VirtualSiteConfig(
       Path root,
@@ -70,6 +71,20 @@ public final class VirtualSiteConfig {
       String siteKey,
       SqlSpec sql,
       HttpSpec http) {
+    this(root, siteTitle, siteUrl, layoutFile, versions, nav, siteKey, sql, http, null);
+  }
+
+  public VirtualSiteConfig(
+      Path root,
+      String siteTitle,
+      String siteUrl,
+      String layoutFile,
+      List<VersionSpec> versions,
+      List<NavSpec> nav,
+      String siteKey,
+      SqlSpec sql,
+      HttpSpec http,
+      ObjectsSpec objects) {
     this.root = Objects.requireNonNull(root, "root");
     this.siteTitle = siteTitle != null ? siteTitle : "Documentation";
     this.siteUrl = siteUrl != null ? siteUrl : "";
@@ -83,6 +98,7 @@ public final class VirtualSiteConfig {
     this.siteKey = siteKey != null && !siteKey.isBlank() ? siteKey : "default";
     this.sql = sql;
     this.http = http;
+    this.objects = objects;
   }
 
   public Path root() {
@@ -131,6 +147,17 @@ public final class VirtualSiteConfig {
    */
   public HttpSpec http() {
     return http;
+  }
+
+  /**
+   * Optional object-key listing for {@code object-storage} sources ({@code objects:} in {@code
+   * _config.yaml}). When omitted, the adapter walks version folders for Markdown / HTML / JSON
+   * objects.
+   *
+   * @return spec, or null when the mapping is omitted
+   */
+  public ObjectsSpec objects() {
+    return objects;
   }
 
   public Path themeDir() {
@@ -324,6 +351,34 @@ public final class VirtualSiteConfig {
     @Override
     public String toString() {
       return "HttpSpec{url='" + url + "', file='" + file + "'}";
+    }
+  }
+
+  /**
+   * Local object-key listing for {@code object-storage}. Keys are portable relative paths under the
+   * site root (logical {@code /}, no remaining {@code ..}).
+   */
+  public static final class ObjectsSpec {
+    private final List<String> keys;
+
+    public ObjectsSpec(List<String> keys) {
+      this.keys =
+          keys == null
+              ? List.of()
+              : Collections.unmodifiableList(new ArrayList<>(keys));
+    }
+
+    public List<String> keys() {
+      return keys;
+    }
+
+    public boolean hasKeys() {
+      return !keys.isEmpty();
+    }
+
+    @Override
+    public String toString() {
+      return "ObjectsSpec{keys=" + keys.size() + "}";
     }
   }
 

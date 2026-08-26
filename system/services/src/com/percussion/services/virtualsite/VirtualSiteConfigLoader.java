@@ -18,6 +18,7 @@ package com.percussion.services.virtualsite;
 
 import com.percussion.services.virtualsite.VirtualSiteConfig.HttpSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.NavSpec;
+import com.percussion.services.virtualsite.VirtualSiteConfig.ObjectsSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.SqlSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.VersionSpec;
 import java.io.IOException;
@@ -220,7 +221,13 @@ public final class VirtualSiteConfigLoader {
         throw new VirtualSiteException("http: must be a mapping in " + sourceLabel);
       }
       HttpSpec http = parseHttpSpec(asMap(httpObj));
-      return new VirtualSiteConfig(root, title, url, layout, versions, nav, siteKey, sql, http);
+      Object objectsObj = map.get("objects");
+      if (objectsObj != null && !(objectsObj instanceof Map<?, ?>)) {
+        throw new VirtualSiteException("objects: must be a mapping in " + sourceLabel);
+      }
+      ObjectsSpec objects = parseObjectsSpec(asMap(objectsObj), sourceLabel);
+      return new VirtualSiteConfig(
+          root, title, url, layout, versions, nav, siteKey, sql, http, objects);
     } catch (VirtualSiteException e) {
       throw e;
     } catch (Exception e) {
@@ -233,6 +240,31 @@ public final class VirtualSiteConfigLoader {
       return null;
     }
     return new HttpSpec(stringVal(http.get("url")), stringVal(http.get("file")));
+  }
+
+  private static ObjectsSpec parseObjectsSpec(Map<String, Object> objects, String sourceLabel)
+      throws VirtualSiteException {
+    if (objects == null || objects.isEmpty()) {
+      return null;
+    }
+    Object keysObj = objects.get("keys");
+    if (keysObj == null) {
+      return new ObjectsSpec(List.of());
+    }
+    if (!(keysObj instanceof List<?> list)) {
+      throw new VirtualSiteException("objects.keys must be a list in " + sourceLabel);
+    }
+    List<String> keys = new ArrayList<>();
+    for (Object item : list) {
+      if (item == null) {
+        continue;
+      }
+      String key = String.valueOf(item).trim();
+      if (!key.isBlank()) {
+        keys.add(key);
+      }
+    }
+    return new ObjectsSpec(keys);
   }
 
   private static SqlSpec parseSqlSpec(Map<String, Object> sql) {
