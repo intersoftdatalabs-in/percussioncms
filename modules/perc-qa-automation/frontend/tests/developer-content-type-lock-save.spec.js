@@ -107,6 +107,15 @@ async function openContentTypeDetail(page, namePattern) {
       `Content type detail error: ${(await detailError.innerText()).trim()}`,
     );
   }
+  await expect(page.locator('[data-testid="developer-ct-lock-toolbar"]')).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(page.locator('[data-testid="developer-ct-lock"]')).toBeEnabled({
+    timeout: 30_000,
+  });
+  await expect(page.locator('[data-testid="developer-ct-enabled"]')).toBeDisabled({
+    timeout: 15_000,
+  });
   return detail;
 }
 

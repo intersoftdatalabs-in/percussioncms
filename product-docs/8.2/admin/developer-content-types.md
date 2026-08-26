@@ -29,9 +29,12 @@ use `GET`/`PUT /services/contenttypes/{idOrName}/itemExits`. This page does
 2. Open **Developer → Content types**, or deep-link
    `spa.jsp?entry=developer&section=content-types`.
 3. Open a catalog row.
-4. The detail toolbar shows **Lock**, **Save content type**, and **Unlock**.
-   The status line starts as **Not locked**. Label, description, enabled, field
-   flags, and association editors stay **read-only** until you hold the lock.
+4. The **detail toolbar at the top of the panel** shows **Lock**, **Save content
+   type**, **Unlock**, and the **Enabled** checkbox. The status line starts as
+   **Not locked**. Label, description, enabled, field flags, and association
+   editors stay **read-only** until you hold the lock. Enabled stays disabled
+   until you hold the lock; a failed lock (**409**) does not steal another
+   user's lock or enable the checkbox.
 5. Click **Lock**. Status becomes **Locked by you**. If another user already
    holds the lock, the panel shows an error and Save stays disabled (the product
    does **not** steal the lock).

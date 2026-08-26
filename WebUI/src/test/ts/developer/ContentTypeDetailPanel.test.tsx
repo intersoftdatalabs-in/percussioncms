@@ -413,7 +413,10 @@ describe("ContentTypeDetailPanel", () => {
       );
     });
     expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).disabled).toBe(true);
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+    fireEvent.click(screen.getByTestId("developer-ct-enabled"));
+    expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).checked).toBe(true);
   });
 
   it("clears the held lock when save returns 409 (#3744)", async () => {
@@ -583,6 +586,26 @@ describe("ContentTypeDetailPanel", () => {
       expect(unlockContentType).toHaveBeenCalledWith("percPage");
     });
     expect(onBack).toHaveBeenCalled();
+  });
+
+  it("renders lock toolbar and disabled enabled chrome while detail is loading (#3834)", async () => {
+    let resolveDetail: (value: typeof sampleDetail) => void = () => undefined;
+    getContentTypeDetail.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveDetail = resolve;
+        }),
+    );
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    expect(screen.getByTestId("developer-ct-lock-toolbar")).toBeTruthy();
+    expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).disabled).toBe(true);
+    expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+    resolveDetail(sampleDetail);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).disabled).toBe(true);
   });
 
   it("keeps the enabled toggle disabled until lock (#3781)", async () => {
