@@ -258,8 +258,9 @@ Capability gaps still render as the human-readable **message** (fallback **code*
 `PUT /services/contenttypes/{idOrName}/allowedWorkflows` replaces the content
 type's allowed-workflow associations. Hold the design-session lock first; save
 keeps the lock so you can continue editing, then unlock. This dedicated action
-does **not** auto lock-save-unlock (the generic `PUT /contenttypes/{idOrName}`
-still does that for mixed meta/field updates).
+does **not** acquire or release the lock. The Developer SPA **Content types**
+detail chrome uses this PUT after **Lock** (not the generic content-type PUT)
+when the allowed-workflow set changes.
 
 Typical flow: `POST .../lock` → `PUT .../allowedWorkflows` → (optional further
 design writes) → `POST .../unlock`.

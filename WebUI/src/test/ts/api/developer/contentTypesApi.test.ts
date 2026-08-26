@@ -4,17 +4,17 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  lockContentType,
   normalizeContentTypeDesignGaps,
   normalizeContentTypeFields,
   normalizeContentTypeStringList,
   normalizeNamedObjectRefs,
-  unlockContentType,
+  setContentTypeAllowedWorkflows,
   unwrapContentTypeDetail,
   unwrapContentTypeList,
   unwrapObjectLockSummary,
   updateContentTypeDetail,
   wrapContentTypeDetailForWire,
+  wrapContentTypeWorkflowsForWire,
 } from "../../../../main/ts/api/developer/contentTypesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -250,6 +250,22 @@ describe("wrapContentTypeDetailForWire", () => {
   });
 });
 
+describe("wrapContentTypeWorkflowsForWire", () => {
+  it("wraps allowedWorkflows under ContentTypeWorkflows", () => {
+    expect(
+      wrapContentTypeWorkflowsForWire({
+        allowedWorkflows: [{ name: "Simple Workflow" }],
+        defaultWorkflow: { name: "Simple Workflow" },
+      }),
+    ).toEqual({
+      ContentTypeWorkflows: {
+        allowedWorkflows: [{ name: "Simple Workflow" }],
+        defaultWorkflow: { name: "Simple Workflow" },
+      },
+    });
+  });
+});
+
 describe("unwrapObjectLockSummary", () => {
   it("unwraps Jackson ObjectLockSummary root", () => {
     expect(
@@ -270,7 +286,7 @@ describe("unwrapObjectLockSummary", () => {
   });
 });
 
-describe("updateContentTypeDetail lock-save-unlock wrap", () => {
+describe("content type design PUTs (held lock, no wrap)", () => {
   const fetchMock = vi.fn();
 
   beforeEach(() => {
@@ -289,24 +305,52 @@ describe("updateContentTypeDetail lock-save-unlock wrap", () => {
     });
   }
 
-  it("POSTs lock, PUTs save, then POSTs unlock", async () => {
-    fetchMock
-      .mockResolvedValueOnce(jsonResponse({ session: "s", locker: "Admin", remainingTime: 30 }))
-      .mockResolvedValueOnce(
-        jsonResponse({
-          ContentTypeDetail: { name: "percPage", label: "Page", description: "updated" },
-        }),
-      )
-      .mockResolvedValueOnce(new Response(null, { status: 204 }));
+  it("updateContentTypeDetail PUTs only and does not lock or unlock", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeDetail: { name: "percPage", label: "Page", description: "updated" },
+      }),
+    );
 
     const saved = await updateContentTypeDetail("percPage", { description: "updated" });
     expect(saved.description).toBe("updated");
-    expect(fetchMock).toHaveBeenCalledTimes(3);
-    const methods = fetchMock.mock.calls.map((c) => (c[1] as RequestInit).method);
-    expect(methods).toEqual(["POST", "PUT", "POST"]);
-    const urls = fetchMock.mock.calls.map((c) => String(c[0]));
-    expect(urls[0]).toContain(`${PATHS.CONTENT_TYPES}/percPage/lock`);
-    expect(urls[1]).toContain(`${PATHS.CONTENT_TYPES}/percPage`);
-    expect(urls[2]).toContain(`${PATHS.CONTENT_TYPES}/percPage/unlock`);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.CONTENT_TYPES}/percPage`);
+    expect(String(fetchMock.mock.calls[0][0])).not.toContain("allowedWorkflows");
+    expect(JSON.parse(String(init.body))).toEqual({
+      ContentTypeDetail: { description: "updated" },
+    });
+  });
+
+  it("setContentTypeAllowedWorkflows PUTs CD-08 wrap without lock or unlock", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeDetail: {
+          name: "percPage",
+          allowedWorkflows: [{ name: "Standard Workflow" }],
+          defaultWorkflow: { name: "Standard Workflow" },
+        },
+      }),
+    );
+
+    const saved = await setContentTypeAllowedWorkflows("percPage", {
+      allowedWorkflows: [{ name: "Standard Workflow" }],
+      defaultWorkflow: { name: "Standard Workflow" },
+    });
+    expect(saved.allowedWorkflows).toEqual([{ name: "Standard Workflow" }]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/percPage/allowedWorkflows`,
+    );
+    expect(JSON.parse(String(init.body))).toEqual({
+      ContentTypeWorkflows: {
+        allowedWorkflows: [{ name: "Standard Workflow" }],
+        defaultWorkflow: { name: "Standard Workflow" },
+      },
+    });
   });
 });
