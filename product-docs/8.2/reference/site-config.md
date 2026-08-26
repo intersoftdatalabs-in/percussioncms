@@ -111,7 +111,7 @@ When a Percussion Site is configured as virtual (Phase 1 — no new `RXSITES` co
 
 | Property name | Required | Example | Meaning |
 |---------------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, or `http-json` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips git, CSV, SQL, and `http-json`. REST **Build** (`POST …/virtual/build`) runs git/CSV/SQL and `http-json` (local JSON fixture or loopback catalog). REST **Publish** (`POST …/virtual/publish`) runs git/CSV/SQL and `http-json` adapters (copies assembled HTML to `IPSSite.root`; leftover `virtual.remoteUrl` on `http-json` is **400**). REST **Preview** streams last-build HTML after Build (git/CSV/SQL/`http-json`). `http-json` persist uses a portable-safe `rootPath` JSON fixture; catalog URL/file live in `_config.yaml` (`http.url` / `http.file`); `virtual.remoteUrl` is **400** (no secrets on the REST envelope). SPI/CLI assemble is installed. Developer Sites can select, save, **Build**, and **Preview** HTTP JSON; Publish chrome for that kind is a later phase. `sql-database` is in-memory H2 (`jdbc:h2:mem:`; required query columns `id`, `title`, `body`; JDBC URL/user/query in `_config.yaml`, never passwords on the REST envelope). Developer Sites can select and save **SQL database**. `csv-filesystem` required columns: `id`, `title`, `body`; optional `_config.yaml`. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, or `http-json` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips git, CSV, SQL, and `http-json`. REST **Build** (`POST …/virtual/build`) runs git/CSV/SQL and `http-json` (local JSON fixture or loopback catalog). REST **Publish** (`POST …/virtual/publish`) runs git/CSV/SQL and `http-json` adapters (copies assembled HTML to `IPSSite.root`; leftover `virtual.remoteUrl` on `http-json` is **400**). REST **Preview** streams last-build HTML after Build (git/CSV/SQL/`http-json`). `http-json` persist uses a portable-safe `rootPath` JSON fixture; catalog URL/file live in `_config.yaml` (`http.url` / `http.file`); `virtual.remoteUrl` is **400** (no secrets on the REST envelope). SPI/CLI assemble is installed. Developer Sites can select, save, **Build**, **Preview**, and **Publish** HTTP JSON. `sql-database` is in-memory H2 (`jdbc:h2:mem:`; required query columns `id`, `title`, `body`; JDBC URL/user/query in `_config.yaml`, never passwords on the REST envelope). Developer Sites can select and save **SQL database**. `csv-filesystem` required columns: `id`, `title`, `body`; optional `_config.yaml`. |
 | `virtual.rootPath` | Yes when remote is blank | absolute or install-relative path to tree | Local filesystem source root when `virtual.remoteUrl` is blank. NIO `Path` normalize; no empty path / remaining `..`. When a remote is set, optional relative path inside the checkout. |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones/fetches into `{install}/tmp/virtual-site-checkouts/{siteKey}`. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. Fail-closed on `..`, `http`, option injection. Credentials are never logged. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. |
@@ -222,7 +222,8 @@ http-json catalog (`http.url` / `http.file` or default `pages.json`) from
 query-file/`_config.yaml` or H2 row edit, a JSON catalog edit, or a local Markdown edit).
 The Developer Sites UI exposes this operation as **Build Virtual Site** when source kind
 is Git, CSV, SQL, or HTTP JSON (never for traditional repository Sites). After a
-successful HTTP JSON Build, **Preview assembled site** opens last-build home HTML.
+successful HTTP JSON Build, **Preview assembled site** opens last-build home HTML
+and **Publish Virtual Site** copies assembled files to the Site filesystem root.
 When
 `hasLinkProblems` is true, the result panel shows the problem **count** and an expandable list
 of `linkProblems` (same text as `link-report.txt`). A clean build does not show that banner.
@@ -273,8 +274,9 @@ local JSON fixture or loopback catalog (`http.url` / `http.file` in `_config.yam
 
 Configure a dedicated Site root (not the Markdown, CSV, SQL, or HTTP JSON source path).
 Operators can run the same action from **Developer → Sites → Site detail → Publish Virtual
-Site** (Admin; **Git filesystem**, **CSV filesystem**, and **SQL database**; hidden for
-repository Sites). HTTP JSON Publish chrome is a later slice; REST Publish still runs for
+Site** (Admin; **Git filesystem**, **CSV filesystem**, **SQL database**, and **HTTP JSON**;
+hidden for repository Sites). After a successful HTTP JSON Build, **Publish Virtual Site**
+copies assembled HTML to the Site filesystem root. REST Publish still runs for
 `http-json`. `sql-database` Publish is in-memory H2 only (`jdbc:h2:mem:`); Oracle /
 MySQL / SQL Server JDBC URLs return **400**. See
 [Publishing](id:admin-publishing).

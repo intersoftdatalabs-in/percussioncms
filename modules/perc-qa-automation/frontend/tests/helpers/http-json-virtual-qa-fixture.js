@@ -17,7 +17,8 @@
 
 /**
  * Copy the HTTP JSON Virtual Site QA fixture into the H2 Docker cell so
- * Developer Sites Build can POST /virtual/build against a local JSON catalog.
+ * Developer Sites Build / Publish can POST /virtual/build and /virtual/publish
+ * against a local JSON catalog.
  *
  * Catalog is a local file under the site root (http.file: pages.json). No
  * remote URL, Authorization, or API keys.
@@ -29,6 +30,12 @@ const path = require("node:path");
 
 /** Absolute POSIX path inside the Linux QA CMS container. */
 const HTTP_JSON_VIRTUAL_QA_ROOT = "/opt/Percussion/tmp/http-json-virtual-qa";
+
+/** Assembled home copied to the Site filesystem root after HTTP JSON Publish (Linux cell). */
+const HTTP_JSON_VIRTUAL_PUBLISHED_HTML = "8.2/index.html";
+
+/** Marker from the local pages.json fixture body, present in published HTML. */
+const HTTP_JSON_VIRTUAL_PUBLISH_MARKER = "Hello from JSON.";
 
 function qaCmsContainer() {
   const fromEnv = (
@@ -95,9 +102,83 @@ function deployHttpJsonVirtualFixtureToQaCell() {
   return HTTP_JSON_VIRTUAL_QA_ROOT;
 }
 
+/**
+ * Normalize a Developer Sites Publish destination path for the Linux QA cell.
+ * Rejects empty, relative, drive-letter, and {@code ..} paths so docker exec
+ * never follows a traversal. In-container filesystem paths always use {@code /}.
+ *
+ * @param {unknown} raw dest text from {@code developer-site-virtual-publish-dest}
+ * @returns {string} POSIX absolute path
+ */
+function normalizeQaPublishDestPath(raw) {
+  if (typeof raw !== "string") {
+    throw new Error("HTTP JSON Virtual Site publish dest is missing");
+  }
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    throw new Error("HTTP JSON Virtual Site publish dest is blank");
+  }
+  const posix = trimmed.replace(/\\/g, "/");
+  if (/^[a-zA-Z]:/.test(posix) || posix.startsWith("//")) {
+    throw new Error(
+      `HTTP JSON Virtual Site publish dest is not a Linux QA cell path: ${trimmed}`,
+    );
+  }
+  if (!posix.startsWith("/")) {
+    throw new Error(`HTTP JSON Virtual Site publish dest is not absolute: ${trimmed}`);
+  }
+  const parts = posix.split("/").filter((seg) => seg.length > 0);
+  if (parts.some((seg) => seg === ".." || seg === ".")) {
+    throw new Error(`HTTP JSON Virtual Site publish dest is unsafe: ${trimmed}`);
+  }
+  return `/${parts.join("/")}`;
+}
+
+function posixJoin(base, ...segments) {
+  const dest = normalizeQaPublishDestPath(base);
+  const extra = [];
+  for (const seg of segments) {
+    const piece = String(seg ?? "").trim().replace(/\\/g, "/");
+    for (const part of piece.split("/")) {
+      if (!part) {
+        continue;
+      }
+      if (part === ".." || part === ".") {
+        throw new Error(`HTTP JSON Virtual Site publish relpath is unsafe: ${seg}`);
+      }
+      extra.push(part);
+    }
+  }
+  return extra.length === 0 ? dest : `${dest}/${extra.join("/")}`;
+}
+
+/**
+ * Fail closed unless assembled HTTP JSON HTML exists under the Site filesystem
+ * root inside the QA cell (acceptance: files exist after Publish).
+ *
+ * @param {unknown} publishPath dest shown in Developer Sites Publish chrome
+ */
+function assertPublishedHttpJsonFilesOnQaCell(publishPath) {
+  const html = posixJoin(publishPath, HTTP_JSON_VIRTUAL_PUBLISHED_HTML);
+  const container = qaCmsContainer();
+  dockerExec(container, ["test", "-f", html]);
+  const body = dockerExec(container, ["cat", html]);
+  if (!body.includes(HTTP_JSON_VIRTUAL_PUBLISH_MARKER) && !body.includes("HTTP JSON Home")) {
+    throw new Error(
+      `Published HTTP JSON HTML missing fixture marker at ${html}: ${body.slice(0, 400)}`,
+    );
+  }
+  return html;
+}
+
 module.exports = {
   HTTP_JSON_VIRTUAL_QA_ROOT,
+  HTTP_JSON_VIRTUAL_PUBLISHED_HTML,
+  HTTP_JSON_VIRTUAL_PUBLISH_MARKER,
   httpJsonVirtualFixtureHostDir,
   deployHttpJsonVirtualFixtureToQaCell,
+  normalizeQaPublishDestPath,
+  posixJoin,
+  assertPublishedHttpJsonFilesOnQaCell,
   qaCmsContainer,
 };
