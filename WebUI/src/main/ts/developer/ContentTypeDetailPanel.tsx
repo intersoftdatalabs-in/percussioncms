@@ -20,6 +20,7 @@ import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
   getContentTypeDetail,
   lockContentType,
+  setContentTypeEnabled,
   unlockContentType,
   updateContentTypeDetail,
   type ContentTypeUpdateBody,
@@ -393,6 +394,19 @@ export function ContentTypeDetailPanel({
       setError(DEV_MSG.CT_LOCK_REQUIRED);
       return;
     }
+    if (detail == null) {
+      return;
+    }
+    const enabledDirty = enabled !== (detail.enabled !== false);
+    const otherDirty =
+      label !== (detail.label || "") ||
+      description !== (detail.description || "") ||
+      fieldsDirty ||
+      workflowsDirty ||
+      templatesDirty;
+    if (!enabledDirty && !otherDirty) {
+      return;
+    }
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -412,24 +426,31 @@ export function ContentTypeDetailPanel({
           required: d.required,
         }));
 
-      const body: ContentTypeUpdateBody = {
-        label,
-        description,
-        enabled,
-        fields: fieldPatches,
-      };
-      if (workflowsDirty) {
-        body.allowedWorkflows = toRefPayload(workflows);
-        const def = workflows.find((w) => w.isDefault) || workflows[0];
-        if (def) {
-          body.defaultWorkflow = toRefPayload([def])[0];
+      let saved: ContentTypeDetail | null = null;
+      if (otherDirty) {
+        const body: ContentTypeUpdateBody = {
+          label,
+          description,
+          fields: fieldPatches,
+        };
+        if (workflowsDirty) {
+          body.allowedWorkflows = toRefPayload(workflows);
+          const def = workflows.find((w) => w.isDefault) || workflows[0];
+          if (def) {
+            body.defaultWorkflow = toRefPayload([def])[0];
+          }
         }
+        if (templatesDirty) {
+          body.allowedTemplates = toRefPayload(templates);
+        }
+        saved = normalizeDetailLists(await updateContentTypeDetail(idOrName, body));
       }
-      if (templatesDirty) {
-        body.allowedTemplates = toRefPayload(templates);
+      if (enabledDirty) {
+        saved = normalizeDetailLists(await setContentTypeEnabled(idOrName, enabled));
       }
-
-      const saved = normalizeDetailLists(await updateContentTypeDetail(idOrName, body));
+      if (saved == null) {
+        return;
+      }
       setDetail(saved);
       setLabel(saved.label || "");
       setDescription(saved.description || "");
@@ -490,7 +511,7 @@ export function ContentTypeDetailPanel({
               {label || detail.name || idOrName}
             </h2>
             <div style={{ fontFamily: "monospace", color: catalogColors.muted }}>
-              {detail.name}
+              <span data-testid="developer-ct-detail-name">{detail.name}</span>
               {" · "}
               <span data-testid="developer-ct-detail-guid">{objectGuid || "—"}</span>
             </div>
@@ -525,6 +546,7 @@ export function ContentTypeDetailPanel({
                 <input
                   type="checkbox"
                   data-testid="developer-ct-enabled"
+                  aria-label={DEV_MSG.CT_FORM_ENABLED}
                   checked={enabled}
                   onChange={() => setEnabled((v) => !v)}
                   disabled={!canEdit}

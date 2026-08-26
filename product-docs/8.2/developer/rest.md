@@ -205,7 +205,7 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Replace field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` | **Admin** (CD-05–07). Requires a **held** design-session lock. Full replace of `validation`, `visibility`, `inputTranslation`, and `outputTranslation` (empty lists clear). Unknown field names are **400**. **409** if unlocked or locked by another user. Does not acquire or release the lock. |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
 
-Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types).
+Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT).
 
 Lock / save / unlock status codes:
 

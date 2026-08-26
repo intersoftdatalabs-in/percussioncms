@@ -1653,8 +1653,8 @@ public class PSContentDesignWs extends PSContentBaseWs implements
                         lockService);
                   }
 
-                  PSContentTypeHelper.saveContentType(def, null, version,
-                     listener, true);
+                  PSContentTypeHelper.saveContentType(
+                      def, null, version, listener, contentTypeSaveAppEnabled(def));
 
                   if (listener != null)
                   {
@@ -1739,6 +1739,18 @@ public class PSContentDesignWs extends PSContentBaseWs implements
     */
    static IPSGuid contentTypeLockObjectId(long typeId) {
       return new PSDesignGuid(PSTypeEnum.NODEDEF, typeId);
+   }
+
+   /**
+    * Application {@code enabled} flag written by content-type design save (CD-13).
+    *
+    * <p>{@link PSContentTypeHelper#saveContentType} starts or stops the editor
+    * application from this boolean. A hardcoded {@code true} ignored
+    * {@link PSItemDefinition#isEnabled()} so {@code PUT .../enabled} never
+    * persisted.
+    */
+   static boolean contentTypeSaveAppEnabled(PSItemDefinition def) {
+      return def != null && def.isEnabled();
    }
 
    // @see IPSContentDesignWs#saveKeywords(List, boolean, String, String)

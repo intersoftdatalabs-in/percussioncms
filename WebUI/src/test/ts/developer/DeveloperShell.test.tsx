@@ -96,6 +96,18 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     allowedTemplates: body.allowedTemplates ?? [{ name: "perc.page", label: "Page" }],
     designGaps: [],
   })),
+    setContentTypeEnabled: vi.fn().mockImplementation(async (_id, enabled: boolean) => ({
+      name: "percPage",
+      label: "Page",
+      description: "A page",
+      enabled,
+      guid: { stringValue: "0-2-301", uuid: 301 },
+      fields: [],
+      allowedWorkflows: [{ name: "Simple Workflow", label: "Simple Workflow", isDefault: true }],
+      defaultWorkflow: { name: "Simple Workflow", label: "Simple Workflow", isDefault: true },
+      allowedTemplates: [{ name: "perc.page", label: "Page" }],
+      designGaps: [],
+    })),
     lockContentType: vi.fn().mockResolvedValue({ locker: "Admin", remainingTime: 30 }),
     unlockContentType: vi.fn().mockResolvedValue(undefined),
   };
@@ -781,9 +793,10 @@ it("loads views catalog section", async () => {
         expect.objectContaining({ name: "page_title", searchable: true }),
       ]),
     );
-    // Field-only save must not wipe associations
+    // Field-only save must not wipe associations or bulk-PUT enabled (CD-13)
     expect(body.allowedWorkflows).toBeUndefined();
     expect(body.allowedTemplates).toBeUndefined();
+    expect(body.enabled).toBeUndefined();
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
     });

@@ -291,25 +291,54 @@ export function wrapContentTypeDetailForWire(
 }
 
 /**
- * PUT /services/contenttypes/{idOrName} — requires a held design lock; does not release it.
+ * PUT /services/contenttypes/{idOrName} — requires a held design lock; does not
+ * acquire or release it. Call {@link lockContentType} first. HTTP 409 when
+ * unlocked or locked by another user.
  *
- * <p>This client wraps lock → PUT → unlock so the Developer SPA save path keeps working until
- * lock-button chrome (#3744) lands. The server PUT is 409 unless the current user already holds
- * the lock.
+ * <p>Do not send {@code enabled} here — use {@link setContentTypeEnabled} (CD-13).
  */
 export async function updateContentTypeDetail(
   idOrName: string,
   body: ContentTypeUpdateBody,
 ): Promise<ContentTypeDetail> {
-  await lockContentType(idOrName);
-  try {
-    const key = encodeURIComponent(idOrName);
-    const payload = await put<unknown>(
-      `${PATHS.CONTENT_TYPES}/${key}`,
-      wrapContentTypeDetailForWire(body),
-    );
-    return unwrapContentTypeDetail(payload);
-  } finally {
-    await unlockContentType(idOrName).catch(() => undefined);
-  }
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}`,
+    wrapContentTypeDetailForWire(body),
+  );
+  return unwrapContentTypeDetail(payload);
+}
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code ContentTypeEnabled}. */
+export const CONTENT_TYPE_ENABLED_ROOT = "ContentTypeEnabled";
+
+/**
+ * Build the wire JSON body for {@code PUT .../enabled} under
+ * {@link CONTENT_TYPE_ENABLED_ROOT}. A flat {@code { enabled }} body fails
+ * server UNWRAP_ROOT_VALUE.
+ */
+export function wrapContentTypeEnabledForWire(
+  enabled: boolean,
+): Record<string, { enabled: boolean }> {
+  return { [CONTENT_TYPE_ENABLED_ROOT]: { enabled } };
+}
+
+/**
+ * PUT /services/contenttypes/{idOrName}/enabled — CD-13 dedicated enable/disable.
+ *
+ * <p>Requires a design-session lock already held by the current user
+ * ({@link lockContentType}). Does not acquire or release the lock. HTTP 409
+ * when unlocked or locked by another user. Response is {@code ContentTypeDetail}
+ * with the new {@code enabled} value (lock still held).
+ */
+export async function setContentTypeEnabled(
+  idOrName: string,
+  enabled: boolean,
+): Promise<ContentTypeDetail> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}/enabled`,
+    wrapContentTypeEnabledForWire(enabled),
+  );
+  return unwrapContentTypeDetail(payload);
 }

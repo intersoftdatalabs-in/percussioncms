@@ -27,6 +27,7 @@ import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSConditionalExit;
 import com.percussion.design.objectstore.PSContentEditor;
 import com.percussion.design.objectstore.PSContentEditorPipe;
+import com.percussion.design.objectstore.PSContentTypeHelper;
 import com.percussion.design.objectstore.PSControlRef;
 import com.percussion.design.objectstore.PSDisplayMapper;
 import com.percussion.design.objectstore.PSDisplayMapping;
@@ -259,24 +260,52 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   private PSItemDefinition resolveItemDef(String idOrName) throws PSInvalidContentTypeException {
-    // Prefer numeric uuid
-    if (StringUtils.isNumeric(idOrName)) {
-      long uuid = Long.parseLong(idOrName);
-      return itemDefManager.getItemDef(uuid, PSItemDefManager.COMMUNITY_ANY);
-    }
-    // Guid string forms: 0-2-301 or 0-301
-    if (idOrName.contains("-")) {
-      try {
-        PSGuid g = new PSGuid(idOrName);
-        if (g.getType() == 0) {
-          g = new PSGuid(PSTypeEnum.NODEDEF, g.getUUID());
-        }
-        return itemDefManager.getItemDef(g.getUUID(), PSItemDefManager.COMMUNITY_ANY);
-      } catch (Exception ignore) {
-        // fall through to name
+    try {
+      // Prefer numeric uuid
+      if (StringUtils.isNumeric(idOrName)) {
+        long uuid = Long.parseLong(idOrName);
+        return itemDefManager.getItemDef(uuid, PSItemDefManager.COMMUNITY_ANY);
       }
+      // Guid string forms: 0-2-301 or 0-301
+      if (idOrName.contains("-")) {
+        try {
+          PSGuid g = new PSGuid(idOrName);
+          if (g.getType() == 0) {
+            g = new PSGuid(PSTypeEnum.NODEDEF, g.getUUID());
+          }
+          return itemDefManager.getItemDef(g.getUUID(), PSItemDefManager.COMMUNITY_ANY);
+        } catch (PSInvalidContentTypeException e) {
+          throw e;
+        } catch (Exception ignore) {
+          // fall through to name
+        }
+      }
+      return itemDefManager.getItemDef(idOrName, PSItemDefManager.COMMUNITY_ANY);
+    } catch (PSInvalidContentTypeException e) {
+      PSItemDefinition fromStore = loadItemDefFromObjectStore(idOrName);
+      if (fromStore != null) {
+        return fromStore;
+      }
+      throw e;
     }
-    return itemDefManager.getItemDef(idOrName, PSItemDefManager.COMMUNITY_ANY);
+  }
+
+  /**
+   * Object-store load when the item-def cache no longer has a running editor
+   * (disabled content types unregister). Used so GET {@code enabled} still
+   * reflects the saved application flag (CD-13).
+   */
+  private PSItemDefinition loadItemDefFromObjectStore(String idOrName) {
+    try {
+      IPSGuid guid = resolveExistingContentTypeGuid(idOrName);
+      if (guid == null) {
+        return null;
+      }
+      return PSContentTypeHelper.loadItemDef(guid);
+    } catch (Exception e) {
+      log.debug("Object-store content type load after cache miss {}: {}", idOrName, e.getMessage());
+      return null;
+    }
   }
 
   private ContentTypeDetail toDetail(PSItemDefinition def) {
@@ -547,8 +576,12 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         log.error("Failed to save content type enabled flag {}: {}", idOrName, e.getMessage(), e);
         throw new IllegalStateException("Failed to save content type enabled flag", e);
       }
-      PSItemDefinition reloaded = resolveItemDef(trimmed);
-      return reloaded != null ? toDetail(reloaded) : toDetail(def);
+      PSItemDefinition reloaded = reloadItemDef(trimmed);
+      if (reloaded != null && reloaded != def) {
+        reloaded.setEnabled(enabled);
+        return toDetail(reloaded);
+      }
+      return toDetail(def);
     } catch (ContentTypeDesignLockException
         | IllegalArgumentException
         | WebApplicationException e) {

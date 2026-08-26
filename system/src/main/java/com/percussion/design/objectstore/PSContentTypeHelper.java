@@ -749,6 +749,7 @@ public class PSContentTypeHelper {
             nodeDef.getHideFromMenu(),
             nodeDef.getObjectType());
     PSItemDefinition itemDef = new PSItemDefinition(appName, contentType, ce);
+    itemDef.setEnabled(ceApp.isEnabled());
 
     return itemDef;
   }
