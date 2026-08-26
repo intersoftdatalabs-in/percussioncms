@@ -56,13 +56,14 @@ single-page object). Page `id` comes from frontmatter / JSON `id` or the filenam
 lists keys instead of walking version folders. **No cloud SDK, access keys, or network**
 — this is a local fixture contract, not live S3/MinIO/Azure. SPI/CLI assemble is
 `PSVirtualSiteBuildMain … object-storage`. Operators persist the kind with REST
-`PUT` / `GET /sites/{nameOrId}/virtual` and a portable-safe local `rootPath`. Cloud URLs
-(`s3://`, `gs://`, `azure://`, `http(s)://`) and credential properties (access keys,
-secrets, connection strings) return **400**. `virtual.remoteUrl` is **400**. Developer
-**Sites** can select **Object storage**, save `sourceKind=object-storage`, and GET-roundtrip
-the kind (same save chrome as HTTP JSON). REST **Build** / **Preview** / **Publish** and
-in-product Build/Preview/Publish chrome for this kind stay a later phase — those REST verbs
-remain git, CSV, SQL, and HTTP JSON.
+`PUT` / `GET /sites/{nameOrId}/virtual` and a portable-safe local `rootPath`. REST
+**Build** (`POST …/virtual/build`) runs the same adapter against that local bucket
+(`pagesWritten > 0`). Cloud URLs (`s3://`, `gs://`, `azure://`, `http(s)://`) and
+credential properties (access keys, secrets, connection strings) return **400**.
+`virtual.remoteUrl` is **400**. Developer **Sites** can select **Object storage**, save
+`sourceKind=object-storage`, and GET-roundtrip the kind (same save chrome as HTTP JSON).
+REST **Preview** / **Publish** and in-product Build/Preview/Publish chrome for this kind
+stay a later phase.
 
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
@@ -84,10 +85,11 @@ After the site folder is created, an optional Git root is saved with
   Sites can save/GET-roundtrip `sourceKind=http-json` and then **Build Virtual Site**,
   **Preview assembled site**, and **Publish Virtual Site**. REST **Publish** copies
   assembled HTML to `IPSSite.root`. Object storage (`object-storage`) is implemented as a
-  local object-key SPI (CLI assemble). REST **GET/PUT** also round-trips `object-storage`
-  (safe local `rootPath`; no cloud URLs or credentials). Developer Sites can save and
-  GET-roundtrip `sourceKind=object-storage`; Build/Preview/Publish chrome for this kind
-  stays a later phase.
+  local object-key SPI (CLI assemble) and REST **GET/PUT/Build**. REST **GET/PUT**
+  round-trips `object-storage` (safe local `rootPath`; no cloud URLs or credentials). REST
+  **Build** (`POST …/virtual/build`) writes HTML from that local bucket. Developer Sites
+  can save and GET-roundtrip `sourceKind=object-storage`; Build/Preview/Publish chrome for
+  this kind stays a later phase.
 
 ## Source tree contract
 
@@ -151,7 +153,7 @@ treated as a safe Virtual Site source.
 
 | Property | Required | Example | Meaning |
 |----------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, or `object-storage` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, SQL (H2), and HTTP JSON adapters (local JSON fixture or loopback catalog). Preview REST streams last-build HTML for git, CSV, SQL, and HTTP JSON. REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for git, CSV, SQL, and HTTP JSON. Developer Sites can save and build Git, CSV, SQL, and HTTP JSON, then **Preview assembled site** and **Publish Virtual Site**. Developer Sites can also save and GET-roundtrip `object-storage` (Build/Preview/Publish chrome later). REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400**) and `object-storage` (portable-safe local `rootPath`; cloud URLs and credential properties are **400**; `virtual.remoteUrl` is **400**). SPI/CLI assemble for `object-storage` is `PSVirtualSiteBuildMain … object-storage`. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, or `object-storage` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, SQL (H2), HTTP JSON (local JSON fixture or loopback catalog), and **object-storage** (local object-key bucket; `virtual.remoteUrl` is **400**). Preview REST streams last-build HTML for git, CSV, SQL, and HTTP JSON. REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for git, CSV, SQL, and HTTP JSON. Developer Sites can save and build Git, CSV, SQL, and HTTP JSON, then **Preview assembled site** and **Publish Virtual Site**. Developer Sites can also save and GET-roundtrip `object-storage` (Build/Preview/Publish chrome later). REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400**) and `object-storage` (portable-safe local `rootPath`; cloud URLs and credential properties are **400**; `virtual.remoteUrl` is **400**). SPI/CLI assemble for `object-storage` is `PSVirtualSiteBuildMain … object-storage`. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` (or install-relative) | Local filesystem root when `virtual.remoteUrl` is blank. When a remote is set, optional **relative** path inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. When set, **Build** clones or fetches into a contained work directory, then reuses git-filesystem discover. Blank keeps local-path mode. Allowed: `https://`, `ssh://`, `file://`, or `git@host:path`. `http` and other schemes are rejected. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. Simple ref name only (no `..` or leading `-`). |
@@ -383,7 +385,8 @@ to load; when omitted, the adapter walks each version folder for `*.md`, `*.html
 `*.htm`, and `*.json`. Files under `_theme`, `assets`, and names starting with `_` or `.`
 are skipped. Git remotes are not used (`virtual.remoteUrl` is rejected). REST GET/PUT
 persist of `sourceKind=object-storage` uses a portable-safe local `rootPath` (cloud URLs
-and credential properties are **400**).
+and credential properties are **400**). REST **Build** (`POST …/virtual/build`) runs the
+adapter against that local bucket (`pagesWritten > 0`).
 
 Page identity:
 
@@ -441,17 +444,20 @@ portable-safe `rootPath` (local object-key directory; no remaining `..` after NI
 credential properties (access keys, secrets, connection strings) are **400**. Never send
 AWS/IAM/secrets on this envelope. Unknown kinds remain **400**. Git, CSV, SQL, and
 `http-json` kinds are unchanged. Developer Sites can save and GET-roundtrip
-`sourceKind=object-storage`. REST **Build** / **Preview** / **Publish** for
-`object-storage` stay a later phase.
+`sourceKind=object-storage`. REST **Build** (`POST …/virtual/build`) is available for
+`object-storage`. REST **Preview** / **Publish** and Developer Sites Build/Preview/Publish
+chrome for this kind stay a later phase.
 
 ## CMS-integrated build (REST and WebUI)
 
 When a CMS Site has Virtual properties configured (`git-filesystem`, `csv-filesystem`,
-`sql-database`, or `http-json`), an **Admin** can trigger the matching build path from
-the running server. `sql-database` discovers rows from the in-memory H2 `SELECT` in
-`_config.yaml` (required `sql:` mapping; `pagesWritten > 0` when the query returns rows)
-and writes HTML under the output root. `http-json` discovers pages from a local JSON
-fixture or loopback catalog (`http.url` / `http.file`; `pagesWritten > 0`). Unknown
+`sql-database`, `http-json`, or `object-storage`), an **Admin** can trigger the matching
+build path from the running server. `sql-database` discovers rows from the in-memory H2
+`SELECT` in `_config.yaml` (required `sql:` mapping; `pagesWritten > 0` when the query
+returns rows) and writes HTML under the output root. `http-json` discovers pages from a
+local JSON fixture or loopback catalog (`http.url` / `http.file`; `pagesWritten > 0`).
+`object-storage` discovers Markdown / HTML / JSON object keys under a portable-safe local
+`rootPath` (`pagesWritten > 0`; leftover `virtual.remoteUrl` is **400**). Unknown
 `sourceKind` values stay **400**. Git and CSV builds are unchanged:
 
 ```http
@@ -505,10 +511,10 @@ stay in `_config.yaml` (`http.url` / `http.file`). `virtual.remoteUrl` is **400*
 `http-json` (no secrets on this envelope). Object-storage trees use `"sourceKind":
 "object-storage"` with a portable-safe local `rootPath`; cloud URLs and credential
 properties are **400**. In-product
-`POST …/virtual/build` runs for `git-filesystem`, `csv-filesystem`, `sql-database`, and
-`http-json`. `POST …/virtual/publish` runs for `git-filesystem`, `csv-filesystem`,
-`sql-database`, and `http-json` (copies assembled HTML to `IPSSite.root`; leftover
-`virtual.remoteUrl` on `http-json` is **400**).
+`POST …/virtual/build` runs for `git-filesystem`, `csv-filesystem`, `sql-database`,
+`http-json`, and `object-storage`. `POST …/virtual/publish` runs for `git-filesystem`,
+`csv-filesystem`, `sql-database`, and `http-json` (copies assembled HTML to
+`IPSSite.root`; leftover `virtual.remoteUrl` on `http-json` is **400**).
 
 ### Git remote fetch before Build
 

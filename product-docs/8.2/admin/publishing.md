@@ -36,14 +36,17 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
 - Offline / CI builds use `scripts/build-cms-docs.bat` / `scripts/build-cms-docs.sh` to emit static HTML without a full CMS UI session. CSV trees can use `PSVirtualSiteBuildMain … csv-filesystem`. SQL trees use `PSVirtualSiteBuildMain … sql-database` (in-memory H2 only). Local object-key directories use `PSVirtualSiteBuildMain … object-storage` (no cloud credentials).
 - **Build** (`POST /sites/{nameOrId}/virtual/build`) writes a staging tree under
   `{install}/tmp/virtual-sites/{siteKey}` (or an optional `outputRoot`). Each build re-reads the
-  current Git/filesystem, CSV tree (`csv-filesystem`), H2 `SELECT` (`sql-database`), or HTTP
-  JSON catalog (`http-json`: local fixture / loopback `http.url`). After
+  current Git/filesystem, CSV tree (`csv-filesystem`), H2 `SELECT` (`sql-database`), HTTP
+  JSON catalog (`http-json`: local fixture / loopback `http.url`), or object-storage keys
+  (`object-storage`: Markdown / HTML / JSON under a local `rootPath`). After
   `git pull`, a local Markdown edit, a CSV change, a `_config.yaml` change, a SQL
-  `queryFile` / `sql.query` change, an H2 row change, or a JSON catalog / `_config.yaml`
-  edit, run Build (or Publish) again — no CMS restart. File watchers are not used.
-  `sql-database` requires `_config.yaml` with a `sql:` mapping (`jdbc:h2:mem:`; Oracle /
-  MySQL / SQL Server URLs return **400**). `http-json` requires `_config.yaml` (versions
-  plus `http.url` or `http.file`); `virtual.remoteUrl` is **400**.
+  `queryFile` / `sql.query` change, an H2 row change, a JSON catalog / `_config.yaml`
+  edit, or an object-key edit, run Build (or Publish) again — no CMS restart. File
+  watchers are not used. `sql-database` requires `_config.yaml` with a `sql:` mapping
+  (`jdbc:h2:mem:`; Oracle / MySQL / SQL Server URLs return **400**). `http-json` requires
+  `_config.yaml` (versions plus `http.url` or `http.file`); `virtual.remoteUrl` is **400**.
+  `object-storage` requires `_config.yaml` and a portable-safe local `rootPath`; leftover
+  `virtual.remoteUrl` is **400**.
 - **Publish** (`POST /sites/{nameOrId}/virtual/publish`) runs that build, then copies the
   assembled HTML/assets to the Site **filesystem publish location** (`IPSSite.root` / Site
   publishing root). Staging `_meta` files are not copied. Redirect HTML and `redirects.json`
@@ -52,8 +55,9 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
   `http-json` Publish uses a local JSON fixture or loopback catalog (`http.url` /
   `http.file` in `_config.yaml`); leftover `virtual.remoteUrl` is **400** (no secrets on
   the envelope). REST **GET/PUT** can persist `virtual.sourceKind=object-storage` with a
-  local `rootPath` (cloud URLs and credentials are **400**). Developer Sites can save
-  **Object storage** (GET round-trips the kind); Build/Publish chrome for that kind
+  local `rootPath` (cloud URLs and credentials are **400**); REST **Build** runs that local
+  bucket. Developer Sites can save **Object storage** (GET round-trips the kind);
+  REST Preview/Publish and Developer Sites Build/Preview/Publish chrome for that kind
   stay a later phase. The endpoint does not accept an `outputRoot` body (always the default
   staging root).
 

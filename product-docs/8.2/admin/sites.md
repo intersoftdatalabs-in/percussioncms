@@ -71,7 +71,7 @@ and Markdown tooling, not the classic page editor.
 
 | Property | Required | Example | Notes |
 |----------|----------|---------|-------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, or `object-storage` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**, **`sql-database`**, **`http-json`**, **`object-storage`**. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips **`object-storage`** with a portable-safe local `rootPath` (cloud URLs and credential properties are **400**; `virtual.remoteUrl` is **400**). Developer Sites can save **Object storage** the same way as HTTP JSON (GET round-trips `object-storage`). REST **Build/Preview/Publish** for object-storage stay a later phase. Blank or `repository` = traditional Site. Developer Sites can save Git, CSV, SQL, **HTTP JSON**, or **Object storage**. **Build Virtual Site** (REST and Developer Sites) runs Git, CSV, SQL, and **HTTP JSON** after save (local JSON fixture or loopback catalog). **Preview assembled site** (REST and Developer Sites) streams last-build HTML for Git, CSV, SQL, and **HTTP JSON**. **Publish Virtual Site** (REST and Developer Sites) runs Git, CSV, SQL, and **HTTP JSON** after Build (copies assembled HTML to the Site filesystem root). REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips **`http-json`** (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400** — catalog URL/file stay in `_config.yaml`, no secrets on the REST envelope). `http-json` assemble is SPI/CLI plus REST Build and REST Publish (see [Virtual Sites](id:developer-virtual-sites)). `sql-database` is in-memory H2 (`jdbc:h2:mem:`; JDBC URL/user/query in `_config.yaml` — never passwords on the REST envelope). CSV trees may omit `_config.yaml`. Unknown kinds are rejected. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, or `object-storage` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**, **`sql-database`**, **`http-json`**, **`object-storage`**. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips **`object-storage`** with a portable-safe local `rootPath` (cloud URLs and credential properties are **400**; `virtual.remoteUrl` is **400**). REST **Build** (`POST …/virtual/build`) also runs **object-storage** against that local bucket. Developer Sites can save **Object storage** the same way as HTTP JSON (GET round-trips `object-storage`); Developer Sites Build/Preview/Publish chrome and REST Preview/Publish for object-storage stay a later phase. Blank or `repository` = traditional Site. Developer Sites can save Git, CSV, SQL, **HTTP JSON**, or **Object storage**. **Build Virtual Site** (REST and Developer Sites) runs Git, CSV, SQL, and **HTTP JSON** after save (local JSON fixture or loopback catalog). REST **Build** also runs **object-storage**. **Preview assembled site** (REST and Developer Sites) streams last-build HTML for Git, CSV, SQL, and **HTTP JSON**. **Publish Virtual Site** (REST and Developer Sites) runs Git, CSV, SQL, and **HTTP JSON** after Build (copies assembled HTML to the Site filesystem root). REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips **`http-json`** (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400** — catalog URL/file stay in `_config.yaml`, no secrets on the REST envelope). `http-json` assemble is SPI/CLI plus REST Build and REST Publish (see [Virtual Sites](id:developer-virtual-sites)). `sql-database` is in-memory H2 (`jdbc:h2:mem:`; JDBC URL/user/query in `_config.yaml` — never passwords on the REST envelope). CSV trees may omit `_config.yaml`. Unknown kinds are rejected. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` | Local tree when `virtual.remoteUrl` is blank. Prefer absolute portable paths (Windows/Linux/macOS). Paths with `..` after normalize are rejected. When a remote is set, use a **relative** folder inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones or fetches into a contained server work directory, then discovers Markdown as usual. Blank = local-path mode. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. |
 | `virtual.branch` | No | `main` | Branch to checkout when a remote is set. Default `main`. |
@@ -198,16 +198,18 @@ with `{ "VirtualSiteProperties": { "sourceKind": "csv-filesystem", "rootPath": "
 `GET` returns the same `sourceKind`. SQL trees use `"sourceKind": "sql-database"` and a
 safe `rootPath` that holds `_config.yaml` with the `sql:` mapping (H2 mem JDBC URL and
 user; do not put passwords on the REST envelope). In-product REST **Build Virtual Site**
-runs for `git-filesystem`, `csv-filesystem`, `sql-database`, and `http-json`
-(`POST …/virtual/build`). CSV assemble does not require a Git remote; `_config.yaml` is
-optional for CSV and required for SQL and HTTP JSON. HTTP JSON trees use
-`"sourceKind": "http-json"` and a safe `rootPath`; `_config.yaml` is required
-(versions plus `http.url` or `http.file` / default `pages.json`). Developer Sites can
-save HTTP JSON the same way as SQL (GET round-trips `http-json`) and then **Build Virtual Site**.
-Integrators persist object-storage with `"sourceKind": "object-storage"` and a safe local
-`rootPath` (GET round-trips the kind; no AWS/IAM/secrets). Developer Sites can save
-**Object storage** the same way (GET round-trips `object-storage`). **Build Virtual Site**,
-**Preview assembled site**, and **Publish Virtual Site** stay hidden for this kind.
+runs for `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, and
+`object-storage` (`POST …/virtual/build`). CSV assemble does not require a Git remote;
+`_config.yaml` is optional for CSV and required for SQL, HTTP JSON, and object-storage.
+HTTP JSON trees use `"sourceKind": "http-json"` and a safe `rootPath`; `_config.yaml` is
+required (versions plus `http.url` or `http.file` / default `pages.json`). Developer Sites
+can save HTTP JSON the same way as SQL (GET round-trips `http-json`) and then **Build
+Virtual Site**. Integrators persist object-storage with `"sourceKind": "object-storage"`
+and a safe local `rootPath` (GET round-trips the kind; no AWS/IAM/secrets) and then run
+REST **Build Virtual Site** against that bucket. Developer Sites can save **Object storage**
+the same way (GET round-trips `object-storage`). **Build Virtual Site**,
+**Preview assembled site**, and **Publish Virtual Site** stay hidden for this kind on
+Developer Sites (REST Build is available).
 After a successful Build, **Preview assembled site** opens last-build home HTML, and
 **Publish Virtual Site** copies assembled HTML onto the Site filesystem root.
 
