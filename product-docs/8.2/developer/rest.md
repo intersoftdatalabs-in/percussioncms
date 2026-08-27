@@ -190,36 +190,69 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Operation | Path | Notes |
 |-----------|------|--------|
 | List | `GET /services/contenttypes` | Name, label, description, guid |
-| Create | `POST /services/contenttypes` | **Admin.** Creates and **saves** a content type (`IPSContentDesignWs.createContentTypes` then `saveContentTypes` — Workbench Finish, not an unsaved stub). JSON body requires `name` (unique, case-insensitive; no spaces). Optional `label`, `description`, and `enabled` are applied before save. Omitted `enabled` **defaults to true** so the new type is usable. `200` + `ContentTypeDetail`. Duplicate name is **409** (catalog check and persist-time unique-name failure). Blank / whitespace / wildcard names are **400**. Missing request session/user is **403**. Rename remains unsupported. |
+| Create | `POST /services/contenttypes` | **Admin.** Creates and **saves** a content type (`IPSContentDesignWs.createContentTypes` then `saveContentTypes` — Workbench Finish, not an unsaved stub). JSON body requires `name` (unique, case-insensitive; no spaces). Optional `label`, `description`, and `enabled` are applied before save. Omitted `enabled` **defaults to true** so the new type is usable. `200` + `ContentTypeDetail`. Duplicate name is **409** (catalog check and persist-time unique-name failure). Blank / whitespace / wildcard names are **400**. Missing request session/user is **403**. Rename uses `PUT .../name`. Delete uses `DELETE .../{idOrName}`. |
 | Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `enabled`, `designGaps` |
 | Allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` | Read-only list of associated templates (CD-12). No lock required. Empty list means none. Same set as `ContentTypeDetail.allowedTemplates`. |
 | Item-level exits | `GET /services/contenttypes/{idOrName}/itemExits` | Item-level input/output translations, validations, and pipe pre/post exits (CD-09). No lock required. Empty lists mean none. Apply-when conditions are a read-only summary. Jackson root wrap is `ContentTypeItemExits`. |
 | Replace item-level exits | `PUT /services/contenttypes/{idOrName}/itemExits` | Full replace of item-level translations/validations via `IPSContentDesignWs.saveContentTypes` (CD-09). Requires a **held** design-session lock. Empty lists clear. **409** if unlocked or locked by another user. **400** if required lists are missing or an extension FQN is invalid. `preExits`/`postExits` omitted leave pipe extensions unchanged. Apply-when is not written. Does not acquire or release the lock. |
 | Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` | Full replace of associated templates (CD-12). Requires a **held** design-session lock. Empty list clears associations. **409** if unlocked or locked by another user. **400** if a template name/guid cannot be resolved. Does not acquire or release the lock. |
 | Lock | `POST /services/contenttypes/{idOrName}/lock` | **Admin.** Self-only design-session lock (`IPSContentDesignWs.loadContentTypes` with `lock=true`, `overrideLock=false`). Does **not** save. `200` + `ObjectLockSummary` (`session`, `locker`, `remainingTime` minutes from the lock service). Locks expire after **30 minutes** (`PSObjectLock.LOCK_INTERVAL`). Re-lock by the same session user extends the lock. |
-| Save | `PUT /services/contenttypes/{idOrName}` | **Admin.** Requires a lock already held by the current user. Saves label, description, enabled, per-field searchable/occurrence, workflows, and templates. Does **not** release the lock. POST `/lock` and PUT share the packed NODEDEF design-object id so a lock you hold is found on save. The save load (`lock=true`) **extends** a still-valid lock; a PUT after expiry returns `409` and the client must re-lock. Field rule expressions use the dedicated path below (not this PUT). |
+| Save | `PUT /services/contenttypes/{idOrName}` | **Admin.** Requires a lock already held by the current user. Saves label, description, enabled, per-field searchable/occurrence, workflows, and templates. Does **not** change name (use `PUT .../name`). Does **not** release the lock. POST `/lock` and PUT share the packed NODEDEF design-object id so a lock you hold is found on save. The save load (`lock=true`) **extends** a still-valid lock; a PUT after expiry returns `409` and the client must re-lock. Field rule expressions use the dedicated path below (not this PUT). |
 | Allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` | **Admin** (CD-08 design action). Requires a held design-session lock (`POST .../lock` first). Does **not** acquire or release the lock. Full replace of `allowedWorkflows` (empty list clears). Optional `defaultWorkflow`. Workflow name/guid must exist. `200` + `ContentTypeDetail` with the new `allowedWorkflows` / `defaultWorkflow` (lock still held). |
 | Enable/disable | `PUT /services/contenttypes/{idOrName}/enabled` | **Admin** (CD-13 design action). Requires a held design-session lock — `POST .../lock` first, then `PUT .../enabled`, then `POST .../unlock` when done. Does **not** acquire or release the lock. `200` + `ContentTypeDetail` with the new `enabled` value (lock still held). |
+| Rename | `PUT /services/contenttypes/{idOrName}/name` | **Admin** (CD-01). Requires a **held** design-session lock. Sets the internal name. Unique (case-insensitive); **no spaces** or wildcards. Bulk `PUT .../{idOrName}` does **not** change name. After success, `GET` by the previous name is **404**; `GET` by id returns the new name. Does not acquire or release the lock. |
 | Field control properties | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` | Control parameter **name/value** pairs and the choice catalog for one field (CD-07). No lock required. Empty `properties` means none. `choices` omitted when none. |
 | Replace field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` | **Admin** (CD-07). Requires a **held** design-session lock. Full replace of `properties` (empty clears). `choices` omitted leaves the catalog unchanged; `type: none` clears. **409** if unlocked or locked by another user. Does not acquire or release the lock. |
 | Field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` | Field-level validation, visibility, and input/output translation expressions (CD-05–07). No lock required. Empty lists mean none. Unknown field is **404**. Jackson root wrap is `ContentTypeFieldRuleExpressions`. |
 | Replace field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` | **Admin** (CD-05–07). Requires a **held** design-session lock. Full replace of `validation`, `visibility`, `inputTranslation`, and `outputTranslation` (empty lists clear). Unknown field names are **400**. **409** if unlocked or locked by another user. Does not acquire or release the lock. |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
-| Delete | `DELETE /services/contenttypes/{idOrName}` | **Admin.** Requires a **held** design-session lock (`POST .../lock` first). Calls `IPSContentDesignWs.deleteContentTypes` with `ignoreDependencies=false`. **204** on success; a following `GET .../{idOrName}` is **404**. **409** if unlocked or locked by another user (the lock is not stolen). **404** if missing. **400** if the design web service rejects an in-use type (dependents). Does **not** cascade item delete. Rename remains out of scope. |
+| Delete | `DELETE /services/contenttypes/{idOrName}` | **Admin.** Requires a **held** design-session lock (`POST .../lock` first). Calls `IPSContentDesignWs.deleteContentTypes` with `ignoreDependencies=false`. **204** on success; a following `GET .../{idOrName}` is **404**. **409** if unlocked or locked by another user (the lock is not stolen). **404** if missing. **400** if the design web service rejects an in-use type (dependents). Does **not** cascade item delete. |
 
-Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. **Create** is a separate `POST /services/contenttypes` (persisted immediately). The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT). Control property **values** use `GET`/`PUT .../fields/{fieldName}/controlProperties` after a held lock (CD-07); choice catalogs stay read-only in that chrome. SPA create-wizard chrome is not part of this API. Delete is REST-only in this release (no SPA chrome): **lock → DELETE → GET 404**.
+Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. **Create** is a separate `POST /services/contenttypes` (persisted immediately). The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT). Control property **values** use `GET`/`PUT .../fields/{fieldName}/controlProperties` after a held lock (CD-07); choice catalogs stay read-only in that chrome. SPA create-wizard chrome is not part of this API. Rename is REST-only: **lock → PUT .../name → unlock**. Delete is REST-only in this release (no SPA chrome): **lock → DELETE → GET 404**.
 
-Lock / save / unlock / create / delete status codes:
+Lock / save / unlock / create / rename / delete status codes:
 
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | Lock acquired (body is `ObjectLockSummary`), PUT save / enable / disable succeeded (lock still held), or POST create succeeded (`ContentTypeDetail`) |
+| `200` | Lock acquired (body is `ObjectLockSummary`), PUT save / enable / disable / rename succeeded (lock still held), or POST create succeeded (`ContentTypeDetail`) |
 | `204` | Unlock success, or content type deleted |
-| `400` | Invalid PUT body (unknown field name, bad workflow/template ref, missing `enabled` flag), invalid create name (blank, spaces, wildcard), or DELETE rejected because the type has dependents |
+| `400` | Invalid PUT body (unknown field name, bad workflow/template ref, missing `enabled` flag, invalid or colliding rename), invalid create name (blank, spaces, wildcard), or DELETE rejected because the type has dependents |
 | `403` | Caller is not Admin, or the request has no session/user for the design session |
 | `404` | Content type not found |
 | `409` | No lock held, or locked by another user/session (self-only; the lock is not stolen); POST create duplicate name (catalog or persist-time) |
 | `500` | Design service or server failure |
+
+### Rename (CD-01)
+
+`PUT /services/contenttypes/{idOrName}/name` changes the content type **internal
+name**. This is a dedicated design action. Bulk `PUT /services/contenttypes/{idOrName}`
+does **not** rename. Hold the design-session lock first; the rename keeps the lock
+so you can continue editing, then unlock.
+
+Typical flow: `POST .../lock` → `PUT .../name` → (optional further design writes)
+→ `POST .../unlock`.
+
+The new name must be unique (case-insensitive) and must not contain spaces or
+wildcards (`*` / `%`). Allowed characters are letters, digits, underscore, and
+dot. A colliding or invalid name is **400**. An unlocked type (or a lock held by
+another user) is **409** — the lock is not stolen.
+
+After a successful rename:
+
+* `GET /services/contenttypes/{id}` returns `200` with the new `name`.
+* `GET /services/contenttypes/{oldName}` returns **404**.
+
+Jackson root wrap:
+
+```json
+{
+  "ContentTypeName": {
+    "name": "percRenamedPage"
+  }
+}
+```
+
+Create and delete of content types remain unsupported on this REST surface.
 
 ### Enable or disable (CD-13)
 

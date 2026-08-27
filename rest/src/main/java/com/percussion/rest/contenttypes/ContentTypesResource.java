@@ -924,11 +924,11 @@ public class ContentTypesResource {
               + " empty). Template associations are written after content-type save in a separate"
               + " design call — if that fails, meta/field/workflow changes may already be"
               + " committed (error message indicates partial success). Name/id and system field"
-              + " structure are not changed. Field rule expressions use PUT"
+              + " structure are not changed — rename uses PUT .../name. Field rule expressions"
+              + " use PUT"
               + " .../fields/{fieldName}/ruleExpressions. Control property values use PUT"
               + " .../fields/{fieldName}/controlProperties. Create uses POST /contenttypes."
-              + " Delete uses DELETE .../{idOrName} with a held lock. Rename remains"
-              + " unsupported (see designGaps).",
+              + " Rename uses PUT .../name. Delete uses DELETE .../{idOrName} with a held lock.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -1096,6 +1096,53 @@ public class ContentTypesResource {
       ContentTypeDetail detail =
           requireAdaptor()
               .setContentTypeEnabled(uriInfo.getBaseUri(), idOrName, body.getEnabled());
+      if (detail == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return detail;
+    } catch (RuntimeException e) {
+      throw mapEnabledFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}/name")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Rename a content type",
+      description =
+          "CD-01 design action: sets the content type internal name. Admin only. Requires a"
+              + " design-session lock already held by the current user (POST .../lock). Does not"
+              + " acquire or release the lock. The new name must be unique (case-insensitive) and"
+              + " must not contain spaces or wildcards. Bulk PUT .../{idOrName} does not change"
+              + " name. After success, GET .../{oldName} is 404; GET by id returns the new name."
+              + " Jackson root wrap is ContentTypeName.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Renamed (lock is still held)",
+            content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "name is required, invalid, contains spaces, or collides"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock required, or locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeDetail renameContentType(
+      @PathParam("idOrName") String idOrName, ContentTypeName body) {
+    if (body == null || body.getName() == null || body.getName().trim().isEmpty()) {
+      throw new WebApplicationException("name is required", 400);
+    }
+    try {
+      ContentTypeDetail detail =
+          requireAdaptor().renameContentType(uriInfo.getBaseUri(), idOrName, body.getName());
       if (detail == null) {
         throw new WebApplicationException("Content type not found: " + idOrName, 404);
       }
