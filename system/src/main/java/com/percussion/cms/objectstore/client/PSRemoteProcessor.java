@@ -16,11 +16,11 @@
  */
 package com.percussion.cms.objectstore.client;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSProcessingStatistics;
 import com.percussion.cms.objectstore.PSProcessorCommon;
-import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.util.IPSRemoteRequester;
@@ -123,10 +123,10 @@ public class PSRemoteProcessor extends PSProcessorCommon {
       return m_conn.getDocument(resourceName, params);
     } catch (IOException ioe) {
       String[] args = {"request url: " + path, ioe.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.COMM_ERROR_WITH_SERVER, args);
+      throw new PSCmsException(CmsErrorCodes.COMM_ERROR_WITH_SERVER, args);
     } catch (SAXException se) {
       String[] args = {"request url: " + path, se.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.SAX_PROCESSING_EXCEPTION, args);
+      throw new PSCmsException(CmsErrorCodes.SAX_PROCESSING_EXCEPTION, args);
     }
   }
 
@@ -145,10 +145,10 @@ public class PSRemoteProcessor extends PSProcessorCommon {
       return stats.getDeletedCount();
     } catch (IOException ioe) {
       String[] args = {"request partial url: " + resourceName, ioe.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.COMM_ERROR_WITH_SERVER, args);
+      throw new PSCmsException(CmsErrorCodes.COMM_ERROR_WITH_SERVER, args);
     } catch (SAXException se) {
       String[] args = {"request partial url: " + resourceName, se.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.SAX_PROCESSING_EXCEPTION, args);
+      throw new PSCmsException(CmsErrorCodes.SAX_PROCESSING_EXCEPTION, args);
     } catch (PSUnknownNodeTypeException unte) {
       throw new PSCmsException(unte.getErrorCode(), unte.getErrorArguments());
     }
@@ -190,10 +190,10 @@ public class PSRemoteProcessor extends PSProcessorCommon {
       throw new PSCmsException(1000, "Bad number returned by id generator app: '" + number + "'.");
     } catch (IOException ioe) {
       String[] args = {"request url: " + errPath, ioe.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.COMM_ERROR_WITH_SERVER, args);
+      throw new PSCmsException(CmsErrorCodes.COMM_ERROR_WITH_SERVER, args);
     } catch (SAXException se) {
       String[] args = {"request url: " + errPath, se.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.SAX_PROCESSING_EXCEPTION, args);
+      throw new PSCmsException(CmsErrorCodes.SAX_PROCESSING_EXCEPTION, args);
     } catch (PSUnknownNodeTypeException unte) {
       throw new PSCmsException(unte.getErrorCode(), unte.getErrorArguments());
     }
@@ -218,10 +218,10 @@ public class PSRemoteProcessor extends PSProcessorCommon {
       return new PSProcessingStatistics(doc);
     } catch (IOException ioe) {
       String[] args = {"request url (posting xml): " + resourceName, ioe.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.COMM_ERROR_WITH_SERVER, args);
+      throw new PSCmsException(CmsErrorCodes.COMM_ERROR_WITH_SERVER, args);
     } catch (SAXException se) {
       String[] args = {"request url (posting xml): " + resourceName, se.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.SAX_PROCESSING_EXCEPTION, args);
+      throw new PSCmsException(CmsErrorCodes.SAX_PROCESSING_EXCEPTION, args);
     } catch (PSUnknownNodeTypeException unte) {
       throw new PSCmsException(unte.getErrorCode(), unte.getErrorArguments());
     }

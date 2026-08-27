@@ -17,7 +17,7 @@
 
 package com.percussion.cms.objectstore.client;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.IPSRelationshipProcessor;
 import com.percussion.cms.objectstore.PSComponentSummaries;
@@ -122,7 +122,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
       summaries = new PSComponentSummaries(respEl);
     } catch (Exception e) {
       Object[] args = new Object[] {e.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.UNEXPECTED_ERROR, args);
+      throw new PSCmsException(CmsErrorCodes.UNEXPECTED_ERROR, args);
     }
 
     return summaries.toArray();
@@ -262,7 +262,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
       summaries = new PSComponentSummaries(respEl);
     } catch (Exception e) {
       Object[] args = new Object[] {e.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.UNEXPECTED_ERROR, args);
+      throw new PSCmsException(CmsErrorCodes.UNEXPECTED_ERROR, args);
     }
 
     return summaries;

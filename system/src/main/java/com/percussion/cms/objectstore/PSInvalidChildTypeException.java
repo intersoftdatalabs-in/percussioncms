@@ -16,7 +16,7 @@
  */
 package com.percussion.cms.objectstore;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.error.PSException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -32,7 +32,7 @@ public class PSInvalidChildTypeException extends PSException {
    * @param contentType The content type name or id, may not be <code>null</code> or empty.
    */
   public PSInvalidChildTypeException(String childName, String contentType) {
-    super(IPSCmsErrors.INVALID_CHILD_TYPE, new String[] {childName, contentType});
+    super(CmsErrorCodes.INVALID_CHILD_TYPE, new String[] {childName, contentType});
 
     if (StringUtils.isBlank(childName))
       throw new IllegalArgumentException("childName may not be null or empty");

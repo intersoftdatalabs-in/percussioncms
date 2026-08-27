@@ -16,7 +16,7 @@
  */
 package com.percussion.cms.objectstore.client;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.PSDisplayChoices;
 import com.percussion.cms.objectstore.IPSFieldCataloger;
@@ -228,7 +228,7 @@ public final class PSContentEditorFieldCataloger {
               f.setDisplayChoices(new PSDisplayChoices(choices));
             } catch (PSUnknownNodeTypeException e) {
               // this should never happen
-              throw new PSCmsException(IPSCmsErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+              throw new PSCmsException(CmsErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
             }
           }
 

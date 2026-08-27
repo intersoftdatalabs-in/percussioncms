@@ -16,7 +16,7 @@
  */
 package com.percussion.cms.objectstore;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
 import org.w3c.dom.Document;
@@ -163,7 +163,7 @@ public final class PSMenuModeContextMapping extends PSDbComponent {
           m_modeId + ":" + m_contextId,
           key.getPart(MODEID_COLNAME) + ":" + key.getPart(CONTEXTID_COLNAME)
         };
-        throw new PSUnknownNodeTypeException(IPSCmsErrors.MISMATCH_BETWEEN_KEY_AND_DATA, args);
+        throw new PSUnknownNodeTypeException(CmsErrorCodes.MISMATCH_BETWEEN_KEY_AND_DATA, args);
       }
     }
   }
