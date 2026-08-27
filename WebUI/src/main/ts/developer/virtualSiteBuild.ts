@@ -29,7 +29,8 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
  * Git-filesystem, csv-filesystem, sql-database, http-json, and object-storage
  * Virtual Sites all run POST /virtual/build (SQL JDBC, HTTP JSON catalog, and
  * object-storage keys stay in _config.yaml / the local root).
- * Repository / blank / unknown kinds must not display this chrome.
+ * Repository / blank / unknown kinds and rss-atom must not display this chrome
+ * (rss-atom Build stays a later phase).
  */
 export function shouldShowVirtualBuildChrome(
   sourceKind: string | null | undefined,
@@ -47,7 +48,8 @@ export function shouldShowVirtualBuildChrome(
 /**
  * True when Preview assembled site should be shown.
  * Last-output preview for git-filesystem, csv-filesystem, sql-database,
- * http-json, and object-storage. Repository / blank / unknown kinds stay hidden.
+ * http-json, and object-storage. Repository / blank / unknown kinds and
+ * rss-atom stay hidden (rss-atom Preview stays a later phase).
  */
 export function shouldShowVirtualPreviewChrome(
   sourceKind: string | null | undefined,
@@ -66,7 +68,8 @@ export function shouldShowVirtualPreviewChrome(
  * True when the Publish Virtual Site control should be shown.
  * Git-filesystem, csv-filesystem, sql-database, http-json, and object-storage
  * all run POST /virtual/publish (build then copy to IPSSite.root).
- * Repository / blank / unknown kinds stay hidden.
+ * Repository / blank / unknown kinds and rss-atom stay hidden
+ * (rss-atom Publish stays a later phase).
  */
 export function shouldShowVirtualPublishChrome(
   sourceKind: string | null | undefined,
