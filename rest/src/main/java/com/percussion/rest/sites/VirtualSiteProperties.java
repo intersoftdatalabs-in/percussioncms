@@ -49,11 +49,12 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * ..}); cloud URLs and credential properties are 400. REST {@code POST …/virtual/build} runs
  * {@code http-json} and {@code object-storage} through the existing {@code IPSVirtualSiteSource}
  * factory (local fixture / loopback JSON; local object-key bucket). REST {@code GET
- * …/virtual/preview} streams last-build HTML for {@code object-storage} after a successful
- * assemble (missing build is {@code available=false}, HTTP 200). REST {@code POST
- * …/virtual/publish} copies last-build HTML to {@code IPSSite.root} for git, CSV, SQL,
- * {@code http-json}, and {@code object-storage} (local object-key fixture; leftover {@code
- * virtual.remoteUrl} is 400).
+ * …/virtual/preview} streams last-build HTML for {@code object-storage} and {@code rss-atom}
+ * after a successful assemble (missing build is {@code available=false}, HTTP 200). {@code
+ * rss-atom} is a local RSS 2.0 / Atom fixture or loopback feed (no live remote feeds). REST
+ * {@code POST …/virtual/publish} copies last-build HTML to {@code IPSSite.root} for git, CSV,
+ * SQL, {@code http-json}, and {@code object-storage} (local object-key fixture; leftover
+ * {@code virtual.remoteUrl} is 400).
  *
  * <p>Wire getters return plain {@code String} (not {@code Optional}) so JAXB/Jettison and Jackson
  * {@code WRAP_ROOT_VALUE} emit/accept child elements {@code sourceKind}, {@code rootPath},

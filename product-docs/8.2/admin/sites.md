@@ -71,7 +71,7 @@ and Markdown tooling, not the classic page editor.
 
 | Property | Required | Example | Notes |
 |----------|----------|---------|-------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, or `rss-atom` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**, **`sql-database`**, **`http-json`**, **`object-storage`**, **`rss-atom`**. **`rss-atom`** is a local/loopback syndication SPI (`feed.xml` / `atom.xml` or `_config.yaml` `rss.file`; loopback `rss.url` only — no live feed credentials). REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips **`rss-atom`** with a portable-safe local `rootPath`. Developer Sites can save **RSS / Atom** (`sourceKind=rss-atom`); leftover `virtual.remoteUrl` and live feed credentials are **400**; Build / Preview / Publish chrome for rss-atom stays a later phase. REST **GET/PUT** also round-trips **`object-storage`** with a portable-safe local `rootPath` (cloud URLs and credential properties are **400**; `virtual.remoteUrl` is **400**). REST **Build** (`POST …/virtual/build`) also runs **object-storage** against that local bucket. REST **Preview** (`GET …/virtual/preview`) streams last-build HTML after a successful Build (`available=true`; missing build is `available=false` HTTP 200). REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for **object-storage** (local object-key `rootPath`; leftover `virtual.remoteUrl` is **400**; no AWS/IAM/secrets). Developer Sites can save **Object storage** the same way as HTTP JSON (GET round-trips `object-storage`), then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. Blank or `repository` = traditional Site. Developer Sites can save Git, CSV, SQL, **HTTP JSON**, **Object storage**, or **RSS / Atom**. **Build Virtual Site** (REST and Developer Sites) runs Git, CSV, SQL, **HTTP JSON**, and **Object storage** after save (local JSON fixture, loopback catalog, or local object-key bucket). **Preview assembled site** (REST and Developer Sites) streams last-build HTML for Git, CSV, SQL, **HTTP JSON**, and **object-storage**. **Publish Virtual Site** (REST and Developer Sites) runs Git, CSV, SQL, **HTTP JSON**, and **Object storage** after Build (copies assembled HTML to the Site filesystem root). REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips **`http-json`** (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400** — catalog URL/file stay in `_config.yaml`, no secrets on the REST envelope). `http-json` assemble is SPI/CLI plus REST Build and REST Publish (see [Virtual Sites](id:developer-virtual-sites)). `sql-database` is in-memory H2 (`jdbc:h2:mem:`; JDBC URL/user/query in `_config.yaml` — never passwords on the REST envelope). CSV trees may omit `_config.yaml`. Unknown kinds are rejected. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, or `rss-atom` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**, **`sql-database`**, **`http-json`**, **`object-storage`**, **`rss-atom`**. **`rss-atom`** is a local/loopback syndication SPI (`feed.xml` / `atom.xml` or `_config.yaml` `rss.file`; loopback `rss.url` only — no live feed credentials). REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips **`rss-atom`** with a portable-safe local `rootPath`. Developer Sites can save **RSS / Atom** (`sourceKind=rss-atom`); leftover `virtual.remoteUrl` and live feed credentials are **400**. REST **Preview** (`GET …/virtual/preview`) streams last-build HTML for **rss-atom** after a successful assemble (`available=true`; missing build is `available=false` HTTP 200; local/loopback fixture, no live feeds). Developer Sites Build / Preview / Publish chrome for rss-atom stays a later phase. REST **GET/PUT** also round-trips **`object-storage`** with a portable-safe local `rootPath` (cloud URLs and credential properties are **400**; `virtual.remoteUrl` is **400**). REST **Build** (`POST …/virtual/build`) also runs **object-storage** against that local bucket. REST **Preview** (`GET …/virtual/preview`) streams last-build HTML after a successful Build (`available=true`; missing build is `available=false` HTTP 200). REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for **object-storage** (local object-key `rootPath`; leftover `virtual.remoteUrl` is **400**; no AWS/IAM/secrets). Developer Sites can save **Object storage** the same way as HTTP JSON (GET round-trips `object-storage`), then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. Blank or `repository` = traditional Site. Developer Sites can save Git, CSV, SQL, **HTTP JSON**, **Object storage**, or **RSS / Atom**. **Build Virtual Site** (REST and Developer Sites) runs Git, CSV, SQL, **HTTP JSON**, and **Object storage** after save (local JSON fixture, loopback catalog, or local object-key bucket). **Preview assembled site** REST streams last-build HTML for Git, CSV, SQL, **HTTP JSON**, **object-storage**, and **rss-atom**; Developer Sites Preview chrome runs Git, CSV, SQL, **HTTP JSON**, and **object-storage**. **Publish Virtual Site** (REST and Developer Sites) runs Git, CSV, SQL, **HTTP JSON**, and **Object storage** after Build (copies assembled HTML to the Site filesystem root). REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips **`http-json`** (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400** — catalog URL/file stay in `_config.yaml`, no secrets on the REST envelope). `http-json` assemble is SPI/CLI plus REST Build and REST Publish (see [Virtual Sites](id:developer-virtual-sites)). `sql-database` is in-memory H2 (`jdbc:h2:mem:`; JDBC URL/user/query in `_config.yaml` — never passwords on the REST envelope). CSV trees may omit `_config.yaml`. Unknown kinds are rejected. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` | Local tree when `virtual.remoteUrl` is blank. Prefer absolute portable paths (Windows/Linux/macOS). Paths with `..` after normalize are rejected. When a remote is set, use a **relative** folder inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones or fetches into a contained server work directory, then discovers Markdown as usual. Blank = local-path mode. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. |
 | `virtual.branch` | No | `main` | Branch to checkout when a remote is set. Default `main`. |
@@ -295,14 +295,15 @@ Site filesystem root for Git/CSV/SQL/HTTP JSON/object-storage.
 
 After a successful **Build Virtual Site**, operators can open the assembled home from the
 same Site detail panel (no CLI, no `file://` path). Preview is last-output based: it works
-for **Git filesystem**, **CSV filesystem**, **SQL database**, **HTTP JSON**, and
-**object-storage** (`sql-database` / `http-json` / `object-storage` REST last-build) —
-preview is not git-only. Traditional **Repository** Sites hide **Build Virtual Site**,
+for **Git filesystem**, **CSV filesystem**, **SQL database**, **HTTP JSON**,
+**object-storage**, and **`rss-atom`** (`sql-database` / `http-json` / `object-storage` /
+`rss-atom` REST last-build) — preview is not git-only. Traditional **Repository** Sites hide **Build Virtual Site**,
 **Preview assembled site**, and **Publish Virtual Site**. Developer Sites **Preview
 assembled site** appears for Git, CSV, SQL, HTTP JSON, and Object storage after a successful
 Build. After REST or in-product Build for `sql-database` (in-memory
-H2), `http-json` (local JSON fixture or loopback catalog), or `object-storage` (local
-object-key bucket), `GET /services/sites/{name}/virtual/preview` returns `available=true`
+H2), `http-json` (local JSON fixture or loopback catalog), `object-storage` (local
+object-key bucket), or `rss-atom` (local RSS 2.0 / Atom fixture or loopback feed),
+`GET /services/sites/{name}/virtual/preview` returns `available=true`
 and `homePath`
 (typically `{version}/index.html` for the configured default version) and
 `GET …/virtual/preview/{path}` streams the assembled HTML. Missing build is
@@ -331,6 +332,9 @@ until REST Build records it.
      whose `_config.yaml` declares versions (optional `objects.keys`), then a successful
      object-storage Build. Cloud URLs and credentials stay off this envelope.
      **Preview assembled site** opens last-build home HTML the same way as Git/CSV/SQL/HTTP JSON.
+   - **RSS / Atom** — REST `GET …/virtual/preview` streams last-build HTML from a local
+     `feed.xml` / `atom.xml` (or loopback `rss.url`). Developer Sites Preview chrome stays
+     a later slice. No live remote feeds.
    Traditional **Repository** hides **Preview assembled site** (same as Build/Publish).
 3. The CMS opens the last build’s home (typically `8.2/index.html`, or root `index.html`
    when present) in a new tab. Navigation stays on the same-origin preview URL
@@ -340,8 +344,8 @@ until REST Build records it.
    does not return HTTP 500.
 
 The preview stream reads the last recorded `outputPath` from the build (default
-`{install}/tmp/virtual-sites/{siteKey}`). After a Git, CSV, SQL, HTTP JSON, or
-object-storage assemble, `GET /services/sites/{name}/virtual/preview` reports
+`{install}/tmp/virtual-sites/{siteKey}`). After a Git, CSV, SQL, HTTP JSON,
+object-storage, or rss-atom assemble, `GET /services/sites/{name}/virtual/preview` reports
 `available` + `homePath`, and `GET …/virtual/preview/{path}` streams the HTML. It is
 **Admin-only**, path-traversal safe, and does not invent a second assembler.
 
