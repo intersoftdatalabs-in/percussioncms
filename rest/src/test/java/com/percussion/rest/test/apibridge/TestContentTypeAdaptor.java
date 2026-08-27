@@ -90,6 +90,11 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   @Override
+  public ContentTypeDetail createContentType(URI baseUri, ContentTypeDetail body) {
+    return body;
+  }
+
+  @Override
   public ContentTypeDetail getContentType(URI baseUri, String idOrName) {
     return null;
   }

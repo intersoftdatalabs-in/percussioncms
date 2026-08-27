@@ -28,7 +28,9 @@ import java.util.List;
 /**
  * Content type design summary for the Developer module (read + partial write).
  *
- * <p>Field rule expressions use {@code GET/PUT .../fields/{fieldName}/ruleExpressions} (held
+ * <p>{@code POST /services/contenttypes} creates a type from {@code name} (required; unique,
+ * no spaces) plus optional label, description, and enabled, then persists it (Workbench Finish).
+ * Field rule expressions use {@code GET/PUT .../fields/{fieldName}/ruleExpressions} (held
  * design lock for write). Control properties use {@code GET/PUT
  * .../fields/{fieldName}/controlProperties}. Partial update supports label, description, enabled,
  * field searchable / occurrence, allowed workflows (+ default), and allowed templates. PUT

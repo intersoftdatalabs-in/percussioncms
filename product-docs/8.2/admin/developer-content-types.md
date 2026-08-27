@@ -14,6 +14,11 @@ for fields, allowed workflows, allowed templates, **item-level exits**, **contro
 **field-rule expressions**, and Object ACL. Design edits use an explicit **design-session lock** so two
 Admins cannot overwrite the same type at once.
 
+Integrators can **create** a content type with Admin `POST /services/contenttypes`
+(JSON `name` required; unique, no spaces). That call persists the type
+(Workbench Finish). This chrome does **not** include a create wizard; delete
+and rename are not supported here. See [REST API](id:developer-rest).
+
 This is **not** the full Workbench field-rule editor. The detail table still
 shows rule **flags** (validation / visibility / transforms present). After
 **Lock**, **Field rule expressions** lets you edit validation, visibility,
