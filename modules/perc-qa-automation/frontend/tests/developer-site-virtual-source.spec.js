@@ -2200,7 +2200,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       timeout: 20_000,
     });
     await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
-    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
 
     const buildRespPromise = page.waitForResponse(
@@ -2222,7 +2222,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       await page.locator('[data-testid="developer-site-virtual-build-pages"]').textContent()
     ).trim();
     expect(Number.parseInt(pagesText, 10), `pages written: ${pagesText}`).toBeGreaterThan(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
 
     await kind.selectOption("repository");
