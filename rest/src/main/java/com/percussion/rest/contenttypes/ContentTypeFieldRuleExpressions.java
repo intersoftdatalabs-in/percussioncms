@@ -18,6 +18,7 @@
 package com.percussion.rest.contenttypes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.rest.DesignGap;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -31,8 +32,15 @@ import java.util.List;
  * lists (may be empty) plus summary strings when rules exist. PUT is a full replace of {@code
  * validation}, {@code visibility}, {@code inputTranslation}, and {@code outputTranslation} (empty
  * list clears). Requires a held design-session lock.
+ *
+ * <p>Jackson 3.2 still ships {@link JsonRootName} under {@code com.fasterxml.jackson.annotation}
+ * (there is no {@code tools.jackson.annotation} package). {@link
+ * com.percussion.rest.JacksonContextResolver} reads this for GET {@code WRAP_ROOT_VALUE}. PUT uses
+ * {@link ContentTypeFieldRuleExpressionsJsonReader} so CXF {@code UNWRAP_ROOT_VALUE} cannot drop
+ * required lists.
  */
 @XmlRootElement(name = "ContentTypeFieldRuleExpressions")
+@JsonRootName("ContentTypeFieldRuleExpressions")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Field validation, visibility, and translation expressions (CD-05–07)")
 public class ContentTypeFieldRuleExpressions {

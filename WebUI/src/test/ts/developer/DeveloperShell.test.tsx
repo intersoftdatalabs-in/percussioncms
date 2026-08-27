@@ -7,6 +7,25 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DeveloperShell } from "../../../main/ts/developer/DeveloperShell";
 
+vi.mock("../../../main/ts/api/developer/contentTypeFieldRules", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/contentTypeFieldRules")>();
+  return {
+    ...actual,
+    getContentTypeFieldRuleExpressions: vi.fn().mockResolvedValue({
+      fieldName: "sys_title",
+      validation: [],
+      visibility: [],
+      inputTranslation: [],
+      outputTranslation: [],
+    }),
+    replaceContentTypeFieldRuleExpressions: vi.fn().mockImplementation(async (_id, fieldName, body) => ({
+      fieldName,
+      ...body,
+    })),
+  };
+});
+
 vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal) => {
   const actual =
     await importOriginal<typeof import("../../../main/ts/api/developer/contentTypesApi")>();
@@ -151,6 +170,10 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     unlockContentType: vi.fn().mockResolvedValue(undefined),
     getContentTypeAllowedTemplates: vi.fn().mockResolvedValue([{ name: "perc.page", label: "Page" }]),
     replaceContentTypeAllowedTemplates: vi.fn().mockImplementation(async (_id, templates) => templates),
+    getFieldControlProperties: vi.fn().mockResolvedValue({ properties: [] }),
+    replaceFieldControlProperties: vi.fn().mockImplementation(async (_id, _field, properties) => ({
+      properties,
+    })),
   };
 });
 
@@ -730,8 +753,9 @@ describe("DeveloperShell", () => {
       expect(screen.getByTestId("developer-ct-detail")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-ct-fields-table")).toBeTruthy();
-    expect(screen.getByText("sys_title")).toBeTruthy();
+    expect(screen.getAllByText("sys_title").length).toBeGreaterThan(0);
     expect(screen.getAllByTestId("developer-ct-field-rules")[0].textContent).toMatch(/validation/);
+    expect(screen.getByTestId("developer-ct-field-rule-expressions")).toBeTruthy();
     // Occurrence cell value is lowercase "required" (distinct from "Required" header)
     expect(screen.getAllByTestId("developer-ct-field-occurrence")[0].textContent).toBe("required");
     expect(screen.getByTestId("developer-ct-workflows")).toBeTruthy();

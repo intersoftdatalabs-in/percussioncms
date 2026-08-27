@@ -1232,7 +1232,9 @@ public class ContentTypesResource {
             content = @Content(schema = @Schema(implementation = ContentTypeItemExits.class))),
         @ApiResponse(
             responseCode = "400",
-            description = "Missing required lists or invalid extension FQN"),
+            description =
+                "Missing required lists, invalid extension FQN, or design-save validation"
+                    + " (wrong item-level extension interface / SAVE_FAILED validation)"),
         @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(responseCode = "404", description = "Content type not found"),
         @ApiResponse(
@@ -1253,7 +1255,7 @@ public class ContentTypesResource {
 
   /**
    * Replace item-level exits. Package tests call this with a bound DTO; HTTP PUT uses {@link
-   * #replaceItemExitsFromJson} so CXF UNWRAP_ROOT_VALUE cannot drop required lists (#3895).
+   * #replaceItemExitsFromJson} so CXF UNWRAP_ROOT_VALUE cannot drop required lists (#3895 / #3905).
    */
   public ContentTypeItemExits replaceItemExits(
       String idOrName, ContentTypeItemExits body) {

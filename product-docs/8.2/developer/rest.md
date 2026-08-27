@@ -205,7 +205,7 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Replace field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` | **Admin** (CD-05–07). Requires a **held** design-session lock. Full replace of `validation`, `visibility`, `inputTranslation`, and `outputTranslation` (empty lists clear). Unknown field names are **400**. **409** if unlocked or locked by another user. Does not acquire or release the lock. |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
 
-Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT).
+Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT). Control property **values** use `GET`/`PUT .../fields/{fieldName}/controlProperties` after a held lock (CD-07); choice catalogs stay read-only in that chrome.
 
 Lock / save / unlock status codes:
 
@@ -320,17 +320,27 @@ translations**, **output translations**, **validations**, and dataset-pipe
 required. Empty arrays mean none are configured.
 
 Each exit is an object with `extension` (fully-qualified ref such as
-`Java/global/percussion/generic/sys_ToUpperCase`), optional `name`,
+`Java/global/percussion/content/sys_cleanReservedHtmlClasses`), optional `name`,
 `parameters[]` (`name`/`value`), a read-only `condition` summary, optional
 `maxErrorsToStop`, and a human-readable `summary`. `maxErrorsToStopValidation`
 is the item-validation stop count.
 
+Item-level **input** translations and **pre-exits** must implement
+`IPSRequestPreProcessor` / `IPSItemInputTransformer`. Item-level **output**
+translations and **post-exits** must implement `IPSResultDocumentProcessor`.
+Field-level UDFs such as `Java/global/percussion/generic/sys_ToUpperCase`
+belong on `PUT .../fields/{field}/ruleExpressions`, not on this item-level
+path — using them here fails design-save validation (**400**).
+
 `PUT` on the same path replaces `inputTranslations`, `outputTranslations`, and
 `validations` (empty list clears). Hold the design-session lock first
 (`POST .../lock`). `preExits` / `postExits` omitted leave pipe extensions
-unchanged; a non-null list is a full replace. Each exit needs a resolvable
-extension FQN; parameter values are stored as literals. **Apply-when
-conditions are not written** (see `designGaps` code `CT_ITEM_EXIT_CONDITIONS`).
+unchanged; a non-null list is a full replace (content-editor pipes use the
+CE-specific input-data setter; `setInputDataExtensions` is not supported on
+percPage). Each exit needs a resolvable extension FQN; parameter values are
+stored as literals. Unchanged GET rows keep their original apply-when and
+parameter types. **Apply-when conditions are not written** for new rows (see
+`designGaps` code `CT_ITEM_EXIT_CONDITIONS`).
 
 Typical flow: `POST .../lock` → `PUT .../itemExits` → `POST .../unlock`.
 
@@ -348,7 +358,7 @@ Jackson root wrap:
   "ContentTypeItemExits": {
     "inputTranslations": [
       {
-        "extension": "Java/global/percussion/generic/sys_ToUpperCase",
+        "extension": "Java/global/percussion/content/sys_itemHTMLEncodeTransformer",
         "parameters": [{ "value": "sys_title" }]
       }
     ],
@@ -362,7 +372,7 @@ Jackson root wrap:
 | Status | Typical meaning |
 |--------|-----------------|
 | `200` | GET or PUT success (PUT keeps the lock held) |
-| `400` | Missing required lists, invalid extension FQN, or `maxErrorsToStopValidation` ≤ 0 |
+| `400` | Missing required lists, invalid extension FQN, `maxErrorsToStopValidation` ≤ 0, or design-save validation (wrong item-level extension interface) |
 | `403` | Caller is not Admin (PUT) |
 | `404` | Content type not found |
 | `409` | No design lock, or locked by another user |
@@ -442,9 +452,16 @@ validation is not written (see `designGaps` code `CT_FIELD_RULE_APPLY_WHEN`).
 | `409` | No design lock, or locked by another user |
 | `500` | Unexpected error |
 
-This slice does **not** add a field-rule expression editor in Developer Content Types
-chrome. Control property **values** and choice catalogs use the dedicated CD-07 path
-below.
+**Developer → Content types** detail chrome edits these four lists as expression
+**text** after **Lock** (one line per rule or extension call). **Save content type**
+calls this PUT, then GET reflects the new expressions. Save stays disabled until
+the lock is held; the product does not steal another user's lock. This is not
+the Workbench visual rule builder. See [Developer Content Types](id:admin-developer-content-types).
+
+Control property **values** use the dedicated CD-07 path below and the
+Developer Content Types **Control property values** chrome after a held lock. Choice
+catalogs are read-only in that chrome (filter / null-entry / default-selected are
+not written).
 
 ### Control property values (CD-07)
 

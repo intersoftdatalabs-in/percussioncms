@@ -17,7 +17,11 @@
 
 import { asJacksonArray } from "./slotLists";
 import type { DesignGapWire } from "./designGaps";
-import type { ContentTypeFieldSummary, NamedObjectRef } from "./types";
+import type {
+  ContentTypeControlProperty,
+  ContentTypeFieldSummary,
+  NamedObjectRef,
+} from "./types";
 
 /**
  * Content-type {@code designGaps} — array, JAXB envelope, single
@@ -44,6 +48,22 @@ export function normalizeContentTypeFields(raw: unknown): ContentTypeFieldSummar
     ["ContentTypeField", "contentTypeField", "fields"],
     (o) => "name" in o || "fieldType" in o || "dataType" in o || "label" in o,
   );
+}
+
+/**
+ * CD-07 {@code properties} list — array, JAXB envelope, singleton, or empty bean.
+ */
+export function normalizeContentTypeControlProperties(
+  raw: unknown,
+): ContentTypeControlProperty[] {
+  return asJacksonArray<ContentTypeControlProperty>(
+    raw,
+    ["ContentTypeControlProperty", "contentTypeControlProperty", "properties"],
+    (o) => "name" in o || "value" in o,
+  ).map((p) => ({
+    name: typeof p.name === "string" ? p.name : "",
+    value: typeof p.value === "string" ? p.value : p.value == null ? "" : String(p.value),
+  }));
 }
 
 /**

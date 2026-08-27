@@ -71,6 +71,34 @@ export interface ContentTypeFieldSummary {
   fieldSet?: string | null;
 }
 
+/** One control parameter name/value (CD-07 GET/PUT .../controlProperties). */
+export interface ContentTypeControlProperty {
+  name?: string;
+  value?: string;
+}
+
+/** Choice catalog on GET .../controlProperties (read-only in this chrome). */
+export interface ContentTypeChoiceCatalog {
+  type?: string;
+  globalId?: string;
+  sortOrder?: string;
+  lookupHref?: string;
+  entries?: Array<{ value?: string; label?: string }>;
+  table?: { tableName?: string; labelColumn?: string; valueColumn?: string };
+}
+
+/**
+ * Jackson {@code ContentTypeFieldControlProperties} body for CD-07
+ * GET/PUT {@code .../fields/{fieldName}/controlProperties}.
+ */
+export interface ContentTypeFieldControlProperties {
+  fieldName?: string;
+  control?: string;
+  properties?: ContentTypeControlProperty[];
+  choices?: ContentTypeChoiceCatalog | null;
+  designGaps?: DesignGapWire[];
+}
+
 /** Workflow / template association row. */
 export interface NamedObjectRef {
   guid?: RestGuid;
