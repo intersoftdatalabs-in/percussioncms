@@ -295,6 +295,36 @@ public class ContentTypesResourceDetailTest {
     assertTrue(json.contains("sys_ToUpperCase"), json);
     assertTrue(json.contains("CT_ITEM_EXIT_CONDITIONS"), json);
     assertTrue(json.contains("\"code\""), json);
+    assertTrue(json.contains("ContentTypeItemExits"), json);
+    ContentTypeItemExits back = mapper.readValue(json, ContentTypeItemExits.class);
+    assertNotNull(back.getInputTranslations());
+    assertEquals(1, back.getInputTranslations().size());
+    assertNotNull(back.getOutputTranslations());
+    assertTrue(back.getOutputTranslations().isEmpty());
+    assertNotNull(back.getValidations());
+  }
+
+  @Test
+  public void itemExitsPutJsonUnwrapsWrappedEmptyLists() throws Exception {
+    ObjectMapper mapper = new JacksonContextResolver().getContext(ContentTypeItemExits.class);
+    String json =
+        "{\"ContentTypeItemExits\":{"
+            + "\"inputTranslations\":[{\"extension\":\"Java/global/percussion/generic/sys_ToUpperCase\","
+            + "\"parameters\":[{\"value\":\"sys_title\"}]}],"
+            + "\"outputTranslations\":[],\"validations\":[],\"preExits\":[],\"postExits\":[],"
+            + "\"maxErrorsToStopValidation\":10}}";
+    ContentTypeItemExits back = mapper.readValue(json, ContentTypeItemExits.class);
+    assertNotNull(back.getInputTranslations());
+    assertEquals(1, back.getInputTranslations().size());
+    assertEquals(
+        "Java/global/percussion/generic/sys_ToUpperCase",
+        back.getInputTranslations().get(0).getExtension());
+    assertNotNull(back.getOutputTranslations());
+    assertTrue(back.getOutputTranslations().isEmpty());
+    assertNotNull(back.getValidations());
+    assertTrue(back.getValidations().isEmpty());
+    assertNotNull(back.getPreExits());
+    assertEquals(Integer.valueOf(10), back.getMaxErrorsToStopValidation());
   }
 
   @Test

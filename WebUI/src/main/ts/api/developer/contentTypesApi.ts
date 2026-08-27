@@ -27,9 +27,30 @@ import {
 import type {
   ContentTypeDetail,
   ContentTypeFieldSummary,
+  ContentTypeItemExits,
   ContentTypeSummary,
   NamedObjectRef,
 } from "./types";
+import {
+  toContentTypeItemExitsPutBody,
+  unwrapContentTypeItemExits,
+  wrapContentTypeItemExitsForWire,
+} from "./contentTypeItemExits";
+
+export {
+  CONTENT_TYPE_ITEM_EXITS_ROOT,
+  addItemExit,
+  cloneContentTypeItemExits,
+  contentTypeItemExitsEqual,
+  emptyContentTypeItemExits,
+  itemExitDisplay,
+  listContainsExtension,
+  normalizeContentTypeItemExitsList,
+  removeItemExit,
+  toContentTypeItemExitsPutBody,
+  unwrapContentTypeItemExits,
+  wrapContentTypeItemExitsForWire,
+} from "./contentTypeItemExits";
 
 export {
   normalizeContentTypeDesignGaps,
@@ -459,4 +480,40 @@ export async function replaceContentTypeAllowedTemplates(
     wrapNamedObjectRefListForWire(templates),
   );
   return unwrapNamedObjectRefList(payload);
+}
+
+/**
+ * GET /services/contenttypes/{idOrName}/itemExits — CD-09 read.
+ * No design lock required. Empty lists mean none.
+ */
+export async function getContentTypeItemExits(
+  idOrName: string,
+): Promise<ContentTypeItemExits> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await get<unknown>(`${PATHS.CONTENT_TYPES}/${key}/itemExits`);
+  return unwrapContentTypeItemExits(payload);
+}
+
+/**
+ * PUT /services/contenttypes/{idOrName}/itemExits — CD-09 full replace.
+ *
+ * <p>Requires a design-session lock already held by the current user
+ * ({@link lockContentType}). Does not acquire or release the lock. HTTP 409
+ * when unlocked or locked by another user. HTTP 400 when required lists are
+ * missing or an extension FQN cannot be resolved. Empty lists clear.
+ */
+export async function replaceContentTypeItemExits(
+  idOrName: string,
+  body: ContentTypeItemExits,
+  includePipeExits = false,
+  includeMaxErrors = false,
+): Promise<ContentTypeItemExits> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}/itemExits`,
+    wrapContentTypeItemExitsForWire(
+      toContentTypeItemExitsPutBody(body, includePipeExits, includeMaxErrors),
+    ),
+  );
+  return unwrapContentTypeItemExits(payload);
 }

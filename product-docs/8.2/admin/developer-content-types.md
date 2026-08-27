@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Lock, enable or disable, save allowed workflows and templates, and unlock a content type from Developer detail chrome
+description: Lock, enable or disable, save allowed workflows, templates, and item-level exits, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -10,17 +10,18 @@ tags: [admin, developer, content-types]
 # Developer Content Types
 
 **Developer → Content types** lists design content types and opens a detail panel
-for fields, allowed workflows, allowed templates, and Object ACL. Design edits
-use an explicit **design-session lock** so two Admins cannot overwrite the same
-type at once.
+for fields, allowed workflows, allowed templates, item-level exits, and Object
+ACL. Design edits use an explicit **design-session lock** so two Admins cannot
+overwrite the same type at once.
 
 This is **not** the full Workbench field-rule editor. Field validation /
 visibility / transform **expressions** stay summary-only on the detail table.
 Integrators write them with REST
 `GET`/`PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions`
 (held design lock for PUT). Item-level pre/post exits and validations (CD-09)
-use `GET`/`PUT /services/contenttypes/{idOrName}/itemExits`. This page does
-**not** add Properties-tab or expression-editor chrome.
+are edited from this detail chrome after **Lock** (see below), or via
+`GET`/`PUT /services/contenttypes/{idOrName}/itemExits`. Apply-when conditions
+remain read-only.
 
 ## Product path — lock, save, unlock
 
@@ -87,6 +88,26 @@ the lock (including while the type is still loading). After **Lock**:
 
 This is not the full Workbench template picker.
 
+### Item-level exits (after lock)
+
+The **Item-level exits** lists (input translations, output translations,
+validations, pipe pre-exits, and post-exits) are **read-only** until you hold
+the lock. After **Lock**:
+
+1. Add an extension by its fully-qualified name (for example
+   `Java/global/percussion/generic/sys_ToUpperCase`) and an optional parameter
+   value (for example `sys_title`), then click **Add**, or **Remove** a row.
+2. Click **Save content type**. The product replaces the item-level exits set
+   (`PUT /services/contenttypes/{idOrName}/itemExits`). Save does **not**
+   unlock. A following `GET .../itemExits` lists the new set.
+3. Without a lock, Add / Remove / Save stay **disabled**. The product does
+   **not** steal another user's lock (lock failure is **409**). An empty list
+   clears that list. Unknown extension FQNs return an error; the lock is not
+   stolen.
+
+Apply-when conditions on exits are **read-only** and are not written on save.
+This is not the full Workbench Properties-tab condition editor.
+
 Locks expire after **30 minutes**. If Save fails because the lock expired,
 click **Lock** again and retry.
 
@@ -117,6 +138,8 @@ The chrome calls:
 | Save allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` (requires a held lock; does not unlock) |
 | Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` (held lock; full replace) |
 | Confirm allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` |
+| Replace item-level exits | `PUT /services/contenttypes/{idOrName}/itemExits` (CD-09; held lock; full replace of translations/validations; empty lists clear) |
+| Confirm item-level exits | `GET /services/contenttypes/{idOrName}/itemExits` |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |
 
 Integrator notes: [REST API — Content types](id:developer-rest). Object ACL on

@@ -1220,6 +1220,11 @@ public class ContentTypesResource {
               + " Empty lists clear. preExits/postExits omitted leave pipe extensions unchanged;"
               + " empty list clears. Each exit needs a resolvable extension FQN. Apply-when"
               + " conditions are not written. Jackson root wrap is ContentTypeItemExits.",
+      requestBody =
+          @RequestBody(
+              required = true,
+              content =
+                  @Content(schema = @Schema(implementation = ContentTypeItemExits.class))),
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -1235,8 +1240,23 @@ public class ContentTypesResource {
             description = "Design lock not held by the current user"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
+  public ContentTypeItemExits replaceItemExitsFromJson(
+      @PathParam("idOrName") String idOrName, java.io.InputStream jsonBody) {
+    try {
+      byte[] raw = jsonBody == null ? new byte[0] : jsonBody.readAllBytes();
+      String json = new String(raw, java.nio.charset.StandardCharsets.UTF_8);
+      return replaceItemExits(idOrName, ContentTypeItemExitsJsonReader.parse(json));
+    } catch (java.io.IOException e) {
+      throw new WebApplicationException("Invalid item-exits body", 400);
+    }
+  }
+
+  /**
+   * Replace item-level exits. Package tests call this with a bound DTO; HTTP PUT uses {@link
+   * #replaceItemExitsFromJson} so CXF UNWRAP_ROOT_VALUE cannot drop required lists (#3895).
+   */
   public ContentTypeItemExits replaceItemExits(
-      @PathParam("idOrName") String idOrName, ContentTypeItemExits body) {
+      String idOrName, ContentTypeItemExits body) {
     if (body == null
         || body.getInputTranslations() == null
         || body.getOutputTranslations() == null

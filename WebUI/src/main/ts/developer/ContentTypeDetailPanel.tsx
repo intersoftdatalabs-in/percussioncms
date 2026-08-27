@@ -20,14 +20,23 @@ import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
   getContentTypeAllowedTemplates,
   getContentTypeDetail,
+  getContentTypeItemExits,
   lockContentType,
   replaceContentTypeAllowedTemplates,
+  replaceContentTypeItemExits,
   setContentTypeAllowedWorkflows,
   setContentTypeEnabled,
   unlockContentType,
   updateContentTypeDetail,
   type ContentTypeUpdateBody,
 } from "../api/developer/contentTypesApi";
+import {
+  cloneContentTypeItemExits,
+  contentTypeItemExitsEqual,
+  emptyContentTypeItemExits,
+  itemExitListsEqual,
+} from "../api/developer/contentTypeItemExits";
+import { ContentTypeItemExitsSection } from "./ContentTypeItemExitsSection";
 import {
   normalizeContentTypeDesignGaps,
   normalizeContentTypeFields,
@@ -37,6 +46,7 @@ import {
 import type {
   ContentTypeDetail,
   ContentTypeFieldSummary,
+  ContentTypeItemExits,
   NamedObjectRef,
 } from "../api/developer/types";
 import {
@@ -154,6 +164,14 @@ export function ContentTypeDetailPanel({
   const [templates, setTemplates] = useState<NamedObjectRef[]>([]);
   const [newWfName, setNewWfName] = useState("");
   const [newTplName, setNewTplName] = useState("");
+  const [itemExits, setItemExits] = useState<ContentTypeItemExits>(() =>
+    emptyContentTypeItemExits(),
+  );
+  const [savedItemExits, setSavedItemExits] = useState<ContentTypeItemExits>(() =>
+    emptyContentTypeItemExits(),
+  );
+  const [itemExitsLoaded, setItemExitsLoaded] = useState(false);
+  const [itemExitsError, setItemExitsError] = useState<string | null>(null);
   const [heldLock, setHeldLock] = useState(false);
   const heldLockRef = useRef(false);
 
@@ -178,6 +196,24 @@ export function ContentTypeDetailPanel({
     setNotice(null);
     setHeldLock(false);
     heldLockRef.current = false;
+    setItemExits(emptyContentTypeItemExits());
+    setSavedItemExits(emptyContentTypeItemExits());
+    setItemExitsLoaded(false);
+    setItemExitsError(null);
+    getContentTypeItemExits(idOrName)
+      .then((env) => {
+        if (cancelled) return;
+        const cloned = cloneContentTypeItemExits(env);
+        setItemExits(cloned);
+        setSavedItemExits(cloneContentTypeItemExits(cloned));
+        setItemExitsLoaded(true);
+        setItemExitsError(null);
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setItemExitsLoaded(false);
+        setItemExitsError(panelErrMsg(err, DEV_MSG.CT_IE_LOAD_ERROR));
+      });
     getContentTypeDetail(idOrName)
       .then((d) => {
         if (cancelled) return;
@@ -222,6 +258,8 @@ export function ContentTypeDetailPanel({
   const initialTemplates = cloneNamedObjectRefs(detail?.allowedTemplates);
   const workflowsDirty = detail != null && !namedObjectRefsEqual(workflows, initialWorkflows);
   const templatesDirty = detail != null && !namedObjectRefsEqual(templates, initialTemplates);
+  const itemExitsDirty =
+    itemExitsLoaded && !contentTypeItemExitsEqual(itemExits, savedItemExits);
 
   const dirty =
     detail != null &&
@@ -230,13 +268,15 @@ export function ContentTypeDetailPanel({
       enabled !== (detail.enabled !== false) ||
       fieldsDirty ||
       workflowsDirty ||
-      templatesDirty);
+      templatesDirty ||
+      itemExitsDirty);
 
   const objectGuid = resolveContentTypeObjectGuid(detail, catalogGuid);
   const fieldRows = contentTypeFields(detail);
   const childSets = contentTypeChildSets(detail);
   const gapRows = contentTypeDesignGaps(detail);
   const canEdit = heldLock && !busy && detail != null;
+  const canEditItemExits = canEdit && itemExitsLoaded;
 
   function toggleField(key: string, prop: "searchable" | "required") {
     setFieldDrafts((prev) => {
@@ -380,7 +420,7 @@ export function ContentTypeDetailPanel({
       label !== (detail.label || "") ||
       description !== (detail.description || "") ||
       fieldsDirty;
-    if (!enabledDirty && !workflowsDirty && !templatesDirty && !bulkNeeded) {
+    if (!enabledDirty && !workflowsDirty && !templatesDirty && !bulkNeeded && !itemExitsDirty) {
       return;
     }
     setBusy(true);
@@ -476,8 +516,42 @@ export function ContentTypeDetailPanel({
           throw tplErr;
         }
       }
-      if (saved == null) {
+      if (itemExitsDirty) {
+        try {
+          const includePipeExits =
+            !itemExitListsEqual(itemExits.preExits, savedItemExits.preExits) ||
+            !itemExitListsEqual(itemExits.postExits, savedItemExits.postExits);
+          const includeMaxErrors =
+            (itemExits.maxErrorsToStopValidation ?? null) !==
+            (savedItemExits.maxErrorsToStopValidation ?? null);
+          const exitsSaved = await replaceContentTypeItemExits(
+            idOrName,
+            itemExits,
+            includePipeExits,
+            includeMaxErrors,
+          );
+          const cloned = cloneContentTypeItemExits(exitsSaved);
+          setItemExits(cloned);
+          setSavedItemExits(cloneContentTypeItemExits(cloned));
+        } catch (ieErr) {
+          if (saved != null) {
+            setDetail(saved);
+            setEnabled(saved.enabled !== false);
+            setWorkflows(
+              withDefaultWorkflowFlags(saved.allowedWorkflows, saved.defaultWorkflow),
+            );
+            if (saved.allowedTemplates) {
+              setTemplates(cloneNamedObjectRefs(saved.allowedTemplates));
+            }
+          }
+          throw ieErr;
+        }
+      }
+      if (saved == null && !itemExitsDirty) {
         return;
+      }
+      if (saved == null) {
+        saved = normalizeDetailLists(detail);
       }
       const normalized = normalizeDetailLists(saved);
       setDetail(normalized);
@@ -750,6 +824,19 @@ export function ContentTypeDetailPanel({
           </button>
         </div>
       </section>
+
+      <ContentTypeItemExitsSection
+        value={itemExits}
+        canEdit={canEditItemExits}
+        loadError={itemExitsError}
+        onChange={(next) => {
+          if (!canEditItemExits) {
+            return;
+          }
+          setItemExits(next);
+          setNotice(null);
+        }}
+      />
 
       {!error && detail == null ? (
         <div data-testid="developer-ct-detail-loading">{DEV_MSG.CT_DETAIL_LOADING}</div>
