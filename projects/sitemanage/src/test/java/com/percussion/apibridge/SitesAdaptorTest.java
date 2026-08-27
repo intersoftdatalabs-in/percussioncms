@@ -2048,6 +2048,147 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void publishVirtualSite_objectStorageInjectedBuildRunnerCopiesToSiteRoot() throws Exception {
+    Path siteRoot = createMinimalObjectStorageTree(tempDir.resolve("obj-pub-src"));
+    Path staging = tempDir.resolve("obj-pub-staging");
+    Path publishTo = tempDir.resolve("obj-pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("ObjHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "object-storage");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "obj-docs");
+    when(siteManager.findSite("ObjHelp")).thenReturn(site);
+
+    SitesAdaptor.BuildRunner runner =
+        (config, outputRoot) -> {
+          Files.createDirectories(outputRoot.resolve("8.2"));
+          Files.writeString(
+              outputRoot.resolve("8.2").resolve("index.html"),
+              "<html>Object storage published</html>",
+              StandardCharsets.UTF_8);
+          Files.createDirectories(outputRoot.resolve("_meta"));
+          Files.writeString(
+              outputRoot.resolve("_meta").resolve("skip.txt"),
+              "not published",
+              StandardCharsets.UTF_8);
+          return new PSVirtualSiteBuildResult(
+              outputRoot, 1, List.of(), List.of("8.2/index.html"));
+        };
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, runner);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("ObjHelp");
+    assertEquals("ObjHelp", result.getSiteName());
+    assertEquals("obj-docs", result.getSiteKey());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    Path html = publishTo.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    assertTrue(
+        Files.readString(html, StandardCharsets.UTF_8).contains("Object storage published"),
+        Files.readString(html, StandardCharsets.UTF_8));
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
+    assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
+  }
+
+  @Test
+  void publishVirtualSite_objectStorageBuildsThenCopiesToSiteRoot() throws Exception {
+    Path siteRoot = createMinimalObjectStorageTree(tempDir.resolve("obj-real-pub-src"));
+    Path staging = tempDir.resolve("obj-real-pub-staging");
+    Path publishTo = tempDir.resolve("obj-real-pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("ObjHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "object-storage");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "obj-docs");
+    when(siteManager.findSite("ObjHelp")).thenReturn(site);
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, null);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("ObjHelp");
+    assertEquals("ObjHelp", result.getSiteName());
+    assertEquals("obj-docs", result.getSiteKey());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    Path html = publishTo.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("Object Home"), body);
+    assertTrue(body.contains("Hello from objects"), body);
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
+    assertTrue(Files.isRegularFile(staging.resolve("8.2").resolve("index.html")));
+    assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
+  }
+
+  @Test
+  void publishVirtualSite_objectStorageRejectsUnsafeSiteRoot() {
+    PSSite site = new PSSite();
+    site.setName("ObjHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(Path.of("a", "..", "..", "etc").toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "object-storage");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, tempDir.resolve("obj-src").toString());
+    when(siteManager.findSite("ObjHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("ObjHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void publishVirtualSite_objectStorageRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalObjectStorageTree(tempDir.resolve("obj-pub-remote"));
+    Path publishTo = tempDir.resolve("obj-pub-remote-target");
+    Files.createDirectories(publishTo);
+
+    PSSite site = new PSSite();
+    site.setName("ObjHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "object-storage");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("ObjHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("ObjHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void publishVirtualSite_unknownSourceKind400() {
+    Path siteRoot = tempDir.resolve("unknown-pub-src");
+    Path publishTo = tempDir.resolve("unknown-pub-target");
+    PSSite site = new PSSite();
+    site.setName("Help");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-api");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toString());
+    when(siteManager.findSite("Help")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("Help"));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(msg.contains("unsupported") || msg.contains("sql-api"), msg);
+  }
+
+  @Test
   void toWirePublishResult_mapsRestDtoWithoutSystemCopyRecord() {
     VirtualSiteBuildResult built = new VirtualSiteBuildResult();
     built.setOutputPath(tempDir.resolve("staging").toString());
@@ -2889,9 +3030,9 @@ class SitesAdaptorTest {
   }
 
   /**
-   * Local object-key bucket for object-storage REST Build and last-build Preview. Markdown under
-   * {@code 8.2/} plus required {@code _config.yaml}; portable NIO {@link Path} / {@link Files}. No
-   * cloud URLs or credentials.
+   * Local object-key bucket for object-storage REST Build, last-build Preview, and Publish.
+   * Markdown under {@code 8.2/} plus required {@code _config.yaml}; portable NIO {@link Path} /
+   * {@link Files}. No cloud URLs or credentials.
    */
   private static Path createMinimalObjectStorageTree(Path siteRoot) throws Exception {
     Files.createDirectories(siteRoot.resolve("8.2"));

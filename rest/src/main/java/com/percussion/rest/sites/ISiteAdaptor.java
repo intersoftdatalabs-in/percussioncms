@@ -155,15 +155,18 @@ public interface ISiteAdaptor {
 
   /**
    * Builds a Virtual Site ({@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
-   * or {@code http-json}) and copies the static output to the Site filesystem publish root ({@code
-   * IPSSite.getRoot()}).
+   * {@code http-json}, or {@code object-storage}) and copies the static output to the Site
+   * filesystem publish root ({@code IPSSite.getRoot()}).
    *
    * <p>Publish-includes-build: operators get a published docs tree at the configured Site
    * publishing location, not only {@code tmp/virtual-sites}. {@code sql-database} uses in-memory
    * H2 ({@code jdbc:h2:mem:}) only; Oracle / MySQL / SQL Server JDBC URLs fail closed (400).
    * {@code http-json} discovers a local JSON fixture or loopback catalog from {@code _config.yaml}
    * ({@code http.url} / {@code http.file}); leftover {@code virtual.remoteUrl} is 400 (no secrets
-   * on this envelope). Failures are operator-facing 4xx (not a silent no-op). Requires Admin.
+   * on this envelope). {@code object-storage} uses a portable-safe local object-key {@code
+   * rootPath} (NIO Path; no remaining {@code ..}); leftover {@code virtual.remoteUrl} is 400 (no
+   * cloud URLs, IAM, or access keys). Failures are operator-facing 4xx (not a silent no-op).
+   * Requires Admin.
    *
    * @param nameOrId site name or GUID string, not blank
    * @return publish summary (never null)
