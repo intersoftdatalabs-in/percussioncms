@@ -23,7 +23,7 @@ import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSContentEditor;
 import com.percussion.design.objectstore.PSLiteral;
 import com.percussion.error.PSNotFoundException;
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -329,18 +329,19 @@ public class PSEditorDocumentContext {
       parentId = ((Integer) entry.getKey()).intValue();
     } else if (parentIds.size() > 0) {
       Iterator parentIdIter = parentIds.iterator();
-      while (parentIdIter.hasNext() && !found) {
+      // Do not stop at the first summary parent — a second one is CE_AMBIGUOUS_PAGEID.
+      while (parentIdIter.hasNext()) {
         Map.Entry entry = (Map.Entry) parentIdIter.next();
         PSPageInfo info = (PSPageInfo) entry.getValue();
         if (info.isSummaryEditor()) {
           if (found) {
-            throw new PSNotFoundException(IPSServerErrors.CE_AMBIGUOUS_PAGEID, "" + pageId);
+            throw new PSNotFoundException(ServerErrorCodes.CE_AMBIGUOUS_PAGEID, "" + pageId);
           } else found = true;
           parentId = ((Integer) entry.getKey()).intValue();
         }
       }
     }
-    if (!found) throw new PSNotFoundException(IPSServerErrors.CE_NO_PARENT, "" + pageId);
+    if (!found) throw new PSNotFoundException(ServerErrorCodes.CE_NO_PARENT, "" + pageId);
     return parentId;
   }
 
@@ -367,7 +368,7 @@ public class PSEditorDocumentContext {
     }
     if (!found) {
       String[] args = {"child", "" + childId};
-      throw new PSNotFoundException(IPSServerErrors.CE_MISSING_PAGEMAP_ENTRY, args);
+      throw new PSNotFoundException(ServerErrorCodes.CE_MISSING_PAGEMAP_ENTRY, args);
     }
     return pageId;
   }
@@ -383,7 +384,7 @@ public class PSEditorDocumentContext {
     PSPageInfo info = (PSPageInfo) m_pageInfo.get(Integer.valueOf(pageId));
     if (null == info) {
       String[] args = {"page", "" + pageId};
-      throw new PSNotFoundException(IPSServerErrors.CE_MISSING_PAGEMAP_ENTRY, args);
+      throw new PSNotFoundException(ServerErrorCodes.CE_MISSING_PAGEMAP_ENTRY, args);
     }
 
     return info.getChildId();

@@ -258,6 +258,44 @@ public class PSException extends java.lang.Exception implements IPSException {
   }
 
   /**
+   * Typed construction with a locale and a single message argument.
+   *
+   * <p>Do not add a two-arg {@code (String, IPSErrorCode)} overload: it is ambiguous with {@link
+   * #PSException(String, Throwable)} when the second argument is {@code null}.
+   *
+   * @param language language string, e.g. 'en-us'; may be {@code null} or empty
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg sole message argument; may be {@code null}
+   */
+  public PSException(String language, IPSErrorCode code, Object singleArg) {
+    this(language, code, null == singleArg ? null : new Object[] {singleArg});
+  }
+
+  /**
+   * Typed construction with a locale and message arguments.
+   *
+   * @param language language string, e.g. 'en-us'; may be {@code null} or empty
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   */
+  public PSException(String language, IPSErrorCode code, Object[] arrayArgs) {
+    this(language, code, arrayArgs, null);
+  }
+
+  /**
+   * Typed construction with a locale, message arguments, and a cause.
+   *
+   * @param language language string, e.g. 'en-us'; may be {@code null} or empty
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   * @param cause causal throwable; may be {@code null}
+   */
+  public PSException(String language, IPSErrorCode code, Object[] arrayArgs, Throwable cause) {
+    this(language, requireCode(code).numericCode(), arrayArgs, cause);
+    m_typedErrorCode = code;
+  }
+
+  /**
    * Create a chained exception with a specific message
    *
    * @param message message to use in exception. If <code>null</code> then use the localized message

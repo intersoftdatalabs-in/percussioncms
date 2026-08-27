@@ -26,7 +26,7 @@ import com.percussion.design.objectstore.PSUISet;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.error.PSSqlException;
 import com.percussion.extension.PSExtensionException;
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,14 +71,14 @@ public class PSMultiValueBuilder extends PSDisplayFieldBuilder {
     List<String> rows = null;
     try {
       if (!m_isFieldShown)
-        throw new PSDataExtractionException(IPSServerErrors.CE_MISSING_RESULTSET, m_fieldSetName);
+        throw new PSDataExtractionException(ServerErrorCodes.CE_MISSING_RESULTSET, m_fieldSetName);
 
       if (data != null && !isNewDoc) {
         try {
           data.saveResultSetContext();
           if (data.getNextResultSet() == null)
             throw new PSDataExtractionException(
-                IPSServerErrors.CE_MISSING_RESULTSET, m_fieldSetName);
+                ServerErrorCodes.CE_MISSING_RESULTSET, m_fieldSetName);
 
           // only need to read rows if we are being displayed
           rows = new ArrayList<>();
@@ -90,7 +90,7 @@ public class PSMultiValueBuilder extends PSDisplayFieldBuilder {
       }
     } catch (SQLException e) {
       throw new PSDataExtractionException(
-          IPSServerErrors.CE_SQL_ERRORS, PSSqlException.getFormattedExceptionText(e));
+          ServerErrorCodes.CE_SQL_ERRORS, PSSqlException.getFormattedExceptionText(e));
     } finally {
       // set our rows in the ThreadLocal
       m_rows.set(rows);
@@ -125,10 +125,10 @@ public class PSMultiValueBuilder extends PSDisplayFieldBuilder {
       try {
         data.saveResultSetContext();
         if (data.getNextResultSet() == null)
-          throw new PSDataExtractionException(IPSServerErrors.CE_MISSING_RESULTSET, m_fieldSetName);
+          throw new PSDataExtractionException(ServerErrorCodes.CE_MISSING_RESULTSET, m_fieldSetName);
       } catch (SQLException e) {
         throw new PSDataExtractionException(
-            IPSServerErrors.CE_SQL_ERRORS, PSSqlException.getFormattedExceptionText(e));
+            ServerErrorCodes.CE_SQL_ERRORS, PSSqlException.getFormattedExceptionText(e));
       } finally {
         data.restoreResultSetContext();
       }

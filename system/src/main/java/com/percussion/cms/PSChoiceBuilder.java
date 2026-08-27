@@ -37,12 +37,13 @@ import com.percussion.design.objectstore.PSParam;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.design.objectstore.PSUrlRequest;
 import com.percussion.design.objectstore.PSWorkflowInfo;
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
@@ -121,7 +122,7 @@ public class PSChoiceBuilder {
 
     if (intReq == null) {
       throw new PSDataExtractionException(
-          lang, IPSServerErrors.CE_NEEDED_APP_NOT_RUNNING, IPSConstants.GLOBAL_LOOKUP);
+          lang, ServerErrorCodes.CE_NEEDED_APP_NOT_RUNNING, IPSConstants.GLOBAL_LOOKUP);
     }
 
     Document resultDoc = intReq.getResultDoc();
@@ -527,7 +528,7 @@ public class PSChoiceBuilder {
 
         if (resultDoc == null)
           throw new PSDataExtractionException(
-              IPSServerErrors.UNKNOWN_PROCESSING_ERROR, request.getUserSessionId());
+              ServerErrorCodes.UNKNOWN_PROCESSING_ERROR, request.getUserSessionId());
 
         NodeList nodes = resultDoc.getElementsByTagName(PSEntry.XML_NODE_NAME);
         for (int i = 0; i < nodes.getLength(); i++)
@@ -546,11 +547,7 @@ public class PSChoiceBuilder {
               filter);
       return addedElem;
     } catch (PSException e) {
-      if (e.getLanguageString() == null)
-        throw new PSDataExtractionException(e.getErrorCode(), e.getErrorArguments());
-      else
-        throw new PSDataExtractionException(
-            e.getLanguageString(), e.getErrorCode(), e.getErrorArguments());
+      throw wrapAsDataExtraction(e);
     }
   }
 
@@ -617,21 +614,17 @@ public class PSChoiceBuilder {
           else {
             throw new PSDataExtractionException(
                 lang,
-                IPSServerErrors.CE_INVALID_CHOICES_LOOKUP_EXTENSION,
+                ServerErrorCodes.CE_INVALID_CHOICES_LOOKUP_EXTENSION,
                 converter.getExtensionRef());
           }
         } catch (IllegalArgumentException e) {
           throw new IllegalArgumentException(e.getLocalizedMessage());
         } catch (PSExtensionException e) {
-          if (e.getLanguageString() == null)
-            throw new PSDataExtractionException(e.getErrorCode(), e.getErrorArguments());
-          else
-            throw new PSDataExtractionException(
-                e.getLanguageString(), e.getErrorCode(), e.getErrorArguments());
+          throw wrapAsDataExtraction(e);
         } catch (PSNotFoundException e) {
           throw new PSDataExtractionException(
               lang,
-              IPSServerErrors.CE_CHOICES_LOOKUP_EXTENSION_NOT_FOUND,
+              ServerErrorCodes.CE_CHOICES_LOOKUP_EXTENSION_NOT_FOUND,
               converter.getExtensionRef());
         }
       } else {
@@ -678,7 +671,7 @@ public class PSChoiceBuilder {
       }
       Object[] params = {urlRequest.getHref(), queryParams, urlRequest.getAnchor()};
       throw new PSDataExtractionException(
-          lang, IPSServerErrors.CE_INVALID_CHOICES_LOOKUP_URL, params);
+          lang, ServerErrorCodes.CE_INVALID_CHOICES_LOOKUP_URL, params);
     }
   }
 
@@ -1179,4 +1172,23 @@ public class PSChoiceBuilder {
 
   /** XML document attribute value name. */
   public static final String ATTRIB_BOOLEAN_FALSE = "no";
+
+  /**
+   * Re-throw a nested {@link PSException} as {@link PSDataExtractionException}, retaining a typed
+   * catalog code when the source was constructed via {@link IPSErrorCode}.
+   */
+  private static PSDataExtractionException wrapAsDataExtraction(PSException e) {
+    IPSErrorCode typed = e.getTypedErrorCode();
+    if (typed != null) {
+      if (e.getLanguageString() == null) {
+        return new PSDataExtractionException(typed, e.getErrorArguments());
+      }
+      return new PSDataExtractionException(e.getLanguageString(), typed, e.getErrorArguments());
+    }
+    if (e.getLanguageString() == null) {
+      return new PSDataExtractionException(e.getErrorCode(), e.getErrorArguments());
+    }
+    return new PSDataExtractionException(
+        e.getLanguageString(), e.getErrorCode(), e.getErrorArguments());
+  }
 }

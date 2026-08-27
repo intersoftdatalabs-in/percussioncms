@@ -27,7 +27,7 @@ import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.server.PSServer;
 import com.percussion.utils.collections.PSIteratorUtils;
 import java.util.ArrayList;
@@ -73,7 +73,7 @@ public abstract class PSModifyDocumentBuilder extends PSEditorDocumentBuilder {
       try {
       } catch (NumberFormatException e) {
         String[] args = {contentId, "content id", e.getLocalizedMessage()};
-        throw new PSDataExtractionException(IPSServerErrors.CE_BAD_NUMBER_FORMAT, args);
+        throw new PSDataExtractionException(ServerErrorCodes.CE_BAD_NUMBER_FORMAT, args);
       }
     } else return workflow;
 
@@ -129,7 +129,7 @@ public abstract class PSModifyDocumentBuilder extends PSEditorDocumentBuilder {
       IPSInternalResultHandler rh =
           (IPSInternalResultHandler) PSServer.getInternalRequestHandler(reqName);
       if (null == rh) {
-        throw new PSDataExtractionException(IPSServerErrors.CE_NEEDED_APP_NOT_RUNNING, reqName);
+        throw new PSDataExtractionException(ServerErrorCodes.CE_NEEDED_APP_NOT_RUNNING, reqName);
       }
       handlers.add(rh);
     }
