@@ -449,7 +449,7 @@ python docker/scripts/perc-devctl.py qa-deploy-webui
 python docker/scripts/hot-deploy-webui-modern.py
 ```
 
-Default source: `WebUI/target/generated-webui/cm/modern` (entry `assets/perc-modern-ui.js`, `assets/perc-modern-ui.css`, hashed chunks, optional `index.html`). Default container: `perc-matrix-cms-h2`. Dest: `/opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/`. The script refuses a bundle whose `assets/*.js` lacks the `object-storage` marker. It does **not** `docker restart` the cell — restart Jetty inside the cell, then `qa-health`. Unit tests: `docker/scripts/test_hot_deploy_webui_modern.py`.
+Default source: `WebUI/target/generated-webui/cm/modern` (entry `assets/perc-modern-ui.js`, `assets/perc-modern-ui.css`, hashed chunks, optional `index.html`). Default container: `perc-matrix-cms-h2`. Dest: `/opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/`. The script refuses a bundle unless `perc-modern-ui.js` or the `developer-*.js` chunk it imports contains the quoted wire value `"object-storage"` (not a bare substring; the TS identifier `SOURCE_KIND_OBJECT_STORAGE` is minified away). It does **not** `docker restart` the cell — restart Jetty inside the cell, then `qa-health`. Unit tests: `docker/scripts/test_hot_deploy_webui_modern.py`.
 
 ## Container entrypoint
 

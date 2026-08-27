@@ -104,8 +104,11 @@ class TestArgParser(unittest.TestCase):
 
 class TestValidateSrc(unittest.TestCase):
     def test_missing_dir(self):
-        rc = hdw.validate_src(Path("Z:/no-such-modern-dir"), require_object_storage=True)
-        self.assertEqual(rc, hdw.EXIT_SRC_NOT_FOUND)
+        with tempfile.TemporaryDirectory() as td:
+            missing = Path(td) / "no-such-modern-dir"
+            self.assertFalse(missing.exists())
+            rc = hdw.validate_src(missing, require_object_storage=True)
+            self.assertEqual(rc, hdw.EXIT_SRC_NOT_FOUND)
 
     def test_missing_entry_js(self):
         with tempfile.TemporaryDirectory() as td:
@@ -129,6 +132,41 @@ class TestValidateSrc(unittest.TestCase):
             rc = hdw.validate_src(src, require_object_storage=True)
             self.assertEqual(rc, hdw.EXIT_OK)
             self.assertTrue(hdw.bundle_contains_marker(src))
+
+    def test_unquoted_object_storage_substring_is_not_enough(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = _write_modern_tree(Path(td), include_object_storage=False)
+            (src / "assets" / "developer-AbCd1234.js").write_text(
+                'const u="https://example.com/object-storage/keys";\n',
+                encoding="utf-8",
+            )
+            rc = hdw.validate_src(src, require_object_storage=True)
+            self.assertEqual(rc, hdw.EXIT_MARKER_MISSING)
+            self.assertFalse(hdw.bundle_contains_marker(src))
+
+    def test_quoted_marker_only_in_unrelated_chunk_fails(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = _write_modern_tree(Path(td), include_object_storage=False)
+            (src / "assets" / "other-XXXX.js").write_text(
+                'export const os="object-storage";\n',
+                encoding="utf-8",
+            )
+            rc = hdw.validate_src(src, require_object_storage=True)
+            self.assertEqual(rc, hdw.EXIT_MARKER_MISSING)
+            self.assertFalse(hdw.bundle_contains_marker(src))
+
+    def test_quoted_marker_inlined_in_entry_without_developer_import(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = Path(td) / "modern"
+            assets = src / "assets"
+            assets.mkdir(parents=True)
+            (assets / "perc-modern-ui.js").write_text(
+                'const k="object-storage";\n',
+                encoding="utf-8",
+            )
+            (assets / "perc-modern-ui.css").write_text("/* css */\n", encoding="utf-8")
+            rc = hdw.validate_src(src, require_object_storage=True)
+            self.assertEqual(rc, hdw.EXIT_OK)
 
 
 class TestContainerDestFile(unittest.TestCase):

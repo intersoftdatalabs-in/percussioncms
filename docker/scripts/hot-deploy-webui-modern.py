@@ -34,8 +34,13 @@ It does **not** ``docker restart`` the cell (silent install wipes copies).
 Callers restart Jetty *inside* the cell (StopJetty/StartJetty) then run
 ``perc-devctl.py qa-health``.
 
-By default the script refuses to deploy a bundle that does not contain
-the ``object-storage`` marker in any ``*.js`` under ``assets/``.
+By default the script refuses to deploy a bundle whose SPA entry
+(``assets/perc-modern-ui.js``) does not import a ``developer-*.js``
+chunk that contains the quoted wire value ``"object-storage"`` (or
+``'object-storage'``). A bare substring such as an API path is not
+enough. The TypeScript identifier ``SOURCE_KIND_OBJECT_STORAGE`` is
+not scanned: production bundles minify it away, while the option
+value string is what the live ``<select>`` renders.
 
 Exit codes:
 
@@ -51,6 +56,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -69,7 +75,17 @@ DEFAULT_CONTAINER = "perc-matrix-cms-h2"
 DEFAULT_DEST = "/opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern"
 ENTRY_JS_REL = "assets/perc-modern-ui.js"
 ENTRY_CSS_REL = "assets/perc-modern-ui.css"
+# Wire value of SOURCE_KIND_OBJECT_STORAGE / option[value=object-storage].
 OBJECT_STORAGE_MARKER = "object-storage"
+# Vite/esbuild keep the quoted string; the TS identifier is minified away.
+_QUOTED_MARKER_RE = re.compile(
+    r"""["']""" + re.escape(OBJECT_STORAGE_MARKER) + r"""["']"""
+)
+# Entry typically has import"./developer-<hash>.js" or import("./developer-<hash>.js").
+_DEVELOPER_IMPORT_RE = re.compile(
+    r"""(?:import\s*\(?\s*["']|from\s+["'])(?:\./)?(developer-[^"']+\.js)["']""",
+    re.IGNORECASE,
+)
 
 
 def _repo_root() -> Path:
@@ -179,19 +195,57 @@ def container_dest_file(dest_root: str, rel_posix: str) -> str:
     return f"{root.rstrip('/')}/{rel}"
 
 
+def _read_js(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        return ""
+
+
+def _quoted_wire_value_in(text: str, marker: str) -> bool:
+    """True when ``text`` contains ``marker`` as a JS string literal."""
+    if marker == OBJECT_STORAGE_MARKER:
+        return _QUOTED_MARKER_RE.search(text) is not None
+    return re.search(r"""["']""" + re.escape(marker) + r"""["']""", text) is not None
+
+
+def developer_chunks_imported_by_entry(entry_text: str) -> list[str]:
+    """Return ``developer-*.js`` names the SPA entry imports (stable order)."""
+    seen: list[str] = []
+    for match in _DEVELOPER_IMPORT_RE.finditer(entry_text):
+        name = match.group(1)
+        if name not in seen:
+            seen.append(name)
+    return seen
+
+
 def bundle_contains_marker(src: Path, marker: str = OBJECT_STORAGE_MARKER) -> bool:
-    """True when any ``assets/*.js`` (not maps) contains ``marker``."""
+    """True when the live SPA entry's developer chunk has quoted ``marker``.
+
+    Prefers ``assets/perc-modern-ui.js`` plus the ``developer-*.js`` files it
+    ``import()``s — the #3893 failure mode was a stale entry pointing at an
+    old developer chunk. Falls back to scanning ``assets/*.js`` only when
+    the entry does not import a developer chunk (inlined bundle).
+    """
     assets = src / "assets"
     if not assets.is_dir():
         return False
+    entry = assets / "perc-modern-ui.js"
+    if entry.is_file():
+        entry_text = _read_js(entry)
+        if _quoted_wire_value_in(entry_text, marker):
+            return True
+        imported = developer_chunks_imported_by_entry(entry_text)
+        if imported:
+            for name in imported:
+                chunk = assets / name
+                if chunk.is_file() and _quoted_wire_value_in(_read_js(chunk), marker):
+                    return True
+            return False
     for p in sorted(assets.glob("*.js")):
         if p.name.endswith(".map"):
             continue
-        try:
-            text = p.read_text(encoding="utf-8", errors="ignore")
-        except OSError:
-            continue
-        if marker in text:
+        if _quoted_wire_value_in(_read_js(p), marker):
             return True
     return False
 
@@ -218,14 +272,16 @@ def validate_src(src: Path, *, require_object_storage: bool) -> int:
         LOG.warning("missing %s under %s (JSPs still link it)", ENTRY_CSS_REL, src)
     if require_object_storage and not bundle_contains_marker(src):
         LOG.error(
-            "built modern JS under %s does not contain %r — "
+            "built modern JS under %s does not contain quoted %r in "
+            "perc-modern-ui.js or the developer-*.js chunk it imports — "
             "the live kind select would omit option[value=object-storage] (#3893)",
             src,
             OBJECT_STORAGE_MARKER,
         )
         LOG.error(
-            "hint: rebuild WebUI so the developer chunk includes "
-            "SOURCE_KIND_OBJECT_STORAGE, then deploy entry + hashed chunks"
+            "hint: rebuild WebUI so the developer chunk includes the "
+            "SOURCE_KIND_OBJECT_STORAGE wire value as a string, then "
+            "deploy entry + hashed chunks"
         )
         return EXIT_MARKER_MISSING
     return EXIT_OK
