@@ -1730,7 +1730,7 @@ class SitesAdaptorTest {
     assertEquals(1, result.getPagesWritten().intValue());
     assertEquals(out.toAbsolutePath().normalize().toString(), result.getOutputPath());
     assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
-    Path html = out.resolve("8.2").resolve("home.html");
+    Path html = out.resolve("8.2").resolve("index.html");
     assertTrue(Files.isRegularFile(html), "missing " + html);
     String body = Files.readString(html, StandardCharsets.UTF_8);
     assertTrue(body.contains("RSS Home"), body);
