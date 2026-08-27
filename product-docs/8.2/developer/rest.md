@@ -190,6 +190,7 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Operation | Path | Notes |
 |-----------|------|--------|
 | List | `GET /services/contenttypes` | Name, label, description, guid |
+| Create | `POST /services/contenttypes` | **Admin.** Creates and **saves** a content type (`IPSContentDesignWs.createContentTypes` then `saveContentTypes` — Workbench Finish, not an unsaved stub). JSON body requires `name` (unique, case-insensitive; no spaces). Optional `label`, `description`, and `enabled` are applied before save. Omitted `enabled` **defaults to true** so the new type is usable. `200` + `ContentTypeDetail`. Duplicate name is **409** (catalog check and persist-time unique-name failure). Blank / whitespace / wildcard names are **400**. Missing request session/user is **403**. Rename remains unsupported. |
 | Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `enabled`, `designGaps` |
 | Allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` | Read-only list of associated templates (CD-12). No lock required. Empty list means none. Same set as `ContentTypeDetail.allowedTemplates`. |
 | Item-level exits | `GET /services/contenttypes/{idOrName}/itemExits` | Item-level input/output translations, validations, and pipe pre/post exits (CD-09). No lock required. Empty lists mean none. Apply-when conditions are a read-only summary. Jackson root wrap is `ContentTypeItemExits`. |
@@ -204,19 +205,20 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` | Field-level validation, visibility, and input/output translation expressions (CD-05–07). No lock required. Empty lists mean none. Unknown field is **404**. Jackson root wrap is `ContentTypeFieldRuleExpressions`. |
 | Replace field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` | **Admin** (CD-05–07). Requires a **held** design-session lock. Full replace of `validation`, `visibility`, `inputTranslation`, and `outputTranslation` (empty lists clear). Unknown field names are **400**. **409** if unlocked or locked by another user. Does not acquire or release the lock. |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
+| Delete | `DELETE /services/contenttypes/{idOrName}` | **Admin.** Requires a **held** design-session lock (`POST .../lock` first). Calls `IPSContentDesignWs.deleteContentTypes` with `ignoreDependencies=false`. **204** on success; a following `GET .../{idOrName}` is **404**. **409** if unlocked or locked by another user (the lock is not stolen). **404** if missing. **400** if the design web service rejects an in-use type (dependents). Does **not** cascade item delete. Rename remains out of scope. |
 
-Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT). Control property **values** use `GET`/`PUT .../fields/{fieldName}/controlProperties` after a held lock (CD-07); choice catalogs stay read-only in that chrome.
+Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. **Create** is a separate `POST /services/contenttypes` (persisted immediately). The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT). Control property **values** use `GET`/`PUT .../fields/{fieldName}/controlProperties` after a held lock (CD-07); choice catalogs stay read-only in that chrome. SPA create-wizard chrome is not part of this API. Delete is REST-only in this release (no SPA chrome): **lock → DELETE → GET 404**.
 
-Lock / save / unlock status codes:
+Lock / save / unlock / create / delete status codes:
 
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | Lock acquired (body is `ObjectLockSummary`) or PUT save / enable / disable succeeded (lock still held) |
-| `204` | Unlock success |
-| `400` | Invalid PUT body (unknown field name, bad workflow/template ref, missing `enabled` flag) |
-| `403` | Caller is not Admin |
+| `200` | Lock acquired (body is `ObjectLockSummary`), PUT save / enable / disable succeeded (lock still held), or POST create succeeded (`ContentTypeDetail`) |
+| `204` | Unlock success, or content type deleted |
+| `400` | Invalid PUT body (unknown field name, bad workflow/template ref, missing `enabled` flag), invalid create name (blank, spaces, wildcard), or DELETE rejected because the type has dependents |
+| `403` | Caller is not Admin, or the request has no session/user for the design session |
 | `404` | Content type not found |
-| `409` | No lock held, or locked by another user/session (self-only; the lock is not stolen) |
+| `409` | No lock held, or locked by another user/session (self-only; the lock is not stolen); POST create duplicate name (catalog or persist-time) |
 | `500` | Design service or server failure |
 
 ### Enable or disable (CD-13)

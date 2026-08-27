@@ -47,6 +47,8 @@ class DesignGapsStructuredTest {
                 g ->
                     "CT_CREATE_DELETE".equals(g.getCode())
                         && g.getMessage().contains("POST /services/contenttypes")
+                        && g.getMessage().contains("DELETE")
+                        && g.getMessage().toLowerCase().contains("held")
                         && !g.getMessage().startsWith("Create / delete not supported")),
         () -> gaps.toString());
     assertFalse(codes.contains("CT_CONTROL_RESOLUTION"));

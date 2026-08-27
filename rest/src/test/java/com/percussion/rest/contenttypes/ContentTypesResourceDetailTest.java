@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
@@ -592,6 +593,72 @@ public class ContentTypesResourceDetailTest {
     when(adaptor.unlockContentType(any(), eq("percPage"))).thenReturn(Boolean.TRUE);
     Response response = resource.unlockContentType("percPage");
     assertEquals(204, response.getStatus());
+  }
+
+  @Test
+  public void deleteContentTypeNoContent() {
+    when(adaptor.deleteContentType(any(), eq("percPage"))).thenReturn(Boolean.TRUE);
+    Response response = resource.deleteContentType("percPage");
+    assertEquals(204, response.getStatus());
+    verify(adaptor).deleteContentType(any(), eq("percPage"));
+  }
+
+  @Test
+  public void deleteContentTypeNotFound() {
+    when(adaptor.deleteContentType(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteContentType("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteContentTypeLockConflictWhenLockNotHeld() {
+    when(adaptor.deleteContentType(any(), eq("percPage")))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not delete content type; design lock required"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteContentType("percPage"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteContentTypeLockConflictWhenLockedByOtherUser() {
+    when(adaptor.deleteContentType(any(), eq("percPage")))
+        .thenThrow(
+            new ContentTypeDesignLockException("Could not delete content type; locked by editor2"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteContentType("percPage"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteContentTypeForbiddenWhenNotAdmin() {
+    when(adaptor.deleteContentType(any(), eq("percPage")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteContentType("percPage"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteContentTypeInUseIs400() {
+    when(adaptor.deleteContentType(any(), eq("percPage")))
+        .thenThrow(
+            new IllegalArgumentException(
+                "Could not delete content type: Content Type 311 has dependents"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteContentType("percPage"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteContentTypeWildcardIs400() {
+    when(adaptor.deleteContentType(any(), eq("perc*")))
+        .thenThrow(new IllegalArgumentException("idOrName must not contain wildcards"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteContentType("perc*"));
+    assertEquals(400, ex.getResponse().getStatus());
   }
 
   @Test

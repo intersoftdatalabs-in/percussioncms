@@ -111,6 +111,21 @@ public interface IContentTypesAdaptor {
   Boolean unlockContentType(URI baseUri, String idOrName);
 
   /**
+   * Delete a content type via {@code IPSContentDesignWs.deleteContentTypes}. Admin only. Requires a
+   * design-session lock already held by the current user ({@link #lockContentType}). Does not
+   * acquire, steal, or ignore locks. Does not cascade item delete ({@code ignoreDependencies=false}).
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @return {@code Boolean.TRUE} when deleted; {@code null} when not found
+   * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
+   *     user
+   * @throws IllegalArgumentException when the design web service rejects the delete (in-use /
+   *     dependents)
+   */
+  Boolean deleteContentType(URI baseUri, String idOrName);
+
+  /**
    * Enable or disable a content type for runtime use (CD-13). Requires a design-session lock
    * already held by the current user (peer lock REST). Does not acquire or release the lock.
    *

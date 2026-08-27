@@ -316,7 +316,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
    *
    * @param includeDisabledFromStore when {@code true}, a cache miss falls back to the
    *     object store so disabled types (unregistered from the editor cache) still load.
-   *     Only GET detail and enable/disable (CD-13) pass {@code true}; other callers keep
+   *     GET detail, enable/disable (CD-13), and DELETE pass {@code true}; other callers keep
    *     the pre-CD-13 cache-only 404 for disabled types.
    */
   private PSItemDefinition resolveItemDef(String idOrName, boolean includeDisabledFromStore)
@@ -439,7 +439,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     gaps.add(
         DesignGap.of(
             "CT_CREATE_DELETE",
-            "Create via POST /services/contenttypes. Delete / rename not supported; PUT save requires a held design lock for"
+            "Create via POST /services/contenttypes. DELETE /contenttypes/{idOrName} requires a held"
+                + " design lock. Rename not supported; PUT save requires a held design lock for"
                 + " label/description/enabled, field searchable/occurrence, workflows (+ default),"
                 + " and templates"));
     gaps.add(
@@ -600,6 +601,51 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
     systemDesign.releaseLocks(Collections.singletonList(ctGuid), session, user);
     return Boolean.TRUE;
+  }
+
+  @Override
+  public Boolean deleteContentType(URI baseUri, String idOrName) {
+    requireAdmin();
+    requireSessionUserForLock();
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      PSItemDefinition current = resolveItemDef(trimmed, true);
+      if (current == null) {
+        return null;
+      }
+      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
+      requireHeldLock(ctGuid, "Could not delete content type");
+      try {
+        designSvc.deleteContentTypes(Collections.singletonList(ctGuid), false, session, user);
+      } catch (PSErrorsException e) {
+        if (isNotLockedError(e) || hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not delete content type");
+        }
+        String details = formatSaveErrors(e);
+        if (isDeleteDependencyFailure(e)) {
+          throw new IllegalArgumentException("Could not delete content type: " + details, e);
+        }
+        log.error("Failed to delete content type {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to delete content type: " + details, e);
+      }
+      return Boolean.TRUE;
+    } catch (IllegalArgumentException | IllegalStateException | WebApplicationException e) {
+      throw e;
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for delete: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error("Failed to delete content type {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to delete content type", e);
+    }
   }
 
   @Override
@@ -2682,41 +2728,39 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
    * @throws ContentTypeDesignLockException when unlocked or locked by another user (HTTP 409)
    */
   private void requireHeldLock(IPSGuid ctGuid) {
+    requireHeldLock(ctGuid, "Could not save content type");
+  }
+
+  private void requireHeldLock(IPSGuid ctGuid, String prefix) {
     if (systemDesign == null) {
-      throw new IllegalStateException(
-          "Could not save content type; design service unavailable");
+      throw new IllegalStateException(prefix + "; design service unavailable");
     }
     List<PSObjectSummary> locked;
     try {
       locked = systemDesign.isLocked(Collections.singletonList(ctGuid), currentUser());
     } catch (PSErrorResultsException e) {
       if (isNotFoundError(e)) {
-        throw new ContentTypeDesignLockException(
-            "Could not save content type; design lock required", e);
+        throw new ContentTypeDesignLockException(prefix + "; design lock required", e);
       }
       if (hasLockError(e)) {
         String locker = firstLockLocker(e);
         throw new ContentTypeDesignLockException(
-            locker != null
-                ? "Could not save content type; locked by " + locker
-                : "Could not save content type; design lock required",
+            locker != null ? prefix + "; locked by " + locker : prefix + "; design lock required",
             e);
       }
-      throw new IllegalStateException("Could not save content type; design service error", e);
+      throw new IllegalStateException(prefix + "; design service error", e);
     }
     PSObjectSummary summary =
         locked == null || locked.isEmpty() ? null : locked.get(0);
     if (summary == null || !summary.isLocked()) {
-      throw new ContentTypeDesignLockException("Could not save content type; design lock required");
+      throw new ContentTypeDesignLockException(prefix + "; design lock required");
     }
     String user = currentUser();
     PSObjectLockSummary info = summary.getLocked();
     if (!summary.isLockedBy(user)) {
       String locker = info != null ? info.getLocker() : null;
       throw new ContentTypeDesignLockException(
-          locker != null
-              ? "Could not save content type; locked by " + locker
-              : "Could not save content type; design lock required");
+          locker != null ? prefix + "; locked by " + locker : prefix + "; design lock required");
     }
   }
 
@@ -2741,12 +2785,12 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     } catch (RuntimeException e) {
       log.debug("Admin check failed: {}", e.getMessage());
       throw new WebApplicationException(
-          "Admin role required to create, lock, unlock, or save content types",
+          "Admin role required to create, lock, unlock, save, or delete content types",
           Response.Status.FORBIDDEN);
     }
     if (!allowed) {
       throw new WebApplicationException(
-          "Admin role required to create, lock, unlock, or save content types",
+          "Admin role required to create, lock, unlock, save, or delete content types",
           Response.Status.FORBIDDEN);
     }
   }
@@ -3029,6 +3073,19 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         || lower.contains("psextensionexception")
         || lower.contains("extension type")
         || lower.contains("invalid_ext");
+  }
+
+  /**
+   * True when a batched {@code deleteContentTypes} error is a dependents / in-use rejection rather
+   * than an unexpected server failure.
+   */
+  static boolean isDeleteDependencyFailure(PSErrorsException e) {
+    String text = formatSaveErrors(e);
+    if (StringUtils.isBlank(text)) {
+      return false;
+    }
+    String lower = text.toLowerCase();
+    return lower.contains("depend") || lower.contains("in use") || lower.contains("in-use");
   }
 
   /** Map-keyed overload for {@code PSErrorsException} batched save errors. */

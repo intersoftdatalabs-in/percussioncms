@@ -927,7 +927,8 @@ public class ContentTypesResource {
               + " structure are not changed. Field rule expressions use PUT"
               + " .../fields/{fieldName}/ruleExpressions. Control property values use PUT"
               + " .../fields/{fieldName}/controlProperties. Create uses POST /contenttypes."
-              + " Delete/rename remain unsupported (see designGaps).",
+              + " Delete uses DELETE .../{idOrName} with a held lock. Rename remains"
+              + " unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -1016,6 +1017,42 @@ public class ContentTypesResource {
     try {
       Boolean released = requireAdaptor().unlockContentType(uriInfo.getBaseUri(), idOrName);
       if (released == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return Response.noContent().build();
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @DELETE
+  @Path("/{idOrName}")
+  @Operation(
+      summary = "Delete content type",
+      description =
+          "Admin. Deletes a content type via IPSContentDesignWs.deleteContentTypes. Requires a"
+              + " design-session lock already held by the current user/session (POST .../lock)."
+              + " Does not steal locks. Does not cascade items (ignoreDependencies=false); in-use"
+              + " types with dependents fail clearly. Following GET .../{idOrName} is 404 after a"
+              + " successful delete.",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Deleted"),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid id/name, or design WS rejected in-use type (dependents)"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock required, or locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response deleteContentType(@PathParam("idOrName") String idOrName) {
+    try {
+      Boolean deleted = requireAdaptor().deleteContentType(uriInfo.getBaseUri(), idOrName);
+      if (deleted == null) {
         throw new WebApplicationException("Content type not found: " + idOrName, 404);
       }
       return Response.noContent().build();

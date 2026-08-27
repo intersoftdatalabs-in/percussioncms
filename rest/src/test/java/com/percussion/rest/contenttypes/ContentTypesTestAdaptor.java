@@ -96,6 +96,11 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
   }
 
   @Override
+  public Boolean deleteContentType(URI baseUri, String idOrName) {
+    return Boolean.TRUE;
+  }
+
+  @Override
   public ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled) {
     return null;
   }
