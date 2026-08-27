@@ -130,6 +130,38 @@ describe("paginatedFolder", () => {
     expect(res.children[0]?.id).toBe("708");
   });
 
+  it("prefers GUID-shaped ids on childrenInPage rows (#3871)", async () => {
+    mockFetch(async () => {
+      return new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: [
+              {
+                PathItem: {
+                  id: "551",
+                  name: "Corporate Investments Home",
+                  path: "/Sites/CorporateInvestments/Pages/Corporate Investments Home",
+                  type: "rffHome",
+                  category: "PAGE",
+                  guid: { hostId: 16777215, type: 101, uuid: 551 },
+                },
+              },
+            ],
+            childrenCount: 1,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const res = await paginatedFolder("/Sites/CorporateInvestments/Pages", {
+      startIndex: 0,
+      maxResults: 50,
+    });
+    expect(res.children[0]?.id).toBe("16777215-101-551");
+    expect(res.children[0]?.name).toBe("Corporate Investments Home");
+  });
+
   it("builds the paginated URL with required pagination params", async () => {
     const fn = mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;

@@ -408,8 +408,9 @@ Open **View → Translations** after selecting a **page or asset** in the list (
 
 The panel shows **this item’s current locale** and **related locale variants**, and lets
 an authorized user **Create variants** for catalog locales the item does not already
-have. Explorer list rows identify items with a Percussion content id. The id is often
-GUID-shaped (for example `16777215-101-551`). The panel sends that **full GUID** on
+have. Explorer list rows identify items with a Percussion content id. Page and asset
+rows expose that id as a GUID (`host-type-uuid`, for example `16777215-101-551`) on
+the row — the same key Translations GET accepts. The panel sends that **full GUID** on
 `GET /rest/content-explorer/translations/{itemId}` (the REST façade also accepts a
 bare numeric content id such as `551`). Create-variant still posts the numeric
 content id. Stripping a GUID to its last segment for the GET (`…/translations/551`)

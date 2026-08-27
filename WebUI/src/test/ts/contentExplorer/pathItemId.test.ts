@@ -18,6 +18,9 @@
 import { describe, expect, it } from "vitest";
 import {
   bindExplorerPathItemId,
+  explorerDetailRowIdKey,
+  isExplorerGuidShapedId,
+  normalizeListedPathItem,
   parseExplorerContentId,
   unwrapExplorerWireId,
 } from "../../../main/ts/api/contentExplorer/pathItemId";
@@ -162,5 +165,78 @@ describe("bindExplorerPathItemId (#3546)", () => {
     const bound = bindExplorerPathItemId(asset);
     expect(bound.id).toBe("708");
     expect(parseExplorerContentId(bound.id)).toBe(708);
+  });
+
+  it("prefers a full GUID over a bare numeric sys_contentid (#3871)", () => {
+    const withGuid = bindExplorerPathItemId({
+      ...page({ id: "551" }),
+      guid: { hostId: 16777215, type: 101, uuid: 551 },
+    } as PSPathItem);
+    expect(withGuid.id).toBe("16777215-101-551");
+    expect(isExplorerGuidShapedId(withGuid.id)).toBe(true);
+
+    const slugPlusBoth = bindExplorerPathItemId({
+      ...page({
+        id: "ci-home",
+        displayProperties: { sys_contentid: "551" },
+      }),
+      guid: { stringValue: "16777215-101-551" },
+    } as PSPathItem);
+    expect(slugPlusBoth.id).toBe("16777215-101-551");
+  });
+
+  it("binds sys_contentid from JAXB columnData when displayProperties is omitted (#3871)", () => {
+    const bound = bindExplorerPathItemId({
+      ...page({ id: "ci-home" }),
+      columnData: {
+        displayProperty: [{ name: "sys_contentid", value: "551" }],
+      },
+    } as PSPathItem);
+    expect(bound.id).toBe("551");
+  });
+});
+
+describe("normalizeListedPathItem / explorerDetailRowIdKey (#3871)", () => {
+  it("unwraps a nested PathItem root and exposes the GUID row key", () => {
+    const listed = normalizeListedPathItem({
+      PathItem: {
+        id: { hostId: 16777215, type: 101, uuid: 551 },
+        name: "Corporate Investments Home",
+        path: "/Sites/CorporateInvestments/Pages/Corporate Investments Home",
+        type: "rffHome",
+        category: "PAGE",
+      },
+    });
+    expect(listed.id).toBe("16777215-101-551");
+    expect(listed.name).toBe("Corporate Investments Home");
+    expect(explorerDetailRowIdKey(listed)).toBe("16777215-101-551");
+  });
+
+  it("aliases columnData onto displayProperties then prefers GUID", () => {
+    const listed = normalizeListedPathItem({
+      name: "Corporate Investments Home",
+      path: "/Sites/CorporateInvestments/Pages/Corporate Investments Home",
+      type: "rffHome",
+      columnData: {
+        displayProperty: [
+          { name: "sys_title", value: "Corporate Investments Home" },
+          { name: "sys_contentid", value: "551" },
+        ],
+      },
+      guid: { stringValue: "16777215-101-551" },
+    });
+    expect(listed.id).toBe("16777215-101-551");
+    expect(listed.displayProperties?.sys_contentid).toBe("551");
+    expect(explorerDetailRowIdKey(listed)).toBe("16777215-101-551");
+  });
+
+  it("falls back to path when nothing parseable is present", () => {
+    expect(
+      explorerDetailRowIdKey({
+        name: "Pages",
+        path: "/Sites/CorporateInvestments/Pages/",
+        type: "folder",
+      }),
+    ).toBe("/Sites/CorporateInvestments/Pages/");
   });
 });
