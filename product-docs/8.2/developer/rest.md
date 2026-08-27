@@ -205,7 +205,7 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Replace field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` | **Admin** (CD-05–07). Requires a **held** design-session lock. Full replace of `validation`, `visibility`, `inputTranslation`, and `outputTranslation` (empty lists clear). Unknown field names are **400**. **409** if unlocked or locked by another user. Does not acquire or release the lock. |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
 
-Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT).
+Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT). Control property **values** use `GET`/`PUT .../fields/{fieldName}/controlProperties` after a held lock (CD-07); choice catalogs stay read-only in that chrome.
 
 Lock / save / unlock status codes:
 
@@ -443,8 +443,10 @@ validation is not written (see `designGaps` code `CT_FIELD_RULE_APPLY_WHEN`).
 | `500` | Unexpected error |
 
 This slice does **not** add a field-rule expression editor in Developer Content Types
-chrome. Control property **values** and choice catalogs use the dedicated CD-07 path
-below.
+chrome. Control property **values** use the dedicated CD-07 path below and the
+Developer Content Types **Control property values** chrome after a held lock. Choice
+catalogs are read-only in that chrome (filter / null-entry / default-selected are
+not written).
 
 ### Control property values (CD-07)
 

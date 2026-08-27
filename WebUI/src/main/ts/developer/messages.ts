@@ -137,7 +137,7 @@ export const DEV_MSG_KEYS = {
   CT_COL_LABEL: "perc.ui.developer@Label",
   CT_COL_DESCRIPTION: "perc.ui.developer@Description",
   CT_COL_ID: "perc.ui.developer@Id",
-  CT_HINT: "perc.ui.developer@Select a content type to view fields and edit label, description, enabled, field flags, workflows, templates, and item-level exits.",
+  CT_HINT: "perc.ui.developer@Select a content type to view fields and edit label, description, enabled, field flags, workflows, templates, item-level exits, and control property values.",
   CT_BACK: "perc.ui.developer@Back to list",
   CT_DETAIL_LOADING: "perc.ui.developer@Loading content type...",
   CT_DETAIL_ERROR: "perc.ui.developer@Could not load content type detail.",
