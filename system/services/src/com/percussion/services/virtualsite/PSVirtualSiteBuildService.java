@@ -62,7 +62,7 @@ public class PSVirtualSiteBuildService {
 
   /**
    * Build service for a registered adapter kind ({@code git-filesystem}, {@code csv-filesystem},
-   * {@code sql-database}, {@code http-json}, {@code object-storage}).
+   * {@code sql-database}, {@code http-json}, {@code object-storage}, {@code rss-atom}).
    *
    * @param type source kind; null defaults to {@link VirtualSiteSourceType#GIT_FILESYSTEM}
    * @param participants participant registry; null uses an in-memory registry
@@ -101,8 +101,9 @@ public class PSVirtualSiteBuildService {
    * The same service instance does not reuse parsed pages from a previous build — operators do
    * not need a JVM restart after {@code git pull}, a CSV/{@code _config.yaml} edit, a local
    * Markdown edit, a SQL query-file/{@code _config.yaml} edit, an H2 row change, an HTTP JSON
-   * catalog/{@code _config.yaml} edit, or an object-storage Markdown/HTML/JSON key/{@code
-   * _config.yaml} ({@code objects.keys}) edit.
+   * catalog/{@code _config.yaml} edit, an object-storage Markdown/HTML/JSON key/{@code
+   * _config.yaml} ({@code objects.keys}) edit, or an RSS/Atom feed ({@code rss.file} /
+   * {@code feed.xml} / {@code atom.xml} / {@code rss.url}) edit.
    *
    * @param siteRoot source tree ({@code _config.yaml} required for git-filesystem and
    *     sql-database; optional for csv-filesystem)

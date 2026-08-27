@@ -109,6 +109,31 @@ class VirtualSiteConfigLoaderTest {
   }
 
   @Test
+  void rssScalarInsteadOfMappingFailsFast() throws Exception {
+    Path root = tempDir.resolve("rss-scalar");
+    Files.createDirectories(root);
+    Files.writeString(
+        root.resolve("_config.yaml"),
+        """
+        site:
+          title: RSS Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        rss: "not-a-mapping"
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteException ex =
+        assertThrows(
+            VirtualSiteException.class,
+            () -> VirtualSiteConfigLoader.load(root, null, "rss-docs"));
+    assertTrue(ex.getMessage().toLowerCase().contains("rss"), ex.getMessage());
+    assertTrue(ex.getMessage().toLowerCase().contains("mapping"), ex.getMessage());
+  }
+
+  @Test
   void httpScalarInsteadOfMappingFailsFast() throws Exception {
     Path root = tempDir.resolve("http-scalar");
     Files.createDirectories(root);

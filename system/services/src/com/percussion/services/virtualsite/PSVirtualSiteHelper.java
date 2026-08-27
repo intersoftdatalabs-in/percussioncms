@@ -40,8 +40,8 @@ import org.apache.commons.lang3.StringUtils;
  *
  * <ul>
  *   <li>{@code virtual.sourceKind} — allow-listed adapter wire name ({@code git-filesystem},
- *       {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage});
- *       blank or {@code repository} ⇒ traditional repository Site
+ *       {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage},
+ *       {@code rss-atom}); blank or {@code repository} ⇒ traditional repository Site
  *   <li>{@code virtual.rootPath} — filesystem path to Virtual Site root when no remote is set
  *       (required when virtual and {@code virtual.remoteUrl} is blank); when a remote is set,
  *       an optional relative path inside the checkout
@@ -74,8 +74,8 @@ public final class PSVirtualSiteHelper {
 
   /**
    * Allow-listed {@link #PROP_SOURCE_KIND} wire names for Virtual adapters ({@code git-filesystem},
-   * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage}). Does
-   * not include {@link #SOURCE_KIND_REPOSITORY}.
+   * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage}, {@code
+   * rss-atom}). Does not include {@link #SOURCE_KIND_REPOSITORY}.
    *
    * @return unmodifiable list of wire names in enum declaration order
    */
@@ -174,10 +174,11 @@ public final class PSVirtualSiteHelper {
    *
    * <ul>
    *   <li>use an allow-listed {@code virtual.sourceKind} (see {@link #allowedSourceKindWireNames()};
-   *       {@code csv-filesystem}, {@code sql-database}, {@code http-json}, and {@code
-   *       object-storage} do not accept {@code virtual.remoteUrl})
-   *   <li>{@code object-storage} requires a local filesystem {@code virtual.rootPath} (NIO {@link
-   *       Path}; no remaining {@code ..}); cloud URLs and credential properties are rejected
+   *       {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage},
+   *       and {@code rss-atom} do not accept {@code virtual.remoteUrl})
+   *   <li>{@code object-storage} and {@code rss-atom} require a local filesystem {@code
+   *       virtual.rootPath} (NIO {@link Path}; no remaining {@code ..}); cloud URLs and credential
+   *       properties are rejected
    *   <li>when {@code virtual.remoteUrl} is blank: provide a non-blank safe {@code virtual.rootPath}
    *   <li>when {@code virtual.remoteUrl} is set: a safe Git URL (https / ssh / file / {@code
    *       git@host:path}); optional {@code virtual.branch}; optional relative {@code
@@ -213,8 +214,8 @@ public final class PSVirtualSiteHelper {
               + " for traditional Sites).");
     }
 
-    if (type == VirtualSiteSourceType.OBJECT_STORAGE) {
-      rejectCredentialProperties(site);
+    if (type == VirtualSiteSourceType.OBJECT_STORAGE || type == VirtualSiteSourceType.RSS_ATOM) {
+      rejectCredentialProperties(site, type);
     }
 
     Optional<String> remoteRaw = remoteUrl(site);
@@ -251,8 +252,8 @@ public final class PSVirtualSiteHelper {
                 + " is blank.");
       }
 
-      if (type == VirtualSiteSourceType.OBJECT_STORAGE) {
-        rejectCloudOrRemoteRootPath(rootRaw.get());
+      if (type == VirtualSiteSourceType.OBJECT_STORAGE || type == VirtualSiteSourceType.RSS_ATOM) {
+        rejectCloudOrRemoteRootPath(rootRaw.get(), type);
       }
 
       Path root;
@@ -487,25 +488,29 @@ public final class PSVirtualSiteHelper {
   }
 
   /**
-   * {@code object-storage} roots must be local filesystem paths. Cloud / remote URI schemes are
-   * fail-closed (no S3/GCS/Azure/HTTP object buckets, no credentials in the path).
+   * {@code object-storage} / {@code rss-atom} roots must be local filesystem paths. Cloud / remote
+   * URI schemes are fail-closed (no S3/GCS/Azure/HTTP object buckets or live feeds, no credentials
+   * in the path).
    *
    * <p>Windows drive letters ({@code C:\…}) are not treated as URI schemes.
    *
    * @param raw {@link #PROP_ROOT_PATH} value, not blank
+   * @param type adapter kind (used in the error message)
    * @throws VirtualSiteException when the value looks like a remote/cloud URL
    */
-  static void rejectCloudOrRemoteRootPath(String raw) throws VirtualSiteException {
+  static void rejectCloudOrRemoteRootPath(String raw, VirtualSiteSourceType type)
+      throws VirtualSiteException {
     if (StringUtils.isBlank(raw)) {
       return;
     }
+    String kind = type != null ? type.wireName() : VirtualSiteSourceType.OBJECT_STORAGE.wireName();
     String trimmed = raw.trim();
     String lower = trimmed.toLowerCase(Locale.ROOT);
     if (lower.contains("://")) {
       throw new VirtualSiteException(
           PROP_ROOT_PATH
               + " for "
-              + VirtualSiteSourceType.OBJECT_STORAGE.wireName()
+              + kind
               + " must be a local filesystem path (NIO Path). Cloud URLs are rejected.");
     }
     int colon = trimmed.indexOf(':');
@@ -521,7 +526,7 @@ public final class PSVirtualSiteHelper {
         throw new VirtualSiteException(
             PROP_ROOT_PATH
                 + " for "
-                + VirtualSiteSourceType.OBJECT_STORAGE.wireName()
+                + kind
                 + " must be a local filesystem path (NIO Path). Cloud URLs are rejected.");
       }
     }
@@ -532,9 +537,12 @@ public final class PSVirtualSiteHelper {
    * connection strings). Standard {@code virtual.*} keys are never treated as credentials.
    *
    * @param site may be null
+   * @param type adapter kind (used in the error message)
    * @throws VirtualSiteException when a credential-like property name is present
    */
-  static void rejectCredentialProperties(IPSSite site) throws VirtualSiteException {
+  static void rejectCredentialProperties(IPSSite site, VirtualSiteSourceType type)
+      throws VirtualSiteException {
+    String kind = type != null ? type.wireName() : VirtualSiteSourceType.OBJECT_STORAGE.wireName();
     for (PSSiteProperty p : propertiesOf(site)) {
       if (p == null || StringUtils.isBlank(p.getName())) {
         continue;
@@ -546,7 +554,7 @@ public final class PSVirtualSiteHelper {
       if (isCredentialPropertyName(name)) {
         throw new VirtualSiteException(
             "Credential property is not allowed for "
-                + VirtualSiteSourceType.OBJECT_STORAGE.wireName()
+                + kind
                 + " (no AWS/IAM/secrets on this envelope).");
       }
     }
