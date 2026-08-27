@@ -102,7 +102,8 @@ public interface ISiteAdaptor {
 
   /**
    * Builds a Virtual Site from configured {@code virtual.*} properties ({@code git-filesystem},
-   * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, or {@code object-storage}).
+   * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage}, or
+   * {@code rss-atom}).
    *
    * <p>Loads the site, validates via {@code PSVirtualSiteHelper}, optionally clones/fetches {@code
    * virtual.remoteUrl} into a contained work directory (git-filesystem only), runs {@code
@@ -113,7 +114,10 @@ public interface ISiteAdaptor {
    * http.file}); {@code virtual.remoteUrl} is 400 (no secrets on this envelope). {@code
    * object-storage} discovers Markdown / HTML / JSON object keys under a portable-safe local {@code
    * rootPath} (optional {@code objects.keys} in {@code _config.yaml}); {@code virtual.remoteUrl} is
-   * 400 (no cloud URLs or credentials on this envelope). Unknown source kinds return 400. Requires
+   * 400 (no cloud URLs or credentials on this envelope). {@code rss-atom} discovers pages from a
+   * local RSS 2.0 / Atom fixture ({@code feed.xml} / {@code atom.xml} or {@code rss.file}; {@code
+   * rss.url} loopback only) — no live remote feeds; leftover {@code virtual.remoteUrl}, credential
+   * properties, and cloud {@code rootPath} are 400. Unknown source kinds return 400. Requires
    * Admin (or equivalent site-manage) authorization.
    *
    * @param nameOrId site name or GUID string, not blank
@@ -128,9 +132,10 @@ public interface ISiteAdaptor {
    * Reports whether the last Virtual Site static build can be previewed (assembled home exists).
    *
    * <p>Last-output based: {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
-   * {@code http-json}, and {@code object-storage} sites are previewable after a successful
-   * assemble. Missing output is {@code available=false} with a message (not a 500). Repository
-   * and unknown source kinds are 400. Requires Admin.
+   * {@code http-json}, {@code object-storage}, and {@code rss-atom} sites are previewable after a
+   * successful assemble. {@code rss-atom} uses a local RSS 2.0 / Atom fixture or loopback feed
+   * (no live remote feeds). Missing output is {@code available=false} with a message (not a
+   * 500). Repository and unknown source kinds are 400. Requires Admin.
    *
    * @param nameOrId site name or GUID string, not blank
    * @return status (never null)
@@ -143,7 +148,8 @@ public interface ISiteAdaptor {
    * Streams one file from the last Virtual Site build output (path-traversal safe).
    *
    * <p>Same last-output contract as {@link #getVirtualSitePreviewStatus} for {@code git-filesystem},
-   * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, and {@code object-storage}.
+   * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage}, and
+   * {@code rss-atom}.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param relativePath path under the output root ({@code 8.2/index.html}); blank means assembled

@@ -523,6 +523,61 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void buildVirtualSiteRssAtomFixtureDelegates() throws Exception {
+    Path rssRoot = tempDir.resolve("rss-site");
+    Files.createDirectories(rssRoot);
+    Files.writeString(
+        rssRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: RSS Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        rss:
+          file: feed.xml
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        rssRoot.resolve("feed.xml"),
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <rss version="2.0">
+          <channel>
+            <title>Sample</title>
+            <item>
+              <guid>home</guid>
+              <title>RSS Home</title>
+              <description>Hello from RSS.</description>
+            </item>
+          </channel>
+        </rss>
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("rss-out");
+    Files.createDirectories(out);
+
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setSiteName("RssHelp");
+    built.setPagesWritten(1);
+    built.setLinkProblemCount(0);
+    built.setHasLinkProblems(false);
+    built.setOutputPath(out.toAbsolutePath().toString());
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+    when(adaptor.buildVirtualSite(eq("RssHelp"), same(req))).thenReturn(built);
+
+    VirtualSiteBuildResult result = resource.buildVirtualSite("RssHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertEquals(out.toAbsolutePath().toString(), result.getOutputPath());
+    assertTrue(Files.isRegularFile(rssRoot.resolve("_config.yaml")));
+    assertTrue(Files.isRegularFile(rssRoot.resolve("feed.xml")));
+    verify(adaptor).buildVirtualSite("RssHelp", req);
+  }
+
+  @Test
   public void buildVirtualSiteUnknownKindPropagates400() {
     when(adaptor.buildVirtualSite(eq("Help"), any()))
         .thenThrow(
@@ -715,6 +770,47 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void previewStatusDelegatesRssAtom() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(true);
+    status.setHomePath("8.2/index.html");
+    when(adaptor.getVirtualSitePreviewStatus("RssHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("RssHelp");
+    assertEquals(Boolean.TRUE, out.getAvailable());
+    assertEquals("8.2/index.html", out.getHomePath());
+    verify(adaptor).getVirtualSitePreviewStatus("RssHelp");
+  }
+
+  @Test
+  public void previewStatusRssAtomMissingBuildIsUnavailable() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(false);
+    status.setMessage("No assembled Virtual Site to preview. Run Build Virtual Site first.");
+    when(adaptor.getVirtualSitePreviewStatus("RssHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("RssHelp");
+    assertEquals(Boolean.FALSE, out.getAvailable());
+    assertTrue(out.getMessage() != null && out.getMessage().contains("No assembled"));
+    verify(adaptor).getVirtualSitePreviewStatus("RssHelp");
+  }
+
+  @Test
+  public void previewFileDelegatesRssAtomHtml() {
+    byte[] html = "<a href=\"/8.2/index.html\">RSS Home</a>".getBytes(StandardCharsets.UTF_8);
+    when(adaptor.previewVirtualSiteFile(eq("RssHelp"), eq("8.2/index.html")))
+        .thenReturn(new VirtualSitePreviewFile("text/html; charset=UTF-8", "8.2/index.html", html));
+
+    Response out = resource.previewVirtualSiteFile("RssHelp", "8.2/index.html");
+    assertEquals(200, out.getStatus());
+    byte[] body = (byte[]) out.getEntity();
+    String text = new String(body, StandardCharsets.UTF_8);
+    assertTrue(text.contains("/services/sites/RssHelp/virtual/preview/8.2/index.html"), text);
+    assertTrue(text.contains("RSS Home"), text);
+    verify(adaptor).previewVirtualSiteFile("RssHelp", "8.2/index.html");
+  }
+
+  @Test
   public void buildVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.buildVirtualSite(" ", null));
@@ -845,6 +941,12 @@ public class SitesResourceTest {
         buildBlock.contains("object-storage"),
         "buildVirtualSite OpenAPI description must mention object-storage");
     assertTrue(
+        buildBlock.contains("rss-atom"),
+        "buildVirtualSite OpenAPI description must mention rss-atom");
+    assertTrue(
+        buildBlock.contains("feed.xml") || buildBlock.contains("loopback"),
+        "buildVirtualSite OpenAPI description must mention local RSS/Atom fixture or loopback");
+    assertTrue(
         buildBlock.contains("jdbc:h2:mem:"),
         "buildVirtualSite OpenAPI description must mention in-memory H2 jdbc:h2:mem:");
     String publishBlock =
@@ -885,6 +987,9 @@ public class SitesResourceTest {
         previewStatusBlock.contains("object-storage"),
         "getVirtualSitePreviewStatus OpenAPI description must mention object-storage");
     assertTrue(
+        previewStatusBlock.contains("rss-atom"),
+        "getVirtualSitePreviewStatus OpenAPI description must mention rss-atom");
+    assertTrue(
         previewFileBlock.contains("csv-filesystem"),
         "previewVirtualSiteFile OpenAPI description must mention csv-filesystem");
     assertTrue(
@@ -896,6 +1001,9 @@ public class SitesResourceTest {
     assertTrue(
         previewFileBlock.contains("object-storage"),
         "previewVirtualSiteFile OpenAPI description must mention object-storage");
+    assertTrue(
+        previewFileBlock.contains("rss-atom"),
+        "previewVirtualSiteFile OpenAPI description must mention rss-atom");
     assertTrue(
         previewFileBlock.contains("20 MB"),
         "previewVirtualSiteFile OpenAPI description must mention the 20 MB size cap");

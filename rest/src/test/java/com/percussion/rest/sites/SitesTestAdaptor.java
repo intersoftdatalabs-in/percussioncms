@@ -27,13 +27,14 @@ import org.springframework.stereotype.Component;
  * bean. Production wiring is {@code SitesAdaptor} in sitemanage. PUT echoes the envelope
  * (including {@code sql-database}, {@code http-json}, {@code object-storage}, and {@code rss-atom}
  * {@code sourceKind}); JDBC credentials, HTTP secrets, object-storage cloud credentials, and
- * rss-atom live feed credentials are never logged. REST Build for {@code http-json} and {@code
- * object-storage} uses the same adaptor
- * contract as git/CSV/SQL (local JSON fixture / loopback, or local object-key bucket; {@code
+ * rss-atom live feed credentials are never logged. REST Build for {@code http-json}, {@code
+ * object-storage}, and {@code rss-atom} uses the same adaptor contract as git/CSV/SQL (local JSON
+ * fixture / loopback, local object-key bucket, or local RSS/Atom fixture; {@code
  * virtual.remoteUrl} stays 400). REST Publish copies last-build HTML to {@code IPSSite.root} for
  * git/CSV/SQL/{@code http-json}/object-storage (local object-key {@code rootPath}; leftover {@code
  * virtual.remoteUrl} stays 400). Preview status is last-output based ({@code available=false} when
- * no build), including {@code http-json} and {@code object-storage} last-build output.
+ * no build), including {@code http-json}, {@code object-storage}, and {@code rss-atom} last-build
+ * output ({@code rss-atom} is a local RSS 2.0 / Atom fixture or loopback feed).
  */
 @Component
 @Lazy

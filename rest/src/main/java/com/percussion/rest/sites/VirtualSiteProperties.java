@@ -48,12 +48,12 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * rootPath} JSON fixture directory. {@code object-storage} and {@code rss-atom} persist a
  * portable-safe local {@code rootPath} (NIO Path; no remaining {@code ..}); cloud URLs and
  * credential properties are 400 ({@code rss-atom} is local/loopback only; no live feed
- * credentials). REST {@code POST …/virtual/build} runs
- * {@code http-json} and {@code object-storage} through the existing {@code IPSVirtualSiteSource}
- * factory (local fixture / loopback JSON; local object-key bucket). REST {@code GET
- * …/virtual/preview} streams last-build HTML for {@code object-storage} after a successful
- * assemble (missing build is {@code available=false}, HTTP 200). REST {@code POST
- * …/virtual/publish} copies last-build HTML to {@code IPSSite.root} for git, CSV, SQL,
+ * credentials). REST {@code POST …/virtual/build} runs {@code http-json}, {@code object-storage},
+ * and {@code rss-atom} through the existing {@code IPSVirtualSiteSource} factory (local fixture /
+ * loopback JSON; local object-key bucket; local RSS/Atom fixture). REST {@code GET
+ * …/virtual/preview} streams last-build HTML for {@code object-storage} and {@code rss-atom}
+ * after a successful assemble (missing build is {@code available=false}, HTTP 200). REST {@code
+ * POST …/virtual/publish} copies last-build HTML to {@code IPSSite.root} for git, CSV, SQL,
  * {@code http-json}, and {@code object-storage} (local object-key fixture; leftover {@code
  * virtual.remoteUrl} is 400).
  *
