@@ -17,7 +17,7 @@
 
 package com.percussion.cms.objectstore.server;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.error.PSRuntimeException;
 
 /**
@@ -44,14 +44,10 @@ public final class PSCorruptDatabaseException extends PSRuntimeException {
    *     example: "Multiple content types found with same id.". May be null or empty.
    */
   public PSCorruptDatabaseException(String objectType, String key, String message) {
-    super(IPSCmsErrors.CORRUPT_DATABASE_ENTRY);
+    super(
+        CmsErrorCodes.CORRUPT_DATABASE_ENTRY,
+        new Object[] {objectType, key == null ? "" : key, message == null ? "" : message});
     if (null == objectType || objectType.trim().length() == 0)
       throw new IllegalArgumentException("Type identifier must be supplied");
-
-    if (null == key) key = "";
-
-    if (null == message) message = "";
-    Object[] args = {objectType, key, message};
-    super.setArgs(getErrorCode(), args);
   }
 }

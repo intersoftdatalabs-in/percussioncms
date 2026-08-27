@@ -16,7 +16,8 @@
  */
 package com.percussion.cms.objectstore.server;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.handlers.PSRelationshipCommandHandler;
 import com.percussion.cms.objectstore.PSDependent;
@@ -31,7 +32,6 @@ import com.percussion.design.objectstore.PSRelationshipSet;
 import com.percussion.error.PSException;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSRelationshipUtils;
 import java.util.ArrayList;
@@ -157,7 +157,7 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
 
       if (ir == null) {
         Object[] args = {resource, "No request handler found."};
-        throw new PSCmsException(IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+        throw new PSCmsException(ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
       }
       Document doc = ir.getResultDoc();
       NodeList slots = doc.getElementsByTagName("Slot");
@@ -342,7 +342,7 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
           IPSHtmlParameters.SYS_SORTRANK,
           sortRank
         };
-        throw new PSCmsException(IPSCmsErrors.INVALID_RELATIONSHIP_PROP_VALUE, args);
+        throw new PSCmsException(CmsErrorCodes.INVALID_RELATIONSHIP_PROP_VALUE, args);
       }
 
       PSRelationshipSet set = relationshipMap.get(intRank);
@@ -475,7 +475,7 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
         Object[] args = {
           String.valueOf(owner), String.valueOf(dep.getLocator().getId()), propertyName, "null"
         };
-        throw new PSCmsException(IPSCmsErrors.INVALID_RELATIONSHIP_PROP_VALUE, args);
+        throw new PSCmsException(CmsErrorCodes.INVALID_RELATIONSHIP_PROP_VALUE, args);
       }
 
       String tmpVal = prop.getValue().toString();
@@ -485,7 +485,7 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
         Object[] args = {
           String.valueOf(owner), String.valueOf(dep.getLocator().getId()), propertyName, tmpVal
         };
-        throw new PSCmsException(IPSCmsErrors.INVALID_RELATIONSHIP_PROP_VALUE, args);
+        throw new PSCmsException(CmsErrorCodes.INVALID_RELATIONSHIP_PROP_VALUE, args);
       }
     }
 

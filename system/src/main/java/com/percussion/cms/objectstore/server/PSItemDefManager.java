@@ -18,6 +18,7 @@ package com.percussion.cms.objectstore.server;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.IPSCataloger;
 import com.percussion.cms.objectstore.PSCmsObject;
@@ -53,7 +54,6 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
 import com.percussion.server.PSServer;
 import com.percussion.server.cache.PSItemSummaryCache;
-import com.percussion.server.webservices.IPSWebServicesErrors;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.contentmgr.IPSContentMgr;
 import com.percussion.services.contentmgr.IPSNodeDefinition;
@@ -906,7 +906,7 @@ public class PSItemDefManager {
     if (summary == null) {
       // content type does not exist
       throw new PSException(
-          IPSWebServicesErrors.WEB_SERVICE_CONTENT_TYPE_NOT_FOUND, "" + contentTypeId);
+          ServerWebServicesErrorCodes.WEB_SERVICE_CONTENT_TYPE_NOT_FOUND, "" + contentTypeId);
     }
 
     return summary.getEditorUrl();

@@ -16,7 +16,8 @@
  */
 package com.percussion.cms.objectstore.server;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.data.PSIdGenerator;
 import com.percussion.error.PSSqlException;
 import com.percussion.extension.IPSResultDocumentProcessor;
@@ -80,7 +81,7 @@ public class PSIdGeneratorExit extends PSDefaultExtension implements IPSResultDo
       String key = request.getParameter(paramName, "").trim();
       if (key.length() == 0) {
         String[] args = {paramName, ""};
-        throw new PSParameterMismatchException(IPSCmsErrors.MISSING_HTML_PARAMETER, args);
+        throw new PSParameterMismatchException(CmsErrorCodes.MISSING_HTML_PARAMETER, args);
       }
 
       String val = request.getParameter("sys_idcount", "");
@@ -101,7 +102,7 @@ public class PSIdGeneratorExit extends PSDefaultExtension implements IPSResultDo
       return resultDoc;
     } catch (SQLException se) {
       throw new PSExtensionProcessingException(
-          IPSCmsErrors.SQL_EXCEPTION_WRAPPER, PSSqlException.getFormattedExceptionText(se));
+          ServerErrorCodes.RAW_DUMP, PSSqlException.getFormattedExceptionText(se));
     }
   }
 }

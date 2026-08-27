@@ -21,7 +21,7 @@ import static com.percussion.cms.IPSConstants.DB_ACTION_INSERT;
 import static com.percussion.cms.IPSConstants.DB_ACTION_TYPE;
 import static com.percussion.cms.IPSConstants.DB_ACTION_UPDATE;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.handlers.PSContentEditorHandler;
@@ -361,7 +361,7 @@ public final class PSServerItem extends PSCoreItem implements IPSPersister {
       getData(request, id, isNewItem, communityId);
     } catch (PSUnknownNodeTypeException e) {
       throw new PSCmsException(
-          IPSCmsErrors.MALFORMED_XML_DOCUMENT_UKNOWN_NODE_TYPE, e.getMessage());
+          CmsErrorCodes.MALFORMED_XML_DOCUMENT_UKNOWN_NODE_TYPE, e.getMessage());
     }
   }
 
@@ -442,7 +442,7 @@ public final class PSServerItem extends PSCoreItem implements IPSPersister {
     // if null, can't do anything
     if (ids == null)
       throw new PSCmsException(
-          IPSCmsErrors.INVALID_CONTENT_TYPE_ID, mgr.contentTypeIdToName(contentTypeId));
+          CmsErrorCodes.INVALID_CONTENT_TYPE_ID, mgr.contentTypeIdToName(contentTypeId));
 
     String requestUrl = stripUrlExtras(ids.getEditorUrl());
 
@@ -467,7 +467,7 @@ public final class PSServerItem extends PSCoreItem implements IPSPersister {
     Document doc = makeRequest(requestUrl, request, params, false);
 
     if (doc == null)
-      throw new PSCmsException(IPSCmsErrors.REQUIRED_DOCUMENT_MISSING_ERROR, requestUrl);
+      throw new PSCmsException(CmsErrorCodes.REQUIRED_DOCUMENT_MISSING_ERROR, requestUrl);
 
     // get data from control elements:
     extractControlElementData(
@@ -793,7 +793,7 @@ public final class PSServerItem extends PSCoreItem implements IPSPersister {
 
       return item.toXml(PSXmlDocumentBuilder.createXmlDocument());
     } catch (Exception e) {
-      throw new PSCmsException(IPSCmsErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSCmsException(CmsErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -875,7 +875,7 @@ public final class PSServerItem extends PSCoreItem implements IPSPersister {
       return iReq.getResultDoc();
     } catch (PSInternalRequestCallException e) {
       Object[] args = {path, PSServer.stackToString(e)};
-      throw new PSCmsException(IPSCmsErrors.CMS_INTERNAL_REQUEST_ERROR, args);
+      throw new PSCmsException(CmsErrorCodes.CMS_INTERNAL_REQUEST_ERROR, args);
     }
   }
 
@@ -937,11 +937,11 @@ public final class PSServerItem extends PSCoreItem implements IPSPersister {
           setCurrentRevision(revision);
           setEditRevision(revision);
         } catch (Exception e) {
-          throw new PSCmsException(IPSCmsErrors.UNEXPECTED_ERROR, e);
+          throw new PSCmsException(CmsErrorCodes.UNEXPECTED_ERROR, e);
         }
       }
     } catch (PSInvalidContentTypeException ex) {
-      throw new PSCmsException(IPSCmsErrors.INVALID_CONTENT_TYPE, "" + getContentTypeId());
+      throw new PSCmsException(CmsErrorCodes.INVALID_CONTENT_TYPE, "" + getContentTypeId());
     }
   }
 
@@ -962,10 +962,10 @@ public final class PSServerItem extends PSCoreItem implements IPSPersister {
 
       PSRelationshipConfig config = processor.getConfig(relatedItem.getRelatedType());
       if (config == null)
-        throw new PSCmsException(IPSCmsErrors.UNKNOWN_RELATED_TYPE, relatedItem.getRelatedType());
+        throw new PSCmsException(CmsErrorCodes.UNKNOWN_RELATED_TYPE, relatedItem.getRelatedType());
 
       if (!config.getCategory().equals(PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY))
-        throw new PSCmsException(IPSCmsErrors.INVALID_RELATED_TYPE, relatedItem.getRelatedType());
+        throw new PSCmsException(CmsErrorCodes.INVALID_RELATED_TYPE, relatedItem.getRelatedType());
     }
   }
 
@@ -1310,7 +1310,7 @@ public final class PSServerItem extends PSCoreItem implements IPSPersister {
       if (validateError != null && validateError.trim().length() > 0) {
         PSConsole.printMsg(
             getClass().getName(),
-            IPSCmsErrors.VALIDATION_ERROR,
+            CmsErrorCodes.VALIDATION_ERROR.numericCode(),
             new Object[] {path, validateError});
         try {
           Document errorDoc =
@@ -1318,14 +1318,14 @@ public final class PSServerItem extends PSCoreItem implements IPSPersister {
                   new ByteArrayInputStream(validateError.getBytes()), false);
           PSDisplayError error = new PSDisplayError(errorDoc.getDocumentElement());
           throw new PSFieldValidationException(
-              IPSCmsErrors.VALIDATION_ERROR,
+              CmsErrorCodes.VALIDATION_ERROR,
               new Object[] {path, validateError},
               error,
               updatedRequest.getParameter(IPSHtmlParameters.SYS_CE_CACHED_PAGEURL));
         } catch (PSInvalidXmlException e) {
-          throw new PSCmsException(IPSCmsErrors.VALIDATION_ERROR, e.getErrorArguments());
+          throw new PSCmsException(CmsErrorCodes.VALIDATION_ERROR, e.getErrorArguments());
         } catch (IOException | SAXException e) {
-          throw new PSCmsException(IPSCmsErrors.VALIDATION_ERROR, e.getLocalizedMessage());
+          throw new PSCmsException(CmsErrorCodes.VALIDATION_ERROR, e.getLocalizedMessage());
         }
       }
 
