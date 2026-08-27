@@ -198,6 +198,18 @@ type is available for runtime use.
    product does **not** steal the lock, Save stays disabled, and **Enabled**
    remains read-only.
 
+## Delete a content type (REST)
+
+The Developer Content types chrome does **not** expose delete in this release.
+Integrators delete a type over REST after holding the design-session lock:
+
+1. `POST /services/contenttypes/{idOrName}/lock` as **Admin**.
+2. `DELETE /services/contenttypes/{idOrName}`. Success is **204**. The lock is
+   not stolen if another user holds it (**409**). Missing types are **404**.
+3. A following `GET /services/contenttypes/{idOrName}` is **404**.
+4. Types that still have dependents fail with **400**. The product does **not**
+   cascade-delete items. Rename remains out of scope.
+
 ## REST
 
 The chrome calls:
@@ -217,6 +229,7 @@ The chrome calls:
 | Load field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` |
 | Save field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` (held lock; full replace of validation, visibility, inputTranslation, outputTranslation) |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |
+| Delete | `DELETE /services/contenttypes/{idOrName}` (Admin; held lock; 204; 409 if unlocked or another user holds the lock; 400 if dependents; no SPA chrome) |
 
 Integrator notes: [REST API — Content types](id:developer-rest). Object ACL on
 the same detail panel: [Object ACL & default template](id:admin-object-acl).
