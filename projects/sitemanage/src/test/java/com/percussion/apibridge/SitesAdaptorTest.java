@@ -3139,6 +3139,101 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void previewRssAtom_afterBuildAvailableWithHtml() throws Exception {
+    Path siteRoot = createMinimalRssAtomTree(tempDir.resolve("rss-preview-src"));
+    Path defaultOut = tempDir.resolve("rss-preview-default");
+    Path built = tempDir.resolve("rss-preview-built");
+
+    PSSite site = virtualRssAtomSite(siteRoot);
+    when(siteManager.findSite("RssHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(built.toAbsolutePath().normalize().toString());
+    VirtualSiteBuildResult result = previewing.buildVirtualSite("RssHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("RssHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath());
+
+    VirtualSitePreviewFile file = previewing.previewVirtualSiteFile("RssHelp", "8.2/index.html");
+    assertTrue(file.isHtml());
+    assertEquals("8.2/index.html", file.getRelativePath());
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("RSS Home"), html);
+    assertTrue(html.contains("Hello from RSS"), html);
+  }
+
+  @Test
+  void previewRssAtom_missingBuildIsUnavailableNot500() throws Exception {
+    Path siteRoot = createMinimalRssAtomTree(tempDir.resolve("rss-preview-empty-src"));
+    Path defaultOut = tempDir.resolve("rss-preview-default-empty");
+    PSSite site = virtualRssAtomSite(siteRoot);
+    when(siteManager.findSite("RssHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("RssHelp");
+    assertEquals(Boolean.FALSE, status.getAvailable());
+    assertEquals(SitesAdaptor.MISSING_PREVIEW_MESSAGE, status.getMessage());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("RssHelp", "8.2/index.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewRssAtom_rejectsTraversalAndMissingFile() throws Exception {
+    Path siteRoot = Files.createDirectories(tempDir.resolve("rss-preview-trav-src"));
+    Path defaultOut = tempDir.resolve("rss-preview-trav-default");
+    Path built = tempDir.resolve("rss-preview-trav-built");
+    writeAssembledPreviewTree(
+        built, "<html><body><h1>RSS Home</h1>Hello from RSS</body></html>");
+
+    PSSite site = virtualRssAtomSite(siteRoot);
+    when(siteManager.findSite("RssHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+    previewing.recordLastOutputRoot("rss-docs", built);
+
+    WebApplicationException traversal =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("RssHelp", "../secret.txt"));
+    assertEquals(400, traversal.getResponse().getStatus());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("RssHelp", "no-such.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewRssAtom_defaultOutputFallbackWithoutPointer() throws Exception {
+    Path siteRoot = Files.createDirectories(tempDir.resolve("rss-cli-src"));
+    Path built = tempDir.resolve("rss-cli-default");
+    writeAssembledPreviewTree(
+        built, "<html><body><h1>RSS Home</h1>Hello from RSS</body></html>");
+
+    PSSite site = virtualRssAtomSite(siteRoot);
+    when(siteManager.findSite("RssHelp")).thenReturn(site);
+    SitesAdaptor previewing = new SitesAdaptor(siteManager, () -> true, key -> built, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("RssHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath());
+
+    VirtualSitePreviewFile file = previewing.previewVirtualSiteFile("RssHelp", "8.2/index.html");
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("RSS Home"), html);
+  }
+
+  @Test
   void requireSafeRelativePreviewPath_rejectsAbsoluteAndDotDot() {
     WebApplicationException dots =
         assertThrows(
@@ -3239,6 +3334,19 @@ class SitesAdaptorTest {
         PSVirtualSiteHelper.PROP_ROOT_PATH,
         objectRoot.toAbsolutePath().normalize().toString());
     put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "obj-docs");
+    return site;
+  }
+
+  private PSSite virtualRssAtomSite(Path rssRoot) {
+    PSSite site = new PSSite();
+    site.setName("RssHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "rss-atom");
+    put(
+        site,
+        PSVirtualSiteHelper.PROP_ROOT_PATH,
+        rssRoot.toAbsolutePath().normalize().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "rss-docs");
     return site;
   }
 
@@ -3409,8 +3517,9 @@ class SitesAdaptorTest {
   }
 
   /**
-   * Local RSS 2.0 fixture for rss-atom REST Build. Feed file is {@code feed.xml}; {@code
-   * _config.yaml} sets {@code rss.file}. Portable NIO {@link Path} / {@link Files}. No live
+   * Local RSS 2.0 fixture for rss-atom REST Build and last-build Preview. Feed item id
+   * {@code index} assembles {@code 8.2/index.html} so Preview home is available; Build still
+   * writes {@code pagesWritten > 0}. Portable NIO {@link Path} / {@link Files}. No live
    * remote feeds or credentials.
    */
   private static Path createMinimalRssAtomTree(Path siteRoot) throws Exception {
@@ -3444,7 +3553,7 @@ class SitesAdaptorTest {
           <channel>
             <title>Sample</title>
             <item>
-              <guid>home</guid>
+              <guid>index</guid>
               <title>RSS Home</title>
               <description>Hello from RSS.</description>
             </item>
