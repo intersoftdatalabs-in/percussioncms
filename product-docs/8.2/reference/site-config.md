@@ -226,10 +226,11 @@ the output root) without failing the HTTP status when the build itself succeeds.
 Each build re-reads current Markdown/frontmatter, CSV rows, `_config.yaml`, the
 sql-database `SELECT` (`sql.query` or current `sql.queryFile` plus H2 rows), the
 http-json catalog (`http.url` / `http.file` or default `pages.json`), and object-storage
-blobs (Markdown / HTML / JSON keys) from `virtual.rootPath` (no CMS restart after `git
-pull`, a CSV/`_config.yaml` edit, a SQL query-file/`_config.yaml` or H2 row edit, a JSON
-catalog/`_config.yaml` edit, an object-key edit, or a local Markdown edit). File watchers
-are not used; run **Build Virtual Site** again after those edits.
+Markdown / HTML / JSON keys (and current `objects.keys`) from `virtual.rootPath` (no CMS
+restart after `git pull`, a CSV/`_config.yaml` edit, a SQL query-file/`_config.yaml` or H2
+row edit, a JSON catalog/`_config.yaml` edit, an object-key / `_config.yaml` edit, or a
+local Markdown edit). File watchers are not used; run **Build Virtual Site** again after
+those edits.
 The Developer Sites UI exposes this operation as **Build Virtual Site** when source kind
 is Git, CSV, SQL, HTTP JSON, or Object storage (never for traditional repository Sites).
 After a successful HTTP JSON or object-storage Build, **Preview assembled site** opens

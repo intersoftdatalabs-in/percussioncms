@@ -41,7 +41,8 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
   (`object-storage`: Markdown / HTML / JSON under a local `rootPath`). After
   `git pull`, a local Markdown edit, a CSV change, a `_config.yaml` change, a SQL
   `queryFile` / `sql.query` change, an H2 row change, a JSON catalog / `_config.yaml`
-  edit, or an object-key edit, run Build (or Publish) again — no CMS restart. File
+  edit, or an object-storage Markdown / HTML / JSON key or `_config.yaml`
+  (`objects.keys`) edit, run Build (or Publish) again — no CMS restart. File
   watchers are not used. `sql-database` requires `_config.yaml` with a `sql:` mapping
   (`jdbc:h2:mem:`; Oracle / MySQL / SQL Server URLs return **400**). `http-json` requires
   `_config.yaml` (versions plus `http.url` or `http.file`); `virtual.remoteUrl` is **400**.

@@ -49,8 +49,12 @@ import org.json.JSONObject;
  *
  * <p>No cloud SDK, access keys, or network. Git remotes are not used.
  *
- * <p>Stateless: {@link #discover} and {@link #load} always re-read current file bytes. No
- * path/mtime parse cache is kept on the instance or in statics.
+ * <p>Stateless: {@link #discover} and {@link #load} always re-read current file bytes via
+ * {@link Files#readString}. No path/mtime parse cache is kept on the instance or in statics
+ * — a second build in the same JVM after a Markdown, HTML, or JSON object-key edit or a
+ * {@code _config.yaml} (site title / {@code objects.keys}) edit must see the new bytes. File
+ * watchers are not used; {@code _config.yaml} is reloaded by {@link
+ * PSVirtualSiteBuildService}, not this source.
  */
 public class PSObjectStorageVirtualSiteSource implements IPSVirtualSiteSource {
 

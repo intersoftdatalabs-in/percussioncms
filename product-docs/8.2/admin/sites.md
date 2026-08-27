@@ -263,7 +263,8 @@ Site filesystem root for Git/CSV/SQL/HTTP JSON/object-storage.
    branch moves — or after a CSV file or `_config.yaml` change — or after the SQL
    `_config.yaml`, `sql.queryFile`, `SELECT`, or H2 rows change — or after an HTTP JSON
    catalog (`pages.json` / `http.file` / loopback `http.url`) or `_config.yaml` change —
-   or after an object-storage blob / `_config.yaml` change —
+   or after an object-storage Markdown / HTML / JSON object key or `_config.yaml`
+   (`objects.keys` or site title) change —
    choose **Build Virtual Site** again. The build re-reads the current tree (and re-fetches
    when a Git remote is configured) — **do not restart the CMS** just to pick up those
    edits. There is no file watcher; the next explicit build is the refresh.

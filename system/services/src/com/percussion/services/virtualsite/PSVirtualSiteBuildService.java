@@ -101,7 +101,8 @@ public class PSVirtualSiteBuildService {
    * The same service instance does not reuse parsed pages from a previous build — operators do
    * not need a JVM restart after {@code git pull}, a CSV/{@code _config.yaml} edit, a local
    * Markdown edit, a SQL query-file/{@code _config.yaml} edit, an H2 row change, an HTTP JSON
-   * catalog/{@code _config.yaml} edit, or an object-storage blob/{@code _config.yaml} edit.
+   * catalog/{@code _config.yaml} edit, or an object-storage Markdown/HTML/JSON key/{@code
+   * _config.yaml} ({@code objects.keys}) edit.
    *
    * @param siteRoot source tree ({@code _config.yaml} required for git-filesystem and
    *     sql-database; optional for csv-filesystem)

@@ -409,7 +409,10 @@ Page identity:
 JSON catalog fields match HTTP JSON (`path` optional ⇒ `{version}/{id}.html`; `order`;
 `version`). Missing `id`/`title`, duplicate ids, unsafe keys, or objects larger than 2 MB
 fail closed (`VirtualSiteException`). Each discover/load re-reads current file bytes (no
-process-lifetime cache).
+process-lifetime cache). After you edit a Markdown, HTML, or JSON object key or
+`_config.yaml` (`objects.keys` or site title) on the CMS host, run **Build Virtual Site**
+again (UI, `POST …/virtual/build`, or `PSVirtualSiteBuildMain … object-storage`) — **no JVM
+restart**. File watchers are not used; the next explicit build is the refresh.
 
 Example `_config.yaml` fragment (optional key list):
 

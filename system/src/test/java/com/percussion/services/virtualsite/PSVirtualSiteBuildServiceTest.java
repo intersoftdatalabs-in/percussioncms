@@ -455,6 +455,110 @@ class PSVirtualSiteBuildServiceTest {
   }
 
   @Test
+  void secondBuildAfterObjectStorageKeyAndConfigEditEmitsUpdatedHtmlWithoutRestart()
+      throws Exception {
+    Path siteRoot = tempDir.resolve("obj-live-site");
+    Path versionDir = siteRoot.resolve("8.2");
+    Files.createDirectories(versionDir);
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    Path configYaml = siteRoot.resolve("_config.yaml");
+    Files.writeString(
+        configYaml,
+        """
+        site:
+          title: First Site Title
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${siteTitle}</h1><h2>${pageTitle}</h2>${content}</body></html>",
+        StandardCharsets.UTF_8);
+    Path indexMd = versionDir.resolve("index.md");
+    Path extraMd = versionDir.resolve("extra.md");
+    Files.writeString(
+        indexMd,
+        """
+        ---
+        id: live-home
+        title: First Title
+        ---
+        unique-token-AAA
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        extraMd,
+        """
+        ---
+        id: extra
+        title: Extra Page
+        ---
+        unique-token-EXTRA
+        """,
+        StandardCharsets.UTF_8);
+
+    Path out = tempDir.resolve("obj-live-out");
+    PSVirtualSiteBuildService service =
+        PSVirtualSiteBuildService.forSourceType(VirtualSiteSourceType.OBJECT_STORAGE);
+
+    PSVirtualSiteBuildResult first = service.build(siteRoot, out, "obj-live");
+    assertEquals(2, first.pageCount());
+    Path html = out.resolve("8.2").resolve("index.html");
+    Path extraHtml = out.resolve("8.2").resolve("extra.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    assertTrue(Files.isRegularFile(extraHtml), "missing " + extraHtml);
+    String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(firstHtml.contains("First Site Title"), firstHtml);
+    assertTrue(firstHtml.contains("First Title"), firstHtml);
+    assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
+
+    Files.writeString(
+        indexMd,
+        """
+        ---
+        id: live-home
+        title: Second Title
+        ---
+        unique-token-BBB
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        configYaml,
+        """
+        site:
+          title: Second Site Title
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        objects:
+          keys:
+            - 8.2/index.md
+        """,
+        StandardCharsets.UTF_8);
+
+    PSVirtualSiteBuildResult second = service.build(siteRoot, out, "obj-live");
+    assertEquals(1, second.pageCount());
+    String secondHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(secondHtml.contains("Second Site Title"), secondHtml);
+    assertTrue(secondHtml.contains("Second Title"), secondHtml);
+    assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
+    assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
+    assertFalse(secondHtml.contains("First Title"), secondHtml);
+    assertFalse(secondHtml.contains("First Site Title"), secondHtml);
+    assertNotEquals(firstHtml, secondHtml);
+  }
+
+  @Test
   void linkReportListsProblemsWhenBrokenLinksPresent() throws Exception {
     Path siteRoot = tempDir.resolve("broken-site");
     Path versionDir = siteRoot.resolve("8.2");
