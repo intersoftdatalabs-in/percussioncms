@@ -12,6 +12,7 @@
 #   #3860 system/business delivery leftover call sites
 #   #3859 leftover modules/utils production call sites
 #   #3861 leftover system/webservices SOAP/ws call sites
+#   #3884 leftover cms.objectstore (non-server) + client call sites
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -83,23 +84,6 @@ system/src/main/java/com/percussion/cms/handlers/PSQueryCommandHandler.java
 system/src/main/java/com/percussion/cms/handlers/PSRelationshipCommandHandler.java
 system/src/main/java/com/percussion/cms/handlers/PSSearchCommandHandler.java
 system/src/main/java/com/percussion/cms/handlers/PSWorkflowCommandHandler.java
-system/src/main/java/com/percussion/cms/objectstore/PSActiveAssemblyProcessorProxy.java
-system/src/main/java/com/percussion/cms/objectstore/PSDbComponent.java
-system/src/main/java/com/percussion/cms/objectstore/PSDbComponentList.java
-system/src/main/java/com/percussion/cms/objectstore/PSDbComponentSet.java
-system/src/main/java/com/percussion/cms/objectstore/PSInvalidChildTypeException.java
-system/src/main/java/com/percussion/cms/objectstore/PSInvalidContentTypeException.java
-system/src/main/java/com/percussion/cms/objectstore/PSItemDefExtractor.java
-system/src/main/java/com/percussion/cms/objectstore/PSKey.java
-system/src/main/java/com/percussion/cms/objectstore/PSMenuChild.java
-system/src/main/java/com/percussion/cms/objectstore/PSMenuModeContextMapping.java
-system/src/main/java/com/percussion/cms/objectstore/PSProcessorCommon.java
-system/src/main/java/com/percussion/cms/objectstore/PSProcessorProxy.java
-system/src/main/java/com/percussion/cms/objectstore/client/PSContentEditorFieldCataloger.java
-system/src/main/java/com/percussion/cms/objectstore/client/PSRelationshipProcessor.java
-system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java
-system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteCataloger.java
-system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteProcessor.java
 system/src/main/java/com/percussion/cms/objectstore/server/PSActiveAssemblerProcessor.java
 system/src/main/java/com/percussion/cms/objectstore/server/PSCatalogServerObjectHandler.java
 system/src/main/java/com/percussion/cms/objectstore/server/PSCloneFactory.java

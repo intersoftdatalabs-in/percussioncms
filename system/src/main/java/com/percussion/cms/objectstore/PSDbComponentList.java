@@ -16,7 +16,7 @@
  */
 package com.percussion.cms.objectstore;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSStringOperation;
@@ -393,7 +393,7 @@ public class PSDbComponentList extends PSDbComponent {
           strClass = "com.percussion.cms.objectstore.";
           if (!strNodeName.startsWith("PSX")) {
             String[] args = {strClass, componentTypeLabel()};
-            throw new PSUnknownNodeTypeException(IPSCmsErrors.INVALID_ENTRY_CLASSNAME, args);
+            throw new PSUnknownNodeTypeException(CmsErrorCodes.INVALID_ENTRY_CLASSNAME, args);
           } else strClass += PSStringOperation.replace(strNodeName, "PSX", "PS");
         }
         m_class = (Class<? extends IPSDbComponent>) Class.forName(strClass);
@@ -427,23 +427,23 @@ public class PSDbComponentList extends PSDbComponent {
       }
     } catch (ClassNotFoundException e) {
       String[] args = {strClass, componentTypeLabel(), e.getLocalizedMessage()};
-      throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
+      throw new PSUnknownNodeTypeException(CmsErrorCodes.COMPONENT_INSTANTIATION_ERROR, args);
     } catch (InstantiationException ie) {
       String[] args = {strClass, componentTypeLabel(), ie.getLocalizedMessage()};
-      throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
+      throw new PSUnknownNodeTypeException(CmsErrorCodes.COMPONENT_INSTANTIATION_ERROR, args);
     } catch (IllegalAccessException iae) {
       String[] args = {strClass, componentTypeLabel(), iae.getLocalizedMessage()};
-      throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
+      throw new PSUnknownNodeTypeException(CmsErrorCodes.COMPONENT_INSTANTIATION_ERROR, args);
     } catch (InvocationTargetException ite) {
       Throwable origException = ite.getTargetException();
       String msg = origException.getLocalizedMessage();
       String[] args = {
         strClass, componentTypeLabel(), origException.getClass().getName() + ": " + msg
       };
-      throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
+      throw new PSUnknownNodeTypeException(CmsErrorCodes.COMPONENT_INSTANTIATION_ERROR, args);
     } catch (NoSuchMethodException nsme) {
       String[] args = {strClass, componentTypeLabel(), nsme.getLocalizedMessage()};
-      throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
+      throw new PSUnknownNodeTypeException(CmsErrorCodes.COMPONENT_INSTANTIATION_ERROR, args);
     } catch (IllegalArgumentException iae) {
       // this should never happen because we checked ahead of time
       throw new RuntimeException("Ctor parameter count changed unexpectedly.");

@@ -17,7 +17,7 @@
 
 package com.percussion.cms.objectstore;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.error.PSException;
 
 /**
@@ -37,7 +37,7 @@ public class PSInvalidContentTypeException extends PSException {
    */
   public PSInvalidContentTypeException(String contentTypeName) {
     // todo: put real error code here, where should it go?
-    super(IPSCmsErrors.INVALID_CONTENT_TYPE_ID, contentTypeName);
+    super(CmsErrorCodes.INVALID_CONTENT_TYPE_ID, contentTypeName);
     if (null == contentTypeName || contentTypeName.trim().length() == 0)
       throw new IllegalArgumentException("Type identifier must be supplied");
   }

@@ -16,9 +16,9 @@
  */
 package com.percussion.cms.objectstore;
 
-import com.percussion.cms.IPSCmsErrors;
-import com.percussion.cms.PSCmsException;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -139,7 +139,7 @@ public abstract class PSProcessorProxy {
       InputStream is = getClass().getResourceAsStream(configName);
       if (null == is) {
         String[] args = {configName};
-        throw new PSCmsException(IPSCmsErrors.PROCESSOR_CONFIG_MISSING, args);
+        throw new PSCmsException(CmsErrorCodes.PROCESSOR_CONFIG_MISSING, args);
       }
 
       Document props = PSXmlDocumentBuilder.createXmlDocument(is, false);
@@ -165,9 +165,9 @@ public abstract class PSProcessorProxy {
     } catch (SAXException se) {
       Exception e = se.getException();
       String[] args = {configName, se.getMessage(), null == e ? "none" : e.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.XML_PARSING_ERROR, args);
+      throw new PSCmsException(CmsErrorCodes.XML_PARSING_ERROR, args);
     } catch (IOException ioe) {
-      throw new PSCmsException(IPSCmsErrors.PROCESSOR_CONFIG_IO_ERROR, ioe.toString());
+      throw new PSCmsException(CmsErrorCodes.PROCESSOR_CONFIG_IO_ERROR, ioe.toString());
     }
   }
 
@@ -236,7 +236,7 @@ public abstract class PSProcessorProxy {
           Element propValue = ewalker.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
           if (processorProps.containsKey(propName)) {
             String[] args = {procType, compType, propName};
-            throw new PSUnknownNodeTypeException(IPSCmsErrors.DUPLICATE_PROCESSOR_PROPERTY, args);
+            throw new PSUnknownNodeTypeException(CmsErrorCodes.DUPLICATE_PROCESSOR_PROPERTY, args);
           }
           if (propValue.getNodeName().equals("Value")) {
             processorProps.put(propName, PSXmlTreeWalker.getElementData(propValue));
@@ -249,7 +249,7 @@ public abstract class PSProcessorProxy {
 
         if (cfg.addComponentPropertySet(compType, processorProps, procClass)) {
           String[] args = {procType, compType};
-          throw new PSUnknownNodeTypeException(IPSCmsErrors.DUPLICATE_PROCESSOR_ENTRY, args);
+          throw new PSUnknownNodeTypeException(CmsErrorCodes.DUPLICATE_PROCESSOR_ENTRY, args);
         }
         ewalker.setCurrent(curProc);
       }
@@ -440,7 +440,7 @@ public abstract class PSProcessorProxy {
         name = (String) m_procClassNames.get(compType.toLowerCase());
         if (null == name) {
           String[] args = {compType, m_type};
-          throw new PSCmsException(IPSCmsErrors.NO_PROCESSOR_ENTRY, args);
+          throw new PSCmsException(CmsErrorCodes.NO_PROCESSOR_ENTRY, args);
         }
 
         if (m_cachedProcs.containsKey(name)) return m_cachedProcs.get(name);
@@ -491,7 +491,7 @@ public abstract class PSProcessorProxy {
             className1 + (className2.length() > 0 ? "," : ""),
             className2
           };
-          throw new PSCmsException(IPSCmsErrors.PROCESSOR_NO_SUCH_METHOD, args);
+          throw new PSCmsException(CmsErrorCodes.PROCESSOR_NO_SUCH_METHOD, args);
         }
 
         Object o = ctors[i - 1].newInstance(new Object[] {m_context, m_componentProps});
@@ -501,12 +501,12 @@ public abstract class PSProcessorProxy {
         return o;
       } catch (ClassNotFoundException | InstantiationException | IllegalAccessException cnfe) {
         String[] args = {name, compType, cnfe.getLocalizedMessage()};
-        throw new PSCmsException(IPSCmsErrors.PROCESSOR_INSTANTIATION_ERROR, args);
+        throw new PSCmsException(CmsErrorCodes.PROCESSOR_INSTANTIATION_ERROR, args);
       } catch (InvocationTargetException ite) {
         Throwable origException = ite.getTargetException();
         String msg = origException.getLocalizedMessage();
         String[] args = {name, compType, origException.getClass().getName() + ": " + msg};
-        throw new PSCmsException(IPSCmsErrors.PROCESSOR_INSTANTIATION_ERROR, args);
+        throw new PSCmsException(CmsErrorCodes.PROCESSOR_INSTANTIATION_ERROR, args);
       } catch (IllegalArgumentException iae) {
         // this should never happen because we checked ahead of time
         throw new RuntimeException("Ctor parameter count changed unexpectedly.");

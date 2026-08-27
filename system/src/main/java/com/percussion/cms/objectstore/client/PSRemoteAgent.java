@@ -17,6 +17,7 @@
 
 package com.percussion.cms.objectstore.client;
 
+import com.intsof.percussioncms.auditlog.codes.RemoteErrorCodes;
 import com.percussion.HTTPClient.PSBinaryFileData;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.IPSFieldValue;
@@ -230,7 +231,7 @@ public final class PSRemoteAgent {
     } catch (PSUnknownNodeTypeException unex) {
       throw new PSRemoteException(unex);
     } catch (Exception e) {
-      throw new PSRemoteException(IPSRemoteErrors.REMOTE_UNEXPECTED_ERROR, e.toString());
+      throw new PSRemoteException(RemoteErrorCodes.REMOTE_UNEXPECTED_ERROR, e.toString());
     }
 
     return communities;
@@ -313,7 +314,7 @@ public final class PSRemoteAgent {
     } catch (PSUnknownNodeTypeException unex) {
       throw new PSRemoteException(unex);
     } catch (Exception e) {
-      throw new PSRemoteException(IPSRemoteErrors.REMOTE_UNEXPECTED_ERROR, e.toString());
+      throw new PSRemoteException(RemoteErrorCodes.REMOTE_UNEXPECTED_ERROR, e.toString());
     }
 
     return entries;
@@ -363,7 +364,7 @@ public final class PSRemoteAgent {
     } catch (PSUnknownNodeTypeException unex) {
       throw new PSRemoteException(unex);
     } catch (Exception e) {
-      throw new PSRemoteException(IPSRemoteErrors.REMOTE_UNEXPECTED_ERROR, e.toString());
+      throw new PSRemoteException(RemoteErrorCodes.REMOTE_UNEXPECTED_ERROR, e.toString());
     }
 
     return entries;
@@ -404,7 +405,7 @@ public final class PSRemoteAgent {
 
       return comment;
     } catch (Exception e) {
-      throw new PSRemoteException(IPSRemoteErrors.REMOTE_UNEXPECTED_ERROR, e.toString());
+      throw new PSRemoteException(RemoteErrorCodes.REMOTE_UNEXPECTED_ERROR, e.toString());
     }
   }
 
@@ -462,7 +463,7 @@ public final class PSRemoteAgent {
     } catch (PSUnknownNodeTypeException unex) {
       throw new PSRemoteException(unex);
     } catch (Exception e) {
-      throw new PSRemoteException(IPSRemoteErrors.REMOTE_UNEXPECTED_ERROR, e.toString());
+      throw new PSRemoteException(RemoteErrorCodes.REMOTE_UNEXPECTED_ERROR, e.toString());
     }
 
     return entries;
@@ -1005,7 +1006,7 @@ public final class PSRemoteAgent {
 
     if (!name.equals(CONTENTKEY_NODE) && !isSuccessResponse(el)) {
       Object[] args = {XML_NODE_RESPONSE, PSXmlDocumentBuilder.toString(responseEl)};
-      throw new PSRemoteException(IPSRemoteErrors.REMOTE_WRONG_SOAP_RESP, args);
+      throw new PSRemoteException(RemoteErrorCodes.REMOTE_WRONG_SOAP_RESP, args);
     }
 
     try {
@@ -1016,7 +1017,7 @@ public final class PSRemoteAgent {
       return locator;
     } catch (PSUnknownNodeTypeException e) {
       Object[] args = {CONTENTKEY_NODE, PSXmlDocumentBuilder.toString(el)};
-      throw new PSRemoteException(IPSRemoteErrors.REMOTE_WRONG_SOAP_RESP, args);
+      throw new PSRemoteException(RemoteErrorCodes.REMOTE_WRONG_SOAP_RESP, args);
     }
   }
 
@@ -1044,7 +1045,7 @@ public final class PSRemoteAgent {
 
       return new PSItemDefinition(itemDefDoc.getDocumentElement());
     } catch (Exception e) {
-      throw new PSRemoteException(IPSRemoteErrors.REMOTE_UNEXPECTED_ERROR, e.toString());
+      throw new PSRemoteException(RemoteErrorCodes.REMOTE_UNEXPECTED_ERROR, e.toString());
     }
   }
 
@@ -1073,7 +1074,7 @@ public final class PSRemoteAgent {
     try {
       data = m_requester.sendRequest(action, wsdlPort, params, extraParams, respElement);
     } catch (Exception e) {
-      throw new PSRemoteException(IPSRemoteErrors.REMOTE_UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSRemoteException(RemoteErrorCodes.REMOTE_UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     return data;

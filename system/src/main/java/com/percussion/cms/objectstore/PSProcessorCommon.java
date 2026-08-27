@@ -16,7 +16,7 @@
  */
 package com.percussion.cms.objectstore;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -255,14 +255,14 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
       String[] args = {
         type, getClass().getName().substring(getClass().getName().lastIndexOf('.') + 1)
       };
-      throw new PSCmsException(IPSCmsErrors.UNSUPPORTED_COMPONENT_TYPE, args);
+      throw new PSCmsException(CmsErrorCodes.UNSUPPORTED_COMPONENT_TYPE, args);
     }
 
     String lcPropName = propName.toLowerCase();
     Object raw = values.get(lcPropName);
     if (null == raw && !values.containsKey(lcPropName)) {
       String[] args = {propName, type};
-      throw new PSCmsException(IPSCmsErrors.MISSING_PROPERTY, args);
+      throw new PSCmsException(CmsErrorCodes.MISSING_PROPERTY, args);
     }
 
     // Fail-fast: config values must be Strings (legacy cast). Do not toString()
@@ -366,7 +366,7 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
 
     if (!root.getNodeName().equals(rootName)) {
       String[] args = {componentType, rootName, root.getNodeName()};
-      throw new PSCmsException(IPSCmsErrors.SERIALIZED_COMPONENTS_WRONG_XML_DOC, args);
+      throw new PSCmsException(CmsErrorCodes.SERIALIZED_COMPONENTS_WRONG_XML_DOC, args);
     }
 
     Element comp = walker.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
