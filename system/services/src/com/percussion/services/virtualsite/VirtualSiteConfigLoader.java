@@ -19,6 +19,7 @@ package com.percussion.services.virtualsite;
 import com.percussion.services.virtualsite.VirtualSiteConfig.HttpSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.NavSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.ObjectsSpec;
+import com.percussion.services.virtualsite.VirtualSiteConfig.RssSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.SqlSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.VersionSpec;
 import java.io.IOException;
@@ -40,8 +41,9 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
  *
  * <p>Stateless: each {@link #load} / {@link #loadOrDefault} reads the current file (or current
  * child directories). No process-lifetime YAML cache — a second build after a config edit sees
- * the new title/versions (and current {@code sql:} / {@code http:} mapping) without a JVM
- * restart.
+ * the new title/versions (and current {@code sql:} / {@code http:} / {@code objects:} /
+ * {@code rss:} mapping)
+ * without a JVM restart.
  */
 public final class VirtualSiteConfigLoader {
 
@@ -226,8 +228,13 @@ public final class VirtualSiteConfigLoader {
         throw new VirtualSiteException("objects: must be a mapping in " + sourceLabel);
       }
       ObjectsSpec objects = parseObjectsSpec(asMap(objectsObj), sourceLabel);
+      Object rssObj = map.get("rss");
+      if (rssObj != null && !(rssObj instanceof Map<?, ?>)) {
+        throw new VirtualSiteException("rss: must be a mapping in " + sourceLabel);
+      }
+      RssSpec rss = parseRssSpec(asMap(rssObj));
       return new VirtualSiteConfig(
-          root, title, url, layout, versions, nav, siteKey, sql, http, objects);
+          root, title, url, layout, versions, nav, siteKey, sql, http, objects, rss);
     } catch (VirtualSiteException e) {
       throw e;
     } catch (Exception e) {
@@ -240,6 +247,13 @@ public final class VirtualSiteConfigLoader {
       return null;
     }
     return new HttpSpec(stringVal(http.get("url")), stringVal(http.get("file")));
+  }
+
+  private static RssSpec parseRssSpec(Map<String, Object> rss) {
+    if (rss == null || rss.isEmpty()) {
+      return null;
+    }
+    return new RssSpec(stringVal(rss.get("url")), stringVal(rss.get("file")));
   }
 
   private static ObjectsSpec parseObjectsSpec(Map<String, Object> objects, String sourceLabel)

@@ -129,7 +129,7 @@ class PSVirtualSiteHelperTest {
   }
 
   @Test
-  void allowedSourceKindsIncludeGitCsvSqlHttpJsonAndObjectStorage() {
+  void allowedSourceKindsIncludeGitCsvSqlHttpJsonObjectStorageAndRssAtom() {
     List<String> allowed = PSVirtualSiteHelper.allowedSourceKindWireNames();
     assertEquals(
         List.of(
@@ -137,7 +137,8 @@ class PSVirtualSiteHelperTest {
             "csv-filesystem",
             "sql-database",
             "http-json",
-            "object-storage"),
+            "object-storage",
+            "rss-atom"),
         allowed);
   }
 
@@ -197,6 +198,57 @@ class PSVirtualSiteHelperTest {
     assertEquals(
         VirtualSiteSourceType.HTTP_JSON,
         PSVirtualSiteHelper.virtualSourceType(site).orElseThrow());
+  }
+
+  @Test
+  void validatePassesForRssAtomWithSafeRoot() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "rss-atom"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "rss-docs"));
+    assertDoesNotThrow(() -> PSVirtualSiteHelper.validate(site));
+    assertEquals(
+        VirtualSiteSourceType.RSS_ATOM,
+        PSVirtualSiteHelper.virtualSourceType(site).orElseThrow());
+  }
+
+  @Test
+  void validateRejectsRemoteUrlForRssAtom() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "rss-atom"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "rss-docs"),
+            prop(PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_REMOTE_URL));
+    assertTrue(ex.getMessage().contains("rss-atom"));
+  }
+
+  @Test
+  void validateRejectsCredentialPropertyForRssAtom() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "rss-atom"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "rss-docs"),
+            prop("aws_secret_access_key", "not-a-real-secret"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().toLowerCase().contains("credential"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("rss-atom"), ex.getMessage());
+    assertFalse(ex.getMessage().contains("not-a-real-secret"), ex.getMessage());
+  }
+
+  @Test
+  void validateRejectsCloudUrlRootForRssAtom() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "rss-atom"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "https://feeds.example.com/blog.xml"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH), ex.getMessage());
+    assertTrue(ex.getMessage().toLowerCase().contains("cloud"), ex.getMessage());
   }
 
   @Test
@@ -359,6 +411,7 @@ class PSVirtualSiteHelperTest {
     assertTrue(ex.getMessage().contains("sql-database"));
     assertTrue(ex.getMessage().contains("http-json"));
     assertTrue(ex.getMessage().contains("object-storage"));
+    assertTrue(ex.getMessage().contains("rss-atom"));
   }
 
   @Test

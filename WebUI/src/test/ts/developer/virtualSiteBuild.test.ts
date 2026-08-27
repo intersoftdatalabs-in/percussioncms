@@ -52,7 +52,7 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPreviewChrome("  object-storage  ")).toBe(true);
   });
 
-  it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, and http-json", () => {
+  it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, and object-storage", () => {
     expect(shouldShowVirtualPublishChrome(null)).toBe(false);
     expect(shouldShowVirtualPublishChrome("")).toBe(false);
     expect(shouldShowVirtualPublishChrome("repository")).toBe(false);
@@ -67,8 +67,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPublishChrome("http-json")).toBe(true);
     expect(shouldShowVirtualPublishChrome("HTTP-JSON")).toBe(true);
     expect(shouldShowVirtualPublishChrome("  http-json  ")).toBe(true);
-    expect(shouldShowVirtualPublishChrome("object-storage")).toBe(false);
-    expect(shouldShowVirtualPublishChrome("Object-Storage")).toBe(false);
+    expect(shouldShowVirtualPublishChrome("object-storage")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("Object-Storage")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("  object-storage  ")).toBe(true);
   });
 
   it("formatVirtualSitePublishSummary reports files copied and dest path", () => {
