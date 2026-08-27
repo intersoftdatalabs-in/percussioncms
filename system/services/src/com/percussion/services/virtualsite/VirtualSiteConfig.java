@@ -37,6 +37,7 @@ public final class VirtualSiteConfig {
   private final SqlSpec sql;
   private final HttpSpec http;
   private final ObjectsSpec objects;
+  private final RssSpec rss;
 
   public VirtualSiteConfig(
       Path root,
@@ -85,6 +86,21 @@ public final class VirtualSiteConfig {
       SqlSpec sql,
       HttpSpec http,
       ObjectsSpec objects) {
+    this(root, siteTitle, siteUrl, layoutFile, versions, nav, siteKey, sql, http, objects, null);
+  }
+
+  public VirtualSiteConfig(
+      Path root,
+      String siteTitle,
+      String siteUrl,
+      String layoutFile,
+      List<VersionSpec> versions,
+      List<NavSpec> nav,
+      String siteKey,
+      SqlSpec sql,
+      HttpSpec http,
+      ObjectsSpec objects,
+      RssSpec rss) {
     this.root = Objects.requireNonNull(root, "root");
     this.siteTitle = siteTitle != null ? siteTitle : "Documentation";
     this.siteUrl = siteUrl != null ? siteUrl : "";
@@ -99,6 +115,7 @@ public final class VirtualSiteConfig {
     this.sql = sql;
     this.http = http;
     this.objects = objects;
+    this.rss = rss;
   }
 
   public Path root() {
@@ -158,6 +175,17 @@ public final class VirtualSiteConfig {
    */
   public ObjectsSpec objects() {
     return objects;
+  }
+
+  /**
+   * Optional RSS / Atom feed settings for {@code rss-atom} sources ({@code rss:} in {@code
+   * _config.yaml}).
+   *
+   * @return spec, or null when the mapping is omitted (adapter then uses {@code feed.xml} or {@code
+   *     atom.xml} under the site root)
+   */
+  public RssSpec rss() {
+    return rss;
   }
 
   public Path themeDir() {
@@ -351,6 +379,42 @@ public final class VirtualSiteConfig {
     @Override
     public String toString() {
       return "HttpSpec{url='" + url + "', file='" + file + "'}";
+    }
+  }
+
+  /**
+   * RSS / Atom feed settings for {@code rss-atom}. Either {@link #url()} (loopback http/https GET)
+   * or {@link #file()} (portable path under the site root). Both blank means default {@code
+   * feed.xml} then {@code atom.xml}.
+   */
+  public static final class RssSpec {
+    private final String url;
+    private final String file;
+
+    public RssSpec(String url, String file) {
+      this.url = url != null ? url.trim() : "";
+      this.file = file != null ? file.trim() : "";
+    }
+
+    public String url() {
+      return url;
+    }
+
+    public String file() {
+      return file;
+    }
+
+    public boolean hasUrl() {
+      return !url.isBlank();
+    }
+
+    public boolean hasFile() {
+      return !file.isBlank();
+    }
+
+    @Override
+    public String toString() {
+      return "RssSpec{url='" + url + "', file='" + file + "'}";
     }
   }
 

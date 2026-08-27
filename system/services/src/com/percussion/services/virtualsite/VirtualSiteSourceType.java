@@ -18,8 +18,9 @@ package com.percussion.services.virtualsite;
 
 /**
  * Registered Virtual Site adapter kinds. {@link #GIT_FILESYSTEM}, {@link #CSV_FILESYSTEM}, {@link
- * #SQL_DATABASE}, {@link #HTTP_JSON}, and {@link #OBJECT_STORAGE} are wired through {@link
- * PSVirtualSiteSourceFactory} and allow-listed for Site property validation (REST GET/PUT persist).
+ * #SQL_DATABASE}, {@link #HTTP_JSON}, {@link #OBJECT_STORAGE}, and {@link #RSS_ATOM} are wired
+ * through {@link PSVirtualSiteSourceFactory} and allow-listed for Site property validation.
+ * REST GET/PUT persist for {@link #RSS_ATOM} stays a later slice.
  */
 public enum VirtualSiteSourceType {
   GIT_FILESYSTEM("git-filesystem"),
@@ -46,7 +47,15 @@ public enum VirtualSiteSourceType {
    * strings) are rejected. Git {@code virtual.remoteUrl} is not accepted. No AWS/IAM/secrets on
    * this envelope.
    */
-  OBJECT_STORAGE("object-storage");
+  OBJECT_STORAGE("object-storage"),
+  /**
+   * Local RSS 2.0 / Atom XML syndication ({@code rss-atom}). Discovers pages from {@code feed.xml}
+   * / {@code atom.xml} (or {@code _config.yaml} {@code rss.file}) under a portable-safe {@code
+   * virtual.rootPath}, or from a loopback HTTP GET ({@code rss.url}) in tests. No live cloud feeds,
+   * no Authorization / API keys, no userinfo. Git {@code virtual.remoteUrl} and credential
+   * properties are rejected. REST persist and Developer Sites chrome stay later slices.
+   */
+  RSS_ATOM("rss-atom");
 
   private final String wireName;
 
