@@ -190,7 +190,7 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Operation | Path | Notes |
 |-----------|------|--------|
 | List | `GET /services/contenttypes` | Name, label, description, guid |
-| Create | `POST /services/contenttypes` | **Admin.** Creates and **saves** a content type (`IPSContentDesignWs.createContentTypes` then `saveContentTypes` — Workbench Finish, not an unsaved stub). JSON body requires `name` (unique, case-insensitive; no spaces). Optional `label`, `description`, and `enabled` are applied before save. `200` + `ContentTypeDetail`. Duplicate name is **409**; blank / whitespace / wildcard names are **400**. Delete and rename remain unsupported. |
+| Create | `POST /services/contenttypes` | **Admin.** Creates and **saves** a content type (`IPSContentDesignWs.createContentTypes` then `saveContentTypes` — Workbench Finish, not an unsaved stub). JSON body requires `name` (unique, case-insensitive; no spaces). Optional `label`, `description`, and `enabled` are applied before save. Omitted `enabled` **defaults to true** so the new type is usable. `200` + `ContentTypeDetail`. Duplicate name is **409** (catalog check and persist-time unique-name failure). Blank / whitespace / wildcard names are **400**. Missing request session/user is **403**. Delete and rename remain unsupported. |
 | Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `enabled`, `designGaps` |
 | Allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` | Read-only list of associated templates (CD-12). No lock required. Empty list means none. Same set as `ContentTypeDetail.allowedTemplates`. |
 | Item-level exits | `GET /services/contenttypes/{idOrName}/itemExits` | Item-level input/output translations, validations, and pipe pre/post exits (CD-09). No lock required. Empty lists mean none. Apply-when conditions are a read-only summary. Jackson root wrap is `ContentTypeItemExits`. |
@@ -215,9 +215,9 @@ Lock / save / unlock / create status codes:
 | `200` | Lock acquired (body is `ObjectLockSummary`), PUT save / enable / disable succeeded (lock still held), or POST create succeeded (`ContentTypeDetail`) |
 | `204` | Unlock success |
 | `400` | Invalid PUT body (unknown field name, bad workflow/template ref, missing `enabled` flag) or invalid create name (blank, spaces, wildcard) |
-| `403` | Caller is not Admin |
+| `403` | Caller is not Admin, or the request has no session/user for the design session |
 | `404` | Content type not found |
-| `409` | No lock held, or locked by another user/session (self-only; the lock is not stolen); POST create duplicate name |
+| `409` | No lock held, or locked by another user/session (self-only; the lock is not stolen); POST create duplicate name (catalog or persist-time) |
 | `500` | Design service or server failure |
 
 ### Enable or disable (CD-13)

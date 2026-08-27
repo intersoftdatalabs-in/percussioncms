@@ -100,6 +100,78 @@ class ContentTypeAdaptorCreateTest {
     assertEquals(1, saved.getValue().size());
     verify(def).setLabel("New Type");
     verify(def).setDescription("created via REST");
+    verify(def).setEnabled(true);
+  }
+
+  @Test
+  void create_omittedEnabled_defaultsTrue() throws Exception {
+    PSItemDefinition def = stubCreatedDefinition("percNewType", 9001);
+    when(designWs.createContentTypes(eq(List.of("percNewType")), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(def));
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setName("percNewType");
+
+    ContentTypeDetail out = adaptor.createContentType(null, body);
+
+    verify(def).setEnabled(true);
+    assertEquals(Boolean.TRUE, out.getEnabled());
+  }
+
+  @Test
+  void create_explicitEnabledFalse_isHonored() throws Exception {
+    PSItemDefinition def = stubCreatedDefinition("percNewType", 9001);
+    when(designWs.createContentTypes(eq(List.of("percNewType")), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(def));
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setName("percNewType");
+    body.setEnabled(false);
+
+    ContentTypeDetail out = adaptor.createContentType(null, body);
+
+    verify(def).setEnabled(false);
+    assertEquals(Boolean.FALSE, out.getEnabled());
+  }
+
+  @Test
+  void create_persistTimeDuplicate_is409() throws Exception {
+    when(designWs.createContentTypes(eq(List.of("percNewType")), eq("test-session"), eq("Admin")))
+        .thenThrow(
+            new IllegalArgumentException(
+                "The name 'percNewType' for type 'NODEDEF' already exists."));
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setName("percNewType");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.createContentType(null, body));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains("already exists"));
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void create_persistTimeDuplicateFromPsError_is409() throws Exception {
+    PSErrorException pe =
+        new PSErrorException(
+            11, "The name 'percNewType' for type 'NODEDEF' already exists.", "stack");
+    when(designWs.createContentTypes(eq(List.of("percNewType")), eq("test-session"), eq("Admin")))
+        .thenThrow(pe);
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setName("percNewType");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.createContentType(null, body));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void create_missingSession_is403() {
+    PSRequestInfoBase.resetRequestInfo();
+    PSRequestInfoBase.initRequestInfo(new HashMap<>());
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setName("percNewType");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.createContentType(null, body));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().toLowerCase().contains("session"), ex.getMessage());
   }
 
   @Test
@@ -210,6 +282,13 @@ class ContentTypeAdaptorCreateTest {
             })
         .when(def)
         .setDescription(any());
+    doAnswer(
+            inv -> {
+              when(def.isEnabled()).thenReturn(inv.getArgument(0));
+              return null;
+            })
+        .when(def)
+        .setEnabled(anyBoolean());
     when(itemDefManager.getItemDef(eq(name), eq(PSItemDefManager.COMMUNITY_ANY))).thenReturn(def);
     return def;
   }

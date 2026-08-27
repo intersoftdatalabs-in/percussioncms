@@ -575,6 +575,19 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
+  public void createContentTypeForbiddenWhenNoSession() {
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setName("percNewType");
+    when(adaptor.createContentType(any(), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "Request session/user required for content type design session", 403));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createContentType(body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void unlockContentTypeSuccess() {
     when(adaptor.unlockContentType(any(), eq("percPage"))).thenReturn(Boolean.TRUE);
     Response response = resource.unlockContentType("percPage");

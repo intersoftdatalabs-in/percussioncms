@@ -846,8 +846,9 @@ public class ContentTypesResource {
           "Admin. Creates and persists a content type via IPSContentDesignWs.createContentTypes"
               + " then saveContentTypes (Workbench Finish, not an unsaved stub). Name is required,"
               + " must be unique (case-insensitive), and must not contain spaces. Optional label,"
-              + " description, and enabled are applied before save. Returns the new"
-              + " ContentTypeDetail. Delete/rename remain unsupported (see designGaps).",
+              + " description, and enabled are applied before save. Omitted enabled defaults to"
+              + " true. Returns the new ContentTypeDetail. Duplicate name is 409 at catalog check"
+              + " and at persist. Delete/rename remain unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -856,7 +857,9 @@ public class ContentTypesResource {
         @ApiResponse(
             responseCode = "400",
             description = "Invalid name (blank, whitespace, or wildcard)"),
-        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin role required, or request has no session/user"),
         @ApiResponse(responseCode = "409", description = "A content type with that name exists"),
         @ApiResponse(responseCode = "500", description = "Error")
       })

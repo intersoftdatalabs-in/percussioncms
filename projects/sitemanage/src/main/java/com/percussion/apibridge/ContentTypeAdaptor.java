@@ -263,19 +263,23 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         throw new IllegalStateException("Design WS createContentTypes returned empty");
       }
       PSItemDefinition def = created.get(0);
+      // Design-WS default is enabled=true; set it explicitly so omitted JSON is usable.
+      if (body.getEnabled() == null) {
+        def.setEnabled(true);
+      }
       applyMetaUpdates(def, body);
       // Workbench Finish: persist the new type and release the create lock.
       designSvc.saveContentTypes(Collections.singletonList(def), true, session, user);
       PSItemDefinition reloaded = reloadItemDef(name);
       return reloaded != null ? toDetail(reloaded) : toDetail(def);
-    } catch (WebApplicationException | IllegalArgumentException | IllegalStateException e) {
+    } catch (WebApplicationException | IllegalStateException e) {
       throw e;
+    } catch (IllegalArgumentException e) {
+      throw mapCreateNameCollision(name, e);
     } catch (PSErrorException e) {
-      log.error("Failed to create content type {}: {}", name, e.getMessage(), e);
-      throw new IllegalStateException("Failed to create content type", e);
+      throw mapCreatePersistFailure(name, e, "Failed to create content type");
     } catch (PSErrorsException e) {
-      log.error("Failed to save new content type {}: {}", name, e.getMessage(), e);
-      throw new IllegalStateException("Failed to save new content type", e);
+      throw mapCreatePersistFailure(name, e, "Failed to save new content type");
     } catch (Exception e) {
       log.error("Failed to create content type {}: {}", name, e.getMessage(), e);
       throw new IllegalStateException("Failed to create content type", e);
@@ -2764,6 +2768,38 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
   }
 
+  /**
+   * Persist-time duplicate ({@code PSContentTypeHelper.validateUniqueName}) is 409, not 400/500.
+   */
+  private static RuntimeException mapCreateNameCollision(String name, IllegalArgumentException e) {
+    if (isAlreadyExistsFailure(e)) {
+      return new WebApplicationException("Content type already exists: " + name, 409);
+    }
+    return e;
+  }
+
+  private RuntimeException mapCreatePersistFailure(String name, Exception e, String fallback) {
+    if (isAlreadyExistsFailure(e)) {
+      return new WebApplicationException("Content type already exists: " + name, 409);
+    }
+    log.error("{} {}: {}", fallback, name, e.getMessage(), e);
+    return new IllegalStateException(fallback, e);
+  }
+
+  /** Design-WS unique-name failures use OBJECT_ALREADY_EXISTS ("… already exists."). */
+  static boolean isAlreadyExistsFailure(Throwable t) {
+    for (Throwable cur = t; cur != null && cur != cur.getCause(); cur = cur.getCause()) {
+      String msg = cur.getMessage();
+      if (cur instanceof PSErrorException pe && StringUtils.isNotBlank(pe.getErrorMessage())) {
+        msg = pe.getErrorMessage();
+      }
+      if (msg != null && msg.toLowerCase().contains("already exists")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private static boolean containsWhitespace(String name) {
     for (int i = 0; i < name.length(); i++) {
       if (Character.isWhitespace(name.charAt(i))) {
@@ -2806,8 +2842,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
   private static void requireSessionUserForLock() {
     if (StringUtils.isBlank(currentSession()) || StringUtils.isBlank(currentUser())) {
-      throw new IllegalStateException(
-          "Request session/user required for content type design session");
+      throw new WebApplicationException(
+          "Request session/user required for content type design session",
+          Response.Status.FORBIDDEN);
     }
   }
 
