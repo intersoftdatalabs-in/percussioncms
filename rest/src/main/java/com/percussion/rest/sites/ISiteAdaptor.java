@@ -86,11 +86,12 @@ public interface ISiteAdaptor {
    * Creates or updates Virtual Site properties for a site identified by name or GUID string.
    * Validation aligns with {@code PSVirtualSiteHelper} (source-kind allow-list {@code
    * git-filesystem} / {@code csv-filesystem} / {@code sql-database} / {@code http-json} / {@code
-   * object-storage}, required root path when virtual and remote is blank, optional remoteUrl/branch
-   * for git-filesystem only, safe path / config file name). {@code sql-database} JDBC settings stay
-   * in {@code _config.yaml} (never on this envelope). {@code object-storage} requires a portable-safe
-   * local {@code rootPath}; cloud URLs and credential properties are 400. GET after PUT round-trips
-   * the stored {@code sourceKind}.
+   * object-storage} / {@code rss-atom}, required root path when virtual and remote is blank, optional
+   * remoteUrl/branch for git-filesystem only, safe path / config file name). {@code sql-database}
+   * JDBC settings stay in {@code _config.yaml} (never on this envelope). {@code object-storage} and
+   * {@code rss-atom} require a portable-safe local {@code rootPath}; leftover {@code remoteUrl},
+   * cloud URLs, and credential properties are 400 (local/loopback only; no live feed credentials).
+   * GET after PUT round-trips the stored {@code sourceKind}.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param props properties to apply; not null
