@@ -30,9 +30,11 @@ DEPLOYER_RESIDUAL = (
     "deployer/src/main/java/com/percussion/deployer/jexl/PSDeployJexlUtils.java"
 )
 
-# Representative leftover from sibling #3585.
-WEBSERVICE_RESIDUAL = (
-    "system/webservices/src/com/percussion/webservices/PSWebserviceUtils.java"
+# Representative leftover from sibling #3585 / converted in #3861. Remaining
+# system/webservices SOAP/ws rows were removed from the allow-list; keep an
+# exact residual that is still frozen (system/cms mega-tree, not #3859/#3860).
+SYSTEM_CMS_RESIDUAL = (
+    "system/src/main/java/com/percussion/cms/PSApplicationBuilder.java"
 )
 
 
@@ -113,7 +115,7 @@ def test_list_allowlist_exits_zero() -> None:
     assert "#3585" in combined
     combined_posix = combined.replace("\\", "/")
     assert DEPLOYER_RESIDUAL.replace("\\", "/") in combined_posix
-    assert WEBSERVICE_RESIDUAL.replace("\\", "/") in combined_posix
+    assert SYSTEM_CMS_RESIDUAL.replace("\\", "/") in combined_posix
     # Prefix freeze: printed residuals are files, not directory wildcards, and an
     # unlisted probe under the same tree is not advertised as covered.
     residual_lines = [
@@ -382,7 +384,7 @@ def test_residual_allowlist_is_exact_paths_only() -> None:
     ]
     assert len(entries) > 0
     assert DEPLOYER_RESIDUAL in entries
-    assert WEBSERVICE_RESIDUAL in entries
+    assert SYSTEM_CMS_RESIDUAL in entries
     for entry in entries:
         assert not entry.endswith("/"), entry
         assert "\\" not in entry, entry
@@ -397,7 +399,7 @@ def test_empty_allowlist_fails_on_real_residuals(tmp_path: Path) -> None:
     assert result.returncode == 1, result.stdout + result.stderr
     combined = result.stdout + result.stderr
     assert "FAIL" in combined
-    assert "PSDeployJexlUtils.java" in combined or "PSWebserviceUtils.java" in combined
+    assert "PSDeployJexlUtils.java" in combined or "PSApplicationBuilder.java" in combined
 
 
 if __name__ == "__main__":

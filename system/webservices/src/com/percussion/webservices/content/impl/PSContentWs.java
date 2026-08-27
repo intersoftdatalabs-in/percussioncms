@@ -55,7 +55,6 @@ import com.percussion.security.PSSecurityToken;
 import com.percussion.security.PSUserEntry;
 import com.percussion.security.SecureStringUtils;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
 import com.percussion.server.PSServer;
@@ -119,6 +118,7 @@ import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.thread.PSThreadUtils;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.error.IPSErrorCode;
 import com.percussion.webservices.PSErrorException;
@@ -5462,7 +5462,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       IPSInternalResultHandler rh = (IPSInternalResultHandler) PSServer
          .getInternalRequestHandler(resource);
       if (rh == null)
-         throw new PSException(IPSServerErrors.CE_NEEDED_APP_NOT_RUNNING,
+         throw new PSException(ServerErrorCodes.CE_NEEDED_APP_NOT_RUNNING,
             resource);
 
       Map<String, String> params = null;

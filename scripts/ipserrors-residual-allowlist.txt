@@ -11,6 +11,7 @@
 #   #3770 leftover nav/sfp/workflow extension modules
 #   #3860 system/business delivery leftover call sites
 #   #3859 leftover modules/utils production call sites
+#   #3861 leftover system/webservices SOAP/ws call sites
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -381,23 +382,3 @@ system/src/main/java/com/percussion/workflow/PSTransitionsContext.java
 system/src/main/java/com/percussion/workflow/PSWorkFlowUtils.java
 system/src/main/java/com/percussion/xml/PSDtdParser.java
 system/src/main/java/com/percussion/xml/PSDtdTree.java
-system/webservices/src/com/percussion/webservices/PSBaseSOAPImpl.java
-system/webservices/src/com/percussion/webservices/PSWebserviceUtils.java
-system/webservices/src/com/percussion/webservices/aop/security/strategy/PSSecurityStrategy.java
-system/webservices/src/com/percussion/webservices/assembly/impl/PSAssemblyDesignWs.java
-system/webservices/src/com/percussion/webservices/content/ContentSOAPImpl.java
-system/webservices/src/com/percussion/webservices/content/impl/PSContentBaseWs.java
-system/webservices/src/com/percussion/webservices/content/impl/PSContentDesignWs.java
-system/webservices/src/com/percussion/webservices/content/impl/PSContentWs.java
-system/webservices/src/com/percussion/webservices/objectstore/ws/PSRemoteWsRequester.java
-system/webservices/src/com/percussion/webservices/objectstore/ws/PSWebServiceAgent.java
-system/webservices/src/com/percussion/webservices/publishing/impl/PSPublishingWs.java
-system/webservices/src/com/percussion/webservices/security/impl/PSSecurityDesignWs.java
-system/webservices/src/com/percussion/webservices/system/SystemSOAPImpl.java
-system/webservices/src/com/percussion/webservices/system/impl/PSSystemBaseWs.java
-system/webservices/src/com/percussion/webservices/system/impl/PSSystemDesignWs.java
-system/webservices/src/com/percussion/webservices/system/impl/PSSystemWs.java
-system/webservices/src/com/percussion/webservices/systemdesign/SystemDesignSOAPImpl.java
-system/webservices/src/com/percussion/webservices/transformation/converter/PSItemConverterUtils.java
-system/webservices/src/com/percussion/webservices/ui/impl/PSUiBaseWs.java
-system/webservices/src/com/percussion/webservices/ui/impl/PSUiDesignWs.java

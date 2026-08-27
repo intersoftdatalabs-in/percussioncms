@@ -17,7 +17,7 @@
 
 package com.percussion.cms.objectstore.ws;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.util.IPSRemoteRequester;
 import com.percussion.util.PSHttpConnection;
@@ -126,14 +126,14 @@ public class PSRemoteWsRequester {
     try {
       doc = m_requester.getDocument(WEBSERVICES_APP, paramsMap);
     } catch (Exception e) {
-      throw new PSCmsException(IPSCmsErrors.ERROR_SEND_DATA, e.toString());
+      throw new PSCmsException(CmsErrorCodes.ERROR_SEND_DATA, e.toString());
     }
 
     Element responseEl = doc.getDocumentElement();
 
     if (!responseEl.getNodeName().equalsIgnoreCase(responseNodeName)) {
       String[] args = {responseNodeName, PSXmlDocumentBuilder.toString(responseEl)};
-      throw new PSCmsException(IPSCmsErrors.RECEIVED_UNKNOWN_DATA, args);
+      throw new PSCmsException(CmsErrorCodes.RECEIVED_UNKNOWN_DATA, args);
     } else {
       Element el = PSXMLDomUtil.getFirstElementChild(responseEl);
       if (el != null) {
@@ -141,7 +141,7 @@ public class PSRemoteWsRequester {
         if (name.equals(XML_NODE_RESPONSE) && el.getAttribute("type").equals("failure")) {
           Element resultEl = PSXMLDomUtil.getFirstElementChild(el);
           throw new PSCmsException(
-              IPSCmsErrors.UNEXPECTED_ERROR, PSXMLDomUtil.getElementData(resultEl));
+              CmsErrorCodes.UNEXPECTED_ERROR, PSXMLDomUtil.getElementData(resultEl));
         }
       }
     }

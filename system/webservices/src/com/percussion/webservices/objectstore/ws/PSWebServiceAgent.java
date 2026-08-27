@@ -15,7 +15,7 @@
  */
 package com.percussion.cms.objectstore.ws;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.error.PSException;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -244,7 +244,7 @@ public class PSWebServiceAgent {
 
     if (!responseEl.getNodeName().equals(respElName)) {
       Object[] args = {respElName, PSXmlDocumentBuilder.toString(responseEl)};
-      throw new PSCmsException(IPSCmsErrors.RECEIVED_UNKNOWN_DATA, args);
+      throw new PSCmsException(CmsErrorCodes.RECEIVED_UNKNOWN_DATA, args);
     }
 
     return responseEl;
@@ -324,7 +324,7 @@ public class PSWebServiceAgent {
 
       responseEl = (Element) v.elementAt(0);
     } catch (Exception e) {
-      throw new PSCmsException(IPSCmsErrors.ERROR_SEND_DATA, e.toString());
+      throw new PSCmsException(CmsErrorCodes.ERROR_SEND_DATA, e.toString());
     } finally {
       if (br != null) {
         try {
