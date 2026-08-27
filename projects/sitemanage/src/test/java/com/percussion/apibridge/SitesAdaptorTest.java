@@ -2509,6 +2509,151 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void publishVirtualSite_rssAtomInjectedBuildRunnerCopiesToSiteRoot() throws Exception {
+    Path siteRoot = createMinimalRssAtomTree(tempDir.resolve("rss-pub-src"));
+    Path staging = tempDir.resolve("rss-pub-staging");
+    Path publishTo = tempDir.resolve("rss-pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("RssHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "rss-atom");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "rss-docs");
+    when(siteManager.findSite("RssHelp")).thenReturn(site);
+
+    SitesAdaptor.BuildRunner runner =
+        (config, outputRoot) -> {
+          Files.createDirectories(outputRoot.resolve("8.2"));
+          Files.writeString(
+              outputRoot.resolve("8.2").resolve("index.html"),
+              "<html>RSS published</html>",
+              StandardCharsets.UTF_8);
+          Files.createDirectories(outputRoot.resolve("_meta"));
+          Files.writeString(
+              outputRoot.resolve("_meta").resolve("skip.txt"),
+              "not published",
+              StandardCharsets.UTF_8);
+          return new PSVirtualSiteBuildResult(
+              outputRoot, 1, List.of(), List.of("8.2/index.html"));
+        };
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, runner);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("RssHelp");
+    assertEquals("RssHelp", result.getSiteName());
+    assertEquals("rss-docs", result.getSiteKey());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    Path html = publishTo.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    assertTrue(
+        Files.readString(html, StandardCharsets.UTF_8).contains("RSS published"),
+        Files.readString(html, StandardCharsets.UTF_8));
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
+    assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
+  }
+
+  @Test
+  void publishVirtualSite_rssAtomBuildsThenCopiesToSiteRoot() throws Exception {
+    Path siteRoot = createMinimalRssAtomTree(tempDir.resolve("rss-real-pub-src"));
+    Path staging = tempDir.resolve("rss-real-pub-staging");
+    Path publishTo = tempDir.resolve("rss-real-pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("RssHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "rss-atom");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "rss-docs");
+    when(siteManager.findSite("RssHelp")).thenReturn(site);
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, null);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("RssHelp");
+    assertEquals("RssHelp", result.getSiteName());
+    assertEquals("rss-docs", result.getSiteKey());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    Path html = publishTo.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("RSS Home"), body);
+    assertTrue(body.contains("Hello from RSS"), body);
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
+    assertTrue(Files.isRegularFile(staging.resolve("8.2").resolve("index.html")));
+    assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
+  }
+
+  @Test
+  void publishVirtualSite_rssAtomRejectsUnsafeSiteRoot() {
+    PSSite site = new PSSite();
+    site.setName("RssHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(Path.of("a", "..", "..", "etc").toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "rss-atom");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, tempDir.resolve("rss-src").toString());
+    when(siteManager.findSite("RssHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("RssHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void publishVirtualSite_rssAtomRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalRssAtomTree(tempDir.resolve("rss-pub-remote"));
+    Path publishTo = tempDir.resolve("rss-pub-remote-target");
+    Files.createDirectories(publishTo);
+
+    PSSite site = new PSSite();
+    site.setName("RssHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "rss-atom");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("RssHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("RssHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void publishVirtualSite_rssAtomCredentialProperty400() throws Exception {
+    Path siteRoot = createMinimalRssAtomTree(tempDir.resolve("rss-pub-cred"));
+    Path publishTo = tempDir.resolve("rss-pub-cred-target");
+    Files.createDirectories(publishTo);
+
+    PSSite site = new PSSite();
+    site.setName("RssHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "rss-atom");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, "aws_secret_access_key", "not-a-real-secret");
+    when(siteManager.findSite("RssHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("RssHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.toLowerCase().contains("credential"), msg);
+    assertFalse(msg.contains("not-a-real-secret"), msg);
+  }
+
+  @Test
   void publishVirtualSite_unknownSourceKind400() {
     Path siteRoot = tempDir.resolve("unknown-pub-src");
     Path publishTo = tempDir.resolve("unknown-pub-target");
@@ -3517,10 +3662,10 @@ class SitesAdaptorTest {
   }
 
   /**
-   * Local RSS 2.0 fixture for rss-atom REST Build and last-build Preview. Feed item id
-   * {@code index} assembles {@code 8.2/index.html} so Preview home is available; Build still
-   * writes {@code pagesWritten > 0}. Portable NIO {@link Path} / {@link Files}. No live
-   * remote feeds or credentials.
+   * Local RSS 2.0 fixture for rss-atom REST Build, last-build Preview, and Publish. Feed item
+   * id {@code index} assembles {@code 8.2/index.html} so Preview home and published index exist;
+   * Build still writes {@code pagesWritten > 0}. Portable NIO {@link Path} / {@link Files}. No
+   * live remote feeds or credentials.
    */
   private static Path createMinimalRssAtomTree(Path siteRoot) throws Exception {
     Files.createDirectories(siteRoot.resolve("8.2"));
