@@ -851,4 +851,92 @@ public class ContentTypesResourceDetailTest {
         assertThrows(WebApplicationException.class, () -> resource.unlockContentType("percPage"));
     assertEquals(409, ex.getResponse().getStatus());
   }
+
+  @Test
+  public void renameContentTypeSuccess() {
+    ContentTypeDetail updated = new ContentTypeDetail();
+    updated.setName("percRenamedPage");
+    when(adaptor.renameContentType(any(), eq("percPage"), eq("percRenamedPage")))
+        .thenReturn(updated);
+    ContentTypeDetail out =
+        resource.renameContentType("percPage", new ContentTypeName("percRenamedPage"));
+    assertEquals("percRenamedPage", out.getName());
+  }
+
+  @Test
+  public void renameContentTypeRequiresName() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameContentType("percPage", new ContentTypeName()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void renameContentTypeSpaces400() {
+    when(adaptor.renameContentType(any(), eq("percPage"), eq("perc Renamed")))
+        .thenThrow(new IllegalArgumentException("Content type name must not contain spaces"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameContentType("percPage", new ContentTypeName("perc Renamed")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void renameContentTypeCollision400() {
+    when(adaptor.renameContentType(any(), eq("percPage"), eq("percEventAsset")))
+        .thenThrow(new IllegalArgumentException("Content type name already exists: percEventAsset"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameContentType("percPage", new ContentTypeName("percEventAsset")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void renameContentTypeNotFound() {
+    when(adaptor.renameContentType(any(), eq("missing"), eq("percRenamed"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameContentType("missing", new ContentTypeName("percRenamed")));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void renameContentTypeRequiresLock() {
+    when(adaptor.renameContentType(any(), eq("percPage"), eq("percRenamed")))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not save content type; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameContentType("percPage", new ContentTypeName("percRenamed")));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void renameContentTypeLockedByOtherUser() {
+    when(adaptor.renameContentType(any(), eq("percPage"), eq("percRenamed")))
+        .thenThrow(
+            new ContentTypeDesignLockException("Could not save content type; locked by editor2"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameContentType("percPage", new ContentTypeName("percRenamed")));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void renameContentTypeForbiddenWhenNotAdmin() {
+    when(adaptor.renameContentType(any(), eq("percPage"), eq("percRenamed")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameContentType("percPage", new ContentTypeName("percRenamed")));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
 }

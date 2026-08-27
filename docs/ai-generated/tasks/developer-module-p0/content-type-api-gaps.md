@@ -54,7 +54,8 @@ design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
 | Enable/disable as design action                      | CD-13        | **REST `PUT /contenttypes/{id}/enabled`** (#3773, held design lock; 409 without) |
 | Shared field file editing                            | CD-15        | Separate object                                   |
 | System def                                           | CD-16        | Separate object                                   |
-| Create / rename / delete                             | CD-01, §5.2  | **POST `/services/contenttypes` create shipped** (#3912). Rename / delete still SOAP design only; lock + PUT save via REST |
+| Create / delete                                      | CD-01, §5.2  | **POST `/services/contenttypes` create shipped** (#3912). Delete still SOAP design only; lock + PUT save via REST |
+| Rename                                               | CD-01, §5.2  | **REST `PUT /contenttypes/{id}/name`** (#3914, held design lock; unique, no spaces; bulk PUT does not rename) |
 | Import/export CT                                     | CD-14        | Workbench wizards                                 |
 | ACL                                                  | CD-19, §5.4  | Existing ACL REST may help later                  |
 | ~~Keyword write~~                                    | CD-17        | **Done** — REST + SPA + design WS (#1612/#1701)   |

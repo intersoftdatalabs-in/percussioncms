@@ -34,7 +34,8 @@ import java.util.List;
  * design lock for write). Control properties use {@code GET/PUT
  * .../fields/{fieldName}/controlProperties}. Partial update supports label, description, enabled,
  * field searchable / occurrence, allowed workflows (+ default), and allowed templates. PUT
- * requires a design-session lock already held by the current user ({@code POST
+ * does not change name (use {@code PUT .../name}). PUT
+ * requires a design-session lock already held by the current user ({@code POST}
  * /services/contenttypes/{idOrName}/lock}) and does not release it. Field rule expressions on this
  * detail payload remain summary strings (not written by PUT detail).
  *

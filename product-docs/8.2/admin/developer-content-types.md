@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Lock, enable or disable, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Lock, enable or disable, rename via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -190,6 +190,22 @@ type is available for runtime use.
    product does **not** steal the lock, Save stays disabled, and **Enabled**
    remains read-only.
 
+## Rename a content type (REST)
+
+Developer Content Type chrome does **not** rename the type. Integrators rename
+with REST after a held design-session lock:
+
+1. `POST /services/contenttypes/{idOrName}/lock`
+2. `PUT /services/contenttypes/{idOrName}/name` with Jackson root
+   `ContentTypeName` (`name` required). The new name must be unique
+   (case-insensitive) and must not contain spaces.
+3. `GET /services/contenttypes/{id}` returns the new name. `GET` by the
+   previous name is **404**.
+4. `POST .../unlock` when done.
+
+Bulk `PUT /services/contenttypes/{idOrName}` still does **not** change name.
+Unlocked or another user's lock is **409**. Collision or spaces is **400**.
+
 ## REST
 
 The chrome calls:
@@ -199,6 +215,7 @@ The chrome calls:
 | Lock | `POST /services/contenttypes/{idOrName}/lock` |
 | Save (label, description, fields) | `PUT /services/contenttypes/{idOrName}` (requires a held lock; does not send `enabled`, `allowedWorkflows`, or `allowedTemplates`) |
 | Enable / disable | `PUT /services/contenttypes/{idOrName}/enabled` (CD-13; requires a held lock; does not acquire or release it) |
+| Rename | `PUT /services/contenttypes/{idOrName}/name` (CD-01; Admin; held lock; unique name, no spaces; bulk PUT does not rename) |
 | Save allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` (requires a held lock; does not unlock) |
 | Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` (held lock; full replace) |
 | Confirm allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` |

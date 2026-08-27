@@ -120,6 +120,11 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   @Override
+  public ContentTypeDetail renameContentType(URI baseUri, String idOrName, String newName) {
+    return null;
+  }
+
+  @Override
   public List<NamedObjectRef> getAllowedTemplates(URI baseUri, String idOrName) {
     return List.of();
   }

@@ -82,7 +82,8 @@ public interface IContentTypesAdaptor {
    * <p>Supports label, description, enabled, per-field {@code searchable} (and optional
    * occurrence), allowed workflows (+ default workflow id), and allowed templates. Association
    * lists use full-replace semantics when non-null; omit them to leave associations unchanged.
-   * Field rule expressions use {@link #replaceFieldRuleExpressions}. Control property values use
+   * Does not change name — use {@link #renameContentType}. Field rule expressions use {@link
+   * #replaceFieldRuleExpressions}. Control property values use
    * {@link #replaceFieldControlProperties}.
    *
    * @return updated detail, or {@code null} when not found
@@ -122,6 +123,22 @@ public interface IContentTypesAdaptor {
    *     user
    */
   ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled);
+
+  /**
+   * Rename a content type (CD-01). Requires a design-session lock already held by the current
+   * user. Does not acquire or release the lock. Bulk {@link #updateContentType} does not change
+   * name. After a successful rename, GET by the previous name is not found; GET by id returns the
+   * new name.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or current internal name
+   * @param newName unique internal name (no spaces; case-insensitive unique)
+   * @return updated detail, or {@code null} when not found
+   * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
+   *     user
+   * @throws IllegalArgumentException when the new name is invalid or collides
+   */
+  ContentTypeDetail renameContentType(URI baseUri, String idOrName, String newName);
 
   /**
    * List allowed template associations for a content type (read-only; no lock required).
