@@ -334,6 +334,13 @@ conditions are not written** (see `designGaps` code `CT_ITEM_EXIT_CONDITIONS`).
 
 Typical flow: `POST .../lock` → `PUT .../itemExits` → `POST .../unlock`.
 
+**Developer → Content types** detail chrome follows that flow after **Lock**: add
+or remove item-level input/output translations, validations, and pipe pre/post
+exits by extension FQN, **Save content type** (dedicated PUT, then GET lists the
+new set), then **Unlock**. Save is disabled until the lock is held; the product
+does not steal another user's lock. Apply-when conditions stay read-only. See
+[Developer Content Types](id:admin-developer-content-types).
+
 Jackson root wrap:
 
 ```json
@@ -362,8 +369,9 @@ Jackson root wrap:
 | `500` | Design service or server failure |
 
 Content type **detail** still lists `designGaps` code `CT_ITEM_EXITS` pointing
-at this dedicated path. This slice does **not** add Properties-tab chrome in
-Developer Content Types.
+at this dedicated path. Developer Content Types detail chrome consumes that
+path after a held design lock (CD-09). Apply-when write remains a gap
+(`CT_ITEM_EXIT_CONDITIONS`).
 
 ### Field rule expressions (CD-05–07)
 

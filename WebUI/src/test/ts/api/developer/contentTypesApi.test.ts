@@ -21,6 +21,10 @@ import {
   wrapContentTypeEnabledForWire,
   wrapContentTypeWorkflowsForWire,
   wrapNamedObjectRefListForWire,
+  getContentTypeItemExits,
+  replaceContentTypeItemExits,
+  unwrapContentTypeItemExits,
+  wrapContentTypeItemExitsForWire,
 } from "../../../../main/ts/api/developer/contentTypesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -527,5 +531,160 @@ describe("allowedTemplates GET/PUT (CD-12)", () => {
     expect(listed).toEqual([]);
     const body = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body));
     expect(body).toEqual({ NamedObjectRefList: [] });
+  });
+});
+
+describe("unwrapContentTypeItemExits / wrapContentTypeItemExitsForWire (CD-09)", () => {
+  it("wraps under ContentTypeItemExits", () => {
+    expect(
+      wrapContentTypeItemExitsForWire({
+        inputTranslations: [],
+        outputTranslations: [],
+        validations: [],
+      }),
+    ).toEqual({
+      ContentTypeItemExits: {
+        inputTranslations: [],
+        outputTranslations: [],
+        validations: [],
+      },
+    });
+  });
+
+  it("unwraps WRAP_ROOT ContentTypeItemExits", () => {
+    const out = unwrapContentTypeItemExits({
+      ContentTypeItemExits: {
+        inputTranslations: [
+          {
+            extension: "Java/global/percussion/generic/sys_ToUpperCase",
+            parameters: [{ value: "sys_title" }],
+          },
+        ],
+        outputTranslations: [],
+        validations: [],
+        preExits: [],
+        postExits: [],
+        maxErrorsToStopValidation: 10,
+        designGaps: [{ code: "CT_ITEM_EXIT_CONDITIONS", message: "read-only" }],
+      },
+    });
+    expect(out.inputTranslations?.[0]?.extension).toBe(
+      "Java/global/percussion/generic/sys_ToUpperCase",
+    );
+    expect(out.inputTranslations?.[0]?.parameters).toEqual([{ value: "sys_title" }]);
+    expect(out.maxErrorsToStopValidation).toBe(10);
+    expect(out.designGaps).toEqual([{ code: "CT_ITEM_EXIT_CONDITIONS", message: "read-only" }]);
+  });
+
+  it("unwraps JAXB singleton lists and empty beans", () => {
+    const out = unwrapContentTypeItemExits({
+      inputTranslations: {
+        ContentTypeItemExit: { extension: "Java/global/percussion/generic/sys_ToUpperCase" },
+      },
+      outputTranslations: { empty: true },
+      validations: [],
+    });
+    expect(out.inputTranslations).toHaveLength(1);
+    expect(out.outputTranslations).toEqual([]);
+    expect(out.validations).toEqual([]);
+  });
+
+  it("returns empty lists for null payload", () => {
+    const out = unwrapContentTypeItemExits(null);
+    expect(out.inputTranslations).toEqual([]);
+    expect(out.outputTranslations).toEqual([]);
+    expect(out.validations).toEqual([]);
+    expect(out.preExits).toEqual([]);
+    expect(out.postExits).toEqual([]);
+  });
+});
+
+describe("itemExits GET/PUT (CD-09)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("GETs itemExits and unwraps the envelope", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeItemExits: {
+          inputTranslations: [{ extension: "Java/global/percussion/generic/sys_ToUpperCase" }],
+          outputTranslations: [],
+          validations: [],
+          preExits: [],
+          postExits: [],
+        },
+      }),
+    );
+    const listed = await getContentTypeItemExits("percPage");
+    expect(listed.inputTranslations?.[0]?.extension).toBe(
+      "Java/global/percussion/generic/sys_ToUpperCase",
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect((fetchMock.mock.calls[0][1] as RequestInit).method).toBe("GET");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/percPage/itemExits`,
+    );
+  });
+
+  it("PUTs itemExits wrapped under ContentTypeItemExits", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeItemExits: {
+          inputTranslations: [
+            { extension: "Java/global/percussion/generic/sys_ToUpperCase" },
+          ],
+          outputTranslations: [],
+          validations: [],
+          preExits: [],
+          postExits: [],
+        },
+      }),
+    );
+    const listed = await replaceContentTypeItemExits("percPage", {
+      inputTranslations: [
+        {
+          extension: "Java/global/percussion/generic/sys_ToUpperCase",
+          parameters: [{ value: "sys_title" }],
+        },
+      ],
+      outputTranslations: [],
+      validations: [],
+    });
+    expect(listed.inputTranslations).toHaveLength(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(init.method).toBe("PUT");
+    expect(String(url)).toContain(`${PATHS.CONTENT_TYPES}/percPage/itemExits`);
+    const body = JSON.parse(String(init.body));
+    expect(body.ContentTypeItemExits).toBeTruthy();
+    expect(body.ContentTypeItemExits.inputTranslations[0].extension).toBe(
+      "Java/global/percussion/generic/sys_ToUpperCase",
+    );
+    expect(body.ContentTypeItemExits.preExits).toBeUndefined();
+    expect(body.ContentTypeItemExits.postExits).toBeUndefined();
+  });
+
+  it("encodes idOrName on the itemExits path", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeItemExits: { inputTranslations: [], outputTranslations: [], validations: [] } }),
+    );
+    await getContentTypeItemExits("perc Page");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/${encodeURIComponent("perc Page")}/itemExits`,
+    );
   });
 });
