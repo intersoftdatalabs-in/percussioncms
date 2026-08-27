@@ -1227,7 +1227,9 @@ public class ContentTypesResource {
             content = @Content(schema = @Schema(implementation = ContentTypeItemExits.class))),
         @ApiResponse(
             responseCode = "400",
-            description = "Missing required lists or invalid extension FQN"),
+            description =
+                "Missing required lists, invalid extension FQN, or design-save validation"
+                    + " (wrong item-level extension interface / SAVE_FAILED validation)"),
         @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(responseCode = "404", description = "Content type not found"),
         @ApiResponse(
@@ -1235,8 +1237,23 @@ public class ContentTypesResource {
             description = "Design lock not held by the current user"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
+  public ContentTypeItemExits replaceItemExitsFromJson(
+      @PathParam("idOrName") String idOrName, java.io.InputStream jsonBody) {
+    try {
+      byte[] raw = jsonBody == null ? new byte[0] : jsonBody.readAllBytes();
+      String json = new String(raw, java.nio.charset.StandardCharsets.UTF_8);
+      return replaceItemExits(idOrName, ContentTypeItemExitsJsonReader.parse(json));
+    } catch (java.io.IOException e) {
+      throw new WebApplicationException("Invalid item-exits body", 400);
+    }
+  }
+
+  /**
+   * Replace item-level exits. Package tests call this with a bound DTO; HTTP PUT uses {@link
+   * #replaceItemExitsFromJson} so CXF UNWRAP_ROOT_VALUE cannot drop required lists (#3905).
+   */
   public ContentTypeItemExits replaceItemExits(
-      @PathParam("idOrName") String idOrName, ContentTypeItemExits body) {
+      String idOrName, ContentTypeItemExits body) {
     if (body == null
         || body.getInputTranslations() == null
         || body.getOutputTranslations() == null

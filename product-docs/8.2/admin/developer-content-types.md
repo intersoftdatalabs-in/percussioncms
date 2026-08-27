@@ -19,8 +19,13 @@ visibility / transform **expressions** stay summary-only on the detail table.
 Integrators write them with REST
 `GET`/`PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions`
 (held design lock for PUT). Item-level pre/post exits and validations (CD-09)
-use `GET`/`PUT /services/contenttypes/{idOrName}/itemExits`. This page does
-**not** add Properties-tab or expression-editor chrome.
+use `GET`/`PUT /services/contenttypes/{idOrName}/itemExits` after a held design
+lock. Item-level input translations must be request pre-processors (for
+example `sys_cleanReservedHtmlClasses` or `sys_itemHTMLEncodeTransformer`),
+not field UDFs such as `sys_ToUpperCase` (those stay on field rule
+expressions). Omitting `preExits`/`postExits` leaves pipe extensions
+unchanged. This page does **not** add Properties-tab or expression-editor
+chrome.
 
 ## Product path — lock, save, unlock
 

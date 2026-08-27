@@ -1641,9 +1641,19 @@ public class PSContentDesignWs extends PSContentBaseWs implements
                lock = lockService.findLockByObjectId(id, session, user);
                if (lock != null)
                {
-                  // get version from lock
-                  int version = lock.getLockedVersion() == null ? -1 : lock
-                     .getLockedVersion();
+                  // Existing types must not be saved as create (version -1):
+                  // a failed create deletes the node def (#3905).
+                  Integer lockedVersion = lock.getLockedVersion();
+                  Integer nodeVersion = null;
+                  if (lockedVersion == null || lockedVersion < 0) {
+                    PSNodeDefinition existing =
+                        PSContentTypeHelper.findNodeDef(
+                            new PSGuid(PSTypeEnum.NODEDEF, def.getTypeId()));
+                    if (existing != null) {
+                      nodeVersion = existing.getVersion();
+                    }
+                  }
+                  int version = contentTypeSaveVersion(lockedVersion, nodeVersion);
 
                   // save
                   PSSaveNodeDefListener listener = null;
@@ -1703,8 +1713,8 @@ public class PSContentDesignWs extends PSContentBaseWs implements
                PSDesignGuid guid = new PSDesignGuid(id);
                PSErrorException error = new PSErrorException(code,
                   PSWebserviceErrors.createErrorMessage(code,
-                     PSItemDefinition.class.getName(), guid.getValue(), e
-                        .getLocalizedMessage()), ExceptionUtils
+                     PSItemDefinition.class.getName(), guid.getValue(),
+                     rootCauseMessage(e)), ExceptionUtils
                      .getFullStackTrace(e));
                results.addError(id, error);
             }
@@ -1739,6 +1749,41 @@ public class PSContentDesignWs extends PSContentBaseWs implements
     */
    static IPSGuid contentTypeLockObjectId(long typeId) {
       return new PSDesignGuid(PSTypeEnum.NODEDEF, typeId);
+   }
+
+   /**
+    * Hibernate version for {@link PSContentTypeHelper#saveContentType}. {@code -1} means
+    * create; a null lock version on an <em>existing</em> type must use the node-def version
+    * so a failed save cannot delete the type (#3905).
+    */
+   static int contentTypeSaveVersion(Integer lockedVersion, Integer existingNodeVersion) {
+      if (lockedVersion != null && lockedVersion >= 0) {
+         return lockedVersion;
+      }
+      if (existingNodeVersion != null && existingNodeVersion >= 0) {
+         return existingNodeVersion;
+      }
+      return -1;
+   }
+
+   /** Prefer the deepest cause message so SAVE_FAILED is not a bare {@code {0}} template. */
+   static String rootCauseMessage(Throwable e) {
+      if (e == null) {
+         return "unknown error";
+      }
+      Throwable t = e;
+      while (t.getCause() != null && t.getCause() != t) {
+         t = t.getCause();
+      }
+      String root = t.getMessage();
+      if (root == null || root.isBlank()) {
+         root = t.getClass().getName();
+      }
+      String top = e.getMessage();
+      if (top != null && !top.isBlank() && !top.equals(root) && !top.contains("{0}")) {
+         return top + " [root: " + root + "]";
+      }
+      return root;
    }
 
    /**
