@@ -61,14 +61,14 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
   credentials are **400**); REST **Build** runs that local bucket. REST **Preview**
   streams last-build HTML for that kind after a successful Build (`available=true`;
   missing build is `available=false` HTTP 200). Developer Sites can save **Object
-  storage** (GET round-trips the kind); Developer Sites Build/Preview/Publish chrome for
-  that kind stay a later phase. The endpoint does not accept an `outputRoot` body
-  (always the default staging root).
+  storage** (GET round-trips the kind) and then **Build Virtual Site**. Developer Sites
+  Preview/Publish chrome for that kind stay a later phase. The endpoint does not accept
+  an `outputRoot` body (always the default staging root).
 
 ### Publish a Virtual Site to the Site filesystem target
 
 1. Sign in as **Admin**.
-2. Configure the Site as a Git-filesystem, CSV-filesystem, SQL-database, HTTP JSON, or object-storage Virtual Site (see [Sites](id:admin-sites)). After you save **SQL database**, **Build Virtual Site** on Developer Sites runs the same in-memory H2 REST Build as Git/CSV. After you save **HTTP JSON**, **Build Virtual Site** then **Publish Virtual Site** copies assembled HTML to the Site filesystem root. Integrators can REST-publish **object-storage** (`POST …/virtual/publish`) with a local object-key `rootPath` (Developer Sites chrome for that kind stays a later phase).
+2. Configure the Site as a Git-filesystem, CSV-filesystem, SQL-database, HTTP JSON, or object-storage Virtual Site (see [Sites](id:admin-sites)). After you save **SQL database**, **Build Virtual Site** on Developer Sites runs the same in-memory H2 REST Build as Git/CSV. After you save **HTTP JSON**, **Build Virtual Site** then **Publish Virtual Site** copies assembled HTML to the Site filesystem root. Integrators can REST-publish **object-storage** (`POST …/virtual/publish`) with a local object-key `rootPath`. After you save **Object storage**, **Build Virtual Site** on Developer Sites runs the same local object-key REST Build (Preview/Publish chrome for that kind stay a later phase).
 3. Set the Site **publishing filesystem root** (Site root) to a dedicated directory on the CMS
    host. Relative roots (legacy values such as `../CI_Home`) are resolved against the CMS
    install directory. Do **not** point it at `virtual.rootPath` (the Markdown or CSV source tree).

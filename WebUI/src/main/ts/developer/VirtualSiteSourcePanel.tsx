@@ -342,7 +342,7 @@ export function VirtualSiteSourcePanel({
   const sqlMode = isSqlDatabaseSourceKind(form.sourceKind);
   const httpJsonMode = isHttpJsonSourceKind(form.sourceKind);
   const objectStorageMode = isObjectStorageSourceKind(form.sourceKind);
-  /** Build chrome: git/csv/sql/http-json (never repository or object-storage). */
+  /** Build chrome: git/csv/sql/http-json/object-storage (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
   /** Preview chrome: git/csv/sql/http-json (never repository or object-storage). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
