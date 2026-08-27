@@ -1092,9 +1092,13 @@ def _qa_deploy_webui_argv(
     container: str,
     skip_object_storage_check: bool,
 ) -> List[str]:
-    """Build the argv list for ``docker/scripts/hot-deploy-webui-modern.py``."""
+    """Build the argv list for ``docker/scripts/hot-deploy-webui-modern.py``.
+
+    Uses ``sys.executable`` so Windows/Linux/macOS all invoke the same
+    interpreter that is running perc-devctl (no hardcoded ``python3``).
+    """
     argv = [
-        "python3",
+        sys.executable,
         str(repo_root / "docker" / "scripts" / "hot-deploy-webui-modern.py"),
         "--container",
         container,

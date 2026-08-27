@@ -354,7 +354,7 @@ class TestSubcommandDryRun(unittest.TestCase):
             pdc.QA_CMS_CONTAINER,
             False,
         )
-        self.assertEqual(argv[0], "python3")
+        self.assertEqual(argv[0], sys.executable)
         self.assertTrue(str(argv[1]).replace("\\", "/").endswith(
             "docker/scripts/hot-deploy-webui-modern.py"
         ))
