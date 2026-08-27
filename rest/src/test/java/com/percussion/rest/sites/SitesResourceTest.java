@@ -523,6 +523,61 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void buildVirtualSiteRssAtomFixtureDelegates() throws Exception {
+    Path rssRoot = tempDir.resolve("rss-site");
+    Files.createDirectories(rssRoot);
+    Files.writeString(
+        rssRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: RSS Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        rss:
+          file: feed.xml
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        rssRoot.resolve("feed.xml"),
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <rss version="2.0">
+          <channel>
+            <title>Sample</title>
+            <item>
+              <guid>home</guid>
+              <title>RSS Home</title>
+              <description>Hello from RSS.</description>
+            </item>
+          </channel>
+        </rss>
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("rss-out");
+    Files.createDirectories(out);
+
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setSiteName("RssHelp");
+    built.setPagesWritten(1);
+    built.setLinkProblemCount(0);
+    built.setHasLinkProblems(false);
+    built.setOutputPath(out.toAbsolutePath().toString());
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+    when(adaptor.buildVirtualSite(eq("RssHelp"), same(req))).thenReturn(built);
+
+    VirtualSiteBuildResult result = resource.buildVirtualSite("RssHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertEquals(out.toAbsolutePath().toString(), result.getOutputPath());
+    assertTrue(Files.isRegularFile(rssRoot.resolve("_config.yaml")));
+    assertTrue(Files.isRegularFile(rssRoot.resolve("feed.xml")));
+    verify(adaptor).buildVirtualSite("RssHelp", req);
+  }
+
+  @Test
   public void buildVirtualSiteUnknownKindPropagates400() {
     when(adaptor.buildVirtualSite(eq("Help"), any()))
         .thenThrow(
@@ -844,6 +899,12 @@ public class SitesResourceTest {
     assertTrue(
         buildBlock.contains("object-storage"),
         "buildVirtualSite OpenAPI description must mention object-storage");
+    assertTrue(
+        buildBlock.contains("rss-atom"),
+        "buildVirtualSite OpenAPI description must mention rss-atom");
+    assertTrue(
+        buildBlock.contains("feed.xml") || buildBlock.contains("loopback"),
+        "buildVirtualSite OpenAPI description must mention local RSS/Atom fixture or loopback");
     assertTrue(
         buildBlock.contains("jdbc:h2:mem:"),
         "buildVirtualSite OpenAPI description must mention in-memory H2 jdbc:h2:mem:");
