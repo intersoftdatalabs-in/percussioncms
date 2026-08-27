@@ -137,7 +137,7 @@ export const DEV_MSG_KEYS = {
   CT_COL_LABEL: "perc.ui.developer@Label",
   CT_COL_DESCRIPTION: "perc.ui.developer@Description",
   CT_COL_ID: "perc.ui.developer@Id",
-  CT_HINT: "perc.ui.developer@Select a content type to view fields and edit label, description, enabled, field flags, workflows, and templates.",
+  CT_HINT: "perc.ui.developer@Select a content type to view fields and edit label, description, enabled, field flags, workflows, templates, and field-rule expressions.",
   CT_BACK: "perc.ui.developer@Back to list",
   CT_DETAIL_LOADING: "perc.ui.developer@Loading content type...",
   CT_DETAIL_ERROR: "perc.ui.developer@Could not load content type detail.",
@@ -192,6 +192,24 @@ export const DEV_MSG_KEYS = {
   CT_TPL_NAME_PLACEHOLDER: "perc.ui.developer@Template name or GUID (0-10-347)",
   CT_SET_DEFAULT: "perc.ui.developer@Default",
   CT_NONE: "perc.ui.developer@None",
+  CT_FIELD_RULES: "perc.ui.developer@Field rule expressions",
+  CT_FIELD_RULES_HINT:
+    "perc.ui.developer@Lock to edit. One expression per line. Save writes GET/PUT .../fields/{field}/ruleExpressions while the lock is held and does not unlock. This is not the Workbench rule builder.",
+  CT_FR_FIELD: "perc.ui.developer@Field",
+  CT_FR_VALIDATION: "perc.ui.developer@Validation",
+  CT_FR_VISIBILITY: "perc.ui.developer@Visibility",
+  CT_FR_INPUT: "perc.ui.developer@Input translation",
+  CT_FR_OUTPUT: "perc.ui.developer@Output translation",
+  CT_FR_VALIDATION_HINT:
+    "perc.ui.developer@Conditional: variable operator value (e.g. sys_title <> \"\"). Extension: ext:FQN. Named rule: ref:name.",
+  CT_FR_VISIBILITY_HINT:
+    "perc.ui.developer@Conditional: variable operator value. Extension: ext:FQN. Visibility cannot use ref:.",
+  CT_FR_TRANSLATION_HINT:
+    "perc.ui.developer@One extension FQN per line. Optional literal parameter after | (e.g. Java/global/percussion/generic/sys_ToUpperCase | sys_title).",
+  CT_FR_LOADING: "perc.ui.developer@Loading field rule expressions...",
+  CT_FR_LOAD_ERROR: "perc.ui.developer@Could not load field rule expressions.",
+  CT_FR_SAVE_ERROR: "perc.ui.developer@Could not save field rule expressions.",
+  CT_FR_PARSE_ERROR: "perc.ui.developer@Could not parse field rule expressions.",
   YES: "perc.ui.developer@Yes",
   NO: "perc.ui.developer@No",
   KW_LOADING: "perc.ui.developer@Loading keywords...",

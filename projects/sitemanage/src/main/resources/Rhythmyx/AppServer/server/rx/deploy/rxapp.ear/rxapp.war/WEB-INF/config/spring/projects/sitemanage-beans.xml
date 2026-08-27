@@ -137,6 +137,9 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
                  GUID last-segment tokens; JAXB / UNWRAP_ROOT_VALUE expects
                  AllowedContentTypeMenusRequest. Bind both envelopes. -->
             <ref bean="allowedContentTypeMenusRequestJsonReader" />
+            <!-- #3896: Developer field-rule PUT; JAXB rejects flat fieldName and
+                 UNWRAP_ROOT_VALUE can leave the four lists null. Bind wrap + flat. -->
+            <ref bean="contentTypeFieldRuleExpressionsJsonReader" />
             <ref bean="jacksonProvider" />
             <ref bean="jacksonContextResolver" />
             <ref bean="authorizationFilter" />

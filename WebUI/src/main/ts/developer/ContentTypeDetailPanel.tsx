@@ -53,6 +53,10 @@ import {
   type DesignGapWire,
 } from "../api/developer/designGaps";
 import { ObjectAclSection } from "./ObjectAclSection";
+import {
+  ContentTypeFieldRulesSection,
+  type ContentTypeFieldRulesHandle,
+} from "./ContentTypeFieldRulesSection";
 import { isApiError } from "../api/client";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
@@ -156,6 +160,8 @@ export function ContentTypeDetailPanel({
   const [newTplName, setNewTplName] = useState("");
   const [heldLock, setHeldLock] = useState(false);
   const heldLockRef = useRef(false);
+  const fieldRulesRef = useRef<ContentTypeFieldRulesHandle | null>(null);
+  const [fieldRulesDirty, setFieldRulesDirty] = useState(false);
 
   useEffect(() => {
     heldLockRef.current = heldLock;
@@ -178,6 +184,7 @@ export function ContentTypeDetailPanel({
     setNotice(null);
     setHeldLock(false);
     heldLockRef.current = false;
+    setFieldRulesDirty(false);
     getContentTypeDetail(idOrName)
       .then((d) => {
         if (cancelled) return;
@@ -230,7 +237,8 @@ export function ContentTypeDetailPanel({
       enabled !== (detail.enabled !== false) ||
       fieldsDirty ||
       workflowsDirty ||
-      templatesDirty);
+      templatesDirty ||
+      fieldRulesDirty);
 
   const objectGuid = resolveContentTypeObjectGuid(detail, catalogGuid);
   const fieldRows = contentTypeFields(detail);
@@ -380,7 +388,7 @@ export function ContentTypeDetailPanel({
       label !== (detail.label || "") ||
       description !== (detail.description || "") ||
       fieldsDirty;
-    if (!enabledDirty && !workflowsDirty && !templatesDirty && !bulkNeeded) {
+    if (!enabledDirty && !workflowsDirty && !templatesDirty && !bulkNeeded && !fieldRulesDirty) {
       return;
     }
     setBusy(true);
@@ -476,7 +484,25 @@ export function ContentTypeDetailPanel({
           throw tplErr;
         }
       }
+      if (fieldRulesDirty) {
+        try {
+          await fieldRulesRef.current?.save();
+        } catch (frErr) {
+          if (saved != null) {
+            setDetail(saved);
+            setEnabled(saved.enabled !== false);
+            setWorkflows(
+              withDefaultWorkflowFlags(saved.allowedWorkflows, saved.defaultWorkflow),
+            );
+            setTemplates(cloneNamedObjectRefs(saved.allowedTemplates));
+          }
+          throw frErr;
+        }
+      }
       if (saved == null) {
+        if (fieldRulesDirty) {
+          setNotice(DEV_MSG.CT_SAVED);
+        }
         return;
       }
       const normalized = normalizeDetailLists(saved);
@@ -1057,6 +1083,18 @@ export function ContentTypeDetailPanel({
               </table>
             </div>
           </section>
+
+          <ContentTypeFieldRulesSection
+            ref={fieldRulesRef}
+            idOrName={idOrName}
+            fields={fieldRows}
+            canEdit={canEdit}
+            onDirtyChange={setFieldRulesDirty}
+            onLockLost={() => {
+              heldLockRef.current = false;
+              setHeldLock(false);
+            }}
+          />
 
           <ObjectAclSection
             objectGuid={objectGuid}

@@ -434,8 +434,13 @@ validation is not written (see `designGaps` code `CT_FIELD_RULE_APPLY_WHEN`).
 | `409` | No design lock, or locked by another user |
 | `500` | Unexpected error |
 
-This slice does **not** add a field-rule expression editor in Developer Content Types
-chrome. Control property **values** and choice catalogs use the dedicated CD-07 path
+**Developer → Content types** detail chrome edits these four lists as expression
+**text** after **Lock** (one line per rule or extension call). **Save content type**
+calls this PUT, then GET reflects the new expressions. Save stays disabled until
+the lock is held; the product does not steal another user's lock. This is not
+the Workbench visual rule builder. See [Developer Content Types](id:admin-developer-content-types).
+
+Control property **values** and choice catalogs use the dedicated CD-07 path
 below.
 
 ### Control property values (CD-07)
