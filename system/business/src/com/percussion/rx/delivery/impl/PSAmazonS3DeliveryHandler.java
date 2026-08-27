@@ -18,7 +18,7 @@ package com.percussion.rx.delivery.impl;
 
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.legacy.security.deprecated.PSAesCBC;
-import com.percussion.rx.delivery.IPSDeliveryErrors;
+import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
 import com.percussion.rx.delivery.IPSDeliveryResult;
 import com.percussion.rx.delivery.IPSDeliveryResult.Outcome;
 import com.percussion.rx.delivery.PSDeliveryException;
@@ -179,7 +179,7 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
             de = e;
         } catch (Exception e) {
             de = new PSDeliveryException(
-                    IPSDeliveryErrors.COULD_NOT_DELETE_FROM_AMAZON, e, location, bucketName, getExceptionMessage(e));
+                    DeliveryErrorCodes.COULD_NOT_DELETE_FROM_AMAZON, e, location, bucketName, getExceptionMessage(e));
         }
         if (de != null) {
             return getItemResult(Outcome.FAILED, item, jobId, de.getLocalizedMessage());
@@ -251,7 +251,7 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
             }
         } catch (Exception e) {
             de = new PSDeliveryException(
-                    IPSDeliveryErrors.COULD_NOT_COPY_TO_AMAMZON, e, location, bucketName, getExceptionMessage(e));
+                    DeliveryErrorCodes.COULD_NOT_COPY_TO_AMAMZON, e, location, bucketName, getExceptionMessage(e));
         }
         if (de != null) {
             return getItemResult(Outcome.FAILED, item, jobId, de.getLocalizedMessage());
@@ -405,7 +405,7 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
                 secretKey = decrypt(secretKey);
             } catch (Exception e) {
                 log.error(PSExceptionUtils.getMessageForLog(e));
-                throw new PSDeliveryException(IPSDeliveryErrors.COULD_NOT_DECRYPT_CREDENTIALS, e, getExceptionMessage(e));
+                throw new PSDeliveryException(DeliveryErrorCodes.COULD_NOT_DECRYPT_CREDENTIALS, e, getExceptionMessage(e));
             }
             creds = StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
         }
@@ -443,7 +443,7 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
                     secretKey = decrypt(secretKey);
                 } catch (Exception e) {
                     log.error(PSExceptionUtils.getMessageForLog(e));
-                    throw new PSDeliveryException(IPSDeliveryErrors.COULD_NOT_DECRYPT_CREDENTIALS, e, getExceptionMessage(e));
+                    throw new PSDeliveryException(DeliveryErrorCodes.COULD_NOT_DECRYPT_CREDENTIALS, e, getExceptionMessage(e));
                 }
                 stsCreds = StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
             }
@@ -458,7 +458,7 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
                     .build();
         } catch (SdkException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
-            throw new PSDeliveryException(IPSDeliveryErrors.COULD_NOT_COPY_TO_AMAMZON, e, getExceptionMessage(e));
+            throw new PSDeliveryException(DeliveryErrorCodes.COULD_NOT_COPY_TO_AMAMZON, e, getExceptionMessage(e));
         }
     }
 

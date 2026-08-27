@@ -18,7 +18,7 @@ package com.percussion.rx.delivery.impl;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.rx.delivery.IPSDeliveryErrors;
+import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
 import com.percussion.rx.delivery.IPSDeliveryResult;
 import com.percussion.rx.delivery.IPSDeliveryResult.Outcome;
 import com.percussion.rx.delivery.PSDeliveryException;
@@ -153,7 +153,7 @@ public class PSFileDeliveryHandler extends PSBaseDeliveryHandler
          // Ensure the directory exists
          if (!directory.exists() || (!directory.isDirectory()))
          {
-            de = new PSDeliveryException(IPSDeliveryErrors.DIR_CANT_CREATE,
+            de = new PSDeliveryException(DeliveryErrorCodes.DIR_CANT_CREATE,
                   directory.getAbsolutePath());
             return getItemResult(Outcome.FAILED, item, jobId,
                   de.getLocalizedMessage());
@@ -193,14 +193,14 @@ public class PSFileDeliveryHandler extends PSBaseDeliveryHandler
       catch (SecurityException e)
       {
          de = new PSDeliveryException(
-               IPSDeliveryErrors.CREATE_DIR_W_EXCEPTION, e, directory
+               DeliveryErrorCodes.CREATE_DIR_W_EXCEPTION, e, directory
                      .getAbsolutePath(), (StringUtils.isBlank(e
                      .getLocalizedMessage()) ? e.getClass().getName() : e
                      .getLocalizedMessage()));
       }
       catch (Exception e)
       {
-         de = new PSDeliveryException(IPSDeliveryErrors.COPY_FILE_FAILED, e,
+         de = new PSDeliveryException(DeliveryErrorCodes.COPY_FILE_FAILED, e,
                item.getFile().getAbsolutePath(),
                destination.getAbsolutePath(), (StringUtils.isBlank(e
                      .getLocalizedMessage()) ? e.getClass().getName() : e

@@ -18,7 +18,7 @@ package com.percussion.rx.delivery.impl;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.rx.delivery.IPSDeliveryErrors;
+import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
 import com.percussion.rx.delivery.IPSDeliveryHandler;
 import com.percussion.rx.delivery.IPSDeliveryItem;
 import com.percussion.rx.delivery.IPSDeliveryManager;
@@ -298,7 +298,7 @@ public class PSLocalDeliveryManager implements IPSDeliveryManager
             {
                log.error("Couldn't load bean for delivery type: {}"
                      ,loc.getName());
-               throw new PSDeliveryException(IPSDeliveryErrors.CANNOT_DELIVER_NO_DELIVERYTYPE,
+               throw new PSDeliveryException(DeliveryErrorCodes.CANNOT_DELIVER_NO_DELIVERYTYPE,
                        loc.getName());
             }
             handler.init(jobId, site, server);

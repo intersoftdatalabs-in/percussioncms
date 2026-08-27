@@ -17,8 +17,9 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.rx.delivery.impl;
 
+import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
 import com.percussion.cms.IPSConstants;
-import com.percussion.rx.delivery.IPSDeliveryErrors;
+import com.percussion.error.IPSErrorCode;
 import com.percussion.rx.delivery.IPSDeliveryHandler;
 import com.percussion.rx.delivery.IPSDeliveryItem;
 import com.percussion.rx.delivery.IPSDeliveryManager;
@@ -624,7 +625,7 @@ public abstract class PSBaseDeliveryHandler implements IPSDeliveryHandler
       {
          ms_log.error(th);
 
-         return new PSDeliveryException(IPSDeliveryErrors.ABORT_FAILURE, th);
+         return new PSDeliveryException(DeliveryErrorCodes.ABORT_FAILURE, th);
       }
 
       return null;
@@ -736,7 +737,7 @@ public abstract class PSBaseDeliveryHandler implements IPSDeliveryHandler
       }
       catch (Exception e)
       {
-         return getExceptionResult(result, IPSDeliveryErrors.UNEXPECTED_ERROR, e);
+         return getExceptionResult(result, DeliveryErrorCodes.UNEXPECTED_ERROR, e);
       }
    }
 
@@ -789,7 +790,7 @@ public abstract class PSBaseDeliveryHandler implements IPSDeliveryHandler
       }
       catch (Exception e1)
       {
-         return getExceptionResult(result, IPSDeliveryErrors.UNEXPECTED_ERROR, e1);
+         return getExceptionResult(result, DeliveryErrorCodes.UNEXPECTED_ERROR, e1);
       }
 
       Item item = null;
@@ -808,7 +809,7 @@ public abstract class PSBaseDeliveryHandler implements IPSDeliveryHandler
          }
          else
          {
-            return getExceptionResult(result, IPSDeliveryErrors.UNEXPECTED_ERROR, e);
+            return getExceptionResult(result, DeliveryErrorCodes.UNEXPECTED_ERROR, e);
          }
       }
       finally
@@ -836,7 +837,7 @@ public abstract class PSBaseDeliveryHandler implements IPSDeliveryHandler
       }
       catch (PSNotFoundException e1)
       {
-         return getExceptionResult(result, IPSDeliveryErrors.UNEXPECTED_ERROR, e1);
+         return getExceptionResult(result, DeliveryErrorCodes.UNEXPECTED_ERROR, e1);
       }
       JobData data = m_jobData.get(result.getJobId());
       if (data == null)
@@ -865,7 +866,7 @@ public abstract class PSBaseDeliveryHandler implements IPSDeliveryHandler
       }
       catch (IOException ioe)
       {
-         return getExceptionResult(result, IPSDeliveryErrors.COULD_NOT_WRITE_TEMP, ioe);
+         return getExceptionResult(result, DeliveryErrorCodes.COULD_NOT_WRITE_TEMP, ioe);
       }
 
       return createDeliveryResult(result, location);
@@ -1300,6 +1301,38 @@ public abstract class PSBaseDeliveryHandler implements IPSDeliveryHandler
     */
    protected IPSDeliveryResult getExceptionResult(IPSDeliveryItem result, int errorCode, Throwable th)
    {
+      if (result == null)
+      {
+         throw new IllegalArgumentException("result may not be null");
+      }
+      if (th == null)
+      {
+         throw new IllegalArgumentException("th may not be null");
+      }
+      String message = StringUtils.isBlank(th.getLocalizedMessage()) ? th.getClass().getName() : th
+            .getLocalizedMessage();
+      ms_log.error(message, th);
+
+      PSDeliveryException e = new PSDeliveryException(errorCode, th, message);
+      return new PSDeliveryResult(Outcome.FAILED, e.getLocalizedMessage(), result.getId(), result.getJobId(),
+            result.getReferenceId(), result.getDeliveryContext(), null);
+   }
+
+   /**
+    * Typed overload of {@link #getExceptionResult(IPSDeliveryItem, int, Throwable)}
+    * that retains {@link IPSErrorCode} on the constructed {@link PSDeliveryException}.
+    *
+    * @param result the assembly result, never {@code null}
+    * @param errorCode catalogued delivery error, never {@code null}
+    * @param th the exception, never {@code null}
+    * @return the delivery result, never {@code null}
+    */
+   protected IPSDeliveryResult getExceptionResult(IPSDeliveryItem result, IPSErrorCode errorCode, Throwable th)
+   {
+      if (errorCode == null)
+      {
+         throw new IllegalArgumentException("errorCode may not be null");
+      }
       if (result == null)
       {
          throw new IllegalArgumentException("result may not be null");

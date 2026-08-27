@@ -9,6 +9,7 @@
 #   #3740 deployer server/handlers + server/dependencies
 #   #3741 DCE/ContentUI/TableFactory leftover call sites
 #   #3770 leftover nav/sfp/workflow extension modules
+#   #3860 system/business delivery leftover call sites
 #   #3859 leftover modules/utils production call sites
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
@@ -50,15 +51,6 @@ system/Testing/Extensions/src/com/percussion/extensions/testing/TestMakeInternal
 system/Testing/cms/HttpItemCopier.java
 system/Tools/RxFix/src/com/percussion/rxfix/dbfixes/PSFixNavigation.java
 system/Tools/RxFix/src/com/percussion/rxverify/modules/PSJdbcTableCheck.java
-system/business/src/com/percussion/delivery/metadata/solr/impl/PSSolrDeliveryHandler.java
-system/business/src/com/percussion/rx/delivery/PSConnectivityCheck.java
-system/business/src/com/percussion/rx/delivery/impl/PSAmazonS3DeliveryHandler.java
-system/business/src/com/percussion/rx/delivery/impl/PSBaseDeliveryHandler.java
-system/business/src/com/percussion/rx/delivery/impl/PSBaseFtpDeliveryHandler.java
-system/business/src/com/percussion/rx/delivery/impl/PSFileDeliveryHandler.java
-system/business/src/com/percussion/rx/delivery/impl/PSFtpsDeliveryHandler.java
-system/business/src/com/percussion/rx/delivery/impl/PSLocalDeliveryManager.java
-system/business/src/com/percussion/rx/design/impl/PSRelationshipConfigModel.java
 system/src/main/java/com/percussion/cms/PSApplicationBuilder.java
 system/src/main/java/com/percussion/cms/PSChoiceBuilder.java
 system/src/main/java/com/percussion/cms/PSCompleteChildDocumentBuilder.java

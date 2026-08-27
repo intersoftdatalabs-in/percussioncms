@@ -20,6 +20,7 @@
 package com.percussion.rx.delivery;
 
 
+import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
 import com.percussion.rx.delivery.impl.PSBaseFtpDeliveryHandler;
 import com.percussion.rx.publisher.impl.PSPublishingJob;
 import com.percussion.services.PSBaseServiceLocator;
@@ -59,7 +60,7 @@ public class PSConnectivityCheck
       }
       catch (PSDeliveryException e)
       {
-         if(e.getErrorCode() == IPSDeliveryErrors.UNEXPECTED_ERROR)
+         if(e.getErrorCode() == DeliveryErrorCodes.UNEXPECTED_ERROR.numericCode())
             throw new IllegalStateException("Error initializing delivery handler.", e);
          throw new IllegalStateException("Cannot connect to target FTP Server: " + edition, e);
       }
