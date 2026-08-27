@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Lock, enable or disable, save allowed workflows, templates, item-level exits, and control property values, and unlock a content type from Developer detail chrome
+description: Lock, enable or disable, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -11,12 +11,15 @@ tags: [admin, developer, content-types]
 
 **Developer → Content types** lists design content types and opens a detail panel
 for fields, allowed workflows, allowed templates, **item-level exits**, **control property values**,
-and Object ACL. Design edits use an explicit **design-session lock** so two
+**field-rule expressions**, and Object ACL. Design edits use an explicit **design-session lock** so two
 Admins cannot overwrite the same type at once.
 
-This is **not** the full Workbench field-rule editor. Field validation /
-visibility / transform **expressions** stay summary-only on the detail table.
-Integrators write them with REST
+This is **not** the full Workbench field-rule editor. The detail table still
+shows rule **flags** (validation / visibility / transforms present). After
+**Lock**, **Field rule expressions** lets you edit validation, visibility,
+input translation, and output translation **text** (one expression per line)
+and save with the same **Save content type** control. Integrators can also
+call REST
 `GET`/`PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions`
 (held design lock for PUT). Item-level pre/post exits and validations (CD-09)
 are edited from this detail chrome after **Lock** (see below), or via
@@ -93,7 +96,6 @@ the lock (including while the type is still loading). After **Lock**:
 
 This is not the full Workbench template picker.
 
-
 ### Item-level exits (after lock)
 
 The **Item-level exits** lists (input translations, output translations,
@@ -138,6 +140,33 @@ This is not the full Workbench Properties tab. Choice catalogs show as
 read-only (type only). Choice filter, null-entry, and default-selected are
 not written.
 
+### Field rule expressions (after lock)
+
+The **Field rule expressions** section lists the type's fields. Choose a field
+to load its current validation, visibility, input translation, and output
+translation expressions. The text areas are **read-only** until you hold the
+lock.
+
+1. Click **Lock**. Status becomes **Locked by you**.
+2. Select a field. Each list is one expression per line:
+   * Validation / visibility **conditionals**: `variable operator value` (for
+     example `sys_title <> ""`). Operator `!=` is stored as `<>`.
+   * Extension call: `ext:Java/global/percussion/generic/sys_ToUpperCase`
+     (optional literal parameter after `|`).
+   * Named validation rule: `ref:ruleName` (validation only; visibility
+     rejects `ref:`).
+   * Input / output translation: one extension FQN per line, optional
+     `| parameter`.
+3. Click **Save content type**. The product replaces that field's four lists
+   (`PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions`).
+   Empty text clears that list. Save does **not** unlock. A following GET of
+   the same path reflects the new expressions.
+4. Without a lock, the text areas and Save stay **disabled**. The product does
+   **not** steal another user's lock (lock failure is **409**).
+
+This is expression **text**, not the Workbench visual rule builder. Apply-when
+conditions on field validation are not written.
+
 Locks expire after **30 minutes**. If Save fails because the lock expired,
 click **Lock** again and retry.
 
@@ -172,11 +201,12 @@ The chrome calls:
 | Confirm item-level exits | `GET /services/contenttypes/{idOrName}/itemExits` |
 | Load field control properties | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` (CD-07; no lock) |
 | Save field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` (held lock; full replace of values; does not send `choices`) |
+| Load field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` |
+| Save field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` (held lock; full replace of validation, visibility, inputTranslation, outputTranslation) |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |
 
 Integrator notes: [REST API — Content types](id:developer-rest). Object ACL on
 the same detail panel: [Object ACL & default template](id:admin-object-acl).
 
-Field **rule expressions** are not edited in this chrome. Integrators use
-`GET` / `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions`
-(held design lock for PUT). See [REST API — Content types](id:developer-rest).
+See [REST API — Content types](id:developer-rest) for the dedicated
+`itemExits`, `controlProperties`, and `ruleExpressions` surfaces.

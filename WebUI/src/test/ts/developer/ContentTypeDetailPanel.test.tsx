@@ -7,6 +7,7 @@ import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as contentTypesApi from "../../../main/ts/api/developer/contentTypesApi";
+import * as fieldRulesApi from "../../../main/ts/api/developer/contentTypeFieldRules";
 import { catalogColors } from "../../../main/ts/developer/catalogStyles";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { ContentTypeDetailPanel } from "../../../main/ts/developer/ContentTypeDetailPanel";
@@ -25,6 +26,16 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
   getContentTypeItemExits: vi.fn(),
   replaceContentTypeItemExits: vi.fn(),
 }));
+
+vi.mock("../../../main/ts/api/developer/contentTypeFieldRules", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/contentTypeFieldRules")>();
+  return {
+    ...actual,
+    getContentTypeFieldRuleExpressions: vi.fn(),
+    replaceContentTypeFieldRuleExpressions: vi.fn(),
+  };
+});
 
 // ObjectAclSection loads ACL via separate API; stub so detail success path stays isolated.
 vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
@@ -63,6 +74,10 @@ const replaceFieldControlProperties =
 const getContentTypeItemExits = contentTypesApi.getContentTypeItemExits as ReturnType<typeof vi.fn>;
 const replaceContentTypeItemExits =
   contentTypesApi.replaceContentTypeItemExits as ReturnType<typeof vi.fn>;
+const getContentTypeFieldRuleExpressions =
+  fieldRulesApi.getContentTypeFieldRuleExpressions as ReturnType<typeof vi.fn>;
+const replaceContentTypeFieldRuleExpressions =
+  fieldRulesApi.replaceContentTypeFieldRuleExpressions as ReturnType<typeof vi.fn>;
 
 const emptyItemExits = {
   inputTranslations: [] as Array<{ extension?: string; parameters?: Array<{ value?: string }> }>,
@@ -103,6 +118,8 @@ describe("ContentTypeDetailPanel", () => {
     replaceFieldControlProperties.mockReset();
     getContentTypeItemExits.mockReset();
     replaceContentTypeItemExits.mockReset();
+    getContentTypeFieldRuleExpressions.mockReset();
+    replaceContentTypeFieldRuleExpressions.mockReset();
     lockContentType.mockResolvedValue({ locker: "Admin", remainingTime: 30 });
     unlockContentType.mockResolvedValue(undefined);
     updateContentTypeDetail.mockImplementation(async (_id, body) => ({
@@ -126,6 +143,20 @@ describe("ContentTypeDetailPanel", () => {
     }));
     getContentTypeItemExits.mockResolvedValue({ ...emptyItemExits });
     replaceContentTypeItemExits.mockImplementation(async (_id, body) => body);
+    getContentTypeFieldRuleExpressions.mockResolvedValue({
+      fieldName: "sys_title",
+      validation: [],
+      visibility: [],
+      inputTranslation: [],
+      outputTranslation: [],
+    });
+    replaceContentTypeFieldRuleExpressions.mockImplementation(async (_id, fieldName, body) => ({
+      fieldName,
+      validation: body.validation ?? [],
+      visibility: body.visibility ?? [],
+      inputTranslation: body.inputTranslation ?? [],
+      outputTranslation: body.outputTranslation ?? [],
+    }));
   });
 
   it("renders lock toolbar while detail is loading so workflow lock is findable (#3835)", async () => {
@@ -1404,6 +1435,98 @@ describe("ContentTypeDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
     expect((screen.getByTestId("developer-ct-ie-in-add-fqn") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+  });
+
+  const sampleWithField = {
+    ...sampleDetail,
+    fields: [{ name: "sys_title", label: "Title", fieldType: "system" }],
+  };
+
+  it("keeps field-rule expression editors disabled until lock (#3896)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleWithField);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-field-rule-expressions")).toBeTruthy();
+    });
+    await waitFor(() => {
+      expect(getContentTypeFieldRuleExpressions).toHaveBeenCalledWith("percPage", "sys_title");
+    });
+    const validation = screen.getByTestId("developer-ct-fr-validation") as HTMLTextAreaElement;
+    expect(validation.disabled).toBe(true);
+    fireEvent.change(validation, { target: { value: 'sys_title <> "#nope"' } });
+    expect(validation.value).toBe("");
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+    expect(replaceContentTypeFieldRuleExpressions).not.toHaveBeenCalled();
+  });
+
+  it("saves field-rule expressions via dedicated PUT after lock (#3896)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleWithField);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(getContentTypeFieldRuleExpressions).toHaveBeenCalledWith("percPage", "sys_title");
+    });
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-fr-validation") as HTMLTextAreaElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-fr-validation"), {
+      target: { value: 'sys_title <> "#3896-field-rule"' },
+    });
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(replaceContentTypeFieldRuleExpressions).toHaveBeenCalled();
+    });
+    const call = replaceContentTypeFieldRuleExpressions.mock.calls.at(-1);
+    expect(call?.[0]).toBe("percPage");
+    expect(call?.[1]).toBe("sys_title");
+    expect(call?.[2].validation?.[0].conditionals?.[0].value).toBe("#3896-field-rule");
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(unlockContentType).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+  });
+
+  it("clears the held lock when field-rule PUT returns 409 (#3896)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleWithField);
+    replaceContentTypeFieldRuleExpressions.mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Locked by another user" },
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-fr-validation") as HTMLTextAreaElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-fr-validation"), {
+      target: { value: 'sys_title <> "#3896"' },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-fr-error").textContent).toMatch(
+        /Could not save field rule expressions/i,
+      );
+    });
+    expect(screen.getByTestId("developer-ct-detail-error").textContent).toMatch(
+      /Could not save content type/i,
+    );
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+    expect((screen.getByTestId("developer-ct-fr-validation") as HTMLTextAreaElement).disabled).toBe(
       true,
     );
   });
