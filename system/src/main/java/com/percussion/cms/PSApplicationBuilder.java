@@ -68,7 +68,7 @@ import com.percussion.design.objectstore.PSUserContext;
 import com.percussion.design.objectstore.PSWhereClause;
 import com.percussion.design.objectstore.server.PSServerXmlObjectStore;
 import com.percussion.extension.PSExtensionRef;
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSServer;
 import com.percussion.system.utils.IPSHtmlParameters;
@@ -486,7 +486,7 @@ public class PSApplicationBuilder {
 
         if (mapperFieldSet == null) {
           throw new PSSystemValidationException(
-              IPSServerErrors.CE_MISSING_FIELDSET, mapperFieldSetRef);
+              ServerErrorCodes.CE_MISSING_FIELDSET, mapperFieldSetRef);
         }
 
         /* Walk the display mappings - this will drive the contents of the
@@ -506,7 +506,7 @@ public class PSApplicationBuilder {
               if (null != mapping.getUISet().getLabel())
                 label = mapping.getUISet().getLabel().getText();
               String[] args = {fieldRef, label};
-              throw new PSSystemValidationException(IPSServerErrors.CE_MISSING_FIELD, args);
+              throw new PSSystemValidationException(ServerErrorCodes.CE_MISSING_FIELD, args);
             }
           }
 
@@ -795,7 +795,7 @@ public class PSApplicationBuilder {
 
       if (null == fieldSet) {
         throw new PSSystemValidationException(
-            IPSServerErrors.CE_MISSING_FIELDSET, dispMapper.getFieldSetRef());
+            ServerErrorCodes.CE_MISSING_FIELDSET, dispMapper.getFieldSetRef());
       }
 
       PSBackEndTable systemTable = null;
@@ -853,7 +853,7 @@ public class PSApplicationBuilder {
             String[] args = {
               fieldRef, mappingLabel,
             };
-            throw new PSSystemValidationException(IPSServerErrors.CE_MISSING_FIELD, args);
+            throw new PSSystemValidationException(ServerErrorCodes.CE_MISSING_FIELD, args);
           }
           sdmpField = true;
         }
@@ -887,7 +887,7 @@ public class PSApplicationBuilder {
                     fieldSet.getName(), systemTable.getAlias(), col.getTable().getAlias()
                   };
                   throw new PSSystemValidationException(
-                      IPSServerErrors.CE_MULTIPLE_TABLES_NOT_SUPPORTED, args);
+                      ServerErrorCodes.CE_MULTIPLE_TABLES_NOT_SUPPORTED, args);
                 }
               } else systemTable = col.getTable();
               break;
@@ -900,7 +900,7 @@ public class PSApplicationBuilder {
                       fieldSet.getName(), localTable.getAlias(), col.getTable().getAlias()
                     };
                     throw new PSSystemValidationException(
-                        IPSServerErrors.CE_MULTIPLE_TABLES_NOT_SUPPORTED, args);
+                        ServerErrorCodes.CE_MULTIPLE_TABLES_NOT_SUPPORTED, args);
                   }
                 } else localTable = col.getTable();
               } else {
@@ -923,7 +923,7 @@ public class PSApplicationBuilder {
         String alias = systemTable.getAlias();
         systemTable = (PSBackEndTable) tableMap.get(alias.toLowerCase());
         if (null == systemTable) {
-          throw new PSSystemValidationException(IPSServerErrors.CE_MISSING_TABLE, alias);
+          throw new PSSystemValidationException(ServerErrorCodes.CE_MISSING_TABLE, alias);
         }
         tables.add(systemTable);
       }
@@ -932,13 +932,13 @@ public class PSApplicationBuilder {
         String alias = localTable.getAlias();
         localTable = (PSBackEndTable) tableMap.get(alias.toLowerCase());
         if (null == localTable) {
-          throw new PSSystemValidationException(IPSServerErrors.CE_MISSING_TABLE, alias);
+          throw new PSSystemValidationException(ServerErrorCodes.CE_MISSING_TABLE, alias);
         }
         tables.add(localTable);
       } else {
         // we have to have at least 1 mapping for main table
         throw new PSSystemValidationException(
-            IPSServerErrors.CE_MISSING_MAPPINGS, dispMapper.getFieldSetRef());
+            ServerErrorCodes.CE_MISSING_MAPPINGS, dispMapper.getFieldSetRef());
       }
 
       if (!sdmpTables.isEmpty()) {

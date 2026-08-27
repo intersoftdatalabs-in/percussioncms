@@ -16,6 +16,7 @@
  */
 package com.percussion.data;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -92,5 +93,66 @@ public class PSDataExtractionException extends PSException {
    */
   public PSDataExtractionException(String language, int msgCode) {
     super(language, msgCode);
+  }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message
+   */
+  public PSDataExtractionException(IPSErrorCode code, Object singleArg) {
+    super(code, singleArg);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSDataExtractionException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSDataExtractionException(IPSErrorCode code) {
+    super(code);
+  }
+
+  /**
+   * Typed construction with a locale and a single message argument.
+   *
+   * @param language language string to use while looking up the message text
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message
+   */
+  public PSDataExtractionException(String language, IPSErrorCode code, Object singleArg) {
+    super(language, code, singleArg);
+  }
+
+  /**
+   * Typed construction with a locale and message arguments.
+   *
+   * @param language language string to use while looking up the message text
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSDataExtractionException(String language, IPSErrorCode code, Object[] arrayArgs) {
+    super(language, code, arrayArgs);
+  }
+
+  /**
+   * Typed construction with a locale and no message arguments.
+   *
+   * @param language language string to use while looking up the message text
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSDataExtractionException(String language, IPSErrorCode code) {
+    super(language, code, (Object[]) null);
   }
 }

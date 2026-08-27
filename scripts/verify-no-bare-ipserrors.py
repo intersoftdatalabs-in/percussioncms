@@ -19,7 +19,8 @@ Allow-list classes
 3. **Documented residual production call-sites** — exact paths in
    ``scripts/ipserrors-residual-allowlist.txt``. Prefer exact files so a
    **new** file under the same tree fails until it is listed with an issue
-   link. Shrink as retypes merge (#3585/#3861 webservices, #3739/#3740 deployer).
+   link. Shrink as retypes merge (#3585/#3861 webservices, #3739/#3740 deployer,
+   #3882 cms builders).
 
 ``IPSObjectStoreErrors`` is **excluded** (sibling #3143 gate). Tests and
 comment/javadoc-only mentions are ignored.
@@ -302,7 +303,7 @@ def _print_allowlist(residual_allow: frozenset[str]) -> None:
         print(f"  {name}  (scripts/verify-no-bare-ipsobjectstoreerrors.py #3143)")
     print("== Residual production allow-list exact (shrink as retypes land) ==")
     print(f"  file: scripts/ipserrors-residual-allowlist.txt ({len(residual_allow)} paths)")
-    print("  siblings: #3585/#3861 webservices, #3739/#3740 deployer")
+    print("  siblings: #3585/#3861 webservices, #3739/#3740 deployer, #3882 cms builders")
     for path in sorted(residual_allow):
         print(f"  {path}")
     print("== Script self-allow ==")
@@ -355,7 +356,7 @@ def main(argv: list[str] | None = None) -> int:
             "isAuditable. To document an intentional residual, add the "
             "exact path to scripts/ipserrors-residual-allowlist.txt with an "
             "issue link (#3586 / parent #2616 / SiteManage #3584 / "
-            "webservices #3585/#3861). Do not add directory prefixes.",
+            "webservices #3585/#3861 / cms builders #3882). Do not add directory prefixes.",
             file=sys.stderr,
         )
         print("verify-no-bare-ipserrors: FAIL", file=sys.stderr)

@@ -34,7 +34,7 @@ import com.percussion.design.objectstore.PSUISet;
 import com.percussion.design.objectstore.PSVisibilityRules;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.util.PSMapPair;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -100,7 +100,7 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
 
       if (null == ui.getChoices()) {
         throw new PSSystemValidationException(
-            IPSServerErrors.CE_MISSING_CHOICESET, fieldSet.getName());
+            ServerErrorCodes.CE_MISSING_CHOICESET, fieldSet.getName());
       }
 
       initField(field, ui, PSDisplayFieldElementBuilder.DIMENSION_ARRAY, parentBuilder);
@@ -125,13 +125,13 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
 
     if (null != ui.getChoices()) {
       throw new PSSystemValidationException(
-          IPSServerErrors.CE_CHOICESET_NOT_SUPPORTED, fieldSet.getName());
+          ServerErrorCodes.CE_CHOICESET_NOT_SUPPORTED, fieldSet.getName());
     }
 
     m_controlName = ui.getControl().getName();
     if (null == m_controlName || m_controlName.trim().length() == 0) {
       throw new PSSystemValidationException(
-          IPSServerErrors.CE_MISSING_CONTROL_NAME, fieldSet.getName());
+          ServerErrorCodes.CE_MISSING_CONTROL_NAME, fieldSet.getName());
     }
     m_dimension = PSDisplayFieldElementBuilder.DIMENSION_TABLE;
     m_isRequired = false;
@@ -183,11 +183,11 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
     m_choices = ui.getChoices();
     if (ui.getControl() == null)
       throw new PSSystemValidationException(
-          IPSServerErrors.CE_MISSING_CONTROL, field.getSubmitName());
+          ServerErrorCodes.CE_MISSING_CONTROL, field.getSubmitName());
     m_controlName = ui.getControl().getName();
     if (null == m_controlName || m_controlName.trim().length() == 0)
       throw new PSSystemValidationException(
-          IPSServerErrors.CE_MISSING_CONTROL_NAME, field.getSubmitName());
+          ServerErrorCodes.CE_MISSING_CONTROL_NAME, field.getSubmitName());
     m_dataType = getDataTypeText(field.getType());
     m_fieldValueTypeText = field.getFieldValueTypeText();
     m_dimension = dataDimension;

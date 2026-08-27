@@ -38,7 +38,7 @@ import com.percussion.design.objectstore.PSUISet;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.i18n.PSI18nUtils;
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.server.PSServer;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSMapPair;
@@ -106,7 +106,7 @@ public class PSTableValueBuilder extends PSDisplayFieldBuilder {
     Iterator mappings = mapper.iterator();
     if (!mappings.hasNext()) {
       throw new PSSystemValidationException(
-          IPSServerErrors.CE_MISSING_MAPPINGS, fieldSet.getName());
+          ServerErrorCodes.CE_MISSING_MAPPINGS, fieldSet.getName());
     }
     m_showAllFields = showAllFields;
     m_fieldSetName = fieldSet.getName();
@@ -137,7 +137,7 @@ public class PSTableValueBuilder extends PSDisplayFieldBuilder {
         String[] params = {
           fieldRef, label,
         };
-        throw new PSSystemValidationException(IPSServerErrors.CE_MISSING_FIELD, params);
+        throw new PSSystemValidationException(ServerErrorCodes.CE_MISSING_FIELD, params);
       }
 
       if (!(o instanceof PSField)) continue;
@@ -151,7 +151,7 @@ public class PSTableValueBuilder extends PSDisplayFieldBuilder {
       IPSBackEndMapping locator = field.getLocator();
       if (!(locator instanceof IPSReplacementValue)) {
         throw new PSSystemValidationException(
-            IPSServerErrors.CE_UNSUPPORTED_MAPPING_TYPE, field.getSubmitName());
+            ServerErrorCodes.CE_UNSUPPORTED_MAPPING_TYPE, field.getSubmitName());
       }
 
       if (null == column && locator instanceof PSBackEndColumn) column = (PSBackEndColumn) locator;
@@ -194,7 +194,7 @@ public class PSTableValueBuilder extends PSDisplayFieldBuilder {
     }
 
     if (null == column) {
-      throw new PSSystemValidationException(IPSServerErrors.CE_BACKEND_COL_REQUIRED);
+      throw new PSSystemValidationException(ServerErrorCodes.CE_BACKEND_COL_REQUIRED);
     }
 
     // add an extractor for the primary key
@@ -264,7 +264,7 @@ public class PSTableValueBuilder extends PSDisplayFieldBuilder {
           data.saveResultSetContext();
           if (null == data.getNextResultSet()) {
             throw new PSDataExtractionException(
-                IPSServerErrors.CE_MISSING_RESULTSET, m_fieldSetName);
+                ServerErrorCodes.CE_MISSING_RESULTSET, m_fieldSetName);
           }
 
           Element rowSetElem = doc.createElement(ROWSET_NAME);
@@ -276,7 +276,7 @@ public class PSTableValueBuilder extends PSDisplayFieldBuilder {
             Object rowId = extractor.extract(data);
             if (null == rowId) {
               throw new PSDataExtractionException(
-                  IPSServerErrors.CE_MISSING_RESULTSET, m_fieldSetName);
+                  ServerErrorCodes.CE_MISSING_RESULTSET, m_fieldSetName);
             }
             Element rowElem = doc.createElement(ROW_NAME);
             rowElem.setAttribute(PSEditorDocumentBuilder.CHILDKEY_ATTRIB, rowId.toString());
@@ -330,7 +330,7 @@ public class PSTableValueBuilder extends PSDisplayFieldBuilder {
         buf.append(next.getLocalizedMessage());
         next = next.getNextException();
       }
-      throw new PSDataExtractionException(IPSServerErrors.CE_SQL_ERRORS, buf.toString());
+      throw new PSDataExtractionException(ServerErrorCodes.CE_SQL_ERRORS, buf.toString());
     }
   }
 
