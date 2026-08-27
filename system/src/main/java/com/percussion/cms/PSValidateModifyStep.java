@@ -28,7 +28,7 @@ import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.server.PSRequest;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -136,12 +136,12 @@ public class PSValidateModifyStep extends PSModifyStep {
       }
 
       Object[] args = {getName(), errorText};
-      throw new PSSystemValidationException(IPSServerErrors.CE_MODIFY_VALIDATION_EXCEPTION, args);
+      throw new PSSystemValidationException(ServerErrorCodes.CE_MODIFY_VALIDATION_EXCEPTION, args);
     } catch (PSSystemValidationException e) {
       throw e;
     } catch (Exception e) {
       Object[] args = {getName(), e.toString()};
-      throw new PSSystemValidationException(IPSServerErrors.CE_MODIFY_VALIDATION_EXCEPTION, args);
+      throw new PSSystemValidationException(ServerErrorCodes.CE_MODIFY_VALIDATION_EXCEPTION, args);
     } finally {
       try {
         if (resultSet != null) resultSet.close();
@@ -204,24 +204,24 @@ public class PSValidateModifyStep extends PSModifyStep {
 
             if (resultVal.trim().equals("-1"))
               throw new PSSystemValidationException(
-                  IPSServerErrors.CE_MODIFY_VALIDATION_FAIL_NOT_CHECKOUT);
+                  ServerErrorCodes.CE_MODIFY_VALIDATION_FAIL_NOT_CHECKOUT);
             else
               throw new PSSystemValidationException(
-                  IPSServerErrors.CE_MODIFY_VALIDATION_FAIL_OLD_EDITREVISION);
+                  ServerErrorCodes.CE_MODIFY_VALIDATION_FAIL_OLD_EDITREVISION);
 
           } else {
             Object[] args = {
               colName, colValue == null ? "null" : colValue, resultVal == null ? "null" : resultVal
             };
 
-            throw new PSSystemValidationException(IPSServerErrors.CE_MODIFY_VALIDATION_FAIL, args);
+            throw new PSSystemValidationException(ServerErrorCodes.CE_MODIFY_VALIDATION_FAIL, args);
           }
         }
       }
     }
     if (!hasRows) {
       Object[] args = {getName(), validations[0][0]};
-      throw new PSSystemValidationException(IPSServerErrors.CE_MODIFY_VALIDATION_FAIL, args);
+      throw new PSSystemValidationException(ServerErrorCodes.CE_MODIFY_VALIDATION_FAIL, args);
     }
   }
 

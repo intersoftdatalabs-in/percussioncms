@@ -16,7 +16,7 @@
  */
 package com.percussion.cms.objectstore;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.PSContentEditorMapper;
 import com.percussion.design.objectstore.PSContentEditorPipe;
@@ -224,7 +224,8 @@ public class PSItemDefExtractor implements IPSVisitor {
     PSContentEditorPipe cePipe =
         (PSContentEditorPipe) m_itemDefinition.getContentEditor().getPipe();
 
-    if (cePipe == null) throw new PSCmsException(IPSCmsErrors.DATA_EXTRACTION_ERROR_NULL_DATAPIPE);
+    if (cePipe == null)
+      throw new PSCmsException(CmsErrorCodes.DATA_EXTRACTION_ERROR_NULL_DATAPIPE);
 
     // get Mapper:
     PSContentEditorMapper ceMapper = cePipe.getMapper();

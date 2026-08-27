@@ -26,7 +26,7 @@ import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import java.util.Collections;
 import java.util.Iterator;
 import org.w3c.dom.Document;
@@ -70,7 +70,7 @@ public class PSCompleteChildDocumentBuilder extends PSEditorDocumentBuilder {
             .getFieldSet(mapping.getDisplayMapper().getFieldSetRef());
     if (null == fields)
       throw new PSNotFoundException(
-          IPSServerErrors.CE_MISSING_FIELDSET, mapping.getDisplayMapper().getFieldSetRef());
+          ServerErrorCodes.CE_MISSING_FIELDSET, mapping.getDisplayMapper().getFieldSetRef());
 
     addBuildStep(
         new PSTableValueBuilder(

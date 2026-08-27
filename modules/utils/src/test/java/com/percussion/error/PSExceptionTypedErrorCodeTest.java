@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.data.PSDataExtractionException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.junit.jupiter.api.Test;
 
@@ -204,5 +205,59 @@ class PSExceptionTypedErrorCodeTest {
     assertEquals(2011, ex.getErrorCode());
     assertSame(SAMPLE, ex.getTypedErrorCode());
     assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  void languageTypedCtorRetainsCodeAndLanguage() {
+    PSException ex = new PSException("en-us", SAMPLE, "sys_Lookup");
+    assertEquals(2011, ex.getErrorCode());
+    assertSame(SAMPLE, ex.getTypedErrorCode());
+    assertEquals("en-us", ex.getLanguageString());
+    assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  void languageTypedCtorRejectsNullCode() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new PSException("en-us", (IPSErrorCode) null, "arg"));
+  }
+
+  @Test
+  void dataExtractionTypedCtorsRetainCodeAndSkipDualWrite() {
+    PSDataExtractionException single =
+        new PSDataExtractionException(SAMPLE, "sys_Lookup");
+    assertSame(SAMPLE, single.getTypedErrorCode());
+    assertEquals(2011, single.getErrorCode());
+    assertFalse(single.isAuditable());
+
+    PSDataExtractionException lang =
+        new PSDataExtractionException("fr-fr", SAMPLE, new Object[] {"href", "q", "a"});
+    assertSame(SAMPLE, lang.getTypedErrorCode());
+    assertEquals("fr-fr", lang.getLanguageString());
+    assertFalse(lang.isAuditable());
+
+    assertThrows(
+        IllegalArgumentException.class, () -> new PSDataExtractionException((IPSErrorCode) null));
+  }
+
+  @Test
+  void dataExtractionExceptionTypedCtors() {
+    PSDataExtractionException noArgs = new PSDataExtractionException(SAMPLE);
+    assertEquals(2011, noArgs.getErrorCode());
+    assertSame(SAMPLE, noArgs.getTypedErrorCode());
+    assertFalse(noArgs.isAuditable());
+
+    PSDataExtractionException single = new PSDataExtractionException(SAMPLE, "redirect");
+    assertSame(SAMPLE, single.getTypedErrorCode());
+    assertEquals("redirect", single.getErrorArguments()[0]);
+
+    Object[] args = {"field", "transform"};
+    PSDataExtractionException array = new PSDataExtractionException(SAMPLE, args);
+    assertSame(SAMPLE, array.getTypedErrorCode());
+    assertEquals(args, array.getErrorArguments());
+
+    assertThrows(
+        IllegalArgumentException.class, () -> new PSDataExtractionException((IPSErrorCode) null));
   }
 }

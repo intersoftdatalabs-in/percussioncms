@@ -17,10 +17,11 @@
 
 package com.percussion.cms.handlers;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.cms.objectstore.server.PSRelationshipDbProcessor;
-import com.percussion.data.IPSDataErrors;
 import com.percussion.data.IPSInternalRequestHandler;
 import com.percussion.data.PSExecutionData;
 import com.percussion.data.PSInternalRequestCallException;
@@ -37,7 +38,6 @@ import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSRequest;
@@ -138,7 +138,7 @@ public class PSCloneCommandHandler extends PSCommandHandler {
         errorCode = e.getErrorCode();
         errorArgs = e.getErrorArguments();
       } else {
-        errorCode = IPSServerErrors.RAW_DUMP;
+        errorCode = ServerErrorCodes.RAW_DUMP.numericCode();
         errorArgs = new Object[] {getExceptionText(t)};
       }
 
@@ -202,10 +202,10 @@ public class PSCloneCommandHandler extends PSCommandHandler {
     strRevisionId = request.getParameter(m_revisionIdParamName);
     if (strContentId == null) {
       Object[] args = {m_contentIdParamName, "null"};
-      throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+      throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
     } else if (strRevisionId == null) {
       Object[] args = {m_revisionIdParamName, "null"};
-      throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+      throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
     }
 
     int contentId;
@@ -214,14 +214,14 @@ public class PSCloneCommandHandler extends PSCommandHandler {
       contentId = Integer.parseInt(strContentId);
     } catch (NumberFormatException e) {
       Object[] args = {m_contentIdParamName, strContentId};
-      throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+      throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
     }
 
     try {
       revisionId = Integer.parseInt(strRevisionId);
     } catch (NumberFormatException e) {
       Object[] args = {m_revisionIdParamName, strRevisionId};
-      throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+      throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
     }
 
     // create new ids
@@ -273,7 +273,7 @@ public class PSCloneCommandHandler extends PSCommandHandler {
       throw new PSInternalRequestCallException(e.getErrorCode(), e.getErrorArguments());
     } catch (Exception e) {
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e));
+          DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e));
     } finally {
       if (execData != null) execData.release();
     }

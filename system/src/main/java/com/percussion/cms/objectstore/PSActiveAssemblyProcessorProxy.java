@@ -16,7 +16,8 @@
  */
 package com.percussion.cms.objectstore;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.server.PSAuthTypes;
 import com.percussion.cms.objectstore.server.PSRelationshipProcessor;
@@ -30,7 +31,6 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
 import com.percussion.services.assembly.IPSAssemblyService;
@@ -211,7 +211,7 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
       }
       if (variantid == -1) {
         String[] args = {"" + rel.getId(), variantstr};
-        throw new PSCmsException(IPSCmsErrors.INVALID_AA_RELATIONSHIP, args);
+        throw new PSCmsException(CmsErrorCodes.INVALID_AA_RELATIONSHIP, args);
       }
       IPSAssemblyService assembly = PSAssemblyServiceLocator.getAssemblyService();
       PSContentTypeTemplate variant = null;
@@ -219,7 +219,7 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
         variant = new PSContentTypeTemplate(assembly.loadUnmodifiableTemplate(variantstr));
       } catch (PSAssemblyException e) {
         String[] args = {"" + variantid};
-        throw new PSCmsException(IPSCmsErrors.VARIANT_LOOKUP_FAILED, args);
+        throw new PSCmsException(CmsErrorCodes.VARIANT_LOOKUP_FAILED, args);
       }
       aaRels.add(new PSAaRelationship((PSRelationship) rel, slot, variant));
     }
@@ -548,7 +548,7 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
         aaRel.getConfig().getCategory(),
         PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY
       };
-      throw new PSCmsException(IPSCmsErrors.INVALID_AA_RELATIONSHIP_TYPE, args);
+      throw new PSCmsException(CmsErrorCodes.INVALID_AA_RELATIONSHIP_TYPE, args);
     }
     PSSlotType slot = null;
     PSContentTypeTemplate variant = null;
@@ -557,7 +557,7 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
     PSSlotTypeContentTypeVariantSet slotVariants = slot.getSlotVariants();
     if (!slotVariants.isVariantAllowed(variant)) {
       String[] args = {"" + aaRel.getId(), "" + slot.getSlotId(), "" + variant.getVariantId()};
-      throw new PSCmsException(IPSCmsErrors.INVALID_AA_RELATIONSHIP_SLOT_VARIANT, args);
+      throw new PSCmsException(CmsErrorCodes.INVALID_AA_RELATIONSHIP_SLOT_VARIANT, args);
     }
   }
 
@@ -580,7 +580,7 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
     String resource = PSAuthTypes.getInstance().getResourceForAuthtype("" + authType);
     if (resource == null || resource.length() == 0) {
       String[] args = {"" + authType, PSAuthTypes.getInstance().getConfigFile().getAbsolutePath()};
-      throw new PSCmsException(IPSCmsErrors.INVALID_AUTHTYPE, args);
+      throw new PSCmsException(CmsErrorCodes.INVALID_AUTHTYPE, args);
     }
     IPSRequestContext cxt = null;
     if (m_context instanceof PSRequest) {
@@ -590,7 +590,7 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
     }
     if (cxt == null) {
       String[] args = {};
-      throw new PSCmsException(IPSCmsErrors.INVALID_CONTEXT_FOR_AA_PROXY, args);
+      throw new PSCmsException(CmsErrorCodes.INVALID_CONTEXT_FOR_AA_PROXY, args);
     }
     List<String> result = new ArrayList<>();
 
@@ -600,7 +600,7 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
     IPSInternalRequest ir = cxt.getInternalRequest(resource, params, true);
     if (ir == null) {
       Object[] args = {resource, "No request handler found."};
-      throw new PSNotFoundException(IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+      throw new PSNotFoundException(ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
     }
     try {
       Document doc = ir.getResultDoc();

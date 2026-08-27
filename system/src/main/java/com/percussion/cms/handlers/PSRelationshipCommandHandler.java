@@ -17,7 +17,9 @@
 
 package com.percussion.cms.handlers;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSRelationshipChangeListener;
 import com.percussion.cms.PSApplicationBuilder;
 import com.percussion.cms.PSCmsException;
@@ -26,7 +28,6 @@ import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.cms.objectstore.server.PSRelationshipDbProcessor;
 import com.percussion.cms.objectstore.server.PSRelationshipProcessor;
-import com.percussion.data.IPSDataErrors;
 import com.percussion.data.IPSDataExtractor;
 import com.percussion.data.PSDataExtractionException;
 import com.percussion.data.PSDataExtractorFactory;
@@ -63,7 +64,6 @@ import com.percussion.relationship.PSCloneAlreadyExistsException;
 import com.percussion.relationship.PSCloneLocator;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSRequest;
@@ -170,7 +170,7 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
       PSRelationshipConfig config = ms_configs.getConfig(relationshipType);
       if (config == null) {
         throw new PSServerConfigException(
-            IPSServerErrors.UNKNOWN_RELATIONSHIP_CONFIGURATION, relationshipType);
+            ServerErrorCodes.UNKNOWN_RELATIONSHIP_CONFIGURATION, relationshipType);
       }
 
       PSRelationshipDbProcessor processor = PSRelationshipDbProcessor.getInstance();
@@ -230,7 +230,7 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
         errorCode = e.getErrorCode();
         errorArgs = e.getErrorArguments();
       } else {
-        errorCode = IPSServerErrors.RAW_DUMP;
+        errorCode = ServerErrorCodes.RAW_DUMP.numericCode();
         errorArgs = new Object[] {getExceptionText(t)};
       }
 
@@ -282,7 +282,7 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
       throw new PSInternalRequestCallException(e.getErrorCode(), e.getErrorArguments());
     } catch (Throwable t) {
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(t));
+          DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(t));
     } finally {
       if (execData != null) execData.release();
     }
@@ -491,7 +491,7 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
       return PSIdGenerator.getNextId("RXRELATEDCONTENT");
     } catch (SQLException e) {
       throw new PSCmsException(
-          IPSCmsErrors.ID_GENERATOR_FAILED, PSSqlException.getFormattedExceptionText(e));
+          CmsErrorCodes.ID_GENERATOR_FAILED, PSSqlException.getFormattedExceptionText(e));
     }
   }
 
@@ -514,11 +514,11 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
     String param = request.getParameter(name);
     if (param == null) {
       Object[] args = {name, "null"};
-      throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+      throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
     }
     if (param.trim().length() == 0) {
       Object[] args = {name, "empty"};
-      throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+      throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
     }
 
     return param;
@@ -548,7 +548,7 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
       paramInt = Integer.parseInt(param);
     } catch (NumberFormatException e) {
       Object[] args = {name, param};
-      throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+      throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
     }
 
     return paramInt;
@@ -576,7 +576,7 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
       PSRelationshipConfig config = ms_configs.getConfig(relationshipType);
       if (config == null) {
         throw new PSServerConfigException(
-            IPSServerErrors.UNKNOWN_RELATIONSHIP_CONFIGURATION, relationshipType);
+            ServerErrorCodes.UNKNOWN_RELATIONSHIP_CONFIGURATION, relationshipType);
       }
 
       int contentid = getParameterInt(request, IPSHtmlParameters.SYS_CONTENTID);
@@ -642,10 +642,10 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
         }
       }
     } catch (IOException e) {
-      throw new PSCmsException(IPSCmsErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSCmsException(CmsErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } catch (SQLException e) {
       throw new PSCmsException(
-          IPSCmsErrors.SQL_EXCEPTION_WRAPPER, PSStandaloneException.formatSqlException(e));
+          ServerErrorCodes.RAW_DUMP, PSStandaloneException.formatSqlException(e));
     } catch (PSException e) {
       throw new PSCmsException(e);
     }
@@ -892,7 +892,7 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
          */
         PSRelationship originatingRelationship = data.getOriginatingRelationship();
         if (originatingRelationship == null)
-          throw new PSCmsException(IPSCmsErrors.NO_ORIGINATING_RELATIONSHIP);
+          throw new PSCmsException(CmsErrorCodes.NO_ORIGINATING_RELATIONSHIP);
 
         relationships.add(originatingRelationship);
       } else {

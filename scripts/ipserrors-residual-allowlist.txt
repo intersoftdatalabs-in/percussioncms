@@ -12,6 +12,9 @@
 #   #3860 system/business delivery leftover call sites
 #   #3859 leftover modules/utils production call sites
 #   #3861 leftover system/webservices SOAP/ws call sites
+#   #3882 leftover system/src/main cms builders + editor context / validate step
+#   #3883 leftover system/src/main cms handlers
+#   #3884 leftover cms.objectstore (non-server) + client call sites
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -52,54 +55,6 @@ system/Testing/Extensions/src/com/percussion/extensions/testing/TestMakeInternal
 system/Testing/cms/HttpItemCopier.java
 system/Tools/RxFix/src/com/percussion/rxfix/dbfixes/PSFixNavigation.java
 system/Tools/RxFix/src/com/percussion/rxverify/modules/PSJdbcTableCheck.java
-system/src/main/java/com/percussion/cms/PSApplicationBuilder.java
-system/src/main/java/com/percussion/cms/PSChoiceBuilder.java
-system/src/main/java/com/percussion/cms/PSCompleteChildDocumentBuilder.java
-system/src/main/java/com/percussion/cms/PSDisplayFieldBuilder.java
-system/src/main/java/com/percussion/cms/PSEditorDocumentBuilder.java
-system/src/main/java/com/percussion/cms/PSEditorDocumentContext.java
-system/src/main/java/com/percussion/cms/PSModifyDocumentBuilder.java
-system/src/main/java/com/percussion/cms/PSModifyPlanBuilder.java
-system/src/main/java/com/percussion/cms/PSMultiValueBuilder.java
-system/src/main/java/com/percussion/cms/PSPreviewDocumentBuilder.java
-system/src/main/java/com/percussion/cms/PSRowEditorDocumentBuilder.java
-system/src/main/java/com/percussion/cms/PSSingleValueBuilder.java
-system/src/main/java/com/percussion/cms/PSSummaryEditorDocumentBuilder.java
-system/src/main/java/com/percussion/cms/PSTableValueBuilder.java
-system/src/main/java/com/percussion/cms/PSValidateModifyStep.java
-system/src/main/java/com/percussion/cms/handlers/PSActiveAssemblyRequestHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSBinaryCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSCloneCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSCloneHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSConditionalCloneHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSContentEditorHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSCopyHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSEditCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSGlobalTemplateUpdateHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSModifyCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSPreviewCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSQueryCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSRelationshipCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSSearchCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSWorkflowCommandHandler.java
-system/src/main/java/com/percussion/cms/objectstore/PSActiveAssemblyProcessorProxy.java
-system/src/main/java/com/percussion/cms/objectstore/PSDbComponent.java
-system/src/main/java/com/percussion/cms/objectstore/PSDbComponentList.java
-system/src/main/java/com/percussion/cms/objectstore/PSDbComponentSet.java
-system/src/main/java/com/percussion/cms/objectstore/PSInvalidChildTypeException.java
-system/src/main/java/com/percussion/cms/objectstore/PSInvalidContentTypeException.java
-system/src/main/java/com/percussion/cms/objectstore/PSItemDefExtractor.java
-system/src/main/java/com/percussion/cms/objectstore/PSKey.java
-system/src/main/java/com/percussion/cms/objectstore/PSMenuChild.java
-system/src/main/java/com/percussion/cms/objectstore/PSMenuModeContextMapping.java
-system/src/main/java/com/percussion/cms/objectstore/PSProcessorCommon.java
-system/src/main/java/com/percussion/cms/objectstore/PSProcessorProxy.java
-system/src/main/java/com/percussion/cms/objectstore/client/PSContentEditorFieldCataloger.java
-system/src/main/java/com/percussion/cms/objectstore/client/PSRelationshipProcessor.java
-system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java
-system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteCataloger.java
-system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteProcessor.java
 system/src/main/java/com/percussion/cms/objectstore/server/PSActiveAssemblerProcessor.java
 system/src/main/java/com/percussion/cms/objectstore/server/PSCatalogServerObjectHandler.java
 system/src/main/java/com/percussion/cms/objectstore/server/PSCloneFactory.java

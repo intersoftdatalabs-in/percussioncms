@@ -17,7 +17,7 @@
 
 package com.percussion.cms.objectstore;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSXMLDomUtil;
@@ -442,7 +442,7 @@ public class PSKey implements IPSCmsComponent, Serializable {
     if (validate && !isSameType(definition)) {
       Object[] args = {arrayToString(m_definition), arrayToString(definition)};
 
-      throw new PSUnknownNodeTypeException(IPSCmsErrors.KEY_PARTS_NOT_MATCH, args);
+      throw new PSUnknownNodeTypeException(CmsErrorCodes.KEY_PARTS_NOT_MATCH, args);
     }
 
     // set all internal variables from the retrieved values
