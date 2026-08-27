@@ -628,7 +628,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
-  it("loads object-storage values with root path and no Build/Preview/Publish chrome", async () => {
+  it("loads object-storage values with root path and Build/Preview chrome (no Publish)", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "object-storage",
       rootPath: "C:/object-docs",
@@ -649,14 +649,17 @@ describe("VirtualSiteSourcePanel", () => {
       DEV_MSG.SITE_VIRT_OBJECT_STORAGE_HINT,
     );
     expect(screen.getByTestId("developer-site-virtual-object-storage-hint").textContent).toContain(
+      "Preview assembled site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-object-storage-hint").textContent).toContain(
       "later phase",
     );
     expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-config-file")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
@@ -715,9 +718,9 @@ describe("VirtualSiteSourcePanel", () => {
     expect(
       (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
     ).toBe("C:/object-docs");
-    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
@@ -1375,6 +1378,42 @@ describe("VirtualSiteSourcePanel", () => {
       expect(open).toHaveBeenCalled();
     });
     expect(previewStatus).toHaveBeenCalledWith("HttpJsonHelp");
+    expect(String(open.mock.calls[0][0])).toContain("8.2/index.html");
+    expect(open.mock.calls[0][1]).toBe("_blank");
+  });
+
+  it("shows Preview chrome for object-storage and opens last-build home", async () => {
+    const open = vi.fn();
+    window.open = open;
+    getVirtual.mockResolvedValue({
+      sourceKind: "object-storage",
+      rootPath: "C:/object-docs",
+      virtual: true,
+    });
+    previewStatus.mockResolvedValue({
+      available: true,
+      homePath: "8.2/index.html",
+    });
+    render(<VirtualSiteSourcePanel siteName="ObjectHelp" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-object-storage-hint").textContent).toContain(
+      DEV_MSG.SITE_VIRT_OBJECT_STORAGE_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-preview-hint").textContent).toContain(
+      DEV_MSG.SITE_VIRT_PREVIEW_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-preview-hint").textContent).toContain(
+      "Object storage",
+    );
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
+    await waitFor(() => {
+      expect(open).toHaveBeenCalled();
+    });
+    expect(previewStatus).toHaveBeenCalledWith("ObjectHelp");
     expect(String(open.mock.calls[0][0])).toContain("8.2/index.html");
     expect(open.mock.calls[0][1]).toBe("_blank");
   });
