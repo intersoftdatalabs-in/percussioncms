@@ -75,8 +75,8 @@ Optional `rss.url` is **loopback HTTP only** (in-process test servers). This is 
 syndication SPI — **no live cloud feeds, no Authorization / API keys, no userinfo**.
 `virtual.remoteUrl` and credential properties are rejected. SPI/CLI assemble is
 `PSVirtualSiteBuildMain … rss-atom` (`pagesWritten > 0` from a temp fixture). REST GET/PUT
-persist, REST Build/Preview/Publish, and Developer **Sites** chrome for this kind stay
-later slices.
+persist round-trips this kind with a portable-safe local `rootPath`. REST Build/Preview/Publish
+and Developer **Sites** chrome for this kind stay later slices.
 
 An **RSS / Atom** adapter (`rss-atom`) reads a **local** RSS or Atom fixture directory
 under `virtual.rootPath` (portable path; no remaining `..`). REST **GET/PUT**
@@ -180,7 +180,7 @@ treated as a safe Virtual Site source.
 
 | Property | Required | Example | Meaning |
 |----------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, or `rss-atom` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, `rss-atom`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, SQL (H2), HTTP JSON (local JSON fixture or loopback catalog), and **object-storage** (local object-key bucket; `virtual.remoteUrl` is **400**). Preview REST streams last-build HTML for git, CSV, SQL, HTTP JSON, and `object-storage`. REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for git, CSV, SQL, HTTP JSON, and `object-storage` (local object-key `rootPath`; leftover `virtual.remoteUrl` is **400**). Developer Sites can save and build Git, CSV, SQL, HTTP JSON, and object-storage, then **Preview assembled site** and **Publish Virtual Site**. Developer Sites can also save and GET-roundtrip `object-storage`, then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400**) and `object-storage` (portable-safe local `rootPath`; cloud URLs and credential properties are **400**; `virtual.remoteUrl` is **400**). SPI/CLI assemble for `object-storage` is `PSVirtualSiteBuildMain … object-storage`. **`rss-atom`** is a local/loopback syndication SPI (`PSVirtualSiteBuildMain … rss-atom`; `feed.xml` / `atom.xml` or `rss.file`; loopback `rss.url` only). No live feed credentials. REST persist and Developer Sites chrome for `rss-atom` stay later slices. `virtual.remoteUrl` and credential properties are **400**. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, or `rss-atom` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, `rss-atom`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, SQL (H2), HTTP JSON (local JSON fixture or loopback catalog), and **object-storage** (local object-key bucket; `virtual.remoteUrl` is **400**). Preview REST streams last-build HTML for git, CSV, SQL, HTTP JSON, and `object-storage`. REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for git, CSV, SQL, HTTP JSON, and `object-storage` (local object-key `rootPath`; leftover `virtual.remoteUrl` is **400**). Developer Sites can save and build Git, CSV, SQL, HTTP JSON, and object-storage, then **Preview assembled site** and **Publish Virtual Site**. Developer Sites can also save and GET-roundtrip `object-storage`, then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400`), `object-storage` (portable-safe local `rootPath`; cloud URLs and credential properties are **400**; `virtual.remoteUrl` is **400**), and `rss-atom` (portable-safe local `rootPath`; leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; local/loopback only, no live feed credentials). REST Build/Preview/Publish and Developer Sites chrome for `rss-atom` stay later slices. SPI/CLI assemble for `object-storage` is `PSVirtualSiteBuildMain … object-storage`. SPI/CLI assemble for `rss-atom` is `PSVirtualSiteBuildMain … rss-atom`. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` (or install-relative) | Local filesystem root when `virtual.remoteUrl` is blank. When a remote is set, optional **relative** path inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. When set, **Build** clones or fetches into a contained work directory, then reuses git-filesystem discover. Blank keeps local-path mode. Allowed: `https://`, `ssh://`, `file://`, or `git@host:path`. `http` and other schemes are rejected. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. Simple ref name only (no `..` or leading `-`). |
@@ -199,10 +199,10 @@ Empty / missing `virtual.sourceKind` (or value `repository`) means a traditional
   SQL Server URLs are rejected. `http-json` fetches open JSON only (no secrets); remote catalogs
   must be `http`/`https` without userinfo. Catalog URL/file live in `_config.yaml` (no secrets
   on the REST envelope). `object-storage` reads a local object-key directory only (no AWS SDK,
-  access keys, or network). REST persist uses a local filesystem `rootPath` only (no remaining
-  `..`); cloud URLs (`s3://`, `gs://`, `azure://`, `http(s)://`) and credential properties are
-  **400**. `rss-atom` is a local RSS 2.0 / Atom fixture or loopback HTTP GET (no live cloud
-  feeds, no credentials). REST persist for `rss-atom` stays a later slice.
+  access keys, or network). `rss-atom` persist is local/loopback only (no live feed credentials).
+  REST persist for `object-storage` and `rss-atom` uses a local filesystem `rootPath` only (no
+  remaining `..`); cloud URLs (`s3://`, `gs://`, `azure://`, `http(s)://`) and credential
+  properties are **400**.
 - **Required root** — when `virtual.sourceKind` is virtual and `virtual.remoteUrl` is blank,
   `virtual.rootPath` must be non-blank.
 - **Optional Git remote** — `virtual.remoteUrl` + `virtual.branch` fetch or clone before Build.
@@ -536,6 +536,17 @@ build is `available=false` HTTP 200). REST **Publish** (`POST …/virtual/publis
 assembled HTML to `IPSSite.root` for a local object-key fixture (leftover
 `virtual.remoteUrl` is **400**; no cloud URLs, IAM, or access keys). Developer Sites
 **Publish Virtual Site** chrome runs the same action after Build.
+
+### REST persist for RSS / Atom (`rss-atom`)
+
+REST `PUT` / `GET /sites/{nameOrId}/virtual` round-trips `sourceKind=rss-atom` with a
+portable-safe local `rootPath` (NIO `Path.normalize()`; no remaining `..`). This is
+**local/loopback only** — leftover `virtual.remoteUrl`, credential properties, and cloud
+URL `rootPath` values (`s3://`, `gs://`, `azure://`, `http(s)://`) are **400**. Never send
+live feed credentials, Authorization, or API keys on this envelope. Unknown kinds remain
+**400**. Git, CSV, SQL, `http-json`, and `object-storage` persist are unchanged. REST
+**Build** / **Preview** / **Publish** and Developer Sites chrome for `rss-atom` stay later
+slices.
 
 ### REST Preview for object storage (`object-storage`)
 

@@ -214,7 +214,7 @@ public final class PSVirtualSiteHelper {
               + " for traditional Sites).");
     }
 
-    if (type == VirtualSiteSourceType.OBJECT_STORAGE || type == VirtualSiteSourceType.RSS_ATOM) {
+    if (requiresLocalOnlyRoot(type)) {
       rejectCredentialProperties(site, type);
     }
 
@@ -252,7 +252,7 @@ public final class PSVirtualSiteHelper {
                 + " is blank.");
       }
 
-      if (type == VirtualSiteSourceType.OBJECT_STORAGE || type == VirtualSiteSourceType.RSS_ATOM) {
+      if (requiresLocalOnlyRoot(type)) {
         rejectCloudOrRemoteRootPath(rootRaw.get(), type);
       }
 
@@ -495,7 +495,7 @@ public final class PSVirtualSiteHelper {
    * <p>Windows drive letters ({@code C:\…}) are not treated as URI schemes.
    *
    * @param raw {@link #PROP_ROOT_PATH} value, not blank
-   * @param type adapter kind (used in the error message)
+   * @param type adapter kind used in the error message, not null
    * @throws VirtualSiteException when the value looks like a remote/cloud URL
    */
   static void rejectCloudOrRemoteRootPath(String raw, VirtualSiteSourceType type)
@@ -503,7 +503,7 @@ public final class PSVirtualSiteHelper {
     if (StringUtils.isBlank(raw)) {
       return;
     }
-    String kind = type != null ? type.wireName() : VirtualSiteSourceType.OBJECT_STORAGE.wireName();
+    String kind = Objects.requireNonNull(type, "type").wireName();
     String trimmed = raw.trim();
     String lower = trimmed.toLowerCase(Locale.ROOT);
     if (lower.contains("://")) {
@@ -537,12 +537,12 @@ public final class PSVirtualSiteHelper {
    * connection strings). Standard {@code virtual.*} keys are never treated as credentials.
    *
    * @param site may be null
-   * @param type adapter kind (used in the error message)
+   * @param type adapter kind used in the error message, not null
    * @throws VirtualSiteException when a credential-like property name is present
    */
   static void rejectCredentialProperties(IPSSite site, VirtualSiteSourceType type)
       throws VirtualSiteException {
-    String kind = type != null ? type.wireName() : VirtualSiteSourceType.OBJECT_STORAGE.wireName();
+    String kind = Objects.requireNonNull(type, "type").wireName();
     for (PSSiteProperty p : propertiesOf(site)) {
       if (p == null || StringUtils.isBlank(p.getName())) {
         continue;
@@ -558,6 +558,10 @@ public final class PSVirtualSiteHelper {
                 + " (no AWS/IAM/secrets on this envelope).");
       }
     }
+  }
+
+  private static boolean requiresLocalOnlyRoot(VirtualSiteSourceType type) {
+    return type == VirtualSiteSourceType.OBJECT_STORAGE || type == VirtualSiteSourceType.RSS_ATOM;
   }
 
   private static boolean isVirtualContractProperty(String name) {

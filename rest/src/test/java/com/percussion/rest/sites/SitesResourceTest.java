@@ -286,6 +286,39 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void getVirtualPropertiesRoundTripsRssAtom() {
+    VirtualSiteProperties v = new VirtualSiteProperties();
+    v.setSourceKind("rss-atom");
+    v.setRootPath("C:/rss-docs");
+    v.setVirtual(true);
+    when(adaptor.getVirtualSiteProperties("RssHelp")).thenReturn(v);
+
+    VirtualSiteProperties out = resource.getVirtualProperties("RssHelp");
+    assertEquals("rss-atom", out.getSourceKind());
+    assertEquals("C:/rss-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).getVirtualSiteProperties("RssHelp");
+  }
+
+  @Test
+  public void updateVirtualPropertiesRoundTripsRssAtom() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("rss-atom");
+    body.setRootPath("C:/rss-docs");
+    VirtualSiteProperties saved = new VirtualSiteProperties();
+    saved.setSourceKind("rss-atom");
+    saved.setRootPath("C:/rss-docs");
+    saved.setVirtual(true);
+    when(adaptor.updateVirtualSiteProperties(eq("RssHelp"), same(body))).thenReturn(saved);
+
+    VirtualSiteProperties out = resource.updateVirtualProperties("RssHelp", body);
+    assertEquals("rss-atom", out.getSourceKind());
+    assertEquals("C:/rss-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).updateVirtualSiteProperties("RssHelp", body);
+  }
+
+  @Test
   public void updateVirtualPropertiesUnknownKindPropagates400() {
     VirtualSiteProperties body = new VirtualSiteProperties();
     body.setSourceKind("sql-adapter");
@@ -788,6 +821,12 @@ public class SitesResourceTest {
     assertTrue(
         putVirtualBlock.contains("http-json"),
         "updateVirtualProperties OpenAPI description must mention http-json");
+    assertTrue(
+        putVirtualBlock.contains("rss-atom"),
+        "updateVirtualProperties OpenAPI description must mention rss-atom persist");
+    assertTrue(
+        putVirtualBlock.contains("local/loopback"),
+        "updateVirtualProperties OpenAPI description must mention rss-atom local/loopback only");
     assertTrue(
         text.contains(
             "return requireAdaptor().buildVirtualSite(nameOrId, request); // codeql[java/xss]"),

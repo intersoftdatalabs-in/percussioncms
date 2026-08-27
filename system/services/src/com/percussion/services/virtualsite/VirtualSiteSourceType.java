@@ -20,7 +20,7 @@ package com.percussion.services.virtualsite;
  * Registered Virtual Site adapter kinds. {@link #GIT_FILESYSTEM}, {@link #CSV_FILESYSTEM}, {@link
  * #SQL_DATABASE}, {@link #HTTP_JSON}, {@link #OBJECT_STORAGE}, and {@link #RSS_ATOM} are wired
  * through {@link PSVirtualSiteSourceFactory} and allow-listed for Site property validation.
- * REST GET/PUT persist for {@link #RSS_ATOM} stays a later slice.
+ * REST GET/PUT persist round-trips {@link #RSS_ATOM} with a portable-safe local {@code rootPath}.
  */
 public enum VirtualSiteSourceType {
   GIT_FILESYSTEM("git-filesystem"),
@@ -51,9 +51,11 @@ public enum VirtualSiteSourceType {
   /**
    * Local RSS 2.0 / Atom XML syndication ({@code rss-atom}). Discovers pages from {@code feed.xml}
    * / {@code atom.xml} (or {@code _config.yaml} {@code rss.file}) under a portable-safe {@code
-   * virtual.rootPath}, or from a loopback HTTP GET ({@code rss.url}) in tests. No live cloud feeds,
-   * no Authorization / API keys, no userinfo. Git {@code virtual.remoteUrl} and credential
-   * properties are rejected. REST persist and Developer Sites chrome stay later slices.
+   * virtual.rootPath}, or from a loopback HTTP GET ({@code rss.url}) in tests. REST GET/PUT persist
+   * this kind with a portable-safe {@code virtual.rootPath} (NIO {@link java.nio.file.Path}; no
+   * remaining {@code ..}). Cloud URLs and credential properties are rejected. Git {@code
+   * virtual.remoteUrl} is not accepted. No live feed credentials on this envelope. Developer Sites
+   * chrome stays a later slice.
    */
   RSS_ATOM("rss-atom");
 
