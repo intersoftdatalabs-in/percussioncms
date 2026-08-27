@@ -735,7 +735,7 @@ public final class PSRelationshipDbProcessor {
    *
    * @param itemCache the Item Cache instance, assumed not <code>null</code>.
    * @param id the content id of the item.
-   * @param errorCode the error code if the item not exist.
+   * @param errorCode the typed {@link IPSErrorCode} if the item does not exist.
    * @return the cached item, never <code>null</code>.
    * @throws PSCmsException if the item not exist in item cache.
    */
