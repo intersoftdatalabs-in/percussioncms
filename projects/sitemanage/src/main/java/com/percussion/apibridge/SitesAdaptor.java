@@ -302,8 +302,9 @@ public class SitesAdaptor implements ISiteAdaptor {
 
       try {
         // Allow-list includes git-filesystem, csv-filesystem, sql-database, http-json,
-        // and object-storage. object-storage is local-root only (NIO Path; no remaining
-        // '..'); cloud URLs and credential properties fail closed (400).
+        // object-storage, and rss-atom. object-storage and rss-atom are local-root only
+        // (NIO Path; no remaining '..'); cloud URLs and credential properties fail closed
+        // (400). rss-atom persist is local/loopback only (no live feed credentials).
         PSVirtualSiteHelper.validate(psSite);
       } catch (VirtualSiteException e) {
         throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);

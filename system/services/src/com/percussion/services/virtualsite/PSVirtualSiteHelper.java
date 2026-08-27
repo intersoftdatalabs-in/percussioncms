@@ -214,7 +214,7 @@ public final class PSVirtualSiteHelper {
               + " for traditional Sites).");
     }
 
-    if (type == VirtualSiteSourceType.OBJECT_STORAGE || type == VirtualSiteSourceType.RSS_ATOM) {
+    if (requiresLocalOnlyRoot(type)) {
       rejectCredentialProperties(site, type);
     }
 
@@ -252,7 +252,7 @@ public final class PSVirtualSiteHelper {
                 + " is blank.");
       }
 
-      if (type == VirtualSiteSourceType.OBJECT_STORAGE || type == VirtualSiteSourceType.RSS_ATOM) {
+      if (requiresLocalOnlyRoot(type)) {
         rejectCloudOrRemoteRootPath(rootRaw.get(), type);
       }
 
@@ -495,6 +495,16 @@ public final class PSVirtualSiteHelper {
    * <p>Windows drive letters ({@code C:\…}) are not treated as URI schemes.
    *
    * @param raw {@link #PROP_ROOT_PATH} value, not blank
+   * @throws VirtualSiteException when the value looks like a remote/cloud URL
+   */
+  static void rejectCloudOrRemoteRootPath(String raw) throws VirtualSiteException {
+    rejectCloudOrRemoteRootPath(raw, VirtualSiteSourceType.OBJECT_STORAGE);
+  }
+
+  /**
+   * Same as {@link #rejectCloudOrRemoteRootPath(String)} using {@code type} in the error message.
+   *
+   * @param raw {@link #PROP_ROOT_PATH} value, not blank
    * @param type adapter kind (used in the error message)
    * @throws VirtualSiteException when the value looks like a remote/cloud URL
    */
@@ -537,6 +547,16 @@ public final class PSVirtualSiteHelper {
    * connection strings). Standard {@code virtual.*} keys are never treated as credentials.
    *
    * @param site may be null
+   * @throws VirtualSiteException when a credential-like property name is present
+   */
+  static void rejectCredentialProperties(IPSSite site) throws VirtualSiteException {
+    rejectCredentialProperties(site, VirtualSiteSourceType.OBJECT_STORAGE);
+  }
+
+  /**
+   * Same as {@link #rejectCredentialProperties(IPSSite)} using {@code type} in the error message.
+   *
+   * @param site may be null
    * @param type adapter kind (used in the error message)
    * @throws VirtualSiteException when a credential-like property name is present
    */
@@ -558,6 +578,10 @@ public final class PSVirtualSiteHelper {
                 + " (no AWS/IAM/secrets on this envelope).");
       }
     }
+  }
+
+  private static boolean requiresLocalOnlyRoot(VirtualSiteSourceType type) {
+    return type == VirtualSiteSourceType.OBJECT_STORAGE || type == VirtualSiteSourceType.RSS_ATOM;
   }
 
   private static boolean isVirtualContractProperty(String name) {
