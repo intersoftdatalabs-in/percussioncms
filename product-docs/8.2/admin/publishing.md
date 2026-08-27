@@ -58,9 +58,9 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
   local `rootPath` (cloud URLs and credentials are **400**); REST **Build** runs that local
   bucket. REST **Preview** streams last-build HTML for that kind after a successful Build
   (`available=true`; missing build is `available=false` HTTP 200). Developer Sites can save
-  **Object storage** (GET round-trips the kind); REST Publish and Developer Sites
-  Build/Preview/Publish chrome for that kind stay a later phase. The endpoint does not
-  accept an `outputRoot` body (always the default staging root).
+  **Object storage** (GET round-trips the kind) and then **Build Virtual Site**. REST
+  Publish and Developer Sites Preview/Publish chrome for that kind stay a later phase. The
+  endpoint does not accept an `outputRoot` body (always the default staging root).
 
 ### Publish a Virtual Site to the Site filesystem target
 

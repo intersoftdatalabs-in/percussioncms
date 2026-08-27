@@ -26,10 +26,10 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
 
 /**
  * True when the Build Virtual Site control should be shown.
- * Git-filesystem, csv-filesystem, sql-database, and http-json Virtual Sites all
- * run POST /virtual/build (SQL JDBC and HTTP JSON catalog stay in _config.yaml).
- * Repository / blank / unknown kinds and object-storage (later phase) must not
- * display this chrome.
+ * Git-filesystem, csv-filesystem, sql-database, http-json, and object-storage
+ * Virtual Sites all run POST /virtual/build (SQL JDBC, HTTP JSON catalog, and
+ * object-storage keys stay in _config.yaml / the local root).
+ * Repository / blank / unknown kinds must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
   sourceKind: string | null | undefined,
@@ -39,7 +39,8 @@ export function shouldShowVirtualBuildChrome(
     v === "git-filesystem" ||
     v === "csv-filesystem" ||
     v === "sql-database" ||
-    v === "http-json"
+    v === "http-json" ||
+    v === "object-storage"
   );
 }
 

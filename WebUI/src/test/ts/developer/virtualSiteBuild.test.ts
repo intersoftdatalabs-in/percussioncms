@@ -14,7 +14,7 @@ import {
 } from "../../../main/ts/developer/virtualSiteBuild";
 
 describe("virtualSiteBuild helpers", () => {
-  it("shouldShowVirtualBuildChrome for git-filesystem, csv-filesystem, sql-database, and http-json", () => {
+  it("shouldShowVirtualBuildChrome for git-filesystem, csv-filesystem, sql-database, http-json, and object-storage", () => {
     expect(shouldShowVirtualBuildChrome(null)).toBe(false);
     expect(shouldShowVirtualBuildChrome("")).toBe(false);
     expect(shouldShowVirtualBuildChrome("repository")).toBe(false);
@@ -29,8 +29,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualBuildChrome("http-json")).toBe(true);
     expect(shouldShowVirtualBuildChrome("HTTP-JSON")).toBe(true);
     expect(shouldShowVirtualBuildChrome("  http-json  ")).toBe(true);
-    expect(shouldShowVirtualBuildChrome("object-storage")).toBe(false);
-    expect(shouldShowVirtualBuildChrome("Object-Storage")).toBe(false);
+    expect(shouldShowVirtualBuildChrome("object-storage")).toBe(true);
+    expect(shouldShowVirtualBuildChrome("Object-Storage")).toBe(true);
+    expect(shouldShowVirtualBuildChrome("  object-storage  ")).toBe(true);
   });
 
   it("shouldShowVirtualPreviewChrome for git, csv, sql-database, and http-json (not repository)", () => {
