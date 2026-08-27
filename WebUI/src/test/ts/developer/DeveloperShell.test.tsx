@@ -143,6 +143,10 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     unlockContentType: vi.fn().mockResolvedValue(undefined),
     getContentTypeAllowedTemplates: vi.fn().mockResolvedValue([{ name: "perc.page", label: "Page" }]),
     replaceContentTypeAllowedTemplates: vi.fn().mockImplementation(async (_id, templates) => templates),
+    getFieldControlProperties: vi.fn().mockResolvedValue({ properties: [] }),
+    replaceFieldControlProperties: vi.fn().mockImplementation(async (_id, _field, properties) => ({
+      properties,
+    })),
   };
 });
 

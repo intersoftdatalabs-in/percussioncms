@@ -19,19 +19,24 @@ import { normalizeDesignObjectGuid } from "../displayFormatGuid";
 import { get, post, put } from "../client";
 import { PATHS } from "../paths";
 import {
+  normalizeContentTypeControlProperties,
   normalizeContentTypeDesignGaps,
   normalizeContentTypeFields,
   normalizeContentTypeStringList,
   normalizeNamedObjectRefs,
 } from "./contentTypeLists";
 import type {
+  ContentTypeChoiceCatalog,
+  ContentTypeControlProperty,
   ContentTypeDetail,
+  ContentTypeFieldControlProperties,
   ContentTypeFieldSummary,
   ContentTypeSummary,
   NamedObjectRef,
 } from "./types";
 
 export {
+  normalizeContentTypeControlProperties,
   normalizeContentTypeDesignGaps,
   normalizeContentTypeFields,
   normalizeContentTypeStringList,
@@ -459,4 +464,120 @@ export async function replaceContentTypeAllowedTemplates(
     wrapNamedObjectRefListForWire(templates),
   );
   return unwrapNamedObjectRefList(payload);
+}
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code ContentTypeFieldControlProperties}. */
+export const CONTENT_TYPE_FIELD_CONTROL_PROPERTIES_ROOT =
+  "ContentTypeFieldControlProperties";
+
+export type ContentTypeFieldControlPropertiesBody = {
+  properties: ContentTypeControlProperty[];
+};
+
+function asChoiceCatalog(raw: unknown): ContentTypeChoiceCatalog | null {
+  const rec = asRecord(raw);
+  if (!rec) {
+    return null;
+  }
+  const out: ContentTypeChoiceCatalog = {};
+  if (typeof rec.type === "string") {
+    out.type = rec.type;
+  }
+  if (typeof rec.globalId === "string") {
+    out.globalId = rec.globalId;
+  }
+  if (typeof rec.sortOrder === "string") {
+    out.sortOrder = rec.sortOrder;
+  }
+  if (typeof rec.lookupHref === "string") {
+    out.lookupHref = rec.lookupHref;
+  }
+  return out;
+}
+
+/**
+ * Flatten GET/PUT {@code .../fields/{field}/controlProperties} JSON.
+ *
+ * <p>Handles WRAP_ROOT {@code ContentTypeFieldControlProperties}, a flat body,
+ * JAXB property envelopes, and empty-collection beans.
+ */
+export function unwrapFieldControlProperties(
+  payload: unknown,
+): ContentTypeFieldControlProperties {
+  const root = asRecord(payload);
+  if (!root) {
+    return { properties: [] };
+  }
+  const nested = asRecord(
+    root[CONTENT_TYPE_FIELD_CONTROL_PROPERTIES_ROOT] ??
+      root.contentTypeFieldControlProperties,
+  );
+  const body = nested ?? root;
+  const out: ContentTypeFieldControlProperties = {
+    properties: normalizeContentTypeControlProperties(body.properties),
+  };
+  if (typeof body.fieldName === "string") {
+    out.fieldName = body.fieldName;
+  }
+  if (typeof body.control === "string") {
+    out.control = body.control;
+  }
+  if (body.choices != null) {
+    out.choices = asChoiceCatalog(body.choices);
+  }
+  if (body.designGaps != null) {
+    out.designGaps = normalizeContentTypeDesignGaps(body.designGaps);
+  }
+  return out;
+}
+
+/**
+ * Build the wire JSON body for {@code PUT .../controlProperties} under
+ * {@link CONTENT_TYPE_FIELD_CONTROL_PROPERTIES_ROOT}. A flat body fails
+ * server UNWRAP_ROOT_VALUE. {@code choices} is omitted so the catalog is
+ * unchanged (choice filter / null-entry / default-selected are not written).
+ */
+export function wrapFieldControlPropertiesForWire(
+  body: ContentTypeFieldControlPropertiesBody,
+): Record<string, ContentTypeFieldControlPropertiesBody> {
+  return { [CONTENT_TYPE_FIELD_CONTROL_PROPERTIES_ROOT]: body };
+}
+
+/**
+ * GET /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties
+ * — CD-07 read. No design lock required. Empty properties means none.
+ */
+export async function getFieldControlProperties(
+  idOrName: string,
+  fieldName: string,
+): Promise<ContentTypeFieldControlProperties> {
+  const typeKey = encodeURIComponent(idOrName);
+  const fieldKey = encodeURIComponent(fieldName);
+  const payload = await get<unknown>(
+    `${PATHS.CONTENT_TYPES}/${typeKey}/fields/${fieldKey}/controlProperties`,
+  );
+  return unwrapFieldControlProperties(payload);
+}
+
+/**
+ * PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties
+ * — CD-07 full replace of property values.
+ *
+ * <p>Requires a design-session lock already held by the current user
+ * ({@link lockContentType}). Does not acquire or release the lock. HTTP 409
+ * when unlocked or locked by another user. Empty {@code properties} clears
+ * parameters. Does not send {@code choices}.
+ */
+export async function replaceFieldControlProperties(
+  idOrName: string,
+  fieldName: string,
+  properties: ContentTypeControlProperty[],
+): Promise<ContentTypeFieldControlProperties> {
+  const typeKey = encodeURIComponent(idOrName);
+  const fieldKey = encodeURIComponent(fieldName);
+  const payload = await put<unknown>(
+    `${PATHS.CONTENT_TYPES}/${typeKey}/fields/${fieldKey}/controlProperties`,
+    wrapFieldControlPropertiesForWire({ properties }),
+  );
+  return unwrapFieldControlProperties(payload);
 }

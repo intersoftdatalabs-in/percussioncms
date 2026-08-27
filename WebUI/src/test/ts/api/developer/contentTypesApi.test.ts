@@ -5,21 +5,26 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   getContentTypeAllowedTemplates,
+  getFieldControlProperties,
+  normalizeContentTypeControlProperties,
   normalizeContentTypeDesignGaps,
   normalizeContentTypeFields,
   normalizeContentTypeStringList,
   normalizeNamedObjectRefs,
   replaceContentTypeAllowedTemplates,
+  replaceFieldControlProperties,
   setContentTypeAllowedWorkflows,
   setContentTypeEnabled,
   unwrapContentTypeDetail,
   unwrapContentTypeList,
+  unwrapFieldControlProperties,
   unwrapNamedObjectRefList,
   unwrapObjectLockSummary,
   updateContentTypeDetail,
   wrapContentTypeDetailForWire,
   wrapContentTypeEnabledForWire,
   wrapContentTypeWorkflowsForWire,
+  wrapFieldControlPropertiesForWire,
   wrapNamedObjectRefListForWire,
 } from "../../../../main/ts/api/developer/contentTypesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
@@ -229,6 +234,9 @@ describe("content-type Jackson list helpers (#3712)", () => {
     ]);
     expect(normalizeContentTypeFields([{ name: "sys_title" }])).toEqual([{ name: "sys_title" }]);
     expect(normalizeContentTypeStringList(["a", "b"])).toEqual(["a", "b"]);
+    expect(normalizeContentTypeControlProperties([{ name: "height", value: "200" }])).toEqual([
+      { name: "height", value: "200" },
+    ]);
   });
 
   it("maps nullish and primitives to []", () => {
@@ -239,6 +247,8 @@ describe("content-type Jackson list helpers (#3712)", () => {
     expect(normalizeContentTypeFields(undefined)).toEqual([]);
     expect(normalizeContentTypeStringList(undefined)).toEqual([]);
     expect(normalizeContentTypeStringList(9)).toEqual([]);
+    expect(normalizeContentTypeControlProperties(undefined)).toEqual([]);
+    expect(normalizeContentTypeControlProperties({ empty: true })).toEqual([]);
   });
 
   it("wraps a lone legacy designGaps string", () => {
@@ -527,5 +537,142 @@ describe("allowedTemplates GET/PUT (CD-12)", () => {
     expect(listed).toEqual([]);
     const body = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body));
     expect(body).toEqual({ NamedObjectRefList: [] });
+  });
+});
+
+describe("wrapFieldControlPropertiesForWire / unwrapFieldControlProperties (CD-07)", () => {
+  it("wraps properties under ContentTypeFieldControlProperties without choices", () => {
+    expect(
+      wrapFieldControlPropertiesForWire({ properties: [{ name: "height", value: "200" }] }),
+    ).toEqual({
+      ContentTypeFieldControlProperties: {
+        properties: [{ name: "height", value: "200" }],
+      },
+    });
+  });
+
+  it("wraps an empty properties list (clears parameters)", () => {
+    expect(wrapFieldControlPropertiesForWire({ properties: [] })).toEqual({
+      ContentTypeFieldControlProperties: { properties: [] },
+    });
+  });
+
+  it("unwraps WRAP_ROOT ContentTypeFieldControlProperties", () => {
+    expect(
+      unwrapFieldControlProperties({
+        ContentTypeFieldControlProperties: {
+          fieldName: "sys_title",
+          control: "sys_EditBox",
+          properties: [{ name: "height", value: "200" }],
+          choices: { type: "local" },
+        },
+      }),
+    ).toEqual({
+      fieldName: "sys_title",
+      control: "sys_EditBox",
+      properties: [{ name: "height", value: "200" }],
+      choices: { type: "local" },
+    });
+  });
+
+  it("unwraps a flat body and JAXB property singleton", () => {
+    expect(
+      unwrapFieldControlProperties({
+        fieldName: "sys_title",
+        properties: { ContentTypeControlProperty: { name: "width", value: "400" } },
+      }),
+    ).toEqual({
+      fieldName: "sys_title",
+      properties: [{ name: "width", value: "400" }],
+    });
+  });
+
+  it("unwraps empty beans and null", () => {
+    expect(unwrapFieldControlProperties({ empty: true })).toEqual({ properties: [] });
+    expect(unwrapFieldControlProperties(null)).toEqual({ properties: [] });
+  });
+});
+
+describe("field controlProperties GET/PUT (CD-07)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("GETs controlProperties and unwraps values", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeFieldControlProperties: {
+          fieldName: "sys_title",
+          properties: [{ name: "height", value: "200" }],
+        },
+      }),
+    );
+    const loaded = await getFieldControlProperties("percPage", "sys_title");
+    expect(loaded.properties).toEqual([{ name: "height", value: "200" }]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect((fetchMock.mock.calls[0][1] as RequestInit).method).toBe("GET");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/percPage/fields/sys_title/controlProperties`,
+    );
+  });
+
+  it("encodes type and field names on GET", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeFieldControlProperties: { properties: [] } }),
+    );
+    await getFieldControlProperties("perc Page", "sys/title");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/${encodeURIComponent("perc Page")}/fields/${encodeURIComponent("sys/title")}/controlProperties`,
+    );
+  });
+
+  it("PUTs controlProperties wrapped under ContentTypeFieldControlProperties", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeFieldControlProperties: {
+          properties: [{ name: "height", value: "201" }],
+        },
+      }),
+    );
+    const listed = await replaceFieldControlProperties("percPage", "sys_title", [
+      { name: "height", value: "201" },
+    ]);
+    expect(listed.properties).toEqual([{ name: "height", value: "201" }]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(init.method).toBe("PUT");
+    expect(String(url)).toContain(
+      `${PATHS.CONTENT_TYPES}/percPage/fields/sys_title/controlProperties`,
+    );
+    expect(JSON.parse(String(init.body))).toEqual({
+      ContentTypeFieldControlProperties: {
+        properties: [{ name: "height", value: "201" }],
+      },
+    });
+    expect(String(init.body)).not.toContain("choices");
+  });
+
+  it("PUTs an empty properties list to clear parameters", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeFieldControlProperties: { properties: [] } }),
+    );
+    const listed = await replaceFieldControlProperties("percPage", "sys_title", []);
+    expect(listed.properties).toEqual([]);
+    const body = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body));
+    expect(body).toEqual({ ContentTypeFieldControlProperties: { properties: [] } });
   });
 });

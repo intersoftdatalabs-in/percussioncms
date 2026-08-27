@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Lock, enable or disable, save allowed workflows and templates, and unlock a content type from Developer detail chrome
+description: Lock, enable or disable, save allowed workflows, templates, and control property values, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -10,17 +10,17 @@ tags: [admin, developer, content-types]
 # Developer Content Types
 
 **Developer → Content types** lists design content types and opens a detail panel
-for fields, allowed workflows, allowed templates, and Object ACL. Design edits
-use an explicit **design-session lock** so two Admins cannot overwrite the same
-type at once.
+for fields, allowed workflows, allowed templates, **control property values**,
+and Object ACL. Design edits use an explicit **design-session lock** so two
+Admins cannot overwrite the same type at once.
 
 This is **not** the full Workbench field-rule editor. Field validation /
 visibility / transform **expressions** stay summary-only on the detail table.
 Integrators write them with REST
 `GET`/`PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions`
 (held design lock for PUT). Item-level pre/post exits and validations (CD-09)
-use `GET`/`PUT /services/contenttypes/{idOrName}/itemExits`. This page does
-**not** add Properties-tab or expression-editor chrome.
+use `GET`/`PUT /services/contenttypes/{idOrName}/itemExits`. Choice-catalog
+filter / null-entry / default-selected writes are not in this chrome.
 
 ## Product path — lock, save, unlock
 
@@ -38,7 +38,7 @@ use `GET`/`PUT /services/contenttypes/{idOrName}/itemExits`. This page does
    hold the lock. You do not need to scroll past the fields table to lock or
    save. Enabled stays disabled until you hold the lock; a failed lock (**409**)
    does not steal another user's lock or enable the checkbox, template
-   add/remove, or Save.
+   add/remove, control property value editors, or Save.
 5. Click **Lock**. Status becomes **Locked by you**. If another user already
    holds the lock, the panel shows an error and Save stays disabled (the product
    does **not** steal the lock).
@@ -87,6 +87,30 @@ the lock (including while the type is still loading). After **Lock**:
 
 This is not the full Workbench template picker.
 
+### Control property values (after lock)
+
+The **Control property values** list is at the top of the detail panel with
+**Allowed templates**. Pick a field to view its display-control parameter
+**name and value** pairs (not names only). Value editors, Add, and Remove stay
+**disabled** until you hold the lock.
+
+After **Lock**:
+
+1. Select the field. The product loads
+   `GET /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties`.
+2. Edit a value, **Add** a parameter name/value, or **Remove** a row.
+3. Click **Save content type**. The product replaces the property list
+   (`PUT .../fields/{fieldName}/controlProperties`) while the lock is still
+   held. Save does **not** send the choice catalog, so existing choices stay
+   unchanged. A following GET on the same path lists the new values.
+4. Without a lock, value editors and Save stay **disabled**. The product does
+   **not** steal another user's lock (lock failure is **409**). An unlocked
+   edit does not persist.
+
+This is not the full Workbench Properties tab. Choice catalogs show as
+read-only (type only). Choice filter, null-entry, and default-selected are
+not written.
+
 Locks expire after **30 minutes**. If Save fails because the lock expired,
 click **Lock** again and retry.
 
@@ -117,15 +141,13 @@ The chrome calls:
 | Save allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` (requires a held lock; does not unlock) |
 | Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` (held lock; full replace) |
 | Confirm allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` |
+| Load field control properties | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` (CD-07; no lock) |
+| Save field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` (held lock; full replace of values; does not send `choices`) |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |
 
 Integrator notes: [REST API — Content types](id:developer-rest). Object ACL on
 the same detail panel: [Object ACL & default template](id:admin-object-acl).
 
-Field **control property values**, **choice catalogs**, and **rule expressions** are not
-edited in this chrome. Integrators use:
-
-* `GET` / `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties`
-* `GET` / `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions`
-
-Hold the design-session lock before either PUT. See [REST API — Content types](id:developer-rest).
+Field **rule expressions** are not edited in this chrome. Integrators use
+`GET` / `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions`
+(held design lock for PUT). See [REST API — Content types](id:developer-rest).
