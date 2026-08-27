@@ -17,6 +17,7 @@
 
 package com.percussion.cms.handlers;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.IPSEditorChangeListener;
 import com.percussion.cms.IPSRelationshipChangeListener;
@@ -71,7 +72,6 @@ import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestHandler;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSRequest;
@@ -149,12 +149,12 @@ public class PSContentEditorHandler
      * already have been logged by the server and displayed on the console.
      */
     if (null == m_systemDef) {
-      throw new PSSystemValidationException(IPSServerErrors.CE_SYSTEM_DEF_INVALID);
+      throw new PSSystemValidationException(ServerErrorCodes.CE_SYSTEM_DEF_INVALID);
     }
 
     if (null == m_sharedDef) {
       // must have at least one group
-      throw new PSSystemValidationException(IPSServerErrors.CE_SHARED_DEF_INVALID);
+      throw new PSSystemValidationException(ServerErrorCodes.CE_SHARED_DEF_INVALID);
     }
 
     PSContentEditorPipe cePipe = (PSContentEditorPipe) ce.getPipe();
@@ -844,12 +844,12 @@ public class PSContentEditorHandler
     Object[] args = {fieldName, m_dataSet.getName(), m_appHandler.getName()};
     if (PSServer.requireUniqueFieldNames()) {
       // throw error
-      throw new PSSystemValidationException(IPSServerErrors.CE_DUPLICATE_FIELD_NAME_ERROR, args);
+      throw new PSSystemValidationException(ServerErrorCodes.CE_DUPLICATE_FIELD_NAME_ERROR, args);
     } else {
       // just write a warning to console and log
       PSLogManager.write(
           new PSLogServerWarning(
-              IPSServerErrors.CE_DUPLICATE_FIELD_NAME_WARNING, args, true, SUBSYSTEM_NAME));
+              ServerErrorCodes.CE_DUPLICATE_FIELD_NAME_WARNING.numericCode(), args, true, SUBSYSTEM_NAME));
     }
   }
 
@@ -868,7 +868,7 @@ public class PSContentEditorHandler
     Object[] args = {colName, fields, m_dataSet.getName(), m_appHandler.getName()};
     PSLogManager.write(
         new PSLogServerWarning(
-            IPSServerErrors.CE_DUPLICATE_COL_NAME_WARNING, args, true, SUBSYSTEM_NAME));
+            ServerErrorCodes.CE_DUPLICATE_COL_NAME_WARNING.numericCode(), args, true, SUBSYSTEM_NAME));
   }
 
   /**
@@ -893,7 +893,7 @@ public class PSContentEditorHandler
           int id = ids.next().intValue();
           if (id == defaultWfId)
             throw new PSSystemValidationException(
-                IPSServerErrors.CE_DEFAULT_WF_EXCLUDED, Integer.toString(id));
+                ServerErrorCodes.CE_DEFAULT_WF_EXCLUDED, Integer.toString(id));
         }
       } else {
         // make sure the default IS in the included list
@@ -905,7 +905,7 @@ public class PSContentEditorHandler
         }
         if (!found)
           throw new PSSystemValidationException(
-              IPSServerErrors.CE_DEFAULT_WF_NOT_INLUDED, Integer.toString(id));
+              ServerErrorCodes.CE_DEFAULT_WF_NOT_INLUDED, Integer.toString(id));
       }
     }
   }

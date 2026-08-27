@@ -17,10 +17,11 @@
 
 package com.percussion.cms.handlers;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.objectstore.PSCmsObject;
 import com.percussion.conn.PSServerException;
-import com.percussion.data.IPSDataErrors;
 import com.percussion.data.IPSInternalResultHandler;
 import com.percussion.data.IPSResultSetDataFilter;
 import com.percussion.data.PSExecutionData;
@@ -71,7 +72,6 @@ import com.percussion.search.objectstore.PSWSSearchParams;
 import com.percussion.search.objectstore.PSWSSearchRequest;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
@@ -165,7 +165,7 @@ public class PSSearchCommandHandler extends PSCommandHandler
       return data;
     } catch (Exception e) {
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e));
+          DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e));
     } finally {
       cleanup(data, execDataCleanupList);
     }
@@ -223,10 +223,10 @@ public class PSSearchCommandHandler extends PSCommandHandler
       return executeSearchRequest(request, execDataCleanupList);
     } catch (PSUnsupportedConversionException e) {
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e));
+          DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e));
     } catch (PSSystemValidationException e) {
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e));
+          DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e));
     } catch (PSUnknownNodeTypeException e) {
       throw new PSInternalRequestCallException(e.getErrorCode(), e.getErrorArguments());
     } finally {
@@ -281,7 +281,7 @@ public class PSSearchCommandHandler extends PSCommandHandler
     if (PSRequest.PAGE_TYPE_UNKNOWN == req.getRequestPageType()) {
       String pageExt = req.getRequestPageExtension();
       throw new PSUnsupportedConversionException(
-          IPSDataErrors.HTML_CONV_EXT_NOT_SUPPORTED, pageExt);
+          DataErrorCodes.HTML_CONV_EXT_NOT_SUPPORTED, pageExt);
     }
 
     Document doc;
@@ -1260,9 +1260,9 @@ public class PSSearchCommandHandler extends PSCommandHandler
       try {
         driver = PSConnectionHelper.getConnectionDetail(null).getDriver();
       } catch (NamingException e) {
-        throw new PSServerException(IPSServerErrors.RAW_DUMP, e.getLocalizedMessage());
+        throw new PSServerException(ServerErrorCodes.RAW_DUMP, e.getLocalizedMessage());
       } catch (SQLException e) {
-        throw new PSServerException(IPSServerErrors.RAW_DUMP, e.getLocalizedMessage());
+        throw new PSServerException(ServerErrorCodes.RAW_DUMP, e.getLocalizedMessage());
       }
       if (driver.startsWith(PSJdbcUtils.ORACLE_PRIMARY)) {
         PSBackEndTable table = new PSBackEndTable(IPSConstants.CONTENT_STATUS_TABLE);

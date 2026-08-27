@@ -16,11 +16,13 @@
  */
 package com.percussion.cms.handlers;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.PSContentEditorWalker;
 import com.percussion.cms.PSEditorDocumentBuilder;
 import com.percussion.cms.PSPageInfo;
 import com.percussion.content.IPSMimeContentTypes;
-import com.percussion.data.IPSDataErrors;
 import com.percussion.data.IPSDataExtractor;
 import com.percussion.data.IPSInternalResultHandler;
 import com.percussion.data.PSConditionalUrlEvaluator;
@@ -53,8 +55,6 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.log.PSLogError;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
-import com.percussion.server.IPSHttpErrors;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSPageCache;
@@ -202,7 +202,7 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
     if (PSRequest.PAGE_TYPE_UNKNOWN == req.getRequestPageType()) {
       String pageExt = req.getRequestPageExtension();
       throw new PSUnsupportedConversionException(
-          IPSDataErrors.HTML_CONV_EXT_NOT_SUPPORTED, pageExt);
+          DataErrorCodes.HTML_CONV_EXT_NOT_SUPPORTED, pageExt);
     }
 
     // run any pre-processing extensions
@@ -253,7 +253,7 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
     int pageId = getPageId(data);
     PSEditorDocumentBuilder builder = getDocumentBuilder(pageId, data);
     if (null == builder) {
-      throw new PSNotFoundException(IPSServerErrors.CE_INVALID_PAGEID, Integer.toString(pageId));
+      throw new PSNotFoundException(ServerErrorCodes.CE_INVALID_PAGEID, Integer.toString(pageId));
     }
 
     return builder;
@@ -336,7 +336,7 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
            * The page probably timed out and was removed from the
            * cache. Return an error.
            */
-          resp.setStatus(IPSHttpErrors.HTTP_NOT_FOUND);
+          resp.setStatus(HttpErrorCodes.HTTP_NOT_FOUND.numericCode());
           return;
         } else {
           /*
@@ -348,7 +348,7 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
         }
 
         // Request is successful but we are serving an error page
-        resp.setStatus(IPSHttpErrors.HTTP_INTERNAL_SERVER_ERROR);
+        resp.setStatus(HttpErrorCodes.HTTP_INTERNAL_SERVER_ERROR.numericCode());
         stylesheet = req.getParameter(PSContentEditorHandler.USE_STYLESHEET);
       }
 
@@ -370,7 +370,7 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
           PSStyleSheetMerger merger = PSStyleSheetMerger.getMerger(mergeStylesheet);
           if (!(merger instanceof PSXslStyleSheetMerger)) {
             throw new PSConversionException(
-                IPSServerErrors.CE_UNSUPPORTED_MERGER, mergeStylesheet.toString());
+                ServerErrorCodes.CE_UNSUPPORTED_MERGER, mergeStylesheet.toString());
           }
           PSXslStyleSheetMerger xslMerger = (PSXslStyleSheetMerger) merger;
 
@@ -384,7 +384,7 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
             xslMerger.merge(req, resultDoc, out, mergeStylesheet);
           } catch (PSConversionException e) {
             PSServerLogHandler.logException(XSL_PARSER_ERROR_STRING + urlPath, e);
-            resp.setStatus(IPSHttpErrors.HTTP_INTERNAL_SERVER_ERROR, XSL_PARSER_ERROR_STRING);
+            resp.setStatus(HttpErrorCodes.HTTP_INTERNAL_SERVER_ERROR.numericCode(), XSL_PARSER_ERROR_STRING);
             return;
           }
           if (out != null) {
@@ -401,7 +401,7 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
         }
       } else if (PSRequest.PAGE_TYPE_JSON == req.getRequestPageType()) {
         if (resultDoc == null) {
-          resp.setStatus(IPSHttpErrors.HTTP_NOT_FOUND);
+          resp.setStatus(HttpErrorCodes.HTTP_NOT_FOUND.numericCode());
         } else {
           String json = PSXmlDocumentJsonCodec.toJson(resultDoc);
           byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
@@ -456,7 +456,7 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
         errorCode = e.getErrorCode();
         errorArgs = e.getErrorArguments();
       } else {
-        errorCode = IPSServerErrors.RAW_DUMP;
+        errorCode = ServerErrorCodes.RAW_DUMP.numericCode();
         errorArgs = new Object[] {getExceptionText(t)};
       }
 
@@ -514,7 +514,7 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
       throw new PSInternalRequestCallException(e.getErrorCode(), e.getErrorArguments());
     } catch (Exception e) {
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e));
+          DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e));
     } finally {
       cleanup(null, resultSetCleanupList, execDataCleanupList);
     }
@@ -544,7 +544,7 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
       throw new PSInternalRequestCallException(e.getErrorCode(), e.getErrorArguments());
     } catch (SQLException e) {
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e));
+          DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e));
     } finally {
       cleanup(data, resultSetCleanupList, execDataCleanupList);
     }
@@ -599,7 +599,7 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
       throw new PSInternalRequestCallException(e.getErrorCode(), e.getErrorArguments());
     } catch (Exception e) {
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e));
+          DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e));
     } finally {
       cleanup(data, resultSetCleanupList, execDataCleanupList);
     }
@@ -802,10 +802,10 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
       } catch (Exception e) {
         Object[] args = {name, errMsg + e.getLocalizedMessage()};
         if (e instanceof PSDataExtractionException) {
-          throw new PSDataExtractionException(IPSServerErrors.FIELD_TRANSFORM_ERROR, args);
+          throw new PSDataExtractionException(ServerErrorCodes.FIELD_TRANSFORM_ERROR, args);
         }
 
-        throw new PSConversionException(IPSServerErrors.FIELD_TRANSFORM_ERROR, args);
+        throw new PSConversionException(ServerErrorCodes.FIELD_TRANSFORM_ERROR, args);
       }
     }
     data.setInputDocument(null);

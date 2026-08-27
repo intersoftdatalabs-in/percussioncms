@@ -16,6 +16,8 @@
  */
 package com.percussion.cms.handlers;
 
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.data.IPSInternalResultHandler;
 import com.percussion.data.PSExecutionData;
@@ -57,8 +59,6 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.server.IPSHttpErrors;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSResponse;
@@ -138,7 +138,7 @@ public class PSBinaryCommandHandler extends PSCommandHandler
         // Get the mime content and set on response of the request.
         PSMimeContentResult mimeContent = rh.getMimeContent(resultData, false);
         PSResponse resp = req.getResponse();
-        if (mimeContent == null) resp.setStatus(IPSHttpErrors.HTTP_NO_CONTENT);
+        if (mimeContent == null) resp.setStatus(HttpErrorCodes.HTTP_NO_CONTENT.numericCode());
         else {
           resp.setContent(
               mimeContent.getContent(), mimeContent.getContentLength(), mimeContent.getMimeType());
@@ -162,7 +162,7 @@ public class PSBinaryCommandHandler extends PSCommandHandler
         errorCode = e.getErrorCode();
         errorArgs = e.getErrorArguments();
       } else {
-        errorCode = IPSServerErrors.RAW_DUMP;
+        errorCode = ServerErrorCodes.RAW_DUMP.numericCode();
         errorArgs = new Object[] {getExceptionText(t)};
       }
 
@@ -531,7 +531,7 @@ public class PSBinaryCommandHandler extends PSCommandHandler
        * resource map.
        */
       if (m_resourceMap.containsKey(submitName))
-        throw new PSSystemValidationException(IPSServerErrors.CE_DUPLICATE_SUBMIT_NAME, submitName);
+        throw new PSSystemValidationException(ServerErrorCodes.CE_DUPLICATE_SUBMIT_NAME, submitName);
       else m_resourceMap.put(submitName.toLowerCase(), dataset.getName());
 
       return dataset;

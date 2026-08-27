@@ -16,7 +16,7 @@
  */
 package com.percussion.cms.handlers;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
@@ -147,7 +147,7 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
           if (!PSCms.canWriteToFolders(new PSRequestContext(data.getRequest()))) {
             // user must have write access
             throw new PSAuthorizationException(
-                IPSCmsErrors.FOLDER_PERMISSION_DENIED, new String[] {});
+                PathItemErrorCodes.FOLDER_PERMISSION_DENIED, new String[] {});
           }
         }
 

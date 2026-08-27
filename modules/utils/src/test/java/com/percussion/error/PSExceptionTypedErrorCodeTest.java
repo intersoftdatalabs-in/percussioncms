@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.data.PSDataExtractionException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.junit.jupiter.api.Test;
 
@@ -204,5 +205,25 @@ class PSExceptionTypedErrorCodeTest {
     assertEquals(2011, ex.getErrorCode());
     assertSame(SAMPLE, ex.getTypedErrorCode());
     assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  void dataExtractionExceptionTypedCtors() {
+    PSDataExtractionException noArgs = new PSDataExtractionException(SAMPLE);
+    assertEquals(2011, noArgs.getErrorCode());
+    assertSame(SAMPLE, noArgs.getTypedErrorCode());
+    assertFalse(noArgs.isAuditable());
+
+    PSDataExtractionException single = new PSDataExtractionException(SAMPLE, "redirect");
+    assertSame(SAMPLE, single.getTypedErrorCode());
+    assertEquals("redirect", single.getErrorArguments()[0]);
+
+    Object[] args = {"field", "transform"};
+    PSDataExtractionException array = new PSDataExtractionException(SAMPLE, args);
+    assertSame(SAMPLE, array.getTypedErrorCode());
+    assertEquals(args, array.getErrorArguments());
+
+    assertThrows(
+        IllegalArgumentException.class, () -> new PSDataExtractionException((IPSErrorCode) null));
   }
 }

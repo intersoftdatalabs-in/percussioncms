@@ -109,6 +109,19 @@ public class PSInternalRequestCallException extends PSConversionException {
   }
 
   /**
+   * Typed construction with a single message argument and cause (matches the legacy {@code (int,
+   * String, Exception)} constructor used by cms command handlers).
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message
+   * @param exception the original exception, may be {@code null}
+   */
+  public PSInternalRequestCallException(
+      IPSErrorCode code, String singleArg, Exception exception) {
+    super(code, exception, singleArg);
+  }
+
+  /**
    * Construct an exception for messages taking an array of arguments. Be sure to store the
    * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *

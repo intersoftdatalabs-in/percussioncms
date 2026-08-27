@@ -16,6 +16,7 @@
  */
 package com.percussion.cms.handlers;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.IPSEditorChangeListener;
 import com.percussion.cms.PSCmsException;
@@ -65,7 +66,6 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.security.utils.PSRedirectValidation;
 import com.percussion.server.IPSInternalRequest;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
@@ -301,7 +301,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
     Iterator requests = appFlow.getRedirects(commandName);
 
     if (requests == null || !requests.hasNext())
-      throw new PSSystemValidationException(IPSServerErrors.CE_MISSING_REDIRECTS, commandName);
+      throw new PSSystemValidationException(ServerErrorCodes.CE_MISSING_REDIRECTS, commandName);
 
     while (requests.hasNext()) {
       PSConditionalRequest request = (PSConditionalRequest) requests.next();
@@ -329,7 +329,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
 
     // create the redirect url
     String url = getRedirectURL(data);
-    if (url == null) throw new PSDataExtractionException(IPSServerErrors.CE_NO_REDIRECT_URL);
+    if (url == null) throw new PSDataExtractionException(ServerErrorCodes.CE_NO_REDIRECT_URL);
 
     sendRedirect(data, processUrlReplacementParameters(url, data));
   }
@@ -650,7 +650,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
 
     if (null == fieldSet) {
       throw new PSSystemValidationException(
-          IPSServerErrors.CE_MISSING_FIELDSET, dispMapper.getFieldSetRef());
+          ServerErrorCodes.CE_MISSING_FIELDSET, dispMapper.getFieldSetRef());
     }
 
     Iterator mappings = dispMapper.iterator();
