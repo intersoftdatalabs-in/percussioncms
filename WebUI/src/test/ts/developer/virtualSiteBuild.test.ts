@@ -34,7 +34,7 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualBuildChrome("  object-storage  ")).toBe(true);
   });
 
-  it("shouldShowVirtualPreviewChrome for git, csv, sql-database, and http-json (not repository)", () => {
+  it("shouldShowVirtualPreviewChrome for git, csv, sql-database, http-json, and object-storage (not repository)", () => {
     expect(shouldShowVirtualPreviewChrome(null)).toBe(false);
     expect(shouldShowVirtualPreviewChrome("")).toBe(false);
     expect(shouldShowVirtualPreviewChrome("repository")).toBe(false);
@@ -47,8 +47,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPreviewChrome("http-json")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("HTTP-JSON")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("  http-json  ")).toBe(true);
-    expect(shouldShowVirtualPreviewChrome("object-storage")).toBe(false);
-    expect(shouldShowVirtualPreviewChrome("Object-Storage")).toBe(false);
+    expect(shouldShowVirtualPreviewChrome("object-storage")).toBe(true);
+    expect(shouldShowVirtualPreviewChrome("Object-Storage")).toBe(true);
+    expect(shouldShowVirtualPreviewChrome("  object-storage  ")).toBe(true);
   });
 
   it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, and http-json", () => {

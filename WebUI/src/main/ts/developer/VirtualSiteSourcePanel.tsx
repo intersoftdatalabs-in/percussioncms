@@ -150,9 +150,9 @@ function validationMessage(
  * Site detail section: view/edit Virtual Site source fields via public Site REST
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
  * build ({@code POST …/virtual/build}) for git-filesystem, csv-filesystem,
- * sql-database, and http-json. Preview last-build HTML and Publish
- * ({@code POST …/virtual/publish}) for those kinds. object-storage is
- * save/GET-roundtrip only (Build/Preview/Publish later).
+ * sql-database, http-json, and object-storage. Preview last-build HTML for
+ * those kinds. Publish ({@code POST …/virtual/publish}) for git/csv/sql/http-json
+ * only — object-storage Publish chrome stays a later phase.
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -344,7 +344,7 @@ export function VirtualSiteSourcePanel({
   const objectStorageMode = isObjectStorageSourceKind(form.sourceKind);
   /** Build chrome: git/csv/sql/http-json/object-storage (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
-  /** Preview chrome: git/csv/sql/http-json (never repository or object-storage). */
+  /** Preview chrome: git/csv/sql/http-json/object-storage (never repository). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
   /** Publish chrome: git/csv/sql/http-json (never repository or object-storage). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
