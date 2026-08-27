@@ -993,9 +993,10 @@ variants and creates new ones through the public REST façade:
 | `POST` | `/rest/content-explorer/translations` | Create locale variants (`itemIds` numeric content ids, optional `locales`) |
 
 `{itemId}` on GET may be a hyphenated Percussion GUID (`16777215-101-551`) **or** a bare numeric
-content id (`551`). Explorer list rows are usually GUID-shaped; clients must send that full GUID
-on GET. Stripping to the last segment (`GET …/translations/551`) can return **404 Item not found**
-while the GUID form returns **200**. Create-variant POST still uses numeric `itemIds`.
+content id (`551`). Explorer list rows expose the full GUID on the detail-row identity
+(`data-testid` / `data-item-id`); clients must send that full GUID on GET. Stripping to the last
+segment (`GET …/translations/551`) can return **404 Item not found** while the GUID form returns
+**200**. Create-variant POST still uses numeric `itemIds`.
 
 See [Content Explorer](id:admin-content-explorer) → Translations.
 

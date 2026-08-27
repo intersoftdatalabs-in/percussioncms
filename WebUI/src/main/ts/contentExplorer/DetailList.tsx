@@ -226,6 +226,7 @@ import {
   serializeFinderItemDrag,
 } from "../architecture/landingPageDrop";
 import { isPreviewableItem } from "./previewItem";
+import { explorerDetailRowIdKey } from "../api/contentExplorer/pathItemId";
 import { canRead, isFolder, sameExplorerItemId } from "./selection";
 import {
   emptyStateStyle,
@@ -426,8 +427,8 @@ export function DetailList({
     if (!multiSelectEnabled) return 0;
     let n = 0;
     for (const child of children) {
-      const id = child.id ?? child.path;
-      if (id != null && multiSelected.has(id)) n += 1;
+      const id = explorerDetailRowIdKey(child);
+      if (id && multiSelected.has(id)) n += 1;
     }
     return n;
   }, [children, multiSelectEnabled, multiSelected]);
@@ -501,8 +502,8 @@ export function DetailList({
                   onChange={(e) => {
                     const next = e.currentTarget.checked;
                     for (const child of children) {
-                      const id = child.id ?? child.path;
-                      if (id == null) continue;
+                      const id = explorerDetailRowIdKey(child);
+                      if (!id) continue;
                       const isOn = multiSelected.has(id);
                       if (isOn !== next) {
                         onToggleSelectItem!(child, next);
@@ -531,7 +532,7 @@ export function DetailList({
         <tbody {...{ [MKD_LANG_IGNORE_ATTR]: "1" as const }}>
           {children.map((item) => {
             const selected = sameExplorerItemId(selectedItemId, item.id);
-            const idKey = item.id ?? item.path;
+            const idKey = explorerDetailRowIdKey(item);
             const isChecked = multiSelectEnabled && multiSelected.has(idKey);
             const visible = canRead(item);
             const folderish = isFolder(item);
@@ -542,6 +543,7 @@ export function DetailList({
               <tr
                 key={idKey}
                 data-testid={`detail-row-${idKey}`}
+                data-item-id={idKey}
                 data-row-kind={folderish ? "folder" : "item"}
                 data-item-name={itemName}
                 data-item-type={item.type ?? ""}

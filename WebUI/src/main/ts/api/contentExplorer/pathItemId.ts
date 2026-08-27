@@ -174,21 +174,73 @@ function collectTypePropertyMap(
 }
 
 /**
- * Copy of {@code item} with {@code id} set to a parseable content/GUID
- * string when the wire omitted it or used a non-GUID shape that still
- * carries {@code sys_contentid} / a GUID object.
- *
- * Folders keep their original id when nothing parseable is found (site
- * name slugs stay slugs).
+ * True when {@code id} is a Percussion {@code host-type-uuid} GUID
+ * ({@code 16777215-101-551}). Used by Explorer row test ids and Translations
+ * GET (#3871 / parent #2649).
  */
-export function bindExplorerPathItemId(item: PSPathItem): PSPathItem {
+export function isExplorerGuidShapedId(id: unknown): boolean {
+  const unwrapped = unwrapExplorerWireId(id);
+  if (unwrapped == null) {
+    return false;
+  }
+  return GUID_HOST_TYPE_UUID.test(String(unwrapped).trim());
+}
+
+/**
+ * Flatten JAXB {@code columnData} / display-format maps into a string map.
+ *
+ * <p>Pathmanagement JSON may send {@code displayProperties} as a plain object
+ * or JAXB {@code columnData} as {@code {displayProperty:[{name,value}]}} /
+ * {@code {column:[{name,value}]}}.
+ */
+export function flattenDisplayPropertyMap(
+  raw: unknown,
+): Record<string, unknown> | null {
+  if (raw == null || typeof raw !== "object") {
+    return null;
+  }
+  if (Array.isArray(raw)) {
+    return flattenDisplayPropertyEntries(raw);
+  }
+  const rec = raw as Record<string, unknown>;
+  const list = rec.displayProperty ?? rec.column;
+  if (Array.isArray(list)) {
+    return flattenDisplayPropertyEntries(list);
+  }
+  if (rec.entries != null && typeof rec.entries === "object" && !Array.isArray(rec.entries)) {
+    return rec.entries as Record<string, unknown>;
+  }
+  return rec;
+}
+
+function flattenDisplayPropertyEntries(
+  list: unknown[],
+): Record<string, unknown> | null {
+  const out: Record<string, unknown> = {};
+  for (const entry of list) {
+    if (entry == null || typeof entry !== "object") {
+      continue;
+    }
+    const rec = entry as Record<string, unknown>;
+    const name = rec.name ?? rec.key;
+    if (typeof name === "string" && name.trim()) {
+      out[name.trim()] = rec.value ?? rec.Value;
+    }
+  }
+  return Object.keys(out).length > 0 ? out : null;
+}
+
+function collectIdCandidates(item: PSPathItem): unknown[] {
   const extras = item as PSPathItem & {
     typeProperties?: unknown;
     guid?: unknown;
     Guid?: unknown;
+    columnData?: unknown;
   };
   const candidates: unknown[] = [item.id, extras.guid, extras.Guid];
-  const dp = item.displayProperties;
+  const dp =
+    flattenDisplayPropertyMap(item.displayProperties) ??
+    flattenDisplayPropertyMap(extras.columnData);
   if (dp) {
     for (const key of CONTENT_ID_KEYS) {
       candidates.push(dp[key]);
@@ -200,7 +252,30 @@ export function bindExplorerPathItemId(item: PSPathItem): PSPathItem {
       candidates.push(tp[key]);
     }
   }
+  return candidates;
+}
 
+function asBoundIdString(unwrapped: string | number): string {
+  return typeof unwrapped === "string" ? unwrapped.trim() : String(unwrapped);
+}
+
+/**
+ * Copy of {@code item} with {@code id} set to a parseable content/GUID
+ * string when the wire omitted it or used a non-GUID shape that still
+ * carries {@code sys_contentid} / a GUID object.
+ *
+ * <p>Prefer a full {@code host-type-uuid} GUID over a bare numeric
+ * {@code sys_contentid}. Translations GET 404s on the last segment
+ * ({@code 551}) while the GUID ({@code 16777215-101-551}) returns 200
+ * (#3871 / #3703 / parent #2649).</p>
+ *
+ * Folders keep their original id when nothing parseable is found (site
+ * name slugs stay slugs).
+ */
+export function bindExplorerPathItemId(item: PSPathItem): PSPathItem {
+  const candidates = collectIdCandidates(item);
+  let guidId: string | undefined;
+  let numericId: string | undefined;
   for (const raw of candidates) {
     const unwrapped = unwrapExplorerWireId(raw);
     if (unwrapped == null) {
@@ -209,16 +284,72 @@ export function bindExplorerPathItemId(item: PSPathItem): PSPathItem {
     if (parseExplorerContentId(unwrapped) == null) {
       continue;
     }
-    const nextId =
-      typeof unwrapped === "string" ? unwrapped.trim() : String(unwrapped);
-    if (sameExplorerItemId(item.id, nextId)) {
-      return item;
+    const nextId = asBoundIdString(unwrapped);
+    if (!nextId) {
+      continue;
     }
-    return { ...item, id: nextId };
+    if (GUID_HOST_TYPE_UUID.test(nextId)) {
+      if (guidId == null) {
+        guidId = nextId;
+      }
+    } else if (numericId == null) {
+      numericId = nextId;
+    }
   }
+  const nextId = guidId ?? numericId;
+  if (nextId == null) {
+    // Nothing parseable — keep the original id (folder slugs, unparseable
+    // objects). Do not assign an unwrapped string that
+    // {@link parseExplorerContentId} rejected.
+    return item;
+  }
+  if (sameExplorerItemId(item.id, nextId)) {
+    return item;
+  }
+  return { ...item, id: nextId };
+}
 
-  // Nothing parseable — keep the original id (folder slugs, unparseable
-  // objects). Do not assign an unwrapped string that
-  // {@link parseExplorerContentId} rejected.
-  return item;
+/**
+ * Normalize one path-list child: unwrap nested {@code PathItem} roots,
+ * alias JAXB {@code columnData} onto {@code displayProperties}, then bind
+ * a Translations-usable id (#3871).
+ */
+export function normalizeListedPathItem(raw: unknown): PSPathItem {
+  if (raw == null || typeof raw !== "object") {
+    return { name: "", path: "" };
+  }
+  let rec = raw as Record<string, unknown>;
+  const nested = rec.PathItem;
+  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
+    rec = nested as Record<string, unknown>;
+  }
+  const item = { ...(rec as unknown as PSPathItem) };
+  if (item.displayProperties == null) {
+    const flat = flattenDisplayPropertyMap(rec.columnData);
+    if (flat) {
+      item.displayProperties = flat;
+    }
+  }
+  return bindExplorerPathItemId(item);
+}
+
+/**
+ * Stable list-row identity for {@code data-testid="detail-row-…"} and
+ * {@code data-item-id}. Prefers the bound GUID (or numeric content id)
+ * so Translations GET uses the same key the adaptor accepts (#3871).
+ */
+export function explorerDetailRowIdKey(item: PSPathItem): string {
+  const bound = bindExplorerPathItemId(item);
+  const fromId = unwrapExplorerWireId(bound.id);
+  if (fromId != null) {
+    const text = asBoundIdString(fromId);
+    if (text) {
+      return text;
+    }
+  }
+  const path = (bound.path ?? "").trim();
+  if (path) {
+    return path;
+  }
+  return (bound.name ?? "").trim();
 }

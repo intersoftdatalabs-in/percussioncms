@@ -47,7 +47,7 @@
 
 import { get, post, type ApiError } from "../client";
 import { PATHS } from "../paths";
-import { bindExplorerPathItemId } from "./pathItemId";
+import { normalizeListedPathItem } from "./pathItemId";
 import type {
   PSPathItem,
   PSPagedResult,
@@ -150,7 +150,7 @@ export function unwrapPathItemList(res: PSPathItemListResponse | null | undefine
     };
     throw err;
   }
-  return list.map(bindExplorerPathItemId);
+  return list.map(normalizeListedPathItem);
 }
 
 export async function findChildren(path: string): Promise<PSPathItem[]> {
@@ -196,7 +196,7 @@ export async function paginatedFolder(
     return { children: [], totalCount: 0, startIndex: params.startIndex };
   }
   return {
-    children: (paged.childrenInPage ?? []).map(bindExplorerPathItemId),
+    children: (paged.childrenInPage ?? []).map(normalizeListedPathItem),
     totalCount: paged.childrenCount ?? undefined,
     startIndex: paged.startIndex ?? params.startIndex,
   };
@@ -224,7 +224,7 @@ export async function findItemByPath(path: string): Promise<PSPathItem> {
   }
   const res = await get<PSPathItemResponse>(joinPathUrl(PATHS.PATH_ITEM, path));
   const item = res?.PathItem ?? ({} as PSPathItem);
-  return bindExplorerPathItemId(item);
+  return normalizeListedPathItem(item);
 }
 
 export async function findItemById(id: string): Promise<PSPathItem> {
@@ -232,7 +232,7 @@ export async function findItemById(id: string): Promise<PSPathItem> {
     `${PATHS.PATH_ITEM_ID}/${encodeURIComponent(id)}`,
   );
   const item = res?.PathItem ?? ({} as PSPathItem);
-  return bindExplorerPathItemId(item);
+  return normalizeListedPathItem(item);
 }
 
 export async function addNewFolder(

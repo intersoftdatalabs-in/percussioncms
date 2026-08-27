@@ -26,7 +26,8 @@
  * uses the numeric content id. The client must not emit {@code Selected item
  * does not have a numeric content id} for a GUID-shaped row. Folders/sites
  * keep the select-item hint. A GUID content row that opens the panel must
- * reach {@code ok} with locale + create-variant (fail closed).</p>
+ * reach {@code ok} with locale + create-variant (fail closed). #3871: list
+ * rows expose {@code data-item-id} / {@code detail-row-host-type-uuid}.</p>
  *
  * <p>Tags: {@code @explorer-translations} {@code @p-trans} {@code @smoke}</p>
  *
@@ -40,6 +41,10 @@ const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 const {
   expectNoSeriousA11yViolations,
 } = require("./helpers/a11y");
+const {
+  translationsRowIdFromAttrs,
+  isPreferredContentRowName,
+} = require("./helpers/explorer-translations-row");
 
 /** Wait until the detail list region is present (folder navigation settled). */
 async function listWaitReady(page) {
@@ -54,51 +59,108 @@ async function clickFirstRowWithDetachRetry(rows) {
 }
 
 /**
- * Double-click a folder row by {@code data-item-name} or visible name.
+ * Open a folder row by {@code data-item-name} or visible name. Finder
+ * labels fold spaces/underscores ({@code Corporate_Investments} matches
+ * {@code Corporate Investments}). Activates the folder icon so a single
+ * click does not only select the row.
  * @returns {Promise<boolean>}
  */
 async function openFolderByName(page, name) {
   const list = page.locator('[data-testid="detail-list"]');
-  const named = list.locator(
-    `tbody tr[data-row-kind="folder"][data-item-name="${name}"]`,
-  );
-  const row =
-    (await named.count()) > 0
-      ? named.first()
-      : list
-          .locator("tbody tr[data-row-kind=\"folder\"]")
-          .filter({ hasText: name })
-          .first();
-  if ((await row.count()) === 0) {
+  await listWaitReady(page);
+  const testId = await list.evaluate((root, wanted) => {
+    const fold = (s) =>
+      String(s || "")
+        .toLowerCase()
+        .replace(/[_\s-]+/g, "");
+    const want = fold(wanted);
+    const rows = root.querySelectorAll('tbody tr[data-row-kind="folder"]');
+    for (const tr of rows) {
+      const itemName = tr.getAttribute("data-item-name") || "";
+      const text = (tr.textContent || "").trim();
+      if (itemName === wanted || fold(itemName) === want) {
+        return tr.getAttribute("data-testid") || "";
+      }
+      if (want && fold(text) === want) {
+        return tr.getAttribute("data-testid") || "";
+      }
+    }
+    return "";
+  }, name);
+  if (!testId) {
     return false;
   }
-  await row.dblclick({ force: true, timeout: 10_000 }).catch(async () => {
-    await row.click({ force: true, timeout: 10_000 }).catch(() => {});
-  });
+  const row = list.locator(`[data-testid="${testId}"]`);
+  const prevPath = (await list.getAttribute("data-folder-path")) || "";
+  const icon = row.locator('button[data-testid^="detail-folder-icon-"]');
+  if ((await icon.count()) > 0) {
+    await icon.first().click({ force: true, timeout: 10_000 }).catch(() => {});
+  } else {
+    await row.dblclick({ force: true, timeout: 10_000 }).catch(() => {});
+  }
   await listWaitReady(page);
   await page.waitForLoadState("networkidle").catch(() => {});
-  return true;
+  const nextPath = (await list.getAttribute("data-folder-path")) || "";
+  return nextPath !== prevPath;
 }
 
 /**
- * Find a GUID-shaped content row ({@code detail-row-host-type-uuid}).
+ * Click a list row so {@code selection.item} matches the row GUID.
+ * @param {import("@playwright/test").Locator} row
+ * @param {string} guid
+ * @param {import("@playwright/test").Page} page
+ */
+async function selectGuidRow(row, guid, page) {
+  const nameCell = row.locator('[data-testid^="detail-cell-name-"]');
+  if ((await nameCell.count()) > 0) {
+    await nameCell.first().click({ force: true, timeout: 10_000 }).catch(() => {});
+  } else {
+    await row.click({ force: true, timeout: 10_000 }).catch(() => {});
+  }
+  const shell = page.locator('[data-testid="content-explorer-shell"]');
+  await expect(shell)
+    .toHaveAttribute("data-selected-item-id", guid, { timeout: 8_000 })
+    .catch(() => {});
+}
+
+/**
+ * Find a GUID-shaped content row. Prefer the named sample page
+ * (Corporate Investments Home), then any {@code data-row-kind=item}
+ * with a host-type-uuid id.
  * @returns {Promise<string>}
  */
 async function guidIdFromItemRows(page) {
   const list = page.locator('[data-testid="detail-list"]');
-  const rows = list.locator(
-    'tbody tr[data-testid^="detail-row-"][data-row-kind="item"]',
+  const allRows = list.locator('tbody tr[data-testid^="detail-row-"]');
+  const snapshot = await allRows.evaluateAll((els) =>
+    els.map((el) => ({
+      testId: el.getAttribute("data-testid") || "",
+      itemId: el.getAttribute("data-item-id") || "",
+      itemName: el.getAttribute("data-item-name") || "",
+      rowKind: el.getAttribute("data-row-kind") || "",
+      text: (el.textContent || "").trim(),
+    })),
   );
-  const n = await rows.count();
-  for (let i = 0; i < n; i += 1) {
-    const testid = (await rows.nth(i).getAttribute("data-testid")) || "";
-    const m = testid.match(/^detail-row-(\d+-\d+-\d+)$/);
-    if (m) {
-      await rows.nth(i).click({ force: true, timeout: 10_000 }).catch(() => {});
-      return m[1];
-    }
+  const preferred = snapshot.find(
+    (row) =>
+      row.rowKind === "item" &&
+      isPreferredContentRowName(row.itemName, row.text) &&
+      translationsRowIdFromAttrs(row),
+  );
+  const firstItem = snapshot.find(
+    (row) =>
+      row.rowKind === "item" &&
+      !/\.(jpg|jpeg|png|gif|css|js)$/i.test(row.itemName) &&
+      translationsRowIdFromAttrs(row),
+  );
+  const chosen = preferred || firstItem;
+  if (!chosen) {
+    return "";
   }
-  return "";
+  const guid = translationsRowIdFromAttrs(chosen);
+  const row = list.locator(`[data-testid="${chosen.testId}"]`);
+  await selectGuidRow(row, guid, page);
+  return guid;
 }
 
 /**
@@ -321,10 +383,14 @@ test.describe("modern React Content Explorer — translations (P-Trans #2430)", 
       if (!guidRowId) {
         // Sites list is site folders. Open Corporate Investments (or first
         // site), then Pages — FastForward pages use host-type-uuid ids.
-        await openFolderByName(page, "Corporate Investments");
-        await openFolderByName(page, "CorporateInvestments");
-        await openFolderByName(page, "Corporate_Investments");
-        guidRowId = await guidIdFromItemRows(page);
+        // Stop after the first matching site name (fold spaces/underscores).
+        const openedSite =
+          (await openFolderByName(page, "Corporate Investments")) ||
+          (await openFolderByName(page, "CorporateInvestments")) ||
+          (await openFolderByName(page, "Corporate_Investments"));
+        if (openedSite) {
+          guidRowId = await guidIdFromItemRows(page);
+        }
       }
       if (!guidRowId) {
         await openFolderByName(page, "Pages");
@@ -339,6 +405,10 @@ test.describe("modern React Content Explorer — translations (P-Trans #2430)", 
         guidRowId,
         "H2 QA must list a GUID-shaped content row (host-type-uuid)",
       ).toMatch(/^\d+-\d+-\d+$/);
+
+      await expect(
+        page.locator('[data-testid="content-explorer-shell"]'),
+      ).toHaveAttribute("data-selected-item-id", guidRowId, { timeout: 8_000 });
 
       await page.locator('[data-testid="explorer-menu-view"]').click();
       await page.locator('[data-testid="explorer-toggle-translations"]').click();

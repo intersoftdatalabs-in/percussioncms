@@ -84,6 +84,10 @@ describe("DetailList", () => {
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-p-1")).toBeInTheDocument(),
     );
+    expect(screen.getByTestId("detail-row-p-1")).toHaveAttribute(
+      "data-item-id",
+      "p-1",
+    );
     expect(screen.getByTestId("detail-row-p-2")).toBeInTheDocument();
     expect(screen.getByTestId("detail-row-p-1").getAttribute("data-previewable")).toBe(
       "true",
@@ -878,10 +882,42 @@ describe("T092b / FR-027: display-format column resolution", () => {
       ).toBeInTheDocument(),
     );
     const row = screen.getByTestId("detail-row-16777215-101-703");
+    expect(row).toHaveAttribute("data-item-id", "16777215-101-703");
     expect(row).toHaveAttribute("data-row-kind", "folder");
     expect(row).toHaveAttribute("data-item-name", "Corporate_Investments");
     expect(screen.getByText("Corporate_Investments")).toBeInTheDocument();
     await renderA11yGate(container);
+  });
+
+  it("content rows expose a GUID-shaped data-testid and data-item-id (#3871)", async () => {
+    mockFolderPage([
+      {
+        id: "551",
+        name: "Corporate Investments Home",
+        path: "/Sites/CorporateInvestments/Pages/Corporate Investments Home",
+        type: "rffHome",
+        category: "PAGE",
+        leaf: true,
+        guid: { hostId: 16777215, type: 101, uuid: 551 },
+      } as PSPathItem,
+    ]);
+    render(
+      <DetailList
+        folderPath="/Sites/CorporateInvestments/Pages"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+        onActivateItem={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("detail-row-16777215-101-551"),
+      ).toBeInTheDocument(),
+    );
+    const row = screen.getByTestId("detail-row-16777215-101-551");
+    expect(row).toHaveAttribute("data-item-id", "16777215-101-551");
+    expect(row).toHaveAttribute("data-row-kind", "item");
+    expect(row).toHaveAttribute("data-item-name", "Corporate Investments Home");
   });
 
   it("site Name column uses folderPath leaf when name is a GUID (#3684)", () => {
