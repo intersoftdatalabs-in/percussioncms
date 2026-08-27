@@ -111,7 +111,7 @@ When a Percussion Site is configured as virtual (Phase 1 — no new `RXSITES` co
 
 | Property name | Required | Example | Meaning |
 |---------------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, or `object-storage` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips git, CSV, SQL, `http-json`, and `object-storage` (local `rootPath` only; cloud URLs and credential properties are **400**). REST **Build** (`POST …/virtual/build`) runs git/CSV/SQL, `http-json` (local JSON fixture or loopback catalog), and `object-storage` (local object-key bucket; leftover `virtual.remoteUrl` is **400**). REST **Publish** (`POST …/virtual/publish`) runs git/CSV/SQL, `http-json`, and `object-storage` adapters (copies assembled HTML to `IPSSite.root`; leftover `virtual.remoteUrl` on `http-json` and `object-storage` is **400**). REST **Preview** streams last-build HTML after Build (git/CSV/SQL/`http-json`/`object-storage`). `http-json` persist uses a portable-safe `rootPath` JSON fixture; catalog URL/file live in `_config.yaml` (`http.url` / `http.file`); `virtual.remoteUrl` is **400** (no secrets on the REST envelope). SPI/CLI assemble is installed. Developer Sites can select, save, **Build**, **Preview**, and **Publish** HTTP JSON. `sql-database` is in-memory H2 (`jdbc:h2:mem:`; required query columns `id`, `title`, `body`; JDBC URL/user/query in `_config.yaml`, never passwords on the REST envelope). Developer Sites can select and save **SQL database**. `csv-filesystem` required columns: `id`, `title`, `body`; optional `_config.yaml`. `object-storage` is a local object-key SPI plus REST Build, last-build Preview, and REST Publish (`PSVirtualSiteBuildMain … object-storage`; Markdown / HTML / JSON under `virtual.rootPath`; no cloud secrets). Developer Sites can select and save **Object storage** (GET round-trips the kind), then **Build Virtual Site** and **Preview assembled site**. REST **Publish** copies a local object-key fixture to `IPSSite.root`; Publish chrome for this kind stays a later phase. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, or `object-storage` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips git, CSV, SQL, `http-json`, and `object-storage` (local `rootPath` only; cloud URLs and credential properties are **400**). REST **Build** (`POST …/virtual/build`) runs git/CSV/SQL, `http-json` (local JSON fixture or loopback catalog), and `object-storage` (local object-key bucket; leftover `virtual.remoteUrl` is **400**). REST **Publish** (`POST …/virtual/publish`) runs git/CSV/SQL, `http-json`, and `object-storage` adapters (copies assembled HTML to `IPSSite.root`; leftover `virtual.remoteUrl` on `http-json` and `object-storage` is **400**). REST **Preview** streams last-build HTML after Build (git/CSV/SQL/`http-json`/`object-storage`). `http-json` persist uses a portable-safe `rootPath` JSON fixture; catalog URL/file live in `_config.yaml` (`http.url` / `http.file`); `virtual.remoteUrl` is **400** (no secrets on the REST envelope). SPI/CLI assemble is installed. Developer Sites can select, save, **Build**, **Preview**, and **Publish** HTTP JSON. `sql-database` is in-memory H2 (`jdbc:h2:mem:`; required query columns `id`, `title`, `body`; JDBC URL/user/query in `_config.yaml`, never passwords on the REST envelope). Developer Sites can select and save **SQL database**. `csv-filesystem` required columns: `id`, `title`, `body`; optional `_config.yaml`. `object-storage` is a local object-key SPI plus REST Build, last-build Preview, and REST Publish (`PSVirtualSiteBuildMain … object-storage`; Markdown / HTML / JSON under `virtual.rootPath`; no cloud secrets). Developer Sites can select and save **Object storage** (GET round-trips the kind), then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. REST **Publish** copies a local object-key fixture to `IPSSite.root`. |
 | `virtual.rootPath` | Yes when remote is blank | absolute or install-relative path to tree | Local filesystem source root when `virtual.remoteUrl` is blank. NIO `Path` normalize; no empty path / remaining `..`. When a remote is set, optional relative path inside the checkout. |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones/fetches into `{install}/tmp/virtual-site-checkouts/{siteKey}`. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. Fail-closed on `..`, `http`, option injection. Credentials are never logged. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. |
@@ -232,9 +232,9 @@ catalog/`_config.yaml` edit, an object-key edit, or a local Markdown edit). File
 are not used; run **Build Virtual Site** again after those edits.
 The Developer Sites UI exposes this operation as **Build Virtual Site** when source kind
 is Git, CSV, SQL, HTTP JSON, or Object storage (never for traditional repository Sites).
-**Object storage** hides Preview and Publish chrome. After a
-successful HTTP JSON Build, **Preview assembled site** opens last-build home HTML
-and **Publish Virtual Site** copies assembled files to the Site filesystem root.
+After a successful HTTP JSON or object-storage Build, **Preview assembled site** opens
+last-build home HTML and **Publish Virtual Site** copies assembled files to the Site
+filesystem root.
 When
 `hasLinkProblems` is true, the result panel shows the problem **count** and an expandable list
 of `linkProblems` (same text as `link-report.txt`). A clean build does not show that banner.
@@ -289,11 +289,11 @@ portable-safe local object-key `rootPath` (no cloud URLs, IAM, or access keys); 
 
 Configure a dedicated Site root (not the Markdown, CSV, SQL, or HTTP JSON source path).
 Operators can run the same action from **Developer → Sites → Site detail → Publish Virtual
-Site** (Admin; **Git filesystem**, **CSV filesystem**, **SQL database**, and **HTTP JSON**;
-hidden for repository Sites). After a successful HTTP JSON Build, **Publish Virtual Site**
-copies assembled HTML to the Site filesystem root. REST Publish still runs for
-`http-json` and `object-storage` (local object-key fixture; Developer Sites object-storage
-chrome stays a later phase). `sql-database` Publish is in-memory H2 only (`jdbc:h2:mem:`);
+Site** (Admin; **Git filesystem**, **CSV filesystem**, **SQL database**, **HTTP JSON**, and
+**Object storage**; hidden for repository Sites). After a successful HTTP JSON or
+object-storage Build, **Publish Virtual Site** copies assembled HTML to the Site
+filesystem root. REST Publish still runs for `http-json` and `object-storage` (local
+object-key fixture). `sql-database` Publish is in-memory H2 only (`jdbc:h2:mem:`);
 Oracle / MySQL / SQL Server JDBC URLs return **400**. See
 [Publishing](id:admin-publishing).
 

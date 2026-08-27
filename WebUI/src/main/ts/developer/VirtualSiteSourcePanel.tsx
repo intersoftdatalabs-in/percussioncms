@@ -151,8 +151,8 @@ function validationMessage(
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
  * build ({@code POST …/virtual/build}) for git-filesystem, csv-filesystem,
  * sql-database, http-json, and object-storage. Preview last-build HTML for
- * those kinds. Publish ({@code POST …/virtual/publish}) for git/csv/sql/http-json
- * only — object-storage Publish chrome stays a later phase.
+ * those kinds. Publish ({@code POST …/virtual/publish}) for the same kinds
+ * after a successful Build. Repository / blank / unknown kinds stay hidden.
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -346,7 +346,7 @@ export function VirtualSiteSourcePanel({
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
   /** Preview chrome: git/csv/sql/http-json/object-storage (never repository). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
-  /** Publish chrome: git/csv/sql/http-json (never repository or object-storage). */
+  /** Publish chrome: git/csv/sql/http-json/object-storage (never repository). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
   const busy = saving || building || publishing;
   const buildSummary = buildResult ? formatVirtualSiteBuildSummary(buildResult) : null;
@@ -574,7 +574,7 @@ export function VirtualSiteSourcePanel({
             ) : null}
           </div>
 
-          {/* Build chrome: git/csv/sql (never repository). */}
+          {/* Build chrome: git/csv/sql/http-json/object-storage (never repository). */}
           {showBuildChrome ? (
             <div
               data-testid="developer-site-virtual-build-section"
