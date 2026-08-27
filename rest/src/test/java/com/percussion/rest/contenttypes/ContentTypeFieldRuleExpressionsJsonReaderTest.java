@@ -18,6 +18,7 @@
 package com.percussion.rest.contenttypes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -102,5 +103,31 @@ public class ContentTypeFieldRuleExpressionsJsonReaderTest {
             new ByteArrayInputStream(raw));
     assertEquals("sys_title", out.getFieldName());
     assertTrue(reader.isReadable(ContentTypeFieldRuleExpressions.class, null, null, null));
+  }
+
+  @Test
+  public void isReadableGuardsJsonMediaType() {
+    assertTrue(
+        reader.isReadable(
+            ContentTypeFieldRuleExpressions.class,
+            ContentTypeFieldRuleExpressions.class,
+            null,
+            MediaType.APPLICATION_JSON_TYPE));
+    assertTrue(
+        reader.isReadable(
+            ContentTypeFieldRuleExpressions.class,
+            ContentTypeFieldRuleExpressions.class,
+            null,
+            MediaType.valueOf("application/json; charset=UTF-8")));
+    assertTrue(
+        ContentTypeFieldRuleExpressionsJsonReader.isJsonCompatible(
+            MediaType.valueOf("application/vnd.api+json")));
+    assertFalse(
+        reader.isReadable(
+            ContentTypeFieldRuleExpressions.class,
+            ContentTypeFieldRuleExpressions.class,
+            null,
+            MediaType.APPLICATION_XML_TYPE));
+    assertFalse(reader.isReadable(ContentTypeItemExits.class, null, null, MediaType.APPLICATION_JSON_TYPE));
   }
 }

@@ -22,9 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.rest.JacksonContextResolver;
 import jakarta.ws.rs.WebApplicationException;
+import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ObjectMapper;
 
 @Tag("UnitTest")
 public class ContentTypeItemExitsJsonReaderTest {
@@ -69,5 +72,18 @@ public class ContentTypeItemExitsJsonReaderTest {
   public void parseArrayIs400() {
     assertThrows(
         WebApplicationException.class, () -> ContentTypeItemExitsJsonReader.parse("[1,2]"));
+  }
+
+  @Test
+  public void jacksonContextResolverWrapsFasterxmlJsonRootName() {
+    ContentTypeItemExits body = new ContentTypeItemExits();
+    body.setInputTranslations(List.of());
+    body.setOutputTranslations(List.of());
+    body.setValidations(List.of());
+    body.setPreExits(List.of());
+    body.setPostExits(List.of());
+    ObjectMapper mapper = new JacksonContextResolver().getContext(ContentTypeItemExits.class);
+    String json = mapper.writeValueAsString(body);
+    assertTrue(json.contains("\"ContentTypeItemExits\""), "expected WRAP_ROOT_VALUE: " + json);
   }
 }

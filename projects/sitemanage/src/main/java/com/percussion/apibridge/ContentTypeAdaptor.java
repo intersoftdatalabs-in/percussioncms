@@ -116,6 +116,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BooleanSupplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -1767,8 +1768,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   /**
-   * Keep the original {@link PSConditionalExit} (apply-when, ids, param value types) when GET→PUT
-   * reconstructs an unchanged row. New FQN/param rows are created from the DTO.
+   * Keep the original {@link PSConditionalExit} (apply-when, extra rules, ids, param value types)
+   * when GET→PUT reconstructs a matching row. Match is the first extension-ref FQN plus ordered
+   * param display texts, regardless of how many rules the original has. New FQN/param rows are
+   * created from the DTO.
    */
   static PSConditionalExit reuseOrCreateConditionalExit(
       ContentTypeItemExit item, List<PSConditionalExit> existing, String field) {
@@ -1776,16 +1779,16 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     if (existing == null || existing.isEmpty()) {
       return created;
     }
-    String key = exitCallKey(firstCall(created));
-    if (key.isEmpty()) {
+    PSExtensionCall createdCall = firstCall(created);
+    if (createdCall == null) {
       return created;
     }
     for (int i = 0; i < existing.size(); i++) {
       PSConditionalExit orig = existing.get(i);
-      if (orig == null || orig.getRules() == null || orig.getRules().size() != 1) {
+      if (orig == null) {
         continue;
       }
-      if (key.equals(exitCallKey(firstCall(orig)))) {
+      if (sameExitCall(createdCall, firstCall(orig))) {
         existing.remove(i);
         PSConditionalExit clone = (PSConditionalExit) orig.clone();
         if (item != null && item.getMaxErrorsToStop() != null) {
@@ -1823,22 +1826,45 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     return o instanceof PSExtensionCall call ? call : null;
   }
 
-  static String exitCallKey(PSExtensionCall call) {
-    if (call == null || call.getExtensionRef() == null) {
-      return "";
+  /**
+   * Structural equality of an extension call: FQN plus ordered param display texts. Used instead of
+   * a delimiter-joined string so a NUL (or any other character) inside a param cannot collide with
+   * a split between params.
+   */
+  static boolean sameExitCall(PSExtensionCall left, PSExtensionCall right) {
+    if (left == right) {
+      return true;
     }
-    StringBuilder key = new StringBuilder(call.getExtensionRef().getFQN());
-    PSExtensionParamValue[] values = call.getParamValues();
-    if (values != null) {
-      for (PSExtensionParamValue value : values) {
-        key.append('\0');
-        if (value != null && value.getValue() != null) {
-          String text = value.getValue().getValueDisplayText();
-          key.append(text != null ? text : "");
-        }
+    if (left == null || right == null) {
+      return false;
+    }
+    if (left.getExtensionRef() == null || right.getExtensionRef() == null) {
+      return false;
+    }
+    if (!Objects.equals(left.getExtensionRef().getFQN(), right.getExtensionRef().getFQN())) {
+      return false;
+    }
+    PSExtensionParamValue[] leftValues = left.getParamValues();
+    PSExtensionParamValue[] rightValues = right.getParamValues();
+    int leftLen = leftValues == null ? 0 : leftValues.length;
+    int rightLen = rightValues == null ? 0 : rightValues.length;
+    if (leftLen != rightLen) {
+      return false;
+    }
+    for (int i = 0; i < leftLen; i++) {
+      if (!Objects.equals(paramDisplayText(leftValues[i]), paramDisplayText(rightValues[i]))) {
+        return false;
       }
     }
-    return key.toString();
+    return true;
+  }
+
+  static String paramDisplayText(PSExtensionParamValue value) {
+    if (value == null || value.getValue() == null) {
+      return "";
+    }
+    String text = value.getValue().getValueDisplayText();
+    return text != null ? text : "";
   }
 
   @SuppressWarnings("unchecked")

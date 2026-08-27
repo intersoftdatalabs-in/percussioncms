@@ -62,7 +62,10 @@ public class ContentTypeFieldRuleExpressionsJsonReader
   @Override
   public boolean isReadable(
       Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return type != null && ContentTypeFieldRuleExpressions.class.isAssignableFrom(type);
+    if (type == null || !ContentTypeFieldRuleExpressions.class.isAssignableFrom(type)) {
+      return false;
+    }
+    return mediaType == null || isJsonCompatible(mediaType);
   }
 
   @Override
@@ -129,5 +132,17 @@ public class ContentTypeFieldRuleExpressionsJsonReader
       }
     }
     return null;
+  }
+
+  static boolean isJsonCompatible(MediaType mediaType) {
+    if (mediaType == null || mediaType.isWildcardType() || mediaType.isWildcardSubtype()) {
+      return true;
+    }
+    String subtype = mediaType.getSubtype();
+    if (subtype == null) {
+      return false;
+    }
+    String lower = subtype.toLowerCase();
+    return "json".equals(lower) || lower.endsWith("+json");
   }
 }

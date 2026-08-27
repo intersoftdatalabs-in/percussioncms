@@ -70,6 +70,7 @@ import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.system.IPSSystemDesignWs;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -407,6 +408,65 @@ class ContentTypeAdaptorItemExitsTest {
         second.getRules().get(0) instanceof PSExtensionCall call
             ? call.getExtensionRef().getExtensionName()
             : null);
+  }
+
+  @Test
+  void reuseOrCreateConditionalExit_preservesApplyWhenForMultiRuleExit() {
+    PSExtensionCallSet calls = new PSExtensionCallSet();
+    calls.add(
+        new PSExtensionCall(
+            new PSExtensionRef("Java/global/percussion/content/sys_cleanReservedHtmlClasses"),
+            new PSExtensionParamValue[] {new PSExtensionParamValue(new PSTextLiteral("html"))}));
+    calls.add(extensionCall("sys_ToUpperCase"));
+    PSConditionalExit orig = new PSConditionalExit(calls);
+    PSCollection conditionals = new PSCollection(PSConditional.class);
+    conditionals.add(
+        new PSConditional(
+            new PSTextLiteral("sys_communityid"),
+            PSConditional.OPTYPE_EQUALS,
+            new PSTextLiteral("1001")));
+    PSApplyWhen when = new PSApplyWhen();
+    when.add(new PSRule(conditionals));
+    orig.setCondition(when);
+
+    ContentTypeItemExit dto = new ContentTypeItemExit();
+    dto.setExtension("Java/global/percussion/content/sys_cleanReservedHtmlClasses");
+    dto.setParameters(List.of(new ContentTypeItemExitParam(null, "html")));
+    dto.setMaxErrorsToStop(4);
+
+    List<PSConditionalExit> existing = new ArrayList<>();
+    existing.add(orig);
+    PSConditionalExit reused =
+        ContentTypeAdaptor.reuseOrCreateConditionalExit(dto, existing, "inputTranslations[0]");
+    assertNotNull(reused.getCondition());
+    assertEquals(1, reused.getCondition().size());
+    assertEquals(2, reused.getRules().size());
+    assertEquals(4, reused.getMaxErrorsToStop());
+    assertTrue(existing.isEmpty());
+    assertEquals(
+        "sys_ToUpperCase",
+        reused.getRules().get(1) instanceof PSExtensionCall call
+            ? call.getExtensionRef().getExtensionName()
+            : null);
+  }
+
+  @Test
+  void sameExitCall_doesNotCollideOnEmbeddedNulVsTwoParams() {
+    PSExtensionCall oneParam =
+        new PSExtensionCall(
+            new PSExtensionRef("Java/global/percussion/generic/sys_ToUpperCase"),
+            new PSExtensionParamValue[] {
+              new PSExtensionParamValue(new PSTextLiteral("a\0b"))
+            });
+    PSExtensionCall twoParams =
+        new PSExtensionCall(
+            new PSExtensionRef("Java/global/percussion/generic/sys_ToUpperCase"),
+            new PSExtensionParamValue[] {
+              new PSExtensionParamValue(new PSTextLiteral("a")),
+              new PSExtensionParamValue(new PSTextLiteral("b"))
+            });
+    assertTrue(ContentTypeAdaptor.sameExitCall(oneParam, oneParam));
+    assertFalse(ContentTypeAdaptor.sameExitCall(oneParam, twoParams));
   }
 
   @Test
