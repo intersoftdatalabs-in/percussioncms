@@ -20,9 +20,13 @@ Integrators write them with REST
 `GET`/`PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions`
 (held design lock for PUT). Item-level pre/post exits and validations (CD-09)
 are edited from this detail chrome after **Lock** (see below), or via
-`GET`/`PUT /services/contenttypes/{idOrName}/itemExits`. Apply-when conditions
-remain read-only. Choice-catalog filter / null-entry / default-selected writes
-are not in this chrome.
+`GET`/`PUT /services/contenttypes/{idOrName}/itemExits` after a held design
+lock. Item-level input translations must be request pre-processors (for
+example `sys_cleanReservedHtmlClasses` or `sys_itemHTMLEncodeTransformer`),
+not field UDFs such as `sys_ToUpperCase` (those stay on field rule
+expressions). Omitting `preExits`/`postExits` leaves pipe extensions
+unchanged. Apply-when conditions remain read-only. Choice-catalog filter /
+null-entry / default-selected writes are not in this chrome.
 
 ## Product path — lock, save, unlock
 

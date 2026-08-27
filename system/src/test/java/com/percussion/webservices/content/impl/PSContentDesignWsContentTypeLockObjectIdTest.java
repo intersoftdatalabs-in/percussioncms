@@ -82,4 +82,22 @@ class PSContentDesignWsContentTypeLockObjectIdTest {
     assertEquals(stored, PSGuidUtils.toFullLong(loadId));
     assertEquals(PACKED_NODEDEF_PERC_PAGE, stored);
   }
+
+  @Test
+  void contentTypeSaveVersionPrefersLockThenExistingNodeNeverMinusOneWhenNodeExists() {
+    assertEquals(7, PSContentDesignWs.contentTypeSaveVersion(7, 3));
+    assertEquals(0, PSContentDesignWs.contentTypeSaveVersion(0, 9));
+    assertEquals(4, PSContentDesignWs.contentTypeSaveVersion(null, 4));
+    assertEquals(4, PSContentDesignWs.contentTypeSaveVersion(-1, 4));
+    assertEquals(-1, PSContentDesignWs.contentTypeSaveVersion(null, null));
+    assertEquals(-1, PSContentDesignWs.contentTypeSaveVersion(-1, null));
+  }
+
+  @Test
+  void rootCauseMessageSkipsUnfilledTemplate() {
+    RuntimeException root = new IllegalArgumentException("dataset type mismatch");
+    Exception wrapped = new RuntimeException("An unknown exception occurred while communicating with the server: {0}", root);
+    assertEquals("dataset type mismatch", PSContentDesignWs.rootCauseMessage(wrapped));
+    assertEquals("unknown error", PSContentDesignWs.rootCauseMessage(null));
+  }
 }

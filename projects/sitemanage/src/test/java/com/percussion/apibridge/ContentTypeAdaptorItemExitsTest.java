@@ -18,6 +18,7 @@
 package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -27,6 +28,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -36,9 +38,11 @@ import static org.mockito.Mockito.when;
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
+import com.percussion.design.objectstore.PSApplyWhen;
 import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSConditionalExit;
 import com.percussion.design.objectstore.PSContentEditor;
+import com.percussion.design.objectstore.PSContentEditorPipe;
 import com.percussion.design.objectstore.PSExtensionCall;
 import com.percussion.design.objectstore.PSExtensionCallSet;
 import com.percussion.design.objectstore.PSExtensionParamValue;
@@ -61,6 +65,9 @@ import com.percussion.services.locking.data.PSObjectLockSummary;
 import com.percussion.util.PSCollection;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfoBase;
+import com.percussion.webservices.IPSWebserviceErrors;
+import com.percussion.webservices.PSErrorException;
+import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.system.IPSSystemDesignWs;
 import java.util.Collections;
@@ -243,6 +250,187 @@ class ContentTypeAdaptorItemExitsTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> adaptor.replaceItemExits(null, "percPage", new ContentTypeItemExits()));
+  }
+
+  @Test
+  void replaceItemExits_contentEditorPipe_usesSetContentEditorInputDataExtensions()
+      throws Exception {
+    stubHeldLock();
+    when(editor.getInputTranslations()).thenReturn(Collections.emptyIterator());
+    when(editor.getOutputTranslations()).thenReturn(Collections.emptyIterator());
+    when(editor.getValidationRules()).thenReturn(Collections.emptyIterator());
+    PSContentEditorPipe pipe = mock(PSContentEditorPipe.class);
+    doThrow(new UnsupportedOperationException("percPage setInputDataExtensions"))
+        .when(pipe)
+        .setInputDataExtensions(any());
+    when(editor.getPipe()).thenReturn(pipe);
+    when(designSvc.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("test-user")))
+        .thenReturn(List.of(percPage));
+
+    ContentTypeItemExits body = emptyBody();
+    ContentTypeItemExit pre = new ContentTypeItemExit();
+    pre.setExtension("Java/global/percussion/content/sys_cleanReservedHtmlClasses");
+    pre.setParameters(List.of(new ContentTypeItemExitParam(null, "html")));
+    body.setPreExits(List.of(pre));
+
+    assertNotNull(adaptor.replaceItemExits(null, "percPage", body));
+    verify(pipe).setContentEditorInputDataExtensions(any(PSExtensionCallSet.class));
+    verify(pipe, never()).setInputDataExtensions(any());
+  }
+
+  @Test
+  void replaceItemExits_omittedPipeExits_doNotTouchPipe() throws Exception {
+    stubHeldLock();
+    when(editor.getInputTranslations()).thenReturn(Collections.emptyIterator());
+    when(editor.getOutputTranslations()).thenReturn(Collections.emptyIterator());
+    when(editor.getValidationRules()).thenReturn(Collections.emptyIterator());
+    PSContentEditorPipe pipe = mock(PSContentEditorPipe.class);
+    when(editor.getPipe()).thenReturn(pipe);
+    when(designSvc.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("test-user")))
+        .thenReturn(List.of(percPage));
+
+    assertNotNull(adaptor.replaceItemExits(null, "percPage", emptyBody()));
+    verify(pipe, never()).setInputDataExtensions(any());
+    verify(pipe, never()).setContentEditorInputDataExtensions(any());
+    verify(pipe, never()).setResultDataExtensions(any());
+  }
+
+  @Test
+  void replaceItemExits_saveFailedValidation_throws400WithErrorMap() throws Exception {
+    stubHeldLock();
+    when(editor.getInputTranslations()).thenReturn(Collections.emptyIterator());
+    when(editor.getOutputTranslations()).thenReturn(Collections.emptyIterator());
+    when(editor.getValidationRules()).thenReturn(Collections.emptyIterator());
+    when(editor.getPipe()).thenReturn(null);
+    when(designSvc.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("test-user")))
+        .thenReturn(List.of(percPage));
+    PSErrorsException errors = new PSErrorsException();
+    errors.addError(
+        new PSGuid(PSTypeEnum.NODEDEF, 311L),
+        new PSErrorException(
+            IPSWebserviceErrors.SAVE_FAILED,
+            "Failed to save PSItemDefinition 0-2-311: PSSystemValidationException:"
+                + " Java/global/percussion/generic/sys_ToUpperCase does not implement"
+                + " com.percussion.extension.IPSRequestPreProcessor",
+            "stack"));
+    doThrow(errors)
+        .when(designSvc)
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("test-user"));
+
+    ContentTypeItemExits body = emptyBody();
+    ContentTypeItemExit call = new ContentTypeItemExit();
+    call.setExtension("Java/global/percussion/generic/sys_ToUpperCase");
+    call.setParameters(List.of(new ContentTypeItemExitParam(null, "sys_title")));
+    body.setInputTranslations(List.of(call));
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.replaceItemExits(null, "percPage", body));
+    assertTrue(ex.getMessage().contains("Failed to save content type item-level exits"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("does not implement"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("IPSRequestPreProcessor"), ex.getMessage());
+  }
+
+  @Test
+  void replaceItemExits_saveFailedUnexpected_throws500WithErrorMap() throws Exception {
+    stubHeldLock();
+    when(editor.getInputTranslations()).thenReturn(Collections.emptyIterator());
+    when(editor.getOutputTranslations()).thenReturn(Collections.emptyIterator());
+    when(editor.getValidationRules()).thenReturn(Collections.emptyIterator());
+    when(editor.getPipe()).thenReturn(null);
+    when(designSvc.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("test-user")))
+        .thenReturn(List.of(percPage));
+    PSErrorsException errors = new PSErrorsException();
+    errors.addError(
+        new PSGuid(PSTypeEnum.NODEDEF, 311L),
+        new PSErrorException(
+            IPSWebserviceErrors.SAVE_FAILED,
+            "Failed to save PSItemDefinition 0-2-311: java.io.IOException: disk full",
+            "stack"));
+    doThrow(errors)
+        .when(designSvc)
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("test-user"));
+
+    IllegalStateException ex =
+        assertThrows(
+            IllegalStateException.class,
+            () -> adaptor.replaceItemExits(null, "percPage", emptyBody()));
+    assertTrue(ex.getMessage().contains("disk full"), ex.getMessage());
+  }
+
+  @Test
+  void replaceItemExits_reusesExistingConditionalExit_preservesApplyWhen() throws Exception {
+    stubHeldLock();
+    PSExtensionCallSet calls = new PSExtensionCallSet();
+    calls.add(
+        new PSExtensionCall(
+            new PSExtensionRef("Java/global/percussion/content/sys_cleanReservedHtmlClasses"),
+            new PSExtensionParamValue[] {new PSExtensionParamValue(new PSTextLiteral("html"))}));
+    PSConditionalExit existing = new PSConditionalExit(calls);
+    PSCollection conditionals = new PSCollection(PSConditional.class);
+    conditionals.add(
+        new PSConditional(
+            new PSTextLiteral("sys_communityid"),
+            PSConditional.OPTYPE_EQUALS,
+            new PSTextLiteral("1001")));
+    PSApplyWhen when = new PSApplyWhen();
+    when.add(new PSRule(conditionals));
+    existing.setCondition(when);
+    PSInputTranslations existingCol = new PSInputTranslations();
+    existingCol.add(existing);
+    when(editor.getInputTranslations()).thenAnswer(inv -> existingCol.iterator());
+    when(editor.getOutputTranslations()).thenReturn(Collections.emptyIterator());
+    when(editor.getValidationRules()).thenReturn(Collections.emptyIterator());
+    when(editor.getPipe()).thenReturn(null);
+    when(designSvc.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("test-user")))
+        .thenReturn(List.of(percPage));
+
+    ContentTypeItemExits body = emptyBody();
+    ContentTypeItemExit keep = new ContentTypeItemExit();
+    keep.setExtension("Java/global/percussion/content/sys_cleanReservedHtmlClasses");
+    keep.setParameters(List.of(new ContentTypeItemExitParam(null, "html")));
+    ContentTypeItemExit added = new ContentTypeItemExit();
+    added.setExtension("Java/global/percussion/content/sys_itemHTMLEncodeTransformer");
+    added.setParameters(List.of(new ContentTypeItemExitParam(null, "sys_title")));
+    body.setInputTranslations(List.of(keep, added));
+
+    assertNotNull(adaptor.replaceItemExits(null, "percPage", body));
+    ArgumentCaptor<PSInputTranslations> applied = ArgumentCaptor.forClass(PSInputTranslations.class);
+    verify(editor).setInputTranslation(applied.capture());
+    assertEquals(2, applied.getValue().size());
+    PSConditionalExit first = (PSConditionalExit) applied.getValue().get(0);
+    assertNotNull(first.getCondition());
+    assertEquals(1, first.getCondition().size());
+    PSConditionalExit second = (PSConditionalExit) applied.getValue().get(1);
+    assertEquals(
+        "sys_itemHTMLEncodeTransformer",
+        second.getRules().get(0) instanceof PSExtensionCall call
+            ? call.getExtensionRef().getExtensionName()
+            : null);
+  }
+
+  @Test
+  void formatSaveErrors_andValidationDetection() {
+    assertEquals("unknown error", ContentTypeAdaptor.formatSaveErrors(null));
+    PSErrorsException empty = new PSErrorsException();
+    assertEquals("unknown error", ContentTypeAdaptor.formatSaveErrors(empty));
+    assertFalse(ContentTypeAdaptor.isValidationSaveFailure(empty));
+
+    PSErrorsException validation = new PSErrorsException();
+    validation.addError(
+        new PSGuid(PSTypeEnum.NODEDEF, 311L),
+        new PSErrorException(
+            IPSWebserviceErrors.SAVE_FAILED,
+            "PSSystemValidationException: exit does not implement IPSRequestPreProcessor",
+            "stack"));
+    assertTrue(ContentTypeAdaptor.formatSaveErrors(validation).contains("does not implement"));
+    assertTrue(ContentTypeAdaptor.isValidationSaveFailure(validation));
+
+    PSErrorsException io = new PSErrorsException();
+    io.addError(
+        new PSGuid(PSTypeEnum.NODEDEF, 311L),
+        new PSErrorException(IPSWebserviceErrors.SAVE_FAILED, "java.io.IOException: disk", "stack"));
+    assertFalse(ContentTypeAdaptor.isValidationSaveFailure(io));
   }
 
   @Test

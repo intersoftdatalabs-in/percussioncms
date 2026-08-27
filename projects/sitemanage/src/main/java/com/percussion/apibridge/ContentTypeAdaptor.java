@@ -817,14 +817,23 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         if (hasLockError(e.getErrors())) {
           throw lockConflict(e, "Could not update content type item-level exits");
         }
-        log.error("Failed to save content type item-level exits {}: {}", idOrName, e.getMessage(), e);
-        throw new IllegalStateException("Failed to save content type item-level exits", e);
+        String detail = formatSaveErrors(e);
+        log.error(
+            "Failed to save content type item-level exits {}: {}", idOrName, detail, e);
+        for (Object err : e.getErrors().values()) {
+          if (err instanceof PSErrorException pe && StringUtils.isNotBlank(pe.getStack())) {
+            log.error("saveContentTypes error map stack: {}", pe.getStack());
+          }
+        }
+        String message = "Failed to save content type item-level exits: " + detail;
+        if (isValidationSaveFailure(e)) {
+          throw new IllegalArgumentException(message, e);
+        }
+        throw new IllegalStateException(message, e);
       }
       PSItemDefinition reloaded = reloadItemDef(trimmed);
       return reloaded != null ? toItemExits(reloaded) : toItemExits(def);
-    } catch (ContentTypeDesignLockException
-        | IllegalArgumentException
-        | WebApplicationException e) {
+    } catch (IllegalStateException | IllegalArgumentException | WebApplicationException e) {
       throw e;
     } catch (Exception e) {
       log.error("Failed to replace item-level exits for {}: {}", idOrName, e.getMessage(), e);
@@ -1667,12 +1676,19 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       throw new IllegalStateException(
           "Could not update content type item-level exits; content editor missing");
     }
+    List<PSConditionalExit> existingInput =
+        copyConditionalExits(editor.getInputTranslations());
+    List<PSConditionalExit> existingOutput =
+        copyConditionalExits(editor.getOutputTranslations());
+    List<PSConditionalExit> existingValidations =
+        copyConditionalExits(editor.getValidationRules());
     editor.setInputTranslation(
-        toInputTranslations(body.getInputTranslations(), "inputTranslations"));
+        toInputTranslations(body.getInputTranslations(), existingInput, "inputTranslations"));
     editor.setOutputTranslation(
-        toOutputTranslations(body.getOutputTranslations(), "outputTranslations"));
+        toOutputTranslations(
+            body.getOutputTranslations(), existingOutput, "outputTranslations"));
     PSValidationRules validations =
-        toValidationRules(body.getValidations(), "validations");
+        toValidationRules(body.getValidations(), existingValidations, "validations");
     if (body.getMaxErrorsToStopValidation() != null) {
       int max = body.getMaxErrorsToStopValidation();
       if (max <= 0) {
@@ -1692,7 +1708,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         }
       } else {
         if (body.getPreExits() != null) {
-          pipe.setInputDataExtensions(toCallSet(body.getPreExits(), "preExits"));
+          setPipeInputDataExtensions(pipe, toCallSet(body.getPreExits(), "preExits"));
         }
         if (body.getPostExits() != null) {
           pipe.setResultDataExtensions(toCallSet(body.getPostExits(), "postExits"));
@@ -1701,13 +1717,26 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
   }
 
+  /**
+   * Content-editor pipes throw {@link UnsupportedOperationException} from {@link
+   * PSPipe#setInputDataExtensions}; use the CE-specific setter so percPage PUT can omit-or-replace
+   * pre-exits without SAVE_FAILED / UOE.
+   */
+  static void setPipeInputDataExtensions(PSPipe pipe, PSExtensionCallSet calls) {
+    if (pipe instanceof PSContentEditorPipe cePipe) {
+      cePipe.setContentEditorInputDataExtensions(calls);
+    } else {
+      pipe.setInputDataExtensions(calls);
+    }
+  }
+
   @SuppressWarnings("unchecked")
   private static PSInputTranslations toInputTranslations(
-      List<ContentTypeItemExit> items, String field) {
+      List<ContentTypeItemExit> items, List<PSConditionalExit> existing, String field) {
     PSInputTranslations col = new PSInputTranslations();
     int i = 0;
     for (ContentTypeItemExit item : items) {
-      col.add(toConditionalExit(item, field + "[" + i + "]"));
+      col.add(reuseOrCreateConditionalExit(item, existing, field + "[" + i + "]"));
       i++;
     }
     return col;
@@ -1715,11 +1744,11 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
   @SuppressWarnings("unchecked")
   private static PSOutputTranslations toOutputTranslations(
-      List<ContentTypeItemExit> items, String field) {
+      List<ContentTypeItemExit> items, List<PSConditionalExit> existing, String field) {
     PSOutputTranslations col = new PSOutputTranslations();
     int i = 0;
     for (ContentTypeItemExit item : items) {
-      col.add(toConditionalExit(item, field + "[" + i + "]"));
+      col.add(reuseOrCreateConditionalExit(item, existing, field + "[" + i + "]"));
       i++;
     }
     return col;
@@ -1727,14 +1756,89 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
   @SuppressWarnings("unchecked")
   private static PSValidationRules toValidationRules(
-      List<ContentTypeItemExit> items, String field) {
+      List<ContentTypeItemExit> items, List<PSConditionalExit> existing, String field) {
     PSValidationRules col = new PSValidationRules();
     int i = 0;
     for (ContentTypeItemExit item : items) {
-      col.add(toConditionalExit(item, field + "[" + i + "]"));
+      col.add(reuseOrCreateConditionalExit(item, existing, field + "[" + i + "]"));
       i++;
     }
     return col;
+  }
+
+  /**
+   * Keep the original {@link PSConditionalExit} (apply-when, ids, param value types) when GET→PUT
+   * reconstructs an unchanged row. New FQN/param rows are created from the DTO.
+   */
+  static PSConditionalExit reuseOrCreateConditionalExit(
+      ContentTypeItemExit item, List<PSConditionalExit> existing, String field) {
+    PSConditionalExit created = toConditionalExit(item, field);
+    if (existing == null || existing.isEmpty()) {
+      return created;
+    }
+    String key = exitCallKey(firstCall(created));
+    if (key.isEmpty()) {
+      return created;
+    }
+    for (int i = 0; i < existing.size(); i++) {
+      PSConditionalExit orig = existing.get(i);
+      if (orig == null || orig.getRules() == null || orig.getRules().size() != 1) {
+        continue;
+      }
+      if (key.equals(exitCallKey(firstCall(orig)))) {
+        existing.remove(i);
+        PSConditionalExit clone = (PSConditionalExit) orig.clone();
+        if (item != null && item.getMaxErrorsToStop() != null) {
+          int max = item.getMaxErrorsToStop();
+          if (max <= 0) {
+            throw new IllegalArgumentException(field + ".maxErrorsToStop must be greater than 0");
+          }
+          clone.setMaxErrorsToStop(max);
+        }
+        return clone;
+      }
+    }
+    return created;
+  }
+
+  static List<PSConditionalExit> copyConditionalExits(Iterator<?> exits) {
+    List<PSConditionalExit> out = new ArrayList<>();
+    if (exits == null) {
+      return out;
+    }
+    while (exits.hasNext()) {
+      Object o = exits.next();
+      if (o instanceof PSConditionalExit conditional) {
+        out.add(conditional);
+      }
+    }
+    return out;
+  }
+
+  static PSExtensionCall firstCall(PSConditionalExit exit) {
+    if (exit == null || exit.getRules() == null || exit.getRules().isEmpty()) {
+      return null;
+    }
+    Object o = exit.getRules().get(0);
+    return o instanceof PSExtensionCall call ? call : null;
+  }
+
+  static String exitCallKey(PSExtensionCall call) {
+    if (call == null || call.getExtensionRef() == null) {
+      return "";
+    }
+    StringBuilder key = new StringBuilder(call.getExtensionRef().getFQN());
+    PSExtensionParamValue[] values = call.getParamValues();
+    if (values != null) {
+      for (PSExtensionParamValue value : values) {
+        key.append('\0');
+        if (value != null && value.getValue() != null) {
+          String text = value.getValue().getValueDisplayText();
+          key.append(text != null ? text : "");
+        }
+      }
+    }
+    return key.toString();
   }
 
   @SuppressWarnings("unchecked")
@@ -2737,6 +2841,60 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       }
     }
     return false;
+  }
+
+  /**
+   * Concatenate {@link PSErrorsException} error-map messages so REST 400/500 can surface the
+   * design-save failure (PSSystemValidationException, extension interface, etc.) instead of a
+   * bare SAVE_FAILED 500.
+   */
+  static String formatSaveErrors(PSErrorsException e) {
+    if (e == null) {
+      return "unknown error";
+    }
+    if (e.getErrors() == null || e.getErrors().isEmpty()) {
+      return StringUtils.isNotBlank(e.getMessage()) ? e.getMessage() : "unknown error";
+    }
+    List<String> parts = new ArrayList<>();
+    for (Object err : e.getErrors().values()) {
+      if (err instanceof PSErrorException pe) {
+        String msg = pe.getErrorMessage();
+        if (StringUtils.isBlank(msg)) {
+          msg = pe.getMessage();
+        }
+        if (StringUtils.isNotBlank(msg)) {
+          parts.add(msg.trim());
+        }
+      } else if (err != null) {
+        String msg = String.valueOf(err).trim();
+        if (!msg.isEmpty()) {
+          parts.add(msg);
+        }
+      }
+    }
+    if (parts.isEmpty()) {
+      return StringUtils.isNotBlank(e.getMessage()) ? e.getMessage() : "unknown error";
+    }
+    return String.join("; ", parts);
+  }
+
+  /**
+   * True when a batched {@code saveContentTypes} SAVE_FAILED looks like a design validation /
+   * extension-interface problem (HTTP 400) rather than an unexpected server failure (HTTP 500).
+   */
+  static boolean isValidationSaveFailure(PSErrorsException e) {
+    String text = formatSaveErrors(e);
+    if (StringUtils.isBlank(text)) {
+      return false;
+    }
+    String lower = text.toLowerCase();
+    return lower.contains("validation")
+        || lower.contains("does not implement")
+        || lower.contains("invalid extension")
+        || lower.contains("pssystemvalidation")
+        || lower.contains("psextensionexception")
+        || lower.contains("extension type")
+        || lower.contains("invalid_ext");
   }
 
   /** Map-keyed overload for {@code PSErrorsException} batched save errors. */

@@ -320,17 +320,27 @@ translations**, **output translations**, **validations**, and dataset-pipe
 required. Empty arrays mean none are configured.
 
 Each exit is an object with `extension` (fully-qualified ref such as
-`Java/global/percussion/generic/sys_ToUpperCase`), optional `name`,
+`Java/global/percussion/content/sys_cleanReservedHtmlClasses`), optional `name`,
 `parameters[]` (`name`/`value`), a read-only `condition` summary, optional
 `maxErrorsToStop`, and a human-readable `summary`. `maxErrorsToStopValidation`
 is the item-validation stop count.
 
+Item-level **input** translations and **pre-exits** must implement
+`IPSRequestPreProcessor` / `IPSItemInputTransformer`. Item-level **output**
+translations and **post-exits** must implement `IPSResultDocumentProcessor`.
+Field-level UDFs such as `Java/global/percussion/generic/sys_ToUpperCase`
+belong on `PUT .../fields/{field}/ruleExpressions`, not on this item-level
+path — using them here fails design-save validation (**400**).
+
 `PUT` on the same path replaces `inputTranslations`, `outputTranslations`, and
 `validations` (empty list clears). Hold the design-session lock first
 (`POST .../lock`). `preExits` / `postExits` omitted leave pipe extensions
-unchanged; a non-null list is a full replace. Each exit needs a resolvable
-extension FQN; parameter values are stored as literals. **Apply-when
-conditions are not written** (see `designGaps` code `CT_ITEM_EXIT_CONDITIONS`).
+unchanged; a non-null list is a full replace (content-editor pipes use the
+CE-specific input-data setter; `setInputDataExtensions` is not supported on
+percPage). Each exit needs a resolvable extension FQN; parameter values are
+stored as literals. Unchanged GET rows keep their original apply-when and
+parameter types. **Apply-when conditions are not written** for new rows (see
+`designGaps` code `CT_ITEM_EXIT_CONDITIONS`).
 
 Typical flow: `POST .../lock` → `PUT .../itemExits` → `POST .../unlock`.
 
@@ -348,7 +358,7 @@ Jackson root wrap:
   "ContentTypeItemExits": {
     "inputTranslations": [
       {
-        "extension": "Java/global/percussion/generic/sys_ToUpperCase",
+        "extension": "Java/global/percussion/content/sys_itemHTMLEncodeTransformer",
         "parameters": [{ "value": "sys_title" }]
       }
     ],
@@ -362,7 +372,7 @@ Jackson root wrap:
 | Status | Typical meaning |
 |--------|-----------------|
 | `200` | GET or PUT success (PUT keeps the lock held) |
-| `400` | Missing required lists, invalid extension FQN, or `maxErrorsToStopValidation` ≤ 0 |
+| `400` | Missing required lists, invalid extension FQN, `maxErrorsToStopValidation` ≤ 0, or design-save validation (wrong item-level extension interface) |
 | `403` | Caller is not Admin (PUT) |
 | `404` | Content type not found |
 | `409` | No design lock, or locked by another user |
