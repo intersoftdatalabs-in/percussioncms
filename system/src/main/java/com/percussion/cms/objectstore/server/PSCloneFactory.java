@@ -16,7 +16,8 @@
  */
 package com.percussion.cms.objectstore.server;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.handlers.PSCloneCommandHandler;
 import com.percussion.cms.objectstore.PSCmsObject;
@@ -26,7 +27,6 @@ import com.percussion.design.objectstore.PSContentType;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSException;
 import com.percussion.error.PSNotFoundException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
@@ -82,7 +82,7 @@ public class PSCloneFactory {
         PSContentType contentType = PSCms.getContentType(new PSRequestContext(request), source);
         if (contentType == null)
           throw new PSCmsException(
-              IPSCmsErrors.CONTENTTYPE_DEFINITION_NOT_FOUND, new Object[] {"" + source.getId()});
+              CmsErrorCodes.CONTENTTYPE_DEFINITION_NOT_FOUND, new Object[] {"" + source.getId()});
 
         int objectType = contentType.getObjectType();
         if (objectType == PSCmsObject.TYPE_FOLDER) clone = createFolderClone(request, source);
@@ -168,7 +168,7 @@ public class PSCloneFactory {
       PSInternalRequest ir = PSServer.getInternalRequest(cloneResource, request, cloneParams, true);
       if (ir == null) {
         Object[] args = {cloneResource, "No request handler found."};
-        throw new PSNotFoundException(IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+        throw new PSNotFoundException(ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
       }
       ir.performUpdate();
 

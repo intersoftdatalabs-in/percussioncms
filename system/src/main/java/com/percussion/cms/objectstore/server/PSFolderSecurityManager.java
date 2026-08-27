@@ -16,7 +16,8 @@
  */
 package com.percussion.cms.objectstore.server;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSFolderAcl;
 import com.percussion.cms.objectstore.PSFolderPermissions;
@@ -27,7 +28,6 @@ import com.percussion.error.PSException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSThreadRequestUtils;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
@@ -109,7 +109,7 @@ public class PSFolderSecurityManager {
             false,
             null);
     if (ir == null)
-      throw new PSCmsException(IPSCmsErrors.REQUIRED_RESOURCE_MISSING, FOLDER_ACL_RESOURCE);
+      throw new PSCmsException(CmsErrorCodes.REQUIRED_RESOURCE_MISSING, FOLDER_ACL_RESOURCE);
     List<PSFolderAcl> aclList = new ArrayList<>();
     ResultSet rs = null;
     try {
@@ -137,7 +137,7 @@ public class PSFolderSecurityManager {
 
       return aclList.toArray(new PSFolderAcl[0]);
     } catch (SQLException e) {
-      throw new PSCmsException(IPSServerErrors.CE_SQL_ERRORS, e.toString());
+      throw new PSCmsException(ServerErrorCodes.CE_SQL_ERRORS, e.toString());
     } catch (PSException e) {
       throw new PSCmsException(e);
     } finally {

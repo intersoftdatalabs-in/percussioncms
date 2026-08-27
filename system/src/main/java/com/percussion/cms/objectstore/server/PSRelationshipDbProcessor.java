@@ -16,7 +16,8 @@
  */
 package com.percussion.cms.objectstore.server;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSApplicationBuilder;
 import com.percussion.cms.PSCmsException;
@@ -35,6 +36,7 @@ import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipSet;
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 import com.percussion.relationship.IPSExecutionContext;
 import com.percussion.security.PSThreadRequestUtils;
@@ -737,7 +739,8 @@ public final class PSRelationshipDbProcessor {
    * @return the cached item, never <code>null</code>.
    * @throws PSCmsException if the item not exist in item cache.
    */
-  private IPSItemEntry getItemFromCache(PSItemSummaryCache itemCache, int id, int errorCode)
+  private IPSItemEntry getItemFromCache(
+      PSItemSummaryCache itemCache, int id, IPSErrorCode errorCode)
       throws PSCmsException {
     IPSItemEntry item = itemCache.getItem(id);
     if (item == null) {
@@ -1014,7 +1017,8 @@ public final class PSRelationshipDbProcessor {
       if (!throwException) return false;
       else {
         throw new PSCmsException(
-            IPSCmsErrors.FOLDER_ERROR_MSG, "Error updating folder relationships." + newLine + rel);
+            PathItemErrorCodes.FOLDER_ERROR_MSG,
+            "Error updating folder relationships." + newLine + rel);
       }
     }
 
@@ -1023,7 +1027,8 @@ public final class PSRelationshipDbProcessor {
       if (!throwException) return false;
       else {
         throw new PSCmsException(
-            IPSCmsErrors.FOLDER_ERROR_MSG, "Error updating folder relationships." + newLine + rel);
+            PathItemErrorCodes.FOLDER_ERROR_MSG,
+            "Error updating folder relationships." + newLine + rel);
       }
     }
 
@@ -1207,8 +1212,8 @@ public final class PSRelationshipDbProcessor {
   private void validateOwnerAndDependentExist(PSRelationship rel) throws PSCmsException {
     PSItemSummaryCache cache = PSItemSummaryCache.getInstance();
     if (cache != null) {
-      getItemFromCache(cache, rel.getOwner().getId(), IPSCmsErrors.NON_EXITING_OWNER);
-      getItemFromCache(cache, rel.getDependent().getId(), IPSCmsErrors.NON_EXITING_DEPENDENT);
+      getItemFromCache(cache, rel.getOwner().getId(), CmsErrorCodes.NON_EXITING_OWNER);
+      getItemFromCache(cache, rel.getDependent().getId(), CmsErrorCodes.NON_EXITING_DEPENDENT);
     } else // hit the repository
     {
       List<PSLocator> locators = new ArrayList<>();

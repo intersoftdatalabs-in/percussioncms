@@ -15,6 +15,7 @@
 #   #3882 leftover system/src/main cms builders + editor context / validate step
 #   #3883 leftover system/src/main cms handlers
 #   #3884 leftover cms.objectstore (non-server) + client call sites
+#   #3900 leftover cms.objectstore.server call sites
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -55,19 +56,7 @@ system/Testing/Extensions/src/com/percussion/extensions/testing/TestMakeInternal
 system/Testing/cms/HttpItemCopier.java
 system/Tools/RxFix/src/com/percussion/rxfix/dbfixes/PSFixNavigation.java
 system/Tools/RxFix/src/com/percussion/rxverify/modules/PSJdbcTableCheck.java
-system/src/main/java/com/percussion/cms/objectstore/server/PSActiveAssemblerProcessor.java
-system/src/main/java/com/percussion/cms/objectstore/server/PSCatalogServerObjectHandler.java
-system/src/main/java/com/percussion/cms/objectstore/server/PSCloneFactory.java
-system/src/main/java/com/percussion/cms/objectstore/server/PSContentTypeVariantsMgr.java
-system/src/main/java/com/percussion/cms/objectstore/server/PSCorruptDatabaseException.java
-system/src/main/java/com/percussion/cms/objectstore/server/PSFieldRetriever.java
-system/src/main/java/com/percussion/cms/objectstore/server/PSFolderSecurityManager.java
-system/src/main/java/com/percussion/cms/objectstore/server/PSIdGeneratorExit.java
-system/src/main/java/com/percussion/cms/objectstore/server/PSItemDefManager.java
-system/src/main/java/com/percussion/cms/objectstore/server/PSLocalProcessor.java
-system/src/main/java/com/percussion/cms/objectstore/server/PSRelationshipDbProcessor.java
-system/src/main/java/com/percussion/cms/objectstore/server/PSRelationshipProcessor.java
-system/src/main/java/com/percussion/cms/objectstore/server/PSServerItem.java
+
 system/src/main/java/com/percussion/conn/PSDesignerConnection.java
 system/src/main/java/com/percussion/conn/PSServerException.java
 system/src/main/java/com/percussion/content/PSContentConverter.java

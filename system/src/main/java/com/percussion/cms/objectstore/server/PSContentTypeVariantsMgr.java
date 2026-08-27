@@ -16,10 +16,10 @@
  */
 package com.percussion.cms.objectstore.server;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSContentTypeVariantSet;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
@@ -45,7 +45,7 @@ public class PSContentTypeVariantsMgr {
     try {
       templates = assembly.findAllTemplates();
     } catch (PSAssemblyException e) {
-      throw new PSCmsException(IPSServerErrors.UNEXPECTED_EXCEPTION_CONSOLE, e.getMessage());
+      throw new PSCmsException(ServerErrorCodes.UNEXPECTED_EXCEPTION_CONSOLE, e.getMessage());
     }
     return new PSContentTypeVariantSet(templates);
   }

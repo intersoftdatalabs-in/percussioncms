@@ -16,7 +16,8 @@
  */
 package com.percussion.cms.objectstore.server;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSProcessingStatistics;
 import com.percussion.cms.objectstore.PSProcessorCommon;
@@ -146,7 +147,7 @@ public class PSLocalProcessor extends PSProcessorCommon {
       String[] args = {
         resourceName, se.getLocalizedMessage(), se.getException().getLocalizedMessage()
       };
-      throw new PSCmsException(IPSCmsErrors.XML_PARSING_ERROR, args);
+      throw new PSCmsException(CmsErrorCodes.XML_PARSING_ERROR, args);
     }
   }
 
@@ -194,7 +195,7 @@ public class PSLocalProcessor extends PSProcessorCommon {
     }
     if (null == req) {
       String[] args = {resourceName};
-      throw new PSCmsException(IPSCmsErrors.REQUIRED_RESOURCE_MISSING, args);
+      throw new PSCmsException(CmsErrorCodes.REQUIRED_RESOURCE_MISSING, args);
     }
     PSRequest r = req.getRequest();
     r.setAllowsCloning(false);
@@ -228,7 +229,7 @@ public class PSLocalProcessor extends PSProcessorCommon {
       return PSIdGenerator.getNextIdBlock(lookup, count);
     } catch (SQLException se) {
       throw new PSCmsException(
-          IPSCmsErrors.SQL_EXCEPTION_WRAPPER, PSSqlException.getFormattedExceptionText(se));
+          ServerErrorCodes.RAW_DUMP, PSSqlException.getFormattedExceptionText(se));
     }
   }
 

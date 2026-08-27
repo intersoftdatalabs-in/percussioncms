@@ -17,6 +17,7 @@
 package com.percussion.design.objectstore;
 
 import com.percussion.cms.PSCmsException;
+import com.percussion.error.IPSErrorCode;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -35,6 +36,22 @@ public class PSFieldValidationException extends PSCmsException {
   public PSFieldValidationException(
       int msgCode, Object[] arrayArgs, PSDisplayError error, String cachedPageUrl) {
     super(msgCode, arrayArgs);
+    if (error == null) throw new IllegalArgumentException("error must not be null");
+    m_displayError = error;
+    m_cachedPageUrl = StringUtils.defaultString(cachedPageUrl);
+  }
+
+  /**
+   * Typed construction from a catalogued {@link IPSErrorCode}.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   * @param error The display error object, must not be {@code null}
+   * @param cachedPageUrl Content editor cached page url when there is a field validation
+   */
+  public PSFieldValidationException(
+      IPSErrorCode code, Object[] arrayArgs, PSDisplayError error, String cachedPageUrl) {
+    super(code, arrayArgs);
     if (error == null) throw new IllegalArgumentException("error must not be null");
     m_displayError = error;
     m_cachedPageUrl = StringUtils.defaultString(cachedPageUrl);

@@ -17,7 +17,7 @@
 
 package com.percussion.cms.objectstore.server;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
@@ -236,11 +236,11 @@ public class PSFieldRetriever {
 
     if (ids == null)
       throw new PSCmsException(
-          IPSCmsErrors.INVALID_CONTENT_TYPE_ID, mgr.contentTypeIdToName(m_contentTypeId));
+          CmsErrorCodes.INVALID_CONTENT_TYPE_ID, mgr.contentTypeIdToName(m_contentTypeId));
 
     url = ids.getEditorUrl();
 
-    if (url == null) throw new PSCmsException(IPSCmsErrors.REQUIRED_DOCUMENT_MISSING_ERROR, url);
+    if (url == null) throw new PSCmsException(CmsErrorCodes.REQUIRED_DOCUMENT_MISSING_ERROR, url);
 
     return stripUrlExtras(url);
   }
@@ -282,7 +282,7 @@ public class PSFieldRetriever {
       return data;
     } catch (IOException e) {
       String[] errs = {"" + m_contentTypeId, e.getMessage()};
-      throw new PSCmsException(IPSCmsErrors.CONTENT_TYPE_CANNOT_BE_OPENED, errs);
+      throw new PSCmsException(CmsErrorCodes.CONTENT_TYPE_CANNOT_BE_OPENED, errs);
     } finally {
       if (inStream != null) {
         try {
@@ -315,7 +315,7 @@ public class PSFieldRetriever {
         | PSAuthorizationException
         | PSAuthenticationFailedException e) {
       String[] errs = {"" + m_contentTypeId, e.getMessage()};
-      throw new PSCmsException(IPSCmsErrors.CONTENT_TYPE_CANNOT_BE_OPENED, errs);
+      throw new PSCmsException(CmsErrorCodes.CONTENT_TYPE_CANNOT_BE_OPENED, errs);
     } finally {
       if (execData != null) execData.release();
     }

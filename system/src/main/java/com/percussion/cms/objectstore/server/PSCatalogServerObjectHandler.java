@@ -17,7 +17,11 @@
 
 package com.percussion.cms.objectstore.server;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSComponentSummaries;
 import com.percussion.cms.objectstore.PSComponentSummary;
@@ -25,20 +29,16 @@ import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.cms.objectstore.PSRelationshipInfoSet;
 import com.percussion.cms.objectstore.PSRelationshipProcessorProxy;
 import com.percussion.conn.PSServerException;
-import com.percussion.data.IPSDataErrors;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipSet;
 import com.percussion.design.objectstore.PSSearchConfig;
 import com.percussion.error.PSException;
-import com.percussion.security.IPSSecurityErrors;
-import com.percussion.server.IPSHttpErrors;
 import com.percussion.server.IPSLoadableRequestHandler;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSResponse;
 import com.percussion.server.PSServer;
-import com.percussion.server.webservices.IPSWebServicesErrors;
 import com.percussion.server.webservices.PSWebServicesBaseHandler;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -130,11 +130,11 @@ public class PSCatalogServerObjectHandler implements IPSLoadableRequestHandler {
       int code = e.getErrorCode();
 
       // check to see if this exception is really an authentication error
-      if (code == IPSDataErrors.INTERNAL_REQUEST_AUTHORIZATION_EXCEPTION
-          || code == IPSDataErrors.INTERNAL_REQUEST_AUTHENTICATION_FAILED_EXCEPTION
-          || code == IPSSecurityErrors.SESS_NOT_AUTHORIZED) {
+      if (code == DataErrorCodes.INTERNAL_REQUEST_AUTHORIZATION_EXCEPTION.numericCode()
+          || code == DataErrorCodes.INTERNAL_REQUEST_AUTHENTICATION_FAILED_EXCEPTION.numericCode()
+          || code == SecurityErrorCodes.SESS_NOT_AUTHORIZED.numericCode()) {
         response.setResponseHeader(PSResponse.RHDR_WWW_AUTH, "Basic realm=\"\"");
-        response.setStatus(IPSHttpErrors.HTTP_UNAUTHORIZED);
+        response.setStatus(HttpErrorCodes.HTTP_UNAUTHORIZED.numericCode());
       } else {
         responseDoc =
             PSWebServicesBaseHandler.createResultResponseDoc("failure", code, e.toString());
@@ -160,7 +160,8 @@ public class PSCatalogServerObjectHandler implements IPSLoadableRequestHandler {
 
     PSInternalRequest iReq = PSServer.getInternalRequest(path, request, null, true);
     if (iReq == null) {
-      throw new PSException(IPSWebServicesErrors.WEB_SERVICE_INTERNAL_REQUEST_FAILED, path);
+      throw new PSException(
+          ServerWebServicesErrorCodes.WEB_SERVICE_INTERNAL_REQUEST_FAILED, path);
     }
 
     iReq.performUpdate();
@@ -219,12 +220,12 @@ public class PSCatalogServerObjectHandler implements IPSLoadableRequestHandler {
       // Should not get here
       PSConsole.printMsg(this.getClass().getName(), e);
       Object[] args = new Object[] {HANDLER, e.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.UNEXPECTED_CATALOG_ERROR, args);
+      throw new PSCmsException(CmsErrorCodes.UNEXPECTED_CATALOG_ERROR, args);
     } catch (SAXException e) {
       // Should not get here
       PSConsole.printMsg(this.getClass().getName(), e);
       Object[] args = new Object[] {HANDLER, e.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.UNEXPECTED_CATALOG_ERROR, args);
+      throw new PSCmsException(CmsErrorCodes.UNEXPECTED_CATALOG_ERROR, args);
     }
 
     PSRelationshipProcessor proxy = PSRelationshipProcessor.getInstance();
@@ -313,12 +314,12 @@ public class PSCatalogServerObjectHandler implements IPSLoadableRequestHandler {
       // Should not get here
       PSConsole.printMsg(this.getClass().getName(), e);
       Object[] args = new Object[] {HANDLER, e.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.UNEXPECTED_CATALOG_ERROR, args);
+      throw new PSCmsException(CmsErrorCodes.UNEXPECTED_CATALOG_ERROR, args);
     } catch (SAXException e) {
       // Should not get here
       PSConsole.printMsg(this.getClass().getName(), e);
       Object[] args = new Object[] {HANDLER, e.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.UNEXPECTED_CATALOG_ERROR, args);
+      throw new PSCmsException(CmsErrorCodes.UNEXPECTED_CATALOG_ERROR, args);
     }
 
     PSRelationshipProcessor proxy = PSRelationshipProcessor.getInstance();

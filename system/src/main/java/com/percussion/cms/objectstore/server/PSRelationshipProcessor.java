@@ -16,7 +16,7 @@
  */
 package com.percussion.cms.objectstore.server;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.handlers.PSRelationshipCommandHandler;
 import com.percussion.cms.objectstore.IPSRelationshipProcessor;
@@ -546,7 +546,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
 
     PSRelationshipConfig config = getConfig(type);
     if (config.getSystemProperty(IPSHtmlParameters.SYS_SORTRANK) == null)
-      throw new PSCmsException(IPSCmsErrors.INVALID_INSERT_RELATIONSHIP_TYPE, type);
+      throw new PSCmsException(CmsErrorCodes.INVALID_INSERT_RELATIONSHIP_TYPE, type);
 
     // get existing relationships
     PSRelationshipSet resultSet = new PSRelationshipSet();
@@ -854,11 +854,11 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   private PSLocator validateKey(PSKey key) throws PSCmsException {
     if (key == null) throw new IllegalArgumentException("key may not be null");
 
-    if (!key.isPersisted()) throw new PSCmsException(IPSCmsErrors.PERSISTED_KEY_EXPECTED);
+    if (!key.isPersisted()) throw new PSCmsException(CmsErrorCodes.PERSISTED_KEY_EXPECTED);
 
     if (!(key instanceof PSLocator)) {
       Object[] args = {PSLocator.class, key.getClass().getName()};
-      throw new PSCmsException(IPSCmsErrors.UNEXPECTED_KEY_TYPE, args);
+      throw new PSCmsException(CmsErrorCodes.UNEXPECTED_KEY_TYPE, args);
     }
 
     return (PSLocator) key;
