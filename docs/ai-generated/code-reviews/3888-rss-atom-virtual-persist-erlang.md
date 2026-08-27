@@ -10,7 +10,7 @@
 
 REST GET/PUT `/sites/{nameOrId}/virtual` now round-trips `virtual.sourceKind=rss-atom` with a portable-safe local `rootPath`. Leftover `virtual.remoteUrl`, credential-like properties, and cloud URL `rootPath` values fail closed with **400**. Unknown kinds remain **400**. Developer Sites chrome and REST Build/Preview/Publish for rss-atom are intentionally not added (#3889).
 
-SPI allow-list was not on `main` yet (cluster #3892). This slice adds `VirtualSiteSourceType.RSS_ATOM` so helper validation can persist the kind. Factory `create(RSS_ATOM)` throws `IllegalArgumentException` until SPI assemble lands — persist does not call `create()`.
+SPI allow-list was not on `main` yet (cluster #3892). This slice adds `VirtualSiteSourceType.RSS_ATOM` so helper validation can persist the kind. Factory `create(RSS_ATOM)` constructs `PSRssAtomVirtualSiteSource`; persist validation still does not call `create()`.
 
 ## Recommendation
 
@@ -34,11 +34,11 @@ None (hard-gate).
 
 ### Suggestion (non-blocking)
 
-Factory `case RSS_ATOM` throws rather than constructing `PSRssAtomVirtualSiteSource`. That is correct for this persist-only slice; SPI assemble is cluster #3892 / #3881. REST Build of an rss-atom site would surface as 500 until SPI/factory wiring lands — out of scope (#3889 / later Build slices). Callers of `createFromWireName("rss-atom")` should expect that until SPI merge.
+Factory `case RSS_ATOM` constructs `PSRssAtomVirtualSiteSource` (SPI assemble already on this branch). Persist still does not call `create()`. Developer Sites chrome and REST Build/Preview/Publish for rss-atom remain out of scope (#3889).
 
 ## Tests / companions
 
-- Helper: allow-list includes `rss-atom`; safe root; reject remoteUrl / `..` / cloud URL / credentials (secret not echoed)
+- Helper: allow-list includes `rss-atom`; safe root; reject remoteUrl / `..` / cloud URL / credentials (secret not echoed); reject helpers take `VirtualSiteSourceType` (no OBJECT_STORAGE default overload)
 - Adaptor: PUT/GET round-trip; 400 paths
 - Resource: GET/PUT round-trip; OpenAPI PUT mentions `rss-atom` local/loopback
 - Jackson wrap round-trip of `rss-atom`
