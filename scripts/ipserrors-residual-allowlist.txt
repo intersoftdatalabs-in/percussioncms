@@ -13,6 +13,7 @@
 #   #3859 leftover modules/utils production call sites
 #   #3861 leftover system/webservices SOAP/ws call sites
 #   #3882 leftover system/src/main cms builders + editor context / validate step
+#   #3883 leftover system/src/main cms handlers
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -53,22 +54,6 @@ system/Testing/Extensions/src/com/percussion/extensions/testing/TestMakeInternal
 system/Testing/cms/HttpItemCopier.java
 system/Tools/RxFix/src/com/percussion/rxfix/dbfixes/PSFixNavigation.java
 system/Tools/RxFix/src/com/percussion/rxverify/modules/PSJdbcTableCheck.java
-system/src/main/java/com/percussion/cms/handlers/PSActiveAssemblyRequestHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSBinaryCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSCloneCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSCloneHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSConditionalCloneHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSContentEditorHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSCopyHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSEditCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSGlobalTemplateUpdateHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSModifyCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSPreviewCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSQueryCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSRelationshipCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSSearchCommandHandler.java
-system/src/main/java/com/percussion/cms/handlers/PSWorkflowCommandHandler.java
 system/src/main/java/com/percussion/cms/objectstore/PSActiveAssemblyProcessorProxy.java
 system/src/main/java/com/percussion/cms/objectstore/PSDbComponent.java
 system/src/main/java/com/percussion/cms/objectstore/PSDbComponentList.java

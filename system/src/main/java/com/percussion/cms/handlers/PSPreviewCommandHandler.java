@@ -16,6 +16,7 @@
  */
 package com.percussion.cms.handlers;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSEditorDocumentBuilder;
 import com.percussion.cms.PSEditorDocumentContext;
@@ -32,7 +33,6 @@ import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.system.utils.IPSHtmlParameters;
@@ -96,7 +96,7 @@ public class PSPreviewCommandHandler extends PSQueryCommandHandler {
     PSContentEditorPipe pipe = (PSContentEditorPipe) ce.getPipe();
     if (null == pipe) {
       String[] args = {ce.getName(), ah.getApplicationDefinition().getName()};
-      throw new PSSystemValidationException(IPSServerErrors.APP_NO_QUERY_PIPES_IN_DATASET, args);
+      throw new PSSystemValidationException(ServerErrorCodes.APP_NO_QUERY_PIPES_IN_DATASET, args);
     }
     PSDisplayMapper dispMapper = pipe.getMapper().getUIDefinition().getDisplayMapper();
 
@@ -125,7 +125,7 @@ public class PSPreviewCommandHandler extends PSQueryCommandHandler {
       throws PSDataExtractionException {
     // can't preview a new document
     if (isNewDoc) {
-      throw new PSDataExtractionException(IPSServerErrors.CE_CANT_PREVIEW_NEWDOC);
+      throw new PSDataExtractionException(ServerErrorCodes.CE_CANT_PREVIEW_NEWDOC);
     }
 
     return m_editHandler.getAppList(id, data, false);

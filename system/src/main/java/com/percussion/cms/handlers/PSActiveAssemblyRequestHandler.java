@@ -16,7 +16,7 @@
  */
 package com.percussion.cms.handlers;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSActiveAssemblerHandlerRequest;
 import com.percussion.cms.objectstore.PSDependentSet;
@@ -24,6 +24,7 @@ import com.percussion.cms.objectstore.server.PSActiveAssemblerProcessor;
 import com.percussion.conn.PSServerException;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 import com.percussion.error.PSStandaloneException;
 import com.percussion.server.IPSLoadableRequestHandler;
@@ -108,27 +109,27 @@ public class PSActiveAssemblyRequestHandler implements IPSLoadableRequestHandler
             deleteForActiveAssembler(processor, requestDoc.getOwner(), requestDoc.getDependents());
           } else {
             // unknown command
-            throw new PSCmsException(IPSCmsErrors.UNKNOWN_AA_COMMAND, command);
+            throw new PSCmsException(CmsErrorCodes.UNKNOWN_AA_COMMAND, command);
           }
         } else {
           if (command.equals(AA_REL_LOOKUP)) {
             processAaRelationshipLookup(request);
           } else {
             // unknown command
-            throw new PSCmsException(IPSCmsErrors.UNKNOWN_AA_COMMAND, command);
+            throw new PSCmsException(CmsErrorCodes.UNKNOWN_AA_COMMAND, command);
           }
         }
       } else {
         // missing command or input document parameter
         String requiredParams = IPSHtmlParameters.SYS_COMMAND + ", " + INPUT_DOC;
-        throw new PSCmsException(IPSCmsErrors.MISSING_AA_PARAMETER, requiredParams);
+        throw new PSCmsException(CmsErrorCodes.MISSING_AA_PARAMETER, requiredParams);
       }
     } catch (Exception e) {
       // create error response
       PSRequestException exception = null;
       if (e instanceof PSException) exception = new PSRequestException((PSException) e);
       else {
-        exception = new PSRequestException(IPSCmsErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+        exception = new PSRequestException(CmsErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
 
       respDoc = PSXmlDocumentBuilder.createXmlDocument();
@@ -183,6 +184,16 @@ public class PSActiveAssemblyRequestHandler implements IPSLoadableRequestHandler
     // see base class for description
     public PSRequestException(int msgCode, Object singleArg) {
       super(msgCode, singleArg);
+    }
+
+    /**
+     * Typed construction with a single message argument.
+     *
+     * @param code catalogued error code, never {@code null}
+     * @param singleArg the argument to use as the sole argument in the error message
+     */
+    public PSRequestException(IPSErrorCode code, Object singleArg) {
+      super(code, singleArg);
     }
 
     // see base class for description

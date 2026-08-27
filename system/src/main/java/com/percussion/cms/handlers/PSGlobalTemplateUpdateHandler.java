@@ -16,16 +16,16 @@
  */
 package com.percussion.cms.handlers;
 
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.fastforward.globaltemplate.PSGlobalTemplate;
 import com.percussion.fastforward.globaltemplate.PSGlobalTemplateException;
 import com.percussion.fastforward.globaltemplate.PSRxGlobals;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSHandlerStateListener;
-import com.percussion.server.IPSHttpErrors;
 import com.percussion.server.IPSLoadableRequestHandler;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSHandlerStateEvent;
 import com.percussion.server.PSRequest;
@@ -204,7 +204,7 @@ public class PSGlobalTemplateUpdateHandler
       resp.setContent(fis, file.length(), "text/plain");
     } catch (FileNotFoundException e) {
       resp.setIsErrorResponse(true);
-      resp.setStatus(IPSHttpErrors.HTTP_NOT_FOUND, PSExceptionUtils.getMessageForLog(e));
+      resp.setStatus(HttpErrorCodes.HTTP_NOT_FOUND.numericCode(), PSExceptionUtils.getMessageForLog(e));
     }
   }
 
@@ -392,7 +392,7 @@ public class PSGlobalTemplateUpdateHandler
       templates = assembly.findAllTemplates();
     } catch (PSAssemblyException e) {
       throw new PSCmsException(
-          IPSServerErrors.UNEXPECTED_EXCEPTION_CONSOLE, e.getLocalizedMessage());
+          ServerErrorCodes.UNEXPECTED_EXCEPTION_CONSOLE, e.getLocalizedMessage());
     }
 
     for (IPSAssemblyTemplate template : templates) {

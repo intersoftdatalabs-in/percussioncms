@@ -17,6 +17,7 @@
 
 package com.percussion.cms.handlers;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSApplicationBuilder;
 import com.percussion.cms.PSCompleteChildDocumentBuilder;
@@ -43,7 +44,6 @@ import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
@@ -96,7 +96,7 @@ public class PSEditCommandHandler extends PSQueryCommandHandler {
     PSContentEditorPipe pipe = (PSContentEditorPipe) ce.getPipe();
     if (null == pipe) {
       String[] args = {ce.getName(), ah.getApplicationDefinition().getName()};
-      throw new PSSystemValidationException(IPSServerErrors.APP_NO_QUERY_PIPES_IN_DATASET, args);
+      throw new PSSystemValidationException(ServerErrorCodes.APP_NO_QUERY_PIPES_IN_DATASET, args);
     }
     PSDisplayMapper dispMapper = pipe.getMapper().getUIDefinition().getDisplayMapper();
 
@@ -113,7 +113,7 @@ public class PSEditCommandHandler extends PSQueryCommandHandler {
     URL url;
     try {
       if (null == ce.getRequestor()) {
-        throw new PSSystemValidationException(IPSServerErrors.CE_MISSING_REQUESTOR, ce.getName());
+        throw new PSSystemValidationException(ServerErrorCodes.CE_MISSING_REQUESTOR, ce.getName());
       }
       if (PSServer.getProperty("requestBehindProxy", "false").equalsIgnoreCase("true")) {
         url =
@@ -132,7 +132,7 @@ public class PSEditCommandHandler extends PSQueryCommandHandler {
                 ah.getFullRequestRoot() + "/" + ce.getRequestor().getRequestPage() + ".html");
       }
     } catch (MalformedURLException mue) {
-      throw new PSSystemValidationException(IPSServerErrors.RAW_DUMP, mue.getLocalizedMessage());
+      throw new PSSystemValidationException(ServerErrorCodes.RAW_DUMP, mue.getLocalizedMessage());
     }
 
     rowCtx.setPageInfoMap(m_pageInfo);
@@ -432,7 +432,7 @@ public class PSEditCommandHandler extends PSQueryCommandHandler {
     PSPageInfo info = (PSPageInfo) pageInfo.get(key);
     if (null == info) {
       String[] args = {"page", key.toString()};
-      throw new PSNotFoundException(IPSServerErrors.CE_MISSING_PAGEMAP_ENTRY, args);
+      throw new PSNotFoundException(ServerErrorCodes.CE_MISSING_PAGEMAP_ENTRY, args);
     }
     info.setBuilder(builder);
   }
@@ -565,7 +565,7 @@ public class PSEditCommandHandler extends PSQueryCommandHandler {
         PSDisplayMapper childMapper = mapping.getDisplayMapper();
         if (null == childMapper) {
           String[] args = {fields.getName(), fs.getName()};
-          throw new PSSystemValidationException(IPSServerErrors.CE_MISSING_CHILDMAPPER, args);
+          throw new PSSystemValidationException(ServerErrorCodes.CE_MISSING_CHILDMAPPER, args);
         }
         if (PSFieldSet.TYPE_COMPLEX_CHILD == fs.getType()) {
           /* we need to add a page for the summary editor and recursively
