@@ -22,9 +22,14 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
 import com.percussion.error.IPSErrorCode;
+import com.percussion.rx.delivery.IPSDeliveryResult.Outcome;
+import com.percussion.rx.delivery.impl.PSBaseDeliveryHandler;
+import com.percussion.utils.guid.IPSGuid;
 import java.io.IOException;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -160,10 +165,102 @@ public class PSDeliveryTypedErrorCodeSliceTest {
         DeliveryErrorCodes.CANNOT_DELIVER_NO_DELIVERYTYPE.numericCode());
   }
 
+  @Test
+  public void typedGetExceptionResultFailsWithTypedMessageAndItemIds() {
+    var handler = new TestDeliveryHandler();
+    var id = mock(IPSGuid.class);
+    var item = mockItem(id, 11L, 22L, 3);
+    var cause = new IOException("disk full");
+
+    IPSDeliveryResult failed =
+        handler.exposeGetExceptionResult(item, DeliveryErrorCodes.COULD_NOT_WRITE_TEMP, cause);
+
+    assertEquals(Outcome.FAILED, failed.getOutcome());
+    assertSame(id, failed.getId());
+    assertEquals(11L, failed.getJobId());
+    assertEquals(22L, failed.getReferenceId());
+    assertEquals(3, failed.getDeliveryContext());
+    assertNull(failed.getUnpublishData());
+
+    var expected =
+        new PSDeliveryException(DeliveryErrorCodes.COULD_NOT_WRITE_TEMP, cause, "disk full");
+    assertEquals(expected.getLocalizedMessage(), failed.getFailureMessage());
+    assertSame(DeliveryErrorCodes.COULD_NOT_WRITE_TEMP, expected.getTypedErrorCode());
+
+    IPSDeliveryResult fromInt =
+        handler.exposeGetExceptionResult(item, IPSDeliveryErrors.COULD_NOT_WRITE_TEMP, cause);
+    assertEquals(fromInt.getFailureMessage(), failed.getFailureMessage());
+  }
+
+  @Test
+  public void typedGetExceptionResultRejectsNullsAndBlankCauseUsesClassName() {
+    var handler = new TestDeliveryHandler();
+    var item = mockItem(mock(IPSGuid.class), 1L, 2L, 0);
+    var cause = new IOException("x");
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> handler.exposeGetExceptionResult(item, null, cause));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            handler.exposeGetExceptionResult(null, DeliveryErrorCodes.UNEXPECTED_ERROR, cause));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            handler.exposeGetExceptionResult(
+                item, DeliveryErrorCodes.UNEXPECTED_ERROR, null));
+
+    var blankCause = new RuntimeException("   ");
+    IPSDeliveryResult failed =
+        handler.exposeGetExceptionResult(item, DeliveryErrorCodes.UNEXPECTED_ERROR, blankCause);
+    var expected =
+        new PSDeliveryException(
+            DeliveryErrorCodes.UNEXPECTED_ERROR, blankCause, RuntimeException.class.getName());
+    assertEquals(Outcome.FAILED, failed.getOutcome());
+    assertEquals(expected.getLocalizedMessage(), failed.getFailureMessage());
+  }
+
+  private static IPSDeliveryItem mockItem(
+      IPSGuid id, long jobId, long referenceId, int deliveryContext) {
+    var item = mock(IPSDeliveryItem.class);
+    when(item.getId()).thenReturn(id);
+    when(item.getJobId()).thenReturn(jobId);
+    when(item.getReferenceId()).thenReturn(referenceId);
+    when(item.getDeliveryContext()).thenReturn(deliveryContext);
+    return item;
+  }
+
   private static void leftoverNonAuditable(PSDeliveryException ex, DeliveryErrorCodes expected) {
     assertEquals(expected.numericCode(), ex.getErrorCode(), expected.name());
     assertSame(expected, ex.getTypedErrorCode(), expected.name());
     assertFalse(ex.isAuditable(), expected.name());
     assertFalse(expected.isAuditable(), expected.name());
+  }
+
+  /**
+   * Exposes {@link PSBaseDeliveryHandler} {@code getExceptionResult} overloads for #3860 slice
+   * coverage. Delivery/removal are unused.
+   */
+  private static final class TestDeliveryHandler extends PSBaseDeliveryHandler {
+    IPSDeliveryResult exposeGetExceptionResult(
+        IPSDeliveryItem result, IPSErrorCode errorCode, Throwable th) {
+      return getExceptionResult(result, errorCode, th);
+    }
+
+    IPSDeliveryResult exposeGetExceptionResult(
+        IPSDeliveryItem result, int errorCode, Throwable th) {
+      return getExceptionResult(result, errorCode, th);
+    }
+
+    @Override
+    protected IPSDeliveryResult doDelivery(Item item, long jobId, String location) {
+      throw new UnsupportedOperationException("not used");
+    }
+
+    @Override
+    protected IPSDeliveryResult doRemoval(Item item, long jobId, String location) {
+      throw new UnsupportedOperationException("not used");
+    }
   }
 }
