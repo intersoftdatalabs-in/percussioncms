@@ -51,6 +51,7 @@ import {
   SOURCE_KIND_HTTP_JSON,
   SOURCE_KIND_OBJECT_STORAGE,
   SOURCE_KIND_REPOSITORY,
+  SOURCE_KIND_SELECT_VALUES,
   SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
   formToVirtualProps,
@@ -64,6 +65,18 @@ import {
   virtualPropsToForm,
   type VirtualSiteFormModel,
 } from "./virtualSiteForm";
+
+const SOURCE_KIND_OPTION_LABEL: Record<
+  (typeof SOURCE_KIND_SELECT_VALUES)[number],
+  string
+> = {
+  [SOURCE_KIND_REPOSITORY]: DEV_MSG.SITE_VIRT_KIND_REPOSITORY,
+  [SOURCE_KIND_GIT_FILESYSTEM]: DEV_MSG.SITE_VIRT_KIND_GIT_FILESYSTEM,
+  [SOURCE_KIND_CSV_FILESYSTEM]: DEV_MSG.SITE_VIRT_KIND_CSV_FILESYSTEM,
+  [SOURCE_KIND_SQL_DATABASE]: DEV_MSG.SITE_VIRT_KIND_SQL_DATABASE,
+  [SOURCE_KIND_HTTP_JSON]: DEV_MSG.SITE_VIRT_KIND_HTTP_JSON,
+  [SOURCE_KIND_OBJECT_STORAGE]: DEV_MSG.SITE_VIRT_KIND_OBJECT_STORAGE,
+};
 
 const formRow: React.CSSProperties = {
   display: "grid",
@@ -418,22 +431,11 @@ export function VirtualSiteSourcePanel({
               style={inputStyle}
               disabled={busy}
             >
-              <option value={SOURCE_KIND_REPOSITORY}>{DEV_MSG.SITE_VIRT_KIND_REPOSITORY}</option>
-              <option value={SOURCE_KIND_GIT_FILESYSTEM}>
-                {DEV_MSG.SITE_VIRT_KIND_GIT_FILESYSTEM}
-              </option>
-              <option value={SOURCE_KIND_CSV_FILESYSTEM}>
-                {DEV_MSG.SITE_VIRT_KIND_CSV_FILESYSTEM}
-              </option>
-              <option value={SOURCE_KIND_SQL_DATABASE}>
-                {DEV_MSG.SITE_VIRT_KIND_SQL_DATABASE}
-              </option>
-              <option value={SOURCE_KIND_HTTP_JSON}>
-                {DEV_MSG.SITE_VIRT_KIND_HTTP_JSON}
-              </option>
-              <option value={SOURCE_KIND_OBJECT_STORAGE}>
-                {DEV_MSG.SITE_VIRT_KIND_OBJECT_STORAGE}
-              </option>
+              {SOURCE_KIND_SELECT_VALUES.map((value) => (
+                <option key={value} value={value}>
+                  {SOURCE_KIND_OPTION_LABEL[value]}
+                </option>
+              ))}
             </select>
           </div>
 

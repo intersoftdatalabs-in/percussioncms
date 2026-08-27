@@ -57,6 +57,7 @@ perc-devctl.py qa-up [--timeout-seconds N] [--skip-image-build]
 perc-devctl.py qa-preflight [--strict] [--no-content-hash]
 perc-devctl.py qa-rebuild-chain [--skip-tests] [--dist-only] [--then-qa-up] [--dry-run]
 perc-devctl.py qa-health [--timeout-seconds N] [--interval-seconds N] [--url URL]
+perc-devctl.py qa-deploy-webui [--src DIR] [--container NAME]
 perc-devctl.py qa-down [--container NAME]
 ```
 
@@ -437,6 +438,18 @@ python3 docker/scripts/hot-deploy-jar.py --jar modules/utils/target/utils-8.2.0.
 Default container: `percussion-cms-dts`. Default target: `both` (CMS + DTS lib dirs). `--target` accepts `cms`, `dts`, `both`, or an absolute container path.
 
 **H2 QA cell (`perc-matrix-cms-h2`):** this default is **not** the Rhythmyx WAR classpath. Product SNAPSHOTs (`perc-system`, `sitemanage`, …) load from `/opt/Percussion/jetty/base/webapps/Rhythmyx/WEB-INF/lib/`. After `docker cp` into that dir, restart Jetty **inside** the cell and run `perc-devctl.py qa-health`. Do not `docker restart` the cell (silent install wipes copies). `qa-up --skip-image-build` does not refresh `perc-system`; if you copy a newer `sitemanage`, copy a matching `perc-system` too or ROOT fails at startup (`NoClassDefFoundError`).
+
+### `docker/scripts/hot-deploy-webui-modern.py`
+
+Hot-copy the **full** built WebUI modern SPA into the H2 QA WAR (`#3893`). Cycle Verify failed when only hashed files under `cm/modern/assets/` were copied: `spa.jsp` still loaded a stale `perc-modern-ui.js` that imported an older `developer-<hash>.js` (csv/sql/http-json present, `option[value=object-storage]` count 0).
+
+```
+python docker/scripts/perc-devctl.py qa-deploy-webui
+# equivalent:
+python docker/scripts/hot-deploy-webui-modern.py
+```
+
+Default source: `WebUI/target/generated-webui/cm/modern` (entry `assets/perc-modern-ui.js`, `assets/perc-modern-ui.css`, hashed chunks, optional `index.html`). Default container: `perc-matrix-cms-h2`. Dest: `/opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/`. The script refuses a bundle unless `perc-modern-ui.js` or the `developer-*.js` chunk it imports contains the quoted wire value `"object-storage"` (not a bare substring; the TS identifier `SOURCE_KIND_OBJECT_STORAGE` is minified away). It does **not** `docker restart` the cell — restart Jetty inside the cell, then `qa-health`. Unit tests: `docker/scripts/test_hot_deploy_webui_modern.py`.
 
 ## Container entrypoint
 
