@@ -78,6 +78,15 @@ syndication SPI — **no live cloud feeds, no Authorization / API keys, no useri
 persist, REST Build/Preview/Publish, and Developer **Sites** chrome for this kind stay
 later slices.
 
+An **RSS / Atom** adapter (`rss-atom`) reads a **local** RSS or Atom fixture directory
+under `virtual.rootPath` (portable path; no remaining `..`). REST **GET/PUT**
+`/sites/{nameOrId}/virtual` round-trips `sourceKind=rss-atom` with that local
+`rootPath`. Leftover `virtual.remoteUrl`, live feed URLs, and credential properties
+are **400** (no secrets on the REST envelope). Developer **Sites** can select
+**RSS / Atom**, save, and GET-roundtrip the kind. **Build Virtual Site**,
+**Preview assembled site**, and **Publish Virtual Site** chrome for this kind stay
+a later phase.
+
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
 After the site folder is created, an optional Git root is saved with

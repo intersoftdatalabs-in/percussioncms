@@ -35,6 +35,9 @@ export const SOURCE_KIND_HTTP_JSON = "http-json";
 /** Virtual Site adapter wire name for a local object-key directory (no cloud secrets). */
 export const SOURCE_KIND_OBJECT_STORAGE = "object-storage";
 
+/** Virtual Site adapter wire name for a local RSS/Atom fixture (no live feed credentials). */
+export const SOURCE_KIND_RSS_ATOM = "rss-atom";
+
 /** Form select values for source kind. */
 export type VirtualSourceKindOption =
   | typeof SOURCE_KIND_REPOSITORY
@@ -42,7 +45,8 @@ export type VirtualSourceKindOption =
   | typeof SOURCE_KIND_CSV_FILESYSTEM
   | typeof SOURCE_KIND_SQL_DATABASE
   | typeof SOURCE_KIND_HTTP_JSON
-  | typeof SOURCE_KIND_OBJECT_STORAGE;
+  | typeof SOURCE_KIND_OBJECT_STORAGE
+  | typeof SOURCE_KIND_RSS_ATOM;
 
 /**
  * Product order for the Developer Sites source-kind {@code <select>}.
@@ -56,6 +60,7 @@ export const SOURCE_KIND_SELECT_VALUES: readonly VirtualSourceKindOption[] = [
   SOURCE_KIND_SQL_DATABASE,
   SOURCE_KIND_HTTP_JSON,
   SOURCE_KIND_OBJECT_STORAGE,
+  SOURCE_KIND_RSS_ATOM,
 ];
 
 /** Editable form model for the Virtual Site source panel. */
@@ -71,8 +76,8 @@ export interface VirtualSiteFormModel {
 /**
  * Normalize a wire/sourceKind string into a form select option.
  * Blank, missing, or {@code repository} → repository; git-filesystem,
- * csv-filesystem, sql-database, http-json, and object-storage map to themselves;
- * unknown kinds → repository (safe default).
+ * csv-filesystem, sql-database, http-json, object-storage, and rss-atom map
+ * to themselves; unknown kinds → repository (safe default).
  */
 export function normalizeSourceKindOption(
   raw: string | null | undefined,
@@ -95,6 +100,9 @@ export function normalizeSourceKindOption(
   }
   if (v === SOURCE_KIND_OBJECT_STORAGE) {
     return SOURCE_KIND_OBJECT_STORAGE;
+  }
+  if (v === SOURCE_KIND_RSS_ATOM) {
+    return SOURCE_KIND_RSS_ATOM;
   }
   // Unknown kinds: surface as repository so operators do not accidentally
   // re-save an unsupported adapter without changing the select.
@@ -130,6 +138,11 @@ export function isHttpJsonSourceKind(kind: string | null | undefined): boolean {
 /** True when source kind is the local object-storage adapter (root path only; no cloud secrets). */
 export function isObjectStorageSourceKind(kind: string | null | undefined): boolean {
   return (kind ?? "").trim().toLowerCase() === SOURCE_KIND_OBJECT_STORAGE;
+}
+
+/** True when source kind is the local RSS/Atom adapter (root path only; no live feed credentials). */
+export function isRssAtomSourceKind(kind: string | null | undefined): boolean {
+  return (kind ?? "").trim().toLowerCase() === SOURCE_KIND_RSS_ATOM;
 }
 
 /**
@@ -199,6 +212,16 @@ export function formToVirtualProps(form: VirtualSiteFormModel): VirtualSitePrope
     // object-key directory only — never send cloud URLs, IAM, or access keys.
     return {
       sourceKind: SOURCE_KIND_OBJECT_STORAGE,
+      rootPath: form.rootPath.trim() || null,
+      remoteUrl: "",
+      branch: "",
+    };
+  }
+  if (kind === SOURCE_KIND_RSS_ATOM) {
+    // RSS/Atom rejects a non-blank virtual.remoteUrl (REST 400). Local fixture
+    // directory only — never send live feed URLs or credentials.
+    return {
+      sourceKind: SOURCE_KIND_RSS_ATOM,
       rootPath: form.rootPath.trim() || null,
       remoteUrl: "",
       branch: "",

@@ -51,6 +51,7 @@ import {
   SOURCE_KIND_HTTP_JSON,
   SOURCE_KIND_OBJECT_STORAGE,
   SOURCE_KIND_REPOSITORY,
+  SOURCE_KIND_RSS_ATOM,
   SOURCE_KIND_SELECT_VALUES,
   SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
@@ -59,6 +60,7 @@ import {
   isGitFilesystemSourceKind,
   isHttpJsonSourceKind,
   isObjectStorageSourceKind,
+  isRssAtomSourceKind,
   isSqlDatabaseSourceKind,
   isVirtualSourceKind,
   validateVirtualSiteForm,
@@ -76,6 +78,7 @@ const SOURCE_KIND_OPTION_LABEL: Record<
   [SOURCE_KIND_SQL_DATABASE]: DEV_MSG.SITE_VIRT_KIND_SQL_DATABASE,
   [SOURCE_KIND_HTTP_JSON]: DEV_MSG.SITE_VIRT_KIND_HTTP_JSON,
   [SOURCE_KIND_OBJECT_STORAGE]: DEV_MSG.SITE_VIRT_KIND_OBJECT_STORAGE,
+  [SOURCE_KIND_RSS_ATOM]: DEV_MSG.SITE_VIRT_KIND_RSS_ATOM,
 };
 
 const formRow: React.CSSProperties = {
@@ -166,6 +169,8 @@ function validationMessage(
  * sql-database, http-json, and object-storage. Preview last-build HTML for
  * those kinds. Publish ({@code POST …/virtual/publish}) for the same kinds
  * after a successful Build. Repository / blank / unknown kinds stay hidden.
+ * rss-atom save chrome is in this panel (local {@code rootPath} only);
+ * Build/Preview/Publish for rss-atom stay a later phase.
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -355,11 +360,12 @@ export function VirtualSiteSourcePanel({
   const sqlMode = isSqlDatabaseSourceKind(form.sourceKind);
   const httpJsonMode = isHttpJsonSourceKind(form.sourceKind);
   const objectStorageMode = isObjectStorageSourceKind(form.sourceKind);
-  /** Build chrome: git/csv/sql/http-json/object-storage (never repository). */
+  const rssAtomMode = isRssAtomSourceKind(form.sourceKind);
+  /** Build chrome: git/csv/sql/http-json/object-storage (never repository or rss-atom). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
-  /** Preview chrome: git/csv/sql/http-json/object-storage (never repository). */
+  /** Preview chrome: git/csv/sql/http-json/object-storage (never repository or rss-atom). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
-  /** Publish chrome: git/csv/sql/http-json/object-storage (never repository). */
+  /** Publish chrome: git/csv/sql/http-json/object-storage (never repository or rss-atom). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
   const busy = saving || building || publishing;
   const buildSummary = buildResult ? formatVirtualSiteBuildSummary(buildResult) : null;
@@ -485,6 +491,14 @@ export function VirtualSiteSourcePanel({
                   data-testid="developer-site-virtual-object-storage-hint"
                 >
                   {DEV_MSG.SITE_VIRT_OBJECT_STORAGE_HINT}
+                </p>
+              ) : null}
+              {rssAtomMode ? (
+                <p
+                  style={{ ...mutedHintText, margin: "0 0 10px" }}
+                  data-testid="developer-site-virtual-rss-atom-hint"
+                >
+                  {DEV_MSG.SITE_VIRT_RSS_ATOM_HINT}
                 </p>
               ) : null}
               {gitMode ? (
