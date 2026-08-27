@@ -17,8 +17,8 @@
 
 /**
  * Copy the object-storage Virtual Site QA fixture into the H2 Docker cell so
- * Developer Sites Build can POST /virtual/build against a local object-key
- * directory (no cloud URLs, IAM, or access keys).
+ * Developer Sites Build / Publish can POST /virtual/build and /virtual/publish
+ * against a local object-key directory (no cloud URLs, IAM, or access keys).
  */
 
 const { execFileSync } = require("node:child_process");
@@ -27,6 +27,12 @@ const path = require("node:path");
 
 /** Absolute POSIX path inside the Linux QA CMS container. */
 const OBJECT_STORAGE_VIRTUAL_QA_ROOT = "/opt/Percussion/tmp/object-storage-virtual-qa";
+
+/** Assembled home copied to the Site filesystem root after object-storage Publish (Linux cell). */
+const OBJECT_STORAGE_VIRTUAL_PUBLISHED_HTML = "8.2/index.html";
+
+/** Marker from the local object-key fixture body, present in published HTML. */
+const OBJECT_STORAGE_VIRTUAL_PUBLISH_MARKER = "Hello from objects.";
 
 function qaCmsContainer() {
   const fromEnv = (
@@ -98,9 +104,83 @@ function deployObjectStorageVirtualFixtureToQaCell() {
   return OBJECT_STORAGE_VIRTUAL_QA_ROOT;
 }
 
+/**
+ * Normalize a Developer Sites Publish destination path for the Linux QA cell.
+ * Rejects empty, relative, drive-letter, and {@code ..} paths so docker exec
+ * never follows a traversal. In-container filesystem paths always use {@code /}.
+ *
+ * @param {unknown} raw dest text from {@code developer-site-virtual-publish-dest}
+ * @returns {string} POSIX absolute path
+ */
+function normalizeQaPublishDestPath(raw) {
+  if (typeof raw !== "string") {
+    throw new Error("object-storage Virtual Site publish dest is missing");
+  }
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    throw new Error("object-storage Virtual Site publish dest is blank");
+  }
+  const posix = trimmed.replace(/\\/g, "/");
+  if (/^[a-zA-Z]:/.test(posix) || posix.startsWith("//")) {
+    throw new Error(
+      `object-storage Virtual Site publish dest is not a Linux QA cell path: ${trimmed}`,
+    );
+  }
+  if (!posix.startsWith("/")) {
+    throw new Error(`object-storage Virtual Site publish dest is not absolute: ${trimmed}`);
+  }
+  const parts = posix.split("/").filter((seg) => seg.length > 0);
+  if (parts.some((seg) => seg === ".." || seg === ".")) {
+    throw new Error(`object-storage Virtual Site publish dest is unsafe: ${trimmed}`);
+  }
+  return `/${parts.join("/")}`;
+}
+
+function posixJoin(base, ...segments) {
+  const dest = normalizeQaPublishDestPath(base);
+  const extra = [];
+  for (const seg of segments) {
+    const piece = String(seg ?? "").trim().replace(/\\/g, "/");
+    for (const part of piece.split("/")) {
+      if (!part) {
+        continue;
+      }
+      if (part === ".." || part === ".") {
+        throw new Error(`object-storage Virtual Site publish relpath is unsafe: ${seg}`);
+      }
+      extra.push(part);
+    }
+  }
+  return extra.length === 0 ? dest : `${dest}/${extra.join("/")}`;
+}
+
+/**
+ * Fail closed unless assembled object-storage HTML exists under the Site
+ * filesystem root inside the QA cell (acceptance: files exist after Publish).
+ *
+ * @param {unknown} publishPath dest shown in Developer Sites Publish chrome
+ */
+function assertPublishedObjectStorageFilesOnQaCell(publishPath) {
+  const html = posixJoin(publishPath, OBJECT_STORAGE_VIRTUAL_PUBLISHED_HTML);
+  const container = qaCmsContainer();
+  dockerExec(container, ["test", "-f", html]);
+  const body = dockerExec(container, ["cat", html]);
+  if (!body.includes(OBJECT_STORAGE_VIRTUAL_PUBLISH_MARKER) && !body.includes("Object Home")) {
+    throw new Error(
+      `Published object-storage HTML missing fixture marker at ${html}: ${body.slice(0, 400)}`,
+    );
+  }
+  return html;
+}
+
 module.exports = {
   OBJECT_STORAGE_VIRTUAL_QA_ROOT,
+  OBJECT_STORAGE_VIRTUAL_PUBLISHED_HTML,
+  OBJECT_STORAGE_VIRTUAL_PUBLISH_MARKER,
   objectStorageVirtualFixtureHostDir,
   deployObjectStorageVirtualFixtureToQaCell,
+  normalizeQaPublishDestPath,
+  posixJoin,
+  assertPublishedObjectStorageFilesOnQaCell,
   qaCmsContainer,
 };

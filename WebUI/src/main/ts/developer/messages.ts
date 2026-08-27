@@ -792,7 +792,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@HTTP JSON uses the root path only (no Git remote). Put a local JSON catalog (http.file or default pages.json) or a loopback http.url in _config.yaml. Save sourceKind=http-json, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target. Open JSON only — no Authorization or API keys.",
   SITE_VIRT_KIND_OBJECT_STORAGE: "perc.ui.developer@Object storage",
   SITE_VIRT_OBJECT_STORAGE_HINT:
-    "perc.ui.developer@Object storage uses the root path only (no Git remote). Treat the directory as a local object-key bucket (Markdown, HTML, or JSON). Save sourceKind=object-storage, then Build Virtual Site, then Preview assembled site. Cloud URLs and access keys are never sent on the REST envelope. Publish Virtual Site for this kind stays a later phase.",
+    "perc.ui.developer@Object storage uses the root path only (no Git remote). Treat the directory as a local object-key bucket (Markdown, HTML, or JSON). Save sourceKind=object-storage, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target. Cloud URLs and access keys are never sent on the REST envelope.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:
@@ -826,7 +826,7 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_PUBLISH: "perc.ui.developer@Publish Virtual Site",
   SITE_VIRT_PUBLISHING: "perc.ui.developer@Publishing Virtual Site...",
   SITE_VIRT_PUBLISH_HINT:
-    "perc.ui.developer@Builds this Virtual Site using saved source properties, then copies assembled files to the Site filesystem publish location (Git filesystem, CSV filesystem, SQL database, or HTTP JSON). Requires Admin. Traditional repository Sites do not show this control.",
+    "perc.ui.developer@Builds this Virtual Site using saved source properties, then copies assembled files to the Site filesystem publish location (Git filesystem, CSV filesystem, SQL database, HTTP JSON, or Object storage). Requires Admin. Traditional repository Sites do not show this control.",
   SITE_VIRT_PUBLISH_SAVE_FIRST:
     "perc.ui.developer@Save Virtual Site source before publishing so the server uses the latest properties. The Site publishing filesystem root must be configured.",
   SITE_VIRT_PUBLISH_ERROR: "perc.ui.developer@Could not publish Virtual Site.",
