@@ -63,6 +63,10 @@ const {
   deployObjectStorageVirtualFixtureToQaCell,
   assertPublishedObjectStorageFilesOnQaCell,
 } = require("./helpers/object-storage-virtual-qa-fixture");
+const {
+  missingVirtualSourceKindValues,
+  formatMissingVirtualSourceKindMessage,
+} = require("./helpers/virtual-source-kind-options");
 
 function developerSectionUrl(section) {
   const q = new URLSearchParams({
@@ -139,11 +143,14 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     if (await page.locator('[data-testid="developer-site-virtual-form"]').isVisible()) {
       const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
       await expect(kind).toBeVisible();
-      await expect(kind.locator('option[value="repository"]')).toHaveCount(1);
-      await expect(kind.locator('option[value="git-filesystem"]')).toHaveCount(1);
-      await expect(kind.locator('option[value="csv-filesystem"]')).toHaveCount(1);
-      await expect(kind.locator('option[value="sql-database"]')).toHaveCount(1);
-      await expect(kind.locator('option[value="http-json"]')).toHaveCount(1);
+      const liveKindValues = await kind.locator("option").evaluateAll((opts) =>
+        opts.map((o) => (o.getAttribute("value") || o.value || "").trim()),
+      );
+      const missingKinds = missingVirtualSourceKindValues(liveKindValues);
+      expect(
+        missingKinds,
+        formatMissingVirtualSourceKindMessage(missingKinds, liveKindValues),
+      ).toEqual([]);
       await expect(kind.locator('option[value="object-storage"]')).toHaveCount(1);
       await expect(kind.locator('option[value="sql-api"]')).toHaveCount(0);
       // Default traditional sites use repository option

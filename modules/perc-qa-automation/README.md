@@ -117,6 +117,7 @@ python docker\scripts\perc-devctl.py qa-down
 | HTML report | `modules/perc-qa-automation/frontend/playwright-report/` |
 | Attach runbook | [playwright-failure-artifacts.md](../../docs/developer-module/playwright-failure-artifacts.md) |
 | Stack lifecycle | [workbench-rest-and-qa-modes.md](../../docs/developer-module/workbench-rest-and-qa-modes.md) §2 |
+| WebUI SPA hot-copy (#3893) | `perc-devctl.py qa-deploy-webui` — full `cm/modern` tree (entry `perc-modern-ui.js` + hashed chunks), not only `assets/` hashes |
 
 #### Extended golden multi-path (`@folder-recycle` + `@profile`)
 

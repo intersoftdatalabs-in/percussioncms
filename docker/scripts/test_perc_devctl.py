@@ -342,6 +342,28 @@ class TestSubcommandDryRun(unittest.TestCase):
         self.assertEqual(rc, pdc.EXIT_OK)
         self.assertIn("RESULT:OK STEP:deploy-jar", out)
 
+    def test_qa_deploy_webui_dry_run(self):
+        rc, out = self.runner.run(["qa-deploy-webui"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-deploy-webui", out)
+
+    def test_qa_deploy_webui_argv_includes_entry_script_and_container(self):
+        argv = pdc._qa_deploy_webui_argv(
+            Path("/repo"),
+            None,
+            pdc.QA_CMS_CONTAINER,
+            False,
+        )
+        self.assertEqual(argv[0], "python3")
+        self.assertTrue(str(argv[1]).replace("\\", "/").endswith(
+            "docker/scripts/hot-deploy-webui-modern.py"
+        ))
+        self.assertIn("--container", argv)
+        self.assertIn(pdc.QA_CMS_CONTAINER, argv)
+        self.assertNotIn("--skip-object-storage-check", argv)
+        self.assertNotIn("sh", argv)
+        self.assertNotIn("-c", argv)
+
     def test_verify_fix_dry_run(self):
         rc, out = self.runner.run([
             "verify-fix", "--jar", "/tmp/foo.jar", "--restart", "--timeout-seconds", "120",

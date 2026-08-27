@@ -30,6 +30,11 @@ QA mode (H2-in-Docker, no host install — issue #1827 / #1927) adds:
   (sitemanage install → WebUI package → perc-distribution-tree package)
   via repo-root ``mvnw``/``mvnw.cmd``, portable paths, ``shell=False``
   (#2533 residual of #2423 / #2486)
+* ``qa-deploy-webui`` — copy the full generated ``cm/modern`` tree
+  (stable ``perc-modern-ui.js`` entry + CSS + hashed chunks + any
+  ``index.html``) into the H2 QA WAR. Copying only hashed ``assets/``
+  files leaves a stale developer chunk without
+  ``option[value=object-storage]`` (#3893)
 
 Compose ``verify`` / ``verify-fix`` / ``deploy-jar --verify`` apply the same
 Rhythmyx context log scan against the cms-dts container (#2480 companion to
@@ -530,6 +535,34 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         help=f"Container name to remove (default: {QA_CMS_CONTAINER}).",
     )
     pqd.add_argument("--dry-run", action="store_true")
+
+    pqdw = sub.add_parser(
+        "qa-deploy-webui",
+        help=(
+            "Hot-copy the built WebUI modern SPA (entry perc-modern-ui.js + "
+            "hashed chunks + CSS + any index.html) into the H2 QA WAR. "
+            "Does not docker-restart the cell (#3893)."
+        ),
+    )
+    pqdw.add_argument(
+        "--src",
+        default=None,
+        help=(
+            "Host modern directory (default: "
+            "WebUI/target/generated-webui/cm/modern)."
+        ),
+    )
+    pqdw.add_argument(
+        "--container",
+        default=QA_CMS_CONTAINER,
+        help=f"QA cell name (default: {QA_CMS_CONTAINER}).",
+    )
+    pqdw.add_argument(
+        "--skip-object-storage-check",
+        action="store_true",
+        help="Allow a bundle whose JS lacks the object-storage marker.",
+    )
+    pqdw.add_argument("--dry-run", action="store_true")
 
     return p
 
@@ -1046,6 +1079,44 @@ def cmd_it_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
             "-P", "integration-test,docker-compose",
             "verify",
         ],
+        log_dir=log_dir,
+        cwd=repo_root,
+        dry_run=args.dry_run,
+    )
+    return rc
+
+
+def _qa_deploy_webui_argv(
+    repo_root: Path,
+    src: Optional[str],
+    container: str,
+    skip_object_storage_check: bool,
+) -> List[str]:
+    """Build the argv list for ``docker/scripts/hot-deploy-webui-modern.py``."""
+    argv = [
+        "python3",
+        str(repo_root / "docker" / "scripts" / "hot-deploy-webui-modern.py"),
+        "--container",
+        container,
+    ]
+    if src:
+        argv.extend(["--src", src])
+    if skip_object_storage_check:
+        argv.append("--skip-object-storage-check")
+    return argv
+
+
+def cmd_qa_deploy_webui(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
+    repo_root, _env_file, _compose_file = paths
+    log_dir = _log_dir(repo_root)
+    rc, _log_path = _run_logged(
+        "qa-deploy-webui",
+        _qa_deploy_webui_argv(
+            repo_root,
+            getattr(args, "src", None),
+            args.container,
+            bool(getattr(args, "skip_object_storage_check", False)),
+        ),
         log_dir=log_dir,
         cwd=repo_root,
         dry_run=args.dry_run,
@@ -1888,6 +1959,7 @@ _DISPATCH = {
     "qa-down": cmd_qa_down,
     "qa-preflight": cmd_qa_preflight,
     "qa-rebuild-chain": cmd_qa_rebuild_chain,
+    "qa-deploy-webui": cmd_qa_deploy_webui,
 }
 
 

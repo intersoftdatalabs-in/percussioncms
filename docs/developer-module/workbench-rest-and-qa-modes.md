@@ -165,6 +165,12 @@ python docker/scripts/perc-devctl.py qa-health
 # Jetty can bind :9992 and answer 503 while ROOT failed (e.g. NoClassDefFoundError).
 # Copy product SNAPSHOTs to webapps/Rhythmyx/WEB-INF/lib/ (not jetty/base/lib).
 # If you copy sitemanage, also copy perc-system — --skip-image-build does not refresh it.
+# After WebUI SPA changes: copy the FULL generated cm/modern tree (stable
+# perc-modern-ui.js entry + CSS + hashed developer chunks + any index.html),
+# not only hashed files under assets/. Stale entry JS keeps the old
+# import("./developer-<hash>.js") — object-storage option missing while
+# csv/sql/http-json still render (#3893).
+#   python docker/scripts/perc-devctl.py qa-deploy-webui
 # Restart Jetty inside the cell. Do not `docker restart perc-matrix-cms-h2` (reinstalls).
 # Docker Health.Status (in-image HEALTHCHECK, #2481) — orchestrators / docker ps:
 #   docker inspect -f "{{.State.Health.Status}}" perc-matrix-cms-h2

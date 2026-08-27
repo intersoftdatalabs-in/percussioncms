@@ -9,6 +9,7 @@ import {
   SOURCE_KIND_HTTP_JSON,
   SOURCE_KIND_OBJECT_STORAGE,
   SOURCE_KIND_REPOSITORY,
+  SOURCE_KIND_SELECT_VALUES,
   SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
   formToVirtualProps,
@@ -24,6 +25,17 @@ import {
 } from "../../../main/ts/developer/virtualSiteForm";
 
 describe("virtualSiteForm helpers", () => {
+  it("SOURCE_KIND_SELECT_VALUES lists object-storage with the other product kinds (#3893)", () => {
+    expect(SOURCE_KIND_SELECT_VALUES).toEqual([
+      SOURCE_KIND_REPOSITORY,
+      SOURCE_KIND_GIT_FILESYSTEM,
+      SOURCE_KIND_CSV_FILESYSTEM,
+      SOURCE_KIND_SQL_DATABASE,
+      SOURCE_KIND_HTTP_JSON,
+      SOURCE_KIND_OBJECT_STORAGE,
+    ]);
+  });
+
   it("normalizeSourceKindOption maps blank/repository, git-filesystem, csv-filesystem, sql-database, http-json, and object-storage", () => {
     expect(normalizeSourceKindOption(undefined)).toBe(SOURCE_KIND_REPOSITORY);
     expect(normalizeSourceKindOption("")).toBe(SOURCE_KIND_REPOSITORY);

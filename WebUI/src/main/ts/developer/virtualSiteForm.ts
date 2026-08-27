@@ -44,6 +44,20 @@ export type VirtualSourceKindOption =
   | typeof SOURCE_KIND_HTTP_JSON
   | typeof SOURCE_KIND_OBJECT_STORAGE;
 
+/**
+ * Product order for the Developer Sites source-kind {@code <select>}.
+ * Keep this list as the single option inventory so object-storage cannot
+ * drop out of the live SPA independently of the other kinds (#3893).
+ */
+export const SOURCE_KIND_SELECT_VALUES: readonly VirtualSourceKindOption[] = [
+  SOURCE_KIND_REPOSITORY,
+  SOURCE_KIND_GIT_FILESYSTEM,
+  SOURCE_KIND_CSV_FILESYSTEM,
+  SOURCE_KIND_SQL_DATABASE,
+  SOURCE_KIND_HTTP_JSON,
+  SOURCE_KIND_OBJECT_STORAGE,
+];
+
 /** Editable form model for the Virtual Site source panel. */
 export interface VirtualSiteFormModel {
   sourceKind: VirtualSourceKindOption;
