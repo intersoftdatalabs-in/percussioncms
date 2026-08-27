@@ -100,6 +100,37 @@ export interface ContentTypeDetail {
   designGaps?: DesignGapWire[];
 }
 
+/** Parameter on an item-level content type extension call (CD-09). */
+export interface ContentTypeItemExitParam {
+  name?: string;
+  value?: string;
+}
+
+/** One item-level content-type extension call (CD-09). */
+export interface ContentTypeItemExit {
+  extension?: string;
+  name?: string;
+  parameters?: ContentTypeItemExitParam[];
+  /** Read-only apply-when summary on GET; not written. */
+  condition?: string;
+  maxErrorsToStop?: number;
+  summary?: string;
+}
+
+/**
+ * Item-level exits and validations (CD-09). Jackson root wrap is
+ * {@code ContentTypeItemExits}.
+ */
+export interface ContentTypeItemExits {
+  inputTranslations?: ContentTypeItemExit[];
+  outputTranslations?: ContentTypeItemExit[];
+  validations?: ContentTypeItemExit[];
+  preExits?: ContentTypeItemExit[];
+  postExits?: ContentTypeItemExit[];
+  maxErrorsToStopValidation?: number;
+  designGaps?: DesignGapWire[];
+}
+
 export interface KeywordChoiceSummary {
   label?: string;
   value?: string;

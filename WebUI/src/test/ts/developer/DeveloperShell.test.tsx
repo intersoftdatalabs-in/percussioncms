@@ -63,6 +63,14 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
   }),
   replaceContentTypeAllowedTemplates: vi.fn().mockImplementation(async (_id, templates) => templates),
   getContentTypeAllowedTemplates: vi.fn().mockResolvedValue([{ name: "perc.page", label: "Page" }]),
+  getContentTypeItemExits: vi.fn().mockResolvedValue({
+    inputTranslations: [],
+    outputTranslations: [],
+    validations: [],
+    preExits: [],
+    postExits: [],
+  }),
+  replaceContentTypeItemExits: vi.fn().mockImplementation(async (_id, body) => body),
   updateContentTypeDetail: vi.fn().mockImplementation(async (_id, body) => ({
     name: "percPage",
     label: body.label ?? "Page",

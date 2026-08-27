@@ -20,6 +20,8 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
   unlockContentType: vi.fn(),
   getContentTypeAllowedTemplates: vi.fn(),
   replaceContentTypeAllowedTemplates: vi.fn(),
+  getContentTypeItemExits: vi.fn(),
+  replaceContentTypeItemExits: vi.fn(),
 }));
 
 // ObjectAclSection loads ACL via separate API; stub so detail success path stays isolated.
@@ -51,6 +53,17 @@ const getContentTypeAllowedTemplates =
   contentTypesApi.getContentTypeAllowedTemplates as ReturnType<typeof vi.fn>;
 const replaceContentTypeAllowedTemplates =
   contentTypesApi.replaceContentTypeAllowedTemplates as ReturnType<typeof vi.fn>;
+const getContentTypeItemExits = contentTypesApi.getContentTypeItemExits as ReturnType<typeof vi.fn>;
+const replaceContentTypeItemExits =
+  contentTypesApi.replaceContentTypeItemExits as ReturnType<typeof vi.fn>;
+
+const emptyItemExits = {
+  inputTranslations: [] as Array<{ extension?: string; parameters?: Array<{ value?: string }> }>,
+  outputTranslations: [] as Array<{ extension?: string }>,
+  validations: [] as Array<{ extension?: string }>,
+  preExits: [] as Array<{ extension?: string }>,
+  postExits: [] as Array<{ extension?: string }>,
+};
 
 const sampleDetail = {
   name: "percPage",
@@ -79,6 +92,8 @@ describe("ContentTypeDetailPanel", () => {
     unlockContentType.mockReset();
     getContentTypeAllowedTemplates.mockReset();
     replaceContentTypeAllowedTemplates.mockReset();
+    getContentTypeItemExits.mockReset();
+    replaceContentTypeItemExits.mockReset();
     lockContentType.mockResolvedValue({ locker: "Admin", remainingTime: 30 });
     unlockContentType.mockResolvedValue(undefined);
     updateContentTypeDetail.mockImplementation(async (_id, body) => ({
@@ -96,6 +111,8 @@ describe("ContentTypeDetailPanel", () => {
     }));
     replaceContentTypeAllowedTemplates.mockImplementation(async (_id, templates) => templates);
     getContentTypeAllowedTemplates.mockImplementation(async () => []);
+    getContentTypeItemExits.mockResolvedValue({ ...emptyItemExits });
+    replaceContentTypeItemExits.mockImplementation(async (_id, body) => body);
   });
 
   it("renders lock toolbar while detail is loading so workflow lock is findable (#3835)", async () => {
@@ -1019,5 +1036,126 @@ describe("ContentTypeDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
     expect(lockContentType).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows item-level exits chrome while loading and keeps editors disabled until lock (#3895)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    expect(screen.getByTestId("developer-ct-item-exits")).toBeTruthy();
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    expect((screen.getByTestId("developer-ct-ie-in-add-fqn") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-ie-in-add") as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByTestId("developer-ct-ie-in-empty")).toBeTruthy();
+  });
+
+  it("ignores item-exit add/remove while unlocked (#3895)", async () => {
+    getContentTypeItemExits.mockResolvedValue({
+      ...emptyItemExits,
+      inputTranslations: [
+        { extension: "Java/global/percussion/generic/sys_ToUpperCase", parameters: [{ value: "sys_title" }] },
+      ],
+    });
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-ie-in-row-0")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-ie-in-add-fqn"), {
+      target: { value: "Java/global/percussion/generic/sys_ToLowerCase" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-ie-in-add"));
+    fireEvent.click(screen.getByTestId("developer-ct-ie-in-remove-0"));
+    expect(screen.queryByTestId("developer-ct-ie-in-row-1")).toBeNull();
+    expect(screen.getByTestId("developer-ct-ie-in-row-0").textContent).toContain("sys_ToUpperCase");
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+    expect(replaceContentTypeItemExits).not.toHaveBeenCalled();
+  });
+
+  it("locks, replaces item-level exits via dedicated PUT (#3895)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    getContentTypeItemExits.mockResolvedValue({ ...emptyItemExits });
+    const next = {
+      ...emptyItemExits,
+      inputTranslations: [
+        {
+          extension: "Java/global/percussion/generic/sys_ToUpperCase",
+          parameters: [{ value: "sys_title" }],
+        },
+      ],
+    };
+    replaceContentTypeItemExits.mockResolvedValueOnce(next);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-ie-in-add-fqn") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-ie-in-add-fqn"), {
+      target: { value: "Java/global/percussion/generic/sys_ToUpperCase" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-ie-in-add-param"), {
+      target: { value: "sys_title" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-ie-in-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-ie-in-row-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(replaceContentTypeItemExits).toHaveBeenCalled();
+    });
+    const putBody = replaceContentTypeItemExits.mock.calls.at(-1)?.[1] as {
+      inputTranslations?: Array<{ extension?: string }>;
+    };
+    expect(putBody.inputTranslations?.[0]?.extension).toBe(
+      "Java/global/percussion/generic/sys_ToUpperCase",
+    );
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(unlockContentType).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+  });
+
+  it("clears the held lock when itemExits PUT returns 409 (#3895)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    replaceContentTypeItemExits.mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+      body: null,
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-ie-in-add-fqn") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-ie-in-add-fqn"), {
+      target: { value: "Java/global/percussion/generic/sys_ToUpperCase" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-ie-in-add"));
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        "Could not save content type.",
+      );
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+    expect((screen.getByTestId("developer-ct-ie-in-add-fqn") as HTMLInputElement).disabled).toBe(
+      true,
+    );
   });
 });

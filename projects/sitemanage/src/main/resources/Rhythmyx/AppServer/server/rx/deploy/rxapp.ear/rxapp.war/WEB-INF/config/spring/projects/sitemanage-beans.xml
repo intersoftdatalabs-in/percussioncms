@@ -137,6 +137,9 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
                  GUID last-segment tokens; JAXB / UNWRAP_ROOT_VALUE expects
                  AllowedContentTypeMenusRequest. Bind both envelopes. -->
             <ref bean="allowedContentTypeMenusRequestJsonReader" />
+            <!-- #3895 CD-09: PUT /contenttypes/{id}/itemExits wrap can arrive empty under
+                 CXF UNWRAP_ROOT_VALUE; bind wrap and flat before jacksonProvider. -->
+            <ref bean="contentTypeItemExitsJsonReader" />
             <ref bean="jacksonProvider" />
             <ref bean="jacksonContextResolver" />
             <ref bean="authorizationFilter" />

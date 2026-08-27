@@ -18,9 +18,11 @@
 package com.percussion.rest.contenttypes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.rest.DesignGap;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +36,9 @@ import java.util.List;
  * designGaps}).
  */
 @XmlRootElement(name = "ContentTypeItemExits")
+@JsonRootName("ContentTypeItemExits")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@XmlSeeAlso({ContentTypeItemExit.class, ContentTypeItemExitParam.class, DesignGap.class})
 @Schema(description = "Item-level content type exits, translations, and validations (CD-09)")
 public class ContentTypeItemExits {
 
