@@ -29,7 +29,7 @@ import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.server.PSServer;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Iterator;
@@ -94,7 +94,7 @@ public class PSPreviewDocumentBuilder extends PSRowEditorDocumentBuilder {
       IPSInternalResultHandler rh =
           (IPSInternalResultHandler) PSServer.getInternalRequestHandler(reqName);
       if (null == rh) {
-        throw new PSDataExtractionException(IPSServerErrors.CE_NEEDED_APP_NOT_RUNNING, reqName);
+        throw new PSDataExtractionException(ServerErrorCodes.CE_NEEDED_APP_NOT_RUNNING, reqName);
       }
       reqData = rh.makeInternalRequest(data.getRequest());
       Document fragmentDoc = rh.getResultDoc(reqData);

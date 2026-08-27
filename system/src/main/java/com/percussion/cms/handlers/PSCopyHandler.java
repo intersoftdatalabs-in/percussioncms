@@ -17,7 +17,8 @@
 
 package com.percussion.cms.handlers;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSApplicationBuilder;
 import com.percussion.cms.PSChoiceBuilder;
@@ -60,7 +61,6 @@ import com.percussion.error.PSNotFoundException;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
@@ -408,7 +408,7 @@ class PSCopyHandler implements IPSCopyHandler {
               communityId
             };
         PSAuthorizationException e =
-            new PSAuthorizationException(IPSCmsErrors.CONTENT_TYPE_NOT_VISIBLE_BY_COMMUNITY, args);
+            new PSAuthorizationException(PathItemErrorCodes.CONTENT_TYPE_NOT_VISIBLE_BY_COMMUNITY, args);
         throw e;
       }
     } catch (PSInvalidContentTypeException e) {
@@ -492,7 +492,7 @@ class PSCopyHandler implements IPSCopyHandler {
 
     if (fieldSet == null)
       throw new PSSystemValidationException(
-          IPSServerErrors.CE_MISSING_FIELDSET, mapper.getFieldSetRef());
+          ServerErrorCodes.CE_MISSING_FIELDSET, mapper.getFieldSetRef());
 
     // create list of system mappings to process later
     Map systemMappings = new HashMap();
@@ -546,7 +546,7 @@ class PSCopyHandler implements IPSCopyHandler {
             label = mapping.getUISet().getLabel().getText();
           String[] args = {fieldRef, label};
 
-          throw new PSSystemValidationException(IPSServerErrors.CE_MISSING_FIELD, args);
+          throw new PSSystemValidationException(ServerErrorCodes.CE_MISSING_FIELD, args);
         }
       }
 
@@ -658,7 +658,7 @@ class PSCopyHandler implements IPSCopyHandler {
         String tableAlias = beCol.getTable().getAlias();
         PSBackEndTable beTable = (PSBackEndTable) m_beTables.get(tableAlias.toLowerCase());
         if (beTable == null) {
-          throw new PSSystemValidationException(IPSServerErrors.CE_MISSING_TABLE, tableAlias);
+          throw new PSSystemValidationException(ServerErrorCodes.CE_MISSING_TABLE, tableAlias);
         }
         beCol.setTable(beTable);
 
@@ -684,7 +684,7 @@ class PSCopyHandler implements IPSCopyHandler {
           ((PSBackEndTable) tables.get(1)).getAlias()
         };
         throw new PSSystemValidationException(
-            IPSServerErrors.CE_MULTIPLE_TABLES_NOT_SUPPORTED, args);
+            ServerErrorCodes.CE_MULTIPLE_TABLES_NOT_SUPPORTED, args);
       }
 
       // add keys to both mappers and create selkeys for query
@@ -819,7 +819,7 @@ class PSCopyHandler implements IPSCopyHandler {
 
     if (!parentRowSelected) {
       Object[] args = {String.valueOf(contentId), String.valueOf(revisionId)};
-      throw new PSNotFoundException(IPSServerErrors.CE_COPY_REVISION_NOT_FOUND, args);
+      throw new PSNotFoundException(ServerErrorCodes.CE_COPY_REVISION_NOT_FOUND, args);
     }
 
     // run binary queries and add file info to appropriate rows

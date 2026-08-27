@@ -64,9 +64,9 @@ export function shouldShowVirtualPreviewChrome(
 
 /**
  * True when the Publish Virtual Site control should be shown.
- * Git-filesystem, csv-filesystem, sql-database, and http-json all run
- * POST /virtual/publish (build then copy to IPSSite.root).
- * Repository / blank / unknown kinds and object-storage stay hidden.
+ * Git-filesystem, csv-filesystem, sql-database, http-json, and object-storage
+ * all run POST /virtual/publish (build then copy to IPSSite.root).
+ * Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPublishChrome(
   sourceKind: string | null | undefined,
@@ -76,7 +76,8 @@ export function shouldShowVirtualPublishChrome(
     v === "git-filesystem" ||
     v === "csv-filesystem" ||
     v === "sql-database" ||
-    v === "http-json"
+    v === "http-json" ||
+    v === "object-storage"
   );
 }
 

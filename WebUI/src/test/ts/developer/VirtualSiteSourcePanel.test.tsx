@@ -628,7 +628,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
-  it("loads object-storage values with root path and Build/Preview chrome (no Publish)", async () => {
+  it("loads object-storage values with root path and Build/Preview/Publish chrome", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "object-storage",
       rootPath: "C:/object-docs",
@@ -655,6 +655,9 @@ describe("VirtualSiteSourcePanel", () => {
       "Preview assembled site",
     );
     expect(screen.getByTestId("developer-site-virtual-object-storage-hint").textContent).toContain(
+      "Publish Virtual Site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-object-storage-hint").textContent).not.toContain(
       "later phase",
     );
     expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
@@ -663,7 +666,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
@@ -724,7 +727,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
@@ -988,7 +991,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
   });
 
-  it("shows Build chrome for object-storage and success result with Preview (no Publish)", async () => {
+  it("shows Build chrome for object-storage and success result with Preview/Publish", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "object-storage",
       rootPath: "C:/object-docs",
@@ -1011,7 +1014,7 @@ describe("VirtualSiteSourcePanel", () => {
       "Build Virtual Site",
     );
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-site-virtual-build"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-site-virtual-build-result")).toBeTruthy();
@@ -1025,7 +1028,7 @@ describe("VirtualSiteSourcePanel", () => {
       "object-docs",
     );
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
   });
 
   it("shows Publish chrome for http-json and success dest path", async () => {
@@ -1451,7 +1454,7 @@ describe("VirtualSiteSourcePanel", () => {
       "Object storage",
     );
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
     await waitFor(() => {
       expect(open).toHaveBeenCalled();
@@ -1513,6 +1516,43 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-publish-files").textContent).toBe("18");
     expect(screen.getByTestId("developer-site-virtual-publish-dest").textContent).toContain(
       "inetpub",
+    );
+  });
+
+  it("shows Publish chrome for object-storage and success dest path", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "object-storage",
+      rootPath: "C:/object-docs",
+      virtual: true,
+    });
+    publishVirtual.mockResolvedValue({
+      siteName: "ObjectHelp",
+      publishPath: "C:/inetpub/wwwroot/object-help",
+      filesCopied: 4,
+      pagesWritten: 1,
+      hasLinkProblems: false,
+    });
+    render(<VirtualSiteSourcePanel siteName="ObjectHelp" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-object-storage-hint").textContent).toContain(
+      "Publish Virtual Site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-publish-hint").textContent).toContain(
+      "Object storage",
+    );
+    fireEvent.click(screen.getByTestId("developer-site-virtual-publish"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish-result")).toBeTruthy();
+    });
+    expect(publishVirtual).toHaveBeenCalledWith("ObjectHelp");
+    expect(screen.getByTestId("developer-site-virtual-publish-success").textContent).toContain(
+      DEV_MSG.SITE_VIRT_PUBLISH_SUCCESS,
+    );
+    expect(screen.getByTestId("developer-site-virtual-publish-files").textContent).toBe("4");
+    expect(screen.getByTestId("developer-site-virtual-publish-dest").textContent).toContain(
+      "object-help",
     );
   });
 

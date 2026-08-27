@@ -46,7 +46,7 @@ import com.percussion.design.objectstore.PSViewSet;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.i18n.tmxdom.IPSTmxDtdConstants;
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.util.PSMapPair;
 import com.percussion.util.PSStringOperation;
 import com.percussion.utils.collections.PSIteratorUtils;
@@ -237,11 +237,11 @@ public abstract class PSEditorDocumentBuilder {
 
       PSRequestor requestor = ce.getRequestor();
       if (null == requestor) {
-        throw new PSSystemValidationException(IPSServerErrors.CE_MISSING_REQUESTOR, ce.getName());
+        throw new PSSystemValidationException(ServerErrorCodes.CE_MISSING_REQUESTOR, ce.getName());
       }
       m_formAction = requestor.getRequestPage();
       if (null == m_formAction || m_formAction.trim().length() == 0) {
-        throw new PSSystemValidationException(IPSServerErrors.CE_MISSING_FORMACTION, ce.getName());
+        throw new PSSystemValidationException(ServerErrorCodes.CE_MISSING_FORMACTION, ce.getName());
       }
       m_formAction += ".html";
 
@@ -250,7 +250,7 @@ public abstract class PSEditorDocumentBuilder {
       // create view evaluator
       PSViewSet viewSet = ce.getViewSet();
       if (viewSet == null) {
-        throw new PSSystemValidationException(IPSServerErrors.CE_VIEW_SET_MISSING);
+        throw new PSSystemValidationException(ServerErrorCodes.CE_VIEW_SET_MISSING);
       }
       m_viewEvaluator = new PSViewEvaluator(viewSet);
 
@@ -377,7 +377,7 @@ public abstract class PSEditorDocumentBuilder {
       return false;
     } catch (NumberFormatException nfe) {
       String[] args = {o.toString(), "page id", nfe.getLocalizedMessage()};
-      throw new PSDataExtractionException(IPSServerErrors.CE_BAD_NUMBER_FORMAT, args);
+      throw new PSDataExtractionException(ServerErrorCodes.CE_BAD_NUMBER_FORMAT, args);
     }
   }
 
@@ -885,7 +885,7 @@ public abstract class PSEditorDocumentBuilder {
 
         if (tableSet == null) {
           throw new PSSystemValidationException(
-              IPSServerErrors.CE_MISSING_TABLE, col.getTable().getAlias());
+              ServerErrorCodes.CE_MISSING_TABLE, col.getTable().getAlias());
         }
 
         // now that we have the tableset, check for binary
@@ -902,7 +902,7 @@ public abstract class PSEditorDocumentBuilder {
             next = next.getNextException();
           }
 
-          throw new PSSystemValidationException(IPSServerErrors.CE_SQL_ERRORS, buf.toString());
+          throw new PSSystemValidationException(ServerErrorCodes.CE_SQL_ERRORS, buf.toString());
         }
       }
     }

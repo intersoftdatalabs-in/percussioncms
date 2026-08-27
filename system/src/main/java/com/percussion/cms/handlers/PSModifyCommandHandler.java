@@ -16,6 +16,8 @@
  */
 package com.percussion.cms.handlers;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSApplicationBuilder;
 import com.percussion.cms.PSChildDeletePlanBuilder;
@@ -37,7 +39,6 @@ import com.percussion.cms.PSSimpleChildDeletePlanBuilder;
 import com.percussion.cms.PSSimpleChildInsertPlanBuilder;
 import com.percussion.cms.PSSingleValueBuilder;
 import com.percussion.cms.PSUpdatePlanBuilder;
-import com.percussion.data.IPSDataErrors;
 import com.percussion.data.IPSInternalResultHandler;
 import com.percussion.data.PSConditionalEvaluator;
 import com.percussion.data.PSConversionException;
@@ -76,7 +77,6 @@ import com.percussion.i18n.PSI18nUtils;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.utils.PSRedirectValidation;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSPageCache;
@@ -155,7 +155,7 @@ public class PSModifyCommandHandler extends PSCommandHandler {
       String[] args = {
         IPSConstants.HIDDEN_CONTROL_PARAM_NAME, "InitParam is empty or missing from system def"
       };
-      throw new PSSystemValidationException(IPSServerErrors.CE_INVALID_PARAM, args);
+      throw new PSSystemValidationException(ServerErrorCodes.CE_INVALID_PARAM, args);
     }
 
     // get the app we will use and add the datasets we need
@@ -193,7 +193,7 @@ public class PSModifyCommandHandler extends PSCommandHandler {
         buf.append(next.getLocalizedMessage());
         next = next.getNextException();
       }
-      throw new PSSystemValidationException(IPSServerErrors.CE_SQL_ERRORS, buf.toString());
+      throw new PSSystemValidationException(ServerErrorCodes.CE_SQL_ERRORS, buf.toString());
     }
   }
 
@@ -347,7 +347,7 @@ public class PSModifyCommandHandler extends PSCommandHandler {
       } else {
         // throw exception
         Object[] args = {PSContentEditorHandler.CHILD_ID_PARAM_NAME, strId};
-        throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+        throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
       }
     }
 
@@ -413,7 +413,7 @@ public class PSModifyCommandHandler extends PSCommandHandler {
     // generating change events
     if (modifyPlan == null && planType != PSModifyPlan.TYPE_DELETE_ITEM) {
       Object[] args = {PSContentEditorHandler.CHILD_ID_PARAM_NAME, strId};
-      throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+      throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
     }
 
     Boolean isModifyParent = (Boolean) m_modifyParent.get();
@@ -684,7 +684,7 @@ public class PSModifyCommandHandler extends PSCommandHandler {
         errorCode = e.getErrorCode();
         errorArgs = e.getErrorArguments();
       } else {
-        errorCode = IPSServerErrors.RAW_DUMP;
+        errorCode = ServerErrorCodes.RAW_DUMP.numericCode();
         errorArgs = new Object[] {getExceptionText(t)};
       }
 
@@ -726,10 +726,10 @@ public class PSModifyCommandHandler extends PSCommandHandler {
         } catch (Exception e) {
           Object[] args = {name, errMsg + e.getLocalizedMessage()};
           if (e instanceof PSDataExtractionException) {
-            throw new PSDataExtractionException(IPSServerErrors.FIELD_TRANSFORM_ERROR, args);
+            throw new PSDataExtractionException(ServerErrorCodes.FIELD_TRANSFORM_ERROR, args);
           }
 
-          throw new PSConversionException(IPSServerErrors.FIELD_TRANSFORM_ERROR, args);
+          throw new PSConversionException(ServerErrorCodes.FIELD_TRANSFORM_ERROR, args);
         }
       }
     }
@@ -828,7 +828,7 @@ public class PSModifyCommandHandler extends PSCommandHandler {
       }
     } catch (MalformedURLException e) {
       // should never happen
-      throw new PSDataExtractionException(IPSServerErrors.CE_NO_REDIRECT_URL);
+      throw new PSDataExtractionException(ServerErrorCodes.CE_NO_REDIRECT_URL);
     }
   }
 
@@ -977,7 +977,7 @@ public class PSModifyCommandHandler extends PSCommandHandler {
       throw new PSInternalRequestCallException(e.getErrorCode(), e.getErrorArguments(), e);
     } catch (Exception e) {
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e), e);
+          DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e), e);
     }
   }
 
@@ -1212,7 +1212,7 @@ public class PSModifyCommandHandler extends PSCommandHandler {
       planType = PSModifyPlan.TYPE_UPDATE_SEQUENCE;
     } else {
       Object[] args = {m_internalApp.getRequestTypeHtmlParamName(), dbActionType};
-      throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+      throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
     }
 
     return planType;
@@ -1311,7 +1311,7 @@ public class PSModifyCommandHandler extends PSCommandHandler {
       if (mapper == null) {
         // throw exception
         Object[] args = {PSContentEditorHandler.CHILD_ID_PARAM_NAME, strChildId};
-        throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+        throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
       }
       childId = mapper.getId();
     }
@@ -1334,21 +1334,21 @@ public class PSModifyCommandHandler extends PSCommandHandler {
 
         if (strContentId != null) {
           Object[] args = {contentIdParamName, strContentId};
-          throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+          throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
         } else if (strRevisionId != null) {
           Object[] args = {revisionIdParamName, strRevisionId};
-          throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+          throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
         }
       } else {
         if (strContentId == null) {
           Object[] args = {contentIdParamName, "null"};
-          throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+          throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
         } else if (strRevisionId == null) {
           Object[] args = {revisionIdParamName, "null"};
-          throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+          throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
         } else if (strChildRowId != null) {
           Object[] args = {childRowIdParamName, strChildRowId};
-          throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+          throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
         }
       }
     } else if (planType == PSModifyPlan.TYPE_UPDATE_PLAN
@@ -1358,13 +1358,13 @@ public class PSModifyCommandHandler extends PSCommandHandler {
       // should have all required keys
       if (strContentId == null) {
         Object[] args = {contentIdParamName, "null"};
-        throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+        throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
       } else if (strRevisionId == null && planType != PSModifyPlan.TYPE_DELETE_ITEM) {
         Object[] args = {revisionIdParamName, "null"};
-        throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+        throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
       } else if (!isParent && strChildRowId == null) {
         Object[] args = {childRowIdParamName, "null"};
-        throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+        throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
       }
     }
 
@@ -1439,7 +1439,7 @@ public class PSModifyCommandHandler extends PSCommandHandler {
           if (planType == PSModifyPlan.TYPE_UPDATE_SEQUENCE) {
             if (!fieldSet.isSequencingSupported()) {
               Object[] args = {m_internalApp.getRequestTypeHtmlParamName(), dbActionType};
-              throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+              throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
             }
 
             // determine resequencing values
@@ -1476,7 +1476,7 @@ public class PSModifyCommandHandler extends PSCommandHandler {
         }
 
         Object[] args = {param, value};
-        throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+        throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
       }
     }
   }

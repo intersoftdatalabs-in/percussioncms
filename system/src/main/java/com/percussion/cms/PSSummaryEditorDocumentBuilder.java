@@ -39,7 +39,7 @@ import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.i18n.PSI18nUtils;
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSMapPair;
 import java.util.ArrayList;
@@ -91,7 +91,7 @@ public class PSSummaryEditorDocumentBuilder extends PSModifyDocumentBuilder {
             .getFieldSet(mapping.getDisplayMapper().getFieldSetRef());
     if (null == fields)
       throw new PSNotFoundException(
-          IPSServerErrors.CE_MISSING_FIELDSET, mapping.getDisplayMapper().getFieldSetRef());
+          ServerErrorCodes.CE_MISSING_FIELDSET, mapping.getDisplayMapper().getFieldSetRef());
 
     addBuildStep(
         new PSTableValueBuilder(fields, mapping.getUISet(), mapping.getDisplayMapper(), this));
@@ -108,7 +108,7 @@ public class PSSummaryEditorDocumentBuilder extends PSModifyDocumentBuilder {
       String[] args = {
         IPSConstants.HIDDEN_CONTROL_PARAM_NAME, "InitParam is empty or missing from system def"
       };
-      throw new PSSystemValidationException(IPSServerErrors.CE_INVALID_PARAM, args);
+      throw new PSSystemValidationException(ServerErrorCodes.CE_INVALID_PARAM, args);
     }
 
     for (int i = 0; i < hiddenParamSet.length; i++) {

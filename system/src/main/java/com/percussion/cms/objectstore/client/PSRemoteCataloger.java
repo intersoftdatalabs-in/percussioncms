@@ -16,7 +16,7 @@
  */
 package com.percussion.cms.objectstore.client;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.IPSCataloger;
 import com.percussion.cms.objectstore.PSRelationshipInfoSet;
@@ -85,7 +85,7 @@ public class PSRemoteCataloger implements IPSCataloger {
       log.error("An unexpected exception occurred while cataloging fields", t);
       log.error(t.getMessage());
       log.debug(t.getMessage(), t);
-      throw new PSCmsException(IPSCmsErrors.CONTENT_TYPE_CANNOT_BE_OPENED);
+      throw new PSCmsException(CmsErrorCodes.CONTENT_TYPE_CANNOT_BE_OPENED);
     }
     return null;
   }
@@ -111,7 +111,7 @@ public class PSRemoteCataloger implements IPSCataloger {
     if (!resultEl.getNodeName().equalsIgnoreCase(expectedNodeName)) {
       String unknownDoc = PSXmlDocumentBuilder.toString(resultEl);
       String[] args = {GET_RELATE_INFO_SET, unknownDoc};
-      throw new PSCmsException(IPSCmsErrors.UNEXPECTED_CATALOG_ERROR, args);
+      throw new PSCmsException(CmsErrorCodes.UNEXPECTED_CATALOG_ERROR, args);
     }
 
     try {
@@ -148,7 +148,7 @@ public class PSRemoteCataloger implements IPSCataloger {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       String[] args = {path, e.toString()};
-      throw new PSCmsException(IPSCmsErrors.UNEXPECTED_CATALOG_ERROR, args);
+      throw new PSCmsException(CmsErrorCodes.UNEXPECTED_CATALOG_ERROR, args);
     }
 
     return doc;

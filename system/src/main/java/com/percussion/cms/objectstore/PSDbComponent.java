@@ -16,9 +16,9 @@
  */
 package com.percussion.cms.objectstore;
 
-import com.percussion.cms.IPSCmsErrors;
-import com.percussion.cms.PSCmsException;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSStringOperation;
 import com.percussion.util.PSXMLDomUtil;
@@ -323,7 +323,7 @@ public abstract class PSDbComponent implements IPSDbComponent {
       String[] args = new String[] {"PSDbComponent.fromXml node: " + getNodeName()};
 
       // @todo change exceptions if needed!!
-      throw new PSUnknownNodeTypeException(IPSCmsErrors.INVALID_CONTENT_TYPE_ID, args);
+      throw new PSUnknownNodeTypeException(CmsErrorCodes.INVALID_CONTENT_TYPE_ID, args);
     }
 
     // Must restore key first because it has higher priority than state.
@@ -462,20 +462,20 @@ public abstract class PSDbComponent implements IPSDbComponent {
         // try next package
       } catch (InstantiationException ie) {
         String[] args = {strClassName, typeLabel, ie.getLocalizedMessage()};
-        throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
+        throw new PSUnknownNodeTypeException(CmsErrorCodes.COMPONENT_INSTANTIATION_ERROR, args);
       } catch (IllegalAccessException iae) {
         String[] args = {strClassName, typeLabel, iae.getLocalizedMessage()};
-        throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
+        throw new PSUnknownNodeTypeException(CmsErrorCodes.COMPONENT_INSTANTIATION_ERROR, args);
       } catch (InvocationTargetException ite) {
         Throwable origException = ite.getTargetException();
         String msg = origException.getLocalizedMessage();
         String[] args = {
           strClassName, typeLabel, origException.getClass().getName() + ": " + msg
         };
-        throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
+        throw new PSUnknownNodeTypeException(CmsErrorCodes.COMPONENT_INSTANTIATION_ERROR, args);
       } catch (NoSuchMethodException nsme) {
         String[] args = {strClassName, typeLabel, nsme.getLocalizedMessage()};
-        throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
+        throw new PSUnknownNodeTypeException(CmsErrorCodes.COMPONENT_INSTANTIATION_ERROR, args);
       } catch (IllegalArgumentException iae) {
         // this should never happen because we checked ahead of time
         throw new RuntimeException("Ctor parameter count changed unexpectedly.");
@@ -484,7 +484,7 @@ public abstract class PSDbComponent implements IPSDbComponent {
 
     String cnfeMsg = lastCnfe != null ? lastCnfe.getLocalizedMessage() : "class not found";
     String[] args = {lastClassName, typeLabel, cnfeMsg};
-    throw new PSUnknownNodeTypeException(IPSCmsErrors.COMPONENT_INSTANTIATION_ERROR, args);
+    throw new PSUnknownNodeTypeException(CmsErrorCodes.COMPONENT_INSTANTIATION_ERROR, args);
   }
 
   // see interface for description
@@ -574,7 +574,7 @@ public abstract class PSDbComponent implements IPSDbComponent {
    * members, finally calling this method to handle this instance.
    */
   public void setPersisted() throws PSCmsException {
-    if (!isAssigned()) throw new PSCmsException(IPSCmsErrors.KEY_NOT_ASSIGNED);
+    if (!isAssigned()) throw new PSCmsException(CmsErrorCodes.KEY_NOT_ASSIGNED);
     if (m_state == DBSTATE_MARKEDFORDELETE) {
       m_key.clear();
       setState(DBSTATE_NEW);
@@ -700,13 +700,13 @@ public abstract class PSDbComponent implements IPSDbComponent {
 
     String[] compValues = getKeyPartValues(gen);
     if (compValues.length > values.length) {
-      throw new PSCmsException(IPSCmsErrors.KEY_MISMATCH, getComponentType());
+      throw new PSCmsException(CmsErrorCodes.KEY_MISMATCH, getComponentType());
     }
 
     System.arraycopy(compValues, 0, values, 0, compValues.length);
 
     if (null != parentKey && compValues.length == values.length) {
-      throw new PSCmsException(IPSCmsErrors.TOO_MANY_FOREIGN_KEY_PARTS, getComponentType());
+      throw new PSCmsException(CmsErrorCodes.TOO_MANY_FOREIGN_KEY_PARTS, getComponentType());
     }
 
     int j = compValues.length;
@@ -720,7 +720,7 @@ public abstract class PSDbComponent implements IPSDbComponent {
     }
 
     if (j < keyParts.length) {
-      throw new PSCmsException(IPSCmsErrors.TOO_FEW_FOREIGN_KEY_PARTS, getComponentType());
+      throw new PSCmsException(CmsErrorCodes.TOO_FEW_FOREIGN_KEY_PARTS, getComponentType());
     }
 
     m_key.assign(values);
@@ -745,7 +745,7 @@ public abstract class PSDbComponent implements IPSDbComponent {
   protected String[] getKeyPartValues(IPSKeyGenerator gen) throws PSCmsException {
     String lookup = getLookupName();
     if (null == lookup || lookup.trim().length() == 0) {
-      throw new PSCmsException(IPSCmsErrors.MISSING_LOOKUP_KEY, getComponentType());
+      throw new PSCmsException(CmsErrorCodes.MISSING_LOOKUP_KEY, getComponentType());
     }
     return new String[] {"" + gen.allocateId(lookup)};
   }

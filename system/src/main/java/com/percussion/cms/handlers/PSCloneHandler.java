@@ -16,6 +16,7 @@
  */
 package com.percussion.cms.handlers;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.data.PSContentItemStatusExtractor;
 import com.percussion.data.PSExecutionData;
 import com.percussion.data.PSRuleListEvaluator;
@@ -29,7 +30,6 @@ import com.percussion.design.objectstore.PSProcessCheck;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.config.PSConfigManager;
 import com.percussion.server.config.PSServerConfigException;
 import java.io.IOException;
@@ -76,7 +76,7 @@ public abstract class PSCloneHandler implements IPSCloneHandler {
             null);
     m_config = configs.getConfig(config);
     if (m_config == null)
-      throw new PSServerConfigException(IPSServerErrors.UNKNOWN_CLONEHANDLER_CONFIGURATION, config);
+      throw new PSServerConfigException(ServerErrorCodes.UNKNOWN_CLONEHANDLER_CONFIGURATION, config);
   }
 
   /** see IPSCloneHandler for description */

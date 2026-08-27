@@ -31,10 +31,11 @@ DEPLOYER_RESIDUAL = (
 )
 
 # Representative leftover from sibling #3585 / converted in #3861. Remaining
-# system/webservices SOAP/ws rows were removed from the allow-list; keep an
-# exact residual that is still frozen (system/cms mega-tree, not #3859/#3860).
+# system/webservices SOAP/ws rows were removed from the allow-list; cms builders
+# converted in #3882, cms handlers in #3883, cms.objectstore+client in #3884.
+# Keep an exact residual that is still frozen (objectstore.server leftover).
 SYSTEM_CMS_RESIDUAL = (
-    "system/src/main/java/com/percussion/cms/PSApplicationBuilder.java"
+    "system/src/main/java/com/percussion/cms/objectstore/server/PSActiveAssemblerProcessor.java"
 )
 
 
@@ -399,7 +400,10 @@ def test_empty_allowlist_fails_on_real_residuals(tmp_path: Path) -> None:
     assert result.returncode == 1, result.stdout + result.stderr
     combined = result.stdout + result.stderr
     assert "FAIL" in combined
-    assert "PSDeployJexlUtils.java" in combined or "PSApplicationBuilder.java" in combined
+    assert (
+        "PSDeployJexlUtils.java" in combined
+        or "PSActiveAssemblerProcessor.java" in combined
+    )
 
 
 if __name__ == "__main__":

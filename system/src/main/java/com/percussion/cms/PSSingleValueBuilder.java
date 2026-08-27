@@ -36,6 +36,8 @@ package com.percussion.cms;
 
 import static com.percussion.webservices.PSWebserviceUtils.getItemSummary;
 
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.handlers.PSRelationshipCommandHandler;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
@@ -626,7 +628,7 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
      * text from the link.
      */
     if (newContentId == null) {
-      int msgCode = IPSServerErrors.RAW_DUMP;
+      int msgCode = ServerErrorCodes.RAW_DUMP.numericCode();
       String msg =
           "Could not compute corrected contentid for the inline link with "
               + IPSHtmlParameters.SYS_RELATIONSHIPID
@@ -984,7 +986,7 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
        * previews the parent the relationship does not exist anymore This
        * case is already handled hence just log and do nothing.
        */
-      int msgCode = IPSServerErrors.RAW_DUMP;
+      int msgCode = ServerErrorCodes.RAW_DUMP.numericCode();
       String msg =
           "Failed to load relationship "
               + IPSHtmlParameters.SYS_RELATIONSHIPID
@@ -1013,12 +1015,12 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
       var relOpt = svc.loadRelationship(Integer.parseInt(relationshipid));
       if (relOpt.isEmpty()) {
         throw new PSCmsException(
-            IPSCmsErrors.LOAD_AA_RELATIONSHIP_FAILED, new Object[] {relationshipid});
+            CmsErrorCodes.LOAD_AA_RELATIONSHIP_FAILED, new Object[] {relationshipid});
       }
       return relOpt.get();
     } catch (NumberFormatException | PSException e) {
       throw new PSCmsException(
-          IPSCmsErrors.LOAD_AA_RELATIONSHIP_FAILED, new Object[] {relationshipid}, e);
+          CmsErrorCodes.LOAD_AA_RELATIONSHIP_FAILED, new Object[] {relationshipid}, e);
     }
   }
 

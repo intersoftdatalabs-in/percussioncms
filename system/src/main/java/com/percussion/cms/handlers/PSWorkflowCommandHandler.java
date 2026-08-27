@@ -17,6 +17,8 @@
 
 package com.percussion.cms.handlers;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 import com.intsof.percussioncms.auditlog.AuditOutcome;
@@ -32,7 +34,6 @@ import com.percussion.cms.PSSystemMapping;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.server.PSInlineLinkProcessor;
 import com.percussion.cms.objectstore.server.PSRelationshipEffectProcessor;
-import com.percussion.data.IPSDataErrors;
 import com.percussion.data.IPSInternalRequestHandler;
 import com.percussion.data.PSDataExtractionException;
 import com.percussion.data.PSErrorCollector;
@@ -62,7 +63,6 @@ import com.percussion.relationship.PSRejectTransition;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSPageCache;
 import com.percussion.server.PSRequest;
@@ -224,7 +224,7 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
         errorCode = e.getErrorCode();
         errorArgs = e.getErrorArguments();
       } else {
-        errorCode = IPSServerErrors.RAW_DUMP;
+        errorCode = ServerErrorCodes.RAW_DUMP.numericCode();
         errorArgs = new Object[] {getExceptionText(t)};
       }
 
@@ -365,7 +365,7 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
     } catch (Exception e) {
       ms_logger.error(PSExceptionUtils.getMessageForLog(e));
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e), e);
+          DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e), e);
     }
   }
 
@@ -655,7 +655,7 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
         String paramName = (strContentId != null ? contentIdParam : revisionIdParam);
         String paramVal = (paramName.equals(contentIdParam) ? strContentId : strRevision);
         Object[] args = {paramName, paramVal == null ? "null" : paramVal};
-        throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+        throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
       }
 
       int baseRevision = wfCtx.getBaseRevisionNum();
@@ -763,7 +763,7 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
       if (redirect) sendRedirect(data, completeUrl.toExternalForm());
     } catch (MalformedURLException e) {
       // should never happen
-      throw new PSDataExtractionException(IPSServerErrors.CE_NO_REDIRECT_URL);
+      throw new PSDataExtractionException(ServerErrorCodes.CE_NO_REDIRECT_URL);
     }
   }
 
@@ -968,7 +968,7 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
         loc = new PSLocator(strContentId);
       } catch (Exception e) {
         Object[] args = {contentIdParam, strContentId == null ? "null" : strContentId};
-        throw new PSRequestValidationException(IPSServerErrors.CE_MODIFY_INVALID_PARAM, args);
+        throw new PSRequestValidationException(ServerErrorCodes.CE_MODIFY_INVALID_PARAM, args);
       }
 
       IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();

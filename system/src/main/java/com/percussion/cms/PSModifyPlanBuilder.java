@@ -38,7 +38,7 @@ import com.percussion.design.objectstore.PSSingleHtmlParameter;
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.design.objectstore.PSTableRef;
 import com.percussion.design.objectstore.PSTableSet;
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.util.PSCollection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -475,7 +475,7 @@ public abstract class PSModifyPlanBuilder {
         }
 
         if (!foundIt)
-          throw new PSSystemValidationException(IPSServerErrors.CE_MISSING_TABLE, tableName);
+          throw new PSSystemValidationException(ServerErrorCodes.CE_MISSING_TABLE, tableName);
       }
     }
 

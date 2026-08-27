@@ -43,7 +43,7 @@ import com.percussion.design.objectstore.PSUISet;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.i18n.PSI18nUtils;
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSMapPair;
 import com.percussion.util.PSSqlHelper;
@@ -88,7 +88,7 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
         ((PSContentEditorPipe) ce.getPipe()).getMapper().getFieldSet(dispMapper.getFieldSetRef());
     if (null == fields)
       throw new PSNotFoundException(
-          IPSServerErrors.CE_MISSING_FIELDSET, dispMapper.getFieldSetRef());
+          ServerErrorCodes.CE_MISSING_FIELDSET, dispMapper.getFieldSetRef());
 
     // remember name for error msgs
     m_fieldSetName = fields.getName();
@@ -110,14 +110,14 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
           if (null != label) mappingLabel = label.getText();
         }
         String[] args = {fieldName, mappingLabel};
-        throw new PSSystemValidationException(IPSServerErrors.CE_MISSING_FIELD, args);
+        throw new PSSystemValidationException(ServerErrorCodes.CE_MISSING_FIELD, args);
       }
       if (o instanceof PSFieldSet) {
         PSFieldSet fieldSet = (PSFieldSet) o;
         PSDisplayMapper childMapper = mapping.getDisplayMapper();
         if (null == childMapper) {
           throw new PSSystemValidationException(
-              IPSServerErrors.CE_MISSING_MAPPINGS, fieldSet.getName());
+              ServerErrorCodes.CE_MISSING_MAPPINGS, fieldSet.getName());
         }
 
         if (fieldSet.getType() == PSFieldSet.TYPE_SIMPLE_CHILD) {
@@ -149,7 +149,7 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
       String[] args = {
         IPSConstants.HIDDEN_CONTROL_PARAM_NAME, "InitParam is empty or missing from system def"
       };
-      throw new PSSystemValidationException(IPSServerErrors.CE_INVALID_PARAM, args);
+      throw new PSSystemValidationException(ServerErrorCodes.CE_INVALID_PARAM, args);
     }
 
     for (int i = 0; i < hiddenParamSet.length; i++) {
@@ -264,13 +264,13 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
     } else {
       ResultSet parentRs = data.getNextResultSet();
       if (null == parentRs) {
-        throw new PSConversionException(IPSServerErrors.CE_MISSING_RESULTSET, m_fieldSetName);
+        throw new PSConversionException(ServerErrorCodes.CE_MISSING_RESULTSET, m_fieldSetName);
       }
     }
 
     Object[] curRow = data.getCurrentResultRowData();
     if (!data.readRow()) {
-      throw new PSConversionException(IPSServerErrors.CE_NO_DATA_IN_RESULT_SET, m_fieldSetName);
+      throw new PSConversionException(ServerErrorCodes.CE_NO_DATA_IN_RESULT_SET, m_fieldSetName);
     }
   }
 
@@ -386,7 +386,7 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
         tableName = col.getTable().getTable();
         if (null == tableName || tableName.trim().length() == 0) {
           throw new PSSystemValidationException(
-              IPSServerErrors.CE_MISSING_TABLE_NAME, col.getColumn());
+              ServerErrorCodes.CE_MISSING_TABLE_NAME, col.getColumn());
         }
       }
       try {
@@ -441,7 +441,7 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
       for (int i = 0; i < mergeCount; i++) {
         ResultSet rs = data.getNextResultSet();
         if (null == rs) {
-          throw new PSConversionException(IPSServerErrors.CE_MISSING_RESULTSET, m_fieldSetName);
+          throw new PSConversionException(ServerErrorCodes.CE_MISSING_RESULTSET, m_fieldSetName);
         }
 
         ResultSetMetaData md = rs.getMetaData();
