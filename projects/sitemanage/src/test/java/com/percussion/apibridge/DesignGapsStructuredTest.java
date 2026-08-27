@@ -41,6 +41,14 @@ class DesignGapsStructuredTest {
     assertTrue(codes.contains("CT_FIELD_RULE_EXPR"));
     assertTrue(codes.contains("CT_ITEM_EXITS"));
     assertTrue(codes.contains("CT_CREATE_DELETE"));
+    assertTrue(
+        gaps.stream()
+            .anyMatch(
+                g ->
+                    "CT_CREATE_DELETE".equals(g.getCode())
+                        && g.getMessage().contains("POST /services/contenttypes")
+                        && !g.getMessage().startsWith("Create / delete not supported")),
+        () -> gaps.toString());
     assertFalse(codes.contains("CT_CONTROL_RESOLUTION"));
     for (DesignGap g : gaps) {
       assertNotNull(g.getCode());

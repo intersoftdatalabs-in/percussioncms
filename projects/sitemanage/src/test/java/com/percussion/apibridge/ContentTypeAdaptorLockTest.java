@@ -152,8 +152,9 @@ class ContentTypeAdaptorLockTest {
   void lockContentType_requiresSessionUser() {
     PSRequestInfoBase.resetRequestInfo();
     PSRequestInfoBase.initRequestInfo(new HashMap<>());
-    IllegalStateException ex =
-        assertThrows(IllegalStateException.class, () -> adaptor.lockContentType(null, "311"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.lockContentType(null, "311"));
+    assertEquals(403, ex.getResponse().getStatus());
     assertTrue(ex.getMessage().toLowerCase().contains("session"), ex.getMessage());
   }
 

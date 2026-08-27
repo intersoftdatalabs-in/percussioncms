@@ -519,6 +519,75 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
+  public void createContentTypeSuccess() {
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setName("percNewType");
+    ContentTypeDetail created = new ContentTypeDetail();
+    created.setName("percNewType");
+    created.setLabel("percNewType");
+    when(adaptor.createContentType(any(), any())).thenReturn(created);
+
+    ContentTypeDetail out = resource.createContentType(body);
+    assertEquals("percNewType", out.getName());
+  }
+
+  @Test
+  public void createContentTypeRequiresName() {
+    when(adaptor.createContentType(any(), any()))
+        .thenThrow(new IllegalArgumentException("name is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.createContentType(new ContentTypeDetail()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createContentTypeRejectsSpaces() {
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setName("has space");
+    when(adaptor.createContentType(any(), any()))
+        .thenThrow(new IllegalArgumentException("name cannot contain spaces"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createContentType(body));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createContentTypeDuplicateIs409() {
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setName("percPage");
+    when(adaptor.createContentType(any(), any()))
+        .thenThrow(new WebApplicationException("Content type already exists: percPage", 409));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createContentType(body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createContentTypeForbiddenWhenNotAdmin() {
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setName("percNewType");
+    when(adaptor.createContentType(any(), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createContentType(body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createContentTypeForbiddenWhenNoSession() {
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setName("percNewType");
+    when(adaptor.createContentType(any(), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "Request session/user required for content type design session", 403));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createContentType(body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void unlockContentTypeSuccess() {
     when(adaptor.unlockContentType(any(), eq("percPage"))).thenReturn(Boolean.TRUE);
     Response response = resource.unlockContentType("percPage");

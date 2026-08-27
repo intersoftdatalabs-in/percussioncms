@@ -53,6 +53,7 @@ import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.system.IPSSystemDesignWs;
+import jakarta.ws.rs.WebApplicationException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -249,13 +250,14 @@ class ContentTypeAdaptorAllowedTemplatesTest {
   }
 
   @Test
-  void replaceAllowedTemplates_missingSession_throwsConflict() {
+  void replaceAllowedTemplates_missingSession_is403() {
     PSRequestInfoBase.resetRequestInfo();
     PSRequestInfoBase.initRequestInfo(new HashMap<>());
-    IllegalStateException ex =
+    WebApplicationException ex =
         assertThrows(
-            IllegalStateException.class,
+            WebApplicationException.class,
             () -> adaptor.replaceAllowedTemplates(null, "percPage", List.of()));
+    assertEquals(403, ex.getResponse().getStatus());
     assertTrue(ex.getMessage().toLowerCase().contains("session"));
   }
 

@@ -212,13 +212,14 @@ class ContentTypeAdaptorWorkflowsTest {
   }
 
   @Test
-  void put_missingSessionIsIllegalStateNot403() {
+  void put_missingSessionIs403() {
     PSRequestInfoBase.setRequestInfo(PSRequestInfoBase.KEY_JSESSIONID, null);
     PSRequestInfoBase.setRequestInfo(PSRequestInfoBase.KEY_USER, null);
-    IllegalStateException ex =
+    WebApplicationException ex =
         assertThrows(
-            IllegalStateException.class,
+            WebApplicationException.class,
             () -> adaptor.setAllowedWorkflows(null, "311", List.of(), null));
+    assertEquals(403, ex.getResponse().getStatus());
     assertTrue(ex.getMessage().toLowerCase().contains("session"), ex.getMessage());
   }
 
