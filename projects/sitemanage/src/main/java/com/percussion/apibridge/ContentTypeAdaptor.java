@@ -240,6 +240,49 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   @Override
+  public ContentTypeDetail createContentType(URI baseUri, ContentTypeDetail body) {
+    requireAdmin();
+    if (body == null || StringUtils.isBlank(body.getName())) {
+      throw new IllegalArgumentException("name is required");
+    }
+    String name = body.getName().trim();
+    if (containsWhitespace(name)) {
+      throw new IllegalArgumentException("name cannot contain spaces");
+    }
+    if (name.contains("*")) {
+      throw new IllegalArgumentException("name must not contain wildcards");
+    }
+    requireSessionUserForLock();
+    String session = currentSession();
+    String user = currentUser();
+    assertNameUnique(name);
+    try {
+      List<PSItemDefinition> created =
+          designSvc.createContentTypes(Collections.singletonList(name), session, user);
+      if (created == null || created.isEmpty() || created.get(0) == null) {
+        throw new IllegalStateException("Design WS createContentTypes returned empty");
+      }
+      PSItemDefinition def = created.get(0);
+      applyMetaUpdates(def, body);
+      // Workbench Finish: persist the new type and release the create lock.
+      designSvc.saveContentTypes(Collections.singletonList(def), true, session, user);
+      PSItemDefinition reloaded = reloadItemDef(name);
+      return reloaded != null ? toDetail(reloaded) : toDetail(def);
+    } catch (WebApplicationException | IllegalArgumentException | IllegalStateException e) {
+      throw e;
+    } catch (PSErrorException e) {
+      log.error("Failed to create content type {}: {}", name, e.getMessage(), e);
+      throw new IllegalStateException("Failed to create content type", e);
+    } catch (PSErrorsException e) {
+      log.error("Failed to save new content type {}: {}", name, e.getMessage(), e);
+      throw new IllegalStateException("Failed to save new content type", e);
+    } catch (Exception e) {
+      log.error("Failed to create content type {}: {}", name, e.getMessage(), e);
+      throw new IllegalStateException("Failed to create content type", e);
+    }
+  }
+
+  @Override
   public ContentTypeDetail getContentType(URI baseUri, String idOrName) {
     if (StringUtils.isBlank(idOrName)) {
       return null;
@@ -392,7 +435,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     gaps.add(
         DesignGap.of(
             "CT_CREATE_DELETE",
-            "Create / delete not supported; PUT save requires a held design lock for"
+            "Create via POST /services/contenttypes. Delete / rename not supported; PUT save requires a held design lock for"
                 + " label/description/enabled, field searchable/occurrence, workflows (+ default),"
                 + " and templates"));
     gaps.add(
@@ -2694,12 +2737,40 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     } catch (RuntimeException e) {
       log.debug("Admin check failed: {}", e.getMessage());
       throw new WebApplicationException(
-          "Admin role required to lock, unlock, or save content types", Response.Status.FORBIDDEN);
+          "Admin role required to create, lock, unlock, or save content types",
+          Response.Status.FORBIDDEN);
     }
     if (!allowed) {
       throw new WebApplicationException(
-          "Admin role required to lock, unlock, or save content types", Response.Status.FORBIDDEN);
+          "Admin role required to create, lock, unlock, or save content types",
+          Response.Status.FORBIDDEN);
     }
+  }
+
+  /**
+   * Case-insensitive uniqueness against the design catalog. Duplicate names are 409 so clients
+   * can distinguish them from 400 invalid-name failures.
+   */
+  private void assertNameUnique(String name) {
+    List<IPSCatalogSummary> existing = designSvc.findContentTypes("*");
+    if (existing == null) {
+      return;
+    }
+    for (IPSCatalogSummary summary : existing) {
+      if (summary != null
+          && name.equalsIgnoreCase(StringUtils.defaultString(summary.getName()))) {
+        throw new WebApplicationException("Content type already exists: " + name, 409);
+      }
+    }
+  }
+
+  private static boolean containsWhitespace(String name) {
+    for (int i = 0; i < name.length(); i++) {
+      if (Character.isWhitespace(name.charAt(i))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private IPSAssemblyService requireAssemblyService() {

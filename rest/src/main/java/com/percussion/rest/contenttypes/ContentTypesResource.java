@@ -836,6 +836,40 @@ public class ContentTypesResource {
     }
   }
 
+  @POST
+  @Path("/")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Create a content type",
+      description =
+          "Admin. Creates and persists a content type via IPSContentDesignWs.createContentTypes"
+              + " then saveContentTypes (Workbench Finish, not an unsaved stub). Name is required,"
+              + " must be unique (case-insensitive), and must not contain spaces. Optional label,"
+              + " description, and enabled are applied before save. Returns the new"
+              + " ContentTypeDetail. Delete/rename remain unsupported (see designGaps).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Created and saved",
+            content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid name (blank, whitespace, or wildcard)"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "409", description = "A content type with that name exists"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeDetail createContentType(ContentTypeDetail body) {
+    try {
+      return requireAdaptor().createContentType(uriInfo.getBaseUri(), body);
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @GET
   @Path("/{idOrName}")
   @Produces({MediaType.APPLICATION_JSON})
@@ -889,8 +923,8 @@ public class ContentTypesResource {
               + " committed (error message indicates partial success). Name/id and system field"
               + " structure are not changed. Field rule expressions use PUT"
               + " .../fields/{fieldName}/ruleExpressions. Control property values use PUT"
-              + " .../fields/{fieldName}/controlProperties. Create/delete remain unsupported (see"
-              + " designGaps).",
+              + " .../fields/{fieldName}/controlProperties. Create uses POST /contenttypes."
+              + " Delete/rename remain unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",

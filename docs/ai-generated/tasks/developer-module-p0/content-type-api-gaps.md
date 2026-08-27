@@ -13,6 +13,7 @@
 | Public REST detail (**new P0.2**) | Read-only field catalog + meta      | `GET /services/contenttypes/{idOrName}`        |
 | Public REST lock/unlock           | Self-only design-session lock       | `POST /services/contenttypes/{idOrName}/lock` / `.../unlock` |
 | Public REST PUT save              | Held-lock save (label/description/…) | `PUT /services/contenttypes/{idOrName}`        |
+| Public REST POST create           | Persist new type (Workbench Finish) | `POST /services/contenttypes`                  |
 | Design SOAP (Workbench)           | Full load/save/lock/create/delete   | `IPSContentDesignWs` / `ContentDesignSOAPImpl` |
 | Item def manager                  | Runtime CE definition cache         | `PSItemDefManager.getItemDef`                  |
 
@@ -53,7 +54,7 @@ design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
 | Enable/disable as design action                      | CD-13        | **REST `PUT /contenttypes/{id}/enabled`** (#3773, held design lock; 409 without) |
 | Shared field file editing                            | CD-15        | Separate object                                   |
 | System def                                           | CD-16        | Separate object                                   |
-| Create / rename / delete                             | CD-01, §5.2  | SOAP design only; lock + PUT save via REST        |
+| Create / rename / delete                             | CD-01, §5.2  | **POST `/services/contenttypes` create shipped** (#3912). Rename / delete still SOAP design only; lock + PUT save via REST |
 | Import/export CT                                     | CD-14        | Workbench wizards                                 |
 | ACL                                                  | CD-19, §5.4  | Existing ACL REST may help later                  |
 | ~~Keyword write~~                                    | CD-17        | **Done** — REST + SPA + design WS (#1612/#1701)   |
