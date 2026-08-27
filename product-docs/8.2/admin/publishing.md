@@ -54,18 +54,22 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
   in-memory H2 only (`jdbc:h2:mem:`); Oracle / MySQL / SQL Server URLs return **400**.
   `http-json` Publish uses a local JSON fixture or loopback catalog (`http.url` /
   `http.file` in `_config.yaml`); leftover `virtual.remoteUrl` is **400** (no secrets on
-  the envelope). REST **GET/PUT** can persist `virtual.sourceKind=object-storage` with a
-  local `rootPath` (cloud URLs and credentials are **400**); REST **Build** runs that local
-  bucket. REST **Preview** streams last-build HTML for that kind after a successful Build
-  (`available=true`; missing build is `available=false` HTTP 200). Developer Sites can save
-  **Object storage** (GET round-trips the kind); REST Publish and Developer Sites
-  Build/Preview/Publish chrome for that kind stay a later phase. The endpoint does not
-  accept an `outputRoot` body (always the default staging root).
+  the envelope). `object-storage` Publish uses a portable-safe local object-key `rootPath`
+  (Markdown / HTML / JSON keys; no cloud URLs, IAM, or access keys); leftover
+  `virtual.remoteUrl` is **400**. REST **GET/PUT** can persist
+  `virtual.sourceKind=object-storage` with that local `rootPath` (cloud URLs and
+  credentials are **400**); REST **Build** runs that local bucket. REST **Preview**
+  streams last-build HTML for that kind after a successful Build (`available=true`;
+  missing build is `available=false` HTTP 200). Developer Sites can save **Object
+  storage** (GET round-trips the kind), then **Build Virtual Site** and **Preview
+  assembled site**. Developer Sites **Publish Virtual Site** chrome for that kind stays
+  a later phase. The endpoint does not accept an `outputRoot` body (always the default
+  staging root).
 
 ### Publish a Virtual Site to the Site filesystem target
 
 1. Sign in as **Admin**.
-2. Configure the Site as a Git-filesystem, CSV-filesystem, SQL-database, or HTTP JSON Virtual Site (see [Sites](id:admin-sites)). After you save **SQL database**, **Build Virtual Site** on Developer Sites runs the same in-memory H2 REST Build as Git/CSV. After you save **HTTP JSON**, **Build Virtual Site** then **Publish Virtual Site** copies assembled HTML to the Site filesystem root.
+2. Configure the Site as a Git-filesystem, CSV-filesystem, SQL-database, HTTP JSON, or object-storage Virtual Site (see [Sites](id:admin-sites)). After you save **SQL database**, **Build Virtual Site** on Developer Sites runs the same in-memory H2 REST Build as Git/CSV. After you save **HTTP JSON**, **Build Virtual Site** then **Publish Virtual Site** copies assembled HTML to the Site filesystem root. Integrators can REST-publish **object-storage** (`POST …/virtual/publish`) with a local object-key `rootPath`. After you save **Object storage**, **Build Virtual Site** then **Preview assembled site** on Developer Sites run against that local object-key tree (Publish chrome for that kind stays a later phase).
 3. Set the Site **publishing filesystem root** (Site root) to a dedicated directory on the CMS
    host. Relative roots (legacy values such as `../CI_Home`) are resolved against the CMS
    install directory. Do **not** point it at `virtual.rootPath` (the Markdown or CSV source tree).
@@ -75,8 +79,8 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
    repository Sites). For **SQL database** and **HTTP JSON**, save the source, run
    **Build Virtual Site**, then **Publish Virtual Site**. The panel reports files copied
    and the destination path, or a clear error. Integrators can call
-   `POST /services/sites/{nameOrId}/virtual/publish` instead (Git, CSV, SQL, and HTTP JSON).
-   Run **Build Virtual Site** first if you only want staging output.
+   `POST /services/sites/{nameOrId}/virtual/publish` instead (Git, CSV, SQL, HTTP JSON, and
+   object-storage). Run **Build Virtual Site** first if you only want staging output.
 6. On success, the result includes `publishPath`, `filesCopied`, `pagesWritten`, and any
    link problems (`hasLinkProblems` can be true with HTTP 200).
 7. Spot-check `index.html` (and version folders such as `8.2/`) under the Site root. If the

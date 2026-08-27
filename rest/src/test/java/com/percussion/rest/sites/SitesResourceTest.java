@@ -744,6 +744,25 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void publishVirtualSiteDelegatesObjectStorage() {
+    VirtualSitePublishResult published = new VirtualSitePublishResult();
+    published.setSiteName("ObjHelp");
+    published.setSiteKey("obj-docs");
+    published.setPagesWritten(1);
+    published.setFilesCopied(2);
+    published.setPublishPath(tempDir.resolve("obj-pub").toString());
+    when(adaptor.publishVirtualSite("ObjHelp")).thenReturn(published);
+
+    VirtualSitePublishResult out = resource.publishVirtualSite("ObjHelp");
+    assertEquals("ObjHelp", out.getSiteName());
+    assertEquals("obj-docs", out.getSiteKey());
+    assertEquals(1, out.getPagesWritten().intValue());
+    assertEquals(2, out.getFilesCopied().intValue());
+    assertEquals(published.getPublishPath(), out.getPublishPath());
+    verify(adaptor).publishVirtualSite("ObjHelp");
+  }
+
+  @Test
   public void publishVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.publishVirtualSite(" "));
@@ -800,6 +819,9 @@ public class SitesResourceTest {
     assertTrue(
         publishBlock.contains("http-json"),
         "publishVirtualSite OpenAPI description must mention http-json");
+    assertTrue(
+        publishBlock.contains("object-storage"),
+        "publishVirtualSite OpenAPI description must mention object-storage");
     assertTrue(
         publishBlock.contains("jdbc:h2:mem:"),
         "publishVirtualSite OpenAPI description must mention in-memory H2 jdbc:h2:mem:");
