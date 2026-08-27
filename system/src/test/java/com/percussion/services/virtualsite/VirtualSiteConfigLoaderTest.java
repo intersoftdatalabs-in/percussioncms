@@ -305,6 +305,58 @@ class VirtualSiteConfigLoaderTest {
   }
 
   @Test
+  void secondLoadAfterObjectsKeysAndConfigEditSeesCurrentObjectsWithoutCache() throws Exception {
+    Path root = tempDir.resolve("live-objects-config");
+    Files.createDirectories(root);
+    Path yaml = root.resolve("_config.yaml");
+    Files.writeString(
+        yaml,
+        """
+        site:
+          title: Objects First
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        objects:
+          keys:
+            - 8.2/index.md
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig first = VirtualSiteConfigLoader.load(root, null, "k");
+    assertEquals("Objects First", first.siteTitle());
+    assertTrue(first.objects().hasKeys());
+    assertEquals(1, first.objects().keys().size());
+    assertEquals("8.2/index.md", first.objects().keys().get(0));
+
+    Files.writeString(
+        yaml,
+        """
+        site:
+          title: Objects Second
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        objects:
+          keys:
+            - 8.2/index.md
+            - 8.2/install.html
+            - 8.2/pages.json
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig second = VirtualSiteConfigLoader.load(root, null, "k");
+    assertEquals("Objects Second", second.siteTitle());
+    assertTrue(second.objects().hasKeys());
+    assertEquals(3, second.objects().keys().size());
+    assertEquals("8.2/index.md", second.objects().keys().get(0));
+    assertEquals("8.2/install.html", second.objects().keys().get(1));
+    assertEquals("8.2/pages.json", second.objects().keys().get(2));
+  }
+
+  @Test
   void nullRootFails() {
     assertThrows(
         VirtualSiteException.class,

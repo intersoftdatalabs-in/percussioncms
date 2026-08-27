@@ -19,6 +19,7 @@ package com.percussion.services.virtualsite;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -302,6 +303,124 @@ class PSObjectStorageVirtualSiteSourceTest {
   }
 
   @Test
+  void secondBuildAfterObjectKeyAndConfigEditEmitsUpdatedHtmlWithoutRestart() throws Exception {
+    Path root = writeSite(tempDir.resolve("obj-rebuild"), null);
+    Files.writeString(
+        root.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${siteTitle}</h1><h2>${pageTitle}</h2>${content}</body></html>",
+        StandardCharsets.UTF_8);
+    writeObjYaml(root, "First Site Title", null);
+    Path md = root.resolve("8.2").resolve("index.md");
+    Path htmlKey = root.resolve("8.2").resolve("install.html");
+    Path json = root.resolve("8.2").resolve("pages.json");
+    Files.writeString(
+        md,
+        """
+        ---
+        id: live-home
+        title: First Title
+        ---
+        unique-token-AAA-md
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        htmlKey,
+        "<html><head><title>First Install</title></head><body>unique-token-AAA-html</body></html>",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        json,
+        """
+        {"pages":[{"id":"plain","title":"First Catalog","body":"unique-token-AAA-json"}]}
+        """,
+        StandardCharsets.UTF_8);
+
+    Path out = tempDir.resolve("obj-rebuild-out");
+    PSObjectStorageVirtualSiteSource source = new PSObjectStorageVirtualSiteSource();
+    PSVirtualSiteBuildService service =
+        new PSVirtualSiteBuildService(source, new PSInMemoryVirtualParticipantService());
+
+    PSVirtualSiteBuildResult first = service.build(root, out, "obj-docs");
+    assertEquals(3, first.pageCount());
+    Path homeHtml = out.resolve("8.2").resolve("index.html");
+    Path installHtml = out.resolve("8.2").resolve("install.html");
+    Path catalogHtml = out.resolve("8.2").resolve("plain.html");
+    assertTrue(Files.isRegularFile(homeHtml), "missing " + homeHtml);
+    assertTrue(Files.isRegularFile(installHtml), "missing " + installHtml);
+    assertTrue(Files.isRegularFile(catalogHtml), "missing " + catalogHtml);
+    String firstHome = Files.readString(homeHtml, StandardCharsets.UTF_8);
+    String firstInstall = Files.readString(installHtml, StandardCharsets.UTF_8);
+    String firstCatalog = Files.readString(catalogHtml, StandardCharsets.UTF_8);
+    assertTrue(firstHome.contains("First Site Title"), firstHome);
+    assertTrue(firstHome.contains("First Title"), firstHome);
+    assertTrue(firstHome.contains("unique-token-AAA-md"), firstHome);
+    assertTrue(firstInstall.contains("First Install"), firstInstall);
+    assertTrue(firstInstall.contains("unique-token-AAA-html"), firstInstall);
+    assertTrue(firstCatalog.contains("First Catalog"), firstCatalog);
+    assertTrue(firstCatalog.contains("unique-token-AAA-json"), firstCatalog);
+
+    Files.writeString(
+        md,
+        """
+        ---
+        id: live-home
+        title: Second Title
+        ---
+        unique-token-BBB-md
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        htmlKey,
+        "<html><head><title>Second Install</title></head><body>unique-token-BBB-html</body></html>",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        json,
+        """
+        {"pages":[{"id":"plain","title":"Second Catalog","body":"unique-token-BBB-json"}]}
+        """,
+        StandardCharsets.UTF_8);
+    writeObjYaml(root, "Second Site Title", null);
+
+    VirtualSiteConfig reloaded =
+        VirtualSiteConfigLoader.load(root, VirtualSiteConfigLoader.DEFAULT_CONFIG_FILE, "obj-docs");
+    assertEquals("Second Site Title", reloaded.siteTitle());
+    List<VirtualItemRef> refs = source.discover(reloaded);
+    assertEquals(3, refs.size());
+    VirtualItem loadedMd = source.load(reloaded, findRef(refs, "live-home"));
+    assertEquals("Second Title", loadedMd.frontmatter().title());
+    assertTrue(loadedMd.markdownBody().contains("unique-token-BBB-md"), loadedMd.markdownBody());
+    assertFalse(loadedMd.markdownBody().contains("unique-token-AAA-md"), loadedMd.markdownBody());
+    VirtualItem loadedHtml = source.load(reloaded, findRef(refs, "install"));
+    assertEquals("Second Install", loadedHtml.frontmatter().title());
+    assertTrue(
+        loadedHtml.markdownBody().contains("unique-token-BBB-html"), loadedHtml.markdownBody());
+    VirtualItem loadedJson = source.load(reloaded, findRef(refs, "plain"));
+    assertEquals("Second Catalog", loadedJson.frontmatter().title());
+    assertTrue(
+        loadedJson.markdownBody().contains("unique-token-BBB-json"), loadedJson.markdownBody());
+
+    PSVirtualSiteBuildResult second = service.build(root, out, "obj-docs");
+    assertEquals(3, second.pageCount());
+    String secondHome = Files.readString(homeHtml, StandardCharsets.UTF_8);
+    String secondInstall = Files.readString(installHtml, StandardCharsets.UTF_8);
+    String secondCatalog = Files.readString(catalogHtml, StandardCharsets.UTF_8);
+    assertTrue(secondHome.contains("Second Site Title"), secondHome);
+    assertTrue(secondHome.contains("Second Title"), secondHome);
+    assertTrue(secondHome.contains("unique-token-BBB-md"), secondHome);
+    assertFalse(secondHome.contains("unique-token-AAA-md"), secondHome);
+    assertFalse(secondHome.contains("First Title"), secondHome);
+    assertFalse(secondHome.contains("First Site Title"), secondHome);
+    assertTrue(secondInstall.contains("Second Install"), secondInstall);
+    assertTrue(secondInstall.contains("unique-token-BBB-html"), secondInstall);
+    assertFalse(secondInstall.contains("unique-token-AAA-html"), secondInstall);
+    assertTrue(secondCatalog.contains("Second Catalog"), secondCatalog);
+    assertTrue(secondCatalog.contains("unique-token-BBB-json"), secondCatalog);
+    assertFalse(secondCatalog.contains("unique-token-AAA-json"), secondCatalog);
+    assertNotEquals(firstHome, secondHome);
+    assertNotEquals(firstInstall, secondInstall);
+    assertNotEquals(firstCatalog, secondCatalog);
+  }
+
+  @Test
   void skipsThemeAndDotFiles() throws Exception {
     Path root = writeSite(tempDir.resolve("skip-hidden"), null);
     Files.writeString(
@@ -479,6 +598,12 @@ class PSObjectStorageVirtualSiteSourceTest {
   private static Path writeSite(Path root, List<String> keys) throws Exception {
     Files.createDirectories(root.resolve("8.2"));
     Files.createDirectories(root.resolve("_theme"));
+    writeObjYaml(root, "Object Docs", keys);
+    return root;
+  }
+
+  private static void writeObjYaml(Path root, String siteTitle, List<String> keys)
+      throws Exception {
     String objectsBlock = "";
     if (keys != null && !keys.isEmpty()) {
       StringBuilder sb = new StringBuilder("objects:\n  keys:\n");
@@ -491,7 +616,7 @@ class PSObjectStorageVirtualSiteSourceTest {
         root.resolve("_config.yaml"),
         """
         site:
-          title: Object Docs
+          title: %s
         versions:
           - id: "8.2"
             label: "8.2"
@@ -501,9 +626,15 @@ class PSObjectStorageVirtualSiteSourceTest {
           layout: page.html
         %s
         """
-            .formatted(objectsBlock),
+            .formatted(siteTitle, objectsBlock),
         StandardCharsets.UTF_8);
-    return root;
+  }
+
+  private static VirtualItemRef findRef(List<VirtualItemRef> refs, String id) {
+    return refs.stream()
+        .filter(r -> id.equals(r.id()))
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("missing ref " + id + " in " + refs));
   }
 
   private static VirtualSiteConfig config(Path root, List<String> keys) {

@@ -26,13 +26,15 @@ import java.util.List;
  * Headless catalog: {@link PSHttpJsonVirtualSiteSource} ({@code http-json}). Local object-key
  * bucket: {@link PSObjectStorageVirtualSiteSource} ({@code object-storage}).
  *
- * <p>Filesystem, SQL, and HTTP JSON implementations must read <em>current</em> source contents
- * on every {@link #discover} and {@link #load}. Process-lifetime parse caches that skip a file
- * because its path or mtime looks unchanged are not allowed — a second build in the same JVM
- * (after {@code git pull}, a CSV row edit, a local Markdown/frontmatter edit, a {@code
- * _config.yaml} or {@code sql.queryFile} edit, an in-memory H2 row change, or an HTTP JSON
- * catalog ({@code http.file} / {@code pages.json} / {@code http.url} body) edit) must see the
- * new bytes. File watchers are not required; the next explicit build is the refresh.
+ * <p>Filesystem, SQL, HTTP JSON, and object-storage implementations must read
+ * <em>current</em> source contents on every {@link #discover} and {@link #load}.
+ * Process-lifetime parse caches that skip a file because its path or mtime looks unchanged
+ * are not allowed — a second build in the same JVM (after {@code git pull}, a CSV row edit, a
+ * local Markdown/frontmatter edit, a {@code _config.yaml} or {@code sql.queryFile} edit, an
+ * in-memory H2 row change, an HTTP JSON catalog ({@code http.file} / {@code pages.json} /
+ * {@code http.url} body) edit, or an object-storage Markdown/HTML/JSON key or {@code
+ * objects.keys} edit) must see the new bytes. File watchers are not required; the next
+ * explicit build is the refresh.
  */
 public interface IPSVirtualSiteSource {
 
