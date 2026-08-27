@@ -101,7 +101,8 @@ public interface ISiteAdaptor {
 
   /**
    * Builds a Virtual Site from configured {@code virtual.*} properties ({@code git-filesystem},
-   * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, or {@code object-storage}).
+   * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage}, or
+   * {@code rss-atom}).
    *
    * <p>Loads the site, validates via {@code PSVirtualSiteHelper}, optionally clones/fetches {@code
    * virtual.remoteUrl} into a contained work directory (git-filesystem only), runs {@code
@@ -112,7 +113,10 @@ public interface ISiteAdaptor {
    * http.file}); {@code virtual.remoteUrl} is 400 (no secrets on this envelope). {@code
    * object-storage} discovers Markdown / HTML / JSON object keys under a portable-safe local {@code
    * rootPath} (optional {@code objects.keys} in {@code _config.yaml}); {@code virtual.remoteUrl} is
-   * 400 (no cloud URLs or credentials on this envelope). Unknown source kinds return 400. Requires
+   * 400 (no cloud URLs or credentials on this envelope). {@code rss-atom} discovers pages from a
+   * local RSS 2.0 / Atom fixture ({@code feed.xml} / {@code atom.xml} or {@code rss.file}; {@code
+   * rss.url} loopback only) — no live remote feeds; leftover {@code virtual.remoteUrl}, credential
+   * properties, and cloud {@code rootPath} are 400. Unknown source kinds return 400. Requires
    * Admin (or equivalent site-manage) authorization.
    *
    * @param nameOrId site name or GUID string, not blank
