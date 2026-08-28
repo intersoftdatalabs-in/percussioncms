@@ -166,11 +166,12 @@ function validationMessage(
  * Site detail section: view/edit Virtual Site source fields via public Site REST
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
  * build ({@code POST …/virtual/build}) for git-filesystem, csv-filesystem,
- * sql-database, http-json, and object-storage. Preview last-build HTML for
- * those kinds. Publish ({@code POST …/virtual/publish}) for the same kinds
- * after a successful Build. Repository / blank / unknown kinds stay hidden.
- * rss-atom save chrome is in this panel (local {@code rootPath} only);
- * Build/Preview/Publish for rss-atom stay a later phase.
+ * sql-database, http-json, object-storage, and rss-atom. Preview last-build HTML
+ * for git/csv/sql/http-json/object-storage/rss-atom. Publish ({@code POST
+ * …/virtual/publish}) for git/csv/sql/http-json/object-storage after a successful
+ * Build. Repository / blank / unknown kinds stay hidden. rss-atom save + Build +
+ * Preview chrome is in this panel (local {@code rootPath} only); Publish for
+ * rss-atom stays a later phase.
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -361,9 +362,9 @@ export function VirtualSiteSourcePanel({
   const httpJsonMode = isHttpJsonSourceKind(form.sourceKind);
   const objectStorageMode = isObjectStorageSourceKind(form.sourceKind);
   const rssAtomMode = isRssAtomSourceKind(form.sourceKind);
-  /** Build chrome: git/csv/sql/http-json/object-storage (never repository or rss-atom). */
+  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
-  /** Preview chrome: git/csv/sql/http-json/object-storage (never repository or rss-atom). */
+  /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom (never repository). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
   /** Publish chrome: git/csv/sql/http-json/object-storage (never repository or rss-atom). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
@@ -590,7 +591,7 @@ export function VirtualSiteSourcePanel({
             ) : null}
           </div>
 
-          {/* Build chrome: git/csv/sql/http-json/object-storage (never repository). */}
+          {/* Build chrome: git/csv/sql/http-json/object-storage/rss-atom (never repository). */}
           {showBuildChrome ? (
             <div
               data-testid="developer-site-virtual-build-section"

@@ -162,8 +162,8 @@ public interface ISiteAdaptor {
 
   /**
    * Builds a Virtual Site ({@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
-   * {@code http-json}, or {@code object-storage}) and copies the static output to the Site
-   * filesystem publish root ({@code IPSSite.getRoot()}).
+   * {@code http-json}, {@code object-storage}, or {@code rss-atom}) and copies the static output
+   * to the Site filesystem publish root ({@code IPSSite.getRoot()}).
    *
    * <p>Publish-includes-build: operators get a published docs tree at the configured Site
    * publishing location, not only {@code tmp/virtual-sites}. {@code sql-database} uses in-memory
@@ -172,8 +172,10 @@ public interface ISiteAdaptor {
    * ({@code http.url} / {@code http.file}); leftover {@code virtual.remoteUrl} is 400 (no secrets
    * on this envelope). {@code object-storage} uses a portable-safe local object-key {@code
    * rootPath} (NIO Path; no remaining {@code ..}); leftover {@code virtual.remoteUrl} is 400 (no
-   * cloud URLs, IAM, or access keys). Failures are operator-facing 4xx (not a silent no-op).
-   * Requires Admin.
+   * cloud URLs, IAM, or access keys). {@code rss-atom} uses a local RSS 2.0 / Atom fixture or
+   * loopback feed ({@code feed.xml} / {@code atom.xml} or {@code _config.yaml} {@code rss.file});
+   * leftover {@code virtual.remoteUrl} and credential properties are 400 (no live feeds). Failures
+   * are operator-facing 4xx (not a silent no-op). Requires Admin.
    *
    * @param nameOrId site name or GUID string, not blank
    * @return publish summary (never null)

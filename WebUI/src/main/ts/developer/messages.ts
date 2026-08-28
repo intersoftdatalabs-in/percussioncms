@@ -840,7 +840,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Object storage uses the root path only (no Git remote). Treat the directory as a local object-key bucket (Markdown, HTML, or JSON). Save sourceKind=object-storage, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target. Cloud URLs and access keys are never sent on the REST envelope.",
   SITE_VIRT_KIND_RSS_ATOM: "perc.ui.developer@RSS / Atom",
   SITE_VIRT_RSS_ATOM_HINT:
-    "perc.ui.developer@RSS / Atom uses the root path only (no Git remote). Point at a local RSS or Atom fixture directory. Save sourceKind=rss-atom. Live feed URLs and credentials are never sent on the REST envelope. Build, Preview, and Publish Virtual Site for this kind stay a later phase.",
+    "perc.ui.developer@RSS / Atom uses the root path only (no Git remote). Point at a local RSS or Atom fixture directory (feed.xml / atom.xml or _config.yaml rss.file). Save sourceKind=rss-atom, then Build Virtual Site, then Preview assembled site. Live feed URLs and credentials are never sent on the REST envelope. Publish Virtual Site for this kind stays a later phase.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:
@@ -867,7 +867,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Save Virtual Site source before building so the server uses the latest properties.",
   SITE_VIRT_PREVIEW: "perc.ui.developer@Preview assembled site",
   SITE_VIRT_PREVIEW_HINT:
-    "perc.ui.developer@Opens the last assembled home in a new tab after Build (Git filesystem, CSV filesystem, SQL database, HTTP JSON, or Object storage). Same-origin preview of the build output. Requires Admin.",
+    "perc.ui.developer@Opens the last assembled home in a new tab after Build (Git filesystem, CSV filesystem, SQL database, HTTP JSON, Object storage, or RSS / Atom). Same-origin preview of the build output. Requires Admin.",
   SITE_VIRT_PREVIEW_MISSING:
     "perc.ui.developer@No assembled site to preview. Run Build Virtual Site first.",
   SITE_VIRT_PREVIEW_ERROR: "perc.ui.developer@Could not open Virtual Site preview.",

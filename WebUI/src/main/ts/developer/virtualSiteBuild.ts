@@ -26,11 +26,10 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
 
 /**
  * True when the Build Virtual Site control should be shown.
- * Git-filesystem, csv-filesystem, sql-database, http-json, and object-storage
- * Virtual Sites all run POST /virtual/build (SQL JDBC, HTTP JSON catalog, and
- * object-storage keys stay in _config.yaml / the local root).
- * Repository / blank / unknown kinds and rss-atom must not display this chrome
- * (rss-atom Build stays a later phase).
+ * Git-filesystem, csv-filesystem, sql-database, http-json, object-storage, and
+ * rss-atom Virtual Sites all run POST /virtual/build (SQL JDBC, HTTP JSON catalog,
+ * object-storage keys, and rss-atom feeds stay in _config.yaml / the local root).
+ * Repository / blank / unknown kinds must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
   sourceKind: string | null | undefined,
@@ -41,15 +40,16 @@ export function shouldShowVirtualBuildChrome(
     v === "csv-filesystem" ||
     v === "sql-database" ||
     v === "http-json" ||
-    v === "object-storage"
+    v === "object-storage" ||
+    v === "rss-atom"
   );
 }
 
 /**
  * True when Preview assembled site should be shown.
  * Last-output preview for git-filesystem, csv-filesystem, sql-database,
- * http-json, and object-storage. Repository / blank / unknown kinds and
- * rss-atom stay hidden (rss-atom Preview stays a later phase).
+ * http-json, object-storage, and rss-atom. Repository / blank / unknown
+ * kinds stay hidden. rss-atom Publish stays a later phase.
  */
 export function shouldShowVirtualPreviewChrome(
   sourceKind: string | null | undefined,
@@ -60,7 +60,8 @@ export function shouldShowVirtualPreviewChrome(
     v === "csv-filesystem" ||
     v === "sql-database" ||
     v === "http-json" ||
-    v === "object-storage"
+    v === "object-storage" ||
+    v === "rss-atom"
   );
 }
 

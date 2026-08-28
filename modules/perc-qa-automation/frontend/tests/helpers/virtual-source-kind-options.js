@@ -33,6 +33,7 @@ function requiredVirtualSourceKindValues() {
     "sql-database",
     "http-json",
     "object-storage",
+    "rss-atom",
   ];
 }
 
