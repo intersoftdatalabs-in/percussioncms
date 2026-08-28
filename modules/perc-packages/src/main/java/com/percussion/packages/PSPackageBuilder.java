@@ -44,11 +44,17 @@ import java.util.zip.ZipOutputStream;
  * haven't changed).
  *
  * <p>Page layout packages that author modern {@code pages/&lt;id&gt;/component-package.json} (ADR-004
- * / #2786 / #2806) are staged for deployer {@code TemplateDef} install via native archive {@code
- * TemplateDef-N/} folders ({@link com.percussion.packages.pagexml.PSPageXmlNativeInstall}). Dual-ship
- * root {@code *.templateDef} materialize is <strong>not</strong> invoked from package-build (#3950);
- * dual-ship mode fails closed. Policy: {@link
- * com.percussion.packages.pagexml.PSPageXmlInstallPolicy}.
+ * / #2786 / #2806) are staged for deployer {@code TemplateDef} install:
+ *
+ * <ul>
+ *   <li><strong>Native</strong> (default as of #3949): stage {@code TemplateDef-N/} archive folders
+ *       from modern pages without dual-ship root files
+ *   <li><strong>Dual-ship</strong> (explicit {@code page.installMode=dual-ship} or sysprop): fails
+ *       closed. Root {@code *.templateDef} materialize is <strong>not</strong> invoked from
+ *       package-build (#3950). Policy: {@link
+ *       com.percussion.packages.pagexml.PSPageXmlInstallPolicy} / {@link
+ *       com.percussion.packages.pagexml.PSPageXmlNativeInstall}
+ * </ul>
  *
  * <p>Widget packages that author modern {@code widgets/&lt;stem&gt;/component-package.json} without
  * committed install Widget XML (batch A+B+C ship-exit #2883/#2884/#2885) materialize

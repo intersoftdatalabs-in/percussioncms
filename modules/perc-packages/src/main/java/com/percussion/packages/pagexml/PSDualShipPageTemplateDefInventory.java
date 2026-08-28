@@ -40,13 +40,14 @@ import java.util.stream.Collectors;
  *
  * <p>Peer of {@link PSPageDefinitionXmlInventory} / {@code PSWidgetDefinitionXmlInventory}. Pass
  * condition: zero product packages that would emit dual-ship root templateDefs (modern {@code
- * pages/} + committed {@code page.installMode} defaulting to dual-ship). Waiver set is empty after
- * perc.Test page dual-ship exit (#3737). Packages that opted into {@link
- * PSPageXmlInstallMode#NATIVE} are not dual-ship emitters.
+ * pages/} + committed {@code page.installMode=dual-ship}). Waiver set is empty after perc.Test page
+ * dual-ship exit (#3737). Unconfigured packages and packages on {@link PSPageXmlInstallMode#NATIVE}
+ * (the policy default as of #3949) are not dual-ship emitters.
  *
  * <p>Committed policy is package-local {@code package-install.properties} only. JVM system
  * properties ({@link PSPageXmlInstallPolicy#SYS_PROP_INSTALL_MODE} / {@link
- * PSPageXmlInstallPolicy#SYS_PROP_DUAL_SHIP}) must not hide a missing native opt-in in CI.
+ * PSPageXmlInstallPolicy#SYS_PROP_DUAL_SHIP}) must not hide an explicit dual-ship opt-in in CI, and
+ * must not make unconfigured packages look dual-ship.
  *
  * <p>Uses {@link Path#resolve(String)} / {@link Files} only — no hardcoded filesystem separators.
  *
@@ -122,7 +123,8 @@ public final class PSDualShipPageTemplateDefInventory {
 
   /**
    * Scan every immediate package directory under {@code packagesRoot} for committed dual-ship page
-   * templateDef emitters (modern {@code pages/} + non-native committed install mode).
+   * templateDef emitters (modern {@code pages/} + explicit committed {@code dual-ship} install
+   * mode).
    *
    * @param packagesRoot non-null directory of package roots
    * @return report of findings; never null
@@ -274,11 +276,11 @@ public final class PSDualShipPageTemplateDefInventory {
             + packageDirName
             + " is not waived (waived package dirs: "
             + WAIVED_PACKAGE_DIRS
-            + "). Set "
+            + "). Dual-ship is explicit opt-in only (#3949). Unset "
             + PSPageXmlInstallPolicy.PROP_PAGE_INSTALL_MODE
-            + "=native in "
+            + " (native default) or set it to native in "
             + PSPageXmlInstallPolicy.PACKAGE_INSTALL_PROPS
-            + " or add an explicit waiver.");
+            + ", or add an explicit waiver.");
   }
 
   /**
@@ -307,8 +309,9 @@ public final class PSDualShipPageTemplateDefInventory {
   }
 
   /**
-   * Committed install mode from package-local properties only (default dual-ship). Ignores JVM
-   * system properties so CI reflects the source tree.
+   * Committed install mode from package-local properties only (default {@link
+   * PSPageXmlInstallPolicy#DEFAULT_MODE} = native). Ignores JVM system properties so CI reflects
+   * the source tree. Dual-ship requires explicit {@code page.installMode=dual-ship}.
    *
    * @param packageDir package root
    * @return non-null mode
@@ -324,7 +327,7 @@ public final class PSDualShipPageTemplateDefInventory {
         return PSPageXmlInstallPolicy.parseMode(mode.trim());
       }
     }
-    return PSPageXmlInstallMode.DUAL_SHIP;
+    return PSPageXmlInstallPolicy.DEFAULT_MODE;
   }
 
   /**

@@ -83,8 +83,8 @@ Cross-platform: `Path` / `Files` only (no hardcoded separators).
 ### Dual-ship page templateDef inventory gate (#3675)
 
 **Not a Python script.** Fail-closed Surefire gate so product package-build cannot silently
-re-introduce dual-ship page `*.templateDef` materialization (modern `pages/` + non-native
-committed `page.installMode`). Waiver is **empty** after perc.Test page dual-ship exit
+re-introduce dual-ship page `*.templateDef` materialization (modern `pages/` + explicit
+committed `page.installMode=dual-ship`; native is the default as of #3949). Waiver is **empty** after perc.Test page dual-ship exit
 (#3737). Sibling #3674 leftover widget binaries are not dual-ship-retained. API:
 `com.percussion.packages.pagexml.PSDualShipPageTemplateDefInventory` /
 `PSDualShipPageTemplateDefInventoryTest`. Retirement checklist:

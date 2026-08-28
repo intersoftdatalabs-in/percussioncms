@@ -26,7 +26,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 /**
- * Resolves page-template install mode for a package root (ADR-004 / issues #2786 + #2806).
+ * Resolves page-template install mode for a package root (ADR-004 / issues #2786 + #2806 + #3949).
  *
  * <p>Precedence (highest first):
  *
@@ -35,7 +35,8 @@ import java.util.Properties;
  *   <li>System property {@value #SYS_PROP_DUAL_SHIP} — {@code false}/{@code 0}/{@code off} forces
  *       native when modern pages exist (dual-ship generation off)
  *   <li>Package-local {@value #PACKAGE_INSTALL_PROPS} key {@value #PROP_PAGE_INSTALL_MODE}
- *   <li>Default: {@link PSPageXmlInstallMode#DUAL_SHIP} (safe for packages not yet opted into native)
+ *   <li>Default: {@link PSPageXmlInstallMode#NATIVE} (issue #3949 / parent #2630). Dual-ship is
+ *       explicit opt-in only via sysprop or package-local {@code dual-ship}.
  * </ol>
  *
  * <p>Aligns with {@link com.percussion.packages.shim.PSLegacyDefinitionXmlShim} policy: modern
@@ -43,6 +44,12 @@ import java.util.Properties;
  * authoring.
  */
 public final class PSPageXmlInstallPolicy {
+
+  /**
+   * Default when no sysprop and no package-local {@value #PROP_PAGE_INSTALL_MODE} is set.
+   * Native as of #3949; dual-ship remains available as an explicit override.
+   */
+  public static final PSPageXmlInstallMode DEFAULT_MODE = PSPageXmlInstallMode.NATIVE;
 
   /**
    * System property forcing install mode: {@code native} or {@code dual-ship} (case-insensitive).
@@ -69,7 +76,7 @@ public final class PSPageXmlInstallPolicy {
    * Resolve install mode for a package directory (or staging copy). Does not require modern pages
    * to be present — callers decide whether to act on modern sources.
    *
-   * @param packageDir package source or staging root; may be null → default dual-ship
+   * @param packageDir package source or staging root; may be null → {@link #DEFAULT_MODE} (native)
    * @return non-null mode
    */
   public static PSPageXmlInstallMode resolve(Path packageDir) {
@@ -99,7 +106,7 @@ public final class PSPageXmlInstallPolicy {
       }
     }
 
-    return PSPageXmlInstallMode.DUAL_SHIP;
+    return DEFAULT_MODE;
   }
 
   /** Whether dual-ship root {@code *.templateDef} materialization should run for this package. */

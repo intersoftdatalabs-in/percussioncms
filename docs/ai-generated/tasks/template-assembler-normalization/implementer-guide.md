@@ -262,10 +262,10 @@ Dual-ship is a **package-build** bridge (materialize root `*.templateDef` for de
 
 | Mode | Behavior |
 |------|----------|
-| **dual-ship** (default) | Materialize root `*.templateDef` → reorganize into archive `TemplateDef-N/` |
-| **native** | Skip root dual-ship; stage `TemplateDef-N/` from modern `pages/` (`page.installMode=native`) |
+| **native** (default, #3949) | Skip root dual-ship; stage `TemplateDef-N/` from modern `pages/` |
+| **dual-ship** (opt-in) | Materialize root `*.templateDef` → reorganize into archive `TemplateDef-N/` (`page.installMode=dual-ship`) |
 
-**Already native:** `perc.baseTemplates`, `perc.responsiveTemplates` (#2806), `perc.Baseline` (#3673). Remaining dual-ship is widget leftover binary `*.templateDef` (#3674), not page-layout packages.
+**Already native:** `perc.baseTemplates`, `perc.responsiveTemplates` (#2806), `perc.Baseline` (#3673). Policy default is native for unconfigured packages (#3949); dual-ship is explicit opt-in only. Widget leftover binary `*.templateDef` were converted (#3674 / #3680), not dual-ship-retained.
 
 | Concept | Layer | Status |
 |---------|-------|--------|
