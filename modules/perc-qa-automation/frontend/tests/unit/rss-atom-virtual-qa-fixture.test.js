@@ -30,7 +30,11 @@ const path = require("node:path");
 const {
   RSS_ATOM_VIRTUAL_QA_ROOT,
   RSS_ATOM_VIRTUAL_BUILD_MARKER,
+  RSS_ATOM_VIRTUAL_PUBLISHED_HTML,
+  RSS_ATOM_VIRTUAL_PUBLISH_MARKER,
   rssAtomVirtualFixtureHostDir,
+  normalizeQaPublishDestPath,
+  posixJoin,
   qaCmsContainer,
 } = require("../helpers/rss-atom-virtual-qa-fixture");
 
@@ -78,5 +82,31 @@ describe("rss-atom-virtual-qa-fixture", () => {
     assert.match(feed, new RegExp(RSS_ATOM_VIRTUAL_BUILD_MARKER));
     assert.doesNotMatch(feed, /authorization/i);
     assert.ok(fs.existsSync(path.join(dir, "_theme", "page.html")));
+  });
+
+  it("normalizeQaPublishDestPath accepts Linux cell abs paths and rejects traversal", () => {
+    assert.equal(
+      normalizeQaPublishDestPath(" /opt/Percussion/fastforward/CI_Home "),
+      "/opt/Percussion/fastforward/CI_Home",
+    );
+    assert.equal(RSS_ATOM_VIRTUAL_PUBLISHED_HTML, "8.2/index.html");
+    assert.equal(RSS_ATOM_VIRTUAL_PUBLISH_MARKER, RSS_ATOM_VIRTUAL_BUILD_MARKER);
+    assert.throws(() => normalizeQaPublishDestPath(""), /blank/);
+    assert.throws(() => normalizeQaPublishDestPath("tmp/out"), /not absolute/);
+    assert.throws(() => normalizeQaPublishDestPath("C:/inetpub/wwwroot"), /Linux QA cell/);
+    assert.throws(() => normalizeQaPublishDestPath("/opt/../etc"), /unsafe/);
+    assert.throws(() => normalizeQaPublishDestPath("/opt/Percussion/tmp/foo/.."), /unsafe/);
+  });
+
+  it("posixJoin appends published HTML with forward slashes only", () => {
+    assert.equal(
+      posixJoin("/opt/Percussion/pub", "8.2", "index.html"),
+      "/opt/Percussion/pub/8.2/index.html",
+    );
+    assert.equal(
+      posixJoin("/opt/Percussion/pub", RSS_ATOM_VIRTUAL_PUBLISHED_HTML),
+      "/opt/Percussion/pub/8.2/index.html",
+    );
+    assert.throws(() => posixJoin("/opt/Percussion/pub", "../etc/passwd"), /unsafe/);
   });
 });

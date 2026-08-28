@@ -17,9 +17,10 @@
 
 /**
  * Copy the rss-atom Virtual Site QA fixture into the H2 Docker cell so
- * Developer Sites Build and Preview can POST /virtual/build then GET
- * /virtual/preview against a local RSS 2.0 feed (no live feed URLs or
- * credentials). Feed item id {@code index} assembles {@code 8.2/index.html}.
+ * Developer Sites Build, Preview, and Publish can POST /virtual/build,
+ * GET /virtual/preview, then POST /virtual/publish against a local RSS 2.0
+ * feed (no live feed URLs or credentials). Feed item id {@code index}
+ * assembles {@code 8.2/index.html}.
  */
 
 const { execFileSync } = require("node:child_process");
@@ -31,6 +32,12 @@ const RSS_ATOM_VIRTUAL_QA_ROOT = "/opt/Percussion/tmp/rss-atom-virtual-qa";
 
 /** Marker from the local feed.xml fixture body. */
 const RSS_ATOM_VIRTUAL_BUILD_MARKER = "Hello from RSS.";
+
+/** Assembled home copied to the Site filesystem root after Publish. */
+const RSS_ATOM_VIRTUAL_PUBLISHED_HTML = "8.2/index.html";
+
+/** Marker expected in published HTML (same as the feed body). */
+const RSS_ATOM_VIRTUAL_PUBLISH_MARKER = RSS_ATOM_VIRTUAL_BUILD_MARKER;
 
 function qaCmsContainer() {
   const fromEnv = (
@@ -97,10 +104,85 @@ function deployRssAtomVirtualFixtureToQaCell() {
   return RSS_ATOM_VIRTUAL_QA_ROOT;
 }
 
+/**
+ * Normalize Developer Sites publish dest text to a POSIX absolute path inside
+ * the Linux QA cell. Rejects Windows drive letters, UNC, relatives, and
+ * remaining {@code ..} so {@code docker exec … cat} never follows a traversal.
+ * In-container filesystem paths always use {@code /}.
+ *
+ * @param {unknown} raw dest text from {@code developer-site-virtual-publish-dest}
+ * @returns {string} POSIX absolute path
+ */
+function normalizeQaPublishDestPath(raw) {
+  if (typeof raw !== "string") {
+    throw new Error("rss-atom Virtual Site publish dest is missing");
+  }
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    throw new Error("rss-atom Virtual Site publish dest is blank");
+  }
+  const posix = trimmed.replace(/\\/g, "/");
+  if (/^[a-zA-Z]:/.test(posix) || posix.startsWith("//")) {
+    throw new Error(
+      `rss-atom Virtual Site publish dest is not a Linux QA cell path: ${trimmed}`,
+    );
+  }
+  if (!posix.startsWith("/")) {
+    throw new Error(`rss-atom Virtual Site publish dest is not absolute: ${trimmed}`);
+  }
+  const parts = posix.split("/").filter((seg) => seg.length > 0);
+  if (parts.some((seg) => seg === ".." || seg === ".")) {
+    throw new Error(`rss-atom Virtual Site publish dest is unsafe: ${trimmed}`);
+  }
+  return `/${parts.join("/")}`;
+}
+
+function posixJoin(base, ...segments) {
+  const dest = normalizeQaPublishDestPath(base);
+  const extra = [];
+  for (const seg of segments) {
+    const piece = String(seg ?? "").trim().replace(/\\/g, "/");
+    for (const part of piece.split("/")) {
+      if (!part) {
+        continue;
+      }
+      if (part === ".." || part === ".") {
+        throw new Error(`rss-atom Virtual Site publish relpath is unsafe: ${seg}`);
+      }
+      extra.push(part);
+    }
+  }
+  return extra.length === 0 ? dest : `${dest}/${extra.join("/")}`;
+}
+
+/**
+ * Fail closed unless assembled rss-atom HTML exists under the Site
+ * filesystem root inside the QA cell (acceptance: files exist after Publish).
+ *
+ * @param {unknown} publishPath dest shown in Developer Sites Publish chrome
+ */
+function assertPublishedRssAtomFilesOnQaCell(publishPath) {
+  const html = posixJoin(publishPath, RSS_ATOM_VIRTUAL_PUBLISHED_HTML);
+  const container = qaCmsContainer();
+  dockerExec(container, ["test", "-f", html]);
+  const body = dockerExec(container, ["cat", html]);
+  if (!body.includes(RSS_ATOM_VIRTUAL_PUBLISH_MARKER) && !body.includes("RSS Home")) {
+    throw new Error(
+      `Published rss-atom HTML missing fixture marker at ${html}: ${body.slice(0, 400)}`,
+    );
+  }
+  return html;
+}
+
 module.exports = {
   RSS_ATOM_VIRTUAL_QA_ROOT,
   RSS_ATOM_VIRTUAL_BUILD_MARKER,
+  RSS_ATOM_VIRTUAL_PUBLISHED_HTML,
+  RSS_ATOM_VIRTUAL_PUBLISH_MARKER,
   rssAtomVirtualFixtureHostDir,
   deployRssAtomVirtualFixtureToQaCell,
+  normalizeQaPublishDestPath,
+  posixJoin,
+  assertPublishedRssAtomFilesOnQaCell,
   qaCmsContainer,
 };

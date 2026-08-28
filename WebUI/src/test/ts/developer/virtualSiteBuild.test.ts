@@ -58,7 +58,7 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPreviewChrome("  rss-atom  ")).toBe(true);
   });
 
-  it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, and object-storage", () => {
+  it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, and rss-atom", () => {
     expect(shouldShowVirtualPublishChrome(null)).toBe(false);
     expect(shouldShowVirtualPublishChrome("")).toBe(false);
     expect(shouldShowVirtualPublishChrome("repository")).toBe(false);
@@ -76,8 +76,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPublishChrome("object-storage")).toBe(true);
     expect(shouldShowVirtualPublishChrome("Object-Storage")).toBe(true);
     expect(shouldShowVirtualPublishChrome("  object-storage  ")).toBe(true);
-    expect(shouldShowVirtualPublishChrome("rss-atom")).toBe(false);
-    expect(shouldShowVirtualPublishChrome("RSS-Atom")).toBe(false);
+    expect(shouldShowVirtualPublishChrome("rss-atom")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("RSS-Atom")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("  rss-atom  ")).toBe(true);
   });
 
   it("formatVirtualSitePublishSummary reports files copied and dest path", () => {
