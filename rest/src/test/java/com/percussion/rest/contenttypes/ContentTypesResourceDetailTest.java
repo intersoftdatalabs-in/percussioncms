@@ -662,6 +662,17 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
+  public void deleteContentTypeGenericFailureIs500() {
+    when(adaptor.deleteContentType(any(), eq("percBlockquote")))
+        .thenThrow(
+            new IllegalStateException("Failed to delete content type: percBlockquote"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteContentType("percBlockquote"));
+    assertEquals(500, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void unlockContentTypeNotFound() {
     when(adaptor.unlockContentType(any(), eq("missing"))).thenReturn(null);
     WebApplicationException ex =
