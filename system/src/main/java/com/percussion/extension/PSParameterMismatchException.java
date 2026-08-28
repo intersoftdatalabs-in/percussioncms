@@ -16,6 +16,7 @@
  */
 package com.percussion.extension;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
@@ -41,7 +42,7 @@ public class PSParameterMismatchException extends PSException {
    */
   public PSParameterMismatchException(int expected, int actual) {
     super(
-        IPSExtensionErrors.EXT_PARAM_VALUE_MISMATCH,
+        ExtensionErrorCodes.EXT_PARAM_VALUE_MISMATCH,
         new Object[] {Integer.valueOf(expected), Integer.valueOf(actual)});
   }
 
@@ -51,7 +52,7 @@ public class PSParameterMismatchException extends PSException {
    * @param message the complete display message.
    */
   public PSParameterMismatchException(String message) {
-    super(IPSExtensionErrors.EXT_PARAM_VALUE_INVALID, message);
+    super(ExtensionErrorCodes.EXT_PARAM_VALUE_INVALID, message);
   }
 
   /**
@@ -65,7 +66,7 @@ public class PSParameterMismatchException extends PSException {
   public PSParameterMismatchException(String language, int expected, int actual) {
     super(
         language,
-        IPSExtensionErrors.EXT_PARAM_VALUE_MISMATCH,
+        ExtensionErrorCodes.EXT_PARAM_VALUE_MISMATCH,
         new Object[] {Integer.valueOf(expected), Integer.valueOf(actual)});
   }
 
@@ -77,7 +78,7 @@ public class PSParameterMismatchException extends PSException {
    * @param message the complete display message.
    */
   public PSParameterMismatchException(String language, String message) {
-    super(language, IPSExtensionErrors.EXT_PARAM_VALUE_INVALID, message);
+    super(language, ExtensionErrorCodes.EXT_PARAM_VALUE_INVALID, message);
   }
 
   /** See {@link com.percussion.error.PSException#PSException(int, Object)} for documentation. */

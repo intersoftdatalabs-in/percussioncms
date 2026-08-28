@@ -16,7 +16,9 @@
  */
 package com.percussion.extension;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.content.IPSMimeContent;
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.log.PSLogHandler;
 import com.percussion.log.PSLogServerWarning;
@@ -72,13 +74,13 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
     if (!codeRoot.isDirectory()) {
       Object[] args = new Object[] {getName(), codeRoot.toString() + " must be a directory."};
 
-      throw new PSExtensionException(IPSExtensionErrors.EXT_HANDLER_INIT_FAILED, args);
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_HANDLER_INIT_FAILED, args);
     }
 
     if (!codeRoot.canRead()) {
       Object[] args = new Object[] {getName(), codeRoot.toString() + " must be readable."};
 
-      throw new PSExtensionException(IPSExtensionErrors.EXT_HANDLER_INIT_FAILED, args);
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_HANDLER_INIT_FAILED, args);
     }
 
     try {
@@ -86,14 +88,14 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
     } catch (IOException e) {
       Object[] args = new Object[] {getName(), e.toString()};
 
-      throw new PSExtensionException(IPSExtensionErrors.EXT_HANDLER_INIT_FAILED, args);
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_HANDLER_INIT_FAILED, args);
     }
 
     String cfgFileName = def.getInitParameter(IPSExtensionHandler.INIT_PARAM_CONFIG_FILENAME);
     if (cfgFileName == null || cfgFileName.trim().length() == 0) {
       Object[] args = new Object[] {getName(), "configFile must be specified"};
 
-      throw new PSExtensionException(IPSExtensionErrors.EXT_HANDLER_INIT_FAILED, args);
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_HANDLER_INIT_FAILED, args);
     }
 
     m_configFile = new File(m_rootDir, cfgFileName);
@@ -115,7 +117,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
             e.toString() // reason
           };
 
-      logMessage(IPSExtensionErrors.EXT_RESOURCE_DELETE_ERROR, args);
+      logMessage(ExtensionErrorCodes.EXT_RESOURCE_DELETE_ERROR, args);
     }
   }
 
@@ -191,7 +193,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
 
     IPSExtensionDef def = m_config.getExtensionDef(ref);
     if (def == null) {
-      throw new PSNotFoundException(IPSExtensionErrors.EXT_NOT_FOUND, ref.toString());
+      throw new PSNotFoundException(ExtensionErrorCodes.EXT_NOT_FOUND, ref.toString());
     }
 
     try {
@@ -237,7 +239,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
 
     IPSExtensionDef def = m_config.getExtensionDef(ref);
     if (def == null) {
-      throw new PSNotFoundException(IPSExtensionErrors.EXT_NOT_FOUND, ref.toString());
+      throw new PSNotFoundException(ExtensionErrorCodes.EXT_NOT_FOUND, ref.toString());
     }
 
     // see if an instance has already been loaded
@@ -300,7 +302,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
 
     PSExtensionRef ref = def.getRef();
     if (m_config.isExtensionDefined(ref)) {
-      throw new PSExtensionException(IPSExtensionErrors.EXT_ALREADY_EXISTS, ref.toString());
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_ALREADY_EXISTS, ref.toString());
     }
 
     // save all the extension resources and add extension to config
@@ -329,7 +331,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
     } catch (IOException e) {
       Object[] args = new Object[] {ref.toString(), e.toString()};
 
-      throw new PSExtensionException(IPSExtensionErrors.EXT_INSTALL_UPDATE_ERROR, args);
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_INSTALL_UPDATE_ERROR, args);
     }
   }
 
@@ -366,7 +368,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
     PSExtensionRef ref = def.getRef();
     IPSExtensionDef oldDef = m_config.getExtensionDef(ref);
     if (oldDef == null) {
-      throw new PSNotFoundException(IPSExtensionErrors.EXT_NOT_FOUND, ref.toString());
+      throw new PSNotFoundException(ExtensionErrorCodes.EXT_NOT_FOUND, ref.toString());
     }
 
     // increment the version on the new def to old ver + 1
@@ -396,7 +398,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
     if (ref == null) throw new IllegalArgumentException("ref cannot be null");
 
     if (!m_config.isExtensionDefined(ref)) {
-      throw new PSNotFoundException(IPSExtensionErrors.EXT_NOT_FOUND, ref.toString());
+      throw new PSNotFoundException(ExtensionErrorCodes.EXT_NOT_FOUND, ref.toString());
     }
 
     // get the def and the code base of the extension
@@ -413,7 +415,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
     } catch (IOException e) {
       Object[] args = new Object[] {ref.toString(), extDir, e.toString()};
 
-      throw new PSExtensionException(IPSExtensionErrors.EXT_RESOURCE_DELETE_ERROR, args);
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_RESOURCE_DELETE_ERROR, args);
     }
 
     m_liveExtensions.remove(ref);
@@ -459,7 +461,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
     } catch (MalformedURLException e) {
       Object[] args = new Object[] {def.getRef().toString(), e.toString()};
 
-      throw new PSExtensionException(IPSExtensionErrors.CATALOG_EXT_RESOURCE_ERROR, args);
+      throw new PSExtensionException(ExtensionErrorCodes.CATALOG_EXT_RESOURCE_ERROR, args);
     }
 
     return resources.iterator();
@@ -635,7 +637,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
             "could not create extension code root" // reason
           };
 
-      throw new PSExtensionException(IPSExtensionErrors.EXT_RESOURCE_STORE_ERROR, args);
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_RESOURCE_STORE_ERROR, args);
     }
 
     while (resources.hasNext()) {
@@ -658,7 +660,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
               "empty path" // reason
             };
 
-        logMessage(IPSExtensionErrors.EXT_RESOURCE_STORE_ERROR, args);
+        logMessage(ExtensionErrorCodes.EXT_RESOURCE_STORE_ERROR, args);
         continue;
       }
 
@@ -666,14 +668,14 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
       if (f.isAbsolute()) {
         Object[] args = new Object[] {def.getRef().toString(), resName, "absolute path"};
 
-        logMessage(IPSExtensionErrors.EXT_RESOURCE_STORE_ERROR, args);
+        logMessage(ExtensionErrorCodes.EXT_RESOURCE_STORE_ERROR, args);
         continue;
       }
 
       if (f.toString().indexOf("..") >= 0) {
         Object[] args = new Object[] {def.getRef().toString(), resName, "contains .."};
 
-        logMessage(IPSExtensionErrors.EXT_RESOURCE_STORE_ERROR, args);
+        logMessage(ExtensionErrorCodes.EXT_RESOURCE_STORE_ERROR, args);
         continue;
       }
 
@@ -833,10 +835,27 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
         PSExtensionHandlerConfiguration.createShellConfigFile(configFile, getName());
       }
     } catch (IOException e) {
-      throw new PSExtensionException(IPSExtensionErrors.EXT_MANAGER_INIT_FAILED, e.toString());
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_MANAGER_INIT_FAILED, e.toString());
     }
 
     m_config = new PSExtensionHandlerConfiguration(configFile, new PSExtensionDefFactory());
+  }
+
+  /**
+   * Logs the given catalogued message to the server logging mechanism (if available) or stdout.
+   *
+   * @param errorCode catalogued error code, never {@code null}
+   * @param args The error arguments corresponding to {@code errorCode}. Must not be {@code null}.
+   */
+  protected void logMessage(IPSErrorCode errorCode, Object[] args) {
+    logMessage(requireErrorCode(errorCode).numericCode(), args);
+  }
+
+  private static IPSErrorCode requireErrorCode(IPSErrorCode errorCode) {
+    if (errorCode == null) {
+      throw new IllegalArgumentException("errorCode cannot be null");
+    }
+    return errorCode;
   }
 
   /**

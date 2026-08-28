@@ -395,6 +395,7 @@ def test_residual_allowlist_is_exact_paths_only() -> None:
         assert entry.endswith(".java"), entry
         assert not entry.startswith("modules/extensions-main/"), entry
         assert not entry.startswith("system/src/main/java/com/percussion/security/"), entry
+        assert not entry.startswith("system/src/main/java/com/percussion/extension/"), entry
 
 
 def test_extensions_main_converted_paths_not_allowlisted() -> None:
@@ -420,6 +421,29 @@ def test_system_security_converted_paths_not_allowlisted() -> None:
     resurrected = [
         e for e in entries if e.startswith("system/src/main/java/com/percussion/security/")
     ]
+    assert resurrected == [], resurrected
+
+
+def test_system_extension_converted_paths_not_allowlisted() -> None:
+    """#3970 typed leftover com.percussion.extension production call-sites."""
+    converted = (
+        "system/src/main/java/com/percussion/extension/PSExtensionHandler.java",
+        "system/src/main/java/com/percussion/extension/PSExtensionHandlerConfiguration.java",
+        "system/src/main/java/com/percussion/extension/PSExtensionParams.java",
+        "system/src/main/java/com/percussion/extension/PSExtensionProcessingException.java",
+        "system/src/main/java/com/percussion/extension/PSJavaExtensionHandler.java",
+        "system/src/main/java/com/percussion/extension/PSJavaScriptCallException.java",
+        "system/src/main/java/com/percussion/extension/PSJavaScriptCompileException.java",
+        "system/src/main/java/com/percussion/extension/PSJavaScriptUdfExtension.java",
+        "system/src/main/java/com/percussion/extension/PSParameterMismatchException.java",
+    )
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = {
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    resurrected = [p for p in converted if p in entries]
     assert resurrected == [], resurrected
 
 

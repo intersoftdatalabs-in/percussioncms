@@ -16,6 +16,7 @@
  */
 package com.percussion.extension;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.error.PSException;
 
 /**
@@ -28,11 +29,11 @@ import com.percussion.error.PSException;
 public class PSJavaScriptCallException extends PSException {
   /** Constructs a failure with the specified message. */
   public PSJavaScriptCallException(String function, String message) {
-    super(IPSExtensionErrors.JS_CALL_FAILED, new Object[] {function, message});
+    super(ExtensionErrorCodes.JS_CALL_FAILED, new Object[] {function, message});
   }
 
   /** Constructs a failure with the specified context information. */
   public PSJavaScriptCallException(String function, String message, String source) {
-    super(IPSExtensionErrors.JS_CALL_FAILED_SRC, new Object[] {function, message, source});
+    super(ExtensionErrorCodes.JS_CALL_FAILED_SRC, new Object[] {function, message, source});
   }
 }

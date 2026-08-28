@@ -16,6 +16,7 @@
  */
 package com.percussion.extension;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.data.PSConversionException;
 import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.util.PSDataTypeConverter;
@@ -53,7 +54,7 @@ public class PSExtensionParams {
    */
   public PSExtensionParams(Object params[], String paramNames[]) throws PSConversionException {
     if (params == null) {
-      throw new PSConversionException(IPSExtensionErrors.INVALID_NULL_PARAMS);
+      throw new PSConversionException(ExtensionErrorCodes.INVALID_NULL_PARAMS);
     }
     m_params = params;
     m_paramNames = paramNames;
@@ -106,13 +107,13 @@ public class PSExtensionParams {
         return Integer.parseInt((String) value);
       } catch (NumberFormatException e) {
         throw new PSConversionException(
-            IPSExtensionErrors.INVALID_NUMBER_PARAM, getParamIndicator(index));
+            ExtensionErrorCodes.INVALID_NUMBER_PARAM, getParamIndicator(index));
       }
     } else if (value == null) {
       return null;
     } else {
       throw new PSConversionException(
-          IPSExtensionErrors.INVALID_NUMBER_PARAM, getParamIndicator(index));
+          ExtensionErrorCodes.INVALID_NUMBER_PARAM, getParamIndicator(index));
     }
   }
 
@@ -142,7 +143,7 @@ public class PSExtensionParams {
           || bvalue.equalsIgnoreCase("yes");
     } else {
       throw new PSConversionException(
-          IPSExtensionErrors.INVALID_BOOLEAN_PARAM, getParamIndicator(index));
+          ExtensionErrorCodes.INVALID_BOOLEAN_PARAM, getParamIndicator(index));
     }
   }
 
@@ -169,12 +170,12 @@ public class PSExtensionParams {
       Date date = PSDataTypeConverter.parseStringToDate((String) value);
       if (date == null) {
         throw new PSConversionException(
-            IPSExtensionErrors.INVALID_DATE_PARAM, getParamIndicator(index));
+            ExtensionErrorCodes.INVALID_DATE_PARAM, getParamIndicator(index));
       }
       return date;
     } else {
       throw new PSConversionException(
-          IPSExtensionErrors.INVALID_DATE_PARAM, getParamIndicator(index));
+          ExtensionErrorCodes.INVALID_DATE_PARAM, getParamIndicator(index));
     }
   }
 
@@ -202,7 +203,7 @@ public class PSExtensionParams {
   private Object getValue(int index, Object defvalue) throws PSConversionException {
     if (index < 0) {
       throw new PSConversionException(
-          IPSExtensionErrors.INVALID_INDEX_VALUE, getParamIndicator(index));
+          ExtensionErrorCodes.INVALID_INDEX_VALUE, getParamIndicator(index));
     }
     Object rval = isParamMissing(index) ? defvalue : m_params[index];
 
@@ -243,7 +244,7 @@ public class PSExtensionParams {
     if (required && isParamMissing(index)) {
 
       throw new PSConversionException(
-          IPSExtensionErrors.MISSING_REQUIRED_PARAM_NO, getParamIndicator(index));
+          ExtensionErrorCodes.MISSING_REQUIRED_PARAM_NO, getParamIndicator(index));
     }
   }
 

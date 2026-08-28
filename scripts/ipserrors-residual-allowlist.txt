@@ -103,15 +103,6 @@ system/src/main/java/com/percussion/error/PSServerUnavailableError.java
 system/src/main/java/com/percussion/error/PSUnknownProcessingError.java
 system/src/main/java/com/percussion/error/PSValidationError.java
 system/src/main/java/com/percussion/error/PSXmlProcessingError.java
-system/src/main/java/com/percussion/extension/PSExtensionHandler.java
-system/src/main/java/com/percussion/extension/PSExtensionHandlerConfiguration.java
-system/src/main/java/com/percussion/extension/PSExtensionParams.java
-system/src/main/java/com/percussion/extension/PSExtensionProcessingException.java
-system/src/main/java/com/percussion/extension/PSJavaExtensionHandler.java
-system/src/main/java/com/percussion/extension/PSJavaScriptCallException.java
-system/src/main/java/com/percussion/extension/PSJavaScriptCompileException.java
-system/src/main/java/com/percussion/extension/PSJavaScriptUdfExtension.java
-system/src/main/java/com/percussion/extension/PSParameterMismatchException.java
 system/src/main/java/com/percussion/fastforward/managednav/PSManagedNavService.java
 system/src/main/java/com/percussion/fastforward/utils/PSUtils.java
 system/src/main/java/com/percussion/i18n/PSLocale.java

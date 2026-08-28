@@ -16,6 +16,7 @@
  */
 package com.percussion.extension;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.security.error.PSExceptionUtils;
@@ -151,7 +152,7 @@ public class PSJavaExtensionHandler extends PSExtensionHandler implements IPSNot
             "\"" + className + "\" is not a valid class name."
           };
 
-      throw new PSExtensionException(IPSExtensionErrors.EXT_INIT_FAILED, args);
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_INIT_FAILED, args);
     }
 
     super.install(def, resources);
@@ -191,7 +192,7 @@ public class PSJavaExtensionHandler extends PSExtensionHandler implements IPSNot
             "\"" + className + "\" is not a valid class name."
           };
 
-      throw new PSExtensionException(IPSExtensionErrors.EXT_INIT_FAILED, args);
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_INIT_FAILED, args);
     }
 
     super.update(def, resources);
@@ -259,7 +260,7 @@ public class PSJavaExtensionHandler extends PSExtensionHandler implements IPSNot
 
     IPSExtensionDef def = m_config.getExtensionDef(ref);
     if (def == null) {
-      throw new PSNotFoundException(IPSExtensionErrors.EXT_NOT_FOUND, ref.toString());
+      throw new PSNotFoundException(ExtensionErrorCodes.EXT_NOT_FOUND, ref.toString());
     }
 
     String className = def.getInitParameter("className");
@@ -271,7 +272,7 @@ public class PSJavaExtensionHandler extends PSExtensionHandler implements IPSNot
             "\"" + className + "\" is not a valid class name."
           };
 
-      throw new PSExtensionException(IPSExtensionErrors.EXT_INIT_FAILED, args);
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_INIT_FAILED, args);
     }
 
     PSExtensionClassLoader loader = m_loaders.get(ref);
@@ -294,11 +295,11 @@ public class PSJavaExtensionHandler extends PSExtensionHandler implements IPSNot
       Object[] args =
           new Object[] {ref.getHandlerName(), ref.getExtensionName(), e.getException().toString()};
 
-      throw new PSExtensionException(IPSExtensionErrors.EXT_INIT_FAILED, args);
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_INIT_FAILED, args);
     } catch (Throwable t) {
       Object[] args = new Object[] {ref.getHandlerName(), ref.getExtensionName(), t.toString()};
 
-      throw new PSExtensionException(IPSExtensionErrors.EXT_INIT_FAILED, args);
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_INIT_FAILED, args);
     }
   }
 
@@ -331,7 +332,7 @@ public class PSJavaExtensionHandler extends PSExtensionHandler implements IPSNot
                 u.toString() + " does not use a supported protocol"
               };
 
-          throw new PSExtensionException(IPSExtensionErrors.EXT_INIT_FAILED, args);
+          throw new PSExtensionException(ExtensionErrorCodes.EXT_INIT_FAILED, args);
         }
 
         File f = new File(u.getFile());
@@ -344,7 +345,7 @@ public class PSJavaExtensionHandler extends PSExtensionHandler implements IPSNot
                 u.toString() + " does not specify a relative path"
               };
 
-          throw new PSExtensionException(IPSExtensionErrors.EXT_INIT_FAILED, args);
+          throw new PSExtensionException(ExtensionErrorCodes.EXT_INIT_FAILED, args);
         }
 
         if (f.toString().indexOf("..") != -1) // no escape from coderoot
@@ -356,7 +357,7 @@ public class PSJavaExtensionHandler extends PSExtensionHandler implements IPSNot
                 u.toString() + " does not specify a relative path"
               };
 
-          throw new PSExtensionException(IPSExtensionErrors.EXT_INIT_FAILED, args);
+          throw new PSExtensionException(ExtensionErrorCodes.EXT_INIT_FAILED, args);
         }
 
         // make resource path relative to the extension coderoot
@@ -377,7 +378,7 @@ public class PSJavaExtensionHandler extends PSExtensionHandler implements IPSNot
             def.getRef().getHandlerName(), def.getRef().getExtensionName(), e.toString()
           };
 
-      throw new PSExtensionException(IPSExtensionErrors.EXT_INIT_FAILED, args);
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_INIT_FAILED, args);
     }
   }
 

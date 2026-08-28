@@ -16,6 +16,7 @@
  */
 package com.percussion.extension;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 import com.percussion.utils.exceptions.PSExceptionHelper;
@@ -130,7 +131,7 @@ public class PSExtensionProcessingException extends PSException {
    */
   public PSExtensionProcessingException(String extName, Exception e) {
     this(
-        IPSExtensionErrors.EXT_PROCESSOR_EXCEPTION,
+        ExtensionErrorCodes.EXT_PROCESSOR_EXCEPTION,
         PSExceptionHelper.findRootCause(e, false),
         new Object[] {extName, e.toString()});
   }
@@ -196,9 +197,9 @@ public class PSExtensionProcessingException extends PSException {
    * @param e the exception
    */
   public PSExtensionProcessingException(String language, String extName, Exception e) {
-    this(
+    super(
         language,
-        IPSExtensionErrors.EXT_PROCESSOR_EXCEPTION,
+        ExtensionErrorCodes.EXT_PROCESSOR_EXCEPTION,
         new Object[] {extName, e.toString()},
         e);
   }

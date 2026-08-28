@@ -17,7 +17,9 @@
 
 package com.percussion.extension;
 
-import com.percussion.data.IPSDataErrors;
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.data.PSConversionException;
 import com.percussion.design.objectstore.PSDateLiteral;
 import com.percussion.design.objectstore.PSNumericLiteral;
@@ -91,9 +93,8 @@ public class PSJavaScriptUdfExtension implements IPSUdfProcessor {
               + " parameters required, but "
               + String.valueOf(paramCount)
               + " parameters were specified.";
-      int errCode = com.percussion.server.IPSServerErrors.ARGUMENT_ERROR;
       Object[] args = {arg0, "PSJavaScriptUdfExtension/processUdf"};
-      throw new PSConversionException(errCode, args);
+      throw new PSConversionException(ServerErrorCodes.ARGUMENT_ERROR, args);
     }
 
     Object[] paramValues = new Object[paramCount];
@@ -128,7 +129,7 @@ public class PSJavaScriptUdfExtension implements IPSUdfProcessor {
         return getBoolean(o);
       default:
         throw new com.percussion.data.PSConversionException(
-            IPSExtensionErrors.UNKNOWN_PARAMETER_TYPE, "Date, Number, String, Boolean");
+            ExtensionErrorCodes.UNKNOWN_PARAMETER_TYPE, "Date, Number, String, Boolean");
     }
   }
 
@@ -147,7 +148,7 @@ public class PSJavaScriptUdfExtension implements IPSUdfProcessor {
       } catch (Exception e) {
         Object args[] = {o.getClass().getName(), "String", dateText};
         throw new com.percussion.data.PSConversionException(
-            IPSDataErrors.UNSUPPORTED_CONVERSION, args);
+            DataErrorCodes.UNSUPPORTED_CONVERSION, args);
       }
     } else if (o instanceof java.util.Date) {
       return /*new java.lang.Long(((java.util.Date)*/ o /*).getTime())*/;
@@ -160,7 +161,7 @@ public class PSJavaScriptUdfExtension implements IPSUdfProcessor {
     // Throw conversion exception.  o will contain exception information
     //      for string conversion exceptions...
     Object args[] = {o.getClass().getName(), "Date", o.toString()};
-    throw new com.percussion.data.PSConversionException(IPSDataErrors.UNSUPPORTED_CONVERSION, args);
+    throw new com.percussion.data.PSConversionException(DataErrorCodes.UNSUPPORTED_CONVERSION, args);
   }
 
   private Object getNumber(Object o) throws com.percussion.data.PSConversionException {
@@ -188,12 +189,12 @@ public class PSJavaScriptUdfExtension implements IPSUdfProcessor {
     } catch (Exception e) {
       Object args[] = {o.getClass().getName(), "Number", o.toString()};
       throw new com.percussion.data.PSConversionException(
-          IPSDataErrors.UNSUPPORTED_CONVERSION, args);
+          DataErrorCodes.UNSUPPORTED_CONVERSION, args);
     }
 
     // Throw conversion exception.
     Object args[] = {o.getClass().getName(), "Number", o.toString()};
-    throw new com.percussion.data.PSConversionException(IPSDataErrors.UNSUPPORTED_CONVERSION, args);
+    throw new com.percussion.data.PSConversionException(DataErrorCodes.UNSUPPORTED_CONVERSION, args);
   }
 
   private Object getBoolean(Object o) throws com.percussion.data.PSConversionException {
@@ -212,7 +213,7 @@ public class PSJavaScriptUdfExtension implements IPSUdfProcessor {
 
     // Throw conversion exception.
     Object args[] = {o.getClass().getName(), "Boolean", o.toString()};
-    throw new com.percussion.data.PSConversionException(IPSDataErrors.UNSUPPORTED_CONVERSION, args);
+    throw new com.percussion.data.PSConversionException(DataErrorCodes.UNSUPPORTED_CONVERSION, args);
   }
 
   private Object getString(Object o) throws com.percussion.data.PSConversionException {
