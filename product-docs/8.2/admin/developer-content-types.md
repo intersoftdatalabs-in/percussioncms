@@ -43,7 +43,11 @@ fields (backend column + display mapping). The SPA editor is not in this
 chrome. The content-editor **system definition** (global system fields) is a
 separate singleton: Admin-only `GET /services/systemdef` and
 `PUT /services/systemdef` (patch existing field properties under a request lock).
-System-field create/delete and an SPA editor are not in this chrome. See
+Nested `POST /services/systemdef/fields` and
+`DELETE /services/systemdef/fields/{fieldName}` add or remove system fields
+(backend column + display mapping). Duplicate field names are **409**.
+System-mandatory and system-internal fields cannot be deleted (**400**). An SPA
+editor is not in this chrome. See
 [REST API](id:developer-rest).
 
 This is **not** the full Workbench field-rule editor. The detail table still

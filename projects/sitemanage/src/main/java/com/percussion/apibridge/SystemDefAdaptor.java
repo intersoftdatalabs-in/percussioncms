@@ -16,10 +16,22 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.design.objectstore.PSBackEndColumn;
+import com.percussion.design.objectstore.PSBackEndTable;
+import com.percussion.design.objectstore.PSContainerLocator;
 import com.percussion.design.objectstore.PSContentEditorSystemDef;
+import com.percussion.design.objectstore.PSControlRef;
+import com.percussion.design.objectstore.PSDisplayMapper;
+import com.percussion.design.objectstore.PSDisplayMapping;
+import com.percussion.design.objectstore.PSDisplayText;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
+import com.percussion.design.objectstore.PSSearchProperties;
 import com.percussion.design.objectstore.PSSystemValidationException;
+import com.percussion.design.objectstore.PSTableRef;
+import com.percussion.design.objectstore.PSTableSet;
+import com.percussion.design.objectstore.PSUIDefinition;
+import com.percussion.design.objectstore.PSUISet;
 import com.percussion.rest.systemdef.ISystemDefAdaptor;
 import com.percussion.rest.systemdef.SystemDefDesignLockException;
 import com.percussion.rest.systemdef.SystemDefDetail;
@@ -38,6 +50,7 @@ import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -66,9 +79,14 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
 
   private static final List<String> DESIGN_GAPS =
       List.of(
-          "System def field create / delete not supported via this API",
           "Control properties, stylesheets, and application flow not exposed",
           "Shared field groups are a separate catalog (Developer Shared Fields)");
+
+  private static final int MAX_FIELD_NAME_LENGTH = 50;
+
+  private static final String DEFAULT_TEXT_CONTROL = "sys_EditBox";
+
+  private static final String DEFAULT_TABLE_ALIAS = "CONTENTSTATUS";
 
   private final IPSContentDesignWs designWs;
   private final Supplier<PSContentEditorSystemDef> systemDefLoader;
@@ -259,6 +277,220 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
     }
   }
 
+  static String validateFieldName(String name) {
+    if (StringUtils.isBlank(name)) {
+      throw new IllegalArgumentException("name is required");
+    }
+    String trimmed = name.trim();
+    if (containsWhitespace(trimmed)) {
+      throw new IllegalArgumentException("name cannot contain spaces");
+    }
+    if (trimmed.length() > MAX_FIELD_NAME_LENGTH) {
+      throw new IllegalArgumentException("name exceeds maximum length");
+    }
+    if (!isSafeFieldName(trimmed)) {
+      throw new IllegalArgumentException("name contains invalid path characters");
+    }
+    char first = trimmed.charAt(0);
+    if (!Character.isLetter(first)) {
+      throw new IllegalArgumentException("name must start with a letter");
+    }
+    for (int i = 1; i < trimmed.length(); i++) {
+      char c = trimmed.charAt(i);
+      if (!Character.isLetterOrDigit(c) && c != '_') {
+        throw new IllegalArgumentException("name must be letters, digits, or underscore");
+      }
+    }
+    return trimmed;
+  }
+
+  static boolean isSafeFieldName(String name) {
+    if (StringUtils.isBlank(name)) {
+      return false;
+    }
+    return !name.contains("..")
+        && name.indexOf('/') < 0
+        && name.indexOf('\\') < 0
+        && name.indexOf('\0') < 0;
+  }
+
+  private static boolean containsWhitespace(String name) {
+    for (int i = 0; i < name.length(); i++) {
+      if (Character.isWhitespace(name.charAt(i))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static String columnNameForField(String fieldName) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < fieldName.length(); i++) {
+      char c = fieldName.charAt(i);
+      if (Character.isLetterOrDigit(c) || c == '_') {
+        sb.append(Character.toUpperCase(c));
+      }
+    }
+    if (sb.length() == 0) {
+      throw new IllegalArgumentException("name does not yield a valid column");
+    }
+    return sb.toString();
+  }
+
+  static String tableAliasForSystemDef(PSContentEditorSystemDef def) {
+    if (def == null || def.getContainerLocator() == null) {
+      return DEFAULT_TABLE_ALIAS;
+    }
+    PSContainerLocator loc = def.getContainerLocator();
+    Iterator<?> sets = loc.getTableSets();
+    if (sets != null) {
+      while (sets.hasNext()) {
+        Object o = sets.next();
+        if (!(o instanceof PSTableSet ts)) {
+          continue;
+        }
+        Iterator<?> refs = ts.getTableRefs();
+        if (refs == null) {
+          continue;
+        }
+        while (refs.hasNext()) {
+          Object r = refs.next();
+          if (r instanceof PSTableRef ref) {
+            if (StringUtils.isNotBlank(ref.getAlias())) {
+              return ref.getAlias();
+            }
+            if (StringUtils.isNotBlank(ref.getName())) {
+              return ref.getName();
+            }
+          }
+        }
+      }
+    }
+    return DEFAULT_TABLE_ALIAS;
+  }
+
+  /**
+   * Persistable TYPE_SYSTEM field with backend column locator, default text mapping, and display
+   * mapping ({@code sys_EditBox}). Control/stylesheet/flow write is a later slice.
+   */
+  static PSField addPersistableField(PSContentEditorSystemDef def, SystemDefFieldSummary body) {
+    if (def == null) {
+      throw new IllegalArgumentException("system def is required");
+    }
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    String fieldName = validateFieldName(body.getName());
+    PSFieldSet fieldSet = def.getFieldSet();
+    if (fieldSet == null) {
+      throw new IllegalArgumentException("System def has no field set");
+    }
+    PSField field = newPersistableSystemField(def, fieldName, body);
+    fieldSet.add(field);
+    applyOccurrenceOrRequired(field, body);
+    appendDefaultDisplayMapping(def, fieldName);
+    return field;
+  }
+
+  static PSField newPersistableSystemField(
+      PSContentEditorSystemDef def, String fieldName, SystemDefFieldSummary body) {
+    String tableAlias = tableAliasForSystemDef(def);
+    PSBackEndTable table = new PSBackEndTable(tableAlias);
+    PSField field =
+        new PSField(
+            PSField.TYPE_SYSTEM, fieldName, new PSBackEndColumn(table, columnNameForField(fieldName)));
+    String dataType =
+        body == null || StringUtils.isBlank(body.getDataType())
+            ? PSField.DT_TEXT
+            : body.getDataType().trim();
+    try {
+      field.setDataType(dataType);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(
+          "Invalid dataType for field " + fieldName + ": " + dataType, e);
+    }
+    if (PSField.DT_TEXT.equals(field.getDataType())) {
+      field.setMimeType("text/plain");
+      field.setDataFormat("50");
+    }
+    boolean searchable =
+        body == null || body.getSearchable() == null || Boolean.TRUE.equals(body.getSearchable());
+    field.setSearchProperties(new PSSearchProperties(searchable));
+    try {
+      field.setOccurrenceDimension(PSField.OCCURRENCE_DIMENSION_OPTIONAL, null);
+    } catch (PSSystemValidationException e) {
+      throw new IllegalArgumentException("Invalid occurrence for field " + fieldName, e);
+    }
+    return field;
+  }
+
+  static void appendDefaultDisplayMapping(PSContentEditorSystemDef def, String fieldName) {
+    PSUIDefinition ui = def.getUIDefinition();
+    if (ui == null) {
+      throw new IllegalArgumentException("System def has no UI definition");
+    }
+    PSDisplayMapper mapper = ui.getDisplayMapper();
+    if (mapper == null) {
+      throw new IllegalArgumentException("System def has no display mapper");
+    }
+    if (ui.getMapping(fieldName) != null) {
+      return;
+    }
+    PSUISet uiSet = new PSUISet();
+    uiSet.setLabel(new PSDisplayText(fieldName + ":"));
+    uiSet.setErrorLabel(new PSDisplayText(fieldName + ":"));
+    uiSet.setControl(new PSControlRef(DEFAULT_TEXT_CONTROL));
+    ui.appendMapping(mapper, new PSDisplayMapping(fieldName, uiSet));
+  }
+
+  static boolean removeFieldAndMapping(PSContentEditorSystemDef def, String fieldName) {
+    if (def == null || def.getFieldSet() == null || StringUtils.isBlank(fieldName)) {
+      return false;
+    }
+    PSField field = def.getFieldSet().getFieldByName(fieldName);
+    if (field == null) {
+      return false;
+    }
+    if (field.isSystemMandatory()) {
+      throw new IllegalArgumentException("System-mandatory field cannot be deleted");
+    }
+    if (field.isSystemInternal()) {
+      throw new IllegalArgumentException("System-internal field cannot be deleted");
+    }
+    String actual = field.getSubmitName();
+    def.getFieldSet().remove(actual);
+    PSUIDefinition ui = def.getUIDefinition();
+    if (ui != null) {
+      removeDisplayMapping(ui.getDisplayMapper(), actual);
+    }
+    return true;
+  }
+
+  /**
+   * Index-based mapping removal. {@link PSDisplayMapper#removeMapping} uses {@code
+   * Iterator.remove()}, which {@code PSConcurrentIterator} rejects.
+   */
+  static boolean removeDisplayMapping(PSDisplayMapper mapper, String fieldRef) {
+    if (mapper == null || StringUtils.isBlank(fieldRef)) {
+      return false;
+    }
+    for (int i = 0; i < mapper.size(); i++) {
+      Object o = mapper.get(i);
+      if (!(o instanceof PSDisplayMapping mapping)) {
+        continue;
+      }
+      if (fieldRef.equals(mapping.getFieldRef())) {
+        mapper.remove(i);
+        return true;
+      }
+      if (mapping.getDisplayMapper() != null
+          && removeDisplayMapping(mapping.getDisplayMapper(), fieldRef)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   static Integer occurrenceFromApi(String occurrence) {
     if (occurrence == null) {
       return null;
@@ -294,6 +526,45 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
     applyFieldPatches(def.getFieldSet(), body.getFields());
     saveSystemDef(def, session, user);
     return toDetail(def);
+  }
+
+  @Override
+  public SystemDefDetail addField(URI baseUri, SystemDefFieldSummary body) {
+    requireAdmin();
+    requireDesignWs();
+    requireSessionUserForWrite();
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    String fieldName = validateFieldName(body.getName());
+    String session = currentSession();
+    String user = currentUser();
+    PSContentEditorSystemDef def = loadSystemDefLocked(session, user);
+    PSFieldSet fieldSet = def.getFieldSet();
+    if (fieldSet == null) {
+      throw new IllegalArgumentException("System def has no field set");
+    }
+    if (fieldSet.getFieldByName(fieldName) != null) {
+      throw new WebApplicationException("System field already exists: " + fieldName, 409);
+    }
+    addPersistableField(def, body);
+    saveSystemDef(def, session, user);
+    return toDetail(def);
+  }
+
+  @Override
+  public void deleteField(URI baseUri, String fieldName) {
+    requireAdmin();
+    requireDesignWs();
+    requireSessionUserForWrite();
+    String validated = validateFieldName(fieldName);
+    String session = currentSession();
+    String user = currentUser();
+    PSContentEditorSystemDef def = loadSystemDefLocked(session, user);
+    if (!removeFieldAndMapping(def, validated)) {
+      throw new IllegalArgumentException("Unknown field: " + validated);
+    }
+    saveSystemDef(def, session, user);
   }
 
   private void requireAdmin() {

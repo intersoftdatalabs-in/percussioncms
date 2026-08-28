@@ -23,8 +23,9 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Field row from the content-editor system definition. GET catalog; PUT may patch {@code
- * searchable} and occurrence / required on existing fields. {@code readOnly} and {@code dataType}
- * are read-only.
+ * searchable} and occurrence / required on existing fields. POST {@code /systemdef/fields} uses
+ * {@code name} (required) plus optional {@code dataType}, {@code searchable}, and occurrence /
+ * required. {@code readOnly} is read-only.
  */
 @XmlRootElement(name = "SystemDefField")
 @JsonInclude(JsonInclude.Include.NON_NULL)

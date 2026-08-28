@@ -25,8 +25,8 @@ import java.util.List;
 
 /**
  * Content-editor system definition (global system fields). GET catalog; PUT may patch existing
- * field properties ({@code searchable}, occurrence / required). Field create/delete remain
- * unsupported ({@code designGaps}).
+ * field properties ({@code searchable}, occurrence / required). POST {@code /systemdef/fields} and
+ * DELETE {@code /systemdef/fields/{fieldName}} create and delete fields.
  */
 @XmlRootElement(name = "SystemDefDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)

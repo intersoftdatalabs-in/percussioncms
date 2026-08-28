@@ -19,6 +19,7 @@ package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.systemdef.ISystemDefAdaptor;
 import com.percussion.rest.systemdef.SystemDefDetail;
+import com.percussion.rest.systemdef.SystemDefFieldSummary;
 import java.net.URI;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -42,5 +43,15 @@ public class TestSystemDefAdaptor implements ISystemDefAdaptor {
   @Override
   public SystemDefDetail updateSystemDef(URI baseUri, SystemDefDetail body) {
     return body != null ? body : new SystemDefDetail();
+  }
+
+  @Override
+  public SystemDefDetail addField(URI baseUri, SystemDefFieldSummary body) {
+    return new SystemDefDetail();
+  }
+
+  @Override
+  public void deleteField(URI baseUri, String fieldName) {
+    // no-op for tests
   }
 }
