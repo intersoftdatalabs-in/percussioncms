@@ -17,6 +17,8 @@
 
 package com.percussion.design.catalog;
 
+import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.error.IPSException;
 import com.percussion.error.PSErrorHandler;
@@ -69,14 +71,14 @@ public abstract class PSCatalogRequestHandler implements IPSRequestHandler, IPSV
       Document reqDoc = request.getInputDocument();
       if (reqDoc == null) {
         createErrorResponse(
-            request, new PSIllegalArgumentException(IPSCatalogErrors.REQ_DOC_MISSING_GENERIC));
+            request, new PSIllegalArgumentException(CatalogErrorCodes.REQ_DOC_MISSING_GENERIC));
         return;
       }
 
       Element root = reqDoc.getDocumentElement();
       if (root == null) {
         createErrorResponse(
-            request, new PSIllegalArgumentException(IPSCatalogErrors.REQ_DOC_ROOT_MISSING_GENERIC));
+            request, new PSIllegalArgumentException(CatalogErrorCodes.REQ_DOC_ROOT_MISSING_GENERIC));
         return;
       }
 
@@ -86,7 +88,7 @@ public abstract class PSCatalogRequestHandler implements IPSRequestHandler, IPSV
       if (rh == null) {
         Object[] args = {root.getTagName()};
         createErrorResponse(
-            request, new PSIllegalArgumentException(IPSCatalogErrors.NO_REQ_HANDLER_FOUND, args));
+            request, new PSIllegalArgumentException(CatalogErrorCodes.NO_REQ_HANDLER_FOUND, args));
         return;
       }
 
@@ -146,7 +148,7 @@ public abstract class PSCatalogRequestHandler implements IPSRequestHandler, IPSV
         errorCode = pse.getErrorCode();
         args = pse.getErrorArguments();
       } else {
-        errorCode = IPSCatalogErrors.CATALOG_EXCEPTION;
+        errorCode = CatalogErrorCodes.CATALOG_EXCEPTION.numericCode();
         args = new Object[] {t.toString()};
       }
 
@@ -185,7 +187,7 @@ public abstract class PSCatalogRequestHandler implements IPSRequestHandler, IPSV
       };
       com.percussion.log.PSLogManager.write(
           new com.percussion.log.PSLogServerWarning(
-              com.percussion.server.IPSServerErrors.RESPONSE_SEND_ERROR,
+              ServerErrorCodes.RESPONSE_SEND_ERROR.numericCode(),
               args,
               true,
               "CatalogRequestHandler"));
