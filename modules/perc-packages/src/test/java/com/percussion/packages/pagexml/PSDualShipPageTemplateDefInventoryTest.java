@@ -397,7 +397,9 @@ class PSDualShipPageTemplateDefInventoryTest {
                     "perc.baseTemplates"));
     assertTrue(err.getMessage().contains("#3675"));
     assertTrue(err.getMessage().contains("perc.baseTemplates"));
-    assertTrue(err.getMessage().contains("native"));
+    assertTrue(err.getMessage().contains("Remove"));
+    assertTrue(err.getMessage().contains("native is the default"));
+    assertTrue(err.getMessage().contains("change its value to native"));
   }
 
   @Test

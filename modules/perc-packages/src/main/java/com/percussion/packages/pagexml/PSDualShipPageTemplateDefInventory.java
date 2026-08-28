@@ -276,11 +276,11 @@ public final class PSDualShipPageTemplateDefInventory {
             + packageDirName
             + " is not waived (waived package dirs: "
             + WAIVED_PACKAGE_DIRS
-            + "). Dual-ship is explicit opt-in only (#3949). Unset "
+            + "). Dual-ship is explicit opt-in only (#3949). Remove "
             + PSPageXmlInstallPolicy.PROP_PAGE_INSTALL_MODE
-            + " (native default) or set it to native in "
+            + " (native is the default), or change its value to native, in "
             + PSPageXmlInstallPolicy.PACKAGE_INSTALL_PROPS
-            + ", or add an explicit waiver.");
+            + " — or add an explicit waiver.");
   }
 
   /**
