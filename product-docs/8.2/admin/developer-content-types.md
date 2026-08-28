@@ -42,7 +42,9 @@ null-entry / default-selected writes are not in this chrome.
    rights for design lock/save).
 2. Open **Developer → Content types**, or deep-link
    `spa.jsp?entry=developer&section=content-types`.
-3. Open a catalog row.
+3. Click **Open** on a catalog row (the type label). The detail panel includes
+   **Object ACL** as soon as the type opens, including while the field catalog
+   is still loading.
 4. The **detail toolbar at the top of the panel** (sticky) shows **Lock**,
    **Save content type**, **Unlock**, and the **Enabled** checkbox. The type
    name and **Allowed templates** add/remove chrome are visible immediately

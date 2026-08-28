@@ -12,20 +12,25 @@ import { catalogColors } from "../../../main/ts/developer/catalogStyles";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { ContentTypeDetailPanel } from "../../../main/ts/developer/ContentTypeDetailPanel";
 
-vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
-  getContentTypeDetail: vi.fn(),
-  updateContentTypeDetail: vi.fn(),
-  setContentTypeEnabled: vi.fn(),
-  setContentTypeAllowedWorkflows: vi.fn(),
-  lockContentType: vi.fn(),
-  unlockContentType: vi.fn(),
-  getContentTypeAllowedTemplates: vi.fn(),
-  replaceContentTypeAllowedTemplates: vi.fn(),
-  getFieldControlProperties: vi.fn(),
-  replaceFieldControlProperties: vi.fn(),
-  getContentTypeItemExits: vi.fn(),
-  replaceContentTypeItemExits: vi.fn(),
-}));
+vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/contentTypesApi")>();
+  return {
+    ...actual,
+    getContentTypeDetail: vi.fn(),
+    updateContentTypeDetail: vi.fn(),
+    setContentTypeEnabled: vi.fn(),
+    setContentTypeAllowedWorkflows: vi.fn(),
+    lockContentType: vi.fn(),
+    unlockContentType: vi.fn(),
+    getContentTypeAllowedTemplates: vi.fn(),
+    replaceContentTypeAllowedTemplates: vi.fn(),
+    getFieldControlProperties: vi.fn(),
+    replaceFieldControlProperties: vi.fn(),
+    getContentTypeItemExits: vi.fn(),
+    replaceContentTypeItemExits: vi.fn(),
+  };
+});
 
 vi.mock("../../../main/ts/api/developer/contentTypeFieldRules", async (importOriginal) => {
   const actual =
@@ -273,15 +278,35 @@ describe("ContentTypeDetailPanel", () => {
     );
   });
 
+  it("mounts ObjectAclSection immediately with catalogGuid before GET (#3810)", () => {
+    const hang = () => new Promise(() => undefined);
+    getContentTypeDetail.mockImplementation(hang);
+    getContentTypeItemExits.mockImplementation(hang);
+    getContentTypeAllowedTemplates.mockImplementation(hang);
+    getFieldControlProperties.mockImplementation(hang);
+    render(
+      <ContentTypeDetailPanel
+        idOrName="percPage"
+        catalogGuid="0-2-301"
+        onBack={() => undefined}
+      />,
+    );
+    expect(screen.getByTestId("developer-ct-detail")).toBeTruthy();
+    const acl = screen.getByTestId("developer-ct-acl-stub");
+    expect(acl.getAttribute("data-object-kind")).toBe("content-type");
+    expect(acl.getAttribute("data-object-guid")).toBe("0-2-301");
+  });
+
   it("mounts ObjectAclSection with content-type kind and object guid (#3319)", async () => {
     getContentTypeDetail.mockResolvedValue(sampleDetail);
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-acl-stub")).toBeTruthy();
+      expect(screen.getByTestId("developer-ct-acl-stub").getAttribute("data-object-guid")).toBe(
+        "0-2-301",
+      );
     });
     const acl = screen.getByTestId("developer-ct-acl-stub");
     expect(acl.getAttribute("data-object-kind")).toBe("content-type");
-    expect(acl.getAttribute("data-object-guid")).toBe("0-2-301");
     expect(screen.getByTestId("developer-ct-detail-guid").textContent).toBe("0-2-301");
   });
 
@@ -298,12 +323,11 @@ describe("ContentTypeDetailPanel", () => {
       />,
     );
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-acl-stub")).toBeTruthy();
+      expect(screen.getByTestId("developer-ct-acl-stub").getAttribute("data-object-guid")).toBe(
+        "0-2-9",
+      );
     });
     expect(screen.getByTestId("developer-ct-detail-guid").textContent).toBe("0-2-9");
-    expect(screen.getByTestId("developer-ct-acl-stub").getAttribute("data-object-guid")).toBe(
-      "0-2-9",
-    );
   });
 
   it("uses guidString when nested guid is absent (#3319)", async () => {
@@ -314,12 +338,11 @@ describe("ContentTypeDetailPanel", () => {
     });
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-acl-stub")).toBeTruthy();
+      expect(screen.getByTestId("developer-ct-acl-stub").getAttribute("data-object-guid")).toBe(
+        "0-2-88",
+      );
     });
     expect(screen.getByTestId("developer-ct-detail-guid").textContent).toBe("0-2-88");
-    expect(screen.getByTestId("developer-ct-acl-stub").getAttribute("data-object-guid")).toBe(
-      "0-2-88",
-    );
   });
 
   it("synthesizes object guid from host/type/uuid parts on detail (#3319)", async () => {
@@ -329,12 +352,11 @@ describe("ContentTypeDetailPanel", () => {
     });
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-acl-stub")).toBeTruthy();
+      expect(screen.getByTestId("developer-ct-acl-stub").getAttribute("data-object-guid")).toBe(
+        "0-2-301",
+      );
     });
     expect(screen.getByTestId("developer-ct-detail-guid").textContent).toBe("0-2-301");
-    expect(screen.getByTestId("developer-ct-acl-stub").getAttribute("data-object-guid")).toBe(
-      "0-2-301",
-    );
   });
 
   it("passes empty guid to ObjectAclSection when none can be resolved (#3319)", async () => {
@@ -345,9 +367,8 @@ describe("ContentTypeDetailPanel", () => {
     });
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-acl-stub")).toBeTruthy();
+      expect(screen.getByTestId("developer-ct-detail-guid").textContent).toBe("—");
     });
-    expect(screen.getByTestId("developer-ct-detail-guid").textContent).toBe("—");
     expect(screen.getByTestId("developer-ct-acl-stub").getAttribute("data-object-guid")).toBe("");
   });
 

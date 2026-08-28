@@ -748,7 +748,7 @@ describe("DeveloperShell", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
     });
-    fireEvent.click(screen.getByTestId("developer-ct-row-0"));
+    fireEvent.click(screen.getByTestId("developer-ct-open"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-detail")).toBeTruthy();
     });
@@ -790,7 +790,7 @@ describe("DeveloperShell", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
     });
-    fireEvent.click(screen.getByTestId("developer-ct-row-0"));
+    fireEvent.click(screen.getByTestId("developer-ct-open"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-detail")).toBeTruthy();
     });
@@ -835,7 +835,7 @@ it("loads views catalog section", async () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
     });
-    fireEvent.click(screen.getByTestId("developer-ct-row-0"));
+    fireEvent.click(screen.getByTestId("developer-ct-open"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-field-search-page_title")).toBeTruthy();
     });
@@ -972,7 +972,7 @@ it("loads views catalog section", async () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
     });
-    fireEvent.click(screen.getByTestId("developer-ct-row-0"));
+    fireEvent.click(screen.getByTestId("developer-ct-open"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-wf-row-0")).toBeTruthy();
     });
@@ -1340,7 +1340,7 @@ it("loads views catalog section", async () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
     });
-    fireEvent.click(screen.getByTestId("developer-ct-row-0"));
+    fireEvent.click(screen.getByTestId("developer-ct-open"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-acl-table")).toBeTruthy();
     });
@@ -1389,7 +1389,7 @@ it("loads views catalog section", async () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
     });
-    fireEvent.click(screen.getByTestId("developer-ct-row-0"));
+    fireEvent.click(screen.getByTestId("developer-ct-open"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-acl-table")).toBeTruthy();
     });
@@ -1421,7 +1421,7 @@ it("loads views catalog section", async () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
     });
-    fireEvent.click(screen.getByTestId("developer-ct-row-0"));
+    fireEvent.click(screen.getByTestId("developer-ct-open"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-acl-table")).toBeTruthy();
     });
@@ -1473,7 +1473,7 @@ it("loads views catalog section", async () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
     });
-    fireEvent.click(screen.getByTestId("developer-ct-row-0"));
+    fireEvent.click(screen.getByTestId("developer-ct-open"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-acl-table")).toBeTruthy();
     });
@@ -1553,7 +1553,7 @@ it("loads views catalog section", async () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
     });
-    fireEvent.click(screen.getByTestId("developer-ct-row-0"));
+    fireEvent.click(screen.getByTestId("developer-ct-open"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-acl-empty")).toBeTruthy();
     });
