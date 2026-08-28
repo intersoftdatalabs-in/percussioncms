@@ -2,7 +2,7 @@
 
 |  Field   |                                  Value                                   |
 |----------|--------------------------------------------------------------------------|
-| **Date** | 2026-07-28                                                               |
+| **Date** | 2026-08-28                                                               |
 | **FR**   | CD-01–CD-19 in `docs/developer-module/workbench-functional-inventory.md` |
 
 ## Surfaces available today
@@ -14,6 +14,8 @@
 | Public REST lock/unlock           | Self-only design-session lock       | `POST /services/contenttypes/{idOrName}/lock` / `.../unlock` |
 | Public REST PUT save              | Held-lock save (label/description/…) | `PUT /services/contenttypes/{idOrName}`        |
 | Public REST POST create           | Persist new type (Workbench Finish) | `POST /services/contenttypes`                  |
+| Public REST shared-field list     | CD-15 read catalog (Admin only)     | `GET /services/sharedfields`                   |
+| Public REST shared-field detail   | CD-15 read group fields (Admin only)| `GET /services/sharedfields/{idOrName}`        |
 | Design SOAP (Workbench)           | Full load/save/lock/create/delete   | `IPSContentDesignWs` / `ContentDesignSOAPImpl` |
 | Item def manager                  | Runtime CE definition cache         | `PSItemDefManager.getItemDef`                  |
 
@@ -52,7 +54,7 @@ design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
 | Item-level pre/post exits & validations              | CD-09        | Properties tab                                    |
 | Edit workflow/template associations                  | CD-08, CD-12 | **CD-08 REST PUT .../allowedWorkflows** (#3763, held design lock); **CD-12 REST PUT .../allowedTemplates** (#3775, held design lock; full replace, empty list clears) |
 | Enable/disable as design action                      | CD-13        | **REST `PUT /contenttypes/{id}/enabled`** (#3773, held design lock; 409 without) |
-| Shared field file editing                            | CD-15        | Separate object                                   |
+| Shared field file **write**                          | CD-15        | **Read catalog shipped** (`GET /services/sharedfields` + `GET …/{idOrName}`, Admin 403, #3929 / PR #1650 list+detail). Create/rename/delete/save and SPA editor still open |
 | System def                                           | CD-16        | Separate object                                   |
 | Create / rename / delete                             | CD-01, §5.2  | **POST `/services/contenttypes` create shipped** (#3912). Rename / delete still SOAP design only; lock + PUT save via REST |
 | Import/export CT                                     | CD-14        | Workbench wizards                                 |
@@ -66,7 +68,8 @@ design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
 3. ~~Design-session lock + `PUT` save via thin REST over `IPSContentDesignWs`~~ **Lock** (#3742) + **PUT save requires held lock** (#3743)
 4. ~~Keyword create/update/delete~~ **Done CD-17** (REST write + design WS + SPA editor)
 5. ~~Control property value/choice catalogs~~ **Done CD-07 REST** (#3786). Field-rule write/save still open
-6. Templates/slots design editors
+6. ~~Shared field catalog read~~ **Done CD-15 read** (`GET /services/sharedfields`, Admin 403). Write still open
+7. Templates/slots design editors
 
 ## Client behavior
 

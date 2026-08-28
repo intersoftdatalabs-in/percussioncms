@@ -115,4 +115,24 @@ public class SharedFieldsResourceTest {
     assertEquals(500, ex.getResponse().getStatus());
     assertSame(boom, ex.getCause());
   }
+
+  @Test
+  public void listGroupsForbiddenWhenNotAdmin() {
+    when(adaptor.listGroups(any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.listGroups());
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getGroupForbiddenWhenNotAdmin() {
+    when(adaptor.getGroup(any(), eq("shared")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getGroup("shared"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
 }

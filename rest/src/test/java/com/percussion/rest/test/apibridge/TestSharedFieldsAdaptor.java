@@ -28,6 +28,9 @@ import org.springframework.stereotype.Component;
 /**
  * Spring test stub for {@link ISharedFieldsAdaptor}. Required for ApplicationContext load after
  * constructor injection on {@code SharedFieldsResource}.
+ *
+ * <p>Admin 403 is <em>not</em> a global JAX-RS filter; production {@code SharedFieldsAdaptor}
+ * enforces it. This stub is only a Spring bean for {@code MainTest} and does not model AuthZ.
  */
 @Component
 @Lazy
