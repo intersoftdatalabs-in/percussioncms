@@ -757,7 +757,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
-  it("loads rss-atom values with root path and no Build/Preview/Publish chrome", async () => {
+  it("loads rss-atom values with root path and Build chrome (Preview/Publish later)", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "rss-atom",
       rootPath: "C:/rss-atom-docs",
@@ -778,13 +778,16 @@ describe("VirtualSiteSourcePanel", () => {
       DEV_MSG.SITE_VIRT_RSS_ATOM_HINT,
     );
     expect(screen.getByTestId("developer-site-virtual-rss-atom-hint").textContent).toContain(
+      "Build Virtual Site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-rss-atom-hint").textContent).toContain(
       "later phase",
     );
     expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-config-file")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
@@ -844,8 +847,8 @@ describe("VirtualSiteSourcePanel", () => {
     expect(
       (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
     ).toBe("C:/rss-atom-docs");
-    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(

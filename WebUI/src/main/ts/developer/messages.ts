@@ -840,7 +840,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Object storage uses the root path only (no Git remote). Treat the directory as a local object-key bucket (Markdown, HTML, or JSON). Save sourceKind=object-storage, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target. Cloud URLs and access keys are never sent on the REST envelope.",
   SITE_VIRT_KIND_RSS_ATOM: "perc.ui.developer@RSS / Atom",
   SITE_VIRT_RSS_ATOM_HINT:
-    "perc.ui.developer@RSS / Atom uses the root path only (no Git remote). Point at a local RSS or Atom fixture directory. Save sourceKind=rss-atom. Live feed URLs and credentials are never sent on the REST envelope. Build, Preview, and Publish Virtual Site for this kind stay a later phase.",
+    "perc.ui.developer@RSS / Atom uses the root path only (no Git remote). Point at a local RSS or Atom fixture directory (feed.xml / atom.xml or _config.yaml rss.file). Save sourceKind=rss-atom, then Build Virtual Site. Live feed URLs and credentials are never sent on the REST envelope. Preview assembled site and Publish Virtual Site for this kind stay a later phase.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:

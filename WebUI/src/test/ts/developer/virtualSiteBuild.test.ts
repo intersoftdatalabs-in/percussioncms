@@ -14,7 +14,7 @@ import {
 } from "../../../main/ts/developer/virtualSiteBuild";
 
 describe("virtualSiteBuild helpers", () => {
-  it("shouldShowVirtualBuildChrome for git-filesystem, csv-filesystem, sql-database, http-json, and object-storage", () => {
+  it("shouldShowVirtualBuildChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, and rss-atom", () => {
     expect(shouldShowVirtualBuildChrome(null)).toBe(false);
     expect(shouldShowVirtualBuildChrome("")).toBe(false);
     expect(shouldShowVirtualBuildChrome("repository")).toBe(false);
@@ -32,8 +32,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualBuildChrome("object-storage")).toBe(true);
     expect(shouldShowVirtualBuildChrome("Object-Storage")).toBe(true);
     expect(shouldShowVirtualBuildChrome("  object-storage  ")).toBe(true);
-    expect(shouldShowVirtualBuildChrome("rss-atom")).toBe(false);
-    expect(shouldShowVirtualBuildChrome("RSS-Atom")).toBe(false);
+    expect(shouldShowVirtualBuildChrome("rss-atom")).toBe(true);
+    expect(shouldShowVirtualBuildChrome("RSS-Atom")).toBe(true);
+    expect(shouldShowVirtualBuildChrome("  rss-atom  ")).toBe(true);
   });
 
   it("shouldShowVirtualPreviewChrome for git, csv, sql-database, http-json, and object-storage (not repository)", () => {
