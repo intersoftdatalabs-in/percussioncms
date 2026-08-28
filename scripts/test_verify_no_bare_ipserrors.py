@@ -35,7 +35,7 @@ DEPLOYER_RESIDUAL = (
 # converted in #3882, cms handlers in #3883, cms.objectstore+client in #3884;
 # cms.objectstore.server converted in #3900; extensions-main converted in
 # #3756/#3938; com.percussion.data (+ macro/vfs) in #3939; com.percussion.security
-# in #3940.
+# in #3940; com.percussion.error in #3971.
 # Keep an exact residual that is still frozen (system debug leftover).
 SYSTEM_CMS_RESIDUAL = (
     "system/src/main/java/com/percussion/debug/PSDebugLogHandler.java"

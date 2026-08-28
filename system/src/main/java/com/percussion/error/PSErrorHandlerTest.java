@@ -16,10 +16,10 @@
  */
 package com.percussion.error;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.design.objectstore.PSNotifier;
 import com.percussion.design.objectstore.PSRecipient;
 import com.percussion.log.PSLogError;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.util.PSCollection;
 import com.percussion.util.PSMapClassToObject;
 import org.apache.logging.log4j.LogManager;
@@ -85,7 +85,7 @@ public class PSErrorHandlerTest {
 
       PSErrorHandler errHandler = new PSErrorHandler(errPage, true, notify);
 
-      errCode = IPSServerErrors.AUTHORIZATION_ERROR;
+      errCode = ServerErrorCodes.AUTHORIZATION_ERROR.numericCode();
       ip = "38.131.120.53";
       login = "zzz";
       PSApplicationAuthorizationError appAuthErr =
@@ -99,13 +99,13 @@ public class PSErrorHandlerTest {
       appAuthErr = new PSApplicationAuthorizationError(22, ip, login, errCode, null);
       errHandler.notifyAdmins((PSLogError) appAuthErr);
 
-      errCode = IPSServerErrors.DATA_CONV_ERROR;
+      errCode = ServerErrorCodes.DATA_CONV_ERROR.numericCode();
       sessId = "session_dataConversion";
       PSDataConversionError conversionErr =
           new PSDataConversionError(31, sessId, errCode, null, null, null, null);
       errHandler.notifyAdmins((PSLogError) conversionErr);
 
-      errCode = IPSServerErrors.VALIDATION_ERROR;
+      errCode = ServerErrorCodes.VALIDATION_ERROR.numericCode();
       sessId = "session_validation";
       PSValidationError validErr = new PSValidationError(41, sessId, errCode, null, null);
       errHandler.notifyAdmins((PSLogError) validErr);
@@ -118,13 +118,13 @@ public class PSErrorHandlerTest {
       PSPoorResponseTimeError respErr = new PSPoorResponseTimeError(61, sessId, 1500);
       errHandler.notifyAdmins((PSLogError) respErr);
 
-      errCode = IPSServerErrors.AUTHORIZATION_ERROR;
+      errCode = ServerErrorCodes.AUTHORIZATION_ERROR.numericCode();
       ip = "38.131.120.53";
       login = "zzz";
       appAuthErr = new PSApplicationAuthorizationError(12, ip, login, errCode, null);
       errHandler.notifyAdmins((PSLogError) appAuthErr);
 
-      errCode = IPSServerErrors.DATA_CONV_ERROR;
+      errCode = ServerErrorCodes.DATA_CONV_ERROR.numericCode();
       sessId = "session_dataConversion";
       conversionErr = new PSDataConversionError(101, sessId, errCode, null, null, null, null);
       errHandler.notifyAdmins((PSLogError) conversionErr);

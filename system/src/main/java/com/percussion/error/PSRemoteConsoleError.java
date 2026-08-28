@@ -17,9 +17,9 @@
 
 package com.percussion.error;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
-import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
@@ -40,12 +40,12 @@ public class PSRemoteConsoleError extends PSLogError {
   public PSRemoteConsoleError(String command, Throwable t) {
     super(0);
     if (command != null) {
-      m_errorCode = IPSServerErrors.RCONSOLE_EXEC_EXCEPTION;
+      m_errorCode = ServerErrorCodes.RCONSOLE_EXEC_EXCEPTION.numericCode();
       m_errorArgs = new Object[2];
       m_errorArgs[0] = command;
       m_errorArgs[1] = t.getMessage();
     } else {
-      m_errorCode = IPSServerErrors.RCONSOLE_COMMAND_EXCEPTION;
+      m_errorCode = ServerErrorCodes.RCONSOLE_COMMAND_EXCEPTION.numericCode();
       m_errorArgs = new Object[1];
       m_errorArgs[0] = t.getMessage();
     }
@@ -58,8 +58,9 @@ public class PSRemoteConsoleError extends PSLogError {
     /* the generic submessage first */
     msgs[0] =
         new PSLogSubMessage(
-            IPSServerErrors.RCONSOLE_COMMAND_ERROR_MSG,
-            PSErrorManager.getErrorText(IPSServerErrors.RCONSOLE_COMMAND_ERROR_MSG, false, loc));
+            ServerErrorCodes.RCONSOLE_COMMAND_ERROR_MSG.numericCode(),
+            PSErrorManager.getErrorText(
+                ServerErrorCodes.RCONSOLE_COMMAND_ERROR_MSG.numericCode(), false, loc));
 
     /* use the errorCode/errorParams to format the second submessage */
     msgs[1] =

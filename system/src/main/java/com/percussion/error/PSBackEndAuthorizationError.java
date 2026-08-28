@@ -17,9 +17,9 @@
 
 package com.percussion.error;
 
-import com.percussion.data.IPSBackEndErrors;
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.log.PSLogSubMessage;
-import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
@@ -92,8 +92,9 @@ public class PSBackEndAuthorizationError extends PSBackEndError {
     Object[] params = {m_host, m_uid, m_driver, m_server};
     msgs[0] =
         new PSLogSubMessage(
-            IPSBackEndErrors.AUTHORIZATION_ERROR,
-            PSErrorManager.createMessage(IPSBackEndErrors.AUTHORIZATION_ERROR, params, loc));
+            BackEndErrorCodes.AUTHORIZATION_ERROR.numericCode(),
+            PSErrorManager.createMessage(
+                BackEndErrorCodes.AUTHORIZATION_ERROR.numericCode(), params, loc));
 
     /* use IPSServerErrors.NATIVE_ERROR along with
      *    [0] = errorCode
@@ -104,7 +105,8 @@ public class PSBackEndAuthorizationError extends PSBackEndError {
     msgs[1] =
         new PSLogSubMessage(
             m_errorCode,
-            PSErrorManager.createMessage(IPSServerErrors.NATIVE_ERROR, nativeArgs, loc));
+            PSErrorManager.createMessage(
+                ServerErrorCodes.NATIVE_ERROR.numericCode(), nativeArgs, loc));
 
     return msgs;
   }

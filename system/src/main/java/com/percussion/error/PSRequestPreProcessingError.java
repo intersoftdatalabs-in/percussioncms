@@ -17,9 +17,9 @@
 
 package com.percussion.error;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequestParsingException;
 import java.net.InetAddress;
 import java.util.Locale;
@@ -77,9 +77,11 @@ public class PSRequestPreProcessingError extends PSLogError {
     /* the generic submessage first (contains host address) */
     msgs[0] =
         new PSLogSubMessage(
-            IPSServerErrors.REQUEST_PREPROC_ERROR,
+            ServerErrorCodes.REQUEST_PREPROC_ERROR.numericCode(),
             PSErrorManager.createMessage(
-                IPSServerErrors.REQUEST_PREPROC_ERROR, new Object[] {m_host}, loc));
+                ServerErrorCodes.REQUEST_PREPROC_ERROR.numericCode(),
+                new Object[] {m_host},
+                loc));
 
     /* the submessage containing m_errorCode/m_errorArgs */
     msgs[1] =

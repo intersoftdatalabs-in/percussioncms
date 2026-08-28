@@ -17,7 +17,7 @@
 
 package com.percussion.error;
 
-import com.percussion.data.IPSDataErrors;
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
 import java.util.Locale;
@@ -91,9 +91,11 @@ public class PSHtmlProcessingError extends PSLogError {
      */
     msgs[0] =
         new PSLogSubMessage(
-            IPSDataErrors.HTML_GENERATION_ERROR,
+            DataErrorCodes.HTML_GENERATION_ERROR.numericCode(),
             PSErrorManager.createMessage(
-                IPSDataErrors.HTML_GENERATION_ERROR, new Object[] {m_sessId, m_styleSheet}, loc));
+                DataErrorCodes.HTML_GENERATION_ERROR.numericCode(),
+                new Object[] {m_sessId, m_styleSheet},
+                loc));
 
     /* use m_errorCode/m_errorArgs to format the second submessage */
     msgs[1] =

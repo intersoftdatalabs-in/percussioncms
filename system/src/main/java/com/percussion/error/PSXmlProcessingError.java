@@ -17,10 +17,10 @@
 
 package com.percussion.error;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.XmlErrorCodes;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
-import com.percussion.server.IPSServerErrors;
-import com.percussion.xml.IPSXmlErrors;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.Locale;
 import org.w3c.dom.Element;
@@ -85,9 +85,11 @@ public class PSXmlProcessingError extends PSLogError {
      */
     msgs[0] =
         new PSLogSubMessage(
-            IPSXmlErrors.XML_PROCESSING_ERROR,
+            XmlErrorCodes.XML_PROCESSING_ERROR.numericCode(),
             PSErrorManager.createMessage(
-                IPSXmlErrors.XML_PROCESSING_ERROR, new Object[] {m_sessId}, loc));
+                XmlErrorCodes.XML_PROCESSING_ERROR.numericCode(),
+                new Object[] {m_sessId},
+                loc));
 
     /* the next submessage contains m_errorCode/m_errorArgs */
     msgs[1] =
@@ -97,8 +99,9 @@ public class PSXmlProcessingError extends PSLogError {
     if (msgCount == 3) /* write the source data */
       msgs[2] =
           new PSLogSubMessage(
-              IPSServerErrors.RAW_DUMP,
-              PSErrorManager.createMessage(IPSServerErrors.RAW_DUMP, new Object[] {m_source}, loc));
+              ServerErrorCodes.RAW_DUMP.numericCode(),
+              PSErrorManager.createMessage(
+                  ServerErrorCodes.RAW_DUMP.numericCode(), new Object[] {m_source}, loc));
 
     return msgs;
   }

@@ -17,9 +17,9 @@
 
 package com.percussion.error;
 
-import com.percussion.data.IPSDataErrors;
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.log.PSLogSubMessage;
-import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 import org.w3c.dom.Element;
 
@@ -59,7 +59,7 @@ public class PSBackEndUpdateProcessingError extends PSBackEndError {
     this(
         applId,
         sessionId,
-        IPSServerErrors.NATIVE_ERROR,
+        ServerErrorCodes.NATIVE_ERROR.numericCode(),
         new Object[] {
           Integer.valueOf(errorCode),
           // REFACTORED: CP-JAVA11
@@ -198,9 +198,11 @@ public class PSBackEndUpdateProcessingError extends PSBackEndError {
        */
       msgs[errorCount++] =
           new PSLogSubMessage(
-              IPSDataErrors.UPDATE_PROCESSING_ERROR,
+              DataErrorCodes.UPDATE_PROCESSING_ERROR.numericCode(),
               PSErrorManager.createMessage(
-                  IPSDataErrors.UPDATE_PROCESSING_ERROR, new Object[] {m_sessId}, loc));
+                  DataErrorCodes.UPDATE_PROCESSING_ERROR.numericCode(),
+                  new Object[] {m_sessId},
+                  loc));
 
       /* use the errorCode/errorParams to format the second submessage
        */
@@ -213,9 +215,9 @@ public class PSBackEndUpdateProcessingError extends PSBackEndError {
        */
       msgs[errorCount++] =
           new PSLogSubMessage(
-              IPSServerErrors.RAW_DUMP,
+              ServerErrorCodes.RAW_DUMP.numericCode(),
               PSErrorManager.createMessage(
-                  IPSServerErrors.RAW_DUMP,
+                  ServerErrorCodes.RAW_DUMP.numericCode(),
                   new Object[] {((m_sourceSql == null) ? "" : m_sourceSql)},
                   loc));
     }

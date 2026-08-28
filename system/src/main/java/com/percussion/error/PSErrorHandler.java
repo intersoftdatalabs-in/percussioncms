@@ -19,6 +19,8 @@ package com.percussion.error;
 
 import com.intsof.percussioncms.auditlog.AuditContext;
 import com.intsof.percussioncms.auditlog.SystemErrorCode;
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.data.PSConversionException;
 import com.percussion.data.PSStyleSheetMerger;
@@ -30,7 +32,6 @@ import com.percussion.design.objectstore.PSRecipient;
 import com.percussion.log.PSLogError;
 import com.percussion.mail.PSMailSendException;
 import com.percussion.mail.PSSmtpMailProvider;
-import com.percussion.server.IPSHttpErrors;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSResponse;
@@ -339,7 +340,7 @@ public class PSErrorHandler {
 
     int statusCode = PSErrorHttpCodes.getHttpCode(err, loc);
     response.setStatus(statusCode);
-    if (statusCode == IPSHttpErrors.HTTP_UNAUTHORIZED) {
+    if (statusCode == HttpErrorCodes.HTTP_UNAUTHORIZED.numericCode()) {
       /* *TODO*
        *
        * We do not currently support realms, though we probably
@@ -453,7 +454,7 @@ public class PSErrorHandler {
       Object[] args = {null, e.toString()};
       com.percussion.log.PSLogManager.write(
           new com.percussion.log.PSLogServerWarning(
-              com.percussion.server.IPSServerErrors.RESPONSE_SEND_ERROR,
+              ServerErrorCodes.RESPONSE_SEND_ERROR.numericCode(),
               args,
               true,
               "PSErrorHandler"));
