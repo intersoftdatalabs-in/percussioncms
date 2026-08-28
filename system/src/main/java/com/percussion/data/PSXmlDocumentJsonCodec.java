@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.Reader;
 import java.io.StringReader;
@@ -89,7 +90,7 @@ public final class PSXmlDocumentJsonCodec {
     Objects.requireNonNull(document, "document");
     Element root = document.getDocumentElement();
     if (root == null) {
-      throw new PSConversionException(IPSDataErrors.NO_DATA_FOR_CONVERSION);
+      throw new PSConversionException(DataErrorCodes.NO_DATA_FOR_CONVERSION);
     }
     try {
       Map<String, Object> wrapper = new LinkedHashMap<>();
@@ -97,11 +98,11 @@ public final class PSXmlDocumentJsonCodec {
       return MAPPER.writeValueAsString(wrapper);
     } catch (JacksonException e) {
       throw new PSConversionException(
-          IPSDataErrors.XML_CONV_EXCEPTION,
+          DataErrorCodes.XML_CONV_EXCEPTION,
           new Object[] {"", "json encode: " + e.getMessage()});
     } catch (IllegalArgumentException e) {
       throw new PSConversionException(
-          IPSDataErrors.XML_CONV_EXCEPTION, new Object[] {"", e.getMessage()});
+          DataErrorCodes.XML_CONV_EXCEPTION, new Object[] {"", e.getMessage()});
     }
   }
 
@@ -116,7 +117,7 @@ public final class PSXmlDocumentJsonCodec {
     Objects.requireNonNull(json, "json");
     if (json.isBlank()) {
       throw new PSConversionException(
-          IPSDataErrors.XML_CONV_EXCEPTION, new Object[] {"", "empty JSON body"});
+          DataErrorCodes.XML_CONV_EXCEPTION, new Object[] {"", "empty JSON body"});
     }
     return fromJson(new StringReader(json));
   }
@@ -149,11 +150,11 @@ public final class PSXmlDocumentJsonCodec {
       return doc;
     } catch (JacksonException e) {
       throw new PSConversionException(
-          IPSDataErrors.XML_CONV_EXCEPTION,
+          DataErrorCodes.XML_CONV_EXCEPTION,
           new Object[] {"", "json decode: " + e.getMessage()});
     } catch (IllegalArgumentException e) {
       throw new PSConversionException(
-          IPSDataErrors.XML_CONV_EXCEPTION, new Object[] {"", e.getMessage()});
+          DataErrorCodes.XML_CONV_EXCEPTION, new Object[] {"", e.getMessage()});
     }
   }
 

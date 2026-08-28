@@ -16,7 +16,7 @@
  */
 package com.percussion.data.macro;
 
-import com.percussion.data.IPSDataErrors;
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.data.PSDataExtractionException;
 import com.percussion.data.PSExecutionData;
 import com.percussion.error.PSException;
@@ -51,7 +51,7 @@ public class PSContextDependentRevisionExtractor implements IPSMacroExtractor {
           "request must supply the contentid"
         };
 
-        throw new PSDataExtractionException(IPSDataErrors.MACRO_EXTRACTOR_INVALID_PARAMETER, args);
+        throw new PSDataExtractionException(DataErrorCodes.MACRO_EXTRACTOR_INVALID_PARAMETER, args);
       }
 
       contentid = contentid.trim();
@@ -63,7 +63,7 @@ public class PSContextDependentRevisionExtractor implements IPSMacroExtractor {
           "request must supply the contentid"
         };
 
-        throw new PSDataExtractionException(IPSDataErrors.MACRO_EXTRACTOR_INVALID_PARAMETER, args);
+        throw new PSDataExtractionException(DataErrorCodes.MACRO_EXTRACTOR_INVALID_PARAMETER, args);
       }
 
       String authtype = request.getParameter(IPSHtmlParameters.SYS_AUTHTYPE, AUTHTYPE_ALL);

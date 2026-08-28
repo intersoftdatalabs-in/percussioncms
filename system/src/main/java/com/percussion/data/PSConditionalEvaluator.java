@@ -16,6 +16,7 @@
  */
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.debug.PSDebugLogHandler;
 import com.percussion.debug.PSTraceMessageFactory;
 import com.percussion.design.objectstore.IPSReplacementValue;
@@ -393,7 +394,7 @@ public class PSConditionalEvaluator {
         return (left != right);
       default:
         Object[] args = {String.valueOf(left), getStringOperator(op), String.valueOf(right)};
-        throw new PSEvaluationException(IPSDataErrors.WRONG_OPERATOR_USAGE, args);
+        throw new PSEvaluationException(DataErrorCodes.WRONG_OPERATOR_USAGE, args);
     }
   }
 
@@ -422,7 +423,7 @@ public class PSConditionalEvaluator {
         return (ret != 0);
       default:
         Object[] args = {String.valueOf(left), getStringOperator(op), String.valueOf(right)};
-        throw new PSEvaluationException(IPSDataErrors.WRONG_OPERATOR_USAGE, args);
+        throw new PSEvaluationException(DataErrorCodes.WRONG_OPERATOR_USAGE, args);
     }
   }
 
@@ -490,7 +491,7 @@ public class PSConditionalEvaluator {
 
       default:
         Object[] args = {leftString, getStringOperator(op), rightString};
-        throw new PSEvaluationException(IPSDataErrors.WRONG_OPERATOR_USAGE, args);
+        throw new PSEvaluationException(DataErrorCodes.WRONG_OPERATOR_USAGE, args);
     } // end of switch
   }
 
@@ -675,7 +676,7 @@ public class PSConditionalEvaluator {
               leftList.getClass().getName(), "" + opCode, rightList.getClass().getName()
             };
 
-            throw new PSEvaluationException(IPSDataErrors.WRONG_DATA_COMPARISON, args);
+            throw new PSEvaluationException(DataErrorCodes.WRONG_DATA_COMPARISON, args);
           }
 
           // compare one by one joining individual results by AND operand
@@ -709,7 +710,7 @@ public class PSConditionalEvaluator {
               leftList.getClass().getName(), "" + opCode, rightList.getClass().getName()
             };
 
-            throw new PSEvaluationException(IPSDataErrors.WRONG_DATA_COMPARISON, args);
+            throw new PSEvaluationException(DataErrorCodes.WRONG_DATA_COMPARISON, args);
           }
         }
       case OPCODE_IN:
@@ -769,7 +770,7 @@ public class PSConditionalEvaluator {
           return true; // none are like
         }
       default:
-        throw new PSEvaluationException(IPSDataErrors.WRONG_OPERATOR_USAGE);
+        throw new PSEvaluationException(DataErrorCodes.WRONG_OPERATOR_USAGE);
     }
   }
 
@@ -814,17 +815,17 @@ public class PSConditionalEvaluator {
       throws PSEvaluationException {
     boolean isValidOperator = validateOperatorCode(opCode);
     if (isValidOperator == false) {
-      throw new PSEvaluationException(IPSDataErrors.WRONG_OPERATOR_USAGE);
+      throw new PSEvaluationException(DataErrorCodes.WRONG_OPERATOR_USAGE);
     }
 
     if ((left != null) && (right == null)) {
       Object[] args = {left.getClass().getName(), "NULL"};
-      throw new PSEvaluationException(IPSDataErrors.RVALUE_INVALID_TYPE, args);
+      throw new PSEvaluationException(DataErrorCodes.RVALUE_INVALID_TYPE, args);
     }
 
     if ((left == null) && (right != null)) {
       Object[] args = {"NULL", right.getClass().getName()};
-      throw new PSEvaluationException(IPSDataErrors.LVALUE_INVALID_TYPE, args);
+      throw new PSEvaluationException(DataErrorCodes.LVALUE_INVALID_TYPE, args);
     }
 
     if ((left == null) && (right == null)) return compareNulls(opCode);
@@ -933,7 +934,7 @@ public class PSConditionalEvaluator {
         rightType = PSDataConverter.getDataType(right);
       } catch (Exception e) {
         Object[] args = {rightType, getStringOperator(opCode)};
-        throw new PSEvaluationException(IPSDataErrors.OPERATOR_INVALID_FOR_TYPE, args);
+        throw new PSEvaluationException(DataErrorCodes.OPERATOR_INVALID_FOR_TYPE, args);
       }
     }
 
@@ -951,7 +952,7 @@ public class PSConditionalEvaluator {
       }
       if (size != 2) {
         Object[] args = {rightType, getStringOperator(opCode)};
-        throw new PSEvaluationException(IPSDataErrors.OPERATOR_INVALID_FOR_TYPE, args);
+        throw new PSEvaluationException(DataErrorCodes.OPERATOR_INVALID_FOR_TYPE, args);
       }
     }
 
@@ -981,7 +982,7 @@ public class PSConditionalEvaluator {
       right = PSDataConverter.convert(right, bestType, dateFormat);
     } catch (Exception e) {
       Object[] args = {rightType, bestType, right};
-      throw new PSEvaluationException(IPSDataErrors.UNSUPPORTED_CONVERSION, args);
+      throw new PSEvaluationException(DataErrorCodes.UNSUPPORTED_CONVERSION, args);
     }
 
     switch (bestType) {
@@ -1014,7 +1015,7 @@ public class PSConditionalEvaluator {
             // that message is not as clear as this one
             // (shows the numbers rather than times)
             Object[] args = {leftDate.toString(), getStringOperator(opCode), rightDate.toString()};
-            throw new PSEvaluationException(IPSDataErrors.WRONG_OPERATOR_USAGE, args);
+            throw new PSEvaluationException(DataErrorCodes.WRONG_OPERATOR_USAGE, args);
           }
         }
         break;
@@ -1041,7 +1042,7 @@ public class PSConditionalEvaluator {
       // case PSDataConverter.DATATYPE_BINARYSET:
       default:
         Object[] args = {left.getClass().getName(), right.getClass().getName()};
-        throw new PSEvaluationException(IPSDataErrors.TYPE_COMPARISON_UNSUPPORTED, args);
+        throw new PSEvaluationException(DataErrorCodes.TYPE_COMPARISON_UNSUPPORTED, args);
     }
 
     return result;
@@ -1063,7 +1064,7 @@ public class PSConditionalEvaluator {
         && (opCode != OPCODE_IN)
         && (opCode != OPCODE_NOTIN)) {
       Object[] args = {leftName, getStringOperator(opCode), rightName};
-      throw new PSEvaluationException(IPSDataErrors.WRONG_OPERATOR_USAGE, args);
+      throw new PSEvaluationException(DataErrorCodes.WRONG_OPERATOR_USAGE, args);
     }
 
     // set elements could be PSNumericLiteral or PSDateLiteral
@@ -1073,7 +1074,7 @@ public class PSConditionalEvaluator {
 
     if (setSize < 1) {
       Object[] args = {leftName, getStringOperator(opCode), rightName};
-      throw new PSEvaluationException(IPSDataErrors.WRONG_OPERATOR_USAGE, args);
+      throw new PSEvaluationException(DataErrorCodes.WRONG_OPERATOR_USAGE, args);
     }
 
     boolean convertTextLiteralToDate = false;
@@ -1096,7 +1097,7 @@ public class PSConditionalEvaluator {
     if (((opCode == OPCODE_BETWEEN) && (setSize != 2))
         || ((opCode == OPCODE_NOTBETWEEN) && (setSize != 2))) {
       Object[] args = {leftName, getStringOperator(opCode), rightName};
-      throw new PSEvaluationException(IPSDataErrors.WRONG_OPERATOR_USAGE, args);
+      throw new PSEvaluationException(DataErrorCodes.WRONG_OPERATOR_USAGE, args);
     }
 
     if ((opCode == OPCODE_IN) || (opCode == OPCODE_NOTIN)) {
@@ -1177,7 +1178,7 @@ public class PSConditionalEvaluator {
 
     if ((opCode != OPCODE_IN) && (opCode != OPCODE_NOTIN)) {
       Object[] args = {leftName, getStringOperator(opCode), rightName};
-      throw new PSEvaluationException(IPSDataErrors.WRONG_OPERATOR_USAGE, args);
+      throw new PSEvaluationException(DataErrorCodes.WRONG_OPERATOR_USAGE, args);
     }
 
     // elements in the set could be PSNumericLiteral, PSDateLiteral, or PSTextLiteral
@@ -1187,7 +1188,7 @@ public class PSConditionalEvaluator {
 
     if (setSize < 1) {
       Object[] args = {leftName, getStringOperator(opCode), rightName};
-      throw new PSEvaluationException(IPSDataErrors.WRONG_OPERATOR_USAGE, args);
+      throw new PSEvaluationException(DataErrorCodes.WRONG_OPERATOR_USAGE, args);
     }
 
     boolean isNumericLiteralSet = false;
@@ -1197,7 +1198,7 @@ public class PSConditionalEvaluator {
     if ((numSet.get(0)) instanceof PSTextLiteral) isTextLiteralSet = true;
     else if ((numSet.get(0)) instanceof PSNumericLiteral) isNumericLiteralSet = true;
     else if ((numSet.get(0)) instanceof PSDateLiteral) isDateLiteralSet = true;
-    else throw new PSEvaluationException(IPSDataErrors.WRONG_DATA_COMPARISON);
+    else throw new PSEvaluationException(DataErrorCodes.WRONG_DATA_COMPARISON);
 
     String leftString = (String) left;
 
@@ -1224,7 +1225,7 @@ public class PSConditionalEvaluator {
         break;
       default:
         Object[] args = {leftName, getStringOperator(opCode), rightName};
-        throw new PSEvaluationException(IPSDataErrors.WRONG_OPERATOR_USAGE, args);
+        throw new PSEvaluationException(DataErrorCodes.WRONG_OPERATOR_USAGE, args);
     }
     return result;
   }

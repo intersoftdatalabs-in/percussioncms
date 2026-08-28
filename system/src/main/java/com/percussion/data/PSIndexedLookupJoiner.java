@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.design.objectstore.PSBackEndJoin;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.error.PSSqlException;
@@ -88,7 +89,7 @@ public class PSIndexedLookupJoiner extends PSQueryJoiner {
     /* this type of join requires only one result set on the stack */
     java.util.Stack stack = data.getResultSetStack();
     if (stack.size() < 1) {
-      throw new PSSqlException(IPSDataErrors.INDEX_JOINER_RESULT_SET_REQD, "25000");
+      throw new PSSqlException(DataErrorCodes.INDEX_JOINER_RESULT_SET_REQD, "25000");
     }
 
     /* pop off the left side result set which will be used for
@@ -98,7 +99,7 @@ public class PSIndexedLookupJoiner extends PSQueryJoiner {
     // find index of left join column
     m_leftColumnIndex = PSBackEndColumnExtractor.getColumnOrdinal(m_leftColumn, lRS.getMetaData());
     if (m_leftColumnIndex < 1) {
-      throw new PSSqlException(IPSDataErrors.INDEX_JOINER_LCOL_NOT_FOUND, m_leftColumn, "33000");
+      throw new PSSqlException(DataErrorCodes.INDEX_JOINER_LCOL_NOT_FOUND, m_leftColumn, "33000");
     } else m_leftColumnIndex--; // need this 0 based
 
     try {

@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.error.PSRuntimeException;
 import com.percussion.server.PSRequest;
 import com.percussion.util.PSBase64Encoder;
@@ -132,7 +133,7 @@ public class PSHtmlParameterTree {
               } catch (IOException e) {
                 /* throw runtime exception on IO exception */
                 throw new PSRuntimeException(
-                    IPSDataErrors.DATA_CANNOT_CONVERT_WITH_REASON,
+                    DataErrorCodes.DATA_CANNOT_CONVERT_WITH_REASON,
                     new Object[] {name, "Base64", e.toString()});
               }
             }

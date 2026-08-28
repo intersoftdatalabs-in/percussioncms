@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
 import com.percussion.error.PSSqlException;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.jdbc.IPSConnectionInfo;
@@ -237,7 +238,7 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
           Object[] args = {m_dataSource, "", "", "getTypeInfo", PSSqlException.toString(e)};
           com.percussion.log.PSLogManager.write(
               new com.percussion.log.PSLogServerWarning(
-                  IPSBackEndErrors.LOAD_META_DATA_EXCEPTION, args, true, "DatabaseMetaData"));
+                  BackEndErrorCodes.LOAD_META_DATA_EXCEPTION.numericCode(), args, true, "DatabaseMetaData"));
         }
 
         try {

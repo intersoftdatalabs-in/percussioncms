@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
 import com.percussion.design.objectstore.IPSBackEndMapping;
 import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSBackEndTable;
@@ -140,7 +141,7 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
         PSExtensionCall call = (PSExtensionCall) beMap;
         Object[] args = {call.getExtensionRef()};
         throw new PSIllegalArgumentException(
-            IPSBackEndErrors.SQL_BUILDER_UDF_NOT_SUPPORTED_IN_MOD, args);
+            BackEndErrorCodes.SQL_BUILDER_UDF_NOT_SUPPORTED_IN_MOD, args);
       }
 
       PSBackEndColumn col = (PSBackEndColumn) beMap;

@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSDataSet;
 import com.percussion.design.objectstore.PSRequestLink;
@@ -211,7 +212,7 @@ public class PSRequestRedirector implements IPSResultGenerator {
           new PSResponseSendError(
               m_appHandler.getId(),
               request.getUserSessionId(),
-              IPSDataErrors.SEND_RESPONSE_EXCEPTION,
+              DataErrorCodes.SEND_RESPONSE_EXCEPTION.numericCode(),
               args);
 
       m_appHandler.reportError(request, err);

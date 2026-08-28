@@ -16,6 +16,7 @@
  */
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.debug.PSDebugLogHandler;
 import com.percussion.debug.PSTraceMessageFactory;
 import com.percussion.design.objectstore.PSDataSet;
@@ -30,7 +31,7 @@ import com.percussion.error.PSNotFoundException;
 import com.percussion.error.PSRequestPreProcessingError;
 import com.percussion.error.PSValidationError;
 import com.percussion.extension.IPSExtension;
-import com.percussion.extension.IPSExtensionErrors;
+
 import com.percussion.extension.IPSRequestPreProcessor;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSExtensionException;
@@ -393,7 +394,7 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
         instances.add(PSExtensionRunner.createRunner(call, ext));
       } else {
         Object[] args = {ref.toString(), interfaceName};
-        throw new PSExtensionException(IPSExtensionErrors.INVALID_EXT_TYPE_EXCEPTION, args);
+        throw new PSExtensionException(ExtensionErrorCodes.INVALID_EXT_TYPE_EXCEPTION, args);
       }
     }
   }

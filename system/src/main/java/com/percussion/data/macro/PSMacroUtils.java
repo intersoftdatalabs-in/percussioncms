@@ -16,9 +16,11 @@
  */
 package com.percussion.data.macro;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.objectstore.PSComponentSummary;
-import com.percussion.data.IPSDataErrors;
+
 import com.percussion.data.PSBackEndColumnExtractor;
 import com.percussion.data.PSContentItemStatusExtractor;
 import com.percussion.data.PSDataExtractionException;
@@ -29,7 +31,7 @@ import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.design.objectstore.PSContentItemStatus;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
+
 import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
@@ -291,7 +293,7 @@ public class PSMacroUtils {
         PSServer.getInternalRequest(DETAILS_RESOURCE, request, params, false, null);
     if (ir == null) {
       Object[] args = {DETAILS_RESOURCE, "No request handler found."};
-      throw new PSNotFoundException(IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+      throw new PSNotFoundException(ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
     }
 
     Document doc = ir.getResultDoc();
@@ -329,7 +331,7 @@ public class PSMacroUtils {
     try {
       contentid = cidExtractor.extract(data);
     } catch (PSDataExtractionException e) {
-      if (e.getErrorCode() == IPSDataErrors.BE_COL_EXTR_INVALID_COL) {
+      if (e.getErrorCode() == DataErrorCodes.BE_COL_EXTR_INVALID_COL.numericCode()) {
         // column does not exist pass through
       } else {
         // Column exists but failed to extract rethrow the exception

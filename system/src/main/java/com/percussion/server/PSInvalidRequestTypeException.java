@@ -17,6 +17,7 @@
 
 package com.percussion.server;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -39,5 +40,24 @@ public class PSInvalidRequestTypeException extends PSException {
    */
   public PSInvalidRequestTypeException(int errorCode, Object[] arrayArgs) {
     super(errorCode, arrayArgs);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSInvalidRequestTypeException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSInvalidRequestTypeException(IPSErrorCode code) {
+    super(code);
   }
 }

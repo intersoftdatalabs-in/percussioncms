@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.error.PSSqlException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -131,7 +132,7 @@ class PSJoinedRowDataBuffer {
       // be of the same structure!
       if (rCols != m_rCols) {
         Object[] args = {String.valueOf(m_rCols), String.valueOf(rCols)};
-        throw new PSSqlException(IPSDataErrors.JOINED_ROW_BUF_RCOL_COUNT_MISMATCH, args, "07008");
+        throw new PSSqlException(DataErrorCodes.JOINED_ROW_BUF_RCOL_COUNT_MISMATCH, args, "07008");
       }
     } else {
       // add the meta data struct for this

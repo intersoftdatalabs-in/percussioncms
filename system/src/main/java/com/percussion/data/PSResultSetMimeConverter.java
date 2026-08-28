@@ -17,6 +17,8 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
 import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSDataMapper;
@@ -26,7 +28,7 @@ import com.percussion.design.objectstore.PSPipe;
 import com.percussion.design.objectstore.PSRequestor;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.error.PSNotFoundException;
-import com.percussion.server.IPSHttpErrors;
+
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestStatistics;
@@ -80,23 +82,23 @@ public class PSResultSetMimeConverter implements IPSResultSetConverter {
     PSPipe pipe = def.getPipe();
     if (pipe == null) {
       Object[] args = {"0"};
-      throw new PSIllegalArgumentException(IPSDataErrors.MIME_CONV_ONE_PIPE_REQD, args);
+      throw new PSIllegalArgumentException(DataErrorCodes.MIME_CONV_ONE_PIPE_REQD, args);
     }
     if (!(pipe instanceof com.percussion.design.objectstore.PSQueryPipe)) {
-      throw new PSIllegalArgumentException(IPSDataErrors.MIME_CONV_QUERY_PIPE_REQD);
+      throw new PSIllegalArgumentException(DataErrorCodes.MIME_CONV_QUERY_PIPE_REQD);
     }
 
     PSDataMapper maps = pipe.getDataMapper();
     if (maps.size() != 1) {
       Object[] args = {String.valueOf(maps.size())};
-      throw new PSIllegalArgumentException(IPSDataErrors.MIME_CONV_ONE_MAPPING_REQD, args);
+      throw new PSIllegalArgumentException(DataErrorCodes.MIME_CONV_ONE_MAPPING_REQD, args);
     }
 
     PSDataMapping map = (PSDataMapping) maps.get(0);
     String[] beCols = map.getBackEndMapping().getColumnsForSelect();
     if (beCols.length != 1) {
       Object[] args = {String.valueOf(beCols.length)};
-      throw new PSIllegalArgumentException(IPSDataErrors.MIME_CONV_ONE_COLUMN_REQD, args);
+      throw new PSIllegalArgumentException(DataErrorCodes.MIME_CONV_ONE_COLUMN_REQD, args);
     }
   }
 
@@ -144,9 +146,9 @@ public class PSResultSetMimeConverter implements IPSResultSetConverter {
     Stack stack = data.getResultSetStack();
     if (stack.size() > 1)
       throw new PSConversionException(
-          IPSDataErrors.CANNOT_CONVERT_MULTIPLE_RESULT_SETS, Integer.valueOf(stack.size()));
+          DataErrorCodes.CANNOT_CONVERT_MULTIPLE_RESULT_SETS, Integer.valueOf(stack.size()));
     else if (stack.size() == 0)
-      throw new PSConversionException(IPSDataErrors.NO_DATA_FOR_CONVERSION);
+      throw new PSConversionException(DataErrorCodes.NO_DATA_FOR_CONVERSION);
 
     int colsToAccept = 1;
     boolean mimeFromColumn = false;
@@ -167,7 +169,7 @@ public class PSResultSetMimeConverter implements IPSResultSetConverter {
       resp = request.getResponse();
       if (resp == null) {
         /* this should never happen! */
-        throw new PSConversionException(IPSDataErrors.NO_RESPONSE_OBJECT);
+        throw new PSConversionException(DataErrorCodes.NO_RESPONSE_OBJECT);
       }
     }
 
@@ -182,7 +184,7 @@ public class PSResultSetMimeConverter implements IPSResultSetConverter {
       if (meta.getColumnCount() > colsToAccept) {
         /* there can be only one column */
         Object[] args = {String.valueOf(meta.getColumnCount())};
-        throw new PSConversionException(IPSDataErrors.MIME_CONV_MULTICOL_RESULT, args);
+        throw new PSConversionException(DataErrorCodes.MIME_CONV_MULTICOL_RESULT, args);
       }
 
       int rowsSelected = 0;
@@ -192,7 +194,7 @@ public class PSResultSetMimeConverter implements IPSResultSetConverter {
         rowsSelected++; /* increment the rows selected counter */
         if (rowsSelected > 1) {
           /* there can be only one row of data at this time! */
-          throw new PSConversionException(IPSDataErrors.MIME_CONV_MULTIROW_RESULT);
+          throw new PSConversionException(DataErrorCodes.MIME_CONV_MULTIROW_RESULT);
         }
 
         /**
@@ -322,7 +324,7 @@ public class PSResultSetMimeConverter implements IPSResultSetConverter {
           if (setResponse) {
             // if the binary column is null, return an empty response
             // (this is not an error -- fixed bug RX-01-10-0110)
-            resp.setStatus(IPSHttpErrors.HTTP_NO_CONTENT);
+            resp.setStatus(HttpErrorCodes.HTTP_NO_CONTENT.numericCode());
           }
         }
       }
@@ -335,7 +337,7 @@ public class PSResultSetMimeConverter implements IPSResultSetConverter {
       }
     } catch (Throwable t) {
       Object[] args = {request.getUserSessionId(), t.toString()};
-      throw new PSConversionException(IPSDataErrors.XML_CONV_EXCEPTION, args);
+      throw new PSConversionException(DataErrorCodes.XML_CONV_EXCEPTION, args);
     } finally {
       if (rs != null) {
         try {

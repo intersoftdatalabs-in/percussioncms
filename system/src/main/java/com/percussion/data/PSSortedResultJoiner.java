@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.design.objectstore.PSBackEndJoin;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.error.PSSqlException;
@@ -80,7 +81,7 @@ public class PSSortedResultJoiner extends PSQueryJoiner {
     java.util.Stack stack = data.getResultSetStack();
     if (stack.size() < 2) {
       throw new PSSqlException(
-          IPSDataErrors.SORTED_JOINER_2_RESULT_SETS_REQD, Integer.valueOf(stack.size()), "25000");
+          DataErrorCodes.SORTED_JOINER_2_RESULT_SETS_REQD, Integer.valueOf(stack.size()), "25000");
     }
 
     // pop off the result sets (right is on top, then left)
@@ -90,14 +91,14 @@ public class PSSortedResultJoiner extends PSQueryJoiner {
     // find index of left join column
     m_leftColumnIndex = PSBackEndColumnExtractor.getColumnOrdinal(m_leftColumn, lRS.getMetaData());
     if (m_leftColumnIndex < 1) {
-      throw new PSSqlException(IPSDataErrors.SORTED_JOINER_LCOL_NOT_FOUND, m_leftColumn, "33000");
+      throw new PSSqlException(DataErrorCodes.SORTED_JOINER_LCOL_NOT_FOUND, m_leftColumn, "33000");
     } else m_leftColumnIndex--; // need this 0 based
 
     // find index of right join column
     m_rightColumnIndex =
         PSBackEndColumnExtractor.getColumnOrdinal(m_rightColumn, rRS.getMetaData());
     if (m_rightColumnIndex < 1) {
-      throw new PSSqlException(IPSDataErrors.SORTED_JOINER_RCOL_NOT_FOUND, m_rightColumn, "33000");
+      throw new PSSqlException(DataErrorCodes.SORTED_JOINER_RCOL_NOT_FOUND, m_rightColumn, "33000");
     } else {
       m_rightColumnIndex = lRS.getMetaData().getColumnCount() + (m_rightColumnIndex - 1);
     }
@@ -114,7 +115,7 @@ public class PSSortedResultJoiner extends PSQueryJoiner {
       // verify that we have the appropriate column count
       if (rowData.getColumnCount() != m_columnCount) {
         Object[] args = {String.valueOf(m_columnCount), String.valueOf(rowData.getColumnCount())};
-        throw new PSSqlException(IPSDataErrors.SORTED_JOINER_COL_COUNT_MISMATCH, args, "07008");
+        throw new PSSqlException(DataErrorCodes.SORTED_JOINER_COL_COUNT_MISMATCH, args, "07008");
       }
 
       // in case we're using UDFs, set the ResultSetMetaData and current row

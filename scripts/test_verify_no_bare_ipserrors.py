@@ -34,9 +34,10 @@ DEPLOYER_RESIDUAL = (
 # system/webservices SOAP/ws rows were removed from the allow-list; cms builders
 # converted in #3882, cms handlers in #3883, cms.objectstore+client in #3884;
 # cms.objectstore.server converted in #3900; extensions-main converted in
-# #3756/#3938. Keep an exact residual that is still frozen (data leftover).
+# #3756/#3938; com.percussion.data (+ macro/vfs) in #3939.
+# Keep an exact residual that is still frozen (system debug leftover).
 SYSTEM_CMS_RESIDUAL = (
-    "system/src/main/java/com/percussion/data/PSBackEndColumnExtractor.java"
+    "system/src/main/java/com/percussion/debug/PSDebugLogHandler.java"
 )
 
 

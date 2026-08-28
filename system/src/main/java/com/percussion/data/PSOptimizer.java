@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSBackEndJoin;
 import com.percussion.design.objectstore.PSBackEndTable;
@@ -143,7 +144,7 @@ public abstract class PSOptimizer {
         ah.getLogHandler()
             .write(
                 new com.percussion.log.PSLogExecutionPlan(
-                    ah.getId(), IPSDataErrors.EXEC_PLAN_LOG_SQL_PLAN, args));
+                    ah.getId(), DataErrorCodes.EXEC_PLAN_LOG_SQL_PLAN.numericCode(), args));
       }
     }
   }

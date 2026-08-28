@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.design.objectstore.PSAcl;
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.design.objectstore.PSAttribute;
@@ -527,7 +528,7 @@ public class PSUserContextExtractor extends PSDataExtractor {
           break;
         default:
           Object args[] = {String.valueOf(sourceType), sourceName};
-          throw new PSDataExtractionException(IPSDataErrors.USER_CTX_INVALID_TYPE, args);
+          throw new PSDataExtractionException(DataErrorCodes.USER_CTX_INVALID_TYPE, args);
       }
     }
 

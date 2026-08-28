@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.handlers.PSContentEditorHandler;
 import com.percussion.cms.handlers.PSModifyCommandHandler;
@@ -154,7 +155,7 @@ public class PSViewEvaluator {
     if (curView == null) curView = m_viewSet.getView(viewName);
 
     if (curView == null)
-      throw new PSDataExtractionException(IPSDataErrors.VIEW_NOT_FOUND, viewName);
+      throw new PSDataExtractionException(DataErrorCodes.VIEW_NOT_FOUND, viewName);
 
     return curView;
   }

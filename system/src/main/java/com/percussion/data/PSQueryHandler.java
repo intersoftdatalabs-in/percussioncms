@@ -17,6 +17,8 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.design.objectstore.PSDataSet;
 import com.percussion.design.objectstore.PSPipe;
 import com.percussion.design.objectstore.PSRequestor;
@@ -35,7 +37,7 @@ import com.percussion.log.PSLogError;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.IPSInternalRequest;
-import com.percussion.server.IPSServerErrors;
+
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSInvalidRequestTypeException;
@@ -106,7 +108,7 @@ public class PSQueryHandler extends PSDataHandler implements IPSInternalResultHa
     if (!(pipe instanceof com.percussion.design.objectstore.PSQueryPipe)) {
       Object[] params = {ds.getName(), app.getName()};
       throw new PSInvalidRequestTypeException(
-          IPSServerErrors.APP_NO_QUERY_PIPES_IN_DATASET, params);
+          ServerErrorCodes.APP_NO_QUERY_PIPES_IN_DATASET, params);
     }
 
     /* call the query optimizer to build the execution plan */
@@ -116,7 +118,7 @@ public class PSQueryHandler extends PSDataHandler implements IPSInternalResultHa
       // for unknown exceptions, it's useful to log the stack trace
       Object[] args = {app.getName(), com.percussion.error.PSException.getStackTraceAsString(e)};
       throw new PSSystemValidationException(
-          IPSServerErrors.APPLICATION_INIT_EXCEPTION, args, app.getApplicationDefinition(), ds);
+          ServerErrorCodes.APPLICATION_INIT_EXCEPTION, args, app.getApplicationDefinition(), ds);
     }
 
     /* set the result set converter we'll be using (m_converter) */
@@ -128,7 +130,7 @@ public class PSQueryHandler extends PSDataHandler implements IPSInternalResultHa
       // for unknown exceptions, it's useful to log the stack trace
       Object[] args = {app.getName(), com.percussion.error.PSException.getStackTraceAsString(e)};
       throw new PSSystemValidationException(
-          IPSServerErrors.APPLICATION_INIT_EXCEPTION, args, app.getApplicationDefinition(), ds);
+          ServerErrorCodes.APPLICATION_INIT_EXCEPTION, args, app.getApplicationDefinition(), ds);
     }
   }
 
@@ -269,7 +271,7 @@ public class PSQueryHandler extends PSDataHandler implements IPSInternalResultHa
         errorCode = e.getErrorCode();
         errorArgs = e.getErrorArguments();
       } else {
-        errorCode = IPSServerErrors.RAW_DUMP;
+        errorCode = ServerErrorCodes.RAW_DUMP.numericCode();
         errorArgs = new Object[] {getExceptionText(t)};
       }
 
@@ -325,7 +327,7 @@ public class PSQueryHandler extends PSDataHandler implements IPSInternalResultHa
     } catch (Exception e) {
       reportError(request, e);
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e), e);
+          DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e), e);
     }
 
     return execData;
@@ -346,7 +348,7 @@ public class PSQueryHandler extends PSDataHandler implements IPSInternalResultHa
       execData = executeQueryRequest(clonedReq);
       if (m_converter instanceof PSResultSetMimeConverter) {
         throw new PSInternalRequestCallException(
-            IPSDataErrors.INVALID_INTERNAL_RESULT_CALL, "getResultDoc");
+            DataErrorCodes.INVALID_INTERNAL_RESULT_CALL, "getResultDoc");
       } else {
         try {
           return ((PSResultSetXmlConverter) m_converter)
@@ -359,7 +361,7 @@ public class PSQueryHandler extends PSDataHandler implements IPSInternalResultHa
       throw new PSInternalRequestCallException(e.getErrorCode(), e.getErrorArguments());
     } catch (SQLException e) {
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e));
+          DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, getExceptionText(e));
     } finally {
       if (execData != null) execData.release();
     }
@@ -388,7 +390,7 @@ public class PSQueryHandler extends PSDataHandler implements IPSInternalResultHa
     try {
       if (m_converter instanceof PSResultSetMimeConverter) {
         throw new PSInternalRequestCallException(
-            IPSDataErrors.INVALID_INTERNAL_RESULT_CALL, "getResultDoc");
+            DataErrorCodes.INVALID_INTERNAL_RESULT_CALL, "getResultDoc");
       } else {
         try {
           Document resultDoc =
@@ -440,7 +442,9 @@ public class PSQueryHandler extends PSDataHandler implements IPSInternalResultHa
         } catch (Exception e) {
           Object[] args = new Object[] {e.getClass().getName(), e.getLocalizedMessage()};
           PSConsole.printWarnMsg(
-              "QueryHandler", IPSServerErrors.NORUN_NAMESPACE_CLEANUP_WARNING, args);
+              "QueryHandler",
+              ServerErrorCodes.NORUN_NAMESPACE_CLEANUP_WARNING.numericCode(),
+              args);
         }
       }
     }
@@ -453,7 +457,7 @@ public class PSQueryHandler extends PSDataHandler implements IPSInternalResultHa
   public Document getResultDoc(PSExecutionData data) throws PSInternalRequestCallException {
     if (m_converter instanceof PSResultSetMimeConverter) {
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INVALID_INTERNAL_RESULT_CALL, "getResultDoc");
+          DataErrorCodes.INVALID_INTERNAL_RESULT_CALL, "getResultDoc");
     } else {
       try {
         if (data != null)
@@ -482,7 +486,7 @@ public class PSQueryHandler extends PSDataHandler implements IPSInternalResultHa
       }
     } else {
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INVALID_INTERNAL_RESULT_CALL, "getInputStream");
+          DataErrorCodes.INVALID_INTERNAL_RESULT_CALL, "getInputStream");
     }
   }
 
@@ -506,7 +510,7 @@ public class PSQueryHandler extends PSDataHandler implements IPSInternalResultHa
 
       if (stack.size() > 1) {
         throw new PSInternalRequestCallException(
-            IPSDataErrors.CANNOT_RETURN_MULTIPLE_RESULT_SETS, Integer.valueOf(stack.size()));
+            DataErrorCodes.CANNOT_RETURN_MULTIPLE_RESULT_SETS, Integer.valueOf(stack.size()));
       } else {
         rs = (ResultSet) stack.pop();
       }

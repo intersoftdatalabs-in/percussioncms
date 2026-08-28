@@ -16,6 +16,7 @@
 #   #3883 leftover system/src/main cms handlers
 #   #3884 leftover cms.objectstore (non-server) + client call sites
 #   #3900 leftover cms.objectstore.server call sites
+#   #3939 leftover system/src/main com.percussion.data (+ macro/vfs)
 # Converted (no longer listed): extensions-main #3756/#3938 (allow-list
 # shrink after #3793 re-listed already-typed production paths).
 #
@@ -47,49 +48,6 @@ system/src/main/java/com/percussion/cx/PSFont.java
 system/src/main/java/com/percussion/cx/PSOption.java
 system/src/main/java/com/percussion/cx/PSOptions.java
 system/src/main/java/com/percussion/cx/PSUserOptions.java
-system/src/main/java/com/percussion/data/PSBackEndColumnExtractor.java
-system/src/main/java/com/percussion/data/PSConditionalEvaluator.java
-system/src/main/java/com/percussion/data/PSDataHandler.java
-system/src/main/java/com/percussion/data/PSDatabaseMetaData.java
-system/src/main/java/com/percussion/data/PSExecutionData.java
-system/src/main/java/com/percussion/data/PSFunctionCallExtractor.java
-system/src/main/java/com/percussion/data/PSHtmlParameterTree.java
-system/src/main/java/com/percussion/data/PSIndexedLookupJoiner.java
-system/src/main/java/com/percussion/data/PSJoinedRowDataBuffer.java
-system/src/main/java/com/percussion/data/PSMacroExtractor.java
-system/src/main/java/com/percussion/data/PSOptimizer.java
-system/src/main/java/com/percussion/data/PSOracleUpdateBuilder.java
-system/src/main/java/com/percussion/data/PSOracleUpdateStatement.java
-system/src/main/java/com/percussion/data/PSQueryCacher.java
-system/src/main/java/com/percussion/data/PSQueryHandler.java
-system/src/main/java/com/percussion/data/PSQueryOptimizer.java
-system/src/main/java/com/percussion/data/PSRequestLinkGenerator.java
-system/src/main/java/com/percussion/data/PSRequestRedirector.java
-system/src/main/java/com/percussion/data/PSResultSetHtmlConverter.java
-system/src/main/java/com/percussion/data/PSResultSetMimeConverter.java
-system/src/main/java/com/percussion/data/PSResultSetXmlConverter.java
-system/src/main/java/com/percussion/data/PSSortedResultJoiner.java
-system/src/main/java/com/percussion/data/PSSqlBuilder.java
-system/src/main/java/com/percussion/data/PSSqlDeleteBuilder.java
-system/src/main/java/com/percussion/data/PSSqlLockedUpdateBuilder.java
-system/src/main/java/com/percussion/data/PSSqlUpdateBuilder.java
-system/src/main/java/com/percussion/data/PSStatement.java
-system/src/main/java/com/percussion/data/PSStatementColumn.java
-system/src/main/java/com/percussion/data/PSStatementColumnMapper.java
-system/src/main/java/com/percussion/data/PSStyleSheetMerger.java
-system/src/main/java/com/percussion/data/PSTableMetaData.java
-system/src/main/java/com/percussion/data/PSTransactionSet.java
-system/src/main/java/com/percussion/data/PSUpdateHandler.java
-system/src/main/java/com/percussion/data/PSUpdateOptimizer.java
-system/src/main/java/com/percussion/data/PSUserContextExtractor.java
-system/src/main/java/com/percussion/data/PSViewEvaluator.java
-system/src/main/java/com/percussion/data/PSXmlDocumentJsonCodec.java
-system/src/main/java/com/percussion/data/PSXmlFieldExtractor.java
-system/src/main/java/com/percussion/data/macro/PSContextDependentRevisionExtractor.java
-system/src/main/java/com/percussion/data/macro/PSLastPublicRevisionExtractor.java
-system/src/main/java/com/percussion/data/macro/PSMacroUtils.java
-system/src/main/java/com/percussion/data/macro/PSSqlEscapedUserNameExtractor.java
-system/src/main/java/com/percussion/data/vfs/PSVirtualApplicationDirectory.java
 system/src/main/java/com/percussion/debug/PSDebugLogHandler.java
 system/src/main/java/com/percussion/design/catalog/PSCatalogRequestHandler.java
 system/src/main/java/com/percussion/design/catalog/data/server/PSColumnCatalogHandler.java

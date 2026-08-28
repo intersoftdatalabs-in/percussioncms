@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.design.objectstore.PSBackEndDataTank;
 import com.percussion.design.objectstore.PSBackEndJoin;
@@ -280,7 +281,7 @@ public class PSQueryCacher {
         try {
           file.delete();
         } catch (Exception e) {
-          logCacheEntryException(file.getName(), IPSDataErrors.CACHER_FILE_REMOVE_EXCEPTION, e);
+          logCacheEntryException(file.getName(), DataErrorCodes.CACHER_FILE_REMOVE_EXCEPTION.numericCode(), e);
         }
       }
 
@@ -326,7 +327,7 @@ public class PSQueryCacher {
            * maintenance on the cache (eg, clear the disk cache of older
            * entries.
            */
-          logCacheEntryException(buf.toString(), IPSDataErrors.CACHER_LOAD_XML_EXCEPTION, e);
+          logCacheEntryException(buf.toString(), DataErrorCodes.CACHER_LOAD_XML_EXCEPTION.numericCode(), e);
         }
         break;
     }
@@ -350,7 +351,7 @@ public class PSQueryCacher {
       // we found a match, but it aged - go no further
     } catch (Exception e) {
       // we hit an error, so let them requery
-      logCacheEntryException(cacheKey, IPSDataErrors.CACHER_LOAD_RESPAGE_EXCEPTION, e);
+      logCacheEntryException(cacheKey, DataErrorCodes.CACHER_LOAD_RESPAGE_EXCEPTION.numericCode(), e);
     }
 
     return (entry != null) ? entry.getFile() : null;
@@ -377,7 +378,7 @@ public class PSQueryCacher {
        * maintenance on the cache (eg, clear the disk cache of older
        * entries.
        */
-      logCacheEntryException(cacheKey, IPSDataErrors.CACHER_STORE_RESPAGE_EXCEPTION, e);
+      logCacheEntryException(cacheKey, DataErrorCodes.CACHER_STORE_RESPAGE_EXCEPTION.numericCode(), e);
     }
   }
 
@@ -413,7 +414,7 @@ public class PSQueryCacher {
     } catch (Exception e) {
       // we hit an error, so let them requery
       doc = null; // just in case it actually was created
-      logCacheEntryException(cacheKey, IPSDataErrors.CACHER_LOAD_XML_EXCEPTION, e);
+      logCacheEntryException(cacheKey, DataErrorCodes.CACHER_LOAD_XML_EXCEPTION.numericCode(), e);
     }
 
     return doc;
@@ -439,7 +440,7 @@ public class PSQueryCacher {
        * maintenance on the cache (eg, clear the disk cache of older
        * entries.
        */
-      logCacheEntryException(cacheKey, IPSDataErrors.CACHER_STORE_XML_EXCEPTION, e);
+      logCacheEntryException(cacheKey, DataErrorCodes.CACHER_STORE_XML_EXCEPTION.numericCode(), e);
     }
   }
 
@@ -656,7 +657,7 @@ public class PSQueryCacher {
             file.delete();
             m_cacheSizeCur -= (int) (rmEntry.getCachedFileSize() / 1024);
           } catch (Exception e) {
-            logCacheEntryException(file.getName(), IPSDataErrors.CACHER_FILE_REMOVE_EXCEPTION, e);
+            logCacheEntryException(file.getName(), DataErrorCodes.CACHER_FILE_REMOVE_EXCEPTION.numericCode(), e);
           }
         }
       }
@@ -765,7 +766,7 @@ public class PSQueryCacher {
             file.delete();
             m_cacheSizeCur -= (int) (rmEntry.getCachedFileSize() / 1024);
           } catch (Exception e) {
-            logCacheEntryException(file.getName(), IPSDataErrors.CACHER_FILE_REMOVE_EXCEPTION, e);
+            logCacheEntryException(file.getName(), DataErrorCodes.CACHER_FILE_REMOVE_EXCEPTION.numericCode(), e);
           }
         }
 
@@ -781,7 +782,7 @@ public class PSQueryCacher {
             String.valueOf(entrySize)
           };
           com.percussion.log.PSLogManager.write(
-              new com.percussion.error.PSNonFatalError(IPSDataErrors.CACHER_FULL, args));
+              new com.percussion.error.PSNonFatalError(DataErrorCodes.CACHER_FULL.numericCode(), args));
           return;
         }
       }

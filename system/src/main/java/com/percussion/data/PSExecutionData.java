@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSResultPager;
 import com.percussion.error.PSErrorHandler;
@@ -110,7 +111,7 @@ public class PSExecutionData implements AutoCloseable {
           Object[] args = {PSSqlException.toString(e)};
           PSLogManager.write(
               new PSLogServerWarning(
-                  IPSBackEndErrors.EXEC_DATA_CLOSE_RESULT_SET, args, true, "ExecutionData"));
+                  BackEndErrorCodes.EXEC_DATA_CLOSE_RESULT_SET.numericCode(), args, true, "ExecutionData"));
         }
       }
       m_ResultSetStack = null;
@@ -126,7 +127,7 @@ public class PSExecutionData implements AutoCloseable {
           Object[] args = {PSSqlException.toString(e)};
           PSLogManager.write(
               new PSLogServerWarning(
-                  IPSBackEndErrors.EXEC_DATA_CLOSE_PREP_STMT, args, true, "ExecutionData"));
+                  BackEndErrorCodes.EXEC_DATA_CLOSE_PREP_STMT.numericCode(), args, true, "ExecutionData"));
         }
       }
 
@@ -169,11 +170,11 @@ public class PSExecutionData implements AutoCloseable {
    */
   public Connection getDbConnection(int connKey) throws SQLException, PSIllegalArgumentException {
     if ((m_Connections == null) || (m_Connections.size() == 0))
-      throw new PSIllegalArgumentException(IPSBackEndErrors.EXEC_DATA_NO_CONNECTIONS);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.EXEC_DATA_NO_CONNECTIONS);
 
     if (connKey >= m_Connections.size()) {
       Object[] args = {String.valueOf(connKey), "0 - " + String.valueOf(m_Connections.size() - 1)};
-      throw new PSIllegalArgumentException(IPSBackEndErrors.EXEC_DATA_BAD_CONN_KEY, args);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.EXEC_DATA_BAD_CONN_KEY, args);
     }
     return (Connection) m_Connections.get(connKey);
   }
@@ -187,11 +188,11 @@ public class PSExecutionData implements AutoCloseable {
    */
   public PSConnectionDetail getDbConnectionDetail(int connKey) throws PSIllegalArgumentException {
     if ((m_Connections == null) || (m_Connections.size() == 0))
-      throw new PSIllegalArgumentException(IPSBackEndErrors.EXEC_DATA_NO_CONNECTIONS);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.EXEC_DATA_NO_CONNECTIONS);
 
     if (connKey >= m_Connections.size()) {
       Object[] args = {String.valueOf(connKey), "0 - " + String.valueOf(m_Connections.size() - 1)};
-      throw new PSIllegalArgumentException(IPSBackEndErrors.EXEC_DATA_BAD_CONN_KEY, args);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.EXEC_DATA_BAD_CONN_KEY, args);
     }
     return m_connectionDetailList.get(connKey);
   }

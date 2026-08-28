@@ -16,6 +16,7 @@
  */
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.data.macro.IPSMacroExtractor;
 import com.percussion.design.objectstore.PSMacro;
 import com.percussion.design.objectstore.PSMacroDefinition;
@@ -75,31 +76,31 @@ public class PSMacroExtractor extends PSDataExtractor {
 
         PSLogManager.write(
             new PSLogServerWarning(
-                IPSDataErrors.MACRO_EXTRACTOR_CLASS_NOT_FOUND, args, true, origin));
+                DataErrorCodes.MACRO_EXTRACTOR_CLASS_NOT_FOUND.numericCode(), args, true, origin));
       } catch (InstantiationException e) {
         Object[] args = {m_macroDefinition.getClassName(), PSException.getStackTraceAsString(e)};
 
         PSLogManager.write(
             new PSLogServerWarning(
-                IPSDataErrors.MACRO_EXTRACTOR_INSTANTIATION_FAILED, args, true, origin));
+                DataErrorCodes.MACRO_EXTRACTOR_INSTANTIATION_FAILED.numericCode(), args, true, origin));
       } catch (IllegalAccessException e) {
         Object[] args = {m_macroDefinition.getClassName(), PSException.getStackTraceAsString(e)};
 
         PSLogManager.write(
             new PSLogServerWarning(
-                IPSDataErrors.MACRO_EXTRACTOR_ILLEGAL_ACCESS, args, true, origin));
+                DataErrorCodes.MACRO_EXTRACTOR_ILLEGAL_ACCESS.numericCode(), args, true, origin));
       } catch (InvocationTargetException e) {
         Object[] args = {m_macroDefinition.getClassName(), PSException.getStackTraceAsString(e)};
 
         PSLogManager.write(
             new PSLogServerWarning(
-                IPSDataErrors.MACRO_EXTRACTOR_INVOCATION_TARGET_ERROR, args, true, origin));
+                DataErrorCodes.MACRO_EXTRACTOR_INVOCATION_TARGET_ERROR.numericCode(), args, true, origin));
       } catch (NoSuchMethodException e) {
         Object[] args = {m_macroDefinition.getClassName(), PSException.getStackTraceAsString(e)};
 
         PSLogManager.write(
             new PSLogServerWarning(
-                IPSDataErrors.MACRO_EXTRACTOR_NO_SUCH_METHOD, args, true, origin));
+                DataErrorCodes.MACRO_EXTRACTOR_NO_SUCH_METHOD.numericCode(), args, true, origin));
       }
     }
 

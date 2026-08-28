@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.error.PSIllegalArgumentException;
 
 /**
@@ -59,12 +60,12 @@ public class PSStatementColumnMapper extends java.util.HashMap {
     if (!(xmlField instanceof java.lang.String)) {
       Object[] args = {xmlField.getClass().getName()};
       throw new IllegalArgumentException(
-          new PSIllegalArgumentException(IPSDataErrors.COLMAPPER_XML_FIELD_NOT_STRING, args)
+          new PSIllegalArgumentException(DataErrorCodes.COLMAPPER_XML_FIELD_NOT_STRING, args)
               .toString());
     } else if (!(beCol instanceof com.percussion.data.PSStatementColumn)) {
       Object[] args = {beCol.getClass().getName()};
       throw new IllegalArgumentException(
-          new PSIllegalArgumentException(IPSDataErrors.COLMAPPER_BE_COL_NOT_STMTCOL, args)
+          new PSIllegalArgumentException(DataErrorCodes.COLMAPPER_BE_COL_NOT_STMTCOL, args)
               .toString());
     }
 

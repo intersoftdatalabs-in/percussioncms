@@ -16,6 +16,8 @@
  */
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.design.objectstore.PSDataSet;
 import com.percussion.design.objectstore.PSResultPage;
@@ -23,7 +25,7 @@ import com.percussion.error.PSCatalogException;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
-import com.percussion.server.IPSHttpErrors;
+
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSRequest;
@@ -92,9 +94,9 @@ public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
     java.util.Stack<?> stack = data.getResultSetStack();
     if (stack.size() > 1)
       throw new PSConversionException(
-          IPSDataErrors.CANNOT_CONVERT_MULTIPLE_RESULT_SETS, Integer.valueOf(stack.size()));
+          DataErrorCodes.CANNOT_CONVERT_MULTIPLE_RESULT_SETS, Integer.valueOf(stack.size()));
     else if (stack.size() == 0)
-      throw new PSConversionException(IPSDataErrors.NO_DATA_FOR_CONVERSION);
+      throw new PSConversionException(DataErrorCodes.NO_DATA_FOR_CONVERSION);
 
     PSRequest request = data.getRequest();
 
@@ -149,7 +151,7 @@ public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
         String pageExt = request.getRequestPageExtension();
         if (pageExt == null) pageExt = "";
         throw new PSUnsupportedConversionException(
-            IPSDataErrors.HTML_CONV_EXT_NOT_SUPPORTED, pageExt);
+            DataErrorCodes.HTML_CONV_EXT_NOT_SUPPORTED, pageExt);
       }
     }
 
@@ -173,7 +175,7 @@ public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
         String pageExt = request.getRequestPageExtension();
         if (pageExt == null) pageExt = "";
         throw new PSUnsupportedConversionException(
-            IPSDataErrors.HTML_CONV_EXT_NOT_SUPPORTED, pageExt);
+            DataErrorCodes.HTML_CONV_EXT_NOT_SUPPORTED, pageExt);
       }
     }
 
@@ -181,14 +183,14 @@ public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
     PSResponse resp = request.getResponse();
     if (resp == null) {
       /* this should never happen! */
-      throw new PSConversionException(IPSDataErrors.NO_RESPONSE_OBJECT);
+      throw new PSConversionException(DataErrorCodes.NO_RESPONSE_OBJECT);
     }
 
     ByteArrayOutputStream bout = null;
     ByteArrayInputStream in = null;
     try {
       if (doc == null) {
-        resp.setStatus(IPSHttpErrors.HTTP_NOT_FOUND);
+        resp.setStatus(HttpErrorCodes.HTTP_NOT_FOUND.numericCode());
       } else {
         bout = new ByteArrayOutputStream();
         String encoding = getEncodingForRequestPage(getResultPageIndex(data));
@@ -255,11 +257,11 @@ public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
 
     PSResponse resp = request.getResponse();
     if (resp == null) {
-      throw new PSConversionException(IPSDataErrors.NO_RESPONSE_OBJECT);
+      throw new PSConversionException(DataErrorCodes.NO_RESPONSE_OBJECT);
     }
 
     if (doc == null) {
-      resp.setStatus(IPSHttpErrors.HTTP_NOT_FOUND);
+      resp.setStatus(HttpErrorCodes.HTTP_NOT_FOUND.numericCode());
       return;
     }
 
