@@ -36,9 +36,10 @@ import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Dual-ship page templateDef CI/inventory gate: zero dual-ship emitters under Packages (issue
- * #3675 / #3737 / parent #2630). Waiver set is empty after perc.Test page dual-ship exit ({@code
- * perc.Test} never authored {@code pages/}). #3674 leftover binaries were converted, not
- * dual-ship-retained.
+ * #3675 / #3737 / #3949 / parent #2630). Waiver set is empty after perc.Test page dual-ship exit
+ * ({@code perc.Test} never authored {@code pages/}). #3674 leftover binaries were converted, not
+ * dual-ship-retained. Native is the policy default; dual-ship requires explicit {@code
+ * page.installMode=dual-ship}.
  *
  * <p>Cross-platform: all path construction uses {@link Path#resolve(String)} / {@link Files}.
  */
@@ -153,10 +154,28 @@ class PSDualShipPageTemplateDefInventoryTest {
   }
 
   @Test
+  void tempTree_unconfiguredModernPages_defaultsNativeAndIsClean() throws Exception {
+    Path packages = tempDir.resolve("Packages");
+    Path pkg = packages.resolve("perc.unconfigured");
+    writeModernPage(pkg, "some.page");
+
+    assertEquals(
+        PSPageXmlInstallMode.NATIVE,
+        PSDualShipPageTemplateDefInventory.resolveCommittedInstallMode(pkg));
+    assertEquals(PSPageXmlInstallMode.NATIVE, PSPageXmlInstallPolicy.resolve(pkg));
+
+    PSDualShipPageTemplateDefInventory.Report report =
+        PSDualShipPageTemplateDefInventory.scan(packages);
+    assertTrue(report.isClean(), "native default must not treat unconfigured packages as dual-ship");
+    assertEquals(0, report.all().size());
+  }
+
+  @Test
   void tempTree_percTestDualShip_failsGateAfterWaiverDrop() throws Exception {
     Path packages = tempDir.resolve("Packages");
     Path pkg = packages.resolve("perc.Test");
     writeModernPage(pkg, "PSPage_TestProperties");
+    writeDualShipInstallProps(pkg);
 
     PSDualShipPageTemplateDefInventory.Report report =
         PSDualShipPageTemplateDefInventory.scan(packages);
@@ -182,6 +201,7 @@ class PSDualShipPageTemplateDefInventoryTest {
     Path packages = tempDir.resolve("Packages");
     Path pkg = packages.resolve("perc.baseTemplates");
     writeModernPage(pkg, "perc.base.plain");
+    writeDualShipInstallProps(pkg);
 
     PSDualShipPageTemplateDefInventory.Report report =
         PSDualShipPageTemplateDefInventory.scan(packages);
@@ -220,10 +240,30 @@ class PSDualShipPageTemplateDefInventoryTest {
   }
 
   @Test
-  void committedScan_ignoresJvmNativeOverride() throws Exception {
+  void committedScan_ignoresJvmDualShipOverride_unconfiguredIsNative() throws Exception {
     Path packages = tempDir.resolve("Packages");
     Path pkg = packages.resolve("perc.baseTemplates");
     writeModernPage(pkg, "perc.base.plain");
+    System.setProperty(PSPageXmlInstallPolicy.SYS_PROP_INSTALL_MODE, "dual-ship");
+
+    assertEquals(PSPageXmlInstallMode.DUAL_SHIP, PSPageXmlInstallPolicy.resolve(pkg));
+    assertEquals(
+        PSPageXmlInstallMode.NATIVE,
+        PSDualShipPageTemplateDefInventory.resolveCommittedInstallMode(pkg));
+
+    PSDualShipPageTemplateDefInventory.Report report =
+        PSDualShipPageTemplateDefInventory.scan(packages);
+    assertTrue(
+        report.isClean(), "JVM dual-ship override must not make unconfigured packages look dual-ship");
+    assertEquals(0, report.nonWaived().size());
+  }
+
+  @Test
+  void committedScan_explicitDualShipNotHiddenByJvmNative() throws Exception {
+    Path packages = tempDir.resolve("Packages");
+    Path pkg = packages.resolve("perc.baseTemplates");
+    writeModernPage(pkg, "perc.base.plain");
+    writeDualShipInstallProps(pkg);
     System.setProperty(PSPageXmlInstallPolicy.SYS_PROP_INSTALL_MODE, "native");
     System.setProperty(PSPageXmlInstallPolicy.SYS_PROP_DUAL_SHIP, "false");
 
@@ -234,7 +274,7 @@ class PSDualShipPageTemplateDefInventoryTest {
 
     PSDualShipPageTemplateDefInventory.Report report =
         PSDualShipPageTemplateDefInventory.scan(packages);
-    assertFalse(report.isClean(), "JVM native override must not hide missing package-local opt-in");
+    assertFalse(report.isClean(), "JVM native override must not hide committed dual-ship opt-in");
     assertEquals(1, report.nonWaived().size());
   }
 
@@ -243,6 +283,7 @@ class PSDualShipPageTemplateDefInventoryTest {
     Path packages = tempDir.resolve("Packages");
     Path pkg = packages.resolve("perc.Test");
     writeModernPage(pkg, "PSPage_TestProperties");
+    writeDualShipInstallProps(pkg);
 
     Path relativePackages =
         Path.of(".").toAbsolutePath().normalize().relativize(packages.toAbsolutePath().normalize());
@@ -260,8 +301,12 @@ class PSDualShipPageTemplateDefInventoryTest {
   @Test
   void tempTree_percTestAndBaseTemplates_bothFailAsNonWaived() throws Exception {
     Path packages = tempDir.resolve("Packages");
-    writeModernPage(packages.resolve("perc.Test"), "PSPage_TestProperties");
-    writeModernPage(packages.resolve("perc.baseTemplates"), "perc.base.plain");
+    Path percTest = packages.resolve("perc.Test");
+    Path base = packages.resolve("perc.baseTemplates");
+    writeModernPage(percTest, "PSPage_TestProperties");
+    writeDualShipInstallProps(percTest);
+    writeModernPage(base, "perc.base.plain");
+    writeDualShipInstallProps(base);
 
     PSDualShipPageTemplateDefInventory.Report report =
         PSDualShipPageTemplateDefInventory.scan(packages);
@@ -352,7 +397,9 @@ class PSDualShipPageTemplateDefInventoryTest {
                     "perc.baseTemplates"));
     assertTrue(err.getMessage().contains("#3675"));
     assertTrue(err.getMessage().contains("perc.baseTemplates"));
-    assertTrue(err.getMessage().contains("native"));
+    assertTrue(err.getMessage().contains("Remove"));
+    assertTrue(err.getMessage().contains("native is the default"));
+    assertTrue(err.getMessage().contains("change its value to native"));
   }
 
   @Test
@@ -376,6 +423,14 @@ class PSDualShipPageTemplateDefInventoryTest {
     Files.writeString(
         page.resolve("component-package.json"),
         "{\"id\":\"" + templateId + "\"}",
+        StandardCharsets.UTF_8);
+  }
+
+  private static void writeDualShipInstallProps(Path packageDir) throws Exception {
+    Files.createDirectories(packageDir);
+    Files.writeString(
+        packageDir.resolve(PSPageXmlInstallPolicy.PACKAGE_INSTALL_PROPS),
+        PSPageXmlInstallPolicy.PROP_PAGE_INSTALL_MODE + "=dual-ship\n",
         StandardCharsets.UTF_8);
   }
 

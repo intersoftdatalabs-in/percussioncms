@@ -81,7 +81,7 @@ Native install (package build, #2806): archive `TemplateDef-N/<stem>.templateDef
 | Matching `id="…" class="perc-region perc-vertical …"` | `slots[].layout.orientation`, `slots[].styles.rootclass` (+ span hints) |
 | `catalog.kind` | always `page` for this compiler |
 
-**Install packaging (#2786 dual-ship + #2806 / #3673 native):** product **authors** modern `pages/` for `perc.baseTemplates`, `perc.responsiveTemplates`, and `perc.Baseline`. Package-local `package-install.properties` sets `page.installMode=native` so dual-ship root `*.templateDef` generation is **off**; `PSPageXmlNativeInstall` stages archive `TemplateDef-N/<stem>.templateDef` from modern pages (same XML/GUID semantics as dual-ship). Default for other packages remains dual-ship until they opt in. Policy: `PSPageXmlInstallPolicy`. Retirement checklist: [dual-ship-page-template-retirement.md](./dual-ship-page-template-retirement.md).
+**Install packaging (#2786 dual-ship + #2806 / #3673 native + #3949 native default):** product **authors** modern `pages/` for `perc.baseTemplates`, `perc.responsiveTemplates`, and `perc.Baseline`. Package-local `package-install.properties` may set `page.installMode=native` (also the policy **default** when unset); dual-ship root `*.templateDef` generation is **off** unless `page.installMode=dual-ship` or sysprop `perc.packages.page.installMode=dual-ship`. `PSPageXmlNativeInstall` stages archive `TemplateDef-N/<stem>.templateDef` from modern pages (same XML/GUID semantics as dual-ship). Policy: `PSPageXmlInstallPolicy`. Retirement checklist: [dual-ship-page-template-retirement.md](./dual-ship-page-template-retirement.md).
 
 ## Golden fixtures
 

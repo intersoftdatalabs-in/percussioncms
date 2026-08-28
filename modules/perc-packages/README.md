@@ -43,12 +43,13 @@ See root `scripts/README.md` (definition XML inventory gates) and
 
 Product packages with modern `pages/` must not re-introduce dual-ship root `*.templateDef`
 materialization. Waiver is **empty** after perc.Test page dual-ship exit (#3737)
-(`perc.Test` never authored `pages/` / page `*.templateDef`). Native packages
-(`package-install.properties` `page.installMode=native`) are not dual-ship emitters.
-#3674 leftover widget binaries are **not** dual-ship-retained (empty retain list).
-Package-build no longer calls `PSPageXmlDualShip.materializeInstallTemplateDefs` (#3950);
-dual-ship mode fails closed. Native `PSPageXmlNativeInstall.stageArchiveTemplateDefs` is
-the only production install emit.
+(`perc.Test` never authored `pages/` / page `*.templateDef`). Native is the **default**
+page install mode (#3949); dual-ship is explicit `page.installMode=dual-ship` (or
+`perc.packages.page.installMode`) only. Unconfigured packages and native packages
+are not dual-ship emitters. #3674 leftover widget binaries are **not** dual-ship-retained
+(empty retain list). Package-build no longer calls
+`PSPageXmlDualShip.materializeInstallTemplateDefs` (#3950); dual-ship mode fails closed.
+Native `PSPageXmlNativeInstall.stageArchiveTemplateDefs` is the only production install emit.
 
 | Piece | Class |
 |-------|--------|
@@ -56,7 +57,9 @@ the only production install emit.
 | Surefire | `PSDualShipPageTemplateDefInventoryTest` |
 | Package-build fail-closed | `PSPackageBuilder` (no DualShip materialize; dual-ship mode throws) |
 
-Committed policy ignores JVM `perc.packages.page.installMode` so CI reflects the source tree.
+Committed policy ignores JVM `perc.packages.page.installMode` so CI reflects the source tree
+(explicit dual-ship opt-in is not hidden by a JVM native override; unconfigured packages
+are native).
 
 ## Archive-manifest Widget XML paths (#3582)
 

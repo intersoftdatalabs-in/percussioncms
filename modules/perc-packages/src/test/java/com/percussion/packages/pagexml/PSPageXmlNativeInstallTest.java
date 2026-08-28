@@ -54,10 +54,10 @@ class PSPageXmlNativeInstallTest {
   }
 
   @Test
-  void policy_defaultIsDualShip() {
-    assertEquals(PSPageXmlInstallMode.DUAL_SHIP, PSPageXmlInstallPolicy.resolve(null));
-    assertTrue(PSPageXmlInstallPolicy.isDualShipEnabled(null));
-    assertFalse(PSPageXmlInstallPolicy.isNativeInstallEnabled(null));
+  void policy_defaultIsNative() {
+    assertEquals(PSPageXmlInstallMode.NATIVE, PSPageXmlInstallPolicy.resolve(null));
+    assertTrue(PSPageXmlInstallPolicy.isNativeInstallEnabled(null));
+    assertFalse(PSPageXmlInstallPolicy.isDualShipEnabled(null));
   }
 
   @Test

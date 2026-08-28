@@ -44,8 +44,9 @@ import java.util.regex.Pattern;
  * root-level {@code *.templateDef} materialization.
  *
  * <p>Aligns with {@link com.percussion.packages.shim.PSLegacyDefinitionXmlShim}: modern packages are
- * preferred. Package-build uses this native path only (#3950); dual-ship mode fails closed via
- * {@link PSPageXmlInstallPolicy}.
+ * preferred; dual-ship is an explicit opt-in (package-local or system property) via {@link
+ * PSPageXmlInstallPolicy} (native is the default as of #3949). Package-build uses this native path
+ * only (#3950); dual-ship mode fails closed.
  *
  * <p>Deployer runtime still consumes legacy assembly-template XML inside the {@code .ppkg}
  * (PSTemplateDefDependencyHandler). This class is the package-build / staging bridge that makes that

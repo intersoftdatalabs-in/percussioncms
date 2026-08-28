@@ -46,7 +46,7 @@ import java.util.regex.Pattern;
  * perc.responsiveTemplates}, {@code perc.Baseline} system assembly templates).
  *
  * <p><strong>Install path:</strong> production package-build uses {@link PSPageXmlNativeInstall} to
- * stage archive {@code TemplateDef-N/} folders (issue #3950). {@link
+ * stage archive {@code TemplateDef-N/} folders (native default as of #3949; issue #3950). {@link
  * #materializeInstallTemplateDefs} remains a dual-ship helper/CLI and is not called from {@code
  * PSPackageBuilder}. Dual-ship mode on the builder path fails closed — see {@link
  * PSPageXmlInstallPolicy}.

@@ -4,7 +4,7 @@
 |-------|--------|
 | **Status** | Active (#2806 native install path landed; dual-ship optional) |
 | **Parent** | [#2630](https://github.com/intersoftdatalabs-in/percussioncms/issues/2630) · Grandparent [#2626](https://github.com/intersoftdatalabs-in/percussioncms/issues/2626) |
-| **Related** | #2786 dual-ship modern authoring · #2806 native package install · #3673 Baseline native · #3674 leftover binary conversion · #3675 CI dual-ship gate · Phase 5 shim #2632 |
+| **Related** | #2786 dual-ship modern authoring · #2806 native package install · #3673 Baseline native · #3674 leftover binary conversion · #3675 CI dual-ship gate · #3949 native default · Phase 5 shim #2632 |
 | **Code** | `PSPageXmlInstallPolicy`, `PSPageXmlNativeInstall`, `PSPageXmlDualShip`, `PSPackageBuilder` |
 
 ## Purpose
@@ -17,14 +17,14 @@ This document is the **operator / engineering checklist** for turning dual-ship 
 
 | Mode | When | Package-build behavior |
 |------|------|------------------------|
-| **dual-ship** (default) | No package-local opt-in; system prop unset | Fail closed in `PSPackageBuilder` — does **not** materialize root `*.templateDef` (#3950). Native archive staging is the only production emit. |
-| **native** | `package-install.properties` `page.installMode=native`, or sys props below | Skip root dual-ship; after reorganize, `PSPageXmlNativeInstall.stageArchiveTemplateDefs` writes `TemplateDef-N/<stem>.templateDef` |
+| **native** (default, #3949) | No sysprop / no package-local `page.installMode` | Skip root dual-ship; after reorganize, `PSPageXmlNativeInstall.stageArchiveTemplateDefs` writes `TemplateDef-N/<stem>.templateDef` |
+| **dual-ship** (opt-in) | `package-install.properties` `page.installMode=dual-ship`, or sysprop `perc.packages.page.installMode=dual-ship` | Fail closed in `PSPackageBuilder` — does **not** materialize root `*.templateDef` (#3950). Native archive staging is the only production emit. |
 
 ### Configuration knobs
 
 | Knob | Values | Notes |
 |------|--------|-------|
-| Package-local `package-install.properties` → `page.installMode` | `native` \| `dual-ship` | Preferred for converted product packages |
+| Package-local `package-install.properties` → `page.installMode` | `native` \| `dual-ship` | Dual-ship is explicit opt-in; native is the default when unset (#3949) |
 | System property `perc.packages.page.installMode` | `native` \| `dual-ship` | Overrides package-local (CI / one-off builds) |
 | System property `perc.packages.dualShip.pageTemplateDefs` | `false` / `0` / `off` | Forces native (dual-ship generation off) |
 
@@ -44,7 +44,7 @@ Policy code: `com.percussion.packages.pagexml.PSPageXmlInstallPolicy` (aligns wi
 
 1. **Author modern** — `pages/<id>/component-package.json` + `templates/*.vm` present; no product-authored root `*.templateDef`.
 2. **Mapping intact** — `*.mapping.properties` still lists `stem.templateDef=TemplateDef-N` (and ACL side-cars as needed).
-3. **Opt into native** — add package-root `package-install.properties` with `page.installMode=native`.
+3. **Native is default** — unconfigured packages resolve native (#3949). Keep or add package-root `package-install.properties` with `page.installMode=native` for converted product packages; dual-ship requires an explicit `dual-ship` value.
 4. **Parity test** — unit test or golden: native archive XML GUID / name / assembler / body match dual-ship emit (`PSPageXmlNativeInstallTest` pattern).
 5. **Package build** — `PSPackageBuilder` log line `native-install page TemplateDefs for <pkg>: N written`.
 6. **Install smoke** — deployer installs package; templates load with stable GUIDs (human QA when host install available).
@@ -70,7 +70,7 @@ Dual-ship **code path** can be deleted when **all** hold:
 | Surefire | `PSDualShipPageTemplateDefInventoryTest` |
 | Package-build fail-closed | `PSPackageBuilder.stageModernPageInstallArtifacts` (native only; dual-ship throws, #3950) |
 
-Scan is **committed** `package-install.properties` only (JVM `perc.packages.page.installMode` must not hide a missing native opt-in). Packages with modern `pages/` + native mode are not dual-ship emitters. Authored root `*.templateDef` without modern `pages/` is out of this gate; leftover binaries were converted (#3674 / #3680). Waiver set is **empty** after perc.Test page dual-ship exit (#3737).
+Scan is **committed** `package-install.properties` only (JVM `perc.packages.page.installMode` must not hide an explicit dual-ship opt-in, and must not make unconfigured packages look dual-ship). Packages with modern `pages/` + native (default or explicit) are not dual-ship emitters. Authored root `*.templateDef` without modern `pages/` is out of this gate; leftover binaries were converted (#3674 / #3680). Waiver set is **empty** after perc.Test page dual-ship exit (#3737). Native default: #3949.
 
 ## Deployer note
 
