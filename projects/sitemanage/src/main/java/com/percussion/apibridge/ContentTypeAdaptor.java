@@ -439,7 +439,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     gaps.add(
         DesignGap.of(
             "CT_CREATE_DELETE",
-            "Create via POST /services/contenttypes. DELETE /contenttypes/{idOrName} requires a held"
+            "Create via POST /contenttypes. DELETE /contenttypes/{idOrName} requires a held"
                 + " design lock. Rename not supported; PUT save requires a held design lock for"
                 + " label/description/enabled, field searchable/occurrence, workflows (+ default),"
                 + " and templates"));
@@ -606,10 +606,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   @Override
   public Boolean deleteContentType(URI baseUri, String idOrName) {
     requireAdmin();
-    requireSessionUserForLock();
     if (StringUtils.isBlank(idOrName)) {
       return null;
     }
+    requireSessionUserForLock();
     String trimmed = idOrName.trim();
     if (trimmed.contains("*")) {
       throw new IllegalArgumentException("idOrName must not contain wildcards");

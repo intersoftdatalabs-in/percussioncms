@@ -200,6 +200,16 @@ class ContentTypeAdaptorDeleteTest {
   }
 
   @Test
+  void delete_blankIdOrName_returnsNullBeforeSessionCheck() throws Exception {
+    PSRequestInfoBase.resetRequestInfo();
+    PSRequestInfoBase.initRequestInfo(new HashMap<>());
+    assertNull(adaptor.deleteContentType(null, "  "));
+    assertNull(adaptor.deleteContentType(null, null));
+    verify(designWs, never()).deleteContentTypes(anyList(), anyBoolean(), any(), any());
+    verify(systemDesign, never()).isLocked(anyList(), any());
+  }
+
+  @Test
   void isDeleteDependencyFailure_detectsDependentsMessage() {
     PSErrorsException errors = new PSErrorsException();
     errors.addError(guid, new PSErrorException(1, "object has dependents", "stack"));
