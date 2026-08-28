@@ -17,18 +17,25 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSBackEndCredential;
+import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.design.objectstore.PSContainerLocator;
 import com.percussion.design.objectstore.PSContentEditorSharedDef;
+import com.percussion.design.objectstore.PSControlRef;
 import com.percussion.design.objectstore.PSDisplayMapper;
+import com.percussion.design.objectstore.PSDisplayMapping;
+import com.percussion.design.objectstore.PSDisplayText;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
+import com.percussion.design.objectstore.PSSearchProperties;
 import com.percussion.design.objectstore.PSSharedFieldGroup;
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.design.objectstore.PSTableLocator;
 import com.percussion.design.objectstore.PSTableRef;
 import com.percussion.design.objectstore.PSTableSet;
 import com.percussion.design.objectstore.PSUIDefinition;
+import com.percussion.design.objectstore.PSUISet;
 import com.percussion.rest.sharedfields.ISharedFieldsAdaptor;
 import com.percussion.rest.sharedfields.SharedFieldDesignLockException;
 import com.percussion.rest.sharedfields.SharedFieldGroupDetail;
@@ -79,9 +86,12 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
 
   private static final List<String> DESIGN_GAPS =
       List.of(
-          "Field create / delete not supported via this API",
           "Field control / choice write not supported via this API",
           "System def (global fields) is a separate catalog (later slice)");
+
+  private static final int MAX_FIELD_NAME_LENGTH = 50;
+
+  private static final String DEFAULT_TEXT_CONTROL = "sys_EditBox";
 
   private final IPSContentDesignWs designWs;
   private final Supplier<PSContentEditorSharedDef> sharedDefLoader;
@@ -248,8 +258,8 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
   }
 
   /**
-   * Persistable empty group: locator + empty field set + empty display mapper. Field create is a
-   * later slice.
+   * Persistable empty group: locator + empty field set + empty display mapper. Fields are added
+   * with {@link #addPersistableField}.
    */
   static PSSharedFieldGroup newEmptyGroup(String name, String filename) {
     PSBackEndCredential cred = new PSBackEndCredential("contentCredential");
@@ -279,6 +289,194 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
       }
     }
     return sb.length() == 0 ? "SHARED_FIELDS" : sb.toString();
+  }
+
+  static String validateFieldName(String name) {
+    if (StringUtils.isBlank(name)) {
+      throw new IllegalArgumentException("name is required");
+    }
+    String trimmed = name.trim();
+    if (containsWhitespace(trimmed)) {
+      throw new IllegalArgumentException("name cannot contain spaces");
+    }
+    if (trimmed.length() > MAX_FIELD_NAME_LENGTH) {
+      throw new IllegalArgumentException("name exceeds maximum length");
+    }
+    if (!isSafeGroupName(trimmed)) {
+      throw new IllegalArgumentException("name contains invalid path characters");
+    }
+    char first = trimmed.charAt(0);
+    if (!Character.isLetter(first)) {
+      throw new IllegalArgumentException("name must start with a letter");
+    }
+    for (int i = 1; i < trimmed.length(); i++) {
+      char c = trimmed.charAt(i);
+      if (!Character.isLetterOrDigit(c) && c != '_') {
+        throw new IllegalArgumentException("name must be letters, digits, or underscore");
+      }
+    }
+    return trimmed;
+  }
+
+  static String columnNameForField(String fieldName) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < fieldName.length(); i++) {
+      char c = fieldName.charAt(i);
+      if (Character.isLetterOrDigit(c) || c == '_') {
+        sb.append(Character.toUpperCase(c));
+      }
+    }
+    if (sb.length() == 0) {
+      throw new IllegalArgumentException("name does not yield a valid column");
+    }
+    return sb.toString();
+  }
+
+  static String tableAliasForGroup(PSSharedFieldGroup group) {
+    if (group == null || group.getLocator() == null) {
+      return tableNameForGroup(group != null ? group.getName() : "SHARED");
+    }
+    Iterator<?> sets = group.getLocator().getTableSets();
+    if (sets != null) {
+      while (sets.hasNext()) {
+        Object o = sets.next();
+        if (!(o instanceof PSTableSet ts)) {
+          continue;
+        }
+        Iterator<?> refs = ts.getTableRefs();
+        if (refs == null) {
+          continue;
+        }
+        while (refs.hasNext()) {
+          Object r = refs.next();
+          if (r instanceof PSTableRef ref) {
+            if (StringUtils.isNotBlank(ref.getAlias())) {
+              return ref.getAlias();
+            }
+            if (StringUtils.isNotBlank(ref.getName())) {
+              return ref.getName();
+            }
+          }
+        }
+      }
+    }
+    return tableNameForGroup(group.getName());
+  }
+
+  /**
+   * Persistable TYPE_SHARED field with backend column locator, default text mapping, and display
+   * mapping ({@code sys_EditBox}). Control/choice write is a later slice.
+   */
+  static PSField addPersistableField(PSSharedFieldGroup group, SharedFieldSummary body) {
+    if (group == null) {
+      throw new IllegalArgumentException("group is required");
+    }
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    String fieldName = validateFieldName(body.getName());
+    PSFieldSet fieldSet = group.getFieldSet();
+    if (fieldSet == null) {
+      throw new IllegalArgumentException("Shared field group has no field set");
+    }
+    PSField field = newPersistableSharedField(group, fieldName, body);
+    fieldSet.add(field);
+    applyOccurrenceOrRequired(field, body);
+    appendDefaultDisplayMapping(group, fieldName);
+    return field;
+  }
+
+  static PSField newPersistableSharedField(
+      PSSharedFieldGroup group, String fieldName, SharedFieldSummary body) {
+    String tableAlias = tableAliasForGroup(group);
+    PSBackEndTable table = new PSBackEndTable(tableAlias);
+    PSField field =
+        new PSField(
+            PSField.TYPE_SHARED, fieldName, new PSBackEndColumn(table, columnNameForField(fieldName)));
+    String dataType =
+        body == null || StringUtils.isBlank(body.getDataType())
+            ? PSField.DT_TEXT
+            : body.getDataType().trim();
+    try {
+      field.setDataType(dataType);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(
+          "Invalid dataType for field " + fieldName + ": " + dataType, e);
+    }
+    if (PSField.DT_TEXT.equals(field.getDataType())) {
+      field.setMimeType("text/plain");
+      field.setDataFormat("50");
+    }
+    boolean searchable =
+        body == null || body.getSearchable() == null || Boolean.TRUE.equals(body.getSearchable());
+    field.setSearchProperties(new PSSearchProperties(searchable));
+    try {
+      field.setOccurrenceDimension(PSField.OCCURRENCE_DIMENSION_OPTIONAL, null);
+    } catch (PSSystemValidationException e) {
+      throw new IllegalArgumentException("Invalid occurrence for field " + fieldName, e);
+    }
+    return field;
+  }
+
+  static void appendDefaultDisplayMapping(PSSharedFieldGroup group, String fieldName) {
+    PSUIDefinition ui = group.getUIDefinition();
+    if (ui == null) {
+      throw new IllegalArgumentException("Shared field group has no UI definition");
+    }
+    PSDisplayMapper mapper = ui.getDisplayMapper();
+    if (mapper == null) {
+      throw new IllegalArgumentException("Shared field group has no display mapper");
+    }
+    if (ui.getMapping(fieldName) != null) {
+      return;
+    }
+    PSUISet uiSet = new PSUISet();
+    uiSet.setLabel(new PSDisplayText(fieldName + ":"));
+    uiSet.setErrorLabel(new PSDisplayText(fieldName + ":"));
+    uiSet.setControl(new PSControlRef(DEFAULT_TEXT_CONTROL));
+    ui.appendMapping(mapper, new PSDisplayMapping(fieldName, uiSet));
+  }
+
+  static boolean removeFieldAndMapping(PSSharedFieldGroup group, String fieldName) {
+    if (group == null || group.getFieldSet() == null || StringUtils.isBlank(fieldName)) {
+      return false;
+    }
+    PSField field = group.getFieldSet().findFieldByName(fieldName, false);
+    if (field == null) {
+      return false;
+    }
+    String actual = field.getSubmitName();
+    group.getFieldSet().remove(actual);
+    PSUIDefinition ui = group.getUIDefinition();
+    if (ui != null) {
+      removeDisplayMapping(ui.getDisplayMapper(), actual);
+    }
+    return true;
+  }
+
+  /**
+   * Index-based mapping removal. {@link PSDisplayMapper#removeMapping} uses {@code
+   * Iterator.remove()}, which {@code PSConcurrentIterator} rejects.
+   */
+  static boolean removeDisplayMapping(PSDisplayMapper mapper, String fieldRef) {
+    if (mapper == null || StringUtils.isBlank(fieldRef)) {
+      return false;
+    }
+    for (int i = 0; i < mapper.size(); i++) {
+      Object o = mapper.get(i);
+      if (!(o instanceof PSDisplayMapping mapping)) {
+        continue;
+      }
+      if (fieldRef.equals(mapping.getFieldRef())) {
+        mapper.remove(i);
+        return true;
+      }
+      if (mapping.getDisplayMapper() != null
+          && removeDisplayMapping(mapping.getDisplayMapper(), fieldRef)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -474,6 +672,63 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
     saveSharedDef(def, session, user);
   }
 
+  @Override
+  public SharedFieldGroupDetail addField(URI baseUri, String groupName, SharedFieldSummary body) {
+    requireAdmin();
+    requireDesignWs();
+    requireSessionUserForWrite();
+    if (StringUtils.isBlank(groupName)) {
+      throw new IllegalArgumentException("name is required");
+    }
+    if (!isSafeGroupName(groupName)) {
+      return null;
+    }
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    String fieldName = validateFieldName(body.getName());
+    String session = currentSession();
+    String user = currentUser();
+    PSContentEditorSharedDef def = loadSharedDefLocked(session, user);
+    PSSharedFieldGroup group = findGroup(def, groupName.trim());
+    if (group == null) {
+      return null;
+    }
+    if (findSharedField(def, fieldName) != null) {
+      throw new WebApplicationException("Shared field already exists: " + fieldName, 409);
+    }
+    addPersistableField(group, body);
+    saveSharedDef(def, session, user);
+    return toDetail(group);
+  }
+
+  @Override
+  public void deleteField(URI baseUri, String groupName, String fieldName) {
+    requireAdmin();
+    requireDesignWs();
+    requireSessionUserForWrite();
+    if (StringUtils.isBlank(groupName) || StringUtils.isBlank(fieldName)) {
+      throw new IllegalArgumentException("name is required");
+    }
+    if (!isSafeGroupName(groupName)) {
+      throw new SharedFieldNotFoundException("Shared field group not found");
+    }
+    if (!isSafeGroupName(fieldName)) {
+      throw new SharedFieldNotFoundException("Shared field not found");
+    }
+    String session = currentSession();
+    String user = currentUser();
+    PSContentEditorSharedDef def = loadSharedDefLocked(session, user);
+    PSSharedFieldGroup group = findGroup(def, groupName.trim());
+    if (group == null) {
+      throw new SharedFieldNotFoundException("Shared field group not found");
+    }
+    if (!removeFieldAndMapping(group, fieldName.trim())) {
+      throw new SharedFieldNotFoundException("Shared field not found");
+    }
+    saveSharedDef(def, session, user);
+  }
+
   private void requireAdmin() {
     boolean allowed;
     try {
@@ -564,6 +819,23 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
       Object o = it.next();
       if (o instanceof PSSharedFieldGroup group && name.equalsIgnoreCase(group.getName())) {
         return group;
+      }
+    }
+    return null;
+  }
+
+  static PSField findSharedField(PSContentEditorSharedDef def, String fieldName) {
+    if (def == null || StringUtils.isBlank(fieldName)) {
+      return null;
+    }
+    for (Iterator<?> it = def.getFieldGroups(); it.hasNext(); ) {
+      Object o = it.next();
+      if (!(o instanceof PSSharedFieldGroup group) || group.getFieldSet() == null) {
+        continue;
+      }
+      PSField found = group.getFieldSet().findFieldByName(fieldName, false);
+      if (found != null) {
+        return found;
       }
     }
     return null;

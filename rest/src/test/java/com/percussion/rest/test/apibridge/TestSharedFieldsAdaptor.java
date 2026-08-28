@@ -20,6 +20,7 @@ package com.percussion.rest.test.apibridge;
 import com.percussion.rest.sharedfields.ISharedFieldsAdaptor;
 import com.percussion.rest.sharedfields.SharedFieldGroupDetail;
 import com.percussion.rest.sharedfields.SharedFieldGroupSummary;
+import com.percussion.rest.sharedfields.SharedFieldSummary;
 import java.net.URI;
 import java.util.List;
 import org.springframework.context.annotation.Lazy;
@@ -59,6 +60,16 @@ public class TestSharedFieldsAdaptor implements ISharedFieldsAdaptor {
 
   @Override
   public void deleteGroup(URI baseUri, String name) {
+    // no-op for tests
+  }
+
+  @Override
+  public SharedFieldGroupDetail addField(URI baseUri, String groupName, SharedFieldSummary body) {
+    return null;
+  }
+
+  @Override
+  public void deleteField(URI baseUri, String groupName, String fieldName) {
     // no-op for tests
   }
 }

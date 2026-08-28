@@ -23,7 +23,9 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Field row inside a shared field group. GET catalog; PUT may patch {@code searchable} and
- * occurrence / required on existing fields. {@code readOnly} and {@code dataType} are read-only.
+ * occurrence / required on existing fields. POST {@code /sharedfields/{name}/fields} uses {@code
+ * name} (required) plus optional {@code dataType}, {@code searchable}, and occurrence / required.
+ * {@code readOnly} is read-only on write.
  */
 @XmlRootElement(name = "SharedField")
 @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -77,7 +77,8 @@ public class SharedFieldsResource {
       description =
           "Lists shared field groups from the content-editor shared definition. Admin (Design)"
               + " only. Create uses POST /sharedfields; save uses PUT /sharedfields/{name}; delete"
-              + " uses DELETE /sharedfields/{name}.",
+              + " uses DELETE /sharedfields/{name}. Add a field with POST /sharedfields/{name}/fields;"
+              + " remove one with DELETE /sharedfields/{name}/fields/{fieldName}.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -107,7 +108,8 @@ public class SharedFieldsResource {
       summary = "Get shared field group detail",
       description =
           "Loads one shared field group by name (Admin/Design only). Includes field catalog."
-              + " Control/choice write and system-def remain unsupported (see designGaps).",
+              + " Field add/remove use nested POST/DELETE .../fields. Control/choice write and"
+              + " system-def remain unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -227,6 +229,77 @@ public class SharedFieldsResource {
   public Response deleteGroup(@PathParam("name") String name) {
     try {
       requireAdaptor().deleteGroup(uriInfo.getBaseUri(), name);
+      return Response.noContent().build();
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @POST
+  @Path("/{name}/fields")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Add a field to a shared field group",
+      description =
+          "Admin. Adds a persistable field (backend column + display mapping) to an existing"
+              + " shared field group via IPSContentDesignWs.loadContentEditorSharedDef (lock) then"
+              + " saveContentEditorSharedDef (release). Body name is required, unique"
+              + " case-insensitive across shared groups, and must be a letter followed by letters,"
+              + " digits, or underscore. Optional dataType defaults to text. Optional searchable"
+              + " and occurrence/required use the same rules as PUT field patches. Duplicate field"
+              + " is 409. Missing group is 404. Lock held by another user is 409. Control/choice"
+              + " write remains unsupported.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Field added and saved",
+            content = @Content(schema = @Schema(implementation = SharedFieldGroupDetail.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid group or field input"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Group not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "A field with that name exists, or shared def locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public SharedFieldGroupDetail addField(
+      @PathParam("name") String name, SharedFieldSummary body) {
+    try {
+      SharedFieldGroupDetail detail = requireAdaptor().addField(uriInfo.getBaseUri(), name, body);
+      if (detail == null) {
+        throw new WebApplicationException("Shared field group not found", 404);
+      }
+      return detail;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @DELETE
+  @Path("/{name}/fields/{fieldName}")
+  @Operation(
+      summary = "Delete a field from a shared field group",
+      description =
+          "Admin. Removes the field and its display mapping from the group and saves via"
+              + " IPSContentDesignWs.saveContentEditorSharedDef (releases the request lock)."
+              + " Missing group or field is 404; lock held by another user is 409.",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Deleted"),
+        @ApiResponse(responseCode = "400", description = "Invalid name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Group or field not found"),
+        @ApiResponse(responseCode = "409", description = "Shared def locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response deleteField(
+      @PathParam("name") String name, @PathParam("fieldName") String fieldName) {
+    try {
+      requireAdaptor().deleteField(uriInfo.getBaseUri(), name, fieldName);
       return Response.noContent().build();
     } catch (RuntimeException e) {
       throw mapWriteFailure(e);
