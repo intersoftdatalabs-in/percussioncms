@@ -15,7 +15,10 @@
  * limitations under the License.
  */
 
-import { normalizeDesignObjectGuid } from "../displayFormatGuid";
+import {
+  normalizeDesignObjectGuid,
+  resolveContentTypeObjectGuid,
+} from "../displayFormatGuid";
 import { get, post, put } from "../client";
 import { PATHS } from "../paths";
 import {
@@ -74,8 +77,62 @@ function asRecord(value: unknown): Record<string, unknown> | null {
   return null;
 }
 
+const MAX_CONTENT_TYPE_TEXT_DEPTH = 4;
+
+/**
+ * Coerce catalog/detail string fields so JAXB wraps cannot hide Open keys
+ * or throw "Objects are not valid as a React child" (#3810 / #3706).
+ */
+export function asContentTypeText(value: unknown, depth = 0): string {
+  if (value == null || depth > MAX_CONTENT_TYPE_TEXT_DEPTH) {
+    return "";
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+  if (typeof value !== "object" || Array.isArray(value)) {
+    return "";
+  }
+  const o = value as Record<string, unknown>;
+  return asContentTypeText(
+    o.value ?? o.stringValue ?? o.$ ?? o._text ?? o.content,
+    depth + 1,
+  );
+}
+
+function optionalContentTypeText(value: unknown): string | undefined {
+  const text = asContentTypeText(value);
+  return text ? text : undefined;
+}
+
+function coerceContentTypeStringFields<T extends ContentTypeSummary>(item: T): T {
+  return {
+    ...item,
+    name: optionalContentTypeText(item.name),
+    label: optionalContentTypeText(item.label),
+    description: optionalContentTypeText(item.description),
+  };
+}
+
 function normalizeContentTypeSummary(item: ContentTypeSummary): ContentTypeSummary {
-  return normalizeDesignObjectGuid(item);
+  return normalizeDesignObjectGuid(coerceContentTypeStringFields(item));
+}
+
+/**
+ * Open-key for Content Types catalog → GET /services/contenttypes/{idOrName}.
+ * Prefers internal name, then object GUID. Null when the row cannot be opened
+ * (empty/wrapped name and no guid — no Open button, #3810).
+ */
+export function contentTypeSelectionKey(ct: ContentTypeSummary): string | null {
+  const name = asContentTypeText(ct.name);
+  if (name && name !== "—") {
+    return name;
+  }
+  const guid = resolveContentTypeObjectGuid(ct);
+  return guid || null;
 }
 
 /** Jackson WRAP_ROOT / JAXB / ArrayList envelopes for GET /services/contenttypes. */
@@ -162,7 +219,7 @@ function flattenContentTypeList(payload: unknown, depth = 0): unknown[] {
 
 function normalizeContentTypeDetail(detail: ContentTypeDetail): ContentTypeDetail {
   return {
-    ...detail,
+    ...coerceContentTypeStringFields(detail),
     fields: normalizeContentTypeFields(detail.fields),
     childFieldSets: normalizeContentTypeStringList(detail.childFieldSets),
     allowedWorkflows: normalizeNamedObjectRefs(detail.allowedWorkflows),
@@ -194,20 +251,33 @@ export function unwrapContentTypeDetail(payload: unknown): ContentTypeDetail {
   if (!root) {
     return {};
   }
-  const nested = asRecord(root[CONTENT_TYPE_DETAIL_ROOT] ?? root.contentTypeDetail);
+  const preferred = asRecord(root[CONTENT_TYPE_DETAIL_ROOT] ?? root.contentTypeDetail);
   let body: ContentTypeDetail;
-  if (nested) {
-    body = nested as ContentTypeDetail;
-  } else if (
-    "name" in root ||
-    "guid" in root ||
-    "guidString" in root ||
-    "fields" in root ||
-    "label" in root
-  ) {
-    body = root as ContentTypeDetail;
+  if (preferred) {
+    body = preferred as ContentTypeDetail;
   } else {
-    return {};
+    const alt = asRecord(root.ContentType ?? root.contentType);
+    if (
+      alt &&
+      (alt.name != null ||
+        alt.fields != null ||
+        alt.guid != null ||
+        alt.label != null ||
+        alt.allowedTemplates != null)
+    ) {
+      body = alt as ContentTypeDetail;
+    } else if (
+      "name" in root ||
+      "guid" in root ||
+      "guidString" in root ||
+      "fields" in root ||
+      "label" in root ||
+      "allowedTemplates" in root
+    ) {
+      body = root as ContentTypeDetail;
+    } else {
+      return {};
+    }
   }
   return normalizeDesignObjectGuid(normalizeContentTypeDetail(body));
 }

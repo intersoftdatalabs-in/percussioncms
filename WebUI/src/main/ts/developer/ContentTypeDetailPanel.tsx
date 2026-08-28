@@ -18,6 +18,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
+  asContentTypeText,
   getContentTypeAllowedTemplates,
   getContentTypeDetail,
   getContentTypeItemExits,
@@ -253,8 +254,8 @@ export function ContentTypeDetailPanel({
         if (cancelled) return;
         const normalized = normalizeDetailLists(d);
         setDetail(normalized);
-        setLabel(normalized.label || "");
-        setDescription(normalized.description || "");
+        setLabel(asContentTypeText(normalized.label));
+        setDescription(asContentTypeText(normalized.description));
         setEnabled(normalized.enabled !== false);
         setFieldDrafts(toDrafts(normalized.fields));
         setWorkflows(
@@ -746,8 +747,8 @@ export function ContentTypeDetailPanel({
       }
       const normalized = normalizeDetailLists(saved);
       setDetail(normalized);
-      setLabel(normalized.label || "");
-      setDescription(normalized.description || "");
+      setLabel(asContentTypeText(normalized.label));
+      setDescription(asContentTypeText(normalized.description));
       setEnabled(normalized.enabled !== false);
       setFieldDrafts(toDrafts(normalized.fields));
       setWorkflows(
@@ -897,7 +898,9 @@ export function ContentTypeDetailPanel({
       </div>
 
       <div style={{ fontFamily: "monospace", color: catalogColors.muted, marginBottom: "12px" }}>
-        <span data-testid="developer-ct-detail-name">{detail?.name || idOrName}</span>
+        <span data-testid="developer-ct-detail-name">
+          {asContentTypeText(detail?.name) || idOrName}
+        </span>
         {detail ? (
           <>
             {" · "}
@@ -1244,7 +1247,7 @@ export function ContentTypeDetailPanel({
         <>
           <header style={{ marginBottom: "16px" }}>
             <h2 style={{ margin: "0 0 4px" }} data-testid="developer-ct-detail-title">
-              {label || detail.name || idOrName}
+              {label || asContentTypeText(detail.name) || idOrName}
             </h2>
             <div style={{ marginTop: "12px" }}>
               <label htmlFor="ct-label" style={{ display: "block", marginBottom: 4 }}>
@@ -1555,12 +1558,6 @@ export function ContentTypeDetailPanel({
             }}
           />
 
-          <ObjectAclSection
-            objectGuid={objectGuid}
-            objectKind="content-type"
-            testIdPrefix="developer-ct-acl"
-          />
-
           {gapRows.length > 0 ? (
             <section data-testid="developer-ct-gaps">
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_GAPS}</h3>
@@ -1575,6 +1572,13 @@ export function ContentTypeDetailPanel({
           ) : null}
         </>
       ) : null}
+
+      {/* Mount Object ACL from catalogGuid before GET detail finishes (#3810). */}
+      <ObjectAclSection
+        objectGuid={objectGuid}
+        objectKind="content-type"
+        testIdPrefix="developer-ct-acl"
+      />
     </div>
   );
 }

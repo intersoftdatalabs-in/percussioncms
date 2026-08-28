@@ -18,6 +18,8 @@
 import React, { useEffect, useState } from "react";
 import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
+  asContentTypeText,
+  contentTypeSelectionKey,
   listContentTypes,
   unwrapContentTypeList,
 } from "../api/developer/contentTypesApi";
@@ -29,15 +31,9 @@ import { DeveloperSectionErrorBoundary } from "./DeveloperSectionErrorBoundary";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
-/** Coerce catalog cell / sort keys so object JAXB wraps cannot throw. */
+/** Catalog cell / sort keys — JAXB wraps unwrap in {@link asContentTypeText}. */
 function asCatalogText(value: unknown): string {
-  if (typeof value === "string") {
-    return value;
-  }
-  if (typeof value === "number" || typeof value === "boolean") {
-    return String(value);
-  }
-  return "";
+  return asContentTypeText(value);
 }
 
 /**
@@ -53,8 +49,8 @@ function displayId(ct: ContentTypeSummary): string {
   return resolveContentTypeObjectGuid(ct) || "—";
 }
 
-function selectionKey(ct: ContentTypeSummary): string {
-  return asCatalogText(ct.name) || resolveContentTypeObjectGuid(ct) || displayId(ct);
+function selectionKey(ct: ContentTypeSummary): string | null {
+  return contentTypeSelectionKey(ct);
 }
 
 function catalogSortKey(ct: ContentTypeSummary): string {
@@ -98,7 +94,7 @@ export function ContentTypesPanel(): React.ReactElement {
 
   function openContentType(ct: ContentTypeSummary) {
     const idOrName = selectionKey(ct);
-    if (!idOrName || idOrName === "—") return;
+    if (!idOrName) return;
     setSelected({
       idOrName,
       catalogGuid: resolveContentTypeObjectGuid(ct),
@@ -163,23 +159,22 @@ export function ContentTypesPanel(): React.ReactElement {
             name ||
             `${label || "ct"}-${displayId(ct)}`;
           const openKey = selectionKey(ct);
-          const interactive = openKey !== "—";
+          const interactive = !!openKey;
           return {
             key,
-            onClick: interactive ? () => openContentType(ct) : undefined,
+            dataAttrs: openKey ? { "data-ct-name": openKey } : undefined,
             cells: [
               interactive ? (
                 <button
                   key="open"
                   type="button"
                   style={openButtonStyle}
+                  data-testid="developer-ct-open"
+                  data-ct-name={openKey}
                   aria-label={`Open ${label || name || openKey}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openContentType(ct);
-                  }}
+                  onClick={() => openContentType(ct)}
                 >
-                  {label || "—"}
+                  {label || name || "—"}
                 </button>
               ) : (
                 <span key="lbl" style={mutedCell}>

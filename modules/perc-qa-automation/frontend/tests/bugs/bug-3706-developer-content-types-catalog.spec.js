@@ -108,16 +108,21 @@ test.describe("Developer Content Types catalog (#3706)", () => {
 
     const firstRow = page.locator(catalogRowSelector("developer-ct-row", 0));
     await expect(firstRow).toBeVisible({ timeout: 15_000 });
-    const openBtn = firstRow.locator("button");
+    const openBtn = firstRow.locator('[data-testid="developer-ct-open"]');
     await expect(
       openBtn,
       "first content-type row should expose Open when selectionKey is set",
     ).toBeVisible({ timeout: 5_000 });
     await openBtn.click();
 
-    await expect(page.locator('[data-testid="developer-ct-detail"]')).toBeVisible({
-      timeout: 20_000,
-    });
+    const detail = page.locator('[data-testid="developer-ct-detail"]');
+    const detailError = page.locator('[data-testid="developer-ct-detail-error"]');
+    await expect(detail.or(detailError).first()).toBeVisible({ timeout: 20_000 });
+    if (await detailError.isVisible()) {
+      const msg = (await detailError.innerText()).trim();
+      throw new Error(`Content type detail error after Open: ${msg}`);
+    }
+    await expect(detail).toBeVisible({ timeout: 5_000 });
     await expect(
       page.locator('[data-testid="developer-ct-acl-section"]'),
     ).toBeVisible({ timeout: 15_000 });

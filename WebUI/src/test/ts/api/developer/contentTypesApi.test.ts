@@ -4,6 +4,8 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  asContentTypeText,
+  contentTypeSelectionKey,
   getContentTypeAllowedTemplates,
   getFieldControlProperties,
   normalizeContentTypeControlProperties,
@@ -127,6 +129,48 @@ describe("unwrapContentTypeList", () => {
       },
     ]);
   });
+
+  it("coerces JAXB-wrapped name/label so catalog Open keys exist (#3810)", () => {
+    expect(
+      unwrapContentTypeList([
+        {
+          name: { value: "percPage" },
+          label: { $: "Page" },
+          description: { stringValue: "A page" },
+          guid: { hostId: 0, type: 2, uuid: 301 },
+        },
+      ]),
+    ).toEqual([
+      {
+        name: "percPage",
+        label: "Page",
+        description: "A page",
+        guid: { hostId: 0, type: 2, uuid: 301, stringValue: "0-2-301" },
+        guidString: "0-2-301",
+      },
+    ]);
+  });
+});
+
+describe("asContentTypeText / contentTypeSelectionKey (#3810)", () => {
+  it("unwraps JAXB string wrappers", () => {
+    expect(asContentTypeText("percPage")).toBe("percPage");
+    expect(asContentTypeText({ value: "percPage" })).toBe("percPage");
+    expect(asContentTypeText({ $: "Page" })).toBe("Page");
+    expect(asContentTypeText({ stringValue: "0-2-301" })).toBe("0-2-301");
+    expect(asContentTypeText({ foo: 1 })).toBe("");
+    expect(asContentTypeText(null)).toBe("");
+  });
+
+  it("prefers name then guid and never returns em-dash", () => {
+    expect(contentTypeSelectionKey({ name: "percPage" })).toBe("percPage");
+    expect(
+      contentTypeSelectionKey({ guid: { stringValue: "0-2-9" } }),
+    ).toBe("0-2-9");
+    expect(contentTypeSelectionKey({ name: { value: "percFile" } })).toBe("percFile");
+    expect(contentTypeSelectionKey({ label: "Broken" })).toBeNull();
+    expect(contentTypeSelectionKey({ name: "—" })).toBeNull();
+  });
 });
 
 describe("unwrapContentTypeDetail (#3319)", () => {
@@ -167,6 +211,31 @@ describe("unwrapContentTypeDetail (#3319)", () => {
   it("returns empty object for unrelated envelopes", () => {
     expect(unwrapContentTypeDetail({ Error: { message: "x" } })).toEqual({});
     expect(unwrapContentTypeDetail(null)).toEqual({});
+  });
+
+  it("unwraps ContentType root and JAXB name wraps (#3810)", () => {
+    const flat = unwrapContentTypeDetail({
+      ContentType: {
+        name: { value: "percPage" },
+        label: { $: "Page" },
+        guid: { stringValue: "0-2-301" },
+        fields: [],
+      },
+    });
+    expect(flat.name).toBe("percPage");
+    expect(flat.label).toBe("Page");
+    expect(flat.guid?.stringValue).toBe("0-2-301");
+  });
+
+  it("keeps ContentTypeDetail root when only allowedTemplates is present", () => {
+    const flat = unwrapContentTypeDetail({
+      ContentTypeDetail: {
+        allowedTemplates: [{ name: "t1", guid: { stringValue: "1-101-9" } }],
+      },
+    });
+    expect(flat.allowedTemplates).toEqual([
+      { name: "t1", guid: { stringValue: "1-101-9" } },
+    ]);
   });
 
   it("normalizes Jackson empty-collection beans to [] (#3712)", () => {
