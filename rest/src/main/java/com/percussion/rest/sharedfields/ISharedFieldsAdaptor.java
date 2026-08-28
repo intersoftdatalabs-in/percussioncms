@@ -38,4 +38,46 @@ public interface ISharedFieldsAdaptor {
    * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin
    */
   SharedFieldGroupDetail getGroup(URI baseUri, String name);
+
+  /**
+   * Create and persist an empty shared field group (Workbench new shared-field file). Admin only.
+   * Acquires the shared-def design lock for this request and releases it on save.
+   *
+   * @param body {@code name} required; unique case-insensitive; no spaces. Optional {@code
+   *     filename} defaults to {@code {name}.xml}.
+   * @return persisted detail
+   * @throws IllegalArgumentException when the name/filename is invalid
+   * @throws jakarta.ws.rs.WebApplicationException {@code 409} when a group with that name exists;
+   *     {@code 403} when the caller is not Admin
+   * @throws SharedFieldDesignLockException when the shared def is locked by another user
+   */
+  SharedFieldGroupDetail createGroup(URI baseUri, SharedFieldGroupDetail body);
+
+  /**
+   * Update an existing shared field group. Admin only. Acquires the shared-def design lock for this
+   * request and releases it on save.
+   *
+   * <p>Supports filename, rename ({@code body.name} different from the path name), and patches to
+   * existing fields ({@code searchable}, occurrence / required). Null {@code fields} leaves fields
+   * unchanged. Does not create or delete fields.
+   *
+   * @return updated detail, or {@code null} when not found / unsafe path name
+   * @throws IllegalArgumentException when the path name is blank, input is invalid, a field name
+   *     is unknown, or {@code occurrence} and {@code required} conflict
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin; {@code
+   *     409} when the new name already exists
+   * @throws SharedFieldDesignLockException when the shared def is locked by another user
+   */
+  SharedFieldGroupDetail updateGroup(URI baseUri, String name, SharedFieldGroupDetail body);
+
+  /**
+   * Delete a shared field group. Admin only. Acquires the shared-def design lock for this request
+   * and releases it on save.
+   *
+   * @throws SharedFieldNotFoundException when the group does not exist
+   * @throws IllegalArgumentException when the name is blank or unsafe
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin
+   * @throws SharedFieldDesignLockException when the shared def is locked by another user
+   */
+  void deleteGroup(URI baseUri, String name);
 }

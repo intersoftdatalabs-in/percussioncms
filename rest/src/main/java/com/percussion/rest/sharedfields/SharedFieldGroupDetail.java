@@ -24,9 +24,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Read-only detail for one shared field group.
+ * Shared field group detail. Used for GET catalog and POST/PUT write (name, filename, field
+ * patches).
  *
- * <p>Does not support create/update/delete (later CD-15 write slice).
+ * <p>Field create/delete, control/choice write, and system-def remain later slices ({@code
+ * designGaps}).
  */
 @XmlRootElement(name = "SharedFieldGroupDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -514,23 +514,46 @@ catalog. Choice filters, null-entry, and default-selected are not written.
 ## Shared fields (design catalog)
 
 Content-editor **shared field groups** (Workbench shared field files, CD-15) are a
-separate design object from content types. Public REST exposes a **read-only catalog**
-under `/services/sharedfields`. Load uses the same content **design** web service as
-Workbench (`IPSContentDesignWs.loadContentEditorSharedDef`).
+separate design object from content types. Public REST exposes a catalog **and write**
+under `/services/sharedfields`. Load and save use the same content **design** web
+service as Workbench (`IPSContentDesignWs.loadContentEditorSharedDef` /
+`saveContentEditorSharedDef`). Writes acquire the shared-definition design lock for
+the request and **release** it on save (unlike content-type PUT, which requires a
+previously held lock).
 
 **Admin (Design) only.** There is no global JAX-RS Admin filter on this path — the
 sitemanage adaptor checks `IPSUserService.isAdminUser` for the current user and maps
-a non-Admin caller to **403**. Create, rename, delete, field-property write, and
+a non-Admin caller to **403**. Field **create/delete**, control/choice write, and
 system-def (CD-16) remain unsupported.
 
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/services/sharedfields` | List shared field groups (`name`, `filename`, `fieldCount`) |
 | `GET` | `/services/sharedfields/{idOrName}` | Load one group by **name** (case-insensitive). Shared groups have no numeric design id on this catalog. |
+| `POST` | `/services/sharedfields` | Create an empty shared field group (`name` required, unique, no spaces). Optional `filename` defaults to `{name}.xml`. |
+| `PUT` | `/services/sharedfields/{idOrName}` | Save filename, optional rename (`body.name`), and patches to **existing** fields (`searchable`, occurrence / required). Null `fields` leaves the catalog unchanged. |
+| `DELETE` | `/services/sharedfields/{idOrName}` | Delete the group (**204**). |
 
 `{idOrName}` is the shared field group name (for example a product set such as
 `shared`). Path separators and `..` are rejected as not found (**404**), not as a
-directory listing.
+directory listing. A blank path name on PUT or DELETE is **400** (same invalid-name
+rule as POST).
+
+Create body is a `SharedFieldGroupDetail`:
+
+```json
+{
+  "name": "customShared",
+  "filename": "customShared.xml"
+}
+```
+
+PUT may include `fields[]` to patch existing fields by `name`. Unknown field names
+are **400**. New fields cannot be added on this slice. `occurrence` and `required`
+map to the same dimension: when both are sent they must agree (`required=true`
+with `required` / `oneOrMore`; `required=false` with `optional` / `zeroOrMore` /
+`count`) or the request is **400**. `occurrence` is applied when present;
+`required` is used only when `occurrence` is omitted.
 
 ### Response shape
 
@@ -539,7 +562,8 @@ List entries use `SharedFieldGroupSummary`. Detail uses `SharedFieldGroupDetail`
 - `name`, `filename`
 - `fields[]`: `name`, `dataType`, `searchable`, `required`, `readOnly`, `occurrence`
   (`optional` / `required` / `oneOrMore` / `zeroOrMore` / `count` / `unknown`)
-- `designGaps[]` strings — write, control/choice edit, and system-def are later slices
+- `designGaps[]` strings — field create/delete, control/choice edit, and system-def
+  remain later slices
 
 Prefer the generated OpenAPI schema as the integration source of truth.
 
@@ -547,15 +571,18 @@ Prefer the generated OpenAPI schema as the integration source of truth.
 
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | List (possibly empty) or group detail |
-| `403` | Caller is not Admin |
+| `200` | List (possibly empty), group detail, create, or save |
+| `204` | Deleted |
+| `400` | Invalid name/filename (including blank path name on PUT/DELETE), unknown field, or conflicting `occurrence`/`required` on PUT |
+| `403` | Caller is not Admin, or the request has no session/user (writes) |
 | `404` | Group not found (unknown or unsafe name). Non-Admin callers receive **403**, not 404 |
+| `409` | Duplicate group name, or the shared definition is locked by another user |
 | `500` | Design service or server failure |
 
-Authenticated non-Admin sessions (Editor, Contributor, and similar) must not read this
-catalog. Callers should treat 403 as “no Design Admin rights,” not as a missing group.
-
-Write/save, lock, create, and delete of shared field files are **not** on this API.
+Authenticated non-Admin sessions (Editor, Contributor, and similar) must not read or
+write this catalog. Callers should treat 403 as “no Design Admin rights,” not as a
+missing group. Treat 409 as “retry after the other designer releases the shared-def
+lock” (Workbench also locks the whole shared definition, not one group).
 
 ## Templates (assembly catalog)
 

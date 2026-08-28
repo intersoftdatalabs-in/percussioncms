@@ -23,13 +23,14 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
-import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,14 +44,12 @@ public class SharedFieldsResourceTest {
   private SharedFieldsResource resource;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     adaptor = mock(ISharedFieldsAdaptor.class);
     resource = new SharedFieldsResource(adaptor);
     UriInfo uriInfo = mock(UriInfo.class);
     when(uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/services/"));
-    Field f = SharedFieldsResource.class.getDeclaredField("uriInfo");
-    f.setAccessible(true);
-    f.set(resource, uriInfo);
+    resource.setUriInfo(uriInfo);
   }
 
   @Test
@@ -134,5 +133,181 @@ public class SharedFieldsResourceTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.getGroup("shared"));
     assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createGroupDelegatesToAdaptor() {
+    SharedFieldGroupDetail body = new SharedFieldGroupDetail();
+    body.setName("custom");
+    SharedFieldGroupDetail created = new SharedFieldGroupDetail();
+    created.setName("custom");
+    created.setFilename("custom.xml");
+    when(adaptor.createGroup(any(), any())).thenReturn(created);
+
+    assertEquals("custom", resource.createGroup(body).getName());
+    verify(adaptor).createGroup(any(), eq(body));
+  }
+
+  @Test
+  public void createGroupInvalidNameIs400() {
+    when(adaptor.createGroup(any(), any()))
+        .thenThrow(new IllegalArgumentException("name is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.createGroup(new SharedFieldGroupDetail()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createGroupDuplicateIs409() {
+    when(adaptor.createGroup(any(), any()))
+        .thenThrow(new WebApplicationException("Shared field group already exists: custom", 409));
+    SharedFieldGroupDetail body = new SharedFieldGroupDetail();
+    body.setName("custom");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createGroup(body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createGroupLockConflictIs409() {
+    when(adaptor.createGroup(any(), any()))
+        .thenThrow(new SharedFieldDesignLockException("Could not save shared field group; locked by other"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.createGroup(new SharedFieldGroupDetail()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createGroupForbiddenWhenNotAdmin() {
+    when(adaptor.createGroup(any(), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.createGroup(new SharedFieldGroupDetail()));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createGroupWrapsUnexpectedFailures() {
+    IllegalStateException boom = new IllegalStateException("design ws down");
+    when(adaptor.createGroup(any(), any())).thenThrow(boom);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.createGroup(new SharedFieldGroupDetail()));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void updateGroupDelegatesToAdaptor() {
+    SharedFieldGroupDetail body = new SharedFieldGroupDetail();
+    body.setFilename("renamed.xml");
+    SharedFieldGroupDetail updated = new SharedFieldGroupDetail();
+    updated.setName("shared");
+    updated.setFilename("renamed.xml");
+    when(adaptor.updateGroup(any(), eq("shared"), any())).thenReturn(updated);
+
+    assertEquals("renamed.xml", resource.updateGroup("shared", body).getFilename());
+    verify(adaptor).updateGroup(any(), eq("shared"), eq(body));
+  }
+
+  @Test
+  public void updateGroupNotFoundIsGeneric404() {
+    when(adaptor.updateGroup(any(), eq("missing"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateGroup("missing", new SharedFieldGroupDetail()));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Shared field group not found", ex.getMessage());
+  }
+
+  @Test
+  public void updateGroupLockConflictIs409() {
+    when(adaptor.updateGroup(any(), eq("shared"), any()))
+        .thenThrow(new SharedFieldDesignLockException("design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateGroup("shared", new SharedFieldGroupDetail()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateGroupBlankNameIs400() {
+    when(adaptor.updateGroup(any(), eq(" "), any()))
+        .thenThrow(new IllegalArgumentException("name is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateGroup(" ", new SharedFieldGroupDetail()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateGroupUnknownFieldIs400() {
+    when(adaptor.updateGroup(any(), eq("shared"), any()))
+        .thenThrow(new IllegalArgumentException("Unknown field: missing"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateGroup("shared", new SharedFieldGroupDetail()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteGroupReturns204() {
+    Response out = resource.deleteGroup("shared");
+    assertEquals(204, out.getStatus());
+    verify(adaptor).deleteGroup(any(), eq("shared"));
+  }
+
+  @Test
+  public void deleteGroupBlankNameIs400() {
+    doThrow(new IllegalArgumentException("name is required"))
+        .when(adaptor)
+        .deleteGroup(any(), eq(" "));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteGroup(" "));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteGroupNotFoundIs404() {
+    doThrow(new SharedFieldNotFoundException("Shared field group not found"))
+        .when(adaptor)
+        .deleteGroup(any(), eq("missing"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteGroup("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteGroupLockConflictIs409() {
+    doThrow(new SharedFieldDesignLockException("locked by other"))
+        .when(adaptor)
+        .deleteGroup(any(), eq("shared"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteGroup("shared"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteGroupForbiddenWhenNotAdmin() {
+    doThrow(new WebApplicationException("Admin role required", 403))
+        .when(adaptor)
+        .deleteGroup(any(), eq("shared"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteGroup("shared"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void mapWriteFailureLockMessageOnIllegalStateIs409() {
+    WebApplicationException ex =
+        SharedFieldsResource.mapWriteFailure(new IllegalStateException("object is not locked"));
+    assertEquals(409, ex.getResponse().getStatus());
   }
 }

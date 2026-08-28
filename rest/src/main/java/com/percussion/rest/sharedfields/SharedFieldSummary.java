@@ -21,7 +21,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
-/** Read-only field row inside a shared field group. */
+/**
+ * Field row inside a shared field group. GET catalog; PUT may patch {@code searchable} and
+ * occurrence / required on existing fields. {@code readOnly} and {@code dataType} are read-only.
+ */
 @XmlRootElement(name = "SharedField")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Shared field summary")
