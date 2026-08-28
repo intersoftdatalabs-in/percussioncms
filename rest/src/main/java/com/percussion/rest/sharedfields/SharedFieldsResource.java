@@ -65,8 +65,8 @@ public class SharedFieldsResource {
   @Operation(
       summary = "List shared field groups",
       description =
-          "Lists shared field groups from the content-editor shared definition. Create/edit/delete"
-              + " are later slices.",
+          "Lists shared field groups from the content-editor shared definition. Admin (Design)"
+              + " only. Create/edit/delete are later slices.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -76,6 +76,7 @@ public class SharedFieldsResource {
                     array =
                         @ArraySchema(
                             schema = @Schema(implementation = SharedFieldGroupSummary.class)))),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public List<SharedFieldGroupSummary> listGroups() {
@@ -94,13 +95,14 @@ public class SharedFieldsResource {
   @Operation(
       summary = "Get shared field group detail",
       description =
-          "Loads one shared field group by name (read-only). Includes field catalog; write and"
-              + " system-def editor remain unsupported (see designGaps).",
+          "Loads one shared field group by name (read-only, Admin/Design only). Includes field"
+              + " catalog; write and system-def editor remain unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
             description = "OK",
             content = @Content(schema = @Schema(implementation = SharedFieldGroupDetail.class))),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(responseCode = "404", description = "Group not found"),
         @ApiResponse(responseCode = "500", description = "Error")
       })

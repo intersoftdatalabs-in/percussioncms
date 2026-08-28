@@ -25,31 +25,43 @@ import com.percussion.rest.sharedfields.ISharedFieldsAdaptor;
 import com.percussion.rest.sharedfields.SharedFieldGroupDetail;
 import com.percussion.rest.sharedfields.SharedFieldGroupSummary;
 import com.percussion.rest.sharedfields.SharedFieldSummary;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.user.data.PSCurrentUser;
+import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Read-only catalog of content-editor shared field groups ({@link PSContentEditorSharedDef}).
  *
  * <p>Workbench parity: loads via {@link IPSContentDesignWs#loadContentEditorSharedDef} (same design
  * web service SOAP uses), not {@code PSServer.getContentEditorSharedDef()} alone.
+ *
+ * <p>Admin (Design) only — same {@link IPSUserService#isAdminUser} gate as content-type design
+ * mutations. There is no global JAX-RS Admin filter on {@code /services/sharedfields}.
  */
 @PSSiteManageBean
 public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
 
   private static final Logger log = LogManager.getLogger(SharedFieldsAdaptor.class);
+
+  static final String ADMIN_REQUIRED = "Admin role required to read shared field groups";
 
   private static final List<String> DESIGN_GAPS =
       List.of(
@@ -58,6 +70,11 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
           "System def (global fields) is a separate catalog (later slice)");
 
   private final Supplier<PSContentEditorSharedDef> sharedDefLoader;
+  private final BooleanSupplier adminChecker;
+
+  /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
+  @Autowired(required = false)
+  private IPSUserService userService;
 
   public SharedFieldsAdaptor() {
     this(
@@ -65,12 +82,26 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
             loadSharedDefFromDesignWs(
                 PSContentWsLocator.getContentDesignWebservice(),
                 (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID),
-                (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER)));
+                (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER)),
+        null);
   }
 
-  /** Package-visible for unit tests that inject a fake shared def source. */
+  /**
+   * Package-visible for unit tests that inject a fake shared def source. Admin is allowed so
+   * mapping tests can focus on catalog shape.
+   */
   SharedFieldsAdaptor(Supplier<PSContentEditorSharedDef> sharedDefLoader) {
+    this(sharedDefLoader, () -> true);
+  }
+
+  /**
+   * Package-visible for unit tests that inject a fake shared def source and Admin gate. {@code
+   * null} adminChecker uses {@link #isCurrentUserAdmin()}.
+   */
+  SharedFieldsAdaptor(
+      Supplier<PSContentEditorSharedDef> sharedDefLoader, BooleanSupplier adminChecker) {
     this.sharedDefLoader = sharedDefLoader;
+    this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
   }
 
   /**
@@ -90,6 +121,7 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
 
   @Override
   public List<SharedFieldGroupSummary> listGroups(URI baseUri) {
+    requireAdmin();
     // baseUri reserved for HATEOAS
     PSContentEditorSharedDef def = loadSharedDef();
     return mapSummaries(def);
@@ -97,6 +129,7 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
 
   @Override
   public SharedFieldGroupDetail getGroup(URI baseUri, String name) {
+    requireAdmin();
     if (!isSafeGroupName(name)) {
       return null;
     }
@@ -106,6 +139,41 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
       return null;
     }
     return toDetail(group);
+  }
+
+  private void requireAdmin() {
+    boolean allowed;
+    try {
+      allowed = adminChecker.getAsBoolean();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      log.debug("Admin check failed: {}", e.getMessage());
+      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+    }
+    if (!allowed) {
+      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+    }
+  }
+
+  /**
+   * Production Admin check via {@link IPSUserService}. Used when Spring wires the no-arg ctor and
+   * {@link #adminChecker} is the instance method reference.
+   */
+  boolean isCurrentUserAdmin() {
+    if (userService == null) {
+      return false;
+    }
+    try {
+      PSCurrentUser current = userService.getCurrentUser();
+      if (current == null || StringUtils.isBlank(current.getName())) {
+        return false;
+      }
+      return userService.isAdminUser(current.getName());
+    } catch (PSDataServiceException e) {
+      log.debug("Unable to resolve current user for Admin check: {}", e.getMessage());
+      return false;
+    }
   }
 
   private PSContentEditorSharedDef loadSharedDef() {

@@ -27,6 +27,7 @@ public interface ISharedFieldsAdaptor {
    *
    * @param baseUri reserved for HATEOAS
    * @return group summaries, never {@code null}
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin
    */
   List<SharedFieldGroupSummary> listGroups(URI baseUri);
 
@@ -34,6 +35,7 @@ public interface ISharedFieldsAdaptor {
    * Load one shared field group by name (case-insensitive).
    *
    * @return detail, or {@code null} when not found / unsafe name
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin
    */
   SharedFieldGroupDetail getGroup(URI baseUri, String name);
 }

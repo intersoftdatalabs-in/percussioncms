@@ -17,7 +17,10 @@ Admins cannot overwrite the same type at once.
 Integrators can **create** a content type with Admin `POST /services/contenttypes`
 (JSON `name` required; unique, no spaces). That call persists the type
 (Workbench Finish). This chrome does **not** include a create wizard; delete
-and rename are not supported here. See [REST API](id:developer-rest).
+and rename are not supported here. Shared field **files** are a separate design
+object: Admin-only `GET /services/sharedfields` and
+`GET /services/sharedfields/{idOrName}` (read catalog; write is not on REST).
+See [REST API](id:developer-rest).
 
 This is **not** the full Workbench field-rule editor. The detail table still
 shows rule **flags** (validation / visibility / transforms present). After

@@ -511,6 +511,52 @@ catalog. Choice filters, null-entry, and default-selected are not written.
 | `409` | No design lock, or locked by another user |
 | `500` | Unexpected error |
 
+## Shared fields (design catalog)
+
+Content-editor **shared field groups** (Workbench shared field files, CD-15) are a
+separate design object from content types. Public REST exposes a **read-only catalog**
+under `/services/sharedfields`. Load uses the same content **design** web service as
+Workbench (`IPSContentDesignWs.loadContentEditorSharedDef`).
+
+**Admin (Design) only.** There is no global JAX-RS Admin filter on this path — the
+sitemanage adaptor checks `IPSUserService.isAdminUser` for the current user and maps
+a non-Admin caller to **403**. Create, rename, delete, field-property write, and
+system-def (CD-16) remain unsupported.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/sharedfields` | List shared field groups (`name`, `filename`, `fieldCount`) |
+| `GET` | `/services/sharedfields/{idOrName}` | Load one group by **name** (case-insensitive). Shared groups have no numeric design id on this catalog. |
+
+`{idOrName}` is the shared field group name (for example a product set such as
+`shared`). Path separators and `..` are rejected as not found (**404**), not as a
+directory listing.
+
+### Response shape
+
+List entries use `SharedFieldGroupSummary`. Detail uses `SharedFieldGroupDetail`:
+
+- `name`, `filename`
+- `fields[]`: `name`, `dataType`, `searchable`, `required`, `readOnly`, `occurrence`
+  (`optional` / `required` / `oneOrMore` / `zeroOrMore` / `count` / `unknown`)
+- `designGaps[]` strings — write, control/choice edit, and system-def are later slices
+
+Prefer the generated OpenAPI schema as the integration source of truth.
+
+### Status codes and authorization
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | List (possibly empty) or group detail |
+| `403` | Caller is not Admin |
+| `404` | Group not found (unknown or unsafe name). Non-Admin callers receive **403**, not 404 |
+| `500` | Design service or server failure |
+
+Authenticated non-Admin sessions (Editor, Contributor, and similar) must not read this
+catalog. Callers should treat 403 as “no Design Admin rights,” not as a missing group.
+
+Write/save, lock, create, and delete of shared field files are **not** on this API.
+
 ## Templates (assembly catalog)
 
 Assembly templates used by Design and Developer are exposed under `/services/templates`.

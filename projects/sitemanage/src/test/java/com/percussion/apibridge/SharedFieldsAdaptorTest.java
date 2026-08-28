@@ -39,7 +39,9 @@ import com.percussion.rest.sharedfields.SharedFieldGroupSummary;
 import com.percussion.util.PSCollection;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
+import jakarta.ws.rs.WebApplicationException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -172,5 +174,67 @@ class SharedFieldsAdaptorTest {
     SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(() -> def);
     assertNotNull(adaptor.listGroups(null));
     assertTrue(adaptor.listGroups(null).isEmpty());
+  }
+
+  @Test
+  void listGroups_forbiddenWhenNotAdmin() {
+    AtomicInteger loads = new AtomicInteger();
+    SharedFieldsAdaptor denied =
+        new SharedFieldsAdaptor(
+            () -> {
+              loads.incrementAndGet();
+              return mock(PSContentEditorSharedDef.class);
+            },
+            () -> false);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> denied.listGroups(null));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertEquals(SharedFieldsAdaptor.ADMIN_REQUIRED, ex.getMessage());
+    assertEquals(0, loads.get());
+  }
+
+  @Test
+  void getGroup_forbiddenWhenNotAdmin() {
+    AtomicInteger loads = new AtomicInteger();
+    SharedFieldsAdaptor denied =
+        new SharedFieldsAdaptor(
+            () -> {
+              loads.incrementAndGet();
+              return mock(PSContentEditorSharedDef.class);
+            },
+            () -> false);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> denied.getGroup(null, "shared"));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertEquals(SharedFieldsAdaptor.ADMIN_REQUIRED, ex.getMessage());
+    assertEquals(0, loads.get());
+  }
+
+  @Test
+  void requireAdmin_mapsCheckerFailureTo403() {
+    SharedFieldsAdaptor denied =
+        new SharedFieldsAdaptor(
+            () -> mock(PSContentEditorSharedDef.class),
+            () -> {
+              throw new IllegalStateException("user service down");
+            });
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> denied.listGroups(null));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertEquals(SharedFieldsAdaptor.ADMIN_REQUIRED, ex.getMessage());
+  }
+
+  @Test
+  void listGroups_forbiddenWhenAdminCheckerFallsBackAndUserServiceMissing() {
+    SharedFieldsAdaptor denied =
+        new SharedFieldsAdaptor(() -> mock(PSContentEditorSharedDef.class), null);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> denied.listGroups(null));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertFalse(denied.isCurrentUserAdmin());
   }
 }
