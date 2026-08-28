@@ -49,7 +49,7 @@ export function shouldShowVirtualBuildChrome(
  * True when Preview assembled site should be shown.
  * Last-output preview for git-filesystem, csv-filesystem, sql-database,
  * http-json, object-storage, and rss-atom. Repository / blank / unknown
- * kinds stay hidden. rss-atom Publish stays a later phase.
+ * kinds stay hidden.
  */
 export function shouldShowVirtualPreviewChrome(
   sourceKind: string | null | undefined,
@@ -67,10 +67,9 @@ export function shouldShowVirtualPreviewChrome(
 
 /**
  * True when the Publish Virtual Site control should be shown.
- * Git-filesystem, csv-filesystem, sql-database, http-json, and object-storage
- * all run POST /virtual/publish (build then copy to IPSSite.root).
- * Repository / blank / unknown kinds and rss-atom stay hidden
- * (rss-atom Publish stays a later phase).
+ * Git-filesystem, csv-filesystem, sql-database, http-json, object-storage,
+ * and rss-atom all run POST /virtual/publish (build then copy to IPSSite.root).
+ * Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPublishChrome(
   sourceKind: string | null | undefined,
@@ -81,7 +80,8 @@ export function shouldShowVirtualPublishChrome(
     v === "csv-filesystem" ||
     v === "sql-database" ||
     v === "http-json" ||
-    v === "object-storage"
+    v === "object-storage" ||
+    v === "rss-atom"
   );
 }
 

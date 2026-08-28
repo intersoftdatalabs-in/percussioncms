@@ -757,7 +757,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
-  it("loads rss-atom values with root path and Build/Preview chrome (Publish later)", async () => {
+  it("loads rss-atom values with root path and Build/Preview/Publish chrome", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "rss-atom",
       rootPath: "C:/rss-atom-docs",
@@ -784,6 +784,9 @@ describe("VirtualSiteSourcePanel", () => {
       "Preview assembled site",
     );
     expect(screen.getByTestId("developer-site-virtual-rss-atom-hint").textContent).toContain(
+      "Publish Virtual Site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-rss-atom-hint").textContent).not.toContain(
       "later phase",
     );
     expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
@@ -792,7 +795,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
@@ -853,7 +856,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
@@ -1157,7 +1160,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
   });
 
-  it("shows Build chrome for rss-atom and success result with Preview (Publish later)", async () => {
+  it("shows Build chrome for rss-atom and success result with Preview and Publish", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "rss-atom",
       rootPath: "C:/rss-atom-docs",
@@ -1183,7 +1186,7 @@ describe("VirtualSiteSourcePanel", () => {
       "Preview assembled site",
     );
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-site-virtual-build"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-site-virtual-build-result")).toBeTruthy();
@@ -1197,7 +1200,7 @@ describe("VirtualSiteSourcePanel", () => {
       "rss-atom-docs",
     );
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
   });
 
   it("shows Publish chrome for http-json and success dest path", async () => {
@@ -1659,7 +1662,7 @@ describe("VirtualSiteSourcePanel", () => {
       "RSS / Atom",
     );
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
     await waitFor(() => {
       expect(open).toHaveBeenCalled();
@@ -1758,6 +1761,43 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-publish-files").textContent).toBe("4");
     expect(screen.getByTestId("developer-site-virtual-publish-dest").textContent).toContain(
       "object-help",
+    );
+  });
+
+  it("shows Publish chrome for rss-atom and success dest path", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "rss-atom",
+      rootPath: "C:/rss-atom-docs",
+      virtual: true,
+    });
+    publishVirtual.mockResolvedValue({
+      siteName: "RssHelp",
+      publishPath: "C:/inetpub/wwwroot/rss-atom-help",
+      filesCopied: 3,
+      pagesWritten: 1,
+      hasLinkProblems: false,
+    });
+    render(<VirtualSiteSourcePanel siteName="RssHelp" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-rss-atom-hint").textContent).toContain(
+      "Publish Virtual Site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-publish-hint").textContent).toContain(
+      "RSS / Atom",
+    );
+    fireEvent.click(screen.getByTestId("developer-site-virtual-publish"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish-result")).toBeTruthy();
+    });
+    expect(publishVirtual).toHaveBeenCalledWith("RssHelp");
+    expect(screen.getByTestId("developer-site-virtual-publish-success").textContent).toContain(
+      DEV_MSG.SITE_VIRT_PUBLISH_SUCCESS,
+    );
+    expect(screen.getByTestId("developer-site-virtual-publish-files").textContent).toBe("3");
+    expect(screen.getByTestId("developer-site-virtual-publish-dest").textContent).toContain(
+      "rss-atom-help",
     );
   });
 

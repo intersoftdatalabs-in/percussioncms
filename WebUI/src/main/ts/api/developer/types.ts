@@ -796,8 +796,7 @@ export interface SiteDef {
  * {@code virtual.remoteUrl} on those kinds). Build chrome is shown after save
  * for git/csv/sql/http-json/object-storage/rss-atom. Preview chrome is shown for
  * git/csv/sql/http-json/object-storage/rss-atom. Publish chrome is shown for
- * git/csv/sql/http-json/object-storage. rss-atom Publish chrome stays a later
- * phase.
+ * git/csv/sql/http-json/object-storage/rss-atom.
  */
 export interface VirtualSiteProperties {
   sourceKind?: string | null;
