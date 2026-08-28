@@ -22,10 +22,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
-/** Read-only field summary for a content type (Developer module design view). */
+/**
+ * Field summary for a content type (Developer module design view). GET catalog rows are read-only
+ * except searchable/occurrence on PUT detail. Create uses POST {@code
+ * /contenttypes/{idOrName}/fields} (held design lock); delete uses DELETE {@code
+ * .../fields/{fieldName}}.
+ */
 @XmlRootElement(name = "ContentTypeField")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Content type field summary (read-only design catalog)")
+@Schema(description = "Content type field summary; POST .../fields creates a local field")
 public class ContentTypeField {
 
   @Schema(description = "Field submit name (system name)")
@@ -34,7 +39,10 @@ public class ContentTypeField {
   @Schema(description = "Display label when known")
   private String label;
 
-  @Schema(description = "Field origin: local | system | shared | unknown")
+  @Schema(
+      description =
+          "Field origin: local | system | shared | unknown. POST .../fields always creates"
+              + " local; other origins are rejected")
   private String fieldType;
 
   @Schema(description = "Storage / data type (text, integer, date, binary, …)")
@@ -106,7 +114,11 @@ public class ContentTypeField {
               + " Writable via PUT .../fields/{fieldName}/controlProperties (held design lock).")
   private List<ContentTypeControlProperty> controlProperties;
 
-  @Schema(description = "Child field-set name when this field is nested; null for parent fields")
+  @Schema(
+      description =
+          "Child field-set name when this field is nested; null for parent fields. On POST"
+              + " .../fields, omit to add to the parent set; a missing name creates a named"
+              + " complex child field set")
   private String fieldSet;
 
   public ContentTypeField() {}

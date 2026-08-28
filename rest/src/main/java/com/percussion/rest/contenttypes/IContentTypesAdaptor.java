@@ -84,7 +84,8 @@ public interface IContentTypesAdaptor {
    * lists use full-replace semantics when non-null; omit them to leave associations unchanged.
    * Does not change name — use {@link #renameContentType}. Field rule expressions use {@link
    * #replaceFieldRuleExpressions}. Control property values use
-   * {@link #replaceFieldControlProperties}.
+   * {@link #replaceFieldControlProperties}. Local field create/delete uses {@link #addLocalField}
+   * / {@link #deleteLocalField}.
    *
    * @return updated detail, or {@code null} when not found
    * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
@@ -258,4 +259,33 @@ public interface IContentTypesAdaptor {
    */
   ContentTypeFieldRuleExpressions replaceFieldRuleExpressions(
       URI baseUri, String idOrName, String fieldName, ContentTypeFieldRuleExpressions body);
+
+  /**
+   * Add a persistable local field (backend column + display mapping) to an existing content type
+   * (CD-03). Requires a design-session lock already held by the current user. Does not acquire or
+   * release the lock. Optional {@code fieldSet} names an existing child field set, or creates a
+   * named complex child when missing.
+   *
+   * @param body {@code name} required; unique case-insensitive on the type. Optional {@code
+   *     dataType} defaults to {@code text}. Optional {@code searchable}, {@code occurrence} /
+   *     {@code required} as on PUT field patches.
+   * @return updated detail, or {@code null} when the content type is not found
+   * @throws ContentTypeDesignLockException when no lock is held or another user owns the lock
+   * @throws IllegalArgumentException when input is invalid
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin; {@code
+   *     409} when a field with that name already exists
+   */
+  ContentTypeDetail addLocalField(URI baseUri, String idOrName, ContentTypeField body);
+
+  /**
+   * Remove a local field (backend column mapping + display mapping) from an existing content
+   * type (CD-03). Requires a design-session lock already held by the current user. Does not acquire
+   * or release the lock. System and shared fields are not removed (CD-04).
+   *
+   * @return {@code Boolean.TRUE} when deleted; {@code null} when the content type is not found
+   * @throws ContentTypeDesignLockException when no lock is held or another user owns the lock
+   * @throws IllegalArgumentException when the field is not local
+   * @throws jakarta.ws.rs.WebApplicationException {@code 404} when the field name is unknown
+   */
+  Boolean deleteLocalField(URI baseUri, String idOrName, String fieldName);
 }

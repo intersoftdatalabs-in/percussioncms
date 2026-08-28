@@ -201,6 +201,8 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` | **Admin** (CD-08 design action). Requires a held design-session lock (`POST .../lock` first). Does **not** acquire or release the lock. Full replace of `allowedWorkflows` (empty list clears). Optional `defaultWorkflow`. Workflow name/guid must exist. `200` + `ContentTypeDetail` with the new `allowedWorkflows` / `defaultWorkflow` (lock still held). |
 | Enable/disable | `PUT /services/contenttypes/{idOrName}/enabled` | **Admin** (CD-13 design action). Requires a held design-session lock — `POST .../lock` first, then `PUT .../enabled`, then `POST .../unlock` when done. Does **not** acquire or release the lock. `200` + `ContentTypeDetail` with the new `enabled` value (lock still held). |
 | Rename | `PUT /services/contenttypes/{idOrName}/name` | **Admin** (CD-01). Requires a **held** design-session lock. Sets the internal name. Unique (case-insensitive); **no spaces** or wildcards. Bulk `PUT .../{idOrName}` does **not** change name. After success, `GET` by the previous name is **404**; `GET` by id returns the new name. Does not acquire or release the lock. |
+| Add local field | `POST /services/contenttypes/{idOrName}/fields` | **Admin** (CD-03). Requires a **held** design-session lock. Adds a persistable **local** field (backend column + display mapping) via `IPSContentDesignWs.saveContentTypes`. Body `name` is required (letter, then letters/digits/underscore; unique case-insensitive on the type). Optional `dataType` defaults to `text`. Optional `searchable` and `occurrence`/`required` use the same rules as PUT field patches. Optional `fieldSet` names an existing child field set, or **creates** a named complex child when missing. Duplicate field is **409**. System/shared inclusion is out of scope (CD-04). Does not acquire or release the lock. |
+| Delete local field | `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}` | **Admin** (CD-03). Requires a **held** design-session lock. Removes a **local** field and its display mapping. System/shared fields are **400**. Missing type or field is **404**. Does not acquire or release the lock. `204` on success (lock still held). |
 | Field control properties | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` | Control parameter **name/value** pairs and the choice catalog for one field (CD-07). No lock required. Empty `properties` means none. `choices` omitted when none. |
 | Replace field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` | **Admin** (CD-07). Requires a **held** design-session lock. Full replace of `properties` (empty clears). `choices` omitted leaves the catalog unchanged; `type: none` clears. **409** if unlocked or locked by another user. Does not acquire or release the lock. |
 | Field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` | Field-level validation, visibility, and input/output translation expressions (CD-05–07). No lock required. Empty lists mean none. Unknown field is **404**. Jackson root wrap is `ContentTypeFieldRuleExpressions`. |
@@ -208,18 +210,18 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
 | Delete | `DELETE /services/contenttypes/{idOrName}` | **Admin.** Requires a **held** design-session lock (`POST .../lock` first). Calls `IPSContentDesignWs.deleteContentTypes` with `ignoreDependencies=false`. **204** on success; a following `GET .../{idOrName}` is **404**. **409** if unlocked or locked by another user (the lock is not stolen). **404** if missing. **400** if the design web service rejects an in-use type (dependents). Does **not** cascade item delete. |
 
-Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. **Create** is a separate `POST /services/contenttypes` (persisted immediately). The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT). Control property **values** use `GET`/`PUT .../fields/{fieldName}/controlProperties` after a held lock (CD-07); choice catalogs stay read-only in that chrome. SPA create-wizard chrome is not part of this API. Rename is REST-only: **lock → PUT .../name → unlock**. Delete is REST-only in this release (no SPA chrome): **lock → DELETE → GET 404**.
+Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. **Create** is a separate `POST /services/contenttypes` (persisted immediately). The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT). Control property **values** use `GET`/`PUT .../fields/{fieldName}/controlProperties` after a held lock (CD-07); choice catalogs stay read-only in that chrome. Local field create/delete is REST-only: **lock → POST .../fields** or **DELETE .../fields/{fieldName} → unlock** (no SPA field editor). SPA create-wizard chrome is not part of this API. Rename is REST-only: **lock → PUT .../name → unlock**. Delete is REST-only in this release (no SPA chrome): **lock → DELETE → GET 404**.
 
 Lock / save / unlock / create / rename / delete status codes:
 
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | Lock acquired (body is `ObjectLockSummary`), PUT save / enable / disable / rename succeeded (lock still held), or POST create succeeded (`ContentTypeDetail`) |
-| `204` | Unlock success, or content type deleted |
-| `400` | Invalid PUT body (unknown field name, bad workflow/template ref, missing `enabled` flag, invalid or colliding rename), invalid create name (blank, spaces, wildcard), or DELETE rejected because the type has dependents |
+| `200` | Lock acquired (body is `ObjectLockSummary`), PUT save / enable / disable / rename succeeded (lock still held), POST create succeeded (`ContentTypeDetail`), or POST local field succeeded |
+| `204` | Unlock success, content type deleted, or local field deleted |
+| `400` | Invalid PUT body (unknown field name, bad workflow/template ref, missing `enabled` flag, invalid or colliding rename), invalid create name (blank, spaces, wildcard), invalid local-field name/`dataType`/origin, DELETE field of a system/shared field, or DELETE type rejected because the type has dependents |
 | `403` | Caller is not Admin, or the request has no session/user for the design session |
 | `404` | Content type not found |
-| `409` | No lock held, or locked by another user/session (self-only; the lock is not stolen); POST create duplicate name (catalog or persist-time), including reserved system types such as Folder |
+| `409` | No lock held, or locked by another user/session (self-only; the lock is not stolen); POST create duplicate name (catalog or persist-time), including reserved system types such as Folder; POST local field when the field name already exists on the type |
 | `500` | Design service or server failure |
 
 ### Rename (CD-01)
@@ -252,7 +254,33 @@ Jackson root wrap:
 }
 ```
 
-Create and delete of content types remain unsupported on this REST surface.
+### Local fields (CD-03)
+
+`POST /services/contenttypes/{idOrName}/fields` adds a **local** field to an
+existing content type. `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}`
+removes one. Both require a **held** design-session lock (`POST .../lock` first).
+The lock is **not** released. Including system or shared fields into a type
+(CD-04) is a different surface.
+
+Typical flow: `POST .../lock` → `POST .../fields` (or `DELETE .../fields/{name}`)
+→ (optional further design writes) → `POST .../unlock`.
+
+Add-field body is a `ContentTypeField`:
+
+```json
+{
+  "name": "rx_note",
+  "label": "Note",
+  "dataType": "text",
+  "searchable": true,
+  "required": false
+}
+```
+
+Optional `fieldSet` names an existing child field set, or creates a named
+complex child when missing. Duplicate field names on the type are **409**.
+Unknown field on DELETE is **404**. Deleting a system or shared field is
+**400**. Field **order** in the editor remains Workbench-only.
 
 ### Enable or disable (CD-13)
 

@@ -21,6 +21,8 @@ import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.design.objectstore.PSApplyWhen;
+import com.percussion.design.objectstore.PSBackEndColumn;
+import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.design.objectstore.PSChoiceTableInfo;
 import com.percussion.design.objectstore.PSChoices;
 import com.percussion.design.objectstore.PSConditional;
@@ -46,6 +48,7 @@ import com.percussion.design.objectstore.PSOutputTranslations;
 import com.percussion.design.objectstore.PSParam;
 import com.percussion.design.objectstore.PSPipe;
 import com.percussion.design.objectstore.PSRule;
+import com.percussion.design.objectstore.PSSearchProperties;
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.design.objectstore.PSUISet;
@@ -131,6 +134,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
   /** Typical design-session lock duration in minutes ({@link PSObjectLock#LOCK_INTERVAL}). */
   static final long DESIGN_LOCK_MINUTES = PSObjectLock.LOCK_INTERVAL / 60_000L;
+
+  static final String DEFAULT_TEXT_CONTROL = "sys_EditBox";
+
+  private static final int MAX_FIELD_NAME_LENGTH = 50;
 
   private final IPSContentDesignWs designSvc;
   private final PSItemDefManager itemDefManager;
@@ -445,6 +452,13 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
                 + " design lock. PUT save requires a held design lock for"
                 + " label/description/enabled, field searchable/occurrence, workflows (+ default),"
                 + " and templates"));
+    gaps.add(
+        DesignGap.of(
+            "CT_FIELD_CREATE_DELETE",
+            "Local field create/delete: POST/DELETE /contenttypes/{idOrName}/fields"
+                + " (held lock). Optional fieldSet names an existing child or creates a named"
+                + " complex child. System/shared inclusion is CD-04. Field order remains"
+                + " Workbench"));
     gaps.add(
         DesignGap.of(
             "CT_SHARED_FIELD_INCLUSION", "Shared/system field inclusion editing not supported"));
@@ -1168,6 +1182,131 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     } catch (Exception e) {
       log.error("Failed to replace field rule expressions for {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to replace field rule expressions", e);
+    }
+  }
+
+  @Override
+  public ContentTypeDetail addLocalField(URI baseUri, String idOrName, ContentTypeField body) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    String fieldName = validateFieldName(body.getName());
+    if (StringUtils.isNotBlank(body.getFieldType())
+        && !"local".equalsIgnoreCase(body.getFieldType().trim())) {
+      throw new IllegalArgumentException("Only local fields can be created");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    requireSessionUserForLock();
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      IPSGuid ctGuid = resolveExistingContentTypeGuid(trimmed);
+      if (ctGuid == null) {
+        return null;
+      }
+      requireHeldLock(ctGuid, "Could not add content type field");
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        throw lockConflict(e, "Could not add content type field");
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      if (findField(def, fieldName) != null) {
+        throw new WebApplicationException("Field already exists: " + fieldName, 409);
+      }
+      addPersistableLocalField(def, body);
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+      } catch (PSErrorsException e) {
+        if (hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not add content type field");
+        }
+        log.error("Failed to save new local field for {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save new local field", e);
+      }
+      PSItemDefinition reloaded = reloadItemDef(trimmed);
+      return reloaded != null ? toDetail(reloaded) : toDetail(def);
+    } catch (ContentTypeDesignLockException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Failed to add local field for {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to add local field", e);
+    }
+  }
+
+  @Override
+  public Boolean deleteLocalField(URI baseUri, String idOrName, String fieldName) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    if (StringUtils.isBlank(fieldName)) {
+      throw new IllegalArgumentException("fieldName is required");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    String field = fieldName.trim();
+    if (field.contains("..") || field.indexOf('/') >= 0 || field.indexOf('\\') >= 0) {
+      throw new WebApplicationException("Unknown field: " + field, 404);
+    }
+    requireSessionUserForLock();
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      IPSGuid ctGuid = resolveExistingContentTypeGuid(trimmed);
+      if (ctGuid == null) {
+        return null;
+      }
+      requireHeldLock(ctGuid, "Could not delete content type field");
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        throw lockConflict(e, "Could not delete content type field");
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      if (!removeLocalFieldAndMapping(def, field)) {
+        throw new WebApplicationException("Unknown field: " + field, 404);
+      }
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+      } catch (PSErrorsException e) {
+        if (hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not delete content type field");
+        }
+        log.error("Failed to save local field delete for {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save local field delete", e);
+      }
+      return Boolean.TRUE;
+    } catch (ContentTypeDesignLockException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Failed to delete local field for {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to delete local field", e);
     }
   }
 
@@ -2377,6 +2516,418 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       }
     }
     return null;
+  }
+
+  /**
+   * Persistable TYPE_LOCAL field with backend column locator, default text mapping, and display
+   * mapping ({@code sys_EditBox}). Optional {@code fieldSet} targets or creates a named complex
+   * child. Package-visible for unit tests.
+   */
+  static PSField addPersistableLocalField(PSItemDefinition def, ContentTypeField body) {
+    if (def == null) {
+      throw new IllegalArgumentException("content type is required");
+    }
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    String fieldName = validateFieldName(body.getName());
+    PSFieldSet parent = def.getFieldSet();
+    if (parent == null) {
+      throw new IllegalArgumentException("Content type has no field set");
+    }
+    PSDisplayMapper parentMapper = displayMapperOfStatic(def);
+    PSFieldSet target = ensureChildFieldSet(def, parent, parentMapper, body.getFieldSet());
+    PSBackEndTable table = tableForFieldSet(def, target);
+    PSField field = newPersistableLocalField(table, fieldName, body);
+    target.add(field);
+    applyOccurrenceOrRequired(field, body);
+    appendDefaultDisplayMapping(mapperForFieldSet(def, parentMapper, target), fieldName, body);
+    return field;
+  }
+
+  static PSField newPersistableLocalField(
+      PSBackEndTable table, String fieldName, ContentTypeField body) {
+    if (table == null || StringUtils.isBlank(table.getAlias())) {
+      throw new IllegalArgumentException("content type has no backend table");
+    }
+    PSField field =
+        new PSField(
+            PSField.TYPE_LOCAL, fieldName, new PSBackEndColumn(table, columnNameForField(fieldName)));
+    String dataType =
+        body == null || StringUtils.isBlank(body.getDataType())
+            ? PSField.DT_TEXT
+            : body.getDataType().trim();
+    try {
+      field.setDataType(dataType);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(
+          "Invalid dataType for field " + fieldName + ": " + dataType, e);
+    }
+    if (PSField.DT_TEXT.equals(field.getDataType())) {
+      field.setMimeType("text/plain");
+      field.setDataFormat("50");
+    }
+    boolean searchable =
+        body == null || body.getSearchable() == null || Boolean.TRUE.equals(body.getSearchable());
+    field.setSearchProperties(new PSSearchProperties(searchable));
+    try {
+      field.setOccurrenceDimension(PSField.OCCURRENCE_DIMENSION_OPTIONAL, null);
+    } catch (PSSystemValidationException e) {
+      throw new IllegalArgumentException("Invalid occurrence for field " + fieldName, e);
+    }
+    return field;
+  }
+
+  static boolean removeLocalFieldAndMapping(PSItemDefinition def, String fieldName) {
+    if (def == null || StringUtils.isBlank(fieldName)) {
+      return false;
+    }
+    PSField field = findField(def, fieldName);
+    if (field == null) {
+      return false;
+    }
+    if (field.getType() != PSField.TYPE_LOCAL) {
+      throw new IllegalArgumentException("Only local fields can be deleted");
+    }
+    String actual = field.getSubmitName();
+    PSFieldSet containing = fieldSetContaining(def.getFieldSet(), actual);
+    if (containing == null) {
+      List<PSFieldSet> children = def.getComplexChildren();
+      if (children != null) {
+        for (PSFieldSet child : children) {
+          containing = fieldSetContaining(child, actual);
+          if (containing != null) {
+            break;
+          }
+        }
+      }
+    }
+    if (containing == null) {
+      return false;
+    }
+    containing.remove(actual);
+    removeDisplayMapping(displayMapperOfStatic(def), actual);
+    return true;
+  }
+
+  static PSFieldSet fieldSetContaining(PSFieldSet root, String fieldName) {
+    if (root == null || StringUtils.isBlank(fieldName)) {
+      return null;
+    }
+    var it = root.getAll();
+    while (it.hasNext()) {
+      Object o = it.next();
+      if (o instanceof PSFieldSet nested) {
+        PSFieldSet found = fieldSetContaining(nested, fieldName);
+        if (found != null) {
+          return found;
+        }
+      } else if (o instanceof PSField field
+          && fieldName.equalsIgnoreCase(field.getSubmitName())) {
+        return root;
+      }
+    }
+    return null;
+  }
+
+  static PSFieldSet ensureChildFieldSet(
+      PSItemDefinition def,
+      PSFieldSet parent,
+      PSDisplayMapper parentMapper,
+      String fieldSetName) {
+    if (StringUtils.isBlank(fieldSetName) || fieldSetName.equalsIgnoreCase(parent.getName())) {
+      return parent;
+    }
+    String name = validateFieldName(fieldSetName);
+    Object existing = parent.get(name);
+    if (existing instanceof PSFieldSet fs) {
+      return fs;
+    }
+    Iterator<?> names = parent.getNames();
+    while (names != null && names.hasNext()) {
+      Object n = names.next();
+      if (n instanceof String key
+          && name.equalsIgnoreCase(key)
+          && parent.get(key) instanceof PSFieldSet fs) {
+        return fs;
+      }
+    }
+    List<PSFieldSet> children = def.getComplexChildren();
+    if (children != null) {
+      for (PSFieldSet child : children) {
+        if (child != null && name.equalsIgnoreCase(child.getName())) {
+          return child;
+        }
+      }
+    }
+    PSFieldSet child = new PSFieldSet(name);
+    child.setType(PSFieldSet.TYPE_COMPLEX_CHILD);
+    child.setSourceType(PSField.TYPE_LOCAL);
+    parent.add(child);
+    appendChildDisplayMapper(parentMapper, name);
+    return child;
+  }
+
+  static void appendChildDisplayMapper(PSDisplayMapper parentMapper, String fieldSetName) {
+    if (parentMapper == null) {
+      throw new IllegalArgumentException("Content type has no display mapper");
+    }
+    PSDisplayMapping existing = findDisplayMapping(parentMapper, fieldSetName);
+    if (existing != null) {
+      if (existing.getDisplayMapper() == null) {
+        existing.setDisplayMapper(new PSDisplayMapper(fieldSetName));
+      }
+      return;
+    }
+    PSUISet uiSet = new PSUISet();
+    uiSet.setLabel(new PSDisplayText(fieldSetName + ":"));
+    uiSet.setErrorLabel(new PSDisplayText(fieldSetName + ":"));
+    PSDisplayMapping mapping = new PSDisplayMapping(fieldSetName, uiSet);
+    mapping.setDisplayMapper(new PSDisplayMapper(fieldSetName));
+    parentMapper.add(mapping);
+  }
+
+  static PSDisplayMapper mapperForFieldSet(
+      PSItemDefinition def, PSDisplayMapper parentMapper, PSFieldSet fieldSet) {
+    if (fieldSet == null || parentMapper == null) {
+      return parentMapper;
+    }
+    try {
+      PSDisplayMapper named = def.getDisplayMapper(fieldSet.getName());
+      if (named != null) {
+        return named;
+      }
+    } catch (RuntimeException ignore) {
+      // mocked defs may not implement getDisplayMapper
+    }
+    PSDisplayMapping mapping = findDisplayMapping(parentMapper, fieldSet.getName());
+    if (mapping != null && mapping.getDisplayMapper() != null) {
+      return mapping.getDisplayMapper();
+    }
+    return parentMapper;
+  }
+
+  static void appendDefaultDisplayMapping(
+      PSDisplayMapper mapper, String fieldName, ContentTypeField body) {
+    if (mapper == null) {
+      throw new IllegalArgumentException("Content type has no display mapper");
+    }
+    if (findDisplayMapping(mapper, fieldName) != null) {
+      return;
+    }
+    String label =
+        body != null && StringUtils.isNotBlank(body.getLabel())
+            ? body.getLabel().trim()
+            : fieldName;
+    if (!label.endsWith(":")) {
+      label = label + ":";
+    }
+    String control =
+        body != null && StringUtils.isNotBlank(body.getControl())
+            ? body.getControl().trim()
+            : DEFAULT_TEXT_CONTROL;
+    PSUISet uiSet = new PSUISet();
+    uiSet.setLabel(new PSDisplayText(label));
+    uiSet.setErrorLabel(new PSDisplayText(label));
+    uiSet.setControl(new PSControlRef(control));
+    mapper.add(new PSDisplayMapping(fieldName, uiSet));
+  }
+
+  /**
+   * Index-based mapping removal. {@link PSDisplayMapper#removeMapping} uses {@code
+   * Iterator.remove()}, which {@code PSConcurrentIterator} rejects.
+   */
+  static boolean removeDisplayMapping(PSDisplayMapper mapper, String fieldRef) {
+    if (mapper == null || StringUtils.isBlank(fieldRef)) {
+      return false;
+    }
+    for (int i = 0; i < mapper.size(); i++) {
+      Object o = mapper.get(i);
+      if (!(o instanceof PSDisplayMapping mapping)) {
+        continue;
+      }
+      if (fieldRef.equalsIgnoreCase(mapping.getFieldRef())) {
+        mapper.remove(i);
+        return true;
+      }
+      if (mapping.getDisplayMapper() != null
+          && removeDisplayMapping(mapping.getDisplayMapper(), fieldRef)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static PSBackEndTable tableForFieldSet(PSItemDefinition def, PSFieldSet fieldSet) {
+    if (fieldSet != null) {
+      PSField[] all = fieldSet.getAllFields();
+      if (all != null) {
+        for (PSField f : all) {
+          if (f != null
+              && f.getType() == PSField.TYPE_LOCAL
+              && f.getLocator() instanceof PSBackEndColumn col
+              && col.getTable() != null
+              && StringUtils.isNotBlank(col.getTable().getAlias())) {
+            return col.getTable();
+          }
+        }
+      }
+    }
+    return tableForLocalFields(def);
+  }
+
+  static PSBackEndTable tableForLocalFields(PSItemDefinition def) {
+    if (def == null) {
+      throw new IllegalArgumentException("content type is required");
+    }
+    try {
+      List<PSBackEndTable> tables = def.getTypeTables();
+      if (tables != null) {
+        for (PSBackEndTable t : tables) {
+          if (t != null && StringUtils.isNotBlank(t.getAlias())) {
+            return t;
+          }
+        }
+      }
+    } catch (RuntimeException ignore) {
+      // mocked defs may not implement getTypeTables
+    }
+    PSFieldSet parent = def.getFieldSet();
+    if (parent != null) {
+      PSField[] all = parent.getAllFields();
+      if (all != null) {
+        for (PSField f : all) {
+          if (f != null
+              && f.getType() == PSField.TYPE_LOCAL
+              && f.getLocator() instanceof PSBackEndColumn col
+              && col.getTable() != null
+              && StringUtils.isNotBlank(col.getTable().getAlias())) {
+            return col.getTable();
+          }
+        }
+      }
+    }
+    String name = StringUtils.defaultIfBlank(def.getName(), "CONTENTTYPE");
+    return new PSBackEndTable(columnNameForField(name));
+  }
+
+  static String validateFieldName(String name) {
+    if (StringUtils.isBlank(name)) {
+      throw new IllegalArgumentException("name is required");
+    }
+    String trimmed = name.trim();
+    if (containsWhitespace(trimmed)) {
+      throw new IllegalArgumentException("name cannot contain spaces");
+    }
+    if (trimmed.length() > MAX_FIELD_NAME_LENGTH) {
+      throw new IllegalArgumentException("name exceeds maximum length");
+    }
+    if (trimmed.contains("..")
+        || trimmed.indexOf('/') >= 0
+        || trimmed.indexOf('\\') >= 0
+        || trimmed.indexOf('\0') >= 0) {
+      throw new IllegalArgumentException("name contains invalid path characters");
+    }
+    char first = trimmed.charAt(0);
+    if (!Character.isLetter(first)) {
+      throw new IllegalArgumentException("name must start with a letter");
+    }
+    for (int i = 1; i < trimmed.length(); i++) {
+      char c = trimmed.charAt(i);
+      if (!Character.isLetterOrDigit(c) && c != '_') {
+        throw new IllegalArgumentException("name must be letters, digits, or underscore");
+      }
+    }
+    return trimmed;
+  }
+
+  static String columnNameForField(String fieldName) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < fieldName.length(); i++) {
+      char c = fieldName.charAt(i);
+      if (Character.isLetterOrDigit(c) || c == '_') {
+        sb.append(Character.toUpperCase(c));
+      }
+    }
+    if (sb.length() == 0) {
+      throw new IllegalArgumentException("name does not yield a valid column");
+    }
+    return sb.toString();
+  }
+
+  static void applyOccurrenceOrRequired(PSField field, ContentTypeField patch) {
+    if (field == null || patch == null) {
+      return;
+    }
+    boolean hasOccurrence = StringUtils.isNotBlank(patch.getOccurrence());
+    boolean hasRequired = patch.getRequired() != null;
+    if (hasOccurrence) {
+      Integer dim = occurrenceFromApi(patch.getOccurrence());
+      if (dim == null) {
+        throw new IllegalArgumentException(
+            "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence());
+      }
+      if (hasRequired
+          && Boolean.TRUE.equals(patch.getRequired()) != occurrenceImpliesRequired(dim)) {
+        throw new IllegalArgumentException(
+            "occurrence and required conflict for field " + patch.getName());
+      }
+      try {
+        field.setOccurrenceDimension(dim, null);
+      } catch (PSSystemValidationException e) {
+        throw new IllegalArgumentException(
+            "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence(), e);
+      }
+    } else if (hasRequired) {
+      int dim =
+          Boolean.TRUE.equals(patch.getRequired())
+              ? PSField.OCCURRENCE_DIMENSION_REQUIRED
+              : PSField.OCCURRENCE_DIMENSION_OPTIONAL;
+      try {
+        field.setOccurrenceDimension(dim, null);
+      } catch (PSSystemValidationException e) {
+        throw new IllegalArgumentException(
+            "Invalid required flag for field " + patch.getName(), e);
+      }
+    }
+  }
+
+  static boolean occurrenceImpliesRequired(int dimension) {
+    return dimension == PSField.OCCURRENCE_DIMENSION_REQUIRED
+        || dimension == PSField.OCCURRENCE_DIMENSION_ONE_OR_MORE;
+  }
+
+  /**
+   * Package-visible so tests can stub a real display mapper without walking a mocked pipe.
+   */
+  static PSDisplayMapper displayMapperOfStatic(PSItemDefinition def) {
+    if (def == null) {
+      return null;
+    }
+    try {
+      PSDisplayMapper named =
+          def.getFieldSet() != null ? def.getDisplayMapper(def.getFieldSet().getName()) : null;
+      if (named != null) {
+        return named;
+      }
+    } catch (RuntimeException ignore) {
+      // fall through to pipe walk
+    }
+    try {
+      if (def.getContentEditor() == null) {
+        return null;
+      }
+      Object pipeObj = def.getContentEditor().getPipe();
+      if (!(pipeObj instanceof PSContentEditorPipe pipe)) {
+        return null;
+      }
+      if (pipe.getMapper() == null || pipe.getMapper().getUIDefinition() == null) {
+        return null;
+      }
+      return pipe.getMapper().getUIDefinition().getDisplayMapper();
+    } catch (RuntimeException e) {
+      return null;
+    }
   }
 
   private ContentTypeFieldRuleExpressions loadFieldRuleExpressions(

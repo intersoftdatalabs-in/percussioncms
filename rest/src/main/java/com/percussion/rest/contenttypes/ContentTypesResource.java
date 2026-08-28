@@ -888,7 +888,8 @@ public class ContentTypesResource {
           "Content type detail including field catalog. Field rows include control property"
               + " names and values. Choice catalogs and property write use"
               + " GET/PUT .../fields/{fieldName}/controlProperties. Field rule expressions use"
-              + " GET/PUT .../fields/{fieldName}/ruleExpressions (see designGaps).",
+              + " GET/PUT .../fields/{fieldName}/ruleExpressions. Local field create/delete uses"
+              + " POST/DELETE .../fields (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -933,7 +934,8 @@ public class ContentTypesResource {
               + " structure are not changed — rename uses PUT .../name. Field rule expressions"
               + " use PUT"
               + " .../fields/{fieldName}/ruleExpressions. Control property values use PUT"
-              + " .../fields/{fieldName}/controlProperties. Create uses POST /contenttypes."
+              + " .../fields/{fieldName}/controlProperties. Local field create/delete uses"
+              + " POST/DELETE .../fields (held lock). Create uses POST /contenttypes."
               + " Rename uses PUT .../name. Delete uses DELETE .../{idOrName} with a held lock.",
       responses = {
         @ApiResponse(
@@ -1400,6 +1402,87 @@ public class ContentTypesResource {
         throw new WebApplicationException("Content type not found: " + idOrName, 404);
       }
       return out;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      throw mapWriteFailure(e);
+    }
+  }
+
+  @POST
+  @Path("/{idOrName}/fields")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Add a local field to a content type",
+      description =
+          "CD-03. Admin. Adds a persistable local field (backend column + display mapping) via"
+              + " IPSContentDesignWs.loadContentTypes / saveContentTypes. Requires a held"
+              + " design-session lock (POST .../lock). Does not acquire or release the lock. Body"
+              + " name is required, unique case-insensitive on the type, and must be a letter"
+              + " followed by letters, digits, or underscore. Optional dataType defaults to text."
+              + " Optional searchable and occurrence/required use the same rules as PUT field"
+              + " patches. Optional fieldSet names an existing child field set, or creates a named"
+              + " complex child when missing. Duplicate field is 409. Missing type is 404."
+              + " Including system/shared fields is out of scope (CD-04).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Field added (lock is still held)",
+            content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid field input"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description =
+                "A field with that name exists, or design lock not held by the current user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeDetail addLocalField(
+      @PathParam("idOrName") String idOrName, ContentTypeField body) {
+    try {
+      ContentTypeDetail detail =
+          requireAdaptor().addLocalField(uriInfo.getBaseUri(), idOrName, body);
+      if (detail == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return detail;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      throw mapWriteFailure(e);
+    }
+  }
+
+  @DELETE
+  @Path("/{idOrName}/fields/{fieldName}")
+  @Operation(
+      summary = "Delete a local field from a content type",
+      description =
+          "CD-03. Admin. Removes a local field and its display mapping via"
+              + " IPSContentDesignWs.saveContentTypes. Requires a held design-session lock (POST"
+              + " .../lock). Does not acquire or release the lock. System and shared fields are"
+              + " not removed (400). Missing type or field is 404.",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Deleted (lock is still held)"),
+        @ApiResponse(responseCode = "400", description = "Invalid name, or field is not local"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type or field not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock not held by the current user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response deleteLocalField(
+      @PathParam("idOrName") String idOrName, @PathParam("fieldName") String fieldName) {
+    try {
+      Boolean deleted =
+          requireAdaptor().deleteLocalField(uriInfo.getBaseUri(), idOrName, fieldName);
+      if (deleted == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return Response.noContent().build();
     } catch (RuntimeException e) {
       throw mapMutationFailure(e);
     } catch (Exception e) {
