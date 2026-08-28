@@ -92,10 +92,9 @@ slices.
 4. ~~Keyword create/update/delete~~ **Done CD-17** (REST write + design WS + SPA editor)
 5. ~~Control property value/choice catalogs~~ **Done CD-07 REST** (#3786). Field-rule write/save still open
 6. ~~Shared field catalog read~~ **Done CD-15 read** (`GET /services/sharedfields`, Admin 403). ~~Write~~ **Done CD-15 group create/save/delete** (`POST`/`PUT`/`DELETE`, #3944). ~~Field create/delete~~ **Done** (`POST …/fields`, `DELETE …/fields/{fieldName}`, #3954). Control/choice write + SPA editor still open
-7. Templates/slots design editors
-8. CD-18 remainder: auto-translation set editor + SPA locale editor (REST locale CRUD shipped #3959)
 7. ~~System def field-property write~~ **Done CD-16 PUT** (`PUT /services/systemdef`, Admin 403, request lock + release on save, #3958). Field create/delete + SPA still open
 8. Templates/slots design editors
+9. CD-18 remainder: auto-translation set editor + SPA locale editor (REST locale CRUD shipped #3959)
 
 ## Client behavior
 
