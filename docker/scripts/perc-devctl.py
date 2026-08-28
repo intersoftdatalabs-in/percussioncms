@@ -29,12 +29,16 @@ QA mode (H2-in-Docker, no host install — issue #1827 / #1927) adds:
 * ``qa-rebuild-chain`` — drive the documented Maven order
   (sitemanage install → WebUI package → perc-distribution-tree package)
   via repo-root ``mvnw``/``mvnw.cmd``, portable paths, ``shell=False``
-  (#2533 residual of #2423 / #2486)
+  (#2533 residual of #2423 / #2486). ``--then-qa-up`` also copies
+  ``WebUI/target/generated-webui/cm/modern`` into the H2 QA cell after
+  the cell is up (post-jar SPA deploy; #3948) unless ``--skip-webui-deploy``.
 * ``qa-deploy-webui`` — copy the full generated ``cm/modern`` tree
   (stable ``perc-modern-ui.js`` entry + CSS + hashed chunks + any
   ``index.html``) into the H2 QA WAR. Copying only hashed ``assets/``
-  files leaves a stale developer chunk without
-  ``option[value=object-storage]`` (#3893)
+  files, or jar-only Cycle Verify hot-deploys of rest/sitemanage,
+  leaves a stale developer chunk without
+  ``option[value=object-storage]`` / ``option[value=rss-atom]``
+  (#3893 / #3948)
 
 Compose ``verify`` / ``verify-fix`` / ``deploy-jar --verify`` apply the same
 Rhythmyx context log scan against the cms-dts container (#2480 companion to
@@ -432,6 +436,16 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Pass --skip-image-build to matrix-install-smoke (reuse local image).",
     )
+    pqu.add_argument(
+        "--then-qa-deploy-webui",
+        action="store_true",
+        help=(
+            "After a successful qa-up, copy WebUI/target/generated-webui/"
+            "cm/modern into the H2 QA WAR (#3948). Required when "
+            "--skip-image-build leaves a stale SPA without "
+            "object-storage / rss-atom kind options."
+        ),
+    )
     pqu.add_argument("--dry-run", action="store_true")
 
     # --- Rebuild-chain preflight — #2486 / #2532 ---
@@ -483,7 +497,26 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help=(
             "After a successful rebuild chain, run qa-up "
-            "(narrow optional handoff; fails if chain fails)."
+            "(narrow optional handoff; fails if chain fails). "
+            "Also copies generated-webui/cm/modern into the cell "
+            "unless --skip-webui-deploy (#3948)."
+        ),
+    )
+    pqrc.add_argument(
+        "--then-qa-deploy-webui",
+        action="store_true",
+        help=(
+            "After a successful rebuild chain (and after --then-qa-up "
+            "when both are set), copy WebUI/target/generated-webui/"
+            "cm/modern into the running H2 QA cell (#3948)."
+        ),
+    )
+    pqrc.add_argument(
+        "--skip-webui-deploy",
+        action="store_true",
+        help=(
+            "Do not copy the modern SPA after --then-qa-up "
+            "(opt out of the implied post-jar WebUI deploy)."
         ),
     )
     pqrc.add_argument(
@@ -541,7 +574,9 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         help=(
             "Hot-copy the built WebUI modern SPA (entry perc-modern-ui.js + "
             "hashed chunks + CSS + any index.html) into the H2 QA WAR. "
-            "Does not docker-restart the cell (#3893)."
+            "Post-jar companion: run this after rest/sitemanage SNAPSHOT "
+            "copies so the live kind select keeps object-storage and "
+            "rss-atom (#3893 / #3948). Does not docker-restart the cell."
         ),
     )
     pqdw.add_argument(
@@ -559,8 +594,13 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     pqdw.add_argument(
         "--skip-object-storage-check",
+        "--skip-kind-marker-check",
         action="store_true",
-        help="Allow a bundle whose JS lacks the object-storage marker.",
+        dest="skip_object_storage_check",
+        help=(
+            "Allow a bundle whose JS lacks quoted object-storage "
+            "and/or rss-atom markers (#3948)."
+        ),
     )
     pqdw.add_argument("--dry-run", action="store_true")
 
@@ -1084,6 +1124,22 @@ def cmd_it_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
         dry_run=args.dry_run,
     )
     return rc
+
+
+def _qa_deploy_webui_ns(
+    *,
+    dry_run: bool,
+    src: Optional[str] = None,
+    container: str = QA_CMS_CONTAINER,
+    skip_object_storage_check: bool = False,
+) -> argparse.Namespace:
+    """Namespace for :func:`cmd_qa_deploy_webui` post-jar / post-up handoff."""
+    return argparse.Namespace(
+        dry_run=bool(dry_run),
+        src=src,
+        container=container,
+        skip_object_storage_check=bool(skip_object_storage_check),
+    )
 
 
 def _qa_deploy_webui_argv(
@@ -1661,10 +1717,20 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
 
     if dry_run:
         _qa_print_endpoint_banner(host_port)
+        if bool(getattr(args, "then_qa_deploy_webui", False)):
+            return cmd_qa_deploy_webui(
+                _qa_deploy_webui_ns(dry_run=True, container=QA_CMS_CONTAINER),
+                paths,
+            )
         return EXIT_OK
 
     admin_line = _qa_fetch_admin_password(QA_CMS_CONTAINER)
     _qa_print_endpoint_banner(host_port, admin_password_line=admin_line)
+    if bool(getattr(args, "then_qa_deploy_webui", False)):
+        return cmd_qa_deploy_webui(
+            _qa_deploy_webui_ns(dry_run=False, container=QA_CMS_CONTAINER),
+            paths,
+        )
     return EXIT_OK
 
 
@@ -1908,6 +1974,10 @@ def cmd_qa_rebuild_chain(
     Delegates to ``docker/scripts/qa_rebuild_chain.py`` (portable
     ``mvnw``/``mvnw.cmd``, ``shell=False``, RESULT lines). Optional
     ``--then-qa-up`` runs ``cmd_qa_up`` after a successful chain only.
+    After ``--then-qa-up`` the generated ``cm/modern`` tree is copied
+    into the H2 QA cell unless ``--skip-webui-deploy`` (#3948). Explicit
+    ``--then-qa-deploy-webui`` copies the tree even without qa-up (cell
+    already running after a jar-only hot-deploy).
     """
     import qa_rebuild_chain
 
@@ -1923,22 +1993,36 @@ def cmd_qa_rebuild_chain(
     )
     if rc != EXIT_OK:
         return rc
-    if not args.then_qa_up:
-        return rc
-    # Narrow handoff: reuse qa-up after a green rebuild chain.
-    # Rebuild-chain ``--timeout-seconds`` is optional (None = no Maven
-    # cap); qa-up requires a concrete probe timeout — fall back to the
-    # standard QA default when the operator did not pass one.
-    qa_up_args = argparse.Namespace(
-        dry_run=bool(args.dry_run),
-        timeout_seconds=(
-            args.timeout_seconds
-            if args.timeout_seconds is not None
-            else QA_PROBE_TIMEOUT_SECONDS_DEFAULT
-        ),
-        skip_image_build=bool(getattr(args, "skip_image_build", False)),
+    if args.then_qa_up:
+        # Narrow handoff: reuse qa-up after a green rebuild chain.
+        # Rebuild-chain ``--timeout-seconds`` is optional (None = no Maven
+        # cap); qa-up requires a concrete probe timeout — fall back to the
+        # standard QA default when the operator did not pass one.
+        qa_up_args = argparse.Namespace(
+            dry_run=bool(args.dry_run),
+            timeout_seconds=(
+                args.timeout_seconds
+                if args.timeout_seconds is not None
+                else QA_PROBE_TIMEOUT_SECONDS_DEFAULT
+            ),
+            skip_image_build=bool(getattr(args, "skip_image_build", False)),
+            then_qa_deploy_webui=False,
+        )
+        rc = cmd_qa_up(qa_up_args, paths)
+        if rc != EXIT_OK:
+            return rc
+    deploy_webui = bool(getattr(args, "then_qa_deploy_webui", False)) or (
+        bool(args.then_qa_up) and not bool(getattr(args, "skip_webui_deploy", False))
     )
-    return cmd_qa_up(qa_up_args, paths)
+    if deploy_webui:
+        return cmd_qa_deploy_webui(
+            _qa_deploy_webui_ns(
+                dry_run=bool(args.dry_run),
+                container=QA_CMS_CONTAINER,
+            ),
+            paths,
+        )
+    return rc
 
 
 # ---------------------------------------------------------------------------

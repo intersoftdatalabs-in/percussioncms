@@ -55,7 +55,7 @@ perc-devctl.py show-generated-passwords
 # QA mode — H2-in-Docker CMS for Playwright (no host install) — #1827 / #1927
 perc-devctl.py qa-up [--timeout-seconds N] [--skip-image-build]
 perc-devctl.py qa-preflight [--strict] [--no-content-hash]
-perc-devctl.py qa-rebuild-chain [--skip-tests] [--dist-only] [--then-qa-up] [--dry-run]
+perc-devctl.py qa-rebuild-chain [--skip-tests] [--dist-only] [--then-qa-up] [--then-qa-deploy-webui] [--skip-webui-deploy] [--dry-run]
 perc-devctl.py qa-health [--timeout-seconds N] [--interval-seconds N] [--url URL]
 perc-devctl.py qa-deploy-webui [--src DIR] [--container NAME]
 perc-devctl.py qa-down [--container NAME]
@@ -107,8 +107,15 @@ python3 docker/scripts/qa_rebuild_chain.py --skip-tests
 # Installer packaging only (WAR inputs already fresh)
 python3 docker/scripts/perc-devctl.py qa-rebuild-chain --dist-only
 
-# Optional: rebuild then qa-up in one invocation
+# Optional: rebuild then qa-up in one invocation (also copies
+# WebUI/target/generated-webui/cm/modern into the cell — #3948)
 python3 docker/scripts/perc-devctl.py qa-rebuild-chain --skip-tests --then-qa-up
+
+# Post-jar: after rest/sitemanage SNAPSHOT copies on a running skip-image-build
+# cell, copy the full modern SPA (not assets/ hashes only)
+python3 docker/scripts/perc-devctl.py qa-deploy-webui
+# or after a rebuild when the cell is already up:
+python3 docker/scripts/perc-devctl.py qa-rebuild-chain --skip-tests --then-qa-deploy-webui
 ```
 
 Cross-platform notes: each step `cwd`s into the module directory and invokes the **repo-root** `mvnw` / `mvnw.cmd` with `subprocess.run([...], shell=False)` (no shell quoting). Per-step and overall `RESULT:OK` / `RESULT:FAIL` lines are agent-parseable; Maven stdout/stderr goes under `docker/logs/`.
@@ -441,15 +448,19 @@ Default container: `percussion-cms-dts`. Default target: `both` (CMS + DTS lib d
 
 ### `docker/scripts/hot-deploy-webui-modern.py`
 
-Hot-copy the **full** built WebUI modern SPA into the H2 QA WAR (`#3893`). Cycle Verify failed when only hashed files under `cm/modern/assets/` were copied: `spa.jsp` still loaded a stale `perc-modern-ui.js` that imported an older `developer-<hash>.js` (csv/sql/http-json present, `option[value=object-storage]` count 0).
+Hot-copy the **full** built WebUI modern SPA into the H2 QA WAR (`#3893` / `#3948`). Cycle Verify failed when only hashed files under `cm/modern/assets/` were copied, and again when only `rest`/`sitemanage` SNAPSHOTs were jar-copied into a `--skip-image-build` cell: `spa.jsp` still loaded a stale `perc-modern-ui.js` that imported an older `developer-<hash>.js` (csv/sql/http-json present, `option[value=object-storage]` and `option[value=rss-atom]` count 0).
 
 ```
 python docker/scripts/perc-devctl.py qa-deploy-webui
 # equivalent:
 python docker/scripts/hot-deploy-webui-modern.py
+# after qa-rebuild-chain when a cell is already running:
+python docker/scripts/perc-devctl.py qa-rebuild-chain --skip-tests --then-qa-deploy-webui
+# qa-up on a skip-image-build cell that must pick up the current SPA:
+python docker/scripts/perc-devctl.py qa-up --skip-image-build --then-qa-deploy-webui
 ```
 
-Default source: `WebUI/target/generated-webui/cm/modern` (entry `assets/perc-modern-ui.js`, `assets/perc-modern-ui.css`, hashed chunks, optional `index.html`). Default container: `perc-matrix-cms-h2`. Dest: `/opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/`. The script refuses a bundle unless `perc-modern-ui.js` or the `developer-*.js` chunk it imports contains the quoted wire value `"object-storage"` (not a bare substring; the TS identifier `SOURCE_KIND_OBJECT_STORAGE` is minified away). It does **not** `docker restart` the cell — restart Jetty inside the cell, then `qa-health`. Unit tests: `docker/scripts/test_hot_deploy_webui_modern.py`.
+Default source: `WebUI/target/generated-webui/cm/modern` (entry `assets/perc-modern-ui.js`, `assets/perc-modern-ui.css`, hashed chunks, optional `index.html`). Default container: `perc-matrix-cms-h2`. Dest: `/opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/`. The script refuses a bundle unless `perc-modern-ui.js` or the `developer-*.js` chunk it imports contains the quoted wire values `object-storage` **and** `rss-atom` (single/double quotes or template-literal backticks from Vite 8 minification — not a bare substring; TS identifiers are minified away). It does **not** `docker restart` the cell — restart Jetty inside the cell, then `qa-health`. Unit tests: `docker/scripts/test_hot_deploy_webui_modern.py`.
 
 ## Container entrypoint
 

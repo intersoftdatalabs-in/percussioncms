@@ -19,10 +19,11 @@
 Cross-platform (Windows / Linux / macOS). Stdlib only. ``subprocess.run``
 uses ``shell=False`` (root AGENTS.md).
 
-Cycle Verify #3893: copying only hashed files under ``cm/modern/assets/``
-without the stable entry ``perc-modern-ui.js`` (and optional ``index.html``)
-leaves the live SPA on a stale ``import("./developer-<oldhash>.js")``. That
-chunk has csv/sql/http-json but not ``option[value=object-storage]``.
+Cycle Verify #3893 / #3948: copying only hashed files under
+``cm/modern/assets/`` without the stable entry ``perc-modern-ui.js``
+(and optional ``index.html``) leaves the live SPA on a stale
+``import("./developer-<oldhash>.js")``. That chunk has csv/sql/http-json
+but not ``option[value=object-storage]`` or ``option[value=rss-atom]``.
 
 This script copies **every file** under
 ``WebUI/target/generated-webui/cm/modern/`` (entry JS/CSS, hashed chunks,
@@ -36,11 +37,14 @@ Callers restart Jetty *inside* the cell (StopJetty/StartJetty) then run
 
 By default the script refuses to deploy a bundle whose SPA entry
 (``assets/perc-modern-ui.js``) does not import a ``developer-*.js``
-chunk that contains the quoted wire value ``"object-storage"`` (or
-``'object-storage'``). A bare substring such as an API path is not
-enough. The TypeScript identifier ``SOURCE_KIND_OBJECT_STORAGE`` is
-not scanned: production bundles minify it away, while the option
-value string is what the live ``<select>`` renders.
+chunk that contains the quoted wire values ``object-storage`` and
+``rss-atom`` (single quotes, double quotes, or JS template-literal
+backticks — Vite 8 / rolldown minifies these SOURCE_KIND_* constants
+to backtick strings). A bare substring such as an API path is not
+enough. TypeScript identifiers (``SOURCE_KIND_OBJECT_STORAGE`` /
+``SOURCE_KIND_RSS_ATOM``) are not scanned: production bundles minify
+them away, while the option value strings are what the live
+``<select>`` renders.
 
 Exit codes:
 
@@ -48,7 +52,7 @@ Exit codes:
   1  invocation / argument error
   2  container not running
   3  source tree / entry file not found
-  4  object-storage marker missing in built JS
+  4  kind marker (object-storage and/or rss-atom) missing in built JS
   5  docker cp / docker exec failed
 """
 
@@ -75,12 +79,10 @@ DEFAULT_CONTAINER = "perc-matrix-cms-h2"
 DEFAULT_DEST = "/opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern"
 ENTRY_JS_REL = "assets/perc-modern-ui.js"
 ENTRY_CSS_REL = "assets/perc-modern-ui.css"
-# Wire value of SOURCE_KIND_OBJECT_STORAGE / option[value=object-storage].
+# Wire values of SOURCE_KIND_* / option[value=…] on developer-site-virtual-source-kind.
 OBJECT_STORAGE_MARKER = "object-storage"
-# Vite/esbuild keep the quoted string; the TS identifier is minified away.
-_QUOTED_MARKER_RE = re.compile(
-    r"""["']""" + re.escape(OBJECT_STORAGE_MARKER) + r"""["']"""
-)
+RSS_ATOM_MARKER = "rss-atom"
+REQUIRED_KIND_MARKERS: tuple[str, ...] = (OBJECT_STORAGE_MARKER, RSS_ATOM_MARKER)
 # Entry typically has import"./developer-<hash>.js" or import("./developer-<hash>.js").
 _DEVELOPER_IMPORT_RE = re.compile(
     r"""(?:import\s*\(?\s*["']|from\s+["'])(?:\./)?(developer-[^"']+\.js)["']""",
@@ -128,10 +130,12 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--skip-object-storage-check",
+        "--skip-kind-marker-check",
         action="store_true",
+        dest="skip_object_storage_check",
         help=(
-            "Do not refuse a bundle whose JS lacks the object-storage "
-            "marker (escape hatch only)."
+            "Do not refuse a bundle whose JS lacks quoted object-storage "
+            "and/or rss-atom markers (escape hatch only; #3948)."
         ),
     )
     p.add_argument(
@@ -203,10 +207,12 @@ def _read_js(path: Path) -> str:
 
 
 def _quoted_wire_value_in(text: str, marker: str) -> bool:
-    """True when ``text`` contains ``marker`` as a JS string literal."""
-    if marker == OBJECT_STORAGE_MARKER:
-        return _QUOTED_MARKER_RE.search(text) is not None
-    return re.search(r"""["']""" + re.escape(marker) + r"""["']""", text) is not None
+    """True when ``text`` contains ``marker`` as a JS string literal.
+
+    Accepts double quotes, single quotes, and JS template-literal
+    backticks (Vite 8 / rolldown emits backticks for SOURCE_KIND_* constants).
+    """
+    return re.search(r"""["'`]""" + re.escape(marker) + r"""["'`]""", text) is not None
 
 
 def developer_chunks_imported_by_entry(entry_text: str) -> list[str]:
@@ -223,9 +229,9 @@ def bundle_contains_marker(src: Path, marker: str = OBJECT_STORAGE_MARKER) -> bo
     """True when the live SPA entry's developer chunk has quoted ``marker``.
 
     Prefers ``assets/perc-modern-ui.js`` plus the ``developer-*.js`` files it
-    ``import()``s — the #3893 failure mode was a stale entry pointing at an
-    old developer chunk. Falls back to scanning ``assets/*.js`` only when
-    the entry does not import a developer chunk (inlined bundle).
+    ``import()``s — the #3893 / #3948 failure mode was a stale entry pointing
+    at an old developer chunk. Falls back to scanning ``assets/*.js`` only
+    when the entry does not import a developer chunk (inlined bundle).
     """
     assets = src / "assets"
     if not assets.is_dir():
@@ -250,8 +256,31 @@ def bundle_contains_marker(src: Path, marker: str = OBJECT_STORAGE_MARKER) -> bo
     return False
 
 
-def validate_src(src: Path, *, require_object_storage: bool) -> int:
-    """Return an exit code if ``src`` is not a deployable modern tree."""
+def bundle_missing_kind_markers(
+    src: Path,
+    markers: Iterable[str] = REQUIRED_KIND_MARKERS,
+) -> list[str]:
+    """Return required quoted kind markers absent from the live SPA bundle."""
+    missing: list[str] = []
+    for marker in markers:
+        if not bundle_contains_marker(src, marker):
+            missing.append(marker)
+    return missing
+
+
+def validate_src(
+    src: Path,
+    *,
+    require_kind_markers: bool = True,
+    require_object_storage: Optional[bool] = None,
+) -> int:
+    """Return an exit code if ``src`` is not a deployable modern tree.
+
+    ``require_object_storage`` is an alias for ``require_kind_markers``
+    (both object-storage and rss-atom; #3893 / #3948).
+    """
+    if require_object_storage is not None:
+        require_kind_markers = require_object_storage
     if not src.is_dir():
         LOG.error("modern source directory not found: %s", src)
         LOG.error(
@@ -270,20 +299,24 @@ def validate_src(src: Path, *, require_object_storage: bool) -> int:
     css = src / "assets" / "perc-modern-ui.css"
     if not css.is_file():
         LOG.warning("missing %s under %s (JSPs still link it)", ENTRY_CSS_REL, src)
-    if require_object_storage and not bundle_contains_marker(src):
-        LOG.error(
-            "built modern JS under %s does not contain quoted %r in "
-            "perc-modern-ui.js or the developer-*.js chunk it imports — "
-            "the live kind select would omit option[value=object-storage] (#3893)",
-            src,
-            OBJECT_STORAGE_MARKER,
-        )
-        LOG.error(
-            "hint: rebuild WebUI so the developer chunk includes the "
-            "SOURCE_KIND_OBJECT_STORAGE wire value as a string, then "
-            "deploy entry + hashed chunks"
-        )
-        return EXIT_MARKER_MISSING
+    if require_kind_markers:
+        missing = bundle_missing_kind_markers(src)
+        if missing:
+            LOG.error(
+                "built modern JS under %s does not contain quoted %s in "
+                "perc-modern-ui.js or the developer-*.js chunk it imports — "
+                "the live kind select would omit those option[value=…] "
+                "entries (#3893 / #3948)",
+                src,
+                ", ".join(repr(m) for m in missing),
+            )
+            LOG.error(
+                "hint: rebuild WebUI so the developer chunk includes the "
+                "SOURCE_KIND_OBJECT_STORAGE and SOURCE_KIND_RSS_ATOM wire "
+                "values as strings, then deploy entry + hashed chunks "
+                "(full generated-webui/cm/modern tree, not assets/ hashes only)"
+            )
+            return EXIT_MARKER_MISSING
     return EXIT_OK
 
 
@@ -292,12 +325,15 @@ def deploy(
     *,
     container_name: str = DEFAULT_CONTAINER,
     dest: str = DEFAULT_DEST,
-    require_object_storage: bool = True,
+    require_kind_markers: bool = True,
+    require_object_storage: Optional[bool] = None,
     dry_run: bool = False,
 ) -> int:
     """Copy every file under ``src`` into ``container_name:dest``."""
     src = src.resolve()
-    rc = validate_src(src, require_object_storage=require_object_storage)
+    if require_object_storage is not None:
+        require_kind_markers = require_object_storage
+    rc = validate_src(src, require_kind_markers=require_kind_markers)
     if rc != EXIT_OK:
         return rc
     if not dest.startswith("/"):
@@ -368,7 +404,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
         src,
         container_name=args.container,
         dest=args.dest,
-        require_object_storage=not args.skip_object_storage_check,
+        require_kind_markers=not args.skip_object_storage_check,
         dry_run=args.dry_run,
     )
 
