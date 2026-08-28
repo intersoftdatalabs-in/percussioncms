@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
-/** Read-only CMS locale catalog row (CD-18). */
+/** CMS locale catalog row (CD-18). */
 @XmlRootElement(name = "LocaleSummary")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "CMS locale summary")

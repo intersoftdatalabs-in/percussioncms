@@ -101,6 +101,69 @@ Example create body:
 - The Developer SPA Keyword editor uses these endpoints; integrators can call the same surface
   without the UI.
 
+## Locales (design catalog)
+
+CMS locale definitions (Workbench **Locales** / content design) are exposed under `/services/locales`.
+The REST layer is a thin contract over the content **design** web service (`IPSContentDesignWs`) —
+create, update, and delete use the same design locks and session identity classic tools use (CD-18
+write). Auto-translation settings are **not** part of this surface.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/locales` | List CMS locales (language string, label, status, base flag) |
+| `GET` | `/services/locales/{idOrLang}` | Load one locale by language string (e.g. `en-us`) or numeric locale id |
+| `POST` | `/services/locales` | **Admin.** Create a locale (`languageString` and `label` required; optional description, status, `baseLocale`) |
+| `PUT` | `/services/locales/{idOrLang}` | **Admin.** Update label / description / status / `baseLocale`. `languageString` is immutable |
+| `DELETE` | `/services/locales/{idOrLang}` | **Admin.** Delete a locale (`204` on success) |
+
+### Request / response shape
+
+JSON objects use the `LocaleDetail` / `LocaleSummary` wire types (fields include `id`,
+`languageString`, `label`, `description`, `status` (`active` / `inactive`), `baseLocale`,
+`hasFormatProfile`, optional `format`, and `designGaps[]` on detail). Prefer the generated OpenAPI
+schema as the integration source of truth.
+
+Example create body:
+
+```json
+{
+  "languageString": "fr-ca",
+  "label": "French (Canada)",
+  "description": "Canadian French",
+  "status": "active",
+  "baseLocale": false
+}
+```
+
+### Status codes and authorization
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | List / get / create / update success |
+| `204` | Delete success |
+| `400` | Invalid input (missing language string or label, invalid status, immutable language change) |
+| `403` | Caller is not Admin, or the request has no session/user for the design session |
+| `404` | Locale not found |
+| `409` | Duplicate language string, design lock held by another user, or remaining dependents |
+| `500` | Design service or server failure |
+| `503` | Locales adaptor not configured (deployment miswire) |
+
+- Callers must be authenticated. **GET** is a catalog read. **Write** operations require the **Admin**
+  role and a request session and user identity for the design web service (same pattern as shared
+  fields / content-type design writes).
+- Create/update load or create the locale with a **held design lock** and release it on save. There
+  is no separate lock/unlock REST pair on this catalog (unlike content types).
+- Format-profile (`RXLOCALEFORMAT`) create/edit and auto-translation configuration remain
+  unsupported (`designGaps` on detail).
+
+### Integrator notes
+
+- After create/update the server reloads the locale so the response includes the assigned `id` and
+  current format-profile flag.
+- Prefer language string or numeric id for update/delete. Language string is the catalog key and
+  cannot be renamed via PUT.
+- Deleting a locale that still has dependents is **409** (`ignoreDependencies=false`).
+
 ## User preferences
 
 Stored per-user preferences live under `/services/preferences` (same resource under the

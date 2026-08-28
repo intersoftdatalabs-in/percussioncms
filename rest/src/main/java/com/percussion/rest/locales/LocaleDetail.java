@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Read-only CMS locale detail.
+ * CMS locale detail (CD-18).
  *
- * <p>Create/edit/delete and auto-translation settings are later slices.
+ * <p>Create/update/delete use this envelope. Auto-translation settings remain a later slice.
  */
 @XmlRootElement(name = "LocaleDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)

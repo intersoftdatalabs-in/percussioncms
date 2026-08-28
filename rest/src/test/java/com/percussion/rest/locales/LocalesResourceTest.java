@@ -24,12 +24,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.List;
@@ -174,6 +176,177 @@ public class LocalesResourceTest {
             eq(IllegalStateException.class.getName()),
             eq("cms down"),
             same(boom));
+  }
+
+  @Test
+  public void createLocaleSuccess() {
+    LocaleDetail body = new LocaleDetail();
+    body.setLanguageString("fr-ca");
+    body.setLabel("French (Canada)");
+    LocaleDetail created = new LocaleDetail();
+    created.setLanguageString("fr-ca");
+    created.setLabel("French (Canada)");
+    when(adaptor.createLocale(any(), any())).thenReturn(created);
+
+    assertEquals("fr-ca", resource.createLocale(body).getLanguageString());
+    verify(adaptor).createLocale(any(), eq(body));
+  }
+
+  @Test
+  public void createLocaleInvalidInputIs400() {
+    when(adaptor.createLocale(any(), any()))
+        .thenThrow(new IllegalArgumentException("label is required"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createLocale(new LocaleDetail()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createLocaleDuplicateIs409() {
+    when(adaptor.createLocale(any(), any()))
+        .thenThrow(new WebApplicationException("Locale already exists: en-us", 409));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createLocale(new LocaleDetail()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createLocaleLockConflictIs409() {
+    when(adaptor.createLocale(any(), any()))
+        .thenThrow(new LocaleDesignLockException("Could not save locale; locked by other"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createLocale(new LocaleDetail()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createLocaleForbiddenWhenNotAdmin() {
+    when(adaptor.createLocale(any(), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createLocale(new LocaleDetail()));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createLocaleWrapsUnexpectedFailures() {
+    IllegalStateException boom = new IllegalStateException("design ws down");
+    when(adaptor.createLocale(any(), any())).thenThrow(boom);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createLocale(new LocaleDetail()));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void updateLocaleSuccess() {
+    LocaleDetail body = new LocaleDetail();
+    body.setLabel("Updated");
+    LocaleDetail updated = new LocaleDetail();
+    updated.setLanguageString("en-us");
+    updated.setLabel("Updated");
+    when(adaptor.updateLocale(any(), eq("en-us"), any())).thenReturn(updated);
+
+    assertEquals("Updated", resource.updateLocale("en-us", body).getLabel());
+    verify(adaptor).updateLocale(any(), eq("en-us"), eq(body));
+  }
+
+  @Test
+  public void updateLocaleNotFoundIs404() {
+    when(adaptor.updateLocale(any(), eq("xx"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.updateLocale("xx", new LocaleDetail()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateLocaleInvalidInputIs400() {
+    when(adaptor.updateLocale(any(), eq("en-us"), any()))
+        .thenThrow(new IllegalArgumentException("body is required"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.updateLocale("en-us", null));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateLocaleLockConflictIs409() {
+    when(adaptor.updateLocale(any(), eq("en-us"), any()))
+        .thenThrow(new LocaleDesignLockException("Could not save locale; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateLocale("en-us", new LocaleDetail()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteLocaleNoContent() {
+    Response r = resource.deleteLocale("en-us");
+    assertEquals(204, r.getStatus());
+    verify(adaptor).deleteLocale(any(), eq("en-us"));
+  }
+
+  @Test
+  public void deleteLocaleNotFoundIs404() {
+    doThrow(new LocaleNotFoundException("Locale not found"))
+        .when(adaptor)
+        .deleteLocale(any(), eq("xx"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteLocale("xx"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteLocaleDependencyConflictIs409() {
+    doThrow(new LocaleDesignLockException("Locale has dependents"))
+        .when(adaptor)
+        .deleteLocale(any(), eq("en-us"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteLocale("en-us"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteLocaleForbiddenWhenNotAdmin() {
+    doThrow(new WebApplicationException("Admin role required", 403))
+        .when(adaptor)
+        .deleteLocale(any(), eq("en-us"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteLocale("en-us"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnCreate() {
+    LocalesResource bare = newLocalesResourceWithoutAdaptor();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.createLocale(new LocaleDetail()));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnUpdate() {
+    LocalesResource bare = newLocalesResourceWithoutAdaptor();
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> bare.updateLocale("en-us", new LocaleDetail()));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnDelete() {
+    LocalesResource bare = newLocalesResourceWithoutAdaptor();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.deleteLocale("en-us"));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void mapWriteFailureLockMessageOnIllegalStateIs409() {
+    WebApplicationException ex =
+        LocalesResource.mapWriteFailure(new IllegalStateException("object is not locked"));
+    assertEquals(409, ex.getResponse().getStatus());
   }
 
   private static LocalesResource newLocalesResourceWithoutAdaptor() {
