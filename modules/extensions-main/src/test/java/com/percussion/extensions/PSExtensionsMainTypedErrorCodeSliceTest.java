@@ -20,10 +20,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.cas.PSConcatAssemblyLocation;
+import com.percussion.cas.PSGenerateAssemblerLink;
 import com.percussion.data.PSConversionException;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
@@ -32,6 +35,7 @@ import com.percussion.extension.PSExtensionRef;
 import com.percussion.extensions.general.PSPrepareInClause;
 import com.percussion.extensions.general.PSSetArrayHtmlParameter;
 import com.percussion.extensions.translations.PSFormEncode;
+import com.percussion.relationship.PSTranslationConstraint;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestValidationException;
 import java.nio.file.Path;
@@ -42,7 +46,9 @@ import org.mockito.Mockito;
 
 /**
  * Leftover extensions-main production throw sites now construct typed {@link ExtensionErrorCodes}
- * (non-auditable). File-root init uses a portable {@link Path} temp directory.
+ * (non-auditable). File-root init uses a portable {@link Path} temp directory. Dual-write skip for
+ * the leftover catalog codes lives in perc-auditlog {@code
+ * ExtensionsMainResidualErrorCodesDualWriteTest}.
  */
 @Tag("UnitTest")
 class PSExtensionsMainTypedErrorCodeSliceTest {
@@ -108,6 +114,38 @@ class PSExtensionsMainTypedErrorCodeSliceTest {
     PSExtensionProcessingException ex =
         new PSExtensionProcessingException(ExtensionErrorCodes.EXT_PROCESSOR_EXCEPTION, args);
     assertSame(ExtensionErrorCodes.EXT_PROCESSOR_EXCEPTION, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  void paramMismatchExceptionUsedByGenericAssemblyIsNonAuditable() {
+    Object[] args = {"1", "0"};
+    PSExtensionException ex =
+        new PSExtensionException(ExtensionErrorCodes.EXT_PARAM_VALUE_MISMATCH, args);
+    assertSame(ExtensionErrorCodes.EXT_PARAM_VALUE_MISMATCH, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  void generateAssemblerLinkMissingVariantThrowsTypedMissingRequiredParam() {
+    PSGenerateAssemblerLink udf = new PSGenerateAssemblerLink();
+    PSConversionException ex =
+        assertThrows(PSConversionException.class, () -> udf.processUdf(new Object[] {}, null));
+    assertSame(ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  void translationConstraintMissingContentIdThrowsTypedMissingHtmlParameter() {
+    PSTranslationConstraint exit = new PSTranslationConstraint();
+    IPSRequestContext request = mock(IPSRequestContext.class);
+    when(request.getParameter(anyString(), anyString())).thenReturn("");
+    PSExtensionProcessingException ex =
+        assertThrows(
+            PSExtensionProcessingException.class, () -> exit.preProcessRequest(null, request));
+    assertSame(ExtensionErrorCodes.EXT_MISSING_HTML_PARAMETER_ERROR, ex.getTypedErrorCode());
+    assertEquals(
+        ExtensionErrorCodes.EXT_MISSING_HTML_PARAMETER_ERROR.numericCode(), ex.getErrorCode());
     assertFalse(ex.isAuditable());
   }
 

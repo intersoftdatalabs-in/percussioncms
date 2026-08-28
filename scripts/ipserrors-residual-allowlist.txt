@@ -16,6 +16,8 @@
 #   #3883 leftover system/src/main cms handlers
 #   #3884 leftover cms.objectstore (non-server) + client call sites
 #   #3900 leftover cms.objectstore.server call sites
+# Converted (no longer listed): extensions-main #3756/#3938 (allow-list
+# shrink after #3793 re-listed already-typed production paths).
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -25,26 +27,6 @@
 # Tests, comment-only mentions, and the gate scripts themselves are ignored.
 
 deployer/src/main/java/com/percussion/deployer/jexl/PSDeployJexlUtils.java
-modules/extensions-main/src/main/java/com/percussion/cas/PSAuthtypeDispatcher.java
-modules/extensions-main/src/main/java/com/percussion/cas/PSConcatAssemblyLocation.java
-modules/extensions-main/src/main/java/com/percussion/cas/PSConcatWithIdAssemblyLocation.java
-modules/extensions-main/src/main/java/com/percussion/cas/PSDefaultAssemblyLocation.java
-modules/extensions-main/src/main/java/com/percussion/cas/PSGenerateAssemblerLink.java
-modules/extensions-main/src/main/java/com/percussion/cas/PSGeneratePubLocation.java
-modules/extensions-main/src/main/java/com/percussion/cas/PSGenericAssembly.java
-modules/extensions-main/src/main/java/com/percussion/extensions/cms/PSCheckIfVariantIsInUse.java
-modules/extensions-main/src/main/java/com/percussion/extensions/general/PSFileInfo.java
-modules/extensions-main/src/main/java/com/percussion/extensions/general/PSPrepareInClause.java
-modules/extensions-main/src/main/java/com/percussion/extensions/general/PSSetArrayHtmlParameter.java
-modules/extensions-main/src/main/java/com/percussion/extensions/publishing/PSPublishContent.java
-modules/extensions-main/src/main/java/com/percussion/extensions/translations/PSFormEncode.java
-modules/extensions-main/src/main/java/com/percussion/extensions/translations/PSMapInputValue.java
-modules/extensions-main/src/main/java/com/percussion/extensions/translations/PSMapOutputValue.java
-modules/extensions-main/src/main/java/com/percussion/extensions/usersearch/PSServerUserSearch.java
-modules/extensions-main/src/main/java/com/percussion/relationship/PSTranslationConstraint.java
-modules/extensions-main/src/main/java/com/percussion/uicontext/PSGetAndSetCxOptions.java
-modules/extensions-main/src/main/java/com/percussion/uicontext/PSTranslationKeyValueAccessor.java
-modules/extensions-main/src/main/java/com/percussion/validate/PSValidateSlotName.java
 modules/perc-i18n/src/main/java/com/percussion/i18n/ui/PSI18NTranslationKeyValues.java
 modules/perc-toolkit/src/main/java/com/percussion/pso/jexl/PSOSlotTools.java
 modules/perc-toolkit/src/main/java/com/percussion/pso/relationshipbuilder/exit/PSAbstractBuildRelationshipsExtension.java
