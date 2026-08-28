@@ -17,6 +17,7 @@
 
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.design.objectstore.PSDirectorySet;
 import com.percussion.design.objectstore.PSProvider;
 import com.percussion.design.objectstore.PSReference;
@@ -317,7 +318,10 @@ public class PSSecurityProviderPool {
 
           PSLogManager.write(
               new PSLogServerWarning(
-                  IPSSecurityErrors.PROVIDER_INIT_EXCEPTION, args, true, "SecurityProviderPool"));
+                  SecurityErrorCodes.PROVIDER_INIT_EXCEPTION.numericCode(),
+                  args,
+                  true,
+                  "SecurityProviderPool"));
 
           return;
         }
@@ -326,7 +330,10 @@ public class PSSecurityProviderPool {
         Object[] args = {String.valueOf(spType), spInstName};
         PSLogManager.write(
             new PSLogServerWarning(
-                IPSSecurityErrors.PROVIDER_UNKNOWN, args, true, "SecurityProviderPool"));
+                SecurityErrorCodes.PROVIDER_UNKNOWN.numericCode(),
+                args,
+                true,
+                "SecurityProviderPool"));
         return;
     } // end switch
 
@@ -337,7 +344,7 @@ public class PSSecurityProviderPool {
       Object[] args = {spInstName};
       PSLogManager.write(
           new PSLogServerWarning(
-              IPSSecurityErrors.PROVIDER_INSTANCE_NAME_DUPLICATED,
+              SecurityErrorCodes.PROVIDER_INSTANCE_NAME_DUPLICATED.numericCode(),
               args,
               false,
               "SecurityProviderPool"));

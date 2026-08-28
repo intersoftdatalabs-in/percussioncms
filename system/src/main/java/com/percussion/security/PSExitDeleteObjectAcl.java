@@ -16,13 +16,13 @@
  */
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.data.PSConversionException;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionParams;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
@@ -82,7 +82,7 @@ public class PSExitDeleteObjectAcl extends PSDefaultExtension
     } catch (NumberFormatException e) {
       String msg = "The object type id ''{0}'' could not be parsed. ";
       MessageFormat.format(msg, objectType);
-      throw new PSExtensionProcessingException(IPSServerErrors.RAW_DUMP, msg);
+      throw new PSExtensionProcessingException(ServerErrorCodes.RAW_DUMP, msg);
     }
 
     PSTypeEnum objectTypeEnum = PSTypeEnum.valueOf(objectTypeId);
@@ -118,7 +118,7 @@ public class PSExitDeleteObjectAcl extends PSDefaultExtension
 
     if (errorMsg != null) {
       request.printTraceMessage(errorMsg);
-      throw new PSExtensionProcessingException(IPSServerErrors.RAW_DUMP, errorMsg);
+      throw new PSExtensionProcessingException(ServerErrorCodes.RAW_DUMP, errorMsg);
     }
     return resultDoc;
   }

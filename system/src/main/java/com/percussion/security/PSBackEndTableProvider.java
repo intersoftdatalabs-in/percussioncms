@@ -17,6 +17,7 @@
 package com.percussion.security;
 
 import com.intsof.percussioncms.auditlog.AuditOutcome;
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.design.objectstore.PSAttributeList;
 import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.design.objectstore.PSProvider;
@@ -134,7 +135,7 @@ public class PSBackEndTableProvider extends PSSecurityProvider {
         Object[] args = {m_spInstance, uid};
 
         throw new PSAuthenticationFailedException(
-            IPSSecurityErrors.BETABLE_ERROR_UID_NOT_UNIQUE, args);
+            SecurityErrorCodes.BETABLE_ERROR_UID_NOT_UNIQUE, args);
       }
 
       // check that the password matches

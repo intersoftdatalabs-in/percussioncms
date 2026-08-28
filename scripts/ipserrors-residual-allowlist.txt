@@ -17,6 +17,7 @@
 #   #3884 leftover cms.objectstore (non-server) + client call sites
 #   #3900 leftover cms.objectstore.server call sites
 #   #3939 leftover system/src/main com.percussion.data (+ macro/vfs)
+#   #3940 leftover system/src/main com.percussion.security call sites
 # Converted (no longer listed): extensions-main #3756/#3938 (allow-list
 # shrink after #3793 re-listed already-typed production paths).
 #
@@ -139,37 +140,6 @@ system/src/main/java/com/percussion/search/PSSearchEngine.java
 system/src/main/java/com/percussion/search/lucene/PSSearchEngineImpl.java
 system/src/main/java/com/percussion/search/lucene/PSSearchIndexerImpl.java
 system/src/main/java/com/percussion/search/lucene/PSSearchQueryImpl.java
-system/src/main/java/com/percussion/security/PSAuthenticationFailedExException.java
-system/src/main/java/com/percussion/security/PSAuthenticationFailedException.java
-system/src/main/java/com/percussion/security/PSAuthenticationRequiredException.java
-system/src/main/java/com/percussion/security/PSAuthenticationUnsupportedException.java
-system/src/main/java/com/percussion/security/PSAuthorizationException.java
-system/src/main/java/com/percussion/security/PSBackEndTableDirectoryCataloger.java
-system/src/main/java/com/percussion/security/PSBackEndTableProvider.java
-system/src/main/java/com/percussion/security/PSBackEndTableProviderMetaData.java
-system/src/main/java/com/percussion/security/PSCataloger.java
-system/src/main/java/com/percussion/security/PSDataEncryptionError.java
-system/src/main/java/com/percussion/security/PSDataEncryptionHandler.java
-system/src/main/java/com/percussion/security/PSDirectoryCataloger.java
-system/src/main/java/com/percussion/security/PSDirectoryConnProvider.java
-system/src/main/java/com/percussion/security/PSDirectoryConnProviderMetaData.java
-system/src/main/java/com/percussion/security/PSDirectoryServerCataloger.java
-system/src/main/java/com/percussion/security/PSExitCreateDefaultCommunityAcl.java
-system/src/main/java/com/percussion/security/PSExitDeleteObjectAcl.java
-system/src/main/java/com/percussion/security/PSFiltersNotSupportedException.java
-system/src/main/java/com/percussion/security/PSGroupsNotSupportedException.java
-system/src/main/java/com/percussion/security/PSJndiGroupProvider.java
-system/src/main/java/com/percussion/security/PSJndiUtils.java
-system/src/main/java/com/percussion/security/PSNativeMethodException.java
-system/src/main/java/com/percussion/security/PSOdbcProviderMetaData.java
-system/src/main/java/com/percussion/security/PSRoleAlreadyDefinedException.java
-system/src/main/java/com/percussion/security/PSRoleCataloger.java
-system/src/main/java/com/percussion/security/PSRoleNotDefinedException.java
-system/src/main/java/com/percussion/security/PSSecurityException.java
-system/src/main/java/com/percussion/security/PSSecurityProvider.java
-system/src/main/java/com/percussion/security/PSSecurityProviderPool.java
-system/src/main/java/com/percussion/security/PSUnsupportedProviderException.java
-system/src/main/java/com/percussion/security/PSUsersNotSupportedException.java
 system/src/main/java/com/percussion/server/PSApplicationHandler.java
 system/src/main/java/com/percussion/server/PSBaseResponse.java
 system/src/main/java/com/percussion/server/PSConsole.java

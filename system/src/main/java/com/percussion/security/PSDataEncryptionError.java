@@ -16,6 +16,7 @@
  */
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.error.PSErrorManager;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
@@ -49,8 +50,9 @@ public class PSDataEncryptionError extends PSLogError {
     /* the generic submessage first */
     msgs[0] =
         new PSLogSubMessage(
-            IPSSecurityErrors.DATA_ENCRYPTION_ERROR_MSG,
-            PSErrorManager.getErrorText(IPSSecurityErrors.DATA_ENCRYPTION_ERROR_MSG, false, loc));
+            SecurityErrorCodes.DATA_ENCRYPTION_ERROR.numericCode(),
+            PSErrorManager.getErrorText(
+                SecurityErrorCodes.DATA_ENCRYPTION_ERROR.numericCode(), false, loc));
 
     /* use the errorCode/errorParams to format the second submessage */
     msgs[1] =

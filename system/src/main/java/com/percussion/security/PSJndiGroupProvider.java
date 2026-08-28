@@ -16,6 +16,7 @@
  */
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.design.objectstore.PSJndiGroupProviderInstance;
 import com.percussion.design.objectstore.PSJndiObjectClass;
 import com.percussion.services.security.PSTypedPrincipal;
@@ -219,7 +220,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
       Object[] args = {
         m_groupProviderInstance.getName(), m_directoryDef.getDirectory().getName(), e.toString()
       };
-      throw new PSSecurityException(IPSSecurityErrors.GET_GROUPS_FAILURE, args);
+      throw new PSSecurityException(SecurityErrorCodes.GET_GROUPS_FAILURE, args);
     } finally {
       if (results != null)
         try {
@@ -281,7 +282,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
       Object[] args = {
         m_groupProviderInstance.getName(), m_directoryDef.getDirectory().getName(), e.toString()
       };
-      throw new PSSecurityException(IPSSecurityErrors.GET_GROUPS_FAILURE, args);
+      throw new PSSecurityException(SecurityErrorCodes.GET_GROUPS_FAILURE, args);
     } finally {
       if (results != null)
         try {
@@ -435,7 +436,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
       Object[] args = {
         m_groupProviderInstance.getName(), m_directoryDef.getDirectory().getName(), e.toString()
       };
-      throw new PSSecurityException(IPSSecurityErrors.GET_GROUPS_FAILURE, args);
+      throw new PSSecurityException(SecurityErrorCodes.GET_GROUPS_FAILURE, args);
     } finally {
       if (attVals != null)
         try {
@@ -798,7 +799,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
       Object[] args = {
         m_groupProviderInstance.getName(), m_directoryDef.getDirectory().getName(), e.toString()
       };
-      throw new PSSecurityException(IPSSecurityErrors.GET_GROUPS_FAILURE, args);
+      throw new PSSecurityException(SecurityErrorCodes.GET_GROUPS_FAILURE, args);
     } finally {
       if (attVals != null)
         try {

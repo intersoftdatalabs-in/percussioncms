@@ -16,6 +16,7 @@
  */
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.design.objectstore.PSAttributeList;
 import com.percussion.design.objectstore.PSAuthentication;
 import com.percussion.design.objectstore.PSDirectory;
@@ -99,7 +100,7 @@ public class PSDirectoryConnProvider extends PSJndiProvider {
     if (directorySet == null) {
       String[] args = {provider.getReference().getName()};
       throw new PSAuthenticationFailedException(
-          IPSSecurityErrors.DIR_REFERENCED_DIRECTORYSET_NOT_FOUND, args);
+          SecurityErrorCodes.DIR_REFERENCED_DIRECTORYSET_NOT_FOUND, args);
     }
 
     StringBuffer errorMessage = new StringBuffer();
@@ -110,7 +111,7 @@ public class PSDirectoryConnProvider extends PSJndiProvider {
         if (directory == null) {
           String[] args = {"Directory is null."};
           throw new PSAuthenticationFailedException(
-              IPSSecurityErrors.REFERENCED_DIRECTORY_NOT_FOUND, args);
+              SecurityErrorCodes.REFERENCED_DIRECTORY_NOT_FOUND, args);
         }
 
         PSAuthentication authentication =
@@ -118,7 +119,7 @@ public class PSDirectoryConnProvider extends PSJndiProvider {
         if (authentication == null) {
           String[] args = {"Authentication for Directory " + directory.getName() + " is null."};
           throw new PSAuthenticationFailedException(
-              IPSSecurityErrors.REFERENCED_AUTHENTICATION_NOT_FOUND, args);
+              SecurityErrorCodes.REFERENCED_AUTHENTICATION_NOT_FOUND, args);
         }
 
         setProviderProperties(directory, authentication);
@@ -144,7 +145,7 @@ public class PSDirectoryConnProvider extends PSJndiProvider {
         if (encryptedPassword.length() == 0
             && !getAuthenticationScheme().equals(AUTH_SCHEME_NONE)) {
           Object[] args = {getInstance()};
-          throw new PSAuthenticationFailedException(IPSSecurityErrors.DIR_PASSWORD_REQUIRED, args);
+          throw new PSAuthenticationFailedException(SecurityErrorCodes.DIR_PASSWORD_REQUIRED, args);
         }
 
         DirContext context = null;
@@ -212,7 +213,7 @@ public class PSDirectoryConnProvider extends PSJndiProvider {
           String[] args = {directory.getName(), authentication.getName(), e.toString()};
 
           throw new PSAuthenticationFailedException(
-              IPSSecurityErrors.DIRECTORY_AUTHENTICATION_FAILED, args);
+              SecurityErrorCodes.DIRECTORY_AUTHENTICATION_FAILED, args);
         } finally {
           if (context != null)
             try {

@@ -17,6 +17,7 @@
 
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.error.PSException;
 
 /**
@@ -35,7 +36,7 @@ public class PSRoleNotDefinedException extends PSException {
    * @param roleName the name of the role
    */
   public PSRoleNotDefinedException(java.lang.String appName, java.lang.String roleName) {
-    super(IPSSecurityErrors.LOCAL_ROLE_NOT_DEFINED, new Object[] {roleName, appName});
+    super(SecurityErrorCodes.LOCAL_ROLE_NOT_DEFINED, new Object[] {roleName, appName});
   }
 
   /**
@@ -46,6 +47,6 @@ public class PSRoleNotDefinedException extends PSException {
    * @param roleName the name of the role
    */
   public PSRoleNotDefinedException(java.lang.String roleName) {
-    super(IPSSecurityErrors.GLOBAL_ROLE_NOT_DEFINED, new Object[] {roleName});
+    super(SecurityErrorCodes.GLOBAL_ROLE_NOT_DEFINED, new Object[] {roleName});
   }
 }

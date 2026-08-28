@@ -17,6 +17,7 @@
 
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.error.PSException;
 
 /**
@@ -30,6 +31,6 @@ import com.percussion.error.PSException;
 public class PSGroupsNotSupportedException extends PSException {
   /** Constructs a groups not supported exception with the default message. */
   public PSGroupsNotSupportedException(java.lang.String provider) {
-    super(IPSSecurityErrors.GROUPS_NOT_SUPPORTED, new Object[] {provider});
+    super(SecurityErrorCodes.GROUPS_NOT_SUPPORTED, new Object[] {provider});
   }
 }

@@ -17,6 +17,8 @@
 
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.design.objectstore.PSDataEncryptor;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSResponse;
@@ -83,7 +85,7 @@ public class PSDataEncryptionHandler {
         };
         com.percussion.log.PSLogManager.write(
             new com.percussion.log.PSLogServerWarning(
-                com.percussion.server.IPSServerErrors.RESPONSE_SEND_ERROR,
+                ServerErrorCodes.RESPONSE_SEND_ERROR.numericCode(),
                 args,
                 true,
                 "DataEncryptionHandler"));
@@ -104,10 +106,16 @@ public class PSDataEncryptionHandler {
         Object[] args = {request.getUserSessionId(), "" + keyStrength, "" + userKeyStrength};
         com.percussion.log.PSLogManager.write(
             new com.percussion.log.PSLogServerWarning(
-                IPSSecurityErrors.SSL_KEY_STRENGTH_TOO_WEAK, args, true, "DataEncryptionHandler"));
+                SecurityErrorCodes.SSL_KEY_STRENGTH_TOO_WEAK.numericCode(),
+                args,
+                true,
+                "DataEncryptionHandler"));
 
         // send a response to through the request
-        sendErrorResponse(request.getResponse(), IPSSecurityErrors.SSL_KEY_STRENGTH_TOO_WEAK, args);
+        sendErrorResponse(
+            request.getResponse(),
+            SecurityErrorCodes.SSL_KEY_STRENGTH_TOO_WEAK.numericCode(),
+            args);
       }
     }
 

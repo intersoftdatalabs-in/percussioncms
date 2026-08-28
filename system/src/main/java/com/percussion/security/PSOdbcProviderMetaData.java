@@ -17,6 +17,7 @@
 
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.data.PSResultSet;
 import com.percussion.error.PSSqlException;
 
@@ -118,7 +119,7 @@ public class PSOdbcProviderMetaData extends PSSecurityProviderMetaData {
 
       com.percussion.log.PSLogManager.write(
           new com.percussion.log.PSLogServerWarning(
-              IPSSecurityErrors.PROVIDER_INIT_CATALOG_DISABLED,
+              SecurityErrorCodes.PROVIDER_INIT_CATALOG_DISABLED.numericCode(),
               args,
               true,
               "Odbc Driver - getServers"));

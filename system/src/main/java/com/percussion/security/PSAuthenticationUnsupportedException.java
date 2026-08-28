@@ -17,6 +17,7 @@
 
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.error.PSException;
 
 /**
@@ -31,6 +32,6 @@ import com.percussion.error.PSException;
 public class PSAuthenticationUnsupportedException extends PSException {
   /** Constructs an authentication unsupported exception with the default message. */
   public PSAuthenticationUnsupportedException(java.lang.String provider) {
-    super(IPSSecurityErrors.AUTHENTICATION_NOT_SUPPORTED, new Object[] {provider});
+    super(SecurityErrorCodes.AUTHENTICATION_NOT_SUPPORTED, new Object[] {provider});
   }
 }

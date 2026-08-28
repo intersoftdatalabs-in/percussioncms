@@ -16,6 +16,7 @@
  */
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.design.objectstore.PSAttributeList;
 import com.percussion.design.objectstore.PSConditional;
@@ -94,7 +95,7 @@ public abstract class PSDirectoryCataloger extends PSCataloger implements IPSDir
     String emailAttributeName = getEmailAddressAttributeName();
     if (emailAttributeName == null)
       throw new UnsupportedOperationException(
-          PSErrorManager.getErrorText(IPSSecurityErrors.NO_EMAIL_ATTRIBUTE_NAME));
+          PSErrorManager.getErrorText(SecurityErrorCodes.NO_EMAIL_ATTRIBUTE_NAME.numericCode()));
 
     return getAttribute(user, emailAttributeName);
   }
@@ -220,7 +221,7 @@ public abstract class PSDirectoryCataloger extends PSCataloger implements IPSDir
       }
     } catch (NamingException e) {
       Object args[] = {e.toString()};
-      throw new PSSecurityException(IPSSecurityErrors.UNKNOWN_NAMING_ERROR, args);
+      throw new PSSecurityException(SecurityErrorCodes.UNKNOWN_NAMING_ERROR, args);
     } finally {
       if (results != null)
         try {
@@ -310,7 +311,7 @@ public abstract class PSDirectoryCataloger extends PSCataloger implements IPSDir
             + e.toString()
       };
 
-      throw new PSSecurityException(IPSSecurityErrors.UNKNOWN_NAMING_ERROR, args);
+      throw new PSSecurityException(SecurityErrorCodes.UNKNOWN_NAMING_ERROR, args);
     } finally {
       if (values != null)
         try {

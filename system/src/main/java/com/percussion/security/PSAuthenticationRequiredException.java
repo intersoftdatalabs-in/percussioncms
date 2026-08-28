@@ -17,6 +17,8 @@
 
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
+
 /**
  * PSAuthenticationRequiredException is thrown to indicate that a user must login (authenticate) to
  * gain access to a resource. This usually occurs when the user has not attempted any form of
@@ -41,6 +43,6 @@ public class PSAuthenticationRequiredException extends PSAuthorizationException 
   /** Constructs an authentication required exception with the default message. */
   public PSAuthenticationRequiredException(
       java.lang.String resourceType, java.lang.String resourceName) {
-    super(IPSSecurityErrors.AUTHENTICATION_REQUIRED, new Object[] {resourceType, resourceName});
+    super(SecurityErrorCodes.AUTHENTICATION_REQUIRED, new Object[] {resourceType, resourceName});
   }
 }

@@ -17,6 +17,7 @@
 
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.error.PSException;
 
 /**
@@ -36,6 +37,6 @@ public class PSUnsupportedProviderException extends PSException {
    */
   public PSUnsupportedProviderException(java.lang.String providerClass, java.lang.String provider) {
     super(
-        IPSSecurityErrors.PROVIDER_NOT_SUPPORTED_BY_CLASS, new Object[] {providerClass, provider});
+        SecurityErrorCodes.PROVIDER_NOT_SUPPORTED_BY_CLASS, new Object[] {providerClass, provider});
   }
 }

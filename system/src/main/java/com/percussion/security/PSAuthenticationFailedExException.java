@@ -17,6 +17,7 @@
 
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import java.util.Iterator;
 
 /**
@@ -51,7 +52,7 @@ public class PSAuthenticationFailedExException extends PSAuthenticationFailedExc
     /* Note: Iterator was used instead of [] for future extensibility.
     We may want to return different kinds of objects with more info at a
     later time. */
-    super(IPSSecurityErrors.MULTI_AUTHENTICATION_FAILED, new Object[1]);
+    super(SecurityErrorCodes.MULTI_AUTHENTICATION_FAILED, new Object[1]);
     if (null == failedSPExceptions || !failedSPExceptions.hasNext()) {
       throw new IllegalArgumentException("Must provide at least 1 security provider.");
     }

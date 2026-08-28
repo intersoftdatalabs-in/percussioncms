@@ -17,6 +17,8 @@
 
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.IPSException;
 import com.percussion.error.PSRuntimeException;
 
@@ -52,11 +54,43 @@ public class PSSecurityException extends PSRuntimeException {
   }
 
   /**
+   * Typed construction from a catalogued {@link IPSErrorCode}.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSSecurityException(IPSErrorCode code) {
+    super(code);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param messageArgs the array of arguments to use as the arguments in the error message; may be
+   *     {@code null}
+   */
+  public PSSecurityException(IPSErrorCode code, Object[] messageArgs) {
+    super(code, messageArgs);
+  }
+
+  /**
+   * Typed construction with message arguments and a cause.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param messageArgs the array of arguments to use as the arguments in the error message; may be
+   *     {@code null}
+   * @param cause causal throwable; may be {@code null}
+   */
+  public PSSecurityException(IPSErrorCode code, Object[] messageArgs, Throwable cause) {
+    super(code, messageArgs, cause);
+  }
+
+  /**
    * Creates an exception that indicates cataloging for some type of security object failed.
    *
    * @param detailMsg The text describing the problem.
    */
   public PSSecurityException(String detailMsg) {
-    super(IPSSecurityErrors.METADATA_UNAVAILABLE, new Object[] {detailMsg});
+    super(SecurityErrorCodes.METADATA_UNAVAILABLE, new Object[] {detailMsg});
   }
 }
