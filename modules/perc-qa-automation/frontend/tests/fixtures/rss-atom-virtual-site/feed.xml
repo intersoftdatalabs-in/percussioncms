@@ -3,7 +3,7 @@
   <channel>
     <title>RSS Atom QA Docs</title>
     <item>
-      <guid>home</guid>
+      <guid>index</guid>
       <title>RSS Home</title>
       <description>Hello from RSS.</description>
     </item>

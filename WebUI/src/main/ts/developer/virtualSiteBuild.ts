@@ -48,8 +48,8 @@ export function shouldShowVirtualBuildChrome(
 /**
  * True when Preview assembled site should be shown.
  * Last-output preview for git-filesystem, csv-filesystem, sql-database,
- * http-json, and object-storage. Repository / blank / unknown kinds and
- * rss-atom stay hidden (rss-atom Preview stays a later phase).
+ * http-json, object-storage, and rss-atom. Repository / blank / unknown
+ * kinds stay hidden. rss-atom Publish stays a later phase.
  */
 export function shouldShowVirtualPreviewChrome(
   sourceKind: string | null | undefined,
@@ -60,7 +60,8 @@ export function shouldShowVirtualPreviewChrome(
     v === "csv-filesystem" ||
     v === "sql-database" ||
     v === "http-json" ||
-    v === "object-storage"
+    v === "object-storage" ||
+    v === "rss-atom"
   );
 }
 

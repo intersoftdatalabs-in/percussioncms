@@ -757,7 +757,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
-  it("loads rss-atom values with root path and Build chrome (Preview/Publish later)", async () => {
+  it("loads rss-atom values with root path and Build/Preview chrome (Publish later)", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "rss-atom",
       rootPath: "C:/rss-atom-docs",
@@ -781,6 +781,9 @@ describe("VirtualSiteSourcePanel", () => {
       "Build Virtual Site",
     );
     expect(screen.getByTestId("developer-site-virtual-rss-atom-hint").textContent).toContain(
+      "Preview assembled site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-rss-atom-hint").textContent).toContain(
       "later phase",
     );
     expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
@@ -788,7 +791,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-config-file")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
@@ -849,7 +852,7 @@ describe("VirtualSiteSourcePanel", () => {
     ).toBe("C:/rss-atom-docs");
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
@@ -1152,6 +1155,49 @@ describe("VirtualSiteSourcePanel", () => {
     );
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+  });
+
+  it("shows Build chrome for rss-atom and success result with Preview (Publish later)", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "rss-atom",
+      rootPath: "C:/rss-atom-docs",
+      virtual: true,
+    });
+    buildVirtual.mockResolvedValue({
+      siteName: "Help",
+      siteKey: "rss-atom-docs",
+      outputPath: "C:/tmp/virtual-sites/rss-atom-docs",
+      pagesWritten: 1,
+      linkProblemCount: 0,
+      hasLinkProblems: false,
+      linkProblems: [],
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-rss-atom-hint").textContent).toContain(
+      "Build Virtual Site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-rss-atom-hint").textContent).toContain(
+      "Preview assembled site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-site-virtual-build"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-build-result")).toBeTruthy();
+    });
+    expect(buildVirtual).toHaveBeenCalledWith("Help");
+    expect(screen.getByTestId("developer-site-virtual-build-success").textContent).toContain(
+      DEV_MSG.SITE_VIRT_BUILD_SUCCESS,
+    );
+    expect(screen.getByTestId("developer-site-virtual-build-pages").textContent).toBe("1");
+    expect(screen.getByTestId("developer-site-virtual-build-output").textContent).toContain(
+      "rss-atom-docs",
+    );
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
   it("shows Publish chrome for http-json and success dest path", async () => {
@@ -1583,6 +1629,42 @@ describe("VirtualSiteSourcePanel", () => {
       expect(open).toHaveBeenCalled();
     });
     expect(previewStatus).toHaveBeenCalledWith("ObjectHelp");
+    expect(String(open.mock.calls[0][0])).toContain("8.2/index.html");
+    expect(open.mock.calls[0][1]).toBe("_blank");
+  });
+
+  it("shows Preview chrome for rss-atom and opens last-build home", async () => {
+    const open = vi.fn();
+    window.open = open;
+    getVirtual.mockResolvedValue({
+      sourceKind: "rss-atom",
+      rootPath: "C:/rss-atom-docs",
+      virtual: true,
+    });
+    previewStatus.mockResolvedValue({
+      available: true,
+      homePath: "8.2/index.html",
+    });
+    render(<VirtualSiteSourcePanel siteName="RssHelp" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-rss-atom-hint").textContent).toContain(
+      DEV_MSG.SITE_VIRT_RSS_ATOM_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-preview-hint").textContent).toContain(
+      DEV_MSG.SITE_VIRT_PREVIEW_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-preview-hint").textContent).toContain(
+      "RSS / Atom",
+    );
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
+    await waitFor(() => {
+      expect(open).toHaveBeenCalled();
+    });
+    expect(previewStatus).toHaveBeenCalledWith("RssHelp");
     expect(String(open.mock.calls[0][0])).toContain("8.2/index.html");
     expect(open.mock.calls[0][1]).toBe("_blank");
   });

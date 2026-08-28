@@ -73,6 +73,7 @@ describe("rss-atom-virtual-qa-fixture", () => {
     assert.doesNotMatch(config, /https?:\/\/(?!127\.0\.0\.1)/i);
     const feed = fs.readFileSync(path.join(dir, "feed.xml"), "utf8");
     assert.match(feed, /<rss version="2\.0">/);
+    assert.match(feed, /<guid>index<\/guid>/);
     assert.match(feed, /RSS Home/);
     assert.match(feed, new RegExp(RSS_ATOM_VIRTUAL_BUILD_MARKER));
     assert.doesNotMatch(feed, /authorization/i);

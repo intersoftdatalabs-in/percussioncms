@@ -66,7 +66,8 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
   missing build is `available=false` HTTP 200). REST **Preview** also streams last-build
   HTML for `rss-atom` (local RSS 2.0 / Atom fixture or loopback feed; no live remote
   feeds). REST **Publish** copies that last-build HTML to `IPSSite.root` for `rss-atom`
-  (`filesCopied > 0`; `_meta` skipped). Developer Sites can save **Object
+  (`filesCopied > 0`; `_meta` skipped). Developer Sites **Preview assembled site** is
+  shown for **RSS / Atom** after a successful Build. Developer Sites can save **Object
   storage** (GET round-trips the kind), then **Build Virtual Site**, **Preview
   assembled site**, and **Publish Virtual Site**. Developer Sites Publish chrome for
   rss-atom stays a later phase. The endpoint does not accept an
