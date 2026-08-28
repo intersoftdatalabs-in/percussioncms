@@ -44,15 +44,11 @@ import java.util.zip.ZipOutputStream;
  * haven't changed).
  *
  * <p>Page layout packages that author modern {@code pages/&lt;id&gt;/component-package.json} (ADR-004
- * / #2786 / #2806) are staged for deployer {@code TemplateDef} install:
- *
- * <ul>
- *   <li><strong>Dual-ship</strong> (default): materialize root {@code *.templateDef} before reorganize
- *   <li><strong>Native</strong> (package-local or system property): stage {@code TemplateDef-N/}
- *       archive folders from modern pages without dual-ship root files — see {@link
- *       com.percussion.packages.pagexml.PSPageXmlInstallPolicy} / {@link
- *       com.percussion.packages.pagexml.PSPageXmlNativeInstall}
- * </ul>
+ * / #2786 / #2806) are staged for deployer {@code TemplateDef} install via native archive {@code
+ * TemplateDef-N/} folders ({@link com.percussion.packages.pagexml.PSPageXmlNativeInstall}). Dual-ship
+ * root {@code *.templateDef} materialize is <strong>not</strong> invoked from package-build (#3950);
+ * dual-ship mode fails closed. Policy: {@link
+ * com.percussion.packages.pagexml.PSPageXmlInstallPolicy}.
  *
  * <p>Widget packages that author modern {@code widgets/&lt;stem&gt;/component-package.json} without
  * committed install Widget XML (batch A+B+C ship-exit #2883/#2884/#2885) materialize
@@ -163,9 +159,6 @@ public final class PSPackageBuilder {
       // Step 1a: Modern-only widget packages → install Widget XML (#2883/#2884/#2885 batch A+B+C)
       stageModernWidgetInstallArtifacts(temp1, dirName);
 
-      // Step 1b: Modern page packages → deployer TemplateDef install (#2786 / #2806)
-      stageModernPageInstallArtifacts(temp1, temp2, dirName, true);
-
       // Step 2: Read mapping properties
       var propsFile = packageDir.resolve(dirName + MAPPING_EXT);
       var props = new Properties();
@@ -178,8 +171,8 @@ public final class PSPackageBuilder {
       // Step 3: Reorganize files from temp1 into temp2 using mapping
       reorganizeFiles(dirName, temp1, temp1.toFile(), temp2, props);
 
-      // Step 3b: Native mode stages TemplateDef-N after reorganize (no dual-ship roots)
-      stageModernPageInstallArtifacts(temp1, temp2, dirName, false);
+      // Step 3b: Native archive TemplateDef-N staging (dual-ship materialize removed, #3950)
+      stageModernPageInstallArtifacts(temp1, temp2, dirName);
 
       // Step 4: Zip temp2 into .ppkg
       zipDirectory(temp2, outputFile);
@@ -213,46 +206,34 @@ public final class PSPackageBuilder {
   }
 
   /**
-   * Stage modern page packages for deployer TemplateDef install.
+   * Stage modern page packages for deployer TemplateDef install via native archive folders.
    *
-   * @param preReorganize when {@code true}, run dual-ship root materialization only; when {@code
-   *     false}, run native archive staging only
+   * <p>Dual-ship root {@code *.templateDef} materialize is not used on the production package-build
+   * path (#3950). Dual-ship mode fails closed (inventory gate #3675).
    */
   private static void stageModernPageInstallArtifacts(
-      Path stagingPackageDir, Path archiveRoot, String packageName, boolean preReorganize)
-      throws IOException {
+      Path stagingPackageDir, Path archiveRoot, String packageName) throws IOException {
     try {
       if (!PSPageXmlDualShip.hasModernPageSources(stagingPackageDir)) {
         return;
       }
       PSPageXmlInstallMode mode = PSPageXmlInstallPolicy.resolve(stagingPackageDir);
-      if (preReorganize) {
-        if (mode != PSPageXmlInstallMode.DUAL_SHIP) {
-          return;
-        }
-        // Fail closed: non-waived product packages must not re-introduce dual-ship (#3675).
-        PSDualShipPageTemplateDefInventory.assertDualShipMaterializationAllowed(packageName);
-        int n = PSPageXmlDualShip.materializeInstallTemplateDefs(stagingPackageDir);
-        System.out.println(
-            PSDualShipPageTemplateDefInventory.formatDualShipLogLine(packageName, n));
-        return;
-      }
-      // post-reorganize: native archive staging
       if (mode != PSPageXmlInstallMode.NATIVE) {
-        return;
+        // Fail closed: dual-ship root materialize was removed from package-build (#3950).
+        PSDualShipPageTemplateDefInventory.assertDualShipMaterializationAllowed(packageName);
+        throw new IllegalStateException(
+            "Dual-ship page templateDef materialize was removed from package-build (#3950); package "
+                + packageName
+                + " must use native install ("
+                + PSPageXmlInstallPolicy.PROP_PAGE_INSTALL_MODE
+                + "=native).");
       }
       int n = PSPageXmlNativeInstall.stageArchiveTemplateDefs(stagingPackageDir, archiveRoot);
       System.out.println(
           "  native-install page TemplateDefs for " + packageName + ": " + n + " written");
     } catch (PSPageXmlException | IllegalStateException e) {
       throw new IOException(
-          "Page install staging failed for package "
-              + packageName
-              + " ("
-              + (preReorganize ? "dual-ship" : "native")
-              + "): "
-              + e.getMessage(),
-          e);
+          "Page install staging failed for package " + packageName + ": " + e.getMessage(), e);
     }
   }
 

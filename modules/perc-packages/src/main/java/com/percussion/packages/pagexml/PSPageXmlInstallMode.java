@@ -22,14 +22,17 @@ package com.percussion.packages.pagexml;
  * TemplateDef} archive entries (issue #2806 / parent #2630).
  *
  * <ul>
- *   <li>{@link #DUAL_SHIP} — materialize root {@code *.templateDef} before reorganize (legacy dual-ship
- *       bridge from #2786)
+ *   <li>{@link #DUAL_SHIP} — legacy dual-ship bridge from #2786. Package-build no longer
+ *       materializes root {@code *.templateDef} (#3950); this mode fails closed.
  *   <li>{@link #NATIVE} — convert modern pages directly into archive {@code TemplateDef-N/} folders
- *       without dual-ship root files (preferred for converted packages)
+ *       without dual-ship root files (the only production package-build emit)
  * </ul>
  */
 public enum PSPageXmlInstallMode {
-  /** Dual-ship: write root {@code *.templateDef} so existing reorganize mapping picks them up. */
+  /**
+   * Dual-ship: historically wrote root {@code *.templateDef} so reorganize mapping picked them up.
+   * Package-build does not materialize this mode (#3950).
+   */
   DUAL_SHIP,
   /**
    * Native: stage {@code TemplateDef-N/&lt;stem&gt;.templateDef} from modern {@code pages/} after
