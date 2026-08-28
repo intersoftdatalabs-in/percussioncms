@@ -27,14 +27,35 @@ export interface KeywordOption {
   label: string;
 }
 
+/**
+ * Coerce keyword catalog JSON (string, number, or nested object) so `.trim`
+ * never throws. REST may emit numeric {@code value} fields.
+ */
+export function catalogText(raw: unknown): string {
+  if (raw == null) {
+    return "";
+  }
+  if (typeof raw === "string" || typeof raw === "number" || typeof raw === "boolean") {
+    return String(raw).trim();
+  }
+  if (typeof raw === "object") {
+    const rec = raw as Record<string, unknown>;
+    const nested = rec.value ?? rec.label ?? rec.Value ?? rec.Label;
+    if (nested != null && nested !== raw) {
+      return catalogText(nested);
+    }
+  }
+  return String(raw).trim();
+}
+
 export function keywordChoicesForField(
   keywords: KeywordSummary[],
   fieldName: string,
 ): KeywordOption[] {
-  const want = fieldName.trim().toLowerCase();
+  const want = catalogText(fieldName).toLowerCase();
   const match = keywords.find((k) => {
-    const value = (k.value ?? "").trim().toLowerCase();
-    const label = (k.label ?? "").trim().toLowerCase();
+    const value = catalogText(k.value).toLowerCase();
+    const label = catalogText(k.label).toLowerCase();
     return value === want || label === want;
   });
   const source: KeywordChoiceSummary[] = match?.choices?.length
@@ -43,12 +64,13 @@ export function keywordChoicesForField(
   const seen = new Set<string>();
   const options: KeywordOption[] = [];
   for (const choice of source) {
-    const value = String(choice.value ?? "").trim();
+    const value = catalogText(choice.value);
     if (!value || seen.has(value)) {
       continue;
     }
     seen.add(value);
-    options.push({ value, label: String(choice.label ?? value) });
+    const label = catalogText(choice.label) || value;
+    options.push({ value, label });
   }
   return options;
 }
@@ -99,7 +121,7 @@ export function KeywordFieldWidget({
       data-testid={`editor-field-${name}`}
       data-editor-kind="keyword"
       name={name}
-      value={value}
+      value={catalogText(value)}
       disabled={readOnly}
       onChange={(e) => onChange(e.target.value)}
     >

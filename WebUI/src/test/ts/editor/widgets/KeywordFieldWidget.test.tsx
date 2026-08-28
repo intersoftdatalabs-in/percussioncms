@@ -18,12 +18,14 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import type { KeywordSummary } from "../../../../main/ts/api/developer/types";
 import {
+  catalogText,
   keywordChoicesForField,
   KeywordFieldWidget,
 } from "../../../../main/ts/editor/widgets/KeywordFieldWidget";
 
-const catalog = [
+const catalog: KeywordSummary[] = [
   {
     value: "keywords",
     label: "Keywords",
@@ -34,10 +36,60 @@ const catalog = [
   },
 ];
 
+describe("catalogText", () => {
+  it("stringifies numbers and nested objects", () => {
+    expect(catalogText(42)).toBe("42");
+    expect(catalogText({ value: 7 })).toBe("7");
+    expect(catalogText({ label: "Keywords" })).toBe("Keywords");
+    expect(catalogText(null)).toBe("");
+  });
+});
+
 describe("keywordChoicesForField", () => {
   it("prefers the matching keyword set", () => {
     const opts = keywordChoicesForField(catalog, "keywords");
     expect(opts.map((o) => o.value)).toEqual(["news", "events"]);
+  });
+
+  it("coerces numeric catalog values without throwing and still matches/dedupes", () => {
+    const numeric = [
+      {
+        value: 42,
+        label: "Keywords",
+        choices: [
+          { value: 1, label: "News" },
+          { value: 1, label: "News dup" },
+          { value: 2, label: "Events" },
+        ],
+      },
+    ] as unknown as KeywordSummary[];
+    expect(() => keywordChoicesForField(numeric, "42")).not.toThrow();
+    expect(() => keywordChoicesForField(numeric, "Keywords")).not.toThrow();
+    expect(keywordChoicesForField(numeric, "42").map((o) => o.value)).toEqual([
+      "1",
+      "2",
+    ]);
+    expect(keywordChoicesForField(numeric, "Keywords").map((o) => o.value)).toEqual(
+      ["1", "2"],
+    );
+  });
+
+  it("coerces object catalog values without throwing and still matches/dedupes", () => {
+    const objects = [
+      {
+        value: { value: "keywords" },
+        label: { label: "Keywords" },
+        choices: [
+          { value: { value: "news" }, label: { label: "News" } },
+          { value: { value: "news" }, label: { label: "News dup" } },
+          { value: { value: "events" }, label: { label: "Events" } },
+        ],
+      },
+    ] as unknown as KeywordSummary[];
+    expect(() => keywordChoicesForField(objects, "keywords")).not.toThrow();
+    const opts = keywordChoicesForField(objects, "keywords");
+    expect(opts.map((o) => o.value)).toEqual(["news", "events"]);
+    expect(opts.map((o) => o.label)).toEqual(["News", "Events"]);
   });
 });
 
@@ -64,5 +116,31 @@ describe("KeywordFieldWidget", () => {
       target: { value: "events" },
     });
     expect(onChange).toHaveBeenCalledWith("events");
+  });
+
+  it("renders a numeric selected value without crashing", async () => {
+    const onChange = vi.fn();
+    render(
+      <KeywordFieldWidget
+        name="keywords"
+        value={7 as unknown as string}
+        readOnly={false}
+        onChange={onChange}
+        loadKeywords={async () =>
+          [
+            {
+              value: 7,
+              label: "Keywords",
+              choices: [{ value: 7, label: "Seven" }],
+            },
+          ] as unknown as typeof catalog
+        }
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByText("Seven")).toBeTruthy();
+    });
+    const select = screen.getByTestId("editor-field-keywords") as HTMLSelectElement;
+    expect(select.value).toBe("7");
   });
 });

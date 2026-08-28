@@ -29,7 +29,13 @@ const TEST_IDS = Object.freeze({
   reducedActions: "reduced-actions",
   open: "action-open",
   edit: "action-toolbar-item-Edit",
+  contextEdit: "context-menu-item-Edit",
   editorHost: "editor-host",
+  editorError: "editor-error",
+  editorForm: "editor-form",
+  editorLoading: "editor-loading",
+  editorEmpty: "editor-empty",
+  editorOverlay: "editor-overlay",
 });
 
 /**
@@ -119,6 +125,35 @@ function isLeftoverContentEditorUrl(url) {
   return false;
 }
 
+/**
+ * KeywordFieldWidget crash from calling {@code .trim} on a JSON number (#3968).
+ * @param {unknown} message
+ * @returns {boolean}
+ */
+function isKeywordTrimCrash(message) {
+  return /trim is not a function/i.test(String(message || ""));
+}
+
+/**
+ * True when the editor host still has product chrome (not a blank page).
+ * Checkout failures may show {@code editor-error} instead of the form.
+ * @param {{
+ *   host?: boolean,
+ *   overlay?: boolean,
+ *   form?: boolean,
+ *   error?: boolean,
+ *   loading?: boolean,
+ *   empty?: boolean,
+ * }} [state]
+ * @returns {boolean}
+ */
+function isEditorStayVisible(state = {}) {
+  if (!state.host || !state.overlay) {
+    return false;
+  }
+  return Boolean(state.form || state.error || state.loading || state.empty);
+}
+
 module.exports = {
   TEST_IDS,
   isH2QaEnv,
@@ -126,4 +161,6 @@ module.exports = {
   noListedItemSkipMessage,
   isProductEditorUrl,
   isLeftoverContentEditorUrl,
+  isKeywordTrimCrash,
+  isEditorStayVisible,
 };
