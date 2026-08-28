@@ -53,7 +53,7 @@ public interface IContentTypesAdaptor {
   /**
    * Create and persist a content type (Workbench Finish: {@code createContentTypes} then {@code
    * saveContentTypes}). Admin only. Name must be unique (case-insensitive) and must not contain
-   * spaces.
+   * spaces. Reserved system names such as {@code Folder} collide with existing catalog types.
    *
    * @param baseUri requesting URI
    * @param body request body; {@code name} is required. Optional label, description, and enabled
@@ -62,7 +62,7 @@ public interface IContentTypesAdaptor {
    * @throws IllegalArgumentException when the name is blank, contains whitespace, or contains
    *     wildcards
    * @throws jakarta.ws.rs.WebApplicationException {@code 409} when a content type with that name
-   *     already exists; {@code 403} when the caller is not Admin
+   *     already exists (including reserved system types); {@code 403} when the caller is not Admin
    */
   ContentTypeDetail createContentType(URI baseUri, ContentTypeDetail body);
 
@@ -82,7 +82,8 @@ public interface IContentTypesAdaptor {
    * <p>Supports label, description, enabled, per-field {@code searchable} (and optional
    * occurrence), allowed workflows (+ default workflow id), and allowed templates. Association
    * lists use full-replace semantics when non-null; omit them to leave associations unchanged.
-   * Field rule expressions use {@link #replaceFieldRuleExpressions}. Control property values use
+   * Does not change name — use {@link #renameContentType}. Field rule expressions use {@link
+   * #replaceFieldRuleExpressions}. Control property values use
    * {@link #replaceFieldControlProperties}.
    *
    * @return updated detail, or {@code null} when not found
@@ -111,6 +112,21 @@ public interface IContentTypesAdaptor {
   Boolean unlockContentType(URI baseUri, String idOrName);
 
   /**
+   * Delete a content type via {@code IPSContentDesignWs.deleteContentTypes}. Admin only. Requires a
+   * design-session lock already held by the current user ({@link #lockContentType}). Does not
+   * acquire, steal, or ignore locks. Does not cascade item delete ({@code ignoreDependencies=false}).
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @return {@code Boolean.TRUE} when deleted; {@code null} when not found
+   * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
+   *     user
+   * @throws IllegalArgumentException when the design web service rejects the delete (in-use /
+   *     dependents)
+   */
+  Boolean deleteContentType(URI baseUri, String idOrName);
+
+  /**
    * Enable or disable a content type for runtime use (CD-13). Requires a design-session lock
    * already held by the current user (peer lock REST). Does not acquire or release the lock.
    *
@@ -122,6 +138,22 @@ public interface IContentTypesAdaptor {
    *     user
    */
   ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled);
+
+  /**
+   * Rename a content type (CD-01). Requires a design-session lock already held by the current
+   * user. Does not acquire or release the lock. Bulk {@link #updateContentType} does not change
+   * name. After a successful rename, GET by the previous name is not found; GET by id returns the
+   * new name.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or current internal name
+   * @param newName unique internal name (no spaces; case-insensitive unique)
+   * @return updated detail, or {@code null} when not found
+   * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
+   *     user
+   * @throws IllegalArgumentException when the new name is invalid or collides
+   */
+  ContentTypeDetail renameContentType(URI baseUri, String idOrName, String newName);
 
   /**
    * List allowed template associations for a content type (read-only; no lock required).

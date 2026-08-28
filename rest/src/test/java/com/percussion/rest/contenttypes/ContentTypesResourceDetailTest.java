@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
@@ -564,6 +565,17 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
+  public void createContentTypeReservedFolderIs409() {
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setName("Folder");
+    when(adaptor.createContentType(any(), any()))
+        .thenThrow(new WebApplicationException("Content type already exists: Folder", 409));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createContentType(body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void createContentTypeForbiddenWhenNotAdmin() {
     ContentTypeDetail body = new ContentTypeDetail();
     body.setName("percNewType");
@@ -572,6 +584,21 @@ public class ContentTypesResourceDetailTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.createContentType(body));
     assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createContentTypeOpenApiMentionsRenameAndDelete() throws Exception {
+    io.swagger.v3.oas.annotations.Operation op =
+        ContentTypesResource.class
+            .getMethod("createContentType", ContentTypeDetail.class)
+            .getAnnotation(io.swagger.v3.oas.annotations.Operation.class);
+    assertNotNull(op);
+    String description = op.description();
+    assertFalse(
+        description.contains("Delete/rename remain unsupported"),
+        "POST create OpenAPI must not claim delete/rename are unsupported: " + description);
+    assertTrue(description.contains("PUT .../name"), description);
+    assertTrue(description.contains("DELETE .../{idOrName}"), description);
   }
 
   @Test
@@ -592,6 +619,83 @@ public class ContentTypesResourceDetailTest {
     when(adaptor.unlockContentType(any(), eq("percPage"))).thenReturn(Boolean.TRUE);
     Response response = resource.unlockContentType("percPage");
     assertEquals(204, response.getStatus());
+  }
+
+  @Test
+  public void deleteContentTypeNoContent() {
+    when(adaptor.deleteContentType(any(), eq("percPage"))).thenReturn(Boolean.TRUE);
+    Response response = resource.deleteContentType("percPage");
+    assertEquals(204, response.getStatus());
+    verify(adaptor).deleteContentType(any(), eq("percPage"));
+  }
+
+  @Test
+  public void deleteContentTypeNotFound() {
+    when(adaptor.deleteContentType(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteContentType("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteContentTypeLockConflictWhenLockNotHeld() {
+    when(adaptor.deleteContentType(any(), eq("percPage")))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not delete content type; design lock required"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteContentType("percPage"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteContentTypeLockConflictWhenLockedByOtherUser() {
+    when(adaptor.deleteContentType(any(), eq("percPage")))
+        .thenThrow(
+            new ContentTypeDesignLockException("Could not delete content type; locked by editor2"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteContentType("percPage"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteContentTypeForbiddenWhenNotAdmin() {
+    when(adaptor.deleteContentType(any(), eq("percPage")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteContentType("percPage"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteContentTypeInUseIs400() {
+    when(adaptor.deleteContentType(any(), eq("percPage")))
+        .thenThrow(
+            new IllegalArgumentException(
+                "Could not delete content type: Content Type 311 has dependents"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteContentType("percPage"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteContentTypeWildcardIs400() {
+    when(adaptor.deleteContentType(any(), eq("perc*")))
+        .thenThrow(new IllegalArgumentException("idOrName must not contain wildcards"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteContentType("perc*"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteContentTypeGenericFailureIs500() {
+    when(adaptor.deleteContentType(any(), eq("percBlockquote")))
+        .thenThrow(
+            new IllegalStateException("Failed to delete content type: percBlockquote"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteContentType("percBlockquote"));
+    assertEquals(500, ex.getResponse().getStatus());
   }
 
   @Test
@@ -850,5 +954,93 @@ public class ContentTypesResourceDetailTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.unlockContentType("percPage"));
     assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void renameContentTypeSuccess() {
+    ContentTypeDetail updated = new ContentTypeDetail();
+    updated.setName("percRenamedPage");
+    when(adaptor.renameContentType(any(), eq("percPage"), eq("percRenamedPage")))
+        .thenReturn(updated);
+    ContentTypeDetail out =
+        resource.renameContentType("percPage", new ContentTypeName("percRenamedPage"));
+    assertEquals("percRenamedPage", out.getName());
+  }
+
+  @Test
+  public void renameContentTypeRequiresName() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameContentType("percPage", new ContentTypeName()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void renameContentTypeSpaces400() {
+    when(adaptor.renameContentType(any(), eq("percPage"), eq("perc Renamed")))
+        .thenThrow(new IllegalArgumentException("Content type name must not contain spaces"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameContentType("percPage", new ContentTypeName("perc Renamed")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void renameContentTypeCollision400() {
+    when(adaptor.renameContentType(any(), eq("percPage"), eq("percEventAsset")))
+        .thenThrow(new IllegalArgumentException("Content type name already exists: percEventAsset"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameContentType("percPage", new ContentTypeName("percEventAsset")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void renameContentTypeNotFound() {
+    when(adaptor.renameContentType(any(), eq("missing"), eq("percRenamed"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameContentType("missing", new ContentTypeName("percRenamed")));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void renameContentTypeRequiresLock() {
+    when(adaptor.renameContentType(any(), eq("percPage"), eq("percRenamed")))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not save content type; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameContentType("percPage", new ContentTypeName("percRenamed")));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void renameContentTypeLockedByOtherUser() {
+    when(adaptor.renameContentType(any(), eq("percPage"), eq("percRenamed")))
+        .thenThrow(
+            new ContentTypeDesignLockException("Could not save content type; locked by editor2"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameContentType("percPage", new ContentTypeName("percRenamed")));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void renameContentTypeForbiddenWhenNotAdmin() {
+    when(adaptor.renameContentType(any(), eq("percPage"), eq("percRenamed")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameContentType("percPage", new ContentTypeName("percRenamed")));
+    assertEquals(403, ex.getResponse().getStatus());
   }
 }

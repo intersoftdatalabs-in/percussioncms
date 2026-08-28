@@ -98,6 +98,7 @@ import com.percussion.user.service.IPSUserService;
 import com.percussion.util.PSCollection;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
+import com.percussion.utils.string.PSStringUtils;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
@@ -316,7 +317,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
    *
    * @param includeDisabledFromStore when {@code true}, a cache miss falls back to the
    *     object store so disabled types (unregistered from the editor cache) still load.
-   *     Only GET detail and enable/disable (CD-13) pass {@code true}; other callers keep
+   *     GET detail, enable/disable (CD-13), and DELETE pass {@code true}; other callers keep
    *     the pre-CD-13 cache-only 404 for disabled types.
    */
   private PSItemDefinition resolveItemDef(String idOrName, boolean includeDisabledFromStore)
@@ -439,7 +440,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     gaps.add(
         DesignGap.of(
             "CT_CREATE_DELETE",
-            "Create via POST /services/contenttypes. Delete / rename not supported; PUT save requires a held design lock for"
+            "Create via POST /contenttypes. Rename via PUT /contenttypes/{idOrName}/name"
+                + " (held lock). DELETE /contenttypes/{idOrName} requires a held"
+                + " design lock. PUT save requires a held design lock for"
                 + " label/description/enabled, field searchable/occurrence, workflows (+ default),"
                 + " and templates"));
     gaps.add(
@@ -603,6 +606,51 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   @Override
+  public Boolean deleteContentType(URI baseUri, String idOrName) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    requireSessionUserForLock();
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      PSItemDefinition current = resolveItemDef(trimmed, true);
+      if (current == null) {
+        return null;
+      }
+      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
+      requireHeldLock(ctGuid, "Could not delete content type");
+      try {
+        designSvc.deleteContentTypes(Collections.singletonList(ctGuid), false, session, user);
+      } catch (PSErrorsException e) {
+        if (isNotLockedError(e) || hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not delete content type");
+        }
+        String details = formatSaveErrors(e);
+        if (isDeleteDependencyFailure(e)) {
+          throw new IllegalArgumentException("Could not delete content type: " + details, e);
+        }
+        log.error("Failed to delete content type {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to delete content type: " + details, e);
+      }
+      return Boolean.TRUE;
+    } catch (IllegalArgumentException | IllegalStateException | WebApplicationException e) {
+      throw e;
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for delete: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error("Failed to delete content type {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to delete content type", e);
+    }
+  }
+
+  @Override
   public ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled) {
     requireAdmin();
     requireSessionUserForLock();
@@ -660,6 +708,71 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     } catch (Exception e) {
       log.error("Failed to enable/disable content type {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to enable/disable content type", e);
+    }
+  }
+
+  @Override
+  public ContentTypeDetail renameContentType(URI baseUri, String idOrName, String newName) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    requireSessionUserForLock();
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    String validatedName = validateNewContentTypeName(newName);
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      PSItemDefinition current = resolveItemDef(trimmed, true);
+      if (current == null) {
+        return null;
+      }
+      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
+      requireUniqueContentTypeName(validatedName, current.getTypeId());
+      requireHeldLock(ctGuid);
+      if (validatedName.equals(current.getName())) {
+        return toDetail(current);
+      }
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        throw lockConflict(e, "Could not rename content type");
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      def.setName(validatedName);
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+      } catch (PSErrorsException e) {
+        if (hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not rename content type");
+        }
+        log.error("Failed to save content type name {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save content type name", e);
+      }
+      PSItemDefinition reloaded = reloadItemDef(String.valueOf(def.getTypeId()));
+      if (reloaded != null) {
+        return toDetail(reloaded);
+      }
+      return toDetail(def);
+    } catch (ContentTypeDesignLockException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for rename: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error("Failed to rename content type {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to rename content type", e);
     }
   }
 
@@ -1226,6 +1339,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   private void applyMetaUpdates(PSItemDefinition def, ContentTypeDetail body) {
+    // Name is not applied here; CD-01 rename uses renameContentType / PUT .../name.
     if (body.getLabel() != null) {
       def.setLabel(body.getLabel());
     }
@@ -2681,42 +2795,86 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
    *
    * @throws ContentTypeDesignLockException when unlocked or locked by another user (HTTP 409)
    */
+  /**
+   * Validates a CD-01 rename target. Names must be non-blank, have no spaces or wildcards, and
+   * use only characters allowed for content type names.
+   */
+  static String validateNewContentTypeName(String newName) {
+    if (StringUtils.isBlank(newName)) {
+      throw new IllegalArgumentException("name is required");
+    }
+    String trimmed = newName.trim();
+    if (trimmed.indexOf('*') >= 0 || trimmed.indexOf('%') >= 0) {
+      throw new IllegalArgumentException("Content type name must not contain wildcards");
+    }
+    for (int i = 0; i < trimmed.length(); i++) {
+      if (Character.isWhitespace(trimmed.charAt(i))) {
+        throw new IllegalArgumentException("Content type name must not contain spaces");
+      }
+    }
+    Character invalid = PSStringUtils.validateContentTypeName(trimmed);
+    if (invalid != null) {
+      throw new IllegalArgumentException(
+          "Content type name contains invalid character: " + invalid);
+    }
+    return trimmed;
+  }
+
+  /**
+   * Case-insensitive uniqueness against the design catalog. The current type id is excluded so a
+   * no-op or case-only rename of the same type is allowed.
+   */
+  private void requireUniqueContentTypeName(String newName, int currentTypeId) {
+    List<IPSCatalogSummary> found = designSvc.findContentTypes("*");
+    if (found == null) {
+      return;
+    }
+    for (IPSCatalogSummary sum : found) {
+      if (sum == null || !newName.equalsIgnoreCase(sum.getName())) {
+        continue;
+      }
+      IPSGuid guid = sum.getGUID();
+      int uuid = guid != null ? guid.getUUID() : -1;
+      if (uuid != currentTypeId) {
+        throw new IllegalArgumentException("Content type name already exists: " + newName);
+      }
+    }
+  }
+
   private void requireHeldLock(IPSGuid ctGuid) {
+    requireHeldLock(ctGuid, "Could not save content type");
+  }
+
+  private void requireHeldLock(IPSGuid ctGuid, String prefix) {
     if (systemDesign == null) {
-      throw new IllegalStateException(
-          "Could not save content type; design service unavailable");
+      throw new IllegalStateException(prefix + "; design service unavailable");
     }
     List<PSObjectSummary> locked;
     try {
       locked = systemDesign.isLocked(Collections.singletonList(ctGuid), currentUser());
     } catch (PSErrorResultsException e) {
       if (isNotFoundError(e)) {
-        throw new ContentTypeDesignLockException(
-            "Could not save content type; design lock required", e);
+        throw new ContentTypeDesignLockException(prefix + "; design lock required", e);
       }
       if (hasLockError(e)) {
         String locker = firstLockLocker(e);
         throw new ContentTypeDesignLockException(
-            locker != null
-                ? "Could not save content type; locked by " + locker
-                : "Could not save content type; design lock required",
+            locker != null ? prefix + "; locked by " + locker : prefix + "; design lock required",
             e);
       }
-      throw new IllegalStateException("Could not save content type; design service error", e);
+      throw new IllegalStateException(prefix + "; design service error", e);
     }
     PSObjectSummary summary =
         locked == null || locked.isEmpty() ? null : locked.get(0);
     if (summary == null || !summary.isLocked()) {
-      throw new ContentTypeDesignLockException("Could not save content type; design lock required");
+      throw new ContentTypeDesignLockException(prefix + "; design lock required");
     }
     String user = currentUser();
     PSObjectLockSummary info = summary.getLocked();
     if (!summary.isLockedBy(user)) {
       String locker = info != null ? info.getLocker() : null;
       throw new ContentTypeDesignLockException(
-          locker != null
-              ? "Could not save content type; locked by " + locker
-              : "Could not save content type; design lock required");
+          locker != null ? prefix + "; locked by " + locker : prefix + "; design lock required");
     }
   }
 
@@ -2741,12 +2899,12 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     } catch (RuntimeException e) {
       log.debug("Admin check failed: {}", e.getMessage());
       throw new WebApplicationException(
-          "Admin role required to create, lock, unlock, or save content types",
+          "Admin role required to create, lock, unlock, save, rename, or delete content types",
           Response.Status.FORBIDDEN);
     }
     if (!allowed) {
       throw new WebApplicationException(
-          "Admin role required to create, lock, unlock, or save content types",
+          "Admin role required to create, lock, unlock, save, rename, or delete content types",
           Response.Status.FORBIDDEN);
     }
   }
@@ -3029,6 +3187,19 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         || lower.contains("psextensionexception")
         || lower.contains("extension type")
         || lower.contains("invalid_ext");
+  }
+
+  /**
+   * True when a batched {@code deleteContentTypes} error is a dependents / in-use rejection rather
+   * than an unexpected server failure.
+   */
+  static boolean isDeleteDependencyFailure(PSErrorsException e) {
+    String text = formatSaveErrors(e);
+    if (StringUtils.isBlank(text)) {
+      return false;
+    }
+    String lower = text.toLowerCase();
+    return lower.contains("depend") || lower.contains("in use") || lower.contains("in-use");
   }
 
   /** Map-keyed overload for {@code PSErrorsException} batched save errors. */

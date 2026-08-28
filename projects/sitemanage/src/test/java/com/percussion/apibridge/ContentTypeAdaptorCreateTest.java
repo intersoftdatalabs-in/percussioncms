@@ -192,6 +192,39 @@ class ContentTypeAdaptorCreateTest {
   }
 
   @Test
+  void create_reservedFolderName_is409BeforeCreate() throws Exception {
+    IPSCatalogSummary existing = mock(IPSCatalogSummary.class);
+    when(existing.getName()).thenReturn("Folder");
+    when(designWs.findContentTypes("*")).thenReturn(List.of(existing));
+
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setName("Folder");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.createContentType(null, body));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains("already exists"));
+    verify(designWs, never()).createContentTypes(anyList(), any(), any());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void create_thenGetByName_returnsDetail() throws Exception {
+    PSItemDefinition def = stubCreatedDefinition("percNewType", 9001);
+    when(designWs.createContentTypes(eq(List.of("percNewType")), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(def));
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setName("percNewType");
+    body.setLabel("New Type");
+
+    adaptor.createContentType(null, body);
+    ContentTypeDetail got = adaptor.getContentType(null, "percNewType");
+
+    assertEquals("percNewType", got.getName());
+    assertEquals("New Type", got.getLabel());
+  }
+
+  @Test
   void create_blankName_throwsBeforeDesignWs() throws Exception {
     assertThrows(IllegalArgumentException.class, () -> adaptor.createContentType(null, null));
     ContentTypeDetail blank = new ContentTypeDetail();

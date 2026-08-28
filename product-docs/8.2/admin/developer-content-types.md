@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Lock, enable or disable, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Lock, enable or disable, rename via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -15,10 +15,13 @@ for fields, allowed workflows, allowed templates, **item-level exits**, **contro
 Admins cannot overwrite the same type at once.
 
 Integrators can **create** a content type with Admin `POST /services/contenttypes`
-(JSON `name` required; unique, no spaces). That call persists the type
-(Workbench Finish). This chrome does **not** include a create wizard; delete
-and rename are not supported here. Shared field **files** are a separate design
-object: Admin-only `GET /services/sharedfields` and
+(JSON `name` required; unique, no spaces; optional `label` / `description`).
+That call persists the type (Workbench Finish). A successful create is then
+`GET /services/contenttypes/{name}` **200**. Duplicate or reserved system names
+(for example **Folder**) are **409**. Invalid names (blank, spaces, wildcard)
+are **400**. Non-Admin callers are **403**. This chrome does **not** include a
+create wizard; rename and delete are REST-only (no SPA chrome). Shared field
+**files** are a separate design object: Admin-only `GET /services/sharedfields` and
 `GET /services/sharedfields/{idOrName}` (catalog), plus
 `POST /services/sharedfields`, `PUT /services/sharedfields/{idOrName}`, and
 `DELETE /services/sharedfields/{idOrName}` (create / save / delete; the shared
@@ -198,6 +201,34 @@ type is available for runtime use.
    product does **not** steal the lock, Save stays disabled, and **Enabled**
    remains read-only.
 
+## Rename a content type (REST)
+
+Developer Content Type chrome does **not** rename the type. Integrators rename
+with REST after a held design-session lock:
+
+1. `POST /services/contenttypes/{idOrName}/lock`
+2. `PUT /services/contenttypes/{idOrName}/name` with Jackson root
+   `ContentTypeName` (`name` required). The new name must be unique
+   (case-insensitive) and must not contain spaces.
+3. `GET /services/contenttypes/{id}` returns the new name. `GET` by the
+   previous name is **404**.
+4. `POST .../unlock` when done.
+
+Bulk `PUT /services/contenttypes/{idOrName}` still does **not** change name.
+Unlocked or another user's lock is **409**. Collision or spaces is **400**.
+
+## Delete a content type (REST)
+
+The Developer Content types chrome does **not** expose delete in this release.
+Integrators delete a type over REST after holding the design-session lock:
+
+1. `POST /services/contenttypes/{idOrName}/lock` as **Admin**.
+2. `DELETE /services/contenttypes/{idOrName}`. Success is **204**. The lock is
+   not stolen if another user holds it (**409**). Missing types are **404**.
+3. A following `GET /services/contenttypes/{idOrName}` is **404**.
+4. Types that still have dependents fail with **400**. The product does **not**
+   cascade-delete items.
+
 ## REST
 
 The chrome calls:
@@ -207,6 +238,7 @@ The chrome calls:
 | Lock | `POST /services/contenttypes/{idOrName}/lock` |
 | Save (label, description, fields) | `PUT /services/contenttypes/{idOrName}` (requires a held lock; does not send `enabled`, `allowedWorkflows`, or `allowedTemplates`) |
 | Enable / disable | `PUT /services/contenttypes/{idOrName}/enabled` (CD-13; requires a held lock; does not acquire or release it) |
+| Rename | `PUT /services/contenttypes/{idOrName}/name` (CD-01; Admin; held lock; unique name, no spaces; bulk PUT does not rename) |
 | Save allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` (requires a held lock; does not unlock) |
 | Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` (held lock; full replace) |
 | Confirm allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` |
@@ -217,6 +249,7 @@ The chrome calls:
 | Load field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` |
 | Save field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` (held lock; full replace of validation, visibility, inputTranslation, outputTranslation) |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |
+| Delete | `DELETE /services/contenttypes/{idOrName}` (Admin; held lock; 204; 409 if unlocked or another user holds the lock; 400 if dependents; no SPA chrome) |
 
 Integrator notes: [REST API — Content types](id:developer-rest). Object ACL on
 the same detail panel: [Object ACL & default template](id:admin-object-acl).
