@@ -174,4 +174,14 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
       URI baseUri, String idOrName, String fieldName, ContentTypeFieldRuleExpressions body) {
     return body;
   }
+
+  @Override
+  public ContentTypeDetail addLocalField(URI baseUri, String idOrName, ContentTypeField body) {
+    return getContentType(baseUri, idOrName);
+  }
+
+  @Override
+  public Boolean deleteLocalField(URI baseUri, String idOrName, String fieldName) {
+    return Boolean.TRUE;
+  }
 }

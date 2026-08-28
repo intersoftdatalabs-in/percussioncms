@@ -32,7 +32,8 @@ import java.util.List;
  * no spaces) plus optional label, description, and enabled, then persists it (Workbench Finish).
  * Field rule expressions use {@code GET/PUT .../fields/{fieldName}/ruleExpressions} (held
  * design lock for write). Control properties use {@code GET/PUT
- * .../fields/{fieldName}/controlProperties}. Partial update supports label, description, enabled,
+ * .../fields/{fieldName}/controlProperties}. Local field create/delete uses {@code
+ * POST/DELETE .../fields} (held lock). Partial update supports label, description, enabled,
  * field searchable / occurrence, allowed workflows (+ default), and allowed templates. PUT
  * does not change name (use {@code PUT .../name}). PUT
  * requires a design-session lock already held by the current user ({@code POST}
