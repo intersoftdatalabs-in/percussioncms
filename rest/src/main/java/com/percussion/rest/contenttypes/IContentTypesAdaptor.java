@@ -53,7 +53,7 @@ public interface IContentTypesAdaptor {
   /**
    * Create and persist a content type (Workbench Finish: {@code createContentTypes} then {@code
    * saveContentTypes}). Admin only. Name must be unique (case-insensitive) and must not contain
-   * spaces.
+   * spaces. Reserved system names such as {@code Folder} collide with existing catalog types.
    *
    * @param baseUri requesting URI
    * @param body request body; {@code name} is required. Optional label, description, and enabled
@@ -62,7 +62,7 @@ public interface IContentTypesAdaptor {
    * @throws IllegalArgumentException when the name is blank, contains whitespace, or contains
    *     wildcards
    * @throws jakarta.ws.rs.WebApplicationException {@code 409} when a content type with that name
-   *     already exists; {@code 403} when the caller is not Admin
+   *     already exists (including reserved system types); {@code 403} when the caller is not Admin
    */
   ContentTypeDetail createContentType(URI baseUri, ContentTypeDetail body);
 
