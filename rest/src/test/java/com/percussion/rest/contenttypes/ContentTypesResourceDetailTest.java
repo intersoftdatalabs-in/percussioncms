@@ -587,6 +587,21 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
+  public void createContentTypeOpenApiMentionsRenameAndDelete() throws Exception {
+    io.swagger.v3.oas.annotations.Operation op =
+        ContentTypesResource.class
+            .getMethod("createContentType", ContentTypeDetail.class)
+            .getAnnotation(io.swagger.v3.oas.annotations.Operation.class);
+    assertNotNull(op);
+    String description = op.description();
+    assertFalse(
+        description.contains("Delete/rename remain unsupported"),
+        "POST create OpenAPI must not claim delete/rename are unsupported: " + description);
+    assertTrue(description.contains("PUT .../name"), description);
+    assertTrue(description.contains("DELETE .../{idOrName}"), description);
+  }
+
+  @Test
   public void createContentTypeForbiddenWhenNoSession() {
     ContentTypeDetail body = new ContentTypeDetail();
     body.setName("percNewType");

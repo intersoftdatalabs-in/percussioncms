@@ -714,10 +714,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   @Override
   public ContentTypeDetail renameContentType(URI baseUri, String idOrName, String newName) {
     requireAdmin();
-    requireSessionUserForLock();
     if (StringUtils.isBlank(idOrName)) {
       throw new IllegalArgumentException("idOrName is required");
     }
+    requireSessionUserForLock();
     String trimmed = idOrName.trim();
     if (trimmed.contains("*")) {
       throw new IllegalArgumentException("idOrName must not contain wildcards");

@@ -246,6 +246,24 @@ class ContentTypeAdaptorRenameTest {
   }
 
   @Test
+  void rename_blankIdOrName_isBadRequestBeforeSessionCheck() throws Exception {
+    PSRequestInfoBase.resetRequestInfo();
+    PSRequestInfoBase.initRequestInfo(new HashMap<>());
+    IllegalArgumentException blank =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.renameContentType(null, "  ", "percRenamed"));
+    assertTrue(blank.getMessage().contains("idOrName"), blank.getMessage());
+    IllegalArgumentException missing =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.renameContentType(null, null, "percRenamed"));
+    assertTrue(missing.getMessage().contains("idOrName"), missing.getMessage());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+    verify(systemDesign, never()).isLocked(anyList(), any());
+  }
+
+  @Test
   void validateNewContentTypeName_rejectsBlankAndInvalid() {
     assertThrows(
         IllegalArgumentException.class, () -> ContentTypeAdaptor.validateNewContentTypeName(""));

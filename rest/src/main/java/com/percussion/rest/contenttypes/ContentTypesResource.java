@@ -849,7 +849,8 @@ public class ContentTypesResource {
               + " description, and enabled are applied before save. Omitted enabled defaults to"
               + " true. Returns the new ContentTypeDetail (GET by name is then 200). Duplicate"
               + " name is 409 at catalog check and at persist, including reserved system types"
-              + " such as Folder. Delete/rename remain unsupported (see designGaps).",
+              + " such as Folder. Rename uses PUT .../name. Delete uses DELETE .../{idOrName} with"
+              + " a held lock.",
       responses = {
         @ApiResponse(
             responseCode = "200",

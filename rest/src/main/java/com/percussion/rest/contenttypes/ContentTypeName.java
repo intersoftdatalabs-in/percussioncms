@@ -18,6 +18,7 @@
 package com.percussion.rest.contenttypes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -28,6 +29,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * {@code UNWRAP_ROOT_VALUE}).
  */
 @XmlRootElement(name = "ContentTypeName")
+@JsonRootName("ContentTypeName")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Content type rename payload")
 public class ContentTypeName {
