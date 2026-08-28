@@ -35,6 +35,11 @@ and more). New extension code should:
 A **package** is a deployable unit of CMS components (content types, templates, apps, configs)
 distributed as a `.ppkg` (zip). Installers and startup packaging deploy packages into the CMS.
 
+**Product page layout packages** (`perc.baseTemplates`, `perc.responsiveTemplates`,
+`perc.Baseline`, and converted file/image binary TemplateDefs) install **natively**
+(`page.installMode=native`). Dual-ship of root `*.templateDef` files is retired as the
+product ship path. See [Product page packages](id:developer-page-packages).
+
 `perc.Baseline` system templates (`perc.page`, `perc.pageDatabase`, `perc.pageDispatcher`,
 `perc.pageXml`, `perc.sys.resource`, `perc.widget`, `perc.widgetDispatcher`) install with stable
 GUIDs `0-4-602`..`0-4-614` on a **fresh** 8.2 instance. Existing databases keep the UUID assigned on
@@ -54,5 +59,6 @@ extension points.
 
 ## Related
 
+- [Product page packages](id:developer-page-packages)
 - [REST API](id:developer-rest)
 - [Publishing](id:admin-publishing)

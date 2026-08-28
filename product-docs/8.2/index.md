@@ -24,7 +24,7 @@ product repository and assembled into a static site with Percussion’s Markdown
 |---------|----------|------------|
 | [Getting Started](id:getting-started) | Operators installing or upgrading | [Installation](id:install-overview), [Upgrade](id:upgrade-overview) |
 | [Administration](id:admin) | Site admins and operators | [Sites](id:admin-sites), [Users & roles](id:admin-users-roles), [Publishing](id:admin-publishing) |
-| [Developer](id:developer) | Integrators and extension authors | [REST](id:developer-rest), [Virtual Sites](id:developer-virtual-sites), [Build from source](id:developer-build-source) |
+| [Developer](id:developer) | Integrators and extension authors | [REST](id:developer-rest), [Product page packages](id:developer-page-packages), [Virtual Sites](id:developer-virtual-sites), [Build from source](id:developer-build-source) |
 | [Reference](id:reference) | All readers | [Frontmatter](id:reference-frontmatter), [Site config](id:reference-site-config), [Glossary](id:reference-glossary) |
 
 ## Product lines at a glance

@@ -22,6 +22,7 @@ tags: [reference]
 | **Extension** | In-process plugin implementing a CMS extension point |
 | **Finder** | UI navigation over Sites, folders, and items |
 | **Frontmatter** | YAML metadata block at the top of a Markdown docs page |
+| **Native page install** | Product page packages (`page.installMode=native`) stage archive `TemplateDef-N/` from modern `pages/` without dual-ship root `*.templateDef` files |
 | **Package (`.ppkg`)** | Deployable zip of CMS components |
 | **Page** | Primary assembled document for a Site URL |
 | **Rhythmyx** | Historic product name for the core platform lineage |
@@ -35,4 +36,5 @@ tags: [reference]
 ## Related
 
 - [Sites & content structure](id:admin-sites)
+- [Product page packages](id:developer-page-packages)
 - [Virtual Sites](id:developer-virtual-sites)

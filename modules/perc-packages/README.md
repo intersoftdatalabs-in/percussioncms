@@ -74,15 +74,14 @@ user-dependencies on the staging copy via `PSWidgetXmlInstallEmitter` /
 | Inventory + strip + install inject | `com.percussion.packages.widgetxml.PSWidgetArchiveManifestInventory` |
 | Surefire assertion | `PSWidgetArchiveManifestInventoryTest` |
 
-## M2 product/H2 zero-legacy-selection evidence (#3583 / #3738)
+## M2 product/H2 zero-legacy-selection evidence (#3583 / #3738 / #3736)
 
 Product / H2 widget package roots must select modern-first
 (`wouldUseLegacyShim == false` / `MODERN_COMPONENT_PACKAGE`). Unexpected
 `LEGACY_*` on a product widget fails Surefire. Waiver: **empty after #3736
-(perc.Test ship-exit)**; until then, **`perc.Test` only** may remain legacy
-(`assertWidgetWaiverPolicy`). After #3736, perc.Test must be modern-first
-like other product packages. The runtime shim stays (#2852); this is
-**not** M2 PASS overall (M3 still FAIL).
+(perc.Test ship-exit)** (`assertWidgetWaiverPolicy`). perc.Test is
+modern-first like other product packages. The runtime shim stays (#2852);
+this is **not** M2 PASS overall (M3 still FAIL). Do not start shim removal.
 
 | Piece | Class |
 |-------|--------|

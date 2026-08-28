@@ -262,16 +262,16 @@ Dual-ship is a **package-build** bridge (materialize root `*.templateDef` for de
 
 | Mode | Behavior |
 |------|----------|
-| **native** (default, #3949) | Skip root dual-ship; stage `TemplateDef-N/` from modern `pages/` |
-| **dual-ship** (opt-in) | Materialize root `*.templateDef` → reorganize into archive `TemplateDef-N/` (`page.installMode=dual-ship`) |
+| **native** (default, #3949; product ship path) | Skip root dual-ship; stage `TemplateDef-N/` from modern `pages/` (`page.installMode=native`) |
+| **dual-ship** (opt-in) | Fail closed in `PSPackageBuilder` — does **not** materialize root `*.templateDef` (#3950) |
 
-**Already native:** `perc.baseTemplates`, `perc.responsiveTemplates` (#2806), `perc.Baseline` (#3673). Policy default is native for unconfigured packages (#3949); dual-ship is explicit opt-in only. Widget leftover binary `*.templateDef` were converted (#3674 / #3680), not dual-ship-retained.
+**Product packages are native-only:** `perc.baseTemplates`, `perc.responsiveTemplates` (#2806), `perc.Baseline` (#3673), leftover binary TemplateDefs (#3674 / #3680). Dual-ship is **retired as the product ship path** (#3951 / product-docs `id: developer-page-packages`). Policy default is native for unconfigured packages (#3949); dual-ship is explicit opt-in only. `PSPageXmlDualShip` **code still exists** (CLI/tests) — package-build no longer calls it (#3950). Do not invent deletion. Runtime shim is a separate gate (#2852).
 
 | Concept | Layer | Status |
 |---------|-------|--------|
-| Dual-run **definition XML shim** | Runtime modern vs legacy XML | Time-boxed; Phase 5 #2632 |
-| Dual-ship **page templateDef** | Package-build install bridge | Optional; native preferred for converted packages |
-| Native **page install** | Build stages TemplateDef from modern pages | Landed for base/responsive/Baseline |
+| Dual-run **definition XML shim** | Runtime modern vs legacy XML | Time-boxed; Phase 5 #2632; **shim kept** |
+| Dual-ship **page templateDef** | Package-build install bridge | Retired as product ship path; DualShip code still present |
+| Native **page install** | Build stages TemplateDef from modern pages | Product path for base/responsive/Baseline/binaries |
 
 ---
 
