@@ -22,13 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.UriInfo;
-import java.lang.reflect.Field;
 import java.net.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -41,14 +41,12 @@ public class SystemDefResourceTest {
   private SystemDefResource resource;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     adaptor = mock(ISystemDefAdaptor.class);
     resource = new SystemDefResource(adaptor);
     UriInfo uriInfo = mock(UriInfo.class);
     when(uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/services/"));
-    Field f = SystemDefResource.class.getDeclaredField("uriInfo");
-    f.setAccessible(true);
-    f.set(resource, uriInfo);
+    resource.setUriInfo(uriInfo);
   }
 
   @Test
@@ -78,5 +76,75 @@ public class SystemDefResourceTest {
     WebApplicationException ex = assertThrows(WebApplicationException.class, bare::getSystemDef);
     assertEquals(500, ex.getResponse().getStatus());
     assertInstanceOf(IllegalStateException.class, ex.getCause());
+  }
+
+  @Test
+  public void getSystemDefForbiddenWhenNotAdmin() {
+    when(adaptor.getSystemDef(any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getSystemDef());
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateSystemDefDelegatesToAdaptor() {
+    SystemDefDetail body = new SystemDefDetail();
+    SystemDefDetail updated = new SystemDefDetail();
+    updated.setFieldCount(2);
+    when(adaptor.updateSystemDef(any(), any())).thenReturn(updated);
+
+    assertEquals(2, resource.updateSystemDef(body).getFieldCount());
+    verify(adaptor).updateSystemDef(any(), eq(body));
+  }
+
+  @Test
+  public void updateSystemDefInvalidFieldIs400() {
+    when(adaptor.updateSystemDef(any(), any()))
+        .thenThrow(new IllegalArgumentException("Unknown field: missing"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.updateSystemDef(new SystemDefDetail()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateSystemDefLockConflictIs409() {
+    when(adaptor.updateSystemDef(any(), any()))
+        .thenThrow(
+            new SystemDefDesignLockException("Could not save system definition; locked by other"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.updateSystemDef(new SystemDefDetail()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateSystemDefForbiddenWhenNotAdmin() {
+    when(adaptor.updateSystemDef(any(), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.updateSystemDef(new SystemDefDetail()));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateSystemDefWrapsUnexpectedFailures() {
+    IllegalStateException boom = new IllegalStateException("design ws down");
+    when(adaptor.updateSystemDef(any(), any())).thenThrow(boom);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.updateSystemDef(new SystemDefDetail()));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void mapWriteFailureLockMessageOnIllegalStateIs409() {
+    WebApplicationException ex =
+        SystemDefResource.mapWriteFailure(new IllegalStateException("object is not locked"));
+    assertEquals(409, ex.getResponse().getStatus());
   }
 }
