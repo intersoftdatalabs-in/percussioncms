@@ -61,6 +61,10 @@ system assembly templates. On **first assign** those templates keep the archive 
 | `perc.widget` | `0-4-612` |
 | `perc.widgetDispatcher` | `0-4-614` |
 
+Those Baseline templates ship in a **native** page package (`page.installMode=native`). Product
+page packages do not dual-ship root `*.templateDef` files; see
+[Product page packages](id:developer-page-packages).
+
 **Existing databases are not remapped.** If an earlier install already assigned sequential type-4
 UUIDs (for example `0-4-1001` for `perc.page`), that row keeps its id. Package reinstall matches by
 template name. Do not rewrite GUIDs on customer or snapshot databases to force the table above.
@@ -126,5 +130,6 @@ related upgrade-only JSPs) until those flows are signed off on the SPA. Bookmark
 
 - [REST API](id:developer-rest) — `GET`/`POST`/`PUT`/`DELETE /services/templates`
 - [Extensions & packages](id:developer-extensions)
+- [Product page packages](id:developer-page-packages)
 - [Navigation & site structure](id:admin-architecture-navigation)
 - [Administration](id:admin)

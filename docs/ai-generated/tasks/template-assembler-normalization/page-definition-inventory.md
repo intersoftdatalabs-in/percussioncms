@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | Compiler (#2770) + modern authoring dual-ship (#2786) for base/responsive templates |
+| **Status** | Compiler (#2770) + modern authoring (#2786) + **native product ship path** (#2806 / #3673 / #3674). Dual-ship **retired as product ship path** (#3951); DualShip code still present. |
 | **Parent** | #2630 · Grandparent #2626 |
 | **Code** | `modules/perc-packages/.../pagexml/PSPageXml*.java` |
 | **ADR** | [ADR-004](./adr/004-no-definition-xml-packaging.md) |
@@ -81,7 +81,7 @@ Native install (package build, #2806): archive `TemplateDef-N/<stem>.templateDef
 | Matching `id="…" class="perc-region perc-vertical …"` | `slots[].layout.orientation`, `slots[].styles.rootclass` (+ span hints) |
 | `catalog.kind` | always `page` for this compiler |
 
-**Install packaging (#2786 dual-ship + #2806 / #3673 native + #3949 native default):** product **authors** modern `pages/` for `perc.baseTemplates`, `perc.responsiveTemplates`, and `perc.Baseline`. Package-local `package-install.properties` may set `page.installMode=native` (also the policy **default** when unset); dual-ship root `*.templateDef` generation is **off** unless `page.installMode=dual-ship` or sysprop `perc.packages.page.installMode=dual-ship`. `PSPageXmlNativeInstall` stages archive `TemplateDef-N/<stem>.templateDef` from modern pages (same XML/GUID semantics as dual-ship). Policy: `PSPageXmlInstallPolicy`. Retirement checklist: [dual-ship-page-template-retirement.md](./dual-ship-page-template-retirement.md).
+**Install packaging (native product ship path):** product **authors** modern `pages/` for `perc.baseTemplates`, `perc.responsiveTemplates`, `perc.Baseline`, and converted file/image binary TemplateDefs. Package-local `package-install.properties` may set `page.installMode=native` (also the policy **default** when unset, #3949); dual-ship root `*.templateDef` generation is **off** unless `page.installMode=dual-ship` or sysprop `perc.packages.page.installMode=dual-ship`. `PSPageXmlNativeInstall` stages archive `TemplateDef-N/<stem>.templateDef` from modern pages (same XML/GUID semantics as the former dual-ship emit). Dual-ship is **retired as the product ship path** (#3951). Package-build no longer calls `PSPageXmlDualShip.materializeInstallTemplateDefs` (#3950); dual-ship mode fails closed. DualShip class still exists (CLI/tests) — do not claim it deleted. Policy: `PSPageXmlInstallPolicy`. Product help: `product-docs/8.2/developer/page-packages.md` (`id: developer-page-packages`). Retirement checklist: [dual-ship-page-template-retirement.md](./dual-ship-page-template-retirement.md).
 
 ## Golden fixtures
 
@@ -100,9 +100,9 @@ Native install (package build, #2806): archive `TemplateDef-N/<stem>.templateDef
 
 1. **Runtime deployer** reading `component-package.json` from archive (today native path is package-build staging into TemplateDef wire format).
 2. **Thumbnails / resources** wiring for template images into `resources[]`.
-3. **Baseline system templates** conversion matrix landed (#2805) with native opt-in (#3673). CI dual-ship log/path gate landed (#3675). Remaining: widget leftover binary `*.templateDef` (#3674).
+3. **Baseline system templates** conversion matrix landed (#2805) with native opt-in (#3673). CI dual-ship log/path gate landed (#3675). Widget leftover binary `*.templateDef` converted (#3674 / #3680).
 4. **Page item composition** (site storage region trees) → slot composition IR — depends on Phase 2 storage / REST (#2690 family).
-5. **Delete dual-ship code path** when all page packages use native (see retirement checklist).
+5. **Delete DualShip class** — package-build no longer calls `PSPageXmlDualShip.materializeInstallTemplateDefs` (#3950); dual-ship mode fails closed. DualShip CLI/tests still exercise the helper. Class deletion is a separate residual from runtime shim #2852.
 
 ## Related
 

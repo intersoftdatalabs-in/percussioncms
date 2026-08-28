@@ -27,8 +27,9 @@ Content types + Templates (assembler + JEXL bindings + source)
 
 ## Evidence
 
-- **Widgets:** 48 product XML defs under `perc-packages` (see widget inventory).
-- **Gadgets:** registry XML remains; per-gadget definition files already largely absent from tree (see gadget inventory) — finish the job with a proper catalog.
+- **Widgets:** product Widget definition XML under Packages is **0** after #3736 / PR #3750 (was 48; G4 waiver empty). See widget inventory.
+- **Gadgets:** registry XML remains as a runtime dual-load fallback; per-gadget definition files already largely absent from tree (see gadget inventory).
+- **Pages:** product page packages native-only (`page.installMode=native`); dual-ship retired as product ship path (#3951). DualShip **code still present**.
 
 ## Consequences
 
@@ -73,7 +74,9 @@ Compiler for upgrade-input Page / assembly `*.templateDef` → Component Package
 
 **#2786 (landed):** `perc.baseTemplates` and `perc.responsiveTemplates` **author** modern `pages/<id>/component-package.json` + sources.
 
-**#2806 / #3673 (landed) / #3949 (native default):** native package install — `perc.baseTemplates`, `perc.responsiveTemplates`, and `perc.Baseline` set `page.installMode=native`; `PSPageXmlNativeInstall` stages archive `TemplateDef-N/` from modern pages. As of #3949 the policy **default** is native when no sysprop / package-local override is set; dual-ship is explicit opt-in (`page.installMode=dual-ship` or `perc.packages.page.installMode`). Retirement checklist: [../dual-ship-page-template-retirement.md](../dual-ship-page-template-retirement.md).
+**#2806 / #3673 / #3674 (landed) / #3949 (native default):** native package install — `perc.baseTemplates`, `perc.responsiveTemplates`, `perc.Baseline`, and converted file/image binary TemplateDefs set `page.installMode=native`; `PSPageXmlNativeInstall` stages archive `TemplateDef-N/` from modern pages. As of #3949 the policy **default** is native when no sysprop / package-local override is set; dual-ship is explicit opt-in (`page.installMode=dual-ship` or `perc.packages.page.installMode`).
+
+**Dual-ship retirement (product ship path, #3951):** product page packages are **native-only**. Dual-ship is not how 8.2 product page packages ship. Operator help: `product-docs/8.2/developer/page-packages.md` (`id: developer-page-packages`). Checklist: [../dual-ship-page-template-retirement.md](../dual-ship-page-template-retirement.md). **`PSPageXmlDualShip` is still in tree** (CLI/tests). Package-build no longer calls `materializeInstallTemplateDefs` (#3950); dual-ship mode fails closed. Do not treat this ADR note as DualShip code deletion, and do **not** treat it as runtime shim removal ([#2852](https://github.com/intersoftdatalabs-in/percussioncms/issues/2852)).
 
 ## Gadget registry compiler (slice #2771)
 

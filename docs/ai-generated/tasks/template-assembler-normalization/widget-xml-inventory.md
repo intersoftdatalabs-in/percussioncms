@@ -15,7 +15,7 @@
 | Golden parity (remaining #2802) | **percImageAutoList**, **percComments**, **percEvent** | Plus package compile of auto-lists, blog companions, social/comments/cards, event/slider/cookie/jquery, login variants, Result/Redirect, defaultLanguage (**24** widgets / 23 packages) |
 | Golden parity (perc.Test #2830) | **PSWidget_TestProperties** | Final product residual; package compile via `TEST_PRODUCT_PACKAGE_DIRS` / `compileTestProductPackages` |
 | Compiler extensions (#2772) | `<Resource href/type/placement>`, chrome slots without CT, layout UserPref → slot.layout | CSS/JS resources + nav chrome (no asset CT); residual batches needed no new shapes |
-| **Product packages still ship Widget XML** | **Near-zero** | Batches A+B+C (#2883 / #2884 / #2885) **stopped committing** install Widget XML (8+20+19); package-build materializes install XML from modern. Only waived `perc.Test` (**1**) still commits Widget XML. |
+| **Product packages still ship Widget XML** | **Zero** | Batches A+B+C (#2883 / #2884 / #2885) **stopped committing** install Widget XML (8+20+19); #3736 / PR #3750 dropped the `perc.Test` waiver. Package-build materializes install XML from modern. Committed Widget def XML **0**. |
 | **Dual-ship modern authoring roots (batch A #2831)** | **Landed for 8 widgets / 5 packages** | `widgets/<stem>/component-package.json` under baseWidgets, defaultLanguage, event, openGraph, twitter; see [dual-ship-widget-xml-exit.md](./dual-ship-widget-xml-exit.md) |
 | **Ship-exit batch A (#2883)** | **Landed** | Committed install XML removed for batch A; `PSWidgetXmlInstallEmitter` + `PSPackageBuilder` stage install wire format |
 | **Dual-ship modern authoring roots (batch B #2832)** | **Landed for 20 widgets / 14 packages** | high-traffic (#2772) + residual long-tail (#2789): title/lists/nav/file/image + blog/calendar/directory/social/form/poll/login/rss/iframe |
@@ -97,7 +97,7 @@ Ship format: [component-package-manifest.md](./component-package-manifest.md). A
 
 | Metric | Value |
 |--------|-------|
-| Widget definition files (committed product source) | **1** (`perc.Test` only; was **48**; −8 A #2883, −20 B #2884, −19 C #2885) |
+| Widget definition files (committed product source) | **0** (empty waiver after #3736 / PR #3750; was **1** `perc.Test`, was **48**; −8 A #2883, −20 B #2884, −19 C #2885, −1 Test) |
 | Code language | **jexl** (100%) |
 | Content markup | **velocity** (100%) |
 | With `contenttype_name` | 39 |
