@@ -87,7 +87,7 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
   private static final List<String> DESIGN_GAPS =
       List.of(
           "Field control / choice write not supported via this API",
-          "System def (global fields) is a separate catalog (later slice)");
+          "System def (global fields) is a separate catalog (Developer System Def)");
 
   private static final int MAX_FIELD_NAME_LENGTH = 50;
 

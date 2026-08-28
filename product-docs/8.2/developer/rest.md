@@ -558,9 +558,10 @@ previously held lock).
 
 **Admin (Design) only.** There is no global JAX-RS Admin filter on this path — the
 sitemanage adaptor checks `IPSUserService.isAdminUser` for the current user and maps
-a non-Admin caller to **403**. Control/choice write and system-def (CD-16) remain
-unsupported. Nested field create/delete persist a backend column mapping and a
-default `sys_EditBox` display mapping.
+a non-Admin caller to **403**. Control/choice write remains unsupported. Nested
+field create/delete persist a backend column mapping and a default `sys_EditBox`
+display mapping. System-def field-property save is a separate catalog
+(`PUT /services/systemdef`, CD-16).
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -615,7 +616,8 @@ List entries use `SharedFieldGroupSummary`. Detail uses `SharedFieldGroupDetail`
 - `name`, `filename`
 - `fields[]`: `name`, `dataType`, `searchable`, `required`, `readOnly`, `occurrence`
   (`optional` / `required` / `oneOrMore` / `zeroOrMore` / `count` / `unknown`)
-- `designGaps[]` strings — control/choice edit and system-def remain later slices
+- `designGaps[]` strings — control/choice edit remain later slices. System-def
+  field-property save is `PUT /services/systemdef`.
 
 Prefer the generated OpenAPI schema as the integration source of truth.
 
@@ -635,6 +637,71 @@ Authenticated non-Admin sessions (Editor, Contributor, and similar) must not rea
 write this catalog. Callers should treat 403 as “no Design Admin rights,” not as a
 missing group. Treat 409 as “retry after the other designer releases the shared-def
 lock” (Workbench also locks the whole shared definition, not one group).
+
+## System definition (design catalog)
+
+Content-editor **system definition** (Workbench global / system fields, CD-16) is a
+singleton design object. Public REST exposes a catalog **and field-property write**
+under `/services/systemdef`. Load and save use the same content **design** web
+service as Workbench (`IPSContentDesignWs.loadContentEditorSystemDef` /
+`saveContentEditorSystemDef`). Writes acquire the system-definition design lock for
+the request and **release** it on save (same request-lock pattern as shared-field
+PUT; unlike content-type PUT, which requires a previously held lock).
+
+**Admin (Design) only.** There is no global JAX-RS Admin filter on this path — the
+sitemanage adaptor checks `IPSUserService.isAdminUser` for the current user and maps
+a non-Admin caller to **403**. Field **create/delete**, control properties,
+stylesheets, and application flow remain unsupported.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/systemdef` | Load the system definition field catalog (`fieldCount`, `cacheTimeoutMinutes`, `fields[]`) |
+| `PUT` | `/services/systemdef` | Patch **existing** fields (`searchable`, occurrence / required). Null or empty `fields` leaves the catalog unchanged. |
+
+PUT may include `fields[]` to patch existing fields by `name`. Unknown field names
+are **400**. New fields cannot be added on this slice. `occurrence` and `required`
+map to the same dimension: when both are sent they must agree (`required=true`
+with `required` / `oneOrMore`; `required=false` with `optional` / `zeroOrMore` /
+`count`) or the request is **400**. `occurrence` is applied when present;
+`required` is used only when `occurrence` is omitted. `dataType`, `readOnly`, and
+`cacheTimeoutMinutes` are read-only on this slice.
+
+Example PUT body:
+
+```json
+{
+  "fields": [
+    { "name": "sys_title", "searchable": true, "occurrence": "required" }
+  ]
+}
+```
+
+### Response shape
+
+Detail uses `SystemDefDetail`:
+
+- `fieldCount`, `cacheTimeoutMinutes` (read-only)
+- `fields[]`: `name`, `dataType`, `searchable`, `required`, `readOnly`, `occurrence`
+  (`optional` / `required` / `oneOrMore` / `zeroOrMore` / `count` / `unknown`)
+- `designGaps[]` strings — field create/delete, control/stylesheet/application flow,
+  and shared-field groups (separate catalog)
+
+Prefer the generated OpenAPI schema as the integration source of truth.
+
+### Status codes and authorization
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | Catalog or save |
+| `400` | Missing body, unknown field, invalid occurrence, or conflicting `occurrence`/`required` |
+| `403` | Caller is not Admin, or the request has no session/user (writes) |
+| `409` | System definition locked by another user, or design lock required for save |
+| `500` | Design service or server failure |
+
+Authenticated non-Admin sessions (Editor, Contributor, and similar) must not read or
+write this catalog. Callers should treat 403 as “no Design Admin rights.” Treat 409
+as “retry after the other designer releases the system-def lock” (Workbench locks
+the whole system definition).
 
 ## Templates (assembly catalog)
 

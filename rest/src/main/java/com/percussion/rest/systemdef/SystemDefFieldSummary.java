@@ -21,7 +21,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
-/** Read-only field row from the content-editor system definition. */
+/**
+ * Field row from the content-editor system definition. GET catalog; PUT may patch {@code
+ * searchable} and occurrence / required on existing fields. {@code readOnly} and {@code dataType}
+ * are read-only.
+ */
 @XmlRootElement(name = "SystemDefField")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "System definition field summary")
