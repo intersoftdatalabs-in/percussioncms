@@ -16,6 +16,7 @@
  */
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.design.objectstore.PSDirectorySet;
 import com.percussion.design.objectstore.PSGlobalSubject;
 import com.percussion.design.objectstore.PSRoleProvider;
@@ -81,7 +82,8 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
     if (m_roleProvider == null) {
       Object[] args = {roleProviderName};
 
-      throw new PSSecurityException(IPSSecurityErrors.DIR_REFERENCED_ROLEPROVIDER_NOT_FOUND, args);
+      throw new PSSecurityException(
+          SecurityErrorCodes.DIR_REFERENCED_ROLEPROVIDER_NOT_FOUND, args);
     }
 
     // load and validate the specified directory set
@@ -170,7 +172,8 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
         // print the error to the console and return an empty list
         Object args[] = {e.toString()};
 
-        PSConsole.printMsg("Security", IPSSecurityErrors.UNKNOWN_NAMING_ERROR, args);
+        PSConsole.printMsg(
+            "Security", SecurityErrorCodes.UNKNOWN_NAMING_ERROR.numericCode(), args);
       } finally {
         if (values != null)
           try {

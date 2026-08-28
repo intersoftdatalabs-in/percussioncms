@@ -17,6 +17,7 @@
 
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
@@ -31,14 +32,14 @@ import com.percussion.error.PSException;
 public class PSAuthenticationFailedException extends PSException {
   /** Constructs an authentication failed exception with the default message. */
   public PSAuthenticationFailedException(String type, String instanceName, String uid) {
-    super(IPSSecurityErrors.AUTHENTICATION_FAILED, new Object[] {type, instanceName, uid});
+    super(SecurityErrorCodes.AUTHENTICATION_FAILED, new Object[] {type, instanceName, uid});
   }
 
   /** Constructs an authentication failed exception describing the cause of the failure. */
   public PSAuthenticationFailedException(
       String type, String instanceName, String uid, String failureMessage) {
     super(
-        IPSSecurityErrors.AUTHENTICATION_FAILED_WITH_MSG,
+        SecurityErrorCodes.AUTHENTICATION_FAILED_WITH_MSG,
         new Object[] {type, instanceName, uid, failureMessage});
   }
 

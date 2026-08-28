@@ -17,6 +17,7 @@
 
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.error.PSException;
 
 /**
@@ -30,7 +31,7 @@ import com.percussion.error.PSException;
 public class PSNativeMethodException extends PSException {
   /** This one should only be used when logon failed. */
   public PSNativeMethodException(String message) {
-    super(IPSSecurityErrors.NATIVE_AUTHENTICATION_FAILURE, new Object[] {message});
+    super(SecurityErrorCodes.NATIVE_AUTHENTICATION_FAILURE, new Object[] {message});
   }
 
   /**

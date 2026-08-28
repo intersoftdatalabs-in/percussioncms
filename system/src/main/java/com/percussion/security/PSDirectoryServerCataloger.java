@@ -17,6 +17,7 @@
 
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.design.objectstore.PSAttributeList;
 import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSServerConfiguration;
@@ -207,7 +208,7 @@ public class PSDirectoryServerCataloger extends PSDirectoryCataloger {
       // then just log the error.
       if (dirSize != 0 && dirSize == errorLoadingDir) {
         throw new PSSecurityException(
-            IPSSecurityErrors.UNKNOWN_NAMING_ERROR,
+            SecurityErrorCodes.UNKNOWN_NAMING_ERROR,
             new String[] {PSExceptionUtils.getDebugMessageForLog(ex)},
             ex);
       }

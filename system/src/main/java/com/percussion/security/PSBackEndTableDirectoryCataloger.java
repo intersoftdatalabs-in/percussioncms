@@ -16,6 +16,7 @@
  */
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.design.objectstore.PSAttribute;
 import com.percussion.design.objectstore.PSAttributeList;
 import com.percussion.design.objectstore.PSConditional;
@@ -142,7 +143,7 @@ public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
     } catch (SQLException e) {
       throw new RuntimeException(
           PSErrorManager.createMessage(
-              IPSSecurityErrors.BETABLE_DIRECTORY_CATALOGER_ERROR, e.toString()));
+              SecurityErrorCodes.BETABLE_DIRECTORY_CATALOGER_ERROR.numericCode(), e.toString()));
     } finally {
       if (result != null)
         try {

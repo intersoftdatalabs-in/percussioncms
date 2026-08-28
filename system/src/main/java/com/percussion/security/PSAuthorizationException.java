@@ -17,6 +17,7 @@
 
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
@@ -40,7 +41,7 @@ public class PSAuthorizationException extends PSException {
    */
   public PSAuthorizationException(String resourceType, String resourceName, String sessionId) {
     super(
-        IPSSecurityErrors.SESS_NOT_AUTHORIZED,
+        SecurityErrorCodes.SESS_NOT_AUTHORIZED,
         new Object[] {resourceType, resourceName, sessionId});
   }
 
@@ -57,7 +58,7 @@ public class PSAuthorizationException extends PSException {
       String language, String resourceType, String resourceName, String sessionId) {
     super(
         language,
-        IPSSecurityErrors.SESS_NOT_AUTHORIZED,
+        SecurityErrorCodes.SESS_NOT_AUTHORIZED,
         new Object[] {resourceType, resourceName, sessionId});
   }
 
@@ -77,7 +78,7 @@ public class PSAuthorizationException extends PSException {
       String userName) {
     super(
         language,
-        IPSSecurityErrors.USER_NOT_AUTHORIZED,
+        SecurityErrorCodes.USER_NOT_AUTHORIZED,
         new Object[] {resourceType, resourceName, securityProvider, userName});
   }
 

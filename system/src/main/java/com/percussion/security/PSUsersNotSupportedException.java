@@ -17,6 +17,7 @@
 
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.error.PSException;
 
 /**
@@ -30,6 +31,6 @@ import com.percussion.error.PSException;
 public class PSUsersNotSupportedException extends PSException {
   /** Constructs a users not supported exception with the default message. */
   public PSUsersNotSupportedException(java.lang.String provider) {
-    super(IPSSecurityErrors.USERS_NOT_SUPPORTED, new Object[] {provider});
+    super(SecurityErrorCodes.USERS_NOT_SUPPORTED, new Object[] {provider});
   }
 }

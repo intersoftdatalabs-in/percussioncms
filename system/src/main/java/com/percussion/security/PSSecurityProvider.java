@@ -16,6 +16,7 @@
  */
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.data.PSDataExtractionException;
 import com.percussion.design.objectstore.PSLiteral;
 import com.percussion.design.objectstore.PSLiteralSet;
@@ -322,31 +323,40 @@ public abstract class PSSecurityProvider implements IPSSecurityProvider {
 
       PSLogManager.write(
           new PSLogServerWarning(
-              IPSSecurityErrors.CATALOG_PROVIDER_CLASS_NOT_FOUND, args, true, origin));
+              SecurityErrorCodes.CATALOG_PROVIDER_CLASS_NOT_FOUND.numericCode(),
+              args,
+              true,
+              origin));
     } catch (InstantiationException e) {
       Object[] args = {provider.getClassName(), PSException.getStackTraceAsString(e)};
 
       PSLogManager.write(
           new PSLogServerWarning(
-              IPSSecurityErrors.CATALOG_PROVIDER_INSTANTIATION_FAILED, args, true, origin));
+              SecurityErrorCodes.CATALOG_PROVIDER_INSTANTIATION_FAILED.numericCode(),
+              args,
+              true,
+              origin));
     } catch (IllegalAccessException e) {
       Object[] args = {provider.getClassName(), PSException.getStackTraceAsString(e)};
 
       PSLogManager.write(
           new PSLogServerWarning(
-              IPSSecurityErrors.CATALOG_PROVIDER_ILLEGAL_ACCESS, args, true, origin));
+              SecurityErrorCodes.CATALOG_PROVIDER_ILLEGAL_ACCESS.numericCode(), args, true, origin));
     } catch (InvocationTargetException e) {
       Object[] args = {provider.getClassName(), PSException.getStackTraceAsString(e)};
 
       PSLogManager.write(
           new PSLogServerWarning(
-              IPSSecurityErrors.CATALOG_PROVIDER_INVOCATION_TARGET_ERROR, args, true, origin));
+              SecurityErrorCodes.CATALOG_PROVIDER_INVOCATION_TARGET_ERROR.numericCode(),
+              args,
+              true,
+              origin));
     } catch (NoSuchMethodException e) {
       Object[] args = {provider.getClassName(), PSException.getStackTraceAsString(e)};
 
       PSLogManager.write(
           new PSLogServerWarning(
-              IPSSecurityErrors.CATALOG_PROVIDER_NO_SUCH_METHOD, args, true, origin));
+              SecurityErrorCodes.CATALOG_PROVIDER_NO_SUCH_METHOD.numericCode(), args, true, origin));
     }
 
     return cataloger;

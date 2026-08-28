@@ -17,6 +17,7 @@
 
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.error.PSException;
 
 /**
@@ -30,6 +31,6 @@ import com.percussion.error.PSException;
 public class PSFiltersNotSupportedException extends PSException {
   /** Constructs a filters not supported exception with the default message. */
   public PSFiltersNotSupportedException(java.lang.String provider) {
-    super(IPSSecurityErrors.FILTERS_NOT_SUPPORTED, new Object[] {provider});
+    super(SecurityErrorCodes.FILTERS_NOT_SUPPORTED, new Object[] {provider});
   }
 }

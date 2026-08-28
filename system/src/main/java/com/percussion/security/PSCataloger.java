@@ -16,6 +16,7 @@
  */
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.design.objectstore.IPSGroupProviderInstance;
 import com.percussion.design.objectstore.PSAttribute;
 import com.percussion.design.objectstore.PSAttributeList;
@@ -148,7 +149,7 @@ public abstract class PSCataloger {
     if (m_directorySet == null) {
       Object[] args = {name};
 
-      throw new PSSecurityException(IPSSecurityErrors.DIR_REFERENCED_DIRECTORYSET_NOT_FOUND, args);
+      throw new PSSecurityException(SecurityErrorCodes.DIR_REFERENCED_DIRECTORYSET_NOT_FOUND, args);
     }
 
     // load and validate all referenced directories/authentications
@@ -159,7 +160,7 @@ public abstract class PSCataloger {
       if (directory == null) {
         Object[] args = {directoryRef.getName()};
 
-        throw new PSSecurityException(IPSSecurityErrors.DIR_REFERENCED_DIRECTORY_NOT_FOUND, args);
+        throw new PSSecurityException(SecurityErrorCodes.DIR_REFERENCED_DIRECTORY_NOT_FOUND, args);
       }
 
       PSAuthentication authentication =
@@ -168,7 +169,7 @@ public abstract class PSCataloger {
         Object[] args = {directory.getAuthenticationRef().getName()};
 
         throw new PSSecurityException(
-            IPSSecurityErrors.DIR_REFERENCED_AUTHENTICATION_NOT_FOUND, args);
+            SecurityErrorCodes.DIR_REFERENCED_AUTHENTICATION_NOT_FOUND, args);
       }
 
       directory = ensureReturnAttribute(directory, getEmailAddressAttributeName());
@@ -185,7 +186,7 @@ public abstract class PSCataloger {
 
         if (gpInst == null) {
           Object[] args = {groupName};
-          throw new PSSecurityException(IPSSecurityErrors.GROUP_PROVIDER_MISSING, args);
+          throw new PSSecurityException(SecurityErrorCodes.GROUP_PROVIDER_MISSING, args);
         }
 
         int type = gpInst.getType();
@@ -203,7 +204,7 @@ public abstract class PSCataloger {
           addGroupProvider(gp);
         } else {
           Object[] args = {groupName};
-          throw new PSSecurityException(IPSSecurityErrors.GROUP_PROVIDER_MISSING, args);
+          throw new PSSecurityException(SecurityErrorCodes.GROUP_PROVIDER_MISSING, args);
         }
       }
     }
@@ -434,7 +435,7 @@ public abstract class PSCataloger {
       Object args[] = {e.toString()};
       Throwable rootCause = PSExceptionHelper.findRootCause(e, false);
 
-      throw new PSSecurityException(IPSSecurityErrors.UNKNOWN_NAMING_ERROR, args, rootCause);
+      throw new PSSecurityException(SecurityErrorCodes.UNKNOWN_NAMING_ERROR, args, rootCause);
     } finally {
       if (results != null)
         try {

@@ -34,7 +34,8 @@ DEPLOYER_RESIDUAL = (
 # system/webservices SOAP/ws rows were removed from the allow-list; cms builders
 # converted in #3882, cms handlers in #3883, cms.objectstore+client in #3884;
 # cms.objectstore.server converted in #3900; extensions-main converted in
-# #3756/#3938; com.percussion.data (+ macro/vfs) in #3939.
+# #3756/#3938; com.percussion.data (+ macro/vfs) in #3939; com.percussion.security
+# in #3940.
 # Keep an exact residual that is still frozen (system debug leftover).
 SYSTEM_CMS_RESIDUAL = (
     "system/src/main/java/com/percussion/debug/PSDebugLogHandler.java"
@@ -393,6 +394,7 @@ def test_residual_allowlist_is_exact_paths_only() -> None:
         assert "\\" not in entry, entry
         assert entry.endswith(".java"), entry
         assert not entry.startswith("modules/extensions-main/"), entry
+        assert not entry.startswith("system/src/main/java/com/percussion/security/"), entry
 
 
 def test_extensions_main_converted_paths_not_allowlisted() -> None:
@@ -404,6 +406,20 @@ def test_extensions_main_converted_paths_not_allowlisted() -> None:
         if ln.strip() and not ln.strip().startswith("#")
     ]
     resurrected = [e for e in entries if e.startswith("modules/extensions-main/")]
+    assert resurrected == [], resurrected
+
+
+def test_system_security_converted_paths_not_allowlisted() -> None:
+    """#3940 typed leftover com.percussion.security production call-sites."""
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = [
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    ]
+    resurrected = [
+        e for e in entries if e.startswith("system/src/main/java/com/percussion/security/")
+    ]
     assert resurrected == [], resurrected
 
 

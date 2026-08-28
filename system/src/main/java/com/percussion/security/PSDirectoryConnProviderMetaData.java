@@ -17,6 +17,7 @@
 
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.data.PSResultSet;
 import com.percussion.design.objectstore.PSAuthentication;
 import com.percussion.design.objectstore.PSDirectory;
@@ -221,11 +222,11 @@ public class PSDirectoryConnProviderMetaData extends PSJndiProviderMetaData {
           }
         } catch (NamingException e) {
           // convert to SQLException and re-throw
-          throw new PSSqlException(IPSSecurityErrors.DIR_GET_OBJECTS_FAILED, e.toString(), "0");
+          throw new PSSqlException(SecurityErrorCodes.DIR_GET_OBJECTS_FAILED, e.toString(), "0");
         } catch (PSSecurityException e) {
           // convert to SQLException and re-throw
           throw new PSSqlException(
-              IPSSecurityErrors.DIR_GET_OBJECTS_FAILED, e.getLocalizedMessage(), "0");
+              SecurityErrorCodes.DIR_GET_OBJECTS_FAILED, e.getLocalizedMessage(), "0");
         } finally {
           if (attVals != null)
             try {

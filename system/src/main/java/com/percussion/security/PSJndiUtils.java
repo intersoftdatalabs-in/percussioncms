@@ -16,6 +16,7 @@
  */
 package com.percussion.security;
 
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.design.objectstore.PSAuthentication;
 import com.percussion.design.objectstore.PSDirectory;
 import com.percussion.design.objectstore.PSServerConfiguration;
@@ -127,7 +128,7 @@ public class PSJndiUtils {
         return defaultFilter;
       }
       throw new PSRuntimeException(
-          IPSSecurityErrors.DIR_PASSWORD_FILTER_INIT_ERROR,
+          SecurityErrorCodes.DIR_PASSWORD_FILTER_INIT_ERROR,
           new Object[] {extensionName, e.toString()});
     }
   }
@@ -640,7 +641,8 @@ public class PSJndiUtils {
     } catch (Exception e) {
       throw new NamingException(
           PSErrorManager.createMessage(
-              IPSSecurityErrors.PARSE_JNDI_PROVIDER_URL_ERROR, e.getLocalizedMessage()));
+              SecurityErrorCodes.PARSE_JNDI_PROVIDER_URL_ERROR.numericCode(),
+              e.getLocalizedMessage()));
     }
   }
 
