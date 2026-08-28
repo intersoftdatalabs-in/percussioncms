@@ -54,8 +54,9 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * …/virtual/preview} streams last-build HTML for {@code object-storage} and {@code rss-atom}
  * after a successful assemble (missing build is {@code available=false}, HTTP 200). REST {@code
  * POST …/virtual/publish} copies last-build HTML to {@code IPSSite.root} for git, CSV, SQL,
- * {@code http-json}, and {@code object-storage} (local object-key fixture; leftover {@code
- * virtual.remoteUrl} is 400).
+ * {@code http-json}, {@code object-storage} (local object-key fixture; leftover {@code
+ * virtual.remoteUrl} is 400), and {@code rss-atom} (local RSS/Atom fixture; leftover {@code
+ * virtual.remoteUrl} and credentials are 400).
  *
  * <p>Wire getters return plain {@code String} (not {@code Optional}) so JAXB/Jettison and Jackson
  * {@code WRAP_ROOT_VALUE} emit/accept child elements {@code sourceKind}, {@code rootPath},
@@ -76,8 +77,8 @@ public class VirtualSiteProperties {
   @Schema(
       description =
           "Adapter wire name. Allow-list: git-filesystem, csv-filesystem, sql-database, http-json,"
-              + " object-storage, rss-atom. rss-atom persist is local/loopback only (no live feed"
-              + " credentials). Blank or repository = traditional Site.",
+              + " object-storage, rss-atom. rss-atom persist/build/preview/publish is local/loopback"
+              + " only (no live feed credentials). Blank or repository = traditional Site.",
       example = "git-filesystem")
   private String sourceKind;
 

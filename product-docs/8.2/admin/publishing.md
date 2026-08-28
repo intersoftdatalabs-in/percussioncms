@@ -57,21 +57,25 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
   `http.file` in `_config.yaml`); leftover `virtual.remoteUrl` is **400** (no secrets on
   the envelope). `object-storage` Publish uses a portable-safe local object-key `rootPath`
   (Markdown / HTML / JSON keys; no cloud URLs, IAM, or access keys); leftover
-  `virtual.remoteUrl` is **400**. REST **GET/PUT** can persist
-  `virtual.sourceKind=object-storage` with that local `rootPath` (cloud URLs and
+  `virtual.remoteUrl` is **400**. `rss-atom` Publish uses a local RSS 2.0 / Atom
+  fixture or loopback feed (`feed.xml` / `atom.xml` or `_config.yaml` `rss.file`); leftover
+  `virtual.remoteUrl` and credential properties are **400** (no live feeds). REST **GET/PUT**
+  can persist `virtual.sourceKind=object-storage` with that local `rootPath` (cloud URLs and
   credentials are **400**); REST **Build** runs that local bucket. REST **Preview**
   streams last-build HTML for that kind after a successful Build (`available=true`;
   missing build is `available=false` HTTP 200). REST **Preview** also streams last-build
   HTML for `rss-atom` (local RSS 2.0 / Atom fixture or loopback feed; no live remote
-  feeds). Developer Sites can save **Object
+  feeds). REST **Publish** copies that last-build HTML to `IPSSite.root` for `rss-atom`
+  (`filesCopied > 0`; `_meta` skipped). Developer Sites can save **Object
   storage** (GET round-trips the kind), then **Build Virtual Site**, **Preview
-  assembled site**, and **Publish Virtual Site**. The endpoint does not accept an
+  assembled site**, and **Publish Virtual Site**. Developer Sites Publish chrome for
+  rss-atom stays a later phase. The endpoint does not accept an
   `outputRoot` body (always the default staging root).
 
 ### Publish a Virtual Site to the Site filesystem target
 
 1. Sign in as **Admin**.
-2. Configure the Site as a Git-filesystem, CSV-filesystem, SQL-database, HTTP JSON, or object-storage Virtual Site (see [Sites](id:admin-sites)). After you save **SQL database**, **Build Virtual Site** on Developer Sites runs the same in-memory H2 REST Build as Git/CSV. After you save **HTTP JSON**, **Build Virtual Site** then **Publish Virtual Site** copies assembled HTML to the Site filesystem root. After you save **Object storage**, **Build Virtual Site** then **Preview assembled site** and **Publish Virtual Site** run against that local object-key tree (`POST …/virtual/publish`; leftover `virtual.remoteUrl` is **400**; no cloud URLs or credentials).
+2. Configure the Site as a Git-filesystem, CSV-filesystem, SQL-database, HTTP JSON, object-storage, or RSS / Atom Virtual Site (see [Sites](id:admin-sites)). After you save **SQL database**, **Build Virtual Site** on Developer Sites runs the same in-memory H2 REST Build as Git/CSV. After you save **HTTP JSON**, **Build Virtual Site** then **Publish Virtual Site** copies assembled HTML to the Site filesystem root. After you save **Object storage**, **Build Virtual Site** then **Preview assembled site** and **Publish Virtual Site** run against that local object-key tree (`POST …/virtual/publish`; leftover `virtual.remoteUrl` is **400**; no cloud URLs or credentials). Integrators can persist **RSS / Atom** (`sourceKind=rss-atom`) and call REST **Publish** (`POST …/virtual/publish`) against a local RSS/Atom fixture (leftover `virtual.remoteUrl` and credentials are **400**; no live feeds). Developer Sites Publish chrome for rss-atom stays later.
 3. Set the Site **publishing filesystem root** (Site root) to a dedicated directory on the CMS
    host. Relative roots (legacy values such as `../CI_Home`) are resolved against the CMS
    install directory. Do **not** point it at `virtual.rootPath` (the Markdown or CSV source tree).
@@ -82,7 +86,7 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
    and **Object storage**, save the source, run **Build Virtual Site**, then
    **Publish Virtual Site**. The panel reports files copied and the destination path, or a
    clear error. Integrators can call `POST /services/sites/{nameOrId}/virtual/publish`
-   instead (Git, CSV, SQL, HTTP JSON, and object-storage). Run **Build Virtual Site** first
+   instead (Git, CSV, SQL, HTTP JSON, object-storage, and rss-atom). Run **Build Virtual Site** first
    if you only want staging output.
 6. On success, the result includes `publishPath`, `filesCopied`, `pagesWritten`, and any
    link problems (`hasLinkProblems` can be true with HTTP 200).

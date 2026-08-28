@@ -111,7 +111,7 @@ When a Percussion Site is configured as virtual (Phase 1 — no new `RXSITES` co
 
 | Property name | Required | Example | Meaning |
 |---------------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, or `rss-atom` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, `rss-atom`. **`rss-atom`** is a local RSS 2.0 / Atom fixture or loopback HTTP GET (`feed.xml` / `atom.xml` or `_config.yaml` `rss.file`; `rss.url` loopback only). No live feed credentials. SPI/CLI assemble is `PSVirtualSiteBuildMain … rss-atom`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips `rss-atom` with a portable-safe local `rootPath` (leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**). REST **Build** (`POST …/virtual/build`) also runs `rss-atom` against that local/loopback fixture (`pagesWritten > 0`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**). REST **Preview** streams last-build HTML after Build (git/CSV/SQL/`http-json`/`object-storage`/`rss-atom`). Developer Sites chrome for `rss-atom` stays later. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips git, CSV, SQL, `http-json`, and `object-storage` (local `rootPath` only; cloud URLs and credential properties are **400**). REST **Build** (`POST …/virtual/build`) runs git/CSV/SQL, `http-json` (local JSON fixture or loopback catalog), `object-storage` (local object-key bucket; leftover `virtual.remoteUrl` is **400**), and `rss-atom` (local RSS/Atom fixture or loopback feed; leftover `virtual.remoteUrl` is **400**). REST **Publish** (`POST …/virtual/publish`) runs git/CSV/SQL, `http-json`, and `object-storage` adapters (copies assembled HTML to `IPSSite.root`; leftover `virtual.remoteUrl` on `http-json` and `object-storage` is **400**). `http-json` persist uses a portable-safe `rootPath` JSON fixture; catalog URL/file live in `_config.yaml` (`http.url` / `http.file`); `virtual.remoteUrl` is **400** (no secrets on the REST envelope). SPI/CLI assemble is installed. Developer Sites can select, save, **Build**, **Preview**, and **Publish** HTTP JSON. `sql-database` is in-memory H2 (`jdbc:h2:mem:`; required query columns `id`, `title`, `body`; JDBC URL/user/query in `_config.yaml`, never passwords on the REST envelope). Developer Sites can select and save **SQL database**. `csv-filesystem` required columns: `id`, `title`, `body`; optional `_config.yaml`. `object-storage` is a local object-key SPI plus REST Build, last-build Preview, and REST Publish (`PSVirtualSiteBuildMain … object-storage`; Markdown / HTML / JSON under `virtual.rootPath`; no cloud secrets). Developer Sites can select and save **Object storage** (GET round-trips the kind), then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. REST **Publish** copies a local object-key fixture to `IPSSite.root`. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, or `rss-atom` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, `rss-atom`. **`rss-atom`** is a local RSS 2.0 / Atom fixture or loopback HTTP GET (`feed.xml` / `atom.xml` or `_config.yaml` `rss.file`; `rss.url` loopback only). No live feed credentials. SPI/CLI assemble is `PSVirtualSiteBuildMain … rss-atom`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips `rss-atom` with a portable-safe local `rootPath` (leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**). REST **Build** (`POST …/virtual/build`) also runs `rss-atom` against that local/loopback fixture (`pagesWritten > 0`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**). REST **Preview** streams last-build HTML after Build (git/CSV/SQL/`http-json`/`object-storage`/`rss-atom`). Developer Sites chrome for `rss-atom` stays later. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips git, CSV, SQL, `http-json`, and `object-storage` (local `rootPath` only; cloud URLs and credential properties are **400**). REST **Build** (`POST …/virtual/build`) runs git/CSV/SQL, `http-json` (local JSON fixture or loopback catalog), `object-storage` (local object-key bucket; leftover `virtual.remoteUrl` is **400**), and `rss-atom` (local RSS/Atom fixture or loopback feed; leftover `virtual.remoteUrl` is **400**). REST **Publish** (`POST …/virtual/publish`) runs git/CSV/SQL, `http-json`, `object-storage`, and `rss-atom` adapters (copies assembled HTML to `IPSSite.root`; leftover `virtual.remoteUrl` on `http-json`, `object-storage`, and `rss-atom` is **400**; leftover credentials on `rss-atom` are **400**). `http-json` persist uses a portable-safe `rootPath` JSON fixture; catalog URL/file live in `_config.yaml` (`http.url` / `http.file`); `virtual.remoteUrl` is **400** (no secrets on the REST envelope). SPI/CLI assemble is installed. Developer Sites can select, save, **Build**, **Preview**, and **Publish** HTTP JSON. `sql-database` is in-memory H2 (`jdbc:h2:mem:`; required query columns `id`, `title`, `body`; JDBC URL/user/query in `_config.yaml`, never passwords on the REST envelope). Developer Sites can select and save **SQL database**. `csv-filesystem` required columns: `id`, `title`, `body`; optional `_config.yaml`. `object-storage` is a local object-key SPI plus REST Build, last-build Preview, and REST Publish (`PSVirtualSiteBuildMain … object-storage`; Markdown / HTML / JSON under `virtual.rootPath`; no cloud secrets). Developer Sites can select and save **Object storage** (GET round-trips the kind), then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. REST **Publish** copies a local object-key fixture to `IPSSite.root`. |
 | `virtual.rootPath` | Yes when remote is blank | absolute or install-relative path to tree | Local filesystem source root when `virtual.remoteUrl` is blank. NIO `Path` normalize; no empty path / remaining `..`. When a remote is set, optional relative path inside the checkout. |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones/fetches into `{install}/tmp/virtual-site-checkouts/{siteKey}`. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. Fail-closed on `..`, `http`, option injection. Credentials are never logged. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. |
@@ -178,10 +178,10 @@ returns that kind (local/loopback only; leftover `virtual.remoteUrl`, credential
 cloud URL `rootPath` are **400**; no live feed credentials). Paths with remaining `..` after NIO normalize, unknown
 kinds, and `remoteUrl` on CSV, SQL, `http-json`, `object-storage`, or `rss-atom` are **400**. In-product
 `POST …/virtual/build` runs the matching adapter for `git-filesystem`,
-`csv-filesystem`, `sql-database`, `http-json`, and `object-storage`. `POST …/virtual/publish`
-runs git/CSV/SQL, `http-json`, and `object-storage` adapters (copies assembled HTML to
-`IPSSite.root`; leftover `virtual.remoteUrl` on `http-json` and `object-storage` is
-**400**).
+`csv-filesystem`, `sql-database`, `http-json`, `object-storage`, and `rss-atom`. `POST …/virtual/publish`
+runs git/CSV/SQL, `http-json`, `object-storage`, and `rss-atom` adapters (copies assembled HTML to
+`IPSSite.root`; leftover `virtual.remoteUrl` on `http-json`, `object-storage`, and `rss-atom` is
+**400**; leftover credentials on `rss-atom` are **400**).
 
 Site detail (`GET /sites/{nameOrId}`) also returns a nested `virtual` object. Validation is
 enforced server-side (allow-listed source kinds, required local root path when virtual and
@@ -275,16 +275,18 @@ Build records it.
 
 #### Publish Virtual Site (`POST …/virtual/publish`)
 
-Runs the same build for `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, or
-`object-storage` (always the default output root; unlike Build, this endpoint does **not**
-accept an `outputRoot` body), then copies the assembled tree
+Runs the same build for `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`,
+`object-storage`, or `rss-atom` (always the default output root; unlike Build, this endpoint
+does **not** accept an `outputRoot` body), then copies the assembled tree
 to the Site **filesystem publish location** (`IPSSite.root`) using portable NIO `Path` /
 `Files`. Relative Site roots are resolved against the CMS install directory, then rejected if
 any `..` remains. Requires **Admin**. Staging `_meta` is not copied. `http-json` uses a
 local JSON fixture or loopback catalog (`http.url` / `http.file` in `_config.yaml`); leftover
 `virtual.remoteUrl` is **400** (no secrets on the REST envelope). `object-storage` uses a
 portable-safe local object-key `rootPath` (no cloud URLs, IAM, or access keys); leftover
-`virtual.remoteUrl` is **400**.
+`virtual.remoteUrl` is **400**. `rss-atom` uses a local RSS 2.0 / Atom fixture or loopback
+feed (`feed.xml` / `atom.xml` or `_config.yaml` `rss.file`); leftover `virtual.remoteUrl`
+and credential properties are **400** (no live feeds).
 
 | Status | When |
 |--------|------|
@@ -298,8 +300,9 @@ Operators can run the same action from **Developer → Sites → Site detail →
 Site** (Admin; **Git filesystem**, **CSV filesystem**, **SQL database**, **HTTP JSON**, and
 **Object storage**; hidden for repository Sites). After a successful HTTP JSON or
 object-storage Build, **Publish Virtual Site** copies assembled HTML to the Site
-filesystem root. REST Publish still runs for `http-json` and `object-storage` (local
-object-key fixture). `sql-database` Publish is in-memory H2 only (`jdbc:h2:mem:`);
+filesystem root. REST Publish still runs for `http-json`, `object-storage` (local
+object-key fixture), and `rss-atom` (local RSS/Atom fixture). Developer Sites Publish
+chrome for rss-atom stays later. `sql-database` Publish is in-memory H2 only (`jdbc:h2:mem:`);
 Oracle / MySQL / SQL Server JDBC URLs return **400**. See
 [Publishing](id:admin-publishing).
 

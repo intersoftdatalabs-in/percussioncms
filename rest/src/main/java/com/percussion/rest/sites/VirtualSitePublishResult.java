@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Outcome of {@code POST /sites/{nameOrId}/virtual/publish}: build-then-copy to the Site filesystem
  * publish root ({@code IPSSite.root}) for {@code git-filesystem}, {@code csv-filesystem}, {@code
- * sql-database}, {@code http-json}, and {@code object-storage}.
+ * sql-database}, {@code http-json}, {@code object-storage}, and {@code rss-atom}.
  *
  * <p>Wire getters return plain types (not {@code Optional}) so Jackson emits scalars, not
  * Optional-bean {@code empty}/{@code present} keys (#3411 / #3388).

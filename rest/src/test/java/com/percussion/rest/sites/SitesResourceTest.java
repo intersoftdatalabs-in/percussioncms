@@ -892,6 +892,25 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void publishVirtualSiteDelegatesRssAtom() {
+    VirtualSitePublishResult published = new VirtualSitePublishResult();
+    published.setSiteName("RssHelp");
+    published.setSiteKey("rss-docs");
+    published.setPagesWritten(1);
+    published.setFilesCopied(2);
+    published.setPublishPath(tempDir.resolve("rss-pub").toString());
+    when(adaptor.publishVirtualSite("RssHelp")).thenReturn(published);
+
+    VirtualSitePublishResult out = resource.publishVirtualSite("RssHelp");
+    assertEquals("RssHelp", out.getSiteName());
+    assertEquals("rss-docs", out.getSiteKey());
+    assertEquals(1, out.getPagesWritten().intValue());
+    assertEquals(2, out.getFilesCopied().intValue());
+    assertEquals(published.getPublishPath(), out.getPublishPath());
+    verify(adaptor).publishVirtualSite("RssHelp");
+  }
+
+  @Test
   public void publishVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.publishVirtualSite(" "));
@@ -963,6 +982,12 @@ public class SitesResourceTest {
     assertTrue(
         publishBlock.contains("object-storage"),
         "publishVirtualSite OpenAPI description must mention object-storage");
+    assertTrue(
+        publishBlock.contains("rss-atom"),
+        "publishVirtualSite OpenAPI description must mention rss-atom");
+    assertTrue(
+        publishBlock.contains("feed.xml") || publishBlock.contains("loopback"),
+        "publishVirtualSite OpenAPI description must mention local RSS/Atom fixture or loopback");
     assertTrue(
         publishBlock.contains("jdbc:h2:mem:"),
         "publishVirtualSite OpenAPI description must mention in-memory H2 jdbc:h2:mem:");
