@@ -74,7 +74,13 @@ def _stub_subprocess(*, docker_ps_names=("perc-matrix-cms-h2",), returncodes=Non
     return calls, fake_run
 
 
-def _write_modern_tree(root: Path, *, include_object_storage: bool, include_index: bool = True) -> Path:
+def _write_modern_tree(
+    root: Path,
+    *,
+    include_object_storage: bool,
+    include_rss_atom: bool = True,
+    include_index: bool = True,
+) -> Path:
     modern = root / "cm" / "modern"
     assets = modern / "assets"
     assets.mkdir(parents=True)
@@ -86,6 +92,8 @@ def _write_modern_tree(root: Path, *, include_object_storage: bool, include_inde
     chunk = 'export const k="http-json";\n'
     if include_object_storage:
         chunk += 'export const os="object-storage";\n'
+    if include_rss_atom:
+        chunk += 'export const rss="rss-atom";\n'
     (assets / "developer-AbCd1234.js").write_text(chunk, encoding="utf-8")
     if include_index:
         (modern / "index.html").write_text(
@@ -122,9 +130,35 @@ class TestValidateSrc(unittest.TestCase):
 
     def test_marker_missing(self):
         with tempfile.TemporaryDirectory() as td:
-            src = _write_modern_tree(Path(td), include_object_storage=False)
+            src = _write_modern_tree(
+                Path(td), include_object_storage=False, include_rss_atom=False
+            )
             rc = hdw.validate_src(src, require_object_storage=True)
             self.assertEqual(rc, hdw.EXIT_MARKER_MISSING)
+            self.assertEqual(
+                hdw.bundle_missing_kind_markers(src),
+                ["object-storage", "rss-atom"],
+            )
+
+    def test_rss_atom_missing_fails_even_when_object_storage_present(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = _write_modern_tree(
+                Path(td), include_object_storage=True, include_rss_atom=False
+            )
+            rc = hdw.validate_src(src, require_kind_markers=True)
+            self.assertEqual(rc, hdw.EXIT_MARKER_MISSING)
+            self.assertEqual(hdw.bundle_missing_kind_markers(src), ["rss-atom"])
+            self.assertTrue(hdw.bundle_contains_marker(src, hdw.OBJECT_STORAGE_MARKER))
+            self.assertFalse(hdw.bundle_contains_marker(src, hdw.RSS_ATOM_MARKER))
+
+    def test_object_storage_missing_fails_even_when_rss_atom_present(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = _write_modern_tree(
+                Path(td), include_object_storage=False, include_rss_atom=True
+            )
+            rc = hdw.validate_src(src, require_kind_markers=True)
+            self.assertEqual(rc, hdw.EXIT_MARKER_MISSING)
+            self.assertEqual(hdw.bundle_missing_kind_markers(src), ["object-storage"])
 
     def test_marker_present(self):
         with tempfile.TemporaryDirectory() as td:
@@ -132,17 +166,52 @@ class TestValidateSrc(unittest.TestCase):
             rc = hdw.validate_src(src, require_object_storage=True)
             self.assertEqual(rc, hdw.EXIT_OK)
             self.assertTrue(hdw.bundle_contains_marker(src))
+            self.assertTrue(hdw.bundle_contains_marker(src, hdw.RSS_ATOM_MARKER))
+            self.assertEqual(hdw.bundle_missing_kind_markers(src), [])
 
     def test_unquoted_object_storage_substring_is_not_enough(self):
         with tempfile.TemporaryDirectory() as td:
-            src = _write_modern_tree(Path(td), include_object_storage=False)
+            src = _write_modern_tree(
+                Path(td), include_object_storage=False, include_rss_atom=False
+            )
             (src / "assets" / "developer-AbCd1234.js").write_text(
-                'const u="https://example.com/object-storage/keys";\n',
+                'const u="https://example.com/object-storage/keys";\n'
+                'const f="feed/rss-atom.xml";\n',
                 encoding="utf-8",
             )
             rc = hdw.validate_src(src, require_object_storage=True)
             self.assertEqual(rc, hdw.EXIT_MARKER_MISSING)
             self.assertFalse(hdw.bundle_contains_marker(src))
+            self.assertFalse(hdw.bundle_contains_marker(src, hdw.RSS_ATOM_MARKER))
+
+    def test_backtick_quoted_production_bundle_is_enough(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = _write_modern_tree(
+                Path(td), include_object_storage=False, include_rss_atom=False
+            )
+            (src / "assets" / "developer-AbCd1234.js").write_text(
+                "export const os=`object-storage`;\n"
+                "export const rss=`rss-atom`;\n",
+                encoding="utf-8",
+            )
+            rc = hdw.validate_src(src, require_kind_markers=True)
+            self.assertEqual(rc, hdw.EXIT_OK)
+            self.assertTrue(hdw.bundle_contains_marker(src, hdw.OBJECT_STORAGE_MARKER))
+            self.assertTrue(hdw.bundle_contains_marker(src, hdw.RSS_ATOM_MARKER))
+
+    def test_unquoted_rss_atom_substring_is_not_enough(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = _write_modern_tree(
+                Path(td), include_object_storage=True, include_rss_atom=False
+            )
+            chunk = (src / "assets" / "developer-AbCd1234.js").read_text(encoding="utf-8")
+            (src / "assets" / "developer-AbCd1234.js").write_text(
+                chunk + 'const p="/services/rss-atom/preview";\n',
+                encoding="utf-8",
+            )
+            rc = hdw.validate_src(src, require_kind_markers=True)
+            self.assertEqual(rc, hdw.EXIT_MARKER_MISSING)
+            self.assertFalse(hdw.bundle_contains_marker(src, hdw.RSS_ATOM_MARKER))
 
     def test_quoted_marker_only_in_unrelated_chunk_fails(self):
         with tempfile.TemporaryDirectory() as td:
@@ -161,12 +230,25 @@ class TestValidateSrc(unittest.TestCase):
             assets = src / "assets"
             assets.mkdir(parents=True)
             (assets / "perc-modern-ui.js").write_text(
-                'const k="object-storage";\n',
+                'const k="object-storage";\nconst r="rss-atom";\n',
                 encoding="utf-8",
             )
             (assets / "perc-modern-ui.css").write_text("/* css */\n", encoding="utf-8")
             rc = hdw.validate_src(src, require_object_storage=True)
             self.assertEqual(rc, hdw.EXIT_OK)
+
+    def test_inlined_object_storage_without_rss_atom_fails(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = Path(td) / "modern"
+            assets = src / "assets"
+            assets.mkdir(parents=True)
+            (assets / "perc-modern-ui.js").write_text(
+                'const k="object-storage";\n',
+                encoding="utf-8",
+            )
+            (assets / "perc-modern-ui.css").write_text("/* css */\n", encoding="utf-8")
+            rc = hdw.validate_src(src, require_kind_markers=True)
+            self.assertEqual(rc, hdw.EXIT_MARKER_MISSING)
 
 
 class TestContainerDestFile(unittest.TestCase):
@@ -240,8 +322,18 @@ class TestDeploy(unittest.TestCase):
 
     def test_skip_marker_allows_stale_bundle(self):
         with tempfile.TemporaryDirectory() as td:
-            src = _write_modern_tree(Path(td), include_object_storage=False)
+            src = _write_modern_tree(
+                Path(td), include_object_storage=False, include_rss_atom=False
+            )
             rc = hdw.deploy(src, require_object_storage=False, dry_run=True)
+            self.assertEqual(rc, hdw.EXIT_OK)
+
+    def test_skip_kind_marker_flag_is_alias(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = _write_modern_tree(
+                Path(td), include_object_storage=False, include_rss_atom=False
+            )
+            rc = hdw.main(["--src", str(src), "--skip-kind-marker-check", "--dry-run"])
             self.assertEqual(rc, hdw.EXIT_OK)
 
 

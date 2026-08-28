@@ -205,7 +205,32 @@ class TestQaRebuildChain(unittest.TestCase):
         self.assertEqual(rc, pdc.EXIT_OK)
         self.assertIn("RESULT:OK STEP:qa-rebuild-chain", out)
         self.assertIn("RESULT:OK STEP:qa-up", out)
+        self.assertIn("RESULT:OK STEP:qa-deploy-webui", out)
         self.assertIn("TEST_CMS_URL=", out)
+
+    def test_qa_rebuild_chain_then_qa_up_skip_webui_deploy(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+        rc, out = self.runner.run(
+            [
+                "qa-rebuild-chain",
+                "--skip-tests",
+                "--then-qa-up",
+                "--skip-webui-deploy",
+            ]
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-up", out)
+        self.assertNotIn("RESULT:OK STEP:qa-deploy-webui", out)
+
+    def test_qa_rebuild_chain_then_qa_deploy_webui_without_up(self):
+        rc, out = self.runner.run(
+            ["qa-rebuild-chain", "--skip-tests", "--then-qa-deploy-webui"]
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-rebuild-chain", out)
+        self.assertIn("RESULT:OK STEP:qa-deploy-webui", out)
+        self.assertNotIn("RESULT:OK STEP:qa-up", out)
 
 
 class TestDockerHealth(unittest.TestCase):
@@ -361,8 +386,18 @@ class TestSubcommandDryRun(unittest.TestCase):
         self.assertIn("--container", argv)
         self.assertIn(pdc.QA_CMS_CONTAINER, argv)
         self.assertNotIn("--skip-object-storage-check", argv)
+        self.assertNotIn("--skip-kind-marker-check", argv)
         self.assertNotIn("sh", argv)
         self.assertNotIn("-c", argv)
+
+    def test_qa_up_then_qa_deploy_webui_dry_run(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+        rc, out = self.runner.run(["qa-up", "--then-qa-deploy-webui"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-up", out)
+        self.assertIn("RESULT:OK STEP:qa-deploy-webui", out)
+        self.assertIn("TEST_CMS_URL=", out)
 
     def test_verify_fix_dry_run(self):
         rc, out = self.runner.run([
