@@ -32,10 +32,11 @@ DEPLOYER_RESIDUAL = (
 
 # Representative leftover from sibling #3585 / converted in #3861. Remaining
 # system/webservices SOAP/ws rows were removed from the allow-list; cms builders
-# converted in #3882, cms handlers in #3883, cms.objectstore+client in #3884.
-# Keep an exact residual that is still frozen (objectstore.server leftover).
+# converted in #3882, cms handlers in #3883, cms.objectstore+client in #3884;
+# cms.objectstore.server converted in #3900; extensions-main converted in
+# #3756/#3938. Keep an exact residual that is still frozen (data leftover).
 SYSTEM_CMS_RESIDUAL = (
-    "system/src/main/java/com/percussion/cms/objectstore/server/PSActiveAssemblerProcessor.java"
+    "system/src/main/java/com/percussion/data/PSBackEndColumnExtractor.java"
 )
 
 
@@ -390,6 +391,19 @@ def test_residual_allowlist_is_exact_paths_only() -> None:
         assert not entry.endswith("/"), entry
         assert "\\" not in entry, entry
         assert entry.endswith(".java"), entry
+        assert not entry.startswith("modules/extensions-main/"), entry
+
+
+def test_extensions_main_converted_paths_not_allowlisted() -> None:
+    """#3756 typed the leftovers; #3938 must not re-list them after #3793."""
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = [
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    ]
+    resurrected = [e for e in entries if e.startswith("modules/extensions-main/")]
+    assert resurrected == [], resurrected
 
 
 def test_empty_allowlist_fails_on_real_residuals(tmp_path: Path) -> None:
