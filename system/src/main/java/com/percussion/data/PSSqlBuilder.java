@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
 import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.error.PSSqlException;
@@ -148,7 +149,7 @@ public abstract class PSSqlBuilder {
             };
             com.percussion.log.PSLogManager.write(
                 new com.percussion.log.PSLogServerWarning(
-                    IPSBackEndErrors.LOAD_META_DATA_EXCEPTION, args, false, "SqlBuilder"));
+                    BackEndErrorCodes.LOAD_META_DATA_EXCEPTION.numericCode(), args, false, "SqlBuilder"));
           }
         } else catalog = null; // so we don't try tacking it on to the end
 
@@ -178,7 +179,7 @@ public abstract class PSSqlBuilder {
             };
             com.percussion.log.PSLogManager.write(
                 new com.percussion.log.PSLogServerWarning(
-                    IPSBackEndErrors.LOAD_META_DATA_EXCEPTION, args, false, "SqlBuilder"));
+                    BackEndErrorCodes.LOAD_META_DATA_EXCEPTION.numericCode(), args, false, "SqlBuilder"));
           }
         }
 
@@ -201,7 +202,7 @@ public abstract class PSSqlBuilder {
         Object[] args = {datasource, origin, table.getTable(), "getMetaData", e.toString()};
         com.percussion.log.PSLogManager.write(
             new com.percussion.log.PSLogServerWarning(
-                IPSBackEndErrors.LOAD_META_DATA_EXCEPTION, args, false, "SqlBuilder"));
+                BackEndErrorCodes.LOAD_META_DATA_EXCEPTION.numericCode(), args, false, "SqlBuilder"));
       } finally {
         try {
           if (conn != null) conn.close();
@@ -279,7 +280,7 @@ public abstract class PSSqlBuilder {
       Object[] args = {table.getDataSource(), table.getTable(), e.toString()};
       com.percussion.log.PSLogManager.write(
           new com.percussion.log.PSLogServerWarning(
-              IPSBackEndErrors.SQL_BUILDER_GET_DATATYPE_EXCEPTION, args, false, "SQLBuilder"));
+              BackEndErrorCodes.SQL_BUILDER_GET_DATATYPE_EXCEPTION.numericCode(), args, false, "SQLBuilder"));
     }
   }
 

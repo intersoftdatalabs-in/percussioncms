@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.design.objectstore.IPSBackEndMapping;
 import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.design.objectstore.PSAbstractParamValue;
@@ -1015,7 +1016,7 @@ public class PSQueryOptimizer extends PSOptimizer {
           .write(
               new com.percussion.log.PSLogExecutionPlan(
                   ah.getId(),
-                  IPSDataErrors.EXEC_PLAN_NO_INDEX_LOOKUP_FULL_OUTER,
+                  DataErrorCodes.EXEC_PLAN_NO_INDEX_LOOKUP_FULL_OUTER.numericCode(),
                   new Object[] {ah.getName(), ds.getName()}));
       return false;
     }
@@ -1027,7 +1028,7 @@ public class PSQueryOptimizer extends PSOptimizer {
           .write(
               new com.percussion.log.PSLogExecutionPlan(
                   ah.getId(),
-                  IPSDataErrors.EXEC_PLAN_NO_INDEX_LOOKUP_RIGHT_OUTER,
+                  DataErrorCodes.EXEC_PLAN_NO_INDEX_LOOKUP_RIGHT_OUTER.numericCode(),
                   new Object[] {ah.getName(), ds.getName()}));
       return false;
     }
@@ -1047,7 +1048,7 @@ public class PSQueryOptimizer extends PSOptimizer {
           .write(
               new com.percussion.log.PSLogExecutionPlan(
                   ah.getId(),
-                  IPSDataErrors.CANNOT_LOAD_TABLE_META,
+                  DataErrorCodes.CANNOT_LOAD_TABLE_META.numericCode(),
                   new Object[] {ah.getName(), ds.getName(), rightTable.getAlias()}));
       return false; // TODO: swapping not supported
     }
@@ -1064,7 +1065,7 @@ public class PSQueryOptimizer extends PSOptimizer {
           .write(
               new com.percussion.log.PSLogExecutionPlan(
                   ah.getId(),
-                  IPSDataErrors.CANNOT_LOAD_INDEX_META,
+                  DataErrorCodes.CANNOT_LOAD_INDEX_META.numericCode(),
                   new Object[] {ah.getName(), ds.getName(), rightTable.getAlias()}));
       return false; // TODO: support swapping
     }
@@ -1096,7 +1097,7 @@ public class PSQueryOptimizer extends PSOptimizer {
           .write(
               new com.percussion.log.PSLogExecutionPlan(
                   ah.getId(),
-                  IPSDataErrors.EXEC_PLAN_NO_INDEX_LOOKUP_INDICES,
+                  DataErrorCodes.EXEC_PLAN_NO_INDEX_LOOKUP_INDICES.numericCode(),
                   new Object[] {ah.getName(), ds.getName(), rightTable.getAlias()}));
       return false; // no index that we could use
     }
@@ -1115,7 +1116,7 @@ public class PSQueryOptimizer extends PSOptimizer {
           .write(
               new com.percussion.log.PSLogExecutionPlan(
                   ah.getId(),
-                  IPSDataErrors.CANNOT_LOAD_INDEX_META,
+                  DataErrorCodes.CANNOT_LOAD_INDEX_META.numericCode(),
                   new Object[] {ah.getName(), ds.getName(), leftTable.getAlias()}));
       return false;
     }
@@ -1129,7 +1130,7 @@ public class PSQueryOptimizer extends PSOptimizer {
           .write(
               new com.percussion.log.PSLogExecutionPlan(
                   ah.getId(),
-                  IPSDataErrors.EXEC_PLAN_JOIN_CARDINALITY_NOT_FOUND,
+                  DataErrorCodes.EXEC_PLAN_JOIN_CARDINALITY_NOT_FOUND.numericCode(),
                   new Object[] {
                     ah.getName(), ds.getName(), leftTable.getAlias(), rightTable.getAlias()
                   }));
@@ -1140,7 +1141,7 @@ public class PSQueryOptimizer extends PSOptimizer {
         .write(
             new com.percussion.log.PSLogExecutionPlan(
                 ah.getId(),
-                IPSDataErrors.EXEC_PLAN_LOG_JOIN_CARDINALITY,
+                DataErrorCodes.EXEC_PLAN_LOG_JOIN_CARDINALITY.numericCode(),
                 new Object[] {
                   ah.getName(),
                   ds.getName(),
@@ -1201,7 +1202,7 @@ public class PSQueryOptimizer extends PSOptimizer {
           .write(
               new com.percussion.log.PSLogExecutionPlan(
                   ah.getId(),
-                  IPSDataErrors.EXEC_PLAN_JOIN_CARDINALITY_EXCEPTION,
+                  DataErrorCodes.EXEC_PLAN_JOIN_CARDINALITY_EXCEPTION.numericCode(),
                   new Object[] {
                     ah.getName(),
                     ds.getName(),
@@ -1249,7 +1250,7 @@ public class PSQueryOptimizer extends PSOptimizer {
         .write(
             new com.percussion.log.PSLogExecutionPlan(
                 ah.getId(),
-                IPSDataErrors.EXEC_PLAN_LOG_TABLE_CARDINALITY,
+                DataErrorCodes.EXEC_PLAN_LOG_TABLE_CARDINALITY.numericCode(),
                 new Object[] {
                   ah.getName(), ds.getName(), leftTable.getAlias(), String.valueOf(leftCardinality)
                 }));
@@ -1258,7 +1259,7 @@ public class PSQueryOptimizer extends PSOptimizer {
         .write(
             new com.percussion.log.PSLogExecutionPlan(
                 ah.getId(),
-                IPSDataErrors.EXEC_PLAN_LOG_TABLE_CARDINALITY,
+                DataErrorCodes.EXEC_PLAN_LOG_TABLE_CARDINALITY.numericCode(),
                 new Object[] {
                   ah.getName(),
                   ds.getName(),
@@ -1277,7 +1278,7 @@ public class PSQueryOptimizer extends PSOptimizer {
         .write(
             new com.percussion.log.PSLogExecutionPlan(
                 ah.getId(),
-                IPSDataErrors.EXEC_PLAN_LOG_UNIQUE_ROW_ESTIMATE,
+                DataErrorCodes.EXEC_PLAN_LOG_UNIQUE_ROW_ESTIMATE.numericCode(),
                 new Object[] {
                   ah.getName(), ds.getName(), leftTable.getAlias(), String.valueOf(leftUniqueCount)
                 }));
@@ -1286,7 +1287,7 @@ public class PSQueryOptimizer extends PSOptimizer {
         .write(
             new com.percussion.log.PSLogExecutionPlan(
                 ah.getId(),
-                IPSDataErrors.EXEC_PLAN_LOG_UNIQUE_ROW_ESTIMATE,
+                DataErrorCodes.EXEC_PLAN_LOG_UNIQUE_ROW_ESTIMATE.numericCode(),
                 new Object[] {
                   ah.getName(),
                   ds.getName(),
@@ -1310,7 +1311,7 @@ public class PSQueryOptimizer extends PSOptimizer {
           .write(
               new com.percussion.log.PSLogExecutionPlan(
                   ah.getId(),
-                  IPSDataErrors.EXEC_PLAN_LOG_SELECTIVITY,
+                  DataErrorCodes.EXEC_PLAN_LOG_SELECTIVITY.numericCode(),
                   new Object[] {
                     ah.getName(),
                     ds.getName(),
@@ -1361,7 +1362,7 @@ public class PSQueryOptimizer extends PSOptimizer {
           .write(
               new com.percussion.log.PSLogExecutionPlan(
                   ah.getId(),
-                  IPSDataErrors.EXEC_PLAN_JOIN_SELECTIVITY_EXCEPTION,
+                  DataErrorCodes.EXEC_PLAN_JOIN_SELECTIVITY_EXCEPTION.numericCode(),
                   new Object[] {
                     ah.getName(),
                     ds.getName(),

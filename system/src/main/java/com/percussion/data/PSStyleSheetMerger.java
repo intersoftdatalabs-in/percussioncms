@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.debug.PSDebugLogHandler;
 import com.percussion.debug.PSTraceMessageFactory;
 import com.percussion.server.PSRequest;
@@ -95,7 +96,7 @@ public abstract class PSStyleSheetMerger {
         ssName = ssName.substring(start, end);
       }
       Object[] args = {req.getUserSessionId(), ssName, e.toString()};
-      throw new PSConversionException(IPSDataErrors.HTML_GEN_BAD_STYLESHEET_URL, args);
+      throw new PSConversionException(DataErrorCodes.HTML_GEN_BAD_STYLESHEET_URL, args);
     }
 
     java.net.URL styleURL = styleSheet.getURL();
@@ -108,7 +109,7 @@ public abstract class PSStyleSheetMerger {
       }
 
       if (styleURL == null) {
-        throw new PSConversionException(IPSDataErrors.HTML_GEN_NO_STYLESHEET);
+        throw new PSConversionException(DataErrorCodes.HTML_GEN_NO_STYLESHEET);
       }
     }
 
@@ -169,7 +170,7 @@ public abstract class PSStyleSheetMerger {
     if (styleURL != null) url = styleURL.toExternalForm();
 
     Object[] args = {root, url, text};
-    throw new PSConversionException(IPSDataErrors.STYLESHEET_MERGE_EXCEPTION, args);
+    throw new PSConversionException(DataErrorCodes.STYLESHEET_MERGE_EXCEPTION, args);
   }
 
   /**

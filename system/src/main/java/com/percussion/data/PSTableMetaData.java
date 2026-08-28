@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
 import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.error.PSSqlException;
 import com.percussion.log.PSLogServerWarning;
@@ -272,7 +273,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
           Object[] args = {"SQL access", PSSqlException.toString(e)};
           com.percussion.log.PSLogManager.write(
               new PSLogServerWarning(
-                  IPSBackEndErrors.DATABASE_ACCESS_ERROR, args, false, "PSTableMetaData"));
+                  BackEndErrorCodes.DATABASE_ACCESS_ERROR.numericCode(), args, false, "PSTableMetaData"));
         } finally {
           if (rs != null) {
             try {
@@ -619,7 +620,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
       };
       com.percussion.log.PSLogManager.write(
           new PSLogServerWarning(
-              IPSBackEndErrors.LOAD_META_DATA_EXCEPTION, args, false, "PSTableMetaData"));
+              BackEndErrorCodes.LOAD_META_DATA_EXCEPTION.numericCode(), args, false, "PSTableMetaData"));
     } finally {
       if (rs != null) {
         try {
@@ -652,7 +653,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
       };
       com.percussion.log.PSLogManager.write(
           new PSLogServerWarning(
-              IPSBackEndErrors.LOAD_META_DATA_EXCEPTION, args, false, "PSTableMetaData"));
+              BackEndErrorCodes.LOAD_META_DATA_EXCEPTION.numericCode(), args, false, "PSTableMetaData"));
     } finally {
       if (rs != null) {
         try {

@@ -17,6 +17,9 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.debug.PSDebugLogHandler;
 import com.percussion.debug.PSTraceMessageFactory;
 import com.percussion.design.objectstore.IPSDocumentMapping;
@@ -35,7 +38,7 @@ import com.percussion.error.PSBackEndUpdateProcessingError;
 import com.percussion.error.PSErrorException;
 import com.percussion.error.PSException;
 import com.percussion.error.PSIllegalArgumentException;
-import com.percussion.server.IPSServerErrors;
+
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSInvalidRequestTypeException;
 import com.percussion.server.PSRequest;
@@ -107,14 +110,15 @@ public class PSTransactionSet implements IPSExecutionStep {
       updatePlan = PSUpdateOptimizer.createUpdateExecutionPlan(ah, ds);
       deletePlan = PSUpdateOptimizer.createDeleteExecutionPlan(ah, ds);
     } catch (PSIllegalArgumentException e) {
-      if (e.getErrorCode() == IPSBackEndErrors.EXEC_PLAN_NO_UPDATE_PIPES)
-        throw new PSInvalidRequestTypeException(e.getErrorCode(), e.getErrorArguments());
+      if (e.getErrorCode() == BackEndErrorCodes.EXEC_PLAN_NO_UPDATE_PIPES.numericCode())
+        throw new PSInvalidRequestTypeException(
+            BackEndErrorCodes.EXEC_PLAN_NO_UPDATE_PIPES, e.getErrorArguments());
       else throw e;
     } catch (RuntimeException e) {
       // for unknown exceptions, it's useful to log the stack trace
       Object[] args = {ah.getName(), com.percussion.error.PSException.getStackTraceAsString(e)};
       throw new PSSystemValidationException(
-          IPSServerErrors.APPLICATION_INIT_EXCEPTION, args, ah.getApplicationDefinition(), ds);
+          ServerErrorCodes.APPLICATION_INIT_EXCEPTION, args, ah.getApplicationDefinition(), ds);
     }
 
     fixupExecutionPlans(ds, insertPlan, updatePlan, deletePlan);
@@ -458,7 +462,7 @@ public class PSTransactionSet implements IPSExecutionStep {
     if (loginSource == null) {
       // ?! no update, insert or delete statements!!!
       Object[] args = {m_appHandler.getName(), ds.getName()};
-      throw new PSInvalidRequestTypeException(IPSBackEndErrors.EXEC_PLAN_NO_UPDATE_PIPES, args);
+      throw new PSInvalidRequestTypeException(BackEndErrorCodes.EXEC_PLAN_NO_UPDATE_PIPES, args);
     }
 
     // we'll first get the count of logins then build the login array
@@ -562,7 +566,7 @@ public class PSTransactionSet implements IPSExecutionStep {
       errorCode = pse.getErrorCode();
       errorArgs = pse.getErrorArguments();
     } else {
-      errorCode = IPSServerErrors.RAW_DUMP;
+      errorCode = ServerErrorCodes.RAW_DUMP.numericCode();
       errorArgs = new Object[] {PSDataHandler.getExceptionText(e)};
     }
 
@@ -614,7 +618,7 @@ public class PSTransactionSet implements IPSExecutionStep {
         .write(
             new com.percussion.log.PSLogExecutionPlan(
                 m_appHandler.getId(),
-                IPSDataErrors.EXEC_PLAN_LOG_UPDATE_XML_WALKER_ROOT,
+                DataErrorCodes.EXEC_PLAN_LOG_UPDATE_XML_WALKER_ROOT.numericCode(),
                 new Object[] {m_rootElement}));
 
     rebaseNodeIteratorForPlan(m_insertPlan);
@@ -675,7 +679,7 @@ public class PSTransactionSet implements IPSExecutionStep {
               .write(
                   new com.percussion.log.PSLogExecutionPlan(
                       m_appHandler.getId(),
-                      IPSDataErrors.EXEC_PLAN_LOG_UPDATE_XML_STMT_WALKER,
+                      DataErrorCodes.EXEC_PLAN_LOG_UPDATE_XML_STMT_WALKER.numericCode(),
                       new Object[] {baseElement, step.toString()}));
 
           for (int j = 0; j < size; j++) {
@@ -757,7 +761,7 @@ public class PSTransactionSet implements IPSExecutionStep {
               .write(
                   new com.percussion.log.PSLogExecutionPlan(
                       m_appHandler.getId(),
-                      IPSDataErrors.EXEC_PLAN_LOG_REBASED_STMT_WALKER,
+                      DataErrorCodes.EXEC_PLAN_LOG_REBASED_STMT_WALKER.numericCode(),
                       new Object[] {node, stmt.toString()}));
         }
         // }

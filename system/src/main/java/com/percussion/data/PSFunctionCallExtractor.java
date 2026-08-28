@@ -16,6 +16,7 @@
  */
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.design.objectstore.PSFunctionCall;
@@ -138,7 +139,7 @@ public class PSFunctionCallExtractor extends PSDataExtractor {
           }
         } catch (IllegalArgumentException ex) {
           throw new PSDataExtractionException(
-              IPSDataErrors.DATA_EXTRACTOR_CREATE_ERROR, value.getValueType());
+              DataErrorCodes.DATA_EXTRACTOR_CREATE_ERROR, value.getValueType());
         }
       }
       args[i] = text;

@@ -18,7 +18,7 @@
 package com.percussion.data.vfs;
 
 import com.percussion.conn.PSServerException;
-import com.percussion.data.IPSDataErrors;
+
 import com.percussion.design.objectstore.server.IPSObjectStoreHandler;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.server.PSConsole;
@@ -27,7 +27,7 @@ import java.io.File;
 import java.io.IOException;
 
 /** See {@link IPSVirtualDirectory} for details. */
-public class PSVirtualApplicationDirectory implements IPSVirtualDirectory, IPSDataErrors {
+public class PSVirtualApplicationDirectory implements IPSVirtualDirectory {
   /**
    * Construct a virtual directory entry that answers to the given <CODE>
    * virtualDir</CODE> with an actual physical location of <CODE>appDir

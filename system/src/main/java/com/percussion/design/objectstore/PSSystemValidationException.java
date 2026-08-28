@@ -118,6 +118,23 @@ public class PSSystemValidationException extends PSException {
   }
 
   /**
+   * Typed construction with message arguments and source document/component context.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   * @param container the container object holding the component which is the source of the error
+   * @param component the component which is the source of the error or {@code null} if the container
+   *     is in error
+   */
+  public PSSystemValidationException(
+      IPSErrorCode code, Object[] arrayArgs, IPSDocument container, IPSComponent component) {
+    super(code, arrayArgs);
+
+    m_sourceDocument = container;
+    m_sourceComponent = component;
+  }
+
+  /**
    * Get the container (document) holding the component which is the source of the error.
    *
    * @return the container object holding the component which is the source of the error or <code>

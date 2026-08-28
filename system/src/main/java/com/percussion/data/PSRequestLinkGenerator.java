@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.design.objectstore.IPSBackEndMapping;
 import com.percussion.design.objectstore.IPSDocumentMapping;
 import com.percussion.design.objectstore.IPSReplacementValue;
@@ -482,7 +483,7 @@ public class PSRequestLinkGenerator extends PSDataExtractor {
                   log a warning */
                   com.percussion.log.PSLogManager.write(
                       new com.percussion.log.PSLogServerWarning(
-                          IPSDataErrors.WARN_CALL_MAPPED_KEY_COLUMN_ON_LINK,
+                          DataErrorCodes.WARN_CALL_MAPPED_KEY_COLUMN_ON_LINK.numericCode(),
                           null,
                           false,
                           "PSRequestLinkGenerator"));

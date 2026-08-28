@@ -16,6 +16,7 @@
  */
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.error.PSErrorException;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.security.SecureStringUtils;
@@ -270,12 +271,12 @@ public class PSOracleUpdateStatement extends PSUpdateStatement {
         fis.close();
       } else {
         Object[] obs = {ob.getClass().getName(), "Blob"};
-        throw new PSDataExtractionException(IPSDataErrors.DATA_INVALID_CONVERSION, obs);
+        throw new PSDataExtractionException(DataErrorCodes.DATA_INVALID_CONVERSION, obs);
       }
     } catch (IOException ioE) {
       Object[] obs = {ob.getClass().getName(), "Blob", ioE.toString()};
       // throw a data extraction exception
-      throw new PSDataExtractionException(IPSDataErrors.DATA_CANNOT_CONVERT_WITH_REASON, obs);
+      throw new PSDataExtractionException(DataErrorCodes.DATA_CANNOT_CONVERT_WITH_REASON, obs);
     }
   }
 
@@ -350,7 +351,7 @@ public class PSOracleUpdateStatement extends PSUpdateStatement {
       // throw a data extraction exception
       Object[] obs = {ob.getClass().getName(), "Clob", ioE.toString()};
 
-      throw new PSDataExtractionException(IPSDataErrors.DATA_CANNOT_CONVERT_WITH_REASON, obs);
+      throw new PSDataExtractionException(DataErrorCodes.DATA_CANNOT_CONVERT_WITH_REASON, obs);
     } finally {
       try {
         if (w != null) w.close();

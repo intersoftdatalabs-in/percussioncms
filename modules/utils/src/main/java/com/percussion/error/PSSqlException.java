@@ -72,6 +72,39 @@ public class PSSqlException extends java.sql.SQLException
   }
 
   /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message
+   * @param sqlState SQL state string
+   */
+  public PSSqlException(IPSErrorCode code, Object singleArg, String sqlState) {
+    this(code, new Object[] {singleArg}, sqlState);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   * @param sqlState SQL state string
+   */
+  public PSSqlException(IPSErrorCode code, Object[] arrayArgs, String sqlState) {
+    super("", sqlState, requireCode(code).numericCode());
+    m_exception = new PSException(code, arrayArgs);
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param sqlState SQL state string
+   */
+  public PSSqlException(IPSErrorCode code, String sqlState) {
+    this(code, (Object[]) null, sqlState);
+  }
+
+  /**
    * Returns the localized detail message of this exception.
    *
    * @param locale the locale to generate the message in
@@ -115,6 +148,22 @@ public class PSSqlException extends java.sql.SQLException
    */
   public int getErrorCode() {
     return m_exception.getErrorCode();
+  }
+
+  /**
+   * Typed error code when constructed via {@link #PSSqlException(IPSErrorCode, String)} (or
+   * overloads); otherwise {@code null} for legacy int construction.
+   */
+  public IPSErrorCode getTypedErrorCode() {
+    return m_exception.getTypedErrorCode();
+  }
+
+  /**
+   * Whether dual-write should consider this exception auditable. Prefer the typed code when
+   * present; legacy int construction returns {@code false}.
+   */
+  public boolean isAuditable() {
+    return m_exception.isAuditable();
   }
 
   /**
@@ -375,6 +424,13 @@ public class PSSqlException extends java.sql.SQLException
     }
 
     return errorText.toString();
+  }
+
+  private static IPSErrorCode requireCode(IPSErrorCode code) {
+    if (code == null) {
+      throw new IllegalArgumentException("code may not be null");
+    }
+    return code;
   }
 
   protected PSException m_exception;

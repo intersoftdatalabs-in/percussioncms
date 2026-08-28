@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
@@ -99,7 +100,7 @@ public class PSBackEndColumnExtractor extends PSDataExtractor {
     } catch (RuntimeException t) {
       // most likely the index was not found (out of bounds)
       Object[] args = {m_columnName, t.toString()};
-      throw new PSDataExtractionException(IPSDataErrors.BE_COL_EXTR_EXCEPTION, args);
+      throw new PSDataExtractionException(DataErrorCodes.BE_COL_EXTR_EXCEPTION, args);
     }
   }
 
@@ -107,7 +108,7 @@ public class PSBackEndColumnExtractor extends PSDataExtractor {
     if (m_columnIndex == -1) {
       m_columnIndex = getColumnOrdinal(m_columnName, data.getCurrentResultSetMetaData());
       if (m_columnIndex == -1) {
-        throw new PSDataExtractionException(IPSDataErrors.BE_COL_EXTR_INVALID_COL, m_columnName);
+        throw new PSDataExtractionException(DataErrorCodes.BE_COL_EXTR_INVALID_COL, m_columnName);
       }
       m_columnIndex -= 1; // Convert to 0-based index
     }
@@ -176,7 +177,7 @@ public class PSBackEndColumnExtractor extends PSDataExtractor {
       }
     } catch (Exception e) {
       Object[] args = {colName, e.toString()};
-      throw new PSDataExtractionException(IPSDataErrors.BE_COL_GET_INDEX_EXCEPTION, args);
+      throw new PSDataExtractionException(DataErrorCodes.BE_COL_GET_INDEX_EXCEPTION, args);
     }
     return -1;
   }

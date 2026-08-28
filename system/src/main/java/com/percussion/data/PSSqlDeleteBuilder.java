@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
 import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.error.PSIllegalArgumentException;
 import java.util.HashMap;
@@ -60,9 +61,9 @@ public class PSSqlDeleteBuilder extends PSSqlUpdateBuilder {
 
     // this is not multi-table ready!!!
     if (size == 0) {
-      throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_MOD_TABLE_REQD);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.SQL_BUILDER_MOD_TABLE_REQD);
     } else if (size > 1) {
-      throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_MOD_SINGLE_TAB_ONLY);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.SQL_BUILDER_MOD_SINGLE_TAB_ONLY);
     }
 
     PSSqlBuilderContext context = new PSSqlBuilderContext();
@@ -71,7 +72,7 @@ public class PSSqlDeleteBuilder extends PSSqlUpdateBuilder {
     Integer iConnKey = connKeys.get(serverKey);
     if (iConnKey == null) {
       Object[] args = {serverKey};
-      throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_NO_CONN_DEFINED, args);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.SQL_BUILDER_NO_CONN_DEFINED, args);
     }
 
     /* there's only one table here */

@@ -17,6 +17,8 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.design.objectstore.PSDataMapper;
@@ -120,7 +122,7 @@ public class PSUpdateOptimizer extends PSOptimizer {
     int tableCount = (null == beTables) ? 0 : beTables.size();
     if (tableCount == 0) {
       Object[] args = {ah.getName(), ds.getName(), updatePipe.getName()};
-      throw new PSIllegalArgumentException(IPSBackEndErrors.EXEC_PLAN_NO_BETABLES_IN_PIPE, args);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.EXEC_PLAN_NO_BETABLES_IN_PIPE, args);
     }
 
     // create the login plan for the back-ends
@@ -157,7 +159,7 @@ public class PSUpdateOptimizer extends PSOptimizer {
         beCol = (PSBackEndColumn) map.getBackEndMapping();
       } catch (ClassCastException e) { // invalid update mapper
         Object[] args = {ah.getName(), ds.getName(), updatePipe.getName(), String.valueOf(j + 1)};
-        throw new PSIllegalArgumentException(IPSBackEndErrors.UPDATE_MAP_NOT_TO_BECOL, args);
+        throw new PSIllegalArgumentException(BackEndErrorCodes.UPDATE_MAP_NOT_TO_BECOL, args);
       }
 
       curTable = (PSBackEndTable) beCol.getTable();
@@ -205,14 +207,13 @@ public class PSUpdateOptimizer extends PSOptimizer {
       if (tableBuilders == null) {
         // though this makes no sense, it's ignorable so don't error
         if (!col.isUpdateable() && !col.isKey()) continue;
-        int errorCode;
-        if (col.isUpdateable()) errorCode = IPSBackEndErrors.EXEC_PLAN_UPD_COL_NOT_MAPPED;
-        else // must be a key
-        errorCode = IPSBackEndErrors.EXEC_PLAN_KEY_COL_NOT_MAPPED;
-
         // can't have a column in the update list which was not mapped
         Object[] args = {beCol.getTable().getAlias(), beCol.getColumn()};
-        throw new PSIllegalArgumentException(errorCode, args);
+        throw new PSIllegalArgumentException(
+            col.isUpdateable()
+                ? BackEndErrorCodes.EXEC_PLAN_UPD_COL_NOT_MAPPED
+                : BackEndErrorCodes.EXEC_PLAN_KEY_COL_NOT_MAPPED,
+            args);
       }
 
       if (col.isUpdateable()) {
@@ -220,7 +221,7 @@ public class PSUpdateOptimizer extends PSOptimizer {
           // don't support both updateable and key for now
           Object[] args = {beCol.getTable().getAlias(), beCol.getColumn()};
           throw new PSIllegalArgumentException(
-              IPSBackEndErrors.EXEC_PLAN_COL_UPD_AND_KEY_NOT_SUPPORTED, args);
+              BackEndErrorCodes.EXEC_PLAN_COL_UPD_AND_KEY_NOT_SUPPORTED, args);
         }
 
         for (int t = 0; t < tableBuilders.size(); t++) {
@@ -269,7 +270,9 @@ public class PSUpdateOptimizer extends PSOptimizer {
           ah.getLogHandler()
               .write(
                   new com.percussion.log.PSLogExecutionPlan(
-                      ah.getId(), IPSDataErrors.EXEC_PLAN_IGNORE_NO_UPDCOL_UPDATE, args));
+                      ah.getId(),
+                      DataErrorCodes.EXEC_PLAN_IGNORE_NO_UPDCOL_UPDATE.numericCode(),
+                      args));
           continue;
         }
 
@@ -298,13 +301,13 @@ public class PSUpdateOptimizer extends PSOptimizer {
       throws PSIllegalArgumentException {
     // make sure ah is not null
     if (null == ah) {
-      throw new PSIllegalArgumentException(IPSBackEndErrors.EXEC_PLAN_APP_HANDLER_NULL);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.EXEC_PLAN_APP_HANDLER_NULL);
     }
 
     // make sure ds is not null
     if (null == ds) {
       Object[] args = {ah.getName()};
-      throw new PSIllegalArgumentException(IPSBackEndErrors.EXEC_PLAN_DATA_SET_NULL, args);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.EXEC_PLAN_DATA_SET_NULL, args);
     }
 
     // make sure ds has a pipe
@@ -312,7 +315,7 @@ public class PSUpdateOptimizer extends PSOptimizer {
     if (pipe == null) // no pipes?
     {
       Object[] args = {ah.getName(), ds.getName()};
-      throw new PSIllegalArgumentException(IPSBackEndErrors.EXEC_PLAN_NO_UPDATE_PIPES, args);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.EXEC_PLAN_NO_UPDATE_PIPES, args);
     }
 
     // verify the pipe is an update pipe
@@ -320,7 +323,7 @@ public class PSUpdateOptimizer extends PSOptimizer {
 
     // this isn't an update pipe!
     Object[] args = {ah.getName(), ds.getName()};
-    throw new PSIllegalArgumentException(IPSBackEndErrors.EXEC_PLAN_NO_UPDATE_PIPES, args);
+    throw new PSIllegalArgumentException(BackEndErrorCodes.EXEC_PLAN_NO_UPDATE_PIPES, args);
   }
 
   /**
@@ -496,7 +499,7 @@ public class PSUpdateOptimizer extends PSOptimizer {
           if (crossDependentTable != null) {
             Object[] args = {tableName, crossDependentTable};
             throw new PSIllegalArgumentException(
-                IPSBackEndErrors.DATA_MOD_UNSUPPORTED_FOR_XDEPEND, args);
+                BackEndErrorCodes.DATA_MOD_UNSUPPORTED_FOR_XDEPEND, args);
           } else if (dependentTables == null) {
             /* when pkey tables go first, tables with no dependencies
              * can go anywhere on the end of the list.

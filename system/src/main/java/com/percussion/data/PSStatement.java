@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
 import com.percussion.debug.PSDebugLogHandler;
 import com.percussion.debug.PSTraceMessageFactory;
 import com.percussion.log.PSLogHandler;
@@ -197,7 +198,7 @@ public abstract class PSStatement implements IPSExecutionStep {
     PSLogHandler lh = data.getLogHandler();
     lh.logFullUserActivityAction(
         data.getRequest(),
-        IPSBackEndErrors.LOG_PREPARED_STMT,
+        BackEndErrorCodes.LOG_PREPARED_STMT.numericCode(),
         new Object[] {statementText},
         false); // don't force logging, do it if permitted
 

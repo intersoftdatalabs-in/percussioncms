@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
 import com.percussion.design.objectstore.IPSBackEndMapping;
 import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.design.objectstore.PSBackEndColumn;
@@ -69,9 +70,9 @@ public class PSSqlLockedUpdateBuilder extends PSSqlUpdateBuilder {
 
     // this is not multi-table ready!!!
     if (size == 0) {
-      throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_MOD_TABLE_REQD);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.SQL_BUILDER_MOD_TABLE_REQD);
     } else if (size > 1) {
-      throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_MOD_SINGLE_TAB_ONLY);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.SQL_BUILDER_MOD_SINGLE_TAB_ONLY);
     }
 
     PSSqlBuilderContext context = new PSSqlBuilderContext();
@@ -81,7 +82,7 @@ public class PSSqlLockedUpdateBuilder extends PSSqlUpdateBuilder {
     Integer iConnKey = connKeys.get(serverKey);
     if (iConnKey == null) {
       Object[] args = {serverKey};
-      throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_NO_CONN_DEFINED, args);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.SQL_BUILDER_NO_CONN_DEFINED, args);
     }
 
     HashMap<String, Integer> dtHash = new HashMap<>();
@@ -97,7 +98,7 @@ public class PSSqlLockedUpdateBuilder extends PSSqlUpdateBuilder {
       supportsLocking = meta.supportsSelectForUpdate() && meta.supportsPositionedUpdate();
     } catch (java.sql.SQLException e) {
       Object[] args = {login.getDataSource(), PSSqlException.toString(e)};
-      throw new PSIllegalArgumentException(IPSBackEndErrors.DBPOOL_CONN_INIT_EXCEPTION, args);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.DBPOOL_CONN_INIT_EXCEPTION, args);
     } finally {
       try {
         if (conn != null) conn.close();
@@ -173,7 +174,7 @@ public class PSSqlLockedUpdateBuilder extends PSSqlUpdateBuilder {
         PSExtensionCall call = (PSExtensionCall) beMap;
         Object[] args = {call.getExtensionRef()};
         throw new PSIllegalArgumentException(
-            IPSBackEndErrors.SQL_BUILDER_UDF_NOT_SUPPORTED_IN_MOD, args);
+            BackEndErrorCodes.SQL_BUILDER_UDF_NOT_SUPPORTED_IN_MOD, args);
       }
 
       PSBackEndColumn col = (PSBackEndColumn) beMap;
@@ -182,7 +183,7 @@ public class PSSqlLockedUpdateBuilder extends PSSqlUpdateBuilder {
         PSDataMapping map = (PSDataMapping) m_Mappings.get(columnName);
         if (map == null) {
           Object[] args = {columnName};
-          throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_MOD_MAP_REQD, args);
+          throw new PSIllegalArgumentException(BackEndErrorCodes.SQL_BUILDER_MOD_MAP_REQD, args);
         }
 
         IPSDataExtractor extractor =

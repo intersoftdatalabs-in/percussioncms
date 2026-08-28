@@ -16,6 +16,9 @@
  */
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.content.IPSMimeContentTypes;
@@ -35,13 +38,13 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.log.PSLogError;
-import com.percussion.security.IPSSecurityErrors;
+
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.utils.PSRedirectValidation;
 import com.percussion.server.IPSInternalRequest;
-import com.percussion.server.IPSServerErrors;
+
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSInvalidRequestTypeException;
 import com.percussion.server.PSRequest;
@@ -404,7 +407,7 @@ public class PSUpdateHandler extends PSDataHandler {
 
         for (; null != updErr; updErr = updErr.getNext()) {
           /* We have an authorization error */
-          if (updErr.getErrorCode() == IPSSecurityErrors.SESS_NOT_AUTHORIZED) break;
+          if (updErr.getErrorCode() == SecurityErrorCodes.SESS_NOT_AUTHORIZED.numericCode()) break;
         }
       }
 
@@ -445,7 +448,7 @@ public class PSUpdateHandler extends PSDataHandler {
         errorCode = e.getErrorCode();
         errorArgs = e.getErrorArguments();
       } else {
-        errorCode = IPSServerErrors.RAW_DUMP;
+        errorCode = ServerErrorCodes.RAW_DUMP.numericCode();
         errorArgs = new Object[] {getExceptionText(t)};
 
         // needed for exception return!
@@ -523,7 +526,7 @@ public class PSUpdateHandler extends PSDataHandler {
         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, bout.toString());
+          DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, bout.toString());
     }
     if (e != null) {
       if (e instanceof PSAuthorizationException) throw (PSAuthorizationException) e;
@@ -532,11 +535,11 @@ public class PSUpdateHandler extends PSDataHandler {
 
         reportError(originalRequest, e);
         throw new PSInternalRequestCallException(
-            IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, erExc.getLogError().toString(), e);
+            DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, erExc.getLogError().toString(), e);
       } else {
         reportError(originalRequest, e);
         throw new PSInternalRequestCallException(
-            IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, e.toString(), e);
+            DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, e.toString(), e);
       }
     }
 

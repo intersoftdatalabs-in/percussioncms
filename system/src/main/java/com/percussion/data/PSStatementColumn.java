@@ -17,6 +17,8 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.UtilErrorCodes;
 import com.percussion.debug.PSDebugLogHandler;
 import com.percussion.debug.PSTraceMessageFactory;
 import com.percussion.design.objectstore.IPSReplacementValue;
@@ -26,7 +28,7 @@ import com.percussion.design.objectstore.PSLiteral;
 import com.percussion.design.objectstore.PSLiteralSet;
 import com.percussion.log.PSLogHandler;
 import com.percussion.server.PSRequest;
-import com.percussion.util.IPSUtilErrors;
+
 import com.percussion.util.PSDataTypeConverter;
 import com.percussion.util.PSPurgableTempFile;
 import com.percussion.util.PSSqlHelper;
@@ -152,7 +154,7 @@ public class PSStatementColumn {
       Object[] args = {String.valueOf(bindStart), value.toString()};
       lh.logFullUserActivityAction(
           data.getRequest(),
-          IPSBackEndErrors.LOG_BOUND_COL_DATA,
+          BackEndErrorCodes.LOG_BOUND_COL_DATA.numericCode(),
           args,
           false); // don't force logging, do it if permitted
     }
@@ -188,7 +190,7 @@ public class PSStatementColumn {
           PSSqlHelper.setDataFromString(stmt, bindStart, myString, dt);
         } catch (IOException e) {
           throw new PSDataExtractionException(
-              com.percussion.util.IPSUtilErrors.BASE64_DECODING_EXCEPTION, value);
+              UtilErrorCodes.BASE64_DECODING_EXCEPTION, value);
         }
 
     } else {
@@ -198,7 +200,7 @@ public class PSStatementColumn {
         try {
           PSSqlHelper.setDataFromByteArray(stmt, bindStart, (byte[]) value, dt);
         } catch (IOException e) {
-          throw new PSDataExtractionException(IPSUtilErrors.BASE64_DECODING_EXCEPTION, value);
+          throw new PSDataExtractionException(UtilErrorCodes.BASE64_DECODING_EXCEPTION, value);
         }
       } else if (value instanceof File) {
         String charSet = null;
@@ -467,7 +469,7 @@ public class PSStatementColumn {
     try {
       return PSDataTypeConverter.getBinaryFromBase64(value);
     } catch (Exception e) {
-      throw new PSDataExtractionException(IPSUtilErrors.BASE64_DECODING_EXCEPTION, value);
+      throw new PSDataExtractionException(UtilErrorCodes.BASE64_DECODING_EXCEPTION, value);
     }
   }
 

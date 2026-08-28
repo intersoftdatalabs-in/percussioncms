@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.server.PSRequest;
 import com.percussion.util.PSPurgableTempFile;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -109,7 +110,7 @@ public class PSXmlFieldExtractor extends PSDataExtractor {
               Object[] args = {XML_URL_REFERENCE_ATTRIBUTE, URL.class.getName(), e.toString()};
 
               throw new PSDataExtractionException(
-                  IPSDataErrors.DATA_CANNOT_CONVERT_WITH_REASON, args);
+                  DataErrorCodes.DATA_CANNOT_CONVERT_WITH_REASON, args);
             }
           else value = f;
         } else value = strVal;

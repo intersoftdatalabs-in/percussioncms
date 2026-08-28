@@ -17,6 +17,8 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.debug.PSDebugLogHandler;
 import com.percussion.debug.PSTraceMessageFactory;
@@ -35,7 +37,7 @@ import com.percussion.error.PSCatalogException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSExtensionException;
-import com.percussion.server.IPSHttpErrors;
+
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestStatistics;
@@ -276,9 +278,9 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
     java.util.Stack stack = data.getResultSetStack();
     if (stack.size() > 1)
       throw new PSConversionException(
-          IPSDataErrors.CANNOT_CONVERT_MULTIPLE_RESULT_SETS, Integer.valueOf(stack.size()));
+          DataErrorCodes.CANNOT_CONVERT_MULTIPLE_RESULT_SETS, Integer.valueOf(stack.size()));
     else if (stack.size() == 0)
-      throw new PSConversionException(IPSDataErrors.NO_DATA_FOR_CONVERSION);
+      throw new PSConversionException(DataErrorCodes.NO_DATA_FOR_CONVERSION);
 
     PSRequest request = data.getRequest();
 
@@ -287,7 +289,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
         && (request.getRequestPageType() != PSRequest.PAGE_TYPE_TEXT)) {
       String pageExt = request.getRequestPageExtension();
       if (pageExt == null) pageExt = "";
-      throw new PSUnsupportedConversionException(IPSDataErrors.XML_CONV_EXT_NOT_SUPPORTED, pageExt);
+      throw new PSUnsupportedConversionException(DataErrorCodes.XML_CONV_EXT_NOT_SUPPORTED, pageExt);
     }
 
     /* create the XML document */
@@ -297,11 +299,11 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
     PSResponse resp = request.getResponse();
     if (resp == null) {
       /* this should never happen! */
-      throw new PSConversionException(IPSDataErrors.NO_RESPONSE_OBJECT);
+      throw new PSConversionException(DataErrorCodes.NO_RESPONSE_OBJECT);
     }
 
     if (doc == null) {
-      resp.setStatus(IPSHttpErrors.HTTP_NOT_FOUND);
+      resp.setStatus(HttpErrorCodes.HTTP_NOT_FOUND.numericCode());
     } else {
       String contentHeader = request.getContentHeaderOverride();
       if (contentHeader == null) {
@@ -681,7 +683,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
       }
     } catch (Throwable t) {
       Object[] args = {request.getUserSessionId(), t.toString()};
-      throw new PSConversionException(IPSDataErrors.XML_CONV_EXCEPTION, args);
+      throw new PSConversionException(DataErrorCodes.XML_CONV_EXCEPTION, args);
     } finally {
       if (rs != null) {
         try {
@@ -1095,7 +1097,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
             .write(
                 new com.percussion.log.PSLogExecutionPlan(
                     m_appHandler.getId(),
-                    IPSDataErrors.EXEC_PLAN_LOG_COLLAPSED_XML_FIELD,
+                    DataErrorCodes.EXEC_PLAN_LOG_COLLAPSED_XML_FIELD.numericCode(),
                     new Object[] {node.getFullName()}));
       }
     }
@@ -1416,7 +1418,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
             .write(
                 new com.percussion.log.PSLogExecutionPlan(
                     m_appHandler.getId(),
-                    IPSDataErrors.EXEC_PLAN_LOG_DTD_OCCURS,
+                    DataErrorCodes.EXEC_PLAN_LOG_DTD_OCCURS.numericCode(),
                     new Object[] {getFullName(), occurString}));
       } else if (m_parent == null) { // the root node can only occur once
         m_maxOccurrences = PSDtdNode.OCCURS_ONCE;

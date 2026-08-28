@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
 import static com.percussion.util.PSSqlHelper.isMysql;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -73,7 +74,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
     } else if (!m_Tables.contains(table)) {
       PSBackEndTable curTab = m_Tables.get(0);
       Object[] args = {curTab.getAlias(), table.getAlias()};
-      throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_MOD_SINGLE_TAB_ONLY, args);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.SQL_BUILDER_MOD_SINGLE_TAB_ONLY, args);
     }
   }
 
@@ -119,7 +120,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
       PSExtensionCall call = (PSExtensionCall) col;
       Object[] args = {call.getExtensionRef()};
       throw new PSIllegalArgumentException(
-          IPSBackEndErrors.SQL_BUILDER_UDF_NOT_SUPPORTED_IN_MOD, args);
+          BackEndErrorCodes.SQL_BUILDER_UDF_NOT_SUPPORTED_IN_MOD, args);
     }
 
     String colName = ((PSBackEndColumn) col).getColumn();
@@ -169,9 +170,9 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
 
     // this is not multi-table ready!!!
     if (size == 0) {
-      throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_MOD_TABLE_REQD);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.SQL_BUILDER_MOD_TABLE_REQD);
     } else if (size > 1) {
-      throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_MOD_SINGLE_TAB_ONLY);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.SQL_BUILDER_MOD_SINGLE_TAB_ONLY);
     }
 
     PSBackEndTable table = m_Tables.get(0);
@@ -179,7 +180,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
     Integer iConnKey = connKeys.get(serverKey);
     if (iConnKey == null) {
       Object[] args = {serverKey};
-      throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_NO_CONN_DEFINED, args);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.SQL_BUILDER_NO_CONN_DEFINED, args);
     }
 
     PSBackEndLogin login = logins.get(iConnKey.intValue());
@@ -289,14 +290,14 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
     /* if there are no columns, this is an error */
     if (size == 0) {
       Object[] args = {table.getAlias()};
-      throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_UPDATABLE_COL_REQD, args);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.SQL_BUILDER_UPDATABLE_COL_REQD, args);
     }
 
     context.addText(" SET ");
     // go through the columns and build the appropriate SET clause
     if (!buildColumnAndPlaceholderList(context, table, datatypes, m_Columns, ", ", true)) {
       Object[] args = {table.getAlias()};
-      throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_UPDATABLE_COL_REQD, args);
+      throw new PSIllegalArgumentException(BackEndErrorCodes.SQL_BUILDER_UPDATABLE_COL_REQD, args);
     }
   }
 
@@ -323,7 +324,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
         Object[] args = {table.getAlias()};
         com.percussion.log.PSLogManager.write(
             new com.percussion.log.PSLogServerWarning(
-                IPSBackEndErrors.SQL_BUILDER_UPD_OR_DEL_NO_WHERE, args, false, "SQLUpdateBuilder"));
+                BackEndErrorCodes.SQL_BUILDER_UPD_OR_DEL_NO_WHERE.numericCode(), args, false, "SQLUpdateBuilder"));
         return;
       }
 
@@ -338,7 +339,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
         Object[] args = {table.getAlias()};
         com.percussion.log.PSLogManager.write(
             new com.percussion.log.PSLogServerWarning(
-                IPSBackEndErrors.SQL_BUILDER_UPD_OR_DEL_NO_WHERE, args, false, "SQLUpdateBuilder"));
+                BackEndErrorCodes.SQL_BUILDER_UPD_OR_DEL_NO_WHERE.numericCode(), args, false, "SQLUpdateBuilder"));
       }
     }
   }
@@ -396,7 +397,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
         PSExtensionCall call = (PSExtensionCall) beMap;
         Object[] args = {call.getExtensionRef()};
         throw new PSIllegalArgumentException(
-            IPSBackEndErrors.SQL_BUILDER_UDF_NOT_SUPPORTED_IN_MOD, args);
+            BackEndErrorCodes.SQL_BUILDER_UDF_NOT_SUPPORTED_IN_MOD, args);
       }
 
       PSBackEndColumn col = (PSBackEndColumn) beMap;
@@ -406,7 +407,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
       PSDataMapping map = m_Mappings.get(columnName);
       if (map == null) {
         Object[] args = {columnName};
-        throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_MOD_MAP_REQD, args);
+        throw new PSIllegalArgumentException(BackEndErrorCodes.SQL_BUILDER_MOD_MAP_REQD, args);
       }
 
       /* if we're removing auto-increment columns, and this column
@@ -483,7 +484,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
         };
         com.percussion.log.PSLogManager.write(
             new com.percussion.log.PSLogServerWarning(
-                IPSBackEndErrors.LOAD_META_DATA_EXCEPTION, args, false, "SqlUpdateBuilder"));
+                BackEndErrorCodes.LOAD_META_DATA_EXCEPTION.numericCode(), args, false, "SqlUpdateBuilder"));
 
         // chances are we'll fail again, so set it non-null which
         // prevents us from doing the potentially slow load of the
@@ -553,7 +554,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
         PSExtensionCall call = (PSExtensionCall) beMap;
         Object[] args = {call.getExtensionRef()};
         throw new PSIllegalArgumentException(
-            IPSBackEndErrors.SQL_BUILDER_UDF_NOT_SUPPORTED_IN_MOD, args);
+            BackEndErrorCodes.SQL_BUILDER_UDF_NOT_SUPPORTED_IN_MOD, args);
       }
 
       PSBackEndColumn col = (PSBackEndColumn) beMap;
@@ -562,7 +563,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
         PSDataMapping map = m_Mappings.get(columnName);
         if (map == null) {
           Object[] args = {columnName};
-          throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_MOD_MAP_REQD, args);
+          throw new PSIllegalArgumentException(BackEndErrorCodes.SQL_BUILDER_MOD_MAP_REQD, args);
         }
 
         /* we're always removing auto-increment columns on insert.
@@ -598,7 +599,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
     if (isEmpty(driver) || !isMysql(driver)) {
       if (colCount == 0) {
         Object[] args = {table.getAlias()};
-        throw new PSIllegalArgumentException(IPSBackEndErrors.SQL_BUILDER_UPDATABLE_COL_REQD, args);
+        throw new PSIllegalArgumentException(BackEndErrorCodes.SQL_BUILDER_UPDATABLE_COL_REQD, args);
       }
     }
   }
