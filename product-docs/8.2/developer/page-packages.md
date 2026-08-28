@@ -3,7 +3,7 @@ id: developer-page-packages
 title: Product page packages
 description: Native-only install of product page layout packages in Percussion CMS 8.2
 version: "8.2"
-order: 54
+order: 55
 tags: [developer, packages, templates, install]
 ---
 
