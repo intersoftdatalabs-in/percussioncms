@@ -63,7 +63,8 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
   streams last-build HTML for that kind after a successful Build (`available=true`;
   missing build is `available=false` HTTP 200). REST **Preview** also streams last-build
   HTML for `rss-atom` (local RSS 2.0 / Atom fixture or loopback feed; no live remote
-  feeds). Developer Sites can save **Object
+  feeds). Developer Sites **Preview assembled site** is shown for **RSS / Atom** after
+  a successful Build. Developer Sites can save **Object
   storage** (GET round-trips the kind), then **Build Virtual Site**, **Preview
   assembled site**, and **Publish Virtual Site**. The endpoint does not accept an
   `outputRoot` body (always the default staging root).

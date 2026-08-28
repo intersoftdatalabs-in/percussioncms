@@ -167,10 +167,11 @@ function validationMessage(
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
  * build ({@code POST …/virtual/build}) for git-filesystem, csv-filesystem,
  * sql-database, http-json, object-storage, and rss-atom. Preview last-build HTML
- * for git/csv/sql/http-json/object-storage. Publish ({@code POST …/virtual/publish})
- * for those same kinds after a successful Build. Repository / blank / unknown
- * kinds stay hidden. rss-atom save + Build chrome is in this panel (local
- * {@code rootPath} only); Preview/Publish for rss-atom stay a later phase.
+ * for git/csv/sql/http-json/object-storage/rss-atom. Publish ({@code POST
+ * …/virtual/publish}) for git/csv/sql/http-json/object-storage after a successful
+ * Build. Repository / blank / unknown kinds stay hidden. rss-atom save + Build +
+ * Preview chrome is in this panel (local {@code rootPath} only); Publish for
+ * rss-atom stays a later phase.
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -363,7 +364,7 @@ export function VirtualSiteSourcePanel({
   const rssAtomMode = isRssAtomSourceKind(form.sourceKind);
   /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
-  /** Preview chrome: git/csv/sql/http-json/object-storage (never repository or rss-atom). */
+  /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom (never repository). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
   /** Publish chrome: git/csv/sql/http-json/object-storage (never repository or rss-atom). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);

@@ -37,7 +37,7 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualBuildChrome("  rss-atom  ")).toBe(true);
   });
 
-  it("shouldShowVirtualPreviewChrome for git, csv, sql-database, http-json, and object-storage (not repository)", () => {
+  it("shouldShowVirtualPreviewChrome for git, csv, sql-database, http-json, object-storage, and rss-atom (not repository)", () => {
     expect(shouldShowVirtualPreviewChrome(null)).toBe(false);
     expect(shouldShowVirtualPreviewChrome("")).toBe(false);
     expect(shouldShowVirtualPreviewChrome("repository")).toBe(false);
@@ -53,8 +53,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPreviewChrome("object-storage")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("Object-Storage")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("  object-storage  ")).toBe(true);
-    expect(shouldShowVirtualPreviewChrome("rss-atom")).toBe(false);
-    expect(shouldShowVirtualPreviewChrome("RSS-Atom")).toBe(false);
+    expect(shouldShowVirtualPreviewChrome("rss-atom")).toBe(true);
+    expect(shouldShowVirtualPreviewChrome("RSS-Atom")).toBe(true);
+    expect(shouldShowVirtualPreviewChrome("  rss-atom  ")).toBe(true);
   });
 
   it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, and object-storage", () => {

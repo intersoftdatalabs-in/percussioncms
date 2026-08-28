@@ -17,8 +17,9 @@
 
 /**
  * Copy the rss-atom Virtual Site QA fixture into the H2 Docker cell so
- * Developer Sites Build can POST /virtual/build against a local RSS 2.0
- * feed (no live feed URLs or credentials).
+ * Developer Sites Build and Preview can POST /virtual/build then GET
+ * /virtual/preview against a local RSS 2.0 feed (no live feed URLs or
+ * credentials). Feed item id {@code index} assembles {@code 8.2/index.html}.
  */
 
 const { execFileSync } = require("node:child_process");

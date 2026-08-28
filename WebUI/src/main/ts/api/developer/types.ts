@@ -794,9 +794,10 @@ export interface SiteDef {
  * save chrome includes http-json, object-storage, and rss-atom (local
  * {@code rootPath} only; no cloud URLs, live feed credentials, or
  * {@code virtual.remoteUrl} on those kinds). Build chrome is shown after save
- * for git/csv/sql/http-json/object-storage/rss-atom. Preview and Publish chrome
- * are shown for git/csv/sql/http-json/object-storage. rss-atom Preview/Publish
- * chrome stays a later phase.
+ * for git/csv/sql/http-json/object-storage/rss-atom. Preview chrome is shown for
+ * git/csv/sql/http-json/object-storage/rss-atom. Publish chrome is shown for
+ * git/csv/sql/http-json/object-storage. rss-atom Publish chrome stays a later
+ * phase.
  */
 export interface VirtualSiteProperties {
   sourceKind?: string | null;
