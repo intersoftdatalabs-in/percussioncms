@@ -190,7 +190,7 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Operation | Path | Notes |
 |-----------|------|--------|
 | List | `GET /services/contenttypes` | Name, label, description, guid |
-| Create | `POST /services/contenttypes` | **Admin.** Creates and **saves** a content type (`IPSContentDesignWs.createContentTypes` then `saveContentTypes` — Workbench Finish, not an unsaved stub). JSON body requires `name` (unique, case-insensitive; no spaces). Optional `label`, `description`, and `enabled` are applied before save. Omitted `enabled` **defaults to true** so the new type is usable. `200` + `ContentTypeDetail`. Duplicate name is **409** (catalog check and persist-time unique-name failure). Blank / whitespace / wildcard names are **400**. Missing request session/user is **403**. Rename uses `PUT .../name`. Delete uses `DELETE .../{idOrName}`. |
+| Create | `POST /services/contenttypes` | **Admin.** Creates and **saves** a content type (`IPSContentDesignWs.createContentTypes` then `saveContentTypes` — Workbench Finish, not an unsaved stub). JSON body requires `name` (unique, case-insensitive; no spaces). Optional `label`, `description`, and `enabled` are applied before save. Omitted `enabled` **defaults to true** so the new type is usable. `200` + `ContentTypeDetail`. The new type is then `GET /services/contenttypes/{name}` **200**. Duplicate name is **409** (catalog check and persist-time unique-name failure), including reserved system types such as **Folder**. Blank / whitespace / wildcard names are **400**. Missing request session/user is **403**. Non-Admin is **403**. Rename uses `PUT .../name`. Delete uses `DELETE .../{idOrName}`. |
 | Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `enabled`, `designGaps` |
 | Allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` | Read-only list of associated templates (CD-12). No lock required. Empty list means none. Same set as `ContentTypeDetail.allowedTemplates`. |
 | Item-level exits | `GET /services/contenttypes/{idOrName}/itemExits` | Item-level input/output translations, validations, and pipe pre/post exits (CD-09). No lock required. Empty lists mean none. Apply-when conditions are a read-only summary. Jackson root wrap is `ContentTypeItemExits`. |
@@ -219,7 +219,7 @@ Lock / save / unlock / create / rename / delete status codes:
 | `400` | Invalid PUT body (unknown field name, bad workflow/template ref, missing `enabled` flag, invalid or colliding rename), invalid create name (blank, spaces, wildcard), or DELETE rejected because the type has dependents |
 | `403` | Caller is not Admin, or the request has no session/user for the design session |
 | `404` | Content type not found |
-| `409` | No lock held, or locked by another user/session (self-only; the lock is not stolen); POST create duplicate name (catalog or persist-time) |
+| `409` | No lock held, or locked by another user/session (self-only; the lock is not stolen); POST create duplicate name (catalog or persist-time), including reserved system types such as Folder |
 | `500` | Design service or server failure |
 
 ### Rename (CD-01)

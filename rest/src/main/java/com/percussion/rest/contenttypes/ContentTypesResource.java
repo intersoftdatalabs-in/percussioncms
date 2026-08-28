@@ -847,8 +847,9 @@ public class ContentTypesResource {
               + " then saveContentTypes (Workbench Finish, not an unsaved stub). Name is required,"
               + " must be unique (case-insensitive), and must not contain spaces. Optional label,"
               + " description, and enabled are applied before save. Omitted enabled defaults to"
-              + " true. Returns the new ContentTypeDetail. Duplicate name is 409 at catalog check"
-              + " and at persist. Delete/rename remain unsupported (see designGaps).",
+              + " true. Returns the new ContentTypeDetail (GET by name is then 200). Duplicate"
+              + " name is 409 at catalog check and at persist, including reserved system types"
+              + " such as Folder. Delete/rename remain unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -860,7 +861,11 @@ public class ContentTypesResource {
         @ApiResponse(
             responseCode = "403",
             description = "Admin role required, or request has no session/user"),
-        @ApiResponse(responseCode = "409", description = "A content type with that name exists"),
+        @ApiResponse(
+            responseCode = "409",
+            description =
+                "A content type with that name exists (including reserved system types such as"
+                    + " Folder)"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public ContentTypeDetail createContentType(ContentTypeDetail body) {

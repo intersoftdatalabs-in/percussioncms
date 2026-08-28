@@ -565,6 +565,17 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
+  public void createContentTypeReservedFolderIs409() {
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setName("Folder");
+    when(adaptor.createContentType(any(), any()))
+        .thenThrow(new WebApplicationException("Content type already exists: Folder", 409));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createContentType(body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void createContentTypeForbiddenWhenNotAdmin() {
     ContentTypeDetail body = new ContentTypeDetail();
     body.setName("percNewType");

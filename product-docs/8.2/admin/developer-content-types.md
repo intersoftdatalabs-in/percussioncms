@@ -15,10 +15,13 @@ for fields, allowed workflows, allowed templates, **item-level exits**, **contro
 Admins cannot overwrite the same type at once.
 
 Integrators can **create** a content type with Admin `POST /services/contenttypes`
-(JSON `name` required; unique, no spaces). That call persists the type
-(Workbench Finish). This chrome does **not** include a create wizard; delete
-and rename are not supported here. Shared field **files** are a separate design
-object: Admin-only `GET /services/sharedfields` and
+(JSON `name` required; unique, no spaces; optional `label` / `description`).
+That call persists the type (Workbench Finish). A successful create is then
+`GET /services/contenttypes/{name}` **200**. Duplicate or reserved system names
+(for example **Folder**) are **409**. Invalid names (blank, spaces, wildcard)
+are **400**. Non-Admin callers are **403**. This chrome does **not** include a
+create wizard; rename and delete are REST-only (no SPA chrome). Shared field
+**files** are a separate design object: Admin-only `GET /services/sharedfields` and
 `GET /services/sharedfields/{idOrName}` (catalog), plus
 `POST /services/sharedfields`, `PUT /services/sharedfields/{idOrName}`, and
 `DELETE /services/sharedfields/{idOrName}` (create / save / delete; the shared
