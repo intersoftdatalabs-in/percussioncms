@@ -17,20 +17,32 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.design.objectstore.PSBackEndCredential;
+import com.percussion.design.objectstore.PSContainerLocator;
 import com.percussion.design.objectstore.PSContentEditorSharedDef;
+import com.percussion.design.objectstore.PSDisplayMapper;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSSharedFieldGroup;
+import com.percussion.design.objectstore.PSSystemValidationException;
+import com.percussion.design.objectstore.PSTableLocator;
+import com.percussion.design.objectstore.PSTableRef;
+import com.percussion.design.objectstore.PSTableSet;
+import com.percussion.design.objectstore.PSUIDefinition;
 import com.percussion.rest.sharedfields.ISharedFieldsAdaptor;
+import com.percussion.rest.sharedfields.SharedFieldDesignLockException;
 import com.percussion.rest.sharedfields.SharedFieldGroupDetail;
 import com.percussion.rest.sharedfields.SharedFieldGroupSummary;
+import com.percussion.rest.sharedfields.SharedFieldNotFoundException;
 import com.percussion.rest.sharedfields.SharedFieldSummary;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
+import com.percussion.util.PSCollection;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorException;
+import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import jakarta.ws.rs.WebApplicationException;
@@ -48,27 +60,30 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Read-only catalog of content-editor shared field groups ({@link PSContentEditorSharedDef}).
+ * Catalog and write of content-editor shared field groups ({@link PSContentEditorSharedDef}).
  *
- * <p>Workbench parity: loads via {@link IPSContentDesignWs#loadContentEditorSharedDef} (same design
- * web service SOAP uses), not {@code PSServer.getContentEditorSharedDef()} alone.
+ * <p>Workbench parity: loads and saves via {@link IPSContentDesignWs#loadContentEditorSharedDef} /
+ * {@link IPSContentDesignWs#saveContentEditorSharedDef} (same design web service SOAP uses), not
+ * {@code PSServer.getContentEditorSharedDef()} alone.
  *
  * <p>Admin (Design) only — same {@link IPSUserService#isAdminUser} gate as content-type design
- * mutations. There is no global JAX-RS Admin filter on {@code /services/sharedfields}.
+ * mutations. There is no global JAX-RS Admin filter on {@code /services/sharedfields}. Writes
+ * acquire the shared-def design lock for the request and release it on save.
  */
 @PSSiteManageBean
 public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
 
   private static final Logger log = LogManager.getLogger(SharedFieldsAdaptor.class);
 
-  static final String ADMIN_REQUIRED = "Admin role required to read shared field groups";
+  static final String ADMIN_REQUIRED = "Admin role required to read or write shared field groups";
 
   private static final List<String> DESIGN_GAPS =
       List.of(
-          "Shared field group create / rename / delete not supported via this API",
-          "Field property / control / choice write not supported via this API",
+          "Field create / delete not supported via this API",
+          "Field control / choice write not supported via this API",
           "System def (global fields) is a separate catalog (later slice)");
 
+  private final IPSContentDesignWs designWs;
   private final Supplier<PSContentEditorSharedDef> sharedDefLoader;
   private final BooleanSupplier adminChecker;
 
@@ -77,18 +92,25 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
   private IPSUserService userService;
 
   public SharedFieldsAdaptor() {
-    this(
+    this(PSContentWsLocator.getContentDesignWebservice(), null);
+  }
+
+  /**
+   * Package-visible for unit tests that inject a fake design web service. {@code null}
+   * adminChecker uses {@link #isCurrentUserAdmin()}.
+   */
+  SharedFieldsAdaptor(IPSContentDesignWs designWs, BooleanSupplier adminChecker) {
+    this.designWs = designWs;
+    this.sharedDefLoader =
         () ->
             loadSharedDefFromDesignWs(
-                PSContentWsLocator.getContentDesignWebservice(),
-                (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID),
-                (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER)),
-        null);
+                designWs, currentSession(), currentUser());
+    this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
   }
 
   /**
    * Package-visible for unit tests that inject a fake shared def source. Admin is allowed so
-   * mapping tests can focus on catalog shape.
+   * mapping tests can focus on catalog shape. Writes require {@link IPSContentDesignWs}.
    */
   SharedFieldsAdaptor(Supplier<PSContentEditorSharedDef> sharedDefLoader) {
     this(sharedDefLoader, () -> true);
@@ -100,6 +122,7 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
    */
   SharedFieldsAdaptor(
       Supplier<PSContentEditorSharedDef> sharedDefLoader, BooleanSupplier adminChecker) {
+    this.designWs = null;
     this.sharedDefLoader = sharedDefLoader;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
   }
@@ -117,6 +140,205 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
       log.error("Failed to load content editor shared def via design WS", e);
       throw new IllegalStateException("Failed to load shared def", e);
     }
+  }
+
+  private void requireDesignWs() {
+    if (designWs == null) {
+      throw new IllegalStateException("Shared field design web service is not available");
+    }
+  }
+
+  private static void requireSessionUserForWrite() {
+    if (StringUtils.isBlank(currentSession()) || StringUtils.isBlank(currentUser())) {
+      throw new WebApplicationException(
+          "Request session/user required for shared field design write",
+          Response.Status.FORBIDDEN);
+    }
+  }
+
+  private static String currentSession() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+  }
+
+  private static String currentUser() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+  }
+
+  private PSContentEditorSharedDef loadSharedDefLocked(String session, String user) {
+    try {
+      PSContentEditorSharedDef def =
+          designWs.loadContentEditorSharedDef(true, false, session, user);
+      return def != null ? def : new PSContentEditorSharedDef();
+    } catch (PSLockErrorException e) {
+      throw mapLockConflict(e);
+    } catch (PSErrorException e) {
+      log.error("Failed to load content editor shared def for write", e);
+      throw new IllegalStateException("Failed to load shared def for write", e);
+    }
+  }
+
+  private void saveSharedDef(PSContentEditorSharedDef def, String session, String user) {
+    try {
+      designWs.saveContentEditorSharedDef(def, true, session, user);
+    } catch (PSLockErrorException e) {
+      throw mapLockConflict(e);
+    } catch (PSErrorException e) {
+      log.error("Failed to save content editor shared def", e);
+      throw new IllegalStateException("Failed to save shared def", e);
+    }
+  }
+
+  static SharedFieldDesignLockException mapLockConflict(PSLockErrorException e) {
+    String locker = e != null ? e.getLocker() : null;
+    if (StringUtils.isNotBlank(locker)) {
+      return new SharedFieldDesignLockException(
+          "Could not save shared field group; locked by " + locker, e);
+    }
+    return new SharedFieldDesignLockException(
+        "Could not save shared field group; design lock required", e);
+  }
+
+  static String validateGroupName(String name) {
+    if (StringUtils.isBlank(name)) {
+      throw new IllegalArgumentException("name is required");
+    }
+    if (containsWhitespace(name)) {
+      throw new IllegalArgumentException("name cannot contain spaces");
+    }
+    if (name.contains("*")) {
+      throw new IllegalArgumentException("name must not contain wildcards");
+    }
+    if (!isSafeGroupName(name)) {
+      throw new IllegalArgumentException("name contains invalid path characters");
+    }
+    return name;
+  }
+
+  static String normalizeFilename(String filename, String groupName) {
+    String raw = StringUtils.isBlank(filename) ? groupName + ".xml" : filename.trim();
+    if (containsWhitespace(raw)) {
+      throw new IllegalArgumentException("filename cannot contain spaces");
+    }
+    if (!isSafeGroupName(stripXmlSuffix(raw))) {
+      throw new IllegalArgumentException("filename contains invalid path characters");
+    }
+    if (raw.toLowerCase().endsWith(".xml")) {
+      return stripXmlSuffix(raw) + ".xml";
+    }
+    if (raw.contains(".")) {
+      throw new IllegalArgumentException("filename must use a .xml extension");
+    }
+    return raw + ".xml";
+  }
+
+  private static String stripXmlSuffix(String filename) {
+    if (filename.toLowerCase().endsWith(".xml")) {
+      return filename.substring(0, filename.length() - 4);
+    }
+    return filename;
+  }
+
+  private static boolean containsWhitespace(String name) {
+    for (int i = 0; i < name.length(); i++) {
+      if (Character.isWhitespace(name.charAt(i))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Persistable empty group: locator + empty field set + empty display mapper. Field create is a
+   * later slice.
+   */
+  static PSSharedFieldGroup newEmptyGroup(String name, String filename) {
+    PSBackEndCredential cred = new PSBackEndCredential("contentCredential");
+    cred.setDataSource("");
+    PSTableLocator tableLoc = new PSTableLocator(cred);
+    PSTableRef tableRef = new PSTableRef(tableNameForGroup(name));
+    PSTableSet ts = new PSTableSet(tableLoc, tableRef);
+    PSCollection<PSTableSet> tsCol = new PSCollection<>(PSTableSet.class);
+    tsCol.add(ts);
+    PSContainerLocator loc = new PSContainerLocator(tsCol);
+    PSFieldSet fs = new PSFieldSet(name);
+    PSDisplayMapper mapper = new PSDisplayMapper(name);
+    PSUIDefinition ui = new PSUIDefinition(mapper);
+    PSSharedFieldGroup group = new PSSharedFieldGroup(name, loc, fs, ui);
+    group.setFilename(filename);
+    return group;
+  }
+
+  static String tableNameForGroup(String name) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < name.length(); i++) {
+      char c = name.charAt(i);
+      if (Character.isLetterOrDigit(c)) {
+        sb.append(Character.toUpperCase(c));
+      } else if (c == '_' && sb.length() > 0) {
+        sb.append('_');
+      }
+    }
+    return sb.length() == 0 ? "SHARED_FIELDS" : sb.toString();
+  }
+
+  static void applyFieldPatches(PSSharedFieldGroup group, List<SharedFieldSummary> patches) {
+    if (patches == null || patches.isEmpty() || group == null) {
+      return;
+    }
+    PSFieldSet fieldSet = group.getFieldSet();
+    if (fieldSet == null) {
+      throw new IllegalArgumentException("Shared field group has no field set");
+    }
+    for (SharedFieldSummary patch : patches) {
+      if (patch == null || StringUtils.isBlank(patch.getName())) {
+        continue;
+      }
+      PSField field = fieldSet.findFieldByName(patch.getName(), false);
+      if (field == null) {
+        throw new IllegalArgumentException("Unknown field: " + patch.getName());
+      }
+      if (patch.getSearchable() != null) {
+        field.setUserSearchable(patch.getSearchable());
+      }
+      if (StringUtils.isNotBlank(patch.getOccurrence())) {
+        Integer dim = occurrenceFromApi(patch.getOccurrence());
+        if (dim == null) {
+          throw new IllegalArgumentException(
+              "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence());
+        }
+        try {
+          field.setOccurrenceDimension(dim, null);
+        } catch (PSSystemValidationException e) {
+          throw new IllegalArgumentException(
+              "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence(), e);
+        }
+      } else if (patch.getRequired() != null) {
+        int dim =
+            Boolean.TRUE.equals(patch.getRequired())
+                ? PSField.OCCURRENCE_DIMENSION_REQUIRED
+                : PSField.OCCURRENCE_DIMENSION_OPTIONAL;
+        try {
+          field.setOccurrenceDimension(dim, null);
+        } catch (PSSystemValidationException e) {
+          throw new IllegalArgumentException(
+              "Invalid required flag for field " + patch.getName(), e);
+        }
+      }
+    }
+  }
+
+  static Integer occurrenceFromApi(String occurrence) {
+    if (occurrence == null) {
+      return null;
+    }
+    return switch (occurrence) {
+      case "optional" -> PSField.OCCURRENCE_DIMENSION_OPTIONAL;
+      case "required" -> PSField.OCCURRENCE_DIMENSION_REQUIRED;
+      case "oneOrMore" -> PSField.OCCURRENCE_DIMENSION_ONE_OR_MORE;
+      case "zeroOrMore" -> PSField.OCCURRENCE_DIMENSION_ZERO_OR_MORE;
+      case "count" -> PSField.OCCURRENCE_DIMENSION_COUNT;
+      default -> null;
+    };
   }
 
   @Override
@@ -139,6 +361,85 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
       return null;
     }
     return toDetail(group);
+  }
+
+  @Override
+  public SharedFieldGroupDetail createGroup(URI baseUri, SharedFieldGroupDetail body) {
+    requireAdmin();
+    requireDesignWs();
+    requireSessionUserForWrite();
+    if (body == null || StringUtils.isBlank(body.getName())) {
+      throw new IllegalArgumentException("name is required");
+    }
+    String name = validateGroupName(body.getName().trim());
+    String filename = normalizeFilename(body.getFilename(), name);
+    String session = currentSession();
+    String user = currentUser();
+    PSContentEditorSharedDef def = loadSharedDefLocked(session, user);
+    if (findGroup(def, name) != null) {
+      throw new WebApplicationException("Shared field group already exists: " + name, 409);
+    }
+    PSSharedFieldGroup created = newEmptyGroup(name, filename);
+    def.addFieldGroup(created);
+    saveSharedDef(def, session, user);
+    return toDetail(created);
+  }
+
+  @Override
+  public SharedFieldGroupDetail updateGroup(URI baseUri, String name, SharedFieldGroupDetail body) {
+    requireAdmin();
+    requireDesignWs();
+    requireSessionUserForWrite();
+    if (!isSafeGroupName(name)) {
+      return null;
+    }
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    String session = currentSession();
+    String user = currentUser();
+    PSContentEditorSharedDef def = loadSharedDefLocked(session, user);
+    PSSharedFieldGroup group = findGroup(def, name.trim());
+    if (group == null) {
+      return null;
+    }
+    if (StringUtils.isNotBlank(body.getFilename())) {
+      group.setFilename(normalizeFilename(body.getFilename(), group.getName()));
+    }
+    if (StringUtils.isNotBlank(body.getName())) {
+      String newName = validateGroupName(body.getName().trim());
+      if (!newName.equalsIgnoreCase(group.getName())) {
+        if (findGroup(def, newName) != null) {
+          throw new WebApplicationException("Shared field group already exists: " + newName, 409);
+        }
+        group.setName(newName);
+      }
+    }
+    applyFieldPatches(group, body.getFields());
+    saveSharedDef(def, session, user);
+    return toDetail(group);
+  }
+
+  @Override
+  public void deleteGroup(URI baseUri, String name) {
+    requireAdmin();
+    requireDesignWs();
+    requireSessionUserForWrite();
+    if (StringUtils.isBlank(name)) {
+      throw new IllegalArgumentException("name is required");
+    }
+    if (!isSafeGroupName(name)) {
+      throw new SharedFieldNotFoundException("Shared field group not found");
+    }
+    String session = currentSession();
+    String user = currentUser();
+    PSContentEditorSharedDef def = loadSharedDefLocked(session, user);
+    PSSharedFieldGroup group = findGroup(def, name.trim());
+    if (group == null) {
+      throw new SharedFieldNotFoundException("Shared field group not found");
+    }
+    def.removeFieldGroup(group);
+    saveSharedDef(def, session, user);
   }
 
   private void requireAdmin() {

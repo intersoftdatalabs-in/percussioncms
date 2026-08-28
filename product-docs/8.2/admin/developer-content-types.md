@@ -19,8 +19,11 @@ Integrators can **create** a content type with Admin `POST /services/contenttype
 (Workbench Finish). This chrome does **not** include a create wizard; delete
 and rename are not supported here. Shared field **files** are a separate design
 object: Admin-only `GET /services/sharedfields` and
-`GET /services/sharedfields/{idOrName}` (read catalog; write is not on REST).
-See [REST API](id:developer-rest).
+`GET /services/sharedfields/{idOrName}` (catalog), plus
+`POST /services/sharedfields`, `PUT /services/sharedfields/{idOrName}`, and
+`DELETE /services/sharedfields/{idOrName}` (create / save / delete; the shared
+definition is locked for the request). Field create/delete and the SPA editor
+are not in this chrome. See [REST API](id:developer-rest).
 
 This is **not** the full Workbench field-rule editor. The detail table still
 shows rule **flags** (validation / visibility / transforms present). After

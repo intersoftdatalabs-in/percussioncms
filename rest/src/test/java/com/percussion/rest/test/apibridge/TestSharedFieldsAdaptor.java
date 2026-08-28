@@ -45,4 +45,20 @@ public class TestSharedFieldsAdaptor implements ISharedFieldsAdaptor {
   public SharedFieldGroupDetail getGroup(URI baseUri, String name) {
     return null;
   }
+
+  @Override
+  public SharedFieldGroupDetail createGroup(URI baseUri, SharedFieldGroupDetail body) {
+    return null;
+  }
+
+  @Override
+  public SharedFieldGroupDetail updateGroup(
+      URI baseUri, String name, SharedFieldGroupDetail body) {
+    return null;
+  }
+
+  @Override
+  public void deleteGroup(URI baseUri, String name) {
+    // no-op for tests
+  }
 }
