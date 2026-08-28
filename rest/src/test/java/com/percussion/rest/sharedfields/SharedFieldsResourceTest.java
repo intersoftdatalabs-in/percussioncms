@@ -305,6 +305,135 @@ public class SharedFieldsResourceTest {
   }
 
   @Test
+  public void addFieldDelegatesToAdaptor() {
+    SharedFieldSummary body = new SharedFieldSummary();
+    body.setName("rx_note");
+    SharedFieldGroupDetail updated = new SharedFieldGroupDetail();
+    updated.setName("shared");
+    when(adaptor.addField(any(), eq("shared"), any())).thenReturn(updated);
+
+    assertEquals("shared", resource.addField("shared", body).getName());
+    verify(adaptor).addField(any(), eq("shared"), eq(body));
+  }
+
+  @Test
+  public void addFieldInvalidNameIs400() {
+    when(adaptor.addField(any(), eq("shared"), any()))
+        .thenThrow(new IllegalArgumentException("name is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.addField("shared", new SharedFieldSummary()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void addFieldNotFoundIsGeneric404() {
+    when(adaptor.addField(any(), eq("missing"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.addField("missing", new SharedFieldSummary()));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Shared field group not found", ex.getMessage());
+  }
+
+  @Test
+  public void addFieldDuplicateIs409() {
+    when(adaptor.addField(any(), eq("shared"), any()))
+        .thenThrow(new WebApplicationException("Shared field already exists: rx_note", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.addField("shared", new SharedFieldSummary()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void addFieldLockConflictIs409() {
+    when(adaptor.addField(any(), eq("shared"), any()))
+        .thenThrow(new SharedFieldDesignLockException("locked by other"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.addField("shared", new SharedFieldSummary()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void addFieldForbiddenWhenNotAdmin() {
+    when(adaptor.addField(any(), eq("shared"), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.addField("shared", new SharedFieldSummary()));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void addFieldWrapsUnexpectedFailures() {
+    IllegalStateException boom = new IllegalStateException("design ws down");
+    when(adaptor.addField(any(), eq("shared"), any())).thenThrow(boom);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.addField("shared", new SharedFieldSummary()));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void deleteFieldReturns204() {
+    Response out = resource.deleteField("shared", "rx_note");
+    assertEquals(204, out.getStatus());
+    verify(adaptor).deleteField(any(), eq("shared"), eq("rx_note"));
+  }
+
+  @Test
+  public void deleteFieldBlankNameIs400() {
+    doThrow(new IllegalArgumentException("name is required"))
+        .when(adaptor)
+        .deleteField(any(), eq(" "), eq("rx_note"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteField(" ", "rx_note"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteFieldNotFoundIs404() {
+    doThrow(new SharedFieldNotFoundException("Shared field not found"))
+        .when(adaptor)
+        .deleteField(any(), eq("shared"), eq("missing"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteField("shared", "missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteFieldLockConflictIs409() {
+    doThrow(new SharedFieldDesignLockException("locked by other"))
+        .when(adaptor)
+        .deleteField(any(), eq("shared"), eq("rx_note"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteField("shared", "rx_note"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteFieldForbiddenWhenNotAdmin() {
+    doThrow(new WebApplicationException("Admin role required", 403))
+        .when(adaptor)
+        .deleteField(any(), eq("shared"), eq("rx_note"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteField("shared", "rx_note"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void mapWriteFailureLockMessageOnIllegalStateIs409() {
     WebApplicationException ex =
         SharedFieldsResource.mapWriteFailure(new IllegalStateException("object is not locked"));

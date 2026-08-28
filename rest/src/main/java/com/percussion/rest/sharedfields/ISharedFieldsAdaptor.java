@@ -80,4 +80,31 @@ public interface ISharedFieldsAdaptor {
    * @throws SharedFieldDesignLockException when the shared def is locked by another user
    */
   void deleteGroup(URI baseUri, String name);
+
+  /**
+   * Add a persistable field (backend column + display mapping) to an existing shared field group.
+   * Admin only. Acquires the shared-def design lock for this request and releases it on save.
+   *
+   * @param body {@code name} required; unique case-insensitive across shared groups. Optional {@code
+   *     dataType} defaults to {@code text}. Optional {@code searchable}, {@code occurrence} /
+   *     {@code required} as on PUT patches.
+   * @return updated group detail, or {@code null} when the group is not found / unsafe path name
+   * @throws IllegalArgumentException when the group path is blank, field name/dataType is invalid,
+   *     or occurrence/required conflict
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin; {@code
+   *     409} when a field with that name already exists
+   * @throws SharedFieldDesignLockException when the shared def is locked by another user
+   */
+  SharedFieldGroupDetail addField(URI baseUri, String groupName, SharedFieldSummary body);
+
+  /**
+   * Remove a field (backend column mapping + display mapping) from an existing shared field group.
+   * Admin only. Acquires the shared-def design lock for this request and releases it on save.
+   *
+   * @throws SharedFieldNotFoundException when the group or field does not exist
+   * @throws IllegalArgumentException when a path name is blank
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin
+   * @throws SharedFieldDesignLockException when the shared def is locked by another user
+   */
+  void deleteField(URI baseUri, String groupName, String fieldName);
 }

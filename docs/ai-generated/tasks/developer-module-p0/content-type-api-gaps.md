@@ -17,6 +17,7 @@
 | Public REST shared-field list     | CD-15 catalog (Admin only)          | `GET /services/sharedfields`                   |
 | Public REST shared-field detail   | CD-15 group fields (Admin only)     | `GET /services/sharedfields/{idOrName}`        |
 | Public REST shared-field write    | CD-15 create/save/delete (Admin)    | `POST /services/sharedfields`, `PUT …/{idOrName}`, `DELETE …/{idOrName}` |
+| Public REST shared-field fields   | CD-15 field create/delete (Admin)   | `POST …/{idOrName}/fields`, `DELETE …/{idOrName}/fields/{fieldName}` |
 | Design SOAP (Workbench)           | Full load/save/lock/create/delete   | `IPSContentDesignWs` / `ContentDesignSOAPImpl` |
 | Item def manager                  | Runtime CE definition cache         | `PSItemDefManager.getItemDef`                  |
 
@@ -55,7 +56,7 @@ design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
 | Item-level pre/post exits & validations              | CD-09        | Properties tab                                    |
 | Edit workflow/template associations                  | CD-08, CD-12 | **CD-08 REST PUT .../allowedWorkflows** (#3763, held design lock); **CD-12 REST PUT .../allowedTemplates** (#3775, held design lock; full replace, empty list clears) |
 | Enable/disable as design action                      | CD-13        | **REST `PUT /contenttypes/{id}/enabled`** (#3773, held design lock; 409 without) |
-| Shared field file **write**                          | CD-15        | **Create/save/delete shipped** (`POST /services/sharedfields`, `PUT …/{idOrName}`, `DELETE …/{idOrName}`, Admin 403, lock 409, #3944). Field create/delete, control/choice write, and SPA editor still open |
+| Shared field file **write**                          | CD-15        | **Group create/save/delete shipped** (`POST /services/sharedfields`, `PUT …/{idOrName}`, `DELETE …/{idOrName}`, #3944). **Field create/delete shipped** (`POST …/fields`, `DELETE …/fields/{fieldName}`, persistable `PSField` + display mapping, Admin 403, lock 409, #3954). Control/choice write and SPA editor still open |
 | System def                                           | CD-16        | Separate object                                   |
 | Create / delete                                      | CD-01, §5.2  | **POST `/services/contenttypes` create shipped** (#3912). Delete still SOAP design only; lock + PUT save via REST |
 | Rename                                               | CD-01, §5.2  | **REST `PUT /contenttypes/{id}/name`** (#3914, held design lock; unique, no spaces; bulk PUT does not rename) |
@@ -70,7 +71,7 @@ design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
 3. ~~Design-session lock + `PUT` save via thin REST over `IPSContentDesignWs`~~ **Lock** (#3742) + **PUT save requires held lock** (#3743)
 4. ~~Keyword create/update/delete~~ **Done CD-17** (REST write + design WS + SPA editor)
 5. ~~Control property value/choice catalogs~~ **Done CD-07 REST** (#3786). Field-rule write/save still open
-6. ~~Shared field catalog read~~ **Done CD-15 read** (`GET /services/sharedfields`, Admin 403). ~~Write~~ **Done CD-15 group create/save/delete** (`POST`/`PUT`/`DELETE`). Field create/delete + SPA editor still open
+6. ~~Shared field catalog read~~ **Done CD-15 read** (`GET /services/sharedfields`, Admin 403). ~~Write~~ **Done CD-15 group create/save/delete** (`POST`/`PUT`/`DELETE`, #3944). ~~Field create/delete~~ **Done** (`POST …/fields`, `DELETE …/fields/{fieldName}`, #3954). Control/choice write + SPA editor still open
 7. Templates/slots design editors
 
 ## Client behavior

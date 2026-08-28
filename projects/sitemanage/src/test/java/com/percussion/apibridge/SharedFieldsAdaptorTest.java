@@ -561,4 +561,251 @@ class SharedFieldsAdaptorTest {
     SharedFieldDesignLockException mapped = SharedFieldsAdaptor.mapLockConflict(err);
     assertEquals("Could not save shared field group; locked by alice", mapped.getMessage());
   }
+
+  @Test
+  void addField_addsPersistableFieldAndSaves() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSSharedFieldGroup group = SharedFieldsAdaptor.newEmptyGroup("shared", "shared.xml");
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    def.addFieldGroup(group);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+
+    SharedFieldSummary body = new SharedFieldSummary();
+    body.setName("rx_note");
+    body.setSearchable(true);
+    SharedFieldGroupDetail out = adaptor.addField(null, "shared", body);
+
+    assertEquals("shared", out.getName());
+    assertEquals(1, out.getFields().size());
+    assertEquals("rx_note", out.getFields().get(0).getName());
+    assertEquals("text", out.getFields().get(0).getDataType());
+    assertEquals(Boolean.TRUE, out.getFields().get(0).getSearchable());
+    verify(designWs).saveContentEditorSharedDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
+    assertNotNull(group.getFieldSet().findFieldByName("rx_note", false));
+    assertNotNull(group.getUIDefinition().getMapping("rx_note"));
+  }
+
+  @Test
+  void addField_duplicateIs409() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSSharedFieldGroup group = SharedFieldsAdaptor.newEmptyGroup("shared", "shared.xml");
+    SharedFieldSummary existing = new SharedFieldSummary();
+    existing.setName("rx_note");
+    SharedFieldsAdaptor.addPersistableField(group, existing);
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    def.addFieldGroup(group);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+
+    SharedFieldSummary body = new SharedFieldSummary();
+    body.setName("rx_note");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.addField(null, "shared", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void addField_duplicateInOtherGroupIs409() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSSharedFieldGroup other = SharedFieldsAdaptor.newEmptyGroup("other", "other.xml");
+    SharedFieldSummary existing = new SharedFieldSummary();
+    existing.setName("rx_note");
+    SharedFieldsAdaptor.addPersistableField(other, existing);
+    PSSharedFieldGroup target = SharedFieldsAdaptor.newEmptyGroup("shared", "shared.xml");
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    def.addFieldGroup(other);
+    def.addFieldGroup(target);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+
+    SharedFieldSummary body = new SharedFieldSummary();
+    body.setName("rx_note");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.addField(null, "shared", body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void addField_forbiddenWhenNotAdmin() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SharedFieldsAdaptor denied = new SharedFieldsAdaptor(designWs, () -> false);
+    SharedFieldSummary body = new SharedFieldSummary();
+    body.setName("rx_note");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> denied.addField(null, "shared", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(designWs, never()).loadContentEditorSharedDef(anyBoolean(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void addField_missingGroupReturnsNull() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin"))
+        .thenReturn(new PSContentEditorSharedDef());
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+    SharedFieldSummary body = new SharedFieldSummary();
+    body.setName("rx_note");
+    assertNull(adaptor.addField(null, "missing", body));
+    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void addField_lockConflictIs409() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSLockErrorException lockErr =
+        new PSLockErrorException(1, "locked", "stack", "other", 1000L);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin"))
+        .thenThrow(lockErr);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+    SharedFieldSummary body = new SharedFieldSummary();
+    body.setName("rx_note");
+    SharedFieldDesignLockException ex =
+        assertThrows(SharedFieldDesignLockException.class, () -> adaptor.addField(null, "shared", body));
+    assertTrue(ex.getMessage().contains("locked by other"));
+  }
+
+  @Test
+  void addField_invalidNameIs400() {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+    SharedFieldSummary body = new SharedFieldSummary();
+    body.setName("has space");
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.addField(null, "shared", body));
+    assertTrue(ex.getMessage().contains("spaces"));
+  }
+
+  @Test
+  void addField_blankGroupNameIs400() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+    SharedFieldSummary body = new SharedFieldSummary();
+    body.setName("rx_note");
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.addField(null, "  ", body));
+    assertTrue(ex.getMessage().contains("name is required"));
+    verify(designWs, never()).loadContentEditorSharedDef(anyBoolean(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void addField_invalidDataTypeIs400() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSSharedFieldGroup group = SharedFieldsAdaptor.newEmptyGroup("shared", "shared.xml");
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    def.addFieldGroup(group);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+    SharedFieldSummary body = new SharedFieldSummary();
+    body.setName("rx_note");
+    body.setDataType("not-a-type");
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.addField(null, "shared", body));
+    assertTrue(ex.getMessage().contains("dataType"));
+    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void deleteField_removesAndSaves() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSSharedFieldGroup group = SharedFieldsAdaptor.newEmptyGroup("shared", "shared.xml");
+    SharedFieldSummary existing = new SharedFieldSummary();
+    existing.setName("rx_note");
+    SharedFieldsAdaptor.addPersistableField(group, existing);
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    def.addFieldGroup(group);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+
+    adaptor.deleteField(null, "shared", "rx_note");
+
+    verify(designWs).saveContentEditorSharedDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
+    assertNull(group.getFieldSet().findFieldByName("rx_note", false));
+    assertNull(group.getUIDefinition().getMapping("rx_note"));
+  }
+
+  @Test
+  void deleteField_missingFieldThrowsNotFound() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSSharedFieldGroup group = SharedFieldsAdaptor.newEmptyGroup("shared", "shared.xml");
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    def.addFieldGroup(group);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+    assertThrows(
+        SharedFieldNotFoundException.class, () -> adaptor.deleteField(null, "shared", "missing"));
+    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void deleteField_missingGroupThrowsNotFound() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin"))
+        .thenReturn(new PSContentEditorSharedDef());
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+    SharedFieldNotFoundException ex =
+        assertThrows(
+            SharedFieldNotFoundException.class,
+            () -> adaptor.deleteField(null, "missing", "rx_note"));
+    assertTrue(ex.getMessage().contains("group"));
+    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void deleteField_forbiddenWhenNotAdmin() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SharedFieldsAdaptor denied = new SharedFieldsAdaptor(designWs, () -> false);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> denied.deleteField(null, "shared", "rx_note"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void deleteField_saveLockConflictIs409() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSSharedFieldGroup group = SharedFieldsAdaptor.newEmptyGroup("shared", "shared.xml");
+    SharedFieldSummary existing = new SharedFieldSummary();
+    existing.setName("rx_note");
+    SharedFieldsAdaptor.addPersistableField(group, existing);
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    def.addFieldGroup(group);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
+    doThrow(new PSLockErrorException(1, "not locked", "stack"))
+        .when(designWs)
+        .saveContentEditorSharedDef(any(), eq(true), eq("test-session"), eq("Admin"));
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+    SharedFieldDesignLockException ex =
+        assertThrows(
+            SharedFieldDesignLockException.class,
+            () -> adaptor.deleteField(null, "shared", "rx_note"));
+    assertTrue(ex.getMessage().contains("design lock required"));
+  }
+
+  @Test
+  void addPersistableField_isPersistableXml() {
+    PSSharedFieldGroup group = SharedFieldsAdaptor.newEmptyGroup("custom", "custom.xml");
+    SharedFieldSummary body = new SharedFieldSummary();
+    body.setName("rx_note");
+    SharedFieldsAdaptor.addPersistableField(group, body);
+    org.w3c.dom.Document doc = com.percussion.xml.PSXmlDocumentBuilder.createXmlDocument();
+    org.w3c.dom.Element xml = group.toXml(doc);
+    String serialized = com.percussion.xml.PSXmlDocumentBuilder.toString(xml);
+    assertTrue(serialized.contains("rx_note"));
+    assertTrue(serialized.contains("RX_NOTE") || serialized.contains("rx_note"));
+    assertNotNull(group.getUIDefinition().getMapping("rx_note"));
+  }
+
+  @Test
+  void validateFieldName_rejectsInvalid() {
+    assertEquals("rx_note", SharedFieldsAdaptor.validateFieldName("rx_note"));
+    assertThrows(IllegalArgumentException.class, () -> SharedFieldsAdaptor.validateFieldName(" "));
+    assertThrows(
+        IllegalArgumentException.class, () -> SharedFieldsAdaptor.validateFieldName("has space"));
+    assertThrows(
+        IllegalArgumentException.class, () -> SharedFieldsAdaptor.validateFieldName("a/b"));
+    assertThrows(
+        IllegalArgumentException.class, () -> SharedFieldsAdaptor.validateFieldName("1start"));
+  }
 }

@@ -558,16 +558,19 @@ previously held lock).
 
 **Admin (Design) only.** There is no global JAX-RS Admin filter on this path — the
 sitemanage adaptor checks `IPSUserService.isAdminUser` for the current user and maps
-a non-Admin caller to **403**. Field **create/delete**, control/choice write, and
-system-def (CD-16) remain unsupported.
+a non-Admin caller to **403**. Control/choice write and system-def (CD-16) remain
+unsupported. Nested field create/delete persist a backend column mapping and a
+default `sys_EditBox` display mapping.
 
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/services/sharedfields` | List shared field groups (`name`, `filename`, `fieldCount`) |
 | `GET` | `/services/sharedfields/{idOrName}` | Load one group by **name** (case-insensitive). Shared groups have no numeric design id on this catalog. |
 | `POST` | `/services/sharedfields` | Create an empty shared field group (`name` required, unique, no spaces). Optional `filename` defaults to `{name}.xml`. |
-| `PUT` | `/services/sharedfields/{idOrName}` | Save filename, optional rename (`body.name`), and patches to **existing** fields (`searchable`, occurrence / required). Null `fields` leaves the catalog unchanged. |
+| `PUT` | `/services/sharedfields/{idOrName}` | Save filename, optional rename (`body.name`), and patches to **existing** fields (`searchable`, occurrence / required). Null `fields` leaves the catalog unchanged. Does not create or delete fields. |
 | `DELETE` | `/services/sharedfields/{idOrName}` | Delete the group (**204**). |
+| `POST` | `/services/sharedfields/{idOrName}/fields` | Add a field to an existing group (`name` required, unique across shared groups). Optional `dataType` defaults to `text`. Optional `searchable` and occurrence / required use the same rules as PUT patches. |
+| `DELETE` | `/services/sharedfields/{idOrName}/fields/{fieldName}` | Remove a field and its display mapping (**204**). |
 
 `{idOrName}` is the shared field group name (for example a product set such as
 `shared`). Path separators and `..` are rejected as not found (**404**), not as a
@@ -584,11 +587,26 @@ Create body is a `SharedFieldGroupDetail`:
 ```
 
 PUT may include `fields[]` to patch existing fields by `name`. Unknown field names
-are **400**. New fields cannot be added on this slice. `occurrence` and `required`
-map to the same dimension: when both are sent they must agree (`required=true`
-with `required` / `oneOrMore`; `required=false` with `optional` / `zeroOrMore` /
-`count`) or the request is **400**. `occurrence` is applied when present;
-`required` is used only when `occurrence` is omitted.
+are **400**. PUT does **not** create or delete fields — use nested POST/DELETE
+`.../fields`. Field `name` on create must start with a letter and may contain
+letters, digits, or underscore (no spaces or path characters). Duplicate field
+names (case-insensitive, including names already defined in another shared group)
+are **409**. `occurrence` and `required` map to the same dimension: when both are
+sent they must agree (`required=true` with `required` / `oneOrMore`;
+`required=false` with `optional` / `zeroOrMore` / `count`) or the request is
+**400**. `occurrence` is applied when present; `required` is used only when
+`occurrence` is omitted.
+
+Add-field body is a `SharedFieldSummary`:
+
+```json
+{
+  "name": "rx_note",
+  "dataType": "text",
+  "searchable": true,
+  "required": false
+}
+```
 
 ### Response shape
 
@@ -597,8 +615,7 @@ List entries use `SharedFieldGroupSummary`. Detail uses `SharedFieldGroupDetail`
 - `name`, `filename`
 - `fields[]`: `name`, `dataType`, `searchable`, `required`, `readOnly`, `occurrence`
   (`optional` / `required` / `oneOrMore` / `zeroOrMore` / `count` / `unknown`)
-- `designGaps[]` strings — field create/delete, control/choice edit, and system-def
-  remain later slices
+- `designGaps[]` strings — control/choice edit and system-def remain later slices
 
 Prefer the generated OpenAPI schema as the integration source of truth.
 
@@ -606,12 +623,12 @@ Prefer the generated OpenAPI schema as the integration source of truth.
 
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | List (possibly empty), group detail, create, or save |
-| `204` | Deleted |
-| `400` | Invalid name/filename (including blank path name on PUT/DELETE), unknown field, or conflicting `occurrence`/`required` on PUT |
+| `200` | List (possibly empty), group detail, create, save, or add-field |
+| `204` | Group or field deleted |
+| `400` | Invalid name/filename (including blank path name on PUT/DELETE), unknown field on PUT, invalid field name/`dataType`, or conflicting `occurrence`/`required` |
 | `403` | Caller is not Admin, or the request has no session/user (writes) |
-| `404` | Group not found (unknown or unsafe name). Non-Admin callers receive **403**, not 404 |
-| `409` | Duplicate group name, or the shared definition is locked by another user |
+| `404` | Group or field not found (unknown or unsafe name). Non-Admin callers receive **403**, not 404 |
+| `409` | Duplicate group or field name, or the shared definition is locked by another user |
 | `500` | Design service or server failure |
 
 Authenticated non-Admin sessions (Editor, Contributor, and similar) must not read or

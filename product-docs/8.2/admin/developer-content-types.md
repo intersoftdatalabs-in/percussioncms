@@ -25,8 +25,11 @@ create wizard; rename and delete are REST-only (no SPA chrome). Shared field
 `GET /services/sharedfields/{idOrName}` (catalog), plus
 `POST /services/sharedfields`, `PUT /services/sharedfields/{idOrName}`, and
 `DELETE /services/sharedfields/{idOrName}` (create / save / delete; the shared
-definition is locked for the request). Field create/delete and the SPA editor
-are not in this chrome. See [REST API](id:developer-rest).
+definition is locked for the request). Nested
+`POST /services/sharedfields/{idOrName}/fields` and
+`DELETE /services/sharedfields/{idOrName}/fields/{fieldName}` add or remove
+fields (backend column + display mapping). The SPA editor is not in this
+chrome. See [REST API](id:developer-rest).
 
 This is **not** the full Workbench field-rule editor. The detail table still
 shows rule **flags** (validation / visibility / transforms present). After
