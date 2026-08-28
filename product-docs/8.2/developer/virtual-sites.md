@@ -498,9 +498,10 @@ Supply **one** of:
 
 Do not set both `rss.url` and `rss.file`. Feeds larger than 2 MB fail closed. Each
 discover/load re-reads the current file or HTTP body (no process-lifetime cache). After you
-edit the fixture or `_config.yaml` on the CMS host, run `PSVirtualSiteBuildMain … rss-atom`
-again — **no JVM restart**. File watchers are not used; the next explicit build is the
-refresh.
+edit the RSS/Atom fixture (`feed.xml` / `atom.xml` / `rss.file`) or `_config.yaml` (`rss.file`
+/ loopback `rss.url` or site title) on the CMS host, run **Build Virtual Site** again (REST
+`POST …/virtual/build`, or `PSVirtualSiteBuildMain … rss-atom`) — **no JVM restart**. File
+watchers are not used; the next explicit build is the refresh.
 
 Item / entry mapping:
 
@@ -537,10 +538,12 @@ Atom XML fixture** under `virtual.rootPath` (`feed.xml` / `atom.xml` or `_config
 `rss.file`; `rss.url` loopback only). A successful assemble returns HTTP **200** with
 `pagesWritten > 0`. Missing fixture, unsafe `rootPath` (`..` after NIO normalize), leftover
 `virtual.remoteUrl`, credential properties, and cloud `rootPath` URLs are **400**. No live
-internet feeds and no secrets on the REST envelope. Git, CSV, SQL, HTTP JSON, and
-object-storage Build paths are unchanged. REST persist of `rss-atom` is covered on GET/PUT
-`/sites/{nameOrId}/virtual`. Developer Sites **Build Virtual Site** and **Preview assembled
-site** are shown after save; Publish chrome stays later.
+internet feeds and no secrets on the REST envelope. Each Build re-reads the current
+fixture and `_config.yaml` (no parsed-page cache; no JVM restart; no file watchers). Git,
+CSV, SQL, HTTP JSON, and object-storage Build paths are unchanged. REST persist of
+`rss-atom` is covered on GET/PUT `/sites/{nameOrId}/virtual`. Developer Sites **Build
+Virtual Site** and **Preview assembled site** are shown after save; Publish chrome stays
+later.
 
 ### REST Preview for RSS / Atom (`rss-atom`)
 

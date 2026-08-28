@@ -32,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -425,18 +426,30 @@ class PSRssAtomVirtualSiteSourceTest {
     Files.writeString(feed, rssFeed("live-home", "First Title", "unique-token-AAA"), StandardCharsets.UTF_8);
 
     Path out = tempDir.resolve("rss-rebuild-out");
+    PSRssAtomVirtualSiteSource source = new PSRssAtomVirtualSiteSource();
     PSVirtualSiteBuildService service =
-        PSVirtualSiteBuildService.forSourceType(VirtualSiteSourceType.RSS_ATOM);
+        new PSVirtualSiteBuildService(source, new PSInMemoryVirtualParticipantService());
+
     PSVirtualSiteBuildResult first = service.build(root, out, "rss-docs");
     assertEquals(1, first.pageCount());
     Path html = out.resolve("8.2").resolve("live-home.html");
     assertTrue(Files.isRegularFile(html), "missing " + html);
     String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
     assertTrue(firstHtml.contains("First Site Title"), firstHtml);
+    assertTrue(firstHtml.contains("First Title"), firstHtml);
     assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
 
     Files.writeString(feed, rssFeed("live-home", "Second Title", "unique-token-BBB"), StandardCharsets.UTF_8);
     writeRssYaml(root, "Second Site Title", "feed.xml");
+
+    VirtualSiteConfig reloaded =
+        VirtualSiteConfigLoader.load(root, VirtualSiteConfigLoader.DEFAULT_CONFIG_FILE, "rss-docs");
+    assertEquals("Second Site Title", reloaded.siteTitle());
+    assertEquals("feed.xml", reloaded.rss().file());
+    VirtualItem loaded = source.load(reloaded, source.discover(reloaded).get(0));
+    assertEquals("Second Title", loaded.frontmatter().title());
+    assertTrue(loaded.markdownBody().contains("unique-token-BBB"), loaded.markdownBody());
+    assertFalse(loaded.markdownBody().contains("unique-token-AAA"), loaded.markdownBody());
 
     PSVirtualSiteBuildResult second = service.build(root, out, "rss-docs");
     assertEquals(1, second.pageCount());
@@ -445,7 +458,63 @@ class PSRssAtomVirtualSiteSourceTest {
     assertTrue(secondHtml.contains("Second Title"), secondHtml);
     assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
     assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
+    assertFalse(secondHtml.contains("First Title"), secondHtml);
+    assertFalse(secondHtml.contains("First Site Title"), secondHtml);
     assertNotEquals(firstHtml, secondHtml);
+  }
+
+  @Test
+  void secondBuildAfterLoopbackRssUrlEditEmitsUpdatedHtmlWithoutRestart() throws Exception {
+    AtomicReference<String> feedXml =
+        new AtomicReference<>(rssFeed("live-home", "First Title", "unique-token-AAA"));
+    HttpServer server = loopbackServer();
+    try {
+      server.createContext(
+          "/feed.xml",
+          exchange -> {
+            byte[] bytes = feedXml.get().getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().set("Content-Type", "application/rss+xml");
+            exchange.sendResponseHeaders(200, bytes.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+              os.write(bytes);
+            }
+          });
+      server.start();
+      String url = loopbackUrl(server, "/feed.xml");
+      Path root = writeSite(tempDir.resolve("rss-http-rebuild"), url, null);
+      writeRssYamlWithUrl(root, "First Site Title", url);
+      Files.writeString(
+          root.resolve("_theme").resolve("page.html"),
+          "<html><body><h1>${siteTitle}</h1><h2>${pageTitle}</h2>${content}</body></html>",
+          StandardCharsets.UTF_8);
+
+      Path out = tempDir.resolve("rss-http-rebuild-out");
+      PSVirtualSiteBuildService service =
+          PSVirtualSiteBuildService.forSourceType(VirtualSiteSourceType.RSS_ATOM);
+
+      PSVirtualSiteBuildResult first = service.build(root, out, "rss-docs");
+      assertEquals(1, first.pageCount());
+      Path html = out.resolve("8.2").resolve("live-home.html");
+      assertTrue(Files.isRegularFile(html), "missing " + html);
+      String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
+      assertTrue(firstHtml.contains("First Site Title"), firstHtml);
+      assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
+
+      feedXml.set(rssFeed("live-home", "Second Title", "unique-token-BBB"));
+      writeRssYamlWithUrl(root, "Second Site Title", url);
+
+      PSVirtualSiteBuildResult second = service.build(root, out, "rss-docs");
+      assertEquals(1, second.pageCount());
+      String secondHtml = Files.readString(html, StandardCharsets.UTF_8);
+      assertTrue(secondHtml.contains("Second Site Title"), secondHtml);
+      assertTrue(secondHtml.contains("Second Title"), secondHtml);
+      assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
+      assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
+      assertFalse(secondHtml.contains("First Title"), secondHtml);
+      assertNotEquals(firstHtml, secondHtml);
+    } finally {
+      server.stop(0);
+    }
   }
 
   @Test
@@ -551,6 +620,26 @@ class PSRssAtomVirtualSiteSourceTest {
           file: %s
         """
             .formatted(siteTitle, file),
+        StandardCharsets.UTF_8);
+  }
+
+  private static void writeRssYamlWithUrl(Path root, String siteTitle, String url) throws Exception {
+    Files.writeString(
+        root.resolve("_config.yaml"),
+        """
+        site:
+          title: %s
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        rss:
+          url: "%s"
+        """
+            .formatted(siteTitle, url),
         StandardCharsets.UTF_8);
   }
 

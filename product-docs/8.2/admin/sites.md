@@ -294,11 +294,12 @@ that HTML to the Site filesystem root for Git/CSV/SQL/HTTP JSON/object-storage.
    `_config.yaml`, `sql.queryFile`, `SELECT`, or H2 rows change — or after an HTTP JSON
    catalog (`pages.json` / `http.file` / loopback `http.url`) or `_config.yaml` change —
    or after an object-storage Markdown / HTML / JSON object key or `_config.yaml`
-   (`objects.keys` or site title) change — or after an RSS / Atom `feed.xml` /
-   `atom.xml` / `_config.yaml` `rss.file` change —
-   choose **Build Virtual Site** again. The build re-reads the current tree (and re-fetches
-   when a Git remote is configured) — **do not restart the CMS** just to pick up those
-   edits. There is no file watcher; the next explicit build is the refresh.
+   (`objects.keys` or site title) change — or after an RSS / Atom fixture
+   (`feed.xml` / `atom.xml` / `rss.file` / loopback `rss.url`) or `_config.yaml`
+   change — choose **Build Virtual Site** again. The build re-reads the current tree
+   (and re-fetches when a Git remote is configured) — **do not restart the CMS** just
+   to pick up those edits. There is no file watcher; the next explicit build is the
+   refresh.
 6. Wait for the busy indicator, then review:
    - **Success** — pages written, absolute output path (default under
      `{install}/tmp/virtual-sites/{siteKey}` when no custom output is set).

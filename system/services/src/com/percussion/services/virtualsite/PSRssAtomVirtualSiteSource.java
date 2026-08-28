@@ -65,8 +65,14 @@ import org.xml.sax.SAXException;
  * {@code summary}/{@code description} into assemble {@code id}/{@code title}/{@code body} like
  * csv-filesystem / http-json.
  *
- * <p>Stateless: {@link #discover} and {@link #load} always re-read the current file or HTTP body.
- * No path/mtime parse cache. XML parse is XXE fail-closed via {@link PSSecureXMLUtils}.
+ * <p>Stateless: {@link #discover} and {@link #load} always re-read the current local RSS 2.0 /
+ * Atom fixture via {@link Files#readString} or a fresh loopback HTTP GET. No path/mtime parse
+ * cache or feed cache is kept on the instance or in statics — a second build in the same JVM
+ * after a feed ({@code rss.file} / default {@code feed.xml} / {@code atom.xml}) or {@code
+ * _config.yaml} edit, or after a new {@code rss.url} body, must see the new bytes. File
+ * watchers are not used; {@code _config.yaml} is reloaded by {@link
+ * PSVirtualSiteBuildService}, not this source. XML parse is XXE fail-closed via {@link
+ * PSSecureXMLUtils}.
  */
 public class PSRssAtomVirtualSiteSource implements IPSVirtualSiteSource {
 

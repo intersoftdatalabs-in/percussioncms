@@ -382,6 +382,50 @@ class VirtualSiteConfigLoaderTest {
   }
 
   @Test
+  void secondLoadAfterRssFileAndConfigEditSeesCurrentRssWithoutCache() throws Exception {
+    Path root = tempDir.resolve("live-rss-config");
+    Files.createDirectories(root);
+    Path yaml = root.resolve("_config.yaml");
+    Files.writeString(
+        yaml,
+        """
+        site:
+          title: RSS First
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        rss:
+          file: feed.xml
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig first = VirtualSiteConfigLoader.load(root, null, "k");
+    assertEquals("RSS First", first.siteTitle());
+    assertEquals("feed.xml", first.rss().file());
+    assertTrue(first.rss().url() == null || first.rss().url().isBlank());
+
+    Files.writeString(
+        yaml,
+        """
+        site:
+          title: RSS Second
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        rss:
+          file: custom.xml
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig second = VirtualSiteConfigLoader.load(root, null, "k");
+    assertEquals("RSS Second", second.siteTitle());
+    assertEquals("custom.xml", second.rss().file());
+    assertTrue(second.rss().url() == null || second.rss().url().isBlank());
+  }
+
+  @Test
   void nullRootFails() {
     assertThrows(
         VirtualSiteException.class,
