@@ -46,12 +46,15 @@ materialization. Waiver is **empty** after perc.Test page dual-ship exit (#3737)
 (`perc.Test` never authored `pages/` / page `*.templateDef`). Native packages
 (`package-install.properties` `page.installMode=native`) are not dual-ship emitters.
 #3674 leftover widget binaries are **not** dual-ship-retained (empty retain list).
+Package-build no longer calls `PSPageXmlDualShip.materializeInstallTemplateDefs` (#3950);
+dual-ship mode fails closed. Native `PSPageXmlNativeInstall.stageArchiveTemplateDefs` is
+the only production install emit.
 
 | Piece | Class |
 |-------|--------|
 | Inventory + log parser + CLI | `com.percussion.packages.pagexml.PSDualShipPageTemplateDefInventory` |
 | Surefire | `PSDualShipPageTemplateDefInventoryTest` |
-| Package-build fail-closed | `PSPackageBuilder` |
+| Package-build fail-closed | `PSPackageBuilder` (no DualShip materialize; dual-ship mode throws) |
 
 Committed policy ignores JVM `perc.packages.page.installMode` so CI reflects the source tree.
 

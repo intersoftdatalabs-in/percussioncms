@@ -17,7 +17,7 @@ This document is the **operator / engineering checklist** for turning dual-ship 
 
 | Mode | When | Package-build behavior |
 |------|------|------------------------|
-| **dual-ship** (default) | No package-local opt-in; system prop unset | Materialize root `*.templateDef` → reorganize maps to `TemplateDef-N/` |
+| **dual-ship** (default) | No package-local opt-in; system prop unset | Fail closed in `PSPackageBuilder` — does **not** materialize root `*.templateDef` (#3950). Native archive staging is the only production emit. |
 | **native** | `package-install.properties` `page.installMode=native`, or sys props below | Skip root dual-ship; after reorganize, `PSPageXmlNativeInstall.stageArchiveTemplateDefs` writes `TemplateDef-N/<stem>.templateDef` |
 
 ### Configuration knobs
@@ -60,7 +60,7 @@ Dual-ship **code path** can be deleted when **all** hold:
 - [x] Widget leftover binary TemplateDefs inventoried and converted (#3674 / #3680): `perc.fileBinary`, `perc.imageMainBinary`, `perc.imageThumbBinary` are `output-format=Binary` / `binaryAssembler` (not page layouts). Converted to `pages/<id>/component-package.json` + native install (Widget XML emitter cannot emit TemplateDef). Product tree has zero authored root `*.templateDef`.
 - [x] CI / product package build has zero `dual-ship page templateDefs` log lines — Surefire `PSDualShipPageTemplateDefInventory` / #3675. Waiver is **empty** after perc.Test page dual-ship exit (#3737). Leftover binaries are converted on `main` via #3680 (not dual-ship-retained). Package-build also fails closed via `assertDualShipMaterializationAllowed`.
 - [ ] Docs (this file + page inventory + ADR-004) mark dual-ship retired
-- [ ] Follow-up removes `PSPageXmlDualShip.materializeInstallTemplateDefs` call sites when unused
+- [x] Follow-up removes `PSPageXmlDualShip.materializeInstallTemplateDefs` call sites when unused — package-build no longer calls it (#3950). DualShip CLI/tests still exercise the helper. Policy default flip is a sibling slice.
 
 ### CI gate (#3675)
 
@@ -68,7 +68,7 @@ Dual-ship **code path** can be deleted when **all** hold:
 |-------|--------|
 | Inventory + log parser + CLI | `com.percussion.packages.pagexml.PSDualShipPageTemplateDefInventory` |
 | Surefire | `PSDualShipPageTemplateDefInventoryTest` |
-| Package-build fail-closed | `PSPackageBuilder.stageModernPageInstallArtifacts` |
+| Package-build fail-closed | `PSPackageBuilder.stageModernPageInstallArtifacts` (native only; dual-ship throws, #3950) |
 
 Scan is **committed** `package-install.properties` only (JVM `perc.packages.page.installMode` must not hide a missing native opt-in). Packages with modern `pages/` + native mode are not dual-ship emitters. Authored root `*.templateDef` without modern `pages/` is out of this gate; leftover binaries were converted (#3674 / #3680). Waiver set is **empty** after perc.Test page dual-ship exit (#3737).
 

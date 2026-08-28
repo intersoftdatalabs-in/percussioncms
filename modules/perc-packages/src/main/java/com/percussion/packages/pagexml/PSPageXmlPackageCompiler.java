@@ -33,8 +33,8 @@ import java.util.Objects;
  *
  * <p><strong>Authoring preference (ADR-004 / #2786):</strong> modern {@code pages/&lt;id&gt;/}
  * component packages. Falls back to root-level {@code *.templateDef} for upgrade-input / dual-run
- * staging. Package build dual-ships modern → install {@code *.templateDef} via {@link
- * PSPageXmlDualShip}.
+ * staging. Package-build stages archive {@code TemplateDef-N/} via {@link PSPageXmlNativeInstall}
+ * (#3950).
  */
 public final class PSPageXmlPackageCompiler {
 

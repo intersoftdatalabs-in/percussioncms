@@ -42,8 +42,8 @@ import java.util.Objects;
  * Package Manifest assembler field; Velocity body is the canonical template source. Dual-ship also
  * preserves mime type, publish-when, and location suffix when present.
  *
- * <p>Product page layout packages author modern {@code pages/&lt;id&gt;/} sources; install dual-ship
- * emits {@code *.templateDef} at package-build time ({@link PSPageXmlDualShip}, issue #2786). This
+ * <p>Product page layout packages author modern {@code pages/&lt;id&gt;/} sources; package-build
+ * stages archive {@code TemplateDef-N/} via {@link PSPageXmlNativeInstall} (issue #3950). This
  * compiler remains the upgrade path for legacy {@code *.templateDef} input.
  */
 public final class PSPageXmlCompiler {

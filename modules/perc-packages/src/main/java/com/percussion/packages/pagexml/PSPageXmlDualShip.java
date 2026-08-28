@@ -45,11 +45,11 @@ import java.util.regex.Pattern;
  * template sources under the product package tree (e.g. {@code perc.baseTemplates}, {@code
  * perc.responsiveTemplates}, {@code perc.Baseline} system assembly templates).
  *
- * <p><strong>Install path (dual-ship mode):</strong> package build materializes root-level {@code
- * *.templateDef} files (legacy {@code TemplateDef} dependency) so reorganize + {@code .ppkg}
- * install parity is preserved. Prefer {@link PSPageXmlNativeInstall} / {@link
- * PSPageXmlInstallMode#NATIVE} (package-local or system property) to stage archive {@code
- * TemplateDef-N/} folders without dual-ship root files — see {@link PSPageXmlInstallPolicy}.
+ * <p><strong>Install path:</strong> production package-build uses {@link PSPageXmlNativeInstall} to
+ * stage archive {@code TemplateDef-N/} folders (issue #3950). {@link
+ * #materializeInstallTemplateDefs} remains a dual-ship helper/CLI and is not called from {@code
+ * PSPackageBuilder}. Dual-ship mode on the builder path fails closed — see {@link
+ * PSPageXmlInstallPolicy}.
  *
  * <p>GUIDs for install templateDefs are derived from {@code &lt;package&gt;.mapping.properties}
  * entries ({@code TemplateDef-N} → {@code 0-4-N}).
@@ -111,6 +111,9 @@ public final class PSPageXmlDualShip {
   /**
    * Materialize install-path {@code *.templateDef} files at the package root from modern {@code
    * pages/&lt;id&gt;/} sources. No-op when no modern pages are present.
+   *
+   * <p>Not invoked from production package-build ({@code PSPackageBuilder}, issue #3950). Prefer
+   * {@link PSPageXmlNativeInstall#stageArchiveTemplateDefs}.
    *
    * @param packageDir product package source (or staging copy)
    * @return number of templateDefs written

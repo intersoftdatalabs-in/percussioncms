@@ -205,8 +205,10 @@ public final class PSDualShipPageTemplateDefInventory {
   }
 
   /**
-   * Format the package-build log line for dual-ship materialization (must stay in lockstep with
-   * {@code PSPackageBuilder}).
+   * Format the historical package-build log line for dual-ship materialization.
+   *
+   * <p>{@code PSPackageBuilder} no longer emits this line (#3950). Kept so inventory log scans and
+   * tests can still detect a regression if dual-ship writes reappear.
    *
    * @param packageName package directory name
    * @param written number of templateDefs written
