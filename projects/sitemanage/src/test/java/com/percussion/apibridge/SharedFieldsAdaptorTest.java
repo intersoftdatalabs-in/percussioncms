@@ -389,6 +389,71 @@ class SharedFieldsAdaptorTest {
   }
 
   @Test
+  void updateGroup_blankNameIs400() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.updateGroup(null, "  ", new SharedFieldGroupDetail()));
+    assertTrue(ex.getMessage().contains("name is required"));
+    verify(designWs, never()).loadContentEditorSharedDef(anyBoolean(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void applyFieldPatches_occurrenceWinsWhenRequiredAgrees() throws Exception {
+    PSField field = mock(PSField.class);
+    PSFieldSet set = mock(PSFieldSet.class);
+    when(set.findFieldByName("rx_title", false)).thenReturn(field);
+    PSSharedFieldGroup group = SharedFieldsAdaptor.newEmptyGroup("shared", "shared.xml");
+    group.setFieldSet(set);
+
+    SharedFieldSummary patch = new SharedFieldSummary();
+    patch.setName("rx_title");
+    patch.setOccurrence("oneOrMore");
+    patch.setRequired(true);
+
+    SharedFieldsAdaptor.applyFieldPatches(group, List.of(patch));
+    verify(field).setOccurrenceDimension(eq(PSField.OCCURRENCE_DIMENSION_ONE_OR_MORE), isNull());
+  }
+
+  @Test
+  void applyFieldPatches_occurrenceAndRequiredConflictIs400() {
+    PSField field = mock(PSField.class);
+    PSFieldSet set = mock(PSFieldSet.class);
+    when(set.findFieldByName("rx_title", false)).thenReturn(field);
+    PSSharedFieldGroup group = SharedFieldsAdaptor.newEmptyGroup("shared", "shared.xml");
+    group.setFieldSet(set);
+
+    SharedFieldSummary patch = new SharedFieldSummary();
+    patch.setName("rx_title");
+    patch.setOccurrence("optional");
+    patch.setRequired(true);
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> SharedFieldsAdaptor.applyFieldPatches(group, List.of(patch)));
+    assertTrue(ex.getMessage().contains("conflict"));
+  }
+
+  @Test
+  void applyFieldPatches_requiredOnlyWhenOccurrenceOmitted() throws Exception {
+    PSField field = mock(PSField.class);
+    PSFieldSet set = mock(PSFieldSet.class);
+    when(set.findFieldByName("rx_title", false)).thenReturn(field);
+    PSSharedFieldGroup group = SharedFieldsAdaptor.newEmptyGroup("shared", "shared.xml");
+    group.setFieldSet(set);
+
+    SharedFieldSummary patch = new SharedFieldSummary();
+    patch.setName("rx_title");
+    patch.setRequired(true);
+
+    SharedFieldsAdaptor.applyFieldPatches(group, List.of(patch));
+    verify(field).setOccurrenceDimension(eq(PSField.OCCURRENCE_DIMENSION_REQUIRED), isNull());
+  }
+
+  @Test
   void updateGroup_missingReturnsNull() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
     when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin"))
@@ -424,6 +489,16 @@ class SharedFieldsAdaptorTest {
         ArgumentCaptor.forClass(PSContentEditorSharedDef.class);
     verify(designWs).saveContentEditorSharedDef(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
     assertNull(SharedFieldsAdaptor.findGroup(saved.getValue(), "shared"));
+  }
+
+  @Test
+  void deleteGroup_blankNameIs400() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.deleteGroup(null, " "));
+    assertTrue(ex.getMessage().contains("name is required"));
+    verify(designWs, never()).loadContentEditorSharedDef(anyBoolean(), anyBoolean(), any(), any());
   }
 
   @Test

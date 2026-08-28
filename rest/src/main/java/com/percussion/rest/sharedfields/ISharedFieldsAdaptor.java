@@ -61,8 +61,9 @@ public interface ISharedFieldsAdaptor {
    * existing fields ({@code searchable}, occurrence / required). Null {@code fields} leaves fields
    * unchanged. Does not create or delete fields.
    *
-   * @return updated detail, or {@code null} when not found / unsafe name
-   * @throws IllegalArgumentException when input is invalid or a field name is unknown
+   * @return updated detail, or {@code null} when not found / unsafe path name
+   * @throws IllegalArgumentException when the path name is blank, input is invalid, a field name
+   *     is unknown, or {@code occurrence} and {@code required} conflict
    * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin; {@code
    *     409} when the new name already exists
    * @throws SharedFieldDesignLockException when the shared def is locked by another user

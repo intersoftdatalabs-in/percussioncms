@@ -176,8 +176,10 @@ public class SharedFieldsResource {
           "Admin. Saves filename, optional rename (body.name different from path), and patches"
               + " to existing fields (searchable, occurrence/required). Null fields leaves the"
               + " catalog unchanged. Does not create or delete fields. Acquires the shared-def"
-              + " design lock for this request and releases it on save. Missing group is 404;"
-              + " lock held by another user is 409.",
+              + " design lock for this request and releases it on save. Blank path name is 400;"
+              + " missing or unsafe path name is 404. When a field patch includes both occurrence"
+              + " and required they must agree (else 400); occurrence is applied when present."
+              + " Lock held by another user is 409.",
       responses = {
         @ApiResponse(
             responseCode = "200",

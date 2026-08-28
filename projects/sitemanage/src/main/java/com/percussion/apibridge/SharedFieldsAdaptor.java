@@ -281,6 +281,14 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
     return sb.length() == 0 ? "SHARED_FIELDS" : sb.toString();
   }
 
+  /**
+   * Apply {@code searchable} then occurrence. {@code occurrence} and {@code required} both map to
+   * the same object-store dimension. When both are present they must agree ({@code required=true}
+   * with {@code required}/{@code oneOrMore}; {@code required=false} with {@code
+   * optional}/{@code zeroOrMore}/{@code count}); otherwise this throws {@link
+   * IllegalArgumentException}. When they agree, {@code occurrence} is applied. {@code required} is
+   * used only when {@code occurrence} is omitted.
+   */
   static void applyFieldPatches(PSSharedFieldGroup group, List<SharedFieldSummary> patches) {
     if (patches == null || patches.isEmpty() || group == null) {
       return;
@@ -300,30 +308,51 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
       if (patch.getSearchable() != null) {
         field.setUserSearchable(patch.getSearchable());
       }
-      if (StringUtils.isNotBlank(patch.getOccurrence())) {
-        Integer dim = occurrenceFromApi(patch.getOccurrence());
-        if (dim == null) {
-          throw new IllegalArgumentException(
-              "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence());
-        }
-        try {
-          field.setOccurrenceDimension(dim, null);
-        } catch (PSSystemValidationException e) {
-          throw new IllegalArgumentException(
-              "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence(), e);
-        }
-      } else if (patch.getRequired() != null) {
-        int dim =
-            Boolean.TRUE.equals(patch.getRequired())
-                ? PSField.OCCURRENCE_DIMENSION_REQUIRED
-                : PSField.OCCURRENCE_DIMENSION_OPTIONAL;
-        try {
-          field.setOccurrenceDimension(dim, null);
-        } catch (PSSystemValidationException e) {
-          throw new IllegalArgumentException(
-              "Invalid required flag for field " + patch.getName(), e);
-        }
+      applyOccurrenceOrRequired(field, patch);
+    }
+  }
+
+  static void applyOccurrenceOrRequired(PSField field, SharedFieldSummary patch) {
+    boolean hasOccurrence = StringUtils.isNotBlank(patch.getOccurrence());
+    boolean hasRequired = patch.getRequired() != null;
+    if (hasOccurrence) {
+      Integer dim = occurrenceFromApi(patch.getOccurrence());
+      if (dim == null) {
+        throw new IllegalArgumentException(
+            "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence());
       }
+      if (hasRequired
+          && Boolean.TRUE.equals(patch.getRequired()) != occurrenceImpliesRequired(dim)) {
+        throw new IllegalArgumentException(
+            "occurrence and required conflict for field " + patch.getName());
+      }
+      setOccurrenceDimension(field, dim, patch.getName(), patch.getOccurrence());
+    } else if (hasRequired) {
+      int dim =
+          Boolean.TRUE.equals(patch.getRequired())
+              ? PSField.OCCURRENCE_DIMENSION_REQUIRED
+              : PSField.OCCURRENCE_DIMENSION_OPTIONAL;
+      try {
+        field.setOccurrenceDimension(dim, null);
+      } catch (PSSystemValidationException e) {
+        throw new IllegalArgumentException(
+            "Invalid required flag for field " + patch.getName(), e);
+      }
+    }
+  }
+
+  static boolean occurrenceImpliesRequired(int dimension) {
+    return dimension == PSField.OCCURRENCE_DIMENSION_REQUIRED
+        || dimension == PSField.OCCURRENCE_DIMENSION_ONE_OR_MORE;
+  }
+
+  private static void setOccurrenceDimension(
+      PSField field, int dim, String fieldName, String occurrenceLabel) {
+    try {
+      field.setOccurrenceDimension(dim, null);
+    } catch (PSSystemValidationException e) {
+      throw new IllegalArgumentException(
+          "Invalid occurrence for field " + fieldName + ": " + occurrenceLabel, e);
     }
   }
 
@@ -390,6 +419,9 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
     requireAdmin();
     requireDesignWs();
     requireSessionUserForWrite();
+    if (StringUtils.isBlank(name)) {
+      throw new IllegalArgumentException("name is required");
+    }
     if (!isSafeGroupName(name)) {
       return null;
     }

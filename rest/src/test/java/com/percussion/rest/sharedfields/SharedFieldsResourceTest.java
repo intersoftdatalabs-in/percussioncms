@@ -236,6 +236,17 @@ public class SharedFieldsResourceTest {
   }
 
   @Test
+  public void updateGroupBlankNameIs400() {
+    when(adaptor.updateGroup(any(), eq(" "), any()))
+        .thenThrow(new IllegalArgumentException("name is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateGroup(" ", new SharedFieldGroupDetail()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void updateGroupUnknownFieldIs400() {
     when(adaptor.updateGroup(any(), eq("shared"), any()))
         .thenThrow(new IllegalArgumentException("Unknown field: missing"));
@@ -251,6 +262,16 @@ public class SharedFieldsResourceTest {
     Response out = resource.deleteGroup("shared");
     assertEquals(204, out.getStatus());
     verify(adaptor).deleteGroup(any(), eq("shared"));
+  }
+
+  @Test
+  public void deleteGroupBlankNameIs400() {
+    doThrow(new IllegalArgumentException("name is required"))
+        .when(adaptor)
+        .deleteGroup(any(), eq(" "));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteGroup(" "));
+    assertEquals(400, ex.getResponse().getStatus());
   }
 
   @Test

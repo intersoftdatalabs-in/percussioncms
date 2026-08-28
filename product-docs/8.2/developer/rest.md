@@ -536,7 +536,8 @@ system-def (CD-16) remain unsupported.
 
 `{idOrName}` is the shared field group name (for example a product set such as
 `shared`). Path separators and `..` are rejected as not found (**404**), not as a
-directory listing.
+directory listing. A blank path name on PUT or DELETE is **400** (same invalid-name
+rule as POST).
 
 Create body is a `SharedFieldGroupDetail`:
 
@@ -548,7 +549,11 @@ Create body is a `SharedFieldGroupDetail`:
 ```
 
 PUT may include `fields[]` to patch existing fields by `name`. Unknown field names
-are **400**. New fields cannot be added on this slice.
+are **400**. New fields cannot be added on this slice. `occurrence` and `required`
+map to the same dimension: when both are sent they must agree (`required=true`
+with `required` / `oneOrMore`; `required=false` with `optional` / `zeroOrMore` /
+`count`) or the request is **400**. `occurrence` is applied when present;
+`required` is used only when `occurrence` is omitted.
 
 ### Response shape
 
@@ -568,7 +573,7 @@ Prefer the generated OpenAPI schema as the integration source of truth.
 |--------|-----------------|
 | `200` | List (possibly empty), group detail, create, or save |
 | `204` | Deleted |
-| `400` | Invalid name/filename, or unknown field on PUT |
+| `400` | Invalid name/filename (including blank path name on PUT/DELETE), unknown field, or conflicting `occurrence`/`required` on PUT |
 | `403` | Caller is not Admin, or the request has no session/user (writes) |
 | `404` | Group not found (unknown or unsafe name). Non-Admin callers receive **403**, not 404 |
 | `409` | Duplicate group name, or the shared definition is locked by another user |
