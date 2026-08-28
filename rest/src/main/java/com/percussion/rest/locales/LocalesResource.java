@@ -24,7 +24,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -40,14 +44,17 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Read-only CMS locale catalog for the Developer module (CD-18).
+ * CMS locale catalog for the Developer module (CD-18).
+ *
+ * <p>List/detail are unauthenticated-beyond-session catalog reads. Create, update, and delete are
+ * Admin design writes via {@link ILocalesAdaptor} (held design lock, same backends SOAP uses).
  *
  * <p>Registered via {@link PSSiteManageBean} like sibling catalog resources.
  */
 @PSSiteManageBean(value = "restLocalesResource")
 @Path("/locales")
 @XmlRootElement
-@Tag(name = "Locales", description = "CMS locale design catalog (read-only)")
+@Tag(name = "Locales", description = "CMS locale design catalog")
 public class LocalesResource {
 
   /**
@@ -83,8 +90,8 @@ public class LocalesResource {
   @Operation(
       summary = "List CMS locales",
       description =
-          "Lists CMS locales (language string, label, status, base flag). Create/edit/delete and"
-              + " auto-translation settings are later slices.",
+          "Lists CMS locales (language string, label, status, base flag). Auto-translation"
+              + " settings are a later slice.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -112,8 +119,8 @@ public class LocalesResource {
   @Operation(
       summary = "Get CMS locale detail",
       description =
-          "Loads one locale by language string (e.g. en-us) or numeric locale id. Write and"
-              + " auto-translation remain unsupported (see designGaps).",
+          "Loads one locale by language string (e.g. en-us) or numeric locale id. Auto-translation"
+              + " remains unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -138,6 +145,144 @@ public class LocalesResource {
           "Failed to load locale {} ({}): {}", idOrLang, e.getClass().getName(), e.getMessage(), e);
       throw new WebApplicationException(e, 500);
     }
+  }
+
+  @POST
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Create CMS locale",
+      description =
+          "Admin. Creates and persists a locale via IPSContentDesignWs.createLocales then"
+              + " saveLocales (held design lock, released on save). languageString and label are"
+              + " required. Duplicate language string is 409. Lock/dependency conflict is 409.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Created",
+            content = @Content(schema = @Schema(implementation = LocaleDetail.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Language string already exists, or design lock/dependency conflict"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public LocaleDetail createLocale(LocaleDetail body) {
+    try {
+      return requireAdaptor().createLocale(uriInfo.getBaseUri(), body);
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      log.error("Failed to create locale ({}): {}", e.getClass().getName(), e.getMessage(), e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrLang}")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Update CMS locale",
+      description =
+          "Admin. Updates label, description, status, and/or baseLocale by language string or"
+              + " numeric id. languageString is immutable. Loads with a design lock and releases"
+              + " on save. Unknown id is 404. Lock/dependency conflict is 409.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated",
+            content = @Content(schema = @Schema(implementation = LocaleDetail.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Locale not found"),
+        @ApiResponse(responseCode = "409", description = "Design lock or dependency conflict"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public LocaleDetail updateLocale(@PathParam("idOrLang") String idOrLang, LocaleDetail body) {
+    try {
+      LocaleDetail detail = requireAdaptor().updateLocale(uriInfo.getBaseUri(), idOrLang, body);
+      if (detail == null) {
+        throw new WebApplicationException("Locale not found", 404);
+      }
+      return detail;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to update locale {} ({}): {}",
+          idOrLang,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @DELETE
+  @Path("/{idOrLang}")
+  @Operation(
+      summary = "Delete CMS locale",
+      description =
+          "Admin. Deletes a locale by language string or numeric id via"
+              + " IPSContentDesignWs.deleteLocales (ignoreDependencies=false). Unknown id is 404."
+              + " Lock or remaining dependents is 409.",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Deleted"),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Locale not found"),
+        @ApiResponse(responseCode = "409", description = "Design lock or dependency conflict"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response deleteLocale(@PathParam("idOrLang") String idOrLang) {
+    try {
+      requireAdaptor().deleteLocale(uriInfo.getBaseUri(), idOrLang);
+      return Response.noContent().build();
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to delete locale {} ({}): {}",
+          idOrLang,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Map adaptor write failures to HTTP status. Lock/dependency conflicts are always 409 via {@link
+   * LocaleDesignLockException} or a 409 {@link WebApplicationException}.
+   */
+  static WebApplicationException mapWriteFailure(RuntimeException e) {
+    if (e instanceof WebApplicationException wae) {
+      return wae;
+    }
+    if (e instanceof LocaleDesignLockException) {
+      return new WebApplicationException(e.getMessage(), 409);
+    }
+    if (e instanceof LocaleNotFoundException) {
+      return new WebApplicationException(
+          e.getMessage() != null ? e.getMessage() : "Locale not found", 404);
+    }
+    if (e instanceof IllegalArgumentException) {
+      return new WebApplicationException(e.getMessage(), 400);
+    }
+    if (e instanceof IllegalStateException) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Conflict";
+      String lower = msg.toLowerCase();
+      if (lower.contains("lock") || lower.contains("depend")) {
+        return new WebApplicationException(msg, 409);
+      }
+      return new WebApplicationException(e, 500);
+    }
+    return new WebApplicationException(e, 500);
   }
 
   private ILocalesAdaptor requireAdaptor() {

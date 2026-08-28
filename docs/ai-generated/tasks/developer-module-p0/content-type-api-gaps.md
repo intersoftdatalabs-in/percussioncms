@@ -47,6 +47,23 @@ Adaptor: `IKeywordsAdaptor` → `KeywordsAdaptor` via `IPSContentDesignWs` (crea
 design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
 `KeywordsAdaptorDesignWsTest`, Spring `TestKeywordsAdaptor` stub.
 
+## Locales
+
+|              Surface               |                     Path                     |
+|------------------------------------|----------------------------------------------|
+| List locales                       | `GET /services/locales`                      |
+| Get one locale                     | `GET /services/locales/{idOrLang}`           |
+| Create locale                      | `POST /services/locales`                     |
+| Update locale                      | `PUT /services/locales/{idOrLang}`           |
+| Delete locale                      | `DELETE /services/locales/{idOrLang}`        |
+
+**CD-18 Locale write shipped** (REST create/update/delete, #3959). Adaptor: `ILocalesAdaptor` →
+`LocalesAdaptor` via `IPSContentDesignWs` (`createLocales` / `loadLocales` / `saveLocales` /
+`deleteLocales` with a held design lock released on save). Admin 403; unknown 404;
+lock/duplicate/dependency 409. Companion tests: `LocalesResourceTest` CRUD, `LocalesAdaptorDesignWsTest`,
+Spring `TestLocalesAdaptor` stub. Auto-translation set editor and SPA locale editor remain later
+slices.
+
 ## Explicit gaps vs Workbench Content Type editor
 
 |                         Gap                          |    FR IDs    |                       Notes                       |
@@ -63,6 +80,7 @@ design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
 | Import/export CT                                     | CD-14        | Workbench wizards                                 |
 | ACL                                                  | CD-19, §5.4  | Existing ACL REST may help later                  |
 | ~~Keyword write~~                                    | CD-17        | **Done** — REST + SPA + design WS (#1612/#1701)   |
+| Locale **write** (create/update/delete)              | CD-18        | **REST write shipped** (#3959, design WS + Admin 403 / lock 409). Auto-translation editor + SPA remain open |
 
 ## Recommended next API work
 
@@ -73,6 +91,7 @@ design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
 5. ~~Control property value/choice catalogs~~ **Done CD-07 REST** (#3786). Field-rule write/save still open
 6. ~~Shared field catalog read~~ **Done CD-15 read** (`GET /services/sharedfields`, Admin 403). ~~Write~~ **Done CD-15 group create/save/delete** (`POST`/`PUT`/`DELETE`, #3944). ~~Field create/delete~~ **Done** (`POST …/fields`, `DELETE …/fields/{fieldName}`, #3954). Control/choice write + SPA editor still open
 7. Templates/slots design editors
+8. CD-18 remainder: auto-translation set editor + SPA locale editor (REST locale CRUD shipped #3959)
 
 ## Client behavior
 

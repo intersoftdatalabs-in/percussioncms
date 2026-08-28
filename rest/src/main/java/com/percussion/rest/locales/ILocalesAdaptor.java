@@ -31,4 +31,20 @@ public interface ILocalesAdaptor {
    * @return detail, or {@code null} when not found / unsafe key
    */
   LocaleDetail getLocale(URI baseUri, String idOrLang);
+
+  /**
+   * Create a CMS locale (language string + label required). Persists via content design WS with a
+   * held lock released on save.
+   */
+  LocaleDetail createLocale(URI baseUri, LocaleDetail body);
+
+  /**
+   * Update an existing locale by language string or numeric id. Language string is immutable.
+   *
+   * @return detail, or {@code null} when not found / unsafe key
+   */
+  LocaleDetail updateLocale(URI baseUri, String idOrLang, LocaleDetail body);
+
+  /** Delete a locale by language string or numeric id. */
+  void deleteLocale(URI baseUri, String idOrLang);
 }

@@ -42,4 +42,19 @@ public class TestLocalesAdaptor implements ILocalesAdaptor {
   public LocaleDetail getLocale(URI baseUri, String idOrLang) {
     return null;
   }
+
+  @Override
+  public LocaleDetail createLocale(URI baseUri, LocaleDetail body) {
+    return null;
+  }
+
+  @Override
+  public LocaleDetail updateLocale(URI baseUri, String idOrLang, LocaleDetail body) {
+    return null;
+  }
+
+  @Override
+  public void deleteLocale(URI baseUri, String idOrLang) {
+    // no-op for tests
+  }
 }
