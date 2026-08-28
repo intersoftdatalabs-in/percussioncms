@@ -24,6 +24,7 @@ import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
+import com.percussion.rest.contenttypes.ContentTypeField;
 import com.percussion.rest.contenttypes.ContentTypeFieldControlProperties;
 import com.percussion.rest.contenttypes.ContentTypeFieldRuleExpressions;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
@@ -192,5 +193,15 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
   public ContentTypeFieldRuleExpressions replaceFieldRuleExpressions(
       URI baseUri, String idOrName, String fieldName, ContentTypeFieldRuleExpressions body) {
     return body;
+  }
+
+  @Override
+  public ContentTypeDetail addLocalField(URI baseUri, String idOrName, ContentTypeField body) {
+    return getContentType(baseUri, idOrName);
+  }
+
+  @Override
+  public Boolean deleteLocalField(URI baseUri, String idOrName, String fieldName) {
+    return Boolean.TRUE;
   }
 }

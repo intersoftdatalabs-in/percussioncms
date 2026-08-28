@@ -26,6 +26,9 @@ import org.springframework.stereotype.Component;
 /**
  * Spring test stub for {@link ISystemDefAdaptor}. Required for ApplicationContext load after
  * constructor injection on {@code SystemDefResource}.
+ *
+ * <p>Admin 403 is <em>not</em> a global JAX-RS filter; production {@code SystemDefAdaptor}
+ * enforces it. This stub is only a Spring bean for {@code MainTest} and does not model AuthZ.
  */
 @Component
 @Lazy
@@ -34,5 +37,10 @@ public class TestSystemDefAdaptor implements ISystemDefAdaptor {
   @Override
   public SystemDefDetail getSystemDef(URI baseUri) {
     return new SystemDefDetail();
+  }
+
+  @Override
+  public SystemDefDetail updateSystemDef(URI baseUri, SystemDefDetail body) {
+    return body != null ? body : new SystemDefDetail();
   }
 }

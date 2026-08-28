@@ -1043,4 +1043,137 @@ public class ContentTypesResourceDetailTest {
             () -> resource.renameContentType("percPage", new ContentTypeName("percRenamed")));
     assertEquals(403, ex.getResponse().getStatus());
   }
+
+  @Test
+  public void addLocalFieldSuccess() {
+    ContentTypeField body = new ContentTypeField();
+    body.setName("rx_note");
+    ContentTypeDetail updated = new ContentTypeDetail();
+    updated.setName("percPage");
+    ContentTypeField created = new ContentTypeField();
+    created.setName("rx_note");
+    updated.setFields(List.of(created));
+    when(adaptor.addLocalField(any(), eq("percPage"), any())).thenReturn(updated);
+    ContentTypeDetail out = resource.addLocalField("percPage", body);
+    assertEquals("percPage", out.getName());
+    assertEquals(1, out.getFields().size());
+    assertEquals("rx_note", out.getFields().get(0).getName());
+    verify(adaptor).addLocalField(any(), eq("percPage"), eq(body));
+  }
+
+  @Test
+  public void addLocalFieldNotFound() {
+    when(adaptor.addLocalField(any(), eq("missing"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.addLocalField("missing", new ContentTypeField()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void addLocalFieldInvalidName400() {
+    when(adaptor.addLocalField(any(), eq("percPage"), any()))
+        .thenThrow(new IllegalArgumentException("name cannot contain spaces"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.addLocalField("percPage", new ContentTypeField()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void addLocalFieldDuplicate409() {
+    when(adaptor.addLocalField(any(), eq("percPage"), any()))
+        .thenThrow(new WebApplicationException("Field already exists: rx_note", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.addLocalField("percPage", new ContentTypeField()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void addLocalFieldRequiresLock() {
+    when(adaptor.addLocalField(any(), eq("percPage"), any()))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not add content type field; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.addLocalField("percPage", new ContentTypeField()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void addLocalFieldForbiddenWhenNotAdmin() {
+    when(adaptor.addLocalField(any(), eq("percPage"), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.addLocalField("percPage", new ContentTypeField()));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteLocalFieldReturns204() {
+    when(adaptor.deleteLocalField(any(), eq("percPage"), eq("rx_note"))).thenReturn(Boolean.TRUE);
+    Response out = resource.deleteLocalField("percPage", "rx_note");
+    assertEquals(204, out.getStatus());
+    verify(adaptor).deleteLocalField(any(), eq("percPage"), eq("rx_note"));
+  }
+
+  @Test
+  public void deleteLocalFieldTypeNotFound() {
+    when(adaptor.deleteLocalField(any(), eq("missing"), eq("rx_note"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteLocalField("missing", "rx_note"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteLocalFieldUnknownField404() {
+    when(adaptor.deleteLocalField(any(), eq("percPage"), eq("nope")))
+        .thenThrow(new WebApplicationException("Unknown field: nope", 404));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteLocalField("percPage", "nope"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteLocalFieldNotLocal400() {
+    when(adaptor.deleteLocalField(any(), eq("percPage"), eq("sys_title")))
+        .thenThrow(new IllegalArgumentException("Only local fields can be deleted"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.deleteLocalField("percPage", "sys_title"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteLocalFieldRequiresLock() {
+    when(adaptor.deleteLocalField(any(), eq("percPage"), eq("rx_note")))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not delete content type field; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteLocalField("percPage", "rx_note"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteLocalFieldForbiddenWhenNotAdmin() {
+    when(adaptor.deleteLocalField(any(), eq("percPage"), eq("rx_note")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteLocalField("percPage", "rx_note"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
 }

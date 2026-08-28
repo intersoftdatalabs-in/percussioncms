@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Read-only content-editor system definition (global system fields).
- *
- * <p>Does not support write (later CD-16 write slice).
+ * Content-editor system definition (global system fields). GET catalog; PUT may patch existing
+ * field properties ({@code searchable}, occurrence / required). Field create/delete remain
+ * unsupported ({@code designGaps}).
  */
 @XmlRootElement(name = "SystemDefDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)

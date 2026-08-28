@@ -26,6 +26,24 @@ public interface ISystemDefAdaptor {
    *
    * @param baseUri reserved for HATEOAS
    * @return detail, never {@code null} (empty fields when def missing)
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin
    */
   SystemDefDetail getSystemDef(URI baseUri);
+
+  /**
+   * Persist patches to existing system-def field properties. Admin only. Acquires the system-def
+   * design lock for this request and releases it on save.
+   *
+   * <p>Supports patches to existing fields ({@code searchable}, occurrence / required). Null or
+   * empty {@code fields} leaves the catalog unchanged. Does not create or delete fields. {@code
+   * dataType}, {@code readOnly}, and {@code cacheTimeoutMinutes} are not written.
+   *
+   * @return persisted detail, never {@code null}
+   * @throws IllegalArgumentException when input is invalid, a field name is unknown, or {@code
+   *     occurrence} and {@code required} conflict
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin
+   * @throws SystemDefDesignLockException when the system def is locked by another user or is not
+   *     locked for this session
+   */
+  SystemDefDetail updateSystemDef(URI baseUri, SystemDefDetail body);
 }
