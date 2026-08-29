@@ -36,6 +36,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -384,7 +385,7 @@ public class TemplatesResource {
     if (base.isEmpty()) {
       base = "template";
     }
-    if (!base.regionMatches(true, base.length() - 4, ".xml", 0, 4)) {
+    if (!base.toLowerCase(Locale.ROOT).endsWith(".xml")) {
       base = base + ".xml";
     }
     return base;

@@ -277,4 +277,13 @@ public class TemplatesResourceDetailTest {
     assertEquals("a_b.xml", TemplatesResource.exportFilename("a/b"));
     assertEquals("template.xml", TemplatesResource.exportFilename("  "));
   }
+
+  @Test
+  public void exportFilenameShortNamesAppendXmlWithoutThrowing() {
+    assertEquals("a.xml", TemplatesResource.exportFilename("a"));
+    assertEquals("ab.xml", TemplatesResource.exportFilename("ab"));
+    assertEquals("abc.xml", TemplatesResource.exportFilename("abc"));
+    assertEquals("a.xml", TemplatesResource.exportFilename("a.xml"));
+    assertEquals("Foo.XML", TemplatesResource.exportFilename("Foo.XML"));
+  }
 }
