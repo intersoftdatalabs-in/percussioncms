@@ -286,4 +286,58 @@ public class TemplatesResourceDetailTest {
     assertEquals("a.xml", TemplatesResource.exportFilename("a.xml"));
     assertEquals("Foo.XML", TemplatesResource.exportFilename("Foo.XML"));
   }
+
+  @Test
+  public void importTemplateSuccessRoundTripsName() {
+    TemplateDetail created = new TemplateDetail();
+    created.setName("imported.one");
+    created.setLabel("Imported One");
+    when(adaptor.importTemplate(any(), eq(SAMPLE_IMPORT_XML))).thenReturn(created);
+
+    TemplateDetail out = resource.importTemplate(SAMPLE_IMPORT_XML);
+    assertEquals("imported.one", out.getName());
+    assertEquals("Imported One", out.getLabel());
+    verify(adaptor).importTemplate(any(), eq(SAMPLE_IMPORT_XML));
+  }
+
+  @Test
+  public void importTemplateInvalidXmlIs400() {
+    when(adaptor.importTemplate(any(), any()))
+        .thenThrow(new IllegalArgumentException("invalid assembly-template XML"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.importTemplate("<not-xml"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void importTemplateNonAdminIs403() {
+    when(adaptor.importTemplate(any(), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.importTemplate(SAMPLE_IMPORT_XML));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void importTemplateNameCollisionIs409() {
+    when(adaptor.importTemplate(any(), any()))
+        .thenThrow(new WebApplicationException("Template already exists: imported.one", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.importTemplate(SAMPLE_IMPORT_XML));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void importTemplateWrapsFailures() {
+    when(adaptor.importTemplate(any(), any())).thenThrow(new IllegalStateException("fail"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.importTemplate(SAMPLE_IMPORT_XML));
+    assertEquals(500, ex.getResponse().getStatus());
+  }
+
+  private static final String SAMPLE_IMPORT_XML =
+      "<assembly-template><name>imported.one</name></assembly-template>";
 }

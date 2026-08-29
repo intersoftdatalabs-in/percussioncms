@@ -33,6 +33,7 @@ import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
+import com.percussion.services.assembly.data.PSAssemblyTemplate;
 import com.percussion.services.assembly.data.PSTemplateBinding;
 import com.percussion.services.catalog.IPSCatalogItem;
 import com.percussion.services.catalog.IPSCatalogSummary;
@@ -48,7 +49,10 @@ import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
+import com.percussion.utils.xml.PSInvalidXmlException;
+import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
+import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.assembly.IPSAssemblyDesignWs;
 import com.percussion.webservices.assembly.PSAssemblyWsLocator;
 import com.percussion.webservices.assembly.data.PSAssemblyTemplateWs;
@@ -88,7 +92,8 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
           DesignGap.of(
               "TPL_CONTENT_TYPE_ASSOC", "Content-type associations not listed on this payload"));
 
-  static final String ADMIN_REQUIRED = "Admin role required to export assembly templates";
+  static final String ADMIN_REQUIRED =
+      "Admin role required to export or import assembly templates";
 
   private final IPSAssemblyService asmSvc;
   private final IPSContentWs contentwsService;
@@ -116,8 +121,8 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   }
 
   /**
-   * Package-visible for export tests that inject assembly design WS and an Admin gate. {@code null}
-   * adminChecker uses {@link #isCurrentUserAdmin()}.
+   * Package-visible for export and import tests that inject assembly design WS and an Admin gate.
+   * {@code null} adminChecker uses {@link #isCurrentUserAdmin()}.
    */
   TemplateAdaptor(
       IPSAssemblyService asmSvc,
@@ -367,6 +372,59 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
     }
   }
 
+  @Override
+  public TemplateDetail importTemplate(URI baseUri, String xml) {
+    requireAdmin();
+    requireSessionUserForDesignWrite();
+    if (designWs == null) {
+      throw new IllegalStateException("assembly design WS is not configured");
+    }
+    PSAssemblyTemplate parsed = parseDesignXml(xml);
+    String name = validateCreateName(parsed.getName());
+    assertImportNameUnique(name);
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      List<PSAssemblyTemplateWs> created =
+          designWs.createAssemblyTemplates(List.of(name), session, user);
+      if (created == null || created.isEmpty() || created.get(0) == null) {
+        throw new IllegalStateException("Design WS createAssemblyTemplates returned empty");
+      }
+      PSAssemblyTemplateWs createdWs = created.get(0);
+      IPSAssemblyTemplate dest = createdWs.getTemplate();
+      if (dest == null || dest.getGUID() == null) {
+        throw new IllegalStateException("Design WS createAssemblyTemplates returned no GUID");
+      }
+      IPSGuid keepGuid = dest.getGUID();
+      applyDesignXml(dest, xml, keepGuid);
+      dest.setName(name);
+      // New object lock is ours; release=true so import does not leave a held lock.
+      designWs.saveAssemblyTemplates(List.of(createdWs), true, session, user);
+      IPSAssemblyTemplate reloaded = loadImportedReadOnly(name, keepGuid, session, user);
+      return reloaded != null ? toDetail(reloaded) : toDetail(dest);
+    } catch (WebApplicationException | IllegalStateException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      if (isAlreadyExistsFailure(e)) {
+        throw new WebApplicationException("Template already exists: " + name, 409);
+      }
+      throw e;
+    } catch (PSErrorsException e) {
+      throw mapImportPersistFailure(name, e);
+    } catch (Exception e) {
+      if (isAlreadyExistsFailure(e)) {
+        throw new WebApplicationException("Template already exists: " + name, 409);
+      }
+      log.error(
+          "Failed to import template {} ({}): {}",
+          name,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new IllegalStateException("Failed to import template", e);
+    }
+  }
+
   /**
    * Load one template through {@link IPSAssemblyDesignWs} without locking ({@code lock=false},
    * {@code overrideLock=false}) so export never steals a Workbench lock.
@@ -481,6 +539,143 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
       log.debug("Not a template GUID: {}", idOrName);
     }
     return null;
+  }
+
+  /**
+   * Parse Workbench / REST-export {@code assembly-template} design XML. Invalid or non-template XML
+   * is 400 via {@link IllegalArgumentException}.
+   */
+  static PSAssemblyTemplate parseDesignXml(String xml) {
+    if (StringUtils.isBlank(xml)) {
+      throw new IllegalArgumentException("assembly-template XML is required");
+    }
+    String trimmed = xml.trim();
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+      throw new IllegalArgumentException("expected assembly-template XML");
+    }
+    PSAssemblyTemplate parsed = new PSAssemblyTemplate();
+    try {
+      parsed.fromXML(trimmed);
+    } catch (IOException | SAXException | PSInvalidXmlException | RuntimeException e) {
+      throw new IllegalArgumentException("invalid assembly-template XML", e);
+    }
+    if (StringUtils.isBlank(parsed.getName())) {
+      throw new IllegalArgumentException("assembly-template XML is missing name");
+    }
+    return parsed;
+  }
+
+  /**
+   * Apply exported design XML onto the newly created template, keeping the GUID assigned by {@code
+   * createAssemblyTemplates} so we never steal an existing object's identity or lock.
+   */
+  private static void applyDesignXml(IPSAssemblyTemplate dest, String xml, IPSGuid keepGuid)
+      throws IOException, SAXException, PSInvalidXmlException {
+    if (!(dest instanceof IPSCatalogItem item)) {
+      throw new IllegalStateException("created template is not a catalog item");
+    }
+    item.fromXML(xml);
+    dest.setGUID(keepGuid);
+  }
+
+  private void assertImportNameUnique(String name) {
+    List<IPSCatalogSummary> existing =
+        designWs.findAssemblyTemplates(name, null, null, null, null, null, null);
+    if (existing == null) {
+      return;
+    }
+    for (IPSCatalogSummary summary : existing) {
+      if (summary != null && name.equalsIgnoreCase(StringUtils.defaultString(summary.getName()))) {
+        throw new WebApplicationException("Template already exists: " + name, 409);
+      }
+    }
+  }
+
+  /**
+   * Reload the imported template without locking ({@code lock=false}, {@code overrideLock=false}).
+   */
+  private IPSAssemblyTemplate loadImportedReadOnly(
+      String name, IPSGuid guid, String session, String user) {
+    try {
+      if (guid != null) {
+        List<PSAssemblyTemplateWs> loaded =
+            designWs.loadAssemblyTemplates(List.of(guid), false, false, session, user);
+        if (loaded != null && !loaded.isEmpty() && loaded.get(0) != null) {
+          return loaded.get(0).getTemplate();
+        }
+      }
+      List<IPSCatalogSummary> found =
+          designWs.findAssemblyTemplates(name, null, null, null, null, null, null);
+      if (found == null) {
+        return null;
+      }
+      for (IPSCatalogSummary sum : found) {
+        if (sum == null || sum.getGUID() == null) {
+          continue;
+        }
+        if (name.equalsIgnoreCase(sum.getName())) {
+          List<PSAssemblyTemplateWs> loaded =
+              designWs.loadAssemblyTemplates(List.of(sum.getGUID()), false, false, session, user);
+          if (loaded != null && !loaded.isEmpty() && loaded.get(0) != null) {
+            return loaded.get(0).getTemplate();
+          }
+        }
+      }
+    } catch (PSErrorResultsException e) {
+      log.debug("Imported template reload skipped for {}: {}", name, e.getMessage());
+    }
+    return null;
+  }
+
+  private RuntimeException mapImportPersistFailure(String name, PSErrorsException e) {
+    if (isAlreadyExistsFailure(e)) {
+      return new WebApplicationException("Template already exists: " + name, 409);
+    }
+    if (isLockFailure(e)) {
+      return new WebApplicationException(
+          "Could not import template; design lock required or held by another user", 409);
+    }
+    log.error("Failed to save imported template {}: {}", name, e.getMessage(), e);
+    return new IllegalStateException("Failed to import template", e);
+  }
+
+  static boolean isAlreadyExistsFailure(Throwable t) {
+    for (Throwable cur = t; cur != null && cur != cur.getCause(); cur = cur.getCause()) {
+      String msg = cur.getMessage();
+      if (cur instanceof PSErrorException pe && StringUtils.isNotBlank(pe.getErrorMessage())) {
+        msg = pe.getErrorMessage();
+      }
+      if (msg != null && msg.toLowerCase().contains("already exists")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean isLockFailure(PSErrorsException e) {
+    if (e == null || e.getErrors() == null) {
+      return false;
+    }
+    for (Object err : e.getErrors().values()) {
+      if (err == null) {
+        continue;
+      }
+      String msg = err instanceof PSErrorException pe ? pe.getErrorMessage() : String.valueOf(err);
+      if (msg != null) {
+        String lower = msg.toLowerCase();
+        if (lower.contains("lock") || lower.contains("locked")) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private static void requireSessionUserForDesignWrite() {
+    if (StringUtils.isBlank(currentSession()) || StringUtils.isBlank(currentUser())) {
+      throw new WebApplicationException(
+          "Request session/user required for template design import", Response.Status.FORBIDDEN);
+    }
   }
 
   /**

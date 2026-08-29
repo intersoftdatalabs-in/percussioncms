@@ -178,6 +178,58 @@ public class TemplatesResource {
     }
   }
 
+  /**
+   * Imports one Workbench-equivalent assembly-template design XML (AS-08). Create-only: a name that
+   * already exists is 409. Does not steal design locks. Admin only.
+   *
+   * @param xml {@code assembly-template} design XML (same document as GET export / Workbench)
+   * @return created TemplateDetail; name round-trips from the XML
+   */
+  @POST
+  @Path("/import")
+  @Consumes({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Import assembly template design XML",
+      description =
+          "Admin-only AS-08 import of one assembly template from Workbench-equivalent design XML"
+              + " (same document as GET /templates/{idOrName}/export when that export is installed,"
+              + " otherwise the Workbench assembly-template export). Creates via"
+              + " IPSAssemblyDesignWs. Duplicate name is 409 (no replace). Does not acquire locks"
+              + " on existing templates or steal locks. Save releases the new object's lock.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Imported",
+            content = @Content(schema = @Schema(implementation = TemplateDetail.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid or missing assembly-template XML"),
+        @ApiResponse(responseCode = "403", description = "Caller is not Admin"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Template name already exists (no replace policy)"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public TemplateDetail importTemplate(
+      @RequestBody(
+              required = true,
+              description = "Workbench-equivalent assembly-template design XML",
+              content = @Content(mediaType = MediaType.APPLICATION_XML))
+          String xml) {
+    try {
+      TemplateDetail detail = adaptor.importTemplate(uriInfo.getBaseUri(), xml);
+      if (detail == null) {
+        throw new WebApplicationException("Failed to import template", 500);
+      }
+      return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @GET
   @Path("/{idOrName}")
   @Produces({MediaType.APPLICATION_JSON})

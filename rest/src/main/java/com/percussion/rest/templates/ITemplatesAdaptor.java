@@ -96,4 +96,21 @@ public interface ITemplatesAdaptor {
    * @return export payload, or {@code null} if not found
    */
   TemplateExport exportTemplate(URI baseUri, String idOrName);
+
+  /**
+   * Import one Workbench-equivalent assembly-template design XML (AS-08).
+   *
+   * <p>Creates a new template via {@code IPSAssemblyDesignWs} ({@code createAssemblyTemplates} then
+   * {@code saveAssemblyTemplates} with {@code release=true}). Does not steal design locks. Name
+   * collision is a conflict (HTTP 409) — this surface does not replace an existing template. Admin
+   * only.
+   *
+   * @param baseUri the base URI (reserved for HATEOAS)
+   * @param xml Workbench / REST export {@code assembly-template} XML
+   * @return created detail (never {@code null}); {@link TemplateDetail#getName()} round-trips the
+   *     imported name
+   * @throws IllegalArgumentException when XML is blank, not assembly-template design XML, or the
+   *     name is invalid
+   */
+  TemplateDetail importTemplate(URI baseUri, String xml);
 }
