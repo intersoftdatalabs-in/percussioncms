@@ -129,7 +129,7 @@ class PSVirtualSiteHelperTest {
   }
 
   @Test
-  void allowedSourceKindsIncludeGitCsvSqlHttpJsonObjectStorageAndRssAtom() {
+  void allowedSourceKindsIncludeGitCsvSqlHttpJsonObjectStorageRssAtomAndIcalendar() {
     List<String> allowed = PSVirtualSiteHelper.allowedSourceKindWireNames();
     assertEquals(
         List.of(
@@ -138,7 +138,8 @@ class PSVirtualSiteHelperTest {
             "sql-database",
             "http-json",
             "object-storage",
-            "rss-atom"),
+            "rss-atom",
+            "icalendar"),
         allowed);
   }
 
@@ -393,6 +394,116 @@ class PSVirtualSiteHelperTest {
   }
 
   @Test
+  void validatePassesForIcalendarWithSafeRoot() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "icalendar"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "cal-docs"));
+    assertDoesNotThrow(() -> PSVirtualSiteHelper.validate(site));
+    assertEquals(
+        VirtualSiteSourceType.ICALENDAR,
+        PSVirtualSiteHelper.virtualSourceType(site).orElseThrow());
+  }
+
+  @Test
+  void validatePassesForIcalendarDriveLetterStyleRoot() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "icalendar"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "C:/cal-docs"));
+    assertDoesNotThrow(() -> PSVirtualSiteHelper.validate(site));
+  }
+
+  @Test
+  void validateRejectsRemoteUrlForIcalendar() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "icalendar"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "cal-docs"),
+            prop(PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_REMOTE_URL));
+    assertTrue(ex.getMessage().contains("icalendar"));
+  }
+
+  @Test
+  void validateRejectsPathTraversalForIcalendar() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "icalendar"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "../outside"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH));
+    assertTrue(ex.getMessage().contains(".."));
+  }
+
+  @Test
+  void validateRejectsCloudUrlRootForIcalendar() {
+    for (String cloud :
+        List.of(
+            "s3://bucket/calendars",
+            "https://calendar.example.com/cal.ics",
+            "caldav://calendar.example.com/cal")) {
+      PSSite site =
+          siteWith(
+              prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "icalendar"),
+              prop(PSVirtualSiteHelper.PROP_ROOT_PATH, cloud));
+      VirtualSiteException ex =
+          assertThrows(
+              VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site), cloud);
+      assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH), ex.getMessage());
+      assertTrue(ex.getMessage().toLowerCase().contains("cloud"), ex.getMessage());
+      assertTrue(ex.getMessage().contains("icalendar"), ex.getMessage());
+    }
+  }
+
+  @Test
+  void validateRejectsCredentialPropertyForIcalendar() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "icalendar"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "cal-docs"),
+            prop("aws_secret_access_key", "not-a-real-secret"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().toLowerCase().contains("credential"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("icalendar"), ex.getMessage());
+    assertFalse(ex.getMessage().contains("not-a-real-secret"), ex.getMessage());
+  }
+
+  @Test
+  void rejectCloudOrRemoteRootPathNamesIcalendarNotRssAtom() {
+    VirtualSiteException ex =
+        assertThrows(
+            VirtualSiteException.class,
+            () ->
+                PSVirtualSiteHelper.rejectCloudOrRemoteRootPath(
+                    "https://calendar.example.com/cal.ics", VirtualSiteSourceType.ICALENDAR));
+    assertTrue(ex.getMessage().contains("icalendar"), ex.getMessage());
+    assertFalse(ex.getMessage().contains("rss-atom"), ex.getMessage());
+  }
+
+  @Test
+  void rejectCredentialPropertiesNamesIcalendarNotRssAtom() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "icalendar"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "cal-docs"),
+            prop("aws_secret_access_key", "not-a-real-secret"));
+    VirtualSiteException ex =
+        assertThrows(
+            VirtualSiteException.class,
+            () ->
+                PSVirtualSiteHelper.rejectCredentialProperties(
+                    site, VirtualSiteSourceType.ICALENDAR));
+    assertTrue(ex.getMessage().contains("icalendar"), ex.getMessage());
+    assertFalse(ex.getMessage().contains("rss-atom"), ex.getMessage());
+    assertFalse(ex.getMessage().contains("not-a-real-secret"), ex.getMessage());
+  }
+
+  @Test
   void rejectCloudOrRemoteRootPathRequiresType() {
     assertThrows(
         NullPointerException.class,
@@ -485,6 +596,7 @@ class PSVirtualSiteHelperTest {
     assertTrue(ex.getMessage().contains("http-json"));
     assertTrue(ex.getMessage().contains("object-storage"));
     assertTrue(ex.getMessage().contains("rss-atom"));
+    assertTrue(ex.getMessage().contains("icalendar"));
   }
 
   @Test

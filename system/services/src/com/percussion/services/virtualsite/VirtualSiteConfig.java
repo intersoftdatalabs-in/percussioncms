@@ -38,6 +38,7 @@ public final class VirtualSiteConfig {
   private final HttpSpec http;
   private final ObjectsSpec objects;
   private final RssSpec rss;
+  private final IcalendarSpec icalendar;
 
   public VirtualSiteConfig(
       Path root,
@@ -101,6 +102,22 @@ public final class VirtualSiteConfig {
       HttpSpec http,
       ObjectsSpec objects,
       RssSpec rss) {
+    this(root, siteTitle, siteUrl, layoutFile, versions, nav, siteKey, sql, http, objects, rss, null);
+  }
+
+  public VirtualSiteConfig(
+      Path root,
+      String siteTitle,
+      String siteUrl,
+      String layoutFile,
+      List<VersionSpec> versions,
+      List<NavSpec> nav,
+      String siteKey,
+      SqlSpec sql,
+      HttpSpec http,
+      ObjectsSpec objects,
+      RssSpec rss,
+      IcalendarSpec icalendar) {
     this.root = Objects.requireNonNull(root, "root");
     this.siteTitle = siteTitle != null ? siteTitle : "Documentation";
     this.siteUrl = siteUrl != null ? siteUrl : "";
@@ -116,6 +133,7 @@ public final class VirtualSiteConfig {
     this.http = http;
     this.objects = objects;
     this.rss = rss;
+    this.icalendar = icalendar;
   }
 
   public Path root() {
@@ -186,6 +204,17 @@ public final class VirtualSiteConfig {
    */
   public RssSpec rss() {
     return rss;
+  }
+
+  /**
+   * Optional iCalendar settings for {@code icalendar} sources ({@code icalendar:} in {@code
+   * _config.yaml}).
+   *
+   * @return spec, or null when the mapping is omitted (adapter then uses {@code calendar.ics}
+   *     under the site root)
+   */
+  public IcalendarSpec icalendar() {
+    return icalendar;
   }
 
   public Path themeDir() {
@@ -415,6 +444,42 @@ public final class VirtualSiteConfig {
     @Override
     public String toString() {
       return "RssSpec{url='" + url + "', file='" + file + "'}";
+    }
+  }
+
+  /**
+   * iCalendar fixture settings for {@code icalendar}. {@link #file()} is a portable path under the
+   * site root. {@link #url()} is parsed so the adapter can reject live CalDAV / remote {@code
+   * .ics} URLs (local fixture only). Both blank means default {@code calendar.ics}.
+   */
+  public static final class IcalendarSpec {
+    private final String url;
+    private final String file;
+
+    public IcalendarSpec(String url, String file) {
+      this.url = url != null ? url.trim() : "";
+      this.file = file != null ? file.trim() : "";
+    }
+
+    public String url() {
+      return url;
+    }
+
+    public String file() {
+      return file;
+    }
+
+    public boolean hasUrl() {
+      return !url.isBlank();
+    }
+
+    public boolean hasFile() {
+      return !file.isBlank();
+    }
+
+    @Override
+    public String toString() {
+      return "IcalendarSpec{url='" + url + "', file='" + file + "'}";
     }
   }
 
