@@ -18,6 +18,7 @@
 package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -37,12 +38,16 @@ import com.percussion.services.assembly.data.PSAssemblyTemplate;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.share.service.exception.PSDataServiceException;
+import com.percussion.user.data.PSCurrentUser;
+import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.assembly.IPSAssemblyDesignWs;
 import com.percussion.webservices.assembly.data.PSAssemblyTemplateWs;
 import com.percussion.webservices.content.IPSContentWs;
 import jakarta.ws.rs.WebApplicationException;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +85,27 @@ class TemplateAdaptorExportTest {
 
   private TemplateAdaptor allowAdmin() {
     return new TemplateAdaptor(asm, contentWs, designWs, () -> true);
+  }
+
+  /**
+   * Production no-arg Admin gate ({@code adminChecker == null} → {@link
+   * TemplateAdaptor#isCurrentUserAdmin()}).
+   */
+  private TemplateAdaptor productionAdminGate() {
+    return new TemplateAdaptor(asm, contentWs, designWs, null);
+  }
+
+  private static void injectUserService(TemplateAdaptor adaptor, IPSUserService users)
+      throws Exception {
+    Field field = TemplateAdaptor.class.getDeclaredField("userService");
+    field.setAccessible(true);
+    field.set(adaptor, users);
+  }
+
+  private static PSCurrentUser namedUser(String name) {
+    PSCurrentUser user = new PSCurrentUser();
+    user.setName(name);
+    return user;
   }
 
   private static PSAssemblyTemplateWs namedTemplate(String name, IPSGuid guid, String xml)
@@ -156,5 +182,97 @@ class TemplateAdaptorExportTest {
     verify(designWs, never())
         .findAssemblyTemplates(any(), any(), any(), any(), any(), any(), any());
     verify(designWs, never()).loadAssemblyTemplates(anyList(), eq(false), eq(false), any(), any());
+  }
+
+  @Test
+  void isCurrentUserAdmin_trueForAdminUser() throws Exception {
+    IPSUserService users = mock(IPSUserService.class);
+    when(users.getCurrentUser()).thenReturn(namedUser("admin1"));
+    when(users.isAdminUser("admin1")).thenReturn(true);
+    TemplateAdaptor adaptor = productionAdminGate();
+    injectUserService(adaptor, users);
+    assertTrue(adaptor.isCurrentUserAdmin());
+  }
+
+  @Test
+  void isCurrentUserAdmin_falseForNonAdmin() throws Exception {
+    IPSUserService users = mock(IPSUserService.class);
+    when(users.getCurrentUser()).thenReturn(namedUser("editor"));
+    when(users.isAdminUser("editor")).thenReturn(false);
+    TemplateAdaptor adaptor = productionAdminGate();
+    injectUserService(adaptor, users);
+    assertFalse(adaptor.isCurrentUserAdmin());
+  }
+
+  @Test
+  void isCurrentUserAdmin_falseWhenCurrentUserNull() throws Exception {
+    IPSUserService users = mock(IPSUserService.class);
+    when(users.getCurrentUser()).thenReturn(null);
+    TemplateAdaptor adaptor = productionAdminGate();
+    injectUserService(adaptor, users);
+    assertFalse(adaptor.isCurrentUserAdmin());
+  }
+
+  @Test
+  void isCurrentUserAdmin_falseWhenNameBlank() throws Exception {
+    IPSUserService users = mock(IPSUserService.class);
+    when(users.getCurrentUser()).thenReturn(namedUser("  "));
+    TemplateAdaptor adaptor = productionAdminGate();
+    injectUserService(adaptor, users);
+    assertFalse(adaptor.isCurrentUserAdmin());
+  }
+
+  @Test
+  void isCurrentUserAdmin_falseWhenUserServiceMissing() {
+    TemplateAdaptor adaptor = productionAdminGate();
+    assertFalse(adaptor.isCurrentUserAdmin());
+  }
+
+  @Test
+  void isCurrentUserAdmin_falseWhenGetCurrentUserThrows() throws Exception {
+    IPSUserService users = mock(IPSUserService.class);
+    when(users.getCurrentUser()).thenThrow(new PSDataServiceException("boom"));
+    TemplateAdaptor adaptor = productionAdminGate();
+    injectUserService(adaptor, users);
+    assertFalse(adaptor.isCurrentUserAdmin());
+  }
+
+  @Test
+  void exportForbiddenWhenProductionAdminGateDenies() throws Exception {
+    IPSUserService users = mock(IPSUserService.class);
+    when(users.getCurrentUser()).thenReturn(namedUser("editor"));
+    when(users.isAdminUser("editor")).thenReturn(false);
+    TemplateAdaptor denied = productionAdminGate();
+    injectUserService(denied, users);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> denied.exportTemplate(null, "perc.page"));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(designWs, never())
+        .findAssemblyTemplates(any(), any(), any(), any(), any(), any(), any());
+  }
+
+  @Test
+  void exportAllowedWhenProductionAdminGateAllows() throws Exception {
+    IPSGuid guid = new PSGuid(PSTypeEnum.TEMPLATE, 602L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    when(sum.getName()).thenReturn("perc.page");
+    String xml = "<assembly-template><name>perc.page</name></assembly-template>";
+    PSAssemblyTemplateWs loaded = namedTemplate("perc.page", guid, xml);
+    when(designWs.findAssemblyTemplates(
+            eq("perc.page"), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+        .thenReturn(List.of(sum));
+    when(designWs.loadAssemblyTemplates(anyList(), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loaded));
+
+    IPSUserService users = mock(IPSUserService.class);
+    when(users.getCurrentUser()).thenReturn(namedUser("admin1"));
+    when(users.isAdminUser("admin1")).thenReturn(true);
+    TemplateAdaptor adaptor = productionAdminGate();
+    injectUserService(adaptor, users);
+
+    TemplateExport out = adaptor.exportTemplate(null, "perc.page");
+    assertNotNull(out);
+    assertEquals("perc.page", out.getName());
   }
 }

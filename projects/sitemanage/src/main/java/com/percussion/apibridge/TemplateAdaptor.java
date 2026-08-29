@@ -95,8 +95,11 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   private final IPSAssemblyDesignWs designWs;
   private final BooleanSupplier adminChecker;
 
-  /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
-  @Autowired(required = false)
+  /**
+   * Injected by Spring in production ({@code required} so a missing bean fails at context load).
+   * Unused when {@link #adminChecker} is overridden in tests.
+   */
+  @Autowired
   private IPSUserService userService;
 
   public TemplateAdaptor() {
