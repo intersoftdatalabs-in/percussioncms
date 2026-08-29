@@ -133,7 +133,11 @@ public class PSIcalendarVirtualSiteSource implements IPSVirtualSiteSource {
             "Duplicate icalendar path '"
                 + loaded.ref().relativePath()
                 + "' in version "
-                + loaded.ref().versionId());
+                + loaded.ref().versionId()
+                + ": "
+                + previousPath
+                + " and "
+                + loaded.ref().relativePath());
       }
       rows.add(loaded);
     }
@@ -285,12 +289,9 @@ public class PSIcalendarVirtualSiteSource implements IPSVirtualSiteSource {
         continue;
       }
       if (!line.isEmpty() && (line.charAt(0) == ' ' || line.charAt(0) == '\t')) {
-        if (!have) {
-          current.append(line.substring(1));
-          have = true;
-        } else {
-          current.append(line.substring(1));
-        }
+        // RFC 5545: leading space/tab is a fold prefix, not payload.
+        current.append(line.substring(1));
+        have = true;
         continue;
       }
       if (have) {
