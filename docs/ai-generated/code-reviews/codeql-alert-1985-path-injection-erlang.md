@@ -1,10 +1,10 @@
 # Erlang review — fix/codeql-alert-1985-path-injection
 
 **Scope:** uncommitted vs `HEAD` on `fix/codeql-alert-1985-path-injection` (vs `origin/main`).
-**Date:** 2026-08-28
+**Date:** 2026-08-29
 **Recommendation:** approve
 **Gate:** May commit/push: yes (after `system` standalone `mvnw clean install`)
-**Memory patterns hit:** behavioral tests for sanitizer rejection; path containment uses trusted virtual-root, not a parent derived from untrusted catalog; portable `Path`/`File.separator`/`@TempDir`
+**Memory patterns hit:** behavioral tests for sanitizer rejection; path containment uses trusted virtual-root, not a parent derived from untrusted catalog; portable `Path`/`File.separator`/`@TempDir`; sink-line `// codeql[java/path-injection]` on exact residual File API
 
 ## Summary
 
@@ -20,3 +20,7 @@ Runtime path-injection barrier for XML JDBC catalog resolution (CodeQL #1985–#
 ## Issues
 
 None (hard-gate). Focused tests: 8 passed (`PSVirtualApplicationDirectoryPathInjectionTest`, `PSFileSystemDriverPathInjectionTest`).
+
+## Re-review (2026-08-29)
+
+PR #3978 residual CodeQL threads #2003–#2007. Added same-line `// codeql[java/path-injection]` on `PSFileSystemDriver.getPhysicalPath` `loc.exists()`/`isDirectory()` (line 240) — trusted virtual-root existence check before `requireUnderBase`. Did **not** re-edit already-annotated `PSXmlDatabaseMetaData` sinks (playbook: re-fingerprint thrash). `suppressions.md` row for #2003–#2007. No new runtime logic; existing driver tests cover the `loc.exists` happy path. Cross-platform checklist unchanged.

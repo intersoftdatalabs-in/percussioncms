@@ -237,7 +237,7 @@ public class PSFileSystemDriver extends PSJdbcDriver {
     // Re-apply requireUnderBase at this return so CodeQL sees a modeled
     // barrier on the File handed to JDBC metadata sinks (alerts #1985-#1987).
     // Skip when the virtual root is not on disk yet (new app before mkdir).
-    if (loc != null && loc.exists() && loc.isDirectory()) {
+    if (loc != null && loc.exists() && loc.isDirectory()) { // codeql[java/path-injection]
       return PSPathInjectionGuard.requireUnderBase(loc, physical.getPath());
     }
     return physical;
