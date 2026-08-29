@@ -288,9 +288,6 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
     if (trimmed.length() > MAX_FIELD_NAME_LENGTH) {
       throw new IllegalArgumentException("name exceeds maximum length");
     }
-    if (!isSafeFieldName(trimmed)) {
-      throw new IllegalArgumentException("name contains invalid path characters");
-    }
     char first = trimmed.charAt(0);
     if (!Character.isLetter(first)) {
       throw new IllegalArgumentException("name must start with a letter");
@@ -302,16 +299,6 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
       }
     }
     return trimmed;
-  }
-
-  static boolean isSafeFieldName(String name) {
-    if (StringUtils.isBlank(name)) {
-      return false;
-    }
-    return !name.contains("..")
-        && name.indexOf('/') < 0
-        && name.indexOf('\\') < 0
-        && name.indexOf('\0') < 0;
   }
 
   private static boolean containsWhitespace(String name) {

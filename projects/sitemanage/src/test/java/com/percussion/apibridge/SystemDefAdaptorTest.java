@@ -489,6 +489,26 @@ class SystemDefAdaptorTest {
   }
 
   @Test
+  void deleteField_systemInternalIs400() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSField field = mock(PSField.class);
+    when(field.getSubmitName()).thenReturn("sys_internal");
+    when(field.isSystemMandatory()).thenReturn(false);
+    when(field.isSystemInternal()).thenReturn(true);
+    PSFieldSet set = mock(PSFieldSet.class);
+    when(set.getFieldByName("sys_internal")).thenReturn(field);
+    PSContentEditorSystemDef def = mock(PSContentEditorSystemDef.class);
+    when(def.getFieldSet()).thenReturn(set);
+    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.deleteField(null, "sys_internal"));
+    assertTrue(ex.getMessage().contains("internal"));
+    verify(designWs, never()).saveContentEditorSystemDef(any(), anyBoolean(), any(), any());
+  }
+
+  @Test
   void deleteField_forbiddenWhenNotAdmin() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
     SystemDefAdaptor denied = new SystemDefAdaptor(designWs, () -> false);
@@ -536,6 +556,10 @@ class SystemDefAdaptorTest {
     assertThrows(
         IllegalArgumentException.class, () -> SystemDefAdaptor.validateFieldName("has space"));
     assertThrows(IllegalArgumentException.class, () -> SystemDefAdaptor.validateFieldName("a/b"));
+    assertThrows(IllegalArgumentException.class, () -> SystemDefAdaptor.validateFieldName("a\\b"));
+    assertThrows(IllegalArgumentException.class, () -> SystemDefAdaptor.validateFieldName("a..b"));
+    assertThrows(
+        IllegalArgumentException.class, () -> SystemDefAdaptor.validateFieldName("a\0b"));
     assertThrows(IllegalArgumentException.class, () -> SystemDefAdaptor.validateFieldName("1start"));
   }
 
