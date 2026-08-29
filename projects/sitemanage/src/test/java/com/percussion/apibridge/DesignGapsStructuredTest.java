@@ -62,6 +62,14 @@ class DesignGapsStructuredTest {
                         && g.getMessage().contains("/fields")
                         && g.getMessage().toLowerCase().contains("held")),
         () -> gaps.toString());
+    assertTrue(
+        gaps.stream()
+            .anyMatch(
+                g ->
+                    "CT_SHARED_FIELD_INCLUSION".equals(g.getCode())
+                        && g.getMessage().contains("fields/include")
+                        && g.getMessage().toLowerCase().contains("held")),
+        () -> gaps.toString());
     assertFalse(codes.contains("CT_CONTROL_RESOLUTION"));
     for (DesignGap g : gaps) {
       assertNotNull(g.getCode());

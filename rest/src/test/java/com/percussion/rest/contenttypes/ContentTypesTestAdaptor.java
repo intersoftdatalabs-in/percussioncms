@@ -184,4 +184,9 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
   public Boolean deleteLocalField(URI baseUri, String idOrName, String fieldName) {
     return Boolean.TRUE;
   }
+
+  @Override
+  public ContentTypeDetail includeField(URI baseUri, String idOrName, ContentTypeField body) {
+    return getContentType(baseUri, idOrName);
+  }
 }
