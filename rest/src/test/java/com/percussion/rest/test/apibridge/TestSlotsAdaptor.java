@@ -47,4 +47,14 @@ public class TestSlotsAdaptor implements ISlotsAdaptor {
   public SlotDetail updateSlot(URI baseUri, String idOrName, SlotDetail body) {
     return null;
   }
+
+  @Override
+  public SlotDetail createSlot(URI baseUri, SlotDetail body) {
+    return null;
+  }
+
+  @Override
+  public boolean deleteSlot(URI baseUri, String idOrName) {
+    return false;
+  }
 }

@@ -26,10 +26,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.rest.DesignGap;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.List;
@@ -129,16 +131,16 @@ public class SlotsResourceDetailTest {
     d.setDesignGaps(
         List.of(
             DesignGap.of(
-                "SLOT_CREATE_DELETE",
-                "Create / delete not supported via this REST API (use design WS"
-                    + " createSlots/deleteSlots)")));
+                "SLOT_FINDER_RELATIONSHIP_WRITE",
+                "Finder, relationship, and finderArguments are read-only on this REST API"
+                    + " (AS-01 remainder)")));
     when(adaptor.getSlot(any(), eq("target"))).thenReturn(d);
 
     SlotDetail out = resource.getSlot("target");
     assertNotNull(out.getDesignGaps());
     assertEquals(1, out.getDesignGaps().size());
-    assertEquals("SLOT_CREATE_DELETE", out.getDesignGaps().get(0).getCode());
-    assertTrue(out.getDesignGaps().get(0).getMessage().contains("Create / delete"));
+    assertEquals("SLOT_FINDER_RELATIONSHIP_WRITE", out.getDesignGaps().get(0).getCode());
+    assertTrue(out.getDesignGaps().get(0).getMessage().contains("read-only"));
   }
 
   @Test
@@ -261,5 +263,128 @@ public class SlotsResourceDetailTest {
     SlotDetail result = resource.updateSlot("target", body);
     assertEquals("vertical", result.getSlotLayout().get("orientation"));
     assertEquals("updated-root", result.getSlotStyles().get("rootclass"));
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnCreate() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> newSlotsResourceWithoutAdaptor().createSlot(new SlotDetail()));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnDelete() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> newSlotsResourceWithoutAdaptor().deleteSlot("any"));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createSlotSuccess() {
+    SlotDetail body = new SlotDetail();
+    body.setName("mySlot");
+    SlotDetail created = new SlotDetail();
+    created.setName("mySlot");
+    created.setLabel("My Slot");
+    created.setSlotType("REGULAR");
+    when(adaptor.createSlot(any(), any())).thenReturn(created);
+    SlotDetail out = resource.createSlot(body);
+    assertEquals("mySlot", out.getName());
+    assertEquals("My Slot", out.getLabel());
+    assertEquals("REGULAR", out.getSlotType());
+  }
+
+  @Test
+  public void createSlotBadRequest() {
+    when(adaptor.createSlot(any(), any()))
+        .thenThrow(new IllegalArgumentException("name is required"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createSlot(null));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createSlotDuplicateIs409() {
+    SlotDetail body = new SlotDetail();
+    body.setName("rffList");
+    when(adaptor.createSlot(any(), any()))
+        .thenThrow(new WebApplicationException("Slot already exists: rffList", 409));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createSlot(body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createSlotForbiddenWhenNotAdmin() {
+    SlotDetail body = new SlotDetail();
+    body.setName("mySlot");
+    when(adaptor.createSlot(any(), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createSlot(body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createSlotWrapsFailures() {
+    when(adaptor.createSlot(any(), any())).thenThrow(new IllegalStateException("fail"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.createSlot(new SlotDetail()));
+    assertEquals(500, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteSlotSuccess() {
+    when(adaptor.deleteSlot(any(), eq("mySlot"))).thenReturn(true);
+    Response out = resource.deleteSlot("mySlot");
+    assertEquals(204, out.getStatus());
+    verify(adaptor).deleteSlot(any(), eq("mySlot"));
+  }
+
+  @Test
+  public void deleteSlotNotFound() {
+    when(adaptor.deleteSlot(any(), eq("missing"))).thenReturn(false);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteSlot("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteSlotSystemSlotIs409() {
+    when(adaptor.deleteSlot(any(), eq("sys_inline_link")))
+        .thenThrow(new WebApplicationException("System slots cannot be deleted", 409));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteSlot("sys_inline_link"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteSlotForbiddenWhenNotAdmin() {
+    when(adaptor.deleteSlot(any(), eq("mySlot")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteSlot("mySlot"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteSlotBadRequest() {
+    when(adaptor.deleteSlot(any(), eq("  ")))
+        .thenThrow(new IllegalArgumentException("idOrName is required"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteSlot("  "));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteSlotWrapsFailures() {
+    when(adaptor.deleteSlot(any(), eq("boom"))).thenThrow(new IllegalStateException("fail"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteSlot("boom"));
+    assertEquals(500, ex.getResponse().getStatus());
   }
 }

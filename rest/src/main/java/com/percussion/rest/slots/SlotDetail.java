@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Assembly slot design detail for the Developer module (read + partial write).
+ * Assembly slot design detail for the Developer module (read, PUT, POST create, DELETE).
  *
  * <p>Wire root {@code SlotDetail} matches {@code WRAP_ROOT_VALUE}/{@code
  * UNWRAP_ROOT_VALUE} (see TemplateDetail / issue #3039 companion).

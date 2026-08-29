@@ -22,17 +22,24 @@ import com.percussion.rest.slots.SlotAssociationSummary;
 import com.percussion.rest.slots.SlotDetail;
 import com.percussion.rest.slots.SlotSummary;
 import com.percussion.services.assembly.IPSTemplateSlot;
+import com.percussion.services.assembly.IPSTemplateSlot.SlotType;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.user.data.PSCurrentUser;
+import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.types.PSPair;
+import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.assembly.IPSAssemblyDesignWs;
 import com.percussion.webservices.assembly.PSAssemblyWsLocator;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,41 +47,56 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Assembly slots catalog for Developer REST.
  *
  * <p>Workbench parity: routes through {@link IPSAssemblyDesignWs} (same design web service assembly
- * SOAP design uses) for find / load / save — not a parallel path via raw {@code IPSAssemblyService}
- * alone.
+ * SOAP design uses) for find / load / save / create / delete — not a parallel path via raw {@code
+ * IPSAssemblyService} alone.
  */
 @PSSiteManageBean
 public class SlotsAdaptor implements ISlotsAdaptor {
 
   private static final Logger log = LogManager.getLogger(SlotsAdaptor.class);
 
+  static final String ADMIN_REQUIRED = "Admin role required to create or delete slots";
+
   public static final List<DesignGap> SLOT_DESIGN_GAPS =
       List.of(
           DesignGap.of(
-              "SLOT_CREATE_DELETE",
-              "Create / delete not supported via this REST API (use design WS"
-                  + " createSlots/deleteSlots)"),
+              "SLOT_FINDER_RELATIONSHIP_WRITE",
+              "Finder, relationship, and finderArguments are read-only on this REST API"
+                  + " (AS-01 remainder)"),
           DesignGap.of(
               "SLOT_ASSOC_GUIDS_ONLY",
               "Content-type and template names not resolved (GUIDs only)"));
 
   private final IPSAssemblyDesignWs designWs;
+  private final BooleanSupplier adminChecker;
+
+  /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
+  @Autowired(required = false)
+  private IPSUserService userService;
 
   public SlotsAdaptor() {
-    this(PSAssemblyWsLocator.getAssemblyDesignWebservice());
+    this(PSAssemblyWsLocator.getAssemblyDesignWebservice(), null);
   }
 
-  /** Package-visible for unit tests. */
+  /** Package-visible for unit tests. Admin is allowed so existing PUT tests stay focused. */
   SlotsAdaptor(IPSAssemblyDesignWs designWs) {
+    this(designWs, () -> true);
+  }
+
+  /** Package-visible for unit tests that inject a fake Admin gate. */
+  SlotsAdaptor(IPSAssemblyDesignWs designWs, BooleanSupplier adminChecker) {
     this.designWs = designWs;
+    this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
   }
 
   @Override
@@ -175,6 +197,116 @@ public class SlotsAdaptor implements ISlotsAdaptor {
     } catch (Exception e) {
       log.error("Failed to update slot {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to update slot", e);
+    }
+  }
+
+  @Override
+  public SlotDetail createSlot(URI baseUri, SlotDetail body) {
+    requireAdmin();
+    if (body == null || StringUtils.isBlank(body.getName())) {
+      throw new IllegalArgumentException("name is required");
+    }
+    String name = body.getName().trim();
+    if (containsWhitespace(name)) {
+      throw new IllegalArgumentException("name cannot contain spaces");
+    }
+    if (name.contains("*")) {
+      throw new IllegalArgumentException("name must not contain wildcards");
+    }
+    SlotType slotType = parseSlotType(body.getSlotType());
+    requireSessionUserForDesignWrite();
+    String session = currentSession();
+    String user = currentUser();
+    assertNameUnique(name);
+    try {
+      List<IPSTemplateSlot> created = designWs.createSlots(List.of(name), session, user);
+      if (created == null || created.isEmpty() || created.get(0) == null) {
+        throw new IllegalStateException("Design WS createSlots returned empty");
+      }
+      IPSTemplateSlot slot = created.get(0);
+      String label = StringUtils.isNotBlank(body.getLabel()) ? body.getLabel().trim() : name;
+      slot.setLabel(label);
+      if (body.getDescription() != null) {
+        slot.setDescription(body.getDescription());
+      }
+      if (slotType != null) {
+        slot.setSlottype(slotType);
+      }
+      designWs.saveSlots(Collections.singletonList(slot), true, session, user);
+      IPSTemplateSlot reloaded = resolveSlot(name, false);
+      return reloaded != null ? toDetail(reloaded) : toDetail(slot);
+    } catch (WebApplicationException | IllegalStateException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw mapCreateNameCollision(name, e);
+    } catch (PSErrorsException e) {
+      throw mapCreatePersistFailure(name, e, "Failed to save new slot");
+    } catch (Exception e) {
+      if (isAlreadyExistsFailure(e)) {
+        throw new WebApplicationException("Slot already exists: " + name, 409);
+      }
+      log.error("Failed to create slot {}: {}", name, e.getMessage(), e);
+      throw new IllegalStateException("Failed to create slot", e);
+    }
+  }
+
+  @Override
+  public boolean deleteSlot(URI baseUri, String idOrName) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    requireSessionUserForDesignWrite();
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      IPSTemplateSlot current = resolveSlot(trimmed, false);
+      if (current == null) {
+        return false;
+      }
+      if (current.isSystemSlot()) {
+        throw new WebApplicationException(
+            "System slots cannot be deleted: " + StringUtils.defaultString(current.getName()),
+            409);
+      }
+      if (current.getGUID() == null) {
+        throw new IllegalStateException(
+            "Slot '" + trimmed + "' has no GUID (corrupt identifier); cannot delete");
+      }
+      IPSTemplateSlot locked;
+      try {
+        locked = resolveSlot(trimmed, true);
+      } catch (PSErrorResultsException e) {
+        throw new WebApplicationException(
+            "Could not delete slot; design lock required or held by another user", 409);
+      }
+      if (locked == null || locked.getGUID() == null) {
+        throw new WebApplicationException(
+            "Could not delete slot; design lock required or held by another user", 409);
+      }
+      try {
+        designWs.deleteSlots(Collections.singletonList(locked.getGUID()), false, session, user);
+      } catch (PSErrorsException e) {
+        if (isLockFailure(e)) {
+          throw new WebApplicationException(
+              "Could not delete slot; design lock required or held by another user", 409);
+        }
+        String details = formatDeleteErrors(e);
+        throw new IllegalArgumentException("Could not delete slot: " + details, e);
+      }
+      return true;
+    } catch (IllegalArgumentException | IllegalStateException | WebApplicationException e) {
+      throw e;
+    } catch (PSErrorResultsException e) {
+      log.debug("Slot not found for delete {}: {}", idOrName, e.getMessage());
+      return false;
+    } catch (Exception e) {
+      log.error("Failed to delete slot {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to delete slot", e);
     }
   }
 
@@ -384,5 +516,146 @@ public class SlotsAdaptor implements ISlotsAdaptor {
       throw new IllegalStateException(
           "session and user are required for slot design update (IPSAssemblyDesignWs)");
     }
+  }
+
+  private static void requireSessionUserForDesignWrite() {
+    if (StringUtils.isBlank(currentSession()) || StringUtils.isBlank(currentUser())) {
+      throw new WebApplicationException(
+          "Request session/user required for slot design session", Response.Status.FORBIDDEN);
+    }
+  }
+
+  private void requireAdmin() {
+    boolean allowed;
+    try {
+      allowed = adminChecker.getAsBoolean();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      log.debug("Admin check failed: {}", e.getMessage());
+      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+    }
+    if (!allowed) {
+      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+    }
+  }
+
+  boolean isCurrentUserAdmin() {
+    if (userService == null) {
+      return false;
+    }
+    try {
+      PSCurrentUser current = userService.getCurrentUser();
+      if (current == null || StringUtils.isBlank(current.getName())) {
+        return false;
+      }
+      return userService.isAdminUser(current.getName());
+    } catch (PSDataServiceException e) {
+      log.debug("Unable to resolve current user for Admin check: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  private void assertNameUnique(String name) {
+    List<IPSCatalogSummary> existing = designWs.findSlots(null, null);
+    if (existing == null) {
+      return;
+    }
+    for (IPSCatalogSummary summary : existing) {
+      if (summary != null && name.equalsIgnoreCase(StringUtils.defaultString(summary.getName()))) {
+        throw new WebApplicationException("Slot already exists: " + name, 409);
+      }
+    }
+  }
+
+  private static SlotType parseSlotType(String slotType) {
+    if (StringUtils.isBlank(slotType)) {
+      return null;
+    }
+    String trimmed = slotType.trim();
+    if ("REGULAR".equalsIgnoreCase(trimmed)) {
+      return SlotType.REGULAR;
+    }
+    if ("INLINE".equalsIgnoreCase(trimmed)) {
+      return SlotType.INLINE;
+    }
+    throw new IllegalArgumentException("slotType must be REGULAR or INLINE");
+  }
+
+  private static RuntimeException mapCreateNameCollision(String name, IllegalArgumentException e) {
+    if (isAlreadyExistsFailure(e)) {
+      return new WebApplicationException("Slot already exists: " + name, 409);
+    }
+    return e;
+  }
+
+  private RuntimeException mapCreatePersistFailure(String name, Exception e, String fallback) {
+    if (isAlreadyExistsFailure(e)) {
+      return new WebApplicationException("Slot already exists: " + name, 409);
+    }
+    log.error("{} {}: {}", fallback, name, e.getMessage(), e);
+    return new IllegalStateException(fallback, e);
+  }
+
+  static boolean isAlreadyExistsFailure(Throwable t) {
+    for (Throwable cur = t; cur != null && cur != cur.getCause(); cur = cur.getCause()) {
+      String msg = cur.getMessage();
+      if (cur instanceof PSErrorException pe && StringUtils.isNotBlank(pe.getErrorMessage())) {
+        msg = pe.getErrorMessage();
+      }
+      if (msg != null && msg.toLowerCase().contains("already exists")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean isLockFailure(PSErrorsException e) {
+    if (e == null || e.getErrors() == null) {
+      return false;
+    }
+    for (Object err : e.getErrors().values()) {
+      if (err == null) {
+        continue;
+      }
+      String msg = err.toString();
+      if (err instanceof PSErrorException pe && StringUtils.isNotBlank(pe.getErrorMessage())) {
+        msg = pe.getErrorMessage();
+      }
+      if (msg != null) {
+        String lower = msg.toLowerCase();
+        if (lower.contains("lock") || lower.contains("locked")) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private static String formatDeleteErrors(PSErrorsException e) {
+    if (e == null || e.getErrors() == null || e.getErrors().isEmpty()) {
+      return e != null && e.getMessage() != null ? e.getMessage() : "unknown error";
+    }
+    StringBuilder sb = new StringBuilder();
+    for (Object err : e.getErrors().values()) {
+      if (sb.length() > 0) {
+        sb.append("; ");
+      }
+      if (err instanceof PSErrorException pe && StringUtils.isNotBlank(pe.getErrorMessage())) {
+        sb.append(pe.getErrorMessage());
+      } else if (err != null) {
+        sb.append(err);
+      }
+    }
+    return sb.length() > 0 ? sb.toString() : "unknown error";
+  }
+
+  private static boolean containsWhitespace(String name) {
+    for (int i = 0; i < name.length(); i++) {
+      if (Character.isWhitespace(name.charAt(i))) {
+        return true;
+      }
+    }
+    return false;
   }
 }
