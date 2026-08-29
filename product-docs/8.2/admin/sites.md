@@ -71,7 +71,7 @@ and Markdown tooling, not the classic page editor.
 
 | Property | Required | Example | Notes |
 |----------|----------|---------|-------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, `rss-atom`, or `icalendar` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**, **`sql-database`**, **`http-json`**, **`object-storage`**, **`rss-atom`**, **`icalendar`**. **`icalendar`** is a local RFC 5545 `.ics` SPI (`calendar.ics` or `_config.yaml` `icalendar.file`; no CalDAV). SPI/CLI assemble is `PSVirtualSiteBuildMain … icalendar`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips **`icalendar`** with a portable-safe local `rootPath` (local RFC 5545 fixture only; leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no CalDAV). REST **Build** (`POST …/virtual/build`) runs **icalendar** against that local `calendar.ics` / `icalendar.file` fixture (`pagesWritten > 0`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**; no CalDAV). REST **Preview** (`GET …/virtual/preview`) streams last-build HTML after assemble (`available=true`; missing build is `available=false` HTTP 200). REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to `IPSSite.root`. Developer Sites can save **iCalendar** (`sourceKind=icalendar`); leftover `virtual.remoteUrl` and CalDAV credentials are **400**; Build / Preview / Publish chrome for icalendar stays a later phase. **`rss-atom`** is a local/loopback syndication SPI (`feed.xml` / `atom.xml` or `_config.yaml` `rss.file`; loopback `rss.url` only — no live feed credentials). REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips **`rss-atom`** with a portable-safe local `rootPath` (local/loopback only; leftover `virtual.remoteUrl`, live feed credentials, and cloud URL `rootPath` are **400**). Developer Sites can save **RSS / Atom** (`sourceKind=rss-atom`) and then **Build Virtual Site** (local `feed.xml` / `atom.xml` / `_config.yaml` `rss.file` only; no live feeds). REST **Build** (`POST …/virtual/build`) also runs **rss-atom** against that local/loopback fixture (`pagesWritten > 0`). REST **Preview** (`GET …/virtual/preview`) streams last-build HTML for **rss-atom** after a successful assemble (`available=true`; missing build is `available=false` HTTP 200; local/loopback fixture, no live feeds). Developer Sites **Preview assembled site** and **Publish Virtual Site** are shown for **RSS / Atom** after save (same last-build Preview and Publish as Object storage). REST **GET/PUT** also round-trips **`object-storage`** with a portable-safe local `rootPath` (cloud URLs and credential properties are **400**; `virtual.remoteUrl` is **400**). REST **Build** (`POST …/virtual/build`) also runs **object-storage** against that local bucket. REST **Preview** (`GET …/virtual/preview`) streams last-build HTML after a successful Build (`available=true`; missing build is `available=false` HTTP 200). REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for **object-storage** (local object-key `rootPath`; leftover `virtual.remoteUrl` is **400**; no AWS/IAM/secrets) and **rss-atom** (local RSS 2.0 / Atom fixture or loopback feed; leftover `virtual.remoteUrl` and credentials are **400**; no live feeds; `filesCopied > 0`). Developer Sites can save **Object storage** the same way as HTTP JSON (GET round-trips `object-storage`), then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. Blank or `repository` = traditional Site. Developer Sites can save Git, CSV, SQL, **HTTP JSON**, **Object storage**, or **RSS / Atom**. **Build Virtual Site** REST runs Git, CSV, SQL, **HTTP JSON**, **Object storage**, and **rss-atom** after save (local JSON fixture, loopback catalog, local object-key bucket, or local RSS/Atom fixture). Developer Sites **Build Virtual Site** runs Git, CSV, SQL, **HTTP JSON**, **Object storage**, and **RSS / Atom**. **Preview assembled site** REST streams last-build HTML for Git, CSV, SQL, **HTTP JSON**, **object-storage**, and **rss-atom**; Developer Sites Preview chrome runs Git, CSV, SQL, **HTTP JSON**, **object-storage**, and **RSS / Atom**. REST **Publish Virtual Site** (`POST …/virtual/publish`) runs Git, CSV, SQL, **HTTP JSON**, **Object storage**, and **rss-atom** after Build (copies assembled HTML to the Site filesystem root). Developer Sites **Publish Virtual Site** chrome runs Git, CSV, SQL, **HTTP JSON**, **Object storage**, and **RSS / Atom** after Build. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips **`http-json`** (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400** — catalog URL/file stay in `_config.yaml`, no secrets on the REST envelope). `http-json` assemble is SPI/CLI plus REST Build and REST Publish (see [Virtual Sites](id:developer-virtual-sites)). `sql-database` is in-memory H2 (`jdbc:h2:mem:`; JDBC URL/user/query in `_config.yaml` — never passwords on the REST envelope). CSV trees may omit `_config.yaml`. Unknown kinds are rejected. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, `rss-atom`, or `icalendar` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**, **`sql-database`**, **`http-json`**, **`object-storage`**, **`rss-atom`**, **`icalendar`**. **`icalendar`** is a local RFC 5545 `.ics` SPI (`calendar.ics` or `_config.yaml` `icalendar.file`; no CalDAV). SPI/CLI assemble is `PSVirtualSiteBuildMain … icalendar`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips **`icalendar`** with a portable-safe local `rootPath` (local RFC 5545 fixture only; leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no CalDAV). REST **Build** (`POST …/virtual/build`) runs **icalendar** against that local `calendar.ics` / `icalendar.file` fixture (`pagesWritten > 0`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**; no CalDAV). REST **Preview** (`GET …/virtual/preview`) streams last-build HTML after assemble (`available=true`; missing build is `available=false` HTTP 200). REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to `IPSSite.root`. Developer Sites can save **iCalendar** (`sourceKind=icalendar`); leftover `virtual.remoteUrl` and CalDAV credentials are **400**; Developer Sites **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site** are shown after save. **`rss-atom`** is a local/loopback syndication SPI (`feed.xml` / `atom.xml` or `_config.yaml` `rss.file`; loopback `rss.url` only — no live feed credentials). REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips **`rss-atom`** with a portable-safe local `rootPath` (local/loopback only; leftover `virtual.remoteUrl`, live feed credentials, and cloud URL `rootPath` are **400**). Developer Sites can save **RSS / Atom** (`sourceKind=rss-atom`) and then **Build Virtual Site** (local `feed.xml` / `atom.xml` / `_config.yaml` `rss.file` only; no live feeds). REST **Build** (`POST …/virtual/build`) also runs **rss-atom** against that local/loopback fixture (`pagesWritten > 0`). REST **Preview** (`GET …/virtual/preview`) streams last-build HTML for **rss-atom** after a successful assemble (`available=true`; missing build is `available=false` HTTP 200; local/loopback fixture, no live feeds). Developer Sites **Preview assembled site** and **Publish Virtual Site** are shown for **RSS / Atom** after save (same last-build Preview and Publish as Object storage). REST **GET/PUT** also round-trips **`object-storage`** with a portable-safe local `rootPath` (cloud URLs and credential properties are **400**; `virtual.remoteUrl` is **400**). REST **Build** (`POST …/virtual/build`) also runs **object-storage** against that local bucket. REST **Preview** (`GET …/virtual/preview`) streams last-build HTML after a successful Build (`available=true`; missing build is `available=false` HTTP 200). REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for **object-storage** (local object-key `rootPath`; leftover `virtual.remoteUrl` is **400**; no AWS/IAM/secrets) and **rss-atom** (local RSS 2.0 / Atom fixture or loopback feed; leftover `virtual.remoteUrl` and credentials are **400**; no live feeds; `filesCopied > 0`). Developer Sites can save **Object storage** the same way as HTTP JSON (GET round-trips `object-storage`), then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. Blank or `repository` = traditional Site. Developer Sites can save Git, CSV, SQL, **HTTP JSON**, **Object storage**, or **RSS / Atom**. **Build Virtual Site** REST runs Git, CSV, SQL, **HTTP JSON**, **Object storage**, and **rss-atom** after save (local JSON fixture, loopback catalog, local object-key bucket, or local RSS/Atom fixture). Developer Sites **Build Virtual Site** runs Git, CSV, SQL, **HTTP JSON**, **Object storage**, and **RSS / Atom**. **Preview assembled site** REST streams last-build HTML for Git, CSV, SQL, **HTTP JSON**, **object-storage**, and **rss-atom**; Developer Sites Preview chrome runs Git, CSV, SQL, **HTTP JSON**, **object-storage**, and **RSS / Atom**. REST **Publish Virtual Site** (`POST …/virtual/publish`) runs Git, CSV, SQL, **HTTP JSON**, **Object storage**, and **rss-atom** after Build (copies assembled HTML to the Site filesystem root). Developer Sites **Publish Virtual Site** chrome runs Git, CSV, SQL, **HTTP JSON**, **Object storage**, and **RSS / Atom** after Build. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips **`http-json`** (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400** — catalog URL/file stay in `_config.yaml`, no secrets on the REST envelope). `http-json` assemble is SPI/CLI plus REST Build and REST Publish (see [Virtual Sites](id:developer-virtual-sites)). `sql-database` is in-memory H2 (`jdbc:h2:mem:`; JDBC URL/user/query in `_config.yaml` — never passwords on the REST envelope). CSV trees may omit `_config.yaml`. Unknown kinds are rejected. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` | Local tree when `virtual.remoteUrl` is blank. Prefer absolute portable paths (Windows/Linux/macOS). Paths with `..` after normalize are rejected. When a remote is set, use a **relative** folder inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones or fetches into a contained server work directory, then discovers Markdown as usual. Blank = local-path mode. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. |
 | `virtual.branch` | No | `main` | Branch to checkout when a remote is set. Default `main`. |
@@ -177,8 +177,7 @@ blank). Load failures show **Could not load sites** rather than the empty state.
    and root persist without a full page reload. **Build Virtual Site**,
    **Preview assembled site**, and **Publish Virtual Site** appear for
    **Git filesystem**, **CSV filesystem**, **SQL database**, **HTTP JSON**,
-   **Object storage**, and **RSS / Atom**. Traditional **Repository** and **iCalendar** hide that chrome
-   (Build / Preview / Publish for iCalendar stay a later phase).
+   **Object storage**, **RSS / Atom**, and **iCalendar**. Traditional **Repository** hides that chrome.
    After you save **Object storage**, **Build Virtual Site** runs against the local object-key
    directory (`virtual.rootPath`); **Preview assembled site** opens last-build home HTML
    the same way as Git/CSV/SQL/HTTP JSON. **Publish Virtual Site** (and REST
@@ -186,7 +185,8 @@ blank). Load failures show **Could not load sites** rather than the empty state.
    (`IPSSite.root`) for Git, CSV, SQL, HTTP JSON, object-storage (local object-key
    `rootPath`; leftover `virtual.remoteUrl` is **400**; no AWS/IAM/secrets), and
    **rss-atom** (local RSS/Atom fixture; leftover `virtual.remoteUrl` and credentials
-   are **400**; no live feeds).
+   are **400**; no live feeds), and **icalendar** (local RFC 5545 fixture; leftover
+   `virtual.remoteUrl` and credentials are **400**; no CalDAV).
    After you save **RSS / Atom**, GET round-trips `sourceKind=rss-atom` with the
    local fixture `rootPath`; REST **Build**, **Preview**, and **Publish** run for this
    kind. **Build Virtual Site** runs against that local `feed.xml` / `atom.xml` /
@@ -217,8 +217,8 @@ REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips `sourceKind=icalendar` 
 portable-safe local `rootPath` (leftover `virtual.remoteUrl`, credentials, and cloud URL
 `rootPath` are **400**). REST **Build**, **Preview**, and **Publish** run for `icalendar`
 (local fixture only; leftover `virtual.remoteUrl` and credentials are **400**). Developer
-Sites can save **iCalendar** (`sourceKind=icalendar`); Build / Preview / Publish chrome for
-this kind stays a later phase. After root, remote, or
+Sites can save **iCalendar** (`sourceKind=icalendar`) and then **Build Virtual Site**,
+**Preview assembled site**, and **Publish Virtual Site**. After root, remote, or
 config changes, re-run the offline docs build, the in-product **Build Virtual Site**
 action (below), or the CMS publish path to verify links.
 
@@ -244,7 +244,7 @@ local object-key `rootPath` (`virtual.remoteUrl` is **400**) and for **rss-atom*
 credentials are **400**; no live feeds). After a successful Build,
 **Preview assembled site** opens last-build home HTML, and **Publish Virtual Site**
 copies assembled HTML onto the Site filesystem root for Git, CSV, SQL, HTTP JSON,
-object-storage, and rss-atom. Integrators persist RSS / Atom with `"sourceKind": "rss-atom"`
+object-storage, rss-atom, and icalendar. Integrators persist RSS / Atom with `"sourceKind": "rss-atom"`
 and a safe local `rootPath` (GET round-trips the kind; no live feed URLs or credentials;
 `virtual.remoteUrl` is **400**). Developer Sites can save **RSS / Atom** the same way
 (GET round-trips `rss-atom`) and then **Build Virtual Site** (local `feed.xml` /
@@ -256,13 +256,13 @@ Integrators persist iCalendar with `"sourceKind": "icalendar"` and a safe local 
 from `calendar.ics` / `icalendar.file` (`pagesWritten > 0`). REST **Preview** reports
 last-build status (`available=false` HTTP **200** when no assemble). REST **Publish**
 copies assembled HTML to `IPSSite.root`. Developer Sites can save **iCalendar** the same
-way (GET round-trips `icalendar`). **Build Virtual Site**, **Preview assembled site**, and
-**Publish Virtual Site** chrome for `icalendar` stay a later phase.
+way (GET round-trips `icalendar`) and then **Build Virtual Site** (local `calendar.ics` /
+`icalendar.file` only), **Preview assembled site**, and **Publish Virtual Site**.
 
 ### Build a Virtual Site from the product UI
 
 When **Source kind** is **Git filesystem**, **CSV filesystem**, **SQL database**,
-**HTTP JSON**, **Object storage**, or **RSS / Atom**, the Site detail panel shows **Build Virtual Site**,
+**HTTP JSON**, **Object storage**, **RSS / Atom**, or **iCalendar**, the Site detail panel shows **Build Virtual Site**,
 **Preview assembled site**, and **Publish Virtual Site** after save. Traditional
 **Repository** Sites do **not** show these controls (no misleading virtual-build or
 virtual-publish chrome). After you save **SQL database**, **Build Virtual Site**
@@ -274,9 +274,11 @@ catalog (`http.file` or default `pages.json`) or loopback `http.url` in
 **Object storage**, Build runs against a local object-key directory (Markdown / HTML /
 JSON; no cloud URLs or access keys). After you save **RSS / Atom**, Build runs against
 a local RSS 2.0 or Atom XML fixture (`feed.xml` / `atom.xml` or `_config.yaml` `rss.file`;
-loopback `rss.url` only — no live feed credentials). After that Git/CSV/SQL/HTTP JSON/object-storage/rss-atom Build succeeds,
+loopback `rss.url` only — no live feed credentials). After you save **iCalendar**, Build
+runs against a local RFC 5545 fixture (`calendar.ics` or `_config.yaml` `icalendar.file`;
+no CalDAV). After that Git/CSV/SQL/HTTP JSON/object-storage/rss-atom/icalendar Build succeeds,
 **Preview assembled site** streams last-build home HTML. **Publish Virtual Site** copies
-that HTML to the Site filesystem root for Git/CSV/SQL/HTTP JSON/object-storage/rss-atom.
+that HTML to the Site filesystem root for Git/CSV/SQL/HTTP JSON/object-storage/rss-atom/icalendar.
 
 1. Sign in as an **Admin** (the build REST operation requires Admin).
 2. Open **Developer** → **Sites** and open the Virtual Site detail.
@@ -302,6 +304,9 @@ that HTML to the Site filesystem root for Git/CSV/SQL/HTTP JSON/object-storage/r
    - **RSS / Atom** — a valid **Root path** to a local RSS 2.0 or Atom XML fixture
      (`feed.xml` / `atom.xml` or `_config.yaml` `rss.file`). Git remotes are hidden.
      Do not put live feed URLs or credentials on the REST envelope.
+   - **iCalendar** — a valid **Root path** to a local RFC 5545 `.ics` fixture
+     (`calendar.ics` or `_config.yaml` `icalendar.file`). Git remotes are hidden.
+     Do not put CalDAV URLs or credentials on the REST envelope.
    If you just edited properties, choose **Save Virtual Site source** first — the
    build uses the **saved** server properties, not unsaved form fields.
 4. Choose **Build Virtual Site**.
@@ -312,7 +317,8 @@ that HTML to the Site filesystem root for Git/CSV/SQL/HTTP JSON/object-storage/r
    or after an object-storage Markdown / HTML / JSON object key or `_config.yaml`
    (`objects.keys` or site title) change — or after an RSS / Atom fixture
    (`feed.xml` / `atom.xml` / `rss.file` / loopback `rss.url`) or `_config.yaml`
-   change — choose **Build Virtual Site** again. The build re-reads the current tree
+   change — or after an iCalendar fixture (`calendar.ics` / `icalendar.file`) or
+   `_config.yaml` change — choose **Build Virtual Site** again. The build re-reads the current tree
    (and re-fetches when a Git remote is configured) — **do not restart the CMS** just
    to pick up those edits. There is no file watcher; the next explicit build is the
    refresh.
@@ -333,13 +339,14 @@ that HTML to the Site filesystem root for Git/CSV/SQL/HTTP JSON/object-storage/r
 After a successful **Build Virtual Site**, operators can open the assembled home from the
 same Site detail panel (no CLI, no `file://` path). Preview is last-output based: it works
 for **Git filesystem**, **CSV filesystem**, **SQL database**, **HTTP JSON**,
-**object-storage**, and **`rss-atom`** (`sql-database` / `http-json` / `object-storage` /
-`rss-atom` REST last-build) — preview is not git-only. Traditional **Repository** Sites hide **Build Virtual Site**,
+**object-storage**, **`rss-atom`**, and **`icalendar`** (`sql-database` / `http-json` / `object-storage` /
+`rss-atom` / `icalendar` REST last-build) — preview is not git-only. Traditional **Repository** Sites hide **Build Virtual Site**,
 **Preview assembled site**, and **Publish Virtual Site**. Developer Sites **Preview
-assembled site** appears for Git, CSV, SQL, HTTP JSON, Object storage, and RSS / Atom after a successful
+assembled site** appears for Git, CSV, SQL, HTTP JSON, Object storage, RSS / Atom, and iCalendar after a successful
 Build. After REST or in-product Build for `sql-database` (in-memory
 H2), `http-json` (local JSON fixture or loopback catalog), `object-storage` (local
-object-key bucket), or `rss-atom` (local RSS 2.0 / Atom fixture or loopback feed),
+object-key bucket), `rss-atom` (local RSS 2.0 / Atom fixture or loopback feed), or
+`icalendar` (local RFC 5545 `calendar.ics` / `icalendar.file`),
 `GET /services/sites/{name}/virtual/preview` returns `available=true`
 and `homePath`
 (typically `{version}/index.html` for the configured default version) and

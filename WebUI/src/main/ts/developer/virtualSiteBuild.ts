@@ -26,11 +26,11 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
 
 /**
  * True when the Build Virtual Site control should be shown.
- * Git-filesystem, csv-filesystem, sql-database, http-json, object-storage, and
- * rss-atom Virtual Sites all run POST /virtual/build (SQL JDBC, HTTP JSON catalog,
- * object-storage keys, and rss-atom feeds stay in _config.yaml / the local root).
- * Repository / blank / unknown kinds and icalendar must not display this chrome
- * (icalendar Build stays a later phase).
+ * Git-filesystem, csv-filesystem, sql-database, http-json, object-storage,
+ * rss-atom, and icalendar Virtual Sites all run POST /virtual/build (SQL JDBC,
+ * HTTP JSON catalog, object-storage keys, rss-atom feeds, and icalendar .ics
+ * stay in _config.yaml / the local root). Repository / blank / unknown kinds
+ * must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
   sourceKind: string | null | undefined,
@@ -42,15 +42,16 @@ export function shouldShowVirtualBuildChrome(
     v === "sql-database" ||
     v === "http-json" ||
     v === "object-storage" ||
-    v === "rss-atom"
+    v === "rss-atom" ||
+    v === "icalendar"
   );
 }
 
 /**
  * True when Preview assembled site should be shown.
  * Last-output preview for git-filesystem, csv-filesystem, sql-database,
- * http-json, object-storage, and rss-atom. Repository / blank / unknown
- * kinds and icalendar stay hidden (icalendar Preview stays a later phase).
+ * http-json, object-storage, rss-atom, and icalendar. Repository / blank /
+ * unknown kinds stay hidden.
  */
 export function shouldShowVirtualPreviewChrome(
   sourceKind: string | null | undefined,
@@ -62,16 +63,16 @@ export function shouldShowVirtualPreviewChrome(
     v === "sql-database" ||
     v === "http-json" ||
     v === "object-storage" ||
-    v === "rss-atom"
+    v === "rss-atom" ||
+    v === "icalendar"
   );
 }
 
 /**
  * True when the Publish Virtual Site control should be shown.
  * Git-filesystem, csv-filesystem, sql-database, http-json, object-storage,
- * and rss-atom all run POST /virtual/publish (build then copy to IPSSite.root).
- * Repository / blank / unknown kinds and icalendar stay hidden
- * (icalendar Publish stays a later phase).
+ * rss-atom, and icalendar all run POST /virtual/publish (build then copy to
+ * IPSSite.root). Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPublishChrome(
   sourceKind: string | null | undefined,
@@ -83,7 +84,8 @@ export function shouldShowVirtualPublishChrome(
     v === "sql-database" ||
     v === "http-json" ||
     v === "object-storage" ||
-    v === "rss-atom"
+    v === "rss-atom" ||
+    v === "icalendar"
   );
 }
 

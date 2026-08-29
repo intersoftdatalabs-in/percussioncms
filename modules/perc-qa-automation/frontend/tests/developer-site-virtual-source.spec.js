@@ -16,18 +16,18 @@
 
 /**
  * Developer Sites → Virtual Site source panel
- * (#2956 / #3020 / #3300 / #3687 / #3697 / #3699 / #3707 / #3735 / #3759 / #3778 / #3796 / #3808 / #3820 / #3856 / #3868 / #3869 / #3870 / #3879 / #3927 / #3928 / #3931 / epic #2678).
+ * (#2956 / #3020 / #3300 / #3687 / #3697 / #3699 / #3707 / #3735 / #3759 / #3778 / #3796 / #3808 / #3820 / #3856 / #3868 / #3869 / #3870 / #3879 / #3927 / #3928 / #3931 / #3989 / epic #2678).
  *
  * Opens Sites catalog detail and asserts the Virtual Site source section mounts
  * with source-kind control (repository default, git-filesystem, csv-filesystem,
  * sql-database, http-json, object-storage, rss-atom, icalendar), save chrome, Build + Preview + Publish chrome for git-filesystem,
- * csv-filesystem, sql-database, http-json, object-storage, and rss-atom (never repository). rss-atom save/GET-roundtrip
+ * csv-filesystem, sql-database, http-json, object-storage, rss-atom, and icalendar (never repository). rss-atom save/GET-roundtrip
  * uses a local fixture rootPath only (no live feed credentials, no virtual.remoteUrl);
  * Build, Preview, and Publish chrome are shown after save for rss-atom. icalendar save/GET-roundtrip
  * uses a local RFC 5545 fixture rootPath only (no CalDAV, no virtual.remoteUrl);
- * Build / Preview / Publish chrome for icalendar stays hidden. Also intercepts build REST
+ * Build, Preview, and Publish chrome are shown after save for icalendar. Also intercepts build REST
  * to prove link-problem detail lines render on HTTP 200 and publish REST to prove
- * dest path + files copied on HTTP 200 (including csv-filesystem, http-json, object-storage, and rss-atom). Live H2 QA
+ * dest path + files copied on HTTP 200 (including csv-filesystem, http-json, object-storage, rss-atom, and icalendar). Live H2 QA
  * deploys a CSV tree into the cell and asserts POST /virtual/build, GET
  * /virtual/preview home HTML, and POST /virtual/publish complete. SQL save
  * persists sourceKind=sql-database and live Build then Publish complete after save
@@ -41,6 +41,9 @@
  * rss-atom live Build deploys a local feed.xml fixture and asserts pagesWritten > 0; live Preview
  * then streams last-build home HTML; after Build, Publish succeeds and 8.2/index.html
  * exists under the Site filesystem root (local RSS/Atom fixture only; remoteUrl/credentials stay 400).
+ * icalendar live Build deploys a local calendar.ics fixture and asserts pagesWritten > 0; live Preview
+ * then streams last-build home HTML; after Build, Publish succeeds and 8.2/index.html
+ * exists under the Site filesystem root (local RFC 5545 fixture only; remoteUrl/credentials stay 400).
  *
  * Surface-filtered QA mode:
  * <pre>
@@ -74,6 +77,10 @@ const {
   deployRssAtomVirtualFixtureToQaCell,
   assertPublishedRssAtomFilesOnQaCell,
 } = require("./helpers/rss-atom-virtual-qa-fixture");
+const {
+  deployIcalendarVirtualFixtureToQaCell,
+  assertPublishedIcalendarFilesOnQaCell,
+} = require("./helpers/icalendar-virtual-qa-fixture");
 const {
   missingVirtualSourceKindValues,
   formatMissingVirtualSourceKindMessage,
@@ -273,19 +280,25 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
-      // Switch to icalendar reveals root path only (no Git remotes; Build/Preview/Publish later)
+      // Switch to icalendar reveals root path + Build / Preview / Publish (no Git remotes)
       await kind.selectOption("icalendar");
       await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-icalendar-hint"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-icalendar-hint"]')).toContainText(
-        "later phase",
+        "Build Virtual Site",
+      );
+      await expect(page.locator('[data-testid="developer-site-virtual-icalendar-hint"]')).toContainText(
+        "Preview assembled site",
+      );
+      await expect(page.locator('[data-testid="developer-site-virtual-icalendar-hint"]')).toContainText(
+        "Publish Virtual Site",
       );
       await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
       await expect(page.locator('[data-testid="developer-site-virtual-branch"]')).toHaveCount(0);
-      await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(0);
-      await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
-      await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
-      await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
       // Switch to git-filesystem reveals root path, optional remote, + Build / Publish
       await kind.selectOption("git-filesystem");
@@ -953,7 +966,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
   });
 
-  test("icalendar save PUTs envelope and GET-roundtrip persists without Build chrome (#3983)", async ({
+  test("icalendar save PUTs envelope and GET-roundtrip persists with Build/Preview/Publish chrome (#3989)", async ({
     page,
   }) => {
     const pageErrors = [];
@@ -1084,10 +1097,10 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-icalendar-hint"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
     await page.locator('[data-testid="developer-site-virtual-root-path"]').fill("C:/icalendar-docs");
     await page.locator('[data-testid="developer-site-virtual-save"]').click();
@@ -1110,10 +1123,10 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toHaveValue(
       "C:/icalendar-docs",
     );
-    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
     await kind.selectOption("repository");
     lastPutBody = null;
@@ -1177,16 +1190,16 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-icalendar-hint"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
     await page.locator('[data-testid="developer-site-virtual-root-path"]').fill("C:/icalendar-docs");
     await page.locator('[data-testid="developer-site-virtual-save"]').click();
     await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
       timeout: 15_000,
     });
     await expect(kind).toHaveValue("icalendar");
-    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
     await page.locator('[data-testid="developer-site-back"]').click();
     await expect(page.locator(catalogRowsSelector("developer-site-row")).first()).toBeVisible({
@@ -1198,10 +1211,10 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       "C:/icalendar-docs",
     );
     await expect(page.locator('[data-testid="developer-site-virtual-icalendar-hint"]')).toBeVisible();
-    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
     await kind.selectOption("repository");
     await page.locator('[data-testid="developer-site-virtual-save"]').click();
@@ -4765,6 +4778,474 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       html,
       "assembled rss-atom home HTML should contain fixture title or body",
     ).toMatch(/RSS Home|Hello from RSS/);
+
+    await kind.selectOption("repository");
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
+
+  test("icalendar live Build Virtual Site completes on H2 QA (#3989)", async ({ page }) => {
+    test.setTimeout(120_000);
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    const icalRoot = deployIcalendarVirtualFixtureToQaCell();
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      throw new Error("No sites in catalog — live icalendar Build requires a site row");
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
+    await kind.selectOption("icalendar");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-icalendar-hint"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill(icalRoot);
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+
+    const buildRespPromise = page.waitForResponse(
+      (resp) =>
+        resp.request().method() === "POST" && /\/virtual\/build(\?|$)/.test(resp.url()),
+    );
+    await page.locator('[data-testid="developer-site-virtual-build"]').click();
+    const buildResp = await buildRespPromise;
+    const buildBody = await buildResp.text();
+    expect(
+      buildResp.ok(),
+      `POST /virtual/build HTTP ${buildResp.status()}: ${buildBody}`,
+    ).toBeTruthy();
+    await expect(page.locator('[data-testid="developer-site-virtual-build-result"]')).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build-success"]')).toBeVisible();
+    const pagesText = (
+      await page.locator('[data-testid="developer-site-virtual-build-pages"]').textContent()
+    ).trim();
+    expect(Number.parseInt(pagesText, 10), `pages written: ${pagesText}`).toBeGreaterThan(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+
+    await kind.selectOption("repository");
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
+
+  test("icalendar publish result shows files copied on HTTP 200 (#3989)", async ({
+    page,
+  }) => {
+    const consoleErrors = [];
+    page.on("pageerror", (err) => {
+      consoleErrors.push(String(err && err.message ? err.message : err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() !== "error") {
+        return;
+      }
+      const text = msg.text();
+      if (/Failed to load resource:.*404/.test(text)) {
+        return;
+      }
+      consoleErrors.push(text);
+    });
+
+    await page.route(
+      (url) => /\/services\/sites\/?(\?|$)/.test(url.toString()),
+      async (route) => {
+        if (route.request().method() !== "GET") {
+          await route.continue();
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            SiteList: [{ name: "Help", label: "Help" }],
+          }),
+        });
+      },
+    );
+
+    await page.route("**/services/sites/**/virtual/publish", async (route) => {
+      if (route.request().method() !== "POST") {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          siteName: "Help",
+          publishPath: "C:/inetpub/wwwroot/icalendar-help",
+          filesCopied: 3,
+          pagesWritten: 1,
+          hasLinkProblems: false,
+        }),
+      });
+    });
+    await page.route("**/services/sites/**/virtual", async (route) => {
+      const url = route.request().url();
+      if (url.includes("/virtual/publish") || url.includes("/virtual/build")) {
+        await route.fallback();
+        return;
+      }
+      if (route.request().method() !== "GET") {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          sourceKind: "icalendar",
+          rootPath: "C:/icalendar-docs",
+          virtual: true,
+        }),
+      });
+    });
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+
+    const empty = page.locator('[data-testid="developer-site-empty"]');
+    if (await empty.isVisible().catch(() => false)) {
+      throw new Error(
+        "No sites in catalog - icalendar Virtual Site publish intercept requires a site row",
+      );
+    }
+    const err = page.locator('[data-testid="developer-site-error"]');
+    if (await err.isVisible().catch(() => false)) {
+      throw new Error(`Sites catalog error: ${await err.textContent()}`);
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-icalendar-hint"]')).toContainText(
+      "Publish Virtual Site",
+    );
+    await page.locator('[data-testid="developer-site-virtual-publish"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-result"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-success"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-files"]')).toHaveText(
+      "3",
+    );
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-dest"]')).toContainText(
+      "icalendar-help",
+    );
+    expect(consoleErrors).toEqual([]);
+  });
+
+  test("icalendar live Publish Virtual Site completes on H2 QA (#3989)", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    const icalRoot = deployIcalendarVirtualFixtureToQaCell();
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      throw new Error("No sites in catalog - live icalendar Publish requires a site row");
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
+    await kind.selectOption("icalendar");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-icalendar-hint"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill(icalRoot);
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+
+    const buildRespPromise = page.waitForResponse(
+      (resp) =>
+        resp.request().method() === "POST" && /\/virtual\/build(\?|$)/.test(resp.url()),
+    );
+    await page.locator('[data-testid="developer-site-virtual-build"]').click();
+    const buildResp = await buildRespPromise;
+    const buildBody = await buildResp.text();
+    expect(
+      buildResp.ok(),
+      `POST /virtual/build HTTP ${buildResp.status()}: ${buildBody}`,
+    ).toBeTruthy();
+    await expect(page.locator('[data-testid="developer-site-virtual-build-result"]')).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build-success"]')).toBeVisible();
+
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+
+    const publishRespPromise = page.waitForResponse(
+      (resp) =>
+        resp.request().method() === "POST" && /\/virtual\/publish(\?|$)/.test(resp.url()),
+    );
+    await page.locator('[data-testid="developer-site-virtual-publish"]').click();
+    const publishResp = await publishRespPromise;
+    const publishBody = await publishResp.text();
+    expect(
+      publishResp.ok(),
+      `POST /virtual/publish HTTP ${publishResp.status()}: ${publishBody}`,
+    ).toBeTruthy();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-result"]')).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-success"]')).toBeVisible();
+    const filesText = (
+      await page.locator('[data-testid="developer-site-virtual-publish-files"]').textContent()
+    ).trim();
+    expect(Number.parseInt(filesText, 10), `files copied: ${filesText}`).toBeGreaterThan(0);
+    const destText = (
+      await page.locator('[data-testid="developer-site-virtual-publish-dest"]').textContent()
+    ).trim();
+    assertPublishedIcalendarFilesOnQaCell(destText);
+
+    await kind.selectOption("repository");
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
+
+  test("icalendar live Preview assembled site after Build (#3989)", async ({ page }) => {
+    test.setTimeout(120_000);
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    const icalRoot = deployIcalendarVirtualFixtureToQaCell();
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      throw new Error("No sites in catalog — live icalendar Preview requires a site row");
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const siteName = (
+      await page.locator('[data-testid="developer-site-detail-title"]').textContent()
+    ).trim();
+    expect(siteName, "Site detail title required for preview URL").toBeTruthy();
+
+    const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
+    await kind.selectOption("icalendar");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-icalendar-hint"]')).toContainText(
+      "Preview assembled site",
+    );
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview-hint"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview-hint"]')).toContainText(
+      "iCalendar",
+    );
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill(icalRoot);
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+
+    const buildRespPromise = page.waitForResponse(
+      (resp) =>
+        resp.request().method() === "POST" && /\/virtual\/build(\?|$)/.test(resp.url()),
+    );
+    await page.locator('[data-testid="developer-site-virtual-build"]').click();
+    const buildResp = await buildRespPromise;
+    const buildBody = await buildResp.text();
+    expect(
+      buildResp.ok(),
+      `POST /virtual/build HTTP ${buildResp.status()}: ${buildBody}`,
+    ).toBeTruthy();
+    await expect(page.locator('[data-testid="developer-site-virtual-build-result"]')).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build-success"]')).toBeVisible();
+
+    const previewStatusPromise = page.waitForResponse((resp) => {
+      if (resp.request().method() !== "GET") {
+        return false;
+      }
+      const url = resp.url();
+      return /\/virtual\/preview(\?|$)/.test(url) && !/\/virtual\/preview\/.+/.test(url);
+    });
+    const popupPromise = page.waitForEvent("popup", { timeout: 20_000 }).catch(() => null);
+    await page.locator('[data-testid="developer-site-virtual-preview"]').click();
+    const statusResp = await previewStatusPromise;
+    const statusBody = await statusResp.text();
+    expect(
+      statusResp.ok(),
+      `GET /virtual/preview HTTP ${statusResp.status()}: ${statusBody}`,
+    ).toBeTruthy();
+    let statusJson = {};
+    try {
+      statusJson = JSON.parse(statusBody);
+    } catch {
+      throw new Error(`Preview status was not JSON: ${statusBody}`);
+    }
+    const statusRoot =
+      statusJson.VirtualSitePreviewStatus ||
+      statusJson.virtualSitePreviewStatus ||
+      statusJson;
+    expect(
+      statusRoot.available === true || statusRoot.available === "true",
+      `preview available: ${statusBody}`,
+    ).toBeTruthy();
+    const homePath = String(statusRoot.homePath || "").replace(/\\/g, "/").replace(/^\/+/, "");
+    expect(homePath, `homePath in ${statusBody}`).toMatch(/index\.html$/);
+
+    const popup = await popupPromise;
+    let html = "";
+    if (popup) {
+      await popup.waitForLoadState("domcontentloaded").catch(() => {});
+      html = await popup.content().catch(() => "");
+      if (!html || /about:blank/i.test(popup.url())) {
+        const probeUrl = popup.url();
+        if (probeUrl && !/about:blank/i.test(probeUrl)) {
+          const probe = await page.request.get(probeUrl);
+          html = await probe.text();
+        }
+      }
+      if (!popup.isClosed()) {
+        await popup.close().catch(() => {});
+      }
+    }
+    if (!/iCalendar Home|Hello from iCalendar/.test(html)) {
+      const fileUrl = `${BASE_URL}/Rhythmyx/services/sites/${encodeURIComponent(siteName)}/virtual/preview/${homePath
+        .split("/")
+        .filter((seg) => seg.length > 0 && seg !== "." && seg !== "..")
+        .map((seg) => encodeURIComponent(seg))
+        .join("/")}`;
+      const fileResp = await page.request.get(fileUrl);
+      expect(
+        fileResp.ok(),
+        `GET preview home HTTP ${fileResp.status()} ${fileUrl}`,
+      ).toBeTruthy();
+      html = await fileResp.text();
+    }
+    expect(
+      html,
+      "assembled icalendar home HTML should contain fixture title or body",
+    ).toMatch(/iCalendar Home|Hello from iCalendar/);
 
     await kind.selectOption("repository");
     await page.locator('[data-testid="developer-site-virtual-save"]').click();

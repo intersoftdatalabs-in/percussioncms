@@ -14,7 +14,7 @@ import {
 } from "../../../main/ts/developer/virtualSiteBuild";
 
 describe("virtualSiteBuild helpers", () => {
-  it("shouldShowVirtualBuildChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, and rss-atom", () => {
+  it("shouldShowVirtualBuildChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, and icalendar", () => {
     expect(shouldShowVirtualBuildChrome(null)).toBe(false);
     expect(shouldShowVirtualBuildChrome("")).toBe(false);
     expect(shouldShowVirtualBuildChrome("repository")).toBe(false);
@@ -35,12 +35,12 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualBuildChrome("rss-atom")).toBe(true);
     expect(shouldShowVirtualBuildChrome("RSS-Atom")).toBe(true);
     expect(shouldShowVirtualBuildChrome("  rss-atom  ")).toBe(true);
-    expect(shouldShowVirtualBuildChrome("icalendar")).toBe(false);
-    expect(shouldShowVirtualBuildChrome("ICalendar")).toBe(false);
-    expect(shouldShowVirtualBuildChrome("  icalendar  ")).toBe(false);
+    expect(shouldShowVirtualBuildChrome("icalendar")).toBe(true);
+    expect(shouldShowVirtualBuildChrome("ICalendar")).toBe(true);
+    expect(shouldShowVirtualBuildChrome("  icalendar  ")).toBe(true);
   });
 
-  it("shouldShowVirtualPreviewChrome for git, csv, sql-database, http-json, object-storage, and rss-atom (not repository)", () => {
+  it("shouldShowVirtualPreviewChrome for git, csv, sql-database, http-json, object-storage, rss-atom, and icalendar (not repository)", () => {
     expect(shouldShowVirtualPreviewChrome(null)).toBe(false);
     expect(shouldShowVirtualPreviewChrome("")).toBe(false);
     expect(shouldShowVirtualPreviewChrome("repository")).toBe(false);
@@ -59,12 +59,12 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPreviewChrome("rss-atom")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("RSS-Atom")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("  rss-atom  ")).toBe(true);
-    expect(shouldShowVirtualPreviewChrome("icalendar")).toBe(false);
-    expect(shouldShowVirtualPreviewChrome("ICalendar")).toBe(false);
-    expect(shouldShowVirtualPreviewChrome("  icalendar  ")).toBe(false);
+    expect(shouldShowVirtualPreviewChrome("icalendar")).toBe(true);
+    expect(shouldShowVirtualPreviewChrome("ICalendar")).toBe(true);
+    expect(shouldShowVirtualPreviewChrome("  icalendar  ")).toBe(true);
   });
 
-  it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, and rss-atom", () => {
+  it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, and icalendar", () => {
     expect(shouldShowVirtualPublishChrome(null)).toBe(false);
     expect(shouldShowVirtualPublishChrome("")).toBe(false);
     expect(shouldShowVirtualPublishChrome("repository")).toBe(false);
@@ -85,9 +85,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPublishChrome("rss-atom")).toBe(true);
     expect(shouldShowVirtualPublishChrome("RSS-Atom")).toBe(true);
     expect(shouldShowVirtualPublishChrome("  rss-atom  ")).toBe(true);
-    expect(shouldShowVirtualPublishChrome("icalendar")).toBe(false);
-    expect(shouldShowVirtualPublishChrome("ICalendar")).toBe(false);
-    expect(shouldShowVirtualPublishChrome("  icalendar  ")).toBe(false);
+    expect(shouldShowVirtualPublishChrome("icalendar")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("ICalendar")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("  icalendar  ")).toBe(true);
   });
 
   it("formatVirtualSitePublishSummary reports files copied and dest path", () => {

@@ -73,12 +73,15 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
   feeds) and for `icalendar` (local RFC 5545 `calendar.ics` / `icalendar.file`; no CalDAV).
   REST **Publish** copies that last-build HTML to `IPSSite.root` for `rss-atom` and
   `icalendar` (`filesCopied > 0`; `_meta` skipped). Developer Sites **Preview assembled site** is
-  shown for **RSS / Atom** after a successful Build. Developer Sites can save **Object
+  shown for **RSS / Atom** and **iCalendar** after a successful Build. Developer Sites can save **Object
   storage** (GET round-trips the kind), then **Build Virtual Site**, **Preview
   assembled site**, and **Publish Virtual Site**. Developer Sites can save **RSS / Atom**
   the same way, then **Build Virtual Site**, **Preview assembled site**, and
   **Publish Virtual Site** (local RSS/Atom fixture; leftover `virtual.remoteUrl` and
-  credentials are **400**; no live feeds). The endpoint does not accept an
+  credentials are **400**; no live feeds). Developer Sites can save **iCalendar**
+  the same way, then **Build Virtual Site**, **Preview assembled site**, and
+  **Publish Virtual Site** (local RFC 5545 fixture; leftover `virtual.remoteUrl` and
+  credentials are **400**; no CalDAV). The endpoint does not accept an
   `outputRoot` body (always the default staging root).
 
 ### Publish a Virtual Site to the Site filesystem target

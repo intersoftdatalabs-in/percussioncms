@@ -169,12 +169,12 @@ function validationMessage(
  * Site detail section: view/edit Virtual Site source fields via public Site REST
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
  * build ({@code POST …/virtual/build}) for git-filesystem, csv-filesystem,
- * sql-database, http-json, object-storage, and rss-atom. Preview last-build HTML
- * for git/csv/sql/http-json/object-storage/rss-atom. Publish ({@code POST
- * …/virtual/publish}) for git/csv/sql/http-json/object-storage/rss-atom after a
- * successful Build. Repository / blank / unknown kinds stay hidden. icalendar
- * save chrome is in this panel (local {@code rootPath} only);
- * Build/Preview/Publish for icalendar stay a later phase.
+ * sql-database, http-json, object-storage, rss-atom, and icalendar. Preview
+ * last-build HTML for git/csv/sql/http-json/object-storage/rss-atom/icalendar.
+ * Publish ({@code POST …/virtual/publish}) for git/csv/sql/http-json/
+ * object-storage/rss-atom/icalendar after a successful Build. Repository /
+ * blank / unknown kinds stay hidden. icalendar uses a local {@code rootPath}
+ * only (no CalDAV chrome).
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -366,11 +366,11 @@ export function VirtualSiteSourcePanel({
   const objectStorageMode = isObjectStorageSourceKind(form.sourceKind);
   const rssAtomMode = isRssAtomSourceKind(form.sourceKind);
   const icalendarMode = isIcalendarSourceKind(form.sourceKind);
-  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom (never repository or icalendar). */
+  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
-  /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom (never repository or icalendar). */
+  /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar (never repository). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
-  /** Publish chrome: git/csv/sql/http-json/object-storage/rss-atom (never repository or icalendar). */
+  /** Publish chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar (never repository). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
   const busy = saving || building || publishing;
   const buildSummary = buildResult ? formatVirtualSiteBuildSummary(buildResult) : null;
@@ -603,7 +603,7 @@ export function VirtualSiteSourcePanel({
             ) : null}
           </div>
 
-          {/* Build chrome: git/csv/sql/http-json/object-storage/rss-atom (never repository). */}
+          {/* Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar (never repository). */}
           {showBuildChrome ? (
             <div
               data-testid="developer-site-virtual-build-section"
