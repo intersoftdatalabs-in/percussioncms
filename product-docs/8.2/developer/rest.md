@@ -232,7 +232,25 @@ Assembly **slots** used by **Developer → Slots** are exposed under `/services/
 |--------|------|---------|
 | `GET` | `/services/slots` | List slot summaries (label, name, description) |
 | `GET` | `/services/slots/{idOrName}` | Design detail (finder, associations, `designGaps`) |
-| `PUT` | `/services/slots/{idOrName}` | Update label, description, and/or content-type/template associations |
+| `PUT` | `/services/slots/{idOrName}` | Update label, description, layout/styles, and/or content-type/template associations |
+| `POST` | `/services/slots` | **Admin.** Create a slot (`IPSAssemblyDesignWs.createSlots` then `saveSlots`) |
+| `DELETE` | `/services/slots/{idOrName}` | **Admin.** Delete a slot (`IPSAssemblyDesignWs.deleteSlots`) |
+
+Create (`POST /services/slots`) persists immediately (Workbench Finish, not an unsaved stub).
+JSON body requires `name` (unique, case-insensitive; **no whitespace**). Optional `label`,
+`description`, and `slotType` (`REGULAR` or `INLINE`) are applied before save. Omitted
+`slotType` defaults to `REGULAR`. Duplicate name is **409**. Blank / whitespace / wildcard
+names and invalid `slotType` are **400**. Missing request session/user is **403**. Non-Admin
+is **403**. The new slot is then `GET /services/slots/{name}` **200**.
+
+Delete (`DELETE /services/slots/{idOrName}`) returns **204** when removed; a following
+`GET` is **404**. Unknown id/name is **404**. System slots cannot be deleted (**409**).
+Locked-by-another-user is **409** (the lock is not stolen). Non-Admin is **403**.
+
+**AS-01 remainder:** finder, relationship, and `finderArguments` stay **read-only** on this
+REST surface. Content-finder / relationship write and SPA slot-editor chrome are later
+slices. Detail `designGaps` code `SLOT_FINDER_RELATIONSHIP_WRITE` records that remainder
+(`SLOT_CREATE_DELETE` is retired now that POST/DELETE ship).
 
 JSON may wrap a single item as `SlotDetail`. `associations` and `designGaps` are arrays
 (`SlotAssociationSummary[]` and structured `{code,message}` gaps). Some Jackson/JAXB

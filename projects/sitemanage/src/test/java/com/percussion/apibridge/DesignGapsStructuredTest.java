@@ -118,8 +118,8 @@ class DesignGapsStructuredTest {
   void slotDesignGaps_areStructured() {
     assertEquals(2, SlotsAdaptor.SLOT_DESIGN_GAPS.size());
     DesignGap first = SlotsAdaptor.SLOT_DESIGN_GAPS.get(0);
-    assertEquals("SLOT_CREATE_DELETE", first.getCode());
-    assertTrue(first.getMessage().contains("Create"));
+    assertEquals("SLOT_FINDER_RELATIONSHIP_WRITE", first.getCode());
+    assertTrue(first.getMessage().contains("read-only"));
     assertEquals("SLOT_ASSOC_GUIDS_ONLY", SlotsAdaptor.SLOT_DESIGN_GAPS.get(1).getCode());
   }
 }
