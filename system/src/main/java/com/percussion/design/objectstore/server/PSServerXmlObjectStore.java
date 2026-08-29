@@ -918,8 +918,8 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     PSPathInjectionGuard.requireUnderBase(PSServer.getRxDir(), file.getPath());
     Path path = file.toPath();
     try {
-      if (Files.isSymbolicLink(path)) {
-        Files.deleteIfExists(path);
+      if (Files.isSymbolicLink(path)) { // codeql[java/path-injection]
+        Files.deleteIfExists(path); // codeql[java/path-injection]
         return true;
       }
     } catch (IOException e) {
