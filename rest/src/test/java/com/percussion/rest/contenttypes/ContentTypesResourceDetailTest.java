@@ -1176,4 +1176,89 @@ public class ContentTypesResourceDetailTest {
             WebApplicationException.class, () -> resource.deleteLocalField("percPage", "rx_note"));
     assertEquals(403, ex.getResponse().getStatus());
   }
+
+  @Test
+  public void includeFieldSuccess() {
+    ContentTypeField body = new ContentTypeField();
+    body.setName("sys_title");
+    body.setFieldType("system");
+    ContentTypeDetail updated = new ContentTypeDetail();
+    updated.setName("percPage");
+    ContentTypeField included = new ContentTypeField();
+    included.setName("sys_title");
+    included.setFieldType("system");
+    updated.setFields(List.of(included));
+    when(adaptor.includeField(any(), eq("percPage"), any())).thenReturn(updated);
+    ContentTypeDetail out = resource.includeField("percPage", body);
+    assertEquals("percPage", out.getName());
+    assertEquals("system", out.getFields().get(0).getFieldType());
+    verify(adaptor).includeField(any(), eq("percPage"), eq(body));
+  }
+
+  @Test
+  public void includeFieldNotFound() {
+    when(adaptor.includeField(any(), eq("missing"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.includeField("missing", new ContentTypeField()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void includeFieldUnknownCatalogField404() {
+    when(adaptor.includeField(any(), eq("percPage"), any()))
+        .thenThrow(new WebApplicationException("Unknown system field: nope", 404));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.includeField("percPage", new ContentTypeField()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void includeFieldInvalidOrigin400() {
+    when(adaptor.includeField(any(), eq("percPage"), any()))
+        .thenThrow(new IllegalArgumentException("fieldType must be system or shared"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.includeField("percPage", new ContentTypeField()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void includeFieldDuplicate409() {
+    when(adaptor.includeField(any(), eq("percPage"), any()))
+        .thenThrow(new WebApplicationException("Field already included: sys_title", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.includeField("percPage", new ContentTypeField()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void includeFieldRequiresLock() {
+    when(adaptor.includeField(any(), eq("percPage"), any()))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not include content type field; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.includeField("percPage", new ContentTypeField()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void includeFieldForbiddenWhenNotAdmin() {
+    when(adaptor.includeField(any(), eq("percPage"), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.includeField("percPage", new ContentTypeField()));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
 }

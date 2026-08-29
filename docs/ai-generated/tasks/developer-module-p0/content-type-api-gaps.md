@@ -2,7 +2,7 @@
 
 |  Field   |                                  Value                                   |
 |----------|--------------------------------------------------------------------------|
-| **Date** | 2026-08-28                                                               |
+| **Date** | 2026-08-29                                                               |
 | **FR**   | CD-01–CD-19 in `docs/developer-module/workbench-functional-inventory.md` |
 
 ## Surfaces available today
@@ -18,6 +18,7 @@
 | Public REST shared-field detail   | CD-15 group fields (Admin only)     | `GET /services/sharedfields/{idOrName}`        |
 | Public REST shared-field write    | CD-15 create/save/delete (Admin)    | `POST /services/sharedfields`, `PUT …/{idOrName}`, `DELETE …/{idOrName}` |
 | Public REST shared-field fields   | CD-15 field create/delete (Admin)   | `POST …/{idOrName}/fields`, `DELETE …/{idOrName}/fields/{fieldName}` |
+| Public REST include field         | CD-04 include system/shared (Admin) | `POST /services/contenttypes/{idOrName}/fields/include` |
 | Public REST system-def catalog    | CD-16 GET (Admin only)              | `GET /services/systemdef`                      |
 | Public REST system-def write      | CD-16 field-property save (Admin)   | `PUT /services/systemdef` (request lock, release on save) |
 | Design SOAP (Workbench)           | Full load/save/lock/create/delete   | `IPSContentDesignWs` / `ContentDesignSOAPImpl` |
@@ -83,6 +84,7 @@ slices.
 | ACL                                                  | CD-19, §5.4  | Existing ACL REST may help later                  |
 | ~~Keyword write~~                                    | CD-17        | **Done** — REST + SPA + design WS (#1612/#1701)   |
 | Locale **write** (create/update/delete)              | CD-18        | **REST write shipped** (#3959, design WS + Admin 403 / lock 409). Auto-translation editor + SPA remain open |
+| Include system/shared fields                         | CD-04        | **REST `POST /contenttypes/{id}/fields/include` shipped** (#3985, held design lock, origin stays system/shared). SPA field picker still Workbench |
 
 ## Recommended next API work
 
@@ -93,8 +95,9 @@ slices.
 5. ~~Control property value/choice catalogs~~ **Done CD-07 REST** (#3786). Field-rule write/save still open
 6. ~~Shared field catalog read~~ **Done CD-15 read** (`GET /services/sharedfields`, Admin 403). ~~Write~~ **Done CD-15 group create/save/delete** (`POST`/`PUT`/`DELETE`, #3944). ~~Field create/delete~~ **Done** (`POST …/fields`, `DELETE …/fields/{fieldName}`, #3954). Control/choice write + SPA editor still open
 7. ~~System def field-property write~~ **Done CD-16 PUT** (`PUT /services/systemdef`, Admin 403, request lock + release on save, #3958). Field create/delete + SPA still open
-8. Templates/slots design editors
-9. CD-18 remainder: auto-translation set editor + SPA locale editor (REST locale CRUD shipped #3959)
+8. ~~Include system/shared fields~~ **Done CD-04 REST** (`POST /contenttypes/{id}/fields/include`, Admin 403, held lock 409, origin stays system/shared, #3985). SPA field picker still open
+9. Templates/slots design editors
+10. CD-18 remainder: auto-translation set editor + SPA locale editor (REST locale CRUD shipped #3959)
 
 ## Client behavior
 

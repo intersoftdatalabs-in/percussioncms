@@ -25,12 +25,15 @@ import java.util.List;
 /**
  * Field summary for a content type (Developer module design view). GET catalog rows are read-only
  * except searchable/occurrence on PUT detail. Create uses POST {@code
- * /contenttypes/{idOrName}/fields} (held design lock); delete uses DELETE {@code
- * .../fields/{fieldName}}.
+ * /contenttypes/{idOrName}/fields} (held design lock); include system/shared uses POST {@code
+ * .../fields/include}; delete uses DELETE {@code .../fields/{fieldName}}.
  */
 @XmlRootElement(name = "ContentTypeField")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Content type field summary; POST .../fields creates a local field")
+@Schema(
+    description =
+        "Content type field summary; POST .../fields creates a local field;"
+            + " POST .../fields/include includes an existing system or shared field")
 public class ContentTypeField {
 
   @Schema(description = "Field submit name (system name)")
@@ -42,7 +45,7 @@ public class ContentTypeField {
   @Schema(
       description =
           "Field origin: local | system | shared | unknown. POST .../fields always creates"
-              + " local; other origins are rejected")
+              + " local. POST .../fields/include requires system or shared")
   private String fieldType;
 
   @Schema(description = "Storage / data type (text, integer, date, binary, …)")

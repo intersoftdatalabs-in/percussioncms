@@ -288,4 +288,19 @@ public interface IContentTypesAdaptor {
    * @throws jakarta.ws.rs.WebApplicationException {@code 404} when the field name is unknown
    */
   Boolean deleteLocalField(URI baseUri, String idOrName, String fieldName);
+
+  /**
+   * Include an existing system or shared field into a content type (CD-04). Requires a
+   * design-session lock already held by the current user. Does not acquire or release the lock.
+   * Origin stays system/shared (the field is not copied as local). Duplicate include is {@code
+   * 409}. Unknown catalog field is {@code 404}.
+   *
+   * @param body {@code name} required; {@code fieldType} must be {@code system} or {@code shared}
+   * @return updated detail, or {@code null} when the content type is not found
+   * @throws ContentTypeDesignLockException when no lock is held or another user owns the lock
+   * @throws IllegalArgumentException when input is invalid
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin; {@code
+   *     409} when the field is already on the type; {@code 404} when the catalog field is unknown
+   */
+  ContentTypeDetail includeField(URI baseUri, String idOrName, ContentTypeField body);
 }

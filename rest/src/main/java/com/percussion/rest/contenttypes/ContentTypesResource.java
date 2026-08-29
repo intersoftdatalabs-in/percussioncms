@@ -1424,7 +1424,8 @@ public class ContentTypesResource {
               + " Optional searchable and occurrence/required use the same rules as PUT field"
               + " patches. Optional fieldSet names an existing child field set, or creates a named"
               + " complex child when missing. Duplicate field is 409. Missing type is 404."
-              + " Including system/shared fields is out of scope (CD-04).",
+              + " Include an existing system or shared field with POST .../fields/include"
+              + " (CD-04).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -1483,6 +1484,52 @@ public class ContentTypesResource {
         throw new WebApplicationException("Content type not found: " + idOrName, 404);
       }
       return Response.noContent().build();
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      throw mapWriteFailure(e);
+    }
+  }
+
+  @POST
+  @Path("/{idOrName}/fields/include")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Include a system or shared field into a content type",
+      description =
+          "CD-04. Admin. Includes an existing system or shared field by name and origin"
+              + " (fieldType) via IPSContentDesignWs.loadContentTypes / saveContentTypes."
+              + " Requires a held design-session lock (POST .../lock). Does not acquire or"
+              + " release the lock. Does not steal another user's lock. Origin stays system or"
+              + " shared (the field is not copied as local). Body name is required. fieldType"
+              + " must be system or shared. Duplicate include is 409. Unknown catalog field is"
+              + " 404. Missing type is 404. Local field create remains POST .../fields (CD-03).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Field included (lock is still held)",
+            content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid name or fieldType"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Content type or system/shared field not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description =
+                "Field already included, or design lock not held by the current user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeDetail includeField(
+      @PathParam("idOrName") String idOrName, ContentTypeField body) {
+    try {
+      ContentTypeDetail detail =
+          requireAdaptor().includeField(uriInfo.getBaseUri(), idOrName, body);
+      if (detail == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return detail;
     } catch (RuntimeException e) {
       throw mapMutationFailure(e);
     } catch (Exception e) {
