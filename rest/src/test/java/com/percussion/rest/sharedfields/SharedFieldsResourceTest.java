@@ -28,6 +28,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
@@ -438,5 +439,130 @@ public class SharedFieldsResourceTest {
     WebApplicationException ex =
         SharedFieldsResource.mapWriteFailure(new IllegalStateException("object is not locked"));
     assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getFieldControlPropertiesDelegatesToAdaptor() {
+    SharedFieldControlProperties envelope = new SharedFieldControlProperties();
+    envelope.setFieldName("rx_note");
+    envelope.setProperties(List.of(new ContentTypeControlProperty("height", "200")));
+    when(adaptor.getFieldControlProperties(any(), eq("shared"), eq("rx_note")))
+        .thenReturn(envelope);
+
+    SharedFieldControlProperties out = resource.getFieldControlProperties("shared", "rx_note");
+    assertEquals("rx_note", out.getFieldName());
+    assertEquals("200", out.getProperties().get(0).getValue());
+  }
+
+  @Test
+  public void getFieldControlPropertiesGroupNotFoundIsGeneric404() {
+    when(adaptor.getFieldControlProperties(any(), eq("missing"), eq("rx_note"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.getFieldControlProperties("missing", "rx_note"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Shared field group not found", ex.getMessage());
+  }
+
+  @Test
+  public void getFieldControlPropertiesFieldNotFoundIs404() {
+    when(adaptor.getFieldControlProperties(any(), eq("shared"), eq("nope")))
+        .thenThrow(new WebApplicationException("Shared field not found", 404));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.getFieldControlProperties("shared", "nope"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getFieldControlPropertiesForbiddenWhenNotAdmin() {
+    when(adaptor.getFieldControlProperties(any(), eq("shared"), eq("rx_note")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.getFieldControlProperties("shared", "rx_note"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesSuccess() {
+    SharedFieldControlProperties body = new SharedFieldControlProperties();
+    body.setProperties(List.of(new ContentTypeControlProperty("width", "640")));
+    SharedFieldControlProperties updated = new SharedFieldControlProperties();
+    updated.setFieldName("rx_note");
+    updated.setProperties(List.of(new ContentTypeControlProperty("width", "640")));
+    when(adaptor.replaceFieldControlProperties(any(), eq("shared"), eq("rx_note"), any()))
+        .thenReturn(updated);
+
+    SharedFieldControlProperties out =
+        resource.replaceFieldControlProperties("shared", "rx_note", body);
+    assertEquals("640", out.getProperties().get(0).getValue());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesRequiresProperties() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.replaceFieldControlProperties(
+                    "shared", "rx_note", new SharedFieldControlProperties()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesLockConflictIs409() {
+    SharedFieldControlProperties body = new SharedFieldControlProperties();
+    body.setProperties(List.of());
+    when(adaptor.replaceFieldControlProperties(any(), eq("shared"), eq("rx_note"), any()))
+        .thenThrow(new SharedFieldDesignLockException("locked by other"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldControlProperties("shared", "rx_note", body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesForbiddenWhenNotAdmin() {
+    SharedFieldControlProperties body = new SharedFieldControlProperties();
+    body.setProperties(List.of());
+    when(adaptor.replaceFieldControlProperties(any(), eq("shared"), eq("rx_note"), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldControlProperties("shared", "rx_note", body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesGroupNotFoundIsGeneric404() {
+    SharedFieldControlProperties body = new SharedFieldControlProperties();
+    body.setProperties(List.of());
+    when(adaptor.replaceFieldControlProperties(any(), eq("missing"), eq("rx_note"), any()))
+        .thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldControlProperties("missing", "rx_note", body));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Shared field group not found", ex.getMessage());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesFieldNotFoundIs404() {
+    SharedFieldControlProperties body = new SharedFieldControlProperties();
+    body.setProperties(List.of());
+    when(adaptor.replaceFieldControlProperties(any(), eq("shared"), eq("nope"), any()))
+        .thenThrow(new SharedFieldNotFoundException("Shared field not found"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldControlProperties("shared", "nope", body));
+    assertEquals(404, ex.getResponse().getStatus());
   }
 }

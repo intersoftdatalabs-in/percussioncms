@@ -107,4 +107,30 @@ public interface ISharedFieldsAdaptor {
    * @throws SharedFieldDesignLockException when the shared def is locked by another user
    */
   void deleteField(URI baseUri, String groupName, String fieldName);
+
+  /**
+   * Load control property values and the choice catalog for one shared field (CD-15 / CD-07). Admin
+   * only. No design lock is required. Empty {@code properties} means none configured. {@code
+   * choices} is null when none.
+   *
+   * @return envelope, or {@code null} when the group is not found / unsafe name
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin; {@code
+   *     404} when the field is unknown
+   */
+  SharedFieldControlProperties getFieldControlProperties(
+      URI baseUri, String idOrName, String fieldName);
+
+  /**
+   * Replace control property values (and optionally the choice catalog) for one shared field. Admin
+   * only. Acquires the shared-def design lock for this request and releases it on save. {@code
+   * properties} is a full replace (empty clears). {@code choices} null leaves the catalog unchanged.
+   *
+   * @return persisted envelope, or {@code null} when the group is not found / unsafe path name
+   * @throws SharedFieldNotFoundException when the field does not exist
+   * @throws IllegalArgumentException when properties is missing or a choice catalog is invalid
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin
+   * @throws SharedFieldDesignLockException when the shared def is locked by another user
+   */
+  SharedFieldControlProperties replaceFieldControlProperties(
+      URI baseUri, String idOrName, String fieldName, SharedFieldControlProperties body);
 }

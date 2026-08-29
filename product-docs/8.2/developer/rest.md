@@ -831,9 +831,11 @@ previously held lock).
 
 **Admin (Design) only.** There is no global JAX-RS Admin filter on this path — the
 sitemanage adaptor checks `IPSUserService.isAdminUser` for the current user and maps
-a non-Admin caller to **403**. Control/choice write remains unsupported. Nested
-field create/delete persist a backend column mapping and a default `sys_EditBox`
-display mapping. System-def field-property save and field create/delete are a
+a non-Admin caller to **403**. Nested field create/delete persist a backend column
+mapping and a default `sys_EditBox` display mapping. Control property **values**
+and optional choice catalogs use `GET`/`PUT
+.../fields/{fieldName}/controlProperties` (CD-15 remainder / CD-07 on shared defs).
+System-def field-property save and field create/delete are a
 separate catalog (`PUT /services/systemdef`, `POST /services/systemdef/fields`,
 `DELETE /services/systemdef/fields/{fieldName}`, CD-16).
 
@@ -846,6 +848,8 @@ separate catalog (`PUT /services/systemdef`, `POST /services/systemdef/fields`,
 | `DELETE` | `/services/sharedfields/{idOrName}` | Delete the group (**204**). |
 | `POST` | `/services/sharedfields/{idOrName}/fields` | Add a field to an existing group (`name` required, unique across shared groups). Optional `dataType` defaults to `text`. Optional `searchable` and occurrence / required use the same rules as PUT patches. |
 | `DELETE` | `/services/sharedfields/{idOrName}/fields/{fieldName}` | Remove a field and its display mapping (**204**). |
+| `GET` | `/services/sharedfields/{idOrName}/fields/{fieldName}/controlProperties` | Control parameter **name/value** pairs and the choice catalog for one shared field (CD-15). No lock required. Empty `properties` means none. `choices` omitted when none. |
+| `PUT` | `/services/sharedfields/{idOrName}/fields/{fieldName}/controlProperties` | **Admin** (CD-15). Acquires the shared-definition lock for this request and **releases** it on save. Full replace of `properties` (empty clears). `choices` omitted leaves the catalog unchanged; `type: none` clears. **409** if the shared def is locked by another user. |
 
 `{idOrName}` is the shared field group name (for example a product set such as
 `shared`). Path separators and `..` are rejected as not found (**404**), not as a
@@ -890,9 +894,26 @@ List entries use `SharedFieldGroupSummary`. Detail uses `SharedFieldGroupDetail`
 - `name`, `filename`
 - `fields[]`: `name`, `dataType`, `searchable`, `required`, `readOnly`, `occurrence`
   (`optional` / `required` / `oneOrMore` / `zeroOrMore` / `count` / `unknown`)
-- `designGaps[]` strings — control/choice edit remain later slices. System-def
-  field-property save is `PUT /services/systemdef`; field create/delete are
+- `designGaps[]` strings — choice filters / null-entry / default-selected and the
+  SPA shared-field editor remain later slices. System-def field-property save is
+  `PUT /services/systemdef`; field create/delete are
   `POST /services/systemdef/fields` and `DELETE /services/systemdef/fields/{fieldName}`.
+
+Control property GET/PUT uses Jackson wrap `SharedFieldControlProperties` (same
+nested `properties` / `choices` shape as content-type CD-07). Typical write:
+
+```json
+{
+  "SharedFieldControlProperties": {
+    "properties": [
+      { "name": "height", "value": "200" }
+    ]
+  }
+}
+```
+
+Omit `choices` to leave the catalog unchanged. Send `"choices": { "type": "none" }`
+to clear it.
 
 Prefer the generated OpenAPI schema as the integration source of truth.
 
@@ -900,9 +921,9 @@ Prefer the generated OpenAPI schema as the integration source of truth.
 
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | List (possibly empty), group detail, create, save, or add-field |
+| `200` | List (possibly empty), group detail, create, save, add-field, or control-property GET/PUT |
 | `204` | Group or field deleted |
-| `400` | Invalid name/filename (including blank path name on PUT/DELETE), unknown field on PUT, invalid field name/`dataType`, or conflicting `occurrence`/`required` |
+| `400` | Invalid name/filename (including blank path name on PUT/DELETE), unknown field on PUT group, invalid field name/`dataType`, conflicting `occurrence`/`required`, missing `properties` on control PUT, or invalid choice catalog |
 | `403` | Caller is not Admin, or the request has no session/user (writes) |
 | `404` | Group or field not found (unknown or unsafe name). Non-Admin callers receive **403**, not 404 |
 | `409` | Duplicate group or field name, or the shared definition is locked by another user |

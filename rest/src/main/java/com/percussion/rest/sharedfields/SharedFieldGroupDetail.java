@@ -27,7 +27,8 @@ import java.util.List;
  * Shared field group detail. Used for GET catalog, POST/PUT group write, and nested field
  * create/delete responses.
  *
- * <p>Control/choice write and system-def remain later slices ({@code designGaps}).
+ * <p>Control properties use GET/PUT {@code .../fields/{fieldName}/controlProperties}. Choice
+ * filters / SPA editor / system-def remain later slices ({@code designGaps}).
  */
 @XmlRootElement(name = "SharedFieldGroupDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)

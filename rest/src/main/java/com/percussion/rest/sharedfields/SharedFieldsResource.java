@@ -78,7 +78,8 @@ public class SharedFieldsResource {
           "Lists shared field groups from the content-editor shared definition. Admin (Design)"
               + " only. Create uses POST /sharedfields; save uses PUT /sharedfields/{name}; delete"
               + " uses DELETE /sharedfields/{name}. Add a field with POST /sharedfields/{name}/fields;"
-              + " remove one with DELETE /sharedfields/{name}/fields/{fieldName}.",
+              + " remove one with DELETE /sharedfields/{name}/fields/{fieldName}. Control properties"
+              + " use GET/PUT /sharedfields/{idOrName}/fields/{fieldName}/controlProperties.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -108,8 +109,9 @@ public class SharedFieldsResource {
       summary = "Get shared field group detail",
       description =
           "Loads one shared field group by name (Admin/Design only). Includes field catalog."
-              + " Field add/remove use nested POST/DELETE .../fields. Control/choice write and"
-              + " system-def remain unsupported (see designGaps).",
+              + " Field add/remove use nested POST/DELETE .../fields. Control properties use"
+              + " GET/PUT .../fields/{fieldName}/controlProperties. System-def remains a separate"
+              + " catalog (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -250,8 +252,8 @@ public class SharedFieldsResource {
               + " case-insensitive across shared groups, and must be a letter followed by letters,"
               + " digits, or underscore. Optional dataType defaults to text. Optional searchable"
               + " and occurrence/required use the same rules as PUT field patches. Duplicate field"
-              + " is 409. Missing group is 404. Lock held by another user is 409. Control/choice"
-              + " write remains unsupported.",
+              + " is 409. Missing group is 404. Lock held by another user is 409. Control properties"
+              + " use GET/PUT .../fields/{fieldName}/controlProperties.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -301,6 +303,91 @@ public class SharedFieldsResource {
     try {
       requireAdaptor().deleteField(uriInfo.getBaseUri(), name, fieldName);
       return Response.noContent().build();
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @GET
+  @Path("/{idOrName}/fields/{fieldName}/controlProperties")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get shared field control property values and choice catalog",
+      description =
+          "CD-15 GET (CD-07 on shared defs): control parameter name/value pairs and the choice"
+              + " catalog for one shared field. Admin only. No design lock is required. Empty"
+              + " properties means none. choices is omitted when none. Jackson root wrap is"
+              + " SharedFieldControlProperties.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(schema = @Schema(implementation = SharedFieldControlProperties.class))),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Group or field not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public SharedFieldControlProperties getFieldControlProperties(
+      @PathParam("idOrName") String idOrName, @PathParam("fieldName") String fieldName) {
+    try {
+      SharedFieldControlProperties out =
+          requireAdaptor().getFieldControlProperties(uriInfo.getBaseUri(), idOrName, fieldName);
+      if (out == null) {
+        throw new WebApplicationException("Shared field group not found", 404);
+      }
+      return out;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}/fields/{fieldName}/controlProperties")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Replace shared field control property values and optional choice catalog",
+      description =
+          "CD-15 PUT (CD-07 on shared defs): full replace of control parameter values via"
+              + " IPSContentDesignWs.loadContentEditorSharedDef (lock) then"
+              + " saveContentEditorSharedDef (release). Admin only. Empty properties clears."
+              + " choices omitted leaves the catalog unchanged; type none clears. Jackson root wrap"
+              + " is SharedFieldControlProperties.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Replaced (shared-def lock released)",
+            content =
+                @Content(schema = @Schema(implementation = SharedFieldControlProperties.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Missing properties or invalid choice catalog"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Group or field not found"),
+        @ApiResponse(responseCode = "409", description = "Shared def locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public SharedFieldControlProperties replaceFieldControlProperties(
+      @PathParam("idOrName") String idOrName,
+      @PathParam("fieldName") String fieldName,
+      SharedFieldControlProperties body) {
+    if (body == null || body.getProperties() == null) {
+      throw new WebApplicationException("properties is required", 400);
+    }
+    try {
+      SharedFieldControlProperties out =
+          requireAdaptor()
+              .replaceFieldControlProperties(
+                  uriInfo.getBaseUri(), idOrName, fieldName, body);
+      if (out == null) {
+        throw new WebApplicationException("Shared field group not found", 404);
+      }
+      return out;
     } catch (RuntimeException e) {
       throw mapWriteFailure(e);
     } catch (Exception e) {
