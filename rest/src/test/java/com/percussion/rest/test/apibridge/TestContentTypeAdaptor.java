@@ -22,6 +22,10 @@ package com.percussion.rest.test.apibridge;
 import com.percussion.rest.Guid;
 import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.contenttypes.ContentType;
+import com.percussion.rest.contenttypes.ContentTypeChoiceCatalog;
+import com.percussion.rest.contenttypes.ContentTypeChoiceDefaultSelected;
+import com.percussion.rest.contenttypes.ContentTypeChoiceEntry;
+import com.percussion.rest.contenttypes.ContentTypeChoiceNullEntry;
 import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeField;
@@ -168,6 +172,16 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
     out.setFieldName(fieldName);
     out.setControl("sys_EditBox");
     out.setProperties(List.of(new ContentTypeControlProperty("height", "200")));
+    ContentTypeChoiceCatalog choices = new ContentTypeChoiceCatalog();
+    choices.setType("local");
+    choices.setEntries(List.of(new ContentTypeChoiceEntry("open", "Open")));
+    ContentTypeChoiceNullEntry nullEntry = new ContentTypeChoiceNullEntry();
+    nullEntry.setValue("");
+    nullEntry.setLabel("None");
+    nullEntry.setIncludeWhen("always");
+    choices.setNullEntry(nullEntry);
+    choices.setDefaultSelected(List.of(new ContentTypeChoiceDefaultSelected("nullEntry")));
+    out.setChoices(choices);
     return out;
   }
 

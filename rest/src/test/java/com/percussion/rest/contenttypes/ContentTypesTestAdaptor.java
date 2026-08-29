@@ -148,6 +148,15 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
     out.setFieldName(fieldName);
     out.setControl("sys_EditBox");
     out.setProperties(List.of());
+    ContentTypeChoiceCatalog choices = new ContentTypeChoiceCatalog();
+    choices.setType("local");
+    choices.setEntries(List.of(new ContentTypeChoiceEntry("open", "Open")));
+    ContentTypeChoiceNullEntry nullEntry = new ContentTypeChoiceNullEntry();
+    nullEntry.setValue("");
+    nullEntry.setLabel("None");
+    choices.setNullEntry(nullEntry);
+    choices.setDefaultSelected(List.of(new ContentTypeChoiceDefaultSelected("nullEntry")));
+    out.setChoices(choices);
     return out;
   }
 

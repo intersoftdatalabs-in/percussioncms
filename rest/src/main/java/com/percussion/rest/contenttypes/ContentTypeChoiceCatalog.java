@@ -20,17 +20,27 @@ package com.percussion.rest.contenttypes;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
 import java.util.List;
 
 /**
  * Choice catalog for a field control (CD-07).
  *
  * <p>{@code type} is {@code global}, {@code local}, {@code lookup}, {@code internalLookup}, or
- * {@code tableinfo}. PUT {@code type=none} (or empty) clears the catalog. Choice filters, null
- * entry, and default-selected are not written.
+ * {@code tableinfo}. PUT {@code type=none} (or empty) clears the catalog. When this object is
+ * present on PUT, {@code filter}, {@code nullEntry}, and {@code defaultSelected} are written as
+ * part of the catalog replace (omit/null clears those extras).
  */
 @XmlRootElement(name = "ContentTypeChoiceCatalog")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@XmlSeeAlso({
+  ContentTypeChoiceEntry.class,
+  ContentTypeChoiceTable.class,
+  ContentTypeChoiceFilter.class,
+  ContentTypeChoiceFilterField.class,
+  ContentTypeChoiceNullEntry.class,
+  ContentTypeChoiceDefaultSelected.class
+})
 @Schema(description = "Choice catalog for a content type field control")
 public class ContentTypeChoiceCatalog {
 
@@ -56,6 +66,21 @@ public class ContentTypeChoiceCatalog {
 
   @Schema(description = "Table info when type is tableinfo")
   private ContentTypeChoiceTable table;
+
+  @Schema(
+      description =
+          "Choice filter. GET: omitted when none. PUT: omit/null clears; present replaces.")
+  private ContentTypeChoiceFilter filter;
+
+  @Schema(
+      description =
+          "Null entry added to the catalog. GET: omitted when none. PUT: omit/null clears.")
+  private ContentTypeChoiceNullEntry nullEntry;
+
+  @Schema(
+      description =
+          "Default-selected entries. GET: omitted when none. PUT: omit/null/empty clears.")
+  private List<ContentTypeChoiceDefaultSelected> defaultSelected;
 
   public ContentTypeChoiceCatalog() {}
 
@@ -113,5 +138,29 @@ public class ContentTypeChoiceCatalog {
 
   public void setTable(ContentTypeChoiceTable table) {
     this.table = table;
+  }
+
+  public ContentTypeChoiceFilter getFilter() {
+    return filter;
+  }
+
+  public void setFilter(ContentTypeChoiceFilter filter) {
+    this.filter = filter;
+  }
+
+  public ContentTypeChoiceNullEntry getNullEntry() {
+    return nullEntry;
+  }
+
+  public void setNullEntry(ContentTypeChoiceNullEntry nullEntry) {
+    this.nullEntry = nullEntry;
+  }
+
+  public List<ContentTypeChoiceDefaultSelected> getDefaultSelected() {
+    return defaultSelected;
+  }
+
+  public void setDefaultSelected(List<ContentTypeChoiceDefaultSelected> defaultSelected) {
+    this.defaultSelected = defaultSelected;
   }
 }

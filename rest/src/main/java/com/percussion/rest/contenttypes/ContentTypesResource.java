@@ -1498,7 +1498,8 @@ public class ContentTypesResource {
       description =
           "CD-07 GET: control parameter name/value pairs and the choice catalog for one field."
               + " No design lock is required. Empty properties means none. choices is omitted when"
-              + " none. Jackson root wrap is ContentTypeFieldControlProperties.",
+              + " none. Choice filter, null-entry, and default-selected round-trip when present."
+              + " Jackson root wrap is ContentTypeFieldControlProperties.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -1536,7 +1537,8 @@ public class ContentTypesResource {
           "CD-07 PUT: full replace of control parameter values via IPSContentDesignWs"
               + " .saveContentTypes. Requires a held design-session lock (POST .../lock). Does not"
               + " acquire or release the lock. Empty properties clears parameters. choices omitted"
-              + " leaves the catalog unchanged; type none clears. Jackson root wrap is"
+              + " leaves the catalog unchanged; present replaces including filter, null-entry, and"
+              + " default-selected; type none clears. Jackson root wrap is"
               + " ContentTypeFieldControlProperties.",
       responses = {
         @ApiResponse(

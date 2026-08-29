@@ -166,8 +166,10 @@ After **Lock**:
    edit does not persist.
 
 This is not the full Workbench Properties tab. Choice catalogs show as
-read-only (type only). Choice filter, null-entry, and default-selected are
-not written.
+read-only (type only) in this chrome; Save omits `choices`. Integrators write
+choice filter, null-entry, and default-selected on
+`PUT .../fields/{fieldName}/controlProperties` by sending `choices` — see
+[REST API — Content types](id:developer-rest).
 
 ### Field rule expressions (after lock)
 

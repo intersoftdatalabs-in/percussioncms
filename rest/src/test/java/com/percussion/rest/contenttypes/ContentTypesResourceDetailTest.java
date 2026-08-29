@@ -810,6 +810,67 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
+  public void getFieldControlPropertiesReturnsChoiceExtras() {
+    ContentTypeFieldControlProperties envelope = new ContentTypeFieldControlProperties();
+    envelope.setFieldName("sys_title");
+    ContentTypeChoiceCatalog choices = new ContentTypeChoiceCatalog();
+    choices.setType("local");
+    choices.setEntries(List.of(new ContentTypeChoiceEntry("open", "Open")));
+    ContentTypeChoiceNullEntry nullEntry = new ContentTypeChoiceNullEntry();
+    nullEntry.setValue("");
+    nullEntry.setLabel("None");
+    nullEntry.setIncludeWhen("always");
+    choices.setNullEntry(nullEntry);
+    choices.setDefaultSelected(List.of(new ContentTypeChoiceDefaultSelected("nullEntry")));
+    ContentTypeChoiceFilter filter = new ContentTypeChoiceFilter();
+    filter.setDependentFields(
+        List.of(new ContentTypeChoiceFilterField("sys_communityid", "optional")));
+    filter.setLookupHref("../sys_lookup/filter.xml");
+    choices.setFilter(filter);
+    envelope.setChoices(choices);
+    when(adaptor.getFieldControlProperties(any(), eq("percPage"), eq("sys_title")))
+        .thenReturn(envelope);
+    ContentTypeFieldControlProperties out =
+        resource.getFieldControlProperties("percPage", "sys_title");
+    assertEquals("None", out.getChoices().getNullEntry().getLabel());
+    assertEquals("nullEntry", out.getChoices().getDefaultSelected().get(0).getType());
+    assertEquals(
+        "sys_communityid", out.getChoices().getFilter().getDependentFields().get(0).getFieldRef());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesWritesChoiceExtras() {
+    ContentTypeFieldControlProperties body = new ContentTypeFieldControlProperties();
+    body.setProperties(List.of());
+    ContentTypeChoiceCatalog choices = new ContentTypeChoiceCatalog();
+    choices.setType("local");
+    choices.setEntries(List.of(new ContentTypeChoiceEntry("closed", "Closed")));
+    ContentTypeChoiceNullEntry nullEntry = new ContentTypeChoiceNullEntry();
+    nullEntry.setLabel("None");
+    choices.setNullEntry(nullEntry);
+    body.setChoices(choices);
+    when(adaptor.replaceFieldControlProperties(any(), eq("percPage"), eq("sys_title"), any()))
+        .thenReturn(body);
+    ContentTypeFieldControlProperties out =
+        resource.replaceFieldControlProperties("percPage", "sys_title", body);
+    assertEquals("None", out.getChoices().getNullEntry().getLabel());
+    assertEquals("closed", out.getChoices().getEntries().get(0).getValue());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesInvalidFilter() {
+    ContentTypeFieldControlProperties body = new ContentTypeFieldControlProperties();
+    body.setProperties(List.of());
+    when(adaptor.replaceFieldControlProperties(any(), eq("percPage"), eq("sys_title"), any()))
+        .thenThrow(new IllegalArgumentException("choices.filter.lookupHref is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldControlProperties("percPage", "sys_title", body));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void getFieldRuleExpressionsReturnsEnvelope() {
     ContentTypeFieldRuleExpressions envelope = new ContentTypeFieldRuleExpressions();
     envelope.setFieldName("sys_title");

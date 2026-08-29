@@ -217,6 +217,7 @@ public interface IContentTypesAdaptor {
   /**
    * Load control property values and the choice catalog for one field (CD-07). No design lock is
    * required. Empty {@code properties} means none configured. {@code choices} is null when none.
+   * Choice filter, null-entry, and default-selected round-trip on {@code choices} when present.
    *
    * @return envelope, or {@code null} when the content type is not found
    */
@@ -227,7 +228,8 @@ public interface IContentTypesAdaptor {
    * Replace control property values (and optionally the choice catalog) for one field. Requires a
    * design-session lock already held by the current user. Does not acquire or release the lock.
    * {@code properties} is a full replace (empty clears). {@code choices} null leaves the catalog
-   * unchanged.
+   * unchanged. When {@code choices} is present, filter, null-entry, and default-selected are
+   * written as part of the catalog replace ({@code type} none/empty still clears).
    *
    * @return persisted envelope, or {@code null} when the content type is not found
    * @throws ContentTypeDesignLockException when no lock is held or another user owns the lock

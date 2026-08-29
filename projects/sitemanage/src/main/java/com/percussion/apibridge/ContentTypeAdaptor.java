@@ -23,8 +23,10 @@ import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.design.objectstore.PSApplyWhen;
 import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSBackEndTable;
+import com.percussion.design.objectstore.PSChoiceFilter;
 import com.percussion.design.objectstore.PSChoiceTableInfo;
 import com.percussion.design.objectstore.PSChoices;
+import com.percussion.design.objectstore.PSDefaultSelected;
 import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSConditionalExit;
 import com.percussion.design.objectstore.PSContentEditor;
@@ -40,6 +42,7 @@ import com.percussion.design.objectstore.PSExtensionCallSet;
 import com.percussion.design.objectstore.PSExtensionParamValue;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
+import com.percussion.design.objectstore.PSNullEntry;
 import com.percussion.design.objectstore.PSFieldTranslation;
 import com.percussion.design.objectstore.PSFieldValidationRules;
 import com.percussion.design.objectstore.IPSReplacementValue;
@@ -62,7 +65,11 @@ import com.percussion.rest.Guid;
 import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeChoiceCatalog;
+import com.percussion.rest.contenttypes.ContentTypeChoiceDefaultSelected;
 import com.percussion.rest.contenttypes.ContentTypeChoiceEntry;
+import com.percussion.rest.contenttypes.ContentTypeChoiceFilter;
+import com.percussion.rest.contenttypes.ContentTypeChoiceFilterField;
+import com.percussion.rest.contenttypes.ContentTypeChoiceNullEntry;
 import com.percussion.rest.contenttypes.ContentTypeChoiceTable;
 import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
@@ -2250,10 +2257,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   static List<DesignGap> controlPropertyDesignGaps() {
-    return List.of(
-        DesignGap.of(
-            "CT_CHOICE_FILTER",
-            "Choice filters, null-entry, and default-selected are not writable"));
+    return List.of();
   }
 
   static String choiceTypeName(int type) {
@@ -2327,6 +2331,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         cat.setTable(table);
       }
     }
+    cat.setNullEntry(toNullEntry(choices.getNullEntry()));
+    cat.setDefaultSelected(toDefaultSelected(choices));
+    cat.setFilter(toChoiceFilter(choices.getChoiceFilter()));
     return cat;
   }
 
@@ -2395,7 +2402,201 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     if (StringUtils.isNotBlank(catalog.getSortOrder())) {
       choices.setSortOrder(parseSortOrder(catalog.getSortOrder()));
     }
+    choices.setNullEntry(fromNullEntry(catalog.getNullEntry()));
+    choices.setDefaultSelected(fromDefaultSelected(catalog.getDefaultSelected()));
+    choices.setChoiceFilter(fromChoiceFilter(catalog.getFilter()));
     return choices;
+  }
+
+  static ContentTypeChoiceNullEntry toNullEntry(PSNullEntry entry) {
+    if (entry == null) {
+      return null;
+    }
+    ContentTypeChoiceNullEntry out = new ContentTypeChoiceNullEntry();
+    out.setValue(entry.getValue());
+    if (entry.getLabel() != null) {
+      out.setLabel(entry.getLabel().getText());
+    }
+    out.setIncludeWhen(
+        entry.getIncludeWhen() == PSNullEntry.INCLUDE_WHEN_ALWAYS ? "always" : "onlyIfNull");
+    out.setSortOrder(
+        switch (entry.getSortOrder()) {
+          case PSNullEntry.SORT_ORDER_LAST -> "last";
+          case PSNullEntry.SORT_ORDER_SORTED -> "sorted";
+          default -> "first";
+        });
+    return out;
+  }
+
+  static PSNullEntry fromNullEntry(ContentTypeChoiceNullEntry body) {
+    if (body == null) {
+      return null;
+    }
+    String value = body.getValue() != null ? body.getValue() : "";
+    String label = StringUtils.isNotBlank(body.getLabel()) ? body.getLabel() : value;
+    PSNullEntry entry = new PSNullEntry(value, new PSDisplayText(label));
+    if (StringUtils.isNotBlank(body.getIncludeWhen())) {
+      entry.setIncludeWhen(parseNullEntryIncludeWhen(body.getIncludeWhen()));
+    }
+    if (StringUtils.isNotBlank(body.getSortOrder())) {
+      entry.setSortOrder(parseNullEntrySortOrder(body.getSortOrder()));
+    }
+    return entry;
+  }
+
+  static int parseNullEntryIncludeWhen(String includeWhen) {
+    if ("always".equalsIgnoreCase(includeWhen)) {
+      return PSNullEntry.INCLUDE_WHEN_ALWAYS;
+    }
+    if ("onlyIfNull".equalsIgnoreCase(includeWhen)) {
+      return PSNullEntry.INCLUDE_WHEN_ONLY_IF_NULL;
+    }
+    throw new IllegalArgumentException("choices.nullEntry.includeWhen must be always or onlyIfNull");
+  }
+
+  static int parseNullEntrySortOrder(String sortOrder) {
+    if ("first".equalsIgnoreCase(sortOrder)) {
+      return PSNullEntry.SORT_ORDER_FIRST;
+    }
+    if ("last".equalsIgnoreCase(sortOrder)) {
+      return PSNullEntry.SORT_ORDER_LAST;
+    }
+    if ("sorted".equalsIgnoreCase(sortOrder)) {
+      return PSNullEntry.SORT_ORDER_SORTED;
+    }
+    throw new IllegalArgumentException("choices.nullEntry.sortOrder must be first, last, or sorted");
+  }
+
+  static List<ContentTypeChoiceDefaultSelected> toDefaultSelected(PSChoices choices) {
+    if (choices == null) {
+      return null;
+    }
+    List<ContentTypeChoiceDefaultSelected> out = new ArrayList<>();
+    for (Iterator<?> it = choices.getDefaultSelected(); it.hasNext(); ) {
+      Object o = it.next();
+      if (o instanceof PSDefaultSelected selected) {
+        ContentTypeChoiceDefaultSelected item = new ContentTypeChoiceDefaultSelected();
+        switch (selected.getType()) {
+          case PSDefaultSelected.TYPE_SEQUENCE -> {
+            item.setType("sequence");
+            item.setSequence(selected.getSequence());
+          }
+          case PSDefaultSelected.TYPE_TEXT -> {
+            item.setType("text");
+            item.setText(selected.getText());
+          }
+          default -> item.setType("nullEntry");
+        }
+        out.add(item);
+      }
+    }
+    return out.isEmpty() ? null : out;
+  }
+
+  static PSCollection<PSDefaultSelected> fromDefaultSelected(
+      List<ContentTypeChoiceDefaultSelected> items) {
+    if (items == null || items.isEmpty()) {
+      return null;
+    }
+    PSCollection<PSDefaultSelected> col = new PSCollection<>(PSDefaultSelected.class);
+    for (int i = 0; i < items.size(); i++) {
+      col.add(fromDefaultSelectedItem(items.get(i), i));
+    }
+    return col;
+  }
+
+  static PSDefaultSelected fromDefaultSelectedItem(
+      ContentTypeChoiceDefaultSelected item, int index) {
+    if (item == null) {
+      throw new IllegalArgumentException("choices.defaultSelected[" + index + "] is required");
+    }
+    String type = item.getType() == null ? "" : item.getType().trim();
+    if (type.isEmpty() || "nullEntry".equalsIgnoreCase(type)) {
+      return new PSDefaultSelected();
+    }
+    if ("sequence".equalsIgnoreCase(type)) {
+      if (item.getSequence() == null || item.getSequence() < 0) {
+        throw new IllegalArgumentException(
+            "choices.defaultSelected[" + index + "].sequence is required for type sequence");
+      }
+      return new PSDefaultSelected(item.getSequence());
+    }
+    if ("text".equalsIgnoreCase(type)) {
+      if (StringUtils.isBlank(item.getText())) {
+        throw new IllegalArgumentException(
+            "choices.defaultSelected[" + index + "].text is required for type text");
+      }
+      return new PSDefaultSelected(item.getText().trim());
+    }
+    throw new IllegalArgumentException(
+        "choices.defaultSelected[" + index + "].type must be nullEntry, sequence, or text");
+  }
+
+  static ContentTypeChoiceFilter toChoiceFilter(PSChoiceFilter filter) {
+    if (filter == null) {
+      return null;
+    }
+    ContentTypeChoiceFilter out = new ContentTypeChoiceFilter();
+    List<ContentTypeChoiceFilterField> deps = new ArrayList<>();
+    if (filter.getDependentFields() != null) {
+      for (Iterator<?> it = filter.getDependentFields().iterator(); it.hasNext(); ) {
+        Object o = it.next();
+        if (o instanceof PSChoiceFilter.DependentField field) {
+          deps.add(new ContentTypeChoiceFilterField(field.getFieldRef(), field.getDependencyType()));
+        }
+      }
+    }
+    out.setDependentFields(deps);
+    if (filter.getLookup() != null) {
+      out.setLookupHref(filter.getLookup().getHref());
+      out.setLookupName(filter.getLookup().getName());
+    }
+    return out;
+  }
+
+  static PSChoiceFilter fromChoiceFilter(ContentTypeChoiceFilter filter) {
+    if (filter == null) {
+      return null;
+    }
+    List<ContentTypeChoiceFilterField> deps = filter.getDependentFields();
+    if (deps == null || deps.isEmpty()) {
+      throw new IllegalArgumentException("choices.filter.dependentFields is required");
+    }
+    if (StringUtils.isBlank(filter.getLookupHref())) {
+      throw new IllegalArgumentException("choices.filter.lookupHref is required");
+    }
+    PSCollection<PSChoiceFilter.DependentField> fields =
+        new PSCollection<>(PSChoiceFilter.DependentField.class);
+    for (int i = 0; i < deps.size(); i++) {
+      ContentTypeChoiceFilterField dep = deps.get(i);
+      if (dep == null || StringUtils.isBlank(dep.getFieldRef())) {
+        throw new IllegalArgumentException(
+            "choices.filter.dependentFields[" + i + "].fieldRef is required");
+      }
+      if (StringUtils.isBlank(dep.getDependencyType())) {
+        throw new IllegalArgumentException(
+            "choices.filter.dependentFields[" + i + "].dependencyType is required");
+      }
+      String depType = dep.getDependencyType().trim();
+      if (!PSChoiceFilter.DependentField.TYPE_OPTIONAL.equalsIgnoreCase(depType)
+          && !PSChoiceFilter.DependentField.TYPE_REQUIRED.equalsIgnoreCase(depType)) {
+        throw new IllegalArgumentException(
+            "choices.filter.dependentFields["
+                + i
+                + "].dependencyType must be optional or required");
+      }
+      String canonical =
+          PSChoiceFilter.DependentField.TYPE_REQUIRED.equalsIgnoreCase(depType)
+              ? PSChoiceFilter.DependentField.TYPE_REQUIRED
+              : PSChoiceFilter.DependentField.TYPE_OPTIONAL;
+      fields.add(new PSChoiceFilter.DependentField(dep.getFieldRef().trim(), canonical));
+    }
+    String lookupName =
+        StringUtils.isBlank(filter.getLookupName()) ? null : filter.getLookupName().trim();
+    return new PSChoiceFilter(
+        fields,
+        new PSUrlRequest(
+            lookupName, filter.getLookupHref().trim(), new PSCollection<>(PSParam.class)));
   }
 
   static PSCollection<PSParam> toParamCollection(List<ContentTypeControlProperty> properties) {
