@@ -95,6 +95,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -904,21 +906,35 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
    * Deletes a file or directory If it is a directory then it recursively deletes the directory and
    * all of its children.
    *
+   * <p>Path-injection: {@link PSPathInjectionGuard#requireUnderBase} validates the canonical
+   * location is under RxDir. Operations then use the original {@code file} so a symlink under
+   * RxDir is deleted as a link rather than following the target (which could recursively wipe
+   * another tree under RxDir).
+   *
    * @param file the file or directory to be deleted, assumed not <code>null</code>.
    * @return <code>true</code> if successful.
    */
-  private static boolean deleteFile(File file) {
-    File safe = PSPathInjectionGuard.requireUnderBase(PSServer.getRxDir(), file.getPath());
-    if (!safe.exists()) return false; // codeql[java/path-injection]
-    if (safe.isDirectory()) { // codeql[java/path-injection]
-      File[] children = safe.listFiles();
+  static boolean deleteFile(File file) {
+    PSPathInjectionGuard.requireUnderBase(PSServer.getRxDir(), file.getPath());
+    Path path = file.toPath();
+    try {
+      if (Files.isSymbolicLink(path)) {
+        Files.deleteIfExists(path);
+        return true;
+      }
+    } catch (IOException e) {
+      return false;
+    }
+    if (!file.exists()) return false; // codeql[java/path-injection]
+    if (file.isDirectory()) { // codeql[java/path-injection]
+      File[] children = file.listFiles(); // codeql[java/path-injection]
       if (children != null) {
         for (File child : children) {
           if (!deleteFile(child)) return false;
         }
       }
     }
-    return safe.delete(); // codeql[java/path-injection]
+    return file.delete(); // codeql[java/path-injection]
   }
 
   /**
@@ -1239,16 +1255,8 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
    * @param dir The directory. Must be a directory, assumed not <code>null</code> and to be a
    *     directory.
    */
-  private void deleteDirectory(File dir) {
-    File safe = PSPathInjectionGuard.requireUnderBase(PSServer.getRxDir(), dir.getPath());
-    File[] files = safe.listFiles();
-    if (files != null) {
-      for (File file : files) {
-        if (file.isDirectory()) deleteDirectory(file); // codeql[java/path-injection]
-        else file.delete(); // codeql[java/path-injection]
-      }
-    }
-    safe.delete(); // codeql[java/path-injection]
+  static void deleteDirectory(File dir) {
+    deleteFile(dir);
   }
 
   /**
@@ -3253,13 +3261,18 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Get a file reference to the directory for the specified app root.
    *
-   * @param appRoot The name of the application root directory, Assumed not <code>null</code> or
-   *     empty.
+   * @param appRoot The name of the application root directory. {@code null} is rejected. Empty uses
+   *     the server Rx root (same as {@link #getAppRootFileList} documenting empty as the server's
+   *     application root). Non-empty values are contained under RxDir via {@link
+   *     PSPathInjectionGuard#requireUnderBase}.
    * @return The file reference, never <code>null</code>.
    */
   protected static File getAppRootDir(String appRoot) {
-    if (appRoot == null || appRoot.isBlank()) {
-      throw new IllegalArgumentException("appRoot may not be null or empty");
+    if (appRoot == null) {
+      throw new IllegalArgumentException("appRoot may not be null");
+    }
+    if (appRoot.isEmpty()) {
+      return PSServer.getRxDir();
     }
     return PSPathInjectionGuard.requireUnderBase(PSServer.getRxDir(), appRoot);
   }
