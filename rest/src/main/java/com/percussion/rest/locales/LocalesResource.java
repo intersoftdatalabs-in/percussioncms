@@ -91,7 +91,7 @@ public class LocalesResource {
       summary = "List CMS locales",
       description =
           "Lists CMS locales (language string, label, status, base flag). Auto-translation"
-              + " settings are a later slice.",
+              + " settings are GET/PUT /locales/auto-translations.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -120,7 +120,7 @@ public class LocalesResource {
       summary = "Get CMS locale detail",
       description =
           "Loads one locale by language string (e.g. en-us) or numeric locale id. Auto-translation"
-              + " remains unsupported (see designGaps).",
+              + " settings are GET/PUT /locales/auto-translations.",
       responses = {
         @ApiResponse(
             responseCode = "200",

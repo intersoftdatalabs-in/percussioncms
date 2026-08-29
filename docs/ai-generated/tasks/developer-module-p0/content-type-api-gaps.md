@@ -60,13 +60,20 @@ design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
 | Create locale                      | `POST /services/locales`                     |
 | Update locale                      | `PUT /services/locales/{idOrLang}`           |
 | Delete locale                      | `DELETE /services/locales/{idOrLang}`        |
+| Get auto-translation set           | `GET /services/locales/auto-translations`    |
+| Replace auto-translation set       | `PUT /services/locales/auto-translations`    |
 
 **CD-18 Locale write shipped** (REST create/update/delete, #3959). Adaptor: `ILocalesAdaptor` →
 `LocalesAdaptor` via `IPSContentDesignWs` (`createLocales` / `loadLocales` / `saveLocales` /
 `deleteLocales` with a held design lock released on save). Admin 403; unknown 404;
 lock/duplicate/dependency 409. Companion tests: `LocalesResourceTest` CRUD, `LocalesAdaptorDesignWsTest`,
-Spring `TestLocalesAdaptor` stub. Auto-translation set editor and SPA locale editor remain later
-slices.
+Spring `TestLocalesAdaptor` stub.
+
+**CD-18 Auto-translation set shipped** (REST GET/PUT, #3981). Adaptor: `IAutoTranslationsAdaptor` →
+`AutoTranslationsAdaptor` via `IPSContentDesignWs` (`loadTranslationSettings` / `saveTranslationSettings`
+with a held design lock released on save). Empty list clears. Admin 403; unknown locale/content type
+400; lock 409. Companion tests: `AutoTranslationsResourceTest`, `AutoTranslationsAdaptorTest`, Spring
+`TestAutoTranslationsAdaptor` stub. SPA locale editor remains a later slice.
 
 ## Explicit gaps vs Workbench Content Type editor
 
@@ -86,7 +93,8 @@ slices.
 | Import/export CT                                     | CD-14        | Workbench wizards                                 |
 | ACL                                                  | CD-19, §5.4  | Existing ACL REST may help later                  |
 | ~~Keyword write~~                                    | CD-17        | **Done** — REST + SPA + design WS (#1612/#1701)   |
-| Locale **write** (create/update/delete)              | CD-18        | **REST write shipped** (#3959, design WS + Admin 403 / lock 409). Auto-translation editor + SPA remain open |
+| Locale **write** (create/update/delete)              | CD-18        | **REST write shipped** (#3959, design WS + Admin 403 / lock 409) |
+| Auto-translation **set** (GET/PUT)                   | CD-18        | **REST GET/PUT shipped** (#3981, `loadTranslationSettings` / `saveTranslationSettings`, Admin 403 / lock 409 / unknown locale-type 400). SPA locale editor remains open |
 | Include system/shared fields                         | CD-04        | **REST `POST /contenttypes/{id}/fields/include` shipped** (#3985, held design lock, origin stays system/shared). SPA field picker still Workbench |
 
 ## Recommended next API work
@@ -100,7 +108,7 @@ slices.
 7. ~~System def field-property write~~ **Done CD-16 PUT** (`PUT /services/systemdef`, Admin 403, request lock + release on save, #3958). Field create/delete + SPA still open
 8. ~~Include system/shared fields~~ **Done CD-04 REST** (`POST /contenttypes/{id}/fields/include`, Admin 403, held lock 409, origin stays system/shared, #3985). SPA field picker still open
 9. Templates/slots design editors
-10. CD-18 remainder: auto-translation set editor + SPA locale editor (REST locale CRUD shipped #3959)
+10. CD-18 remainder: SPA locale / auto-translation editor (REST locale CRUD #3959; REST auto-translation set #3981)
 
 ## Client behavior
 

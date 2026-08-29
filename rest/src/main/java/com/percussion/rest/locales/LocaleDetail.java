@@ -26,7 +26,8 @@ import java.util.List;
 /**
  * CMS locale detail (CD-18).
  *
- * <p>Create/update/delete use this envelope. Auto-translation settings remain a later slice.
+ * <p>Create/update/delete use this envelope. Auto-translation settings are GET/PUT {@code
+ * /locales/auto-translations}.
  */
 @XmlRootElement(name = "LocaleDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
