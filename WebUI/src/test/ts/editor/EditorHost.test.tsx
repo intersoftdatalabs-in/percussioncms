@@ -20,7 +20,11 @@ import React from "react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AppRoutes } from "../../../main/ts/app/routes";
-import { EditorHost, mergeEditorRows } from "../../../main/ts/editor/EditorHost";
+import {
+  EditorHost,
+  fieldValueAsString,
+  mergeEditorRows,
+} from "../../../main/ts/editor/EditorHost";
 import type { ItemEditorFields } from "../../../main/ts/editor/itemFieldsApi";
 
 const fields: ItemEditorFields = {
@@ -132,6 +136,39 @@ describe("EditorHost", () => {
     );
     expect(screen.getByTestId("editor-host")).toBeTruthy();
     expect(screen.queryByTestId("perc-spa-app")).toBeNull();
+  });
+
+  it("shows the editor error when checkout fails instead of crashing", async () => {
+    const checkout = vi.fn().mockRejectedValue(new Error("CONTENTSTATUS lock"));
+    const loadFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={<EditorHost checkout={checkout} loadFields={loadFields} />}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-error").textContent).toMatch(
+      /Could not load this item for editing/i,
+    );
+    expect(screen.getByTestId("editor-error").textContent).toMatch(/CONTENTSTATUS lock/);
+    expect(screen.getByTestId("editor-host")).toBeTruthy();
+    expect(screen.queryByTestId("editor-form")).toBeNull();
+    expect(loadFields).not.toHaveBeenCalled();
+  });
+});
+
+describe("fieldValueAsString", () => {
+  it("coerces numbers and nulls to strings", () => {
+    expect(fieldValueAsString(42)).toBe("42");
+    expect(fieldValueAsString(null)).toBe("");
+    expect(fieldValueAsString("news")).toBe("news");
   });
 });
 
@@ -281,5 +318,65 @@ describe("EditorHost rich controls", () => {
     });
     expect(checkout).not.toHaveBeenCalled();
     expect(screen.queryByTestId("editor-save")).toBeNull();
+  });
+
+  it("renders keyword select when field and catalog values are numbers", async () => {
+    const checkout = vi.fn().mockResolvedValue(undefined);
+    const loadFields = vi.fn().mockResolvedValue({
+      contentId: "42",
+      contentType: "percRichText",
+      name: "Intro",
+      checkoutUser: "admin",
+      fields: [
+        { name: "sys_title", value: "Intro" },
+        { name: "keywords", value: 7 as unknown as string },
+      ],
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                loadFields={loadFields}
+                loadType={async () => ({
+                  fields: [
+                    {
+                      name: "keywords",
+                      label: "Keywords",
+                      control: "sys_DropDownSingle",
+                    },
+                  ],
+                })}
+                loadKeywords={async () =>
+                  [
+                    {
+                      value: 7,
+                      label: "keywords",
+                      choices: [
+                        { value: 7, label: "Seven" },
+                        { value: 8, label: "Eight" },
+                      ],
+                    },
+                  ] as never
+                }
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    await waitFor(() => {
+      expect(screen.getByText("Seven")).toBeTruthy();
+    });
+    const select = screen.getByTestId("editor-field-keywords") as HTMLSelectElement;
+    expect(select.getAttribute("data-editor-kind")).toBe("keyword");
+    expect(select.value).toBe("7");
+    expect(screen.queryByTestId("editor-error")).toBeNull();
   });
 });

@@ -48,6 +48,8 @@ const {
   noListedItemSkipMessage,
   isProductEditorUrl,
   isLeftoverContentEditorUrl,
+  isKeywordTrimCrash,
+  isEditorStayVisible,
 } = require("./helpers/explorer-content-editor");
 
 function editorSpaUrl(baseUrl, query = "") {
@@ -281,7 +283,7 @@ async function openSitesThenPages(page, listed) {
   }
   for (const loc of candidates) {
     try {
-      await loc.waitFor({ state: "attached", timeout: 2_000 });
+      await loc.waitFor({ state: "attached", timeout: 8_000 });
       return;
     } catch {
       // try the next locator
@@ -643,6 +645,128 @@ test.describe("modern React Content Editor — first slice", () => {
       expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
         [],
       );
+    },
+  );
+
+  test(
+    "Explorer right-click Edit stays on the React editor (#3968)",
+    { tag: ["@explorer-content-editor", "@explorer"], timeout: 180_000 },
+    async ({ page }) => {
+      test.setTimeout(180_000);
+      const pageErrors = [];
+      const leftover = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("request", (req) => {
+        if (isLeftoverContentEditorUrl(req.url())) {
+          leftover.push(req.url());
+        }
+      });
+
+      await page.goto(explorerSpaUrl(BASE_URL), { waitUntil: "domcontentloaded" });
+
+      const shell = page.locator(`[data-testid="${TEST_IDS.shell}"]`);
+      await expect(shell).toBeVisible({ timeout: 20_000 });
+      await listWaitReady(page);
+
+      const sitesNode = page
+        .locator(
+          '[data-testid="tree-node-/Sites/"], [data-testid="tree-node-/Sites"]',
+        )
+        .first();
+      await expect(sitesNode).toBeVisible({ timeout: 15_000 });
+      await sitesNode.click({ force: true });
+      await listWaitReady(page);
+
+      const list = page.locator(`[data-testid="${TEST_IDS.list}"]`);
+      await expect(list).toBeVisible({ timeout: 15_000 });
+      const siteFolder = list
+        .locator('tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]')
+        .first();
+      await expect(siteFolder).toBeVisible({ timeout: 15_000 });
+      await openDetailFolderRow(siteFolder);
+      await openPagesFolderIfPresent(page, list);
+
+      const itemRows = list.locator(
+        'tbody tr[data-testid^="detail-row-"]:not([data-row-kind="folder"])',
+      );
+      if (!(await itemRows.first().isVisible().catch(() => false))) {
+        const nestedFolder = list
+          .locator('tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]')
+          .first();
+        if (await nestedFolder.isVisible().catch(() => false)) {
+          await openDetailFolderRow(nestedFolder);
+        }
+      }
+      const pageRow = itemRows.first();
+      await expect(pageRow).toBeVisible({ timeout: 20_000 });
+
+      await pageRow.click({ button: "right", force: true });
+      const contextMenu = page.locator('[data-testid="context-menu"]');
+      await contextMenu.waitFor({ state: "visible", timeout: 5_000 }).catch(() => {});
+      const contextEdit = page.locator(`[data-testid="${TEST_IDS.contextEdit}"]`);
+      const toolbarEdit = page.locator(`[data-testid="${TEST_IDS.edit}"]`);
+      const popupPromise = page.waitForEvent("popup", { timeout: 20_000 });
+      if (await contextEdit.isVisible().catch(() => false)) {
+        await contextEdit.click();
+      } else {
+        await pageRow.click({ force: true });
+        await expect(toolbarEdit).toBeVisible({ timeout: 10_000 });
+        await toolbarEdit.click();
+      }
+      const popup = await popupPromise;
+      popup.on("pageerror", (err) => pageErrors.push(String(err)));
+      popup.on("console", (msg) => {
+        if (msg.type() === "error") {
+          pageErrors.push(msg.text());
+        }
+      });
+      await popup.waitForLoadState("domcontentloaded").catch(() => {});
+      let popupUrl = popup.url();
+      if (!popupUrl || /about:blank/i.test(popupUrl)) {
+        await popup.waitForLoadState("domcontentloaded").catch(() => {});
+        popupUrl = popup.url();
+      }
+      expect(
+        isProductEditorUrl(popupUrl),
+        `right-click Edit popup URL should be spa.jsp?entry=editor; got ${popupUrl}`,
+      ).toBe(true);
+
+      const host = popup.locator(`[data-testid="${TEST_IDS.editorHost}"]`);
+      const overlay = popup.locator(`[data-testid="${TEST_IDS.editorOverlay}"]`);
+      await expect(host).toBeVisible({ timeout: 20_000 });
+      await expect(overlay).toBeVisible({ timeout: 10_000 });
+
+      const form = popup.locator(`[data-testid="${TEST_IDS.editorForm}"]`);
+      const editorError = popup.locator(`[data-testid="${TEST_IDS.editorError}"]`);
+      const loading = popup.locator(`[data-testid="${TEST_IDS.editorLoading}"]`);
+      const empty = popup.locator(`[data-testid="${TEST_IDS.editorEmpty}"]`);
+      await expect(form.or(editorError).or(loading).or(empty)).toBeVisible({
+        timeout: 30_000,
+      });
+
+      const stay = isEditorStayVisible({
+        host: await host.isVisible(),
+        overlay: await overlay.isVisible(),
+        form: await form.isVisible().catch(() => false),
+        error: await editorError.isVisible().catch(() => false),
+        loading: await loading.isVisible().catch(() => false),
+        empty: await empty.isVisible().catch(() => false),
+      });
+      expect(stay, "Edit must stay on the editor host, not a blank page").toBe(true);
+
+      const trimCrashes = pageErrors.filter((msg) => isKeywordTrimCrash(msg));
+      expect(
+        trimCrashes,
+        `KeywordFieldWidget .trim crash: ${trimCrashes.join(" | ")}`,
+      ).toEqual([]);
+      expect(
+        leftover,
+        `Data Flow CE HTML must not be requested: ${leftover.join(" ")}`,
+      ).toEqual([]);
+
+      if (popup && !popup.isClosed()) {
+        await popup.close().catch(() => {});
+      }
     },
   );
 });

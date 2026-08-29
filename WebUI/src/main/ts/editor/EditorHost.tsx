@@ -52,6 +52,11 @@ import { PromoteForm } from "./widgets/PromoteForm";
 
 export { mergeEditorRows } from "./controlKinds";
 
+/** Coerce item-field JSON so controlled inputs never receive a number. */
+export function fieldValueAsString(value: unknown): string {
+  return value == null ? "" : String(value);
+}
+
 export interface EditorHostProps {
   loadFields?: (itemId: string) => Promise<ItemEditorFields>;
   saveFields?: (
@@ -136,7 +141,7 @@ function EditorFieldControl({
     return (
       <KeywordFieldWidget
         name={row.name}
-        value={row.value}
+        value={fieldValueAsString(row.value)}
         readOnly={locked}
         loadKeywords={loadKeywords}
         onChange={(value) => onChange(row.name, value)}
@@ -221,6 +226,7 @@ export function EditorHost({
     let cancelled = false;
     setLoading(true);
     setErrorKey(null);
+    setErrorDetail("");
     void (async () => {
       try {
         if (!readOnly) {
@@ -231,7 +237,11 @@ export function EditorHost({
           return;
         }
         setPayload(fields);
-        setDraft(Object.fromEntries(fields.fields.map((f) => [f.name, f.value])));
+        setDraft(
+          Object.fromEntries(
+            fields.fields.map((f) => [f.name, fieldValueAsString(f.value)]),
+          ),
+        );
         if (fields.contentType) {
           try {
             const detail = await loadType(fields.contentType);
@@ -244,8 +254,9 @@ export function EditorHost({
             }
           }
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
+          setErrorDetail(err instanceof Error ? err.message : String(err));
           setErrorKey(EDITOR_MSG.LOAD_FAILED);
         }
       } finally {
@@ -268,13 +279,13 @@ export function EditorHost({
         ...payload,
         fields: payload.fields.map((f) => ({
           name: f.name,
-          value: draft[f.name] ?? f.value,
+          value: fieldValueAsString(draft[f.name] ?? f.value),
         })),
       },
       schema,
     ).map((row) => ({
       ...row,
-      value: draft[row.name] ?? row.value,
+      value: fieldValueAsString(draft[row.name] ?? row.value),
     }));
   }, [payload, draft, schema]);
 
@@ -309,7 +320,7 @@ export function EditorHost({
           .filter((row) => row.kind !== "file" && row.kind !== "image")
           .map((row) => ({
             name: row.name,
-            value: draft[row.name] ?? row.value,
+            value: fieldValueAsString(draft[row.name] ?? row.value),
           })),
       };
       const savedPayload = await saveFields(itemId, next);
@@ -318,7 +329,11 @@ export function EditorHost({
       }
       setPendingFiles({});
       setPayload(savedPayload);
-      setDraft(Object.fromEntries(savedPayload.fields.map((f) => [f.name, f.value])));
+      setDraft(
+        Object.fromEntries(
+          savedPayload.fields.map((f) => [f.name, fieldValueAsString(f.value)]),
+        ),
+      );
       setSaved(true);
     } catch {
       setErrorKey(EDITOR_MSG.SAVE_FAILED);

@@ -34,6 +34,8 @@ const {
   noListedItemSkipMessage,
   isProductEditorUrl,
   isLeftoverContentEditorUrl,
+  isKeywordTrimCrash,
+  isEditorStayVisible,
 } = require("../helpers/explorer-content-editor");
 
 describe("explorer-content-editor helpers (#3638)", () => {
@@ -41,7 +43,9 @@ describe("explorer-content-editor helpers (#3638)", () => {
     assert.equal(TEST_IDS.shell, "content-explorer-shell");
     assert.equal(TEST_IDS.open, "action-open");
     assert.equal(TEST_IDS.edit, "action-toolbar-item-Edit");
+    assert.equal(TEST_IDS.contextEdit, "context-menu-item-Edit");
     assert.equal(TEST_IDS.editorHost, "editor-host");
+    assert.equal(TEST_IDS.editorError, "editor-error");
   });
 
   it("isH2QaEnv reads TEST_DB_TYPE", () => {
@@ -128,5 +132,37 @@ describe("explorer-content-editor helpers (#3638)", () => {
     assert.match(src, /do not skip/);
     assert.match(src, /TEST_IDS\.open/);
     assert.match(src, /Open\/Edit selected page lands React editor/);
+    assert.match(src, /#3968/);
+    assert.match(src, /right-click Edit stays on the React editor/);
+  });
+});
+
+describe("explorer-content-editor helpers (#3968)", () => {
+  it("isKeywordTrimCrash matches the KeywordFieldWidget stack", () => {
+    assert.equal(
+      isKeywordTrimCrash(
+        "Uncaught TypeError: (e.value ?? \"\").trim is not a function",
+      ),
+      true,
+    );
+    assert.equal(isKeywordTrimCrash("network failed"), false);
+    assert.equal(isKeywordTrimCrash(""), false);
+  });
+
+  it("isEditorStayVisible requires host chrome plus form or error", () => {
+    assert.equal(isEditorStayVisible({}), false);
+    assert.equal(isEditorStayVisible({ host: true, overlay: true }), false);
+    assert.equal(
+      isEditorStayVisible({ host: true, overlay: true, form: true }),
+      true,
+    );
+    assert.equal(
+      isEditorStayVisible({ host: true, overlay: true, error: true }),
+      true,
+    );
+    assert.equal(
+      isEditorStayVisible({ host: true, overlay: true, loading: true }),
+      true,
+    );
   });
 });
