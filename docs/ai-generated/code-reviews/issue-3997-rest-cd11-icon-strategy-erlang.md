@@ -47,3 +47,7 @@ N/A for filesystem I/O. Icon `value` is a persisted object-store string (file pa
 Updated `product-docs/8.2/developer/rest.md` (table + CD-11 section) and `product-docs/8.2/admin/developer-content-types.md` REST table. Gap map `docs/ai-generated/tasks/developer-module-p0/content-type-api-gaps.md` marks CD-11 REST shipped.
 
 C5 Playwright N/A (no WebUI / SPA).
+
+## Re-review (PR #4007 Kilo lock-prefix)
+
+Kilo thread: no-arg `requireHeldLock(ctGuid)` used generic `"Could not save content type"` for CD-11 PUT. Fix passes `"Could not set content type icon"` so 409 text matches other `lockConflict` calls. Tests assert the prefix on lock-not-held and locked-by-other. Standalone `projects/sitemanage` clean install after this-branch rest SNAPSHOT: BUILD SUCCESS, Tests run: 1799, Failures: 0, Skipped: 125 (`ContentTypeAdaptorIconTest` 15). Recommendation: approve. May commit/push: **yes**.

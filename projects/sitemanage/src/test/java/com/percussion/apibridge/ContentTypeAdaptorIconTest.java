@@ -163,6 +163,8 @@ class ContentTypeAdaptorIconTest {
             () ->
                 adaptor.setContentTypeIcon(
                     null, "311", ContentTypeIcon.SOURCE_SPECIFIED, "page.gif"));
+    assertTrue(
+        ex.getMessage().startsWith("Could not set content type icon"), ex.getMessage());
     assertTrue(ex.getMessage().toLowerCase().contains("lock"), ex.getMessage());
     verify(designWs, never()).loadContentTypes(anyList(), eq(true), anyBoolean(), any(), any());
     verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
@@ -181,6 +183,8 @@ class ContentTypeAdaptorIconTest {
             () ->
                 adaptor.setContentTypeIcon(
                     null, "311", ContentTypeIcon.SOURCE_SPECIFIED, "page.gif"));
+    assertTrue(
+        ex.getMessage().startsWith("Could not set content type icon"), ex.getMessage());
     assertTrue(ex.getMessage().contains("editor2"), ex.getMessage());
     verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
   }

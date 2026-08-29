@@ -778,7 +778,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         return null;
       }
       IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
-      requireHeldLock(ctGuid);
+      requireHeldLock(ctGuid, "Could not set content type icon");
       List<PSItemDefinition> locked;
       try {
         locked =
