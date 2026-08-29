@@ -38,6 +38,9 @@ export const SOURCE_KIND_OBJECT_STORAGE = "object-storage";
 /** Virtual Site adapter wire name for a local RSS/Atom fixture (no live feed credentials). */
 export const SOURCE_KIND_RSS_ATOM = "rss-atom";
 
+/** Virtual Site adapter wire name for a local RFC 5545 .ics fixture (no CalDAV). */
+export const SOURCE_KIND_ICALENDAR = "icalendar";
+
 /** Form select values for source kind. */
 export type VirtualSourceKindOption =
   | typeof SOURCE_KIND_REPOSITORY
@@ -46,7 +49,8 @@ export type VirtualSourceKindOption =
   | typeof SOURCE_KIND_SQL_DATABASE
   | typeof SOURCE_KIND_HTTP_JSON
   | typeof SOURCE_KIND_OBJECT_STORAGE
-  | typeof SOURCE_KIND_RSS_ATOM;
+  | typeof SOURCE_KIND_RSS_ATOM
+  | typeof SOURCE_KIND_ICALENDAR;
 
 /**
  * Product order for the Developer Sites source-kind {@code <select>}.
@@ -61,6 +65,7 @@ export const SOURCE_KIND_SELECT_VALUES: readonly VirtualSourceKindOption[] = [
   SOURCE_KIND_HTTP_JSON,
   SOURCE_KIND_OBJECT_STORAGE,
   SOURCE_KIND_RSS_ATOM,
+  SOURCE_KIND_ICALENDAR,
 ];
 
 /** Editable form model for the Virtual Site source panel. */
@@ -76,8 +81,8 @@ export interface VirtualSiteFormModel {
 /**
  * Normalize a wire/sourceKind string into a form select option.
  * Blank, missing, or {@code repository} → repository; git-filesystem,
- * csv-filesystem, sql-database, http-json, object-storage, and rss-atom map
- * to themselves; unknown kinds → repository (safe default).
+ * csv-filesystem, sql-database, http-json, object-storage, rss-atom, and
+ * icalendar map to themselves; unknown kinds → repository (safe default).
  */
 export function normalizeSourceKindOption(
   raw: string | null | undefined,
@@ -103,6 +108,9 @@ export function normalizeSourceKindOption(
   }
   if (v === SOURCE_KIND_RSS_ATOM) {
     return SOURCE_KIND_RSS_ATOM;
+  }
+  if (v === SOURCE_KIND_ICALENDAR) {
+    return SOURCE_KIND_ICALENDAR;
   }
   // Unknown kinds: surface as repository so operators do not accidentally
   // re-save an unsupported adapter without changing the select.
@@ -143,6 +151,11 @@ export function isObjectStorageSourceKind(kind: string | null | undefined): bool
 /** True when source kind is the local RSS/Atom adapter (root path only; no live feed credentials). */
 export function isRssAtomSourceKind(kind: string | null | undefined): boolean {
   return (kind ?? "").trim().toLowerCase() === SOURCE_KIND_RSS_ATOM;
+}
+
+/** True when source kind is the local iCalendar adapter (root path only; no CalDAV). */
+export function isIcalendarSourceKind(kind: string | null | undefined): boolean {
+  return (kind ?? "").trim().toLowerCase() === SOURCE_KIND_ICALENDAR;
 }
 
 /**
@@ -222,6 +235,16 @@ export function formToVirtualProps(form: VirtualSiteFormModel): VirtualSitePrope
     // directory only — never send live feed URLs or credentials.
     return {
       sourceKind: SOURCE_KIND_RSS_ATOM,
+      rootPath: form.rootPath.trim() || null,
+      remoteUrl: "",
+      branch: "",
+    };
+  }
+  if (kind === SOURCE_KIND_ICALENDAR) {
+    // iCalendar rejects a non-blank virtual.remoteUrl (REST 400). Local RFC 5545
+    // fixture directory only — never send CalDAV URLs or credentials.
+    return {
+      sourceKind: SOURCE_KIND_ICALENDAR,
       rootPath: form.rootPath.trim() || null,
       remoteUrl: "",
       branch: "",
