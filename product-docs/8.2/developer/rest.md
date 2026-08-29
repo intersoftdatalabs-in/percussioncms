@@ -129,15 +129,20 @@ JSON objects use the `LocaleDetail` / `LocaleSummary` wire types (fields include
 `communityId` / `communityName`). PUT accepts **name or id** for content type, workflow, and
 community. Prefer the generated OpenAPI schema as the integration source of truth.
 
+POST/PUT JSON is wrapped under a `LocaleDetail` root (JAXB/Jackson UNWRAP_ROOT_VALUE). A flat
+`{ "label": "..." }` body fails with unexpected element `label`.
+
 Example create body:
 
 ```json
 {
-  "languageString": "fr-ca",
-  "label": "French (Canada)",
-  "description": "Canadian French",
-  "status": "active",
-  "baseLocale": false
+  "LocaleDetail": {
+    "languageString": "fr-ca",
+    "label": "French (Canada)",
+    "description": "Canadian French",
+    "status": "active",
+    "baseLocale": false
+  }
 }
 ```
 
@@ -186,6 +191,8 @@ Example auto-translation PUT body (JSON array; empty `[]` clears the set):
 - Auto-translation PUT is a full replace of the singleton set. GET after PUT returns the persisted
   rows (names filled from the locale, content-type, workflow, and community catalogs). Duplicate
   locale/content-type pairs in the request are **400**.
+- The Developer SPA Locales editor uses these endpoints; integrators can call the same surface
+  without the UI. Auto-translation set editing is not part of this chrome.
 
 ## User preferences
 

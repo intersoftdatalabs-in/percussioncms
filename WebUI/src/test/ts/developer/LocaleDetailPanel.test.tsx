@@ -10,12 +10,24 @@ import * as localesApi from "../../../main/ts/api/developer/localesApi";
 import { LocaleDetailPanel } from "../../../main/ts/developer/LocaleDetailPanel";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
-vi.mock("../../../main/ts/api/developer/localesApi", () => ({
-  listLocales: vi.fn(),
-  getLocaleDetail: vi.fn(),
-}));
+vi.mock("../../../main/ts/api/developer/localesApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/localesApi")
+  >();
+  return {
+    ...actual,
+    listLocales: vi.fn(),
+    getLocaleDetail: vi.fn(),
+    createLocale: vi.fn(),
+    updateLocale: vi.fn(),
+    deleteLocale: vi.fn(),
+  };
+});
 
 const getLocaleDetail = localesApi.getLocaleDetail as ReturnType<typeof vi.fn>;
+const createLocale = localesApi.createLocale as ReturnType<typeof vi.fn>;
+const updateLocale = localesApi.updateLocale as ReturnType<typeof vi.fn>;
+const deleteLocale = localesApi.deleteLocale as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   id: 1,
@@ -40,6 +52,9 @@ describe("LocaleDetailPanel", () => {
       message: (key: string) => key,
     };
     getLocaleDetail.mockReset();
+    createLocale.mockReset();
+    updateLocale.mockReset();
+    deleteLocale.mockReset();
   });
 
   it("loads detail on success and supports back", async () => {
@@ -104,6 +119,40 @@ describe("LocaleDetailPanel", () => {
     );
   });
 
+  it("shows 404 missing locale via panelErrMsg", async () => {
+    getLocaleDetail.mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: { message: "Locale not found" },
+    });
+    render(<LocaleDetailPanel idOrLang="xx-missing" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-loc-detail-error").textContent).toContain(
+      DEV_MSG.LOC_DETAIL_ERROR,
+    );
+    expect(screen.getByTestId("developer-loc-detail-error").textContent).toContain(
+      "Locale not found",
+    );
+    expect(screen.queryByTestId("developer-loc-save")).toBeNull();
+  });
+
+  it("shows 404 status when missing locale has no body message", async () => {
+    getLocaleDetail.mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: null,
+    });
+    render(<LocaleDetailPanel idOrLang="xx-missing" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-loc-detail-error").textContent).toBe(
+      `${DEV_MSG.LOC_DETAIL_ERROR} (404)`,
+    );
+  });
+
   it("shows Error.message via panelErrMsg", async () => {
     getLocaleDetail.mockRejectedValue(new Error("network down"));
     render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
@@ -125,5 +174,175 @@ describe("LocaleDetailPanel", () => {
     expect(screen.getByTestId("developer-loc-detail-error").textContent).toBe(
       DEV_MSG.LOC_DETAIL_ERROR,
     );
+  });
+
+  it("disables save until language and label are valid on create", () => {
+    render(<LocaleDetailPanel idOrLang={null} onBack={() => undefined} />);
+    const save = screen.getByTestId("developer-loc-save") as HTMLButtonElement;
+    expect(save.disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-loc-language"), {
+      target: { value: "fr-ca" },
+    });
+    expect(save.disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-loc-label"), {
+      target: { value: "French Canada" },
+    });
+    expect(save.disabled).toBe(false);
+  });
+
+  it("keeps language read-only on edit", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-language")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-loc-save") as HTMLButtonElement).disabled).toBe(
+      false,
+    );
+  });
+
+  it("surfaces 409 duplicate language on create", async () => {
+    createLocale.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Locale already exists: en-us" },
+    });
+    const onSaved = vi.fn();
+    render(<LocaleDetailPanel idOrLang={null} onBack={() => undefined} onSaved={onSaved} />);
+    fireEvent.change(screen.getByTestId("developer-loc-language"), {
+      target: { value: "en-us" },
+    });
+    fireEvent.change(screen.getByTestId("developer-loc-label"), {
+      target: { value: "English" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-detail-error")).toBeTruthy();
+    });
+    expect(createLocale).toHaveBeenCalled();
+    expect(screen.getByTestId("developer-loc-detail-error").textContent).toContain(
+      DEV_MSG.LOC_DUPLICATE,
+    );
+    expect(screen.getByTestId("developer-loc-detail-error").textContent).toContain(
+      "Locale already exists",
+    );
+    expect(onSaved).not.toHaveBeenCalled();
+  });
+
+  it("does not POST create twice when save is clicked twice", async () => {
+    let resolveCreate: (value: typeof sampleDetail) => void = () => undefined;
+    createLocale.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveCreate = resolve;
+        }),
+    );
+    render(<LocaleDetailPanel idOrLang={null} onBack={() => undefined} />);
+    fireEvent.change(screen.getByTestId("developer-loc-language"), {
+      target: { value: "fr-ca" },
+    });
+    fireEvent.change(screen.getByTestId("developer-loc-label"), {
+      target: { value: "French Canada" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-save"));
+    fireEvent.click(screen.getByTestId("developer-loc-save"));
+    expect(createLocale).toHaveBeenCalledTimes(1);
+    resolveCreate({
+      id: 99,
+      languageString: "fr-ca",
+      label: "French Canada",
+      status: "active",
+      baseLocale: false,
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-editor-notice")).toBeTruthy();
+    });
+  });
+
+  it("creates a locale when language and label are valid", async () => {
+    createLocale.mockResolvedValue({
+      id: 99,
+      languageString: "fr-ca",
+      label: "French Canada",
+      status: "active",
+      baseLocale: false,
+    });
+    const onSaved = vi.fn();
+    render(<LocaleDetailPanel idOrLang={null} onBack={() => undefined} onSaved={onSaved} />);
+    fireEvent.change(screen.getByTestId("developer-loc-language"), {
+      target: { value: "FR_CA" },
+    });
+    fireEvent.change(screen.getByTestId("developer-loc-label"), {
+      target: { value: "French Canada" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(createLocale).toHaveBeenCalledWith(
+      expect.objectContaining({
+        languageString: "fr-ca",
+        label: "French Canada",
+      }),
+    );
+    expect(screen.getByTestId("developer-loc-editor-notice").textContent).toBe(
+      DEV_MSG.LOC_SAVED,
+    );
+  });
+
+  it("saves label changes on an existing locale", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      label: "US English",
+    });
+    const onSaved = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-label")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-loc-label"), {
+      target: { value: "US English" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateLocale).toHaveBeenCalledWith(
+      "en-us",
+      expect.objectContaining({ label: "US English", languageString: "en-us" }),
+    );
+  });
+
+  it("deletes after confirm and omits delete chrome in create mode", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    deleteLocale.mockResolvedValue(undefined);
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+    try {
+      const onDeleted = vi.fn();
+      render(
+        <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onDeleted={onDeleted} />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-loc-delete")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-delete"));
+      await waitFor(() => {
+        expect(onDeleted).toHaveBeenCalled();
+      });
+      expect(deleteLocale).toHaveBeenCalledWith("en-us");
+    } finally {
+      confirmSpy.mockRestore();
+    }
+  });
+
+  it("does not show delete on create", () => {
+    render(<LocaleDetailPanel idOrLang={null} onBack={() => undefined} />);
+    expect(screen.queryByTestId("developer-loc-delete")).toBeNull();
   });
 });

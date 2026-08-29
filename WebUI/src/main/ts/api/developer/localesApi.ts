@@ -15,9 +15,44 @@
  * limitations under the License.
  */
 
-import { get } from "../client";
+import { del, get, post, put } from "../client";
 import { PATHS } from "../paths";
 import type { LocaleDetail, LocaleSummary } from "./types";
+
+/**
+ * BCP-47 style language strings accepted by REST create
+ * (`LocalesAdaptor` LANGUAGE_PATTERN).
+ */
+export const LOCALE_LANGUAGE_PATTERN = /^[a-z]{2,8}(-[a-z0-9]{1,8})*$/;
+
+/** Writable fields for POST/PUT /services/locales. Format / designGaps are not written. */
+export type LocaleWriteBody = Pick<
+  LocaleDetail,
+  "languageString" | "label" | "description" | "status" | "baseLocale"
+>;
+
+/** Jackson / JAXB root for LocaleDetail (UNWRAP_ROOT_VALUE on POST/PUT). */
+export const LOCALE_DETAIL_ROOT = "LocaleDetail";
+
+/** Wire JSON for POST/PUT — a flat body fails JAXB root unwrap. */
+export function wrapLocaleDetailForWire(
+  body: LocaleWriteBody,
+): Record<string, LocaleWriteBody> {
+  return { [LOCALE_DETAIL_ROOT]: body };
+}
+
+/** Unwrap GET/POST/PUT payload that may be wrapped as { LocaleDetail: {...} }. */
+export function unwrapLocaleDetail(payload: unknown): LocaleDetail {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    return {};
+  }
+  const obj = payload as Record<string, unknown>;
+  const raw = obj.LocaleDetail ?? obj.localeDetail;
+  if (raw != null && typeof raw === "object" && !Array.isArray(raw)) {
+    return raw as LocaleDetail;
+  }
+  return obj as LocaleDetail;
+}
 
 function asArray<T>(payload: unknown): T[] {
   if (payload == null) return [];
@@ -31,6 +66,29 @@ function asArray<T>(payload: unknown): T[] {
   return [];
 }
 
+/** Lower-case, trim, and map `_` to `-` like the design adaptor. */
+export function normalizeLanguageString(lang: string | undefined | null): string {
+  if (lang == null) return "";
+  return lang.trim().toLowerCase().replace(/_/g, "-");
+}
+
+/** True when the (normalized) language string is a safe REST locale key. */
+export function isValidLanguageString(lang: string | undefined | null): boolean {
+  const code = normalizeLanguageString(lang);
+  return code.length > 0 && LOCALE_LANGUAGE_PATTERN.test(code);
+}
+
+/** Save is enabled when language (create) and label are both present/valid. */
+export function isLocaleWriteReady(opts: {
+  isNew: boolean;
+  language: string;
+  label: string;
+}): boolean {
+  if (!opts.label.trim()) return false;
+  if (opts.isNew && !isValidLanguageString(opts.language)) return false;
+  return true;
+}
+
 /** GET /services/locales */
 export async function listLocales(): Promise<LocaleSummary[]> {
   const payload = await get<unknown>(PATHS.LOCALES);
@@ -40,5 +98,29 @@ export async function listLocales(): Promise<LocaleSummary[]> {
 /** GET /services/locales/{idOrLang} — language string or numeric locale id */
 export async function getLocaleDetail(idOrLang: string): Promise<LocaleDetail> {
   const key = encodeURIComponent(idOrLang);
-  return get<LocaleDetail>(`${PATHS.LOCALES}/${key}`);
+  const payload = await get<unknown>(`${PATHS.LOCALES}/${key}`);
+  return unwrapLocaleDetail(payload);
+}
+
+/** POST /services/locales — Admin. languageString + label required. Duplicate is 409. */
+export async function createLocale(body: LocaleWriteBody): Promise<LocaleDetail> {
+  const payload = await post<unknown>(PATHS.LOCALES, wrapLocaleDetailForWire(body));
+  return unwrapLocaleDetail(payload);
+}
+
+/** PUT /services/locales/{idOrLang} — Admin. languageString is immutable. */
+export async function updateLocale(
+  idOrLang: string,
+  body: LocaleWriteBody,
+): Promise<LocaleDetail> {
+  const payload = await put<unknown>(
+    `${PATHS.LOCALES}/${encodeURIComponent(idOrLang)}`,
+    wrapLocaleDetailForWire(body),
+  );
+  return unwrapLocaleDetail(payload);
+}
+
+/** DELETE /services/locales/{idOrLang} — Admin. 204 on success; missing is 404. */
+export async function deleteLocale(idOrLang: string): Promise<void> {
+  await del(`${PATHS.LOCALES}/${encodeURIComponent(idOrLang)}`);
 }
