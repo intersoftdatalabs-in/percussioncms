@@ -174,3 +174,37 @@ extensions:
           "path-injection",
           "manual",
         ]
+      # Object-store application XML + lock-stream files (CodeQL #2002/#1920/#1921).
+      - [
+          "com.percussion.design.objectstore.server",
+          "PSXmlObjectStoreHandler",
+          false,
+          "resolveApplicationXmlFile",
+          "(File,String)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.design.objectstore.server",
+          "PSXmlObjectStoreHandler",
+          false,
+          "requireUnderRxDir",
+          "(File)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.design.objectstore.server",
+          "PSXmlObjectStoreHandler",
+          false,
+          "getApplicationFile",
+          "(String)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]

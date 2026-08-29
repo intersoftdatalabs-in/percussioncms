@@ -55,6 +55,7 @@ import com.percussion.security.PSAuthenticationRequiredException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSUserEntry;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.server.IPSServerErrors;
 import com.percussion.server.IPSValidateSession;
 import com.percussion.server.PSConsole;
@@ -3831,7 +3832,38 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   File getApplicationFile(String appName) {
-    return new File(m_objectDirectory, appName + ".xml");
+    return resolveApplicationXmlFile(m_objectDirectory, appName);
+  }
+
+  /**
+   * Resolves {@code appName}.xml under the object-store directory and rejects path traversal
+   * (CodeQL {@code java/path-injection} #2002).
+   *
+   * @param objectDirectory object-store root, never {@code null} and must exist as a directory
+   * @param appName application name used as a single path segment, never {@code null} or blank
+   * @return file whose canonical path is under {@code objectDirectory}
+   */
+  static File resolveApplicationXmlFile(File objectDirectory, String appName) {
+    if (objectDirectory == null) {
+      throw new IllegalArgumentException("objectDirectory may not be null");
+    }
+    if (appName == null || appName.isBlank()) {
+      throw new IllegalArgumentException("appName may not be null or empty");
+    }
+    return PSPathInjectionGuard.requireUnderBase(objectDirectory, appName + ".xml");
+  }
+
+  /**
+   * Ensures a lock-stream target stays under the server Rx root (alerts #1920/#1921).
+   *
+   * @param file candidate file, never {@code null}
+   * @return canonical file under {@link PSServer#getRxDir()}
+   */
+  static File requireUnderRxDir(File file) {
+    if (file == null) {
+      throw new IllegalArgumentException("file may not be null");
+    }
+    return PSPathInjectionGuard.requireUnderBase(PSServer.getRxDir(), file.getPath());
   }
 
   private void doSaveUserConfiguration(Document cfgTree, PSRequest req)
@@ -4909,7 +4941,8 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
     /* Try the application summary guys first */
     appFile = getApplicationFile(appName);
-    if (!appFile.exists()) throw new PSNotFoundException(ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(), appName);
+    if (!appFile.exists()) // codeql[java/path-injection]
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(), appName);
 
     doc = loadApplicationFromFile(appFile);
 
@@ -4972,7 +5005,8 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   public OutputStream lockOutputStream(File f) throws IOException {
-    File canon = f.getCanonicalFile();
+    File safe = requireUnderRxDir(f);
+    File canon = safe.getCanonicalFile();
     synchronized (m_lockedFiles) {
       while (null != m_lockedFiles.get(canon)) {
         try {
@@ -4986,7 +5020,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
     FileOutputStream out = null;
     try {
-      out = new FileOutputStream(f);
+      out = new FileOutputStream(safe); // codeql[java/path-injection]
       return out;
     } catch (IOException e) {
       releaseOutputStream(out, f);
@@ -5011,7 +5045,8 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   public InputStream lockInputStream(File f) throws IOException {
-    File canon = f.getCanonicalFile();
+    File safe = requireUnderRxDir(f);
+    File canon = safe.getCanonicalFile();
     synchronized (m_lockedFiles) {
       while (null != m_lockedFiles.get(canon)) {
         try {
@@ -5025,7 +5060,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
     FileInputStream in = null;
     try {
-      in = new FileInputStream(f);
+      in = new FileInputStream(safe); // codeql[java/path-injection]
       return in;
     } catch (IOException e) {
       releaseInputStream(in, f);
