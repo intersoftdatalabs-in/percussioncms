@@ -78,15 +78,6 @@ system/src/main/java/com/percussion/design/objectstore/PSContentTypeHelper.java
 system/src/main/java/com/percussion/design/objectstore/PSObjectStore.java
 system/src/main/java/com/percussion/design/objectstore/server/PSXmlObjectStoreHandler.java
 system/src/main/java/com/percussion/design/server/PSDesignerConnectionHandler.java
-system/src/main/java/com/percussion/extension/PSExtensionHandler.java
-system/src/main/java/com/percussion/extension/PSExtensionHandlerConfiguration.java
-system/src/main/java/com/percussion/extension/PSExtensionParams.java
-system/src/main/java/com/percussion/extension/PSExtensionProcessingException.java
-system/src/main/java/com/percussion/extension/PSJavaExtensionHandler.java
-system/src/main/java/com/percussion/extension/PSJavaScriptCallException.java
-system/src/main/java/com/percussion/extension/PSJavaScriptCompileException.java
-system/src/main/java/com/percussion/extension/PSJavaScriptUdfExtension.java
-system/src/main/java/com/percussion/extension/PSParameterMismatchException.java
 system/src/main/java/com/percussion/fastforward/managednav/PSManagedNavService.java
 system/src/main/java/com/percussion/fastforward/utils/PSUtils.java
 system/src/main/java/com/percussion/i18n/PSLocale.java

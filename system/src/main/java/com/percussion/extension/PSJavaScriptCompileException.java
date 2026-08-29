@@ -16,6 +16,7 @@
  */
 package com.percussion.extension;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.error.PSException;
 
 /**
@@ -29,11 +30,11 @@ import com.percussion.error.PSException;
 public class PSJavaScriptCompileException extends PSException {
   /** Constructs a failure with the specified message. */
   public PSJavaScriptCompileException(String function, String message) {
-    super(IPSExtensionErrors.JS_COMPILE_FAILED, new Object[] {function, message});
+    super(ExtensionErrorCodes.JS_COMPILE_FAILED, new Object[] {function, message});
   }
 
   /** Constructs a failure with the specified context information. */
   public PSJavaScriptCompileException(String function, String message, String source) {
-    super(IPSExtensionErrors.JS_COMPILE_FAILED_SRC, new Object[] {function, message, source});
+    super(ExtensionErrorCodes.JS_COMPILE_FAILED_SRC, new Object[] {function, message, source});
   }
 }
