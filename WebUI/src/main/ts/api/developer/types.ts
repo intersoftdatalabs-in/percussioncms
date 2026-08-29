@@ -790,13 +790,14 @@ export interface SiteDef {
  * <p>Blank / missing {@code sourceKind} (or value {@code repository}) means a
  * traditional repository Site. Allow-listed virtual adapters:
  * {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
- * {@code http-json}, {@code object-storage}, {@code rss-atom}. Developer Sites
- * save chrome includes http-json, object-storage, and rss-atom (local
- * {@code rootPath} only; no cloud URLs, live feed credentials, or
- * {@code virtual.remoteUrl} on those kinds). Build chrome is shown after save
- * for git/csv/sql/http-json/object-storage/rss-atom. Preview chrome is shown for
- * git/csv/sql/http-json/object-storage/rss-atom. Publish chrome is shown for
- * git/csv/sql/http-json/object-storage/rss-atom.
+ * {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}.
+ * Developer Sites save chrome includes http-json, object-storage, rss-atom, and
+ * icalendar (local {@code rootPath} only; no cloud URLs, live feed / CalDAV
+ * credentials, or {@code virtual.remoteUrl} on those kinds). Build chrome is
+ * shown after save for git/csv/sql/http-json/object-storage/rss-atom. Preview
+ * chrome is shown for git/csv/sql/http-json/object-storage/rss-atom. Publish
+ * chrome is shown for git/csv/sql/http-json/object-storage/rss-atom.
+ * icalendar Build/Preview/Publish chrome stays a later phase.
  */
 export interface VirtualSiteProperties {
   sourceKind?: string | null;

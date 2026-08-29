@@ -34,6 +34,7 @@ function requiredVirtualSourceKindValues() {
     "http-json",
     "object-storage",
     "rss-atom",
+    "icalendar",
   ];
 }
 

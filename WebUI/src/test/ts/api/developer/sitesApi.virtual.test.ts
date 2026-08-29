@@ -210,6 +210,19 @@ describe("sitesApi virtual properties", () => {
         siteKey: null,
       },
     });
+    expect(
+      toVirtualSitePropertiesEnvelope({
+        sourceKind: "icalendar",
+        rootPath: "C:/icalendar-docs",
+      }),
+    ).toEqual({
+      VirtualSiteProperties: {
+        sourceKind: "icalendar",
+        rootPath: "C:/icalendar-docs",
+        configFile: null,
+        siteKey: null,
+      },
+    });
   });
 
   it("updateVirtualSiteProperties PUTs VirtualSiteProperties envelope", async () => {
