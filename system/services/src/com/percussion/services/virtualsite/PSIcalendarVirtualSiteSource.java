@@ -363,8 +363,9 @@ public class PSIcalendarVirtualSiteSource implements IPSVirtualSiteSource {
     VirtualItemRef ref = new VirtualItemRef(id, version.id(), relative, event.order(), title);
     String dtstart = event.dtstart() == null ? "" : event.dtstart().trim();
     String description = event.description() == null ? "" : event.description();
+    // Match other Virtual Site adapters: DESCRIPTION is body text, not <meta name="description">.
     VirtualFrontmatter fm =
-        new VirtualFrontmatter(id, title, dtstart, version.id(), true, event.order(), List.of(), false);
+        new VirtualFrontmatter(id, title, "", version.id(), true, event.order(), List.of(), false);
     String body = assembleBody(dtstart, description);
     return new LoadedRow(ref, fm, body, sourcePath);
   }

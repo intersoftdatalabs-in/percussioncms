@@ -53,9 +53,34 @@ class PSIcalendarVirtualSiteSourceTest {
     assertEquals("Launch Meeting", refs.get(0).title());
     assertEquals(Path.of("8.2", "event-home.html"), refs.get(0).relativePath());
     VirtualItem item = source.load(cfg, refs.get(0));
+    assertEquals("", item.frontmatter().description());
     assertTrue(item.markdownBody().contains("Hello from iCalendar"));
-    assertTrue(item.markdownBody().contains("20260828T100000Z"));
+    assertTrue(item.markdownBody().contains("Starts: 20260828T100000Z"), item.markdownBody());
     assertEquals("calendar.ics", item.absolutePath().getFileName().toString());
+  }
+
+  @Test
+  void frontmatterDescriptionIsEmptyAndDtstartLivesInBody() throws Exception {
+    Path root = writeSite(tempDir.resolve("ics-desc"), "calendar.ics");
+    Files.writeString(
+        root.resolve("calendar.ics"),
+        icsEvent("evt-meta", "Standup", "20260828T100000Z", "Bring notes"),
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        root.resolve("_theme").resolve("page.html"),
+        "<html><head><meta name=\"description\" content=\"${description}\"/></head>"
+            + "<body><h1>${pageTitle}</h1>${content}</body></html>",
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("ics-desc-out");
+    PSVirtualSiteBuildService service =
+        PSVirtualSiteBuildService.forSourceType(VirtualSiteSourceType.ICALENDAR);
+    service.build(root, out, "cal-docs");
+    Path html = out.resolve("8.2").resolve("evt-meta.html");
+    String rendered = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(rendered.contains("<meta name=\"description\" content=\"\"/>"), rendered);
+    assertFalse(rendered.contains("content=\"20260828T100000Z\""), rendered);
+    assertTrue(rendered.contains("Starts: 20260828T100000Z"), rendered);
+    assertTrue(rendered.contains("Bring notes"), rendered);
   }
 
   @Test
