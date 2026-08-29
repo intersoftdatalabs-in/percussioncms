@@ -33,6 +33,7 @@ import com.percussion.rest.contenttypes.ContentTypeFieldControlProperties;
 import com.percussion.rest.contenttypes.ContentTypeFieldRuleExpressions;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
 import com.percussion.rest.contenttypes.ContentTypeItemExits;
+import com.percussion.rest.contenttypes.ContentTypeSearchIndexing;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
 import com.percussion.rest.contenttypes.NamedObjectRef;
 import java.net.URI;
@@ -127,6 +128,17 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
   @Override
   public ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled) {
     return null;
+  }
+
+  @Override
+  public ContentTypeSearchIndexing getContentTypeSearchIndexing(URI baseUri, String idOrName) {
+    return new ContentTypeSearchIndexing(true);
+  }
+
+  @Override
+  public ContentTypeSearchIndexing setContentTypeSearchIndexing(
+      URI baseUri, String idOrName, boolean searchIndexing) {
+    return new ContentTypeSearchIndexing(searchIndexing);
   }
 
   @Override

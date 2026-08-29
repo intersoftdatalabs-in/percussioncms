@@ -1322,4 +1322,104 @@ public class ContentTypesResourceDetailTest {
             () -> resource.includeField("percPage", new ContentTypeField()));
     assertEquals(403, ex.getResponse().getStatus());
   }
+
+  @Test
+  public void getSearchIndexingReturnsFlag() {
+    when(adaptor.getContentTypeSearchIndexing(any(), eq("percPage")))
+        .thenReturn(new ContentTypeSearchIndexing(true));
+    ContentTypeSearchIndexing out = resource.getContentTypeSearchIndexing("percPage");
+    assertEquals(Boolean.TRUE, out.getSearchIndexing());
+  }
+
+  @Test
+  public void getSearchIndexingNotFound() {
+    when(adaptor.getContentTypeSearchIndexing(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.getContentTypeSearchIndexing("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setSearchIndexingSuccess() {
+    when(adaptor.setContentTypeSearchIndexing(any(), eq("percPage"), eq(false)))
+        .thenReturn(new ContentTypeSearchIndexing(false));
+    ContentTypeSearchIndexing out =
+        resource.setContentTypeSearchIndexing("percPage", new ContentTypeSearchIndexing(false));
+    assertEquals(Boolean.FALSE, out.getSearchIndexing());
+  }
+
+  @Test
+  public void setSearchIndexingRequiresBoolean() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.setContentTypeSearchIndexing("percPage", new ContentTypeSearchIndexing()));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains("searchIndexing"), ex.getMessage());
+  }
+
+  @Test
+  public void setSearchIndexingNullBodyIs400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.setContentTypeSearchIndexing("percPage", null));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setSearchIndexingNotFound() {
+    when(adaptor.setContentTypeSearchIndexing(any(), eq("missing"), eq(false))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeSearchIndexing(
+                    "missing", new ContentTypeSearchIndexing(false)));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setSearchIndexingRequiresLock() {
+    when(adaptor.setContentTypeSearchIndexing(any(), eq("percPage"), eq(false)))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not update content type search indexing; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeSearchIndexing(
+                    "percPage", new ContentTypeSearchIndexing(false)));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setSearchIndexingLockedByOtherUser() {
+    when(adaptor.setContentTypeSearchIndexing(any(), eq("percPage"), eq(false)))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not update content type search indexing; locked by editor2"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeSearchIndexing(
+                    "percPage", new ContentTypeSearchIndexing(false)));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setSearchIndexingForbiddenWhenNotAdmin() {
+    when(adaptor.setContentTypeSearchIndexing(any(), eq("percPage"), eq(false)))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeSearchIndexing(
+                    "percPage", new ContentTypeSearchIndexing(false)));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
 }
