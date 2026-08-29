@@ -231,7 +231,11 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
         PSApplication app = apps[i];
         m_appSums.addSummary(app, false);
         PSApplicationSummary sum = m_appSums.getSummary(app.getId());
-        sum.setFileLastModified(getApplicationFile(app.getName()).lastModified());
+        try {
+          sum.setFileLastModified(getApplicationFile(app.getName()).lastModified());
+        } catch (IllegalArgumentException e) {
+          // Traversal/blank app names are not-found, not an init 500.
+        }
         PSAcl acl = app.getAcl();
         if (acl != null) {
           PSAclHandler aclHandler = new PSAclHandler(acl);
@@ -3777,7 +3781,12 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   Document loadApplication(String app) throws PSNotFoundException, PSServerException {
-    File appFile = getApplicationFile(app);
+    File appFile;
+    try {
+      appFile = getApplicationFile(app);
+    } catch (IllegalArgumentException e) {
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(), app);
+    }
     try {
       Document doc = loadApplicationFromFile(appFile);
 
@@ -3840,7 +3849,9 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    * (CodeQL {@code java/path-injection} #2002).
    *
    * @param objectDirectory object-store root, never {@code null} and must exist as a directory
-   * @param appName application name used as a single path segment, never {@code null} or blank
+   * @param appName application name used as a relative path under {@code objectDirectory}
+   *     (typically one segment). Traversal ({@code ..}), NUL, and blank names are rejected;
+   *     multi-segment relative names that stay under the directory are allowed.
    * @return file whose canonical path is under {@code objectDirectory}
    */
   static File resolveApplicationXmlFile(File objectDirectory, String appName) {
@@ -4940,7 +4951,11 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     File appFile = null;
 
     /* Try the application summary guys first */
-    appFile = getApplicationFile(appName);
+    try {
+      appFile = getApplicationFile(appName);
+    } catch (IllegalArgumentException e) {
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(), appName);
+    }
     if (!appFile.exists()) // codeql[java/path-injection]
       throw new PSNotFoundException(ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(), appName);
 

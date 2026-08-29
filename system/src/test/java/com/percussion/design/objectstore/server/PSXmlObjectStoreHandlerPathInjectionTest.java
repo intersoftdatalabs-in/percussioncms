@@ -16,14 +16,19 @@
  */
 package com.percussion.design.objectstore.server;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.error.PSNotFoundException;
 import com.percussion.utils.io.PathUtils;
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Properties;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -81,5 +86,63 @@ class PSXmlObjectStoreHandlerPathInjectionTest {
     Files.writeString(child.toPath(), "<app/>");
     File safe = PSXmlObjectStoreHandler.requireUnderRxDir(child);
     assertEquals(child.getCanonicalFile(), safe.getCanonicalFile());
+  }
+
+  @Test
+  void getApplicationFile_rejectsParentTraversal() throws Exception {
+    PSXmlObjectStoreHandler handler = newHandler();
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> handler.getApplicationFile(".." + File.separator + "escape"));
+  }
+
+  @Test
+  void loadApplication_translatesTraversalToNotFound() throws Exception {
+    PSXmlObjectStoreHandler handler = newHandler();
+    assertThrows(
+        PSNotFoundException.class,
+        () -> handler.loadApplication(".." + File.separator + "escape"));
+  }
+
+  @Test
+  void lockOutputStream_writesUnderRxDirAndRejectsEscape() throws Exception {
+    PSXmlObjectStoreHandler handler = newHandler();
+    File target = tmp.resolve("ObjectStore").resolve("locked.xml").toFile();
+    OutputStream out = handler.lockOutputStream(target);
+    try {
+      out.write(new byte[] {1, 2, 3});
+    } finally {
+      handler.releaseOutputStream(out, target);
+    }
+    assertArrayEquals(new byte[] {1, 2, 3}, Files.readAllBytes(target.toPath()));
+
+    File outside = tmp.getParent().resolve("escape.bin").toFile();
+    assertThrows(IllegalArgumentException.class, () -> handler.lockOutputStream(outside));
+  }
+
+  @Test
+  void lockInputStream_readsUnderRxDirAndRejectsEscape() throws Exception {
+    PSXmlObjectStoreHandler handler = newHandler();
+    File target = tmp.resolve("ObjectStore").resolve("locked-in.xml").toFile();
+    Files.write(target.toPath(), new byte[] {9, 8, 7});
+    InputStream in = handler.lockInputStream(target);
+    try {
+      assertArrayEquals(new byte[] {9, 8, 7}, in.readAllBytes());
+    } finally {
+      handler.releaseInputStream(in, target);
+    }
+
+    File outside = tmp.getParent().resolve("escape-in.bin").toFile();
+    Files.write(outside.toPath(), new byte[] {1});
+    assertThrows(IllegalArgumentException.class, () -> handler.lockInputStream(outside));
+  }
+
+  private PSXmlObjectStoreHandler newHandler() throws Exception {
+    Path objectStore = tmp.resolve("ObjectStore");
+    Files.createDirectories(objectStore);
+    PathUtils.setThreadOnlyRxDir(tmp.toFile());
+    Properties props = new Properties();
+    props.put("objectDirectory", "ObjectStore");
+    return new PSXmlObjectStoreHandler(props);
   }
 }
