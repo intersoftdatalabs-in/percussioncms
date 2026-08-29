@@ -843,7 +843,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@RSS / Atom uses the root path only (no Git remote). Point at a local RSS or Atom fixture directory (feed.xml / atom.xml or _config.yaml rss.file). Save sourceKind=rss-atom, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target. Live feed URLs and credentials are never sent on the REST envelope.",
   SITE_VIRT_KIND_ICALENDAR: "perc.ui.developer@iCalendar",
   SITE_VIRT_ICALENDAR_HINT:
-    "perc.ui.developer@iCalendar uses the root path only (no Git remote). Point at a local RFC 5545 .ics fixture directory (calendar.ics or _config.yaml icalendar.file). Save sourceKind=icalendar. CalDAV URLs and credentials are never sent on the REST envelope. Build, Preview, and Publish Virtual Site for this kind stay a later phase.",
+    "perc.ui.developer@iCalendar uses the root path only (no Git remote). Point at a local RFC 5545 .ics fixture directory (calendar.ics or _config.yaml icalendar.file). Save sourceKind=icalendar, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target. CalDAV URLs and credentials are never sent on the REST envelope.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:
@@ -870,14 +870,14 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Save Virtual Site source before building so the server uses the latest properties.",
   SITE_VIRT_PREVIEW: "perc.ui.developer@Preview assembled site",
   SITE_VIRT_PREVIEW_HINT:
-    "perc.ui.developer@Opens the last assembled home in a new tab after Build (Git filesystem, CSV filesystem, SQL database, HTTP JSON, Object storage, or RSS / Atom). Same-origin preview of the build output. Requires Admin.",
+    "perc.ui.developer@Opens the last assembled home in a new tab after Build (Git filesystem, CSV filesystem, SQL database, HTTP JSON, Object storage, RSS / Atom, or iCalendar). Same-origin preview of the build output. Requires Admin.",
   SITE_VIRT_PREVIEW_MISSING:
     "perc.ui.developer@No assembled site to preview. Run Build Virtual Site first.",
   SITE_VIRT_PREVIEW_ERROR: "perc.ui.developer@Could not open Virtual Site preview.",
   SITE_VIRT_PUBLISH: "perc.ui.developer@Publish Virtual Site",
   SITE_VIRT_PUBLISHING: "perc.ui.developer@Publishing Virtual Site...",
   SITE_VIRT_PUBLISH_HINT:
-    "perc.ui.developer@Builds this Virtual Site using saved source properties, then copies assembled files to the Site filesystem publish location (Git filesystem, CSV filesystem, SQL database, HTTP JSON, Object storage, or RSS / Atom). Requires Admin. Traditional repository Sites do not show this control.",
+    "perc.ui.developer@Builds this Virtual Site using saved source properties, then copies assembled files to the Site filesystem publish location (Git filesystem, CSV filesystem, SQL database, HTTP JSON, Object storage, RSS / Atom, or iCalendar). Requires Admin. Traditional repository Sites do not show this control.",
   SITE_VIRT_PUBLISH_SAVE_FIRST:
     "perc.ui.developer@Save Virtual Site source before publishing so the server uses the latest properties. The Site publishing filesystem root must be configured.",
   SITE_VIRT_PUBLISH_ERROR: "perc.ui.developer@Could not publish Virtual Site.",

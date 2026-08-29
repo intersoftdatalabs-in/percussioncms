@@ -886,7 +886,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
-  it("loads icalendar values with root path and hides Build/Preview/Publish chrome", async () => {
+  it("loads icalendar values with root path and Build/Preview/Publish chrome", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "icalendar",
       rootPath: "C:/icalendar-docs",
@@ -907,18 +907,24 @@ describe("VirtualSiteSourcePanel", () => {
       DEV_MSG.SITE_VIRT_ICALENDAR_HINT,
     );
     expect(screen.getByTestId("developer-site-virtual-icalendar-hint").textContent).toContain(
-      "later phase",
+      "Build Virtual Site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-icalendar-hint").textContent).toContain(
+      "Preview assembled site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-icalendar-hint").textContent).toContain(
+      "Publish Virtual Site",
     );
     expect(screen.getByTestId("developer-site-virtual-icalendar-hint").textContent).not.toContain(
-      "then Build Virtual Site",
+      "later phase",
     );
     expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-config-file")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
@@ -976,10 +982,10 @@ describe("VirtualSiteSourcePanel", () => {
     expect(
       (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
     ).toBe("C:/icalendar-docs");
-    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );

@@ -794,10 +794,10 @@ export interface SiteDef {
  * Developer Sites save chrome includes http-json, object-storage, rss-atom, and
  * icalendar (local {@code rootPath} only; no cloud URLs, live feed / CalDAV
  * credentials, or {@code virtual.remoteUrl} on those kinds). Build chrome is
- * shown after save for git/csv/sql/http-json/object-storage/rss-atom. Preview
- * chrome is shown for git/csv/sql/http-json/object-storage/rss-atom. Publish
- * chrome is shown for git/csv/sql/http-json/object-storage/rss-atom.
- * icalendar Build/Preview/Publish chrome stays a later phase.
+ * shown after save for git/csv/sql/http-json/object-storage/rss-atom/icalendar.
+ * Preview chrome is shown for git/csv/sql/http-json/object-storage/rss-atom/
+ * icalendar. Publish chrome is shown for git/csv/sql/http-json/object-storage/
+ * rss-atom/icalendar. Repository / unknown kinds hide that chrome.
  */
 export interface VirtualSiteProperties {
   sourceKind?: string | null;

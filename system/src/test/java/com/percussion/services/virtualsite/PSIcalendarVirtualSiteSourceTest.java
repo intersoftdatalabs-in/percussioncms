@@ -186,6 +186,21 @@ class PSIcalendarVirtualSiteSourceTest {
   }
 
   @Test
+  void unfoldLinesJoinsRfc5545FoldsIncludingLeadingContinuation() {
+    List<String> folded =
+        PSIcalendarVirtualSiteSource.unfoldLines("DESCRIPTION:Hello\n  world\nSUMMARY:Title");
+    assertEquals(List.of("DESCRIPTION:Hello world", "SUMMARY:Title"), folded);
+
+    List<String> tabFold =
+        PSIcalendarVirtualSiteSource.unfoldLines("DESCRIPTION:Hello\n\t world");
+    assertEquals(List.of("DESCRIPTION:Hello world"), tabFold);
+
+    // First physical line is itself a fold (have was false); still strip the prefix.
+    List<String> leading = PSIcalendarVirtualSiteSource.unfoldLines(" continued\nNEXT:value");
+    assertEquals(List.of("continued", "NEXT:value"), leading);
+  }
+
+  @Test
   void duplicateUidsFailClosed() throws Exception {
     Path root = writeSite(tempDir.resolve("dup"), "calendar.ics");
     Files.writeString(
@@ -211,6 +226,42 @@ class PSIcalendarVirtualSiteSourceTest {
             VirtualSiteException.class,
             () -> new PSIcalendarVirtualSiteSource().discover(config(root, "calendar.ics")));
     assertTrue(ex.getMessage().toLowerCase().contains("duplicate"), ex.getMessage());
+  }
+
+  @Test
+  void duplicateSluggedPathsFailClosedWithBothPaths() throws Exception {
+    Path root = writeSite(tempDir.resolve("dup-path"), "calendar.ics");
+    Files.writeString(
+        root.resolve("calendar.ics"),
+        """
+        BEGIN:VCALENDAR
+        VERSION:2.0
+        BEGIN:VEVENT
+        UID:event-home
+        SUMMARY:A
+        DESCRIPTION:a
+        END:VEVENT
+        BEGIN:VEVENT
+        UID:event@home
+        SUMMARY:B
+        DESCRIPTION:b
+        END:VEVENT
+        END:VCALENDAR
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteException ex =
+        assertThrows(
+            VirtualSiteException.class,
+            () -> new PSIcalendarVirtualSiteSource().discover(config(root, "calendar.ics")));
+    String msg = ex.getMessage();
+    assertTrue(msg.toLowerCase().contains("duplicate"), msg);
+    assertTrue(msg.toLowerCase().contains("path"), msg);
+    assertTrue(msg.contains("and"), msg);
+    String relative = Path.of("8.2", "event-home.html").toString();
+    int first = msg.indexOf(relative);
+    int second = msg.indexOf(relative, first + 1);
+    assertTrue(first >= 0, msg);
+    assertTrue(second > first, msg);
   }
 
   @Test
