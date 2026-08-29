@@ -94,6 +94,19 @@ are **400** (no secrets on the REST envelope). Developer **Sites** can select
 `feed.xml` / `atom.xml` / `_config.yaml` `rss.file` only), then **Preview assembled
 site** and **Publish Virtual Site**.
 
+An **iCalendar** adapter (`icalendar`) discovers pages from a **local RFC 5545
+`.ics` fixture** under `virtual.rootPath` (`calendar.ics`, or `_config.yaml`
+`icalendar.file`). Each `VEVENT` maps `UID` / `SUMMARY` / `DTSTART` /
+`DESCRIPTION` into assemble `id` / `title` / `body`. This is a **local fixture
+SPI** — **no CalDAV, no live remote `.ics` URLs, no API keys**. `virtual.remoteUrl`
+and credential properties are rejected. SPI/CLI assemble is
+`PSVirtualSiteBuildMain … icalendar` (`pagesWritten > 0` from a temp fixture).
+REST `GET` / `PUT /sites/{nameOrId}/virtual` round-trips `sourceKind=icalendar` with a
+portable-safe local `rootPath` (leftover `virtual.remoteUrl`, credentials, and cloud URL
+`rootPath` are **400**; no CalDAV). Developer **Sites** can select **iCalendar**, save,
+and GET-roundtrip the kind. **Build Virtual Site**, **Preview assembled site**, and
+**Publish Virtual Site** chrome for this kind stay a later phase.
+
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
 After the site folder is created, an optional Git root is saved with
@@ -130,6 +143,12 @@ After the site folder is created, an optional Git root is saved with
   HTML to `IPSSite.root` for a local RSS/Atom fixture (leftover `virtual.remoteUrl` and
   credentials are **400**; no live feeds). Developer Sites can **Build Virtual Site** for
   `rss-atom` after save (local fixture only), **Preview assembled site**, and **Publish Virtual Site**.
+  iCalendar (`icalendar`) is a **local RFC 5545 `.ics` SPI** (CLI assemble from
+  `calendar.ics` / `icalendar.file`; no CalDAV). REST **GET/PUT** `/sites/{nameOrId}/virtual`
+  round-trips `sourceKind=icalendar` with a portable-safe local `rootPath` (leftover
+  `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**). Developer Sites
+  can save and GET-roundtrip `sourceKind=icalendar`. REST Build/Preview/Publish and
+  Developer Sites Build/Preview/Publish chrome for `icalendar` stay later slices.
 
 ## Source tree contract
 
@@ -179,7 +198,7 @@ HTML path in the **virtual participant registry** (`IPSVirtualParticipantService
 | **Process-scoped (default)** | Registrations live in memory until the process exits, or until `clear(siteKey)` / `clearAll()` is called (SPI reset API). Unit tests and one-shot builds use this mode when no store directory is supplied. |
 | **Path-backed (optional)** | Construct the registry with a portable `java.nio.file.Path` base (CLI uses `outputRoot/_meta`). Existing `participants-<siteKey>.jsonl` files are loaded on construct; `flush(siteKey)` rewrites that site’s file. Survives JVM restart when the same Path base is reused. |
 | **Full rebuild** | A complete site build **clears** that site key, then upserts every discovered page, then flushes. A second build therefore does not keep pages removed from the source tree, and does not lose current ids. |
-| **Current filesystem** | Each build reloads `_config.yaml` and re-reads every Markdown/frontmatter file, CSV row, sql-database `SELECT` (`sql.query` or current `sql.queryFile` bytes plus H2 rows), http-json catalog (`http.url` / `http.file` or default `pages.json`), object-storage blobs (Markdown / HTML / JSON keys under `virtual.rootPath`), and rss-atom feeds (`rss.file` / `feed.xml` / `atom.xml` / loopback `rss.url`). The CMS process does **not** keep a parsed-page cache across builds. After `git pull`, a CSV/`_config.yaml` edit, a SQL `_config.yaml`/`queryFile` or H2 row edit, a JSON catalog edit, an object-key edit, an RSS/Atom fixture edit, or a local Markdown edit under `virtual.rootPath`, run **Build Virtual Site** (or the offline docs script) again — **no JVM / CMS restart** is required. File watchers are not used; the next explicit build is the refresh. |
+| **Current filesystem** | Each build reloads `_config.yaml` and re-reads every Markdown/frontmatter file, CSV row, sql-database `SELECT` (`sql.query` or current `sql.queryFile` bytes plus H2 rows), http-json catalog (`http.url` / `http.file` or default `pages.json`), object-storage blobs (Markdown / HTML / JSON keys under `virtual.rootPath`), rss-atom feeds (`rss.file` / `feed.xml` / `atom.xml` / loopback `rss.url`), and iCalendar fixtures (`icalendar.file` / `calendar.ics`). The CMS process does **not** keep a parsed-page cache across builds. After `git pull`, a CSV/`_config.yaml` edit, a SQL `_config.yaml`/`queryFile` or H2 row edit, a JSON catalog edit, an object-key edit, an RSS/Atom fixture edit, an iCalendar fixture edit, or a local Markdown edit under `virtual.rootPath`, run **Build Virtual Site** (or the offline docs script) again — **no JVM / CMS restart** is required. File watchers are not used; the next explicit build is the refresh. |
 
 Operators can treat the JSONL under the build meta directory as a diagnostic dump of stable ids after
 an offline docs build. The registry is **not** a substitute for Git as the system of record.
@@ -193,7 +212,7 @@ treated as a safe Virtual Site source.
 
 | Property | Required | Example | Meaning |
 |----------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, or `rss-atom` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, `rss-atom`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, SQL (H2), HTTP JSON (local JSON fixture or loopback catalog), **object-storage** (local object-key bucket; `virtual.remoteUrl` is **400**), and **`rss-atom`** (local RSS 2.0 / Atom fixture or loopback `rss.url`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**). Preview REST streams last-build HTML for git, CSV, SQL, HTTP JSON, `object-storage`, and **`rss-atom`**. REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for git, CSV, SQL, HTTP JSON, `object-storage` (local object-key `rootPath`; leftover `virtual.remoteUrl` is **400**), and **`rss-atom`** (local RSS/Atom fixture; leftover `virtual.remoteUrl` and credentials are **400**; no live feeds). Developer Sites can save and build Git, CSV, SQL, HTTP JSON, and object-storage, then **Preview assembled site** and **Publish Virtual Site**. Developer Sites can also save and GET-roundtrip `object-storage`, then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400`), `object-storage` (portable-safe local `rootPath`; cloud URLs and credential properties are **400**; `virtual.remoteUrl` is **400**), and `rss-atom` (portable-safe local `rootPath`; leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; local/loopback only, no live feed credentials). Developer Sites can **Build Virtual Site** for `rss-atom` after save (local fixture only), **Preview assembled site**, and **Publish Virtual Site**. SPI/CLI assemble for `object-storage` is `PSVirtualSiteBuildMain … object-storage`. SPI/CLI assemble for `rss-atom` is `PSVirtualSiteBuildMain … rss-atom`. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, `rss-atom`, or `icalendar` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, `rss-atom`, `icalendar`. **`icalendar`** is a local RFC 5545 `.ics` SPI (`calendar.ics` or `_config.yaml` `icalendar.file`; no CalDAV). SPI/CLI assemble is `PSVirtualSiteBuildMain … icalendar`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips `icalendar` with a portable-safe local `rootPath` (leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no CalDAV). Developer Sites can save and GET-roundtrip `sourceKind=icalendar`; REST Build/Preview/Publish and Developer Sites Build/Preview/Publish chrome for `icalendar` stay later slices. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, SQL (H2), HTTP JSON (local JSON fixture or loopback catalog), **object-storage** (local object-key bucket; `virtual.remoteUrl` is **400**), and **`rss-atom`** (local RSS 2.0 / Atom fixture or loopback `rss.url`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**). Preview REST streams last-build HTML for git, CSV, SQL, HTTP JSON, `object-storage`, and **`rss-atom`**. REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for git, CSV, SQL, HTTP JSON, `object-storage` (local object-key `rootPath`; leftover `virtual.remoteUrl` is **400**), and **`rss-atom`** (local RSS/Atom fixture; leftover `virtual.remoteUrl` and credentials are **400**; no live feeds). Developer Sites can save and build Git, CSV, SQL, HTTP JSON, and object-storage, then **Preview assembled site** and **Publish Virtual Site**. Developer Sites can also save and GET-roundtrip `object-storage`, then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400`), `object-storage` (portable-safe local `rootPath`; cloud URLs and credential properties are **400**; `virtual.remoteUrl` is **400**), and `rss-atom` (portable-safe local `rootPath`; leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; local/loopback only, no live feed credentials). Developer Sites can **Build Virtual Site** for `rss-atom` after save (local fixture only), **Preview assembled site**, and **Publish Virtual Site**. SPI/CLI assemble for `object-storage` is `PSVirtualSiteBuildMain … object-storage`. SPI/CLI assemble for `rss-atom` is `PSVirtualSiteBuildMain … rss-atom`. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` (or install-relative) | Local filesystem root when `virtual.remoteUrl` is blank. When a remote is set, optional **relative** path inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. When set, **Build** clones or fetches into a contained work directory, then reuses git-filesystem discover. Blank keeps local-path mode. Allowed: `https://`, `ssh://`, `file://`, or `git@host:path`. `http` and other schemes are rejected. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. Simple ref name only (no `..` or leading `-`). |
@@ -206,14 +225,15 @@ Empty / missing `virtual.sourceKind` (or value `repository`) means a traditional
 
 - **Source kind allow-list** — only registered adapter wire names are accepted for Virtual Sites
   (`git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`,
-  `rss-atom`). Unknown values are rejected. `csv-filesystem`, `sql-database`, `http-json`,
-  `object-storage`, and `rss-atom` do not accept `virtual.remoteUrl` (Git remotes apply to
-  `git-filesystem` only). `sql-database` is in-memory H2 only (`jdbc:h2:mem:`); Oracle / MySQL /
+  `rss-atom`, `icalendar`). Unknown values are rejected. `csv-filesystem`, `sql-database`, `http-json`,
+  `object-storage`, `rss-atom`, and `icalendar` do not accept `virtual.remoteUrl` (Git remotes apply to
+  `git-filesystem` only). `icalendar` is a local `.ics` fixture only (no CalDAV, no live remote
+  `.ics` URLs). `sql-database` is in-memory H2 only (`jdbc:h2:mem:`); Oracle / MySQL /
   SQL Server URLs are rejected. `http-json` fetches open JSON only (no secrets); remote catalogs
   must be `http`/`https` without userinfo. Catalog URL/file live in `_config.yaml` (no secrets
   on the REST envelope). `object-storage` reads a local object-key directory only (no AWS SDK,
   access keys, or network). `rss-atom` persist is local/loopback only (no live feed credentials).
-  REST persist for `object-storage` and `rss-atom` uses a local filesystem `rootPath` only (no
+  REST persist for `object-storage`, `rss-atom`, and `icalendar` uses a local filesystem `rootPath` only (no
   remaining `..`); cloud URLs (`s3://`, `gs://`, `azure://`, `http(s)://`) and credential
   properties are **400**. `rss-atom` is a local RSS 2.0 / Atom fixture or loopback HTTP GET (no
   live cloud feeds, no credentials). REST **Build** (`POST …/virtual/build`) runs `rss-atom`
@@ -528,6 +548,57 @@ PSVirtualSiteBuildMain <siteRoot> <outputRoot> [siteKey] rss-atom
 Site property validation allow-lists `rss-atom` (same helper as Git/CSV/SQL/HTTP JSON /
 object-storage). Unknown kinds remain rejected.
 
+### Offline build from iCalendar (`icalendar`)
+
+The `icalendar` adapter discovers pages from a **local RFC 5545 `.ics` fixture**. `_config.yaml`
+is **required** (versions / site title). Git remotes are not used (`virtual.remoteUrl` is
+rejected). This is a **local calendar adapter** — no CalDAV, no live remote `.ics` URLs, no
+API keys, no Basic/OAuth. REST `GET` / `PUT /sites/{nameOrId}/virtual` round-trips
+`sourceKind=icalendar` with a portable-safe local `rootPath` (leftover `virtual.remoteUrl`,
+credentials, and cloud URL `rootPath` are **400**). Developer **Sites** can save and
+GET-roundtrip `sourceKind=icalendar`. REST Build/Preview/Publish and Developer Sites
+Build/Preview/Publish chrome stay later slices. Operators assemble offline with the CLI.
+
+| `_config.yaml` key | Meaning |
+|--------------------|---------|
+| `icalendar.file` | Portable NIO path under the site root (for example `calendar.ics`). Must be relative (no remaining `..`, no Windows/Unix absolute roots). |
+| *(omitted)* | Default local file `calendar.ics` under `virtual.rootPath`. |
+| `icalendar.url` | **Rejected.** Live CalDAV / remote `.ics` URLs are out of scope. |
+
+Calendars larger than 2 MB fail closed. Each discover/load re-reads the current file (no
+process-lifetime cache). After you edit the fixture (`calendar.ics` / `icalendar.file`) or
+`_config.yaml` on the CMS host, run `PSVirtualSiteBuildMain … icalendar` again — **no JVM
+restart**. File watchers are not used; the next explicit build is the refresh.
+
+`VEVENT` mapping:
+
+| iCalendar field | Assemble field |
+|-----------------|----------------|
+| `UID` | required `id` |
+| `SUMMARY` | required `title` |
+| `DTSTART` | included in the Markdown body (`Starts: …`) |
+| `DESCRIPTION` | `body` (Markdown/HTML; RFC 5545 unfolding and `\n` / `\,` / `\;` unescape) |
+
+Omitted path defaults to `{version}/{slug(id)}.html`. Missing `UID`/`SUMMARY`, duplicate
+uids, unsafe calendar paths, empty calendars (no `VEVENT`), or `icalendar.url` fail closed
+(`VirtualSiteException`).
+
+Example `_config.yaml` fragment (local fixture):
+
+```yaml
+icalendar:
+  file: calendar.ics
+```
+
+CLI:
+
+```text
+PSVirtualSiteBuildMain <siteRoot> <outputRoot> [siteKey] icalendar
+```
+
+Site property validation allow-lists `icalendar` (same helper as Git/CSV/SQL/HTTP JSON /
+object-storage / rss-atom). Unknown kinds remain rejected.
+
 ### REST Build for RSS / Atom (`rss-atom`)
 
 `POST /sites/{nameOrId}/virtual/build` runs `sourceKind=rss-atom` against a **local RSS 2.0 or
@@ -613,6 +684,18 @@ live feed credentials, Authorization, or API keys on this envelope. Unknown kind
 `rss-atom` (local/loopback fixture; leftover `virtual.remoteUrl` and credentials are
 **400**). Developer Sites can **Build Virtual Site**, **Preview assembled site**, and
 **Publish Virtual Site**.
+
+### REST persist for iCalendar (`icalendar`)
+
+REST `PUT` / `GET /sites/{nameOrId}/virtual` round-trips `sourceKind=icalendar` with a
+portable-safe local `rootPath` (NIO `Path.normalize()`; no remaining `..`). This is a
+**local RFC 5545 `.ics` fixture only** — leftover `virtual.remoteUrl`, credential
+properties, and cloud URL `rootPath` values (`s3://`, `gs://`, `azure://`, `http(s)://`,
+`caldav://`) are **400**. Never send CalDAV credentials, Authorization, or API keys on this
+envelope. Unknown kinds remain **400**. Git, CSV, SQL, `http-json`, `object-storage`, and
+`rss-atom` persist are unchanged. Developer **Sites** can save and GET-roundtrip
+`sourceKind=icalendar` (local fixture `rootPath` only). REST **Build**, **Preview**, and
+**Publish**, and Developer Sites Build/Preview/Publish chrome, stay later slices.
 
 ### REST Preview for object storage (`object-storage`)
 
@@ -741,7 +824,8 @@ The Git/filesystem, CSV/filesystem, SQL/database, and HTTP JSON adapters always 
    Build again so the server fetches (Git only).
 2. Run **Build Virtual Site** again (UI, `POST …/virtual/build`, `scripts/build-cms-docs.*`,
    `PSVirtualSiteBuildMain … csv-filesystem`, `PSVirtualSiteBuildMain … sql-database`,
-   `PSVirtualSiteBuildMain … http-json`, or `PSVirtualSiteBuildMain … object-storage`).
+   `PSVirtualSiteBuildMain … http-json`, `PSVirtualSiteBuildMain … object-storage`,
+   `PSVirtualSiteBuildMain … rss-atom`, or `PSVirtualSiteBuildMain … icalendar`).
 3. Preview or publish the new output.
 
 You do **not** restart the CMS JVM for those file or H2 row changes to appear. A restart is

@@ -18,9 +18,11 @@ package com.percussion.services.virtualsite;
 
 /**
  * Registered Virtual Site adapter kinds. {@link #GIT_FILESYSTEM}, {@link #CSV_FILESYSTEM}, {@link
- * #SQL_DATABASE}, {@link #HTTP_JSON}, {@link #OBJECT_STORAGE}, and {@link #RSS_ATOM} are wired
- * through {@link PSVirtualSiteSourceFactory} and allow-listed for Site property validation.
- * REST GET/PUT persist round-trips {@link #RSS_ATOM} with a portable-safe local {@code rootPath}.
+ * #SQL_DATABASE}, {@link #HTTP_JSON}, {@link #OBJECT_STORAGE}, {@link #RSS_ATOM}, and {@link
+ * #ICALENDAR} are wired through {@link PSVirtualSiteSourceFactory} and allow-listed for Site
+ * property validation. REST GET/PUT persist round-trips {@link #RSS_ATOM} and {@link #ICALENDAR}
+ * with a portable-safe local {@code rootPath}. {@link #ICALENDAR} assemble remains SPI/CLI
+ * ({@code calendar.ics}); REST Build/Preview/Publish and Developer Sites chrome stay later slices.
  */
 public enum VirtualSiteSourceType {
   GIT_FILESYSTEM("git-filesystem"),
@@ -57,7 +59,18 @@ public enum VirtualSiteSourceType {
    * virtual.remoteUrl} is not accepted. No live feed credentials on this envelope. Developer Sites
    * chrome stays a later slice.
    */
-  RSS_ATOM("rss-atom");
+  RSS_ATOM("rss-atom"),
+  /**
+   * Local RFC 5545 iCalendar ({@code icalendar}). Discovers pages from {@code calendar.ics} (or
+   * {@code _config.yaml} {@code icalendar.file}) under a portable-safe {@code virtual.rootPath}.
+   * Each {@code VEVENT} maps {@code UID}/{@code SUMMARY}/{@code DTSTART}/{@code DESCRIPTION} into
+   * assemble {@code id}/{@code title}/{@code body}. Cloud / CalDAV URLs, {@code icalendar.url},
+   * Git {@code virtual.remoteUrl}, and credential properties are rejected. REST GET/PUT persist
+   * this kind with a portable-safe {@code virtual.rootPath} (NIO {@link java.nio.file.Path}; no
+   * remaining {@code ..}). REST Build/Preview/Publish and Developer Sites chrome stay later
+   * slices. No live CalDAV, API keys, or authenticated remotes on this envelope.
+   */
+  ICALENDAR("icalendar");
 
   private final String wireName;
 

@@ -25,8 +25,9 @@ import java.nio.file.Path;
  *
  * <p>{@code sourceKind} defaults to {@code git-filesystem}. Pass {@code csv-filesystem} for a CSV
  * tree, {@code sql-database} for an in-memory H2 query, {@code http-json} for an HTTP/local JSON
- * catalog, {@code object-storage} for a local object-key directory, or {@code rss-atom} for a
- * local RSS 2.0 / Atom XML fixture (see product-docs Virtual Sites).
+ * catalog, {@code object-storage} for a local object-key directory, {@code rss-atom} for a
+ * local RSS 2.0 / Atom XML fixture, or {@code icalendar} for a local RFC 5545 {@code
+ * calendar.ics} fixture (see product-docs Virtual Sites).
  */
 public final class PSVirtualSiteBuildMain {
 

@@ -25,8 +25,9 @@ import java.util.stream.Stream;
  *
  * <p>Used by {@link PSVirtualSiteBuildService} (CLI and CMS REST {@code POST
  * /sites/{nameOrId}/virtual/build}) so git-filesystem, csv-filesystem, sql-database, http-json,
- * object-storage, and rss-atom share one assemble pipeline. REST GET/PUT persist {@code http-json},
- * {@code object-storage}, and {@code rss-atom}.
+ * object-storage, rss-atom, and icalendar share one assemble pipeline. REST GET/PUT persist {@code
+ * http-json}, {@code object-storage}, {@code rss-atom}, and {@code icalendar}. {@code icalendar}
+ * assemble remains SPI/CLI in this slice (REST Build/Preview/Publish later).
  */
 public final class PSVirtualSiteSourceFactory {
 
@@ -47,6 +48,7 @@ public final class PSVirtualSiteSourceFactory {
       case HTTP_JSON -> new PSHttpJsonVirtualSiteSource();
       case OBJECT_STORAGE -> new PSObjectStorageVirtualSiteSource();
       case RSS_ATOM -> new PSRssAtomVirtualSiteSource();
+      case ICALENDAR -> new PSIcalendarVirtualSiteSource();
     };
   }
 
@@ -54,7 +56,7 @@ public final class PSVirtualSiteSourceFactory {
    * Create the adapter for a property / CLI wire name.
    *
    * @param wireName e.g. {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
-   *     {@code http-json}, {@code object-storage}, or {@code rss-atom}
+   *     {@code http-json}, {@code object-storage}, {@code rss-atom}, or {@code icalendar}
    * @return new source
    * @throws VirtualSiteException when the name is blank or unknown
    */
