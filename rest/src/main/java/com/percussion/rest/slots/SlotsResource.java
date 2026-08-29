@@ -187,7 +187,7 @@ public class SlotsResource {
       description =
           "Admin. Creates and persists a slot via IPSAssemblyDesignWs.createSlots then saveSlots"
               + " (Workbench Finish, not an unsaved stub). Name is required, must be unique"
-              + " (case-insensitive), and must not contain spaces. Optional label, description,"
+              + " (case-insensitive), and must not contain whitespace. Optional label, description,"
               + " and slotType (REGULAR or INLINE) are applied before save. Duplicate name is"
               + " 409. Finder, relationship, and finderArguments are not written on create.",
       responses = {

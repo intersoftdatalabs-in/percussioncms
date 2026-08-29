@@ -49,7 +49,7 @@ public interface ISlotsAdaptor {
   /**
    * Create and persist a slot (Workbench Finish: {@code IPSAssemblyDesignWs.createSlots} then
    * {@code saveSlots}). Admin only. Name must be unique (case-insensitive) and must not contain
-   * spaces.
+   * whitespace.
    *
    * @param baseUri requesting URI
    * @param body request body; {@code name} is required. Optional label, description, and {@code

@@ -237,7 +237,7 @@ Assembly **slots** used by **Developer → Slots** are exposed under `/services/
 | `DELETE` | `/services/slots/{idOrName}` | **Admin.** Delete a slot (`IPSAssemblyDesignWs.deleteSlots`) |
 
 Create (`POST /services/slots`) persists immediately (Workbench Finish, not an unsaved stub).
-JSON body requires `name` (unique, case-insensitive; **no spaces**). Optional `label`,
+JSON body requires `name` (unique, case-insensitive; **no whitespace**). Optional `label`,
 `description`, and `slotType` (`REGULAR` or `INLINE`) are applied before save. Omitted
 `slotType` defaults to `REGULAR`. Duplicate name is **409**. Blank / whitespace / wildcard
 names and invalid `slotType` are **400**. Missing request session/user is **403**. Non-Admin

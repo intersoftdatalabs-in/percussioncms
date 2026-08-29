@@ -53,7 +53,7 @@ import org.mockito.ArgumentCaptor;
 
 /**
  * AS-01 POST create / DELETE persist via {@code createSlots}/{@code saveSlots}/{@code deleteSlots}.
- * Admin only; unique name; no spaces; system-slot delete rejected.
+ * Admin only; unique name; no whitespace; system-slot delete rejected.
  */
 @Tag("UnitTest")
 class SlotsAdaptorCreateDeleteTest {
@@ -71,7 +71,7 @@ class SlotsAdaptorCreateDeleteTest {
     designWs = mock(IPSAssemblyDesignWs.class);
     adaptor = new SlotsAdaptor(designWs, () -> true);
     guid = new PSGuid(PSTypeEnum.SLOT, 42L);
-    when(designWs.findSlots(isNull(), isNull())).thenReturn(Collections.emptyList());
+    when(designWs.findSlots(any(), isNull())).thenReturn(Collections.emptyList());
   }
 
   @AfterEach
@@ -85,7 +85,7 @@ class SlotsAdaptorCreateDeleteTest {
     when(slot.getLabel()).thenReturn("My Slot");
     when(designWs.createSlots(eq(List.of("mySlot")), eq("test-session"), eq("Admin")))
         .thenReturn(List.of(slot));
-    stubReloadByName("mySlot", slot);
+    stubCreateThenReload("mySlot", slot);
 
     SlotDetail body = new SlotDetail();
     body.setName("mySlot");
@@ -111,7 +111,7 @@ class SlotsAdaptorCreateDeleteTest {
     IPSTemplateSlot slot = stubSlot("inlineSlot", false);
     when(designWs.createSlots(eq(List.of("inlineSlot")), eq("test-session"), eq("Admin")))
         .thenReturn(List.of(slot));
-    stubReloadByName("inlineSlot", slot);
+    stubCreateThenReload("inlineSlot", slot);
 
     SlotDetail body = new SlotDetail();
     body.setName("inlineSlot");
@@ -137,7 +137,7 @@ class SlotsAdaptorCreateDeleteTest {
   void create_duplicateName_is409BeforeCreate() throws Exception {
     IPSCatalogSummary existing = mock(IPSCatalogSummary.class);
     when(existing.getName()).thenReturn("rffList");
-    when(designWs.findSlots(isNull(), isNull())).thenReturn(List.of(existing));
+    when(designWs.findSlots(eq("rfflist"), isNull())).thenReturn(List.of(existing));
 
     SlotDetail body = new SlotDetail();
     body.setName("rfflist");
@@ -180,7 +180,17 @@ class SlotsAdaptorCreateDeleteTest {
     body.setName("has space");
     IllegalArgumentException ex =
         assertThrows(IllegalArgumentException.class, () -> adaptor.createSlot(null, body));
-    assertTrue(ex.getMessage().contains("spaces"));
+    assertEquals("name cannot contain whitespace", ex.getMessage());
+    verify(designWs, never()).createSlots(anyList(), any(), any());
+  }
+
+  @Test
+  void create_nameWithTab_throwsBeforeDesignWs() {
+    SlotDetail body = new SlotDetail();
+    body.setName("has\ttab");
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.createSlot(null, body));
+    assertEquals("name cannot contain whitespace", ex.getMessage());
     verify(designWs, never()).createSlots(anyList(), any(), any());
   }
 
@@ -213,7 +223,7 @@ class SlotsAdaptorCreateDeleteTest {
     when(slot.getLabel()).thenReturn("My Slot");
     when(designWs.createSlots(eq(List.of("mySlot")), eq("test-session"), eq("Admin")))
         .thenReturn(List.of(slot));
-    stubReloadByName("mySlot", slot);
+    stubCreateThenReload("mySlot", slot);
 
     SlotDetail body = new SlotDetail();
     body.setName("mySlot");
@@ -317,6 +327,19 @@ class SlotsAdaptorCreateDeleteTest {
     when(sum.getName()).thenReturn(name);
     when(sum.getLabel()).thenReturn(name);
     when(designWs.findSlots(eq(name), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadSlots(anyList(), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(slot));
+  }
+
+  /** First {@code findSlots} is the uniqueness check (empty); later calls reload the saved slot. */
+  private void stubCreateThenReload(String name, IPSTemplateSlot slot) throws Exception {
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    when(sum.getName()).thenReturn(name);
+    when(sum.getLabel()).thenReturn(name);
+    when(designWs.findSlots(eq(name), isNull()))
+        .thenReturn(Collections.emptyList())
+        .thenReturn(List.of(sum));
     when(designWs.loadSlots(anyList(), eq(false), eq(false), any(), any()))
         .thenReturn(List.of(slot));
   }

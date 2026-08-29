@@ -208,7 +208,7 @@ public class SlotsAdaptor implements ISlotsAdaptor {
     }
     String name = body.getName().trim();
     if (containsWhitespace(name)) {
-      throw new IllegalArgumentException("name cannot contain spaces");
+      throw new IllegalArgumentException("name cannot contain whitespace");
     }
     if (name.contains("*")) {
       throw new IllegalArgumentException("name must not contain wildcards");
@@ -557,7 +557,7 @@ public class SlotsAdaptor implements ISlotsAdaptor {
   }
 
   private void assertNameUnique(String name) {
-    List<IPSCatalogSummary> existing = designWs.findSlots(null, null);
+    List<IPSCatalogSummary> existing = designWs.findSlots(name, null);
     if (existing == null) {
       return;
     }
