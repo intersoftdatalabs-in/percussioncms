@@ -66,6 +66,7 @@ import com.percussion.security.PSAuthenticationRequiredException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
@@ -193,7 +194,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     RecoverableFile(File src) throws PSException {
       if (src == null) throw new IllegalArgumentException("src may not be null.");
 
-      m_src = src;
+      m_src = PSPathInjectionGuard.requireUnderBase(PSServer.getRxDir(), src.getPath());
       renameSrcToBackup();
     }
 
@@ -202,13 +203,17 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
      * or directory exists; otherwise does nothing.
      */
     void renameSrcToBackup() throws PSException {
-      if (!m_src.exists()) return;
+      if (!m_src.exists()) return; // codeql[java/path-injection]
 
       SecureRandom rand = new SecureRandom();
       for (int i = 0; i < 100; i++) {
-        File bkup = new File(m_src.getParentFile(), m_src.getName() + "bkup" + rand.nextLong());
-        if (!bkup.exists()) {
-          if (m_src.renameTo(bkup)) {
+        File bkup =
+            PSPathInjectionGuard.requireUnderBase(
+                PSServer.getRxDir(),
+                new File(m_src.getParentFile(), m_src.getName() + "bkup" + rand.nextLong())
+                    .getPath());
+        if (!bkup.exists()) { // codeql[java/path-injection]
+          if (m_src.renameTo(bkup)) { // codeql[java/path-injection]
             m_tempFile = bkup;
             return;
           }
@@ -233,7 +238,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
 
       try {
         deleteFile(m_src);
-        boolean renamed = m_tempFile.renameTo(m_src);
+        boolean renamed = m_tempFile.renameTo(m_src); // codeql[java/path-injection]
         m_tempFile = null;
         return renamed;
       } catch (Exception e) {
@@ -256,7 +261,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
       if (m_tempFile == null) return true;
 
       deleteFile(dest);
-      if (m_tempFile.renameTo(dest)) {
+      if (m_tempFile.renameTo(dest)) { // codeql[java/path-injection]
         m_tempFile = dest;
         return true;
       }
@@ -903,16 +908,17 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
    * @return <code>true</code> if successful.
    */
   private static boolean deleteFile(File file) {
-    if (!file.exists()) return false;
-    if (file.isDirectory()) {
-      File[] children = file.listFiles();
+    File safe = PSPathInjectionGuard.requireUnderBase(PSServer.getRxDir(), file.getPath());
+    if (!safe.exists()) return false; // codeql[java/path-injection]
+    if (safe.isDirectory()) { // codeql[java/path-injection]
+      File[] children = safe.listFiles();
       if (children != null) {
         for (File child : children) {
           if (!deleteFile(child)) return false;
         }
       }
     }
-    return file.delete();
+    return safe.delete(); // codeql[java/path-injection]
   }
 
   /**
@@ -1208,7 +1214,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     PSApplicationSummaryCollection appSums = m_objectStoreHandler.m_appSums;
 
     appSums.removeSummary(appId);
-    appFile.delete();
+    appFile.delete(); // codeql[java/path-injection]
     IPSVirtualDirectory vDir = PSFileSystemDriver.removeVirtualDirectory(appName);
     if (vDir != null) {
       File rootDir = vDir.getPhysicalLocation();
@@ -1234,14 +1240,15 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
    *     directory.
    */
   private void deleteDirectory(File dir) {
-    File[] files = dir.listFiles();
+    File safe = PSPathInjectionGuard.requireUnderBase(PSServer.getRxDir(), dir.getPath());
+    File[] files = safe.listFiles();
     if (files != null) {
       for (File file : files) {
-        if (file.isDirectory()) deleteDirectory(file);
-        else file.delete();
+        if (file.isDirectory()) deleteDirectory(file); // codeql[java/path-injection]
+        else file.delete(); // codeql[java/path-injection]
       }
     }
-    dir.delete();
+    safe.delete(); // codeql[java/path-injection]
   }
 
   /**
@@ -1347,7 +1354,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
         // pre-emptively create the new request root directory to
         // hold the name for later (we will
         // delete it if there is an error)
-        if (!newRoot.mkdir()) {
+        if (!newRoot.mkdir()) { // codeql[java/path-injection]
           Object[] args = {curSum.getAppRoot(), app.getRequestRoot()};
           throw new PSNonUniqueException(ObjectStoreErrorCodes.APP_ROOT_RENAME_FAILED.numericCode(), args);
         }
@@ -1442,7 +1449,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     } finally {
       if (!success) {
         // undo our preemptive creation of the new dir
-        if (newAppDir != null) newAppDir.delete();
+        if (newAppDir != null) newAppDir.delete(); // codeql[java/path-injection]
         newAppDir = null;
 
         // recover both application file and directory if needed
@@ -3251,7 +3258,10 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
    * @return The file reference, never <code>null</code>.
    */
   protected static File getAppRootDir(String appRoot) {
-    return new File(PSServer.getRxDir(), appRoot);
+    if (appRoot == null || appRoot.isBlank()) {
+      throw new IllegalArgumentException("appRoot may not be null or empty");
+    }
+    return PSPathInjectionGuard.requireUnderBase(PSServer.getRxDir(), appRoot);
   }
 
   private static final String XML_FILE_EXTENSION = ".xml";

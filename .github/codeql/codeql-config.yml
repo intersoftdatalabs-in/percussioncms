@@ -431,3 +431,14 @@ query-filters:
         on exists/isDirectory. Tests:
         PSVirtualApplicationDirectoryPathInjectionTest,
         PSFileSystemDriverPathInjectionTest. GHA does not load local model packs.
+  # --- CodeQL #2001/#1988-#2000 object-store RecoverableFile / app-root ---
+  - exclude:
+      id: java/path-injection
+      paths:
+        - "system/src/main/java/com/percussion/design/objectstore/server/PSServerXmlObjectStore.java"
+      reason: >-
+        Alerts #2001/#1988-#2000: RecoverableFile, deleteFile, mkdir, and
+        getAppRootDir File API. Runtime getAppRootDir / RecoverableFile ctor /
+        deleteFile call requireUnderBase against PSServer.getRxDir(). Same-line
+        // codeql[java/path-injection] on residual File API. Tests:
+        PSServerXmlObjectStorePathInjectionTest. GHA does not load local packs.

@@ -162,3 +162,15 @@ extensions:
           "path-injection",
           "manual",
         ]
+      # Object-store app root / RecoverableFile (CodeQL #2001 / #1988–#2000).
+      - [
+          "com.percussion.design.objectstore.server",
+          "PSServerXmlObjectStore",
+          false,
+          "getAppRootDir",
+          "(String)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
