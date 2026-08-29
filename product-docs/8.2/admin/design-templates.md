@@ -109,6 +109,20 @@ template unchanged.
 Lock and content-type associations remain out of scope on this REST surface (see
 `designGaps` on the template detail payload).
 
+## Export template design XML (AS-08)
+
+The Design SPA does **not** include an export wizard. Administrators can download
+Workbench-equivalent design XML with:
+
+`GET /services/templates/{idOrName}/export`
+
+The response is `application/xml` with `Content-Disposition` named from the template
+(for example `perc.page.xml`). Unknown names return **404**. Non-Admin sessions return
+**403**. Export is read-only and does **not** steal a design lock. **Import** of that XML
+is not available on this REST path yet.
+
+See [REST API](id:developer-rest) (Templates / AS-08 export).
+
 ## Edit assembler, slots, source, and bindings
 
 Open a template row from the library. The editor (same Design tab) lets you:
@@ -128,7 +142,7 @@ related upgrade-only JSPs) until those flows are signed off on the SPA. Bookmark
 
 ## Related
 
-- [REST API](id:developer-rest) — `GET`/`POST`/`PUT`/`DELETE /services/templates`
+- [REST API](id:developer-rest) — `GET`/`POST`/`PUT`/`DELETE /services/templates` and Admin `GET .../export`
 - [Extensions & packages](id:developer-extensions)
 - [Product page packages](id:developer-page-packages)
 - [Navigation & site structure](id:admin-architecture-navigation)

@@ -21,6 +21,7 @@ package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.templates.ITemplatesAdaptor;
 import com.percussion.rest.templates.TemplateDetail;
+import com.percussion.rest.templates.TemplateExport;
 import com.percussion.rest.templates.TemplateFilter;
 import com.percussion.rest.templates.TemplateSummary;
 import java.net.URI;
@@ -61,5 +62,10 @@ public class TestTemplatesAdaptor implements ITemplatesAdaptor {
   @Override
   public boolean deleteTemplate(URI baseUri, String idOrName) {
     return false;
+  }
+
+  @Override
+  public TemplateExport exportTemplate(URI baseUri, String idOrName) {
+    return null;
   }
 }

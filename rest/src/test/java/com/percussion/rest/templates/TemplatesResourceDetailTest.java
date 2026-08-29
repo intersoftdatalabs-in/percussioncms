@@ -20,6 +20,7 @@ package com.percussion.rest.templates;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -228,5 +229,52 @@ public class TemplatesResourceDetailTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.deleteTemplate("boom"));
     assertEquals(500, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void exportTemplateReturnsXmlAndFilenameFromName() {
+    TemplateExport exported =
+        new TemplateExport(
+            "perc.page", "<assembly-template><name>perc.page</name></assembly-template>");
+    when(adaptor.exportTemplate(any(), eq("perc.page"))).thenReturn(exported);
+
+    Response out = resource.exportTemplate("perc.page");
+    assertEquals(200, out.getStatus());
+    assertEquals(exported.getXml(), out.getEntity());
+    String disposition = String.valueOf(out.getHeaderString("Content-Disposition"));
+    assertTrue(disposition.contains("perc.page.xml"));
+    verify(adaptor).exportTemplate(any(), eq("perc.page"));
+  }
+
+  @Test
+  public void exportTemplateNotFound() {
+    when(adaptor.exportTemplate(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.exportTemplate("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void exportTemplateForbidden() {
+    when(adaptor.exportTemplate(any(), eq("perc.page")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.exportTemplate("perc.page"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void exportTemplateWrapsFailures() {
+    when(adaptor.exportTemplate(any(), eq("boom"))).thenThrow(new IllegalStateException("fail"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.exportTemplate("boom"));
+    assertEquals(500, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void exportFilenameSanitizesPathCharacters() {
+    assertEquals("perc.page.xml", TemplatesResource.exportFilename("perc.page"));
+    assertEquals("a_b.xml", TemplatesResource.exportFilename("a/b"));
+    assertEquals("template.xml", TemplatesResource.exportFilename("  "));
   }
 }
