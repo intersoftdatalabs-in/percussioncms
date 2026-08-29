@@ -85,6 +85,7 @@ import com.percussion.rest.contenttypes.ContentTypeFieldControlProperties;
 import com.percussion.rest.contenttypes.ContentTypeFieldRule;
 import com.percussion.rest.contenttypes.ContentTypeFieldRuleExpressions;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
+import com.percussion.rest.contenttypes.ContentTypeIcon;
 import com.percussion.rest.contenttypes.ContentTypeItemExit;
 import com.percussion.rest.contenttypes.ContentTypeItemExitParam;
 import com.percussion.rest.contenttypes.ContentTypeItemExits;
@@ -337,8 +338,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
    *
    * @param includeDisabledFromStore when {@code true}, a cache miss falls back to the
    *     object store so disabled types (unregistered from the editor cache) still load.
-   *     GET detail, enable/disable (CD-13), search indexing (CD-10), and DELETE pass {@code
-   *     true}; other callers keep the pre-CD-13 cache-only 404 for disabled types.
+   *     GET detail, enable/disable (CD-13), search indexing (CD-10), GET/PUT icon (CD-11), and
+   *     DELETE pass {@code true}; other callers keep the pre-CD-13 cache-only 404 for disabled
+   *     types.
    */
   private PSItemDefinition resolveItemDef(String idOrName, boolean includeDisabledFromStore)
       throws PSInvalidContentTypeException {
@@ -507,6 +509,12 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
             "CT_TEMPLATE_ASSOC_SAVE_ORDER",
             "Template association save is a separate design write after content-type save; if it"
                 + " fails, meta/field/workflow changes may already be committed"));
+    gaps.add(
+        DesignGap.of(
+            "CT_ICON_STRATEGY",
+            "Icon strategy: GET/PUT /contenttypes/{idOrName}/icon (held lock for write)."
+                + " source none|specified|fromFileField. none clears value. Binary upload and"
+                + " SPA picker remain Workbench"));
     gaps.add(
         DesignGap.of(
             "CT_FIELD_LABELS_WRITE",
@@ -792,6 +800,26 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   @Override
+  public ContentTypeIcon getContentTypeIcon(URI baseUri, String idOrName) {
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    try {
+      PSItemDefinition def = resolveItemDef(idOrName.trim(), true);
+      if (def == null) {
+        return null;
+      }
+      return toIcon(def.getContentEditor());
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for icon: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error("Failed to load content type icon {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to load content type icon", e);
+    }
+  }
+
+  @Override
   public ContentTypeSearchIndexing setContentTypeSearchIndexing(
       URI baseUri, String idOrName, boolean searchIndexing) {
     requireAdmin();
@@ -855,6 +883,122 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
           "Failed to update content type search indexing {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to update content type search indexing", e);
     }
+  }
+
+  @Override
+  public ContentTypeIcon setContentTypeIcon(
+      URI baseUri, String idOrName, String source, String value) {
+    requireAdmin();
+    requireSessionUserForLock();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    String soapSource = toSoapIconSource(source);
+    String persistValue =
+        PSContentEditor.ICON_SOURCE_NONE.equals(soapSource) ? "" : StringUtils.trimToEmpty(value);
+    if (!PSContentEditor.ICON_SOURCE_NONE.equals(soapSource) && StringUtils.isBlank(persistValue)) {
+      throw new IllegalArgumentException("value is required when source is not none");
+    }
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      PSItemDefinition current = resolveItemDef(trimmed, true);
+      if (current == null) {
+        return null;
+      }
+      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
+      requireHeldLock(ctGuid, "Could not set content type icon");
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        throw lockConflict(e, "Could not set content type icon");
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      PSContentEditor editor = def.getContentEditor();
+      if (editor == null) {
+        throw new IllegalArgumentException("content type has no content editor");
+      }
+      editor.setContentTypeIcon(soapSource, persistValue);
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+      } catch (PSErrorsException e) {
+        if (hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not set content type icon");
+        }
+        log.error("Failed to save content type icon {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save content type icon", e);
+      }
+      PSItemDefinition reloaded = reloadItemDef(trimmed);
+      if (reloaded != null && reloaded.getContentEditor() != null) {
+        return toIcon(reloaded.getContentEditor());
+      }
+      return toIcon(editor);
+    } catch (ContentTypeDesignLockException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for icon: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error("Failed to set content type icon {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to set content type icon", e);
+    }
+  }
+
+  /**
+   * Maps a REST icon source to the object-store {@link PSContentEditor} codes.
+   *
+   * @param source {@code none}, {@code specified}, or {@code fromFileField}
+   * @return SOAP {@code ICON_SOURCE_*} value
+   */
+  static String toSoapIconSource(String source) {
+    if (StringUtils.isBlank(source)) {
+      throw new IllegalArgumentException("source is required");
+    }
+    String trimmed = source.trim();
+    if (ContentTypeIcon.SOURCE_NONE.equalsIgnoreCase(trimmed)) {
+      return PSContentEditor.ICON_SOURCE_NONE;
+    }
+    if (ContentTypeIcon.SOURCE_SPECIFIED.equalsIgnoreCase(trimmed)) {
+      return PSContentEditor.ICON_SOURCE_SPECIFIED;
+    }
+    if (ContentTypeIcon.SOURCE_FROM_FILE_FIELD.equalsIgnoreCase(trimmed)) {
+      return PSContentEditor.ICON_SOURCE_FROMFILEEXT;
+    }
+    throw new IllegalArgumentException("source must be none, specified, or fromFileField");
+  }
+
+  /**
+   * Maps a content editor icon to the REST envelope. Missing editor is {@code none}.
+   *
+   * @param editor may be {@code null}
+   * @return envelope, never {@code null}
+   */
+  static ContentTypeIcon toIcon(PSContentEditor editor) {
+    if (editor == null) {
+      return new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, null);
+    }
+    String soap = editor.getIconSource();
+    if (PSContentEditor.ICON_SOURCE_SPECIFIED.equals(soap)) {
+      return new ContentTypeIcon(
+          ContentTypeIcon.SOURCE_SPECIFIED, StringUtils.trimToNull(editor.getIconValue()));
+    }
+    if (PSContentEditor.ICON_SOURCE_FROMFILEEXT.equals(soap)) {
+      return new ContentTypeIcon(
+          ContentTypeIcon.SOURCE_FROM_FILE_FIELD, StringUtils.trimToNull(editor.getIconValue()));
+    }
+    return new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, null);
   }
 
   @Override

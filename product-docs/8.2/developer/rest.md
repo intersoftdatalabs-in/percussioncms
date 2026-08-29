@@ -264,6 +264,8 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` | **Admin** (CD-08 design action). Requires a held design-session lock (`POST .../lock` first). Does **not** acquire or release the lock. Full replace of `allowedWorkflows` (empty list clears). Optional `defaultWorkflow`. Workflow name/guid must exist. `200` + `ContentTypeDetail` with the new `allowedWorkflows` / `defaultWorkflow` (lock still held). |
 | Enable/disable | `PUT /services/contenttypes/{idOrName}/enabled` | **Admin** (CD-13 design action). Requires a held design-session lock — `POST .../lock` first, then `PUT .../enabled`, then `POST .../unlock` when done. Does **not** acquire or release the lock. `200` + `ContentTypeDetail` with the new `enabled` value (lock still held). |
 | Search indexing | `GET` / `PUT /services/contenttypes/{idOrName}/searchIndexing` | **Admin** PUT (CD-10). Type-level search indexing — Workbench Properties **Enable searching for this Content Type** (root field-set `isUserSearchable`). **Default is on.** Distinct from per-field `searchable` on PUT detail. GET does not require a lock. PUT requires a **held** design-session lock and does **not** acquire or release it. Missing `searchIndexing` boolean is **400**. Jackson root wrap is `ContentTypeSearchIndexing`. No SPA Properties checkbox in this release. |
+| Icon strategy | `GET /services/contenttypes/{idOrName}/icon` | Content type icon source and value (CD-11). No lock required. `source` is `none`, `specified` (file path/name), or `fromFileField` (file field name). `none` has no value. Does **not** return icon binaries. Jackson root wrap is `ContentTypeIcon`. |
+| Set icon strategy | `PUT /services/contenttypes/{idOrName}/icon` | **Admin** (CD-11 design action). Requires a held design-session lock — `POST .../lock` first, then `PUT .../icon`, then `POST .../unlock` when done. Does **not** acquire or release the lock. `none` clears value. Non-`none` with a blank value is **400**. Invalid `source` is **400**. Does **not** upload icon binaries. `200` + `ContentTypeIcon` (lock still held). |
 | Rename | `PUT /services/contenttypes/{idOrName}/name` | **Admin** (CD-01). Requires a **held** design-session lock. Sets the internal name. Unique (case-insensitive); **no spaces** or wildcards. Bulk `PUT .../{idOrName}` does **not** change name. After success, `GET` by the previous name is **404**; `GET` by id returns the new name. Does not acquire or release the lock. |
 | Add local field | `POST /services/contenttypes/{idOrName}/fields` | **Admin** (CD-03). Requires a **held** design-session lock. Adds a persistable **local** field (backend column + display mapping) via `IPSContentDesignWs.saveContentTypes`. Body `name` is required (letter, then letters/digits/underscore; unique case-insensitive on the type). Optional `dataType` defaults to `text`. Optional `searchable` and `occurrence`/`required` use the same rules as PUT field patches. Optional `fieldSet` names an existing child field set, or **creates** a named complex child when missing. Duplicate field is **409**. Include an existing system or shared field with `POST .../fields/include` (CD-04). Does not acquire or release the lock. |
 | Include system/shared field | `POST /services/contenttypes/{idOrName}/fields/include` | **Admin** (CD-04). Requires a **held** design-session lock (`POST .../lock` first; the lock is not stolen). Includes an existing **system** or **shared** field by `name` and `fieldType` (`system` or `shared`). Origin stays system/shared (not copied as local). Persist via `IPSContentDesignWs.loadContentTypes` / `saveContentTypes`. Duplicate include is **409**. Unknown catalog field is **404**. Invalid `fieldType` (including `local`) is **400**. Does not acquire or release the lock. |
@@ -275,15 +277,15 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
 | Delete | `DELETE /services/contenttypes/{idOrName}` | **Admin.** Requires a **held** design-session lock (`POST .../lock` first). Calls `IPSContentDesignWs.deleteContentTypes` with `ignoreDependencies=false`. **204** on success; a following `GET .../{idOrName}` is **404**. **409** if unlocked or locked by another user (the lock is not stolen). **404** if missing. **400** if the design web service rejects an in-use type (dependents). Does **not** cascade item delete. |
 
-Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. **Create** is a separate `POST /services/contenttypes` (persisted immediately). The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT). Type-level search indexing is REST-only (`GET`/`PUT .../searchIndexing`, CD-10; no SPA Properties checkbox). Control property **values** use `GET`/`PUT .../fields/{fieldName}/controlProperties` after a held lock (CD-07). That chrome still omits `choices` on save (catalogs stay unchanged from the SPA). Integrators write choice filter, null-entry, and default-selected on the same PUT by sending `choices`. Local field create/delete is REST-only: **lock → POST .../fields** or **DELETE .../fields/{fieldName} → unlock** (no SPA field editor). Include system/shared is REST-only: **lock → POST .../fields/include → unlock** (no SPA field picker). SPA create-wizard chrome is not part of this API. Rename is REST-only: **lock → PUT .../name → unlock**. Delete is REST-only in this release (no SPA chrome): **lock → DELETE → GET 404**.
+Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. **Create** is a separate `POST /services/contenttypes` (persisted immediately). The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT). Type-level search indexing is REST-only (`GET`/`PUT .../searchIndexing`, CD-10; no SPA Properties checkbox). Icon strategy is REST-only: **lock → PUT .../icon → unlock** (no SPA picker; no binary upload). Control property **values** use `GET`/`PUT .../fields/{fieldName}/controlProperties` after a held lock (CD-07). That chrome still omits `choices` on save (catalogs stay unchanged from the SPA). Integrators write choice filter, null-entry, and default-selected on the same PUT by sending `choices`. Local field create/delete is REST-only: **lock → POST .../fields** or **DELETE .../fields/{fieldName} → unlock** (no SPA field editor). Include system/shared is REST-only: **lock → POST .../fields/include → unlock** (no SPA field picker). SPA create-wizard chrome is not part of this API. Rename is REST-only: **lock → PUT .../name → unlock**. Delete is REST-only in this release (no SPA chrome): **lock → DELETE → GET 404**.
 
 Lock / save / unlock / create / rename / delete status codes:
 
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | Lock acquired (body is `ObjectLockSummary`), PUT save / enable / disable / rename succeeded (lock still held), POST create succeeded (`ContentTypeDetail`), POST local field succeeded, or POST include field succeeded |
+| `200` | Lock acquired (body is `ObjectLockSummary`), PUT save / enable / disable / icon / rename succeeded (lock still held), POST create succeeded (`ContentTypeDetail`), POST local field succeeded, or POST include field succeeded |
 | `204` | Unlock success, content type deleted, or local field deleted |
-| `400` | Invalid PUT body (unknown field name, bad workflow/template ref, missing `enabled` or `searchIndexing` flag, invalid or colliding rename), invalid create name (blank, spaces, wildcard), invalid local-field name/`dataType`/origin, invalid include `fieldType`/`name`, DELETE field of a system/shared field, or DELETE type rejected because the type has dependents |
+| `400` | Invalid PUT body (unknown field name, bad workflow/template ref, missing `enabled` or `searchIndexing` flag, invalid icon `source` or blank non-none icon `value`, invalid or colliding rename), invalid create name (blank, spaces, wildcard), invalid local-field name/`dataType`/origin, invalid include `fieldType`/`name`, DELETE field of a system/shared field, or DELETE type rejected because the type has dependents |
 | `403` | Caller is not Admin, or the request has no session/user for the design session |
 | `404` | Content type not found, or include of an unknown system/shared catalog field |
 | `409` | No lock held, or locked by another user/session (self-only; the lock is not stolen); POST create duplicate name (catalog or persist-time), including reserved system types such as Folder; POST local field when the field name already exists on the type; POST include when the field is already on the type |
@@ -437,6 +439,44 @@ Jackson root wrap:
 Missing `searchIndexing` on PUT is **400**. Unlocked or another user's lock is
 **409**. Unknown type is **404**. Non-Admin PUT is **403**. The Developer SPA
 does **not** expose a Properties-tab search checkbox in this release; use REST.
+
+### Icon strategy (CD-11)
+
+`GET /services/contenttypes/{idOrName}/icon` reads the content type **icon
+strategy**. `PUT /services/contenttypes/{idOrName}/icon` sets it. This is a
+dedicated design action (Workbench Properties tab: None / Specified file /
+From File Field). Bulk `PUT /services/contenttypes/{idOrName}` does **not**
+change the icon. There is no SPA icon picker and no binary upload on this
+path — `value` is a file path/name or a file field name only.
+
+Hold the design-session lock first for PUT; save keeps the lock so you can
+continue editing, then unlock.
+
+Typical flow: `POST .../lock` → `PUT .../icon` → (optional further design
+writes) → `POST .../unlock`. `GET .../icon` does not require a lock.
+
+`source` values:
+
+| `source` | `value` | Meaning |
+|----------|---------|---------|
+| `none` | omitted / empty (cleared) | No content-type icon |
+| `specified` | required file path or name | Use that icon file |
+| `fromFileField` | required file field name | Derive the icon from that file field's extension |
+
+A blank `value` when `source` is not `none` is **400**. An unknown `source` is
+**400**. An unlocked type (or a lock held by another user) is **409** — the
+lock is not stolen. Missing types are **404**. Non-Admin PUT is **403**.
+
+Jackson root wrap:
+
+```json
+{
+  "ContentTypeIcon": {
+    "source": "specified",
+    "value": "rx_resources/images/ContentTypeIcons/page.gif"
+  }
+}
+```
 
 `GET /services/contenttypes` (the catalog list) may be a JSON array or a Jackson
 root envelope (`ContentTypeList` and/or `ContentType`). The Developer **Content

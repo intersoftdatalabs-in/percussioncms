@@ -117,6 +117,17 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
   }
 
   @Override
+  public ContentTypeIcon getContentTypeIcon(URI baseUri, String idOrName) {
+    return new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, null);
+  }
+
+  @Override
+  public ContentTypeIcon setContentTypeIcon(
+      URI baseUri, String idOrName, String source, String value) {
+    return new ContentTypeIcon(source, ContentTypeIcon.isNone(source) ? null : value);
+  }
+
+  @Override
   public ContentTypeDetail renameContentType(URI baseUri, String idOrName, String newName) {
     return null;
   }

@@ -170,6 +170,32 @@ public interface IContentTypesAdaptor {
       URI baseUri, String idOrName, boolean searchIndexing);
 
   /**
+   * Load the content type icon strategy (CD-11). No design lock is required. {@code none} has no
+   * value. {@code specified} is a file path/name. {@code fromFileField} is a file field name.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @return icon envelope, or {@code null} when not found
+   */
+  ContentTypeIcon getContentTypeIcon(URI baseUri, String idOrName);
+
+  /**
+   * Set the content type icon strategy (CD-11). Requires a design-session lock already held by the
+   * current user. Does not acquire or release the lock. {@code none} clears value. Non-{@code
+   * none} with a blank value is invalid. Does not upload icon binaries.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @param source {@code none}, {@code specified}, or {@code fromFileField}
+   * @param value file path/name or field name; ignored when source is {@code none}
+   * @return persisted icon envelope, or {@code null} when not found
+   * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
+   *     user
+   * @throws IllegalArgumentException when source is invalid or a non-none value is blank
+   */
+  ContentTypeIcon setContentTypeIcon(URI baseUri, String idOrName, String source, String value);
+
+  /**
    * Rename a content type (CD-01). Requires a design-session lock already held by the current
    * user. Does not acquire or release the lock. Bulk {@link #updateContentType} does not change
    * name. After a successful rename, GET by the previous name is not found; GET by id returns the
