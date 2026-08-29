@@ -17,9 +17,9 @@
 
 package com.percussion.error;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.Locale;
 import java.util.Objects;
@@ -81,8 +81,9 @@ public final class PSApplicationDesignError extends PSLogError {
     if (msgCount == 2) {
       msgs[1] =
           new PSLogSubMessage(
-              IPSServerErrors.RAW_DUMP,
-              PSErrorManager.createMessage(IPSServerErrors.RAW_DUMP, new Object[] {m_source}, loc));
+              ServerErrorCodes.RAW_DUMP.numericCode(),
+              PSErrorManager.createMessage(
+                  ServerErrorCodes.RAW_DUMP.numericCode(), new Object[] {m_source}, loc));
     }
 
     return msgs;

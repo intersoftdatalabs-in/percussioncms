@@ -16,7 +16,7 @@
  */
 package com.percussion.design.catalog.security.server;
 
-import com.percussion.design.catalog.IPSCatalogErrors;
+import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.security.PSSecurityProvider;
 import com.percussion.server.PSRequest;
@@ -115,7 +115,7 @@ public class PSProviderCatalogHandler extends com.percussion.design.catalog.PSCa
     if ((doc == null) || ((root = doc.getDocumentElement()) == null)) {
       Object[] args = {ms_RequestCategory, ms_RequestType, ms_RequestDTD};
       createErrorResponse(
-          request, new PSIllegalArgumentException(IPSCatalogErrors.REQ_DOC_MISSING, args));
+          request, new PSIllegalArgumentException(CatalogErrorCodes.REQ_DOC_MISSING, args));
       return;
     }
 
@@ -123,7 +123,7 @@ public class PSProviderCatalogHandler extends com.percussion.design.catalog.PSCa
     if (!ms_RequestDTD.equals(root.getTagName())) {
       Object[] args = {ms_RequestDTD, root.getTagName()};
       createErrorResponse(
-          request, new PSIllegalArgumentException(IPSCatalogErrors.REQ_DOC_INVALID_TYPE, args));
+          request, new PSIllegalArgumentException(CatalogErrorCodes.REQ_DOC_INVALID_TYPE, args));
       return;
     }
 

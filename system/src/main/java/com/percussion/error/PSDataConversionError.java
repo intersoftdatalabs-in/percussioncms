@@ -18,9 +18,9 @@
 
 package com.percussion.error;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
-import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
@@ -84,9 +84,9 @@ public class PSDataConversionError extends PSLogError {
      */
     msgs[0] =
         new PSLogSubMessage(
-            IPSServerErrors.DATA_CONV_ERROR,
+            ServerErrorCodes.DATA_CONV_ERROR.numericCode(),
             PSErrorManager.createMessage(
-                IPSServerErrors.DATA_CONV_ERROR,
+                ServerErrorCodes.DATA_CONV_ERROR.numericCode(),
                 new Object[] {m_sessId, m_sourceType, m_targetType},
                 loc));
 
@@ -96,9 +96,9 @@ public class PSDataConversionError extends PSLogError {
      */
     msgs[1] =
         new PSLogSubMessage(
-            IPSServerErrors.RAW_DUMP,
+            ServerErrorCodes.RAW_DUMP.numericCode(),
             PSErrorManager.createMessage(
-                IPSServerErrors.RAW_DUMP, new Object[] {m_sourceData}, loc));
+                ServerErrorCodes.RAW_DUMP.numericCode(), new Object[] {m_sourceData}, loc));
 
     /* use the errorCode/errorParams to format the third submessage */
     msgs[2] =

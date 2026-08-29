@@ -16,6 +16,7 @@
  */
 package com.percussion.extension;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.io.BufferedInputStream;
@@ -371,7 +372,7 @@ class PSExtensionHandlerConfiguration {
       }
     } catch (FileNotFoundException e) {
       throw new PSExtensionException(
-          IPSExtensionErrors.EXT_INSTALL_UPDATE_ERROR,
+          ExtensionErrorCodes.EXT_INSTALL_UPDATE_ERROR,
           "Cannot find extension file "
               + fromFile.getAbsolutePath()
               + " or folder for output "
@@ -380,7 +381,7 @@ class PSExtensionHandlerConfiguration {
               + e.getLocalizedMessage());
     } catch (IOException e) {
       throw new PSExtensionException(
-          IPSExtensionErrors.EXT_INSTALL_UPDATE_ERROR,
+          ExtensionErrorCodes.EXT_INSTALL_UPDATE_ERROR,
           "Cannot wite to Extension file "
               + toFile.getAbsolutePath()
               + ": "
@@ -422,7 +423,7 @@ class PSExtensionHandlerConfiguration {
       try {
         createShellConfigFile(configFile, "");
       } catch (IOException e) {
-        throw new PSExtensionException(IPSExtensionErrors.EXT_MANAGER_INIT_FAILED, e.toString());
+        throw new PSExtensionException(ExtensionErrorCodes.EXT_MANAGER_INIT_FAILED, e.toString());
       }
     }
 
@@ -435,11 +436,11 @@ class PSExtensionHandlerConfiguration {
       load(doc);
     } catch (IOException e) {
       throw new PSExtensionException(
-          IPSExtensionErrors.EXT_MANAGER_INIT_FAILED,
+          ExtensionErrorCodes.EXT_MANAGER_INIT_FAILED,
           e,
           "Error loading config xml for " + configFile.getAbsolutePath() + ":" + e.toString());
     } catch (SAXException e) {
-      throw new PSExtensionException(IPSExtensionErrors.EXT_MANAGER_INIT_FAILED, e, e.toString());
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_MANAGER_INIT_FAILED, e, e.toString());
     } finally {
       if (in != null) {
         try {
@@ -630,7 +631,7 @@ class PSExtensionHandlerConfiguration {
       }
     } catch (ClassNotFoundException e) {
       throw new PSExtensionException(
-          IPSExtensionErrors.CLASS_NOT_FOUND, def.getInitParameter("className"));
+          ExtensionErrorCodes.CLASS_NOT_FOUND, def.getInitParameter("className"));
     }
   }
 

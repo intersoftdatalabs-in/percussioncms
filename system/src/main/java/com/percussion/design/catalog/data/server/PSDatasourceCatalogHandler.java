@@ -17,7 +17,7 @@
 
 package com.percussion.design.catalog.data.server;
 
-import com.percussion.design.catalog.IPSCatalogErrors;
+import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
 import com.percussion.design.catalog.IPSCatalogRequestHandler;
 import com.percussion.design.catalog.PSCatalogRequestHandler;
 import com.percussion.error.PSIllegalArgumentException;
@@ -71,7 +71,7 @@ public class PSDatasourceCatalogHandler extends PSCatalogRequestHandler
     if ((doc == null) || ((root = doc.getDocumentElement()) == null)) {
       Object[] args = {REQUEST_CATEGORY, REQUEST_TYPE, REQUEST_DTD};
       createErrorResponse(
-          request, new PSIllegalArgumentException(IPSCatalogErrors.REQ_DOC_MISSING, args));
+          request, new PSIllegalArgumentException(CatalogErrorCodes.REQ_DOC_MISSING, args));
       return;
     }
     String tAttrib = root.getAttribute("includeDbPubOnlySources");
@@ -81,7 +81,7 @@ public class PSDatasourceCatalogHandler extends PSCatalogRequestHandler
     if (!REQUEST_DTD.equals(root.getTagName())) {
       Object[] args = {REQUEST_DTD, root.getTagName()};
       createErrorResponse(
-          request, new PSIllegalArgumentException(IPSCatalogErrors.REQ_DOC_INVALID_TYPE, args));
+          request, new PSIllegalArgumentException(CatalogErrorCodes.REQ_DOC_INVALID_TYPE, args));
       return;
     }
 

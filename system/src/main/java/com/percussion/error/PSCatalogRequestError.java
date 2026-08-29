@@ -18,7 +18,7 @@
 
 package com.percussion.error;
 
-import com.percussion.design.catalog.IPSCatalogErrors;
+import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
 import java.util.Locale;
@@ -70,9 +70,9 @@ public class PSCatalogRequestError extends PSLogError {
      */
     msgs[0] =
         new PSLogSubMessage(
-            IPSCatalogErrors.CATALOG_ERROR,
+            CatalogErrorCodes.CATALOG_ERROR.numericCode(),
             PSErrorManager.createMessage(
-                IPSCatalogErrors.CATALOG_ERROR,
+                CatalogErrorCodes.CATALOG_ERROR.numericCode(),
                 new Object[] {m_sessId, m_reqCategory, m_reqType},
                 loc));
 

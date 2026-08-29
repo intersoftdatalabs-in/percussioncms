@@ -17,7 +17,7 @@
 
 package com.percussion.design.catalog.function.server;
 
-import com.percussion.design.catalog.IPSCatalogErrors;
+import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
 import com.percussion.design.catalog.IPSCatalogRequestHandler;
 import com.percussion.design.catalog.PSCatalogRequestHandler;
 import com.percussion.error.PSIllegalArgumentException;
@@ -82,7 +82,7 @@ public class PSDatabaseFunctionCatalogHandler extends PSCatalogRequestHandler
     if ((doc == null) || ((root = doc.getDocumentElement()) == null)) {
       Object[] args = {REQ_CATEGORY_VALUE, REQ_TYPE_VALUE, NODE_NAME};
       createErrorResponse(
-          request, new PSIllegalArgumentException(IPSCatalogErrors.REQ_DOC_MISSING, args));
+          request, new PSIllegalArgumentException(CatalogErrorCodes.REQ_DOC_MISSING, args));
       return;
     }
 
@@ -90,7 +90,7 @@ public class PSDatabaseFunctionCatalogHandler extends PSCatalogRequestHandler
     if (!NODE_NAME.equals(root.getTagName())) {
       Object[] args = {NODE_NAME, root.getTagName()};
       createErrorResponse(
-          request, new PSIllegalArgumentException(IPSCatalogErrors.REQ_DOC_INVALID_TYPE, args));
+          request, new PSIllegalArgumentException(CatalogErrorCodes.REQ_DOC_INVALID_TYPE, args));
       return;
     }
 

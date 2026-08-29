@@ -18,8 +18,11 @@
 #   #3900 leftover cms.objectstore.server call sites
 #   #3939 leftover system/src/main com.percussion.data (+ macro/vfs)
 #   #3940 leftover system/src/main com.percussion.security call sites
-# Converted (no longer listed): extensions-main #3756/#3938 (allow-list
-# shrink after #3793 re-listed already-typed production paths).
+#   #3971 leftover system/src/main com.percussion.error call sites
+#   #3969 leftover system/src/main design.catalog call sites
+# Converted (no longer listed): extensions-main #3756/#3938 (allow-list)
+# shrink after #3793 re-listed already-typed production paths);
+# design.catalog leftover #3969.
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -50,68 +53,11 @@ system/src/main/java/com/percussion/cx/PSOption.java
 system/src/main/java/com/percussion/cx/PSOptions.java
 system/src/main/java/com/percussion/cx/PSUserOptions.java
 system/src/main/java/com/percussion/debug/PSDebugLogHandler.java
-system/src/main/java/com/percussion/design/catalog/PSCatalogRequestHandler.java
-system/src/main/java/com/percussion/design/catalog/data/server/PSColumnCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/data/server/PSDatasourceCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/data/server/PSForeignKeyCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/data/server/PSIndexCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/data/server/PSTableCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/data/server/PSTableTypesCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/data/server/PSUniqueKeyCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/exit/server/PSExtensionCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/exit/server/PSExtensionHandlerCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/file/server/PSColumnCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/function/server/PSDatabaseFunctionCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/macro/server/PSMacroCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/mail/server/PSMailProviderCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/security/server/PSAttributesCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/security/server/PSCatalogerCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/security/server/PSObjectCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/security/server/PSObjectTypesCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/security/server/PSProviderCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/security/server/PSServerCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/system/server/PSLocaleCatalogHandler.java
-system/src/main/java/com/percussion/design/catalog/system/server/PSMimeTypeCatalogHandler.java
 system/src/main/java/com/percussion/design/objectstore/PSContainerLocator.java
 system/src/main/java/com/percussion/design/objectstore/PSContentTypeHelper.java
 system/src/main/java/com/percussion/design/objectstore/PSObjectStore.java
 system/src/main/java/com/percussion/design/objectstore/server/PSXmlObjectStoreHandler.java
 system/src/main/java/com/percussion/design/server/PSDesignerConnectionHandler.java
-system/src/main/java/com/percussion/error/PSApplicationAuthorizationError.java
-system/src/main/java/com/percussion/error/PSApplicationDesignError.java
-system/src/main/java/com/percussion/error/PSBackEndAuthorizationError.java
-system/src/main/java/com/percussion/error/PSBackEndQueryProcessingError.java
-system/src/main/java/com/percussion/error/PSBackEndServerDownError.java
-system/src/main/java/com/percussion/error/PSBackEndUpdateProcessingError.java
-system/src/main/java/com/percussion/error/PSCatalogRequestError.java
-system/src/main/java/com/percussion/error/PSDataConversionError.java
-system/src/main/java/com/percussion/error/PSErrorException.java
-system/src/main/java/com/percussion/error/PSErrorHandler.java
-system/src/main/java/com/percussion/error/PSErrorHttpCodes.java
-system/src/main/java/com/percussion/error/PSFatalError.java
-system/src/main/java/com/percussion/error/PSHookRequestError.java
-system/src/main/java/com/percussion/error/PSHtmlProcessingError.java
-system/src/main/java/com/percussion/error/PSInternalError.java
-system/src/main/java/com/percussion/error/PSLargeBackEndRequestQueueError.java
-system/src/main/java/com/percussion/error/PSLargeRequestQueueError.java
-system/src/main/java/com/percussion/error/PSPoorResponseTimeError.java
-system/src/main/java/com/percussion/error/PSRemoteConsoleError.java
-system/src/main/java/com/percussion/error/PSRequestPreProcessingError.java
-system/src/main/java/com/percussion/error/PSRequestWaitTooLongError.java
-system/src/main/java/com/percussion/error/PSResponseSendError.java
-system/src/main/java/com/percussion/error/PSServerUnavailableError.java
-system/src/main/java/com/percussion/error/PSUnknownProcessingError.java
-system/src/main/java/com/percussion/error/PSValidationError.java
-system/src/main/java/com/percussion/error/PSXmlProcessingError.java
-system/src/main/java/com/percussion/extension/PSExtensionHandler.java
-system/src/main/java/com/percussion/extension/PSExtensionHandlerConfiguration.java
-system/src/main/java/com/percussion/extension/PSExtensionParams.java
-system/src/main/java/com/percussion/extension/PSExtensionProcessingException.java
-system/src/main/java/com/percussion/extension/PSJavaExtensionHandler.java
-system/src/main/java/com/percussion/extension/PSJavaScriptCallException.java
-system/src/main/java/com/percussion/extension/PSJavaScriptCompileException.java
-system/src/main/java/com/percussion/extension/PSJavaScriptUdfExtension.java
-system/src/main/java/com/percussion/extension/PSParameterMismatchException.java
 system/src/main/java/com/percussion/fastforward/managednav/PSManagedNavService.java
 system/src/main/java/com/percussion/fastforward/utils/PSUtils.java
 system/src/main/java/com/percussion/i18n/PSLocale.java

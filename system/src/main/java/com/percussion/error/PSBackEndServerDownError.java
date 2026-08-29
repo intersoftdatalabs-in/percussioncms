@@ -17,9 +17,9 @@
 
 package com.percussion.error;
 
-import com.percussion.data.IPSBackEndErrors;
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.log.PSLogSubMessage;
-import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
@@ -73,9 +73,11 @@ public class PSBackEndServerDownError extends PSBackEndError {
      */
     msgs[0] =
         new PSLogSubMessage(
-            IPSBackEndErrors.SERVER_DOWN_ERROR,
+            BackEndErrorCodes.SERVER_DOWN_ERROR.numericCode(),
             PSErrorManager.createMessage(
-                IPSBackEndErrors.SERVER_DOWN_ERROR, new String[] {m_driver, m_server}, loc));
+                BackEndErrorCodes.SERVER_DOWN_ERROR.numericCode(),
+                new String[] {m_driver, m_server},
+                loc));
 
     /* use IPSServerErrors.NATIVE_ERROR along with
      *    [0] = errorCode
@@ -86,7 +88,7 @@ public class PSBackEndServerDownError extends PSBackEndError {
         new PSLogSubMessage(
             m_errorCode,
             PSErrorManager.createMessage(
-                IPSServerErrors.NATIVE_ERROR,
+                ServerErrorCodes.NATIVE_ERROR.numericCode(),
                 new Object[] {Integer.valueOf(m_errorCode), m_errorArgs[0]},
                 loc));
 

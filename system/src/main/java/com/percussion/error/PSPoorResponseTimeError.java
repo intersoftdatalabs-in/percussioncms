@@ -17,9 +17,9 @@
 
 package com.percussion.error;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
-import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
@@ -82,8 +82,9 @@ public class PSPoorResponseTimeError extends PSLogError {
     Object[] args = {m_sessId, new Double((double) ((double) m_timeMS / 1000.0))};
     msgs[0] =
         new PSLogSubMessage(
-            IPSServerErrors.POOR_RESPONSE_TIME,
-            PSErrorManager.createMessage(IPSServerErrors.POOR_RESPONSE_TIME, args, loc));
+            ServerErrorCodes.POOR_RESPONSE_TIME.numericCode(),
+            PSErrorManager.createMessage(
+                ServerErrorCodes.POOR_RESPONSE_TIME.numericCode(), args, loc));
 
     return msgs;
   }

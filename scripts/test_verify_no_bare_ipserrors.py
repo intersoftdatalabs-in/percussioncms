@@ -35,7 +35,8 @@ DEPLOYER_RESIDUAL = (
 # converted in #3882, cms handlers in #3883, cms.objectstore+client in #3884;
 # cms.objectstore.server converted in #3900; extensions-main converted in
 # #3756/#3938; com.percussion.data (+ macro/vfs) in #3939; com.percussion.security
-# in #3940.
+# in #3940; com.percussion.error in #3971; design.catalog leftover call-sites in
+# #3969.
 # Keep an exact residual that is still frozen (system debug leftover).
 SYSTEM_CMS_RESIDUAL = (
     "system/src/main/java/com/percussion/debug/PSDebugLogHandler.java"
@@ -395,6 +396,8 @@ def test_residual_allowlist_is_exact_paths_only() -> None:
         assert entry.endswith(".java"), entry
         assert not entry.startswith("modules/extensions-main/"), entry
         assert not entry.startswith("system/src/main/java/com/percussion/security/"), entry
+        assert not entry.startswith("system/src/main/java/com/percussion/extension/"), entry
+        assert not entry.startswith("system/src/main/java/com/percussion/design/catalog/"), entry
 
 
 def test_extensions_main_converted_paths_not_allowlisted() -> None:
@@ -419,6 +422,45 @@ def test_system_security_converted_paths_not_allowlisted() -> None:
     ]
     resurrected = [
         e for e in entries if e.startswith("system/src/main/java/com/percussion/security/")
+    ]
+    assert resurrected == [], resurrected
+
+
+def test_system_extension_converted_paths_not_allowlisted() -> None:
+    """#3970 typed leftover com.percussion.extension production call-sites."""
+    converted = (
+        "system/src/main/java/com/percussion/extension/PSExtensionHandler.java",
+        "system/src/main/java/com/percussion/extension/PSExtensionHandlerConfiguration.java",
+        "system/src/main/java/com/percussion/extension/PSExtensionParams.java",
+        "system/src/main/java/com/percussion/extension/PSExtensionProcessingException.java",
+        "system/src/main/java/com/percussion/extension/PSJavaExtensionHandler.java",
+        "system/src/main/java/com/percussion/extension/PSJavaScriptCallException.java",
+        "system/src/main/java/com/percussion/extension/PSJavaScriptCompileException.java",
+        "system/src/main/java/com/percussion/extension/PSJavaScriptUdfExtension.java",
+        "system/src/main/java/com/percussion/extension/PSParameterMismatchException.java",
+    )
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = {
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    resurrected = [p for p in converted if p in entries]
+    assert resurrected == [], resurrected
+
+
+def test_system_design_catalog_converted_paths_not_allowlisted() -> None:
+    """#3969 typed leftover com.percussion.design.catalog production call-sites."""
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = [
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    ]
+    resurrected = [
+        e
+        for e in entries
+        if e.startswith("system/src/main/java/com/percussion/design/catalog/")
     ]
     assert resurrected == [], resurrected
 

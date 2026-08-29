@@ -17,9 +17,9 @@
 
 package com.percussion.error;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
-import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
@@ -69,9 +69,11 @@ public class PSUnknownProcessingError extends PSLogError {
     /* the generic submessage first */
     msgs[0] =
         new PSLogSubMessage(
-            IPSServerErrors.UNKNOWN_PROCESSING_ERROR,
+            ServerErrorCodes.UNKNOWN_PROCESSING_ERROR.numericCode(),
             PSErrorManager.createMessage(
-                IPSServerErrors.UNKNOWN_PROCESSING_ERROR, new Object[] {m_sessId}, loc));
+                ServerErrorCodes.UNKNOWN_PROCESSING_ERROR.numericCode(),
+                new Object[] {m_sessId},
+                loc));
 
     /* use the errorCode/errorParams to format the second submessage */
     msgs[1] =

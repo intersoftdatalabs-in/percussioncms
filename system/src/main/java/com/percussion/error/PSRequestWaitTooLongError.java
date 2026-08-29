@@ -17,9 +17,9 @@
 
 package com.percussion.error;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
-import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
@@ -70,8 +70,9 @@ public class PSRequestWaitTooLongError extends PSLogError {
     Object[] args = {m_sessId, Integer.valueOf(m_size)};
     msgs[0] =
         new PSLogSubMessage(
-            IPSServerErrors.REQUEST_WAIT_TOO_LONG,
-            PSErrorManager.createMessage(IPSServerErrors.REQUEST_WAIT_TOO_LONG, args, loc));
+            ServerErrorCodes.REQUEST_WAIT_TOO_LONG.numericCode(),
+            PSErrorManager.createMessage(
+                ServerErrorCodes.REQUEST_WAIT_TOO_LONG.numericCode(), args, loc));
 
     return msgs;
   }

@@ -17,7 +17,7 @@
 
 package com.percussion.error;
 
-import com.percussion.data.IPSBackEndErrors;
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
 import com.percussion.log.PSLogSubMessage;
 import java.util.Locale;
 
@@ -80,8 +80,9 @@ public class PSLargeBackEndRequestQueueError extends PSLargeRequestQueueError {
     Object[] args = {m_sessId, Integer.valueOf(m_size), m_driver, m_server};
     msgs[0] =
         new PSLogSubMessage(
-            IPSBackEndErrors.REQUEST_QUEUE_FULL,
-            PSErrorManager.createMessage(IPSBackEndErrors.REQUEST_QUEUE_FULL, args, loc));
+            BackEndErrorCodes.REQUEST_QUEUE_FULL.numericCode(),
+            PSErrorManager.createMessage(
+                BackEndErrorCodes.REQUEST_QUEUE_FULL.numericCode(), args, loc));
 
     return msgs;
   }
