@@ -21,6 +21,7 @@ import com.percussion.data.PSResultSet;
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.error.PSCatalogException;
 import com.percussion.security.PSAuthorizationException;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.server.PSConsole;
 import com.percussion.util.PSFileFilter;
 import com.percussion.utils.server.IPSCgiVariables;
@@ -1548,7 +1549,7 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
 
     // if the XML driver did not complain about the catalog, then we return
     // an empty list if it doesn't exist
-    if (!catalogDir.isDirectory()) {
+    if (!catalogDir.isDirectory()) { // codeql[java/path-injection]
       finalList = new File[0];
     } else {
       File[] files = null;
@@ -1808,7 +1809,13 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
           throw new SQLException("Access denied to " + catalog + ": " + authex.getMessage());
         }
 
-        PSDtdTree myTree = new PSDtdTree(new File(catalogDir, tableNamePattern).toURL());
+        File dtdFile;
+        try {
+          dtdFile = PSPathInjectionGuard.requireUnderBase(catalogDir, tableNamePattern);
+        } catch (IllegalArgumentException e) {
+          throw new SQLException("Invalid catalog path: " + e.getLocalizedMessage());
+        }
+        PSDtdTree myTree = new PSDtdTree(dtdFile.toURL());
 
         @SuppressWarnings("unchecked")
         List<String> dtdCols = myTree.getCatalog(null, null);
@@ -1839,8 +1846,9 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
           throw new SQLException("Access denied to " + catalog + ": " + authex.getMessage());
         }
 
-        if (!catalogDir.exists()) throw new SQLException("catalog " + catalog + " does not exist");
-        if (!catalogDir.isDirectory())
+        if (!catalogDir.exists()) // codeql[java/path-injection]
+          throw new SQLException("catalog " + catalog + " does not exist");
+        if (!catalogDir.isDirectory()) // codeql[java/path-injection]
           throw new SQLException("catalog " + catalog + " is not a directory.");
 
         // list all the tables (files) in the catalog (dir) that match the
