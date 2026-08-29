@@ -19,6 +19,7 @@ package com.percussion.data.jdbc;
 
 import com.percussion.data.vfs.IPSVirtualDirectory;
 import com.percussion.security.PSAuthorizationException;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSUserSession;
 import com.percussion.utils.request.PSRequestInfoBase;
@@ -228,7 +229,18 @@ public class PSFileSystemDriver extends PSJdbcDriver {
       relPath = relPath.replace('/', File.separatorChar);
     }
 
-    return vdir.getPhysicalPath(new File(relPath));
+    File physical = vdir.getPhysicalPath(new File(relPath));
+    File loc = vdir.getPhysicalLocation();
+    if (physical == null) {
+      throw new IllegalArgumentException("vfs convert path error" + catalog);
+    }
+    // Re-apply requireUnderBase at this return so CodeQL sees a modeled
+    // barrier on the File handed to JDBC metadata sinks (alerts #1985-#1987).
+    // Skip when the virtual root is not on disk yet (new app before mkdir).
+    if (loc != null && loc.exists() && loc.isDirectory()) {
+      return PSPathInjectionGuard.requireUnderBase(loc, physical.getPath());
+    }
+    return physical;
   }
 
   private static void printMsg(String msg) {

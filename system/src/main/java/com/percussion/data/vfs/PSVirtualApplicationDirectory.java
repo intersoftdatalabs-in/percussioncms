@@ -21,10 +21,10 @@ import com.percussion.conn.PSServerException;
 
 import com.percussion.design.objectstore.server.IPSObjectStoreHandler;
 import com.percussion.error.PSNotFoundException;
-import com.percussion.server.PSConsole;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.server.PSUserSession;
 import java.io.File;
-import java.io.IOException;
+import java.nio.file.Path;
 
 /** See {@link IPSVirtualDirectory} for details. */
 public class PSVirtualApplicationDirectory implements IPSVirtualDirectory {
@@ -67,13 +67,46 @@ public class PSVirtualApplicationDirectory implements IPSVirtualDirectory {
     if (relPath.isAbsolute() || relPath.getName().length() == 0)
       throw new IllegalArgumentException("vfs convert path error" + relPath.toString());
 
-    File retVal = null;
-    try {
-      retVal = new File(m_appRoot, relPath.toString()).getCanonicalFile();
-    } catch (IOException e) {
-      PSConsole.printMsg("Data", e);
+    if (m_appRoot == null) {
+      return null;
     }
-    return retVal;
+
+    return resolveUnderAppRoot(m_appRoot, relPath);
+  }
+
+  /**
+   * Resolves {@code relPath} under {@code appRoot} and rejects path traversal.
+   *
+   * <p>When {@code appRoot} exists, {@link PSPathInjectionGuard#requireUnderBase} is the
+   * canonical-path barrier (symlink-aware). When it does not yet exist (new application root
+   * before mkdir), a normalize + {@link Path#startsWith} check still blocks {@code ..} escape so
+   * {@code addVirtualDirectory} can log the mapping without requiring the directory on disk.
+   *
+   * @param appRoot physical application root, never {@code null}
+   * @param relPath relative path under the root, never {@code null}
+   * @return resolved file under {@code appRoot}, never {@code null}
+   */
+  static File resolveUnderAppRoot(File appRoot, File relPath) {
+    if (appRoot == null) {
+      throw new IllegalArgumentException("appRoot must not be null");
+    }
+    if (relPath == null) {
+      throw new IllegalArgumentException("relPath must not be null");
+    }
+    Path base = appRoot.toPath().toAbsolutePath().normalize();
+    Path resolved = base.resolve(relPath.toPath()).normalize();
+    if (!resolved.startsWith(base)) {
+      throw new IllegalArgumentException(
+          "Resolved path '"
+              + resolved
+              + "' is not under base directory '"
+              + base
+              + "' (path-traversal attempt blocked)");
+    }
+    if (appRoot.exists() && appRoot.isDirectory()) {
+      return PSPathInjectionGuard.requireUnderBase(appRoot, relPath.getPath());
+    }
+    return resolved.toFile();
   }
 
   /*

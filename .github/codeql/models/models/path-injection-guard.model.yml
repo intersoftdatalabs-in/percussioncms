@@ -126,3 +126,39 @@ extensions:
           "path-injection",
           "manual",
         ]
+      # XML JDBC catalog physical path (CodeQL #1985–#1987). Runtime
+      # requireUnderBase when the virtual root exists; normalize+startsWith
+      # when the app root is not on disk yet.
+      - [
+          "com.percussion.data.vfs",
+          "PSVirtualApplicationDirectory",
+          false,
+          "resolveUnderAppRoot",
+          "(File,File)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.data.vfs",
+          "PSVirtualApplicationDirectory",
+          false,
+          "getPhysicalPath",
+          "(File)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.data.jdbc",
+          "PSFileSystemDriver",
+          false,
+          "getPhysicalPath",
+          "(String,com.percussion.server.PSUserSession,int)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]

@@ -413,3 +413,21 @@ query-filters:
         packs). Tests: SecureStringUtilsSqlInjectionTest,
         PSDatabasePoolDatabaseMetaDataSqlInjectionTest. Same family as
         PSJdbcTableMetaData #659/#660. Do not re-edit sinks to chase IDs.
+  # --- CodeQL #1985-#1987 XML JDBC catalog path-injection ---
+  # Runtime: PSVirtualApplicationDirectory.resolveUnderAppRoot +
+  # PSFileSystemDriver.getPhysicalPath re-apply requireUnderBase when the
+  # virtual root exists. Sink-line on File.exists/isDirectory residuals.
+  - exclude:
+      id: java/path-injection
+      paths:
+        - "system/src/main/java/com/percussion/data/jdbc/PSXmlDatabaseMetaData.java"
+        - "system/src/main/java/com/percussion/data/vfs/PSVirtualApplicationDirectory.java"
+        - "system/src/main/java/com/percussion/data/jdbc/PSFileSystemDriver.java"
+      reason: >-
+        Alerts #1985/#1986/#1987: catalogDir File API after
+        PSXmlDriver.getPhysicalPath. Runtime resolveUnderAppRoot (normalize +
+        Path.startsWith, plus requireUnderBase when the virtual root exists)
+        and driver-level requireUnderBase. Same-line // codeql[java/path-injection]
+        on exists/isDirectory. Tests:
+        PSVirtualApplicationDirectoryPathInjectionTest,
+        PSFileSystemDriverPathInjectionTest. GHA does not load local model packs.
