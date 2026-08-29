@@ -261,6 +261,13 @@ class PSExtensionLeftoverErrorCodesSliceTest {
         () -> new TestHandler().logMessage((IPSErrorCode) null, new Object[] {"x"}));
   }
 
+  @Test
+  void typedLogMessageRejectsNullArgs() {
+    assertThrows(
+        NullPointerException.class,
+        () -> new TestHandler().logMessage(ExtensionErrorCodes.EXT_RESOURCE_DELETE_ERROR, null));
+  }
+
   private static PSJavaScriptUdfExtension newUdf(
       String extensionName, String scriptBody, String paramType) throws PSExtensionException {
     Properties init = new Properties();

@@ -36,6 +36,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -848,6 +849,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
    * @param args The error arguments corresponding to {@code errorCode}. Must not be {@code null}.
    */
   protected void logMessage(IPSErrorCode errorCode, Object[] args) {
+    Objects.requireNonNull(args, "args cannot be null");
     logMessage(requireErrorCode(errorCode).numericCode(), args);
   }
 
