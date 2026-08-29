@@ -836,7 +836,7 @@ class SharedFieldsAdaptorTest {
     assertEquals("200", out.getProperties().get(0).getValue());
     assertEquals("local", out.getChoices().getType());
     assertEquals("open", out.getChoices().getEntries().get(0).getValue());
-    assertFalse(out.getDesignGaps().isEmpty());
+    assertTrue(out.getDesignGaps().isEmpty());
   }
 
   @Test

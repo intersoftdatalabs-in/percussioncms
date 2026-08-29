@@ -88,7 +88,6 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
 
   private static final List<String> DESIGN_GAPS =
       List.of(
-          "Choice filters, null-entry, and default-selected are not writable",
           "SPA shared-field editor is not provided",
           "System def (global fields) is a separate catalog (Developer System Def)");
 
