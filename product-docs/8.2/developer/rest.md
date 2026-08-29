@@ -267,14 +267,14 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Add local field | `POST /services/contenttypes/{idOrName}/fields` | **Admin** (CD-03). Requires a **held** design-session lock. Adds a persistable **local** field (backend column + display mapping) via `IPSContentDesignWs.saveContentTypes`. Body `name` is required (letter, then letters/digits/underscore; unique case-insensitive on the type). Optional `dataType` defaults to `text`. Optional `searchable` and `occurrence`/`required` use the same rules as PUT field patches. Optional `fieldSet` names an existing child field set, or **creates** a named complex child when missing. Duplicate field is **409**. Include an existing system or shared field with `POST .../fields/include` (CD-04). Does not acquire or release the lock. |
 | Include system/shared field | `POST /services/contenttypes/{idOrName}/fields/include` | **Admin** (CD-04). Requires a **held** design-session lock (`POST .../lock` first; the lock is not stolen). Includes an existing **system** or **shared** field by `name` and `fieldType` (`system` or `shared`). Origin stays system/shared (not copied as local). Persist via `IPSContentDesignWs.loadContentTypes` / `saveContentTypes`. Duplicate include is **409**. Unknown catalog field is **404**. Invalid `fieldType` (including `local`) is **400**. Does not acquire or release the lock. |
 | Delete local field | `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}` | **Admin** (CD-03). Requires a **held** design-session lock. Removes a **local** field and its display mapping. System/shared fields are **400**. Missing type or field is **404**. Does not acquire or release the lock. `204` on success (lock still held). |
-| Field control properties | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` | Control parameter **name/value** pairs and the choice catalog for one field (CD-07). No lock required. Empty `properties` means none. `choices` omitted when none. |
-| Replace field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` | **Admin** (CD-07). Requires a **held** design-session lock. Full replace of `properties` (empty clears). `choices` omitted leaves the catalog unchanged; `type: none` clears. **409** if unlocked or locked by another user. Does not acquire or release the lock. |
+| Field control properties | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` | Control parameter **name/value** pairs and the choice catalog for one field (CD-07). No lock required. Empty `properties` means none. `choices` omitted when none. GET round-trips `filter`, `nullEntry`, and `defaultSelected` when present. |
+| Replace field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` | **Admin** (CD-07). Requires a **held** design-session lock. Full replace of `properties` (empty clears). `choices` omitted leaves the catalog unchanged; present replaces including choice filter, null-entry, and default-selected; `type: none` clears. **409** if unlocked or locked by another user. Does not acquire or release the lock. |
 | Field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` | Field-level validation, visibility, and input/output translation expressions (CD-05–07). No lock required. Empty lists mean none. Unknown field is **404**. Jackson root wrap is `ContentTypeFieldRuleExpressions`. |
 | Replace field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` | **Admin** (CD-05–07). Requires a **held** design-session lock. Full replace of `validation`, `visibility`, `inputTranslation`, and `outputTranslation` (empty lists clear). Unknown field names are **400**. **409** if unlocked or locked by another user. Does not acquire or release the lock. |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
 | Delete | `DELETE /services/contenttypes/{idOrName}` | **Admin.** Requires a **held** design-session lock (`POST .../lock` first). Calls `IPSContentDesignWs.deleteContentTypes` with `ignoreDependencies=false`. **204** on success; a following `GET .../{idOrName}` is **404**. **409** if unlocked or locked by another user (the lock is not stolen). **404** if missing. **400** if the design web service rejects an in-use type (dependents). Does **not** cascade item delete. |
 
-Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. **Create** is a separate `POST /services/contenttypes` (persisted immediately). The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT). Control property **values** use `GET`/`PUT .../fields/{fieldName}/controlProperties` after a held lock (CD-07); choice catalogs stay read-only in that chrome. Local field create/delete is REST-only: **lock → POST .../fields** or **DELETE .../fields/{fieldName} → unlock** (no SPA field editor). Include system/shared is REST-only: **lock → POST .../fields/include → unlock** (no SPA field picker). SPA create-wizard chrome is not part of this API. Rename is REST-only: **lock → PUT .../name → unlock**. Delete is REST-only in this release (no SPA chrome): **lock → DELETE → GET 404**.
+Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. **Create** is a separate `POST /services/contenttypes` (persisted immediately). The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT). Control property **values** use `GET`/`PUT .../fields/{fieldName}/controlProperties` after a held lock (CD-07). That chrome still omits `choices` on save (catalogs stay unchanged from the SPA). Integrators write choice filter, null-entry, and default-selected on the same PUT by sending `choices`. Local field create/delete is REST-only: **lock → POST .../fields** or **DELETE .../fields/{fieldName} → unlock** (no SPA field editor). Include system/shared is REST-only: **lock → POST .../fields/include → unlock** (no SPA field picker). SPA create-wizard chrome is not part of this API. Rename is REST-only: **lock → PUT .../name → unlock**. Delete is REST-only in this release (no SPA chrome): **lock → DELETE → GET 404**.
 
 Lock / save / unlock / create / rename / delete status codes:
 
@@ -624,9 +624,9 @@ the lock is held; the product does not steal another user's lock. This is not
 the Workbench visual rule builder. See [Developer Content Types](id:admin-developer-content-types).
 
 Control property **values** use the dedicated CD-07 path below and the
-Developer Content Types **Control property values** chrome after a held lock. Choice
-catalogs are read-only in that chrome (filter / null-entry / default-selected are
-not written).
+Developer Content Types **Control property values** chrome after a held lock. That
+chrome omits `choices` on save so catalogs stay unchanged from the SPA. Integrators
+write choice filter, null-entry, and default-selected on the same REST PUT.
 
 ### Control property values (CD-07)
 
@@ -655,7 +655,24 @@ Jackson root wrap:
       "sortOrder": "ascending",
       "entries": [
         { "value": "open", "label": "Open" }
-      ]
+      ],
+      "nullEntry": {
+        "value": "",
+        "label": "None",
+        "includeWhen": "always",
+        "sortOrder": "first"
+      },
+      "defaultSelected": [
+        { "type": "nullEntry" },
+        { "type": "text", "text": "open" }
+      ],
+      "filter": {
+        "dependentFields": [
+          { "fieldRef": "sys_communityid", "dependencyType": "optional" }
+        ],
+        "lookupHref": "../sys_lookup/filter.xml",
+        "lookupName": "choiceFilter"
+      }
     }
   }
 }
@@ -665,7 +682,12 @@ Jackson root wrap:
 the catalog unchanged. Choice `type` is `global` (keyword table id in `globalId`),
 `local` (inline `entries`), `lookup` / `internalLookup` (`lookupHref`), or `tableinfo`
 (`table` with `tableName` / `labelColumn` / `valueColumn`). `type: none` clears the
-catalog. Choice filters, null-entry, and default-selected are not written.
+catalog. When `choices` is present, `filter`, `nullEntry`, and `defaultSelected` are
+written as part of that replace (omit/null/empty clears those extras). `filter.dependentFields`
+need `fieldRef` plus `dependencyType` `optional` or `required`, and `lookupHref`.
+`nullEntry.includeWhen` is `always` or `onlyIfNull`; `nullEntry.sortOrder` is `first`,
+`last`, or `sorted`. `defaultSelected[].type` is `nullEntry`, `sequence` (needs
+`sequence` ≥ 0), or `text` (needs `text`).
 
 | Status | Typical meaning |
 |--------|-----------------|

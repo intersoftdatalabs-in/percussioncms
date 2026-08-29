@@ -35,8 +35,10 @@ import static org.mockito.Mockito.when;
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
+import com.percussion.design.objectstore.PSChoiceFilter;
 import com.percussion.design.objectstore.PSChoiceTableInfo;
 import com.percussion.design.objectstore.PSChoices;
+import com.percussion.design.objectstore.PSDefaultSelected;
 import com.percussion.design.objectstore.PSContentEditor;
 import com.percussion.design.objectstore.PSContentEditorMapper;
 import com.percussion.design.objectstore.PSContentEditorPipe;
@@ -45,12 +47,18 @@ import com.percussion.design.objectstore.PSDisplayMapper;
 import com.percussion.design.objectstore.PSDisplayMapping;
 import com.percussion.design.objectstore.PSDisplayText;
 import com.percussion.design.objectstore.PSEntry;
+import com.percussion.design.objectstore.PSNullEntry;
 import com.percussion.design.objectstore.PSParam;
 import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.design.objectstore.PSUIDefinition;
 import com.percussion.design.objectstore.PSUISet;
+import com.percussion.design.objectstore.PSUrlRequest;
 import com.percussion.rest.contenttypes.ContentTypeChoiceCatalog;
+import com.percussion.rest.contenttypes.ContentTypeChoiceDefaultSelected;
 import com.percussion.rest.contenttypes.ContentTypeChoiceEntry;
+import com.percussion.rest.contenttypes.ContentTypeChoiceFilter;
+import com.percussion.rest.contenttypes.ContentTypeChoiceFilterField;
+import com.percussion.rest.contenttypes.ContentTypeChoiceNullEntry;
 import com.percussion.rest.contenttypes.ContentTypeChoiceTable;
 import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import com.percussion.rest.contenttypes.ContentTypeDesignLockException;
@@ -73,8 +81,9 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
- * CD-07 control property values and choice catalogs: GET returns name+value; PUT requires a held
- * design-session lock and persists via {@code saveContentTypes}.
+ * CD-07 control property values and choice catalogs: GET returns name+value plus choice filter,
+ * null-entry, and default-selected; PUT requires a held design-session lock and persists via
+ * {@code saveContentTypes}.
  */
 @Tag("UnitTest")
 class ContentTypeAdaptorControlPropertiesTest {
@@ -140,6 +149,11 @@ class ContentTypeAdaptorControlPropertiesTest {
   }
 
   @Test
+  void controlPropertyDesignGaps_emptyWhenChoiceExtrasWritable() {
+    assertTrue(ContentTypeAdaptor.controlPropertyDesignGaps().isEmpty());
+  }
+
+  @Test
   void fromChoiceCatalog_roundTripLocalAndNone() {
     ContentTypeChoiceCatalog body = new ContentTypeChoiceCatalog();
     body.setType("local");
@@ -195,6 +209,70 @@ class ContentTypeAdaptorControlPropertiesTest {
   }
 
   @Test
+  void fromChoiceCatalog_roundTripFilterNullEntryDefaultSelected() {
+    ContentTypeChoiceCatalog body = sampleCatalogWithExtras("closed", "Closed");
+    PSChoices choices = ContentTypeAdaptor.fromChoiceCatalog(body);
+    ContentTypeChoiceCatalog round = ContentTypeAdaptor.toChoiceCatalog(choices);
+    assertEquals("local", round.getType());
+    assertEquals("", round.getNullEntry().getValue());
+    assertEquals("None", round.getNullEntry().getLabel());
+    assertEquals("always", round.getNullEntry().getIncludeWhen());
+    assertEquals("first", round.getNullEntry().getSortOrder());
+    assertEquals(2, round.getDefaultSelected().size());
+    assertEquals("nullEntry", round.getDefaultSelected().get(0).getType());
+    assertEquals("text", round.getDefaultSelected().get(1).getType());
+    assertEquals("closed", round.getDefaultSelected().get(1).getText());
+    assertEquals("sys_communityid", round.getFilter().getDependentFields().get(0).getFieldRef());
+    assertEquals("optional", round.getFilter().getDependentFields().get(0).getDependencyType());
+    assertEquals("../sys_lookup/filter.xml", round.getFilter().getLookupHref());
+    assertEquals("choiceFilter", round.getFilter().getLookupName());
+  }
+
+  @Test
+  void fromChoiceCatalog_rejectsInvalidFilterAndDefaultSelected() {
+    ContentTypeChoiceCatalog missingHref = sampleCatalogWithExtras("open", "Open");
+    missingHref.getFilter().setLookupHref(null);
+    IllegalArgumentException href =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> ContentTypeAdaptor.fromChoiceCatalog(missingHref));
+    assertTrue(href.getMessage().contains("lookupHref"), href.getMessage());
+
+    ContentTypeChoiceCatalog missingDeps = sampleCatalogWithExtras("open", "Open");
+    missingDeps.getFilter().setDependentFields(List.of());
+    IllegalArgumentException deps =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> ContentTypeAdaptor.fromChoiceCatalog(missingDeps));
+    assertTrue(deps.getMessage().contains("dependentFields"), deps.getMessage());
+
+    ContentTypeChoiceCatalog badDepType = sampleCatalogWithExtras("open", "Open");
+    badDepType.getFilter().getDependentFields().get(0).setDependencyType("maybe");
+    IllegalArgumentException depType =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> ContentTypeAdaptor.fromChoiceCatalog(badDepType));
+    assertTrue(depType.getMessage().contains("dependencyType"), depType.getMessage());
+
+    ContentTypeChoiceCatalog badDefault = sampleCatalogWithExtras("open", "Open");
+    ContentTypeChoiceDefaultSelected seq = new ContentTypeChoiceDefaultSelected("sequence");
+    badDefault.setDefaultSelected(List.of(seq));
+    IllegalArgumentException sequence =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> ContentTypeAdaptor.fromChoiceCatalog(badDefault));
+    assertTrue(sequence.getMessage().contains("sequence"), sequence.getMessage());
+
+    ContentTypeChoiceCatalog badInclude = sampleCatalogWithExtras("open", "Open");
+    badInclude.getNullEntry().setIncludeWhen("sometimes");
+    IllegalArgumentException includeWhen =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> ContentTypeAdaptor.fromChoiceCatalog(badInclude));
+    assertTrue(includeWhen.getMessage().contains("includeWhen"), includeWhen.getMessage());
+  }
+
+  @Test
   void get_returnsPropertyValuesAndChoices() throws Exception {
     stubDefinition();
     ContentTypeFieldControlProperties out =
@@ -206,6 +284,12 @@ class ContentTypeAdaptorControlPropertiesTest {
     assertEquals("200", out.getProperties().get(0).getValue());
     assertEquals("local", out.getChoices().getType());
     assertEquals("open", out.getChoices().getEntries().get(0).getValue());
+    assertEquals("None", out.getChoices().getNullEntry().getLabel());
+    assertEquals("always", out.getChoices().getNullEntry().getIncludeWhen());
+    assertEquals("nullEntry", out.getChoices().getDefaultSelected().get(0).getType());
+    assertEquals(
+        "sys_communityid", out.getChoices().getFilter().getDependentFields().get(0).getFieldRef());
+    assertTrue(out.getDesignGaps().isEmpty());
   }
 
   @Test
@@ -302,6 +386,56 @@ class ContentTypeAdaptorControlPropertiesTest {
         adaptor.replaceFieldControlProperties(null, "311", "sys_title", body);
     assertEquals("local", out.getChoices().getType());
     assertEquals("open", out.getChoices().getEntries().get(0).getValue());
+    assertEquals("None", out.getChoices().getNullEntry().getLabel());
+    assertEquals("sys_communityid", out.getChoices().getFilter().getDependentFields().get(0).getFieldRef());
+  }
+
+  @Test
+  void put_persistsChoiceFilterNullEntryDefaultSelected() throws Exception {
+    stubHeldLock();
+    stubDefinition();
+
+    ContentTypeFieldControlProperties body = new ContentTypeFieldControlProperties();
+    body.setProperties(List.of(new ContentTypeControlProperty("width", "640")));
+    body.setChoices(sampleCatalogWithExtras("closed", "Closed"));
+
+    ContentTypeFieldControlProperties out =
+        adaptor.replaceFieldControlProperties(null, "311", "sys_title", body);
+
+    verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    assertEquals("closed", out.getChoices().getEntries().get(0).getValue());
+    assertEquals("None", out.getChoices().getNullEntry().getLabel());
+    assertEquals("always", out.getChoices().getNullEntry().getIncludeWhen());
+    assertEquals("text", out.getChoices().getDefaultSelected().get(1).getType());
+    assertEquals("closed", out.getChoices().getDefaultSelected().get(1).getText());
+    assertEquals("../sys_lookup/filter.xml", out.getChoices().getFilter().getLookupHref());
+    PSChoices persisted = uiSet.getChoices();
+    assertEquals("", persisted.getNullEntry().getValue());
+    assertEquals("None", persisted.getNullEntry().getLabel().getText());
+    assertEquals(PSNullEntry.INCLUDE_WHEN_ALWAYS, persisted.getNullEntry().getIncludeWhen());
+    PSDefaultSelected firstDefault = (PSDefaultSelected) persisted.getDefaultSelected().next();
+    assertEquals(PSDefaultSelected.TYPE_NULL_ENTRY, firstDefault.getType());
+    PSChoiceFilter.DependentField dep =
+        (PSChoiceFilter.DependentField) persisted.getChoiceFilter().getDependentFields().get(0);
+    assertEquals("sys_communityid", dep.getFieldRef());
+  }
+
+  @Test
+  void put_typeNoneClearsCatalogIncludingExtras() throws Exception {
+    stubHeldLock();
+    stubDefinition();
+    ContentTypeFieldControlProperties body = new ContentTypeFieldControlProperties();
+    body.setProperties(List.of());
+    ContentTypeChoiceCatalog none = new ContentTypeChoiceCatalog();
+    none.setType("none");
+    body.setChoices(none);
+
+    ContentTypeFieldControlProperties out =
+        adaptor.replaceFieldControlProperties(null, "311", "sys_title", body);
+
+    verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    assertNull(out.getChoices());
+    assertNull(uiSet.getChoices());
   }
 
   @Test
@@ -383,6 +517,7 @@ class ContentTypeAdaptorControlPropertiesTest {
     PSCollection local = new PSCollection(PSEntry.class);
     local.add(new PSEntry("open", new PSDisplayText("Open")));
     uiSet.setChoices(new PSChoices(local));
+    applySampleChoiceExtras(uiSet.getChoices());
 
     PSDisplayMapper dmapper = new PSDisplayMapper("fs");
     dmapper.add(new PSDisplayMapping("sys_title", uiSet));
@@ -404,5 +539,46 @@ class ContentTypeAdaptorControlPropertiesTest {
     when(designWs.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
         .thenReturn(List.of(def));
     return def;
+  }
+
+  private static ContentTypeChoiceCatalog sampleCatalogWithExtras(String value, String label) {
+    ContentTypeChoiceCatalog catalog = new ContentTypeChoiceCatalog();
+    catalog.setType("local");
+    catalog.setEntries(List.of(new ContentTypeChoiceEntry(value, label)));
+    ContentTypeChoiceNullEntry nullEntry = new ContentTypeChoiceNullEntry();
+    nullEntry.setValue("");
+    nullEntry.setLabel("None");
+    nullEntry.setIncludeWhen("always");
+    nullEntry.setSortOrder("first");
+    catalog.setNullEntry(nullEntry);
+    ContentTypeChoiceDefaultSelected nullDefault = new ContentTypeChoiceDefaultSelected("nullEntry");
+    ContentTypeChoiceDefaultSelected textDefault = new ContentTypeChoiceDefaultSelected("text");
+    textDefault.setText(value);
+    catalog.setDefaultSelected(List.of(nullDefault, textDefault));
+    ContentTypeChoiceFilter filter = new ContentTypeChoiceFilter();
+    filter.setDependentFields(List.of(new ContentTypeChoiceFilterField("sys_communityid", "optional")));
+    filter.setLookupHref("../sys_lookup/filter.xml");
+    filter.setLookupName("choiceFilter");
+    catalog.setFilter(filter);
+    return catalog;
+  }
+
+  private static void applySampleChoiceExtras(PSChoices choices) {
+    PSNullEntry nullEntry = new PSNullEntry("", new PSDisplayText("None"));
+    nullEntry.setIncludeWhen(PSNullEntry.INCLUDE_WHEN_ALWAYS);
+    choices.setNullEntry(nullEntry);
+    PSCollection<PSDefaultSelected> defaults = new PSCollection<>(PSDefaultSelected.class);
+    defaults.add(new PSDefaultSelected());
+    choices.setDefaultSelected(defaults);
+    PSCollection<PSChoiceFilter.DependentField> deps =
+        new PSCollection<>(PSChoiceFilter.DependentField.class);
+    deps.add(new PSChoiceFilter.DependentField("sys_communityid", "optional"));
+    choices.setChoiceFilter(
+        new PSChoiceFilter(
+            deps,
+            new PSUrlRequest(
+                "choiceFilter",
+                "../sys_lookup/filter.xml",
+                new PSCollection<>(PSParam.class))));
   }
 }
