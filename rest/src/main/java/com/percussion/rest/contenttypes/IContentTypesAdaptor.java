@@ -141,6 +141,35 @@ public interface IContentTypesAdaptor {
   ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled);
 
   /**
+   * Load type-level search indexing for a content type (CD-10). No design lock is required.
+   * Reflects the root mapper field-set {@code isUserSearchable} (Workbench Properties {@code
+   * Enable searching for this Content Type}). Default is on when the field-set is missing.
+   * Distinct from per-field {@code searchable}.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @return envelope, or {@code null} when the content type is not found
+   */
+  ContentTypeSearchIndexing getContentTypeSearchIndexing(URI baseUri, String idOrName);
+
+  /**
+   * Enable or disable type-level search indexing (CD-10). Requires a design-session lock already
+   * held by the current user (peer lock REST). Does not acquire or release the lock. Persists
+   * root mapper field-set {@code setUserSearchable} via {@code IPSContentDesignWs}. Distinct from
+   * per-field {@code searchable}.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @param searchIndexing {@code true} to allow indexing, {@code false} to disable type-level
+   *     search
+   * @return updated envelope, or {@code null} when not found
+   * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
+   *     user
+   */
+  ContentTypeSearchIndexing setContentTypeSearchIndexing(
+      URI baseUri, String idOrName, boolean searchIndexing);
+
+  /**
    * Rename a content type (CD-01). Requires a design-session lock already held by the current
    * user. Does not acquire or release the lock. Bulk {@link #updateContentType} does not change
    * name. After a successful rename, GET by the previous name is not found; GET by id returns the

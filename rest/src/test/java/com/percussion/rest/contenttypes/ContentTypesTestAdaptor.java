@@ -106,6 +106,17 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
   }
 
   @Override
+  public ContentTypeSearchIndexing getContentTypeSearchIndexing(URI baseUri, String idOrName) {
+    return new ContentTypeSearchIndexing(true);
+  }
+
+  @Override
+  public ContentTypeSearchIndexing setContentTypeSearchIndexing(
+      URI baseUri, String idOrName, boolean searchIndexing) {
+    return new ContentTypeSearchIndexing(searchIndexing);
+  }
+
+  @Override
   public ContentTypeDetail renameContentType(URI baseUri, String idOrName, String newName) {
     return null;
   }

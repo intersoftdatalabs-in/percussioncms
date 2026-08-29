@@ -42,6 +42,16 @@ class DesignGapsStructuredTest {
     assertTrue(codes.contains("CT_ITEM_EXITS"));
     assertTrue(codes.contains("CT_CREATE_DELETE"));
     assertTrue(codes.contains("CT_FIELD_CREATE_DELETE"));
+    assertTrue(codes.contains("CT_SEARCH_INDEXING"));
+    assertTrue(
+        gaps.stream()
+            .anyMatch(
+                g ->
+                    "CT_SEARCH_INDEXING".equals(g.getCode())
+                        && g.getMessage().contains("searchIndexing")
+                        && g.getMessage().toLowerCase().contains("held")
+                        && g.getMessage().toLowerCase().contains("default")),
+        () -> gaps.toString());
     assertTrue(
         gaps.stream()
             .anyMatch(

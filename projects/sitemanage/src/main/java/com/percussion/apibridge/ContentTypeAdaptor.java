@@ -76,6 +76,7 @@ import com.percussion.rest.contenttypes.ContentTypeFilter;
 import com.percussion.rest.contenttypes.ContentTypeItemExit;
 import com.percussion.rest.contenttypes.ContentTypeItemExitParam;
 import com.percussion.rest.contenttypes.ContentTypeItemExits;
+import com.percussion.rest.contenttypes.ContentTypeSearchIndexing;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
 import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.services.assembly.IPSAssemblyService;
@@ -324,8 +325,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
    *
    * @param includeDisabledFromStore when {@code true}, a cache miss falls back to the
    *     object store so disabled types (unregistered from the editor cache) still load.
-   *     GET detail, enable/disable (CD-13), and DELETE pass {@code true}; other callers keep
-   *     the pre-CD-13 cache-only 404 for disabled types.
+   *     GET detail, enable/disable (CD-13), search indexing (CD-10), and DELETE pass {@code
+   *     true}; other callers keep the pre-CD-13 cache-only 404 for disabled types.
    */
   private PSItemDefinition resolveItemDef(String idOrName, boolean includeDisabledFromStore)
       throws PSInvalidContentTypeException {
@@ -428,6 +429,25 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   /**
+   * Root mapper field-set {@code isUserSearchable} (CD-10). Workbench default is on when the
+   * field-set is absent.
+   */
+  private static ContentTypeSearchIndexing toSearchIndexing(PSItemDefinition def) {
+    PSFieldSet fs = def.getFieldSet();
+    boolean searchable = fs == null || fs.isUserSearchable();
+    return new ContentTypeSearchIndexing(searchable);
+  }
+
+  /** Persist Workbench type-level search indexing on the mapper root field-set. */
+  private static void applyRootFieldSetSearchable(PSItemDefinition def, boolean searchable) {
+    PSFieldSet fs = def.getFieldSet();
+    if (fs == null) {
+      throw new IllegalStateException("Content type has no mapper field-set");
+    }
+    fs.setUserSearchable(searchable);
+  }
+
+  /**
    * Structured designGaps for content-type detail (REST-GAPS-01). Package-visible for unit tests.
    */
   static List<DesignGap> contentTypeDesignGaps(boolean controlsResolved) {
@@ -476,6 +496,12 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         DesignGap.of(
             "CT_FIELD_LABELS_WRITE",
             "Field display labels are not writable via PUT content type detail"));
+    gaps.add(
+        DesignGap.of(
+            "CT_SEARCH_INDEXING",
+            "Type-level search indexing: GET/PUT /contenttypes/{idOrName}/searchIndexing"
+                + " (held lock for write). Default is on. Per-field searchable is a separate PUT"
+                + " detail flag. SPA Properties checkbox is not exposed"));
     if (!controlsResolved) {
       gaps.add(
           DesignGap.of(
@@ -722,6 +748,97 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     } catch (Exception e) {
       log.error("Failed to enable/disable content type {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to enable/disable content type", e);
+    }
+  }
+
+  @Override
+  public ContentTypeSearchIndexing getContentTypeSearchIndexing(URI baseUri, String idOrName) {
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    try {
+      PSItemDefinition def = resolveItemDef(idOrName.trim(), true);
+      if (def == null) {
+        return null;
+      }
+      return toSearchIndexing(def);
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for search indexing: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error("Failed to load content type search indexing {}: {}", idOrName, e.getMessage(), e);
+      throw new RuntimeException(
+          "Failed to load content type search indexing ("
+              + e.getClass().getName()
+              + "): "
+              + e.getMessage(),
+          e);
+    }
+  }
+
+  @Override
+  public ContentTypeSearchIndexing setContentTypeSearchIndexing(
+      URI baseUri, String idOrName, boolean searchIndexing) {
+    requireAdmin();
+    requireSessionUserForLock();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      PSItemDefinition current = resolveItemDef(trimmed, true);
+      if (current == null) {
+        return null;
+      }
+      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
+      requireHeldLock(ctGuid);
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        throw lockConflict(e, "Could not update content type search indexing");
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      applyRootFieldSetSearchable(def, searchIndexing);
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+      } catch (PSErrorsException e) {
+        if (hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not update content type search indexing");
+        }
+        log.error(
+            "Failed to save content type search indexing {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save content type search indexing", e);
+      }
+      PSItemDefinition reloaded = reloadItemDef(trimmed);
+      if (reloaded != null && reloaded != def) {
+        applyRootFieldSetSearchable(reloaded, searchIndexing);
+        return toSearchIndexing(reloaded);
+      }
+      return toSearchIndexing(def);
+    } catch (ContentTypeDesignLockException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for search indexing: {}", idOrName);
+      return null;
+    } catch (IllegalStateException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to update content type search indexing {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to update content type search indexing", e);
     }
   }
 
