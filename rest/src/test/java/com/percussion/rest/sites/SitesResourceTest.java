@@ -319,6 +319,39 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void getVirtualPropertiesRoundTripsIcalendar() {
+    VirtualSiteProperties v = new VirtualSiteProperties();
+    v.setSourceKind("icalendar");
+    v.setRootPath("C:/cal-docs");
+    v.setVirtual(true);
+    when(adaptor.getVirtualSiteProperties("CalHelp")).thenReturn(v);
+
+    VirtualSiteProperties out = resource.getVirtualProperties("CalHelp");
+    assertEquals("icalendar", out.getSourceKind());
+    assertEquals("C:/cal-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).getVirtualSiteProperties("CalHelp");
+  }
+
+  @Test
+  public void updateVirtualPropertiesRoundTripsIcalendar() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("icalendar");
+    body.setRootPath("C:/cal-docs");
+    VirtualSiteProperties saved = new VirtualSiteProperties();
+    saved.setSourceKind("icalendar");
+    saved.setRootPath("C:/cal-docs");
+    saved.setVirtual(true);
+    when(adaptor.updateVirtualSiteProperties(eq("CalHelp"), same(body))).thenReturn(saved);
+
+    VirtualSiteProperties out = resource.updateVirtualProperties("CalHelp", body);
+    assertEquals("icalendar", out.getSourceKind());
+    assertEquals("C:/cal-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).updateVirtualSiteProperties("CalHelp", body);
+  }
+
+  @Test
   public void updateVirtualPropertiesUnknownKindPropagates400() {
     VirtualSiteProperties body = new VirtualSiteProperties();
     body.setSourceKind("sql-adapter");
@@ -939,6 +972,12 @@ public class SitesResourceTest {
     assertTrue(
         putVirtualBlock.contains("rss-atom"),
         "updateVirtualProperties OpenAPI description must mention rss-atom persist");
+    assertTrue(
+        putVirtualBlock.contains("icalendar"),
+        "updateVirtualProperties OpenAPI description must mention icalendar persist");
+    assertTrue(
+        putVirtualBlock.contains("no CalDAV"),
+        "updateVirtualProperties OpenAPI description must mention icalendar local fixture only");
     assertTrue(
         putVirtualBlock.contains("local/loopback"),
         "updateVirtualProperties OpenAPI description must mention rss-atom local/loopback only");
