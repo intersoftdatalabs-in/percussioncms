@@ -141,6 +141,61 @@ public interface IContentTypesAdaptor {
   ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled);
 
   /**
+   * Load type-level search indexing for a content type (CD-10). No design lock is required.
+   * Reflects the root mapper field-set {@code isUserSearchable} (Workbench Properties {@code
+   * Enable searching for this Content Type}). Default is on when the field-set is missing.
+   * Distinct from per-field {@code searchable}.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @return envelope, or {@code null} when the content type is not found
+   */
+  ContentTypeSearchIndexing getContentTypeSearchIndexing(URI baseUri, String idOrName);
+
+  /**
+   * Enable or disable type-level search indexing (CD-10). Requires a design-session lock already
+   * held by the current user (peer lock REST). Does not acquire or release the lock. Persists
+   * root mapper field-set {@code setUserSearchable} via {@code IPSContentDesignWs}. Distinct from
+   * per-field {@code searchable}.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @param searchIndexing {@code true} to allow indexing, {@code false} to disable type-level
+   *     search
+   * @return updated envelope, or {@code null} when not found
+   * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
+   *     user
+   */
+  ContentTypeSearchIndexing setContentTypeSearchIndexing(
+      URI baseUri, String idOrName, boolean searchIndexing);
+
+  /**
+   * Load the content type icon strategy (CD-11). No design lock is required. {@code none} has no
+   * value. {@code specified} is a file path/name. {@code fromFileField} is a file field name.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @return icon envelope, or {@code null} when not found
+   */
+  ContentTypeIcon getContentTypeIcon(URI baseUri, String idOrName);
+
+  /**
+   * Set the content type icon strategy (CD-11). Requires a design-session lock already held by the
+   * current user. Does not acquire or release the lock. {@code none} clears value. Non-{@code
+   * none} with a blank value is invalid. Does not upload icon binaries.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @param source {@code none}, {@code specified}, or {@code fromFileField}
+   * @param value file path/name or field name; ignored when source is {@code none}
+   * @return persisted icon envelope, or {@code null} when not found
+   * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
+   *     user
+   * @throws IllegalArgumentException when source is invalid or a non-none value is blank
+   */
+  ContentTypeIcon setContentTypeIcon(URI baseUri, String idOrName, String source, String value);
+
+  /**
    * Rename a content type (CD-01). Requires a design-session lock already held by the current
    * user. Does not acquire or release the lock. Bulk {@link #updateContentType} does not change
    * name. After a successful rename, GET by the previous name is not found; GET by id returns the
@@ -217,6 +272,7 @@ public interface IContentTypesAdaptor {
   /**
    * Load control property values and the choice catalog for one field (CD-07). No design lock is
    * required. Empty {@code properties} means none configured. {@code choices} is null when none.
+   * Choice filter, null-entry, and default-selected round-trip on {@code choices} when present.
    *
    * @return envelope, or {@code null} when the content type is not found
    */
@@ -227,7 +283,8 @@ public interface IContentTypesAdaptor {
    * Replace control property values (and optionally the choice catalog) for one field. Requires a
    * design-session lock already held by the current user. Does not acquire or release the lock.
    * {@code properties} is a full replace (empty clears). {@code choices} null leaves the catalog
-   * unchanged.
+   * unchanged. When {@code choices} is present, filter, null-entry, and default-selected are
+   * written as part of the catalog replace ({@code type} none/empty still clears).
    *
    * @return persisted envelope, or {@code null} when the content type is not found
    * @throws ContentTypeDesignLockException when no lock is held or another user owns the lock
@@ -288,4 +345,19 @@ public interface IContentTypesAdaptor {
    * @throws jakarta.ws.rs.WebApplicationException {@code 404} when the field name is unknown
    */
   Boolean deleteLocalField(URI baseUri, String idOrName, String fieldName);
+
+  /**
+   * Include an existing system or shared field into a content type (CD-04). Requires a
+   * design-session lock already held by the current user. Does not acquire or release the lock.
+   * Origin stays system/shared (the field is not copied as local). Duplicate include is {@code
+   * 409}. Unknown catalog field is {@code 404}.
+   *
+   * @param body {@code name} required; {@code fieldType} must be {@code system} or {@code shared}
+   * @return updated detail, or {@code null} when the content type is not found
+   * @throws ContentTypeDesignLockException when no lock is held or another user owns the lock
+   * @throws IllegalArgumentException when input is invalid
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin; {@code
+   *     409} when the field is already on the type; {@code 404} when the catalog field is unknown
+   */
+  ContentTypeDetail includeField(URI baseUri, String idOrName, ContentTypeField body);
 }

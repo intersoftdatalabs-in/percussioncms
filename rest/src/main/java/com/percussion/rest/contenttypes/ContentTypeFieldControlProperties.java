@@ -30,7 +30,7 @@ import java.util.List;
  * <p>Jackson root wrap is {@code ContentTypeFieldControlProperties}. GET always returns {@code
  * properties} (may be empty). PUT is a full replace of {@code properties} (empty clears). {@code
  * choices} omitted on PUT leaves the catalog unchanged; present replaces (type {@code none}
- * clears).
+ * clears), including choice filter, null-entry, and default-selected.
  */
 @XmlRootElement(name = "ContentTypeFieldControlProperties")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -53,7 +53,8 @@ public class ContentTypeFieldControlProperties {
   @Schema(
       description =
           "Choice catalog. GET: omitted when none. PUT: omit/null leave unchanged; present"
-              + " replaces; type none/empty clears.")
+              + " replaces (filter, nullEntry, defaultSelected included); type none/empty"
+              + " clears.")
   private ContentTypeChoiceCatalog choices;
 
   @Schema(description = "Structured capability notes vs full Workbench. GET always present.")

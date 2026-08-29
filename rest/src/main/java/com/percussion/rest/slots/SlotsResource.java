@@ -25,7 +25,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -103,8 +105,8 @@ public class SlotsResource {
       summary = "Get slot design detail",
       description =
           "Slot detail including finder metadata, content-type/template associations, and"
-              + " ADR-003 slot_layout / slot_styles maps. Create/delete not supported (see"
-              + " designGaps).",
+              + " ADR-003 slot_layout / slot_styles maps. Finder/relationship write remain"
+              + " unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -143,7 +145,7 @@ public class SlotsResource {
               + " associations is present (including empty), replaces the full content-type/template"
               + " association set. Non-null slotLayout/slotStyles replace definition maps (empty or"
               + " schema-only clears to defaults); omit to leave unchanged. Name/id is immutable."
-              + " Create/delete/lock remain unsupported (see designGaps).",
+              + " Finder/relationship write remain unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -167,6 +169,96 @@ public class SlotsResource {
     } catch (Exception e) {
       log.error(
           "Failed to update slot {} ({}): {}", idOrName, e.getClass().getName(), e.getMessage(), e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Creates an assembly slot (design catalog).
+   *
+   * @param body SlotDetail; {@code name} required
+   * @return created SlotDetail
+   */
+  @POST
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Create assembly slot",
+      description =
+          "Admin. Creates and persists a slot via IPSAssemblyDesignWs.createSlots then saveSlots"
+              + " (Workbench Finish, not an unsaved stub). Name is required, must be unique"
+              + " (case-insensitive), and must not contain whitespace. Optional label, description,"
+              + " and slotType (REGULAR or INLINE) are applied before save. Duplicate name is"
+              + " 409. Finder, relationship, and finderArguments are not written on create.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Created",
+            content = @Content(schema = @Schema(implementation = SlotDetail.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid name (blank, whitespace, or wildcard) or invalid slotType"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin role required, or request has no session/user"),
+        @ApiResponse(responseCode = "409", description = "A slot with that name already exists"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public SlotDetail createSlot(SlotDetail body) {
+    try {
+      SlotDetail detail = requireAdaptor().createSlot(uriInfo.getBaseUri(), body);
+      if (detail == null) {
+        throw new WebApplicationException("Failed to create slot", 500);
+      }
+      return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      log.error("Failed to create slot ({}): {}", e.getClass().getName(), e.getMessage(), e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Deletes an assembly slot (design catalog).
+   *
+   * @param idOrName slot uuid or unique name
+   * @return 204 when deleted
+   */
+  @DELETE
+  @Path("/{idOrName}")
+  @Operation(
+      summary = "Delete assembly slot",
+      description =
+          "Admin. Deletes a slot via IPSAssemblyDesignWs.deleteSlots. Acquires a design lock for"
+              + " this request (does not steal another user's lock). System slots cannot be"
+              + " deleted. Following GET .../{idOrName} is 404 after a successful delete.",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Deleted"),
+        @ApiResponse(responseCode = "400", description = "Invalid id/name, or design WS rejected"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Slot not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "System slot, or locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response deleteSlot(@PathParam("idOrName") String idOrName) {
+    try {
+      boolean deleted = requireAdaptor().deleteSlot(uriInfo.getBaseUri(), idOrName);
+      if (!deleted) {
+        throw new WebApplicationException("Slot not found: " + idOrName, 404);
+      }
+      return Response.noContent().build();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      log.error(
+          "Failed to delete slot {} ({}): {}", idOrName, e.getClass().getName(), e.getMessage(), e);
       throw new WebApplicationException(e, 500);
     }
   }

@@ -45,4 +45,34 @@ public interface ISlotsAdaptor {
    */
   @Nullable
   SlotDetail updateSlot(URI baseUri, String idOrName, SlotDetail body);
+
+  /**
+   * Create and persist a slot (Workbench Finish: {@code IPSAssemblyDesignWs.createSlots} then
+   * {@code saveSlots}). Admin only. Name must be unique (case-insensitive) and must not contain
+   * whitespace.
+   *
+   * @param baseUri requesting URI
+   * @param body request body; {@code name} is required. Optional label, description, and {@code
+   *     slotType} ({@code REGULAR} or {@code INLINE}) are applied before save.
+   * @return persisted detail
+   * @throws IllegalArgumentException when the name is blank, contains whitespace, or contains
+   *     wildcards, or when {@code slotType} is not {@code REGULAR}/{@code INLINE}
+   * @throws jakarta.ws.rs.WebApplicationException {@code 409} when a slot with that name already
+   *     exists; {@code 403} when the caller is not Admin or the request has no session/user
+   */
+  SlotDetail createSlot(URI baseUri, SlotDetail body);
+
+  /**
+   * Delete a slot via {@code IPSAssemblyDesignWs.deleteSlots}. Admin only. Acquires a design lock
+   * for this request ({@code loadSlots(lock=true)}, {@code overrideLock=false}) and does not steal
+   * another user's lock. System slots are rejected.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName slot uuid (numeric) or unique name
+   * @return {@code true} when deleted; {@code false} when not found
+   * @throws IllegalArgumentException when {@code idOrName} is blank
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin; {@code
+   *     409} when the slot is a system slot or locked by another user
+   */
+  boolean deleteSlot(URI baseUri, String idOrName);
 }

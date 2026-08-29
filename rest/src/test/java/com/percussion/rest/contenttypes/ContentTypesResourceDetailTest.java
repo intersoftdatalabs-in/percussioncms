@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
@@ -810,6 +811,67 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
+  public void getFieldControlPropertiesReturnsChoiceExtras() {
+    ContentTypeFieldControlProperties envelope = new ContentTypeFieldControlProperties();
+    envelope.setFieldName("sys_title");
+    ContentTypeChoiceCatalog choices = new ContentTypeChoiceCatalog();
+    choices.setType("local");
+    choices.setEntries(List.of(new ContentTypeChoiceEntry("open", "Open")));
+    ContentTypeChoiceNullEntry nullEntry = new ContentTypeChoiceNullEntry();
+    nullEntry.setValue("");
+    nullEntry.setLabel("None");
+    nullEntry.setIncludeWhen("always");
+    choices.setNullEntry(nullEntry);
+    choices.setDefaultSelected(List.of(new ContentTypeChoiceDefaultSelected("nullEntry")));
+    ContentTypeChoiceFilter filter = new ContentTypeChoiceFilter();
+    filter.setDependentFields(
+        List.of(new ContentTypeChoiceFilterField("sys_communityid", "optional")));
+    filter.setLookupHref("../sys_lookup/filter.xml");
+    choices.setFilter(filter);
+    envelope.setChoices(choices);
+    when(adaptor.getFieldControlProperties(any(), eq("percPage"), eq("sys_title")))
+        .thenReturn(envelope);
+    ContentTypeFieldControlProperties out =
+        resource.getFieldControlProperties("percPage", "sys_title");
+    assertEquals("None", out.getChoices().getNullEntry().getLabel());
+    assertEquals("nullEntry", out.getChoices().getDefaultSelected().get(0).getType());
+    assertEquals(
+        "sys_communityid", out.getChoices().getFilter().getDependentFields().get(0).getFieldRef());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesWritesChoiceExtras() {
+    ContentTypeFieldControlProperties body = new ContentTypeFieldControlProperties();
+    body.setProperties(List.of());
+    ContentTypeChoiceCatalog choices = new ContentTypeChoiceCatalog();
+    choices.setType("local");
+    choices.setEntries(List.of(new ContentTypeChoiceEntry("closed", "Closed")));
+    ContentTypeChoiceNullEntry nullEntry = new ContentTypeChoiceNullEntry();
+    nullEntry.setLabel("None");
+    choices.setNullEntry(nullEntry);
+    body.setChoices(choices);
+    when(adaptor.replaceFieldControlProperties(any(), eq("percPage"), eq("sys_title"), any()))
+        .thenReturn(body);
+    ContentTypeFieldControlProperties out =
+        resource.replaceFieldControlProperties("percPage", "sys_title", body);
+    assertEquals("None", out.getChoices().getNullEntry().getLabel());
+    assertEquals("closed", out.getChoices().getEntries().get(0).getValue());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesInvalidFilter() {
+    ContentTypeFieldControlProperties body = new ContentTypeFieldControlProperties();
+    body.setProperties(List.of());
+    when(adaptor.replaceFieldControlProperties(any(), eq("percPage"), eq("sys_title"), any()))
+        .thenThrow(new IllegalArgumentException("choices.filter.lookupHref is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldControlProperties("percPage", "sys_title", body));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void getFieldRuleExpressionsReturnsEnvelope() {
     ContentTypeFieldRuleExpressions envelope = new ContentTypeFieldRuleExpressions();
     envelope.setFieldName("sys_title");
@@ -1045,6 +1107,162 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
+  public void getContentTypeIconReturnsEnvelope() {
+    ContentTypeIcon icon =
+        new ContentTypeIcon(ContentTypeIcon.SOURCE_SPECIFIED, "rx_resources/images/page.gif");
+    when(adaptor.getContentTypeIcon(any(), eq("percPage"))).thenReturn(icon);
+    ContentTypeIcon out = resource.getContentTypeIcon("percPage");
+    assertEquals(ContentTypeIcon.SOURCE_SPECIFIED, out.getSource());
+    assertEquals("rx_resources/images/page.gif", out.getValue());
+  }
+
+  @Test
+  public void getContentTypeIconNotFound() {
+    when(adaptor.getContentTypeIcon(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getContentTypeIcon("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeIconSuccess() {
+    ContentTypeIcon body =
+        new ContentTypeIcon(ContentTypeIcon.SOURCE_SPECIFIED, "rx_resources/images/page.gif");
+    when(adaptor.setContentTypeIcon(
+            any(), eq("percPage"), eq(ContentTypeIcon.SOURCE_SPECIFIED), eq(body.getValue())))
+        .thenReturn(body);
+    ContentTypeIcon out = resource.setContentTypeIcon("percPage", body);
+    assertEquals(ContentTypeIcon.SOURCE_SPECIFIED, out.getSource());
+    assertEquals("rx_resources/images/page.gif", out.getValue());
+  }
+
+  @Test
+  public void setContentTypeIconFromFileFieldSuccess() {
+    ContentTypeIcon body =
+        new ContentTypeIcon(ContentTypeIcon.SOURCE_FROM_FILE_FIELD, "item_file_attachment");
+    when(adaptor.setContentTypeIcon(
+            any(),
+            eq("percPage"),
+            eq(ContentTypeIcon.SOURCE_FROM_FILE_FIELD),
+            eq("item_file_attachment")))
+        .thenReturn(body);
+    ContentTypeIcon out = resource.setContentTypeIcon("percPage", body);
+    assertEquals(ContentTypeIcon.SOURCE_FROM_FILE_FIELD, out.getSource());
+    assertEquals("item_file_attachment", out.getValue());
+  }
+
+  @Test
+  public void setContentTypeIconNoneClearsValue() {
+    ContentTypeIcon body = new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, "ignored.gif");
+    ContentTypeIcon saved = new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, null);
+    when(adaptor.setContentTypeIcon(
+            any(), eq("percPage"), eq(ContentTypeIcon.SOURCE_NONE), eq("ignored.gif")))
+        .thenReturn(saved);
+    ContentTypeIcon out = resource.setContentTypeIcon("percPage", body);
+    assertEquals(ContentTypeIcon.SOURCE_NONE, out.getSource());
+    assertEquals(null, out.getValue());
+  }
+
+  @Test
+  public void setContentTypeIconRequiresSource() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.setContentTypeIcon("percPage", new ContentTypeIcon()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeIconInvalidSource400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeIcon(
+                    "percPage", new ContentTypeIcon("unknown", "page.gif")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeIconBlankValue400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeIcon(
+                    "percPage", new ContentTypeIcon(ContentTypeIcon.SOURCE_SPECIFIED, "  ")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeIconNotFound() {
+    when(adaptor.setContentTypeIcon(
+            any(), eq("missing"), eq(ContentTypeIcon.SOURCE_NONE), nullable(String.class)))
+        .thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeIcon(
+                    "missing", new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, null)));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeIconRequiresLock() {
+    when(adaptor.setContentTypeIcon(
+            any(), eq("percPage"), eq(ContentTypeIcon.SOURCE_NONE), nullable(String.class)))
+        .thenThrow(
+            new ContentTypeDesignLockException("Could not set content type icon; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeIcon(
+                    "percPage", new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, null)));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeIconLockedByOtherUser() {
+    when(adaptor.setContentTypeIcon(
+            any(), eq("percPage"), eq(ContentTypeIcon.SOURCE_NONE), nullable(String.class)))
+        .thenThrow(
+            new ContentTypeDesignLockException("Could not set content type icon; locked by editor2"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeIcon(
+                    "percPage", new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, null)));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeIconForbiddenWhenNotAdmin() {
+    when(adaptor.setContentTypeIcon(
+            any(), eq("percPage"), eq(ContentTypeIcon.SOURCE_NONE), nullable(String.class)))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeIcon(
+                    "percPage", new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, null)));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void contentTypeIconJsonSerializesSourceAndValue() throws Exception {
+    ContentTypeIcon icon =
+        new ContentTypeIcon(ContentTypeIcon.SOURCE_FROM_FILE_FIELD, "item_file_attachment");
+    ObjectMapper mapper = new JacksonContextResolver().getContext(ContentTypeIcon.class);
+    String json = mapper.writeValueAsString(icon);
+    assertTrue(json.contains("fromFileField"), json);
+    assertTrue(json.contains("item_file_attachment"), json);
+  }
+
+  @Test
   public void addLocalFieldSuccess() {
     ContentTypeField body = new ContentTypeField();
     body.setName("rx_note");
@@ -1174,6 +1392,191 @@ public class ContentTypesResourceDetailTest {
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class, () -> resource.deleteLocalField("percPage", "rx_note"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void includeFieldSuccess() {
+    ContentTypeField body = new ContentTypeField();
+    body.setName("sys_title");
+    body.setFieldType("system");
+    ContentTypeDetail updated = new ContentTypeDetail();
+    updated.setName("percPage");
+    ContentTypeField included = new ContentTypeField();
+    included.setName("sys_title");
+    included.setFieldType("system");
+    updated.setFields(List.of(included));
+    when(adaptor.includeField(any(), eq("percPage"), any())).thenReturn(updated);
+    ContentTypeDetail out = resource.includeField("percPage", body);
+    assertEquals("percPage", out.getName());
+    assertEquals("system", out.getFields().get(0).getFieldType());
+    verify(adaptor).includeField(any(), eq("percPage"), eq(body));
+  }
+
+  @Test
+  public void includeFieldNotFound() {
+    when(adaptor.includeField(any(), eq("missing"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.includeField("missing", new ContentTypeField()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void includeFieldUnknownCatalogField404() {
+    when(adaptor.includeField(any(), eq("percPage"), any()))
+        .thenThrow(new WebApplicationException("Unknown system field: nope", 404));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.includeField("percPage", new ContentTypeField()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void includeFieldInvalidOrigin400() {
+    when(adaptor.includeField(any(), eq("percPage"), any()))
+        .thenThrow(new IllegalArgumentException("fieldType must be system or shared"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.includeField("percPage", new ContentTypeField()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void includeFieldDuplicate409() {
+    when(adaptor.includeField(any(), eq("percPage"), any()))
+        .thenThrow(new WebApplicationException("Field already included: sys_title", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.includeField("percPage", new ContentTypeField()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void includeFieldRequiresLock() {
+    when(adaptor.includeField(any(), eq("percPage"), any()))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not include content type field; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.includeField("percPage", new ContentTypeField()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void includeFieldForbiddenWhenNotAdmin() {
+    when(adaptor.includeField(any(), eq("percPage"), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.includeField("percPage", new ContentTypeField()));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getSearchIndexingReturnsFlag() {
+    when(adaptor.getContentTypeSearchIndexing(any(), eq("percPage")))
+        .thenReturn(new ContentTypeSearchIndexing(true));
+    ContentTypeSearchIndexing out = resource.getContentTypeSearchIndexing("percPage");
+    assertEquals(Boolean.TRUE, out.getSearchIndexing());
+  }
+
+  @Test
+  public void getSearchIndexingNotFound() {
+    when(adaptor.getContentTypeSearchIndexing(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.getContentTypeSearchIndexing("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setSearchIndexingSuccess() {
+    when(adaptor.setContentTypeSearchIndexing(any(), eq("percPage"), eq(false)))
+        .thenReturn(new ContentTypeSearchIndexing(false));
+    ContentTypeSearchIndexing out =
+        resource.setContentTypeSearchIndexing("percPage", new ContentTypeSearchIndexing(false));
+    assertEquals(Boolean.FALSE, out.getSearchIndexing());
+  }
+
+  @Test
+  public void setSearchIndexingRequiresBoolean() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.setContentTypeSearchIndexing("percPage", new ContentTypeSearchIndexing()));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains("searchIndexing"), ex.getMessage());
+  }
+
+  @Test
+  public void setSearchIndexingNullBodyIs400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.setContentTypeSearchIndexing("percPage", null));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setSearchIndexingNotFound() {
+    when(adaptor.setContentTypeSearchIndexing(any(), eq("missing"), eq(false))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeSearchIndexing(
+                    "missing", new ContentTypeSearchIndexing(false)));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setSearchIndexingRequiresLock() {
+    when(adaptor.setContentTypeSearchIndexing(any(), eq("percPage"), eq(false)))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not update content type search indexing; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeSearchIndexing(
+                    "percPage", new ContentTypeSearchIndexing(false)));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setSearchIndexingLockedByOtherUser() {
+    when(adaptor.setContentTypeSearchIndexing(any(), eq("percPage"), eq(false)))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not update content type search indexing; locked by editor2"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeSearchIndexing(
+                    "percPage", new ContentTypeSearchIndexing(false)));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setSearchIndexingForbiddenWhenNotAdmin() {
+    when(adaptor.setContentTypeSearchIndexing(any(), eq("percPage"), eq(false)))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeSearchIndexing(
+                    "percPage", new ContentTypeSearchIndexing(false)));
     assertEquals(403, ex.getResponse().getStatus());
   }
 }

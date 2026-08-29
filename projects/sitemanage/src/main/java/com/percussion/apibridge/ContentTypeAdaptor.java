@@ -23,12 +23,17 @@ import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.design.objectstore.PSApplyWhen;
 import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSBackEndTable;
+import com.percussion.design.objectstore.PSChoiceFilter;
 import com.percussion.design.objectstore.PSChoiceTableInfo;
 import com.percussion.design.objectstore.PSChoices;
+import com.percussion.design.objectstore.PSDefaultSelected;
 import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSConditionalExit;
 import com.percussion.design.objectstore.PSContentEditor;
+import com.percussion.design.objectstore.PSContentEditorMapper;
 import com.percussion.design.objectstore.PSContentEditorPipe;
+import com.percussion.design.objectstore.PSContentEditorSharedDef;
+import com.percussion.design.objectstore.PSContentEditorSystemDef;
 import com.percussion.design.objectstore.PSContentTypeHelper;
 import com.percussion.design.objectstore.PSControlRef;
 import com.percussion.design.objectstore.PSDisplayMapper;
@@ -40,6 +45,7 @@ import com.percussion.design.objectstore.PSExtensionCallSet;
 import com.percussion.design.objectstore.PSExtensionParamValue;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
+import com.percussion.design.objectstore.PSNullEntry;
 import com.percussion.design.objectstore.PSFieldTranslation;
 import com.percussion.design.objectstore.PSFieldValidationRules;
 import com.percussion.design.objectstore.IPSReplacementValue;
@@ -49,8 +55,10 @@ import com.percussion.design.objectstore.PSParam;
 import com.percussion.design.objectstore.PSPipe;
 import com.percussion.design.objectstore.PSRule;
 import com.percussion.design.objectstore.PSSearchProperties;
+import com.percussion.design.objectstore.PSSharedFieldGroup;
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.design.objectstore.PSTextLiteral;
+import com.percussion.design.objectstore.PSUIDefinition;
 import com.percussion.design.objectstore.PSUISet;
 import com.percussion.design.objectstore.PSUrlRequest;
 import com.percussion.design.objectstore.PSValidationRules;
@@ -62,7 +70,11 @@ import com.percussion.rest.Guid;
 import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeChoiceCatalog;
+import com.percussion.rest.contenttypes.ContentTypeChoiceDefaultSelected;
 import com.percussion.rest.contenttypes.ContentTypeChoiceEntry;
+import com.percussion.rest.contenttypes.ContentTypeChoiceFilter;
+import com.percussion.rest.contenttypes.ContentTypeChoiceFilterField;
+import com.percussion.rest.contenttypes.ContentTypeChoiceNullEntry;
 import com.percussion.rest.contenttypes.ContentTypeChoiceTable;
 import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
@@ -73,9 +85,11 @@ import com.percussion.rest.contenttypes.ContentTypeFieldControlProperties;
 import com.percussion.rest.contenttypes.ContentTypeFieldRule;
 import com.percussion.rest.contenttypes.ContentTypeFieldRuleExpressions;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
+import com.percussion.rest.contenttypes.ContentTypeIcon;
 import com.percussion.rest.contenttypes.ContentTypeItemExit;
 import com.percussion.rest.contenttypes.ContentTypeItemExitParam;
 import com.percussion.rest.contenttypes.ContentTypeItemExits;
+import com.percussion.rest.contenttypes.ContentTypeSearchIndexing;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
 import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.services.assembly.IPSAssemblyService;
@@ -324,8 +338,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
    *
    * @param includeDisabledFromStore when {@code true}, a cache miss falls back to the
    *     object store so disabled types (unregistered from the editor cache) still load.
-   *     GET detail, enable/disable (CD-13), and DELETE pass {@code true}; other callers keep
-   *     the pre-CD-13 cache-only 404 for disabled types.
+   *     GET detail, enable/disable (CD-13), search indexing (CD-10), GET/PUT icon (CD-11), and
+   *     DELETE pass {@code true}; other callers keep the pre-CD-13 cache-only 404 for disabled
+   *     types.
    */
   private PSItemDefinition resolveItemDef(String idOrName, boolean includeDisabledFromStore)
       throws PSInvalidContentTypeException {
@@ -428,6 +443,25 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   /**
+   * Root mapper field-set {@code isUserSearchable} (CD-10). Workbench default is on when the
+   * field-set is absent.
+   */
+  private static ContentTypeSearchIndexing toSearchIndexing(PSItemDefinition def) {
+    PSFieldSet fs = def.getFieldSet();
+    boolean searchable = fs == null || fs.isUserSearchable();
+    return new ContentTypeSearchIndexing(searchable);
+  }
+
+  /** Persist Workbench type-level search indexing on the mapper root field-set. */
+  private static void applyRootFieldSetSearchable(PSItemDefinition def, boolean searchable) {
+    PSFieldSet fs = def.getFieldSet();
+    if (fs == null) {
+      throw new IllegalStateException("Content type has no mapper field-set");
+    }
+    fs.setUserSearchable(searchable);
+  }
+
+  /**
    * Structured designGaps for content-type detail (REST-GAPS-01). Package-visible for unit tests.
    */
   static List<DesignGap> contentTypeDesignGaps(boolean controlsResolved) {
@@ -457,11 +491,14 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
             "CT_FIELD_CREATE_DELETE",
             "Local field create/delete: POST/DELETE /contenttypes/{idOrName}/fields"
                 + " (held lock). Optional fieldSet names an existing child or creates a named"
-                + " complex child. System/shared inclusion is CD-04. Field order remains"
-                + " Workbench"));
+                + " complex child. Include system/shared: POST .../fields/include (CD-04)."
+                + " Field order remains Workbench"));
     gaps.add(
         DesignGap.of(
-            "CT_SHARED_FIELD_INCLUSION", "Shared/system field inclusion editing not supported"));
+            "CT_SHARED_FIELD_INCLUSION",
+            "Include system/shared fields: POST /contenttypes/{idOrName}/fields/include"
+                + " (held lock, Admin). Origin stays system/shared. SPA field picker remains"
+                + " Workbench"));
     gaps.add(
         DesignGap.of(
             "CT_WF_TEMPLATE_ASSOC_SEMANTICS",
@@ -474,8 +511,20 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
                 + " fails, meta/field/workflow changes may already be committed"));
     gaps.add(
         DesignGap.of(
+            "CT_ICON_STRATEGY",
+            "Icon strategy: GET/PUT /contenttypes/{idOrName}/icon (held lock for write)."
+                + " source none|specified|fromFileField. none clears value. Binary upload and"
+                + " SPA picker remain Workbench"));
+    gaps.add(
+        DesignGap.of(
             "CT_FIELD_LABELS_WRITE",
             "Field display labels are not writable via PUT content type detail"));
+    gaps.add(
+        DesignGap.of(
+            "CT_SEARCH_INDEXING",
+            "Type-level search indexing: GET/PUT /contenttypes/{idOrName}/searchIndexing"
+                + " (held lock for write). Default is on. Per-field searchable is a separate PUT"
+                + " detail flag. SPA Properties checkbox is not exposed"));
     if (!controlsResolved) {
       gaps.add(
           DesignGap.of(
@@ -723,6 +772,233 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       log.error("Failed to enable/disable content type {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to enable/disable content type", e);
     }
+  }
+
+  @Override
+  public ContentTypeSearchIndexing getContentTypeSearchIndexing(URI baseUri, String idOrName) {
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    try {
+      PSItemDefinition def = resolveItemDef(idOrName.trim(), true);
+      if (def == null) {
+        return null;
+      }
+      return toSearchIndexing(def);
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for search indexing: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error("Failed to load content type search indexing {}: {}", idOrName, e.getMessage(), e);
+      throw new RuntimeException(
+          "Failed to load content type search indexing ("
+              + e.getClass().getName()
+              + "): "
+              + e.getMessage(),
+          e);
+    }
+  }
+
+  @Override
+  public ContentTypeIcon getContentTypeIcon(URI baseUri, String idOrName) {
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    try {
+      PSItemDefinition def = resolveItemDef(idOrName.trim(), true);
+      if (def == null) {
+        return null;
+      }
+      return toIcon(def.getContentEditor());
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for icon: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error("Failed to load content type icon {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to load content type icon", e);
+    }
+  }
+
+  @Override
+  public ContentTypeSearchIndexing setContentTypeSearchIndexing(
+      URI baseUri, String idOrName, boolean searchIndexing) {
+    requireAdmin();
+    requireSessionUserForLock();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      PSItemDefinition current = resolveItemDef(trimmed, true);
+      if (current == null) {
+        return null;
+      }
+      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
+      requireHeldLock(ctGuid);
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        throw lockConflict(e, "Could not update content type search indexing");
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      applyRootFieldSetSearchable(def, searchIndexing);
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+      } catch (PSErrorsException e) {
+        if (hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not update content type search indexing");
+        }
+        log.error(
+            "Failed to save content type search indexing {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save content type search indexing", e);
+      }
+      PSItemDefinition reloaded = reloadItemDef(trimmed);
+      if (reloaded != null && reloaded != def) {
+        applyRootFieldSetSearchable(reloaded, searchIndexing);
+        return toSearchIndexing(reloaded);
+      }
+      return toSearchIndexing(def);
+    } catch (ContentTypeDesignLockException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for search indexing: {}", idOrName);
+      return null;
+    } catch (IllegalStateException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to update content type search indexing {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to update content type search indexing", e);
+    }
+  }
+
+  @Override
+  public ContentTypeIcon setContentTypeIcon(
+      URI baseUri, String idOrName, String source, String value) {
+    requireAdmin();
+    requireSessionUserForLock();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    String soapSource = toSoapIconSource(source);
+    String persistValue =
+        PSContentEditor.ICON_SOURCE_NONE.equals(soapSource) ? "" : StringUtils.trimToEmpty(value);
+    if (!PSContentEditor.ICON_SOURCE_NONE.equals(soapSource) && StringUtils.isBlank(persistValue)) {
+      throw new IllegalArgumentException("value is required when source is not none");
+    }
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      PSItemDefinition current = resolveItemDef(trimmed, true);
+      if (current == null) {
+        return null;
+      }
+      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
+      requireHeldLock(ctGuid, "Could not set content type icon");
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        throw lockConflict(e, "Could not set content type icon");
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      PSContentEditor editor = def.getContentEditor();
+      if (editor == null) {
+        throw new IllegalArgumentException("content type has no content editor");
+      }
+      editor.setContentTypeIcon(soapSource, persistValue);
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+      } catch (PSErrorsException e) {
+        if (hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not set content type icon");
+        }
+        log.error("Failed to save content type icon {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save content type icon", e);
+      }
+      PSItemDefinition reloaded = reloadItemDef(trimmed);
+      if (reloaded != null && reloaded.getContentEditor() != null) {
+        return toIcon(reloaded.getContentEditor());
+      }
+      return toIcon(editor);
+    } catch (ContentTypeDesignLockException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for icon: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error("Failed to set content type icon {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to set content type icon", e);
+    }
+  }
+
+  /**
+   * Maps a REST icon source to the object-store {@link PSContentEditor} codes.
+   *
+   * @param source {@code none}, {@code specified}, or {@code fromFileField}
+   * @return SOAP {@code ICON_SOURCE_*} value
+   */
+  static String toSoapIconSource(String source) {
+    if (StringUtils.isBlank(source)) {
+      throw new IllegalArgumentException("source is required");
+    }
+    String trimmed = source.trim();
+    if (ContentTypeIcon.SOURCE_NONE.equalsIgnoreCase(trimmed)) {
+      return PSContentEditor.ICON_SOURCE_NONE;
+    }
+    if (ContentTypeIcon.SOURCE_SPECIFIED.equalsIgnoreCase(trimmed)) {
+      return PSContentEditor.ICON_SOURCE_SPECIFIED;
+    }
+    if (ContentTypeIcon.SOURCE_FROM_FILE_FIELD.equalsIgnoreCase(trimmed)) {
+      return PSContentEditor.ICON_SOURCE_FROMFILEEXT;
+    }
+    throw new IllegalArgumentException("source must be none, specified, or fromFileField");
+  }
+
+  /**
+   * Maps a content editor icon to the REST envelope. Missing editor is {@code none}.
+   *
+   * @param editor may be {@code null}
+   * @return envelope, never {@code null}
+   */
+  static ContentTypeIcon toIcon(PSContentEditor editor) {
+    if (editor == null) {
+      return new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, null);
+    }
+    String soap = editor.getIconSource();
+    if (PSContentEditor.ICON_SOURCE_SPECIFIED.equals(soap)) {
+      return new ContentTypeIcon(
+          ContentTypeIcon.SOURCE_SPECIFIED, StringUtils.trimToNull(editor.getIconValue()));
+    }
+    if (PSContentEditor.ICON_SOURCE_FROMFILEEXT.equals(soap)) {
+      return new ContentTypeIcon(
+          ContentTypeIcon.SOURCE_FROM_FILE_FIELD, StringUtils.trimToNull(editor.getIconValue()));
+    }
+    return new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, null);
   }
 
   @Override
@@ -1307,6 +1583,82 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     } catch (Exception e) {
       log.error("Failed to delete local field for {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to delete local field", e);
+    }
+  }
+
+  @Override
+  public ContentTypeDetail includeField(URI baseUri, String idOrName, ContentTypeField body) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    String origin = requireIncludeOrigin(body.getFieldType());
+    String requestedName = validateIncludeFieldName(body.getName());
+    String simpleName = simpleIncludeFieldName(requestedName);
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    requireSessionUserForLock();
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      IPSGuid ctGuid = resolveExistingContentTypeGuid(trimmed);
+      if (ctGuid == null) {
+        return null;
+      }
+      requireHeldLock(ctGuid, "Could not include content type field");
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        throw lockConflict(e, "Could not include content type field");
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      if (findField(def, simpleName) != null
+          || findDisplayMapping(displayMapperOfStatic(def), simpleName) != null) {
+        throw new WebApplicationException("Field already included: " + simpleName, 409);
+      }
+      if ("system".equals(origin)) {
+        PSDisplayMapping mapping = loadSystemFieldMapping(simpleName, session, user);
+        if (mapping == null) {
+          throw new WebApplicationException("Unknown system field: " + simpleName, 404);
+        }
+        includeSystemOrSharedField(def, simpleName, PSField.TYPE_SYSTEM, mapping, null, body);
+      } else {
+        PSSharedFieldGroup group = loadSharedGroupForInclude(requestedName, session, user);
+        if (group == null) {
+          throw new WebApplicationException("Unknown shared field: " + requestedName, 404);
+        }
+        PSDisplayMapping mapping = mappingFromSharedGroup(group, simpleName);
+        includeSystemOrSharedField(def, simpleName, PSField.TYPE_SHARED, mapping, group, body);
+      }
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+      } catch (PSErrorsException e) {
+        if (hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not include content type field");
+        }
+        log.error("Failed to save included field for {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save included field", e);
+      }
+      PSItemDefinition reloaded = reloadItemDef(trimmed);
+      return reloaded != null ? toDetail(reloaded) : toDetail(def);
+    } catch (ContentTypeDesignLockException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Failed to include field for {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to include field", e);
     }
   }
 
@@ -2250,10 +2602,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   static List<DesignGap> controlPropertyDesignGaps() {
-    return List.of(
-        DesignGap.of(
-            "CT_CHOICE_FILTER",
-            "Choice filters, null-entry, and default-selected are not writable"));
+    return List.of();
   }
 
   static String choiceTypeName(int type) {
@@ -2327,6 +2676,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         cat.setTable(table);
       }
     }
+    cat.setNullEntry(toNullEntry(choices.getNullEntry()));
+    cat.setDefaultSelected(toDefaultSelected(choices));
+    cat.setFilter(toChoiceFilter(choices.getChoiceFilter()));
     return cat;
   }
 
@@ -2395,7 +2747,201 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     if (StringUtils.isNotBlank(catalog.getSortOrder())) {
       choices.setSortOrder(parseSortOrder(catalog.getSortOrder()));
     }
+    choices.setNullEntry(fromNullEntry(catalog.getNullEntry()));
+    choices.setDefaultSelected(fromDefaultSelected(catalog.getDefaultSelected()));
+    choices.setChoiceFilter(fromChoiceFilter(catalog.getFilter()));
     return choices;
+  }
+
+  static ContentTypeChoiceNullEntry toNullEntry(PSNullEntry entry) {
+    if (entry == null) {
+      return null;
+    }
+    ContentTypeChoiceNullEntry out = new ContentTypeChoiceNullEntry();
+    out.setValue(entry.getValue());
+    if (entry.getLabel() != null) {
+      out.setLabel(entry.getLabel().getText());
+    }
+    out.setIncludeWhen(
+        entry.getIncludeWhen() == PSNullEntry.INCLUDE_WHEN_ALWAYS ? "always" : "onlyIfNull");
+    out.setSortOrder(
+        switch (entry.getSortOrder()) {
+          case PSNullEntry.SORT_ORDER_LAST -> "last";
+          case PSNullEntry.SORT_ORDER_SORTED -> "sorted";
+          default -> "first";
+        });
+    return out;
+  }
+
+  static PSNullEntry fromNullEntry(ContentTypeChoiceNullEntry body) {
+    if (body == null) {
+      return null;
+    }
+    String value = body.getValue() != null ? body.getValue() : "";
+    String label = StringUtils.isNotBlank(body.getLabel()) ? body.getLabel() : value;
+    PSNullEntry entry = new PSNullEntry(value, new PSDisplayText(label));
+    if (StringUtils.isNotBlank(body.getIncludeWhen())) {
+      entry.setIncludeWhen(parseNullEntryIncludeWhen(body.getIncludeWhen()));
+    }
+    if (StringUtils.isNotBlank(body.getSortOrder())) {
+      entry.setSortOrder(parseNullEntrySortOrder(body.getSortOrder()));
+    }
+    return entry;
+  }
+
+  static int parseNullEntryIncludeWhen(String includeWhen) {
+    if ("always".equalsIgnoreCase(includeWhen)) {
+      return PSNullEntry.INCLUDE_WHEN_ALWAYS;
+    }
+    if ("onlyIfNull".equalsIgnoreCase(includeWhen)) {
+      return PSNullEntry.INCLUDE_WHEN_ONLY_IF_NULL;
+    }
+    throw new IllegalArgumentException("choices.nullEntry.includeWhen must be always or onlyIfNull");
+  }
+
+  static int parseNullEntrySortOrder(String sortOrder) {
+    if ("first".equalsIgnoreCase(sortOrder)) {
+      return PSNullEntry.SORT_ORDER_FIRST;
+    }
+    if ("last".equalsIgnoreCase(sortOrder)) {
+      return PSNullEntry.SORT_ORDER_LAST;
+    }
+    if ("sorted".equalsIgnoreCase(sortOrder)) {
+      return PSNullEntry.SORT_ORDER_SORTED;
+    }
+    throw new IllegalArgumentException("choices.nullEntry.sortOrder must be first, last, or sorted");
+  }
+
+  static List<ContentTypeChoiceDefaultSelected> toDefaultSelected(PSChoices choices) {
+    if (choices == null) {
+      return null;
+    }
+    List<ContentTypeChoiceDefaultSelected> out = new ArrayList<>();
+    for (Iterator<?> it = choices.getDefaultSelected(); it.hasNext(); ) {
+      Object o = it.next();
+      if (o instanceof PSDefaultSelected selected) {
+        ContentTypeChoiceDefaultSelected item = new ContentTypeChoiceDefaultSelected();
+        switch (selected.getType()) {
+          case PSDefaultSelected.TYPE_SEQUENCE -> {
+            item.setType("sequence");
+            item.setSequence(selected.getSequence());
+          }
+          case PSDefaultSelected.TYPE_TEXT -> {
+            item.setType("text");
+            item.setText(selected.getText());
+          }
+          default -> item.setType("nullEntry");
+        }
+        out.add(item);
+      }
+    }
+    return out.isEmpty() ? null : out;
+  }
+
+  static PSCollection<PSDefaultSelected> fromDefaultSelected(
+      List<ContentTypeChoiceDefaultSelected> items) {
+    if (items == null || items.isEmpty()) {
+      return null;
+    }
+    PSCollection<PSDefaultSelected> col = new PSCollection<>(PSDefaultSelected.class);
+    for (int i = 0; i < items.size(); i++) {
+      col.add(fromDefaultSelectedItem(items.get(i), i));
+    }
+    return col;
+  }
+
+  static PSDefaultSelected fromDefaultSelectedItem(
+      ContentTypeChoiceDefaultSelected item, int index) {
+    if (item == null) {
+      throw new IllegalArgumentException("choices.defaultSelected[" + index + "] is required");
+    }
+    String type = item.getType() == null ? "" : item.getType().trim();
+    if (type.isEmpty() || "nullEntry".equalsIgnoreCase(type)) {
+      return new PSDefaultSelected();
+    }
+    if ("sequence".equalsIgnoreCase(type)) {
+      if (item.getSequence() == null || item.getSequence() < 0) {
+        throw new IllegalArgumentException(
+            "choices.defaultSelected[" + index + "].sequence is required for type sequence");
+      }
+      return new PSDefaultSelected(item.getSequence());
+    }
+    if ("text".equalsIgnoreCase(type)) {
+      if (StringUtils.isBlank(item.getText())) {
+        throw new IllegalArgumentException(
+            "choices.defaultSelected[" + index + "].text is required for type text");
+      }
+      return new PSDefaultSelected(item.getText().trim());
+    }
+    throw new IllegalArgumentException(
+        "choices.defaultSelected[" + index + "].type must be nullEntry, sequence, or text");
+  }
+
+  static ContentTypeChoiceFilter toChoiceFilter(PSChoiceFilter filter) {
+    if (filter == null) {
+      return null;
+    }
+    ContentTypeChoiceFilter out = new ContentTypeChoiceFilter();
+    List<ContentTypeChoiceFilterField> deps = new ArrayList<>();
+    if (filter.getDependentFields() != null) {
+      for (Iterator<?> it = filter.getDependentFields().iterator(); it.hasNext(); ) {
+        Object o = it.next();
+        if (o instanceof PSChoiceFilter.DependentField field) {
+          deps.add(new ContentTypeChoiceFilterField(field.getFieldRef(), field.getDependencyType()));
+        }
+      }
+    }
+    out.setDependentFields(deps);
+    if (filter.getLookup() != null) {
+      out.setLookupHref(filter.getLookup().getHref());
+      out.setLookupName(filter.getLookup().getName());
+    }
+    return out;
+  }
+
+  static PSChoiceFilter fromChoiceFilter(ContentTypeChoiceFilter filter) {
+    if (filter == null) {
+      return null;
+    }
+    List<ContentTypeChoiceFilterField> deps = filter.getDependentFields();
+    if (deps == null || deps.isEmpty()) {
+      throw new IllegalArgumentException("choices.filter.dependentFields is required");
+    }
+    if (StringUtils.isBlank(filter.getLookupHref())) {
+      throw new IllegalArgumentException("choices.filter.lookupHref is required");
+    }
+    PSCollection<PSChoiceFilter.DependentField> fields =
+        new PSCollection<>(PSChoiceFilter.DependentField.class);
+    for (int i = 0; i < deps.size(); i++) {
+      ContentTypeChoiceFilterField dep = deps.get(i);
+      if (dep == null || StringUtils.isBlank(dep.getFieldRef())) {
+        throw new IllegalArgumentException(
+            "choices.filter.dependentFields[" + i + "].fieldRef is required");
+      }
+      if (StringUtils.isBlank(dep.getDependencyType())) {
+        throw new IllegalArgumentException(
+            "choices.filter.dependentFields[" + i + "].dependencyType is required");
+      }
+      String depType = dep.getDependencyType().trim();
+      if (!PSChoiceFilter.DependentField.TYPE_OPTIONAL.equalsIgnoreCase(depType)
+          && !PSChoiceFilter.DependentField.TYPE_REQUIRED.equalsIgnoreCase(depType)) {
+        throw new IllegalArgumentException(
+            "choices.filter.dependentFields["
+                + i
+                + "].dependencyType must be optional or required");
+      }
+      String canonical =
+          PSChoiceFilter.DependentField.TYPE_REQUIRED.equalsIgnoreCase(depType)
+              ? PSChoiceFilter.DependentField.TYPE_REQUIRED
+              : PSChoiceFilter.DependentField.TYPE_OPTIONAL;
+      fields.add(new PSChoiceFilter.DependentField(dep.getFieldRef().trim(), canonical));
+    }
+    String lookupName =
+        StringUtils.isBlank(filter.getLookupName()) ? null : filter.getLookupName().trim();
+    return new PSChoiceFilter(
+        fields,
+        new PSUrlRequest(
+            lookupName, filter.getLookupHref().trim(), new PSCollection<>(PSParam.class)));
   }
 
   static PSCollection<PSParam> toParamCollection(List<ContentTypeControlProperty> properties) {
@@ -2809,6 +3355,260 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
     String name = StringUtils.defaultIfBlank(def.getName(), "CONTENTTYPE");
     return new PSBackEndTable(columnNameForField(name));
+  }
+
+  static String requireIncludeOrigin(String fieldType) {
+    if (StringUtils.isBlank(fieldType)) {
+      throw new IllegalArgumentException("fieldType is required (system or shared)");
+    }
+    String origin = fieldType.trim().toLowerCase();
+    if ("local".equals(origin)) {
+      throw new IllegalArgumentException("Use POST .../fields to create a local field");
+    }
+    if (!"system".equals(origin) && !"shared".equals(origin)) {
+      throw new IllegalArgumentException("fieldType must be system or shared");
+    }
+    return origin;
+  }
+
+  static String validateIncludeFieldName(String name) {
+    if (StringUtils.isBlank(name)) {
+      throw new IllegalArgumentException("name is required");
+    }
+    String trimmed = name.trim();
+    if (containsWhitespace(trimmed)) {
+      throw new IllegalArgumentException("name cannot contain spaces");
+    }
+    if (trimmed.contains("..")
+        || trimmed.indexOf('/') >= 0
+        || trimmed.indexOf('\\') >= 0
+        || trimmed.indexOf('\0') >= 0) {
+      throw new IllegalArgumentException("name contains invalid path characters");
+    }
+    String[] parts;
+    try {
+      parts = PSContentTypeHelper.getSharedFieldName(trimmed);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("name must be a field or group.field", e);
+    }
+    for (String part : parts) {
+      validateFieldName(part);
+    }
+    return trimmed;
+  }
+
+  static String simpleIncludeFieldName(String name) {
+    return PSContentTypeHelper.getSharedFieldName(name)[0];
+  }
+
+  /**
+   * Workbench include: drop the field from system/shared excludes, include the shared group when
+   * needed, append a display mapping, and keep a typed (non-local) field on the parent set so GET
+   * detail reports origin system/shared.
+   */
+  static PSField includeSystemOrSharedField(
+      PSItemDefinition def,
+      String fieldName,
+      int type,
+      PSDisplayMapping sourceMapping,
+      PSSharedFieldGroup sharedGroup,
+      ContentTypeField body) {
+    if (def == null) {
+      throw new IllegalArgumentException("content type is required");
+    }
+    if (type != PSField.TYPE_SYSTEM && type != PSField.TYPE_SHARED) {
+      throw new IllegalArgumentException("include type must be system or shared");
+    }
+    PSContentEditorMapper mapper = contentEditorMapperOf(def);
+    if (type == PSField.TYPE_SHARED) {
+      if (sharedGroup == null) {
+        throw new IllegalArgumentException("shared field group is required");
+      }
+      ensureSharedGroupIncluded(mapper, sharedGroup);
+    }
+    removeFieldFromExcludes(mapper, fieldName, type);
+    appendIncludeDisplayMapping(displayMapperOfStatic(def), fieldName, sourceMapping, body);
+    return ensureTypedIncludedField(def, fieldName, type);
+  }
+
+  static PSContentEditorMapper contentEditorMapperOf(PSItemDefinition def) {
+    if (def == null) {
+      throw new IllegalArgumentException("content type is required");
+    }
+    try {
+      PSContentEditorMapper mapper = def.getContentEditorMapper();
+      if (mapper == null) {
+        throw new IllegalArgumentException("Content type has no editor mapper");
+      }
+      return mapper;
+    } catch (RuntimeException e) {
+      throw new IllegalArgumentException("Content type has no editor mapper", e);
+    }
+  }
+
+  static void ensureSharedGroupIncluded(
+      PSContentEditorMapper mapper, PSSharedFieldGroup group) {
+    ArrayList<String> includes = copyStringList(mapper.getSharedFieldIncludes());
+    boolean already =
+        includes.stream().anyMatch(n -> n.equalsIgnoreCase(group.getName()));
+    if (already) {
+      return;
+    }
+    includes.add(group.getName());
+    mapper.setSharedFieldIncludes(includes);
+    ArrayList<String> excludes = copyStringList(mapper.getSharedFieldExcludes());
+    if (group.getFieldSet() != null) {
+      for (PSField f : group.getFieldSet().getAllFields()) {
+        if (f == null || StringUtils.isBlank(f.getSubmitName())) {
+          continue;
+        }
+        boolean present =
+            excludes.stream().anyMatch(n -> n.equalsIgnoreCase(f.getSubmitName()));
+        if (!present) {
+          excludes.add(f.getSubmitName());
+        }
+      }
+    }
+    mapper.setSharedFieldExcludes(excludes);
+  }
+
+  static void removeFieldFromExcludes(
+      PSContentEditorMapper mapper, String fieldName, int type) {
+    ArrayList<String> names =
+        type == PSField.TYPE_SYSTEM
+            ? copyStringList(mapper.getSystemFieldExcludes())
+            : copyStringList(mapper.getSharedFieldExcludes());
+    names.removeIf(n -> n != null && n.equalsIgnoreCase(fieldName));
+    if (type == PSField.TYPE_SYSTEM) {
+      mapper.setSystemFieldExcludes(names);
+    } else {
+      mapper.setSharedFieldExcludes(names);
+    }
+  }
+
+  static ArrayList<String> copyStringList(Iterator<?> it) {
+    ArrayList<String> names = new ArrayList<>();
+    if (it == null) {
+      return names;
+    }
+    while (it.hasNext()) {
+      Object o = it.next();
+      if (o != null) {
+        names.add(o.toString());
+      }
+    }
+    return names;
+  }
+
+  static void appendIncludeDisplayMapping(
+      PSDisplayMapper mapper,
+      String fieldName,
+      PSDisplayMapping source,
+      ContentTypeField body) {
+    if (mapper == null) {
+      throw new IllegalArgumentException("Content type has no display mapper");
+    }
+    ContentTypeField labelBody = new ContentTypeField();
+    labelBody.setName(fieldName);
+    if (body != null && StringUtils.isNotBlank(body.getLabel())) {
+      labelBody.setLabel(body.getLabel().trim());
+    } else if (source != null
+        && source.getUISet() != null
+        && source.getUISet().getLabel() != null
+        && StringUtils.isNotBlank(source.getUISet().getLabel().getText())) {
+      labelBody.setLabel(source.getUISet().getLabel().getText());
+    }
+    if (body != null && StringUtils.isNotBlank(body.getControl())) {
+      labelBody.setControl(body.getControl().trim());
+    } else if (source != null
+        && source.getUISet() != null
+        && source.getUISet().getControl() != null
+        && StringUtils.isNotBlank(source.getUISet().getControl().getName())) {
+      labelBody.setControl(source.getUISet().getControl().getName());
+    }
+    appendDefaultDisplayMapping(mapper, fieldName, labelBody);
+  }
+
+  static PSField ensureTypedIncludedField(PSItemDefinition def, String fieldName, int type) {
+    PSField existing = findField(def, fieldName);
+    if (existing != null) {
+      return existing;
+    }
+    PSFieldSet parent = def.getFieldSet();
+    if (parent == null) {
+      throw new IllegalArgumentException("Content type has no field set");
+    }
+    PSField field = new PSField(type, fieldName, null);
+    parent.add(field);
+    return field;
+  }
+
+  static PSDisplayMapping findSystemFieldMapping(
+      PSContentEditorSystemDef sysDef, String fieldName) {
+    if (sysDef == null || StringUtils.isBlank(fieldName)) {
+      return null;
+    }
+    PSUIDefinition ui = sysDef.getUIDefinition();
+    if (ui == null) {
+      return null;
+    }
+    PSDisplayMapping exact = ui.getMapping(fieldName);
+    if (exact != null) {
+      return exact;
+    }
+    return findDisplayMapping(ui.getDisplayMapper(), fieldName);
+  }
+
+  static PSSharedFieldGroup findSharedGroup(
+      PSContentEditorSharedDef sharedDef, String fieldName) {
+    if (sharedDef == null || StringUtils.isBlank(fieldName)) {
+      return null;
+    }
+    String[] parts = PSContentTypeHelper.getSharedFieldName(fieldName);
+    String simple = parts[0];
+    String grpName = parts.length == 2 ? parts[1] : null;
+    Iterator<?> groups = sharedDef.getFieldGroups();
+    if (groups == null) {
+      return null;
+    }
+    while (groups.hasNext()) {
+      Object o = groups.next();
+      if (!(o instanceof PSSharedFieldGroup group)) {
+        continue;
+      }
+      if (grpName != null && !group.getName().equalsIgnoreCase(grpName)) {
+        continue;
+      }
+      if (group.getFieldSet() != null && group.getFieldSet().findFieldByName(simple) != null) {
+        return group;
+      }
+    }
+    return null;
+  }
+
+  static PSDisplayMapping mappingFromSharedGroup(PSSharedFieldGroup group, String fieldName) {
+    if (group == null || group.getUIDefinition() == null) {
+      return null;
+    }
+    PSDisplayMapping exact = group.getUIDefinition().getMapping(fieldName);
+    if (exact != null) {
+      return exact;
+    }
+    return findDisplayMapping(group.getUIDefinition().getDisplayMapper(), fieldName);
+  }
+
+  private PSDisplayMapping loadSystemFieldMapping(String fieldName, String session, String user)
+      throws Exception {
+    PSContentEditorSystemDef sysDef =
+        designSvc.loadContentEditorSystemDef(false, false, session, user);
+    return findSystemFieldMapping(sysDef, fieldName);
+  }
+
+  private PSSharedFieldGroup loadSharedGroupForInclude(
+      String fieldName, String session, String user) throws Exception {
+    PSContentEditorSharedDef sharedDef =
+        designSvc.loadContentEditorSharedDef(false, false, session, user);
+    return findSharedGroup(sharedDef, fieldName);
   }
 
   static String validateFieldName(String name) {

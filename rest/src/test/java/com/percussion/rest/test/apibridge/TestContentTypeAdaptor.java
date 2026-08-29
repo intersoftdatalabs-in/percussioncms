@@ -22,13 +22,19 @@ package com.percussion.rest.test.apibridge;
 import com.percussion.rest.Guid;
 import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.contenttypes.ContentType;
+import com.percussion.rest.contenttypes.ContentTypeChoiceCatalog;
+import com.percussion.rest.contenttypes.ContentTypeChoiceDefaultSelected;
+import com.percussion.rest.contenttypes.ContentTypeChoiceEntry;
+import com.percussion.rest.contenttypes.ContentTypeChoiceNullEntry;
 import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeField;
 import com.percussion.rest.contenttypes.ContentTypeFieldControlProperties;
 import com.percussion.rest.contenttypes.ContentTypeFieldRuleExpressions;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
+import com.percussion.rest.contenttypes.ContentTypeIcon;
 import com.percussion.rest.contenttypes.ContentTypeItemExits;
+import com.percussion.rest.contenttypes.ContentTypeSearchIndexing;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
 import com.percussion.rest.contenttypes.NamedObjectRef;
 import java.net.URI;
@@ -126,6 +132,28 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   @Override
+  public ContentTypeSearchIndexing getContentTypeSearchIndexing(URI baseUri, String idOrName) {
+    return new ContentTypeSearchIndexing(true);
+  }
+
+  @Override
+  public ContentTypeSearchIndexing setContentTypeSearchIndexing(
+      URI baseUri, String idOrName, boolean searchIndexing) {
+    return new ContentTypeSearchIndexing(searchIndexing);
+  }
+
+  @Override
+  public ContentTypeIcon getContentTypeIcon(URI baseUri, String idOrName) {
+    return new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, null);
+  }
+
+  @Override
+  public ContentTypeIcon setContentTypeIcon(
+      URI baseUri, String idOrName, String source, String value) {
+    return new ContentTypeIcon(source, ContentTypeIcon.isNone(source) ? null : value);
+  }
+
+  @Override
   public ContentTypeDetail renameContentType(URI baseUri, String idOrName, String newName) {
     return null;
   }
@@ -168,6 +196,16 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
     out.setFieldName(fieldName);
     out.setControl("sys_EditBox");
     out.setProperties(List.of(new ContentTypeControlProperty("height", "200")));
+    ContentTypeChoiceCatalog choices = new ContentTypeChoiceCatalog();
+    choices.setType("local");
+    choices.setEntries(List.of(new ContentTypeChoiceEntry("open", "Open")));
+    ContentTypeChoiceNullEntry nullEntry = new ContentTypeChoiceNullEntry();
+    nullEntry.setValue("");
+    nullEntry.setLabel("None");
+    nullEntry.setIncludeWhen("always");
+    choices.setNullEntry(nullEntry);
+    choices.setDefaultSelected(List.of(new ContentTypeChoiceDefaultSelected("nullEntry")));
+    out.setChoices(choices);
     return out;
   }
 
@@ -203,5 +241,10 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
   @Override
   public Boolean deleteLocalField(URI baseUri, String idOrName, String fieldName) {
     return Boolean.TRUE;
+  }
+
+  @Override
+  public ContentTypeDetail includeField(URI baseUri, String idOrName, ContentTypeField body) {
+    return getContentType(baseUri, idOrName);
   }
 }

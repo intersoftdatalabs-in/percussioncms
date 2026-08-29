@@ -1115,6 +1115,178 @@ public class ContentTypesResource {
     }
   }
 
+  @GET
+  @Path("/{idOrName}/searchIndexing")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get content type search indexing flag",
+      description =
+          "CD-10: returns the type-level search indexing flag (Workbench Properties"
+              + " \"Enable searching for this Content Type\"). Maps the root mapper field-set"
+              + " isUserSearchable. Default is on. Distinct from per-field searchable on PUT"
+              + " detail. No design lock is required. Jackson root wrap is"
+              + " ContentTypeSearchIndexing.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(schema = @Schema(implementation = ContentTypeSearchIndexing.class))),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeSearchIndexing getContentTypeSearchIndexing(
+      @PathParam("idOrName") String idOrName) {
+    try {
+      ContentTypeSearchIndexing out =
+          requireAdaptor().getContentTypeSearchIndexing(uriInfo.getBaseUri(), idOrName);
+      if (out == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return out;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}/searchIndexing")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Enable or disable type-level search indexing",
+      description =
+          "CD-10 design action: sets the content type root field-set isUserSearchable flag"
+              + " (Workbench Properties \"Enable searching for this Content Type\"). Admin only."
+              + " Requires a design-session lock already held by the current user (POST"
+              + " .../lock). Does not acquire or release the lock. Distinct from per-field"
+              + " searchable on PUT detail. Default is on. Jackson root wrap is"
+              + " ContentTypeSearchIndexing.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated (lock is still held)",
+            content =
+                @Content(schema = @Schema(implementation = ContentTypeSearchIndexing.class))),
+        @ApiResponse(responseCode = "400", description = "searchIndexing is required"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock required, or locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeSearchIndexing setContentTypeSearchIndexing(
+      @PathParam("idOrName") String idOrName, ContentTypeSearchIndexing body) {
+    if (body == null || body.getSearchIndexing() == null) {
+      throw new WebApplicationException("searchIndexing is required", 400);
+    }
+    try {
+      ContentTypeSearchIndexing out =
+          requireAdaptor()
+              .setContentTypeSearchIndexing(
+                  uriInfo.getBaseUri(), idOrName, body.getSearchIndexing());
+      if (out == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return out;
+    } catch (RuntimeException e) {
+      throw mapEnabledFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @GET
+  @Path("/{idOrName}/icon")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get content type icon strategy",
+      description =
+          "CD-11 GET: icon source (none, specified, fromFileField) and value (file path/name or"
+              + " field name). No design lock is required. none has no value. Does not return"
+              + " icon binaries. Jackson root wrap is ContentTypeIcon.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = ContentTypeIcon.class))),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeIcon getContentTypeIcon(@PathParam("idOrName") String idOrName) {
+    try {
+      ContentTypeIcon out = requireAdaptor().getContentTypeIcon(uriInfo.getBaseUri(), idOrName);
+      if (out == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return out;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}/icon")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Set content type icon strategy",
+      description =
+          "CD-11 design action: sets icon source (none, specified, fromFileField) and value."
+              + " Admin only. Requires a design-session lock already held by the current user"
+              + " (POST .../lock). Does not acquire or release the lock. none clears value."
+              + " Non-none with a blank value is 400. Does not upload icon binaries. GET"
+              + " .../icon reflects the strategy after a successful PUT. Jackson root wrap is"
+              + " ContentTypeIcon.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated (lock is still held)",
+            content = @Content(schema = @Schema(implementation = ContentTypeIcon.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "source is required, invalid, or non-none value is blank"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock required, or locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeIcon setContentTypeIcon(
+      @PathParam("idOrName") String idOrName, ContentTypeIcon body) {
+    if (body == null || body.getSource() == null || body.getSource().trim().isEmpty()) {
+      throw new WebApplicationException("source is required", 400);
+    }
+    String source = body.getSource().trim();
+    if (!ContentTypeIcon.isKnownSource(source)) {
+      throw new WebApplicationException(
+          "source must be none, specified, or fromFileField", 400);
+    }
+    if (!ContentTypeIcon.isNone(source)
+        && (body.getValue() == null || body.getValue().trim().isEmpty())) {
+      throw new WebApplicationException("value is required when source is not none", 400);
+    }
+    try {
+      ContentTypeIcon out =
+          requireAdaptor()
+              .setContentTypeIcon(uriInfo.getBaseUri(), idOrName, source, body.getValue());
+      if (out == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return out;
+    } catch (RuntimeException e) {
+      throw mapEnabledFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @PUT
   @Path("/{idOrName}/name")
   @Consumes({MediaType.APPLICATION_JSON})
@@ -1424,7 +1596,8 @@ public class ContentTypesResource {
               + " Optional searchable and occurrence/required use the same rules as PUT field"
               + " patches. Optional fieldSet names an existing child field set, or creates a named"
               + " complex child when missing. Duplicate field is 409. Missing type is 404."
-              + " Including system/shared fields is out of scope (CD-04).",
+              + " Include an existing system or shared field with POST .../fields/include"
+              + " (CD-04).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -1490,6 +1663,52 @@ public class ContentTypesResource {
     }
   }
 
+  @POST
+  @Path("/{idOrName}/fields/include")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Include a system or shared field into a content type",
+      description =
+          "CD-04. Admin. Includes an existing system or shared field by name and origin"
+              + " (fieldType) via IPSContentDesignWs.loadContentTypes / saveContentTypes."
+              + " Requires a held design-session lock (POST .../lock). Does not acquire or"
+              + " release the lock. Does not steal another user's lock. Origin stays system or"
+              + " shared (the field is not copied as local). Body name is required. fieldType"
+              + " must be system or shared. Duplicate include is 409. Unknown catalog field is"
+              + " 404. Missing type is 404. Local field create remains POST .../fields (CD-03).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Field included (lock is still held)",
+            content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid name or fieldType"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Content type or system/shared field not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description =
+                "Field already included, or design lock not held by the current user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeDetail includeField(
+      @PathParam("idOrName") String idOrName, ContentTypeField body) {
+    try {
+      ContentTypeDetail detail =
+          requireAdaptor().includeField(uriInfo.getBaseUri(), idOrName, body);
+      if (detail == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return detail;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      throw mapWriteFailure(e);
+    }
+  }
+
   @GET
   @Path("/{idOrName}/fields/{fieldName}/controlProperties")
   @Produces({MediaType.APPLICATION_JSON})
@@ -1498,7 +1717,8 @@ public class ContentTypesResource {
       description =
           "CD-07 GET: control parameter name/value pairs and the choice catalog for one field."
               + " No design lock is required. Empty properties means none. choices is omitted when"
-              + " none. Jackson root wrap is ContentTypeFieldControlProperties.",
+              + " none. Choice filter, null-entry, and default-selected round-trip when present."
+              + " Jackson root wrap is ContentTypeFieldControlProperties.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -1536,7 +1756,8 @@ public class ContentTypesResource {
           "CD-07 PUT: full replace of control parameter values via IPSContentDesignWs"
               + " .saveContentTypes. Requires a held design-session lock (POST .../lock). Does not"
               + " acquire or release the lock. Empty properties clears parameters. choices omitted"
-              + " leaves the catalog unchanged; type none clears. Jackson root wrap is"
+              + " leaves the catalog unchanged; present replaces including filter, null-entry, and"
+              + " default-selected; type none clears. Jackson root wrap is"
               + " ContentTypeFieldControlProperties.",
       responses = {
         @ApiResponse(

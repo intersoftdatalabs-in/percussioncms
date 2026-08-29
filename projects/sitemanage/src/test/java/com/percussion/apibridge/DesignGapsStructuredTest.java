@@ -42,6 +42,25 @@ class DesignGapsStructuredTest {
     assertTrue(codes.contains("CT_ITEM_EXITS"));
     assertTrue(codes.contains("CT_CREATE_DELETE"));
     assertTrue(codes.contains("CT_FIELD_CREATE_DELETE"));
+    assertTrue(codes.contains("CT_SEARCH_INDEXING"));
+    assertTrue(codes.contains("CT_ICON_STRATEGY"));
+    assertTrue(
+        gaps.stream()
+            .anyMatch(
+                g ->
+                    "CT_SEARCH_INDEXING".equals(g.getCode())
+                        && g.getMessage().contains("searchIndexing")
+                        && g.getMessage().toLowerCase().contains("held")
+                        && g.getMessage().toLowerCase().contains("default")),
+        () -> gaps.toString());
+    assertTrue(
+        gaps.stream()
+            .anyMatch(
+                g ->
+                    "CT_ICON_STRATEGY".equals(g.getCode())
+                        && g.getMessage().contains("/icon")
+                        && g.getMessage().toLowerCase().contains("held")),
+        () -> gaps.toString());
     assertTrue(
         gaps.stream()
             .anyMatch(
@@ -60,6 +79,14 @@ class DesignGapsStructuredTest {
                     "CT_FIELD_CREATE_DELETE".equals(g.getCode())
                         && g.getMessage().contains("POST/DELETE")
                         && g.getMessage().contains("/fields")
+                        && g.getMessage().toLowerCase().contains("held")),
+        () -> gaps.toString());
+    assertTrue(
+        gaps.stream()
+            .anyMatch(
+                g ->
+                    "CT_SHARED_FIELD_INCLUSION".equals(g.getCode())
+                        && g.getMessage().contains("fields/include")
                         && g.getMessage().toLowerCase().contains("held")),
         () -> gaps.toString());
     assertFalse(codes.contains("CT_CONTROL_RESOLUTION"));
@@ -91,8 +118,8 @@ class DesignGapsStructuredTest {
   void slotDesignGaps_areStructured() {
     assertEquals(2, SlotsAdaptor.SLOT_DESIGN_GAPS.size());
     DesignGap first = SlotsAdaptor.SLOT_DESIGN_GAPS.get(0);
-    assertEquals("SLOT_CREATE_DELETE", first.getCode());
-    assertTrue(first.getMessage().contains("Create"));
+    assertEquals("SLOT_FINDER_RELATIONSHIP_WRITE", first.getCode());
+    assertTrue(first.getMessage().contains("read-only"));
     assertEquals("SLOT_ASSOC_GUIDS_ONLY", SlotsAdaptor.SLOT_DESIGN_GAPS.get(1).getCode());
   }
 }

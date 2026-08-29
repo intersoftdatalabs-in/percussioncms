@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Lock, enable or disable, rename via REST, add or delete local fields via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Lock, enable or disable, rename via REST, add or delete local fields via REST, include system or shared fields via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -20,12 +20,17 @@ That call persists the type (Workbench Finish). A successful create is then
 `GET /services/contenttypes/{name}` **200**. Duplicate or reserved system names
 (for example **Folder**) are **409**. Invalid names (blank, spaces, wildcard)
 are **400**. Non-Admin callers are **403**. This chrome does **not** include a
-create wizard; rename, delete, and **local field create/delete** are REST-only
-(no SPA field editor). After a held lock, integrators add a local field with
+create wizard; rename, delete, **local field create/delete**, and **include
+system/shared fields** are REST-only (no SPA field editor or field picker).
+After a held lock, integrators add a local field with
 `POST /services/contenttypes/{idOrName}/fields` (JSON `name` required) and
 remove one with `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}`.
 Duplicate field names are **409**. System and shared fields cannot be removed
-here (**400**). Optional `fieldSet` targets or creates a named child field set.
+here (**400**). Include an existing system or shared field with
+`POST /services/contenttypes/{idOrName}/fields/include` (JSON `name` and
+`fieldType` `system` or `shared`; origin is not copied as local). Duplicate
+include is **409**; unknown catalog field is **404**. Optional `fieldSet` on
+local create targets or creates a named child field set.
 Shared field
 **files** are a separate design object: Admin-only `GET /services/sharedfields` and
 `GET /services/sharedfields/{idOrName}` (catalog), plus
@@ -166,8 +171,10 @@ After **Lock**:
    edit does not persist.
 
 This is not the full Workbench Properties tab. Choice catalogs show as
-read-only (type only). Choice filter, null-entry, and default-selected are
-not written.
+read-only (type only) in this chrome; Save omits `choices`. Integrators write
+choice filter, null-entry, and default-selected on
+`PUT .../fields/{fieldName}/controlProperties` by sending `choices` — see
+[REST API — Content types](id:developer-rest).
 
 ### Field rule expressions (after lock)
 
@@ -251,6 +258,9 @@ The chrome calls:
 | Lock | `POST /services/contenttypes/{idOrName}/lock` |
 | Save (label, description, fields) | `PUT /services/contenttypes/{idOrName}` (requires a held lock; does not send `enabled`, `allowedWorkflows`, or `allowedTemplates`) |
 | Enable / disable | `PUT /services/contenttypes/{idOrName}/enabled` (CD-13; requires a held lock; does not acquire or release it) |
+| Type-level search indexing | `GET` / `PUT /services/contenttypes/{idOrName}/searchIndexing` (CD-10; REST-only; PUT requires a held lock; default on; not the per-field searchable flag; no SPA Properties checkbox) |
+| Load icon strategy | `GET /services/contenttypes/{idOrName}/icon` (CD-11; no lock; `none` / `specified` / `fromFileField`) |
+| Set icon strategy | `PUT /services/contenttypes/{idOrName}/icon` (CD-11; Admin; held lock; `none` clears value; no binary upload; no SPA picker) |
 | Rename | `PUT /services/contenttypes/{idOrName}/name` (CD-01; Admin; held lock; unique name, no spaces; bulk PUT does not rename) |
 | Save allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` (requires a held lock; does not unlock) |
 | Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` (held lock; full replace) |
