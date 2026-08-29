@@ -1115,6 +1115,94 @@ public class ContentTypesResource {
     }
   }
 
+  @GET
+  @Path("/{idOrName}/icon")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get content type icon strategy",
+      description =
+          "CD-11 GET: icon source (none, specified, fromFileField) and value (file path/name or"
+              + " field name). No design lock is required. none has no value. Does not return"
+              + " icon binaries. Jackson root wrap is ContentTypeIcon.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = ContentTypeIcon.class))),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeIcon getContentTypeIcon(@PathParam("idOrName") String idOrName) {
+    try {
+      ContentTypeIcon out = requireAdaptor().getContentTypeIcon(uriInfo.getBaseUri(), idOrName);
+      if (out == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return out;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}/icon")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Set content type icon strategy",
+      description =
+          "CD-11 design action: sets icon source (none, specified, fromFileField) and value."
+              + " Admin only. Requires a design-session lock already held by the current user"
+              + " (POST .../lock). Does not acquire or release the lock. none clears value."
+              + " Non-none with a blank value is 400. Does not upload icon binaries. GET"
+              + " .../icon reflects the strategy after a successful PUT. Jackson root wrap is"
+              + " ContentTypeIcon.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated (lock is still held)",
+            content = @Content(schema = @Schema(implementation = ContentTypeIcon.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "source is required, invalid, or non-none value is blank"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock required, or locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeIcon setContentTypeIcon(
+      @PathParam("idOrName") String idOrName, ContentTypeIcon body) {
+    if (body == null || body.getSource() == null || body.getSource().trim().isEmpty()) {
+      throw new WebApplicationException("source is required", 400);
+    }
+    String source = body.getSource().trim();
+    if (!ContentTypeIcon.isKnownSource(source)) {
+      throw new WebApplicationException(
+          "source must be none, specified, or fromFileField", 400);
+    }
+    if (!ContentTypeIcon.isNone(source)
+        && (body.getValue() == null || body.getValue().trim().isEmpty())) {
+      throw new WebApplicationException("value is required when source is not none", 400);
+    }
+    try {
+      ContentTypeIcon out =
+          requireAdaptor()
+              .setContentTypeIcon(uriInfo.getBaseUri(), idOrName, source, body.getValue());
+      if (out == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return out;
+    } catch (RuntimeException e) {
+      throw mapEnabledFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @PUT
   @Path("/{idOrName}/name")
   @Consumes({MediaType.APPLICATION_JSON})

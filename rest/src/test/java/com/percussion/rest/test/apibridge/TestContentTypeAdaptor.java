@@ -28,6 +28,7 @@ import com.percussion.rest.contenttypes.ContentTypeField;
 import com.percussion.rest.contenttypes.ContentTypeFieldControlProperties;
 import com.percussion.rest.contenttypes.ContentTypeFieldRuleExpressions;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
+import com.percussion.rest.contenttypes.ContentTypeIcon;
 import com.percussion.rest.contenttypes.ContentTypeItemExits;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
 import com.percussion.rest.contenttypes.NamedObjectRef;
@@ -123,6 +124,17 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
   @Override
   public ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled) {
     return null;
+  }
+
+  @Override
+  public ContentTypeIcon getContentTypeIcon(URI baseUri, String idOrName) {
+    return new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, null);
+  }
+
+  @Override
+  public ContentTypeIcon setContentTypeIcon(
+      URI baseUri, String idOrName, String source, String value) {
+    return new ContentTypeIcon(source, ContentTypeIcon.isNone(source) ? null : value);
   }
 
   @Override

@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
@@ -1042,6 +1043,162 @@ public class ContentTypesResourceDetailTest {
             WebApplicationException.class,
             () -> resource.renameContentType("percPage", new ContentTypeName("percRenamed")));
     assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getContentTypeIconReturnsEnvelope() {
+    ContentTypeIcon icon =
+        new ContentTypeIcon(ContentTypeIcon.SOURCE_SPECIFIED, "rx_resources/images/page.gif");
+    when(adaptor.getContentTypeIcon(any(), eq("percPage"))).thenReturn(icon);
+    ContentTypeIcon out = resource.getContentTypeIcon("percPage");
+    assertEquals(ContentTypeIcon.SOURCE_SPECIFIED, out.getSource());
+    assertEquals("rx_resources/images/page.gif", out.getValue());
+  }
+
+  @Test
+  public void getContentTypeIconNotFound() {
+    when(adaptor.getContentTypeIcon(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getContentTypeIcon("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeIconSuccess() {
+    ContentTypeIcon body =
+        new ContentTypeIcon(ContentTypeIcon.SOURCE_SPECIFIED, "rx_resources/images/page.gif");
+    when(adaptor.setContentTypeIcon(
+            any(), eq("percPage"), eq(ContentTypeIcon.SOURCE_SPECIFIED), eq(body.getValue())))
+        .thenReturn(body);
+    ContentTypeIcon out = resource.setContentTypeIcon("percPage", body);
+    assertEquals(ContentTypeIcon.SOURCE_SPECIFIED, out.getSource());
+    assertEquals("rx_resources/images/page.gif", out.getValue());
+  }
+
+  @Test
+  public void setContentTypeIconFromFileFieldSuccess() {
+    ContentTypeIcon body =
+        new ContentTypeIcon(ContentTypeIcon.SOURCE_FROM_FILE_FIELD, "item_file_attachment");
+    when(adaptor.setContentTypeIcon(
+            any(),
+            eq("percPage"),
+            eq(ContentTypeIcon.SOURCE_FROM_FILE_FIELD),
+            eq("item_file_attachment")))
+        .thenReturn(body);
+    ContentTypeIcon out = resource.setContentTypeIcon("percPage", body);
+    assertEquals(ContentTypeIcon.SOURCE_FROM_FILE_FIELD, out.getSource());
+    assertEquals("item_file_attachment", out.getValue());
+  }
+
+  @Test
+  public void setContentTypeIconNoneClearsValue() {
+    ContentTypeIcon body = new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, "ignored.gif");
+    ContentTypeIcon saved = new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, null);
+    when(adaptor.setContentTypeIcon(
+            any(), eq("percPage"), eq(ContentTypeIcon.SOURCE_NONE), eq("ignored.gif")))
+        .thenReturn(saved);
+    ContentTypeIcon out = resource.setContentTypeIcon("percPage", body);
+    assertEquals(ContentTypeIcon.SOURCE_NONE, out.getSource());
+    assertEquals(null, out.getValue());
+  }
+
+  @Test
+  public void setContentTypeIconRequiresSource() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.setContentTypeIcon("percPage", new ContentTypeIcon()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeIconInvalidSource400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeIcon(
+                    "percPage", new ContentTypeIcon("unknown", "page.gif")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeIconBlankValue400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeIcon(
+                    "percPage", new ContentTypeIcon(ContentTypeIcon.SOURCE_SPECIFIED, "  ")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeIconNotFound() {
+    when(adaptor.setContentTypeIcon(
+            any(), eq("missing"), eq(ContentTypeIcon.SOURCE_NONE), nullable(String.class)))
+        .thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeIcon(
+                    "missing", new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, null)));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeIconRequiresLock() {
+    when(adaptor.setContentTypeIcon(
+            any(), eq("percPage"), eq(ContentTypeIcon.SOURCE_NONE), nullable(String.class)))
+        .thenThrow(
+            new ContentTypeDesignLockException("Could not set content type icon; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeIcon(
+                    "percPage", new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, null)));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeIconLockedByOtherUser() {
+    when(adaptor.setContentTypeIcon(
+            any(), eq("percPage"), eq(ContentTypeIcon.SOURCE_NONE), nullable(String.class)))
+        .thenThrow(
+            new ContentTypeDesignLockException("Could not set content type icon; locked by editor2"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeIcon(
+                    "percPage", new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, null)));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeIconForbiddenWhenNotAdmin() {
+    when(adaptor.setContentTypeIcon(
+            any(), eq("percPage"), eq(ContentTypeIcon.SOURCE_NONE), nullable(String.class)))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.setContentTypeIcon(
+                    "percPage", new ContentTypeIcon(ContentTypeIcon.SOURCE_NONE, null)));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void contentTypeIconJsonSerializesSourceAndValue() throws Exception {
+    ContentTypeIcon icon =
+        new ContentTypeIcon(ContentTypeIcon.SOURCE_FROM_FILE_FIELD, "item_file_attachment");
+    ObjectMapper mapper = new JacksonContextResolver().getContext(ContentTypeIcon.class);
+    String json = mapper.writeValueAsString(icon);
+    assertTrue(json.contains("fromFileField"), json);
+    assertTrue(json.contains("item_file_attachment"), json);
   }
 
   @Test

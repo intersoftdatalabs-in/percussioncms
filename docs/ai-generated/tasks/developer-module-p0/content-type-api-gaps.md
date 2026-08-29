@@ -13,6 +13,7 @@
 | Public REST detail (**new P0.2**) | Read-only field catalog + meta      | `GET /services/contenttypes/{idOrName}`        |
 | Public REST lock/unlock           | Self-only design-session lock       | `POST /services/contenttypes/{idOrName}/lock` / `.../unlock` |
 | Public REST PUT save              | Held-lock save (label/description/…) | `PUT /services/contenttypes/{idOrName}`        |
+| Public REST icon strategy (CD-11) | GET/PUT none\|specified\|fromFileField | `GET/PUT /services/contenttypes/{idOrName}/icon` |
 | Public REST POST create           | Persist new type (Workbench Finish) | `POST /services/contenttypes`                  |
 | Public REST shared-field list     | CD-15 catalog (Admin only)          | `GET /services/sharedfields`                   |
 | Public REST shared-field detail   | CD-15 group fields (Admin only)     | `GET /services/sharedfields/{idOrName}`        |
@@ -75,6 +76,7 @@ slices.
 | Item-level pre/post exits & validations              | CD-09        | Properties tab                                    |
 | Edit workflow/template associations                  | CD-08, CD-12 | **CD-08 REST PUT .../allowedWorkflows** (#3763, held design lock); **CD-12 REST PUT .../allowedTemplates** (#3775, held design lock; full replace, empty list clears) |
 | Enable/disable as design action                      | CD-13        | **REST `PUT /contenttypes/{id}/enabled`** (#3773, held design lock; 409 without) |
+| Content type **icon strategy**                       | CD-11        | **REST `GET/PUT /contenttypes/{id}/icon`** (#3997, held design lock for PUT; `none` clears value; blank non-none value 400; no binary upload; SPA picker still Workbench) |
 | Shared field file **write**                          | CD-15        | **Group create/save/delete shipped** (`POST /services/sharedfields`, `PUT …/{idOrName}`, `DELETE …/{idOrName}`, #3944). **Field create/delete shipped** (`POST …/fields`, `DELETE …/fields/{fieldName}`, persistable `PSField` + display mapping, Admin 403, lock 409, #3954). Control/choice write and SPA editor still open |
 | System def **write** (existing field properties)     | CD-16        | **PUT `/services/systemdef` shipped** (#3958, Admin 403, lock 409). Field create/delete, control/stylesheet/flow, and SPA editor still SOAP |
 | Create / delete                                      | CD-01, §5.2  | **POST `/services/contenttypes` create shipped** (#3912). Delete still SOAP design only; lock + PUT save via REST |
