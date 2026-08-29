@@ -19,6 +19,7 @@ package com.percussion.services.virtualsite;
 import com.percussion.services.virtualsite.VirtualSiteConfig.HttpSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.NavSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.ObjectsSpec;
+import com.percussion.services.virtualsite.VirtualSiteConfig.IcalendarSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.RssSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.SqlSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.VersionSpec;
@@ -42,7 +43,7 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
  * <p>Stateless: each {@link #load} / {@link #loadOrDefault} reads the current file (or current
  * child directories). No process-lifetime YAML cache — a second build after a config edit sees
  * the new title/versions (and current {@code sql:} / {@code http:} / {@code objects:} /
- * {@code rss:} mapping)
+ * {@code rss:} / {@code icalendar:} mapping)
  * without a JVM restart.
  */
 public final class VirtualSiteConfigLoader {
@@ -233,8 +234,13 @@ public final class VirtualSiteConfigLoader {
         throw new VirtualSiteException("rss: must be a mapping in " + sourceLabel);
       }
       RssSpec rss = parseRssSpec(asMap(rssObj));
+      Object icalendarObj = map.get("icalendar");
+      if (icalendarObj != null && !(icalendarObj instanceof Map<?, ?>)) {
+        throw new VirtualSiteException("icalendar: must be a mapping in " + sourceLabel);
+      }
+      IcalendarSpec icalendar = parseIcalendarSpec(asMap(icalendarObj));
       return new VirtualSiteConfig(
-          root, title, url, layout, versions, nav, siteKey, sql, http, objects, rss);
+          root, title, url, layout, versions, nav, siteKey, sql, http, objects, rss, icalendar);
     } catch (VirtualSiteException e) {
       throw e;
     } catch (Exception e) {
@@ -254,6 +260,13 @@ public final class VirtualSiteConfigLoader {
       return null;
     }
     return new RssSpec(stringVal(rss.get("url")), stringVal(rss.get("file")));
+  }
+
+  private static IcalendarSpec parseIcalendarSpec(Map<String, Object> icalendar) {
+    if (icalendar == null || icalendar.isEmpty()) {
+      return null;
+    }
+    return new IcalendarSpec(stringVal(icalendar.get("url")), stringVal(icalendar.get("file")));
   }
 
   private static ObjectsSpec parseObjectsSpec(Map<String, Object> objects, String sourceLabel)

@@ -33,13 +33,14 @@ channels (static files, FTP, database, custom locations).
 
 For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites such as product documentation:
 
-- Offline / CI builds use `scripts/build-cms-docs.bat` / `scripts/build-cms-docs.sh` to emit static HTML without a full CMS UI session. CSV trees can use `PSVirtualSiteBuildMain … csv-filesystem`. SQL trees use `PSVirtualSiteBuildMain … sql-database` (in-memory H2 only). Local object-key directories use `PSVirtualSiteBuildMain … object-storage` (no cloud credentials).
+- Offline / CI builds use `scripts/build-cms-docs.bat` / `scripts/build-cms-docs.sh` to emit static HTML without a full CMS UI session. CSV trees can use `PSVirtualSiteBuildMain … csv-filesystem`. SQL trees use `PSVirtualSiteBuildMain … sql-database` (in-memory H2 only). Local object-key directories use `PSVirtualSiteBuildMain … object-storage` (no cloud credentials). Local iCalendar fixtures use `PSVirtualSiteBuildMain … icalendar` (`calendar.ics` or `_config.yaml` `icalendar.file`; no CalDAV).
 - **Build** (`POST /sites/{nameOrId}/virtual/build`) writes a staging tree under
   `{install}/tmp/virtual-sites/{siteKey}` (or an optional `outputRoot`). Each build re-reads the
   current Git/filesystem, CSV tree (`csv-filesystem`), H2 `SELECT` (`sql-database`), HTTP
   JSON catalog (`http-json`: local fixture / loopback `http.url`), object-storage keys
   (`object-storage`: Markdown / HTML / JSON under a local `rootPath`), or rss-atom feeds
-  (`rss-atom`: local `feed.xml` / `atom.xml` / `rss.file` or loopback `rss.url`). After
+  (`rss-atom`: local `feed.xml` / `atom.xml` / `rss.file` or loopback `rss.url`), or
+  iCalendar fixtures (`icalendar`: local `calendar.ics` / `icalendar.file`; no CalDAV). After
   `git pull`, a local Markdown edit, a CSV change, a `_config.yaml` change, a SQL
   `queryFile` / `sql.query` change, an H2 row change, a JSON catalog / `_config.yaml`
   edit, an object-storage Markdown / HTML / JSON key or `_config.yaml`
