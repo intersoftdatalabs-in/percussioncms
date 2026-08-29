@@ -106,7 +106,9 @@ Example create body:
 CMS locale definitions (Workbench **Locales** / content design) are exposed under `/services/locales`.
 The REST layer is a thin contract over the content **design** web service (`IPSContentDesignWs`) —
 create, update, and delete use the same design locks and session identity classic tools use (CD-18
-write). Auto-translation settings are **not** part of this surface.
+write). The singleton **auto-translation set** (locale × content-type rows) is Admin GET/PUT
+`/services/locales/auto-translations` (`loadTranslationSettings` / `saveTranslationSettings`, held
+design lock released on save).
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -115,13 +117,17 @@ write). Auto-translation settings are **not** part of this surface.
 | `POST` | `/services/locales` | **Admin.** Create a locale (`languageString` and `label` required; optional description, status, `baseLocale`) |
 | `PUT` | `/services/locales/{idOrLang}` | **Admin.** Update label / description / status / `baseLocale`. `languageString` is immutable |
 | `DELETE` | `/services/locales/{idOrLang}` | **Admin.** Delete a locale (`204` on success) |
+| `GET` | `/services/locales/auto-translations` | **Admin.** Load the singleton auto-translation set (locale × content type, plus workflow and community) |
+| `PUT` | `/services/locales/auto-translations` | **Admin.** Replace the auto-translation set. Empty list (`[]`) clears all rows |
 
 ### Request / response shape
 
 JSON objects use the `LocaleDetail` / `LocaleSummary` wire types (fields include `id`,
 `languageString`, `label`, `description`, `status` (`active` / `inactive`), `baseLocale`,
-`hasFormatProfile`, optional `format`, and `designGaps[]` on detail). Prefer the generated OpenAPI
-schema as the integration source of truth.
+`hasFormatProfile`, optional `format`, and `designGaps[]` on detail). Auto-translation rows use
+`AutoTranslationRow` (`locale`, `contentTypeId` / `contentTypeName`, `workflowId` / `workflowName`,
+`communityId` / `communityName`). PUT accepts **name or id** for content type, workflow, and
+community. Prefer the generated OpenAPI schema as the integration source of truth.
 
 Example create body:
 
@@ -135,26 +141,40 @@ Example create body:
 }
 ```
 
+Example auto-translation PUT body (JSON array; empty `[]` clears the set):
+
+```json
+[
+  {
+    "locale": "fr-fr",
+    "contentTypeName": "percPage",
+    "workflowName": "Default Workflow",
+    "communityName": "Default"
+  }
+]
+```
+
 ### Status codes and authorization
 
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | List / get / create / update success |
+| `200` | List / get / create / update / auto-translation GET/PUT success |
 | `204` | Delete success |
-| `400` | Invalid input (missing language string or label, invalid status, immutable language change) |
+| `400` | Invalid input (missing language string or label, invalid status, immutable language change, unknown auto-translation locale or content type, duplicate locale/content-type row) |
 | `403` | Caller is not Admin, or the request has no session/user for the design session |
 | `404` | Locale not found |
-| `409` | Duplicate language string, design lock held by another user, or remaining dependents |
+| `409` | Duplicate language string, design lock held by another user, remaining dependents, or auto-translation set lock conflict |
 | `500` | Design service or server failure |
-| `503` | Locales adaptor not configured (deployment miswire) |
+| `503` | Locales or auto-translations adaptor not configured (deployment miswire) |
 
-- Callers must be authenticated. **GET** is a catalog read. **Write** operations require the **Admin**
-  role and a request session and user identity for the design web service (same pattern as shared
-  fields / content-type design writes).
-- Create/update load or create the locale with a **held design lock** and release it on save. There
-  is no separate lock/unlock REST pair on this catalog (unlike content types).
-- Format-profile (`RXLOCALEFORMAT`) create/edit and auto-translation configuration remain
-  unsupported (`designGaps` on detail).
+- Callers must be authenticated. Locale **GET** is a catalog read. Locale **write** and **auto-translation
+  GET/PUT** require the **Admin** role and (for writes) a request session and user identity for the
+  design web service (same pattern as shared fields / content-type design writes).
+- Create/update load or create the locale with a **held design lock** and release it on save. Auto-translation
+  PUT uses the same pattern (`loadTranslationSettings` with lock, `saveTranslationSettings` with
+  release). There is no separate lock/unlock REST pair on this catalog (unlike content types).
+- Format-profile (`RXLOCALEFORMAT`) create/edit remains unsupported (`designGaps` on locale detail).
+  Auto-translation configuration is **GET/PUT** `/services/locales/auto-translations`.
 
 ### Integrator notes
 
@@ -163,6 +183,9 @@ Example create body:
 - Prefer language string or numeric id for update/delete. Language string is the catalog key and
   cannot be renamed via PUT.
 - Deleting a locale that still has dependents is **409** (`ignoreDependencies=false`).
+- Auto-translation PUT is a full replace of the singleton set. GET after PUT returns the persisted
+  rows (names filled from the locale, content-type, workflow, and community catalogs). Duplicate
+  locale/content-type pairs in the request are **400**.
 
 ## User preferences
 

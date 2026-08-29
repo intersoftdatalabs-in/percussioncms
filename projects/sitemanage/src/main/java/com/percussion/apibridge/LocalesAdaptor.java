@@ -83,8 +83,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
   private static final List<String> DESIGN_GAPS =
       List.of(
           "RXLOCALEFORMAT create / edit not supported via this API (read of exact row only)",
-          "Format resolution chain (regional → base → en-us defaults) is runtime-only",
-          "Auto-translation configuration not exposed via this API");
+          "Format resolution chain (regional → base → en-us defaults) is runtime-only");
 
   private static final String LANGUAGE_PATTERN = "[a-z]{2,8}(-[a-z0-9]{1,8})*";
 
