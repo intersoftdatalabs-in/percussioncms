@@ -17,9 +17,9 @@
 
 package com.percussion.error;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
-import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
@@ -52,8 +52,9 @@ public class PSHookRequestError extends PSLogError {
     /* the generic submessage first */
     msgs[0] =
         new PSLogSubMessage(
-            IPSServerErrors.HOOK_REQUEST_ERROR_MSG,
-            PSErrorManager.getErrorText(IPSServerErrors.HOOK_REQUEST_ERROR_MSG, false, loc));
+            ServerErrorCodes.HOOK_REQUEST_ERROR_MSG.numericCode(),
+            PSErrorManager.getErrorText(
+                ServerErrorCodes.HOOK_REQUEST_ERROR_MSG.numericCode(), false, loc));
 
     /* use the errorCode/errorParams to format the second submessage */
     msgs[1] =

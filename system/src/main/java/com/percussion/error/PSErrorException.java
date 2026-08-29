@@ -17,9 +17,9 @@
 
 package com.percussion.error;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
-import com.percussion.server.IPSServerErrors;
 
 /**
  * The PSErrorException class provides a wrapper to throw PSLogError objects which contain more
@@ -35,15 +35,15 @@ public class PSErrorException extends PSException {
   /**
    * Constructs a new <code>PSErrorException</code> to allow the specified <code>PSLogError</code>
    * to be thrown. This exception will use the code {@link
-   * com.percussion.server.IPSServerErrors#WRAPPED_LOG_ERROR WRAPPED_LOG_ERROR} and the exception
-   * text will consist of all the log error's sub-messages concatenated together.
+   * com.intsof.percussioncms.auditlog.codes.ServerErrorCodes#WRAPPED_LOG_ERROR WRAPPED_LOG_ERROR}
+   * and the exception text will consist of all the log error's sub-messages concatenated together.
    *
    * @param err the error object to wrap; if <code>null</code>, the text of this exception will be
    *     empty.
    */
   public PSErrorException(PSLogError err) {
     super(
-        IPSServerErrors.WRAPPED_LOG_ERROR,
+        ServerErrorCodes.WRAPPED_LOG_ERROR,
         new Object[] {getMessageText(err), Integer.valueOf(getMessageCode(err))});
     m_errorObject = err;
   }
@@ -58,7 +58,7 @@ public class PSErrorException extends PSException {
    */
   public PSErrorException(PSLogError err, Throwable cause) {
     super(
-        IPSServerErrors.WRAPPED_LOG_ERROR,
+        ServerErrorCodes.WRAPPED_LOG_ERROR,
         new Object[] {getMessageText(err), Integer.valueOf(getMessageCode(err))},
         cause);
     m_errorObject = err;

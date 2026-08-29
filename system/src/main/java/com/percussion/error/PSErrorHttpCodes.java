@@ -17,6 +17,7 @@
 
 package com.percussion.error;
 
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.log.PSLogInformation;
 import com.percussion.util.PSMapClassToObject;
@@ -81,7 +82,7 @@ public class PSErrorHttpCodes {
             Object[] args = {key, com.percussion.error.PSException.getStackTraceAsString(nfe)};
             com.percussion.log.PSLogManager.write(
                 new com.percussion.log.PSLogServerWarning(
-                    com.percussion.server.IPSHttpErrors.HTTP_NOT_FOUND,
+                    HttpErrorCodes.HTTP_NOT_FOUND.numericCode(),
                     args,
                     true,
                     "HttpErrorCodesLoader"));

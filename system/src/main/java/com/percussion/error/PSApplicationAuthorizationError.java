@@ -17,9 +17,9 @@
 
 package com.percussion.error;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
-import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
@@ -82,15 +82,17 @@ public class PSApplicationAuthorizationError extends PSLogError {
     Object[] args = {m_host, m_uid};
     msgs[0] =
         new PSLogSubMessage(
-            IPSServerErrors.AUTHORIZATION_ERROR,
-            PSErrorManager.createMessage(IPSServerErrors.AUTHORIZATION_ERROR, args, loc));
+            ServerErrorCodes.AUTHORIZATION_ERROR.numericCode(),
+            PSErrorManager.createMessage(
+                ServerErrorCodes.AUTHORIZATION_ERROR.numericCode(), args, loc));
 
     /* use the errorCode/errorString to format the second submessage */
     Object[] nativeArgs = {Integer.valueOf(m_errorCode), m_errorString};
     msgs[1] =
         new PSLogSubMessage(
             m_errorCode,
-            PSErrorManager.createMessage(IPSServerErrors.NATIVE_ERROR, nativeArgs, loc));
+            PSErrorManager.createMessage(
+                ServerErrorCodes.NATIVE_ERROR.numericCode(), nativeArgs, loc));
 
     return msgs;
   }

@@ -18,6 +18,7 @@
 #   #3900 leftover cms.objectstore.server call sites
 #   #3939 leftover system/src/main com.percussion.data (+ macro/vfs)
 #   #3940 leftover system/src/main com.percussion.security call sites
+#   #3971 leftover system/src/main com.percussion.error call sites
 # Converted (no longer listed): extensions-main #3756/#3938 (allow-list
 # shrink after #3793 re-listed already-typed production paths).
 #
@@ -77,32 +78,6 @@ system/src/main/java/com/percussion/design/objectstore/PSContentTypeHelper.java
 system/src/main/java/com/percussion/design/objectstore/PSObjectStore.java
 system/src/main/java/com/percussion/design/objectstore/server/PSXmlObjectStoreHandler.java
 system/src/main/java/com/percussion/design/server/PSDesignerConnectionHandler.java
-system/src/main/java/com/percussion/error/PSApplicationAuthorizationError.java
-system/src/main/java/com/percussion/error/PSApplicationDesignError.java
-system/src/main/java/com/percussion/error/PSBackEndAuthorizationError.java
-system/src/main/java/com/percussion/error/PSBackEndQueryProcessingError.java
-system/src/main/java/com/percussion/error/PSBackEndServerDownError.java
-system/src/main/java/com/percussion/error/PSBackEndUpdateProcessingError.java
-system/src/main/java/com/percussion/error/PSCatalogRequestError.java
-system/src/main/java/com/percussion/error/PSDataConversionError.java
-system/src/main/java/com/percussion/error/PSErrorException.java
-system/src/main/java/com/percussion/error/PSErrorHandler.java
-system/src/main/java/com/percussion/error/PSErrorHttpCodes.java
-system/src/main/java/com/percussion/error/PSFatalError.java
-system/src/main/java/com/percussion/error/PSHookRequestError.java
-system/src/main/java/com/percussion/error/PSHtmlProcessingError.java
-system/src/main/java/com/percussion/error/PSInternalError.java
-system/src/main/java/com/percussion/error/PSLargeBackEndRequestQueueError.java
-system/src/main/java/com/percussion/error/PSLargeRequestQueueError.java
-system/src/main/java/com/percussion/error/PSPoorResponseTimeError.java
-system/src/main/java/com/percussion/error/PSRemoteConsoleError.java
-system/src/main/java/com/percussion/error/PSRequestPreProcessingError.java
-system/src/main/java/com/percussion/error/PSRequestWaitTooLongError.java
-system/src/main/java/com/percussion/error/PSResponseSendError.java
-system/src/main/java/com/percussion/error/PSServerUnavailableError.java
-system/src/main/java/com/percussion/error/PSUnknownProcessingError.java
-system/src/main/java/com/percussion/error/PSValidationError.java
-system/src/main/java/com/percussion/error/PSXmlProcessingError.java
 system/src/main/java/com/percussion/extension/PSExtensionHandler.java
 system/src/main/java/com/percussion/extension/PSExtensionHandlerConfiguration.java
 system/src/main/java/com/percussion/extension/PSExtensionParams.java
