@@ -220,4 +220,9 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
   public ContentTypeDetail includeField(URI baseUri, String idOrName, ContentTypeField body) {
     return getContentType(baseUri, idOrName);
   }
+
+  @Override
+  public ContentTypeExport exportContentType(URI baseUri, String idOrName) {
+    return null;
+  }
 }

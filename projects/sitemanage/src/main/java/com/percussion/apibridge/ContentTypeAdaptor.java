@@ -79,6 +79,7 @@ import com.percussion.rest.contenttypes.ContentTypeChoiceTable;
 import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeDesignLockException;
+import com.percussion.rest.contenttypes.ContentTypeExport;
 import com.percussion.rest.contenttypes.ContentTypeField;
 import com.percussion.rest.contenttypes.ContentTypeFieldConditional;
 import com.percussion.rest.contenttypes.ContentTypeFieldControlProperties;
@@ -124,6 +125,7 @@ import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.system.IPSSystemDesignWs;
 import com.percussion.webservices.system.PSSystemWsLocator;
+import com.percussion.xml.PSXmlDocumentBuilder;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
@@ -326,6 +328,72 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       log.error("Failed to load content type {}: {}", idOrName, e.getMessage(), e);
       throw new RuntimeException(
           "Failed to load content type (" + e.getClass().getName() + "): " + e.getMessage(), e);
+    }
+  }
+
+  @Override
+  public ContentTypeExport exportContentType(URI baseUri, String idOrName) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    try {
+      IPSGuid guid = resolveExistingContentTypeGuid(idOrName.trim());
+      if (guid == null) {
+        return null;
+      }
+      List<PSItemDefinition> loaded;
+      try {
+        loaded =
+            designSvc.loadContentTypes(
+                Collections.singletonList(guid), false, false, currentSession(), currentUser());
+      } catch (PSErrorResultsException e) {
+        if (isNotFoundError(e)) {
+          log.debug("Content type export not found {}: {}", idOrName, e.getMessage());
+          return null;
+        }
+        throw new IllegalStateException("Failed to export content type", e);
+      }
+      if (loaded == null || loaded.isEmpty() || loaded.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = loaded.get(0);
+      ContentTypeExport exported = new ContentTypeExport();
+      exported.setName(def.getName());
+      exported.setXml(toDesignXml(def));
+      return exported;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalStateException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to export content type {} ({}): {}",
+          idOrName,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new IllegalStateException("Failed to export content type", e);
+    }
+  }
+
+  /**
+   * Workbench-equivalent design XML for a loaded item definition ({@link PSItemDefinition#toXml}).
+   */
+  static String toDesignXml(PSItemDefinition def) {
+    if (def == null) {
+      throw new IllegalArgumentException("content type is required");
+    }
+    try {
+      var xml = def.toXml(PSXmlDocumentBuilder.createXmlDocument());
+      if (xml == null) {
+        throw new IllegalStateException("Failed to serialize content type design XML");
+      }
+      return PSXmlDocumentBuilder.toString(xml);
+    } catch (IllegalStateException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw new IllegalStateException("Failed to serialize content type design XML", e);
     }
   }
 
@@ -4250,12 +4318,12 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     } catch (RuntimeException e) {
       log.debug("Admin check failed: {}", e.getMessage());
       throw new WebApplicationException(
-          "Admin role required to create, lock, unlock, save, rename, or delete content types",
+          "Admin role required to create, lock, unlock, save, rename, delete, or export content types",
           Response.Status.FORBIDDEN);
     }
     if (!allowed) {
       throw new WebApplicationException(
-          "Admin role required to create, lock, unlock, save, rename, or delete content types",
+          "Admin role required to create, lock, unlock, save, rename, delete, or export content types",
           Response.Status.FORBIDDEN);
     }
   }

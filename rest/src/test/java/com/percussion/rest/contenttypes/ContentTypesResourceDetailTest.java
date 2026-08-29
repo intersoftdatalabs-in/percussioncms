@@ -1579,4 +1579,59 @@ public class ContentTypesResourceDetailTest {
                     "percPage", new ContentTypeSearchIndexing(false)));
     assertEquals(403, ex.getResponse().getStatus());
   }
+
+  @Test
+  public void exportContentTypeReturnsXmlAndFilenameFromName() {
+    ContentTypeExport exported =
+        new ContentTypeExport("percPage", "<ItemDefData><name>percPage</name></ItemDefData>");
+    when(adaptor.exportContentType(any(), eq("percPage"))).thenReturn(exported);
+
+    Response out = resource.exportContentType("percPage");
+    assertEquals(200, out.getStatus());
+    assertEquals(exported.getXml(), out.getEntity());
+    String disposition = String.valueOf(out.getHeaderString("Content-Disposition"));
+    assertTrue(disposition.contains("percPage.xml"));
+    verify(adaptor).exportContentType(any(), eq("percPage"));
+  }
+
+  @Test
+  public void exportContentTypeNotFound() {
+    when(adaptor.exportContentType(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.exportContentType("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void exportContentTypeForbidden() {
+    when(adaptor.exportContentType(any(), eq("percPage")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.exportContentType("percPage"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void exportContentTypeWrapsFailures() {
+    when(adaptor.exportContentType(any(), eq("boom"))).thenThrow(new IllegalStateException("fail"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.exportContentType("boom"));
+    assertEquals(500, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void exportFilenameSanitizesPathCharacters() {
+    assertEquals("percPage.xml", ContentTypesResource.exportFilename("percPage"));
+    assertEquals("a_b.xml", ContentTypesResource.exportFilename("a/b"));
+    assertEquals("contenttype.xml", ContentTypesResource.exportFilename("  "));
+  }
+
+  @Test
+  public void exportFilenameShortNamesAppendXmlWithoutThrowing() {
+    assertEquals("a.xml", ContentTypesResource.exportFilename("a"));
+    assertEquals("ab.xml", ContentTypesResource.exportFilename("ab"));
+    assertEquals("abc.xml", ContentTypesResource.exportFilename("abc"));
+    assertEquals("a.xml", ContentTypesResource.exportFilename("a.xml"));
+    assertEquals("Foo.XML", ContentTypesResource.exportFilename("Foo.XML"));
+  }
 }

@@ -35,6 +35,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Locale;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @PSSiteManageBean(value = "restContentTypesResource")
@@ -911,6 +912,75 @@ public class ContentTypesResource {
       // Preserve cause so log analysis retains the original stack/type
       throw new WebApplicationException(e, 500);
     }
+  }
+
+  /**
+   * Downloads Workbench-equivalent content-type design XML (CD-14 export). Import is a later slice.
+   * Read-only: does not acquire or steal design locks.
+   *
+   * @param idOrName content type uuid or unique name
+   * @return XML attachment named from the content type name
+   */
+  @GET
+  @Path("/{idOrName}/export")
+  @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
+  @Operation(
+      summary = "Export content type design XML",
+      description =
+          "Admin-only CD-14 export of one content type as Workbench-equivalent design"
+              + " XML (loaded via IPSContentDesignWs). Read-only: does not acquire or steal"
+              + " locks. Import is not implemented on this path. Content-Disposition filename"
+              + " is derived from the content type name.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Design XML",
+            content = @Content(mediaType = MediaType.APPLICATION_XML)),
+        @ApiResponse(responseCode = "403", description = "Caller is not Admin"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response exportContentType(@PathParam("idOrName") String idOrName) {
+    try {
+      ContentTypeExport exported =
+          requireAdaptor().exportContentType(uriInfo.getBaseUri(), idOrName);
+      if (exported == null || exported.getXml() == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      String filename = exportFilename(exported.getName());
+      return Response.ok(exported.getXml(), MediaType.APPLICATION_XML)
+          .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+          .build();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Basename for {@code Content-Disposition}. Strips characters that are unsafe in HTTP filenames
+   * (quotes, controls, path separators). Not a filesystem path.
+   */
+  static String exportFilename(String contentTypeName) {
+    String raw = contentTypeName == null ? "" : contentTypeName.trim();
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < raw.length(); i++) {
+      char c = raw.charAt(i);
+      if (c <= 31 || c == 127 || c == '"' || c == '\\' || c == '/' || c == ':') {
+        sb.append('_');
+      } else {
+        sb.append(c);
+      }
+    }
+    String base = sb.toString().trim();
+    if (base.isEmpty()) {
+      base = "contenttype";
+    }
+    if (!base.toLowerCase(Locale.ROOT).endsWith(".xml")) {
+      base = base + ".xml";
+    }
+    return base;
   }
 
   @PUT
