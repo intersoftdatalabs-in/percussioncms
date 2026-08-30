@@ -616,6 +616,57 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
+  public void importContentTypeSuccessRoundTripsName() {
+    ContentTypeDetail created = new ContentTypeDetail();
+    created.setName("importedOne");
+    created.setLabel("Imported One");
+    when(adaptor.importContentType(any(), eq(SAMPLE_IMPORT_XML))).thenReturn(created);
+
+    ContentTypeDetail out = resource.importContentType(SAMPLE_IMPORT_XML);
+    assertEquals("importedOne", out.getName());
+    assertEquals("Imported One", out.getLabel());
+    verify(adaptor).importContentType(any(), eq(SAMPLE_IMPORT_XML));
+  }
+
+  @Test
+  public void importContentTypeInvalidXmlIs400() {
+    when(adaptor.importContentType(any(), any()))
+        .thenThrow(new IllegalArgumentException("invalid content-type design XML"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.importContentType("<not-xml"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void importContentTypeNonAdminIs403() {
+    when(adaptor.importContentType(any(), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.importContentType(SAMPLE_IMPORT_XML));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void importContentTypeNameCollisionIs409() {
+    when(adaptor.importContentType(any(), any()))
+        .thenThrow(new WebApplicationException("Content type already exists: importedOne", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.importContentType(SAMPLE_IMPORT_XML));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void importContentTypeWrapsFailures() {
+    when(adaptor.importContentType(any(), any())).thenThrow(new IllegalStateException("fail"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.importContentType(SAMPLE_IMPORT_XML));
+    assertEquals(500, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void unlockContentTypeSuccess() {
     when(adaptor.unlockContentType(any(), eq("percPage"))).thenReturn(Boolean.TRUE);
     Response response = resource.unlockContentType("percPage");
@@ -1651,4 +1702,9 @@ public class ContentTypesResourceDetailTest {
     assertEquals("a.xml", ContentTypesResource.exportFilename("a.xml"));
     assertEquals("Foo.XML", ContentTypesResource.exportFilename("Foo.XML"));
   }
+
+  private static final String SAMPLE_IMPORT_XML =
+      "<ItemDefData appName=\"psx_ceimportedOne\" isHidden=\"false\" objectType=\"1\">"
+          + "<PSXItemDefSummary editorUrl=\"../psx_ceimportedOne/importedOne.html\" id=\"557\""
+          + " label=\"Imported One\" name=\"importedOne\" typeId=\"557\" /></ItemDefData>";
 }

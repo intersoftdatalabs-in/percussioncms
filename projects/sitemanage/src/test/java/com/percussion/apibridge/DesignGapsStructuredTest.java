@@ -44,6 +44,15 @@ class DesignGapsStructuredTest {
     assertTrue(codes.contains("CT_FIELD_CREATE_DELETE"));
     assertTrue(codes.contains("CT_SEARCH_INDEXING"));
     assertTrue(codes.contains("CT_ICON_STRATEGY"));
+    assertTrue(codes.contains("CT_IMPORT_EXPORT"));
+    assertTrue(
+        gaps.stream()
+            .anyMatch(
+                g ->
+                    "CT_IMPORT_EXPORT".equals(g.getCode())
+                        && g.getMessage().contains("/contenttypes/import")
+                        && g.getMessage().toLowerCase().contains("create-only")),
+        () -> gaps.toString());
     assertTrue(
         gaps.stream()
             .anyMatch(
@@ -116,11 +125,10 @@ class DesignGapsStructuredTest {
 
   @Test
   void slotDesignGaps_areStructured() {
-    assertEquals(2, SlotsAdaptor.SLOT_DESIGN_GAPS.size());
+    assertEquals(1, SlotsAdaptor.SLOT_DESIGN_GAPS.size());
     DesignGap first = SlotsAdaptor.SLOT_DESIGN_GAPS.get(0);
-    assertEquals("SLOT_FINDER_RELATIONSHIP_WRITE", first.getCode());
-    assertTrue(first.getMessage().contains("read-only"));
-    assertEquals("SLOT_ASSOC_GUIDS_ONLY", SlotsAdaptor.SLOT_DESIGN_GAPS.get(1).getCode());
+    assertEquals("SLOT_ASSOC_GUIDS_ONLY", first.getCode());
+    assertTrue(first.getMessage().contains("GUIDs only"));
   }
 
   @Test

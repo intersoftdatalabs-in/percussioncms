@@ -19,8 +19,12 @@ Integrators can **create** a content type with Admin `POST /services/contenttype
 That call persists the type (Workbench Finish). A successful create is then
 `GET /services/contenttypes/{name}` **200**. Duplicate or reserved system names
 (for example **Folder**) are **409**. Invalid names (blank, spaces, wildcard)
-are **400**. Non-Admin callers are **403**. This chrome does **not** include a
-create wizard; rename, delete, **local field create/delete**, and **include
+are **400**. Non-Admin callers are **403**. Integrators can also **import** one
+Workbench-equivalent `ItemDefData` design XML with Admin
+`POST /services/contenttypes/import` (CD-14; create only; duplicate name **409**;
+invalid XML **400**; the new object's create lock is released and existing types
+are not stolen). This chrome does **not** include a
+create or import wizard; rename, delete, **local field create/delete**, and **include
 system/shared fields** are REST-only (no SPA field editor or field picker).
 After a held lock, integrators add a local field with
 `POST /services/contenttypes/{idOrName}/fields` (JSON `name` required) and
@@ -50,8 +54,9 @@ Nested `POST /services/systemdef/fields` and
 (backend column + display mapping). Duplicate field names are **409**.
 System-mandatory and system-internal fields cannot be deleted (**400**). An SPA
 editor is not in this chrome. Admin `GET /services/contenttypes/{idOrName}/export`
-downloads Workbench-equivalent design XML (CD-14; no lock steal). Import of that
-XML and an SPA export wizard are not in this chrome. See
+downloads Workbench-equivalent design XML (CD-14; no lock steal). REST import of
+that XML is `POST /services/contenttypes/import` (above). An SPA export/import
+wizard is not in this chrome. See
 [REST API](id:developer-rest).
 
 This is **not** the full Workbench field-rule editor. The detail table still

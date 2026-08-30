@@ -36,8 +36,11 @@ public interface IItemFilterAdaptor {
   /**
    * Updates or creates an ItemFilter.
    *
+   * <p>Admin only. Missing {@code filterId} creates (duplicate name is 409). Present {@code
+   * filterId} updates (unknown id returns {@code null}).
+   *
    * @param filter The filter to update or create.
-   * @return The updated ItemFilter.
+   * @return The updated ItemFilter, or {@code null} when the update target is not found.
    */
   ItemFilter updateOrCreateItemFilter(ItemFilter filter);
 
@@ -45,7 +48,7 @@ public interface IItemFilterAdaptor {
    * Deletes the specified item filter.
    *
    * @param itemFilterId A valid ItemFilter id. Filter must not be associated with any ContentLists
-   *     or it won't be deleted.
+   *     or it won't be deleted (409).
    * @throws PSNotFoundException if the filter is not found.
    */
   void deleteItemFilter(Guid itemFilterId) throws PSNotFoundException;

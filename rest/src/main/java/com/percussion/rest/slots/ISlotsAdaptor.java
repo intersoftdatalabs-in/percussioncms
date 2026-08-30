@@ -17,6 +17,7 @@
 
 package com.percussion.rest.slots;
 
+import com.percussion.rest.ObjectLockSummary;
 import java.net.URI;
 import java.util.List;
 import org.springframework.lang.Nullable;
@@ -41,10 +42,42 @@ public interface ISlotsAdaptor {
    * map replaces the definition layout/styles (empty or schema-only clears to defaults); null
    * leaves the field unchanged. Name/id is not changed via this path.
    *
+   * <p>When {@code finderName}, {@code relationshipName}, or {@code finderArguments} is non-null,
+   * those fields are written as an Admin design action. That path requires a design-session lock
+   * already held by the current user ({@link #lockSlot}), does not steal another user's lock, and
+   * does not release the lock on save. Invalid finder extensions and unknown relationship types are
+   * rejected. Empty {@code relationshipName} / empty {@code finderArguments} clear those fields.
+   *
    * @return updated detail, or {@code null} if not found
+   * @throws IllegalArgumentException when finder/relationship input is invalid
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when finder write is requested and
+   *     the caller is not Admin or has no session/user; {@code 409} when finder write is requested
+   *     and the slot is unlocked or locked by another user
    */
   @Nullable
   SlotDetail updateSlot(URI baseUri, String idOrName, SlotDetail body);
+
+  /**
+   * Acquire a self-only design-session lock via {@code IPSAssemblyDesignWs.loadSlots(lock=true,
+   * overrideLock=false)}. Admin only. Does not save and does not steal another user's lock.
+   *
+   * @return lock summary, or {@code null} if the slot is not found
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin or the
+   *     request has no session/user; {@code 409} when locked by another user
+   */
+  @Nullable
+  ObjectLockSummary lockSlot(URI baseUri, String idOrName);
+
+  /**
+   * Release a design-session lock owned by the current Admin user/session. Does not save and does
+   * not steal another user's lock.
+   *
+   * @return {@code true} when released (including already unlocked); {@code false} when not found
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin; {@code
+   *     409} when locked by another user
+   */
+  @Nullable
+  Boolean unlockSlot(URI baseUri, String idOrName);
 
   /**
    * Create and persist a slot (Workbench Finish: {@code IPSAssemblyDesignWs.createSlots} then
