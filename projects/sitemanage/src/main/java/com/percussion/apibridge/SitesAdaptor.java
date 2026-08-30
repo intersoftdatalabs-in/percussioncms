@@ -302,9 +302,10 @@ public class SitesAdaptor implements ISiteAdaptor {
 
       try {
         // Allow-list includes git-filesystem, csv-filesystem, sql-database, http-json,
-        // object-storage, and rss-atom. object-storage and rss-atom are local-root only
-        // (NIO Path; no remaining '..'); cloud URLs and credential properties fail closed
-        // (400). rss-atom persist is local/loopback only (no live feed credentials).
+        // object-storage, rss-atom, and icalendar. object-storage, rss-atom, and icalendar
+        // are local-root only (NIO Path; no remaining '..'); cloud URLs and credential
+        // properties fail closed (400). rss-atom persist is local/loopback only (no live
+        // feed credentials). icalendar persist is a local RFC 5545 fixture only (no CalDAV).
         PSVirtualSiteHelper.validate(psSite);
       } catch (VirtualSiteException e) {
         throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
@@ -430,13 +431,15 @@ public class SitesAdaptor implements ISiteAdaptor {
 
   /**
    * Build then NIO-copy assembled files to {@link IPSSite#getRoot()} for git-filesystem,
-   * csv-filesystem, sql-database, http-json, object-storage, and rss-atom Virtual Sites.
-   * Fail-closed on blank/unsafe/overlapping publish roots. {@code http-json} uses a local JSON
-   * fixture (or loopback catalog from {@code _config.yaml}); leftover {@code virtual.remoteUrl}
-   * is 400. {@code object-storage} uses a portable-safe local object-key {@code rootPath};
-   * leftover {@code virtual.remoteUrl} is 400 (no cloud URLs, IAM, or access keys). {@code
-   * rss-atom} uses a local RSS 2.0 / Atom fixture or loopback feed; leftover {@code
-   * virtual.remoteUrl} and credential properties are 400 (no live feeds).
+   * csv-filesystem, sql-database, http-json, object-storage, rss-atom, and icalendar Virtual
+   * Sites. Fail-closed on blank/unsafe/overlapping publish roots. {@code http-json} uses a local
+   * JSON fixture (or loopback catalog from {@code _config.yaml}); leftover {@code
+   * virtual.remoteUrl} is 400. {@code object-storage} uses a portable-safe local object-key
+   * {@code rootPath}; leftover {@code virtual.remoteUrl} is 400 (no cloud URLs, IAM, or access
+   * keys). {@code rss-atom} uses a local RSS 2.0 / Atom fixture or loopback feed; leftover
+   * {@code virtual.remoteUrl} and credential properties are 400 (no live feeds). {@code
+   * icalendar} uses a local RFC 5545 fixture ({@code calendar.ics} / {@code icalendar.file});
+   * leftover {@code virtual.remoteUrl} and credential properties are 400 (no CalDAV).
    */
   @Override
   public VirtualSitePublishResult publishVirtualSite(String nameOrId) {
@@ -509,11 +512,12 @@ public class SitesAdaptor implements ISiteAdaptor {
 
   /**
    * Load {@code _config.yaml} (required for git-filesystem, sql-database, http-json,
-   * object-storage, and rss-atom). CSV trees may omit the file and infer versions from child
-   * directories. HTTP JSON catalog URL/file live in the yaml ({@code http.url} / {@code http.file}
-   * or default {@code pages.json}). Object-storage optional {@code objects.keys} live in the yaml.
-   * RSS / Atom optional {@code rss.file} / {@code rss.url} live in the yaml (default {@code
-   * feed.xml} then {@code atom.xml}).
+   * object-storage, rss-atom, and icalendar). CSV trees may omit the file and infer versions from
+   * child directories. HTTP JSON catalog URL/file live in the yaml ({@code http.url} / {@code
+   * http.file} or default {@code pages.json}). Object-storage optional {@code objects.keys} live
+   * in the yaml. RSS / Atom optional {@code rss.file} / {@code rss.url} live in the yaml (default
+   * {@code feed.xml} then {@code atom.xml}). iCalendar optional {@code icalendar.file} lives in
+   * the yaml (default {@code calendar.ics}).
    */
   static VirtualSiteConfig loadBuildConfig(
       VirtualSiteSourceType type, Path siteRoot, String configFile, String siteKey)
@@ -654,10 +658,12 @@ public class SitesAdaptor implements ISiteAdaptor {
    *
    * <p>Preview is last-output based and applies to allow-listed Virtual kinds ({@code
    * git-filesystem}, {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code
-   * object-storage}, and {@code rss-atom}), not git-only. {@code rss-atom} streams last-build
-   * HTML from a local RSS 2.0 / Atom fixture (or loopback feed); leftover {@code
-   * virtual.remoteUrl} is 400. Traditional {@code repository} Sites and unknown {@code
-   * virtual.sourceKind} values return 400 via {@link PSVirtualSiteHelper#validate}.
+   * object-storage}, {@code rss-atom}, and {@code icalendar}), not git-only. {@code rss-atom}
+   * streams last-build HTML from a local RSS 2.0 / Atom fixture (or loopback feed); leftover
+   * {@code virtual.remoteUrl} is 400. {@code icalendar} streams last-build HTML from a local
+   * RFC 5545 fixture; leftover {@code virtual.remoteUrl} is 400 (no CalDAV). Traditional
+   * {@code repository} Sites and unknown {@code virtual.sourceKind} values return 400 via
+   * {@link PSVirtualSiteHelper#validate}.
    */
   IPSSite requireVirtualAdminSite(String nameOrId) {
     requireAdmin();

@@ -7,6 +7,7 @@ import {
   SOURCE_KIND_CSV_FILESYSTEM,
   SOURCE_KIND_GIT_FILESYSTEM,
   SOURCE_KIND_HTTP_JSON,
+  SOURCE_KIND_ICALENDAR,
   SOURCE_KIND_OBJECT_STORAGE,
   SOURCE_KIND_REPOSITORY,
   SOURCE_KIND_RSS_ATOM,
@@ -17,6 +18,7 @@ import {
   isCsvFilesystemSourceKind,
   isGitFilesystemSourceKind,
   isHttpJsonSourceKind,
+  isIcalendarSourceKind,
   isObjectStorageSourceKind,
   isRssAtomSourceKind,
   isSqlDatabaseSourceKind,
@@ -27,7 +29,7 @@ import {
 } from "../../../main/ts/developer/virtualSiteForm";
 
 describe("virtualSiteForm helpers", () => {
-  it("SOURCE_KIND_SELECT_VALUES lists object-storage and rss-atom with the other product kinds", () => {
+  it("SOURCE_KIND_SELECT_VALUES lists object-storage, rss-atom, and icalendar with the other product kinds", () => {
     expect(SOURCE_KIND_SELECT_VALUES).toEqual([
       SOURCE_KIND_REPOSITORY,
       SOURCE_KIND_GIT_FILESYSTEM,
@@ -36,10 +38,11 @@ describe("virtualSiteForm helpers", () => {
       SOURCE_KIND_HTTP_JSON,
       SOURCE_KIND_OBJECT_STORAGE,
       SOURCE_KIND_RSS_ATOM,
+      SOURCE_KIND_ICALENDAR,
     ]);
   });
 
-  it("normalizeSourceKindOption maps blank/repository, git-filesystem, csv-filesystem, sql-database, http-json, object-storage, and rss-atom", () => {
+  it("normalizeSourceKindOption maps blank/repository, git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, and icalendar", () => {
     expect(normalizeSourceKindOption(undefined)).toBe(SOURCE_KIND_REPOSITORY);
     expect(normalizeSourceKindOption("")).toBe(SOURCE_KIND_REPOSITORY);
     expect(normalizeSourceKindOption("  ")).toBe(SOURCE_KIND_REPOSITORY);
@@ -57,6 +60,8 @@ describe("virtualSiteForm helpers", () => {
     expect(normalizeSourceKindOption("Object-Storage")).toBe(SOURCE_KIND_OBJECT_STORAGE);
     expect(normalizeSourceKindOption("rss-atom")).toBe(SOURCE_KIND_RSS_ATOM);
     expect(normalizeSourceKindOption("RSS-Atom")).toBe(SOURCE_KIND_RSS_ATOM);
+    expect(normalizeSourceKindOption("icalendar")).toBe(SOURCE_KIND_ICALENDAR);
+    expect(normalizeSourceKindOption("ICalendar")).toBe(SOURCE_KIND_ICALENDAR);
     expect(normalizeSourceKindOption("future-adapter")).toBe(SOURCE_KIND_REPOSITORY);
     expect(normalizeSourceKindOption("sql-api")).toBe(SOURCE_KIND_REPOSITORY);
   });
@@ -71,18 +76,21 @@ describe("virtualSiteForm helpers", () => {
     expect(isVirtualSourceKind("http-json")).toBe(true);
     expect(isVirtualSourceKind("object-storage")).toBe(true);
     expect(isVirtualSourceKind("rss-atom")).toBe(true);
+    expect(isVirtualSourceKind("icalendar")).toBe(true);
     expect(isGitFilesystemSourceKind("git-filesystem")).toBe(true);
     expect(isGitFilesystemSourceKind("csv-filesystem")).toBe(false);
     expect(isGitFilesystemSourceKind("sql-database")).toBe(false);
     expect(isGitFilesystemSourceKind("http-json")).toBe(false);
     expect(isGitFilesystemSourceKind("object-storage")).toBe(false);
     expect(isGitFilesystemSourceKind("rss-atom")).toBe(false);
+    expect(isGitFilesystemSourceKind("icalendar")).toBe(false);
     expect(isCsvFilesystemSourceKind("csv-filesystem")).toBe(true);
     expect(isCsvFilesystemSourceKind("git-filesystem")).toBe(false);
     expect(isCsvFilesystemSourceKind("sql-database")).toBe(false);
     expect(isCsvFilesystemSourceKind("http-json")).toBe(false);
     expect(isCsvFilesystemSourceKind("object-storage")).toBe(false);
     expect(isCsvFilesystemSourceKind("rss-atom")).toBe(false);
+    expect(isCsvFilesystemSourceKind("icalendar")).toBe(false);
     expect(isSqlDatabaseSourceKind("sql-database")).toBe(true);
     expect(isSqlDatabaseSourceKind("SQL-Database")).toBe(true);
     expect(isSqlDatabaseSourceKind("csv-filesystem")).toBe(false);
@@ -90,6 +98,7 @@ describe("virtualSiteForm helpers", () => {
     expect(isSqlDatabaseSourceKind("http-json")).toBe(false);
     expect(isSqlDatabaseSourceKind("object-storage")).toBe(false);
     expect(isSqlDatabaseSourceKind("rss-atom")).toBe(false);
+    expect(isSqlDatabaseSourceKind("icalendar")).toBe(false);
     expect(isHttpJsonSourceKind("http-json")).toBe(true);
     expect(isHttpJsonSourceKind("HTTP-JSON")).toBe(true);
     expect(isHttpJsonSourceKind("sql-database")).toBe(false);
@@ -97,17 +106,25 @@ describe("virtualSiteForm helpers", () => {
     expect(isHttpJsonSourceKind("git-filesystem")).toBe(false);
     expect(isHttpJsonSourceKind("object-storage")).toBe(false);
     expect(isHttpJsonSourceKind("rss-atom")).toBe(false);
+    expect(isHttpJsonSourceKind("icalendar")).toBe(false);
     expect(isObjectStorageSourceKind("object-storage")).toBe(true);
     expect(isObjectStorageSourceKind("Object-Storage")).toBe(true);
     expect(isObjectStorageSourceKind("http-json")).toBe(false);
     expect(isObjectStorageSourceKind("sql-database")).toBe(false);
     expect(isObjectStorageSourceKind("git-filesystem")).toBe(false);
     expect(isObjectStorageSourceKind("rss-atom")).toBe(false);
+    expect(isObjectStorageSourceKind("icalendar")).toBe(false);
     expect(isRssAtomSourceKind("rss-atom")).toBe(true);
     expect(isRssAtomSourceKind("RSS-Atom")).toBe(true);
     expect(isRssAtomSourceKind("object-storage")).toBe(false);
     expect(isRssAtomSourceKind("http-json")).toBe(false);
     expect(isRssAtomSourceKind("git-filesystem")).toBe(false);
+    expect(isRssAtomSourceKind("icalendar")).toBe(false);
+    expect(isIcalendarSourceKind("icalendar")).toBe(true);
+    expect(isIcalendarSourceKind("ICalendar")).toBe(true);
+    expect(isIcalendarSourceKind("rss-atom")).toBe(false);
+    expect(isIcalendarSourceKind("object-storage")).toBe(false);
+    expect(isIcalendarSourceKind("git-filesystem")).toBe(false);
   });
 
   it("virtualPropsToForm and formToVirtualProps round-trip repository clear", () => {
@@ -349,6 +366,43 @@ describe("virtualSiteForm helpers", () => {
     );
   });
 
+  it("virtualPropsToForm maps icalendar and PUT omits Git remotes", () => {
+    const form = virtualPropsToForm({
+      sourceKind: "icalendar",
+      rootPath: "C:/icalendar-docs",
+      virtual: true,
+    });
+    expect(form.sourceKind).toBe(SOURCE_KIND_ICALENDAR);
+    expect(form.rootPath).toBe("C:/icalendar-docs");
+    expect(formToVirtualProps(form)).toEqual({
+      sourceKind: SOURCE_KIND_ICALENDAR,
+      rootPath: "C:/icalendar-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+  });
+
+  it("formToVirtualProps for icalendar clears leftover Git remote fields", () => {
+    const body = formToVirtualProps({
+      sourceKind: SOURCE_KIND_ICALENDAR,
+      rootPath: "  C:/icalendar-docs  ",
+      remoteUrl: "https://caldav.example.com/calendar.ics",
+      branch: "main",
+      configFile: "_config.yaml",
+      siteKey: "docs",
+    });
+    expect(body).toEqual({
+      sourceKind: SOURCE_KIND_ICALENDAR,
+      rootPath: "C:/icalendar-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+    expect(body).not.toHaveProperty("password");
+    expect(JSON.stringify(body)).not.toMatch(
+      /authorization|api[_-]?key|caldav|credential|token/i,
+    );
+  });
+
   it("formToVirtualProps trims and nulls empty optional fields", () => {
     const body = formToVirtualProps({
       sourceKind: SOURCE_KIND_GIT_FILESYSTEM,
@@ -582,6 +636,39 @@ describe("virtualSiteForm helpers", () => {
       validateVirtualSiteForm({
         sourceKind: SOURCE_KIND_RSS_ATOM,
         rootPath: "C:/rss-atom-docs",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBeNull();
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_ICALENDAR,
+        rootPath: "",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBe("root-required");
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_ICALENDAR,
+        rootPath: "../escape",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBe("root-unsafe");
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_ICALENDAR,
+        rootPath: "C:/icalendar-docs",
         remoteUrl: "",
         branch: "",
         configFile: "",

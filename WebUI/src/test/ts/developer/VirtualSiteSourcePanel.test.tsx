@@ -68,6 +68,7 @@ describe("VirtualSiteSourcePanel", () => {
       "http-json",
       "object-storage",
       "rss-atom",
+      "icalendar",
     ]);
     expect(kindSelect.value).toBe("repository");
     // Root path / remote hidden until virtual selected
@@ -879,6 +880,134 @@ describe("VirtualSiteSourcePanel", () => {
       expect(screen.queryByTestId("developer-site-virtual-root-path")).toBeNull();
     });
     expect(screen.queryByTestId("developer-site-virtual-rss-atom-hint")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+  });
+
+  it("loads icalendar values with root path and Build/Preview/Publish chrome", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "icalendar",
+      rootPath: "C:/icalendar-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    expect(
+      (screen.getByTestId("developer-site-virtual-source-kind") as HTMLSelectElement).value,
+    ).toBe("icalendar");
+    expect(
+      (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
+    ).toBe("C:/icalendar-docs");
+    expect(screen.getByTestId("developer-site-virtual-icalendar-hint")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-icalendar-hint").textContent).toBe(
+      DEV_MSG.SITE_VIRT_ICALENDAR_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-icalendar-hint").textContent).toContain(
+      "Build Virtual Site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-icalendar-hint").textContent).toContain(
+      "Preview assembled site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-icalendar-hint").textContent).toContain(
+      "Publish Virtual Site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-icalendar-hint").textContent).not.toContain(
+      "later phase",
+    );
+    expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-config-file")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
+      DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
+    );
+  });
+
+  it("saves icalendar configuration without Git remote fields or CalDAV credentials", async () => {
+    getVirtual
+      .mockResolvedValueOnce({ sourceKind: null, virtual: false })
+      .mockResolvedValueOnce({
+        sourceKind: "icalendar",
+        rootPath: "C:/icalendar-docs",
+        virtual: true,
+      });
+    updateVirtual.mockResolvedValue({
+      sourceKind: "icalendar",
+      rootPath: "C:/icalendar-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Corporate" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-form")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-site-virtual-source-kind"), {
+      target: { value: "icalendar" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-error").textContent).toContain(
+        DEV_MSG.SITE_VIRT_ERR_ROOT_REQUIRED,
+      );
+    });
+    expect(updateVirtual).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId("developer-site-virtual-root-path"), {
+      target: { value: "C:/icalendar-docs" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-saved")).toBeTruthy();
+    });
+    expect(updateVirtual).toHaveBeenCalledWith("Corporate", {
+      sourceKind: "icalendar",
+      rootPath: "C:/icalendar-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+    const savedBody = updateVirtual.mock.calls[0][1] as Record<string, unknown>;
+    expect(savedBody).not.toHaveProperty("password");
+    expect(JSON.stringify(savedBody)).not.toMatch(
+      /authorization|api[_-]?key|caldav|credential|token/i,
+    );
+    expect(getVirtual).toHaveBeenCalledTimes(2);
+    expect(
+      (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
+    ).toBe("C:/icalendar-docs");
+    expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
+      DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
+    );
+  });
+
+  it("switching icalendar back to repository hides virtual fields", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "icalendar",
+      rootPath: "C:/icalendar-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-site-virtual-source-kind"), {
+      target: { value: "repository" },
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-site-virtual-root-path")).toBeNull();
+    });
+    expect(screen.queryByTestId("developer-site-virtual-icalendar-hint")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();

@@ -319,6 +319,39 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void getVirtualPropertiesRoundTripsIcalendar() {
+    VirtualSiteProperties v = new VirtualSiteProperties();
+    v.setSourceKind("icalendar");
+    v.setRootPath("C:/cal-docs");
+    v.setVirtual(true);
+    when(adaptor.getVirtualSiteProperties("CalHelp")).thenReturn(v);
+
+    VirtualSiteProperties out = resource.getVirtualProperties("CalHelp");
+    assertEquals("icalendar", out.getSourceKind());
+    assertEquals("C:/cal-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).getVirtualSiteProperties("CalHelp");
+  }
+
+  @Test
+  public void updateVirtualPropertiesRoundTripsIcalendar() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("icalendar");
+    body.setRootPath("C:/cal-docs");
+    VirtualSiteProperties saved = new VirtualSiteProperties();
+    saved.setSourceKind("icalendar");
+    saved.setRootPath("C:/cal-docs");
+    saved.setVirtual(true);
+    when(adaptor.updateVirtualSiteProperties(eq("CalHelp"), same(body))).thenReturn(saved);
+
+    VirtualSiteProperties out = resource.updateVirtualProperties("CalHelp", body);
+    assertEquals("icalendar", out.getSourceKind());
+    assertEquals("C:/cal-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).updateVirtualSiteProperties("CalHelp", body);
+  }
+
+  @Test
   public void updateVirtualPropertiesUnknownKindPropagates400() {
     VirtualSiteProperties body = new VirtualSiteProperties();
     body.setSourceKind("sql-adapter");
@@ -578,6 +611,60 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void buildVirtualSiteIcalendarFixtureDelegates() throws Exception {
+    Path calRoot = tempDir.resolve("cal-site");
+    Files.createDirectories(calRoot);
+    Files.writeString(
+        calRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: Cal Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        icalendar:
+          file: calendar.ics
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        calRoot.resolve("calendar.ics"),
+        """
+        BEGIN:VCALENDAR
+        VERSION:2.0
+        PRODID:-//Percussion//Test//EN
+        BEGIN:VEVENT
+        UID:index
+        DTSTART:20260828T100000Z
+        SUMMARY:Cal Home
+        DESCRIPTION:Hello from iCalendar.
+        END:VEVENT
+        END:VCALENDAR
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("cal-out");
+    Files.createDirectories(out);
+
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setSiteName("CalHelp");
+    built.setPagesWritten(1);
+    built.setLinkProblemCount(0);
+    built.setHasLinkProblems(false);
+    built.setOutputPath(out.toAbsolutePath().toString());
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+    when(adaptor.buildVirtualSite(eq("CalHelp"), same(req))).thenReturn(built);
+
+    VirtualSiteBuildResult result = resource.buildVirtualSite("CalHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertEquals(out.toAbsolutePath().toString(), result.getOutputPath());
+    assertTrue(Files.isRegularFile(calRoot.resolve("_config.yaml")));
+    assertTrue(Files.isRegularFile(calRoot.resolve("calendar.ics")));
+    verify(adaptor).buildVirtualSite("CalHelp", req);
+  }
+
+  @Test
   public void buildVirtualSiteUnknownKindPropagates400() {
     when(adaptor.buildVirtualSite(eq("Help"), any()))
         .thenThrow(
@@ -811,6 +898,47 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void previewStatusDelegatesIcalendar() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(true);
+    status.setHomePath("8.2/index.html");
+    when(adaptor.getVirtualSitePreviewStatus("CalHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("CalHelp");
+    assertEquals(Boolean.TRUE, out.getAvailable());
+    assertEquals("8.2/index.html", out.getHomePath());
+    verify(adaptor).getVirtualSitePreviewStatus("CalHelp");
+  }
+
+  @Test
+  public void previewStatusIcalendarMissingBuildIsUnavailable() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(false);
+    status.setMessage("No assembled Virtual Site to preview. Run Build Virtual Site first.");
+    when(adaptor.getVirtualSitePreviewStatus("CalHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("CalHelp");
+    assertEquals(Boolean.FALSE, out.getAvailable());
+    assertTrue(out.getMessage() != null && out.getMessage().contains("No assembled"));
+    verify(adaptor).getVirtualSitePreviewStatus("CalHelp");
+  }
+
+  @Test
+  public void previewFileDelegatesIcalendarHtml() {
+    byte[] html = "<a href=\"/8.2/index.html\">Cal Home</a>".getBytes(StandardCharsets.UTF_8);
+    when(adaptor.previewVirtualSiteFile(eq("CalHelp"), eq("8.2/index.html")))
+        .thenReturn(new VirtualSitePreviewFile("text/html; charset=UTF-8", "8.2/index.html", html));
+
+    Response out = resource.previewVirtualSiteFile("CalHelp", "8.2/index.html");
+    assertEquals(200, out.getStatus());
+    byte[] body = (byte[]) out.getEntity();
+    String text = new String(body, StandardCharsets.UTF_8);
+    assertTrue(text.contains("/services/sites/CalHelp/virtual/preview/8.2/index.html"), text);
+    assertTrue(text.contains("Cal Home"), text);
+    verify(adaptor).previewVirtualSiteFile("CalHelp", "8.2/index.html");
+  }
+
+  @Test
   public void buildVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.buildVirtualSite(" ", null));
@@ -911,6 +1039,25 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void publishVirtualSiteDelegatesIcalendar() {
+    VirtualSitePublishResult published = new VirtualSitePublishResult();
+    published.setSiteName("CalHelp");
+    published.setSiteKey("cal-docs");
+    published.setPagesWritten(1);
+    published.setFilesCopied(2);
+    published.setPublishPath(tempDir.resolve("cal-pub").toString());
+    when(adaptor.publishVirtualSite("CalHelp")).thenReturn(published);
+
+    VirtualSitePublishResult out = resource.publishVirtualSite("CalHelp");
+    assertEquals("CalHelp", out.getSiteName());
+    assertEquals("cal-docs", out.getSiteKey());
+    assertEquals(1, out.getPagesWritten().intValue());
+    assertEquals(2, out.getFilesCopied().intValue());
+    assertEquals(published.getPublishPath(), out.getPublishPath());
+    verify(adaptor).publishVirtualSite("CalHelp");
+  }
+
+  @Test
   public void publishVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.publishVirtualSite(" "));
@@ -940,6 +1087,12 @@ public class SitesResourceTest {
         putVirtualBlock.contains("rss-atom"),
         "updateVirtualProperties OpenAPI description must mention rss-atom persist");
     assertTrue(
+        putVirtualBlock.contains("icalendar"),
+        "updateVirtualProperties OpenAPI description must mention icalendar persist");
+    assertTrue(
+        putVirtualBlock.contains("no CalDAV"),
+        "updateVirtualProperties OpenAPI description must mention icalendar local fixture only");
+    assertTrue(
         putVirtualBlock.contains("local/loopback"),
         "updateVirtualProperties OpenAPI description must mention rss-atom local/loopback only");
     assertTrue(
@@ -963,6 +1116,12 @@ public class SitesResourceTest {
         buildBlock.contains("rss-atom"),
         "buildVirtualSite OpenAPI description must mention rss-atom");
     assertTrue(
+        buildBlock.contains("icalendar"),
+        "buildVirtualSite OpenAPI description must mention icalendar");
+    assertTrue(
+        buildBlock.contains("calendar.ics") || buildBlock.contains("no CalDAV"),
+        "buildVirtualSite OpenAPI description must mention local icalendar fixture");
+    assertTrue(
         buildBlock.contains("feed.xml") || buildBlock.contains("loopback"),
         "buildVirtualSite OpenAPI description must mention local RSS/Atom fixture or loopback");
     assertTrue(
@@ -985,6 +1144,12 @@ public class SitesResourceTest {
     assertTrue(
         publishBlock.contains("rss-atom"),
         "publishVirtualSite OpenAPI description must mention rss-atom");
+    assertTrue(
+        publishBlock.contains("icalendar"),
+        "publishVirtualSite OpenAPI description must mention icalendar");
+    assertTrue(
+        publishBlock.contains("calendar.ics") || publishBlock.contains("no CalDAV"),
+        "publishVirtualSite OpenAPI description must mention local icalendar fixture");
     assertTrue(
         publishBlock.contains("feed.xml") || publishBlock.contains("loopback"),
         "publishVirtualSite OpenAPI description must mention local RSS/Atom fixture or loopback");
@@ -1015,6 +1180,9 @@ public class SitesResourceTest {
         previewStatusBlock.contains("rss-atom"),
         "getVirtualSitePreviewStatus OpenAPI description must mention rss-atom");
     assertTrue(
+        previewStatusBlock.contains("icalendar"),
+        "getVirtualSitePreviewStatus OpenAPI description must mention icalendar");
+    assertTrue(
         previewFileBlock.contains("csv-filesystem"),
         "previewVirtualSiteFile OpenAPI description must mention csv-filesystem");
     assertTrue(
@@ -1029,6 +1197,9 @@ public class SitesResourceTest {
     assertTrue(
         previewFileBlock.contains("rss-atom"),
         "previewVirtualSiteFile OpenAPI description must mention rss-atom");
+    assertTrue(
+        previewFileBlock.contains("icalendar"),
+        "previewVirtualSiteFile OpenAPI description must mention icalendar");
     assertTrue(
         previewFileBlock.contains("20 MB"),
         "previewVirtualSiteFile OpenAPI description must mention the 20 MB size cap");

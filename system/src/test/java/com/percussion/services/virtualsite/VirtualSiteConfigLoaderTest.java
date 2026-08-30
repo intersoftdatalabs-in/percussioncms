@@ -109,6 +109,31 @@ class VirtualSiteConfigLoaderTest {
   }
 
   @Test
+  void icalendarScalarInsteadOfMappingFailsFast() throws Exception {
+    Path root = tempDir.resolve("icalendar-scalar");
+    Files.createDirectories(root);
+    Files.writeString(
+        root.resolve("_config.yaml"),
+        """
+        site:
+          title: Cal Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        icalendar: "not-a-mapping"
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteException ex =
+        assertThrows(
+            VirtualSiteException.class,
+            () -> VirtualSiteConfigLoader.load(root, null, "cal-docs"));
+    assertTrue(ex.getMessage().toLowerCase().contains("icalendar"), ex.getMessage());
+    assertTrue(ex.getMessage().toLowerCase().contains("mapping"), ex.getMessage());
+  }
+
+  @Test
   void rssScalarInsteadOfMappingFailsFast() throws Exception {
     Path root = tempDir.resolve("rss-scalar");
     Files.createDirectories(root);
@@ -423,6 +448,50 @@ class VirtualSiteConfigLoaderTest {
     assertEquals("RSS Second", second.siteTitle());
     assertEquals("custom.xml", second.rss().file());
     assertTrue(second.rss().url() == null || second.rss().url().isBlank());
+  }
+
+  @Test
+  void secondLoadAfterIcalendarFileAndConfigEditSeesCurrentIcalendarWithoutCache() throws Exception {
+    Path root = tempDir.resolve("live-ics-config");
+    Files.createDirectories(root);
+    Path yaml = root.resolve("_config.yaml");
+    Files.writeString(
+        yaml,
+        """
+        site:
+          title: Cal First
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        icalendar:
+          file: calendar.ics
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig first = VirtualSiteConfigLoader.load(root, null, "k");
+    assertEquals("Cal First", first.siteTitle());
+    assertEquals("calendar.ics", first.icalendar().file());
+    assertTrue(first.icalendar().url() == null || first.icalendar().url().isBlank());
+
+    Files.writeString(
+        yaml,
+        """
+        site:
+          title: Cal Second
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        icalendar:
+          file: custom.ics
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig second = VirtualSiteConfigLoader.load(root, null, "k");
+    assertEquals("Cal Second", second.siteTitle());
+    assertEquals("custom.ics", second.icalendar().file());
+    assertTrue(second.icalendar().url() == null || second.icalendar().url().isBlank());
   }
 
   @Test

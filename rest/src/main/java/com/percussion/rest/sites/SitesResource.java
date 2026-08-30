@@ -205,21 +205,23 @@ public class SitesResource {
       description =
           "Persists virtual.* properties. Validation aligns with PSVirtualSiteHelper:"
               + " sourceKind allow-list (git-filesystem, csv-filesystem, sql-database, http-json,"
-              + " object-storage, rss-atom), required non-blank rootPath for sql-database, http-json,"
-              + " object-storage, and rss-atom; for other kinds when virtual and remoteUrl is blank,"
-              + " optional remoteUrl+branch for git-filesystem only (https/ssh/file/git@host:path;"
-              + " fail-closed on unsafe URLs / '..'; csv-filesystem, sql-database, http-json,"
-              + " object-storage, and rss-atom reject remoteUrl — no secrets on this envelope),"
-              + " safe NIO path, simple configFile name. sql-database JDBC URL/user/query live in"
-              + " _config.yaml under rootPath (H2 mem only; never send passwords on this envelope)."
-              + " http-json catalog URL/file live in _config.yaml (http.url / http.file); REST"
-              + " persists a portable-safe rootPath JSON fixture. object-storage persists a"
-              + " portable-safe local rootPath (no remaining '..'); cloud URLs and credential"
-              + " properties return 400. rss-atom persist is local/loopback only (portable-safe"
-              + " local rootPath; leftover remoteUrl, credentials, and cloud URL rootPath return"
-              + " 400; no live feed credentials). GET after PUT round-trips the stored sourceKind."
-              + " Unknown kinds return 400. Blank/repository sourceKind clears virtual"
-              + " configuration.",
+              + " object-storage, rss-atom, icalendar), required non-blank rootPath for sql-database,"
+              + " http-json, object-storage, rss-atom, and icalendar; for other kinds when virtual"
+              + " and remoteUrl is blank, optional remoteUrl+branch for git-filesystem only"
+              + " (https/ssh/file/git@host:path; fail-closed on unsafe URLs / '..'; csv-filesystem,"
+              + " sql-database, http-json, object-storage, rss-atom, and icalendar reject remoteUrl"
+              + " — no secrets on this envelope), safe NIO path, simple configFile name."
+              + " sql-database JDBC URL/user/query live in _config.yaml under rootPath (H2 mem only;"
+              + " never send passwords on this envelope). http-json catalog URL/file live in"
+              + " _config.yaml (http.url / http.file); REST persists a portable-safe rootPath JSON"
+              + " fixture. object-storage persists a portable-safe local rootPath (no remaining"
+              + " '..'); cloud URLs and credential properties return 400. rss-atom persist is"
+              + " local/loopback only (portable-safe local rootPath; leftover remoteUrl, credentials,"
+              + " and cloud URL rootPath return 400; no live feed credentials). icalendar persist is"
+              + " a local RFC 5545 fixture only (portable-safe local rootPath; leftover remoteUrl,"
+              + " credentials, and cloud URL rootPath return 400; no CalDAV). GET after PUT"
+              + " round-trips the stored sourceKind. Unknown kinds return 400. Blank/repository"
+              + " sourceKind clears virtual configuration.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -269,7 +271,7 @@ public class SitesResource {
       description =
           "Runs the Virtual Site static build for a site configured with"
               + " virtual.sourceKind=git-filesystem, csv-filesystem, sql-database, http-json,"
-              + " object-storage, or rss-atom. git-filesystem: when virtual.remoteUrl is set, the"
+              + " object-storage, rss-atom, or icalendar. git-filesystem: when virtual.remoteUrl is set, the"
               + " server clones or fetches that branch into a contained work directory, then"
               + " discovers Markdown. csv-filesystem: rootPath is a CSV tree (optional _config.yaml;"
               + " required columns id, title, body; fail-closed on unsafe paths). sql-database:"
@@ -282,7 +284,10 @@ public class SitesResource {
               + " Path/Files; virtual.remoteUrl is 400 (no secrets / no cloud URLs on this envelope)."
               + " rss-atom: local RSS 2.0 / Atom fixture under rootPath (feed.xml / atom.xml or"
               + " _config.yaml rss.file; rss.url loopback only); no live remote feeds; leftover"
-              + " virtual.remoteUrl, credential properties, and cloud rootPath are 400. Unknown"
+              + " virtual.remoteUrl, credential properties, and cloud rootPath are 400. icalendar:"
+              + " local RFC 5545 fixture under rootPath (calendar.ics or _config.yaml"
+              + " icalendar.file); no CalDAV or live remotes; leftover virtual.remoteUrl,"
+              + " credential properties, and cloud rootPath are 400. Unknown"
               + " source kinds return 400. Uses PSVirtualSiteBuildService.forSourceType with"
               + " portable NIO Path I/O. Requires Admin. Traditional repository Sites and invalid"
               + " source kinds/paths return 4xx. Optional body may set outputRoot; otherwise the"
@@ -333,10 +338,11 @@ public class SitesResource {
       description =
           "Reports whether the last Admin Virtual Site build can be opened from the product UI."
               + " Last-output based for git-filesystem, csv-filesystem, sql-database, http-json,"
-              + " object-storage, and rss-atom (not git-only). Uses the last build output path"
+              + " object-storage, rss-atom, and icalendar (not git-only). Uses the last build output path"
               + " (default {install}/tmp/virtual-sites/{siteKey}). After a successful http-json,"
-              + " object-storage, or rss-atom Build, available=true plus homePath. rss-atom is a"
-              + " local RSS 2.0 / Atom fixture or loopback feed (no live remote feeds). Missing or"
+              + " object-storage, rss-atom, or icalendar Build, available=true plus homePath. rss-atom is a"
+              + " local RSS 2.0 / Atom fixture or loopback feed (no live remote feeds). icalendar is a"
+              + " local RFC 5545 calendar.ics fixture (no CalDAV). Missing or"
               + " failed builds return 200 with available=false (not 500). Requires Admin."
               + " Traditional repository Sites and unknown sourceKind values return 400.",
       responses = {
@@ -383,11 +389,12 @@ public class SitesResource {
       summary = "Preview Virtual Site file",
       description =
           "Streams a file from the last Virtual Site build output (git-filesystem,"
-              + " csv-filesystem, sql-database, http-json, object-storage, or rss-atom). Paths are"
+              + " csv-filesystem, sql-database, http-json, object-storage, rss-atom, or icalendar). Paths are"
               + " resolved with portable NIO Path under the last output root (no '..' after"
               + " normalize). HTML root-relative href/src/url() values are rewritten to this"
               + " preview prefix so navigation works. rss-atom is a local RSS 2.0 / Atom fixture or"
-              + " loopback feed (no live remote feeds). Requires Admin. Missing files return 404"
+              + " loopback feed (no live remote feeds). icalendar is a local RFC 5545 calendar.ics"
+              + " fixture (no CalDAV). Requires Admin. Missing files return 404"
               + " (not 500). Unsafe paths, unknown/repository sourceKind, and files larger than"
               + " 20 MB return 400.",
       responses = {
@@ -445,9 +452,11 @@ public class SitesResource {
               + " fixture or loopback catalog; catalog URL/file stay in _config.yaml;"
               + " virtual.remoteUrl is 400; no secrets on this envelope), object-storage"
               + " (portable-safe local object-key rootPath; no cloud URLs, IAM, or access keys;"
-              + " leftover virtual.remoteUrl is 400), or rss-atom (local RSS 2.0 / Atom fixture"
+              + " leftover virtual.remoteUrl is 400), rss-atom (local RSS 2.0 / Atom fixture"
               + " or loopback feed.xml / atom.xml; leftover virtual.remoteUrl and credentials"
-              + " are 400; no live feeds), then copies assembled HTML/assets to the"
+              + " are 400; no live feeds), or icalendar (local RFC 5545 calendar.ics /"
+              + " icalendar.file fixture; leftover virtual.remoteUrl and credentials are 400;"
+              + " no CalDAV), then copies assembled HTML/assets to the"
               + " Site publishing filesystem location (IPSSite.root) using portable NIO Path I/O."
               + " Requires Admin. Traditional repository Sites, missing/unsafe Site root, or"
               + " overlap with virtual.rootPath return 4xx with an operator-readable message"
