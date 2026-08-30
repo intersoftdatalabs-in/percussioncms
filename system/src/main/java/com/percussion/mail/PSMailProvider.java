@@ -17,6 +17,7 @@
 
 package com.percussion.mail;
 
+import com.intsof.percussioncms.auditlog.codes.MailErrorCodes;
 import com.percussion.error.PSIllegalArgumentException;
 
 /**
@@ -88,7 +89,7 @@ public abstract class PSMailProvider {
     // Three unacceptable forms: noAt, @domain, and user@
     if (pos < 1 || pos >= name.length() - 1) {
       throw new PSIllegalArgumentException(
-          IPSMailErrors.MAIL_ADDRESS_INVALID,
+          MailErrorCodes.MAIL_ADDRESS_INVALID,
           name + " is in an invalid electronic mail address form");
     }
 

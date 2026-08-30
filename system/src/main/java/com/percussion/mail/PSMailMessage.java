@@ -17,6 +17,7 @@
 
 package com.percussion.mail;
 
+import com.intsof.percussioncms.auditlog.codes.MailErrorCodes;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.util.PSCharSets;
 import com.percussion.utils.date.PSDateFormatter;
@@ -34,7 +35,7 @@ import java.util.Date;
  * @version 1.0
  * @since 1.0
  */
-public class PSMailMessage implements IPSMailErrors {
+public class PSMailMessage {
   /** Construct an empty mail message. At least one name to send to must be added. */
   public PSMailMessage() {
     super();
@@ -128,19 +129,19 @@ public class PSMailMessage implements IPSMailErrors {
    */
   private static PSIllegalArgumentException validateEmailAddress(String name) {
     if (name == null || name.length() == 0) {
-      return new PSIllegalArgumentException(MAIL_ADDRESS_EMPTY);
+      return new PSIllegalArgumentException(MailErrorCodes.MAIL_ADDRESS_EMPTY);
     }
 
     int atPos = name.indexOf('@');
     if (atPos < 1 || atPos >= name.length() - 1) {
-      return new PSIllegalArgumentException(MAIL_ADDRESS_INVALID, name);
+      return new PSIllegalArgumentException(MailErrorCodes.MAIL_ADDRESS_INVALID, name);
     }
 
     String localPart = name.substring(0, atPos);
     String domain = name.substring(atPos + 1);
 
     if (localPart.length() == 0 || domain.length() == 0) {
-      return new PSIllegalArgumentException(MAIL_ADDRESS_INVALID, name);
+      return new PSIllegalArgumentException(MailErrorCodes.MAIL_ADDRESS_INVALID, name);
     }
 
     return null;
@@ -169,14 +170,14 @@ public class PSMailMessage implements IPSMailErrors {
 
   private static PSIllegalArgumentException validateToHeaderString(String toHeader) {
     if (toHeader == null || toHeader.length() == 0) {
-      return new PSIllegalArgumentException(MAIL_CUSTOM_TO_HEADER_EMPTY);
+      return new PSIllegalArgumentException(MailErrorCodes.MAIL_CUSTOM_TO_HEADER_EMPTY);
     }
 
     if (toHeader.indexOf('\n') > 0
         || toHeader.indexOf('\f') > 0
         || toHeader.indexOf('\r') > 0
         || toHeader.indexOf('\t') > 0) {
-      return new PSIllegalArgumentException(MAIL_CUSTOM_TO_HEADER_INVALID, toHeader);
+      return new PSIllegalArgumentException(MailErrorCodes.MAIL_CUSTOM_TO_HEADER_INVALID, toHeader);
     }
 
     return null;

@@ -17,6 +17,8 @@
 
 package com.percussion.mail;
 
+import com.intsof.percussioncms.auditlog.codes.MailErrorCodes;
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -59,12 +61,41 @@ public class PSMailSendException extends PSException {
   }
 
   /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message
+   */
+  public PSMailSendException(IPSErrorCode code, Object singleArg) {
+    super(code, singleArg);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSMailSendException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSMailSendException(IPSErrorCode code) {
+    super(code);
+  }
+
+  /**
    * Construct a server exception when an unknown exception occurs while communicating with the
    * server.
    *
    * @param e the exception
    */
   public PSMailSendException(Exception e) {
-    super(IPSMailErrors.MAIL_SEND_UNEXPECTED_EXCEPTION, e.toString());
+    super(MailErrorCodes.MAIL_SEND_UNEXPECTED_EXCEPTION, e.toString());
   }
 }
