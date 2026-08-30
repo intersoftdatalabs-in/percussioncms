@@ -68,4 +68,9 @@ public class TestTemplatesAdaptor implements ITemplatesAdaptor {
   public TemplateExport exportTemplate(URI baseUri, String idOrName) {
     return null;
   }
+
+  @Override
+  public TemplateDetail importTemplate(URI baseUri, String xml) {
+    return null;
+  }
 }

@@ -247,6 +247,7 @@ Assembly templates used by the [Design SPA](id:admin-design-templates) are expos
 | `PUT` | `/services/templates/{idOrName}` | Update label, description, templateSource, assembler, bindings, and/or slots |
 | `POST` | `/services/templates` | Create a modern assembly template (**when installed**) — no Widget XML |
 | `DELETE` | `/services/templates/{idOrName}` | Delete a modern assembly template — no Widget XML |
+| `POST` | `/services/templates/import` | **Admin.** Import one Workbench-equivalent `assembly-template` design XML (AS-08) |
 | `POST` | `/services/templates/summaries-by-filter` | List summaries matching a `TemplateFilter` |
 
 `PUT` omits unchanged fields. Name/id remain unsupported. Delete returns **204** when
@@ -257,8 +258,55 @@ slice is on the server; otherwise create stays on residual classic hosts.
 
 **AS-08 export:** `GET /services/templates/{idOrName}/export` downloads Workbench-equivalent
 design XML (Admin only). Unknown templates are `404`; non-Admin callers are `403`. The
-server does not steal design locks. **Import is not implemented** on this path (later
-AS-08 slice). Details are in the Templates (assembly catalog) section below.
+server does not steal design locks. Import uses a separate path
+(`POST /services/templates/import`). Details are in the Templates (assembly catalog)
+section below.
+
+### AS-08 template design XML import
+
+`POST /services/templates/import` is the Admin REST equivalent of the Workbench **import
+template** wizard for **one** assembly-template design document. The body is
+`application/xml` (or `text/xml`) — the same `<assembly-template>` document that Workbench
+exports and that `GET /services/templates/{idOrName}/export` returns when that export
+slice is installed. Load and save go through existing `IPSAssemblyDesignWs`
+(`createAssemblyTemplates` then `saveAssemblyTemplates` with `release=true`). No new SOAP
+surface.
+
+**Admin (Design) only.** There is no global JAX-RS Admin filter on this path — the
+sitemanage adaptor checks `IPSUserService.isAdminUser` and maps a non-Admin caller to
+**403**.
+
+**Create only — name collision is 409.** Import does **not** replace an existing template
+and does **not** steal a design lock held by another session. The new object is locked
+only for the importing user long enough to persist, then released. There is no overwrite
+query parameter on this path.
+
+| Status | Meaning |
+|--------|---------|
+| `200` | Imported. JSON `TemplateDetail`; `name` round-trips from the XML |
+| `400` | Missing body, not `assembly-template` XML, or invalid name in the document |
+| `403` | Caller is not Admin, or request session/user is missing |
+| `409` | A template with that name already exists (no replace) |
+| `500` | Unexpected server failure |
+
+Example:
+
+```http
+POST /Rhythmyx/rest/templates/import
+Content-Type: application/xml
+Authorization: …
+
+<assembly-template>
+  <name>imported.one</name>
+  <label>Imported One</label>
+  <assembler>Java/global/percussion/assembly/htmlAssembler</assembler>
+  <template>#set($x=1)$x</template>
+  …
+</assembly-template>
+```
+
+Widget definition XML / package compile is out of scope. There is no Design SPA import
+wizard on this slice — operators and integrators call the REST path (or Workbench).
 
 ## Slots (design catalog)
 
@@ -1036,6 +1084,7 @@ Create uses the modern package/manifest model — **no Widget definition XML**.
 | `POST` | `/services/templates/summaries-by-filter` | Filter summaries (for example by content id) |
 | `GET` | `/services/templates/{idOrName}` | Load design detail (source, bindings, slots, assembler) |
 | `GET` | `/services/templates/{idOrName}/export` | **Admin.** AS-08 export of Workbench-equivalent design XML |
+| `POST` | `/services/templates/import` | **Admin.** AS-08 import of one Workbench-equivalent `assembly-template` XML |
 | `PUT` | `/services/templates/{idOrName}` | Update label, description, source, assembler, bindings, slots |
 | `POST` | `/services/templates` | Create a modern assembly template (`name` required, unique, no spaces) |
 | `DELETE` | `/services/templates/{idOrName}` | Delete a modern assembly template (204; no Widget XML) |
@@ -1076,9 +1125,9 @@ derived from the **template name** (for example `perc.page.xml`).
 | `404` | Unknown id or name |
 
 The load is **read-only**. The server does **not** acquire or steal a design lock
-(`lock=false`, `overrideLock=false`). **Import** (POST of the same XML) is **not**
-implemented on this path — that remains a later AS-08 slice. There is no Design SPA
-export wizard; operators and integrators call this REST path directly.
+(`lock=false`, `overrideLock=false`). **Import** of the same XML is
+`POST /services/templates/import` (create only; name collision is **409**). There is no
+Design SPA export wizard; operators and integrators call this REST path directly.
 
 See also [Design templates](id:admin-design-templates).
 

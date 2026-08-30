@@ -118,10 +118,23 @@ Workbench-equivalent design XML with:
 
 The response is `application/xml` with `Content-Disposition` named from the template
 (for example `perc.page.xml`). Unknown names return **404**. Non-Admin sessions return
-**403**. Export is read-only and does **not** steal a design lock. **Import** of that XML
-is not available on this REST path yet.
+**403**. Export is read-only and does **not** steal a design lock.
 
 See [REST API](id:developer-rest) (Templates / AS-08 export).
+
+## Import design XML (REST, no SPA wizard)
+
+Administrators can import **one** Workbench-equivalent assembly-template design XML
+document through public REST (AS-08):
+
+`POST /services/templates/import` with `Content-Type: application/xml`.
+
+The document is the same `<assembly-template>` XML Workbench exports (and that
+`GET /services/templates/{idOrName}/export` returns). The imported **name** must be unique
+— a collision is **409** (the existing template is not replaced, and no design lock is
+stolen). Non-Admin callers receive **403**. Invalid XML is **400**.
+
+There is no Design SPA import wizard on this slice. See [REST API](id:developer-rest).
 
 ## Edit assembler, slots, source, and bindings
 
@@ -142,7 +155,7 @@ related upgrade-only JSPs) until those flows are signed off on the SPA. Bookmark
 
 ## Related
 
-- [REST API](id:developer-rest) — `GET`/`POST`/`PUT`/`DELETE /services/templates` and Admin `GET .../export`
+- [REST API](id:developer-rest) — `GET`/`POST`/`PUT`/`DELETE /services/templates`, Admin `GET .../export`, and `POST /services/templates/import`
 - [Extensions & packages](id:developer-extensions)
 - [Product page packages](id:developer-page-packages)
 - [Navigation & site structure](id:admin-architecture-navigation)
