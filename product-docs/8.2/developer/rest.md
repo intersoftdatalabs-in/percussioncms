@@ -358,6 +358,86 @@ The slot form stays on screen (or shows an in-panel error). It does
 still render as the human-readable **message** (fallback **code**). Load failures stay
 in the slot detail panel — use **Back** to return to the catalog.
 
+## Item filters (design catalog)
+
+Assembly **item filters** (Workbench **Item Filter** editor: name / description / rules /
+parent filter) are exposed under `/services/itemfilters` (AS-07). The REST layer is a
+thin contract over the system **design** web service (`IPSSystemDesignWs`) — create,
+update, and delete use the same `createItemFilters` / `loadItemFilters` /
+`saveItemFilters` / `deleteItemFilters` operations SOAP uses. There is no new SOAP
+surface. GET list/detail remain a catalog read of the filter service.
+
+Workbench catalog **label** is an alias of **name** (the unique catalog key).
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/itemfilters` | List item filters (name, description, rules, parent) |
+| `GET` | `/services/itemfilters/{idOrName}` | Load one filter by unique name or GUID string (`type-host-uuid`) |
+| `POST` | `/services/itemfilters` | **Admin.** Create a filter (`createItemFilters` then `saveItemFilters`) |
+| `PUT` | `/services/itemfilters/{idOrName}` | **Admin.** Update description, rules, parent filter, and/or `legacyAuthtype` |
+| `DELETE` | `/services/itemfilters/{idOrName}` | **Admin.** Delete a filter (`deleteItemFilters`, `ignoreDependencies=false`) |
+
+Create (`POST /services/itemfilters`) persists immediately (Workbench Finish, not an
+unsaved stub). JSON body requires `name` (unique, case-insensitive; **no whitespace** or
+wildcards). Optional `description`, `rules[]` (`name` + `params[]` of `name`/`value`),
+`parentFilter` (by nested `name` or `filterId`), and `legacyAuthtype` are applied before
+save. Duplicate name is **409**. Blank / whitespace / wildcard names are **400**. Missing
+request session/user is **403**. Non-Admin is **403**. The new filter is then
+`GET /services/itemfilters/{name}` **200**.
+
+Update (`PUT /services/itemfilters/{idOrName}`) loads with a design lock and releases it
+on save. Name is not renamed on PUT. Omitted `rules` / `parentFilter` leave the stored
+values unchanged; send `parentFilter` with no name or id to clear the parent; send
+`rules: []` to clear rules.
+
+Delete (`DELETE /services/itemfilters/{idOrName}`) returns **204** when removed; a
+following `GET` is **404**. Unknown id/name is **404**. A filter still associated with a
+content list (or other dependents) is **409**. Locked-by-another-user is **409** (the
+lock is not stolen). Non-Admin is **403**.
+
+There is **no** Developer SPA item-filter editor in this slice — operators and
+integrators call the REST path (or Workbench).
+
+### Request / response shape
+
+JSON objects use the `ItemFilter` wire type (fields include `filterId`, `name`,
+`description`, `legacyAuthtype`, `rules[]`, and nested `parentFilter`). Prefer the
+generated OpenAPI schema as the integration source of truth.
+
+Example create body:
+
+```json
+{
+  "name": "previewPublic",
+  "description": "Public preview items",
+  "parentFilter": { "name": "public" },
+  "rules": [
+    {
+      "name": "sys_filterByPublishDate",
+      "params": [{ "name": "maxAge", "value": "30" }]
+    }
+  ]
+}
+```
+
+### Status codes and authorization
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | List / get / create / update success |
+| `204` | Delete success |
+| `400` | Invalid input (missing name, whitespace/wildcard name, unknown parent, invalid rule) |
+| `403` | Caller is not Admin, or the request has no session/user for the design session |
+| `404` | Item filter not found |
+| `409` | Duplicate name, design lock held by another user, or in-use (content-list dependents) |
+| `500` | Design service or server failure |
+
+- Callers must be authenticated. Item-filter **GET** is a catalog read. Item-filter
+  **write** requires the **Admin** role and a request session and user identity for the
+  design web service (same pattern as slots / locales design writes).
+- Create/update load or create the filter with a **held design lock** and release it on
+  save. There is no separate lock/unlock REST pair on this catalog.
+
 ## Content types (design catalog)
 
 | Operation | Path | Notes |

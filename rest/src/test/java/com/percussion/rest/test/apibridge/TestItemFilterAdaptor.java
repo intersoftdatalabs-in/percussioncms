@@ -23,10 +23,15 @@ import com.percussion.rest.Guid;
 import com.percussion.rest.itemfilter.IItemFilterAdaptor;
 import com.percussion.rest.itemfilter.ItemFilter;
 import java.util.List;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-/** Test adaptor for ItemFilter API bridge. */
+/**
+ * Spring test stub for {@link IItemFilterAdaptor}. Required for ApplicationContext load after
+ * constructor injection on {@code ItemFilterResource}.
+ */
 @Component
+@Lazy
 public class TestItemFilterAdaptor implements IItemFilterAdaptor {
 
   @Override
