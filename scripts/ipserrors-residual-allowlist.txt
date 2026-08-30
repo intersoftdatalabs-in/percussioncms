@@ -45,8 +45,6 @@ system/Testing/cms/HttpItemCopier.java
 system/Tools/RxFix/src/com/percussion/rxfix/dbfixes/PSFixNavigation.java
 system/Tools/RxFix/src/com/percussion/rxverify/modules/PSJdbcTableCheck.java
 
-system/src/main/java/com/percussion/conn/PSDesignerConnection.java
-system/src/main/java/com/percussion/conn/PSServerException.java
 system/src/main/java/com/percussion/content/PSContentConverter.java
 system/src/main/java/com/percussion/content/PSFileConverterExit.java
 system/src/main/java/com/percussion/cx/PSFont.java

@@ -17,6 +17,8 @@
 
 package com.percussion.conn;
 
+import com.intsof.percussioncms.auditlog.codes.ConnectionErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.error.PSException;
 import com.percussion.security.PSAuthenticationFailedException;
@@ -24,7 +26,6 @@ import com.percussion.security.PSAuthenticationRequiredException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.system.utils.PSFormatVersion;
 import com.percussion.util.PSBase64Encoder;
 import com.percussion.util.PSBaseHttpUtils;
@@ -693,7 +694,7 @@ public class PSDesignerConnection {
              */
             String line = reader.readLine("US-ASCII");
             if (line == null) {
-              throw new PSServerException(IPSConnectionErrors.SERVER_NOT_RESPONDING, url);
+              throw new PSServerException(ConnectionErrorCodes.SERVER_NOT_RESPONDING, url);
             }
 
             String statusCode = "200";
@@ -767,7 +768,7 @@ public class PSDesignerConnection {
                   if (eMessage == null) eMessage = "";
 
                   Object[] args = {eClass, eMessage};
-                  int errorCode = IPSConnectionErrors.SERVER_GENERATED_EXCEPTION;
+                  int errorCode = ConnectionErrorCodes.SERVER_GENERATED_EXCEPTION.numericCode();
 
                   // if it's one of ours, we may be able to get more data
                   if (eClass.startsWith("com.percussion.")) {
@@ -837,7 +838,7 @@ public class PSDesignerConnection {
                   String param = w.getElementData("description");
                   if (param == null) param = "";
 
-                  throw new PSServerException(IPSServerErrors.RAW_DUMP, param);
+                  throw new PSServerException(ServerErrorCodes.RAW_DUMP, param);
                 }
 
                 return retDoc;
@@ -868,12 +869,12 @@ public class PSDesignerConnection {
                   reason = statusCode;
                 }
                 if ("401".equals(statusCode)) {
-                  throw new PSServerException(IPSConnectionErrors.UNAUTHORIZED, reason);
+                  throw new PSServerException(ConnectionErrorCodes.UNAUTHORIZED, reason);
                 }
-                throw new PSServerException(IPSConnectionErrors.UNKNOWN_SERVER_EXCEPTION, reason);
+                throw new PSServerException(ConnectionErrorCodes.UNKNOWN_SERVER_EXCEPTION, reason);
               } else {
                 Object[] args = {IPSMimeContentTypes.MIME_TYPE_TEXT_XML, contentType};
-                throw new PSServerException(IPSConnectionErrors.RESPONSE_INVALID_MIME_TYPE, args);
+                throw new PSServerException(ConnectionErrorCodes.RESPONSE_INVALID_MIME_TYPE, args);
               }
             } catch (SAXParseException e) {
               Object args[] = {
@@ -881,20 +882,20 @@ public class PSDesignerConnection {
                 String.valueOf(e.getLineNumber()),
                 String.valueOf(e.getColumnNumber())
               };
-              throw new PSServerException(IPSConnectionErrors.RESPONSE_PARSE_EXCEPTION, args);
+              throw new PSServerException(ConnectionErrorCodes.RESPONSE_PARSE_EXCEPTION, args);
             } catch (SAXException e) {
               Object args[] = {e.getMessage()};
               throw new PSServerException(
-                  IPSConnectionErrors.RESPONSE_PARSE_EXCEPTION_NOLINEINFO, args);
+                  ConnectionErrorCodes.RESPONSE_PARSE_EXCEPTION_NOLINEINFO, args);
             } catch (java.io.FileNotFoundException e) {
-              throw new PSServerException(IPSConnectionErrors.SERVER_NOT_RESPONDING, m_requestLine);
+              throw new PSServerException(ConnectionErrorCodes.SERVER_NOT_RESPONDING, m_requestLine);
             } catch (PSAuthorizationException e) {
               throw new PSServerException(e.getMessage(), e);
             } catch (Exception e) {
               if (e instanceof PSServerException) {
                 throw e;
               }
-              throw new PSServerException(IPSConnectionErrors.SERVER_NOT_RESPONDING, m_requestLine);
+              throw new PSServerException(ConnectionErrorCodes.SERVER_NOT_RESPONDING, m_requestLine);
             }
           }
         }
@@ -968,19 +969,19 @@ public class PSDesignerConnection {
         return retDoc;
       } else {
         Object[] args = {IPSMimeContentTypes.MIME_TYPE_TEXT_XML, contentType};
-        throw new PSServerException(IPSConnectionErrors.RESPONSE_INVALID_MIME_TYPE, args);
+        throw new PSServerException(ConnectionErrorCodes.RESPONSE_INVALID_MIME_TYPE, args);
       }
     } catch (SAXParseException e) {
       Object args[] = {
         e.getMessage(), String.valueOf(e.getLineNumber()), String.valueOf(e.getColumnNumber())
       };
-      throw new PSServerException(IPSConnectionErrors.RESPONSE_PARSE_EXCEPTION, args);
+      throw new PSServerException(ConnectionErrorCodes.RESPONSE_PARSE_EXCEPTION, args);
     } catch (SAXException e) {
       Object args[] = {e.getMessage()};
-      throw new PSServerException(IPSConnectionErrors.RESPONSE_PARSE_EXCEPTION_NOLINEINFO, args);
+      throw new PSServerException(ConnectionErrorCodes.RESPONSE_PARSE_EXCEPTION_NOLINEINFO, args);
     } catch (java.io.FileNotFoundException e) {
       throw new PSServerException(
-          IPSConnectionErrors.SERVER_NOT_RESPONDING, conn.getURL().toExternalForm());
+          ConnectionErrorCodes.SERVER_NOT_RESPONDING, conn.getURL().toExternalForm());
     } finally {
       if (in != null)
         try {
@@ -1016,7 +1017,7 @@ public class PSDesignerConnection {
     if (eMessage == null) eMessage = "";
 
     Object[] args = {eClass, eMessage};
-    int errorCode = IPSConnectionErrors.SERVER_GENERATED_EXCEPTION;
+    int errorCode = ConnectionErrorCodes.SERVER_GENERATED_EXCEPTION.numericCode();
 
     // if it's one of ours, we may be able to get more data
     if (eClass.startsWith("com.percussion.")) {
