@@ -1590,7 +1590,8 @@ public class ContentTypesResourceDetailTest {
     assertEquals(200, out.getStatus());
     assertEquals(exported.getXml(), out.getEntity());
     String disposition = String.valueOf(out.getHeaderString("Content-Disposition"));
-    assertTrue(disposition.contains("percPage.xml"));
+    assertTrue(disposition.contains("filename=\"percPage.xml\""));
+    assertTrue(disposition.contains("filename*=UTF-8''percPage.xml"));
     verify(adaptor).exportContentType(any(), eq("percPage"));
   }
 
@@ -1624,6 +1625,22 @@ public class ContentTypesResourceDetailTest {
     assertEquals("percPage.xml", ContentTypesResource.exportFilename("percPage"));
     assertEquals("a_b.xml", ContentTypesResource.exportFilename("a/b"));
     assertEquals("contenttype.xml", ContentTypesResource.exportFilename("  "));
+    assertEquals("a_b.xml", ContentTypesResource.exportFilename("a*b"));
+    assertEquals("a_b.xml", ContentTypesResource.exportFilename("a?b"));
+    assertEquals("a_b.xml", ContentTypesResource.exportFilename("a<b"));
+    assertEquals("a_b.xml", ContentTypesResource.exportFilename("a>b"));
+    assertEquals("a_b.xml", ContentTypesResource.exportFilename("a|b"));
+  }
+
+  @Test
+  public void contentDispositionAttachmentIncludesRfc5987FilenameStar() {
+    String ascii = ContentTypesResource.contentDispositionAttachment("percPage.xml");
+    assertEquals(
+        "attachment; filename=\"percPage.xml\"; filename*=UTF-8''percPage.xml", ascii);
+
+    String mixed = ContentTypesResource.contentDispositionAttachment("café.xml");
+    assertTrue(mixed.startsWith("attachment; filename=\"caf_.xml\"; filename*=UTF-8''"));
+    assertTrue(mixed.contains("filename*=UTF-8''caf%C3%A9.xml"));
   }
 
   @Test

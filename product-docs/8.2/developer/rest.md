@@ -302,7 +302,7 @@ in the slot detail panel — use **Back** to return to the catalog.
 | List | `GET /services/contenttypes` | Name, label, description, guid |
 | Create | `POST /services/contenttypes` | **Admin.** Creates and **saves** a content type (`IPSContentDesignWs.createContentTypes` then `saveContentTypes` — Workbench Finish, not an unsaved stub). JSON body requires `name` (unique, case-insensitive; no spaces). Optional `label`, `description`, and `enabled` are applied before save. Omitted `enabled` **defaults to true** so the new type is usable. `200` + `ContentTypeDetail`. The new type is then `GET /services/contenttypes/{name}` **200**. Duplicate name is **409** (catalog check and persist-time unique-name failure), including reserved system types such as **Folder**. Blank / whitespace / wildcard names are **400**. Missing request session/user is **403**. Non-Admin is **403**. Rename uses `PUT .../name`. Delete uses `DELETE .../{idOrName}`. |
 | Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `enabled`, `designGaps` |
-| Export | `GET /services/contenttypes/{idOrName}/export` | **Admin.** CD-14 export of Workbench-equivalent design XML (`IPSContentDesignWs.loadContentTypes` with `lock=false`, `overrideLock=false` — the lock is **not** stolen). `Content-Type: application/xml` and `Content-Disposition: attachment` with a filename derived from the **type name** (for example `percPage.xml`). Unknown id/name is **404**. Non-Admin is **403**. **Import is not implemented** on this path (later CD-14 slice). No SPA export wizard. |
+| Export | `GET /services/contenttypes/{idOrName}/export` | **Admin.** CD-14 export of Workbench-equivalent design XML (`IPSContentDesignWs.loadContentTypes` with `lock=false`, `overrideLock=false` — the lock is **not** stolen). `Content-Type: application/xml` and `Content-Disposition: attachment` with a filename derived from the **type name** (for example `percPage.xml`). Path separators and Windows-invalid characters (`* ? < > \| :`) are replaced with `_`. The header includes an ASCII `filename` fallback and RFC 5987 `filename*` for non-ASCII names. Unknown id/name is **404**. Non-Admin is **403**. **Import is not implemented** on this path (later CD-14 slice). No SPA export wizard. |
 | Allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` | Read-only list of associated templates (CD-12). No lock required. Empty list means none. Same set as `ContentTypeDetail.allowedTemplates`. |
 | Item-level exits | `GET /services/contenttypes/{idOrName}/itemExits` | Item-level input/output translations, validations, and pipe pre/post exits (CD-09). No lock required. Empty lists mean none. Apply-when conditions are a read-only summary. Jackson root wrap is `ContentTypeItemExits`. |
 | Replace item-level exits | `PUT /services/contenttypes/{idOrName}/itemExits` | Full replace of item-level translations/validations via `IPSContentDesignWs.saveContentTypes` (CD-09). Requires a **held** design-session lock. Empty lists clear. **409** if unlocked or locked by another user. **400** if required lists are missing or an extension FQN is invalid. `preExits`/`postExits` omitted leave pipe extensions unchanged. Apply-when is not written. Does not acquire or release the lock. |
@@ -345,7 +345,10 @@ Lock / save / unlock / create / rename / delete status codes:
 equivalent: it returns the design-object XML for one content type loaded through the
 existing content design web service (`IPSContentDesignWs`). The download uses
 `Content-Type: application/xml` and `Content-Disposition: attachment` with a filename
-derived from the **content type name** (for example `percPage.xml`).
+derived from the **content type name** (for example `percPage.xml`). Characters that
+Windows Explorer rejects in a download name (`* ? < > | :` plus path separators) are
+replaced with `_`. The header always includes an ASCII `filename=` fallback and an
+RFC 5987 `filename*=UTF-8''…` parameter so non-ASCII type names decode in browsers.
 
 | Status | Meaning |
 |--------|---------|
