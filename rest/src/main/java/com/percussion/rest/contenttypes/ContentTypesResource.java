@@ -881,6 +881,59 @@ public class ContentTypesResource {
     }
   }
 
+  /**
+   * Imports one Workbench-equivalent content-type design XML (CD-14). Create-only: a name that
+   * already exists is 409. Does not steal design locks. Admin only.
+   *
+   * @param xml {@code ItemDefData} design XML (same document as GET /contenttypes/{idOrName}/export
+   *     when that export is installed, otherwise the Workbench content-type export)
+   * @return created ContentTypeDetail; name round-trips from the XML
+   */
+  @POST
+  @Path("/import")
+  @Consumes({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Import content type design XML",
+      description =
+          "Admin-only CD-14 import of one content type from Workbench-equivalent design XML"
+              + " (ItemDefData; same document as GET /contenttypes/{idOrName}/export when that"
+              + " export is installed, otherwise the Workbench content-type export). Creates via"
+              + " IPSContentDesignWs.createContentTypes then saveContentTypes with release=true."
+              + " Duplicate name is 409 (no replace). Does not acquire locks on existing types or"
+              + " steal locks. Save releases the new object's create lock. The imported type is"
+              + " then GET /contenttypes/{name} 200.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Imported",
+            content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid or missing ItemDefData XML"),
+        @ApiResponse(responseCode = "403", description = "Caller is not Admin"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Content type name already exists (no replace policy)"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeDetail importContentType(
+      @RequestBody(
+              required = true,
+              description = "Workbench-equivalent ItemDefData content-type design XML",
+              content = @Content(mediaType = MediaType.APPLICATION_XML))
+          String xml) {
+    try {
+      ContentTypeDetail detail = requireAdaptor().importContentType(uriInfo.getBaseUri(), xml);
+      if (detail == null) {
+        throw new WebApplicationException("Failed to import content type", 500);
+      }
+      return detail;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @GET
   @Path("/{idOrName}")
   @Produces({MediaType.APPLICATION_JSON})

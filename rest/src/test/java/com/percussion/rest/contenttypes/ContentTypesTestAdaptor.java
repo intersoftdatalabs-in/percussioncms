@@ -225,4 +225,9 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
   public ContentTypeExport exportContentType(URI baseUri, String idOrName) {
     return null;
   }
+
+  @Override
+  public ContentTypeDetail importContentType(URI baseUri, String xml) {
+    return null;
+  }
 }

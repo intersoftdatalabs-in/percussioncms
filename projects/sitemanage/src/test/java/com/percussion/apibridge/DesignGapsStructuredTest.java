@@ -44,6 +44,15 @@ class DesignGapsStructuredTest {
     assertTrue(codes.contains("CT_FIELD_CREATE_DELETE"));
     assertTrue(codes.contains("CT_SEARCH_INDEXING"));
     assertTrue(codes.contains("CT_ICON_STRATEGY"));
+    assertTrue(codes.contains("CT_IMPORT_EXPORT"));
+    assertTrue(
+        gaps.stream()
+            .anyMatch(
+                g ->
+                    "CT_IMPORT_EXPORT".equals(g.getCode())
+                        && g.getMessage().contains("/contenttypes/import")
+                        && g.getMessage().toLowerCase().contains("create-only")),
+        () -> gaps.toString());
     assertTrue(
         gaps.stream()
             .anyMatch(

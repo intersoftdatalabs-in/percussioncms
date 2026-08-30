@@ -356,8 +356,9 @@ in the slot detail panel — use **Back** to return to the catalog.
 |-----------|------|--------|
 | List | `GET /services/contenttypes` | Name, label, description, guid |
 | Create | `POST /services/contenttypes` | **Admin.** Creates and **saves** a content type (`IPSContentDesignWs.createContentTypes` then `saveContentTypes` — Workbench Finish, not an unsaved stub). JSON body requires `name` (unique, case-insensitive; no spaces). Optional `label`, `description`, and `enabled` are applied before save. Omitted `enabled` **defaults to true** so the new type is usable. `200` + `ContentTypeDetail`. The new type is then `GET /services/contenttypes/{name}` **200**. Duplicate name is **409** (catalog check and persist-time unique-name failure), including reserved system types such as **Folder**. Blank / whitespace / wildcard names are **400**. Missing request session/user is **403**. Non-Admin is **403**. Rename uses `PUT .../name`. Delete uses `DELETE .../{idOrName}`. |
+| Import design XML | `POST /services/contenttypes/import` | **Admin** (CD-14). Create-only import of one Workbench-equivalent `ItemDefData` content-type design XML (`application/xml` or `text/xml`). Same document as Workbench export and as `GET /services/contenttypes/{idOrName}/export`. Persist via `IPSContentDesignWs.createContentTypes` then `saveContentTypes` with `release=true`. Duplicate name is **409** (no replace). Invalid XML is **400**. Non-Admin is **403**. Does **not** steal locks on existing types. The imported type is then `GET /services/contenttypes/{name}` **200**. |
 | Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `enabled`, `designGaps` |
-| Export | `GET /services/contenttypes/{idOrName}/export` | **Admin.** CD-14 export of Workbench-equivalent design XML (`IPSContentDesignWs.loadContentTypes` with `lock=false`, `overrideLock=false` — the lock is **not** stolen). `Content-Type: application/xml` and `Content-Disposition: attachment` with a filename derived from the **type name** (for example `percPage.xml`). Path separators and Windows-invalid characters (`* ? < > \| :`) are replaced with `_`. The header includes an ASCII `filename` fallback and RFC 5987 `filename*` for non-ASCII names. Unknown id/name is **404**. Non-Admin is **403**. **Import is not implemented** on this path (later CD-14 slice). No SPA export wizard. |
+| Export | `GET /services/contenttypes/{idOrName}/export` | **Admin.** CD-14 export of Workbench-equivalent design XML (`IPSContentDesignWs.loadContentTypes` with `lock=false`, `overrideLock=false` — the lock is **not** stolen). `Content-Type: application/xml` and `Content-Disposition: attachment` with a filename derived from the **type name** (for example `percPage.xml`). Path separators and Windows-invalid characters (`* ? < > \| :`) are replaced with `_`. The header includes an ASCII `filename` fallback and RFC 5987 `filename*` for non-ASCII names. Unknown id/name is **404**. Non-Admin is **403**. Import is a separate `POST /services/contenttypes/import`. No SPA export wizard. |
 | Allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` | Read-only list of associated templates (CD-12). No lock required. Empty list means none. Same set as `ContentTypeDetail.allowedTemplates`. |
 | Item-level exits | `GET /services/contenttypes/{idOrName}/itemExits` | Item-level input/output translations, validations, and pipe pre/post exits (CD-09). No lock required. Empty lists mean none. Apply-when conditions are a read-only summary. Jackson root wrap is `ContentTypeItemExits`. |
 | Replace item-level exits | `PUT /services/contenttypes/{idOrName}/itemExits` | Full replace of item-level translations/validations via `IPSContentDesignWs.saveContentTypes` (CD-09). Requires a **held** design-session lock. Empty lists clear. **409** if unlocked or locked by another user. **400** if required lists are missing or an extension FQN is invalid. `preExits`/`postExits` omitted leave pipe extensions unchanged. Apply-when is not written. Does not acquire or release the lock. |
@@ -380,18 +381,18 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
 | Delete | `DELETE /services/contenttypes/{idOrName}` | **Admin.** Requires a **held** design-session lock (`POST .../lock` first). Calls `IPSContentDesignWs.deleteContentTypes` with `ignoreDependencies=false`. **204** on success; a following `GET .../{idOrName}` is **404**. **409** if unlocked or locked by another user (the lock is not stolen). **404** if missing. **400** if the design web service rejects an in-use type (dependents). Does **not** cascade item delete. |
 
-Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. **Create** is a separate `POST /services/contenttypes` (persisted immediately). The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT). Type-level search indexing is REST-only (`GET`/`PUT .../searchIndexing`, CD-10; no SPA Properties checkbox). Icon strategy is REST-only: **lock → PUT .../icon → unlock** (no SPA picker; no binary upload). Control property **values** use `GET`/`PUT .../fields/{fieldName}/controlProperties` after a held lock (CD-07). That chrome still omits `choices` on save (catalogs stay unchanged from the SPA). Integrators write choice filter, null-entry, and default-selected on the same PUT by sending `choices`. Local field create/delete is REST-only: **lock → POST .../fields** or **DELETE .../fields/{fieldName} → unlock** (no SPA field editor). Include system/shared is REST-only: **lock → POST .../fields/include → unlock** (no SPA field picker). **CD-14 export** is REST-only: Admin `GET /services/contenttypes/{idOrName}/export` downloads Workbench-equivalent design XML without stealing a lock (import and SPA wizard remain later). SPA create-wizard chrome is not part of this API. Rename is REST-only: **lock → PUT .../name → unlock**. Delete is REST-only in this release (no SPA chrome): **lock → DELETE → GET 404**.
+Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. **Create** is a separate `POST /services/contenttypes` (persisted immediately). **Import** is a separate `POST /services/contenttypes/import` (create-only XML; persisted immediately; the new object's create lock is released). The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT). Type-level search indexing is REST-only (`GET`/`PUT .../searchIndexing`, CD-10; no SPA Properties checkbox). Icon strategy is REST-only: **lock → PUT .../icon → unlock** (no SPA picker; no binary upload). Control property **values** use `GET`/`PUT .../fields/{fieldName}/controlProperties` after a held lock (CD-07). That chrome still omits `choices` on save (catalogs stay unchanged from the SPA). Integrators write choice filter, null-entry, and default-selected on the same PUT by sending `choices`. Local field create/delete is REST-only: **lock → POST .../fields** or **DELETE .../fields/{fieldName} → unlock** (no SPA field editor). Include system/shared is REST-only: **lock → POST .../fields/include → unlock** (no SPA field picker). **CD-14 export** is REST-only: Admin `GET /services/contenttypes/{idOrName}/export` downloads Workbench-equivalent design XML without stealing a lock. SPA create/import/export wizard chrome is not part of this API. Rename is REST-only: **lock → PUT .../name → unlock**. Delete is REST-only in this release (no SPA chrome): **lock → DELETE → GET 404**.
 
-Lock / save / unlock / create / rename / delete status codes:
+Lock / save / unlock / create / import / rename / delete status codes:
 
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | Lock acquired (body is `ObjectLockSummary`), PUT save / enable / disable / icon / rename succeeded (lock still held), POST create succeeded (`ContentTypeDetail`), POST local field succeeded, POST include field succeeded, or GET export returned design XML |
+| `200` | Lock acquired (body is `ObjectLockSummary`), PUT save / enable / disable / icon / rename succeeded (lock still held), POST create or POST import succeeded (`ContentTypeDetail`), POST local field succeeded, POST include field succeeded, or GET export returned design XML |
 | `204` | Unlock success, content type deleted, or local field deleted |
-| `400` | Invalid PUT body (unknown field name, bad workflow/template ref, missing `enabled` or `searchIndexing` flag, invalid icon `source` or blank non-none icon `value`, invalid or colliding rename), invalid create name (blank, spaces, wildcard), invalid local-field name/`dataType`/origin, invalid include `fieldType`/`name`, DELETE field of a system/shared field, or DELETE type rejected because the type has dependents |
+| `400` | Invalid PUT body (unknown field name, bad workflow/template ref, missing `enabled` or `searchIndexing` flag, invalid icon `source` or blank non-none icon `value`, invalid or colliding rename), invalid create name (blank, spaces, wildcard), invalid or missing `ItemDefData` import XML, invalid local-field name/`dataType`/origin, invalid include `fieldType`/`name`, DELETE field of a system/shared field, or DELETE type rejected because the type has dependents |
 | `403` | Caller is not Admin, or the request has no session/user for the design session |
 | `404` | Content type not found, or include of an unknown system/shared catalog field |
-| `409` | No lock held, or locked by another user/session (self-only; the lock is not stolen); POST create duplicate name (catalog or persist-time), including reserved system types such as Folder; POST local field when the field name already exists on the type; POST include when the field is already on the type |
+| `409` | No lock held, or locked by another user/session (self-only; the lock is not stolen); POST create or POST import duplicate name (catalog or persist-time), including reserved system types such as Folder; POST local field when the field name already exists on the type; POST include when the field is already on the type |
 | `500` | Design service or server failure |
 
 ### Content type design XML export (CD-14)
@@ -412,11 +413,56 @@ RFC 5987 `filename*=UTF-8''…` parameter so non-ASCII type names decode in brow
 | `404` | Unknown id or name |
 
 The load is **read-only**. The server does **not** acquire or steal a design lock
-(`lock=false`, `overrideLock=false`). **Import** (POST of the same XML) is **not**
-implemented on this path — that remains a later CD-14 slice. There is no Design SPA
+(`lock=false`, `overrideLock=false`). **Import** of the same XML is a separate
+`POST /services/contenttypes/import` (create-only; see below). There is no Design SPA
 export wizard; operators and integrators call this REST path directly.
 
 See also [Developer Content Types](id:admin-developer-content-types).
+
+### Import content-type design XML (CD-14)
+
+`POST /services/contenttypes/import` is the Admin REST equivalent of the Workbench
+**import content type** wizard for **one** content-type design document. The body is
+`application/xml` (or `text/xml`) — the same `<ItemDefData>` document that Workbench
+exports and that `GET /services/contenttypes/{idOrName}/export` returns. Load and save
+go through existing `IPSContentDesignWs` (`createContentTypes` then `saveContentTypes`
+with `release=true`). No new SOAP surface.
+
+**Admin (Design) only.** There is no global JAX-RS Admin filter on this path — the
+sitemanage adaptor checks `IPSUserService.isAdminUser` and maps a non-Admin caller to
+**403**.
+
+**Create only — name collision is 409.** Import does **not** replace an existing
+content type and does **not** steal a design lock held by another session. The
+imported document's type id is remapped to the GUID allocated by create so save
+uses the new object's lock. The new object is locked only for the importing user
+long enough to persist, then released. There is no overwrite query parameter on
+this path.
+
+| Status | Meaning |
+|--------|---------|
+| `200` | Imported. JSON `ContentTypeDetail`; `name` round-trips from the XML. `GET /services/contenttypes/{name}` is then 200 |
+| `400` | Missing body, not `ItemDefData` XML, or invalid name in the document |
+| `403` | Caller is not Admin, or request session/user is missing |
+| `409` | A content type with that name already exists (no replace) |
+| `500` | Unexpected server failure |
+
+Example:
+
+```http
+POST /Rhythmyx/rest/contenttypes/import
+Content-Type: application/xml
+Authorization: …
+
+<ItemDefData appName="psx_ceimportedOne" isHidden="false" objectType="1">
+  <PSXItemDefSummary name="importedOne" label="Imported One" … />
+  …
+</ItemDefData>
+```
+
+There is no Developer SPA import wizard on this slice — operators and integrators
+call the REST path (or Workbench). Template AS-08 import is a separate path
+(`POST /services/templates/import`).
 
 ### Rename (CD-01)
 

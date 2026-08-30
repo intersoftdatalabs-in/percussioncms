@@ -372,4 +372,23 @@ public interface IContentTypesAdaptor {
    *     409} when the field is already on the type; {@code 404} when the catalog field is unknown
    */
   ContentTypeDetail includeField(URI baseUri, String idOrName, ContentTypeField body);
+
+  /**
+   * Import one Workbench-equivalent content-type design XML (CD-14).
+   *
+   * <p>Creates a new content type via {@code IPSContentDesignWs} ({@code createContentTypes} then
+   * {@code saveContentTypes} with {@code release=true}). Does not steal design locks on existing
+   * types. Name collision is a conflict (HTTP 409) — this surface does not replace an existing
+   * type. Admin only.
+   *
+   * @param baseUri the base URI (reserved for HATEOAS)
+   * @param xml Workbench / REST-export {@code ItemDefData} design XML
+   * @return created detail (never {@code null}); {@link ContentTypeDetail#getName()} round-trips
+   *     the imported name
+   * @throws IllegalArgumentException when XML is blank, not {@code ItemDefData} design XML, or the
+   *     name is invalid
+   * @throws jakarta.ws.rs.WebApplicationException {@code 409} when a content type with that name
+   *     already exists; {@code 403} when the caller is not Admin
+   */
+  ContentTypeDetail importContentType(URI baseUri, String xml);
 }
