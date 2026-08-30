@@ -17,6 +17,7 @@
 
 package com.percussion.conn;
 
+import com.intsof.percussioncms.auditlog.codes.ConnectionErrorCodes;
 import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 import com.percussion.utils.exceptions.PSExceptionHelper;
@@ -99,7 +100,8 @@ public class PSServerException extends PSException {
    * @param e the exception
    */
   public PSServerException(Exception e) {
-    super(IPSConnectionErrors.UNKNOWN_SERVER_EXCEPTION, PSExceptionHelper.findRootCause(e, true));
+    super(
+        ConnectionErrorCodes.UNKNOWN_SERVER_EXCEPTION, PSExceptionHelper.findRootCause(e, true));
   }
 
   /**
