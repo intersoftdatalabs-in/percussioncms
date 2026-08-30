@@ -49,8 +49,9 @@ definition is locked for the request). Nested
 `DELETE /services/sharedfields/{idOrName}/fields/{fieldName}` add or remove
 fields (backend column + display mapping). Control property values use
 `GET`/`PUT /services/sharedfields/{idOrName}/fields/{fieldName}/controlProperties`
-(request lock released on save). The SPA editor is not in this
-chrome. The content-editor **system definition** (global system fields) is a
+(request lock released on save). **Developer → Shared Fields** chrome can
+create, save, and delete a **group**; nested field and control-property
+editors are not in that chrome. The content-editor **system definition** (global system fields) is a
 separate singleton: Admin-only `GET /services/systemdef` and
 `PUT /services/systemdef` (patch existing field properties under a request lock).
 Nested `POST /services/systemdef/fields` and

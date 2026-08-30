@@ -402,7 +402,7 @@ export interface SharedFieldSummary {
   occurrence?: string;
 }
 
-/** Read-only shared field group detail. */
+/** Shared field group detail (GET catalog; POST/PUT group write). */
 export interface SharedFieldGroupDetail {
   name?: string;
   filename?: string;

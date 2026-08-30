@@ -1049,7 +1049,9 @@ previously held lock).
 
 **Admin (Design) only.** There is no global JAX-RS Admin filter on this path — the
 sitemanage adaptor checks `IPSUserService.isAdminUser` for the current user and maps
-a non-Admin caller to **403**. Nested field create/delete persist a backend column
+a non-Admin caller to **403**. **Developer → Shared Fields** chrome uses list,
+load, create, save, and delete for **groups** (see [Developer Shared Fields](id:admin-developer-shared-fields)).
+Nested field create/delete persist a backend column
 mapping and a default `sys_EditBox` display mapping. Control property **values**
 and optional choice catalogs use `GET`/`PUT
 .../fields/{fieldName}/controlProperties` (CD-15 remainder / CD-07 on shared defs).
@@ -1113,7 +1115,9 @@ List entries use `SharedFieldGroupSummary`. Detail uses `SharedFieldGroupDetail`
 - `fields[]`: `name`, `dataType`, `searchable`, `required`, `readOnly`, `occurrence`
   (`optional` / `required` / `oneOrMore` / `zeroOrMore` / `count` / `unknown`)
 - `designGaps[]` strings — choice filters / null-entry / default-selected and the
-  SPA shared-field editor remain later slices. System-def field-property save is
+  SPA field/control editor remain later slices. **Developer → Shared Fields**
+  chrome can create, save, and delete a **group** (this catalog). Nested field
+  and control-property writes stay REST-only. System-def field-property save is
   `PUT /services/systemdef`; field create/delete are
   `POST /services/systemdef/fields` and `DELETE /services/systemdef/fields/{fieldName}`.
 
