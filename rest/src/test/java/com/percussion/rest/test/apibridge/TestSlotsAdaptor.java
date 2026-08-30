@@ -17,6 +17,7 @@
 
 package com.percussion.rest.test.apibridge;
 
+import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.slots.ISlotsAdaptor;
 import com.percussion.rest.slots.SlotDetail;
 import com.percussion.rest.slots.SlotSummary;
@@ -46,6 +47,16 @@ public class TestSlotsAdaptor implements ISlotsAdaptor {
   @Override
   public SlotDetail updateSlot(URI baseUri, String idOrName, SlotDetail body) {
     return null;
+  }
+
+  @Override
+  public ObjectLockSummary lockSlot(URI baseUri, String idOrName) {
+    return null;
+  }
+
+  @Override
+  public Boolean unlockSlot(URI baseUri, String idOrName) {
+    return Boolean.FALSE;
   }
 
   @Override

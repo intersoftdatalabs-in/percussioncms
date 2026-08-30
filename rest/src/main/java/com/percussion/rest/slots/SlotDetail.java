@@ -44,7 +44,18 @@ public class SlotDetail {
   private String description;
   private String slotType;
   private Boolean systemSlot;
+
+  @Schema(
+      description =
+          "Slot content-finder extension name (for example"
+              + " Java/global/percussion/slotcontentfinder/sys_RelationshipContentFinder)."
+              + " Non-null on PUT is an Admin write that requires a held design lock.")
   private String finderName;
+
+  @Schema(
+      description =
+          "Allowed relationship type name for the slot. Non-null on PUT is an Admin write that"
+              + " requires a held design lock. Empty string clears the relationship.")
   private String relationshipName;
 
   @JsonInclude(JsonInclude.Include.NON_EMPTY)

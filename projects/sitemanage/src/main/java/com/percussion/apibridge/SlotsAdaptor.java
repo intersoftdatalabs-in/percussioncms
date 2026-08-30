@@ -17,15 +17,22 @@
 package com.percussion.apibridge;
 
 import com.percussion.rest.DesignGap;
+import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.slots.ISlotsAdaptor;
 import com.percussion.rest.slots.SlotAssociationSummary;
 import com.percussion.rest.slots.SlotDetail;
 import com.percussion.rest.slots.SlotSummary;
+import com.percussion.services.assembly.IPSAssemblyService;
+import com.percussion.services.assembly.IPSSlotContentFinder;
 import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.assembly.IPSTemplateSlot.SlotType;
+import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.services.locking.data.PSObjectLock;
+import com.percussion.services.locking.data.PSObjectLockSummary;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.data.PSCurrentUser;
@@ -38,6 +45,8 @@ import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.assembly.IPSAssemblyDesignWs;
 import com.percussion.webservices.assembly.PSAssemblyWsLocator;
+import com.percussion.webservices.system.IPSSystemDesignWs;
+import com.percussion.webservices.system.PSSystemWsLocator;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
@@ -65,19 +74,21 @@ public class SlotsAdaptor implements ISlotsAdaptor {
 
   private static final Logger log = LogManager.getLogger(SlotsAdaptor.class);
 
-  static final String ADMIN_REQUIRED = "Admin role required to create or delete slots";
+  static final String ADMIN_REQUIRED =
+      "Admin role required to create, delete, lock, or write slot finder/relationship";
+
+  /** Typical design-session lock duration in minutes ({@link PSObjectLock#LOCK_INTERVAL}). */
+  static final long DESIGN_LOCK_MINUTES = PSObjectLock.LOCK_INTERVAL / 60_000L;
 
   public static final List<DesignGap> SLOT_DESIGN_GAPS =
       List.of(
-          DesignGap.of(
-              "SLOT_FINDER_RELATIONSHIP_WRITE",
-              "Finder, relationship, and finderArguments are read-only on this REST API"
-                  + " (AS-01 remainder)"),
           DesignGap.of(
               "SLOT_ASSOC_GUIDS_ONLY",
               "Content-type and template names not resolved (GUIDs only)"));
 
   private final IPSAssemblyDesignWs designWs;
+  private final IPSAssemblyService assemblyService;
+  private final IPSSystemDesignWs systemDesign;
   private final BooleanSupplier adminChecker;
 
   /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
@@ -85,18 +96,36 @@ public class SlotsAdaptor implements ISlotsAdaptor {
   private IPSUserService userService;
 
   public SlotsAdaptor() {
-    this(PSAssemblyWsLocator.getAssemblyDesignWebservice(), null);
+    this(
+        PSAssemblyWsLocator.getAssemblyDesignWebservice(),
+        null,
+        PSAssemblyServiceLocator.getAssemblyService(),
+        PSSystemWsLocator.getSystemDesignWebservice());
   }
 
   /** Package-visible for unit tests. Admin is allowed so existing PUT tests stay focused. */
   SlotsAdaptor(IPSAssemblyDesignWs designWs) {
-    this(designWs, () -> true);
+    this(designWs, () -> true, null, null);
   }
 
   /** Package-visible for unit tests that inject a fake Admin gate. */
   SlotsAdaptor(IPSAssemblyDesignWs designWs, BooleanSupplier adminChecker) {
+    this(designWs, adminChecker, null, null);
+  }
+
+  /**
+   * Package-visible for unit tests that exercise finder/relationship write and design-session
+   * lock.
+   */
+  SlotsAdaptor(
+      IPSAssemblyDesignWs designWs,
+      BooleanSupplier adminChecker,
+      IPSAssemblyService assemblyService,
+      IPSSystemDesignWs systemDesign) {
     this.designWs = designWs;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
+    this.assemblyService = assemblyService;
+    this.systemDesign = systemDesign;
   }
 
   @Override
@@ -159,44 +188,132 @@ public class SlotsAdaptor implements ISlotsAdaptor {
     if (body == null) {
       throw new IllegalArgumentException("body is required");
     }
-    requireSessionUserForWrite();
+    boolean finderWrite = wantsFinderWrite(body);
+    if (finderWrite) {
+      requireAdmin();
+      requireSessionUserForDesignWrite();
+    } else {
+      requireSessionUserForWrite();
+    }
     String session = currentSession();
     String user = currentUser();
+    String trimmed = idOrName.trim();
     try {
-      IPSTemplateSlot slot = resolveSlot(idOrName.trim(), true);
+      if (finderWrite) {
+        IPSTemplateSlot current = resolveSlot(trimmed, false);
+        if (current == null || current.getGUID() == null) {
+          return null;
+        }
+        requireHeldLock(current.getGUID(), "Could not save slot finder/relationship");
+        applyFinderRelationshipUpdates(body);
+      }
+      IPSTemplateSlot slot = resolveSlot(trimmed, true);
       if (slot == null) {
+        if (finderWrite) {
+          throw new WebApplicationException(
+              "Could not save slot finder/relationship; design lock required or held by another"
+                  + " user",
+              409);
+        }
         return null;
       }
-      if (body.getLabel() != null) {
-        slot.setLabel(body.getLabel());
-      }
-      if (body.getDescription() != null) {
-        slot.setDescription(body.getDescription());
-      }
-      // Non-null layout/styles replace definition maps (empty/schema-only clears to defaults).
-      if (body.getSlotLayout() != null) {
-        slot.setSlotLayout(body.getSlotLayout());
-      }
-      if (body.getSlotStyles() != null) {
-        slot.setSlotStyles(body.getSlotStyles());
-      }
-      if (body.getAssociations() != null) {
-        slot.setSlotAssociations(toAssociationPairs(body.getAssociations()));
-      }
-      designWs.saveSlots(Collections.singletonList(slot), true, session, user);
-      IPSTemplateSlot reloaded = resolveSlot(idOrName.trim(), false);
+      applyMutableSlotUpdates(slot, body);
+      // Finder write keeps the held lock (clients unlock via POST .../unlock). Label-only
+      // updates continue to acquire+release in one request.
+      designWs.saveSlots(Collections.singletonList(slot), !finderWrite, session, user);
+      IPSTemplateSlot reloaded = resolveSlot(trimmed, false);
       return reloaded != null ? toDetail(reloaded) : toDetail(slot);
-    } catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException | IllegalStateException | WebApplicationException e) {
       throw e;
     } catch (PSErrorResultsException e) {
+      if (finderWrite) {
+        throw new WebApplicationException(
+            "Could not save slot finder/relationship; design lock required or held by another"
+                + " user",
+            409);
+      }
       log.error("Failed to load slot for update {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to update slot", e);
     } catch (PSErrorsException e) {
+      if (finderWrite && isLockFailure(e)) {
+        throw new WebApplicationException(
+            "Could not save slot finder/relationship; design lock required or held by another"
+                + " user",
+            409);
+      }
       log.error("Failed to save slot {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to save slot", e);
     } catch (Exception e) {
       log.error("Failed to update slot {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to update slot", e);
+    }
+  }
+
+  @Override
+  public ObjectLockSummary lockSlot(URI baseUri, String idOrName) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    requireSessionUserForDesignWrite();
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    try {
+      IPSTemplateSlot current = resolveSlot(trimmed, false);
+      if (current == null || current.getGUID() == null) {
+        return null;
+      }
+      IPSTemplateSlot locked = resolveSlot(trimmed, true);
+      if (locked == null || locked.getGUID() == null) {
+        throw new WebApplicationException(
+            "Could not acquire design lock for slot; locked by another user", 409);
+      }
+      return toLockSummary(currentSession(), currentUser(), remainingLockMinutes(locked.getGUID()));
+    } catch (IllegalArgumentException | IllegalStateException | WebApplicationException e) {
+      throw e;
+    } catch (PSErrorResultsException e) {
+      throw new WebApplicationException(
+          "Could not acquire design lock for slot; locked by another user", 409);
+    } catch (Exception e) {
+      log.error("Failed to lock slot {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to lock slot", e);
+    }
+  }
+
+  @Override
+  public Boolean unlockSlot(URI baseUri, String idOrName) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    requireSessionUserForDesignWrite();
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    if (systemDesign == null) {
+      throw new IllegalStateException(
+          "Could not release slot design session; design service unavailable");
+    }
+    try {
+      IPSTemplateSlot current = resolveSlot(trimmed, false);
+      if (current == null || current.getGUID() == null) {
+        return null;
+      }
+      requireNotLockedByOther(current.getGUID(), "Could not release design lock for slot");
+      systemDesign.releaseLocks(
+          Collections.singletonList(current.getGUID()), currentSession(), currentUser());
+      return Boolean.TRUE;
+    } catch (IllegalArgumentException | IllegalStateException | WebApplicationException e) {
+      throw e;
+    } catch (PSErrorResultsException e) {
+      log.debug("Slot not found for unlock {}: {}", idOrName, e.getMessage());
+      return null;
+    } catch (Exception e) {
+      log.error("Failed to unlock slot {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to unlock slot", e);
     }
   }
 
@@ -493,6 +610,168 @@ public class SlotsAdaptor implements ISlotsAdaptor {
     d.setAssociations(associations.isEmpty() ? null : associations);
     d.setDesignGaps(new ArrayList<>(SLOT_DESIGN_GAPS));
     return d;
+  }
+
+  static boolean wantsFinderWrite(SlotDetail body) {
+    return body != null
+        && (body.getFinderName() != null
+            || body.getRelationshipName() != null
+            || body.getFinderArguments() != null);
+  }
+
+  private void applyMutableSlotUpdates(IPSTemplateSlot slot, SlotDetail body) {
+    if (body.getLabel() != null) {
+      slot.setLabel(body.getLabel());
+    }
+    if (body.getDescription() != null) {
+      slot.setDescription(body.getDescription());
+    }
+    // Non-null layout/styles replace definition maps (empty/schema-only clears to defaults).
+    if (body.getSlotLayout() != null) {
+      slot.setSlotLayout(body.getSlotLayout());
+    }
+    if (body.getSlotStyles() != null) {
+      slot.setSlotStyles(body.getSlotStyles());
+    }
+    if (body.getAssociations() != null) {
+      slot.setSlotAssociations(toAssociationPairs(body.getAssociations()));
+    }
+    if (body.getFinderName() != null) {
+      slot.setFinderName(body.getFinderName().trim());
+    }
+    if (body.getRelationshipName() != null) {
+      slot.setRelationshipName(body.getRelationshipName().trim());
+    }
+    if (body.getFinderArguments() != null) {
+      slot.setFinderArguments(
+          body.getFinderArguments().isEmpty() ? null : new HashMap<>(body.getFinderArguments()));
+    }
+  }
+
+  private void applyFinderRelationshipUpdates(SlotDetail body) {
+    if (body.getFinderName() != null) {
+      requireValidFinder(body.getFinderName());
+    }
+    if (body.getRelationshipName() != null) {
+      requireValidRelationship(body.getRelationshipName());
+    }
+  }
+
+  private void requireValidFinder(String finderName) {
+    if (StringUtils.isBlank(finderName)) {
+      throw new IllegalArgumentException("finderName is required");
+    }
+    if (assemblyService == null) {
+      throw new IllegalStateException("Assembly service unavailable to validate finder");
+    }
+    String trimmed = finderName.trim();
+    try {
+      IPSSlotContentFinder finder = assemblyService.loadFinder(trimmed);
+      if (finder == null) {
+        throw new IllegalArgumentException("Invalid finder extension: " + trimmed);
+      }
+    } catch (IllegalArgumentException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Invalid finder extension: " + trimmed, e);
+    }
+  }
+
+  private void requireValidRelationship(String relationshipName) {
+    if (StringUtils.isBlank(relationshipName)) {
+      return;
+    }
+    if (systemDesign == null) {
+      throw new IllegalStateException(
+          "Design service unavailable to validate relationship type");
+    }
+    String trimmed = relationshipName.trim();
+    try {
+      List<IPSCatalogSummary> found = systemDesign.findRelationshipTypes(trimmed, null);
+      if (found == null || found.isEmpty()) {
+        throw new IllegalArgumentException("Unknown relationship type: " + trimmed);
+      }
+      for (IPSCatalogSummary summary : found) {
+        if (summary != null && trimmed.equalsIgnoreCase(StringUtils.defaultString(summary.getName()))) {
+          return;
+        }
+      }
+      if (found.size() == 1 && found.get(0) != null) {
+        return;
+      }
+      throw new IllegalArgumentException("Unknown relationship type: " + trimmed);
+    } catch (IllegalArgumentException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Unknown relationship type: " + trimmed, e);
+    }
+  }
+
+  private void requireHeldLock(IPSGuid slotGuid, String prefix) {
+    if (systemDesign == null) {
+      throw new IllegalStateException(prefix + "; design service unavailable");
+    }
+    List<PSObjectSummary> locked;
+    try {
+      locked = systemDesign.isLocked(Collections.singletonList(slotGuid), currentUser());
+    } catch (PSErrorResultsException e) {
+      throw new WebApplicationException(prefix + "; design lock required", 409);
+    }
+    PSObjectSummary summary = locked == null || locked.isEmpty() ? null : locked.get(0);
+    if (summary == null || !summary.isLocked()) {
+      throw new WebApplicationException(prefix + "; design lock required", 409);
+    }
+    String user = currentUser();
+    if (!summary.isLockedBy(user)) {
+      PSObjectLockSummary info = summary.getLocked();
+      String locker = info != null ? info.getLocker() : null;
+      throw new WebApplicationException(
+          locker != null ? prefix + "; locked by " + locker : prefix + "; design lock required",
+          409);
+    }
+  }
+
+  private void requireNotLockedByOther(IPSGuid slotGuid, String prefix) {
+    List<PSObjectSummary> locked;
+    try {
+      locked = systemDesign.isLocked(Collections.singletonList(slotGuid), currentUser());
+    } catch (PSErrorResultsException e) {
+      throw new WebApplicationException(prefix, 409);
+    }
+    PSObjectSummary summary = locked == null || locked.isEmpty() ? null : locked.get(0);
+    if (summary != null && summary.isLocked() && !summary.isLockedBy(currentUser())) {
+      PSObjectLockSummary info = summary.getLocked();
+      String locker = info != null ? info.getLocker() : null;
+      throw new WebApplicationException(
+          locker != null ? prefix + "; locked by " + locker : prefix, 409);
+    }
+  }
+
+  private long remainingLockMinutes(IPSGuid slotGuid) {
+    if (systemDesign == null || slotGuid == null) {
+      return DESIGN_LOCK_MINUTES;
+    }
+    try {
+      List<PSObjectSummary> locked =
+          systemDesign.isLocked(Collections.singletonList(slotGuid), currentUser());
+      if (locked != null && !locked.isEmpty() && locked.get(0) != null) {
+        PSObjectLockSummary info = locked.get(0).getLocked();
+        if (info != null && info.getRemainingTime() > 0) {
+          return info.getRemainingTime();
+        }
+      }
+    } catch (Exception e) {
+      log.debug("Could not read remaining lock time: {}", e.getMessage());
+    }
+    return DESIGN_LOCK_MINUTES;
+  }
+
+  static ObjectLockSummary toLockSummary(String session, String user, long remainingMinutes) {
+    ObjectLockSummary summary = new ObjectLockSummary();
+    summary.setSession(session);
+    summary.setLocker(user);
+    summary.setRemainingTime(remainingMinutes);
+    return summary;
   }
 
   static String labelOrName(IPSTemplateSlot slot) {

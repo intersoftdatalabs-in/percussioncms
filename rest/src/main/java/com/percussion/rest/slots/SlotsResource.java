@@ -17,6 +17,7 @@
 
 package com.percussion.rest.slots;
 
+import com.percussion.rest.ObjectLockSummary;
 import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -105,8 +106,8 @@ public class SlotsResource {
       summary = "Get slot design detail",
       description =
           "Slot detail including finder metadata, content-type/template associations, and"
-              + " ADR-003 slot_layout / slot_styles maps. Finder/relationship write remain"
-              + " unsupported (see designGaps).",
+              + " ADR-003 slot_layout / slot_styles maps. Finder, relationship, and"
+              + " finderArguments round-trip after an Admin PUT under a held design lock.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -145,14 +146,23 @@ public class SlotsResource {
               + " associations is present (including empty), replaces the full content-type/template"
               + " association set. Non-null slotLayout/slotStyles replace definition maps (empty or"
               + " schema-only clears to defaults); omit to leave unchanged. Name/id is immutable."
-              + " Finder/relationship write remain unsupported (see designGaps).",
+              + " Non-null finderName, relationshipName, or finderArguments are Admin writes that"
+              + " require a held design-session lock (POST .../lock first). Does not acquire or"
+              + " steal the lock. Invalid finder extension or unknown relationship type is 400."
+              + " Unlocked or locked-by-another-user is 409. Non-Admin is 403.",
       responses = {
         @ApiResponse(
             responseCode = "200",
             description = "Updated",
             content = @Content(schema = @Schema(implementation = SlotDetail.class))),
-        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid input, finder extension, or relationship type"),
+        @ApiResponse(responseCode = "403", description = "Admin role required for finder write"),
         @ApiResponse(responseCode = "404", description = "Slot not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Finder write requires a held lock; unlocked or locked by another user"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public SlotDetail updateSlot(@PathParam("idOrName") String idOrName, SlotDetail body) {
@@ -169,6 +179,89 @@ public class SlotsResource {
     } catch (Exception e) {
       log.error(
           "Failed to update slot {} ({}): {}", idOrName, e.getClass().getName(), e.getMessage(), e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Locks an assembly slot for a design session.
+   *
+   * @param idOrName slot uuid or unique name
+   * @return lock summary
+   */
+  @POST
+  @Path("/{idOrName}/lock")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Lock slot design session",
+      description =
+          "Admin. Acquires a self-only design-session lock via IPSAssemblyDesignWs.loadSlots"
+              + " (lock=true, overrideLock=false). Does not save. Does not steal another user's"
+              + " lock. Re-lock by the same session user extends the lock.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Locked",
+            content = @Content(schema = @Schema(implementation = ObjectLockSummary.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid id/name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Slot not found"),
+        @ApiResponse(responseCode = "409", description = "Locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ObjectLockSummary lockSlot(@PathParam("idOrName") String idOrName) {
+    try {
+      ObjectLockSummary summary = requireAdaptor().lockSlot(uriInfo.getBaseUri(), idOrName);
+      if (summary == null) {
+        throw new WebApplicationException("Slot not found: " + idOrName, 404);
+      }
+      return summary;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      log.error(
+          "Failed to lock slot {} ({}): {}", idOrName, e.getClass().getName(), e.getMessage(), e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Unlocks an assembly slot design session.
+   *
+   * @param idOrName slot uuid or unique name
+   * @return 204 when released
+   */
+  @POST
+  @Path("/{idOrName}/unlock")
+  @Operation(
+      summary = "Unlock slot design session",
+      description =
+          "Admin. Releases a design-session lock owned by the current user/session. Does not save."
+              + " Locks held by another user are not stolen (409).",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Unlocked"),
+        @ApiResponse(responseCode = "400", description = "Invalid id/name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Slot not found"),
+        @ApiResponse(responseCode = "409", description = "Locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response unlockSlot(@PathParam("idOrName") String idOrName) {
+    try {
+      Boolean unlocked = requireAdaptor().unlockSlot(uriInfo.getBaseUri(), idOrName);
+      if (unlocked == null || !unlocked) {
+        throw new WebApplicationException("Slot not found: " + idOrName, 404);
+      }
+      return Response.noContent().build();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      log.error(
+          "Failed to unlock slot {} ({}): {}", idOrName, e.getClass().getName(), e.getMessage(), e);
       throw new WebApplicationException(e, 500);
     }
   }
