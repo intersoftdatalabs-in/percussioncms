@@ -446,3 +446,15 @@ query-filters:
         (isSymbolicLink, deleteIfExists, exists, isDirectory, listFiles,
         delete). Tests: PSServerXmlObjectStorePathInjectionTest. GHA does
         not load local packs. Do not re-edit annotated sinks to chase IDs.
+  # --- CodeQL #2002/#1920/#1921 object-store application file path-injection ---
+  - exclude:
+      id: java/path-injection
+      paths:
+        - "system/src/main/java/com/percussion/design/objectstore/server/PSXmlObjectStoreHandler.java"
+      reason: >-
+        Alerts #2002/#1920/#1921: getApplicationFile joins appName under
+        m_objectDirectory; lock streams open FileInput/OutputStream. Runtime
+        resolveApplicationXmlFile / requireUnderRxDir call requireUnderBase.
+        Same-line // codeql[java/path-injection] on exists and stream ctors.
+        Tests: PSXmlObjectStoreHandlerPathInjectionTest. GHA does not load
+        local model packs.
