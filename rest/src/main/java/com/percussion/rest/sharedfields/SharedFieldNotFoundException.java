@@ -17,7 +17,7 @@
 
 package com.percussion.rest.sharedfields;
 
-/** Thrown when a shared field group cannot be resolved for delete. Maps to HTTP 404. */
+/** Thrown when a shared field group or field cannot be resolved for write. Maps to HTTP 404. */
 public class SharedFieldNotFoundException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;

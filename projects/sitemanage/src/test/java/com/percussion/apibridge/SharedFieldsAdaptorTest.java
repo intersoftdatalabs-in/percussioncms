@@ -34,10 +34,21 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.percussion.design.objectstore.PSChoices;
 import com.percussion.design.objectstore.PSContentEditorSharedDef;
+import com.percussion.design.objectstore.PSControlRef;
+import com.percussion.design.objectstore.PSDisplayMapping;
+import com.percussion.design.objectstore.PSDisplayText;
+import com.percussion.design.objectstore.PSEntry;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
+import com.percussion.design.objectstore.PSParam;
 import com.percussion.design.objectstore.PSSharedFieldGroup;
+import com.percussion.design.objectstore.PSTextLiteral;
+import com.percussion.rest.contenttypes.ContentTypeChoiceCatalog;
+import com.percussion.rest.contenttypes.ContentTypeChoiceEntry;
+import com.percussion.rest.contenttypes.ContentTypeControlProperty;
+import com.percussion.rest.sharedfields.SharedFieldControlProperties;
 import com.percussion.rest.sharedfields.SharedFieldDesignLockException;
 import com.percussion.rest.sharedfields.SharedFieldGroupDetail;
 import com.percussion.rest.sharedfields.SharedFieldGroupSummary;
@@ -807,5 +818,247 @@ class SharedFieldsAdaptorTest {
         IllegalArgumentException.class, () -> SharedFieldsAdaptor.validateFieldName("a/b"));
     assertThrows(
         IllegalArgumentException.class, () -> SharedFieldsAdaptor.validateFieldName("1start"));
+  }
+
+  @Test
+  void getFieldControlProperties_returnsValuesAndChoices() {
+    PSSharedFieldGroup group = groupWithControlAndChoices("shared", "rx_note");
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    def.addFieldGroup(group);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(() -> def);
+
+    SharedFieldControlProperties out =
+        adaptor.getFieldControlProperties(null, "shared", "rx_note");
+    assertEquals("rx_note", out.getFieldName());
+    assertEquals("sys_EditBox", out.getControl());
+    assertEquals(1, out.getProperties().size());
+    assertEquals("height", out.getProperties().get(0).getName());
+    assertEquals("200", out.getProperties().get(0).getValue());
+    assertEquals("local", out.getChoices().getType());
+    assertEquals("open", out.getChoices().getEntries().get(0).getValue());
+    assertEquals(2, out.getDesignGaps().size());
+    assertEquals("SF_SPA_EDITOR", out.getDesignGaps().get(0).getCode());
+    assertEquals("SF_SYSTEM_DEF_SEPARATE", out.getDesignGaps().get(1).getCode());
+  }
+
+  @Test
+  void getFieldControlProperties_unknownGroupReturnsNull() {
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(PSContentEditorSharedDef::new);
+    assertNull(adaptor.getFieldControlProperties(null, "missing", "rx_note"));
+  }
+
+  @Test
+  void getFieldControlProperties_unknownFieldIs404() {
+    PSSharedFieldGroup group = SharedFieldsAdaptor.newEmptyGroup("shared", "shared.xml");
+    SharedFieldSummary existing = new SharedFieldSummary();
+    existing.setName("rx_note");
+    SharedFieldsAdaptor.addPersistableField(group, existing);
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    def.addFieldGroup(group);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(() -> def);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.getFieldControlProperties(null, "shared", "nope"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void getFieldControlProperties_forbiddenWhenNotAdmin() {
+    AtomicInteger loads = new AtomicInteger();
+    SharedFieldsAdaptor denied =
+        new SharedFieldsAdaptor(
+            () -> {
+              loads.incrementAndGet();
+              return mock(PSContentEditorSharedDef.class);
+            },
+            () -> false);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> denied.getFieldControlProperties(null, "shared", "rx_note"));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertEquals(0, loads.get());
+  }
+
+  @Test
+  void replaceFieldControlProperties_persistsValuesAndReleasesLock() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSSharedFieldGroup group = groupWithControlAndChoices("shared", "rx_note");
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    def.addFieldGroup(group);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+
+    SharedFieldControlProperties body = new SharedFieldControlProperties();
+    body.setProperties(List.of(new ContentTypeControlProperty("width", "640")));
+    ContentTypeChoiceCatalog choices = new ContentTypeChoiceCatalog();
+    choices.setType("local");
+    choices.setEntries(List.of(new ContentTypeChoiceEntry("closed", "Closed")));
+    body.setChoices(choices);
+
+    SharedFieldControlProperties out =
+        adaptor.replaceFieldControlProperties(null, "shared", "rx_note", body);
+
+    verify(designWs)
+        .saveContentEditorSharedDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
+    assertEquals("640", out.getProperties().get(0).getValue());
+    assertTrue(
+        out.getDesignGaps().stream().anyMatch(g -> "SF_SPA_EDITOR".equals(g.getCode())),
+        () -> String.valueOf(out.getDesignGaps()));
+    assertTrue(
+        out.getDesignGaps().stream()
+            .anyMatch(g -> "SF_SYSTEM_DEF_SEPARATE".equals(g.getCode())),
+        () -> String.valueOf(out.getDesignGaps()));
+    assertEquals("closed", out.getChoices().getEntries().get(0).getValue());
+    PSControlRef control = group.getUIDefinition().getMapping("rx_note").getUISet().getControl();
+    PSParam first = (PSParam) control.getParameters().next();
+    assertEquals("width", first.getName());
+    assertEquals("640", first.getValue().getValueText());
+  }
+
+  @Test
+  void replaceFieldControlProperties_emptyPropertiesClears() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSSharedFieldGroup group = groupWithControlAndChoices("shared", "rx_note");
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    def.addFieldGroup(group);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+
+    SharedFieldControlProperties body = new SharedFieldControlProperties();
+    body.setProperties(List.of());
+    SharedFieldControlProperties out =
+        adaptor.replaceFieldControlProperties(null, "shared", "rx_note", body);
+
+    assertTrue(out.getProperties().isEmpty());
+    PSControlRef control = group.getUIDefinition().getMapping("rx_note").getUISet().getControl();
+    assertTrue(!control.getParameters().hasNext(), "expected empty control parameters");
+  }
+
+  @Test
+  void replaceFieldControlProperties_omittedChoicesLeaveCatalog() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSSharedFieldGroup group = groupWithControlAndChoices("shared", "rx_note");
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    def.addFieldGroup(group);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+
+    SharedFieldControlProperties body = new SharedFieldControlProperties();
+    body.setProperties(List.of(new ContentTypeControlProperty("height", "12")));
+    SharedFieldControlProperties out =
+        adaptor.replaceFieldControlProperties(null, "shared", "rx_note", body);
+
+    assertEquals("local", out.getChoices().getType());
+    assertEquals("open", out.getChoices().getEntries().get(0).getValue());
+  }
+
+  @Test
+  void replaceFieldControlProperties_unknownGroupReturnsNull() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin"))
+        .thenReturn(new PSContentEditorSharedDef());
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+    SharedFieldControlProperties body = new SharedFieldControlProperties();
+    body.setProperties(List.of());
+    assertNull(adaptor.replaceFieldControlProperties(null, "missing", "rx_note", body));
+    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void replaceFieldControlProperties_unknownFieldIs404() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSSharedFieldGroup group = SharedFieldsAdaptor.newEmptyGroup("shared", "shared.xml");
+    SharedFieldSummary existing = new SharedFieldSummary();
+    existing.setName("rx_note");
+    SharedFieldsAdaptor.addPersistableField(group, existing);
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    def.addFieldGroup(group);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+    SharedFieldControlProperties body = new SharedFieldControlProperties();
+    body.setProperties(List.of());
+    assertThrows(
+        SharedFieldNotFoundException.class,
+        () -> adaptor.replaceFieldControlProperties(null, "shared", "nope", body));
+    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void replaceFieldControlProperties_forbiddenWhenNotAdmin() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SharedFieldsAdaptor denied = new SharedFieldsAdaptor(designWs, () -> false);
+    SharedFieldControlProperties body = new SharedFieldControlProperties();
+    body.setProperties(List.of());
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> denied.replaceFieldControlProperties(null, "shared", "rx_note", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(designWs, never()).loadContentEditorSharedDef(anyBoolean(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void replaceFieldControlProperties_lockConflictIs409() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSLockErrorException lockErr =
+        new PSLockErrorException(1, "locked", "stack", "other", 1000L);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin"))
+        .thenThrow(lockErr);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+    SharedFieldControlProperties body = new SharedFieldControlProperties();
+    body.setProperties(List.of());
+    SharedFieldDesignLockException ex =
+        assertThrows(
+            SharedFieldDesignLockException.class,
+            () -> adaptor.replaceFieldControlProperties(null, "shared", "rx_note", body));
+    assertTrue(ex.getMessage().contains("locked by other"));
+  }
+
+  @Test
+  void replaceFieldControlProperties_missingPropertiesIs400() {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+    SharedFieldControlProperties body = new SharedFieldControlProperties();
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.replaceFieldControlProperties(null, "shared", "rx_note", body));
+    assertTrue(ex.getMessage().contains("properties"));
+  }
+
+  @Test
+  void replaceFieldControlProperties_blankGroupOrFieldNameIs400() {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+    SharedFieldControlProperties body = new SharedFieldControlProperties();
+    body.setProperties(List.of(new ContentTypeControlProperty("width", "640")));
+    IllegalArgumentException blankGroup =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.replaceFieldControlProperties(null, "  ", "rx_note", body));
+    assertTrue(blankGroup.getMessage().contains("name is required"));
+    IllegalArgumentException blankField =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.replaceFieldControlProperties(null, "shared", "  ", body));
+    assertTrue(blankField.getMessage().contains("name is required"));
+  }
+
+  private static PSSharedFieldGroup groupWithControlAndChoices(String groupName, String fieldName) {
+    PSSharedFieldGroup group = SharedFieldsAdaptor.newEmptyGroup(groupName, groupName + ".xml");
+    SharedFieldSummary existing = new SharedFieldSummary();
+    existing.setName(fieldName);
+    SharedFieldsAdaptor.addPersistableField(group, existing);
+    PSDisplayMapping mapping = group.getUIDefinition().getMapping(fieldName);
+    PSCollection params = new PSCollection(PSParam.class);
+    params.add(new PSParam("height", new PSTextLiteral("200")));
+    mapping.getUISet().getControl().setParameters(params);
+    PSCollection local = new PSCollection(PSEntry.class);
+    local.add(new PSEntry("open", new PSDisplayText("Open")));
+    mapping.getUISet().setChoices(new PSChoices(local));
+    return group;
   }
 }

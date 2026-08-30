@@ -18,6 +18,7 @@
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.sharedfields.ISharedFieldsAdaptor;
+import com.percussion.rest.sharedfields.SharedFieldControlProperties;
 import com.percussion.rest.sharedfields.SharedFieldGroupDetail;
 import com.percussion.rest.sharedfields.SharedFieldGroupSummary;
 import com.percussion.rest.sharedfields.SharedFieldSummary;
@@ -71,5 +72,17 @@ public class TestSharedFieldsAdaptor implements ISharedFieldsAdaptor {
   @Override
   public void deleteField(URI baseUri, String groupName, String fieldName) {
     // no-op for tests
+  }
+
+  @Override
+  public SharedFieldControlProperties getFieldControlProperties(
+      URI baseUri, String idOrName, String fieldName) {
+    return null;
+  }
+
+  @Override
+  public SharedFieldControlProperties replaceFieldControlProperties(
+      URI baseUri, String idOrName, String fieldName, SharedFieldControlProperties body) {
+    return null;
   }
 }

@@ -36,7 +36,10 @@ import com.percussion.design.objectstore.PSTableRef;
 import com.percussion.design.objectstore.PSTableSet;
 import com.percussion.design.objectstore.PSUIDefinition;
 import com.percussion.design.objectstore.PSUISet;
+import com.percussion.rest.DesignGap;
+import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import com.percussion.rest.sharedfields.ISharedFieldsAdaptor;
+import com.percussion.rest.sharedfields.SharedFieldControlProperties;
 import com.percussion.rest.sharedfields.SharedFieldDesignLockException;
 import com.percussion.rest.sharedfields.SharedFieldGroupDetail;
 import com.percussion.rest.sharedfields.SharedFieldGroupSummary;
@@ -86,8 +89,19 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
 
   private static final List<String> DESIGN_GAPS =
       List.of(
-          "Field control / choice write not supported via this API",
+          "SPA shared-field editor is not provided",
           "System def (global fields) is a separate catalog (Developer System Def)");
+
+  /**
+   * Structured gaps on GET/PUT {@code .../controlProperties} (same remaining work as group
+   * detail).
+   */
+  static final List<DesignGap> CONTROL_PROPERTY_DESIGN_GAPS =
+      List.of(
+          DesignGap.of("SF_SPA_EDITOR", "SPA shared-field editor is not provided"),
+          DesignGap.of(
+              "SF_SYSTEM_DEF_SEPARATE",
+              "System def (global fields) is a separate catalog (Developer System Def)"));
 
   private static final int MAX_FIELD_NAME_LENGTH = 50;
 
@@ -365,7 +379,8 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
 
   /**
    * Persistable TYPE_SHARED field with backend column locator, default text mapping, and display
-   * mapping ({@code sys_EditBox}). Control/choice write is a later slice.
+   * mapping ({@code sys_EditBox}). Control properties use GET/PUT {@code
+   * .../fields/{fieldName}/controlProperties}.
    */
   static PSField addPersistableField(PSSharedFieldGroup group, SharedFieldSummary body) {
     if (group == null) {
@@ -727,6 +742,124 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
       throw new SharedFieldNotFoundException("Shared field not found");
     }
     saveSharedDef(def, session, user);
+  }
+
+  @Override
+  public SharedFieldControlProperties getFieldControlProperties(
+      URI baseUri, String idOrName, String fieldName) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName) || !isSafeGroupName(idOrName)) {
+      return null;
+    }
+    if (StringUtils.isBlank(fieldName) || !isSafeGroupName(fieldName)) {
+      throw new WebApplicationException("Shared field not found", 404);
+    }
+    PSContentEditorSharedDef def = loadSharedDef();
+    PSSharedFieldGroup group = findGroup(def, idOrName.trim());
+    if (group == null) {
+      return null;
+    }
+    return loadFieldControlProperties(group, fieldName.trim());
+  }
+
+  @Override
+  public SharedFieldControlProperties replaceFieldControlProperties(
+      URI baseUri, String idOrName, String fieldName, SharedFieldControlProperties body) {
+    requireAdmin();
+    requireDesignWs();
+    requireSessionUserForWrite();
+    if (StringUtils.isBlank(idOrName) || StringUtils.isBlank(fieldName)) {
+      throw new IllegalArgumentException("name is required");
+    }
+    if (!isSafeGroupName(idOrName)) {
+      return null;
+    }
+    if (body == null || body.getProperties() == null) {
+      throw new IllegalArgumentException("properties is required");
+    }
+    if (!isSafeGroupName(fieldName)) {
+      throw new SharedFieldNotFoundException("Shared field not found");
+    }
+    String session = currentSession();
+    String user = currentUser();
+    PSContentEditorSharedDef def = loadSharedDefLocked(session, user);
+    PSSharedFieldGroup group = findGroup(def, idOrName.trim());
+    if (group == null) {
+      return null;
+    }
+    PSDisplayMapping mapping = requireFieldMapping(group, fieldName.trim(), true);
+    applyControlPropertyUpdates(mapping, body);
+    saveSharedDef(def, session, user);
+    return toFieldControlProperties(fieldName.trim(), mapping);
+  }
+
+  private SharedFieldControlProperties loadFieldControlProperties(
+      PSSharedFieldGroup group, String fieldName) {
+    PSDisplayMapping mapping = requireFieldMapping(group, fieldName, false);
+    return toFieldControlProperties(fieldName, mapping);
+  }
+
+  /**
+   * Resolve the field by submit name then its display mapping. Missing field or mapping is 404.
+   *
+   * @param notFoundIsDeleteStyle {@code true} throws {@link SharedFieldNotFoundException} (PUT);
+   *     {@code false} throws HTTP 404 (GET)
+   */
+  private PSDisplayMapping requireFieldMapping(
+      PSSharedFieldGroup group, String fieldName, boolean notFoundIsDeleteStyle) {
+    PSField field =
+        group.getFieldSet() != null
+            ? group.getFieldSet().findFieldByName(fieldName, false)
+            : null;
+    PSDisplayMapper mapper =
+        group.getUIDefinition() != null ? group.getUIDefinition().getDisplayMapper() : null;
+    String actual = field != null ? field.getSubmitName() : fieldName;
+    PSDisplayMapping mapping = ContentTypeAdaptor.findDisplayMapping(mapper, actual);
+    if (field == null || mapping == null) {
+      if (notFoundIsDeleteStyle) {
+        throw new SharedFieldNotFoundException("Shared field not found");
+      }
+      throw new WebApplicationException("Shared field not found", 404);
+    }
+    return mapping;
+  }
+
+  static SharedFieldControlProperties toFieldControlProperties(
+      String fieldName, PSDisplayMapping mapping) {
+    SharedFieldControlProperties out = new SharedFieldControlProperties();
+    out.setFieldName(fieldName);
+    PSUISet ui = mapping != null ? mapping.getUISet() : null;
+    PSControlRef control = ui != null ? ui.getControl() : null;
+    if (control != null && StringUtils.isNotBlank(control.getName())) {
+      out.setControl(control.getName());
+    }
+    out.setProperties(new ArrayList<>(ContentTypeAdaptor.controlProperties(control)));
+    if (ui != null) {
+      out.setChoices(ContentTypeAdaptor.toChoiceCatalog(ui.getChoices()));
+    }
+    out.setDesignGaps(new ArrayList<>(CONTROL_PROPERTY_DESIGN_GAPS));
+    return out;
+  }
+
+  static void applyControlPropertyUpdates(
+      PSDisplayMapping mapping, SharedFieldControlProperties body) {
+    PSUISet ui = mapping.getUISet();
+    if (ui == null) {
+      ui = new PSUISet();
+      mapping.setUISet(ui);
+    }
+    List<ContentTypeControlProperty> properties = body.getProperties();
+    PSControlRef control = ui.getControl();
+    if (control == null) {
+      if (!properties.isEmpty()) {
+        throw new IllegalArgumentException("field has no display control");
+      }
+    } else {
+      control.setParameters(ContentTypeAdaptor.toParamCollection(properties));
+    }
+    if (body.getChoices() != null) {
+      ui.setChoices(ContentTypeAdaptor.fromChoiceCatalog(body.getChoices()));
+    }
   }
 
   private void requireAdmin() {
