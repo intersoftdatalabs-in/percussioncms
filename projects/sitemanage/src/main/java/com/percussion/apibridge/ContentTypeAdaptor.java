@@ -58,6 +58,7 @@ import com.percussion.design.objectstore.PSSearchProperties;
 import com.percussion.design.objectstore.PSSharedFieldGroup;
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.design.objectstore.PSTextLiteral;
+import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.design.objectstore.PSUIDefinition;
 import com.percussion.design.objectstore.PSUISet;
 import com.percussion.design.objectstore.PSUrlRequest;
@@ -115,6 +116,7 @@ import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
 import com.percussion.util.PSCollection;
 import com.percussion.utils.guid.IPSGuid;
+import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.string.PSStringUtils;
 import com.percussion.webservices.PSErrorException;
@@ -128,6 +130,8 @@ import com.percussion.webservices.system.PSSystemWsLocator;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -142,6 +146,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 @PSSiteManageBean
 public class ContentTypeAdaptor implements IContentTypesAdaptor {
@@ -307,6 +315,63 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     } catch (Exception e) {
       log.error("Failed to create content type {}: {}", name, e.getMessage(), e);
       throw new IllegalStateException("Failed to create content type", e);
+    }
+  }
+
+  @Override
+  public ContentTypeDetail importContentType(URI baseUri, String xml) {
+    requireAdmin();
+    requireSessionUserForLock();
+    PSItemDefinition parsed = parseDesignXml(xml);
+    String name = validateNewContentTypeName(parsed.getName());
+    assertNameUnique(name);
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      List<PSItemDefinition> created =
+          designSvc.createContentTypes(Collections.singletonList(name), session, user);
+      if (created == null || created.isEmpty() || created.get(0) == null) {
+        throw new IllegalStateException("Design WS createContentTypes returned empty");
+      }
+      PSItemDefinition dest = created.get(0);
+      int keepTypeId = dest.getTypeId();
+      String keepAppName = dest.getAppName();
+      String keepEditorUrl = dest.getEditorUrl();
+      applyDesignXml(dest, xml, keepTypeId, keepAppName, keepEditorUrl, name);
+      dest.setName(name);
+      dest.setTypeId(keepTypeId);
+      dest.setId(keepTypeId);
+      if (dest.getContentEditor() != null) {
+        dest.getContentEditor().setContentType(keepTypeId);
+      }
+      // New object lock is ours; release=true so import does not leave a held lock.
+      designSvc.saveContentTypes(Collections.singletonList(dest), true, session, user);
+      PSItemDefinition reloaded = reloadItemDef(name);
+      return reloaded != null ? toDetail(reloaded) : toDetail(dest);
+    } catch (WebApplicationException | IllegalStateException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw mapCreateNameCollision(name, e);
+    } catch (PSErrorException e) {
+      throw mapCreatePersistFailure(name, e, "Failed to import content type");
+    } catch (PSErrorsException e) {
+      if (hasLockError(e.getErrors())) {
+        throw lockConflict(e, "Could not import content type");
+      }
+      throw mapCreatePersistFailure(name, e, "Failed to save imported content type");
+    } catch (PSUnknownNodeTypeException e) {
+      throw new IllegalArgumentException("invalid content-type design XML", e);
+    } catch (Exception e) {
+      if (isAlreadyExistsFailure(e)) {
+        throw new WebApplicationException("Content type already exists: " + name, 409);
+      }
+      log.error(
+          "Failed to import content type {} ({}): {}",
+          name,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new IllegalStateException("Failed to import content type", e);
     }
   }
 
@@ -593,6 +658,12 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
             "Type-level search indexing: GET/PUT /contenttypes/{idOrName}/searchIndexing"
                 + " (held lock for write). Default is on. Per-field searchable is a separate PUT"
                 + " detail flag. SPA Properties checkbox is not exposed"));
+    gaps.add(
+        DesignGap.of(
+            "CT_IMPORT_EXPORT",
+            "Import: POST /contenttypes/import (Admin, create-only, 409 on name collision)."
+                + " GET /contenttypes/{id}/export remains Workbench until the export slice is"
+                + " installed. SPA import wizard is not exposed"));
     if (!controlsResolved) {
       gaps.add(
           DesignGap.of(
@@ -4422,6 +4493,95 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       throw new WebApplicationException(
           "Request session/user required for content type design session",
           Response.Status.FORBIDDEN);
+    }
+  }
+
+  /**
+   * Parse Workbench / REST-export {@code ItemDefData} design XML. Invalid or non-content-type XML
+   * is 400 via {@link IllegalArgumentException}.
+   */
+  static PSItemDefinition parseDesignXml(String xml) {
+    Element root = parseItemDefRoot(xml);
+    try {
+      PSItemDefinition parsed = new PSItemDefinition(root);
+      if (StringUtils.isBlank(parsed.getName())) {
+        throw new IllegalArgumentException("content-type design XML is missing name");
+      }
+      return parsed;
+    } catch (IllegalArgumentException e) {
+      throw e;
+    } catch (PSUnknownNodeTypeException | RuntimeException e) {
+      throw new IllegalArgumentException("invalid content-type design XML", e);
+    }
+  }
+
+  /**
+   * Apply exported design XML onto the newly created content type, keeping the type id / app name
+   * assigned by {@code createContentTypes} so we never steal an existing object's identity or lock.
+   */
+  static void applyDesignXml(
+      PSItemDefinition dest,
+      String xml,
+      int keepTypeId,
+      String keepAppName,
+      String keepEditorUrl,
+      String name)
+      throws PSUnknownNodeTypeException {
+    if (dest == null) {
+      throw new IllegalStateException("created content type is required");
+    }
+    Element root = parseItemDefRoot(xml);
+    if (StringUtils.isNotBlank(keepAppName)) {
+      root.setAttribute("appName", keepAppName);
+    }
+    rewriteImportIdentity(root, keepTypeId, keepEditorUrl, name);
+    dest.fromXml(root, null, null);
+  }
+
+  private static Element parseItemDefRoot(String xml) {
+    if (StringUtils.isBlank(xml)) {
+      throw new IllegalArgumentException("content-type design XML is required");
+    }
+    String trimmed = xml.trim();
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+      throw new IllegalArgumentException("expected content-type design XML");
+    }
+    Document doc;
+    try (StringReader reader = new StringReader(trimmed)) {
+      doc = PSXmlDocumentBuilder.createXmlDocument(reader, false);
+    } catch (IOException | SAXException | RuntimeException e) {
+      throw new IllegalArgumentException("invalid content-type design XML", e);
+    }
+    Element root = doc == null ? null : doc.getDocumentElement();
+    if (root == null || !"ItemDefData".equals(root.getNodeName())) {
+      throw new IllegalArgumentException("invalid content-type design XML");
+    }
+    return root;
+  }
+
+  /**
+   * Remap summary / editor identity onto the GUID allocated by create so save uses the new lock,
+   * not the source type's id.
+   */
+  static void rewriteImportIdentity(Element root, int typeId, String editorUrl, String name) {
+    String id = String.valueOf(typeId);
+    for (Node child = root.getFirstChild(); child != null; child = child.getNextSibling()) {
+      if (!(child instanceof Element el)) {
+        continue;
+      }
+      String nodeName = el.getNodeName();
+      if ("PSXItemDefSummary".equals(nodeName)) {
+        el.setAttribute("id", id);
+        el.setAttribute("typeId", id);
+        if (StringUtils.isNotBlank(name)) {
+          el.setAttribute("name", name);
+        }
+        if (StringUtils.isNotBlank(editorUrl)) {
+          el.setAttribute("editorUrl", editorUrl);
+        }
+      } else if ("PSXContentEditor".equals(nodeName)) {
+        el.setAttribute("contentType", id);
+      }
     }
   }
 
