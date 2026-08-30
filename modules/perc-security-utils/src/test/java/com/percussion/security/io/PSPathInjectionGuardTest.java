@@ -260,6 +260,40 @@ class PSPathInjectionGuardTest {
     }
 
     @Test
+    @DisplayName("baseDir that is a file is rejected")
+    void testFileAsBase() throws IOException {
+      File notADir = new File(m_tmpRoot, "not-a-dir.txt");
+      Files.writeString(notADir.toPath(), "x");
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> PSPathInjectionGuard.requireUnderBase(notADir, "file.txt"),
+          "a regular file used as baseDir must be rejected");
+    }
+
+    @Test
+    @DisplayName("String baseDir overload still rejects parent-traversal")
+    void testStringBaseRejectsTraversal() {
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> PSPathInjectionGuard.requireUnderBase(m_tmpRoot.getPath(), "../escape.txt"),
+          "String overload must reject parent-traversal");
+    }
+
+    @Test
+    @DisplayName("requireUnderBasePath resolves under the base")
+    void testRequireUnderBasePath() throws IOException {
+      var result = PSPathInjectionGuard.requireUnderBasePath(m_tmpRoot, "nested/file.txt");
+      assertNotNull(result);
+      String resolvedCanonical = result.toFile().getCanonicalPath();
+      String baseCanonical = m_tmpRoot.getCanonicalPath();
+      String baseWithSep =
+          baseCanonical.endsWith(File.separator) ? baseCanonical : baseCanonical + File.separator;
+      assertTrue(
+          resolvedCanonical.equals(baseCanonical) || resolvedCanonical.startsWith(baseWithSep),
+          "requireUnderBasePath canonical path must stay under baseDir");
+    }
+
+    @Test
     @DisplayName("null baseDir is rejected")
     void testNullBase() {
       assertThrows(

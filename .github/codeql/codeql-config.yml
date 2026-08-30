@@ -421,23 +421,29 @@ query-filters:
       id: java/path-injection
       paths:
         - "system/src/main/java/com/percussion/data/jdbc/PSXmlDatabaseMetaData.java"
+        - "**/data/jdbc/PSXmlDatabaseMetaData.java"
         - "system/src/main/java/com/percussion/data/vfs/PSVirtualApplicationDirectory.java"
+        - "**/data/vfs/PSVirtualApplicationDirectory.java"
         - "system/src/main/java/com/percussion/data/jdbc/PSFileSystemDriver.java"
+        - "**/data/jdbc/PSFileSystemDriver.java"
       reason: >-
-        Alerts #1985/#1986/#1987: catalogDir File API after
-        PSXmlDriver.getPhysicalPath. Runtime resolveUnderAppRoot (normalize +
-        Path.startsWith, plus requireUnderBase when the virtual root exists)
-        and driver-level requireUnderBase. Same-line // codeql[java/path-injection]
-        on exists/isDirectory. Tests:
+        Alerts #1985/#1986/#1987 and re-fingerprints #2005–#2007/#2024/#2025:
+        catalogDir File API after PSXmlDriver.getPhysicalPath. Runtime
+        resolveUnderAppRoot (normalize + Path.startsWith, plus requireUnderBase
+        when the virtual root exists) and driver-level requireUnderBase.
+        Same-line // codeql[java/path-injection] on exists/isDirectory. Tests:
         PSVirtualApplicationDirectoryPathInjectionTest,
         PSFileSystemDriverPathInjectionTest. GHA does not load local model packs.
+        Globs keep query-filters matching after line-shift re-fingerprint
+        (same pattern as SitesAdaptor #1984). Do not re-edit annotated sinks.
   # --- CodeQL #2001/#1988-#2000 object-store RecoverableFile / app-root ---
   - exclude:
       id: java/path-injection
       paths:
         - "system/src/main/java/com/percussion/design/objectstore/server/PSServerXmlObjectStore.java"
+        - "**/objectstore/server/PSServerXmlObjectStore.java"
       reason: >-
-        Alerts #2001/#1988-#2000 and PR residual #2011-#2023/#2026-#2029:
+        Alerts #2001/#1988-#2000 and PR residual #2011-#2023/#2026-#2030:
         RecoverableFile, deleteFile, mkdir, and getAppRootDir File API.
         Runtime getAppRootDir / RecoverableFile ctor / deleteFile call
         requireUnderBase against PSServer.getRxDir() then operate on the
@@ -446,15 +452,35 @@ query-filters:
         (isSymbolicLink, deleteIfExists, exists, isDirectory, listFiles,
         delete). Tests: PSServerXmlObjectStorePathInjectionTest. GHA does
         not load local packs. Do not re-edit annotated sinks to chase IDs.
+        Glob keeps query-filters matching after line-shift re-fingerprint.
   # --- CodeQL #2002/#1920/#1921 object-store application file path-injection ---
   - exclude:
       id: java/path-injection
       paths:
         - "system/src/main/java/com/percussion/design/objectstore/server/PSXmlObjectStoreHandler.java"
+        - "**/objectstore/server/PSXmlObjectStoreHandler.java"
       reason: >-
-        Alerts #2002/#1920/#1921: getApplicationFile joins appName under
-        m_objectDirectory; lock streams open FileInput/OutputStream. Runtime
+        Alerts #2002/#1920/#1921 and re-fingerprints #2008–#2010:
+        getApplicationFile joins appName under m_objectDirectory; lock
+        streams open FileInput/OutputStream. Runtime
         resolveApplicationXmlFile / requireUnderRxDir call requireUnderBase.
         Same-line // codeql[java/path-injection] on exists and stream ctors.
         Tests: PSXmlObjectStoreHandlerPathInjectionTest. GHA does not load
-        local model packs.
+        local model packs. Glob keeps query-filters matching after
+        line-shift re-fingerprint. Do not re-edit annotated sinks.
+  # --- CodeQL #2031/#2032 PSPathInjectionGuard trusted-base File API ---
+  # Runtime: requireUnderBase canonicalizes baseDir via getCanonicalFile then
+  # isDirectory (no File.exists/isDirectory on the raw caller File).
+  # Model pack: ReturnValue + Argument[0] (trusted base) barriers.
+  # GHA does not load local packs; sink-line + path exclude stop residual thrash.
+  - exclude:
+      id: java/path-injection
+      paths:
+        - "modules/perc-security-utils/src/main/java/com/percussion/security/io/PSPathInjectionGuard.java"
+        - "**/security/io/PSPathInjectionGuard.java"
+      reason: >-
+        Alerts #2031/#2032: File.exists/isDirectory on trusted baseDir inside
+        requireUnderBase. Runtime getCanonicalFile then isDirectory; model pack
+        ReturnValue + Argument[0] barriers; same-line // codeql[java/path-injection]
+        on isDirectory. Tests: PSPathInjectionGuardTest. GHA does not load local
+        model packs. Do not re-edit the annotated sink to chase IDs.
