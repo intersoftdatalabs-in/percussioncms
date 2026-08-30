@@ -46,4 +46,35 @@ public interface ISystemDefAdaptor {
    *     locked for this session
    */
   SystemDefDetail updateSystemDef(URI baseUri, SystemDefDetail body);
+
+  /**
+   * Add a persistable TYPE_SYSTEM field (backend column + display mapping) to the content-editor
+   * system definition. Admin only. Acquires the system-def design lock for this request and
+   * releases it on save.
+   *
+   * @param body {@code name} required; unique case-insensitive. Optional {@code dataType} defaults
+   *     to {@code text}. Optional {@code searchable}, {@code occurrence} / {@code required} as on
+   *     PUT patches.
+   * @return persisted detail, never {@code null}
+   * @throws IllegalArgumentException when field name/dataType is invalid or occurrence/required
+   *     conflict
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin; {@code
+   *     409} when a field with that name already exists
+   * @throws SystemDefDesignLockException when the system def is locked by another user or is not
+   *     locked for this session
+   */
+  SystemDefDetail addField(URI baseUri, SystemDefFieldSummary body);
+
+  /**
+   * Remove a field (backend column mapping + display mapping) from the content-editor system
+   * definition. Admin only. Acquires the system-def design lock for this request and releases it on
+   * save.
+   *
+   * @throws IllegalArgumentException when the name is blank, unknown, or the field is
+   *     system-mandatory / system-internal
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin
+   * @throws SystemDefDesignLockException when the system def is locked by another user or is not
+   *     locked for this session
+   */
+  void deleteField(URI baseUri, String fieldName);
 }

@@ -827,8 +827,9 @@ previously held lock).
 sitemanage adaptor checks `IPSUserService.isAdminUser` for the current user and maps
 a non-Admin caller to **403**. Control/choice write remains unsupported. Nested
 field create/delete persist a backend column mapping and a default `sys_EditBox`
-display mapping. System-def field-property save is a separate catalog
-(`PUT /services/systemdef`, CD-16).
+display mapping. System-def field-property save and field create/delete are a
+separate catalog (`PUT /services/systemdef`, `POST /services/systemdef/fields`,
+`DELETE /services/systemdef/fields/{fieldName}`, CD-16).
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -884,7 +885,8 @@ List entries use `SharedFieldGroupSummary`. Detail uses `SharedFieldGroupDetail`
 - `fields[]`: `name`, `dataType`, `searchable`, `required`, `readOnly`, `occurrence`
   (`optional` / `required` / `oneOrMore` / `zeroOrMore` / `count` / `unknown`)
 - `designGaps[]` strings — control/choice edit remain later slices. System-def
-  field-property save is `PUT /services/systemdef`.
+  field-property save is `PUT /services/systemdef`; field create/delete are
+  `POST /services/systemdef/fields` and `DELETE /services/systemdef/fields/{fieldName}`.
 
 Prefer the generated OpenAPI schema as the integration source of truth.
 
@@ -908,8 +910,8 @@ lock” (Workbench also locks the whole shared definition, not one group).
 ## System definition (design catalog)
 
 Content-editor **system definition** (Workbench global / system fields, CD-16) is a
-singleton design object. Public REST exposes a catalog **and field-property write**
-under `/services/systemdef`. Load and save use the same content **design** web
+singleton design object. Public REST exposes a catalog **and write** under
+`/services/systemdef`. Load and save use the same content **design** web
 service as Workbench (`IPSContentDesignWs.loadContentEditorSystemDef` /
 `saveContentEditorSystemDef`). Writes acquire the system-definition design lock for
 the request and **release** it on save (same request-lock pattern as shared-field
@@ -917,21 +919,28 @@ PUT; unlike content-type PUT, which requires a previously held lock).
 
 **Admin (Design) only.** There is no global JAX-RS Admin filter on this path — the
 sitemanage adaptor checks `IPSUserService.isAdminUser` for the current user and maps
-a non-Admin caller to **403**. Field **create/delete**, control properties,
-stylesheets, and application flow remain unsupported.
+a non-Admin caller to **403**. Nested field create/delete persist a backend column
+mapping (default table `CONTENTSTATUS`) and a default `sys_EditBox` display
+mapping. Control properties, stylesheets, and application flow remain unsupported.
 
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/services/systemdef` | Load the system definition field catalog (`fieldCount`, `cacheTimeoutMinutes`, `fields[]`) |
-| `PUT` | `/services/systemdef` | Patch **existing** fields (`searchable`, occurrence / required). Null or empty `fields` leaves the catalog unchanged. |
+| `PUT` | `/services/systemdef` | Patch **existing** fields (`searchable`, occurrence / required). Null or empty `fields` leaves the catalog unchanged. Does not create or delete fields. |
+| `POST` | `/services/systemdef/fields` | Add a field (`name` required, unique). Optional `dataType` defaults to `text`. Optional `searchable` and occurrence / required use the same rules as PUT patches. |
+| `DELETE` | `/services/systemdef/fields/{fieldName}` | Remove a field and its display mapping (**204**). |
 
 PUT may include `fields[]` to patch existing fields by `name`. Unknown field names
-are **400**. New fields cannot be added on this slice. `occurrence` and `required`
+are **400**. PUT does **not** create or delete fields — use nested POST/DELETE
+`.../fields`. Field `name` on create must start with a letter and may contain
+letters, digits, or underscore (no spaces or path characters). Duplicate field
+names (case-insensitive) are **409**. `occurrence` and `required`
 map to the same dimension: when both are sent they must agree (`required=true`
 with `required` / `oneOrMore`; `required=false` with `optional` / `zeroOrMore` /
 `count`) or the request is **400**. `occurrence` is applied when present;
 `required` is used only when `occurrence` is omitted. `dataType`, `readOnly`, and
-`cacheTimeoutMinutes` are read-only on this slice.
+`cacheTimeoutMinutes` are read-only on PUT. System-mandatory and system-internal
+fields cannot be deleted (**400**). Unknown `{fieldName}` on DELETE is **400**.
 
 Example PUT body:
 
@@ -943,6 +952,17 @@ Example PUT body:
 }
 ```
 
+Add-field body is a `SystemDefFieldSummary`:
+
+```json
+{
+  "name": "sys_custom",
+  "dataType": "text",
+  "searchable": true,
+  "required": false
+}
+```
+
 ### Response shape
 
 Detail uses `SystemDefDetail`:
@@ -950,8 +970,8 @@ Detail uses `SystemDefDetail`:
 - `fieldCount`, `cacheTimeoutMinutes` (read-only)
 - `fields[]`: `name`, `dataType`, `searchable`, `required`, `readOnly`, `occurrence`
   (`optional` / `required` / `oneOrMore` / `zeroOrMore` / `count` / `unknown`)
-- `designGaps[]` strings — field create/delete, control/stylesheet/application flow,
-  and shared-field groups (separate catalog)
+- `designGaps[]` strings — control/stylesheet/application flow, and shared-field
+  groups (separate catalog)
 
 Prefer the generated OpenAPI schema as the integration source of truth.
 
@@ -959,10 +979,11 @@ Prefer the generated OpenAPI schema as the integration source of truth.
 
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | Catalog or save |
-| `400` | Missing body, unknown field, invalid occurrence, or conflicting `occurrence`/`required` |
+| `200` | Catalog, save, or add-field |
+| `204` | Field deleted |
+| `400` | Missing body, unknown field, invalid name/`dataType`, conflicting `occurrence`/`required`, or delete of a system-mandatory / system-internal field |
 | `403` | Caller is not Admin, or the request has no session/user (writes) |
-| `409` | System definition locked by another user, or design lock required for save |
+| `409` | Duplicate field name, system definition locked by another user, or design lock required for save |
 | `500` | Design service or server failure |
 
 Authenticated non-Admin sessions (Editor, Contributor, and similar) must not read or
