@@ -76,6 +76,18 @@ public interface IContentTypesAdaptor {
   ContentTypeDetail getContentType(URI baseUri, String idOrName);
 
   /**
+   * Export Workbench-equivalent design XML for one content type (CD-14).
+   *
+   * <p>Read-only: loads through {@code IPSContentDesignWs} without acquiring or stealing locks.
+   * Admin only.
+   *
+   * @param baseUri the base URI (reserved for HATEOAS)
+   * @param idOrName content type uuid (numeric) or unique name
+   * @return export payload, or {@code null} if not found
+   */
+  ContentTypeExport exportContentType(URI baseUri, String idOrName);
+
+  /**
    * Update content type design fields. Requires a design-session lock already held by the current
    * user/session ({@link #lockContentType}); does not acquire or release the lock.
    *

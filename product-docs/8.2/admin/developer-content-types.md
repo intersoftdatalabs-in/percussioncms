@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Lock, enable or disable, rename via REST, add or delete local fields via REST, include system or shared fields via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Lock, enable or disable, rename via REST, add or delete local fields via REST, include system or shared fields via REST, export design XML via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -49,7 +49,9 @@ Nested `POST /services/systemdef/fields` and
 `DELETE /services/systemdef/fields/{fieldName}` add or remove system fields
 (backend column + display mapping). Duplicate field names are **409**.
 System-mandatory and system-internal fields cannot be deleted (**400**). An SPA
-editor is not in this chrome. See
+editor is not in this chrome. Admin `GET /services/contenttypes/{idOrName}/export`
+downloads Workbench-equivalent design XML (CD-14; no lock steal). Import of that
+XML and an SPA export wizard are not in this chrome. See
 [REST API](id:developer-rest).
 
 This is **not** the full Workbench field-rule editor. The detail table still

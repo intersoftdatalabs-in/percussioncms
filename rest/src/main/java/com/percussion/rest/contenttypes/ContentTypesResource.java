@@ -34,7 +34,9 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @PSSiteManageBean(value = "restContentTypesResource")
@@ -911,6 +913,146 @@ public class ContentTypesResource {
       // Preserve cause so log analysis retains the original stack/type
       throw new WebApplicationException(e, 500);
     }
+  }
+
+  /**
+   * Downloads Workbench-equivalent content-type design XML (CD-14 export). Import is a later slice.
+   * Read-only: does not acquire or steal design locks.
+   *
+   * @param idOrName content type uuid or unique name
+   * @return XML attachment named from the content type name
+   */
+  @GET
+  @Path("/{idOrName}/export")
+  @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
+  @Operation(
+      summary = "Export content type design XML",
+      description =
+          "Admin-only CD-14 export of one content type as Workbench-equivalent design"
+              + " XML (loaded via IPSContentDesignWs). Read-only: does not acquire or steal"
+              + " locks. Import is not implemented on this path. Content-Disposition filename"
+              + " is derived from the content type name.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Design XML",
+            content = @Content(mediaType = MediaType.APPLICATION_XML)),
+        @ApiResponse(responseCode = "403", description = "Caller is not Admin"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response exportContentType(@PathParam("idOrName") String idOrName) {
+    try {
+      ContentTypeExport exported =
+          requireAdaptor().exportContentType(uriInfo.getBaseUri(), idOrName);
+      if (exported == null || exported.getXml() == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      String filename = exportFilename(exported.getName());
+      return Response.ok(exported.getXml(), MediaType.APPLICATION_XML)
+          .header("Content-Disposition", contentDispositionAttachment(filename))
+          .build();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Basename for {@code Content-Disposition}. Strips characters that are unsafe in HTTP filenames
+   * and Windows Explorer downloads (quotes, controls, path separators, {@code * ? < > |}). Not a
+   * filesystem path.
+   */
+  static String exportFilename(String contentTypeName) {
+    String raw = contentTypeName == null ? "" : contentTypeName.trim();
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < raw.length(); i++) {
+      char c = raw.charAt(i);
+      if (c <= 31
+          || c == 127
+          || c == '"'
+          || c == '\\'
+          || c == '/'
+          || c == ':'
+          || c == '*'
+          || c == '?'
+          || c == '<'
+          || c == '>'
+          || c == '|') {
+        sb.append('_');
+      } else {
+        sb.append(c);
+      }
+    }
+    String base = sb.toString().trim();
+    if (base.isEmpty()) {
+      base = "contenttype";
+    }
+    if (!base.toLowerCase(Locale.ROOT).endsWith(".xml")) {
+      base = base + ".xml";
+    }
+    return base;
+  }
+
+  /**
+   * RFC 6266 {@code Content-Disposition}: ASCII {@code filename} fallback plus RFC 5987 {@code
+   * filename*} so non-ASCII names decode on Windows/browser clients.
+   */
+  static String contentDispositionAttachment(String filename) {
+    return "attachment; filename=\""
+        + asciiFilenameFallback(filename)
+        + "\"; filename*=UTF-8''"
+        + rfc5987Encode(filename);
+  }
+
+  static String asciiFilenameFallback(String filename) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < filename.length(); i++) {
+      char c = filename.charAt(i);
+      if (c >= 32 && c <= 126 && c != '"' && c != '\\') {
+        sb.append(c);
+      } else {
+        sb.append('_');
+      }
+    }
+    String base = sb.toString().trim();
+    boolean onlyDotsAndUnderscores = true;
+    for (int i = 0; i < base.length(); i++) {
+      char c = base.charAt(i);
+      if (c != '_' && c != '.') {
+        onlyDotsAndUnderscores = false;
+        break;
+      }
+    }
+    if (base.isEmpty() || onlyDotsAndUnderscores) {
+      return "contenttype.xml";
+    }
+    return base;
+  }
+
+  static String rfc5987Encode(String value) {
+    byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+    StringBuilder sb = new StringBuilder();
+    for (byte b : bytes) {
+      int ub = b & 0xff;
+      if ((ub >= 'a' && ub <= 'z')
+          || (ub >= 'A' && ub <= 'Z')
+          || (ub >= '0' && ub <= '9')
+          || ub == '.'
+          || ub == '-'
+          || ub == '_') {
+        sb.append((char) ub);
+      } else {
+        sb.append('%');
+        String hex = Integer.toHexString(ub).toUpperCase(Locale.ROOT);
+        if (hex.length() == 1) {
+          sb.append('0');
+        }
+        sb.append(hex);
+      }
+    }
+    return sb.toString();
   }
 
   @PUT

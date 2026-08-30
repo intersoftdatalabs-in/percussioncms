@@ -28,6 +28,7 @@ import com.percussion.rest.contenttypes.ContentTypeChoiceEntry;
 import com.percussion.rest.contenttypes.ContentTypeChoiceNullEntry;
 import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
+import com.percussion.rest.contenttypes.ContentTypeExport;
 import com.percussion.rest.contenttypes.ContentTypeField;
 import com.percussion.rest.contenttypes.ContentTypeFieldControlProperties;
 import com.percussion.rest.contenttypes.ContentTypeFieldRuleExpressions;
@@ -246,5 +247,10 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
   @Override
   public ContentTypeDetail includeField(URI baseUri, String idOrName, ContentTypeField body) {
     return getContentType(baseUri, idOrName);
+  }
+
+  @Override
+  public ContentTypeExport exportContentType(URI baseUri, String idOrName) {
+    return null;
   }
 }
