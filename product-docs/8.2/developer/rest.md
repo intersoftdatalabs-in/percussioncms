@@ -316,7 +316,9 @@ Assembly **slots** used by **Developer → Slots** are exposed under `/services/
 |--------|------|---------|
 | `GET` | `/services/slots` | List slot summaries (label, name, description) |
 | `GET` | `/services/slots/{idOrName}` | Design detail (finder, associations, `designGaps`) |
-| `PUT` | `/services/slots/{idOrName}` | Update label, description, layout/styles, and/or content-type/template associations |
+| `PUT` | `/services/slots/{idOrName}` | Update label, description, layout/styles, associations, and (Admin, held lock) `finderName` / `relationshipName` / `finderArguments` |
+| `POST` | `/services/slots/{idOrName}/lock` | **Admin.** Acquire a design-session lock (does not steal) |
+| `POST` | `/services/slots/{idOrName}/unlock` | **Admin.** Release a lock owned by the current user/session |
 | `POST` | `/services/slots` | **Admin.** Create a slot (`IPSAssemblyDesignWs.createSlots` then `saveSlots`) |
 | `DELETE` | `/services/slots/{idOrName}` | **Admin.** Delete a slot (`IPSAssemblyDesignWs.deleteSlots`) |
 
@@ -331,10 +333,16 @@ Delete (`DELETE /services/slots/{idOrName}`) returns **204** when removed; a fol
 `GET` is **404**. Unknown id/name is **404**. System slots cannot be deleted (**409**).
 Locked-by-another-user is **409** (the lock is not stolen). Non-Admin is **403**.
 
-**AS-01 remainder:** finder, relationship, and `finderArguments` stay **read-only** on this
-REST surface. Content-finder / relationship write and SPA slot-editor chrome are later
-slices. Detail `designGaps` code `SLOT_FINDER_RELATIONSHIP_WRITE` records that remainder
-(`SLOT_CREATE_DELETE` is retired now that POST/DELETE ship).
+**Finder / relationship write (AS-01):** Admin `PUT /services/slots/{idOrName}` writes
+`finderName`, `relationshipName`, and `finderArguments` when those JSON fields are present
+(null omits them; empty `relationshipName` or empty `finderArguments` clears). Typical
+flow: **lock → PUT (repeatable) → unlock**. The PUT does **not** acquire or release the
+lock and does **not** steal another user's lock. Invalid finder extension is **400**.
+Unknown relationship type is **400**. Unknown slot is **404**. Unlocked or locked-by-another
+user is **409**. Non-Admin is **403**. Following `GET /services/slots/{idOrName}` round-trips
+the written finder, relationship, and arguments. SPA slot-editor chrome remains a later
+slice. Detail `designGaps` no longer includes `SLOT_FINDER_RELATIONSHIP_WRITE` (`SLOT_CREATE_DELETE`
+is already retired). Remaining gap `SLOT_ASSOC_GUIDS_ONLY` records GUID-only associations.
 
 JSON may wrap a single item as `SlotDetail`. `associations` and `designGaps` are arrays
 (`SlotAssociationSummary[]` and structured `{code,message}` gaps). Some Jackson/JAXB

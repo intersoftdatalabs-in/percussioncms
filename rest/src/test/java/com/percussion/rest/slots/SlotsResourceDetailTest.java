@@ -30,6 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.rest.DesignGap;
+import com.percussion.rest.ObjectLockSummary;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
@@ -131,16 +132,14 @@ public class SlotsResourceDetailTest {
     d.setDesignGaps(
         List.of(
             DesignGap.of(
-                "SLOT_FINDER_RELATIONSHIP_WRITE",
-                "Finder, relationship, and finderArguments are read-only on this REST API"
-                    + " (AS-01 remainder)")));
+                "SLOT_ASSOC_GUIDS_ONLY", "Content-type and template names not resolved (GUIDs only)")));
     when(adaptor.getSlot(any(), eq("target"))).thenReturn(d);
 
     SlotDetail out = resource.getSlot("target");
     assertNotNull(out.getDesignGaps());
     assertEquals(1, out.getDesignGaps().size());
-    assertEquals("SLOT_FINDER_RELATIONSHIP_WRITE", out.getDesignGaps().get(0).getCode());
-    assertTrue(out.getDesignGaps().get(0).getMessage().contains("read-only"));
+    assertEquals("SLOT_ASSOC_GUIDS_ONLY", out.getDesignGaps().get(0).getCode());
+    assertTrue(out.getDesignGaps().get(0).getMessage().contains("GUIDs only"));
   }
 
   @Test
@@ -386,5 +385,118 @@ public class SlotsResourceDetailTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.deleteSlot("boom"));
     assertEquals(500, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateSlotFinderWriteSuccess() {
+    SlotDetail body = new SlotDetail();
+    body.setFinderName("Java/global/percussion/slotcontentfinder/sys_RelationshipContentFinder");
+    body.setRelationshipName("Active Assembly");
+    body.setFinderArguments(java.util.Map.of("template", "rffSnTitle"));
+    SlotDetail updated = new SlotDetail();
+    updated.setName("target");
+    updated.setFinderName(body.getFinderName());
+    updated.setRelationshipName(body.getRelationshipName());
+    updated.setFinderArguments(body.getFinderArguments());
+    when(adaptor.updateSlot(any(), eq("target"), any())).thenReturn(updated);
+    SlotDetail out = resource.updateSlot("target", body);
+    assertEquals(body.getFinderName(), out.getFinderName());
+    assertEquals("Active Assembly", out.getRelationshipName());
+    assertEquals("rffSnTitle", out.getFinderArguments().get("template"));
+  }
+
+  @Test
+  public void updateSlotInvalidFinderIs400() {
+    when(adaptor.updateSlot(any(), eq("target"), any()))
+        .thenThrow(new IllegalArgumentException("Invalid finder extension: nope"));
+    SlotDetail body = new SlotDetail();
+    body.setFinderName("nope");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.updateSlot("target", body));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateSlotFinderWriteForbiddenWhenNotAdmin() {
+    when(adaptor.updateSlot(any(), eq("target"), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    SlotDetail body = new SlotDetail();
+    body.setFinderName("Java/global/percussion/slotcontentfinder/sys_RelationshipContentFinder");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.updateSlot("target", body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateSlotFinderWriteUnlockedIs409() {
+    when(adaptor.updateSlot(any(), eq("target"), any()))
+        .thenThrow(new WebApplicationException("design lock required", 409));
+    SlotDetail body = new SlotDetail();
+    body.setFinderName("Java/global/percussion/slotcontentfinder/sys_RelationshipContentFinder");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.updateSlot("target", body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnLock() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> newSlotsResourceWithoutAdaptor().lockSlot("any"));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnUnlock() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> newSlotsResourceWithoutAdaptor().unlockSlot("any"));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void lockSlotSuccess() {
+    ObjectLockSummary summary = new ObjectLockSummary();
+    summary.setLocker("Admin");
+    summary.setSession("test-session");
+    summary.setRemainingTime(30);
+    when(adaptor.lockSlot(any(), eq("target"))).thenReturn(summary);
+    ObjectLockSummary out = resource.lockSlot("target");
+    assertEquals("Admin", out.getLocker());
+    assertEquals(30, out.getRemainingTime());
+  }
+
+  @Test
+  public void lockSlotNotFound() {
+    when(adaptor.lockSlot(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.lockSlot("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void lockSlotConflict() {
+    when(adaptor.lockSlot(any(), eq("target")))
+        .thenThrow(new WebApplicationException("locked by editor2", 409));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.lockSlot("target"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void unlockSlotSuccess() {
+    when(adaptor.unlockSlot(any(), eq("target"))).thenReturn(Boolean.TRUE);
+    Response out = resource.unlockSlot("target");
+    assertEquals(204, out.getStatus());
+    verify(adaptor).unlockSlot(any(), eq("target"));
+  }
+
+  @Test
+  public void unlockSlotNotFound() {
+    when(adaptor.unlockSlot(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.unlockSlot("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
   }
 }
