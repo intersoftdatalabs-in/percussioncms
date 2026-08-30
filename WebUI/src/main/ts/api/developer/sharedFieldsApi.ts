@@ -15,9 +15,15 @@
  * limitations under the License.
  */
 
-import { get } from "../client";
+import { del, get, post, put } from "../client";
 import { PATHS } from "../paths";
 import type { SharedFieldGroupDetail, SharedFieldGroupSummary } from "./types";
+
+/** Writable fields for POST/PUT /services/sharedfields. Fields catalog is not written here. */
+export type SharedFieldGroupWriteBody = Pick<SharedFieldGroupDetail, "name" | "filename">;
+
+/** Jackson / JAXB root for SharedFieldGroupDetail (UNWRAP_ROOT_VALUE on POST/PUT). */
+export const SHARED_FIELD_GROUP_DETAIL_ROOT = "SharedFieldGroupDetail";
 
 function asArray<T>(payload: unknown): T[] {
   if (payload == null) return [];
@@ -31,6 +37,80 @@ function asArray<T>(payload: unknown): T[] {
   return [];
 }
 
+function containsWhitespace(value: string): boolean {
+  return /\s/.test(value);
+}
+
+/** True when the name is a safe REST shared-field group key (no spaces or path chars). */
+export function isSafeGroupName(name: string): boolean {
+  if (!name) return false;
+  return !name.includes("..") && !name.includes("/") && !name.includes("\\") && !name.includes("\0");
+}
+
+/** Trim a group name for write. Empty / null becomes "". */
+export function normalizeGroupName(name: string | undefined | null): string {
+  return name == null ? "" : name.trim();
+}
+
+/**
+ * True when the (trimmed) name is accepted by REST create/update
+ * ({@code SharedFieldsAdaptor.validateGroupName}).
+ */
+export function isValidGroupName(name: string | undefined | null): boolean {
+  const key = normalizeGroupName(name);
+  if (!key) return false;
+  if (containsWhitespace(key)) return false;
+  if (key.includes("*")) return false;
+  return isSafeGroupName(key);
+}
+
+function stripXmlSuffix(filename: string): string {
+  return filename.toLowerCase().endsWith(".xml") ? filename.slice(0, -4) : filename;
+}
+
+/**
+ * True when filename is omitted (REST defaults to {name}.xml) or is a safe
+ * {@code .xml} path without spaces.
+ */
+export function isValidFilename(filename: string | undefined | null): boolean {
+  if (filename == null) return true;
+  const raw = filename.trim();
+  if (!raw) return true;
+  if (containsWhitespace(raw)) return false;
+  const stem = stripXmlSuffix(raw);
+  if (!isSafeGroupName(stem) || stem.includes("*")) return false;
+  if (raw.toLowerCase().endsWith(".xml")) return true;
+  return !raw.includes(".");
+}
+
+/** Save is enabled when the group name is valid and filename is blank or valid. */
+export function isSharedFieldGroupWriteReady(opts: {
+  name: string;
+  filename?: string;
+}): boolean {
+  return isValidGroupName(opts.name) && isValidFilename(opts.filename);
+}
+
+/** Wire JSON for POST/PUT — a flat body fails JAXB root unwrap. */
+export function wrapSharedFieldGroupDetailForWire(
+  body: SharedFieldGroupWriteBody,
+): Record<string, SharedFieldGroupWriteBody> {
+  return { [SHARED_FIELD_GROUP_DETAIL_ROOT]: body };
+}
+
+/** Unwrap GET/POST/PUT payload that may be wrapped as { SharedFieldGroupDetail: {...} }. */
+export function unwrapSharedFieldGroupDetail(payload: unknown): SharedFieldGroupDetail {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    return {};
+  }
+  const obj = payload as Record<string, unknown>;
+  const raw = obj.SharedFieldGroupDetail ?? obj.sharedFieldGroupDetail;
+  if (raw != null && typeof raw === "object" && !Array.isArray(raw)) {
+    return raw as SharedFieldGroupDetail;
+  }
+  return obj as SharedFieldGroupDetail;
+}
+
 /** GET /services/sharedfields */
 export async function listSharedFieldGroups(): Promise<SharedFieldGroupSummary[]> {
   const payload = await get<unknown>(PATHS.SHARED_FIELDS);
@@ -42,5 +122,34 @@ export async function getSharedFieldGroupDetail(
   name: string,
 ): Promise<SharedFieldGroupDetail> {
   const key = encodeURIComponent(name);
-  return get<SharedFieldGroupDetail>(`${PATHS.SHARED_FIELDS}/${key}`);
+  const payload = await get<unknown>(`${PATHS.SHARED_FIELDS}/${key}`);
+  return unwrapSharedFieldGroupDetail(payload);
+}
+
+/** POST /services/sharedfields — Admin. Name required. Duplicate is 409. */
+export async function createSharedFieldGroup(
+  body: SharedFieldGroupWriteBody,
+): Promise<SharedFieldGroupDetail> {
+  const payload = await post<unknown>(
+    PATHS.SHARED_FIELDS,
+    wrapSharedFieldGroupDetailForWire(body),
+  );
+  return unwrapSharedFieldGroupDetail(payload);
+}
+
+/** PUT /services/sharedfields/{name} — Admin. Optional rename via body.name. */
+export async function updateSharedFieldGroup(
+  name: string,
+  body: SharedFieldGroupWriteBody,
+): Promise<SharedFieldGroupDetail> {
+  const payload = await put<unknown>(
+    `${PATHS.SHARED_FIELDS}/${encodeURIComponent(name)}`,
+    wrapSharedFieldGroupDetailForWire(body),
+  );
+  return unwrapSharedFieldGroupDetail(payload);
+}
+
+/** DELETE /services/sharedfields/{name} — Admin. 204 on success; missing is 404. */
+export async function deleteSharedFieldGroup(name: string): Promise<void> {
+  await del(`${PATHS.SHARED_FIELDS}/${encodeURIComponent(name)}`);
 }
