@@ -22,7 +22,8 @@
 #   #3969 leftover system/src/main design.catalog call sites
 # Converted (no longer listed): extensions-main #3756/#3938 (allow-list)
 # shrink after #3793 re-listed already-typed production paths);
-# design.catalog leftover #3969.
+# design.catalog leftover #3969; system/src/main com.percussion.mail leftover
+# #4017.
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -66,10 +67,6 @@ system/src/main/java/com/percussion/install/PSJdbcNextNumberColumn.java
 system/src/main/java/com/percussion/install/PSJdbcTableMapper.java
 system/src/main/java/com/percussion/install/PSJdbcTransitionRoles.java
 system/src/main/java/com/percussion/install/PSJdbcUniqueColumn.java
-system/src/main/java/com/percussion/mail/PSMailMessage.java
-system/src/main/java/com/percussion/mail/PSMailProvider.java
-system/src/main/java/com/percussion/mail/PSMailSendException.java
-system/src/main/java/com/percussion/mail/PSSmtpMailProvider.java
 system/src/main/java/com/percussion/publisher/server/PSPubTimeStatistics.java
 system/src/main/java/com/percussion/relationship/effect/PSEffectUtils.java
 system/src/main/java/com/percussion/relationship/effect/PSIsCloneExists.java

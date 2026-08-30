@@ -17,6 +17,7 @@
 
 package com.percussion.mail;
 
+import com.intsof.percussioncms.auditlog.codes.MailErrorCodes;
 import com.percussion.error.PSIllegalArgumentException;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -70,7 +71,7 @@ public class PSSmtpMailProvider extends PSMailProvider {
 
     m_host = props.getProperty(PROPERTY_HOST);
     if (m_host == null) {
-      throw new PSIllegalArgumentException(IPSMailErrors.HOST_NOT_VALID, "No host name");
+      throw new PSIllegalArgumentException(MailErrorCodes.HOST_NOT_VALID, "No host name");
     }
   }
 
@@ -103,7 +104,7 @@ public class PSSmtpMailProvider extends PSMailProvider {
   public void setProperties(java.util.Properties props) throws PSIllegalArgumentException {
     String host = props.getProperty(PROPERTY_HOST);
     if (host == null) {
-      throw new PSIllegalArgumentException(IPSMailErrors.HOST_NOT_VALID, "No host name");
+      throw new PSIllegalArgumentException(MailErrorCodes.HOST_NOT_VALID, "No host name");
     }
 
     m_host = host;
@@ -161,7 +162,7 @@ public class PSSmtpMailProvider extends PSMailProvider {
   public void send(PSMailMessage msg) throws java.io.IOException, PSMailSendException {
     if (m_host == null) {
       throw new PSMailSendException(
-          IPSMailErrors.HOST_NOT_VALID, "The SMTP host name has not been specified.");
+          MailErrorCodes.HOST_NOT_VALID, "The SMTP host name has not been specified.");
     }
 
     // validate all the inputs:
@@ -169,23 +170,23 @@ public class PSSmtpMailProvider extends PSMailProvider {
     // 1. need at least one recipient (to, cc or bcc)
     String recipients[] = msg.getRecipients();
     if (recipients.length <= 0) {
-      throw new PSMailSendException(IPSMailErrors.MAIL_ADDRESS_EMPTY);
+      throw new PSMailSendException(MailErrorCodes.MAIL_ADDRESS_EMPTY);
     }
 
     // 2. all names (from and recipients) must be of the form user@domain
     for (int i = 0; i < recipients.length; i++) {
       int pos = recipients[i].indexOf("@");
       if ((pos > 0) && (pos < (recipients[i].length()) - 1)) continue;
-      throw new PSMailSendException(IPSMailErrors.MAIL_ADDRESS_INVALID, recipients[i]);
+      throw new PSMailSendException(MailErrorCodes.MAIL_ADDRESS_INVALID, recipients[i]);
     }
 
     Socket smtpConn = null;
     try {
-      smtpConn = new Socket(m_host, 25); // SMTP is on port 25
+      smtpConn = openSmtpSocket();
     } catch (java.net.UnknownHostException e) {
-      throw new PSMailSendException(IPSMailErrors.HOST_NOT_VALID, "Invalid host: " + e.toString());
+      throw new PSMailSendException(MailErrorCodes.HOST_NOT_VALID, "Invalid host: " + e.toString());
     } catch (java.io.IOException e) {
-      throw new PSMailSendException(IPSMailErrors.HOST_NOT_VALID, "Invalid host: " + e.toString());
+      throw new PSMailSendException(MailErrorCodes.HOST_NOT_VALID, "Invalid host: " + e.toString());
     }
 
     BufferedReader in = null;
@@ -197,7 +198,7 @@ public class PSSmtpMailProvider extends PSMailProvider {
               new OutputStreamWriter(smtpConn.getOutputStream(), msg.getCharEncoding()));
     } catch (java.io.IOException e) {
       throw new PSMailSendException(
-          IPSMailErrors.MAIL_SERVER_CONNECTION_ERROR, "Socket failure: " + e.toString());
+          MailErrorCodes.MAIL_SERVER_CONNECTION_ERROR, "Socket failure: " + e.toString());
     }
 
     // the first thing the SMTP server does is send us a 220
@@ -205,7 +206,7 @@ public class PSSmtpMailProvider extends PSMailProvider {
     String smtpResponse = in.readLine();
     if (!smtpResponse.startsWith("220")) {
       throw new PSMailSendException(
-          IPSMailErrors.MAIL_SERVER_UP_EXCEPTION, "Session open failed: " + smtpResponse);
+          MailErrorCodes.MAIL_SERVER_UP_EXCEPTION, "Session open failed: " + smtpResponse);
     }
 
     // initiate the session with the target server
@@ -213,7 +214,8 @@ public class PSSmtpMailProvider extends PSMailProvider {
       String[] fromParts = getNameParts(msg.getFrom()); // need the from domain
       sendLine(out, in, "HELO " + fromParts[1], "250");
     } catch (PSIllegalArgumentException e) {
-      throw new PSMailSendException(e.getErrorCode(), e.getErrorArguments());
+      // getNameParts always throws a typed MailErrorCodes code.
+      throw new PSMailSendException(e.getTypedErrorCode(), e.getErrorArguments());
     }
 
     // tell SMTP it can route it or store it in a local mail box
@@ -244,6 +246,14 @@ public class PSSmtpMailProvider extends PSMailProvider {
     sendLine(out, in, "QUIT", "221");
   }
 
+  /**
+   * Open the SMTP socket (port 25). Package-visible so tests can inject a loopback socket instead
+   * of binding production port 25.
+   */
+  Socket openSmtpSocket() throws java.io.IOException {
+    return new Socket(m_host, 25); // SMTP is on port 25
+  }
+
   /** Send a line of data for which the specified response is expected. */
   private static void sendLine(
       BufferedWriter out, BufferedReader in, String outData, String expectedResponseCode)
@@ -260,9 +270,7 @@ public class PSSmtpMailProvider extends PSMailProvider {
       if ((respLine == null) || (!respLine.startsWith(expectedResponseCode))) {
         // this is an error, deal with it (throw an exception)
         String message = (respLine == null) ? "no response" : respLine;
-        Object[] args = {message};
-        int msgCode = IPSMailErrors.MAIL_SEND_UNEXPECTED_EXCEPTION;
-        throw new PSMailSendException(msgCode, args);
+        throw new PSMailSendException(MailErrorCodes.MAIL_SEND_UNEXPECTED_EXCEPTION, message);
       }
     }
   }
