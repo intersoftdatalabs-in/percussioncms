@@ -24,6 +24,7 @@ import com.percussion.rest.DesignGap;
 import com.percussion.rest.templates.ITemplatesAdaptor;
 import com.percussion.rest.templates.TemplateBindingSummary;
 import com.percussion.rest.templates.TemplateDetail;
+import com.percussion.rest.templates.TemplateExport;
 import com.percussion.rest.templates.TemplateFilter;
 import com.percussion.rest.templates.TemplateSlotSummary;
 import com.percussion.rest.templates.TemplateSummary;
@@ -33,27 +34,42 @@ import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.assembly.data.PSTemplateBinding;
+import com.percussion.services.catalog.IPSCatalogItem;
+import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSCatalogException;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.services.utils.xml.PSXmlSerializationHelper;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.user.data.PSCurrentUser;
+import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.guid.IPSGuid;
+import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorResultsException;
+import com.percussion.webservices.assembly.IPSAssemblyDesignWs;
+import com.percussion.webservices.assembly.PSAssemblyWsLocator;
+import com.percussion.webservices.assembly.data.PSAssemblyTemplateWs;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.xml.sax.SAXException;
 
 /** Adaptor for managing templates in Percussion CMS. */
 @PSSiteManageBean
@@ -72,17 +88,46 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
           DesignGap.of(
               "TPL_CONTENT_TYPE_ASSOC", "Content-type associations not listed on this payload"));
 
+  static final String ADMIN_REQUIRED = "Admin role required to export assembly templates";
+
   private final IPSAssemblyService asmSvc;
   private final IPSContentWs contentwsService;
+  private final IPSAssemblyDesignWs designWs;
+  private final BooleanSupplier adminChecker;
+
+  /**
+   * Injected by Spring in production ({@code required} so a missing bean fails at context load).
+   * Unused when {@link #adminChecker} is overridden in tests.
+   */
+  @Autowired
+  private IPSUserService userService;
 
   public TemplateAdaptor() {
-    this(PSAssemblyServiceLocator.getAssemblyService(), PSContentWsLocator.getContentWebservice());
+    this(
+        PSAssemblyServiceLocator.getAssemblyService(),
+        PSContentWsLocator.getContentWebservice(),
+        PSAssemblyWsLocator.getAssemblyDesignWebservice(),
+        null);
   }
 
   /** Package-visible for unit tests that inject a fake assembly service. */
   TemplateAdaptor(IPSAssemblyService asmSvc, IPSContentWs contentwsService) {
+    this(asmSvc, contentwsService, null, () -> true);
+  }
+
+  /**
+   * Package-visible for export tests that inject assembly design WS and an Admin gate. {@code null}
+   * adminChecker uses {@link #isCurrentUserAdmin()}.
+   */
+  TemplateAdaptor(
+      IPSAssemblyService asmSvc,
+      IPSContentWs contentwsService,
+      IPSAssemblyDesignWs designWs,
+      BooleanSupplier adminChecker) {
     this.asmSvc = asmSvc;
     this.contentwsService = contentwsService;
+    this.designWs = designWs;
+    this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
   }
 
   @Override
@@ -283,6 +328,159 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
           e);
       throw new IllegalStateException("Failed to delete template", e);
     }
+  }
+
+  @Override
+  public TemplateExport exportTemplate(URI baseUri, String idOrName) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    if (designWs == null) {
+      throw new IllegalStateException("assembly design WS is not configured");
+    }
+    try {
+      PSAssemblyTemplateWs loaded = loadTemplateWsReadOnly(idOrName.trim());
+      if (loaded == null || loaded.getTemplate() == null) {
+        return null;
+      }
+      IPSAssemblyTemplate template = loaded.getTemplate();
+      TemplateExport exported = new TemplateExport();
+      exported.setName(template.getName());
+      exported.setXml(toDesignXml(template));
+      return exported;
+    } catch (PSErrorResultsException e) {
+      log.debug("Template export not found {}: {}", idOrName, e.getMessage());
+      return null;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalStateException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to export template {} ({}): {}",
+          idOrName,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new IllegalStateException("Failed to export template", e);
+    }
+  }
+
+  /**
+   * Load one template through {@link IPSAssemblyDesignWs} without locking ({@code lock=false},
+   * {@code overrideLock=false}) so export never steals a Workbench lock.
+   */
+  private PSAssemblyTemplateWs loadTemplateWsReadOnly(String idOrName)
+      throws PSErrorResultsException {
+    String session = currentSession();
+    String user = currentUser();
+    IPSGuid guid = parseTemplateGuid(idOrName);
+    if (guid != null) {
+      List<PSAssemblyTemplateWs> loaded =
+          designWs.loadAssemblyTemplates(List.of(guid), false, false, session, user);
+      if (loaded == null || loaded.isEmpty()) {
+        return null;
+      }
+      return loaded.get(0);
+    }
+    List<IPSCatalogSummary> found =
+        designWs.findAssemblyTemplates(idOrName, null, null, null, null, null, null);
+    if (found == null || found.isEmpty()) {
+      return null;
+    }
+    for (IPSCatalogSummary sum : found) {
+      if (sum == null || sum.getGUID() == null) {
+        continue;
+      }
+      if (idOrName.equalsIgnoreCase(sum.getName()) || idOrName.equalsIgnoreCase(sum.getLabel())) {
+        List<PSAssemblyTemplateWs> loaded =
+            designWs.loadAssemblyTemplates(List.of(sum.getGUID()), false, false, session, user);
+        if (loaded != null && !loaded.isEmpty()) {
+          return loaded.get(0);
+        }
+      }
+    }
+    if (found.size() == 1 && found.get(0) != null && found.get(0).getGUID() != null) {
+      List<PSAssemblyTemplateWs> loaded =
+          designWs.loadAssemblyTemplates(
+              List.of(found.get(0).getGUID()), false, false, session, user);
+      if (loaded != null && !loaded.isEmpty()) {
+        return loaded.get(0);
+      }
+    }
+    return null;
+  }
+
+  static String toDesignXml(IPSAssemblyTemplate template) {
+    if (template == null) {
+      throw new IllegalArgumentException("template is required");
+    }
+    try {
+      if (template instanceof IPSCatalogItem item) {
+        return item.toXML();
+      }
+      return PSXmlSerializationHelper.writeToXml(template);
+    } catch (IOException | SAXException e) {
+      throw new IllegalStateException("Failed to serialize template design XML", e);
+    }
+  }
+
+  private void requireAdmin() {
+    boolean allowed;
+    try {
+      allowed = adminChecker.getAsBoolean();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      log.debug("Admin check failed: {}", e.getMessage());
+      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+    }
+    if (!allowed) {
+      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+    }
+  }
+
+  boolean isCurrentUserAdmin() {
+    if (userService == null) {
+      return false;
+    }
+    try {
+      PSCurrentUser current = userService.getCurrentUser();
+      if (current == null || StringUtils.isBlank(current.getName())) {
+        return false;
+      }
+      return userService.isAdminUser(current.getName());
+    } catch (PSDataServiceException e) {
+      log.debug("Unable to resolve current user for Admin check: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  private static String currentSession() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+  }
+
+  private static String currentUser() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+  }
+
+  private static IPSGuid parseTemplateGuid(String idOrName) {
+    try {
+      if (StringUtils.isNumeric(idOrName)) {
+        return new PSGuid(PSTypeEnum.TEMPLATE, Long.parseLong(idOrName));
+      }
+      if (idOrName.matches("\\d+-\\d+(-\\d+)?")) {
+        PSGuid g = new PSGuid(idOrName);
+        if (g.getType() == 0) {
+          g = new PSGuid(PSTypeEnum.TEMPLATE, g.getUUID());
+        }
+        return g;
+      }
+    } catch (RuntimeException e) {
+      log.debug("Not a template GUID: {}", idOrName);
+    }
+    return null;
   }
 
   /**

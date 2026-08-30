@@ -84,4 +84,16 @@ public interface ITemplatesAdaptor {
    * @throws IllegalArgumentException when {@code idOrName} is blank
    */
   boolean deleteTemplate(URI baseUri, String idOrName);
+
+  /**
+   * Export Workbench-equivalent design XML for one assembly template (AS-08).
+   *
+   * <p>Read-only: loads through {@code IPSAssemblyDesignWs} without acquiring or stealing locks.
+   * Admin only.
+   *
+   * @param baseUri the base URI (reserved for HATEOAS)
+   * @param idOrName template uuid or unique name
+   * @return export payload, or {@code null} if not found
+   */
+  TemplateExport exportTemplate(URI baseUri, String idOrName);
 }

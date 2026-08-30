@@ -236,6 +236,7 @@ Assembly templates used by the [Design SPA](id:admin-design-templates) are expos
 |--------|------|---------|
 | `GET` | `/services/templates` | List template summaries (label, name, id, description) |
 | `GET` | `/services/templates/{idOrName}` | Design detail (source, bindings, slots, assembler, `designGaps`) |
+| `GET` | `/services/templates/{idOrName}/export` | **Admin.** AS-08 export: Workbench-equivalent design XML (no lock steal). Import is not on this path |
 | `PUT` | `/services/templates/{idOrName}` | Update label, description, templateSource, assembler, bindings, and/or slots |
 | `POST` | `/services/templates` | Create a modern assembly template (**when installed**) — no Widget XML |
 | `DELETE` | `/services/templates/{idOrName}` | Delete a modern assembly template — no Widget XML |
@@ -246,6 +247,11 @@ the template is removed and **404** when it is not found. Lock remains unsupport
 (`designGaps` code `TPL_LOCK`).
 Create (`POST /services/templates`) is the Design **Create template** contract when that
 slice is on the server; otherwise create stays on residual classic hosts.
+
+**AS-08 export:** `GET /services/templates/{idOrName}/export` downloads Workbench-equivalent
+design XML (Admin only). Unknown templates are `404`; non-Admin callers are `403`. The
+server does not steal design locks. **Import is not implemented** on this path (later
+AS-08 slice). Details are in the Templates (assembly catalog) section below.
 
 ## Slots (design catalog)
 
@@ -1001,6 +1007,7 @@ Create uses the modern package/manifest model — **no Widget definition XML**.
 | `GET` | `/services/templates` | List template summaries (design catalog) |
 | `POST` | `/services/templates/summaries-by-filter` | Filter summaries (for example by content id) |
 | `GET` | `/services/templates/{idOrName}` | Load design detail (source, bindings, slots, assembler) |
+| `GET` | `/services/templates/{idOrName}/export` | **Admin.** AS-08 export of Workbench-equivalent design XML |
 | `PUT` | `/services/templates/{idOrName}` | Update label, description, source, assembler, bindings, slots |
 | `POST` | `/services/templates` | Create a modern assembly template (`name` required, unique, no spaces) |
 | `DELETE` | `/services/templates/{idOrName}` | Delete a modern assembly template (204; no Widget XML) |
@@ -1025,6 +1032,27 @@ invalid name or a duplicate name.
 `DELETE /services/templates/{idOrName}` removes the template from the assembly catalog
 and returns **204**. It does **not** write Widget definition XML. `404` means the name
 or id was not found. Lock remains out of scope (`designGaps` code `TPL_LOCK`).
+
+### Template design XML export (AS-08)
+
+`GET /services/templates/{idOrName}/export` is the Workbench **export template** equivalent:
+it returns the design-object XML for one assembly template loaded through the existing
+assembly design web service (`IPSAssemblyDesignWs`). The download uses
+`Content-Type: application/xml` and `Content-Disposition: attachment` with a filename
+derived from the **template name** (for example `perc.page.xml`).
+
+| Status | Meaning |
+|--------|---------|
+| `200` | Design XML body |
+| `403` | Caller is not Admin |
+| `404` | Unknown id or name |
+
+The load is **read-only**. The server does **not** acquire or steal a design lock
+(`lock=false`, `overrideLock=false`). **Import** (POST of the same XML) is **not**
+implemented on this path — that remains a later AS-08 slice. There is no Design SPA
+export wizard; operators and integrators call this REST path directly.
+
+See also [Design templates](id:admin-design-templates).
 
 The Design SPA **Create template** action uses POST; **Delete** uses this DELETE. See
 [Design templates](id:admin-design-templates).
