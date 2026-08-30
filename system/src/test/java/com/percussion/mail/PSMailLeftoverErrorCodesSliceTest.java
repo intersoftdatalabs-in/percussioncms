@@ -24,6 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.intsof.percussioncms.auditlog.codes.MailErrorCodes;
 import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSIllegalArgumentException;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -175,6 +181,71 @@ class PSMailLeftoverErrorCodesSliceTest {
     assertSame(MailErrorCodes.MAIL_ADDRESS_INVALID, ex.getTypedErrorCode());
     assertEquals(MailErrorCodes.MAIL_ADDRESS_INVALID.numericCode(), ex.getErrorCode());
     assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  void smtpSendWithInvalidFromThrowsTypedMailSendException() throws Exception {
+    InetAddress loopback = InetAddress.getLoopbackAddress();
+    try (ServerSocket server = new ServerSocket(0, 1, loopback)) {
+      server.setSoTimeout(5000);
+      Thread acceptor =
+          new Thread(
+              () -> {
+                try (Socket accepted = server.accept()) {
+                  accepted
+                      .getOutputStream()
+                      .write("220 test.example.com SMTP\r\n".getBytes(StandardCharsets.US_ASCII));
+                  accepted.getOutputStream().flush();
+                  try {
+                    accepted.getInputStream().read();
+                  } catch (IOException ignored) {
+                    // client closed after send() threw
+                  }
+                } catch (IOException ignored) {
+                  // server closed
+                }
+              },
+              "smtp-220-stub");
+      acceptor.setDaemon(true);
+      acceptor.start();
+
+      Socket client = new Socket();
+      try {
+        client.connect(new InetSocketAddress(loopback, server.getLocalPort()), 2000);
+        client.setSoTimeout(5000);
+
+        Properties props = new Properties();
+        props.setProperty(PSSmtpMailProvider.PROPERTY_HOST, "127.0.0.1");
+        PSSmtpMailProvider provider =
+            new PSSmtpMailProvider(props) {
+              @Override
+              Socket openSmtpSocket() {
+                return client;
+              }
+            };
+
+        PSMailMessage msg =
+            new PSMailMessage() {
+              @Override
+              public String getFrom() {
+                return "user@";
+              }
+            };
+        msg.addSendTo("user@example.com");
+
+        PSMailSendException ex = assertThrows(PSMailSendException.class, () -> provider.send(msg));
+        assertSame(MailErrorCodes.MAIL_ADDRESS_INVALID, ex.getTypedErrorCode());
+        assertEquals(MailErrorCodes.MAIL_ADDRESS_INVALID.numericCode(), ex.getErrorCode());
+        assertFalse(ex.isAuditable());
+      } finally {
+        try {
+          client.close();
+        } catch (IOException ignored) {
+          // already closed
+        }
+        acceptor.join(2000);
+      }
+    }
   }
 
   @Test

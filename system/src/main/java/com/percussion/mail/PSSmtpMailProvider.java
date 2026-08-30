@@ -182,7 +182,7 @@ public class PSSmtpMailProvider extends PSMailProvider {
 
     Socket smtpConn = null;
     try {
-      smtpConn = new Socket(m_host, 25); // SMTP is on port 25
+      smtpConn = openSmtpSocket();
     } catch (java.net.UnknownHostException e) {
       throw new PSMailSendException(MailErrorCodes.HOST_NOT_VALID, "Invalid host: " + e.toString());
     } catch (java.io.IOException e) {
@@ -214,10 +214,8 @@ public class PSSmtpMailProvider extends PSMailProvider {
       String[] fromParts = getNameParts(msg.getFrom()); // need the from domain
       sendLine(out, in, "HELO " + fromParts[1], "250");
     } catch (PSIllegalArgumentException e) {
-      if (e.getTypedErrorCode() != null) {
-        throw new PSMailSendException(e.getTypedErrorCode(), e.getErrorArguments());
-      }
-      throw new PSMailSendException(e.getErrorCode(), e.getErrorArguments());
+      // getNameParts always throws a typed MailErrorCodes code.
+      throw new PSMailSendException(e.getTypedErrorCode(), e.getErrorArguments());
     }
 
     // tell SMTP it can route it or store it in a local mail box
@@ -246,6 +244,14 @@ public class PSSmtpMailProvider extends PSMailProvider {
 
     // we can now close the session (which gets 221 on successful close)
     sendLine(out, in, "QUIT", "221");
+  }
+
+  /**
+   * Open the SMTP socket (port 25). Package-visible so tests can inject a loopback socket instead
+   * of binding production port 25.
+   */
+  Socket openSmtpSocket() throws java.io.IOException {
+    return new Socket(m_host, 25); // SMTP is on port 25
   }
 
   /** Send a line of data for which the specified response is expected. */
