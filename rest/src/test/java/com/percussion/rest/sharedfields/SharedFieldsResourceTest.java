@@ -514,6 +514,27 @@ public class SharedFieldsResourceTest {
   }
 
   @Test
+  public void replaceFieldControlPropertiesBlankPathNameIs400() {
+    SharedFieldControlProperties body = new SharedFieldControlProperties();
+    body.setProperties(List.of(new ContentTypeControlProperty("width", "640")));
+    when(adaptor.replaceFieldControlProperties(any(), eq(" "), eq("rx_note"), any()))
+        .thenThrow(new IllegalArgumentException("name is required"));
+    WebApplicationException blankGroup =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldControlProperties(" ", "rx_note", body));
+    assertEquals(400, blankGroup.getResponse().getStatus());
+
+    when(adaptor.replaceFieldControlProperties(any(), eq("shared"), eq(" "), any()))
+        .thenThrow(new IllegalArgumentException("name is required"));
+    WebApplicationException blankField =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldControlProperties("shared", " ", body));
+    assertEquals(400, blankField.getResponse().getStatus());
+  }
+
+  @Test
   public void replaceFieldControlPropertiesLockConflictIs409() {
     SharedFieldControlProperties body = new SharedFieldControlProperties();
     body.setProperties(List.of());

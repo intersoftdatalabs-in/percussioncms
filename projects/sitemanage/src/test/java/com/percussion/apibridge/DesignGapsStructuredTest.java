@@ -122,4 +122,18 @@ class DesignGapsStructuredTest {
     assertTrue(first.getMessage().contains("read-only"));
     assertEquals("SLOT_ASSOC_GUIDS_ONLY", SlotsAdaptor.SLOT_DESIGN_GAPS.get(1).getCode());
   }
+
+  @Test
+  void sharedFieldControlPropertyDesignGaps_matchGroupRemainingWork() {
+    assertEquals(2, SharedFieldsAdaptor.CONTROL_PROPERTY_DESIGN_GAPS.size());
+    assertEquals("SF_SPA_EDITOR", SharedFieldsAdaptor.CONTROL_PROPERTY_DESIGN_GAPS.get(0).getCode());
+    assertTrue(
+        SharedFieldsAdaptor.CONTROL_PROPERTY_DESIGN_GAPS
+            .get(0)
+            .getMessage()
+            .contains("SPA shared-field editor"));
+    assertEquals(
+        "SF_SYSTEM_DEF_SEPARATE",
+        SharedFieldsAdaptor.CONTROL_PROPERTY_DESIGN_GAPS.get(1).getCode());
+  }
 }

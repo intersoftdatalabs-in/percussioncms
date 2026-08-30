@@ -36,6 +36,7 @@ import com.percussion.design.objectstore.PSTableRef;
 import com.percussion.design.objectstore.PSTableSet;
 import com.percussion.design.objectstore.PSUIDefinition;
 import com.percussion.design.objectstore.PSUISet;
+import com.percussion.rest.DesignGap;
 import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import com.percussion.rest.sharedfields.ISharedFieldsAdaptor;
 import com.percussion.rest.sharedfields.SharedFieldControlProperties;
@@ -90,6 +91,17 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
       List.of(
           "SPA shared-field editor is not provided",
           "System def (global fields) is a separate catalog (Developer System Def)");
+
+  /**
+   * Structured gaps on GET/PUT {@code .../controlProperties} (same remaining work as group
+   * detail).
+   */
+  static final List<DesignGap> CONTROL_PROPERTY_DESIGN_GAPS =
+      List.of(
+          DesignGap.of("SF_SPA_EDITOR", "SPA shared-field editor is not provided"),
+          DesignGap.of(
+              "SF_SYSTEM_DEF_SEPARATE",
+              "System def (global fields) is a separate catalog (Developer System Def)"));
 
   private static final int MAX_FIELD_NAME_LENGTH = 50;
 
@@ -825,7 +837,7 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
     if (ui != null) {
       out.setChoices(ContentTypeAdaptor.toChoiceCatalog(ui.getChoices()));
     }
-    out.setDesignGaps(new ArrayList<>(ContentTypeAdaptor.controlPropertyDesignGaps()));
+    out.setDesignGaps(new ArrayList<>(CONTROL_PROPERTY_DESIGN_GAPS));
     return out;
   }
 

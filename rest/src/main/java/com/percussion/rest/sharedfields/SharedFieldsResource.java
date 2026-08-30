@@ -366,7 +366,8 @@ public class SharedFieldsResource {
                 @Content(schema = @Schema(implementation = SharedFieldControlProperties.class))),
         @ApiResponse(
             responseCode = "400",
-            description = "Missing properties or invalid choice catalog"),
+            description =
+                "Missing properties, invalid choice catalog, or blank group/field path name"),
         @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(responseCode = "404", description = "Group or field not found"),
         @ApiResponse(responseCode = "409", description = "Shared def locked by another user"),

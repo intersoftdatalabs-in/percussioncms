@@ -848,8 +848,8 @@ separate catalog (`PUT /services/systemdef`, `POST /services/systemdef/fields`,
 | `DELETE` | `/services/sharedfields/{idOrName}` | Delete the group (**204**). |
 | `POST` | `/services/sharedfields/{idOrName}/fields` | Add a field to an existing group (`name` required, unique across shared groups). Optional `dataType` defaults to `text`. Optional `searchable` and occurrence / required use the same rules as PUT patches. |
 | `DELETE` | `/services/sharedfields/{idOrName}/fields/{fieldName}` | Remove a field and its display mapping (**204**). |
-| `GET` | `/services/sharedfields/{idOrName}/fields/{fieldName}/controlProperties` | Control parameter **name/value** pairs and the choice catalog for one shared field (CD-15). No lock required. Empty `properties` means none. `choices` omitted when none. |
-| `PUT` | `/services/sharedfields/{idOrName}/fields/{fieldName}/controlProperties` | **Admin** (CD-15). Acquires the shared-definition lock for this request and **releases** it on save. Full replace of `properties` (empty clears). `choices` omitted leaves the catalog unchanged; `type: none` clears. **409** if the shared def is locked by another user. |
+| `GET` | `/services/sharedfields/{idOrName}/fields/{fieldName}/controlProperties` | Control parameter **name/value** pairs and the choice catalog for one shared field (CD-15). No lock required. Empty `properties` means none. `choices` omitted when none. `designGaps` lists remaining shared-field work (SPA editor and system-def catalog) — same notes as group detail, not an empty content-type control-property list. |
+| `PUT` | `/services/sharedfields/{idOrName}/fields/{fieldName}/controlProperties` | **Admin** (CD-15). Acquires the shared-definition lock for this request and **releases** it on save. Full replace of `properties` (empty clears). `choices` omitted leaves the catalog unchanged; `type: none` clears. Blank group or field path name is **400**. **409** if the shared def is locked by another user. |
 
 `{idOrName}` is the shared field group name (for example a product set such as
 `shared`). Path separators and `..` are rejected as not found (**404**), not as a

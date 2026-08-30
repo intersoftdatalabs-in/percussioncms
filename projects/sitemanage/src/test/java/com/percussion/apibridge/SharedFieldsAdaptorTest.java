@@ -836,7 +836,9 @@ class SharedFieldsAdaptorTest {
     assertEquals("200", out.getProperties().get(0).getValue());
     assertEquals("local", out.getChoices().getType());
     assertEquals("open", out.getChoices().getEntries().get(0).getValue());
-    assertTrue(out.getDesignGaps().isEmpty());
+    assertEquals(2, out.getDesignGaps().size());
+    assertEquals("SF_SPA_EDITOR", out.getDesignGaps().get(0).getCode());
+    assertEquals("SF_SYSTEM_DEF_SEPARATE", out.getDesignGaps().get(1).getCode());
   }
 
   @Test
@@ -902,6 +904,13 @@ class SharedFieldsAdaptorTest {
     verify(designWs)
         .saveContentEditorSharedDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
     assertEquals("640", out.getProperties().get(0).getValue());
+    assertTrue(
+        out.getDesignGaps().stream().anyMatch(g -> "SF_SPA_EDITOR".equals(g.getCode())),
+        () -> String.valueOf(out.getDesignGaps()));
+    assertTrue(
+        out.getDesignGaps().stream()
+            .anyMatch(g -> "SF_SYSTEM_DEF_SEPARATE".equals(g.getCode())),
+        () -> String.valueOf(out.getDesignGaps()));
     assertEquals("closed", out.getChoices().getEntries().get(0).getValue());
     PSControlRef control = group.getUIDefinition().getMapping("rx_note").getUISet().getControl();
     PSParam first = (PSParam) control.getParameters().next();
@@ -1018,6 +1027,24 @@ class SharedFieldsAdaptorTest {
             IllegalArgumentException.class,
             () -> adaptor.replaceFieldControlProperties(null, "shared", "rx_note", body));
     assertTrue(ex.getMessage().contains("properties"));
+  }
+
+  @Test
+  void replaceFieldControlProperties_blankGroupOrFieldNameIs400() {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+    SharedFieldControlProperties body = new SharedFieldControlProperties();
+    body.setProperties(List.of(new ContentTypeControlProperty("width", "640")));
+    IllegalArgumentException blankGroup =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.replaceFieldControlProperties(null, "  ", "rx_note", body));
+    assertTrue(blankGroup.getMessage().contains("name is required"));
+    IllegalArgumentException blankField =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.replaceFieldControlProperties(null, "shared", "  ", body));
+    assertTrue(blankField.getMessage().contains("name is required"));
   }
 
   private static PSSharedFieldGroup groupWithControlAndChoices(String groupName, String fieldName) {
