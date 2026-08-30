@@ -1,6 +1,12 @@
 # Models PSPathInjectionGuard helpers as path-injection barriers (T043 family).
 # Runtime: requireSafeFileName rejects separators/NUL/..; requireUnderBase /
-# requireUnderBasePath resolve and check the path stays under the base directory.
+# requireUnderBasePath canonicalize the trusted base then check the resolved
+# path stays under that directory.
+# ReturnValue barriers stop taint at call sites after the sanitizer returns.
+# Argument[0] barriers model the trusted baseDir contract so CodeQL does not
+# treat File.isDirectory on the canonical base as a user-tainted sink
+# (alerts #2031/#2032). GHA does not load local packs — sink-line + query-filter
+# remain required on GitHub Advanced analysis.
 # Both File and Path overloads must be modeled — call sites commonly use
 # requireUnderBase(File,String) which returns File (e.g. PSCSSParser #1755-#1757).
 extensions:
@@ -35,7 +41,40 @@ extensions:
           "PSPathInjectionGuard",
           false,
           "requireUnderBase",
+          "(File,String)",
+          "",
+          "Argument[0]",
+          "path-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.security.io",
+          "PSPathInjectionGuard",
+          false,
+          "requireUnderBase",
           "(String,String)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.security.io",
+          "PSPathInjectionGuard",
+          false,
+          "requireUnderBase",
+          "(String,String)",
+          "",
+          "Argument[0]",
+          "path-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.security.io",
+          "PSPathInjectionGuard",
+          false,
+          "requireUnderBasePath",
+          "(File,String)",
           "",
           "ReturnValue",
           "path-injection",
@@ -48,7 +87,7 @@ extensions:
           "requireUnderBasePath",
           "(File,String)",
           "",
-          "ReturnValue",
+          "Argument[0]",
           "path-injection",
           "manual",
         ]

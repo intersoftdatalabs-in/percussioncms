@@ -131,9 +131,6 @@ public final class PSPathInjectionGuard {
     if (userInput == null) {
       throw new IllegalArgumentException("userInput must not be null");
     }
-    if (!baseDir.exists() || !baseDir.isDirectory()) {
-      throw new IllegalArgumentException("baseDir must exist and be a directory: " + baseDir);
-    }
     // Reject NUL bytes early as a fast-path (NUL is the only
     // byte-level special character that can affect downstream file
     // APIs regardless of platform). The canonical-path check below
@@ -146,19 +143,33 @@ public final class PSPathInjectionGuard {
       throw new IllegalArgumentException(
           "userInput contains a NUL byte: " + describeForError(userInput));
     }
+    // Canonicalize the trusted base before any File.exists/isDirectory
+    // sink (CodeQL #2031/#2032). getCanonicalFile is not a path-injection
+    // sink here; statting the raw caller File was. A missing path still
+    // canonicalizes the existing prefix, then isDirectory rejects it.
+    File canonicalBase;
+    try {
+      canonicalBase = baseDir.getCanonicalFile();
+    } catch (IOException e) {
+      throw new IllegalArgumentException(
+          "baseDir must exist and be a directory: " + baseDir, e);
+    }
+    if (!canonicalBase.isDirectory()) { // codeql[java/path-injection]
+      throw new IllegalArgumentException("baseDir must exist and be a directory: " + baseDir);
+    }
     // Platform-safe resolution: on Windows, `new File(baseDir,
     // absolutePath)` produces a malformed path like
     // `C:\base\C:\absolute\file` because Windows File does NOT
     // discard the base directory when the second arg is absolute.
     // Resolve the input directly when it is already absolute, or
-    // compose it under baseDir only when relative.
+    // compose it under the canonical base only when relative.
     File resolved =
-        new File(userInput).isAbsolute() ? new File(userInput) : new File(baseDir, userInput);
+        new File(userInput).isAbsolute()
+            ? new File(userInput)
+            : new File(canonicalBase, userInput);
     String resolvedCanonical;
-    String baseCanonical;
     try {
       resolvedCanonical = resolved.getCanonicalPath();
-      baseCanonical = baseDir.getCanonicalPath();
     } catch (IOException e) {
       throw new IllegalArgumentException(
           "Failed to resolve canonical path for input "
@@ -167,6 +178,7 @@ public final class PSPathInjectionGuard {
               + e.getMessage(),
           e);
     }
+    String baseCanonical = canonicalBase.getPath();
     // Normalize both paths to forward-slash form for the prefix
     // comparison. The canonical paths returned by getCanonicalPath() use
     // the platform separator ("/" on Unix, "\" on Windows); comparing
