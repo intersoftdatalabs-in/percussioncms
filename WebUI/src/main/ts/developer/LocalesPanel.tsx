@@ -15,38 +15,55 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { listLocales } from "../api/developer/localesApi";
 import type { LocaleSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
-import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
+import { catalogColors, monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { LocaleDetailPanel } from "./LocaleDetailPanel";
 import { DEV_MSG } from "./messages";
 
 /**
- * P0.9 — CMS locale catalog (CD-18 read) including ISBASE + format profile flag.
+ * CD-18 — CMS locale catalog with create / save / delete.
  */
 export function LocalesPanel(): React.ReactElement {
   const [items, setItems] = useState<LocaleSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<string | null>(null);
+  /** null = catalog; "new" = create; otherwise language string or id. */
+  const [selected, setSelected] = useState<string | "new" | null>(null);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
-    let cancelled = false;
-    listLocales()
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const reload = useCallback((opts?: { showLoading?: boolean }) => {
+    if (!mountedRef.current) {
+      return Promise.resolve();
+    }
+    if (opts?.showLoading) {
+      setItems(null);
+    }
+    setError(null);
+    return listLocales()
       .then((list) => {
-        if (!cancelled) setItems(list);
+        if (!mountedRef.current) return;
+        setItems(list);
       })
       .catch((e: unknown) => {
-        if (cancelled) return;
+        if (!mountedRef.current) return;
         setError(panelErrMsg(e, DEV_MSG.LOC_ERROR));
         setItems([]);
       });
-    return () => {
-      cancelled = true;
-    };
   }, []);
+
+  useEffect(() => {
+    void reload({ showLoading: true });
+  }, [reload]);
 
   const sorted = useMemo(() => {
     if (!items) return [];
@@ -57,8 +74,31 @@ export function LocalesPanel(): React.ReactElement {
     );
   }, [items]);
 
+  function handleDeleted(): void {
+    setSelected(null);
+    void reload();
+  }
+
+  if (selected === "new") {
+    return (
+      <LocaleDetailPanel
+        idOrLang={null}
+        onBack={() => setSelected(null)}
+        onSaved={() => void reload()}
+        onDeleted={handleDeleted}
+      />
+    );
+  }
+
   if (selected) {
-    return <LocaleDetailPanel idOrLang={selected} onBack={() => setSelected(null)} />;
+    return (
+      <LocaleDetailPanel
+        idOrLang={selected}
+        onBack={() => setSelected(null)}
+        onSaved={() => void reload()}
+        onDeleted={handleDeleted}
+      />
+    );
   }
 
   if (error)
@@ -71,65 +111,95 @@ export function LocalesPanel(): React.ReactElement {
     return (
       <CatalogStatus testId="developer-loc-loading">{DEV_MSG.LOC_LOADING}</CatalogStatus>
     );
-  if (items.length === 0)
-    return <CatalogStatus testId="developer-loc-empty">{DEV_MSG.LOC_EMPTY}</CatalogStatus>;
 
   return (
     <div data-testid="developer-loc-panel">
-      <CatalogHint>{DEV_MSG.LOC_HINT}</CatalogHint>
-      <SimpleCatalogTable
-        tableTestId="developer-loc-table"
-        rowTestId="developer-loc-row"
-        columns={[
-          DEV_MSG.LOC_COL_LANG,
-          DEV_MSG.LOC_COL_LABEL,
-          DEV_MSG.LOC_COL_STATUS,
-          DEV_MSG.LOC_COL_BASE,
-          DEV_MSG.LOC_COL_FORMAT,
-          DEV_MSG.LOC_COL_DESCRIPTION,
-        ]}
-        rows={sorted.map((loc, index) => {
-          const openKey =
-            loc.languageString || (loc.id != null ? String(loc.id) : "");
-          const interactive = openKey.length > 0;
-          return {
-            key: String(loc.id ?? loc.languageString ?? `loc-${index}`),
-            onClick: interactive ? () => setSelected(openKey) : undefined,
-            cells: [
-              interactive ? (
-                <button
-                  key="open"
-                  type="button"
-                  data-testid="developer-loc-open"
-                  aria-label={`Open ${loc.languageString || openKey}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelected(openKey);
-                  }}
-                  style={{ ...openButtonStyle, fontFamily: "monospace" }}
-                >
-                  {loc.languageString || "—"}
-                </button>
-              ) : (
-                <span key="lang" style={monoCell}>
-                  {loc.languageString || "—"}
-                </span>
-              ),
-              loc.label || "—",
-              loc.status || "—",
-              loc.baseLocale == null
-                ? "—"
-                : loc.baseLocale
-                  ? DEV_MSG.YES
-                  : DEV_MSG.NO,
-              loc.hasFormatProfile ? DEV_MSG.LOC_FORMAT_YES : DEV_MSG.LOC_FORMAT_NO,
-              <span key="d" style={mutedCell}>
-                {loc.description || ""}
-              </span>,
-            ],
-          };
-        })}
-      />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "12px",
+          gap: "12px",
+          flexWrap: "wrap",
+        }}
+      >
+        <CatalogHint>{DEV_MSG.LOC_HINT}</CatalogHint>
+        <button
+          type="button"
+          data-testid="developer-loc-new"
+          onClick={() => setSelected("new")}
+          style={{
+            padding: "8px 14px",
+            background: catalogColors.accent,
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          {DEV_MSG.LOC_NEW}
+        </button>
+      </div>
+
+      {items.length === 0 ? (
+        <CatalogStatus testId="developer-loc-empty">{DEV_MSG.LOC_EMPTY}</CatalogStatus>
+      ) : (
+        <SimpleCatalogTable
+          tableTestId="developer-loc-table"
+          rowTestId="developer-loc-row"
+          columns={[
+            DEV_MSG.LOC_COL_LANG,
+            DEV_MSG.LOC_COL_LABEL,
+            DEV_MSG.LOC_COL_STATUS,
+            DEV_MSG.LOC_COL_BASE,
+            DEV_MSG.LOC_COL_FORMAT,
+            DEV_MSG.LOC_COL_DESCRIPTION,
+          ]}
+          rows={sorted.map((loc, index) => {
+            const openKey =
+              loc.languageString || (loc.id != null ? String(loc.id) : "");
+            const interactive = openKey.length > 0;
+            return {
+              key: String(loc.id ?? loc.languageString ?? `loc-${index}`),
+              onClick: interactive ? () => setSelected(openKey) : undefined,
+              cells: [
+                interactive ? (
+                  <button
+                    key="open"
+                    type="button"
+                    data-testid="developer-loc-open"
+                    data-loc-lang={loc.languageString || openKey}
+                    aria-label={`Open ${loc.languageString || openKey}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelected(openKey);
+                    }}
+                    style={{ ...openButtonStyle, fontFamily: "monospace" }}
+                  >
+                    {loc.languageString || "—"}
+                  </button>
+                ) : (
+                  <span key="lang" style={monoCell}>
+                    {loc.languageString || "—"}
+                  </span>
+                ),
+                loc.label || "—",
+                loc.status || "—",
+                loc.baseLocale == null
+                  ? "—"
+                  : loc.baseLocale
+                    ? DEV_MSG.YES
+                    : DEV_MSG.NO,
+                loc.hasFormatProfile ? DEV_MSG.LOC_FORMAT_YES : DEV_MSG.LOC_FORMAT_NO,
+                <span key="d" style={mutedCell}>
+                  {loc.description || ""}
+                </span>,
+              ],
+            };
+          })}
+        />
+      )}
     </div>
   );
 }

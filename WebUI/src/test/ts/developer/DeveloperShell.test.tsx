@@ -418,27 +418,36 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   }),
 }));
 
-vi.mock("../../../main/ts/api/developer/localesApi", () => ({
-  listLocales: vi.fn().mockResolvedValue([
-    {
-      id: 1,
+vi.mock("../../../main/ts/api/developer/localesApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/localesApi")
+  >();
+  return {
+    ...actual,
+    listLocales: vi.fn().mockResolvedValue([
+      {
+        id: 1,
+        languageString: "en-us",
+        label: "English",
+        status: "active",
+        baseLocale: false,
+        hasFormatProfile: true,
+      },
+    ]),
+    getLocaleDetail: vi.fn().mockResolvedValue({
       languageString: "en-us",
       label: "English",
       status: "active",
       baseLocale: false,
       hasFormatProfile: true,
-    },
-  ]),
-  getLocaleDetail: vi.fn().mockResolvedValue({
-    languageString: "en-us",
-    label: "English",
-    status: "active",
-    baseLocale: false,
-    hasFormatProfile: true,
-    format: { languageString: "en-us", textDir: "ltr" },
-    designGaps: [],
-  }),
-}));
+      format: { languageString: "en-us", textDir: "ltr" },
+      designGaps: [],
+    }),
+    createLocale: vi.fn(),
+    updateLocale: vi.fn(),
+    deleteLocale: vi.fn(),
+  };
+});
 
 vi.mock("../../../main/ts/api/developer/sharedFieldsApi", () => ({
   listSharedFieldGroups: vi.fn().mockResolvedValue([

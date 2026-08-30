@@ -93,6 +93,13 @@ const DEVELOPER_SMOKE_SET = [
     status: "green",
   },
   {
+    id: "locale-editor",
+    file: "developer-locale-editor.spec.js",
+    title: "Admin can create, save, and delete a locale",
+    status: "green",
+    notes: "CD-18 SPA locale editor (#4005 / parent #1690)",
+  },
+  {
     id: "catalog-slots",
     file: "developer-catalog-smoke.spec.js",
     title: "slots: catalog loads without API error",

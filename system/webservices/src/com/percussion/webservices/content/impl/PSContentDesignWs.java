@@ -101,6 +101,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -351,8 +352,8 @@ public class PSContentDesignWs extends PSContentBaseWs implements
          if (StringUtils.isBlank(name))
             throw new IllegalArgumentException("label may not be null or empty");
 
-         // check for existing
-         boolean existing = (mgr.findLocaleByLanguageString(lang) != null);
+         boolean existing =
+             localeLanguageAlreadyExists(mgr.findLocaleByLanguageString(lang));
          if (existing)
          {
             var code = WebserviceErrorCodes.OBJECT_ALREADY_EXISTS;
@@ -1796,6 +1797,17 @@ public class PSContentDesignWs extends PSContentBaseWs implements
     */
    static boolean contentTypeSaveAppEnabled(PSItemDefinition def) {
       return def != null && def.isEnabled();
+   }
+
+   /**
+    * True when a CMS locale already exists for the language string.
+    *
+    * <p>{@link Optional} is never a Java {@code null} reference.
+    * {@code found != null} treated {@link Optional#empty()} as "exists" and
+    * made every locale create return HTTP 409 (#4005 / CD-18).
+    */
+   static boolean localeLanguageAlreadyExists(Optional<PSLocale> found) {
+      return found != null && found.isPresent();
    }
 
    // @see IPSContentDesignWs#saveKeywords(List, boolean, String, String)
