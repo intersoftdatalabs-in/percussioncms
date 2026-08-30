@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { listLocales } from "../api/developer/localesApi";
 import type { LocaleSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
@@ -32,15 +32,30 @@ export function LocalesPanel(): React.ReactElement {
   const [error, setError] = useState<string | null>(null);
   /** null = catalog; "new" = create; otherwise language string or id. */
   const [selected, setSelected] = useState<string | "new" | null>(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const reload = useCallback((opts?: { showLoading?: boolean }) => {
+    if (!mountedRef.current) {
+      return Promise.resolve();
+    }
     if (opts?.showLoading) {
       setItems(null);
     }
     setError(null);
     return listLocales()
-      .then((list) => setItems(list))
+      .then((list) => {
+        if (!mountedRef.current) return;
+        setItems(list);
+      })
       .catch((e: unknown) => {
+        if (!mountedRef.current) return;
         setError(panelErrMsg(e, DEV_MSG.LOC_ERROR));
         setItems([]);
       });

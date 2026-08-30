@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
 import { getLocaleDetail, listLocales } from "../../../main/ts/api/developer/localesApi";
@@ -174,5 +174,38 @@ describe("LocalesPanel", () => {
       expect(screen.getByTestId("developer-loc-error")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-loc-error").textContent).toBe(DEV_MSG.LOC_ERROR);
+  });
+
+  it("does not apply catalog results after unmount", async () => {
+    let resolveList!: (v: Awaited<ReturnType<typeof listLocales>>) => void;
+    const pending = new Promise<Awaited<ReturnType<typeof listLocales>>>((resolve) => {
+      resolveList = resolve;
+    });
+    listMock.mockReturnValue(pending);
+    const { unmount } = render(<LocalesPanel />);
+    expect(screen.getByTestId("developer-loc-loading")).toBeTruthy();
+    unmount();
+    await act(async () => {
+      resolveList([]);
+      await pending;
+    });
+    expect(screen.queryByTestId("developer-loc-empty")).toBeNull();
+    expect(screen.queryByTestId("developer-loc-table")).toBeNull();
+  });
+
+  it("does not apply catalog errors after unmount", async () => {
+    let rejectList!: (e: unknown) => void;
+    const pending = new Promise<Awaited<ReturnType<typeof listLocales>>>((_, reject) => {
+      rejectList = reject;
+    });
+    listMock.mockReturnValue(pending);
+    const { unmount } = render(<LocalesPanel />);
+    expect(screen.getByTestId("developer-loc-loading")).toBeTruthy();
+    unmount();
+    await act(async () => {
+      rejectList(new Error("late"));
+      await pending.catch(() => undefined);
+    });
+    expect(screen.queryByTestId("developer-loc-error")).toBeNull();
   });
 });
