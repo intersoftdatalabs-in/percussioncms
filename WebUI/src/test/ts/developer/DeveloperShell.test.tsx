@@ -569,16 +569,25 @@ vi.mock("../../../main/ts/api/developer/actionMenusApi", () => ({
   }),
 }));
 
-vi.mock("../../../main/ts/api/developer/searchesApi", () => ({
-  listSearches: vi.fn().mockResolvedValue([
-    { name: "All Content", label: "All Content", standardSearch: true, fields: [] },
-  ]),
-  getSearchDetail: vi.fn().mockResolvedValue({
-    name: "All Content",
-    fields: [],
-    designGaps: [],
-  }),
-}));
+vi.mock("../../../main/ts/api/developer/searchesApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/searchesApi")
+  >();
+  return {
+    ...actual,
+    listSearches: vi.fn().mockResolvedValue([
+      { name: "All Content", label: "All Content", standardSearch: true, fields: [] },
+    ]),
+    getSearchDetail: vi.fn().mockResolvedValue({
+      name: "All Content",
+      fields: [],
+      designGaps: [],
+    }),
+    createSearch: vi.fn(),
+    saveSearch: vi.fn(),
+    deleteSearch: vi.fn(),
+  };
+});
 
 vi.mock("../../../main/ts/api/developer/viewsApi", () => ({
   listViews: vi.fn().mockResolvedValue([

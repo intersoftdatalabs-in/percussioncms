@@ -1570,8 +1570,10 @@ on the Content Type / Template / Slot detail paths described above.
 CX design **searches** (and optionally **views** on GET/execute) are exposed under
 `/services/searches`. Admin **write** (UI-06) persists through `IPSUiDesignWs`
 (`createSearches` / `loadSearches` / `saveSearches` / `deleteSearches`) — the same design
-web service SOAP uses. There is no new SOAP surface. **Do not** treat this as a Developer
-Searches SPA; chrome for create/save/delete is a later sibling.
+web service SOAP uses. There is no new SOAP surface. **Developer → Searches** chrome
+creates and deletes searches (and saves label / description / type / display format);
+field-criterion editing is not in that SPA — see
+[Developer Searches](id:admin-developer-searches).
 
 | Method | Path | Purpose |
 |--------|------|---------|

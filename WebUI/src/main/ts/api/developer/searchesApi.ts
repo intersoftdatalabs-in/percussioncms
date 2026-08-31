@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { get, post } from "../client";
+import { del, get, post, put } from "../client";
 import { PATHS } from "../paths";
 import { toRepositorySearchFolderPath } from "../../contentExplorer/folderPath";
 import type {
@@ -23,6 +23,24 @@ import type {
   SearchExecuteResult,
   SearchResultItem,
 } from "./types";
+
+/**
+ * Writable identity fields for POST/PUT /services/searches. Name is the catalog
+ * key (not renamed on PUT). Field criteria are not written from this chrome.
+ */
+export type SearchWriteBody = Pick<
+  SearchDef,
+  "name" | "label" | "description" | "type" | "displayFormatId"
+>;
+
+/** Jackson / JAXB root for SearchDef (UNWRAP_ROOT_VALUE on POST/PUT). */
+export const SEARCH_DEF_ROOT = "SearchDef";
+
+/** REST default type on create ({@code PSSearch.TYPE_STANDARDSEARCH}). */
+export const SEARCH_TYPE_STANDARD = "StandardSearch";
+
+/** {@code PSSearch.INTERNALNAME_LENGTH} — create name max. */
+export const SEARCH_NAME_MAX = 128;
 
 /**
  * Jackson / JAXB root for {@link SearchExecuteRequest}
@@ -77,9 +95,11 @@ export function wrapSearchExecuteRequest(
 /**
  * Catalog-level design gaps (REST-GAPS-02). Server omits these on list rows;
  * detail re-attaches or SPA falls back via this constant.
+ *
+ * <p>Create / save / delete are supported (UI-06 SPA). Field-criterion write
+ * and Views remain later slices.</p>
  */
 export const SEARCH_DESIGN_GAPS: string[] = [
-  "Search create / update / delete not supported via this API",
   "Search field criterion editing not supported via this API",
   "Views are a separate catalog (Developer Views / UI-07)",
 ];
@@ -155,11 +175,72 @@ function asArray<T>(payload: unknown): T[] {
   return unwrapSearchDefList(payload) as T[];
 }
 
+function containsWhitespace(value: string): boolean {
+  return /\s/.test(value);
+}
+
+/** True when the name is a safe REST search key (no path chars). */
+export function isSafeSearchName(name: string): boolean {
+  if (!name) return false;
+  return !name.includes("..") && !name.includes("/") && !name.includes("\\") && !name.includes("\0");
+}
+
+/** Trim a search name for write. Empty / null becomes "". */
+export function normalizeSearchName(name: string | undefined | null): string {
+  return name == null ? "" : name.trim();
+}
+
+/**
+ * True when the (trimmed) name is accepted by REST create
+ * ({@code SearchAdaptor.requireValidName}): no whitespace, wildcards, or path
+ * characters; max {@link SEARCH_NAME_MAX}.
+ */
+export function isValidSearchName(name: string | undefined | null): boolean {
+  const key = normalizeSearchName(name);
+  if (!key) return false;
+  if (containsWhitespace(key)) return false;
+  if (key.includes("*") || key.includes("%")) return false;
+  if (key.length > SEARCH_NAME_MAX) return false;
+  return isSafeSearchName(key);
+}
+
+/** Save is enabled when the search name is valid (create) or already loaded (edit). */
+export function isSearchWriteReady(opts: { isNew: boolean; name: string }): boolean {
+  if (opts.isNew) return isValidSearchName(opts.name);
+  return Boolean(normalizeSearchName(opts.name));
+}
+
+/** Wire JSON for POST/PUT — a flat body fails JAXB root unwrap. */
+export function wrapSearchDefForWire(body: SearchWriteBody): Record<string, SearchWriteBody> {
+  return { [SEARCH_DEF_ROOT]: body };
+}
+
+/** Unwrap GET/POST/PUT payload that may be wrapped as { SearchDef: {...} }. */
+export function unwrapSearchDef(payload: unknown): SearchDef {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    return {};
+  }
+  const obj = payload as Record<string, unknown>;
+  const raw = obj.SearchDef ?? obj.searchDef;
+  if (raw != null && typeof raw === "object" && !Array.isArray(raw)) {
+    return raw as SearchDef;
+  }
+  return obj as SearchDef;
+}
+
+const STALE_WRITE_GAP = /create\s*\/\s*update\s*\/\s*delete/i;
+
+/** Drop the pre-UI-06 write gap when REST still attaches it on GET detail. */
+export function withoutStaleSearchWriteGap(gaps: string[] | undefined | null): string[] {
+  const incoming = gaps && gaps.length > 0 ? gaps : [...SEARCH_DESIGN_GAPS];
+  const filtered = incoming.filter((g) => !STALE_WRITE_GAP.test(g));
+  return filtered.length > 0 ? filtered : [...SEARCH_DESIGN_GAPS];
+}
+
 function withGaps(s: SearchDef): SearchDef {
   return {
     ...s,
-    designGaps:
-      s.designGaps && s.designGaps.length > 0 ? s.designGaps : [...SEARCH_DESIGN_GAPS],
+    designGaps: withoutStaleSearchWriteGap(s.designGaps),
   };
 }
 
@@ -223,8 +304,28 @@ export function listExplorerSavedSearches(): Promise<SearchDef[]> {
 /** GET /services/searches/{idOrName} */
 export async function getSearchDetail(idOrName: string): Promise<SearchDef> {
   const key = encodeURIComponent(idOrName);
-  const detail = await get<SearchDef>(`${PATHS.SEARCHES}/${key}`);
-  return withGaps(detail);
+  const payload = await get<unknown>(`${PATHS.SEARCHES}/${key}`);
+  return withGaps(unwrapSearchDef(payload));
+}
+
+/** POST /services/searches — Admin. Name required. Duplicate is 409. Invalid is 400. */
+export async function createSearch(body: SearchWriteBody): Promise<SearchDef> {
+  const payload = await post<unknown>(PATHS.SEARCHES, wrapSearchDefForWire(body));
+  return withGaps(unwrapSearchDef(payload));
+}
+
+/** PUT /services/searches/{idOrName} — Admin. Name is not renamed. Missing is 404. */
+export async function saveSearch(idOrName: string, body: SearchWriteBody): Promise<SearchDef> {
+  const payload = await put<unknown>(
+    `${PATHS.SEARCHES}/${encodeURIComponent(idOrName)}`,
+    wrapSearchDefForWire(body),
+  );
+  return withGaps(unwrapSearchDef(payload));
+}
+
+/** DELETE /services/searches/{idOrName} — Admin. 204 on success; missing is 404. */
+export async function deleteSearch(idOrName: string): Promise<void> {
+  await del(`${PATHS.SEARCHES}/${encodeURIComponent(idOrName)}`);
 }
 
 /**

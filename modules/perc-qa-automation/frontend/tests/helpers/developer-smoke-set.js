@@ -153,6 +153,19 @@ const DEVELOPER_SMOKE_SET = [
     notes: "AS-07 SPA item filter write (#4060 / parent #1690)",
   },
   {
+    id: "catalog-searches",
+    file: "developer-catalog-smoke.spec.js",
+    title: "searches: catalog loads without API error",
+    status: "green",
+  },
+  {
+    id: "search-editor",
+    file: "developer-search-editor.spec.js",
+    title: "Admin can create and delete a standard search",
+    status: "green",
+    notes: "UI-06 SPA search create/delete (#4076 / parent #1690)",
+  },
+  {
     id: "catalog-system-def",
     file: "developer-catalog-smoke.spec.js",
     title: "system-def: catalog loads without API error",
