@@ -142,8 +142,10 @@ public class AutoTranslationsAdaptor implements IAutoTranslationsAdaptor {
     String session = currentSession();
     String user = currentUser();
     try {
+      // overrideLock=true steals leftover same-user dummy-GUID locks (H2 QA
+      // crashed PUT). Other users still fail createLock with 409.
       List<PSAutoTranslation> current =
-          designWs.loadTranslationSettings(true, false, session, user);
+          designWs.loadTranslationSettings(true, true, session, user);
       copyVersions(toSave, current);
       designWs.saveTranslationSettings(toSave, true, session, user);
       List<PSAutoTranslation> reloaded =
@@ -231,15 +233,15 @@ public class AutoTranslationsAdaptor implements IAutoTranslationsAdaptor {
     }
     Map<PSAutoTranslationPK, Integer> versions = new HashMap<>();
     for (PSAutoTranslation at : current) {
-      if (at != null) {
-        versions.put(at.getKey(), at.getVersion());
+      if (at != null && StringUtils.isNotBlank(at.getLocale())) {
+        versions.put(at.getPersistentKey(), at.getVersion());
       }
     }
     for (PSAutoTranslation at : incoming) {
-      if (at == null) {
+      if (at == null || StringUtils.isBlank(at.getLocale())) {
         continue;
       }
-      Integer version = versions.get(at.getKey());
+      Integer version = versions.get(at.getPersistentKey());
       if (version != null) {
         at.setVersion(version);
       }
@@ -300,10 +302,20 @@ public class AutoTranslationsAdaptor implements IAutoTranslationsAdaptor {
   }
 
   static long catalogLongId(IPSCatalogSummary sum) {
+    return catalogPersistentId(sum);
+  }
+
+  /**
+   * Persist UUID (legacy {@code PSX_AUTOTRANSLATION.CONTENTTYPEID} / workflow /
+   * community columns) rather than the typed 64-bit GUID.
+   */
+  static long catalogPersistentId(IPSCatalogSummary sum) {
     if (sum == null || sum.getGUID() == null) {
       throw new IllegalArgumentException("catalog entry is missing a guid");
     }
-    return sum.getGUID().longValue();
+    IPSGuid guid = sum.getGUID();
+    int uuid = guid.getUUID();
+    return uuid > 0 ? uuid : guid.longValue();
   }
 
   static String nameForId(List<IPSCatalogSummary> catalog, long id) {

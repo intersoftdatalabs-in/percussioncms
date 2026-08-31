@@ -1120,12 +1120,29 @@ public class PSContentDesignWs extends PSContentBaseWs implements
          IPSGuid id = PSAutoTranslation.getAutoTranslationsGUID();
          try
          {
-            lockService.createLock(id, session, user, null, overrideLock);
+            try
+            {
+               lockService.createLock(id, session, user, null, overrideLock);
+            }
+            catch (PSLockException e)
+            {
+               // Leftover PSX_LOCKS from the same user (crashed PUT / new
+               // session) — steal. Other users still 409.
+               if (!overrideLock && user.equals(e.getLocker()))
+               {
+                  lockService.createLock(id, session, user, null, true);
+               }
+               else
+               {
+                  throw e;
+               }
+            }
          }
          catch (PSLockException e)
          {
             throw new PSLockErrorException(e.getErrorCode(), e.getMessage(),
-               ExceptionUtils.getFullStackTrace(e));
+               ExceptionUtils.getFullStackTrace(e), e.getLocker(),
+               e.getRemainingTime());
          }
       }
 
@@ -2026,39 +2043,44 @@ public class PSContentDesignWs extends PSContentBaseWs implements
          lock = lockService.findLockByObjectId(id, session, user);
          if (lock != null)
          {
-            // load the current set
+            // load the current set (dummy AUTO_TRANSLATIONS GUID = all rows)
             List<PSAutoTranslation> curList = service.loadAutoTranslations(PSAutoTranslation.getAutoTranslationsGUID());
             Map<PSAutoTranslationPK, PSAutoTranslation> curMap = new HashMap<>();
             for (PSAutoTranslation at : curList)
             {
-               curMap.put(at.getKey(), at);
+               curMap.put(at.getPersistentKey(), at);
             }
 
-            // process adds, edits, and deletes
+            // process adds, edits, and deletes. Match UUID vs typed long so
+            // locale/ar + content type 1033 is an update, not a unique-PK insert.
             Map<PSAutoTranslationPK, PSAutoTranslation> newMap = new HashMap<>();
             for (PSAutoTranslation at : autoTranslations)
             {
-               PSAutoTranslation cur = curMap.get(at.getKey());
+               PSAutoTranslationPK key = at.getPersistentKey();
+               PSAutoTranslation cur = curMap.get(key);
                if (cur != null)
                {
-                  // save
                   cur.setCommunityId(at.getCommunityId());
                   cur.setWorkflowId(at.getWorkflowId());
                   cur.setWorkflowName(at.getWorkflowName());
-                  cur.setVersion(at.getVersion());
-                  newMap.put(at.getKey(), cur);
+                  // Hibernate @Version on the managed row; do not copy incoming
+                  newMap.put(key, cur);
                   service.saveAutoTranslation(cur);
-               }else{
+               }
+               else
+               {
+                  at.setVersion(null);
+                  newMap.put(key, at);
                   service.saveAutoTranslation(at);
                }
-
             }
 
             for (PSAutoTranslation at : curList)
             {
-               if (!newMap.containsKey(at.getKey()))
+               PSAutoTranslationPK key = at.getPersistentKey();
+               if (!newMap.containsKey(key))
                {
-                  service.deleteAutoTranslation(PSGuidUtils.makeGuid(at.getContentTypeId(), com.percussion.services.catalog.PSTypeEnum.AUTO_TRANSLATIONS));
+                  service.deleteAutoTranslation(at.getContentTypeId(), at.getLocale());
                }
             }
 
@@ -2096,7 +2118,8 @@ public class PSContentDesignWs extends PSContentBaseWs implements
       catch (PSLockException e)
       {
          throw new PSLockErrorException(e.getErrorCode(), e.getMessage(),
-            ExceptionUtils.getFullStackTrace(e));
+            ExceptionUtils.getFullStackTrace(e), e.getLocker(),
+            e.getRemainingTime());
       }
 
       if (release)

@@ -107,6 +107,27 @@ public class LocalesResourceTest {
   }
 
   @Test
+  public void localeIdPathDoesNotCaptureAutoTranslations() {
+    assertTrue(LocalesResource.ID_OR_LANG.contains("?!auto-translations"));
+  }
+
+  @Test
+  public void autoTranslationsDelegateRequiresResource() {
+    LocalesResource bare = newLocalesResourceWithoutAdaptor();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, bare::requireAutoTranslations);
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void autoTranslationsDelegateReturnsResource() {
+    AutoTranslationsResource nested =
+        new AutoTranslationsResource(mock(IAutoTranslationsAdaptor.class));
+    resource.autoTranslationsResource = nested;
+    assertSame(nested, resource.requireAutoTranslations());
+  }
+
+  @Test
   public void missingAdaptorReturnsServiceUnavailableOnList() {
     LocalesResource bare = newLocalesResourceWithoutAdaptor();
     WebApplicationException ex =

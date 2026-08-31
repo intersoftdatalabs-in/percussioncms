@@ -117,8 +117,8 @@ design lock released on save).
 | `POST` | `/services/locales` | **Admin.** Create a locale (`languageString` and `label` required; optional description, status, `baseLocale`) |
 | `PUT` | `/services/locales/{idOrLang}` | **Admin.** Update label / description / status / `baseLocale`. `languageString` is immutable |
 | `DELETE` | `/services/locales/{idOrLang}` | **Admin.** Delete a locale (`204` on success) |
-| `GET` | `/services/locales/auto-translations` | **Admin.** Load the singleton auto-translation set (locale × content type, plus workflow and community) |
-| `PUT` | `/services/locales/auto-translations` | **Admin.** Replace the auto-translation set. Empty list (`[]`) clears all rows |
+| `GET` | `/services/locales/auto-translations` | **Admin.** Load the singleton auto-translation set (locale × content type, plus workflow and community). Returns every existing `PSX_AUTOTRANSLATION` row (not an empty list when rows exist). |
+| `PUT` | `/services/locales/auto-translations` | **Admin.** Replace the auto-translation set. Empty list (`[]`) **clears** all rows. Same-user leftover design locks are stolen so a retry after a failed save can succeed; another user's lock is **409** (not **500**). |
 
 ### Request / response shape
 

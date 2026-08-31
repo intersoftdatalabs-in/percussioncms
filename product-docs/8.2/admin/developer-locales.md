@@ -34,12 +34,20 @@ This is **not** the Workbench auto-translation set editor. Format-profile
    Delete of a missing locale is **404**. A locale with remaining dependents
    is **409**.
 
+The singleton **auto-translation** set (locale × content-type rows) is Admin
+**GET/PUT** `/services/locales/auto-translations`. **GET** returns every
+existing `PSX_AUTOTRANSLATION` row (not an empty list when rows exist).
+**PUT** replaces the full set; empty `[]` **clears** all rows. A design lock
+held by **another** user is **409** (not **500**). A leftover lock from the
+same Admin after a failed save is taken over so a retry can succeed.
+
 ## Limits
 
 - Language string is immutable after create (REST `PUT` rejects a change).
 - Format-profile create/edit is not in this chrome (read of the exact row
   only).
-- Auto-translation configuration is a separate surface and is not edited here.
+- Auto-translation configuration is the GET/PUT `/services/locales/auto-translations`
+  surface (not per-row PATCH). Empty list clears.
 
 ## REST
 
@@ -52,5 +60,7 @@ The chrome calls:
 | Create | `POST /services/locales` (`languageString` and `label` required) |
 | Save | `PUT /services/locales/{idOrLang}` (language immutable) |
 | Delete | `DELETE /services/locales/{idOrLang}` (`204` on success) |
+| Auto-translation list | `GET /services/locales/auto-translations` |
+| Auto-translation replace | `PUT /services/locales/auto-translations` (empty `[]` clears) |
 
 Integrator notes: [REST API — Locales](id:developer-rest).

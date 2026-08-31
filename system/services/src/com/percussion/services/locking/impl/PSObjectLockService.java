@@ -78,7 +78,12 @@ public class PSObjectLockService
       }
       catch (PSLockException e)
       {
-         throw e.getErrors().values().iterator().next();
+         Map<IPSGuid, PSLockException> errors = e.getErrors();
+         if (errors != null && !errors.isEmpty())
+         {
+            throw errors.values().iterator().next();
+         }
+         throw e;
       }
    }
 
