@@ -90,6 +90,8 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     }),
     lockContentType: vi.fn(),
     unlockContentType: vi.fn(),
+    createContentType: vi.fn(),
+    deleteContentType: vi.fn(),
     getContentTypeItemExits: vi.fn().mockResolvedValue({
       inputTranslations: [],
       outputTranslations: [],

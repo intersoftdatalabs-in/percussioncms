@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
   asContentTypeText,
@@ -23,9 +23,10 @@ import {
   listContentTypes,
   unwrapContentTypeList,
 } from "../api/developer/contentTypesApi";
-import type { ContentTypeSummary } from "../api/developer/types";
+import type { ContentTypeDetail, ContentTypeSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
-import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
+import { catalogColors, monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
+import { ContentTypeCreatePanel } from "./ContentTypeCreatePanel";
 import { ContentTypeDetailPanel } from "./ContentTypeDetailPanel";
 import { DeveloperSectionErrorBoundary } from "./DeveloperSectionErrorBoundary";
 import { panelErrMsg } from "./errors";
@@ -63,34 +64,46 @@ type SelectedContentType = {
 };
 
 /**
- * P0.1 list + P0.2 read-only field catalog detail.
+ * P0.1 list + P0.2 detail + CD-01 catalog create / lock-held delete.
  */
 export function ContentTypesPanel(): React.ReactElement {
   const [items, setItems] = useState<ContentTypeSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<SelectedContentType | null>(null);
+  const [selected, setSelected] = useState<SelectedContentType | "new" | null>(null);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
-    let cancelled = false;
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const reload = useCallback((opts?: { showLoading?: boolean }) => {
+    if (!mountedRef.current) {
+      return Promise.resolve();
+    }
+    if (opts?.showLoading) {
+      setItems(null);
+    }
     setError(null);
-    setItems(null);
-    listContentTypes()
+    return listContentTypes()
       .then((list) => {
-        if (!cancelled) {
-          setItems(asContentTypeCatalog(list));
-        }
+        if (!mountedRef.current) return;
+        setItems(asContentTypeCatalog(list));
       })
       .catch((err: unknown) => {
-        if (cancelled) return;
+        if (!mountedRef.current) return;
         // Session redirect navigates away; still leave an error so UI does not hang
         // if navigation is delayed or blocked.
         setError(panelErrMsg(err, DEV_MSG.CT_ERROR));
         setItems([]);
       });
-    return () => {
-      cancelled = true;
-    };
   }, []);
+
+  useEffect(() => {
+    void reload({ showLoading: true });
+  }, [reload]);
 
   function openContentType(ct: ContentTypeSummary) {
     const idOrName = selectionKey(ct);
@@ -99,6 +112,33 @@ export function ContentTypesPanel(): React.ReactElement {
       idOrName,
       catalogGuid: resolveContentTypeObjectGuid(ct),
     });
+  }
+
+  function handleDeleted(): void {
+    setSelected(null);
+    void reload();
+  }
+
+  function handleCreated(detail: ContentTypeDetail): void {
+    const idOrName = asContentTypeText(detail.name);
+    void reload();
+    if (idOrName) {
+      setSelected({
+        idOrName,
+        catalogGuid: resolveContentTypeObjectGuid(detail),
+      });
+    } else {
+      setSelected(null);
+    }
+  }
+
+  if (selected === "new") {
+    return (
+      <ContentTypeCreatePanel
+        onBack={() => setSelected(null)}
+        onCreated={handleCreated}
+      />
+    );
   }
 
   if (selected) {
@@ -111,6 +151,7 @@ export function ContentTypesPanel(): React.ReactElement {
           idOrName={selected.idOrName}
           catalogGuid={selected.catalogGuid}
           onBack={() => setSelected(null)}
+          onDeleted={handleDeleted}
         />
       </DeveloperSectionErrorBoundary>
     );
@@ -128,10 +169,6 @@ export function ContentTypesPanel(): React.ReactElement {
     return <CatalogStatus testId="developer-ct-loading">{DEV_MSG.CT_LOADING}</CatalogStatus>;
   }
 
-  if (items.length === 0) {
-    return <CatalogStatus testId="developer-ct-empty">{DEV_MSG.CT_EMPTY}</CatalogStatus>;
-  }
-
   const sorted = [...items].sort((a, b) =>
     catalogSortKey(a).localeCompare(catalogSortKey(b), undefined, {
       sensitivity: "base",
@@ -140,7 +177,36 @@ export function ContentTypesPanel(): React.ReactElement {
 
   return (
     <div data-testid="developer-ct-panel">
-      <CatalogHint>{DEV_MSG.CT_HINT}</CatalogHint>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "12px",
+          gap: "12px",
+          flexWrap: "wrap",
+        }}
+      >
+        <CatalogHint>{DEV_MSG.CT_HINT}</CatalogHint>
+        <button
+          type="button"
+          data-testid="developer-ct-new"
+          onClick={() => setSelected("new")}
+          style={{
+            padding: "8px 14px",
+            background: catalogColors.accent,
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          {DEV_MSG.CT_NEW}
+        </button>
+      </div>
+      {items.length === 0 ? (
+        <CatalogStatus testId="developer-ct-empty">{DEV_MSG.CT_EMPTY}</CatalogStatus>
+      ) : (
       <SimpleCatalogTable
         tableTestId="developer-ct-table"
         rowTestId="developer-ct-row"
@@ -194,6 +260,7 @@ export function ContentTypesPanel(): React.ReactElement {
           };
         })}
       />
+      )}
     </div>
   );
 }

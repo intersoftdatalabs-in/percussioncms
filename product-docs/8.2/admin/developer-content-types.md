@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Lock, enable or disable, rename via REST, add or delete local fields via REST, include system or shared fields via REST, export design XML via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Create or delete a content type from Developer catalog chrome, lock, enable or disable, rename via REST, add or delete local fields via REST, include system or shared fields via REST, export design XML via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -9,22 +9,25 @@ tags: [admin, developer, content-types]
 
 # Developer Content Types
 
-**Developer → Content types** lists design content types and opens a detail panel
+**Developer → Content types** lists design content types, **creates** a new type,
+and opens a detail panel
 for fields, allowed workflows, allowed templates, **item-level exits**, **control property values**,
-**field-rule expressions**, and Object ACL. Design edits use an explicit **design-session lock** so two
-Admins cannot overwrite the same type at once.
+**field-rule expressions**, and Object ACL. Design edits and **delete** use an explicit **design-session lock** so two
+Admins cannot overwrite or remove the same type at once.
 
-Integrators can **create** a content type with Admin `POST /services/contenttypes`
-(JSON `name` required; unique, no spaces; optional `label` / `description`).
+Admins can **create** a content type from this catalog (**New content type**) or with
+`POST /services/contenttypes`
+(JSON `name` required; unique, no spaces; optional `label` / `description` / `enabled`).
 That call persists the type (Workbench Finish). A successful create is then
-`GET /services/contenttypes/{name}` **200**. Duplicate or reserved system names
+`GET /services/contenttypes/{name}` **200** and the catalog lists the new row.
+Duplicate or reserved system names
 (for example **Folder**) are **409**. Invalid names (blank, spaces, wildcard)
 are **400**. Non-Admin callers are **403**. Integrators can also **import** one
 Workbench-equivalent `ItemDefData` design XML with Admin
 `POST /services/contenttypes/import` (CD-14; create only; duplicate name **409**;
 invalid XML **400**; the new object's create lock is released and existing types
-are not stolen). This chrome does **not** include a
-create or import wizard; rename, delete, **local field create/delete**, and **include
+are not stolen). This chrome does **not** include an
+import wizard; rename, **local field create/delete**, and **include
 system/shared fields** are REST-only (no SPA field editor or field picker).
 After a held lock, integrators add a local field with
 `POST /services/contenttypes/{idOrName}/fields` (JSON `name` required) and
@@ -81,17 +84,36 @@ expressions). Omitting `preExits`/`postExits` leaves pipe extensions
 unchanged. Apply-when conditions remain read-only. Choice-catalog filter /
 null-entry / default-selected writes are not in this chrome.
 
+## Product path — create a content type
+
+1. Sign in as **Admin**.
+2. Open **Developer → Content types**, or deep-link
+   `spa.jsp?entry=developer&section=content-types`.
+3. Click **New content type**.
+4. Enter a unique **Name** (letters, digits, underscore, and period; no spaces).
+   Optional **Label**, **Description**, and **Enabled** (defaults to on).
+5. Click **Create content type**. The product calls
+   `POST /services/contenttypes` and opens the new type's detail panel.
+   **Back to list** shows the type in the catalog.
+6. Duplicate names (including reserved types such as **Folder**) show an error
+   (**409**). Invalid names (blank, spaces, wildcard) cannot be submitted; if
+   REST rejects them they are **400**. Non-Admin callers are **403**.
+
+Rename is still REST-only (`PUT /services/contenttypes/{idOrName}/name` after a
+held lock). See **Rename a content type (REST)** below.
+
 ## Product path — lock, save, unlock
 
 1. Sign in as **Admin** (or another user with Developer access and Admin REST
    rights for design lock/save).
 2. Open **Developer → Content types**, or deep-link
    `spa.jsp?entry=developer&section=content-types`.
-3. Click **Open** on a catalog row (the type label). The detail panel includes
+3. Click **Open** on a catalog row (the type label), or create a type (above).
+   The detail panel includes
    **Object ACL** as soon as the type opens, including while the field catalog
    is still loading.
 4. The **detail toolbar at the top of the panel** (sticky) shows **Lock**,
-   **Save content type**, **Unlock**, and the **Enabled** checkbox. The type
+   **Save content type**, **Unlock**, **Delete content type**, and the **Enabled** checkbox. The type
    name and **Allowed templates** add/remove chrome are visible immediately
    (add/remove stay **disabled** until the type body has loaded and you hold
    the lock). The status line starts as **Not locked**. Label, description,
@@ -255,17 +277,23 @@ with REST after a held design-session lock:
 Bulk `PUT /services/contenttypes/{idOrName}` still does **not** change name.
 Unlocked or another user's lock is **409**. Collision or spaces is **400**.
 
-## Delete a content type (REST)
+## Delete a content type
 
-The Developer Content types chrome does **not** expose delete in this release.
-Integrators delete a type over REST after holding the design-session lock:
+Admins delete a type from Developer Content Type **detail** after holding the
+design-session lock. The catalog **Delete** control stays disabled until **Lock**
+succeeds. The product does **not** steal another user's lock.
 
-1. `POST /services/contenttypes/{idOrName}/lock` as **Admin**.
-2. `DELETE /services/contenttypes/{idOrName}`. Success is **204**. The lock is
-   not stolen if another user holds it (**409**). Missing types are **404**.
-3. A following `GET /services/contenttypes/{idOrName}` is **404**.
-4. Types that still have dependents fail with **400**. The product does **not**
-   cascade-delete items.
+1. Open the type and click **Lock**. Status becomes **Locked by you**.
+2. Click **Delete content type** and confirm. The product calls
+   `DELETE /services/contenttypes/{idOrName}`. Success is **204**; the catalog
+   omits the type and a following `GET /services/contenttypes/{idOrName}` is
+   **404**.
+3. Without a lock, Delete stays **disabled**. An unlocked REST `DELETE` is
+   **409** and does not acquire the lock.
+4. If another user already holds the lock, **Lock** and **Delete** are **409**.
+   The lock is not stolen.
+5. Types that still have dependents fail with **400**. The product does **not**
+   cascade-delete items. Non-Admin callers are **403**.
 
 ## REST
 
@@ -273,6 +301,7 @@ The chrome calls:
 
 | Action | Request |
 |--------|---------|
+| Create | `POST /services/contenttypes` (Admin; unique name, no spaces; 409 duplicate; 400 invalid; 403 non-Admin) |
 | Lock | `POST /services/contenttypes/{idOrName}/lock` |
 | Save (label, description, fields) | `PUT /services/contenttypes/{idOrName}` (requires a held lock; does not send `enabled`, `allowedWorkflows`, or `allowedTemplates`) |
 | Enable / disable | `PUT /services/contenttypes/{idOrName}/enabled` (CD-13; requires a held lock; does not acquire or release it) |
@@ -290,7 +319,7 @@ The chrome calls:
 | Load field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` |
 | Save field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` (held lock; full replace of validation, visibility, inputTranslation, outputTranslation) |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |
-| Delete | `DELETE /services/contenttypes/{idOrName}` (Admin; held lock; 204; 409 if unlocked or another user holds the lock; 400 if dependents; no SPA chrome) |
+| Delete | `DELETE /services/contenttypes/{idOrName}` (Admin; held lock; 204; 409 if unlocked or another user holds the lock; 400 if dependents; SPA Delete on detail after Lock) |
 
 Integrator notes: [REST API — Content types](id:developer-rest). Object ACL on
 the same detail panel: [Object ACL & default template](id:admin-object-acl).
