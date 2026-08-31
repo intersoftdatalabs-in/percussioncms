@@ -241,7 +241,7 @@ class ContentTypeAdaptorLocalFieldTest {
     body.setName("rx_note");
     IllegalStateException ex =
         assertThrows(IllegalStateException.class, () -> adaptor.addLocalField(null, "311", body));
-    assertTrue(ex.getMessage().contains("Failed to add local field"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("Local-field column DDL failed"), ex.getMessage());
     verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
   }
 
