@@ -15,8 +15,15 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
-import { getSlotDetail, updateSlotDetail } from "../api/developer/assemblyApi";
+import React, { useEffect, useRef, useState } from "react";
+import { extractRestErrorMessage, isApiError } from "../api/client";
+import {
+  createSlot,
+  deleteSlot,
+  getSlotDetail,
+  isSlotCreateReady,
+  updateSlotDetail,
+} from "../api/developer/assemblyApi";
 import {
   normalizeSlotAssociations,
   normalizeSlotDesignGaps,
@@ -94,30 +101,66 @@ function slotDesignGaps(list: unknown): DesignGapWire[] {
   return normalizeSlotDesignGaps(list);
 }
 
+function createSaveFallback(err: unknown): string {
+  if (!isApiError(err)) return DEV_MSG.SLOT_SAVE_ERROR;
+  if (err.status === 409) return DEV_MSG.SLOT_DUPLICATE;
+  if (err.status === 403) return DEV_MSG.SLOT_FORBIDDEN;
+  if (err.status === 400) {
+    const msg = extractRestErrorMessage(err.body) || "";
+    return /slotType/i.test(msg) ? DEV_MSG.SLOT_TYPE_INVALID : DEV_MSG.SLOT_NAME_INVALID;
+  }
+  return DEV_MSG.SLOT_SAVE_ERROR;
+}
+
+function deleteFallback(err: unknown, systemSlot: boolean | undefined): string {
+  if (!isApiError(err)) return DEV_MSG.SLOT_DELETE_ERROR;
+  if (err.status === 403) return DEV_MSG.SLOT_FORBIDDEN;
+  if (err.status === 409) {
+    const msg = extractRestErrorMessage(err.body) || "";
+    if (systemSlot || /system/i.test(msg)) return DEV_MSG.SLOT_DELETE_SYSTEM;
+  }
+  return DEV_MSG.SLOT_DELETE_ERROR;
+}
+
 export function SlotDetailPanel({
   idOrName,
   onBack,
+  onSaved,
+  onDeleted,
 }: {
-  idOrName: string;
+  /** null = create mode */
+  idOrName: string | null;
   onBack: () => void;
+  onSaved?: (detail: SlotDetail) => void;
+  onDeleted?: () => void;
 }): React.ReactElement {
+  const [createdKey, setCreatedKey] = useState<string | null>(null);
+  const isNew = idOrName == null && createdKey == null;
   const [detail, setDetail] = useState<SlotDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(idOrName != null);
+  const [name, setName] = useState("");
   const [label, setLabel] = useState("");
   const [description, setDescription] = useState("");
+  const [slotType, setSlotType] = useState("REGULAR");
   const [associations, setAssociations] = useState<SlotAssociationSummary[]>([]);
   const [newCtGuid, setNewCtGuid] = useState("");
   const [newTplGuid, setNewTplGuid] = useState("");
+  const inflight = useRef(false);
 
   useEffect(() => {
+    if (idOrName == null) {
+      return;
+    }
     let cancelled = false;
     setDetail(null);
     setError(null);
     setNotice(null);
     setNewCtGuid("");
     setNewTplGuid("");
+    setLoading(true);
     getSlotDetail(idOrName)
       .then((d) => {
         if (cancelled) return;
@@ -125,25 +168,33 @@ export function SlotDetailPanel({
         const designGaps = slotDesignGaps(d.designGaps);
         const finderArguments = normalizeSlotStringMap(d.finderArguments);
         setDetail({ ...d, associations, designGaps, finderArguments });
+        setName(d.name || idOrName);
         setLabel(d.label || "");
         setDescription(d.description || "");
+        setSlotType((d.slotType || "REGULAR").toUpperCase());
         setAssociations(associations);
+        setLoading(false);
       })
       .catch((err: unknown) => {
         if (cancelled) return;
         setError(panelErrMsg(err, DEV_MSG.SLOT_DETAIL_ERROR));
+        setLoading(false);
       });
     return () => {
       cancelled = true;
     };
   }, [idOrName]);
 
+  const writeKey = idOrName || createdKey || name.trim();
   const initialAssocs = cloneAssociations(detail?.associations);
   const dirty =
     detail != null &&
     (label !== (detail.label || "") ||
       description !== (detail.description || "") ||
       !associationsEqual(associations, initialAssocs));
+  const canSave = isNew
+    ? !busy && isSlotCreateReady({ name, slotType })
+    : !busy && dirty;
 
   function removeAssociation(index: number) {
     setAssociations((prev) => prev.filter((_, i) => i !== index));
@@ -167,22 +218,31 @@ export function SlotDetailPanel({
   }
 
   async function handleSave() {
+    if (!canSave || inflight.current) return;
+    inflight.current = true;
     setBusy(true);
     setError(null);
     setNotice(null);
     try {
-      const saved = await updateSlotDetail(idOrName, {
-        label,
-        description,
-        associations: associations.map((a) => ({
-          contentTypeGuid: a.contentTypeGuid?.stringValue
-            ? { stringValue: a.contentTypeGuid.stringValue }
-            : a.contentTypeGuid,
-          templateGuid: a.templateGuid?.stringValue
-            ? { stringValue: a.templateGuid.stringValue }
-            : a.templateGuid,
-        })),
-      });
+      const saved = isNew
+        ? await createSlot({
+            name: name.trim(),
+            label: label.trim() || undefined,
+            description: description || undefined,
+            slotType: slotType.trim() || undefined,
+          })
+        : await updateSlotDetail(writeKey, {
+            label,
+            description,
+            associations: associations.map((a) => ({
+              contentTypeGuid: a.contentTypeGuid?.stringValue
+                ? { stringValue: a.contentTypeGuid.stringValue }
+                : a.contentTypeGuid,
+              templateGuid: a.templateGuid?.stringValue
+                ? { stringValue: a.templateGuid.stringValue }
+                : a.templateGuid,
+            })),
+          });
       const savedAssocs = cloneAssociations(saved.associations);
       const savedGaps = slotDesignGaps(saved.designGaps);
       const savedArgs = normalizeSlotStringMap(saved.finderArguments);
@@ -192,19 +252,50 @@ export function SlotDetailPanel({
         designGaps: savedGaps,
         finderArguments: savedArgs,
       });
-      setLabel(saved.label || "");
+      if (isNew) {
+        setCreatedKey(saved.name || name.trim());
+      }
+      setName(saved.name || name);
+      setLabel(saved.label || label);
       setDescription(saved.description || "");
+      setSlotType((saved.slotType || slotType || "REGULAR").toUpperCase());
       setAssociations(savedAssocs);
       setNotice(DEV_MSG.SLOT_SAVED);
+      onSaved?.(saved);
     } catch (err: unknown) {
-      setError(panelErrMsg(err, DEV_MSG.SLOT_SAVE_ERROR));
+      const fallback = isNew ? createSaveFallback(err) : DEV_MSG.SLOT_SAVE_ERROR;
+      setError(panelErrMsg(err, fallback));
     } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (isNew || !writeKey || inflight.current) return;
+    if (!window.confirm(DEV_MSG.SLOT_DELETE_CONFIRM)) return;
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await deleteSlot(writeKey);
+      setNotice(DEV_MSG.SLOT_DELETED);
+      onDeleted?.();
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, deleteFallback(err, detail?.systemSlot)));
+    } finally {
+      inflight.current = false;
       setBusy(false);
     }
   }
 
   const argEntries = Object.entries(normalizeSlotStringMap(detail?.finderArguments));
   const gaps = slotDesignGaps(detail?.designGaps);
+  const title = isNew
+    ? DEV_MSG.SLOT_NEW
+    : label || detail?.name || idOrName || DEV_MSG.SLOT_NEW;
+  const showForm = isNew || (!loading && detail != null);
 
   return (
     <div data-testid="developer-slot-detail">
@@ -229,19 +320,40 @@ export function SlotDetailPanel({
         </div>
       ) : null}
 
-      {!error && detail == null ? (
+      {loading && !isNew ? (
         <div data-testid="developer-slot-detail-loading">{DEV_MSG.SLOT_DETAIL_LOADING}</div>
       ) : null}
 
-      {detail ? (
+      {showForm ? (
         <>
           <header style={{ marginBottom: "16px" }}>
             <h2 style={{ margin: "0 0 4px" }} data-testid="developer-slot-detail-title">
-              {label || detail.name || idOrName}
+              {title}
             </h2>
-            <div style={{ fontFamily: "monospace", color: catalogColors.muted }}>
-              {detail.name}
-              {detail.guid?.stringValue ? ` · ${detail.guid.stringValue}` : ""}
+            {!isNew && detail ? (
+              <div style={{ fontFamily: "monospace", color: catalogColors.muted }}>
+                {detail.name}
+                {detail.guid?.stringValue ? ` · ${detail.guid.stringValue}` : ""}
+              </div>
+            ) : null}
+            <div style={{ marginTop: "12px" }}>
+              <label htmlFor="slot-name" style={{ display: "block", marginBottom: 4 }}>
+                {DEV_MSG.SLOT_FORM_NAME}
+              </label>
+              <input
+                id="slot-name"
+                data-testid="developer-slot-name"
+                style={{ ...inputStyle, fontFamily: "monospace" }}
+                value={name}
+                disabled={!isNew || busy}
+                onChange={(e) => setName(e.target.value)}
+                autoComplete="off"
+              />
+              {!isNew ? (
+                <span style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
+                  {DEV_MSG.SLOT_NAME_READONLY}
+                </span>
+              ) : null}
             </div>
             <div style={{ marginTop: "12px" }}>
               <label htmlFor="slot-label" style={{ display: "block", marginBottom: 4 }}>
@@ -252,6 +364,7 @@ export function SlotDetailPanel({
                 data-testid="developer-slot-label"
                 style={inputStyle}
                 value={label}
+                disabled={busy}
                 onChange={(e) => setLabel(e.target.value)}
               />
             </div>
@@ -264,197 +377,256 @@ export function SlotDetailPanel({
                 data-testid="developer-slot-description"
                 style={inputStyle}
                 value={description}
+                disabled={busy}
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
-            <dl style={metaGrid}>
-              <dt>{DEV_MSG.SLOT_META_TYPE}</dt>
-              <dd style={{ margin: 0 }}>{detail.slotType || "—"}</dd>
-              <dt>{DEV_MSG.SLOT_META_SYSTEM}</dt>
-              <dd style={{ margin: 0 }}>
-                {detail.systemSlot ? DEV_MSG.YES : DEV_MSG.NO}
-              </dd>
-              <dt>{DEV_MSG.SLOT_META_FINDER}</dt>
-              <dd style={{ margin: 0, ...monoCell }}>
-                {detail.finderName || "—"}
-              </dd>
-              <dt>{DEV_MSG.SLOT_META_RELATIONSHIP}</dt>
-              <dd style={{ margin: 0, ...monoCell }}>
-                {detail.relationshipName || "—"}
-              </dd>
-            </dl>
+            {isNew ? (
+              <div style={{ marginTop: "12px" }}>
+                <label htmlFor="slot-type" style={{ display: "block", marginBottom: 4 }}>
+                  {DEV_MSG.SLOT_FORM_TYPE}
+                </label>
+                <select
+                  id="slot-type"
+                  data-testid="developer-slot-type"
+                  style={inputStyle}
+                  value={slotType}
+                  disabled={busy}
+                  onChange={(e) => setSlotType(e.target.value)}
+                >
+                  <option value="REGULAR">{DEV_MSG.SLOT_TYPE_REGULAR}</option>
+                  <option value="INLINE">{DEV_MSG.SLOT_TYPE_INLINE}</option>
+                </select>
+              </div>
+            ) : (
+              <dl style={metaGrid}>
+                <dt>{DEV_MSG.SLOT_META_TYPE}</dt>
+                <dd style={{ margin: 0 }}>{detail?.slotType || "—"}</dd>
+                <dt>{DEV_MSG.SLOT_META_SYSTEM}</dt>
+                <dd style={{ margin: 0 }}>
+                  {detail?.systemSlot ? DEV_MSG.YES : DEV_MSG.NO}
+                </dd>
+                <dt>{DEV_MSG.SLOT_META_FINDER}</dt>
+                <dd style={{ margin: 0, ...monoCell }}>
+                  {detail?.finderName || "—"}
+                </dd>
+                <dt>{DEV_MSG.SLOT_META_RELATIONSHIP}</dt>
+                <dd style={{ margin: 0, ...monoCell }}>
+                  {detail?.relationshipName || "—"}
+                </dd>
+              </dl>
+            )}
           </header>
 
-          <section style={{ marginBottom: "16px" }} data-testid="developer-slot-args">
-            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SLOT_ARGS}</h3>
-            {argEntries.length === 0 ? (
-              <p style={{ color: catalogColors.empty }}>{DEV_MSG.SLOT_NONE}</p>
-            ) : (
-              <ul>
-                {argEntries.map(([k, v]) => (
-                  <li key={k}>
-                    <span style={{ fontFamily: "monospace" }}>{k}</span>
-                    {" = "}
-                    <span style={{ fontFamily: "monospace", color: catalogColors.muted }}>
-                      {typeof v === "string" ? v : String(v ?? "")}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
+          {!isNew && detail ? (
+            <>
+              <section style={{ marginBottom: "16px" }} data-testid="developer-slot-args">
+                <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SLOT_ARGS}</h3>
+                {argEntries.length === 0 ? (
+                  <p style={{ color: catalogColors.empty }}>{DEV_MSG.SLOT_NONE}</p>
+                ) : (
+                  <ul>
+                    {argEntries.map(([k, v]) => (
+                      <li key={k}>
+                        <span style={{ fontFamily: "monospace" }}>{k}</span>
+                        {" = "}
+                        <span style={{ fontFamily: "monospace", color: catalogColors.muted }}>
+                          {typeof v === "string" ? v : String(v ?? "")}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
 
-          <section style={{ marginBottom: "16px" }} data-testid="developer-slot-associations">
-            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SLOT_ASSOCIATIONS}</h3>
-            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.SLOT_ASSOCIATIONS_HINT}</p>
-            {associations.length === 0 ? (
-              <p style={{ color: catalogColors.empty }} data-testid="developer-slot-assoc-empty">
-                {DEV_MSG.SLOT_NONE}
-              </p>
-            ) : (
-              <div style={{ overflowX: "auto" }}>
-                <table
-                  data-testid="developer-slot-assoc-table"
+              <section style={{ marginBottom: "16px" }} data-testid="developer-slot-associations">
+                <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SLOT_ASSOCIATIONS}</h3>
+                <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.SLOT_ASSOCIATIONS_HINT}</p>
+                {associations.length === 0 ? (
+                  <p style={{ color: catalogColors.empty }} data-testid="developer-slot-assoc-empty">
+                    {DEV_MSG.SLOT_NONE}
+                  </p>
+                ) : (
+                  <div style={{ overflowX: "auto" }}>
+                    <table
+                      data-testid="developer-slot-assoc-table"
+                      style={{
+                        width: "100%",
+                        borderCollapse: "collapse",
+                        fontSize: "0.95rem",
+                      }}
+                    >
+                      <thead>
+                        <tr style={tableHeaderRow}>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_CT}</th>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_TPL}</th>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_ACTIONS}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {associations.map((a, i) => {
+                          const ctDisplay =
+                            a.contentTypeGuid?.stringValue ||
+                            (a.contentTypeGuid?.uuid != null
+                              ? String(a.contentTypeGuid.uuid)
+                              : "—");
+                          const tplDisplay =
+                            a.templateGuid?.stringValue ||
+                            (a.templateGuid?.uuid != null
+                              ? String(a.templateGuid.uuid)
+                              : "—");
+                          return (
+                            <tr
+                              key={assocKey(a, i)}
+                              style={tableRow}
+                              data-testid={`developer-slot-assoc-row-${i}`}
+                            >
+                              <td style={{ padding: "8px", fontFamily: "monospace" }}>{ctDisplay}</td>
+                              <td style={{ padding: "8px", fontFamily: "monospace" }}>{tplDisplay}</td>
+                              <td style={{ padding: "8px" }}>
+                                <button
+                                  type="button"
+                                  data-testid={`developer-slot-assoc-remove-${i}`}
+                                  aria-label={`Remove association ${ctDisplay} / ${tplDisplay}`}
+                                  disabled={busy}
+                                  onClick={() => removeAssociation(i)}
+                                  style={{
+                                    background: "transparent",
+                                    border: `1px solid ${catalogColors.softBorder}`,
+                                    borderRadius: "4px",
+                                    padding: "4px 8px",
+                                    cursor: busy ? "not-allowed" : "pointer",
+                                  }}
+                                >
+                                  {DEV_MSG.SLOT_ASSOC_REMOVE}
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                <div
                   style={{
-                    width: "100%",
-                    borderCollapse: "collapse",
-                    fontSize: "0.95rem",
+                    marginTop: "12px",
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr auto",
+                    gap: "8px",
+                    alignItems: "end",
                   }}
                 >
-                  <thead>
-                    <tr style={tableHeaderRow}>
-                      <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_CT}</th>
-                      <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_TPL}</th>
-                      <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_ACTIONS}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {associations.map((a, i) => {
-                      const ctDisplay =
-                        a.contentTypeGuid?.stringValue ||
-                        (a.contentTypeGuid?.uuid != null
-                          ? String(a.contentTypeGuid.uuid)
-                          : "—");
-                      const tplDisplay =
-                        a.templateGuid?.stringValue ||
-                        (a.templateGuid?.uuid != null
-                          ? String(a.templateGuid.uuid)
-                          : "—");
-                      return (
-                        <tr
-                          key={assocKey(a, i)}
-                          style={tableRow}
-                          data-testid={`developer-slot-assoc-row-${i}`}
-                        >
-                          <td style={{ padding: "8px", fontFamily: "monospace" }}>{ctDisplay}</td>
-                          <td style={{ padding: "8px", fontFamily: "monospace" }}>{tplDisplay}</td>
-                          <td style={{ padding: "8px" }}>
-                            <button
-                              type="button"
-                              data-testid={`developer-slot-assoc-remove-${i}`}
-                              aria-label={`Remove association ${ctDisplay} / ${tplDisplay}`}
-                              disabled={busy}
-                              onClick={() => removeAssociation(i)}
-                              style={{
-                                background: "transparent",
-                                border: `1px solid ${catalogColors.softBorder}`,
-                                borderRadius: "4px",
-                                padding: "4px 8px",
-                                cursor: busy ? "not-allowed" : "pointer",
-                              }}
-                            >
-                              {DEV_MSG.SLOT_ASSOC_REMOVE}
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-            <div
-              style={{
-                marginTop: "12px",
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr auto",
-                gap: "8px",
-                alignItems: "end",
-              }}
-            >
-              <div>
-                <label htmlFor="slot-assoc-ct" style={{ display: "block", marginBottom: 4 }}>
-                  {DEV_MSG.SLOT_COL_CT}
-                </label>
-                <input
-                  id="slot-assoc-ct"
-                  data-testid="developer-slot-assoc-ct"
-                  style={inputStyle}
-                  placeholder={DEV_MSG.SLOT_ASSOC_CT_PLACEHOLDER}
-                  value={newCtGuid}
-                  onChange={(e) => setNewCtGuid(e.target.value)}
-                  disabled={busy}
-                />
-              </div>
-              <div>
-                <label htmlFor="slot-assoc-tpl" style={{ display: "block", marginBottom: 4 }}>
-                  {DEV_MSG.SLOT_COL_TPL}
-                </label>
-                <input
-                  id="slot-assoc-tpl"
-                  data-testid="developer-slot-assoc-tpl"
-                  style={inputStyle}
-                  placeholder={DEV_MSG.SLOT_ASSOC_TPL_PLACEHOLDER}
-                  value={newTplGuid}
-                  onChange={(e) => setNewTplGuid(e.target.value)}
-                  disabled={busy}
-                />
-              </div>
-              <button
-                type="button"
-                data-testid="developer-slot-assoc-add"
-                aria-label="Add slot association"
-                disabled={busy || !newCtGuid.trim() || !newTplGuid.trim()}
-                onClick={addAssociation}
-                style={{
-                  padding: "8px 12px",
-                  background: newCtGuid.trim() && newTplGuid.trim() ? catalogColors.accent : catalogColors.disabled,
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor:
-                    busy || !newCtGuid.trim() || !newTplGuid.trim()
-                      ? "not-allowed"
-                      : "pointer",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {DEV_MSG.SLOT_ASSOC_ADD}
-              </button>
-            </div>
-          </section>
+                  <div>
+                    <label htmlFor="slot-assoc-ct" style={{ display: "block", marginBottom: 4 }}>
+                      {DEV_MSG.SLOT_COL_CT}
+                    </label>
+                    <input
+                      id="slot-assoc-ct"
+                      data-testid="developer-slot-assoc-ct"
+                      style={inputStyle}
+                      placeholder={DEV_MSG.SLOT_ASSOC_CT_PLACEHOLDER}
+                      value={newCtGuid}
+                      onChange={(e) => setNewCtGuid(e.target.value)}
+                      disabled={busy}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="slot-assoc-tpl" style={{ display: "block", marginBottom: 4 }}>
+                      {DEV_MSG.SLOT_COL_TPL}
+                    </label>
+                    <input
+                      id="slot-assoc-tpl"
+                      data-testid="developer-slot-assoc-tpl"
+                      style={inputStyle}
+                      placeholder={DEV_MSG.SLOT_ASSOC_TPL_PLACEHOLDER}
+                      value={newTplGuid}
+                      onChange={(e) => setNewTplGuid(e.target.value)}
+                      disabled={busy}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    data-testid="developer-slot-assoc-add"
+                    aria-label="Add slot association"
+                    disabled={busy || !newCtGuid.trim() || !newTplGuid.trim()}
+                    onClick={addAssociation}
+                    style={{
+                      padding: "8px 12px",
+                      background: newCtGuid.trim() && newTplGuid.trim() ? catalogColors.accent : catalogColors.disabled,
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor:
+                        busy || !newCtGuid.trim() || !newTplGuid.trim()
+                          ? "not-allowed"
+                          : "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {DEV_MSG.SLOT_ASSOC_ADD}
+                  </button>
+                </div>
+              </section>
+            </>
+          ) : null}
 
-          <div style={{ marginBottom: "16px" }}>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
             <button
               type="button"
               data-testid="developer-slot-save"
-              aria-label="Save slot"
-              disabled={busy || !dirty}
+              aria-label={DEV_MSG.SLOT_SAVE}
+              disabled={!canSave}
               onClick={() => void handleSave()}
               style={{
                 padding: "8px 16px",
-                background: dirty ? catalogColors.accent : catalogColors.disabled,
+                background: canSave ? catalogColors.accent : catalogColors.disabled,
                 color: "#fff",
                 border: "none",
                 borderRadius: "4px",
-                cursor: busy || !dirty ? "not-allowed" : "pointer",
+                cursor: canSave ? "pointer" : "not-allowed",
               }}
             >
               {DEV_MSG.SLOT_SAVE}
             </button>
+            <button
+              type="button"
+              data-testid="developer-slot-cancel"
+              disabled={busy}
+              onClick={onBack}
+              style={{
+                padding: "8px 16px",
+                background: "transparent",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              {DEV_MSG.SLOT_CANCEL}
+            </button>
+            {!isNew && writeKey ? (
+              <button
+                type="button"
+                data-testid="developer-slot-delete"
+                aria-label={DEV_MSG.SLOT_DELETE}
+                disabled={busy}
+                onClick={() => void handleDelete()}
+                style={{
+                  padding: "8px 16px",
+                  background: "#c53030",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: busy ? "wait" : "pointer",
+                  marginLeft: "auto",
+                }}
+              >
+                {DEV_MSG.SLOT_DELETE}
+              </button>
+            ) : null}
           </div>
 
-          {gaps.length > 0 ? (
+          {!isNew && gaps.length > 0 ? (
             <section data-testid="developer-slot-gaps">
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SLOT_GAPS}</h3>
               <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>

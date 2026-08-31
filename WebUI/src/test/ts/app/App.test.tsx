@@ -109,6 +109,12 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   updateTemplateDetail: vi.fn(),
   listSlots: vi.fn().mockResolvedValue([]),
   getSlotDetail: vi.fn().mockResolvedValue({}),
+  createSlot: vi.fn(),
+  deleteSlot: vi.fn(),
+  updateSlotDetail: vi.fn(),
+  isSlotCreateReady: vi.fn((opts: { name?: string }) => Boolean(opts?.name?.trim())),
+  isValidSlotName: vi.fn((n: string) => Boolean(n?.trim())),
+  isValidSlotType: vi.fn(() => true),
   listCommunities: vi.fn().mockResolvedValue([]),
   getCommunityDetail: vi.fn().mockResolvedValue({}),
 }));

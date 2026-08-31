@@ -106,6 +106,13 @@ const DEVELOPER_SMOKE_SET = [
     status: "green",
   },
   {
+    id: "slot-editor",
+    file: "developer-slot-editor.spec.js",
+    title: "Admin can create a uniquely named slot and delete it",
+    status: "green",
+    notes: "AS-01 SPA slot create/delete (#4056 / parent #1690)",
+  },
+  {
     id: "catalog-shared-fields",
     file: "developer-catalog-smoke.spec.js",
     title: "shared-fields: catalog loads without API error",

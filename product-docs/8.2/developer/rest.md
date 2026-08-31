@@ -340,9 +340,12 @@ flow: **lock → PUT (repeatable) → unlock**. The PUT does **not** acquire or 
 lock and does **not** steal another user's lock. Invalid finder extension is **400**.
 Unknown relationship type is **400**. Unknown slot is **404**. Unlocked or locked-by-another
 user is **409**. Non-Admin is **403**. Following `GET /services/slots/{idOrName}` round-trips
-the written finder, relationship, and arguments. SPA slot-editor chrome remains a later
-slice. Detail `designGaps` no longer includes `SLOT_FINDER_RELATIONSHIP_WRITE` (`SLOT_CREATE_DELETE`
-is already retired). Remaining gap `SLOT_ASSOC_GUIDS_ONLY` records GUID-only associations.
+the written finder, relationship, and arguments. **Developer → Slots** catalog
+create and non-system delete use `POST /services/slots` and
+`DELETE /services/slots/{idOrName}` — see [Developer Slots](id:admin-developer-slots).
+Finder / relationship write chrome remains a later slice. Detail `designGaps` no
+longer includes `SLOT_FINDER_RELATIONSHIP_WRITE` (`SLOT_CREATE_DELETE` is already
+retired). Remaining gap `SLOT_ASSOC_GUIDS_ONLY` records GUID-only associations.
 
 JSON may wrap a single item as `SlotDetail`. `associations` and `designGaps` are arrays
 (`SlotAssociationSummary[]` and structured `{code,message}` gaps). Some Jackson/JAXB

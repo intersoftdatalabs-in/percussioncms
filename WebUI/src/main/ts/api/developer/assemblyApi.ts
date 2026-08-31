@@ -152,14 +152,49 @@ export function unwrapSlotDetail(payload: unknown): SlotDetail {
 }
 
 /**
- * Wire JSON body for SlotsResource PUT under {@link SLOT_DETAIL_ROOT}.
+ * Wire JSON body for SlotsResource POST/PUT under {@link SLOT_DETAIL_ROOT}.
  */
 export function wrapSlotDetailForWire(
   body: Partial<
-    Pick<SlotDetail, "label" | "description" | "associations" | "slotLayout" | "slotStyles">
+    Pick<
+      SlotDetail,
+      | "name"
+      | "label"
+      | "description"
+      | "slotType"
+      | "associations"
+      | "slotLayout"
+      | "slotStyles"
+    >
   >,
 ): Record<string, typeof body> {
   return { [SLOT_DETAIL_ROOT]: body };
+}
+
+/** Allowed {@code slotType} values on POST /services/slots (case-insensitive). */
+export const SLOT_TYPES = ["REGULAR", "INLINE"] as const;
+export type SlotTypeName = (typeof SLOT_TYPES)[number];
+
+/**
+ * Slot names must be non-blank, must not contain whitespace, and must not
+ * contain wildcards ({@code *}) — same rules as REST create.
+ */
+export function isValidSlotName(name: string): boolean {
+  const n = name.trim();
+  return n.length > 0 && !/\s/.test(n) && !n.includes("*");
+}
+
+/** Empty slotType is valid (server defaults to REGULAR); otherwise REGULAR|INLINE. */
+export function isValidSlotType(slotType: string): boolean {
+  const t = slotType.trim();
+  if (!t) return true;
+  const upper = t.toUpperCase();
+  return upper === "REGULAR" || upper === "INLINE";
+}
+
+/** Create save is enabled when the name (and optional slotType) are valid. */
+export function isSlotCreateReady(opts: { name: string; slotType: string }): boolean {
+  return isValidSlotName(opts.name) && isValidSlotType(opts.slotType);
 }
 
 function asArray<T>(payload: unknown, keys: string[]): T[] {
@@ -284,6 +319,33 @@ export async function updateSlotDetail(
     wrapSlotDetailForWire(body),
   );
   return unwrapSlotDetail(payload);
+}
+
+/** Fields accepted on POST /services/slots (AS-01). Finder/relationship not written. */
+export type SlotCreateBody = {
+  name: string;
+  label?: string;
+  description?: string;
+  slotType?: string;
+};
+
+/**
+ * POST /services/slots — Admin. Unique name, no whitespace. Optional label,
+ * description, and slotType (REGULAR|INLINE). Duplicate is 409. Non-Admin is 403.
+ * Invalid name/slotType is 400. Request is root-wrapped; response unwrapped like GET.
+ */
+export async function createSlot(body: SlotCreateBody): Promise<SlotDetail> {
+  const payload = await post<unknown>(PATHS.SLOTS, wrapSlotDetailForWire(body));
+  return unwrapSlotDetail(payload);
+}
+
+/**
+ * DELETE /services/slots/{idOrName} — Admin. 204 on success. System slot is 409.
+ * Non-Admin is 403. Missing is 404.
+ */
+export async function deleteSlot(idOrName: string): Promise<void> {
+  const key = encodeURIComponent(idOrName);
+  await del<void>(`${PATHS.SLOTS}/${key}`);
 }
 
 /** GET /services/communities/find?name=* */
