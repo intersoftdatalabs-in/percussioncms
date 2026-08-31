@@ -32,8 +32,11 @@ import {
   getContentTypeSearchIndexing,
   getFieldControlProperties,
   isContentTypeIconNone,
+  isContentTypeRenameReady,
   lockContentType,
   normalizeContentTypeIconSource,
+  normalizeContentTypeName,
+  renameContentType,
   replaceContentTypeAllowedTemplates,
   replaceContentTypeItemExits,
   replaceFieldControlProperties,
@@ -226,12 +229,15 @@ export function ContentTypeDetailPanel({
   catalogGuid,
   onBack,
   onDeleted,
+  onRenamed,
 }: {
   idOrName: string;
   /** GUID from catalog list row when detail wire omits stringValue (#3319). */
   catalogGuid?: string | null;
   onBack: () => void;
   onDeleted?: () => void;
+  /** Catalog refresh after a successful PUT .../name (selection key may change). */
+  onRenamed?: (newName: string, detail: ContentTypeDetail) => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<ContentTypeDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -239,6 +245,7 @@ export function ContentTypeDetailPanel({
   const [busy, setBusy] = useState(false);
   const [label, setLabel] = useState("");
   const [description, setDescription] = useState("");
+  const [nameDraft, setNameDraft] = useState("");
   const [enabled, setEnabled] = useState(true);
   /** Type-level search indexing (CD-10); default on. Distinct from per-field searchable. */
   const [searchIndexing, setSearchIndexing] = useState(true);
@@ -278,6 +285,8 @@ export function ContentTypeDetailPanel({
   const [newFieldControl, setNewFieldControl] = useState(DEFAULT_LOCAL_FIELD_CONTROL);
   const [heldLock, setHeldLock] = useState(false);
   const heldLockRef = useRef(false);
+  const [activeKey, setActiveKey] = useState(idOrName);
+  const activeKeyRef = useRef(idOrName);
   const [iconSource, setIconSource] = useState<ContentTypeIconSource>(CONTENT_TYPE_ICON_NONE);
   const [iconValue, setIconValue] = useState("");
   const [savedIcon, setSavedIcon] = useState<ContentTypeIcon>(() => emptyIcon());
@@ -292,11 +301,15 @@ export function ContentTypeDetailPanel({
   }, [heldLock]);
 
   useEffect(() => {
-    const currentId = idOrName;
+    setActiveKey(idOrName);
+    activeKeyRef.current = idOrName;
+  }, [idOrName]);
+
+  useEffect(() => {
     return () => {
       if (heldLockRef.current) {
         heldLockRef.current = false;
-        void unlockContentType(currentId).catch(() => undefined);
+        void unlockContentType(activeKeyRef.current).catch(() => undefined);
       }
     };
   }, [idOrName]);
@@ -396,6 +409,7 @@ export function ContentTypeDetailPanel({
         if (cancelled) return;
         const normalized = normalizeDetailLists(d);
         setDetail(normalized);
+        setNameDraft(asContentTypeText(normalized.name) || idOrName);
         setLabel(asContentTypeText(normalized.label));
         setDescription(asContentTypeText(normalized.description));
         setEnabled(normalized.enabled !== false);
@@ -440,7 +454,7 @@ export function ContentTypeDetailPanel({
     let cancelled = false;
     setControlPropsLoading(true);
     setControlPropsError(null);
-    getFieldControlProperties(idOrName, field)
+    getFieldControlProperties(activeKey, field)
       .then((loaded) => {
         if (cancelled) return;
         const props = cloneControlProperties(loaded.properties);
@@ -471,7 +485,7 @@ export function ContentTypeDetailPanel({
     return () => {
       cancelled = true;
     };
-  }, [idOrName, selectedFieldName]);
+  }, [activeKey, selectedFieldName]);
 
   const initialDrafts = toDrafts(detail?.fields);
   const fieldsDirty =
@@ -534,6 +548,13 @@ export function ContentTypeDetailPanel({
   );
   const canEdit = heldLock && !busy && detail != null;
   const canEditItemExits = canEdit && itemExitsLoaded;
+  const currentInternalName = asContentTypeText(detail?.name) || activeKey;
+  const canRename =
+    canEdit &&
+    isContentTypeRenameReady({
+      currentName: currentInternalName,
+      nextName: nameDraft,
+    });
 
   function toggleField(key: string, prop: "searchable" | "required") {
     setFieldDrafts((prev) => {
@@ -660,7 +681,7 @@ export function ContentTypeDetailPanel({
     setError(null);
     setNotice(null);
     try {
-      const saved = await addLocalContentTypeField(idOrName, {
+      const saved = await addLocalContentTypeField(activeKeyRef.current, {
         name,
         label: newFieldLabel.trim() || undefined,
         dataType: newFieldDataType.trim() || "text",
@@ -704,8 +725,10 @@ export function ContentTypeDetailPanel({
     setError(null);
     setNotice(null);
     try {
-      await deleteLocalContentTypeField(idOrName, name);
-      const refreshed = applyLoadedDetail(await getContentTypeDetail(idOrName));
+      await deleteLocalContentTypeField(activeKeyRef.current, name);
+      const refreshed = applyLoadedDetail(
+        await getContentTypeDetail(activeKeyRef.current),
+      );
       const remaining = normalizeContentTypeFields(refreshed.fields);
       if (selectedFieldName === name) {
         setSelectedFieldName(remaining.find((f) => !!f.name)?.name || "");
@@ -746,7 +769,7 @@ export function ContentTypeDetailPanel({
     setError(null);
     setNotice(null);
     try {
-      await lockContentType(idOrName);
+      await lockContentType(activeKeyRef.current);
       heldLockRef.current = true;
       setHeldLock(true);
       setNotice(DEV_MSG.CT_LOCKED);
@@ -771,7 +794,7 @@ export function ContentTypeDetailPanel({
     setError(null);
     setNotice(null);
     try {
-      const exported = await exportContentType(idOrName);
+      const exported = await exportContentType(activeKeyRef.current);
       downloadXmlFile(exported.xml, exported.filename);
     } catch (err: unknown) {
       setError(exportErrMsg(err));
@@ -785,7 +808,7 @@ export function ContentTypeDetailPanel({
     setError(null);
     setNotice(null);
     try {
-      await unlockContentType(idOrName);
+      await unlockContentType(activeKeyRef.current);
       heldLockRef.current = false;
       setHeldLock(false);
       setControlProps(cloneControlProperties(controlPropsInitial));
@@ -806,7 +829,7 @@ export function ContentTypeDetailPanel({
   async function handleBack() {
     if (heldLockRef.current) {
       try {
-        await unlockContentType(idOrName);
+        await unlockContentType(activeKeyRef.current);
       } catch {
         // Best-effort release so Back cannot trap the operator on a stale lock.
       }
@@ -828,6 +851,74 @@ export function ContentTypeDetailPanel({
     return DEV_MSG.CT_DELETE_ERROR;
   }
 
+  function renameLooksLikeDuplicate(err: unknown): boolean {
+    if (!isApiError(err)) {
+      return false;
+    }
+    const body = err.body;
+    const text =
+      typeof body === "string"
+        ? body
+        : body != null && typeof body === "object"
+          ? JSON.stringify(body)
+          : "";
+    return /already exists|duplicate|reserved/i.test(text);
+  }
+
+  function renameErrorFallback(err: unknown): string {
+    if (isApiError(err)) {
+      if (err.status === 409) {
+        return renameLooksLikeDuplicate(err)
+          ? DEV_MSG.CT_DUPLICATE
+          : DEV_MSG.CT_RENAME_LOCK_REQUIRED;
+      }
+      if (err.status === 400) {
+        return renameLooksLikeDuplicate(err)
+          ? DEV_MSG.CT_DUPLICATE
+          : DEV_MSG.CT_INVALID_NAME;
+      }
+      if (err.status === 403) {
+        return DEV_MSG.CT_FORBIDDEN;
+      }
+    }
+    return DEV_MSG.CT_RENAME_ERROR;
+  }
+
+  async function handleRename(): Promise<void> {
+    if (!heldLockRef.current || busy || detail == null || !canRename) {
+      return;
+    }
+    const next = normalizeContentTypeName(nameDraft);
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const saved = normalizeDetailLists(
+        await renameContentType(activeKeyRef.current, next),
+      );
+      const renamed = asContentTypeText(saved.name) || next;
+      activeKeyRef.current = renamed;
+      setActiveKey(renamed);
+      setDetail(saved);
+      setNameDraft(renamed);
+      setLabel(asContentTypeText(saved.label));
+      setDescription(asContentTypeText(saved.description));
+      setEnabled(saved.enabled !== false);
+      setFieldDrafts(toDrafts(saved.fields));
+      setWorkflows(
+        withDefaultWorkflowFlags(saved.allowedWorkflows, saved.defaultWorkflow),
+      );
+      setTemplates(cloneNamedObjectRefs(saved.allowedTemplates));
+      setNotice(DEV_MSG.CT_RENAMED);
+      onRenamed?.(renamed, saved);
+    } catch (err: unknown) {
+      // 409: unlocked, another user, or duplicate — never steal by re-locking.
+      setError(panelErrMsg(err, renameErrorFallback(err)));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleDelete(): Promise<void> {
     // Require a held lock in chrome; do not call DELETE (or lock) when unlocked.
     if (!heldLockRef.current || busy || detail == null) {
@@ -840,7 +931,7 @@ export function ContentTypeDetailPanel({
     setError(null);
     setNotice(null);
     try {
-      await deleteContentType(idOrName);
+      await deleteContentType(activeKeyRef.current);
       heldLockRef.current = false;
       setHeldLock(false);
       setNotice(DEV_MSG.CT_DELETED);
@@ -931,11 +1022,16 @@ export function ContentTypeDetailPanel({
       // Enabled PUT first so a failed enable/disable cannot leave bulk fields persisted
       // (CD-13 two-call save; no shared rollback).
       if (enabledDirty) {
-        saved = normalizeDetailLists(await setContentTypeEnabled(idOrName, enabled));
+        saved = normalizeDetailLists(
+          await setContentTypeEnabled(activeKeyRef.current, enabled),
+        );
       }
       if (searchIndexingDirty) {
         try {
-          const si = await setContentTypeSearchIndexing(idOrName, searchIndexing);
+          const si = await setContentTypeSearchIndexing(
+            activeKeyRef.current,
+            searchIndexing,
+          );
           const on = si.searchIndexing !== false;
           setSearchIndexing(on);
           setSavedSearchIndexing(on);
@@ -955,7 +1051,11 @@ export function ContentTypeDetailPanel({
       }
       if (iconDirty) {
         try {
-          const iconSaved = await setContentTypeIcon(idOrName, iconSource, iconValue);
+          const iconSaved = await setContentTypeIcon(
+            activeKeyRef.current,
+            iconSource,
+            iconValue,
+          );
           const applied = applyIconEnvelope(iconSaved);
           setIconSource(applied.source);
           setIconValue(applied.value);
@@ -979,7 +1079,7 @@ export function ContentTypeDetailPanel({
       if (workflowsDirty) {
         try {
           workflowSaved = await setContentTypeAllowedWorkflows(
-            idOrName,
+            activeKeyRef.current,
             buildAllowedWorkflowsReplaceBody(workflows),
           );
           saved = saved
@@ -1003,7 +1103,9 @@ export function ContentTypeDetailPanel({
           fields: fieldPatches,
         };
         try {
-          const bulkSaved = normalizeDetailLists(await updateContentTypeDetail(idOrName, body));
+          const bulkSaved = normalizeDetailLists(
+            await updateContentTypeDetail(activeKeyRef.current, body),
+          );
           saved = {
             ...bulkSaved,
             enabled: saved?.enabled ?? bulkSaved.enabled,
@@ -1024,10 +1126,10 @@ export function ContentTypeDetailPanel({
       if (templatesDirty) {
         try {
           await replaceContentTypeAllowedTemplates(
-            idOrName,
+            activeKeyRef.current,
             toNamedObjectRefPayload(templates),
           );
-          const listed = await getContentTypeAllowedTemplates(idOrName);
+          const listed = await getContentTypeAllowedTemplates(activeKeyRef.current);
           saved =
             saved != null
               ? { ...saved, allowedTemplates: listed }
@@ -1052,7 +1154,7 @@ export function ContentTypeDetailPanel({
             (itemExits.maxErrorsToStopValidation ?? null) !==
             (savedItemExits.maxErrorsToStopValidation ?? null);
           const exitsSaved = await replaceContentTypeItemExits(
-            idOrName,
+            activeKeyRef.current,
             itemExits,
             includePipeExits,
             includeMaxErrors,
@@ -1082,17 +1184,17 @@ export function ContentTypeDetailPanel({
         try {
           const replaced = choicesDirty
             ? await replaceFieldControlProperties(
-                idOrName,
+                activeKeyRef.current,
                 field,
                 toControlPropertyPayload(controlProps),
                 toChoiceCatalogPayload(choiceCatalog),
               )
             : await replaceFieldControlProperties(
-                idOrName,
+                activeKeyRef.current,
                 field,
                 toControlPropertyPayload(controlProps),
               );
-          const listed = await getFieldControlProperties(idOrName, field);
+          const listed = await getFieldControlProperties(activeKeyRef.current, field);
           const nextProps = cloneControlProperties(
             listed.properties ?? replaced.properties,
           );
@@ -1300,6 +1402,23 @@ export function ContentTypeDetailPanel({
         </button>
         <button
           type="button"
+          data-testid="developer-ct-rename"
+          aria-label={DEV_MSG.CT_RENAME}
+          disabled={!canRename}
+          onClick={() => void handleRename()}
+          style={{
+            padding: "8px 16px",
+            background: canRename ? catalogColors.accent : catalogColors.disabled,
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: canRename ? "pointer" : "not-allowed",
+          }}
+        >
+          {DEV_MSG.CT_RENAME}
+        </button>
+        <button
+          type="button"
           data-testid="developer-ct-delete"
           aria-label={DEV_MSG.CT_DELETE}
           disabled={busy || !heldLock || detail == null}
@@ -1461,7 +1580,7 @@ export function ContentTypeDetailPanel({
 
       <div style={{ fontFamily: "monospace", color: catalogColors.muted, marginBottom: "12px" }}>
         <span data-testid="developer-ct-detail-name">
-          {asContentTypeText(detail?.name) || idOrName}
+          {asContentTypeText(detail?.name) || activeKey}
         </span>
         {detail ? (
           <>
@@ -1812,8 +1931,31 @@ export function ContentTypeDetailPanel({
         <>
           <header style={{ marginBottom: "16px" }}>
             <h2 style={{ margin: "0 0 4px" }} data-testid="developer-ct-detail-title">
-              {label || asContentTypeText(detail.name) || idOrName}
+              {label || asContentTypeText(detail.name) || activeKey}
             </h2>
+            <div style={{ marginTop: "12px" }}>
+              <label htmlFor="ct-name" style={{ display: "block", marginBottom: 4 }}>
+                {DEV_MSG.CT_FORM_NAME}
+              </label>
+              <input
+                id="ct-name"
+                data-testid="developer-ct-name"
+                style={{ ...inputStyle, fontFamily: "monospace" }}
+                value={nameDraft}
+                autoComplete="off"
+                onChange={(e) => {
+                  if (!canEdit) {
+                    return;
+                  }
+                  setNameDraft(e.target.value);
+                  setNotice(null);
+                }}
+                disabled={!canEdit}
+              />
+              <span style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
+                {DEV_MSG.CT_RENAME_HINT}
+              </span>
+            </div>
             <div style={{ marginTop: "12px" }}>
               <label htmlFor="ct-label" style={{ display: "block", marginBottom: 4 }}>
                 {DEV_MSG.CT_FORM_LABEL}
@@ -1993,7 +2135,7 @@ export function ContentTypeDetailPanel({
           </section>
 
           <ContentTypeIncludeFieldSection
-            idOrName={idOrName}
+            idOrName={activeKey}
             existingFields={fieldRows}
             canEdit={canEdit}
             onBusy={setBusy}
@@ -2302,7 +2444,7 @@ export function ContentTypeDetailPanel({
 
           <ContentTypeFieldRulesSection
             ref={fieldRulesRef}
-            idOrName={idOrName}
+            idOrName={activeKey}
             fields={fieldRows}
             canEdit={canEdit}
             onDirtyChange={setFieldRulesDirty}
