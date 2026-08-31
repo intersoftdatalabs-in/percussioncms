@@ -279,6 +279,21 @@ class ActionMenuAdaptorWriteTest {
   }
 
   @Test
+  void update_pathResolutionFailure_is409FailClosed() throws Exception {
+    PSAction existing = stubAction("MyMenu", 42);
+    stubCatalogLoad(existing);
+    when(designWs.objectIdToPath(any())).thenThrow(new PSErrorsException());
+    ActionMenu body = new ActionMenu();
+    body.setLabel("Updated");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.saveActionMenu("MyMenu", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().toLowerCase().contains("system"));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
   void update_lockConflict_is409() throws Exception {
     PSAction existing = stubAction("MyMenu", 42);
     stubCatalogLoad(existing);
@@ -330,6 +345,20 @@ class ActionMenuAdaptorWriteTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> adaptor.deleteActionMenu("Edit"));
     assertEquals(409, ex.getResponse().getStatus());
+    verify(designWs, never()).deleteActions(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void delete_pathResolutionFailure_is409FailClosed() throws Exception {
+    PSAction existing = stubAction("MyMenu", 42);
+    stubCatalogLoad(existing);
+    when(designWs.objectIdToPath(any()))
+        .thenThrow(new RuntimeException("path lookup failed"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.deleteActionMenu("MyMenu"));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().toLowerCase().contains("system"));
     verify(designWs, never()).deleteActions(anyList(), anyBoolean(), any(), any());
     verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
   }

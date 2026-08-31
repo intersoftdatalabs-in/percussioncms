@@ -625,8 +625,10 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       String path = service.objectIdToPath(guid);
       return isSystemMenuPath(path);
     } catch (RuntimeException e) {
-      log.debug("Could not resolve Workbench path for action {}: {}", guid, e.toString());
-      return false;
+      // Fail closed: a lookup error must not skip system-menu protection.
+      log.warn(
+          "Could not resolve Workbench path for action {}; treating as system menu", guid, e);
+      return true;
     }
   }
 

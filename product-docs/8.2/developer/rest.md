@@ -1430,6 +1430,8 @@ whitespace or wildcards. Duplicate name is **409**. Invalid name or menu type is
 **400**. Missing id/name is **404**. Non-Admin (or missing request session/user)
 is **403**. **System** menus (Workbench `Menus/System` hierarchy) cannot be
 updated or deleted — **409**; the design lock is not stolen (`overrideLock=false`).
+If Workbench path resolution fails, PUT/DELETE also return **409** (fail closed)
+so a lookup error cannot bypass that protection.
 PUT round-trips GET detail fields already exposed (`label`, `description`,
 `menuType`, `url`). Name is the catalog key and is not renamed on PUT.
 
