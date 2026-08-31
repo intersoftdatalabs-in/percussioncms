@@ -137,7 +137,7 @@ export const DEV_MSG_KEYS = {
   CT_COL_LABEL: "perc.ui.developer@Label",
   CT_COL_DESCRIPTION: "perc.ui.developer@Description",
   CT_COL_ID: "perc.ui.developer@Id",
-  CT_HINT: "perc.ui.developer@Create a type, import design XML, or select one to view fields and edit label, description, enabled, type-level search indexing, field flags, workflows, templates, item-level exits, control property values, and field-rule expressions. Export downloads design XML. Import creates a new type from that XML (unique name; no overwrite). Delete requires a held lock.",
+  CT_HINT: "perc.ui.developer@Create a type, import design XML, or select one to view fields and edit label, description, enabled, type-level search indexing, field flags, include system or shared fields, workflows, templates, item-level exits, control property values, and field-rule expressions. Export downloads design XML. Import creates a new type from that XML (unique name; no overwrite). Delete requires a held lock.",
   CT_NEW: "perc.ui.developer@New content type",
   CT_FORM_NAME: "perc.ui.developer@Name",
   CT_NAME_HINT:

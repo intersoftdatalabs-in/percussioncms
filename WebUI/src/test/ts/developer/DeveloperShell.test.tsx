@@ -176,6 +176,7 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     replaceFieldControlProperties: vi.fn().mockImplementation(async (_id, _field, properties) => ({
       properties,
     })),
+    includeContentTypeField: vi.fn(),
   };
 });
 

@@ -8,6 +8,7 @@ import {
   contentTypeSelectionKey,
   createContentType,
   deleteContentType,
+  includeContentTypeField,
   getContentTypeAllowedTemplates,
   getFieldControlProperties,
   isContentTypeCreateReady,
@@ -33,6 +34,7 @@ import {
   updateContentTypeDetail,
   wrapContentTypeCreateForWire,
   wrapContentTypeDetailForWire,
+  wrapContentTypeFieldForWire,
   wrapContentTypeEnabledForWire,
   wrapContentTypeSearchIndexingForWire,
   wrapContentTypeWorkflowsForWire,
@@ -1161,5 +1163,66 @@ describe("createContentType / deleteContentType CD-01", () => {
   it("surfaces 403 non-Admin delete", async () => {
     fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Forbidden" }, 403));
     await expect(deleteContentType("qaType")).rejects.toMatchObject({ status: 403 });
+  });
+});
+
+describe("includeContentTypeField CD-04 POST .../fields/include", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("wraps name and origin under ContentTypeField", () => {
+    expect(wrapContentTypeFieldForWire({ name: "sys_title", fieldType: "system" })).toEqual({
+      ContentTypeField: { name: "sys_title", fieldType: "system" },
+    });
+  });
+
+  it("POSTs include without lock or unlock and keeps origin", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeDetail: {
+          name: "percPage",
+          fields: [{ name: "sys_suffix", fieldType: "system" }],
+        },
+      }),
+    );
+    const saved = await includeContentTypeField("percPage", {
+      name: "sys_suffix",
+      fieldType: "system",
+    });
+    expect(saved.fields?.[0]?.name).toBe("sys_suffix");
+    expect(saved.fields?.[0]?.fieldType).toBe("system");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(init.method).toBe("POST");
+    expect(String(url)).toContain(`${PATHS.CONTENT_TYPES}/percPage/fields/include`);
+    expect(String(url)).not.toMatch(/\/lock$/);
+    expect(JSON.parse(String(init.body))).toEqual({
+      ContentTypeField: { name: "sys_suffix", fieldType: "system" },
+    });
+  });
+
+  it("encodes idOrName on the include path", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeDetail: { name: "perc Page", fields: [] } }),
+    );
+    await includeContentTypeField("perc Page", { name: "displaytitle", fieldType: "shared" });
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/${encodeURIComponent("perc Page")}/fields/include`,
+    );
   });
 });

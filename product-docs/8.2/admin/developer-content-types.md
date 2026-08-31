@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Create or delete a content type from Developer catalog chrome, lock, enable or disable, toggle type-level search indexing, rename via REST, add or delete local fields via REST, include system or shared fields via REST, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Create or delete a content type from Developer catalog chrome, lock, enable or disable, toggle type-level search indexing, rename via REST, add or delete local fields via REST, include system or shared fields from Developer detail, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -27,8 +27,9 @@ Workbench-equivalent `ItemDefData` design XML with Admin
 `POST /services/contenttypes/import` (CD-14; create only; duplicate name **409**;
 invalid XML **400**; the new object's create lock is released and existing types
 are not stolen). This chrome includes **export** (detail **Export XML**) and **create-only import**
-(catalog **Import XML**). Rename, **local field create/delete**, and **include
-system/shared fields** remain REST-only (no SPA field editor or field picker).
+(catalog **Import XML**). Rename and **local field create/delete** remain REST-only
+(no SPA local-field editor). After a held lock, the detail **Include system or shared field**
+picker includes an existing catalog field.
 After a held lock, integrators add a local field with
 `POST /services/contenttypes/{idOrName}/fields` (JSON `name` required) and
 remove one with `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}`.
