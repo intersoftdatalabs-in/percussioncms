@@ -128,6 +128,18 @@ export interface ContentTypeDetail {
   designGaps?: DesignGapWire[];
 }
 
+/**
+ * Jackson {@code ContentTypeSearchIndexing} body for CD-10 GET/PUT
+ * {@code .../searchIndexing}. Distinct from per-field {@code searchable}.
+ */
+export interface ContentTypeSearchIndexing {
+  /**
+   * When true, items of this content type may be indexed for search.
+   * Default is on (Workbench). Not the per-field searchable flag.
+   */
+  searchIndexing?: boolean;
+}
+
 /** Parameter on an item-level content type extension call (CD-09). */
 export interface ContentTypeItemExitParam {
   name?: string;

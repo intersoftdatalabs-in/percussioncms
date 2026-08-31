@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Create or delete a content type from Developer catalog chrome, lock, enable or disable, rename via REST, add or delete local fields via REST, include system or shared fields via REST, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Create or delete a content type from Developer catalog chrome, lock, enable or disable, toggle type-level search indexing, rename via REST, add or delete local fields via REST, include system or shared fields via REST, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -119,24 +119,33 @@ held lock). See **Rename a content type (REST)** below.
    **Object ACL** as soon as the type opens, including while the field catalog
    is still loading.
 4. The **detail toolbar at the top of the panel** (sticky) shows **Lock**,
-   **Save content type**, **Unlock**, **Delete content type**, and the **Enabled** checkbox. The type
-   name and **Allowed templates** add/remove chrome are visible immediately
-   (add/remove stay **disabled** until the type body has loaded and you hold
-   the lock). The status line starts as **Not locked**. Label, description,
-   enabled, field flags, and association editors stay **read-only** until you
-   hold the lock. You do not need to scroll past the fields table to lock or
-   save. Enabled stays disabled until you hold the lock; a failed lock (**409**)
-   does not steal another user's lock or enable the checkbox, template
+   **Save content type**, **Unlock**, **Delete content type**, the **Enabled**
+   checkbox, and **Search indexing**. The type name and **Allowed templates**
+   add/remove chrome are visible immediately (add/remove stay **disabled** until
+   the type body has loaded and you hold the lock). The status line starts as
+   **Not locked**. Label, description, enabled, type-level search indexing,
+   field flags, and association editors stay **read-only** until you hold the
+   lock. You do not need to scroll past the fields table to lock or save.
+   Enabled and Search indexing stay disabled until you hold the lock; a failed
+   lock (**409**) does not steal another user's lock or enable the checkboxes,
+   template
    add/remove, control property value editors, or Save.
 5. Click **Lock**. Status becomes **Locked by you**. If another user already
    holds the lock, the panel shows an error and Save stays disabled (the product
    does **not** steal the lock).
-6. Change the **Description**, **Enabled** checkbox, and any other unlocked
-   fields, then click **Save content type**. Save writes while the lock is still
-   held. It does **not** unlock. **Enabled** is written with a dedicated
+6. Change the **Description**, **Enabled** checkbox, **Search indexing**
+   checkbox, and any other unlocked fields, then click **Save content type**.
+   Save writes while the lock is still held. It does **not** unlock.
+   **Enabled** is written with a dedicated
    `PUT /services/contenttypes/{idOrName}/enabled` (CD-13), not the bulk
-   content-type save. Without a lock the checkbox stays disabled and a toggle
-   cannot persist.
+   content-type save. **Search indexing** is the Workbench Properties **Enable
+   searching for this Content Type** flag (root field-set `isUserSearchable`;
+   default on). It is written with
+   `GET`/`PUT /services/contenttypes/{idOrName}/searchIndexing` (CD-10) after a
+   held lock, and is **not** the per-field **Searchable** column on the fields
+   table. Without a lock both checkboxes stay disabled and a toggle cannot
+   persist. An unlocked or lost-lock save is **409** and the panel shows the
+   error.
 7. To change **Allowed templates**, follow **Allowed templates (after lock)**
    below. Save does **not** unlock.
 8. Click **Unlock** when you are done. Status returns to **Not locked** and the
@@ -330,9 +339,9 @@ The chrome calls:
 |--------|---------|
 | Create | `POST /services/contenttypes` (Admin; unique name, no spaces; 409 duplicate; 400 invalid; 403 non-Admin) |
 | Lock | `POST /services/contenttypes/{idOrName}/lock` |
-| Save (label, description, fields) | `PUT /services/contenttypes/{idOrName}` (requires a held lock; does not send `enabled`, `allowedWorkflows`, or `allowedTemplates`) |
+| Save (label, description, fields) | `PUT /services/contenttypes/{idOrName}` (requires a held lock; does not send `enabled`, type-level `searchIndexing`, `allowedWorkflows`, or `allowedTemplates`) |
 | Enable / disable | `PUT /services/contenttypes/{idOrName}/enabled` (CD-13; requires a held lock; does not acquire or release it) |
-| Type-level search indexing | `GET` / `PUT /services/contenttypes/{idOrName}/searchIndexing` (CD-10; REST-only; PUT requires a held lock; default on; not the per-field searchable flag; no SPA Properties checkbox) |
+| Type-level search indexing | `GET` / `PUT /services/contenttypes/{idOrName}/searchIndexing` (CD-10; Developer detail **Search indexing** checkbox after lock; PUT requires a held lock; default on; not the per-field searchable flag) |
 | Load icon strategy | `GET /services/contenttypes/{idOrName}/icon` (CD-11; no lock; `none` / `specified` / `fromFileField`) |
 | Set icon strategy | `PUT /services/contenttypes/{idOrName}/icon` (CD-11; Admin; held lock; `none` clears value; no binary upload; no SPA picker) |
 | Rename | `PUT /services/contenttypes/{idOrName}/name` (CD-01; Admin; held lock; unique name, no spaces; bulk PUT does not rename) |

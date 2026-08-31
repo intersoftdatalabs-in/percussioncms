@@ -23,6 +23,7 @@ import {
   getContentTypeAllowedTemplates,
   getContentTypeDetail,
   getContentTypeItemExits,
+  getContentTypeSearchIndexing,
   getFieldControlProperties,
   lockContentType,
   replaceContentTypeAllowedTemplates,
@@ -30,6 +31,7 @@ import {
   replaceFieldControlProperties,
   setContentTypeAllowedWorkflows,
   setContentTypeEnabled,
+  setContentTypeSearchIndexing,
   unlockContentType,
   updateContentTypeDetail,
   type ContentTypeUpdateBody,
@@ -179,6 +181,9 @@ export function ContentTypeDetailPanel({
   const [label, setLabel] = useState("");
   const [description, setDescription] = useState("");
   const [enabled, setEnabled] = useState(true);
+  /** Type-level search indexing (CD-10); default on. Distinct from per-field searchable. */
+  const [searchIndexing, setSearchIndexing] = useState(true);
+  const [savedSearchIndexing, setSavedSearchIndexing] = useState(true);
   const [fieldDrafts, setFieldDrafts] = useState<Record<string, FieldDraft>>({});
   const [workflows, setWorkflows] = useState<NamedObjectRef[]>([]);
   const [templates, setTemplates] = useState<NamedObjectRef[]>([]);
@@ -229,6 +234,20 @@ export function ContentTypeDetailPanel({
     setNotice(null);
     setHeldLock(false);
     heldLockRef.current = false;
+    setSearchIndexing(true);
+    setSavedSearchIndexing(true);
+    getContentTypeSearchIndexing(idOrName)
+      .then((si) => {
+        if (cancelled) return;
+        const on = si.searchIndexing !== false;
+        setSearchIndexing(on);
+        setSavedSearchIndexing(on);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setSearchIndexing(true);
+        setSavedSearchIndexing(true);
+      });
     setItemExits(emptyContentTypeItemExits());
     setSavedItemExits(emptyContentTypeItemExits());
     setItemExitsLoaded(false);
@@ -359,11 +378,14 @@ export function ContentTypeDetailPanel({
     selectedFieldName.trim().length > 0 &&
     !controlPropertiesEqual(controlProps, controlPropsInitial);
 
+  const searchIndexingDirty = searchIndexing !== savedSearchIndexing;
+
   const dirty =
     detail != null &&
     (label !== (detail.label || "") ||
       description !== (detail.description || "") ||
       enabled !== (detail.enabled !== false) ||
+      searchIndexingDirty ||
       fieldsDirty ||
       workflowsDirty ||
       templatesDirty ||
@@ -618,6 +640,7 @@ export function ContentTypeDetailPanel({
       fieldsDirty;
     if (
       !enabledDirty &&
+      !searchIndexingDirty &&
       !workflowsDirty &&
       !templatesDirty &&
       !bulkNeeded &&
@@ -652,6 +675,23 @@ export function ContentTypeDetailPanel({
       // (CD-13 two-call save; no shared rollback).
       if (enabledDirty) {
         saved = normalizeDetailLists(await setContentTypeEnabled(idOrName, enabled));
+      }
+      if (searchIndexingDirty) {
+        try {
+          const si = await setContentTypeSearchIndexing(idOrName, searchIndexing);
+          const on = si.searchIndexing !== false;
+          setSearchIndexing(on);
+          setSavedSearchIndexing(on);
+          if (saved == null) {
+            saved = normalizeDetailLists(detail);
+          }
+        } catch (siErr) {
+          if (saved != null) {
+            setDetail(saved);
+            setEnabled(saved.enabled !== false);
+          }
+          throw siErr;
+        }
       }
       if (workflowsDirty) {
         try {
@@ -862,9 +902,9 @@ export function ContentTypeDetailPanel({
         </div>
       ) : null}
 
-      {/* Always mount lock/enabled/template chrome so Playwright and operators
-          see it before GET detail finishes and without scrolling past the
-          fields table (#3834 #3835 #3836). */}
+      {/* Always mount lock/enabled/search-indexing/template chrome so Playwright
+          and operators see it before GET detail finishes and without scrolling
+          past the fields table (#3834 #3835 #3836 #4035). */}
       <div
         role="toolbar"
         aria-label={DEV_MSG.CT_LOCK_TOOLBAR}
@@ -994,6 +1034,22 @@ export function ContentTypeDetailPanel({
             disabled={!canEdit}
           />
           {DEV_MSG.CT_FORM_ENABLED}
+        </label>
+        <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <input
+            type="checkbox"
+            data-testid="developer-ct-search-indexing"
+            aria-label={DEV_MSG.CT_FORM_SEARCH_INDEXING}
+            checked={searchIndexing}
+            onChange={() => {
+              if (!canEdit) {
+                return;
+              }
+              setSearchIndexing((v) => !v);
+            }}
+            disabled={!canEdit}
+          />
+          {DEV_MSG.CT_FORM_SEARCH_INDEXING}
         </label>
       </div>
 

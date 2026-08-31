@@ -35,6 +35,7 @@ import type {
   ContentTypeFieldControlProperties,
   ContentTypeFieldSummary,
   ContentTypeItemExits,
+  ContentTypeSearchIndexing,
   ContentTypeSummary,
   NamedObjectRef,
 } from "./types";
@@ -478,6 +479,8 @@ export function wrapContentTypeDetailForWire(
  * unlocked or locked by another user.
  *
  * <p>Do not send {@code enabled} here — use {@link setContentTypeEnabled} (CD-13).
+ * Do not send type-level search indexing here — use
+ * {@link setContentTypeSearchIndexing} (CD-10).
  * Do not send {@code allowedWorkflows} here — use
  * {@link setContentTypeAllowedWorkflows} (CD-08).
  * Do not send {@code allowedTemplates} here — use
@@ -527,6 +530,78 @@ export async function setContentTypeEnabled(
     wrapContentTypeEnabledForWire(enabled),
   );
   return unwrapContentTypeDetail(payload);
+}
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code ContentTypeSearchIndexing}. */
+export const CONTENT_TYPE_SEARCH_INDEXING_ROOT = "ContentTypeSearchIndexing";
+
+/**
+ * Normalize GET/PUT {@code .../searchIndexing} to a flat flag.
+ *
+ * <p>Prefers {@code { "ContentTypeSearchIndexing": { searchIndexing } }}
+ * (Jackson WRAP_ROOT_VALUE); also accepts a flat body. Missing flag defaults
+ * to on (Workbench / CD-10).
+ */
+export function unwrapContentTypeSearchIndexing(
+  payload: unknown,
+): ContentTypeSearchIndexing {
+  const root = asRecord(payload);
+  if (!root) {
+    return { searchIndexing: true };
+  }
+  const nested =
+    asRecord(root[CONTENT_TYPE_SEARCH_INDEXING_ROOT]) ??
+    asRecord(root.contentTypeSearchIndexing);
+  const body = nested ?? root;
+  return { searchIndexing: body.searchIndexing !== false };
+}
+
+/**
+ * Build the wire JSON body for {@code PUT .../searchIndexing} under
+ * {@link CONTENT_TYPE_SEARCH_INDEXING_ROOT}. A flat {@code { searchIndexing }}
+ * body fails server UNWRAP_ROOT_VALUE.
+ */
+export function wrapContentTypeSearchIndexingForWire(
+  searchIndexing: boolean,
+): Record<string, { searchIndexing: boolean }> {
+  return { [CONTENT_TYPE_SEARCH_INDEXING_ROOT]: { searchIndexing } };
+}
+
+/**
+ * GET /services/contenttypes/{idOrName}/searchIndexing — CD-10 type-level flag.
+ *
+ * <p>No design lock required. Distinct from per-field {@code searchable}.
+ * Default is on.
+ */
+export async function getContentTypeSearchIndexing(
+  idOrName: string,
+): Promise<ContentTypeSearchIndexing> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await get<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}/searchIndexing`,
+  );
+  return unwrapContentTypeSearchIndexing(payload);
+}
+
+/**
+ * PUT /services/contenttypes/{idOrName}/searchIndexing — CD-10 dedicated write.
+ *
+ * <p>Requires a design-session lock already held by the current user
+ * ({@link lockContentType}). Does not acquire or release the lock. HTTP 409
+ * when unlocked or locked by another user. Missing {@code searchIndexing} is
+ * HTTP 400 (this client always sends the boolean). Response is
+ * {@code ContentTypeSearchIndexing} (lock still held).
+ */
+export async function setContentTypeSearchIndexing(
+  idOrName: string,
+  searchIndexing: boolean,
+): Promise<ContentTypeSearchIndexing> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}/searchIndexing`,
+    wrapContentTypeSearchIndexingForWire(searchIndexing),
+  );
+  return unwrapContentTypeSearchIndexing(payload);
 }
 
 /** Jackson {@code WRAP_ROOT_VALUE} root for {@code ContentTypeWorkflows}. */

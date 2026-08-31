@@ -20,10 +20,13 @@ import {
   normalizeNamedObjectRefs,
   replaceContentTypeAllowedTemplates,
   replaceFieldControlProperties,
+  getContentTypeSearchIndexing,
   setContentTypeAllowedWorkflows,
   setContentTypeEnabled,
+  setContentTypeSearchIndexing,
   unwrapContentTypeDetail,
   unwrapContentTypeList,
+  unwrapContentTypeSearchIndexing,
   unwrapFieldControlProperties,
   unwrapNamedObjectRefList,
   unwrapObjectLockSummary,
@@ -31,6 +34,7 @@ import {
   wrapContentTypeCreateForWire,
   wrapContentTypeDetailForWire,
   wrapContentTypeEnabledForWire,
+  wrapContentTypeSearchIndexingForWire,
   wrapContentTypeWorkflowsForWire,
   wrapFieldControlPropertiesForWire,
   wrapNamedObjectRefListForWire,
@@ -460,6 +464,122 @@ describe("setContentTypeEnabled CD-13 dedicated PUT (#3781)", () => {
     expect(String(fetchMock.mock.calls[0][0])).toContain(
       `${PATHS.CONTENT_TYPES}/${encodeURIComponent("perc Page")}/enabled`,
     );
+  });
+});
+
+describe("content type searchIndexing CD-10 (#4035)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("wraps searchIndexing under ContentTypeSearchIndexing", () => {
+    expect(wrapContentTypeSearchIndexingForWire(false)).toEqual({
+      ContentTypeSearchIndexing: { searchIndexing: false },
+    });
+    expect(wrapContentTypeSearchIndexingForWire(true)).toEqual({
+      ContentTypeSearchIndexing: { searchIndexing: true },
+    });
+    expect(
+      wrapContentTypeSearchIndexingForWire(false).ContentTypeSearchIndexing.searchIndexing,
+    ).not.toBeUndefined();
+  });
+
+  it("unwraps Jackson root, nested camelCase, and defaults missing flag to on", () => {
+    expect(
+      unwrapContentTypeSearchIndexing({
+        ContentTypeSearchIndexing: { searchIndexing: false },
+      }).searchIndexing,
+    ).toBe(false);
+    expect(
+      unwrapContentTypeSearchIndexing({
+        contentTypeSearchIndexing: { searchIndexing: true },
+      }).searchIndexing,
+    ).toBe(true);
+    expect(unwrapContentTypeSearchIndexing({ searchIndexing: false }).searchIndexing).toBe(
+      false,
+    );
+    expect(unwrapContentTypeSearchIndexing({}).searchIndexing).toBe(true);
+    expect(unwrapContentTypeSearchIndexing(null).searchIndexing).toBe(true);
+  });
+
+  it("GETs /contenttypes/{id}/searchIndexing", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeSearchIndexing: { searchIndexing: false },
+      }),
+    );
+    const got = await getContentTypeSearchIndexing("percPage");
+    expect(got.searchIndexing).toBe(false);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("GET");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/percPage/searchIndexing`,
+    );
+  });
+
+  it("PUTs /contenttypes/{id}/searchIndexing without lock or unlock", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeSearchIndexing: { searchIndexing: false },
+      }),
+    );
+
+    const saved = await setContentTypeSearchIndexing("percPage", false);
+    expect(saved.searchIndexing).toBe(false);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/percPage/searchIndexing`,
+    );
+    expect(JSON.parse(String(init.body))).toEqual({
+      ContentTypeSearchIndexing: { searchIndexing: false },
+    });
+  });
+
+  it("encodes idOrName on the searchIndexing path", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeSearchIndexing: { searchIndexing: true } }),
+    );
+    await setContentTypeSearchIndexing("perc Page", true);
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/${encodeURIComponent("perc Page")}/searchIndexing`,
+    );
+  });
+
+  it("does not persist when unlocked PUT is 409", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Design lock required" }, 409));
+    await expect(setContentTypeSearchIndexing("percPage", false)).rejects.toMatchObject({
+      status: 409,
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body))).toEqual({
+      ContentTypeSearchIndexing: { searchIndexing: false },
+    });
+  });
+
+  it("surfaces 400 when the server rejects a missing searchIndexing boolean", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ message: "searchIndexing is required" }, 400),
+    );
+    await expect(setContentTypeSearchIndexing("percPage", false)).rejects.toMatchObject({
+      status: 400,
+    });
   });
 });
 
