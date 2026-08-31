@@ -23,6 +23,8 @@ Operators using **Developer → Content types** lock/save chrome: [Developer Con
 
 Operators using **Developer → Locales** create/save/delete chrome: [Developer Locales](id:admin-developer-locales).
 
+Operators using **Developer → System definition** field save/add/delete chrome: [Developer System Def](id:admin-developer-system-def).
+
 ## Architecture snapshot
 
 ```text

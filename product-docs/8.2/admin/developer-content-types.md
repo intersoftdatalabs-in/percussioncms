@@ -52,8 +52,11 @@ separate singleton: Admin-only `GET /services/systemdef` and
 Nested `POST /services/systemdef/fields` and
 `DELETE /services/systemdef/fields/{fieldName}` add or remove system fields
 (backend column + display mapping). Duplicate field names are **409**.
-System-mandatory and system-internal fields cannot be deleted (**400**). An SPA
-editor is not in this chrome. Admin `GET /services/contenttypes/{idOrName}/export`
+System-mandatory and system-internal fields cannot be deleted (**400**).
+**Developer → System definition** exposes save / add / delete for those field
+properties (request lock released on save). Control, stylesheet, and flow
+editors are not in that chrome. See
+[Developer System Def](id:admin-developer-system-def). Admin `GET /services/contenttypes/{idOrName}/export`
 downloads Workbench-equivalent design XML (CD-14; no lock steal). REST import of
 that XML is `POST /services/contenttypes/import` (above). An SPA export/import
 wizard is not in this chrome. See

@@ -461,23 +461,31 @@ vi.mock("../../../main/ts/api/developer/sharedFieldsApi", () => ({
   }),
 }));
 
-vi.mock("../../../main/ts/api/developer/systemDefApi", () => ({
-  getSystemDef: vi.fn().mockResolvedValue({
-    fieldCount: 1,
-    cacheTimeoutMinutes: 10,
-    fields: [
-      {
-        name: "sys_title",
-        dataType: "text",
-        required: true,
-        searchable: true,
-        readOnly: false,
-        occurrence: "required",
-      },
-    ],
-    designGaps: [],
-  }),
-}));
+vi.mock("../../../main/ts/api/developer/systemDefApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/systemDefApi")>();
+  return {
+    ...actual,
+    getSystemDef: vi.fn().mockResolvedValue({
+      fieldCount: 1,
+      cacheTimeoutMinutes: 10,
+      fields: [
+        {
+          name: "sys_title",
+          dataType: "text",
+          required: true,
+          searchable: true,
+          readOnly: false,
+          occurrence: "required",
+        },
+      ],
+      designGaps: [],
+    }),
+    updateSystemDef: vi.fn(),
+    addSystemDefField: vi.fn(),
+    deleteSystemDefField: vi.fn(),
+  };
+});
 
 vi.mock("../../../main/ts/api/developer/itemFiltersApi", () => ({
   listItemFilters: vi.fn().mockResolvedValue([

@@ -410,7 +410,7 @@ export interface SharedFieldGroupDetail {
   designGaps?: string[];
 }
 
-/** Field row from GET /services/systemdef. */
+/** Field row from GET /services/systemdef (PUT patches searchable / occurrence). */
 export interface SystemDefFieldSummary {
   name?: string;
   dataType?: string;
@@ -420,7 +420,7 @@ export interface SystemDefFieldSummary {
   occurrence?: string;
 }
 
-/** Read-only content-editor system definition. */
+/** Content-editor system definition catalog (GET/PUT /services/systemdef). */
 export interface SystemDefDetail {
   fieldCount?: number;
   cacheTimeoutMinutes?: number;
