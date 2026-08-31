@@ -31,6 +31,8 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     }),
     getContentTypeAllowedTemplates: vi.fn().mockResolvedValue([]),
     getFieldControlProperties: vi.fn().mockResolvedValue({ properties: [] }),
+    getContentTypeIcon: vi.fn().mockResolvedValue({ source: "none" }),
+    setContentTypeIcon: vi.fn().mockResolvedValue({ source: "none" }),
   };
 });
 

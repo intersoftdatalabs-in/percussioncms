@@ -19,18 +19,28 @@ import React, { useEffect, useRef, useState } from "react";
 import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
   asContentTypeText,
+  CONTENT_TYPE_ICON_FROM_FILE_FIELD,
+  CONTENT_TYPE_ICON_NONE,
+  CONTENT_TYPE_ICON_SPECIFIED,
   getContentTypeAllowedTemplates,
   getContentTypeDetail,
+  getContentTypeIcon,
   getContentTypeItemExits,
   getFieldControlProperties,
+  isContentTypeIconNone,
   lockContentType,
+  normalizeContentTypeIconSource,
   replaceContentTypeAllowedTemplates,
   replaceContentTypeItemExits,
   replaceFieldControlProperties,
+  contentTypeIconPutBody,
   setContentTypeAllowedWorkflows,
   setContentTypeEnabled,
+  setContentTypeIcon,
   unlockContentType,
   updateContentTypeDetail,
+  unwrapContentTypeIcon,
+  type ContentTypeIconSource,
   type ContentTypeUpdateBody,
 } from "../api/developer/contentTypesApi";
 import {
@@ -50,6 +60,7 @@ import type {
   ContentTypeControlProperty,
   ContentTypeDetail,
   ContentTypeFieldSummary,
+  ContentTypeIcon,
   ContentTypeItemExits,
   NamedObjectRef,
 } from "../api/developer/types";
@@ -145,6 +156,24 @@ function normalizeDetailLists(d: ContentTypeDetail): ContentTypeDetail {
   };
 }
 
+function emptyIcon(): ContentTypeIcon {
+  return { source: CONTENT_TYPE_ICON_NONE };
+}
+
+function applyIconEnvelope(icon: ContentTypeIcon | null | undefined): {
+  source: ContentTypeIconSource;
+  value: string;
+} {
+  const unwrapped = unwrapContentTypeIcon(icon ?? emptyIcon());
+  const source = normalizeContentTypeIconSource(unwrapped.source);
+  const value = isContentTypeIconNone(source)
+    ? ""
+    : typeof unwrapped.value === "string"
+      ? unwrapped.value
+      : "";
+  return { source, value };
+}
+
 function refKey(r: NamedObjectRef, index: number): string {
   if (r.name) return `name:${r.name}`;
   if (r.guid?.stringValue) return `guid:${r.guid.stringValue}`;
@@ -198,6 +227,12 @@ export function ContentTypeDetailPanel({
   const [newPropValue, setNewPropValue] = useState("");
   const [heldLock, setHeldLock] = useState(false);
   const heldLockRef = useRef(false);
+  const [iconSource, setIconSource] = useState<ContentTypeIconSource>(CONTENT_TYPE_ICON_NONE);
+  const [iconValue, setIconValue] = useState("");
+  const [savedIcon, setSavedIcon] = useState<ContentTypeIcon>(() => emptyIcon());
+  const [iconLoaded, setIconLoaded] = useState(false);
+  const [iconError, setIconError] = useState<string | null>(null);
+  const iconTouchedRef = useRef(false);
   const fieldRulesRef = useRef<ContentTypeFieldRulesHandle | null>(null);
   const [fieldRulesDirty, setFieldRulesDirty] = useState(false);
 
@@ -249,6 +284,40 @@ export function ContentTypeDetailPanel({
     setNewPropName("");
     setNewPropValue("");
     setFieldRulesDirty(false);
+    setIconSource(CONTENT_TYPE_ICON_NONE);
+    setIconValue("");
+    setSavedIcon(emptyIcon());
+    setIconLoaded(false);
+    setIconError(null);
+    iconTouchedRef.current = false;
+    getContentTypeIcon(idOrName)
+      .then((icon) => {
+        if (cancelled) return;
+        if (iconTouchedRef.current) {
+          setIconLoaded(true);
+          return;
+        }
+        const applied = applyIconEnvelope(icon);
+        setIconSource(applied.source);
+        setIconValue(applied.value);
+        setSavedIcon(
+          applied.source === CONTENT_TYPE_ICON_NONE
+            ? emptyIcon()
+            : { source: applied.source, value: applied.value },
+        );
+        setIconLoaded(true);
+        setIconError(null);
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        if (!iconTouchedRef.current) {
+          setIconSource(CONTENT_TYPE_ICON_NONE);
+          setIconValue("");
+          setSavedIcon(emptyIcon());
+        }
+        setIconLoaded(true);
+        setIconError(panelErrMsg(err, DEV_MSG.CT_ICON_LOAD_ERROR));
+      });
     getContentTypeDetail(idOrName)
       .then((d) => {
         if (cancelled) return;
@@ -352,6 +421,14 @@ export function ContentTypeDetailPanel({
     selectedFieldName.trim().length > 0 &&
     !controlPropertiesEqual(controlProps, controlPropsInitial);
 
+  const savedIconApplied = applyIconEnvelope(savedIcon);
+  const iconDirty =
+    iconLoaded &&
+    (iconSource !== savedIconApplied.source ||
+      (iconSource === CONTENT_TYPE_ICON_NONE
+        ? false
+        : iconValue.trim() !== savedIconApplied.value.trim()));
+
   const dirty =
     detail != null &&
     (label !== (detail.label || "") ||
@@ -362,7 +439,8 @@ export function ContentTypeDetailPanel({
       templatesDirty ||
       itemExitsDirty ||
       controlPropsDirty ||
-      fieldRulesDirty);
+      fieldRulesDirty ||
+      iconDirty);
 
   const objectGuid = resolveContentTypeObjectGuid(detail, catalogGuid);
   const fieldRows = contentTypeFields(detail);
@@ -517,6 +595,9 @@ export function ContentTypeDetailPanel({
       setControlProps(cloneControlProperties(controlPropsInitial));
       setNewPropName("");
       setNewPropValue("");
+      const restored = applyIconEnvelope(savedIcon);
+      setIconSource(restored.source);
+      setIconValue(restored.value);
       setNotice(DEV_MSG.CT_UNLOCKED_NOTICE);
     } catch (err: unknown) {
       setError(panelErrMsg(err, DEV_MSG.CT_UNLOCK_ERROR));
@@ -546,6 +627,14 @@ export function ContentTypeDetailPanel({
     if (detail == null) {
       return;
     }
+    if (iconDirty) {
+      try {
+        contentTypeIconPutBody(iconSource, iconValue);
+      } catch (pre) {
+        setError(panelErrMsg(pre, DEV_MSG.CT_SAVE_ERROR));
+        return;
+      }
+    }
     const enabledDirty = enabled !== (detail.enabled !== false);
     const bulkNeeded =
       label !== (detail.label || "") ||
@@ -558,7 +647,8 @@ export function ContentTypeDetailPanel({
       !bulkNeeded &&
       !itemExitsDirty &&
       !controlPropsDirty &&
-      !fieldRulesDirty
+      !fieldRulesDirty &&
+      !iconDirty
     ) {
       return;
     }
@@ -587,6 +677,29 @@ export function ContentTypeDetailPanel({
       // (CD-13 two-call save; no shared rollback).
       if (enabledDirty) {
         saved = normalizeDetailLists(await setContentTypeEnabled(idOrName, enabled));
+      }
+      if (iconDirty) {
+        try {
+          const iconSaved = await setContentTypeIcon(idOrName, iconSource, iconValue);
+          const applied = applyIconEnvelope(iconSaved);
+          setIconSource(applied.source);
+          setIconValue(applied.value);
+          setSavedIcon(
+            applied.source === CONTENT_TYPE_ICON_NONE
+              ? emptyIcon()
+              : { source: applied.source, value: applied.value },
+          );
+          setIconError(null);
+          if (saved == null) {
+            saved = normalizeDetailLists(detail);
+          }
+        } catch (iconErr) {
+          if (saved != null) {
+            setDetail(saved);
+            setEnabled(saved.enabled !== false);
+          }
+          throw iconErr;
+        }
       }
       if (workflowsDirty) {
         try {
@@ -739,7 +852,13 @@ export function ContentTypeDetailPanel({
           throw frErr;
         }
       }
-      if (saved == null && !itemExitsDirty && !controlPropsDirty && !fieldRulesDirty) {
+      if (
+        saved == null &&
+        !itemExitsDirty &&
+        !controlPropsDirty &&
+        !fieldRulesDirty &&
+        !iconDirty
+      ) {
         return;
       }
       if (saved == null) {
@@ -896,6 +1015,106 @@ export function ContentTypeDetailPanel({
           {DEV_MSG.CT_FORM_ENABLED}
         </label>
       </div>
+
+      <section style={{ marginBottom: "16px" }} data-testid="developer-ct-icon">
+        <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_ICON}</h3>
+        <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.CT_ICON_HINT}</p>
+        {iconError ? (
+          <p
+            role="status"
+            data-testid="developer-ct-icon-error"
+            style={{ color: catalogColors.error }}
+          >
+            {iconError}
+          </p>
+        ) : null}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(12rem, 16rem) 1fr",
+            gap: "8px",
+            alignItems: "end",
+          }}
+        >
+          <div>
+            <label htmlFor="ct-icon-source" style={{ display: "block", marginBottom: 4 }}>
+              {DEV_MSG.CT_ICON_SOURCE}
+            </label>
+            <select
+              id="ct-icon-source"
+              data-testid="developer-ct-icon-source"
+              aria-label={DEV_MSG.CT_ICON_SOURCE}
+              style={inputStyle}
+              value={iconSource}
+              disabled={!canEdit}
+              onChange={(e) => {
+                if (!canEdit) {
+                  return;
+                }
+                const next = normalizeContentTypeIconSource(e.target.value);
+                iconTouchedRef.current = true;
+                setIconSource(next);
+                if (next === CONTENT_TYPE_ICON_NONE) {
+                  setIconValue("");
+                }
+                setNotice(null);
+              }}
+            >
+              <option value={CONTENT_TYPE_ICON_NONE}>{DEV_MSG.CT_ICON_NONE}</option>
+              <option value={CONTENT_TYPE_ICON_SPECIFIED}>{DEV_MSG.CT_ICON_SPECIFIED}</option>
+              <option value={CONTENT_TYPE_ICON_FROM_FILE_FIELD}>
+                {DEV_MSG.CT_ICON_FROM_FILE_FIELD}
+              </option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="ct-icon-value" style={{ display: "block", marginBottom: 4 }}>
+              {DEV_MSG.CT_ICON_VALUE}
+            </label>
+            <input
+              id="ct-icon-value"
+              type="text"
+              autoComplete="off"
+              list="ct-icon-file-fields"
+              data-testid="developer-ct-icon-value"
+              aria-label={DEV_MSG.CT_ICON_VALUE}
+              style={inputStyle}
+              placeholder={DEV_MSG.CT_ICON_VALUE_PLACEHOLDER}
+              value={iconValue}
+              disabled={!canEdit || iconSource === CONTENT_TYPE_ICON_NONE}
+              readOnly={!canEdit || iconSource === CONTENT_TYPE_ICON_NONE}
+              onChange={(e) => {
+                if (!canEdit || iconSource === CONTENT_TYPE_ICON_NONE) {
+                  return;
+                }
+                iconTouchedRef.current = true;
+                setIconValue(e.target.value);
+                setNotice(null);
+              }}
+            />
+            <datalist id="ct-icon-file-fields">
+              {fieldRows
+                .filter((f) => {
+                  if (!f.name) return false;
+                  const dt = (f.dataType || "").toLowerCase();
+                  const control = (f.control || "").toLowerCase();
+                  return (
+                    dt === "binary" ||
+                    dt === "image" ||
+                    dt === "file" ||
+                    control.includes("file") ||
+                    control.includes("image")
+                  );
+                })
+                .map((f) => (
+                  <option key={fieldKey(f)} value={f.name || ""}>
+                    {f.label || f.name}
+                  </option>
+                ))}
+            </datalist>
+          </div>
+        </div>
+      </section>
 
       <div style={{ fontFamily: "monospace", color: catalogColors.muted, marginBottom: "12px" }}>
         <span data-testid="developer-ct-detail-name">

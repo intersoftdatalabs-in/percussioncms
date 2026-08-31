@@ -168,6 +168,10 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     })),
     lockContentType: vi.fn().mockResolvedValue({ locker: "Admin", remainingTime: 30 }),
     unlockContentType: vi.fn().mockResolvedValue(undefined),
+    getContentTypeIcon: vi.fn().mockResolvedValue({ source: "none" }),
+    setContentTypeIcon: vi.fn().mockImplementation(async (_id, source: string, value?: string) =>
+      source === "none" ? { source: "none" } : { source, value },
+    ),
     getContentTypeAllowedTemplates: vi.fn().mockResolvedValue([{ name: "perc.page", label: "Page" }]),
     replaceContentTypeAllowedTemplates: vi.fn().mockImplementation(async (_id, templates) => templates),
     getFieldControlProperties: vi.fn().mockResolvedValue({ properties: [] }),

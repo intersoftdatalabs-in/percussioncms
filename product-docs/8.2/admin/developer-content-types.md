@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Lock, enable or disable, rename via REST, add or delete local fields via REST, include system or shared fields via REST, export design XML via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Lock, enable or disable, set icon strategy, rename via REST, add or delete local fields via REST, include system or shared fields via REST, export design XML via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -10,7 +10,7 @@ tags: [admin, developer, content-types]
 # Developer Content Types
 
 **Developer → Content types** lists design content types and opens a detail panel
-for fields, allowed workflows, allowed templates, **item-level exits**, **control property values**,
+for fields, allowed workflows, allowed templates, **icon strategy**, **item-level exits**, **control property values**,
 **field-rule expressions**, and Object ACL. Design edits use an explicit **design-session lock** so two
 Admins cannot overwrite the same type at once.
 
@@ -90,24 +90,42 @@ null-entry / default-selected writes are not in this chrome.
    name and **Allowed templates** add/remove chrome are visible immediately
    (add/remove stay **disabled** until the type body has loaded and you hold
    the lock). The status line starts as **Not locked**. Label, description,
-   enabled, field flags, and association editors stay **read-only** until you
+   enabled, icon strategy, field flags, and association editors stay **read-only** until you
    hold the lock. You do not need to scroll past the fields table to lock or
-   save. Enabled stays disabled until you hold the lock; a failed lock (**409**)
-   does not steal another user's lock or enable the checkbox, template
-   add/remove, control property value editors, or Save.
+   save. Enabled and **Icon strategy** stay disabled until you hold the lock; a failed lock (**409**)
+   does not steal another user's lock or enable the checkbox, icon source/value,
+   template add/remove, control property value editors, or Save.
 5. Click **Lock**. Status becomes **Locked by you**. If another user already
    holds the lock, the panel shows an error and Save stays disabled (the product
    does **not** steal the lock).
-6. Change the **Description**, **Enabled** checkbox, and any other unlocked
+6. Change the **Description**, **Enabled** checkbox, **Icon strategy**, and any other unlocked
    fields, then click **Save content type**. Save writes while the lock is still
    held. It does **not** unlock. **Enabled** is written with a dedicated
    `PUT /services/contenttypes/{idOrName}/enabled` (CD-13), not the bulk
-   content-type save. Without a lock the checkbox stays disabled and a toggle
-   cannot persist.
+   content-type save. **Icon strategy** is written with
+   `PUT /services/contenttypes/{idOrName}/icon` (CD-11; `none` / `specified` /
+   `fromFileField`). `none` clears the value. A blank value when source is not
+   `none` is **400**. Without a lock the checkbox and icon editors stay disabled
+   and cannot persist. This chrome does **not** upload icon binaries.
 7. To change **Allowed templates**, follow **Allowed templates (after lock)**
    below. Save does **not** unlock.
 8. Click **Unlock** when you are done. Status returns to **Not locked** and the
    form is read-only again. **Back to list** also releases a lock you hold.
+
+### Icon strategy (after lock)
+
+The **Icon strategy** control is read-only until you hold the lock. **Source**
+and **Value** stay **disabled** while status is **Not locked**. After **Lock**:
+
+1. Choose **None**, **Specified file**, or **From file field**.
+2. For **Specified file**, enter a file path or name (for example
+   `rx_resources/images/ContentTypeIcons/page.gif`). For **From file field**,
+   enter the file field name (for example `item_file_attachment`). **None**
+   clears the value; the value field is disabled.
+3. Click **Save content type**. Save writes
+   `PUT /services/contenttypes/{idOrName}/icon` while the lock is still held.
+   A blank value when source is not **None** is **400**. Unlocked or another
+   user's lock is **409**. This chrome does **not** upload icon binaries.
 
 ### Allowed workflows (after lock)
 
@@ -273,7 +291,7 @@ The chrome calls:
 | Enable / disable | `PUT /services/contenttypes/{idOrName}/enabled` (CD-13; requires a held lock; does not acquire or release it) |
 | Type-level search indexing | `GET` / `PUT /services/contenttypes/{idOrName}/searchIndexing` (CD-10; REST-only; PUT requires a held lock; default on; not the per-field searchable flag; no SPA Properties checkbox) |
 | Load icon strategy | `GET /services/contenttypes/{idOrName}/icon` (CD-11; no lock; `none` / `specified` / `fromFileField`) |
-| Set icon strategy | `PUT /services/contenttypes/{idOrName}/icon` (CD-11; Admin; held lock; `none` clears value; no binary upload; no SPA picker) |
+| Set icon strategy | `PUT /services/contenttypes/{idOrName}/icon` (CD-11; Admin; held lock; `none` clears value; blank non-none is **400**; no binary upload; SPA Properties picker after lock) |
 | Rename | `PUT /services/contenttypes/{idOrName}/name` (CD-01; Admin; held lock; unique name, no spaces; bulk PUT does not rename) |
 | Save allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` (requires a held lock; does not unlock) |
 | Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` (held lock; full replace) |

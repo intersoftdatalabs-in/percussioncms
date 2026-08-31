@@ -17,6 +17,14 @@ import {
   replaceFieldControlProperties,
   setContentTypeAllowedWorkflows,
   setContentTypeEnabled,
+  setContentTypeIcon,
+  getContentTypeIcon,
+  contentTypeIconPutBody,
+  unwrapContentTypeIcon,
+  wrapContentTypeIconForWire,
+  CONTENT_TYPE_ICON_NONE,
+  CONTENT_TYPE_ICON_SPECIFIED,
+  CONTENT_TYPE_ICON_FROM_FILE_FIELD,
   unwrapContentTypeDetail,
   unwrapContentTypeList,
   unwrapFieldControlProperties,
@@ -902,5 +910,136 @@ describe("field controlProperties GET/PUT (CD-07)", () => {
     expect(listed.properties).toEqual([]);
     const body = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body));
     expect(body).toEqual({ ContentTypeFieldControlProperties: { properties: [] } });
+  });
+});
+
+describe("content type icon strategy CD-11 (#4047)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("none omits value on the ContentTypeIcon wrap", () => {
+    expect(wrapContentTypeIconForWire(CONTENT_TYPE_ICON_NONE, "ignored.gif")).toEqual({
+      ContentTypeIcon: { source: CONTENT_TYPE_ICON_NONE },
+    });
+    expect(contentTypeIconPutBody("NONE", "x")).toEqual({ source: CONTENT_TYPE_ICON_NONE });
+  });
+
+  it("specified and fromFileField wrap non-blank values", () => {
+    expect(
+      wrapContentTypeIconForWire(CONTENT_TYPE_ICON_SPECIFIED, " rx_resources/images/page.gif "),
+    ).toEqual({
+      ContentTypeIcon: {
+        source: CONTENT_TYPE_ICON_SPECIFIED,
+        value: "rx_resources/images/page.gif",
+      },
+    });
+    expect(
+      wrapContentTypeIconForWire(CONTENT_TYPE_ICON_FROM_FILE_FIELD, "item_file_attachment"),
+    ).toEqual({
+      ContentTypeIcon: {
+        source: CONTENT_TYPE_ICON_FROM_FILE_FIELD,
+        value: "item_file_attachment",
+      },
+    });
+  });
+
+  it("blank non-none is 400 before fetch", () => {
+    try {
+      wrapContentTypeIconForWire(CONTENT_TYPE_ICON_SPECIFIED, "  ");
+      throw new Error("expected 400");
+    } catch (err) {
+      expect(err).toMatchObject({
+        status: 400,
+        body: "value is required when source is not none",
+      });
+    }
+    try {
+      contentTypeIconPutBody(CONTENT_TYPE_ICON_FROM_FILE_FIELD, "");
+      throw new Error("expected 400");
+    } catch (err) {
+      expect(err).toMatchObject({
+        status: 400,
+        body: "value is required when source is not none",
+      });
+    }
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("unknown source is 400 before fetch", () => {
+    try {
+      contentTypeIconPutBody("binaryUpload", "x.png");
+      throw new Error("expected 400");
+    } catch (err) {
+      expect(err).toMatchObject({
+        status: 400,
+        body: "source must be none, specified, or fromFileField",
+      });
+    }
+  });
+
+  it("unwraps WRAP_ROOT and clears value for none", () => {
+    expect(
+      unwrapContentTypeIcon({
+        ContentTypeIcon: { source: "specified", value: "page.gif" },
+      }),
+    ).toEqual({ source: CONTENT_TYPE_ICON_SPECIFIED, value: "page.gif" });
+    expect(unwrapContentTypeIcon({ source: "none", value: "stale.gif" })).toEqual({
+      source: CONTENT_TYPE_ICON_NONE,
+    });
+    expect(unwrapContentTypeIcon(null)).toEqual({ source: CONTENT_TYPE_ICON_NONE });
+  });
+
+  it("GETs /contenttypes/{id}/icon without lock", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeIcon: { source: "specified", value: "page.gif" },
+      }),
+    );
+    const icon = await getContentTypeIcon("percPage");
+    expect(icon).toEqual({ source: CONTENT_TYPE_ICON_SPECIFIED, value: "page.gif" });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("GET");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.CONTENT_TYPES}/percPage/icon`);
+  });
+
+  it("PUTs /contenttypes/{id}/icon without lock or unlock; none clears value", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeIcon: { source: "none" } }),
+    );
+    const saved = await setContentTypeIcon("percPage", CONTENT_TYPE_ICON_NONE, "stale.gif");
+    expect(saved).toEqual({ source: CONTENT_TYPE_ICON_NONE });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.CONTENT_TYPES}/percPage/icon`);
+    expect(JSON.parse(String(init.body))).toEqual({
+      ContentTypeIcon: { source: CONTENT_TYPE_ICON_NONE },
+    });
+  });
+
+  it("encodes idOrName on the icon path", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeIcon: { source: "none" } }),
+    );
+    await setContentTypeIcon("perc Page", CONTENT_TYPE_ICON_NONE);
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/${encodeURIComponent("perc Page")}/icon`,
+    );
   });
 });

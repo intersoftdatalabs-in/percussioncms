@@ -20,6 +20,8 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     getContentTypeDetail: vi.fn(),
     updateContentTypeDetail: vi.fn(),
     setContentTypeEnabled: vi.fn(),
+    getContentTypeIcon: vi.fn(),
+    setContentTypeIcon: vi.fn(),
     setContentTypeAllowedWorkflows: vi.fn(),
     lockContentType: vi.fn(),
     unlockContentType: vi.fn(),
@@ -62,6 +64,8 @@ const updateContentTypeDetail = contentTypesApi.updateContentTypeDetail as Retur
   typeof vi.fn
 >;
 const setContentTypeEnabled = contentTypesApi.setContentTypeEnabled as ReturnType<typeof vi.fn>;
+const getContentTypeIcon = contentTypesApi.getContentTypeIcon as ReturnType<typeof vi.fn>;
+const setContentTypeIcon = contentTypesApi.setContentTypeIcon as ReturnType<typeof vi.fn>;
 const setContentTypeAllowedWorkflows = contentTypesApi.setContentTypeAllowedWorkflows as ReturnType<
   typeof vi.fn
 >;
@@ -114,6 +118,8 @@ describe("ContentTypeDetailPanel", () => {
     getContentTypeDetail.mockReset();
     updateContentTypeDetail.mockReset();
     setContentTypeEnabled.mockReset();
+    getContentTypeIcon.mockReset();
+    setContentTypeIcon.mockReset();
     setContentTypeAllowedWorkflows.mockReset();
     lockContentType.mockReset();
     unlockContentType.mockReset();
@@ -135,6 +141,12 @@ describe("ContentTypeDetailPanel", () => {
       ...sampleDetail,
       enabled,
     }));
+    getContentTypeIcon.mockResolvedValue({ source: "none" });
+    setContentTypeIcon.mockImplementation(async (_id, source: string, value?: string | null) =>
+      source === "none" || source.toLowerCase() === "none"
+        ? { source: "none" }
+        : { source, value: value ?? "" },
+    );
     setContentTypeAllowedWorkflows.mockImplementation(async (_id, body) => ({
       ...sampleDetail,
       allowedWorkflows: body.allowedWorkflows,
@@ -174,6 +186,7 @@ describe("ContentTypeDetailPanel", () => {
     );
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
     expect(screen.getByTestId("developer-ct-lock-toolbar")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-icon")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-control-props")).toBeTruthy();
     expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(true);
     expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
@@ -1548,6 +1561,146 @@ describe("ContentTypeDetailPanel", () => {
     );
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
     expect((screen.getByTestId("developer-ct-fr-validation") as HTMLTextAreaElement).disabled).toBe(
+      true,
+    );
+  });
+
+  it("keeps icon strategy disabled until lock (#4047)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-icon-source")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-ct-icon-source") as HTMLSelectElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-icon-value") as HTMLInputElement).disabled).toBe(true);
+    expect(setContentTypeIcon).not.toHaveBeenCalled();
+  });
+
+  it("saves specified icon via dedicated PUT after lock (#4047)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-icon-source") as HTMLSelectElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-icon-source"), {
+      target: { value: "specified" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-icon-value"), {
+      target: { value: "rx_resources/images/page.gif" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(setContentTypeIcon).toHaveBeenCalledWith(
+        "percPage",
+        "specified",
+        "rx_resources/images/page.gif",
+      );
+    });
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(unlockContentType).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+  });
+
+  it("none clears the icon value on save (#4047)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    getContentTypeIcon.mockResolvedValue({
+      source: "specified",
+      value: "rx_resources/images/page.gif",
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-icon-source") as HTMLSelectElement).value).toBe(
+        "specified",
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-icon-source") as HTMLSelectElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-icon-source"), {
+      target: { value: "none" },
+    });
+    expect((screen.getByTestId("developer-ct-icon-value") as HTMLInputElement).value).toBe("");
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(setContentTypeIcon).toHaveBeenCalledWith("percPage", "none", "");
+    });
+  });
+
+  it("blank non-none is 400 and does not PUT (#4047)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-icon-source") as HTMLSelectElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-icon-source"), {
+      target: { value: "specified" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toMatch(
+        /value is required when source is not none/i,
+      );
+    });
+    expect(setContentTypeIcon).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+  });
+
+  it("clears the held lock when icon PUT returns 409 (#4047)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    setContentTypeIcon.mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+      body: null,
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-icon-source") as HTMLSelectElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-icon-source"), {
+      target: { value: "fromFileField" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-icon-value"), {
+      target: { value: "item_file_attachment" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        "Could not save content type.",
+      );
+    });
+    expect(setContentTypeIcon).toHaveBeenCalledWith(
+      "percPage",
+      "fromFileField",
+      "item_file_attachment",
+    );
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+    expect((screen.getByTestId("developer-ct-icon-source") as HTMLSelectElement).disabled).toBe(
       true,
     );
   });

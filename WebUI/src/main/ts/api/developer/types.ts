@@ -99,6 +99,18 @@ export interface ContentTypeFieldControlProperties {
   designGaps?: DesignGapWire[];
 }
 
+/**
+ * Content type icon strategy (CD-11 GET/PUT {@code .../icon}).
+ *
+ * <p>{@code source} is {@code none}, {@code specified} (file path/name), or
+ * {@code fromFileField} (file field name). {@code none} has no value. This
+ * envelope does not include icon binaries.
+ */
+export interface ContentTypeIcon {
+  source?: string;
+  value?: string | null;
+}
+
 /** Workflow / template association row. */
 export interface NamedObjectRef {
   guid?: RestGuid;
