@@ -64,6 +64,11 @@ class CatalogRestJaxrsRegistrationTest {
   /** Display Format Object ACL save #3378 — must precede jacksonProvider. */
   private static final String ACL_LIST_JSON_READER = "aclListJsonReader";
 
+  /** SE-01 community bulk save/delete #4077 — must precede jacksonProvider. */
+  private static final String COMMUNITY_LIST_JSON_READER = "communityListJsonReader";
+
+  private static final String GUID_LIST_JSON_READER = "guidListJsonReader";
+
   /** Explorer folder create #3360 — must precede jacksonProvider. */
   private static final String ADD_FOLDER_JSON_READER = "addFolderRequestJsonReader";
 
@@ -121,6 +126,9 @@ class CatalogRestJaxrsRegistrationTest {
     int reader = providerBlock.indexOf("bean=\"" + VIEW_EXECUTE_JSON_READER + "\"");
     int searchReader = providerBlock.indexOf("bean=\"" + SEARCH_EXECUTE_JSON_READER + "\"");
     int aclReader = providerBlock.indexOf("bean=\"" + ACL_LIST_JSON_READER + "\"");
+    int communityListReader =
+        providerBlock.indexOf("bean=\"" + COMMUNITY_LIST_JSON_READER + "\"");
+    int guidListReader = providerBlock.indexOf("bean=\"" + GUID_LIST_JSON_READER + "\"");
     int addFolderReader = providerBlock.indexOf("bean=\"" + ADD_FOLDER_JSON_READER + "\"");
     int findTypesReader = providerBlock.indexOf("bean=\"" + FIND_TYPES_JSON_READER + "\"");
     int autoTranslationReader =
@@ -141,6 +149,16 @@ class CatalogRestJaxrsRegistrationTest {
         "rest-jax-rs providers must ref "
             + ACL_LIST_JSON_READER
             + " (missing → ACL bulk save ArrayList ClassCast 400)");
+    assertTrue(
+        communityListReader >= 0,
+        "rest-jax-rs providers must ref "
+            + COMMUNITY_LIST_JSON_READER
+            + " (missing → community bulk save ArrayList ClassCast 400)");
+    assertTrue(
+        guidListReader >= 0,
+        "rest-jax-rs providers must ref "
+            + GUID_LIST_JSON_READER
+            + " (missing → community bulk delete GuidList ClassCast 400)");
     assertTrue(
         addFolderReader >= 0,
         "rest-jax-rs providers must ref "
@@ -166,6 +184,12 @@ class CatalogRestJaxrsRegistrationTest {
     assertTrue(
         aclReader < jackson,
         ACL_LIST_JSON_READER + " must be listed before jacksonProvider");
+    assertTrue(
+        communityListReader < jackson,
+        COMMUNITY_LIST_JSON_READER + " must be listed before jacksonProvider");
+    assertTrue(
+        guidListReader < jackson,
+        GUID_LIST_JSON_READER + " must be listed before jacksonProvider");
     assertTrue(
         addFolderReader < jackson,
         ADD_FOLDER_JSON_READER + " must be listed before jacksonProvider");

@@ -368,15 +368,17 @@ export async function postText<T>(
   return handleResponse<T>(response);
 }
 
-/** Sends a DELETE request. */
+/** Sends a DELETE request. Optional JSON body for bulk delete endpoints. */
 export async function del<T>(
   url: string,
   headers?: HeadersInit,
+  body?: unknown,
 ): Promise<T> {
   const response = await fetch(url, {
     method: "DELETE",
     headers: buildHeaders(headers),
     credentials: "same-origin",
+    body: body != null ? JSON.stringify(body) : undefined,
   });
   return handleResponse<T>(response);
 }

@@ -366,6 +366,37 @@ The slot form stays on screen (or shows an in-panel error). It does
 still render as the human-readable **message** (fallback **code**). Load failures stay
 in the slot detail panel — use **Back** to return to the catalog.
 
+## Communities (design catalog)
+
+CMS **communities** used by **Developer → Communities** are exposed under
+`/services/communities`. Create and delete reuse the existing bulk design
+surface (`ICommunityAdaptor.createCommunities` / `saveCommunities` /
+`deleteCommunities`). Do not invent a second REST resource.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/communities/find?name=*` | List community summaries |
+| `GET` | `/services/communities/{idOrName}` | Detail with role membership |
+| `POST` | `/services/communities/bulk` | **Admin.** Create from a name list (`{"List":["Name"]}`); server persists |
+| `PUT` | `/services/communities/bulk` | **Admin.** Persist edited communities (`release` header) |
+| `PUT` | `/services/communities/{idOrName}/roles` | Replace role membership |
+| `DELETE` | `/services/communities/bulk` | **Admin.** Delete by GuidList (`ignoredependencies` header) |
+
+Create (`POST /services/communities/bulk`) persists on the server (Workbench
+Finish create+save). JSON create body is a name list. The SPA create path does
+not PUT the DTO back. Blank / whitespace-only names are **400**. Duplicate name
+(case-insensitive) is **409**. Non-Admin is **403**. The new community is then
+`GET /services/communities/find?name=*` **200**.
+
+Delete (`DELETE /services/communities/bulk`) accepts a GuidList. The SPA sends
+`ignoredependencies=false`. Success omits the community from a following find.
+Missing is **404**. In-use (dependencies) without ignore is **409** and the
+community remains (the lock is not stolen). Non-Admin is **403**.
+
+**Developer → Communities** catalog create and delete use these bulk endpoints.
+Role-association save stays `PUT /services/communities/{idOrName}/roles`. See
+[Developer Communities](id:admin-developer-communities).
+
 ## Item filters (design catalog)
 
 Assembly **item filters** (Workbench **Item Filter** editor: name / description / rules /

@@ -20,6 +20,7 @@ import {
   normalizeDisplayFormatGuid,
   objectGuidString,
   resolveActionMenuObjectGuid,
+  resolveCommunityObjectGuid,
   resolveContentTypeObjectGuid,
   resolveTemplateObjectGuid,
   resolveViewObjectGuid,
@@ -84,6 +85,19 @@ describe("resolveContentTypeObjectGuid / resolveTemplateObjectGuid (#3319)", () 
       resolveActionMenuObjectGuid({ guid: { Guid: { stringValue: "0-107-4" } } }),
     ).toBe("0-107-4");
     expect(resolveActionMenuObjectGuid({}, undefined)).toBeUndefined();
+  });
+
+  it("resolves community GUID: nested, guidString, catalog, then 0-13-{id} (#4077)", () => {
+    expect(
+      resolveCommunityObjectGuid({ guid: { stringValue: "0-13-1" }, id: 9 }),
+    ).toBe("0-13-1");
+    expect(resolveCommunityObjectGuid({ guidString: "0-13-2", id: 9 })).toBe("0-13-2");
+    expect(resolveCommunityObjectGuid({ id: 9 }, " 0-13-3 ")).toBe("0-13-3");
+    expect(resolveCommunityObjectGuid({ id: 9 })).toBe("0-13-9");
+    expect(
+      resolveCommunityObjectGuid({ guid: { Guid: { stringValue: "0-13-4" } } }),
+    ).toBe("0-13-4");
+    expect(resolveCommunityObjectGuid({}, undefined)).toBeUndefined();
   });
 
   it("resolves view GUID: nested, guidString, catalog, then 0-18-{id} (#3380)", () => {

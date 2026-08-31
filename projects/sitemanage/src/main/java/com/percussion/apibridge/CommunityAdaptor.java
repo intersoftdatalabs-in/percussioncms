@@ -29,11 +29,14 @@ import com.percussion.rest.communities.ICommunityAdaptor;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.services.security.data.PSCommunity;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.security.IPSSecurityDesignWs;
+import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.system.IPSSystemWs;
+import jakarta.ws.rs.WebApplicationException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,7 +69,23 @@ public class CommunityAdaptor implements ICommunityAdaptor {
     var session = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
     var user = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
 
-    var ps_communities = securityDesignWs.createCommunities(names, session, user);
+    List<PSCommunity> ps_communities;
+    try {
+      ps_communities = securityDesignWs.createCommunities(names, session, user);
+    } catch (IllegalArgumentException e) {
+      throw mapCreateNameFailure(names, e);
+    }
+    // Persist immediately (Workbench Finish / slots create+save). Do not
+    // round-trip REST DTOs through saveCommunities — convertCommunity +
+    // getRenamedCommunities/loadCommunities NPEs on unsaved stubs.
+    try {
+      securityDesignWs.saveCommunities(ps_communities, true, session, user);
+    } catch (RuntimeException e) {
+      if (isAlreadyExistsFailure(e)) {
+        throw new WebApplicationException(communityAlreadyExistsMessage(names), 409);
+      }
+      throw new IllegalStateException("Failed to persist communities", e);
+    }
 
     for (var c : ps_communities) {
       communities.add(ApiUtils.convertPSCommunity(c));
@@ -308,8 +327,41 @@ public class CommunityAdaptor implements ICommunityAdaptor {
     var session = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
     var user = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
 
-    securityDesignWs.deleteCommunities(
-        ApiUtils.convertGuids(ids), ignoreDependencies, session, user);
+    try {
+      securityDesignWs.deleteCommunities(
+          ApiUtils.convertGuids(ids), ignoreDependencies, session, user);
+    } catch (PSErrorsException e) {
+      throw new WebApplicationException("Community has dependencies", 409);
+    }
+  }
+
+  static RuntimeException mapCreateNameFailure(List<String> names, IllegalArgumentException e) {
+    if (isAlreadyExistsFailure(e)) {
+      return new WebApplicationException(communityAlreadyExistsMessage(names), 409);
+    }
+    return e;
+  }
+
+  static String communityAlreadyExistsMessage(List<String> names) {
+    String n = "";
+    if (names != null) {
+      for (String name : names) {
+        if (StringUtils.isNotBlank(name)) {
+          n = name.trim();
+          break;
+        }
+      }
+    }
+    return StringUtils.isBlank(n) ? "Community already exists" : "Community already exists: " + n;
+  }
+
+  static boolean isAlreadyExistsFailure(Throwable t) {
+    for (Throwable cur = t; cur != null && cur != cur.getCause(); cur = cur.getCause()) {
+      if (StringUtils.containsIgnoreCase(cur.getMessage(), "already exists")) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override
