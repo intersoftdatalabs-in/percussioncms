@@ -321,8 +321,19 @@ public class PSContentService implements IPSContentService {
       }
 
       var session = getSession();
-      Query<PSAutoTranslation> q = session.createQuery("from PSAutoTranslation where contentTypeId = :ctid", PSAutoTranslation.class)
-            .setParameter("ctid", contentTypeId.longValue());
+      // Dummy AUTO_TRANSLATIONS GUID (uuid 0) means the singleton set — all rows.
+      if (PSAutoTranslation.isAutoTranslationsSetGuid(contentTypeId)) {
+         return session.createQuery("from PSAutoTranslation", PSAutoTranslation.class).list();
+      }
+
+      long full = contentTypeId.longValue();
+      long uuid = contentTypeId.getUUID() & 0xFFFFFFFFL;
+      Query<PSAutoTranslation> q =
+            session.createQuery(
+                  "from PSAutoTranslation where contentTypeId = :full or contentTypeId = :uuid",
+                  PSAutoTranslation.class)
+                .setParameter("full", full)
+                .setParameter("uuid", uuid);
 
       return q.list();
    }
@@ -346,9 +357,36 @@ public class PSContentService implements IPSContentService {
       }
 
       var session = getSession();
-      var autoTranslation = session.get(PSAutoTranslation.class, id.longValue());
-      if (autoTranslation != null) {
-         session.remove(autoTranslation);
+      long full = id.longValue();
+      long uuid = id.getUUID() & 0xFFFFFFFFL;
+      Query<PSAutoTranslation> q =
+            session.createQuery(
+                  "from PSAutoTranslation where contentTypeId = :full or contentTypeId = :uuid",
+                  PSAutoTranslation.class)
+                .setParameter("full", full)
+                .setParameter("uuid", uuid);
+      for (PSAutoTranslation row : q.list()) {
+         session.remove(row);
+      }
+   }
+
+   @Override
+   public void deleteAutoTranslation(long contentTypeId, String locale) {
+      if (StringUtils.isBlank(locale)) {
+         throw new IllegalArgumentException("locale cannot be null or empty");
+      }
+
+      var session = getSession();
+      long uuid = PSAutoTranslation.persistentContentTypeId(contentTypeId);
+      Query<PSAutoTranslation> q =
+            session.createQuery(
+                  "from PSAutoTranslation where locale = :locale and (contentTypeId = :id or contentTypeId = :uuid)",
+                  PSAutoTranslation.class)
+                .setParameter("locale", locale)
+                .setParameter("id", contentTypeId)
+                .setParameter("uuid", uuid);
+      for (PSAutoTranslation row : q.list()) {
+         session.remove(row);
       }
    }
 

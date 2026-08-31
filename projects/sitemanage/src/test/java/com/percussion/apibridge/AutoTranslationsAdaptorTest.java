@@ -113,7 +113,7 @@ class AutoTranslationsAdaptorTest {
 
   @Test
   void saveAutoTranslations_replacesSetWithLockReleasedOnSave() throws Exception {
-    when(designWs.loadTranslationSettings(eq(true), eq(false), any(), any()))
+    when(designWs.loadTranslationSettings(eq(true), eq(true), any(), any()))
         .thenReturn(List.of());
     PSAutoTranslation saved = sampleEntity();
     when(designWs.loadTranslationSettings(eq(false), eq(false), any(), any()))
@@ -124,19 +124,19 @@ class AutoTranslationsAdaptorTest {
 
     assertEquals(1, out.size());
     assertEquals("fr-fr", out.get(0).getLocale());
-    verify(designWs).loadTranslationSettings(true, false, "test-session", "Admin");
+    verify(designWs).loadTranslationSettings(true, true, "test-session", "Admin");
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<PSAutoTranslation>> captor = ArgumentCaptor.forClass(List.class);
     verify(designWs)
         .saveTranslationSettings(captor.capture(), eq(true), eq("test-session"), eq("Admin"));
     assertEquals(1, captor.getValue().size());
     assertEquals("fr-fr", captor.getValue().get(0).getLocale());
-    assertEquals(typeGuid.longValue(), captor.getValue().get(0).getContentTypeId());
+    assertEquals(typeGuid.getUUID(), captor.getValue().get(0).getContentTypeId());
   }
 
   @Test
   void saveAutoTranslations_emptyListClears() throws Exception {
-    when(designWs.loadTranslationSettings(eq(true), eq(false), any(), any()))
+    when(designWs.loadTranslationSettings(eq(true), eq(true), any(), any()))
         .thenReturn(List.of(sampleEntity()));
     when(designWs.loadTranslationSettings(eq(false), eq(false), any(), any()))
         .thenReturn(List.of());
@@ -187,7 +187,7 @@ class AutoTranslationsAdaptorTest {
 
   @Test
   void saveAutoTranslations_lockConflictOnLoadIs409() throws Exception {
-    when(designWs.loadTranslationSettings(eq(true), eq(false), any(), any()))
+    when(designWs.loadTranslationSettings(eq(true), eq(true), any(), any()))
         .thenThrow(new PSLockErrorException(1, "locked", "stack", "other", 1000L));
     AutoTranslationDesignLockException ex =
         assertThrows(
@@ -199,7 +199,7 @@ class AutoTranslationsAdaptorTest {
 
   @Test
   void saveAutoTranslations_lockConflictOnSaveIs409() throws Exception {
-    when(designWs.loadTranslationSettings(eq(true), eq(false), any(), any()))
+    when(designWs.loadTranslationSettings(eq(true), eq(true), any(), any()))
         .thenReturn(List.of());
     doThrow(new PSLockErrorException(1, "not locked", "stack"))
         .when(designWs)
@@ -247,6 +247,17 @@ class AutoTranslationsAdaptorTest {
     PSAutoTranslation incoming = sampleEntity();
     AutoTranslationsAdaptor.copyVersions(List.of(incoming), List.of(current));
     assertEquals(Integer.valueOf(3), incoming.getVersion());
+  }
+
+  @Test
+  void copyVersions_matchesUuidVersusTypedLong() {
+    PSAutoTranslation current = sampleEntity();
+    current.setContentTypeId(typeGuid.getUUID());
+    current.setVersion(7);
+    PSAutoTranslation incoming = sampleEntity();
+    incoming.setContentTypeId(typeGuid.longValue());
+    AutoTranslationsAdaptor.copyVersions(List.of(incoming), List.of(current));
+    assertEquals(Integer.valueOf(7), incoming.getVersion());
   }
 
   @Test

@@ -188,6 +188,24 @@ public class PSAutoTranslation implements IPSCatalogSummary, Serializable, IPSCa
   }
 
   /**
+   * Whether {@code id} is the singleton dummy GUID used to lock/load the full
+   * auto-translation set (type {@link PSTypeEnum#AUTO_TRANSLATIONS}, uuid {@code 0}).
+   */
+  public static boolean isAutoTranslationsSetGuid(IPSGuid id) {
+    return id != null
+        && id.getType() == PSTypeEnum.AUTO_TRANSLATIONS.getOrdinal()
+        && id.getUUID() == 0;
+  }
+
+  /**
+   * Content-type id as stored on legacy {@code PSX_AUTOTRANSLATION} rows (UUID /
+   * lower 32 bits), so typed GUIDs match raw ids such as {@code 1033}.
+   */
+  public static long persistentContentTypeId(long contentTypeId) {
+    return contentTypeId & 0xFFFFFFFFL;
+  }
+
+  /**
    * Get the key representation of this object.
    *
    * @return the key, never {@code null}
@@ -196,6 +214,16 @@ public class PSAutoTranslation implements IPSCatalogSummary, Serializable, IPSCa
   @JsonIgnore
   public PSAutoTranslationPK getKey() {
     return new PSAutoTranslationPK(contentTypeId, locale);
+  }
+
+  /**
+   * Composite key using {@link #persistentContentTypeId(long)} so UUID and typed
+   * long values of the same content type collide as one row.
+   */
+  @IPSXmlSerialization(suppress = true)
+  @JsonIgnore
+  public PSAutoTranslationPK getPersistentKey() {
+    return new PSAutoTranslationPK(persistentContentTypeId(contentTypeId), locale);
   }
 
   /**

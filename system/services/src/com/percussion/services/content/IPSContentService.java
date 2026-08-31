@@ -146,6 +146,16 @@ public interface IPSContentService {
     void deleteAutoTranslation(IPSGuid id);
 
     /**
+     * Delete the auto-translation row for the given content type and locale
+     * (composite primary key).
+     *
+     * @param contentTypeId content type id (UUID or typed long)
+     * @param locale language string, not {@code null} or empty
+     * @throws IllegalArgumentException if locale is null or empty
+     */
+    void deleteAutoTranslation(long contentTypeId, String locale);
+
+    /**
      * Create a new folder property.
      *
      * @param name the name of the property, not {@code null} or empty

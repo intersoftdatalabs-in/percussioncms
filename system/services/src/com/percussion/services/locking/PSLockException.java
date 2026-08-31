@@ -68,7 +68,9 @@ public class PSLockException extends PSBaseException {
          throw new IllegalArgumentException("errors cannot be empty");
       }
 
-      this.results = successes != null ? List.copyOf(successes) : List.of();
+      // successes is 1:1 with the requested ids and uses null for failures.
+      // List.copyOf rejects null elements and NPEs the bulk path (#4039).
+      this.results = copyResultsAllowingNulls(successes);
       this.errors = Map.copyOf(errors);
       // This constructor represents a multi-operation failure; mark single-op fields as unset
       this.id = -1L;
@@ -395,6 +397,17 @@ public class PSLockException extends PSBaseException {
    @Override
    protected String getResourceBundleBaseName() {
       return "com.percussion.services.locking.PSLockErrorStringBundle";
+   }
+
+   /**
+    * Copy a bulk-lock results list, preserving {@code null} slots for failed ids.
+    * {@link List#copyOf(java.util.Collection)} throws NPE on null elements.
+    */
+   private static List<PSObjectLock> copyResultsAllowingNulls(List<PSObjectLock> successes) {
+      if (successes == null || successes.isEmpty()) {
+         return List.of();
+      }
+      return Collections.unmodifiableList(new java.util.ArrayList<>(successes));
    }
 
    /**

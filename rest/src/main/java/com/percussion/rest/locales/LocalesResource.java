@@ -58,12 +58,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class LocalesResource {
 
   /**
+   * Path template that must not swallow {@code /locales/auto-translations} (CD-18 singleton set).
+   * CXF otherwise matches {@code GET/PUT /locales/{idOrLang}} first and 404s "Locale not found"
+   * (#4039).
+   */
+  static final String ID_OR_LANG = "{idOrLang:(?!auto-translations$).+}";
+
+  /**
    * Package-private and non-final so unit tests can install a mock {@link Logger} and assert
    * unexpected-failure diagnostics (log4j-core ListAppender is not on the rest test classpath).
    */
   static Logger log = LogManager.getLogger(LocalesResource.class);
 
   private final ILocalesAdaptor adaptor;
+
+  /**
+   * Sub-resource so {@code /locales/auto-translations} is reachable even when CXF prefers {@code
+   * /{idOrLang}} or a stale exploded {@code sitemanage-beans.xml} omits {@code
+   * restAutoTranslationsResource} (#4039).
+   */
+  @Autowired(required = false)
+  AutoTranslationsResource autoTranslationsResource;
 
   @Context private UriInfo uriInfo;
 
@@ -114,7 +129,30 @@ public class LocalesResource {
   }
 
   @GET
-  @Path("/{idOrLang}")
+  @Path("/auto-translations")
+  @Produces({MediaType.APPLICATION_JSON})
+  public List<AutoTranslationRow> getAutoTranslationsSet() {
+    return requireAutoTranslations().getAutoTranslations();
+  }
+
+  @PUT
+  @Path("/auto-translations")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  public List<AutoTranslationRow> saveAutoTranslationsSet(List<AutoTranslationRow> rows) {
+    return requireAutoTranslations().saveAutoTranslations(rows);
+  }
+
+  AutoTranslationsResource requireAutoTranslations() {
+    if (autoTranslationsResource == null) {
+      throw new WebApplicationException(
+          "Auto-translations adaptor not configured", Response.Status.SERVICE_UNAVAILABLE);
+    }
+    return autoTranslationsResource;
+  }
+
+  @GET
+  @Path("/" + ID_OR_LANG)
   @Produces({MediaType.APPLICATION_JSON})
   @Operation(
       summary = "Get CMS locale detail",
@@ -181,7 +219,7 @@ public class LocalesResource {
   }
 
   @PUT
-  @Path("/{idOrLang}")
+  @Path("/" + ID_OR_LANG)
   @Consumes({MediaType.APPLICATION_JSON})
   @Produces({MediaType.APPLICATION_JSON})
   @Operation(
@@ -223,7 +261,7 @@ public class LocalesResource {
   }
 
   @DELETE
-  @Path("/{idOrLang}")
+  @Path("/" + ID_OR_LANG)
   @Operation(
       summary = "Delete CMS locale",
       description =
