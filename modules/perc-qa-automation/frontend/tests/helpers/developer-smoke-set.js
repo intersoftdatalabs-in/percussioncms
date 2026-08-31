@@ -120,6 +120,13 @@ const DEVELOPER_SMOKE_SET = [
     notes: "AS-01 SPA slot create/delete (#4056 / parent #1690)",
   },
   {
+    id: "slot-finder-editor",
+    file: "developer-slot-finder-editor.spec.js",
+    title: "Admin can lock a slot and save finder, relationship, and arguments",
+    status: "green",
+    notes: "AS-01 SPA slot finder/relationship write (#4059 / parent #1690)",
+  },
+  {
     id: "catalog-shared-fields",
     file: "developer-catalog-smoke.spec.js",
     title: "shared-fields: catalog loads without API error",

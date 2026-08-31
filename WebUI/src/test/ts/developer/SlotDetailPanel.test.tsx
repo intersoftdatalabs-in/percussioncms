@@ -20,6 +20,8 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", async (importOriginal) => 
     updateSlotDetail: vi.fn(),
     createSlot: vi.fn(),
     deleteSlot: vi.fn(),
+    lockSlot: vi.fn(),
+    unlockSlot: vi.fn(),
   };
 });
 
@@ -27,6 +29,8 @@ const getSlotDetail = assemblyApi.getSlotDetail as ReturnType<typeof vi.fn>;
 const updateSlotDetail = assemblyApi.updateSlotDetail as ReturnType<typeof vi.fn>;
 const createSlot = assemblyApi.createSlot as ReturnType<typeof vi.fn>;
 const deleteSlot = assemblyApi.deleteSlot as ReturnType<typeof vi.fn>;
+const lockSlot = assemblyApi.lockSlot as ReturnType<typeof vi.fn>;
+const unlockSlot = assemblyApi.unlockSlot as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   name: "rffList",
@@ -51,6 +55,10 @@ describe("SlotDetailPanel", () => {
     updateSlotDetail.mockReset();
     createSlot.mockReset();
     deleteSlot.mockReset();
+    lockSlot.mockReset();
+    unlockSlot.mockReset();
+    lockSlot.mockResolvedValue({ locker: "Admin" });
+    unlockSlot.mockResolvedValue(undefined);
   });
 
   it("loads detail on success and supports back", async () => {
@@ -173,11 +181,18 @@ describe("SlotDetailPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-slot-detail-title")).toBeTruthy();
     });
-    const args = screen.getByTestId("developer-slot-args");
-    expect(args.textContent).toContain("template");
-    expect(args.textContent).toContain("rffSnDateAndTitleLink");
-    expect(args.textContent).toContain("type");
-    expect(args.textContent).toContain("sql");
+    expect(
+      (screen.getByTestId("developer-slot-arg-key-0") as HTMLInputElement).value,
+    ).toBe("template");
+    expect(
+      (screen.getByTestId("developer-slot-arg-value-0") as HTMLInputElement).value,
+    ).toBe("rffSnDateAndTitleLink");
+    expect(
+      (screen.getByTestId("developer-slot-arg-key-1") as HTMLInputElement).value,
+    ).toBe("type");
+    expect(
+      (screen.getByTestId("developer-slot-arg-value-1") as HTMLInputElement).value,
+    ).toBe("sql");
     expect(screen.getByTestId("developer-slot-assoc-row-0").textContent).toContain("0-2-316");
     expect(screen.getByTestId("developer-slot-gaps").textContent).toContain(
       "Create / delete not supported via this REST API",
@@ -321,6 +336,10 @@ describe("SlotDetailPanel", () => {
         description: "Trimmed",
       }),
     );
+    const body = updateSlotDetail.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(body).not.toHaveProperty("finderName");
+    expect(body).not.toHaveProperty("relationshipName");
+    expect(body).not.toHaveProperty("finderArguments");
   });
 
   it("surfaces 409 duplicate name on create", async () => {
@@ -551,5 +570,141 @@ describe("SlotDetailPanel", () => {
     } finally {
       confirmSpy.mockRestore();
     }
+  });
+
+  async function renderLoadedSlot() {
+    getSlotDetail.mockResolvedValue(sampleDetail);
+    render(<SlotDetailPanel idOrName="rffList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-finder")).toBeTruthy();
+    });
+  }
+
+  async function lockSlotPanel() {
+    fireEvent.click(screen.getByTestId("developer-slot-lock"));
+    await waitFor(() => {
+      expect(lockSlot).toHaveBeenCalledWith("rffList");
+    });
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-slot-finder") as HTMLInputElement).disabled,
+      ).toBe(false);
+    });
+  }
+
+  it("keeps finder fields read-only until lock", async () => {
+    await renderLoadedSlot();
+    expect(
+      (screen.getByTestId("developer-slot-finder") as HTMLInputElement).disabled,
+    ).toBe(true);
+    expect(
+      (screen.getByTestId("developer-slot-relationship") as HTMLInputElement).disabled,
+    ).toBe(true);
+    expect(screen.getByTestId("developer-slot-lock-status").textContent).toBe(
+      DEV_MSG.SLOT_UNLOCKED,
+    );
+  });
+
+  it("omits unchanged finder fields on a properties-only save", async () => {
+    await renderLoadedSlot();
+    updateSlotDetail.mockResolvedValue({
+      ...sampleDetail,
+      label: "List edited",
+    });
+    fireEvent.change(screen.getByTestId("developer-slot-label"), {
+      target: { value: "List edited" },
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-save"));
+    await waitFor(() => {
+      expect(updateSlotDetail).toHaveBeenCalled();
+    });
+    expect(lockSlot).not.toHaveBeenCalled();
+    const body = updateSlotDetail.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(body.label).toBe("List edited");
+    expect(body).not.toHaveProperty("finderName");
+    expect(body).not.toHaveProperty("relationshipName");
+    expect(body).not.toHaveProperty("finderArguments");
+  });
+
+  it("sends empty relationshipName to clear after lock", async () => {
+    await renderLoadedSlot();
+    await lockSlotPanel();
+    updateSlotDetail.mockResolvedValue({
+      ...sampleDetail,
+      relationshipName: "",
+    });
+    fireEvent.change(screen.getByTestId("developer-slot-relationship"), {
+      target: { value: "" },
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-save"));
+    await waitFor(() => {
+      expect(updateSlotDetail).toHaveBeenCalled();
+    });
+    expect(updateSlotDetail).toHaveBeenCalledWith(
+      "rffList",
+      expect.objectContaining({ relationshipName: "" }),
+    );
+    const body = updateSlotDetail.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(body).not.toHaveProperty("finderName");
+  });
+
+  it("surfaces unlocked PUT 409", async () => {
+    await renderLoadedSlot();
+    await lockSlotPanel();
+    updateSlotDetail.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Slot is not locked by the current user" },
+    });
+    fireEvent.change(screen.getByTestId("developer-slot-finder"), {
+      target: { value: "Java/global/percussion/slotcontentfinder/sys_RelationshipContentFinder" },
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-slot-detail-error").textContent).toContain(
+      DEV_MSG.SLOT_LOCK_REQUIRED,
+    );
+  });
+
+  it("surfaces invalid finder 400 from loadFinder wording", async () => {
+    await renderLoadedSlot();
+    await lockSlotPanel();
+    updateSlotDetail.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "extension name not valid for full name nope" },
+    });
+    fireEvent.change(screen.getByTestId("developer-slot-finder"), {
+      target: { value: "nope" },
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-slot-detail-error").textContent).toContain(
+      DEV_MSG.SLOT_FINDER_INVALID,
+    );
+  });
+
+  it("surfaces invalid relationship 400", async () => {
+    await renderLoadedSlot();
+    await lockSlotPanel();
+    updateSlotDetail.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Unknown relationship type: Missing Rel" },
+    });
+    fireEvent.change(screen.getByTestId("developer-slot-relationship"), {
+      target: { value: "Missing Rel" },
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-slot-detail-error").textContent).toContain(
+      DEV_MSG.SLOT_RELATIONSHIP_INVALID,
+    );
   });
 });

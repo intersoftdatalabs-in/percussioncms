@@ -18,15 +18,20 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   SLOT_DETAIL_ROOT,
+  buildSlotUpdateBody,
   createSlot,
   deleteSlot,
   getSlotDetail,
   isSlotCreateReady,
   isValidSlotName,
   isValidSlotType,
+  lockSlot,
   normalizeSlotAssociations,
   normalizeSlotDesignGaps,
+  slotFinderWriteRequested,
+  unlockSlot,
   unwrapSlotDetail,
+  updateSlotDetail,
 } from "../../../../main/ts/api/developer/assemblyApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -306,5 +311,171 @@ describe("createSlot / deleteSlot (AS-01)", () => {
       jsonResponse({ message: "Admin role required" }, 403),
     );
     await expect(deleteSlot("qaSlot")).rejects.toMatchObject({ status: 403 });
+  });
+});
+
+const finderInitial = {
+  name: "rffList",
+  label: "List",
+  description: "List slot",
+  finderName: "sys_SlotContentFinder",
+  relationshipName: "Active Assembly",
+  finderArguments: { template: "rffSnTitle" },
+  associations: [],
+};
+
+describe("buildSlotUpdateBody finder omit / clear (#4059)", () => {
+  it("omits unchanged finder fields on a label-only save", () => {
+    const body = buildSlotUpdateBody({
+      label: "List edited",
+      description: "List slot",
+      associations: [],
+      finderName: "sys_SlotContentFinder",
+      relationshipName: "Active Assembly",
+      finderArguments: { template: "rffSnTitle" },
+      initial: finderInitial,
+    });
+    expect(body.label).toBe("List edited");
+    expect(body).not.toHaveProperty("finderName");
+    expect(body).not.toHaveProperty("relationshipName");
+    expect(body).not.toHaveProperty("finderArguments");
+    expect(slotFinderWriteRequested(body)).toBe(false);
+  });
+
+  it("includes empty relationshipName to clear", () => {
+    const body = buildSlotUpdateBody({
+      label: "List",
+      description: "List slot",
+      associations: [],
+      finderName: "sys_SlotContentFinder",
+      relationshipName: "",
+      finderArguments: { template: "rffSnTitle" },
+      initial: finderInitial,
+    });
+    expect(body.relationshipName).toBe("");
+    expect(body).not.toHaveProperty("finderName");
+    expect(slotFinderWriteRequested(body)).toBe(true);
+  });
+
+  it("includes finderName and finderArguments when they change", () => {
+    const body = buildSlotUpdateBody({
+      label: "List",
+      description: "List slot",
+      associations: [],
+      finderName: "Java/global/percussion/slotcontentfinder/sys_RelationshipContentFinder",
+      relationshipName: "Active Assembly",
+      finderArguments: { template: "rffSnTitle", type: "sql" },
+      initial: finderInitial,
+    });
+    expect(body.finderName).toBe(
+      "Java/global/percussion/slotcontentfinder/sys_RelationshipContentFinder",
+    );
+    expect(body.finderArguments).toEqual({ template: "rffSnTitle", type: "sql" });
+    expect(body).not.toHaveProperty("relationshipName");
+  });
+});
+
+describe("lockSlot / updateSlotDetail finder PUT (#4059)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      statusText: status === 200 ? "OK" : "Error",
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("lockSlot POSTs /slots/{id}/lock", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ ObjectLockSummary: { locker: "Admin", session: "s1" } }),
+    );
+    const out = await lockSlot("rffList");
+    expect(out.locker).toBe("Admin");
+    const url = String(fetchMock.mock.calls[0]?.[0]);
+    expect(url).toContain(`${PATHS.SLOTS}/`);
+    expect(url).toMatch(/\/lock$/);
+    const init = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    expect(init.method).toBe("POST");
+  });
+
+  it("unlockSlot POSTs /slots/{id}/unlock", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+    await unlockSlot("rffList");
+    const url = String(fetchMock.mock.calls[0]?.[0]);
+    expect(url).toMatch(/\/unlock$/);
+  });
+
+  it("updateSlotDetail wraps finder fields", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        SlotDetail: {
+          name: "rffList",
+          finderName: "Java/global/percussion/slotcontentfinder/sys_RelationshipContentFinder",
+          relationshipName: "Active Assembly",
+        },
+      }),
+    );
+    const out = await updateSlotDetail("rffList", {
+      finderName: "Java/global/percussion/slotcontentfinder/sys_RelationshipContentFinder",
+      relationshipName: "Active Assembly",
+    });
+    expect(out.finderName).toContain("sys_RelationshipContentFinder");
+    const init = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(JSON.parse(String(init.body))).toEqual({
+      SlotDetail: {
+        finderName: "Java/global/percussion/slotcontentfinder/sys_RelationshipContentFinder",
+        relationshipName: "Active Assembly",
+      },
+    });
+  });
+
+  it("updateSlotDetail wraps finderArguments as JAXB entry list", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        SlotDetail: {
+          name: "rffList",
+          finderArguments: { entry: [{ key: "type", value: "qa4059" }] },
+        },
+      }),
+    );
+    const out = await updateSlotDetail("rffList", {
+      finderArguments: { type: "qa4059" },
+    });
+    expect(out.finderArguments).toEqual({ type: "qa4059" });
+    const init = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    expect(JSON.parse(String(init.body))).toEqual({
+      SlotDetail: {
+        finderArguments: { entry: [{ key: "type", value: "qa4059" }] },
+      },
+    });
+  });
+
+  it("unlocked finder PUT is 409", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ message: "Slot is not locked by the current user" }, 409),
+    );
+    await expect(
+      updateSlotDetail("rffList", { finderName: "nope" }),
+    ).rejects.toMatchObject({ status: 409 });
+  });
+
+  it("invalid finder PUT is 400", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ message: "Invalid finder extension: nope" }, 400),
+    );
+    await expect(
+      updateSlotDetail("rffList", { finderName: "nope" }),
+    ).rejects.toMatchObject({ status: 400 });
   });
 });

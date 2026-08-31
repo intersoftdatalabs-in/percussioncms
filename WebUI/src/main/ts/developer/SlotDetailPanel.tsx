@@ -22,12 +22,16 @@ import {
   deleteSlot,
   getSlotDetail,
   isSlotCreateReady,
+  lockSlot,
+  unlockSlot,
   updateSlotDetail,
 } from "../api/developer/assemblyApi";
 import {
+  buildSlotUpdateBody,
   normalizeSlotAssociations,
   normalizeSlotDesignGaps,
   normalizeSlotStringMap,
+  slotFinderWriteRequested,
 } from "../api/developer/slotLists";
 import {
   designGapCode,
@@ -101,6 +105,36 @@ function slotDesignGaps(list: unknown): DesignGapWire[] {
   return normalizeSlotDesignGaps(list);
 }
 
+type FinderArgRow = { key: string; value: string };
+
+function argsFromMap(map: Record<string, string>): FinderArgRow[] {
+  return Object.entries(map).map(([key, value]) => ({ key, value }));
+}
+
+function mapFromArgRows(rows: FinderArgRow[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const row of rows) {
+    const k = row.key.trim();
+    if (!k) {
+      continue;
+    }
+    out[k] = row.value;
+  }
+  return out;
+}
+
+function revertFinderFromDetail(detail: SlotDetail | null): {
+  finderName: string;
+  relationshipName: string;
+  argRows: FinderArgRow[];
+} {
+  return {
+    finderName: detail?.finderName || "",
+    relationshipName: detail?.relationshipName || "",
+    argRows: argsFromMap(normalizeSlotStringMap(detail?.finderArguments)),
+  };
+}
+
 function createSaveFallback(err: unknown): string {
   if (!isApiError(err)) return DEV_MSG.SLOT_SAVE_ERROR;
   if (err.status === 409) return DEV_MSG.SLOT_DUPLICATE;
@@ -123,6 +157,20 @@ function deleteFallback(err: unknown, systemSlot: boolean | undefined): string {
     if (systemSlot || /system.?slot/i.test(msg)) return DEV_MSG.SLOT_DELETE_SYSTEM;
   }
   return DEV_MSG.SLOT_DELETE_ERROR;
+}
+
+function updateSaveFallback(err: unknown): string {
+  if (!isApiError(err)) return DEV_MSG.SLOT_SAVE_ERROR;
+  if (err.status === 403) return DEV_MSG.SLOT_FORBIDDEN;
+  if (err.status === 409) return DEV_MSG.SLOT_LOCK_REQUIRED;
+  if (err.status === 400) {
+    const msg = extractRestErrorMessage(err.body) || "";
+    if (/invalid finder|extension name not valid/i.test(msg)) {
+      return DEV_MSG.SLOT_FINDER_INVALID;
+    }
+    if (/unknown relationship/i.test(msg)) return DEV_MSG.SLOT_RELATIONSHIP_INVALID;
+  }
+  return DEV_MSG.SLOT_SAVE_ERROR;
 }
 
 export function SlotDetailPanel({
@@ -151,7 +199,14 @@ export function SlotDetailPanel({
   const [associations, setAssociations] = useState<SlotAssociationSummary[]>([]);
   const [newCtGuid, setNewCtGuid] = useState("");
   const [newTplGuid, setNewTplGuid] = useState("");
+  const [finderName, setFinderName] = useState("");
+  const [relationshipName, setRelationshipName] = useState("");
+  const [argRows, setArgRows] = useState<FinderArgRow[]>([]);
+  const [newArgKey, setNewArgKey] = useState("");
+  const [newArgValue, setNewArgValue] = useState("");
+  const [heldLock, setHeldLock] = useState(false);
   const inflight = useRef(false);
+  const heldLockRef = useRef(false);
 
   useEffect(() => {
     if (idOrName == null) {
@@ -163,6 +218,10 @@ export function SlotDetailPanel({
     setNotice(null);
     setNewCtGuid("");
     setNewTplGuid("");
+    setNewArgKey("");
+    setNewArgValue("");
+    heldLockRef.current = false;
+    setHeldLock(false);
     setLoading(true);
     getSlotDetail(idOrName)
       .then((d) => {
@@ -176,6 +235,9 @@ export function SlotDetailPanel({
         setDescription(d.description || "");
         setSlotType((d.slotType || "REGULAR").toUpperCase());
         setAssociations(associations);
+        setFinderName(d.finderName || "");
+        setRelationshipName(d.relationshipName || "");
+        setArgRows(argsFromMap(finderArguments));
         setLoading(false);
       })
       .catch((err: unknown) => {
@@ -190,11 +252,26 @@ export function SlotDetailPanel({
 
   const writeKey = idOrName || createdKey || name.trim();
   const initialAssocs = cloneAssociations(detail?.associations);
+  const finderArgs = mapFromArgRows(argRows);
+  const putPreview =
+    detail != null
+      ? buildSlotUpdateBody({
+          label,
+          description,
+          associations,
+          finderName,
+          relationshipName,
+          finderArguments: finderArgs,
+          initial: detail,
+        })
+      : null;
+  const finderDirty = putPreview != null && slotFinderWriteRequested(putPreview);
   const dirty =
     detail != null &&
     (label !== (detail.label || "") ||
       description !== (detail.description || "") ||
-      !associationsEqual(associations, initialAssocs));
+      !associationsEqual(associations, initialAssocs) ||
+      finderDirty);
   const canSave = isNew
     ? !busy && isSlotCreateReady({ name, slotType })
     : !busy && dirty;
@@ -220,8 +297,90 @@ export function SlotDetailPanel({
     setNotice(null);
   }
 
+  function addFinderArg() {
+    const k = newArgKey.trim();
+    if (!k || !heldLock) return;
+    setArgRows((prev) => [...prev.filter((r) => r.key.trim() !== k), { key: k, value: newArgValue }]);
+    setNewArgKey("");
+    setNewArgValue("");
+    setNotice(null);
+  }
+
+  function removeFinderArg(index: number) {
+    if (!heldLock) return;
+    setArgRows((prev) => prev.filter((_, i) => i !== index));
+    setNotice(null);
+  }
+
+  function applyFinderFromDetail(next: SlotDetail | null) {
+    const restored = revertFinderFromDetail(next);
+    setFinderName(restored.finderName);
+    setRelationshipName(restored.relationshipName);
+    setArgRows(restored.argRows);
+  }
+
+  async function handleLock() {
+    if (isNew || !writeKey || inflight.current) return;
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await lockSlot(writeKey);
+      heldLockRef.current = true;
+      setHeldLock(true);
+      setNotice(DEV_MSG.SLOT_LOCKED);
+    } catch (err: unknown) {
+      heldLockRef.current = false;
+      setHeldLock(false);
+      setError(panelErrMsg(err, DEV_MSG.SLOT_LOCK_ERROR));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  async function handleUnlock() {
+    if (isNew || !writeKey || inflight.current) return;
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await unlockSlot(writeKey);
+      heldLockRef.current = false;
+      setHeldLock(false);
+      applyFinderFromDetail(detail);
+      setNewArgKey("");
+      setNewArgValue("");
+      setNotice(DEV_MSG.SLOT_UNLOCKED_NOTICE);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, DEV_MSG.SLOT_UNLOCK_ERROR));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  async function handleBack() {
+    if (heldLockRef.current && writeKey) {
+      try {
+        await unlockSlot(writeKey);
+      } catch {
+        // Best-effort release so Back cannot trap the operator on a stale lock.
+      }
+      heldLockRef.current = false;
+      setHeldLock(false);
+    }
+    onBack();
+  }
+
   async function handleSave() {
     if (!canSave || inflight.current) return;
+    if (!isNew && finderDirty && !heldLock) {
+      setError(DEV_MSG.SLOT_LOCK_REQUIRED);
+      return;
+    }
     inflight.current = true;
     setBusy(true);
     setError(null);
@@ -234,27 +393,17 @@ export function SlotDetailPanel({
             description: description.trim() || undefined,
             slotType: slotType.trim() || undefined,
           })
-        : await updateSlotDetail(writeKey, {
-            label: label.trim(),
-            description: description.trim(),
-            associations: associations.map((a) => ({
-              contentTypeGuid: a.contentTypeGuid?.stringValue
-                ? { stringValue: a.contentTypeGuid.stringValue }
-                : a.contentTypeGuid,
-              templateGuid: a.templateGuid?.stringValue
-                ? { stringValue: a.templateGuid.stringValue }
-                : a.templateGuid,
-            })),
-          });
+        : await updateSlotDetail(writeKey, putPreview as NonNullable<typeof putPreview>);
       const savedAssocs = cloneAssociations(saved.associations);
       const savedGaps = slotDesignGaps(saved.designGaps);
       const savedArgs = normalizeSlotStringMap(saved.finderArguments);
-      setDetail({
+      const nextDetail = {
         ...saved,
         associations: savedAssocs,
         designGaps: savedGaps,
         finderArguments: savedArgs,
-      });
+      };
+      setDetail(nextDetail);
       if (isNew) {
         setCreatedKey(saved.name || name.trim());
       }
@@ -263,10 +412,11 @@ export function SlotDetailPanel({
       setDescription(saved.description || "");
       setSlotType((saved.slotType || slotType || "REGULAR").toUpperCase());
       setAssociations(savedAssocs);
+      applyFinderFromDetail(nextDetail);
       setNotice(DEV_MSG.SLOT_SAVED);
       onSaved?.(saved);
     } catch (err: unknown) {
-      const fallback = isNew ? createSaveFallback(err) : DEV_MSG.SLOT_SAVE_ERROR;
+      const fallback = isNew ? createSaveFallback(err) : updateSaveFallback(err);
       setError(panelErrMsg(err, fallback));
     } finally {
       inflight.current = false;
@@ -293,8 +443,8 @@ export function SlotDetailPanel({
     }
   }
 
-  const argEntries = Object.entries(normalizeSlotStringMap(detail?.finderArguments));
   const gaps = slotDesignGaps(detail?.designGaps);
+  const finderEditable = !isNew && heldLock && !busy;
   const title = isNew
     ? DEV_MSG.SLOT_NEW
     : label || detail?.name || idOrName || DEV_MSG.SLOT_NEW;
@@ -304,7 +454,7 @@ export function SlotDetailPanel({
     <div data-testid="developer-slot-detail">
       <button
         type="button"
-        onClick={onBack}
+        onClick={() => void handleBack()}
         data-testid="developer-slot-back"
         aria-label="Back to slots list"
         style={backButton}
@@ -320,6 +470,67 @@ export function SlotDetailPanel({
       {notice ? (
         <div data-testid="developer-slot-detail-notice" style={{ color: "#276749" }}>
           {notice}
+        </div>
+      ) : null}
+
+      {!isNew && (detail != null || loading) ? (
+        <div
+          role="toolbar"
+          aria-label={DEV_MSG.SLOT_LOCK_TOOLBAR}
+          data-testid="developer-slot-lock-toolbar"
+          style={{
+            marginBottom: "16px",
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "8px",
+            alignItems: "center",
+          }}
+        >
+          <p style={{ margin: 0, width: "100%", color: catalogColors.muted, fontSize: "0.9rem" }}>
+            {DEV_MSG.SLOT_LOCK_HINT}
+          </p>
+          <div
+            role="status"
+            aria-live="polite"
+            data-testid="developer-slot-lock-status"
+            style={{ marginRight: "8px", fontSize: "0.9rem" }}
+          >
+            {heldLock ? DEV_MSG.SLOT_LOCKED : DEV_MSG.SLOT_UNLOCKED}
+          </div>
+          <button
+            type="button"
+            data-testid="developer-slot-lock"
+            aria-label={DEV_MSG.SLOT_LOCK}
+            disabled={busy || heldLock || detail == null}
+            onClick={() => void handleLock()}
+            style={{
+              padding: "8px 16px",
+              background: heldLock ? catalogColors.disabled : catalogColors.accent,
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: busy || heldLock || detail == null ? "not-allowed" : "pointer",
+            }}
+          >
+            {DEV_MSG.SLOT_LOCK}
+          </button>
+          <button
+            type="button"
+            data-testid="developer-slot-unlock"
+            aria-label={DEV_MSG.SLOT_UNLOCK}
+            disabled={busy || !heldLock}
+            onClick={() => void handleUnlock()}
+            style={{
+              padding: "8px 16px",
+              background: "transparent",
+              color: "inherit",
+              border: `1px solid ${catalogColors.softBorder}`,
+              borderRadius: "4px",
+              cursor: busy || !heldLock ? "not-allowed" : "pointer",
+            }}
+          >
+            {DEV_MSG.SLOT_UNLOCK}
+          </button>
         </div>
       ) : null}
 
@@ -409,37 +620,173 @@ export function SlotDetailPanel({
                 <dd style={{ margin: 0 }}>
                   {detail?.systemSlot ? DEV_MSG.YES : DEV_MSG.NO}
                 </dd>
-                <dt>{DEV_MSG.SLOT_META_FINDER}</dt>
-                <dd style={{ margin: 0, ...monoCell }}>
-                  {detail?.finderName || "—"}
-                </dd>
-                <dt>{DEV_MSG.SLOT_META_RELATIONSHIP}</dt>
-                <dd style={{ margin: 0, ...monoCell }}>
-                  {detail?.relationshipName || "—"}
-                </dd>
               </dl>
             )}
+            {!isNew && detail ? (
+              <>
+                <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+                  {DEV_MSG.SLOT_FINDER_HINT}
+                </p>
+                <div style={{ marginTop: "12px" }}>
+                  <label htmlFor="slot-finder" style={{ display: "block", marginBottom: 4 }}>
+                    {DEV_MSG.SLOT_FORM_FINDER}
+                  </label>
+                  <input
+                    id="slot-finder"
+                    data-testid="developer-slot-finder"
+                    style={{ ...inputStyle, ...monoCell }}
+                    value={finderName}
+                    disabled={!finderEditable}
+                    onChange={(e) => setFinderName(e.target.value)}
+                    autoComplete="off"
+                  />
+                </div>
+                <div style={{ marginTop: "12px" }}>
+                  <label htmlFor="slot-relationship" style={{ display: "block", marginBottom: 4 }}>
+                    {DEV_MSG.SLOT_FORM_RELATIONSHIP}
+                  </label>
+                  <input
+                    id="slot-relationship"
+                    data-testid="developer-slot-relationship"
+                    style={{ ...inputStyle, ...monoCell }}
+                    value={relationshipName}
+                    disabled={!finderEditable}
+                    onChange={(e) => setRelationshipName(e.target.value)}
+                    autoComplete="off"
+                  />
+                </div>
+              </>
+            ) : null}
           </header>
 
           {!isNew && detail ? (
             <>
               <section style={{ marginBottom: "16px" }} data-testid="developer-slot-args">
                 <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SLOT_ARGS}</h3>
-                {argEntries.length === 0 ? (
-                  <p style={{ color: catalogColors.empty }}>{DEV_MSG.SLOT_NONE}</p>
+                {argRows.length === 0 ? (
+                  <p style={{ color: catalogColors.empty }} data-testid="developer-slot-args-empty">
+                    {DEV_MSG.SLOT_NONE}
+                  </p>
                 ) : (
-                  <ul>
-                    {argEntries.map(([k, v]) => (
-                      <li key={k}>
-                        <span style={{ fontFamily: "monospace" }}>{k}</span>
-                        {" = "}
-                        <span style={{ fontFamily: "monospace", color: catalogColors.muted }}>
-                          {typeof v === "string" ? v : String(v ?? "")}
-                        </span>
+                  <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                    {argRows.map((row, i) => (
+                      <li
+                        key={`${row.key}:${i}`}
+                        data-testid={`developer-slot-arg-row-${i}`}
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "1fr 1fr auto",
+                          gap: "8px",
+                          marginBottom: "8px",
+                          alignItems: "center",
+                        }}
+                      >
+                        <input
+                          data-testid={`developer-slot-arg-key-${i}`}
+                          aria-label={`${DEV_MSG.SLOT_ARG_KEY} ${i + 1}`}
+                          style={{ ...inputStyle, ...monoCell }}
+                          value={row.key}
+                          disabled={!finderEditable}
+                          onChange={(e) => {
+                            const next = e.target.value;
+                            setArgRows((prev) =>
+                              prev.map((r, idx) => (idx === i ? { ...r, key: next } : r)),
+                            );
+                          }}
+                        />
+                        <input
+                          data-testid={`developer-slot-arg-value-${i}`}
+                          aria-label={`${DEV_MSG.SLOT_ARG_VALUE} ${i + 1}`}
+                          style={{ ...inputStyle, ...monoCell }}
+                          value={row.value}
+                          disabled={!finderEditable}
+                          onChange={(e) => {
+                            const next = e.target.value;
+                            setArgRows((prev) =>
+                              prev.map((r, idx) => (idx === i ? { ...r, value: next } : r)),
+                            );
+                          }}
+                        />
+                        <button
+                          type="button"
+                          data-testid={`developer-slot-arg-remove-${i}`}
+                          aria-label={`${DEV_MSG.SLOT_ARG_REMOVE} ${row.key || i + 1}`}
+                          disabled={!finderEditable}
+                          onClick={() => removeFinderArg(i)}
+                          style={{
+                            background: "transparent",
+                            border: `1px solid ${catalogColors.softBorder}`,
+                            borderRadius: "4px",
+                            padding: "4px 8px",
+                            cursor: finderEditable ? "pointer" : "not-allowed",
+                          }}
+                        >
+                          {DEV_MSG.SLOT_ARG_REMOVE}
+                        </button>
                       </li>
                     ))}
                   </ul>
                 )}
+                <div
+                  style={{
+                    marginTop: "12px",
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr auto",
+                    gap: "8px",
+                    alignItems: "end",
+                  }}
+                >
+                  <div>
+                    <label htmlFor="slot-arg-key" style={{ display: "block", marginBottom: 4 }}>
+                      {DEV_MSG.SLOT_ARG_KEY}
+                    </label>
+                    <input
+                      id="slot-arg-key"
+                      data-testid="developer-slot-arg-key"
+                      style={{ ...inputStyle, ...monoCell }}
+                      placeholder={DEV_MSG.SLOT_ARG_KEY_PLACEHOLDER}
+                      value={newArgKey}
+                      disabled={!finderEditable}
+                      onChange={(e) => setNewArgKey(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="slot-arg-value" style={{ display: "block", marginBottom: 4 }}>
+                      {DEV_MSG.SLOT_ARG_VALUE}
+                    </label>
+                    <input
+                      id="slot-arg-value"
+                      data-testid="developer-slot-arg-value"
+                      style={{ ...inputStyle, ...monoCell }}
+                      placeholder={DEV_MSG.SLOT_ARG_VALUE_PLACEHOLDER}
+                      value={newArgValue}
+                      disabled={!finderEditable}
+                      onChange={(e) => setNewArgValue(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    data-testid="developer-slot-arg-add"
+                    aria-label={DEV_MSG.SLOT_ARG_ADD}
+                    disabled={!finderEditable || !newArgKey.trim()}
+                    onClick={addFinderArg}
+                    style={{
+                      padding: "8px 12px",
+                      background:
+                        finderEditable && newArgKey.trim()
+                          ? catalogColors.accent
+                          : catalogColors.disabled,
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor:
+                        !finderEditable || !newArgKey.trim() ? "not-allowed" : "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {DEV_MSG.SLOT_ARG_ADD}
+                  </button>
+                </div>
               </section>
 
               <section style={{ marginBottom: "16px" }} data-testid="developer-slot-associations">
@@ -596,7 +943,7 @@ export function SlotDetailPanel({
               type="button"
               data-testid="developer-slot-cancel"
               disabled={busy}
-              onClick={onBack}
+              onClick={() => void handleBack()}
               style={{
                 padding: "8px 16px",
                 background: "transparent",
