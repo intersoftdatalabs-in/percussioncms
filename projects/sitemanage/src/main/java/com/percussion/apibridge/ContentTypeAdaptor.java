@@ -169,6 +169,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   private final BooleanSupplier adminChecker;
   private final IPSAssemblyService assemblyService;
   private final IPSWorkflowService workflowService;
+  private final ContentTypeLocalFieldColumnSchema localFieldColumnSchema;
 
   /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
   @Autowired(required = false)
@@ -181,7 +182,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         PSSystemWsLocator.getSystemDesignWebservice(),
         null,
         null,
-        null);
+        null,
+        new JdbcContentTypeLocalFieldColumnSchema());
   }
 
   /** Package-visible for unit tests that inject design web services and Admin gate. */
@@ -226,12 +228,54 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       BooleanSupplier adminChecker,
       IPSAssemblyService assemblyService,
       IPSWorkflowService workflowService) {
+    this(
+        designSvc,
+        itemDefManager,
+        systemDesign,
+        adminChecker,
+        assemblyService,
+        workflowService,
+        ContentTypeLocalFieldColumnSchema.noop());
+  }
+
+  /**
+   * Package-visible for unit tests that inject design web services, Admin gate, and a local-field
+   * column schema (must not stub past the ALTER on persist tests).
+   */
+  ContentTypeAdaptor(
+      IPSContentDesignWs designSvc,
+      PSItemDefManager itemDefManager,
+      IPSSystemDesignWs systemDesign,
+      BooleanSupplier adminChecker,
+      ContentTypeLocalFieldColumnSchema localFieldColumnSchema) {
+    this(
+        designSvc,
+        itemDefManager,
+        systemDesign,
+        adminChecker,
+        null,
+        null,
+        localFieldColumnSchema);
+  }
+
+  ContentTypeAdaptor(
+      IPSContentDesignWs designSvc,
+      PSItemDefManager itemDefManager,
+      IPSSystemDesignWs systemDesign,
+      BooleanSupplier adminChecker,
+      IPSAssemblyService assemblyService,
+      IPSWorkflowService workflowService,
+      ContentTypeLocalFieldColumnSchema localFieldColumnSchema) {
     this.designSvc = designSvc;
     this.itemDefManager = itemDefManager;
     this.systemDesign = systemDesign;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
     this.assemblyService = assemblyService;
     this.workflowService = workflowService;
+    this.localFieldColumnSchema =
+        localFieldColumnSchema != null
+            ? localFieldColumnSchema
+            : ContentTypeLocalFieldColumnSchema.noop();
   }
 
   /***
@@ -1642,7 +1686,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       if (findField(def, fieldName) != null) {
         throw new WebApplicationException("Field already exists: " + fieldName, 409);
       }
-      addPersistableLocalField(def, body);
+      PSField created = addPersistableLocalField(def, body);
+      // ALTER before CE re-init: saveContentTypes → PSContentTypeHelper.saveContentType
+      // starts the editor app, which catalogs backend columns.
+      ensureLocalFieldBackendColumn(def, created);
       try {
         designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
       } catch (PSErrorsException e) {
@@ -3228,6 +3275,56 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     applyOccurrenceOrRequired(field, body);
     appendDefaultDisplayMapping(mapperForFieldSet(def, parentMapper, target), fieldName, body);
     return field;
+  }
+
+  /**
+   * Create the backend column for a persistable local field. Must run before {@code
+   * saveContentTypes} re-inits the content editor application.
+   */
+  void ensureLocalFieldBackendColumn(PSItemDefinition def, PSField field) {
+    if (field == null) {
+      throw new IllegalArgumentException("field is required");
+    }
+    String tableName = physicalTableName(tableForLocalField(def, field));
+    String column = columnNameOf(field);
+    String dataType = StringUtils.defaultIfBlank(field.getDataType(), PSField.DT_TEXT);
+    String dataFormat = field.getDataFormat();
+    localFieldColumnSchema.ensureColumn(tableName, column, dataType, dataFormat);
+  }
+
+  static PSBackEndTable tableForLocalField(PSItemDefinition def, PSField field) {
+    if (field != null
+        && field.getLocator() instanceof PSBackEndColumn col
+        && col.getTable() != null
+        && StringUtils.isNotBlank(col.getTable().getAlias())) {
+      return col.getTable();
+    }
+    return tableForLocalFields(def);
+  }
+
+  static String physicalTableName(PSBackEndTable table) {
+    if (table == null) {
+      throw new IllegalArgumentException("content type has no backend table");
+    }
+    if (StringUtils.isNotBlank(table.getTable())) {
+      return table.getTable();
+    }
+    if (StringUtils.isNotBlank(table.getAlias())) {
+      return table.getAlias();
+    }
+    throw new IllegalArgumentException("content type has no backend table");
+  }
+
+  static String columnNameOf(PSField field) {
+    if (field != null
+        && field.getLocator() instanceof PSBackEndColumn col
+        && StringUtils.isNotBlank(col.getColumn())) {
+      return col.getColumn();
+    }
+    if (field == null || StringUtils.isBlank(field.getSubmitName())) {
+      throw new IllegalArgumentException("field is required");
+    }
+    return columnNameForField(field.getSubmitName());
   }
 
   static PSField newPersistableLocalField(

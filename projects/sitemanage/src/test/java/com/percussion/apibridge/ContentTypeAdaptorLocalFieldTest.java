@@ -26,6 +26,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -53,6 +55,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
 /**
  * CD-03 local field create/delete: POST/DELETE persist via {@code saveContentTypes} under a held
@@ -64,6 +67,7 @@ class ContentTypeAdaptorLocalFieldTest {
   private IPSContentDesignWs designWs;
   private IPSSystemDesignWs systemDesign;
   private PSItemDefManager itemDefManager;
+  private ContentTypeLocalFieldColumnSchema columnSchema;
   private ContentTypeAdaptor adaptor;
   private IPSGuid guid;
 
@@ -75,7 +79,9 @@ class ContentTypeAdaptorLocalFieldTest {
     designWs = mock(IPSContentDesignWs.class);
     systemDesign = mock(IPSSystemDesignWs.class);
     itemDefManager = mock(PSItemDefManager.class);
-    adaptor = new ContentTypeAdaptor(designWs, itemDefManager, systemDesign, () -> true);
+    columnSchema = mock(ContentTypeLocalFieldColumnSchema.class);
+    adaptor =
+        new ContentTypeAdaptor(designWs, itemDefManager, systemDesign, () -> true, columnSchema);
     guid = new PSGuid(PSTypeEnum.NODEDEF, 311L);
   }
 
@@ -124,7 +130,11 @@ class ContentTypeAdaptorLocalFieldTest {
     ContentTypeField body = new ContentTypeField();
     body.setName("rx_note");
     adaptor.addLocalField(null, "311", body);
-    verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    InOrder order = inOrder(columnSchema, designWs);
+    order
+        .verify(columnSchema)
+        .ensureColumn(eq("PERCPAGE"), eq("RX_NOTE"), eq("text"), eq("50"));
+    order.verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
     assertNotNull(def.getFieldSet().findFieldByName("rx_note", false));
   }
 
@@ -141,6 +151,7 @@ class ContentTypeAdaptorLocalFieldTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> adaptor.addLocalField(null, "311", body));
     assertEquals(409, ex.getResponse().getStatus());
+    verify(columnSchema, never()).ensureColumn(any(), any(), any(), any());
     verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
   }
 
@@ -162,6 +173,7 @@ class ContentTypeAdaptorLocalFieldTest {
     ContentTypeField body = new ContentTypeField();
     body.setName("rx_note");
     assertNull(adaptor.addLocalField(null, "999", body));
+    verify(columnSchema, never()).ensureColumn(any(), any(), any(), any());
     verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
   }
 
@@ -176,6 +188,7 @@ class ContentTypeAdaptorLocalFieldTest {
         assertThrows(
             ContentTypeDesignLockException.class, () -> adaptor.addLocalField(null, "311", body));
     assertTrue(ex.getMessage().toLowerCase().contains("lock"), ex.getMessage());
+    verify(columnSchema, never()).ensureColumn(any(), any(), any(), any());
     verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
   }
 
@@ -209,6 +222,23 @@ class ContentTypeAdaptorLocalFieldTest {
     IllegalArgumentException ex =
         assertThrows(IllegalArgumentException.class, () -> adaptor.addLocalField(null, "311", body));
     assertTrue(ex.getMessage().contains("dataType"));
+    verify(columnSchema, never()).ensureColumn(any(), any(), any(), any());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void addLocalField_doesNotSaveWhenAlterFails() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubDefinition();
+    stubLockedLoad(def);
+    doThrow(new IllegalStateException("Local-field column DDL failed"))
+        .when(columnSchema)
+        .ensureColumn(eq("PERCPAGE"), eq("RX_NOTE"), eq("text"), eq("50"));
+    ContentTypeField body = new ContentTypeField();
+    body.setName("rx_note");
+    IllegalStateException ex =
+        assertThrows(IllegalStateException.class, () -> adaptor.addLocalField(null, "311", body));
+    assertTrue(ex.getMessage().contains("Failed to add local field"), ex.getMessage());
     verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
   }
 
@@ -281,6 +311,14 @@ class ContentTypeAdaptorLocalFieldTest {
             () -> adaptor.deleteLocalField(null, "311", "rx_note"));
     assertTrue(ex.getMessage().toLowerCase().contains("lock"), ex.getMessage());
     verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void physicalTableName_prefersTableThenAlias() {
+    PSBackEndTable aliasOnly = new PSBackEndTable("PERCPAGE");
+    assertEquals("PERCPAGE", ContentTypeAdaptor.physicalTableName(aliasOnly));
+    aliasOnly.setTable("CT_PAGE");
+    assertEquals("CT_PAGE", ContentTypeAdaptor.physicalTableName(aliasOnly));
   }
 
   @Test
