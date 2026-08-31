@@ -21,6 +21,8 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     getContentTypeDetail: vi.fn(),
     updateContentTypeDetail: vi.fn(),
     setContentTypeEnabled: vi.fn(),
+    getContentTypeSearchIndexing: vi.fn(),
+    setContentTypeSearchIndexing: vi.fn(),
     setContentTypeAllowedWorkflows: vi.fn(),
     lockContentType: vi.fn(),
     unlockContentType: vi.fn(),
@@ -75,6 +77,12 @@ const updateContentTypeDetail = contentTypesApi.updateContentTypeDetail as Retur
   typeof vi.fn
 >;
 const setContentTypeEnabled = contentTypesApi.setContentTypeEnabled as ReturnType<typeof vi.fn>;
+const getContentTypeSearchIndexing = contentTypesApi.getContentTypeSearchIndexing as ReturnType<
+  typeof vi.fn
+>;
+const setContentTypeSearchIndexing = contentTypesApi.setContentTypeSearchIndexing as ReturnType<
+  typeof vi.fn
+>;
 const setContentTypeAllowedWorkflows = contentTypesApi.setContentTypeAllowedWorkflows as ReturnType<
   typeof vi.fn
 >;
@@ -129,6 +137,8 @@ describe("ContentTypeDetailPanel", () => {
     getContentTypeDetail.mockReset();
     updateContentTypeDetail.mockReset();
     setContentTypeEnabled.mockReset();
+    getContentTypeSearchIndexing.mockReset();
+    setContentTypeSearchIndexing.mockReset();
     setContentTypeAllowedWorkflows.mockReset();
     lockContentType.mockReset();
     unlockContentType.mockReset();
@@ -155,6 +165,10 @@ describe("ContentTypeDetailPanel", () => {
     setContentTypeEnabled.mockImplementation(async (_id, enabled: boolean) => ({
       ...sampleDetail,
       enabled,
+    }));
+    getContentTypeSearchIndexing.mockResolvedValue({ searchIndexing: true });
+    setContentTypeSearchIndexing.mockImplementation(async (_id, searchIndexing: boolean) => ({
+      searchIndexing,
     }));
     setContentTypeAllowedWorkflows.mockImplementation(async (_id, body) => ({
       ...sampleDetail,
@@ -554,6 +568,13 @@ describe("ContentTypeDetailPanel", () => {
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
     fireEvent.click(screen.getByTestId("developer-ct-enabled"));
     expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).checked).toBe(true);
+    expect((screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+    fireEvent.click(screen.getByTestId("developer-ct-search-indexing"));
+    expect((screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).checked).toBe(
+      true,
+    );
   });
 
   it("clears the held lock when save returns 409 (#3744)", async () => {
@@ -821,6 +842,9 @@ describe("ContentTypeDetailPanel", () => {
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
     expect(screen.getByTestId("developer-ct-lock-toolbar")).toBeTruthy();
     expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).disabled).toBe(true);
+    expect(
+      (screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).disabled,
+    ).toBe(true);
     expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(true);
     expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
     resolveDetail(sampleDetail);
@@ -996,6 +1020,179 @@ describe("ContentTypeDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
     expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).disabled).toBe(true);
+  });
+
+  it("keeps the search indexing toggle disabled until lock (#4035 CD-10)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-search-indexing")).toBeTruthy();
+    });
+    const box = screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement;
+    expect(box.disabled).toBe(true);
+    expect(box.checked).toBe(true);
+    fireEvent.click(box);
+    expect(box.checked).toBe(true);
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+    expect(setContentTypeSearchIndexing).not.toHaveBeenCalled();
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+  });
+
+  it("loads type-level search indexing from GET (default on) (#4035 CD-10)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    getContentTypeSearchIndexing.mockResolvedValue({ searchIndexing: false });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).checked,
+      ).toBe(false);
+    });
+    expect(getContentTypeSearchIndexing).toHaveBeenCalledWith("percPage");
+  });
+
+  it("saves search indexing via dedicated PUT after lock (#4035 CD-10)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-search-indexing"));
+    expect(
+      (screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).checked,
+    ).toBe(false);
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(setContentTypeSearchIndexing).toHaveBeenCalledWith("percPage", false);
+    });
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(setContentTypeEnabled).not.toHaveBeenCalled();
+    expect(unlockContentType).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+  });
+
+  it("does not bulk PUT when search indexing PUT fails (#4035 CD-10)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    setContentTypeSearchIndexing.mockRejectedValueOnce({
+      status: 500,
+      statusText: "Error",
+      body: null,
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-description"), {
+      target: { value: "Updated description" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-search-indexing"));
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        "Could not save content type.",
+      );
+    });
+    expect(setContentTypeSearchIndexing).toHaveBeenCalled();
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+  });
+
+  it("reverts search indexing after a failed PUT (#4035 CD-10)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    getContentTypeSearchIndexing.mockResolvedValue({ searchIndexing: true });
+    setContentTypeSearchIndexing.mockRejectedValueOnce({
+      status: 500,
+      statusText: "Error",
+      body: null,
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-search-indexing"));
+    expect(
+      (screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).checked,
+    ).toBe(false);
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        "Could not save content type.",
+      );
+    });
+    expect(
+      (screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).checked,
+    ).toBe(true);
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("surfaces a non-blocking notice when GET searchIndexing fails (#4035 CD-10)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    getContentTypeSearchIndexing.mockRejectedValueOnce({
+      status: 403,
+      statusText: "Forbidden",
+      body: null,
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-search-indexing-load-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-search-indexing-load-error").textContent).toContain(
+      DEV_MSG.CT_SI_LOAD_ERROR,
+    );
+    expect(
+      (screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).checked,
+    ).toBe(true);
+    expect(screen.queryByTestId("developer-ct-detail-error")).toBeNull();
+  });
+
+  it("clears the held lock when search indexing PUT returns 409 (#4035 CD-10)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    setContentTypeSearchIndexing.mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+      body: null,
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-search-indexing"));
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        "Could not save content type.",
+      );
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+    expect(
+      (screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).disabled,
+    ).toBe(true);
   });
 
   it("ignores workflow add/remove while unlocked (#3835)", async () => {

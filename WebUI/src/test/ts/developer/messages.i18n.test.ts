@@ -23,6 +23,8 @@ describe("Developer DEV_MSG i18n keys", () => {
     expect(DEV_MSG.CT_LOCK).toBe("Lock");
     expect(DEV_MSG.CT_UNLOCK).toBe("Unlock");
     expect(DEV_MSG.CT_LOCKED).toBe("Locked by you");
+    expect(DEV_MSG.CT_FORM_SEARCH_INDEXING).toBe("Search indexing");
+    expect(DEV_MSG.CT_SI_LOAD_ERROR).toBe("Could not load search indexing. Default is on.");
     expect(DEV_MSG.CT_CONTROL_PROPS).toBe("Control property values");
   });
 
