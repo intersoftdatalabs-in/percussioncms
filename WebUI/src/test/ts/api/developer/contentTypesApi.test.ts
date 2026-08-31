@@ -933,6 +933,46 @@ describe("wrapFieldControlPropertiesForWire / unwrapFieldControlProperties (CD-0
     });
   });
 
+  it("wraps choices when provided and unwraps extras", () => {
+    expect(
+      wrapFieldControlPropertiesForWire({
+        properties: [{ name: "height", value: "200" }],
+        choices: { type: "none" },
+      }),
+    ).toEqual({
+      ContentTypeFieldControlProperties: {
+        properties: [{ name: "height", value: "200" }],
+        choices: { type: "none" },
+      },
+    });
+    expect(
+      unwrapFieldControlProperties({
+        ContentTypeFieldControlProperties: {
+          properties: [],
+          choices: {
+            type: "local",
+            entries: [{ value: "open", label: "Open" }],
+            nullEntry: { value: "", label: "None", includeWhen: "always" },
+            defaultSelected: [{ type: "nullEntry" }],
+            filter: {
+              lookupHref: "../sys_lookup/filter.xml",
+              dependentFields: [{ fieldRef: "sys_communityid", dependencyType: "optional" }],
+            },
+          },
+        },
+      }).choices,
+    ).toEqual({
+      type: "local",
+      entries: [{ value: "open", label: "Open" }],
+      nullEntry: { value: "", label: "None", includeWhen: "always" },
+      defaultSelected: [{ type: "nullEntry" }],
+      filter: {
+        lookupHref: "../sys_lookup/filter.xml",
+        dependentFields: [{ fieldRef: "sys_communityid", dependencyType: "optional" }],
+      },
+    });
+  });
+
   it("unwraps a flat body and JAXB property singleton", () => {
     expect(
       unwrapFieldControlProperties({
@@ -1032,6 +1072,36 @@ describe("field controlProperties GET/PUT (CD-07)", () => {
     expect(listed.properties).toEqual([]);
     const body = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body));
     expect(body).toEqual({ ContentTypeFieldControlProperties: { properties: [] } });
+  });
+
+  it("PUTs choices when provided and omits them otherwise (#4046)", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeFieldControlProperties: {
+          properties: [],
+          choices: { type: "local", entries: [{ value: "open", label: "Open" }] },
+        },
+      }),
+    );
+    await replaceFieldControlProperties("percPage", "sys_title", [], {
+      type: "local",
+      entries: [{ value: "open", label: "Open" }],
+    });
+    const withChoices = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body));
+    expect(withChoices).toEqual({
+      ContentTypeFieldControlProperties: {
+        properties: [],
+        choices: { type: "local", entries: [{ value: "open", label: "Open" }] },
+      },
+    });
+
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeFieldControlProperties: { properties: [] } }),
+    );
+    await replaceFieldControlProperties("percPage", "sys_title", []);
+    const omitted = JSON.parse(String((fetchMock.mock.calls[1][1] as RequestInit).body));
+    expect(omitted).toEqual({ ContentTypeFieldControlProperties: { properties: [] } });
+    expect(JSON.stringify(omitted)).not.toContain("choices");
   });
 });
 

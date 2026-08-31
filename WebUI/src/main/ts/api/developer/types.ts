@@ -77,14 +77,66 @@ export interface ContentTypeControlProperty {
   value?: string;
 }
 
-/** Choice catalog on GET .../controlProperties (read-only in this chrome). */
+/** Local choice entry (CD-07 {@code choices.entries}). */
+export interface ContentTypeChoiceEntry {
+  value?: string;
+  label?: string;
+}
+
+/** Table-backed choice source (CD-07 {@code tableinfo}). */
+export interface ContentTypeChoiceTable {
+  dataSource?: string;
+  tableName?: string;
+  labelColumn?: string;
+  valueColumn?: string;
+}
+
+/** Dependent field on a choice filter. */
+export interface ContentTypeChoiceFilterField {
+  fieldRef?: string;
+  dependencyType?: string;
+}
+
+/** Choice filter extras (CD-07 {@code choices.filter}). */
+export interface ContentTypeChoiceFilter {
+  dependentFields?: ContentTypeChoiceFilterField[];
+  lookupHref?: string;
+  lookupName?: string;
+}
+
+/** Null entry added to a field choice catalog. */
+export interface ContentTypeChoiceNullEntry {
+  value?: string;
+  label?: string;
+  includeWhen?: string;
+  sortOrder?: string;
+}
+
+/** Default-selected catalog entry. */
+export interface ContentTypeChoiceDefaultSelected {
+  type?: string;
+  sequence?: number;
+  text?: string;
+}
+
+/**
+ * Choice catalog on GET/PUT {@code .../controlProperties} (CD-07).
+ *
+ * <p>{@code type} is {@code global}, {@code local}, {@code lookup},
+ * {@code internalLookup}, or {@code tableinfo}. PUT {@code type: none}
+ * clears the catalog. Omitted {@code choices} on PUT leaves it unchanged.
+ */
 export interface ContentTypeChoiceCatalog {
   type?: string;
-  globalId?: string;
+  globalId?: number;
   sortOrder?: string;
   lookupHref?: string;
-  entries?: Array<{ value?: string; label?: string }>;
-  table?: { tableName?: string; labelColumn?: string; valueColumn?: string };
+  lookupName?: string;
+  entries?: ContentTypeChoiceEntry[];
+  table?: ContentTypeChoiceTable;
+  filter?: ContentTypeChoiceFilter;
+  nullEntry?: ContentTypeChoiceNullEntry;
+  defaultSelected?: ContentTypeChoiceDefaultSelected[];
 }
 
 /**

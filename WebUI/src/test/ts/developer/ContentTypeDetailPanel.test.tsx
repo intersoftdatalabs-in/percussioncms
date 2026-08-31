@@ -1584,6 +1584,198 @@ describe("ContentTypeDetailPanel", () => {
     expect(lockContentType).toHaveBeenCalledTimes(1);
   });
 
+  it("keeps choice catalog editors disabled until lock (#4046)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [{ name: "sys_title", label: "Title" }],
+    });
+    getFieldControlProperties.mockResolvedValue({
+      properties: [{ name: "height", value: "200" }],
+      choices: { type: "local", entries: [{ value: "open", label: "Open" }] },
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-ch-type") as HTMLSelectElement).value).toBe("local");
+    });
+    expect((screen.getByTestId("developer-ct-ch-type") as HTMLSelectElement).disabled).toBe(true);
+    expect((screen.getByTestId("developer-ct-ch-entry-add-value") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+    fireEvent.change(screen.getByTestId("developer-ct-ch-type"), { target: { value: "none" } });
+    expect((screen.getByTestId("developer-ct-ch-type") as HTMLSelectElement).value).toBe("local");
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("omits choices on a properties-only save so the catalog is not wiped (#4046)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [{ name: "sys_title", label: "Title" }],
+    });
+    getFieldControlProperties
+      .mockResolvedValueOnce({
+        properties: [{ name: "height", value: "200" }],
+        choices: { type: "local", entries: [{ value: "open", label: "Open" }] },
+      })
+      .mockResolvedValueOnce({
+        properties: [{ name: "height", value: "201" }],
+        choices: { type: "local", entries: [{ value: "open", label: "Open" }] },
+      });
+    replaceFieldControlProperties.mockResolvedValueOnce({
+      properties: [{ name: "height", value: "201" }],
+      choices: { type: "local", entries: [{ value: "open", label: "Open" }] },
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-ch-entry-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-cp-value-0") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-cp-value-0"), {
+      target: { value: "201" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(replaceFieldControlProperties).toHaveBeenCalledWith("percPage", "sys_title", [
+        { name: "height", value: "201" },
+      ]);
+    });
+    expect(replaceFieldControlProperties.mock.calls[0]).toHaveLength(3);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-ch-type") as HTMLSelectElement).value).toBe("local");
+    });
+  });
+
+  it("saves a local choice catalog after lock and GET round-trips (#4046)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [{ name: "sys_title", label: "Title" }],
+    });
+    getFieldControlProperties
+      .mockResolvedValueOnce({ properties: [] })
+      .mockResolvedValueOnce({
+        properties: [],
+        choices: {
+          type: "local",
+          entries: [{ value: "open", label: "Open" }],
+          nullEntry: { value: "", label: "None", includeWhen: "always", sortOrder: "first" },
+          defaultSelected: [{ type: "nullEntry" }],
+        },
+      });
+    replaceFieldControlProperties.mockResolvedValueOnce({
+      properties: [],
+      choices: {
+        type: "local",
+        entries: [{ value: "open", label: "Open" }],
+      },
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-ch-type") as HTMLSelectElement).disabled).toBe(false);
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-ch-type"), { target: { value: "local" } });
+    fireEvent.change(screen.getByTestId("developer-ct-ch-entry-add-value"), {
+      target: { value: "open" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-ch-entry-add-label"), {
+      target: { value: "Open" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-ch-entry-add"));
+    fireEvent.click(screen.getByTestId("developer-ct-ch-null"));
+    fireEvent.change(screen.getByTestId("developer-ct-ch-ds-add-type"), {
+      target: { value: "nullEntry" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-ch-ds-add"));
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(replaceFieldControlProperties).toHaveBeenCalled();
+    });
+    const args = replaceFieldControlProperties.mock.calls[0];
+    expect(args[0]).toBe("percPage");
+    expect(args[1]).toBe("sys_title");
+    expect(args[2]).toEqual([]);
+    expect(args[3]).toEqual({
+      type: "local",
+      sortOrder: "ascending",
+      entries: [{ value: "open", label: "Open" }],
+      nullEntry: { value: "", label: "None", includeWhen: "always", sortOrder: "first" },
+      defaultSelected: [{ type: "nullEntry" }],
+    });
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-ch-type") as HTMLSelectElement).value).toBe("local");
+    });
+  });
+
+  it("sends type none to clear the catalog (#4046)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [{ name: "sys_title", label: "Title" }],
+    });
+    getFieldControlProperties
+      .mockResolvedValueOnce({
+        properties: [],
+        choices: { type: "local", entries: [{ value: "open", label: "Open" }] },
+      })
+      .mockResolvedValueOnce({ properties: [] });
+    replaceFieldControlProperties.mockResolvedValueOnce({ properties: [] });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-ch-entry-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-ch-type") as HTMLSelectElement).disabled).toBe(false);
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-ch-type"), { target: { value: "none" } });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(replaceFieldControlProperties).toHaveBeenCalledWith("percPage", "sys_title", [], {
+        type: "none",
+      });
+    });
+  });
+
+  it("clears the held lock when a choices PUT returns 409 (#4046)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [{ name: "sys_title", label: "Title" }],
+    });
+    getFieldControlProperties.mockResolvedValue({
+      properties: [],
+      choices: { type: "local", entries: [{ value: "open", label: "Open" }] },
+    });
+    replaceFieldControlProperties.mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+      body: null,
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-ch-entry-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-ch-type") as HTMLSelectElement).disabled).toBe(false);
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-ch-type"), { target: { value: "none" } });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        "Could not save content type.",
+      );
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+    expect((screen.getByTestId("developer-ct-ch-type") as HTMLSelectElement).disabled).toBe(true);
+    expect(lockContentType).toHaveBeenCalledTimes(1);
+  });
+
   it("shows item-level exits chrome while loading and keeps editors disabled until lock (#3895)", async () => {
     getContentTypeDetail.mockResolvedValue(sampleDetail);
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);

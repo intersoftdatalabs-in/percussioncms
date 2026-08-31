@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Create or delete a content type from Developer catalog chrome, lock, enable or disable, toggle type-level search indexing, rename via REST, add or delete local fields from Developer Content Type detail, include system or shared fields from Developer detail, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Create or delete a content type from Developer catalog chrome, lock, enable or disable, toggle type-level search indexing, rename via REST, add or delete local fields from Developer Content Type detail, include system or shared fields from Developer detail, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, field choice catalogs, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -12,7 +12,7 @@ tags: [admin, developer, content-types]
 **Developer → Content types** lists design content types, **creates** a new type,
 and opens a detail panel
 for fields, allowed workflows, allowed templates, **item-level exits**, **control property values**,
-**field-rule expressions**, and Object ACL. Design edits and **delete** use an explicit **design-session lock** so two
+the **choice catalog**, **field-rule expressions**, and Object ACL. Design edits and **delete** use an explicit **design-session lock** so two
 Admins cannot overwrite or remove the same type at once.
 
 Admins can **create** a content type from this catalog (**New content type**) or with
@@ -255,16 +255,42 @@ After **Lock**:
 2. Edit a value, **Add** a parameter name/value, or **Remove** a row.
 3. Click **Save content type**. The product replaces the property list
    (`PUT .../fields/{fieldName}/controlProperties`) while the lock is still
-   held. Save does **not** send the choice catalog, so existing choices stay
-   unchanged. A following GET on the same path lists the new values.
+   held. If you did **not** change the choice catalog, Save omits `choices` so
+   existing choices stay unchanged. A following GET on the same path lists the
+   new values.
 4. Without a lock, value editors and Save stay **disabled**. The product does
    **not** steal another user's lock (lock failure is **409**). An unlocked
    edit does not persist.
 
-This is not the full Workbench Properties tab. Choice catalogs show as
-read-only (type only) in this chrome; Save omits `choices`. Integrators write
-choice filter, null-entry, and default-selected on
-`PUT .../fields/{fieldName}/controlProperties` by sending `choices` — see
+### Field choice catalog (after lock)
+
+The **Choice catalog** editor is under **Control property values** for the same
+selected field. Source, local entries, keyword id, lookup, table, null-entry,
+default-selected, and filter stay **disabled** until you hold the lock.
+
+After **Lock**:
+
+1. Select the field. The product loads the current catalog from the same
+   `GET .../controlProperties` response (`choices` is omitted when the field
+   has none).
+2. Choose a source:
+   * **None (clear catalog)** — next save sends `choices.type` `none` and
+     removes the catalog.
+   * **Local list** — add value/label entries.
+   * **Keyword (global)** — set the keyword / lookup table id.
+   * **Lookup** / **Internal lookup** — set the lookup href (optional name).
+   * **Table** — set table name, label column, and value column.
+3. Optionally include a **null entry**, **default selected** rows, and a
+   **choice filter** (lookup href plus dependent fields).
+4. Click **Save content type**. When the catalog changed, the product sends
+   `choices` on `PUT .../fields/{fieldName}/controlProperties` while the lock
+   is still held. A following GET lists the new catalog. A properties-only
+   save still omits `choices`, so the catalog is not cleared.
+5. Without a lock, choice editors and Save stay **disabled**. The product does
+   **not** steal another user's lock (lock failure is **409**).
+
+This is not the full Workbench Properties visual chooser. Shared-field choice
+editors are a separate surface. Integrator notes:
 [REST API — Content types](id:developer-rest).
 
 ### Field rule expressions (after lock)
@@ -387,7 +413,7 @@ The chrome calls:
 | Replace item-level exits | `PUT /services/contenttypes/{idOrName}/itemExits` (CD-09; held lock; full replace of translations/validations; empty lists clear) |
 | Confirm item-level exits | `GET /services/contenttypes/{idOrName}/itemExits` |
 | Load field control properties | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` (CD-07; no lock) |
-| Save field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` (held lock; full replace of values; does not send `choices`) |
+| Save field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` (held lock; full replace of values; omit `choices` to leave the catalog unchanged; `type: none` clears) |
 | Load field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` |
 | Save field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` (held lock; full replace of validation, visibility, inputTranslation, outputTranslation) |
 | Include system or shared field | `POST /services/contenttypes/{idOrName}/fields/include` (CD-04; held lock; origin stays system/shared; duplicate 409; unknown catalog field 404; invalid `fieldType` 400) |
