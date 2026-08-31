@@ -52,4 +52,19 @@ public class ActionsTestAdaptor implements IActionMenuAdaptor {
   public ActionMenu findMenuByKey(String idOrName) {
     return null;
   }
+
+  @Override
+  public ActionMenu createActionMenu(ActionMenu body) {
+    return body;
+  }
+
+  @Override
+  public ActionMenu saveActionMenu(String idOrName, ActionMenu body) {
+    return body;
+  }
+
+  @Override
+  public boolean deleteActionMenu(String idOrName) {
+    return false;
+  }
 }

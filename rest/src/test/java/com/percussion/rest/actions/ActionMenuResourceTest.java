@@ -13,10 +13,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentCaptor;
@@ -181,6 +183,175 @@ public class ActionMenuResourceTest {
     when(adaptor.findAllowedTemplates(eq(551), eq(false)))
         .thenThrow(new IllegalArgumentException("Request can't be null"));
     ActionMenuList out = resource.getAllowedTemplateMenus(551, false);
+    assertTrue(out.isEmpty());
+  }
+
+  @Test
+  public void createActionMenuClearsIdAndDelegates() {
+    ActionMenu body = new ActionMenu();
+    body.setName("MyMenu");
+    body.setId(9);
+    ActionMenu created = new ActionMenu();
+    created.setName("MyMenu");
+    created.setId(42);
+    when(adaptor.createActionMenu(any())).thenReturn(created);
+
+    ActionMenu out = resource.createActionMenu(body);
+
+    assertEquals("MyMenu", out.getName());
+    assertEquals(-1, body.getId());
+    assertEquals(null, body.getGuid());
+    verify(adaptor).createActionMenu(body);
+  }
+
+  @Test
+  public void createActionMenuBlankNameIs400() {
+    when(adaptor.createActionMenu(any())).thenThrow(new IllegalArgumentException("name is required"));
+    ActionMenu body = new ActionMenu();
+    body.setName("  ");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createActionMenu(body));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createActionMenuDuplicateIs409() {
+    when(adaptor.createActionMenu(any()))
+        .thenThrow(new WebApplicationException("Action menu already exists: MyMenu", 409));
+    ActionMenu body = new ActionMenu();
+    body.setName("MyMenu");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createActionMenu(body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createActionMenuNonAdminIs403() {
+    when(adaptor.createActionMenu(any()))
+        .thenThrow(new WebApplicationException("Admin role required", Response.Status.FORBIDDEN));
+    ActionMenu body = new ActionMenu();
+    body.setName("MyMenu");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createActionMenu(body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateActionMenuDelegates() {
+    ActionMenu body = new ActionMenu();
+    body.setLabel("Updated");
+    body.setDescription("desc");
+    body.setMenuType("MENU");
+    body.setUrl("/run");
+    ActionMenu updated = new ActionMenu();
+    updated.setName("MyMenu");
+    updated.setLabel("Updated");
+    updated.setDescription("desc");
+    updated.setMenuType("MENU");
+    updated.setUrl("/run");
+    when(adaptor.saveActionMenu(eq("MyMenu"), eq(body))).thenReturn(updated);
+
+    ActionMenu out = resource.updateActionMenu("MyMenu", body);
+
+    assertEquals("Updated", out.getLabel());
+    assertEquals("desc", out.getDescription());
+    assertEquals("MENU", out.getMenuType());
+    assertEquals("/run", out.getUrl());
+    verify(adaptor).saveActionMenu("MyMenu", body);
+  }
+
+  @Test
+  public void updateActionMenuUnknownIs404() {
+    when(adaptor.saveActionMenu(eq("missing"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateActionMenu("missing", new ActionMenu()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateActionMenuNullBodyIs400() {
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.updateActionMenu("MyMenu", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).saveActionMenu(any(), any());
+  }
+
+  @Test
+  public void updateActionMenuSystemIs409() {
+    when(adaptor.saveActionMenu(eq("Edit"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "System action menus cannot be updated or deleted via this API", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.updateActionMenu("Edit", new ActionMenu()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteActionMenuNoContent() {
+    when(adaptor.deleteActionMenu(eq("MyMenu"))).thenReturn(true);
+
+    Response r = resource.deleteActionMenu("MyMenu");
+
+    assertEquals(204, r.getStatus());
+    verify(adaptor).deleteActionMenu("MyMenu");
+  }
+
+  @Test
+  public void deleteActionMenuUnknownIs404() {
+    when(adaptor.deleteActionMenu(eq("missing"))).thenReturn(false);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteActionMenu("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteActionMenuNonAdminIs403() {
+    when(adaptor.deleteActionMenu(eq("MyMenu")))
+        .thenThrow(new WebApplicationException("Admin role required", Response.Status.FORBIDDEN));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteActionMenu("MyMenu"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteActionMenuSystemIs409() {
+    when(adaptor.deleteActionMenu(eq("Edit")))
+        .thenThrow(
+            new WebApplicationException(
+                "System action menus cannot be updated or deleted via this API", 409));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteActionMenu("Edit"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturns500OnCreate() {
+    ActionMenuResource bare = new ActionMenuResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.createActionMenu(new ActionMenu()));
+    assertEquals(500, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void mapWriteFailurePreservesAdaptorWebApplicationException() {
+    WebApplicationException lock = new WebApplicationException("locked", 409);
+    assertSame(lock, ActionMenuResource.mapWriteFailure(lock));
+  }
+
+  @Test
+  public void mapWriteFailureIllegalArgumentIs400() {
+    WebApplicationException mapped =
+        ActionMenuResource.mapWriteFailure(new IllegalArgumentException("name is required"));
+    assertEquals(400, mapped.getResponse().getStatus());
+  }
+
+  @Test
+  public void getAllowedTransitionsStaysEmpty() {
+    ActionMenuList out = resource.getAllowedTransitions(new AllowedWorkflowTransitionsRequest());
     assertTrue(out.isEmpty());
   }
 }

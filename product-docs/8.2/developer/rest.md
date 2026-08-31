@@ -1417,10 +1417,29 @@ under `/services/actions/catalog`. Each catalog and detail row includes a nested
 load **Object ACL** via `GET /services/acls/object/{guid}`. When the nested Guid is
 hard to bind, clients may also synthesize that same string from the numeric `id`.
 
+Admin **write** persists through `IPSUiDesignWs` (`createActions` / `loadActions` /
+`saveActions` / `deleteActions`) — the same design web service SOAP uses. There is
+no new SOAP surface. **Do not** treat this as a Developer Action Menus SPA; chrome
+for create/save/delete is a later sibling. Cascading children composition (UI-04)
+and usage/command/visibility tab completeness (UI-03) are later slices. Finder
+helpers (`GET /services/actions/find`, content-type and template finders) are
+unchanged.
+
+Write is **Admin** only. Name is unique (case-insensitive) and must not contain
+whitespace or wildcards. Duplicate name is **409**. Invalid name or menu type is
+**400**. Missing id/name is **404**. Non-Admin (or missing request session/user)
+is **403**. **System** menus (Workbench `Menus/System` hierarchy) cannot be
+updated or deleted — **409**; the design lock is not stolen (`overrideLock=false`).
+PUT round-trips GET detail fields already exposed (`label`, `description`,
+`menuType`, `url`). Name is the catalog key and is not renamed on PUT.
+
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/services/actions/catalog` | List action menus (tree roots with children) |
 | `GET` | `/services/actions/catalog/{idOrName}` | Load one menu by name, numeric id, or GUID string |
+| `POST` | `/services/actions` | **Admin.** Create a user action menu (`createActions` then `saveActions`) |
+| `PUT` | `/services/actions/{idOrName}` | **Admin.** Update label, description, menuType, and/or url |
+| `DELETE` | `/services/actions/{idOrName}` | **Admin.** Delete a user action menu (`deleteActions`, `ignoreDependencies=false`) |
 
 JSON may wrap a single item as `ActionMenu`. Integrators should unwrap that
 envelope and read `guid.stringValue` (never assume the GUID is missing when `id`
