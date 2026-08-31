@@ -75,6 +75,9 @@ class ViewAdaptorMapTest {
     assertEquals(1, d.getFields().size());
     assertEquals("sys_title", d.getFields().get(0).getFieldName());
     assertFalse(d.getDesignGaps().isEmpty());
+    assertTrue(
+        d.getDesignGaps().stream()
+            .noneMatch(g -> g.toLowerCase().contains("create / update / delete not supported")));
   }
 
   @Test
