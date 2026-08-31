@@ -519,15 +519,24 @@ vi.mock("../../../main/ts/api/developer/systemDefApi", async (importOriginal) =>
   };
 });
 
-vi.mock("../../../main/ts/api/developer/itemFiltersApi", () => ({
-  listItemFilters: vi.fn().mockResolvedValue([
-    { name: "public", description: "Public", rules: [] },
-  ]),
-  getItemFilterDetail: vi.fn().mockResolvedValue({
-    name: "public",
-    rules: [],
-  }),
-}));
+vi.mock("../../../main/ts/api/developer/itemFiltersApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/itemFiltersApi")
+  >();
+  return {
+    ...actual,
+    listItemFilters: vi.fn().mockResolvedValue([
+      { name: "public", description: "Public", rules: [] },
+    ]),
+    getItemFilterDetail: vi.fn().mockResolvedValue({
+      name: "public",
+      rules: [],
+    }),
+    createItemFilter: vi.fn(),
+    updateItemFilter: vi.fn(),
+    deleteItemFilter: vi.fn(),
+  };
+});
 
 vi.mock("../../../main/ts/api/developer/displayFormatsApi", async (importOriginal) => {
   const actual = await importOriginal<

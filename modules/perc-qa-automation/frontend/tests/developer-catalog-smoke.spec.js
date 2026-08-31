@@ -84,6 +84,11 @@ const CATALOGS = [
     errorTestId: "developer-sys-error",
   },
   {
+    section: "item-filters",
+    successTestIds: ["developer-if-panel", "developer-if-empty"],
+    errorTestId: "developer-if-error",
+  },
+  {
     section: "sites",
     successTestIds: ["developer-site-panel", "developer-site-empty"],
     errorTestId: "developer-site-error",

@@ -133,6 +133,19 @@ const DEVELOPER_SMOKE_SET = [
     notes: "CD-15 SPA shared-field group write (#4029 / parent #1690)",
   },
   {
+    id: "catalog-item-filters",
+    file: "developer-catalog-smoke.spec.js",
+    title: "item-filters: catalog loads without API error",
+    status: "green",
+  },
+  {
+    id: "item-filter-editor",
+    file: "developer-item-filter-editor.spec.js",
+    title: "Admin can create, save, and delete an item filter",
+    status: "green",
+    notes: "AS-07 SPA item filter write (#4060 / parent #1690)",
+  },
+  {
     id: "catalog-system-def",
     file: "developer-catalog-smoke.spec.js",
     title: "system-def: catalog loads without API error",
