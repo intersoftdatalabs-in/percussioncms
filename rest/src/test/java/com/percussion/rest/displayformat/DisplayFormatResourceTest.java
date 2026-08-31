@@ -19,15 +19,19 @@ package com.percussion.rest.displayformat;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -163,6 +167,136 @@ public class DisplayFormatResourceTest {
   }
 
   @Test
+  public void createDisplayFormatClearsIdAndDelegates() {
+    DisplayFormat body = new DisplayFormat();
+    body.setName("MyFmt");
+    body.setDisplayId(9);
+    DisplayFormat created = new DisplayFormat();
+    created.setName("MyFmt");
+    created.setDisplayId(99);
+    when(adaptor.createDisplayFormat(any())).thenReturn(created);
+
+    DisplayFormat out = resource.createDisplayFormat(body);
+
+    assertEquals("MyFmt", out.getName());
+    assertEquals(0, body.getDisplayId());
+    assertNull(body.getGuid());
+    verify(adaptor).createDisplayFormat(body);
+  }
+
+  @Test
+  public void createDisplayFormatBlankNameIs400() {
+    when(adaptor.createDisplayFormat(any()))
+        .thenThrow(new IllegalArgumentException("name is required"));
+    DisplayFormat body = new DisplayFormat();
+    body.setName("  ");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createDisplayFormat(body));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createDisplayFormatDuplicateIs409() {
+    when(adaptor.createDisplayFormat(any()))
+        .thenThrow(new WebApplicationException("Display format already exists: MyFmt", 409));
+    DisplayFormat body = new DisplayFormat();
+    body.setName("MyFmt");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createDisplayFormat(body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createDisplayFormatNonAdminIs403() {
+    when(adaptor.createDisplayFormat(any()))
+        .thenThrow(new WebApplicationException("Admin role required", Response.Status.FORBIDDEN));
+    DisplayFormat body = new DisplayFormat();
+    body.setName("MyFmt");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createDisplayFormat(body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateDisplayFormatDelegates() {
+    DisplayFormat existing = new DisplayFormat();
+    existing.setName("MyFmt");
+    when(adaptor.findDisplayFormatByKey(eq("MyFmt"))).thenReturn(existing);
+    DisplayFormat body = new DisplayFormat();
+    body.setLabel("Updated");
+    body.setDescription("desc");
+    DisplayFormat updated = new DisplayFormat();
+    updated.setName("MyFmt");
+    updated.setLabel("Updated");
+    updated.setDescription("desc");
+    when(adaptor.updateDisplayFormat(eq("MyFmt"), any())).thenReturn(updated);
+
+    DisplayFormat out = resource.updateDisplayFormat("MyFmt", body);
+
+    assertEquals("Updated", out.getLabel());
+    assertEquals("desc", out.getDescription());
+    verify(adaptor).updateDisplayFormat("MyFmt", body);
+  }
+
+  @Test
+  public void updateDisplayFormatUnknownIs404() {
+    when(adaptor.findDisplayFormatByKey(eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateDisplayFormat("missing", new DisplayFormat()));
+    assertEquals(404, ex.getResponse().getStatus());
+    verify(adaptor, never()).updateDisplayFormat(any(), any());
+  }
+
+  @Test
+  public void updateDisplayFormatNullBodyIs400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.updateDisplayFormat("MyFmt", null));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteDisplayFormatNoContent() {
+    when(adaptor.deleteDisplayFormat(eq("MyFmt"))).thenReturn(true);
+
+    Response r = resource.deleteDisplayFormat("MyFmt");
+
+    assertEquals(204, r.getStatus());
+    verify(adaptor).deleteDisplayFormat("MyFmt");
+  }
+
+  @Test
+  public void deleteDisplayFormatUnknownIs404() {
+    when(adaptor.deleteDisplayFormat(eq("missing"))).thenReturn(false);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteDisplayFormat("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteDisplayFormatLockConflictIs409() {
+    when(adaptor.deleteDisplayFormat(eq("MyFmt")))
+        .thenThrow(
+            new WebApplicationException(
+                "Could not delete display format; design lock required or held by another user",
+                409));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteDisplayFormat("MyFmt"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteDisplayFormatNonAdminIs403() {
+    when(adaptor.deleteDisplayFormat(eq("MyFmt")))
+        .thenThrow(new WebApplicationException("Admin role required", Response.Status.FORBIDDEN));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteDisplayFormat("MyFmt"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void withoutInjectionFailsWithDiagnostic() {
     DisplayFormatResource bare = new DisplayFormatResource();
     WebApplicationException listEx =
@@ -174,5 +308,10 @@ public class DisplayFormatResourceTest {
         assertThrows(WebApplicationException.class, () -> bare.getDisplayFormat("x"));
     assertEquals(500, getEx.getResponse().getStatus());
     assertInstanceOf(IllegalStateException.class, getEx.getCause());
+
+    WebApplicationException createEx =
+        assertThrows(
+            WebApplicationException.class, () -> bare.createDisplayFormat(new DisplayFormat()));
+    assertEquals(500, createEx.getResponse().getStatus());
   }
 }

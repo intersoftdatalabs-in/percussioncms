@@ -30,6 +30,34 @@ public interface IDisplayFormatAdaptor {
 
   List<DisplayFormat> createDisplayFormats(List<String> names, String session, String user);
 
+  /**
+   * Admin create: persist a new display format (Workbench Finish, not an unsaved stub) via {@code
+   * IPSUiDesignWs.createDisplayFormats} then {@code saveDisplayFormats}.
+   *
+   * @param body JSON body; {@code name} (or {@code internalName}) required, unique, no whitespace
+   *     or wildcards
+   * @return persisted display format
+   */
+  DisplayFormat createDisplayFormat(DisplayFormat body);
+
+  /**
+   * Admin update by internal name or GUID. Name is not renamed on PUT. Loads with a design lock
+   * ({@code overrideLock=false}) and releases on save.
+   *
+   * @param idOrName catalog key
+   * @param body fields to apply ({@code label}/{@code displayName}, {@code description})
+   * @return updated format, or {@code null} when missing
+   */
+  DisplayFormat updateDisplayFormat(String idOrName, DisplayFormat body);
+
+  /**
+   * Admin delete by internal name or GUID. Does not steal another user's lock.
+   *
+   * @param idOrName catalog key
+   * @return {@code true} when deleted, {@code false} when not found
+   */
+  boolean deleteDisplayFormat(String idOrName);
+
   void deleteDisplayFormats(
       List<IPSGuid> ids, boolean ignoreDependencies, String session, String user);
 

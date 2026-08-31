@@ -30,11 +30,19 @@ import com.percussion.rest.displayformat.*;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.user.data.PSCurrentUser;
+import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
+import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
+import com.percussion.webservices.PSErrorsException;
+import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.ui.IPSUiDesignWs;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,34 +51,206 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
-/** Provides the API implementation for the Display Format Resource. */
+/**
+ * Provides the API implementation for the Display Format Resource.
+ *
+ * <p>GET catalog uses {@link IPSUiDesignWs#findDisplayFormats}. Admin create/update/delete persist
+ * through the same design WS SOAP uses ({@code createDisplayFormats} / {@code loadDisplayFormats}
+ * / {@code saveDisplayFormats} / {@code deleteDisplayFormats}). No new SOAP methods.
+ */
 @PSSiteManageBean
 @Lazy
 public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
 
+  static final String ADMIN_REQUIRED =
+      "Admin role required to create, update, or delete display formats";
+
   private static final Logger log = LogManager.getLogger(DisplayFormatAdaptor.class);
 
   private final IPSUiDesignWs designWs;
+  private final BooleanSupplier adminChecker;
+
+  /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
+  @Autowired(required = false)
+  private IPSUserService userService;
 
   @Autowired
   public DisplayFormatAdaptor(IPSUiDesignWs designWs) {
+    this(designWs, null);
+  }
+
+  /** Package-visible for unit tests. */
+  DisplayFormatAdaptor(IPSUiDesignWs designWs, BooleanSupplier adminChecker) {
     this.designWs = designWs;
+    this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
   }
 
   @Override
   public List<DisplayFormat> createDisplayFormats(List<String> names, String session, String user) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    try {
+      List<PSDisplayFormat> created = designWs.createDisplayFormats(names, session, user);
+      if (created == null || created.isEmpty()) {
+        return new ArrayList<>();
+      }
+      List<DisplayFormat> out = new ArrayList<>(created.size());
+      for (PSDisplayFormat nativeDf : created) {
+        if (nativeDf != null) {
+          out.add(copyDisplayFormat(nativeDf));
+        }
+      }
+      return out;
+    } catch (IllegalArgumentException e) {
+      if (isAlreadyExistsFailure(e)) {
+        throw new WebApplicationException(e.getMessage(), 409);
+      }
+      throw e;
+    } catch (PSErrorException e) {
+      throw new IllegalStateException("Failed to create display formats", e);
+    } catch (PSCmsException | PSUnknownNodeTypeException e) {
+      throw new IllegalStateException("Failed to map display formats", e);
+    }
+  }
+
+  @Override
+  public DisplayFormat createDisplayFormat(DisplayFormat body) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    String name = requireValidName(firstNonBlank(body.getName(), body.getInternalName()));
+    assertNameUnique(name);
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      List<PSDisplayFormat> created = designWs.createDisplayFormats(List.of(name), session, user);
+      if (created == null || created.isEmpty() || created.get(0) == null) {
+        throw new IllegalStateException("Design WS createDisplayFormats returned empty");
+      }
+      PSDisplayFormat nativeDf = created.get(0);
+      applyWritableFields(nativeDf, body);
+      designWs.saveDisplayFormats(List.of(nativeDf), true, session, user);
+      return reload(nativeDf, name);
+    } catch (WebApplicationException | IllegalStateException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      if (isAlreadyExistsFailure(e)) {
+        throw new WebApplicationException("Display format already exists: " + name, 409);
+      }
+      throw e;
+    } catch (PSErrorsException e) {
+      throw mapSaveOrDeleteFailure("create", e);
+    } catch (PSErrorException e) {
+      throw new IllegalStateException("Failed to create display format", e);
+    } catch (PSCmsException | PSUnknownNodeTypeException e) {
+      throw new IllegalStateException("Failed to map display format", e);
+    }
+  }
+
+  @Override
+  public DisplayFormat updateDisplayFormat(String idOrName, DisplayFormat body) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    if (!isSafeDisplayFormatKey(idOrName)) {
+      return null;
+    }
+    DisplayFormat existing = findDisplayFormatByKey(idOrName);
+    if (existing == null) {
+      return null;
+    }
+    IPSGuid id = resolveGuid(existing);
+    if (id == null) {
+      return null;
+    }
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      List<PSDisplayFormat> loaded =
+          designWs.loadDisplayFormats(List.of(id), true, false, session, user);
+      if (loaded == null || loaded.isEmpty() || loaded.get(0) == null) {
+        throw new WebApplicationException(
+            "Could not update display format; design lock required or held by another user", 409);
+      }
+      PSDisplayFormat nativeDf = loaded.get(0);
+      applyWritableFields(nativeDf, body);
+      designWs.saveDisplayFormats(List.of(nativeDf), true, session, user);
+      return reload(nativeDf, nativeDf.getName());
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSErrorResultsException e) {
+      if (isNotFound(e, id)) {
+        return null;
+      }
+      if (hasLockError(e)) {
+        throw new WebApplicationException(
+            "Could not update display format; design lock required or held by another user", 409);
+      }
+      log.error("Failed to load display format for update: {}", id, e);
+      throw new IllegalStateException("Failed to update display format", e);
+    } catch (PSErrorsException e) {
+      throw mapSaveOrDeleteFailure("update", e);
+    } catch (PSCmsException | PSUnknownNodeTypeException e) {
+      throw new IllegalStateException("Failed to map display format", e);
+    }
+  }
+
+  @Override
+  public boolean deleteDisplayFormat(String idOrName) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (!isSafeDisplayFormatKey(idOrName)) {
+      return false;
+    }
+    DisplayFormat existing = findDisplayFormatByKey(idOrName);
+    if (existing == null) {
+      return false;
+    }
+    IPSGuid id = resolveGuid(existing);
+    if (id == null) {
+      return false;
+    }
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      List<PSDisplayFormat> locked =
+          designWs.loadDisplayFormats(List.of(id), true, false, session, user);
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        throw new WebApplicationException(
+            "Could not delete display format; design lock required or held by another user", 409);
+      }
+      designWs.deleteDisplayFormats(List.of(id), false, session, user);
+      return true;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSErrorResultsException e) {
+      if (isNotFound(e, id)) {
+        return false;
+      }
+      throw new WebApplicationException(
+          "Could not delete display format; design lock required or held by another user", 409);
+    } catch (PSErrorsException e) {
+      throw mapSaveOrDeleteFailure("delete", e);
+    }
   }
 
   @Override
   public void deleteDisplayFormats(
       List<IPSGuid> ids, boolean ignoreDependencies, String session, String user) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    try {
+      designWs.deleteDisplayFormats(ids, ignoreDependencies, session, user);
+    } catch (PSErrorsException e) {
+      throw mapSaveOrDeleteFailure("delete", e);
+    }
   }
 
   @Override
@@ -349,7 +529,44 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
   @Override
   public void saveDisplayFormats(
       List<DisplayFormat> displayFormats, boolean release, String session, String user) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    if (displayFormats == null || displayFormats.isEmpty()) {
+      throw new IllegalArgumentException("displayFormats is required");
+    }
+    List<PSDisplayFormat> natives = new ArrayList<>();
+    for (DisplayFormat dto : displayFormats) {
+      if (dto == null) {
+        continue;
+      }
+      IPSGuid id = resolveGuid(dto);
+      if (id == null) {
+        throw new IllegalArgumentException("display format guid is required to save");
+      }
+      try {
+        List<PSDisplayFormat> loaded =
+            designWs.loadDisplayFormats(List.of(id), true, false, session, user);
+        if (loaded == null || loaded.isEmpty() || loaded.get(0) == null) {
+          throw new WebApplicationException(
+              "Could not save display format; design lock required or held by another user", 409);
+        }
+        PSDisplayFormat nativeDf = loaded.get(0);
+        applyWritableFields(nativeDf, dto);
+        natives.add(nativeDf);
+      } catch (PSErrorResultsException e) {
+        if (hasLockError(e)) {
+          throw new WebApplicationException(
+              "Could not save display format; design lock required or held by another user", 409);
+        }
+        throw new IllegalStateException("Failed to load display format for save", e);
+      }
+    }
+    if (natives.isEmpty()) {
+      throw new IllegalArgumentException("displayFormats is required");
+    }
+    try {
+      designWs.saveDisplayFormats(natives, release, session, user);
+    } catch (PSErrorsException e) {
+      throw mapSaveOrDeleteFailure("save", e);
+    }
   }
 
   @Override
@@ -388,5 +605,272 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
         && key.indexOf('/') < 0
         && key.indexOf('\\') < 0
         && key.indexOf('\0') < 0;
+  }
+
+  private DisplayFormat reload(PSDisplayFormat saved, String name)
+      throws PSCmsException, PSUnknownNodeTypeException {
+    if (name != null && !name.isBlank()) {
+      DisplayFormat byName = findDisplayFormat(name);
+      if (byName != null) {
+        return byName;
+      }
+    }
+    if (saved != null && saved.getGUID() != null) {
+      DisplayFormat byGuid = findDisplayFormat(saved.getGUID());
+      if (byGuid != null) {
+        return byGuid;
+      }
+    }
+    return saved == null ? null : copyDisplayFormat(saved);
+  }
+
+  private static void applyWritableFields(PSDisplayFormat nativeDf, DisplayFormat body) {
+    if (nativeDf == null || body == null) {
+      return;
+    }
+    String label = firstNonBlank(body.getLabel(), body.getDisplayName());
+    if (label != null) {
+      nativeDf.setDisplayName(label);
+    }
+    if (body.getDescription() != null) {
+      nativeDf.setDescription(body.getDescription());
+    }
+  }
+
+  private void assertNameUnique(String name) {
+    List<IPSCatalogSummary> existing;
+    try {
+      existing = designWs.findDisplayFormats(name, null);
+    } catch (RuntimeException e) {
+      log.debug("Could not catalog display formats for uniqueness: {}", e.toString());
+      return;
+    }
+    if (existing == null) {
+      return;
+    }
+    for (IPSCatalogSummary summary : existing) {
+      if (summary != null
+          && name.equalsIgnoreCase(StringUtils.defaultString(summary.getName()))) {
+        throw new WebApplicationException("Display format already exists: " + name, 409);
+      }
+    }
+  }
+
+  private static String requireValidName(String raw) {
+    if (StringUtils.isBlank(raw)) {
+      throw new IllegalArgumentException("name is required");
+    }
+    String name = raw.trim();
+    if (containsWhitespace(name)) {
+      throw new IllegalArgumentException("name cannot contain whitespace");
+    }
+    if (name.contains("*") || name.contains("%")) {
+      throw new IllegalArgumentException("name must not contain wildcards");
+    }
+    if (!isSafeDisplayFormatKey(name)) {
+      throw new IllegalArgumentException("invalid name");
+    }
+    return name;
+  }
+
+  private static boolean containsWhitespace(String name) {
+    for (int i = 0; i < name.length(); i++) {
+      if (Character.isWhitespace(name.charAt(i))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static String firstNonBlank(String... values) {
+    if (values == null) {
+      return null;
+    }
+    for (String v : values) {
+      if (StringUtils.isNotBlank(v)) {
+        return v.trim();
+      }
+    }
+    return null;
+  }
+
+  static IPSGuid toIpsGuid(Guid guid) {
+    if (guid == null) {
+      return null;
+    }
+    String sv = guid.getStringValue();
+    if (StringUtils.isNotBlank(sv)) {
+      try {
+        return new PSGuid(sv.trim());
+      } catch (IllegalArgumentException e) {
+        log.debug("Invalid display format GUID string: {}", e.getMessage());
+      }
+    }
+    if (guid.getType() > 0 && guid.getUuid() > 0) {
+      PSTypeEnum type = PSTypeEnum.valueOf(guid.getType());
+      if (type != null) {
+        return new PSGuid(type, guid.getUuid());
+      }
+    }
+    if (guid.getLongValue() != 0) {
+      return new PSGuid(guid.getLongValue());
+    }
+    return null;
+  }
+
+  private static IPSGuid resolveGuid(DisplayFormat dto) {
+    if (dto == null) {
+      return null;
+    }
+    IPSGuid fromGuid = toIpsGuid(dto.getGuid());
+    if (fromGuid != null) {
+      return fromGuid;
+    }
+    if (StringUtils.isNotBlank(dto.getGuidString())) {
+      try {
+        return new PSGuid(dto.getGuidString().trim());
+      } catch (IllegalArgumentException e) {
+        log.debug("Invalid display format guidString: {}", e.getMessage());
+      }
+    }
+    if (dto.getDisplayId() > 0) {
+      return new PSGuid(PSTypeEnum.DISPLAY_FORMAT, dto.getDisplayId());
+    }
+    return null;
+  }
+
+  private void requireAdmin() {
+    boolean allowed;
+    try {
+      allowed = adminChecker.getAsBoolean();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      log.debug("Admin check failed: {}", e.getMessage());
+      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+    }
+    if (!allowed) {
+      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+    }
+  }
+
+  boolean isCurrentUserAdmin() {
+    if (userService == null) {
+      return false;
+    }
+    try {
+      PSCurrentUser current = userService.getCurrentUser();
+      if (current == null || StringUtils.isBlank(current.getName())) {
+        return false;
+      }
+      return userService.isAdminUser(current.getName());
+    } catch (PSDataServiceException e) {
+      log.debug("Unable to resolve current user for Admin check: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  private static void requireSessionUserForWrite() {
+    if (StringUtils.isBlank(currentSession()) || StringUtils.isBlank(currentUser())) {
+      throw new WebApplicationException(
+          "Request session/user required for display format design write",
+          Response.Status.FORBIDDEN);
+    }
+  }
+
+  private static String currentSession() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+  }
+
+  private static String currentUser() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+  }
+
+  static boolean isAlreadyExistsFailure(IllegalArgumentException e) {
+    return e != null && StringUtils.containsIgnoreCase(e.getMessage(), "already exists");
+  }
+
+  static boolean isNotFound(PSErrorResultsException e, IPSGuid requested) {
+    if (e == null || requested == null) {
+      return false;
+    }
+    Map<IPSGuid, Object> errors = e.getErrors();
+    Map<IPSGuid, Object> results = e.getResults();
+    boolean errored = errors != null && errors.containsKey(requested);
+    boolean hasResult = results != null && results.containsKey(requested);
+    return errored && !hasResult && !hasLockError(e);
+  }
+
+  static boolean hasLockError(PSErrorResultsException e) {
+    if (e == null || e.getErrors() == null) {
+      return false;
+    }
+    for (Object err : e.getErrors().values()) {
+      if (isLockErrorObject(err)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static boolean isNotLockedError(PSErrorsException e) {
+    if (e == null || e.getErrors() == null) {
+      return false;
+    }
+    for (Object err : e.getErrors().values()) {
+      if (isLockErrorObject(err)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static boolean isDependencyError(PSErrorsException e) {
+    if (e == null || e.getErrors() == null) {
+      return StringUtils.containsIgnoreCase(e != null ? e.getMessage() : null, "depend");
+    }
+    for (Object err : e.getErrors().values()) {
+      String msg = errorMessage(err);
+      if (StringUtils.containsIgnoreCase(msg, "depend")) {
+        return true;
+      }
+    }
+    return StringUtils.containsIgnoreCase(e.getMessage(), "depend");
+  }
+
+  private static boolean isLockErrorObject(Object err) {
+    if (err instanceof PSLockErrorException) {
+      return true;
+    }
+    if (err instanceof PSErrorException pe) {
+      String msg = pe.getErrorMessage() != null ? pe.getErrorMessage() : pe.getMessage();
+      return StringUtils.containsIgnoreCase(msg, "is not locked")
+          || StringUtils.containsIgnoreCase(msg, "not locked for")
+          || StringUtils.containsIgnoreCase(msg, "locked by");
+    }
+    String text = String.valueOf(err);
+    return StringUtils.containsIgnoreCase(text, "is not locked")
+        || StringUtils.containsIgnoreCase(text, "locked by");
+  }
+
+  private static String errorMessage(Object err) {
+    if (err instanceof PSErrorException pe) {
+      return StringUtils.defaultIfBlank(pe.getErrorMessage(), pe.getMessage());
+    }
+    return err != null ? String.valueOf(err) : null;
+  }
+
+  private RuntimeException mapSaveOrDeleteFailure(String verb, PSErrorsException e) {
+    if (isNotLockedError(e)) {
+      return new WebApplicationException(
+          "Could not " + verb + " display format; design lock required or held by another user",
+          409);
+    }
+    if (isDependencyError(e)) {
+      return new WebApplicationException(
+          "Display format has dependents and cannot be deleted", 409);
+    }
+    log.error("Failed to {} display format via UI design WS", verb, e);
+    return new IllegalStateException("Failed to " + verb + " display format", e);
   }
 }
