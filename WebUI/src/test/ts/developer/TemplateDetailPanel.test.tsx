@@ -10,6 +10,7 @@ import {
   getTemplateDetail,
   listSlots,
 } from "../../../main/ts/api/developer/assemblyApi";
+import * as importExportApi from "../../../main/ts/api/developer/templateImportExport";
 import { TemplateDetailPanel } from "../../../main/ts/developer/TemplateDetailPanel";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import * as sourceViewer from "../../../main/ts/developer/templateSourceViewer";
@@ -19,6 +20,16 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   listSlots: vi.fn().mockResolvedValue([]),
   updateTemplateDetail: vi.fn(),
 }));
+
+vi.mock("../../../main/ts/api/developer/templateImportExport", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/templateImportExport")>();
+  return {
+    ...actual,
+    exportTemplate: vi.fn(),
+    downloadXmlFile: vi.fn(),
+  };
+});
 
 // ObjectAclSection loads ACL via separate API; stub so detail-load stays isolated.
 vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
@@ -37,6 +48,8 @@ vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
 
 const getTemplateDetailMock = vi.mocked(getTemplateDetail);
 const listSlotsMock = vi.mocked(listSlots);
+const exportTemplate = importExportApi.exportTemplate as ReturnType<typeof vi.fn>;
+const downloadXmlFile = importExportApi.downloadXmlFile as ReturnType<typeof vi.fn>;
 
 const multiLineSource = "<html>\n<body>$sys.variables\n</body>\n</html>";
 
@@ -58,6 +71,12 @@ describe("TemplateDetailPanel", () => {
     getTemplateDetailMock.mockReset();
     listSlotsMock.mockReset();
     listSlotsMock.mockResolvedValue([]);
+    exportTemplate.mockReset();
+    downloadXmlFile.mockReset();
+    exportTemplate.mockResolvedValue({
+      xml: "<assembly-template><name>perc.page</name></assembly-template>",
+      filename: "perc.page.xml",
+    });
   });
 
   afterEach(() => {
@@ -387,5 +406,61 @@ describe("TemplateDetailPanel", () => {
     const sourceEdit = screen.getByTestId("developer-tpl-source-edit") as HTMLTextAreaElement;
     fireEvent.change(sourceEdit, { target: { value: "<html>edited</html>" } });
     expect(save.disabled).toBe(false);
+  });
+
+  it("exports design XML from detail (#4057)", async () => {
+    getTemplateDetailMock.mockResolvedValue(sampleDetail);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-export")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-export"));
+    await waitFor(() => {
+      expect(exportTemplate).toHaveBeenCalledWith("perc.page");
+    });
+    expect(downloadXmlFile).toHaveBeenCalledWith(
+      "<assembly-template><name>perc.page</name></assembly-template>",
+      "perc.page.xml",
+    );
+  });
+
+  it("surfaces export 404 in the detail banner (#4057)", async () => {
+    getTemplateDetailMock.mockResolvedValue(sampleDetail);
+    exportTemplate.mockRejectedValueOnce({
+      status: 404,
+      statusText: "Not Found",
+      body: { message: "Template not found: missing" },
+    });
+    render(<TemplateDetailPanel idOrName="missing" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-export")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-export"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-detail-error").textContent).toContain(
+        DEV_MSG.TPL_EXPORT_NOT_FOUND,
+      );
+    });
+    expect(downloadXmlFile).not.toHaveBeenCalled();
+  });
+
+  it("surfaces export 403 non-Admin (#4057)", async () => {
+    getTemplateDetailMock.mockResolvedValue(sampleDetail);
+    exportTemplate.mockRejectedValueOnce({
+      status: 403,
+      statusText: "Forbidden",
+      body: { message: "Forbidden" },
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-export")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-export"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-detail-error").textContent).toContain(
+        DEV_MSG.TPL_EXPORT_FORBIDDEN,
+      );
+    });
+    expect(downloadXmlFile).not.toHaveBeenCalled();
   });
 });

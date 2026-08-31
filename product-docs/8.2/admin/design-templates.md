@@ -111,7 +111,8 @@ Lock and content-type associations remain out of scope on this REST surface (see
 
 ## Export template design XML (AS-08)
 
-The Design SPA does **not** include an export wizard. Administrators can download
+The Design SPA does **not** include an export wizard. **Developer → Templates**
+does: open a template and choose **Export XML**. Administrators can also download
 Workbench-equivalent design XML with:
 
 `GET /services/templates/{idOrName}/export`
@@ -120,12 +121,14 @@ The response is `application/xml` with `Content-Disposition` named from the temp
 (for example `perc.page.xml`). Unknown names return **404**. Non-Admin sessions return
 **403**. Export is read-only and does **not** steal a design lock.
 
-See [REST API](id:developer-rest) (Templates / AS-08 export).
+See [Developer Templates](id:admin-developer-templates) and
+[REST API](id:developer-rest) (Templates / AS-08 export).
 
-## Import design XML (REST, no SPA wizard)
+## Import design XML (create only)
 
 Administrators can import **one** Workbench-equivalent assembly-template design XML
-document through public REST (AS-08):
+document from **Developer → Templates** (**Import XML** on the catalog) or through
+public REST (AS-08):
 
 `POST /services/templates/import` with `Content-Type: application/xml`.
 
@@ -134,7 +137,8 @@ The document is the same `<assembly-template>` XML Workbench exports (and that
 — a collision is **409** (the existing template is not replaced, and no design lock is
 stolen). Non-Admin callers receive **403**. Invalid XML is **400**.
 
-There is no Design SPA import wizard on this slice. See [REST API](id:developer-rest).
+There is no Design SPA import wizard. See
+[Developer Templates](id:admin-developer-templates) and [REST API](id:developer-rest).
 
 ## Edit assembler, slots, source, and bindings
 
@@ -155,6 +159,7 @@ related upgrade-only JSPs) until those flows are signed off on the SPA. Bookmark
 
 ## Related
 
+- [Developer Templates](id:admin-developer-templates) — catalog export/import XML
 - [REST API](id:developer-rest) — `GET`/`POST`/`PUT`/`DELETE /services/templates`, Admin `GET .../export`, and `POST /services/templates/import`
 - [Extensions & packages](id:developer-extensions)
 - [Product page packages](id:developer-page-packages)

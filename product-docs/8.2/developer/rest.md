@@ -305,8 +305,10 @@ Authorization: …
 </assembly-template>
 ```
 
-Widget definition XML / package compile is out of scope. There is no Design SPA import
-wizard on this slice — operators and integrators call the REST path (or Workbench).
+Widget definition XML / package compile is out of scope. The **Developer → Templates**
+catalog exposes create-only **Import XML** (and detail **Export XML**). There is no
+Design SPA import wizard — operators can use Developer Templates, this REST path, or
+Workbench. See [Developer Templates](id:admin-developer-templates).
 
 ## Slots (design catalog)
 
@@ -1285,10 +1287,12 @@ derived from the **template name** (for example `perc.page.xml`).
 
 The load is **read-only**. The server does **not** acquire or steal a design lock
 (`lock=false`, `overrideLock=false`). **Import** of the same XML is
-`POST /services/templates/import` (create only; name collision is **409**). There is no
-Design SPA export wizard; operators and integrators call this REST path directly.
+`POST /services/templates/import` (create only; name collision is **409**).
+**Developer → Templates** exposes **Export XML** on template detail and **Import XML**
+on the catalog. There is no Design SPA export wizard.
 
-See also [Design templates](id:admin-design-templates).
+See also [Developer Templates](id:admin-developer-templates) and
+[Design templates](id:admin-design-templates).
 
 The Design SPA **Create template** action uses POST; **Delete** uses this DELETE. See
 [Design templates](id:admin-design-templates).
