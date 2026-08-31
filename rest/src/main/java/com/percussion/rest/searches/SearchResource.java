@@ -12,8 +12,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -27,16 +29,19 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * CX search design catalog (UI-06 list/detail) plus design-search execute façade for Explorer.
+ * CX search design catalog (UI-06 list/detail/write) plus design-search execute façade for
+ * Explorer.
  *
- * <p>Developer list is searches-only. Explorer saved-search picker uses {@code
- * includeViews=true} so CX views (including {@code View_All}) appear. Dedicated view
- * management remains on {@code /services/views}.
+ * <p>Developer list is searches-only. Explorer saved-search picker uses {@code includeViews=true}
+ * so CX views (including {@code View_All}) appear. Dedicated view management remains on {@code
+ * /services/views}. Admin POST/PUT/DELETE persist through {@link ISearchAdaptor} ({@code
+ * IPSUiDesignWs} create/save/delete searches). Execute is a separate façade and is not invoked
+ * from write.
  */
 @PSSiteManageBean(value = "restSearchResource")
 @Path("/searches")
 @XmlRootElement
-@Tag(name = "Searches", description = "CX search design catalog and design-search execute")
+@Tag(name = "Searches", description = "CX search design catalog, write, and design-search execute")
 public class SearchResource {
 
   private final ISearchAdaptor adaptor;
@@ -57,7 +62,7 @@ public class SearchResource {
       description =
           "Lists Content Explorer search definitions. Pass includeViews=true to also return CX"
               + " views (Explorer saved-search picker, including the default All / View_All"
-              + " view). Create/edit/delete are later slices.",
+              + " view). Admin create/save/delete are POST/PUT/DELETE on this resource.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -85,8 +90,8 @@ public class SearchResource {
   @Operation(
       summary = "Get search detail",
       description =
-          "Loads one search by name or GUID string. Field criteria included when present. Write"
-              + " remains unsupported.",
+          "Loads one search by name or GUID string. Field criteria included when present. Admin"
+              + " write is POST/PUT/DELETE on this resource.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -152,6 +157,146 @@ public class SearchResource {
     } catch (Exception e) {
       throw new WebApplicationException(e, 500);
     }
+  }
+
+  @POST
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Create search",
+      description =
+          "Admin. Creates and persists a CX search via IPSUiDesignWs.createSearches then"
+              + " saveSearches (held design lock, released on save). Name is required, unique"
+              + " (case-insensitive), and must not contain whitespace or wildcards. Optional"
+              + " label, description, type (StandardSearch default; CustomSearch; Search), and"
+              + " displayFormatId are applied before save. Duplicate name is 409. Views are not"
+              + " created here (use /services/views). Execute is not invoked on write.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Created",
+            content = @Content(schema = @Schema(implementation = SearchDef.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin role required, or request has no session/user"),
+        @ApiResponse(responseCode = "409", description = "A search with that name already exists"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public SearchDef createSearch(SearchDef body) {
+    try {
+      if (body != null) {
+        body.setGuid(null);
+        body.setId(0);
+      }
+      SearchDef created = requireAdaptor().createSearch(body);
+      if (created == null) {
+        throw new WebApplicationException("Failed to create search", 500);
+      }
+      return created;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Update search",
+      description =
+          "Admin. Updates label, description, type, and/or displayFormatId by name or GUID. Name"
+              + " is the catalog key and is not renamed on PUT. Loads with a design lock"
+              + " (overrideLock=false) and releases on save. Unknown id is 404. Lock/dependency"
+              + " conflict is 409. Views are not saved here. Execute is not invoked on write.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated",
+            content = @Content(schema = @Schema(implementation = SearchDef.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin role required, or request has no session/user"),
+        @ApiResponse(responseCode = "404", description = "Search not found"),
+        @ApiResponse(responseCode = "409", description = "Design lock or dependency conflict"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public SearchDef updateSearch(@PathParam("idOrName") String idOrName, SearchDef body) {
+    try {
+      if (body == null) {
+        throw new IllegalArgumentException("body is required");
+      }
+      SearchDef updated = requireAdaptor().saveSearch(idOrName, body);
+      if (updated == null) {
+        throw new WebApplicationException("Search not found", 404);
+      }
+      return updated;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @DELETE
+  @Path("/{idOrName}")
+  @Operation(
+      summary = "Delete search",
+      description =
+          "Admin. Deletes a CX search by name or GUID via IPSUiDesignWs.deleteSearches"
+              + " (ignoreDependencies=false). Unknown id is 404. Lock/dependency conflict is 409."
+              + " Following GET is 404 after a successful delete. Views are not deleted here.",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Deleted"),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin role required, or request has no session/user"),
+        @ApiResponse(responseCode = "404", description = "Search not found"),
+        @ApiResponse(responseCode = "409", description = "Design lock or dependency conflict"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response deleteSearch(@PathParam("idOrName") String idOrName) {
+    try {
+      boolean deleted = requireAdaptor().deleteSearch(idOrName);
+      if (!deleted) {
+        throw new WebApplicationException("Search not found", 404);
+      }
+      return Response.noContent().build();
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Map adaptor write failures to HTTP status. Admin/session 403 and duplicate 409 are already
+   * {@link WebApplicationException}s from the adaptor.
+   */
+  static WebApplicationException mapWriteFailure(RuntimeException e) {
+    if (e instanceof WebApplicationException wae) {
+      return wae;
+    }
+    if (e instanceof IllegalArgumentException) {
+      return new WebApplicationException(e.getMessage(), 400);
+    }
+    if (e instanceof IllegalStateException) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Conflict";
+      String lower = msg.toLowerCase();
+      if (lower.contains("lock") || lower.contains("depend")) {
+        return new WebApplicationException(msg, 409);
+      }
+      return new WebApplicationException(e, 500);
+    }
+    return new WebApplicationException(e, 500);
   }
 
   private ISearchAdaptor requireAdaptor() {

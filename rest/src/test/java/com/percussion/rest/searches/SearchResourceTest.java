@@ -5,6 +5,7 @@
 package com.percussion.rest.searches;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -12,10 +13,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -196,6 +199,126 @@ public class SearchResourceTest {
         assertThrows(
             WebApplicationException.class,
             () -> bare.executeSearch("any", new SearchExecuteRequest()));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createSearchClearsIdAndDelegates() {
+    SearchDef body = new SearchDef();
+    body.setName("MySearch");
+    body.setId(9);
+    SearchDef created = new SearchDef();
+    created.setName("MySearch");
+    created.setId(42);
+    when(adaptor.createSearch(any())).thenReturn(created);
+
+    SearchDef out = resource.createSearch(body);
+
+    assertEquals("MySearch", out.getName());
+    assertEquals(0, body.getId());
+    assertNull(body.getGuid());
+    verify(adaptor).createSearch(body);
+  }
+
+  @Test
+  public void createSearchBlankNameIs400() {
+    when(adaptor.createSearch(any())).thenThrow(new IllegalArgumentException("name is required"));
+    SearchDef body = new SearchDef();
+    body.setName("  ");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createSearch(body));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createSearchDuplicateIs409() {
+    when(adaptor.createSearch(any()))
+        .thenThrow(new WebApplicationException("Search already exists: MySearch", 409));
+    SearchDef body = new SearchDef();
+    body.setName("MySearch");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createSearch(body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createSearchNonAdminIs403() {
+    when(adaptor.createSearch(any()))
+        .thenThrow(new WebApplicationException("Admin role required", Response.Status.FORBIDDEN));
+    SearchDef body = new SearchDef();
+    body.setName("MySearch");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createSearch(body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateSearchDelegates() {
+    SearchDef body = new SearchDef();
+    body.setLabel("Updated");
+    body.setDescription("desc");
+    SearchDef updated = new SearchDef();
+    updated.setName("MySearch");
+    updated.setLabel("Updated");
+    updated.setDescription("desc");
+    when(adaptor.saveSearch(eq("MySearch"), eq(body))).thenReturn(updated);
+
+    SearchDef out = resource.updateSearch("MySearch", body);
+
+    assertEquals("Updated", out.getLabel());
+    assertEquals("desc", out.getDescription());
+    verify(adaptor).saveSearch("MySearch", body);
+  }
+
+  @Test
+  public void updateSearchUnknownIs404() {
+    when(adaptor.saveSearch(eq("missing"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.updateSearch("missing", new SearchDef()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateSearchNullBodyIs400() {
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.updateSearch("MySearch", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).saveSearch(any(), any());
+  }
+
+  @Test
+  public void deleteSearchNoContent() {
+    when(adaptor.deleteSearch(eq("MySearch"))).thenReturn(true);
+
+    Response r = resource.deleteSearch("MySearch");
+
+    assertEquals(204, r.getStatus());
+    verify(adaptor).deleteSearch("MySearch");
+  }
+
+  @Test
+  public void deleteSearchUnknownIs404() {
+    when(adaptor.deleteSearch(eq("missing"))).thenReturn(false);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteSearch("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteSearchNonAdminIs403() {
+    when(adaptor.deleteSearch(eq("MySearch")))
+        .thenThrow(new WebApplicationException("Admin role required", Response.Status.FORBIDDEN));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteSearch("MySearch"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnCreate() {
+    SearchResource bare = new SearchResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.createSearch(new SearchDef()));
     assertEquals(503, ex.getResponse().getStatus());
   }
 }

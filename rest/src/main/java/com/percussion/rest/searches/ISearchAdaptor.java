@@ -6,7 +6,12 @@ package com.percussion.rest.searches;
 
 import java.util.List;
 
-/** Adaptor for CX search design catalog (UI-06 read) and design-search execute façade. */
+/**
+ * Adaptor for CX search design catalog (UI-06 read/write) and design-search execute façade.
+ *
+ * <p>Write methods persist through {@code IPSUiDesignWs} create/save/delete searches. Execute is
+ * unchanged and is not invoked from write.
+ */
 public interface ISearchAdaptor {
 
   List<SearchDef> listSearches();
@@ -37,4 +42,31 @@ public interface ISearchAdaptor {
    *     (e.g. custom URL searches)
    */
   SearchExecuteResult executeSearch(String idOrName, SearchExecuteRequest request);
+
+  /**
+   * Admin. Create and persist a CX search ({@code createSearches} then {@code saveSearches}).
+   *
+   * @param body required; {@code name} is the unique catalog key
+   * @return the persisted search
+   */
+  SearchDef createSearch(SearchDef body);
+
+  /**
+   * Admin. Update and persist a CX search by name or GUID ({@code loadSearches} lock, {@code
+   * saveSearches} release). Does not steal another user's lock.
+   *
+   * @param idOrName catalog key (same rules as {@link #findSearchByKey})
+   * @param body required writable fields (label, description, type, displayFormat)
+   * @return the persisted search, or {@code null} when missing/unsafe
+   */
+  SearchDef saveSearch(String idOrName, SearchDef body);
+
+  /**
+   * Admin. Delete a CX search by name or GUID ({@code deleteSearches}, {@code
+   * ignoreDependencies=false}). Does not steal another user's lock.
+   *
+   * @param idOrName catalog key (same rules as {@link #findSearchByKey})
+   * @return {@code true} when deleted, {@code false} when missing/unsafe
+   */
+  boolean deleteSearch(String idOrName);
 }
