@@ -1115,6 +1115,60 @@ describe("ContentTypeDetailPanel", () => {
     expect(updateContentTypeDetail).not.toHaveBeenCalled();
   });
 
+  it("reverts search indexing after a failed PUT (#4035 CD-10)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    getContentTypeSearchIndexing.mockResolvedValue({ searchIndexing: true });
+    setContentTypeSearchIndexing.mockRejectedValueOnce({
+      status: 500,
+      statusText: "Error",
+      body: null,
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-search-indexing"));
+    expect(
+      (screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).checked,
+    ).toBe(false);
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        "Could not save content type.",
+      );
+    });
+    expect(
+      (screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).checked,
+    ).toBe(true);
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("surfaces a non-blocking notice when GET searchIndexing fails (#4035 CD-10)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    getContentTypeSearchIndexing.mockRejectedValueOnce({
+      status: 403,
+      statusText: "Forbidden",
+      body: null,
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-search-indexing-load-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-search-indexing-load-error").textContent).toContain(
+      DEV_MSG.CT_SI_LOAD_ERROR,
+    );
+    expect(
+      (screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).checked,
+    ).toBe(true);
+    expect(screen.queryByTestId("developer-ct-detail-error")).toBeNull();
+  });
+
   it("clears the held lock when search indexing PUT returns 409 (#4035 CD-10)", async () => {
     getContentTypeDetail.mockResolvedValue(sampleDetail);
     setContentTypeSearchIndexing.mockRejectedValueOnce({

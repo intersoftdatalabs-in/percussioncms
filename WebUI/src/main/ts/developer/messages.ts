@@ -179,6 +179,7 @@ export const DEV_MSG_KEYS = {
   CT_FORM_DESCRIPTION: "perc.ui.developer@Description",
   CT_FORM_ENABLED: "perc.ui.developer@Enabled",
   CT_FORM_SEARCH_INDEXING: "perc.ui.developer@Search indexing",
+  CT_SI_LOAD_ERROR: "perc.ui.developer@Could not load search indexing. Default is on.",
   CT_LOCK: "perc.ui.developer@Lock",
   CT_UNLOCK: "perc.ui.developer@Unlock",
   CT_LOCK_TOOLBAR: "perc.ui.developer@Content type design session",
