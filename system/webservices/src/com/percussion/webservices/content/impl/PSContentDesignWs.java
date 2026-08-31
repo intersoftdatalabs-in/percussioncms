@@ -258,15 +258,21 @@ public class PSContentDesignWs extends PSContentBaseWs implements
 
          try
          {
-            // lock the new guid, use null version
-            lockService.createLock(nodeDef.getGUID(), session, user, null,
-               false);
+            // Packed NODEDEF+uuid — same objectId saveContentTypes looks up.
+            // Do not lock nodeDef.getGUID() (uuid-only longValue when host is 0).
+            lockService.createLock(contentTypeLockObjectId(nodeDef.getGUID()),
+               session, user, null, false);
 
             nodeDef.setInternalName(name);
             nodeDef.setLabel(name);
             nodeDef.setObjectType(1);
 
-            itemDefs.add(PSContentTypeHelper.createContentType(nodeDef));
+            PSItemDefinition itemDef = PSContentTypeHelper.createContentType(
+               nodeDef);
+            // Default CE template has contentType="0"; stamp the assigned uuid
+            // so save does not look up typeId 0 and miss this create lock.
+            applyNewContentTypeIdentity(itemDef, nodeDef.getGUID());
+            itemDefs.add(itemDef);
          }
          catch (PSLockException |IOException | SAXException | PSUnknownNodeTypeException e)
          {
@@ -955,9 +961,8 @@ public class PSContentDesignWs extends PSContentBaseWs implements
                try
                {
                   // Packed NODEDEF+typeId — same objectId saveContentTypes looks up.
-                  lockService.createLock(contentTypeLockObjectId(nodeDef.getGUID()
-                     .getUUID()), session, user, nodeDef
-                     .getVersion(), overrideLock);
+                  lockService.createLock(contentTypeLockObjectId(nodeDef.getGUID()),
+                     session, user, nodeDef.getVersion(), overrideLock);
                   results.addResult(nodeDef.getGUID(), itemDef);
                }
                catch (PSLockException e)
@@ -1652,7 +1657,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
       {
          for (PSItemDefinition def : contentTypes)
          {
-            IPSGuid id = contentTypeLockObjectId(def.getTypeId());
+            IPSGuid id = contentTypeLockObjectId(def);
             try
             {
                PSObjectLock lock;
@@ -1760,13 +1765,79 @@ public class PSContentDesignWs extends PSContentBaseWs implements
     * <p>Packed {@link PSTypeEnum#NODEDEF} + typeId ({@link PSDesignGuid#getValue()}),
     * matching {@code IPSObjectLockService} persistence. Do not use
     * {@link IPSGuid#longValue()} — that is uuid-only when host is 0, so save
-    * cannot find a lock created by {@code loadContentTypes(..., lock=true)}.
+    * cannot find a lock created by {@code loadContentTypes(..., lock=true)} or
+    * {@code createContentTypes}.
     *
     * @param typeId content type uuid (e.g. percPage {@code 1001})
     * @return packed NODEDEF design guid, never {@code null}
     */
    static IPSGuid contentTypeLockObjectId(long typeId) {
       return new PSDesignGuid(PSTypeEnum.NODEDEF, typeId);
+   }
+
+   /**
+    * Packed NODEDEF lock objectId from a node-def GUID. Uses {@link IPSGuid#getUUID()}
+    * so create/load/save share one id even when {@code longValue()} is uuid-only.
+    *
+    * @param nodeDefGuid node definition guid, not {@code null}
+    * @return packed NODEDEF design guid, never {@code null}
+    */
+   static IPSGuid contentTypeLockObjectId(IPSGuid nodeDefGuid) {
+      if (nodeDefGuid == null) {
+         throw new IllegalArgumentException("nodeDefGuid cannot be null");
+      }
+      return contentTypeLockObjectId(nodeDefGuid.getUUID());
+   }
+
+   /**
+    * Packed NODEDEF lock objectId for save. Prefers {@link PSItemDefinition#getTypeId()};
+    * if that is still 0 (default CE template), uses the content-editor content type
+    * so a create lock on the assigned uuid is not missed (#4062).
+    *
+    * @param def item definition, not {@code null}
+    * @return packed NODEDEF design guid, never {@code null}
+    */
+   static IPSGuid contentTypeLockObjectId(PSItemDefinition def) {
+      if (def == null) {
+         throw new IllegalArgumentException("def cannot be null");
+      }
+      long uuid = def.getTypeId();
+      if (uuid <= 0) {
+         PSContentEditor editor = def.getContentEditor();
+         if (editor != null) {
+            long editorType = editor.getContentType();
+            if (editorType > 0) {
+               uuid = editorType > Integer.MAX_VALUE
+                  ? new PSGuid(PSTypeEnum.NODEDEF, editorType).getUUID()
+                  : editorType;
+            }
+         }
+      }
+      return contentTypeLockObjectId(uuid);
+   }
+
+   /**
+    * Stamp the node-def uuid onto a newly created item definition so save looks
+    * up the same packed lock that {@link #createContentTypes} created. The
+    * default CE template has {@code contentType="0"}. Does not steal another
+    * object's type id — callers pass the GUID assigned by create.
+    *
+    * @param itemDef created item definition, not {@code null}
+    * @param nodeDefGuid guid assigned by {@code createNodeDefinition}, not {@code null}
+    */
+   static void applyNewContentTypeIdentity(PSItemDefinition itemDef,
+      IPSGuid nodeDefGuid) {
+      if (itemDef == null || nodeDefGuid == null) {
+         throw new IllegalArgumentException(
+            "itemDef and nodeDefGuid cannot be null");
+      }
+      int typeId = nodeDefGuid.getUUID();
+      itemDef.setTypeId(typeId);
+      itemDef.setId(typeId);
+      PSContentEditor editor = itemDef.getContentEditor();
+      if (editor != null) {
+         editor.setContentType(typeId);
+      }
    }
 
    /**

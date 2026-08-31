@@ -18,7 +18,9 @@ Admins cannot overwrite or remove the same type at once.
 Admins can **create** a content type from this catalog (**New content type**) or with
 `POST /services/contenttypes`
 (JSON `name` required; unique, no spaces; optional `label` / `description` / `enabled`).
-That call persists the type (Workbench Finish). A successful create is then
+That call persists the type (Workbench Finish). Create and save share the packed
+NODEDEF design-object id for the new type (the default editor template id `0` is
+not used as the lock or persist identity). A successful create is then
 `GET /services/contenttypes/{name}` **200** and the catalog lists the new row.
 Duplicate or reserved system names
 (for example **Folder**) are **409**. Invalid names (blank, spaces, wildcard)

@@ -18,7 +18,11 @@ package com.percussion.webservices.content.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.percussion.cms.objectstore.PSContentType;
+import com.percussion.cms.objectstore.PSItemDefinition;
+import com.percussion.design.objectstore.PSContentEditor;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.contentmgr.data.PSNodeDefinition;
 import com.percussion.services.guidmgr.PSGuidUtils;
@@ -31,9 +35,9 @@ import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
 
 /**
- * Load ({@code nodeDef.getGUID()}) and save ({@code contentTypeLockObjectId}) must share the packed
- * lock objectId so {@code findLockByObjectId} finds a lock created with {@code lock=true} (issue
- * #3772).
+ * Load ({@code nodeDef.getGUID()}), create, and save ({@code contentTypeLockObjectId}) must share
+ * the packed lock objectId so {@code findLockByObjectId} finds a lock created with {@code
+ * lock=true} or {@code createContentTypes} (issues #3772, #4062).
  */
 class PSContentDesignWsContentTypeLockObjectIdTest {
 
@@ -84,6 +88,73 @@ class PSContentDesignWsContentTypeLockObjectIdTest {
   }
 
   @Test
+  void createGuidAndSaveGuidSharePackedLockObjectId() {
+    PSNodeDefinition nodeDef = new PSNodeDefinition();
+    nodeDef.setGUID(new PSGuid(PSTypeEnum.NODEDEF, PERC_PAGE_TYPE_ID));
+    IPSGuid createId = PSContentDesignWs.contentTypeLockObjectId(nodeDef.getGUID());
+    IPSGuid saveId = PSContentDesignWs.contentTypeLockObjectId(PERC_PAGE_TYPE_ID);
+
+    assertEquals(PSGuidUtils.toFullLong(createId), PSGuidUtils.toFullLong(saveId));
+    assertEquals(PACKED_NODEDEF_PERC_PAGE, PSGuidUtils.toFullLong(createId));
+    assertNotEquals(nodeDef.getGUID().longValue(), PSGuidUtils.toFullLong(createId));
+  }
+
+  @Test
+  void applyNewContentTypeIdentityStampsNodeDefUuidOverTemplateZero() {
+    PSItemDefinition def = newItemDef(0, 0);
+    IPSGuid assigned = new PSGuid(PSTypeEnum.NODEDEF, PERC_PAGE_TYPE_ID);
+
+    PSContentDesignWs.applyNewContentTypeIdentity(def, assigned);
+
+    assertEquals(PERC_PAGE_TYPE_ID, def.getTypeId());
+    assertEquals((int) PERC_PAGE_TYPE_ID, def.getId());
+    assertEquals(PERC_PAGE_TYPE_ID, def.getContentEditor().getContentType());
+    IPSGuid saveId = PSContentDesignWs.contentTypeLockObjectId(def);
+    assertEquals(PACKED_NODEDEF_PERC_PAGE, PSGuidUtils.toFullLong(saveId));
+  }
+
+  @Test
+  void saveLookupUsesEditorContentTypeWhenTypeIdStillZero() {
+    PSItemDefinition def = newItemDef(0, PERC_PAGE_TYPE_ID);
+    IPSGuid saveId = PSContentDesignWs.contentTypeLockObjectId(def);
+    IPSGuid createId =
+        PSContentDesignWs.contentTypeLockObjectId(new PSGuid(PSTypeEnum.NODEDEF, PERC_PAGE_TYPE_ID));
+    assertEquals(PSGuidUtils.toFullLong(createId), PSGuidUtils.toFullLong(saveId));
+    assertEquals(PACKED_NODEDEF_PERC_PAGE, PSGuidUtils.toFullLong(saveId));
+  }
+
+  @Test
+  void persistedCreateLockObjectIdMatchesSaveLookup() throws Exception {
+    IPSGuid createId =
+        PSContentDesignWs.contentTypeLockObjectId(new PSGuid(PSTypeEnum.NODEDEF, PERC_PAGE_TYPE_ID));
+    IPSGuid saveId = PSContentDesignWs.contentTypeLockObjectId(PERC_PAGE_TYPE_ID);
+
+    PSObjectLock lock = new PSObjectLock();
+    Method setObjectId = PSObjectLock.class.getDeclaredMethod("setObjectId", IPSGuid.class);
+    setObjectId.setAccessible(true);
+    setObjectId.invoke(lock, createId);
+
+    Field objectId = PSObjectLock.class.getDeclaredField("objectId");
+    objectId.setAccessible(true);
+    long stored = objectId.getLong(lock);
+
+    assertEquals(stored, PSGuidUtils.toFullLong(saveId));
+    assertEquals(PACKED_NODEDEF_PERC_PAGE, stored);
+  }
+
+  @Test
+  void applyNewContentTypeIdentityRejectsNulls() {
+    PSItemDefinition def = newItemDef(0, 0);
+    IPSGuid assigned = new PSGuid(PSTypeEnum.NODEDEF, PERC_PAGE_TYPE_ID);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSContentDesignWs.applyNewContentTypeIdentity(null, assigned));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSContentDesignWs.applyNewContentTypeIdentity(def, null));
+  }
+
+  @Test
   void contentTypeSaveVersionPrefersLockThenExistingNodeNeverMinusOneWhenNodeExists() {
     assertEquals(7, PSContentDesignWs.contentTypeSaveVersion(7, 3));
     assertEquals(0, PSContentDesignWs.contentTypeSaveVersion(0, 9));
@@ -99,5 +170,13 @@ class PSContentDesignWsContentTypeLockObjectIdTest {
     Exception wrapped = new RuntimeException("An unknown exception occurred while communicating with the server: {0}", root);
     assertEquals("dataset type mismatch", PSContentDesignWs.rootCauseMessage(wrapped));
     assertEquals("unknown error", PSContentDesignWs.rootCauseMessage(null));
+  }
+
+  private static PSItemDefinition newItemDef(int typeId, long editorContentType) {
+    PSContentType typeDef =
+        new PSContentType(
+            typeId, "percNewType", "percNewType", "", "../rx_percNewType/percNewType.html", false, 1);
+    PSContentEditor editor = new PSContentEditor("percNewType", editorContentType, 4);
+    return new PSItemDefinition("rx_percNewType", typeDef, editor);
   }
 }

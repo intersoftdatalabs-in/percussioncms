@@ -102,7 +102,10 @@ public class PSContentTypeHelper {
       Element src = doc.getDocumentElement();
       PSContentEditor ce = new PSContentEditor(src, null, null);
       String name = nodeDef.getInternalName();
-      ce.setContentType(nodeDef.getGUID().longValue());
+      // UUID only — longValue() is uuid-only when host is 0, but getUUID() is
+      // always the content-type id that save/lock lookup uses.
+      int typeId = nodeDef.getGUID().getUUID();
+      ce.setContentType(typeId);
       ce.setName(name);
       ce.getRequestor().setRequestPage(name);
       String appName = PSContentType.createAppName(name);
@@ -114,8 +117,7 @@ public class PSContentTypeHelper {
       if (!wfs.isEmpty()) ce.setWorkflowId((int) wfs.iterator().next().getGUID().longValue());
 
       PSContentType typeDef =
-          new PSContentType(
-              (int) nodeDef.getGUID().longValue(), name, name, ce.getDescription(), url, false, 1);
+          new PSContentType(typeId, name, name, ce.getDescription(), url, false, 1);
       PSItemDefinition srcDef = new PSItemDefinition(appName, typeDef, ce);
 
       return srcDef;
