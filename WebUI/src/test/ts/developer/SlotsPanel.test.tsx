@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
@@ -10,11 +10,22 @@ import * as assemblyApi from "../../../main/ts/api/developer/assemblyApi";
 import { SlotsPanel } from "../../../main/ts/developer/SlotsPanel";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
-vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
-  listSlots: vi.fn(),
-}));
+vi.mock("../../../main/ts/api/developer/assemblyApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/assemblyApi")
+  >();
+  return {
+    ...actual,
+    listSlots: vi.fn(),
+    getSlotDetail: vi.fn(),
+    updateSlotDetail: vi.fn(),
+    createSlot: vi.fn(),
+    deleteSlot: vi.fn(),
+  };
+});
 
 const listSlots = assemblyApi.listSlots as ReturnType<typeof vi.fn>;
+const getSlotDetail = assemblyApi.getSlotDetail as ReturnType<typeof vi.fn>;
 
 describe("SlotsPanel", () => {
   beforeEach(() => {
@@ -22,6 +33,7 @@ describe("SlotsPanel", () => {
       message: (key: string) => key,
     };
     listSlots.mockReset();
+    getSlotDetail.mockReset();
   });
 
   it("lists slots on success", async () => {
@@ -39,6 +51,7 @@ describe("SlotsPanel", () => {
     });
     expect(screen.getByTestId("developer-slot-table").textContent).toContain("List");
     expect(screen.getByTestId("developer-slot-table").textContent).toContain("rffList");
+    expect(screen.getByTestId("developer-slot-new")).toBeTruthy();
   });
 
   it("shows empty state when API returns no slots", async () => {
@@ -47,6 +60,19 @@ describe("SlotsPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-slot-empty")).toBeTruthy();
     });
+    expect(screen.getByTestId("developer-slot-new")).toBeTruthy();
+  });
+
+  it("opens create chrome from New slot", async () => {
+    listSlots.mockResolvedValue([]);
+    render(<SlotsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-empty")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-new"));
+    expect(screen.getByTestId("developer-slot-detail")).toBeTruthy();
+    expect(screen.getByTestId("developer-slot-save")).toBeDisabled();
+    expect(getSlotDetail).not.toHaveBeenCalled();
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {

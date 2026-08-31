@@ -358,6 +358,11 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
     ],
     designGaps: ["Create / delete / lock not supported via this API"],
   })),
+  createSlot: vi.fn(),
+  deleteSlot: vi.fn(),
+  isSlotCreateReady: vi.fn((opts: { name?: string }) => Boolean(opts?.name?.trim())),
+  isValidSlotName: vi.fn((n: string) => Boolean(n?.trim())),
+  isValidSlotType: vi.fn(() => true),
   listCommunities: vi.fn().mockResolvedValue([
     { id: 10, name: "Default", label: "Default", description: "Default Community" },
   ]),

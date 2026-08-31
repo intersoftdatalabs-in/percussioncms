@@ -28,6 +28,8 @@ Operators using **Developer → Shared Fields** create/save/delete chrome: [Deve
 
 Operators using **Developer → System definition** field save/add/delete chrome: [Developer System Def](id:admin-developer-system-def).
 
+Operators using **Developer → Slots** create/delete chrome: [Developer Slots](id:admin-developer-slots).
+
 ## Architecture snapshot
 
 ```text
