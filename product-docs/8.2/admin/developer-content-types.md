@@ -51,7 +51,9 @@ separate singleton: Admin-only `GET /services/systemdef` and
 `PUT /services/systemdef` (patch existing field properties under a request lock).
 Nested `POST /services/systemdef/fields` and
 `DELETE /services/systemdef/fields/{fieldName}` add or remove system fields
-(backend column + display mapping). Duplicate field names are **409**.
+(backend column on `CONTENTSTATUS` plus display mapping). POST creates the
+column when it is missing; DELETE drops it when present and still succeeds if
+the column was never created. Duplicate field names are **409**.
 System-mandatory and system-internal fields cannot be deleted (**400**). An SPA
 editor is not in this chrome. Admin `GET /services/contenttypes/{idOrName}/export`
 downloads Workbench-equivalent design XML (CD-14; no lock steal). REST import of

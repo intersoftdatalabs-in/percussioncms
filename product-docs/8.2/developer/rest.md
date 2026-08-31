@@ -1162,7 +1162,11 @@ PUT; unlike content-type PUT, which requires a previously held lock).
 sitemanage adaptor checks `IPSUserService.isAdminUser` for the current user and maps
 a non-Admin caller to **403**. Nested field create/delete persist a backend column
 mapping (default table `CONTENTSTATUS`) and a default `sys_EditBox` display
-mapping. Control properties, stylesheets, and application flow remain unsupported.
+mapping. **POST** creates the `CONTENTSTATUS` column when it is absent; **DELETE**
+drops that column when present and still saves the XML catalog if the column is
+already missing. A **PUT** with a null or empty `fields` array does not rewrite
+the system-definition file (the catalog is unchanged). Control properties,
+stylesheets, and application flow remain unsupported.
 
 | Method | Path | Purpose |
 |--------|------|---------|

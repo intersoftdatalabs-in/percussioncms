@@ -35,8 +35,9 @@ public interface ISystemDefAdaptor {
    * design lock for this request and releases it on save.
    *
    * <p>Supports patches to existing fields ({@code searchable}, occurrence / required). Null or
-   * empty {@code fields} leaves the catalog unchanged. Does not create or delete fields. {@code
-   * dataType}, {@code readOnly}, and {@code cacheTimeoutMinutes} are not written.
+   * empty {@code fields} leaves the catalog unchanged and does not rewrite the system-def XML. Does
+   * not create or delete fields. {@code dataType}, {@code readOnly}, and {@code
+   * cacheTimeoutMinutes} are not written.
    *
    * @return persisted detail, never {@code null}
    * @throws IllegalArgumentException when input is invalid, a field name is unknown, or {@code

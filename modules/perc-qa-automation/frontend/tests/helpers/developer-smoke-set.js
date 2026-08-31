@@ -118,6 +118,12 @@ const DEVELOPER_SMOKE_SET = [
     status: "green",
   },
   {
+    id: "system-def-writes",
+    file: "developer-system-def-writes.spec.js",
+    title: "system-def: REST add/save/delete durable on H2 (#4037)",
+    status: "green",
+  },
+  {
     id: "template-source-viewer",
     file: "developer-template-source-viewer.spec.js",
     title: "template detail source shows line numbers and copy control",

@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
@@ -91,24 +92,42 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
   private final IPSContentDesignWs designWs;
   private final Supplier<PSContentEditorSystemDef> systemDefLoader;
   private final BooleanSupplier adminChecker;
+  private final SystemDefColumnSchema columnSchema;
 
   /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
   @Autowired(required = false)
   private IPSUserService userService;
 
   public SystemDefAdaptor() {
-    this(PSContentWsLocator.getContentDesignWebservice(), null);
+    this(
+        PSContentWsLocator.getContentDesignWebservice(),
+        null,
+        new JdbcSystemDefColumnSchema());
   }
 
   /**
    * Package-visible for unit tests that inject a fake design web service. {@code null} adminChecker
-   * uses {@link #isCurrentUserAdmin()}.
+   * uses {@link #isCurrentUserAdmin()}. Column DDL is a no-op unless the three-arg constructor is
+   * used.
    */
   SystemDefAdaptor(IPSContentDesignWs designWs, BooleanSupplier adminChecker) {
+    this(designWs, adminChecker, SystemDefColumnSchema.noop());
+  }
+
+  /**
+   * Package-visible for unit tests that inject a fake design web service and column schema.
+   * {@code null} adminChecker uses {@link #isCurrentUserAdmin()}. {@code null} columnSchema is a
+   * no-op.
+   */
+  SystemDefAdaptor(
+      IPSContentDesignWs designWs,
+      BooleanSupplier adminChecker,
+      SystemDefColumnSchema columnSchema) {
     this.designWs = designWs;
     this.systemDefLoader =
         () -> loadSystemDefFromDesignWs(designWs, currentSession(), currentUser());
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
+    this.columnSchema = columnSchema != null ? columnSchema : SystemDefColumnSchema.noop();
   }
 
   /**
@@ -128,6 +147,7 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
     this.designWs = null;
     this.systemDefLoader = systemDefLoader;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
+    this.columnSchema = SystemDefColumnSchema.noop();
   }
 
   /**
@@ -138,9 +158,34 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
   static PSContentEditorSystemDef loadSystemDefFromDesignWs(
       IPSContentDesignWs designWs, String sessionId, String user) {
     try {
-      return designWs.loadContentEditorSystemDef(false, false, sessionId, user);
+      return loadSystemDefFromDesignWsOnce(designWs, false, sessionId, user);
+    } catch (RuntimeException e) {
+      if (!isMissingColumnFailure(e)) {
+        throw e;
+      }
+      log.warn(
+          "System def load hit missing backend column, retrying catalog: {}", e.getMessage());
+      return loadSystemDefFromDesignWsOnce(designWs, false, sessionId, user);
+    }
+  }
+
+  private static PSContentEditorSystemDef loadSystemDefFromDesignWsOnce(
+      IPSContentDesignWs designWs, boolean lock, String sessionId, String user) {
+    try {
+      PSContentEditorSystemDef def =
+          designWs.loadContentEditorSystemDef(lock, false, sessionId, user);
+      if (lock && def == null) {
+        throw new IllegalStateException("Failed to load system def for write");
+      }
+      return def;
+    } catch (PSLockErrorException e) {
+      throw mapLockConflict(e);
     } catch (PSErrorException e) {
+      String msg = lock ? "Failed to load system def for write" : "Failed to load system def";
       log.error("Failed to load content editor system def via design WS", e);
+      throw new IllegalStateException(msg, e);
+    } catch (NullPointerException e) {
+      log.error("NullPointerException loading content editor system def via design WS", e);
       throw new IllegalStateException("Failed to load system def", e);
     }
   }
@@ -168,17 +213,14 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
 
   private PSContentEditorSystemDef loadSystemDefLocked(String session, String user) {
     try {
-      PSContentEditorSystemDef def =
-          designWs.loadContentEditorSystemDef(true, false, session, user);
-      if (def == null) {
-        throw new IllegalStateException("Failed to load system def for write");
+      return loadSystemDefFromDesignWsOnce(designWs, true, session, user);
+    } catch (RuntimeException e) {
+      if (!isMissingColumnFailure(e)) {
+        throw e;
       }
-      return def;
-    } catch (PSLockErrorException e) {
-      throw mapLockConflict(e);
-    } catch (PSErrorException e) {
-      log.error("Failed to load content editor system def for write", e);
-      throw new IllegalStateException("Failed to load system def for write", e);
+      log.warn(
+          "System def locked load hit missing backend column, retrying: {}", e.getMessage());
+      return loadSystemDefFromDesignWsOnce(designWs, true, session, user);
     }
   }
 
@@ -190,7 +232,48 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
     } catch (PSErrorException e) {
       log.error("Failed to save content editor system def", e);
       throw new IllegalStateException("Failed to save system def", e);
+    } catch (NullPointerException e) {
+      log.error("NullPointerException saving content editor system def", e);
+      throw new IllegalStateException("Failed to save system def", e);
     }
+  }
+
+  /**
+   * True when {@code t} (or a cause) is a missing backend column, typically H2 {@code no such
+   * column} after an XML-only system-def add.
+   */
+  static boolean isMissingColumnFailure(Throwable t) {
+    for (Throwable cur = t; cur != null; cur = cur.getCause()) {
+      String msg = cur.getMessage();
+      if (msg == null) {
+        continue;
+      }
+      String lower = msg.toLowerCase(Locale.ROOT);
+      if (lower.contains("no such column")
+          || lower.contains("column not found")
+          || (lower.contains("column") && lower.contains("not found"))
+          || lower.contains("invalid column name")
+          || lower.contains("unknown column")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * True when PUT {@code fields} contains at least one named patch. Null or empty (or only blank
+   * names) leaves the catalog unchanged and must not rewrite system-def XML.
+   */
+  static boolean hasFieldPatches(List<SystemDefFieldSummary> patches) {
+    if (patches == null || patches.isEmpty()) {
+      return false;
+    }
+    for (SystemDefFieldSummary patch : patches) {
+      if (patch != null && StringUtils.isNotBlank(patch.getName())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   static SystemDefDesignLockException mapLockConflict(PSLockErrorException e) {
@@ -502,11 +585,17 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
   @Override
   public SystemDefDetail updateSystemDef(URI baseUri, SystemDefDetail body) {
     requireAdmin();
-    requireDesignWs();
-    requireSessionUserForWrite();
     if (body == null) {
       throw new IllegalArgumentException("body is required");
     }
+    if (!hasFieldPatches(body.getFields())) {
+      // Contract: null/empty fields leaves the catalog unchanged. Do not rewrite
+      // ContentEditorSystemDef.xml from the in-memory (fixup'd) object — that
+      // round-trip NPEs subsequent PUTs on H2.
+      return toDetail(systemDefLoader.get());
+    }
+    requireDesignWs();
+    requireSessionUserForWrite();
     String session = currentSession();
     String user = currentUser();
     PSContentEditorSystemDef def = loadSystemDefLocked(session, user);
@@ -534,7 +623,18 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
     if (fieldSet.getFieldByName(fieldName) != null) {
       throw new WebApplicationException("System field already exists: " + fieldName, 409);
     }
-    addPersistableField(def, body);
+    PSField added = addPersistableField(def, body);
+    try {
+      columnSchema.ensureColumn(
+          tableAliasForSystemDef(def),
+          columnNameForField(fieldName),
+          added.getDataType(),
+          added.getDataFormat());
+    } catch (RuntimeException e) {
+      log.error("Failed to create backend column for system field {}", fieldName, e);
+      throw new IllegalStateException(
+          "Failed to create backend column for field " + fieldName, e);
+    }
     saveSystemDef(def, session, user);
     return toDetail(def);
   }
@@ -552,6 +652,22 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
       throw new IllegalArgumentException("Unknown field: " + validated);
     }
     saveSystemDef(def, session, user);
+    try {
+      columnSchema.dropColumnIfPresent(
+          tableAliasForSystemDef(def), columnNameForField(validated));
+    } catch (RuntimeException e) {
+      if (isMissingColumnFailure(e)) {
+        log.warn(
+            "Skipping drop of missing system-def column for field {}: {}",
+            validated,
+            e.getMessage());
+      } else {
+        log.warn(
+            "System-def XML saved without dropping backend column for field {}: {}",
+            validated,
+            e.getMessage());
+      }
+    }
   }
 
   private void requireAdmin() {
