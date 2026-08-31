@@ -6,11 +6,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   asContentTypeText,
   contentTypeSelectionKey,
+  createContentType,
+  deleteContentType,
   getContentTypeAllowedTemplates,
   getFieldControlProperties,
+  isContentTypeCreateReady,
+  isValidContentTypeName,
   normalizeContentTypeControlProperties,
   normalizeContentTypeDesignGaps,
   normalizeContentTypeFields,
+  normalizeContentTypeName,
   normalizeContentTypeStringList,
   normalizeNamedObjectRefs,
   replaceContentTypeAllowedTemplates,
@@ -23,6 +28,7 @@ import {
   unwrapNamedObjectRefList,
   unwrapObjectLockSummary,
   updateContentTypeDetail,
+  wrapContentTypeCreateForWire,
   wrapContentTypeDetailForWire,
   wrapContentTypeEnabledForWire,
   wrapContentTypeWorkflowsForWire,
@@ -902,5 +908,138 @@ describe("field controlProperties GET/PUT (CD-07)", () => {
     expect(listed.properties).toEqual([]);
     const body = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body));
     expect(body).toEqual({ ContentTypeFieldControlProperties: { properties: [] } });
+  });
+});
+
+describe("content type name validation (CD-01)", () => {
+  it("trims and accepts letters digits underscore period", () => {
+    expect(normalizeContentTypeName("  qaType_1.2 ")).toBe("qaType_1.2");
+    expect(isValidContentTypeName("qaType")).toBe(true);
+    expect(isValidContentTypeName("percPage")).toBe(true);
+    expect(isValidContentTypeName("qa_4055")).toBe(true);
+  });
+
+  it("rejects blank, spaces, wildcards, and illegal characters", () => {
+    expect(isValidContentTypeName("")).toBe(false);
+    expect(isValidContentTypeName("   ")).toBe(false);
+    expect(isValidContentTypeName("bad name")).toBe(false);
+    expect(isValidContentTypeName("bad*name")).toBe(false);
+    expect(isValidContentTypeName("bad%name")).toBe(false);
+    expect(isValidContentTypeName("bad-name")).toBe(false);
+  });
+
+  it("enables create only when the name is valid", () => {
+    expect(isContentTypeCreateReady({ name: "" })).toBe(false);
+    expect(isContentTypeCreateReady({ name: "bad name" })).toBe(false);
+    expect(isContentTypeCreateReady({ name: "qaType" })).toBe(true);
+  });
+});
+
+describe("wrapContentTypeCreateForWire", () => {
+  it("wraps POST body under ContentTypeDetail", () => {
+    expect(
+      wrapContentTypeCreateForWire({
+        name: "qaType",
+        label: "QA",
+        description: "d",
+        enabled: true,
+      }),
+    ).toEqual({
+      ContentTypeDetail: {
+        name: "qaType",
+        label: "QA",
+        description: "d",
+        enabled: true,
+      },
+    });
+  });
+});
+
+describe("createContentType / deleteContentType CD-01", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("POSTs create body to /services/contenttypes", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeDetail: { name: "qaType", label: "QA", enabled: true } }),
+    );
+    const saved = await createContentType({
+      name: "qaType",
+      label: "QA",
+      enabled: true,
+    });
+    expect(saved.name).toBe("qaType");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(PATHS.CONTENT_TYPES);
+    expect(String(fetchMock.mock.calls[0][0])).not.toMatch(/\/contenttypes\/.+/);
+    expect(JSON.parse(String(init.body))).toEqual({
+      ContentTypeDetail: { name: "qaType", label: "QA", enabled: true },
+    });
+  });
+
+  it("surfaces 400 invalid name", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ message: "name cannot contain spaces" }, 400),
+    );
+    await expect(createContentType({ name: "bad name" })).rejects.toMatchObject({
+      status: 400,
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("surfaces 409 duplicate name", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ message: "Content type name already exists: percPage" }, 409),
+    );
+    await expect(createContentType({ name: "percPage" })).rejects.toMatchObject({
+      status: 409,
+    });
+  });
+
+  it("surfaces 403 non-Admin create", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Forbidden" }, 403));
+    await expect(createContentType({ name: "qaType" })).rejects.toMatchObject({
+      status: 403,
+    });
+  });
+
+  it("DELETEs /services/contenttypes/{idOrName}", async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
+    await deleteContentType("qaType");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("DELETE");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.CONTENT_TYPES}/qaType`);
+  });
+
+  it("unlocked DELETE is 409 and does not POST lock", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ message: "Design lock required" }, 409),
+    );
+    await expect(deleteContentType("qaType")).rejects.toMatchObject({ status: 409 });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect((fetchMock.mock.calls[0][1] as RequestInit).method).toBe("DELETE");
+    expect(String(fetchMock.mock.calls[0][0])).not.toMatch(/\/lock$/);
+  });
+
+  it("surfaces 403 non-Admin delete", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Forbidden" }, 403));
+    await expect(deleteContentType("qaType")).rejects.toMatchObject({ status: 403 });
   });
 });

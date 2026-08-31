@@ -19,7 +19,7 @@ import {
   normalizeDesignObjectGuid,
   resolveContentTypeObjectGuid,
 } from "../displayFormatGuid";
-import { get, post, put } from "../client";
+import { del, get, post, put } from "../client";
 import { PATHS } from "../paths";
 import {
   normalizeContentTypeControlProperties,
@@ -321,6 +321,83 @@ export type ContentTypeUpdateBody = {
    */
   allowedTemplates?: NamedObjectRef[];
 };
+
+/**
+ * Writable fields for {@code POST /services/contenttypes} (CD-01 create).
+ * Name is required; unique (case-insensitive); letters, digits, underscore, period;
+ * no spaces or wildcards. Omitted {@code enabled} defaults to true on the server.
+ */
+export type ContentTypeCreateBody = {
+  name: string;
+  label?: string;
+  description?: string;
+  enabled?: boolean;
+};
+
+/** Internal names: letters, digits, underscore, and period (REST/PSStringUtils). */
+export const CONTENT_TYPE_NAME_PATTERN = /^[A-Za-z0-9_.]+$/;
+
+/** Trim; empty when missing. */
+export function normalizeContentTypeName(name: string | undefined | null): string {
+  if (name == null) {
+    return "";
+  }
+  return name.trim();
+}
+
+/**
+ * True when the name is a legal REST create/rename key: non-blank, no whitespace,
+ * no wildcards, and only content-type name characters.
+ */
+export function isValidContentTypeName(name: string | undefined | null): boolean {
+  const n = normalizeContentTypeName(name);
+  if (!n) {
+    return false;
+  }
+  if (/\s/.test(n) || n.includes("*") || n.includes("%")) {
+    return false;
+  }
+  return CONTENT_TYPE_NAME_PATTERN.test(n);
+}
+
+/** Create Save is enabled when the internal name is valid. Label is optional. */
+export function isContentTypeCreateReady(opts: { name: string }): boolean {
+  return isValidContentTypeName(opts.name);
+}
+
+/**
+ * Build the wire JSON body for ContentTypesResource POST under
+ * {@link CONTENT_TYPE_DETAIL_ROOT}. A flat body fails server UNWRAP_ROOT_VALUE.
+ */
+export function wrapContentTypeCreateForWire(
+  body: ContentTypeCreateBody,
+): Record<string, ContentTypeCreateBody> {
+  return { [CONTENT_TYPE_DETAIL_ROOT]: body };
+}
+
+/**
+ * POST /services/contenttypes — Admin. Creates and persists a type (Workbench Finish).
+ * Duplicate name is 409; blank/whitespace/wildcard name is 400; non-Admin is 403.
+ */
+export async function createContentType(
+  body: ContentTypeCreateBody,
+): Promise<ContentTypeDetail> {
+  const payload = await post<unknown>(
+    PATHS.CONTENT_TYPES,
+    wrapContentTypeCreateForWire(body),
+  );
+  return unwrapContentTypeDetail(payload);
+}
+
+/**
+ * DELETE /services/contenttypes/{idOrName} — Admin. Requires a design-session lock
+ * already held by the current user ({@link lockContentType}). Does not steal locks.
+ * HTTP 204 on success; 409 when unlocked or locked by another user; 403 non-Admin.
+ */
+export async function deleteContentType(idOrName: string): Promise<void> {
+  const key = encodeURIComponent(idOrName);
+  await del(`${PATHS.CONTENT_TYPES}/${key}`);
+}
 
 /** Wire body for {@code PUT .../allowedWorkflows} (Jackson root {@code ContentTypeWorkflows}). */
 export type ContentTypeWorkflowsBody = {

@@ -29,6 +29,7 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     replaceFieldControlProperties: vi.fn(),
     getContentTypeItemExits: vi.fn(),
     replaceContentTypeItemExits: vi.fn(),
+    deleteContentType: vi.fn(),
   };
 });
 
@@ -79,6 +80,7 @@ const replaceFieldControlProperties =
 const getContentTypeItemExits = contentTypesApi.getContentTypeItemExits as ReturnType<typeof vi.fn>;
 const replaceContentTypeItemExits =
   contentTypesApi.replaceContentTypeItemExits as ReturnType<typeof vi.fn>;
+const deleteContentType = contentTypesApi.deleteContentType as ReturnType<typeof vi.fn>;
 const getContentTypeFieldRuleExpressions =
   fieldRulesApi.getContentTypeFieldRuleExpressions as ReturnType<typeof vi.fn>;
 const replaceContentTypeFieldRuleExpressions =
@@ -123,10 +125,12 @@ describe("ContentTypeDetailPanel", () => {
     replaceFieldControlProperties.mockReset();
     getContentTypeItemExits.mockReset();
     replaceContentTypeItemExits.mockReset();
+    deleteContentType.mockReset();
     getContentTypeFieldRuleExpressions.mockReset();
     replaceContentTypeFieldRuleExpressions.mockReset();
     lockContentType.mockResolvedValue({ locker: "Admin", remainingTime: 30 });
     unlockContentType.mockResolvedValue(undefined);
+    deleteContentType.mockResolvedValue(undefined);
     updateContentTypeDetail.mockImplementation(async (_id, body) => ({
       ...sampleDetail,
       ...body,
@@ -1550,5 +1554,137 @@ describe("ContentTypeDetailPanel", () => {
     expect((screen.getByTestId("developer-ct-fr-validation") as HTMLTextAreaElement).disabled).toBe(
       true,
     );
+  });
+
+  it("disables delete until a lock is held and does not call DELETE", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    const onDeleted = vi.fn();
+    render(
+      <ContentTypeDetailPanel
+        idOrName="percPage"
+        onBack={() => undefined}
+        onDeleted={onDeleted}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-delete")).toBeTruthy();
+    });
+    const delBtn = screen.getByTestId("developer-ct-delete") as HTMLButtonElement;
+    expect(delBtn.disabled).toBe(true);
+    fireEvent.click(delBtn);
+    expect(deleteContentType).not.toHaveBeenCalled();
+    expect(lockContentType).not.toHaveBeenCalled();
+    expect(onDeleted).not.toHaveBeenCalled();
+  });
+
+  it("deletes after lock and confirm", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+    try {
+      const onDeleted = vi.fn();
+      render(
+        <ContentTypeDetailPanel
+          idOrName="percPage"
+          onBack={() => undefined}
+          onDeleted={onDeleted}
+        />,
+      );
+      await waitFor(() => {
+        expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(
+          false,
+        );
+      });
+      fireEvent.click(screen.getByTestId("developer-ct-lock"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe(
+          "Locked by you",
+        );
+      });
+      fireEvent.click(screen.getByTestId("developer-ct-delete"));
+      await waitFor(() => {
+        expect(onDeleted).toHaveBeenCalled();
+      });
+      expect(deleteContentType).toHaveBeenCalledWith("percPage");
+      expect(unlockContentType).not.toHaveBeenCalled();
+    } finally {
+      confirmSpy.mockRestore();
+    }
+  });
+
+  it("unlocked DELETE 409 does not steal the lock", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    deleteContentType.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Design lock required" },
+    });
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+    try {
+      const onDeleted = vi.fn();
+      render(
+        <ContentTypeDetailPanel
+          idOrName="percPage"
+          onBack={() => undefined}
+          onDeleted={onDeleted}
+        />,
+      );
+      await waitFor(() => {
+        expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(
+          false,
+        );
+      });
+      fireEvent.click(screen.getByTestId("developer-ct-lock"));
+      await waitFor(() => {
+        expect((screen.getByTestId("developer-ct-delete") as HTMLButtonElement).disabled).toBe(
+          false,
+        );
+      });
+      lockContentType.mockClear();
+      fireEvent.click(screen.getByTestId("developer-ct-delete"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-ct-detail-error")).toBeTruthy();
+      });
+      expect(deleteContentType).toHaveBeenCalledTimes(1);
+      expect(lockContentType).not.toHaveBeenCalled();
+      expect(onDeleted).not.toHaveBeenCalled();
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        DEV_MSG.CT_DELETE_LOCK_REQUIRED,
+      );
+    } finally {
+      confirmSpy.mockRestore();
+    }
+  });
+
+  it("surfaces 403 non-Admin on delete", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    deleteContentType.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: { message: "Admin role required" },
+    });
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+    try {
+      render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+      await waitFor(() => {
+        expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(
+          false,
+        );
+      });
+      fireEvent.click(screen.getByTestId("developer-ct-lock"));
+      await waitFor(() => {
+        expect((screen.getByTestId("developer-ct-delete") as HTMLButtonElement).disabled).toBe(
+          false,
+        );
+      });
+      fireEvent.click(screen.getByTestId("developer-ct-delete"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-ct-detail-error")).toBeTruthy();
+      });
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        DEV_MSG.CT_FORBIDDEN,
+      );
+    } finally {
+      confirmSpy.mockRestore();
+    }
   });
 });

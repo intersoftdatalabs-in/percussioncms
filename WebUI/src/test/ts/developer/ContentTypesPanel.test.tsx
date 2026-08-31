@@ -31,6 +31,10 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     }),
     getContentTypeAllowedTemplates: vi.fn().mockResolvedValue([]),
     getFieldControlProperties: vi.fn().mockResolvedValue({ properties: [] }),
+    createContentType: vi.fn(),
+    deleteContentType: vi.fn(),
+    lockContentType: vi.fn().mockResolvedValue({ locker: "Admin", remainingTime: 30 }),
+    unlockContentType: vi.fn().mockResolvedValue(undefined),
   };
 });
 
@@ -64,6 +68,8 @@ vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
 }));
 
 const listContentTypes = contentTypesApi.listContentTypes as ReturnType<typeof vi.fn>;
+const createContentType = contentTypesApi.createContentType as ReturnType<typeof vi.fn>;
+const getContentTypeDetail = contentTypesApi.getContentTypeDetail as ReturnType<typeof vi.fn>;
 
 describe("ContentTypesPanel", () => {
   beforeEach(() => {
@@ -71,6 +77,7 @@ describe("ContentTypesPanel", () => {
       message: (key: string) => key,
     };
     listContentTypes.mockReset();
+    createContentType.mockReset();
   });
 
   it("lists content types on success", async () => {
@@ -96,6 +103,43 @@ describe("ContentTypesPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-empty")).toBeTruthy();
     });
+    expect(screen.getByTestId("developer-ct-new")).toBeTruthy();
+  });
+
+  it("opens create chrome from New content type", async () => {
+    listContentTypes.mockResolvedValue([]);
+    render(<ContentTypesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-new")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-new"));
+    expect(screen.getByTestId("developer-ct-create")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-create-save")).toBeDisabled();
+  });
+
+  it("create opens the new type detail", async () => {
+    listContentTypes.mockResolvedValue([]);
+    createContentType.mockResolvedValue({
+      name: "qaType",
+      label: "QA",
+      guid: { stringValue: "0-2-99" },
+    });
+    render(<ContentTypesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-new")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-new"));
+    fireEvent.change(screen.getByTestId("developer-ct-create-name"), {
+      target: { value: "qaType" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-create-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail")).toBeTruthy();
+    });
+    expect(createContentType).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "qaType" }),
+    );
+    expect(getContentTypeDetail).toHaveBeenCalledWith("qaType");
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {

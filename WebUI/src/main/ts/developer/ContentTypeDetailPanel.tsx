@@ -19,6 +19,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
   asContentTypeText,
+  deleteContentType,
   getContentTypeAllowedTemplates,
   getContentTypeDetail,
   getContentTypeItemExits,
@@ -159,11 +160,13 @@ export function ContentTypeDetailPanel({
   idOrName,
   catalogGuid,
   onBack,
+  onDeleted,
 }: {
   idOrName: string;
   /** GUID from catalog list row when detail wire omits stringValue (#3319). */
   catalogGuid?: string | null;
   onBack: () => void;
+  onDeleted?: () => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<ContentTypeDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -538,6 +541,43 @@ export function ContentTypeDetailPanel({
     onBack();
   }
 
+  function deleteErrorFallback(err: unknown): string {
+    if (isApiError(err)) {
+      if (err.status === 409) {
+        return DEV_MSG.CT_DELETE_LOCK_REQUIRED;
+      }
+      if (err.status === 403) {
+        return DEV_MSG.CT_FORBIDDEN;
+      }
+    }
+    return DEV_MSG.CT_DELETE_ERROR;
+  }
+
+  async function handleDelete(): Promise<void> {
+    // Require a held lock in chrome; do not call DELETE (or lock) when unlocked.
+    if (!heldLockRef.current || busy || detail == null) {
+      return;
+    }
+    if (!window.confirm(DEV_MSG.CT_DELETE_CONFIRM)) {
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await deleteContentType(idOrName);
+      heldLockRef.current = false;
+      setHeldLock(false);
+      setNotice(DEV_MSG.CT_DELETED);
+      onDeleted?.();
+    } catch (err: unknown) {
+      // 409: unlocked or another user holds the lock — never steal by re-locking.
+      setError(panelErrMsg(err, deleteErrorFallback(err)));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleSave() {
     if (!heldLockRef.current) {
       setError(DEV_MSG.CT_LOCK_REQUIRED);
@@ -878,6 +918,24 @@ export function ContentTypeDetailPanel({
           }}
         >
           {DEV_MSG.CT_UNLOCK}
+        </button>
+        <button
+          type="button"
+          data-testid="developer-ct-delete"
+          aria-label={DEV_MSG.CT_DELETE}
+          disabled={busy || !heldLock || detail == null}
+          onClick={() => void handleDelete()}
+          style={{
+            padding: "8px 16px",
+            background: heldLock && detail != null ? "#c53030" : catalogColors.disabled,
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: busy || !heldLock || detail == null ? "not-allowed" : "pointer",
+            marginLeft: "auto",
+          }}
+        >
+          {DEV_MSG.CT_DELETE}
         </button>
         <label style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "8px" }}>
           <input
