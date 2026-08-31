@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -44,6 +45,9 @@ import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfoBase;
+import com.percussion.webservices.IPSWebserviceErrors;
+import com.percussion.webservices.PSErrorException;
+import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.system.IPSSystemDesignWs;
 import jakarta.ws.rs.WebApplicationException;
@@ -210,6 +214,28 @@ class ContentTypeAdaptorLocalFieldTest {
         assertThrows(IllegalArgumentException.class, () -> adaptor.addLocalField(null, "311", body));
     assertTrue(ex.getMessage().contains("dataType"));
     verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void addLocalField_saveFailureIncludesErrorDetails() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubDefinition();
+    stubLockedLoad(def);
+    PSErrorsException saveFailed = new PSErrorsException();
+    saveFailed.addError(
+        guid,
+        new PSErrorException(
+            IPSWebserviceErrors.SAVE_FAILED,
+            "PSSystemValidationException: field mapping invalid",
+            "stack"));
+    doThrow(saveFailed)
+        .when(designWs)
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    ContentTypeField body = new ContentTypeField();
+    body.setName("rx_note");
+    Exception ex =
+        assertThrows(Exception.class, () -> adaptor.addLocalField(null, "311", body));
+    assertTrue(ex.getMessage().contains("field mapping invalid"), ex.getMessage());
   }
 
   @Test

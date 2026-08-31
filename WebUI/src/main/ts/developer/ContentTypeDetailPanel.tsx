@@ -18,7 +18,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
+  addLocalContentTypeField,
   asContentTypeText,
+  deleteLocalContentTypeField,
   getContentTypeAllowedTemplates,
   getContentTypeDetail,
   getContentTypeItemExits,
@@ -76,7 +78,7 @@ import {
   ContentTypeFieldRulesSection,
   type ContentTypeFieldRulesHandle,
 } from "./ContentTypeFieldRulesSection";
-import { isApiError } from "../api/client";
+import { extractRestErrorMessage, isApiError } from "../api/client";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { catalogColors, tableHeaderRow, tableRow } from "./catalogStyles";
@@ -155,6 +157,25 @@ function refKey(r: NamedObjectRef, index: number): string {
 /** Canonical Percussion GUID shape: type-host-uuid (three numeric groups). */
 const PERC_GUID_RE = /^\d+-\d+-\d+$/;
 
+const LOCAL_FIELD_DATA_TYPES = [
+  "text",
+  "integer",
+  "date",
+  "datetime",
+  "time",
+  "bool",
+] as const;
+
+const DEFAULT_LOCAL_FIELD_CONTROL = "sys_EditBox";
+
+function isDuplicateFieldConflict(err: unknown): boolean {
+  if (!isApiError(err) || err.status !== 409) {
+    return false;
+  }
+  const msg = extractRestErrorMessage(err.body) || "";
+  return /already exists/i.test(msg);
+}
+
 export function ContentTypeDetailPanel({
   idOrName,
   catalogGuid,
@@ -196,6 +217,10 @@ export function ContentTypeDetailPanel({
   const [controlPropsError, setControlPropsError] = useState<string | null>(null);
   const [newPropName, setNewPropName] = useState("");
   const [newPropValue, setNewPropValue] = useState("");
+  const [newFieldName, setNewFieldName] = useState("");
+  const [newFieldLabel, setNewFieldLabel] = useState("");
+  const [newFieldDataType, setNewFieldDataType] = useState<string>("text");
+  const [newFieldControl, setNewFieldControl] = useState(DEFAULT_LOCAL_FIELD_CONTROL);
   const [heldLock, setHeldLock] = useState(false);
   const heldLockRef = useRef(false);
   const fieldRulesRef = useRef<ContentTypeFieldRulesHandle | null>(null);
@@ -248,6 +273,10 @@ export function ContentTypeDetailPanel({
     setControlPropsError(null);
     setNewPropName("");
     setNewPropValue("");
+    setNewFieldName("");
+    setNewFieldLabel("");
+    setNewFieldDataType("text");
+    setNewFieldControl(DEFAULT_LOCAL_FIELD_CONTROL);
     setFieldRulesDirty(false);
     getContentTypeDetail(idOrName)
       .then((d) => {
@@ -467,6 +496,95 @@ export function ContentTypeDetailPanel({
     }
     setControlProps((prev) => prev.filter((_, i) => i !== index));
     setNotice(null);
+  }
+
+  function applyLoadedDetail(saved: ContentTypeDetail) {
+    const normalized = normalizeDetailLists(saved);
+    setDetail(normalized);
+    setLabel(asContentTypeText(normalized.label));
+    setDescription(asContentTypeText(normalized.description));
+    setEnabled(normalized.enabled !== false);
+    setFieldDrafts(toDrafts(normalized.fields));
+    setWorkflows(
+      withDefaultWorkflowFlags(normalized.allowedWorkflows, normalized.defaultWorkflow),
+    );
+    setTemplates(cloneNamedObjectRefs(normalized.allowedTemplates));
+    return normalized;
+  }
+
+  async function handleAddLocalField() {
+    if (!heldLockRef.current) {
+      setError(DEV_MSG.CT_LOCK_REQUIRED);
+      return;
+    }
+    const name = newFieldName.trim();
+    if (!name) {
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const saved = await addLocalContentTypeField(idOrName, {
+        name,
+        label: newFieldLabel.trim() || undefined,
+        dataType: newFieldDataType.trim() || "text",
+        control: newFieldControl.trim() || DEFAULT_LOCAL_FIELD_CONTROL,
+      });
+      const normalized = applyLoadedDetail(saved);
+      const firstField =
+        normalizeContentTypeFields(normalized.fields).find((f) => !!f.name)?.name || "";
+      if (!selectedFieldName || !normalized.fields?.some((f) => f.name === selectedFieldName)) {
+        setSelectedFieldName(firstField);
+      }
+      setNewFieldName("");
+      setNewFieldLabel("");
+      setNewFieldDataType("text");
+      setNewFieldControl(DEFAULT_LOCAL_FIELD_CONTROL);
+      setNotice(DEV_MSG.CT_FIELD_ADDED);
+    } catch (err: unknown) {
+      if (isApiError(err) && err.status === 409 && !isDuplicateFieldConflict(err)) {
+        heldLockRef.current = false;
+        setHeldLock(false);
+      }
+      setError(panelErrMsg(err, DEV_MSG.CT_FIELD_ADD_ERROR));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleDeleteLocalField(fieldName: string) {
+    if (!heldLockRef.current) {
+      setError(DEV_MSG.CT_LOCK_REQUIRED);
+      return;
+    }
+    const name = fieldName.trim();
+    if (!name) {
+      return;
+    }
+    if (!window.confirm(DEV_MSG.CT_FIELD_DELETE_CONFIRM)) {
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await deleteLocalContentTypeField(idOrName, name);
+      const refreshed = applyLoadedDetail(await getContentTypeDetail(idOrName));
+      const remaining = normalizeContentTypeFields(refreshed.fields);
+      if (selectedFieldName === name) {
+        setSelectedFieldName(remaining.find((f) => !!f.name)?.name || "");
+      }
+      setNotice(DEV_MSG.CT_FIELD_DELETED);
+    } catch (err: unknown) {
+      if (isApiError(err) && err.status === 409) {
+        heldLockRef.current = false;
+        setHeldLock(false);
+      }
+      setError(panelErrMsg(err, DEV_MSG.CT_FIELD_DELETE_ERROR));
+    } finally {
+      setBusy(false);
+    }
   }
 
   function addControlProp() {
@@ -1427,9 +1545,139 @@ export function ContentTypeDetailPanel({
             </div>
           </section>
 
-          <section style={{ marginBottom: "16px" }}>
+          <section style={{ marginBottom: "16px" }} data-testid="developer-ct-fields">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_FIELDS}</h3>
             <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.CT_FIELDS_HINT}</p>
+            <div
+              style={{
+                marginBottom: "12px",
+                display: "grid",
+                gridTemplateColumns: "1.2fr 1fr auto auto auto",
+                gap: "8px",
+                alignItems: "end",
+              }}
+            >
+              <div>
+                <label htmlFor="ct-field-add-name" style={{ display: "block", marginBottom: 4 }}>
+                  {DEV_MSG.CT_FIELD_NAME}
+                </label>
+                <input
+                  id="ct-field-add-name"
+                  type="text"
+                  autoComplete="off"
+                  data-testid="developer-ct-field-add-name"
+                  style={inputStyle}
+                  placeholder={DEV_MSG.CT_FIELD_NAME_PLACEHOLDER}
+                  value={newFieldName}
+                  disabled={!canEdit}
+                  readOnly={!canEdit}
+                  aria-disabled={canEdit ? undefined : true}
+                  onChange={(e) => {
+                    if (!canEdit) {
+                      return;
+                    }
+                    setNewFieldName(e.target.value);
+                    setNotice(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      if (canEdit && newFieldName.trim()) {
+                        void handleAddLocalField();
+                      }
+                    }
+                  }}
+                />
+              </div>
+              <div>
+                <label htmlFor="ct-field-add-label" style={{ display: "block", marginBottom: 4 }}>
+                  {DEV_MSG.CT_FIELD_LABEL}
+                </label>
+                <input
+                  id="ct-field-add-label"
+                  type="text"
+                  autoComplete="off"
+                  data-testid="developer-ct-field-add-label"
+                  style={inputStyle}
+                  placeholder={DEV_MSG.CT_FIELD_LABEL_PLACEHOLDER}
+                  value={newFieldLabel}
+                  disabled={!canEdit}
+                  readOnly={!canEdit}
+                  aria-disabled={canEdit ? undefined : true}
+                  onChange={(e) => {
+                    if (!canEdit) {
+                      return;
+                    }
+                    setNewFieldLabel(e.target.value);
+                    setNotice(null);
+                  }}
+                />
+              </div>
+              <div>
+                <label htmlFor="ct-field-add-datatype" style={{ display: "block", marginBottom: 4 }}>
+                  {DEV_MSG.CT_FIELD_DATATYPE}
+                </label>
+                <select
+                  id="ct-field-add-datatype"
+                  data-testid="developer-ct-field-add-datatype"
+                  aria-label={DEV_MSG.CT_FIELD_DATATYPE}
+                  style={inputStyle}
+                  value={newFieldDataType}
+                  disabled={!canEdit}
+                  onChange={(e) => {
+                    if (!canEdit) {
+                      return;
+                    }
+                    setNewFieldDataType(e.target.value);
+                    setNotice(null);
+                  }}
+                >
+                  {LOCAL_FIELD_DATA_TYPES.map((dt) => (
+                    <option key={dt} value={dt}>
+                      {dt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="ct-field-add-control" style={{ display: "block", marginBottom: 4 }}>
+                  {DEV_MSG.CT_FIELD_CONTROL}
+                </label>
+                <input
+                  id="ct-field-add-control"
+                  type="text"
+                  autoComplete="off"
+                  data-testid="developer-ct-field-add-control"
+                  style={inputStyle}
+                  placeholder={DEV_MSG.CT_FIELD_CONTROL_PLACEHOLDER}
+                  value={newFieldControl}
+                  disabled={!canEdit}
+                  readOnly={!canEdit}
+                  aria-disabled={canEdit ? undefined : true}
+                  onChange={(e) => {
+                    if (!canEdit) {
+                      return;
+                    }
+                    setNewFieldControl(e.target.value);
+                    setNotice(null);
+                  }}
+                />
+              </div>
+              <button
+                type="button"
+                data-testid="developer-ct-field-add"
+                aria-label={DEV_MSG.CT_FIELD_ADD}
+                disabled={!canEdit || !newFieldName.trim()}
+                onClick={() => void handleAddLocalField()}
+                style={{
+                  ...smallBtnStyle,
+                  padding: "8px 12px",
+                  cursor: !canEdit || !newFieldName.trim() ? "not-allowed" : "pointer",
+                }}
+              >
+                {DEV_MSG.CT_FIELD_ADD}
+              </button>
+            </div>
             <div style={{ overflowX: "auto" }}>
               <table
                 data-testid="developer-ct-fields-table"
@@ -1451,6 +1699,7 @@ export function ContentTypeDetailPanel({
                     <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_RULES}</th>
                     <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_SEARCH}</th>
                     <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_FIELDSET}</th>
+                    <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_ACTIONS}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1467,6 +1716,7 @@ export function ContentTypeDetailPanel({
                       <tr
                         key={k}
                         data-testid="developer-ct-field-row"
+                        data-field-name={f.name || ""}
                         style={tableRow}
                       >
                         <td style={{ padding: "8px" }}>
@@ -1537,6 +1787,25 @@ export function ContentTypeDetailPanel({
                         </td>
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {f.fieldSet || "—"}
+                        </td>
+                        <td style={{ padding: "8px" }}>
+                          {isLocal && f.name ? (
+                            <button
+                              type="button"
+                              data-testid={`developer-ct-field-delete-${f.name}`}
+                              aria-label={`${DEV_MSG.CT_FIELD_DELETE} ${f.name}`}
+                              disabled={!canEdit}
+                              onClick={() => void handleDeleteLocalField(f.name || "")}
+                              style={{
+                                ...smallBtnStyle,
+                                cursor: canEdit ? "pointer" : "not-allowed",
+                              }}
+                            >
+                              {DEV_MSG.CT_FIELD_DELETE}
+                            </button>
+                          ) : (
+                            "—"
+                          )}
                         </td>
                       </tr>
                     );

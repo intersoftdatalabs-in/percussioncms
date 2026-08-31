@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Lock, enable or disable, rename via REST, add or delete local fields via REST, include system or shared fields via REST, export design XML via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Lock, enable or disable, rename via REST, add or delete local fields from Developer Content Type detail, include system or shared fields via REST, export design XML via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -24,13 +24,15 @@ Workbench-equivalent `ItemDefData` design XML with Admin
 `POST /services/contenttypes/import` (CD-14; create only; duplicate name **409**;
 invalid XML **400**; the new object's create lock is released and existing types
 are not stolen). This chrome does **not** include a
-create or import wizard; rename, delete, **local field create/delete**, and **include
-system/shared fields** are REST-only (no SPA field editor or field picker).
-After a held lock, integrators add a local field with
-`POST /services/contenttypes/{idOrName}/fields` (JSON `name` required) and
-remove one with `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}`.
-Duplicate field names are **409**. System and shared fields cannot be removed
-here (**400**). Include an existing system or shared field with
+create or import wizard; rename, delete, and **include
+system/shared fields** are REST-only (no SPA field picker). After a held
+**Lock**, operators can **add** and **delete local fields** from Content Type
+detail (see **Local fields** below). Integrators can also call
+`POST /services/contenttypes/{idOrName}/fields` (JSON `name` required; origin
+is always `local`) and
+`DELETE /services/contenttypes/{idOrName}/fields/{fieldName}`. Duplicate field
+names are **409**. System and shared fields cannot be removed here (**400**).
+Include an existing system or shared field with
 `POST /services/contenttypes/{idOrName}/fields/include` (JSON `name` and
 `fieldType` `system` or `shared`; origin is not copied as local). Duplicate
 include is **409**; unknown catalog field is **404**. Optional `fieldSet` on
@@ -142,6 +144,35 @@ the lock (including while the type is still loading). After **Lock**:
    clears associations. Unknown names return an error; the lock is not stolen.
 
 This is not the full Workbench template picker.
+
+### Local fields (add / delete after lock)
+
+The **Fields** catalog lists local, system, and shared fields. **Add local
+field** and **Delete** on a local row stay **disabled** until you hold the
+lock. Origin of a created field is always **local**. Include of existing
+system or shared fields is REST-only (`POST .../fields/include`) in this
+release.
+
+After **Lock**:
+
+1. Enter a unique field **name** (letter, then letters, digits, or underscore),
+   optional **label**, **data type** (default `text`), and **control** (default
+   `sys_EditBox`), then click **Add local field**. The product POSTs
+   `POST /services/contenttypes/{idOrName}/fields` while the lock is still
+   held and does **not** unlock. The field catalog shows the new row. A
+   following `GET /services/contenttypes/{idOrName}` includes it.
+2. Duplicate names return **409**. The lock is still held. Fix the name and
+   retry, or **Unlock**.
+3. Click **Delete** on a **local** field and confirm. The product DELETEs
+   `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}` (`204`). The
+   catalog omits that field. System and shared fields have no Delete control
+   (REST **400** if you try).
+4. Without a lock, Add / Delete stay **disabled**. The product does **not**
+   steal another user's lock (lock failure is **409**). An unlocked add or
+   delete does not persist.
+
+This is not the full Workbench field editor. Child field-set reorder and
+include of system/shared fields are later slices.
 
 ### Item-level exits (after lock)
 
@@ -284,6 +315,8 @@ The chrome calls:
 | Save field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` (held lock; full replace of values; does not send `choices`) |
 | Load field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` |
 | Save field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` (held lock; full replace of validation, visibility, inputTranslation, outputTranslation) |
+| Add local field | `POST /services/contenttypes/{idOrName}/fields` (CD-03; held lock; origin always `local`; duplicate name **409**) |
+| Delete local field | `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}` (CD-03; held lock; **204**; system/shared **400**) |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |
 | Delete | `DELETE /services/contenttypes/{idOrName}` (Admin; held lock; 204; 409 if unlocked or another user holds the lock; 400 if dependents; no SPA chrome) |
 

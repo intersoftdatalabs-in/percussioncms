@@ -32,6 +32,9 @@ import {
   replaceContentTypeItemExits,
   unwrapContentTypeItemExits,
   wrapContentTypeItemExitsForWire,
+  addLocalContentTypeField,
+  deleteLocalContentTypeField,
+  wrapContentTypeFieldForWire,
 } from "../../../../main/ts/api/developer/contentTypesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -902,5 +905,103 @@ describe("field controlProperties GET/PUT (CD-07)", () => {
     expect(listed.properties).toEqual([]);
     const body = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body));
     expect(body).toEqual({ ContentTypeFieldControlProperties: { properties: [] } });
+  });
+});
+
+describe("addLocalContentTypeField / deleteLocalContentTypeField CD-03", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("wraps the field under ContentTypeField with origin local", () => {
+    expect(
+      wrapContentTypeFieldForWire({
+        name: "rx_note",
+        label: "Note",
+        dataType: "text",
+        control: "sys_EditBox",
+      }),
+    ).toEqual({
+      ContentTypeField: {
+        name: "rx_note",
+        label: "Note",
+        dataType: "text",
+        control: "sys_EditBox",
+        fieldType: "local",
+      },
+    });
+  });
+
+  it("POSTs /contenttypes/{id}/fields without lock or unlock", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeDetail: {
+          name: "percPage",
+          fields: [{ name: "rx_note", fieldType: "local", dataType: "text" }],
+        },
+      }),
+    );
+    const saved = await addLocalContentTypeField("percPage", {
+      name: "rx_note",
+      label: "Note",
+      dataType: "text",
+      control: "sys_EditBox",
+    });
+    expect(saved.fields?.[0]?.name).toBe("rx_note");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(init.method).toBe("POST");
+    expect(String(url)).toContain(`${PATHS.CONTENT_TYPES}/percPage/fields`);
+    expect(String(url)).not.toContain("/include");
+    expect(JSON.parse(String(init.body))).toEqual({
+      ContentTypeField: {
+        name: "rx_note",
+        label: "Note",
+        dataType: "text",
+        control: "sys_EditBox",
+        fieldType: "local",
+      },
+    });
+  });
+
+  it("encodes idOrName on the add-field path", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeDetail: { name: "perc Page", fields: [] } }),
+    );
+    await addLocalContentTypeField("perc Page", { name: "rx_note" });
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/${encodeURIComponent("perc Page")}/fields`,
+    );
+  });
+
+  it("DELETEs /contenttypes/{id}/fields/{fieldName}", async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
+    await deleteLocalContentTypeField("percPage", "rx_note");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(init.method).toBe("DELETE");
+    expect(String(url)).toContain(`${PATHS.CONTENT_TYPES}/percPage/fields/rx_note`);
+  });
+
+  it("encodes idOrName and fieldName on the delete path", async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
+    await deleteLocalContentTypeField("perc Page", "rx note");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/${encodeURIComponent("perc Page")}/fields/${encodeURIComponent("rx note")}`,
+    );
   });
 });
