@@ -21,6 +21,7 @@ import type { LocaleSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
 import { catalogColors, monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
+import { AutoTranslationsPanel } from "./AutoTranslationsPanel";
 import { LocaleDetailPanel } from "./LocaleDetailPanel";
 import { DEV_MSG } from "./messages";
 
@@ -30,8 +31,8 @@ import { DEV_MSG } from "./messages";
 export function LocalesPanel(): React.ReactElement {
   const [items, setItems] = useState<LocaleSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  /** null = catalog; "new" = create; otherwise language string or id. */
-  const [selected, setSelected] = useState<string | "new" | null>(null);
+  /** null = catalog; "new" = create; "auto" = auto-translation set; otherwise language/id. */
+  const [selected, setSelected] = useState<string | "new" | "auto" | null>(null);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -90,6 +91,10 @@ export function LocalesPanel(): React.ReactElement {
     );
   }
 
+  if (selected === "auto") {
+    return <AutoTranslationsPanel onBack={() => setSelected(null)} />;
+  }
+
   if (selected) {
     return (
       <LocaleDetailPanel
@@ -125,21 +130,38 @@ export function LocalesPanel(): React.ReactElement {
         }}
       >
         <CatalogHint>{DEV_MSG.LOC_HINT}</CatalogHint>
-        <button
-          type="button"
-          data-testid="developer-loc-new"
-          onClick={() => setSelected("new")}
-          style={{
-            padding: "8px 14px",
-            background: catalogColors.accent,
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          {DEV_MSG.LOC_NEW}
-        </button>
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+          <button
+            type="button"
+            data-testid="developer-at-open"
+            onClick={() => setSelected("auto")}
+            style={{
+              padding: "8px 14px",
+              background: catalogColors.surface,
+              color: catalogColors.text,
+              border: `1px solid ${catalogColors.softBorder}`,
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            {DEV_MSG.LOC_AT_OPEN}
+          </button>
+          <button
+            type="button"
+            data-testid="developer-loc-new"
+            onClick={() => setSelected("new")}
+            style={{
+              padding: "8px 14px",
+              background: catalogColors.accent,
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            {DEV_MSG.LOC_NEW}
+          </button>
+        </div>
       </div>
 
       {items.length === 0 ? (
