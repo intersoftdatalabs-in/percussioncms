@@ -112,6 +112,7 @@ Non-administrators never see the Admin top-nav item or these configuration surfa
 - [Developer Shared Fields](id:admin-developer-shared-fields)
 - [Developer System Def](id:admin-developer-system-def)
 - [Developer Slots](id:admin-developer-slots)
+- [Developer Item Filters](id:admin-developer-item-filters)
 - [Object ACL & default template](id:admin-object-acl)
 - [Publishing](id:admin-publishing)
 - [Server operations](id:admin-server-ops)

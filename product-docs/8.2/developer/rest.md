@@ -402,8 +402,9 @@ following `GET` is **404**. Unknown id/name is **404**. A filter still associate
 content list (or other dependents) is **409**. Locked-by-another-user is **409** (the
 lock is not stolen). Non-Admin is **403**.
 
-There is **no** Developer SPA item-filter editor in this slice — operators and
-integrators call the REST path (or Workbench).
+**Developer → Item Filters** chrome uses list, load, create, save, and delete
+(see [Developer Item Filters](id:admin-developer-item-filters)). Rule rows on
+detail are read-only in the SPA and round-tripped on save.
 
 ### Request / response shape
 
@@ -411,19 +412,25 @@ JSON objects use the `ItemFilter` wire type (fields include `filterId`, `name`,
 `description`, `legacyAuthtype`, `rules[]`, and nested `parentFilter`). Prefer the
 generated OpenAPI schema as the integration source of truth.
 
+POST/PUT JSON is wrapped under an `ItemFilter` root (JAXB/Jackson
+UNWRAP_ROOT_VALUE). A flat `{ "name": "..." }` body fails with unexpected
+element `name`.
+
 Example create body:
 
 ```json
 {
-  "name": "previewPublic",
-  "description": "Public preview items",
-  "parentFilter": { "name": "public" },
-  "rules": [
-    {
-      "name": "sys_filterByPublishDate",
-      "params": [{ "name": "maxAge", "value": "30" }]
-    }
-  ]
+  "ItemFilter": {
+    "name": "previewPublic",
+    "description": "Public preview items",
+    "parentFilter": { "name": "public" },
+    "rules": [
+      {
+        "name": "sys_filterByPublishDate",
+        "params": [{ "name": "maxAge", "value": "30" }]
+      }
+    ]
+  }
 }
 ```
 

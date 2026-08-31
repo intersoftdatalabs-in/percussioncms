@@ -486,28 +486,67 @@ public class PSFilterManager
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSFilterService#findFiltersByName(String)
     */
    public List<IPSItemFilter> findFiltersByName(String name)
    {
-      List<IPSItemFilter> filters = new ArrayList<>();
       Session s = getSession();
-
-      if (!StringUtils.isBlank(name) && !name.equals("%")) {
-         try {
-            filters.add(findFilterByName(name));
-            return filters;
-         } catch (PSFilterException e) {
-            log.error("Cannot find filter",e);
-         }
+      FilterNameLookup lookup = classifyFilterNameLookup(name);
+      if (lookup == FilterNameLookup.ALL)
+      {
+         Query<PSItemFilter> q =
+             s.createQuery("from PSItemFilter order by name", PSItemFilter.class);
+         q.setCacheable(true);
+         return new ArrayList<>(q.list());
       }
+      if (lookup == FilterNameLookup.LIKE)
+      {
+         Query<PSItemFilter> q =
+             s.createQuery(
+                 "from PSItemFilter f where f.name like :pattern order by name",
+                 PSItemFilter.class);
+         q.setParameter("pattern", name);
+         q.setCacheable(true);
+         return new ArrayList<>(q.list());
+      }
+      try
+      {
+         return List.of(findFilterByName(name));
+      }
+      catch (PSFilterException e)
+      {
+         // Expected miss for create uniqueness / catalog lookup — not an error.
+         log.debug("No item filter named {}", name);
+         return List.of();
+      }
+   }
 
-      Query<PSItemFilter> q = s.createQuery("from PSItemFilter order by name", PSItemFilter.class);
-      q.setCacheable(true);
-      List<PSItemFilter> result = q.list();
-      return new ArrayList<>(result);
+   /**
+    * How {@link #findFiltersByName(String)} should query. Blank or {@code %}
+    * lists all filters. A pattern containing {@code %} uses SQL {@code LIKE}.
+    * Anything else is an exact name: missing names return empty, they must not
+    * fall through to the full catalog (that made every new filter look like a
+    * duplicate to {@code createItemFilters}).
+    */
+   enum FilterNameLookup
+   {
+      ALL,
+      LIKE,
+      EXACT
+   }
 
+   static FilterNameLookup classifyFilterNameLookup(String name)
+   {
+      if (StringUtils.isBlank(name) || "%".equals(name))
+      {
+         return FilterNameLookup.ALL;
+      }
+      if (name.indexOf('%') >= 0)
+      {
+         return FilterNameLookup.LIKE;
+      }
+      return FilterNameLookup.EXACT;
    }
 
    /*

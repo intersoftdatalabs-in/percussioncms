@@ -30,6 +30,8 @@ Operators using **Developer → System definition** field save/add/delete chrome
 
 Operators using **Developer → Slots** create/delete chrome: [Developer Slots](id:admin-developer-slots).
 
+Operators using **Developer → Item Filters** create/save/delete chrome: [Developer Item Filters](id:admin-developer-item-filters).
+
 ## Architecture snapshot
 
 ```text

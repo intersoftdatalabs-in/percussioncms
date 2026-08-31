@@ -13,10 +13,19 @@ import {
 import { ItemFiltersPanel } from "../../../main/ts/developer/ItemFiltersPanel";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
-vi.mock("../../../main/ts/api/developer/itemFiltersApi", () => ({
-  listItemFilters: vi.fn(),
-  getItemFilterDetail: vi.fn(),
-}));
+vi.mock("../../../main/ts/api/developer/itemFiltersApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/itemFiltersApi")
+  >();
+  return {
+    ...actual,
+    listItemFilters: vi.fn(),
+    getItemFilterDetail: vi.fn(),
+    createItemFilter: vi.fn(),
+    updateItemFilter: vi.fn(),
+    deleteItemFilter: vi.fn(),
+  };
+});
 
 const listMock = vi.mocked(listItemFilters);
 const detailMock = vi.mocked(getItemFilterDetail);
@@ -48,6 +57,7 @@ describe("ItemFiltersPanel", () => {
       expect(screen.getByTestId("developer-if-table")).toBeTruthy();
     });
     expect(screen.getByText("public")).toBeTruthy();
+    expect(screen.getByTestId("developer-if-new")).toBeTruthy();
   });
 
   it("opens detail with rules", async () => {
@@ -71,6 +81,20 @@ describe("ItemFiltersPanel", () => {
     });
     expect(detailMock).toHaveBeenCalledWith("public");
     expect(screen.getByText("sys_IsPublic")).toBeTruthy();
+    expect(screen.getByTestId("developer-if-save")).toBeTruthy();
+    expect(screen.getByTestId("developer-if-delete")).toBeTruthy();
+  });
+
+  it("opens create chrome from New item filter", async () => {
+    listMock.mockResolvedValue([]);
+    render(<ItemFiltersPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-if-empty")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-if-new"));
+    expect(screen.getByTestId("developer-if-detail")).toBeTruthy();
+    expect(screen.getByTestId("developer-if-save")).toBeDisabled();
+    expect(detailMock).not.toHaveBeenCalled();
   });
 
   it("shows empty state when API returns no item filters", async () => {
@@ -79,6 +103,7 @@ describe("ItemFiltersPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-if-empty")).toBeTruthy();
     });
+    expect(screen.getByTestId("developer-if-new")).toBeTruthy();
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {
