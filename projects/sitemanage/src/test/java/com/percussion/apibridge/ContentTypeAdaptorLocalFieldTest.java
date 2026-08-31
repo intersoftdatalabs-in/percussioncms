@@ -310,6 +310,55 @@ class ContentTypeAdaptorLocalFieldTest {
   }
 
   @Test
+  void deleteLocalField_saveFailureIncludesErrorDetails() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubDefinition();
+    ContentTypeField existing = new ContentTypeField();
+    existing.setName("rx_note");
+    ContentTypeAdaptor.addPersistableLocalField(def, existing);
+    stubLockedLoad(def);
+    PSErrorsException saveFailed = new PSErrorsException();
+    saveFailed.addError(
+        guid,
+        new PSErrorException(
+            IPSWebserviceErrors.SAVE_FAILED,
+            "PSSystemValidationException: field mapping invalid",
+            "stack"));
+    doThrow(saveFailed)
+        .when(designWs)
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.deleteLocalField(null, "311", "rx_note"));
+    assertTrue(ex.getMessage().contains("Could not delete local field"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("field mapping invalid"), ex.getMessage());
+  }
+
+  @Test
+  void deleteLocalField_nonValidationSaveFailureIncludesErrorDetails() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubDefinition();
+    ContentTypeField existing = new ContentTypeField();
+    existing.setName("rx_note");
+    ContentTypeAdaptor.addPersistableLocalField(def, existing);
+    stubLockedLoad(def);
+    PSErrorsException saveFailed = new PSErrorsException();
+    saveFailed.addError(
+        guid,
+        new PSErrorException(IPSWebserviceErrors.SAVE_FAILED, "java.io.IOException: disk", "stack"));
+    doThrow(saveFailed)
+        .when(designWs)
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+
+    IllegalStateException ex =
+        assertThrows(
+            IllegalStateException.class, () -> adaptor.deleteLocalField(null, "311", "rx_note"));
+    assertTrue(ex.getMessage().contains("Failed to save local field delete"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("java.io.IOException: disk"), ex.getMessage());
+  }
+
+  @Test
   void validateFieldName_rejectsPathAndLeadingDigit() {
     assertThrows(IllegalArgumentException.class, () -> ContentTypeAdaptor.validateFieldName("../x"));
     assertThrows(IllegalArgumentException.class, () -> ContentTypeAdaptor.validateFieldName("1abc"));

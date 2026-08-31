@@ -1715,11 +1715,15 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         if (hasLockError(e.getErrors())) {
           throw lockConflict(e, "Could not delete content type field");
         }
-        log.error("Failed to save local field delete for {}: {}", idOrName, e.getMessage(), e);
-        throw new IllegalStateException("Failed to save local field delete", e);
+        String details = formatSaveErrors(e);
+        log.error("Failed to save local field delete for {}: {}", idOrName, details, e);
+        if (isValidationSaveFailure(e)) {
+          throw new IllegalArgumentException("Could not delete local field: " + details, e);
+        }
+        throw new IllegalStateException("Failed to save local field delete: " + details, e);
       }
       return Boolean.TRUE;
-    } catch (ContentTypeDesignLockException
+    } catch (IllegalStateException
         | IllegalArgumentException
         | WebApplicationException e) {
       throw e;
