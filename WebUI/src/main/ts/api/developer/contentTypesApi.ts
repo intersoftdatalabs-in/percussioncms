@@ -43,6 +43,7 @@ import {
   unwrapContentTypeItemExits,
   wrapContentTypeItemExitsForWire,
 } from "./contentTypeItemExits";
+import { parseChoiceCatalog } from "./contentTypeChoiceCatalog";
 
 export {
   CONTENT_TYPE_ITEM_EXITS_ROOT,
@@ -599,28 +600,9 @@ export const CONTENT_TYPE_FIELD_CONTROL_PROPERTIES_ROOT =
 
 export type ContentTypeFieldControlPropertiesBody = {
   properties: ContentTypeControlProperty[];
+  /** When omitted, PUT leaves the catalog unchanged. */
+  choices?: ContentTypeChoiceCatalog;
 };
-
-function asChoiceCatalog(raw: unknown): ContentTypeChoiceCatalog | null {
-  const rec = asRecord(raw);
-  if (!rec) {
-    return null;
-  }
-  const out: ContentTypeChoiceCatalog = {};
-  if (typeof rec.type === "string") {
-    out.type = rec.type;
-  }
-  if (typeof rec.globalId === "string") {
-    out.globalId = rec.globalId;
-  }
-  if (typeof rec.sortOrder === "string") {
-    out.sortOrder = rec.sortOrder;
-  }
-  if (typeof rec.lookupHref === "string") {
-    out.lookupHref = rec.lookupHref;
-  }
-  return out;
-}
 
 /**
  * Flatten GET/PUT {@code .../fields/{field}/controlProperties} JSON.
@@ -650,7 +632,10 @@ export function unwrapFieldControlProperties(
     out.control = body.control;
   }
   if (body.choices != null) {
-    out.choices = asChoiceCatalog(body.choices);
+    const choices = parseChoiceCatalog(body.choices);
+    if (choices) {
+      out.choices = choices;
+    }
   }
   if (body.designGaps != null) {
     out.designGaps = normalizeContentTypeDesignGaps(body.designGaps);
@@ -661,13 +646,19 @@ export function unwrapFieldControlProperties(
 /**
  * Build the wire JSON body for {@code PUT .../controlProperties} under
  * {@link CONTENT_TYPE_FIELD_CONTROL_PROPERTIES_ROOT}. A flat body fails
- * server UNWRAP_ROOT_VALUE. {@code choices} is omitted so the catalog is
- * unchanged (choice filter / null-entry / default-selected are not written).
+ * server UNWRAP_ROOT_VALUE. Omit {@code choices} to leave the catalog
+ * unchanged; send {@code type: none} to clear it.
  */
 export function wrapFieldControlPropertiesForWire(
   body: ContentTypeFieldControlPropertiesBody,
 ): Record<string, ContentTypeFieldControlPropertiesBody> {
-  return { [CONTENT_TYPE_FIELD_CONTROL_PROPERTIES_ROOT]: body };
+  const wrapped: ContentTypeFieldControlPropertiesBody = {
+    properties: body.properties,
+  };
+  if (body.choices !== undefined) {
+    wrapped.choices = body.choices;
+  }
+  return { [CONTENT_TYPE_FIELD_CONTROL_PROPERTIES_ROOT]: wrapped };
 }
 
 /**
@@ -688,23 +679,29 @@ export async function getFieldControlProperties(
 
 /**
  * PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties
- * — CD-07 full replace of property values.
+ * — CD-07 full replace of property values, optional choice catalog.
  *
  * <p>Requires a design-session lock already held by the current user
  * ({@link lockContentType}). Does not acquire or release the lock. HTTP 409
  * when unlocked or locked by another user. Empty {@code properties} clears
- * parameters. Does not send {@code choices}.
+ * parameters. Omit {@code choices} to leave the catalog unchanged; pass
+ * {@code { type: "none" }} to clear it.
  */
 export async function replaceFieldControlProperties(
   idOrName: string,
   fieldName: string,
   properties: ContentTypeControlProperty[],
+  choices?: ContentTypeChoiceCatalog,
 ): Promise<ContentTypeFieldControlProperties> {
   const typeKey = encodeURIComponent(idOrName);
   const fieldKey = encodeURIComponent(fieldName);
+  const body: ContentTypeFieldControlPropertiesBody = { properties };
+  if (choices !== undefined) {
+    body.choices = choices;
+  }
   const payload = await put<unknown>(
     `${PATHS.CONTENT_TYPES}/${typeKey}/fields/${fieldKey}/controlProperties`,
-    wrapFieldControlPropertiesForWire({ properties }),
+    wrapFieldControlPropertiesForWire(body),
   );
   return unwrapFieldControlProperties(payload);
 }

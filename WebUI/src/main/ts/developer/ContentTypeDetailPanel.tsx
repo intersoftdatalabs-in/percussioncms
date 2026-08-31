@@ -47,6 +47,7 @@ import {
   normalizeNamedObjectRefs,
 } from "../api/developer/contentTypeLists";
 import type {
+  ContentTypeChoiceCatalog,
   ContentTypeControlProperty,
   ContentTypeDetail,
   ContentTypeFieldSummary,
@@ -54,10 +55,17 @@ import type {
   NamedObjectRef,
 } from "../api/developer/types";
 import {
+  choiceCatalogPayloadError,
+  choiceCatalogsEqual,
+  cloneChoiceCatalog,
+  toChoiceCatalogPayload,
+} from "../api/developer/contentTypeChoiceCatalog";
+import {
   cloneControlProperties,
   controlPropertiesEqual,
   toControlPropertyPayload,
 } from "./contentTypeControlProperties";
+import { ContentTypeFieldChoicesSection } from "./ContentTypeFieldChoicesSection";
 import {
   buildAllowedWorkflowsReplaceBody,
   cloneNamedObjectRefs,
@@ -191,7 +199,9 @@ export function ContentTypeDetailPanel({
     ContentTypeControlProperty[]
   >([]);
   const [controlName, setControlName] = useState("");
-  const [choiceSummary, setChoiceSummary] = useState<string | null>(null);
+  const [choiceCatalog, setChoiceCatalog] = useState<ContentTypeChoiceCatalog | null>(null);
+  const [choiceCatalogInitial, setChoiceCatalogInitial] =
+    useState<ContentTypeChoiceCatalog | null>(null);
   const [controlPropsLoading, setControlPropsLoading] = useState(false);
   const [controlPropsError, setControlPropsError] = useState<string | null>(null);
   const [newPropName, setNewPropName] = useState("");
@@ -244,7 +254,8 @@ export function ContentTypeDetailPanel({
     setControlProps([]);
     setControlPropsInitial([]);
     setControlName("");
-    setChoiceSummary(null);
+    setChoiceCatalog(null);
+    setChoiceCatalogInitial(null);
     setControlPropsError(null);
     setNewPropName("");
     setNewPropValue("");
@@ -270,7 +281,8 @@ export function ContentTypeDetailPanel({
         setControlProps([]);
         setControlPropsInitial([]);
         setControlName("");
-        setChoiceSummary(null);
+        setChoiceCatalog(null);
+        setChoiceCatalogInitial(null);
         setNewPropName("");
         setNewPropValue("");
       })
@@ -289,7 +301,8 @@ export function ContentTypeDetailPanel({
       setControlProps([]);
       setControlPropsInitial([]);
       setControlName("");
-      setChoiceSummary(null);
+      setChoiceCatalog(null);
+      setChoiceCatalogInitial(null);
       setControlPropsLoading(false);
       return;
     }
@@ -303,8 +316,9 @@ export function ContentTypeDetailPanel({
         setControlProps(props);
         setControlPropsInitial(cloneControlProperties(props));
         setControlName(loaded.control || "");
-        const choiceType = loaded.choices?.type?.trim();
-        setChoiceSummary(choiceType ? choiceType : null);
+        const choices = cloneChoiceCatalog(loaded.choices);
+        setChoiceCatalog(choices);
+        setChoiceCatalogInitial(cloneChoiceCatalog(choices));
         setNewPropName("");
         setNewPropValue("");
         setControlPropsError(null);
@@ -314,7 +328,8 @@ export function ContentTypeDetailPanel({
         setControlProps([]);
         setControlPropsInitial([]);
         setControlName("");
-        setChoiceSummary(null);
+        setChoiceCatalog(null);
+        setChoiceCatalogInitial(null);
         setControlPropsError(panelErrMsg(err, DEV_MSG.CT_CONTROL_PROPS_ERROR));
       })
       .finally(() => {
@@ -351,6 +366,10 @@ export function ContentTypeDetailPanel({
   const controlPropsDirty =
     selectedFieldName.trim().length > 0 &&
     !controlPropertiesEqual(controlProps, controlPropsInitial);
+  const choicesDirty =
+    selectedFieldName.trim().length > 0 &&
+    !choiceCatalogsEqual(choiceCatalog, choiceCatalogInitial);
+  const controlSectionDirty = controlPropsDirty || choicesDirty;
 
   const dirty =
     detail != null &&
@@ -361,7 +380,7 @@ export function ContentTypeDetailPanel({
       workflowsDirty ||
       templatesDirty ||
       itemExitsDirty ||
-      controlPropsDirty ||
+      controlSectionDirty ||
       fieldRulesDirty);
 
   const objectGuid = resolveContentTypeObjectGuid(detail, catalogGuid);
@@ -515,6 +534,7 @@ export function ContentTypeDetailPanel({
       heldLockRef.current = false;
       setHeldLock(false);
       setControlProps(cloneControlProperties(controlPropsInitial));
+      setChoiceCatalog(cloneChoiceCatalog(choiceCatalogInitial));
       setNewPropName("");
       setNewPropValue("");
       setNotice(DEV_MSG.CT_UNLOCKED_NOTICE);
@@ -557,10 +577,29 @@ export function ContentTypeDetailPanel({
       !templatesDirty &&
       !bulkNeeded &&
       !itemExitsDirty &&
-      !controlPropsDirty &&
+      !controlSectionDirty &&
       !fieldRulesDirty
     ) {
       return;
+    }
+    if (choicesDirty) {
+      const payloadErr = choiceCatalogPayloadError(choiceCatalog);
+      if (payloadErr === "local-entries") {
+        setError(DEV_MSG.CT_CHOICES_INVALID_LOCAL);
+        return;
+      }
+      if (payloadErr === "global-id") {
+        setError(DEV_MSG.CT_CHOICES_INVALID_GLOBAL);
+        return;
+      }
+      if (payloadErr === "lookup-href") {
+        setError(DEV_MSG.CT_CHOICES_INVALID_LOOKUP);
+        return;
+      }
+      if (payloadErr === "table") {
+        setError(DEV_MSG.CT_CHOICES_INVALID_TABLE);
+        return;
+      }
     }
     setBusy(true);
     setError(null);
@@ -689,14 +728,21 @@ export function ContentTypeDetailPanel({
           throw ieErr;
         }
       }
-      if (controlPropsDirty) {
+      if (controlSectionDirty) {
         const field = selectedFieldName.trim();
         try {
-          const replaced = await replaceFieldControlProperties(
-            idOrName,
-            field,
-            toControlPropertyPayload(controlProps),
-          );
+          const replaced = choicesDirty
+            ? await replaceFieldControlProperties(
+                idOrName,
+                field,
+                toControlPropertyPayload(controlProps),
+                toChoiceCatalogPayload(choiceCatalog),
+              )
+            : await replaceFieldControlProperties(
+                idOrName,
+                field,
+                toControlPropertyPayload(controlProps),
+              );
           const listed = await getFieldControlProperties(idOrName, field);
           const nextProps = cloneControlProperties(
             listed.properties ?? replaced.properties,
@@ -704,8 +750,9 @@ export function ContentTypeDetailPanel({
           setControlProps(nextProps);
           setControlPropsInitial(cloneControlProperties(nextProps));
           setControlName(listed.control || replaced.control || controlName);
-          const choiceType = listed.choices?.type?.trim();
-          setChoiceSummary(choiceType ? choiceType : null);
+          const nextChoices = cloneChoiceCatalog(listed.choices ?? replaced.choices);
+          setChoiceCatalog(nextChoices);
+          setChoiceCatalogInitial(cloneChoiceCatalog(nextChoices));
           if (saved == null) {
             saved = normalizeDetailLists(detail);
           }
@@ -739,7 +786,7 @@ export function ContentTypeDetailPanel({
           throw frErr;
         }
       }
-      if (saved == null && !itemExitsDirty && !controlPropsDirty && !fieldRulesDirty) {
+      if (saved == null && !itemExitsDirty && !controlSectionDirty && !fieldRulesDirty) {
         return;
       }
       if (saved == null) {
@@ -1047,9 +1094,9 @@ export function ContentTypeDetailPanel({
             aria-label={DEV_MSG.CT_CONTROL_PROPS_FIELD}
             style={inputStyle}
             value={selectedFieldName}
-            disabled={busy || detail == null || controlPropsDirty}
+            disabled={busy || detail == null || controlSectionDirty}
             onChange={(e) => {
-              if (busy || detail == null || controlPropsDirty) {
+              if (busy || detail == null || controlSectionDirty) {
                 return;
               }
               setSelectedFieldName(e.target.value);
@@ -1075,14 +1122,6 @@ export function ContentTypeDetailPanel({
             style={{ color: catalogColors.muted, fontSize: "0.9rem", fontFamily: "monospace" }}
           >
             {DEV_MSG.CT_CONTROL_PROPS_CONTROL}: {controlName}
-          </p>
-        ) : null}
-        {choiceSummary ? (
-          <p
-            data-testid="developer-ct-cp-choices"
-            style={{ color: catalogColors.muted, fontSize: "0.9rem" }}
-          >
-            {DEV_MSG.CT_CONTROL_PROPS_CHOICES}: {choiceSummary}
           </p>
         ) : null}
         {controlPropsError ? (
@@ -1237,6 +1276,17 @@ export function ContentTypeDetailPanel({
             {DEV_MSG.CT_ASSOC_ADD}
           </button>
         </div>
+        <ContentTypeFieldChoicesSection
+          catalog={choiceCatalog}
+          canEdit={canEdit}
+          onChange={(next) => {
+            if (!canEdit) {
+              return;
+            }
+            setChoiceCatalog(next);
+            setNotice(null);
+          }}
+        />
       </section>
 
       {!error && detail == null ? (
