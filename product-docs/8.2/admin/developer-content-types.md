@@ -92,8 +92,10 @@ lock. Item-level input translations must be request pre-processors (for
 example `sys_cleanReservedHtmlClasses` or `sys_itemHTMLEncodeTransformer`),
 not field UDFs such as `sys_ToUpperCase` (those stay on field rule
 expressions). Omitting `preExits`/`postExits` leaves pipe extensions
-unchanged. Apply-when conditions remain read-only. Choice-catalog filter /
-null-entry / default-selected writes are not in this chrome.
+unchanged. Apply-when conditions remain read-only. Field **choice catalogs**
+(source, local entries, filter, null-entry, default-selected) are edited
+from **Control property values** after **Lock** (see **Field choice catalog**
+below).
 
 ## Product path — create a content type
 
