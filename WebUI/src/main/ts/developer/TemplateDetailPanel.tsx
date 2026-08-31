@@ -16,12 +16,14 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { isApiError } from "../api/client";
 import { resolveTemplateObjectGuid } from "../api/displayFormatGuid";
 import {
   getTemplateDetail,
   listSlots,
   updateTemplateDetail,
 } from "../api/developer/assemblyApi";
+import { downloadXmlFile, exportTemplate } from "../api/developer/templateImportExport";
 import { designGapCode, designGapKey, formatDesignGap } from "../api/developer/designGaps";
 import type {
   SlotSummary,
@@ -423,6 +425,30 @@ export function TemplateDetailPanel({
       setNotice(DEV_MSG.TPL_SAVED);
     } catch (err: unknown) {
       setError(panelErrMsg(err, DEV_MSG.TPL_SAVE_ERROR));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function exportErrMsg(err: unknown): string {
+    if (isApiError(err) && err.status === 404) {
+      return panelErrMsg(err, DEV_MSG.TPL_EXPORT_NOT_FOUND);
+    }
+    if (isApiError(err) && err.status === 403) {
+      return panelErrMsg(err, DEV_MSG.TPL_EXPORT_FORBIDDEN);
+    }
+    return panelErrMsg(err, DEV_MSG.TPL_EXPORT_ERROR);
+  }
+
+  async function handleExport() {
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const exported = await exportTemplate(idOrName);
+      downloadXmlFile(exported.xml, exported.filename);
+    } catch (err: unknown) {
+      setError(exportErrMsg(err));
     } finally {
       setBusy(false);
     }
@@ -837,7 +863,7 @@ export function TemplateDetailPanel({
             </div>
           </section>
 
-          <div style={{ marginBottom: "16px" }}>
+          <div style={{ marginBottom: "16px", display: "flex", flexWrap: "wrap", gap: "8px" }}>
             <button
               type="button"
               data-testid="developer-tpl-save"
@@ -854,6 +880,23 @@ export function TemplateDetailPanel({
               }}
             >
               {DEV_MSG.TPL_SAVE}
+            </button>
+            <button
+              type="button"
+              data-testid="developer-tpl-export"
+              aria-label={DEV_MSG.TPL_EXPORT}
+              disabled={busy}
+              onClick={() => void handleExport()}
+              style={{
+                padding: "8px 16px",
+                background: "transparent",
+                color: "inherit",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: "4px",
+                cursor: busy ? "not-allowed" : "pointer",
+              }}
+            >
+              {DEV_MSG.TPL_EXPORT}
             </button>
           </div>
 

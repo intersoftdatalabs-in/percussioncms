@@ -334,7 +334,7 @@ export async function putPlainText<T>(
 
 /**
  * GET that also returns response headers (e.g. {@code Content-Disposition}
- * on CD-14 content-type export).
+ * on CD-14 content-type export and AS-08 template export).
  */
 export async function getWithHeaders<T>(
   url: string,
@@ -351,7 +351,8 @@ export async function getWithHeaders<T>(
 
 /**
  * POST a raw string body (not JSON-stringified). Used by XML import
- * ({@code POST /contenttypes/import}) and similar text payloads.
+ * ({@code POST /contenttypes/import}, {@code POST /templates/import})
+ * and similar text payloads.
  */
 export async function postText<T>(
   url: string,

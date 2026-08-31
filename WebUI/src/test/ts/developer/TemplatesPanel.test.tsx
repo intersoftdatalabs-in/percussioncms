@@ -59,6 +59,7 @@ describe("TemplatesPanel", () => {
     });
     expect(screen.getByTestId("developer-tpl-table").textContent).toContain("Page");
     expect(screen.getByTestId("developer-tpl-table").textContent).toContain("perc.page");
+    expect(screen.getByTestId("developer-tpl-import")).toBeTruthy();
   });
 
   it("shows empty state when API returns no templates", async () => {
@@ -67,6 +68,7 @@ describe("TemplatesPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-tpl-empty")).toBeTruthy();
     });
+    expect(screen.getByTestId("developer-tpl-import")).toBeTruthy();
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {

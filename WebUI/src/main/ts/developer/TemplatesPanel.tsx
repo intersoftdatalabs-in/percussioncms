@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { resolveTemplateObjectGuid } from "../api/displayFormatGuid";
 import { listTemplates } from "../api/developer/assemblyApi";
 import type { TemplateSummary } from "../api/developer/types";
@@ -25,6 +25,7 @@ import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { DeveloperSectionErrorBoundary } from "./DeveloperSectionErrorBoundary";
 import { TemplateDetailPanel } from "./TemplateDetailPanel";
+import { TemplateImportWizard } from "./TemplateImportWizard";
 
 /** Open-key for detail route; null when the row is not selectable. */
 function selectionKey(t: TemplateSummary): string | null {
@@ -42,9 +43,16 @@ export function TemplatesPanel(): React.ReactElement {
   const [items, setItems] = useState<TemplateSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<SelectedTemplate | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
+
+  const reloadCatalog = useCallback(() => {
+    setReloadToken((n) => n + 1);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
+    setError(null);
+    setItems(null);
     listTemplates()
       .then((list) => {
         if (!cancelled) setItems(list);
@@ -57,7 +65,7 @@ export function TemplatesPanel(): React.ReactElement {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadToken]);
 
   const sorted = useMemo(() => {
     if (!items) return [];
@@ -94,55 +102,60 @@ export function TemplatesPanel(): React.ReactElement {
     );
   }
 
-  if (error) return <CatalogStatus testId="developer-tpl-error" error>{error}</CatalogStatus>;
-  if (items == null)
-    return <CatalogStatus testId="developer-tpl-loading">{DEV_MSG.TPL_LOADING}</CatalogStatus>;
-  if (items.length === 0)
-    return <CatalogStatus testId="developer-tpl-empty">{DEV_MSG.TPL_EMPTY}</CatalogStatus>;
-
   return (
     <div data-testid="developer-tpl-panel">
       <CatalogHint>{DEV_MSG.TPL_HINT}</CatalogHint>
-      <SimpleCatalogTable
-        tableTestId="developer-tpl-table"
-        rowTestId="developer-tpl-row"
-        columns={[
-          DEV_MSG.TPL_COL_LABEL,
-          DEV_MSG.TPL_COL_NAME,
-          DEV_MSG.TPL_COL_ID,
-          DEV_MSG.TPL_COL_DESCRIPTION,
-        ]}
-        rows={sorted.map((t, index) => {
-          const openKey = selectionKey(t);
-          return {
-            key: String(t.templateId ?? t.templateName ?? `tpl-${index}`),
-            cells: [
-              openKey ? (
-                <button
-                  key="open"
-                  type="button"
-                  style={openButtonStyle}
-                  aria-label={`Open ${t.templateLabel || t.templateName || openKey}`}
-                  onClick={() => openTemplate(t)}
-                >
-                  {t.templateLabel || "—"}
-                </button>
-              ) : (
-                t.templateLabel || "—"
-              ),
-              <span key="n" style={monoCell}>
-                {t.templateName || "—"}
-              </span>,
-              <span key="i" style={monoCell}>
-                {t.templateId != null ? String(t.templateId) : "—"}
-              </span>,
-              <span key="d" style={mutedCell}>
-                {t.templateDescription || ""}
-              </span>,
-            ],
-          };
-        })}
-      />
+      <TemplateImportWizard onImported={() => reloadCatalog()} />
+      {error ? (
+        <CatalogStatus testId="developer-tpl-error" error>
+          {error}
+        </CatalogStatus>
+      ) : items == null ? (
+        <CatalogStatus testId="developer-tpl-loading">{DEV_MSG.TPL_LOADING}</CatalogStatus>
+      ) : items.length === 0 ? (
+        <CatalogStatus testId="developer-tpl-empty">{DEV_MSG.TPL_EMPTY}</CatalogStatus>
+      ) : (
+        <SimpleCatalogTable
+          tableTestId="developer-tpl-table"
+          rowTestId="developer-tpl-row"
+          columns={[
+            DEV_MSG.TPL_COL_LABEL,
+            DEV_MSG.TPL_COL_NAME,
+            DEV_MSG.TPL_COL_ID,
+            DEV_MSG.TPL_COL_DESCRIPTION,
+          ]}
+          rows={sorted.map((t, index) => {
+            const openKey = selectionKey(t);
+            return {
+              key: String(t.templateId ?? t.templateName ?? `tpl-${index}`),
+              cells: [
+                openKey ? (
+                  <button
+                    key="open"
+                    type="button"
+                    style={openButtonStyle}
+                    aria-label={`Open ${t.templateLabel || t.templateName || openKey}`}
+                    onClick={() => openTemplate(t)}
+                  >
+                    {t.templateLabel || "—"}
+                  </button>
+                ) : (
+                  t.templateLabel || "—"
+                ),
+                <span key="n" style={monoCell}>
+                  {t.templateName || "—"}
+                </span>,
+                <span key="i" style={monoCell}>
+                  {t.templateId != null ? String(t.templateId) : "—"}
+                </span>,
+                <span key="d" style={mutedCell}>
+                  {t.templateDescription || ""}
+                </span>,
+              ],
+            };
+          })}
+        />
+      )}
     </div>
   );
 }
