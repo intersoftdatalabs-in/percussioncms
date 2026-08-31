@@ -22,9 +22,14 @@ import {
 } from "../displayFormatGuid";
 import { PATHS } from "../paths";
 import {
+  unwrapObjectLockSummary,
+  type ContentTypeLockSummary,
+} from "./contentTypesApi";
+import {
   normalizeSlotAssociations,
   normalizeSlotDesignGaps,
   normalizeSlotStringMap,
+  type SlotUpdateBody,
 } from "./slotLists";
 import type {
   CommunityDetail,
@@ -38,6 +43,12 @@ import type {
   TemplateDetail,
   TemplateSummary,
 } from "./types";
+
+export {
+  buildSlotUpdateBody,
+  slotFinderWriteRequested,
+  type SlotUpdateBody,
+} from "./slotLists";
 
 export {
   asJacksonArray,
@@ -152,6 +163,18 @@ export function unwrapSlotDetail(payload: unknown): SlotDetail {
 }
 
 /**
+ * JAXB/Jackson map envelope used by slot GET/PUT for {@code finderArguments}.
+ * A flat JSON object often fails to bind on UNWRAP_ROOT_VALUE + JAXB Map.
+ */
+export function finderArgumentsForWire(
+  map: Record<string, string>,
+): { entry: { key: string; value: string }[] } {
+  return {
+    entry: Object.entries(map).map(([key, value]) => ({ key, value })),
+  };
+}
+
+/**
  * Wire JSON body for SlotsResource POST/PUT under {@link SLOT_DETAIL_ROOT}.
  */
 export function wrapSlotDetailForWire(
@@ -165,10 +188,19 @@ export function wrapSlotDetailForWire(
       | "associations"
       | "slotLayout"
       | "slotStyles"
+      | "finderName"
+      | "relationshipName"
+      | "finderArguments"
     >
   >,
-): Record<string, typeof body> {
-  return { [SLOT_DETAIL_ROOT]: body };
+): Record<string, unknown> {
+  const wire: Record<string, unknown> = { ...body };
+  if (body.finderArguments != null) {
+    wire.finderArguments = finderArgumentsForWire(
+      normalizeSlotStringMap(body.finderArguments),
+    );
+  }
+  return { [SLOT_DETAIL_ROOT]: wire };
 }
 
 /** Allowed {@code slotType} values on POST /services/slots (case-insensitive). */
@@ -307,11 +339,12 @@ export async function getSlotDetail(idOrName: string): Promise<SlotDetail> {
 
 /**
  * PUT /services/slots/{idOrName} — label, description, optional associations replace.
- * Root-wraps request body; unwraps response.
+ * Non-null finderName / relationshipName / finderArguments are Admin writes that
+ * require a held design lock (409 unlocked). Root-wraps request; unwraps response.
  */
 export async function updateSlotDetail(
   idOrName: string,
-  body: Partial<Pick<SlotDetail, "label" | "description" | "associations" | "slotLayout" | "slotStyles">>,
+  body: SlotUpdateBody,
 ): Promise<SlotDetail> {
   const key = encodeURIComponent(idOrName);
   const payload = await put<unknown>(
@@ -319,6 +352,19 @@ export async function updateSlotDetail(
     wrapSlotDetailForWire(body),
   );
   return unwrapSlotDetail(payload);
+}
+
+/** POST /services/slots/{idOrName}/lock — Admin self-only design-session lock. */
+export async function lockSlot(idOrName: string): Promise<ContentTypeLockSummary> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await post<unknown>(`${PATHS.SLOTS}/${key}/lock`);
+  return unwrapObjectLockSummary(payload);
+}
+
+/** POST /services/slots/{idOrName}/unlock — release a lock owned by this session. */
+export async function unlockSlot(idOrName: string): Promise<void> {
+  const key = encodeURIComponent(idOrName);
+  await post(`${PATHS.SLOTS}/${key}/unlock`);
 }
 
 /** Fields accepted on POST /services/slots (AS-01). Finder/relationship not written. */

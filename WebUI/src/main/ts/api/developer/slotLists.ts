@@ -16,7 +16,7 @@
  */
 
 import type { DesignGapWire } from "./designGaps";
-import type { SlotAssociationSummary } from "./types";
+import type { SlotAssociationSummary, SlotDetail } from "./types";
 
 /**
  * Coerce a Jackson list field to a real array.
@@ -146,4 +146,98 @@ export function normalizeSlotStringMap(raw: unknown): Record<string, string> {
     out[k] = String(v);
   }
   return out;
+}
+
+/** Fields accepted on PUT /services/slots/{idOrName}. Null/omitted finder fields are left unchanged. */
+export type SlotUpdateBody = Partial<
+  Pick<
+    SlotDetail,
+    | "label"
+    | "description"
+    | "associations"
+    | "slotLayout"
+    | "slotStyles"
+    | "finderName"
+    | "relationshipName"
+    | "finderArguments"
+  >
+>;
+
+function stringMapsEqual(
+  a: Record<string, string>,
+  b: Record<string, string>,
+): boolean {
+  const keys = Object.keys(a);
+  if (keys.length !== Object.keys(b).length) {
+    return false;
+  }
+  for (const k of keys) {
+    if (a[k] !== b[k]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function mapAssociationsForWire(
+  associations: SlotAssociationSummary[] | undefined,
+): SlotAssociationSummary[] | undefined {
+  if (!associations) {
+    return associations;
+  }
+  return associations.map((a) => ({
+    contentTypeGuid: a.contentTypeGuid?.stringValue
+      ? { stringValue: a.contentTypeGuid.stringValue }
+      : a.contentTypeGuid,
+    templateGuid: a.templateGuid?.stringValue
+      ? { stringValue: a.templateGuid.stringValue }
+      : a.templateGuid,
+  }));
+}
+
+/**
+ * Build a slot PUT body. Finder / relationship / arguments are included only when
+ * they differ from the loaded catalog values so a properties-only save does not
+ * wipe them. Empty {@code relationshipName} clears; empty {@code finderArguments}
+ * clears.
+ */
+export function buildSlotUpdateBody(opts: {
+  label: string;
+  description: string;
+  associations: SlotAssociationSummary[];
+  finderName: string;
+  relationshipName: string;
+  finderArguments: Record<string, string>;
+  initial: SlotDetail;
+}): SlotUpdateBody {
+  const body: SlotUpdateBody = {
+    label: opts.label.trim(),
+    description: opts.description.trim(),
+    associations: mapAssociationsForWire(opts.associations),
+  };
+  const initFinder = opts.initial.finderName || "";
+  const initRel = opts.initial.relationshipName || "";
+  const initArgs = normalizeSlotStringMap(opts.initial.finderArguments);
+  const nextFinder = opts.finderName.trim();
+  const nextRel = opts.relationshipName.trim();
+  const nextArgs = normalizeSlotStringMap(opts.finderArguments);
+  if (nextFinder !== initFinder) {
+    body.finderName = nextFinder;
+  }
+  if (nextRel !== initRel) {
+    body.relationshipName = nextRel;
+  }
+  if (!stringMapsEqual(nextArgs, initArgs)) {
+    body.finderArguments = nextArgs;
+  }
+  return body;
+}
+
+/** True when the PUT would write finder / relationship / arguments (needs a held lock). */
+export function slotFinderWriteRequested(body: SlotUpdateBody): boolean {
+  return (
+    body.finderName != null ||
+    body.relationshipName != null ||
+    body.finderArguments != null
+  );
 }
