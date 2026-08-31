@@ -16,7 +16,7 @@
  */
 package com.percussion.cx;
 
-import com.percussion.cx.error.IPSContentExplorerErrors;
+import com.intsof.percussioncms.auditlog.codes.ContentExplorerErrorCodes;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.util.PSXMLDomUtil;
 import java.lang.reflect.Constructor;
@@ -99,7 +99,7 @@ public class PSOption implements IPSClientObjects {
       } else setOptionValue(PSXMLDomUtil.getElementData(sourceNode));
     } catch (Exception e) {
       throw new PSContentExplorerException(
-          IPSContentExplorerErrors.MISC_PROCESSING_OPTIONS_ERROR, e.getLocalizedMessage());
+          ContentExplorerErrorCodes.MISC_PROCESSING_OPTIONS_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -131,7 +131,7 @@ public class PSOption implements IPSClientObjects {
       clientObj = (IPSClientObjects) obj;
     } catch (Exception e) {
       throw new PSContentExplorerException(
-          IPSContentExplorerErrors.PSCLASS_INSTANTIATION_ERROR,
+          ContentExplorerErrorCodes.PSCLASS_INSTANTIATION_ERROR,
           new String[] {getOptionId(), getOptionId()});
     }
     return clientObj;

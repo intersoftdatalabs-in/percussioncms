@@ -20,10 +20,11 @@
 #   #3940 leftover system/src/main com.percussion.security call sites
 #   #3971 leftover system/src/main com.percussion.error call sites
 #   #3969 leftover system/src/main design.catalog call sites
+#   #4013 leftover system/src/main com.percussion.cx call sites
 # Converted (no longer listed): extensions-main #3756/#3938 (allow-list)
 # shrink after #3793 re-listed already-typed production paths);
 # design.catalog leftover #3969; system/src/main com.percussion.mail leftover
-# #4017.
+# #4017; cx leftover #4013 (PSFont, PSOption, PSOptions, PSUserOptions).
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -47,10 +48,6 @@ system/Tools/RxFix/src/com/percussion/rxverify/modules/PSJdbcTableCheck.java
 
 system/src/main/java/com/percussion/content/PSContentConverter.java
 system/src/main/java/com/percussion/content/PSFileConverterExit.java
-system/src/main/java/com/percussion/cx/PSFont.java
-system/src/main/java/com/percussion/cx/PSOption.java
-system/src/main/java/com/percussion/cx/PSOptions.java
-system/src/main/java/com/percussion/cx/PSUserOptions.java
 system/src/main/java/com/percussion/debug/PSDebugLogHandler.java
 system/src/main/java/com/percussion/design/objectstore/PSContainerLocator.java
 system/src/main/java/com/percussion/design/objectstore/PSContentTypeHelper.java
