@@ -43,6 +43,8 @@ class CatalogRestJaxrsRegistrationTest {
     // peers already registered by #1714 — keep locked so they cannot regress
     "restKeywordsResource",
     "restLocalesResource",
+    // #3981 / #4028 CD-18 auto-translation set (literal path vs locales /{idOrLang})
+    "restAutoTranslationsResource",
     "restSlotsResource",
     "restSharedFieldsResource",
     "restSystemDefResource",
@@ -68,6 +70,10 @@ class CatalogRestJaxrsRegistrationTest {
   /** Explorer find/types #3855 — must precede jacksonProvider. */
   private static final String FIND_TYPES_JSON_READER =
       "allowedContentTypeMenusRequestJsonReader";
+
+  /** CD-18 auto-translation PUT wrap / bare array (#4028) — must precede jacksonProvider. */
+  private static final String AUTO_TRANSLATION_ROWS_JSON_READER =
+      "autoTranslationRowsJsonReader";
 
   @Test
   void restJaxRsServiceBeansIncludeDeveloperCatalogResources() throws Exception {
@@ -117,6 +123,8 @@ class CatalogRestJaxrsRegistrationTest {
     int aclReader = providerBlock.indexOf("bean=\"" + ACL_LIST_JSON_READER + "\"");
     int addFolderReader = providerBlock.indexOf("bean=\"" + ADD_FOLDER_JSON_READER + "\"");
     int findTypesReader = providerBlock.indexOf("bean=\"" + FIND_TYPES_JSON_READER + "\"");
+    int autoTranslationReader =
+        providerBlock.indexOf("bean=\"" + AUTO_TRANSLATION_ROWS_JSON_READER + "\"");
     int jackson = providerBlock.indexOf("bean=\"jacksonProvider\"");
     assertTrue(
         reader >= 0,
@@ -143,6 +151,11 @@ class CatalogRestJaxrsRegistrationTest {
         "rest-jax-rs providers must ref "
             + FIND_TYPES_JSON_READER
             + " (missing → Explorer find/types flat contentIds / GUID 400)");
+    assertTrue(
+        autoTranslationReader >= 0,
+        "rest-jax-rs providers must ref "
+            + AUTO_TRANSLATION_ROWS_JSON_READER
+            + " (missing → auto-translation PUT wrap/array empty or 400)");
     assertTrue(jackson >= 0, "rest-jax-rs providers must still ref jacksonProvider");
     assertTrue(
         reader < jackson,
@@ -159,6 +172,9 @@ class CatalogRestJaxrsRegistrationTest {
     assertTrue(
         findTypesReader < jackson,
         FIND_TYPES_JSON_READER + " must be listed before jacksonProvider");
+    assertTrue(
+        autoTranslationReader < jackson,
+        AUTO_TRANSLATION_ROWS_JSON_READER + " must be listed before jacksonProvider");
   }
 
   private static Path resolveRepoRoot() {

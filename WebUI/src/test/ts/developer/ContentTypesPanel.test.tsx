@@ -35,6 +35,9 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     deleteContentType: vi.fn(),
     lockContentType: vi.fn().mockResolvedValue({ locker: "Admin", remainingTime: 30 }),
     unlockContentType: vi.fn().mockResolvedValue(undefined),
+    includeContentTypeField: vi.fn(),
+    getContentTypeIcon: vi.fn().mockResolvedValue({ source: "none" }),
+    setContentTypeIcon: vi.fn().mockResolvedValue({ source: "none" }),
   };
 });
 
@@ -307,5 +310,21 @@ describe("ContentTypesPanel", () => {
     expect(screen.getByTestId("developer-ct-acl-stub").getAttribute("data-object-kind")).toBe(
       "content-type",
     );
+  });
+
+  it("shows import wizard on the catalog (#4034)", async () => {
+    listContentTypes.mockResolvedValue([
+      {
+        name: "percPage",
+        label: "Page",
+        guid: { stringValue: "0-2-301" },
+      },
+    ]);
+    render(<ContentTypesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-import")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-import-file")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-import-submit")).toBeTruthy();
   });
 });

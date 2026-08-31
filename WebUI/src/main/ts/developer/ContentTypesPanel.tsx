@@ -28,6 +28,7 @@ import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
 import { catalogColors, monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { ContentTypeCreatePanel } from "./ContentTypeCreatePanel";
 import { ContentTypeDetailPanel } from "./ContentTypeDetailPanel";
+import { ContentTypeImportWizard } from "./ContentTypeImportWizard";
 import { DeveloperSectionErrorBoundary } from "./DeveloperSectionErrorBoundary";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
@@ -157,23 +158,14 @@ export function ContentTypesPanel(): React.ReactElement {
     );
   }
 
-  if (error) {
-    return (
-      <CatalogStatus testId="developer-ct-error" error>
-        {error}
-      </CatalogStatus>
-    );
-  }
-
-  if (items == null) {
-    return <CatalogStatus testId="developer-ct-loading">{DEV_MSG.CT_LOADING}</CatalogStatus>;
-  }
-
-  const sorted = [...items].sort((a, b) =>
-    catalogSortKey(a).localeCompare(catalogSortKey(b), undefined, {
-      sensitivity: "base",
-    }),
-  );
+  const sorted =
+    items && items.length > 0
+      ? [...items].sort((a, b) =>
+          catalogSortKey(a).localeCompare(catalogSortKey(b), undefined, {
+            sensitivity: "base",
+          }),
+        )
+      : [];
 
   return (
     <div data-testid="developer-ct-panel">
@@ -204,7 +196,14 @@ export function ContentTypesPanel(): React.ReactElement {
           {DEV_MSG.CT_NEW}
         </button>
       </div>
-      {items.length === 0 ? (
+      <ContentTypeImportWizard onImported={() => void reload()} />
+      {error ? (
+        <CatalogStatus testId="developer-ct-error" error>
+          {error}
+        </CatalogStatus>
+      ) : items == null ? (
+        <CatalogStatus testId="developer-ct-loading">{DEV_MSG.CT_LOADING}</CatalogStatus>
+      ) : items.length === 0 ? (
         <CatalogStatus testId="developer-ct-empty">{DEV_MSG.CT_EMPTY}</CatalogStatus>
       ) : (
       <SimpleCatalogTable

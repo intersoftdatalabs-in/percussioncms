@@ -46,6 +46,9 @@ import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfoBase;
+import com.percussion.webservices.IPSWebserviceErrors;
+import com.percussion.webservices.PSErrorException;
+import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.system.IPSSystemDesignWs;
 import jakarta.ws.rs.WebApplicationException;
@@ -238,8 +241,51 @@ class ContentTypeAdaptorLocalFieldTest {
     body.setName("rx_note");
     IllegalStateException ex =
         assertThrows(IllegalStateException.class, () -> adaptor.addLocalField(null, "311", body));
-    assertTrue(ex.getMessage().contains("Failed to add local field"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("Local-field column DDL failed"), ex.getMessage());
     verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void addLocalField_saveFailureIncludesErrorDetails() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubDefinition();
+    stubLockedLoad(def);
+    PSErrorsException saveFailed = new PSErrorsException();
+    saveFailed.addError(
+        guid,
+        new PSErrorException(
+            IPSWebserviceErrors.SAVE_FAILED,
+            "PSSystemValidationException: field mapping invalid",
+            "stack"));
+    doThrow(saveFailed)
+        .when(designWs)
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    ContentTypeField body = new ContentTypeField();
+    body.setName("rx_note");
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.addLocalField(null, "311", body));
+    assertTrue(ex.getMessage().contains("field mapping invalid"), ex.getMessage());
+  }
+
+  @Test
+  void addLocalField_nonValidationSaveFailurePreservesDetails() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubDefinition();
+    stubLockedLoad(def);
+    PSErrorsException saveFailed = new PSErrorsException();
+    saveFailed.addError(
+        guid,
+        new PSErrorException(
+            IPSWebserviceErrors.SAVE_FAILED, "database constraint violated", "stack"));
+    doThrow(saveFailed)
+        .when(designWs)
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    ContentTypeField body = new ContentTypeField();
+    body.setName("rx_note");
+    IllegalStateException ex =
+        assertThrows(IllegalStateException.class, () -> adaptor.addLocalField(null, "311", body));
+    assertTrue(ex.getMessage().contains("database constraint violated"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("Failed to save new local field"), ex.getMessage());
   }
 
   @Test
@@ -319,6 +365,55 @@ class ContentTypeAdaptorLocalFieldTest {
     assertEquals("PERCPAGE", ContentTypeAdaptor.physicalTableName(aliasOnly));
     aliasOnly.setTable("CT_PAGE");
     assertEquals("CT_PAGE", ContentTypeAdaptor.physicalTableName(aliasOnly));
+  }
+
+  @Test
+  void deleteLocalField_saveFailureIncludesErrorDetails() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubDefinition();
+    ContentTypeField existing = new ContentTypeField();
+    existing.setName("rx_note");
+    ContentTypeAdaptor.addPersistableLocalField(def, existing);
+    stubLockedLoad(def);
+    PSErrorsException saveFailed = new PSErrorsException();
+    saveFailed.addError(
+        guid,
+        new PSErrorException(
+            IPSWebserviceErrors.SAVE_FAILED,
+            "PSSystemValidationException: field mapping invalid",
+            "stack"));
+    doThrow(saveFailed)
+        .when(designWs)
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.deleteLocalField(null, "311", "rx_note"));
+    assertTrue(ex.getMessage().contains("Could not delete local field"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("field mapping invalid"), ex.getMessage());
+  }
+
+  @Test
+  void deleteLocalField_nonValidationSaveFailureIncludesErrorDetails() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubDefinition();
+    ContentTypeField existing = new ContentTypeField();
+    existing.setName("rx_note");
+    ContentTypeAdaptor.addPersistableLocalField(def, existing);
+    stubLockedLoad(def);
+    PSErrorsException saveFailed = new PSErrorsException();
+    saveFailed.addError(
+        guid,
+        new PSErrorException(IPSWebserviceErrors.SAVE_FAILED, "java.io.IOException: disk", "stack"));
+    doThrow(saveFailed)
+        .when(designWs)
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+
+    IllegalStateException ex =
+        assertThrows(
+            IllegalStateException.class, () -> adaptor.deleteLocalField(null, "311", "rx_note"));
+    assertTrue(ex.getMessage().contains("Failed to save local field delete"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("java.io.IOException: disk"), ex.getMessage());
   }
 
   @Test

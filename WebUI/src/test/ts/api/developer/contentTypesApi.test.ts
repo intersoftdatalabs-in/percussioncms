@@ -8,6 +8,9 @@ import {
   contentTypeSelectionKey,
   createContentType,
   deleteContentType,
+  includeContentTypeField,
+  deleteLocalContentTypeField,
+  addLocalContentTypeField,
   getContentTypeAllowedTemplates,
   getFieldControlProperties,
   isContentTypeCreateReady,
@@ -20,17 +23,30 @@ import {
   normalizeNamedObjectRefs,
   replaceContentTypeAllowedTemplates,
   replaceFieldControlProperties,
+  getContentTypeSearchIndexing,
   setContentTypeAllowedWorkflows,
   setContentTypeEnabled,
+  setContentTypeSearchIndexing,
+  setContentTypeIcon,
+  getContentTypeIcon,
+  contentTypeIconPutBody,
+  unwrapContentTypeIcon,
+  wrapContentTypeIconForWire,
+  CONTENT_TYPE_ICON_NONE,
+  CONTENT_TYPE_ICON_SPECIFIED,
+  CONTENT_TYPE_ICON_FROM_FILE_FIELD,
   unwrapContentTypeDetail,
   unwrapContentTypeList,
+  unwrapContentTypeSearchIndexing,
   unwrapFieldControlProperties,
   unwrapNamedObjectRefList,
   unwrapObjectLockSummary,
   updateContentTypeDetail,
   wrapContentTypeCreateForWire,
   wrapContentTypeDetailForWire,
+  wrapContentTypeFieldForWire,
   wrapContentTypeEnabledForWire,
+  wrapContentTypeSearchIndexingForWire,
   wrapContentTypeWorkflowsForWire,
   wrapFieldControlPropertiesForWire,
   wrapNamedObjectRefListForWire,
@@ -463,6 +479,122 @@ describe("setContentTypeEnabled CD-13 dedicated PUT (#3781)", () => {
   });
 });
 
+describe("content type searchIndexing CD-10 (#4035)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("wraps searchIndexing under ContentTypeSearchIndexing", () => {
+    expect(wrapContentTypeSearchIndexingForWire(false)).toEqual({
+      ContentTypeSearchIndexing: { searchIndexing: false },
+    });
+    expect(wrapContentTypeSearchIndexingForWire(true)).toEqual({
+      ContentTypeSearchIndexing: { searchIndexing: true },
+    });
+    expect(
+      wrapContentTypeSearchIndexingForWire(false).ContentTypeSearchIndexing.searchIndexing,
+    ).not.toBeUndefined();
+  });
+
+  it("unwraps Jackson root, nested camelCase, and defaults missing flag to on", () => {
+    expect(
+      unwrapContentTypeSearchIndexing({
+        ContentTypeSearchIndexing: { searchIndexing: false },
+      }).searchIndexing,
+    ).toBe(false);
+    expect(
+      unwrapContentTypeSearchIndexing({
+        contentTypeSearchIndexing: { searchIndexing: true },
+      }).searchIndexing,
+    ).toBe(true);
+    expect(unwrapContentTypeSearchIndexing({ searchIndexing: false }).searchIndexing).toBe(
+      false,
+    );
+    expect(unwrapContentTypeSearchIndexing({}).searchIndexing).toBe(true);
+    expect(unwrapContentTypeSearchIndexing(null).searchIndexing).toBe(true);
+  });
+
+  it("GETs /contenttypes/{id}/searchIndexing", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeSearchIndexing: { searchIndexing: false },
+      }),
+    );
+    const got = await getContentTypeSearchIndexing("percPage");
+    expect(got.searchIndexing).toBe(false);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("GET");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/percPage/searchIndexing`,
+    );
+  });
+
+  it("PUTs /contenttypes/{id}/searchIndexing without lock or unlock", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeSearchIndexing: { searchIndexing: false },
+      }),
+    );
+
+    const saved = await setContentTypeSearchIndexing("percPage", false);
+    expect(saved.searchIndexing).toBe(false);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/percPage/searchIndexing`,
+    );
+    expect(JSON.parse(String(init.body))).toEqual({
+      ContentTypeSearchIndexing: { searchIndexing: false },
+    });
+  });
+
+  it("encodes idOrName on the searchIndexing path", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeSearchIndexing: { searchIndexing: true } }),
+    );
+    await setContentTypeSearchIndexing("perc Page", true);
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/${encodeURIComponent("perc Page")}/searchIndexing`,
+    );
+  });
+
+  it("does not persist when unlocked PUT is 409", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Design lock required" }, 409));
+    await expect(setContentTypeSearchIndexing("percPage", false)).rejects.toMatchObject({
+      status: 409,
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body))).toEqual({
+      ContentTypeSearchIndexing: { searchIndexing: false },
+    });
+  });
+
+  it("surfaces 400 when the server rejects a missing searchIndexing boolean", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ message: "searchIndexing is required" }, 400),
+    );
+    await expect(setContentTypeSearchIndexing("percPage", false)).rejects.toMatchObject({
+      status: 400,
+    });
+  });
+});
+
 describe("wrapContentTypeWorkflowsForWire", () => {
   it("wraps allowedWorkflows under ContentTypeWorkflows", () => {
     expect(
@@ -809,6 +941,46 @@ describe("wrapFieldControlPropertiesForWire / unwrapFieldControlProperties (CD-0
     });
   });
 
+  it("wraps choices when provided and unwraps extras", () => {
+    expect(
+      wrapFieldControlPropertiesForWire({
+        properties: [{ name: "height", value: "200" }],
+        choices: { type: "none" },
+      }),
+    ).toEqual({
+      ContentTypeFieldControlProperties: {
+        properties: [{ name: "height", value: "200" }],
+        choices: { type: "none" },
+      },
+    });
+    expect(
+      unwrapFieldControlProperties({
+        ContentTypeFieldControlProperties: {
+          properties: [],
+          choices: {
+            type: "local",
+            entries: [{ value: "open", label: "Open" }],
+            nullEntry: { value: "", label: "None", includeWhen: "always" },
+            defaultSelected: [{ type: "nullEntry" }],
+            filter: {
+              lookupHref: "../sys_lookup/filter.xml",
+              dependentFields: [{ fieldRef: "sys_communityid", dependencyType: "optional" }],
+            },
+          },
+        },
+      }).choices,
+    ).toEqual({
+      type: "local",
+      entries: [{ value: "open", label: "Open" }],
+      nullEntry: { value: "", label: "None", includeWhen: "always" },
+      defaultSelected: [{ type: "nullEntry" }],
+      filter: {
+        lookupHref: "../sys_lookup/filter.xml",
+        dependentFields: [{ fieldRef: "sys_communityid", dependencyType: "optional" }],
+      },
+    });
+  });
+
   it("unwraps a flat body and JAXB property singleton", () => {
     expect(
       unwrapFieldControlProperties({
@@ -908,6 +1080,36 @@ describe("field controlProperties GET/PUT (CD-07)", () => {
     expect(listed.properties).toEqual([]);
     const body = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body));
     expect(body).toEqual({ ContentTypeFieldControlProperties: { properties: [] } });
+  });
+
+  it("PUTs choices when provided and omits them otherwise (#4046)", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeFieldControlProperties: {
+          properties: [],
+          choices: { type: "local", entries: [{ value: "open", label: "Open" }] },
+        },
+      }),
+    );
+    await replaceFieldControlProperties("percPage", "sys_title", [], {
+      type: "local",
+      entries: [{ value: "open", label: "Open" }],
+    });
+    const withChoices = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body));
+    expect(withChoices).toEqual({
+      ContentTypeFieldControlProperties: {
+        properties: [],
+        choices: { type: "local", entries: [{ value: "open", label: "Open" }] },
+      },
+    });
+
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeFieldControlProperties: { properties: [] } }),
+    );
+    await replaceFieldControlProperties("percPage", "sys_title", []);
+    const omitted = JSON.parse(String((fetchMock.mock.calls[1][1] as RequestInit).body));
+    expect(omitted).toEqual({ ContentTypeFieldControlProperties: { properties: [] } });
+    expect(JSON.stringify(omitted)).not.toContain("choices");
   });
 });
 
@@ -1041,5 +1243,295 @@ describe("createContentType / deleteContentType CD-01", () => {
   it("surfaces 403 non-Admin delete", async () => {
     fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Forbidden" }, 403));
     await expect(deleteContentType("qaType")).rejects.toMatchObject({ status: 403 });
+  });
+});
+
+describe("includeContentTypeField CD-04 POST .../fields/include", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("wraps name and origin under ContentTypeField", () => {
+    expect(wrapContentTypeFieldForWire({ name: "sys_title", fieldType: "system" })).toEqual({
+      ContentTypeField: { name: "sys_title", fieldType: "system" },
+    });
+  });
+
+  it("POSTs include without lock or unlock and keeps origin", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeDetail: {
+          name: "percPage",
+          fields: [{ name: "sys_suffix", fieldType: "system" }],
+        },
+      }),
+    );
+    const saved = await includeContentTypeField("percPage", {
+      name: "sys_suffix",
+      fieldType: "system",
+    });
+    expect(saved.fields?.[0]?.name).toBe("sys_suffix");
+    expect(saved.fields?.[0]?.fieldType).toBe("system");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(init.method).toBe("POST");
+    expect(String(url)).toContain(`${PATHS.CONTENT_TYPES}/percPage/fields/include`);
+    expect(String(url)).not.toMatch(/\/lock$/);
+    expect(JSON.parse(String(init.body))).toEqual({
+      ContentTypeField: { name: "sys_suffix", fieldType: "system" },
+    });
+  });
+
+  it("encodes idOrName on the include path", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeDetail: { name: "perc Page", fields: [] } }),
+    );
+    await includeContentTypeField("perc Page", { name: "displaytitle", fieldType: "shared" });
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/${encodeURIComponent("perc Page")}/fields/include`,
+    );
+  });
+});
+
+describe("addLocalContentTypeField / deleteLocalContentTypeField CD-03", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("wraps the field under ContentTypeField with origin local", () => {
+    expect(
+      wrapContentTypeFieldForWire({
+        name: "rx_note",
+        label: "Note",
+        dataType: "text",
+        control: "sys_EditBox",
+      }),
+    ).toEqual({
+      ContentTypeField: {
+        name: "rx_note",
+        label: "Note",
+        dataType: "text",
+        control: "sys_EditBox",
+        fieldType: "local",
+      },
+    });
+  });
+
+  it("POSTs /contenttypes/{id}/fields without lock or unlock", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeDetail: {
+          name: "percPage",
+          fields: [{ name: "rx_note", fieldType: "local", dataType: "text" }],
+        },
+      }),
+    );
+    const saved = await addLocalContentTypeField("percPage", {
+      name: "rx_note",
+      label: "Note",
+      dataType: "text",
+      control: "sys_EditBox",
+    });
+    expect(saved.fields?.[0]?.name).toBe("rx_note");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(init.method).toBe("POST");
+    expect(String(url)).toContain(`${PATHS.CONTENT_TYPES}/percPage/fields`);
+    expect(String(url)).not.toContain("/include");
+    expect(JSON.parse(String(init.body))).toEqual({
+      ContentTypeField: {
+        name: "rx_note",
+        label: "Note",
+        dataType: "text",
+        control: "sys_EditBox",
+        fieldType: "local",
+      },
+    });
+  });
+
+  it("encodes idOrName on the add-field path", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeDetail: { name: "perc Page", fields: [] } }),
+    );
+    await addLocalContentTypeField("perc Page", { name: "rx_note" });
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/${encodeURIComponent("perc Page")}/fields`,
+    );
+  });
+
+  it("DELETEs /contenttypes/{id}/fields/{fieldName}", async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
+    await deleteLocalContentTypeField("percPage", "rx_note");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(init.method).toBe("DELETE");
+    expect(String(url)).toContain(`${PATHS.CONTENT_TYPES}/percPage/fields/rx_note`);
+  });
+
+  it("encodes idOrName and fieldName on the delete path", async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
+    await deleteLocalContentTypeField("perc Page", "rx note");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/${encodeURIComponent("perc Page")}/fields/${encodeURIComponent("rx note")}`,
+    );
+  });
+});
+
+describe("content type icon strategy CD-11 (#4047)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("none omits value on the ContentTypeIcon wrap", () => {
+    expect(wrapContentTypeIconForWire(CONTENT_TYPE_ICON_NONE, "ignored.gif")).toEqual({
+      ContentTypeIcon: { source: CONTENT_TYPE_ICON_NONE },
+    });
+    expect(contentTypeIconPutBody("NONE", "x")).toEqual({ source: CONTENT_TYPE_ICON_NONE });
+  });
+
+  it("specified and fromFileField wrap non-blank values", () => {
+    expect(
+      wrapContentTypeIconForWire(CONTENT_TYPE_ICON_SPECIFIED, " rx_resources/images/page.gif "),
+    ).toEqual({
+      ContentTypeIcon: {
+        source: CONTENT_TYPE_ICON_SPECIFIED,
+        value: "rx_resources/images/page.gif",
+      },
+    });
+    expect(
+      wrapContentTypeIconForWire(CONTENT_TYPE_ICON_FROM_FILE_FIELD, "item_file_attachment"),
+    ).toEqual({
+      ContentTypeIcon: {
+        source: CONTENT_TYPE_ICON_FROM_FILE_FIELD,
+        value: "item_file_attachment",
+      },
+    });
+  });
+
+  it("blank non-none is 400 before fetch", () => {
+    try {
+      wrapContentTypeIconForWire(CONTENT_TYPE_ICON_SPECIFIED, "  ");
+      throw new Error("expected 400");
+    } catch (err) {
+      expect(err).toMatchObject({
+        status: 400,
+        body: "value is required when source is not none",
+      });
+    }
+    try {
+      contentTypeIconPutBody(CONTENT_TYPE_ICON_FROM_FILE_FIELD, "");
+      throw new Error("expected 400");
+    } catch (err) {
+      expect(err).toMatchObject({
+        status: 400,
+        body: "value is required when source is not none",
+      });
+    }
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("unknown source is 400 before fetch", () => {
+    try {
+      contentTypeIconPutBody("binaryUpload", "x.png");
+      throw new Error("expected 400");
+    } catch (err) {
+      expect(err).toMatchObject({
+        status: 400,
+        body: "source must be none, specified, or fromFileField",
+      });
+    }
+  });
+
+  it("unwraps WRAP_ROOT and clears value for none", () => {
+    expect(
+      unwrapContentTypeIcon({
+        ContentTypeIcon: { source: "specified", value: "page.gif" },
+      }),
+    ).toEqual({ source: CONTENT_TYPE_ICON_SPECIFIED, value: "page.gif" });
+    expect(unwrapContentTypeIcon({ source: "none", value: "stale.gif" })).toEqual({
+      source: CONTENT_TYPE_ICON_NONE,
+    });
+    expect(unwrapContentTypeIcon(null)).toEqual({ source: CONTENT_TYPE_ICON_NONE });
+  });
+
+  it("GETs /contenttypes/{id}/icon without lock", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeIcon: { source: "specified", value: "page.gif" },
+      }),
+    );
+    const icon = await getContentTypeIcon("percPage");
+    expect(icon).toEqual({ source: CONTENT_TYPE_ICON_SPECIFIED, value: "page.gif" });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("GET");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.CONTENT_TYPES}/percPage/icon`);
+  });
+
+  it("PUTs /contenttypes/{id}/icon without lock or unlock; none clears value", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeIcon: { source: "none" } }),
+    );
+    const saved = await setContentTypeIcon("percPage", CONTENT_TYPE_ICON_NONE, "stale.gif");
+    expect(saved).toEqual({ source: CONTENT_TYPE_ICON_NONE });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.CONTENT_TYPES}/percPage/icon`);
+    expect(JSON.parse(String(init.body))).toEqual({
+      ContentTypeIcon: { source: CONTENT_TYPE_ICON_NONE },
+    });
+  });
+
+  it("encodes idOrName on the icon path", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeIcon: { source: "none" } }),
+    );
+    await setContentTypeIcon("perc Page", CONTENT_TYPE_ICON_NONE);
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/${encodeURIComponent("perc Page")}/icon`,
+    );
   });
 });

@@ -170,12 +170,17 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     unlockContentType: vi.fn().mockResolvedValue(undefined),
     createContentType: vi.fn(),
     deleteContentType: vi.fn(),
+    getContentTypeIcon: vi.fn().mockResolvedValue({ source: "none" }),
+    setContentTypeIcon: vi.fn().mockImplementation(async (_id, source: string, value?: string) =>
+      source === "none" ? { source: "none" } : { source, value },
+    ),
     getContentTypeAllowedTemplates: vi.fn().mockResolvedValue([{ name: "perc.page", label: "Page" }]),
     replaceContentTypeAllowedTemplates: vi.fn().mockImplementation(async (_id, templates) => templates),
     getFieldControlProperties: vi.fn().mockResolvedValue({ properties: [] }),
     replaceFieldControlProperties: vi.fn().mockImplementation(async (_id, _field, properties) => ({
       properties,
     })),
+    includeContentTypeField: vi.fn(),
   };
 });
 
@@ -451,35 +456,63 @@ vi.mock("../../../main/ts/api/developer/localesApi", async (importOriginal) => {
   };
 });
 
-vi.mock("../../../main/ts/api/developer/sharedFieldsApi", () => ({
-  listSharedFieldGroups: vi.fn().mockResolvedValue([
-    { name: "shared", filename: "shared.xml", fieldCount: 2 },
-  ]),
-  getSharedFieldGroupDetail: vi.fn().mockResolvedValue({
-    name: "shared",
-    filename: "shared.xml",
-    fields: [],
-    designGaps: [],
-  }),
-}));
+vi.mock("../../../main/ts/api/developer/autoTranslationsApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/autoTranslationsApi")
+  >();
+  return {
+    ...actual,
+    listAutoTranslations: vi.fn().mockResolvedValue([]),
+    saveAutoTranslations: vi.fn().mockResolvedValue([]),
+  };
+});
 
-vi.mock("../../../main/ts/api/developer/systemDefApi", () => ({
-  getSystemDef: vi.fn().mockResolvedValue({
-    fieldCount: 1,
-    cacheTimeoutMinutes: 10,
-    fields: [
-      {
-        name: "sys_title",
-        dataType: "text",
-        required: true,
-        searchable: true,
-        readOnly: false,
-        occurrence: "required",
-      },
-    ],
-    designGaps: [],
-  }),
-}));
+vi.mock("../../../main/ts/api/developer/sharedFieldsApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/sharedFieldsApi")
+  >();
+  return {
+    ...actual,
+    listSharedFieldGroups: vi.fn().mockResolvedValue([
+      { name: "shared", filename: "shared.xml", fieldCount: 2 },
+    ]),
+    getSharedFieldGroupDetail: vi.fn().mockResolvedValue({
+      name: "shared",
+      filename: "shared.xml",
+      fields: [],
+      designGaps: [],
+    }),
+    createSharedFieldGroup: vi.fn(),
+    updateSharedFieldGroup: vi.fn(),
+    deleteSharedFieldGroup: vi.fn(),
+  };
+});
+
+vi.mock("../../../main/ts/api/developer/systemDefApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/systemDefApi")>();
+  return {
+    ...actual,
+    getSystemDef: vi.fn().mockResolvedValue({
+      fieldCount: 1,
+      cacheTimeoutMinutes: 10,
+      fields: [
+        {
+          name: "sys_title",
+          dataType: "text",
+          required: true,
+          searchable: true,
+          readOnly: false,
+          occurrence: "required",
+        },
+      ],
+      designGaps: [],
+    }),
+    updateSystemDef: vi.fn(),
+    addSystemDefField: vi.fn(),
+    deleteSystemDefField: vi.fn(),
+  };
+});
 
 vi.mock("../../../main/ts/api/developer/itemFiltersApi", () => ({
   listItemFilters: vi.fn().mockResolvedValue([

@@ -77,14 +77,66 @@ export interface ContentTypeControlProperty {
   value?: string;
 }
 
-/** Choice catalog on GET .../controlProperties (read-only in this chrome). */
+/** Local choice entry (CD-07 {@code choices.entries}). */
+export interface ContentTypeChoiceEntry {
+  value?: string;
+  label?: string;
+}
+
+/** Table-backed choice source (CD-07 {@code tableinfo}). */
+export interface ContentTypeChoiceTable {
+  dataSource?: string;
+  tableName?: string;
+  labelColumn?: string;
+  valueColumn?: string;
+}
+
+/** Dependent field on a choice filter. */
+export interface ContentTypeChoiceFilterField {
+  fieldRef?: string;
+  dependencyType?: string;
+}
+
+/** Choice filter extras (CD-07 {@code choices.filter}). */
+export interface ContentTypeChoiceFilter {
+  dependentFields?: ContentTypeChoiceFilterField[];
+  lookupHref?: string;
+  lookupName?: string;
+}
+
+/** Null entry added to a field choice catalog. */
+export interface ContentTypeChoiceNullEntry {
+  value?: string;
+  label?: string;
+  includeWhen?: string;
+  sortOrder?: string;
+}
+
+/** Default-selected catalog entry. */
+export interface ContentTypeChoiceDefaultSelected {
+  type?: string;
+  sequence?: number;
+  text?: string;
+}
+
+/**
+ * Choice catalog on GET/PUT {@code .../controlProperties} (CD-07).
+ *
+ * <p>{@code type} is {@code global}, {@code local}, {@code lookup},
+ * {@code internalLookup}, or {@code tableinfo}. PUT {@code type: none}
+ * clears the catalog. Omitted {@code choices} on PUT leaves it unchanged.
+ */
 export interface ContentTypeChoiceCatalog {
   type?: string;
-  globalId?: string;
+  globalId?: number;
   sortOrder?: string;
   lookupHref?: string;
-  entries?: Array<{ value?: string; label?: string }>;
-  table?: { tableName?: string; labelColumn?: string; valueColumn?: string };
+  lookupName?: string;
+  entries?: ContentTypeChoiceEntry[];
+  table?: ContentTypeChoiceTable;
+  filter?: ContentTypeChoiceFilter;
+  nullEntry?: ContentTypeChoiceNullEntry;
+  defaultSelected?: ContentTypeChoiceDefaultSelected[];
 }
 
 /**
@@ -97,6 +149,18 @@ export interface ContentTypeFieldControlProperties {
   properties?: ContentTypeControlProperty[];
   choices?: ContentTypeChoiceCatalog | null;
   designGaps?: DesignGapWire[];
+}
+
+/**
+ * Content type icon strategy (CD-11 GET/PUT {@code .../icon}).
+ *
+ * <p>{@code source} is {@code none}, {@code specified} (file path/name), or
+ * {@code fromFileField} (file field name). {@code none} has no value. This
+ * envelope does not include icon binaries.
+ */
+export interface ContentTypeIcon {
+  source?: string;
+  value?: string | null;
 }
 
 /** Workflow / template association row. */
@@ -126,6 +190,18 @@ export interface ContentTypeDetail {
   allowedTemplates?: NamedObjectRef[];
   /** Structured {code,message} on CT detail (REST-GAPS-01); wire may still be legacy string. */
   designGaps?: DesignGapWire[];
+}
+
+/**
+ * Jackson {@code ContentTypeSearchIndexing} body for CD-10 GET/PUT
+ * {@code .../searchIndexing}. Distinct from per-field {@code searchable}.
+ */
+export interface ContentTypeSearchIndexing {
+  /**
+   * When true, items of this content type may be indexed for search.
+   * Default is on (Workbench). Not the per-field searchable flag.
+   */
+  searchIndexing?: boolean;
 }
 
 /** Parameter on an item-level content type extension call (CD-09). */
@@ -385,6 +461,20 @@ export interface LocaleDetail extends LocaleSummary {
   designGaps?: string[];
 }
 
+/**
+ * One auto-translation setting (locale × content type) from
+ * GET/PUT /services/locales/auto-translations.
+ */
+export interface AutoTranslationRow {
+  locale?: string;
+  contentTypeId?: number;
+  contentTypeName?: string;
+  workflowId?: number;
+  workflowName?: string;
+  communityId?: number;
+  communityName?: string;
+}
+
 /** Shared field group summary from GET /services/sharedfields. */
 export interface SharedFieldGroupSummary {
   name?: string;
@@ -402,7 +492,7 @@ export interface SharedFieldSummary {
   occurrence?: string;
 }
 
-/** Read-only shared field group detail. */
+/** Shared field group detail (GET catalog; POST/PUT group write). */
 export interface SharedFieldGroupDetail {
   name?: string;
   filename?: string;
@@ -410,7 +500,7 @@ export interface SharedFieldGroupDetail {
   designGaps?: string[];
 }
 
-/** Field row from GET /services/systemdef. */
+/** Field row from GET /services/systemdef (PUT patches searchable / occurrence). */
 export interface SystemDefFieldSummary {
   name?: string;
   dataType?: string;
@@ -420,7 +510,7 @@ export interface SystemDefFieldSummary {
   occurrence?: string;
 }
 
-/** Read-only content-editor system definition. */
+/** Content-editor system definition catalog (GET/PUT /services/systemdef). */
 export interface SystemDefDetail {
   fieldCount?: number;
   cacheTimeoutMinutes?: number;
