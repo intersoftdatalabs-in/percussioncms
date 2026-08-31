@@ -61,8 +61,11 @@ column when it is missing; DELETE drops it when present and still succeeds if
 the column was never created (other drop failures do not save the catalog).
 Field names cannot be SQL reserved words (`SELECT`, `USER`, `TABLE`, `ORDER`).
 Duplicate field names are **409**.
-System-mandatory and system-internal fields cannot be deleted (**400**). An SPA
-editor is not in this chrome. Admin `GET /services/contenttypes/{idOrName}/export`
+System-mandatory and system-internal fields cannot be deleted (**400**).
+**Developer → System definition** exposes save / add / delete for those field
+properties (request lock released on save). Control, stylesheet, and flow
+editors are not in that chrome. See
+[Developer System Def](id:admin-developer-system-def). Admin `GET /services/contenttypes/{idOrName}/export`
 downloads Workbench-equivalent design XML (CD-14; no lock steal). REST import of
 that XML is `POST /services/contenttypes/import` (above). An SPA export/import
 wizard is not in this chrome. See

@@ -109,6 +109,7 @@ Non-administrators never see the Admin top-nav item or these configuration surfa
 - [Developer Content Types](id:admin-developer-content-types)
 - [Developer Locales](id:admin-developer-locales)
 - [Developer Shared Fields](id:admin-developer-shared-fields)
+- [Developer System Def](id:admin-developer-system-def)
 - [Object ACL & default template](id:admin-object-acl)
 - [Publishing](id:admin-publishing)
 - [Server operations](id:admin-server-ops)

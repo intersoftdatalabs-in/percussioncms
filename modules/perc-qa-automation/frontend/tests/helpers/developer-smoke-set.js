@@ -131,6 +131,13 @@ const DEVELOPER_SMOKE_SET = [
     status: "green",
   },
   {
+    id: "system-def-editor",
+    file: "developer-system-def-editor.spec.js",
+    title: "Admin sees system-def save/add/delete chrome",
+    status: "green",
+    notes: "CD-16 SPA system-def field write (#4030 / parent #1690)",
+  },
+  {
     id: "template-source-viewer",
     file: "developer-template-source-viewer.spec.js",
     title: "template detail source shows line numbers and copy control",

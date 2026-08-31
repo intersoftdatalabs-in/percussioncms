@@ -25,6 +25,8 @@ Operators using **Developer → Locales** create/save/delete chrome: [Developer 
 
 Operators using **Developer → Shared Fields** create/save/delete chrome: [Developer Shared Fields](id:admin-developer-shared-fields).
 
+Operators using **Developer → System definition** field save/add/delete chrome: [Developer System Def](id:admin-developer-system-def).
+
 ## Architecture snapshot
 
 ```text
