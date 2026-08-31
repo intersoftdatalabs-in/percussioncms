@@ -177,6 +177,9 @@ export function ContentTypeDetailPanel({
   /** Type-level search indexing (CD-10); default on. Distinct from per-field searchable. */
   const [searchIndexing, setSearchIndexing] = useState(true);
   const [savedSearchIndexing, setSavedSearchIndexing] = useState(true);
+  const [searchIndexingLoadError, setSearchIndexingLoadError] = useState<string | null>(
+    null,
+  );
   const [fieldDrafts, setFieldDrafts] = useState<Record<string, FieldDraft>>({});
   const [workflows, setWorkflows] = useState<NamedObjectRef[]>([]);
   const [templates, setTemplates] = useState<NamedObjectRef[]>([]);
@@ -229,17 +232,20 @@ export function ContentTypeDetailPanel({
     heldLockRef.current = false;
     setSearchIndexing(true);
     setSavedSearchIndexing(true);
+    setSearchIndexingLoadError(null);
     getContentTypeSearchIndexing(idOrName)
       .then((si) => {
         if (cancelled) return;
         const on = si.searchIndexing !== false;
         setSearchIndexing(on);
         setSavedSearchIndexing(on);
+        setSearchIndexingLoadError(null);
       })
-      .catch(() => {
+      .catch((err: unknown) => {
         if (cancelled) return;
         setSearchIndexing(true);
         setSavedSearchIndexing(true);
+        setSearchIndexingLoadError(panelErrMsg(err, DEV_MSG.CT_SI_LOAD_ERROR));
       });
     setItemExits(emptyContentTypeItemExits());
     setSavedItemExits(emptyContentTypeItemExits());
@@ -621,6 +627,8 @@ export function ContentTypeDetailPanel({
             saved = normalizeDetailLists(detail);
           }
         } catch (siErr) {
+          setSearchIndexing(savedSearchIndexing);
+          setSavedSearchIndexing(savedSearchIndexing);
           if (saved != null) {
             setDetail(saved);
             setEnabled(saved.enabled !== false);
@@ -951,6 +959,15 @@ export function ContentTypeDetailPanel({
           />
           {DEV_MSG.CT_FORM_SEARCH_INDEXING}
         </label>
+        {searchIndexingLoadError ? (
+          <span
+            data-testid="developer-ct-search-indexing-load-error"
+            role="status"
+            style={{ color: catalogColors.error, fontSize: "0.85rem" }}
+          >
+            {searchIndexingLoadError}
+          </span>
+        ) : null}
       </div>
 
       <div style={{ fontFamily: "monospace", color: catalogColors.muted, marginBottom: "12px" }}>

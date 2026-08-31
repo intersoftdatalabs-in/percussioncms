@@ -111,7 +111,9 @@ null-entry / default-selected writes are not in this chrome.
    held lock, and is **not** the per-field **Searchable** column on the fields
    table. Without a lock both checkboxes stay disabled and a toggle cannot
    persist. An unlocked or lost-lock save is **409** and the panel shows the
-   error.
+   error. If `GET .../searchIndexing` fails (403 / 404 / 5xx), the checkbox
+   stays at the Workbench default (**on**) and the panel shows a non-blocking
+   load notice. A failed search-indexing save restores the last loaded value.
 7. To change **Allowed templates**, follow **Allowed templates (after lock)**
    below. Save does **not** unlock.
 8. Click **Unlock** when you are done. Status returns to **Not locked** and the
