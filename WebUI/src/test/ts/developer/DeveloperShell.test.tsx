@@ -449,17 +449,26 @@ vi.mock("../../../main/ts/api/developer/localesApi", async (importOriginal) => {
   };
 });
 
-vi.mock("../../../main/ts/api/developer/sharedFieldsApi", () => ({
-  listSharedFieldGroups: vi.fn().mockResolvedValue([
-    { name: "shared", filename: "shared.xml", fieldCount: 2 },
-  ]),
-  getSharedFieldGroupDetail: vi.fn().mockResolvedValue({
-    name: "shared",
-    filename: "shared.xml",
-    fields: [],
-    designGaps: [],
-  }),
-}));
+vi.mock("../../../main/ts/api/developer/sharedFieldsApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/sharedFieldsApi")
+  >();
+  return {
+    ...actual,
+    listSharedFieldGroups: vi.fn().mockResolvedValue([
+      { name: "shared", filename: "shared.xml", fieldCount: 2 },
+    ]),
+    getSharedFieldGroupDetail: vi.fn().mockResolvedValue({
+      name: "shared",
+      filename: "shared.xml",
+      fields: [],
+      designGaps: [],
+    }),
+    createSharedFieldGroup: vi.fn(),
+    updateSharedFieldGroup: vi.fn(),
+    deleteSharedFieldGroup: vi.fn(),
+  };
+});
 
 vi.mock("../../../main/ts/api/developer/systemDefApi", () => ({
   getSystemDef: vi.fn().mockResolvedValue({

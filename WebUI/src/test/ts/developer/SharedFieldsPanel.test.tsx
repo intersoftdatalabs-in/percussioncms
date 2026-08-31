@@ -13,10 +13,19 @@ import {
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { SharedFieldsPanel } from "../../../main/ts/developer/SharedFieldsPanel";
 
-vi.mock("../../../main/ts/api/developer/sharedFieldsApi", () => ({
-  listSharedFieldGroups: vi.fn(),
-  getSharedFieldGroupDetail: vi.fn(),
-}));
+vi.mock("../../../main/ts/api/developer/sharedFieldsApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/sharedFieldsApi")
+  >();
+  return {
+    ...actual,
+    listSharedFieldGroups: vi.fn(),
+    getSharedFieldGroupDetail: vi.fn(),
+    createSharedFieldGroup: vi.fn(),
+    updateSharedFieldGroup: vi.fn(),
+    deleteSharedFieldGroup: vi.fn(),
+  };
+});
 
 const listMock = vi.mocked(listSharedFieldGroups);
 const detailMock = vi.mocked(getSharedFieldGroupDetail);
@@ -44,9 +53,10 @@ describe("SharedFieldsPanel", () => {
     });
     expect(screen.getByText("shared")).toBeTruthy();
     expect(screen.getByText("shared.xml")).toBeTruthy();
+    expect(screen.getByTestId("developer-sf-new")).toBeTruthy();
   });
 
-  it("opens read-only group detail from catalog row", async () => {
+  it("opens group detail from catalog row", async () => {
     listMock.mockResolvedValue([
       { name: "shared", filename: "shared.xml", fieldCount: 1 },
     ]);
@@ -63,7 +73,7 @@ describe("SharedFieldsPanel", () => {
           occurrence: "required",
         },
       ],
-      designGaps: ["write not supported"],
+      designGaps: ["control properties not in this chrome"],
     });
 
     render(<SharedFieldsPanel />);
@@ -78,11 +88,25 @@ describe("SharedFieldsPanel", () => {
     expect(screen.getByTestId("developer-sf-detail-title").textContent).toBe("shared");
     expect(screen.getByText("rx_title")).toBeTruthy();
     expect(screen.getByTestId("developer-sf-gaps")).toBeTruthy();
+    expect(screen.getByTestId("developer-sf-save")).toBeTruthy();
+    expect(screen.getByTestId("developer-sf-delete")).toBeTruthy();
 
     fireEvent.click(screen.getByTestId("developer-sf-back"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-sf-table")).toBeTruthy();
     });
+  });
+
+  it("opens create chrome from New shared field group", async () => {
+    listMock.mockResolvedValue([]);
+    render(<SharedFieldsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-empty")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-sf-new"));
+    expect(screen.getByTestId("developer-sf-detail")).toBeTruthy();
+    expect(screen.getByTestId("developer-sf-save")).toBeDisabled();
+    expect(detailMock).not.toHaveBeenCalled();
   });
 
   it("shows empty state", async () => {
@@ -91,6 +115,7 @@ describe("SharedFieldsPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-sf-empty")).toBeTruthy();
     });
+    expect(screen.getByTestId("developer-sf-new")).toBeTruthy();
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {

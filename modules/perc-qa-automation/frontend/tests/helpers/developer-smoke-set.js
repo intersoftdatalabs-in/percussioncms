@@ -112,6 +112,13 @@ const DEVELOPER_SMOKE_SET = [
     status: "green",
   },
   {
+    id: "shared-fields-editor",
+    file: "developer-shared-fields-editor.spec.js",
+    title: "Admin can create, save, and delete a shared field group",
+    status: "green",
+    notes: "CD-15 SPA shared-field group write (#4029 / parent #1690)",
+  },
+  {
     id: "catalog-system-def",
     file: "developer-catalog-smoke.spec.js",
     title: "system-def: catalog loads without API error",
