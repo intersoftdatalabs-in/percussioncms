@@ -28,8 +28,12 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -45,6 +49,84 @@ final class JdbcSystemDefColumnSchema implements SystemDefColumnSchema {
   private static final Logger log = LogManager.getLogger(JdbcSystemDefColumnSchema.class);
 
   private static final int DEFAULT_TEXT_SIZE = 50;
+
+  /**
+   * Unquoted DDL reserved words (ANSI subset plus H2 {@code VALUE}/{@code DAY}). Field names are
+   * validated before ALTER TABLE so a reserved identifier fails fast instead of at the backend.
+   */
+  private static final Set<String> SQL_RESERVED =
+      Set.of(
+          "ADD",
+          "ALL",
+          "ALTER",
+          "AND",
+          "AS",
+          "ASC",
+          "BETWEEN",
+          "BY",
+          "CASCADE",
+          "CASE",
+          "CHECK",
+          "COLUMN",
+          "CONSTRAINT",
+          "CREATE",
+          "CROSS",
+          "DATE",
+          "DAY",
+          "DEFAULT",
+          "DELETE",
+          "DESC",
+          "DISTINCT",
+          "DROP",
+          "ELSE",
+          "END",
+          "EXISTS",
+          "FALSE",
+          "FETCH",
+          "FOR",
+          "FOREIGN",
+          "FROM",
+          "FULL",
+          "GRANT",
+          "GROUP",
+          "HAVING",
+          "IN",
+          "INDEX",
+          "INNER",
+          "INSERT",
+          "INTO",
+          "IS",
+          "JOIN",
+          "KEY",
+          "LEFT",
+          "LIKE",
+          "LIMIT",
+          "NOT",
+          "NULL",
+          "ON",
+          "OR",
+          "ORDER",
+          "OUTER",
+          "PRIMARY",
+          "REFERENCES",
+          "RESTRICT",
+          "RIGHT",
+          "SELECT",
+          "SET",
+          "TABLE",
+          "THEN",
+          "TRUE",
+          "UNION",
+          "UNIQUE",
+          "UPDATE",
+          "USER",
+          "USING",
+          "VALUE",
+          "VALUES",
+          "VIEW",
+          "WHEN",
+          "WHERE",
+          "WITH");
 
   private final Supplier<Connection> connectionFactory;
 
@@ -100,29 +182,73 @@ final class JdbcSystemDefColumnSchema implements SystemDefColumnSchema {
   static boolean columnExists(Connection conn, String table, String column) throws SQLException {
     DatabaseMetaData md = conn.getMetaData();
     String catalog = conn.getCatalog();
-    String schema = safeSchema(conn);
-    if (findColumn(md, catalog, schema, table, column)) {
-      return true;
-    }
-    String upperTable = table.toUpperCase(Locale.ROOT);
-    String upperColumn = column.toUpperCase(Locale.ROOT);
-    if (!upperTable.equals(table) || !upperColumn.equals(column)) {
-      if (findColumn(md, catalog, schema, upperTable, upperColumn)) {
-        return true;
+    for (String schema : schemaCandidates(md, safeSchema(conn))) {
+      for (String tbl : identCases(table)) {
+        for (String col : identCases(column)) {
+          if (findColumn(md, catalog, schema, tbl, col)) {
+            return true;
+          }
+        }
       }
     }
-    if (schema != null && !schema.equals(schema.toUpperCase(Locale.ROOT))) {
-      return findColumn(
-          md, catalog, schema.toUpperCase(Locale.ROOT), upperTable, upperColumn);
-    }
     return false;
+  }
+
+  /**
+   * Original, upper, and lower identifier spellings. Always includes the folded forms even when
+   * the input is already uppercase so H2 {@code DATABASE_TO_UPPER=FALSE} and MySQL
+   * {@code lower_case_table_names=1} still match stored lowercase metadata.
+   */
+  static List<String> identCases(String ident) {
+    LinkedHashSet<String> out = new LinkedHashSet<>();
+    if (ident != null) {
+      out.add(ident);
+      out.add(ident.toUpperCase(Locale.ROOT));
+      out.add(ident.toLowerCase(Locale.ROOT));
+    }
+    return new ArrayList<>(out);
+  }
+
+  /**
+   * Schema spellings to probe. {@code null} JDBC schema still tries {@link
+   * DatabaseMetaData#getUserName()} because Oracle and similar catalogs require a schema.
+   */
+  static List<String> schemaCandidates(DatabaseMetaData md, String schema) {
+    LinkedHashSet<String> out = new LinkedHashSet<>();
+    if (StringUtils.isNotBlank(schema)) {
+      out.add(schema);
+      out.add(schema.toUpperCase(Locale.ROOT));
+      out.add(schema.toLowerCase(Locale.ROOT));
+    } else {
+      out.add(null);
+      try {
+        String user = md != null ? md.getUserName() : null;
+        if (StringUtils.isNotBlank(user)) {
+          out.add(user);
+          out.add(user.toUpperCase(Locale.ROOT));
+          out.add(user.toLowerCase(Locale.ROOT));
+        }
+      } catch (SQLException e) {
+        log.debug("Could not read JDBC user for schema fallback: {}", e.getMessage());
+      }
+    }
+    return new ArrayList<>(out);
   }
 
   private static boolean findColumn(
       DatabaseMetaData md, String catalog, String schema, String table, String column)
       throws SQLException {
-    try (ResultSet rs = md.getColumns(catalog, schema, table, column)) {
-      return rs.next();
+    try {
+      try (ResultSet rs = md.getColumns(catalog, schema, table, column)) {
+        return rs.next();
+      }
+    } catch (SQLException e) {
+      if (schema == null) {
+        log.debug(
+            "Null-schema column probe failed for {}.{}: {}", table, column, e.getMessage());
+        return false;
+      }
+      throw e;
     }
   }
 
@@ -255,7 +381,14 @@ final class JdbcSystemDefColumnSchema implements SystemDefColumnSchema {
         throw new IllegalArgumentException(label + " must be letters, digits, or underscore");
       }
     }
+    if (isSqlReservedIdent(trimmed)) {
+      throw new IllegalArgumentException(label + " is a reserved SQL identifier");
+    }
     return trimmed;
+  }
+
+  static boolean isSqlReservedIdent(String ident) {
+    return ident != null && SQL_RESERVED.contains(ident.toUpperCase(Locale.ROOT));
   }
 
   private void withConnection(SqlConsumer consumer) {

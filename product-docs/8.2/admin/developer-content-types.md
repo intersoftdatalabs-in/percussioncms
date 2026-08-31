@@ -53,7 +53,9 @@ Nested `POST /services/systemdef/fields` and
 `DELETE /services/systemdef/fields/{fieldName}` add or remove system fields
 (backend column on `CONTENTSTATUS` plus display mapping). POST creates the
 column when it is missing; DELETE drops it when present and still succeeds if
-the column was never created. Duplicate field names are **409**.
+the column was never created (other drop failures do not save the catalog).
+Field names cannot be SQL reserved words (`SELECT`, `USER`, `TABLE`, `ORDER`).
+Duplicate field names are **409**.
 System-mandatory and system-internal fields cannot be deleted (**400**). An SPA
 editor is not in this chrome. Admin `GET /services/contenttypes/{idOrName}/export`
 downloads Workbench-equivalent design XML (CD-14; no lock steal). REST import of

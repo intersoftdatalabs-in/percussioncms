@@ -1164,7 +1164,9 @@ a non-Admin caller to **403**. Nested field create/delete persist a backend colu
 mapping (default table `CONTENTSTATUS`) and a default `sys_EditBox` display
 mapping. **POST** creates the `CONTENTSTATUS` column when it is absent; **DELETE**
 drops that column when present and still saves the XML catalog if the column is
-already missing. A **PUT** with a null or empty `fields` array does not rewrite
+already missing. Other `DROP COLUMN` failures (permissions, lock, or connection)
+fail the request with **500** and do **not** save the catalog. A **PUT** with a
+null or empty `fields` array does not rewrite
 the system-definition file (the catalog is unchanged). Control properties,
 stylesheets, and application flow remain unsupported.
 
@@ -1178,7 +1180,8 @@ stylesheets, and application flow remain unsupported.
 PUT may include `fields[]` to patch existing fields by `name`. Unknown field names
 are **400**. PUT does **not** create or delete fields — use nested POST/DELETE
 `.../fields`. Field `name` on create must start with a letter and may contain
-letters, digits, or underscore (no spaces or path characters). Duplicate field
+letters, digits, or underscore (no spaces, path characters, or SQL reserved
+words such as `SELECT`, `USER`, `TABLE`, or `ORDER`). Duplicate field
 names (case-insensitive) are **409**. `occurrence` and `required`
 map to the same dimension: when both are sent they must agree (`required=true`
 with `required` / `oneOrMore`; `required=false` with `optional` / `zeroOrMore` /
@@ -1226,7 +1229,7 @@ Prefer the generated OpenAPI schema as the integration source of truth.
 |--------|-----------------|
 | `200` | Catalog, save, or add-field |
 | `204` | Field deleted |
-| `400` | Missing body, unknown field, invalid name/`dataType`, conflicting `occurrence`/`required`, or delete of a system-mandatory / system-internal field |
+| `400` | Missing body, unknown field, invalid name/`dataType` (including SQL reserved identifiers), conflicting `occurrence`/`required`, or delete of a system-mandatory / system-internal field |
 | `403` | Caller is not Admin, or the request has no session/user (writes) |
 | `409` | Duplicate field name, system definition locked by another user, or design lock required for save |
 | `500` | Design service or server failure |

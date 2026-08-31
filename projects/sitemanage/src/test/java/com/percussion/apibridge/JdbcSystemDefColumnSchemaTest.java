@@ -20,10 +20,16 @@ package com.percussion.apibridge;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.List;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -68,6 +74,55 @@ class JdbcSystemDefColumnSchemaTest {
   }
 
   @Test
+  void columnExists_upperInputFindsLowercaseStoredNames() throws Exception {
+    String url =
+        "jdbc:h2:mem:sysdefcase"
+            + System.nanoTime()
+            + ";DATABASE_TO_UPPER=FALSE;DB_CLOSE_DELAY=-1";
+    Supplier<Connection> connections = () -> open(url);
+    try (Connection setup = connections.get();
+        Statement st = setup.createStatement()) {
+      st.execute("CREATE TABLE contentstatus (contentid INT PRIMARY KEY, qa4037probe VARCHAR(50))");
+    }
+    try (Connection check = connections.get()) {
+      assertTrue(JdbcSystemDefColumnSchema.columnExists(check, "CONTENTSTATUS", "QA4037PROBE"));
+    }
+  }
+
+  @Test
+  void columnExists_probesLowerCaseAndNullSchemaFallback() throws Exception {
+    Connection conn = mock(Connection.class);
+    DatabaseMetaData md = mock(DatabaseMetaData.class);
+    when(conn.getMetaData()).thenReturn(md);
+    when(conn.getCatalog()).thenReturn(null);
+    when(conn.getSchema()).thenReturn(null);
+    when(md.getUserName()).thenReturn("sa");
+    when(md.getColumns(any(), any(), any(), any()))
+        .thenAnswer(
+            inv -> {
+              ResultSet rs = mock(ResultSet.class);
+              String schema = inv.getArgument(1);
+              String table = inv.getArgument(2);
+              String column = inv.getArgument(3);
+              boolean hit =
+                  "sa".equals(schema)
+                      && "contentstatus".equals(table)
+                      && "qa4037probe".equals(column);
+              when(rs.next()).thenReturn(hit);
+              return rs;
+            });
+
+    assertTrue(JdbcSystemDefColumnSchema.columnExists(conn, "CONTENTSTATUS", "QA4037PROBE"));
+  }
+
+  @Test
+  void identCases_alwaysIncludesLowerWhenInputIsUpper() {
+    List<String> cases = JdbcSystemDefColumnSchema.identCases("CONTENTSTATUS");
+    assertTrue(cases.contains("CONTENTSTATUS"));
+    assertTrue(cases.contains("contentstatus"));
+  }
+
+  @Test
   void requireIdent_rejectsUnsafeNames() {
     assertThrows(
         IllegalArgumentException.class,
@@ -77,6 +132,19 @@ class JdbcSystemDefColumnSchemaTest {
         () -> JdbcSystemDefColumnSchema.requireIdent("x;drop", "column"));
     assertThrows(
         IllegalArgumentException.class, () -> JdbcSystemDefColumnSchema.requireIdent("1col", "column"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> JdbcSystemDefColumnSchema.requireIdent("SELECT", "column"));
+    assertThrows(
+        IllegalArgumentException.class, () -> JdbcSystemDefColumnSchema.requireIdent("user", "column"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> JdbcSystemDefColumnSchema.requireIdent("TABLE", "table"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> JdbcSystemDefColumnSchema.requireIdent("ORDER", "column"));
+    org.junit.jupiter.api.Assertions.assertEquals(
+        "CONTENTSTATUS", JdbcSystemDefColumnSchema.requireIdent("CONTENTSTATUS", "table"));
   }
 
   @Test

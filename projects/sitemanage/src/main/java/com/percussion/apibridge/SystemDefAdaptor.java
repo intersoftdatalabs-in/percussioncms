@@ -48,6 +48,7 @@ import com.percussion.webservices.content.PSContentWsLocator;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -55,6 +56,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -88,6 +90,9 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
   private static final String DEFAULT_TEXT_CONTROL = "sys_EditBox";
 
   private static final String DEFAULT_TABLE_ALIAS = "CONTENTSTATUS";
+
+  private static final Pattern QUOTED_COLUMN_NOT_FOUND =
+      Pattern.compile("column\\s+[\"'`][^\"'`]+[\"'`]\\s+not found");
 
   private final IPSContentDesignWs designWs;
   private final Supplier<PSContentEditorSystemDef> systemDefLoader;
@@ -184,9 +189,6 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
       String msg = lock ? "Failed to load system def for write" : "Failed to load system def";
       log.error("Failed to load content editor system def via design WS", e);
       throw new IllegalStateException(msg, e);
-    } catch (NullPointerException e) {
-      log.error("NullPointerException loading content editor system def via design WS", e);
-      throw new IllegalStateException("Failed to load system def", e);
     }
   }
 
@@ -241,19 +243,43 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
   /**
    * True when {@code t} (or a cause) is a missing backend column, typically H2 {@code no such
    * column} after an XML-only system-def add.
+   *
+   * <p>Prefers SQLState / vendor codes (H2 {@code 42122}, JDBC {@code 42S22}, PostgreSQL {@code
+   * 42703}, Oracle {@code 904}, SQL Server {@code 207}) over loose message matching. Does not treat
+   * unrelated "column … not found" phrases (mapping / schema text) as a missing column.
    */
   static boolean isMissingColumnFailure(Throwable t) {
     for (Throwable cur = t; cur != null; cur = cur.getCause()) {
+      if (cur instanceof SQLException sqlEx && isMissingColumnSql(sqlEx)) {
+        return true;
+      }
       String msg = cur.getMessage();
       if (msg == null) {
         continue;
       }
       String lower = msg.toLowerCase(Locale.ROOT);
       if (lower.contains("no such column")
-          || lower.contains("column not found")
-          || (lower.contains("column") && lower.contains("not found"))
+          || QUOTED_COLUMN_NOT_FOUND.matcher(lower).find()
           || lower.contains("invalid column name")
-          || lower.contains("unknown column")) {
+          || lower.contains("unknown column")
+          || lower.contains("ora-00904")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean isMissingColumnSql(SQLException e) {
+    for (SQLException cur = e; cur != null; cur = cur.getNextException()) {
+      String state = cur.getSQLState();
+      if (state != null) {
+        String s = state.toUpperCase(Locale.ROOT);
+        if ("42122".equals(s) || "42S22".equals(s) || "42703".equals(s)) {
+          return true;
+        }
+      }
+      int code = cur.getErrorCode();
+      if (code == 904 || code == 207) {
         return true;
       }
     }
@@ -380,6 +406,9 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
       if (!Character.isLetterOrDigit(c) && c != '_') {
         throw new IllegalArgumentException("name must be letters, digits, or underscore");
       }
+    }
+    if (JdbcSystemDefColumnSchema.isSqlReservedIdent(trimmed)) {
+      throw new IllegalArgumentException("name is a reserved SQL identifier");
     }
     return trimmed;
   }
@@ -651,23 +680,21 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
     if (!removeFieldAndMapping(def, validated)) {
       throw new IllegalArgumentException("Unknown field: " + validated);
     }
-    saveSystemDef(def, session, user);
     try {
       columnSchema.dropColumnIfPresent(
           tableAliasForSystemDef(def), columnNameForField(validated));
     } catch (RuntimeException e) {
-      if (isMissingColumnFailure(e)) {
-        log.warn(
-            "Skipping drop of missing system-def column for field {}: {}",
-            validated,
-            e.getMessage());
-      } else {
-        log.warn(
-            "System-def XML saved without dropping backend column for field {}: {}",
-            validated,
-            e.getMessage());
+      if (!isMissingColumnFailure(e)) {
+        log.error("Failed to drop backend column for system field {}", validated, e);
+        throw new IllegalStateException(
+            "Failed to drop backend column for field " + validated, e);
       }
+      log.warn(
+          "Skipping drop of missing system-def column for field {}: {}",
+          validated,
+          e.getMessage());
     }
+    saveSystemDef(def, session, user);
   }
 
   private void requireAdmin() {

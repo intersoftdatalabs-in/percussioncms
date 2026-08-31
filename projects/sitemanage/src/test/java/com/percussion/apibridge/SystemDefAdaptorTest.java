@@ -143,6 +143,30 @@ class SystemDefAdaptorTest {
   }
 
   @Test
+  void loadSystemDefFromDesignWs_preservesGenuineNpe() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    NullPointerException npe = new NullPointerException("design ws bug");
+    when(designWs.loadContentEditorSystemDef(false, false, "sid", "admin")).thenThrow(npe);
+
+    NullPointerException thrown =
+        assertThrows(
+            NullPointerException.class,
+            () -> SystemDefAdaptor.loadSystemDefFromDesignWs(designWs, "sid", "admin"));
+    assertSame(npe, thrown);
+  }
+
+  @Test
+  void loadSystemDefFromDesignWs_retriesMissingColumnNpe() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = mock(PSContentEditorSystemDef.class);
+    when(designWs.loadContentEditorSystemDef(false, false, "sid", "admin"))
+        .thenThrow(new NullPointerException("no such column QA4030PROBE"))
+        .thenReturn(def);
+
+    assertSame(def, SystemDefAdaptor.loadSystemDefFromDesignWs(designWs, "sid", "admin"));
+  }
+
+  @Test
   void loadSystemDefFromDesignWs_passesNullSessionAndUserWhenRequestInfoAbsent() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
     PSContentEditorSystemDef def = mock(PSContentEditorSystemDef.class);
@@ -589,8 +613,20 @@ class SystemDefAdaptorTest {
     assertTrue(
         SystemDefAdaptor.isMissingColumnFailure(
             new IllegalStateException("wrap", new SQLException("invalid column name"))));
+    assertTrue(SystemDefAdaptor.isMissingColumnFailure(new SQLException("x", "42122")));
+    assertTrue(SystemDefAdaptor.isMissingColumnFailure(new SQLException("x", "42S22")));
+    assertTrue(
+        SystemDefAdaptor.isMissingColumnFailure(
+            new IllegalStateException("wrap", new SQLException("x", "42703"))));
+    assertTrue(SystemDefAdaptor.isMissingColumnFailure(new SQLException("ORA-00904", "42000", 904)));
+    assertTrue(SystemDefAdaptor.isMissingColumnFailure(new SQLException("invalid column", "S0001", 207)));
     assertFalse(SystemDefAdaptor.isMissingColumnFailure(new NullPointerException()));
     assertFalse(SystemDefAdaptor.isMissingColumnFailure(new RuntimeException("unrelated")));
+    assertFalse(
+        SystemDefAdaptor.isMissingColumnFailure(new RuntimeException("column mapping not found")));
+    assertFalse(
+        SystemDefAdaptor.isMissingColumnFailure(
+            new RuntimeException("field column not found in schema")));
   }
 
   @Test
@@ -719,6 +755,26 @@ class SystemDefAdaptorTest {
   }
 
   @Test
+  void deleteField_genuineDropFailureDoesNotSave() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SystemDefColumnSchema columns = mock(SystemDefColumnSchema.class);
+    PSContentEditorSystemDef def = newSystemDefWithEmptyFields();
+    SystemDefFieldSummary existing = new SystemDefFieldSummary();
+    existing.setName("sys_custom");
+    SystemDefAdaptor.addPersistableField(def, existing);
+    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    doThrow(new IllegalStateException("permissions denied"))
+        .when(columns)
+        .dropColumnIfPresent("CONTENTSTATUS", "SYS_CUSTOM");
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true, columns);
+
+    IllegalStateException ex =
+        assertThrows(IllegalStateException.class, () -> adaptor.deleteField(null, "sys_custom"));
+    assertTrue(ex.getMessage().contains("Failed to drop backend column"));
+    verify(designWs, never()).saveContentEditorSystemDef(any(), anyBoolean(), any(), any());
+  }
+
+  @Test
   void validateFieldName_rejectsInvalid() {
     assertEquals("sys_custom", SystemDefAdaptor.validateFieldName("sys_custom"));
     assertThrows(IllegalArgumentException.class, () -> SystemDefAdaptor.validateFieldName(" "));
@@ -730,6 +786,9 @@ class SystemDefAdaptorTest {
     assertThrows(
         IllegalArgumentException.class, () -> SystemDefAdaptor.validateFieldName("a\0b"));
     assertThrows(IllegalArgumentException.class, () -> SystemDefAdaptor.validateFieldName("1start"));
+    assertThrows(
+        IllegalArgumentException.class, () -> SystemDefAdaptor.validateFieldName("SELECT"));
+    assertThrows(IllegalArgumentException.class, () -> SystemDefAdaptor.validateFieldName("user"));
   }
 
   /**
