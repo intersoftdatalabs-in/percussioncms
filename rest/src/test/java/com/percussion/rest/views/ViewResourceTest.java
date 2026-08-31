@@ -5,6 +5,7 @@
 package com.percussion.rest.views;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -12,10 +13,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -219,6 +222,151 @@ public class ViewResourceTest {
         assertThrows(
             WebApplicationException.class,
             () -> bare.executeView("any", new ViewExecuteRequest()));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createViewClearsIdAndDelegates() {
+    ViewDef body = new ViewDef();
+    body.setName("MyView");
+    body.setId(9);
+    ViewDef created = new ViewDef();
+    created.setName("MyView");
+    created.setId(42);
+    when(adaptor.createView(any())).thenReturn(created);
+
+    ViewDef out = resource.createView(body);
+
+    assertEquals("MyView", out.getName());
+    assertEquals(0, body.getId());
+    assertNull(body.getGuid());
+    verify(adaptor).createView(body);
+  }
+
+  @Test
+  public void createViewBlankNameIs400() {
+    when(adaptor.createView(any())).thenThrow(new IllegalArgumentException("name is required"));
+    ViewDef body = new ViewDef();
+    body.setName("  ");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createView(body));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createViewDuplicateIs409() {
+    when(adaptor.createView(any()))
+        .thenThrow(new WebApplicationException("View already exists: MyView", 409));
+    ViewDef body = new ViewDef();
+    body.setName("MyView");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createView(body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createViewNonAdminIs403() {
+    when(adaptor.createView(any()))
+        .thenThrow(new WebApplicationException("Admin role required", Response.Status.FORBIDDEN));
+    ViewDef body = new ViewDef();
+    body.setName("MyView");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createView(body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateViewDelegates() {
+    ViewDef body = new ViewDef();
+    body.setLabel("Updated");
+    body.setDescription("desc");
+    ViewDef updated = new ViewDef();
+    updated.setName("MyView");
+    updated.setLabel("Updated");
+    updated.setDescription("desc");
+    when(adaptor.saveView(eq("MyView"), eq(body))).thenReturn(updated);
+
+    ViewDef out = resource.updateView("MyView", body);
+
+    assertEquals("Updated", out.getLabel());
+    assertEquals("desc", out.getDescription());
+    verify(adaptor).saveView("MyView", body);
+  }
+
+  @Test
+  public void updateViewUnknownIs404() {
+    when(adaptor.saveView(eq("missing"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.updateView("missing", new ViewDef()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateViewNullBodyIs400() {
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.updateView("MyView", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).saveView(any(), any());
+  }
+
+  @Test
+  public void updateViewInboxIs409() {
+    when(adaptor.saveView(eq("Inbox"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "Inbox-family and custom URL views cannot be updated or deleted via this API",
+                409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.updateView("Inbox", new ViewDef()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteViewNoContent() {
+    when(adaptor.deleteView(eq("MyView"))).thenReturn(true);
+
+    Response r = resource.deleteView("MyView");
+
+    assertEquals(204, r.getStatus());
+    verify(adaptor).deleteView("MyView");
+  }
+
+  @Test
+  public void deleteViewUnknownIs404() {
+    when(adaptor.deleteView(eq("missing"))).thenReturn(false);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteView("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteViewNonAdminIs403() {
+    when(adaptor.deleteView(eq("MyView")))
+        .thenThrow(new WebApplicationException("Admin role required", Response.Status.FORBIDDEN));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteView("MyView"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteViewInboxIs409() {
+    when(adaptor.deleteView(eq("Inbox")))
+        .thenThrow(
+            new WebApplicationException(
+                "Inbox-family and custom URL views cannot be updated or deleted via this API",
+                409));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteView("Inbox"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnCreate() {
+    ViewResource bare = new ViewResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.createView(new ViewDef()));
     assertEquals(503, ex.getResponse().getStatus());
   }
 }

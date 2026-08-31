@@ -46,4 +46,19 @@ public class TestViewAdaptor implements IViewAdaptor {
     empty.setStartIndex(1);
     return empty;
   }
+
+  @Override
+  public ViewDef createView(ViewDef body) {
+    return body;
+  }
+
+  @Override
+  public ViewDef saveView(String idOrName, ViewDef body) {
+    return body;
+  }
+
+  @Override
+  public boolean deleteView(String idOrName) {
+    return false;
+  }
 }

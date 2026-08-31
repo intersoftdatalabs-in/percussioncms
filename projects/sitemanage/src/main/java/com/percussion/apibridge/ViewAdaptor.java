@@ -26,12 +26,19 @@ import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.data.PSItemProperties;
 import com.percussion.share.data.PSPagedObjectList;
 import com.percussion.share.service.IPSIdMapper;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.user.data.PSCurrentUser;
+import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSServer;
+import com.percussion.webservices.PSErrorException;
+import com.percussion.webservices.PSErrorResultsException;
+import com.percussion.webservices.PSErrorsException;
+import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.ui.IPSUiDesignWs;
 import jakarta.ws.rs.WebApplicationException;
@@ -44,6 +51,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,9 +62,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * CX view definition catalog (UI-07) plus view execute façade for Explorer (#3115 / #3239). Loads
- * designs via {@link IPSUiDesignWs#findViews} / {@link IPSUiDesignWs#loadViews} — not the search
- * catalog. Standard views use the design search runner; Inbox-family custom URLs invoke {@code
+ * CX view definition catalog (UI-07 list/detail/write) plus view execute façade for Explorer
+ * (#3115 / #3239 / #4070). Loads designs via {@link IPSUiDesignWs#findViews} / {@link
+ * IPSUiDesignWs#loadViews} — not the search catalog. Admin create/save/delete persist through
+ * {@link IPSUiDesignWs} — the same design web service SOAP uses. Execute is not invoked on write.
+ * Standard views use the design search runner; Inbox-family custom URLs invoke {@code
  * sys_cxViews/*} and map {@code Item} rows to Explorer items.
  */
 @PSSiteManageBean
@@ -64,6 +74,11 @@ import org.w3c.dom.NodeList;
 public class ViewAdaptor implements IViewAdaptor {
 
   private static final Logger log = LogManager.getLogger(ViewAdaptor.class);
+
+  static final String ADMIN_REQUIRED = "Admin role required to create, update, or delete views";
+
+  static final String PROTECTED_VIEW_WRITE =
+      "Inbox-family and custom URL views cannot be updated or deleted via this API";
 
   /** Product default page size when design max is unset/unlimited and client omits maxResults. */
   static final int DEFAULT_PAGE_SIZE = 25;
@@ -93,8 +108,9 @@ public class ViewAdaptor implements IViewAdaptor {
   /** Catalog-level capability notes. Attached on detail only (REST-GAPS-02 list dedup). */
   static final List<String> DESIGN_GAPS =
       List.of(
-          "View create / update / delete not supported via this API",
           "View field criterion editing not supported via this API",
+          "View rename is not supported on PUT (name is the catalog key)",
+          "Inbox-family and custom URL views cannot be updated or deleted via this API",
           "Custom URL views outside the sys_cxViews Inbox family cannot be executed via this API",
           "Searches are a separate catalog (Developer Searches / UI-06)");
 
@@ -104,13 +120,28 @@ public class ViewAdaptor implements IViewAdaptor {
   private final IPSUiDesignWs designWs;
   private final IPSFolderHelper folderHelper;
   private final IPSIdMapper idMapper;
+  private final BooleanSupplier adminChecker;
+
+  /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
+  @Autowired(required = false)
+  private IPSUserService userService;
 
   @Autowired
   public ViewAdaptor(
       IPSUiDesignWs designWs, IPSFolderHelper folderHelper, IPSIdMapper idMapper) {
+    this(designWs, folderHelper, idMapper, null);
+  }
+
+  /** Package-visible for unit tests. */
+  ViewAdaptor(
+      IPSUiDesignWs designWs,
+      IPSFolderHelper folderHelper,
+      IPSIdMapper idMapper,
+      BooleanSupplier adminChecker) {
     this.designWs = designWs;
     this.folderHelper = folderHelper;
     this.idMapper = idMapper;
+    this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
   }
 
   @Override
@@ -145,6 +176,128 @@ public class ViewAdaptor implements IViewAdaptor {
     } catch (RuntimeException e) {
       // list failures already wrap; propagate for 500
       throw e;
+    }
+  }
+
+  @Override
+  public ViewDef createView(ViewDef body) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    String name = requireValidName(body.getName());
+    assertNameUnique(name);
+    rejectCustomUrlCreate(body);
+    resolveViewType(body.getType(), true);
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      List<PSSearch> created = designWs.createViews(List.of(name), session, user);
+      if (created == null || created.isEmpty() || created.get(0) == null) {
+        throw new IllegalStateException("Design WS createViews returned empty");
+      }
+      PSSearch domain = created.get(0);
+      applyWritableFields(domain, body);
+      designWs.saveViews(List.of(domain), true, session, user);
+      return toDef(domain, true);
+    } catch (WebApplicationException | IllegalStateException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      if (isAlreadyExistsFailure(e)) {
+        throw new WebApplicationException("View already exists: " + name, 409);
+      }
+      throw e;
+    } catch (PSLockErrorException e) {
+      throw new WebApplicationException(
+          "Could not create view; design lock required or held by another user", 409);
+    } catch (PSErrorsException e) {
+      throw mapSaveOrDeleteFailure("create", e);
+    } catch (PSErrorException e) {
+      log.error("Failed to create view {}", name, e);
+      throw new IllegalStateException("Failed to create view", e);
+    }
+  }
+
+  @Override
+  public ViewDef saveView(String idOrName, ViewDef body) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    if (!isSafeViewKey(idOrName)) {
+      return null;
+    }
+    PSSearch existing = findPsViewByKey(idOrName.trim());
+    if (existing == null) {
+      return null;
+    }
+    rejectProtectedViewWrite(existing);
+    IPSGuid id = safeGuid(existing);
+    if (id == null) {
+      throw new WebApplicationException(PROTECTED_VIEW_WRITE, 409);
+    }
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      List<PSSearch> loaded = designWs.loadViews(List.of(id), true, false, session, user);
+      if (loaded == null || loaded.isEmpty() || loaded.get(0) == null) {
+        return null;
+      }
+      PSSearch domain = loaded.get(0);
+      applyWritableFields(domain, body);
+      designWs.saveViews(List.of(domain), true, session, user);
+      return toDef(domain, true);
+    } catch (WebApplicationException | IllegalArgumentException e) {
+      throw e;
+    } catch (PSErrorResultsException e) {
+      if (isNotFound(e, id)) {
+        return null;
+      }
+      throw new WebApplicationException(
+          "Could not update view; design lock required or held by another user", 409);
+    } catch (PSErrorsException e) {
+      throw mapSaveOrDeleteFailure("update", e);
+    }
+  }
+
+  @Override
+  public boolean deleteView(String idOrName) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (!isSafeViewKey(idOrName)) {
+      return false;
+    }
+    PSSearch existing = findPsViewByKey(idOrName.trim());
+    if (existing == null) {
+      return false;
+    }
+    rejectProtectedViewWrite(existing);
+    IPSGuid id = safeGuid(existing);
+    if (id == null) {
+      throw new WebApplicationException(PROTECTED_VIEW_WRITE, 409);
+    }
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      List<PSSearch> locked = designWs.loadViews(List.of(id), true, false, session, user);
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        throw new WebApplicationException(
+            "Could not delete view; design lock required or held by another user", 409);
+      }
+      designWs.deleteViews(List.of(id), false, session, user);
+      return true;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSErrorResultsException e) {
+      if (isNotFound(e, id)) {
+        return false;
+      }
+      throw new WebApplicationException(
+          "Could not delete view; design lock required or held by another user", 409);
+    } catch (PSErrorsException e) {
+      throw mapSaveOrDeleteFailure("delete", e);
     }
   }
 
@@ -732,6 +885,263 @@ public class ViewAdaptor implements IViewAdaptor {
     g.setUuid(guid.getUUID());
     g.setUntypedString(guid.toStringUntyped());
     return g;
+  }
+
+  /**
+   * Apply GET-exposed writable fields: label, description, type, displayFormatId. Execute is
+   * never invoked from write. Custom URL is not persisted on this slice.
+   */
+  static void applyWritableFields(PSSearch domain, ViewDef body) {
+    if (domain == null || body == null) {
+      return;
+    }
+    if (StringUtils.isNotBlank(body.getLabel())) {
+      domain.setDisplayName(body.getLabel().trim());
+    }
+    if (body.getDescription() != null) {
+      domain.setDescription(body.getDescription());
+    }
+    String type = resolveViewType(body.getType(), false);
+    if (type != null) {
+      domain.setType(type);
+    }
+    if (StringUtils.isNotBlank(body.getDisplayFormatId())) {
+      domain.setDisplayFormatId(body.getDisplayFormatId().trim());
+    }
+  }
+
+  /**
+   * Map REST type aliases to {@link PSSearch#TYPE_VIEW}. Blank on create defaults to View. Search
+   * and custom types are rejected.
+   *
+   * @param creating when true, blank type becomes View; when false, blank means leave unchanged
+   */
+  static String resolveViewType(String raw, boolean creating) {
+    if (StringUtils.isBlank(raw)) {
+      return creating ? PSSearch.TYPE_VIEW : null;
+    }
+    String t = raw.trim();
+    if (t.equalsIgnoreCase(PSSearch.TYPE_VIEW)
+        || t.equalsIgnoreCase("standard")
+        || t.equalsIgnoreCase("standardview")) {
+      return PSSearch.TYPE_VIEW;
+    }
+    if (t.equalsIgnoreCase("custom")
+        || t.equalsIgnoreCase("customview")
+        || t.equalsIgnoreCase(PSSearch.TYPE_CUSTOMSEARCH)) {
+      throw new IllegalArgumentException(
+          "Custom URL views cannot be created or updated via this API");
+    }
+    if (t.equalsIgnoreCase(PSSearch.TYPE_STANDARDSEARCH)
+        || t.equalsIgnoreCase(PSSearch.TYPE_USERSEARCH)
+        || t.equalsIgnoreCase("search")
+        || t.equalsIgnoreCase("usersearch")) {
+      throw new IllegalArgumentException(
+          "Searches are not writable on /services/views; use /services/searches");
+    }
+    throw new IllegalArgumentException("Invalid view type: " + raw);
+  }
+
+  static String requireValidName(String raw) {
+    if (StringUtils.isBlank(raw)) {
+      throw new IllegalArgumentException("name is required");
+    }
+    String name = raw.trim();
+    if (containsWhitespace(name)) {
+      throw new IllegalArgumentException("name cannot contain whitespace");
+    }
+    if (name.contains("*") || name.contains("%")) {
+      throw new IllegalArgumentException("name must not contain wildcards");
+    }
+    if (!isSafeViewKey(name)) {
+      throw new IllegalArgumentException("invalid name");
+    }
+    if (name.length() > PSSearch.INTERNALNAME_LENGTH) {
+      throw new IllegalArgumentException(
+          "name must not exceed " + PSSearch.INTERNALNAME_LENGTH + " characters");
+    }
+    return name;
+  }
+
+  private static boolean containsWhitespace(String name) {
+    for (int i = 0; i < name.length(); i++) {
+      if (Character.isWhitespace(name.charAt(i))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private void assertNameUnique(String name) {
+    try {
+      if (nameExists(designWs.findViews(name, null), name)
+          || nameExists(designWs.findSearches(name, null), name)) {
+        throw new WebApplicationException("View already exists: " + name, 409);
+      }
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSErrorException e) {
+      log.error("Failed to catalog views while checking uniqueness for {}", name, e);
+      throw new IllegalStateException("Failed to catalog views", e);
+    }
+  }
+
+  static boolean nameExists(List<IPSCatalogSummary> summaries, String name) {
+    if (summaries == null || StringUtils.isBlank(name)) {
+      return false;
+    }
+    for (IPSCatalogSummary summary : summaries) {
+      if (summary != null
+          && name.equalsIgnoreCase(StringUtils.defaultString(summary.getName()))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static void rejectCustomUrlCreate(ViewDef body) {
+    if (body != null && StringUtils.isNotBlank(body.getUrl())) {
+      throw new IllegalArgumentException(
+          "Custom URL views cannot be created or updated via this API");
+    }
+  }
+
+  private static void rejectProtectedViewWrite(PSSearch existing) {
+    if (existing == null) {
+      return;
+    }
+    if (isInboxKey(existing.getName()) || existing.isCustomView()) {
+      throw new WebApplicationException(PROTECTED_VIEW_WRITE, 409);
+    }
+  }
+
+  private void requireAdmin() {
+    boolean allowed;
+    try {
+      allowed = adminChecker.getAsBoolean();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      log.debug("Admin check failed: {}", e.getMessage());
+      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+    }
+    if (!allowed) {
+      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+    }
+  }
+
+  boolean isCurrentUserAdmin() {
+    if (userService == null) {
+      return false;
+    }
+    try {
+      PSCurrentUser current = userService.getCurrentUser();
+      if (current == null || StringUtils.isBlank(current.getName())) {
+        return false;
+      }
+      return userService.isAdminUser(current.getName());
+    } catch (PSDataServiceException e) {
+      log.debug("Unable to resolve current user for Admin check: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  private static void requireSessionUserForWrite() {
+    if (StringUtils.isBlank(currentSession()) || StringUtils.isBlank(currentUser())) {
+      throw new WebApplicationException(
+          "Request session/user required for view design write", Response.Status.FORBIDDEN);
+    }
+  }
+
+  private static String currentSession() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+  }
+
+  private static String currentUser() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+  }
+
+  static boolean isAlreadyExistsFailure(IllegalArgumentException e) {
+    return e != null && StringUtils.containsIgnoreCase(e.getMessage(), "already exists");
+  }
+
+  static boolean isNotFound(PSErrorResultsException e, IPSGuid requested) {
+    if (e == null || requested == null) {
+      return false;
+    }
+    Map<IPSGuid, Object> errors = e.getErrors();
+    Map<IPSGuid, Object> results = e.getResults();
+    boolean errored = errors != null && errors.containsKey(requested);
+    boolean hasResult = results != null && results.containsKey(requested);
+    return errored && !hasResult && !hasLockError(e);
+  }
+
+  static boolean hasLockError(PSErrorResultsException e) {
+    if (e == null || e.getErrors() == null) {
+      return false;
+    }
+    for (Object err : e.getErrors().values()) {
+      if (isLockErrorObject(err)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static boolean isNotLockedError(PSErrorsException e) {
+    if (e == null || e.getErrors() == null) {
+      return false;
+    }
+    for (Object err : e.getErrors().values()) {
+      if (isLockErrorObject(err)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static boolean isDependencyError(PSErrorsException e) {
+    if (e == null || e.getErrors() == null) {
+      return StringUtils.containsIgnoreCase(e != null ? e.getMessage() : null, "depend");
+    }
+    for (Object err : e.getErrors().values()) {
+      String msg = errorMessage(err);
+      if (StringUtils.containsIgnoreCase(msg, "depend")) {
+        return true;
+      }
+    }
+    return StringUtils.containsIgnoreCase(e.getMessage(), "depend");
+  }
+
+  private static boolean isLockErrorObject(Object err) {
+    if (err instanceof PSLockErrorException) {
+      return true;
+    }
+    if (err instanceof PSErrorException pe) {
+      String msg = pe.getErrorMessage() != null ? pe.getErrorMessage() : pe.getMessage();
+      return StringUtils.containsIgnoreCase(msg, "is not locked")
+          || StringUtils.containsIgnoreCase(msg, "not locked for");
+    }
+    return StringUtils.containsIgnoreCase(String.valueOf(err), "is not locked");
+  }
+
+  private static String errorMessage(Object err) {
+    if (err instanceof PSErrorException pe) {
+      return StringUtils.defaultIfBlank(pe.getErrorMessage(), pe.getMessage());
+    }
+    return err != null ? String.valueOf(err) : null;
+  }
+
+  private RuntimeException mapSaveOrDeleteFailure(String verb, PSErrorsException e) {
+    if (isNotLockedError(e)) {
+      return new WebApplicationException(
+          "Could not " + verb + " view; design lock required or held by another user", 409);
+    }
+    if (isDependencyError(e)) {
+      return new WebApplicationException("View has dependents and cannot be deleted", 409);
+    }
+    log.error("Failed to {} view via UI design WS", verb, e);
+    return new IllegalStateException("Failed to " + verb + " view", e);
   }
 
   /**
