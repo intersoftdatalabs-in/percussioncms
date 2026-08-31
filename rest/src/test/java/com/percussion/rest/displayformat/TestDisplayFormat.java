@@ -18,6 +18,7 @@
 package com.percussion.rest.displayformat;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.rest.Guid;
@@ -74,6 +75,31 @@ public class TestDisplayFormat {
     assertTrue(
         json.contains("\"stringValue\":\"0-11-5\"") || json.contains("\"stringValue\" : \"0-11-5\""),
         "stringValue must serialize as a JSON string: " + json);
+  }
+
+  @Test
+  public void copyForCreateOmitsIdentityAndDoesNotMutateSource() {
+    DisplayFormat source = new DisplayFormat();
+    source.setName("MyFmt");
+    source.setInternalName("MyFmt");
+    source.setLabel("Mine");
+    source.setDisplayName("Mine");
+    source.setDescription("desc");
+    source.setDisplayId(9);
+    source.setGuid(new Guid("0-11-9"));
+    source.setGuidString("0-11-9");
+
+    DisplayFormat copy = DisplayFormat.copyForCreate(source);
+
+    assertEquals("MyFmt", copy.getName());
+    assertEquals("MyFmt", copy.getInternalName());
+    assertEquals("Mine", copy.getLabel());
+    assertEquals("desc", copy.getDescription());
+    assertEquals(0, copy.getDisplayId());
+    assertNull(copy.getGuid());
+    assertNull(copy.getGuidString());
+    assertEquals(9, source.getDisplayId());
+    assertEquals("0-11-9", source.getGuidString());
   }
 
   @Test

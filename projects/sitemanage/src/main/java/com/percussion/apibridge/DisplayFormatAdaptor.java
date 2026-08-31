@@ -813,7 +813,7 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     return false;
   }
 
-  static boolean isNotLockedError(PSErrorsException e) {
+  static boolean isLockError(PSErrorsException e) {
     if (e == null || e.getErrors() == null) {
       return false;
     }
@@ -861,7 +861,7 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
   }
 
   private RuntimeException mapSaveOrDeleteFailure(String verb, PSErrorsException e) {
-    if (isNotLockedError(e)) {
+    if (isLockError(e)) {
       return new WebApplicationException(
           "Could not " + verb + " display format; design lock required or held by another user",
           409);

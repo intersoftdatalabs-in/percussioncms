@@ -1355,11 +1355,12 @@ assume the GUID is missing when `displayId` is present). See [Users, roles & sec
 for the operator Object ACL steps.
 
 Create (`POST /services/displayformats`) persists immediately (Workbench Finish, not an
-unsaved stub). JSON body requires `name` or `internalName` (unique, case-insensitive; **no
-whitespace** or wildcards). Optional `label` / `displayName` and `description` are applied
-before save. Duplicate name is **409**. Blank / whitespace / wildcard names are **400**.
-Missing request session/user is **403**. Non-Admin is **403**. The new format is then
-`GET /services/displayformats/{name}` **200**.
+unsaved stub) and returns **201 Created** with a `Location` header pointing at
+`GET /services/displayformats/{name}`. JSON body requires `name` or `internalName` (unique,
+case-insensitive; **no whitespace** or wildcards). Optional `label` / `displayName` and
+`description` are applied before save. Duplicate name is **409**. Blank / whitespace /
+wildcard names are **400**. Missing request session/user is **403**. Non-Admin is **403**.
+The new format is then `GET /services/displayformats/{name}` **200**.
 
 Update (`PUT /services/displayformats/{idOrName}`) loads with a design lock
 (`overrideLock=false`) and releases it on save. Name is not renamed on PUT. `label` /

@@ -46,6 +46,7 @@ import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
+import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.ui.IPSUiDesignWs;
 import jakarta.ws.rs.WebApplicationException;
 import java.lang.reflect.Method;
@@ -339,6 +340,17 @@ class DisplayFormatAdaptorWriteTest {
         assertThrows(WebApplicationException.class, () -> adaptor.deleteDisplayFormat("MyFmt"));
     assertEquals(403, ex.getResponse().getStatus());
     verify(designWs, never()).deleteDisplayFormats(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void isLockError_detectsTypedLockErrorException() {
+    PSErrorsException errors = new PSErrorsException();
+    errors.addError(guid, new PSLockErrorException(0, "lock failed", "stack"));
+    assertTrue(DisplayFormatAdaptor.isLockError(errors));
+    PSErrorsException unrelated = new PSErrorsException();
+    unrelated.addError(guid, new PSErrorException("unrelated failure"));
+    assertFalse(DisplayFormatAdaptor.isLockError(unrelated));
+    assertFalse(DisplayFormatAdaptor.isLockError(null));
   }
 
   @Test

@@ -35,8 +35,11 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
+import java.net.URI;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +64,8 @@ public class DisplayFormatResource {
 
   private final IDisplayFormatAdaptor adaptor;
 
+  @Context private UriInfo uriInfo;
+
   public DisplayFormatResource() {
     this.adaptor = null;
   }
@@ -68,6 +73,11 @@ public class DisplayFormatResource {
   @Autowired
   public DisplayFormatResource(IDisplayFormatAdaptor adaptor) {
     this.adaptor = adaptor;
+  }
+
+  /** Package-private test hook so unit tests need not reflect on {@code uriInfo}. */
+  void setUriInfo(UriInfo uriInfo) {
+    this.uriInfo = uriInfo;
   }
 
   @GET
@@ -173,7 +183,7 @@ public class DisplayFormatResource {
               + " columns (same as Workbench).",
       responses = {
         @ApiResponse(
-            responseCode = "200",
+            responseCode = "201",
             description = "Created",
             content = @Content(schema = @Schema(implementation = DisplayFormat.class))),
         @ApiResponse(responseCode = "400", description = "Invalid name"),
@@ -185,18 +195,19 @@ public class DisplayFormatResource {
             description = "A display format with that name already exists"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
-  public DisplayFormat createDisplayFormat(DisplayFormat body) {
+  public Response createDisplayFormat(DisplayFormat body) {
     try {
-      if (body != null) {
-        body.setGuid(null);
-        body.setGuidString(null);
-        body.setDisplayId(0);
-      }
-      DisplayFormat created = requireAdaptor().createDisplayFormat(body);
+      DisplayFormat createBody = body == null ? null : DisplayFormat.copyForCreate(body);
+      DisplayFormat created = requireAdaptor().createDisplayFormat(createBody);
       if (created == null) {
         throw new WebApplicationException("Failed to create display format", 500);
       }
-      return created;
+      Response.ResponseBuilder rb = Response.status(Response.Status.CREATED).entity(created);
+      URI location = createdLocation(created);
+      if (location != null) {
+        rb.location(location);
+      }
+      return rb.build();
     } catch (RuntimeException e) {
       throw mapWriteFailure(e);
     } catch (Exception e) {
@@ -300,8 +311,9 @@ public class DisplayFormatResource {
   }
 
   /**
-   * Map adaptor write failures to HTTP status. Admin/session 403 and duplicate/lock 409 are
-   * already {@link WebApplicationException}s from the adaptor.
+   * Map adaptor write failures to HTTP status without sniffing exception text. Admin/session 403
+   * and duplicate/lock/dependency 409 must already be {@link WebApplicationException}s from the
+   * adaptor (typed {@code PSLockErrorException} / dependency errors are wrapped there).
    */
   static WebApplicationException mapWriteFailure(RuntimeException e) {
     if (e instanceof WebApplicationException wae) {
@@ -310,15 +322,31 @@ public class DisplayFormatResource {
     if (e instanceof IllegalArgumentException) {
       return new WebApplicationException(e.getMessage(), 400);
     }
-    if (e instanceof IllegalStateException) {
-      String msg = e.getMessage() != null ? e.getMessage() : "Conflict";
-      String lower = msg.toLowerCase();
-      if (lower.contains("lock") || lower.contains("depend")) {
-        return new WebApplicationException(msg, 409);
-      }
-      return new WebApplicationException(e, 500);
-    }
     return new WebApplicationException(e, 500);
+  }
+
+  private URI createdLocation(DisplayFormat created) {
+    if (uriInfo == null || created == null) {
+      return null;
+    }
+    String key =
+        firstNonBlank(created.getName(), created.getInternalName(), created.getGuidString());
+    if (key == null) {
+      return null;
+    }
+    return uriInfo.getAbsolutePathBuilder().path(key).build();
+  }
+
+  private static String firstNonBlank(String... values) {
+    if (values == null) {
+      return null;
+    }
+    for (String v : values) {
+      if (v != null && !v.isBlank()) {
+        return v.trim();
+      }
+    }
+    return null;
   }
 
   /**

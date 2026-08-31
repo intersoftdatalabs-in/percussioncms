@@ -30,9 +30,13 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.percussion.rest.Guid;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriInfo;
 import java.util.List;
+import org.mockito.ArgumentCaptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -167,21 +171,40 @@ public class DisplayFormatResourceTest {
   }
 
   @Test
-  public void createDisplayFormatClearsIdAndDelegates() {
+  public void createDisplayFormatCopiesBodyClearsIdAndReturns201() {
     DisplayFormat body = new DisplayFormat();
     body.setName("MyFmt");
     body.setDisplayId(9);
+    Guid clientGuid = new Guid("0-11-9");
+    body.setGuid(clientGuid);
+    body.setGuidString("0-11-9");
     DisplayFormat created = new DisplayFormat();
     created.setName("MyFmt");
     created.setDisplayId(99);
     when(adaptor.createDisplayFormat(any())).thenReturn(created);
+    UriInfo uriInfo = mock(UriInfo.class);
+    when(uriInfo.getAbsolutePathBuilder())
+        .thenReturn(UriBuilder.fromUri("http://localhost/Rhythmyx/rest/displayformats"));
+    resource.setUriInfo(uriInfo);
 
-    DisplayFormat out = resource.createDisplayFormat(body);
+    Response r = resource.createDisplayFormat(body);
 
+    assertEquals(201, r.getStatus());
+    DisplayFormat out = (DisplayFormat) r.getEntity();
     assertEquals("MyFmt", out.getName());
-    assertEquals(0, body.getDisplayId());
-    assertNull(body.getGuid());
-    verify(adaptor).createDisplayFormat(body);
+    assertEquals(99, out.getDisplayId());
+    assertEquals(9, body.getDisplayId());
+    assertSame(clientGuid, body.getGuid());
+    assertEquals("0-11-9", body.getGuidString());
+    assertEquals(
+        "http://localhost/Rhythmyx/rest/displayformats/MyFmt", r.getLocation().toString());
+    ArgumentCaptor<DisplayFormat> cap = ArgumentCaptor.forClass(DisplayFormat.class);
+    verify(adaptor).createDisplayFormat(cap.capture());
+    DisplayFormat sent = cap.getValue();
+    assertEquals("MyFmt", sent.getName());
+    assertEquals(0, sent.getDisplayId());
+    assertNull(sent.getGuid());
+    assertNull(sent.getGuidString());
   }
 
   @Test
@@ -313,5 +336,33 @@ public class DisplayFormatResourceTest {
         assertThrows(
             WebApplicationException.class, () -> bare.createDisplayFormat(new DisplayFormat()));
     assertEquals(500, createEx.getResponse().getStatus());
+  }
+
+  @Test
+  public void mapWriteFailurePreservesAdaptorWebApplicationException() {
+    WebApplicationException lock =
+        new WebApplicationException(
+            "Could not update display format; design lock required or held by another user", 409);
+    assertSame(lock, DisplayFormatResource.mapWriteFailure(lock));
+  }
+
+  @Test
+  public void mapWriteFailureIllegalArgumentIs400() {
+    WebApplicationException ex =
+        DisplayFormatResource.mapWriteFailure(new IllegalArgumentException("name is required"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void mapWriteFailureIllegalStateIs500EvenIfMessageContainsLock() {
+    IllegalStateException ise = new IllegalStateException("Failed to map display format");
+    WebApplicationException mapped = DisplayFormatResource.mapWriteFailure(ise);
+    assertEquals(500, mapped.getResponse().getStatus());
+    assertSame(ise, mapped.getCause());
+
+    WebApplicationException lockText =
+        DisplayFormatResource.mapWriteFailure(
+            new IllegalStateException("object is not locked"));
+    assertEquals(500, lockText.getResponse().getStatus());
   }
 }
