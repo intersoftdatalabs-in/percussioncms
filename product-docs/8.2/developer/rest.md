@@ -1339,20 +1339,49 @@ The Design SPA **Create template** action uses POST; **Delete** uses this DELETE
 ## Display formats (design catalog)
 
 Content Explorer **display format** definitions (Developer **Display Formats**) are exposed
-under `/services/displayformats`. Responses include a nested `guid` object and a plain
-`guidString` (`host-type-uuid`) so clients can load **Object ACL** via
-`GET /services/acls/object/{guid}`.
+under `/services/displayformats`. The REST layer is a thin contract over the UI **design**
+web service (`IPSUiDesignWs`) — create, update, and delete use the same
+`createDisplayFormats` / `loadDisplayFormats` / `saveDisplayFormats` /
+`deleteDisplayFormats` operations SOAP uses. There is no new SOAP surface. GET list/detail
+remain a catalog read.
+
+Responses include a nested `guid` object and a plain `guidString` (`host-type-uuid`) so
+clients can load **Object ACL** via `GET /services/acls/object/{guid}`.
 
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/services/displayformats` | List formats (optional `validForFolder` / `validForViewsAndSearches`) |
 | `GET` | `/services/displayformats/{idOrName}` | Load one format by internal name or GUID string |
+| `POST` | `/services/displayformats` | **Admin.** Create a format (`createDisplayFormats` then `saveDisplayFormats`) |
+| `PUT` | `/services/displayformats/{idOrName}` | **Admin.** Update `label`/`displayName` and/or `description` |
+| `DELETE` | `/services/displayformats/{idOrName}` | **Admin.** Delete a format (`deleteDisplayFormats`, `ignoreDependencies=false`) |
 
 JSON wraps the list as `DisplayFormatList` (`{"DisplayFormatList":[…]}`) including the empty
 catalog (`{"DisplayFormatList":[]}`, not a bare `[]`) and a single item as `DisplayFormat`.
 Integrators should unwrap those envelopes and read `guid.stringValue` or `guidString` (never
 assume the GUID is missing when `displayId` is present). See [Users, roles & security](id:admin-users-roles)
 for the operator Object ACL steps.
+
+Create (`POST /services/displayformats`) persists immediately (Workbench Finish, not an
+unsaved stub) and returns **201 Created** with a `Location` header pointing at
+`GET /services/displayformats/{name}`. JSON body requires `name` or `internalName` (unique,
+case-insensitive; **no whitespace** or wildcards). Optional `label` / `displayName` and
+`description` are applied before save. Duplicate name is **409**. Blank / whitespace /
+wildcard names are **400**. Missing request session/user is **403**. Non-Admin is **403**.
+The new format is then `GET /services/displayformats/{name}` **200**.
+
+Update (`PUT /services/displayformats/{idOrName}`) loads with a design lock
+(`overrideLock=false`) and releases it on save. Name is not renamed on PUT. `label` /
+`displayName` and `description` round-trip. Usage flags on GET (`validForFolder`,
+`validForViewsAndSearches`, `validForRelatedContent`) are **derived from columns** the
+same way Workbench computes them — they are not independently persisted on PUT.
+
+Delete (`DELETE /services/displayformats/{idOrName}`) returns **204** when removed; a
+following `GET` is **404**. Unknown id/name is **404**. A format that still has dependents
+is **409**. Locked-by-another-user is **409** (the lock is not stolen). Non-Admin is **403**.
+
+There is **no** Developer SPA display-format editor write in this slice — operators and
+integrators call the REST path (or Workbench).
 
 ### Object ACL save (display format and peers)
 

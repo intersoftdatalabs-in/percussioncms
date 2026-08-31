@@ -35,6 +35,21 @@ public class DisplayFormatTestAdaptor implements IDisplayFormatAdaptor {
   }
 
   @Override
+  public DisplayFormat createDisplayFormat(DisplayFormat body) {
+    return null;
+  }
+
+  @Override
+  public DisplayFormat updateDisplayFormat(String idOrName, DisplayFormat body) {
+    return null;
+  }
+
+  @Override
+  public boolean deleteDisplayFormat(String idOrName) {
+    return false;
+  }
+
+  @Override
   public void deleteDisplayFormats(
       List<IPSGuid> ids, boolean ignoreDependencies, String session, String user) {
     // No-op for test adaptor

@@ -59,6 +59,33 @@ public class DisplayFormat {
 
   public DisplayFormat() {}
 
+  /**
+   * Copy writable fields for POST create without mutating {@code source}. Identity ({@code guid},
+   * {@code guidString}, {@code displayId}) is left unset so create cannot reuse a client id.
+   */
+  public static DisplayFormat copyForCreate(DisplayFormat source) {
+    DisplayFormat copy = new DisplayFormat();
+    if (source == null) {
+      return copy;
+    }
+    copy.setName(source.getName());
+    copy.setLabel(source.getLabel());
+    copy.setValidForRelatedContent(source.isValidForRelatedContent());
+    copy.setSortedColumnNames(source.getSortedColumnNames());
+    copy.setAscendingSort(source.isAscendingSort());
+    copy.setDescendingSort(source.isDescendingSort());
+    copy.setValidForViewsAndSearches(source.isValidForViewsAndSearches());
+    copy.setValidForFolder(source.isValidForFolder());
+    copy.setInvalidFolderFieldNames(source.getInvalidFolderFieldNames());
+    copy.setProperties(source.getProperties());
+    copy.setColumns(source.getColumns());
+    copy.setInternalName(source.getInternalName());
+    copy.setAllowedCommunities(source.getAllowedCommunities());
+    copy.setDescription(source.getDescription());
+    copy.setDisplayName(source.getDisplayName());
+    return copy;
+  }
+
   public String getDescription() {
     return description;
   }
