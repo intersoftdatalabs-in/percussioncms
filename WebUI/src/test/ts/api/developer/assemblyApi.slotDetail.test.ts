@@ -18,7 +18,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   SLOT_DETAIL_ROOT,
+  createSlot,
+  deleteSlot,
   getSlotDetail,
+  isSlotCreateReady,
+  isValidSlotName,
+  isValidSlotType,
   normalizeSlotAssociations,
   normalizeSlotDesignGaps,
   unwrapSlotDetail,
@@ -179,5 +184,127 @@ describe("getSlotDetail unwraps non-array list fields (#3554)", () => {
     const url = String(fetchMock.mock.calls[0]?.[0]);
     expect(url).toContain(`${PATHS.SLOTS}/`);
     expect(url).toContain(encodeURIComponent("sys_AutoIndex"));
+  });
+});
+
+describe("slot create validation (AS-01)", () => {
+  it("rejects blank, whitespace, and wildcard names", () => {
+    expect(isValidSlotName("")).toBe(false);
+    expect(isValidSlotName("  ")).toBe(false);
+    expect(isValidSlotName("my slot")).toBe(false);
+    expect(isValidSlotName("foo*")).toBe(false);
+    expect(isValidSlotName("qa4056slot")).toBe(true);
+  });
+
+  it("accepts empty, REGULAR, and INLINE slotType; rejects others", () => {
+    expect(isValidSlotType("")).toBe(true);
+    expect(isValidSlotType("REGULAR")).toBe(true);
+    expect(isValidSlotType("inline")).toBe(true);
+    expect(isValidSlotType("WIDGET")).toBe(false);
+    expect(isSlotCreateReady({ name: "ok", slotType: "WIDGET" })).toBe(false);
+    expect(isSlotCreateReady({ name: "ok", slotType: "REGULAR" })).toBe(true);
+  });
+});
+
+describe("createSlot / deleteSlot (AS-01)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      statusText: status === 200 ? "OK" : "Error",
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("createSlot wraps request and unwraps response", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        SlotDetail: { name: "qaSlot", label: "QA", slotType: "REGULAR" },
+      }),
+    );
+    const out = await createSlot({
+      name: "qaSlot",
+      label: "QA",
+      slotType: "REGULAR",
+    });
+    expect(out.name).toBe("qaSlot");
+    const init = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(String(init.body))).toEqual({
+      SlotDetail: { name: "qaSlot", label: "QA", slotType: "REGULAR" },
+    });
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain(PATHS.SLOTS);
+  });
+
+  it("createSlot invalid name is 400", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ message: "name cannot contain whitespace" }, 400),
+    );
+    await expect(createSlot({ name: "my slot" })).rejects.toMatchObject({
+      status: 400,
+    });
+  });
+
+  it("createSlot invalid slotType is 400", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ message: "slotType must be REGULAR or INLINE" }, 400),
+    );
+    await expect(
+      createSlot({ name: "qaSlot", slotType: "WIDGET" }),
+    ).rejects.toMatchObject({ status: 400 });
+  });
+
+  it("createSlot duplicate is 409", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ message: "Slot already exists: qaSlot" }, 409),
+    );
+    await expect(createSlot({ name: "qaSlot" })).rejects.toMatchObject({
+      status: 409,
+    });
+  });
+
+  it("createSlot non-Admin is 403", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ message: "Admin role required" }, 403),
+    );
+    await expect(createSlot({ name: "qaSlot" })).rejects.toMatchObject({
+      status: 403,
+    });
+  });
+
+  it("deleteSlot sends DELETE to slots/{idOrName}", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+    await deleteSlot("qaSlot");
+    const url = String(fetchMock.mock.calls[0]?.[0]);
+    expect(url).toContain(`${PATHS.SLOTS}/`);
+    expect(url).toContain(encodeURIComponent("qaSlot"));
+    const init = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    expect(init.method).toBe("DELETE");
+  });
+
+  it("deleteSlot system slot is 409", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ message: "System slots cannot be deleted" }, 409),
+    );
+    await expect(deleteSlot("sys_inline_link")).rejects.toMatchObject({
+      status: 409,
+    });
+  });
+
+  it("deleteSlot non-Admin is 403", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ message: "Admin role required" }, 403),
+    );
+    await expect(deleteSlot("qaSlot")).rejects.toMatchObject({ status: 403 });
   });
 });

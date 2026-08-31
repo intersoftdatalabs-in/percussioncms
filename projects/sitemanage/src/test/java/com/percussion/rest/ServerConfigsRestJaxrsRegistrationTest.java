@@ -40,6 +40,7 @@ class ServerConfigsRestJaxrsRegistrationTest {
     "restAuditLogResource",
     "restKeywordsResource",
     "restLocalesResource",
+    "restAutoTranslationsResource",
     "restSlotsResource",
     "restSharedFieldsResource",
     "restSystemDefResource",

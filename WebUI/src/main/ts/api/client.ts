@@ -332,6 +332,42 @@ export async function putPlainText<T>(
   return handleResponse<T>(response);
 }
 
+/**
+ * GET that also returns response headers (e.g. {@code Content-Disposition}
+ * on CD-14 content-type export and AS-08 template export).
+ */
+export async function getWithHeaders<T>(
+  url: string,
+  headers?: HeadersInit,
+): Promise<{ data: T; headers: Headers; status: number }> {
+  const response = await fetch(url, {
+    method: "GET",
+    headers: buildHeaders(headers),
+    credentials: "same-origin",
+  });
+  const data = await handleResponse<T>(response);
+  return { data, headers: response.headers, status: response.status };
+}
+
+/**
+ * POST a raw string body (not JSON-stringified). Used by XML import
+ * ({@code POST /contenttypes/import}, {@code POST /templates/import})
+ * and similar text payloads.
+ */
+export async function postText<T>(
+  url: string,
+  body: string,
+  headers?: HeadersInit,
+): Promise<T> {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: buildHeaders(headers, false),
+    credentials: "same-origin",
+    body: body ?? "",
+  });
+  return handleResponse<T>(response);
+}
+
 /** Sends a DELETE request. */
 export async function del<T>(
   url: string,

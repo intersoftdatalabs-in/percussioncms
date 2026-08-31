@@ -100,16 +100,37 @@ const DEVELOPER_SMOKE_SET = [
     notes: "CD-18 SPA locale editor (#4005 / parent #1690)",
   },
   {
+    id: "auto-translation-editor",
+    file: "developer-auto-translation-editor.spec.js",
+    title: "Admin can add a locale×content-type row, save, and round-trip",
+    status: "green",
+    notes: "CD-18 SPA auto-translation editor (#4028 / parent #1690)",
+  },
+  {
     id: "catalog-slots",
     file: "developer-catalog-smoke.spec.js",
     title: "slots: catalog loads without API error",
     status: "green",
   },
   {
+    id: "slot-editor",
+    file: "developer-slot-editor.spec.js",
+    title: "Admin can create a uniquely named slot and delete it",
+    status: "green",
+    notes: "AS-01 SPA slot create/delete (#4056 / parent #1690)",
+  },
+  {
     id: "catalog-shared-fields",
     file: "developer-catalog-smoke.spec.js",
     title: "shared-fields: catalog loads without API error",
     status: "green",
+  },
+  {
+    id: "shared-fields-editor",
+    file: "developer-shared-fields-editor.spec.js",
+    title: "Admin can create, save, and delete a shared field group",
+    status: "green",
+    notes: "CD-15 SPA shared-field group write (#4029 / parent #1690)",
   },
   {
     id: "catalog-system-def",
@@ -122,6 +143,13 @@ const DEVELOPER_SMOKE_SET = [
     file: "developer-system-def-writes.spec.js",
     title: "system-def: REST add/save/delete durable on H2 (#4037)",
     status: "green",
+  },
+  {
+    id: "system-def-editor",
+    file: "developer-system-def-editor.spec.js",
+    title: "Admin sees system-def save/add/delete chrome",
+    status: "green",
+    notes: "CD-16 SPA system-def field write (#4030 / parent #1690)",
   },
   {
     id: "template-source-viewer",

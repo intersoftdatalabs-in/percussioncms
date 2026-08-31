@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Create or delete a content type from Developer catalog chrome, lock, enable or disable, rename via REST, add or delete local fields via REST, include system or shared fields via REST, export design XML via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Create, rename, or delete a content type from Developer chrome, lock, enable or disable, toggle type-level search indexing, set icon strategy, add or delete local fields from Developer Content Type detail, include system or shared fields from Developer detail, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, field choice catalogs, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -11,8 +11,8 @@ tags: [admin, developer, content-types]
 
 **Developer → Content types** lists design content types, **creates** a new type,
 and opens a detail panel
-for fields, allowed workflows, allowed templates, **item-level exits**, **control property values**,
-**field-rule expressions**, and Object ACL. Design edits and **delete** use an explicit **design-session lock** so two
+for fields, allowed workflows, allowed templates, **icon strategy**, **item-level exits**, **control property values**,
+the **choice catalog**, **field-rule expressions**, and Object ACL. Design edits and **delete** use an explicit **design-session lock** so two
 Admins cannot overwrite or remove the same type at once.
 
 Admins can **create** a content type from this catalog (**New content type**) or with
@@ -26,15 +26,21 @@ are **400**. Non-Admin callers are **403**. Integrators can also **import** one
 Workbench-equivalent `ItemDefData` design XML with Admin
 `POST /services/contenttypes/import` (CD-14; create only; duplicate name **409**;
 invalid XML **400**; the new object's create lock is released and existing types
-are not stolen). This chrome does **not** include an
-import wizard; rename, **local field create/delete**, and **include
-system/shared fields** are REST-only (no SPA field editor or field picker).
-After a held lock, integrators add a local field with
-`POST /services/contenttypes/{idOrName}/fields` (JSON `name` required) and
-remove one with `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}`.
-The add call creates the backend column **before** the content editor
-application is re-initialized. Duplicate field names are **409**. Unlocked is
-**409**. System and shared fields cannot be removed here (**400**). Include an existing system or shared field with
+are not stolen). This chrome includes **export** (detail **Export XML**) and **create-only import**
+(catalog **Import XML**). After a held **Lock**, operators can **rename** the type
+(detail **Rename content type**), **add** and **delete local fields** from Content
+Type detail (see **Local fields** below).
+The add call creates the backend column **before** the content editor application is
+re-initialized. After a held lock, the detail **Include system or shared field**
+picker includes an existing catalog field
+(`POST /services/contenttypes/{idOrName}/fields/include`; origin stays
+system/shared). Duplicate include is **409**. Unknown catalog field is **404**.
+Invalid `fieldType` is **400**. Integrators can also call
+`POST /services/contenttypes/{idOrName}/fields` (JSON `name` required; origin
+is always `local`) and
+`DELETE /services/contenttypes/{idOrName}/fields/{fieldName}`. Duplicate field
+names are **409**. Unlocked is **409**. System and shared fields cannot be removed
+here (**400**). Include an existing system or shared field with
 `POST /services/contenttypes/{idOrName}/fields/include` (JSON `name` and
 `fieldType` `system` or `shared`; origin is not copied as local). Duplicate
 include is **409**; unknown catalog field is **404**. Optional `fieldSet` on
@@ -49,8 +55,9 @@ definition is locked for the request). Nested
 `DELETE /services/sharedfields/{idOrName}/fields/{fieldName}` add or remove
 fields (backend column + display mapping). Control property values use
 `GET`/`PUT /services/sharedfields/{idOrName}/fields/{fieldName}/controlProperties`
-(request lock released on save). The SPA editor is not in this
-chrome. The content-editor **system definition** (global system fields) is a
+(request lock released on save). **Developer → Shared Fields** chrome can
+create, save, and delete a **group**; nested field and control-property
+editors are not in that chrome. The content-editor **system definition** (global system fields) is a
 separate singleton: Admin-only `GET /services/systemdef` and
 `PUT /services/systemdef` (patch existing field properties under a request lock).
 Nested `POST /services/systemdef/fields` and
@@ -60,11 +67,16 @@ column when it is missing; DELETE drops it when present and still succeeds if
 the column was never created (other drop failures do not save the catalog).
 Field names cannot be SQL reserved words (`SELECT`, `USER`, `TABLE`, `ORDER`).
 Duplicate field names are **409**.
-System-mandatory and system-internal fields cannot be deleted (**400**). An SPA
-editor is not in this chrome. Admin `GET /services/contenttypes/{idOrName}/export`
+System-mandatory and system-internal fields cannot be deleted (**400**).
+**Developer → System definition** exposes save / add / delete for those field
+properties (request lock released on save). Control, stylesheet, and flow
+editors are not in that chrome. See
+[Developer System Def](id:admin-developer-system-def). Admin `GET /services/contenttypes/{idOrName}/export`
 downloads Workbench-equivalent design XML (CD-14; no lock steal). REST import of
-that XML is `POST /services/contenttypes/import` (above). An SPA export/import
-wizard is not in this chrome. See
+that XML is `POST /services/contenttypes/import` (above). Developer **Content
+types** chrome exposes the same pair: **Export XML** on the detail toolbar and
+**Import XML** on the catalog (create only; duplicate name **409**; invalid XML
+**400**). See
 [REST API](id:developer-rest).
 
 This is **not** the full Workbench field-rule editor. The detail table still
@@ -81,8 +93,10 @@ lock. Item-level input translations must be request pre-processors (for
 example `sys_cleanReservedHtmlClasses` or `sys_itemHTMLEncodeTransformer`),
 not field UDFs such as `sys_ToUpperCase` (those stay on field rule
 expressions). Omitting `preExits`/`postExits` leaves pipe extensions
-unchanged. Apply-when conditions remain read-only. Choice-catalog filter /
-null-entry / default-selected writes are not in this chrome.
+unchanged. Apply-when conditions remain read-only. Field **choice catalogs**
+(source, local entries, filter, null-entry, default-selected) are edited
+from **Control property values** after **Lock** (see **Field choice catalog**
+below).
 
 ## Product path — create a content type
 
@@ -99,8 +113,26 @@ null-entry / default-selected writes are not in this chrome.
    (**409**). Invalid names (blank, spaces, wildcard) cannot be submitted; if
    REST rejects them they are **400**. Non-Admin callers are **403**.
 
-Rename is still REST-only (`PUT /services/contenttypes/{idOrName}/name` after a
-held lock). See **Rename a content type (REST)** below.
+## Product path — rename a content type
+
+Admins rename a type from Developer Content Type **detail** after holding the
+design-session lock. **Save content type** does **not** change the internal
+name (bulk `PUT /services/contenttypes/{idOrName}` still does not rename).
+
+1. Open the type and click **Lock**. Status becomes **Locked by you**.
+2. Change **Name** (letters, digits, underscore, and period; no spaces) and
+   click **Rename content type**. The product calls
+   `PUT /services/contenttypes/{idOrName}/name` (Jackson root `ContentTypeName`)
+   while the lock is still held.
+3. A following `GET /services/contenttypes/{newName}` is **200**. `GET` by the
+   previous name is **404**. `GET` by id returns the new name.
+4. Duplicate or reserved names (for example **Folder**, or another catalog type)
+   show an error (**409** on the SPA; REST may also return **400** with an
+   already-exists message). Blank, spaces, or wildcard names cannot be
+   submitted; if REST rejects them they are **400**. Non-Admin callers are
+   **403**.
+5. Without a lock, Name stays read-only and Rename stays **disabled**. An
+   unlocked REST `PUT .../name` is **409** and does not acquire the lock.
 
 ## Product path — lock, save, unlock
 
@@ -113,28 +145,59 @@ held lock). See **Rename a content type (REST)** below.
    **Object ACL** as soon as the type opens, including while the field catalog
    is still loading.
 4. The **detail toolbar at the top of the panel** (sticky) shows **Lock**,
-   **Save content type**, **Unlock**, **Delete content type**, and the **Enabled** checkbox. The type
-   name and **Allowed templates** add/remove chrome are visible immediately
-   (add/remove stay **disabled** until the type body has loaded and you hold
-   the lock). The status line starts as **Not locked**. Label, description,
-   enabled, field flags, and association editors stay **read-only** until you
-   hold the lock. You do not need to scroll past the fields table to lock or
-   save. Enabled stays disabled until you hold the lock; a failed lock (**409**)
-   does not steal another user's lock or enable the checkbox, template
+   **Save content type**, **Unlock**, **Export XML**, **Rename content type**,
+   **Delete content type**, the **Enabled** checkbox, **Search indexing**, and
+   **Icon strategy**. The type name and
+   **Allowed templates** add/remove chrome are visible immediately (add/remove
+   stay **disabled** until the type body has loaded and you hold the lock). The
+   status line starts as **Not locked**. Label, description, enabled, type-level
+   search indexing, icon strategy, field flags, and association editors stay
+   **read-only** until you hold the lock. You do not need to scroll past the
+   fields table to lock or save. Enabled, Search indexing, and Icon strategy
+   stay disabled until you hold the lock; a failed lock (**409**) does not steal
+   another user's lock or enable the checkboxes, icon source/value, template
    add/remove, control property value editors, or Save.
 5. Click **Lock**. Status becomes **Locked by you**. If another user already
    holds the lock, the panel shows an error and Save stays disabled (the product
    does **not** steal the lock).
-6. Change the **Description**, **Enabled** checkbox, and any other unlocked
-   fields, then click **Save content type**. Save writes while the lock is still
-   held. It does **not** unlock. **Enabled** is written with a dedicated
+6. Change the **Description**, **Enabled** checkbox, **Search indexing**
+   checkbox, **Icon strategy**, and any other unlocked fields, then click
+   **Save content type**. Save writes while the lock is still held. It does
+   **not** unlock. **Enabled** is written with a dedicated
    `PUT /services/contenttypes/{idOrName}/enabled` (CD-13), not the bulk
-   content-type save. Without a lock the checkbox stays disabled and a toggle
-   cannot persist.
+   content-type save. **Search indexing** is the Workbench Properties **Enable
+   searching for this Content Type** flag (root field-set `isUserSearchable`;
+   default on). It is written with
+   `GET`/`PUT /services/contenttypes/{idOrName}/searchIndexing` (CD-10) after a
+   held lock, and is **not** the per-field **Searchable** column on the fields
+   table. **Icon strategy** is written with
+   `PUT /services/contenttypes/{idOrName}/icon` (CD-11; `none` / `specified` /
+   `fromFileField`). `none` clears the value. A blank value when source is not
+   `none` is **400**. This chrome does **not** upload icon binaries. Without a
+   lock both checkboxes and icon editors stay disabled and a toggle cannot
+   persist. An unlocked or lost-lock save is **409** and the panel shows the
+   error. If `GET .../searchIndexing` fails (403 / 404 / 5xx), the checkbox
+   stays at the Workbench default (**on**) and the panel shows a non-blocking
+   load notice. A failed search-indexing save restores the last loaded value.
 7. To change **Allowed templates**, follow **Allowed templates (after lock)**
    below. Save does **not** unlock.
 8. Click **Unlock** when you are done. Status returns to **Not locked** and the
    form is read-only again. **Back to list** also releases a lock you hold.
+
+### Icon strategy (after lock)
+
+The **Icon strategy** control is read-only until you hold the lock. **Source**
+and **Value** stay **disabled** while status is **Not locked**. After **Lock**:
+
+1. Choose **None**, **Specified file**, or **From file field**.
+2. For **Specified file**, enter a file path or name (for example
+   `rx_resources/images/ContentTypeIcons/page.gif`). For **From file field**,
+   enter the file field name (for example `item_file_attachment`). **None**
+   clears the value; the value field is disabled.
+3. Click **Save content type**. Save writes
+   `PUT /services/contenttypes/{idOrName}/icon` while the lock is still held.
+   A blank value when source is not **None** is **400**. Unlocked or another
+   user's lock is **409**. This chrome does **not** upload icon binaries.
 
 ### Allowed workflows (after lock)
 
@@ -170,6 +233,35 @@ the lock (including while the type is still loading). After **Lock**:
 
 This is not the full Workbench template picker.
 
+### Local fields (add / delete after lock)
+
+The **Fields** catalog lists local, system, and shared fields. **Add local
+field** and **Delete** on a local row stay **disabled** until you hold the
+lock. Origin of a created field is always **local**. Include of existing
+system or shared fields is REST-only (`POST .../fields/include`) in this
+release.
+
+After **Lock**:
+
+1. Enter a unique field **name** (letter, then letters, digits, or underscore),
+   optional **label**, **data type** (default `text`), and **control** (default
+   `sys_EditBox`), then click **Add local field**. The product POSTs
+   `POST /services/contenttypes/{idOrName}/fields` while the lock is still
+   held and does **not** unlock. The field catalog shows the new row. A
+   following `GET /services/contenttypes/{idOrName}` includes it.
+2. Duplicate names return **409**. The lock is still held. Fix the name and
+   retry, or **Unlock**.
+3. Click **Delete** on a **local** field and confirm. The product DELETEs
+   `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}` (`204`). The
+   catalog omits that field. System and shared fields have no Delete control
+   (REST **400** if you try).
+4. Without a lock, Add / Delete stay **disabled**. The product does **not**
+   steal another user's lock (lock failure is **409**). An unlocked add or
+   delete does not persist.
+
+This is not the full Workbench field editor. Child field-set reorder and
+include of system/shared fields are later slices.
+
 ### Item-level exits (after lock)
 
 The **Item-level exits** lists (input translations, output translations,
@@ -204,16 +296,42 @@ After **Lock**:
 2. Edit a value, **Add** a parameter name/value, or **Remove** a row.
 3. Click **Save content type**. The product replaces the property list
    (`PUT .../fields/{fieldName}/controlProperties`) while the lock is still
-   held. Save does **not** send the choice catalog, so existing choices stay
-   unchanged. A following GET on the same path lists the new values.
+   held. If you did **not** change the choice catalog, Save omits `choices` so
+   existing choices stay unchanged. A following GET on the same path lists the
+   new values.
 4. Without a lock, value editors and Save stay **disabled**. The product does
    **not** steal another user's lock (lock failure is **409**). An unlocked
    edit does not persist.
 
-This is not the full Workbench Properties tab. Choice catalogs show as
-read-only (type only) in this chrome; Save omits `choices`. Integrators write
-choice filter, null-entry, and default-selected on
-`PUT .../fields/{fieldName}/controlProperties` by sending `choices` — see
+### Field choice catalog (after lock)
+
+The **Choice catalog** editor is under **Control property values** for the same
+selected field. Source, local entries, keyword id, lookup, table, null-entry,
+default-selected, and filter stay **disabled** until you hold the lock.
+
+After **Lock**:
+
+1. Select the field. The product loads the current catalog from the same
+   `GET .../controlProperties` response (`choices` is omitted when the field
+   has none).
+2. Choose a source:
+   * **None (clear catalog)** — next save sends `choices.type` `none` and
+     removes the catalog.
+   * **Local list** — add value/label entries.
+   * **Keyword (global)** — set the keyword / lookup table id.
+   * **Lookup** / **Internal lookup** — set the lookup href (optional name).
+   * **Table** — set table name, label column, and value column.
+3. Optionally include a **null entry**, **default selected** rows, and a
+   **choice filter** (lookup href plus dependent fields).
+4. Click **Save content type**. When the catalog changed, the product sends
+   `choices` on `PUT .../fields/{fieldName}/controlProperties` while the lock
+   is still held. A following GET lists the new catalog. A properties-only
+   save still omits `choices`, so the catalog is not cleared.
+5. Without a lock, choice editors and Save stay **disabled**. The product does
+   **not** steal another user's lock (lock failure is **409**).
+
+This is not the full Workbench Properties visual chooser. Shared-field choice
+editors are a separate surface. Integrator notes:
 [REST API — Content types](id:developer-rest).
 
 ### Field rule expressions (after lock)
@@ -246,6 +364,27 @@ conditions on field validation are not written.
 Locks expire after **30 minutes**. If Save fails because the lock expired,
 click **Lock** again and retry.
 
+## Export or import design XML
+
+**Export** does **not** require a design lock and does **not** steal one.
+
+1. Open **Developer → Content types** and open a type.
+2. Click **Export XML** on the detail toolbar. The browser downloads
+   Workbench-equivalent `ItemDefData` XML (`GET /services/contenttypes/{idOrName}/export`).
+   The filename is derived from the type name (for example `percPage.xml`).
+3. Unknown types are **404**. Non-Admin callers are **403**.
+
+**Import** is **create only**. It does **not** overwrite an existing type.
+
+1. Return to the catalog (**Back to list**).
+2. Under **Import XML**, choose an `ItemDefData` XML file.
+3. Enter a **unique name** (no spaces or wildcards) when the XML name already
+   exists on the server. The chrome rewrites `PSXItemDefSummary@name` before
+   `POST /services/contenttypes/import`.
+4. Click **Import content type**. The catalog reloads and lists the new type.
+5. Invalid XML is **400**. A name that already exists is **409** (no replace).
+   The product does **not** steal locks on existing types.
+
 ## Enable or disable a content type
 
 The **Enabled** checkbox on Developer Content Type detail controls whether the
@@ -263,8 +402,8 @@ type is available for runtime use.
 
 ## Rename a content type (REST)
 
-Developer Content Type chrome does **not** rename the type. Integrators rename
-with REST after a held design-session lock:
+Integrators can also rename with REST after a held design-session lock
+(the same contract the SPA uses):
 
 1. `POST /services/contenttypes/{idOrName}/lock`
 2. `PUT /services/contenttypes/{idOrName}/name` with Jackson root
@@ -275,7 +414,9 @@ with REST after a held design-session lock:
 4. `POST .../unlock` when done.
 
 Bulk `PUT /services/contenttypes/{idOrName}` still does **not** change name.
-Unlocked or another user's lock is **409**. Collision or spaces is **400**.
+Unlocked or another user's lock is **409**. Invalid names (blank, spaces,
+wildcard) are **400**. Duplicate catalog names are **400** on REST (already
+exists) and **409** when the SPA maps a duplicate/reserved conflict.
 
 ## Delete a content type
 
@@ -303,22 +444,27 @@ The chrome calls:
 |--------|---------|
 | Create | `POST /services/contenttypes` (Admin; unique name, no spaces; 409 duplicate; 400 invalid; 403 non-Admin) |
 | Lock | `POST /services/contenttypes/{idOrName}/lock` |
-| Save (label, description, fields) | `PUT /services/contenttypes/{idOrName}` (requires a held lock; does not send `enabled`, `allowedWorkflows`, or `allowedTemplates`) |
+| Save (label, description, fields) | `PUT /services/contenttypes/{idOrName}` (requires a held lock; does not send `enabled`, type-level `searchIndexing`, `allowedWorkflows`, or `allowedTemplates`) |
 | Enable / disable | `PUT /services/contenttypes/{idOrName}/enabled` (CD-13; requires a held lock; does not acquire or release it) |
-| Type-level search indexing | `GET` / `PUT /services/contenttypes/{idOrName}/searchIndexing` (CD-10; REST-only; PUT requires a held lock; default on; not the per-field searchable flag; no SPA Properties checkbox) |
+| Type-level search indexing | `GET` / `PUT /services/contenttypes/{idOrName}/searchIndexing` (CD-10; Developer detail **Search indexing** checkbox after lock; PUT requires a held lock; default on; not the per-field searchable flag) |
 | Load icon strategy | `GET /services/contenttypes/{idOrName}/icon` (CD-11; no lock; `none` / `specified` / `fromFileField`) |
-| Set icon strategy | `PUT /services/contenttypes/{idOrName}/icon` (CD-11; Admin; held lock; `none` clears value; no binary upload; no SPA picker) |
-| Rename | `PUT /services/contenttypes/{idOrName}/name` (CD-01; Admin; held lock; unique name, no spaces; bulk PUT does not rename) |
+| Set icon strategy | `PUT /services/contenttypes/{idOrName}/icon` (CD-11; Admin; held lock; `none` clears value; blank non-none is **400**; no binary upload; SPA Properties picker after lock) |
+| Rename | `PUT /services/contenttypes/{idOrName}/name` (CD-01; Admin; held lock; unique name, no spaces; bulk PUT does not rename; SPA **Rename content type** on detail) |
 | Save allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` (requires a held lock; does not unlock) |
 | Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` (held lock; full replace) |
 | Confirm allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` |
 | Replace item-level exits | `PUT /services/contenttypes/{idOrName}/itemExits` (CD-09; held lock; full replace of translations/validations; empty lists clear) |
 | Confirm item-level exits | `GET /services/contenttypes/{idOrName}/itemExits` |
 | Load field control properties | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` (CD-07; no lock) |
-| Save field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` (held lock; full replace of values; does not send `choices`) |
+| Save field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` (held lock; full replace of values; omit `choices` to leave the catalog unchanged; `type: none` clears) |
 | Load field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` |
 | Save field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` (held lock; full replace of validation, visibility, inputTranslation, outputTranslation) |
+| Include system or shared field | `POST /services/contenttypes/{idOrName}/fields/include` (CD-04; held lock; origin stays system/shared; duplicate 409; unknown catalog field 404; invalid `fieldType` 400) |
+| Add local field | `POST /services/contenttypes/{idOrName}/fields` (CD-03; held lock; origin always `local`; duplicate name **409**) |
+| Delete local field | `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}` (CD-03; held lock; **204**; system/shared **400**) |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |
+| Export design XML | `GET /services/contenttypes/{idOrName}/export` (Admin; no lock; `application/xml` attachment) |
+| Import design XML | `POST /services/contenttypes/import` (Admin; create-only ItemDefData XML; 400 invalid; 409 duplicate) |
 | Delete | `DELETE /services/contenttypes/{idOrName}` (Admin; held lock; 204; 409 if unlocked or another user holds the lock; 400 if dependents; SPA Delete on detail after Lock) |
 
 Integrator notes: [REST API — Content types](id:developer-rest). Object ACL on

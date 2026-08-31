@@ -100,6 +100,9 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
       postExits: [],
     }),
     replaceContentTypeItemExits: vi.fn().mockImplementation(async (_id, body) => body),
+    includeContentTypeField: vi.fn(),
+    getContentTypeIcon: vi.fn().mockResolvedValue({ source: "none" }),
+    setContentTypeIcon: vi.fn().mockResolvedValue({ source: "none" }),
   };
 });
 
@@ -111,6 +114,12 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   updateTemplateDetail: vi.fn(),
   listSlots: vi.fn().mockResolvedValue([]),
   getSlotDetail: vi.fn().mockResolvedValue({}),
+  createSlot: vi.fn(),
+  deleteSlot: vi.fn(),
+  updateSlotDetail: vi.fn(),
+  isSlotCreateReady: vi.fn((opts: { name?: string }) => Boolean(opts?.name?.trim())),
+  isValidSlotName: vi.fn((n: string) => Boolean(n?.trim())),
+  isValidSlotType: vi.fn(() => true),
   listCommunities: vi.fn().mockResolvedValue([]),
   getCommunityDetail: vi.fn().mockResolvedValue({}),
 }));

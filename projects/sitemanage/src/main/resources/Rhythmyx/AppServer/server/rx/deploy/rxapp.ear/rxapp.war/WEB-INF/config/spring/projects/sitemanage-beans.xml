@@ -91,6 +91,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restItemFilterResource" />
             <ref bean="restKeywordsResource" />
             <ref bean="restLocalesResource" />
+            <ref bean="restAutoTranslationsResource" />
             <ref bean="restRelationshipTypeResource" />
             <ref bean="restSharedFieldsResource" />
             <ref bean="restSlotsResource" />
@@ -143,6 +144,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <!-- #3896: Developer field-rule PUT; JAXB rejects flat fieldName and
                  UNWRAP_ROOT_VALUE can leave the four lists null. Bind wrap + flat. -->
             <ref bean="contentTypeFieldRuleExpressionsJsonReader" />
+            <!-- #4028 CD-18: PUT /locales/auto-translations wrap or bare array. -->
+            <ref bean="autoTranslationRowsJsonReader" />
             <ref bean="jacksonProvider" />
             <ref bean="jacksonContextResolver" />
             <ref bean="authorizationFilter" />

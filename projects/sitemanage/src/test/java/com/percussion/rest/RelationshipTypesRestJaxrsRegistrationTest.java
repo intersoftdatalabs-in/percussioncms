@@ -39,6 +39,7 @@ class RelationshipTypesRestJaxrsRegistrationTest {
     "restRelationshipTypeResource",
     "restKeywordsResource",
     "restLocalesResource",
+    "restAutoTranslationsResource",
     "restSlotsResource",
     "restSharedFieldsResource",
     "restSystemDefResource",

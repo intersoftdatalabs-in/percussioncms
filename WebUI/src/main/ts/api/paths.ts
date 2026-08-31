@@ -526,6 +526,10 @@ export const PATHS = {
   get LOCALES() {
     return `${SERVICES_ROOT}/locales`;
   },
+  /** Singleton auto-translation set (locale × content type). Admin GET/PUT. */
+  get AUTO_TRANSLATIONS() {
+    return `${SERVICES_ROOT}/locales/auto-translations`;
+  },
   /** Shared field groups design catalog (content-editor shared def). */
   get SHARED_FIELDS() {
     return `${SERVICES_ROOT}/sharedfields`;

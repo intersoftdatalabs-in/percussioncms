@@ -18,22 +18,43 @@
 import React, { useEffect, useRef, useState } from "react";
 import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
+  addLocalContentTypeField,
   asContentTypeText,
+  CONTENT_TYPE_ICON_FROM_FILE_FIELD,
+  CONTENT_TYPE_ICON_NONE,
+  CONTENT_TYPE_ICON_SPECIFIED,
   deleteContentType,
+  deleteLocalContentTypeField,
   getContentTypeAllowedTemplates,
   getContentTypeDetail,
+  getContentTypeIcon,
   getContentTypeItemExits,
+  getContentTypeSearchIndexing,
   getFieldControlProperties,
+  isContentTypeIconNone,
+  isContentTypeRenameReady,
   lockContentType,
+  normalizeContentTypeIconSource,
+  normalizeContentTypeName,
+  renameContentType,
   replaceContentTypeAllowedTemplates,
   replaceContentTypeItemExits,
   replaceFieldControlProperties,
+  contentTypeIconPutBody,
   setContentTypeAllowedWorkflows,
   setContentTypeEnabled,
+  setContentTypeIcon,
+  setContentTypeSearchIndexing,
   unlockContentType,
   updateContentTypeDetail,
+  unwrapContentTypeIcon,
+  type ContentTypeIconSource,
   type ContentTypeUpdateBody,
 } from "../api/developer/contentTypesApi";
+import {
+  downloadXmlFile,
+  exportContentType,
+} from "../api/developer/contentTypeImportExport";
 import {
   cloneContentTypeItemExits,
   contentTypeItemExitsEqual,
@@ -48,17 +69,26 @@ import {
   normalizeNamedObjectRefs,
 } from "../api/developer/contentTypeLists";
 import type {
+  ContentTypeChoiceCatalog,
   ContentTypeControlProperty,
   ContentTypeDetail,
   ContentTypeFieldSummary,
+  ContentTypeIcon,
   ContentTypeItemExits,
   NamedObjectRef,
 } from "../api/developer/types";
+import {
+  choiceCatalogPayloadError,
+  choiceCatalogsEqual,
+  cloneChoiceCatalog,
+  toChoiceCatalogPayload,
+} from "../api/developer/contentTypeChoiceCatalog";
 import {
   cloneControlProperties,
   controlPropertiesEqual,
   toControlPropertyPayload,
 } from "./contentTypeControlProperties";
+import { ContentTypeFieldChoicesSection } from "./ContentTypeFieldChoicesSection";
 import {
   buildAllowedWorkflowsReplaceBody,
   cloneNamedObjectRefs,
@@ -73,11 +103,12 @@ import {
   type DesignGapWire,
 } from "../api/developer/designGaps";
 import { ObjectAclSection } from "./ObjectAclSection";
+import { ContentTypeIncludeFieldSection } from "./ContentTypeIncludeFieldSection";
 import {
   ContentTypeFieldRulesSection,
   type ContentTypeFieldRulesHandle,
 } from "./ContentTypeFieldRulesSection";
-import { isApiError } from "../api/client";
+import { extractRestErrorMessage, isApiError } from "../api/client";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { catalogColors, tableHeaderRow, tableRow } from "./catalogStyles";
@@ -146,6 +177,24 @@ function normalizeDetailLists(d: ContentTypeDetail): ContentTypeDetail {
   };
 }
 
+function emptyIcon(): ContentTypeIcon {
+  return { source: CONTENT_TYPE_ICON_NONE };
+}
+
+function applyIconEnvelope(icon: ContentTypeIcon | null | undefined): {
+  source: ContentTypeIconSource;
+  value: string;
+} {
+  const unwrapped = unwrapContentTypeIcon(icon ?? emptyIcon());
+  const source = normalizeContentTypeIconSource(unwrapped.source);
+  const value = isContentTypeIconNone(source)
+    ? ""
+    : typeof unwrapped.value === "string"
+      ? unwrapped.value
+      : "";
+  return { source, value };
+}
+
 function refKey(r: NamedObjectRef, index: number): string {
   if (r.name) return `name:${r.name}`;
   if (r.guid?.stringValue) return `guid:${r.guid.stringValue}`;
@@ -156,17 +205,39 @@ function refKey(r: NamedObjectRef, index: number): string {
 /** Canonical Percussion GUID shape: type-host-uuid (three numeric groups). */
 const PERC_GUID_RE = /^\d+-\d+-\d+$/;
 
+const LOCAL_FIELD_DATA_TYPES = [
+  "text",
+  "integer",
+  "date",
+  "datetime",
+  "time",
+  "bool",
+] as const;
+
+const DEFAULT_LOCAL_FIELD_CONTROL = "sys_EditBox";
+
+function isDuplicateFieldConflict(err: unknown): boolean {
+  if (!isApiError(err) || err.status !== 409) {
+    return false;
+  }
+  const msg = extractRestErrorMessage(err.body) || "";
+  return /already exists/i.test(msg);
+}
+
 export function ContentTypeDetailPanel({
   idOrName,
   catalogGuid,
   onBack,
   onDeleted,
+  onRenamed,
 }: {
   idOrName: string;
   /** GUID from catalog list row when detail wire omits stringValue (#3319). */
   catalogGuid?: string | null;
   onBack: () => void;
   onDeleted?: () => void;
+  /** Catalog refresh after a successful PUT .../name (selection key may change). */
+  onRenamed?: (newName: string, detail: ContentTypeDetail) => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<ContentTypeDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -174,7 +245,14 @@ export function ContentTypeDetailPanel({
   const [busy, setBusy] = useState(false);
   const [label, setLabel] = useState("");
   const [description, setDescription] = useState("");
+  const [nameDraft, setNameDraft] = useState("");
   const [enabled, setEnabled] = useState(true);
+  /** Type-level search indexing (CD-10); default on. Distinct from per-field searchable. */
+  const [searchIndexing, setSearchIndexing] = useState(true);
+  const [savedSearchIndexing, setSavedSearchIndexing] = useState(true);
+  const [searchIndexingLoadError, setSearchIndexingLoadError] = useState<string | null>(
+    null,
+  );
   const [fieldDrafts, setFieldDrafts] = useState<Record<string, FieldDraft>>({});
   const [workflows, setWorkflows] = useState<NamedObjectRef[]>([]);
   const [templates, setTemplates] = useState<NamedObjectRef[]>([]);
@@ -194,13 +272,27 @@ export function ContentTypeDetailPanel({
     ContentTypeControlProperty[]
   >([]);
   const [controlName, setControlName] = useState("");
-  const [choiceSummary, setChoiceSummary] = useState<string | null>(null);
+  const [choiceCatalog, setChoiceCatalog] = useState<ContentTypeChoiceCatalog | null>(null);
+  const [choiceCatalogInitial, setChoiceCatalogInitial] =
+    useState<ContentTypeChoiceCatalog | null>(null);
   const [controlPropsLoading, setControlPropsLoading] = useState(false);
   const [controlPropsError, setControlPropsError] = useState<string | null>(null);
   const [newPropName, setNewPropName] = useState("");
   const [newPropValue, setNewPropValue] = useState("");
+  const [newFieldName, setNewFieldName] = useState("");
+  const [newFieldLabel, setNewFieldLabel] = useState("");
+  const [newFieldDataType, setNewFieldDataType] = useState<string>("text");
+  const [newFieldControl, setNewFieldControl] = useState(DEFAULT_LOCAL_FIELD_CONTROL);
   const [heldLock, setHeldLock] = useState(false);
   const heldLockRef = useRef(false);
+  const [activeKey, setActiveKey] = useState(idOrName);
+  const activeKeyRef = useRef(idOrName);
+  const [iconSource, setIconSource] = useState<ContentTypeIconSource>(CONTENT_TYPE_ICON_NONE);
+  const [iconValue, setIconValue] = useState("");
+  const [savedIcon, setSavedIcon] = useState<ContentTypeIcon>(() => emptyIcon());
+  const [iconLoaded, setIconLoaded] = useState(false);
+  const [iconError, setIconError] = useState<string | null>(null);
+  const iconTouchedRef = useRef(false);
   const fieldRulesRef = useRef<ContentTypeFieldRulesHandle | null>(null);
   const [fieldRulesDirty, setFieldRulesDirty] = useState(false);
 
@@ -209,11 +301,15 @@ export function ContentTypeDetailPanel({
   }, [heldLock]);
 
   useEffect(() => {
-    const currentId = idOrName;
+    setActiveKey(idOrName);
+    activeKeyRef.current = idOrName;
+  }, [idOrName]);
+
+  useEffect(() => {
     return () => {
       if (heldLockRef.current) {
         heldLockRef.current = false;
-        void unlockContentType(currentId).catch(() => undefined);
+        void unlockContentType(activeKeyRef.current).catch(() => undefined);
       }
     };
   }, [idOrName]);
@@ -225,6 +321,23 @@ export function ContentTypeDetailPanel({
     setNotice(null);
     setHeldLock(false);
     heldLockRef.current = false;
+    setSearchIndexing(true);
+    setSavedSearchIndexing(true);
+    setSearchIndexingLoadError(null);
+    getContentTypeSearchIndexing(idOrName)
+      .then((si) => {
+        if (cancelled) return;
+        const on = si.searchIndexing !== false;
+        setSearchIndexing(on);
+        setSavedSearchIndexing(on);
+        setSearchIndexingLoadError(null);
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setSearchIndexing(true);
+        setSavedSearchIndexing(true);
+        setSearchIndexingLoadError(panelErrMsg(err, DEV_MSG.CT_SI_LOAD_ERROR));
+      });
     setItemExits(emptyContentTypeItemExits());
     setSavedItemExits(emptyContentTypeItemExits());
     setItemExitsLoaded(false);
@@ -247,16 +360,56 @@ export function ContentTypeDetailPanel({
     setControlProps([]);
     setControlPropsInitial([]);
     setControlName("");
-    setChoiceSummary(null);
+    setChoiceCatalog(null);
+    setChoiceCatalogInitial(null);
     setControlPropsError(null);
     setNewPropName("");
     setNewPropValue("");
+    setNewFieldName("");
+    setNewFieldLabel("");
+    setNewFieldDataType("text");
+    setNewFieldControl(DEFAULT_LOCAL_FIELD_CONTROL);
     setFieldRulesDirty(false);
+    setIconSource(CONTENT_TYPE_ICON_NONE);
+    setIconValue("");
+    setSavedIcon(emptyIcon());
+    setIconLoaded(false);
+    setIconError(null);
+    iconTouchedRef.current = false;
+    getContentTypeIcon(idOrName)
+      .then((icon) => {
+        if (cancelled) return;
+        if (iconTouchedRef.current) {
+          setIconLoaded(true);
+          return;
+        }
+        const applied = applyIconEnvelope(icon);
+        setIconSource(applied.source);
+        setIconValue(applied.value);
+        setSavedIcon(
+          applied.source === CONTENT_TYPE_ICON_NONE
+            ? emptyIcon()
+            : { source: applied.source, value: applied.value },
+        );
+        setIconLoaded(true);
+        setIconError(null);
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        if (!iconTouchedRef.current) {
+          setIconSource(CONTENT_TYPE_ICON_NONE);
+          setIconValue("");
+          setSavedIcon(emptyIcon());
+        }
+        setIconLoaded(true);
+        setIconError(panelErrMsg(err, DEV_MSG.CT_ICON_LOAD_ERROR));
+      });
     getContentTypeDetail(idOrName)
       .then((d) => {
         if (cancelled) return;
         const normalized = normalizeDetailLists(d);
         setDetail(normalized);
+        setNameDraft(asContentTypeText(normalized.name) || idOrName);
         setLabel(asContentTypeText(normalized.label));
         setDescription(asContentTypeText(normalized.description));
         setEnabled(normalized.enabled !== false);
@@ -273,7 +426,8 @@ export function ContentTypeDetailPanel({
         setControlProps([]);
         setControlPropsInitial([]);
         setControlName("");
-        setChoiceSummary(null);
+        setChoiceCatalog(null);
+        setChoiceCatalogInitial(null);
         setNewPropName("");
         setNewPropValue("");
       })
@@ -292,22 +446,24 @@ export function ContentTypeDetailPanel({
       setControlProps([]);
       setControlPropsInitial([]);
       setControlName("");
-      setChoiceSummary(null);
+      setChoiceCatalog(null);
+      setChoiceCatalogInitial(null);
       setControlPropsLoading(false);
       return;
     }
     let cancelled = false;
     setControlPropsLoading(true);
     setControlPropsError(null);
-    getFieldControlProperties(idOrName, field)
+    getFieldControlProperties(activeKey, field)
       .then((loaded) => {
         if (cancelled) return;
         const props = cloneControlProperties(loaded.properties);
         setControlProps(props);
         setControlPropsInitial(cloneControlProperties(props));
         setControlName(loaded.control || "");
-        const choiceType = loaded.choices?.type?.trim();
-        setChoiceSummary(choiceType ? choiceType : null);
+        const choices = cloneChoiceCatalog(loaded.choices);
+        setChoiceCatalog(choices);
+        setChoiceCatalogInitial(cloneChoiceCatalog(choices));
         setNewPropName("");
         setNewPropValue("");
         setControlPropsError(null);
@@ -317,7 +473,8 @@ export function ContentTypeDetailPanel({
         setControlProps([]);
         setControlPropsInitial([]);
         setControlName("");
-        setChoiceSummary(null);
+        setChoiceCatalog(null);
+        setChoiceCatalogInitial(null);
         setControlPropsError(panelErrMsg(err, DEV_MSG.CT_CONTROL_PROPS_ERROR));
       })
       .finally(() => {
@@ -328,7 +485,7 @@ export function ContentTypeDetailPanel({
     return () => {
       cancelled = true;
     };
-  }, [idOrName, selectedFieldName]);
+  }, [activeKey, selectedFieldName]);
 
   const initialDrafts = toDrafts(detail?.fields);
   const fieldsDirty =
@@ -354,25 +511,50 @@ export function ContentTypeDetailPanel({
   const controlPropsDirty =
     selectedFieldName.trim().length > 0 &&
     !controlPropertiesEqual(controlProps, controlPropsInitial);
+  const choicesDirty =
+    selectedFieldName.trim().length > 0 &&
+    !choiceCatalogsEqual(choiceCatalog, choiceCatalogInitial);
+  const controlSectionDirty = controlPropsDirty || choicesDirty;
+
+  const searchIndexingDirty = searchIndexing !== savedSearchIndexing;
+
+  const savedIconApplied = applyIconEnvelope(savedIcon);
+  const iconDirty =
+    iconLoaded &&
+    (iconSource !== savedIconApplied.source ||
+      (iconSource === CONTENT_TYPE_ICON_NONE
+        ? false
+        : iconValue.trim() !== savedIconApplied.value.trim()));
 
   const dirty =
     detail != null &&
     (label !== (detail.label || "") ||
       description !== (detail.description || "") ||
       enabled !== (detail.enabled !== false) ||
+      searchIndexingDirty ||
       fieldsDirty ||
       workflowsDirty ||
       templatesDirty ||
       itemExitsDirty ||
-      controlPropsDirty ||
-      fieldRulesDirty);
+      controlSectionDirty ||
+      fieldRulesDirty ||
+      iconDirty);
 
   const objectGuid = resolveContentTypeObjectGuid(detail, catalogGuid);
   const fieldRows = contentTypeFields(detail);
   const childSets = contentTypeChildSets(detail);
-  const gapRows = contentTypeDesignGaps(detail);
+  const gapRows = contentTypeDesignGaps(detail).filter(
+    (g) => designGapCode(g) !== "CT_SHARED_FIELD_INCLUSION",
+  );
   const canEdit = heldLock && !busy && detail != null;
   const canEditItemExits = canEdit && itemExitsLoaded;
+  const currentInternalName = asContentTypeText(detail?.name) || activeKey;
+  const canRename =
+    canEdit &&
+    isContentTypeRenameReady({
+      currentName: currentInternalName,
+      nextName: nameDraft,
+    });
 
   function toggleField(key: string, prop: "searchable" | "required") {
     setFieldDrafts((prev) => {
@@ -472,6 +654,97 @@ export function ContentTypeDetailPanel({
     setNotice(null);
   }
 
+  function applyLoadedDetail(saved: ContentTypeDetail) {
+    const normalized = normalizeDetailLists(saved);
+    setDetail(normalized);
+    setLabel(asContentTypeText(normalized.label));
+    setDescription(asContentTypeText(normalized.description));
+    setEnabled(normalized.enabled !== false);
+    setFieldDrafts(toDrafts(normalized.fields));
+    setWorkflows(
+      withDefaultWorkflowFlags(normalized.allowedWorkflows, normalized.defaultWorkflow),
+    );
+    setTemplates(cloneNamedObjectRefs(normalized.allowedTemplates));
+    return normalized;
+  }
+
+  async function handleAddLocalField() {
+    if (!heldLockRef.current) {
+      setError(DEV_MSG.CT_LOCK_REQUIRED);
+      return;
+    }
+    const name = newFieldName.trim();
+    if (!name) {
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const saved = await addLocalContentTypeField(activeKeyRef.current, {
+        name,
+        label: newFieldLabel.trim() || undefined,
+        dataType: newFieldDataType.trim() || "text",
+        control: newFieldControl.trim() || DEFAULT_LOCAL_FIELD_CONTROL,
+      });
+      const normalized = applyLoadedDetail(saved);
+      const firstField =
+        normalizeContentTypeFields(normalized.fields).find((f) => !!f.name)?.name || "";
+      if (!selectedFieldName || !normalized.fields?.some((f) => f.name === selectedFieldName)) {
+        setSelectedFieldName(firstField);
+      }
+      setNewFieldName("");
+      setNewFieldLabel("");
+      setNewFieldDataType("text");
+      setNewFieldControl(DEFAULT_LOCAL_FIELD_CONTROL);
+      setNotice(DEV_MSG.CT_FIELD_ADDED);
+    } catch (err: unknown) {
+      if (isApiError(err) && err.status === 409 && !isDuplicateFieldConflict(err)) {
+        heldLockRef.current = false;
+        setHeldLock(false);
+      }
+      setError(panelErrMsg(err, DEV_MSG.CT_FIELD_ADD_ERROR));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleDeleteLocalField(fieldName: string) {
+    if (!heldLockRef.current) {
+      setError(DEV_MSG.CT_LOCK_REQUIRED);
+      return;
+    }
+    const name = fieldName.trim();
+    if (!name) {
+      return;
+    }
+    if (!window.confirm(DEV_MSG.CT_FIELD_DELETE_CONFIRM)) {
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await deleteLocalContentTypeField(activeKeyRef.current, name);
+      const refreshed = applyLoadedDetail(
+        await getContentTypeDetail(activeKeyRef.current),
+      );
+      const remaining = normalizeContentTypeFields(refreshed.fields);
+      if (selectedFieldName === name) {
+        setSelectedFieldName(remaining.find((f) => !!f.name)?.name || "");
+      }
+      setNotice(DEV_MSG.CT_FIELD_DELETED);
+    } catch (err: unknown) {
+      if (isApiError(err) && err.status === 409) {
+        heldLockRef.current = false;
+        setHeldLock(false);
+      }
+      setError(panelErrMsg(err, DEV_MSG.CT_FIELD_DELETE_ERROR));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function addControlProp() {
     if (!heldLock) {
       return;
@@ -496,7 +769,7 @@ export function ContentTypeDetailPanel({
     setError(null);
     setNotice(null);
     try {
-      await lockContentType(idOrName);
+      await lockContentType(activeKeyRef.current);
       heldLockRef.current = true;
       setHeldLock(true);
       setNotice(DEV_MSG.CT_LOCKED);
@@ -509,17 +782,42 @@ export function ContentTypeDetailPanel({
     }
   }
 
+  function exportErrMsg(err: unknown): string {
+    if (isApiError(err) && err.status === 404) {
+      return panelErrMsg(err, DEV_MSG.CT_EXPORT_NOT_FOUND);
+    }
+    return panelErrMsg(err, DEV_MSG.CT_EXPORT_ERROR);
+  }
+
+  async function handleExport() {
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const exported = await exportContentType(activeKeyRef.current);
+      downloadXmlFile(exported.xml, exported.filename);
+    } catch (err: unknown) {
+      setError(exportErrMsg(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleUnlock() {
     setBusy(true);
     setError(null);
     setNotice(null);
     try {
-      await unlockContentType(idOrName);
+      await unlockContentType(activeKeyRef.current);
       heldLockRef.current = false;
       setHeldLock(false);
       setControlProps(cloneControlProperties(controlPropsInitial));
+      setChoiceCatalog(cloneChoiceCatalog(choiceCatalogInitial));
       setNewPropName("");
       setNewPropValue("");
+      const restored = applyIconEnvelope(savedIcon);
+      setIconSource(restored.source);
+      setIconValue(restored.value);
       setNotice(DEV_MSG.CT_UNLOCKED_NOTICE);
     } catch (err: unknown) {
       setError(panelErrMsg(err, DEV_MSG.CT_UNLOCK_ERROR));
@@ -531,7 +829,7 @@ export function ContentTypeDetailPanel({
   async function handleBack() {
     if (heldLockRef.current) {
       try {
-        await unlockContentType(idOrName);
+        await unlockContentType(activeKeyRef.current);
       } catch {
         // Best-effort release so Back cannot trap the operator on a stale lock.
       }
@@ -553,6 +851,74 @@ export function ContentTypeDetailPanel({
     return DEV_MSG.CT_DELETE_ERROR;
   }
 
+  function renameLooksLikeDuplicate(err: unknown): boolean {
+    if (!isApiError(err)) {
+      return false;
+    }
+    const body = err.body;
+    const text =
+      typeof body === "string"
+        ? body
+        : body != null && typeof body === "object"
+          ? JSON.stringify(body)
+          : "";
+    return /already exists|duplicate|reserved/i.test(text);
+  }
+
+  function renameErrorFallback(err: unknown): string {
+    if (isApiError(err)) {
+      if (err.status === 409) {
+        return renameLooksLikeDuplicate(err)
+          ? DEV_MSG.CT_DUPLICATE
+          : DEV_MSG.CT_RENAME_LOCK_REQUIRED;
+      }
+      if (err.status === 400) {
+        return renameLooksLikeDuplicate(err)
+          ? DEV_MSG.CT_DUPLICATE
+          : DEV_MSG.CT_INVALID_NAME;
+      }
+      if (err.status === 403) {
+        return DEV_MSG.CT_FORBIDDEN;
+      }
+    }
+    return DEV_MSG.CT_RENAME_ERROR;
+  }
+
+  async function handleRename(): Promise<void> {
+    if (!heldLockRef.current || busy || detail == null || !canRename) {
+      return;
+    }
+    const next = normalizeContentTypeName(nameDraft);
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const saved = normalizeDetailLists(
+        await renameContentType(activeKeyRef.current, next),
+      );
+      const renamed = asContentTypeText(saved.name) || next;
+      activeKeyRef.current = renamed;
+      setActiveKey(renamed);
+      setDetail(saved);
+      setNameDraft(renamed);
+      setLabel(asContentTypeText(saved.label));
+      setDescription(asContentTypeText(saved.description));
+      setEnabled(saved.enabled !== false);
+      setFieldDrafts(toDrafts(saved.fields));
+      setWorkflows(
+        withDefaultWorkflowFlags(saved.allowedWorkflows, saved.defaultWorkflow),
+      );
+      setTemplates(cloneNamedObjectRefs(saved.allowedTemplates));
+      setNotice(DEV_MSG.CT_RENAMED);
+      onRenamed?.(renamed, saved);
+    } catch (err: unknown) {
+      // 409: unlocked, another user, or duplicate — never steal by re-locking.
+      setError(panelErrMsg(err, renameErrorFallback(err)));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleDelete(): Promise<void> {
     // Require a held lock in chrome; do not call DELETE (or lock) when unlocked.
     if (!heldLockRef.current || busy || detail == null) {
@@ -565,7 +931,7 @@ export function ContentTypeDetailPanel({
     setError(null);
     setNotice(null);
     try {
-      await deleteContentType(idOrName);
+      await deleteContentType(activeKeyRef.current);
       heldLockRef.current = false;
       setHeldLock(false);
       setNotice(DEV_MSG.CT_DELETED);
@@ -586,6 +952,14 @@ export function ContentTypeDetailPanel({
     if (detail == null) {
       return;
     }
+    if (iconDirty) {
+      try {
+        contentTypeIconPutBody(iconSource, iconValue);
+      } catch (pre) {
+        setError(panelErrMsg(pre, DEV_MSG.CT_SAVE_ERROR));
+        return;
+      }
+    }
     const enabledDirty = enabled !== (detail.enabled !== false);
     const bulkNeeded =
       label !== (detail.label || "") ||
@@ -593,18 +967,40 @@ export function ContentTypeDetailPanel({
       fieldsDirty;
     if (
       !enabledDirty &&
+      !searchIndexingDirty &&
       !workflowsDirty &&
       !templatesDirty &&
       !bulkNeeded &&
       !itemExitsDirty &&
-      !controlPropsDirty &&
-      !fieldRulesDirty
+      !controlSectionDirty &&
+      !fieldRulesDirty &&
+      !iconDirty
     ) {
       return;
+    }
+    if (choicesDirty) {
+      const payloadErr = choiceCatalogPayloadError(choiceCatalog);
+      if (payloadErr === "local-entries") {
+        setError(DEV_MSG.CT_CHOICES_INVALID_LOCAL);
+        return;
+      }
+      if (payloadErr === "global-id") {
+        setError(DEV_MSG.CT_CHOICES_INVALID_GLOBAL);
+        return;
+      }
+      if (payloadErr === "lookup-href") {
+        setError(DEV_MSG.CT_CHOICES_INVALID_LOOKUP);
+        return;
+      }
+      if (payloadErr === "table") {
+        setError(DEV_MSG.CT_CHOICES_INVALID_TABLE);
+        return;
+      }
     }
     setBusy(true);
     setError(null);
     setNotice(null);
+    let saveFallback = DEV_MSG.CT_SAVE_ERROR;
     try {
       const fieldPatches = Object.values(fieldDrafts)
         .filter((d) => {
@@ -626,12 +1022,64 @@ export function ContentTypeDetailPanel({
       // Enabled PUT first so a failed enable/disable cannot leave bulk fields persisted
       // (CD-13 two-call save; no shared rollback).
       if (enabledDirty) {
-        saved = normalizeDetailLists(await setContentTypeEnabled(idOrName, enabled));
+        saved = normalizeDetailLists(
+          await setContentTypeEnabled(activeKeyRef.current, enabled),
+        );
+      }
+      if (searchIndexingDirty) {
+        try {
+          const si = await setContentTypeSearchIndexing(
+            activeKeyRef.current,
+            searchIndexing,
+          );
+          const on = si.searchIndexing !== false;
+          setSearchIndexing(on);
+          setSavedSearchIndexing(on);
+          if (saved == null) {
+            saved = normalizeDetailLists(detail);
+          }
+        } catch (siErr) {
+          setSearchIndexing(savedSearchIndexing);
+          setSavedSearchIndexing(savedSearchIndexing);
+          if (saved != null) {
+            setDetail(saved);
+            setEnabled(saved.enabled !== false);
+          }
+          saveFallback = DEV_MSG.CT_SI_SAVE_ERROR;
+          throw siErr;
+        }
+      }
+      if (iconDirty) {
+        try {
+          const iconSaved = await setContentTypeIcon(
+            activeKeyRef.current,
+            iconSource,
+            iconValue,
+          );
+          const applied = applyIconEnvelope(iconSaved);
+          setIconSource(applied.source);
+          setIconValue(applied.value);
+          setSavedIcon(
+            applied.source === CONTENT_TYPE_ICON_NONE
+              ? emptyIcon()
+              : { source: applied.source, value: applied.value },
+          );
+          setIconError(null);
+          if (saved == null) {
+            saved = normalizeDetailLists(detail);
+          }
+        } catch (iconErr) {
+          if (saved != null) {
+            setDetail(saved);
+            setEnabled(saved.enabled !== false);
+          }
+          throw iconErr;
+        }
       }
       if (workflowsDirty) {
         try {
           workflowSaved = await setContentTypeAllowedWorkflows(
-            idOrName,
+            activeKeyRef.current,
             buildAllowedWorkflowsReplaceBody(workflows),
           );
           saved = saved
@@ -655,7 +1103,9 @@ export function ContentTypeDetailPanel({
           fields: fieldPatches,
         };
         try {
-          const bulkSaved = normalizeDetailLists(await updateContentTypeDetail(idOrName, body));
+          const bulkSaved = normalizeDetailLists(
+            await updateContentTypeDetail(activeKeyRef.current, body),
+          );
           saved = {
             ...bulkSaved,
             enabled: saved?.enabled ?? bulkSaved.enabled,
@@ -676,10 +1126,10 @@ export function ContentTypeDetailPanel({
       if (templatesDirty) {
         try {
           await replaceContentTypeAllowedTemplates(
-            idOrName,
+            activeKeyRef.current,
             toNamedObjectRefPayload(templates),
           );
-          const listed = await getContentTypeAllowedTemplates(idOrName);
+          const listed = await getContentTypeAllowedTemplates(activeKeyRef.current);
           saved =
             saved != null
               ? { ...saved, allowedTemplates: listed }
@@ -704,7 +1154,7 @@ export function ContentTypeDetailPanel({
             (itemExits.maxErrorsToStopValidation ?? null) !==
             (savedItemExits.maxErrorsToStopValidation ?? null);
           const exitsSaved = await replaceContentTypeItemExits(
-            idOrName,
+            activeKeyRef.current,
             itemExits,
             includePipeExits,
             includeMaxErrors,
@@ -729,23 +1179,31 @@ export function ContentTypeDetailPanel({
           throw ieErr;
         }
       }
-      if (controlPropsDirty) {
+      if (controlSectionDirty) {
         const field = selectedFieldName.trim();
         try {
-          const replaced = await replaceFieldControlProperties(
-            idOrName,
-            field,
-            toControlPropertyPayload(controlProps),
-          );
-          const listed = await getFieldControlProperties(idOrName, field);
+          const replaced = choicesDirty
+            ? await replaceFieldControlProperties(
+                activeKeyRef.current,
+                field,
+                toControlPropertyPayload(controlProps),
+                toChoiceCatalogPayload(choiceCatalog),
+              )
+            : await replaceFieldControlProperties(
+                activeKeyRef.current,
+                field,
+                toControlPropertyPayload(controlProps),
+              );
+          const listed = await getFieldControlProperties(activeKeyRef.current, field);
           const nextProps = cloneControlProperties(
             listed.properties ?? replaced.properties,
           );
           setControlProps(nextProps);
           setControlPropsInitial(cloneControlProperties(nextProps));
           setControlName(listed.control || replaced.control || controlName);
-          const choiceType = listed.choices?.type?.trim();
-          setChoiceSummary(choiceType ? choiceType : null);
+          const nextChoices = cloneChoiceCatalog(listed.choices ?? replaced.choices);
+          setChoiceCatalog(nextChoices);
+          setChoiceCatalogInitial(cloneChoiceCatalog(nextChoices));
           if (saved == null) {
             saved = normalizeDetailLists(detail);
           }
@@ -779,7 +1237,13 @@ export function ContentTypeDetailPanel({
           throw frErr;
         }
       }
-      if (saved == null && !itemExitsDirty && !controlPropsDirty && !fieldRulesDirty) {
+      if (
+        saved == null &&
+        !itemExitsDirty &&
+        !controlSectionDirty &&
+        !fieldRulesDirty &&
+        !iconDirty
+      ) {
         return;
       }
       if (saved == null) {
@@ -801,7 +1265,7 @@ export function ContentTypeDetailPanel({
         heldLockRef.current = false;
         setHeldLock(false);
       }
-      setError(panelErrMsg(err, DEV_MSG.CT_SAVE_ERROR));
+      setError(panelErrMsg(err, saveFallback));
     } finally {
       setBusy(false);
     }
@@ -837,9 +1301,9 @@ export function ContentTypeDetailPanel({
         </div>
       ) : null}
 
-      {/* Always mount lock/enabled/template chrome so Playwright and operators
-          see it before GET detail finishes and without scrolling past the
-          fields table (#3834 #3835 #3836). */}
+      {/* Always mount lock/enabled/search-indexing/template chrome so Playwright
+          and operators see it before GET detail finishes and without scrolling
+          past the fields table (#3834 #3835 #3836 #4035). */}
       <div
         role="toolbar"
         aria-label={DEV_MSG.CT_LOCK_TOOLBAR}
@@ -921,6 +1385,40 @@ export function ContentTypeDetailPanel({
         </button>
         <button
           type="button"
+          data-testid="developer-ct-export"
+          aria-label={DEV_MSG.CT_EXPORT}
+          disabled={busy}
+          onClick={() => void handleExport()}
+          style={{
+            padding: "8px 16px",
+            background: "transparent",
+            color: "inherit",
+            border: `1px solid ${catalogColors.softBorder}`,
+            borderRadius: "4px",
+            cursor: busy ? "not-allowed" : "pointer",
+          }}
+        >
+          {DEV_MSG.CT_EXPORT}
+        </button>
+        <button
+          type="button"
+          data-testid="developer-ct-rename"
+          aria-label={DEV_MSG.CT_RENAME}
+          disabled={!canRename}
+          onClick={() => void handleRename()}
+          style={{
+            padding: "8px 16px",
+            background: canRename ? catalogColors.accent : catalogColors.disabled,
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: canRename ? "pointer" : "not-allowed",
+          }}
+        >
+          {DEV_MSG.CT_RENAME}
+        </button>
+        <button
+          type="button"
           data-testid="developer-ct-delete"
           aria-label={DEV_MSG.CT_DELETE}
           disabled={busy || !heldLock || detail == null}
@@ -953,11 +1451,136 @@ export function ContentTypeDetailPanel({
           />
           {DEV_MSG.CT_FORM_ENABLED}
         </label>
+        <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <input
+            type="checkbox"
+            data-testid="developer-ct-search-indexing"
+            aria-label={DEV_MSG.CT_FORM_SEARCH_INDEXING}
+            checked={searchIndexing}
+            onChange={() => {
+              if (!canEdit) {
+                return;
+              }
+              setSearchIndexing((v) => !v);
+            }}
+            disabled={!canEdit}
+          />
+          {DEV_MSG.CT_FORM_SEARCH_INDEXING}
+        </label>
+        {searchIndexingLoadError ? (
+          <span
+            data-testid="developer-ct-search-indexing-load-error"
+            role="status"
+            style={{ color: catalogColors.error, fontSize: "0.85rem" }}
+          >
+            {searchIndexingLoadError}
+          </span>
+        ) : null}
       </div>
+
+      <section style={{ marginBottom: "16px" }} data-testid="developer-ct-icon">
+        <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_ICON}</h3>
+        <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.CT_ICON_HINT}</p>
+        {iconError ? (
+          <p
+            role="status"
+            data-testid="developer-ct-icon-error"
+            style={{ color: catalogColors.error }}
+          >
+            {iconError}
+          </p>
+        ) : null}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(12rem, 16rem) 1fr",
+            gap: "8px",
+            alignItems: "end",
+          }}
+        >
+          <div>
+            <label htmlFor="ct-icon-source" style={{ display: "block", marginBottom: 4 }}>
+              {DEV_MSG.CT_ICON_SOURCE}
+            </label>
+            <select
+              id="ct-icon-source"
+              data-testid="developer-ct-icon-source"
+              aria-label={DEV_MSG.CT_ICON_SOURCE}
+              style={inputStyle}
+              value={iconSource}
+              disabled={!canEdit}
+              onChange={(e) => {
+                if (!canEdit) {
+                  return;
+                }
+                const next = normalizeContentTypeIconSource(e.target.value);
+                iconTouchedRef.current = true;
+                setIconSource(next);
+                if (next === CONTENT_TYPE_ICON_NONE) {
+                  setIconValue("");
+                }
+                setNotice(null);
+              }}
+            >
+              <option value={CONTENT_TYPE_ICON_NONE}>{DEV_MSG.CT_ICON_NONE}</option>
+              <option value={CONTENT_TYPE_ICON_SPECIFIED}>{DEV_MSG.CT_ICON_SPECIFIED}</option>
+              <option value={CONTENT_TYPE_ICON_FROM_FILE_FIELD}>
+                {DEV_MSG.CT_ICON_FROM_FILE_FIELD}
+              </option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="ct-icon-value" style={{ display: "block", marginBottom: 4 }}>
+              {DEV_MSG.CT_ICON_VALUE}
+            </label>
+            <input
+              id="ct-icon-value"
+              type="text"
+              autoComplete="off"
+              list="ct-icon-file-fields"
+              data-testid="developer-ct-icon-value"
+              aria-label={DEV_MSG.CT_ICON_VALUE}
+              style={inputStyle}
+              placeholder={DEV_MSG.CT_ICON_VALUE_PLACEHOLDER}
+              value={iconValue}
+              disabled={!canEdit || iconSource === CONTENT_TYPE_ICON_NONE}
+              readOnly={!canEdit || iconSource === CONTENT_TYPE_ICON_NONE}
+              onChange={(e) => {
+                if (!canEdit || iconSource === CONTENT_TYPE_ICON_NONE) {
+                  return;
+                }
+                iconTouchedRef.current = true;
+                setIconValue(e.target.value);
+                setNotice(null);
+              }}
+            />
+            <datalist id="ct-icon-file-fields">
+              {fieldRows
+                .filter((f) => {
+                  if (!f.name) return false;
+                  const dt = (f.dataType || "").toLowerCase();
+                  const control = (f.control || "").toLowerCase();
+                  return (
+                    dt === "binary" ||
+                    dt === "image" ||
+                    dt === "file" ||
+                    control.includes("file") ||
+                    control.includes("image")
+                  );
+                })
+                .map((f) => (
+                  <option key={fieldKey(f)} value={f.name || ""}>
+                    {f.label || f.name}
+                  </option>
+                ))}
+            </datalist>
+          </div>
+        </div>
+      </section>
 
       <div style={{ fontFamily: "monospace", color: catalogColors.muted, marginBottom: "12px" }}>
         <span data-testid="developer-ct-detail-name">
-          {asContentTypeText(detail?.name) || idOrName}
+          {asContentTypeText(detail?.name) || activeKey}
         </span>
         {detail ? (
           <>
@@ -1105,9 +1728,9 @@ export function ContentTypeDetailPanel({
             aria-label={DEV_MSG.CT_CONTROL_PROPS_FIELD}
             style={inputStyle}
             value={selectedFieldName}
-            disabled={busy || detail == null || controlPropsDirty}
+            disabled={busy || detail == null || controlSectionDirty}
             onChange={(e) => {
-              if (busy || detail == null || controlPropsDirty) {
+              if (busy || detail == null || controlSectionDirty) {
                 return;
               }
               setSelectedFieldName(e.target.value);
@@ -1133,14 +1756,6 @@ export function ContentTypeDetailPanel({
             style={{ color: catalogColors.muted, fontSize: "0.9rem", fontFamily: "monospace" }}
           >
             {DEV_MSG.CT_CONTROL_PROPS_CONTROL}: {controlName}
-          </p>
-        ) : null}
-        {choiceSummary ? (
-          <p
-            data-testid="developer-ct-cp-choices"
-            style={{ color: catalogColors.muted, fontSize: "0.9rem" }}
-          >
-            {DEV_MSG.CT_CONTROL_PROPS_CHOICES}: {choiceSummary}
           </p>
         ) : null}
         {controlPropsError ? (
@@ -1295,6 +1910,17 @@ export function ContentTypeDetailPanel({
             {DEV_MSG.CT_ASSOC_ADD}
           </button>
         </div>
+        <ContentTypeFieldChoicesSection
+          catalog={choiceCatalog}
+          canEdit={canEdit}
+          onChange={(next) => {
+            if (!canEdit) {
+              return;
+            }
+            setChoiceCatalog(next);
+            setNotice(null);
+          }}
+        />
       </section>
 
       {!error && detail == null ? (
@@ -1305,8 +1931,31 @@ export function ContentTypeDetailPanel({
         <>
           <header style={{ marginBottom: "16px" }}>
             <h2 style={{ margin: "0 0 4px" }} data-testid="developer-ct-detail-title">
-              {label || asContentTypeText(detail.name) || idOrName}
+              {label || asContentTypeText(detail.name) || activeKey}
             </h2>
+            <div style={{ marginTop: "12px" }}>
+              <label htmlFor="ct-name" style={{ display: "block", marginBottom: 4 }}>
+                {DEV_MSG.CT_FORM_NAME}
+              </label>
+              <input
+                id="ct-name"
+                data-testid="developer-ct-name"
+                style={{ ...inputStyle, fontFamily: "monospace" }}
+                value={nameDraft}
+                autoComplete="off"
+                onChange={(e) => {
+                  if (!canEdit) {
+                    return;
+                  }
+                  setNameDraft(e.target.value);
+                  setNotice(null);
+                }}
+                disabled={!canEdit}
+              />
+              <span style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
+                {DEV_MSG.CT_RENAME_HINT}
+              </span>
+            </div>
             <div style={{ marginTop: "12px" }}>
               <label htmlFor="ct-label" style={{ display: "block", marginBottom: 4 }}>
                 {DEV_MSG.CT_FORM_LABEL}
@@ -1485,9 +2134,171 @@ export function ContentTypeDetailPanel({
             </div>
           </section>
 
-          <section style={{ marginBottom: "16px" }}>
+          <ContentTypeIncludeFieldSection
+            idOrName={activeKey}
+            existingFields={fieldRows}
+            canEdit={canEdit}
+            onBusy={setBusy}
+            onIncluded={(updated) => {
+              const normalized = normalizeDetailLists(updated);
+              setDetail((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      fields: normalized.fields,
+                      childFieldSets: normalized.childFieldSets,
+                    }
+                  : normalized,
+              );
+              setFieldDrafts(toDrafts(normalized.fields));
+              const firstIncluded = normalizeContentTypeFields(normalized.fields).find(
+                (f) => !!f.name,
+              )?.name;
+              if (firstIncluded && !selectedFieldName) {
+                setSelectedFieldName(firstIncluded);
+              }
+            }}
+            onError={setError}
+            onNotice={setNotice}
+            onLockLost={() => {
+              heldLockRef.current = false;
+              setHeldLock(false);
+            }}
+          />
+
+          <section style={{ marginBottom: "16px" }} data-testid="developer-ct-fields">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_FIELDS}</h3>
             <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.CT_FIELDS_HINT}</p>
+            <div
+              style={{
+                marginBottom: "12px",
+                display: "grid",
+                gridTemplateColumns: "1.2fr 1fr auto auto auto",
+                gap: "8px",
+                alignItems: "end",
+              }}
+            >
+              <div>
+                <label htmlFor="ct-field-add-name" style={{ display: "block", marginBottom: 4 }}>
+                  {DEV_MSG.CT_FIELD_NAME}
+                </label>
+                <input
+                  id="ct-field-add-name"
+                  type="text"
+                  autoComplete="off"
+                  data-testid="developer-ct-field-add-name"
+                  style={inputStyle}
+                  placeholder={DEV_MSG.CT_FIELD_NAME_PLACEHOLDER}
+                  value={newFieldName}
+                  disabled={!canEdit}
+                  readOnly={!canEdit}
+                  aria-disabled={canEdit ? undefined : true}
+                  onChange={(e) => {
+                    if (!canEdit) {
+                      return;
+                    }
+                    setNewFieldName(e.target.value);
+                    setNotice(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      if (canEdit && newFieldName.trim()) {
+                        void handleAddLocalField();
+                      }
+                    }
+                  }}
+                />
+              </div>
+              <div>
+                <label htmlFor="ct-field-add-label" style={{ display: "block", marginBottom: 4 }}>
+                  {DEV_MSG.CT_FIELD_LABEL}
+                </label>
+                <input
+                  id="ct-field-add-label"
+                  type="text"
+                  autoComplete="off"
+                  data-testid="developer-ct-field-add-label"
+                  style={inputStyle}
+                  placeholder={DEV_MSG.CT_FIELD_LABEL_PLACEHOLDER}
+                  value={newFieldLabel}
+                  disabled={!canEdit}
+                  readOnly={!canEdit}
+                  aria-disabled={canEdit ? undefined : true}
+                  onChange={(e) => {
+                    if (!canEdit) {
+                      return;
+                    }
+                    setNewFieldLabel(e.target.value);
+                    setNotice(null);
+                  }}
+                />
+              </div>
+              <div>
+                <label htmlFor="ct-field-add-datatype" style={{ display: "block", marginBottom: 4 }}>
+                  {DEV_MSG.CT_FIELD_DATATYPE}
+                </label>
+                <select
+                  id="ct-field-add-datatype"
+                  data-testid="developer-ct-field-add-datatype"
+                  aria-label={DEV_MSG.CT_FIELD_DATATYPE}
+                  style={inputStyle}
+                  value={newFieldDataType}
+                  disabled={!canEdit}
+                  onChange={(e) => {
+                    if (!canEdit) {
+                      return;
+                    }
+                    setNewFieldDataType(e.target.value);
+                    setNotice(null);
+                  }}
+                >
+                  {LOCAL_FIELD_DATA_TYPES.map((dt) => (
+                    <option key={dt} value={dt}>
+                      {dt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="ct-field-add-control" style={{ display: "block", marginBottom: 4 }}>
+                  {DEV_MSG.CT_FIELD_CONTROL}
+                </label>
+                <input
+                  id="ct-field-add-control"
+                  type="text"
+                  autoComplete="off"
+                  data-testid="developer-ct-field-add-control"
+                  style={inputStyle}
+                  placeholder={DEV_MSG.CT_FIELD_CONTROL_PLACEHOLDER}
+                  value={newFieldControl}
+                  disabled={!canEdit}
+                  readOnly={!canEdit}
+                  aria-disabled={canEdit ? undefined : true}
+                  onChange={(e) => {
+                    if (!canEdit) {
+                      return;
+                    }
+                    setNewFieldControl(e.target.value);
+                    setNotice(null);
+                  }}
+                />
+              </div>
+              <button
+                type="button"
+                data-testid="developer-ct-field-add"
+                aria-label={DEV_MSG.CT_FIELD_ADD}
+                disabled={!canEdit || !newFieldName.trim()}
+                onClick={() => void handleAddLocalField()}
+                style={{
+                  ...smallBtnStyle,
+                  padding: "8px 12px",
+                  cursor: !canEdit || !newFieldName.trim() ? "not-allowed" : "pointer",
+                }}
+              >
+                {DEV_MSG.CT_FIELD_ADD}
+              </button>
+            </div>
             <div style={{ overflowX: "auto" }}>
               <table
                 data-testid="developer-ct-fields-table"
@@ -1509,6 +2320,7 @@ export function ContentTypeDetailPanel({
                     <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_RULES}</th>
                     <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_SEARCH}</th>
                     <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_FIELDSET}</th>
+                    <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_ACTIONS}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1525,6 +2337,8 @@ export function ContentTypeDetailPanel({
                       <tr
                         key={k}
                         data-testid="developer-ct-field-row"
+                        data-field-name={f.name || ""}
+                        data-field-origin={(f.fieldType || "").toLowerCase()}
                         style={tableRow}
                       >
                         <td style={{ padding: "8px" }}>
@@ -1539,7 +2353,12 @@ export function ContentTypeDetailPanel({
                             {f.name}
                           </div>
                         </td>
-                        <td style={{ padding: "8px" }}>{f.fieldType || "—"}</td>
+                        <td
+                          style={{ padding: "8px" }}
+                          data-testid={`developer-ct-field-origin-${f.name || k}`}
+                        >
+                          {f.fieldType || "—"}
+                        </td>
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {f.dataType || "—"}
                         </td>
@@ -1596,6 +2415,25 @@ export function ContentTypeDetailPanel({
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {f.fieldSet || "—"}
                         </td>
+                        <td style={{ padding: "8px" }}>
+                          {isLocal && f.name ? (
+                            <button
+                              type="button"
+                              data-testid={`developer-ct-field-delete-${f.name}`}
+                              aria-label={`${DEV_MSG.CT_FIELD_DELETE} ${f.name}`}
+                              disabled={!canEdit}
+                              onClick={() => void handleDeleteLocalField(f.name || "")}
+                              style={{
+                                ...smallBtnStyle,
+                                cursor: canEdit ? "pointer" : "not-allowed",
+                              }}
+                            >
+                              {DEV_MSG.CT_FIELD_DELETE}
+                            </button>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
                       </tr>
                     );
                   })}
@@ -1606,7 +2444,7 @@ export function ContentTypeDetailPanel({
 
           <ContentTypeFieldRulesSection
             ref={fieldRulesRef}
-            idOrName={idOrName}
+            idOrName={activeKey}
             fields={fieldRows}
             canEdit={canEdit}
             onDirtyChange={setFieldRulesDirty}
