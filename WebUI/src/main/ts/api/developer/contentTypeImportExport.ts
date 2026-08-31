@@ -89,12 +89,19 @@ export function parseContentDispositionFilename(header: string): string {
   return unquoted ? unquoted[1].trim() : "";
 }
 
-function xmlParseErrorMessage(doc: Document): string {
-  const err = doc.getElementsByTagName("parsererror")[0];
-  if (!err) {
-    return "";
-  }
-  return (err.textContent || "invalid XML").trim();
+/**
+ * Double-quoted {@code PSXItemDefSummary@name}. Regex only — do not feed operator
+ * XML into {@code DOMParser.parseFromString} (CodeQL {@code js/xss-through-dom}).
+ */
+const ITEM_DEF_SUMMARY_NAME =
+  /(<PSXItemDefSummary\b[^>]*\bname\s*=\s*")([^"]*)(")/i;
+
+function escapeXmlAttribute(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
 /**
@@ -103,26 +110,11 @@ function xmlParseErrorMessage(doc: Document): string {
  */
 export function contentTypeNameFromDesignXml(xml: string): string {
   const trimmed = xml == null ? "" : String(xml).trim();
-  if (!trimmed) {
+  if (!trimmed || !/<ItemDefData\b/i.test(trimmed)) {
     return "";
   }
-  if (typeof DOMParser === "undefined") {
-    const m = /<PSXItemDefSummary\b[^>]*\bname\s*=\s*"([^"]+)"/i.exec(trimmed);
-    return m ? m[1] : "";
-  }
-  const doc = new DOMParser().parseFromString(trimmed, "application/xml");
-  if (xmlParseErrorMessage(doc)) {
-    return "";
-  }
-  const root = doc.documentElement;
-  if (!root || root.nodeName !== "ItemDefData") {
-    return "";
-  }
-  const summaries = root.getElementsByTagName("PSXItemDefSummary");
-  if (summaries.length > 0) {
-    return summaries[0].getAttribute("name") || "";
-  }
-  return root.getAttribute("name") || "";
+  const m = ITEM_DEF_SUMMARY_NAME.exec(trimmed);
+  return m ? m[2] : "";
 }
 
 /**
@@ -138,27 +130,17 @@ export function rewriteContentTypeDesignXmlName(xml: string, newName: string): s
   if (!name) {
     throw new Error("name is required");
   }
-  if (typeof DOMParser === "undefined" || typeof XMLSerializer === "undefined") {
-    return trimmed.replace(
-      /(<PSXItemDefSummary\b[^>]*\bname\s*=\s*")([^"]*)(")/i,
-      `$1${name}$3`,
-    );
-  }
-  const doc = new DOMParser().parseFromString(trimmed, "application/xml");
-  const parseErr = xmlParseErrorMessage(doc);
-  if (parseErr) {
-    throw new Error("invalid content-type design XML");
-  }
-  const root = doc.documentElement;
-  if (!root || root.nodeName !== "ItemDefData") {
-    throw new Error("invalid content-type design XML");
-  }
-  const summaries = root.getElementsByTagName("PSXItemDefSummary");
-  if (summaries.length === 0) {
+  if (!/<ItemDefData\b/i.test(trimmed) || !ITEM_DEF_SUMMARY_NAME.test(trimmed)) {
+    if (!/<ItemDefData\b/i.test(trimmed)) {
+      throw new Error("invalid content-type design XML");
+    }
     throw new Error("content-type design XML is missing name");
   }
-  summaries[0].setAttribute("name", name);
-  return new XMLSerializer().serializeToString(doc);
+  return trimmed.replace(
+    ITEM_DEF_SUMMARY_NAME,
+    (_all, open: string, _old: string, close: string) =>
+      `${open}${escapeXmlAttribute(name)}${close}`,
+  );
 }
 
 /**

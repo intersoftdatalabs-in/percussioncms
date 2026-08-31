@@ -63,6 +63,18 @@ describe("design XML name helpers", () => {
       /invalid/i,
     );
   });
+
+  it("rejects ItemDefData without a summary name", () => {
+    expect(() =>
+      rewriteContentTypeDesignXmlName("<ItemDefData></ItemDefData>", "n"),
+    ).toThrow(/missing name/i);
+  });
+
+  it("escapes XML attribute metacharacters in the rewritten name", () => {
+    const out = rewriteContentTypeDesignXmlName(SAMPLE_XML, 'a&b"c');
+    expect(out).toContain('name="a&amp;b&quot;c"');
+    expect(out).not.toContain('name="a&b"');
+  });
 });
 
 describe("invalidContentTypeImportName", () => {
