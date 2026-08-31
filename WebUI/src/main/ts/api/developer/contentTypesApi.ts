@@ -783,3 +783,44 @@ export async function replaceFieldControlProperties(
   );
   return unwrapFieldControlProperties(payload);
 }
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code ContentTypeField}. */
+export const CONTENT_TYPE_FIELD_ROOT = "ContentTypeField";
+
+export type ContentTypeIncludeFieldBody = {
+  name: string;
+  fieldType: "system" | "shared";
+};
+
+/**
+ * Build the wire JSON body for {@code POST .../fields/include} under
+ * {@link CONTENT_TYPE_FIELD_ROOT}. A flat {@code { name, fieldType }} body
+ * fails server UNWRAP_ROOT_VALUE.
+ */
+export function wrapContentTypeFieldForWire(
+  body: ContentTypeIncludeFieldBody,
+): Record<string, ContentTypeIncludeFieldBody> {
+  return { [CONTENT_TYPE_FIELD_ROOT]: body };
+}
+
+/**
+ * POST /services/contenttypes/{idOrName}/fields/include — CD-04 include an
+ * existing system or shared field (origin is not copied as local).
+ *
+ * <p>Requires a design-session lock already held by the current user
+ * ({@link lockContentType}). Does not acquire or release the lock. HTTP 409
+ * when unlocked, locked by another user, or the field is already included.
+ * HTTP 404 when the catalog field is unknown. HTTP 400 when {@code fieldType}
+ * is not system or shared (including {@code local}).
+ */
+export async function includeContentTypeField(
+  idOrName: string,
+  body: ContentTypeIncludeFieldBody,
+): Promise<ContentTypeDetail> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await post<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}/fields/include`,
+    wrapContentTypeFieldForWire(body),
+  );
+  return unwrapContentTypeDetail(payload);
+}

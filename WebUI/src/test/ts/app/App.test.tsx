@@ -98,6 +98,7 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
       postExits: [],
     }),
     replaceContentTypeItemExits: vi.fn().mockImplementation(async (_id, body) => body),
+    includeContentTypeField: vi.fn(),
   };
 });
 

@@ -32,6 +32,7 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     replaceFieldControlProperties: vi.fn(),
     getContentTypeItemExits: vi.fn(),
     replaceContentTypeItemExits: vi.fn(),
+    includeContentTypeField: vi.fn(),
   };
 });
 
@@ -100,6 +101,9 @@ const replaceFieldControlProperties =
 const getContentTypeItemExits = contentTypesApi.getContentTypeItemExits as ReturnType<typeof vi.fn>;
 const replaceContentTypeItemExits =
   contentTypesApi.replaceContentTypeItemExits as ReturnType<typeof vi.fn>;
+const includeContentTypeField = contentTypesApi.includeContentTypeField as ReturnType<
+  typeof vi.fn
+>;
 const getContentTypeFieldRuleExpressions =
   fieldRulesApi.getContentTypeFieldRuleExpressions as ReturnType<typeof vi.fn>;
 const replaceContentTypeFieldRuleExpressions =
@@ -148,6 +152,7 @@ describe("ContentTypeDetailPanel", () => {
     replaceFieldControlProperties.mockReset();
     getContentTypeItemExits.mockReset();
     replaceContentTypeItemExits.mockReset();
+    includeContentTypeField.mockReset();
     getContentTypeFieldRuleExpressions.mockReset();
     replaceContentTypeFieldRuleExpressions.mockReset();
     exportContentType.mockReset();
@@ -183,6 +188,16 @@ describe("ContentTypeDetailPanel", () => {
     }));
     getContentTypeItemExits.mockResolvedValue({ ...emptyItemExits });
     replaceContentTypeItemExits.mockImplementation(async (_id, body) => body);
+    includeContentTypeField.mockImplementation(async (_id, body) => ({
+      ...sampleDetail,
+      fields: [
+        {
+          name: body.name,
+          fieldType: body.fieldType,
+          label: body.name,
+        },
+      ],
+    }));
     getContentTypeFieldRuleExpressions.mockResolvedValue({
       fieldName: "sys_title",
       validation: [],
@@ -1806,5 +1821,192 @@ describe("ContentTypeDetailPanel", () => {
       );
     });
     expect(downloadXmlFile).not.toHaveBeenCalled();
+  });
+
+  it("disables include picker until lock (#4036 CD-04)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-include")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-ct-include-origin") as HTMLSelectElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-include-name") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-include-submit") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    expect(includeContentTypeField).not.toHaveBeenCalled();
+  });
+
+  it("includes a system field after lock and keeps origin system (#4036 CD-04)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-include-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-include-origin"), {
+      target: { value: "system" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-include-name"), {
+      target: { value: "sys_suffix" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-include-submit"));
+    await waitFor(() => {
+      expect(includeContentTypeField).toHaveBeenCalledWith("percPage", {
+        name: "sys_suffix",
+        fieldType: "system",
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/included/i);
+    });
+    expect(screen.getByTestId("developer-ct-field-origin-sys_suffix").textContent).toBe("system");
+    expect(unlockContentType).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+  });
+
+  it("includes a shared field after lock and keeps origin shared (#4036 CD-04)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    includeContentTypeField.mockResolvedValueOnce({
+      ...sampleDetail,
+      fields: [{ name: "displaytitle", fieldType: "shared", label: "Display title" }],
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-include-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-include-origin"), {
+      target: { value: "shared" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-include-name"), {
+      target: { value: "displaytitle" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-include-submit"));
+    await waitFor(() => {
+      expect(includeContentTypeField).toHaveBeenCalledWith("percPage", {
+        name: "displaytitle",
+        fieldType: "shared",
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-field-origin-displaytitle").textContent).toBe(
+        "shared",
+      );
+    });
+  });
+
+  it("surfaces duplicate include 409 without dropping the lock (#4036 CD-04)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [{ name: "sys_title", fieldType: "system" }],
+    });
+    includeContentTypeField.mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Field already included: sys_title" },
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-include-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-include-name"), {
+      target: { value: "sys_title" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-include-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toMatch(
+        /Could not include field/i,
+      );
+    });
+    expect(screen.getByTestId("developer-ct-detail-error").textContent).toMatch(
+      /already included/i,
+    );
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+    expect((screen.getByTestId("developer-ct-include-submit") as HTMLButtonElement).disabled).toBe(
+      false,
+    );
+  });
+
+  it("surfaces unknown include 404 and keeps the lock (#4036 CD-04)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    includeContentTypeField.mockRejectedValueOnce({
+      status: 404,
+      statusText: "Not Found",
+      body: { message: "Unknown system field: nope_field" },
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-include-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-include-name"), {
+      target: { value: "nope_field" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-include-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toMatch(
+        /Could not include field/i,
+      );
+    });
+    expect(screen.getByTestId("developer-ct-detail-error").textContent).toMatch(/Unknown system field/i);
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+  });
+
+  it("surfaces unlocked include 409 and clears the local lock (#4036 CD-04)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    includeContentTypeField.mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Could not include content type field; design lock required" },
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-include-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-include-name"), {
+      target: { value: "sys_suffix" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-include-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toMatch(
+        /Could not include field/i,
+      );
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+    expect((screen.getByTestId("developer-ct-include-name") as HTMLInputElement).disabled).toBe(
+      true,
+    );
   });
 });
