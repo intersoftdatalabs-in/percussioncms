@@ -1,0 +1,441 @@
+/*
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.percussion.apibridge;
+
+import com.percussion.data.PSDatabaseMetaData;
+import com.percussion.data.PSMetaDataCache;
+import com.percussion.design.objectstore.PSField;
+import com.percussion.server.PSServer;
+import com.percussion.tablefactory.PSJdbcDbmsDef;
+import com.percussion.tablefactory.PSJdbcTableFactory;
+import com.percussion.util.PSSqlHelper;
+import com.percussion.utils.jdbc.IPSConnectionInfo;
+import com.percussion.utils.jdbc.PSJdbcUtils;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.Set;
+import java.util.function.Supplier;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+/**
+ * JDBC create of local-field backend columns (Workbench table-factory ALTER). Identifiers are
+ * restricted to letter / digit / underscore names already validated by {@link
+ * ContentTypeAdaptor#validateFieldName(String)} and {@link
+ * ContentTypeAdaptor#columnNameForField(String)}.
+ *
+ * <p>Must run <em>before</em> {@code IPSContentDesignWs.saveContentTypes} / {@code
+ * PSContentTypeHelper.saveContentType} re-inits the content editor application, or CE start fails
+ * with {@code no such column}.
+ */
+final class JdbcContentTypeLocalFieldColumnSchema implements ContentTypeLocalFieldColumnSchema {
+
+  private static final Logger log = LogManager.getLogger(JdbcContentTypeLocalFieldColumnSchema.class);
+
+  private static final int DEFAULT_TEXT_SIZE = 50;
+
+  /**
+   * Unquoted DDL reserved words (ANSI subset plus H2 {@code VALUE}/{@code DAY}). Field names are
+   * validated before ALTER TABLE so a reserved identifier fails fast instead of at the backend.
+   */
+  private static final Set<String> SQL_RESERVED =
+      Set.of(
+          "ADD",
+          "ALL",
+          "ALTER",
+          "AND",
+          "AS",
+          "ASC",
+          "BETWEEN",
+          "BY",
+          "CASCADE",
+          "CASE",
+          "CHECK",
+          "COLUMN",
+          "CONSTRAINT",
+          "CREATE",
+          "CROSS",
+          "DATE",
+          "DAY",
+          "DEFAULT",
+          "DELETE",
+          "DESC",
+          "DISTINCT",
+          "DROP",
+          "ELSE",
+          "END",
+          "EXISTS",
+          "FALSE",
+          "FETCH",
+          "FOR",
+          "FOREIGN",
+          "FROM",
+          "FULL",
+          "GRANT",
+          "GROUP",
+          "HAVING",
+          "IN",
+          "INDEX",
+          "INNER",
+          "INSERT",
+          "INTO",
+          "IS",
+          "JOIN",
+          "KEY",
+          "LEFT",
+          "LIKE",
+          "LIMIT",
+          "NOT",
+          "NULL",
+          "ON",
+          "OR",
+          "ORDER",
+          "OUTER",
+          "PRIMARY",
+          "REFERENCES",
+          "RESTRICT",
+          "RIGHT",
+          "SELECT",
+          "SET",
+          "TABLE",
+          "THEN",
+          "TRUE",
+          "UNION",
+          "UNIQUE",
+          "UPDATE",
+          "USER",
+          "USING",
+          "VALUE",
+          "VALUES",
+          "VIEW",
+          "WHEN",
+          "WHERE",
+          "WITH");
+
+  private final Supplier<Connection> connectionFactory;
+
+  JdbcContentTypeLocalFieldColumnSchema() {
+    this(JdbcContentTypeLocalFieldColumnSchema::openRepositoryConnection);
+  }
+
+  JdbcContentTypeLocalFieldColumnSchema(Supplier<Connection> connectionFactory) {
+    this.connectionFactory = connectionFactory != null ? connectionFactory : () -> null;
+  }
+
+  @Override
+  public void ensureColumn(
+      String tableName, String columnName, String fieldDataType, String dataFormat) {
+    String table = requireIdent(tableName, "table");
+    String column = requireIdent(columnName, "column");
+    withConnection(
+        conn -> {
+          if (columnExists(conn, table, column)) {
+            return;
+          }
+          String sql = addColumnSql(conn, table, column, fieldDataType, dataFormat);
+          log.info("Adding local-field column: {}", sql);
+          try (Statement st = conn.createStatement()) {
+            st.execute(sql);
+          }
+          flushTableMetaData(conn, table);
+        });
+  }
+
+  static boolean columnExists(Connection conn, String table, String column) throws SQLException {
+    DatabaseMetaData md = conn.getMetaData();
+    String catalog = conn.getCatalog();
+    for (String schema : schemaCandidates(md, safeSchema(conn))) {
+      for (String tbl : identCases(table)) {
+        for (String col : identCases(column)) {
+          if (findColumn(md, catalog, schema, tbl, col)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Original, upper, and lower identifier spellings. Always includes the folded forms even when the
+   * input is already uppercase so H2 {@code DATABASE_TO_UPPER=FALSE} and MySQL {@code
+   * lower_case_table_names=1} still match stored lowercase metadata.
+   */
+  static List<String> identCases(String ident) {
+    LinkedHashSet<String> out = new LinkedHashSet<>();
+    if (ident != null) {
+      out.add(ident);
+      out.add(ident.toUpperCase(Locale.ROOT));
+      out.add(ident.toLowerCase(Locale.ROOT));
+    }
+    return new ArrayList<>(out);
+  }
+
+  /**
+   * Schema spellings to probe. {@code null} JDBC schema still tries {@link
+   * DatabaseMetaData#getUserName()} because Oracle and similar catalogs require a schema.
+   */
+  static List<String> schemaCandidates(DatabaseMetaData md, String schema) {
+    LinkedHashSet<String> out = new LinkedHashSet<>();
+    if (StringUtils.isNotBlank(schema)) {
+      out.add(schema);
+      out.add(schema.toUpperCase(Locale.ROOT));
+      out.add(schema.toLowerCase(Locale.ROOT));
+    } else {
+      out.add(null);
+      try {
+        String user = md != null ? md.getUserName() : null;
+        if (StringUtils.isNotBlank(user)) {
+          out.add(user);
+          out.add(user.toUpperCase(Locale.ROOT));
+          out.add(user.toLowerCase(Locale.ROOT));
+        }
+      } catch (SQLException e) {
+        log.debug("Could not read JDBC user for schema fallback: {}", e.getMessage());
+      }
+    }
+    return new ArrayList<>(out);
+  }
+
+  private static boolean findColumn(
+      DatabaseMetaData md, String catalog, String schema, String table, String column)
+      throws SQLException {
+    try {
+      try (ResultSet rs = md.getColumns(catalog, schema, table, column)) {
+        return rs.next();
+      }
+    } catch (SQLException e) {
+      if (schema == null) {
+        log.debug("Null-schema column probe failed for {}.{}: {}", table, column, e.getMessage());
+        return false;
+      }
+      throw e;
+    }
+  }
+
+  static String addColumnSql(
+      Connection conn, String table, String column, String fieldDataType, String dataFormat)
+      throws SQLException {
+    String type = nativeType(conn, fieldDataType, dataFormat);
+    String tableSql = tableRef(conn, table);
+    String product = databaseProduct(conn);
+    String nullClause = nullClause(conn);
+    if (isOracle(product)) {
+      return "ALTER TABLE " + tableSql + " ADD (" + column + " " + type + ")";
+    }
+    if (isSqlServer(product, conn)) {
+      return "ALTER TABLE " + tableSql + " ADD " + column + " " + type + nullClause;
+    }
+    return "ALTER TABLE " + tableSql + " ADD COLUMN " + column + " " + type + nullClause;
+  }
+
+  static String nativeType(Connection conn, String fieldDataType, String dataFormat)
+      throws SQLException {
+    String product = databaseProduct(conn);
+    String dt =
+        fieldDataType == null ? PSField.DT_TEXT : fieldDataType.trim().toLowerCase(Locale.ROOT);
+    if (PSField.DT_INTEGER.equals(dt) || PSField.DT_BOOLEAN.equals(dt)) {
+      return isOracle(product) ? "NUMBER(10)" : "INTEGER";
+    }
+    if (PSField.DT_FLOAT.equals(dt)) {
+      return isOracle(product) ? "NUMBER(19,4)" : "DOUBLE";
+    }
+    if (PSField.DT_BINARY.equals(dt) || PSField.DT_IMAGE.equals(dt)) {
+      if (isSqlServer(product, conn)) {
+        return "VARBINARY(MAX)";
+      }
+      if (isOracle(product)) {
+        return "BLOB";
+      }
+      return "BLOB";
+    }
+    if (PSField.DT_DATETIME.equals(dt) || PSField.DT_DATE.equals(dt) || PSField.DT_TIME.equals(dt)) {
+      if (isSqlServer(product, conn)) {
+        return "DATETIME";
+      }
+      return "TIMESTAMP";
+    }
+    int size = parseTextSize(dataFormat);
+    if (isSqlServer(product, conn)) {
+      return "NVARCHAR(" + size + ")";
+    }
+    if (isOracle(product)) {
+      return "VARCHAR2(" + size + ")";
+    }
+    return "VARCHAR(" + size + ")";
+  }
+
+  static int parseTextSize(String dataFormat) {
+    if (StringUtils.isBlank(dataFormat)) {
+      return DEFAULT_TEXT_SIZE;
+    }
+    try {
+      int parsed = Integer.parseInt(dataFormat.trim());
+      return parsed > 0 ? parsed : DEFAULT_TEXT_SIZE;
+    } catch (NumberFormatException e) {
+      return DEFAULT_TEXT_SIZE;
+    }
+  }
+
+  private static String nullClause(Connection conn) throws SQLException {
+    String driver = driverName(conn);
+    if (StringUtils.isBlank(driver)) {
+      return "";
+    }
+    try {
+      return PSSqlHelper.getNullColumnSpecifier(driver);
+    } catch (RuntimeException e) {
+      return "";
+    }
+  }
+
+  static String tableRef(Connection conn, String table) throws SQLException {
+    try {
+      return PSSqlHelper.qualifyTableName(table);
+    } catch (Exception e) {
+      String schema = safeSchema(conn);
+      if (StringUtils.isNotBlank(schema)) {
+        return schema + "." + table;
+      }
+      return table;
+    }
+  }
+
+  private static void flushTableMetaData(Connection conn, String table) {
+    try {
+      PSDatabaseMetaData dbmd = PSMetaDataCache.getCachedDatabaseMetaData((IPSConnectionInfo) null);
+      if (dbmd == null) {
+        return;
+      }
+      String schema = safeSchema(conn);
+      dbmd.flushTableMetaData(table, schema);
+      if (StringUtils.isNotBlank(schema)) {
+        dbmd.flushTableMetaData(table, null);
+      }
+    } catch (RuntimeException e) {
+      log.debug("Could not flush table metadata after local-field ALTER: {}", e.getMessage());
+    }
+  }
+
+  private static String safeSchema(Connection conn) {
+    try {
+      return conn.getSchema();
+    } catch (SQLException e) {
+      return null;
+    }
+  }
+
+  private static String databaseProduct(Connection conn) throws SQLException {
+    String product = conn.getMetaData().getDatabaseProductName();
+    return product == null ? "" : product;
+  }
+
+  private static String driverName(Connection conn) throws SQLException {
+    String url = conn.getMetaData().getURL();
+    if (StringUtils.isBlank(url)) {
+      return "";
+    }
+    return PSJdbcUtils.getDriverFromUrl(url);
+  }
+
+  private static boolean isOracle(String product) {
+    return product.toLowerCase(Locale.ROOT).contains("oracle");
+  }
+
+  private static boolean isSqlServer(String product, Connection conn) throws SQLException {
+    String lower = product.toLowerCase(Locale.ROOT);
+    if (lower.contains("microsoft") || lower.contains("sql server")) {
+      return true;
+    }
+    String driver = driverName(conn);
+    return PSJdbcUtils.JTDS_DRIVER.equals(driver)
+        || PSJdbcUtils.MICROSOFT_DRIVER.equals(driver)
+        || PSJdbcUtils.SPRINTA.equals(driver);
+  }
+
+  static String requireIdent(String raw, String label) {
+    if (StringUtils.isBlank(raw)) {
+      throw new IllegalArgumentException(label + " is required");
+    }
+    String trimmed = raw.trim();
+    if (trimmed.length() > 128) {
+      throw new IllegalArgumentException(label + " exceeds maximum length");
+    }
+    char first = trimmed.charAt(0);
+    if (!Character.isLetter(first)) {
+      throw new IllegalArgumentException(label + " must start with a letter");
+    }
+    for (int i = 1; i < trimmed.length(); i++) {
+      char c = trimmed.charAt(i);
+      if (!Character.isLetterOrDigit(c) && c != '_') {
+        throw new IllegalArgumentException(label + " must be letters, digits, or underscore");
+      }
+    }
+    if (isSqlReservedIdent(trimmed)) {
+      throw new IllegalArgumentException(label + " is a reserved SQL identifier");
+    }
+    return trimmed;
+  }
+
+  static boolean isSqlReservedIdent(String ident) {
+    return ident != null && SQL_RESERVED.contains(ident.toUpperCase(Locale.ROOT));
+  }
+
+  private void withConnection(SqlConsumer consumer) {
+    Connection conn = connectionFactory.get();
+    if (conn == null) {
+      throw new IllegalStateException("No repository connection for local-field column DDL");
+    }
+    try {
+      consumer.accept(conn);
+    } catch (SQLException e) {
+      throw new IllegalStateException("Local-field column DDL failed", e);
+    } finally {
+      try {
+        conn.close();
+      } catch (SQLException e) {
+        log.debug("Closing local-field column connection: {}", e.getMessage());
+      }
+    }
+  }
+
+  static Connection openRepositoryConnection() {
+    try {
+      Properties props =
+          PSJdbcDbmsDef.loadRxRepositoryProperties(PSServer.getRxDir().getAbsolutePath());
+      PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(props);
+      return PSJdbcTableFactory.getConnection(dbmsDef);
+    } catch (Exception e) {
+      throw new IllegalStateException("Failed to open repository connection for local-field DDL", e);
+    }
+  }
+
+  @FunctionalInterface
+  private interface SqlConsumer {
+    void accept(Connection conn) throws SQLException;
+  }
+}

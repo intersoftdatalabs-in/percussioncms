@@ -29,8 +29,9 @@ system/shared fields** are REST-only (no SPA field editor or field picker).
 After a held lock, integrators add a local field with
 `POST /services/contenttypes/{idOrName}/fields` (JSON `name` required) and
 remove one with `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}`.
-Duplicate field names are **409**. System and shared fields cannot be removed
-here (**400**). Include an existing system or shared field with
+The add call creates the backend column **before** the content editor
+application is re-initialized. Duplicate field names are **409**. Unlocked is
+**409**. System and shared fields cannot be removed here (**400**). Include an existing system or shared field with
 `POST /services/contenttypes/{idOrName}/fields/include` (JSON `name` and
 `fieldType` `system` or `shared`; origin is not copied as local). Duplicate
 include is **409**; unknown catalog field is **404**. Optional `fieldSet` on
