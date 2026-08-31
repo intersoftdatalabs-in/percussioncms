@@ -366,6 +366,22 @@ export function isContentTypeCreateReady(opts: { name: string }): boolean {
 }
 
 /**
+ * Rename is enabled when the next name is legal and differs from the current
+ * internal name (bulk PUT still does not rename).
+ */
+export function isContentTypeRenameReady(opts: {
+  currentName: string;
+  nextName: string;
+}): boolean {
+  const next = normalizeContentTypeName(opts.nextName);
+  const current = normalizeContentTypeName(opts.currentName);
+  if (!isValidContentTypeName(next) || !current) {
+    return false;
+  }
+  return next !== current;
+}
+
+/**
  * Build the wire JSON body for ContentTypesResource POST under
  * {@link CONTENT_TYPE_DETAIL_ROOT}. A flat body fails server UNWRAP_ROOT_VALUE.
  */
@@ -397,6 +413,45 @@ export async function createContentType(
 export async function deleteContentType(idOrName: string): Promise<void> {
   const key = encodeURIComponent(idOrName);
   await del(`${PATHS.CONTENT_TYPES}/${key}`);
+}
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code ContentTypeName}. */
+export const CONTENT_TYPE_NAME_ROOT = "ContentTypeName";
+
+export type ContentTypeNameBody = {
+  name: string;
+};
+
+/**
+ * Build the wire JSON body for {@code PUT .../name} under
+ * {@link CONTENT_TYPE_NAME_ROOT}. A flat {@code { name }} body fails
+ * server UNWRAP_ROOT_VALUE.
+ */
+export function wrapContentTypeNameForWire(
+  name: string,
+): Record<string, ContentTypeNameBody> {
+  return { [CONTENT_TYPE_NAME_ROOT]: { name } };
+}
+
+/**
+ * PUT /services/contenttypes/{idOrName}/name — CD-01 rename. Admin. Requires a
+ * design-session lock already held by the current user ({@link lockContentType}).
+ * Does not acquire or release the lock. Unique (case-insensitive); no spaces or
+ * wildcards. Bulk {@link updateContentTypeDetail} does not change name.
+ * HTTP 409 when unlocked or locked by another user; 409/400 duplicate or reserved;
+ * 400 blank/spaces/wildcard; 403 non-Admin. After success, GET by the new name is
+ * 200 and GET by the previous name is 404.
+ */
+export async function renameContentType(
+  idOrName: string,
+  newName: string,
+): Promise<ContentTypeDetail> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}/name`,
+    wrapContentTypeNameForWire(newName),
+  );
+  return unwrapContentTypeDetail(payload);
 }
 
 /** Wire body for {@code PUT .../allowedWorkflows} (Jackson root {@code ContentTypeWorkflows}). */

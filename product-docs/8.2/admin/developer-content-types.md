@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Create or delete a content type from Developer catalog chrome, lock, enable or disable, rename via REST, add or delete local fields via REST, include system or shared fields via REST, export design XML via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Create, rename, or delete a content type from Developer chrome, lock, enable or disable, add or delete local fields via REST, include system or shared fields via REST, export design XML via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -27,7 +27,7 @@ Workbench-equivalent `ItemDefData` design XML with Admin
 `POST /services/contenttypes/import` (CD-14; create only; duplicate name **409**;
 invalid XML **400**; the new object's create lock is released and existing types
 are not stolen). This chrome does **not** include an
-import wizard; rename, **local field create/delete**, and **include
+import wizard; **local field create/delete** and **include
 system/shared fields** are REST-only (no SPA field editor or field picker).
 After a held lock, integrators add a local field with
 `POST /services/contenttypes/{idOrName}/fields` (JSON `name` required) and
@@ -99,8 +99,26 @@ null-entry / default-selected writes are not in this chrome.
    (**409**). Invalid names (blank, spaces, wildcard) cannot be submitted; if
    REST rejects them they are **400**. Non-Admin callers are **403**.
 
-Rename is still REST-only (`PUT /services/contenttypes/{idOrName}/name` after a
-held lock). See **Rename a content type (REST)** below.
+## Product path — rename a content type
+
+Admins rename a type from Developer Content Type **detail** after holding the
+design-session lock. **Save content type** does **not** change the internal
+name (bulk `PUT /services/contenttypes/{idOrName}` still does not rename).
+
+1. Open the type and click **Lock**. Status becomes **Locked by you**.
+2. Change **Name** (letters, digits, underscore, and period; no spaces) and
+   click **Rename content type**. The product calls
+   `PUT /services/contenttypes/{idOrName}/name` (Jackson root `ContentTypeName`)
+   while the lock is still held.
+3. A following `GET /services/contenttypes/{newName}` is **200**. `GET` by the
+   previous name is **404**. `GET` by id returns the new name.
+4. Duplicate or reserved names (for example **Folder**, or another catalog type)
+   show an error (**409** on the SPA; REST may also return **400** with an
+   already-exists message). Blank, spaces, or wildcard names cannot be
+   submitted; if REST rejects them they are **400**. Non-Admin callers are
+   **403**.
+5. Without a lock, Name stays read-only and Rename stays **disabled**. An
+   unlocked REST `PUT .../name` is **409** and does not acquire the lock.
 
 ## Product path — lock, save, unlock
 
@@ -113,7 +131,7 @@ held lock). See **Rename a content type (REST)** below.
    **Object ACL** as soon as the type opens, including while the field catalog
    is still loading.
 4. The **detail toolbar at the top of the panel** (sticky) shows **Lock**,
-   **Save content type**, **Unlock**, **Delete content type**, and the **Enabled** checkbox. The type
+   **Save content type**, **Unlock**, **Rename content type**, **Delete content type**, and the **Enabled** checkbox. The type
    name and **Allowed templates** add/remove chrome are visible immediately
    (add/remove stay **disabled** until the type body has loaded and you hold
    the lock). The status line starts as **Not locked**. Label, description,
@@ -263,8 +281,8 @@ type is available for runtime use.
 
 ## Rename a content type (REST)
 
-Developer Content Type chrome does **not** rename the type. Integrators rename
-with REST after a held design-session lock:
+Integrators can also rename with REST after a held design-session lock
+(the same contract the SPA uses):
 
 1. `POST /services/contenttypes/{idOrName}/lock`
 2. `PUT /services/contenttypes/{idOrName}/name` with Jackson root
@@ -275,7 +293,9 @@ with REST after a held design-session lock:
 4. `POST .../unlock` when done.
 
 Bulk `PUT /services/contenttypes/{idOrName}` still does **not** change name.
-Unlocked or another user's lock is **409**. Collision or spaces is **400**.
+Unlocked or another user's lock is **409**. Invalid names (blank, spaces,
+wildcard) are **400**. Duplicate catalog names are **400** on REST (already
+exists) and **409** when the SPA maps a duplicate/reserved conflict.
 
 ## Delete a content type
 
@@ -308,7 +328,7 @@ The chrome calls:
 | Type-level search indexing | `GET` / `PUT /services/contenttypes/{idOrName}/searchIndexing` (CD-10; REST-only; PUT requires a held lock; default on; not the per-field searchable flag; no SPA Properties checkbox) |
 | Load icon strategy | `GET /services/contenttypes/{idOrName}/icon` (CD-11; no lock; `none` / `specified` / `fromFileField`) |
 | Set icon strategy | `PUT /services/contenttypes/{idOrName}/icon` (CD-11; Admin; held lock; `none` clears value; no binary upload; no SPA picker) |
-| Rename | `PUT /services/contenttypes/{idOrName}/name` (CD-01; Admin; held lock; unique name, no spaces; bulk PUT does not rename) |
+| Rename | `PUT /services/contenttypes/{idOrName}/name` (CD-01; Admin; held lock; unique name, no spaces; bulk PUT does not rename; SPA **Rename content type** on detail) |
 | Save allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` (requires a held lock; does not unlock) |
 | Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` (held lock; full replace) |
 | Confirm allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` |

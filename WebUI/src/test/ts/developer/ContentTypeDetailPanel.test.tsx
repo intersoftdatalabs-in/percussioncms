@@ -30,6 +30,7 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     getContentTypeItemExits: vi.fn(),
     replaceContentTypeItemExits: vi.fn(),
     deleteContentType: vi.fn(),
+    renameContentType: vi.fn(),
   };
 });
 
@@ -81,6 +82,7 @@ const getContentTypeItemExits = contentTypesApi.getContentTypeItemExits as Retur
 const replaceContentTypeItemExits =
   contentTypesApi.replaceContentTypeItemExits as ReturnType<typeof vi.fn>;
 const deleteContentType = contentTypesApi.deleteContentType as ReturnType<typeof vi.fn>;
+const renameContentType = contentTypesApi.renameContentType as ReturnType<typeof vi.fn>;
 const getContentTypeFieldRuleExpressions =
   fieldRulesApi.getContentTypeFieldRuleExpressions as ReturnType<typeof vi.fn>;
 const replaceContentTypeFieldRuleExpressions =
@@ -126,11 +128,16 @@ describe("ContentTypeDetailPanel", () => {
     getContentTypeItemExits.mockReset();
     replaceContentTypeItemExits.mockReset();
     deleteContentType.mockReset();
+    renameContentType.mockReset();
     getContentTypeFieldRuleExpressions.mockReset();
     replaceContentTypeFieldRuleExpressions.mockReset();
     lockContentType.mockResolvedValue({ locker: "Admin", remainingTime: 30 });
     unlockContentType.mockResolvedValue(undefined);
     deleteContentType.mockResolvedValue(undefined);
+    renameContentType.mockImplementation(async (_id: string, newName: string) => ({
+      ...sampleDetail,
+      name: newName,
+    }));
     updateContentTypeDetail.mockImplementation(async (_id, body) => ({
       ...sampleDetail,
       ...body,
@@ -1686,5 +1693,249 @@ describe("ContentTypeDetailPanel", () => {
     } finally {
       confirmSpy.mockRestore();
     }
+  });
+
+  it("disables rename until a lock is held and does not call PUT name", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-name")).toBeTruthy();
+    });
+    const renameBtn = screen.getByTestId("developer-ct-rename") as HTMLButtonElement;
+    expect(renameBtn.disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-ct-name"), {
+      target: { value: "percRenamedPage" },
+    });
+    expect(renameBtn.disabled).toBe(true);
+    fireEvent.click(renameBtn);
+    expect(renameContentType).not.toHaveBeenCalled();
+    expect(lockContentType).not.toHaveBeenCalled();
+  });
+
+  it("name-only edit does not enable Save (bulk PUT does not rename)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe(
+        "Locked by you",
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-name"), {
+      target: { value: "percRenamedPage" },
+    });
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-rename") as HTMLButtonElement).disabled).toBe(
+      false,
+    );
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+  });
+
+  it("disables rename for blank or spaced names", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    const renameBtn = screen.getByTestId("developer-ct-rename") as HTMLButtonElement;
+    fireEvent.change(screen.getByTestId("developer-ct-name"), {
+      target: { value: "   " },
+    });
+    expect(renameBtn.disabled).toBe(true);
+    fireEvent.click(renameBtn);
+    expect(renameContentType).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId("developer-ct-name"), {
+      target: { value: "bad name" },
+    });
+    expect(renameBtn.disabled).toBe(true);
+    fireEvent.click(renameBtn);
+    expect(renameContentType).not.toHaveBeenCalled();
+  });
+
+  it("renames after lock with a unique name", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    const onRenamed = vi.fn();
+    render(
+      <ContentTypeDetailPanel
+        idOrName="percPage"
+        onBack={() => undefined}
+        onRenamed={onRenamed}
+      />,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe(
+        "Locked by you",
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-name"), {
+      target: { value: "percRenamedPage" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-rename"));
+    await waitFor(() => {
+      expect(onRenamed).toHaveBeenCalled();
+    });
+    expect(renameContentType).toHaveBeenCalledWith("percPage", "percRenamedPage");
+    expect(screen.getByTestId("developer-ct-detail-notice").textContent).toBe(
+      DEV_MSG.CT_RENAMED,
+    );
+    expect(screen.getByTestId("developer-ct-detail-name").textContent).toContain(
+      "percRenamedPage",
+    );
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe(
+      "Locked by you",
+    );
+    expect(lockContentType).toHaveBeenCalledTimes(1);
+  });
+
+  it("unlocked rename 409 does not steal the lock", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    renameContentType.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Design lock required" },
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-name"), {
+      target: { value: "percRenamedPage" },
+    });
+    lockContentType.mockClear();
+    fireEvent.click(screen.getByTestId("developer-ct-rename"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error")).toBeTruthy();
+    });
+    expect(renameContentType).toHaveBeenCalledTimes(1);
+    expect(lockContentType).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+      DEV_MSG.CT_RENAME_LOCK_REQUIRED,
+    );
+  });
+
+  it("surfaces 409 duplicate or reserved name", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    renameContentType.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Content type name already exists: Folder" },
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-name"), {
+      target: { value: "Folder" },
+    });
+    lockContentType.mockClear();
+    fireEvent.click(screen.getByTestId("developer-ct-rename"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error")).toBeTruthy();
+    });
+    expect(renameContentType).toHaveBeenCalledWith("percPage", "Folder");
+    expect(lockContentType).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+      DEV_MSG.CT_DUPLICATE,
+    );
+  });
+
+  it("surfaces 400 blank or spaces from REST", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    renameContentType.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Content type name must not contain spaces" },
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-name"), {
+      target: { value: "percRenamedPage" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-rename"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+      DEV_MSG.CT_INVALID_NAME,
+    );
+  });
+
+  it("surfaces 403 non-Admin on rename", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    renameContentType.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: { message: "Admin role required" },
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-name"), {
+      target: { value: "percRenamedPage" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-rename"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+      DEV_MSG.CT_FORBIDDEN,
+    );
   });
 });

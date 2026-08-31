@@ -152,6 +152,9 @@ export function ContentTypesPanel(): React.ReactElement {
           catalogGuid={selected.catalogGuid}
           onBack={() => setSelected(null)}
           onDeleted={handleDeleted}
+          onRenamed={() => {
+            void reload();
+          }}
         />
       </DeveloperSectionErrorBoundary>
     );

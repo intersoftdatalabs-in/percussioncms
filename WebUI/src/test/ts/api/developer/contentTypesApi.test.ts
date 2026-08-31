@@ -11,6 +11,7 @@ import {
   getContentTypeAllowedTemplates,
   getFieldControlProperties,
   isContentTypeCreateReady,
+  isContentTypeRenameReady,
   isValidContentTypeName,
   normalizeContentTypeControlProperties,
   normalizeContentTypeDesignGaps,
@@ -18,6 +19,7 @@ import {
   normalizeContentTypeName,
   normalizeContentTypeStringList,
   normalizeNamedObjectRefs,
+  renameContentType,
   replaceContentTypeAllowedTemplates,
   replaceFieldControlProperties,
   setContentTypeAllowedWorkflows,
@@ -31,6 +33,7 @@ import {
   wrapContentTypeCreateForWire,
   wrapContentTypeDetailForWire,
   wrapContentTypeEnabledForWire,
+  wrapContentTypeNameForWire,
   wrapContentTypeWorkflowsForWire,
   wrapFieldControlPropertiesForWire,
   wrapNamedObjectRefListForWire,
@@ -1041,5 +1044,116 @@ describe("createContentType / deleteContentType CD-01", () => {
   it("surfaces 403 non-Admin delete", async () => {
     fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Forbidden" }, 403));
     await expect(deleteContentType("qaType")).rejects.toMatchObject({ status: 403 });
+  });
+});
+
+describe("renameContentType CD-01", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("wraps name under ContentTypeName", () => {
+    expect(wrapContentTypeNameForWire("percRenamedPage")).toEqual({
+      ContentTypeName: { name: "percRenamedPage" },
+    });
+  });
+
+  it("isContentTypeRenameReady rejects blank, spaces, and unchanged", () => {
+    expect(isContentTypeRenameReady({ currentName: "percPage", nextName: "" })).toBe(
+      false,
+    );
+    expect(
+      isContentTypeRenameReady({ currentName: "percPage", nextName: "   " }),
+    ).toBe(false);
+    expect(
+      isContentTypeRenameReady({ currentName: "percPage", nextName: "bad name" }),
+    ).toBe(false);
+    expect(
+      isContentTypeRenameReady({ currentName: "percPage", nextName: "percPage" }),
+    ).toBe(false);
+    expect(
+      isContentTypeRenameReady({
+        currentName: "percPage",
+        nextName: "percRenamedPage",
+      }),
+    ).toBe(true);
+  });
+
+  it("bulk PUT wrap does not include name", () => {
+    const wrapped = wrapContentTypeDetailForWire({
+      label: "Page",
+      description: "updated",
+    });
+    expect(JSON.stringify(wrapped)).not.toMatch(/"name"/);
+  });
+
+  it("PUTs /contenttypes/{id}/name without lock or unlock", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeDetail: { name: "percRenamedPage", label: "Page" },
+      }),
+    );
+    const saved = await renameContentType("percPage", "percRenamedPage");
+    expect(saved.name).toBe("percRenamedPage");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/percPage/name`,
+    );
+    expect(JSON.parse(String(init.body))).toEqual({
+      ContentTypeName: { name: "percRenamedPage" },
+    });
+  });
+
+  it("unlocked PUT name is 409 and does not POST lock", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ message: "Design lock required" }, 409),
+    );
+    await expect(renameContentType("percPage", "percRenamedPage")).rejects.toMatchObject({
+      status: 409,
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect((fetchMock.mock.calls[0][1] as RequestInit).method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).not.toMatch(/\/lock$/);
+  });
+
+  it("surfaces 409 duplicate or reserved name", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ message: "Content type name already exists: Folder" }, 409),
+    );
+    await expect(renameContentType("percPage", "Folder")).rejects.toMatchObject({
+      status: 409,
+    });
+  });
+
+  it("surfaces 400 blank or spaces", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ message: "Content type name must not contain spaces" }, 400),
+    );
+    await expect(renameContentType("percPage", "bad name")).rejects.toMatchObject({
+      status: 400,
+    });
+  });
+
+  it("surfaces 403 non-Admin rename", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Forbidden" }, 403));
+    await expect(renameContentType("percPage", "percRenamedPage")).rejects.toMatchObject({
+      status: 403,
+    });
   });
 });

@@ -137,7 +137,7 @@ export const DEV_MSG_KEYS = {
   CT_COL_LABEL: "perc.ui.developer@Label",
   CT_COL_DESCRIPTION: "perc.ui.developer@Description",
   CT_COL_ID: "perc.ui.developer@Id",
-  CT_HINT: "perc.ui.developer@Create a type, or select one to view fields and edit label, description, enabled, field flags, workflows, templates, item-level exits, control property values, and field-rule expressions. Delete requires a held lock.",
+  CT_HINT: "perc.ui.developer@Create a type, or select one to view fields and edit label, description, enabled, field flags, workflows, templates, item-level exits, control property values, and field-rule expressions. Rename and delete require a held lock.",
   CT_NEW: "perc.ui.developer@New content type",
   CT_FORM_NAME: "perc.ui.developer@Name",
   CT_NAME_HINT:
@@ -155,6 +155,13 @@ export const DEV_MSG_KEYS = {
   CT_DELETE_LOCK_REQUIRED:
     "perc.ui.developer@Lock this content type before deleting. The lock was not stolen.",
   CT_DELETED: "perc.ui.developer@Content type deleted.",
+  CT_RENAME: "perc.ui.developer@Rename content type",
+  CT_RENAMED: "perc.ui.developer@Content type renamed.",
+  CT_RENAME_ERROR: "perc.ui.developer@Could not rename content type.",
+  CT_RENAME_LOCK_REQUIRED:
+    "perc.ui.developer@Lock this content type before renaming. The lock was not stolen.",
+  CT_RENAME_HINT:
+    "perc.ui.developer@Internal name. Letters, digits, underscore, and period only. Rename requires a held lock; Save does not change the name.",
   CT_BACK: "perc.ui.developer@Back to list",
   CT_DETAIL_LOADING: "perc.ui.developer@Loading content type...",
   CT_DETAIL_ERROR: "perc.ui.developer@Could not load content type detail.",
