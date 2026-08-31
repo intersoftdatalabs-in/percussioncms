@@ -1160,7 +1160,9 @@ singleton design object. Public REST exposes a catalog **and write** under
 service as Workbench (`IPSContentDesignWs.loadContentEditorSystemDef` /
 `saveContentEditorSystemDef`). Writes acquire the system-definition design lock for
 the request and **release** it on save (same request-lock pattern as shared-field
-PUT; unlike content-type PUT, which requires a previously held lock).
+PUT; unlike content-type PUT, which requires a previously held lock). The
+Developer SPA **System definition** chrome uses these calls for field save /
+add / delete — see [Developer System Def](id:admin-developer-system-def).
 
 **Admin (Design) only.** There is no global JAX-RS Admin filter on this path — the
 sitemanage adaptor checks `IPSUserService.isAdminUser` for the current user and maps
