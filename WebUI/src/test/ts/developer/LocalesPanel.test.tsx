@@ -178,6 +178,26 @@ describe("LocalesPanel", () => {
     expect(screen.queryByTestId("developer-loc-table")).toBeNull();
   });
 
+  it("returns to the locales catalog from auto-translations back", async () => {
+    listMock.mockResolvedValue([
+      { languageString: "en-us", label: "English", status: "active" },
+    ]);
+    render(<LocalesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-at-open")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-at-open"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-at-back")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-at-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-table")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-at-panel")).toBeNull();
+    expect(screen.getByText("en-us")).toBeTruthy();
+  });
+
   it("shows empty state when API returns no locales", async () => {
     listMock.mockResolvedValue([]);
     render(<LocalesPanel />);

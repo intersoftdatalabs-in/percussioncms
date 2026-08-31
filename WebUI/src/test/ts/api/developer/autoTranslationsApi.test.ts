@@ -47,6 +47,24 @@ describe("auto-translation row helpers", () => {
     ).toBe(true);
   });
 
+  it("treats ID-only content type, workflow, and community as ready", () => {
+    expect(
+      isAutoTranslationRowReady({
+        locale: "en-us",
+        contentTypeId: 301,
+        workflowId: 4,
+        communityId: 10,
+      }),
+    ).toBe(true);
+    expect(
+      isAutoTranslationRowReady({
+        locale: "en-us",
+        contentTypeId: 301,
+        workflowId: 4,
+      }),
+    ).toBe(false);
+  });
+
   it("treats empty set as ready and rejects duplicates", () => {
     expect(isAutoTranslationSetReady([])).toBe(true);
     const row = {
@@ -159,6 +177,22 @@ describe("auto-translation save error classifiers", () => {
     };
     expect(isAutoTranslationLockError(err)).toBe(true);
     expect(classifyAutoTranslationSaveError(err)).toBe("lock");
+  });
+
+  it("classifies non-409 lock wording as lock", () => {
+    const err = {
+      status: 500,
+      statusText: "Internal Server Error",
+      body: { message: "Could not save auto-translations; locked by other" },
+    };
+    expect(isAutoTranslationLockError(err)).toBe(true);
+    expect(classifyAutoTranslationSaveError(err)).toBe("lock");
+  });
+
+  it("classifies non-API errors as other", () => {
+    const err = new Error("network");
+    expect(isAutoTranslationLockError(err)).toBe(false);
+    expect(classifyAutoTranslationSaveError(err)).toBe("other");
   });
 });
 

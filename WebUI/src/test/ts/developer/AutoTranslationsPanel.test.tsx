@@ -138,6 +138,35 @@ describe("AutoTranslationsPanel", () => {
     expect(screen.getByTestId("developer-at-notice").textContent).toBe(DEV_MSG.AT_SAVED);
   });
 
+  it("shows duplicate-key alert and disables save", async () => {
+    listAt.mockResolvedValue([]);
+    render(<AutoTranslationsPanel onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-at-add")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-at-add"));
+    fireEvent.click(screen.getByTestId("developer-at-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-at-duplicate")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-at-duplicate").textContent).toBe(DEV_MSG.AT_DUPLICATE);
+    expect((screen.getByTestId("developer-at-save") as HTMLButtonElement).disabled).toBe(true);
+    expect(saveAt).not.toHaveBeenCalled();
+  });
+
+  it("surfaces catalogWarning when a catalog API rejects", async () => {
+    listAt.mockResolvedValue([]);
+    localesMock.mockRejectedValue(new Error("locales catalog down"));
+    render(<AutoTranslationsPanel onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-at-catalog-warning")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-at-catalog-warning").textContent).toBe(
+      DEV_MSG.AT_CATALOG_ERROR,
+    );
+    expect(screen.getByTestId("developer-at-empty")).toBeTruthy();
+  });
+
   it("saves a valid locale×content-type row", async () => {
     listAt.mockResolvedValue([]);
     saveAt.mockResolvedValue([readyRow]);
