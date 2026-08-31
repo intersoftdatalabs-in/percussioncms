@@ -47,6 +47,7 @@ import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import jakarta.ws.rs.WebApplicationException;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -139,6 +140,30 @@ class SystemDefAdaptorTest {
             () -> SystemDefAdaptor.loadSystemDefFromDesignWs(designWs, "sid", "admin"));
     assertEquals("Failed to load system def", ex.getMessage());
     assertSame(cause, ex.getCause());
+  }
+
+  @Test
+  void loadSystemDefFromDesignWs_preservesGenuineNpe() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    NullPointerException npe = new NullPointerException("design ws bug");
+    when(designWs.loadContentEditorSystemDef(false, false, "sid", "admin")).thenThrow(npe);
+
+    NullPointerException thrown =
+        assertThrows(
+            NullPointerException.class,
+            () -> SystemDefAdaptor.loadSystemDefFromDesignWs(designWs, "sid", "admin"));
+    assertSame(npe, thrown);
+  }
+
+  @Test
+  void loadSystemDefFromDesignWs_retriesMissingColumnNpe() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = mock(PSContentEditorSystemDef.class);
+    when(designWs.loadContentEditorSystemDef(false, false, "sid", "admin"))
+        .thenThrow(new NullPointerException("no such column QA4030PROBE"))
+        .thenReturn(def);
+
+    assertSame(def, SystemDefAdaptor.loadSystemDefFromDesignWs(designWs, "sid", "admin"));
   }
 
   @Test
@@ -262,27 +287,44 @@ class SystemDefAdaptorTest {
     when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin"))
         .thenThrow(lockErr);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+    SystemDefFieldSummary patch = new SystemDefFieldSummary();
+    patch.setName("sys_title");
+    SystemDefDetail body = new SystemDefDetail();
+    body.setFields(List.of(patch));
     SystemDefDesignLockException ex =
         assertThrows(
-            SystemDefDesignLockException.class,
-            () -> adaptor.updateSystemDef(null, new SystemDefDetail()));
+            SystemDefDesignLockException.class, () -> adaptor.updateSystemDef(null, body));
     assertTrue(ex.getMessage().contains("locked by other"));
   }
 
   @Test
   void updateSystemDef_saveLockConflictIs409() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSField field = mock(PSField.class);
+    when(field.getSubmitName()).thenReturn("sys_title");
+    when(field.getDataType()).thenReturn("text");
+    when(field.isUserSearchable()).thenReturn(true);
+    when(field.isReadOnly()).thenReturn(false);
+    when(field.getOccurrenceDimension(null)).thenReturn(PSField.OCCURRENCE_DIMENSION_OPTIONAL);
+    PSFieldSet set = mock(PSFieldSet.class);
+    when(set.getAllFields()).thenReturn(new PSField[] {field});
+    when(set.findFieldByName("sys_title", false)).thenReturn(field);
     PSContentEditorSystemDef def = mock(PSContentEditorSystemDef.class);
-    when(def.getFieldSet()).thenReturn(null);
+    when(def.getFieldSet()).thenReturn(set);
+    when(def.getCacheTimeout()).thenReturn(15);
     when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
     doThrow(new PSLockErrorException(1, "not locked", "stack"))
         .when(designWs)
         .saveContentEditorSystemDef(any(), eq(true), eq("test-session"), eq("Admin"));
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+    SystemDefFieldSummary patch = new SystemDefFieldSummary();
+    patch.setName("sys_title");
+    patch.setSearchable(true);
+    SystemDefDetail body = new SystemDefDetail();
+    body.setFields(List.of(patch));
     SystemDefDesignLockException ex =
         assertThrows(
-            SystemDefDesignLockException.class,
-            () -> adaptor.updateSystemDef(null, new SystemDefDetail()));
+            SystemDefDesignLockException.class, () -> adaptor.updateSystemDef(null, body));
     assertTrue(ex.getMessage().contains("design lock required"));
   }
 
@@ -550,6 +592,189 @@ class SystemDefAdaptorTest {
   }
 
   @Test
+  void hasFieldPatches_emptyIsNoOp() {
+    assertFalse(SystemDefAdaptor.hasFieldPatches(null));
+    assertFalse(SystemDefAdaptor.hasFieldPatches(List.of()));
+    SystemDefFieldSummary blank = new SystemDefFieldSummary();
+    blank.setName("  ");
+    assertFalse(SystemDefAdaptor.hasFieldPatches(List.of(blank)));
+    SystemDefFieldSummary named = new SystemDefFieldSummary();
+    named.setName("sys_title");
+    assertTrue(SystemDefAdaptor.hasFieldPatches(List.of(named)));
+  }
+
+  @Test
+  void isMissingColumnFailure_recognizesH2Messages() {
+    assertTrue(
+        SystemDefAdaptor.isMissingColumnFailure(new RuntimeException("no such column QA4030PROBE")));
+    assertTrue(
+        SystemDefAdaptor.isMissingColumnFailure(
+            new RuntimeException("Column \"QA4030PROBE\" not found")));
+    assertTrue(
+        SystemDefAdaptor.isMissingColumnFailure(
+            new IllegalStateException("wrap", new SQLException("invalid column name"))));
+    assertTrue(SystemDefAdaptor.isMissingColumnFailure(new SQLException("x", "42122")));
+    assertTrue(SystemDefAdaptor.isMissingColumnFailure(new SQLException("x", "42S22")));
+    assertTrue(
+        SystemDefAdaptor.isMissingColumnFailure(
+            new IllegalStateException("wrap", new SQLException("x", "42703"))));
+    assertTrue(SystemDefAdaptor.isMissingColumnFailure(new SQLException("ORA-00904", "42000", 904)));
+    assertTrue(SystemDefAdaptor.isMissingColumnFailure(new SQLException("invalid column", "S0001", 207)));
+    assertFalse(SystemDefAdaptor.isMissingColumnFailure(new NullPointerException()));
+    assertFalse(SystemDefAdaptor.isMissingColumnFailure(new RuntimeException("unrelated")));
+    assertFalse(
+        SystemDefAdaptor.isMissingColumnFailure(new RuntimeException("column mapping not found")));
+    assertFalse(
+        SystemDefAdaptor.isMissingColumnFailure(
+            new RuntimeException("field column not found in schema")));
+  }
+
+  @Test
+  void updateSystemDef_emptyFieldsDoesNotSave() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = mock(PSContentEditorSystemDef.class);
+    when(def.getFieldSet()).thenReturn(null);
+    when(def.getCacheTimeout()).thenReturn(15);
+    when(designWs.loadContentEditorSystemDef(false, false, "test-session", "Admin"))
+        .thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+
+    SystemDefDetail first = adaptor.updateSystemDef(null, new SystemDefDetail());
+    SystemDefDetail second = adaptor.updateSystemDef(null, new SystemDefDetail());
+
+    assertEquals(0, first.getFieldCount());
+    assertEquals(0, second.getFieldCount());
+    verify(designWs, never()).loadContentEditorSystemDef(eq(true), anyBoolean(), any(), any());
+    verify(designWs, never()).saveContentEditorSystemDef(any(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void updateSystemDef_secondPutAfterFirstSaveDoesNotNpe() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSField field = mock(PSField.class);
+    when(field.getSubmitName()).thenReturn("sys_title");
+    when(field.getDataType()).thenReturn("text");
+    when(field.isUserSearchable()).thenReturn(true);
+    when(field.isReadOnly()).thenReturn(false);
+    when(field.getOccurrenceDimension(null)).thenReturn(PSField.OCCURRENCE_DIMENSION_OPTIONAL);
+    PSFieldSet set = mock(PSFieldSet.class);
+    when(set.getAllFields()).thenReturn(new PSField[] {field});
+    when(set.findFieldByName("sys_title", false)).thenReturn(field);
+    PSContentEditorSystemDef def = mock(PSContentEditorSystemDef.class);
+    when(def.getFieldSet()).thenReturn(set);
+    when(def.getCacheTimeout()).thenReturn(15);
+    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(false, false, "test-session", "Admin"))
+        .thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+
+    SystemDefFieldSummary patch = new SystemDefFieldSummary();
+    patch.setName("sys_title");
+    patch.setSearchable(true);
+    SystemDefDetail body = new SystemDefDetail();
+    body.setFields(List.of(patch));
+    adaptor.updateSystemDef(null, body);
+    SystemDefDetail after = adaptor.updateSystemDef(null, new SystemDefDetail());
+
+    assertEquals(1, after.getFieldCount());
+    verify(designWs).saveContentEditorSystemDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void addField_ensuresContentStatusColumn() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SystemDefColumnSchema columns = mock(SystemDefColumnSchema.class);
+    PSContentEditorSystemDef def = newSystemDefWithEmptyFields();
+    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true, columns);
+
+    SystemDefFieldSummary body = new SystemDefFieldSummary();
+    body.setName("sys_custom");
+    adaptor.addField(null, body);
+
+    verify(columns).ensureColumn(eq("CONTENTSTATUS"), eq("SYS_CUSTOM"), eq("text"), eq("50"));
+  }
+
+  @Test
+  void addField_duplicateAfterMissingColumnLoadIs409() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = newSystemDefWithEmptyFields();
+    SystemDefFieldSummary existing = new SystemDefFieldSummary();
+    existing.setName("sys_title");
+    SystemDefAdaptor.addPersistableField(def, existing);
+    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin"))
+        .thenThrow(new RuntimeException("no such column QA4030PROBE"))
+        .thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+
+    SystemDefFieldSummary body = new SystemDefFieldSummary();
+    body.setName("sys_title");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.addField(null, body));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(designWs, never()).saveContentEditorSystemDef(any(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void deleteField_missingColumnStillRemovesAndSkipsDrop() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SystemDefColumnSchema columns = mock(SystemDefColumnSchema.class);
+    PSContentEditorSystemDef def = newSystemDefWithEmptyFields();
+    SystemDefFieldSummary existing = new SystemDefFieldSummary();
+    existing.setName("qa4030probe");
+    SystemDefAdaptor.addPersistableField(def, existing);
+    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin"))
+        .thenThrow(new RuntimeException("no such column QA4030PROBE"))
+        .thenReturn(def);
+    doThrow(new IllegalStateException("no such column QA4030PROBE"))
+        .when(columns)
+        .dropColumnIfPresent("CONTENTSTATUS", "QA4030PROBE");
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true, columns);
+
+    adaptor.deleteField(null, "qa4030probe");
+
+    verify(designWs).saveContentEditorSystemDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
+    assertNull(def.getFieldSet().getFieldByName("qa4030probe"));
+    verify(columns).dropColumnIfPresent("CONTENTSTATUS", "QA4030PROBE");
+  }
+
+  @Test
+  void deleteField_dropsContentStatusColumn() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SystemDefColumnSchema columns = mock(SystemDefColumnSchema.class);
+    PSContentEditorSystemDef def = newSystemDefWithEmptyFields();
+    SystemDefFieldSummary existing = new SystemDefFieldSummary();
+    existing.setName("sys_custom");
+    SystemDefAdaptor.addPersistableField(def, existing);
+    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true, columns);
+
+    adaptor.deleteField(null, "sys_custom");
+
+    verify(columns).dropColumnIfPresent("CONTENTSTATUS", "SYS_CUSTOM");
+  }
+
+  @Test
+  void deleteField_genuineDropFailureDoesNotSave() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SystemDefColumnSchema columns = mock(SystemDefColumnSchema.class);
+    PSContentEditorSystemDef def = newSystemDefWithEmptyFields();
+    SystemDefFieldSummary existing = new SystemDefFieldSummary();
+    existing.setName("sys_custom");
+    SystemDefAdaptor.addPersistableField(def, existing);
+    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    doThrow(new IllegalStateException("permissions denied"))
+        .when(columns)
+        .dropColumnIfPresent("CONTENTSTATUS", "SYS_CUSTOM");
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true, columns);
+
+    IllegalStateException ex =
+        assertThrows(IllegalStateException.class, () -> adaptor.deleteField(null, "sys_custom"));
+    assertTrue(ex.getMessage().contains("Failed to drop backend column"));
+    verify(designWs, never()).saveContentEditorSystemDef(any(), anyBoolean(), any(), any());
+  }
+
+  @Test
   void validateFieldName_rejectsInvalid() {
     assertEquals("sys_custom", SystemDefAdaptor.validateFieldName("sys_custom"));
     assertThrows(IllegalArgumentException.class, () -> SystemDefAdaptor.validateFieldName(" "));
@@ -561,6 +786,9 @@ class SystemDefAdaptorTest {
     assertThrows(
         IllegalArgumentException.class, () -> SystemDefAdaptor.validateFieldName("a\0b"));
     assertThrows(IllegalArgumentException.class, () -> SystemDefAdaptor.validateFieldName("1start"));
+    assertThrows(
+        IllegalArgumentException.class, () -> SystemDefAdaptor.validateFieldName("SELECT"));
+    assertThrows(IllegalArgumentException.class, () -> SystemDefAdaptor.validateFieldName("user"));
   }
 
   /**
