@@ -180,6 +180,8 @@ Example auto-translation PUT body (JSON array; empty `[]` clears the set):
   release). There is no separate lock/unlock REST pair on this catalog (unlike content types).
 - Format-profile (`RXLOCALEFORMAT`) create/edit remains unsupported (`designGaps` on locale detail).
   Auto-translation configuration is **GET/PUT** `/services/locales/auto-translations`.
+  The Developer **Locales** SPA chrome uses that GET/PUT surface to view and replace the
+  set (add/remove locale × content-type rows; empty list clears).
 
 ### Integrator notes
 

@@ -100,6 +100,13 @@ const DEVELOPER_SMOKE_SET = [
     notes: "CD-18 SPA locale editor (#4005 / parent #1690)",
   },
   {
+    id: "auto-translation-editor",
+    file: "developer-auto-translation-editor.spec.js",
+    title: "Admin can add a locale×content-type row, save, and round-trip",
+    status: "green",
+    notes: "CD-18 SPA auto-translation editor (#4028 / parent #1690)",
+  },
+  {
     id: "catalog-slots",
     file: "developer-catalog-smoke.spec.js",
     title: "slots: catalog loads without API error",

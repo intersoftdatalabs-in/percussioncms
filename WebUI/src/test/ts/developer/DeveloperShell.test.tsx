@@ -449,6 +449,17 @@ vi.mock("../../../main/ts/api/developer/localesApi", async (importOriginal) => {
   };
 });
 
+vi.mock("../../../main/ts/api/developer/autoTranslationsApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/autoTranslationsApi")
+  >();
+  return {
+    ...actual,
+    listAutoTranslations: vi.fn().mockResolvedValue([]),
+    saveAutoTranslations: vi.fn().mockResolvedValue([]),
+  };
+});
+
 vi.mock("../../../main/ts/api/developer/sharedFieldsApi", () => ({
   listSharedFieldGroups: vi.fn().mockResolvedValue([
     { name: "shared", filename: "shared.xml", fieldCount: 2 },

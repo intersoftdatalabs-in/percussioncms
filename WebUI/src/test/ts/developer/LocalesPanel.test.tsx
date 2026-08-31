@@ -24,6 +24,47 @@ vi.mock("../../../main/ts/api/developer/localesApi", async (importOriginal) => {
   };
 });
 
+vi.mock("../../../main/ts/api/developer/autoTranslationsApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/autoTranslationsApi")
+  >();
+  return {
+    ...actual,
+    listAutoTranslations: vi.fn().mockResolvedValue([]),
+    saveAutoTranslations: vi.fn().mockResolvedValue([]),
+  };
+});
+
+vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/contentTypesApi")
+  >();
+  return {
+    ...actual,
+    listContentTypes: vi.fn().mockResolvedValue([{ name: "percPage", label: "Page" }]),
+  };
+});
+
+vi.mock("../../../main/ts/api/developer/workflowsApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/workflowsApi")
+  >();
+  return {
+    ...actual,
+    listWorkflows: vi.fn().mockResolvedValue([{ workflowName: "Default Workflow" }]),
+  };
+});
+
+vi.mock("../../../main/ts/api/developer/assemblyApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/assemblyApi")
+  >();
+  return {
+    ...actual,
+    listCommunities: vi.fn().mockResolvedValue([{ name: "Default" }]),
+  };
+});
+
 const listMock = vi.mocked(listLocales);
 const detailMock = vi.mocked(getLocaleDetail);
 
@@ -66,6 +107,7 @@ describe("LocalesPanel", () => {
     expect(screen.getByText("en-us")).toBeTruthy();
     expect(screen.getByText("ar")).toBeTruthy();
     expect(screen.getByTestId("developer-loc-new")).toBeTruthy();
+    expect(screen.getByTestId("developer-at-open")).toBeTruthy();
   });
 
   it("opens detail with format profile", async () => {
@@ -119,6 +161,21 @@ describe("LocalesPanel", () => {
     expect(screen.getByTestId("developer-loc-detail")).toBeTruthy();
     expect(screen.getByTestId("developer-loc-save")).toBeDisabled();
     expect(detailMock).not.toHaveBeenCalled();
+  });
+
+  it("opens auto-translations editor from the catalog", async () => {
+    listMock.mockResolvedValue([
+      { languageString: "en-us", label: "English", status: "active" },
+    ]);
+    render(<LocalesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-at-open")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-at-open"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-at-panel")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-loc-table")).toBeNull();
   });
 
   it("shows empty state when API returns no locales", async () => {
