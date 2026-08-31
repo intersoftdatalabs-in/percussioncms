@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Lock, enable or disable, rename via REST, add or delete local fields via REST, include system or shared fields via REST, export design XML via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Lock, enable or disable, rename via REST, add or delete local fields via REST, include system or shared fields via REST, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -23,9 +23,9 @@ are **400**. Non-Admin callers are **403**. Integrators can also **import** one
 Workbench-equivalent `ItemDefData` design XML with Admin
 `POST /services/contenttypes/import` (CD-14; create only; duplicate name **409**;
 invalid XML **400**; the new object's create lock is released and existing types
-are not stolen). This chrome does **not** include a
-create or import wizard; rename, delete, **local field create/delete**, and **include
-system/shared fields** are REST-only (no SPA field editor or field picker).
+are not stolen). This chrome includes **export** (detail **Export XML**) and **create-only import**
+(catalog **Import XML**). Rename, delete, **local field create/delete**, and **include
+system/shared fields** remain REST-only (no SPA field editor or field picker).
 After a held lock, integrators add a local field with
 `POST /services/contenttypes/{idOrName}/fields` (JSON `name` required) and
 remove one with `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}`.
@@ -59,8 +59,10 @@ properties (request lock released on save). Control, stylesheet, and flow
 editors are not in that chrome. See
 [Developer System Def](id:admin-developer-system-def). Admin `GET /services/contenttypes/{idOrName}/export`
 downloads Workbench-equivalent design XML (CD-14; no lock steal). REST import of
-that XML is `POST /services/contenttypes/import` (above). An SPA export/import
-wizard is not in this chrome. See
+that XML is `POST /services/contenttypes/import` (above). Developer **Content
+types** chrome exposes the same pair: **Export XML** on the detail toolbar and
+**Import XML** on the catalog (create only; duplicate name **409**; invalid XML
+**400**). See
 [REST API](id:developer-rest).
 
 This is **not** the full Workbench field-rule editor. The detail table still
@@ -223,6 +225,27 @@ conditions on field validation are not written.
 Locks expire after **30 minutes**. If Save fails because the lock expired,
 click **Lock** again and retry.
 
+## Export or import design XML
+
+**Export** does **not** require a design lock and does **not** steal one.
+
+1. Open **Developer → Content types** and open a type.
+2. Click **Export XML** on the detail toolbar. The browser downloads
+   Workbench-equivalent `ItemDefData` XML (`GET /services/contenttypes/{idOrName}/export`).
+   The filename is derived from the type name (for example `percPage.xml`).
+3. Unknown types are **404**. Non-Admin callers are **403**.
+
+**Import** is **create only**. It does **not** overwrite an existing type.
+
+1. Return to the catalog (**Back to list**).
+2. Under **Import XML**, choose an `ItemDefData` XML file.
+3. Enter a **unique name** (no spaces or wildcards) when the XML name already
+   exists on the server. The chrome rewrites `PSXItemDefSummary@name` before
+   `POST /services/contenttypes/import`.
+4. Click **Import content type**. The catalog reloads and lists the new type.
+5. Invalid XML is **400**. A name that already exists is **409** (no replace).
+   The product does **not** steal locks on existing types.
+
 ## Enable or disable a content type
 
 The **Enabled** checkbox on Developer Content Type detail controls whether the
@@ -289,6 +312,8 @@ The chrome calls:
 | Load field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` |
 | Save field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` (held lock; full replace of validation, visibility, inputTranslation, outputTranslation) |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |
+| Export design XML | `GET /services/contenttypes/{idOrName}/export` (Admin; no lock; `application/xml` attachment) |
+| Import design XML | `POST /services/contenttypes/import` (Admin; create-only ItemDefData XML; 400 invalid; 409 duplicate) |
 | Delete | `DELETE /services/contenttypes/{idOrName}` (Admin; held lock; 204; 409 if unlocked or another user holds the lock; 400 if dependents; no SPA chrome) |
 
 Integrator notes: [REST API — Content types](id:developer-rest). Object ACL on

@@ -34,6 +34,10 @@ import {
   type ContentTypeUpdateBody,
 } from "../api/developer/contentTypesApi";
 import {
+  downloadXmlFile,
+  exportContentType,
+} from "../api/developer/contentTypeImportExport";
+import {
   cloneContentTypeItemExits,
   contentTypeItemExitsEqual,
   emptyContentTypeItemExits,
@@ -506,6 +510,27 @@ export function ContentTypeDetailPanel({
     }
   }
 
+  function exportErrMsg(err: unknown): string {
+    if (isApiError(err) && err.status === 404) {
+      return panelErrMsg(err, DEV_MSG.CT_EXPORT_NOT_FOUND);
+    }
+    return panelErrMsg(err, DEV_MSG.CT_EXPORT_ERROR);
+  }
+
+  async function handleExport() {
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const exported = await exportContentType(idOrName);
+      downloadXmlFile(exported.xml, exported.filename);
+    } catch (err: unknown) {
+      setError(exportErrMsg(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleUnlock() {
     setBusy(true);
     setError(null);
@@ -878,6 +903,23 @@ export function ContentTypeDetailPanel({
           }}
         >
           {DEV_MSG.CT_UNLOCK}
+        </button>
+        <button
+          type="button"
+          data-testid="developer-ct-export"
+          aria-label={DEV_MSG.CT_EXPORT}
+          disabled={busy}
+          onClick={() => void handleExport()}
+          style={{
+            padding: "8px 16px",
+            background: "transparent",
+            color: "inherit",
+            border: `1px solid ${catalogColors.softBorder}`,
+            borderRadius: "4px",
+            cursor: busy ? "not-allowed" : "pointer",
+          }}
+        >
+          {DEV_MSG.CT_EXPORT}
         </button>
         <label style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "8px" }}>
           <input
