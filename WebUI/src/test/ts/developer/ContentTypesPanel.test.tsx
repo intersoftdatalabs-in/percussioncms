@@ -36,6 +36,8 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     lockContentType: vi.fn().mockResolvedValue({ locker: "Admin", remainingTime: 30 }),
     unlockContentType: vi.fn().mockResolvedValue(undefined),
     includeContentTypeField: vi.fn(),
+    getContentTypeIcon: vi.fn().mockResolvedValue({ source: "none" }),
+    setContentTypeIcon: vi.fn().mockResolvedValue({ source: "none" }),
   };
 });
 

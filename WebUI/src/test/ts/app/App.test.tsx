@@ -101,6 +101,8 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     }),
     replaceContentTypeItemExits: vi.fn().mockImplementation(async (_id, body) => body),
     includeContentTypeField: vi.fn(),
+    getContentTypeIcon: vi.fn().mockResolvedValue({ source: "none" }),
+    setContentTypeIcon: vi.fn().mockResolvedValue({ source: "none" }),
   };
 });
 

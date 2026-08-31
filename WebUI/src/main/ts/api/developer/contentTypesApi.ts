@@ -34,6 +34,7 @@ import type {
   ContentTypeDetail,
   ContentTypeFieldControlProperties,
   ContentTypeFieldSummary,
+  ContentTypeIcon,
   ContentTypeItemExits,
   ContentTypeSearchIndexing,
   ContentTypeSummary,
@@ -486,6 +487,7 @@ export function wrapContentTypeDetailForWire(
  * {@link setContentTypeAllowedWorkflows} (CD-08).
  * Do not send {@code allowedTemplates} here — use
  * {@link replaceContentTypeAllowedTemplates} (CD-12).
+ * Do not send icon strategy here — use {@link setContentTypeIcon} (CD-11).
  */
 export async function updateContentTypeDetail(
   idOrName: string,
@@ -968,4 +970,153 @@ export async function deleteLocalContentTypeField(
   const typeKey = encodeURIComponent(idOrName);
   const fieldKey = encodeURIComponent(fieldName);
   await del(`${PATHS.CONTENT_TYPES}/${typeKey}/fields/${fieldKey}`);
+}
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code ContentTypeIcon}. */
+export const CONTENT_TYPE_ICON_ROOT = "ContentTypeIcon";
+
+/** REST icon source: no icon; value is cleared. */
+export const CONTENT_TYPE_ICON_NONE = "none";
+
+/** REST icon source: specified file path or name. */
+export const CONTENT_TYPE_ICON_SPECIFIED = "specified";
+
+/** REST icon source: derive from a file field name. */
+export const CONTENT_TYPE_ICON_FROM_FILE_FIELD = "fromFileField";
+
+/** Allowed CD-11 {@code source} values. */
+export const CONTENT_TYPE_ICON_SOURCES = [
+  CONTENT_TYPE_ICON_NONE,
+  CONTENT_TYPE_ICON_SPECIFIED,
+  CONTENT_TYPE_ICON_FROM_FILE_FIELD,
+] as const;
+
+export type ContentTypeIconSource = (typeof CONTENT_TYPE_ICON_SOURCES)[number];
+
+/**
+ * Normalize a REST icon source (case-insensitive). Unknown or blank is
+ * {@link CONTENT_TYPE_ICON_NONE}.
+ */
+export function normalizeContentTypeIconSource(source: unknown): ContentTypeIconSource {
+  const trimmed = typeof source === "string" ? source.trim() : "";
+  if (trimmed.toLowerCase() === CONTENT_TYPE_ICON_SPECIFIED.toLowerCase()) {
+    return CONTENT_TYPE_ICON_SPECIFIED;
+  }
+  if (trimmed.toLowerCase() === CONTENT_TYPE_ICON_FROM_FILE_FIELD.toLowerCase()) {
+    return CONTENT_TYPE_ICON_FROM_FILE_FIELD;
+  }
+  return CONTENT_TYPE_ICON_NONE;
+}
+
+/**
+ * True when {@code source} is {@code none} (case-insensitive).
+ */
+export function isContentTypeIconNone(source: unknown): boolean {
+  return normalizeContentTypeIconSource(source) === CONTENT_TYPE_ICON_NONE;
+}
+
+/**
+ * True when {@code source} is one of the REST icon sources (case-insensitive).
+ */
+export function isKnownContentTypeIconSource(source: unknown): boolean {
+  if (typeof source !== "string") {
+    return false;
+  }
+  const trimmed = source.trim();
+  if (!trimmed) {
+    return false;
+  }
+  const lower = trimmed.toLowerCase();
+  return CONTENT_TYPE_ICON_SOURCES.some((s) => s.toLowerCase() === lower);
+}
+
+function contentTypeIconClientError(message: string): never {
+  throw { status: 400, statusText: "Bad Request", body: message };
+}
+
+/**
+ * Build the inner PUT body for {@code PUT .../icon}. {@code none} omits value
+ * (REST clears it). Non-{@code none} requires a non-blank value (400).
+ */
+export function contentTypeIconPutBody(
+  source: string,
+  value?: string | null,
+): { source: ContentTypeIconSource; value?: string } {
+  if (!isKnownContentTypeIconSource(source)) {
+    contentTypeIconClientError("source must be none, specified, or fromFileField");
+  }
+  const normalized = normalizeContentTypeIconSource(source);
+  if (normalized === CONTENT_TYPE_ICON_NONE) {
+    return { source: CONTENT_TYPE_ICON_NONE };
+  }
+  const trimmed = typeof value === "string" ? value.trim() : "";
+  if (!trimmed) {
+    contentTypeIconClientError("value is required when source is not none");
+  }
+  return { source: normalized, value: trimmed };
+}
+
+/**
+ * Build the wire JSON body for {@code PUT .../icon} under
+ * {@link CONTENT_TYPE_ICON_ROOT}. A flat body fails server UNWRAP_ROOT_VALUE.
+ */
+export function wrapContentTypeIconForWire(
+  source: string,
+  value?: string | null,
+): Record<string, { source: ContentTypeIconSource; value?: string }> {
+  return { [CONTENT_TYPE_ICON_ROOT]: contentTypeIconPutBody(source, value) };
+}
+
+/**
+ * Flatten GET/PUT {@code .../icon} JSON to {@link ContentTypeIcon}.
+ *
+ * <p>Handles WRAP_ROOT {@code ContentTypeIcon} and a flat body. {@code none}
+ * clears value.
+ */
+export function unwrapContentTypeIcon(payload: unknown): ContentTypeIcon {
+  const root = asRecord(payload);
+  if (!root) {
+    return { source: CONTENT_TYPE_ICON_NONE };
+  }
+  const nested = asRecord(root[CONTENT_TYPE_ICON_ROOT] ?? root.contentTypeIcon);
+  const body = nested ?? root;
+  const source = normalizeContentTypeIconSource(body.source);
+  if (source === CONTENT_TYPE_ICON_NONE) {
+    return { source: CONTENT_TYPE_ICON_NONE };
+  }
+  const raw = body.value;
+  const value = typeof raw === "string" ? raw.trim() : raw == null ? "" : String(raw).trim();
+  return value ? { source, value } : { source };
+}
+
+/**
+ * GET /services/contenttypes/{idOrName}/icon — CD-11 read. No design lock
+ * required. {@code none} has no value. Does not return icon binaries.
+ */
+export async function getContentTypeIcon(idOrName: string): Promise<ContentTypeIcon> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await get<unknown>(`${PATHS.CONTENT_TYPES}/${key}/icon`);
+  return unwrapContentTypeIcon(payload);
+}
+
+/**
+ * PUT /services/contenttypes/{idOrName}/icon — CD-11 dedicated icon strategy.
+ *
+ * <p>Requires a design-session lock already held by the current user
+ * ({@link lockContentType}). Does not acquire or release the lock. HTTP 409
+ * when unlocked or locked by another user. {@code none} clears value.
+ * Non-{@code none} with a blank value is HTTP 400 (client-side before fetch,
+ * matching REST). Does not upload icon binaries.
+ */
+export async function setContentTypeIcon(
+  idOrName: string,
+  source: string,
+  value?: string | null,
+): Promise<ContentTypeIcon> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}/icon`,
+    wrapContentTypeIconForWire(source, value),
+  );
+  return unwrapContentTypeIcon(payload);
 }
