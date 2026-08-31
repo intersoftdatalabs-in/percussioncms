@@ -22,10 +22,12 @@ import com.percussion.rest.searches.SearchDef;
 import com.percussion.rest.searches.SearchExecuteRequest;
 import com.percussion.rest.searches.SearchExecuteResult;
 import java.util.List;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-/** Test adaptor for Search API bridge (MainTest Spring context). */
+/** Spring test stub for {@link ISearchAdaptor}. Required for ApplicationContext load. */
 @Component
+@Lazy
 public class TestSearchAdaptor implements ISearchAdaptor {
 
   @Override
@@ -57,5 +59,20 @@ public class TestSearchAdaptor implements ISearchAdaptor {
     empty.setTotalCount(0);
     empty.setStartIndex(1);
     return empty;
+  }
+
+  @Override
+  public SearchDef createSearch(SearchDef body) {
+    return body;
+  }
+
+  @Override
+  public SearchDef saveSearch(String idOrName, SearchDef body) {
+    return body;
+  }
+
+  @Override
+  public boolean deleteSearch(String idOrName) {
+    return false;
   }
 }
