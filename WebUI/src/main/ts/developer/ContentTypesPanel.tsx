@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
   asContentTypeText,
@@ -27,6 +27,7 @@ import type { ContentTypeSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
 import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { ContentTypeDetailPanel } from "./ContentTypeDetailPanel";
+import { ContentTypeImportWizard } from "./ContentTypeImportWizard";
 import { DeveloperSectionErrorBoundary } from "./DeveloperSectionErrorBoundary";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
@@ -69,6 +70,11 @@ export function ContentTypesPanel(): React.ReactElement {
   const [items, setItems] = useState<ContentTypeSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<SelectedContentType | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
+
+  const reloadCatalog = useCallback(() => {
+    setReloadToken((n) => n + 1);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -90,7 +96,7 @@ export function ContentTypesPanel(): React.ReactElement {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadToken]);
 
   function openContentType(ct: ContentTypeSummary) {
     const idOrName = selectionKey(ct);
@@ -116,31 +122,28 @@ export function ContentTypesPanel(): React.ReactElement {
     );
   }
 
-  if (error) {
-    return (
-      <CatalogStatus testId="developer-ct-error" error>
-        {error}
-      </CatalogStatus>
-    );
-  }
-
-  if (items == null) {
-    return <CatalogStatus testId="developer-ct-loading">{DEV_MSG.CT_LOADING}</CatalogStatus>;
-  }
-
-  if (items.length === 0) {
-    return <CatalogStatus testId="developer-ct-empty">{DEV_MSG.CT_EMPTY}</CatalogStatus>;
-  }
-
-  const sorted = [...items].sort((a, b) =>
-    catalogSortKey(a).localeCompare(catalogSortKey(b), undefined, {
-      sensitivity: "base",
-    }),
-  );
+  const sorted =
+    items && items.length > 0
+      ? [...items].sort((a, b) =>
+          catalogSortKey(a).localeCompare(catalogSortKey(b), undefined, {
+            sensitivity: "base",
+          }),
+        )
+      : [];
 
   return (
     <div data-testid="developer-ct-panel">
       <CatalogHint>{DEV_MSG.CT_HINT}</CatalogHint>
+      <ContentTypeImportWizard onImported={() => reloadCatalog()} />
+      {error ? (
+        <CatalogStatus testId="developer-ct-error" error>
+          {error}
+        </CatalogStatus>
+      ) : items == null ? (
+        <CatalogStatus testId="developer-ct-loading">{DEV_MSG.CT_LOADING}</CatalogStatus>
+      ) : items.length === 0 ? (
+        <CatalogStatus testId="developer-ct-empty">{DEV_MSG.CT_EMPTY}</CatalogStatus>
+      ) : (
       <SimpleCatalogTable
         tableTestId="developer-ct-table"
         rowTestId="developer-ct-row"
@@ -194,6 +197,7 @@ export function ContentTypesPanel(): React.ReactElement {
           };
         })}
       />
+      )}
     </div>
   );
 }

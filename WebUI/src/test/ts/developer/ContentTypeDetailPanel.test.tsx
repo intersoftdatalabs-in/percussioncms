@@ -8,6 +8,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as contentTypesApi from "../../../main/ts/api/developer/contentTypesApi";
 import * as fieldRulesApi from "../../../main/ts/api/developer/contentTypeFieldRules";
+import * as importExportApi from "../../../main/ts/api/developer/contentTypeImportExport";
 import { catalogColors } from "../../../main/ts/developer/catalogStyles";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { ContentTypeDetailPanel } from "../../../main/ts/developer/ContentTypeDetailPanel";
@@ -29,6 +30,18 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     replaceFieldControlProperties: vi.fn(),
     getContentTypeItemExits: vi.fn(),
     replaceContentTypeItemExits: vi.fn(),
+  };
+});
+
+vi.mock("../../../main/ts/api/developer/contentTypeImportExport", async (importOriginal) => {
+  const actual =
+    await importOriginal<
+      typeof import("../../../main/ts/api/developer/contentTypeImportExport")
+    >();
+  return {
+    ...actual,
+    exportContentType: vi.fn(),
+    downloadXmlFile: vi.fn(),
   };
 });
 
@@ -83,6 +96,8 @@ const getContentTypeFieldRuleExpressions =
   fieldRulesApi.getContentTypeFieldRuleExpressions as ReturnType<typeof vi.fn>;
 const replaceContentTypeFieldRuleExpressions =
   fieldRulesApi.replaceContentTypeFieldRuleExpressions as ReturnType<typeof vi.fn>;
+const exportContentType = importExportApi.exportContentType as ReturnType<typeof vi.fn>;
+const downloadXmlFile = importExportApi.downloadXmlFile as ReturnType<typeof vi.fn>;
 
 const emptyItemExits = {
   inputTranslations: [] as Array<{ extension?: string; parameters?: Array<{ value?: string }> }>,
@@ -125,6 +140,12 @@ describe("ContentTypeDetailPanel", () => {
     replaceContentTypeItemExits.mockReset();
     getContentTypeFieldRuleExpressions.mockReset();
     replaceContentTypeFieldRuleExpressions.mockReset();
+    exportContentType.mockReset();
+    downloadXmlFile.mockReset();
+    exportContentType.mockResolvedValue({
+      xml: "<ItemDefData><PSXItemDefSummary name=\"percPage\" /></ItemDefData>",
+      filename: "percPage.xml",
+    });
     lockContentType.mockResolvedValue({ locker: "Admin", remainingTime: 30 });
     unlockContentType.mockResolvedValue(undefined);
     updateContentTypeDetail.mockImplementation(async (_id, body) => ({
@@ -194,6 +215,7 @@ describe("ContentTypeDetailPanel", () => {
     );
     expect((screen.getByTestId("developer-ct-wf-add") as HTMLButtonElement).disabled).toBe(true);
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+    expect(screen.getByTestId("developer-ct-export")).toBeTruthy();
   });
 
   it("loads detail on success and supports back", async () => {
@@ -1550,5 +1572,42 @@ describe("ContentTypeDetailPanel", () => {
     expect((screen.getByTestId("developer-ct-fr-validation") as HTMLTextAreaElement).disabled).toBe(
       true,
     );
+  });
+
+  it("exports design XML without a lock (#4034)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-export")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-export"));
+    await waitFor(() => {
+      expect(exportContentType).toHaveBeenCalledWith("percPage");
+    });
+    expect(downloadXmlFile).toHaveBeenCalledWith(
+      "<ItemDefData><PSXItemDefSummary name=\"percPage\" /></ItemDefData>",
+      "percPage.xml",
+    );
+    expect(lockContentType).not.toHaveBeenCalled();
+  });
+
+  it("surfaces export 404 in the detail banner (#4034)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    exportContentType.mockRejectedValueOnce({
+      status: 404,
+      statusText: "Not Found",
+      body: { message: "Content type not found: missing" },
+    });
+    render(<ContentTypeDetailPanel idOrName="missing" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-export")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-export"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        DEV_MSG.CT_EXPORT_NOT_FOUND,
+      );
+    });
+    expect(downloadXmlFile).not.toHaveBeenCalled();
   });
 });
