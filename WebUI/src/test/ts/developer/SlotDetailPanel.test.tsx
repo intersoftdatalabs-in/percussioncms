@@ -271,6 +271,58 @@ describe("SlotDetailPanel", () => {
     );
   });
 
+  it("does not treat a name 400 as slotType when the message only mentions slotType", async () => {
+    createSlot.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "name cannot contain the token slotType" },
+    });
+    render(<SlotDetailPanel idOrName={null} onBack={() => undefined} />);
+    fireEvent.change(screen.getByTestId("developer-slot-name"), {
+      target: { value: "qaSlot" },
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-slot-detail-error").textContent).toContain(
+      DEV_MSG.SLOT_NAME_INVALID,
+    );
+    expect(screen.getByTestId("developer-slot-detail-error").textContent).not.toContain(
+      DEV_MSG.SLOT_TYPE_INVALID,
+    );
+  });
+
+  it("trims label and description on update", async () => {
+    getSlotDetail.mockResolvedValue(sampleDetail);
+    updateSlotDetail.mockResolvedValue({
+      ...sampleDetail,
+      label: "QA Slot",
+      description: "Trimmed",
+    });
+    render(<SlotDetailPanel idOrName="rffList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-label")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-slot-label"), {
+      target: { value: "  QA Slot  " },
+    });
+    const description = screen.getByTestId("developer-slot-description") as HTMLTextAreaElement
+      | HTMLInputElement;
+    fireEvent.change(description, { target: { value: "  Trimmed  " } });
+    fireEvent.click(screen.getByTestId("developer-slot-save"));
+    await waitFor(() => {
+      expect(updateSlotDetail).toHaveBeenCalled();
+    });
+    expect(updateSlotDetail).toHaveBeenCalledWith(
+      "rffList",
+      expect.objectContaining({
+        label: "QA Slot",
+        description: "Trimmed",
+      }),
+    );
+  });
+
   it("surfaces 409 duplicate name on create", async () => {
     createSlot.mockRejectedValue({
       status: 409,
@@ -432,6 +484,42 @@ describe("SlotDetailPanel", () => {
       });
       expect(deleteSlot).toHaveBeenCalledWith("sys_inline_link");
       expect(screen.getByTestId("developer-slot-detail-error").textContent).toContain(
+        DEV_MSG.SLOT_DELETE_SYSTEM,
+      );
+      expect(onDeleted).not.toHaveBeenCalled();
+    } finally {
+      confirmSpy.mockRestore();
+    }
+  });
+
+  it("does not treat a generic 409 containing system as a system-slot delete", async () => {
+    getSlotDetail.mockResolvedValue(sampleDetail);
+    deleteSlot.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "ecosystem constraint" },
+    });
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+    try {
+      const onDeleted = vi.fn();
+      render(
+        <SlotDetailPanel
+          idOrName="rffList"
+          onBack={() => undefined}
+          onDeleted={onDeleted}
+        />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-slot-delete")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("developer-slot-delete"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-slot-detail-error")).toBeTruthy();
+      });
+      expect(screen.getByTestId("developer-slot-detail-error").textContent).toContain(
+        DEV_MSG.SLOT_DELETE_ERROR,
+      );
+      expect(screen.getByTestId("developer-slot-detail-error").textContent).not.toContain(
         DEV_MSG.SLOT_DELETE_SYSTEM,
       );
       expect(onDeleted).not.toHaveBeenCalled();

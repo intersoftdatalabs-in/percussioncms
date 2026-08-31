@@ -107,7 +107,10 @@ function createSaveFallback(err: unknown): string {
   if (err.status === 403) return DEV_MSG.SLOT_FORBIDDEN;
   if (err.status === 400) {
     const msg = extractRestErrorMessage(err.body) || "";
-    return /slotType/i.test(msg) ? DEV_MSG.SLOT_TYPE_INVALID : DEV_MSG.SLOT_NAME_INVALID;
+    if (/slotType.*(invalid|must be|REGULAR|INLINE)/i.test(msg)) {
+      return DEV_MSG.SLOT_TYPE_INVALID;
+    }
+    return DEV_MSG.SLOT_NAME_INVALID;
   }
   return DEV_MSG.SLOT_SAVE_ERROR;
 }
@@ -117,7 +120,7 @@ function deleteFallback(err: unknown, systemSlot: boolean | undefined): string {
   if (err.status === 403) return DEV_MSG.SLOT_FORBIDDEN;
   if (err.status === 409) {
     const msg = extractRestErrorMessage(err.body) || "";
-    if (systemSlot || /system/i.test(msg)) return DEV_MSG.SLOT_DELETE_SYSTEM;
+    if (systemSlot || /system.?slot/i.test(msg)) return DEV_MSG.SLOT_DELETE_SYSTEM;
   }
   return DEV_MSG.SLOT_DELETE_ERROR;
 }
@@ -228,12 +231,12 @@ export function SlotDetailPanel({
         ? await createSlot({
             name: name.trim(),
             label: label.trim() || undefined,
-            description: description || undefined,
+            description: description.trim() || undefined,
             slotType: slotType.trim() || undefined,
           })
         : await updateSlotDetail(writeKey, {
-            label,
-            description,
+            label: label.trim(),
+            description: description.trim(),
             associations: associations.map((a) => ({
               contentTypeGuid: a.contentTypeGuid?.stringValue
                 ? { stringValue: a.contentTypeGuid.stringValue }
