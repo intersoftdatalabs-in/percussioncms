@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Lock, enable or disable, rename via REST, add or delete local fields via REST, include system or shared fields via REST, export design XML via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Lock, enable or disable, rename via REST, add or delete local fields via REST, include system or shared fields from Developer detail, export design XML via REST, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -24,17 +24,17 @@ Workbench-equivalent `ItemDefData` design XML with Admin
 `POST /services/contenttypes/import` (CD-14; create only; duplicate name **409**;
 invalid XML **400**; the new object's create lock is released and existing types
 are not stolen). This chrome does **not** include a
-create or import wizard; rename, delete, **local field create/delete**, and **include
-system/shared fields** are REST-only (no SPA field editor or field picker).
-After a held lock, integrators add a local field with
+create or import wizard; rename, delete, and **local field create/delete**
+are REST-only (no SPA local-field editor). After a held lock, the detail
+**Include system or shared field** picker includes an existing catalog field
+(`POST /services/contenttypes/{idOrName}/fields/include`; origin stays
+system/shared). Duplicate include is **409**. Unknown catalog field is **400**
+or **404**. Integrators add a local field with
 `POST /services/contenttypes/{idOrName}/fields` (JSON `name` required) and
 remove one with `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}`.
 Duplicate field names are **409**. System and shared fields cannot be removed
-here (**400**). Include an existing system or shared field with
-`POST /services/contenttypes/{idOrName}/fields/include` (JSON `name` and
-`fieldType` `system` or `shared`; origin is not copied as local). Duplicate
-include is **409**; unknown catalog field is **404**. Optional `fieldSet` on
-local create targets or creates a named child field set.
+here (**400**). Optional `fieldSet` on local create targets or creates a named
+child field set.
 Shared field
 **files** are a separate design object: Admin-only `GET /services/sharedfields` and
 `GET /services/sharedfields/{idOrName}` (catalog), plus
@@ -126,6 +126,25 @@ locked**. After **Lock**:
 
 This is not a full Workbench workflow picker. The name you add must already
 exist on the server. Template association chrome is a separate surface.
+
+### Include a system or shared field (after lock)
+
+The **Include system or shared field** picker is **disabled** until you hold
+the lock. After **Lock**:
+
+1. Choose origin **system** or **shared**.
+2. Pick a catalog field, or type the field name (for example **sys_title** or
+   **displaytitle**).
+3. Click **Include field**. The product calls
+   `POST /services/contenttypes/{idOrName}/fields/include` while the lock is
+   still held. Include does **not** unlock. A following `GET` of the type lists
+   the field with origin **system** or **shared** (not copied as local).
+4. Duplicate include is **409** (the lock stays held). An unknown catalog field
+   is **400** or **404**. Without a lock, the picker stays **disabled** (lock
+   failure is **409**; the product does **not** steal another user's lock).
+
+This is not local-field create. Add or delete **local** fields with REST
+`POST`/`DELETE .../fields` (CD-03).
 
 ### Allowed templates (after lock)
 
@@ -284,6 +303,7 @@ The chrome calls:
 | Save field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` (held lock; full replace of values; does not send `choices`) |
 | Load field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` |
 | Save field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` (held lock; full replace of validation, visibility, inputTranslation, outputTranslation) |
+| Include system or shared field | `POST /services/contenttypes/{idOrName}/fields/include` (CD-04; held lock; origin stays system/shared; duplicate 409; unknown 400/404) |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |
 | Delete | `DELETE /services/contenttypes/{idOrName}` (Admin; held lock; 204; 409 if unlocked or another user holds the lock; 400 if dependents; no SPA chrome) |
 

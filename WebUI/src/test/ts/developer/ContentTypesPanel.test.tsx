@@ -31,6 +31,7 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     }),
     getContentTypeAllowedTemplates: vi.fn().mockResolvedValue([]),
     getFieldControlProperties: vi.fn().mockResolvedValue({ properties: [] }),
+    includeContentTypeField: vi.fn(),
   };
 });
 

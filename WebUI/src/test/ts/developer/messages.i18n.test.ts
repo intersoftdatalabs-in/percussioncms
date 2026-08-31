@@ -24,6 +24,8 @@ describe("Developer DEV_MSG i18n keys", () => {
     expect(DEV_MSG.CT_UNLOCK).toBe("Unlock");
     expect(DEV_MSG.CT_LOCKED).toBe("Locked by you");
     expect(DEV_MSG.CT_CONTROL_PROPS).toBe("Control property values");
+    expect(DEV_MSG.CT_INCLUDE).toBe("Include system or shared field");
+    expect(DEV_MSG.CT_INCLUDE_ACTION).toBe("Include field");
   });
 
   it("fallbackLabelFromKey extracts text after @", () => {

@@ -72,6 +72,7 @@ import {
   type DesignGapWire,
 } from "../api/developer/designGaps";
 import { ObjectAclSection } from "./ObjectAclSection";
+import { ContentTypeIncludeFieldSection } from "./ContentTypeIncludeFieldSection";
 import {
   ContentTypeFieldRulesSection,
   type ContentTypeFieldRulesHandle,
@@ -367,7 +368,9 @@ export function ContentTypeDetailPanel({
   const objectGuid = resolveContentTypeObjectGuid(detail, catalogGuid);
   const fieldRows = contentTypeFields(detail);
   const childSets = contentTypeChildSets(detail);
-  const gapRows = contentTypeDesignGaps(detail);
+  const gapRows = contentTypeDesignGaps(detail).filter(
+    (g) => designGapCode(g) !== "CT_SHARED_FIELD_INCLUSION",
+  );
   const canEdit = heldLock && !busy && detail != null;
   const canEditItemExits = canEdit && itemExitsLoaded;
 
@@ -1427,6 +1430,38 @@ export function ContentTypeDetailPanel({
             </div>
           </section>
 
+          <ContentTypeIncludeFieldSection
+            idOrName={idOrName}
+            existingFields={fieldRows}
+            canEdit={canEdit}
+            onBusy={setBusy}
+            onIncluded={(updated) => {
+              const normalized = normalizeDetailLists(updated);
+              setDetail((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      fields: normalized.fields,
+                      childFieldSets: normalized.childFieldSets,
+                    }
+                  : normalized,
+              );
+              setFieldDrafts(toDrafts(normalized.fields));
+              const firstIncluded = normalizeContentTypeFields(normalized.fields).find(
+                (f) => !!f.name,
+              )?.name;
+              if (firstIncluded && !selectedFieldName) {
+                setSelectedFieldName(firstIncluded);
+              }
+            }}
+            onError={setError}
+            onNotice={setNotice}
+            onLockLost={() => {
+              heldLockRef.current = false;
+              setHeldLock(false);
+            }}
+          />
+
           <section style={{ marginBottom: "16px" }}>
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_FIELDS}</h3>
             <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.CT_FIELDS_HINT}</p>
@@ -1467,6 +1502,8 @@ export function ContentTypeDetailPanel({
                       <tr
                         key={k}
                         data-testid="developer-ct-field-row"
+                        data-field-name={f.name || ""}
+                        data-field-origin={(f.fieldType || "").toLowerCase()}
                         style={tableRow}
                       >
                         <td style={{ padding: "8px" }}>
@@ -1481,7 +1518,12 @@ export function ContentTypeDetailPanel({
                             {f.name}
                           </div>
                         </td>
-                        <td style={{ padding: "8px" }}>{f.fieldType || "—"}</td>
+                        <td
+                          style={{ padding: "8px" }}
+                          data-testid={`developer-ct-field-origin-${f.name || k}`}
+                        >
+                          {f.fieldType || "—"}
+                        </td>
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {f.dataType || "—"}
                         </td>
