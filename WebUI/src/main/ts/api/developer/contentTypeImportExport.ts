@@ -161,6 +161,17 @@ export function invalidContentTypeImportName(name: string): string | null {
   return null;
 }
 
+/** Reject non-XML payloads so operators never download `[object Object]`. */
+export function asContentTypeExportXml(data: unknown): string {
+  if (typeof data !== "string") {
+    throw new Error("content-type export did not return XML");
+  }
+  if (!data.trim().startsWith("<")) {
+    throw new Error("content-type export did not return XML");
+  }
+  return data;
+}
+
 /**
  * GET /services/contenttypes/{idOrName}/export — Admin CD-14 download.
  * Read-only; does not acquire or steal a design lock. HTTP 404 unknown.
@@ -173,7 +184,7 @@ export async function exportContentType(
     `${PATHS.CONTENT_TYPES}/${key}/export`,
     { Accept: "application/xml, text/xml, */*" },
   );
-  const xml = typeof data === "string" ? data : String(data ?? "");
+  const xml = asContentTypeExportXml(data);
   const fromHeader = parseContentDispositionFilename(
     headers.get("Content-Disposition") || headers.get("content-disposition") || "",
   );
@@ -223,6 +234,9 @@ export function downloadXmlFile(xml: string, filename: string): void {
   a.click();
   a.remove();
   if (objectUrl && typeof URL.revokeObjectURL === "function") {
-    URL.revokeObjectURL(objectUrl);
+    const toRevoke = objectUrl;
+    globalThis.setTimeout(() => {
+      URL.revokeObjectURL(toRevoke);
+    }, 1000);
   }
 }

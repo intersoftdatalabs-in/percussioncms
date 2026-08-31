@@ -26,7 +26,10 @@ control-property write remain REST-only.
    `spa.jsp?entry=developer&section=shared-fields`.
 3. Click **New shared field group**. Enter a **name**. Save stays disabled
    until the name is valid (no spaces, no `*`, no `/` or `..`). Optional:
-   filename (`{name}.xml` when blank).
+   filename (`{name}.xml` when blank). The chrome rejects path separators
+   client-side; REST `GET`/`PUT`/`DELETE /services/sharedfields/{name}` with
+   `/` or `..` in the path is **404** (not invalid-name **400**) because the
+   extra path segments do not match the group resource.
 4. Click **Save**. A duplicate name is **409** and the editor shows that the
    group already exists. After a successful create, you can change the
    filename (or rename) and save again.

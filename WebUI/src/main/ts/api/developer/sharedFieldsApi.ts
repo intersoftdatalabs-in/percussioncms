@@ -70,7 +70,12 @@ function stripXmlSuffix(filename: string): string {
 
 /**
  * True when filename is omitted (REST defaults to {name}.xml) or is a safe
- * {@code .xml} path without spaces.
+ * {@code .xml} path without spaces. Matches
+ * {@code SharedFieldsAdaptor.normalizeFilename}: blank → {name}.xml; stem
+ * cannot contain spaces, {@code ..}, {@code /}, {@code \\}, or NUL; non-.xml
+ * extensions are rejected; a stem with no dot is accepted (server appends
+ * {@code .xml}). Group names may contain a single dot because
+ * {@code isSafeGroupName} only rejects {@code ..} and path separators.
  */
 export function isValidFilename(filename: string | undefined | null): boolean {
   if (filename == null) return true;

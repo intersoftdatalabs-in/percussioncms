@@ -18,8 +18,11 @@
 package com.percussion.rest.locales;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import jakarta.ws.rs.WebApplicationException;
+import java.io.ByteArrayInputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -65,6 +68,29 @@ public class AutoTranslationRowsJsonReaderTest {
     assertTrue(AutoTranslationRowsJsonReader.parse("[]").isEmpty());
     assertTrue(AutoTranslationRowsJsonReader.parse("  ").isEmpty());
     assertTrue(AutoTranslationRowsJsonReader.parse(null).isEmpty());
+  }
+
+  @Test
+  public void parseRejectsScalarWrappedProperty() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> AutoTranslationRowsJsonReader.parse("{\"AutoTranslationRow\":\"x\"}"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void readBoundedRejectsOversizedBody() throws Exception {
+    byte[] big = new byte[5];
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                AutoTranslationRowsJsonReader.readBounded(new ByteArrayInputStream(big), 4));
+    assertEquals(413, ex.getResponse().getStatus());
+    byte[] ok = new byte[4];
+    assertEquals(
+        4, AutoTranslationRowsJsonReader.readBounded(new ByteArrayInputStream(ok), 4).length);
   }
 
   @Test

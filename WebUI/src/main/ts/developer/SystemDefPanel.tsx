@@ -79,15 +79,20 @@ function isLockConflict(err: unknown): boolean {
       : err.body != null && typeof err.body === "object"
         ? JSON.stringify(err.body)
         : "";
-  return /lock/i.test(msg);
+  if (/already exists|duplicate/i.test(msg)) {
+    return false;
+  }
+  return /design lock|locked by|lock required/i.test(msg);
 }
 
 function writeFallback(err: unknown, duplicate: boolean, add: boolean, fallback: string): string {
   if (isApiError(err) && err.status === 409) {
-    if (isLockConflict(err) || !duplicate) {
+    if (isLockConflict(err)) {
       return DEV_MSG.SYS_LOCK;
     }
-    return DEV_MSG.SYS_DUPLICATE;
+    if (duplicate) {
+      return DEV_MSG.SYS_DUPLICATE;
+    }
   }
   if (isApiError(err) && err.status === 400 && add) {
     return DEV_MSG.SYS_INVALID_NAME;
@@ -403,6 +408,11 @@ export function SystemDefPanel(): React.ReactElement {
               const name = f.name || "";
               const edit = name ? edits[name] : undefined;
               const occurrence = edit?.occurrence || f.occurrence || "optional";
+              const origOccurrence = f.occurrence || "optional";
+              const requiredDisplay =
+                occurrence === origOccurrence
+                  ? (f.required ?? occurrenceImpliesRequired(occurrence))
+                  : occurrenceImpliesRequired(occurrence);
               const searchable = edit ? edit.searchable : Boolean(f.searchable);
               const occurrenceChoices = OCCURRENCE_OPTIONS.includes(
                 occurrence as (typeof OCCURRENCE_OPTIONS)[number],
@@ -441,7 +451,9 @@ export function SystemDefPanel(): React.ReactElement {
                       </option>
                     ))}
                   </select>,
-                  occurrenceImpliesRequired(occurrence) ? DEV_MSG.YES : DEV_MSG.NO,
+                  <span key="req" data-testid="developer-sys-required">
+                    {requiredDisplay ? DEV_MSG.YES : DEV_MSG.NO}
+                  </span>,
                   <input
                     key="s"
                     type="checkbox"

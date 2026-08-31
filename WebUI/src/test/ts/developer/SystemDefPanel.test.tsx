@@ -222,6 +222,51 @@ describe("SystemDefPanel", () => {
     );
   });
 
+  it("does not report a non-lock 409 on save as locked by another user", async () => {
+    getMock.mockResolvedValue(sampleDetail);
+    updateMock.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Field not found: sys_missing" },
+    });
+    render(<SystemDefPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sys-searchable")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-sys-searchable"));
+    fireEvent.click(screen.getByTestId("developer-sys-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sys-write-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-sys-write-error").textContent).toContain(
+      DEV_MSG.SYS_SAVE_ERROR,
+    );
+    expect(screen.getByTestId("developer-sys-write-error").textContent).not.toContain(
+      DEV_MSG.SYS_LOCK,
+    );
+  });
+
+  it("prefers server required over occurrence when they disagree", async () => {
+    getMock.mockResolvedValue({
+      fieldCount: 1,
+      fields: [
+        {
+          name: "sys_title",
+          dataType: "text",
+          required: true,
+          searchable: true,
+          occurrence: "optional",
+        },
+      ],
+      designGaps: [],
+    });
+    render(<SystemDefPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sys-required")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-sys-required").textContent).toBe(DEV_MSG.YES);
+  });
+
   it("saves dirty searchable patch then shows notice", async () => {
     getMock.mockResolvedValue(sampleDetail);
     updateMock.mockResolvedValue({

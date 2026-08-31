@@ -56,7 +56,10 @@ function importErrMsg(err: unknown): string {
   if (isApiError(err) && err.status === 409) {
     return panelErrMsg(err, DEV_MSG.CT_IMPORT_DUPLICATE);
   }
-  if (err instanceof Error && /invalid content-type design XML/i.test(err.message)) {
+  if (
+    err instanceof Error &&
+    /invalid content-type design XML|missing name|design XML is required/i.test(err.message)
+  ) {
     return panelErrMsg(err, DEV_MSG.CT_IMPORT_INVALID);
   }
   return panelErrMsg(err, DEV_MSG.CT_IMPORT_ERROR);

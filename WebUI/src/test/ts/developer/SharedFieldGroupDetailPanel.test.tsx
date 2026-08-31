@@ -271,6 +271,19 @@ describe("SharedFieldGroupDetailPanel", () => {
     );
   });
 
+  it("disables save in edit mode until a field changes", async () => {
+    getSharedFieldGroupDetail.mockResolvedValue(sampleDetail);
+    render(<SharedFieldGroupDetailPanel name="shared" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-save")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-sf-save") as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-sf-filename"), {
+      target: { value: "shared-renamed.xml" },
+    });
+    expect((screen.getByTestId("developer-sf-save") as HTMLButtonElement).disabled).toBe(false);
+  });
+
   it("saves filename changes on an existing group", async () => {
     getSharedFieldGroupDetail.mockResolvedValue(sampleDetail);
     updateSharedFieldGroup.mockResolvedValue({

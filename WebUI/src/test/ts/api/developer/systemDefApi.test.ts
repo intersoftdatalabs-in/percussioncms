@@ -26,6 +26,8 @@ describe("system def field name validation", () => {
     expect(isValidSystemDefFieldName("has space")).toBe(false);
     expect(isValidSystemDefFieldName("bad-name")).toBe(false);
     expect(isValidSystemDefFieldName("a".repeat(51))).toBe(false);
+    expect(isValidSystemDefFieldName(" sys_title")).toBe(false);
+    expect(isValidSystemDefFieldName("sys_title ")).toBe(false);
   });
 
   it("disables add until the name is valid", () => {

@@ -1120,7 +1120,7 @@ describe("ContentTypeDetailPanel", () => {
     fireEvent.click(screen.getByTestId("developer-ct-save"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
-        "Could not save content type.",
+        "Could not save search indexing.",
       );
     });
     expect(setContentTypeSearchIndexing).toHaveBeenCalled();
@@ -1152,7 +1152,7 @@ describe("ContentTypeDetailPanel", () => {
     fireEvent.click(screen.getByTestId("developer-ct-save"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
-        "Could not save content type.",
+        "Could not save search indexing.",
       );
     });
     expect(
@@ -1202,7 +1202,7 @@ describe("ContentTypeDetailPanel", () => {
     fireEvent.click(screen.getByTestId("developer-ct-save"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
-        "Could not save content type.",
+        "Could not save search indexing.",
       );
     });
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");

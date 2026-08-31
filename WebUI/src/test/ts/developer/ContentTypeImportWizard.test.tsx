@@ -117,6 +117,26 @@ describe("ContentTypeImportWizard", () => {
     );
   });
 
+  it("surfaces missing-name rewrite as invalid XML", async () => {
+    render(<ContentTypeImportWizard />);
+    fireEvent.change(screen.getByTestId("developer-ct-import-file"), {
+      target: { files: [xmlFile("<ItemDefData></ItemDefData>")] },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-import-filename")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-import-name"), {
+      target: { value: "cd14missing" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-import-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-import-error").textContent).toContain(
+        DEV_MSG.CT_IMPORT_INVALID,
+      );
+    });
+    expect(importContentType).not.toHaveBeenCalled();
+  });
+
   it("rejects spaces in unique name without calling import", async () => {
     render(<ContentTypeImportWizard />);
     fireEvent.change(screen.getByTestId("developer-ct-import-file"), {

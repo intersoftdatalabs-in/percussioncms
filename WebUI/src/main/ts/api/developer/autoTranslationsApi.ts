@@ -80,13 +80,32 @@ function optionalName(value: unknown): string | undefined {
   return t.length > 0 ? t : undefined;
 }
 
-/** Locale × content-type identity used to detect duplicate PUT rows. */
-export function autoTranslationRowKey(row: AutoTranslationRow): string {
+/**
+ * Locale × content-type identity keys for one row. A row with both a name and
+ * an id contributes both so {@link duplicateAutoTranslationKey} can match a
+ * name-keyed row against an id-keyed row for the same type.
+ */
+export function autoTranslationRowKeys(row: AutoTranslationRow): string[] {
   const locale = normalizeLanguageString(row.locale);
+  if (!locale) {
+    return [];
+  }
+  const keys: string[] = [];
   const typeName = (row.contentTypeName || "").trim().toLowerCase();
   const typeId = optionalPositiveId(row.contentTypeId);
-  const type = typeName || (typeId != null ? `id:${typeId}` : "");
-  return `${locale}|${type}`;
+  if (typeName) {
+    keys.push(`${locale}|${typeName}`);
+  }
+  if (typeId != null) {
+    keys.push(`${locale}|id:${typeId}`);
+  }
+  return keys;
+}
+
+/** Primary locale × content-type key (name preferred, else id). */
+export function autoTranslationRowKey(row: AutoTranslationRow): string {
+  const keys = autoTranslationRowKeys(row);
+  return keys[0] ?? `${normalizeLanguageString(row.locale)}|`;
 }
 
 /** True when a row has locale plus content type, workflow, and community (name or id). */
@@ -119,11 +138,13 @@ export function duplicateAutoTranslationKey(rows: AutoTranslationRow[]): string 
   const seen = new Set<string>();
   for (const row of rows) {
     if (!isAutoTranslationRowReady(row)) continue;
-    const key = autoTranslationRowKey(row);
-    if (!key.endsWith("|") && seen.has(key)) {
-      return key;
+    const keys = autoTranslationRowKeys(row);
+    for (const key of keys) {
+      if (seen.has(key)) {
+        return key;
+      }
     }
-    if (!key.endsWith("|")) {
+    for (const key of keys) {
       seen.add(key);
     }
   }

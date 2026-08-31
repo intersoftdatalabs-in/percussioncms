@@ -77,22 +77,26 @@ export function ContentTypeIncludeFieldSection({
   const [sharedCandidates, setSharedCandidates] = useState<
     ReturnType<typeof toIncludeCandidates>
   >([]);
+  const [catalogLoading, setCatalogLoading] = useState(true);
+  const [catalogError, setCatalogError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    getSystemDef()
+    setCatalogLoading(true);
+    setCatalogError(null);
+    const system = getSystemDef()
       .then((payload) => {
         if (cancelled) return;
         setSystemCandidates(
           toIncludeCandidates(extractIncludeCatalogFields(payload), "system"),
         );
       })
-      .catch(() => {
-        if (!cancelled) {
-          setSystemCandidates([]);
-        }
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setSystemCandidates([]);
+        throw err;
       });
-    listSharedFieldGroups()
+    const shared = listSharedFieldGroups()
       .then(async (groups) => {
         const details = await Promise.all(
           groups.map((g) => {
@@ -107,11 +111,17 @@ export function ContentTypeIncludeFieldSection({
         const fields = details.flatMap((d) => extractIncludeCatalogFields(d));
         setSharedCandidates(toIncludeCandidates(fields, "shared"));
       })
-      .catch(() => {
-        if (!cancelled) {
-          setSharedCandidates([]);
-        }
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setSharedCandidates([]);
+        throw err;
       });
+    void Promise.allSettled([system, shared]).then((results) => {
+      if (cancelled) return;
+      setCatalogLoading(false);
+      const failed = results.some((r) => r.status === "rejected");
+      setCatalogError(failed ? DEV_MSG.CT_INCLUDE_CATALOG_ERROR : null);
+    });
     return () => {
       cancelled = true;
     };
@@ -165,6 +175,20 @@ export function ContentTypeIncludeFieldSection({
     <section style={{ marginBottom: "16px" }} data-testid="developer-ct-include">
       <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_INCLUDE}</h3>
       <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.CT_INCLUDE_HINT}</p>
+      {catalogLoading ? (
+        <p data-testid="developer-ct-include-catalog-loading" style={{ color: catalogColors.muted }}>
+          {DEV_MSG.CT_INCLUDE_CATALOG_LOADING}
+        </p>
+      ) : null}
+      {catalogError ? (
+        <p
+          role="status"
+          data-testid="developer-ct-include-catalog-error"
+          style={{ color: catalogColors.error }}
+        >
+          {catalogError}
+        </p>
+      ) : null}
       <div
         style={{
           display: "flex",

@@ -237,7 +237,10 @@ test.describe("Developer auto-translation editor (#4028 / CD-18)", () => {
     });
 
     await page.locator('[data-testid="developer-at-add"]').click();
-    const idx = (await page.locator('[data-testid^="developer-at-row-"]').count()) - 1;
+    const rows = page.locator('[data-testid^="developer-at-row-"]');
+    await expect(rows, "Add row must append an auto-translation row").not.toHaveCount(0);
+    const idx = (await rows.count()) - 1;
+    expect(idx, "added auto-translation row index").toBeGreaterThanOrEqual(0);
     await fillRow(page, idx, {
       locale: "xx-unknown-4028",
       type: "percPage",
