@@ -59,6 +59,37 @@ describe("contentTypeChoiceCatalog helpers (CD-07)", () => {
     });
   });
 
+  it("keeps type when catalog fields are missing or unknown", () => {
+    expect(parseChoiceCatalog({ type: "mystery" })).toEqual({ type: "mystery" });
+    expect(parseChoiceCatalog({ type: "local" })).toEqual({ type: "local" });
+    expect(parseChoiceCatalog({ type: "global" })).toEqual({ type: "global" });
+    expect(parseChoiceCatalog({ type: "lookup" })).toEqual({ type: "lookup" });
+    expect(parseChoiceCatalog({ type: "tableinfo" })).toEqual({ type: "tableinfo" });
+  });
+
+  it("parses lookup href and tableinfo columns when present", () => {
+    expect(
+      parseChoiceCatalog({
+        type: "lookup",
+        lookupHref: " /sys_lookup ",
+        lookupName: "States",
+      }),
+    ).toEqual({ type: "lookup", lookupHref: "/sys_lookup", lookupName: "States" });
+    expect(
+      parseChoiceCatalog({
+        type: "tableinfo",
+        table: {
+          tableName: "RXLOOKUP",
+          labelColumn: "LABEL",
+          valueColumn: "VALUE",
+        },
+      }),
+    ).toEqual({
+      type: "tableinfo",
+      table: { tableName: "RXLOOKUP", labelColumn: "LABEL", valueColumn: "VALUE" },
+    });
+  });
+
   it("omits choices extras from a type-none PUT payload", () => {
     expect(
       toChoiceCatalogPayload({

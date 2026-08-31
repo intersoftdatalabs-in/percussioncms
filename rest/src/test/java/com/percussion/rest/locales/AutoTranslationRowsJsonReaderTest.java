@@ -72,11 +72,26 @@ public class AutoTranslationRowsJsonReaderTest {
 
   @Test
   public void parseRejectsScalarWrappedProperty() {
-    WebApplicationException ex =
+    WebApplicationException rowEx =
         assertThrows(
             WebApplicationException.class,
             () -> AutoTranslationRowsJsonReader.parse("{\"AutoTranslationRow\":\"x\"}"));
-    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(400, rowEx.getResponse().getStatus());
+    WebApplicationException camelEx =
+        assertThrows(
+            WebApplicationException.class,
+            () -> AutoTranslationRowsJsonReader.parse("{\"autoTranslationRow\":\"x\"}"));
+    assertEquals(400, camelEx.getResponse().getStatus());
+    WebApplicationException wrappedEx =
+        assertThrows(
+            WebApplicationException.class,
+            () -> AutoTranslationRowsJsonReader.parse("{\"AutoTranslations\":\"x\"}"));
+    assertEquals(400, wrappedEx.getResponse().getStatus());
+    WebApplicationException camelWrappedEx =
+        assertThrows(
+            WebApplicationException.class,
+            () -> AutoTranslationRowsJsonReader.parse("{\"autoTranslations\":\"x\"}"));
+    assertEquals(400, camelWrappedEx.getResponse().getStatus());
   }
 
   @Test

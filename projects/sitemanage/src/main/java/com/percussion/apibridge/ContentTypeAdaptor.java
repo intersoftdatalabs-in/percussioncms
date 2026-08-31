@@ -1705,7 +1705,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       }
       PSItemDefinition reloaded = reloadItemDef(trimmed);
       return reloaded != null ? toDetail(reloaded) : toDetail(def);
-    } catch (ContentTypeDesignLockException
+    } catch (IllegalStateException
         | IllegalArgumentException
         | WebApplicationException e) {
       throw e;

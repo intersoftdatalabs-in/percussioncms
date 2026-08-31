@@ -262,9 +262,30 @@ class ContentTypeAdaptorLocalFieldTest {
         .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
     ContentTypeField body = new ContentTypeField();
     body.setName("rx_note");
-    Exception ex =
-        assertThrows(Exception.class, () -> adaptor.addLocalField(null, "311", body));
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.addLocalField(null, "311", body));
     assertTrue(ex.getMessage().contains("field mapping invalid"), ex.getMessage());
+  }
+
+  @Test
+  void addLocalField_nonValidationSaveFailurePreservesDetails() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubDefinition();
+    stubLockedLoad(def);
+    PSErrorsException saveFailed = new PSErrorsException();
+    saveFailed.addError(
+        guid,
+        new PSErrorException(
+            IPSWebserviceErrors.SAVE_FAILED, "database constraint violated", "stack"));
+    doThrow(saveFailed)
+        .when(designWs)
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    ContentTypeField body = new ContentTypeField();
+    body.setName("rx_note");
+    IllegalStateException ex =
+        assertThrows(IllegalStateException.class, () -> adaptor.addLocalField(null, "311", body));
+    assertTrue(ex.getMessage().contains("database constraint violated"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("Failed to save new local field"), ex.getMessage());
   }
 
   @Test

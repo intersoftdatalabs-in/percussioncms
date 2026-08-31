@@ -154,9 +154,14 @@ describe("AutoTranslationsPanel", () => {
     expect(saveAt).not.toHaveBeenCalled();
   });
 
-  it("surfaces catalogWarning when a catalog API rejects", async () => {
+  it.each([
+    ["locales", () => localesMock.mockRejectedValue(new Error("locales catalog down"))],
+    ["content types", () => typesMock.mockRejectedValue(new Error("types catalog down"))],
+    ["workflows", () => workflowsMock.mockRejectedValue(new Error("workflows catalog down"))],
+    ["communities", () => communitiesMock.mockRejectedValue(new Error("communities catalog down"))],
+  ] as const)("surfaces catalogWarning when %s catalog API rejects", async (_name, rejectCatalog) => {
     listAt.mockResolvedValue([]);
-    localesMock.mockRejectedValue(new Error("locales catalog down"));
+    rejectCatalog();
     render(<AutoTranslationsPanel onBack={() => undefined} />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-at-catalog-warning")).toBeTruthy();
