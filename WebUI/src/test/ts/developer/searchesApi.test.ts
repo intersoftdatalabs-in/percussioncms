@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  SEARCH_DESIGN_GAPS,
+  createSearch,
+  deleteSearch,
   executeSearch,
+  getSearchDetail,
+  isSearchWriteReady,
+  isValidSearchName,
   listExplorerSavedSearches,
   listSearches,
+  normalizeSearchName,
+  saveSearch,
+  unwrapSearchDef,
   unwrapSearchDefList,
   unwrapSearchExecuteResult,
+  withoutStaleSearchWriteGap,
+  wrapSearchDefForWire,
   wrapSearchExecuteRequest,
 } from "../../../main/ts/api/developer/searchesApi";
 import { PATHS } from "../../../main/ts/api/paths";
@@ -247,5 +258,176 @@ describe("executeSearch", () => {
     expect(String(url)).toBe(
       `${PATHS.SEARCHES}/${encodeURIComponent("A/B Search")}/execute`,
     );
+  });
+});
+
+describe("search name validation", () => {
+  it("trims names", () => {
+    expect(normalizeSearchName("  MySearch  ")).toBe("MySearch");
+    expect(normalizeSearchName("")).toBe("");
+    expect(normalizeSearchName(null)).toBe("");
+  });
+
+  it("accepts REST-safe create names and rejects junk", () => {
+    expect(isValidSearchName("MySearch")).toBe(true);
+    expect(isValidSearchName("qa4076")).toBe(true);
+    expect(isValidSearchName("  StandardOne  ")).toBe(true);
+    expect(isValidSearchName("")).toBe(false);
+    expect(isValidSearchName("has space")).toBe(false);
+    expect(isValidSearchName("wild*card")).toBe(false);
+    expect(isValidSearchName("pct%name")).toBe(false);
+    expect(isValidSearchName("../x")).toBe(false);
+    expect(isValidSearchName("a/b")).toBe(false);
+    expect(isValidSearchName("a\\b")).toBe(false);
+  });
+
+  it("disables write until the search name is valid on create", () => {
+    expect(isSearchWriteReady({ isNew: true, name: "" })).toBe(false);
+    expect(isSearchWriteReady({ isNew: true, name: "has space" })).toBe(false);
+    expect(isSearchWriteReady({ isNew: true, name: "MySearch" })).toBe(true);
+    expect(isSearchWriteReady({ isNew: false, name: "MySearch" })).toBe(true);
+    expect(isSearchWriteReady({ isNew: false, name: "" })).toBe(false);
+  });
+});
+
+describe("search wire wrap", () => {
+  it("wraps POST/PUT under SearchDef root", () => {
+    expect(
+      wrapSearchDefForWire({
+        name: "MySearch",
+        label: "My Search",
+        description: "Created via REST",
+        type: "StandardSearch",
+        displayFormatId: "1",
+      }),
+    ).toEqual({
+      SearchDef: {
+        name: "MySearch",
+        label: "My Search",
+        description: "Created via REST",
+        type: "StandardSearch",
+        displayFormatId: "1",
+      },
+    });
+  });
+
+  it("unwraps SearchDef envelope and flat bodies", () => {
+    expect(
+      unwrapSearchDef({ SearchDef: { name: "MySearch", label: "My Search" } }),
+    ).toEqual({ name: "MySearch", label: "My Search" });
+    expect(unwrapSearchDef({ name: "All Content" })).toEqual({ name: "All Content" });
+    expect(unwrapSearchDef(null)).toEqual({});
+  });
+
+  it("drops the create/update/delete gap from SEARCH_DESIGN_GAPS", () => {
+    expect(SEARCH_DESIGN_GAPS.some((g) => /create/i.test(g))).toBe(false);
+    expect(SEARCH_DESIGN_GAPS.some((g) => /field criterion/i.test(g))).toBe(true);
+  });
+
+  it("filters a stale REST write gap on GET detail", () => {
+    expect(
+      withoutStaleSearchWriteGap([
+        "Search create / update / delete not supported via this API",
+        "Search field criterion editing not supported via this API",
+      ]),
+    ).toEqual(["Search field criterion editing not supported via this API"]);
+  });
+});
+
+describe("searchesApi write paths", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("POSTs create body to /services/searches", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ name: "MySearch", label: "My Search", type: "StandardSearch" }),
+    );
+    const saved = await createSearch({
+      name: "MySearch",
+      label: "My Search",
+      type: "StandardSearch",
+    });
+    expect(saved.name).toBe("MySearch");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(PATHS.SEARCHES);
+    expect(JSON.parse(String(init.body))).toEqual({
+      SearchDef: { name: "MySearch", label: "My Search", type: "StandardSearch" },
+    });
+  });
+
+  it("PUTs save body to /services/searches/{idOrName}", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ name: "MySearch", label: "Updated" }));
+    const saved = await saveSearch("MySearch", { name: "MySearch", label: "Updated" });
+    expect(saved.label).toBe("Updated");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.SEARCHES}/MySearch`);
+  });
+
+  it("DELETEs /services/searches/{idOrName}", async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
+    await deleteSearch("MySearch");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("DELETE");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.SEARCHES}/MySearch`);
+  });
+
+  it("unwraps GET /services/searches/{idOrName} Jackson root", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ SearchDef: { name: "MySearch", label: "My Search", fields: [] } }),
+    );
+    const detail = await getSearchDetail("MySearch");
+    expect(detail.name).toBe("MySearch");
+    expect(detail.label).toBe("My Search");
+  });
+
+  it("surfaces 400 invalid name", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ message: "name cannot contain whitespace" }, 400),
+    );
+    await expect(createSearch({ name: "bad name" })).rejects.toMatchObject({
+      status: 400,
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("surfaces 409 duplicate name", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ message: "Search already exists: MySearch" }, 409),
+    );
+    await expect(createSearch({ name: "MySearch" })).rejects.toMatchObject({
+      status: 409,
+    });
+  });
+
+  it("surfaces 404 missing search", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Search not found" }, 404));
+    await expect(getSearchDetail("missing")).rejects.toMatchObject({ status: 404 });
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Search not found" }, 404));
+    await expect(deleteSearch("missing")).rejects.toMatchObject({ status: 404 });
+  });
+
+  it("surfaces 403 non-Admin create", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Admin role required" }, 403));
+    await expect(createSearch({ name: "MySearch" })).rejects.toMatchObject({
+      status: 403,
+    });
   });
 });
