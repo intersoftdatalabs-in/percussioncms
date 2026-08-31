@@ -339,11 +339,20 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         throw new IllegalStateException("Design WS createContentTypes returned empty");
       }
       PSItemDefinition def = created.get(0);
+      // Identity assigned by createContentTypes; never steal an existing typeId/lock.
+      int keepTypeId = def.getTypeId();
       // Design-WS default is enabled=true; set it explicitly so omitted JSON is usable.
       if (body.getEnabled() == null) {
         def.setEnabled(true);
       }
       applyMetaUpdates(def, body);
+      if (keepTypeId > 0) {
+        def.setTypeId(keepTypeId);
+        def.setId(keepTypeId);
+        if (def.getContentEditor() != null) {
+          def.getContentEditor().setContentType(keepTypeId);
+        }
+      }
       // Workbench Finish: persist the new type and release the create lock.
       designSvc.saveContentTypes(Collections.singletonList(def), true, session, user);
       PSItemDefinition reloaded = reloadItemDef(name);

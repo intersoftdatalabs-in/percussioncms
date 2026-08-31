@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -98,9 +99,42 @@ class ContentTypeAdaptorCreateTest {
     ArgumentCaptor<List<PSItemDefinition>> saved = ArgumentCaptor.forClass(List.class);
     verify(designWs).saveContentTypes(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
     assertEquals(1, saved.getValue().size());
+    assertEquals(def, saved.getValue().get(0));
     verify(def).setLabel("New Type");
     verify(def).setDescription("created via REST");
     verify(def).setEnabled(true);
+    verify(def).setTypeId(9001);
+    verify(def).setId(9001);
+    verify(designWs, never()).loadContentTypes(anyList(), anyBoolean(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void create_keepsAssignedTypeIdAndDoesNotStealLock() throws Exception {
+    PSItemDefinition def = stubCreatedDefinition("percNewType", 9001);
+    when(designWs.createContentTypes(eq(List.of("percNewType")), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(def));
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setName("percNewType");
+
+    adaptor.createContentType(null, body);
+
+    verify(def).setTypeId(9001);
+    verify(def, never()).setTypeId(eq(0));
+    verify(designWs, never()).loadContentTypes(anyList(), anyBoolean(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void create_typeIdZero_doesNotRewriteIdentity() throws Exception {
+    PSItemDefinition def = stubCreatedDefinition("percNewType", 0);
+    when(designWs.createContentTypes(eq(List.of("percNewType")), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(def));
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setName("percNewType");
+
+    adaptor.createContentType(null, body);
+
+    verify(def, never()).setTypeId(anyInt());
+    verify(designWs).saveContentTypes(anyList(), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test
