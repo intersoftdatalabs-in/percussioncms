@@ -870,14 +870,44 @@ export type ContentTypeIncludeFieldBody = {
 };
 
 /**
- * Build the wire JSON body for {@code POST .../fields/include} under
- * {@link CONTENT_TYPE_FIELD_ROOT}. A flat {@code { name, fieldType }} body
- * fails server UNWRAP_ROOT_VALUE.
+ * Wire body for {@code POST .../fields} (CD-03). Origin is always local;
+ * include of system/shared fields is {@code POST .../fields/include} (CD-04).
+ */
+export type ContentTypeLocalFieldCreateBody = {
+  name: string;
+  label?: string;
+  dataType?: string;
+  control?: string;
+  searchable?: boolean;
+  required?: boolean;
+  occurrence?: string;
+  fieldSet?: string | null;
+};
+
+/**
+ * Build the wire JSON body for {@code POST .../fields} or {@code .../include}
+ * under {@link CONTENT_TYPE_FIELD_ROOT}. A flat body fails server
+ * UNWRAP_ROOT_VALUE. Include bodies keep {@code system}/{@code shared};
+ * local create always sets {@code fieldType} {@code local}.
  */
 export function wrapContentTypeFieldForWire(
   body: ContentTypeIncludeFieldBody,
-): Record<string, ContentTypeIncludeFieldBody> {
-  return { [CONTENT_TYPE_FIELD_ROOT]: body };
+): Record<string, ContentTypeIncludeFieldBody>;
+export function wrapContentTypeFieldForWire(
+  body: ContentTypeLocalFieldCreateBody,
+): Record<string, ContentTypeLocalFieldCreateBody & { fieldType: "local" }>;
+export function wrapContentTypeFieldForWire(
+  body: ContentTypeIncludeFieldBody | ContentTypeLocalFieldCreateBody,
+): Record<string, unknown> {
+  if ("fieldType" in body && (body.fieldType === "system" || body.fieldType === "shared")) {
+    return { [CONTENT_TYPE_FIELD_ROOT]: body };
+  }
+  return {
+    [CONTENT_TYPE_FIELD_ROOT]: {
+      ...body,
+      fieldType: "local" as const,
+    },
+  };
 }
 
 /**
@@ -900,4 +930,45 @@ export async function includeContentTypeField(
     wrapContentTypeFieldForWire(body),
   );
   return unwrapContentTypeDetail(payload);
+}
+
+/**
+ * POST /services/contenttypes/{idOrName}/fields — CD-03 add a persistable local
+ * field (backend column + display mapping).
+ *
+ * <p>Requires a design-session lock already held by the current user
+ * ({@link lockContentType}). Does not acquire or release the lock. HTTP 409
+ * when unlocked, locked by another user, or the field name already exists.
+ * HTTP 400 for invalid name / dataType. Response is {@code ContentTypeDetail}
+ * with the new catalog (lock still held).
+ */
+export async function addLocalContentTypeField(
+  idOrName: string,
+  body: ContentTypeLocalFieldCreateBody,
+): Promise<ContentTypeDetail> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await post<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}/fields`,
+    wrapContentTypeFieldForWire(body),
+  );
+  return unwrapContentTypeDetail(payload);
+}
+
+/**
+ * DELETE /services/contenttypes/{idOrName}/fields/{fieldName} — CD-03 remove a
+ * local field and its display mapping.
+ *
+ * <p>Requires a design-session lock already held by the current user
+ * ({@link lockContentType}). Does not acquire or release the lock. HTTP 409
+ * when unlocked or locked by another user. HTTP 400 when the field is
+ * system/shared. HTTP 404 when the type or field is missing. HTTP 204 on
+ * success (lock still held).
+ */
+export async function deleteLocalContentTypeField(
+  idOrName: string,
+  fieldName: string,
+): Promise<void> {
+  const typeKey = encodeURIComponent(idOrName);
+  const fieldKey = encodeURIComponent(fieldName);
+  await del(`${PATHS.CONTENT_TYPES}/${typeKey}/fields/${fieldKey}`);
 }

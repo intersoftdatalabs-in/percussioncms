@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Create or delete a content type from Developer catalog chrome, lock, enable or disable, toggle type-level search indexing, rename via REST, add or delete local fields via REST, include system or shared fields from Developer detail, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Create or delete a content type from Developer catalog chrome, lock, enable or disable, toggle type-level search indexing, rename via REST, add or delete local fields from Developer Content Type detail, include system or shared fields from Developer detail, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -27,17 +27,19 @@ Workbench-equivalent `ItemDefData` design XML with Admin
 `POST /services/contenttypes/import` (CD-14; create only; duplicate name **409**;
 invalid XML **400**; the new object's create lock is released and existing types
 are not stolen). This chrome includes **export** (detail **Export XML**) and **create-only import**
-(catalog **Import XML**). Rename and **local field create/delete** remain REST-only
-(no SPA local-field editor). After a held lock, the detail **Include system or shared field**
+(catalog **Import XML**). Rename remains REST-only. After a held **Lock**, operators can
+**add** and **delete local fields** from Content Type detail (see **Local fields** below).
+The add call creates the backend column **before** the content editor application is
+re-initialized. After a held lock, the detail **Include system or shared field**
 picker includes an existing catalog field
 (`POST /services/contenttypes/{idOrName}/fields/include`; origin stays
 system/shared). Duplicate include is **409**. Unknown catalog field is **404**.
-Invalid `fieldType` is **400**. Integrators add a local field with
-`POST /services/contenttypes/{idOrName}/fields` (JSON `name` required) and
-remove one with `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}`.
-The add call creates the backend column **before** the content editor
-application is re-initialized. Duplicate field names are **409**. Unlocked is
-**409**. System and shared fields cannot be removed here (**400**). Include an existing system or shared field with
+Invalid `fieldType` is **400**. Integrators can also call
+`POST /services/contenttypes/{idOrName}/fields` (JSON `name` required; origin
+is always `local`) and
+`DELETE /services/contenttypes/{idOrName}/fields/{fieldName}`. Duplicate field
+names are **409**. Unlocked is **409**. System and shared fields cannot be removed
+here (**400**). Include an existing system or shared field with
 `POST /services/contenttypes/{idOrName}/fields/include` (JSON `name` and
 `fieldType` `system` or `shared`; origin is not copied as local). Duplicate
 include is **409**; unknown catalog field is **404**. Optional `fieldSet` on
@@ -189,6 +191,35 @@ the lock (including while the type is still loading). After **Lock**:
    clears associations. Unknown names return an error; the lock is not stolen.
 
 This is not the full Workbench template picker.
+
+### Local fields (add / delete after lock)
+
+The **Fields** catalog lists local, system, and shared fields. **Add local
+field** and **Delete** on a local row stay **disabled** until you hold the
+lock. Origin of a created field is always **local**. Include of existing
+system or shared fields is REST-only (`POST .../fields/include`) in this
+release.
+
+After **Lock**:
+
+1. Enter a unique field **name** (letter, then letters, digits, or underscore),
+   optional **label**, **data type** (default `text`), and **control** (default
+   `sys_EditBox`), then click **Add local field**. The product POSTs
+   `POST /services/contenttypes/{idOrName}/fields` while the lock is still
+   held and does **not** unlock. The field catalog shows the new row. A
+   following `GET /services/contenttypes/{idOrName}` includes it.
+2. Duplicate names return **409**. The lock is still held. Fix the name and
+   retry, or **Unlock**.
+3. Click **Delete** on a **local** field and confirm. The product DELETEs
+   `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}` (`204`). The
+   catalog omits that field. System and shared fields have no Delete control
+   (REST **400** if you try).
+4. Without a lock, Add / Delete stay **disabled**. The product does **not**
+   steal another user's lock (lock failure is **409**). An unlocked add or
+   delete does not persist.
+
+This is not the full Workbench field editor. Child field-set reorder and
+include of system/shared fields are later slices.
 
 ### Item-level exits (after lock)
 
@@ -360,6 +391,8 @@ The chrome calls:
 | Load field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` |
 | Save field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` (held lock; full replace of validation, visibility, inputTranslation, outputTranslation) |
 | Include system or shared field | `POST /services/contenttypes/{idOrName}/fields/include` (CD-04; held lock; origin stays system/shared; duplicate 409; unknown catalog field 404; invalid `fieldType` 400) |
+| Add local field | `POST /services/contenttypes/{idOrName}/fields` (CD-03; held lock; origin always `local`; duplicate name **409**) |
+| Delete local field | `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}` (CD-03; held lock; **204**; system/shared **400**) |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |
 | Export design XML | `GET /services/contenttypes/{idOrName}/export` (Admin; no lock; `application/xml` attachment) |
 | Import design XML | `POST /services/contenttypes/import` (Admin; create-only ItemDefData XML; 400 invalid; 409 duplicate) |

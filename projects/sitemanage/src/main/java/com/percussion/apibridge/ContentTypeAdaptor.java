@@ -1696,8 +1696,12 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         if (hasLockError(e.getErrors())) {
           throw lockConflict(e, "Could not add content type field");
         }
-        log.error("Failed to save new local field for {}: {}", idOrName, e.getMessage(), e);
-        throw new IllegalStateException("Failed to save new local field", e);
+        String details = formatSaveErrors(e);
+        log.error("Failed to save new local field for {}: {}", idOrName, details, e);
+        if (isValidationSaveFailure(e)) {
+          throw new IllegalArgumentException("Could not add local field: " + details, e);
+        }
+        throw new IllegalStateException("Failed to save new local field: " + details, e);
       }
       PSItemDefinition reloaded = reloadItemDef(trimmed);
       return reloaded != null ? toDetail(reloaded) : toDetail(def);

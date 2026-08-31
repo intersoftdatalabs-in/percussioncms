@@ -34,6 +34,8 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     replaceContentTypeItemExits: vi.fn(),
     deleteContentType: vi.fn(),
     includeContentTypeField: vi.fn(),
+    addLocalContentTypeField: vi.fn(),
+    deleteLocalContentTypeField: vi.fn(),
   };
 });
 
@@ -106,6 +108,12 @@ const deleteContentType = contentTypesApi.deleteContentType as ReturnType<typeof
 const includeContentTypeField = contentTypesApi.includeContentTypeField as ReturnType<
   typeof vi.fn
 >;
+const addLocalContentTypeField = contentTypesApi.addLocalContentTypeField as ReturnType<
+  typeof vi.fn
+>;
+const deleteLocalContentTypeField = contentTypesApi.deleteLocalContentTypeField as ReturnType<
+  typeof vi.fn
+>;
 const getContentTypeFieldRuleExpressions =
   fieldRulesApi.getContentTypeFieldRuleExpressions as ReturnType<typeof vi.fn>;
 const replaceContentTypeFieldRuleExpressions =
@@ -156,6 +164,8 @@ describe("ContentTypeDetailPanel", () => {
     replaceContentTypeItemExits.mockReset();
     deleteContentType.mockReset();
     includeContentTypeField.mockReset();
+    addLocalContentTypeField.mockReset();
+    deleteLocalContentTypeField.mockReset();
     getContentTypeFieldRuleExpressions.mockReset();
     replaceContentTypeFieldRuleExpressions.mockReset();
     exportContentType.mockReset();
@@ -2141,5 +2151,179 @@ describe("ContentTypeDetailPanel", () => {
     expect((screen.getByTestId("developer-ct-include-name") as HTMLInputElement).disabled).toBe(
       true,
     );
+  });
+
+  it("keeps local field add/delete disabled until lock and does not POST (#4045)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [{ name: "rx_note", label: "Note", fieldType: "local" }],
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-fields")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-ct-field-add-name") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-field-add") as HTMLButtonElement).disabled).toBe(true);
+    expect(
+      (screen.getByTestId("developer-ct-field-delete-rx_note") as HTMLButtonElement).disabled,
+    ).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-ct-field-add-name"), {
+      target: { value: "rx_other" },
+    });
+    expect((screen.getByTestId("developer-ct-field-add-name") as HTMLInputElement).value).toBe("");
+    fireEvent.click(screen.getByTestId("developer-ct-field-add"));
+    fireEvent.click(screen.getByTestId("developer-ct-field-delete-rx_note"));
+    expect(addLocalContentTypeField).not.toHaveBeenCalled();
+    expect(deleteLocalContentTypeField).not.toHaveBeenCalled();
+  });
+
+  it("POSTs a local field after lock and shows it in the catalog (#4045)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    addLocalContentTypeField.mockResolvedValueOnce({
+      ...sampleDetail,
+      fields: [
+        {
+          name: "rx_note",
+          label: "Note",
+          fieldType: "local",
+          dataType: "text",
+          control: "sys_EditBox",
+        },
+      ],
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-field-add-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-field-add-name"), {
+      target: { value: "rx_note" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-field-add-label"), {
+      target: { value: "Note" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-field-add"));
+    await waitFor(() => {
+      expect(addLocalContentTypeField).toHaveBeenCalledWith("percPage", {
+        name: "rx_note",
+        label: "Note",
+        dataType: "text",
+        control: "sys_EditBox",
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-field-delete-rx_note")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/Local field added/i);
+    expect(unlockContentType).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+  });
+
+  it("surfaces unlocked/lock 409 on POST and does not persist the field (#4045)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    addLocalContentTypeField.mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Could not add content type field; design lock required" },
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-field-add-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-field-add-name"), {
+      target: { value: "rx_note" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-field-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        "Could not add local field.",
+      );
+    });
+    expect(screen.queryByTestId("developer-ct-field-delete-rx_note")).toBeNull();
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+  });
+
+  it("surfaces duplicate name 409 without dropping the held lock (#4045)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [{ name: "rx_note", label: "Note", fieldType: "local" }],
+    });
+    addLocalContentTypeField.mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Field already exists: rx_note" },
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-field-add-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-field-add-name"), {
+      target: { value: "rx_note" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-field-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toMatch(
+        /already exists/i,
+      );
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+    expect(screen.getAllByTestId("developer-ct-field-delete-rx_note")).toHaveLength(1);
+  });
+
+  it("DELETEs a local field after lock and omits it from the catalog (#4045)", async () => {
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+    getContentTypeDetail
+      .mockResolvedValueOnce({
+        ...sampleDetail,
+        fields: [
+          { name: "rx_note", label: "Note", fieldType: "local" },
+          { name: "sys_title", label: "Title", fieldType: "system" },
+        ],
+      })
+      .mockResolvedValueOnce({
+        ...sampleDetail,
+        fields: [{ name: "sys_title", label: "Title", fieldType: "system" }],
+      });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-field-delete-rx_note")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-ct-field-delete-rx_note") as HTMLButtonElement).disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-field-delete-rx_note"));
+    await waitFor(() => {
+      expect(deleteLocalContentTypeField).toHaveBeenCalledWith("percPage", "rx_note");
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-ct-field-delete-rx_note")).toBeNull();
+    });
+    expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(
+      /Local field deleted/i,
+    );
+    expect(unlockContentType).not.toHaveBeenCalled();
+    confirmSpy.mockRestore();
   });
 });
