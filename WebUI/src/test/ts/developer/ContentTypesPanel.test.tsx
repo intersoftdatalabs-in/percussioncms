@@ -308,4 +308,20 @@ describe("ContentTypesPanel", () => {
       "content-type",
     );
   });
+
+  it("shows import wizard on the catalog (#4034)", async () => {
+    listContentTypes.mockResolvedValue([
+      {
+        name: "percPage",
+        label: "Page",
+        guid: { stringValue: "0-2-301" },
+      },
+    ]);
+    render(<ContentTypesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-import")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-import-file")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-import-submit")).toBeTruthy();
+  });
 });
