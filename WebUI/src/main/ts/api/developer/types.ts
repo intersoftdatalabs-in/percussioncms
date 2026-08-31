@@ -385,6 +385,20 @@ export interface LocaleDetail extends LocaleSummary {
   designGaps?: string[];
 }
 
+/**
+ * One auto-translation setting (locale × content type) from
+ * GET/PUT /services/locales/auto-translations.
+ */
+export interface AutoTranslationRow {
+  locale?: string;
+  contentTypeId?: number;
+  contentTypeName?: string;
+  workflowId?: number;
+  workflowName?: string;
+  communityId?: number;
+  communityName?: string;
+}
+
 /** Shared field group summary from GET /services/sharedfields. */
 export interface SharedFieldGroupSummary {
   name?: string;
