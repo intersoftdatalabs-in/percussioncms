@@ -105,8 +105,16 @@ export function SharedFieldGroupDetailPanel({
     };
   }, [name]);
 
+  const loadedName = normalizeGroupName(detail?.name || name || "");
+  const loadedFilename = (detail?.filename || "").trim();
+  const dirty =
+    isNew ||
+    normalizeGroupName(groupName) !== loadedName ||
+    filename.trim() !== loadedFilename;
   const canSave =
-    !busy && isSharedFieldGroupWriteReady({ name: groupName, filename });
+    !busy &&
+    dirty &&
+    isSharedFieldGroupWriteReady({ name: groupName, filename });
   const writeKey = pathKey || normalizeGroupName(groupName);
 
   function writeBody(): SharedFieldGroupWriteBody {

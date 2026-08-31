@@ -43,6 +43,18 @@ describe("contentTypeIncludeField helpers (CD-04)", () => {
       }),
     ).toBe(false);
     expect(isIncludeLockConflict({ status: 404, body: { message: "lock" } })).toBe(false);
+    expect(
+      isIncludeLockConflict({
+        status: 409,
+        body: { message: "Field already included; lock kept" },
+      }),
+    ).toBe(false);
+    expect(
+      isIncludeLockConflict({
+        status: 409,
+        body: { message: "conflict: field not found" },
+      }),
+    ).toBe(false);
   });
 
   it("unwraps WRAP_ROOT systemdef and shared group field catalogs", () => {

@@ -163,6 +163,7 @@ export const DEV_MSG_KEYS = {
   CT_FORM_ENABLED: "perc.ui.developer@Enabled",
   CT_FORM_SEARCH_INDEXING: "perc.ui.developer@Search indexing",
   CT_SI_LOAD_ERROR: "perc.ui.developer@Could not load search indexing. Default is on.",
+  CT_SI_SAVE_ERROR: "perc.ui.developer@Could not save search indexing.",
   CT_LOCK: "perc.ui.developer@Lock",
   CT_UNLOCK: "perc.ui.developer@Unlock",
   CT_LOCK_TOOLBAR: "perc.ui.developer@Content type design session",
@@ -182,7 +183,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Toggle searchable / required for local fields after lock. Include an existing system or shared field from the picker (origin stays system/shared). Save writes while the lock is held and does not unlock.",
   CT_INCLUDE: "perc.ui.developer@Include system or shared field",
   CT_INCLUDE_HINT:
-    "perc.ui.developer@After lock, pick origin (system or shared) and a catalog field, or type a name. Include keeps the origin (not copied as local). Duplicate or unlocked is 409. Unknown catalog field is 400 or 404.",
+    "perc.ui.developer@After lock, pick origin (system or shared) and a catalog field, or type a name. Include keeps the origin (not copied as local). Duplicate or unlocked is 409. Unknown catalog field is 404. Invalid fieldType is 400.",
   CT_INCLUDE_ORIGIN: "perc.ui.developer@Origin",
   CT_INCLUDE_ORIGIN_SYSTEM: "perc.ui.developer@system",
   CT_INCLUDE_ORIGIN_SHARED: "perc.ui.developer@shared",
@@ -196,6 +197,9 @@ export const DEV_MSG_KEYS = {
   CT_INCLUDE_LOCK_REQUIRED: "perc.ui.developer@Lock this content type before including a field.",
   CT_INCLUDE_NAME_REQUIRED: "perc.ui.developer@Enter a system or shared field name.",
   CT_INCLUDE_ORIGIN_INVALID: "perc.ui.developer@Origin must be system or shared.",
+  CT_INCLUDE_CATALOG_LOADING: "perc.ui.developer@Loading include catalog...",
+  CT_INCLUDE_CATALOG_ERROR:
+    "perc.ui.developer@Could not load system or shared field catalog.",
   CT_CHILD_SETS: "perc.ui.developer@Child field sets",
   CT_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   CT_META_ENABLED: "perc.ui.developer@Enabled",

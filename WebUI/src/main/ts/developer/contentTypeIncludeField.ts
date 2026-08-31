@@ -87,7 +87,10 @@ export function isIncludeLockConflict(err: { status?: number; body?: unknown }):
     typeof err.body === "string"
       ? err.body
       : JSON.stringify(err.body ?? "");
-  return /lock/i.test(text);
+  if (/already included|duplicate/i.test(text)) {
+    return false;
+  }
+  return /design lock|locked by|lock required/i.test(text);
 }
 
 function fieldSummariesFrom(raw: unknown): ContentTypeFieldSummary[] {

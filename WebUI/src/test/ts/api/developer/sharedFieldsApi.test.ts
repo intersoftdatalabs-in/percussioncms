@@ -44,6 +44,9 @@ describe("shared field group name validation", () => {
     expect(isValidFilename("has space.xml")).toBe(false);
     expect(isValidFilename("foo.txt")).toBe(false);
     expect(isValidFilename("../x.xml")).toBe(false);
+    expect(isValidFilename("foo.bar.xml")).toBe(true);
+    expect(isValidFilename("foo.bar")).toBe(false);
+    expect(isValidGroupName("foo.bar")).toBe(true);
   });
 
   it("disables write until the group name is valid", () => {

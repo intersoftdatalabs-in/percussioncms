@@ -24,6 +24,7 @@ import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.MessageBodyReader;
 import jakarta.ws.rs.ext.Provider;
 import java.io.IOException;
@@ -60,6 +61,9 @@ import tools.jackson.databind.json.JsonMapper;
 @PSSiteManageBean("autoTranslationRowsJsonReader")
 public class AutoTranslationRowsJsonReader implements MessageBodyReader<List<AutoTranslationRow>> {
 
+  /** Cap PUT body so a huge payload cannot exhaust heap (CD-18). */
+  static final int MAX_BODY_BYTES = 1_048_576;
+
   private static final JsonMapper MAPPER = JsonMapper.builder().build();
 
   public AutoTranslationRowsJsonReader() {}
@@ -85,7 +89,7 @@ public class AutoTranslationRowsJsonReader implements MessageBodyReader<List<Aut
     if (entityStream == null) {
       return List.of();
     }
-    byte[] raw = entityStream.readAllBytes();
+    byte[] raw = readBounded(entityStream, MAX_BODY_BYTES);
     if (raw.length == 0) {
       return List.of();
     }
@@ -127,12 +131,23 @@ public class AutoTranslationRowsJsonReader implements MessageBodyReader<List<Aut
       if (nested.isNull()) {
         return List.of();
       }
+      throw new WebApplicationException("Invalid auto-translations body", 400);
     }
     AutoTranslationRow one = rowFromObject(root);
     if (one != null) {
       return List.of(one);
     }
     return List.of();
+  }
+
+  static byte[] readBounded(InputStream in, int maxBytes) throws IOException {
+    byte[] raw = in.readNBytes(maxBytes + 1);
+    if (raw.length > maxBytes) {
+      throw new WebApplicationException(
+          "Auto-translations body exceeds maximum size",
+          Response.Status.REQUEST_ENTITY_TOO_LARGE);
+    }
+    return raw;
   }
 
   static boolean isAutoTranslationRowList(Class<?> type, Type genericType) {

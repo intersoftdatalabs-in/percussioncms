@@ -28,8 +28,8 @@ are not stolen). This chrome includes **export** (detail **Export XML**) and **c
 remain REST-only (no SPA local-field editor). After a held lock, the detail
 **Include system or shared field** picker includes an existing catalog field
 (`POST /services/contenttypes/{idOrName}/fields/include`; origin stays
-system/shared). Duplicate include is **409**. Unknown catalog field is **400**
-or **404**. Integrators add a local field with
+system/shared). Duplicate include is **409**. Unknown catalog field is **404**.
+Invalid `fieldType` is **400**. Integrators add a local field with
 `POST /services/contenttypes/{idOrName}/fields` (JSON `name` required) and
 remove one with `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}`.
 Duplicate field names are **409**. System and shared fields cannot be removed
@@ -340,7 +340,7 @@ The chrome calls:
 | Save field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` (held lock; full replace of values; does not send `choices`) |
 | Load field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` |
 | Save field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` (held lock; full replace of validation, visibility, inputTranslation, outputTranslation) |
-| Include system or shared field | `POST /services/contenttypes/{idOrName}/fields/include` (CD-04; held lock; origin stays system/shared; duplicate 409; unknown 400/404) |
+| Include system or shared field | `POST /services/contenttypes/{idOrName}/fields/include` (CD-04; held lock; origin stays system/shared; duplicate 409; unknown catalog field 404; invalid `fieldType` 400) |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |
 | Export design XML | `GET /services/contenttypes/{idOrName}/export` (Admin; no lock; `application/xml` attachment) |
 | Import design XML | `POST /services/contenttypes/import` (Admin; create-only ItemDefData XML; 400 invalid; 409 duplicate) |

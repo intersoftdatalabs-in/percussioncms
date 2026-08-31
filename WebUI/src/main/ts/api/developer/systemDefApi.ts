@@ -96,7 +96,11 @@ function asStringArray(value: unknown): string[] {
 /** True when the name matches REST create rules (letter, then word chars, max 50). */
 export function isValidSystemDefFieldName(name: string | undefined | null): boolean {
   if (name == null) return false;
-  return SYSTEM_DEF_FIELD_NAME_PATTERN.test(name.trim());
+  // REST SystemDefAdaptor.validateFieldName trims, then matches this pattern.
+  // Reject untrimmed input so the chrome does not send a name the operator
+  // did not mean to persist (leading/trailing space is stripped server-side).
+  if (name !== name.trim()) return false;
+  return SYSTEM_DEF_FIELD_NAME_PATTERN.test(name);
 }
 
 /** Add is enabled when the new field name is valid. */

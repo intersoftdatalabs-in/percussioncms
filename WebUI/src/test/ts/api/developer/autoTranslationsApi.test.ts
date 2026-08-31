@@ -80,6 +80,24 @@ describe("auto-translation row helpers", () => {
     );
   });
 
+  it("treats name-keyed and id-keyed rows as the same locale×type", () => {
+    const byName = {
+      locale: "en-us",
+      contentTypeName: "article",
+      contentTypeId: 5,
+      workflowName: "Default Workflow",
+      communityName: "Default",
+    };
+    const byId = {
+      locale: "en-us",
+      contentTypeId: 5,
+      workflowName: "Default Workflow",
+      communityName: "Default",
+    };
+    expect(duplicateAutoTranslationKey([byName, byId])).toBe("en-us|id:5");
+    expect(isAutoTranslationSetReady([byName, byId])).toBe(false);
+  });
+
   it("omits blank names from PUT body", () => {
     expect(
       toAutoTranslationWriteBody({

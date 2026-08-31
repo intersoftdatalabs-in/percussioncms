@@ -4,8 +4,10 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  asContentTypeExportXml,
   contentTypeExportFilename,
   contentTypeNameFromDesignXml,
+  downloadXmlFile,
   exportContentType,
   importContentType,
   invalidContentTypeImportName,
@@ -74,6 +76,37 @@ describe("design XML name helpers", () => {
     const out = rewriteContentTypeDesignXmlName(SAMPLE_XML, 'a&b"c');
     expect(out).toContain('name="a&amp;b&quot;c"');
     expect(out).not.toContain('name="a&b"');
+  });
+});
+
+describe("asContentTypeExportXml", () => {
+  it("accepts XML and rejects objects or non-XML text", () => {
+    expect(asContentTypeExportXml(SAMPLE_XML)).toBe(SAMPLE_XML);
+    expect(() => asContentTypeExportXml({ message: "oops" })).toThrow(/did not return XML/i);
+    expect(() => asContentTypeExportXml("not xml")).toThrow(/did not return XML/i);
+  });
+});
+
+describe("downloadXmlFile", () => {
+  it("defers revokeObjectURL so Firefox can start the download", () => {
+    vi.useFakeTimers();
+    const create = vi.fn(() => "blob:test-export");
+    const revoke = vi.fn();
+    const realUrl = globalThis.URL;
+    vi.stubGlobal("URL", {
+      createObjectURL: create,
+      revokeObjectURL: revoke,
+    });
+    try {
+      downloadXmlFile(SAMPLE_XML, "percPage.xml");
+      expect(create).toHaveBeenCalled();
+      expect(revoke).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(1000);
+      expect(revoke).toHaveBeenCalledWith("blob:test-export");
+    } finally {
+      vi.useRealTimers();
+      vi.stubGlobal("URL", realUrl);
+    }
   });
 });
 

@@ -165,7 +165,8 @@ test.describe("Developer content type search indexing chrome (#4035 CD-10)", () 
     await expect(box).toBeDisabled();
     await expect(saveBtn).toBeDisabled();
     await expect(status).toHaveText(/Not locked/i);
-    await box.click({ force: true });
+    // Native disabled guard — do not use force:true (that bypasses the browser).
+    await expect(box.click({ timeout: 2_000 })).rejects.toThrow(/not enabled/i);
     await expect(saveBtn).toBeDisabled();
     expect(putUrls, "unlocked searchIndexing PUT").toEqual([]);
 
@@ -251,6 +252,7 @@ test.describe("Developer content type search indexing chrome (#4035 CD-10)", () 
       return { status: resp.status(), putBody };
     };
 
+    let restoreErr;
     try {
       await box.click();
       expect(await box.isChecked()).toBe(!original);
@@ -267,21 +269,30 @@ test.describe("Developer content type search indexing chrome (#4035 CD-10)", () 
       await saveSearchIndexing("Search indexing restore failed");
       const restored = await getContentTypeSearchIndexing(page, typeName);
       expect(restored, "GET searchIndexing after restore").toBe(original);
+    } catch (e) {
+      restoreErr = e;
     } finally {
-      if (await box.isEnabled()) {
-        if ((await box.isChecked()) !== original) {
-          await box.click();
-          try {
+      try {
+        if (await box.isEnabled()) {
+          if ((await box.isChecked()) !== original) {
+            await box.click();
             await saveSearchIndexing("Search indexing finally restore failed");
-          } catch {
-            // Best-effort restore so a failed assert does not leave the type unindexed.
           }
         }
+      } catch (e) {
+        restoreErr = restoreErr || e;
+      }
+      try {
         if (await unlockBtn.isEnabled()) {
           await unlockBtn.click();
           await expect(status).toHaveText(/Not locked/i, { timeout: 20_000 });
         }
+      } catch (e) {
+        restoreErr = restoreErr || e;
       }
+    }
+    if (restoreErr) {
+      throw restoreErr;
     }
 
     await expect(box).toBeDisabled();

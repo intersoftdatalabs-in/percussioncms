@@ -45,7 +45,8 @@ detail panel.
    rows (workflow and community on each row).
 4. Click **Add row** and choose a locale, content type, workflow, and
    community (or type names that exist in the CMS). Remove a row with
-   **Remove**. Duplicate locale × content-type rows cannot be saved.
+   **Remove**. Duplicate locale × content-type rows cannot be saved
+   (**400**).
 5. Click **Save auto-translations**. Save **replaces the full set**. An empty
    table (remove every row, then save) **clears** all auto-translation rows.
 6. Unknown locale or content type is **400** and the editor shows the error.

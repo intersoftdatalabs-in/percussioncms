@@ -622,6 +622,7 @@ export function ContentTypeDetailPanel({
     setBusy(true);
     setError(null);
     setNotice(null);
+    let saveFallback = DEV_MSG.CT_SAVE_ERROR;
     try {
       const fieldPatches = Object.values(fieldDrafts)
         .filter((d) => {
@@ -661,6 +662,7 @@ export function ContentTypeDetailPanel({
             setDetail(saved);
             setEnabled(saved.enabled !== false);
           }
+          saveFallback = DEV_MSG.CT_SI_SAVE_ERROR;
           throw siErr;
         }
       }
@@ -837,7 +839,7 @@ export function ContentTypeDetailPanel({
         heldLockRef.current = false;
         setHeldLock(false);
       }
-      setError(panelErrMsg(err, DEV_MSG.CT_SAVE_ERROR));
+      setError(panelErrMsg(err, saveFallback));
     } finally {
       setBusy(false);
     }
