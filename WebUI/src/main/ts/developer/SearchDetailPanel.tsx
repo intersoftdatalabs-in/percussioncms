@@ -26,19 +26,30 @@ import {
   saveSearch,
   type SearchWriteBody,
 } from "../api/developer/searchesApi";
-import type { SearchDef } from "../api/developer/types";
+import type { SearchDef, SearchFieldSummary } from "../api/developer/types";
 import {
   catalogColors,
   backButton,
   errorAlert,
   metaGrid,
-  monoCell,
   tableHeaderRow,
   tableRow,
 } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { ObjectAclSection } from "./ObjectAclSection";
+import {
+  SEARCH_FIELD_OPERATORS,
+  addSearchFieldCriterion,
+  catalogFieldsNotInUse,
+  fieldCriteriaEqual,
+  isPackagedSearch,
+  isValidSearchFieldName,
+  moveSearchFieldCriterion,
+  normalizeSearchFields,
+  removeSearchFieldCriterion,
+  updateSearchFieldCriterion,
+} from "./searchFieldCriteria";
 
 const fieldStyle: React.CSSProperties = {
   display: "flex",
@@ -51,6 +62,15 @@ const inputStyle: React.CSSProperties = {
   padding: "8px",
   border: `1px solid ${catalogColors.softBorder}`,
   borderRadius: "4px",
+  font: "inherit",
+};
+
+const actionButton: React.CSSProperties = {
+  padding: "4px 8px",
+  border: `1px solid ${catalogColors.softBorder}`,
+  borderRadius: "4px",
+  background: catalogColors.surface,
+  cursor: "pointer",
   font: "inherit",
 };
 
@@ -94,6 +114,10 @@ export function SearchDetailPanel({
   const [description, setDescription] = useState("");
   const [type, setType] = useState(SEARCH_TYPE_STANDARD);
   const [displayFormatId, setDisplayFormatId] = useState("");
+  const [draftFields, setDraftFields] = useState<SearchFieldSummary[]>([]);
+  const [addSource, setAddSource] = useState("");
+  const [addOperator, setAddOperator] = useState(SEARCH_FIELD_OPERATORS[0]?.value || "like");
+  const [addValue, setAddValue] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -118,6 +142,10 @@ export function SearchDetailPanel({
         setDescription(d.description || "");
         setType(typeFromDetail(d, SEARCH_TYPE_STANDARD));
         setDisplayFormatId(d.displayFormatId || "");
+        const fields = normalizeSearchFields(d.fields);
+        setDraftFields(fields);
+        setAddSource(catalogFieldsNotInUse(fields)[0]?.source || "");
+        setAddValue("");
         setLoading(false);
       })
       .catch((err: unknown) => {
@@ -144,6 +172,12 @@ export function SearchDetailPanel({
     displayFormatId !== loadedDf;
   const canSave = !busy && dirty && isSearchWriteReady({ isNew, name });
   const writeKey = idOrName || createdKey || normalizeSearchName(name);
+  const packaged = isPackagedSearch(idOrName || createdKey || name);
+  const loadedFields = normalizeSearchFields(detail?.fields);
+  const fields = packaged ? loadedFields : draftFields;
+  const availableFields = catalogFieldsNotInUse(draftFields);
+  const fieldsDirty = !packaged && !isNew && !fieldCriteriaEqual(draftFields, loadedFields);
+  const canSaveFields = !busy && fieldsDirty && detail != null;
 
   function writeBody(): SearchWriteBody {
     const body: SearchWriteBody = {
@@ -166,6 +200,56 @@ export function SearchDetailPanel({
     return DEV_MSG.SR_SAVE_ERROR;
   }
 
+  function fieldsSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return DEV_MSG.SR_FIELDS_INVALID_SOURCE;
+    if (isApiError(err) && err.status === 403) return DEV_MSG.SR_FIELDS_FORBIDDEN;
+    if (isApiError(err) && err.status === 404) return DEV_MSG.SR_FIELDS_NOT_FOUND;
+    if (isApiError(err) && err.status === 409) return DEV_MSG.SR_FIELDS_PACKAGED;
+    return DEV_MSG.SR_FIELDS_SAVE_ERROR;
+  }
+
+  function handleAddField(): void {
+    if (packaged || busy || isNew || !isValidSearchFieldName(addSource)) {
+      return;
+    }
+    const next = addSearchFieldCriterion(draftFields, addSource, addOperator, addValue);
+    setDraftFields(next);
+    const stillAvailable = catalogFieldsNotInUse(next);
+    setAddSource(stillAvailable[0]?.source || "");
+    setAddValue("");
+  }
+
+  async function handleSaveFields(): Promise<void> {
+    if (!canSaveFields || inflight.current || packaged || !writeKey) {
+      return;
+    }
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const saved = await saveSearch(writeKey, {
+        name: detail?.name || writeKey,
+        label: detail?.label,
+        description: detail?.description,
+        type: typeFromDetail(detail, type),
+        displayFormatId: detail?.displayFormatId,
+        fields: draftFields,
+      });
+      setDetail(saved);
+      const savedFields = normalizeSearchFields(saved.fields);
+      setDraftFields(savedFields);
+      setAddSource(catalogFieldsNotInUse(savedFields)[0]?.source || "");
+      setNotice(DEV_MSG.SR_FIELDS_SAVED);
+      onSaved?.(saved);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, fieldsSaveFallback(err)));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
   async function handleSave(): Promise<void> {
     if (!canSave || inflight.current) return;
     inflight.current = true;
@@ -186,6 +270,9 @@ export function SearchDetailPanel({
       setDescription(saved.description || "");
       setType(typeFromDetail(saved, type));
       setDisplayFormatId(saved.displayFormatId || "");
+      const savedFields = normalizeSearchFields(saved.fields);
+      setDraftFields(savedFields);
+      setAddSource(catalogFieldsNotInUse(savedFields)[0]?.source || "");
       setNotice(DEV_MSG.SR_SAVED);
       onSaved?.(saved);
     } catch (err: unknown) {
@@ -225,11 +312,10 @@ export function SearchDetailPanel({
     ? DEV_MSG.SR_NEW
     : detail?.label || detail?.name || idOrName || DEV_MSG.SR_EDIT;
 
-  const fields = detail != null && Array.isArray(detail.fields) ? detail.fields : [];
   const gapList =
     detail != null && detail.designGaps && detail.designGaps.length > 0
       ? detail.designGaps
-      : [DEV_MSG.SR_GAP_FIELDS, DEV_MSG.SR_GAP_VIEWS];
+      : [DEV_MSG.SR_GAP_VIEWS];
 
   return (
     <div data-testid="developer-sr-detail">
@@ -412,8 +498,11 @@ export function SearchDetailPanel({
             <>
               <section data-testid="developer-sr-fields">
                 <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SR_FIELDS}</h3>
-                <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
-                  {DEV_MSG.SR_FIELDS_HINT}
+                <p
+                  style={{ color: catalogColors.muted, fontSize: "0.9rem" }}
+                  data-testid={packaged ? "developer-sr-fields-readonly" : undefined}
+                >
+                  {packaged ? DEV_MSG.SR_FIELDS_READONLY : DEV_MSG.SR_FIELDS_HINT}
                 </p>
                 {fields.length === 0 ? (
                   <p style={{ color: catalogColors.empty }} data-testid="developer-sr-fields-empty">
@@ -431,6 +520,9 @@ export function SearchDetailPanel({
                           <th style={{ padding: "8px" }}>{DEV_MSG.SR_COL_OP}</th>
                           <th style={{ padding: "8px" }}>{DEV_MSG.SR_COL_VALUE}</th>
                           <th style={{ padding: "8px" }}>{DEV_MSG.SR_COL_FTYPE}</th>
+                          {!packaged ? (
+                            <th style={{ padding: "8px" }}>{DEV_MSG.SR_COL_ACTIONS}</th>
+                          ) : null}
                         </tr>
                       </thead>
                       <tbody>
@@ -438,20 +530,210 @@ export function SearchDetailPanel({
                           <tr
                             key={`${f.fieldName ?? "f"}-${i}`}
                             data-testid={`developer-sr-field-row-${i}`}
+                            data-sr-field-name={f.fieldName || ""}
                             style={tableRow}
                           >
                             <td style={{ padding: "8px", fontFamily: "monospace" }}>
                               {f.fieldName || f.displayName || "—"}
                             </td>
-                            <td style={{ padding: "8px" }}>{f.operator || "—"}</td>
-                            <td style={{ padding: "8px" }}>{f.fieldValue || "—"}</td>
+                            <td style={{ padding: "8px" }}>
+                              {!packaged ? (
+                                <select
+                                  data-testid={`developer-sr-field-op-${i}`}
+                                  style={inputStyle}
+                                  value={f.operator || "like"}
+                                  disabled={busy}
+                                  onChange={(e) =>
+                                    setDraftFields(
+                                      updateSearchFieldCriterion(draftFields, i, {
+                                        operator: e.target.value,
+                                      }),
+                                    )
+                                  }
+                                >
+                                  {SEARCH_FIELD_OPERATORS.map((op) => (
+                                    <option key={op.value} value={op.value}>
+                                      {op.label}
+                                    </option>
+                                  ))}
+                                </select>
+                              ) : (
+                                f.operator || "—"
+                              )}
+                            </td>
+                            <td style={{ padding: "8px" }}>
+                              {!packaged ? (
+                                <input
+                                  data-testid={`developer-sr-field-value-${i}`}
+                                  style={inputStyle}
+                                  value={f.fieldValue || ""}
+                                  disabled={busy}
+                                  onChange={(e) =>
+                                    setDraftFields(
+                                      updateSearchFieldCriterion(draftFields, i, {
+                                        fieldValue: e.target.value,
+                                      }),
+                                    )
+                                  }
+                                />
+                              ) : (
+                                f.fieldValue || "—"
+                              )}
+                            </td>
                             <td style={{ padding: "8px" }}>{f.fieldType || "—"}</td>
+                            {!packaged ? (
+                              <td style={{ padding: "8px" }}>
+                                <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+                                  <button
+                                    type="button"
+                                    data-testid={`developer-sr-field-up-${i}`}
+                                    aria-label={DEV_MSG.SR_FIELDS_MOVE_UP}
+                                    disabled={busy || i === 0}
+                                    onClick={() =>
+                                      setDraftFields(moveSearchFieldCriterion(draftFields, i, -1))
+                                    }
+                                    style={actionButton}
+                                  >
+                                    {DEV_MSG.SR_FIELDS_MOVE_UP}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    data-testid={`developer-sr-field-down-${i}`}
+                                    aria-label={DEV_MSG.SR_FIELDS_MOVE_DOWN}
+                                    disabled={busy || i === fields.length - 1}
+                                    onClick={() =>
+                                      setDraftFields(moveSearchFieldCriterion(draftFields, i, 1))
+                                    }
+                                    style={actionButton}
+                                  >
+                                    {DEV_MSG.SR_FIELDS_MOVE_DOWN}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    data-testid={`developer-sr-field-remove-${i}`}
+                                    aria-label={DEV_MSG.SR_FIELDS_REMOVE}
+                                    disabled={busy}
+                                    onClick={() =>
+                                      setDraftFields(removeSearchFieldCriterion(draftFields, i))
+                                    }
+                                    style={actionButton}
+                                  >
+                                    {DEV_MSG.SR_FIELDS_REMOVE}
+                                  </button>
+                                </div>
+                              </td>
+                            ) : null}
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
                 )}
+                {!packaged && !isNew ? (
+                  <div
+                    style={{
+                      marginTop: "12px",
+                      display: "flex",
+                      gap: "8px",
+                      flexWrap: "wrap",
+                      alignItems: "flex-end",
+                    }}
+                    data-testid="developer-sr-field-editor"
+                  >
+                    <label
+                      htmlFor="sr-field-source"
+                      style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+                    >
+                      {DEV_MSG.SR_FIELDS_SOURCE_PICKER}
+                      <select
+                        id="sr-field-source"
+                        data-testid="developer-sr-field-source"
+                        style={inputStyle}
+                        value={addSource}
+                        disabled={busy || availableFields.length === 0}
+                        onChange={(e) => setAddSource(e.target.value)}
+                      >
+                        <option value="">{availableFields.length ? "—" : DEV_MSG.SR_NONE}</option>
+                        {availableFields.map((f) => (
+                          <option key={f.source} value={f.source}>
+                            {f.label} ({f.source})
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label
+                      htmlFor="sr-field-add-op"
+                      style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+                    >
+                      {DEV_MSG.SR_COL_OP}
+                      <select
+                        id="sr-field-add-op"
+                        data-testid="developer-sr-field-add-op"
+                        style={inputStyle}
+                        value={addOperator}
+                        disabled={busy}
+                        onChange={(e) => setAddOperator(e.target.value)}
+                      >
+                        {SEARCH_FIELD_OPERATORS.map((op) => (
+                          <option key={op.value} value={op.value}>
+                            {op.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label
+                      htmlFor="sr-field-add-value"
+                      style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+                    >
+                      {DEV_MSG.SR_COL_VALUE}
+                      <input
+                        id="sr-field-add-value"
+                        data-testid="developer-sr-field-add-value"
+                        style={inputStyle}
+                        value={addValue}
+                        disabled={busy}
+                        onChange={(e) => setAddValue(e.target.value)}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      data-testid="developer-sr-field-add"
+                      aria-label={DEV_MSG.SR_FIELDS_ADD}
+                      disabled={busy || !isValidSearchFieldName(addSource)}
+                      onClick={handleAddField}
+                      style={{
+                        ...actionButton,
+                        padding: "8px 12px",
+                        background: isValidSearchFieldName(addSource)
+                          ? catalogColors.accent
+                          : catalogColors.disabled,
+                        color: "#fff",
+                        border: "none",
+                        cursor:
+                          isValidSearchFieldName(addSource) && !busy ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      {DEV_MSG.SR_FIELDS_ADD}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-sr-fields-save"
+                      aria-label={DEV_MSG.SR_FIELDS_SAVE}
+                      disabled={!canSaveFields}
+                      onClick={() => void handleSaveFields()}
+                      style={{
+                        padding: "8px 16px",
+                        background: canSaveFields ? catalogColors.accent : catalogColors.disabled,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: canSaveFields ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      {busy ? DEV_MSG.SR_FIELDS_SAVING : DEV_MSG.SR_FIELDS_SAVE}
+                    </button>
+                  </div>
+                ) : null}
               </section>
 
               <ObjectAclSection

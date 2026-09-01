@@ -1819,8 +1819,8 @@ CX design **searches** (and optionally **views** on GET/execute) are exposed und
 `/services/searches`. Admin **write** (UI-06) persists through `IPSUiDesignWs`
 (`createSearches` / `loadSearches` / `saveSearches` / `deleteSearches`) — the same design
 web service SOAP uses. There is no new SOAP surface. **Developer → Searches** chrome
-creates and deletes searches (and saves label / description / type / display format);
-field-criterion editing is not in that SPA — see
+creates and deletes searches (and saves label / description / type / display format)
+and field criteria on user/standard searches — see
 [Developer Searches](id:admin-developer-searches).
 
 | Method | Path | Purpose |
@@ -1829,7 +1829,7 @@ field-criterion editing is not in that SPA — see
 | `GET` | `/services/searches?includeViews=true` | List searches **and** views (Explorer saved-search picker) |
 | `GET` | `/services/searches/{idOrName}` | Load one search or view by name, label, GUID, or numeric id |
 | `POST` | `/services/searches` | **Admin.** Create a search (`createSearches` then `saveSearches`) |
-| `PUT` | `/services/searches/{idOrName}` | **Admin.** Update label, description, type, and/or display format |
+| `PUT` | `/services/searches/{idOrName}` | **Admin.** Update label, description, type, display format, and/or field criteria |
 | `DELETE` | `/services/searches/{idOrName}` | **Admin.** Delete a search (`deleteSearches`, `ignoreDependencies=false`) |
 | `POST` | `/services/searches/{idOrName}/execute` | Execute a standard/user search or view (not a custom URL) |
 
@@ -1861,16 +1861,19 @@ with the same name is **409**).
 
 Update (`PUT /services/searches/{idOrName}`) loads with a design lock (`overrideLock=false`)
 and releases it on save. Name is not renamed on PUT. Omitted label / description / type /
-display format leave stored values unchanged. Unknown id/name is **404**. A view key is
-**400**. Locked-by-another-user is **409** (the lock is not stolen). Non-Admin is **403**.
+display format leave stored values unchanged. When `fields` is present it replaces field
+criteria in order (`fieldName`, `operator`, `fieldValue`, `position`). Omitted `fields`
+leaves stored criteria unchanged; an empty array clears them. Unknown / invalid field
+name is **400**. Packaged/system searches (`Default_Search`, `RC_Search`) reject field
+mutation with **409** (the lock is not stolen). Unknown id/name is
+**404**. A view key is **400**. Locked-by-another-user is **409**. Non-Admin is **403**.
 
 Delete (`DELETE /services/searches/{idOrName}`) returns **204** when removed; a following
 `GET` is **404**. Unknown id/name is **404**. Dependents or a lock held by another user are
 **409**. Non-Admin is **403**.
 
 Create/update load or create the search with a **held design lock** and release it on
-save. There is no separate lock/unlock REST pair on this catalog. Field criterion editing
-is not supported on write.
+save. There is no separate lock/unlock REST pair on this catalog.
 
 JSON objects use the `SearchDef` wire type. POST/PUT JSON is wrapped under a `SearchDef`
 root (JAXB/Jackson UNWRAP_ROOT_VALUE). Prefer the generated OpenAPI schema as the
@@ -1894,10 +1897,10 @@ Example create body:
 |--------|-----------------|
 | `200` | List / get / create / update success |
 | `204` | Delete success |
-| `400` | Invalid input (missing name, whitespace/wildcard name, invalid or View type) |
+| `400` | Invalid input (missing name, whitespace/wildcard name, invalid or View type, unknown field) |
 | `403` | Caller is not Admin, or the request has no session/user for the design session |
 | `404` | Search not found |
-| `409` | Duplicate name, design lock held by another user, or dependents |
+| `409` | Duplicate name, packaged/system field mutation, design lock held by another user, or dependents |
 | `500` | Design service or server failure |
 
 ## Community new-search defaults (UI-09)

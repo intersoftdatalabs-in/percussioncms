@@ -34,8 +34,8 @@ export const PACKAGED_DISPLAY_FORMAT_NAMES: readonly string[] = [
 ];
 
 /**
- * Common CX field sources for the UI-08 column picker (first PR: display formats).
- * Search/view field-selection can reuse this catalog later.
+ * Common CX field sources for the UI-08 column picker (display formats) and
+ * search field-selection ({@code searchFieldCriteria.ts}).
  */
 export const DISPLAY_FORMAT_FIELD_CATALOG: readonly { source: string; label: string }[] = [
   { source: "sys_title", label: "Content Title" },
