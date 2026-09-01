@@ -15,10 +15,21 @@
  * limitations under the License.
  */
 
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { PATHS } from "../../../../main/ts/api/paths";
 import {
+  ACTION_MENU_DESIGN_GAPS,
+  createActionMenu,
+  deleteActionMenu,
+  getActionMenuDetail,
+  isActionMenuWriteReady,
+  isValidActionMenuName,
+  normalizeActionMenuName,
+  saveActionMenu,
   unwrapActionMenu,
   unwrapActionMenuList,
+  withoutStaleActionMenuWriteGap,
+  wrapActionMenuForWire,
 } from "../../../../main/ts/api/developer/actionMenusApi";
 
 describe("unwrapActionMenu (#3380)", () => {
@@ -63,5 +74,167 @@ describe("unwrapActionMenuList", () => {
     expect(list).toHaveLength(2);
     expect(list[0].guidString).toBe("0-107-2");
     expect(list[1].guidString).toBe("0-107-3");
+  });
+});
+
+describe("action menu name validation", () => {
+  it("trims names", () => {
+    expect(normalizeActionMenuName("  MyMenu  ")).toBe("MyMenu");
+    expect(normalizeActionMenuName("")).toBe("");
+    expect(normalizeActionMenuName(null)).toBe("");
+  });
+
+  it("accepts REST-safe create names and rejects junk", () => {
+    expect(isValidActionMenuName("MyMenu")).toBe(true);
+    expect(isValidActionMenuName("qa4112")).toBe(true);
+    expect(isValidActionMenuName("  UserOne  ")).toBe(true);
+    expect(isValidActionMenuName("")).toBe(false);
+    expect(isValidActionMenuName("has space")).toBe(false);
+    expect(isValidActionMenuName("wild*card")).toBe(false);
+    expect(isValidActionMenuName("pct%name")).toBe(false);
+    expect(isValidActionMenuName("../x")).toBe(false);
+    expect(isValidActionMenuName("a/b")).toBe(false);
+    expect(isValidActionMenuName("a\\b")).toBe(false);
+  });
+
+  it("disables write until the menu name is valid on create", () => {
+    expect(isActionMenuWriteReady({ isNew: true, name: "" })).toBe(false);
+    expect(isActionMenuWriteReady({ isNew: true, name: "has space" })).toBe(false);
+    expect(isActionMenuWriteReady({ isNew: true, name: "MyMenu" })).toBe(true);
+    expect(isActionMenuWriteReady({ isNew: false, name: "MyMenu" })).toBe(true);
+    expect(isActionMenuWriteReady({ isNew: false, name: "" })).toBe(false);
+  });
+});
+
+describe("action menu wire wrap", () => {
+  it("wraps POST/PUT under ActionMenu root", () => {
+    expect(
+      wrapActionMenuForWire({
+        name: "MyMenu",
+        label: "My Menu",
+        description: "Created via REST",
+        menuType: "MENUITEM",
+      }),
+    ).toEqual({
+      ActionMenu: {
+        name: "MyMenu",
+        label: "My Menu",
+        description: "Created via REST",
+        menuType: "MENUITEM",
+      },
+    });
+  });
+
+  it("drops the create/update/delete gap from ACTION_MENU_DESIGN_GAPS", () => {
+    expect(ACTION_MENU_DESIGN_GAPS.some((g) => /create/i.test(g))).toBe(false);
+    expect(ACTION_MENU_DESIGN_GAPS.some((g) => /cascading/i.test(g))).toBe(true);
+  });
+
+  it("filters a stale REST write gap on GET detail", () => {
+    expect(
+      withoutStaleActionMenuWriteGap([
+        "Action menu create / update / delete not supported via this API",
+        "Cascading child menu composition not supported via this API",
+      ]),
+    ).toEqual(["Cascading child menu composition not supported via this API"]);
+  });
+});
+
+describe("actionMenusApi write paths", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("POSTs create body to /services/actions", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ name: "MyMenu", label: "My Menu", menuType: "MENUITEM" }),
+    );
+    const saved = await createActionMenu({
+      name: "MyMenu",
+      label: "My Menu",
+      menuType: "MENUITEM",
+    });
+    expect(saved.name).toBe("MyMenu");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(PATHS.ACTION_MENUS_ROOT);
+    expect(String(fetchMock.mock.calls[0][0])).not.toContain("/catalog");
+    expect(JSON.parse(String(init.body))).toEqual({
+      ActionMenu: { name: "MyMenu", label: "My Menu", menuType: "MENUITEM" },
+    });
+  });
+
+  it("PUTs save body to /services/actions/{idOrName}", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ name: "MyMenu", label: "Updated" }));
+    const saved = await saveActionMenu("MyMenu", { name: "MyMenu", label: "Updated" });
+    expect(saved.label).toBe("Updated");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.ACTION_MENUS_ROOT}/MyMenu`);
+  });
+
+  it("DELETEs /services/actions/{idOrName}", async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
+    await deleteActionMenu("MyMenu");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("DELETE");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.ACTION_MENUS_ROOT}/MyMenu`);
+  });
+
+  it("unwraps GET /services/actions/catalog/{idOrName} Jackson root", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ActionMenu: { name: "MyMenu", label: "My Menu", parameters: [] } }),
+    );
+    const detail = await getActionMenuDetail("MyMenu");
+    expect(detail.name).toBe("MyMenu");
+    expect(detail.label).toBe("My Menu");
+  });
+
+  it("surfaces 400 invalid name", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ message: "name cannot contain whitespace" }, 400),
+    );
+    await expect(createActionMenu({ name: "bad name" })).rejects.toMatchObject({
+      status: 400,
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("surfaces 409 duplicate name", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ message: "Action menu already exists: MyMenu" }, 409),
+    );
+    await expect(createActionMenu({ name: "MyMenu" })).rejects.toMatchObject({
+      status: 409,
+    });
+  });
+
+  it("surfaces 404 missing action menu", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Action menu not found" }, 404));
+    await expect(getActionMenuDetail("missing")).rejects.toMatchObject({ status: 404 });
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Action menu not found" }, 404));
+    await expect(deleteActionMenu("missing")).rejects.toMatchObject({ status: 404 });
+  });
+
+  it("surfaces 403 non-Admin create", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Admin role required" }, 403));
+    await expect(createActionMenu({ name: "MyMenu" })).rejects.toMatchObject({
+      status: 403,
+    });
   });
 });

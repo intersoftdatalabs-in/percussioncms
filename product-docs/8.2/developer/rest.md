@@ -1476,11 +1476,13 @@ hard to bind, clients may also synthesize that same string from the numeric `id`
 
 Admin **write** persists through `IPSUiDesignWs` (`createActions` / `loadActions` /
 `saveActions` / `deleteActions`) — the same design web service SOAP uses. There is
-no new SOAP surface. **Do not** treat this as a Developer Action Menus SPA; chrome
-for create/save/delete is a later sibling. Cascading children composition (UI-04)
-and usage/command/visibility tab completeness (UI-03) are later slices. Finder
-helpers (`GET /services/actions/find`, content-type and template finders) are
-unchanged.
+no new SOAP surface. **Developer → Action Menus** chrome creates and deletes user
+menus (and saves label / description / menuType / url); cascading children
+composition (UI-04) and usage/command/visibility tab completeness (UI-03) are
+later slices — see [Developer Action Menus](id:admin-developer-action-menus).
+Finder helpers (`GET /services/actions/find`, content-type and template finders)
+are unchanged. Create is durable: `GET /services/actions/catalog` lists the new
+name after POST.
 
 Write is **Admin** only. Name is unique (case-insensitive) and must not contain
 whitespace or wildcards. Duplicate name is **409**. Invalid name or menu type is

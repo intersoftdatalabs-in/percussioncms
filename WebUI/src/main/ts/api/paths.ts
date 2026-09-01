@@ -546,9 +546,13 @@ export const PATHS = {
   get DISPLAY_FORMATS() {
     return `${SERVICES_ROOT}/displayformats`;
   },
-  /** CX action menu design catalog. */
+  /** CX action menu design catalog (GET list/detail). */
   get ACTION_MENUS() {
     return `${SERVICES_ROOT}/actions/catalog`;
+  },
+  /** CX action menu write root (POST create, PUT/DELETE by idOrName). */
+  get ACTION_MENUS_ROOT() {
+    return `${SERVICES_ROOT}/actions`;
   },
   /** CX search design catalog. */
   get SEARCHES() {
