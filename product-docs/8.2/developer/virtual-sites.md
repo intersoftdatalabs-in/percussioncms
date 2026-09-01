@@ -15,8 +15,9 @@ repository. Phase 1 delivers a **Git / filesystem** adapter aimed at product doc
 CSV files. Operators can run it offline (CLI) or from CMS REST
 `POST /sites/{nameOrId}/virtual/build` and `POST /sites/{nameOrId}/virtual/publish`.
 Preview REST (`GET …/virtual/preview`) is last-output based and works for
-`git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, and
-`rss-atom` after a successful Build (CLI preview requires the default output root). Developer **Sites** shows **Build Virtual
+`git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`,
+`rss-atom`, `icalendar`, and `sitemap-xml` after a successful Build (CLI preview requires
+the default output root). Developer **Sites** shows **Build Virtual
 Site**, **Preview assembled site**, and **Publish Virtual Site** for **CSV filesystem**,
 **SQL database**, **HTTP JSON**, Git filesystem, and **Object storage**. **RSS / Atom**
 shows **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. Traditional
@@ -124,7 +125,9 @@ from a temp fixture). REST `GET` / `PUT /sites/{nameOrId}/virtual` round-trips
 `sourceKind=sitemap-xml` with a portable-safe local `rootPath` (leftover `virtual.remoteUrl`,
 credentials, and cloud URL `rootPath` are **400**; no live crawl). REST **Build**
 (`POST …/virtual/build`) writes HTML from that local fixture (`pagesWritten > 0`). REST
-**Preview**, **Publish**, and Developer Sites chrome stay later slices.
+**Preview** (`GET …/virtual/preview`) reports last-build status (`available=true` after
+Build; missing build is `available=false` HTTP **200**) and streams last-build local HTML
+(no live crawl). REST **Publish** and Developer Sites chrome stay later slices.
 
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
@@ -176,8 +179,10 @@ After the site folder is created, an optional Git root is saved with
   with a portable-safe local `rootPath` (leftover `virtual.remoteUrl`, credentials, and cloud
   URL `rootPath` are **400**; no live crawl). REST **Build** (`POST …/virtual/build`) writes
   HTML from that local fixture (`pagesWritten > 0`; leftover `virtual.remoteUrl`, credentials,
-  and cloud `rootPath` are **400**). REST **Preview**, **Publish**, and Developer Sites chrome
-  stay later slices.
+  and cloud `rootPath` are **400**). REST **Preview** (`GET …/virtual/preview`) streams
+  last-build local HTML (`available=true`; missing build is `available=false` HTTP 200; leftover
+  `virtual.remoteUrl` and credentials are **400**; no live crawl). REST **Publish** and
+  Developer Sites chrome stay later slices.
 
 ## Source tree contract
 
@@ -241,7 +246,7 @@ treated as a safe Virtual Site source.
 
 | Property | Required | Example | Meaning |
 |----------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, `rss-atom`, `icalendar`, or `sitemap-xml` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, `rss-atom`, `icalendar`, `sitemap-xml`. **`sitemap-xml`** is a local `sitemap.xml` SPI (`sitemap.xml` or `_config.yaml` `sitemap.file`; no live crawl). SPI/CLI assemble is `PSVirtualSiteBuildMain … sitemap-xml`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips `sitemap-xml` with a portable-safe local `rootPath` (leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no live crawl). REST **Build** (`POST …/virtual/build`) writes HTML from that local `sitemap.xml` / `sitemap.file` fixture (`pagesWritten > 0`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**; no live crawl). REST **Preview**, **Publish**, and Developer Sites chrome stay later slices. **`icalendar`** is a local RFC 5545 `.ics` SPI (`calendar.ics` or `_config.yaml` `icalendar.file`; no CalDAV). SPI/CLI assemble is `PSVirtualSiteBuildMain … icalendar`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips `icalendar` with a portable-safe local `rootPath` (leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no CalDAV). REST **Build** (`POST …/virtual/build`) runs **`icalendar`** against that local `calendar.ics` / `icalendar.file` fixture (`pagesWritten > 0`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**). REST **Preview** streams last-build HTML after Build (`available=true`; missing build is `available=false` HTTP 200). REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to `IPSSite.root`. Developer Sites can save and GET-roundtrip `sourceKind=icalendar` and then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, SQL (H2), HTTP JSON (local JSON fixture or loopback catalog), **object-storage** (local object-key bucket; `virtual.remoteUrl` is **400**), **`rss-atom`** (local RSS 2.0 / Atom fixture or loopback `rss.url`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**), and **`icalendar`** (local RFC 5545 `calendar.ics` / `icalendar.file`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**; no CalDAV). Preview REST streams last-build HTML for git, CSV, SQL, HTTP JSON, `object-storage`, **`rss-atom`**, and **`icalendar`**. REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for git, CSV, SQL, HTTP JSON, `object-storage` (local object-key `rootPath`; leftover `virtual.remoteUrl` is **400**), **`rss-atom`** (local RSS/Atom fixture; leftover `virtual.remoteUrl` and credentials are **400**; no live feeds), and **`icalendar`** (local `.ics` fixture; leftover `virtual.remoteUrl` and credentials are **400**; no CalDAV). Developer Sites can save and build Git, CSV, SQL, HTTP JSON, and object-storage, then **Preview assembled site** and **Publish Virtual Site**. Developer Sites can also save and GET-roundtrip `object-storage`, then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400`), `object-storage` (portable-safe local `rootPath`; cloud URLs and credential properties are **400**; `virtual.remoteUrl` is **400**), and `rss-atom` (portable-safe local `rootPath`; leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; local/loopback only, no live feed credentials). Developer Sites can **Build Virtual Site** for `rss-atom` after save (local fixture only), **Preview assembled site**, and **Publish Virtual Site**. SPI/CLI assemble for `object-storage` is `PSVirtualSiteBuildMain … object-storage`. SPI/CLI assemble for `rss-atom` is `PSVirtualSiteBuildMain … rss-atom`. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, `rss-atom`, `icalendar`, or `sitemap-xml` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, `rss-atom`, `icalendar`, `sitemap-xml`. **`sitemap-xml`** is a local `sitemap.xml` SPI (`sitemap.xml` or `_config.yaml` `sitemap.file`; no live crawl). SPI/CLI assemble is `PSVirtualSiteBuildMain … sitemap-xml`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips `sitemap-xml` with a portable-safe local `rootPath` (leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no live crawl). REST **Build** (`POST …/virtual/build`) writes HTML from that local `sitemap.xml` / `sitemap.file` fixture (`pagesWritten > 0`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**; no live crawl). REST **Preview** (`GET …/virtual/preview`) streams last-build local HTML (`available=true`; missing build is `available=false` HTTP 200; leftover `virtual.remoteUrl` and credentials are **400**; no live crawl). REST **Publish** and Developer Sites chrome stay later slices. **`icalendar`** is a local RFC 5545 `.ics` SPI (`calendar.ics` or `_config.yaml` `icalendar.file`; no CalDAV). SPI/CLI assemble is `PSVirtualSiteBuildMain … icalendar`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips `icalendar` with a portable-safe local `rootPath` (leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no CalDAV). REST **Build** (`POST …/virtual/build`) runs **`icalendar`** against that local `calendar.ics` / `icalendar.file` fixture (`pagesWritten > 0`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**). REST **Preview** streams last-build HTML after Build (`available=true`; missing build is `available=false` HTTP 200). REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to `IPSSite.root`. Developer Sites can save and GET-roundtrip `sourceKind=icalendar` and then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, SQL (H2), HTTP JSON (local JSON fixture or loopback catalog), **object-storage** (local object-key bucket; `virtual.remoteUrl` is **400**), **`rss-atom`** (local RSS 2.0 / Atom fixture or loopback `rss.url`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**), and **`icalendar`** (local RFC 5545 `calendar.ics` / `icalendar.file`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**; no CalDAV). Preview REST streams last-build HTML for git, CSV, SQL, HTTP JSON, `object-storage`, **`rss-atom`**, and **`icalendar`**. REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for git, CSV, SQL, HTTP JSON, `object-storage` (local object-key `rootPath`; leftover `virtual.remoteUrl` is **400**), **`rss-atom`** (local RSS/Atom fixture; leftover `virtual.remoteUrl` and credentials are **400**; no live feeds), and **`icalendar`** (local `.ics` fixture; leftover `virtual.remoteUrl` and credentials are **400**; no CalDAV). Developer Sites can save and build Git, CSV, SQL, HTTP JSON, and object-storage, then **Preview assembled site** and **Publish Virtual Site**. Developer Sites can also save and GET-roundtrip `object-storage`, then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400`), `object-storage` (portable-safe local `rootPath`; cloud URLs and credential properties are **400**; `virtual.remoteUrl` is **400**), and `rss-atom` (portable-safe local `rootPath`; leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; local/loopback only, no live feed credentials). Developer Sites can **Build Virtual Site** for `rss-atom` after save (local fixture only), **Preview assembled site**, and **Publish Virtual Site**. SPI/CLI assemble for `object-storage` is `PSVirtualSiteBuildMain … object-storage`. SPI/CLI assemble for `rss-atom` is `PSVirtualSiteBuildMain … rss-atom`. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` (or install-relative) | Local filesystem root when `virtual.remoteUrl` is blank. When a remote is set, optional **relative** path inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. When set, **Build** clones or fetches into a contained work directory, then reuses git-filesystem discover. Blank keeps local-path mode. Allowed: `https://`, `ssh://`, `file://`, or `git@host:path`. `http` and other schemes are rejected. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. Simple ref name only (no `..` or leading `-`). |
@@ -641,8 +646,9 @@ authenticated remotes, no cloud sitemap URLs. REST **GET/PUT** `/sites/{nameOrId
 round-trips `sourceKind=sitemap-xml` with a portable-safe local `rootPath` (leftover
 `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**). REST **Build**
 (`POST …/virtual/build`) writes HTML from that local fixture (`pagesWritten > 0`). REST
-**Preview**, **Publish**, and Developer Sites chrome stay later slices. Operators can also
-assemble offline with the CLI.
+**Preview** (`GET …/virtual/preview`) streams last-build local HTML (`available=true`;
+missing build is `available=false` HTTP **200**). REST **Publish** and Developer Sites chrome
+stay later slices. Operators can also assemble offline with the CLI.
 
 | `_config.yaml` key | Meaning |
 |--------------------|---------|
@@ -833,8 +839,11 @@ are **400**. Never send live crawl credentials, Authorization, or API keys on th
 envelope. Unknown kinds remain **400**. Git, CSV, SQL, `http-json`, `object-storage`,
 `rss-atom`, and `icalendar` persist are unchanged. REST **Build** (`POST …/virtual/build`)
 is available for `sitemap-xml` (local sitemap fixture; leftover `virtual.remoteUrl`,
-credentials, and cloud `rootPath` are **400**; no live crawl). REST **Preview**, **Publish**,
-and Developer Sites chrome for `sitemap-xml` stay later slices.
+credentials, and cloud `rootPath` are **400**; no live crawl). REST **Preview**
+(`GET …/virtual/preview`) streams last-build local HTML after assemble (`available=true`;
+missing build is `available=false` HTTP 200; leftover `virtual.remoteUrl` and credentials
+are **400**; no live crawl). REST **Publish** and Developer Sites chrome for `sitemap-xml`
+stay later slices.
 
 ### REST Build for sitemap XML (`sitemap-xml`)
 
@@ -849,6 +858,25 @@ watchers). Git, CSV, SQL, HTTP JSON, object-storage, rss-atom, and icalendar Bui
 are unchanged. REST persist of `sitemap-xml` is covered on GET/PUT
 `/sites/{nameOrId}/virtual`. Developer Sites **Build Virtual Site** chrome stays a later
 slice.
+
+### REST Preview for sitemap XML (`sitemap-xml`)
+
+After a successful REST or CLI assemble at the default output root, `GET
+/sites/{nameOrId}/virtual/preview` reports `available=true` plus `homePath` (typically
+`8.2/index.html`). `GET …/virtual/preview/{relPath}` streams the assembled HTML. Missing
+build is `available=false` with HTTP **200** (not 500). Unknown `sourceKind` remains
+**400**. Paths use portable NIO `Path` under the last output root (no remaining `..`).
+`../` traversal is **400**. This is last-output based — the same Preview contract as git,
+CSV, SQL, HTTP JSON, object-storage, rss-atom, and icalendar. Preview is **last-build
+local HTML only** (no live crawl). Leftover `virtual.remoteUrl` and credential properties
+are **400**.
+
+Preview home is assembled `{version}/index.html`. Give a sitemap `<loc>` a last path
+segment that slugs to `index` (for example `pages/index.md`) so last-build Preview can
+report `available=true`. Other locs assemble to `{version}/{slug}.html` and remain
+streamable at `GET …/virtual/preview/{relPath}`.
+
+Developer Sites **Preview assembled site** chrome stays a later slice.
 
 ### REST Preview for object storage (`object-storage`)
 

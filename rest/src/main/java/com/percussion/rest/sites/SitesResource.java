@@ -344,13 +344,15 @@ public class SitesResource {
       description =
           "Reports whether the last Admin Virtual Site build can be opened from the product UI."
               + " Last-output based for git-filesystem, csv-filesystem, sql-database, http-json,"
-              + " object-storage, rss-atom, and icalendar (not git-only). Uses the last build output path"
-              + " (default {install}/tmp/virtual-sites/{siteKey}). After a successful http-json,"
-              + " object-storage, rss-atom, or icalendar Build, available=true plus homePath. rss-atom is a"
-              + " local RSS 2.0 / Atom fixture or loopback feed (no live remote feeds). icalendar is a"
-              + " local RFC 5545 calendar.ics fixture (no CalDAV). Missing or"
-              + " failed builds return 200 with available=false (not 500). Requires Admin."
-              + " Traditional repository Sites and unknown sourceKind values return 400.",
+              + " object-storage, rss-atom, icalendar, and sitemap-xml (not git-only). Uses the last"
+              + " build output path (default {install}/tmp/virtual-sites/{siteKey}). After a successful"
+              + " http-json, object-storage, rss-atom, icalendar, or sitemap-xml Build, available=true"
+              + " plus homePath. rss-atom is a local RSS 2.0 / Atom fixture or loopback feed (no live"
+              + " remote feeds). icalendar is a local RFC 5545 calendar.ics fixture (no CalDAV)."
+              + " sitemap-xml is last-build local HTML only (sitemap.xml / sitemap.file; no live crawl;"
+              + " leftover virtual.remoteUrl and credentials are 400). Missing or failed builds return"
+              + " 200 with available=false (not 500). Requires Admin. Traditional repository Sites and"
+              + " unknown sourceKind values return 400.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -395,14 +397,15 @@ public class SitesResource {
       summary = "Preview Virtual Site file",
       description =
           "Streams a file from the last Virtual Site build output (git-filesystem,"
-              + " csv-filesystem, sql-database, http-json, object-storage, rss-atom, or icalendar). Paths are"
-              + " resolved with portable NIO Path under the last output root (no '..' after"
-              + " normalize). HTML root-relative href/src/url() values are rewritten to this"
-              + " preview prefix so navigation works. rss-atom is a local RSS 2.0 / Atom fixture or"
+              + " csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, or"
+              + " sitemap-xml). Paths are resolved with portable NIO Path under the last output root"
+              + " (no '..' after normalize). HTML root-relative href/src/url() values are rewritten to"
+              + " this preview prefix so navigation works. rss-atom is a local RSS 2.0 / Atom fixture or"
               + " loopback feed (no live remote feeds). icalendar is a local RFC 5545 calendar.ics"
-              + " fixture (no CalDAV). Requires Admin. Missing files return 404"
-              + " (not 500). Unsafe paths, unknown/repository sourceKind, and files larger than"
-              + " 20 MB return 400.",
+              + " fixture (no CalDAV). sitemap-xml is last-build local HTML only (sitemap.xml /"
+              + " sitemap.file; no live crawl; leftover virtual.remoteUrl and credentials are 400)."
+              + " Requires Admin. Missing files return 404 (not 500). Unsafe paths,"
+              + " unknown/repository sourceKind, and files larger than 20 MB return 400.",
       responses = {
         @ApiResponse(responseCode = "200", description = "File bytes"),
         @ApiResponse(responseCode = "400", description = "Not virtual / unsafe path"),
