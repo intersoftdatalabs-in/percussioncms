@@ -30,7 +30,8 @@ public class ViewDef {
   private boolean view;
   private boolean userCustomizable;
   private boolean caseSensitive;
-  private List<ViewFieldSummary> fields = new ArrayList<>();
+  /** Null on PUT means leave existing criteria unchanged; empty list clears. */
+  private List<ViewFieldSummary> fields;
   private List<String> designGaps = new ArrayList<>();
 
   public Guid getGuid() {

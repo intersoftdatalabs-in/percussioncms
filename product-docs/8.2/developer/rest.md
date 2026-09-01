@@ -1515,11 +1515,12 @@ and read `guid.stringValue` or synthesize from `id` when the Guid is omitted.
 
 Admin **write** persists through `IPSUiDesignWs` (`createViews` / `loadViews` / `saveViews` /
 `deleteViews`) — the same design web service SOAP uses. There is no new SOAP surface.
-**Developer → Views** chrome creates and deletes standard views (and saves label /
-description / type / display format); field-criterion editing is not in that SPA — see
-[Developer Views](id:admin-developer-views). Execute is **not** invoked when creating,
-updating, or deleting a view. Create is durable: `GET /services/views` lists the new
-name after POST.
+**Developer → Views** chrome creates and deletes standard views, saves label /
+description / type / display format, and edits **field criteria** on
+user/standard views — see [Developer Views](id:admin-developer-views). Inbox-family
+and custom URL views cannot be mutated from that catalog. Execute is **not**
+invoked when creating, updating, or deleting a view. Create is durable:
+`GET /services/views` lists the new name after POST.
 
 Operators open Inbox from Explorer **Views → My Content → Inbox** (see
 [Content Explorer](id:admin-content-explorer)). Integrators run the same assignment list
@@ -1533,7 +1534,7 @@ created name (durable persist; a second POST of that name is **409**).
 | `GET` | `/services/views` | List view definitions (name, category, standard vs custom URL; includes `guid`) |
 | `GET` | `/services/views/{idOrName}` | Load one view by name, numeric id, or GUID string (includes `guid` for Object ACL) |
 | `POST` | `/services/views` | **Admin.** Create a standard (field-criteria) view (`createViews` then `saveViews`) |
-| `PUT` | `/services/views/{idOrName}` | **Admin.** Update label, description, type, and/or display format |
+| `PUT` | `/services/views/{idOrName}` | **Admin.** Update label, description, type, display format, and/or `fields` (omit to leave criteria unchanged; empty array clears; unknown field is 400) |
 | `DELETE` | `/services/views/{idOrName}` | **Admin.** Delete a user/standard view (`deleteViews`, `ignoreDependencies=false`) |
 | `POST` | `/services/views/{idOrName}/execute` | Execute a **standard** (field-criteria) view or an Inbox-family **custom URL** view |
 
@@ -1574,7 +1575,7 @@ Successful response is a paged envelope: `children[]` (Explorer-ready rows with 
 |--------|-----------------|
 | `200` | List / get / create / update / execute success |
 | `204` | Delete success |
-| `400` | Invalid input (missing name, whitespace/wildcard name, invalid or search type, custom URL on create), invalid execute body, or an **unsupported** custom URL view |
+| `400` | Invalid input (missing name, whitespace/wildcard name, invalid or search type, custom URL on create, **unknown field** on PUT `fields`), invalid execute body, or an **unsupported** custom URL view |
 | `403` | Caller is not Admin, or the request has no session/user for the design session |
 | `404` | View not found or unsafe key (blank, path separators, `..`) |
 | `409` | Duplicate name, design lock held by another user, dependents, or Inbox/system custom URL write |

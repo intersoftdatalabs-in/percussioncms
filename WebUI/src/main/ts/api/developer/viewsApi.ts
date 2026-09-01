@@ -24,11 +24,12 @@ export { resolveViewObjectGuid };
 
 /**
  * Writable identity fields for POST/PUT /services/views. Name is the catalog
- * key (not renamed on PUT). Field criteria are not written from this chrome.
+ * key (not renamed on PUT). Field criteria are included on PUT when the SPA
+ * saves the criterion list (omitted fields leave existing criteria unchanged).
  */
 export type ViewWriteBody = Pick<
   ViewDef,
-  "name" | "label" | "description" | "type" | "displayFormatId"
+  "name" | "label" | "description" | "type" | "displayFormatId" | "fields"
 >;
 
 /** Jackson / JAXB root for ViewDef (UNWRAP_ROOT_VALUE on POST/PUT). */
@@ -50,11 +51,10 @@ export const INBOX_DCE_PATH = "//Views//MyContent/Inbox";
  * Catalog-level design gaps (REST-GAPS-02). Server omits these on list rows;
  * detail re-attaches or SPA falls back via this constant.
  *
- * <p>Create / save / delete are supported (UI-07 SPA). Field-criterion write
- * and Inbox-family mutate remain later / REST-protected.</p>
+ * <p>Create / save / delete and field-criterion write are supported (UI-07 / UI-08).
+ * Inbox-family mutate remains REST-protected.</p>
  */
 export const VIEW_DESIGN_GAPS: string[] = [
-  "View field criterion editing not supported via this API",
   "Inbox-family and custom URL views cannot be updated or deleted via this API",
   "Searches are a separate catalog (Developer Searches / UI-06)",
 ];
@@ -149,7 +149,19 @@ export function unwrapViewDef(payload: unknown): ViewDef {
     body = root as ViewDef;
   }
   const gs = resolveViewObjectGuid(body);
-  return normalizeDesignObjectGuid(body, gs);
+  const normalized = normalizeDesignObjectGuid(body, gs);
+  if (normalized.fields != null && !Array.isArray(normalized.fields)) {
+    const rec = normalized.fields as unknown as Record<string, unknown>;
+    const inner = rec.ViewFieldSummary ?? rec.viewFieldSummary;
+    if (Array.isArray(inner)) {
+      normalized.fields = inner as ViewDef["fields"];
+    } else if (inner && typeof inner === "object") {
+      normalized.fields = [inner as NonNullable<ViewDef["fields"]>[number]];
+    } else {
+      normalized.fields = [];
+    }
+  }
+  return normalized;
 }
 
 /** Unwrap list envelopes and normalize each row GUID (#3380). */
@@ -159,6 +171,7 @@ export function unwrapViewDefList(payload: unknown): ViewDef[] {
 
 const STALE_WRITE_GAPS = new Set([
   "View create / update / delete not supported via this API",
+  "View field criterion editing not supported via this API",
 ]);
 
 /** Drop the pre-UI-07 write gap when REST still attaches it on GET detail. */

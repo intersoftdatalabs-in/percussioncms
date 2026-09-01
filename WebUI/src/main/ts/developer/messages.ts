@@ -1005,7 +1005,7 @@ export const DEV_MSG_KEYS = {
   VW_EMPTY: "perc.ui.developer@No views returned.",
   VW_ERROR: "perc.ui.developer@Could not load views.",
   VW_HINT:
-    "perc.ui.developer@Create or delete Content Explorer views (name required, no spaces). Field criteria stay read-only in this chrome. Inbox-family views cannot be deleted here.",
+    "perc.ui.developer@Create or delete Content Explorer views (name required, no spaces). Admins can add, remove, and reorder field criteria on user/standard views. Inbox-family views cannot be deleted or field-edited here.",
   VW_NEW: "perc.ui.developer@New view",
   VW_EDIT: "perc.ui.developer@Edit",
   VW_SAVE: "perc.ui.developer@Save",
@@ -1047,7 +1047,21 @@ export const DEV_MSG_KEYS = {
   VW_DETAIL_ERROR: "perc.ui.developer@Could not load view.",
   VW_FIELDS: "perc.ui.developer@Field criteria",
   VW_FIELDS_HINT:
-    "perc.ui.developer@View field conditions. Criterion editing is not exposed yet.",
+    "perc.ui.developer@Add, remove, or reorder field conditions on this view. Inbox-family and custom URL views stay read-only.",
+  VW_FIELDS_READONLY:
+    "perc.ui.developer@Field criteria cannot be edited on Inbox-family or custom URL views.",
+  VW_FIELDS_ADD: "perc.ui.developer@Add field",
+  VW_FIELDS_REMOVE: "perc.ui.developer@Remove",
+  VW_FIELDS_MOVE_UP: "perc.ui.developer@Move up",
+  VW_FIELDS_MOVE_DOWN: "perc.ui.developer@Move down",
+  VW_FIELDS_SAVE: "perc.ui.developer@Save fields",
+  VW_FIELDS_SAVING: "perc.ui.developer@Saving fields…",
+  VW_FIELDS_SAVED: "perc.ui.developer@Field criteria saved.",
+  VW_FIELDS_SOURCE_PICKER: "perc.ui.developer@Field",
+  VW_FIELDS_INVALID:
+    "perc.ui.developer@Field criterion is invalid. Use a known CX field from the picker.",
+  VW_FIELDS_FORBIDDEN: "perc.ui.developer@Admin role required to change view field criteria.",
+  VW_FIELDS_SAVE_ERROR: "perc.ui.developer@Could not save view field criteria.",
   VW_NONE: "perc.ui.developer@None",
   VW_COL_FIELD: "perc.ui.developer@Field",
   VW_COL_OP: "perc.ui.developer@Operator",
