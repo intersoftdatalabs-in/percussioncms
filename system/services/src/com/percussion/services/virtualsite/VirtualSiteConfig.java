@@ -39,6 +39,7 @@ public final class VirtualSiteConfig {
   private final ObjectsSpec objects;
   private final RssSpec rss;
   private final IcalendarSpec icalendar;
+  private final SitemapSpec sitemap;
 
   public VirtualSiteConfig(
       Path root,
@@ -118,6 +119,23 @@ public final class VirtualSiteConfig {
       ObjectsSpec objects,
       RssSpec rss,
       IcalendarSpec icalendar) {
+    this(root, siteTitle, siteUrl, layoutFile, versions, nav, siteKey, sql, http, objects, rss, icalendar, null);
+  }
+
+  public VirtualSiteConfig(
+      Path root,
+      String siteTitle,
+      String siteUrl,
+      String layoutFile,
+      List<VersionSpec> versions,
+      List<NavSpec> nav,
+      String siteKey,
+      SqlSpec sql,
+      HttpSpec http,
+      ObjectsSpec objects,
+      RssSpec rss,
+      IcalendarSpec icalendar,
+      SitemapSpec sitemap) {
     this.root = Objects.requireNonNull(root, "root");
     this.siteTitle = siteTitle != null ? siteTitle : "Documentation";
     this.siteUrl = siteUrl != null ? siteUrl : "";
@@ -134,6 +152,7 @@ public final class VirtualSiteConfig {
     this.objects = objects;
     this.rss = rss;
     this.icalendar = icalendar;
+    this.sitemap = sitemap;
   }
 
   public Path root() {
@@ -215,6 +234,17 @@ public final class VirtualSiteConfig {
    */
   public IcalendarSpec icalendar() {
     return icalendar;
+  }
+
+  /**
+   * Optional sitemap settings for {@code sitemap-xml} sources ({@code sitemap:} in {@code
+   * _config.yaml}).
+   *
+   * @return spec, or null when the mapping is omitted (adapter then uses {@code sitemap.xml} under
+   *     the site root)
+   */
+  public SitemapSpec sitemap() {
+    return sitemap;
   }
 
   public Path themeDir() {
@@ -480,6 +510,42 @@ public final class VirtualSiteConfig {
     @Override
     public String toString() {
       return "IcalendarSpec{url='" + url + "', file='" + file + "'}";
+    }
+  }
+
+  /**
+   * Sitemap fixture settings for {@code sitemap-xml}. {@link #file()} is a portable path under the
+   * site root. {@link #url()} is parsed so the adapter can reject live remote sitemap crawls (local
+   * fixture only). Both blank means default {@code sitemap.xml}.
+   */
+  public static final class SitemapSpec {
+    private final String url;
+    private final String file;
+
+    public SitemapSpec(String url, String file) {
+      this.url = url != null ? url.trim() : "";
+      this.file = file != null ? file.trim() : "";
+    }
+
+    public String url() {
+      return url;
+    }
+
+    public String file() {
+      return file;
+    }
+
+    public boolean hasUrl() {
+      return !url.isBlank();
+    }
+
+    public boolean hasFile() {
+      return !file.isBlank();
+    }
+
+    @Override
+    public String toString() {
+      return "SitemapSpec{url='" + url + "', file='" + file + "'}";
     }
   }
 

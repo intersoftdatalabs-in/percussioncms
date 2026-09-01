@@ -129,7 +129,7 @@ class PSVirtualSiteHelperTest {
   }
 
   @Test
-  void allowedSourceKindsIncludeGitCsvSqlHttpJsonObjectStorageRssAtomAndIcalendar() {
+  void allowedSourceKindsIncludeGitCsvSqlHttpJsonObjectStorageRssAtomIcalendarAndSitemapXml() {
     List<String> allowed = PSVirtualSiteHelper.allowedSourceKindWireNames();
     assertEquals(
         List.of(
@@ -139,7 +139,8 @@ class PSVirtualSiteHelperTest {
             "http-json",
             "object-storage",
             "rss-atom",
-            "icalendar"),
+            "icalendar",
+            "sitemap-xml"),
         allowed);
   }
 
@@ -597,6 +598,59 @@ class PSVirtualSiteHelperTest {
     assertTrue(ex.getMessage().contains("object-storage"));
     assertTrue(ex.getMessage().contains("rss-atom"));
     assertTrue(ex.getMessage().contains("icalendar"));
+    assertTrue(ex.getMessage().contains("sitemap-xml"));
+  }
+
+  @Test
+  void validatePassesForSitemapXmlWithSafeRoot() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "sm-docs"));
+    assertDoesNotThrow(() -> PSVirtualSiteHelper.validate(site));
+    assertEquals(
+        VirtualSiteSourceType.SITEMAP_XML,
+        PSVirtualSiteHelper.virtualSourceType(site).orElseThrow());
+  }
+
+  @Test
+  void validateRejectsRemoteUrlForSitemapXml() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "sm-docs"),
+            prop(PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_REMOTE_URL));
+    assertTrue(ex.getMessage().contains("sitemap-xml"));
+  }
+
+  @Test
+  void validateRejectsCredentialPropertyForSitemapXml() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "sm-docs"),
+            prop("aws_secret_access_key", "not-a-real-secret"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().toLowerCase().contains("credential"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("sitemap-xml"), ex.getMessage());
+    assertFalse(ex.getMessage().contains("not-a-real-secret"), ex.getMessage());
+  }
+
+  @Test
+  void validateRejectsCloudUrlRootForSitemapXml() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "https://example.com/sitemap.xml"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH), ex.getMessage());
+    assertTrue(ex.getMessage().toLowerCase().contains("cloud"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("sitemap-xml"), ex.getMessage());
   }
 
   @Test

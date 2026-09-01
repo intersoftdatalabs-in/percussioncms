@@ -1030,6 +1030,172 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void updateVirtualSiteProperties_sitemapXmlRoundTripsOnGet() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("SitemapHelp");
+    existing.setGUID(siteGuid);
+
+    PSSite modifiable = new PSSite();
+    modifiable.setName("SitemapHelp");
+    modifiable.setGUID(siteGuid);
+
+    when(siteManager.findSite("SitemapHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("sitemap-xml");
+    body.setRootPath("C:/sitemap-docs");
+    body.setSiteKey("sitemap-help");
+
+    VirtualSiteProperties out = adaptor.updateVirtualSiteProperties("SitemapHelp", body);
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    assertEquals("sitemap-xml", out.getSourceKind());
+    assertEquals("C:/sitemap-docs", out.getRootPath());
+    assertEquals("sitemap-help", out.getSiteKey());
+    assertNull(out.getRemoteUrl());
+
+    ArgumentCaptor<PSSite> saved = ArgumentCaptor.forClass(PSSite.class);
+    verify(siteManager).saveSite(saved.capture());
+    PSSite persisted = saved.getValue();
+    assertTrue(PSVirtualSiteHelper.isVirtual(persisted));
+    assertEquals(
+        "sitemap-xml",
+        PSVirtualSiteHelper.findProperty(persisted, PSVirtualSiteHelper.PROP_SOURCE_KIND)
+            .orElse(null));
+
+    when(siteManager.findSite("SitemapHelp")).thenReturn(persisted);
+    VirtualSiteProperties loaded = adaptor.getVirtualSiteProperties("SitemapHelp");
+    assertEquals("sitemap-xml", loaded.getSourceKind());
+    assertEquals("C:/sitemap-docs", loaded.getRootPath());
+    assertTrue(Boolean.TRUE.equals(loaded.getVirtual()));
+  }
+
+  @Test
+  void updateVirtualSiteProperties_sitemapXmlRejectsParentRootPath() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("SitemapHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("SitemapHelp");
+    modifiable.setGUID(siteGuid);
+
+    when(siteManager.findSite("SitemapHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("sitemap-xml");
+    body.setRootPath("../outside");
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.updateVirtualSiteProperties("SitemapHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void updateVirtualSiteProperties_sitemapXmlRejectsRemoteUrl() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("SitemapHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("SitemapHelp");
+    modifiable.setGUID(siteGuid);
+
+    when(siteManager.findSite("SitemapHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("sitemap-xml");
+    body.setRootPath("C:/sitemap-docs");
+    body.setRemoteUrl("https://user:secret@git.example.com/org/docs.git");
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.updateVirtualSiteProperties("SitemapHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("user:secret"));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void updateVirtualSiteProperties_sitemapXmlRejectsCloudUrl() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("SitemapHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("SitemapHelp");
+    modifiable.setGUID(siteGuid);
+
+    when(siteManager.findSite("SitemapHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("sitemap-xml");
+    body.setRootPath("https://example.com/sitemap.xml");
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.updateVirtualSiteProperties("SitemapHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void updateVirtualSiteProperties_sitemapXmlRejectsCredentialProperty() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("SitemapHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("SitemapHelp");
+    modifiable.setGUID(siteGuid);
+    put(modifiable, "aws_secret_access_key", "not-a-real-secret");
+
+    when(siteManager.findSite("SitemapHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("sitemap-xml");
+    body.setRootPath("C:/sitemap-docs");
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.updateVirtualSiteProperties("SitemapHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
   void updateVirtualSiteProperties_rejectsUnknownSourceKind() throws Exception {
     PSSite existing = new PSSite();
     existing.setName("Help");

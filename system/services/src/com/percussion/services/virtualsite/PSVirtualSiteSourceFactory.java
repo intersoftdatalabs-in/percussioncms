@@ -25,9 +25,11 @@ import java.util.stream.Stream;
  *
  * <p>Used by {@link PSVirtualSiteBuildService} (CLI and CMS REST {@code POST
  * /sites/{nameOrId}/virtual/build}) so git-filesystem, csv-filesystem, sql-database, http-json,
- * object-storage, rss-atom, and icalendar share one assemble pipeline. REST GET/PUT persist {@code
- * http-json}, {@code object-storage}, {@code rss-atom}, and {@code icalendar}. {@code icalendar}
- * assemble remains SPI/CLI in this slice (REST Build/Preview/Publish later).
+ * object-storage, rss-atom, icalendar, and sitemap-xml share one assemble pipeline. REST GET/PUT
+ * persist {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, and
+ * {@code sitemap-xml}. {@code icalendar} assemble remains SPI/CLI in this slice (REST
+ * Build/Preview/Publish later). {@code sitemap-xml} assemble is SPI/CLI only (REST
+ * Build/Preview/Publish later).
  */
 public final class PSVirtualSiteSourceFactory {
 
@@ -49,6 +51,7 @@ public final class PSVirtualSiteSourceFactory {
       case OBJECT_STORAGE -> new PSObjectStorageVirtualSiteSource();
       case RSS_ATOM -> new PSRssAtomVirtualSiteSource();
       case ICALENDAR -> new PSIcalendarVirtualSiteSource();
+      case SITEMAP_XML -> new PSSitemapXmlVirtualSiteSource();
     };
   }
 
@@ -56,7 +59,8 @@ public final class PSVirtualSiteSourceFactory {
    * Create the adapter for a property / CLI wire name.
    *
    * @param wireName e.g. {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
-   *     {@code http-json}, {@code object-storage}, {@code rss-atom}, or {@code icalendar}
+   *     {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, or {@code
+   *     sitemap-xml}
    * @return new source
    * @throws VirtualSiteException when the name is blank or unknown
    */

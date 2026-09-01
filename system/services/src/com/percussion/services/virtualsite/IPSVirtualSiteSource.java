@@ -26,19 +26,21 @@ import java.util.List;
  * Headless catalog: {@link PSHttpJsonVirtualSiteSource} ({@code http-json}). Local object-key
  * bucket: {@link PSObjectStorageVirtualSiteSource} ({@code object-storage}). Local RSS 2.0 / Atom
  * feed: {@link PSRssAtomVirtualSiteSource} ({@code rss-atom}). Local RFC 5545 iCalendar: {@link
- * PSIcalendarVirtualSiteSource} ({@code icalendar}).
+ * PSIcalendarVirtualSiteSource} ({@code icalendar}). Local sitemap.xml: {@link
+ * PSSitemapXmlVirtualSiteSource} ({@code sitemap-xml}).
  *
- * <p>Filesystem, SQL, HTTP JSON, object-storage, RSS/Atom, and iCalendar implementations must
- * read <em>current</em> source contents on every {@link #discover} and {@link #load}.
- * Process-lifetime parse caches that skip a file because its path or mtime looks unchanged
+ * <p>Filesystem, SQL, HTTP JSON, object-storage, RSS/Atom, iCalendar, and sitemap-xml
+ * implementations must read <em>current</em> source contents on every {@link #discover} and {@link
+ * #load}. Process-lifetime parse caches that skip a file because its path or mtime looks unchanged
  * are not allowed — a second build in the same JVM (after {@code git pull}, a CSV row edit, a
  * local Markdown/frontmatter edit, a {@code _config.yaml} or {@code sql.queryFile} edit, an
  * in-memory H2 row change, an HTTP JSON catalog ({@code http.file} / {@code pages.json} /
  * {@code http.url} body) edit, an object-storage Markdown/HTML/JSON key or {@code
  * objects.keys} edit, an RSS/Atom feed ({@code rss.file} / {@code feed.xml} / {@code
- * atom.xml} / {@code rss.url} body) edit, or an iCalendar fixture ({@code icalendar.file} /
- * {@code calendar.ics}) edit) must see the new bytes. File watchers are not required; the next
- * explicit build is the refresh.
+ * atom.xml} / {@code rss.url} body) edit, an iCalendar fixture ({@code icalendar.file} /
+ * {@code calendar.ics}) edit, or a sitemap fixture ({@code sitemap.file} / {@code sitemap.xml})
+ * edit) must see the new bytes. File watchers are not required; the next explicit build is the
+ * refresh.
  */
 public interface IPSVirtualSiteSource {
 

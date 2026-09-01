@@ -41,8 +41,8 @@ import org.apache.commons.lang3.StringUtils;
  * <ul>
  *   <li>{@code virtual.sourceKind} — allow-listed adapter wire name ({@code git-filesystem},
  *       {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage},
- *       {@code rss-atom}, {@code icalendar}); blank or {@code repository} ⇒ traditional
- *       repository Site
+ *       {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}); blank or {@code repository} ⇒
+ *       traditional repository Site
  *   <li>{@code virtual.rootPath} — filesystem path to Virtual Site root when no remote is set
  *       (required when virtual and {@code virtual.remoteUrl} is blank); when a remote is set,
  *       an optional relative path inside the checkout
@@ -76,7 +76,8 @@ public final class PSVirtualSiteHelper {
   /**
    * Allow-listed {@link #PROP_SOURCE_KIND} wire names for Virtual adapters ({@code git-filesystem},
    * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage}, {@code
-   * rss-atom}, {@code icalendar}). Does not include {@link #SOURCE_KIND_REPOSITORY}.
+   * rss-atom}, {@code icalendar}, {@code sitemap-xml}). Does not include {@link
+   * #SOURCE_KIND_REPOSITORY}.
    *
    * @return unmodifiable list of wire names in enum declaration order
    */
@@ -176,10 +177,11 @@ public final class PSVirtualSiteHelper {
    * <ul>
    *   <li>use an allow-listed {@code virtual.sourceKind} (see {@link #allowedSourceKindWireNames()};
    *       {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage},
-   *       {@code rss-atom}, and {@code icalendar} do not accept {@code virtual.remoteUrl})
-   *   <li>{@code object-storage}, {@code rss-atom}, and {@code icalendar} require a local
-   *       filesystem {@code virtual.rootPath} (NIO {@link Path}; no remaining {@code ..}); cloud
-   *       URLs and credential properties are rejected
+   *       {@code rss-atom}, {@code icalendar}, and {@code sitemap-xml} do not accept {@code
+   *       virtual.remoteUrl})
+   *   <li>{@code object-storage}, {@code rss-atom}, {@code icalendar}, and {@code sitemap-xml}
+   *       require a local filesystem {@code virtual.rootPath} (NIO {@link Path}; no remaining {@code
+   *       ..}); cloud URLs and credential properties are rejected
    *   <li>when {@code virtual.remoteUrl} is blank: provide a non-blank safe {@code virtual.rootPath}
    *   <li>when {@code virtual.remoteUrl} is set: a safe Git URL (https / ssh / file / {@code
    *       git@host:path}); optional {@code virtual.branch}; optional relative {@code
@@ -489,9 +491,9 @@ public final class PSVirtualSiteHelper {
   }
 
   /**
-   * {@code object-storage} / {@code rss-atom} / {@code icalendar} roots must be local filesystem
-   * paths. Cloud / remote URI schemes are fail-closed (no S3/GCS/Azure/HTTP object buckets, live
-   * feeds, or CalDAV URLs, no credentials in the path).
+   * {@code object-storage} / {@code rss-atom} / {@code icalendar} / {@code sitemap-xml} roots must
+   * be local filesystem paths. Cloud / remote URI schemes are fail-closed (no S3/GCS/Azure/HTTP
+   * object buckets, live feeds, CalDAV URLs, or live sitemap crawls, no credentials in the path).
    *
    * <p>Windows drive letters ({@code C:\…}) are not treated as URI schemes.
    *
@@ -564,7 +566,8 @@ public final class PSVirtualSiteHelper {
   private static boolean requiresLocalOnlyRoot(VirtualSiteSourceType type) {
     return type == VirtualSiteSourceType.OBJECT_STORAGE
         || type == VirtualSiteSourceType.RSS_ATOM
-        || type == VirtualSiteSourceType.ICALENDAR;
+        || type == VirtualSiteSourceType.ICALENDAR
+        || type == VirtualSiteSourceType.SITEMAP_XML;
   }
 
   private static boolean isVirtualContractProperty(String name) {

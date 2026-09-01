@@ -37,18 +37,20 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  *
  * <p>Blank / missing {@code sourceKind} (or value {@code repository}) means a traditional repository
  * Site. Allow-listed virtual adapters: {@code git-filesystem}, {@code csv-filesystem}, {@code
- * sql-database}, {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}.
- * Optional {@code remoteUrl} + {@code branch} apply to {@code git-filesystem} only (fetch/clone
- * into a contained work directory before discover); blank remote keeps local {@code rootPath}.
- * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage}, {@code
- * rss-atom}, and {@code icalendar} reject {@code remoteUrl} (no secrets on this envelope). {@code
- * sql-database} connection fields (JDBC URL, user, query) live in {@code _config.yaml} under
- * {@code rootPath} — never put passwords on this envelope or in logs. {@code http-json} catalog
- * URL/file live in {@code _config.yaml} ({@code http.url} / {@code http.file}); REST persists a
- * safe {@code rootPath} JSON fixture directory. {@code object-storage}, {@code rss-atom}, and
- * {@code icalendar} persist a portable-safe local {@code rootPath} (NIO Path; no remaining {@code
- * ..}); cloud URLs and credential properties are 400 ({@code rss-atom} is local/loopback only; no
- * live feed credentials; {@code icalendar} is a local RFC 5545 fixture only — no CalDAV). REST
+ * sql-database}, {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar},
+ * {@code sitemap-xml}. Optional {@code remoteUrl} + {@code branch} apply to {@code git-filesystem}
+ * only (fetch/clone into a contained work directory before discover); blank remote keeps local
+ * {@code rootPath}. {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code
+ * object-storage}, {@code rss-atom}, {@code icalendar}, and {@code sitemap-xml} reject {@code
+ * remoteUrl} (no secrets on this envelope). {@code sql-database} connection fields (JDBC URL,
+ * user, query) live in {@code _config.yaml} under {@code rootPath} — never put passwords on this
+ * envelope or in logs. {@code http-json} catalog URL/file live in {@code _config.yaml} ({@code
+ * http.url} / {@code http.file}); REST persists a safe {@code rootPath} JSON fixture directory.
+ * {@code object-storage}, {@code rss-atom}, {@code icalendar}, and {@code sitemap-xml} persist a
+ * portable-safe local {@code rootPath} (NIO Path; no remaining {@code ..}); cloud URLs and
+ * credential properties are 400 ({@code rss-atom} is local/loopback only; no live feed
+ * credentials; {@code icalendar} is a local RFC 5545 fixture only — no CalDAV; {@code sitemap-xml}
+ * is a local sitemap.xml fixture only — no live crawl). REST
  * {@code POST …/virtual/build} runs {@code http-json}, {@code object-storage}, and {@code
  * rss-atom} through the existing {@code IPSVirtualSiteSource} factory (local fixture / loopback
  * JSON; local object-key bucket; local RSS/Atom fixture). REST {@code GET …/virtual/preview}
@@ -78,11 +80,12 @@ public class VirtualSiteProperties {
   @Schema(
       description =
           "Adapter wire name. Allow-list: git-filesystem, csv-filesystem, sql-database, http-json,"
-              + " object-storage, rss-atom, icalendar. rss-atom persist/build/preview/publish is"
+              + " object-storage, rss-atom, icalendar, sitemap-xml. rss-atom persist/build/preview/publish is"
               + " local/loopback only (no live feed credentials). icalendar persist is a local RFC"
               + " 5545 fixture only (portable-safe rootPath; leftover remoteUrl, credentials, and"
-              + " cloud URL rootPath return 400; no CalDAV). Blank or repository = traditional"
-              + " Site.",
+              + " cloud URL rootPath return 400; no CalDAV). sitemap-xml persist is a local sitemap.xml"
+              + " fixture only (portable-safe rootPath; leftover remoteUrl, credentials, and cloud URL"
+              + " rootPath return 400; no live crawl). Blank or repository = traditional Site.",
       example = "git-filesystem")
   private String sourceKind;
 
