@@ -366,6 +366,37 @@ The slot form stays on screen (or shows an in-panel error). It does
 still render as the human-readable **message** (fallback **code**). Load failures stay
 in the slot detail panel — use **Back** to return to the catalog.
 
+## Communities (design catalog)
+
+CMS **communities** used by **Developer → Communities** are exposed under
+`/services/communities`. Create and delete reuse the existing bulk design
+surface (`ICommunityAdaptor.createCommunities` / `saveCommunities` /
+`deleteCommunities`). Do not invent a second REST resource.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/communities/find?name=*` | List community summaries |
+| `GET` | `/services/communities/{idOrName}` | Detail with role membership |
+| `POST` | `/services/communities/bulk` | **Admin.** Create from a name list (`{"List":["Name"]}`); server persists |
+| `PUT` | `/services/communities/bulk` | **Admin.** Persist edited communities (`release` header) |
+| `PUT` | `/services/communities/{idOrName}/roles` | Replace role membership |
+| `DELETE` | `/services/communities/bulk` | **Admin.** Delete by GuidList (`ignoredependencies` header) |
+
+Create (`POST /services/communities/bulk`) persists on the server (Workbench
+Finish create+save). JSON create body is a name list. The SPA create path does
+not PUT the DTO back. Blank / whitespace-only names are **400**. Duplicate name
+(case-insensitive) is **409**. Non-Admin is **403**. The new community is then
+`GET /services/communities/find?name=*` **200**.
+
+Delete (`DELETE /services/communities/bulk`) accepts a GuidList. The SPA sends
+`ignoredependencies=false`. Success omits the community from a following find.
+Missing is **404**. In-use (dependencies) without ignore is **409** and the
+community remains (the lock is not stolen). Non-Admin is **403**.
+
+**Developer → Communities** catalog create and delete use these bulk endpoints.
+Role-association save stays `PUT /services/communities/{idOrName}/roles`. See
+[Developer Communities](id:admin-developer-communities).
+
 ## Item filters (design catalog)
 
 Assembly **item filters** (Workbench **Item Filter** editor: name / description / rules /
@@ -1380,8 +1411,9 @@ Delete (`DELETE /services/displayformats/{idOrName}`) returns **204** when remov
 following `GET` is **404**. Unknown id/name is **404**. A format that still has dependents
 is **409**. Locked-by-another-user is **409** (the lock is not stolen). Non-Admin is **403**.
 
-There is **no** Developer SPA display-format editor write in this slice — operators and
-integrators call the REST path (or Workbench).
+**Developer → Display Formats** chrome creates and deletes user display formats
+(and saves label / description). Column picker completeness is not in that SPA —
+see [Developer Display Formats](id:admin-developer-display-formats).
 
 ### Object ACL save (display format and peers)
 
@@ -1437,8 +1469,10 @@ and read `guid.stringValue` or synthesize from `id` when the Guid is omitted.
 
 Admin **write** persists through `IPSUiDesignWs` (`createViews` / `loadViews` / `saveViews` /
 `deleteViews`) — the same design web service SOAP uses. There is no new SOAP surface.
-**Do not** treat this as a Developer Views SPA; chrome for create/save/delete is a later
-sibling. Execute is **not** invoked when creating, updating, or deleting a view.
+**Developer → Views** chrome creates and deletes standard views (and saves label /
+description / type / display format); field-criterion editing is not in that SPA — see
+[Developer Views](id:admin-developer-views). Execute is **not** invoked when creating,
+updating, or deleting a view.
 
 Operators open Inbox from Explorer **Views → My Content → Inbox** (see
 [Content Explorer](id:admin-content-explorer)). Integrators run the same assignment list
@@ -1571,11 +1605,9 @@ Example create body:
 ### Integrator notes
 
 - Keys may be the view **name**, numeric **id**, or GUID string (including untyped GUID).
-- Admin write is POST/PUT/DELETE on this resource. Inbox-family and custom URL views
-  cannot be updated or deleted (`409`). Field criterion editing remains a `designGaps`
-  note on detail.
-- This catalog is REST only. There is no Developer Views SPA create/save/delete in this
-  release.
+- Admin write is POST/PUT/DELETE on this resource and from **Developer → Views**
+  (create / save / delete). Inbox-family and custom URL views cannot be updated
+  or deleted (`409`). Field criterion editing remains a `designGaps` note on detail.
 - Operator Inbox run-from-tree is Explorer **Views → My Content → Inbox**, not a
   free-floating Inbox root.
 

@@ -258,14 +258,15 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
       for (int i = 0, j=0; i < ids.size(); i++)
       {
          IPSGuid id = ids.get(i);
-         if (communities.length > 0 && j < communities.length)
+         while (j < communities.length && communities[j] == null)
          {
-            if (id.equals(communities[j].getGUID()))
-            {
-               results.addResult(id, communities[j]);
-               j++;
-               continue;
-            }
+            j++;
+         }
+         if (j < communities.length && id.equals(communities[j].getGUID()))
+         {
+            results.addResult(id, communities[j]);
+            j++;
+            continue;
          }
 
          var code = WebserviceErrorCodes.OBJECT_NOT_FOUND;

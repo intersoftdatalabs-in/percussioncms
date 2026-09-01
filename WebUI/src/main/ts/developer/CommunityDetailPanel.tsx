@@ -16,15 +16,21 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { isApiError } from "../api/client";
 import {
+  communityGuidForWrite,
+  createCommunity,
+  deleteCommunity,
   getCommunityDetail,
   getCommunityVisibility,
+  isCommunityWriteReady,
   listAvailableRoles,
   updateCommunityRoles,
 } from "../api/developer/assemblyApi";
 import type {
   CommunityDetail,
   CommunityRoleSummary,
+  CommunitySummary,
   CommunityVisibleObject,
   RestGuid,
 } from "../api/developer/types";
@@ -103,14 +109,59 @@ function formatVisibilitySummary(shown: number, total: number, filtered: boolean
   return DEV_MSG.COMM_VISIBILITY_SUMMARY_ALL.replace("{0}", String(total));
 }
 
+const fieldStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "4px",
+  marginBottom: "12px",
+};
+
+const inputStyle: React.CSSProperties = {
+  padding: "8px",
+  border: `1px solid ${catalogColors.softBorder}`,
+  borderRadius: "4px",
+  font: "inherit",
+};
+
+function createFallback(err: unknown): string {
+  if (!isApiError(err)) return DEV_MSG.COMM_SAVE_ERROR;
+  if (err.status === 409) return DEV_MSG.COMM_DUPLICATE;
+  if (err.status === 403) return DEV_MSG.COMM_FORBIDDEN;
+  if (err.status === 400) return DEV_MSG.COMM_NAME_INVALID;
+  return DEV_MSG.COMM_SAVE_ERROR;
+}
+
+function deleteFallback(err: unknown): string {
+  if (!isApiError(err)) return DEV_MSG.COMM_DELETE_ERROR;
+  if (err.status === 403) return DEV_MSG.COMM_FORBIDDEN;
+  if (err.status === 409) return DEV_MSG.COMM_IN_USE;
+  if (err.status === 404) return DEV_MSG.COMM_MISSING;
+  return DEV_MSG.COMM_DELETE_ERROR;
+}
+
+function resolveCommunityGuid(
+  detail: CommunityDetail | null,
+  fallback?: RestGuid | null,
+): RestGuid | null {
+  return communityGuidForWrite(detail, fallback);
+}
+
 export function CommunityDetailPanel({
   idOrName,
   onBack,
+  onSaved,
+  onDeleted,
 }: {
-  idOrName: string;
+  /** null = create mode */
+  idOrName: string | null;
   onBack: () => void;
+  onSaved?: (detail: CommunityDetail | CommunitySummary) => void;
+  onDeleted?: () => void;
 }): React.ReactElement {
+  const [createdKey, setCreatedKey] = useState<string | null>(null);
+  const isNew = idOrName == null && createdKey == null;
   const [detail, setDetail] = useState<CommunityDetail | null>(null);
+  const [name, setName] = useState("");
   const [allRoles, setAllRoles] = useState<CommunityRoleSummary[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
@@ -124,6 +175,7 @@ export function CommunityDetailPanel({
   const [communityGuid, setCommunityGuid] = useState<RestGuid | null>(null);
   /** Monotonic id so stale visibility responses (type filter / remount) are ignored. */
   const visibilityReqId = useRef(0);
+  const inflight = useRef(false);
 
   const loadVisibility = useCallback((guid: RestGuid, objectType: string) => {
     const req = ++visibilityReqId.current;
@@ -145,6 +197,9 @@ export function CommunityDetailPanel({
   }, []);
 
   useEffect(() => {
+    if (idOrName == null) {
+      return;
+    }
     let cancelled = false;
     // Invalidate any in-flight visibility from a prior community / type filter.
     visibilityReqId.current += 1;
@@ -160,12 +215,13 @@ export function CommunityDetailPanel({
       .then(([d, roles]) => {
         if (cancelled) return;
         setDetail(d);
+        setName(d.name || idOrName);
         setAllRoles(roles);
         setSelectedKeys(
           new Set(asRoles(d).map((r, i) => roleKey(r, i)).filter((k) => k.length > 0)),
         );
-        const g = d.guid;
-        if (g?.stringValue || g?.uuid != null) {
+        const g = communityGuidForWrite(d);
+        if (g) {
           setCommunityGuid(g);
           const req = ++visibilityReqId.current;
           setVisibilityLoading(true);
@@ -237,27 +293,125 @@ export function CommunityDetailPanel({
     }
   }
 
+  const writeKey = idOrName || createdKey || name.trim();
+  const canCreate = isNew && !busy && isCommunityWriteReady({ name });
+
+  async function applyLoadedCommunity(
+    d: CommunityDetail,
+    roles: CommunityRoleSummary[],
+    key: string,
+  ) {
+    setDetail(d);
+    setName(d.name || key);
+    setAllRoles(roles);
+    setSelectedKeys(
+      new Set(asRoles(d).map((r, i) => roleKey(r, i)).filter((k) => k.length > 0)),
+    );
+    const g = communityGuidForWrite(d);
+    if (g) {
+      setCommunityGuid(g);
+      const req = ++visibilityReqId.current;
+      setVisibilityLoading(true);
+      setVisibilityError(null);
+      try {
+        const objs = await getCommunityVisibility(g);
+        if (req !== visibilityReqId.current) return;
+        setVisibleObjects(objs);
+        setVisibilityLoading(false);
+      } catch (err: unknown) {
+        if (req !== visibilityReqId.current) return;
+        setVisibilityLoading(false);
+        setVisibilityError(panelErrMsg(err, DEV_MSG.COMM_VISIBILITY_ERROR));
+      }
+    } else {
+      setVisibilityError(DEV_MSG.COMM_VISIBILITY_NO_GUID);
+    }
+  }
+
+  async function handleCreate(): Promise<void> {
+    if (!canCreate || inflight.current) return;
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const created = await createCommunity(name);
+      const key = created.name || name.trim();
+      setCreatedKey(key);
+      setName(key);
+      try {
+        const [d, roles] = await Promise.all([getCommunityDetail(key), listAvailableRoles()]);
+        const merged: CommunityDetail = {
+          ...d,
+          guid: d.guid ?? created.guid,
+          id: d.id ?? created.id,
+          name: d.name || created.name || key,
+        };
+        await applyLoadedCommunity(merged, roles, key);
+      } catch {
+        setDetail(created as CommunityDetail);
+        setCommunityGuid(communityGuidForWrite(created));
+      }
+      setNotice(DEV_MSG.COMM_CREATED);
+      onSaved?.(created);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, createFallback(err)));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  async function handleDelete(): Promise<void> {
+    if (isNew || inflight.current) return;
+    const guid = resolveCommunityGuid(detail, communityGuid);
+    if (!guid) {
+      setError(DEV_MSG.COMM_DELETE_NO_GUID);
+      return;
+    }
+    if (!window.confirm(DEV_MSG.COMM_DELETE_CONFIRM)) return;
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await deleteCommunity(guid, false);
+      setNotice(DEV_MSG.COMM_DELETED);
+      onDeleted?.();
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, deleteFallback(err)));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
   async function handleSave() {
+    if (!writeKey || inflight.current) return;
+    inflight.current = true;
     setBusy(true);
     setError(null);
     setNotice(null);
     const body = allRoles.filter((r, i) => selectedKeys.has(roleKey(r, i)));
     try {
-      const saved = await updateCommunityRoles(idOrName, body);
+      const saved = await updateCommunityRoles(writeKey, body);
       setDetail(saved);
       const nextRoles = asRoles(saved);
       setSelectedKeys(
         new Set(nextRoles.map((r, i) => roleKey(r, i)).filter((k) => k.length > 0)),
       );
       setNotice(formatSavedRolesNotice(nextRoles.length));
+      onSaved?.(saved);
     } catch (err: unknown) {
       setError(panelErrMsg(err, DEV_MSG.COMM_ROLES_SAVE_ERROR));
     } finally {
+      inflight.current = false;
       setBusy(false);
     }
   }
 
   const rolesForTable = allRoles.length > 0 ? allRoles : asRoles(detail);
+  const guidLabel = communityGuidForWrite(detail)?.stringValue;
 
   return (
     <div data-testid="developer-comm-detail">
@@ -286,13 +440,72 @@ export function CommunityDetailPanel({
         </div>
       ) : null}
 
-      {!error && detail == null ? (
+      {isNew ? (
+        <>
+          <header style={{ marginBottom: "16px" }}>
+            <h2 style={{ margin: "0 0 4px" }} data-testid="developer-comm-detail-title">
+              {DEV_MSG.COMM_NEW}
+            </h2>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+              {DEV_MSG.COMM_NAME_HINT}
+            </p>
+          </header>
+          <div style={fieldStyle}>
+            <label htmlFor="comm-name">{DEV_MSG.COMM_FORM_NAME}</label>
+            <input
+              id="comm-name"
+              data-testid="developer-comm-name"
+              style={{ ...inputStyle, fontFamily: "monospace" }}
+              value={name}
+              disabled={busy}
+              onChange={(e) => setName(e.target.value)}
+              autoComplete="off"
+            />
+          </div>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
+            <button
+              type="button"
+              data-testid="developer-comm-create"
+              aria-label={DEV_MSG.COMM_CREATE}
+              disabled={!canCreate}
+              onClick={() => void handleCreate()}
+              style={{
+                padding: "8px 16px",
+                background: canCreate ? catalogColors.accent : catalogColors.disabled,
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: canCreate ? "pointer" : "not-allowed",
+              }}
+            >
+              {DEV_MSG.COMM_CREATE}
+            </button>
+            <button
+              type="button"
+              data-testid="developer-comm-cancel"
+              disabled={busy}
+              onClick={onBack}
+              style={{
+                padding: "8px 16px",
+                background: "transparent",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              {DEV_MSG.COMM_CANCEL}
+            </button>
+          </div>
+        </>
+      ) : null}
+
+      {!isNew && !error && detail == null ? (
         <div data-testid="developer-comm-detail-loading">
           {DEV_MSG.COMM_DETAIL_LOADING}
         </div>
       ) : null}
 
-      {detail ? (
+      {!isNew && detail ? (
         <>
           <header style={{ marginBottom: "16px" }}>
             <h2 style={{ margin: "0 0 4px" }} data-testid="developer-comm-detail-title">
@@ -301,7 +514,7 @@ export function CommunityDetailPanel({
             <div style={{ fontFamily: "monospace", color: catalogColors.muted }}>
               {detail.name}
               {detail.id != null ? ` · id ${detail.id}` : ""}
-              {detail.guid?.stringValue ? ` · ${detail.guid.stringValue}` : ""}
+              {guidLabel ? ` · ${guidLabel}` : ""}
             </div>
             {detail.description ? (
               <p style={{ marginTop: "8px", color: catalogColors.text }}>{detail.description}</p>
@@ -313,9 +526,28 @@ export function CommunityDetailPanel({
               </dd>
               <dt>{DEV_MSG.COMM_META_GUID}</dt>
               <dd style={{ margin: 0, ...monoCell }}>
-                {detail.guid?.stringValue || "—"}
+                {guidLabel || "—"}
               </dd>
             </dl>
+            <div style={{ marginTop: "12px" }}>
+              <button
+                type="button"
+                data-testid="developer-comm-delete"
+                aria-label={DEV_MSG.COMM_DELETE}
+                disabled={busy}
+                onClick={() => void handleDelete()}
+                style={{
+                  padding: "8px 16px",
+                  background: "#c53030",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: busy ? "wait" : "pointer",
+                }}
+              >
+                {DEV_MSG.COMM_DELETE}
+              </button>
+            </div>
           </header>
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-comm-roles">

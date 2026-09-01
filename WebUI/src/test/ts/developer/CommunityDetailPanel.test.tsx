@@ -10,17 +10,27 @@ import * as assemblyApi from "../../../main/ts/api/developer/assemblyApi";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { CommunityDetailPanel } from "../../../main/ts/developer/CommunityDetailPanel";
 
-vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
-  getCommunityDetail: vi.fn(),
-  listAvailableRoles: vi.fn(),
-  getCommunityVisibility: vi.fn(),
-  updateCommunityRoles: vi.fn(),
-}));
+vi.mock("../../../main/ts/api/developer/assemblyApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/assemblyApi")
+  >();
+  return {
+    ...actual,
+    getCommunityDetail: vi.fn(),
+    listAvailableRoles: vi.fn(),
+    getCommunityVisibility: vi.fn(),
+    updateCommunityRoles: vi.fn(),
+    createCommunity: vi.fn(),
+    deleteCommunity: vi.fn(),
+  };
+});
 
 const getCommunityDetail = assemblyApi.getCommunityDetail as ReturnType<typeof vi.fn>;
 const listAvailableRoles = assemblyApi.listAvailableRoles as ReturnType<typeof vi.fn>;
 const getCommunityVisibility = assemblyApi.getCommunityVisibility as ReturnType<typeof vi.fn>;
 const updateCommunityRoles = assemblyApi.updateCommunityRoles as ReturnType<typeof vi.fn>;
+const createCommunity = assemblyApi.createCommunity as ReturnType<typeof vi.fn>;
+const deleteCommunity = assemblyApi.deleteCommunity as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   name: "Default",
@@ -45,6 +55,8 @@ describe("CommunityDetailPanel", () => {
     listAvailableRoles.mockReset();
     getCommunityVisibility.mockReset();
     updateCommunityRoles.mockReset();
+    createCommunity.mockReset();
+    deleteCommunity.mockReset();
     listAvailableRoles.mockResolvedValue(sampleRoles);
     getCommunityVisibility.mockResolvedValue([]);
   });
@@ -223,5 +235,212 @@ describe("CommunityDetailPanel", () => {
     expect(screen.getByTestId("developer-comm-detail-error").textContent).toBe(
       DEV_MSG.COMM_DETAIL_ERROR,
     );
+  });
+
+  it("shows 404 missing community via panelErrMsg", async () => {
+    getCommunityDetail.mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: { message: "Community not found" },
+    });
+    render(<CommunityDetailPanel idOrName="missing" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-comm-detail-error").textContent).toContain(
+      DEV_MSG.COMM_DETAIL_ERROR,
+    );
+    expect(screen.getByTestId("developer-comm-detail-error").textContent).toContain(
+      "Community not found",
+    );
+    expect(screen.queryByTestId("developer-comm-roles-save")).toBeNull();
+  });
+
+  it("disables create until the name is non-blank", () => {
+    render(<CommunityDetailPanel idOrName={null} onBack={() => undefined} />);
+    const create = screen.getByTestId("developer-comm-create") as HTMLButtonElement;
+    expect(create.disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-comm-name"), {
+      target: { value: "   " },
+    });
+    expect(create.disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-comm-name"), {
+      target: { value: "QA Community" },
+    });
+    expect(create.disabled).toBe(false);
+  });
+
+  it("surfaces 400 blank name on create", async () => {
+    createCommunity.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "name cannot be null or empty" },
+    });
+    const onSaved = vi.fn();
+    render(
+      <CommunityDetailPanel idOrName={null} onBack={() => undefined} onSaved={onSaved} />,
+    );
+    fireEvent.change(screen.getByTestId("developer-comm-name"), {
+      target: { value: "x" },
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-create"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-error")).toBeTruthy();
+    });
+    expect(createCommunity).toHaveBeenCalled();
+    expect(screen.getByTestId("developer-comm-detail-error").textContent).toContain(
+      DEV_MSG.COMM_NAME_INVALID,
+    );
+    expect(onSaved).not.toHaveBeenCalled();
+  });
+
+  it("surfaces 409 duplicate name on create", async () => {
+    createCommunity.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Community already exists: Default" },
+    });
+    const onSaved = vi.fn();
+    render(
+      <CommunityDetailPanel idOrName={null} onBack={() => undefined} onSaved={onSaved} />,
+    );
+    fireEvent.change(screen.getByTestId("developer-comm-name"), {
+      target: { value: "Default" },
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-create"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-comm-detail-error").textContent).toContain(
+      DEV_MSG.COMM_DUPLICATE,
+    );
+    expect(onSaved).not.toHaveBeenCalled();
+  });
+
+  it("surfaces 403 non-Admin on create", async () => {
+    createCommunity.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: { message: "Admin role required" },
+    });
+    render(<CommunityDetailPanel idOrName={null} onBack={() => undefined} />);
+    fireEvent.change(screen.getByTestId("developer-comm-name"), {
+      target: { value: "QA Community" },
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-create"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-comm-detail-error").textContent).toContain(
+      DEV_MSG.COMM_FORBIDDEN,
+    );
+  });
+
+  it("creates a community and keeps role-association chrome", async () => {
+    createCommunity.mockResolvedValue({
+      name: "QA Community",
+      id: 42,
+      guid: { stringValue: "0-13-42" },
+    });
+    getCommunityDetail.mockResolvedValue({
+      name: "QA Community",
+      id: 42,
+      guid: { stringValue: "0-13-42" },
+      roleList: [],
+    });
+    const onSaved = vi.fn();
+    render(
+      <CommunityDetailPanel idOrName={null} onBack={() => undefined} onSaved={onSaved} />,
+    );
+    fireEvent.change(screen.getByTestId("developer-comm-name"), {
+      target: { value: "QA Community" },
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-create"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-notice").textContent).toContain(
+        DEV_MSG.COMM_CREATED,
+      );
+    });
+    expect(createCommunity).toHaveBeenCalledWith("QA Community");
+    expect(onSaved).toHaveBeenCalled();
+    expect(screen.getByTestId("developer-comm-roles-save")).toBeTruthy();
+    expect(screen.getByTestId("developer-comm-delete")).toBeTruthy();
+  });
+
+  it("surfaces 409 in-use delete without ignoredependencies and does not steal", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    deleteCommunity.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Community has dependencies" },
+    });
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
+    const onDeleted = vi.fn();
+    render(
+      <CommunityDetailPanel
+        idOrName="Default"
+        onBack={() => undefined}
+        onDeleted={onDeleted}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-delete"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-error")).toBeTruthy();
+    });
+    expect(deleteCommunity).toHaveBeenCalledWith(sampleDetail.guid, false);
+    expect(screen.getByTestId("developer-comm-detail-error").textContent).toContain(
+      DEV_MSG.COMM_IN_USE,
+    );
+    expect(onDeleted).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-comm-detail-title")).toBeTruthy();
+    confirm.mockRestore();
+  });
+
+  it("surfaces 403 non-Admin on delete", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    deleteCommunity.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: { message: "Admin role required" },
+    });
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-delete"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-comm-detail-error").textContent).toContain(
+      DEV_MSG.COMM_FORBIDDEN,
+    );
+    confirm.mockRestore();
+  });
+
+  it("delete success returns to catalog via onDeleted", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    deleteCommunity.mockResolvedValue(undefined);
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
+    const onDeleted = vi.fn();
+    render(
+      <CommunityDetailPanel
+        idOrName="Default"
+        onBack={() => undefined}
+        onDeleted={onDeleted}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-delete"));
+    await waitFor(() => {
+      expect(onDeleted).toHaveBeenCalled();
+    });
+    expect(deleteCommunity).toHaveBeenCalledWith(sampleDetail.guid, false);
+    confirm.mockRestore();
   });
 });

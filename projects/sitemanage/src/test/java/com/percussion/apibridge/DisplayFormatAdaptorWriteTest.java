@@ -190,6 +190,67 @@ class DisplayFormatAdaptorWriteTest {
   }
 
   @Test
+  void create_reloadRejectsByAuthorReplay_returnsCreatedName() throws Exception {
+    PSDisplayFormat created = nativeDisplayFormat(99, "MyFmt");
+    created.setDisplayName("My Format");
+    created.setDescription("created via REST");
+    PSDisplayFormat byAuthor = nativeDisplayFormat(5, "By_Author");
+    byAuthor.setDisplayName("By Author");
+    when(designWs.createDisplayFormats(eq(List.of("MyFmt")), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(created));
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(byAuthor);
+    when(designWs.findDisplayFormat(eq(created.getGUID()))).thenReturn(byAuthor);
+
+    DisplayFormat body = new DisplayFormat();
+    body.setName("MyFmt");
+    body.setLabel("My Format");
+    body.setDescription("created via REST");
+
+    DisplayFormat out = adaptor.createDisplayFormat(body);
+
+    assertEquals("MyFmt", out.getName());
+    assertEquals("My Format", out.getLabel());
+    assertEquals("created via REST", out.getDescription());
+  }
+
+  @Test
+  void findByKey_rejectsByAuthorReplay_usesCatalogSummary() throws Exception {
+    PSDisplayFormat byAuthor = nativeDisplayFormat(5, "By_Author");
+    byAuthor.setDisplayName("By Author");
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(byAuthor);
+    IPSCatalogSummary summary = mock(IPSCatalogSummary.class);
+    when(summary.getName()).thenReturn("MyFmt");
+    when(summary.getLabel()).thenReturn("My Format");
+    when(summary.getDescription()).thenReturn("from catalog");
+    when(summary.getGUID()).thenReturn(guid);
+    when(designWs.findDisplayFormats(eq("MyFmt"), nullable(String.class)))
+        .thenReturn(List.of(summary));
+    when(designWs.findDisplayFormat(eq(guid))).thenReturn(byAuthor);
+
+    DisplayFormat got = adaptor.findDisplayFormatByKey("MyFmt");
+
+    assertEquals("MyFmt", got.getName());
+    assertEquals("My Format", got.getLabel());
+  }
+
+  @Test
+  void identityMatchesKey_requiresNameOrGuid() {
+    DisplayFormat df = new DisplayFormat();
+    df.setName("MyFmt");
+    df.setInternalName("MyFmt");
+    df.setGuidString("0-31-99");
+    assertTrue(DisplayFormatAdaptor.identityMatchesKey(df, "MyFmt"));
+    assertTrue(DisplayFormatAdaptor.identityMatchesKey(df, "0-31-99"));
+    assertFalse(DisplayFormatAdaptor.identityMatchesKey(df, "By_Author"));
+    assertFalse(DisplayFormatAdaptor.identityMatchesKey(null, "MyFmt"));
+    DisplayFormat unnamed = new DisplayFormat();
+    unnamed.setGuidString("0-31-301");
+    assertTrue(DisplayFormatAdaptor.identityMatchesKey(unnamed, "By_Author"));
+    unnamed.setName("display_format_1");
+    assertFalse(DisplayFormatAdaptor.identityMatchesKey(unnamed, "By_Author"));
+  }
+
+  @Test
   void create_missingSession_is403() {
     PSRequestInfo.resetRequestInfo();
     PSRequestInfo.initRequestInfo(new HashMap<String, Object>());
@@ -293,6 +354,22 @@ class DisplayFormatAdaptorWriteTest {
     assertNull(adaptor.findDisplayFormatByKey("MyFmt"));
     verify(designWs)
         .deleteDisplayFormats(anyList(), eq(false), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void delete_xmlDocumentFallback_savesMarkedComponent() throws Exception {
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(nativeDf));
+    PSErrorsException xmlMissing = new PSErrorsException();
+    xmlMissing.addError(guid, new PSErrorException("Xml Document Expected, none supplied"));
+    doThrow(xmlMissing)
+        .when(designWs)
+        .deleteDisplayFormats(anyList(), eq(false), any(), any());
+
+    assertTrue(adaptor.deleteDisplayFormat("MyFmt"));
+    verify(designWs).saveDisplayFormats(anyList(), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test
