@@ -257,9 +257,39 @@ class DisplayFormatAdaptorWriteTest {
     assertFalse(DisplayFormatAdaptor.identityMatchesKey(null, "MyFmt"));
     DisplayFormat unnamed = new DisplayFormat();
     unnamed.setGuidString("0-31-301");
-    assertTrue(DisplayFormatAdaptor.identityMatchesKey(unnamed, "By_Author"));
+    assertFalse(DisplayFormatAdaptor.identityMatchesKey(unnamed, "By_Author"));
+    assertTrue(DisplayFormatAdaptor.identityMatchesKey(unnamed, "0-31-301"));
     unnamed.setName("display_format_1");
     assertFalse(DisplayFormatAdaptor.identityMatchesKey(unnamed, "By_Author"));
+  }
+
+  @Test
+  void findByGuid_rejectsByAuthorReplay() throws Exception {
+    PSDisplayFormat byAuthor = nativeDisplayFormat(5, "By_Author");
+    IPSGuid requested = new PSGuid(PSTypeEnum.DISPLAY_FORMAT, 1031L);
+    when(designWs.findDisplayFormat(eq(requested))).thenReturn(byAuthor);
+
+    assertNull(adaptor.findDisplayFormat(requested));
+    assertNull(adaptor.findDisplayFormatByKey(requested.toString()));
+  }
+
+  @Test
+  void findByKey_guidUsesCatalogNameWhenLoadReplaysByAuthor() throws Exception {
+    IPSGuid requested = new PSGuid(PSTypeEnum.DISPLAY_FORMAT, 1031L);
+    PSDisplayFormat replayed = nativeDisplayFormat(1031, "By_Author");
+    IPSCatalogSummary summary = mock(IPSCatalogSummary.class);
+    when(summary.getName()).thenReturn("MyFmt");
+    when(summary.getLabel()).thenReturn("My Format");
+    when(summary.getGUID()).thenReturn(requested);
+    when(designWs.findDisplayFormats(nullable(String.class), nullable(String.class)))
+        .thenReturn(List.of(summary));
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(null);
+    when(designWs.findDisplayFormat(eq(requested))).thenReturn(replayed);
+
+    DisplayFormat got = adaptor.findDisplayFormatByKey(requested.toString());
+
+    assertEquals("MyFmt", got.getName());
+    assertEquals("My Format", got.getLabel());
   }
 
   @Test
@@ -425,6 +455,23 @@ class DisplayFormatAdaptorWriteTest {
     DisplayFormat body = new DisplayFormat();
     body.setLabel("Updated");
     assertNull(adaptor.updateDisplayFormat("missing", body));
+    verify(designWs, never()).saveDisplayFormats(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_rejectsByAuthorReplayLoad() throws Exception {
+    PSDisplayFormat catalog = nativeDisplayFormat(1031, "MyFmt");
+    PSDisplayFormat replayed = nativeDisplayFormat(5, "By_Author");
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(catalog);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(replayed));
+
+    DisplayFormat body = new DisplayFormat();
+    body.setLabel("Updated");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.updateDisplayFormat("MyFmt", body));
+    assertEquals(409, ex.getResponse().getStatus());
     verify(designWs, never()).saveDisplayFormats(anyList(), anyBoolean(), any(), any());
   }
 

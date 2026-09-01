@@ -1400,7 +1400,9 @@ unsaved stub) and returns **201 Created** with a `Location` header pointing at
 case-insensitive; **no whitespace** or wildcards). Optional `label` / `displayName` and
 `description` are applied before save. Duplicate name is **409**. Blank / whitespace /
 wildcard names are **400**. Missing request session/user is **403**. Non-Admin is **403**.
-The new format is then `GET /services/displayformats/{name}` **200**.
+The new format is then `GET /services/displayformats/{name}` **200** with **that** name
+(not **404**, and not a packaged format such as `By_Author`). `GET` by the created GUID
+returns the same user format.
 
 Update (`PUT /services/displayformats/{idOrName}`) loads with a design lock
 (`overrideLock=false`) and releases it on save. Name is not renamed on PUT. `label` /

@@ -215,6 +215,11 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
             "Could not update display format; design lock required or held by another user", 409);
       }
       PSDisplayFormat nativeDf = loaded.get(0);
+      if (!namesMatchIgnoreCase(existing.getName(), nativeDf.getName())
+          && nativeDf.getDisplayId() != existing.getDisplayId()) {
+        throw new WebApplicationException(
+            "Could not update display format; loaded identity did not match " + idOrName, 409);
+      }
       applyWritableFields(nativeDf, body);
       designWs.saveDisplayFormats(List.of(nativeDf), true, session, user);
       return reload(nativeDf, nativeDf.getName());
@@ -676,8 +681,18 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
   @Override
   public DisplayFormat findDisplayFormat(IPSGuid id)
       throws PSCmsException, PSUnknownNodeTypeException {
+    if (id == null) {
+      return null;
+    }
     PSDisplayFormat f = designWs.findDisplayFormat(id);
-    return f == null ? null : copyDisplayFormat(f);
+    if (f == null) {
+      return null;
+    }
+    DisplayFormat copy = copyDisplayFormat(f);
+    if (identityMatchesKey(copy, id.toString()) || f.getDisplayId() == id.getUUID()) {
+      return copy;
+    }
+    return null;
   }
 
   @Override
@@ -727,9 +742,6 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
       PSDisplayFormat byGuid = designWs.findDisplayFormat(guid);
       if (byGuid != null && namesMatchIgnoreCase(name, byGuid.getName())) {
         return byGuid;
-      }
-      if (StringUtils.isBlank(session) || StringUtils.isBlank(user)) {
-        continue;
       }
       try {
         List<PSDisplayFormat> loaded =
@@ -811,6 +823,10 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     }
     try {
       var guid = new com.percussion.services.guidmgr.data.PSGuid(key);
+      DisplayFormat fromGuidCatalog = findCatalogCopyByGuid(guid);
+      if (fromGuidCatalog != null) {
+        return fromGuidCatalog;
+      }
       DisplayFormat byGuid = findDisplayFormat((IPSGuid) guid);
       if (identityMatchesKey(byGuid, key)) {
         return byGuid;
@@ -880,21 +896,59 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     }
     String trimmed = key.trim();
     String loadedName = firstNonBlank(df.getName(), df.getInternalName());
-    if (loadedName != null && !namesMatchIgnoreCase(trimmed, loadedName)) {
-      if (trimmed.equalsIgnoreCase(StringUtils.defaultString(df.getGuidString()))) {
+    if (loadedName != null && namesMatchIgnoreCase(trimmed, loadedName)) {
+      return true;
+    }
+    if (trimmed.equalsIgnoreCase(StringUtils.defaultString(df.getGuidString()))) {
+      return true;
+    }
+    Guid g = df.getGuid();
+    if (g != null && trimmed.equalsIgnoreCase(StringUtils.defaultString(g.getStringValue()))) {
+      return true;
+    }
+    if (df.getDisplayId() > 0) {
+      String asGuid = new PSGuid(PSTypeEnum.DISPLAY_FORMAT, df.getDisplayId()).toString();
+      if (trimmed.equalsIgnoreCase(asGuid) || trimmed.equals(String.valueOf(df.getDisplayId()))) {
         return true;
       }
-      Guid g = df.getGuid();
-      return g != null && trimmed.equalsIgnoreCase(StringUtils.defaultString(g.getStringValue()));
     }
-    // Unnamed catalog identity stub (displayId replay) still matches the requested key.
-    return true;
+    // Unnamed stub must still match the requested GUID — never By_Author replay.
+    return false;
   }
 
   /**
    * Exact INTERNALNAME from catalog summaries, then {@link #copyUniqueSummary} (rejects
    * replayed loads). Used when {@code findDisplayFormat(name)} returns the wrong object.
    */
+  /**
+   * Catalog row whose GUID matches {@code guid}. Prefer this over {@code
+   * findDisplayFormat(guid)} so a load that stamps the requested id onto
+   * By_Author cannot win after a user format is persisted.
+   */
+  private DisplayFormat findCatalogCopyByGuid(IPSGuid guid) {
+    if (guid == null) {
+      return null;
+    }
+    List<IPSCatalogSummary> summaries = catalogSummaries(null);
+    if (summaries == null) {
+      return null;
+    }
+    for (IPSCatalogSummary summary : summaries) {
+      if (summary == null || summary.getGUID() == null) {
+        continue;
+      }
+      if (guid.equals(summary.getGUID()) || guid.getUUID() == summary.getGUID().getUUID()) {
+        try {
+          return copyUniqueSummary(summary);
+        } catch (PSCmsException | PSUnknownNodeTypeException e) {
+          log.debug("Could not copy display format guid {}: {}", guid, e.toString());
+          return copyFromCatalogSummary(summary);
+        }
+      }
+    }
+    return null;
+  }
+
   private DisplayFormat findExactCatalogCopy(String name) {
     if (name == null || name.isBlank()) {
       return null;
