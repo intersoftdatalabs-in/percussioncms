@@ -291,6 +291,33 @@ describe("ActionMenuDetailPanel", () => {
     });
     expect(createActionMenuMock).toHaveBeenCalled();
     expect(screen.getByTestId("developer-am-detail-error").textContent).toContain(
+      "Action menu already exists: MyMenu",
+    );
+    expect(screen.getByTestId("developer-am-detail-error").textContent).not.toContain(
+      DEV_MSG.AM_SYSTEM,
+    );
+    expect(onSaved).not.toHaveBeenCalled();
+  });
+
+  it("surfaces 409 lock body on create instead of duplicate chrome", async () => {
+    createActionMenuMock.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Action menu is locked by another designer" },
+    });
+    const onSaved = vi.fn();
+    render(<ActionMenuDetailPanel idOrName={null} onBack={() => undefined} onSaved={onSaved} />);
+    fireEvent.change(screen.getByTestId("developer-am-name"), {
+      target: { value: "MyMenu" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-am-detail-error").textContent).toContain(
+      "Action menu is locked by another designer",
+    );
+    expect(screen.getByTestId("developer-am-detail-error").textContent).not.toContain(
       DEV_MSG.AM_DUPLICATE,
     );
     expect(onSaved).not.toHaveBeenCalled();

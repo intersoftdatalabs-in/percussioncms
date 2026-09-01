@@ -1481,8 +1481,10 @@ menus (and saves label / description / menuType / url); cascading children
 composition (UI-04) and usage/command/visibility tab completeness (UI-03) are
 later slices — see [Developer Action Menus](id:admin-developer-action-menus).
 Finder helpers (`GET /services/actions/find`, content-type and template finders)
-are unchanged. Create is durable: `GET /services/actions/catalog` lists the new
-name after POST.
+are unchanged. After POST the editor notice confirms the save. Catalog
+`GET /services/actions/catalog` may lag until the Hibernate `RXMENUACTION` vs
+design-WS `saveActions` mismatch is fixed (GitHub issue 4119); until then the
+new name is not always listed immediately after create.
 
 Write is **Admin** only. Name is unique (case-insensitive) and must not contain
 whitespace or wildcards. Duplicate name is **409**. Invalid name or menu type is

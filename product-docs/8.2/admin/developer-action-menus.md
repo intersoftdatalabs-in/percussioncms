@@ -33,11 +33,13 @@ detail stay **read-only**.
    name is valid (no spaces, no `*` / `%`, no `/` or `..`). Optional: label,
    description, menu type (`MENUITEM` default, `MENU`, `CONTEXTMENU`, or
    `DYNAMICMENU`), and URL.
-4. Click **Save**. A duplicate name is **409** and the editor shows that the
-   menu already exists. An invalid name is **400**. A non-Admin session is
-   **403**. After a successful create, the name field is read-only and the
-   catalog lists the new menu (the save is persisted immediately; leaving
-   and returning to the list still shows the row).
+4. Click **Save**. A duplicate name is **409** and the editor shows the server
+   conflict message (duplicate, system menu, or lock). An invalid name is
+   **400**. A non-Admin session is **403**. After a successful create, the name
+   field is read-only and the editor notice confirms the save. The catalog
+   row may lag until GitHub issue 4119 (Hibernate `RXMENUACTION` vs design-WS
+   `saveActions`); leaving and returning to the list does not always show the
+   new menu yet.
 5. Optional: change label, description, menu type, or URL and **Save** again.
    Child entries, parameters, properties, and visibility are not written.
 6. Click **Delete** and confirm. The catalog no longer lists that user menu.

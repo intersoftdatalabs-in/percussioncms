@@ -15,7 +15,7 @@
  */
 
 import React, { useEffect, useRef, useState } from "react";
-import { isApiError } from "../api/client";
+import { extractRestErrorMessage, isApiError } from "../api/client";
 import {
   ACTION_MENU_TYPE_ITEM,
   ACTION_MENU_TYPES,
@@ -151,8 +151,11 @@ export function ActionMenuDetailPanel({
   }
 
   function saveFallback(err: unknown): string {
-    if (isApiError(err) && err.status === 409 && isNew) return DEV_MSG.AM_DUPLICATE;
-    if (isApiError(err) && err.status === 409) return DEV_MSG.AM_SYSTEM;
+    if (isApiError(err) && err.status === 409) {
+      const fromBody = extractRestErrorMessage(err.body);
+      if (fromBody) return fromBody;
+      return isNew ? DEV_MSG.AM_DUPLICATE : DEV_MSG.AM_SYSTEM;
+    }
     if (isApiError(err) && err.status === 400) return DEV_MSG.AM_INVALID_NAME;
     if (isApiError(err) && err.status === 403) return DEV_MSG.AM_FORBIDDEN;
     if (isApiError(err) && err.status === 404) return DEV_MSG.AM_NOT_FOUND;
@@ -182,7 +185,11 @@ export function ActionMenuDetailPanel({
       setNotice(DEV_MSG.AM_SAVED);
       onSaved?.(saved);
     } catch (err: unknown) {
-      setError(panelErrMsg(err, saveFallback(err)));
+      if (isApiError(err) && err.status === 409) {
+        setError(saveFallback(err));
+      } else {
+        setError(panelErrMsg(err, saveFallback(err)));
+      }
     } finally {
       inflight.current = false;
       setBusy(false);
@@ -225,7 +232,7 @@ export function ActionMenuDetailPanel({
   const gapList =
     detail != null && detail.designGaps && detail.designGaps.length > 0
       ? withoutStaleActionMenuWriteGap(detail.designGaps)
-      : [DEV_MSG.AM_GAP_CHILDREN, DEV_MSG.AM_GAP_VISIBILITY];
+      : [DEV_MSG.AM_GAP_CHILDREN, DEV_MSG.AM_GAP_VISIBILITY, DEV_MSG.AM_GAP_UI03];
 
   return (
     <div data-testid="developer-am-detail">

@@ -945,7 +945,7 @@ export const DEV_MSG_KEYS = {
   AM_COL_PROP: "perc.ui.developer@Property",
   AM_COL_VALUE: "perc.ui.developer@Value",
   AM_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
-  AM_GAP_WRITE: "perc.ui.developer@Usage / command / visibility tab completeness is a later slice.",
+  AM_GAP_UI03: "perc.ui.developer@Usage / command / visibility tab completeness is a later slice.",
   AM_GAP_CHILDREN: "perc.ui.developer@Cascading child menu composition not supported via this API",
   AM_GAP_VISIBILITY: "perc.ui.developer@Visibility context editing not supported via this API",
   AM_NEW: "perc.ui.developer@New action menu",

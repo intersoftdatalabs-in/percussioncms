@@ -22,6 +22,7 @@ import {
   createActionMenu,
   deleteActionMenu,
   getActionMenuDetail,
+  listActionMenus,
   isActionMenuWriteReady,
   isValidActionMenuName,
   normalizeActionMenuName,
@@ -95,6 +96,9 @@ describe("action menu name validation", () => {
     expect(isValidActionMenuName("../x")).toBe(false);
     expect(isValidActionMenuName("a/b")).toBe(false);
     expect(isValidActionMenuName("a\\b")).toBe(false);
+    expect(isValidActionMenuName("foo\u00A0bar")).toBe(false);
+    expect(isValidActionMenuName("foo\u3000bar")).toBe(false);
+    expect(isValidActionMenuName("foo\u200Bbar")).toBe(false);
   });
 
   it("disables write until the menu name is valid on create", () => {
@@ -194,6 +198,16 @@ describe("actionMenusApi write paths", () => {
     const init = fetchMock.mock.calls[0][1] as RequestInit;
     expect(init.method).toBe("DELETE");
     expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.ACTION_MENUS_ROOT}/MyMenu`);
+  });
+
+  it("applies design-gap fallback to catalog list rows", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ActionMenu: [{ name: "Edit", id: 2 }] }),
+    );
+    const list = await listActionMenus();
+    expect(list).toHaveLength(1);
+    expect(list[0].name).toBe("Edit");
+    expect(list[0].designGaps).toEqual(ACTION_MENU_DESIGN_GAPS);
   });
 
   it("unwraps GET /services/actions/catalog/{idOrName} Jackson root", async () => {

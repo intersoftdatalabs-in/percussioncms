@@ -56,6 +56,7 @@ export type ActionMenuType = (typeof ACTION_MENU_TYPES)[number];
 export const ACTION_MENU_DESIGN_GAPS: string[] = [
   "Cascading child menu composition not supported via this API",
   "Visibility context editing not supported via this API",
+  "Usage / command / visibility tab completeness is a later slice.",
 ];
 
 const STALE_WRITE_GAP = /create\s*\/\s*update\s*\/\s*delete/i;
@@ -98,8 +99,9 @@ export function unwrapActionMenuList(payload: unknown): ActionMenu[] {
   return asArray<ActionMenu>(payload).map((item) => unwrapActionMenu(item));
 }
 
+/** ASCII \\s plus Unicode separators (NBSP, ideographic space) and ZWSP. */
 function containsWhitespace(value: string): boolean {
-  return /\s/.test(value);
+  return /[\s\p{Z}\u200B]/u.test(value);
 }
 
 /** True when the name is a safe REST action-menu key (no path chars). */
@@ -156,7 +158,7 @@ function withGaps(menu: ActionMenu): ActionMenu {
 /** GET /services/actions/catalog */
 export async function listActionMenus(): Promise<ActionMenu[]> {
   const payload = await get<unknown>(PATHS.ACTION_MENUS);
-  return unwrapActionMenuList(payload);
+  return unwrapActionMenuList(payload).map(withGaps);
 }
 
 /** GET /services/actions/catalog/{idOrName} */
