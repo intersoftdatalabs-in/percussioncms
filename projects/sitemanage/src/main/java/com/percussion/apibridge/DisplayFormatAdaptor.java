@@ -24,6 +24,7 @@ import com.percussion.cms.objectstore.IPSDbComponent;
 import com.percussion.cms.objectstore.PSComponentProcessorProxy;
 import com.percussion.cms.objectstore.PSKey;
 import com.percussion.cms.objectstore.PSDFColumns;
+import com.percussion.cms.objectstore.PSDFMultiProperty;
 import com.percussion.cms.objectstore.PSDFProperties;
 import com.percussion.cms.objectstore.PSDisplayColumn;
 import com.percussion.cms.objectstore.PSDisplayFormat;
@@ -34,6 +35,9 @@ import com.percussion.rest.displayformat.*;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.services.security.IPSBackEndRoleMgr;
+import com.percussion.services.security.PSRoleMgrLocator;
+import com.percussion.services.security.data.PSCommunity;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.data.PSCurrentUser;
@@ -50,14 +54,15 @@ import com.percussion.webservices.ui.IPSUiDesignWs;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -87,6 +92,7 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
   private final IPSUiDesignWs designWs;
   private final BooleanSupplier adminChecker;
   private final LockedDisplayFormatXmlDeleter xmlDeleter;
+  private final Supplier<Map<IPSGuid, String>> communityCatalog;
 
   /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
   @Autowired(required = false)
@@ -110,9 +116,22 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
       IPSUiDesignWs designWs,
       BooleanSupplier adminChecker,
       LockedDisplayFormatXmlDeleter xmlDeleter) {
+    this(designWs, adminChecker, xmlDeleter, null);
+  }
+
+  /**
+   * Package-visible for unit tests that stub the community catalog (unknown community is 400).
+   */
+  DisplayFormatAdaptor(
+      IPSUiDesignWs designWs,
+      BooleanSupplier adminChecker,
+      LockedDisplayFormatXmlDeleter xmlDeleter,
+      Supplier<Map<IPSGuid, String>> communityCatalog) {
     this.designWs = designWs;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
     this.xmlDeleter = xmlDeleter != null ? xmlDeleter : this::deleteLockedViaComponentXml;
+    this.communityCatalog =
+        communityCatalog != null ? communityCatalog : this::loadCommunityCatalog;
   }
 
   /**
@@ -571,9 +590,7 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     if (f.getColumnContainer() != null) {
       ret.setColumns(copyDisplayFormatColumns(f.getColumnContainer()));
     }
-    if (f.getAllowedCommunities() != null) {
-      ret.setAllowedCommunities(copyAllowedCommunities(f.getAllowedCommunities()));
-    }
+    ret.setAllowedCommunities(copyCommunitiesFromNative(f));
     ret.setAscendingSort(f.isAscendingSort());
     ret.setDescendingSort(f.isDescendingSort());
     ret.setValidForRelatedContent(f.isValidForRelatedContent());
@@ -645,12 +662,98 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     return g;
   }
 
-  private Map<Guid, String> copyAllowedCommunities(Map<IPSGuid, String> allowedCommunities) {
-    var ret = new HashMap<Guid, String>();
-    for (var e : allowedCommunities.entrySet()) {
-      ret.put(copyGuid(e.getKey()), e.getValue());
+  /**
+   * Wire list of community GUID + name. Empty list is all communities ({@code
+   * sys_community=-1}); there is no distinct empty/none visibility.
+   */
+  private List<DisplayFormatCommunity> copyCommunitiesFromNative(PSDisplayFormat f) {
+    List<DisplayFormatCommunity> out = new ArrayList<>();
+    if (f == null) {
+      return out;
     }
-    return ret;
+    if (f.doesPropertyHaveValue(
+        PSDisplayFormat.PROP_COMMUNITY, PSDisplayFormat.PROP_COMMUNITY_ALL)) {
+      return out;
+    }
+    Iterator<PSDFMultiProperty> props = f.getProperties();
+    if (props == null) {
+      return out;
+    }
+    Map<IPSGuid, String> catalog = communityCatalog.get();
+    if (catalog == null) {
+      catalog = Map.of();
+    }
+    boolean sawCommunity = false;
+    while (props.hasNext()) {
+      PSDFMultiProperty prop = props.next();
+      if (prop == null || !PSDisplayFormat.PROP_COMMUNITY.equals(prop.getName())) {
+        continue;
+      }
+      sawCommunity = true;
+      Iterator<?> values = prop.iterator();
+      while (values.hasNext()) {
+        Object raw = values.next();
+        String value = raw == null ? "" : String.valueOf(raw);
+        if (value.isBlank() || PSDisplayFormat.PROP_COMMUNITY_ALL.equals(value)) {
+          return new ArrayList<>();
+        }
+        long id;
+        try {
+          id = Long.parseLong(value);
+        } catch (NumberFormatException e) {
+          log.debug("Skipping non-numeric community property {}", value);
+          continue;
+        }
+        IPSGuid ig = new PSGuid(PSTypeEnum.COMMUNITY_DEF, id);
+        Guid g = copyGuid(ig);
+        String key =
+            g != null && g.getStringValue() != null && !g.getStringValue().isBlank()
+                ? g.getStringValue()
+                : value;
+        out.add(new DisplayFormatCommunity(key, catalogCommunityName(catalog, ig)));
+      }
+    }
+    if (!sawCommunity) {
+      return new ArrayList<>();
+    }
+    return out;
+  }
+
+  private static String catalogCommunityName(Map<IPSGuid, String> catalog, IPSGuid ig) {
+    if (catalog == null || ig == null) {
+      return "";
+    }
+    String byGuid = catalog.get(ig);
+    if (byGuid != null) {
+      return byGuid;
+    }
+    for (var e : catalog.entrySet()) {
+      if (e.getKey() != null && e.getKey().longValue() == ig.longValue()) {
+        return e.getValue() == null ? "" : e.getValue();
+      }
+    }
+    return "";
+  }
+
+  private Map<IPSGuid, String> loadCommunityCatalog() {
+    try {
+      IPSBackEndRoleMgr roles = PSRoleMgrLocator.getBackEndRoleManager();
+      List<PSCommunity> all = roles.findCommunitiesByName(null);
+      Map<IPSGuid, String> out = new LinkedHashMap<>();
+      if (all == null) {
+        return out;
+      }
+      for (PSCommunity community : all) {
+        if (community == null || community.getGUID() == null || community.getName() == null) {
+          continue;
+        }
+        out.put(community.getGUID(), community.getName());
+      }
+      return out;
+    } catch (RuntimeException e) {
+      log.debug("Could not catalog communities for display format visibility: {}", e.toString());
+      return Map.of();
+    }
   }
 
   private DisplayFormatColumnList copyDisplayFormatColumns(PSDFColumns columnContainer) {
@@ -988,7 +1091,7 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     }
   }
 
-  private static void applyWritableFields(PSDisplayFormat nativeDf, DisplayFormat body) {
+  private void applyWritableFields(PSDisplayFormat nativeDf, DisplayFormat body) {
     if (nativeDf == null || body == null) {
       return;
     }
@@ -1002,6 +1105,88 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     if (body.getColumns() != null) {
       applyColumns(nativeDf, body.getColumns());
     }
+    if (body.getAllowedCommunities() != null) {
+      applyAllowedCommunities(nativeDf, body.getAllowedCommunities());
+    }
+  }
+
+  /**
+   * Replace community visibility. Empty map is all communities ({@code addCommunity(null)}).
+   * Unknown community is {@link IllegalArgumentException} (HTTP 400).
+   */
+  void applyAllowedCommunities(PSDisplayFormat nativeDf, List<DisplayFormatCommunity> allowed) {
+    if (nativeDf == null || allowed == null) {
+      return;
+    }
+    if (allowed.isEmpty()) {
+      nativeDf.addCommunity(null);
+      return;
+    }
+    Map<IPSGuid, String> catalog = communityCatalog.get();
+    if (catalog == null) {
+      catalog = Map.of();
+    }
+    List<String> ids = new ArrayList<>();
+    for (DisplayFormatCommunity row : allowed) {
+      if (row == null) {
+        continue;
+      }
+      if (isAllCommunitiesSentinel(row.getGuid(), row.getName())) {
+        continue;
+      }
+      ids.add(requireKnownCommunityId(row.getGuid(), row.getName(), catalog));
+    }
+    if (ids.isEmpty()) {
+      nativeDf.addCommunity(null);
+      return;
+    }
+    nativeDf.addCommunity(null);
+    for (String id : ids) {
+      nativeDf.addCommunity(id);
+    }
+  }
+
+  /**
+   * True when the guid/key is the reserved all-communities token {@code -1}. Name is not a
+   * sentinel — a community actually named {@code -1} is validated as a specific community.
+   */
+  static boolean isAllCommunitiesSentinel(String key, String name) {
+    String needleKey = key == null ? "" : key.trim();
+    return PSDisplayFormat.PROP_COMMUNITY_ALL.equals(needleKey);
+  }
+
+  static String requireKnownCommunityId(
+      String key, String name, Map<IPSGuid, String> catalog) {
+    String needleKey = key == null ? "" : key.trim();
+    String needleName = name == null ? "" : name.trim();
+    String shown = firstNonBlank(needleKey, needleName);
+    if (shown == null) {
+      throw new IllegalArgumentException("unknown community");
+    }
+    if (catalog == null || catalog.isEmpty()) {
+      throw new IllegalArgumentException("unknown community: " + shown);
+    }
+    for (var e : catalog.entrySet()) {
+      IPSGuid g = e.getKey();
+      String n = e.getValue();
+      if (g == null) {
+        continue;
+      }
+      String asString = g.toString();
+      if (!needleKey.isEmpty()
+          && (needleKey.equalsIgnoreCase(asString)
+              || needleKey.equals(String.valueOf(g.getUUID()))
+              || needleKey.equals(String.valueOf(g.longValue())))) {
+        return String.valueOf(g.longValue());
+      }
+      if (!needleName.isEmpty() && n != null && needleName.equalsIgnoreCase(n)) {
+        return String.valueOf(g.longValue());
+      }
+      if (!needleKey.isEmpty() && n != null && needleKey.equalsIgnoreCase(n)) {
+        return String.valueOf(g.longValue());
+      }
+    }
+    throw new IllegalArgumentException("unknown community: " + shown);
   }
 
   /**

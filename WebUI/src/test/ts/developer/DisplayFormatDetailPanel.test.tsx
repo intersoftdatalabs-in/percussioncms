@@ -6,6 +6,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
+import * as assemblyApi from "../../../main/ts/api/developer/assemblyApi";
 import * as displayFormatsApi from "../../../main/ts/api/developer/displayFormatsApi";
 import { DisplayFormatDetailPanel } from "../../../main/ts/developer/DisplayFormatDetailPanel";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
@@ -27,6 +28,16 @@ vi.mock("../../../main/ts/api/developer/displayFormatsApi", async (importOrigina
 });
 
 // ObjectAclSection loads ACL via separate API; stub to isolate detail load + assert wiring.
+vi.mock("../../../main/ts/api/developer/assemblyApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/assemblyApi")
+  >();
+  return {
+    ...actual,
+    listCommunities: vi.fn(),
+  };
+});
+
 vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
   ObjectAclSection: (props: {
     objectGuid?: string | null;
@@ -48,6 +59,7 @@ const createDisplayFormat = displayFormatsApi.createDisplayFormat as ReturnType<
 const saveDisplayFormat = displayFormatsApi.saveDisplayFormat as ReturnType<typeof vi.fn>;
 const updateDisplayFormat = displayFormatsApi.updateDisplayFormat as ReturnType<typeof vi.fn>;
 const deleteDisplayFormat = displayFormatsApi.deleteDisplayFormat as ReturnType<typeof vi.fn>;
+const listCommunities = assemblyApi.listCommunities as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   name: "Default",
@@ -72,6 +84,10 @@ describe("DisplayFormatDetailPanel", () => {
     saveDisplayFormat.mockReset();
     updateDisplayFormat.mockReset();
     deleteDisplayFormat.mockReset();
+    listCommunities.mockReset();
+    listCommunities.mockResolvedValue([
+      { id: 10, name: "Default", label: "Default", guid: { stringValue: "0-10-10", uuid: 10 } },
+    ]);
   });
 
   it("loads detail on success and supports back", async () => {
@@ -574,6 +590,84 @@ describe("DisplayFormatDetailPanel", () => {
     });
     expect(screen.queryByTestId("developer-df-column-editor")).toBeNull();
     expect(screen.queryByTestId("developer-df-columns-save")).toBeNull();
+    expect(screen.getByTestId("developer-df-communities-readonly")).toBeTruthy();
+    expect(screen.queryByTestId("developer-df-community-editor")).toBeNull();
     expect(updateDisplayFormat).not.toHaveBeenCalled();
+  });
+
+  it("PUTs allowedCommunities for a user display format", async () => {
+    const userDetail = { ...sampleDetail, name: "qa4098fmt", allowedCommunities: {} };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockResolvedValue({
+      ...userDetail,
+      allowedCommunities: { "0-10-10": "Default" },
+    });
+    render(<DisplayFormatDetailPanel idOrName="qa4098fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-community-Default")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-communities-all"));
+    fireEvent.click(screen.getByTestId("developer-df-community-Default"));
+    fireEvent.click(screen.getByTestId("developer-df-communities-save"));
+    await waitFor(() => {
+      expect(updateDisplayFormat).toHaveBeenCalled();
+    });
+    const [, body] = updateDisplayFormat.mock.calls[0];
+    expect(body.allowedCommunities).toEqual([{ guid: "0-10-10", name: "Default" }]);
+    expect(body.columns).toBeUndefined();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-editor-notice").textContent).toBe(
+        DEV_MSG.DF_COMMUNITIES_SAVED,
+      );
+    });
+  });
+
+  it("surfaces 400 unknown community from PUT", async () => {
+    const userDetail = { ...sampleDetail, name: "qa4098fmt", allowedCommunities: {} };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: "unknown community: missing",
+    });
+    render(<DisplayFormatDetailPanel idOrName="qa4098fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-community-Default")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-communities-all"));
+    fireEvent.click(screen.getByTestId("developer-df-community-Default"));
+    fireEvent.click(screen.getByTestId("developer-df-communities-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-df-detail-error").textContent).toContain(
+      DEV_MSG.DF_COMMUNITIES_UNKNOWN,
+    );
+    expect(screen.getByTestId("developer-df-detail-error").textContent).toContain(
+      "unknown community",
+    );
+  });
+
+  it("surfaces 403 non-Admin from community PUT", async () => {
+    const userDetail = { ...sampleDetail, name: "qa4098fmt", allowedCommunities: {} };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: "Admin role required",
+    });
+    render(<DisplayFormatDetailPanel idOrName="qa4098fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-community-Default")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-communities-all"));
+    fireEvent.click(screen.getByTestId("developer-df-community-Default"));
+    fireEvent.click(screen.getByTestId("developer-df-communities-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-df-detail-error").textContent).toContain(
+      DEV_MSG.DF_COMMUNITIES_FORBIDDEN,
+    );
   });
 });

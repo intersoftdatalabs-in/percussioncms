@@ -83,6 +83,30 @@ class PSUiDesignWsDisplayFormatPersistTest {
     assertEquals("issue 4101 persist", spec.description);
     assertFalse(spec.columns.isEmpty());
     assertEquals("sys_title", spec.columns.get(0).source);
+    assertTrue(
+        spec.properties.stream()
+            .anyMatch(
+                p ->
+                    PSDisplayFormat.PROP_COMMUNITY.equals(p.name)
+                        && PSDisplayFormat.PROP_COMMUNITY_ALL.equals(p.value)));
+  }
+
+  @Test
+  void displayFormatRowSpec_restrictCommunityDropsAllSentinel() throws Exception {
+    PSDisplayFormat source = newDisplayFormat(1031, "QaDf4098");
+    source.addCommunity("1001");
+
+    PSUiDesignWs.DisplayFormatRowSpec spec = PSUiDesignWs.displayFormatRowSpec(source);
+
+    assertTrue(
+        spec.properties.stream()
+            .anyMatch(p -> PSDisplayFormat.PROP_COMMUNITY.equals(p.name) && "1001".equals(p.value)));
+    assertFalse(
+        spec.properties.stream()
+            .anyMatch(
+                p ->
+                    PSDisplayFormat.PROP_COMMUNITY.equals(p.name)
+                        && PSDisplayFormat.PROP_COMMUNITY_ALL.equals(p.value)));
   }
 
   @Test
@@ -183,6 +207,41 @@ class PSUiDesignWsDisplayFormatPersistTest {
       assertEquals("QaH2Df", loaded.getName());
       assertEquals(2048, loaded.getDisplayId());
       assertTrue(loaded.getColumnContainer().size() >= 1);
+      assertTrue(
+          loaded.doesPropertyHaveValue(
+              PSDisplayFormat.PROP_COMMUNITY, PSDisplayFormat.PROP_COMMUNITY_ALL));
+
+      PSDisplayFormat restricted = newDisplayFormat(2048, "QaH2Df");
+      restricted.setDisplayName("QA H2 DF");
+      restricted.addCommunity("1001");
+      PSUiDesignWs.DisplayFormatRowSpec restrictedSpec = PSUiDesignWs.displayFormatRowSpec(restricted);
+      PSUiDesignWs.ensureDisplayFormatProperties(conn, restrictedSpec);
+      assertTrue(
+          PSUiDesignWs.displayFormatPropertyExists(
+              conn, spec.displayId, PSDisplayFormat.PROP_COMMUNITY, "1001"));
+      assertFalse(
+          PSUiDesignWs.displayFormatPropertyExists(
+              conn,
+              spec.displayId,
+              PSDisplayFormat.PROP_COMMUNITY,
+              PSDisplayFormat.PROP_COMMUNITY_ALL));
+      PSDisplayFormat loadedRestricted =
+          PSUiDesignWs.loadDisplayFormatFromDb(conn, spec.displayId, spec.internalName);
+      assertTrue(loadedRestricted.doesPropertyHaveValue(PSDisplayFormat.PROP_COMMUNITY, "1001"));
+      assertFalse(
+          loadedRestricted.doesPropertyHaveValue(
+              PSDisplayFormat.PROP_COMMUNITY, PSDisplayFormat.PROP_COMMUNITY_ALL));
+
+      PSDisplayFormat allAgain = newDisplayFormat(2048, "QaH2Df");
+      allAgain.setDisplayName("QA H2 DF");
+      allAgain.addCommunity(null);
+      PSUiDesignWs.ensureDisplayFormatProperties(conn, PSUiDesignWs.displayFormatRowSpec(allAgain));
+      PSDisplayFormat loadedAll =
+          PSUiDesignWs.loadDisplayFormatFromDb(conn, spec.displayId, spec.internalName);
+      assertTrue(
+          loadedAll.doesPropertyHaveValue(
+              PSDisplayFormat.PROP_COMMUNITY, PSDisplayFormat.PROP_COMMUNITY_ALL));
+      assertFalse(loadedAll.doesPropertyHaveValue(PSDisplayFormat.PROP_COMMUNITY, "1001"));
     }
   }
 

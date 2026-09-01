@@ -1385,7 +1385,7 @@ clients can load **Object ACL** via `GET /services/acls/object/{guid}`.
 | `GET` | `/services/displayformats` | List formats (optional `validForFolder` / `validForViewsAndSearches`) |
 | `GET` | `/services/displayformats/{idOrName}` | Load one format by internal name or GUID string |
 | `POST` | `/services/displayformats` | **Admin.** Create a format (`createDisplayFormats` then `saveDisplayFormats`) |
-| `PUT` | `/services/displayformats/{idOrName}` | **Admin.** Update `label`/`displayName` and/or `description`; `columns` replaces the column list when present |
+| `PUT` | `/services/displayformats/{idOrName}` | **Admin.** Update `label`/`displayName` and/or `description`; `columns` replaces the column list when present; `allowedCommunities` replaces community visibility when present |
 | `DELETE` | `/services/displayformats/{idOrName}` | **Admin.** Delete a user format (loaded component XML persist; dependents `ignoreDependencies=false`) |
 
 JSON wraps the list as `DisplayFormatList` (`{"DisplayFormatList":[…]}`) including the empty
@@ -1409,12 +1409,19 @@ Update (`PUT /services/displayformats/{idOrName}`) loads with a design lock
 `displayName` and `description` round-trip. When `columns` is present, the column list
 is **replaced** (add, remove, and reorder). Omit `columns` to leave the stored list
 unchanged. Invalid column `source` (blank, whitespace, wildcards, or path characters)
-is **400**. Duplicate sources in the same list are **400**. Usage flags on GET
+is **400**. Duplicate sources in the same list are **400**. When `allowedCommunities`
+is present, community visibility is **replaced**. The value is a JSON **array** of
+`{guid,name}` rows (GUID string or community name). An **empty array** is all
+communities (Workbench `sys_community=-1`). Omit `allowedCommunities` to leave
+visibility unchanged. There is no distinct “no communities” state — empty and
+all-communities persist the same way. Unknown community is **400**. Non-Admin is
+**403**. GET returns an empty array when the format is visible to all communities,
+and the restricted rows when it is not. The Developer SPA edits columns and allowed communities on
+**user** formats only; packaged/system formats stay read-only in that catalog. See
+[Developer Display Formats](id:admin-developer-display-formats). Usage flags on GET
 (`validForFolder`, `validForViewsAndSearches`, `validForRelatedContent`) are **derived
 from columns** the same way Workbench computes them — they are not independently
-persisted on PUT. The Developer SPA edits columns on **user** formats only;
-packaged/system formats stay read-only in that catalog. See
-[Developer Display Formats](id:admin-developer-display-formats).
+persisted on PUT.
 
 Delete (`DELETE /services/displayformats/{idOrName}`) returns **204** when the format is
 removed from the catalog; a following `GET` is **404**. The REST adaptor loads the format
@@ -1428,10 +1435,10 @@ to prove this path — create a uniquely named user format with `POST`, then `DE
 name.
 
 **Developer → Display Formats** chrome creates and deletes user display formats
-(and saves label / description) and edits columns on **user** formats. Packaged
-formats stay read-only. The catalog lists user-created formats and omits a row
-after a successful REST or SPA delete. See
-[Developer Display Formats](id:admin-developer-display-formats).
+(and saves label / description), edits columns on **user** formats, and sets
+**allowed communities** on **user** formats. Packaged formats stay read-only.
+The catalog lists user-created formats and omits a row after a successful REST
+or SPA delete. See [Developer Display Formats](id:admin-developer-display-formats).
 
 ### Object ACL save (display format and peers)
 
