@@ -60,6 +60,8 @@ class DisplayFormatAdaptorSafeKeyTest {
     Method setKey = PSDbComponent.class.getDeclaredMethod("setKey", PSKey.class);
     setKey.setAccessible(true);
     setKey.invoke(nativeDf, key);
+    nativeDf.setName("By_Author");
+    nativeDf.setInternalName("By_Author");
     assertEquals(301, nativeDf.getDisplayId());
 
     when(designWs.findDisplayFormat(eq("By_Author"))).thenReturn(nativeDf);

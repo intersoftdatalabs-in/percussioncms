@@ -32,6 +32,8 @@ Operators using **Developer → Slots** create/delete chrome: [Developer Slots](
 
 Operators using **Developer → Item Filters** create/save/delete chrome: [Developer Item Filters](id:admin-developer-item-filters).
 
+Operators using **Developer → Display Formats** column add/remove/reorder chrome: [Developer Display Formats](id:admin-developer-display-formats).
+
 ## Architecture snapshot
 
 ```text

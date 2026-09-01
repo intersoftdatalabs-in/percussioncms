@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { get } from "../client";
+import { get, put } from "../client";
 import {
   normalizeDisplayFormatGuid,
   objectGuidString,
@@ -24,6 +24,17 @@ import {
 } from "../displayFormatGuid";
 import { PATHS } from "../paths";
 import type { DisplayFormat, DisplayFormatColumn } from "./types";
+
+/** Jackson / JAXB root for DisplayFormat (UNWRAP_ROOT_VALUE on PUT). */
+export const DISPLAY_FORMAT_ROOT = "DisplayFormat";
+
+/** Writable PUT body — name is the catalog key (not renamed). */
+export type DisplayFormatWriteBody = Pick<
+  DisplayFormat,
+  "name" | "label" | "displayName" | "description"
+> & {
+  columns?: DisplayFormatColumn[];
+};
 
 // Re-export shared GUID helpers so existing developer imports keep working.
 export {
@@ -58,5 +69,27 @@ export async function listDisplayFormats(): Promise<DisplayFormat[]> {
 export async function getDisplayFormatDetail(idOrName: string): Promise<DisplayFormat> {
   const key = encodeURIComponent(idOrName);
   const payload = await get<unknown>(`${PATHS.DISPLAY_FORMATS}/${key}`);
+  return unwrapDisplayFormat(payload);
+}
+
+/** Wire JSON for PUT — a flat body fails JAXB root unwrap. */
+export function wrapDisplayFormatForWire(
+  body: DisplayFormatWriteBody,
+): Record<string, DisplayFormatWriteBody> {
+  return { [DISPLAY_FORMAT_ROOT]: body };
+}
+
+/**
+ * PUT /services/displayformats/{idOrName} — Admin. Name is not renamed.
+ * {@code columns} replaces the column list when present. Missing is 404.
+ */
+export async function updateDisplayFormat(
+  idOrName: string,
+  body: DisplayFormatWriteBody,
+): Promise<DisplayFormat> {
+  const payload = await put<unknown>(
+    `${PATHS.DISPLAY_FORMATS}/${encodeURIComponent(idOrName)}`,
+    wrapDisplayFormatForWire(body),
+  );
   return unwrapDisplayFormat(payload);
 }

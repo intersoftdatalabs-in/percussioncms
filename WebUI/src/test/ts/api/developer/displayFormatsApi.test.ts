@@ -16,12 +16,15 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  DISPLAY_FORMAT_ROOT,
   getDisplayFormatDetail,
   listDisplayFormats,
   objectGuidString,
   resolveDisplayFormatObjectGuid,
   unwrapDisplayFormat,
   unwrapDisplayFormatList,
+  updateDisplayFormat,
+  wrapDisplayFormatForWire,
 } from "../../../../main/ts/api/developer/displayFormatsApi";
 
 describe("objectGuidString", () => {
@@ -218,6 +221,58 @@ describe("getDisplayFormatDetail", () => {
 
     const detail = await getDisplayFormatDetail("By_Author");
     expect(detail.guid?.stringValue).toBe("0-11-5");
+  });
+});
+
+describe("wrapDisplayFormatForWire", () => {
+  it("wraps columns under DisplayFormat root for JAXB PUT", () => {
+    const body = {
+      name: "MyFmt",
+      columns: [{ source: "sys_title", position: 0 }],
+    };
+    expect(wrapDisplayFormatForWire(body)).toEqual({
+      [DISPLAY_FORMAT_ROOT]: body,
+    });
+  });
+});
+
+describe("updateDisplayFormat", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("PUTs wrapped body with columns", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init?: RequestInit) => {
+        expect(init?.method).toBe("PUT");
+        const parsed = JSON.parse(String(init?.body));
+        expect(parsed.DisplayFormat.columns).toHaveLength(2);
+        expect(parsed.DisplayFormat.columns[1].source).toBe("sys_contentid");
+        return new Response(
+          JSON.stringify({
+            DisplayFormat: {
+              name: "MyFmt",
+              columns: parsed.DisplayFormat.columns,
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }),
+    );
+
+    const saved = await updateDisplayFormat("MyFmt", {
+      name: "MyFmt",
+      columns: [
+        { source: "sys_title", position: 0 },
+        { source: "sys_contentid", position: 1 },
+      ],
+    });
+    expect(saved.name).toBe("MyFmt");
+    expect(saved.columns).toHaveLength(2);
+    const calledUrl = String((fetch as ReturnType<typeof vi.fn>).mock.calls[0][0]);
+    expect(calledUrl).toContain("/displayformats/");
+    expect(calledUrl).toContain("MyFmt");
   });
 });
 

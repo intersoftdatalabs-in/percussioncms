@@ -35,12 +35,14 @@ type SelectedFormat = {
 };
 
 /**
- * P0.11 — display format catalog + read-only detail (UI-05 read).
+ * P0.11 / UI-08 — display format catalog + detail. User formats can add/remove/reorder
+ * columns via PUT. Packaged/system formats stay read-only.
  */
 export function DisplayFormatsPanel(): React.ReactElement {
   const [items, setItems] = useState<DisplayFormat[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<SelectedFormat | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -56,7 +58,7 @@ export function DisplayFormatsPanel(): React.ReactElement {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadToken]);
 
   const sorted = useMemo(() => {
     if (!items) return [];
@@ -84,6 +86,7 @@ export function DisplayFormatsPanel(): React.ReactElement {
         idOrName={selected.idOrName}
         catalogGuid={selected.catalogGuid}
         onBack={() => setSelected(null)}
+        onColumnsSaved={() => setReloadToken((n) => n + 1)}
       />
     );
   }

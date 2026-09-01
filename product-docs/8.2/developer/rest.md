@@ -1353,7 +1353,7 @@ clients can load **Object ACL** via `GET /services/acls/object/{guid}`.
 | `GET` | `/services/displayformats` | List formats (optional `validForFolder` / `validForViewsAndSearches`) |
 | `GET` | `/services/displayformats/{idOrName}` | Load one format by internal name or GUID string |
 | `POST` | `/services/displayformats` | **Admin.** Create a format (`createDisplayFormats` then `saveDisplayFormats`) |
-| `PUT` | `/services/displayformats/{idOrName}` | **Admin.** Update `label`/`displayName` and/or `description` |
+| `PUT` | `/services/displayformats/{idOrName}` | **Admin.** Update `label`/`displayName` and/or `description`; `columns` replaces the column list when present |
 | `DELETE` | `/services/displayformats/{idOrName}` | **Admin.** Delete a format (`deleteDisplayFormats`, `ignoreDependencies=false`) |
 
 JSON wraps the list as `DisplayFormatList` (`{"DisplayFormatList":[…]}`) including the empty
@@ -1372,16 +1372,23 @@ The new format is then `GET /services/displayformats/{name}` **200**.
 
 Update (`PUT /services/displayformats/{idOrName}`) loads with a design lock
 (`overrideLock=false`) and releases it on save. Name is not renamed on PUT. `label` /
-`displayName` and `description` round-trip. Usage flags on GET (`validForFolder`,
-`validForViewsAndSearches`, `validForRelatedContent`) are **derived from columns** the
-same way Workbench computes them — they are not independently persisted on PUT.
+`displayName` and `description` round-trip. When `columns` is present, the column list
+is **replaced** (add, remove, and reorder). Omit `columns` to leave the stored list
+unchanged. Invalid column `source` (blank, whitespace, wildcards, or path characters)
+is **400**. Duplicate sources in the same list are **400**. Usage flags on GET
+(`validForFolder`, `validForViewsAndSearches`, `validForRelatedContent`) are **derived
+from columns** the same way Workbench computes them — they are not independently
+persisted on PUT. The Developer SPA edits columns on **user** formats only;
+packaged/system formats stay read-only in that catalog. See
+[Developer Display Formats](id:admin-developer-display-formats).
 
 Delete (`DELETE /services/displayformats/{idOrName}`) returns **204** when removed; a
 following `GET` is **404**. Unknown id/name is **404**. A format that still has dependents
 is **409**. Locked-by-another-user is **409** (the lock is not stolen). Non-Admin is **403**.
 
-There is **no** Developer SPA display-format editor write in this slice — operators and
-integrators call the REST path (or Workbench).
+Display-format **create/delete** and allowed-community write are not in the
+Developer SPA column editor. Integrators can still call those REST methods
+directly (or use Workbench).
 
 ### Object ACL save (display format and peers)
 
