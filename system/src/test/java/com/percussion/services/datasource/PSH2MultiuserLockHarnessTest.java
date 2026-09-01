@@ -51,8 +51,8 @@ import org.junit.jupiter.api.io.TempDir;
  * without a full CMS Spring container:
  *
  * <ul>
- *   <li>Exclusive checkout via {@code SELECT … FOR UPDATE} then update of a checkout-user column
- *       (CONTENTSTATUS-style)
+ *   <li>Exclusive checkout via {@code SELECT … FOR UPDATE} then a compare-and-set update of a
+ *       checkout-user column ({@code WHERE CHECKOUTUSER IS NULL} / rowcount == 1, CONTENTSTATUS-style)
  *   <li>Design-object locks via row-level exclusive claim (PSObjectLock-style)
  *   <li>≥10 concurrent "editors" on distinct connections (FR-003 / SC-005 floor)
  *   <li>Same-item exclusive vs distinct-item parallel (T070)
@@ -225,6 +225,9 @@ public class PSH2MultiuserLockHarnessTest {
     final int itemId = 15;
     ExecutorService pool = Executors.newFixedThreadPool(EDITOR_COUNT);
     CountDownLatch start = new CountDownLatch(1);
+    // Hold the winner's checkout until every editor has attempted, so a legitimate serial
+    // handoff after check-in cannot inflate the exclusive-winner count (#4105).
+    CountDownLatch attemptsDone = new CountDownLatch(EDITOR_COUNT);
     AtomicInteger winners = new AtomicInteger();
     AtomicInteger losers = new AtomicInteger();
     List<Future<?>> futures = new ArrayList<>();
@@ -234,11 +237,22 @@ public class PSH2MultiuserLockHarnessTest {
       futures.add(
           pool.submit(
               () -> {
+                boolean won = false;
                 try {
-                  start.await(30, TimeUnit.SECONDS);
-                  if (checkoutItem(itemId, "editor-" + editor)) {
-                    // hold lock briefly then edit
-                    Thread.sleep(50);
+                  if (!start.await(30, TimeUnit.SECONDS)) {
+                    throw new IllegalStateException("start latch timeout");
+                  }
+                  won = checkoutItem(itemId, "editor-" + editor);
+                } catch (Exception ex) {
+                  throw new RuntimeException(ex);
+                } finally {
+                  attemptsDone.countDown();
+                }
+                try {
+                  if (won) {
+                    if (!attemptsDone.await(30, TimeUnit.SECONDS)) {
+                      throw new IllegalStateException("checkout-attempt latch timeout");
+                    }
                     updateBody(itemId, "editor-" + editor, "winner-body-" + editor);
                     checkinItem(itemId, "editor-" + editor);
                     winners.incrementAndGet();
@@ -272,6 +286,80 @@ public class PSH2MultiuserLockHarnessTest {
         assertNull(rs.getString(1));
         assertEquals(1, rs.getInt(2), "single edit applied");
         assertTrue(rs.getString(3).startsWith("winner-body-"));
+      }
+      c.commit();
+    }
+  }
+
+  @Test
+  @DisplayName("After exclusive check-in, a different editor may check out (serial handoff)")
+  void checkoutAfterCheckin_nextEditorWins() throws Exception {
+    final int itemId = 16;
+    assertTrue(checkoutItem(itemId, "editor-0"));
+    updateBody(itemId, "editor-0", "first-edit");
+    checkinItem(itemId, "editor-0");
+    assertTrue(checkoutItem(itemId, "editor-1"), "check-in must release exclusive checkout");
+    updateBody(itemId, "editor-1", "second-edit");
+    checkinItem(itemId, "editor-1");
+
+    try (Connection c = connect();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "SELECT CHECKOUTUSER, VERSION, BODY FROM CONTENT_ITEM WHERE CONTENTID = ?")) {
+      ps.setInt(1, itemId);
+      try (ResultSet rs = ps.executeQuery()) {
+        assertTrue(rs.next());
+        assertNull(rs.getString(1));
+        assertEquals(2, rs.getInt(2), "two serial edits");
+        assertEquals("second-edit", rs.getString(3));
+      }
+      c.commit();
+    }
+  }
+
+  @Test
+  @DisplayName("Compare-and-set checkout UPDATE yields a single rowcount winner under contention")
+  void atomicCheckoutClaim_rowcountSingleWinner() throws Exception {
+    final int itemId = 17;
+    ExecutorService pool = Executors.newFixedThreadPool(EDITOR_COUNT);
+    CountDownLatch start = new CountDownLatch(1);
+    AtomicInteger claims = new AtomicInteger();
+    List<Future<?>> futures = new ArrayList<>();
+
+    for (int e = 0; e < EDITOR_COUNT; e++) {
+      final String user = "cas-" + e;
+      futures.add(
+          pool.submit(
+              () -> {
+                try {
+                  if (!start.await(30, TimeUnit.SECONDS)) {
+                    throw new IllegalStateException("start latch timeout");
+                  }
+                  if (claimFreeCheckout(itemId, user) == 1) {
+                    claims.incrementAndGet();
+                  }
+                } catch (Exception ex) {
+                  throw new RuntimeException(ex);
+                }
+              }));
+    }
+
+    start.countDown();
+    for (Future<?> f : futures) {
+      f.get(60, TimeUnit.SECONDS);
+    }
+    pool.shutdown();
+    assertTrue(pool.awaitTermination(30, TimeUnit.SECONDS));
+
+    assertEquals(1, claims.get(), "exactly one CAS checkout claim");
+    try (Connection c = connect();
+        PreparedStatement ps =
+            c.prepareStatement("SELECT CHECKOUTUSER FROM CONTENT_ITEM WHERE CONTENTID = ?")) {
+      ps.setInt(1, itemId);
+      try (ResultSet rs = ps.executeQuery()) {
+        assertTrue(rs.next());
+        String holder = rs.getString(1);
+        assertTrue(holder != null && holder.startsWith("cas-"), holder);
       }
       c.commit();
     }
@@ -375,6 +463,9 @@ public class PSH2MultiuserLockHarnessTest {
   /**
    * Exclusive checkout: lock row, succeed only if free or already held by same user.
    *
+   * <p>H2 {@code SELECT … FOR UPDATE} is not a reliable exclusive barrier across connections in
+   * this FILE_LOCK=NO harness, so the claim is the compare-and-set {@code UPDATE} (rowcount == 1).
+   *
    * @return true if this editor holds the checkout after the call
    */
   private boolean checkoutItem(int contentId, String user) throws SQLException {
@@ -398,17 +489,46 @@ public class PSH2MultiuserLockHarnessTest {
           }
         }
       }
-      try (PreparedStatement upd =
-          c.prepareStatement("UPDATE CONTENT_ITEM SET CHECKOUTUSER = ? WHERE CONTENTID = ?")) {
-        upd.setString(1, user);
-        upd.setInt(2, contentId);
-        upd.executeUpdate();
+      int n = claimFreeCheckout(c, contentId, user);
+      if (n != 1) {
+        LAST_SQL_ERROR.set("claim lost (rowcount=" + n + ")");
+        c.rollback();
+        return false;
       }
       c.commit();
       return true;
     } catch (SQLException e) {
       LAST_SQL_ERROR.set(e.getSQLState() + " " + e.getMessage());
       return false;
+    }
+  }
+
+  /**
+   * Single-winner checkout claim: update only a free row (or a re-checkout by the same user).
+   *
+   * @return updated row count (1 = this connection won the claim)
+   */
+  private int claimFreeCheckout(int contentId, String user) throws SQLException {
+    try (Connection c = connect()) {
+      int n = claimFreeCheckout(c, contentId, user);
+      if (n == 1) {
+        c.commit();
+      } else {
+        c.rollback();
+      }
+      return n;
+    }
+  }
+
+  private int claimFreeCheckout(Connection c, int contentId, String user) throws SQLException {
+    try (PreparedStatement upd =
+        c.prepareStatement(
+            "UPDATE CONTENT_ITEM SET CHECKOUTUSER = ? WHERE CONTENTID = ? AND (CHECKOUTUSER IS NULL"
+                + " OR CHECKOUTUSER = '' OR CHECKOUTUSER = ?)")) {
+      upd.setString(1, user);
+      upd.setInt(2, contentId);
+      upd.setString(3, user);
+      return upd.executeUpdate();
     }
   }
 
