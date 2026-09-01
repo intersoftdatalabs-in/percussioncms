@@ -1797,6 +1797,59 @@ Example create body:
 | `409` | Duplicate name, design lock held by another user, or dependents |
 | `500` | Design service or server failure |
 
+## Community new-search defaults (UI-09)
+
+Admin REST for **which Content Explorer searches are the “new search” defaults for a
+community**. This is the Workbench community-search assignment (`cxNewSearch` on the
+search definition), persisted through `IPSUiDesignWs` load/save searches — the same
+design path SOAP uses. It does **not** create or delete searches (see
+[Search write contract](#search-write-contract-admin) and sibling search persist).
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/communities/{idOrName}/new-search-defaults` | **Admin.** Current default-search set for the community |
+| `PUT` | `/services/communities/{idOrName}/new-search-defaults` | **Admin.** Replace the set (empty `searches` clears explicit defaults) |
+
+`{idOrName}` is numeric community id, GUID string, or exact name (same lookup as
+`GET /services/communities/{idOrName}`). GET of a community with **no** explicit
+defaults is **200** with `searches: []`, not 404.
+
+PUT body is `CommunityNewSearchDefaults`. Each `searches[]` entry may identify a
+search by `name`, numeric `id`, or `guid.stringValue` (same keys as
+`/services/searches/{idOrName}`). A second identical PUT is idempotent **200**.
+Unknown or duplicate search is **400**. Unknown community is **404**. Non-Admin is
+**403**. Design lock held by another user is **409**.
+
+JSON uses the `CommunityNewSearchDefaults` wire type (JAXB/Jackson
+UNWRAP_ROOT_VALUE). Prefer the generated OpenAPI schema as the integration source
+of truth.
+
+Example GET / PUT body:
+
+```json
+{
+  "CommunityNewSearchDefaults": {
+    "communityId": 10,
+    "communityName": "Default",
+    "searches": [
+      { "name": "SimpleSearch", "id": 42 }
+    ]
+  }
+}
+```
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | GET / PUT success (empty `searches` is a valid empty set) |
+| `400` | Invalid body, unknown search, or duplicate search in the PUT set |
+| `403` | Caller is not Admin, or the request has no session/user for PUT |
+| `404` | Community not found |
+| `409` | Design lock held by another user |
+| `500` | Design service or server failure |
+
+There is no Developer SPA for this assignment in this release; operators and
+integrators call the REST surface above.
+
 ### Search execute body
 
 Execute POST body is the JAXB envelope `{ "SearchExecuteRequest": { … } }` (flat

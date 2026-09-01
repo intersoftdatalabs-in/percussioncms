@@ -76,6 +76,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restAclResource" />
             <ref bean="restActionMenuResource" />
             <ref bean="restCommunityResource" />
+            <ref bean="restCommunityNewSearchDefaultsResource" />
             <ref bean="restDisplayFormatResource" />
             <ref bean="restFoldersResource" />
             <ref bean="restAssetResource" />
