@@ -1074,13 +1074,26 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          if (prepared.getGUID() != null)
             releasedIds.add(prepared.getGUID());
       }
-      // Locator saveComponents posts updateActions with no XML document
-      // (PSTransactionSet: Xml Document Expected). Persist RXMENUACTION via
-      // JDBC so Hibernate findActionMenusTree / GET catalog round-trip (#4119).
+      // SOAP / locator saveComponents writes the full RXMENUACTION graph
+      // (params, visibility, relations). REST H2 can still post updateActions
+      // with no XML document (PSTransactionSet: Xml Document Expected) and
+      // leave 0 parent rows — JDBC then fills RXMENUACTION for GET catalog.
+      try
+      {
+         saveComponents(components, PSAction.class, false, session, user);
+      }
+      catch (PSErrorsException e)
+      {
+         log.debug("saveComponents(updateActions) missed RXMENUACTION; JDBC fallback", e);
+      }
+      catch (RuntimeException e)
+      {
+         log.debug("saveComponents(updateActions) failed; JDBC fallback for REST H2", e);
+      }
       for (IPSDbComponent component : components)
       {
          if (component instanceof PSAction persisted)
-            ensureActionRowPersisted(persisted);
+            persistActionRowPreferringHibernate(persisted);
       }
       if (release && !releasedIds.isEmpty())
       {
@@ -2610,7 +2623,11 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       PSAction action = (PSAction) source.cloneFull();
       if (action.getId() <= 0 && source.getId() > 0)
       {
-         action = source;
+         PSKey sourceKey = source.getLocator();
+         PSKey copy = PSAction.createKey(String.valueOf(source.getId()));
+         if (sourceKey != null)
+            copy.setPersisted(sourceKey.isPersisted());
+         action.setLocator(copy);
       }
       if (!action.isPersisted())
       {
@@ -2689,7 +2706,67 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    /**
     * If {@code updateActions} did not INSERT, write {@code RXMENUACTION} so
     * Hibernate {@code findActionMenusTree} / GET catalog can list the name.
+    * Prefer the Hibernate {@code Session} JDBC connection so the write enrolls
+    * in the Spring {@code @Transactional} on {@link #saveActions}.
     */
+   void persistActionRowPreferringHibernate(PSAction action)
+   {
+      SessionFactory factory = getSessionFactory();
+      if (factory != null)
+      {
+         try
+         {
+            factory.getCurrentSession().doWork(conn -> persistActionRowOn(conn, action));
+            return;
+         }
+         catch (IllegalStateException e)
+         {
+            throw e;
+         }
+         catch (org.hibernate.HibernateException e)
+         {
+            if (e.getCause() instanceof SQLException)
+            {
+               throw new IllegalStateException(
+                     "Action menu was saved but is not visible to findActionMenusTree: " + action.getName(),
+                     e);
+            }
+            log.debug("No Hibernate current session for RXMENUACTION persist; PSConnectionHelper fallback",
+                  e);
+         }
+         catch (RuntimeException e)
+         {
+            log.debug("No Hibernate current session for RXMENUACTION persist; PSConnectionHelper fallback",
+                  e);
+         }
+      }
+      ensureActionRowPersisted(action);
+   }
+
+   static void persistActionRowOn(Connection conn, PSAction action) throws SQLException
+   {
+      ActionRowSpec spec = actionRowSpec(action);
+      if (actionRowExists(conn, spec.actionId, spec.name))
+      {
+         updateActionRow(conn, spec);
+      }
+      else
+      {
+         try
+         {
+            insertActionRow(conn, spec);
+         }
+         catch (SQLException insertEx)
+         {
+            if (!actionRowExists(conn, spec.actionId, spec.name))
+               throw insertEx;
+            updateActionRow(conn, spec);
+         }
+      }
+      if (spec.restUserMenu)
+         ensureRestUserMenuProperty(conn, spec.actionId);
+   }
+
    static void ensureActionRowPersisted(PSAction action)
    {
       ActionRowSpec spec = actionRowSpec(action);
@@ -2697,25 +2774,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       try
       {
          conn = PSConnectionHelper.getDbConnection();
-         if (actionRowExists(conn, spec.actionId, spec.name))
-         {
-            updateActionRow(conn, spec);
-         }
-         else
-         {
-            try
-            {
-               insertActionRow(conn, spec);
-            }
-            catch (SQLException insertEx)
-            {
-               if (!actionRowExists(conn, spec.actionId, spec.name))
-                  throw insertEx;
-               updateActionRow(conn, spec);
-            }
-         }
-         if (spec.restUserMenu)
-            ensureRestUserMenuProperty(conn, spec.actionId);
+         persistActionRowOn(conn, action);
       }
       catch (NamingException | SQLException e)
       {
@@ -2730,11 +2789,10 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    static boolean actionRowExists(Connection conn, int actionId, String name) throws SQLException
    {
-      String sql = "SELECT ACTIONID FROM RXMENUACTION WHERE ACTIONID = ? OR NAME = ?";
+      String sql = "SELECT ACTIONID FROM RXMENUACTION WHERE ACTIONID = ?";
       try (PreparedStatement ps = conn.prepareStatement(sql))
       {
          ps.setInt(1, actionId);
-         ps.setString(2, name);
          try (ResultSet rs = ps.executeQuery())
          {
             return rs.next();
@@ -2756,7 +2814,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    static void updateActionRow(Connection conn, ActionRowSpec spec) throws SQLException
    {
       String sql = "UPDATE RXMENUACTION SET NAME = ?, DISPLAYNAME = ?, DESCRIPTION = ?, URL = ?, SORTORDER = ?, "
-            + "TYPE = ?, HANDLER = ?, VERSION = ? WHERE ACTIONID = ? OR NAME = ?";
+            + "TYPE = ?, HANDLER = ?, VERSION = ? WHERE ACTIONID = ?";
       try (PreparedStatement ps = conn.prepareStatement(sql))
       {
          bindActionRow(ps, spec, true);
@@ -2777,7 +2835,6 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          ps.setString(7, spec.handler);
          ps.setInt(8, spec.version);
          ps.setInt(9, spec.actionId);
-         ps.setString(10, spec.name);
       }
       else
       {
@@ -2811,23 +2868,37 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       }
    }
 
-   static void deleteActionRow(Connection conn, int actionId) throws SQLException
+   /** Bind count for {@link #deleteActionChildRows} (not inferred from SQL text). */
+   enum ActionSqlBinds
    {
-      deleteActionChildRows(conn, "DELETE FROM RXMENUACTIONPARAM WHERE ACTIONID = ?", actionId);
-      deleteActionChildRows(conn, "DELETE FROM RXMENUACTIONPROPERTIES WHERE ACTIONID = ?", actionId);
-      deleteActionChildRows(conn, "DELETE FROM RXMENUVISIBILITY WHERE ACTIONID = ?", actionId);
-      deleteActionChildRows(conn, "DELETE FROM RXMODEUICONTEXTACTION WHERE ACTIONID = ?", actionId);
-      deleteActionChildRows(conn,
-            "DELETE FROM RXMENUACTIONRELATION WHERE ACTIONID = ? OR CHILDACTIONID = ?", actionId);
-      deleteActionChildRows(conn, "DELETE FROM RXMENUACTION WHERE ACTIONID = ?", actionId);
+      ACTION_ID,
+      ACTION_ID_AND_CHILD
    }
 
-   static void deleteActionChildRows(Connection conn, String sql, int actionId) throws SQLException
+   static void deleteActionRow(Connection conn, int actionId) throws SQLException
+   {
+      deleteActionChildRows(conn, "DELETE FROM RXMENUACTIONPARAM WHERE ACTIONID = ?", actionId,
+            ActionSqlBinds.ACTION_ID);
+      deleteActionChildRows(conn, "DELETE FROM RXMENUACTIONPROPERTIES WHERE ACTIONID = ?", actionId,
+            ActionSqlBinds.ACTION_ID);
+      deleteActionChildRows(conn, "DELETE FROM RXMENUVISIBILITY WHERE ACTIONID = ?", actionId,
+            ActionSqlBinds.ACTION_ID);
+      deleteActionChildRows(conn, "DELETE FROM RXMODEUICONTEXTACTION WHERE ACTIONID = ?", actionId,
+            ActionSqlBinds.ACTION_ID);
+      deleteActionChildRows(conn,
+            "DELETE FROM RXMENUACTIONRELATION WHERE ACTIONID = ? OR CHILDACTIONID = ?", actionId,
+            ActionSqlBinds.ACTION_ID_AND_CHILD);
+      deleteActionChildRows(conn, "DELETE FROM RXMENUACTION WHERE ACTIONID = ?", actionId,
+            ActionSqlBinds.ACTION_ID);
+   }
+
+   static void deleteActionChildRows(Connection conn, String sql, int actionId, ActionSqlBinds binds)
+         throws SQLException
    {
       try (PreparedStatement ps = conn.prepareStatement(sql))
       {
          ps.setInt(1, actionId);
-         if (sql.contains("CHILDACTIONID"))
+         if (binds == ActionSqlBinds.ACTION_ID_AND_CHILD)
             ps.setInt(2, actionId);
          ps.executeUpdate();
       }

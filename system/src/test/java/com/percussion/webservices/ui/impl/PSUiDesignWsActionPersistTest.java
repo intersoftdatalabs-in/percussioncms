@@ -63,6 +63,16 @@ class PSUiDesignWsActionPersistTest {
 
     assertTrue(prepared.isPersisted());
     assertEquals(42, prepared.getId());
+    assertNotSame(source, prepared);
+  }
+
+  @Test
+  void prepareActionForSave_neverReturnsTheCallerInstance() {
+    PSAction source = newAction(7, "NoMutate");
+    PSAction prepared = PSUiDesignWs.prepareActionForSave(source);
+    assertNotSame(source, prepared);
+    assertEquals("NoMutate", source.getName());
+    assertEquals(7, source.getId());
   }
 
   @Test
@@ -127,16 +137,28 @@ class PSUiDesignWsActionPersistTest {
       PSUiDesignWs.ensureRestUserMenuProperty(conn, spec.actionId);
       assertTrue(PSUiDesignWs.actionRowExists(conn, spec.actionId, spec.name));
       assertTrue(PSUiDesignWs.actionRowExists(conn, spec.actionId, "otherName"));
+      assertFalse(PSUiDesignWs.actionRowExists(conn, 9999, "QaH2Am"));
 
-      PSAction updated = newAction(2048, "QaH2Am");
+      PSAction sibling = newAction(2049, "Victim");
+      sibling.setLabel("Victim label");
+      PSUiDesignWs.insertActionRow(conn, PSUiDesignWs.actionRowSpec(sibling));
+
+      PSAction updated = newAction(2048, "Victim");
       updated.setLabel("Updated label");
       updated.setDescription("updated");
       PSUiDesignWs.ActionRowSpec updatedSpec = PSUiDesignWs.actionRowSpec(updated);
       PSUiDesignWs.updateActionRow(conn, updatedSpec);
-      assertTrue(PSUiDesignWs.actionRowExists(conn, 2048, "QaH2Am"));
+      assertTrue(PSUiDesignWs.actionRowExists(conn, 2048, "Victim"));
+      try (var rs =
+          conn.prepareStatement("SELECT DISPLAYNAME FROM RXMENUACTION WHERE ACTIONID = 2049")
+              .executeQuery()) {
+        assertTrue(rs.next());
+        assertEquals("Victim label", rs.getString(1));
+      }
 
       PSUiDesignWs.deleteActionRow(conn, spec.actionId);
       assertFalse(PSUiDesignWs.actionRowExists(conn, spec.actionId, spec.name));
+      assertTrue(PSUiDesignWs.actionRowExists(conn, 2049, "Victim"));
     }
   }
 

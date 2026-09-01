@@ -57,6 +57,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
@@ -85,6 +86,10 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
   private final IPSUiDesignWs service;
   private final BooleanSupplier adminChecker;
   private final Supplier<List<PSActionMenu>> hibernateMenus;
+
+  /** Per-request Hibernate catalog index (name/id → menu); cleared in write finally. */
+  private static final ThreadLocal<Map<String, PSActionMenu>> REQUEST_HIBERNATE_INDEX =
+      new ThreadLocal<>();
 
   /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
   @Autowired(required = false)
@@ -310,11 +315,11 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       throw new IllegalArgumentException("body is required");
     }
     String name = requireValidName(body.getName());
-    assertNameUnique(name);
     ActionType type = resolveCreateType(body);
     String session = currentSession();
     String user = currentUser();
     try {
+      assertNameUnique(name);
       List<PSAction> created = service.createActions(List.of(name), List.of(type), session, user);
       if (created == null || created.isEmpty() || created.get(0) == null) {
         throw new IllegalStateException("Design WS createActions returned empty");
@@ -339,6 +344,8 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     } catch (PSErrorException e) {
       log.error("Failed to create action menu {}", name, e);
       throw new IllegalStateException("Failed to create action menu", e);
+    } finally {
+      clearRequestHibernateIndex();
     }
   }
 
@@ -352,18 +359,19 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     if (!isSafeMenuKey(idOrName)) {
       return null;
     }
-    PSAction existing = findPsActionByKey(idOrName.trim());
-    if (existing == null) {
-      return null;
-    }
-    rejectSystemMenuWrite(existing);
-    IPSGuid id = safeGuid(existing);
-    if (id == null) {
-      throw new WebApplicationException(SYSTEM_MENU_WRITE, 409);
-    }
-    String session = currentSession();
-    String user = currentUser();
+    IPSGuid id = null;
     try {
+      PSAction existing = findPsActionByKey(idOrName.trim());
+      if (existing == null) {
+        return null;
+      }
+      rejectSystemMenuWrite(existing);
+      id = safeGuid(existing);
+      if (id == null) {
+        throw new WebApplicationException(SYSTEM_MENU_WRITE, 409);
+      }
+      String session = currentSession();
+      String user = currentUser();
       List<PSAction> loaded = service.loadActions(List.of(id), true, false, session, user);
       if (loaded == null || loaded.isEmpty() || loaded.get(0) == null) {
         return null;
@@ -375,13 +383,15 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     } catch (WebApplicationException | IllegalArgumentException e) {
       throw e;
     } catch (PSErrorResultsException e) {
-      if (isNotFound(e, id)) {
+      if (id != null && isNotFound(e, id)) {
         return null;
       }
       throw new WebApplicationException(
           "Could not update action menu; design lock required or held by another user", 409);
     } catch (PSErrorsException e) {
       throw mapSaveOrDeleteFailure("update", e);
+    } finally {
+      clearRequestHibernateIndex();
     }
   }
 
@@ -392,18 +402,19 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     if (!isSafeMenuKey(idOrName)) {
       return false;
     }
-    PSAction existing = findPsActionByKey(idOrName.trim());
-    if (existing == null) {
-      return false;
-    }
-    rejectSystemMenuWrite(existing);
-    IPSGuid id = safeGuid(existing);
-    if (id == null) {
-      throw new WebApplicationException(SYSTEM_MENU_WRITE, 409);
-    }
-    String session = currentSession();
-    String user = currentUser();
+    IPSGuid id = null;
     try {
+      PSAction existing = findPsActionByKey(idOrName.trim());
+      if (existing == null) {
+        return false;
+      }
+      rejectSystemMenuWrite(existing);
+      id = safeGuid(existing);
+      if (id == null) {
+        throw new WebApplicationException(SYSTEM_MENU_WRITE, 409);
+      }
+      String session = currentSession();
+      String user = currentUser();
       List<PSAction> locked = service.loadActions(List.of(id), true, false, session, user);
       if (locked == null || locked.isEmpty() || locked.get(0) == null) {
         throw new WebApplicationException(
@@ -414,13 +425,15 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     } catch (WebApplicationException e) {
       throw e;
     } catch (PSErrorResultsException e) {
-      if (isNotFound(e, id)) {
+      if (id != null && isNotFound(e, id)) {
         return false;
       }
       throw new WebApplicationException(
           "Could not delete action menu; design lock required or held by another user", 409);
     } catch (PSErrorsException e) {
       throw mapSaveOrDeleteFailure("delete", e);
+    } finally {
+      clearRequestHibernateIndex();
     }
   }
 
@@ -472,8 +485,57 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
   }
 
   PSAction findHibernateActionByKey(String key) {
-    PSActionMenu menu = matchHibernateMenu(hibernateMenus.get(), key);
+    PSActionMenu menu = matchHibernateMenu(requestHibernateMenus(), key);
     return menu == null ? null : psActionFromHibernate(menu);
+  }
+
+  List<PSActionMenu> requestHibernateMenus() {
+    Map<String, PSActionMenu> index = requestHibernateIndex();
+    if (index.isEmpty()) {
+      return List.of();
+    }
+    return new ArrayList<>(index.values());
+  }
+
+  Map<String, PSActionMenu> requestHibernateIndex() {
+    Map<String, PSActionMenu> cached = REQUEST_HIBERNATE_INDEX.get();
+    if (cached == null) {
+      cached = indexHibernateMenus(hibernateMenus.get());
+      REQUEST_HIBERNATE_INDEX.set(cached);
+    }
+    return cached;
+  }
+
+  static void clearRequestHibernateIndex() {
+    REQUEST_HIBERNATE_INDEX.remove();
+  }
+
+  static Map<String, PSActionMenu> indexHibernateMenus(List<PSActionMenu> menus) {
+    Map<String, PSActionMenu> out = new HashMap<>();
+    if (menus == null) {
+      return out;
+    }
+    for (PSActionMenu m : menus) {
+      indexHibernateMenuRecursive(m, out);
+    }
+    return out;
+  }
+
+  static void indexHibernateMenuRecursive(PSActionMenu m, Map<String, PSActionMenu> out) {
+    if (m == null || out == null) {
+      return;
+    }
+    if (StringUtils.isNotBlank(m.getName())) {
+      out.putIfAbsent(m.getName().toLowerCase(), m);
+    }
+    if (m.getActionId() > 0) {
+      out.putIfAbsent(Integer.toString(m.getActionId()), m);
+    }
+    if (m.getChildren() != null) {
+      for (PSActionMenu child : m.getChildren()) {
+        indexHibernateMenuRecursive(child, out);
+      }
+    }
   }
 
   static PSActionMenu matchHibernateMenu(List<PSActionMenu> menus, String key) {
@@ -769,12 +831,18 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     }
   }
 
+  /**
+   * Fail-closed write guard: a {@code null} GUID (or unresolvable Workbench path)
+   * is treated as a system/packaged menu and yields HTTP 409. Only REST-created
+   * user menus ({@link #REST_USER_MENU_PROP}) or a User path segment may be written.
+   */
   boolean isSystemMenu(PSAction action) {
     if (isRestUserMenu(action)) {
       return false;
     }
     IPSGuid guid = safeGuid(action);
     if (guid == null) {
+      log.info("Action menu GUID is null; treating as system menu (fail-closed write)");
       return true;
     }
     try {
@@ -802,8 +870,20 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     if (PSAction.YES.equalsIgnoreCase(StringUtils.defaultString(action.getProperty(REST_USER_MENU_PROP)))) {
       return true;
     }
-    PSActionMenu hibernate = matchHibernateMenu(hibernateMenus.get(), action.getName());
+    PSActionMenu hibernate = lookupHibernateMenu(action.getName());
     return hibernateHasRestUserMenu(hibernate);
+  }
+
+  PSActionMenu lookupHibernateMenu(String name) {
+    if (StringUtils.isBlank(name)) {
+      return null;
+    }
+    Map<String, PSActionMenu> index = requestHibernateIndex();
+    PSActionMenu byName = index.get(name.toLowerCase());
+    if (byName != null) {
+      return byName;
+    }
+    return matchHibernateMenu(hibernateMenus.get(), name);
   }
 
   static boolean hibernateHasRestUserMenu(PSActionMenu menu) {
@@ -879,12 +959,12 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
   private void assertNameUnique(String name) {
     try {
       if (nameExists(service.findActions(name, null, null), name)
-          || hibernateNameExists(hibernateMenus.get(), name)) {
+          || hibernateNameExists(requestHibernateMenus(), name)) {
         throw new WebApplicationException("Action menu already exists: " + name, 409);
       }
     } catch (WebApplicationException e) {
       throw e;
-    } catch (PSErrorException e) {
+    } catch (Exception e) {
       log.error("Failed to catalog action menus while checking uniqueness for {}", name, e);
       throw new IllegalStateException("Failed to catalog action menus", e);
     }

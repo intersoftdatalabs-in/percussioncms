@@ -50,6 +50,7 @@ import com.percussion.webservices.ui.data.ActionType;
 import jakarta.ws.rs.WebApplicationException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -82,6 +83,7 @@ class ActionMenuAdaptorWriteTest {
 
   @AfterEach
   void tearDown() {
+    ActionMenuAdaptor.clearRequestHibernateIndex();
     PSRequestInfo.resetRequestInfo();
   }
 
@@ -487,6 +489,48 @@ class ActionMenuAdaptorWriteTest {
     assertTrue(adaptor.deleteActionMenu("MyMenu"));
     verify(designWs)
         .deleteActions(eq(List.of(existing.getGUID())), eq(false), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void isSystemMenu_nullGuid_isFailClosed() {
+    PSAction action = new PSAction("NoGuid", "NoGuid");
+    assertTrue(adaptor.isSystemMenu(action));
+  }
+
+  @Test
+  void create_catalogPsErrorsException_is500() throws Exception {
+    when(designWs.findActions(eq("DupMenu"), isNull(), isNull()))
+        .thenThrow(new PSErrorsException());
+    ActionMenu body = new ActionMenu();
+    body.setName("DupMenu");
+    IllegalStateException ex =
+        assertThrows(IllegalStateException.class, () -> adaptor.createActionMenu(body));
+    assertTrue(ex.getMessage().toLowerCase().contains("catalog"));
+  }
+
+  @Test
+  void create_catalogRuntimeFailure_is500() throws Exception {
+    when(designWs.findActions(eq("DupMenu"), isNull(), isNull()))
+        .thenThrow(new IllegalStateException("catalog exploded"));
+    ActionMenu body = new ActionMenu();
+    body.setName("DupMenu");
+    IllegalStateException ex =
+        assertThrows(IllegalStateException.class, () -> adaptor.createActionMenu(body));
+    assertTrue(ex.getMessage().toLowerCase().contains("catalog"));
+  }
+
+  @Test
+  void indexHibernateMenus_indexesNameAndChildId() {
+    PSActionMenu child = new PSActionMenu("Child", "c", "MENUITEM", "", "server", 0);
+    child.setActionId(8);
+    PSActionMenu root = new PSActionMenu("Root", "r", "MENU", "", "server", 0);
+    root.setActionId(7);
+    root.setChildren(List.of(child));
+    Map<String, PSActionMenu> index = ActionMenuAdaptor.indexHibernateMenus(List.of(root));
+    assertEquals(root, index.get("root"));
+    assertEquals(child, index.get("child"));
+    assertEquals(root, index.get("7"));
+    assertEquals(child, index.get("8"));
   }
 
   @Test
