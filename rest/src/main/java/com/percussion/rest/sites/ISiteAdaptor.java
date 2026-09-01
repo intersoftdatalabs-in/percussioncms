@@ -141,10 +141,12 @@ public interface ISiteAdaptor {
    * Reports whether the last Virtual Site static build can be previewed (assembled home exists).
    *
    * <p>Last-output based: {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
-   * {@code http-json}, {@code object-storage}, {@code rss-atom}, and {@code icalendar} sites are
-   * previewable after a successful assemble. {@code rss-atom} uses a local RSS 2.0 / Atom
-   * fixture or loopback feed (no live remote feeds). {@code icalendar} uses a local RFC 5545
-   * {@code calendar.ics} fixture (no CalDAV). Missing output is {@code available=false} with a
+   * {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, and {@code
+   * sitemap-xml} sites are previewable after a successful assemble. {@code rss-atom} uses a local
+   * RSS 2.0 / Atom fixture or loopback feed (no live remote feeds). {@code icalendar} uses a local
+   * RFC 5545 {@code calendar.ics} fixture (no CalDAV). {@code sitemap-xml} uses a local {@code
+   * sitemap.xml} fixture (no live crawl). Leftover {@code virtual.remoteUrl} and credential
+   * properties on {@code sitemap-xml} are 400. Missing output is {@code available=false} with a
    * message (not a 500). Repository and unknown source kinds are 400. Requires Admin.
    *
    * @param nameOrId site name or GUID string, not blank
@@ -159,7 +161,7 @@ public interface ISiteAdaptor {
    *
    * <p>Same last-output contract as {@link #getVirtualSitePreviewStatus} for {@code git-filesystem},
    * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage},
-   * {@code rss-atom}, and {@code icalendar}.
+   * {@code rss-atom}, {@code icalendar}, and {@code sitemap-xml}.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param relativePath path under the output root ({@code 8.2/index.html}); blank means assembled

@@ -660,10 +660,12 @@ public class SitesAdaptor implements ISiteAdaptor {
    *
    * <p>Preview is last-output based and applies to allow-listed Virtual kinds ({@code
    * git-filesystem}, {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code
-   * object-storage}, {@code rss-atom}, and {@code icalendar}), not git-only. {@code rss-atom}
-   * streams last-build HTML from a local RSS 2.0 / Atom fixture (or loopback feed); leftover
-   * {@code virtual.remoteUrl} is 400. {@code icalendar} streams last-build HTML from a local
-   * RFC 5545 fixture; leftover {@code virtual.remoteUrl} is 400 (no CalDAV). Traditional
+   * object-storage}, {@code rss-atom}, {@code icalendar}, and {@code sitemap-xml}), not git-only.
+   * {@code rss-atom} streams last-build HTML from a local RSS 2.0 / Atom fixture (or loopback
+   * feed); leftover {@code virtual.remoteUrl} is 400. {@code icalendar} streams last-build HTML
+   * from a local RFC 5545 fixture; leftover {@code virtual.remoteUrl} is 400 (no CalDAV). {@code
+   * sitemap-xml} streams last-build local HTML from a {@code sitemap.xml} fixture; leftover
+   * {@code virtual.remoteUrl} and credential properties are 400 (no live crawl). Traditional
    * {@code repository} Sites and unknown {@code virtual.sourceKind} values return 400 via
    * {@link PSVirtualSiteHelper#validate}.
    */

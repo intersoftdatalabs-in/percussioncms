@@ -29,15 +29,16 @@ import org.springframework.stereotype.Component;
  * {@code icalendar}, and {@code sitemap-xml} {@code sourceKind}); JDBC credentials, HTTP secrets,
  * object-storage cloud credentials, rss-atom live feed credentials, CalDAV credentials, and
  * sitemap crawl credentials are never logged. REST Build
- * for {@code http-json}, {@code object-storage}, {@code rss-atom}, and {@code icalendar} uses the
- * same adaptor contract as git/CSV/SQL (local JSON fixture / loopback, local object-key bucket,
- * local RSS/Atom fixture, or local RFC 5545 {@code calendar.ics}; {@code virtual.remoteUrl}
- * stays 400). REST Publish copies last-build HTML to {@code IPSSite.root} for
- * git/CSV/SQL/{@code http-json}/object-storage/{@code rss-atom}/{@code icalendar}. Preview
- * status is last-output based ({@code available=false} when no build), including {@code
- * http-json}, {@code object-storage}, {@code rss-atom}, and {@code icalendar} last-build output
- * ({@code rss-atom} is a local RSS 2.0 / Atom fixture or loopback feed; {@code icalendar} is a
- * local RFC 5545 fixture only — no CalDAV).
+ * for {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, and {@code
+ * sitemap-xml} uses the same adaptor contract as git/CSV/SQL (local JSON fixture / loopback,
+ * local object-key bucket, local RSS/Atom fixture, local RFC 5545 {@code calendar.ics}, or local
+ * {@code sitemap.xml}; {@code virtual.remoteUrl} stays 400). REST Publish copies last-build HTML
+ * to {@code IPSSite.root} for git/CSV/SQL/{@code http-json}/object-storage/{@code
+ * rss-atom}/{@code icalendar}. Preview status is last-output based ({@code available=false} when
+ * no build), including {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code
+ * icalendar}, and {@code sitemap-xml} last-build output ({@code rss-atom} is a local RSS 2.0 /
+ * Atom fixture or loopback feed; {@code icalendar} is a local RFC 5545 fixture only — no CalDAV;
+ * {@code sitemap-xml} is last-build local HTML only — no live crawl).
  */
 @Component
 @Lazy

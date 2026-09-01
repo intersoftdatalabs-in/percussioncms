@@ -1105,6 +1105,66 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void previewStatusDelegatesSitemapXml() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(true);
+    status.setHomePath("8.2/index.html");
+    when(adaptor.getVirtualSitePreviewStatus("SitemapHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("SitemapHelp");
+    assertEquals(Boolean.TRUE, out.getAvailable());
+    assertEquals("8.2/index.html", out.getHomePath());
+    verify(adaptor).getVirtualSitePreviewStatus("SitemapHelp");
+  }
+
+  @Test
+  public void previewStatusSitemapXmlMissingBuildIsUnavailable() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(false);
+    status.setMessage("No assembled Virtual Site to preview. Run Build Virtual Site first.");
+    when(adaptor.getVirtualSitePreviewStatus("SitemapHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("SitemapHelp");
+    assertEquals(Boolean.FALSE, out.getAvailable());
+    assertTrue(out.getMessage() != null && out.getMessage().contains("No assembled"));
+    verify(adaptor).getVirtualSitePreviewStatus("SitemapHelp");
+  }
+
+  @Test
+  public void previewFileDelegatesSitemapXmlHtml() {
+    byte[] html = "<a href=\"/8.2/index.html\">Sitemap Home</a>".getBytes(StandardCharsets.UTF_8);
+    when(adaptor.previewVirtualSiteFile(eq("SitemapHelp"), eq("8.2/index.html")))
+        .thenReturn(
+            new VirtualSitePreviewFile("text/html; charset=UTF-8", "8.2/index.html", html));
+
+    Response out = resource.previewVirtualSiteFile("SitemapHelp", "8.2/index.html");
+    assertEquals(200, out.getStatus());
+    byte[] body = (byte[]) out.getEntity();
+    String text = new String(body, StandardCharsets.UTF_8);
+    assertTrue(
+        text.contains("/services/sites/SitemapHelp/virtual/preview/8.2/index.html"), text);
+    assertTrue(text.contains("Sitemap Home"), text);
+    verify(adaptor).previewVirtualSiteFile("SitemapHelp", "8.2/index.html");
+  }
+
+  @Test
+  public void previewStatusSitemapXmlLeftoverRemoteUrl400() {
+    when(adaptor.getVirtualSitePreviewStatus("SitemapHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for sitemap-xml",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.getVirtualSitePreviewStatus("SitemapHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
   public void buildVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.buildVirtualSite(" ", null));
@@ -1361,6 +1421,13 @@ public class SitesResourceTest {
         previewStatusBlock.contains("icalendar"),
         "getVirtualSitePreviewStatus OpenAPI description must mention icalendar");
     assertTrue(
+        previewStatusBlock.contains("sitemap-xml"),
+        "getVirtualSitePreviewStatus OpenAPI description must mention sitemap-xml");
+    assertTrue(
+        previewStatusBlock.contains("no live crawl")
+            || previewStatusBlock.contains("last-build local HTML"),
+        "getVirtualSitePreviewStatus OpenAPI description must mention sitemap-xml last-build local HTML");
+    assertTrue(
         previewFileBlock.contains("csv-filesystem"),
         "previewVirtualSiteFile OpenAPI description must mention csv-filesystem");
     assertTrue(
@@ -1378,6 +1445,13 @@ public class SitesResourceTest {
     assertTrue(
         previewFileBlock.contains("icalendar"),
         "previewVirtualSiteFile OpenAPI description must mention icalendar");
+    assertTrue(
+        previewFileBlock.contains("sitemap-xml"),
+        "previewVirtualSiteFile OpenAPI description must mention sitemap-xml");
+    assertTrue(
+        previewFileBlock.contains("no live crawl")
+            || previewFileBlock.contains("last-build local HTML"),
+        "previewVirtualSiteFile OpenAPI description must mention sitemap-xml last-build local HTML");
     assertTrue(
         previewFileBlock.contains("20 MB"),
         "previewVirtualSiteFile OpenAPI description must mention the 20 MB size cap");
