@@ -29,7 +29,8 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
  * Git-filesystem, csv-filesystem, sql-database, http-json, object-storage,
  * rss-atom, and icalendar Virtual Sites all run POST /virtual/build (SQL JDBC,
  * HTTP JSON catalog, object-storage keys, rss-atom feeds, and icalendar .ics
- * stay in _config.yaml / the local root). Repository / blank / unknown kinds
+ * stay in _config.yaml / the local root). sitemap-xml persist is save/GET only
+ * in this slice (Build chrome later). Repository / blank / unknown kinds
  * must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
@@ -50,8 +51,8 @@ export function shouldShowVirtualBuildChrome(
 /**
  * True when Preview assembled site should be shown.
  * Last-output preview for git-filesystem, csv-filesystem, sql-database,
- * http-json, object-storage, rss-atom, and icalendar. Repository / blank /
- * unknown kinds stay hidden.
+ * http-json, object-storage, rss-atom, and icalendar. sitemap-xml Preview
+ * chrome stays later. Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPreviewChrome(
   sourceKind: string | null | undefined,
@@ -72,7 +73,8 @@ export function shouldShowVirtualPreviewChrome(
  * True when the Publish Virtual Site control should be shown.
  * Git-filesystem, csv-filesystem, sql-database, http-json, object-storage,
  * rss-atom, and icalendar all run POST /virtual/publish (build then copy to
- * IPSSite.root). Repository / blank / unknown kinds stay hidden.
+ * IPSSite.root). sitemap-xml Publish chrome stays later. Repository / blank /
+ * unknown kinds stay hidden.
  */
 export function shouldShowVirtualPublishChrome(
   sourceKind: string | null | undefined,

@@ -1252,7 +1252,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Workflow association is browsed under the Workflows catalog",
   SITE_VIRT_TITLE: "perc.ui.developer@Virtual Site source",
   SITE_VIRT_HINT:
-    "perc.ui.developer@Configure whether this Site reads content from the repository or from a Virtual Site adapter (Git filesystem, CSV filesystem, SQL database, HTTP JSON, object storage, RSS / Atom, or iCalendar). Blank/repository keeps traditional repository content.",
+    "perc.ui.developer@Configure whether this Site reads content from the repository or from a Virtual Site adapter (Git filesystem, CSV filesystem, SQL database, HTTP JSON, object storage, RSS / Atom, iCalendar, or sitemap XML). Blank/repository keeps traditional repository content.",
   SITE_VIRT_LOADING: "perc.ui.developer@Loading Virtual Site source...",
   SITE_VIRT_ERROR: "perc.ui.developer@Could not load Virtual Site source.",
   SITE_VIRT_SAVE_ERROR: "perc.ui.developer@Could not save Virtual Site source.",
@@ -1288,6 +1288,9 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_KIND_ICALENDAR: "perc.ui.developer@iCalendar",
   SITE_VIRT_ICALENDAR_HINT:
     "perc.ui.developer@iCalendar uses the root path only (no Git remote). Point at a local RFC 5545 .ics fixture directory (calendar.ics or _config.yaml icalendar.file). Save sourceKind=icalendar, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target. CalDAV URLs and credentials are never sent on the REST envelope.",
+  SITE_VIRT_KIND_SITEMAP_XML: "perc.ui.developer@Sitemap XML",
+  SITE_VIRT_SITEMAP_XML_HINT:
+    "perc.ui.developer@Sitemap XML uses the root path only (no Git remote). Point at a local sitemap.xml fixture directory (sitemap.xml or _config.yaml sitemap.file). Save sourceKind=sitemap-xml; GET round-trips the kind. Live crawl URLs and credentials are never sent on the REST envelope. Build, Preview, and Publish chrome stay a later slice.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:
