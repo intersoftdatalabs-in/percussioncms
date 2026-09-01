@@ -30,6 +30,12 @@ public class ControlDef {
   private List<ControlParameter> parameters = new ArrayList<>();
   private List<String> designGaps = new ArrayList<>();
 
+  /**
+   * Optional full XSL stylesheet on write. Omitted on list/detail unless the client supplied it.
+   * When absent on POST/PUT the server generates a default user-control stylesheet from metadata.
+   */
+  private String xslSource;
+
   public ControlDef() {}
 
   public String getName() {
@@ -118,5 +124,18 @@ public class ControlDef {
 
   public void setDesignGaps(List<String> designGaps) {
     this.designGaps = designGaps;
+  }
+
+  @Schema(
+      description =
+          "Optional full XSL stylesheet for POST/PUT. When omitted the server writes a default"
+              + " user-control stylesheet from name/displayName/description/dimension/choiceSet."
+              + " Not a Developer SPA source editor.")
+  public String getXslSource() {
+    return xslSource;
+  }
+
+  public void setXslSource(String xslSource) {
+    this.xslSource = xslSource;
   }
 }

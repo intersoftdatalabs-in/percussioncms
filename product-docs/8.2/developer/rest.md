@@ -1654,6 +1654,79 @@ Content-type detail may still include **extra** per-item gaps (for example contr
 failures); those remain on the detail payload only. Structured `{ code, message }` entries apply
 on the Content Type / Template / Slot detail paths described above.
 
+## Content editor controls (catalog)
+
+Content editor **control** definitions (Workbench / Developer **Controls**, UI-01) are exposed
+under `/services/cecontrols`. List and detail include system (packaged) and user (custom)
+controls. Backing is **ALT** — `PSSystemControlManager` / `PSCustomControlManager` — there is
+no SOAP design twin and this API does not invent one.
+
+Admin **write** persists **user** controls as an XSL file under
+`rx_resources/stylesheets/controls` plus the custom-control import list
+(`PSCustomControlManager.writeImports`). Packaged **system** controls are read-only.
+**Do not** treat this as a Developer Controls SPA; chrome for create/save/delete is a later
+sibling. Full XSL source-editor UX is not provided by this API.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/cecontrols` | List system and user CE controls |
+| `GET` | `/services/cecontrols/{name}` | Load one control by name |
+| `POST` | `/services/cecontrols` | **Admin.** Create a user control (XSL file + import list) |
+| `PUT` | `/services/cecontrols/{name}` | **Admin.** Update a user control (metadata and/or optional `xslSource`) |
+| `DELETE` | `/services/cecontrols/{name}` | **Admin.** Delete a user control (removes the user XSL file and refreshes imports) |
+
+JSON objects use the `ControlDef` wire type. POST/PUT JSON is wrapped under a `ControlDef`
+root (JAXB/Jackson UNWRAP_ROOT_VALUE). Prefer the generated OpenAPI schema as the
+integration source of truth.
+
+### Control write contract (Admin)
+
+Create (`POST /services/cecontrols`) persists immediately. JSON body requires `name` (unique
+across system **and** user controls, case-insensitive; **no whitespace** or wildcards).
+Optional `displayName`, `description`, `dimension` (`single` default; `array`; `table`),
+`choiceSet` (`none` default; `required`; `optional`), and `xslSource` are applied. When
+`xslSource` is omitted the server writes a default user-control stylesheet from that
+metadata. Duplicate name is **409**. Blank / whitespace / wildcard names are **400**.
+Non-Admin is **403**. The new control is then `GET /services/cecontrols/{name}` **200** and
+appears on `GET /services/cecontrols`.
+
+Update (`PUT /services/cecontrols/{name}`) updates a **user** control. Name is the catalog
+key and is not renamed on PUT. Omitted `xslSource` regenerates a default stylesheet from
+metadata (send `xslSource` to keep a custom stylesheet). Unknown name is **404**. A
+**system** control is **409** (packaged files are not mutated). Non-Admin is **403**.
+
+Delete (`DELETE /services/cecontrols/{name}`) returns **204** when a user control is
+removed; a following `GET` is **404**. Unknown name is **404**. A **system** control is
+**409** (not deleted). Non-Admin is **403**.
+
+There is **no** Developer SPA controls catalog create/delete in this slice — operators and
+integrators call the REST path (or Workbench).
+
+Example create body:
+
+```json
+{
+  "ControlDef": {
+    "name": "myUserControl",
+    "displayName": "My User Control",
+    "description": "Created via REST",
+    "dimension": "single",
+    "choiceSet": "none"
+  }
+}
+```
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | List / get / create / update success |
+| `204` | Delete success |
+| `400` | Invalid input (missing name, whitespace/wildcard name, invalid dimension/choiceSet/xslSource) |
+| `403` | Caller is not Admin |
+| `404` | User control not found |
+| `409` | Duplicate name, or attempt to mutate/delete a packaged system control |
+| `500` | Control manager or file I/O failure |
+| `503` | Control adaptor not configured |
+
 ## Searches catalog and execute
 
 CX design **searches** (and optionally **views** on GET/execute) are exposed under
