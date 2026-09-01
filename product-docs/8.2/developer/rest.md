@@ -1437,14 +1437,18 @@ and read `guid.stringValue` or synthesize from `id` when the Guid is omitted.
 
 Admin **write** persists through `IPSUiDesignWs` (`createViews` / `loadViews` / `saveViews` /
 `deleteViews`) — the same design web service SOAP uses. There is no new SOAP surface.
-**Do not** treat this as a Developer Views SPA; chrome for create/save/delete is a later
-sibling. Execute is **not** invoked when creating, updating, or deleting a view.
+**Developer → Views** chrome creates and deletes standard views (and saves label /
+description / type / display format); field-criterion editing is not in that SPA — see
+[Developer Views](id:admin-developer-views). Execute is **not** invoked when creating,
+updating, or deleting a view. Create is durable: `GET /services/views` lists the new
+name after POST.
 
 Operators open Inbox from Explorer **Views → My Content → Inbox** (see
 [Content Explorer](id:admin-content-explorer)). Integrators run the same assignment list
 with the execute call below. `GET /services/views` includes the Inbox design view (name
 `Inbox`, custom URL `../sys_cxViews/inbox.xml`) even when the design-WS load path
-collapses sibling CX views to `View_All`.
+collapses sibling CX views to `View_All`. After Admin POST, GET list includes the
+created name (durable persist; a second POST of that name is **409**).
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -1533,7 +1537,9 @@ stub). JSON body requires `name` (unique across views **and** searches, case-ins
 **400** — searches stay on `/services/searches`. Custom URL (`url` set, or type
 `custom` / `CustomView`) is **400**. Duplicate name is **409**. Blank /
 whitespace / wildcard names are **400**. Missing request session/user is **403**.
-Non-Admin is **403**. The new view is then `GET /services/views/{name}` **200**.
+Non-Admin is **403**. The new view is then `GET /services/views/{name}` **200**
+and is included in `GET /services/views` (the create is durable; a second POST
+with the same name is **409**).
 
 Update (`PUT /services/views/{idOrName}`) loads with a design lock (`overrideLock=false`)
 and releases it on save. Name is not renamed on PUT. Omitted label / description / type /
@@ -1574,8 +1580,10 @@ Example create body:
 - Admin write is POST/PUT/DELETE on this resource. Inbox-family and custom URL views
   cannot be updated or deleted (`409`). Field criterion editing remains a `designGaps`
   note on detail.
-- This catalog is REST only. There is no Developer Views SPA create/save/delete in this
-  release.
+- Admin write is durable on H2 and other supported databases: after POST, GET
+  list includes the name. A POST that cannot be cataloged is not **200**.
+- **Developer → Views** chrome can create and delete standard views (field
+  criteria stay read-only). Inbox-family views stay **409** on mutate/delete.
 - Operator Inbox run-from-tree is Explorer **Views → My Content → Inbox**, not a
   free-floating Inbox root.
 
