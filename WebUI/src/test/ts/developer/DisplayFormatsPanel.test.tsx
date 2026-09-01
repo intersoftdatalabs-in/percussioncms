@@ -34,6 +34,7 @@ vi.mock("../../../main/ts/api/developer/displayFormatsApi", async (importOrigina
     getDisplayFormatDetail: vi.fn(),
     createDisplayFormat: vi.fn(),
     saveDisplayFormat: vi.fn(),
+    updateDisplayFormat: vi.fn(),
     deleteDisplayFormat: vi.fn(),
     normalizeColumns: (c: unknown) => (Array.isArray(c) ? c : []),
   };

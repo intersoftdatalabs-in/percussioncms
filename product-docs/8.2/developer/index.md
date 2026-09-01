@@ -38,7 +38,7 @@ Operators using **Developer → Communities** create/delete chrome: [Developer C
 
 Operators using **Developer → Views** create/delete chrome: [Developer Views](id:admin-developer-views).
 
-Operators using **Developer → Display Formats** create/delete chrome: [Developer Display Formats](id:admin-developer-display-formats).
+Operators using **Developer → Display Formats** create/delete and column add/remove/reorder chrome: [Developer Display Formats](id:admin-developer-display-formats).
 
 ## Architecture snapshot
 

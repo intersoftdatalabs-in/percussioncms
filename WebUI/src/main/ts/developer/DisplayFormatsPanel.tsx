@@ -10,7 +10,6 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -36,7 +35,8 @@ type SelectedFormat = {
 };
 
 /**
- * UI-05 — display format catalog with create / save / delete.
+ * UI-05 / UI-08 — display format catalog with create / save / delete and
+ * user-format column add/remove/reorder.
  */
 export function DisplayFormatsPanel(): React.ReactElement {
   const [items, setItems] = useState<DisplayFormat[] | null>(null);
@@ -107,6 +107,7 @@ export function DisplayFormatsPanel(): React.ReactElement {
         onBack={() => setSelected(null)}
         onSaved={() => void reload()}
         onDeleted={handleDeleted}
+        onColumnsSaved={() => void reload()}
       />
     );
   }
@@ -119,6 +120,7 @@ export function DisplayFormatsPanel(): React.ReactElement {
         onBack={() => setSelected(null)}
         onSaved={() => void reload()}
         onDeleted={handleDeleted}
+        onColumnsSaved={() => void reload()}
       />
     );
   }

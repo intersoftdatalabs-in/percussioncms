@@ -29,6 +29,7 @@ import {
   saveDisplayFormat,
   unwrapDisplayFormat,
   unwrapDisplayFormatList,
+  updateDisplayFormat,
   wrapDisplayFormatForWire,
 } from "../../../../main/ts/api/developer/displayFormatsApi";
 import { PATHS } from "../../../../main/ts/api/paths";
@@ -302,6 +303,16 @@ describe("display format wire wrap", () => {
       },
     });
   });
+
+  it("wraps columns under DisplayFormat root for JAXB PUT", () => {
+    const body = {
+      name: "MyFmt",
+      columns: [{ source: "sys_title", position: 0 }],
+    };
+    expect(wrapDisplayFormatForWire(body)).toEqual({
+      [DISPLAY_FORMAT_ROOT]: body,
+    });
+  });
 });
 
 describe("displayFormatsApi write paths", () => {
@@ -348,6 +359,29 @@ describe("displayFormatsApi write paths", () => {
     const init = fetchMock.mock.calls[0][1] as RequestInit;
     expect(init.method).toBe("PUT");
     expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.DISPLAY_FORMATS}/MyFmt`);
+  });
+
+  it("PUTs wrapped body with columns via updateDisplayFormat", async () => {
+    fetchMock.mockImplementationOnce(async (_url: string, init?: RequestInit) => {
+      const parsed = JSON.parse(String(init?.body));
+      expect(parsed.DisplayFormat.columns).toHaveLength(2);
+      expect(parsed.DisplayFormat.columns[1].source).toBe("sys_contentid");
+      return jsonResponse({
+        DisplayFormat: {
+          name: "MyFmt",
+          columns: parsed.DisplayFormat.columns,
+        },
+      });
+    });
+    const saved = await updateDisplayFormat("MyFmt", {
+      name: "MyFmt",
+      columns: [
+        { source: "sys_title", position: 0 },
+        { source: "sys_contentid", position: 1 },
+      ],
+    });
+    expect(saved.name).toBe("MyFmt");
+    expect(saved.columns).toHaveLength(2);
   });
 
   it("DELETEs /services/displayformats/{idOrName}", async () => {

@@ -35,10 +35,13 @@ import static org.mockito.Mockito.when;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.IPSDbComponent;
 import com.percussion.cms.objectstore.PSDbComponent;
+import com.percussion.cms.objectstore.PSDisplayColumn;
 import com.percussion.cms.objectstore.PSDisplayFormat;
 import com.percussion.cms.objectstore.PSKey;
 import com.percussion.rest.Guid;
 import com.percussion.rest.displayformat.DisplayFormat;
+import com.percussion.rest.displayformat.DisplayFormatColumn;
+import com.percussion.rest.displayformat.DisplayFormatColumnList;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
@@ -313,6 +316,107 @@ class DisplayFormatAdaptorWriteTest {
         .loadDisplayFormats(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin"));
     verify(designWs).saveDisplayFormats(anyList(), eq(true), eq("test-session"), eq("Admin"));
     verify(designWs, never()).createDisplayFormats(anyList(), any(), any());
+  }
+
+  @Test
+  void update_replacesColumnsWhenPresent() throws Exception {
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(nativeDf));
+
+    DisplayFormat body = new DisplayFormat();
+    DisplayFormatColumnList cols = new DisplayFormatColumnList();
+    DisplayFormatColumn title = new DisplayFormatColumn();
+    title.setSource("sys_title");
+    title.setDisplayName("Title");
+    title.setPosition(0);
+    DisplayFormatColumn created = new DisplayFormatColumn();
+    created.setSource("sys_contentcreatedby");
+    created.setDisplayName("Created by");
+    created.setPosition(1);
+    cols.add(title);
+    cols.add(created);
+    body.setColumns(cols);
+
+    DisplayFormat out = adaptor.updateDisplayFormat("MyFmt", body);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<PSDisplayFormat>> saved = ArgumentCaptor.forClass(List.class);
+    verify(designWs).saveDisplayFormats(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
+    PSDisplayFormat persisted = saved.getValue().get(0);
+    assertEquals(2, persisted.getColumnContainer().size());
+    assertEquals("sys_title", ((PSDisplayColumn) persisted.getColumnContainer().get(0)).getSource());
+    assertEquals(
+        "sys_contentcreatedby",
+        ((PSDisplayColumn) persisted.getColumnContainer().get(1)).getSource());
+    assertEquals("MyFmt", out.getName());
+  }
+
+  @Test
+  void update_invalidColumnSource_is400() throws Exception {
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(nativeDf));
+
+    DisplayFormat body = new DisplayFormat();
+    DisplayFormatColumnList cols = new DisplayFormatColumnList();
+    DisplayFormatColumn bad = new DisplayFormatColumn();
+    bad.setSource("has space");
+    cols.add(bad);
+    body.setColumns(cols);
+
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.updateDisplayFormat("MyFmt", body));
+    assertTrue(ex.getMessage().contains("whitespace"), ex.getMessage());
+    verify(designWs, never()).saveDisplayFormats(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_omittedColumns_leavesExisting() throws Exception {
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    nativeDf.setColumnList(nativeDf.getColumnContainer());
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(nativeDf));
+
+    DisplayFormat body = new DisplayFormat();
+    body.setLabel("Updated");
+
+    adaptor.updateDisplayFormat("MyFmt", body);
+    verify(designWs).saveDisplayFormats(anyList(), eq(true), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void requireValidColumnSource_rejectsBlankAndPath() {
+    IllegalArgumentException blank =
+        assertThrows(IllegalArgumentException.class, () -> DisplayFormatAdaptor.requireValidColumnSource("  "));
+    assertTrue(blank.getMessage().contains("required"));
+    IllegalArgumentException path =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> DisplayFormatAdaptor.requireValidColumnSource("../sys_title"));
+    assertTrue(path.getMessage().contains("invalid"));
+    assertEquals("sys_title", DisplayFormatAdaptor.requireValidColumnSource("sys_title"));
+  }
+
+  @Test
+  void findByName_rejectsByAuthorReplayAndLoadsSummaryGuid() throws Exception {
+    PSDisplayFormat replayed = nativeDisplayFormat(5, "By_Author");
+    PSDisplayFormat real = nativeDisplayFormat(42, "MyFmt");
+    IPSCatalogSummary summary = mock(IPSCatalogSummary.class);
+    when(summary.getName()).thenReturn("MyFmt");
+    when(summary.getGUID()).thenReturn(guid);
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(replayed);
+    when(designWs.findDisplayFormats(eq("MyFmt"), nullable(String.class)))
+        .thenReturn(List.of(summary));
+    when(designWs.findDisplayFormat(eq(guid))).thenReturn(real);
+
+    DisplayFormat out = adaptor.findDisplayFormatByKey("MyFmt");
+
+    assertEquals("MyFmt", out.getName());
+    assertEquals(42, out.getDisplayId());
   }
 
   @Test

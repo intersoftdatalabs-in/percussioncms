@@ -20,6 +20,7 @@ vi.mock("../../../main/ts/api/developer/displayFormatsApi", async (importOrigina
     getDisplayFormatDetail: vi.fn(),
     createDisplayFormat: vi.fn(),
     saveDisplayFormat: vi.fn(),
+    updateDisplayFormat: vi.fn(),
     deleteDisplayFormat: vi.fn(),
     normalizeColumns: (c: unknown) => (Array.isArray(c) ? c : []),
   };
@@ -45,6 +46,7 @@ const getDisplayFormatDetail = displayFormatsApi.getDisplayFormatDetail as Retur
 >;
 const createDisplayFormat = displayFormatsApi.createDisplayFormat as ReturnType<typeof vi.fn>;
 const saveDisplayFormat = displayFormatsApi.saveDisplayFormat as ReturnType<typeof vi.fn>;
+const updateDisplayFormat = displayFormatsApi.updateDisplayFormat as ReturnType<typeof vi.fn>;
 const deleteDisplayFormat = displayFormatsApi.deleteDisplayFormat as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
@@ -68,6 +70,7 @@ describe("DisplayFormatDetailPanel", () => {
     getDisplayFormatDetail.mockReset();
     createDisplayFormat.mockReset();
     saveDisplayFormat.mockReset();
+    updateDisplayFormat.mockReset();
     deleteDisplayFormat.mockReset();
   });
 
@@ -473,5 +476,104 @@ describe("DisplayFormatDetailPanel", () => {
   it("does not show delete on create", () => {
     render(<DisplayFormatDetailPanel idOrName={null} onBack={() => undefined} />);
     expect(screen.queryByTestId("developer-df-delete")).toBeNull();
+  });
+
+  it("saves PUT body columns on a user format", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa4097fmt",
+      label: "User format",
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockResolvedValue({
+      ...userDetail,
+      columns: [
+        userDetail.columns[0],
+        { source: "sys_contentid", displayName: "Content id", position: 1 },
+      ],
+    });
+    render(<DisplayFormatDetailPanel idOrName="qa4097fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-column-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-df-column-source"), {
+      target: { value: "sys_contentid" },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-column-add"));
+    fireEvent.click(screen.getByTestId("developer-df-columns-save"));
+    await waitFor(() => {
+      expect(updateDisplayFormat).toHaveBeenCalled();
+    });
+    const [, body] = updateDisplayFormat.mock.calls[0];
+    expect(body.columns.map((c: { source?: string }) => c.source)).toEqual([
+      "sys_title",
+      "sys_contentid",
+    ]);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-editor-notice").textContent).toBe(
+        DEV_MSG.DF_COLUMNS_SAVED,
+      );
+    });
+  });
+
+  it("surfaces 400 invalid source from PUT", async () => {
+    const userDetail = { ...sampleDetail, name: "qa4097fmt" };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: "column source is required",
+    });
+    render(<DisplayFormatDetailPanel idOrName="qa4097fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-column-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-df-column-source"), {
+      target: { value: "sys_contentid" },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-column-add"));
+    fireEvent.click(screen.getByTestId("developer-df-columns-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-df-detail-error").textContent).toContain(
+      DEV_MSG.DF_COLUMNS_INVALID_SOURCE,
+    );
+  });
+
+  it("surfaces 403 non-Admin from PUT", async () => {
+    const userDetail = { ...sampleDetail, name: "qa4097fmt" };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: "Admin role required",
+    });
+    render(<DisplayFormatDetailPanel idOrName="qa4097fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-column-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-df-column-source"), {
+      target: { value: "sys_workflow" },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-column-add"));
+    fireEvent.click(screen.getByTestId("developer-df-columns-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-df-detail-error").textContent).toContain(
+      DEV_MSG.DF_COLUMNS_FORBIDDEN,
+    );
+  });
+
+  it("does not mutate a packaged/system format", async () => {
+    getDisplayFormatDetail.mockResolvedValue(sampleDetail);
+    render(<DisplayFormatDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-columns-readonly")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-df-column-editor")).toBeNull();
+    expect(screen.queryByTestId("developer-df-columns-save")).toBeNull();
+    expect(updateDisplayFormat).not.toHaveBeenCalled();
   });
 });

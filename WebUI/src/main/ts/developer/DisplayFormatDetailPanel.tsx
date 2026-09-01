@@ -10,12 +10,11 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { isApiError } from "../api/client";
 import {
   createDisplayFormat,
@@ -26,9 +25,10 @@ import {
   normalizeDisplayFormatName,
   resolveDisplayFormatObjectGuid,
   saveDisplayFormat,
+  updateDisplayFormat,
   type DisplayFormatWriteBody,
 } from "../api/developer/displayFormatsApi";
-import type { DisplayFormat } from "../api/developer/types";
+import type { DisplayFormat, DisplayFormatColumn } from "../api/developer/types";
 import {
   catalogColors,
   backButton,
@@ -38,6 +38,17 @@ import {
   tableHeaderRow,
   tableRow,
 } from "./catalogStyles";
+import {
+  addDisplayFormatColumn,
+  catalogFieldsNotInUse,
+  columnsOrderEqual,
+  isPackagedDisplayFormat,
+  isSysTitleColumn,
+  isValidColumnSource,
+  moveDisplayFormatColumn,
+  reindexColumns,
+  removeDisplayFormatColumn,
+} from "./displayFormatColumns";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { ObjectAclSection } from "./ObjectAclSection";
@@ -56,20 +67,31 @@ const inputStyle: React.CSSProperties = {
   font: "inherit",
 };
 
+const actionButton: React.CSSProperties = {
+  padding: "4px 8px",
+  border: `1px solid ${catalogColors.softBorder}`,
+  borderRadius: "4px",
+  background: catalogColors.surface,
+  cursor: "pointer",
+  font: "inherit",
+};
+
 export function DisplayFormatDetailPanel({
   idOrName,
   catalogGuid,
   onBack,
   onSaved,
   onDeleted,
+  onColumnsSaved,
 }: {
   /** null = create mode */
   idOrName: string | null;
-  /** GUID from catalog list row when detail wire omits stringValue (#2951). */
+  /** GUID from catalog list row when detail payload omits stringValue (#2951). */
   catalogGuid?: string | null;
   onBack: () => void;
   onSaved?: (detail: DisplayFormat) => void;
   onDeleted?: () => void;
+  onColumnsSaved?: (detail: DisplayFormat) => void;
 }): React.ReactElement {
   const [createdKey, setCreatedKey] = useState<string | null>(null);
   const isNew = idOrName == null && createdKey == null;
@@ -81,6 +103,8 @@ export function DisplayFormatDetailPanel({
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(idOrName != null);
+  const [draftColumns, setDraftColumns] = useState<DisplayFormatColumn[]>([]);
+  const [addSource, setAddSource] = useState("");
   const inflight = useRef(false);
 
   useEffect(() => {
@@ -91,6 +115,8 @@ export function DisplayFormatDetailPanel({
     setDetail(null);
     setError(null);
     setNotice(null);
+    setDraftColumns([]);
+    setAddSource("");
     setLoading(true);
     getDisplayFormatDetail(idOrName)
       .then((d) => {
@@ -99,6 +125,9 @@ export function DisplayFormatDetailPanel({
         setName(d.name || d.internalName || idOrName);
         setLabel(d.label || d.displayName || "");
         setDescription(d.description || "");
+        const cols = reindexColumns(normalizeColumns(d.columns));
+        setDraftColumns(cols);
+        setAddSource(catalogFieldsNotInUse(cols)[0]?.source || "");
         setLoading(false);
       })
       .catch((err: unknown) => {
@@ -121,6 +150,16 @@ export function DisplayFormatDetailPanel({
     description !== loadedDescription;
   const canSave = !busy && dirty && isDisplayFormatWriteReady({ isNew, name });
   const writeKey = idOrName || createdKey || normalizeDisplayFormatName(name);
+  const loadedColumns = useMemo(
+    () => (detail != null ? reindexColumns(normalizeColumns(detail.columns)) : []),
+    [detail],
+  );
+  const packaged = isPackagedDisplayFormat(idOrName || createdKey || name);
+  const columns = packaged ? loadedColumns : draftColumns;
+  const availableFields = catalogFieldsNotInUse(draftColumns);
+  const columnsDirty = !packaged && !isNew && !columnsOrderEqual(draftColumns, loadedColumns);
+  const canSaveColumns = !busy && columnsDirty && detail != null;
+  const objectGuid = resolveDisplayFormatObjectGuid(detail, catalogGuid);
 
   function writeBody(): DisplayFormatWriteBody {
     return {
@@ -138,6 +177,13 @@ export function DisplayFormatDetailPanel({
     if (isApiError(err) && err.status === 403) return DEV_MSG.DF_FORBIDDEN;
     if (isApiError(err) && err.status === 404) return DEV_MSG.DF_NOT_FOUND;
     return DEV_MSG.DF_SAVE_ERROR;
+  }
+
+  function columnsSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return DEV_MSG.DF_COLUMNS_INVALID_SOURCE;
+    if (isApiError(err) && err.status === 403) return DEV_MSG.DF_COLUMNS_FORBIDDEN;
+    if (isApiError(err) && err.status === 404) return DEV_MSG.DF_COLUMNS_NOT_FOUND;
+    return DEV_MSG.DF_COLUMNS_SAVE_ERROR;
   }
 
   async function handleSave(): Promise<void> {
@@ -158,6 +204,9 @@ export function DisplayFormatDetailPanel({
       setName(saved.name || saved.internalName || name);
       setLabel(saved.label || saved.displayName || "");
       setDescription(saved.description || "");
+      const cols = reindexColumns(normalizeColumns(saved.columns));
+      setDraftColumns(cols);
+      setAddSource(catalogFieldsNotInUse(cols)[0]?.source || "");
       setNotice(DEV_MSG.DF_SAVED);
       onSaved?.(saved);
     } catch (err: unknown) {
@@ -195,12 +244,47 @@ export function DisplayFormatDetailPanel({
     }
   }
 
+  function handleAddColumn(): void {
+    if (packaged || busy || isNew || !isValidColumnSource(addSource)) {
+      return;
+    }
+    const next = addDisplayFormatColumn(draftColumns, addSource);
+    setDraftColumns(next);
+    const stillAvailable = catalogFieldsNotInUse(next);
+    setAddSource(stillAvailable[0]?.source || "");
+  }
+
+  async function handleSaveColumns(): Promise<void> {
+    if (!canSaveColumns || inflight.current || packaged || !writeKey) {
+      return;
+    }
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const saved = await updateDisplayFormat(writeKey, {
+        name: detail?.name || detail?.internalName || writeKey,
+        label: detail?.label || detail?.displayName,
+        displayName: detail?.displayName || detail?.label,
+        description: detail?.description,
+        columns: reindexColumns(draftColumns),
+      });
+      setDetail(saved);
+      setDraftColumns(reindexColumns(normalizeColumns(saved.columns)));
+      setNotice(DEV_MSG.DF_COLUMNS_SAVED);
+      onColumnsSaved?.(saved);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, columnsSaveFallback(err)));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
   const title = isNew
     ? DEV_MSG.DF_NEW
     : detail?.label || detail?.displayName || detail?.name || idOrName || DEV_MSG.DF_EDIT;
-
-  const columns = detail != null ? normalizeColumns(detail.columns) : [];
-  const objectGuid = resolveDisplayFormatObjectGuid(detail, catalogGuid);
 
   return (
     <div data-testid="developer-df-detail">
@@ -365,8 +449,11 @@ export function DisplayFormatDetailPanel({
             <>
               <section data-testid="developer-df-columns">
                 <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.DF_COLUMNS}</h3>
-                <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
-                  {DEV_MSG.DF_COLUMNS_HINT}
+                <p
+                  style={{ color: catalogColors.muted, fontSize: "0.9rem" }}
+                  data-testid={packaged ? "developer-df-columns-readonly" : undefined}
+                >
+                  {packaged ? DEV_MSG.DF_COLUMNS_READONLY : DEV_MSG.DF_COLUMNS_HINT}
                 </p>
                 {columns.length === 0 ? (
                   <p style={{ color: catalogColors.empty }} data-testid="developer-df-columns-empty">
@@ -389,6 +476,9 @@ export function DisplayFormatDetailPanel({
                           <th style={{ padding: "8px" }}>{DEV_MSG.DF_COL_COL_LABEL}</th>
                           <th style={{ padding: "8px" }}>{DEV_MSG.DF_COL_RENDER}</th>
                           <th style={{ padding: "8px" }}>{DEV_MSG.DF_COL_WIDTH}</th>
+                          {!packaged ? (
+                            <th style={{ padding: "8px" }}>{DEV_MSG.DF_COL_ACTIONS}</th>
+                          ) : null}
                         </tr>
                       </thead>
                       <tbody>
@@ -396,6 +486,7 @@ export function DisplayFormatDetailPanel({
                           <tr
                             key={`${c.source ?? "col"}-${c.position ?? i}-${i}`}
                             data-testid={`developer-df-column-row-${i}`}
+                            data-df-column-source={c.source || ""}
                             style={tableRow}
                           >
                             <td style={{ padding: "8px" }}>
@@ -409,12 +500,126 @@ export function DisplayFormatDetailPanel({
                             <td style={{ padding: "8px" }}>
                               {c.width != null && c.width > 0 ? String(c.width) : "—"}
                             </td>
+                            {!packaged ? (
+                              <td style={{ padding: "8px" }}>
+                                <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+                                  <button
+                                    type="button"
+                                    data-testid={`developer-df-column-up-${i}`}
+                                    aria-label={DEV_MSG.DF_COLUMNS_MOVE_UP}
+                                    disabled={busy || i === 0}
+                                    onClick={() =>
+                                      setDraftColumns(moveDisplayFormatColumn(draftColumns, i, -1))
+                                    }
+                                    style={actionButton}
+                                  >
+                                    {DEV_MSG.DF_COLUMNS_MOVE_UP}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    data-testid={`developer-df-column-down-${i}`}
+                                    aria-label={DEV_MSG.DF_COLUMNS_MOVE_DOWN}
+                                    disabled={busy || i === columns.length - 1}
+                                    onClick={() =>
+                                      setDraftColumns(moveDisplayFormatColumn(draftColumns, i, 1))
+                                    }
+                                    style={actionButton}
+                                  >
+                                    {DEV_MSG.DF_COLUMNS_MOVE_DOWN}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    data-testid={`developer-df-column-remove-${i}`}
+                                    aria-label={DEV_MSG.DF_COLUMNS_REMOVE}
+                                    disabled={busy || isSysTitleColumn(c)}
+                                    onClick={() =>
+                                      setDraftColumns(removeDisplayFormatColumn(draftColumns, i))
+                                    }
+                                    style={actionButton}
+                                  >
+                                    {DEV_MSG.DF_COLUMNS_REMOVE}
+                                  </button>
+                                </div>
+                              </td>
+                            ) : null}
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
                 )}
+
+                {!packaged ? (
+                  <div
+                    style={{
+                      marginTop: "12px",
+                      display: "flex",
+                      gap: "8px",
+                      flexWrap: "wrap",
+                      alignItems: "flex-end",
+                    }}
+                    data-testid="developer-df-column-editor"
+                  >
+                    <label
+                      htmlFor="df-column-source"
+                      style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+                    >
+                      {DEV_MSG.DF_COLUMNS_SOURCE_PICKER}
+                      <select
+                        id="df-column-source"
+                        data-testid="developer-df-column-source"
+                        style={inputStyle}
+                        value={addSource}
+                        disabled={busy || availableFields.length === 0}
+                        onChange={(e) => setAddSource(e.target.value)}
+                      >
+                        <option value="">{availableFields.length ? "—" : DEV_MSG.DF_NONE}</option>
+                        {availableFields.map((f) => (
+                          <option key={f.source} value={f.source}>
+                            {f.label} ({f.source})
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <button
+                      type="button"
+                      data-testid="developer-df-column-add"
+                      aria-label={DEV_MSG.DF_COLUMNS_ADD}
+                      disabled={busy || !isValidColumnSource(addSource)}
+                      onClick={handleAddColumn}
+                      style={{
+                        ...actionButton,
+                        padding: "8px 12px",
+                        background: isValidColumnSource(addSource)
+                          ? catalogColors.accent
+                          : catalogColors.disabled,
+                        color: "#fff",
+                        border: "none",
+                        cursor:
+                          isValidColumnSource(addSource) && !busy ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      {DEV_MSG.DF_COLUMNS_ADD}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-df-columns-save"
+                      aria-label={DEV_MSG.DF_COLUMNS_SAVE}
+                      disabled={!canSaveColumns}
+                      onClick={() => void handleSaveColumns()}
+                      style={{
+                        padding: "8px 16px",
+                        background: canSaveColumns ? catalogColors.accent : catalogColors.disabled,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: canSaveColumns ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      {busy ? DEV_MSG.DF_COLUMNS_SAVING : DEV_MSG.DF_COLUMNS_SAVE}
+                    </button>
+                  </div>
+                ) : null}
               </section>
 
               <ObjectAclSection

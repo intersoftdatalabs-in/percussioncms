@@ -27,12 +27,15 @@ import type { DisplayFormat, DisplayFormatColumn } from "./types";
 
 /**
  * Writable identity fields for POST/PUT /services/displayformats. Name is the
- * catalog key (not renamed on PUT). Columns are not written from this chrome.
+ * catalog key (not renamed on PUT). {@code columns} replaces the column list
+ * when present.
  */
 export type DisplayFormatWriteBody = Pick<
   DisplayFormat,
   "name" | "internalName" | "label" | "displayName" | "description"
->;
+> & {
+  columns?: DisplayFormatColumn[];
+};
 
 /** Jackson / JAXB root for DisplayFormat (UNWRAP_ROOT_VALUE on POST/PUT). */
 export const DISPLAY_FORMAT_ROOT = "DisplayFormat";
@@ -122,7 +125,10 @@ export async function createDisplayFormat(
   return unwrapDisplayFormat(payload);
 }
 
-/** PUT /services/displayformats/{idOrName} — Admin. Name is not renamed. Missing is 404. */
+/**
+ * PUT /services/displayformats/{idOrName} — Admin. Name is not renamed.
+ * {@code columns} replaces the column list when present. Missing is 404.
+ */
 export async function saveDisplayFormat(
   idOrName: string,
   body: DisplayFormatWriteBody,
@@ -133,6 +139,9 @@ export async function saveDisplayFormat(
   );
   return unwrapDisplayFormat(payload);
 }
+
+/** Alias used by the column editor (#4097 UI-08). */
+export const updateDisplayFormat = saveDisplayFormat;
 
 /** DELETE /services/displayformats/{idOrName} — Admin. 204 on success; missing is 404. */
 export async function deleteDisplayFormat(idOrName: string): Promise<void> {

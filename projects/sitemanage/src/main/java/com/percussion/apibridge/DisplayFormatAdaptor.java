@@ -683,8 +683,68 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
   @Override
   public DisplayFormat findDisplayFormat(String name)
       throws PSCmsException, PSUnknownNodeTypeException {
-    PSDisplayFormat f = designWs.findDisplayFormat(name);
-    return f == null ? null : copyDisplayFormat(f);
+    PSDisplayFormat nativeDf = loadNativeByName(name);
+    return nativeDf == null ? null : copyDisplayFormat(nativeDf);
+  }
+
+  /**
+   * Load the native format whose internal name matches {@code name}. {@code
+   * IPSUiDesignWs#findDisplayFormat(String)} can replay another format (typically
+   * By_Author) for a newly created name (#3269). When the loaded name does not
+   * match, resolve the catalog summary GUID and load that object.
+   */
+  private PSDisplayFormat loadNativeByName(String name) throws PSCmsException {
+    if (name == null || name.isBlank()) {
+      return null;
+    }
+    PSDisplayFormat byName = designWs.findDisplayFormat(name);
+    if (byName != null && namesMatchIgnoreCase(name, byName.getName())) {
+      return byName;
+    }
+    List<IPSCatalogSummary> summaries;
+    try {
+      summaries = designWs.findDisplayFormats(name, null);
+      if (summaries == null || summaries.isEmpty()) {
+        summaries = designWs.findDisplayFormats(null, null);
+      }
+    } catch (RuntimeException e) {
+      log.debug("Catalog lookup failed for display format {}: {}", name, e.toString());
+      return null;
+    }
+    if (summaries == null) {
+      return null;
+    }
+    String session = currentSession();
+    String user = currentUser();
+    for (IPSCatalogSummary summary : summaries) {
+      if (summary == null || !namesMatchIgnoreCase(name, summary.getName())) {
+        continue;
+      }
+      IPSGuid guid = summary.getGUID();
+      if (guid == null) {
+        continue;
+      }
+      PSDisplayFormat byGuid = designWs.findDisplayFormat(guid);
+      if (byGuid != null && namesMatchIgnoreCase(name, byGuid.getName())) {
+        return byGuid;
+      }
+      if (StringUtils.isBlank(session) || StringUtils.isBlank(user)) {
+        continue;
+      }
+      try {
+        List<PSDisplayFormat> loaded =
+            designWs.loadDisplayFormats(List.of(guid), false, false, session, user);
+        if (loaded != null
+            && !loaded.isEmpty()
+            && loaded.get(0) != null
+            && namesMatchIgnoreCase(name, loaded.get(0).getName())) {
+          return loaded.get(0);
+        }
+      } catch (PSErrorResultsException | RuntimeException e) {
+        log.debug("GUID load failed for display format {}: {}", name, e.toString());
+      }
+    }
+    return null;
   }
 
   @Override
@@ -786,6 +846,11 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
    */
   private DisplayFormat reload(PSDisplayFormat saved, String name)
       throws PSCmsException, PSUnknownNodeTypeException {
+    // Prefer the native we just saved when the name matches. findDisplayFormat
+    // can replay By_Author for a newly created key (#3269).
+    if (saved != null && namesMatchIgnoreCase(name, saved.getName())) {
+      return copyDisplayFormat(saved);
+    }
     if (name != null && !name.isBlank()) {
       DisplayFormat byName = findDisplayFormat(name);
       if (identityMatchesKey(byName, name)) {
@@ -878,6 +943,84 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     if (body.getDescription() != null) {
       nativeDf.setDescription(body.getDescription());
     }
+    if (body.getColumns() != null) {
+      applyColumns(nativeDf, body.getColumns());
+    }
+  }
+
+  /**
+   * Replace native columns from the REST list. {@code null} columns on the body leave the
+   * existing list unchanged (label-only PUT). An empty list becomes sys_title only
+   * ({@link PSDisplayFormat#setColumnList}).
+   */
+  static void applyColumns(PSDisplayFormat nativeDf, DisplayFormatColumnList columns) {
+    if (nativeDf == null || columns == null) {
+      return;
+    }
+    PSDFColumns next;
+    try {
+      next = new PSDFColumns();
+    } catch (ClassNotFoundException | PSCmsException e) {
+      throw new IllegalStateException("Failed to allocate display format columns", e);
+    }
+    Set<String> seen = new HashSet<>();
+    int displayId = nativeDf.getDisplayId();
+    int index = 0;
+    for (DisplayFormatColumn dto : columns) {
+      if (dto == null) {
+        continue;
+      }
+      String source = requireValidColumnSource(dto.getSource());
+      String key = source.toLowerCase(Locale.ROOT);
+      if (!seen.add(key)) {
+        throw new IllegalArgumentException("duplicate column source: " + source);
+      }
+      String colLabel = firstNonBlank(dto.getDisplayName(), source);
+      String render = firstNonBlank(dto.getRenderType(), PSDisplayColumn.DATATYPE_TEXT);
+      String desc = dto.getDescription() == null ? "" : dto.getDescription();
+      int grouping =
+          dto.isCategorized()
+              ? PSDisplayColumn.GROUPING_CATEGORY
+              : PSDisplayColumn.GROUPING_FLAT;
+      PSKey colKey = PSDisplayColumn.createKey(source, displayId, false);
+      PSDisplayColumn col = new PSDisplayColumn(colKey);
+      col.setDisplayName(colLabel);
+      col.setDescription(desc);
+      col.setGroupingType(grouping);
+      col.setRenderType(render);
+      col.setSortOrder(dto.isAscendingSort());
+      col.setPosition(dto.getPosition() >= 0 ? dto.getPosition() : index);
+      if (dto.getWidth() > 0) {
+        col.setWidth(dto.getWidth());
+      }
+      next.add(col);
+      index++;
+    }
+    nativeDf.setColumnList(next);
+  }
+
+  static String requireValidColumnSource(String raw) {
+    if (StringUtils.isBlank(raw)) {
+      throw new IllegalArgumentException("column source is required");
+    }
+    String source = raw.trim();
+    if (containsWhitespace(source)) {
+      throw new IllegalArgumentException("column source cannot contain whitespace");
+    }
+    if (source.contains("*") || source.contains("%")) {
+      throw new IllegalArgumentException("column source must not contain wildcards");
+    }
+    if (source.contains("..")
+        || source.indexOf('/') >= 0
+        || source.indexOf('\\') >= 0
+        || source.indexOf('\0') >= 0) {
+      throw new IllegalArgumentException("invalid column source");
+    }
+    if (source.length() > PSDisplayColumn.SOURCE_LENGTH) {
+      throw new IllegalArgumentException(
+          "column source must not exceed " + PSDisplayColumn.SOURCE_LENGTH + " characters");
+    }
+    return source;
   }
 
   private void assertNameUnique(String name) {
