@@ -61,7 +61,10 @@ export const SYS_TITLE_SOURCE = "sys_title";
 export const COLUMN_SOURCE_MAX = 128;
 
 export function normalizeColumnSource(source: string | undefined | null): string {
-  return source == null ? "" : source.trim();
+  if (source == null) {
+    return "";
+  }
+  return typeof source === "string" ? source.trim() : String(source).trim();
 }
 
 export function columnSourceKey(source: string | undefined | null): string {
@@ -89,7 +92,7 @@ export function isValidColumnSource(source: string | undefined | null): boolean 
   if (key.length > COLUMN_SOURCE_MAX) {
     return false;
   }
-  if (key !== (source ?? "").trim()) {
+  if (typeof source === "string" && key !== source.trim()) {
     return false;
   }
   if (/\s/.test(key)) {

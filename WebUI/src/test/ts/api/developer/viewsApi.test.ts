@@ -147,29 +147,31 @@ describe("view wire wrap", () => {
     });
   });
 
-  it("drops the create/update/delete gap from VIEW_DESIGN_GAPS", () => {
+  it("drops the create/update/delete and field-criterion gaps from VIEW_DESIGN_GAPS", () => {
     expect(VIEW_DESIGN_GAPS.some((g) => /create/i.test(g))).toBe(false);
-    expect(VIEW_DESIGN_GAPS.some((g) => /field criterion/i.test(g))).toBe(true);
+    expect(VIEW_DESIGN_GAPS.some((g) => /field criterion/i.test(g))).toBe(false);
+    expect(VIEW_DESIGN_GAPS.some((g) => /Inbox-family/i.test(g))).toBe(true);
   });
 
-  it("filters a stale REST write gap on GET detail", () => {
+  it("filters a stale REST write and field-criterion gap on GET detail", () => {
     expect(
       withoutStaleViewWriteGap([
         "View create / update / delete not supported via this API",
         "View field criterion editing not supported via this API",
+        "Inbox-family and custom URL views cannot be updated or deleted via this API",
       ]),
-    ).toEqual(["View field criterion editing not supported via this API"]);
+    ).toEqual(["Inbox-family and custom URL views cannot be updated or deleted via this API"]);
   });
 
   it("does not drop a similar substring that is not the exact stale gap", () => {
     expect(
       withoutStaleViewWriteGap([
         "View create / update / delete must run in sequence",
-        "View field criterion editing not supported via this API",
+        "Inbox-family and custom URL views cannot be updated or deleted via this API",
       ]),
     ).toEqual([
       "View create / update / delete must run in sequence",
-      "View field criterion editing not supported via this API",
+      "Inbox-family and custom URL views cannot be updated or deleted via this API",
     ]);
   });
 });

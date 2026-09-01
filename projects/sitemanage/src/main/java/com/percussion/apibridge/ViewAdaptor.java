@@ -30,6 +30,7 @@ import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
+import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.data.PSInternalRequestCallException;
@@ -45,6 +46,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -108,11 +110,31 @@ public class ViewAdaptor implements IViewAdaptor {
   /** Catalog-level capability notes. Attached on detail only (REST-GAPS-02 list dedup). */
   static final List<String> DESIGN_GAPS =
       List.of(
-          "View field criterion editing not supported via this API",
           "View rename is not supported on PUT (name is the catalog key)",
           "Inbox-family and custom URL views cannot be updated or deleted via this API",
           "Custom URL views outside the sys_cxViews Inbox family cannot be executed via this API",
           "Searches are a separate catalog (Developer Searches / UI-06)");
+
+  /**
+   * CX system fields offered by the Developer Views picker (same catalog as display-format
+   * columns). PUT of any other field name is 400 unknown field.
+   */
+  static final Set<String> KNOWN_VIEW_FIELD_NAMES =
+      Set.of(
+          "sys_title",
+          "sys_checkoutstatus",
+          "sys_statename",
+          "sys_contenttypename",
+          "sys_contentcreatedby",
+          "sys_contentcreateddate",
+          "sys_contentlastmodifieddate",
+          "sys_contentid",
+          "sys_workflow",
+          "sys_postdate",
+          "sys_size",
+          "sys_locale",
+          "sys_communityid",
+          "sys_checkoutuser");
 
   private static final List<String> RESULT_COLUMNS =
       List.of("sys_contentid", "sys_title", "sys_contenttypename");
@@ -200,7 +222,7 @@ public class ViewAdaptor implements IViewAdaptor {
       PSSearch domain = created.get(0);
       applyWritableFields(domain, body);
       designWs.saveViews(List.of(domain), true, session, user);
-      return toDef(reloadAfterWrite(domain, name, session, user), true);
+      return toDef(reloadAfterWrite(domain, name, session, user, true), true);
     } catch (WebApplicationException | IllegalStateException e) {
       throw e;
     } catch (IllegalArgumentException e) {
@@ -249,7 +271,12 @@ public class ViewAdaptor implements IViewAdaptor {
       applyWritableFields(domain, body);
       designWs.saveViews(List.of(domain), true, session, user);
       String catalogName = StringUtils.defaultIfBlank(domain.getName(), idOrName.trim());
-      return toDef(reloadAfterWrite(domain, catalogName, session, user), true);
+      try {
+        return toDef(reloadAfterWrite(domain, catalogName, session, user, false), true);
+      } catch (IllegalStateException e) {
+        log.warn("View {} saved; catalog reload missed the row: {}", catalogName, e.toString());
+        return toDef(domain, true);
+      }
     } catch (WebApplicationException | IllegalArgumentException e) {
       throw e;
     } catch (PSErrorResultsException e) {
@@ -658,19 +685,25 @@ public class ViewAdaptor implements IViewAdaptor {
   }
 
   /**
-   * After {@code saveViews}, the row must be visible to {@code findViews} (H2 REST
+   * After {@code saveViews}, create must be visible to {@code findViews} (H2 REST
    * UI-07: POST 200 then GET list/detail 404 when the XML resource cache or INSERT
-   * was skipped). Load by GUID only after the catalog lists the name.
+   * was skipped). Updates return the in-memory saved object: {@code findAllViews}
+   * can still list the name while the XML cache lags field-criterion rows (UI-08).
    */
-  private PSSearch reloadAfterWrite(PSSearch saved, String name, String session, String user) {
+  private PSSearch reloadAfterWrite(
+      PSSearch saved, String name, String session, String user, boolean requireCatalogVisible) {
+    if (!requireCatalogVisible && saved != null) {
+      return saved;
+    }
     try {
       PSSearch fromCatalog = matchLoaded(loadAllViews(), name);
       if (fromCatalog != null) {
         return fromCatalog;
       }
-      if (saved != null && saved.getGUID() != null) {
+      IPSGuid savedGuid = safeGuid(saved);
+      if (savedGuid != null) {
         List<PSSearch> loaded =
-            designWs.loadViews(List.of(saved.getGUID()), false, false, session, user);
+            designWs.loadViews(List.of(savedGuid), false, false, session, user);
         if (loaded != null
             && !loaded.isEmpty()
             && loaded.get(0) != null
@@ -678,6 +711,9 @@ public class ViewAdaptor implements IViewAdaptor {
           fromCatalog = matchLoaded(loadAllViews(), name);
           if (fromCatalog != null) {
             return fromCatalog;
+          }
+          if (!requireCatalogVisible) {
+            return loaded.get(0);
           }
         }
       }
@@ -798,6 +834,38 @@ public class ViewAdaptor implements IViewAdaptor {
     return s;
   }
 
+  /**
+   * Load by {@code host-type-uuid} when {@code findAllViews} XML cache misses the row (H2 UI-08
+   * PUT after field save).
+   */
+  private PSSearch loadViewByGuidKey(String key) {
+    IPSGuid parsed = parseViewGuid(key);
+    if (parsed == null) {
+      return null;
+    }
+    try {
+      List<PSSearch> loaded =
+          designWs.loadViews(List.of(parsed), false, false, currentSession(), currentUser());
+      if (loaded != null && !loaded.isEmpty() && loaded.get(0) != null) {
+        return loaded.get(0);
+      }
+    } catch (Exception e) {
+      log.debug("loadViews by GUID missed for {}: {}", key, e.toString());
+    }
+    return null;
+  }
+
+  static IPSGuid parseViewGuid(String key) {
+    if (StringUtils.isBlank(key) || key.indexOf('-') < 0) {
+      return null;
+    }
+    try {
+      return new PSGuid(key.trim());
+    } catch (RuntimeException e) {
+      return null;
+    }
+  }
+
   /** Resolve design view by name, GUID string, or numeric id. */
   PSSearch findPsViewByKey(String key) {
     try {
@@ -823,6 +891,31 @@ public class ViewAdaptor implements IViewAdaptor {
         if (String.valueOf(s.getId()).equals(key)) {
           return s;
         }
+      }
+      PSSearch byGuid = loadViewByGuidKey(key);
+      if (byGuid != null) {
+        return byGuid;
+      }
+      try {
+        List<IPSCatalogSummary> named = designWs.findViews(key, null);
+        if (named != null) {
+          for (IPSCatalogSummary sum : named) {
+            if (sum == null || sum.getGUID() == null) {
+              continue;
+            }
+            if (StringUtils.isNotBlank(sum.getName()) && !key.equalsIgnoreCase(sum.getName())) {
+              continue;
+            }
+            List<PSSearch> namedLoaded =
+                designWs.loadViews(
+                    List.of(sum.getGUID()), false, false, currentSession(), currentUser());
+            if (namedLoaded != null && !namedLoaded.isEmpty() && namedLoaded.get(0) != null) {
+              return namedLoaded.get(0);
+            }
+          }
+        }
+      } catch (Exception e) {
+        log.debug("findViews fallback missed for {}: {}", key, e.toString());
       }
       return null;
     } catch (Exception e) {
@@ -922,8 +1015,10 @@ public class ViewAdaptor implements IViewAdaptor {
   }
 
   /**
-   * Apply GET-exposed writable fields: label, description, type, displayFormatId. Execute is
-   * never invoked from write. Custom URL is not persisted on this slice.
+   * Apply GET-exposed writable fields: label, description, type, displayFormatId, and field
+   * criteria when {@code fields} is non-null. Execute is never invoked from write. Custom URL is
+   * not persisted on this slice. {@code null} fields leave the existing criterion list unchanged
+   * (label-only PUT); an empty list clears criteria.
    */
   static void applyWritableFields(PSSearch domain, ViewDef body) {
     if (domain == null || body == null) {
@@ -942,6 +1037,141 @@ public class ViewAdaptor implements IViewAdaptor {
     if (StringUtils.isNotBlank(body.getDisplayFormatId())) {
       domain.setDisplayFormatId(body.getDisplayFormatId().trim());
     }
+    if (body.getFields() != null) {
+      applyFields(domain, body.getFields());
+    }
+  }
+
+  /**
+   * Replace view field criteria from the REST list. Unknown / invalid field names are 400.
+   * Duplicate field names are 400. Order in the list is the persisted sequence.
+   */
+  static void applyFields(PSSearch domain, List<ViewFieldSummary> fields) {
+    if (domain == null || fields == null) {
+      return;
+    }
+    PSSFields container = domain.getFieldContainer();
+    if (container == null) {
+      if (fields.isEmpty()) {
+        return;
+      }
+      throw new IllegalStateException("View has no field container");
+    }
+    container.clear();
+    Set<String> seen = new HashSet<>();
+    int index = 0;
+    for (ViewFieldSummary dto : fields) {
+      if (dto == null) {
+        continue;
+      }
+      String name = requireValidFieldName(dto.getFieldName());
+      String key = name.toLowerCase(Locale.ROOT);
+      if (!seen.add(key)) {
+        throw new IllegalArgumentException("duplicate field: " + name);
+      }
+      String fieldType = resolveFieldType(dto.getFieldType());
+      String label = StringUtils.defaultIfBlank(dto.getDisplayName(), name);
+      PSSearchField sf = new PSSearchField(name, label, null, fieldType, null);
+      String op = resolveFieldOperator(dto.getOperator());
+      String value = dto.getFieldValue() == null ? "" : dto.getFieldValue();
+      sf.setFieldValue(op, value);
+      int position = dto.getPosition() >= 0 ? dto.getPosition() : index;
+      sf.setPosition(position);
+      container.add(sf);
+      index++;
+    }
+  }
+
+  static String requireValidFieldName(String raw) {
+    if (StringUtils.isBlank(raw)) {
+      throw new IllegalArgumentException("unknown field");
+    }
+    String name = raw.trim();
+    if (containsWhitespace(name)) {
+      throw new IllegalArgumentException("unknown field: " + name);
+    }
+    if (name.contains("*") || name.contains("%")) {
+      throw new IllegalArgumentException("unknown field: " + name);
+    }
+    if (name.contains("..")
+        || name.indexOf('/') >= 0
+        || name.indexOf('\\') >= 0
+        || name.indexOf('\0') >= 0) {
+      throw new IllegalArgumentException("unknown field: " + name);
+    }
+    if (name.length() > PSSearchField.FIELDNAME_LENGTH) {
+      throw new IllegalArgumentException(
+          "unknown field: field name must not exceed " + PSSearchField.FIELDNAME_LENGTH);
+    }
+    if (!isKnownViewField(name)) {
+      throw new IllegalArgumentException("unknown field: " + name);
+    }
+    return name;
+  }
+
+  static boolean isKnownViewField(String name) {
+    if (StringUtils.isBlank(name)) {
+      return false;
+    }
+    String key = name.trim().toLowerCase(Locale.ROOT);
+    for (String known : KNOWN_VIEW_FIELD_NAMES) {
+      if (known.equalsIgnoreCase(key)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static String resolveFieldType(String raw) {
+    if (StringUtils.isBlank(raw)) {
+      return PSSearchField.TYPE_TEXT;
+    }
+    String t = raw.trim();
+    if (t.equalsIgnoreCase(PSSearchField.TYPE_TEXT) || t.equalsIgnoreCase("string")) {
+      return PSSearchField.TYPE_TEXT;
+    }
+    if (t.equalsIgnoreCase(PSSearchField.TYPE_NUMBER) || t.equalsIgnoreCase("int")) {
+      return PSSearchField.TYPE_NUMBER;
+    }
+    if (t.equalsIgnoreCase(PSSearchField.TYPE_DATE)) {
+      return PSSearchField.TYPE_DATE;
+    }
+    throw new IllegalArgumentException("invalid field type: " + raw);
+  }
+
+  static String resolveFieldOperator(String raw) {
+    if (StringUtils.isBlank(raw)) {
+      return PSSearchField.OP_EQUALS;
+    }
+    String t = raw.trim();
+    if ("=".equals(t) || "==".equals(t) || t.equalsIgnoreCase("equals") || t.equalsIgnoreCase("eq")) {
+      return PSSearchField.OP_EQUALS;
+    }
+    if ("!=".equals(t) || "<>".equals(t)) {
+      return PSSearchField.OP_NOTEQUAL;
+    }
+    String[] ops =
+        new String[] {
+          PSSearchField.OP_EQUALS,
+          PSSearchField.OP_NOTEQUAL,
+          PSSearchField.OP_LESSTHAN,
+          PSSearchField.OP_LESSTHANEQUAL,
+          PSSearchField.OP_GREATERTHAN,
+          PSSearchField.OP_GREATERTHANEQUAL,
+          PSSearchField.OP_ISNULL,
+          PSSearchField.OP_ISNOTNULL,
+          PSSearchField.OP_IN,
+          PSSearchField.OP_NOTIN,
+          PSSearchField.OP_LIKE,
+          PSSearchField.OP_NOTLIKE,
+          PSSearchField.OP_BETWEEN
+        };
+    for (String op : ops) {
+      if (op.equalsIgnoreCase(t)) {
+        return op;
+      }
+    }
+    throw new IllegalArgumentException("invalid field operator: " + raw);
   }
 
   /**

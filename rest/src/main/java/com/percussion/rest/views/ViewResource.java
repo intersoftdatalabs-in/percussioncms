@@ -209,11 +209,13 @@ public class ViewResource {
   @Operation(
       summary = "Update view",
       description =
-          "Admin. Updates label, description, type, and/or displayFormatId by name or GUID. Name"
-              + " is the catalog key and is not renamed on PUT. Loads with a design lock"
-              + " (overrideLock=false) and releases on save. Unknown id is 404. Lock/dependency"
-              + " conflict is 409. Inbox-family and custom URL views are 409 (not mutated)."
-              + " Searches are not saved here. Execute is not invoked on write.",
+          "Admin. Updates label, description, type, displayFormatId, and/or field criteria by"
+              + " name or GUID. Name is the catalog key and is not renamed on PUT. Omitted"
+              + " fields leave existing criteria unchanged; an empty fields array clears them."
+              + " Unknown field names are 400. Loads with a design lock (overrideLock=false)"
+              + " and releases on save. Unknown id is 404. Lock/dependency conflict is 409."
+              + " Inbox-family and custom URL views are 409 (not mutated). Searches are not"
+              + " saved here. Execute is not invoked on write.",
       responses = {
         @ApiResponse(
             responseCode = "200",

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { isApiError } from "../api/client";
 import { resolveViewObjectGuid } from "../api/displayFormatGuid";
 import {
@@ -29,7 +29,20 @@ import {
   saveView,
   type ViewWriteBody,
 } from "../api/developer/viewsApi";
-import type { ViewDef } from "../api/developer/types";
+import type { ViewDef, ViewFieldSummary } from "../api/developer/types";
+import {
+  addViewFieldCriterion,
+  catalogViewFieldsNotInUse,
+  isKnownViewFieldName,
+  isValidViewFieldName,
+  moveViewFieldCriterion,
+  normalizeViewFields,
+  patchViewFieldCriterion,
+  removeViewFieldCriterion,
+  viewFieldsEqual,
+  VIEW_FIELD_OPERATORS,
+  VIEW_FIELD_TYPES,
+} from "./viewFieldCriteria";
 import {
   catalogColors,
   backButton,
@@ -54,6 +67,15 @@ const inputStyle: React.CSSProperties = {
   padding: "8px",
   border: `1px solid ${catalogColors.softBorder}`,
   borderRadius: "4px",
+  font: "inherit",
+};
+
+const actionButton: React.CSSProperties = {
+  padding: "4px 8px",
+  border: `1px solid ${catalogColors.softBorder}`,
+  borderRadius: "4px",
+  background: catalogColors.surface,
+  cursor: "pointer",
   font: "inherit",
 };
 
@@ -91,6 +113,11 @@ export function ViewDetailPanel({
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(idOrName != null);
+  const [draftFields, setDraftFields] = useState<ViewFieldSummary[]>([]);
+  const [addFieldName, setAddFieldName] = useState("");
+  const [addOperator, setAddOperator] = useState("equal");
+  const [addValue, setAddValue] = useState("");
+  const [addType, setAddType] = useState("Text");
   const inflight = useRef(false);
 
   useEffect(() => {
@@ -101,6 +128,8 @@ export function ViewDetailPanel({
     setDetail(null);
     setError(null);
     setNotice(null);
+    setDraftFields([]);
+    setAddFieldName("");
     setLoading(true);
     getViewDetail(idOrName)
       .then((d) => {
@@ -111,6 +140,12 @@ export function ViewDetailPanel({
         setDescription(d.description || "");
         setType(typeFromDetail(d, VIEW_TYPE_STANDARD));
         setDisplayFormatId(d.displayFormatId || "");
+        const nextFields = normalizeViewFields(d.fields);
+        setDraftFields(nextFields);
+        setAddFieldName(catalogViewFieldsNotInUse(nextFields)[0]?.source || "");
+        setAddOperator("equal");
+        setAddValue("");
+        setAddType("Text");
         setLoading(false);
       })
       .catch((err: unknown) => {
@@ -137,18 +172,28 @@ export function ViewDetailPanel({
     type !== loadedType ||
     displayFormatId !== loadedDf;
   const canSave = !busy && !protectedWrite && dirty && isViewWriteReady({ isNew, name });
-  const writeKey = idOrName || createdKey || normalizeViewName(name);
   const objectGuid = resolveViewObjectGuid(detail, catalogGuid);
+  const writeKey = objectGuid || idOrName || createdKey || normalizeViewName(name);
+  const loadedFields = useMemo(
+    () => (detail != null ? normalizeViewFields(detail.fields) : []),
+    [detail],
+  );
+  const fieldsEditable = !protectedWrite && !isNew && detail != null;
+  const fields = fieldsEditable ? draftFields : loadedFields;
+  const availableFields = catalogViewFieldsNotInUse(draftFields);
+  const fieldsDirty = fieldsEditable && !viewFieldsEqual(draftFields, loadedFields);
+  const canSaveFields = !busy && fieldsDirty;
 
   function writeBody(): ViewWriteBody {
+    const df = displayFormatId == null ? "" : String(displayFormatId);
     const body: ViewWriteBody = {
       name: isNew ? normalizeViewName(name) : detail?.name || normalizeViewName(name),
-      label,
-      description,
-      type,
+      label: label == null ? "" : String(label),
+      description: description == null ? "" : String(description),
+      type: type == null ? "" : String(type),
     };
-    if (displayFormatId.trim()) {
-      body.displayFormatId = displayFormatId.trim();
+    if (df.trim()) {
+      body.displayFormatId = df.trim();
     }
     return body;
   }
@@ -160,6 +205,49 @@ export function ViewDetailPanel({
     if (isApiError(err) && err.status === 403) return DEV_MSG.VW_FORBIDDEN;
     if (isApiError(err) && err.status === 404) return DEV_MSG.VW_NOT_FOUND;
     return DEV_MSG.VW_SAVE_ERROR;
+  }
+
+  function fieldsSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return DEV_MSG.VW_FIELDS_INVALID;
+    if (isApiError(err) && err.status === 403) return DEV_MSG.VW_FIELDS_FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return DEV_MSG.VW_PROTECTED;
+    if (isApiError(err) && err.status === 404) return DEV_MSG.VW_NOT_FOUND;
+    return DEV_MSG.VW_FIELDS_SAVE_ERROR;
+  }
+
+  function handleAddField(): void {
+    if (!isValidViewFieldName(addFieldName) || !isKnownViewFieldName(addFieldName)) {
+      return;
+    }
+    const next = addViewFieldCriterion(draftFields, addFieldName, addOperator, addValue, addType);
+    setDraftFields(next);
+    setAddFieldName(catalogViewFieldsNotInUse(next)[0]?.source || "");
+    setAddValue("");
+  }
+
+  async function handleSaveFields(): Promise<void> {
+    if (!canSaveFields || inflight.current || !writeKey) return;
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const saved = await saveView(writeKey, {
+        ...writeBody(),
+        fields: normalizeViewFields(draftFields),
+      });
+      setDetail(saved);
+      const nextFields = normalizeViewFields(saved.fields);
+      setDraftFields(nextFields);
+      setAddFieldName(catalogViewFieldsNotInUse(nextFields)[0]?.source || "");
+      setNotice(DEV_MSG.VW_FIELDS_SAVED);
+      onSaved?.(saved);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, fieldsSaveFallback(err)));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
   }
 
   async function handleSave(): Promise<void> {
@@ -182,6 +270,9 @@ export function ViewDetailPanel({
       setDescription(saved.description || "");
       setType(typeFromDetail(saved, type));
       setDisplayFormatId(saved.displayFormatId || "");
+      const nextFields = normalizeViewFields(saved.fields);
+      setDraftFields(nextFields);
+      setAddFieldName(catalogViewFieldsNotInUse(nextFields)[0]?.source || "");
       setNotice(DEV_MSG.VW_SAVED);
       onSaved?.(saved);
     } catch (err: unknown) {
@@ -223,11 +314,10 @@ export function ViewDetailPanel({
     ? DEV_MSG.VW_NEW
     : detail?.label || detail?.name || idOrName || DEV_MSG.VW_EDIT;
 
-  const fields = detail != null && Array.isArray(detail.fields) ? detail.fields : [];
   const gapList =
     detail != null && detail.designGaps && detail.designGaps.length > 0
       ? detail.designGaps
-      : [DEV_MSG.VW_GAP_FIELDS, DEV_MSG.VW_GAP_PROTECTED, DEV_MSG.VW_GAP_SEARCHES];
+      : [DEV_MSG.VW_GAP_PROTECTED, DEV_MSG.VW_GAP_SEARCHES];
 
   return (
     <div data-testid="developer-vw-detail">
@@ -429,8 +519,11 @@ export function ViewDetailPanel({
             <>
               <section data-testid="developer-vw-fields">
                 <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.VW_FIELDS}</h3>
-                <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
-                  {DEV_MSG.VW_FIELDS_HINT}
+                <p
+                  style={{ color: catalogColors.muted, fontSize: "0.9rem" }}
+                  data-testid={protectedWrite ? "developer-vw-fields-readonly" : undefined}
+                >
+                  {protectedWrite ? DEV_MSG.VW_FIELDS_READONLY : DEV_MSG.VW_FIELDS_HINT}
                 </p>
                 {fields.length === 0 ? (
                   <p style={{ color: catalogColors.empty }} data-testid="developer-vw-fields-empty">
@@ -448,6 +541,7 @@ export function ViewDetailPanel({
                           <th style={{ padding: "8px" }}>{DEV_MSG.VW_COL_OP}</th>
                           <th style={{ padding: "8px" }}>{DEV_MSG.VW_COL_VALUE}</th>
                           <th style={{ padding: "8px" }}>{DEV_MSG.VW_COL_FTYPE}</th>
+                          {fieldsEditable ? <th style={{ padding: "8px" }} /> : null}
                         </tr>
                       </thead>
                       <tbody>
@@ -455,20 +549,231 @@ export function ViewDetailPanel({
                           <tr
                             key={`${f.fieldName ?? "f"}-${i}`}
                             data-testid={`developer-vw-field-row-${i}`}
+                            data-vw-field-name={f.fieldName || ""}
                             style={tableRow}
                           >
                             <td style={{ padding: "8px", fontFamily: "monospace" }}>
                               {f.fieldName || f.displayName || "—"}
                             </td>
-                            <td style={{ padding: "8px" }}>{f.operator || "—"}</td>
-                            <td style={{ padding: "8px" }}>{f.fieldValue || "—"}</td>
+                            <td style={{ padding: "8px" }}>
+                              {fieldsEditable ? (
+                                <select
+                                  data-testid={`developer-vw-field-op-${i}`}
+                                  style={inputStyle}
+                                  value={f.operator || "equal"}
+                                  disabled={busy}
+                                  onChange={(e) =>
+                                    setDraftFields(
+                                      patchViewFieldCriterion(draftFields, i, {
+                                        operator: e.target.value,
+                                      }),
+                                    )
+                                  }
+                                >
+                                  {VIEW_FIELD_OPERATORS.map((op) => (
+                                    <option key={op.value} value={op.value}>
+                                      {op.label}
+                                    </option>
+                                  ))}
+                                </select>
+                              ) : (
+                                f.operator || "—"
+                              )}
+                            </td>
+                            <td style={{ padding: "8px" }}>
+                              {fieldsEditable ? (
+                                <input
+                                  data-testid={`developer-vw-field-value-${i}`}
+                                  style={inputStyle}
+                                  value={f.fieldValue || ""}
+                                  disabled={busy}
+                                  onChange={(e) =>
+                                    setDraftFields(
+                                      patchViewFieldCriterion(draftFields, i, {
+                                        fieldValue: e.target.value,
+                                      }),
+                                    )
+                                  }
+                                />
+                              ) : (
+                                f.fieldValue || "—"
+                              )}
+                            </td>
                             <td style={{ padding: "8px" }}>{f.fieldType || "—"}</td>
+                            {fieldsEditable ? (
+                              <td style={{ padding: "8px" }}>
+                                <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+                                  <button
+                                    type="button"
+                                    data-testid={`developer-vw-field-up-${i}`}
+                                    aria-label={DEV_MSG.VW_FIELDS_MOVE_UP}
+                                    disabled={busy || i === 0}
+                                    onClick={() =>
+                                      setDraftFields(moveViewFieldCriterion(draftFields, i, -1))
+                                    }
+                                    style={actionButton}
+                                  >
+                                    {DEV_MSG.VW_FIELDS_MOVE_UP}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    data-testid={`developer-vw-field-down-${i}`}
+                                    aria-label={DEV_MSG.VW_FIELDS_MOVE_DOWN}
+                                    disabled={busy || i === fields.length - 1}
+                                    onClick={() =>
+                                      setDraftFields(moveViewFieldCriterion(draftFields, i, 1))
+                                    }
+                                    style={actionButton}
+                                  >
+                                    {DEV_MSG.VW_FIELDS_MOVE_DOWN}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    data-testid={`developer-vw-field-remove-${i}`}
+                                    aria-label={DEV_MSG.VW_FIELDS_REMOVE}
+                                    disabled={busy}
+                                    onClick={() =>
+                                      setDraftFields(removeViewFieldCriterion(draftFields, i))
+                                    }
+                                    style={actionButton}
+                                  >
+                                    {DEV_MSG.VW_FIELDS_REMOVE}
+                                  </button>
+                                </div>
+                              </td>
+                            ) : null}
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
                 )}
+
+                {fieldsEditable ? (
+                  <div
+                    style={{
+                      marginTop: "12px",
+                      display: "flex",
+                      gap: "8px",
+                      flexWrap: "wrap",
+                      alignItems: "flex-end",
+                    }}
+                    data-testid="developer-vw-field-editor"
+                  >
+                    <label
+                      htmlFor="vw-field-source"
+                      style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+                    >
+                      {DEV_MSG.VW_FIELDS_SOURCE_PICKER}
+                      <select
+                        id="vw-field-source"
+                        data-testid="developer-vw-field-source"
+                        style={inputStyle}
+                        value={addFieldName}
+                        disabled={busy || availableFields.length === 0}
+                        onChange={(e) => setAddFieldName(e.target.value)}
+                      >
+                        <option value="">{availableFields.length ? "—" : DEV_MSG.VW_NONE}</option>
+                        {availableFields.map((f) => (
+                          <option key={f.source} value={f.source}>
+                            {f.label} ({f.source})
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label
+                      htmlFor="vw-field-add-op"
+                      style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+                    >
+                      {DEV_MSG.VW_COL_OP}
+                      <select
+                        id="vw-field-add-op"
+                        data-testid="developer-vw-field-add-op"
+                        style={inputStyle}
+                        value={addOperator}
+                        disabled={busy}
+                        onChange={(e) => setAddOperator(e.target.value)}
+                      >
+                        {VIEW_FIELD_OPERATORS.map((op) => (
+                          <option key={op.value} value={op.value}>
+                            {op.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label
+                      htmlFor="vw-field-add-value"
+                      style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+                    >
+                      {DEV_MSG.VW_COL_VALUE}
+                      <input
+                        id="vw-field-add-value"
+                        data-testid="developer-vw-field-add-value"
+                        style={inputStyle}
+                        value={addValue}
+                        disabled={busy}
+                        onChange={(e) => setAddValue(e.target.value)}
+                      />
+                    </label>
+                    <label
+                      htmlFor="vw-field-add-type"
+                      style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+                    >
+                      {DEV_MSG.VW_COL_FTYPE}
+                      <select
+                        id="vw-field-add-type"
+                        data-testid="developer-vw-field-add-type"
+                        style={inputStyle}
+                        value={addType}
+                        disabled={busy}
+                        onChange={(e) => setAddType(e.target.value)}
+                      >
+                        {VIEW_FIELD_TYPES.map((t) => (
+                          <option key={t} value={t}>
+                            {t}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <button
+                      type="button"
+                      data-testid="developer-vw-field-add"
+                      aria-label={DEV_MSG.VW_FIELDS_ADD}
+                      disabled={busy || !isValidViewFieldName(addFieldName)}
+                      onClick={handleAddField}
+                      style={{
+                        ...actionButton,
+                        padding: "8px 12px",
+                        background: isValidViewFieldName(addFieldName)
+                          ? catalogColors.accent
+                          : catalogColors.disabled,
+                        color: "#fff",
+                        border: "none",
+                        cursor:
+                          isValidViewFieldName(addFieldName) && !busy ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      {DEV_MSG.VW_FIELDS_ADD}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-vw-fields-save"
+                      aria-label={DEV_MSG.VW_FIELDS_SAVE}
+                      disabled={!canSaveFields}
+                      onClick={() => void handleSaveFields()}
+                      style={{
+                        padding: "8px 16px",
+                        background: canSaveFields ? catalogColors.accent : catalogColors.disabled,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: canSaveFields ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      {busy ? DEV_MSG.VW_FIELDS_SAVING : DEV_MSG.VW_FIELDS_SAVE}
+                    </button>
+                  </div>
+                ) : null}
               </section>
 
               <ObjectAclSection

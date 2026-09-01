@@ -389,7 +389,7 @@ describe("ViewDetailPanel", () => {
       expect(onSaved).toHaveBeenCalled();
     });
     expect(saveView).toHaveBeenCalledWith(
-      "My View",
+      "0-27-3",
       expect.objectContaining({
         name: "My View",
         label: "Updated label",
@@ -416,7 +416,7 @@ describe("ViewDetailPanel", () => {
       await waitFor(() => {
         expect(onDeleted).toHaveBeenCalled();
       });
-      expect(deleteView).toHaveBeenCalledWith("My View");
+      expect(deleteView).toHaveBeenCalledWith("0-27-3");
     } finally {
       confirmSpy.mockRestore();
     }
@@ -466,5 +466,116 @@ describe("ViewDetailPanel", () => {
     expect(screen.queryByTestId("developer-vw-delete")).toBeNull();
     expect((screen.getByTestId("developer-vw-save") as HTMLButtonElement).disabled).toBe(true);
     expect(deleteView).not.toHaveBeenCalled();
+  });
+
+  it("saves PUT body fields on a writable view", async () => {
+    getViewDetail.mockResolvedValue(sampleDetail);
+    saveView.mockResolvedValue({
+      ...sampleDetail,
+      fields: [
+        sampleDetail.fields[0],
+        { fieldName: "sys_title", operator: "like", fieldValue: "News%", fieldType: "Text" },
+      ],
+    });
+    render(<ViewDetailPanel idOrName="My View" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-field-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-vw-field-source"), {
+      target: { value: "sys_title" },
+    });
+    fireEvent.change(screen.getByTestId("developer-vw-field-add-op"), {
+      target: { value: "like" },
+    });
+    fireEvent.change(screen.getByTestId("developer-vw-field-add-value"), {
+      target: { value: "News%" },
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-field-add"));
+    fireEvent.click(screen.getByTestId("developer-vw-fields-save"));
+    await waitFor(() => {
+      expect(saveView).toHaveBeenCalled();
+    });
+    const [, body] = saveView.mock.calls[0];
+    expect(body.fields.map((f: { fieldName?: string }) => f.fieldName)).toEqual([
+      "sys_contentid",
+      "sys_title",
+    ]);
+    expect(body.fields[1]).toEqual(
+      expect.objectContaining({
+        fieldName: "sys_title",
+        operator: "like",
+        fieldValue: "News%",
+      }),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-editor-notice").textContent).toBe(
+        DEV_MSG.VW_FIELDS_SAVED,
+      );
+    });
+  });
+
+  it("surfaces 400 invalid field from PUT", async () => {
+    getViewDetail.mockResolvedValue(sampleDetail);
+    saveView.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: "unknown field: not_a_cx_field",
+    });
+    render(<ViewDetailPanel idOrName="My View" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-field-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-vw-field-source"), {
+      target: { value: "sys_title" },
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-field-add"));
+    fireEvent.click(screen.getByTestId("developer-vw-fields-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
+      DEV_MSG.VW_FIELDS_INVALID,
+    );
+    expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain("unknown field");
+  });
+
+  it("surfaces 403 non-Admin from field PUT", async () => {
+    getViewDetail.mockResolvedValue(sampleDetail);
+    saveView.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: "Admin role required",
+    });
+    render(<ViewDetailPanel idOrName="My View" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-field-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-vw-field-source"), {
+      target: { value: "sys_title" },
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-field-add"));
+    fireEvent.click(screen.getByTestId("developer-vw-fields-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
+      DEV_MSG.VW_FIELDS_FORBIDDEN,
+    );
+  });
+
+  it("does not mutate Inbox-family or system views from the field editor", async () => {
+    getViewDetail.mockResolvedValue({
+      ...sampleDetail,
+      name: "Inbox",
+      customView: true,
+      url: "../sys_cxViews/inbox.xml",
+    });
+    render(<ViewDetailPanel idOrName="Inbox" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-fields-readonly")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-vw-field-editor")).toBeNull();
+    expect(screen.queryByTestId("developer-vw-fields-save")).toBeNull();
+    expect(saveView).not.toHaveBeenCalled();
   });
 });
