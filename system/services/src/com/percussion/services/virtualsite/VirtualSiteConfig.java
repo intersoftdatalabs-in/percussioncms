@@ -241,7 +241,9 @@ public final class VirtualSiteConfig {
    * _config.yaml}).
    *
    * @return spec, or null when the mapping is omitted (adapter then uses {@code sitemap.xml} under
-   *     the site root)
+   *     the site root). Legacy constructors (12-arg and earlier) always pass {@code null} here; a
+   *     {@code SITEMAP_XML} site wired that way also falls back to {@code sitemap.xml} and does
+   *     not fail.
    */
   public SitemapSpec sitemap() {
     return sitemap;

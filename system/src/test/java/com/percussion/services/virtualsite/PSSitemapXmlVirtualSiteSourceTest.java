@@ -488,6 +488,66 @@ class PSSitemapXmlVirtualSiteSourceTest {
     assertEquals("page", PSSitemapXmlVirtualSiteSource.slugForPath(":::"));
   }
 
+  @Test
+  void pageBodyBudgetIsLargerThanSitemapXmlCap() {
+    assertTrue(
+        PSSitemapXmlVirtualSiteSource.MAX_PAGE_BYTES
+            > PSSitemapXmlVirtualSiteSource.MAX_SITEMAP_BYTES);
+  }
+
+  @Test
+  void resolveSitemapFileRejectsAsciiDriveAbsoluteAndAllowsRelative() throws Exception {
+    Path root = writeSite(tempDir.resolve("sm-abs"), "sitemap.xml");
+    assertThrows(
+        VirtualSiteException.class,
+        () -> PSSitemapXmlVirtualSiteSource.resolveSitemapFile(root, "C:/evil.xml"));
+    assertThrows(
+        VirtualSiteException.class,
+        () -> PSSitemapXmlVirtualSiteSource.resolveSitemapFile(root, "d:\\evil.xml"));
+    Path relative = PSSitemapXmlVirtualSiteSource.resolveSitemapFile(root, "sitemap.xml");
+    assertTrue(PSSitemapXmlVirtualSiteSource.isInsideRoot(relative, root.normalize()));
+  }
+
+  @Test
+  void isInsideRootAcceptsNormalizedDescendant() throws Exception {
+    Path root = writeSite(tempDir.resolve("sm-inside"), null);
+    Path child = root.resolve("sitemap.xml");
+    Files.writeString(child, urlset("pages/x.md", null), StandardCharsets.UTF_8);
+    assertTrue(PSSitemapXmlVirtualSiteSource.isInsideRoot(child, root.normalize()));
+    assertFalse(
+        PSSitemapXmlVirtualSiteSource.isInsideRoot(
+            tempDir.resolve("other-root").resolve("sitemap.xml"), root.normalize()));
+  }
+
+  @Test
+  void legacyTwelveArgConstructorFallsBackToDefaultSitemapFile() throws Exception {
+    Path root = writeSite(tempDir.resolve("sm-legacy-ctor"), null);
+    Files.writeString(
+        root.resolve("pages").resolve("legacy.md"), "legacy body", StandardCharsets.UTF_8);
+    Files.writeString(
+        root.resolve(PSSitemapXmlVirtualSiteSource.DEFAULT_SITEMAP_FILE),
+        urlset("pages/legacy.md", null),
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig cfg =
+        new VirtualSiteConfig(
+            root,
+            "Sitemap Docs",
+            "",
+            "page.html",
+            List.of(new VirtualSiteConfig.VersionSpec("8.2", "8.2", "8.2", true)),
+            List.of(),
+            "sm-docs",
+            null,
+            null,
+            null,
+            null,
+            null);
+    assertEquals(null, cfg.sitemap());
+    List<VirtualItemRef> refs = new PSSitemapXmlVirtualSiteSource().discover(cfg);
+    assertEquals(1, refs.size());
+    assertEquals("legacy", refs.get(0).id());
+  }
+
   private static HttpServer loopbackServer() throws Exception {
     HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
     server.setExecutor(Executors.newCachedThreadPool());

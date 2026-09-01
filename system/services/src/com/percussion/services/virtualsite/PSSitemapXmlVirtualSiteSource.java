@@ -76,12 +76,20 @@ import org.xml.sax.SAXException;
 public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
 
   static final String DEFAULT_SITEMAP_FILE = "sitemap.xml";
+  /** Cap on sitemap.xml / sitemapindex XML (parser-abuse bound). */
   static final int MAX_SITEMAP_BYTES = 2_000_000;
+  /** Cap on per-loc page bodies and loopback HTTP responses. */
+  static final int MAX_PAGE_BYTES = 10_000_000;
   static final int MAX_INDEX_DEPTH = 4;
   private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
   private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(10);
   private static final Set<String> LOOPBACK_HOSTS =
       Set.of("localhost", "127.0.0.1", "::1", "[::1]");
+  private static final HttpClient LOOPBACK_HTTP_CLIENT =
+      HttpClient.newBuilder()
+          .followRedirects(HttpClient.Redirect.NEVER)
+          .connectTimeout(CONNECT_TIMEOUT)
+          .build();
 
   @Override
   public String sourceType() {
@@ -190,7 +198,7 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
       return new SitemapFetch(readSitemapFile(file), file);
     }
     Path defaultFile = safeRoot.resolve(DEFAULT_SITEMAP_FILE).normalize();
-    if (Files.isRegularFile(defaultFile) && defaultFile.startsWith(safeRoot)) {
+    if (Files.isRegularFile(defaultFile) && isInsideRoot(defaultFile, safeRoot)) {
       return new SitemapFetch(readSitemapFile(defaultFile), defaultFile);
     }
     throw new VirtualSiteException(
@@ -244,7 +252,7 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
     } catch (InvalidPathException e) {
       throw new VirtualSiteException("sitemap-xml file is not a valid path", e);
     }
-    if (!resolved.startsWith(safeRoot)
+    if (!isInsideRoot(resolved, safeRoot)
         || !PSVirtualSiteHelper.isSafeRootPath(resolved)
         || remainingParent(resolved)) {
       throw new VirtualSiteException("sitemap-xml file escapes the site root");
@@ -351,9 +359,9 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
           "sitemap-xml loc file not found: " + file.toAbsolutePath().normalize());
     }
     long size = Files.size(file);
-    if (size > MAX_SITEMAP_BYTES) {
+    if (size > MAX_PAGE_BYTES) {
       throw new VirtualSiteException(
-          "sitemap-xml loc file exceeds " + MAX_SITEMAP_BYTES + " bytes: " + file);
+          "sitemap-xml loc file exceeds " + MAX_PAGE_BYTES + " bytes: " + file);
     }
     return Files.readString(file, StandardCharsets.UTF_8);
   }
@@ -396,7 +404,7 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
     } catch (InvalidPathException e) {
       throw new VirtualSiteException("sitemap-xml loc is not a valid path: " + trimmed, e);
     }
-    if (!resolved.startsWith(safeRoot)
+    if (!isInsideRoot(resolved, safeRoot)
         || !PSVirtualSiteHelper.isSafeRootPath(resolved)
         || remainingParent(resolved)) {
       throw new VirtualSiteException("sitemap-xml loc escapes the site root");
@@ -464,11 +472,6 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
   }
 
   static String fetchHttpBody(URL current) throws IOException, VirtualSiteException {
-    HttpClient client =
-        HttpClient.newBuilder()
-            .followRedirects(HttpClient.Redirect.NEVER)
-            .connectTimeout(CONNECT_TIMEOUT)
-            .build();
     URI requestUri = toRequestUri(current);
     HttpRequest request =
         HttpRequest.newBuilder(requestUri) // codeql[java/ssrf]
@@ -478,7 +481,7 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
             .build();
     HttpResponse<byte[]> response;
     try {
-      response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+      response = LOOPBACK_HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofByteArray());
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new VirtualSiteException("sitemap-xml request interrupted: " + redactUrl(current), e);
@@ -492,9 +495,9 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
           "sitemap-xml request failed: " + redactUrl(current) + " status " + status);
     }
     byte[] body = response.body() != null ? response.body() : new byte[0];
-    if (body.length > MAX_SITEMAP_BYTES) {
+    if (body.length > MAX_PAGE_BYTES) {
       throw new VirtualSiteException(
-          "sitemap-xml loc exceeds " + MAX_SITEMAP_BYTES + " bytes from " + redactUrl(current));
+          "sitemap-xml loc exceeds " + MAX_PAGE_BYTES + " bytes from " + redactUrl(current));
     }
     return new String(body, StandardCharsets.UTF_8);
   }
@@ -787,9 +790,42 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
   }
 
   private static boolean looksAbsoluteWindows(String logical) {
-    return logical.length() >= 2
-        && Character.isLetter(logical.charAt(0))
-        && logical.charAt(1) == ':';
+    if (logical.length() < 2 || logical.charAt(1) != ':') {
+      return false;
+    }
+    char drive = logical.charAt(0);
+    return (drive >= 'A' && drive <= 'Z') || (drive >= 'a' && drive <= 'z');
+  }
+
+  /**
+   * True when {@code candidate} is the same file/dir as {@code safeRoot} or a descendant.
+   * Uses {@link Path#startsWith} first, then {@link Files#isSameFile} so Windows
+   * case-insensitive volumes are not rejected on drive-letter or component case.
+   */
+  static boolean isInsideRoot(Path candidate, Path safeRoot) {
+    if (candidate == null || safeRoot == null) {
+      return false;
+    }
+    Path absCandidate = candidate.toAbsolutePath().normalize();
+    Path absRoot = safeRoot.toAbsolutePath().normalize();
+    if (absCandidate.startsWith(absRoot)) {
+      return true;
+    }
+    try {
+      if (!Files.exists(absCandidate) || !Files.exists(absRoot)) {
+        return false;
+      }
+      Path cursor = absCandidate;
+      while (cursor != null) {
+        if (Files.isSameFile(cursor, absRoot)) {
+          return true;
+        }
+        cursor = cursor.getParent();
+      }
+    } catch (IOException e) {
+      return false;
+    }
+    return false;
   }
 
   private static boolean remainingParent(Path path) {
