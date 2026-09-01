@@ -709,8 +709,30 @@ public interface IPSUiDesignWs
    @IPSWsMethod(ignore=true)
    public List<PSSearch> findAllSearches() throws PSErrorResultsException,
          PSErrorException;
-    
-    
+
+   /**
+    * Finds all CX view definitions and returns them. The views are from cache
+    * and should be used for readonly purposes. Use
+    * {@link #loadViews(List, boolean, boolean, String, String)} to get the
+    * views for read and write purposes.
+    * <p>
+    * Same catalog source as {@link #findAllSearches()} ({@code getSearches.xml})
+    * filtered to {@link com.percussion.cms.objectstore.PSSearch#isView()}.
+    * H2 REST UI-07 create lists the new name from this catalog; {@code
+    * findViews} + {@code loadViews} can remap rows to {@code View_All}.
+    * <p>
+    * Note, the returned objects is not designed to be filtered by the AOP
+    * security strategy, which may modify the filtered objects.
+    * Added annotation to skip the AOP security process.
+    *
+    * @return All the view objects from cache, never <code>null</code> may
+    *         be empty.
+    * @throws PSErrorException
+    */
+   @IPSWsMethod(ignore=true)
+   public List<PSSearch> findAllViews() throws PSErrorResultsException,
+         PSErrorException;
+
    /**
     * Get the path for supplied guid.
     * 

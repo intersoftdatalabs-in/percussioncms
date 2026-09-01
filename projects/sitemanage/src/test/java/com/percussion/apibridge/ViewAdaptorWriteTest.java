@@ -65,7 +65,7 @@ class ViewAdaptorWriteTest {
   private IPSGuid guid;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws Exception {
     PSRequestInfo.resetRequestInfo();
     PSRequestInfo.initRequestInfo(new HashMap<String, Object>());
     PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_JSESSIONID, "test-session");
@@ -83,6 +83,7 @@ class ViewAdaptorWriteTest {
     when(guid.getUUID()).thenReturn(42);
     when(designWs.findViews(any(), isNull())).thenReturn(List.of());
     when(designWs.findSearches(any(), isNull())).thenReturn(List.of());
+    when(designWs.findAllViews()).thenReturn(List.of());
   }
 
   @AfterEach
@@ -97,6 +98,7 @@ class ViewAdaptorWriteTest {
     when(view.getDescription()).thenReturn("created via REST");
     when(designWs.createViews(eq(List.of("MyView")), eq("test-session"), eq("Admin")))
         .thenReturn(List.of(view));
+    stubCatalogVisibleAfterSave(view);
 
     ViewDef body = new ViewDef();
     body.setName("MyView");
@@ -110,6 +112,7 @@ class ViewAdaptorWriteTest {
     assertEquals("My View", out.getLabel());
     assertEquals("created via REST", out.getDescription());
     verify(designWs).createViews(eq(List.of("MyView")), eq("test-session"), eq("Admin"));
+    verify(designWs).findAllViews();
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<PSSearch>> saved = ArgumentCaptor.forClass(List.class);
     verify(designWs).saveViews(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
@@ -117,6 +120,22 @@ class ViewAdaptorWriteTest {
     verify(view).setDisplayName("My View");
     verify(view).setDescription("created via REST");
     verify(view).setDisplayFormatId("1");
+  }
+
+  @Test
+  void create_failsIfNotVisibleToFindAfterSave() throws Exception {
+    PSSearch view = stubView("MyView", false);
+    when(designWs.createViews(eq(List.of("MyView")), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(view));
+    when(designWs.findAllViews()).thenReturn(List.of());
+    when(designWs.loadViews(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(view));
+
+    ViewDef body = new ViewDef();
+    body.setName("MyView");
+    IllegalStateException ex =
+        assertThrows(IllegalStateException.class, () -> adaptor.createView(body));
+    assertTrue(ex.getMessage().contains("findViews"), ex.getMessage());
   }
 
   @Test
@@ -426,7 +445,12 @@ class ViewAdaptorWriteTest {
     when(sum.getGUID()).thenReturn(guid);
     when(sum.getName()).thenReturn(catalogName);
     when(designWs.findViews(isNull(), isNull())).thenReturn(List.of(sum));
+    when(designWs.findAllViews()).thenReturn(List.of(search));
     when(designWs.loadViews(anyList(), eq(false), eq(false), any(), any()))
         .thenReturn(List.of(search));
+  }
+
+  private void stubCatalogVisibleAfterSave(PSSearch search) throws Exception {
+    when(designWs.findAllViews()).thenReturn(List.of(search));
   }
 }

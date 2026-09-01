@@ -1244,6 +1244,28 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    /*
     * (non-Javadoc)
     *
+    * @see com.percussion.webservices.ui.IPSUiDesignWs#findAllViews()
+    */
+   public List<PSSearch> findAllViews() throws PSErrorResultsException, PSErrorException
+   {
+      IPSCacheAccess cache = PSCacheAccessLocator.getCacheAccess();
+      java.util.Optional<java.io.Serializable> cached = cache.get(ALL_VIEWS_CACHE_KEY, IPSCacheAccess.IN_MEMORY_STORE);
+      Vector<PSSearch> views = cached.isPresent() ? (Vector<PSSearch>) cached.get() : null;
+      if (views == null)
+      {
+         List<IPSDbComponent> searchViews = findComponentsByNameLabel(null, null, FIND_SEARCHES,
+               PSSearch.XML_NODE_NAME, PSSearch.class);
+         List<PSSearch> s = getSearchOrViews(searchViews, true);
+         views = new Vector<PSSearch>();
+         views.addAll(s);
+         cache.save(ALL_VIEWS_CACHE_KEY, views, IPSCacheAccess.IN_MEMORY_STORE);
+      }
+      return views;
+   }
+
+   /*
+    * (non-Javadoc)
+    *
     * @see com.percussion.webservices.ui.IPSUiDesignWs#objectIdToPath(IPSGuid
     * guid)
     */
@@ -1636,10 +1658,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       // for lock+delete so REST UI-06 delete is not 409 on a visible row.
       try
       {
-         List<PSSearch> catalog = isView
-               ? getSearchOrViews(findComponentsByNameLabel(null, null, FIND_SEARCHES, PSSearch.XML_NODE_NAME,
-                     PSSearch.class), true)
-               : findAllSearches();
+         List<PSSearch> catalog = isView ? findAllViews() : findAllSearches();
          List<PSSearch> matched = matchSearchesByGuids(catalog, ids);
          if (matched.size() == ids.size())
          {
@@ -2398,9 +2417,9 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    }
 
    /**
-    * Drop in-memory {@link #ALL_SEARCHES_CACHE_KEY} and the XML resource cache
-    * for {@code sys_DisplayFormats/getSearches} so {@link #findSearches} sees
-    * the row just saved or deleted.
+    * Drop in-memory {@link #ALL_SEARCHES_CACHE_KEY} / {@link #ALL_VIEWS_CACHE_KEY}
+    * and the XML resource cache for {@code sys_DisplayFormats/getSearches} so
+    * {@link #findSearches} / {@link #findViews} see the row just saved or deleted.
     */
    static void invalidateSearchCatalog()
    {
@@ -2410,11 +2429,12 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          if (cache != null)
          {
             cache.evict(ALL_SEARCHES_CACHE_KEY, IPSCacheAccess.IN_MEMORY_STORE);
+            cache.evict(ALL_VIEWS_CACHE_KEY, IPSCacheAccess.IN_MEMORY_STORE);
          }
       }
       catch (RuntimeException e)
       {
-         log.debug("Could not evict in-memory search catalog cache: {}", e.toString());
+         log.debug("Could not evict in-memory search/view catalog cache: {}", e.toString());
       }
       try
       {
@@ -2479,6 +2499,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       PSTableChangeEvent e)
       {
          mi_cache.evict(ALL_SEARCHES_CACHE_KEY, IPSCacheAccess.IN_MEMORY_STORE);
+         mi_cache.evict(ALL_VIEWS_CACHE_KEY, IPSCacheAccess.IN_MEMORY_STORE);
          ms_log.debug("Clearing cache key: " + ALL_SEARCHES_CACHE_KEY);
       }
 
@@ -2490,6 +2511,13 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     * IPSCacheAccess.IN_MEMORY_STORE region.
     */
    private static final String ALL_SEARCHES_CACHE_KEY = "All_Searches_In_System";
+
+   /**
+    * The cache key for storing the collection of CX views in the
+    * IPSCacheAccess.IN_MEMORY_STORE region. Views share {@code PSX_SEARCHES}
+    * with searches; both keys are evicted together.
+    */
+   private static final String ALL_VIEWS_CACHE_KEY = "All_Views_In_System";
 
    /**
     * The cache key for storing the collection of searches in the
