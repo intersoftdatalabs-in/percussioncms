@@ -177,7 +177,7 @@
              advisory range (,1.4.1] (Dependabot #204 / issue #1674) -->
         <java.websocket.version>1.6.0</java.websocket.version>
         <!-- Desktop Content Explorer OpenJFX line (bare "17" was unpatched javafx-media) -->
-        <javafx.version>17.0.20</javafx.version>
+        <javafx.version>26.0.2</javafx.version>
         <javassist.version>3.33.0-GA</javassist.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jaxb.runtime.version>4.0.6</jaxb.runtime.version>
