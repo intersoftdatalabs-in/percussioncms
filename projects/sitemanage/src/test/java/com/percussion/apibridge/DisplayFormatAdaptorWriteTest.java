@@ -569,6 +569,32 @@ class DisplayFormatAdaptorWriteTest {
   }
 
   @Test
+  void isAllCommunitiesSentinel_isGuidOrKeyOnly() {
+    assertTrue(DisplayFormatAdaptor.isAllCommunitiesSentinel("-1", "Default"));
+    assertTrue(DisplayFormatAdaptor.isAllCommunitiesSentinel("-1", "-1"));
+    assertFalse(DisplayFormatAdaptor.isAllCommunitiesSentinel("0-13-10", "-1"));
+    assertFalse(DisplayFormatAdaptor.isAllCommunitiesSentinel("", "-1"));
+    assertFalse(DisplayFormatAdaptor.isAllCommunitiesSentinel(null, "-1"));
+  }
+
+  @Test
+  void requireKnownCommunityId_skipsNullCatalogName() {
+    IPSGuid named = new PSGuid(PSTypeEnum.COMMUNITY_DEF, 1001L);
+    IPSGuid unnamed = new PSGuid(PSTypeEnum.COMMUNITY_DEF, 1002L);
+    Map<IPSGuid, String> catalog = new HashMap<>();
+    catalog.put(named, "Default");
+    catalog.put(unnamed, null);
+    assertEquals(
+        String.valueOf(named.longValue()),
+        DisplayFormatAdaptor.requireKnownCommunityId("", "Default", catalog));
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> DisplayFormatAdaptor.requireKnownCommunityId("", "Nope", catalog));
+    assertTrue(ex.getMessage().contains("unknown community"), ex.getMessage());
+  }
+
+  @Test
   void requireValidColumnSource_rejectsBlankAndPath() {
     IllegalArgumentException blank =
         assertThrows(IllegalArgumentException.class, () -> DisplayFormatAdaptor.requireValidColumnSource("  "));

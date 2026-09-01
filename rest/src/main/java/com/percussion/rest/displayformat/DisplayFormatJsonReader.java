@@ -117,7 +117,7 @@ public class DisplayFormatJsonReader implements MessageBodyReader<DisplayFormat>
     if (out == null) {
       out = new DisplayFormat();
     }
-    if (fields.has("allowedCommunities")) {
+    if (fields.has("allowedCommunities") && !fields.get("allowedCommunities").isNull()) {
       out.setAllowedCommunities(communitiesFromNode(fields.get("allowedCommunities")));
     }
     return out;

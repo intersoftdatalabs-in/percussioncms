@@ -744,7 +744,7 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
         return out;
       }
       for (PSCommunity community : all) {
-        if (community == null || community.getGUID() == null) {
+        if (community == null || community.getGUID() == null || community.getName() == null) {
           continue;
         }
         out.put(community.getGUID(), community.getName());
@@ -1145,11 +1145,13 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     }
   }
 
+  /**
+   * True when the guid/key is the reserved all-communities token {@code -1}. Name is not a
+   * sentinel — a community actually named {@code -1} is validated as a specific community.
+   */
   static boolean isAllCommunitiesSentinel(String key, String name) {
     String needleKey = key == null ? "" : key.trim();
-    String needleName = name == null ? "" : name.trim();
-    return PSDisplayFormat.PROP_COMMUNITY_ALL.equals(needleKey)
-        || PSDisplayFormat.PROP_COMMUNITY_ALL.equals(needleName);
+    return PSDisplayFormat.PROP_COMMUNITY_ALL.equals(needleKey);
   }
 
   static String requireKnownCommunityId(
@@ -1176,10 +1178,10 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
               || needleKey.equals(String.valueOf(g.longValue())))) {
         return String.valueOf(g.longValue());
       }
-      if (!needleName.isEmpty() && needleName.equalsIgnoreCase(n)) {
+      if (!needleName.isEmpty() && n != null && needleName.equalsIgnoreCase(n)) {
         return String.valueOf(g.longValue());
       }
-      if (!needleKey.isEmpty() && needleKey.equalsIgnoreCase(n)) {
+      if (!needleKey.isEmpty() && n != null && needleKey.equalsIgnoreCase(n)) {
         return String.valueOf(g.longValue());
       }
     }

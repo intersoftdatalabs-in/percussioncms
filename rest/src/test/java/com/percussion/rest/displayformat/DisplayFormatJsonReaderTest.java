@@ -45,6 +45,15 @@ class DisplayFormatJsonReaderTest {
   }
 
   @Test
+  void parse_nullAllowedCommunitiesStaysNull() {
+    DisplayFormat df =
+        DisplayFormatJsonReader.parse(
+            "{\"DisplayFormat\":{\"name\":\"MyFmt\",\"allowedCommunities\":null}}");
+    assertEquals("MyFmt", df.getName());
+    assertNull(df.getAllowedCommunities());
+  }
+
+  @Test
   void parse_singleCommunityArray() {
     DisplayFormat df =
         DisplayFormatJsonReader.parse(
