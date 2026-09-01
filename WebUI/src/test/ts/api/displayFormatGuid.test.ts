@@ -72,6 +72,11 @@ describe("resolveContentTypeObjectGuid / resolveTemplateObjectGuid (#3319)", () 
     expect(resolveTemplateObjectGuid({ guidString: "0-4-8", templateId: 12 })).toBe("0-4-8");
     expect(synthesizeTypedObjectGuid(4, 12)).toBe("0-4-12");
     expect(synthesizeTypedObjectGuid(2, 0)).toBeUndefined();
+    expect(synthesizeTypedObjectGuid(13, "9")).toBe("0-13-9");
+    expect(synthesizeTypedObjectGuid(13, "01")).toBeUndefined();
+    expect(synthesizeTypedObjectGuid(13, "1.5")).toBeUndefined();
+    expect(synthesizeTypedObjectGuid(13, "1e2")).toBeUndefined();
+    expect(resolveCommunityObjectGuid({ id: "01" as unknown as number })).toBeUndefined();
   });
 
   it("resolves action menu GUID: nested, guidString, catalog, then 0-107-{id} (#3380)", () => {

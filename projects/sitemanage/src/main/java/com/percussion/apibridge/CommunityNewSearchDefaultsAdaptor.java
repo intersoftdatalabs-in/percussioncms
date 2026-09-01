@@ -21,6 +21,7 @@ import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.rest.Guid;
 import com.percussion.rest.communities.Community;
 import com.percussion.rest.communities.CommunityNewSearchDefaults;
+import com.percussion.rest.communities.CommunityNewSearchDefaultsDesignLockException;
 import com.percussion.rest.communities.CommunityNewSearchRef;
 import com.percussion.rest.communities.ICommunityAdaptor;
 import com.percussion.rest.communities.ICommunityNewSearchDefaultsAdaptor;
@@ -64,30 +65,44 @@ public class CommunityNewSearchDefaultsAdaptor implements ICommunityNewSearchDef
   static final String ADMIN_REQUIRED =
       "Admin role required to read or update community new-search defaults";
 
+  static final String LOCK_REQUIRED =
+      "Could not update new-search defaults; design lock required or held by another user";
+
+  /** Max path-token length for community id / name / GUID (path-injection surface). */
+  static final int MAX_COMMUNITY_KEY_LENGTH = 256;
+
   private final IPSUiDesignWs designWs;
   private final ICommunityAdaptor communityAdaptor;
   private final BooleanSupplier adminChecker;
-
-  @Autowired(required = false)
-  private IPSUserService userService;
+  private final IPSUserService userService;
 
   /**
-   * Production constructor. Admin checks use {@link IPSUserService} when injected.
+   * Production constructor. Missing {@link IPSUserService} fails at context load.
    *
    * @param designWs UI design web service (search load/save)
    * @param communityAdaptor community lookup by id/name/GUID
+   * @param userService current-user Admin gate
    */
   @Autowired
   public CommunityNewSearchDefaultsAdaptor(
-      IPSUiDesignWs designWs, ICommunityAdaptor communityAdaptor) {
-    this(designWs, communityAdaptor, null);
+      IPSUiDesignWs designWs, ICommunityAdaptor communityAdaptor, IPSUserService userService) {
+    this(designWs, communityAdaptor, null, userService);
   }
 
-  /** Package-visible for unit tests. */
+  /** Package-visible for unit tests. {@code null} adminChecker uses {@link #isCurrentUserAdmin()}. */
   CommunityNewSearchDefaultsAdaptor(
       IPSUiDesignWs designWs, ICommunityAdaptor communityAdaptor, BooleanSupplier adminChecker) {
+    this(designWs, communityAdaptor, adminChecker, null);
+  }
+
+  private CommunityNewSearchDefaultsAdaptor(
+      IPSUiDesignWs designWs,
+      ICommunityAdaptor communityAdaptor,
+      BooleanSupplier adminChecker,
+      IPSUserService userService) {
     this.designWs = designWs;
     this.communityAdaptor = communityAdaptor;
+    this.userService = userService;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
   }
 
@@ -151,9 +166,7 @@ public class CommunityNewSearchDefaultsAdaptor implements ICommunityNewSearchDef
         }
         List<PSSearch> locked = designWs.loadSearches(ids, true, false, session, user);
         if (locked == null || locked.isEmpty()) {
-          throw new WebApplicationException(
-              "Could not update new-search defaults; design lock required or held by another user",
-              409);
+          throw lockConflict(null);
         }
         for (PSSearch domain : locked) {
           if (domain == null) {
@@ -166,24 +179,20 @@ public class CommunityNewSearchDefaultsAdaptor implements ICommunityNewSearchDef
         catalog = loadAllSearches(false);
       }
       return toWire(community, filterAssigned(catalog, communityId));
-    } catch (WebApplicationException | IllegalArgumentException e) {
+    } catch (WebApplicationException
+        | IllegalArgumentException
+        | CommunityNewSearchDefaultsDesignLockException e) {
       throw e;
     } catch (PSErrorResultsException e) {
-      throw new WebApplicationException(
-          "Could not update new-search defaults; design lock required or held by another user",
-          409);
+      throw lockConflict(e);
     } catch (PSErrorsException e) {
       if (SearchAdaptor.isNotLockedError(e)) {
-        throw new WebApplicationException(
-            "Could not update new-search defaults; design lock required or held by another user",
-            409);
+        throw lockConflict(e);
       }
       log.error("Failed to save community new-search defaults for {}", communityIdOrName, e);
       throw new IllegalStateException("Failed to save community new-search defaults", e);
     } catch (PSLockErrorException e) {
-      throw new WebApplicationException(
-          "Could not update new-search defaults; design lock required or held by another user",
-          409);
+      throw lockConflict(e);
     } catch (Exception e) {
       log.error("Failed to replace community new-search defaults for {}", communityIdOrName, e);
       throw new IllegalStateException("Failed to replace community new-search defaults", e);
@@ -191,10 +200,14 @@ public class CommunityNewSearchDefaultsAdaptor implements ICommunityNewSearchDef
   }
 
   Community resolveCommunity(String communityIdOrName) {
-    if (!isSafeCommunityKey(communityIdOrName)) {
+    if (communityIdOrName == null) {
       return null;
     }
-    return communityAdaptor.getCommunity(communityIdOrName.trim());
+    String key = communityIdOrName.trim();
+    if (!isSafeCommunityKey(key)) {
+      return null;
+    }
+    return communityAdaptor.getCommunity(key);
   }
 
   List<PSSearch> resolveRequestedSearches(List<CommunityNewSearchRef> refs, List<PSSearch> catalog) {
@@ -312,13 +325,15 @@ public class CommunityNewSearchDefaultsAdaptor implements ICommunityNewSearchDef
   }
 
   static boolean isSafeCommunityKey(String key) {
-    if (key == null || key.isBlank()) {
+    if (key == null || key.isBlank() || key.length() > MAX_COMMUNITY_KEY_LENGTH) {
       return false;
     }
-    return !key.contains("..")
-        && key.indexOf('/') < 0
-        && key.indexOf('\\') < 0
-        && key.indexOf('\0') < 0;
+    for (int i = 0; i < key.length(); i++) {
+      if (Character.isISOControl(key.charAt(i))) {
+        return false;
+      }
+    }
+    return !key.contains("..") && key.indexOf('/') < 0 && key.indexOf('\\') < 0;
   }
 
   static int[] parseCommunityIds(String[] raw) {
@@ -452,6 +467,7 @@ public class CommunityNewSearchDefaultsAdaptor implements ICommunityNewSearchDef
 
   boolean isCurrentUserAdmin() {
     if (userService == null) {
+      log.warn("IPSUserService not available; defaulting admin check to deny");
       return false;
     }
     try {
@@ -480,5 +496,12 @@ public class CommunityNewSearchDefaultsAdaptor implements ICommunityNewSearchDef
 
   private static String currentUser() {
     return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+  }
+
+  private static CommunityNewSearchDefaultsDesignLockException lockConflict(Throwable cause) {
+    if (cause == null) {
+      return new CommunityNewSearchDefaultsDesignLockException(LOCK_REQUIRED);
+    }
+    return new CommunityNewSearchDefaultsDesignLockException(LOCK_REQUIRED, cause);
   }
 }

@@ -53,10 +53,6 @@ public class CommunityNewSearchDefaultsResource {
 
   private final ICommunityNewSearchDefaultsAdaptor adaptor;
 
-  public CommunityNewSearchDefaultsResource() {
-    this.adaptor = null;
-  }
-
   @Autowired
   public CommunityNewSearchDefaultsResource(ICommunityNewSearchDefaultsAdaptor adaptor) {
     this.adaptor = adaptor;
@@ -153,13 +149,9 @@ public class CommunityNewSearchDefaultsResource {
     if (e instanceof IllegalArgumentException) {
       return new WebApplicationException(e.getMessage(), 400);
     }
-    if (e instanceof IllegalStateException) {
+    if (e instanceof CommunityNewSearchDefaultsDesignLockException) {
       String msg = e.getMessage() != null ? e.getMessage() : "Conflict";
-      String lower = msg.toLowerCase();
-      if (lower.contains("lock") || lower.contains("depend")) {
-        return new WebApplicationException(msg, 409);
-      }
-      return new WebApplicationException(e, 500);
+      return new WebApplicationException(msg, 409);
     }
     return new WebApplicationException(e, 500);
   }

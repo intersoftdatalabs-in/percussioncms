@@ -113,5 +113,18 @@ class CommunityAdaptorCreateDeleteTest {
     assertFalse(
         CommunityAdaptor.isAlreadyExistsFailure(
             new IllegalArgumentException("name cannot be null or empty")));
+    assertFalse(
+        CommunityAdaptor.isAlreadyExistsFailure(
+            new RuntimeException("The name 'QA' for type 'COMMUNITY_DEF' already exists.")));
+    assertFalse(
+        CommunityAdaptor.isAlreadyExistsFailure(
+            new RuntimeException(
+                "Save failed: already exists",
+                new IllegalArgumentException(
+                    "The name 'QA' for type 'COMMUNITY_DEF' already exists."))));
+    assertFalse(
+        CommunityAdaptor.isAlreadyExistsFailure(
+            new IllegalArgumentException(
+                "Save failed: already exists then continued with another error")));
   }
 }

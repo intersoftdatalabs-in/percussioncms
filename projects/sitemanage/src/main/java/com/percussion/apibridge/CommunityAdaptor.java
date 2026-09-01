@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -355,13 +356,21 @@ public class CommunityAdaptor implements ICommunityAdaptor {
     return StringUtils.isBlank(n) ? "Community already exists" : "Community already exists: " + n;
   }
 
+  /** Design-WS uniqueness messages end with {@code already exists} (optional period). */
+  private static final Pattern ALREADY_EXISTS_TAIL =
+      Pattern.compile("(?i)already exists\\.?\\s*$");
+
+  /**
+   * True only for a top-level {@link IllegalArgumentException} whose message ends with the design-WS
+   * uniqueness phrase. Does not walk causes — wrapped {@code Save failed: ... already exists} stays
+   * a 500 rather than a false 409.
+   */
   static boolean isAlreadyExistsFailure(Throwable t) {
-    for (Throwable cur = t; cur != null && cur != cur.getCause(); cur = cur.getCause()) {
-      if (StringUtils.containsIgnoreCase(cur.getMessage(), "already exists")) {
-        return true;
-      }
+    if (!(t instanceof IllegalArgumentException)) {
+      return false;
     }
-    return false;
+    String msg = t.getMessage();
+    return msg != null && ALREADY_EXISTS_TAIL.matcher(msg).find();
   }
 
   @Override

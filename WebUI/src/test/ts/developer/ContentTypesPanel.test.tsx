@@ -142,7 +142,9 @@ describe("ContentTypesPanel", () => {
     expect(createContentType).toHaveBeenCalledWith(
       expect.objectContaining({ name: "qaType" }),
     );
-    expect(getContentTypeDetail).toHaveBeenCalledWith("qaType");
+    await waitFor(() => {
+      expect(getContentTypeDetail).toHaveBeenCalledWith("qaType");
+    });
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {

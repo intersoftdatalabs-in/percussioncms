@@ -160,6 +160,18 @@ describe("view wire wrap", () => {
       ]),
     ).toEqual(["View field criterion editing not supported via this API"]);
   });
+
+  it("does not drop a similar substring that is not the exact stale gap", () => {
+    expect(
+      withoutStaleViewWriteGap([
+        "View create / update / delete must run in sequence",
+        "View field criterion editing not supported via this API",
+      ]),
+    ).toEqual([
+      "View create / update / delete must run in sequence",
+      "View field criterion editing not supported via this API",
+    ]);
+  });
 });
 
 describe("viewsApi write paths", () => {

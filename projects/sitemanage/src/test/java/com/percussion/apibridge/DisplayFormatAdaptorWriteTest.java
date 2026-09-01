@@ -257,9 +257,11 @@ class DisplayFormatAdaptorWriteTest {
     assertFalse(DisplayFormatAdaptor.identityMatchesKey(null, "MyFmt"));
     DisplayFormat unnamed = new DisplayFormat();
     unnamed.setGuidString("0-31-301");
-    assertTrue(DisplayFormatAdaptor.identityMatchesKey(unnamed, "By_Author"));
+    assertFalse(DisplayFormatAdaptor.identityMatchesKey(unnamed, "By_Author"));
+    assertTrue(DisplayFormatAdaptor.identityMatchesKey(unnamed, "0-31-301"));
     unnamed.setName("display_format_1");
     assertFalse(DisplayFormatAdaptor.identityMatchesKey(unnamed, "By_Author"));
+    assertTrue(DisplayFormatAdaptor.identityMatchesKey(unnamed, "display_format_1"));
   }
 
   @Test

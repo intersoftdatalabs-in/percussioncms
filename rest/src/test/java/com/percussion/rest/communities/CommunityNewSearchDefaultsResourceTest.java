@@ -75,7 +75,7 @@ public class CommunityNewSearchDefaultsResourceTest {
 
   @Test
   public void missingAdaptorIs503OnGet() {
-    CommunityNewSearchDefaultsResource bare = new CommunityNewSearchDefaultsResource();
+    CommunityNewSearchDefaultsResource bare = new CommunityNewSearchDefaultsResource(null);
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> bare.getDefaults("Default"));
     assertEquals(503, ex.getResponse().getStatus());
@@ -142,11 +142,33 @@ public class CommunityNewSearchDefaultsResourceTest {
 
   @Test
   public void missingAdaptorIs503OnPut() {
-    CommunityNewSearchDefaultsResource bare = new CommunityNewSearchDefaultsResource();
+    CommunityNewSearchDefaultsResource bare = new CommunityNewSearchDefaultsResource(null);
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class,
             () -> bare.replaceDefaults("Default", new CommunityNewSearchDefaults()));
     assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceDefaultsLockExceptionIs409() {
+    when(adaptor.replaceDefaults(eq("Default"), org.mockito.ArgumentMatchers.any()))
+        .thenThrow(new CommunityNewSearchDefaultsDesignLockException("design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceDefaults("Default", new CommunityNewSearchDefaults()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceDefaultsGenericIllegalStateIs500EvenIfMessageMentionsLock() {
+    when(adaptor.replaceDefaults(eq("Default"), org.mockito.ArgumentMatchers.any()))
+        .thenThrow(new IllegalStateException("Failed to save; lock file missing"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceDefaults("Default", new CommunityNewSearchDefaults()));
+    assertEquals(500, ex.getResponse().getStatus());
   }
 }

@@ -18,6 +18,7 @@
 package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -36,6 +37,7 @@ import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.rest.Guid;
 import com.percussion.rest.communities.Community;
 import com.percussion.rest.communities.CommunityNewSearchDefaults;
+import com.percussion.rest.communities.CommunityNewSearchDefaultsDesignLockException;
 import com.percussion.rest.communities.CommunityNewSearchRef;
 import com.percussion.rest.communities.ICommunityAdaptor;
 import com.percussion.services.catalog.IPSCatalogSummary;
@@ -45,6 +47,7 @@ import com.percussion.webservices.ui.IPSUiDesignWs;
 import jakarta.ws.rs.WebApplicationException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -322,6 +325,65 @@ class CommunityNewSearchDefaultsAdaptorTest {
   void communityNumericId_prefersGuidUuid() {
     Community c = community("Default", 10);
     assertEquals(10, CommunityNewSearchDefaultsAdaptor.communityNumericId(c));
+  }
+
+  @Test
+  void isSafeCommunityKey_rejectsTraversalControlAndOverlong() {
+    assertTrue(CommunityNewSearchDefaultsAdaptor.isSafeCommunityKey("Default"));
+    assertTrue(CommunityNewSearchDefaultsAdaptor.isSafeCommunityKey("0-13-10"));
+    assertTrue(
+        CommunityNewSearchDefaultsAdaptor.isSafeCommunityKey(
+            "a".repeat(CommunityNewSearchDefaultsAdaptor.MAX_COMMUNITY_KEY_LENGTH)));
+    assertFalse(CommunityNewSearchDefaultsAdaptor.isSafeCommunityKey("../x"));
+    assertFalse(CommunityNewSearchDefaultsAdaptor.isSafeCommunityKey("a/b"));
+    assertFalse(CommunityNewSearchDefaultsAdaptor.isSafeCommunityKey("a\\b"));
+    assertFalse(CommunityNewSearchDefaultsAdaptor.isSafeCommunityKey("a\nb"));
+    assertFalse(CommunityNewSearchDefaultsAdaptor.isSafeCommunityKey("a\rb"));
+    assertFalse(CommunityNewSearchDefaultsAdaptor.isSafeCommunityKey("a\tb"));
+    assertFalse(CommunityNewSearchDefaultsAdaptor.isSafeCommunityKey("a\u0000b"));
+    assertFalse(CommunityNewSearchDefaultsAdaptor.isSafeCommunityKey(""));
+    assertFalse(CommunityNewSearchDefaultsAdaptor.isSafeCommunityKey("   "));
+    assertFalse(CommunityNewSearchDefaultsAdaptor.isSafeCommunityKey(null));
+    assertFalse(
+        CommunityNewSearchDefaultsAdaptor.isSafeCommunityKey(
+            "a".repeat(CommunityNewSearchDefaultsAdaptor.MAX_COMMUNITY_KEY_LENGTH + 1)));
+  }
+
+  @Test
+  void resolveCommunity_trimsBeforeLookup() {
+    when(communityAdaptor.getCommunity("Default")).thenReturn(community("Default", 10));
+    Community out = adaptor.resolveCommunity("  Default  ");
+    assertNotNull(out);
+    assertEquals("Default", out.getName());
+    verify(communityAdaptor).getCommunity("Default");
+  }
+
+  @Test
+  void isCurrentUserAdmin_falseWhenUserServiceMissing() {
+    CommunityNewSearchDefaultsAdaptor prod =
+        new CommunityNewSearchDefaultsAdaptor(designWs, communityAdaptor, (BooleanSupplier) null);
+    assertFalse(prod.isCurrentUserAdmin());
+  }
+
+  @Test
+  void put_emptyLockResultIsDesignLockException() throws Exception {
+    when(communityAdaptor.getCommunity("Default")).thenReturn(community("Default", 10));
+    PSSearch next = stubSearch("SimpleSearch", 42, "0-301-42");
+    when(next.isCXNewSearch("10")).thenReturn(false);
+    stubCatalog(next);
+    when(designWs.loadSearches(anyList(), eq(true), eq(false), any(), any())).thenReturn(List.of());
+
+    CommunityNewSearchDefaults body = new CommunityNewSearchDefaults();
+    CommunityNewSearchRef ref = new CommunityNewSearchRef();
+    ref.setName("SimpleSearch");
+    body.setSearches(List.of(ref));
+
+    CommunityNewSearchDefaultsDesignLockException ex =
+        assertThrows(
+            CommunityNewSearchDefaultsDesignLockException.class,
+            () -> adaptor.replaceDefaults("Default", body));
+    assertTrue(ex.getMessage().toLowerCase().contains("lock"));
+    verify(designWs, never()).saveSearches(anyList(), anyBoolean(), any(), any());
   }
 
   private Community community(String name, int uuid) {

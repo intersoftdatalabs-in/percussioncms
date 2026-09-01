@@ -157,12 +157,14 @@ export function unwrapViewDefList(payload: unknown): ViewDef[] {
   return asArray<ViewDef>(payload).map((item) => unwrapViewDef(item));
 }
 
-const STALE_WRITE_GAP = /create\s*\/\s*update\s*\/\s*delete/i;
+const STALE_WRITE_GAPS = new Set([
+  "View create / update / delete not supported via this API",
+]);
 
 /** Drop the pre-UI-07 write gap when REST still attaches it on GET detail. */
 export function withoutStaleViewWriteGap(gaps: string[] | undefined | null): string[] {
   const incoming = gaps && gaps.length > 0 ? gaps : [...VIEW_DESIGN_GAPS];
-  const filtered = incoming.filter((g) => !STALE_WRITE_GAP.test(g));
+  const filtered = incoming.filter((g) => !STALE_WRITE_GAPS.has(g));
   return filtered.length > 0 ? filtered : [...VIEW_DESIGN_GAPS];
 }
 

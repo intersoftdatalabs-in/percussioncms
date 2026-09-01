@@ -40,6 +40,8 @@ public interface ICommunityNewSearchDefaultsAdaptor {
    * @param communityIdOrName numeric id, GUID string, or exact name
    * @param body required; {@code searches} may be empty to clear
    * @return the stored set after replace; {@code null} when the community is missing
+   * @throws CommunityNewSearchDefaultsDesignLockException when a design lock is required or held by
+   *     another user
    */
   CommunityNewSearchDefaults replaceDefaults(String communityIdOrName, CommunityNewSearchDefaults body);
 }

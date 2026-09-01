@@ -872,7 +872,8 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
 
   /**
    * True when {@code df} is the catalog object for {@code key} (internal name or GUID string).
-   * Rejects bulk-load replay where a different name (e.g. By_Author / By_Type) is returned for this key.
+   * Rejects bulk-load replay where a different name (e.g. By_Author / By_Type) is returned for this
+   * key. Unnamed stubs match only when the GUID string equals {@code key} — never any key.
    */
   static boolean identityMatchesKey(DisplayFormat df, String key) {
     if (df == null || key == null || key.isBlank()) {
@@ -880,15 +881,14 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     }
     String trimmed = key.trim();
     String loadedName = firstNonBlank(df.getName(), df.getInternalName());
-    if (loadedName != null && !namesMatchIgnoreCase(trimmed, loadedName)) {
-      if (trimmed.equalsIgnoreCase(StringUtils.defaultString(df.getGuidString()))) {
-        return true;
-      }
-      Guid g = df.getGuid();
-      return g != null && trimmed.equalsIgnoreCase(StringUtils.defaultString(g.getStringValue()));
+    if (loadedName != null && namesMatchIgnoreCase(trimmed, loadedName)) {
+      return true;
     }
-    // Unnamed catalog identity stub (displayId replay) still matches the requested key.
-    return true;
+    if (trimmed.equalsIgnoreCase(StringUtils.defaultString(df.getGuidString()))) {
+      return true;
+    }
+    Guid g = df.getGuid();
+    return g != null && trimmed.equalsIgnoreCase(StringUtils.defaultString(g.getStringValue()));
   }
 
   /**
