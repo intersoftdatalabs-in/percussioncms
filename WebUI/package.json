@@ -36,7 +36,7 @@
     "mousetrap": "^1.6.5",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "react-router": "^8.3.0",
+    "react-router": "^8.3.1",
     "recharts": "^3.10.1",
     "underscore": "^1.13.7"
   },
