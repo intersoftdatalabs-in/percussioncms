@@ -65,7 +65,7 @@ class SearchAdaptorWriteTest {
   private IPSGuid guid;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws Exception {
     PSRequestInfo.resetRequestInfo();
     PSRequestInfo.initRequestInfo(new HashMap<String, Object>());
     PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_JSESSIONID, "test-session");
@@ -82,6 +82,7 @@ class SearchAdaptorWriteTest {
     when(guid.getType()).thenReturn((short) 301);
     when(guid.getUUID()).thenReturn(42);
     when(designWs.findSearches(any(), isNull())).thenReturn(List.of());
+    when(designWs.findAllSearches()).thenReturn(List.of());
     when(designWs.findViews(any(), isNull())).thenReturn(List.of());
   }
 
@@ -101,6 +102,7 @@ class SearchAdaptorWriteTest {
             eq("test-session"),
             eq("Admin")))
         .thenReturn(List.of(search));
+    stubCatalogVisibleAfterSave(search, "MySearch");
 
     SearchDef body = new SearchDef();
     body.setName("MySearch");
@@ -126,6 +128,29 @@ class SearchAdaptorWriteTest {
     verify(search).setDisplayName("My Search");
     verify(search).setDescription("created via REST");
     verify(search).setDisplayFormatId("1");
+    verify(designWs).findSearches(eq("MySearch"), isNull());
+    verify(designWs).findAllSearches();
+  }
+
+  @Test
+  void create_failsIfNotVisibleToFindAfterSave() throws Exception {
+    PSSearch search = stubSearch("MySearch", PSSearch.TYPE_STANDARDSEARCH);
+    when(designWs.createSearches(
+            eq(List.of("MySearch")),
+            eq(List.of(PSSearch.TYPE_STANDARDSEARCH)),
+            eq("test-session"),
+            eq("Admin")))
+        .thenReturn(List.of(search));
+    when(designWs.findSearches(eq("MySearch"), isNull())).thenReturn(List.of());
+    when(designWs.findAllSearches()).thenReturn(List.of());
+    when(designWs.loadSearches(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(search));
+
+    SearchDef body = new SearchDef();
+    body.setName("MySearch");
+    IllegalStateException ex =
+        assertThrows(IllegalStateException.class, () -> adaptor.createSearch(body));
+    assertTrue(ex.getMessage().contains("findSearches"), ex.getMessage());
   }
 
   @Test
@@ -235,6 +260,7 @@ class SearchAdaptorWriteTest {
     PSSearch locked = stubSearch("MySearch", PSSearch.TYPE_STANDARDSEARCH);
     when(designWs.loadSearches(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
         .thenReturn(List.of(locked));
+    stubCatalogVisibleAfterSave(locked, "MySearch");
 
     SearchDef body = new SearchDef();
     body.setLabel("Updated");
@@ -404,6 +430,19 @@ class SearchAdaptorWriteTest {
     return s;
   }
 
+  private void stubCatalogVisibleAfterSave(PSSearch search, String name) throws Exception {
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getName()).thenReturn(name);
+    when(sum.getGUID()).thenReturn(guid);
+    when(designWs.findSearches(eq(name), isNull()))
+        .thenReturn(List.of())
+        .thenReturn(List.of(sum));
+    when(designWs.findAllSearches()).thenReturn(List.of(search));
+    when(designWs.loadSearches(
+            eq(List.of(guid)), eq(false), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(search));
+  }
+
   private void stubCatalogLoad(PSSearch search, boolean asView) throws Exception {
     IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
     when(sum.getGUID()).thenReturn(guid);
@@ -414,6 +453,7 @@ class SearchAdaptorWriteTest {
           .thenReturn(List.of(search));
     } else {
       when(designWs.findSearches(isNull(), isNull())).thenReturn(List.of(sum));
+      when(designWs.findAllSearches()).thenReturn(List.of(search));
       when(designWs.findViews(isNull(), isNull())).thenReturn(List.of());
       when(designWs.loadSearches(anyList(), eq(false), eq(false), any(), any()))
           .thenReturn(List.of(search));

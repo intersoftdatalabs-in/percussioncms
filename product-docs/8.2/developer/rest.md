@@ -1696,7 +1696,9 @@ stub). JSON body requires `name` (unique across searches **and** views, case-ins
 types: `StandardSearch` (`standard`), `CustomSearch` (`custom`), `Search` (user search).
 `View` is **400** — views stay on `/services/views`. Duplicate name is **409**. Blank /
 whitespace / wildcard names are **400**. Missing request session/user is **403**.
-Non-Admin is **403**. The new search is then `GET /services/searches/{name}` **200**.
+Non-Admin is **403**. The new search is then `GET /services/searches/{name}` **200**
+and is included in `GET /services/searches` (the create is durable; a second POST
+with the same name is **409**).
 
 Update (`PUT /services/searches/{idOrName}`) loads with a design lock (`overrideLock=false`)
 and releases it on save. Name is not renamed on PUT. Omitted label / description / type /
