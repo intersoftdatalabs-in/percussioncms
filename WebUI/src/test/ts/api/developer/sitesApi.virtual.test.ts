@@ -223,6 +223,19 @@ describe("sitesApi virtual properties", () => {
         siteKey: null,
       },
     });
+    expect(
+      toVirtualSitePropertiesEnvelope({
+        sourceKind: "sitemap-xml",
+        rootPath: "C:/sitemap-xml-docs",
+      }),
+    ).toEqual({
+      VirtualSiteProperties: {
+        sourceKind: "sitemap-xml",
+        rootPath: "C:/sitemap-xml-docs",
+        configFile: null,
+        siteKey: null,
+      },
+    });
   });
 
   it("updateVirtualSiteProperties PUTs VirtualSiteProperties envelope", async () => {
