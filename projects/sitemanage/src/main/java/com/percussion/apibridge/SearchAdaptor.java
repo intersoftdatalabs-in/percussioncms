@@ -41,10 +41,12 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -53,9 +55,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
 /**
- * CX search definition catalog (UI-06 list/detail/write) plus design-search execute façade for
- * Explorer (#2505 / #2409 slice B). Admin create/save/delete persist through {@link
- * IPSUiDesignWs} — the same design web service SOAP uses. Execute is not invoked on write.
+ * CX search definition catalog (UI-06 list/detail/write, UI-08 field criteria) plus design-search
+ * execute façade for Explorer (#2505 / #2409 slice B). Admin create/save/delete persist through
+ * {@link IPSUiDesignWs} — the same design web service SOAP uses. Execute is not invoked on write.
  */
 @PSSiteManageBean
 @Lazy
@@ -71,9 +73,13 @@ public class SearchAdaptor implements ISearchAdaptor {
   /** Catalog-level capability notes. Attached on detail only (REST-GAPS-02 list dedup). */
   static final List<String> DESIGN_GAPS =
       List.of(
-          "Search field criterion editing not supported via this API",
           "Views are a separate catalog (Developer Views / UI-07)",
           "Search rename is not supported on PUT (name is the catalog key)");
+
+  /**
+   * Installer / perc.System search names — field criteria are not mutated from this catalog (409).
+   */
+  static final List<String> PACKAGED_SEARCH_NAMES = List.of("Default_Search", "RC_Search");
 
   private static final List<String> RESULT_COLUMNS =
       List.of("sys_contentid", "sys_title", "sys_contenttypename");
@@ -580,6 +586,9 @@ public class SearchAdaptor implements ISearchAdaptor {
     boolean viewCatalogOk = false;
     try {
       PSSearch found = matchLoaded(loadAllSearches(), trimmed);
+      if (found == null) {
+        found = loadSearchByNameSummary(trimmed);
+      }
       searchCatalogOk = true;
       if (found != null) {
         return found;
@@ -692,6 +701,7 @@ public class SearchAdaptor implements ISearchAdaptor {
       row.setPosition(sf.getPosition());
       out.add(row);
     }
+    out.sort(Comparator.comparingInt(SearchFieldSummary::getPosition));
     return out;
   }
 
@@ -707,8 +717,9 @@ public class SearchAdaptor implements ISearchAdaptor {
   }
 
   /**
-   * Apply GET-exposed writable fields: label, description, type, displayFormatId. Custom URL is
-   * persisted when type is custom; execute is never invoked from write.
+   * Apply GET-exposed writable fields: label, description, type, displayFormatId, and field
+   * criteria when {@code body.fields} is non-null. Custom URL is persisted when type is custom;
+   * execute is never invoked from write.
    */
   static void applyWritableFields(PSSearch domain, SearchDef body) {
     if (domain == null || body == null) {
@@ -736,6 +747,245 @@ public class SearchAdaptor implements ISearchAdaptor {
     if (custom && StringUtils.isNotBlank(body.getUrl())) {
       domain.setUrl(body.getUrl().trim());
     }
+    if (body.getFields() != null) {
+      if (isPackagedSearch(domain.getName())) {
+        throw new WebApplicationException(
+            "Packaged/system searches cannot be field-edited", 409);
+      }
+      applyFields(domain, body.getFields());
+    }
+  }
+
+  /** Installer catalog searches are not field-edited from this REST surface. */
+  static boolean isPackagedSearch(String name) {
+    if (StringUtils.isBlank(name)) {
+      return false;
+    }
+    String key = name.trim();
+    for (String packaged : PACKAGED_SEARCH_NAMES) {
+      if (packaged.equalsIgnoreCase(key)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Replace native field criteria from the REST list. {@code null} fields on the body leave the
+   * existing list unchanged (label-only PUT). An empty list clears all criteria. Existing fields
+   * are updated in place so save does not drop the parent search row.
+   */
+  static void applyFields(PSSearch domain, List<SearchFieldSummary> fields) {
+    if (domain == null || fields == null) {
+      return;
+    }
+    PSSFields container = domain.getFieldContainer();
+    List<PSSearchField> desired = new ArrayList<>();
+    Set<String> seen = new HashSet<>();
+    int index = 0;
+    for (SearchFieldSummary dto : fields) {
+      if (dto == null) {
+        continue;
+      }
+      String fieldName = requireValidFieldName(dto.getFieldName());
+      String key = fieldName.toLowerCase(Locale.ROOT);
+      if (!seen.add(key)) {
+        throw new IllegalArgumentException("duplicate field: " + fieldName);
+      }
+      String label =
+          StringUtils.isNotBlank(dto.getDisplayName()) ? dto.getDisplayName().trim() : fieldName;
+      String fieldType = resolveFieldType(dto.getFieldType());
+      String operator = resolveFieldOperator(dto.getOperator());
+      PSSearchField sf = findFieldByName(container, fieldName);
+      if (sf == null) {
+        sf = new PSSearchField(fieldName, label, "", fieldType, "");
+      } else {
+        if (StringUtils.isNotBlank(dto.getDisplayName())) {
+          sf.setDisplayName(label);
+        }
+        sf.setFieldType(fieldType);
+      }
+      applyFieldValue(sf, operator, dto.getFieldValue());
+      sf.setPosition(dto.getPosition() >= 0 ? dto.getPosition() : index);
+      desired.add(sf);
+      index++;
+    }
+    if (container == null) {
+      domain.setFields(desired.iterator());
+      return;
+    }
+    List<PSSearchField> toRemove = new ArrayList<>();
+    for (int i = 0; i < container.size(); i++) {
+      Object o = container.get(i);
+      if (!(o instanceof PSSearchField existing) || existing == null) {
+        continue;
+      }
+      String existingName = existing.getFieldName();
+      if (existingName == null
+          || !seen.contains(existingName.toLowerCase(Locale.ROOT))) {
+        toRemove.add(existing);
+      }
+    }
+    if (!toRemove.isEmpty()) {
+      container.removeFields(toRemove.iterator());
+    }
+    for (PSSearchField sf : desired) {
+      if (findFieldByName(container, sf.getFieldName()) == null) {
+        container.add(sf);
+      }
+    }
+    reorderFields(container, desired);
+  }
+
+  /**
+   * Align container order with the PUT list. Uses {@link PSSFields#move} so existing rows are not
+   * marked for delete (unlike {@link PSSFields#set}).
+   */
+  static void reorderFields(PSSFields container, List<PSSearchField> desired) {
+    if (container == null || desired == null || desired.isEmpty()) {
+      return;
+    }
+    for (int i = 0; i < desired.size() && i < container.size(); i++) {
+      PSSearchField want = desired.get(i);
+      if (want == null || StringUtils.isBlank(want.getFieldName())) {
+        continue;
+      }
+      Object at = container.get(i);
+      if (at instanceof PSSearchField current
+          && want.getFieldName().equalsIgnoreCase(current.getFieldName())) {
+        current.setPosition(i);
+        continue;
+      }
+      int from = indexOfField(container, want.getFieldName());
+      if (from >= 0 && from != i) {
+        container.move(from, i);
+      }
+    }
+  }
+
+  static int indexOfField(PSSFields container, String fieldName) {
+    if (container == null || StringUtils.isBlank(fieldName)) {
+      return -1;
+    }
+    String key = fieldName.trim().toLowerCase(Locale.ROOT);
+    for (int i = 0; i < container.size(); i++) {
+      Object o = container.get(i);
+      if (o instanceof PSSearchField sf
+          && sf.getFieldName() != null
+          && key.equals(sf.getFieldName().toLowerCase(Locale.ROOT))) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  static PSSearchField findFieldByName(PSSFields container, String fieldName) {
+    if (container == null || StringUtils.isBlank(fieldName)) {
+      return null;
+    }
+    String key = fieldName.trim().toLowerCase(Locale.ROOT);
+    for (int i = 0; i < container.size(); i++) {
+      Object o = container.get(i);
+      if (o instanceof PSSearchField sf
+          && sf.getFieldName() != null
+          && key.equals(sf.getFieldName().toLowerCase(Locale.ROOT))) {
+        return sf;
+      }
+    }
+    return null;
+  }
+
+  static String requireValidFieldName(String raw) {
+    if (StringUtils.isBlank(raw)) {
+      throw new IllegalArgumentException("unknown field");
+    }
+    String fieldName = raw.trim();
+    if (containsWhitespace(fieldName)) {
+      throw new IllegalArgumentException("unknown field: " + fieldName);
+    }
+    if (fieldName.contains("*") || fieldName.contains("%")) {
+      throw new IllegalArgumentException("unknown field: " + fieldName);
+    }
+    if (fieldName.contains("..")
+        || fieldName.indexOf('/') >= 0
+        || fieldName.indexOf('\\') >= 0
+        || fieldName.indexOf('\0') >= 0) {
+      throw new IllegalArgumentException("unknown field: " + fieldName);
+    }
+    if (fieldName.length() > PSSearchField.FIELDNAME_LENGTH) {
+      throw new IllegalArgumentException("unknown field: " + fieldName);
+    }
+    return fieldName;
+  }
+
+  static String resolveFieldType(String raw) {
+    if (StringUtils.isBlank(raw)) {
+      return PSSearchField.TYPE_TEXT;
+    }
+    String t = raw.trim();
+    if (t.equalsIgnoreCase(PSSearchField.TYPE_TEXT)
+        || t.equalsIgnoreCase("text")) {
+      return PSSearchField.TYPE_TEXT;
+    }
+    if (t.equalsIgnoreCase(PSSearchField.TYPE_NUMBER)
+        || t.equalsIgnoreCase("number")) {
+      return PSSearchField.TYPE_NUMBER;
+    }
+    if (t.equalsIgnoreCase(PSSearchField.TYPE_DATE)
+        || t.equalsIgnoreCase("date")) {
+      return PSSearchField.TYPE_DATE;
+    }
+    throw new IllegalArgumentException("unknown field type: " + raw);
+  }
+
+  static String resolveFieldOperator(String raw) {
+    if (StringUtils.isBlank(raw)) {
+      return PSSearchField.OP_LIKE;
+    }
+    String op = raw.trim();
+    if (op.equals("=") || op.equalsIgnoreCase("eq") || op.equalsIgnoreCase("equals")) {
+      return PSSearchField.OP_EQUALS;
+    }
+    String[] allowed =
+        new String[] {
+          PSSearchField.OP_EQUALS,
+          PSSearchField.OP_NOTEQUAL,
+          PSSearchField.OP_LESSTHAN,
+          PSSearchField.OP_LESSTHANEQUAL,
+          PSSearchField.OP_GREATERTHAN,
+          PSSearchField.OP_GREATERTHANEQUAL,
+          PSSearchField.OP_ISNULL,
+          PSSearchField.OP_ISNOTNULL,
+          PSSearchField.OP_IN,
+          PSSearchField.OP_NOTIN,
+          PSSearchField.OP_LIKE,
+          PSSearchField.OP_NOTLIKE,
+          PSSearchField.OP_BETWEEN
+        };
+    for (String candidate : allowed) {
+      if (candidate.equalsIgnoreCase(op)) {
+        return candidate;
+      }
+    }
+    throw new IllegalArgumentException("unknown field operator: " + raw);
+  }
+
+  static void applyFieldValue(PSSearchField field, String operator, String value) {
+    if (field == null) {
+      return;
+    }
+    String op = StringUtils.defaultIfBlank(operator, PSSearchField.OP_LIKE);
+    if (PSSearchField.OP_ISNULL.equalsIgnoreCase(op)
+        || PSSearchField.OP_ISNOTNULL.equalsIgnoreCase(op)) {
+      field.setFieldValues(op, List.of());
+      return;
+    }
+    String v = value == null ? "" : value;
+    if (v.length() > PSSearchField.FIELDVALUE_LENGTH) {
+      throw new IllegalArgumentException(
+          "field value must not exceed " + PSSearchField.FIELDVALUE_LENGTH + " characters");
+    }
+    field.setFieldValue(op, v);
   }
 
   /**
@@ -813,6 +1063,10 @@ public class SearchAdaptor implements ISearchAdaptor {
       if (fromCatalog != null) {
         return fromCatalog;
       }
+      fromCatalog = loadSearchByNameSummary(name);
+      if (fromCatalog != null) {
+        return fromCatalog;
+      }
       if (saved != null && saved.getGUID() != null) {
         List<PSSearch> loaded =
             designWs.loadSearches(List.of(saved.getGUID()), false, false, session, user);
@@ -833,6 +1087,38 @@ public class SearchAdaptor implements ISearchAdaptor {
     }
     throw new IllegalStateException(
         "Search was saved but is not visible to findSearches: " + name);
+  }
+
+  /**
+   * Name-filtered catalog load. {@code findAllSearches} can omit a just-saved row on H2 while
+   * {@code findSearches(name)} still returns the summary.
+   */
+  private PSSearch loadSearchByNameSummary(String name) throws Exception {
+    if (StringUtils.isBlank(name)) {
+      return null;
+    }
+    List<IPSCatalogSummary> summaries = designWs.findSearches(name, null);
+    if (!nameExists(summaries, name)) {
+      return null;
+    }
+    List<IPSGuid> guids = new ArrayList<>();
+    for (IPSCatalogSummary summary : summaries) {
+      if (summary != null
+          && name.equalsIgnoreCase(StringUtils.defaultString(summary.getName()))
+          && summary.getGUID() != null) {
+        guids.add(summary.getGUID());
+      }
+    }
+    if (guids.isEmpty()) {
+      return null;
+    }
+    List<PSSearch> loaded =
+        designWs.loadSearches(guids, false, false, currentSession(), currentUser());
+    PSSearch found = matchLoaded(loaded, name);
+    if (found != null && found.isView()) {
+      return null;
+    }
+    return found;
   }
 
   private void assertNameUnique(String name) {

@@ -56,7 +56,8 @@ public interface ISearchAdaptor {
    * saveSearches} release). Does not steal another user's lock.
    *
    * @param idOrName catalog key (same rules as {@link #findSearchByKey})
-   * @param body required writable fields (label, description, type, displayFormat)
+   * @param body required writable fields (label, description, type, displayFormat). When {@code
+   *     fields} is non-null, replaces field criteria (unknown field 400; packaged/system 409).
    * @return the persisted search, or {@code null} when missing/unsafe
    */
   SearchDef saveSearch(String idOrName, SearchDef body);

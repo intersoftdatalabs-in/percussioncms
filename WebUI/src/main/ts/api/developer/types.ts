@@ -613,7 +613,7 @@ export interface ActionMenu {
   properties?: ActionMenuProperty[];
 }
 
-/** Search field criterion from GET /services/searches. */
+/** Search field criterion from GET/PUT /services/searches. */
 export interface SearchFieldSummary {
   fieldName?: string;
   displayName?: string;

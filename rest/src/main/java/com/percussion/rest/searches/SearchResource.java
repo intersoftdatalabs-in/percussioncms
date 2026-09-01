@@ -209,8 +209,10 @@ public class SearchResource {
   @Operation(
       summary = "Update search",
       description =
-          "Admin. Updates label, description, type, and/or displayFormatId by name or GUID. Name"
-              + " is the catalog key and is not renamed on PUT. Loads with a design lock"
+          "Admin. Updates label, description, type, displayFormatId, and/or field criteria by name"
+              + " or GUID. Name is the catalog key and is not renamed on PUT. Omitted fields leave"
+              + " stored criteria unchanged. Unknown field name is 400. Packaged/system searches"
+              + " reject field mutation with 409 (lock is not stolen). Loads with a design lock"
               + " (overrideLock=false) and releases on save. Unknown id is 404. Lock/dependency"
               + " conflict is 409. Views are not saved here. Execute is not invoked on write.",
       responses = {

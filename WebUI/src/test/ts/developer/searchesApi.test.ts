@@ -319,18 +319,19 @@ describe("search wire wrap", () => {
     expect(unwrapSearchDef(null)).toEqual({});
   });
 
-  it("drops the create/update/delete gap from SEARCH_DESIGN_GAPS", () => {
+  it("drops the create/update/delete and field-criterion gaps from SEARCH_DESIGN_GAPS", () => {
     expect(SEARCH_DESIGN_GAPS.some((g) => /create/i.test(g))).toBe(false);
-    expect(SEARCH_DESIGN_GAPS.some((g) => /field criterion/i.test(g))).toBe(true);
+    expect(SEARCH_DESIGN_GAPS.some((g) => /field criterion/i.test(g))).toBe(false);
   });
 
-  it("filters a stale REST write gap on GET detail", () => {
+  it("filters stale REST write and field-criterion gaps on GET detail", () => {
     expect(
       withoutStaleSearchWriteGap([
         "Search create / update / delete not supported via this API",
         "Search field criterion editing not supported via this API",
+        "Views are a separate catalog (Developer Views / UI-07)",
       ]),
-    ).toEqual(["Search field criterion editing not supported via this API"]);
+    ).toEqual(["Views are a separate catalog (Developer Views / UI-07)"]);
   });
 });
 
@@ -379,6 +380,48 @@ describe("searchesApi write paths", () => {
     const init = fetchMock.mock.calls[0][1] as RequestInit;
     expect(init.method).toBe("PUT");
     expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.SEARCHES}/MySearch`);
+  });
+
+  it("PUTs field criteria on saveSearch", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        name: "MySearch",
+        fields: [{ fieldName: "sys_title", operator: "like", fieldValue: "qa" }],
+      }),
+    );
+    const saved = await saveSearch("MySearch", {
+      name: "MySearch",
+      fields: [{ fieldName: "sys_title", operator: "like", fieldValue: "qa" }],
+    });
+    expect(saved.fields?.[0]?.fieldName).toBe("sys_title");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(JSON.parse(String(init.body))).toEqual({
+      SearchDef: {
+        name: "MySearch",
+        fields: [{ fieldName: "sys_title", operator: "like", fieldValue: "qa" }],
+      },
+    });
+  });
+
+  it("surfaces 400 unknown field on saveSearch", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "unknown field: has space" }, 400));
+    await expect(
+      saveSearch("MySearch", {
+        name: "MySearch",
+        fields: [{ fieldName: "has space" }],
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+  });
+
+  it("surfaces 403 non-Admin on saveSearch fields", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Admin role required" }, 403));
+    await expect(
+      saveSearch("MySearch", {
+        name: "MySearch",
+        fields: [{ fieldName: "sys_title" }],
+      }),
+    ).rejects.toMatchObject({ status: 403 });
   });
 
   it("DELETEs /services/searches/{idOrName}", async () => {

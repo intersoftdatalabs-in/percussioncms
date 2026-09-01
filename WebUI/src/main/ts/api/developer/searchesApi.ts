@@ -26,12 +26,15 @@ import type {
 
 /**
  * Writable identity fields for POST/PUT /services/searches. Name is the catalog
- * key (not renamed on PUT). Field criteria are not written from this chrome.
+ * key (not renamed on PUT). When {@code fields} is present it replaces criteria.
  */
 export type SearchWriteBody = Pick<
   SearchDef,
   "name" | "label" | "description" | "type" | "displayFormatId"
->;
+> & {
+  /** Omit to leave stored criteria unchanged. Empty array clears criteria. */
+  fields?: SearchDef["fields"];
+};
 
 /** Jackson / JAXB root for SearchDef (UNWRAP_ROOT_VALUE on POST/PUT). */
 export const SEARCH_DEF_ROOT = "SearchDef";
@@ -96,11 +99,10 @@ export function wrapSearchExecuteRequest(
  * Catalog-level design gaps (REST-GAPS-02). Server omits these on list rows;
  * detail re-attaches or SPA falls back via this constant.
  *
- * <p>Create / save / delete are supported (UI-06 SPA). Field-criterion write
- * and Views remain later slices.</p>
+ * <p>Create / save / delete and field-criterion write are supported (UI-06 /
+ * UI-08 SPA). Views remain a separate catalog.</p>
  */
 export const SEARCH_DESIGN_GAPS: string[] = [
-  "Search field criterion editing not supported via this API",
   "Views are a separate catalog (Developer Views / UI-07)",
 ];
 
@@ -229,11 +231,12 @@ export function unwrapSearchDef(payload: unknown): SearchDef {
 }
 
 const STALE_WRITE_GAP = /create\s*\/\s*update\s*\/\s*delete/i;
+const STALE_FIELD_GAP = /field criterion editing not supported/i;
 
-/** Drop the pre-UI-06 write gap when REST still attaches it on GET detail. */
+/** Drop pre-UI-06 write and pre-UI-08 field-criterion gaps on GET detail. */
 export function withoutStaleSearchWriteGap(gaps: string[] | undefined | null): string[] {
   const incoming = gaps && gaps.length > 0 ? gaps : [...SEARCH_DESIGN_GAPS];
-  const filtered = incoming.filter((g) => !STALE_WRITE_GAP.test(g));
+  const filtered = incoming.filter((g) => !STALE_WRITE_GAP.test(g) && !STALE_FIELD_GAP.test(g));
   return filtered.length > 0 ? filtered : [...SEARCH_DESIGN_GAPS];
 }
 

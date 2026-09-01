@@ -327,6 +327,36 @@ public class SearchResourceTest {
   }
 
   @Test
+  public void updateSearchUnknownFieldIs400() {
+    when(adaptor.saveSearch(any(), any()))
+        .thenThrow(new IllegalArgumentException("unknown field: has space"));
+    SearchDef body = new SearchDef();
+    SearchFieldSummary row = new SearchFieldSummary();
+    row.setFieldName("has space");
+    body.setFields(List.of(row));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.updateSearch("MySearch", body));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateSearchPackagedFieldsIs409() {
+    when(adaptor.saveSearch(any(), any()))
+        .thenThrow(
+            new WebApplicationException("Packaged/system searches cannot be field-edited", 409));
+    SearchDef body = new SearchDef();
+    SearchFieldSummary row = new SearchFieldSummary();
+    row.setFieldName("sys_title");
+    body.setFields(List.of(row));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateSearch("Default_Search", body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void updateSearchUnknownIs404() {
     when(adaptor.saveSearch(eq("missing"), any())).thenReturn(null);
     WebApplicationException ex =

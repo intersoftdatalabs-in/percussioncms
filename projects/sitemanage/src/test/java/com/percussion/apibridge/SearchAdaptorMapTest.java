@@ -71,6 +71,8 @@ class SearchAdaptorMapTest {
     assertTrue(
         d.getDesignGaps().stream()
             .noneMatch(g -> g.toLowerCase().contains("create / update / delete not supported")));
+    assertTrue(
+        d.getDesignGaps().stream().noneMatch(g -> g.toLowerCase().contains("field criterion")));
   }
 
   @Test

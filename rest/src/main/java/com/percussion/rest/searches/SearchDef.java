@@ -30,7 +30,17 @@ public class SearchDef {
   private boolean standardSearch;
   private boolean userCustomizable;
   private boolean caseSensitive;
-  private List<SearchFieldSummary> fields = new ArrayList<>();
+
+  /**
+   * Field criteria. {@code null} on PUT leaves existing criteria unchanged. Empty list clears all
+   * criteria. Unknown field name is 400. Packaged/system searches reject field mutation with 409.
+   */
+  @Schema(
+      description =
+          "Field criteria (fieldName, operator, fieldValue, position). Omit on PUT to leave"
+              + " existing criteria unchanged. Empty array clears criteria. Unknown field is 400.")
+  private List<SearchFieldSummary> fields;
+
   private List<String> designGaps = new ArrayList<>();
 
   public Guid getGuid() {

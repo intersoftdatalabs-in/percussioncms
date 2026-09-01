@@ -411,4 +411,108 @@ describe("SearchDetailPanel", () => {
     render(<SearchDetailPanel idOrName={null} onBack={() => undefined} />);
     expect(screen.queryByTestId("developer-sr-delete")).toBeNull();
   });
+
+  it("saves PUT body fields on a user search", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa4110srch",
+      label: "User search",
+      fields: [{ fieldName: "sys_title", operator: "like", fieldValue: "", fieldType: "Text" }],
+    };
+    getSearchDetail.mockResolvedValue(userDetail);
+    saveSearch.mockResolvedValue({
+      ...userDetail,
+      fields: [
+        userDetail.fields[0],
+        { fieldName: "sys_contentid", operator: "like", fieldValue: "", fieldType: "Text" },
+      ],
+    });
+    render(<SearchDetailPanel idOrName="qa4110srch" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sr-field-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-sr-field-source"), {
+      target: { value: "sys_contentid" },
+    });
+    fireEvent.click(screen.getByTestId("developer-sr-field-add"));
+    fireEvent.click(screen.getByTestId("developer-sr-fields-save"));
+    await waitFor(() => {
+      expect(saveSearch).toHaveBeenCalled();
+    });
+    const [, body] = saveSearch.mock.calls[0];
+    expect(body.fields.map((f: { fieldName?: string }) => f.fieldName)).toEqual([
+      "sys_title",
+      "sys_contentid",
+    ]);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sr-editor-notice").textContent).toBe(
+        DEV_MSG.SR_FIELDS_SAVED,
+      );
+    });
+  });
+
+  it("surfaces 400 invalid source from PUT", async () => {
+    const userDetail = { ...sampleDetail, name: "qa4110srch" };
+    getSearchDetail.mockResolvedValue(userDetail);
+    saveSearch.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: "unknown field: has space",
+    });
+    render(<SearchDetailPanel idOrName="qa4110srch" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sr-field-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-sr-field-source"), {
+      target: { value: "sys_contentid" },
+    });
+    fireEvent.click(screen.getByTestId("developer-sr-field-add"));
+    fireEvent.click(screen.getByTestId("developer-sr-fields-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sr-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-sr-detail-error").textContent).toContain(
+      DEV_MSG.SR_FIELDS_INVALID_SOURCE,
+    );
+  });
+
+  it("surfaces 403 non-Admin from PUT", async () => {
+    const userDetail = { ...sampleDetail, name: "qa4110srch" };
+    getSearchDetail.mockResolvedValue(userDetail);
+    saveSearch.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: "Admin role required",
+    });
+    render(<SearchDetailPanel idOrName="qa4110srch" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sr-field-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-sr-field-source"), {
+      target: { value: "sys_workflow" },
+    });
+    fireEvent.click(screen.getByTestId("developer-sr-field-add"));
+    fireEvent.click(screen.getByTestId("developer-sr-fields-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sr-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-sr-detail-error").textContent).toContain(
+      DEV_MSG.SR_FIELDS_FORBIDDEN,
+    );
+  });
+
+  it("does not mutate a packaged/system search", async () => {
+    getSearchDetail.mockResolvedValue({
+      ...sampleDetail,
+      name: "Default_Search",
+      label: "Default CX New Search",
+    });
+    render(<SearchDetailPanel idOrName="Default_Search" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sr-fields-readonly")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-sr-field-editor")).toBeNull();
+    expect(screen.queryByTestId("developer-sr-fields-save")).toBeNull();
+    expect(saveSearch).not.toHaveBeenCalled();
+  });
 });
