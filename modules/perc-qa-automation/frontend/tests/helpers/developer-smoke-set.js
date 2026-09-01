@@ -166,6 +166,13 @@ const DEVELOPER_SMOKE_SET = [
     notes: "UI-06 SPA search create/delete (#4076 / parent #1690)",
   },
   {
+    id: "view-editor",
+    file: "developer-view-editor.spec.js",
+    title: "Admin can create and delete a standard view",
+    status: "green",
+    notes: "UI-07 SPA view create/delete (#4085 / parent #1690)",
+  },
+  {
     id: "catalog-system-def",
     file: "developer-catalog-smoke.spec.js",
     title: "system-def: catalog loads without API error",
