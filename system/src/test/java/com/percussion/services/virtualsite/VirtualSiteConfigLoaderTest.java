@@ -109,6 +109,31 @@ class VirtualSiteConfigLoaderTest {
   }
 
   @Test
+  void sitemapScalarInsteadOfMappingFailsFast() throws Exception {
+    Path root = tempDir.resolve("sitemap-scalar");
+    Files.createDirectories(root);
+    Files.writeString(
+        root.resolve("_config.yaml"),
+        """
+        site:
+          title: Sitemap Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        sitemap: "not-a-mapping"
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteException ex =
+        assertThrows(
+            VirtualSiteException.class,
+            () -> VirtualSiteConfigLoader.load(root, null, "sm-docs"));
+    assertTrue(ex.getMessage().toLowerCase().contains("sitemap"), ex.getMessage());
+    assertTrue(ex.getMessage().toLowerCase().contains("mapping"), ex.getMessage());
+  }
+
+  @Test
   void icalendarScalarInsteadOfMappingFailsFast() throws Exception {
     Path root = tempDir.resolve("icalendar-scalar");
     Files.createDirectories(root);
@@ -492,6 +517,50 @@ class VirtualSiteConfigLoaderTest {
     assertEquals("Cal Second", second.siteTitle());
     assertEquals("custom.ics", second.icalendar().file());
     assertTrue(second.icalendar().url() == null || second.icalendar().url().isBlank());
+  }
+
+  @Test
+  void secondLoadAfterSitemapFileAndConfigEditSeesCurrentSitemapWithoutCache() throws Exception {
+    Path root = tempDir.resolve("live-sm-config");
+    Files.createDirectories(root);
+    Path yaml = root.resolve("_config.yaml");
+    Files.writeString(
+        yaml,
+        """
+        site:
+          title: Sitemap First
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        sitemap:
+          file: sitemap.xml
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig first = VirtualSiteConfigLoader.load(root, null, "k");
+    assertEquals("Sitemap First", first.siteTitle());
+    assertEquals("sitemap.xml", first.sitemap().file());
+    assertTrue(first.sitemap().url() == null || first.sitemap().url().isBlank());
+
+    Files.writeString(
+        yaml,
+        """
+        site:
+          title: Sitemap Second
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        sitemap:
+          file: custom-sitemap.xml
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig second = VirtualSiteConfigLoader.load(root, null, "k");
+    assertEquals("Sitemap Second", second.siteTitle());
+    assertEquals("custom-sitemap.xml", second.sitemap().file());
+    assertTrue(second.sitemap().url() == null || second.sitemap().url().isBlank());
   }
 
   @Test

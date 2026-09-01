@@ -18,11 +18,13 @@ package com.percussion.services.virtualsite;
 
 /**
  * Registered Virtual Site adapter kinds. {@link #GIT_FILESYSTEM}, {@link #CSV_FILESYSTEM}, {@link
- * #SQL_DATABASE}, {@link #HTTP_JSON}, {@link #OBJECT_STORAGE}, {@link #RSS_ATOM}, and {@link
- * #ICALENDAR} are wired through {@link PSVirtualSiteSourceFactory} and allow-listed for Site
- * property validation. REST GET/PUT persist round-trips {@link #RSS_ATOM} and {@link #ICALENDAR}
- * with a portable-safe local {@code rootPath}. {@link #ICALENDAR} assemble remains SPI/CLI
- * ({@code calendar.ics}); REST Build/Preview/Publish and Developer Sites chrome stay later slices.
+ * #SQL_DATABASE}, {@link #HTTP_JSON}, {@link #OBJECT_STORAGE}, {@link #RSS_ATOM}, {@link
+ * #ICALENDAR}, and {@link #SITEMAP_XML} are wired through {@link PSVirtualSiteSourceFactory} and
+ * allow-listed for Site property validation. REST GET/PUT persist round-trips {@link #RSS_ATOM}
+ * and {@link #ICALENDAR} with a portable-safe local {@code rootPath}. {@link #ICALENDAR} assemble
+ * remains SPI/CLI ({@code calendar.ics}); REST Build/Preview/Publish and Developer Sites chrome
+ * stay later slices. {@link #SITEMAP_XML} assemble is SPI/CLI ({@code sitemap.xml}); REST persist
+ * and Developer Sites chrome stay later slices.
  */
 public enum VirtualSiteSourceType {
   GIT_FILESYSTEM("git-filesystem"),
@@ -70,7 +72,17 @@ public enum VirtualSiteSourceType {
    * remaining {@code ..}). REST Build/Preview/Publish and Developer Sites chrome stay later
    * slices. No live CalDAV, API keys, or authenticated remotes on this envelope.
    */
-  ICALENDAR("icalendar");
+  ICALENDAR("icalendar"),
+  /**
+   * Local sitemap.xml ({@code sitemap-xml}). Discovers pages from {@code sitemap.xml} (or {@code
+   * _config.yaml} {@code sitemap.file}) under a portable-safe {@code virtual.rootPath}. {@code
+   * urlset} / {@code sitemapindex} {@code <loc>} entries must resolve to portable files under the
+   * site root, or to loopback {@code http(s)} test URLs. Non-loopback {@code http(s)} locs, {@code
+   * sitemap.url}, Git {@code virtual.remoteUrl}, and credential properties are rejected. No live
+   * crawl, robots.txt fetch, or authenticated remotes. REST GET/PUT persist and Developer Sites
+   * chrome stay later slices. SPI/CLI assemble is {@code PSVirtualSiteBuildMain … sitemap-xml}.
+   */
+  SITEMAP_XML("sitemap-xml");
 
   private final String wireName;
 

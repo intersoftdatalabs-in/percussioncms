@@ -21,6 +21,7 @@ import com.percussion.services.virtualsite.VirtualSiteConfig.NavSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.ObjectsSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.IcalendarSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.RssSpec;
+import com.percussion.services.virtualsite.VirtualSiteConfig.SitemapSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.SqlSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.VersionSpec;
 import java.io.IOException;
@@ -43,7 +44,7 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
  * <p>Stateless: each {@link #load} / {@link #loadOrDefault} reads the current file (or current
  * child directories). No process-lifetime YAML cache — a second build after a config edit sees
  * the new title/versions (and current {@code sql:} / {@code http:} / {@code objects:} /
- * {@code rss:} / {@code icalendar:} mapping)
+ * {@code rss:} / {@code icalendar:} / {@code sitemap:} mapping)
  * without a JVM restart.
  */
 public final class VirtualSiteConfigLoader {
@@ -239,8 +240,25 @@ public final class VirtualSiteConfigLoader {
         throw new VirtualSiteException("icalendar: must be a mapping in " + sourceLabel);
       }
       IcalendarSpec icalendar = parseIcalendarSpec(asMap(icalendarObj));
+      Object sitemapObj = map.get("sitemap");
+      if (sitemapObj != null && !(sitemapObj instanceof Map<?, ?>)) {
+        throw new VirtualSiteException("sitemap: must be a mapping in " + sourceLabel);
+      }
+      SitemapSpec sitemap = parseSitemapSpec(asMap(sitemapObj));
       return new VirtualSiteConfig(
-          root, title, url, layout, versions, nav, siteKey, sql, http, objects, rss, icalendar);
+          root,
+          title,
+          url,
+          layout,
+          versions,
+          nav,
+          siteKey,
+          sql,
+          http,
+          objects,
+          rss,
+          icalendar,
+          sitemap);
     } catch (VirtualSiteException e) {
       throw e;
     } catch (Exception e) {
@@ -267,6 +285,13 @@ public final class VirtualSiteConfigLoader {
       return null;
     }
     return new IcalendarSpec(stringVal(icalendar.get("url")), stringVal(icalendar.get("file")));
+  }
+
+  private static SitemapSpec parseSitemapSpec(Map<String, Object> sitemap) {
+    if (sitemap == null || sitemap.isEmpty()) {
+      return null;
+    }
+    return new SitemapSpec(stringVal(sitemap.get("url")), stringVal(sitemap.get("file")));
   }
 
   private static ObjectsSpec parseObjectsSpec(Map<String, Object> objects, String sourceLabel)
