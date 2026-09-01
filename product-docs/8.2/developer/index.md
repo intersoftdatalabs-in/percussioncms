@@ -32,7 +32,11 @@ Operators using **Developer → Slots** create/delete chrome: [Developer Slots](
 
 Operators using **Developer → Item Filters** create/save/delete chrome: [Developer Item Filters](id:admin-developer-item-filters).
 
+Operators using **Developer → Searches** create/delete chrome: [Developer Searches](id:admin-developer-searches).
+
 Operators using **Developer → Communities** create/delete chrome: [Developer Communities](id:admin-developer-communities).
+
+Operators using **Developer → Views** create/delete chrome: [Developer Views](id:admin-developer-views).
 
 ## Architecture snapshot
 

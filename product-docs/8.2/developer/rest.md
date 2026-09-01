@@ -1468,8 +1468,10 @@ and read `guid.stringValue` or synthesize from `id` when the Guid is omitted.
 
 Admin **write** persists through `IPSUiDesignWs` (`createViews` / `loadViews` / `saveViews` /
 `deleteViews`) — the same design web service SOAP uses. There is no new SOAP surface.
-**Do not** treat this as a Developer Views SPA; chrome for create/save/delete is a later
-sibling. Execute is **not** invoked when creating, updating, or deleting a view.
+**Developer → Views** chrome creates and deletes standard views (and saves label /
+description / type / display format); field-criterion editing is not in that SPA — see
+[Developer Views](id:admin-developer-views). Execute is **not** invoked when creating,
+updating, or deleting a view.
 
 Operators open Inbox from Explorer **Views → My Content → Inbox** (see
 [Content Explorer](id:admin-content-explorer)). Integrators run the same assignment list
@@ -1602,11 +1604,9 @@ Example create body:
 ### Integrator notes
 
 - Keys may be the view **name**, numeric **id**, or GUID string (including untyped GUID).
-- Admin write is POST/PUT/DELETE on this resource. Inbox-family and custom URL views
-  cannot be updated or deleted (`409`). Field criterion editing remains a `designGaps`
-  note on detail.
-- This catalog is REST only. There is no Developer Views SPA create/save/delete in this
-  release.
+- Admin write is POST/PUT/DELETE on this resource and from **Developer → Views**
+  (create / save / delete). Inbox-family and custom URL views cannot be updated
+  or deleted (`409`). Field criterion editing remains a `designGaps` note on detail.
 - Operator Inbox run-from-tree is Explorer **Views → My Content → Inbox**, not a
   free-floating Inbox root.
 

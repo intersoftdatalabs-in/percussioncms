@@ -1,46 +1,75 @@
 /*
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { listViews } from "../api/developer/viewsApi";
 import { resolveViewObjectGuid } from "../api/displayFormatGuid";
 import type { ViewDef } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
-import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
+import { catalogColors, monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { ViewDetailPanel } from "./ViewDetailPanel";
 
 type SelectedView = {
-  idOrName: string;
+  idOrName: string | "new";
   /** List-row GUID fallback when detail payload omits stringValue (#3380). */
   catalogGuid?: string;
 };
 
 /**
- * P0.14 — CX view catalog + read-only detail (UI-07 read).
+ * UI-07 — CX view catalog with create / save / delete.
  */
 export function ViewsPanel(): React.ReactElement {
   const [items, setItems] = useState<ViewDef[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<SelectedView | null>(null);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
-    let cancelled = false;
-    listViews()
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const reload = useCallback((opts?: { showLoading?: boolean }) => {
+    if (!mountedRef.current) {
+      return Promise.resolve();
+    }
+    if (opts?.showLoading) {
+      setItems(null);
+    }
+    setError(null);
+    return listViews()
       .then((list) => {
-        if (!cancelled) setItems(list);
+        if (!mountedRef.current) return;
+        setItems(list);
       })
       .catch((e: unknown) => {
-        if (cancelled) return;
+        if (!mountedRef.current) return;
         setError(panelErrMsg(e, DEV_MSG.VW_ERROR));
         setItems([]);
       });
-    return () => {
-      cancelled = true;
-    };
   }, []);
+
+  useEffect(() => {
+    void reload({ showLoading: true });
+  }, [reload]);
 
   const sorted = useMemo(() => {
     if (!items) return [];
@@ -51,6 +80,11 @@ export function ViewsPanel(): React.ReactElement {
     );
   }, [items]);
 
+  function handleDeleted(): void {
+    setSelected(null);
+    void reload();
+  }
+
   const openView = (v: ViewDef) => {
     const idOrName = v.name || resolveViewObjectGuid(v) || "";
     if (!idOrName) return;
@@ -60,12 +94,25 @@ export function ViewsPanel(): React.ReactElement {
     });
   };
 
+  if (selected?.idOrName === "new") {
+    return (
+      <ViewDetailPanel
+        idOrName={null}
+        onBack={() => setSelected(null)}
+        onSaved={() => void reload()}
+        onDeleted={handleDeleted}
+      />
+    );
+  }
+
   if (selected) {
     return (
       <ViewDetailPanel
         idOrName={selected.idOrName}
         catalogGuid={selected.catalogGuid}
         onBack={() => setSelected(null)}
+        onSaved={() => void reload()}
+        onDeleted={handleDeleted}
       />
     );
   }
@@ -78,64 +125,94 @@ export function ViewsPanel(): React.ReactElement {
     );
   if (items == null)
     return <CatalogStatus testId="developer-vw-loading">{DEV_MSG.VW_LOADING}</CatalogStatus>;
-  if (items.length === 0)
-    return <CatalogStatus testId="developer-vw-empty">{DEV_MSG.VW_EMPTY}</CatalogStatus>;
 
   return (
     <div data-testid="developer-vw-panel">
-      <CatalogHint>{DEV_MSG.VW_HINT}</CatalogHint>
-      <SimpleCatalogTable
-        tableTestId="developer-vw-table"
-        rowTestId="developer-vw-row"
-        columns={[
-          DEV_MSG.VW_COL_NAME,
-          DEV_MSG.VW_COL_LABEL,
-          DEV_MSG.VW_COL_KIND,
-          DEV_MSG.VW_COL_FIELDS,
-          DEV_MSG.VW_COL_DESCRIPTION,
-        ]}
-        rows={sorted.map((v, index) => {
-          const openKey = v.name || resolveViewObjectGuid(v) || "";
-          const interactive = openKey.length > 0;
-          const fieldCount = Array.isArray(v.fields) ? v.fields.length : 0;
-          const kind = v.customView
-            ? DEV_MSG.VW_KIND_CUSTOM
-            : v.standardView
-              ? DEV_MSG.VW_KIND_STANDARD
-              : v.type || "—";
-          return {
-            key: resolveViewObjectGuid(v) || v.name || `vw-${index}`,
-            onClick: interactive ? () => openView(v) : undefined,
-            cells: [
-              interactive ? (
-                <button
-                  key="open"
-                  type="button"
-                  data-testid="developer-vw-open"
-                  aria-label={`Open ${v.name || openKey}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openView(v);
-                  }}
-                  style={{ ...openButtonStyle, fontFamily: "monospace" }}
-                >
-                  {v.name || "—"}
-                </button>
-              ) : (
-                <span key="n" style={monoCell}>
-                  {v.name || "—"}
-                </span>
-              ),
-              v.label || "",
-              kind,
-              fieldCount,
-              <span key="d" style={mutedCell}>
-                {v.description || ""}
-              </span>,
-            ],
-          };
-        })}
-      />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "12px",
+          gap: "12px",
+          flexWrap: "wrap",
+        }}
+      >
+        <CatalogHint>{DEV_MSG.VW_HINT}</CatalogHint>
+        <button
+          type="button"
+          data-testid="developer-vw-new"
+          onClick={() => setSelected({ idOrName: "new" })}
+          style={{
+            padding: "8px 14px",
+            background: catalogColors.accent,
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          {DEV_MSG.VW_NEW}
+        </button>
+      </div>
+
+      {items.length === 0 ? (
+        <CatalogStatus testId="developer-vw-empty">{DEV_MSG.VW_EMPTY}</CatalogStatus>
+      ) : (
+        <SimpleCatalogTable
+          tableTestId="developer-vw-table"
+          rowTestId="developer-vw-row"
+          columns={[
+            DEV_MSG.VW_COL_NAME,
+            DEV_MSG.VW_COL_LABEL,
+            DEV_MSG.VW_COL_KIND,
+            DEV_MSG.VW_COL_FIELDS,
+            DEV_MSG.VW_COL_DESCRIPTION,
+          ]}
+          rows={sorted.map((v, index) => {
+            const openKey = v.name || resolveViewObjectGuid(v) || "";
+            const interactive = openKey.length > 0;
+            const fieldCount = Array.isArray(v.fields) ? v.fields.length : 0;
+            const kind = v.customView
+              ? DEV_MSG.VW_KIND_CUSTOM
+              : v.standardView
+                ? DEV_MSG.VW_KIND_STANDARD
+                : v.type || "—";
+            return {
+              key: resolveViewObjectGuid(v) || v.name || `vw-${index}`,
+              onClick: interactive ? () => openView(v) : undefined,
+              cells: [
+                interactive ? (
+                  <button
+                    key="open"
+                    type="button"
+                    data-testid="developer-vw-open"
+                    data-vw-name={v.name || openKey}
+                    aria-label={`Open ${v.name || openKey}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openView(v);
+                    }}
+                    style={{ ...openButtonStyle, fontFamily: "monospace" }}
+                  >
+                    {v.name || "—"}
+                  </button>
+                ) : (
+                  <span key="n" style={monoCell}>
+                    {v.name || "—"}
+                  </span>
+                ),
+                v.label || "",
+                kind,
+                fieldCount,
+                <span key="d" style={mutedCell}>
+                  {v.description || ""}
+                </span>,
+              ],
+            };
+          })}
+        />
+      )}
     </div>
   );
 }
