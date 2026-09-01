@@ -25,7 +25,14 @@ import java.util.List;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-/** Spring test stub for {@link ISearchAdaptor}. Required for ApplicationContext load. */
+/**
+ * Spring test stub for {@link ISearchAdaptor}. Required for ApplicationContext load.
+ *
+ * <p>Must implement the exact adaptor type {@code SearchResource} injects — a supertype stub
+ * fails {@code MainTest} / {@code RolesTest} with {@code No qualifying bean of type
+ * ISearchAdaptor}. Write methods are trivial; durable create/list/delete is covered by
+ * {@code SearchResourcePersistContractTest} and production {@code SearchAdaptor} (PR #4088).
+ */
 @Component
 @Lazy
 public class TestSearchAdaptor implements ISearchAdaptor {

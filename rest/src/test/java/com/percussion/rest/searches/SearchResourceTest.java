@@ -19,7 +19,10 @@ import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -231,6 +234,59 @@ public class SearchResourceTest {
   }
 
   @Test
+  public void createSearchNameWithSpacesIs400() {
+    when(adaptor.createSearch(any()))
+        .thenThrow(new IllegalArgumentException("name cannot contain whitespace"));
+    SearchDef body = new SearchDef();
+    body.setName("has space");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createSearch(body));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createThenGetAndListAreDurable() {
+    Map<String, SearchDef> catalog = new LinkedHashMap<>();
+    when(adaptor.createSearch(any()))
+        .thenAnswer(
+            inv -> {
+              SearchDef body = inv.getArgument(0);
+              SearchDef saved = new SearchDef();
+              saved.setName(body.getName());
+              saved.setId(1014);
+              catalog.put(body.getName().toLowerCase(Locale.ROOT), saved);
+              return saved;
+            });
+    when(adaptor.findSearchByKey(any()))
+        .thenAnswer(
+            inv -> {
+              String key = inv.getArgument(0);
+              return key == null ? null : catalog.get(key.toLowerCase(Locale.ROOT));
+            });
+    when(adaptor.listSearches(false)).thenAnswer(inv -> List.copyOf(catalog.values()));
+    when(adaptor.deleteSearch(any()))
+        .thenAnswer(
+            inv -> {
+              String key = inv.getArgument(0);
+              return key != null && catalog.remove(key.toLowerCase(Locale.ROOT)) != null;
+            });
+
+    SearchDef body = new SearchDef();
+    body.setName("qa4081restprobe");
+    SearchDef created = resource.createSearch(body);
+    assertEquals("qa4081restprobe", created.getName());
+    assertEquals("qa4081restprobe", resource.getSearch("qa4081restprobe").getName());
+    assertEquals(1, resource.listSearches(false).size());
+    assertEquals("qa4081restprobe", resource.listSearches(false).get(0).getName());
+
+    assertEquals(204, resource.deleteSearch("qa4081restprobe").getStatus());
+    WebApplicationException missing =
+        assertThrows(WebApplicationException.class, () -> resource.getSearch("qa4081restprobe"));
+    assertEquals(404, missing.getResponse().getStatus());
+    assertTrue(resource.listSearches(false).isEmpty());
+  }
+
+  @Test
   public void createSearchDuplicateIs409() {
     when(adaptor.createSearch(any()))
         .thenThrow(new WebApplicationException("Search already exists: MySearch", 409));
@@ -319,6 +375,14 @@ public class SearchResourceTest {
     SearchResource bare = new SearchResource();
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> bare.createSearch(new SearchDef()));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnDelete() {
+    SearchResource bare = new SearchResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.deleteSearch("any"));
     assertEquals(503, ex.getResponse().getStatus());
   }
 }
