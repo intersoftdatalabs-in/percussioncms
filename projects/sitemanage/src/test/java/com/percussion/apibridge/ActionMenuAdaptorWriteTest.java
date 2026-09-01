@@ -36,9 +36,11 @@ import static org.mockito.Mockito.when;
 
 import com.percussion.cms.objectstore.PSAction;
 import com.percussion.rest.actions.ActionMenu;
+import com.percussion.rest.actions.ActionMenuList;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.services.menus.PSActionMenu;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
@@ -338,6 +340,48 @@ class ActionMenuAdaptorWriteTest {
   }
 
   @Test
+  void delete_system_whenDesignWsMissesHibernateRow_is409() throws Exception {
+    PSActionMenu edit = new PSActionMenu("Edit", "Edit", PSAction.TYPE_MENUITEM, "", "SERVER", 0);
+    edit.setActionId(7);
+    adaptor = new ActionMenuAdaptor(designWs, () -> true, () -> List.of(edit));
+    when(designWs.objectIdToPath(any())).thenReturn("//ContentExplorer/Menus/System/Edit");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.deleteActionMenu("Edit"));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(designWs, never()).deleteActions(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void create_duplicateName_fromHibernateCatalog_is409() {
+    PSActionMenu existing = new PSActionMenu("MyMenu", "My Menu", PSAction.TYPE_MENU, "", "SERVER", 0);
+    existing.setActionId(9);
+    adaptor = new ActionMenuAdaptor(designWs, () -> true, () -> List.of(existing));
+    ActionMenu body = new ActionMenu();
+    body.setName("MyMenu");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.createActionMenu(body));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(designWs, never()).createActions(anyList(), anyList(), any(), any());
+  }
+
+  @Test
+  void matchMenuInTree_findsNestedChild() {
+    ActionMenu root = new ActionMenu();
+    root.setName("File");
+    root.setId(1);
+    ActionMenu child = new ActionMenu();
+    child.setName("MyMenu");
+    child.setId(42);
+    ActionMenuList kids = new ActionMenuList();
+    kids.add(child);
+    root.setChildren(kids);
+    assertEquals("MyMenu", ActionMenuAdaptor.matchMenuInTree(List.of(root), "MyMenu").getName());
+    assertEquals(42, ActionMenuAdaptor.matchMenuInTree(List.of(root), "42").getId());
+  }
+
+  @Test
   void delete_system_is409() throws Exception {
     PSAction system = stubAction("Edit", 42);
     stubCatalogLoad(system);
@@ -417,6 +461,32 @@ class ActionMenuAdaptorWriteTest {
     assertFalse(ActionMenuAdaptor.isSystemMenuPath("//ContentExplorer/Menus/User/MyMenu"));
     assertFalse(ActionMenuAdaptor.isSystemMenuPath(""));
     assertFalse(ActionMenuAdaptor.isSystemMenuPath(null));
+    assertTrue(ActionMenuAdaptor.isUserMenuPath("//ContentExplorer/Menus/User/MyMenu"));
+    assertFalse(ActionMenuAdaptor.isUserMenuPath("//ContentExplorer/Menus/System/Edit"));
+  }
+
+  @Test
+  void delete_blankPathWithoutRestMarker_is409() throws Exception {
+    PSAction existing = stubAction("Edit", 101);
+    stubCatalogLoad(existing);
+    when(designWs.objectIdToPath(any())).thenReturn("");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.deleteActionMenu("Edit"));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(designWs, never()).deleteActions(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void delete_blankPathWithRestMarker_succeeds() throws Exception {
+    PSAction existing = stubAction("MyMenu", 42);
+    existing.getProperties().setProperty(ActionMenuAdaptor.REST_USER_MENU_PROP, PSAction.YES);
+    stubCatalogLoad(existing);
+    when(designWs.objectIdToPath(any())).thenReturn("");
+    when(designWs.loadActions(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(existing));
+    assertTrue(adaptor.deleteActionMenu("MyMenu"));
+    verify(designWs)
+        .deleteActions(eq(List.of(existing.getGUID())), eq(false), eq("test-session"), eq("Admin"));
   }
 
   @Test
