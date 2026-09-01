@@ -31,7 +31,9 @@ other installer catalog names) stay **read-only** for columns.
 4. Click **Save**. A duplicate name is **409** and the editor shows that the
    display format already exists. An invalid name is **400**. A non-Admin
    session is **403**. After a successful create, the name field is read-only
-   and the catalog lists the new format.
+   and the catalog lists the new format. `GET /services/displayformats/{name}`
+   returns that user format (not **404**, and not a packaged format such as
+   **By_Author**).
 5. Optional: change label or description and **Save** again.
 6. Click **Delete** and confirm. The catalog no longer lists that format.
    Delete of a missing format is **404**. A format still used as a dependent,
