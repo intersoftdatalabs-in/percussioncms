@@ -116,6 +116,7 @@ Non-administrators never see the Admin top-nav item or these configuration surfa
 - [Developer Searches](id:admin-developer-searches)
 - [Developer Communities](id:admin-developer-communities)
 - [Developer Views](id:admin-developer-views)
+- [Developer Display Formats](id:admin-developer-display-formats)
 - [Object ACL & default template](id:admin-object-acl)
 - [Publishing](id:admin-publishing)
 - [Server operations](id:admin-server-ops)

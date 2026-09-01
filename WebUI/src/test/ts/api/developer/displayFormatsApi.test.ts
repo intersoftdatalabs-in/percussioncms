@@ -14,15 +14,24 @@
  * limitations under the License.
  */
 
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  createDisplayFormat,
+  deleteDisplayFormat,
+  DISPLAY_FORMAT_ROOT,
   getDisplayFormatDetail,
+  isDisplayFormatWriteReady,
+  isValidDisplayFormatName,
   listDisplayFormats,
+  normalizeDisplayFormatName,
   objectGuidString,
   resolveDisplayFormatObjectGuid,
+  saveDisplayFormat,
   unwrapDisplayFormat,
   unwrapDisplayFormatList,
+  wrapDisplayFormatForWire,
 } from "../../../../main/ts/api/developer/displayFormatsApi";
+import { PATHS } from "../../../../main/ts/api/paths";
 
 describe("objectGuidString", () => {
   it("reads stringValue when present", () => {
@@ -245,5 +254,140 @@ describe("listDisplayFormats", () => {
     expect(list).toHaveLength(1);
     expect(list[0].name).toBe("By_Author");
     expect(list[0].guid?.stringValue).toBe("0-11-5");
+  });
+});
+
+describe("display format name validation", () => {
+  it("trims names", () => {
+    expect(normalizeDisplayFormatName("  MyFmt  ")).toBe("MyFmt");
+    expect(normalizeDisplayFormatName("")).toBe("");
+    expect(normalizeDisplayFormatName(null)).toBe("");
+  });
+
+  it("accepts REST-safe create names and rejects junk", () => {
+    expect(isValidDisplayFormatName("MyFmt")).toBe(true);
+    expect(isValidDisplayFormatName("qa4086")).toBe(true);
+    expect(isValidDisplayFormatName("  StandardOne  ")).toBe(true);
+    expect(isValidDisplayFormatName("")).toBe(false);
+    expect(isValidDisplayFormatName("has space")).toBe(false);
+    expect(isValidDisplayFormatName("wild*card")).toBe(false);
+    expect(isValidDisplayFormatName("pct%name")).toBe(false);
+    expect(isValidDisplayFormatName("../x")).toBe(false);
+    expect(isValidDisplayFormatName("a/b")).toBe(false);
+    expect(isValidDisplayFormatName("a\\b")).toBe(false);
+  });
+
+  it("disables write until the display format name is valid on create", () => {
+    expect(isDisplayFormatWriteReady({ isNew: true, name: "" })).toBe(false);
+    expect(isDisplayFormatWriteReady({ isNew: true, name: "has space" })).toBe(false);
+    expect(isDisplayFormatWriteReady({ isNew: true, name: "MyFmt" })).toBe(true);
+    expect(isDisplayFormatWriteReady({ isNew: false, name: "MyFmt" })).toBe(true);
+    expect(isDisplayFormatWriteReady({ isNew: false, name: "" })).toBe(false);
+  });
+});
+
+describe("display format wire wrap", () => {
+  it("wraps POST/PUT under DisplayFormat root", () => {
+    expect(
+      wrapDisplayFormatForWire({
+        name: "MyFmt",
+        label: "My Format",
+        description: "Created via REST",
+      }),
+    ).toEqual({
+      [DISPLAY_FORMAT_ROOT]: {
+        name: "MyFmt",
+        label: "My Format",
+        description: "Created via REST",
+      },
+    });
+  });
+});
+
+describe("displayFormatsApi write paths", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("POSTs create body to /services/displayformats", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ name: "MyFmt", label: "My Format" }, 201),
+    );
+    const saved = await createDisplayFormat({
+      name: "MyFmt",
+      label: "My Format",
+    });
+    expect(saved.name).toBe("MyFmt");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(PATHS.DISPLAY_FORMATS);
+    expect(JSON.parse(String(init.body))).toEqual({
+      DisplayFormat: { name: "MyFmt", label: "My Format" },
+    });
+  });
+
+  it("PUTs save body to /services/displayformats/{idOrName}", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ name: "MyFmt", label: "Updated" }));
+    const saved = await saveDisplayFormat("MyFmt", { name: "MyFmt", label: "Updated" });
+    expect(saved.label).toBe("Updated");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.DISPLAY_FORMATS}/MyFmt`);
+  });
+
+  it("DELETEs /services/displayformats/{idOrName}", async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
+    await deleteDisplayFormat("MyFmt");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("DELETE");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.DISPLAY_FORMATS}/MyFmt`);
+  });
+
+  it("surfaces 400 invalid name", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ message: "name cannot contain whitespace" }, 400),
+    );
+    await expect(createDisplayFormat({ name: "bad name" })).rejects.toMatchObject({
+      status: 400,
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("surfaces 409 duplicate name", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ message: "Display format already exists: MyFmt" }, 409),
+    );
+    await expect(createDisplayFormat({ name: "MyFmt" })).rejects.toMatchObject({
+      status: 409,
+    });
+  });
+
+  it("surfaces 404 missing display format", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Display format not found" }, 404));
+    await expect(getDisplayFormatDetail("missing")).rejects.toMatchObject({ status: 404 });
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Display format not found" }, 404));
+    await expect(deleteDisplayFormat("missing")).rejects.toMatchObject({ status: 404 });
+  });
+
+  it("surfaces 403 non-Admin create", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Admin role required" }, 403));
+    await expect(createDisplayFormat({ name: "MyFmt" })).rejects.toMatchObject({
+      status: 403,
+    });
   });
 });

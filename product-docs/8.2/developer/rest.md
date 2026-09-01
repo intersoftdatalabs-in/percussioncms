@@ -1411,8 +1411,9 @@ Delete (`DELETE /services/displayformats/{idOrName}`) returns **204** when remov
 following `GET` is **404**. Unknown id/name is **404**. A format that still has dependents
 is **409**. Locked-by-another-user is **409** (the lock is not stolen). Non-Admin is **403**.
 
-There is **no** Developer SPA display-format editor write in this slice — operators and
-integrators call the REST path (or Workbench).
+**Developer → Display Formats** chrome creates and deletes user display formats
+(and saves label / description). Column picker completeness is not in that SPA —
+see [Developer Display Formats](id:admin-developer-display-formats).
 
 ### Object ACL save (display format and peers)
 
