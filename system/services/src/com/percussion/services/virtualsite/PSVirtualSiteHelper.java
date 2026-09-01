@@ -491,9 +491,9 @@ public final class PSVirtualSiteHelper {
   }
 
   /**
-   * {@code object-storage} / {@code rss-atom} / {@code icalendar} roots must be local filesystem
-   * paths. Cloud / remote URI schemes are fail-closed (no S3/GCS/Azure/HTTP object buckets, live
-   * feeds, or CalDAV URLs, no credentials in the path).
+   * {@code object-storage} / {@code rss-atom} / {@code icalendar} / {@code sitemap-xml} roots must
+   * be local filesystem paths. Cloud / remote URI schemes are fail-closed (no S3/GCS/Azure/HTTP
+   * object buckets, live feeds, CalDAV URLs, or live sitemap crawls, no credentials in the path).
    *
    * <p>Windows drive letters ({@code C:\…}) are not treated as URI schemes.
    *

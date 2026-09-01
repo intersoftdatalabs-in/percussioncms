@@ -26,9 +26,10 @@ import java.util.stream.Stream;
  * <p>Used by {@link PSVirtualSiteBuildService} (CLI and CMS REST {@code POST
  * /sites/{nameOrId}/virtual/build}) so git-filesystem, csv-filesystem, sql-database, http-json,
  * object-storage, rss-atom, icalendar, and sitemap-xml share one assemble pipeline. REST GET/PUT
- * persist {@code http-json}, {@code object-storage}, {@code rss-atom}, and {@code icalendar}.
- * {@code icalendar} assemble remains SPI/CLI in this slice (REST Build/Preview/Publish later).
- * {@code sitemap-xml} assemble is SPI/CLI only (REST persist later).
+ * persist {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, and
+ * {@code sitemap-xml}. {@code icalendar} assemble remains SPI/CLI in this slice (REST
+ * Build/Preview/Publish later). {@code sitemap-xml} assemble is SPI/CLI only (REST
+ * Build/Preview/Publish later).
  */
 public final class PSVirtualSiteSourceFactory {
 

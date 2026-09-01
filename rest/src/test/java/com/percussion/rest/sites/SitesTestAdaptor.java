@@ -25,9 +25,10 @@ import org.springframework.stereotype.Component;
 /**
  * Spring test stub for {@link ISiteAdaptor} so rest {@code MainTest} / shared contexts can inject a
  * bean. Production wiring is {@code SitesAdaptor} in sitemanage. PUT echoes the envelope
- * (including {@code sql-database}, {@code http-json}, {@code object-storage}, {@code rss-atom}, and
- * {@code icalendar} {@code sourceKind}); JDBC credentials, HTTP secrets, object-storage cloud
- * credentials, rss-atom live feed credentials, and CalDAV credentials are never logged. REST Build
+ * (including {@code sql-database}, {@code http-json}, {@code object-storage}, {@code rss-atom},
+ * {@code icalendar}, and {@code sitemap-xml} {@code sourceKind}); JDBC credentials, HTTP secrets,
+ * object-storage cloud credentials, rss-atom live feed credentials, CalDAV credentials, and
+ * sitemap crawl credentials are never logged. REST Build
  * for {@code http-json}, {@code object-storage}, {@code rss-atom}, and {@code icalendar} uses the
  * same adaptor contract as git/CSV/SQL (local JSON fixture / loopback, local object-key bucket,
  * local RSS/Atom fixture, or local RFC 5545 {@code calendar.ics}; {@code virtual.remoteUrl}

@@ -17,6 +17,7 @@
 package com.percussion.rest.sites;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -349,6 +350,102 @@ public class SitesResourceTest {
     assertEquals("C:/cal-docs", out.getRootPath());
     assertTrue(Boolean.TRUE.equals(out.getVirtual()));
     verify(adaptor).updateVirtualSiteProperties("CalHelp", body);
+  }
+
+  @Test
+  public void getVirtualPropertiesRoundTripsSitemapXml() {
+    VirtualSiteProperties v = new VirtualSiteProperties();
+    v.setSourceKind("sitemap-xml");
+    v.setRootPath("C:/sitemap-docs");
+    v.setVirtual(true);
+    when(adaptor.getVirtualSiteProperties("SitemapHelp")).thenReturn(v);
+
+    VirtualSiteProperties out = resource.getVirtualProperties("SitemapHelp");
+    assertEquals("sitemap-xml", out.getSourceKind());
+    assertEquals("C:/sitemap-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).getVirtualSiteProperties("SitemapHelp");
+  }
+
+  @Test
+  public void updateVirtualPropertiesRoundTripsSitemapXml() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("sitemap-xml");
+    body.setRootPath("C:/sitemap-docs");
+    VirtualSiteProperties saved = new VirtualSiteProperties();
+    saved.setSourceKind("sitemap-xml");
+    saved.setRootPath("C:/sitemap-docs");
+    saved.setVirtual(true);
+    when(adaptor.updateVirtualSiteProperties(eq("SitemapHelp"), same(body))).thenReturn(saved);
+
+    VirtualSiteProperties out = resource.updateVirtualProperties("SitemapHelp", body);
+    assertEquals("sitemap-xml", out.getSourceKind());
+    assertEquals("C:/sitemap-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).updateVirtualSiteProperties("SitemapHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesSitemapXmlRemoteUrlPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("sitemap-xml");
+    body.setRootPath("C:/sitemap-docs");
+    body.setRemoteUrl("https://user:secret@git.example.com/org/docs.git");
+    when(adaptor.updateVirtualSiteProperties(eq("SitemapHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for sitemap-xml", Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("SitemapHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("user:secret"));
+    verify(adaptor).updateVirtualSiteProperties("SitemapHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesSitemapXmlCloudRootPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("sitemap-xml");
+    body.setRootPath("https://example.com/sitemap.xml");
+    when(adaptor.updateVirtualSiteProperties(eq("SitemapHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for sitemap-xml must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("SitemapHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).updateVirtualSiteProperties("SitemapHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesSitemapXmlCredentialsPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("sitemap-xml");
+    body.setRootPath("C:/sitemap-docs");
+    when(adaptor.updateVirtualSiteProperties(eq("SitemapHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for sitemap-xml (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("SitemapHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).updateVirtualSiteProperties("SitemapHelp", body);
   }
 
   @Test
@@ -1090,8 +1187,14 @@ public class SitesResourceTest {
         putVirtualBlock.contains("icalendar"),
         "updateVirtualProperties OpenAPI description must mention icalendar persist");
     assertTrue(
+        putVirtualBlock.contains("sitemap-xml"),
+        "updateVirtualProperties OpenAPI description must mention sitemap-xml persist");
+    assertTrue(
         putVirtualBlock.contains("no CalDAV"),
         "updateVirtualProperties OpenAPI description must mention icalendar local fixture only");
+    assertTrue(
+        putVirtualBlock.contains("no live crawl"),
+        "updateVirtualProperties OpenAPI description must mention sitemap-xml local fixture only");
     assertTrue(
         putVirtualBlock.contains("local/loopback"),
         "updateVirtualProperties OpenAPI description must mention rss-atom local/loopback only");
