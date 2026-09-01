@@ -513,12 +513,13 @@ public class SitesAdaptor implements ISiteAdaptor {
 
   /**
    * Load {@code _config.yaml} (required for git-filesystem, sql-database, http-json,
-   * object-storage, rss-atom, and icalendar). CSV trees may omit the file and infer versions from
-   * child directories. HTTP JSON catalog URL/file live in the yaml ({@code http.url} / {@code
-   * http.file} or default {@code pages.json}). Object-storage optional {@code objects.keys} live
-   * in the yaml. RSS / Atom optional {@code rss.file} / {@code rss.url} live in the yaml (default
-   * {@code feed.xml} then {@code atom.xml}). iCalendar optional {@code icalendar.file} lives in
-   * the yaml (default {@code calendar.ics}).
+   * object-storage, rss-atom, icalendar, and sitemap-xml). CSV trees may omit the file and infer
+   * versions from child directories. HTTP JSON catalog URL/file live in the yaml ({@code http.url}
+   * / {@code http.file} or default {@code pages.json}). Object-storage optional {@code
+   * objects.keys} live in the yaml. RSS / Atom optional {@code rss.file} / {@code rss.url} live
+   * in the yaml (default {@code feed.xml} then {@code atom.xml}). iCalendar optional {@code
+   * icalendar.file} lives in the yaml (default {@code calendar.ics}). Sitemap XML optional {@code
+   * sitemap.file} lives in the yaml (default {@code sitemap.xml}; no live crawl).
    */
   static VirtualSiteConfig loadBuildConfig(
       VirtualSiteSourceType type, Path siteRoot, String configFile, String siteKey)

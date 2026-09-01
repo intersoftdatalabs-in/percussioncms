@@ -762,6 +762,75 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void buildVirtualSiteSitemapXmlFixtureDelegates() throws Exception {
+    Path smRoot = tempDir.resolve("sm-site");
+    Files.createDirectories(smRoot.resolve("pages"));
+    Files.writeString(
+        smRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: Sitemap Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        sitemap:
+          file: sitemap.xml
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        smRoot.resolve("pages").resolve("home.md"),
+        "Hello from sitemap.",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        smRoot.resolve("sitemap.xml"),
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+          <url>
+            <loc>pages/home.md</loc>
+          </url>
+        </urlset>
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("sm-out");
+    Files.createDirectories(out);
+
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setSiteName("SitemapHelp");
+    built.setPagesWritten(1);
+    built.setLinkProblemCount(0);
+    built.setHasLinkProblems(false);
+    built.setOutputPath(out.toAbsolutePath().toString());
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+    when(adaptor.buildVirtualSite(eq("SitemapHelp"), same(req))).thenReturn(built);
+
+    VirtualSiteBuildResult result = resource.buildVirtualSite("SitemapHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getPagesWritten().intValue() > 0);
+    assertEquals(out.toAbsolutePath().toString(), result.getOutputPath());
+    assertTrue(Files.isRegularFile(smRoot.resolve("_config.yaml")));
+    assertTrue(Files.isRegularFile(smRoot.resolve("sitemap.xml")));
+    verify(adaptor).buildVirtualSite("SitemapHelp", req);
+  }
+
+  @Test
+  public void buildVirtualSiteSitemapXmlRemoteUrlPropagates400() {
+    when(adaptor.buildVirtualSite(eq("SitemapHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for sitemap-xml", Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("SitemapHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(adaptor).buildVirtualSite("SitemapHelp", null);
+  }
+
+  @Test
   public void buildVirtualSiteUnknownKindPropagates400() {
     when(adaptor.buildVirtualSite(eq("Help"), any()))
         .thenThrow(
@@ -1221,6 +1290,12 @@ public class SitesResourceTest {
     assertTrue(
         buildBlock.contains("icalendar"),
         "buildVirtualSite OpenAPI description must mention icalendar");
+    assertTrue(
+        buildBlock.contains("sitemap-xml"),
+        "buildVirtualSite OpenAPI description must mention sitemap-xml");
+    assertTrue(
+        buildBlock.contains("sitemap.xml") || buildBlock.contains("no live crawl"),
+        "buildVirtualSite OpenAPI description must mention local sitemap.xml fixture");
     assertTrue(
         buildBlock.contains("calendar.ics") || buildBlock.contains("no CalDAV"),
         "buildVirtualSite OpenAPI description must mention local icalendar fixture");
