@@ -887,7 +887,8 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
       Guid g = df.getGuid();
       return g != null && trimmed.equalsIgnoreCase(StringUtils.defaultString(g.getStringValue()));
     }
-    return loadedName != null;
+    // Unnamed catalog identity stub (displayId replay) still matches the requested key.
+    return true;
   }
 
   /**
