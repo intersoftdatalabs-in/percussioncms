@@ -19,6 +19,7 @@
 package com.percussion.rest.communities;
 
 import com.percussion.rest.GuidList;
+import com.percussion.rest.GuidListJsonReader;
 import com.percussion.rest.ObjectTypeEnum;
 import com.percussion.rest.Status;
 import com.percussion.system.utils.PSSiteManageBean;
@@ -75,9 +76,8 @@ public class CommunityResource implements ICommunityResource {
           List<String> names) {
     try {
       return adaptor.createCommunities(names);
-    } catch (Exception e) {
-      log.error("An error occurred calling createCommunities", e);
-      throw new WebApplicationException(e);
+    } catch (RuntimeException e) {
+      throw mapWriteFailure("createCommunities", e);
     }
   }
 
@@ -161,7 +161,11 @@ public class CommunityResource implements ICommunityResource {
     }
   }
 
-  @Override
+  /**
+   * HTTP PUT {@code /bulk}. Body is parsed by {@link CommunityListJsonReader} so CXF
+   * Jackson/Jettison cannot bind a raw {@code ArrayList} (HTTP 400 ClassCast) or reject a bare
+   * JSON array (org.json ParseError). Peer {@code AclResource.saveAcls(String)}.
+   */
   @PUT
   @Path("/bulk")
   @ApiResponses(
@@ -176,11 +180,16 @@ public class CommunityResource implements ICommunityResource {
           "Saves the communities in the submitted list. If the release header is set, any locks"
               + " will be released. To avoid extended locks, please set the release header when"
               + " calling this method unless you really want to keep them locked.")
-  public void saveCommunities(
-      @Parameter(description = "communities", required = true) CommunityList communities,
+  public void saveCommunitiesJson(
+      @Parameter(description = "communities", required = true) String json,
       @Parameter(name = "release", allowEmptyValue = false, required = true)
           @HeaderParam(value = "release")
           boolean release) {
+    saveCommunities(CommunityListJsonReader.parse(json), release);
+  }
+
+  @Override
+  public void saveCommunities(CommunityList communities, boolean release) {
     try {
       adaptor.saveCommunities(communities, release);
     } catch (Exception e) {
@@ -189,7 +198,10 @@ public class CommunityResource implements ICommunityResource {
     }
   }
 
-  @Override
+  /**
+   * HTTP DELETE {@code /bulk}. GuidList JSON is parsed by {@link
+   * com.percussion.rest.GuidListJsonReader}.
+   */
   @DELETE
   @Path("/bulk")
   @Consumes({MediaType.APPLICATION_JSON})
@@ -203,16 +215,36 @@ public class CommunityResource implements ICommunityResource {
           "Accepts a GuidList containing the ids of the Communities to delete. If the"
               + " ignoredependencies header is set on the request, then the system won't fail the"
               + " delete if a dependency is relying on this community.")
-  public void deleteCommunities(
-      @Parameter(name = "ids") GuidList ids,
+  public void deleteCommunitiesJson(
+      @Parameter(name = "ids") String json,
       @Parameter(name = "ignoredependencies", required = true) @HeaderParam("ignoredependencies")
           boolean ignoredependencies) {
+    deleteCommunities(GuidListJsonReader.parse(json), ignoredependencies);
+  }
+
+  @Override
+  public void deleteCommunities(GuidList ids, boolean ignoredependencies) {
     try {
       adaptor.deleteCommunities(ids, ignoredependencies);
-    } catch (Exception e) {
-      log.error("An error occurred calling deleteCommunities", e);
-      throw new WebApplicationException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+    } catch (RuntimeException e) {
+      throw mapWriteFailure("deleteCommunities", e);
     }
+  }
+
+  /**
+   * Map adaptor write failures. Duplicate / in-use are already {@link
+   * WebApplicationException} 409 from the adaptor. Blank-name IAE is 400. Do
+   * not log ERROR for 4xx (QA C5 / expected conflict).
+   */
+  static WebApplicationException mapWriteFailure(String op, RuntimeException e) {
+    if (e instanceof WebApplicationException wae) {
+      return wae;
+    }
+    if (e instanceof IllegalArgumentException) {
+      return new WebApplicationException(e.getMessage(), 400);
+    }
+    log.error("An error occurred calling {}", op, e);
+    return new WebApplicationException(e, 500);
   }
 
   /**

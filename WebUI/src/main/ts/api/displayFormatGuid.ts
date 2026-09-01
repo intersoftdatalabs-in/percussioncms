@@ -42,6 +42,9 @@ export const ACTION_MENU_TYPE = 107;
 /** {@code PSTypeEnum.VIEW_DEF} — CX view GUID type (#3380). */
 export const VIEW_TYPE = 18;
 
+/** {@code PSTypeEnum.COMMUNITY} — community GUID type (#4077 / SE-01). */
+export const COMMUNITY_TYPE = 13;
+
 function firstNonBlankString(value: unknown): string | undefined {
   if (typeof value === "string") {
     const trimmed = value.trim();
@@ -256,6 +259,24 @@ export function resolveViewObjectGuid(
     return resolved;
   }
   return synthesizeTypedObjectGuid(VIEW_TYPE, view?.id);
+}
+
+/**
+ * Community GUID: nested Guid / guidString, then catalog, then
+ * {@code 0-13-{id}} from the native community id (#4077).
+ */
+export function resolveCommunityObjectGuid(
+  community:
+    | (DesignObjectGuidSource & { id?: number | null })
+    | null
+    | undefined,
+  catalogGuid?: string | null,
+): string | undefined {
+  const resolved = resolveDesignObjectGuid(community, catalogGuid);
+  if (resolved) {
+    return resolved;
+  }
+  return synthesizeTypedObjectGuid(COMMUNITY_TYPE, community?.id);
 }
 
 /**

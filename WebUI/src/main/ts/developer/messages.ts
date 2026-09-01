@@ -540,7 +540,27 @@ export const DEV_MSG_KEYS = {
   COMM_EMPTY: "perc.ui.developer@No communities returned.",
   COMM_ERROR: "perc.ui.developer@Could not load communities.",
   COMM_HINT:
-    "perc.ui.developer@Select a community to view and edit role membership and inspect object visibility. Per-object COMMUNITY ACL entries are edited on object detail panels (e.g. content types).",
+    "perc.ui.developer@Create or delete a community, then open one to edit role membership and inspect object visibility. Per-object COMMUNITY ACL entries are edited on object detail panels (e.g. content types).",
+  COMM_NEW: "perc.ui.developer@New community",
+  COMM_CREATE: "perc.ui.developer@Create community",
+  COMM_CANCEL: "perc.ui.developer@Cancel",
+  COMM_FORM_NAME: "perc.ui.developer@Name",
+  COMM_NAME_HINT:
+    "perc.ui.developer@Required unique name. Spaces are allowed. Duplicate names are rejected.",
+  COMM_NAME_INVALID: "perc.ui.developer@Community name cannot be blank.",
+  COMM_CREATED: "perc.ui.developer@Community created.",
+  COMM_DUPLICATE: "perc.ui.developer@A community with this name already exists.",
+  COMM_FORBIDDEN: "perc.ui.developer@Admin role required.",
+  COMM_SAVE_ERROR: "perc.ui.developer@Could not create community.",
+  COMM_DELETE: "perc.ui.developer@Delete community",
+  COMM_DELETE_CONFIRM:
+    "perc.ui.developer@Delete this community? Communities that are still in use cannot be deleted.",
+  COMM_DELETED: "perc.ui.developer@Community deleted.",
+  COMM_DELETE_ERROR: "perc.ui.developer@Could not delete community.",
+  COMM_IN_USE:
+    "perc.ui.developer@Community is in use and was not deleted. Dependencies were not ignored.",
+  COMM_MISSING: "perc.ui.developer@Community was not found.",
+  COMM_DELETE_NO_GUID: "perc.ui.developer@Community GUID is not available — cannot delete.",
   COMM_COL_LABEL: "perc.ui.developer@Label",
   COMM_COL_NAME: "perc.ui.developer@Name",
   COMM_COL_ID: "perc.ui.developer@Id",

@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
@@ -10,9 +10,21 @@ import * as assemblyApi from "../../../main/ts/api/developer/assemblyApi";
 import { CommunitiesPanel } from "../../../main/ts/developer/CommunitiesPanel";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
-vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
-  listCommunities: vi.fn(),
-}));
+vi.mock("../../../main/ts/api/developer/assemblyApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/assemblyApi")
+  >();
+  return {
+    ...actual,
+    listCommunities: vi.fn(),
+    getCommunityDetail: vi.fn(),
+    listAvailableRoles: vi.fn().mockResolvedValue([]),
+    getCommunityVisibility: vi.fn().mockResolvedValue([]),
+    updateCommunityRoles: vi.fn(),
+    createCommunity: vi.fn(),
+    deleteCommunity: vi.fn(),
+  };
+});
 
 const listCommunities = assemblyApi.listCommunities as ReturnType<typeof vi.fn>;
 
@@ -43,6 +55,7 @@ describe("CommunitiesPanel", () => {
       "Default Community",
     );
     expect(screen.getByTestId("developer-comm-table").textContent).toContain("DefaultComm");
+    expect(screen.getByTestId("developer-comm-new")).toBeTruthy();
   });
 
   it("shows empty state when API returns no communities", async () => {
@@ -51,6 +64,19 @@ describe("CommunitiesPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-comm-empty")).toBeTruthy();
     });
+    expect(screen.getByTestId("developer-comm-new")).toBeTruthy();
+  });
+
+  it("opens create chrome from New community", async () => {
+    listCommunities.mockResolvedValue([]);
+    render(<CommunitiesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-new")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-new"));
+    expect(screen.getByTestId("developer-comm-detail")).toBeTruthy();
+    expect(screen.getByTestId("developer-comm-create")).toBeTruthy();
+    expect(screen.getByTestId("developer-comm-name")).toBeTruthy();
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {

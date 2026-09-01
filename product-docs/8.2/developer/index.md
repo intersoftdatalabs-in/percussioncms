@@ -32,6 +32,8 @@ Operators using **Developer → Slots** create/delete chrome: [Developer Slots](
 
 Operators using **Developer → Item Filters** create/save/delete chrome: [Developer Item Filters](id:admin-developer-item-filters).
 
+Operators using **Developer → Communities** create/delete chrome: [Developer Communities](id:admin-developer-communities).
+
 ## Architecture snapshot
 
 ```text

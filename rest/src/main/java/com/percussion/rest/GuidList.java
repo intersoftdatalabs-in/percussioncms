@@ -17,15 +17,21 @@
 
 package com.percussion.rest;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "GuidList")
+@JsonRootName("GuidList")
+@JsonFormat(shape = JsonFormat.Shape.ARRAY)
+@JsonDeserialize(using = GuidListDeserializer.class)
 @Schema(description = "A list of Guids, commonly used for bulk operations")
 public class GuidList extends ArrayList<Guid> {
   private static final long serialVersionUID = 1L;
