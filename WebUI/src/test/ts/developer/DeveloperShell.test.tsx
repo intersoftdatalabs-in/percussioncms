@@ -553,6 +553,9 @@ vi.mock("../../../main/ts/api/developer/displayFormatsApi", async (importOrigina
       name: "Default",
       columns: [],
     }),
+    createDisplayFormat: vi.fn(),
+    saveDisplayFormat: vi.fn(),
+    deleteDisplayFormat: vi.fn(),
     normalizeColumns: () => [],
   };
 });

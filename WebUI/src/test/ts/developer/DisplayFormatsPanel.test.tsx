@@ -10,6 +10,20 @@ import * as displayFormatsApi from "../../../main/ts/api/developer/displayFormat
 import { DisplayFormatsPanel } from "../../../main/ts/developer/DisplayFormatsPanel";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
+vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
+  ObjectAclSection: (props: {
+    objectGuid?: string | null;
+    objectKind?: string | null;
+    testIdPrefix?: string;
+  }) => (
+    <div
+      data-testid={`${props.testIdPrefix ?? "developer-acl"}-stub`}
+      data-object-guid={props.objectGuid ?? ""}
+      data-object-kind={props.objectKind ?? ""}
+    />
+  ),
+}));
+
 vi.mock("../../../main/ts/api/developer/displayFormatsApi", async (importOriginal) => {
   const actual = await importOriginal<
     typeof import("../../../main/ts/api/developer/displayFormatsApi")
@@ -18,6 +32,9 @@ vi.mock("../../../main/ts/api/developer/displayFormatsApi", async (importOrigina
     ...actual,
     listDisplayFormats: vi.fn(),
     getDisplayFormatDetail: vi.fn(),
+    createDisplayFormat: vi.fn(),
+    saveDisplayFormat: vi.fn(),
+    deleteDisplayFormat: vi.fn(),
     normalizeColumns: (c: unknown) => (Array.isArray(c) ? c : []),
   };
 });
@@ -59,6 +76,7 @@ describe("DisplayFormatsPanel", () => {
       expect(screen.getByTestId("developer-df-table")).toBeTruthy();
     });
     expect(screen.getByText("Default")).toBeTruthy();
+    expect(screen.getByTestId("developer-df-new")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-df-open"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-df-columns-table")).toBeTruthy();
@@ -108,6 +126,19 @@ describe("DisplayFormatsPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-df-empty")).toBeTruthy();
     });
+    expect(screen.getByTestId("developer-df-new")).toBeTruthy();
+  });
+
+  it("opens create chrome from New display format", async () => {
+    listDisplayFormats.mockResolvedValue([]);
+    render(<DisplayFormatsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-empty")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-new"));
+    expect(screen.getByTestId("developer-df-detail")).toBeTruthy();
+    expect(screen.getByTestId("developer-df-save")).toBeDisabled();
+    expect(getDisplayFormatDetail).not.toHaveBeenCalled();
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {

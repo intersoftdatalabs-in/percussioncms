@@ -62,6 +62,8 @@ class DisplayFormatAdaptorSafeKeyTest {
     setKey.invoke(nativeDf, key);
     assertEquals(301, nativeDf.getDisplayId());
 
+    nativeDf.setInternalName("By_Author");
+    nativeDf.setDisplayName("By Author");
     when(designWs.findDisplayFormat(eq("By_Author"))).thenReturn(nativeDf);
 
     DisplayFormatAdaptor adaptor = new DisplayFormatAdaptor(designWs);

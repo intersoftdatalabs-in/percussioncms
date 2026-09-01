@@ -228,7 +228,18 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
         throw new WebApplicationException(
             "Could not delete display format; design lock required or held by another user", 409);
       }
-      designWs.deleteDisplayFormats(List.of(id), false, session, user);
+      try {
+        designWs.deleteDisplayFormats(List.of(id), false, session, user);
+      } catch (PSErrorsException e) {
+        if (isLockError(e) || isDependencyError(e)) {
+          throw mapSaveOrDeleteFailure("delete", e);
+        }
+        // Locator-only delete can fail with "Xml Document Expected" on formats that
+        // persist via component save. Mark-for-deletion + save supplies the XML.
+        PSDisplayFormat nativeDf = locked.get(0);
+        nativeDf.markForDeletion();
+        designWs.saveDisplayFormats(List.of(nativeDf), true, session, user);
+      }
       return true;
     } catch (WebApplicationException e) {
       throw e;
@@ -576,14 +587,25 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     }
     String key = idOrName.trim();
     try {
-      return findDisplayFormat(key);
+      DisplayFormat byName = findDisplayFormat(key);
+      if (identityMatchesKey(byName, key)) {
+        return byName;
+      }
     } catch (PSCmsException | PSUnknownNodeTypeException e) {
-      // Expected miss → fall through to GUID parse / null
+      // Expected miss → catalog exact-name / GUID parse
       log.debug("Display format not found by name {}: {}", key, e.toString());
+    }
+    DisplayFormat fromCatalog = findExactCatalogCopy(key);
+    if (fromCatalog != null) {
+      return fromCatalog;
     }
     try {
       var guid = new com.percussion.services.guidmgr.data.PSGuid(key);
-      return findDisplayFormat((IPSGuid) guid);
+      DisplayFormat byGuid = findDisplayFormat((IPSGuid) guid);
+      if (identityMatchesKey(byGuid, key)) {
+        return byGuid;
+      }
+      return null;
     } catch (IllegalArgumentException e) {
       log.debug("Invalid display format GUID syntax: {}", e.getMessage());
       return null;
@@ -607,21 +629,92 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
         && key.indexOf('\0') < 0;
   }
 
+  /**
+   * Reload after create/update. {@code loadDisplayFormats} can replay the first catalog row
+   * (By_Author) for a different GUID/name (#3269 / #3200) — reject that mismatch and fall back
+   * to an exact catalog summary copy, then the in-memory saved component.
+   */
   private DisplayFormat reload(PSDisplayFormat saved, String name)
       throws PSCmsException, PSUnknownNodeTypeException {
     if (name != null && !name.isBlank()) {
       DisplayFormat byName = findDisplayFormat(name);
-      if (byName != null) {
+      if (identityMatchesKey(byName, name)) {
         return byName;
       }
     }
     if (saved != null && saved.getGUID() != null) {
       DisplayFormat byGuid = findDisplayFormat(saved.getGUID());
-      if (byGuid != null) {
+      if (byGuid != null
+          && (name == null || name.isBlank() || identityMatchesKey(byGuid, name))) {
         return byGuid;
       }
     }
-    return saved == null ? null : copyDisplayFormat(saved);
+    if (saved != null) {
+      return copyDisplayFormat(saved);
+    }
+    return name == null || name.isBlank() ? null : findExactCatalogCopy(name);
+  }
+
+  /**
+   * True when {@code df} is the catalog object for {@code key} (internal name or GUID string).
+   * Rejects the By_Author bulk-load replay where a different name is returned for this key.
+   */
+  static boolean identityMatchesKey(DisplayFormat df, String key) {
+    if (df == null || key == null || key.isBlank()) {
+      return false;
+    }
+    String trimmed = key.trim();
+    String loadedName = firstNonBlank(df.getName(), df.getInternalName());
+    if (loadedName != null && !namesMatchIgnoreCase(trimmed, loadedName)) {
+      if (trimmed.equalsIgnoreCase(StringUtils.defaultString(df.getGuidString()))) {
+        return true;
+      }
+      Guid g = df.getGuid();
+      return g != null && trimmed.equalsIgnoreCase(StringUtils.defaultString(g.getStringValue()));
+    }
+    return true;
+  }
+
+  /**
+   * Exact INTERNALNAME match from catalog summaries, then {@link #copyUniqueSummary} (which
+   * already rejects replayed loads). Used when {@code findDisplayFormat(name)} returns the
+   * wrong object.
+   */
+  private DisplayFormat findExactCatalogCopy(String name) {
+    if (name == null || name.isBlank()) {
+      return null;
+    }
+    List<IPSCatalogSummary> summaries = catalogSummaries(name);
+    if (summaries != null) {
+      for (IPSCatalogSummary summary : summaries) {
+        if (summary != null && namesMatchIgnoreCase(name, summary.getName())) {
+          try {
+            return copyUniqueSummary(summary);
+          } catch (PSCmsException | PSUnknownNodeTypeException e) {
+            log.debug("Could not copy display format {}: {}", name, e.toString());
+            return copyFromCatalogSummary(summary);
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  private List<IPSCatalogSummary> catalogSummaries(String name) {
+    try {
+      List<IPSCatalogSummary> byName = designWs.findDisplayFormats(name, null);
+      if (byName != null) {
+        for (IPSCatalogSummary summary : byName) {
+          if (summary != null && namesMatchIgnoreCase(name, summary.getName())) {
+            return byName;
+          }
+        }
+      }
+      return designWs.findDisplayFormats(null, null);
+    } catch (RuntimeException e) {
+      log.debug("Could not catalog display formats for {}: {}", name, e.toString());
+      return null;
+    }
   }
 
   private static void applyWritableFields(PSDisplayFormat nativeDf, DisplayFormat body) {
