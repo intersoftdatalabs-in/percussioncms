@@ -570,17 +570,26 @@ vi.mock("../../../main/ts/api/developer/displayFormatsApi", async (importOrigina
   };
 });
 
-vi.mock("../../../main/ts/api/developer/actionMenusApi", () => ({
-  listActionMenus: vi.fn().mockResolvedValue([
-    { id: 1, name: "Edit", label: "Edit", menuType: "MENUITEM" },
-  ]),
-  getActionMenuDetail: vi.fn().mockResolvedValue({
-    id: 1,
-    name: "Edit",
-    parameters: [],
-    properties: [],
-  }),
-}));
+vi.mock("../../../main/ts/api/developer/actionMenusApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/actionMenusApi")
+  >();
+  return {
+    ...actual,
+    listActionMenus: vi.fn().mockResolvedValue([
+      { id: 1, name: "Edit", label: "Edit", menuType: "MENUITEM" },
+    ]),
+    getActionMenuDetail: vi.fn().mockResolvedValue({
+      id: 1,
+      name: "Edit",
+      parameters: [],
+      properties: [],
+    }),
+    createActionMenu: vi.fn(),
+    saveActionMenu: vi.fn(),
+    deleteActionMenu: vi.fn(),
+  };
+});
 
 vi.mock("../../../main/ts/api/developer/searchesApi", async (importOriginal) => {
   const actual = await importOriginal<

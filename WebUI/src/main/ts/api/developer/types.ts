@@ -611,6 +611,7 @@ export interface ActionMenu {
   handler?: string;
   parameters?: ActionMenuParameter[];
   properties?: ActionMenuProperty[];
+  designGaps?: string[];
 }
 
 /** Search field criterion from GET/PUT /services/searches. */
