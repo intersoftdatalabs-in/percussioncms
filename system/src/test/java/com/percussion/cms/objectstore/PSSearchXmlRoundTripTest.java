@@ -118,6 +118,38 @@ public class PSSearchXmlRoundTripTest {
     assertEquals(1, props.size());
   }
 
+  /**
+   * Merged getSearches.xml StandardSearch row (Default_Search) must deserialize
+   * as a non-view so {@code findSearches} can catalog UI-06 creates.
+   */
+  private static final String DEFAULT_SEARCH_XML =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          + "<PSXSearch state=\"db_unmodified\">\n"
+          + "   <PSXKey isPersisted=\"yes\">\n"
+          + "      <SEARCHID>0</SEARCHID>\n"
+          + "   </PSXKey>\n"
+          + "   <DISPLAYNAME>Default CX New Search</DISPLAYNAME>\n"
+          + "   <DISPLAYFORMAT>0</DISPLAYFORMAT>\n"
+          + "   <PARENTCATEGORY>5</PARENTCATEGORY>\n"
+          + "   <TYPE>StandardSearch</TYPE>\n"
+          + "   <MAXIMUMITEMS>200</MAXIMUMITEMS>\n"
+          + "   <CASESENSITIVE>0</CASESENSITIVE>\n"
+          + "   <INTERNALNAME>Default_Search</INTERNALNAME>\n"
+          + "   <DESCRIPTION>Content Explorer Search</DESCRIPTION>\n"
+          + "   <VERSION>0</VERSION>\n"
+          + "</PSXSearch>\n";
+
+  @Test
+  public void standardSearchXmlIsNotAView() throws Exception {
+    Document doc =
+        PSXmlDocumentBuilder.createXmlDocument(new StringReader(DEFAULT_SEARCH_XML), false);
+    PSSearch search = new PSSearch(doc.getDocumentElement());
+    assertEquals("Default_Search", search.getInternalName());
+    assertEquals(PSSearch.TYPE_STANDARDSEARCH, search.getType());
+    assertFalse(search.isView());
+    assertTrue(search.isStandardSearch());
+  }
+
   @Test
   public void viewAllXmlDeserializesViaPsSearchElementCtor() throws Exception {
     Document doc =

@@ -34,7 +34,8 @@ are not executed from this chrome.
 4. Click **Save**. A duplicate name is **409** and the editor shows that the
    search already exists. An invalid name is **400**. A non-Admin session is
    **403**. After a successful create, the name field is read-only and the
-   catalog lists the new search.
+   catalog lists the new search (the save is persisted immediately; leaving
+   and returning to the list still shows the row).
 5. Optional: change label, description, type, or display format id and
    **Save** again. Field criteria are not written.
 6. Click **Delete** and confirm. The catalog no longer lists that search.
