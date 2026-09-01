@@ -78,6 +78,9 @@ class CatalogRestJaxrsRegistrationTest {
   private static final String FIND_TYPES_JSON_READER =
       "allowedContentTypeMenusRequestJsonReader";
 
+  /** Admin action-menu create POST #4123 — must precede jacksonProvider. */
+  private static final String ACTION_MENU_JSON_READER = "actionMenuJsonReader";
+
   /** CD-18 auto-translation PUT wrap / bare array (#4028) — must precede jacksonProvider. */
   private static final String AUTO_TRANSLATION_ROWS_JSON_READER =
       "autoTranslationRowsJsonReader";
@@ -136,6 +139,7 @@ class CatalogRestJaxrsRegistrationTest {
     int guidListReader = providerBlock.indexOf("bean=\"" + GUID_LIST_JSON_READER + "\"");
     int addFolderReader = providerBlock.indexOf("bean=\"" + ADD_FOLDER_JSON_READER + "\"");
     int findTypesReader = providerBlock.indexOf("bean=\"" + FIND_TYPES_JSON_READER + "\"");
+    int actionMenuReader = providerBlock.indexOf("bean=\"" + ACTION_MENU_JSON_READER + "\"");
     int autoTranslationReader =
         providerBlock.indexOf("bean=\"" + AUTO_TRANSLATION_ROWS_JSON_READER + "\"");
     int displayFormatReader =
@@ -177,6 +181,11 @@ class CatalogRestJaxrsRegistrationTest {
             + FIND_TYPES_JSON_READER
             + " (missing → Explorer find/types flat contentIds / GUID 400)");
     assertTrue(
+        actionMenuReader >= 0,
+        "rest-jax-rs providers must ref "
+            + ACTION_MENU_JSON_READER
+            + " (missing → Admin POST /actions JAXB allowedWorkflowTransitionsRequest)");
+    assertTrue(
         autoTranslationReader >= 0,
         "rest-jax-rs providers must ref "
             + AUTO_TRANSLATION_ROWS_JSON_READER
@@ -208,6 +217,9 @@ class CatalogRestJaxrsRegistrationTest {
     assertTrue(
         findTypesReader < jackson,
         FIND_TYPES_JSON_READER + " must be listed before jacksonProvider");
+    assertTrue(
+        actionMenuReader < jackson,
+        ACTION_MENU_JSON_READER + " must be listed before jacksonProvider");
     assertTrue(
         autoTranslationReader < jackson,
         AUTO_TRANSLATION_ROWS_JSON_READER + " must be listed before jacksonProvider");
