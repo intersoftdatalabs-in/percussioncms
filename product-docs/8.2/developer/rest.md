@@ -1504,9 +1504,12 @@ PUT round-trips GET detail fields already exposed (`label`, `description`,
 | `PUT` | `/services/actions/{idOrName}` | **Admin.** Update label, description, menuType, and/or url |
 | `DELETE` | `/services/actions/{idOrName}` | **Admin.** Delete a user action menu (`deleteActions`, `ignoreDependencies=false`) |
 
-JSON may wrap a single item as `ActionMenu`. Integrators should unwrap that
-envelope and read `guid.stringValue` (never assume the GUID is missing when `id`
-is present). See [Object ACL & default template](id:admin-object-acl).
+JSON may wrap a single item as `ActionMenu`. **Create** `POST /services/actions`
+sends that envelope (or a flat object with `name`). Do not post
+`allowedWorkflowTransitionsRequest` on the collection path — that finder lives at
+`POST /services/actions/find/transitions`. Integrators should unwrap the
+`ActionMenu` envelope and read `guid.stringValue` (never assume the GUID is
+missing when `id` is present). See [Object ACL & default template](id:admin-object-acl).
 
 ## Views (design catalog)
 
