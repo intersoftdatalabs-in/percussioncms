@@ -61,6 +61,11 @@ class ActionMenuJsonReaderTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> ActionMenuJsonReader.parse("{"));
     assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(ActionMenuJsonReader.INVALID_JSON, ex.getMessage());
+    String jacksonHint = ex.getMessage() == null ? "" : ex.getMessage().toLowerCase();
+    assertFalse(jacksonHint.contains("unexpected"));
+    assertFalse(jacksonHint.contains("offset"));
+    assertFalse(jacksonHint.contains("token"));
   }
 
   @Test

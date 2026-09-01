@@ -31,6 +31,8 @@ import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
@@ -53,6 +55,12 @@ public class ActionMenuJsonReader implements MessageBodyReader<ActionMenu> {
 
   /** Mapper without UNWRAP_ROOT_VALUE so wrap vs flat is inspected explicitly. */
   private static final JsonMapper MAPPER = JsonMapper.builder().build();
+
+  /** Logger for malformed JSON (details stay off the 400 body). */
+  private static final Logger log = LogManager.getLogger(ActionMenuJsonReader.class);
+
+  /** Client 400 for malformed JSON; Jackson parse details stay server-side. */
+  static final String INVALID_JSON = "Invalid ActionMenu JSON";
 
   /** No-op constructor. */
   public ActionMenuJsonReader() {}
@@ -114,8 +122,8 @@ public class ActionMenuJsonReader implements MessageBodyReader<ActionMenu> {
     try {
       root = MAPPER.readTree(json);
     } catch (JacksonException e) {
-      throw new WebApplicationException(
-          e.getMessage() != null ? e.getMessage() : "Invalid ActionMenu", 400);
+      log.debug(INVALID_JSON, e);
+      throw new WebApplicationException(INVALID_JSON, 400);
     }
     return parseNode(root);
   }
