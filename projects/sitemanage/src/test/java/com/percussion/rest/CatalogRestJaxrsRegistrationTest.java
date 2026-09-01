@@ -37,6 +37,8 @@ class CatalogRestJaxrsRegistrationTest {
   private static final String[] REQUIRED_REFS = {
     "restControlsResource",
     "restSearchResource",
+    // #4096 UI-09 community CX new-search defaults (nested under /communities/{id}/…)
+    "restCommunityNewSearchDefaultsResource",
     "restViewResource",
     "restServerConfigsResource",
     "restRelationshipTypeResource",
@@ -64,6 +66,11 @@ class CatalogRestJaxrsRegistrationTest {
   /** Display Format Object ACL save #3378 — must precede jacksonProvider. */
   private static final String ACL_LIST_JSON_READER = "aclListJsonReader";
 
+  /** SE-01 community bulk save/delete #4077 — must precede jacksonProvider. */
+  private static final String COMMUNITY_LIST_JSON_READER = "communityListJsonReader";
+
+  private static final String GUID_LIST_JSON_READER = "guidListJsonReader";
+
   /** Explorer folder create #3360 — must precede jacksonProvider. */
   private static final String ADD_FOLDER_JSON_READER = "addFolderRequestJsonReader";
 
@@ -74,6 +81,9 @@ class CatalogRestJaxrsRegistrationTest {
   /** CD-18 auto-translation PUT wrap / bare array (#4028) — must precede jacksonProvider. */
   private static final String AUTO_TRANSLATION_ROWS_JSON_READER =
       "autoTranslationRowsJsonReader";
+
+  /** UI-05 display format communities PUT empty array (#4098) — must precede jacksonProvider. */
+  private static final String DISPLAY_FORMAT_JSON_READER = "displayFormatJsonReader";
 
   @Test
   void restJaxRsServiceBeansIncludeDeveloperCatalogResources() throws Exception {
@@ -121,10 +131,15 @@ class CatalogRestJaxrsRegistrationTest {
     int reader = providerBlock.indexOf("bean=\"" + VIEW_EXECUTE_JSON_READER + "\"");
     int searchReader = providerBlock.indexOf("bean=\"" + SEARCH_EXECUTE_JSON_READER + "\"");
     int aclReader = providerBlock.indexOf("bean=\"" + ACL_LIST_JSON_READER + "\"");
+    int communityListReader =
+        providerBlock.indexOf("bean=\"" + COMMUNITY_LIST_JSON_READER + "\"");
+    int guidListReader = providerBlock.indexOf("bean=\"" + GUID_LIST_JSON_READER + "\"");
     int addFolderReader = providerBlock.indexOf("bean=\"" + ADD_FOLDER_JSON_READER + "\"");
     int findTypesReader = providerBlock.indexOf("bean=\"" + FIND_TYPES_JSON_READER + "\"");
     int autoTranslationReader =
         providerBlock.indexOf("bean=\"" + AUTO_TRANSLATION_ROWS_JSON_READER + "\"");
+    int displayFormatReader =
+        providerBlock.indexOf("bean=\"" + DISPLAY_FORMAT_JSON_READER + "\"");
     int jackson = providerBlock.indexOf("bean=\"jacksonProvider\"");
     assertTrue(
         reader >= 0,
@@ -142,6 +157,16 @@ class CatalogRestJaxrsRegistrationTest {
             + ACL_LIST_JSON_READER
             + " (missing → ACL bulk save ArrayList ClassCast 400)");
     assertTrue(
+        communityListReader >= 0,
+        "rest-jax-rs providers must ref "
+            + COMMUNITY_LIST_JSON_READER
+            + " (missing → community bulk save ArrayList ClassCast 400)");
+    assertTrue(
+        guidListReader >= 0,
+        "rest-jax-rs providers must ref "
+            + GUID_LIST_JSON_READER
+            + " (missing → community bulk delete GuidList ClassCast 400)");
+    assertTrue(
         addFolderReader >= 0,
         "rest-jax-rs providers must ref "
             + ADD_FOLDER_JSON_READER
@@ -156,6 +181,11 @@ class CatalogRestJaxrsRegistrationTest {
         "rest-jax-rs providers must ref "
             + AUTO_TRANSLATION_ROWS_JSON_READER
             + " (missing → auto-translation PUT wrap/array empty or 400)");
+    assertTrue(
+        displayFormatReader >= 0,
+        "rest-jax-rs providers must ref "
+            + DISPLAY_FORMAT_JSON_READER
+            + " (missing → display format PUT allowedCommunities:[] treated as omit)");
     assertTrue(jackson >= 0, "rest-jax-rs providers must still ref jacksonProvider");
     assertTrue(
         reader < jackson,
@@ -167,6 +197,12 @@ class CatalogRestJaxrsRegistrationTest {
         aclReader < jackson,
         ACL_LIST_JSON_READER + " must be listed before jacksonProvider");
     assertTrue(
+        communityListReader < jackson,
+        COMMUNITY_LIST_JSON_READER + " must be listed before jacksonProvider");
+    assertTrue(
+        guidListReader < jackson,
+        GUID_LIST_JSON_READER + " must be listed before jacksonProvider");
+    assertTrue(
         addFolderReader < jackson,
         ADD_FOLDER_JSON_READER + " must be listed before jacksonProvider");
     assertTrue(
@@ -175,6 +211,9 @@ class CatalogRestJaxrsRegistrationTest {
     assertTrue(
         autoTranslationReader < jackson,
         AUTO_TRANSLATION_ROWS_JSON_READER + " must be listed before jacksonProvider");
+    assertTrue(
+        displayFormatReader < jackson,
+        DISPLAY_FORMAT_JSON_READER + " must be listed before jacksonProvider");
   }
 
   private static Path resolveRepoRoot() {

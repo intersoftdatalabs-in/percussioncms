@@ -1268,7 +1268,7 @@
 					</PSXExtensionCall>
 				</PSXExtensionCallSet>
 			</ResultDataExits>
-			<PSXResourceCacheSettings enabled="yes"
+			<PSXResourceCacheSettings enabled="no"
 				id="0">
 				<Keys>
 					<Key>
@@ -2005,7 +2005,7 @@
 					</PSXExtensionCall>
 				</PSXExtensionCallSet>
 			</ResultDataExits>
-			<PSXResourceCacheSettings enabled="yes"
+			<PSXResourceCacheSettings enabled="no"
 				id="0">
 				<Keys>
 					<Key>
@@ -4292,7 +4292,7 @@
 					</PSXExtensionCall>
 				</PSXExtensionCallSet>
 			</ResultDataExits>
-			<PSXResourceCacheSettings enabled="yes"
+			<PSXResourceCacheSettings enabled="no"
 				id="0">
 				<Keys>
 					<Key>
@@ -4676,7 +4676,7 @@
 					</PSXExtensionCall>
 				</PSXExtensionCallSet>
 			</ResultDataExits>
-			<PSXResourceCacheSettings enabled="yes"
+			<PSXResourceCacheSettings enabled="no"
 				id="0">
 				<Keys>
 					<Key>
@@ -6043,7 +6043,7 @@
 					</PSXExtensionCall>
 				</PSXExtensionCallSet>
 			</ResultDataExits>
-			<PSXResourceCacheSettings enabled="yes"
+			<PSXResourceCacheSettings enabled="no"
 				id="0">
 				<Keys>
 					<Key>
@@ -6791,7 +6791,7 @@
 					</PSXExtensionCall>
 				</PSXExtensionCallSet>
 			</ResultDataExits>
-			<PSXResourceCacheSettings enabled="yes"
+			<PSXResourceCacheSettings enabled="no"
 				id="0">
 				<Keys>
 					<Key>

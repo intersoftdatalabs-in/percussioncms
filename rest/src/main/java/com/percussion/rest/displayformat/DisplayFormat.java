@@ -20,7 +20,7 @@ package com.percussion.rest.displayformat;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 
 /** Represents a Display Format in Percussion CMS. */
@@ -53,7 +53,17 @@ public class DisplayFormat {
   private DisplayFormatPropertyList properties;
   private DisplayFormatColumnList columns;
   private String internalName;
-  private Map<Guid, String> allowedCommunities;
+
+  /**
+   * Allowed communities. Empty list is all communities ({@code sys_community=-1}). {@code null} on
+   * PUT leaves visibility unchanged.
+   */
+  @Schema(
+      description =
+          "Allowed communities (guid + name). Empty array is all communities. Omit on PUT to leave"
+              + " visibility unchanged. Unknown community is 400.")
+  private List<DisplayFormatCommunity> allowedCommunities;
+
   private String description;
   private String displayName;
 
@@ -222,11 +232,11 @@ public class DisplayFormat {
     this.internalName = internalName;
   }
 
-  public Map<Guid, String> getAllowedCommunities() {
+  public List<DisplayFormatCommunity> getAllowedCommunities() {
     return allowedCommunities;
   }
 
-  public void setAllowedCommunities(Map<Guid, String> allowedCommunities) {
+  public void setAllowedCommunities(List<DisplayFormatCommunity> allowedCommunities) {
     this.allowedCommunities = allowedCommunities;
   }
 

@@ -17,7 +17,10 @@
 
 import { del, get, post, put } from "../client";
 import {
+  COMMUNITY_TYPE,
   normalizeDesignObjectGuid,
+  objectGuidString,
+  resolveCommunityObjectGuid,
   resolveTemplateObjectGuid,
 } from "../displayFormatGuid";
 import { PATHS } from "../paths";
@@ -399,12 +402,182 @@ export async function listCommunities(): Promise<CommunitySummary[]> {
   const payload = await get<unknown>(
     `${PATHS.COMMUNITIES}/find?name=${encodeURIComponent("*")}`,
   );
-  // CommunityList extends Array — may serialize as array or envelope
+  return unwrapCommunityList(payload);
+}
+
+/** JAXB / swagger root for POST /services/communities/bulk `List<String>` names. */
+export const COMMUNITY_NAME_LIST_ROOT = "List";
+
+/** Jackson WRAP/UNWRAP root for {@code CommunityList}. */
+export const COMMUNITY_LIST_ROOT = "CommunityList";
+
+/** Jackson WRAP/UNWRAP root for {@code GuidList} bulk delete. */
+export const GUID_LIST_ROOT = "GuidList";
+
+/** Trim a community name for create. Empty / null becomes "". */
+export function normalizeCommunityName(name: string | undefined | null): string {
+  return name == null ? "" : name.trim();
+}
+
+/**
+ * True when the (trimmed) name is accepted by REST create
+ * ({@code PSSecurityDesignWs.createCommunities} — non-blank).
+ * Spaces are allowed (unlike slots). Uniqueness is case-insensitive on the server.
+ */
+export function isValidCommunityName(name: string | undefined | null): boolean {
+  return normalizeCommunityName(name).length > 0;
+}
+
+/** Create is enabled when the community name is non-blank after trim. */
+export function isCommunityWriteReady(opts: { name: string }): boolean {
+  return isValidCommunityName(opts.name);
+}
+
+/** Wire JSON for POST /services/communities/bulk name list. */
+export function wrapCommunityNameListForWire(
+  names: string[],
+): Record<string, string[]> {
+  return { [COMMUNITY_NAME_LIST_ROOT]: names };
+}
+
+/**
+ * Wire JSON for PUT /services/communities/bulk.
+ * Envelope is parsed by rest {@code CommunityListJsonReader} (String body).
+ */
+export function wrapCommunityListForWire(
+  communities: CommunitySummary[],
+): Record<string, CommunitySummary[]> {
+  return { [COMMUNITY_LIST_ROOT]: communities };
+}
+
+/**
+ * Wire JSON for DELETE /services/communities/bulk GuidList.
+ * Envelope is parsed by rest {@code GuidListJsonReader} (String body).
+ */
+export function wrapGuidListForWire(ids: RestGuid[]): Record<string, RestGuid[]> {
+  return { [GUID_LIST_ROOT]: ids };
+}
+
+/**
+ * Flatten nested Jackson Guid wraps so {@code guid.stringValue} is usable
+ * for delete / visibility (same WRAP_ROOT_VALUE as templates).
+ */
+export function normalizeCommunitySummary<T extends CommunitySummary>(
+  item: T,
+  catalogGuid?: string | null,
+): T {
+  const gs = resolveCommunityObjectGuid(item, catalogGuid);
+  return normalizeDesignObjectGuid(item, gs);
+}
+
+/** Unwrap CommunityList array or envelope (find / create response). */
+export function unwrapCommunityList(payload: unknown): CommunitySummary[] {
   return asArray<CommunitySummary>(payload, [
-    "CommunityList",
+    COMMUNITY_LIST_ROOT,
     "Community",
     "communityList",
-  ]);
+  ]).map((row) => normalizeCommunitySummary(row));
+}
+
+/**
+ * POST /services/communities/bulk — Admin. Creates communities from names
+ * ({@code ICommunityAdaptor.createCommunities}). Blank name is 400. Duplicate
+ * is 409. Non-Admin is 403. Server persists (create+save); do not PUT the DTO.
+ */
+export async function createCommunities(
+  names: string[],
+): Promise<CommunitySummary[]> {
+  const payload = await post<unknown>(
+    `${PATHS.COMMUNITIES}/bulk`,
+    wrapCommunityNameListForWire(names),
+  );
+  return unwrapCommunityList(payload);
+}
+
+/**
+ * PUT /services/communities/bulk — Admin. Persist created/edited communities.
+ * {@code release=true} releases design locks (Workbench Finish).
+ */
+export async function saveCommunities(
+  communities: CommunitySummary[],
+  release = true,
+): Promise<void> {
+  await put(
+    `${PATHS.COMMUNITIES}/bulk`,
+    wrapCommunityListForWire(communities),
+    { release: String(release) },
+  );
+}
+
+/**
+ * Create one community by name. Server POST /bulk persists (create+save)
+ * like Workbench Finish; do not PUT the DTO back (loadCommunities NPE).
+ */
+export async function createCommunity(name: string): Promise<CommunitySummary> {
+  const trimmed = normalizeCommunityName(name);
+  const created = await createCommunities([trimmed]);
+  const first = created[0];
+  if (first) {
+    return first;
+  }
+  return { name: trimmed };
+}
+
+/**
+ * DELETE /services/communities/bulk — Admin. GuidList of communities to remove.
+ * Default {@code ignoredependencies=false}: in-use is 409 and the community remains
+ * (does not steal). Missing is 404. Non-Admin is 403.
+ */
+export async function deleteCommunities(
+  ids: RestGuid[],
+  ignoreDependencies = false,
+): Promise<void> {
+  await del(
+    `${PATHS.COMMUNITIES}/bulk`,
+    { ignoredependencies: String(ignoreDependencies) },
+    wrapGuidListForWire(ids),
+  );
+}
+
+/** Delete one community by GUID. Never sends ignoredependencies unless asked. */
+export async function deleteCommunity(
+  guid: RestGuid,
+  ignoreDependencies = false,
+): Promise<void> {
+  await deleteCommunities([guid], ignoreDependencies);
+}
+
+/** Unwrap GET `{ Community: {…} }` or a flat Community body. */
+export function unwrapCommunityDetail(payload: unknown): CommunityDetail {
+  const root = asRecord(payload);
+  if (!root) {
+    return {};
+  }
+  const nested = asRecord(root.Community ?? root.community);
+  const body = (nested ?? root) as CommunityDetail;
+  return normalizeCommunitySummary(body);
+}
+
+/**
+ * GUID for community delete / visibility. Reads nested Guid wraps and
+ * synthesizes {@code 0-13-{id}} when only the numeric id is present.
+ */
+export function communityGuidForWrite(
+  detail: CommunitySummary | null | undefined,
+  fallback?: RestGuid | null,
+): RestGuid | null {
+  const gs = resolveCommunityObjectGuid(detail, objectGuidString(fallback));
+  if (!gs) {
+    return fallback ?? null;
+  }
+  const existing =
+    detail?.guid != null && typeof detail.guid === "object" && !Array.isArray(detail.guid)
+      ? (detail.guid as RestGuid)
+      : fallback;
+  if (existing && existing.stringValue === gs) {
+    return existing;
+  }
+  return { ...(existing || {}), stringValue: gs, type: existing?.type ?? COMMUNITY_TYPE };
 }
 
 /** GET /services/communities/{idOrName} — detail with roles */
@@ -412,7 +585,8 @@ export async function getCommunityDetail(
   idOrName: string,
 ): Promise<CommunityDetail> {
   const key = encodeURIComponent(idOrName);
-  return get<CommunityDetail>(`${PATHS.COMMUNITIES}/${key}`);
+  const payload = await get<unknown>(`${PATHS.COMMUNITIES}/${key}`);
+  return unwrapCommunityDetail(payload);
 }
 
 /** GET /services/communities/roles — all roles for membership picker */

@@ -94,6 +94,11 @@ const CATALOGS = [
     errorTestId: "developer-sr-error",
   },
   {
+    section: "views",
+    successTestIds: ["developer-vw-panel", "developer-vw-empty"],
+    errorTestId: "developer-vw-error",
+  },
+  {
     section: "sites",
     successTestIds: ["developer-site-panel", "developer-site-empty"],
     errorTestId: "developer-site-error",

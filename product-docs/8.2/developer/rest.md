@@ -366,6 +366,37 @@ The slot form stays on screen (or shows an in-panel error). It does
 still render as the human-readable **message** (fallback **code**). Load failures stay
 in the slot detail panel — use **Back** to return to the catalog.
 
+## Communities (design catalog)
+
+CMS **communities** used by **Developer → Communities** are exposed under
+`/services/communities`. Create and delete reuse the existing bulk design
+surface (`ICommunityAdaptor.createCommunities` / `saveCommunities` /
+`deleteCommunities`). Do not invent a second REST resource.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/communities/find?name=*` | List community summaries |
+| `GET` | `/services/communities/{idOrName}` | Detail with role membership |
+| `POST` | `/services/communities/bulk` | **Admin.** Create from a name list (`{"List":["Name"]}`); server persists |
+| `PUT` | `/services/communities/bulk` | **Admin.** Persist edited communities (`release` header) |
+| `PUT` | `/services/communities/{idOrName}/roles` | Replace role membership |
+| `DELETE` | `/services/communities/bulk` | **Admin.** Delete by GuidList (`ignoredependencies` header) |
+
+Create (`POST /services/communities/bulk`) persists on the server (Workbench
+Finish create+save). JSON create body is a name list. The SPA create path does
+not PUT the DTO back. Blank / whitespace-only names are **400**. Duplicate name
+(case-insensitive) is **409**. Non-Admin is **403**. The new community is then
+`GET /services/communities/find?name=*` **200**.
+
+Delete (`DELETE /services/communities/bulk`) accepts a GuidList. The SPA sends
+`ignoredependencies=false`. Success omits the community from a following find.
+Missing is **404**. In-use (dependencies) without ignore is **409** and the
+community remains (the lock is not stolen). Non-Admin is **403**.
+
+**Developer → Communities** catalog create and delete use these bulk endpoints.
+Role-association save stays `PUT /services/communities/{idOrName}/roles`. See
+[Developer Communities](id:admin-developer-communities).
+
 ## Item filters (design catalog)
 
 Assembly **item filters** (Workbench **Item Filter** editor: name / description / rules /
@@ -1340,9 +1371,10 @@ The Design SPA **Create template** action uses POST; **Delete** uses this DELETE
 
 Content Explorer **display format** definitions (Developer **Display Formats**) are exposed
 under `/services/displayformats`. The REST layer is a thin contract over the UI **design**
-web service (`IPSUiDesignWs`) — create, update, and delete use the same
-`createDisplayFormats` / `loadDisplayFormats` / `saveDisplayFormats` /
-`deleteDisplayFormats` operations SOAP uses. There is no new SOAP surface. GET list/detail
+web service (`IPSUiDesignWs`) — create and update use the same
+`createDisplayFormats` / `loadDisplayFormats` / `saveDisplayFormats` operations SOAP uses.
+Admin delete loads the format and persists component XML (Workbench processor path) so
+`updateDisplayFormats` receives a document. There is no new SOAP surface. GET list/detail
 remain a catalog read.
 
 Responses include a nested `guid` object and a plain `guidString` (`host-type-uuid`) so
@@ -1353,8 +1385,8 @@ clients can load **Object ACL** via `GET /services/acls/object/{guid}`.
 | `GET` | `/services/displayformats` | List formats (optional `validForFolder` / `validForViewsAndSearches`) |
 | `GET` | `/services/displayformats/{idOrName}` | Load one format by internal name or GUID string |
 | `POST` | `/services/displayformats` | **Admin.** Create a format (`createDisplayFormats` then `saveDisplayFormats`) |
-| `PUT` | `/services/displayformats/{idOrName}` | **Admin.** Update `label`/`displayName` and/or `description` |
-| `DELETE` | `/services/displayformats/{idOrName}` | **Admin.** Delete a format (`deleteDisplayFormats`, `ignoreDependencies=false`) |
+| `PUT` | `/services/displayformats/{idOrName}` | **Admin.** Update `label`/`displayName` and/or `description`; `columns` replaces the column list when present; `allowedCommunities` replaces community visibility when present |
+| `DELETE` | `/services/displayformats/{idOrName}` | **Admin.** Delete a user format (loaded component XML persist; dependents `ignoreDependencies=false`) |
 
 JSON wraps the list as `DisplayFormatList` (`{"DisplayFormatList":[…]}`) including the empty
 catalog (`{"DisplayFormatList":[]}`, not a bare `[]`) and a single item as `DisplayFormat`.
@@ -1368,20 +1400,45 @@ unsaved stub) and returns **201 Created** with a `Location` header pointing at
 case-insensitive; **no whitespace** or wildcards). Optional `label` / `displayName` and
 `description` are applied before save. Duplicate name is **409**. Blank / whitespace /
 wildcard names are **400**. Missing request session/user is **403**. Non-Admin is **403**.
-The new format is then `GET /services/displayformats/{name}` **200**.
+The new format is then `GET /services/displayformats/{name}` **200** with **that** name
+(not **404**, and not a packaged format such as `By_Author`). `GET` by the created GUID
+returns the same user format.
 
 Update (`PUT /services/displayformats/{idOrName}`) loads with a design lock
 (`overrideLock=false`) and releases it on save. Name is not renamed on PUT. `label` /
-`displayName` and `description` round-trip. Usage flags on GET (`validForFolder`,
-`validForViewsAndSearches`, `validForRelatedContent`) are **derived from columns** the
-same way Workbench computes them — they are not independently persisted on PUT.
+`displayName` and `description` round-trip. When `columns` is present, the column list
+is **replaced** (add, remove, and reorder). Omit `columns` to leave the stored list
+unchanged. Invalid column `source` (blank, whitespace, wildcards, or path characters)
+is **400**. Duplicate sources in the same list are **400**. When `allowedCommunities`
+is present, community visibility is **replaced**. The value is a JSON **array** of
+`{guid,name}` rows (GUID string or community name). An **empty array** is all
+communities (Workbench `sys_community=-1`). Omit `allowedCommunities` to leave
+visibility unchanged. There is no distinct “no communities” state — empty and
+all-communities persist the same way. Unknown community is **400**. Non-Admin is
+**403**. GET returns an empty array when the format is visible to all communities,
+and the restricted rows when it is not. The Developer SPA edits columns and allowed communities on
+**user** formats only; packaged/system formats stay read-only in that catalog. See
+[Developer Display Formats](id:admin-developer-display-formats). Usage flags on GET
+(`validForFolder`, `validForViewsAndSearches`, `validForRelatedContent`) are **derived
+from columns** the same way Workbench computes them — they are not independently
+persisted on PUT.
 
-Delete (`DELETE /services/displayformats/{idOrName}`) returns **204** when removed; a
-following `GET` is **404**. Unknown id/name is **404**. A format that still has dependents
-is **409**. Locked-by-another-user is **409** (the lock is not stolen). Non-Admin is **403**.
+Delete (`DELETE /services/displayformats/{idOrName}`) returns **204** when the format is
+removed from the catalog; a following `GET` is **404**. The REST adaptor loads the format
+with a design lock, marks it for deletion, and persists the **component XML** (the same
+Workbench objectstore path `updateDisplayFormats` expects). Locator-only SOAP
+`deleteDisplayFormats` is not used for this REST path — that request supplies no XML
+document and does not persist. Unknown id/name is **404**. A format that still has
+dependents is **409**. Locked-by-another-user is **409** (the lock is not stolen).
+Non-Admin is **403**. Do **not** delete packaged system formats (for example `By_Author`)
+to prove this path — create a uniquely named user format with `POST`, then `DELETE` that
+name.
 
-There is **no** Developer SPA display-format editor write in this slice — operators and
-integrators call the REST path (or Workbench).
+**Developer → Display Formats** chrome creates and deletes user display formats
+(and saves label / description), edits columns on **user** formats, and sets
+**allowed communities** on **user** formats. Packaged formats stay read-only.
+The catalog lists user-created formats and omits a row after a successful REST
+or SPA delete. See [Developer Display Formats](id:admin-developer-display-formats).
 
 ### Object ACL save (display format and peers)
 
@@ -1458,14 +1515,18 @@ and read `guid.stringValue` or synthesize from `id` when the Guid is omitted.
 
 Admin **write** persists through `IPSUiDesignWs` (`createViews` / `loadViews` / `saveViews` /
 `deleteViews`) — the same design web service SOAP uses. There is no new SOAP surface.
-**Do not** treat this as a Developer Views SPA; chrome for create/save/delete is a later
-sibling. Execute is **not** invoked when creating, updating, or deleting a view.
+**Developer → Views** chrome creates and deletes standard views (and saves label /
+description / type / display format); field-criterion editing is not in that SPA — see
+[Developer Views](id:admin-developer-views). Execute is **not** invoked when creating,
+updating, or deleting a view. Create is durable: `GET /services/views` lists the new
+name after POST.
 
 Operators open Inbox from Explorer **Views → My Content → Inbox** (see
 [Content Explorer](id:admin-content-explorer)). Integrators run the same assignment list
 with the execute call below. `GET /services/views` includes the Inbox design view (name
 `Inbox`, custom URL `../sys_cxViews/inbox.xml`) even when the design-WS load path
-collapses sibling CX views to `View_All`.
+collapses sibling CX views to `View_All`. After Admin POST, GET list includes the
+created name (durable persist; a second POST of that name is **409**).
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -1554,7 +1615,9 @@ stub). JSON body requires `name` (unique across views **and** searches, case-ins
 **400** — searches stay on `/services/searches`. Custom URL (`url` set, or type
 `custom` / `CustomView`) is **400**. Duplicate name is **409**. Blank /
 whitespace / wildcard names are **400**. Missing request session/user is **403**.
-Non-Admin is **403**. The new view is then `GET /services/views/{name}` **200**.
+Non-Admin is **403**. The new view is then `GET /services/views/{name}` **200**
+and is included in `GET /services/views` (the create is durable; a second POST
+with the same name is **409**).
 
 Update (`PUT /services/views/{idOrName}`) loads with a design lock (`overrideLock=false`)
 and releases it on save. Name is not renamed on PUT. Omitted label / description / type /
@@ -1592,11 +1655,13 @@ Example create body:
 ### Integrator notes
 
 - Keys may be the view **name**, numeric **id**, or GUID string (including untyped GUID).
-- Admin write is POST/PUT/DELETE on this resource. Inbox-family and custom URL views
-  cannot be updated or deleted (`409`). Field criterion editing remains a `designGaps`
-  note on detail.
-- This catalog is REST only. There is no Developer Views SPA create/save/delete in this
-  release.
+- Admin write is POST/PUT/DELETE on this resource and from **Developer → Views**
+  (create / save / delete). Inbox-family and custom URL views cannot be updated
+  or deleted (`409`). Field criterion editing remains a `designGaps` note on detail.
+- Admin write is durable on H2 and other supported databases: after POST, GET
+  list includes the name. A POST that cannot be cataloged is not **200**.
+- **Developer → Views** chrome can create and delete standard views (field
+  criteria stay read-only). Inbox-family views stay **409** on mutate/delete.
 - Operator Inbox run-from-tree is Explorer **Views → My Content → Inbox**, not a
   free-floating Inbox root.
 
@@ -1790,7 +1855,9 @@ stub). JSON body requires `name` (unique across searches **and** views, case-ins
 types: `StandardSearch` (`standard`), `CustomSearch` (`custom`), `Search` (user search).
 `View` is **400** — views stay on `/services/views`. Duplicate name is **409**. Blank /
 whitespace / wildcard names are **400**. Missing request session/user is **403**.
-Non-Admin is **403**. The new search is then `GET /services/searches/{name}` **200**.
+Non-Admin is **403**. The new search is then `GET /services/searches/{name}` **200**
+and is included in `GET /services/searches` (the create is durable; a second POST
+with the same name is **409**).
 
 Update (`PUT /services/searches/{idOrName}`) loads with a design lock (`overrideLock=false`)
 and releases it on save. Name is not renamed on PUT. Omitted label / description / type /
@@ -1832,6 +1899,59 @@ Example create body:
 | `404` | Search not found |
 | `409` | Duplicate name, design lock held by another user, or dependents |
 | `500` | Design service or server failure |
+
+## Community new-search defaults (UI-09)
+
+Admin REST for **which Content Explorer searches are the “new search” defaults for a
+community**. This is the Workbench community-search assignment (`cxNewSearch` on the
+search definition), persisted through `IPSUiDesignWs` load/save searches — the same
+design path SOAP uses. It does **not** create or delete searches (see
+[Search write contract](#search-write-contract-admin) and sibling search persist).
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/communities/{idOrName}/new-search-defaults` | **Admin.** Current default-search set for the community |
+| `PUT` | `/services/communities/{idOrName}/new-search-defaults` | **Admin.** Replace the set (empty `searches` clears explicit defaults) |
+
+`{idOrName}` is numeric community id, GUID string, or exact name (same lookup as
+`GET /services/communities/{idOrName}`). GET of a community with **no** explicit
+defaults is **200** with `searches: []`, not 404.
+
+PUT body is `CommunityNewSearchDefaults`. Each `searches[]` entry may identify a
+search by `name`, numeric `id`, or `guid.stringValue` (same keys as
+`/services/searches/{idOrName}`). A second identical PUT is idempotent **200**.
+Unknown or duplicate search is **400**. Unknown community is **404**. Non-Admin is
+**403**. Design lock held by another user is **409**.
+
+JSON uses the `CommunityNewSearchDefaults` wire type (JAXB/Jackson
+UNWRAP_ROOT_VALUE). Prefer the generated OpenAPI schema as the integration source
+of truth.
+
+Example GET / PUT body:
+
+```json
+{
+  "CommunityNewSearchDefaults": {
+    "communityId": 10,
+    "communityName": "Default",
+    "searches": [
+      { "name": "SimpleSearch", "id": 42 }
+    ]
+  }
+}
+```
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | GET / PUT success (empty `searches` is a valid empty set) |
+| `400` | Invalid body, unknown search, or duplicate search in the PUT set |
+| `403` | Caller is not Admin, or the request has no session/user for PUT |
+| `404` | Community not found |
+| `409` | Design lock held by another user |
+| `500` | Design service or server failure |
+
+There is no Developer SPA for this assignment in this release; operators and
+integrators call the REST surface above.
 
 ### Search execute body
 

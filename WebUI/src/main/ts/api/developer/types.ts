@@ -574,6 +574,11 @@ export interface DisplayFormat {
   ascendingSort?: boolean;
   descendingSort?: boolean;
   columns?: DisplayFormatColumn[] | { DisplayFormatColumn?: DisplayFormatColumn[] };
+  /**
+   * Allowed communities as `{guid,name}` rows. Empty / omitted on GET is all
+   * communities. PUT omitted leaves visibility unchanged; PUT `[]` is all.
+   */
+  allowedCommunities?: { guid?: string; name?: string }[] | Record<string, string> | { entry?: unknown };
 }
 
 /** Action menu parameter. */

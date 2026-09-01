@@ -78,6 +78,23 @@ Workflow states gate who can edit and publish. Common patterns:
   documentation for your configured authenticator.
 - Protect the login endpoint behind TLS at the reverse proxy or edge.
 
+## Developer Communities (create and delete)
+
+**Developer → Communities** (deep link `spa.jsp?entry=developer&section=communities`)
+is the SPA catalog for CMS communities. Admins can **create** a uniquely named
+community and **delete** one that is not in use, without Workbench.
+
+- **New community** requires a non-blank name (spaces allowed). Duplicate
+  names are **409**. Blank names are **400**. Non-Admin is **403**.
+- **Delete community** on the detail panel removes that community from the
+  catalog. An in-use community (dependencies) is **409** and remains — the
+  SPA does not send `ignoredependencies` and does not steal.
+- Role membership on the same detail panel is unchanged (**Save roles**).
+  Session **Switch** in the header is a separate membership list; it is not
+  this catalog.
+
+See [Developer Communities](id:admin-developer-communities).
+
 ## Session community (top nav)
 
 After sign-in, the header user menu shows the **current community** next to **Signed in as**.

@@ -2,18 +2,25 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
-import * as viewsApi from "../../../main/ts/api/developer/viewsApi";
+import { getViewDetail, listViews } from "../../../main/ts/api/developer/viewsApi";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { ViewsPanel } from "../../../main/ts/developer/ViewsPanel";
 
-vi.mock("../../../main/ts/api/developer/viewsApi", () => ({
-  listViews: vi.fn(),
-  getViewDetail: vi.fn(),
-}));
+vi.mock("../../../main/ts/api/developer/viewsApi", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../../main/ts/api/developer/viewsApi")>();
+  return {
+    ...actual,
+    listViews: vi.fn(),
+    getViewDetail: vi.fn(),
+    createView: vi.fn(),
+    saveView: vi.fn(),
+    deleteView: vi.fn(),
+  };
+});
 
 vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
   ObjectAclSection: (props: {
@@ -29,8 +36,8 @@ vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
   ),
 }));
 
-const listViews = viewsApi.listViews as ReturnType<typeof vi.fn>;
-const getViewDetail = viewsApi.getViewDetail as ReturnType<typeof vi.fn>;
+const listMock = vi.mocked(listViews);
+const detailMock = vi.mocked(getViewDetail);
 
 const sampleView = {
   name: "My View",
@@ -51,39 +58,59 @@ describe("ViewsPanel", () => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
       message: (key: string) => key,
     };
-    listViews.mockReset();
-    getViewDetail.mockReset();
+    listMock.mockReset();
+    detailMock.mockReset();
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   it("lists views and opens detail", async () => {
-    listViews.mockResolvedValue([sampleView]);
-    getViewDetail.mockResolvedValue(sampleDetail);
+    listMock.mockResolvedValue([sampleView]);
+    detailMock.mockResolvedValue(sampleDetail);
     render(<ViewsPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-vw-table")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-vw-table").textContent).toContain("My View");
+    expect(screen.getByTestId("developer-vw-new")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-vw-open"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-vw-detail")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-vw-fields-table")).toBeTruthy();
+    expect(screen.getByTestId("developer-vw-save")).toBeTruthy();
+    expect(screen.getByTestId("developer-vw-delete")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-vw-back"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-vw-table")).toBeTruthy();
     });
   });
 
-  it("shows empty state when API returns no views", async () => {
-    listViews.mockResolvedValue([]);
+  it("opens create chrome from New view", async () => {
+    listMock.mockResolvedValue([]);
     render(<ViewsPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-vw-empty")).toBeTruthy();
     });
+    fireEvent.click(screen.getByTestId("developer-vw-new"));
+    expect(screen.getByTestId("developer-vw-detail")).toBeTruthy();
+    expect(screen.getByTestId("developer-vw-save")).toBeDisabled();
+    expect(detailMock).not.toHaveBeenCalled();
+  });
+
+  it("shows empty state when API returns no views", async () => {
+    listMock.mockResolvedValue([]);
+    render(<ViewsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-empty")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-vw-new")).toBeTruthy();
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {
-    listViews.mockRejectedValue(new SessionRedirectError());
+    listMock.mockRejectedValue(new SessionRedirectError());
     render(<ViewsPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-vw-error")).toBeTruthy();
@@ -93,7 +120,7 @@ describe("ViewsPanel", () => {
   });
 
   it("shows ApiError status via panelErrMsg", async () => {
-    listViews.mockRejectedValue({
+    listMock.mockRejectedValue({
       status: 500,
       statusText: "Internal Server Error",
       body: null,
@@ -106,7 +133,7 @@ describe("ViewsPanel", () => {
   });
 
   it("shows Error.message via panelErrMsg", async () => {
-    listViews.mockRejectedValue(new Error("network down"));
+    listMock.mockRejectedValue(new Error("network down"));
     render(<ViewsPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-vw-error")).toBeTruthy();
@@ -118,7 +145,7 @@ describe("ViewsPanel", () => {
   });
 
   it("shows fallback when rejection has no message", async () => {
-    listViews.mockRejectedValue("boom");
+    listMock.mockRejectedValue("boom");
     render(<ViewsPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-vw-error")).toBeTruthy();

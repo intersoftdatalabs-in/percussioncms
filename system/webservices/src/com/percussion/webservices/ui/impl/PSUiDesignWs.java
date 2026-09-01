@@ -20,7 +20,10 @@ import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.IPSDbComponent;
 import com.percussion.cms.objectstore.PSAction;
 import com.percussion.cms.objectstore.PSComponentProcessorProxy;
+import com.percussion.cms.objectstore.PSDisplayColumn;
 import com.percussion.cms.objectstore.PSDisplayFormat;
+import com.percussion.cms.objectstore.PSDFColumns;
+import com.percussion.cms.objectstore.PSDFMultiProperty;
 import com.percussion.cms.objectstore.PSKey;
 import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.cms.objectstore.PSVersionableDbComponent;
@@ -32,6 +35,7 @@ import com.percussion.services.assembly.impl.nav.PSNavConfig;
 import com.percussion.fastforward.managednav.PSNavException;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
+import com.percussion.server.cache.PSCacheManager;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.PSGuidUtils;
@@ -49,6 +53,7 @@ import com.percussion.services.ui.PSUiServiceLocator;
 import com.percussion.services.ui.data.PSHierarchyNode;
 import com.percussion.services.ui.data.PSHierarchyNodeProperty;
 import com.percussion.utils.guid.IPSGuid;
+import com.percussion.utils.jdbc.PSConnectionHelper;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.timing.PSTimer;
 import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
@@ -68,6 +73,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Element;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,6 +84,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.naming.NamingException;
 
 
 /**
@@ -367,6 +376,12 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
       deleteComponents(ids, PSSearch.class, PSSearch.getComponentType(PSSearch.class), ignoreDependencies, session,
             user);
+      for (IPSGuid id : ids)
+      {
+         if (id != null)
+            ensureSearchRowDeleted(id.getUUID());
+      }
+      invalidateSearchCatalog();
    }
 
    /*
@@ -805,8 +820,11 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    {
       PSWebserviceUtils.validateParameters(ids, "ids", lock, session, user);
 
-      return loadComponents(ids, PSDisplayFormat.class, PSDisplayFormat.getComponentType(PSDisplayFormat.class), lock,
+      @SuppressWarnings("unchecked")
+      List<PSDisplayFormat> loaded =
+            loadComponents(ids, PSDisplayFormat.class, PSDisplayFormat.getComponentType(PSDisplayFormat.class), lock,
             overrideLock, session, user);
+      return reconcileDisplayFormatLoads(ids, loaded);
    }
 
    /*
@@ -841,12 +859,16 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       List<IPSCatalogSummary> results = findDisplayFormats(name, null);
       for (IPSCatalogSummary summary : results)
       {
-         if (summary.getName().equalsIgnoreCase(name))
+         if (summary.getName() != null && summary.getName().equalsIgnoreCase(name))
          {
-            return loadDisplayFormat(summary.getGUID());
+            PSDisplayFormat loaded = loadDisplayFormat(summary.getGUID());
+            if (loaded != null && name.equalsIgnoreCase(loaded.getName()))
+            {
+               return loaded;
+            }
          }
       }
-      return null;
+      return loadDisplayFormatFromDb(-1, name);
    }
 
    /**
@@ -864,15 +886,24 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    {
       try
       {
-         List<PSDisplayFormat> dispList = loadDisplayFormats(Collections.singletonList(id), false, false, null, null);
-         return dispList.isEmpty() ? null : dispList.get(0);
+         String session = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+         String user = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+         List<PSDisplayFormat> dispList =
+               loadDisplayFormats(Collections.singletonList(id), false, false, session, user);
+         if (dispList.isEmpty() || dispList.get(0) == null)
+            return id == null ? null : loadDisplayFormatFromDb(id.getUUID(), null);
+         PSDisplayFormat loaded = dispList.get(0);
+         if (id != null && loaded.getDisplayId() == id.getUUID())
+            return loaded;
+         ms_log.debug("Rejecting display format replay name={} displayId={} for requested {}",
+               loaded.getName(), loaded.getDisplayId(), id);
       }
       catch (PSErrorResultsException e)
       {
          ms_log.error("Failed to load display format with id = {}. Error: {}" , id,
                  PSExceptionUtils.getMessageForLog(e));
-         return null;
       }
+      return id == null ? null : loadDisplayFormatFromDb(id.getUUID(), null);
    }
 
    /*
@@ -1041,9 +1072,30 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    {
       PSWebserviceUtils.validateParameters(displayFormats, "displayFormats", true, session, user);
 
-      List<IPSDbComponent> components = new ArrayList<>(displayFormats);
-      saveComponents(components, PSDisplayFormat.class, release, session, user);
-
+      List<IPSDbComponent> components = new ArrayList<>();
+      List<IPSGuid> releasedIds = new ArrayList<>();
+      for (PSDisplayFormat df : displayFormats)
+      {
+         PSDisplayFormat prepared = prepareDisplayFormatForSave(df);
+         components.add(prepared);
+         if (prepared.getGUID() != null)
+            releasedIds.add(prepared.getGUID());
+      }
+      // Locator saveComponents posts updateDisplayFormats with no XML document
+      // (PSTransactionSet: Xml Document Expected). Persist PSX_DISPLAYFORMATS
+      // via JDBC so GET-by-name / PUT columns round-trip (#4101).
+      for (IPSDbComponent component : components)
+      {
+         if (component instanceof PSDisplayFormat persisted)
+            ensureDisplayFormatRowPersisted(persisted);
+      }
+      if (release && !releasedIds.isEmpty())
+      {
+         IPSObjectLockService lockService = PSObjectLockServiceLocator.getLockingService();
+         List<PSObjectLock> locks = lockService.findLocksByObjectIds(releasedIds, session, user);
+         lockService.releaseLocks(locks);
+      }
+      invalidateDisplayFormatCatalog();
    }
 
    /*
@@ -1159,21 +1211,41 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       PSWebserviceUtils.validateParameters(searches, "searches", true, session, user);
 
       List<IPSDbComponent> components = new ArrayList<>();
-      // Clean the community property from the components before saving
+      List<PSSearch> unpersisted = new ArrayList<>();
       for (PSSearch s : searches)
       {
-         s = (PSSearch) s.cloneFull();
-         String[] values = s.getPropertyValues("sys_community");
-         if (values != null)
-         {
-            for (String comm : values)
-            {
-               s.removeProperty("sys_community", comm);
-            }
-         }
-         components.add(s);
+         boolean wasNew = s != null && !s.isPersisted();
+         PSSearch prepared = prepareSearchForSave(s);
+         components.add(prepared);
+         if (wasNew || (prepared != null && !prepared.isPersisted()))
+            unpersisted.add(prepared);
       }
-      saveComponents(components, PSSearch.class, release, session, user);
+      // updateSearches Dataset431 (HTML SEARCHID IS NOT NULL) is DELETE-only
+      // (allowInserts=no). Dataset11143 (SEARCHID IS NULL) uses Action/@dbAction
+      // INSERT/UPDATE — the pipe createSearches must hit. inheritParams=true
+      // copies REST HTML params; never inject SEARCHID on save.
+      PSRequest req = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
+      Object previousSearchId = req != null ? req.getParameter("SEARCHID") : null;
+      boolean clearedSearchId = false;
+      if (req != null && previousSearchId != null)
+      {
+         req.removeParameter("SEARCHID");
+         clearedSearchId = true;
+      }
+      try
+      {
+         saveComponents(components, PSSearch.class, release, session, user);
+      }
+      finally
+      {
+         if (req != null && clearedSearchId)
+            req.setParameter("SEARCHID", previousSearchId);
+      }
+      for (PSSearch prepared : unpersisted)
+      {
+         ensureSearchRowPersisted(prepared);
+      }
+      invalidateSearchCatalog();
    }
 
    /*
@@ -1207,6 +1279,28 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          cache.save(ALL_SEARCHES_CACHE_KEY, searches, IPSCacheAccess.IN_MEMORY_STORE);
       }
       return searches;
+   }
+
+   /*
+    * (non-Javadoc)
+    *
+    * @see com.percussion.webservices.ui.IPSUiDesignWs#findAllViews()
+    */
+   public List<PSSearch> findAllViews() throws PSErrorResultsException, PSErrorException
+   {
+      IPSCacheAccess cache = PSCacheAccessLocator.getCacheAccess();
+      java.util.Optional<java.io.Serializable> cached = cache.get(ALL_VIEWS_CACHE_KEY, IPSCacheAccess.IN_MEMORY_STORE);
+      Vector<PSSearch> views = cached.isPresent() ? (Vector<PSSearch>) cached.get() : null;
+      if (views == null)
+      {
+         List<IPSDbComponent> searchViews = findComponentsByNameLabel(null, null, FIND_SEARCHES,
+               PSSearch.XML_NODE_NAME, PSSearch.class);
+         List<PSSearch> s = getSearchOrViews(searchViews, true);
+         views = new Vector<PSSearch>();
+         views.addAll(s);
+         cache.save(ALL_VIEWS_CACHE_KEY, views, IPSCacheAccess.IN_MEMORY_STORE);
+      }
+      return views;
    }
 
    /*
@@ -1467,6 +1561,10 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       {String.valueOf(id)});
       key.setPersisted(false);
       source.setLocator(key);
+      if (source.getState() != IPSDbComponent.DBSTATE_NEW)
+      {
+         source.setState(IPSDbComponent.DBSTATE_NEW);
+      }
 
       return source;
    }
@@ -1595,10 +1693,77 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    {
       PSWebserviceUtils.validateParameters(ids, "ids", lock, session, user);
 
+      // Processor loadSearches remaps H2 rows to View_All (UI-07 hole). Catalog
+      // from getSearches.xml / findAllSearches sees JDBC-ensured creates; use it
+      // for lock+delete so REST UI-06 delete is not 409 on a visible row.
+      try
+      {
+         List<PSSearch> catalog = isView ? findAllViews() : findAllSearches();
+         List<PSSearch> matched = matchSearchesByGuids(catalog, ids);
+         if (matched.size() == ids.size())
+         {
+            if (lock)
+            {
+               IPSObjectLockService lockService = PSObjectLockServiceLocator.getLockingService();
+               for (int i = 0; i < ids.size(); i++)
+               {
+                  PSSearch s = matched.get(i);
+                  Integer version = s.getVersion() != null ? s.getVersion() : Integer.valueOf(0);
+                  lockService.createLock(ids.get(i), session, user, version, overrideLock);
+               }
+            }
+            return matched;
+         }
+      }
+      catch (PSErrorException e)
+      {
+         log.debug("Search catalog load fallback to processor: {}", e.toString());
+      }
+      catch (PSLockException e)
+      {
+         PSErrorResultsException results = new PSErrorResultsException();
+         results.addError(ids.get(0), e);
+         throw results;
+      }
+
       List sv = loadComponents(ids, PSSearch.class, PSSearch.getComponentType(PSSearch.class), lock, overrideLock,
             session, user);
 
       return getSearchOrViews(sv, isView);
+   }
+
+   static PSSearch matchSearchByGuid(List<PSSearch> catalog, IPSGuid id)
+   {
+      if (catalog == null || id == null)
+         return null;
+      long want = id.longValue();
+      int uuid = id.getUUID();
+      for (PSSearch s : catalog)
+      {
+         if (s == null)
+            continue;
+         IPSGuid g = s.getGUID();
+         if (g != null && g.longValue() == want)
+            return s;
+         if (s.getId() == uuid)
+            return s;
+      }
+      return null;
+   }
+
+   static List<PSSearch> matchSearchesByGuids(List<PSSearch> catalog, List<IPSGuid> ids)
+   {
+      List<PSSearch> matched = new ArrayList<>();
+      if (ids == null)
+         return matched;
+      for (IPSGuid id : ids)
+      {
+         PSSearch hit = matchSearchByGuid(catalog, id);
+         if (hit == null)
+            return new ArrayList<>();
+         matched.add(hit);
+      }
+      return matched;
    }
 
    /**
@@ -1680,7 +1845,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          key = PSAction.createKey(String.valueOf(id.longValue()));
       else if (objType.equals(PSDisplayFormat.getComponentType(PSDisplayFormat.class)))
          key = PSDisplayFormat.createKey(new String[]
-         {String.valueOf(id.longValue())});
+         {String.valueOf(id.getUUID())});
       else if (objType.equals(PSSearch.getComponentType(PSSearch.class)))
          key = PSSearch.createKey(new String[]
          {String.valueOf(id.longValue())});
@@ -1729,6 +1894,12 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
             {
                Integer version = lockService.getLockedVersion(id);
 
+               // Unpersisted creates must INSERT, not delete-then-insert (the
+               // delete resource selects updateSearches Dataset431 via HTML
+               // SEARCHID and can leave inheritParams polluted for the save).
+               if (version != null && !component.isPersisted())
+                  version = null;
+
                if (!saveComponent(component, id, cz, results, version))
                   continue;
 
@@ -1763,7 +1934,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          }
       }
 
-      if (release)
+      if (release && !releasedIds.isEmpty())
       {
          List<PSObjectLock> locks = lockService.findLocksByObjectIds(releasedIds, session, user);
          lockService.releaseLocks(locks);
@@ -1851,6 +2022,18 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    {
       Element[] elem = null;
       PSDesignGuid guid = new PSDesignGuid(id);
+      PSRequest req = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
+      Object previousDisplayId = null;
+      boolean setDisplayId = false;
+      // getDisplayFormats Dataset (DISPLAYID IS NOT NULL) builds IN (:DISPLAYID).
+      // Without the HTML param, the IS NULL dataset returns the whole catalog
+      // and the first row (By_Author) is replayed for every GUID (#3269 / #4101).
+      if (req != null && PSDisplayFormat.class.equals(objClass) && id != null)
+      {
+         previousDisplayId = req.getParameter("DISPLAYID");
+         req.setParameter("DISPLAYID", String.valueOf(id.getUUID()));
+         setDisplayId = true;
+      }
       try
       {
          elem = getComponentProxy().load(componentType, new PSKey[]
@@ -1872,6 +2055,16 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          throw new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code,
                objClass.getName(), guid.longValue()), ExceptionUtils.getFullStackTrace(e));
 
+      }
+      finally
+      {
+         if (setDisplayId && req != null)
+         {
+            if (previousDisplayId != null)
+               req.setParameter("DISPLAYID", previousDisplayId);
+            else
+               req.removeParameter("DISPLAYID");
+         }
       }
    }
 
@@ -2065,6 +2258,868 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    }
 
    /**
+    * Prepare a search for {@link #saveSearches}. New (unpersisted) objects keep
+    * {@code sys_community} so {@code sys_SearchCommunityHandler} can write the
+    * AnyCommunity ACL, and are forced to {@code DBSTATE_NEW} so the processor
+    * emits INSERT. Persisted updates still strip community properties (Workbench
+    * already processed ACLs on the SOAP path).
+    *
+    * @param source never {@code null}
+    * @return clone ready for the component processor, never {@code null}
+    */
+   static PSSearch prepareSearchForSave(PSSearch source)
+   {
+      if (source == null)
+         throw new IllegalArgumentException("search cannot be null");
+
+      PSSearch s = (PSSearch) source.cloneFull();
+      if (s.isPersisted())
+      {
+         String[] values = s.getPropertyValues(PSSearch.PROP_COMMUNITY);
+         if (values != null)
+         {
+            for (String comm : values)
+            {
+               s.removeProperty(PSSearch.PROP_COMMUNITY, comm);
+            }
+         }
+      }
+      else
+      {
+         PSKey key = s.getLocator();
+         key.setPersisted(false);
+         s.setLocator(key);
+         if (s.getState() != IPSDbComponent.DBSTATE_NEW)
+         {
+            s.setState(IPSDbComponent.DBSTATE_NEW);
+         }
+      }
+      return s;
+   }
+
+   /**
+    * Column values for a durable {@code PSX_SEARCHES} INSERT when the XML
+    * {@code updateSearches} resource reports success with 0 rows (H2 REST UI-06).
+    */
+   static final class SearchRowSpec
+   {
+      final int searchId;
+      final String internalName;
+      final String displayName;
+      final int parentCategory;
+      final String customUrl;
+      final String type;
+      final Integer displayFormat;
+      final int maximumItems;
+      final String description;
+      final int caseSensitive;
+      final int version;
+
+      SearchRowSpec(int searchId, String internalName, String displayName, int parentCategory,
+            String customUrl, String type, Integer displayFormat, int maximumItems, String description,
+            int caseSensitive, int version)
+      {
+         this.searchId = searchId;
+         this.internalName = internalName;
+         this.displayName = displayName;
+         this.parentCategory = parentCategory;
+         this.customUrl = customUrl;
+         this.type = type;
+         this.displayFormat = displayFormat;
+         this.maximumItems = maximumItems;
+         this.description = description;
+         this.caseSensitive = caseSensitive;
+         this.version = version;
+      }
+   }
+
+   static SearchRowSpec searchRowSpec(PSSearch search)
+   {
+      if (search == null)
+         throw new IllegalArgumentException("search cannot be null");
+      int id = search.getId();
+      if (id <= 0)
+         throw new IllegalArgumentException("search id must be assigned before persist");
+      String internal = search.getInternalName();
+      if (StringUtils.isBlank(internal))
+         throw new IllegalArgumentException("search internal name is required");
+      String display = StringUtils.defaultIfBlank(search.getDisplayName(), internal);
+      String url = StringUtils.trimToNull(search.getUrl());
+      String type = StringUtils.defaultIfBlank(search.getType(), PSSearch.TYPE_STANDARDSEARCH);
+      Integer displayFormat = parseDisplayFormatId(search.getDisplayFormatId());
+      String description = StringUtils.trimToNull(search.getDescription());
+      int version = search.getVersion() != null ? search.getVersion().intValue() : 0;
+      return new SearchRowSpec(id, internal, display, search.getParentCategory(), url, type, displayFormat,
+            search.getMaximumResultSize(), description, search.isCaseSensitive() ? 1 : 0, version);
+   }
+
+   static Integer parseDisplayFormatId(String raw)
+   {
+      if (StringUtils.isBlank(raw))
+         return Integer.valueOf(1);
+      try
+      {
+         return Integer.valueOf(raw.trim());
+      }
+      catch (NumberFormatException e)
+      {
+         return Integer.valueOf(1);
+      }
+   }
+
+   /**
+    * If {@code updateSearches} did not INSERT, write {@code PSX_SEARCHES} so
+    * {@link #findSearches} / {@link #findAllSearches} can catalog the name.
+    */
+   static void ensureSearchRowPersisted(PSSearch search)
+   {
+      SearchRowSpec spec = searchRowSpec(search);
+      Connection conn = null;
+      try
+      {
+         conn = PSConnectionHelper.getDbConnection();
+         if (searchRowExists(conn, spec.searchId, spec.internalName))
+            return;
+         try
+         {
+            insertSearchRow(conn, spec);
+         }
+         catch (SQLException insertEx)
+         {
+            if (searchRowExists(conn, spec.searchId, spec.internalName))
+               return;
+            throw insertEx;
+         }
+      }
+      catch (NamingException | SQLException e)
+      {
+         throw new IllegalStateException(
+               "Search was saved but is not visible to findSearches: " + spec.internalName, e);
+      }
+      finally
+      {
+         PSConnectionHelper.releaseDbConnection(conn);
+      }
+   }
+
+   static boolean searchRowExists(Connection conn, int searchId, String internalName) throws SQLException
+   {
+      String sql = "SELECT SEARCHID FROM PSX_SEARCHES WHERE SEARCHID = ? OR INTERNALNAME = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, searchId);
+         ps.setString(2, internalName);
+         try (ResultSet rs = ps.executeQuery())
+         {
+            return rs.next();
+         }
+      }
+   }
+
+   static void ensureSearchRowDeleted(int searchId)
+   {
+      Connection conn = null;
+      try
+      {
+         conn = PSConnectionHelper.getDbConnection();
+         deleteSearchRow(conn, searchId);
+      }
+      catch (NamingException | SQLException e)
+      {
+         log.debug("Could not JDBC-delete PSX_SEARCHES SEARCHID={}: {}", searchId, e.toString());
+      }
+      finally
+      {
+         PSConnectionHelper.releaseDbConnection(conn);
+      }
+   }
+
+   static void deleteSearchRow(Connection conn, int searchId) throws SQLException
+   {
+      try (PreparedStatement fields = conn.prepareStatement("DELETE FROM PSX_SEARCHFIELDS WHERE SEARCHID = ?"))
+      {
+         fields.setInt(1, searchId);
+         fields.executeUpdate();
+      }
+      try (PreparedStatement props = conn.prepareStatement("DELETE FROM PSX_SEARCHPROPERTIES WHERE PROPERTYID = ?"))
+      {
+         props.setInt(1, searchId);
+         props.executeUpdate();
+      }
+      try (PreparedStatement searches = conn.prepareStatement("DELETE FROM PSX_SEARCHES WHERE SEARCHID = ?"))
+      {
+         searches.setInt(1, searchId);
+         searches.executeUpdate();
+      }
+   }
+
+   static void insertSearchRow(Connection conn, SearchRowSpec spec) throws SQLException
+   {
+      String sql = "INSERT INTO PSX_SEARCHES (SEARCHID, INTERNALNAME, DISPLAYNAME, PARENTCATEGORY, "
+            + "CUSTOMURL, TYPE, DISPLAYFORMAT, MAXIMUMITEMS, DESCRIPTION, CASESENSITIVE, VERSION) "
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, spec.searchId);
+         ps.setString(2, spec.internalName);
+         ps.setString(3, spec.displayName);
+         ps.setInt(4, spec.parentCategory);
+         ps.setString(5, spec.customUrl);
+         ps.setString(6, spec.type);
+         if (spec.displayFormat == null)
+            ps.setNull(7, java.sql.Types.INTEGER);
+         else
+            ps.setInt(7, spec.displayFormat.intValue());
+         ps.setInt(8, spec.maximumItems);
+         ps.setString(9, spec.description);
+         ps.setInt(10, spec.caseSensitive);
+         ps.setInt(11, spec.version);
+         ps.executeUpdate();
+      }
+   }
+
+   /**
+    * Drop in-memory {@link #ALL_SEARCHES_CACHE_KEY} / {@link #ALL_VIEWS_CACHE_KEY}
+    * and the XML resource cache for {@code sys_DisplayFormats/getSearches} so
+    * {@link #findSearches} / {@link #findViews} see the row just saved or deleted.
+    */
+   static void invalidateSearchCatalog()
+   {
+      try
+      {
+         IPSCacheAccess cache = PSCacheAccessLocator.getCacheAccess();
+         if (cache != null)
+         {
+            cache.evict(ALL_SEARCHES_CACHE_KEY, IPSCacheAccess.IN_MEMORY_STORE);
+            cache.evict(ALL_VIEWS_CACHE_KEY, IPSCacheAccess.IN_MEMORY_STORE);
+         }
+      }
+      catch (RuntimeException e)
+      {
+         log.debug("Could not evict in-memory search/view catalog cache: {}", e.toString());
+      }
+      flushDisplayFormatApplicationCache();
+   }
+
+   /**
+    * Drop the XML resource cache for {@code sys_DisplayFormats} so
+    * {@link #findDisplayFormats} / GET-by-name see a row just saved.
+    */
+   static void invalidateDisplayFormatCatalog()
+   {
+      flushDisplayFormatApplicationCache();
+   }
+
+   static void flushDisplayFormatApplicationCache()
+   {
+      try
+      {
+         if (PSCacheManager.isAvailable())
+         {
+            PSCacheManager.getInstance().flushApplication("sys_DisplayFormats");
+         }
+      }
+      catch (RuntimeException e)
+      {
+         log.debug("Could not flush sys_DisplayFormats resource cache: {}", e.toString());
+      }
+   }
+
+   /**
+    * Prepare a display format for {@link #saveDisplayFormats}. Unpersisted
+    * objects are forced to {@code DBSTATE_NEW} so the processor emits INSERT
+    * (Dataset105 requires HTML {@code DISPLAYID IS NULL}).
+    *
+    * @param source never {@code null}
+    * @return clone ready for the component processor, never {@code null}
+    */
+   static PSDisplayFormat prepareDisplayFormatForSave(PSDisplayFormat source)
+   {
+      if (source == null)
+         throw new IllegalArgumentException("display format cannot be null");
+
+      PSDisplayFormat df = (PSDisplayFormat) source.cloneFull();
+      if (df.getDisplayId() <= 0 && source.getDisplayId() > 0)
+      {
+         df = source;
+      }
+      if (!df.isPersisted())
+      {
+         PSKey key = df.getLocator();
+         if (key != null)
+         {
+            key.setPersisted(false);
+            df.setLocator(key);
+         }
+         if (df.getState() != IPSDbComponent.DBSTATE_NEW)
+         {
+            df.setState(IPSDbComponent.DBSTATE_NEW);
+         }
+      }
+      return df;
+   }
+
+   /**
+    * Column values for a durable {@code PSX_DISPLAYFORMATS} INSERT when
+    * {@code updateDisplayFormats} reports success with 0 rows (H2 REST #4101).
+    */
+   static final class DisplayFormatRowSpec
+   {
+      final int displayId;
+      final String internalName;
+      final String displayName;
+      final String description;
+      final int version;
+      final List<DisplayFormatColumnSpec> columns;
+      final List<DisplayFormatPropertySpec> properties;
+
+      DisplayFormatRowSpec(int displayId, String internalName, String displayName, String description,
+            int version, List<DisplayFormatColumnSpec> columns, List<DisplayFormatPropertySpec> properties)
+      {
+         this.displayId = displayId;
+         this.internalName = internalName;
+         this.displayName = displayName;
+         this.description = description;
+         this.version = version;
+         this.columns = columns;
+         this.properties = properties;
+      }
+   }
+
+   static final class DisplayFormatColumnSpec
+   {
+      final String source;
+      final String displayName;
+      final int type;
+      final String renderType;
+      final String sortOrder;
+      final int sequence;
+      final String description;
+      final Integer width;
+
+      DisplayFormatColumnSpec(String source, String displayName, int type, String renderType, String sortOrder,
+            int sequence, String description, Integer width)
+      {
+         this.source = source;
+         this.displayName = displayName;
+         this.type = type;
+         this.renderType = renderType;
+         this.sortOrder = sortOrder;
+         this.sequence = sequence;
+         this.description = description;
+         this.width = width;
+      }
+   }
+
+   static final class DisplayFormatPropertySpec
+   {
+      final String name;
+      final String value;
+      final String description;
+
+      DisplayFormatPropertySpec(String name, String value, String description)
+      {
+         this.name = name;
+         this.value = value;
+         this.description = description;
+      }
+   }
+
+   static DisplayFormatRowSpec displayFormatRowSpec(PSDisplayFormat df)
+   {
+      if (df == null)
+         throw new IllegalArgumentException("display format cannot be null");
+      int id = df.getDisplayId();
+      if (id <= 0)
+         throw new IllegalArgumentException("display format id must be assigned before persist");
+      String internal = df.getInternalName();
+      if (StringUtils.isBlank(internal))
+         throw new IllegalArgumentException("display format internal name is required");
+      String display = StringUtils.defaultIfBlank(df.getDisplayName(), internal);
+      String description = StringUtils.trimToNull(df.getDescription());
+      int version = df.getVersion() != null ? df.getVersion().intValue() : 0;
+      List<DisplayFormatColumnSpec> columns = new ArrayList<>();
+      if (df.getColumnContainer() != null)
+      {
+         for (int i = 0; i < df.getColumnContainer().size(); i++)
+         {
+            Object raw = df.getColumnContainer().get(i);
+            if (!(raw instanceof PSDisplayColumn col))
+               continue;
+            String source = col.getSource();
+            if (StringUtils.isBlank(source))
+               continue;
+            String colLabel = StringUtils.defaultIfBlank(col.getDisplayName(), source);
+            String render = StringUtils.defaultIfBlank(col.getRenderType(), PSDisplayColumn.DATATYPE_TEXT);
+            String sort = col.isAscendingSort() ? "A" : "D";
+            String colDesc = StringUtils.trimToNull(col.getDescription());
+            Integer width = col.getWidth() > 0 ? Integer.valueOf(col.getWidth()) : null;
+            columns.add(new DisplayFormatColumnSpec(source, colLabel, col.isCategorized() ? 1 : 0, render, sort,
+                  col.getPosition(), colDesc, width));
+         }
+      }
+      if (columns.isEmpty())
+      {
+         columns.add(new DisplayFormatColumnSpec("sys_title", "Content Title", 0,
+               PSDisplayColumn.DATATYPE_TEXT, "A", 0, null, null));
+      }
+      List<DisplayFormatPropertySpec> properties = new ArrayList<>();
+      if (df.getProperties() != null)
+      {
+         java.util.Iterator<PSDFMultiProperty> props = df.getProperties();
+         while (props.hasNext())
+         {
+            PSDFMultiProperty mp = props.next();
+            if (mp == null || StringUtils.isBlank(mp.getName()))
+               continue;
+            java.util.Iterator<String> values = mp.iterator();
+            while (values.hasNext())
+            {
+               String value = values.next();
+               if (StringUtils.isBlank(value))
+                  continue;
+               properties.add(new DisplayFormatPropertySpec(mp.getName(), value, null));
+            }
+         }
+      }
+      return new DisplayFormatRowSpec(id, internal, display, description, version, columns, properties);
+   }
+
+   /**
+    * If {@code updateDisplayFormats} did not INSERT, write {@code PSX_DISPLAYFORMATS}
+    * (+ columns + properties) so {@link #findDisplayFormats} / GET-by-name can catalog
+    * the name and community visibility. Catalog query inner-joins columns, so
+    * sys_title is required. Properties are replaced (not insert-only) so
+    * {@code sys_community=-1} does not linger after a restricted PUT.
+    */
+   static void ensureDisplayFormatRowPersisted(PSDisplayFormat df)
+   {
+      DisplayFormatRowSpec spec = displayFormatRowSpec(df);
+      Connection conn = null;
+      try
+      {
+         conn = PSConnectionHelper.getDbConnection();
+         if (!displayFormatRowExists(conn, spec.displayId, spec.internalName))
+         {
+            try
+            {
+               insertDisplayFormatRow(conn, spec);
+            }
+            catch (SQLException insertEx)
+            {
+               if (!displayFormatRowExists(conn, spec.displayId, spec.internalName))
+                  throw insertEx;
+            }
+         }
+         ensureDisplayFormatColumns(conn, spec);
+         ensureDisplayFormatProperties(conn, spec);
+      }
+      catch (NamingException | SQLException e)
+      {
+         throw new IllegalStateException(
+               "Display format was saved but is not visible to findDisplayFormats: " + spec.internalName, e);
+      }
+      finally
+      {
+         PSConnectionHelper.releaseDbConnection(conn);
+      }
+   }
+
+   static boolean displayFormatRowExists(Connection conn, int displayId, String internalName) throws SQLException
+   {
+      String sql = "SELECT DISPLAYID FROM PSX_DISPLAYFORMATS WHERE DISPLAYID = ? OR INTERNALNAME = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, displayId);
+         ps.setString(2, internalName);
+         try (ResultSet rs = ps.executeQuery())
+         {
+            return rs.next();
+         }
+      }
+   }
+
+   static void insertDisplayFormatRow(Connection conn, DisplayFormatRowSpec spec) throws SQLException
+   {
+      String sql = "INSERT INTO PSX_DISPLAYFORMATS (DISPLAYID, INTERNALNAME, DISPLAYNAME, DESCRIPTION, VERSION) "
+            + "VALUES (?, ?, ?, ?, ?)";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, spec.displayId);
+         ps.setString(2, spec.internalName);
+         ps.setString(3, spec.displayName);
+         ps.setString(4, spec.description);
+         ps.setInt(5, spec.version);
+         ps.executeUpdate();
+      }
+   }
+
+   static void ensureDisplayFormatColumns(Connection conn, DisplayFormatRowSpec spec) throws SQLException
+   {
+      deleteDisplayFormatColumnsNotInSpec(conn, spec);
+      for (DisplayFormatColumnSpec col : spec.columns)
+      {
+         if (displayFormatColumnExists(conn, spec.displayId, col.source))
+         {
+            updateDisplayFormatColumn(conn, spec.displayId, col);
+         }
+         else
+         {
+            insertDisplayFormatColumn(conn, spec.displayId, col);
+         }
+      }
+   }
+
+   static void deleteDisplayFormatColumnsNotInSpec(Connection conn, DisplayFormatRowSpec spec) throws SQLException
+   {
+      if (spec.columns.isEmpty())
+         return;
+      StringBuilder in = new StringBuilder();
+      for (int i = 0; i < spec.columns.size(); i++)
+      {
+         if (i > 0)
+            in.append(',');
+         in.append('?');
+      }
+      String sql = "DELETE FROM PSX_DISPLAYFORMATCOLUMNS WHERE DISPLAYID = ? AND LOWER(SOURCE) <> 'sys_title' "
+            + "AND SOURCE NOT IN (" + in + ")";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, spec.displayId);
+         for (int i = 0; i < spec.columns.size(); i++)
+            ps.setString(i + 2, spec.columns.get(i).source);
+         ps.executeUpdate();
+      }
+   }
+
+   static boolean displayFormatColumnExists(Connection conn, int displayId, String source) throws SQLException
+   {
+      String sql = "SELECT SOURCE FROM PSX_DISPLAYFORMATCOLUMNS WHERE DISPLAYID = ? AND SOURCE = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, displayId);
+         ps.setString(2, source);
+         try (ResultSet rs = ps.executeQuery())
+         {
+            return rs.next();
+         }
+      }
+   }
+
+   static void insertDisplayFormatColumn(Connection conn, int displayId, DisplayFormatColumnSpec col)
+         throws SQLException
+   {
+      String sql = "INSERT INTO PSX_DISPLAYFORMATCOLUMNS (DISPLAYID, SOURCE, DISPLAYNAME, TYPE, RENDERTYPE, "
+            + "SORTORDER, SEQUENCE, DESCRIPTION, WIDTH) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, displayId);
+         ps.setString(2, col.source);
+         ps.setString(3, col.displayName);
+         ps.setInt(4, col.type);
+         ps.setString(5, col.renderType);
+         ps.setString(6, col.sortOrder);
+         ps.setInt(7, col.sequence);
+         ps.setString(8, col.description);
+         if (col.width == null)
+            ps.setNull(9, java.sql.Types.INTEGER);
+         else
+            ps.setInt(9, col.width.intValue());
+         ps.executeUpdate();
+      }
+   }
+
+   static void updateDisplayFormatColumn(Connection conn, int displayId, DisplayFormatColumnSpec col)
+         throws SQLException
+   {
+      String sql = "UPDATE PSX_DISPLAYFORMATCOLUMNS SET DISPLAYNAME = ?, TYPE = ?, RENDERTYPE = ?, "
+            + "SORTORDER = ?, SEQUENCE = ?, DESCRIPTION = ?, WIDTH = ? WHERE DISPLAYID = ? AND SOURCE = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setString(1, col.displayName);
+         ps.setInt(2, col.type);
+         ps.setString(3, col.renderType);
+         ps.setString(4, col.sortOrder);
+         ps.setInt(5, col.sequence);
+         ps.setString(6, col.description);
+         if (col.width == null)
+            ps.setNull(7, java.sql.Types.INTEGER);
+         else
+            ps.setInt(7, col.width.intValue());
+         ps.setInt(8, displayId);
+         ps.setString(9, col.source);
+         ps.executeUpdate();
+      }
+   }
+
+   /**
+    * Replace {@code PSX_DISPLAYFORMATPROPERTIES} for this display id with the
+    * spec. Insert-only left {@code sys_community=-1} beside a restricted
+    * community so GET still looked like all communities (#4098).
+    */
+   static void ensureDisplayFormatProperties(Connection conn, DisplayFormatRowSpec spec) throws SQLException
+   {
+      deleteDisplayFormatProperties(conn, spec.displayId);
+      for (DisplayFormatPropertySpec prop : spec.properties)
+      {
+         insertDisplayFormatProperty(conn, spec.displayId, prop);
+      }
+   }
+
+   static void deleteDisplayFormatProperties(Connection conn, int displayId) throws SQLException
+   {
+      String sql = "DELETE FROM PSX_DISPLAYFORMATPROPERTIES WHERE PROPERTYID = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, displayId);
+         ps.executeUpdate();
+      }
+   }
+
+   static boolean displayFormatPropertyExists(Connection conn, int displayId, String name, String value)
+         throws SQLException
+   {
+      String sql = "SELECT PROPERTYNAME FROM PSX_DISPLAYFORMATPROPERTIES WHERE PROPERTYID = ? AND PROPERTYNAME = ? "
+            + "AND PROPERTYVALUE = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, displayId);
+         ps.setString(2, name);
+         ps.setString(3, value);
+         try (ResultSet rs = ps.executeQuery())
+         {
+            return rs.next();
+         }
+      }
+   }
+
+   static void insertDisplayFormatProperty(Connection conn, int displayId, DisplayFormatPropertySpec prop)
+         throws SQLException
+   {
+      String sql = "INSERT INTO PSX_DISPLAYFORMATPROPERTIES (PROPERTYID, PROPERTYNAME, PROPERTYVALUE, DESCRIPTION) "
+            + "VALUES (?, ?, ?, ?)";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, displayId);
+         ps.setString(2, prop.name);
+         ps.setString(3, prop.value);
+         ps.setString(4, prop.description);
+         ps.executeUpdate();
+      }
+   }
+
+   /**
+    * Replace XML-load replay (By_Author) with the JDBC row for the requested GUID
+    * so GET/PUT after REST create see the persisted user format (#4101).
+    */
+   static List<PSDisplayFormat> reconcileDisplayFormatLoads(List<IPSGuid> ids, List<PSDisplayFormat> loaded)
+   {
+      if (ids == null || ids.isEmpty())
+         return loaded == null ? new ArrayList<>() : loaded;
+      List<PSDisplayFormat> out = new ArrayList<>(ids.size());
+      for (int i = 0; i < ids.size(); i++)
+      {
+         IPSGuid id = ids.get(i);
+         PSDisplayFormat df = loaded != null && i < loaded.size() ? loaded.get(i) : null;
+         if (id != null && df != null && df.getDisplayId() == id.getUUID())
+         {
+            out.add(df);
+            continue;
+         }
+         PSDisplayFormat fromDb = id == null ? null : loadDisplayFormatFromDb(id.getUUID(), null);
+         out.add(fromDb != null ? fromDb : df);
+      }
+      return out;
+   }
+
+   /**
+    * Load a display format from {@code PSX_DISPLAYFORMATS} when the XML
+    * getDisplayFormats resource replays another catalog row.
+    *
+    * @param displayId DISPLAYID, or {@code -1} to match {@code internalName} only
+    * @param internalName optional INTERNALNAME match
+    * @return hydrated format, or {@code null} if no row
+    */
+   static PSDisplayFormat loadDisplayFormatFromDb(int displayId, String internalName)
+   {
+      Connection conn = null;
+      try
+      {
+         conn = PSConnectionHelper.getDbConnection();
+         return loadDisplayFormatFromDb(conn, displayId, internalName);
+      }
+      catch (NamingException | SQLException | PSCmsException e)
+      {
+         log.debug("JDBC display format load failed displayId={} name={}: {}", displayId, internalName,
+               e.toString());
+         return null;
+      }
+      finally
+      {
+         PSConnectionHelper.releaseDbConnection(conn);
+      }
+   }
+
+   static PSDisplayFormat loadDisplayFormatFromDb(Connection conn, int displayId, String internalName)
+         throws SQLException, PSCmsException
+   {
+      if (conn == null)
+         throw new IllegalArgumentException("connection is required");
+      String sql = displayId > 0
+            ? "SELECT DISPLAYID, INTERNALNAME, DISPLAYNAME, DESCRIPTION, VERSION FROM PSX_DISPLAYFORMATS "
+                  + "WHERE DISPLAYID = ? OR INTERNALNAME = ?"
+            : "SELECT DISPLAYID, INTERNALNAME, DISPLAYNAME, DESCRIPTION, VERSION FROM PSX_DISPLAYFORMATS "
+                  + "WHERE INTERNALNAME = ?";
+      int id = -1;
+      String internal = null;
+      String display = null;
+      String description = null;
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         if (displayId > 0)
+         {
+            ps.setInt(1, displayId);
+            ps.setString(2, StringUtils.defaultString(internalName));
+         }
+         else
+         {
+            if (StringUtils.isBlank(internalName))
+               return null;
+            ps.setString(1, internalName);
+         }
+         try (ResultSet rs = ps.executeQuery())
+         {
+            if (!rs.next())
+               return null;
+            id = rs.getInt(1);
+            internal = rs.getString(2);
+            display = rs.getString(3);
+            description = rs.getString(4);
+         }
+      }
+      if (id <= 0 || StringUtils.isBlank(internal))
+         return null;
+      if (StringUtils.isNotBlank(internalName) && !internal.equalsIgnoreCase(internalName))
+         return null;
+      PSDisplayFormat df = new PSDisplayFormat();
+      PSKey key = PSDisplayFormat.createKey(new String[] {String.valueOf(id)});
+      df.setLocator(key);
+      df.setInternalName(internal);
+      if (StringUtils.isNotBlank(display))
+         df.setDisplayName(display);
+      if (description != null)
+         df.setDescription(description);
+      PSDFColumns cols;
+      try
+      {
+         cols = new PSDFColumns();
+      }
+      catch (ClassNotFoundException e)
+      {
+         throw new PSCmsException(0, e.toString());
+      }
+      String colSql = "SELECT SOURCE, DISPLAYNAME, TYPE, RENDERTYPE, SORTORDER, SEQUENCE, DESCRIPTION, WIDTH "
+            + "FROM PSX_DISPLAYFORMATCOLUMNS WHERE DISPLAYID = ? ORDER BY SEQUENCE";
+      try (PreparedStatement ps = conn.prepareStatement(colSql))
+      {
+         ps.setInt(1, id);
+         try (ResultSet rs = ps.executeQuery())
+         {
+            while (rs.next())
+            {
+               String source = rs.getString(1);
+               if (StringUtils.isBlank(source))
+                  continue;
+               String colLabel = StringUtils.defaultIfBlank(rs.getString(2), source);
+               int grouping = rs.getInt(3);
+               String render = StringUtils.defaultIfBlank(rs.getString(4), PSDisplayColumn.DATATYPE_TEXT);
+               String sort = rs.getString(5);
+               boolean asc = sort == null || sort.trim().isEmpty() || sort.trim().startsWith("A")
+                     || sort.trim().startsWith("a");
+               PSDisplayColumn col = new PSDisplayColumn(source, colLabel,
+                     grouping == 1 ? PSDisplayColumn.GROUPING_CATEGORY : PSDisplayColumn.GROUPING_FLAT, render,
+                     StringUtils.defaultString(rs.getString(7)), asc);
+               col.setPosition(rs.getInt(6));
+               int width = rs.getInt(8);
+               if (!rs.wasNull() && width > 0)
+                  col.setWidth(width);
+               cols.add(col);
+            }
+         }
+      }
+      df.setColumnList(cols);
+      applyDisplayFormatPropertiesFromDb(conn, df, id);
+      return df;
+   }
+
+   /**
+    * Hydrate properties (including {@code sys_community}) from JDBC. {@link
+    * PSDisplayFormat} construction defaults to all communities; without this,
+    * GET after a restricted PUT still looked like {@code sys_community=-1}.
+    */
+   static void applyDisplayFormatPropertiesFromDb(Connection conn, PSDisplayFormat df, int displayId)
+         throws SQLException
+   {
+      if (conn == null || df == null || displayId <= 0)
+         return;
+      String sql = "SELECT PROPERTYNAME, PROPERTYVALUE FROM PSX_DISPLAYFORMATPROPERTIES WHERE PROPERTYID = ?";
+      List<DisplayFormatPropertySpec> rows = new ArrayList<>();
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, displayId);
+         try (ResultSet rs = ps.executeQuery())
+         {
+            while (rs.next())
+            {
+               String name = rs.getString(1);
+               String value = rs.getString(2);
+               if (StringUtils.isBlank(name) || StringUtils.isBlank(value))
+                  continue;
+               rows.add(new DisplayFormatPropertySpec(name, value, null));
+            }
+         }
+      }
+      if (rows.isEmpty())
+         return;
+      boolean hasSpecificCommunity = false;
+      boolean hasCommunityAll = false;
+      for (DisplayFormatPropertySpec prop : rows)
+      {
+         if (!PSDisplayFormat.PROP_COMMUNITY.equals(prop.name))
+            continue;
+         if (PSDisplayFormat.PROP_COMMUNITY_ALL.equals(prop.value))
+            hasCommunityAll = true;
+         else
+            hasSpecificCommunity = true;
+      }
+      if (hasSpecificCommunity || hasCommunityAll)
+      {
+         df.removeProperty(PSDisplayFormat.PROP_COMMUNITY, null, false);
+         if (hasSpecificCommunity)
+         {
+            for (DisplayFormatPropertySpec prop : rows)
+            {
+               if (PSDisplayFormat.PROP_COMMUNITY.equals(prop.name)
+                     && !PSDisplayFormat.PROP_COMMUNITY_ALL.equals(prop.value))
+               {
+                  df.addCommunity(prop.value);
+               }
+            }
+         }
+         else
+         {
+            df.addCommunity(null);
+         }
+      }
+      for (DisplayFormatPropertySpec prop : rows)
+      {
+         if (PSDisplayFormat.PROP_COMMUNITY.equals(prop.name))
+            continue;
+         df.setProperty(prop.name, prop.value, true);
+      }
+   }
+
+   /**
     * This listener responds to table change notices by removing the cached
     * cllection of all searches.
     */
@@ -2114,6 +3169,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       PSTableChangeEvent e)
       {
          mi_cache.evict(ALL_SEARCHES_CACHE_KEY, IPSCacheAccess.IN_MEMORY_STORE);
+         mi_cache.evict(ALL_VIEWS_CACHE_KEY, IPSCacheAccess.IN_MEMORY_STORE);
          ms_log.debug("Clearing cache key: " + ALL_SEARCHES_CACHE_KEY);
       }
 
@@ -2125,6 +3181,13 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     * IPSCacheAccess.IN_MEMORY_STORE region.
     */
    private static final String ALL_SEARCHES_CACHE_KEY = "All_Searches_In_System";
+
+   /**
+    * The cache key for storing the collection of CX views in the
+    * IPSCacheAccess.IN_MEMORY_STORE region. Views share {@code PSX_SEARCHES}
+    * with searches; both keys are evicted together.
+    */
+   private static final String ALL_VIEWS_CACHE_KEY = "All_Views_In_System";
 
    /**
     * The cache key for storing the collection of searches in the

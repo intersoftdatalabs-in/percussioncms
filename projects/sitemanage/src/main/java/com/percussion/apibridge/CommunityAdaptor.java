@@ -29,16 +29,20 @@ import com.percussion.rest.communities.ICommunityAdaptor;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.services.security.data.PSCommunity;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.security.IPSSecurityDesignWs;
+import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.system.IPSSystemWs;
+import jakarta.ws.rs.WebApplicationException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,7 +70,23 @@ public class CommunityAdaptor implements ICommunityAdaptor {
     var session = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
     var user = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
 
-    var ps_communities = securityDesignWs.createCommunities(names, session, user);
+    List<PSCommunity> ps_communities;
+    try {
+      ps_communities = securityDesignWs.createCommunities(names, session, user);
+    } catch (IllegalArgumentException e) {
+      throw mapCreateNameFailure(names, e);
+    }
+    // Persist immediately (Workbench Finish / slots create+save). Do not
+    // round-trip REST DTOs through saveCommunities — convertCommunity +
+    // getRenamedCommunities/loadCommunities NPEs on unsaved stubs.
+    try {
+      securityDesignWs.saveCommunities(ps_communities, true, session, user);
+    } catch (RuntimeException e) {
+      if (isAlreadyExistsFailure(e)) {
+        throw new WebApplicationException(communityAlreadyExistsMessage(names), 409);
+      }
+      throw new IllegalStateException("Failed to persist communities", e);
+    }
 
     for (var c : ps_communities) {
       communities.add(ApiUtils.convertPSCommunity(c));
@@ -308,8 +328,49 @@ public class CommunityAdaptor implements ICommunityAdaptor {
     var session = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
     var user = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
 
-    securityDesignWs.deleteCommunities(
-        ApiUtils.convertGuids(ids), ignoreDependencies, session, user);
+    try {
+      securityDesignWs.deleteCommunities(
+          ApiUtils.convertGuids(ids), ignoreDependencies, session, user);
+    } catch (PSErrorsException e) {
+      throw new WebApplicationException("Community has dependencies", 409);
+    }
+  }
+
+  static RuntimeException mapCreateNameFailure(List<String> names, IllegalArgumentException e) {
+    if (isAlreadyExistsFailure(e)) {
+      return new WebApplicationException(communityAlreadyExistsMessage(names), 409);
+    }
+    return e;
+  }
+
+  static String communityAlreadyExistsMessage(List<String> names) {
+    String n = "";
+    if (names != null) {
+      for (String name : names) {
+        if (StringUtils.isNotBlank(name)) {
+          n = name.trim();
+          break;
+        }
+      }
+    }
+    return StringUtils.isBlank(n) ? "Community already exists" : "Community already exists: " + n;
+  }
+
+  /** Design-WS uniqueness messages end with {@code already exists} (optional period). */
+  private static final Pattern ALREADY_EXISTS_TAIL =
+      Pattern.compile("(?i)already exists\\.?\\s*$");
+
+  /**
+   * True only for a top-level {@link IllegalArgumentException} whose message ends with the design-WS
+   * uniqueness phrase. Does not walk causes — wrapped {@code Save failed: ... already exists} stays
+   * a 500 rather than a false 409.
+   */
+  static boolean isAlreadyExistsFailure(Throwable t) {
+    if (!(t instanceof IllegalArgumentException)) {
+      return false;
+    }
+    String msg = t.getMessage();
+    return msg != null && ALREADY_EXISTS_TAIL.matcher(msg).find();
   }
 
   @Override

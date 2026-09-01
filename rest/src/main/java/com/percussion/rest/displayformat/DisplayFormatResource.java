@@ -224,10 +224,13 @@ public class DisplayFormatResource {
   @Operation(
       summary = "Update display format",
       description =
-          "Admin. Updates label/displayName and/or description by internal name or GUID. Name is"
-              + " the catalog key and is not renamed on PUT. Loads with a design lock"
-              + " (overrideLock=false) and releases on save. Usage flags on GET remain derived"
-              + " from columns. Unknown id is 404. Lock/dependency conflict is 409.",
+          "Admin. Updates label/displayName and/or description by internal name or GUID. When"
+              + " columns is present, the column list is replaced (add/remove/reorder). When"
+              + " allowedCommunities is present, community visibility is replaced (empty array"
+              + " is all communities). Name is the catalog key and is not renamed on PUT. Loads"
+              + " with a design lock (overrideLock=false) and releases on save. Usage flags on"
+              + " GET remain derived from columns. Unknown id is 404. Invalid column source or"
+              + " unknown community is 400. Lock/dependency conflict is 409.",
       responses = {
         @ApiResponse(
             responseCode = "200",
