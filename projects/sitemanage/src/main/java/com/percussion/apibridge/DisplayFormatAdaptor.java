@@ -20,10 +20,14 @@
 package com.percussion.apibridge;
 
 import com.percussion.cms.PSCmsException;
+import com.percussion.cms.objectstore.IPSDbComponent;
+import com.percussion.cms.objectstore.PSComponentProcessorProxy;
+import com.percussion.cms.objectstore.PSKey;
 import com.percussion.cms.objectstore.PSDFColumns;
 import com.percussion.cms.objectstore.PSDFProperties;
 import com.percussion.cms.objectstore.PSDisplayColumn;
 import com.percussion.cms.objectstore.PSDisplayFormat;
+import com.percussion.cms.objectstore.PSProcessorProxy;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.rest.Guid;
 import com.percussion.rest.displayformat.*;
@@ -34,12 +38,14 @@ import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
+import com.percussion.server.PSRequest;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.PSLockErrorException;
+import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.ui.IPSUiDesignWs;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -61,9 +67,13 @@ import org.springframework.context.annotation.Lazy;
 /**
  * Provides the API implementation for the Display Format Resource.
  *
- * <p>GET catalog uses {@link IPSUiDesignWs#findDisplayFormats}. Admin create/update/delete persist
+ * <p>GET catalog uses {@link IPSUiDesignWs#findDisplayFormats}. Admin create/update persist
  * through the same design WS SOAP uses ({@code createDisplayFormats} / {@code loadDisplayFormats}
- * / {@code saveDisplayFormats} / {@code deleteDisplayFormats}). No new SOAP methods.
+ * / {@code saveDisplayFormats}). Admin delete loads with a design lock, marks the native format
+ * for deletion, and persists via the Workbench objectstore processor so {@code
+ * updateDisplayFormats} receives the XML document {@code PSTransactionSet} requires. Locator-only
+ * {@code deleteDisplayFormats} does not supply that document ({@code Xml Document Expected}). No
+ * new SOAP methods.
  */
 @PSSiteManageBean
 @Lazy
@@ -76,6 +86,7 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
 
   private final IPSUiDesignWs designWs;
   private final BooleanSupplier adminChecker;
+  private final LockedDisplayFormatXmlDeleter xmlDeleter;
 
   /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
   @Autowired(required = false)
@@ -83,13 +94,35 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
 
   @Autowired
   public DisplayFormatAdaptor(IPSUiDesignWs designWs) {
-    this(designWs, null);
+    this(designWs, null, null);
   }
 
   /** Package-visible for unit tests. */
   DisplayFormatAdaptor(IPSUiDesignWs designWs, BooleanSupplier adminChecker) {
+    this(designWs, adminChecker, null);
+  }
+
+  /**
+   * Package-visible for unit tests that stub XML persist (locator {@code deleteDisplayFormats}
+   * does not supply the update document).
+   */
+  DisplayFormatAdaptor(
+      IPSUiDesignWs designWs,
+      BooleanSupplier adminChecker,
+      LockedDisplayFormatXmlDeleter xmlDeleter) {
     this.designWs = designWs;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
+    this.xmlDeleter = xmlDeleter != null ? xmlDeleter : this::deleteLockedViaComponentXml;
+  }
+
+  /**
+   * Persist a locked, loaded display format by supplying component XML (Workbench processor
+   * {@code delete(IPSDbComponent)}), then release the design lock.
+   */
+  @FunctionalInterface
+  interface LockedDisplayFormatXmlDeleter {
+    void delete(PSDisplayFormat nativeDf, IPSGuid id, String session, String user)
+        throws PSCmsException;
   }
 
   @Override
@@ -228,18 +261,10 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
         throw new WebApplicationException(
             "Could not delete display format; design lock required or held by another user", 409);
       }
-      try {
-        designWs.deleteDisplayFormats(List.of(id), false, session, user);
-      } catch (PSErrorsException e) {
-        if (isLockError(e) || isDependencyError(e)) {
-          throw mapSaveOrDeleteFailure("delete", e);
-        }
-        // Locator-only delete can fail with "Xml Document Expected" on formats that
-        // persist via component save. Mark-for-deletion + save supplies the XML.
-        PSDisplayFormat nativeDf = locked.get(0);
-        nativeDf.markForDeletion();
-        designWs.saveDisplayFormats(List.of(nativeDf), true, session, user);
-      }
+      PSDisplayFormat nativeDf =
+          nativeForDelete(locked.get(0), existing, idOrName);
+      nativeDf.markForDeletion();
+      xmlDeleter.delete(nativeDf, id, session, user);
       return true;
     } catch (WebApplicationException e) {
       throw e;
@@ -251,7 +276,132 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
           "Could not delete display format; design lock required or held by another user", 409);
     } catch (PSErrorsException e) {
       throw mapSaveOrDeleteFailure("delete", e);
+    } catch (PSCmsException e) {
+      throw mapSaveOrDeleteFailure(
+          "delete", wrapCmsDeleteFailure(id, e));
     }
+  }
+
+  /**
+   * Workbench path: dependency check, component XML save-delete, release lock. Locator-only {@code
+   * deleteDisplayFormats} posts {@code DBActionType=DELETE} with no input document; {@code
+   * updateDisplayFormats} is an XML datasource and throws {@code Xml Document Expected}. {@code
+   * saveDisplayFormats} of a marked object still locator-deletes first when a lock version is
+   * present, so this uses {@link PSComponentProcessorProxy#delete(com.percussion.cms.objectstore.IPSDbComponent)} instead.
+   */
+  void deleteLockedViaComponentXml(
+      PSDisplayFormat nativeDf, IPSGuid id, String session, String user) throws PSCmsException {
+    PSErrorException dep = PSWebserviceUtils.checkDependencies(id);
+    if (dep != null) {
+      throw new WebApplicationException(
+          "Display format has dependents and cannot be deleted", 409);
+    }
+    ensureMarkedForDeletion(nativeDf);
+    Object rawReq = PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
+    if (!(rawReq instanceof PSRequest req)) {
+      throw new WebApplicationException(
+          "Request session/user required for display format design write",
+          Response.Status.FORBIDDEN);
+    }
+    PSComponentProcessorProxy proxy =
+        new PSComponentProcessorProxy(PSProcessorProxy.PROCTYPE_SERVERLOCAL, req);
+    int deleted = proxy.delete(nativeDf);
+    log.info(
+        "Display format XML delete name={} displayId={} deletedRows={}",
+        nativeDf.getName(),
+        nativeDf.getDisplayId(),
+        deleted);
+    if (deleted <= 0) {
+      throw new PSCmsException(
+          0,
+          "Display format XML delete removed 0 rows for "
+              + nativeDf.getName()
+              + " (displayId="
+              + nativeDf.getDisplayId()
+              + ")");
+    }
+    try {
+      PSWebserviceUtils.releaseLocks(List.of(id), session, user);
+    } catch (RuntimeException e) {
+      log.debug("Could not release display-format lock after delete: {}", e.toString());
+    }
+  }
+
+  /**
+   * {@code loadDisplayFormats} can replay another catalog row (By_Type) with {@code displayId=-1}.
+   * Never persist-delete that object — build a persisted stub from the catalog identity.
+   */
+  static PSDisplayFormat nativeForDelete(
+      PSDisplayFormat loaded, DisplayFormat existing, String idOrName) throws PSCmsException {
+    String requested = firstNonBlank(idOrName, existing != null ? existing.getName() : null);
+    if (loaded != null
+        && loaded.getDisplayId() > 0
+        && namesMatchIgnoreCase(requested, loaded.getName())) {
+      return loaded;
+    }
+    return stubFromExisting(existing);
+  }
+
+  static PSDisplayFormat stubFromExisting(DisplayFormat existing) throws PSCmsException {
+    if (existing == null) {
+      throw new PSCmsException(0, "display format is required for XML delete");
+    }
+    int displayId = existing.getDisplayId();
+    if (displayId <= 0 && existing.getGuid() != null) {
+      displayId = existing.getGuid().getUuid();
+    }
+    if (displayId <= 0) {
+      throw new PSCmsException(
+          0, "Refusing XML delete of unpersisted display format " + existing.getName());
+    }
+    PSDisplayFormat stub = new PSDisplayFormat();
+    PSKey key = PSDisplayFormat.createKey(new String[] {String.valueOf(displayId)});
+    stub.setLocator(key);
+    String name = firstNonBlank(existing.getName(), existing.getInternalName());
+    if (name != null) {
+      stub.setName(name);
+      stub.setInternalName(name);
+    }
+    if (stub.getDisplayId() <= 0) {
+      throw new PSCmsException(0, "Delete stub displayId must be persisted");
+    }
+    return stub;
+  }
+
+  /**
+   * Loaded formats must be persisted before {@link PSDisplayFormat#markForDeletion()} will change
+   * state; otherwise {@code toDbXml} emits no DELETE action and the processor reports success with
+   * 0 rows removed.
+   */
+  static void ensureMarkedForDeletion(PSDisplayFormat nativeDf) throws PSCmsException {
+    if (nativeDf == null) {
+      throw new PSCmsException(0, "display format is required for XML delete");
+    }
+    if (!nativeDf.isPersisted()) {
+      PSKey loc = nativeDf.getLocator();
+      if (loc != null) {
+        loc.setPersisted(true);
+        nativeDf.setLocator(loc);
+      }
+    }
+    nativeDf.markForDeletion();
+    if (nativeDf.getState() != IPSDbComponent.DBSTATE_MARKEDFORDELETE) {
+      throw new PSCmsException(
+          0,
+          "Could not mark display format for deletion (state="
+              + nativeDf.getState()
+              + " persisted="
+              + nativeDf.isPersisted()
+              + " name="
+              + nativeDf.getName()
+              + ")");
+    }
+  }
+
+  private static PSErrorsException wrapCmsDeleteFailure(IPSGuid id, PSCmsException e) {
+    PSErrorsException errors = new PSErrorsException();
+    errors.addError(id, e);
+    return errors;
   }
 
   @Override
@@ -657,7 +807,7 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
 
   /**
    * True when {@code df} is the catalog object for {@code key} (internal name or GUID string).
-   * Rejects the By_Author bulk-load replay where a different name is returned for this key.
+   * Rejects bulk-load replay where a different name (e.g. By_Author / By_Type) is returned for this key.
    */
   static boolean identityMatchesKey(DisplayFormat df, String key) {
     if (df == null || key == null || key.isBlank()) {
@@ -672,28 +822,28 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
       Guid g = df.getGuid();
       return g != null && trimmed.equalsIgnoreCase(StringUtils.defaultString(g.getStringValue()));
     }
-    return true;
+    return loadedName != null;
   }
 
   /**
-   * Exact INTERNALNAME match from catalog summaries, then {@link #copyUniqueSummary} (which
-   * already rejects replayed loads). Used when {@code findDisplayFormat(name)} returns the
-   * wrong object.
+   * Exact INTERNALNAME from catalog summaries, then {@link #copyUniqueSummary} (rejects
+   * replayed loads). Used when {@code findDisplayFormat(name)} returns the wrong object.
    */
   private DisplayFormat findExactCatalogCopy(String name) {
     if (name == null || name.isBlank()) {
       return null;
     }
     List<IPSCatalogSummary> summaries = catalogSummaries(name);
-    if (summaries != null) {
-      for (IPSCatalogSummary summary : summaries) {
-        if (summary != null && namesMatchIgnoreCase(name, summary.getName())) {
-          try {
-            return copyUniqueSummary(summary);
-          } catch (PSCmsException | PSUnknownNodeTypeException e) {
-            log.debug("Could not copy display format {}: {}", name, e.toString());
-            return copyFromCatalogSummary(summary);
-          }
+    if (summaries == null) {
+      return null;
+    }
+    for (IPSCatalogSummary summary : summaries) {
+      if (summary != null && namesMatchIgnoreCase(name, summary.getName())) {
+        try {
+          return copyUniqueSummary(summary);
+        } catch (PSCmsException | PSUnknownNodeTypeException e) {
+          log.debug("Could not copy display format {}: {}", name, e.toString());
+          return copyFromCatalogSummary(summary);
         }
       }
     }

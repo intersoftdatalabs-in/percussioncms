@@ -27,12 +27,13 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.percussion.cms.PSCmsException;
+import com.percussion.cms.objectstore.IPSDbComponent;
 import com.percussion.cms.objectstore.PSDbComponent;
 import com.percussion.cms.objectstore.PSDisplayFormat;
 import com.percussion.cms.objectstore.PSKey;
@@ -50,6 +51,7 @@ import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.ui.IPSUiDesignWs;
 import jakarta.ws.rs.WebApplicationException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +63,8 @@ import org.mockito.ArgumentCaptor;
 
 /**
  * UI-05 POST create / PUT update / DELETE persist via {@code createDisplayFormats}/{@code
- * saveDisplayFormats}/{@code deleteDisplayFormats}. Admin only; unique name; no lock steal.
+ * saveDisplayFormats} and XML component delete (not locator {@code deleteDisplayFormats}). Admin
+ * only; unique name; no lock steal.
  */
 @Tag("UnitTest")
 class DisplayFormatAdaptorWriteTest {
@@ -69,6 +72,7 @@ class DisplayFormatAdaptorWriteTest {
   private IPSUiDesignWs designWs;
   private DisplayFormatAdaptor adaptor;
   private IPSGuid guid;
+  private List<PSDisplayFormat> xmlDeleted;
 
   @BeforeEach
   void setUp() {
@@ -77,7 +81,12 @@ class DisplayFormatAdaptorWriteTest {
     PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_JSESSIONID, "test-session");
     PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_USER, "Admin");
     designWs = mock(IPSUiDesignWs.class);
-    adaptor = new DisplayFormatAdaptor(designWs, () -> true);
+    xmlDeleted = new ArrayList<>();
+    adaptor =
+        new DisplayFormatAdaptor(
+            designWs,
+            () -> true,
+            (df, id, session, user) -> xmlDeleted.add(df));
     guid = new PSGuid(PSTypeEnum.DISPLAY_FORMAT, 42L);
     when(designWs.findDisplayFormats(any(), nullable(String.class)))
         .thenReturn(Collections.emptyList());
@@ -343,6 +352,39 @@ class DisplayFormatAdaptorWriteTest {
   }
 
   @Test
+  void nativeForDelete_rejectsReplayUnpersistedLoad() throws Exception {
+    PSDisplayFormat replayed = new PSDisplayFormat();
+    replayed.setName("By_Type");
+    replayed.setInternalName("By_Type");
+    assertTrue(replayed.getDisplayId() <= 0);
+    DisplayFormat existing = new DisplayFormat();
+    existing.setName("MyFmt");
+    existing.setDisplayId(42);
+    PSDisplayFormat out = DisplayFormatAdaptor.nativeForDelete(replayed, existing, "MyFmt");
+    assertEquals("MyFmt", out.getName());
+    assertEquals(42, out.getDisplayId());
+    assertTrue(out.getDisplayId() > 0);
+  }
+
+  @Test
+  void nativeForDelete_keepsMatchingPersistedLoad() throws Exception {
+    PSDisplayFormat loaded = nativeDisplayFormat(42, "MyFmt");
+    DisplayFormat existing = new DisplayFormat();
+    existing.setName("MyFmt");
+    existing.setDisplayId(42);
+    PSDisplayFormat out = DisplayFormatAdaptor.nativeForDelete(loaded, existing, "MyFmt");
+    assertEquals(42, out.getDisplayId());
+    assertEquals("MyFmt", out.getName());
+  }
+
+  @Test
+  void ensureMarkedForDeletion_setsMarkedStateOnPersistedKey() throws Exception {
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    DisplayFormatAdaptor.ensureMarkedForDeletion(nativeDf);
+    assertEquals(IPSDbComponent.DBSTATE_MARKEDFORDELETE, nativeDf.getState());
+  }
+
+  @Test
   void delete_thenGetByName_isNotFound() throws Exception {
     PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
     when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
@@ -352,31 +394,20 @@ class DisplayFormatAdaptorWriteTest {
     assertTrue(adaptor.deleteDisplayFormat("MyFmt"));
     when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(null);
     assertNull(adaptor.findDisplayFormatByKey("MyFmt"));
-    verify(designWs)
-        .deleteDisplayFormats(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    assertEquals(1, xmlDeleted.size());
+    assertEquals("MyFmt", xmlDeleted.get(0).getName());
+    assertEquals(IPSDbComponent.DBSTATE_MARKEDFORDELETE, xmlDeleted.get(0).getState());
+    verify(designWs, never()).deleteDisplayFormats(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).saveDisplayFormats(anyList(), anyBoolean(), any(), any());
   }
 
   @Test
-  void delete_xmlDocumentFallback_savesMarkedComponent() throws Exception {
-    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
-    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
-    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
-        .thenReturn(List.of(nativeDf));
-    PSErrorsException xmlMissing = new PSErrorsException();
-    xmlMissing.addError(guid, new PSErrorException("Xml Document Expected, none supplied"));
-    doThrow(xmlMissing)
-        .when(designWs)
-        .deleteDisplayFormats(anyList(), eq(false), any(), any());
-
-    assertTrue(adaptor.deleteDisplayFormat("MyFmt"));
-    verify(designWs).saveDisplayFormats(anyList(), eq(true), eq("test-session"), eq("Admin"));
-  }
-
-  @Test
-  void delete_unknown_returnsFalse() {
+  void delete_unknown_returnsFalse() throws Exception {
     when(designWs.findDisplayFormat(eq("missing"))).thenReturn(null);
     assertFalse(adaptor.deleteDisplayFormat("missing"));
+    assertTrue(xmlDeleted.isEmpty());
     verify(designWs, never()).deleteDisplayFormats(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadDisplayFormats(anyList(), anyBoolean(), anyBoolean(), any(), any());
   }
 
   @Test
@@ -389,6 +420,7 @@ class DisplayFormatAdaptorWriteTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> adaptor.deleteDisplayFormat("MyFmt"));
     assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(xmlDeleted.isEmpty());
     verify(designWs, never()).deleteDisplayFormats(anyList(), anyBoolean(), any(), any());
   }
 
@@ -398,25 +430,50 @@ class DisplayFormatAdaptorWriteTest {
     when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
     when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
         .thenReturn(List.of(nativeDf));
-    PSErrorsException errors = new PSErrorsException();
-    errors.addError(guid, new PSErrorException("Object has dependents"));
-    doThrow(errors)
-        .when(designWs)
-        .deleteDisplayFormats(anyList(), eq(false), any(), any());
+    adaptor =
+        new DisplayFormatAdaptor(
+            designWs,
+            () -> true,
+            (df, id, session, user) -> {
+              throw new WebApplicationException(
+                  "Display format has dependents and cannot be deleted", 409);
+            });
 
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> adaptor.deleteDisplayFormat("MyFmt"));
     assertEquals(409, ex.getResponse().getStatus());
     assertTrue(ex.getMessage().toLowerCase().contains("depend"), ex.getMessage());
+    verify(designWs, never()).deleteDisplayFormats(anyList(), anyBoolean(), any(), any());
   }
 
   @Test
-  void delete_nonAdmin_is403() {
+  void delete_xmlPersistFailure_is500() throws Exception {
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(nativeDf));
+    adaptor =
+        new DisplayFormatAdaptor(
+            designWs,
+            () -> true,
+            (df, id, session, user) -> {
+              throw new PSCmsException(0, "Xml Document Expected, none supplied");
+            });
+
+    IllegalStateException ex =
+        assertThrows(IllegalStateException.class, () -> adaptor.deleteDisplayFormat("MyFmt"));
+    assertTrue(ex.getMessage().toLowerCase().contains("delete"), ex.getMessage());
+    verify(designWs, never()).deleteDisplayFormats(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void delete_nonAdmin_is403() throws Exception {
     adaptor = new DisplayFormatAdaptor(designWs, () -> false);
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> adaptor.deleteDisplayFormat("MyFmt"));
     assertEquals(403, ex.getResponse().getStatus());
     verify(designWs, never()).deleteDisplayFormats(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadDisplayFormats(anyList(), anyBoolean(), anyBoolean(), any(), any());
   }
 
   @Test

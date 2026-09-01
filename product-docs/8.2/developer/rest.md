@@ -1371,9 +1371,10 @@ The Design SPA **Create template** action uses POST; **Delete** uses this DELETE
 
 Content Explorer **display format** definitions (Developer **Display Formats**) are exposed
 under `/services/displayformats`. The REST layer is a thin contract over the UI **design**
-web service (`IPSUiDesignWs`) — create, update, and delete use the same
-`createDisplayFormats` / `loadDisplayFormats` / `saveDisplayFormats` /
-`deleteDisplayFormats` operations SOAP uses. There is no new SOAP surface. GET list/detail
+web service (`IPSUiDesignWs`) — create and update use the same
+`createDisplayFormats` / `loadDisplayFormats` / `saveDisplayFormats` operations SOAP uses.
+Admin delete loads the format and persists component XML (Workbench processor path) so
+`updateDisplayFormats` receives a document. There is no new SOAP surface. GET list/detail
 remain a catalog read.
 
 Responses include a nested `guid` object and a plain `guidString` (`host-type-uuid`) so
@@ -1385,7 +1386,7 @@ clients can load **Object ACL** via `GET /services/acls/object/{guid}`.
 | `GET` | `/services/displayformats/{idOrName}` | Load one format by internal name or GUID string |
 | `POST` | `/services/displayformats` | **Admin.** Create a format (`createDisplayFormats` then `saveDisplayFormats`) |
 | `PUT` | `/services/displayformats/{idOrName}` | **Admin.** Update `label`/`displayName` and/or `description` |
-| `DELETE` | `/services/displayformats/{idOrName}` | **Admin.** Delete a format (`deleteDisplayFormats`, `ignoreDependencies=false`) |
+| `DELETE` | `/services/displayformats/{idOrName}` | **Admin.** Delete a user format (loaded component XML persist; dependents `ignoreDependencies=false`) |
 
 JSON wraps the list as `DisplayFormatList` (`{"DisplayFormatList":[…]}`) including the empty
 catalog (`{"DisplayFormatList":[]}`, not a bare `[]`) and a single item as `DisplayFormat`.
@@ -1407,13 +1408,21 @@ Update (`PUT /services/displayformats/{idOrName}`) loads with a design lock
 `validForViewsAndSearches`, `validForRelatedContent`) are **derived from columns** the
 same way Workbench computes them — they are not independently persisted on PUT.
 
-Delete (`DELETE /services/displayformats/{idOrName}`) returns **204** when removed; a
-following `GET` is **404**. Unknown id/name is **404**. A format that still has dependents
-is **409**. Locked-by-another-user is **409** (the lock is not stolen). Non-Admin is **403**.
+Delete (`DELETE /services/displayformats/{idOrName}`) returns **204** when the format is
+removed from the catalog; a following `GET` is **404**. The REST adaptor loads the format
+with a design lock, marks it for deletion, and persists the **component XML** (the same
+Workbench objectstore path `updateDisplayFormats` expects). Locator-only SOAP
+`deleteDisplayFormats` is not used for this REST path — that request supplies no XML
+document and does not persist. Unknown id/name is **404**. A format that still has
+dependents is **409**. Locked-by-another-user is **409** (the lock is not stolen).
+Non-Admin is **403**. Do **not** delete packaged system formats (for example `By_Author`)
+to prove this path — create a uniquely named user format with `POST`, then `DELETE` that
+name.
 
 **Developer → Display Formats** chrome creates and deletes user display formats
 (and saves label / description). Column picker completeness is not in that SPA —
-see [Developer Display Formats](id:admin-developer-display-formats).
+see [Developer Display Formats](id:admin-developer-display-formats). The catalog
+lists user-created formats and omits a row after a successful REST or SPA delete.
 
 ### Object ACL save (display format and peers)
 
