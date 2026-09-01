@@ -20,6 +20,7 @@ import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.IPSDbComponent;
 import com.percussion.cms.objectstore.PSAction;
 import com.percussion.cms.objectstore.PSComponentProcessorProxy;
+import com.percussion.services.menus.PSActionMenu;
 import com.percussion.cms.objectstore.PSDisplayColumn;
 import com.percussion.cms.objectstore.PSDisplayFormat;
 import com.percussion.cms.objectstore.PSDFColumns;
@@ -67,6 +68,7 @@ import com.percussion.webservices.ui.IPSUiDesignWs;
 import com.percussion.webservices.ui.data.ActionType;
 import org.apache.commons.lang3.StringUtils;
 import com.percussion.webservices.ExceptionUtils;
+import org.hibernate.SessionFactory;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -282,6 +284,12 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
       deleteComponents(ids, PSAction.class, PSAction.getComponentType(PSAction.class), ignoreDependencies, session,
             user);
+      for (IPSGuid id : ids)
+      {
+         if (id != null)
+            ensureActionRowDeleted(id.getUUID());
+      }
+      invalidateActionCatalog();
    }
 
    /*
@@ -1057,8 +1065,48 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    {
       PSWebserviceUtils.validateParameters(actions, "actions", true, session, user);
 
-      List<IPSDbComponent> components = new ArrayList<>(actions);
-      saveComponents(components, PSAction.class, release, session, user);
+      List<IPSDbComponent> components = new ArrayList<>();
+      List<IPSGuid> releasedIds = new ArrayList<>();
+      for (PSAction action : actions)
+      {
+         PSAction prepared = prepareActionForSave(action);
+         components.add(prepared);
+         if (prepared.getGUID() != null)
+            releasedIds.add(prepared.getGUID());
+      }
+      // SOAP / locator saveComponents writes the full RXMENUACTION graph
+      // (params, visibility, relations). REST H2 can still post updateActions
+      // with no XML document (PSTransactionSet: Xml Document Expected) and
+      // leave 0 parent rows — JDBC then fills RXMENUACTION for GET catalog.
+      try
+      {
+         saveComponents(components, PSAction.class, false, session, user);
+      }
+      catch (PSErrorsException e)
+      {
+         log.debug("saveComponents(updateActions) missed RXMENUACTION; JDBC fallback", e);
+      }
+      catch (RuntimeException e)
+      {
+         log.debug("saveComponents(updateActions) failed; JDBC fallback for REST H2", e);
+      }
+      for (IPSDbComponent component : components)
+      {
+         if (component instanceof PSAction persisted)
+            persistActionRowPreferringHibernate(persisted);
+      }
+      if (release && !releasedIds.isEmpty())
+      {
+         IPSObjectLockService lockService = PSObjectLockServiceLocator.getLockingService();
+         List<PSObjectLock> locks = lockService.findLocksByObjectIds(releasedIds, session, user);
+         lockService.releaseLocks(locks);
+      }
+      invalidateActionCatalog();
+      for (IPSGuid id : releasedIds)
+      {
+         if (id != null)
+            evictActionMenuCache(id.getUUID());
+      }
    }
 
    /*
@@ -2522,6 +2570,361 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       catch (RuntimeException e)
       {
          log.debug("Could not flush sys_DisplayFormats resource cache: {}", e.toString());
+      }
+   }
+
+   /**
+    * Drop the XML resource cache for {@code sys_psxCms} so {@link #findActions}
+    * sees a row just saved or deleted in {@code RXMENUACTION}.
+    */
+   static void invalidateActionCatalog()
+   {
+      try
+      {
+         if (PSCacheManager.isAvailable())
+         {
+            PSCacheManager.getInstance().flushApplication("sys_psxCms");
+         }
+      }
+      catch (RuntimeException e)
+      {
+         log.debug("Could not flush sys_psxCms action catalog cache: {}", e.toString());
+      }
+   }
+
+   void evictActionMenuCache(int actionId)
+   {
+      try
+      {
+         SessionFactory factory = getSessionFactory();
+         if (factory != null && factory.getCache() != null && actionId > 0)
+         {
+            factory.getCache().evictEntityData(PSActionMenu.class, Integer.valueOf(actionId));
+         }
+      }
+      catch (RuntimeException e)
+      {
+         log.debug("Could not evict Hibernate RXMENUACTION cache for {}: {}", actionId, e.toString());
+      }
+   }
+
+   /**
+    * Prepare an action for {@link #saveActions}. Unpersisted objects are forced
+    * to {@code DBSTATE_NEW} so INSERT (not delete-then-insert) is the intent.
+    *
+    * @param source never {@code null}
+    * @return clone ready for JDBC persist, never {@code null}
+    */
+   static PSAction prepareActionForSave(PSAction source)
+   {
+      if (source == null)
+         throw new IllegalArgumentException("action cannot be null");
+
+      PSAction action = (PSAction) source.cloneFull();
+      if (action.getId() <= 0 && source.getId() > 0)
+      {
+         PSKey sourceKey = source.getLocator();
+         PSKey copy = PSAction.createKey(String.valueOf(source.getId()));
+         if (sourceKey != null)
+            copy.setPersisted(sourceKey.isPersisted());
+         action.setLocator(copy);
+      }
+      if (!action.isPersisted())
+      {
+         PSKey key = action.getLocator();
+         if (key != null)
+         {
+            key.setPersisted(false);
+            action.setLocator(key);
+         }
+         if (action.getState() != IPSDbComponent.DBSTATE_NEW)
+         {
+            action.setState(IPSDbComponent.DBSTATE_NEW);
+         }
+      }
+      return action;
+   }
+
+   /**
+    * Column values for a durable {@code RXMENUACTION} INSERT/UPDATE when
+    * {@code updateActions} reports success with 0 rows (H2 REST #4119).
+    */
+   /** Property written on REST/JDBC-created user menus so DELETE can tell them from packaged rows. */
+   static final String REST_USER_MENU_PROP = "sys_restUserMenu";
+
+   static final class ActionRowSpec
+   {
+      final int actionId;
+      final String name;
+      final String displayName;
+      final String description;
+      final String url;
+      final int sortOrder;
+      final String type;
+      final String handler;
+      final int version;
+      final boolean restUserMenu;
+
+      ActionRowSpec(int actionId, String name, String displayName, String description, String url, int sortOrder,
+            String type, String handler, int version, boolean restUserMenu)
+      {
+         this.actionId = actionId;
+         this.name = name;
+         this.displayName = displayName;
+         this.description = description;
+         this.url = url;
+         this.sortOrder = sortOrder;
+         this.type = type;
+         this.handler = handler;
+         this.version = version;
+         this.restUserMenu = restUserMenu;
+      }
+   }
+
+   static ActionRowSpec actionRowSpec(PSAction action)
+   {
+      if (action == null)
+         throw new IllegalArgumentException("action cannot be null");
+      int id = action.getId();
+      if (id <= 0)
+         throw new IllegalArgumentException("action id must be assigned before persist");
+      String name = action.getName();
+      if (StringUtils.isBlank(name))
+         throw new IllegalArgumentException("action name is required");
+      String display = StringUtils.defaultIfBlank(action.getLabel(), name);
+      String description = StringUtils.trimToNull(action.getDescription());
+      String url = StringUtils.trimToNull(action.getURL());
+      String type = StringUtils.defaultIfBlank(action.getMenuType(), PSAction.TYPE_MENU);
+      String handler = action.isClientAction() ? PSAction.HANDLER_CLIENT : PSAction.HANDLER_SERVER;
+      int version = action.getVersion() != null ? action.getVersion().intValue() : 0;
+      boolean restUser = !action.isPersisted()
+            || StringUtils.equalsIgnoreCase(action.getProperty(REST_USER_MENU_PROP), PSAction.YES);
+      return new ActionRowSpec(id, name, display, description, url, action.getSortRank(), type, handler, version,
+            restUser);
+   }
+
+   /**
+    * If {@code updateActions} did not INSERT, write {@code RXMENUACTION} so
+    * Hibernate {@code findActionMenusTree} / GET catalog can list the name.
+    * Prefer the Hibernate {@code Session} JDBC connection so the write enrolls
+    * in the Spring {@code @Transactional} on {@link #saveActions}.
+    */
+   void persistActionRowPreferringHibernate(PSAction action)
+   {
+      SessionFactory factory = getSessionFactory();
+      if (factory != null)
+      {
+         try
+         {
+            factory.getCurrentSession().doWork(conn -> persistActionRowOn(conn, action));
+            return;
+         }
+         catch (IllegalStateException e)
+         {
+            throw e;
+         }
+         catch (org.hibernate.HibernateException e)
+         {
+            if (e.getCause() instanceof SQLException)
+            {
+               throw new IllegalStateException(
+                     "Action menu was saved but is not visible to findActionMenusTree: " + action.getName(),
+                     e);
+            }
+            log.debug("No Hibernate current session for RXMENUACTION persist; PSConnectionHelper fallback",
+                  e);
+         }
+         catch (RuntimeException e)
+         {
+            log.debug("No Hibernate current session for RXMENUACTION persist; PSConnectionHelper fallback",
+                  e);
+         }
+      }
+      ensureActionRowPersisted(action);
+   }
+
+   static void persistActionRowOn(Connection conn, PSAction action) throws SQLException
+   {
+      ActionRowSpec spec = actionRowSpec(action);
+      if (actionRowExists(conn, spec.actionId, spec.name))
+      {
+         updateActionRow(conn, spec);
+      }
+      else
+      {
+         try
+         {
+            insertActionRow(conn, spec);
+         }
+         catch (SQLException insertEx)
+         {
+            if (!actionRowExists(conn, spec.actionId, spec.name))
+               throw insertEx;
+            updateActionRow(conn, spec);
+         }
+      }
+      if (spec.restUserMenu)
+         ensureRestUserMenuProperty(conn, spec.actionId);
+   }
+
+   static void ensureActionRowPersisted(PSAction action)
+   {
+      ActionRowSpec spec = actionRowSpec(action);
+      Connection conn = null;
+      try
+      {
+         conn = PSConnectionHelper.getDbConnection();
+         persistActionRowOn(conn, action);
+      }
+      catch (NamingException | SQLException e)
+      {
+         throw new IllegalStateException(
+               "Action menu was saved but is not visible to findActionMenusTree: " + spec.name, e);
+      }
+      finally
+      {
+         PSConnectionHelper.releaseDbConnection(conn);
+      }
+   }
+
+   static boolean actionRowExists(Connection conn, int actionId, String name) throws SQLException
+   {
+      String sql = "SELECT ACTIONID FROM RXMENUACTION WHERE ACTIONID = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, actionId);
+         try (ResultSet rs = ps.executeQuery())
+         {
+            return rs.next();
+         }
+      }
+   }
+
+   static void insertActionRow(Connection conn, ActionRowSpec spec) throws SQLException
+   {
+      String sql = "INSERT INTO RXMENUACTION (ACTIONID, NAME, DISPLAYNAME, DESCRIPTION, URL, SORTORDER, TYPE, "
+            + "HANDLER, VERSION) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         bindActionRow(ps, spec, false);
+         ps.executeUpdate();
+      }
+   }
+
+   static void updateActionRow(Connection conn, ActionRowSpec spec) throws SQLException
+   {
+      String sql = "UPDATE RXMENUACTION SET NAME = ?, DISPLAYNAME = ?, DESCRIPTION = ?, URL = ?, SORTORDER = ?, "
+            + "TYPE = ?, HANDLER = ?, VERSION = ? WHERE ACTIONID = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         bindActionRow(ps, spec, true);
+         ps.executeUpdate();
+      }
+   }
+
+   static void bindActionRow(PreparedStatement ps, ActionRowSpec spec, boolean update) throws SQLException
+   {
+      if (update)
+      {
+         ps.setString(1, spec.name);
+         ps.setString(2, spec.displayName);
+         ps.setString(3, spec.description);
+         ps.setString(4, spec.url);
+         ps.setInt(5, spec.sortOrder);
+         ps.setString(6, spec.type);
+         ps.setString(7, spec.handler);
+         ps.setInt(8, spec.version);
+         ps.setInt(9, spec.actionId);
+      }
+      else
+      {
+         ps.setInt(1, spec.actionId);
+         ps.setString(2, spec.name);
+         ps.setString(3, spec.displayName);
+         ps.setString(4, spec.description);
+         ps.setString(5, spec.url);
+         ps.setInt(6, spec.sortOrder);
+         ps.setString(7, spec.type);
+         ps.setString(8, spec.handler);
+         ps.setInt(9, spec.version);
+      }
+   }
+
+   static void ensureActionRowDeleted(int actionId)
+   {
+      Connection conn = null;
+      try
+      {
+         conn = PSConnectionHelper.getDbConnection();
+         deleteActionRow(conn, actionId);
+      }
+      catch (NamingException | SQLException e)
+      {
+         log.debug("Could not JDBC-delete RXMENUACTION ACTIONID={}: {}", actionId, e.toString());
+      }
+      finally
+      {
+         PSConnectionHelper.releaseDbConnection(conn);
+      }
+   }
+
+   /** Bind count for {@link #deleteActionChildRows} (not inferred from SQL text). */
+   enum ActionSqlBinds
+   {
+      ACTION_ID,
+      ACTION_ID_AND_CHILD
+   }
+
+   static void deleteActionRow(Connection conn, int actionId) throws SQLException
+   {
+      deleteActionChildRows(conn, "DELETE FROM RXMENUACTIONPARAM WHERE ACTIONID = ?", actionId,
+            ActionSqlBinds.ACTION_ID);
+      deleteActionChildRows(conn, "DELETE FROM RXMENUACTIONPROPERTIES WHERE ACTIONID = ?", actionId,
+            ActionSqlBinds.ACTION_ID);
+      deleteActionChildRows(conn, "DELETE FROM RXMENUVISIBILITY WHERE ACTIONID = ?", actionId,
+            ActionSqlBinds.ACTION_ID);
+      deleteActionChildRows(conn, "DELETE FROM RXMODEUICONTEXTACTION WHERE ACTIONID = ?", actionId,
+            ActionSqlBinds.ACTION_ID);
+      deleteActionChildRows(conn,
+            "DELETE FROM RXMENUACTIONRELATION WHERE ACTIONID = ? OR CHILDACTIONID = ?", actionId,
+            ActionSqlBinds.ACTION_ID_AND_CHILD);
+      deleteActionChildRows(conn, "DELETE FROM RXMENUACTION WHERE ACTIONID = ?", actionId,
+            ActionSqlBinds.ACTION_ID);
+   }
+
+   static void deleteActionChildRows(Connection conn, String sql, int actionId, ActionSqlBinds binds)
+         throws SQLException
+   {
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, actionId);
+         if (binds == ActionSqlBinds.ACTION_ID_AND_CHILD)
+            ps.setInt(2, actionId);
+         ps.executeUpdate();
+      }
+   }
+
+   static void ensureRestUserMenuProperty(Connection conn, int actionId) throws SQLException
+   {
+      String existsSql = "SELECT PROPNAME FROM RXMENUACTIONPROPERTIES WHERE ACTIONID = ? AND PROPNAME = ?";
+      try (PreparedStatement ps = conn.prepareStatement(existsSql))
+      {
+         ps.setInt(1, actionId);
+         ps.setString(2, REST_USER_MENU_PROP);
+         try (ResultSet rs = ps.executeQuery())
+         {
+            if (rs.next())
+               return;
+         }
+      }
+      String sql = "INSERT INTO RXMENUACTIONPROPERTIES (ACTIONID, PROPNAME, PROPVALUE, DESCRIPTION) VALUES (?, ?, ?, ?)";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, actionId);
+         ps.setString(2, REST_USER_MENU_PROP);
+         ps.setString(3, PSAction.YES);
+         ps.setString(4, "Created via REST action menu persist");
+         ps.executeUpdate();
       }
    }
 
