@@ -106,7 +106,7 @@ public interface ISiteAdaptor {
   /**
    * Builds a Virtual Site from configured {@code virtual.*} properties ({@code git-filesystem},
    * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage},
-   * {@code rss-atom}, or {@code icalendar}).
+   * {@code rss-atom}, {@code icalendar}, or {@code sitemap-xml}).
    *
    * <p>Loads the site, validates via {@code PSVirtualSiteHelper}, optionally clones/fetches {@code
    * virtual.remoteUrl} into a contained work directory (git-filesystem only), runs {@code
@@ -123,7 +123,10 @@ public interface ISiteAdaptor {
    * properties, and cloud {@code rootPath} are 400. {@code icalendar} discovers pages from a
    * local RFC 5545 fixture ({@code calendar.ics} or {@code icalendar.file}) — no CalDAV or live
    * remotes; leftover {@code virtual.remoteUrl}, credential properties, and cloud {@code
-   * rootPath} are 400. Unknown source kinds return 400. Requires Admin (or equivalent
+   * rootPath} are 400. {@code sitemap-xml} discovers pages from a local {@code sitemap.xml}
+   * fixture ({@code sitemap.xml} or {@code sitemap.file}; urlset of portable files under {@code
+   * rootPath}) — no live crawl; leftover {@code virtual.remoteUrl}, credential properties, and
+   * cloud {@code rootPath} are 400. Unknown source kinds return 400. Requires Admin (or equivalent
    * site-manage) authorization.
    *
    * @param nameOrId site name or GUID string, not blank
