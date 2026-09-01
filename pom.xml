@@ -178,7 +178,7 @@
         <java.websocket.version>1.6.0</java.websocket.version>
         <!-- Desktop Content Explorer OpenJFX line (bare "17" was unpatched javafx-media) -->
         <javafx.version>17.0.20</javafx.version>
-        <javassist.version>3.30.2-GA</javassist.version>
+        <javassist.version>3.33.0-GA</javassist.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jaxb.runtime.version>4.0.6</jaxb.runtime.version>
         <jbig2.version>3.0.2</jbig2.version>
@@ -864,7 +864,7 @@
                 <!-- used in hibernate and swagger-jaxrs -->
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
-                <version>3.30.2-GA</version>
+                <version>3.33.0-GA</version>
             </dependency>
             <dependency>
                 <groupId>antlr</groupId>
