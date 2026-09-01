@@ -31,7 +31,7 @@ const {
 } = require("../helpers/virtual-source-kind-options");
 
 describe("virtual-source-kind-options", () => {
-  it("requires object-storage, rss-atom, and icalendar among the live kind options (#3893 / #3927 / #3983)", () => {
+  it("requires object-storage, rss-atom, icalendar, and sitemap-xml among the live kind options (#3893 / #3927 / #3983 / #4115)", () => {
     const required = requiredVirtualSourceKindValues();
     assert.deepEqual(required, [
       "repository",
@@ -42,10 +42,12 @@ describe("virtual-source-kind-options", () => {
       "object-storage",
       "rss-atom",
       "icalendar",
+      "sitemap-xml",
     ]);
     assert.equal(required.includes("object-storage"), true);
     assert.equal(required.includes("rss-atom"), true);
     assert.equal(required.includes("icalendar"), true);
+    assert.equal(required.includes("sitemap-xml"), true);
     assert.equal(required.includes("sql-api"), false);
   });
 
@@ -58,6 +60,7 @@ describe("virtual-source-kind-options", () => {
       "http-json",
       "rss-atom",
       "icalendar",
+      "sitemap-xml",
     ];
     const missing = missingVirtualSourceKindValues(live);
     assert.deepEqual(missing, ["object-storage"]);

@@ -885,14 +885,16 @@ export interface SiteDef {
  * <p>Blank / missing {@code sourceKind} (or value {@code repository}) means a
  * traditional repository Site. Allow-listed virtual adapters:
  * {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
- * {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}.
- * Developer Sites save chrome includes http-json, object-storage, rss-atom, and
- * icalendar (local {@code rootPath} only; no cloud URLs, live feed / CalDAV
- * credentials, or {@code virtual.remoteUrl} on those kinds). Build chrome is
- * shown after save for git/csv/sql/http-json/object-storage/rss-atom/icalendar.
- * Preview chrome is shown for git/csv/sql/http-json/object-storage/rss-atom/
- * icalendar. Publish chrome is shown for git/csv/sql/http-json/object-storage/
- * rss-atom/icalendar. Repository / unknown kinds hide that chrome.
+ * {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar},
+ * {@code sitemap-xml}. Developer Sites save chrome includes http-json,
+ * object-storage, rss-atom, icalendar, and sitemap-xml (local {@code rootPath}
+ * only; no cloud URLs, live feed / CalDAV / crawl credentials, or
+ * {@code virtual.remoteUrl} on those kinds). Build chrome is shown after save
+ * for git/csv/sql/http-json/object-storage/rss-atom/icalendar. Preview chrome
+ * is shown for git/csv/sql/http-json/object-storage/rss-atom/icalendar. Publish
+ * chrome is shown for git/csv/sql/http-json/object-storage/rss-atom/icalendar.
+ * sitemap-xml is save/GET-roundtrip only in this slice (Build/Preview/Publish
+ * later). Repository / unknown kinds hide that chrome.
  */
 export interface VirtualSiteProperties {
   sourceKind?: string | null;

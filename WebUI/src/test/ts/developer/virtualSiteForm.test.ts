@@ -12,6 +12,7 @@ import {
   SOURCE_KIND_REPOSITORY,
   SOURCE_KIND_RSS_ATOM,
   SOURCE_KIND_SELECT_VALUES,
+  SOURCE_KIND_SITEMAP_XML,
   SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
   formToVirtualProps,
@@ -21,6 +22,7 @@ import {
   isIcalendarSourceKind,
   isObjectStorageSourceKind,
   isRssAtomSourceKind,
+  isSitemapXmlSourceKind,
   isSqlDatabaseSourceKind,
   isVirtualSourceKind,
   normalizeSourceKindOption,
@@ -29,7 +31,7 @@ import {
 } from "../../../main/ts/developer/virtualSiteForm";
 
 describe("virtualSiteForm helpers", () => {
-  it("SOURCE_KIND_SELECT_VALUES lists object-storage, rss-atom, and icalendar with the other product kinds", () => {
+  it("SOURCE_KIND_SELECT_VALUES lists object-storage, rss-atom, icalendar, and sitemap-xml with the other product kinds", () => {
     expect(SOURCE_KIND_SELECT_VALUES).toEqual([
       SOURCE_KIND_REPOSITORY,
       SOURCE_KIND_GIT_FILESYSTEM,
@@ -39,10 +41,11 @@ describe("virtualSiteForm helpers", () => {
       SOURCE_KIND_OBJECT_STORAGE,
       SOURCE_KIND_RSS_ATOM,
       SOURCE_KIND_ICALENDAR,
+      SOURCE_KIND_SITEMAP_XML,
     ]);
   });
 
-  it("normalizeSourceKindOption maps blank/repository, git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, and icalendar", () => {
+  it("normalizeSourceKindOption maps blank/repository, git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, and sitemap-xml", () => {
     expect(normalizeSourceKindOption(undefined)).toBe(SOURCE_KIND_REPOSITORY);
     expect(normalizeSourceKindOption("")).toBe(SOURCE_KIND_REPOSITORY);
     expect(normalizeSourceKindOption("  ")).toBe(SOURCE_KIND_REPOSITORY);
@@ -62,6 +65,8 @@ describe("virtualSiteForm helpers", () => {
     expect(normalizeSourceKindOption("RSS-Atom")).toBe(SOURCE_KIND_RSS_ATOM);
     expect(normalizeSourceKindOption("icalendar")).toBe(SOURCE_KIND_ICALENDAR);
     expect(normalizeSourceKindOption("ICalendar")).toBe(SOURCE_KIND_ICALENDAR);
+    expect(normalizeSourceKindOption("sitemap-xml")).toBe(SOURCE_KIND_SITEMAP_XML);
+    expect(normalizeSourceKindOption("Sitemap-XML")).toBe(SOURCE_KIND_SITEMAP_XML);
     expect(normalizeSourceKindOption("future-adapter")).toBe(SOURCE_KIND_REPOSITORY);
     expect(normalizeSourceKindOption("sql-api")).toBe(SOURCE_KIND_REPOSITORY);
   });
@@ -77,6 +82,7 @@ describe("virtualSiteForm helpers", () => {
     expect(isVirtualSourceKind("object-storage")).toBe(true);
     expect(isVirtualSourceKind("rss-atom")).toBe(true);
     expect(isVirtualSourceKind("icalendar")).toBe(true);
+    expect(isVirtualSourceKind("sitemap-xml")).toBe(true);
     expect(isGitFilesystemSourceKind("git-filesystem")).toBe(true);
     expect(isGitFilesystemSourceKind("csv-filesystem")).toBe(false);
     expect(isGitFilesystemSourceKind("sql-database")).toBe(false);
@@ -84,6 +90,7 @@ describe("virtualSiteForm helpers", () => {
     expect(isGitFilesystemSourceKind("object-storage")).toBe(false);
     expect(isGitFilesystemSourceKind("rss-atom")).toBe(false);
     expect(isGitFilesystemSourceKind("icalendar")).toBe(false);
+    expect(isGitFilesystemSourceKind("sitemap-xml")).toBe(false);
     expect(isCsvFilesystemSourceKind("csv-filesystem")).toBe(true);
     expect(isCsvFilesystemSourceKind("git-filesystem")).toBe(false);
     expect(isCsvFilesystemSourceKind("sql-database")).toBe(false);
@@ -91,6 +98,7 @@ describe("virtualSiteForm helpers", () => {
     expect(isCsvFilesystemSourceKind("object-storage")).toBe(false);
     expect(isCsvFilesystemSourceKind("rss-atom")).toBe(false);
     expect(isCsvFilesystemSourceKind("icalendar")).toBe(false);
+    expect(isCsvFilesystemSourceKind("sitemap-xml")).toBe(false);
     expect(isSqlDatabaseSourceKind("sql-database")).toBe(true);
     expect(isSqlDatabaseSourceKind("SQL-Database")).toBe(true);
     expect(isSqlDatabaseSourceKind("csv-filesystem")).toBe(false);
@@ -99,6 +107,7 @@ describe("virtualSiteForm helpers", () => {
     expect(isSqlDatabaseSourceKind("object-storage")).toBe(false);
     expect(isSqlDatabaseSourceKind("rss-atom")).toBe(false);
     expect(isSqlDatabaseSourceKind("icalendar")).toBe(false);
+    expect(isSqlDatabaseSourceKind("sitemap-xml")).toBe(false);
     expect(isHttpJsonSourceKind("http-json")).toBe(true);
     expect(isHttpJsonSourceKind("HTTP-JSON")).toBe(true);
     expect(isHttpJsonSourceKind("sql-database")).toBe(false);
@@ -107,6 +116,7 @@ describe("virtualSiteForm helpers", () => {
     expect(isHttpJsonSourceKind("object-storage")).toBe(false);
     expect(isHttpJsonSourceKind("rss-atom")).toBe(false);
     expect(isHttpJsonSourceKind("icalendar")).toBe(false);
+    expect(isHttpJsonSourceKind("sitemap-xml")).toBe(false);
     expect(isObjectStorageSourceKind("object-storage")).toBe(true);
     expect(isObjectStorageSourceKind("Object-Storage")).toBe(true);
     expect(isObjectStorageSourceKind("http-json")).toBe(false);
@@ -114,17 +124,25 @@ describe("virtualSiteForm helpers", () => {
     expect(isObjectStorageSourceKind("git-filesystem")).toBe(false);
     expect(isObjectStorageSourceKind("rss-atom")).toBe(false);
     expect(isObjectStorageSourceKind("icalendar")).toBe(false);
+    expect(isObjectStorageSourceKind("sitemap-xml")).toBe(false);
     expect(isRssAtomSourceKind("rss-atom")).toBe(true);
     expect(isRssAtomSourceKind("RSS-Atom")).toBe(true);
     expect(isRssAtomSourceKind("object-storage")).toBe(false);
     expect(isRssAtomSourceKind("http-json")).toBe(false);
     expect(isRssAtomSourceKind("git-filesystem")).toBe(false);
     expect(isRssAtomSourceKind("icalendar")).toBe(false);
+    expect(isRssAtomSourceKind("sitemap-xml")).toBe(false);
     expect(isIcalendarSourceKind("icalendar")).toBe(true);
     expect(isIcalendarSourceKind("ICalendar")).toBe(true);
     expect(isIcalendarSourceKind("rss-atom")).toBe(false);
     expect(isIcalendarSourceKind("object-storage")).toBe(false);
     expect(isIcalendarSourceKind("git-filesystem")).toBe(false);
+    expect(isIcalendarSourceKind("sitemap-xml")).toBe(false);
+    expect(isSitemapXmlSourceKind("sitemap-xml")).toBe(true);
+    expect(isSitemapXmlSourceKind("Sitemap-XML")).toBe(true);
+    expect(isSitemapXmlSourceKind("icalendar")).toBe(false);
+    expect(isSitemapXmlSourceKind("rss-atom")).toBe(false);
+    expect(isSitemapXmlSourceKind("git-filesystem")).toBe(false);
   });
 
   it("virtualPropsToForm and formToVirtualProps round-trip repository clear", () => {
@@ -403,6 +421,43 @@ describe("virtualSiteForm helpers", () => {
     );
   });
 
+  it("virtualPropsToForm maps sitemap-xml and PUT omits Git remotes", () => {
+    const form = virtualPropsToForm({
+      sourceKind: "sitemap-xml",
+      rootPath: "C:/sitemap-xml-docs",
+      virtual: true,
+    });
+    expect(form.sourceKind).toBe(SOURCE_KIND_SITEMAP_XML);
+    expect(form.rootPath).toBe("C:/sitemap-xml-docs");
+    expect(formToVirtualProps(form)).toEqual({
+      sourceKind: SOURCE_KIND_SITEMAP_XML,
+      rootPath: "C:/sitemap-xml-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+  });
+
+  it("formToVirtualProps for sitemap-xml clears leftover Git remote fields", () => {
+    const body = formToVirtualProps({
+      sourceKind: SOURCE_KIND_SITEMAP_XML,
+      rootPath: "  C:/sitemap-xml-docs  ",
+      remoteUrl: "https://example.com/sitemap.xml",
+      branch: "main",
+      configFile: "_config.yaml",
+      siteKey: "docs",
+    });
+    expect(body).toEqual({
+      sourceKind: SOURCE_KIND_SITEMAP_XML,
+      rootPath: "C:/sitemap-xml-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+    expect(body).not.toHaveProperty("password");
+    expect(JSON.stringify(body)).not.toMatch(
+      /authorization|api[_-]?key|crawl|credential|token/i,
+    );
+  });
+
   it("formToVirtualProps trims and nulls empty optional fields", () => {
     const body = formToVirtualProps({
       sourceKind: SOURCE_KIND_GIT_FILESYSTEM,
@@ -669,6 +724,39 @@ describe("virtualSiteForm helpers", () => {
       validateVirtualSiteForm({
         sourceKind: SOURCE_KIND_ICALENDAR,
         rootPath: "C:/icalendar-docs",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBeNull();
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_SITEMAP_XML,
+        rootPath: "",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBe("root-required");
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_SITEMAP_XML,
+        rootPath: "../escape",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBe("root-unsafe");
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_SITEMAP_XML,
+        rootPath: "C:/sitemap-xml-docs",
         remoteUrl: "",
         branch: "",
         configFile: "",
