@@ -42,6 +42,9 @@ export const ACTION_MENU_TYPE = 107;
 /** {@code PSTypeEnum.VIEW_DEF} — CX view GUID type (#3380). */
 export const VIEW_TYPE = 18;
 
+/** {@code PSTypeEnum.COMMUNITY} — community GUID type (#4077 / SE-01). */
+export const COMMUNITY_TYPE = 13;
+
 function firstNonBlankString(value: unknown): string | undefined {
   if (typeof value === "string") {
     const trimmed = value.trim();
@@ -69,13 +72,22 @@ function readOptionalLikeString(value: unknown): string | undefined {
   return undefined;
 }
 
+/**
+ * Canonical non-negative integer for GUID part synthesis. Rejects leading zeros,
+ * floats, scientific notation, and non-numeric content so {@code "01"} cannot
+ * collide with numeric {@code 1}.
+ */
 function asFiniteNumber(value: unknown): number | undefined {
-  if (typeof value === "number" && Number.isFinite(value)) {
+  if (typeof value === "number" && Number.isInteger(value) && Number.isFinite(value)) {
     return value;
   }
-  if (typeof value === "string" && value.trim()) {
-    const n = Number(value);
-    return Number.isFinite(n) ? n : undefined;
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!/^(0|[1-9]\d*)$/.test(trimmed)) {
+      return undefined;
+    }
+    const n = Number(trimmed);
+    return Number.isSafeInteger(n) ? n : undefined;
   }
   return undefined;
 }
@@ -256,6 +268,24 @@ export function resolveViewObjectGuid(
     return resolved;
   }
   return synthesizeTypedObjectGuid(VIEW_TYPE, view?.id);
+}
+
+/**
+ * Community GUID: nested Guid / guidString, then catalog, then
+ * {@code 0-13-{id}} from the native community id (#4077).
+ */
+export function resolveCommunityObjectGuid(
+  community:
+    | (DesignObjectGuidSource & { id?: number | null })
+    | null
+    | undefined,
+  catalogGuid?: string | null,
+): string | undefined {
+  const resolved = resolveDesignObjectGuid(community, catalogGuid);
+  if (resolved) {
+    return resolved;
+  }
+  return synthesizeTypedObjectGuid(COMMUNITY_TYPE, community?.id);
 }
 
 /**

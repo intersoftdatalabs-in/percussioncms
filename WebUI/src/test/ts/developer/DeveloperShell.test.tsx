@@ -288,8 +288,13 @@ vi.mock("../../../main/ts/api/developer/keywordsApi", () => ({
   deleteKeyword: vi.fn(),
 }));
 
-vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
-  listTemplates: vi.fn().mockResolvedValue([
+vi.mock("../../../main/ts/api/developer/assemblyApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/assemblyApi")
+  >();
+  return {
+    ...actual,
+    listTemplates: vi.fn().mockResolvedValue([
     {
       templateId: 1,
       templateName: "perc.page",
@@ -407,7 +412,12 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
       guid: { stringValue: "0-10-1", uuid: 1 },
     },
   ]),
-}));
+  createCommunity: vi.fn(),
+  deleteCommunity: vi.fn(),
+  isCommunityWriteReady: vi.fn((opts: { name?: string }) => Boolean(opts?.name?.trim())),
+  isValidCommunityName: vi.fn((n: string) => Boolean(n?.trim())),
+  };
+});
 
 vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   listApplications: vi.fn().mockResolvedValue([
@@ -553,6 +563,9 @@ vi.mock("../../../main/ts/api/developer/displayFormatsApi", async (importOrigina
       name: "Default",
       columns: [],
     }),
+    createDisplayFormat: vi.fn(),
+    saveDisplayFormat: vi.fn(),
+    deleteDisplayFormat: vi.fn(),
     normalizeColumns: () => [],
   };
 });
@@ -589,16 +602,23 @@ vi.mock("../../../main/ts/api/developer/searchesApi", async (importOriginal) => 
   };
 });
 
-vi.mock("../../../main/ts/api/developer/viewsApi", () => ({
-  listViews: vi.fn().mockResolvedValue([
-    { name: "My View", label: "My View", standardView: true, fields: [] },
-  ]),
-  getViewDetail: vi.fn().mockResolvedValue({
-    name: "My View",
-    fields: [],
-    designGaps: [],
-  }),
-}));
+vi.mock("../../../main/ts/api/developer/viewsApi", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../../main/ts/api/developer/viewsApi")>();
+  return {
+    ...actual,
+    listViews: vi.fn().mockResolvedValue([
+      { name: "My View", label: "My View", standardView: true, fields: [] },
+    ]),
+    getViewDetail: vi.fn().mockResolvedValue({
+      name: "My View",
+      fields: [],
+      designGaps: [],
+    }),
+    createView: vi.fn(),
+    saveView: vi.fn(),
+    deleteView: vi.fn(),
+  };
+});
 
 vi.mock("../../../main/ts/api/developer/extensionsApi", () => ({
   listExtensions: vi.fn().mockResolvedValue([
@@ -1258,11 +1278,10 @@ it("loads views catalog section", async () => {
     );
     (getCommunityVisibility as ReturnType<typeof vi.fn>).mockClear();
     (getCommunityDetail as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      id: 10,
       name: "Default",
       label: "Default",
       description: "Default Community",
-      // no guid
+      // no guid and no id — cannot synthesize 0-13-{id}
       roleList: [
         { roleId: 1, roleName: "Admin", roleGuid: { stringValue: "0-14-1", uuid: 1 } },
       ],

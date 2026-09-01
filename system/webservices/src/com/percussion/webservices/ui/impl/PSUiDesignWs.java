@@ -32,6 +32,7 @@ import com.percussion.services.assembly.impl.nav.PSNavConfig;
 import com.percussion.fastforward.managednav.PSNavException;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
+import com.percussion.server.cache.PSCacheManager;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.PSGuidUtils;
@@ -49,6 +50,7 @@ import com.percussion.services.ui.PSUiServiceLocator;
 import com.percussion.services.ui.data.PSHierarchyNode;
 import com.percussion.services.ui.data.PSHierarchyNodeProperty;
 import com.percussion.utils.guid.IPSGuid;
+import com.percussion.utils.jdbc.PSConnectionHelper;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.timing.PSTimer;
 import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
@@ -68,6 +70,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Element;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,6 +81,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.naming.NamingException;
 
 
 /**
@@ -367,6 +373,12 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
       deleteComponents(ids, PSSearch.class, PSSearch.getComponentType(PSSearch.class), ignoreDependencies, session,
             user);
+      for (IPSGuid id : ids)
+      {
+         if (id != null)
+            ensureSearchRowDeleted(id.getUUID());
+      }
+      invalidateSearchCatalog();
    }
 
    /*
@@ -1159,21 +1171,41 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       PSWebserviceUtils.validateParameters(searches, "searches", true, session, user);
 
       List<IPSDbComponent> components = new ArrayList<>();
-      // Clean the community property from the components before saving
+      List<PSSearch> unpersisted = new ArrayList<>();
       for (PSSearch s : searches)
       {
-         s = (PSSearch) s.cloneFull();
-         String[] values = s.getPropertyValues("sys_community");
-         if (values != null)
-         {
-            for (String comm : values)
-            {
-               s.removeProperty("sys_community", comm);
-            }
-         }
-         components.add(s);
+         boolean wasNew = s != null && !s.isPersisted();
+         PSSearch prepared = prepareSearchForSave(s);
+         components.add(prepared);
+         if (wasNew || (prepared != null && !prepared.isPersisted()))
+            unpersisted.add(prepared);
       }
-      saveComponents(components, PSSearch.class, release, session, user);
+      // updateSearches Dataset431 (HTML SEARCHID IS NOT NULL) is DELETE-only
+      // (allowInserts=no). Dataset11143 (SEARCHID IS NULL) uses Action/@dbAction
+      // INSERT/UPDATE — the pipe createSearches must hit. inheritParams=true
+      // copies REST HTML params; never inject SEARCHID on save.
+      PSRequest req = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
+      Object previousSearchId = req != null ? req.getParameter("SEARCHID") : null;
+      boolean clearedSearchId = false;
+      if (req != null && previousSearchId != null)
+      {
+         req.removeParameter("SEARCHID");
+         clearedSearchId = true;
+      }
+      try
+      {
+         saveComponents(components, PSSearch.class, release, session, user);
+      }
+      finally
+      {
+         if (req != null && clearedSearchId)
+            req.setParameter("SEARCHID", previousSearchId);
+      }
+      for (PSSearch prepared : unpersisted)
+      {
+         ensureSearchRowPersisted(prepared);
+      }
+      invalidateSearchCatalog();
    }
 
    /*
@@ -1207,6 +1239,28 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          cache.save(ALL_SEARCHES_CACHE_KEY, searches, IPSCacheAccess.IN_MEMORY_STORE);
       }
       return searches;
+   }
+
+   /*
+    * (non-Javadoc)
+    *
+    * @see com.percussion.webservices.ui.IPSUiDesignWs#findAllViews()
+    */
+   public List<PSSearch> findAllViews() throws PSErrorResultsException, PSErrorException
+   {
+      IPSCacheAccess cache = PSCacheAccessLocator.getCacheAccess();
+      java.util.Optional<java.io.Serializable> cached = cache.get(ALL_VIEWS_CACHE_KEY, IPSCacheAccess.IN_MEMORY_STORE);
+      Vector<PSSearch> views = cached.isPresent() ? (Vector<PSSearch>) cached.get() : null;
+      if (views == null)
+      {
+         List<IPSDbComponent> searchViews = findComponentsByNameLabel(null, null, FIND_SEARCHES,
+               PSSearch.XML_NODE_NAME, PSSearch.class);
+         List<PSSearch> s = getSearchOrViews(searchViews, true);
+         views = new Vector<PSSearch>();
+         views.addAll(s);
+         cache.save(ALL_VIEWS_CACHE_KEY, views, IPSCacheAccess.IN_MEMORY_STORE);
+      }
+      return views;
    }
 
    /*
@@ -1467,6 +1521,10 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       {String.valueOf(id)});
       key.setPersisted(false);
       source.setLocator(key);
+      if (source.getState() != IPSDbComponent.DBSTATE_NEW)
+      {
+         source.setState(IPSDbComponent.DBSTATE_NEW);
+      }
 
       return source;
    }
@@ -1595,10 +1653,77 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    {
       PSWebserviceUtils.validateParameters(ids, "ids", lock, session, user);
 
+      // Processor loadSearches remaps H2 rows to View_All (UI-07 hole). Catalog
+      // from getSearches.xml / findAllSearches sees JDBC-ensured creates; use it
+      // for lock+delete so REST UI-06 delete is not 409 on a visible row.
+      try
+      {
+         List<PSSearch> catalog = isView ? findAllViews() : findAllSearches();
+         List<PSSearch> matched = matchSearchesByGuids(catalog, ids);
+         if (matched.size() == ids.size())
+         {
+            if (lock)
+            {
+               IPSObjectLockService lockService = PSObjectLockServiceLocator.getLockingService();
+               for (int i = 0; i < ids.size(); i++)
+               {
+                  PSSearch s = matched.get(i);
+                  Integer version = s.getVersion() != null ? s.getVersion() : Integer.valueOf(0);
+                  lockService.createLock(ids.get(i), session, user, version, overrideLock);
+               }
+            }
+            return matched;
+         }
+      }
+      catch (PSErrorException e)
+      {
+         log.debug("Search catalog load fallback to processor: {}", e.toString());
+      }
+      catch (PSLockException e)
+      {
+         PSErrorResultsException results = new PSErrorResultsException();
+         results.addError(ids.get(0), e);
+         throw results;
+      }
+
       List sv = loadComponents(ids, PSSearch.class, PSSearch.getComponentType(PSSearch.class), lock, overrideLock,
             session, user);
 
       return getSearchOrViews(sv, isView);
+   }
+
+   static PSSearch matchSearchByGuid(List<PSSearch> catalog, IPSGuid id)
+   {
+      if (catalog == null || id == null)
+         return null;
+      long want = id.longValue();
+      int uuid = id.getUUID();
+      for (PSSearch s : catalog)
+      {
+         if (s == null)
+            continue;
+         IPSGuid g = s.getGUID();
+         if (g != null && g.longValue() == want)
+            return s;
+         if (s.getId() == uuid)
+            return s;
+      }
+      return null;
+   }
+
+   static List<PSSearch> matchSearchesByGuids(List<PSSearch> catalog, List<IPSGuid> ids)
+   {
+      List<PSSearch> matched = new ArrayList<>();
+      if (ids == null)
+         return matched;
+      for (IPSGuid id : ids)
+      {
+         PSSearch hit = matchSearchByGuid(catalog, id);
+         if (hit == null)
+            return new ArrayList<>();
+         matched.add(hit);
+      }
+      return matched;
    }
 
    /**
@@ -1728,6 +1853,12 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
             try
             {
                Integer version = lockService.getLockedVersion(id);
+
+               // Unpersisted creates must INSERT, not delete-then-insert (the
+               // delete resource selects updateSearches Dataset431 via HTML
+               // SEARCHID and can leave inheritParams polluted for the save).
+               if (version != null && !component.isPersisted())
+                  version = null;
 
                if (!saveComponent(component, id, cz, results, version))
                   continue;
@@ -2065,6 +2196,260 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    }
 
    /**
+    * Prepare a search for {@link #saveSearches}. New (unpersisted) objects keep
+    * {@code sys_community} so {@code sys_SearchCommunityHandler} can write the
+    * AnyCommunity ACL, and are forced to {@code DBSTATE_NEW} so the processor
+    * emits INSERT. Persisted updates still strip community properties (Workbench
+    * already processed ACLs on the SOAP path).
+    *
+    * @param source never {@code null}
+    * @return clone ready for the component processor, never {@code null}
+    */
+   static PSSearch prepareSearchForSave(PSSearch source)
+   {
+      if (source == null)
+         throw new IllegalArgumentException("search cannot be null");
+
+      PSSearch s = (PSSearch) source.cloneFull();
+      if (s.isPersisted())
+      {
+         String[] values = s.getPropertyValues(PSSearch.PROP_COMMUNITY);
+         if (values != null)
+         {
+            for (String comm : values)
+            {
+               s.removeProperty(PSSearch.PROP_COMMUNITY, comm);
+            }
+         }
+      }
+      else
+      {
+         PSKey key = s.getLocator();
+         key.setPersisted(false);
+         s.setLocator(key);
+         if (s.getState() != IPSDbComponent.DBSTATE_NEW)
+         {
+            s.setState(IPSDbComponent.DBSTATE_NEW);
+         }
+      }
+      return s;
+   }
+
+   /**
+    * Column values for a durable {@code PSX_SEARCHES} INSERT when the XML
+    * {@code updateSearches} resource reports success with 0 rows (H2 REST UI-06).
+    */
+   static final class SearchRowSpec
+   {
+      final int searchId;
+      final String internalName;
+      final String displayName;
+      final int parentCategory;
+      final String customUrl;
+      final String type;
+      final Integer displayFormat;
+      final int maximumItems;
+      final String description;
+      final int caseSensitive;
+      final int version;
+
+      SearchRowSpec(int searchId, String internalName, String displayName, int parentCategory,
+            String customUrl, String type, Integer displayFormat, int maximumItems, String description,
+            int caseSensitive, int version)
+      {
+         this.searchId = searchId;
+         this.internalName = internalName;
+         this.displayName = displayName;
+         this.parentCategory = parentCategory;
+         this.customUrl = customUrl;
+         this.type = type;
+         this.displayFormat = displayFormat;
+         this.maximumItems = maximumItems;
+         this.description = description;
+         this.caseSensitive = caseSensitive;
+         this.version = version;
+      }
+   }
+
+   static SearchRowSpec searchRowSpec(PSSearch search)
+   {
+      if (search == null)
+         throw new IllegalArgumentException("search cannot be null");
+      int id = search.getId();
+      if (id <= 0)
+         throw new IllegalArgumentException("search id must be assigned before persist");
+      String internal = search.getInternalName();
+      if (StringUtils.isBlank(internal))
+         throw new IllegalArgumentException("search internal name is required");
+      String display = StringUtils.defaultIfBlank(search.getDisplayName(), internal);
+      String url = StringUtils.trimToNull(search.getUrl());
+      String type = StringUtils.defaultIfBlank(search.getType(), PSSearch.TYPE_STANDARDSEARCH);
+      Integer displayFormat = parseDisplayFormatId(search.getDisplayFormatId());
+      String description = StringUtils.trimToNull(search.getDescription());
+      int version = search.getVersion() != null ? search.getVersion().intValue() : 0;
+      return new SearchRowSpec(id, internal, display, search.getParentCategory(), url, type, displayFormat,
+            search.getMaximumResultSize(), description, search.isCaseSensitive() ? 1 : 0, version);
+   }
+
+   static Integer parseDisplayFormatId(String raw)
+   {
+      if (StringUtils.isBlank(raw))
+         return Integer.valueOf(1);
+      try
+      {
+         return Integer.valueOf(raw.trim());
+      }
+      catch (NumberFormatException e)
+      {
+         return Integer.valueOf(1);
+      }
+   }
+
+   /**
+    * If {@code updateSearches} did not INSERT, write {@code PSX_SEARCHES} so
+    * {@link #findSearches} / {@link #findAllSearches} can catalog the name.
+    */
+   static void ensureSearchRowPersisted(PSSearch search)
+   {
+      SearchRowSpec spec = searchRowSpec(search);
+      Connection conn = null;
+      try
+      {
+         conn = PSConnectionHelper.getDbConnection();
+         if (searchRowExists(conn, spec.searchId, spec.internalName))
+            return;
+         try
+         {
+            insertSearchRow(conn, spec);
+         }
+         catch (SQLException insertEx)
+         {
+            if (searchRowExists(conn, spec.searchId, spec.internalName))
+               return;
+            throw insertEx;
+         }
+      }
+      catch (NamingException | SQLException e)
+      {
+         throw new IllegalStateException(
+               "Search was saved but is not visible to findSearches: " + spec.internalName, e);
+      }
+      finally
+      {
+         PSConnectionHelper.releaseDbConnection(conn);
+      }
+   }
+
+   static boolean searchRowExists(Connection conn, int searchId, String internalName) throws SQLException
+   {
+      String sql = "SELECT SEARCHID FROM PSX_SEARCHES WHERE SEARCHID = ? OR INTERNALNAME = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, searchId);
+         ps.setString(2, internalName);
+         try (ResultSet rs = ps.executeQuery())
+         {
+            return rs.next();
+         }
+      }
+   }
+
+   static void ensureSearchRowDeleted(int searchId)
+   {
+      Connection conn = null;
+      try
+      {
+         conn = PSConnectionHelper.getDbConnection();
+         deleteSearchRow(conn, searchId);
+      }
+      catch (NamingException | SQLException e)
+      {
+         log.debug("Could not JDBC-delete PSX_SEARCHES SEARCHID={}: {}", searchId, e.toString());
+      }
+      finally
+      {
+         PSConnectionHelper.releaseDbConnection(conn);
+      }
+   }
+
+   static void deleteSearchRow(Connection conn, int searchId) throws SQLException
+   {
+      try (PreparedStatement fields = conn.prepareStatement("DELETE FROM PSX_SEARCHFIELDS WHERE SEARCHID = ?"))
+      {
+         fields.setInt(1, searchId);
+         fields.executeUpdate();
+      }
+      try (PreparedStatement props = conn.prepareStatement("DELETE FROM PSX_SEARCHPROPERTIES WHERE PROPERTYID = ?"))
+      {
+         props.setInt(1, searchId);
+         props.executeUpdate();
+      }
+      try (PreparedStatement searches = conn.prepareStatement("DELETE FROM PSX_SEARCHES WHERE SEARCHID = ?"))
+      {
+         searches.setInt(1, searchId);
+         searches.executeUpdate();
+      }
+   }
+
+   static void insertSearchRow(Connection conn, SearchRowSpec spec) throws SQLException
+   {
+      String sql = "INSERT INTO PSX_SEARCHES (SEARCHID, INTERNALNAME, DISPLAYNAME, PARENTCATEGORY, "
+            + "CUSTOMURL, TYPE, DISPLAYFORMAT, MAXIMUMITEMS, DESCRIPTION, CASESENSITIVE, VERSION) "
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, spec.searchId);
+         ps.setString(2, spec.internalName);
+         ps.setString(3, spec.displayName);
+         ps.setInt(4, spec.parentCategory);
+         ps.setString(5, spec.customUrl);
+         ps.setString(6, spec.type);
+         if (spec.displayFormat == null)
+            ps.setNull(7, java.sql.Types.INTEGER);
+         else
+            ps.setInt(7, spec.displayFormat.intValue());
+         ps.setInt(8, spec.maximumItems);
+         ps.setString(9, spec.description);
+         ps.setInt(10, spec.caseSensitive);
+         ps.setInt(11, spec.version);
+         ps.executeUpdate();
+      }
+   }
+
+   /**
+    * Drop in-memory {@link #ALL_SEARCHES_CACHE_KEY} / {@link #ALL_VIEWS_CACHE_KEY}
+    * and the XML resource cache for {@code sys_DisplayFormats/getSearches} so
+    * {@link #findSearches} / {@link #findViews} see the row just saved or deleted.
+    */
+   static void invalidateSearchCatalog()
+   {
+      try
+      {
+         IPSCacheAccess cache = PSCacheAccessLocator.getCacheAccess();
+         if (cache != null)
+         {
+            cache.evict(ALL_SEARCHES_CACHE_KEY, IPSCacheAccess.IN_MEMORY_STORE);
+            cache.evict(ALL_VIEWS_CACHE_KEY, IPSCacheAccess.IN_MEMORY_STORE);
+         }
+      }
+      catch (RuntimeException e)
+      {
+         log.debug("Could not evict in-memory search/view catalog cache: {}", e.toString());
+      }
+      try
+      {
+         if (PSCacheManager.isAvailable())
+         {
+            PSCacheManager.getInstance().flushApplication("sys_DisplayFormats");
+         }
+      }
+      catch (RuntimeException e)
+      {
+         log.debug("Could not flush sys_DisplayFormats resource cache: {}", e.toString());
+      }
+   }
+
+   /**
     * This listener responds to table change notices by removing the cached
     * cllection of all searches.
     */
@@ -2114,6 +2499,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       PSTableChangeEvent e)
       {
          mi_cache.evict(ALL_SEARCHES_CACHE_KEY, IPSCacheAccess.IN_MEMORY_STORE);
+         mi_cache.evict(ALL_VIEWS_CACHE_KEY, IPSCacheAccess.IN_MEMORY_STORE);
          ms_log.debug("Clearing cache key: " + ALL_SEARCHES_CACHE_KEY);
       }
 
@@ -2125,6 +2511,13 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     * IPSCacheAccess.IN_MEMORY_STORE region.
     */
    private static final String ALL_SEARCHES_CACHE_KEY = "All_Searches_In_System";
+
+   /**
+    * The cache key for storing the collection of CX views in the
+    * IPSCacheAccess.IN_MEMORY_STORE region. Views share {@code PSX_SEARCHES}
+    * with searches; both keys are evicted together.
+    */
+   private static final String ALL_VIEWS_CACHE_KEY = "All_Views_In_System";
 
    /**
     * The cache key for storing the collection of searches in the

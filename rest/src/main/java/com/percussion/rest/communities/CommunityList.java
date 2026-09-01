@@ -17,7 +17,9 @@
 
 package com.percussion.rest.communities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -25,12 +27,16 @@ import jakarta.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 /** List of Community objects. */
 @XmlRootElement(name = "CommunityList")
+@JsonRootName("CommunityList")
+@JsonFormat(shape = JsonFormat.Shape.ARRAY)
 @ArraySchema(schema = @Schema(implementation = Community.class))
 @XmlSeeAlso({Community.class})
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonDeserialize(using = CommunityListDeserializer.class)
 public class CommunityList extends ArrayList<Community> {
 
   private static final long serialVersionUID = 1L;

@@ -10,12 +10,18 @@ import * as viewsApi from "../../../main/ts/api/developer/viewsApi";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { ViewDetailPanel } from "../../../main/ts/developer/ViewDetailPanel";
 
-vi.mock("../../../main/ts/api/developer/viewsApi", () => ({
-  listViews: vi.fn(),
-  getViewDetail: vi.fn(),
-}));
+vi.mock("../../../main/ts/api/developer/viewsApi", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../../main/ts/api/developer/viewsApi")>();
+  return {
+    ...actual,
+    listViews: vi.fn(),
+    getViewDetail: vi.fn(),
+    createView: vi.fn(),
+    saveView: vi.fn(),
+    deleteView: vi.fn(),
+  };
+});
 
-// ObjectAclSection loads ACL via separate API; stub to isolate detail load + assert wiring.
 vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
   ObjectAclSection: (props: {
     objectGuid?: string | null;
@@ -31,11 +37,15 @@ vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
 }));
 
 const getViewDetail = viewsApi.getViewDetail as ReturnType<typeof vi.fn>;
+const createView = viewsApi.createView as ReturnType<typeof vi.fn>;
+const saveView = viewsApi.saveView as ReturnType<typeof vi.fn>;
+const deleteView = viewsApi.deleteView as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   name: "My View",
   label: "My View",
   description: "Custom view",
+  type: "View",
   displayFormatId: "Default",
   maximumResultSize: 50,
   caseSensitive: true,
@@ -50,6 +60,9 @@ describe("ViewDetailPanel", () => {
       message: (key: string) => key,
     };
     getViewDetail.mockReset();
+    createView.mockReset();
+    saveView.mockReset();
+    deleteView.mockReset();
   });
 
   it("loads detail on success and supports back", async () => {
@@ -193,5 +206,265 @@ describe("ViewDetailPanel", () => {
     expect(screen.getByTestId("developer-vw-detail-error").textContent).toBe(
       DEV_MSG.VW_DETAIL_ERROR,
     );
+  });
+
+  it("disables save until the name is valid on create", () => {
+    render(<ViewDetailPanel idOrName={null} onBack={() => undefined} />);
+    const save = screen.getByTestId("developer-vw-save") as HTMLButtonElement;
+    expect(save.disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-vw-name"), {
+      target: { value: "has space" },
+    });
+    expect(save.disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-vw-name"), {
+      target: { value: "MyView" },
+    });
+    expect(save.disabled).toBe(false);
+  });
+
+  it("keeps name read-only on edit", async () => {
+    getViewDetail.mockResolvedValue(sampleDetail);
+    render(<ViewDetailPanel idOrName="My View" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-name")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-vw-name") as HTMLInputElement).disabled).toBe(true);
+  });
+
+  it("surfaces 400 invalid name on create", async () => {
+    createView.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "name cannot contain whitespace" },
+    });
+    const onSaved = vi.fn();
+    render(<ViewDetailPanel idOrName={null} onBack={() => undefined} onSaved={onSaved} />);
+    fireEvent.change(screen.getByTestId("developer-vw-name"), {
+      target: { value: "MyView" },
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
+      DEV_MSG.VW_INVALID_NAME,
+    );
+    expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
+      "name cannot contain whitespace",
+    );
+    expect(onSaved).not.toHaveBeenCalled();
+  });
+
+  it("surfaces 409 duplicate name on create", async () => {
+    createView.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "View already exists: MyView" },
+    });
+    const onSaved = vi.fn();
+    render(<ViewDetailPanel idOrName={null} onBack={() => undefined} onSaved={onSaved} />);
+    fireEvent.change(screen.getByTestId("developer-vw-name"), {
+      target: { value: "MyView" },
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-detail-error")).toBeTruthy();
+    });
+    expect(createView).toHaveBeenCalled();
+    expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
+      DEV_MSG.VW_DUPLICATE,
+    );
+    expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
+      "already exists",
+    );
+    expect(onSaved).not.toHaveBeenCalled();
+  });
+
+  it("surfaces 403 non-Admin on create", async () => {
+    createView.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: { message: "Admin role required" },
+    });
+    render(<ViewDetailPanel idOrName={null} onBack={() => undefined} />);
+    fireEvent.change(screen.getByTestId("developer-vw-name"), {
+      target: { value: "MyView" },
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
+      DEV_MSG.VW_FORBIDDEN,
+    );
+    expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
+      "Admin role required",
+    );
+  });
+
+  it("does not POST create twice when save is clicked twice", async () => {
+    let resolveCreate: (value: typeof sampleDetail) => void = () => undefined;
+    createView.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveCreate = resolve;
+        }),
+    );
+    render(<ViewDetailPanel idOrName={null} onBack={() => undefined} />);
+    fireEvent.change(screen.getByTestId("developer-vw-name"), {
+      target: { value: "MyView" },
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-save"));
+    fireEvent.click(screen.getByTestId("developer-vw-save"));
+    expect(createView).toHaveBeenCalledTimes(1);
+    resolveCreate({
+      name: "MyView",
+      label: "My View",
+      description: "",
+      type: "View",
+      fields: [],
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-editor-notice")).toBeTruthy();
+    });
+  });
+
+  it("creates a standard view when the name is valid", async () => {
+    createView.mockResolvedValue({
+      name: "MyView",
+      label: "My View",
+      description: "Created via SPA",
+      type: "View",
+      displayFormatId: "1",
+      fields: [],
+    });
+    const onSaved = vi.fn();
+    render(<ViewDetailPanel idOrName={null} onBack={() => undefined} onSaved={onSaved} />);
+    fireEvent.change(screen.getByTestId("developer-vw-name"), {
+      target: { value: "MyView" },
+    });
+    fireEvent.change(screen.getByTestId("developer-vw-label"), {
+      target: { value: "My View" },
+    });
+    fireEvent.change(screen.getByTestId("developer-vw-description"), {
+      target: { value: "Created via SPA" },
+    });
+    fireEvent.change(screen.getByTestId("developer-vw-display-format"), {
+      target: { value: "1" },
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(createView).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "MyView",
+        label: "My View",
+        description: "Created via SPA",
+        type: "View",
+        displayFormatId: "1",
+      }),
+    );
+    expect(screen.getByTestId("developer-vw-editor-notice").textContent).toBe(DEV_MSG.VW_SAVED);
+  });
+
+  it("saves label changes on an existing view", async () => {
+    getViewDetail.mockResolvedValue(sampleDetail);
+    saveView.mockResolvedValue({
+      ...sampleDetail,
+      label: "Updated label",
+    });
+    const onSaved = vi.fn();
+    render(
+      <ViewDetailPanel idOrName="My View" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-label")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-vw-label"), {
+      target: { value: "Updated label" },
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(saveView).toHaveBeenCalledWith(
+      "My View",
+      expect.objectContaining({
+        name: "My View",
+        label: "Updated label",
+        description: "Custom view",
+        type: "View",
+        displayFormatId: "Default",
+      }),
+    );
+  });
+
+  it("deletes after confirm and omits delete chrome in create mode", async () => {
+    getViewDetail.mockResolvedValue(sampleDetail);
+    deleteView.mockResolvedValue(undefined);
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+    try {
+      const onDeleted = vi.fn();
+      render(
+        <ViewDetailPanel idOrName="My View" onBack={() => undefined} onDeleted={onDeleted} />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-vw-delete")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("developer-vw-delete"));
+      await waitFor(() => {
+        expect(onDeleted).toHaveBeenCalled();
+      });
+      expect(deleteView).toHaveBeenCalledWith("My View");
+    } finally {
+      confirmSpy.mockRestore();
+    }
+  });
+
+  it("surfaces 404 missing view on delete", async () => {
+    getViewDetail.mockResolvedValue(sampleDetail);
+    deleteView.mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: { message: "View not found" },
+    });
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+    try {
+      render(<ViewDetailPanel idOrName="My View" onBack={() => undefined} />);
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-vw-delete")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("developer-vw-delete"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-vw-detail-error")).toBeTruthy();
+      });
+      expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
+        DEV_MSG.VW_NOT_FOUND,
+      );
+    } finally {
+      confirmSpy.mockRestore();
+    }
+  });
+
+  it("does not show delete on create", () => {
+    render(<ViewDetailPanel idOrName={null} onBack={() => undefined} />);
+    expect(screen.queryByTestId("developer-vw-delete")).toBeNull();
+  });
+
+  it("does not delete Inbox-family or custom URL views", async () => {
+    getViewDetail.mockResolvedValue({
+      ...sampleDetail,
+      name: "Inbox",
+      customView: true,
+      url: "../sys_cxViews/inbox.xml",
+    });
+    render(<ViewDetailPanel idOrName="Inbox" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-protected-hint")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-vw-delete")).toBeNull();
+    expect((screen.getByTestId("developer-vw-save") as HTMLButtonElement).disabled).toBe(true);
+    expect(deleteView).not.toHaveBeenCalled();
   });
 });

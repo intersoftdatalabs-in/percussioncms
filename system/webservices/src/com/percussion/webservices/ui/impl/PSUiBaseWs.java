@@ -131,7 +131,11 @@ public class PSUiBaseWs
 
          if (resourcePath.equals(FIND_SEARCHES))
          {
-            iReq.makeRequest();
+            // Do not call makeRequest() first: that old getResultDoc path
+            // drops StandardSearch rows on H2 (HTTP getSearches.xml lists
+            // Default_Search/RC_Search; findSearches returned empty → UI-06
+            // POST then GET 404). getResultDoc() without makeRequest uses
+            // getResultDocument (full XML, no table.xsl merge).
             doc = iReq.getResultDoc();
          }
          else

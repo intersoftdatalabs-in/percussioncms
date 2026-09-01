@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { get } from "../client";
+import { del, get, post, put } from "../client";
 import {
   normalizeDisplayFormatGuid,
   objectGuidString,
@@ -24,6 +24,21 @@ import {
 } from "../displayFormatGuid";
 import { PATHS } from "../paths";
 import type { DisplayFormat, DisplayFormatColumn } from "./types";
+
+/**
+ * Writable identity fields for POST/PUT /services/displayformats. Name is the
+ * catalog key (not renamed on PUT). {@code columns} replaces the column list
+ * when present.
+ */
+export type DisplayFormatWriteBody = Pick<
+  DisplayFormat,
+  "name" | "internalName" | "label" | "displayName" | "description"
+> & {
+  columns?: DisplayFormatColumn[];
+};
+
+/** Jackson / JAXB root for DisplayFormat (UNWRAP_ROOT_VALUE on POST/PUT). */
+export const DISPLAY_FORMAT_ROOT = "DisplayFormat";
 
 // Re-export shared GUID helpers so existing developer imports keep working.
 export {
@@ -59,4 +74,76 @@ export async function getDisplayFormatDetail(idOrName: string): Promise<DisplayF
   const key = encodeURIComponent(idOrName);
   const payload = await get<unknown>(`${PATHS.DISPLAY_FORMATS}/${key}`);
   return unwrapDisplayFormat(payload);
+}
+
+function containsWhitespace(value: string): boolean {
+  return /\s/.test(value);
+}
+
+/** True when the name is a safe REST display-format key (no path chars). */
+export function isSafeDisplayFormatName(name: string): boolean {
+  if (!name) return false;
+  return !name.includes("..") && !name.includes("/") && !name.includes("\\") && !name.includes("\0");
+}
+
+/** Trim a display-format name for write. Empty / null becomes "". */
+export function normalizeDisplayFormatName(name: string | undefined | null): string {
+  return name == null ? "" : name.trim();
+}
+
+/**
+ * True when the (trimmed) name is accepted by REST create
+ * ({@code DisplayFormatAdaptor.requireValidName}): no whitespace, wildcards, or
+ * path characters.
+ */
+export function isValidDisplayFormatName(name: string | undefined | null): boolean {
+  const key = normalizeDisplayFormatName(name);
+  if (!key) return false;
+  if (containsWhitespace(key)) return false;
+  if (key.includes("*") || key.includes("%")) return false;
+  return isSafeDisplayFormatName(key);
+}
+
+/** Save is enabled when the format name is valid (create) or already loaded (edit). */
+export function isDisplayFormatWriteReady(opts: { isNew: boolean; name: string }): boolean {
+  if (opts.isNew) return isValidDisplayFormatName(opts.name);
+  return Boolean(normalizeDisplayFormatName(opts.name));
+}
+
+/** Wire JSON for POST/PUT — a flat body fails JAXB root unwrap. */
+export function wrapDisplayFormatForWire(
+  body: DisplayFormatWriteBody,
+): Record<string, DisplayFormatWriteBody> {
+  return { [DISPLAY_FORMAT_ROOT]: body };
+}
+
+/** POST /services/displayformats — Admin. Name required. Duplicate is 409. Invalid is 400. */
+export async function createDisplayFormat(
+  body: DisplayFormatWriteBody,
+): Promise<DisplayFormat> {
+  const payload = await post<unknown>(PATHS.DISPLAY_FORMATS, wrapDisplayFormatForWire(body));
+  return unwrapDisplayFormat(payload);
+}
+
+/**
+ * PUT /services/displayformats/{idOrName} — Admin. Name is not renamed.
+ * {@code columns} replaces the column list when present. Missing is 404.
+ */
+export async function saveDisplayFormat(
+  idOrName: string,
+  body: DisplayFormatWriteBody,
+): Promise<DisplayFormat> {
+  const payload = await put<unknown>(
+    `${PATHS.DISPLAY_FORMATS}/${encodeURIComponent(idOrName)}`,
+    wrapDisplayFormatForWire(body),
+  );
+  return unwrapDisplayFormat(payload);
+}
+
+/** Alias used by the column editor (#4097 UI-08). */
+export const updateDisplayFormat = saveDisplayFormat;
+
+/** DELETE /services/displayformats/{idOrName} — Admin. 204 on success; missing is 404. */
+export async function deleteDisplayFormat(idOrName: string): Promise<void> {
+  await del(`${PATHS.DISPLAY_FORMATS}/${encodeURIComponent(idOrName)}`);
 }

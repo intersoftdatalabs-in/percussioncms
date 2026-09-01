@@ -177,7 +177,7 @@ public class SearchAdaptor implements ISearchAdaptor {
       PSSearch domain = created.get(0);
       applyWritableFields(domain, body);
       designWs.saveSearches(List.of(domain), true, session, user);
-      return toDef(domain, true);
+      return toDef(reloadAfterWrite(domain, name, session, user), true);
     } catch (WebApplicationException | IllegalStateException e) {
       throw e;
     } catch (IllegalArgumentException e) {
@@ -226,7 +226,8 @@ public class SearchAdaptor implements ISearchAdaptor {
       PSSearch domain = loaded.get(0);
       applyWritableFields(domain, body);
       designWs.saveSearches(List.of(domain), true, session, user);
-      return toDef(domain, true);
+      String catalogName = StringUtils.defaultIfBlank(domain.getName(), idOrName.trim());
+      return toDef(reloadAfterWrite(domain, catalogName, session, user), true);
     } catch (WebApplicationException | IllegalArgumentException e) {
       throw e;
     } catch (PSErrorResultsException e) {
@@ -522,7 +523,10 @@ public class SearchAdaptor implements ISearchAdaptor {
   }
 
   private List<PSSearch> loadAllSearches() throws Exception {
-    return loadCatalog(false);
+    // find+loadSearches remaps H2 rows to View_All (same hole as UI-07).
+    // findAllSearches returns the objects already parsed from getSearches.xml.
+    List<PSSearch> all = designWs.findAllSearches();
+    return all != null ? all : List.of();
   }
 
   private List<PSSearch> loadAllViews() throws Exception {
@@ -796,6 +800,39 @@ public class SearchAdaptor implements ISearchAdaptor {
       }
     }
     return false;
+  }
+
+  /**
+   * After {@code saveSearches}, the row must be visible to {@code findSearches} (H2 REST
+   * UI-06: POST 200 then GET list/detail 404 when the XML resource cache or INSERT was
+   * skipped). Load by GUID only after the catalog lists the name.
+   */
+  private PSSearch reloadAfterWrite(PSSearch saved, String name, String session, String user) {
+    try {
+      PSSearch fromCatalog = matchLoaded(loadAllSearches(), name);
+      if (fromCatalog != null) {
+        return fromCatalog;
+      }
+      if (saved != null && saved.getGUID() != null) {
+        List<PSSearch> loaded =
+            designWs.loadSearches(List.of(saved.getGUID()), false, false, session, user);
+        if (loaded != null && !loaded.isEmpty() && loaded.get(0) != null
+            && !loaded.get(0).isView()) {
+          fromCatalog = matchLoaded(loadAllSearches(), name);
+          if (fromCatalog != null) {
+            return fromCatalog;
+          }
+        }
+      }
+    } catch (PSErrorResultsException e) {
+      log.error("Failed to reload search {} after persist", name, e);
+      throw new IllegalStateException("Failed to reload search after persist", e);
+    } catch (Exception e) {
+      log.error("Failed to reload search {} after persist", name, e);
+      throw new IllegalStateException("Failed to reload search after persist", e);
+    }
+    throw new IllegalStateException(
+        "Search was saved but is not visible to findSearches: " + name);
   }
 
   private void assertNameUnique(String name) {

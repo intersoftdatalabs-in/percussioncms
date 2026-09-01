@@ -76,6 +76,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restAclResource" />
             <ref bean="restActionMenuResource" />
             <ref bean="restCommunityResource" />
+            <ref bean="restCommunityNewSearchDefaultsResource" />
             <ref bean="restDisplayFormatResource" />
             <ref bean="restFoldersResource" />
             <ref bean="restAssetResource" />
@@ -131,6 +132,9 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
                  Rest jar also has AclListDeserializer so a stale filesystem beans.xml
                  (hot-deploy jars only) still binds {"AclList":[…]} as AclList. -->
             <ref bean="aclListJsonReader" />
+            <!-- #4077 SE-01: CommunityList / GuidList ArrayList subclass bulk save/delete. -->
+            <ref bean="communityListJsonReader" />
+            <ref bean="guidListJsonReader" />
             <!-- #3360 / #3361: Explorer folder create posts flat {name,parentPath};
                  JAXB expects AddFolderRequest root. Bind both envelopes. -->
             <ref bean="addFolderRequestJsonReader" />

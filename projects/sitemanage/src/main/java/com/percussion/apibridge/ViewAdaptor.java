@@ -200,7 +200,7 @@ public class ViewAdaptor implements IViewAdaptor {
       PSSearch domain = created.get(0);
       applyWritableFields(domain, body);
       designWs.saveViews(List.of(domain), true, session, user);
-      return toDef(domain, true);
+      return toDef(reloadAfterWrite(domain, name, session, user), true);
     } catch (WebApplicationException | IllegalStateException e) {
       throw e;
     } catch (IllegalArgumentException e) {
@@ -248,7 +248,8 @@ public class ViewAdaptor implements IViewAdaptor {
       PSSearch domain = loaded.get(0);
       applyWritableFields(domain, body);
       designWs.saveViews(List.of(domain), true, session, user);
-      return toDef(domain, true);
+      String catalogName = StringUtils.defaultIfBlank(domain.getName(), idOrName.trim());
+      return toDef(reloadAfterWrite(domain, catalogName, session, user), true);
     } catch (WebApplicationException | IllegalArgumentException e) {
       throw e;
     } catch (PSErrorResultsException e) {
@@ -650,26 +651,59 @@ public class ViewAdaptor implements IViewAdaptor {
   }
 
   private List<PSSearch> loadAllViews() throws Exception {
-    List<IPSCatalogSummary> summaries = designWs.findViews(null, null);
-    if (summaries == null || summaries.isEmpty()) {
-      return ensureInboxFamilyDesigns(new ArrayList<>());
+    // find+loadViews remaps H2 rows to View_All (same hole as UI-06 searches).
+    // findAllViews returns objects already parsed from getSearches.xml.
+    List<PSSearch> all = designWs.findAllViews();
+    return ensureInboxFamilyDesigns(all != null ? new ArrayList<>(all) : new ArrayList<>());
+  }
+
+  /**
+   * After {@code saveViews}, the row must be visible to {@code findViews} (H2 REST
+   * UI-07: POST 200 then GET list/detail 404 when the XML resource cache or INSERT
+   * was skipped). Load by GUID only after the catalog lists the name.
+   */
+  private PSSearch reloadAfterWrite(PSSearch saved, String name, String session, String user) {
+    try {
+      PSSearch fromCatalog = matchLoaded(loadAllViews(), name);
+      if (fromCatalog != null) {
+        return fromCatalog;
+      }
+      if (saved != null && saved.getGUID() != null) {
+        List<PSSearch> loaded =
+            designWs.loadViews(List.of(saved.getGUID()), false, false, session, user);
+        if (loaded != null
+            && !loaded.isEmpty()
+            && loaded.get(0) != null
+            && loaded.get(0).isView()) {
+          fromCatalog = matchLoaded(loadAllViews(), name);
+          if (fromCatalog != null) {
+            return fromCatalog;
+          }
+        }
+      }
+    } catch (PSErrorResultsException e) {
+      log.error("Failed to reload view {} after persist", name, e);
+      throw new IllegalStateException("Failed to reload view after persist", e);
+    } catch (Exception e) {
+      log.error("Failed to reload view {} after persist", name, e);
+      throw new IllegalStateException("Failed to reload view after persist", e);
     }
-    List<IPSGuid> guids = new ArrayList<>();
-    for (IPSCatalogSummary sum : summaries) {
-      if (sum != null && sum.getGUID() != null) {
-        guids.add(sum.getGUID());
+    throw new IllegalStateException("View was saved but is not visible to findViews: " + name);
+  }
+
+  static PSSearch matchLoaded(List<PSSearch> loaded, String key) {
+    if (loaded == null || StringUtils.isBlank(key)) {
+      return null;
+    }
+    for (PSSearch s : loaded) {
+      if (s == null) {
+        continue;
+      }
+      if (key.equalsIgnoreCase(s.getName())) {
+        return s;
       }
     }
-    List<PSSearch> loaded = List.of();
-    if (!guids.isEmpty()) {
-      String currentUser = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
-      String currentSession = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
-      List<PSSearch> fromWs = designWs.loadViews(guids, false, false, currentSession, currentUser);
-      if (fromWs != null) {
-        loaded = fromWs;
-      }
-    }
-    return reconcileLoadedViews(summaries, loaded);
+    return null;
   }
 
   /**

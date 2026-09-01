@@ -167,6 +167,7 @@ class SearchAdaptorExecuteTest {
 
   @Test
   void executeSearch_missingReturnsNull() throws Exception {
+    when(designWs.findAllSearches()).thenReturn(List.of());
     when(designWs.findSearches(isNull(), isNull())).thenReturn(List.of());
     when(designWs.findViews(isNull(), isNull())).thenReturn(List.of());
     assertNull(adaptor.executeSearch("Missing", new SearchExecuteRequest()));
@@ -192,6 +193,7 @@ class SearchAdaptorExecuteTest {
     when(viewAll.getDisplayFormatId()).thenReturn("0-1-1");
     when(viewAll.getMaximumResultSize()).thenReturn(25);
     when(viewAll.clone()).thenReturn(viewAll);
+    when(designWs.findAllSearches()).thenThrow(new IllegalStateException("PSAction missing"));
     when(designWs.findSearches(isNull(), isNull()))
         .thenThrow(new IllegalStateException("PSAction missing"));
     stubLoadedViews(List.of(viewAll));
@@ -204,6 +206,7 @@ class SearchAdaptorExecuteTest {
 
   @Test
   void executeSearch_missingAfterSearchCatalogThrowReturnsNull() throws Exception {
+    when(designWs.findAllSearches()).thenThrow(new IllegalStateException("PSAction missing"));
     when(designWs.findSearches(isNull(), isNull()))
         .thenThrow(new IllegalStateException("PSAction missing"));
     when(designWs.findViews(isNull(), isNull())).thenReturn(List.of());
@@ -231,6 +234,7 @@ class SearchAdaptorExecuteTest {
     when(viewAll.getDisplayFormatId()).thenReturn("0-1-1");
     when(viewAll.getMaximumResultSize()).thenReturn(25);
     when(viewAll.clone()).thenReturn(viewAll);
+    when(designWs.findAllSearches()).thenReturn(List.of());
     when(designWs.findSearches(isNull(), isNull())).thenReturn(List.of());
     stubLoadedViews(List.of(viewAll));
     doReturn(List.of(item("id-a", "Welcome"))).when(adaptor).runDesignSearch(any(PSSearch.class));
@@ -270,6 +274,7 @@ class SearchAdaptorExecuteTest {
     PSSearch viewAll = mockSearch("View_All", false, false);
     when(viewAll.getLabel()).thenReturn("All");
     when(viewAll.isCustomView()).thenReturn(false);
+    when(designWs.findAllSearches()).thenThrow(new IllegalStateException("PSAction missing"));
     when(designWs.findSearches(isNull(), isNull()))
         .thenThrow(new IllegalStateException("PSAction missing"));
     stubLoadedViews(List.of(viewAll));
@@ -422,6 +427,7 @@ class SearchAdaptorExecuteTest {
       when(s.getGUID()).thenReturn(g);
     }
     when(designWs.findSearches(isNull(), isNull())).thenReturn(summaries);
+    when(designWs.findAllSearches()).thenReturn(searches);
     when(designWs.loadSearches(anyList(), eq(false), eq(false), isNull(), isNull()))
         .thenReturn(searches);
   }

@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -60,8 +61,12 @@ class DisplayFormatAdaptorSafeKeyTest {
     Method setKey = PSDbComponent.class.getDeclaredMethod("setKey", PSKey.class);
     setKey.setAccessible(true);
     setKey.invoke(nativeDf, key);
+    nativeDf.setName("By_Author");
+    nativeDf.setInternalName("By_Author");
     assertEquals(301, nativeDf.getDisplayId());
 
+    nativeDf.setInternalName("By_Author");
+    nativeDf.setDisplayName("By Author");
     when(designWs.findDisplayFormat(eq("By_Author"))).thenReturn(nativeDf);
 
     DisplayFormatAdaptor adaptor = new DisplayFormatAdaptor(designWs);
@@ -182,7 +187,49 @@ class DisplayFormatAdaptorSafeKeyTest {
   void findDisplayFormatByKey_returnsNullWhenDesignWsMisses() throws Exception {
     IPSUiDesignWs designWs = mock(IPSUiDesignWs.class);
     when(designWs.findDisplayFormat(eq("Missing"))).thenReturn(null);
+    when(designWs.findDisplayFormats(eq("Missing"), nullable(String.class))).thenReturn(List.of());
+    when(designWs.findDisplayFormats(eq(null), nullable(String.class))).thenReturn(List.of());
     DisplayFormatAdaptor adaptor = new DisplayFormatAdaptor(designWs);
     assertNull(adaptor.findDisplayFormatByKey("Missing"));
+  }
+
+  @Test
+  void findDisplayFormatByKey_rejectsReplayAndUsesCatalogGuid() throws Exception {
+    IPSUiDesignWs designWs = mock(IPSUiDesignWs.class);
+    PSDisplayFormat replayed = nativeDisplayFormat(3, "By_Type");
+    PSDisplayFormat real = nativeDisplayFormat(42, "MyFmt");
+    IPSCatalogSummary myFmt = catalogSummary("MyFmt", "My Format", 42);
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(replayed);
+    when(designWs.findDisplayFormats(eq("MyFmt"), nullable(String.class))).thenReturn(List.of(myFmt));
+    when(designWs.findDisplayFormat(eq(myFmt.getGUID()))).thenReturn(real);
+
+    DisplayFormatAdaptor adaptor = new DisplayFormatAdaptor(designWs);
+    DisplayFormat out = adaptor.findDisplayFormatByKey("MyFmt");
+    assertNotNull(out);
+    assertEquals("MyFmt", out.getName());
+    assertEquals(42, out.getDisplayId());
+  }
+
+  @Test
+  void findDisplayFormatByKey_replayWithoutCatalogHit_isNull() throws Exception {
+    IPSUiDesignWs designWs = mock(IPSUiDesignWs.class);
+    PSDisplayFormat replayed = nativeDisplayFormat(3, "By_Type");
+    when(designWs.findDisplayFormat(eq("qa4091gone"))).thenReturn(replayed);
+    when(designWs.findDisplayFormats(eq("qa4091gone"), nullable(String.class))).thenReturn(List.of());
+    when(designWs.findDisplayFormats(eq(null), nullable(String.class))).thenReturn(List.of());
+    DisplayFormatAdaptor adaptor = new DisplayFormatAdaptor(designWs);
+    assertNull(adaptor.findDisplayFormatByKey("qa4091gone"));
+  }
+
+  @Test
+  void identityMatchesKey_rejectsDifferentName() {
+    DisplayFormat replayed = new DisplayFormat();
+    replayed.setName("By_Type");
+    replayed.setInternalName("By_Type");
+    assertFalse(DisplayFormatAdaptor.identityMatchesKey(replayed, "qa4091x"));
+    replayed.setName("qa4091x");
+    replayed.setInternalName("qa4091x");
+    assertTrue(DisplayFormatAdaptor.identityMatchesKey(replayed, "qa4091x"));
+    assertFalse(DisplayFormatAdaptor.identityMatchesKey(null, "qa4091x"));
   }
 }
