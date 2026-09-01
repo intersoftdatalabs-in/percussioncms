@@ -37,6 +37,8 @@ class CatalogRestJaxrsRegistrationTest {
   private static final String[] REQUIRED_REFS = {
     "restControlsResource",
     "restSearchResource",
+    // #4096 UI-09 community CX new-search defaults (nested under /communities/{id}/…)
+    "restCommunityNewSearchDefaultsResource",
     "restViewResource",
     "restServerConfigsResource",
     "restRelationshipTypeResource",

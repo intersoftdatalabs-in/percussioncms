@@ -65,3 +65,21 @@ The chrome calls:
 Writes lock the search for the request and release it on save.
 
 Integrator notes: [REST API — Searches](id:developer-rest).
+
+## Community new-search defaults
+
+Workbench could assign which searches are offered as **new search** for each
+community (`cxNewSearch`). Admins and integrators read and replace that set with:
+
+| Action | Request |
+|--------|---------|
+| Load | `GET /services/communities/{idOrName}/new-search-defaults` |
+| Replace | `PUT /services/communities/{idOrName}/new-search-defaults` |
+
+**Admin** only (**403** otherwise). An empty set is **200**, not 404. Unknown
+search in the PUT body is **400**; unknown community is **404**. This chrome does
+not yet include a community-defaults editor — use REST (or a later Developer
+screen). Search create/delete remains the table above and does not write these
+defaults.
+
+Contract: [REST API — Community new-search defaults](id:developer-rest).

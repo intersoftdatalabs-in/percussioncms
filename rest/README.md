@@ -37,6 +37,7 @@ The module provides 24+ REST resource endpoints organized by functional area:
 
 - **Contexts** (`ContextsResource`) - Manage publishing contexts
 - **Communities** (`CommunityResource`) - Define organizational units
+- **Community new-search defaults** (`CommunityNewSearchDefaultsResource`) - Admin GET/PUT of CX new-search defaults per community (UI-09)
 - **Roles** (`RolesResource`) - Manage user roles and permissions
 - **Users** (`UsersResource`) - User management and preferences
 - **ACLs** (`AclResource`) - Access control list management
