@@ -82,6 +82,9 @@ class CatalogRestJaxrsRegistrationTest {
   private static final String AUTO_TRANSLATION_ROWS_JSON_READER =
       "autoTranslationRowsJsonReader";
 
+  /** UI-05 display format communities PUT empty array (#4098) — must precede jacksonProvider. */
+  private static final String DISPLAY_FORMAT_JSON_READER = "displayFormatJsonReader";
+
   @Test
   void restJaxRsServiceBeansIncludeDeveloperCatalogResources() throws Exception {
     Path root = resolveRepoRoot();
@@ -135,6 +138,8 @@ class CatalogRestJaxrsRegistrationTest {
     int findTypesReader = providerBlock.indexOf("bean=\"" + FIND_TYPES_JSON_READER + "\"");
     int autoTranslationReader =
         providerBlock.indexOf("bean=\"" + AUTO_TRANSLATION_ROWS_JSON_READER + "\"");
+    int displayFormatReader =
+        providerBlock.indexOf("bean=\"" + DISPLAY_FORMAT_JSON_READER + "\"");
     int jackson = providerBlock.indexOf("bean=\"jacksonProvider\"");
     assertTrue(
         reader >= 0,
@@ -176,6 +181,11 @@ class CatalogRestJaxrsRegistrationTest {
         "rest-jax-rs providers must ref "
             + AUTO_TRANSLATION_ROWS_JSON_READER
             + " (missing → auto-translation PUT wrap/array empty or 400)");
+    assertTrue(
+        displayFormatReader >= 0,
+        "rest-jax-rs providers must ref "
+            + DISPLAY_FORMAT_JSON_READER
+            + " (missing → display format PUT allowedCommunities:[] treated as omit)");
     assertTrue(jackson >= 0, "rest-jax-rs providers must still ref jacksonProvider");
     assertTrue(
         reader < jackson,
@@ -201,6 +211,9 @@ class CatalogRestJaxrsRegistrationTest {
     assertTrue(
         autoTranslationReader < jackson,
         AUTO_TRANSLATION_ROWS_JSON_READER + " must be listed before jacksonProvider");
+    assertTrue(
+        displayFormatReader < jackson,
+        DISPLAY_FORMAT_JSON_READER + " must be listed before jacksonProvider");
   }
 
   private static Path resolveRepoRoot() {

@@ -35,6 +35,8 @@ export type DisplayFormatWriteBody = Pick<
   "name" | "internalName" | "label" | "displayName" | "description"
 > & {
   columns?: DisplayFormatColumn[];
+  /** Empty array is all communities. Omit to leave visibility unchanged. */
+  allowedCommunities?: { guid?: string; name?: string }[];
 };
 
 /** Jackson / JAXB root for DisplayFormat (UNWRAP_ROOT_VALUE on POST/PUT). */

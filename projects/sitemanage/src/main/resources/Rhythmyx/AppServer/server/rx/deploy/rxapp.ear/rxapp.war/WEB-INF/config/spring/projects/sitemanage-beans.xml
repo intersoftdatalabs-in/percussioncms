@@ -148,6 +148,9 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <!-- #3896: Developer field-rule PUT; JAXB rejects flat fieldName and
                  UNWRAP_ROOT_VALUE can leave the four lists null. Bind wrap + flat. -->
             <ref bean="contentTypeFieldRuleExpressionsJsonReader" />
+            <!-- #4098: PUT display format allowedCommunities:[] must stay empty (all
+                 communities), not null/omit, under CXF UNWRAP_ROOT_VALUE. -->
+            <ref bean="displayFormatJsonReader" />
             <!-- #4028 CD-18: PUT /locales/auto-translations wrap or bare array. -->
             <ref bean="autoTranslationRowsJsonReader" />
             <ref bean="jacksonProvider" />

@@ -1,7 +1,7 @@
 ---
 id: admin-developer-display-formats
 title: Developer Display Formats
-description: Create, delete, and edit columns on Content Explorer display formats from Developer Display Formats chrome
+description: Create, delete, edit columns, and set allowed communities on Content Explorer display formats from Developer Display Formats chrome
 version: "8.2"
 order: 47
 tags: [admin, developer, display-formats]
@@ -12,13 +12,14 @@ tags: [admin, developer, display-formats]
 **Developer → Display Formats** lists Content Explorer display format definitions
 (Workbench **Display Format** editor: unique internal name, label, description,
 and column catalog). Admins can **create** a user display format, **delete** a
-selected user format, and **add**, **remove**, and **reorder columns** on a
-**user** format from this chrome. The **name** is required, must be unique
+selected user format, **add**, **remove**, and **reorder columns**, and set
+**allowed communities** on a **user** format from this chrome. The **name** is required, must be unique
 (case-insensitive), and must not contain spaces, wildcards (`*` / `%`), or path
 characters. Name cannot be renamed after create.
 
 **Packaged/system** formats (`Default`, `By_Author`, `CM1_Default`, and the
-other installer catalog names) stay **read-only** for columns.
+other installer catalog names) stay **read-only** for columns and allowed
+communities.
 
 ## Product path — create, delete
 
@@ -54,14 +55,30 @@ other installer catalog names) stay **read-only** for columns.
 4. Open a packaged format such as **By_Author**. The column table is
    read-only; add/remove/save controls are not shown.
 
+## Product path — allowed communities on a user format
+
+1. Open a **user** format (not a packaged/system name). Detail shows **Allowed
+   communities** with **All communities** and a checkbox for each community.
+2. Clear **All communities** and select one or more communities. Click **Save
+   communities**. A following `GET /services/displayformats/{name}` lists those
+   communities in `allowedCommunities`. An unknown community is **400**. A
+   non-Admin session is **403**.
+3. Check **All communities** (or clear every community checkbox — that is the
+   same persist state, not a third “none” visibility) and **Save communities**.
+   GET then returns an empty `allowedCommunities` array, meaning every
+   community (Workbench `sys_community=-1`).
+4. Open a packaged format such as **By_Author**. Allowed communities are
+   read-only; the editor and save control are not shown.
+
 Existing **list** and **detail** GET (column catalog and Object ACL) are
 unchanged. See [Users, roles & security](id:admin-users-roles).
 
 ## Limits
 
 - Name is immutable after create.
-- Packaged/system formats cannot be column-edited from this catalog.
-- Allowed-community editing is not in this chrome.
+- Packaged/system formats cannot be column-edited or community-edited from this catalog.
+- Empty allowed-communities and all-communities are the same persist state.
+  There is no “visible to no communities” value.
 - Usage flags on GET (`validForFolder`, `validForViewsAndSearches`,
   `validForRelatedContent`) are derived from columns the same way Workbench
   computes them — they are not independently persisted on save.
@@ -77,6 +94,7 @@ The chrome calls:
 | Create | `POST /services/displayformats` (`name` required; unique, no spaces) |
 | Save | `PUT /services/displayformats/{idOrName}` (label, description) |
 | Save columns | `PUT /services/displayformats/{idOrName}` (`columns` replaces the list) |
+| Save communities | `PUT /services/displayformats/{idOrName}` (`allowedCommunities` array; empty array is all communities) |
 | Delete | `DELETE /services/displayformats/{idOrName}` (`204` on success) |
 
 Writes lock the format for the request and release it on save.

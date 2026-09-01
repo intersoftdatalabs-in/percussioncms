@@ -894,6 +894,21 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Column source is invalid. Use a field name without spaces or wildcards.",
   DF_COLUMNS_FORBIDDEN: "perc.ui.developer@Admin role required to change display format columns.",
   DF_COLUMNS_NOT_FOUND: "perc.ui.developer@Display format not found.",
+  DF_COMMUNITIES: "perc.ui.developer@Allowed communities",
+  DF_COMMUNITIES_HINT:
+    "perc.ui.developer@Restrict this user display format to selected communities. Clearing the list saves all communities (the same state as All communities).",
+  DF_COMMUNITIES_READONLY:
+    "perc.ui.developer@This packaged/system format is read-only. Allowed communities can be edited on user formats only.",
+  DF_COMMUNITIES_ALL: "perc.ui.developer@All communities",
+  DF_COMMUNITIES_SAVE: "perc.ui.developer@Save communities",
+  DF_COMMUNITIES_SAVING: "perc.ui.developer@Saving communities...",
+  DF_COMMUNITIES_SAVED: "perc.ui.developer@Allowed communities saved.",
+  DF_COMMUNITIES_SAVE_ERROR: "perc.ui.developer@Could not save allowed communities.",
+  DF_COMMUNITIES_UNKNOWN:
+    "perc.ui.developer@Unknown community. Choose a community from the catalog.",
+  DF_COMMUNITIES_FORBIDDEN:
+    "perc.ui.developer@Admin role required to change display format communities.",
+  DF_COMMUNITIES_LOADING: "perc.ui.developer@Loading communities...",
   DF_NONE: "perc.ui.developer@None",
   DF_COL_POS: "perc.ui.developer@Pos",
   DF_COL_SOURCE: "perc.ui.developer@Source field",

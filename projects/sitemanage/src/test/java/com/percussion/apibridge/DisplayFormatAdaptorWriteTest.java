@@ -40,6 +40,7 @@ import com.percussion.cms.objectstore.PSDisplayFormat;
 import com.percussion.cms.objectstore.PSKey;
 import com.percussion.rest.Guid;
 import com.percussion.rest.displayformat.DisplayFormat;
+import com.percussion.rest.displayformat.DisplayFormatCommunity;
 import com.percussion.rest.displayformat.DisplayFormatColumn;
 import com.percussion.rest.displayformat.DisplayFormatColumnList;
 import com.percussion.services.catalog.IPSCatalogSummary;
@@ -58,6 +59,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -416,6 +418,154 @@ class DisplayFormatAdaptorWriteTest {
 
     adaptor.updateDisplayFormat("MyFmt", body);
     verify(designWs).saveDisplayFormats(anyList(), eq(true), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void update_allowedCommunities_restrictsToKnownCommunity() throws Exception {
+    IPSGuid communityGuid = new PSGuid(PSTypeEnum.COMMUNITY_DEF, 1001L);
+    Map<IPSGuid, String> catalog = new HashMap<>();
+    catalog.put(communityGuid, "Default");
+    adaptor =
+        new DisplayFormatAdaptor(
+            designWs, () -> true, (df, id, session, user) -> xmlDeleted.add(df), () -> catalog);
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(nativeDf));
+
+    DisplayFormat body = new DisplayFormat();
+    body.setAllowedCommunities(
+        List.of(new DisplayFormatCommunity(communityGuid.toString(), "Default")));
+
+    DisplayFormat out = adaptor.updateDisplayFormat("MyFmt", body);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<PSDisplayFormat>> saved = ArgumentCaptor.forClass(List.class);
+    verify(designWs).saveDisplayFormats(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
+    PSDisplayFormat persisted = saved.getValue().get(0);
+    assertTrue(
+        persisted.doesPropertyHaveValue(
+            PSDisplayFormat.PROP_COMMUNITY, String.valueOf(communityGuid.longValue())));
+    assertFalse(
+        persisted.doesPropertyHaveValue(
+            PSDisplayFormat.PROP_COMMUNITY, PSDisplayFormat.PROP_COMMUNITY_ALL));
+    assertEquals(1, out.getAllowedCommunities().size());
+    assertEquals("Default", out.getAllowedCommunities().get(0).getName());
+  }
+
+  @Test
+  void update_allCommunitiesSentinelRow_isAllCommunities() throws Exception {
+    IPSGuid communityGuid = new PSGuid(PSTypeEnum.COMMUNITY_DEF, 1001L);
+    Map<IPSGuid, String> catalog = new HashMap<>();
+    catalog.put(communityGuid, "Default");
+    adaptor =
+        new DisplayFormatAdaptor(
+            designWs, () -> true, (df, id, session, user) -> xmlDeleted.add(df), () -> catalog);
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    nativeDf.addCommunity(String.valueOf(communityGuid.longValue()));
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(nativeDf));
+
+    DisplayFormat body = new DisplayFormat();
+    body.setAllowedCommunities(
+        List.of(new DisplayFormatCommunity(PSDisplayFormat.PROP_COMMUNITY_ALL, "-1")));
+
+    adaptor.updateDisplayFormat("MyFmt", body);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<PSDisplayFormat>> saved = ArgumentCaptor.forClass(List.class);
+    verify(designWs).saveDisplayFormats(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
+    PSDisplayFormat persisted = saved.getValue().get(0);
+    assertTrue(
+        persisted.doesPropertyHaveValue(
+            PSDisplayFormat.PROP_COMMUNITY, PSDisplayFormat.PROP_COMMUNITY_ALL));
+  }
+
+  @Test
+  void update_emptyAllowedCommunities_isAllCommunities() throws Exception {
+    IPSGuid communityGuid = new PSGuid(PSTypeEnum.COMMUNITY_DEF, 1001L);
+    Map<IPSGuid, String> catalog = new HashMap<>();
+    catalog.put(communityGuid, "Default");
+    adaptor =
+        new DisplayFormatAdaptor(
+            designWs, () -> true, (df, id, session, user) -> xmlDeleted.add(df), () -> catalog);
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    nativeDf.addCommunity(String.valueOf(communityGuid.longValue()));
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(nativeDf));
+
+    DisplayFormat body = new DisplayFormat();
+    body.setAllowedCommunities(new ArrayList<>());
+
+    adaptor.updateDisplayFormat("MyFmt", body);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<PSDisplayFormat>> saved = ArgumentCaptor.forClass(List.class);
+    verify(designWs).saveDisplayFormats(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
+    PSDisplayFormat persisted = saved.getValue().get(0);
+    assertTrue(
+        persisted.doesPropertyHaveValue(
+            PSDisplayFormat.PROP_COMMUNITY, PSDisplayFormat.PROP_COMMUNITY_ALL));
+  }
+
+  @Test
+  void update_unknownCommunity_is400() throws Exception {
+    IPSGuid communityGuid = new PSGuid(PSTypeEnum.COMMUNITY_DEF, 1001L);
+    Map<IPSGuid, String> catalog = new HashMap<>();
+    catalog.put(communityGuid, "Default");
+    adaptor =
+        new DisplayFormatAdaptor(
+            designWs, () -> true, (df, id, session, user) -> xmlDeleted.add(df), () -> catalog);
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(nativeDf));
+
+    DisplayFormat body = new DisplayFormat();
+    body.setAllowedCommunities(List.of(new DisplayFormatCommunity("0-10-99999", "Missing")));
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.updateDisplayFormat("MyFmt", body));
+    assertTrue(ex.getMessage().contains("unknown community"), ex.getMessage());
+    verify(designWs, never()).saveDisplayFormats(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_allowedCommunities_nonAdmin_is403() throws Exception {
+    adaptor = new DisplayFormatAdaptor(designWs, () -> false);
+    DisplayFormat body = new DisplayFormat();
+    body.setAllowedCommunities(List.of(new DisplayFormatCommunity("0-10-1001", "Default")));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.updateDisplayFormat("MyFmt", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(designWs, never()).saveDisplayFormats(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_omittedAllowedCommunities_leavesExisting() throws Exception {
+    IPSGuid communityGuid = new PSGuid(PSTypeEnum.COMMUNITY_DEF, 1001L);
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    nativeDf.addCommunity(String.valueOf(communityGuid.longValue()));
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(nativeDf));
+
+    DisplayFormat body = new DisplayFormat();
+    body.setLabel("Updated");
+
+    adaptor.updateDisplayFormat("MyFmt", body);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<PSDisplayFormat>> saved = ArgumentCaptor.forClass(List.class);
+    verify(designWs).saveDisplayFormats(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
+    PSDisplayFormat persisted = saved.getValue().get(0);
+    assertTrue(
+        persisted.doesPropertyHaveValue(
+            PSDisplayFormat.PROP_COMMUNITY, String.valueOf(communityGuid.longValue())));
   }
 
   @Test

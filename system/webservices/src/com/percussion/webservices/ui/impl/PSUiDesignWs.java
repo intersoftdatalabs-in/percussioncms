@@ -2687,8 +2687,10 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * If {@code updateDisplayFormats} did not INSERT, write {@code PSX_DISPLAYFORMATS}
-    * (+ columns) so {@link #findDisplayFormats} / GET-by-name can catalog the name.
-    * Catalog query inner-joins columns, so sys_title is required.
+    * (+ columns + properties) so {@link #findDisplayFormats} / GET-by-name can catalog
+    * the name and community visibility. Catalog query inner-joins columns, so
+    * sys_title is required. Properties are replaced (not insert-only) so
+    * {@code sys_community=-1} does not linger after a restricted PUT.
     */
    static void ensureDisplayFormatRowPersisted(PSDisplayFormat df)
    {
@@ -2850,13 +2852,27 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       }
    }
 
+   /**
+    * Replace {@code PSX_DISPLAYFORMATPROPERTIES} for this display id with the
+    * spec. Insert-only left {@code sys_community=-1} beside a restricted
+    * community so GET still looked like all communities (#4098).
+    */
    static void ensureDisplayFormatProperties(Connection conn, DisplayFormatRowSpec spec) throws SQLException
    {
+      deleteDisplayFormatProperties(conn, spec.displayId);
       for (DisplayFormatPropertySpec prop : spec.properties)
       {
-         if (displayFormatPropertyExists(conn, spec.displayId, prop.name, prop.value))
-            continue;
          insertDisplayFormatProperty(conn, spec.displayId, prop);
+      }
+   }
+
+   static void deleteDisplayFormatProperties(Connection conn, int displayId) throws SQLException
+   {
+      String sql = "DELETE FROM PSX_DISPLAYFORMATPROPERTIES WHERE PROPERTYID = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, displayId);
+         ps.executeUpdate();
       }
    }
 
@@ -3032,7 +3048,75 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          }
       }
       df.setColumnList(cols);
+      applyDisplayFormatPropertiesFromDb(conn, df, id);
       return df;
+   }
+
+   /**
+    * Hydrate properties (including {@code sys_community}) from JDBC. {@link
+    * PSDisplayFormat} construction defaults to all communities; without this,
+    * GET after a restricted PUT still looked like {@code sys_community=-1}.
+    */
+   static void applyDisplayFormatPropertiesFromDb(Connection conn, PSDisplayFormat df, int displayId)
+         throws SQLException
+   {
+      if (conn == null || df == null || displayId <= 0)
+         return;
+      String sql = "SELECT PROPERTYNAME, PROPERTYVALUE FROM PSX_DISPLAYFORMATPROPERTIES WHERE PROPERTYID = ?";
+      List<DisplayFormatPropertySpec> rows = new ArrayList<>();
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, displayId);
+         try (ResultSet rs = ps.executeQuery())
+         {
+            while (rs.next())
+            {
+               String name = rs.getString(1);
+               String value = rs.getString(2);
+               if (StringUtils.isBlank(name) || StringUtils.isBlank(value))
+                  continue;
+               rows.add(new DisplayFormatPropertySpec(name, value, null));
+            }
+         }
+      }
+      if (rows.isEmpty())
+         return;
+      boolean hasSpecificCommunity = false;
+      boolean hasCommunityAll = false;
+      for (DisplayFormatPropertySpec prop : rows)
+      {
+         if (!PSDisplayFormat.PROP_COMMUNITY.equals(prop.name))
+            continue;
+         if (PSDisplayFormat.PROP_COMMUNITY_ALL.equals(prop.value))
+            hasCommunityAll = true;
+         else
+            hasSpecificCommunity = true;
+      }
+      if (hasSpecificCommunity || hasCommunityAll)
+      {
+         df.removeProperty(PSDisplayFormat.PROP_COMMUNITY, null, false);
+         if (hasSpecificCommunity)
+         {
+            for (DisplayFormatPropertySpec prop : rows)
+            {
+               if (PSDisplayFormat.PROP_COMMUNITY.equals(prop.name)
+                     && !PSDisplayFormat.PROP_COMMUNITY_ALL.equals(prop.value))
+               {
+                  df.addCommunity(prop.value);
+               }
+            }
+         }
+         else
+         {
+            df.addCommunity(null);
+         }
+      }
+      for (DisplayFormatPropertySpec prop : rows)
+      {
+         if (PSDisplayFormat.PROP_COMMUNITY.equals(prop.name))
+            continue;
+         df.setProperty(prop.name, prop.value, true);
+      }
    }
 
    /**

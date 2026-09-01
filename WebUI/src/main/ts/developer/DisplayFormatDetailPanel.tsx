@@ -16,6 +16,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { isApiError } from "../api/client";
+import { listCommunities } from "../api/developer/assemblyApi";
 import {
   createDisplayFormat,
   deleteDisplayFormat,
@@ -28,7 +29,11 @@ import {
   updateDisplayFormat,
   type DisplayFormatWriteBody,
 } from "../api/developer/displayFormatsApi";
-import type { DisplayFormat, DisplayFormatColumn } from "../api/developer/types";
+import type {
+  CommunitySummary,
+  DisplayFormat,
+  DisplayFormatColumn,
+} from "../api/developer/types";
 import {
   catalogColors,
   backButton,
@@ -49,6 +54,14 @@ import {
   reindexColumns,
   removeDisplayFormatColumn,
 } from "./displayFormatColumns";
+import {
+  communityWireKey,
+  isAllCommunities,
+  normalizeAllowedCommunities,
+  selectedKeysFromMap,
+  toAllowedCommunitiesWriteBody,
+  type AllowedCommunityMap,
+} from "./displayFormatCommunities";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { ObjectAclSection } from "./ObjectAclSection";
@@ -105,6 +118,12 @@ export function DisplayFormatDetailPanel({
   const [loading, setLoading] = useState(idOrName != null);
   const [draftColumns, setDraftColumns] = useState<DisplayFormatColumn[]>([]);
   const [addSource, setAddSource] = useState("");
+  const [communityCatalog, setCommunityCatalog] = useState<CommunitySummary[]>([]);
+  const [loadedCommunityMap, setLoadedCommunityMap] = useState<AllowedCommunityMap>({});
+  const [allCommunities, setAllCommunities] = useState(true);
+  const [selectedCommunityKeys, setSelectedCommunityKeys] = useState<Set<string>>(
+    () => new Set(),
+  );
   const inflight = useRef(false);
 
   useEffect(() => {
@@ -117,6 +136,9 @@ export function DisplayFormatDetailPanel({
     setNotice(null);
     setDraftColumns([]);
     setAddSource("");
+    setLoadedCommunityMap({});
+    setAllCommunities(true);
+    setSelectedCommunityKeys(new Set());
     setLoading(true);
     getDisplayFormatDetail(idOrName)
       .then((d) => {
@@ -128,6 +150,10 @@ export function DisplayFormatDetailPanel({
         const cols = reindexColumns(normalizeColumns(d.columns));
         setDraftColumns(cols);
         setAddSource(catalogFieldsNotInUse(cols)[0]?.source || "");
+        const communities = normalizeAllowedCommunities(d.allowedCommunities);
+        setLoadedCommunityMap(communities);
+        setAllCommunities(isAllCommunities(communities));
+        setSelectedCommunityKeys(new Set(Object.keys(communities)));
         setLoading(false);
       })
       .catch((err: unknown) => {
@@ -160,6 +186,44 @@ export function DisplayFormatDetailPanel({
   const columnsDirty = !packaged && !isNew && !columnsOrderEqual(draftColumns, loadedColumns);
   const canSaveColumns = !busy && columnsDirty && detail != null;
   const objectGuid = resolveDisplayFormatObjectGuid(detail, catalogGuid);
+  const loadedCommunityKeys = useMemo(
+    () => selectedKeysFromMap(loadedCommunityMap, communityCatalog),
+    [loadedCommunityMap, communityCatalog],
+  );
+  const loadedAllCommunities = isAllCommunities(loadedCommunityMap);
+  const communitiesDirty =
+    !packaged &&
+    !isNew &&
+    (allCommunities !== loadedAllCommunities ||
+      (!allCommunities &&
+        (selectedCommunityKeys.size !== loadedCommunityKeys.size ||
+          [...selectedCommunityKeys].some((k) => !loadedCommunityKeys.has(k)))));
+  const canSaveCommunities =
+    !busy && communitiesDirty && detail != null && (allCommunities || selectedCommunityKeys.size > 0);
+
+  useEffect(() => {
+    if (packaged || isNew) {
+      return;
+    }
+    let cancelled = false;
+    listCommunities()
+      .then((rows) => {
+        if (!cancelled) setCommunityCatalog(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setCommunityCatalog([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [packaged, isNew, idOrName]);
+
+  useEffect(() => {
+    if (communityCatalog.length === 0) {
+      return;
+    }
+    setSelectedCommunityKeys(selectedKeysFromMap(loadedCommunityMap, communityCatalog));
+  }, [communityCatalog, loadedCommunityMap]);
 
   function writeBody(): DisplayFormatWriteBody {
     return {
@@ -186,6 +250,13 @@ export function DisplayFormatDetailPanel({
     return DEV_MSG.DF_COLUMNS_SAVE_ERROR;
   }
 
+  function communitiesSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return DEV_MSG.DF_COMMUNITIES_UNKNOWN;
+    if (isApiError(err) && err.status === 403) return DEV_MSG.DF_COMMUNITIES_FORBIDDEN;
+    if (isApiError(err) && err.status === 404) return DEV_MSG.DF_NOT_FOUND;
+    return DEV_MSG.DF_COMMUNITIES_SAVE_ERROR;
+  }
+
   async function handleSave(): Promise<void> {
     if (!canSave || inflight.current) return;
     inflight.current = true;
@@ -207,6 +278,10 @@ export function DisplayFormatDetailPanel({
       const cols = reindexColumns(normalizeColumns(saved.columns));
       setDraftColumns(cols);
       setAddSource(catalogFieldsNotInUse(cols)[0]?.source || "");
+      const communities = normalizeAllowedCommunities(saved.allowedCommunities);
+      setLoadedCommunityMap(communities);
+      setAllCommunities(isAllCommunities(communities));
+      setSelectedCommunityKeys(selectedKeysFromMap(communities, communityCatalog));
       setNotice(DEV_MSG.DF_SAVED);
       onSaved?.(saved);
     } catch (err: unknown) {
@@ -276,6 +351,77 @@ export function DisplayFormatDetailPanel({
       onColumnsSaved?.(saved);
     } catch (err: unknown) {
       setError(panelErrMsg(err, columnsSaveFallback(err)));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  function handleToggleAllCommunities(checked: boolean): void {
+    if (packaged || busy || isNew) {
+      return;
+    }
+    if (checked) {
+      setAllCommunities(true);
+      setSelectedCommunityKeys(new Set());
+      return;
+    }
+    setAllCommunities(false);
+  }
+
+  function handleToggleCommunity(community: CommunitySummary, checked: boolean): void {
+    if (packaged || busy || isNew) {
+      return;
+    }
+    const key = communityWireKey(community);
+    if (!key) {
+      return;
+    }
+    setSelectedCommunityKeys((prev) => {
+      const next = new Set(prev);
+      if (checked) {
+        next.add(key);
+      } else {
+        next.delete(key);
+      }
+      if (next.size === 0) {
+        setAllCommunities(true);
+        return next;
+      }
+      setAllCommunities(false);
+      return next;
+    });
+  }
+
+  async function handleSaveCommunities(): Promise<void> {
+    if (!canSaveCommunities || inflight.current || packaged || !writeKey) {
+      return;
+    }
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const saved = await updateDisplayFormat(writeKey, {
+        name: detail?.name || detail?.internalName || writeKey,
+        label: detail?.label || detail?.displayName,
+        displayName: detail?.displayName || detail?.label,
+        description: detail?.description,
+        allowedCommunities: toAllowedCommunitiesWriteBody(
+          allCommunities,
+          communityCatalog,
+          selectedCommunityKeys,
+        ),
+      });
+      setDetail(saved);
+      const communities = normalizeAllowedCommunities(saved.allowedCommunities);
+      setLoadedCommunityMap(communities);
+      setAllCommunities(isAllCommunities(communities));
+      setSelectedCommunityKeys(selectedKeysFromMap(communities, communityCatalog));
+      setNotice(DEV_MSG.DF_COMMUNITIES_SAVED);
+      onSaved?.(saved);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, communitiesSaveFallback(err)));
     } finally {
       inflight.current = false;
       setBusy(false);
@@ -622,6 +768,79 @@ export function DisplayFormatDetailPanel({
                 ) : null}
               </section>
 
+              <section style={{ marginTop: "16px" }} data-testid="developer-df-communities">
+                <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.DF_COMMUNITIES}</h3>
+                <p
+                  style={{ color: catalogColors.muted, fontSize: "0.9rem" }}
+                  data-testid={packaged ? "developer-df-communities-readonly" : undefined}
+                >
+                  {packaged ? DEV_MSG.DF_COMMUNITIES_READONLY : DEV_MSG.DF_COMMUNITIES_HINT}
+                </p>
+                {packaged ? (
+                  <p style={{ fontSize: "0.9rem" }} data-testid="developer-df-communities-all-label">
+                    {DEV_MSG.DF_COMMUNITIES_ALL}
+                  </p>
+                ) : (
+                  <div data-testid="developer-df-community-editor">
+                    <label
+                      style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}
+                    >
+                      <input
+                        type="checkbox"
+                        data-testid="developer-df-communities-all"
+                        checked={allCommunities}
+                        disabled={busy}
+                        onChange={(e) => handleToggleAllCommunities(e.target.checked)}
+                      />
+                      {DEV_MSG.DF_COMMUNITIES_ALL}
+                    </label>
+                    <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                      {communityCatalog.map((c, i) => {
+                        const key = communityWireKey(c) || `comm-${i}`;
+                        const checked =
+                          !allCommunities &&
+                          [...selectedCommunityKeys].some(
+                            (k) => k === key || k === c.name || (c.id != null && k === String(c.id)),
+                          );
+                        return (
+                          <li key={key} style={{ marginBottom: "4px" }}>
+                            <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                              <input
+                                type="checkbox"
+                                data-testid={`developer-df-community-${c.name || key}`}
+                                data-community-key={key}
+                                checked={checked}
+                                disabled={busy || allCommunities}
+                                onChange={(e) => handleToggleCommunity(c, e.target.checked)}
+                              />
+                              {c.label || c.name || key}
+                            </label>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                    <button
+                      type="button"
+                      data-testid="developer-df-communities-save"
+                      aria-label={DEV_MSG.DF_COMMUNITIES_SAVE}
+                      disabled={!canSaveCommunities}
+                      onClick={() => void handleSaveCommunities()}
+                      style={{
+                        marginTop: "12px",
+                        padding: "8px 16px",
+                        background: canSaveCommunities ? catalogColors.accent : catalogColors.disabled,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: canSaveCommunities ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      {busy ? DEV_MSG.DF_COMMUNITIES_SAVING : DEV_MSG.DF_COMMUNITIES_SAVE}
+                    </button>
+                  </div>
+                )}
+              </section>
+
               <ObjectAclSection
                 objectGuid={objectGuid}
                 objectKind="display-format"
@@ -632,7 +851,6 @@ export function DisplayFormatDetailPanel({
                 <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.DF_GAPS}</h3>
                 <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
                   <li>{DEV_MSG.DF_GAP_COLUMNS_EDIT}</li>
-                  <li>{DEV_MSG.DF_GAP_COMMUNITIES}</li>
                 </ul>
               </section>
             </>

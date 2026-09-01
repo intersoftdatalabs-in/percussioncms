@@ -18,12 +18,15 @@
 package com.percussion.rest.displayformat;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.rest.Guid;
 import com.percussion.rest.JacksonContextResolver;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
@@ -149,5 +152,41 @@ public class TestDisplayFormat {
     assertTrue(json.contains("\"stringValue\""), json);
     assertTrue(json.contains("0-11-301"), json);
     assertTrue(json.contains("\"uuid\""), json);
+  }
+
+  @Test
+  public void jacksonContextResolver_roundTripsAllowedCommunitiesList() {
+    DisplayFormat f = new DisplayFormat();
+    f.setName("MyFmt");
+    List<DisplayFormatCommunity> allowed = new ArrayList<>();
+    allowed.add(new DisplayFormatCommunity("0-10-10", "Default"));
+    f.setAllowedCommunities(allowed);
+
+    ObjectMapper mapper = new JacksonContextResolver().getContext(DisplayFormat.class);
+    String json = mapper.writeValueAsString(f);
+    assertTrue(json.contains("\"0-10-10\""), json);
+    assertTrue(json.contains("Default"), json);
+
+    DisplayFormat back = mapper.readValue(json, DisplayFormat.class);
+    assertNotNull(back.getAllowedCommunities());
+    assertEquals(1, back.getAllowedCommunities().size());
+    assertEquals("Default", back.getAllowedCommunities().get(0).getName());
+    assertEquals("0-10-10", back.getAllowedCommunities().get(0).getGuid());
+  }
+
+  @Test
+  public void jacksonContextResolver_emptyAllowedCommunitiesIsArray() {
+    DisplayFormat f = new DisplayFormat();
+    f.setName("MyFmt");
+    f.setAllowedCommunities(new ArrayList<>());
+
+    ObjectMapper mapper = new JacksonContextResolver().getContext(DisplayFormat.class);
+    String json = mapper.writeValueAsString(f);
+    assertTrue(json.contains("\"allowedCommunities\":["), json);
+
+    String wrapped =
+        "{\"DisplayFormat\":{\"name\":\"MyFmt\",\"allowedCommunities\":[{\"guid\":\"0-10-10\",\"name\":\"Default\"}]}}";
+    DisplayFormat back = mapper.readValue(wrapped, DisplayFormat.class);
+    assertEquals("Default", back.getAllowedCommunities().get(0).getName());
   }
 }
