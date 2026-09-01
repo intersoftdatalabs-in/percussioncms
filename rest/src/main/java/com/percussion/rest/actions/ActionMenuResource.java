@@ -29,6 +29,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import java.util.Arrays;
 import java.util.Collections;
@@ -69,8 +70,9 @@ public class ActionMenuResource {
   @Operation(
       summary = "List action menus (catalog)",
       description =
-          "Lists CX action menus for the Developer module. Create/edit/delete and entry"
-              + " composition remain later slices.",
+          "Lists CX action menus for the Developer module. Admin create/save/delete user menus"
+              + " via POST/PUT/DELETE on this resource. Cascading children composition and"
+              + " usage/command/visibility tabs remain later slices.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -98,8 +100,9 @@ public class ActionMenuResource {
   @Operation(
       summary = "Get action menu detail",
       description =
-          "Loads one action menu by name or numeric id. Write and cascading entry edit remain"
-              + " unsupported.",
+          "Loads one action menu by name or numeric id. Admin PUT/DELETE use"
+              + " /services/actions/{idOrName}. Cascading entry composition remains a later"
+              + " slice.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -179,19 +182,176 @@ public class ActionMenuResource {
 
   /**
    * Accepts an object with an array of content ids and assignment types and returns the allowed
-   * menus. Not implemented.
+   * menus. Not implemented. Collection {@code POST /actions} is create; this finder stays under
+   * {@code /find/transitions}.
    *
    * @param request the request payload
    * @return an empty list (not implemented)
    */
   @POST
+  @Path("/find/transitions")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
   @Operation(
       description =
           "Accepts an object with an array of contentid's and assignment types and returns the"
-              + " allowed menus")
+              + " allowed menus. Not implemented; returns an empty list.")
   public ActionMenuList getAllowedTransitions(AllowedWorkflowTransitionsRequest request) {
-    // Not implemented yet
+    // Not implemented yet (UI-03 later). POST /actions is Admin create.
     return new ActionMenuList();
+  }
+
+  @POST
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Create action menu",
+      description =
+          "Admin. Creates and persists a user action menu via IPSUiDesignWs.createActions then"
+              + " saveActions (Workbench Finish, held design lock released on save). Name is"
+              + " required, unique (case-insensitive), and must not contain whitespace or"
+              + " wildcards. Optional label, description, menuType, and url (GET detail fields)"
+              + " are applied before save. Duplicate name is 409. System menus are not created"
+              + " here. Cascading children composition is a later slice. This is not Developer"
+              + " Action Menus SPA chrome.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Created",
+            content = @Content(schema = @Schema(implementation = ActionMenu.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin role required, or request has no session/user"),
+        @ApiResponse(responseCode = "409", description = "A menu with that name already exists"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  /** Admin create of a user action menu. */
+  public ActionMenu createActionMenu(ActionMenu body) {
+    try {
+      if (body != null) {
+        body.setGuid(null);
+        body.setId(-1);
+      }
+      ActionMenu created = requireAdaptor().createActionMenu(body);
+      if (created == null) {
+        throw new WebApplicationException("Failed to create action menu", 500);
+      }
+      return created;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Update action menu",
+      description =
+          "Admin. Updates label, description, menuType, and/or url by name, numeric id, or GUID."
+              + " Name is the catalog key and is not renamed on PUT. Loads with a design lock"
+              + " (overrideLock=false) and releases on save. Unknown id is 404. Lock/dependency"
+              + " conflict is 409. System menus are 409 (not mutated; the lock is not stolen)."
+              + " Cascading children composition is a later slice.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated",
+            content = @Content(schema = @Schema(implementation = ActionMenu.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin role required, or request has no session/user"),
+        @ApiResponse(responseCode = "404", description = "Action menu not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description =
+                "Design lock, dependency conflict, or system menu cannot be mutated"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  /** Admin update of a user action menu by name, numeric id, or GUID. */
+  public ActionMenu updateActionMenu(@PathParam("idOrName") String idOrName, ActionMenu body) {
+    try {
+      if (body == null) {
+        throw new IllegalArgumentException("body is required");
+      }
+      ActionMenu updated = requireAdaptor().saveActionMenu(idOrName, body);
+      if (updated == null) {
+        throw new WebApplicationException("Action menu not found", 404);
+      }
+      return updated;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @DELETE
+  @Path("/{idOrName}")
+  @Operation(
+      summary = "Delete action menu",
+      description =
+          "Admin. Deletes a user action menu by name, numeric id, or GUID via"
+              + " IPSUiDesignWs.deleteActions (ignoreDependencies=false). Unknown id is 404."
+              + " Lock/dependency conflict is 409. System menus are 409 (not deleted; the lock"
+              + " is not stolen). Following GET /catalog/{idOrName} is 404 after a successful"
+              + " delete.",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Deleted"),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin role required, or request has no session/user"),
+        @ApiResponse(responseCode = "404", description = "Action menu not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description =
+                "Design lock, dependency conflict, or system menu cannot be deleted"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  /** Admin delete of a user action menu by name, numeric id, or GUID. */
+  public Response deleteActionMenu(@PathParam("idOrName") String idOrName) {
+    try {
+      boolean deleted = requireAdaptor().deleteActionMenu(idOrName);
+      if (!deleted) {
+        throw new WebApplicationException("Action menu not found", 404);
+      }
+      return Response.noContent().build();
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Map adaptor write failures to HTTP status. Admin/session 403 and duplicate/system 409 are
+   * already {@link WebApplicationException}s from the adaptor.
+   */
+  static WebApplicationException mapWriteFailure(RuntimeException e) {
+    if (e instanceof WebApplicationException wae) {
+      return wae;
+    }
+    if (e instanceof IllegalArgumentException) {
+      return new WebApplicationException(e.getMessage(), 400);
+    }
+    if (e instanceof IllegalStateException) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Conflict";
+      String lower = msg.toLowerCase();
+      if (lower.contains("lock") || lower.contains("depend")) {
+        return new WebApplicationException(msg, 409);
+      }
+      return new WebApplicationException(e, 500);
+    }
+    return new WebApplicationException(e, 500);
   }
 
   @POST

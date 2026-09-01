@@ -39,4 +39,32 @@ public interface IActionMenuAdaptor {
 
   /** Resolve one menu by name or numeric id string. Returns null if missing/unsafe. */
   ActionMenu findMenuByKey(String idOrName);
+
+  /**
+   * Admin. Create and persist a user action menu ({@code createActions} then {@code saveActions}).
+   *
+   * @param body required; {@code name} is the unique catalog key
+   * @return the persisted menu
+   */
+  ActionMenu createActionMenu(ActionMenu body);
+
+  /**
+   * Admin. Update and persist a user action menu by name or GUID ({@code loadActions} lock, {@code
+   * saveActions} release). Does not steal another user's lock. System menus are not mutated.
+   *
+   * @param idOrName catalog key (same rules as {@link #findMenuByKey})
+   * @param body required writable fields (label, description, menuType, url as exposed on GET)
+   * @return the persisted menu, or {@code null} when missing/unsafe
+   */
+  ActionMenu saveActionMenu(String idOrName, ActionMenu body);
+
+  /**
+   * Admin. Delete a user action menu by name or GUID ({@code deleteActions}, {@code
+   * ignoreDependencies=false}). Does not steal another user's lock. System menus return conflict
+   * (not deleted).
+   *
+   * @param idOrName catalog key (same rules as {@link #findMenuByKey})
+   * @return {@code true} when deleted, {@code false} when missing/unsafe
+   */
+  boolean deleteActionMenu(String idOrName);
 }
