@@ -520,6 +520,32 @@ class PSSitemapXmlVirtualSiteSourceTest {
   }
 
   @Test
+  void siblingDirSharingRootNamePrefixIsRejected() throws Exception {
+    Path root = writeSite(tempDir.resolve("sm-abs"), "sitemap.xml");
+    Path sibling = tempDir.resolve("sm-abs-other");
+    Files.createDirectories(sibling);
+    Path evil = sibling.resolve("evil.xml");
+    Files.writeString(evil, urlset("pages/x.md", null), StandardCharsets.UTF_8);
+    assertFalse(PSSitemapXmlVirtualSiteSource.isInsideRoot(evil, root.normalize()));
+    String siblingLoc = evil.toAbsolutePath().normalize().toString().replace('\\', '/');
+    VirtualSiteException locEx =
+        assertThrows(
+            VirtualSiteException.class,
+            () -> PSSitemapXmlVirtualSiteSource.resolveLocFile(root, siblingLoc));
+    assertTrue(locEx.getMessage().toLowerCase().contains("escapes"), locEx.getMessage());
+    Files.writeString(
+        root.resolve("sitemap.xml"), urlset(siblingLoc, null), StandardCharsets.UTF_8);
+    VirtualSiteException discoverEx =
+        assertThrows(
+            VirtualSiteException.class,
+            () -> new PSSitemapXmlVirtualSiteSource().discover(config(root, "sitemap.xml")));
+    assertTrue(
+        discoverEx.getMessage().toLowerCase().contains("escapes")
+            || discoverEx.getMessage().toLowerCase().contains("loc"),
+        discoverEx.getMessage());
+  }
+
+  @Test
   void legacyTwelveArgConstructorFallsBackToDefaultSitemapFile() throws Exception {
     Path root = writeSite(tempDir.resolve("sm-legacy-ctor"), null);
     Files.writeString(

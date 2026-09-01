@@ -799,8 +799,10 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
 
   /**
    * True when {@code candidate} is the same file/dir as {@code safeRoot} or a descendant.
-   * Uses {@link Path#startsWith} first, then {@link Files#isSameFile} so Windows
-   * case-insensitive volumes are not rejected on drive-letter or component case.
+   * Existing paths use {@link Files#isSameFile} parent walk so Windows case-insensitive
+   * volumes are not rejected on drive-letter or component case. Missing paths use a
+   * name-element {@link Path#startsWith} check (not a string prefix) so a sibling whose
+   * name shares a prefix ({@code sm-abs} vs {@code sm-abs-other}) is not treated as inside.
    */
   static boolean isInsideRoot(Path candidate, Path safeRoot) {
     if (candidate == null || safeRoot == null) {
@@ -808,24 +810,33 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
     }
     Path absCandidate = candidate.toAbsolutePath().normalize();
     Path absRoot = safeRoot.toAbsolutePath().normalize();
-    if (absCandidate.startsWith(absRoot)) {
-      return true;
-    }
     try {
-      if (!Files.exists(absCandidate) || !Files.exists(absRoot)) {
-        return false;
-      }
-      Path cursor = absCandidate;
-      while (cursor != null) {
-        if (Files.isSameFile(cursor, absRoot)) {
-          return true;
+      if (Files.exists(absCandidate) && Files.exists(absRoot)) {
+        Path cursor = absCandidate;
+        while (cursor != null) {
+          if (Files.isSameFile(cursor, absRoot)) {
+            return true;
+          }
+          cursor = cursor.getParent();
         }
-        cursor = cursor.getParent();
+        return false;
       }
     } catch (IOException e) {
       return false;
     }
-    return false;
+    return isLexicalDescendant(absCandidate, absRoot);
+  }
+
+  /**
+   * Name-element containment. {@link Path#startsWith} already compares path names, not
+   * raw strings; the name-count bound rejects a sibling that only shares a string prefix.
+   */
+  private static boolean isLexicalDescendant(Path absCandidate, Path absRoot) {
+    if (absCandidate.equals(absRoot)) {
+      return true;
+    }
+    return absCandidate.startsWith(absRoot)
+        && absCandidate.getNameCount() > absRoot.getNameCount();
   }
 
   private static boolean remainingParent(Path path) {
