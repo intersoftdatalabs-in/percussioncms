@@ -1480,9 +1480,11 @@ rows are written to `RXMENUACTION` so Hibernate `findActionMenusTree` (GET
 `/services/actions/catalog` and GET by name) includes a user menu immediately
 after POST, and omits it after DELETE. There is no new SOAP surface.
 **Developer → Action Menus** chrome creates and deletes user menus (and saves
-label / description / menuType / url); cascading children composition (UI-04)
-and usage/command/visibility tab completeness (UI-03) are later slices — see
-[Developer Action Menus](id:admin-developer-action-menus). Finder helpers
+label / description / menuType / url). Admin **PUT** also round-trips Workbench
+**Usage** and **Command** fields on user menus (`handler`, `url`, `parameters`,
+and command/usage `properties`). Cascading children composition (UI-04) and
+visibility contexts / SPA usage-command-visibility tabs remain later slices —
+see [Developer Action Menus](id:admin-developer-action-menus). Finder helpers
 (`GET /services/actions/find`, content-type and template finders) are unchanged.
 After POST the editor notice confirms the save. Packaged menus (for example
 **Copy**) are **409** on PUT/DELETE, not **404**.
@@ -1495,14 +1497,23 @@ updated or deleted — **409**; the design lock is not stolen (`overrideLock=fal
 If Workbench path resolution fails, PUT/DELETE also return **409** (fail closed)
 so a lookup error cannot bypass that protection.
 PUT round-trips GET detail fields already exposed (`label`, `description`,
-`menuType`, `url`). Name is the catalog key and is not renamed on PUT.
+`menuType`, `url`) plus usage/command fields: `handler` (`CLIENT` or `SERVER`),
+`url`, `parameters` (name/value/description URL parameters; a present array
+replaces the collection, including empty), and `properties` used as Workbench
+Usage/Command (for example `AcceleratorKey`, `MnemonicKey`, `ShortDescription`,
+`SmallIcon`, `launchesWindow`, `SupportsMultiSelect`, `refreshHint`, `target`,
+`targetStyle`). Omitted `handler` / `parameters` / `properties` leave the
+stored values. The REST user-menu marker property is not overwritten. Name is
+the catalog key and is not renamed on PUT. Invalid `handler` or `menuType` is
+**400**. Visibility contexts (`visibilityContexts`, `uiContexts`) are ignored
+on PUT.
 
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/services/actions/catalog` | List action menus (tree roots with children) |
 | `GET` | `/services/actions/catalog/{idOrName}` | Load one menu by name, numeric id, or GUID string |
 | `POST` | `/services/actions` | **Admin.** Create a user action menu (`createActions` then `saveActions`) |
-| `PUT` | `/services/actions/{idOrName}` | **Admin.** Update label, description, menuType, and/or url |
+| `PUT` | `/services/actions/{idOrName}` | **Admin.** Update label, description, menuType, url, handler, parameters, and command/usage properties |
 | `DELETE` | `/services/actions/{idOrName}` | **Admin.** Delete a user action menu (`deleteActions`, `ignoreDependencies=false`) |
 
 JSON may wrap a single item as `ActionMenu`. **Create** `POST /services/actions`

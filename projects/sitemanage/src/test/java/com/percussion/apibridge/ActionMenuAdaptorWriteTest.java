@@ -35,8 +35,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.cms.objectstore.PSAction;
+import com.percussion.cms.objectstore.PSActionParameter;
 import com.percussion.rest.actions.ActionMenu;
 import com.percussion.rest.actions.ActionMenuList;
+import com.percussion.rest.actions.ActionMenuParameter;
+import com.percussion.rest.actions.ActionMenuProperty;
+import com.percussion.rest.actions.ActionMenuVisibilityContext;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
@@ -255,6 +259,116 @@ class ActionMenuAdaptorWriteTest {
     verify(designWs).saveActions(anyList(), eq(true), eq("test-session"), eq("Admin"));
     verify(designWs, never()).createActions(anyList(), anyList(), any(), any());
     verify(designWs).loadActions(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void update_usageAndCommand_roundTripsOnPutAndDto() throws Exception {
+    PSAction existing = stubAction("MyMenu", 42);
+    existing.getProperties().setProperty(ActionMenuAdaptor.REST_USER_MENU_PROP, PSAction.YES);
+    existing.getParameters().setParameter("oldParam", "old");
+    stubCatalogLoad(existing);
+    PSAction locked = stubAction("MyMenu", 42);
+    locked.getProperties().setProperty(ActionMenuAdaptor.REST_USER_MENU_PROP, PSAction.YES);
+    locked.getParameters().setParameter("oldParam", "old");
+    when(designWs.loadActions(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(locked));
+
+    ActionMenu body = new ActionMenu();
+    body.setHandler(PSAction.HANDLER_CLIENT);
+    body.setUrl("/sys_cxSupport/foo.xml");
+    ActionMenuParameter param = new ActionMenuParameter();
+    param.setName("sys_contentid");
+    param.setValue("PSX_CONTENTID");
+    param.setDescription("content id");
+    body.setParameters(new ActionMenuParameter[] {param});
+    ActionMenuProperty accel = new ActionMenuProperty();
+    accel.setName(PSAction.PROP_ACCEL_KEY);
+    accel.setValue("ctrl S");
+    ActionMenuProperty mnem = new ActionMenuProperty();
+    mnem.setName(PSAction.PROP_MNEM_KEY);
+    mnem.setValue("S");
+    ActionMenuProperty launch = new ActionMenuProperty();
+    launch.setName(PSAction.PROP_LAUNCH_NEW_WND);
+    launch.setValue(PSAction.YES);
+    ActionMenuProperty marker = new ActionMenuProperty();
+    marker.setName(ActionMenuAdaptor.REST_USER_MENU_PROP);
+    marker.setValue(PSAction.NO);
+    body.setProperties(new ActionMenuProperty[] {accel, mnem, launch, marker});
+    ActionMenuVisibilityContext vis = new ActionMenuVisibilityContext();
+    vis.setValue("should-not-persist");
+    body.setVisibilityContexts(new ActionMenuVisibilityContext[] {vis});
+
+    ActionMenu out = adaptor.saveActionMenu("MyMenu", body);
+
+    assertEquals(PSAction.HANDLER_CLIENT, out.getHandler());
+    assertEquals("/sys_cxSupport/foo.xml", out.getUrl());
+    assertEquals(1, out.getParameters().length);
+    assertEquals("sys_contentid", out.getParameters()[0].getName());
+    assertEquals("PSX_CONTENTID", out.getParameters()[0].getValue());
+    assertEquals("content id", out.getParameters()[0].getDescription());
+    assertEquals("ctrl S", propertyValue(out, PSAction.PROP_ACCEL_KEY));
+    assertEquals("S", propertyValue(out, PSAction.PROP_MNEM_KEY));
+    assertEquals(PSAction.YES, propertyValue(out, PSAction.PROP_LAUNCH_NEW_WND));
+    assertEquals(PSAction.YES, propertyValue(out, ActionMenuAdaptor.REST_USER_MENU_PROP));
+    assertNull(out.getVisibilityContexts());
+    assertTrue(locked.isClientAction());
+    assertEquals("/sys_cxSupport/foo.xml", locked.getURL());
+    assertEquals("PSX_CONTENTID", locked.getParameters().getParameter("sys_contentid"));
+    assertNull(locked.getParameters().getParameter("oldParam"));
+    assertEquals("ctrl S", locked.getProperty(PSAction.PROP_ACCEL_KEY));
+    assertEquals(PSAction.YES, locked.getProperty(ActionMenuAdaptor.REST_USER_MENU_PROP));
+    verify(designWs).saveActions(anyList(), eq(true), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void update_invalidHandler_is400BeforeSave() throws Exception {
+    PSAction existing = stubAction("MyMenu", 42);
+    stubCatalogLoad(existing);
+    PSAction locked = stubAction("MyMenu", 42);
+    when(designWs.loadActions(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(locked));
+    ActionMenu body = new ActionMenu();
+    body.setHandler("neither");
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.saveActionMenu("MyMenu", body));
+    assertTrue(ex.getMessage().toLowerCase().contains("handler"));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void applyWritableFields_nullParametersLeavesExisting() {
+    PSAction domain = stubAction("MyMenu", 42);
+    domain.getParameters().setParameter("keep", "1");
+    ActionMenu body = new ActionMenu();
+    body.setLabel("Updated");
+    ActionMenuAdaptor.applyWritableFields(domain, body);
+    assertEquals("1", domain.getParameters().getParameter("keep"));
+    assertEquals("Updated", domain.getLabel());
+  }
+
+  @Test
+  void applyParameters_emptyArrayClears() {
+    PSAction domain = stubAction("MyMenu", 42);
+    domain.getParameters().setParameter("gone", "x");
+    ActionMenuAdaptor.applyParameters(domain, new ActionMenuParameter[0]);
+    assertEquals(0, domain.getParameters().size());
+  }
+
+  @Test
+  void toDto_mapsHandlerParametersAndProperties() {
+    PSAction action = stubAction("MyMenu", 42);
+    action.setClientAction(false);
+    action.setURL("/cmd");
+    action.getParameters().add(new PSActionParameter("p1", "v1", "d1"));
+    action.getProperties().setProperty(PSAction.PROP_SHORT_DESC, "tip");
+    ActionMenu dto = ActionMenuAdaptor.toDto(action);
+    assertEquals(PSAction.HANDLER_SERVER, dto.getHandler());
+    assertEquals("/cmd", dto.getUrl());
+    assertEquals(1, dto.getParameters().length);
+    assertEquals("p1", dto.getParameters()[0].getName());
+    assertEquals("v1", dto.getParameters()[0].getValue());
+    assertEquals("d1", dto.getParameters()[0].getDescription());
+    assertEquals("tip", propertyValue(dto, PSAction.PROP_SHORT_DESC));
   }
 
   @Test
@@ -611,6 +725,18 @@ class ActionMenuAdaptorWriteTest {
     PSAction action = new PSAction(name, name);
     action.setGUID(new PSGuid(PSTypeEnum.ACTION, id));
     return action;
+  }
+
+  private static String propertyValue(ActionMenu menu, String name) {
+    if (menu.getProperties() == null) {
+      return null;
+    }
+    for (ActionMenuProperty prop : menu.getProperties()) {
+      if (prop != null && name.equalsIgnoreCase(prop.getName())) {
+        return prop.getValue();
+      }
+    }
+    return null;
   }
 
   private void stubCatalogLoad(PSAction action) throws Exception {
