@@ -17,10 +17,10 @@
 /**
  * Developer Action Menus create / delete chrome (#4112 UI-02 / parent #1690).
  *
- * SPA catalog exposes New + detail save/delete. Live POST create is asserted
- * by the editor notice. Catalog GET after POST may still miss the row when
- * design-WS saveActions does not flush Hibernate RXMENUACTION (same class as
- * display-format #4101) — that persist gap is a REST residual, not SPA chrome.
+ * SPA catalog New POSTs a user menu; GET catalog lists it; detail DELETE
+ * omits it (following GET is 404). System menus stay in the catalog (409).
+ * Stacks REST JAXB bind (#4189 / #4171) so POST is ActionMenu, not the
+ * workflow-transitions finder DTO. Does not claim UI-03/UI-04.
  *
  * Surface-filtered QA:
  * <pre>
@@ -107,6 +107,44 @@ function createdRow(page, menuName) {
   );
 }
 
+/**
+ * Same-origin fetch so OWASP CSRF + session cookies apply.
+ *
+ * @param {import("@playwright/test").Page} page
+ * @param {string} path
+ * @param {string} method
+ * @returns {Promise<{status: number, text: string}>}
+ */
+async function inPageJson(page, path, method) {
+  return page.evaluate(
+    async ({ path: url, method: httpMethod }) => {
+      const tokenObj = window.OWASP_CSRFTOKEN;
+      const metaToken = document.querySelector('meta[name="_csrf"]');
+      const metaHeader = document.querySelector('meta[name="_csrf_header"]');
+      const token =
+        (tokenObj && tokenObj.token) || (metaToken && metaToken.content) || "";
+      const headerName =
+        (metaHeader && metaHeader.content) || "OWASP-CSRFTOKEN";
+      const headers = { Accept: "application/json" };
+      if (token) {
+        headers[headerName] = token;
+      }
+      const res = await fetch(url, {
+        method: httpMethod,
+        credentials: "same-origin",
+        headers,
+      });
+      const text = await res.text();
+      return { status: res.status, text };
+    },
+    { path, method },
+  );
+}
+
+function nameInJson(text, name) {
+  return new RegExp(`"name"\\s*:\\s*"${name}"`).test(text);
+}
+
 test.describe("Developer action menu editor (#4112 / UI-02)", () => {
   test("catalog lists system Edit and opens create chrome", async ({ page }) => {
     test.setTimeout(120_000);
@@ -131,8 +169,8 @@ test.describe("Developer action menu editor (#4112 / UI-02)", () => {
     assertConsoleClean(pageErrors, consoleErrors);
   });
 
-  test("Admin create POST is saved in the editor (notice + name read-only)", async ({ page }) => {
-    test.setTimeout(120_000);
+  test("Admin create POST is listed then DELETE omits it (GET 404)", async ({ page }) => {
+    test.setTimeout(180_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
     await loginAsAdmin(page);
     await openActionMenusCatalog(page);
@@ -156,6 +194,21 @@ test.describe("Developer action menu editor (#4112 / UI-02)", () => {
     await expect(page.locator('[data-testid="developer-am-name"]')).toBeDisabled();
     await expect(page.locator('[data-testid="developer-am-delete"]')).toBeVisible();
 
+    const catalog = await inPageJson(page, "/Rhythmyx/services/actions/catalog", "GET");
+    expect(catalog.status, `GET catalog (got ${catalog.status}): ${catalog.text}`).toBe(200);
+    expect(
+      nameInJson(catalog.text, menuName),
+      `GET catalog must list ${menuName}: ${catalog.text}`,
+    ).toBeTruthy();
+
+    await page.locator('[data-testid="developer-am-back"]').click();
+    await expect(page.locator('[data-testid="developer-am-panel"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(createdRow(page, menuName)).toHaveCount(1, { timeout: 20_000 });
+
+    await createdRow(page, menuName).click();
+    await expect(page.locator('[data-testid="developer-am-detail"]')).toBeVisible();
     await page.locator('[data-testid="developer-am-delete"]').click();
     await confirmDeveloperCatalogDelete(page);
     await expect(page.locator('[data-testid="developer-am-panel"]')).toBeVisible({
@@ -164,7 +217,17 @@ test.describe("Developer action menu editor (#4112 / UI-02)", () => {
     const listNotice = page.locator('[data-testid="developer-am-list-notice"]');
     await expect(listNotice).toBeVisible({ timeout: 20_000 });
     await expect(listNotice).toContainText(/deleted/i);
+    await expect(createdRow(page, menuName)).toHaveCount(0);
 
+    const afterDelete = await inPageJson(
+      page,
+      `/Rhythmyx/services/actions/catalog/${encodeURIComponent(menuName)}`,
+      "GET",
+    );
+    expect(
+      afterDelete.status,
+      `GET after DELETE must be 404 (got ${afterDelete.status}): ${afterDelete.text}`,
+    ).toBe(404);
 
     assertConsoleClean(pageErrors, consoleErrors);
   });
