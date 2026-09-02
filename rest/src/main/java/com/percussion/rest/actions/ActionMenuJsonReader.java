@@ -46,6 +46,8 @@ import tools.jackson.databind.json.JsonMapper;
  * This reader binds wrap and flat shapes before {@code jacksonProvider}.
  *
  * <p>Must be listed on {@code rest-jax-rs} {@code jaxrs:providers} ahead of {@code jacksonProvider}.
+ * rest-jax-rs also sets {@code skip.default.json.provider.registration} so Jettison JAXB cannot
+ * bind this body as {@code allowedWorkflowTransitionsRequest} (#4171).
  */
 @Provider
 @Consumes({MediaType.APPLICATION_JSON, "text/json", "application/*+json", MediaType.WILDCARD})
