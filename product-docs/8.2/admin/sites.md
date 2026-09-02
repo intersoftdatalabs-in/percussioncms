@@ -323,6 +323,9 @@ that HTML to the Site filesystem root for Git/CSV/SQL/HTTP JSON/object-storage/r
    - **iCalendar** — a valid **Root path** to a local RFC 5545 `.ics` fixture
      (`calendar.ics` or `_config.yaml` `icalendar.file`). Git remotes are hidden.
      Do not put CalDAV URLs or credentials on the REST envelope.
+   - **Sitemap XML** — a valid **Root path** to a local `sitemap.xml` fixture
+     (`sitemap.xml` or `_config.yaml` `sitemap.file`). Git remotes are hidden.
+     Do not put live crawl URLs or credentials on the REST envelope.
    If you just edited properties, choose **Save Virtual Site source** first — the
    build uses the **saved** server properties, not unsaved form fields.
 4. Choose **Build Virtual Site**.
@@ -334,7 +337,8 @@ that HTML to the Site filesystem root for Git/CSV/SQL/HTTP JSON/object-storage/r
    (`objects.keys` or site title) change — or after an RSS / Atom fixture
    (`feed.xml` / `atom.xml` / `rss.file` / loopback `rss.url`) or `_config.yaml`
    change — or after an iCalendar fixture (`calendar.ics` / `icalendar.file`) or
-   `_config.yaml` change — choose **Build Virtual Site** again. The build re-reads the current tree
+   `_config.yaml` change — or after a sitemap.xml `<loc>` / `<lastmod>` / path edit
+   or a `_config.yaml` `sitemap.file` change — choose **Build Virtual Site** again. The build re-reads the current tree
    (and re-fetches when a Git remote is configured) — **do not restart the CMS** just
    to pick up those edits. There is no file watcher; the next explicit build is the
    refresh.

@@ -67,12 +67,14 @@ import org.xml.sax.SAXException;
  * noted in the Markdown body.
  *
  * <p>Stateless: {@link #discover} and {@link #load} always re-read the current local sitemap via
- * {@link Files#readString}. No path/mtime parse cache is kept on the instance or in statics — a
- * second build in the same JVM after a sitemap ({@code sitemap.file} / default {@code
- * sitemap.xml}) or {@code _config.yaml} edit must see the new bytes. File watchers are not used;
- * {@code _config.yaml} is reloaded by {@link PSVirtualSiteBuildService}, not this source. XML
- * parse is XXE fail-closed via {@link PSSecureXMLUtils}. {@link #load} materializes only the
- * matching loc body (one file read or loopback HTTP GET); it does not re-fetch every loc.
+ * {@link Files#readString}. No path/mtime parse cache of {@code <loc>}/{@code <lastmod>} pages
+ * is kept on the instance or in statics — a second build in the same JVM after an operator
+ * {@link Path}/{@link Files} edit of {@code sitemap.xml} (loc, lastmod, or path) or of {@code
+ * _config.yaml} {@code sitemap.file} must see the new bytes without a JVM restart. File
+ * watchers are not used; {@code _config.yaml} is reloaded by {@link PSVirtualSiteBuildService},
+ * not this source. XML parse is XXE fail-closed via {@link PSSecureXMLUtils}. {@link #load}
+ * materializes only the matching loc body (one file read or loopback HTTP GET); it does not
+ * re-fetch every loc.
  */
 public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
 

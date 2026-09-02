@@ -110,7 +110,7 @@ public class PSVirtualSiteBuildService {
    * _config.yaml} ({@code objects.keys}) edit, an RSS/Atom feed ({@code rss.file} /
    * {@code feed.xml} / {@code atom.xml} / {@code rss.url}) edit, an iCalendar fixture
    * ({@code icalendar.file} / {@code calendar.ics}) edit, or a sitemap fixture ({@code
-   * sitemap.file} / {@code sitemap.xml}) edit.
+   * sitemap.file} / {@code sitemap.xml} loc, lastmod, or path) edit.
    *
    * @param siteRoot source tree ({@code _config.yaml} required for git-filesystem and
    *     sql-database; optional for csv-filesystem)
