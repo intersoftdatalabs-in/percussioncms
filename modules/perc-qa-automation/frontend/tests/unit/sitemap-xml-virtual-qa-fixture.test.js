@@ -32,6 +32,9 @@ const {
   SITEMAP_XML_VIRTUAL_BUILD_MARKER,
   SITEMAP_XML_VIRTUAL_PUBLISHED_HTML,
   SITEMAP_XML_VIRTUAL_PUBLISH_MARKER,
+  SITEMAP_XML_VIRTUAL_REBUILD_MARKER,
+  SITEMAP_XML_VIRTUAL_REBUILD_LASTMOD,
+  SITEMAP_XML_VIRTUAL_REBUILD_ABOUT_MARKER,
   sitemapXmlVirtualFixtureHostDir,
   normalizeQaPublishDestPath,
   posixJoin,
@@ -109,5 +112,21 @@ describe("sitemap-xml-virtual-qa-fixture", () => {
       "/opt/Percussion/pub/8.2/index.html",
     );
     assert.throws(() => posixJoin("/opt/Percussion/pub", "../etc/passwd"), /unsafe/);
+  });
+
+  it("rebuild fixtures overwrite loc/lastmod/pages without live crawl URLs (#4188)", () => {
+    const dir = sitemapXmlVirtualFixtureHostDir();
+    const sitemap = fs.readFileSync(path.join(dir, "sitemap-rebuild.xml"), "utf8");
+    assert.match(sitemap, /urlset/);
+    assert.match(sitemap, /pages\/index\.md/);
+    assert.match(sitemap, /pages\/about\.md/);
+    assert.match(sitemap, new RegExp(SITEMAP_XML_VIRTUAL_REBUILD_LASTMOD));
+    assert.doesNotMatch(sitemap, /<loc>\s*https?:\/\//i);
+    const indexRebuild = fs.readFileSync(path.join(dir, "pages", "index-rebuild.md"), "utf8");
+    assert.match(indexRebuild, new RegExp(SITEMAP_XML_VIRTUAL_REBUILD_MARKER.replace(/\./g, "\\.")));
+    assert.doesNotMatch(indexRebuild, new RegExp(SITEMAP_XML_VIRTUAL_BUILD_MARKER.replace(/\./g, "\\.")));
+    const about = fs.readFileSync(path.join(dir, "pages", "about.md"), "utf8");
+    assert.match(about, new RegExp(SITEMAP_XML_VIRTUAL_REBUILD_ABOUT_MARKER));
+    assert.notEqual(SITEMAP_XML_VIRTUAL_BUILD_MARKER, SITEMAP_XML_VIRTUAL_REBUILD_MARKER);
   });
 });

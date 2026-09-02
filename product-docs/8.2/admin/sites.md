@@ -290,7 +290,9 @@ a local RSS 2.0 or Atom XML fixture (`feed.xml` / `atom.xml` or `_config.yaml` `
 loopback `rss.url` only — no live feed credentials). After you save **iCalendar**, Build
 runs against a local RFC 5545 fixture (`calendar.ics` or `_config.yaml` `icalendar.file`;
 no CalDAV). After you save **Sitemap XML**, Build runs against a local `sitemap.xml` fixture
-(`sitemap.xml` or `_config.yaml` `sitemap.file`; no live crawl). After that Git/CSV/SQL/HTTP JSON/object-storage/rss-atom/icalendar/sitemap-xml Build succeeds,
+(`sitemap.xml` or `_config.yaml` `sitemap.file`; no live crawl). Edit loc, lastmod, or
+the referenced page files on the CMS host and choose **Build Virtual Site** again — assembled
+output updates without a Jetty restart. After that Git/CSV/SQL/HTTP JSON/object-storage/rss-atom/icalendar/sitemap-xml Build succeeds,
 **Preview assembled site** streams last-build home HTML. **Publish Virtual Site** copies
 that HTML to the Site filesystem root for Git/CSV/SQL/HTTP JSON/object-storage/rss-atom/icalendar/sitemap-xml.
 
@@ -336,10 +338,11 @@ that HTML to the Site filesystem root for Git/CSV/SQL/HTTP JSON/object-storage/r
    (`feed.xml` / `atom.xml` / `rss.file` / loopback `rss.url`) or `_config.yaml`
    change — or after an iCalendar fixture (`calendar.ics` / `icalendar.file`) or
    `_config.yaml` change — or after a sitemap.xml `<loc>` / `<lastmod>` / path edit
-   or a `_config.yaml` `sitemap.file` change — choose **Build Virtual Site** again. The build re-reads the current tree
-   (and re-fetches when a Git remote is configured) — **do not restart the CMS** just
-   to pick up those edits. There is no file watcher; the next explicit build is the
-   refresh.
+   or a `_config.yaml` `sitemap.file` change (or referenced local page files) — choose
+   **Build Virtual Site** again. The build re-reads the current tree
+   (and re-fetches when a Git remote is configured) — **do not restart the CMS** (and do
+   **not** restart Jetty) just to pick up those edits. There is no file watcher; the next
+   explicit build is the refresh.
 6. Wait for the busy indicator, then review:
    - **Success** — pages written, absolute output path (default under
      `{install}/tmp/virtual-sites/{siteKey}` when no custom output is set).
