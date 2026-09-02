@@ -85,6 +85,27 @@ export function ViewsPanel(): React.ReactElement {
     void reload();
   }
 
+  /**
+   * Keep a just-saved row in the catalog when GET list lags (H2 XML cache).
+   * A later reload that already includes the name replaces this merge.
+   */
+  function handleSaved(detail: ViewDef): void {
+    setItems((prev) => upsertViewRow(prev, detail));
+    void listViews()
+      .then((list) => {
+        if (!mountedRef.current) return;
+        const name = (detail.name || "").trim();
+        const listed =
+          !name ||
+          list.some((v) => (v.name || "").trim().toLowerCase() === name.toLowerCase());
+        setItems(listed ? list : upsertViewRow(list, detail));
+      })
+      .catch((e: unknown) => {
+        if (!mountedRef.current) return;
+        setError(panelErrMsg(e, DEV_MSG.VW_ERROR));
+      });
+  }
+
   const openView = (v: ViewDef) => {
     const idOrName = v.name || resolveViewObjectGuid(v) || "";
     if (!idOrName) return;
@@ -99,7 +120,7 @@ export function ViewsPanel(): React.ReactElement {
       <ViewDetailPanel
         idOrName={null}
         onBack={() => setSelected(null)}
-        onSaved={() => void reload()}
+        onSaved={handleSaved}
         onDeleted={handleDeleted}
       />
     );
@@ -111,7 +132,7 @@ export function ViewsPanel(): React.ReactElement {
         idOrName={selected.idOrName}
         catalogGuid={selected.catalogGuid}
         onBack={() => setSelected(null)}
-        onSaved={() => void reload()}
+        onSaved={handleSaved}
         onDeleted={handleDeleted}
       />
     );
@@ -215,4 +236,21 @@ export function ViewsPanel(): React.ReactElement {
       )}
     </div>
   );
+}
+
+/** Merge a saved view into a catalog snapshot (create or update by name). */
+export function upsertViewRow(items: ViewDef[] | null, detail: ViewDef): ViewDef[] {
+  const current = items == null ? [] : items;
+  const name = (detail?.name || "").trim();
+  if (!name) {
+    return current;
+  }
+  const key = name.toLowerCase();
+  const idx = current.findIndex((v) => (v.name || "").trim().toLowerCase() === key);
+  if (idx >= 0) {
+    const next = current.slice();
+    next[idx] = { ...current[idx], ...detail, name: current[idx].name || detail.name };
+    return next;
+  }
+  return [...current, detail];
 }

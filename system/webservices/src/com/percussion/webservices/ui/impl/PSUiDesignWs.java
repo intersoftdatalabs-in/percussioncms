@@ -1291,22 +1291,11 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       // INSERT/UPDATE — the pipe createSearches must hit. inheritParams=true
       // copies REST HTML params; never inject SEARCHID on save.
       PSRequest req = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
-      Object previousSearchId = req != null ? req.getParameter("SEARCHID") : null;
-      boolean clearedSearchId = false;
-      if (req != null && previousSearchId != null)
+      if (req != null && req.getParameter("SEARCHID") != null)
       {
          req.removeParameter("SEARCHID");
-         clearedSearchId = true;
       }
-      try
-      {
-         saveComponents(components, PSSearch.class, release, session, user);
-      }
-      finally
-      {
-         if (req != null && clearedSearchId)
-            req.setParameter("SEARCHID", previousSearchId);
-      }
+      saveComponents(components, PSSearch.class, release, session, user);
       for (PSSearch prepared : unpersisted)
       {
          ensureSearchRowPersisted(prepared);
@@ -2435,7 +2424,11 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * If {@code updateSearches} did not INSERT, write {@code PSX_SEARCHES} so
-    * {@link #findSearches} / {@link #findAllSearches} can catalog the name.
+    * {@link #findSearches} / {@link #findAllViews} can catalog the name.
+    *
+    * <p>Skip only when {@code INTERNALNAME} is already present. A colliding
+    * {@code SEARCHID} (H2 next-number vs seed rows) must not skip the insert
+    * — that left POST 200 then GET list 0 / no duplicate 409 for UI-07 views.
     */
    static void ensureSearchRowPersisted(PSSearch search)
    {
@@ -2444,15 +2437,21 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       try
       {
          conn = PSConnectionHelper.getDbConnection();
-         if (searchRowExists(conn, spec.searchId, spec.internalName))
+         if (searchNameExists(conn, spec.internalName))
             return;
+         if (searchIdExists(conn, spec.searchId))
+         {
+            int freeId = nextFreeSearchId(conn);
+            applySearchId(search, freeId);
+            spec = searchRowSpec(search);
+         }
          try
          {
             insertSearchRow(conn, spec);
          }
          catch (SQLException insertEx)
          {
-            if (searchRowExists(conn, spec.searchId, spec.internalName))
+            if (searchNameExists(conn, spec.internalName))
                return;
             throw insertEx;
          }
@@ -2468,6 +2467,10 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       }
    }
 
+   /**
+    * True when a row matches {@code SEARCHID} or {@code INTERNALNAME}. Tests
+    * still use this OR; persist must use {@link #searchNameExists}.
+    */
    static boolean searchRowExists(Connection conn, int searchId, String internalName) throws SQLException
    {
       String sql = "SELECT SEARCHID FROM PSX_SEARCHES WHERE SEARCHID = ? OR INTERNALNAME = ?";
@@ -2480,6 +2483,59 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
             return rs.next();
          }
       }
+   }
+
+   static boolean searchNameExists(Connection conn, String internalName) throws SQLException
+   {
+      if (StringUtils.isBlank(internalName))
+         return false;
+      String sql = "SELECT SEARCHID FROM PSX_SEARCHES WHERE LOWER(INTERNALNAME) = LOWER(?)";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setString(1, internalName);
+         try (ResultSet rs = ps.executeQuery())
+         {
+            return rs.next();
+         }
+      }
+   }
+
+   static boolean searchIdExists(Connection conn, int searchId) throws SQLException
+   {
+      String sql = "SELECT SEARCHID FROM PSX_SEARCHES WHERE SEARCHID = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, searchId);
+         try (ResultSet rs = ps.executeQuery())
+         {
+            return rs.next();
+         }
+      }
+   }
+
+   static int nextFreeSearchId(Connection conn) throws SQLException
+   {
+      String sql = "SELECT COALESCE(MAX(SEARCHID), 0) + 1 FROM PSX_SEARCHES";
+      try (PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery())
+      {
+         if (rs.next())
+            return rs.getInt(1);
+      }
+      return 1;
+   }
+
+   static void applySearchId(PSSearch search, int searchId)
+   {
+      if (search == null)
+         throw new IllegalArgumentException("search cannot be null");
+      if (searchId <= 0)
+         throw new IllegalArgumentException("search id must be assigned before persist");
+      PSKey key = PSSearch.createKey(new String[] {String.valueOf(searchId)});
+      key.setPersisted(false);
+      search.setLocator(key);
+      if (search.getState() != IPSDbComponent.DBSTATE_NEW)
+         search.setState(IPSDbComponent.DBSTATE_NEW);
    }
 
    static void ensureSearchRowDeleted(int searchId)

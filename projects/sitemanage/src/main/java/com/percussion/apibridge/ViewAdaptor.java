@@ -1239,12 +1239,17 @@ public class ViewAdaptor implements IViewAdaptor {
   private void assertNameUnique(String name) {
     try {
       if (nameExists(designWs.findViews(name, null), name)
-          || nameExists(designWs.findSearches(name, null), name)) {
+          || nameExists(designWs.findSearches(name, null), name)
+          || matchLoaded(designWs.findAllViews(), name) != null
+          || matchLoaded(designWs.findAllSearches(), name) != null) {
         throw new WebApplicationException("View already exists: " + name, 409);
       }
     } catch (WebApplicationException e) {
       throw e;
     } catch (PSErrorException e) {
+      log.error("Failed to catalog views while checking uniqueness for {}", name, e);
+      throw new IllegalStateException("Failed to catalog views", e);
+    } catch (PSErrorResultsException e) {
       log.error("Failed to catalog views while checking uniqueness for {}", name, e);
       throw new IllegalStateException("Failed to catalog views", e);
     }

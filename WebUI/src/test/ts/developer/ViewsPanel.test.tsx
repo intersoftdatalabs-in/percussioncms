@@ -6,9 +6,9 @@ import React from "react";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
-import { getViewDetail, listViews } from "../../../main/ts/api/developer/viewsApi";
+import { createView, getViewDetail, listViews } from "../../../main/ts/api/developer/viewsApi";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
-import { ViewsPanel } from "../../../main/ts/developer/ViewsPanel";
+import { upsertViewRow, ViewsPanel } from "../../../main/ts/developer/ViewsPanel";
 
 vi.mock("../../../main/ts/api/developer/viewsApi", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../../main/ts/api/developer/viewsApi")>();
@@ -38,6 +38,7 @@ vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
 
 const listMock = vi.mocked(listViews);
 const detailMock = vi.mocked(getViewDetail);
+const createMock = vi.mocked(createView);
 
 const sampleView = {
   name: "My View",
@@ -60,6 +61,7 @@ describe("ViewsPanel", () => {
     };
     listMock.mockReset();
     detailMock.mockReset();
+    createMock.mockReset();
   });
 
   afterEach(() => {
@@ -86,6 +88,46 @@ describe("ViewsPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-vw-table")).toBeTruthy();
     });
+  });
+
+  it("upsertViewRow adds a created name and keeps existing rows", () => {
+    const merged = upsertViewRow([{ name: "Inbox", label: "Inbox" }], {
+      name: "QaView",
+      label: "QA",
+    });
+    expect(merged.map((v) => v.name)).toEqual(["Inbox", "QaView"]);
+    const updated = upsertViewRow(merged, { name: "QaView", label: "QA 2" });
+    expect(updated).toHaveLength(2);
+    expect(updated[1].label).toBe("QA 2");
+  });
+
+  it("keeps a created view in the catalog when GET list omits the name", async () => {
+    listMock.mockResolvedValue([{ name: "Inbox", label: "Inbox", customView: true }]);
+    createMock.mockResolvedValue({
+      name: "QaView",
+      label: "QA",
+      type: "View",
+      standardView: true,
+      fields: [],
+    });
+    render(<ViewsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-new")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-new"));
+    fireEvent.change(screen.getByTestId("developer-vw-name"), {
+      target: { value: "QaView" },
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-save"));
+    await waitFor(() => {
+      expect(createMock).toHaveBeenCalled();
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-panel")).toBeTruthy();
+    });
+    expect(document.querySelector('[data-vw-name="QaView"]')).toBeTruthy();
+    expect(document.querySelector('[data-vw-name="Inbox"]')).toBeTruthy();
   });
 
   it("opens create chrome from New view", async () => {

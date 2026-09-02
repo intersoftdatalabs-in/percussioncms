@@ -33,10 +33,12 @@ rest of the `sys_cxViews` family) stay protected.
    is valid (no spaces, no `*` / `%`, no `/` or `..`). Optional: label,
    description, type (`View` default), and display format id.
 4. Click **Save**. A duplicate name is **409** and the editor shows that the
-   view already exists. An invalid name is **400**. A non-Admin session is
-   **403**. After a successful create, the name field is read-only and the
-   catalog lists the new view (the save is persisted immediately; leaving
-   and returning to the list still shows the row).
+   view already exists (including when the name is already in the catalog
+   list). An invalid name is **400**. A non-Admin session is **403**. After a
+   successful create, the name field is read-only and the catalog lists the
+   new view immediately (the save is persisted to the views catalog; leaving
+   and returning to the list still shows the row). A second **New view**
+   using that same name stays on the editor with the duplicate error.
 5. Optional: change label, description, type, or display format id and
    **Save** again.
 6. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
