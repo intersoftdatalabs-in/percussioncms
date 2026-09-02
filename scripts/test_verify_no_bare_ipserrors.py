@@ -467,6 +467,25 @@ def test_system_design_catalog_converted_paths_not_allowlisted() -> None:
     assert resurrected == [], resurrected
 
 
+def test_issue_4142_ipsservererrors_converted_paths_not_allowlisted() -> None:
+    """#4142 typed leftover IPSServerErrors on DTD/workflow/relationship/date/CMS."""
+    converted = (
+        "system/src/main/java/com/percussion/system/utils/PSCms.java",
+        "system/src/main/java/com/percussion/system/utils/PSDate.java",
+        "system/src/main/java/com/percussion/system/utils/PSRelationshipUtils.java",
+        "system/src/main/java/com/percussion/workflow/PSWorkFlowUtils.java",
+        "system/src/main/java/com/percussion/xml/PSDtdParser.java",
+    )
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = {
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    resurrected = [p for p in converted if p in entries]
+    assert resurrected == [], resurrected
+
+
 def test_system_cx_converted_paths_not_allowlisted() -> None:
     """#4013 typed leftover com.percussion.cx production call-sites."""
     converted = (

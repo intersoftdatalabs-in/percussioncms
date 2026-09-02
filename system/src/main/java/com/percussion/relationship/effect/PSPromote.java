@@ -16,6 +16,7 @@
  */
 package com.percussion.relationship.effect;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSCmsErrors;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
@@ -39,7 +40,6 @@ import com.percussion.relationship.PSEffect;
 import com.percussion.relationship.PSEffectResult;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.system.utils.IPSHtmlParameters;
@@ -260,7 +260,7 @@ public class PSPromote extends PSEffect {
         Object[] args = {resource, "No request handler found."};
 
         throw new PSExtensionProcessingException(
-            IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+            ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
       }
 
       ir.performUpdate();
@@ -322,7 +322,7 @@ public class PSPromote extends PSEffect {
         }
       } else {
         Object[] args = {resource, "No request handler found."};
-        throw new PSNotFoundException(IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+        throw new PSNotFoundException(ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
       }
       // Current workflow and state ids cannot be empty unless there is a
       // serious problem with the item
@@ -361,7 +361,7 @@ public class PSPromote extends PSEffect {
         }
       } else {
         Object[] args = {resource, "No request handler found."};
-        throw new PSNotFoundException(IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+        throw new PSNotFoundException(ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
       }
 
       return result;

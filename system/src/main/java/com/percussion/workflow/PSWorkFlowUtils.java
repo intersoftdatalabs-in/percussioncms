@@ -17,6 +17,7 @@
 
 package com.percussion.workflow;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.data.PSInternalRequestCallException;
@@ -1750,7 +1751,7 @@ public class PSWorkFlowUtils {
       return false;
     } else {
       Object[] args = {resource, "No request handler found."};
-      throw new PSNotFoundException(IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+      throw new PSNotFoundException(ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
     }
   }
 
@@ -1785,7 +1786,7 @@ public class PSWorkFlowUtils {
       return false;
     } else {
       Object[] args = {resource, "No request handler found."};
-      throw new PSNotFoundException(IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+      throw new PSNotFoundException(ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
     }
   }
 
@@ -1821,7 +1822,7 @@ public class PSWorkFlowUtils {
       return false;
     } else {
       Object[] args = {resource, "No request handler found."};
-      throw new PSNotFoundException(IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+      throw new PSNotFoundException(ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
     }
   }
 
@@ -1859,7 +1860,7 @@ public class PSWorkFlowUtils {
       return false;
     } else {
       Object[] args = {resource, "No request handler found."};
-      throw new PSNotFoundException(IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+      throw new PSNotFoundException(ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
     }
   }
 

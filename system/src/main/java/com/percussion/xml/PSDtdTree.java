@@ -17,11 +17,11 @@
 
 package com.percussion.xml;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSCatalogException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.validation.SerializationValidation;
 import com.percussion.security.validation.URLValidation;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSServer;
 import com.percussion.system.utils.PSInputStreamAdapter;
@@ -353,7 +353,7 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new PSCatalogException(IPSServerErrors.XML_PARSER_SAX_ERROR, e);
+      throw new PSCatalogException(ServerErrorCodes.XML_PARSER_SAX_ERROR, (Throwable) e);
     }
     parseDtd(p);
   }
@@ -385,7 +385,7 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
         m_elements = null;
       }
     } catch (Exception e) {
-      throw new PSCatalogException(IPSServerErrors.XML_PARSER_SAX_ERROR, e.toString());
+      throw new PSCatalogException(ServerErrorCodes.XML_PARSER_SAX_ERROR, e.toString());
     }
     parseDtd(p);
   }

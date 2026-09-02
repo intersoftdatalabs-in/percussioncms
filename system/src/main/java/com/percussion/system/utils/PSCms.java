@@ -18,6 +18,7 @@ package com.percussion.system.utils;
 
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSFolderAcl;
@@ -40,7 +41,6 @@ import com.percussion.security.PSThreadRequestUtils;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestValidationException;
 import com.percussion.server.PSServer;
@@ -468,7 +468,7 @@ public class PSCms {
       return null;
     } else {
       Object[] args = {resource, "No request handler found."};
-      throw new PSNotFoundException(IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+      throw new PSNotFoundException(ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
     }
   }
 

@@ -16,13 +16,13 @@
  */
 package com.percussion.fastforward.utils;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSCmsErrors;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.HashMap;
@@ -267,7 +267,7 @@ public class PSUtils {
     IPSInternalRequest ir = request.getInternalRequest(SITE_LOOKUP_RESOURCE, params, false);
     if (ir == null) {
       Object[] args = {SITE_LOOKUP_RESOURCE, "No request handler found."};
-      throw new PSNotFoundException(IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+      throw new PSNotFoundException(ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
     }
     Document doc = ir.getResultDoc();
 
