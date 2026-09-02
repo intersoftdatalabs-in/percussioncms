@@ -1481,9 +1481,10 @@ rows are written to `RXMENUACTION` so Hibernate `findActionMenusTree` (GET
 after POST, and omits it after DELETE. There is no new SOAP surface.
 **Developer → Action Menus** chrome creates and deletes user menus (and saves
 label / description / menuType / url). Admin **PUT** also round-trips Workbench
-**Usage** and **Command** fields on user menus (`handler`, `url`, `parameters`,
-and command/usage `properties`). Cascading children composition (UI-04) and
-visibility contexts / SPA usage-command-visibility tabs remain later slices —
+**Usage**, **Command**, and **Visibility** fields on user menus (`handler`,
+`url`, `parameters`, command/usage `properties`, `visibilityContexts`, and
+`uiContexts`). Cascading children composition (UI-04) and SPA
+usage-command-visibility tabs remain later slices —
 see [Developer Action Menus](id:admin-developer-action-menus). Finder helpers
 (`GET /services/actions/find`, content-type and template finders) are unchanged.
 After POST the editor notice confirms the save. Packaged menus (for example
@@ -1497,23 +1498,31 @@ updated or deleted — **409**; the design lock is not stolen (`overrideLock=fal
 If Workbench path resolution fails, PUT/DELETE also return **409** (fail closed)
 so a lookup error cannot bypass that protection.
 PUT round-trips GET detail fields already exposed (`label`, `description`,
-`menuType`, `url`) plus usage/command fields: `handler` (`CLIENT` or `SERVER`),
-`url`, `parameters` (name/value/description URL parameters; a present array
-replaces the collection, including empty), and `properties` used as Workbench
-Usage/Command (for example `AcceleratorKey`, `MnemonicKey`, `ShortDescription`,
-`SmallIcon`, `launchesWindow`, `SupportsMultiSelect`, `refreshHint`, `target`,
-`targetStyle`). Omitted `handler` / `parameters` / `properties` leave the
-stored values. The REST user-menu marker property is not overwritten. Name is
-the catalog key and is not renamed on PUT. Invalid `handler` or `menuType` is
-**400**. Visibility contexts (`visibilityContexts`, `uiContexts`) are ignored
-on PUT.
+`menuType`, `url`) plus usage/command/visibility fields: `handler` (`CLIENT` or
+`SERVER`), `url`, `parameters` (name/value/description URL parameters; a
+present array replaces the collection, including empty), `properties` used as
+Workbench Usage/Command (for example `AcceleratorKey`, `MnemonicKey`,
+`ShortDescription`, `SmallIcon`, `launchesWindow`, `SupportsMultiSelect`,
+`refreshHint`, `target`, `targetStyle`), `visibilityContexts` (Workbench
+Visibility; each element is a context `name` plus one `value` — repeat the
+name for multiple values), and `uiContexts` (mode-uicontext mappings with
+numeric `modeId` and `contextId`). Omitted `handler` / `parameters` /
+`properties` / `visibilityContexts` / `uiContexts` leave the stored values.
+An empty `visibilityContexts` or `uiContexts` array clears that collection.
+The REST user-menu marker property is not overwritten. Name is the catalog key
+and is not renamed on PUT. Invalid `handler`, `menuType`, visibility context
+name, or uiContext id is **400**. Visibility context `name` is `1`–`11`
+(Workbench `VIS_CONTEXT_*`) or an alias such as `community`, `contentType`,
+`roles`, `workflows`, `checkoutStatus`, `folderSecurity`. GET
+`/services/actions/catalog/{idOrName}` returns the same visibility and
+uiContexts after a successful PUT.
 
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/services/actions/catalog` | List action menus (tree roots with children) |
 | `GET` | `/services/actions/catalog/{idOrName}` | Load one menu by name, numeric id, or GUID string |
 | `POST` | `/services/actions` | **Admin.** Create a user action menu (`createActions` then `saveActions`) |
-| `PUT` | `/services/actions/{idOrName}` | **Admin.** Update label, description, menuType, url, handler, parameters, and command/usage properties |
+| `PUT` | `/services/actions/{idOrName}` | **Admin.** Update label, description, menuType, url, handler, parameters, command/usage properties, visibilityContexts, and uiContexts |
 | `DELETE` | `/services/actions/{idOrName}` | **Admin.** Delete a user action menu (`deleteActions`, `ignoreDependencies=false`) |
 
 JSON may wrap a single item as `ActionMenu`. **Create** `POST /services/actions`
