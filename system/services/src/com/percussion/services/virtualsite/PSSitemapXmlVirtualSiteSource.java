@@ -71,17 +71,26 @@ import org.xml.sax.SAXException;
  * second build in the same JVM after a sitemap ({@code sitemap.file} / default {@code
  * sitemap.xml}) or {@code _config.yaml} edit must see the new bytes. File watchers are not used;
  * {@code _config.yaml} is reloaded by {@link PSVirtualSiteBuildService}, not this source. XML
- * parse is XXE fail-closed via {@link PSSecureXMLUtils}.
+ * parse is XXE fail-closed via {@link PSSecureXMLUtils}. {@link #load} materializes only the
+ * matching loc body (one file read or loopback HTTP GET); it does not re-fetch every loc.
  */
 public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
 
   static final String DEFAULT_SITEMAP_FILE = "sitemap.xml";
+  /** Cap on sitemap.xml / sitemapindex XML (parser-abuse bound). */
   static final int MAX_SITEMAP_BYTES = 2_000_000;
+  /** Cap on per-loc page bodies and loopback HTTP responses. */
+  static final int MAX_PAGE_BYTES = 10_000_000;
   static final int MAX_INDEX_DEPTH = 4;
   private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
   private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(10);
   private static final Set<String> LOOPBACK_HOSTS =
       Set.of("localhost", "127.0.0.1", "::1", "[::1]");
+  private static final HttpClient LOOPBACK_HTTP_CLIENT =
+      HttpClient.newBuilder()
+          .followRedirects(HttpClient.Redirect.NEVER)
+          .connectTimeout(CONNECT_TIMEOUT)
+          .build();
 
   @Override
   public String sourceType() {
@@ -109,10 +118,15 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
     if (ref == null) {
       throw new VirtualSiteException("sitemap-xml item ref is required");
     }
-    List<LoadedRow> rows = loadAllRows(config);
-    for (LoadedRow row : rows) {
-      if (row.ref().versionId().equals(ref.versionId()) && row.ref().id().equals(ref.id())) {
-        return new VirtualItem(row.ref(), row.frontmatter(), row.body(), row.sourcePath());
+    List<SitemapUrl> urls = loadAllUrlEntries(config);
+    int index = 0;
+    for (SitemapUrl url : urls) {
+      index++;
+      LoadedRow loaded = toLoadedRow(url, config, index, "");
+      if (loaded.ref().versionId().equals(ref.versionId()) && loaded.ref().id().equals(ref.id())) {
+        String pageBody = materializeLocBody(url);
+        return new VirtualItem(
+            loaded.ref(), loaded.frontmatter(), assembleBody(url.lastmod(), pageBody), url.sourcePath());
       }
     }
     throw new VirtualSiteException(
@@ -121,28 +135,14 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
 
   private static List<LoadedRow> loadAllRows(VirtualSiteConfig config)
       throws IOException, VirtualSiteException {
-    if (config == null) {
-      throw new VirtualSiteException("Virtual Site config is required");
-    }
-    Path root = config.root();
-    if (root == null || !PSVirtualSiteHelper.isSafeRootPath(root)) {
-      throw new VirtualSiteException("sitemap-xml site root is missing or unsafe");
-    }
-    Path safeRoot = root.normalize();
-    SitemapFetch fetch = readSitemap(config, safeRoot);
-    List<SitemapUrl> urls = parseSitemapDocument(fetch.xmlText(), safeRoot, fetch.sourcePath(), 0);
-    if (urls.isEmpty()) {
-      throw new VirtualSiteException(
-          "sitemap-xml fixture has no url loc entries: "
-              + fetch.sourcePath().toAbsolutePath().normalize());
-    }
+    List<SitemapUrl> urls = loadAllUrlEntries(config);
     List<LoadedRow> rows = new ArrayList<>();
     Map<String, Path> seenIds = new HashMap<>();
     Map<String, Path> seenPaths = new HashMap<>();
     int index = 0;
     for (SitemapUrl url : urls) {
       index++;
-      LoadedRow loaded = toLoadedRow(url, config, index);
+      LoadedRow loaded = toLoadedRow(url, config, index, "");
       String idKey = loaded.ref().versionId() + "\0" + loaded.ref().id();
       Path previousId = seenIds.put(idKey, loaded.ref().relativePath());
       if (previousId != null) {
@@ -177,6 +177,26 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
     return rows;
   }
 
+  private static List<SitemapUrl> loadAllUrlEntries(VirtualSiteConfig config)
+      throws IOException, VirtualSiteException {
+    if (config == null) {
+      throw new VirtualSiteException("Virtual Site config is required");
+    }
+    Path root = config.root();
+    if (root == null || !PSVirtualSiteHelper.isSafeRootPath(root)) {
+      throw new VirtualSiteException("sitemap-xml site root is missing or unsafe");
+    }
+    Path safeRoot = root.normalize();
+    SitemapFetch fetch = readSitemap(config, safeRoot);
+    List<SitemapUrl> urls = parseSitemapDocument(fetch.xmlText(), safeRoot, fetch.sourcePath(), 0);
+    if (urls.isEmpty()) {
+      throw new VirtualSiteException(
+          "sitemap-xml fixture has no url loc entries: "
+              + fetch.sourcePath().toAbsolutePath().normalize());
+    }
+    return urls;
+  }
+
   private static SitemapFetch readSitemap(VirtualSiteConfig config, Path safeRoot)
       throws IOException, VirtualSiteException {
     SitemapSpec spec = config.sitemap();
@@ -190,7 +210,7 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
       return new SitemapFetch(readSitemapFile(file), file);
     }
     Path defaultFile = safeRoot.resolve(DEFAULT_SITEMAP_FILE).normalize();
-    if (Files.isRegularFile(defaultFile) && defaultFile.startsWith(safeRoot)) {
+    if (Files.isRegularFile(defaultFile) && isInsideRoot(defaultFile, safeRoot)) {
       return new SitemapFetch(readSitemapFile(defaultFile), defaultFile);
     }
     throw new VirtualSiteException(
@@ -244,7 +264,7 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
     } catch (InvalidPathException e) {
       throw new VirtualSiteException("sitemap-xml file is not a valid path", e);
     }
-    if (!resolved.startsWith(safeRoot)
+    if (!isInsideRoot(resolved, safeRoot)
         || !PSVirtualSiteHelper.isSafeRootPath(resolved)
         || remainingParent(resolved)) {
       throw new VirtualSiteException("sitemap-xml file escapes the site root");
@@ -333,29 +353,39 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
       String lastmod = childText(urlEl, "lastmod");
       LocKind kind = classifyLoc(loc);
       if (kind == LocKind.HTTP) {
-        URL url = requireSafeLoopbackHttpUrl(loc);
-        String body = fetchHttpBody(url);
-        urls.add(new SitemapUrl(loc, lastmod, body, sourcePath, where));
+        requireSafeLoopbackHttpUrl(loc);
+        urls.add(new SitemapUrl(loc, lastmod, sourcePath, where, LocKind.HTTP));
       } else {
         Path file = resolveLocFile(safeRoot, loc);
-        String body = readPageFile(file);
-        urls.add(new SitemapUrl(loc, lastmod, body, file, where));
+        requireExistingPageFile(file);
+        urls.add(new SitemapUrl(loc, lastmod, file, where, LocKind.FILE));
       }
     }
     return urls;
   }
 
-  private static String readPageFile(Path file) throws IOException, VirtualSiteException {
+  private static void requireExistingPageFile(Path file) throws IOException, VirtualSiteException {
     if (!Files.isRegularFile(file)) {
       throw new VirtualSiteException(
           "sitemap-xml loc file not found: " + file.toAbsolutePath().normalize());
     }
     long size = Files.size(file);
-    if (size > MAX_SITEMAP_BYTES) {
+    if (size > MAX_PAGE_BYTES) {
       throw new VirtualSiteException(
-          "sitemap-xml loc file exceeds " + MAX_SITEMAP_BYTES + " bytes: " + file);
+          "sitemap-xml loc file exceeds " + MAX_PAGE_BYTES + " bytes: " + file);
     }
+  }
+
+  private static String readPageFile(Path file) throws IOException, VirtualSiteException {
+    requireExistingPageFile(file);
     return Files.readString(file, StandardCharsets.UTF_8);
+  }
+
+  private static String materializeLocBody(SitemapUrl url) throws IOException, VirtualSiteException {
+    if (url.kind() == LocKind.HTTP) {
+      return fetchHttpBody(requireSafeLoopbackHttpUrl(url.loc()));
+    }
+    return readPageFile(url.sourcePath());
   }
 
   static Path resolveLocFile(Path root, String loc) throws VirtualSiteException {
@@ -396,7 +426,7 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
     } catch (InvalidPathException e) {
       throw new VirtualSiteException("sitemap-xml loc is not a valid path: " + trimmed, e);
     }
-    if (!resolved.startsWith(safeRoot)
+    if (!isInsideRoot(resolved, safeRoot)
         || !PSVirtualSiteHelper.isSafeRootPath(resolved)
         || remainingParent(resolved)) {
       throw new VirtualSiteException("sitemap-xml loc escapes the site root");
@@ -464,11 +494,6 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
   }
 
   static String fetchHttpBody(URL current) throws IOException, VirtualSiteException {
-    HttpClient client =
-        HttpClient.newBuilder()
-            .followRedirects(HttpClient.Redirect.NEVER)
-            .connectTimeout(CONNECT_TIMEOUT)
-            .build();
     URI requestUri = toRequestUri(current);
     HttpRequest request =
         HttpRequest.newBuilder(requestUri) // codeql[java/ssrf]
@@ -478,7 +503,7 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
             .build();
     HttpResponse<byte[]> response;
     try {
-      response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+      response = LOOPBACK_HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofByteArray());
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new VirtualSiteException("sitemap-xml request interrupted: " + redactUrl(current), e);
@@ -492,9 +517,9 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
           "sitemap-xml request failed: " + redactUrl(current) + " status " + status);
     }
     byte[] body = response.body() != null ? response.body() : new byte[0];
-    if (body.length > MAX_SITEMAP_BYTES) {
+    if (body.length > MAX_PAGE_BYTES) {
       throw new VirtualSiteException(
-          "sitemap-xml loc exceeds " + MAX_SITEMAP_BYTES + " bytes from " + redactUrl(current));
+          "sitemap-xml loc exceeds " + MAX_PAGE_BYTES + " bytes from " + redactUrl(current));
     }
     return new String(body, StandardCharsets.UTF_8);
   }
@@ -565,7 +590,8 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
     }
   }
 
-  private static LoadedRow toLoadedRow(SitemapUrl url, VirtualSiteConfig config, int order)
+  private static LoadedRow toLoadedRow(
+      SitemapUrl url, VirtualSiteConfig config, int order, String pageBody)
       throws VirtualSiteException {
     String where = url.where();
     String loc = url.loc() == null ? "" : url.loc().trim();
@@ -583,7 +609,7 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
     VirtualItemRef ref = new VirtualItemRef(id, version.id(), relative, order, title);
     VirtualFrontmatter fm =
         new VirtualFrontmatter(id, title, "", version.id(), true, order, List.of(), false);
-    String body = assembleBody(url.lastmod(), url.body());
+    String body = assembleBody(url.lastmod(), pageBody);
     return new LoadedRow(ref, fm, body, url.sourcePath());
   }
 
@@ -787,9 +813,53 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
   }
 
   private static boolean looksAbsoluteWindows(String logical) {
-    return logical.length() >= 2
-        && Character.isLetter(logical.charAt(0))
-        && logical.charAt(1) == ':';
+    if (logical.length() < 2 || logical.charAt(1) != ':') {
+      return false;
+    }
+    char drive = logical.charAt(0);
+    return (drive >= 'A' && drive <= 'Z') || (drive >= 'a' && drive <= 'z');
+  }
+
+  /**
+   * True when {@code candidate} is the same file/dir as {@code safeRoot} or a descendant.
+   * Existing paths use {@link Files#isSameFile} parent walk so Windows case-insensitive
+   * volumes are not rejected on drive-letter or component case. Missing paths use a
+   * name-element {@link Path#startsWith} check (not a string prefix) so a sibling whose
+   * name shares a prefix ({@code sm-abs} vs {@code sm-abs-other}) is not treated as inside.
+   */
+  static boolean isInsideRoot(Path candidate, Path safeRoot) {
+    if (candidate == null || safeRoot == null) {
+      return false;
+    }
+    Path absCandidate = candidate.toAbsolutePath().normalize();
+    Path absRoot = safeRoot.toAbsolutePath().normalize();
+    try {
+      if (Files.exists(absCandidate) && Files.exists(absRoot)) {
+        Path cursor = absCandidate;
+        while (cursor != null) {
+          if (Files.isSameFile(cursor, absRoot)) {
+            return true;
+          }
+          cursor = cursor.getParent();
+        }
+        return false;
+      }
+    } catch (IOException e) {
+      return false;
+    }
+    return isLexicalDescendant(absCandidate, absRoot);
+  }
+
+  /**
+   * Name-element containment. {@link Path#startsWith} already compares path names, not
+   * raw strings; the name-count bound rejects a sibling that only shares a string prefix.
+   */
+  private static boolean isLexicalDescendant(Path absCandidate, Path absRoot) {
+    if (absCandidate.equals(absRoot)) {
+      return true;
+    }
+    return absCandidate.startsWith(absRoot)
+        && absCandidate.getNameCount() > absRoot.getNameCount();
   }
 
   private static boolean remainingParent(Path path) {
@@ -811,7 +881,7 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
   private record NestedSitemap(String xmlText, Path sourcePath) {}
 
   private record SitemapUrl(
-      String loc, String lastmod, String body, Path sourcePath, String where) {}
+      String loc, String lastmod, Path sourcePath, String where, LocKind kind) {}
 
   private record LoadedRow(
       VirtualItemRef ref, VirtualFrontmatter frontmatter, String body, Path sourcePath) {}

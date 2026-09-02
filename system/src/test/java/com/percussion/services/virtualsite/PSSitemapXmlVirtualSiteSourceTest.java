@@ -32,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -313,6 +314,44 @@ class PSSitemapXmlVirtualSiteSourceTest {
   }
 
   @Test
+  void loadFetchesOnlyMatchingLoopbackLoc() throws Exception {
+    HttpServer server = loopbackServer();
+    AtomicInteger hits = new AtomicInteger();
+    try {
+      serveTextCounting(server, "/alpha.html", "alpha-body", hits);
+      serveTextCounting(server, "/beta.html", "beta-body", hits);
+      server.start();
+      String alpha = loopbackUrl(server, "/alpha.html");
+      String beta = loopbackUrl(server, "/beta.html");
+      Path root = writeSite(tempDir.resolve("sm-http-one"), "sitemap.xml");
+      Files.writeString(
+          root.resolve("sitemap.xml"),
+          """
+          <?xml version="1.0" encoding="UTF-8"?>
+          <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+            <url><loc>%s</loc></url>
+            <url><loc>%s</loc></url>
+          </urlset>
+          """
+              .formatted(alpha, beta),
+          StandardCharsets.UTF_8);
+      PSSitemapXmlVirtualSiteSource source = new PSSitemapXmlVirtualSiteSource();
+      VirtualSiteConfig cfg = config(root, "sitemap.xml");
+      List<VirtualItemRef> refs = source.discover(cfg);
+      assertEquals(2, refs.size());
+      assertEquals(0, hits.get(), "discover must not GET loc bodies");
+      VirtualItemRef alphaRef =
+          refs.stream().filter(r -> "alpha".equals(r.id())).findFirst().orElseThrow();
+      VirtualItem item = source.load(cfg, alphaRef);
+      assertTrue(item.markdownBody().contains("alpha-body"), item.markdownBody());
+      assertFalse(item.markdownBody().contains("beta-body"), item.markdownBody());
+      assertEquals(1, hits.get(), "load must GET only the matching loc");
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
   void requireSafeLoopbackHttpUrlRejectsCloudAndUserinfo() {
     VirtualSiteException userinfo =
         assertThrows(
@@ -488,6 +527,92 @@ class PSSitemapXmlVirtualSiteSourceTest {
     assertEquals("page", PSSitemapXmlVirtualSiteSource.slugForPath(":::"));
   }
 
+  @Test
+  void pageBodyBudgetIsLargerThanSitemapXmlCap() {
+    assertTrue(
+        PSSitemapXmlVirtualSiteSource.MAX_PAGE_BYTES
+            > PSSitemapXmlVirtualSiteSource.MAX_SITEMAP_BYTES);
+  }
+
+  @Test
+  void resolveSitemapFileRejectsAsciiDriveAbsoluteAndAllowsRelative() throws Exception {
+    Path root = writeSite(tempDir.resolve("sm-abs"), "sitemap.xml");
+    assertThrows(
+        VirtualSiteException.class,
+        () -> PSSitemapXmlVirtualSiteSource.resolveSitemapFile(root, "C:/evil.xml"));
+    assertThrows(
+        VirtualSiteException.class,
+        () -> PSSitemapXmlVirtualSiteSource.resolveSitemapFile(root, "d:\\evil.xml"));
+    Path relative = PSSitemapXmlVirtualSiteSource.resolveSitemapFile(root, "sitemap.xml");
+    assertTrue(PSSitemapXmlVirtualSiteSource.isInsideRoot(relative, root.normalize()));
+  }
+
+  @Test
+  void isInsideRootAcceptsNormalizedDescendant() throws Exception {
+    Path root = writeSite(tempDir.resolve("sm-inside"), null);
+    Path child = root.resolve("sitemap.xml");
+    Files.writeString(child, urlset("pages/x.md", null), StandardCharsets.UTF_8);
+    assertTrue(PSSitemapXmlVirtualSiteSource.isInsideRoot(child, root.normalize()));
+    assertFalse(
+        PSSitemapXmlVirtualSiteSource.isInsideRoot(
+            tempDir.resolve("other-root").resolve("sitemap.xml"), root.normalize()));
+  }
+
+  @Test
+  void siblingDirSharingRootNamePrefixIsRejected() throws Exception {
+    Path root = writeSite(tempDir.resolve("sm-abs"), "sitemap.xml");
+    Path sibling = tempDir.resolve("sm-abs-other");
+    Files.createDirectories(sibling);
+    Path evil = sibling.resolve("evil.xml");
+    Files.writeString(evil, urlset("pages/x.md", null), StandardCharsets.UTF_8);
+    assertFalse(PSSitemapXmlVirtualSiteSource.isInsideRoot(evil, root.normalize()));
+    String siblingLoc = evil.toAbsolutePath().normalize().toString().replace('\\', '/');
+    VirtualSiteException locEx =
+        assertThrows(
+            VirtualSiteException.class,
+            () -> PSSitemapXmlVirtualSiteSource.resolveLocFile(root, siblingLoc));
+    assertTrue(locEx.getMessage().toLowerCase().contains("escapes"), locEx.getMessage());
+    Files.writeString(
+        root.resolve("sitemap.xml"), urlset(siblingLoc, null), StandardCharsets.UTF_8);
+    VirtualSiteException discoverEx =
+        assertThrows(
+            VirtualSiteException.class,
+            () -> new PSSitemapXmlVirtualSiteSource().discover(config(root, "sitemap.xml")));
+    assertTrue(
+        discoverEx.getMessage().toLowerCase().contains("escapes")
+            || discoverEx.getMessage().toLowerCase().contains("loc"),
+        discoverEx.getMessage());
+  }
+
+  @Test
+  void legacyTwelveArgConstructorFallsBackToDefaultSitemapFile() throws Exception {
+    Path root = writeSite(tempDir.resolve("sm-legacy-ctor"), null);
+    Files.writeString(
+        root.resolve("pages").resolve("legacy.md"), "legacy body", StandardCharsets.UTF_8);
+    Files.writeString(
+        root.resolve(PSSitemapXmlVirtualSiteSource.DEFAULT_SITEMAP_FILE),
+        urlset("pages/legacy.md", null),
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig cfg =
+        new VirtualSiteConfig(
+            root,
+            "Sitemap Docs",
+            "",
+            "page.html",
+            List.of(new VirtualSiteConfig.VersionSpec("8.2", "8.2", "8.2", true)),
+            List.of(),
+            "sm-docs",
+            null,
+            null,
+            null,
+            null,
+            null);
+    assertEquals(null, cfg.sitemap());
+    List<VirtualItemRef> refs = new PSSitemapXmlVirtualSiteSource().discover(cfg);
+    assertEquals(1, refs.size());
+    assertEquals("legacy", refs.get(0).id());
+  }
+
   private static HttpServer loopbackServer() throws Exception {
     HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
     server.setExecutor(Executors.newCachedThreadPool());
@@ -495,10 +620,18 @@ class PSSitemapXmlVirtualSiteSourceTest {
   }
 
   private static void serveText(HttpServer server, String path, String text) {
+    serveTextCounting(server, path, text, null);
+  }
+
+  private static void serveTextCounting(
+      HttpServer server, String path, String text, AtomicInteger hits) {
     byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
     server.createContext(
         path,
         exchange -> {
+          if (hits != null) {
+            hits.incrementAndGet();
+          }
           exchange.getResponseHeaders().set("Content-Type", "text/html");
           exchange.sendResponseHeaders(200, bytes.length);
           try (OutputStream os = exchange.getResponseBody()) {
