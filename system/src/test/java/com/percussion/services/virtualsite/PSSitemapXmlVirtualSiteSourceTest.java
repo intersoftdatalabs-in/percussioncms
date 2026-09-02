@@ -32,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -313,6 +314,44 @@ class PSSitemapXmlVirtualSiteSourceTest {
   }
 
   @Test
+  void loadFetchesOnlyMatchingLoopbackLoc() throws Exception {
+    HttpServer server = loopbackServer();
+    AtomicInteger hits = new AtomicInteger();
+    try {
+      serveTextCounting(server, "/alpha.html", "alpha-body", hits);
+      serveTextCounting(server, "/beta.html", "beta-body", hits);
+      server.start();
+      String alpha = loopbackUrl(server, "/alpha.html");
+      String beta = loopbackUrl(server, "/beta.html");
+      Path root = writeSite(tempDir.resolve("sm-http-one"), "sitemap.xml");
+      Files.writeString(
+          root.resolve("sitemap.xml"),
+          """
+          <?xml version="1.0" encoding="UTF-8"?>
+          <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+            <url><loc>%s</loc></url>
+            <url><loc>%s</loc></url>
+          </urlset>
+          """
+              .formatted(alpha, beta),
+          StandardCharsets.UTF_8);
+      PSSitemapXmlVirtualSiteSource source = new PSSitemapXmlVirtualSiteSource();
+      VirtualSiteConfig cfg = config(root, "sitemap.xml");
+      List<VirtualItemRef> refs = source.discover(cfg);
+      assertEquals(2, refs.size());
+      assertEquals(0, hits.get(), "discover must not GET loc bodies");
+      VirtualItemRef alphaRef =
+          refs.stream().filter(r -> "alpha".equals(r.id())).findFirst().orElseThrow();
+      VirtualItem item = source.load(cfg, alphaRef);
+      assertTrue(item.markdownBody().contains("alpha-body"), item.markdownBody());
+      assertFalse(item.markdownBody().contains("beta-body"), item.markdownBody());
+      assertEquals(1, hits.get(), "load must GET only the matching loc");
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
   void requireSafeLoopbackHttpUrlRejectsCloudAndUserinfo() {
     VirtualSiteException userinfo =
         assertThrows(
@@ -581,10 +620,18 @@ class PSSitemapXmlVirtualSiteSourceTest {
   }
 
   private static void serveText(HttpServer server, String path, String text) {
+    serveTextCounting(server, path, text, null);
+  }
+
+  private static void serveTextCounting(
+      HttpServer server, String path, String text, AtomicInteger hits) {
     byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
     server.createContext(
         path,
         exchange -> {
+          if (hits != null) {
+            hits.incrementAndGet();
+          }
           exchange.getResponseHeaders().set("Content-Type", "text/html");
           exchange.sendResponseHeaders(200, bytes.length);
           try (OutputStream os = exchange.getResponseBody()) {

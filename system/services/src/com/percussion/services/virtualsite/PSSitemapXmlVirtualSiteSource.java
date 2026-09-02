@@ -71,7 +71,8 @@ import org.xml.sax.SAXException;
  * second build in the same JVM after a sitemap ({@code sitemap.file} / default {@code
  * sitemap.xml}) or {@code _config.yaml} edit must see the new bytes. File watchers are not used;
  * {@code _config.yaml} is reloaded by {@link PSVirtualSiteBuildService}, not this source. XML
- * parse is XXE fail-closed via {@link PSSecureXMLUtils}.
+ * parse is XXE fail-closed via {@link PSSecureXMLUtils}. {@link #load} materializes only the
+ * matching loc body (one file read or loopback HTTP GET); it does not re-fetch every loc.
  */
 public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
 
@@ -117,10 +118,15 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
     if (ref == null) {
       throw new VirtualSiteException("sitemap-xml item ref is required");
     }
-    List<LoadedRow> rows = loadAllRows(config);
-    for (LoadedRow row : rows) {
-      if (row.ref().versionId().equals(ref.versionId()) && row.ref().id().equals(ref.id())) {
-        return new VirtualItem(row.ref(), row.frontmatter(), row.body(), row.sourcePath());
+    List<SitemapUrl> urls = loadAllUrlEntries(config);
+    int index = 0;
+    for (SitemapUrl url : urls) {
+      index++;
+      LoadedRow loaded = toLoadedRow(url, config, index, "");
+      if (loaded.ref().versionId().equals(ref.versionId()) && loaded.ref().id().equals(ref.id())) {
+        String pageBody = materializeLocBody(url);
+        return new VirtualItem(
+            loaded.ref(), loaded.frontmatter(), assembleBody(url.lastmod(), pageBody), url.sourcePath());
       }
     }
     throw new VirtualSiteException(
@@ -129,28 +135,14 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
 
   private static List<LoadedRow> loadAllRows(VirtualSiteConfig config)
       throws IOException, VirtualSiteException {
-    if (config == null) {
-      throw new VirtualSiteException("Virtual Site config is required");
-    }
-    Path root = config.root();
-    if (root == null || !PSVirtualSiteHelper.isSafeRootPath(root)) {
-      throw new VirtualSiteException("sitemap-xml site root is missing or unsafe");
-    }
-    Path safeRoot = root.normalize();
-    SitemapFetch fetch = readSitemap(config, safeRoot);
-    List<SitemapUrl> urls = parseSitemapDocument(fetch.xmlText(), safeRoot, fetch.sourcePath(), 0);
-    if (urls.isEmpty()) {
-      throw new VirtualSiteException(
-          "sitemap-xml fixture has no url loc entries: "
-              + fetch.sourcePath().toAbsolutePath().normalize());
-    }
+    List<SitemapUrl> urls = loadAllUrlEntries(config);
     List<LoadedRow> rows = new ArrayList<>();
     Map<String, Path> seenIds = new HashMap<>();
     Map<String, Path> seenPaths = new HashMap<>();
     int index = 0;
     for (SitemapUrl url : urls) {
       index++;
-      LoadedRow loaded = toLoadedRow(url, config, index);
+      LoadedRow loaded = toLoadedRow(url, config, index, "");
       String idKey = loaded.ref().versionId() + "\0" + loaded.ref().id();
       Path previousId = seenIds.put(idKey, loaded.ref().relativePath());
       if (previousId != null) {
@@ -183,6 +175,26 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
       rows.add(loaded);
     }
     return rows;
+  }
+
+  private static List<SitemapUrl> loadAllUrlEntries(VirtualSiteConfig config)
+      throws IOException, VirtualSiteException {
+    if (config == null) {
+      throw new VirtualSiteException("Virtual Site config is required");
+    }
+    Path root = config.root();
+    if (root == null || !PSVirtualSiteHelper.isSafeRootPath(root)) {
+      throw new VirtualSiteException("sitemap-xml site root is missing or unsafe");
+    }
+    Path safeRoot = root.normalize();
+    SitemapFetch fetch = readSitemap(config, safeRoot);
+    List<SitemapUrl> urls = parseSitemapDocument(fetch.xmlText(), safeRoot, fetch.sourcePath(), 0);
+    if (urls.isEmpty()) {
+      throw new VirtualSiteException(
+          "sitemap-xml fixture has no url loc entries: "
+              + fetch.sourcePath().toAbsolutePath().normalize());
+    }
+    return urls;
   }
 
   private static SitemapFetch readSitemap(VirtualSiteConfig config, Path safeRoot)
@@ -341,19 +353,18 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
       String lastmod = childText(urlEl, "lastmod");
       LocKind kind = classifyLoc(loc);
       if (kind == LocKind.HTTP) {
-        URL url = requireSafeLoopbackHttpUrl(loc);
-        String body = fetchHttpBody(url);
-        urls.add(new SitemapUrl(loc, lastmod, body, sourcePath, where));
+        requireSafeLoopbackHttpUrl(loc);
+        urls.add(new SitemapUrl(loc, lastmod, sourcePath, where, LocKind.HTTP));
       } else {
         Path file = resolveLocFile(safeRoot, loc);
-        String body = readPageFile(file);
-        urls.add(new SitemapUrl(loc, lastmod, body, file, where));
+        requireExistingPageFile(file);
+        urls.add(new SitemapUrl(loc, lastmod, file, where, LocKind.FILE));
       }
     }
     return urls;
   }
 
-  private static String readPageFile(Path file) throws IOException, VirtualSiteException {
+  private static void requireExistingPageFile(Path file) throws IOException, VirtualSiteException {
     if (!Files.isRegularFile(file)) {
       throw new VirtualSiteException(
           "sitemap-xml loc file not found: " + file.toAbsolutePath().normalize());
@@ -363,7 +374,18 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
       throw new VirtualSiteException(
           "sitemap-xml loc file exceeds " + MAX_PAGE_BYTES + " bytes: " + file);
     }
+  }
+
+  private static String readPageFile(Path file) throws IOException, VirtualSiteException {
+    requireExistingPageFile(file);
     return Files.readString(file, StandardCharsets.UTF_8);
+  }
+
+  private static String materializeLocBody(SitemapUrl url) throws IOException, VirtualSiteException {
+    if (url.kind() == LocKind.HTTP) {
+      return fetchHttpBody(requireSafeLoopbackHttpUrl(url.loc()));
+    }
+    return readPageFile(url.sourcePath());
   }
 
   static Path resolveLocFile(Path root, String loc) throws VirtualSiteException {
@@ -568,7 +590,8 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
     }
   }
 
-  private static LoadedRow toLoadedRow(SitemapUrl url, VirtualSiteConfig config, int order)
+  private static LoadedRow toLoadedRow(
+      SitemapUrl url, VirtualSiteConfig config, int order, String pageBody)
       throws VirtualSiteException {
     String where = url.where();
     String loc = url.loc() == null ? "" : url.loc().trim();
@@ -586,7 +609,7 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
     VirtualItemRef ref = new VirtualItemRef(id, version.id(), relative, order, title);
     VirtualFrontmatter fm =
         new VirtualFrontmatter(id, title, "", version.id(), true, order, List.of(), false);
-    String body = assembleBody(url.lastmod(), url.body());
+    String body = assembleBody(url.lastmod(), pageBody);
     return new LoadedRow(ref, fm, body, url.sourcePath());
   }
 
@@ -858,7 +881,7 @@ public class PSSitemapXmlVirtualSiteSource implements IPSVirtualSiteSource {
   private record NestedSitemap(String xmlText, Path sourcePath) {}
 
   private record SitemapUrl(
-      String loc, String lastmod, String body, Path sourcePath, String where) {}
+      String loc, String lastmod, Path sourcePath, String where, LocKind kind) {}
 
   private record LoadedRow(
       VirtualItemRef ref, VirtualFrontmatter frontmatter, String body, Path sourcePath) {}
