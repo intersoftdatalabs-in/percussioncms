@@ -34,10 +34,12 @@ full Workbench FTS query designer.
    description, type (`StandardSearch` default, `CustomSearch`, or user
    `Search`), and display format id.
 4. Click **Save**. A duplicate name is **409** and the editor shows that the
-   search already exists. An invalid name is **400**. A non-Admin session is
-   **403**. After a successful create, the name field is read-only and the
-   catalog lists the new search (the save is persisted immediately; leaving
-   and returning to the list still shows the row).
+   search already exists (including when the name is already in the catalog
+   list). An invalid name is **400**. A non-Admin session is **403**. After a
+   successful create, the name field is read-only and the catalog lists the
+   new search immediately (the save is persisted to the searches catalog;
+   leaving and returning to the list still shows the row). A second **New
+   search** using that same name stays on the editor with the duplicate error.
 5. Optional: change label, description, type, or display format id and
    **Save** again.
 6. On a user or standard search, use **Field criteria** to add a field, set

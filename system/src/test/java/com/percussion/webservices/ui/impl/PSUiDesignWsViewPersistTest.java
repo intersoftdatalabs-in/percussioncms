@@ -176,6 +176,57 @@ class PSUiDesignWsViewPersistTest {
   }
 
   @Test
+  void ensureSearchRowPersisted_insertsStandardSearchWhenSearchIdCollidesWithOtherName()
+      throws Exception {
+    String url = "jdbc:h2:mem:issue4173searchid" + System.nanoTime();
+    try (Connection conn = DriverManager.getConnection(url);
+        Statement st = conn.createStatement()) {
+      st.execute(
+          "CREATE TABLE PSX_SEARCHES ("
+              + "SEARCHID INTEGER NOT NULL PRIMARY KEY,"
+              + "INTERNALNAME VARCHAR(255) NOT NULL,"
+              + "DISPLAYNAME VARCHAR(255) NOT NULL,"
+              + "PARENTCATEGORY INTEGER NOT NULL,"
+              + "CUSTOMURL VARCHAR(255),"
+              + "TYPE VARCHAR(50),"
+              + "DISPLAYFORMAT INTEGER,"
+              + "MAXIMUMITEMS INTEGER NOT NULL,"
+              + "DESCRIPTION VARCHAR(255),"
+              + "CASESENSITIVE INTEGER,"
+              + "VERSION INTEGER NOT NULL)");
+      st.execute(
+          "CREATE TABLE PSX_SEARCHFIELDS (SEARCHID INTEGER NOT NULL, FIELDNAME VARCHAR(50) NOT NULL)");
+      st.execute(
+          "CREATE TABLE PSX_SEARCHPROPERTIES (PROPERTYID INTEGER NOT NULL, PROPERTYNAME VARCHAR(50) NOT NULL, PROPERTYVALUE VARCHAR(255))");
+      st.execute(
+          "INSERT INTO PSX_SEARCHES (SEARCHID, INTERNALNAME, DISPLAYNAME, PARENTCATEGORY, CUSTOMURL, TYPE, DISPLAYFORMAT, MAXIMUMITEMS, DESCRIPTION, CASESENSITIVE, VERSION) VALUES (3, 'Inbox', 'Inbox', 1, NULL, 'View', 1, -1, NULL, 0, 0)");
+      assertTrue(PSUiDesignWs.searchIdExists(conn, 3));
+      assertTrue(PSUiDesignWs.searchRowExists(conn, 3, "QaNewSearch"));
+      assertFalse(PSUiDesignWs.searchNameExists(conn, "QaNewSearch"));
+
+      PSSearch source = new PSSearch("QaNewSearch");
+      source.setType(PSSearch.TYPE_STANDARDSEARCH);
+      PSKey key = PSSearch.createKey(new String[] {"3"});
+      key.setPersisted(false);
+      source.setLocator(key);
+      PSSearch prepared = PSUiDesignWs.prepareSearchForSave(source);
+      if (PSUiDesignWs.searchNameExists(conn, "QaNewSearch")) {
+        throw new AssertionError("name must be missing before ensure");
+      }
+      if (PSUiDesignWs.searchIdExists(conn, prepared.getId())) {
+        int freeId = PSUiDesignWs.nextFreeSearchId(conn);
+        PSUiDesignWs.applySearchId(prepared, freeId);
+      }
+      PSUiDesignWs.SearchRowSpec spec = PSUiDesignWs.searchRowSpec(prepared);
+      PSUiDesignWs.insertSearchRow(conn, spec);
+      assertTrue(PSUiDesignWs.searchNameExists(conn, "QaNewSearch"));
+      assertTrue(PSUiDesignWs.searchNameExists(conn, "Inbox"));
+      assertEquals(4, spec.searchId);
+      assertEquals(PSSearch.TYPE_STANDARDSEARCH, spec.type);
+    }
+  }
+
+  @Test
   void invalidateSearchCatalog_doesNotThrowWhenCacheUnavailable() {
     assertDoesNotThrow(PSUiDesignWs::invalidateSearchCatalog);
   }

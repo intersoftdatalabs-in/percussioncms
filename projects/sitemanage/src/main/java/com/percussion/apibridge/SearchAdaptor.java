@@ -1124,12 +1124,14 @@ public class SearchAdaptor implements ISearchAdaptor {
   private void assertNameUnique(String name) {
     try {
       if (nameExists(designWs.findSearches(name, null), name)
-          || nameExists(designWs.findViews(name, null), name)) {
+          || nameExists(designWs.findViews(name, null), name)
+          || matchLoaded(designWs.findAllSearches(), name) != null
+          || matchLoaded(designWs.findAllViews(), name) != null) {
         throw new WebApplicationException("Search already exists: " + name, 409);
       }
     } catch (WebApplicationException e) {
       throw e;
-    } catch (PSErrorException e) {
+    } catch (PSErrorException | PSErrorResultsException e) {
       log.error("Failed to catalog searches while checking uniqueness for {}", name, e);
       throw new IllegalStateException("Failed to catalog searches", e);
     }

@@ -7,11 +7,12 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
 import {
+  createSearch,
   getSearchDetail,
   listSearches,
 } from "../../../main/ts/api/developer/searchesApi";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
-import { SearchesPanel } from "../../../main/ts/developer/SearchesPanel";
+import { SearchesPanel, upsertSearchRow } from "../../../main/ts/developer/SearchesPanel";
 
 vi.mock("../../../main/ts/api/developer/searchesApi", async (importOriginal) => {
   const actual = await importOriginal<
@@ -43,6 +44,7 @@ vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
 
 const listMock = vi.mocked(listSearches);
 const detailMock = vi.mocked(getSearchDetail);
+const createMock = vi.mocked(createSearch);
 
 const sampleSearch = {
   name: "All Content",
@@ -65,6 +67,7 @@ describe("SearchesPanel", () => {
     };
     listMock.mockReset();
     detailMock.mockReset();
+    createMock.mockReset();
   });
 
   afterEach(() => {
@@ -91,6 +94,46 @@ describe("SearchesPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-sr-table")).toBeTruthy();
     });
+  });
+
+  it("upsertSearchRow adds a created name and keeps existing rows", () => {
+    const merged = upsertSearchRow([{ name: "Default_Search", label: "Default" }], {
+      name: "QaSearch",
+      label: "QA",
+    });
+    expect(merged.map((s) => s.name)).toEqual(["Default_Search", "QaSearch"]);
+    const updated = upsertSearchRow(merged, { name: "QaSearch", label: "QA 2" });
+    expect(updated).toHaveLength(2);
+    expect(updated[1].label).toBe("QA 2");
+  });
+
+  it("keeps a created search in the catalog when GET list omits the name", async () => {
+    listMock.mockResolvedValue([{ name: "Default_Search", label: "Default", standardSearch: true }]);
+    createMock.mockResolvedValue({
+      name: "QaSearch",
+      label: "QA",
+      type: "StandardSearch",
+      standardSearch: true,
+      fields: [],
+    });
+    render(<SearchesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sr-new")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-sr-new"));
+    fireEvent.change(screen.getByTestId("developer-sr-name"), {
+      target: { value: "QaSearch" },
+    });
+    fireEvent.click(screen.getByTestId("developer-sr-save"));
+    await waitFor(() => {
+      expect(createMock).toHaveBeenCalled();
+    });
+    fireEvent.click(screen.getByTestId("developer-sr-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sr-panel")).toBeTruthy();
+    });
+    expect(document.querySelector('[data-sr-name="QaSearch"]')).toBeTruthy();
+    expect(document.querySelector('[data-sr-name="Default_Search"]')).toBeTruthy();
   });
 
   it("opens create chrome from New search", async () => {
