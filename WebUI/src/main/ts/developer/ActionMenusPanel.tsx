@@ -37,6 +37,7 @@ export function ActionMenusPanel(): React.ReactElement {
   const [items, setItems] = useState<ActionMenu[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<SelectedMenu | null>(null);
+  const [listNotice, setListNotice] = useState<string | null>(null);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -80,6 +81,7 @@ export function ActionMenusPanel(): React.ReactElement {
   }, [items]);
 
   function handleDeleted(): void {
+    setListNotice(DEV_MSG.AM_DELETED);
     setSelected(null);
     void reload();
   }
@@ -129,6 +131,11 @@ export function ActionMenusPanel(): React.ReactElement {
 
   return (
     <div data-testid="developer-am-panel">
+      {listNotice ? (
+        <div data-testid="developer-am-list-notice" style={{ color: "#276749", marginBottom: "12px" }}>
+          {listNotice}
+        </div>
+      ) : null}
       <div
         style={{
           display: "flex",
@@ -143,7 +150,10 @@ export function ActionMenusPanel(): React.ReactElement {
         <button
           type="button"
           data-testid="developer-am-new"
-          onClick={() => setSelected({ idOrName: "new" })}
+          onClick={() => {
+            setListNotice(null);
+            setSelected({ idOrName: "new" });
+          }}
           style={{
             padding: "8px 14px",
             background: catalogColors.accent,

@@ -41,6 +41,7 @@ import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.menus.PSActionMenu;
+import com.percussion.services.menus.RxmActionMenuConstants;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
@@ -549,6 +550,32 @@ class ActionMenuAdaptorWriteTest {
     ActionMenu bad = new ActionMenu();
     bad.setMenuType("nope");
     assertThrows(IllegalArgumentException.class, () -> ActionMenuAdaptor.resolveCreateType(bad));
+  }
+
+  @Test
+  void restUserMenuProperty_matchesSharedConstant() {
+    assertEquals(RxmActionMenuConstants.REST_USER_MENU_PROP, ActionMenuAdaptor.REST_USER_MENU_PROP);
+    assertEquals("sys_restUserMenu", RxmActionMenuConstants.REST_USER_MENU_PROP);
+  }
+
+  @Test
+  void findMenuByKey_clearsRequestHibernateIndexOnUnsafeKey() {
+    ActionMenuAdaptor indexed =
+        new ActionMenuAdaptor(designWs, () -> true, () -> List.of());
+    indexed.requestHibernateIndex();
+    assertTrue(ActionMenuAdaptor.isRequestHibernateIndexBound());
+    assertNull(indexed.findMenuByKey("../escape"));
+    assertFalse(ActionMenuAdaptor.isRequestHibernateIndexBound());
+  }
+
+  @Test
+  void findAllowedTransitions_clearsRequestHibernateIndex() {
+    ActionMenuAdaptor indexed =
+        new ActionMenuAdaptor(designWs, () -> true, () -> List.of());
+    indexed.requestHibernateIndex();
+    assertTrue(ActionMenuAdaptor.isRequestHibernateIndexBound());
+    assertTrue(indexed.findAllowedTransitions(null, null).isEmpty());
+    assertFalse(ActionMenuAdaptor.isRequestHibernateIndexBound());
   }
 
   private PSAction stubAction(String name, int id) {

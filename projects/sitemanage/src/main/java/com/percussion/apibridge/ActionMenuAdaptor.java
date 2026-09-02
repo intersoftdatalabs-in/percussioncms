@@ -39,6 +39,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.menus.PSActionMenu;
+import com.percussion.services.menus.RxmActionMenuConstants;
 import com.percussion.services.menus.PSContentTypeActionMenuHelper;
 import com.percussion.services.menus.PSTemplateActionMenuHelper;
 import com.percussion.share.service.exception.PSDataServiceException;
@@ -81,7 +82,7 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       "System action menus cannot be updated or deleted via this API";
 
   /** JDBC persist marker on REST-created user menus ({@code RXMENUACTIONPROPERTIES}). */
-  static final String REST_USER_MENU_PROP = "sys_restUserMenu";
+  static final String REST_USER_MENU_PROP = RxmActionMenuConstants.REST_USER_MENU_PROP;
 
   private final IPSUiDesignWs service;
   private final BooleanSupplier adminChecker;
@@ -122,11 +123,15 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
   public List<ActionMenu> findMenus(
       String name, String label, Boolean item, Boolean dynamic, Boolean cascading)
       throws PSErrorResultsException {
-    var mgr = PSCmsObjectMgrLocator.getObjectManager();
-    // Nested tree (roots + children) so Explorer ActionToolbar can render
-    // cascading MENUs as dropdowns instead of a flat multi-row button dump (#2730).
-    List<ActionMenu> tree = ApiUtils.convertPSActionMenuList(mgr.findActionMenusTree());
-    return filterMenus(tree, name, label, item, dynamic, cascading);
+    try {
+      var mgr = PSCmsObjectMgrLocator.getObjectManager();
+      // Nested tree (roots + children) so Explorer ActionToolbar can render
+      // cascading MENUs as dropdowns instead of a flat multi-row button dump (#2730).
+      List<ActionMenu> tree = ApiUtils.convertPSActionMenuList(mgr.findActionMenusTree());
+      return filterMenus(tree, name, label, item, dynamic, cascading);
+    } finally {
+      clearRequestHibernateIndex();
+    }
   }
 
   /**
@@ -213,7 +218,11 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
   @Override
   public List<ActionMenu> findAllowedTransitions(
       Integer[] contentIds, Integer[] assignmentTypeIds) {
-    return Collections.emptyList();
+    try {
+      return Collections.emptyList();
+    } finally {
+      clearRequestHibernateIndex();
+    }
   }
 
   @Override
@@ -224,36 +233,44 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     } catch (RuntimeException e) {
       log.error("Error finding allowed content-type menus: {}", e.getMessage(), e);
       return Collections.emptyList();
+    } finally {
+      clearRequestHibernateIndex();
     }
   }
 
   @Override
   public List<ActionMenu> findAllowedTemplates(Integer contentId, boolean isAA) {
-    if (contentId == null || contentId <= 0) {
-      return Collections.emptyList();
-    }
     try {
+      if (contentId == null || contentId <= 0) {
+        return Collections.emptyList();
+      }
       return ApiUtils.convertPSActionMenuList(
           PSTemplateActionMenuHelper.getInstance().getTemplateMenus(contentId, isAA, null));
     } catch (RuntimeException e) {
       log.error(
           "Error finding allowed templates for contentId {}: {}", contentId, e.getMessage(), e);
       return Collections.emptyList();
+    } finally {
+      clearRequestHibernateIndex();
     }
   }
 
   @Override
   public ActionMenu findMenuByKey(String idOrName) {
-    if (!isSafeMenuKey(idOrName)) {
-      return null;
-    }
-    String key = idOrName.trim();
     try {
-      List<ActionMenu> all = findMenus(null, null, null, null, null);
-      return matchMenuInTree(all, key);
-    } catch (PSErrorResultsException e) {
-      log.debug("Action menu lookup failed for {}: {}", key, e.toString());
-      return null;
+      if (!isSafeMenuKey(idOrName)) {
+        return null;
+      }
+      String key = idOrName.trim();
+      try {
+        List<ActionMenu> all = findMenus(null, null, null, null, null);
+        return matchMenuInTree(all, key);
+      } catch (PSErrorResultsException e) {
+        log.debug("Action menu lookup failed for {}: {}", key, e.toString());
+        return null;
+      }
+    } finally {
+      clearRequestHibernateIndex();
     }
   }
 
@@ -508,6 +525,10 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
 
   static void clearRequestHibernateIndex() {
     REQUEST_HIBERNATE_INDEX.remove();
+  }
+
+  static boolean isRequestHibernateIndexBound() {
+    return REQUEST_HIBERNATE_INDEX.get() != null;
   }
 
   static Map<String, PSActionMenu> indexHibernateMenus(List<PSActionMenu> menus) {

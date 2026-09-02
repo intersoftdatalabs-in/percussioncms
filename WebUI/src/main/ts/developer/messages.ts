@@ -966,6 +966,8 @@ export const DEV_MSG_KEYS = {
   AM_DELETE_CONFIRM: "perc.ui.developer@Delete this action menu?",
   AM_SAVED: "perc.ui.developer@Action menu saved.",
   AM_DELETED: "perc.ui.developer@Action menu deleted.",
+  AM_MISSING_PERSISTED_NAME:
+    "perc.ui.developer@Action menu was saved but the server did not return a name.",
   AM_DUPLICATE: "perc.ui.developer@An action menu with this name already exists.",
   AM_INVALID_NAME:
     "perc.ui.developer@Action menu name is invalid. Use a name without spaces or wildcards.",

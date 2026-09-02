@@ -21,6 +21,7 @@ import com.percussion.cms.objectstore.IPSDbComponent;
 import com.percussion.cms.objectstore.PSAction;
 import com.percussion.cms.objectstore.PSComponentProcessorProxy;
 import com.percussion.services.menus.PSActionMenu;
+import com.percussion.services.menus.RxmActionMenuConstants;
 import com.percussion.cms.objectstore.PSDisplayColumn;
 import com.percussion.cms.objectstore.PSDisplayFormat;
 import com.percussion.cms.objectstore.PSDFColumns;
@@ -287,7 +288,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       for (IPSGuid id : ids)
       {
          if (id != null)
-            ensureActionRowDeleted(id.getUUID());
+            deleteActionRowPreferringHibernate(id.getUUID());
       }
       invalidateActionCatalog();
    }
@@ -2650,7 +2651,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     * {@code updateActions} reports success with 0 rows (H2 REST #4119).
     */
    /** Property written on REST/JDBC-created user menus so DELETE can tell them from packaged rows. */
-   static final String REST_USER_MENU_PROP = "sys_restUserMenu";
+   static final String REST_USER_MENU_PROP = RxmActionMenuConstants.REST_USER_MENU_PROP;
 
    static final class ActionRowSpec
    {
@@ -2850,6 +2851,43 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       }
    }
 
+   /**
+    * Prefer the Hibernate {@code Session} JDBC connection so child-row DELETEs
+    * enroll in the Spring {@code @Transactional} on {@link #deleteActions}.
+    */
+   void deleteActionRowPreferringHibernate(int actionId)
+   {
+      SessionFactory factory = getSessionFactory();
+      if (factory != null)
+      {
+         try
+         {
+            factory.getCurrentSession().doWork(conn -> deleteActionRow(conn, actionId));
+            return;
+         }
+         catch (IllegalStateException e)
+         {
+            throw e;
+         }
+         catch (org.hibernate.HibernateException e)
+         {
+            if (e.getCause() instanceof SQLException)
+            {
+               throw new IllegalStateException(
+                     "Action menu child rows could not be deleted for ACTIONID=" + actionId, e);
+            }
+            log.debug("No Hibernate current session for RXMENUACTION delete; PSConnectionHelper fallback",
+                  e);
+         }
+         catch (RuntimeException e)
+         {
+            log.debug("No Hibernate current session for RXMENUACTION delete; PSConnectionHelper fallback",
+                  e);
+         }
+      }
+      ensureActionRowDeleted(actionId);
+   }
+
    static void ensureActionRowDeleted(int actionId)
    {
       Connection conn = null;
@@ -2860,7 +2898,8 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       }
       catch (NamingException | SQLException e)
       {
-         log.debug("Could not JDBC-delete RXMENUACTION ACTIONID={}: {}", actionId, e.toString());
+         throw new IllegalStateException(
+               "Action menu child rows could not be deleted for ACTIONID=" + actionId, e);
       }
       finally
       {

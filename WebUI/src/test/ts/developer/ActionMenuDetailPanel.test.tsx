@@ -489,6 +489,55 @@ describe("ActionMenuDetailPanel", () => {
     }
   });
 
+  it("surfaces 400 body on edit instead of invalid-name chrome", async () => {
+    getActionMenuDetailMock.mockResolvedValue(sampleDetail);
+    saveActionMenuMock.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "label is required" },
+    });
+    render(<ActionMenuDetailPanel idOrName="Edit" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-label")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-am-label"), {
+      target: { value: "Changed label" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-am-detail-error").textContent).toContain("label is required");
+    expect(screen.getByTestId("developer-am-detail-error").textContent).not.toContain(
+      DEV_MSG.AM_INVALID_NAME,
+    );
+  });
+
+  it("fails loudly when create omits the persisted name", async () => {
+    createActionMenuMock.mockResolvedValue({
+      name: "",
+      label: "My Menu",
+      description: "",
+      menuType: "MENUITEM",
+      parameters: [],
+      properties: [],
+    });
+    const onSaved = vi.fn();
+    render(<ActionMenuDetailPanel idOrName={null} onBack={() => undefined} onSaved={onSaved} />);
+    fireEvent.change(screen.getByTestId("developer-am-name"), {
+      target: { value: "MyMenu" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-am-detail-error").textContent).toContain(
+      DEV_MSG.AM_MISSING_PERSISTED_NAME,
+    );
+    expect(screen.queryByTestId("developer-am-editor-notice")).toBeNull();
+    expect(onSaved).not.toHaveBeenCalled();
+  });
+
   it("does not show delete on create", () => {
     render(<ActionMenuDetailPanel idOrName={null} onBack={() => undefined} />);
     expect(screen.queryByTestId("developer-am-delete")).toBeNull();

@@ -156,7 +156,11 @@ export function ActionMenuDetailPanel({
       if (fromBody) return fromBody;
       return isNew ? DEV_MSG.AM_DUPLICATE : DEV_MSG.AM_SYSTEM;
     }
-    if (isApiError(err) && err.status === 400) return DEV_MSG.AM_INVALID_NAME;
+    if (isApiError(err) && err.status === 400) {
+      if (isNew) return DEV_MSG.AM_INVALID_NAME;
+      const fromBody = extractRestErrorMessage(err.body);
+      return fromBody || DEV_MSG.AM_SAVE_ERROR;
+    }
     if (isApiError(err) && err.status === 403) return DEV_MSG.AM_FORBIDDEN;
     if (isApiError(err) && err.status === 404) return DEV_MSG.AM_NOT_FOUND;
     return DEV_MSG.AM_SAVE_ERROR;
@@ -174,10 +178,15 @@ export function ActionMenuDetailPanel({
           ? await createActionMenu(writeBody())
           : await saveActionMenu(writeKey, writeBody());
       setDetail(saved);
-      if (isNew) {
-        setCreatedKey(saved.name || normalizeActionMenuName(name));
+      const persistedName = (saved.name || "").trim();
+      if (!persistedName) {
+        setError(DEV_MSG.AM_MISSING_PERSISTED_NAME);
+        return;
       }
-      setName(saved.name || name);
+      if (isNew) {
+        setCreatedKey(persistedName);
+      }
+      setName(persistedName);
       setLabel(saved.label || "");
       setDescription(saved.description || "");
       setMenuType(typeFromDetail(saved, menuType));
@@ -205,7 +214,6 @@ export function ActionMenuDetailPanel({
     setNotice(null);
     try {
       await deleteActionMenu(writeKey);
-      setNotice(DEV_MSG.AM_DELETED);
       onDeleted?.();
     } catch (err: unknown) {
       const fallback =

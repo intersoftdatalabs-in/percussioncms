@@ -157,6 +157,14 @@ test.describe("Developer action menu editor (#4112 / UI-02)", () => {
     await expect(page.locator('[data-testid="developer-am-name"]')).toBeDisabled();
     await expect(page.locator('[data-testid="developer-am-delete"]')).toBeVisible();
 
+    await page.locator('[data-testid="developer-am-delete"]').click();
+    await expect(page.locator('[data-testid="developer-am-panel"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    const listNotice = page.locator('[data-testid="developer-am-list-notice"]');
+    await expect(listNotice).toBeVisible({ timeout: 20_000 });
+    await expect(listNotice).toContainText(/deleted/i);
+
     assertConsoleClean(pageErrors, consoleErrors);
   });
 

@@ -7,6 +7,7 @@ import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
 import {
+  deleteActionMenu,
   getActionMenuDetail,
   listActionMenus,
 } from "../../../main/ts/api/developer/actionMenusApi";
@@ -43,6 +44,7 @@ vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
 
 const listMock = vi.mocked(listActionMenus);
 const detailMock = vi.mocked(getActionMenuDetail);
+const deleteMock = vi.mocked(deleteActionMenu);
 
 const sampleMenu = {
   id: 1,
@@ -70,6 +72,7 @@ describe("ActionMenusPanel", () => {
     };
     listMock.mockReset();
     detailMock.mockReset();
+    deleteMock.mockReset();
   });
 
   it("lists action menus and opens detail", async () => {
@@ -148,6 +151,31 @@ describe("ActionMenusPanel", () => {
       `${DEV_MSG.AM_ERROR} network down`,
     );
     expect(screen.queryByTestId("developer-am-table")).toBeNull();
+  });
+
+  it("shows deleted notice on the catalog after delete", async () => {
+    listMock.mockResolvedValue([sampleMenu]);
+    detailMock.mockResolvedValue(sampleDetail);
+    deleteMock.mockResolvedValue(undefined);
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+    try {
+      render(<ActionMenusPanel />);
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-am-table")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("developer-am-open"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-am-delete")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("developer-am-delete"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-am-list-notice")).toBeTruthy();
+      });
+      expect(screen.getByTestId("developer-am-list-notice").textContent).toBe(DEV_MSG.AM_DELETED);
+      expect(screen.getByTestId("developer-am-panel")).toBeTruthy();
+    } finally {
+      confirmSpy.mockRestore();
+    }
   });
 
   it("shows fallback when rejection has no message", async () => {

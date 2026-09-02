@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.percussion.cms.objectstore.IPSDbComponent;
 import com.percussion.cms.objectstore.PSAction;
 import com.percussion.cms.objectstore.PSKey;
+import com.percussion.services.menus.RxmActionMenuConstants;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -156,10 +157,25 @@ class PSUiDesignWsActionPersistTest {
         assertEquals("Victim label", rs.getString(1));
       }
 
+      try (var ins =
+          conn.prepareStatement("INSERT INTO RXMENUACTIONPARAM (ACTIONID, PARAMNAME) VALUES (?, ?)")) {
+        ins.setInt(1, spec.actionId);
+        ins.setString(2, "sys_contentid");
+        ins.executeUpdate();
+      }
       PSUiDesignWs.deleteActionRow(conn, spec.actionId);
       assertFalse(PSUiDesignWs.actionRowExists(conn, spec.actionId, spec.name));
       assertTrue(PSUiDesignWs.actionRowExists(conn, 2049, "Victim"));
+      try (var rs = conn.prepareStatement("SELECT COUNT(*) FROM RXMENUACTIONPARAM").executeQuery()) {
+        assertTrue(rs.next());
+        assertEquals(0, rs.getInt(1));
+      }
     }
+  }
+
+  @Test
+  void restUserMenuProperty_matchesSharedConstant() {
+    assertEquals(RxmActionMenuConstants.REST_USER_MENU_PROP, PSUiDesignWs.REST_USER_MENU_PROP);
   }
 
   private static PSAction newAction(int actionId, String name) {
