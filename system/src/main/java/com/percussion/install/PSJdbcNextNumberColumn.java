@@ -18,9 +18,9 @@ package com.percussion.install;
 
 // java
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.data.PSIdGenerator;
 import com.percussion.tablefactory.IPSJdbcTableDataHandler;
-import com.percussion.tablefactory.IPSTableFactoryErrors;
 import com.percussion.tablefactory.PSJdbcColumnData;
 import com.percussion.tablefactory.PSJdbcColumnDef;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
@@ -63,7 +63,7 @@ public class PSJdbcNextNumberColumn implements IPSJdbcTableDataHandler {
     PSJdbcColumnDef colDef = m_tblSchema.getColumn(m_column);
     if (colDef == null) {
       Object args[] = {m_tblSchema.getName(), m_column};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.COLUMN_NOT_FOUND, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.COLUMN_NOT_FOUND, args);
     }
   }
 
@@ -147,7 +147,7 @@ public class PSJdbcNextNumberColumn implements IPSJdbcTableDataHandler {
 
     if (!sourceNode.getNodeName().equals(IPSJdbcTableDataHandler.NODE_NAME)) {
       Object[] args = {IPSJdbcTableDataHandler.NODE_NAME, sourceNode.getNodeName()};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker walker = new PSXmlTreeWalker(sourceNode);
@@ -158,14 +158,14 @@ public class PSJdbcNextNumberColumn implements IPSJdbcTableDataHandler {
 
     Element columnEl = walker.getNextElement(COLUMN_EL, firstFlags);
     if (columnEl == null) {
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_NULL, COLUMN_EL);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_NULL, COLUMN_EL);
     }
 
     // get the name attribute
     String sTemp = columnEl.getAttribute(COLUMN_NAME_ATTR);
     if (sTemp == null || sTemp.trim().length() == 0) {
       Object[] args = {COLUMN_EL, COLUMN_NAME_ATTR, sTemp == null ? "null" : sTemp};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     m_column = sTemp;
@@ -174,7 +174,7 @@ public class PSJdbcNextNumberColumn implements IPSJdbcTableDataHandler {
     sTemp = columnEl.getAttribute(NEXT_NUMBER_KEY_ATTR);
     if (sTemp == null || sTemp.trim().length() == 0) {
       Object[] args = {COLUMN_EL, NEXT_NUMBER_KEY_ATTR, sTemp == null ? "null" : sTemp};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     m_nextNumberKey = sTemp;
