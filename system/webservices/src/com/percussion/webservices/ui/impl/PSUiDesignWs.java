@@ -2424,11 +2424,13 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * If {@code updateSearches} did not INSERT, write {@code PSX_SEARCHES} so
-    * {@link #findSearches} / {@link #findAllViews} can catalog the name.
+    * {@link #findSearches} / {@link #findAllSearches} / {@link #findAllViews}
+    * can catalog the name.
     *
     * <p>Skip only when {@code INTERNALNAME} is already present. A colliding
     * {@code SEARCHID} (H2 next-number vs seed rows) must not skip the insert
-    * — that left POST 200 then GET list 0 / no duplicate 409 for UI-07 views.
+    * — that left POST 200 then GET list 0 / no duplicate 409 for UI-06 searches
+    * and UI-07 views.
     */
    static void ensureSearchRowPersisted(PSSearch search)
    {
