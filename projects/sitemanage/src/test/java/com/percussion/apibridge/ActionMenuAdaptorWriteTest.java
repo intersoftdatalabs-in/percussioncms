@@ -36,9 +36,12 @@ import static org.mockito.Mockito.when;
 
 import com.percussion.cms.objectstore.PSAction;
 import com.percussion.rest.actions.ActionMenu;
+import com.percussion.rest.actions.ActionMenuList;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.services.menus.PSActionMenu;
+import com.percussion.services.menus.RxmActionMenuConstants;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
@@ -48,6 +51,7 @@ import com.percussion.webservices.ui.data.ActionType;
 import jakarta.ws.rs.WebApplicationException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -80,6 +84,7 @@ class ActionMenuAdaptorWriteTest {
 
   @AfterEach
   void tearDown() {
+    ActionMenuAdaptor.clearRequestHibernateIndex();
     PSRequestInfo.resetRequestInfo();
   }
 
@@ -338,6 +343,77 @@ class ActionMenuAdaptorWriteTest {
   }
 
   @Test
+  void delete_system_whenDesignWsMissesHibernateRow_is409() throws Exception {
+    PSActionMenu edit = new PSActionMenu("Edit", "Edit", PSAction.TYPE_MENUITEM, "", "SERVER", 0);
+    edit.setActionId(7);
+    adaptor = new ActionMenuAdaptor(designWs, () -> true, () -> List.of(edit));
+    when(designWs.objectIdToPath(any())).thenReturn("//ContentExplorer/Menus/System/Edit");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.deleteActionMenu("Edit"));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(designWs, never()).deleteActions(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void delete_packagedCopy_whenDesignWsMissesHibernateRow_is409() throws Exception {
+    PSActionMenu copy = new PSActionMenu("Copy", "Copy", PSAction.TYPE_MENUITEM, "", "SERVER", 0);
+    copy.setActionId(11);
+    adaptor = new ActionMenuAdaptor(designWs, () -> true, () -> List.of(copy));
+    when(designWs.objectIdToPath(any())).thenReturn("//ContentExplorer/Menus/System/Copy");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.deleteActionMenu("Copy"));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(designWs, never()).deleteActions(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void delete_restUser_whenDesignWsLoadMisses_stillDeletes() throws Exception {
+    PSActionMenu user = new PSActionMenu("QaMenu", "QaMenu", PSAction.TYPE_MENU, "", "SERVER", 0);
+    user.setActionId(42);
+    user.addProperty(
+        new com.percussion.services.menus.PSActionMenuProperty(
+            42, ActionMenuAdaptor.REST_USER_MENU_PROP, PSAction.YES));
+    adaptor = new ActionMenuAdaptor(designWs, () -> true, () -> List.of(user));
+    when(designWs.loadActions(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of());
+
+    assertTrue(adaptor.deleteActionMenu("QaMenu"));
+    verify(designWs).deleteActions(anyList(), eq(false), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void create_duplicateName_fromHibernateCatalog_is409() {
+    PSActionMenu existing = new PSActionMenu("MyMenu", "My Menu", PSAction.TYPE_MENU, "", "SERVER", 0);
+    existing.setActionId(9);
+    adaptor = new ActionMenuAdaptor(designWs, () -> true, () -> List.of(existing));
+    ActionMenu body = new ActionMenu();
+    body.setName("MyMenu");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.createActionMenu(body));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(designWs, never()).createActions(anyList(), anyList(), any(), any());
+  }
+
+  @Test
+  void matchMenuInTree_findsNestedChild() {
+    ActionMenu root = new ActionMenu();
+    root.setName("File");
+    root.setId(1);
+    ActionMenu child = new ActionMenu();
+    child.setName("MyMenu");
+    child.setId(42);
+    ActionMenuList kids = new ActionMenuList();
+    kids.add(child);
+    root.setChildren(kids);
+    assertEquals("MyMenu", ActionMenuAdaptor.matchMenuInTree(List.of(root), "MyMenu").getName());
+    assertEquals(42, ActionMenuAdaptor.matchMenuInTree(List.of(root), "42").getId());
+  }
+
+  @Test
   void delete_system_is409() throws Exception {
     PSAction system = stubAction("Edit", 42);
     stubCatalogLoad(system);
@@ -417,6 +493,74 @@ class ActionMenuAdaptorWriteTest {
     assertFalse(ActionMenuAdaptor.isSystemMenuPath("//ContentExplorer/Menus/User/MyMenu"));
     assertFalse(ActionMenuAdaptor.isSystemMenuPath(""));
     assertFalse(ActionMenuAdaptor.isSystemMenuPath(null));
+    assertTrue(ActionMenuAdaptor.isUserMenuPath("//ContentExplorer/Menus/User/MyMenu"));
+    assertFalse(ActionMenuAdaptor.isUserMenuPath("//ContentExplorer/Menus/System/Edit"));
+  }
+
+  @Test
+  void delete_blankPathWithoutRestMarker_is409() throws Exception {
+    PSAction existing = stubAction("Edit", 101);
+    stubCatalogLoad(existing);
+    when(designWs.objectIdToPath(any())).thenReturn("");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.deleteActionMenu("Edit"));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(designWs, never()).deleteActions(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void delete_blankPathWithRestMarker_succeeds() throws Exception {
+    PSAction existing = stubAction("MyMenu", 42);
+    existing.getProperties().setProperty(ActionMenuAdaptor.REST_USER_MENU_PROP, PSAction.YES);
+    stubCatalogLoad(existing);
+    when(designWs.objectIdToPath(any())).thenReturn("");
+    when(designWs.loadActions(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(existing));
+    assertTrue(adaptor.deleteActionMenu("MyMenu"));
+    verify(designWs)
+        .deleteActions(eq(List.of(existing.getGUID())), eq(false), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void isSystemMenu_nullGuid_isFailClosed() {
+    PSAction action = new PSAction("NoGuid", "NoGuid");
+    assertTrue(adaptor.isSystemMenu(action));
+  }
+
+  @Test
+  void create_catalogPsErrorsException_is500() throws Exception {
+    when(designWs.findActions(eq("DupMenu"), isNull(), isNull()))
+        .thenThrow(new PSErrorsException());
+    ActionMenu body = new ActionMenu();
+    body.setName("DupMenu");
+    IllegalStateException ex =
+        assertThrows(IllegalStateException.class, () -> adaptor.createActionMenu(body));
+    assertTrue(ex.getMessage().toLowerCase().contains("catalog"));
+  }
+
+  @Test
+  void create_catalogRuntimeFailure_is500() throws Exception {
+    when(designWs.findActions(eq("DupMenu"), isNull(), isNull()))
+        .thenThrow(new IllegalStateException("catalog exploded"));
+    ActionMenu body = new ActionMenu();
+    body.setName("DupMenu");
+    IllegalStateException ex =
+        assertThrows(IllegalStateException.class, () -> adaptor.createActionMenu(body));
+    assertTrue(ex.getMessage().toLowerCase().contains("catalog"));
+  }
+
+  @Test
+  void indexHibernateMenus_indexesNameAndChildId() {
+    PSActionMenu child = new PSActionMenu("Child", "c", "MENUITEM", "", "server", 0);
+    child.setActionId(8);
+    PSActionMenu root = new PSActionMenu("Root", "r", "MENU", "", "server", 0);
+    root.setActionId(7);
+    root.setChildren(List.of(child));
+    Map<String, PSActionMenu> index = ActionMenuAdaptor.indexHibernateMenus(List.of(root));
+    assertEquals(root, index.get("root"));
+    assertEquals(child, index.get("child"));
+    assertEquals(root, index.get("7"));
+    assertEquals(child, index.get("8"));
   }
 
   @Test
@@ -435,6 +579,32 @@ class ActionMenuAdaptorWriteTest {
     ActionMenu bad = new ActionMenu();
     bad.setMenuType("nope");
     assertThrows(IllegalArgumentException.class, () -> ActionMenuAdaptor.resolveCreateType(bad));
+  }
+
+  @Test
+  void restUserMenuProperty_matchesSharedConstant() {
+    assertEquals(RxmActionMenuConstants.REST_USER_MENU_PROP, ActionMenuAdaptor.REST_USER_MENU_PROP);
+    assertEquals("sys_restUserMenu", RxmActionMenuConstants.REST_USER_MENU_PROP);
+  }
+
+  @Test
+  void findMenuByKey_clearsRequestHibernateIndexOnUnsafeKey() {
+    ActionMenuAdaptor indexed =
+        new ActionMenuAdaptor(designWs, () -> true, () -> List.of());
+    indexed.requestHibernateIndex();
+    assertTrue(ActionMenuAdaptor.isRequestHibernateIndexBound());
+    assertNull(indexed.findMenuByKey("../escape"));
+    assertFalse(ActionMenuAdaptor.isRequestHibernateIndexBound());
+  }
+
+  @Test
+  void findAllowedTransitions_clearsRequestHibernateIndex() {
+    ActionMenuAdaptor indexed =
+        new ActionMenuAdaptor(designWs, () -> true, () -> List.of());
+    indexed.requestHibernateIndex();
+    assertTrue(ActionMenuAdaptor.isRequestHibernateIndexBound());
+    assertTrue(indexed.findAllowedTransitions(null, null).isEmpty());
+    assertFalse(ActionMenuAdaptor.isRequestHibernateIndexBound());
   }
 
   private PSAction stubAction(String name, int id) {

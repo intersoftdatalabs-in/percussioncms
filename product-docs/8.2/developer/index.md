@@ -40,6 +40,8 @@ Operators using **Developer → Views** create/delete chrome: [Developer Views](
 
 Operators using **Developer → Display Formats** create/delete and column add/remove/reorder chrome: [Developer Display Formats](id:admin-developer-display-formats).
 
+Operators using **Developer → Action Menus** create/delete chrome: [Developer Action Menus](id:admin-developer-action-menus).
+
 ## Architecture snapshot
 
 ```text

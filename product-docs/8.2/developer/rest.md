@@ -1475,12 +1475,17 @@ load **Object ACL** via `GET /services/acls/object/{guid}`. When the nested Guid
 hard to bind, clients may also synthesize that same string from the numeric `id`.
 
 Admin **write** persists through `IPSUiDesignWs` (`createActions` / `loadActions` /
-`saveActions` / `deleteActions`) — the same design web service SOAP uses. There is
-no new SOAP surface. **Do not** treat this as a Developer Action Menus SPA; chrome
-for create/save/delete is a later sibling. Cascading children composition (UI-04)
-and usage/command/visibility tab completeness (UI-03) are later slices. Finder
-helpers (`GET /services/actions/find`, content-type and template finders) are
-unchanged.
+`saveActions` / `deleteActions`) — the same design web service SOAP uses. Durable
+rows are written to `RXMENUACTION` so Hibernate `findActionMenusTree` (GET
+`/services/actions/catalog` and GET by name) includes a user menu immediately
+after POST, and omits it after DELETE. There is no new SOAP surface.
+**Developer → Action Menus** chrome creates and deletes user menus (and saves
+label / description / menuType / url); cascading children composition (UI-04)
+and usage/command/visibility tab completeness (UI-03) are later slices — see
+[Developer Action Menus](id:admin-developer-action-menus). Finder helpers
+(`GET /services/actions/find`, content-type and template finders) are unchanged.
+After POST the editor notice confirms the save. Packaged menus (for example
+**Copy**) are **409** on PUT/DELETE, not **404**.
 
 Write is **Admin** only. Name is unique (case-insensitive) and must not contain
 whitespace or wildcards. Duplicate name is **409**. Invalid name or menu type is
@@ -1500,9 +1505,12 @@ PUT round-trips GET detail fields already exposed (`label`, `description`,
 | `PUT` | `/services/actions/{idOrName}` | **Admin.** Update label, description, menuType, and/or url |
 | `DELETE` | `/services/actions/{idOrName}` | **Admin.** Delete a user action menu (`deleteActions`, `ignoreDependencies=false`) |
 
-JSON may wrap a single item as `ActionMenu`. Integrators should unwrap that
-envelope and read `guid.stringValue` (never assume the GUID is missing when `id`
-is present). See [Object ACL & default template](id:admin-object-acl).
+JSON may wrap a single item as `ActionMenu`. **Create** `POST /services/actions`
+sends that envelope (or a flat object with `name`). Do not post
+`allowedWorkflowTransitionsRequest` on the collection path — that finder lives at
+`POST /services/actions/find/transitions`. Integrators should unwrap the
+`ActionMenu` envelope and read `guid.stringValue` (never assume the GUID is
+missing when `id` is present). See [Object ACL & default template](id:admin-object-acl).
 
 ## Views (design catalog)
 
