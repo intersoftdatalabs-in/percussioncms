@@ -17,9 +17,9 @@
 
 /**
  * Copy the sitemap-xml Virtual Site QA fixture into the H2 Docker cell so
- * Developer Sites Preview can POST /virtual/build then GET /virtual/preview
- * against a local sitemap.xml (no live crawl URLs or credentials). Loc
- * {@code pages/index.md} slugs to {@code index} and assembles
+ * Developer Sites Build/Preview/Publish can POST /virtual/build, GET /virtual/preview,
+ * and POST /virtual/publish against a local sitemap.xml (no live crawl URLs or
+ * credentials). Loc {@code pages/index.md} slugs to {@code index} and assembles
  * {@code 8.2/index.html}.
  */
 
@@ -32,6 +32,12 @@ const SITEMAP_XML_VIRTUAL_QA_ROOT = "/opt/Percussion/tmp/sitemap-xml-virtual-qa"
 
 /** Marker from the local pages/index.md fixture body. */
 const SITEMAP_XML_VIRTUAL_BUILD_MARKER = "Hello from sitemap.";
+
+/** Assembled home copied to the Site filesystem root after Publish. */
+const SITEMAP_XML_VIRTUAL_PUBLISHED_HTML = "8.2/index.html";
+
+/** Marker expected in published HTML (same as the page body). */
+const SITEMAP_XML_VIRTUAL_PUBLISH_MARKER = SITEMAP_XML_VIRTUAL_BUILD_MARKER;
 
 function qaCmsContainer() {
   const fromEnv = (
@@ -101,10 +107,85 @@ function deploySitemapXmlVirtualFixtureToQaCell() {
   return SITEMAP_XML_VIRTUAL_QA_ROOT;
 }
 
+/**
+ * Normalize Developer Sites publish dest text to a POSIX absolute path inside
+ * the Linux QA cell. Rejects Windows drive letters, UNC, relatives, and
+ * remaining {@code ..} so {@code docker exec … cat} never follows a traversal.
+ * In-container filesystem paths always use {@code /}.
+ *
+ * @param {unknown} raw dest text from {@code developer-site-virtual-publish-dest}
+ * @returns {string} POSIX absolute path
+ */
+function normalizeQaPublishDestPath(raw) {
+  if (typeof raw !== "string") {
+    throw new Error("sitemap-xml Virtual Site publish dest is missing");
+  }
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    throw new Error("sitemap-xml Virtual Site publish dest is blank");
+  }
+  const posix = trimmed.replace(/\\/g, "/");
+  if (/^[a-zA-Z]:/.test(posix) || posix.startsWith("//")) {
+    throw new Error(
+      `sitemap-xml Virtual Site publish dest is not a Linux QA cell path: ${trimmed}`,
+    );
+  }
+  if (!posix.startsWith("/")) {
+    throw new Error(`sitemap-xml Virtual Site publish dest is not absolute: ${trimmed}`);
+  }
+  const parts = posix.split("/").filter((seg) => seg.length > 0);
+  if (parts.some((seg) => seg === ".." || seg === ".")) {
+    throw new Error(`sitemap-xml Virtual Site publish dest is unsafe: ${trimmed}`);
+  }
+  return `/${parts.join("/")}`;
+}
+
+function posixJoin(base, ...segments) {
+  const dest = normalizeQaPublishDestPath(base);
+  const extra = [];
+  for (const seg of segments) {
+    const piece = String(seg ?? "").trim().replace(/\\/g, "/");
+    for (const part of piece.split("/")) {
+      if (!part) {
+        continue;
+      }
+      if (part === ".." || part === ".") {
+        throw new Error(`sitemap-xml Virtual Site publish relpath is unsafe: ${seg}`);
+      }
+      extra.push(part);
+    }
+  }
+  return extra.length === 0 ? dest : `${dest}/${extra.join("/")}`;
+}
+
+/**
+ * Fail closed unless assembled sitemap-xml HTML exists under the Site
+ * filesystem root inside the QA cell (acceptance: files exist after Publish).
+ *
+ * @param {unknown} publishPath dest shown in Developer Sites Publish chrome
+ */
+function assertPublishedSitemapXmlFilesOnQaCell(publishPath) {
+  const html = posixJoin(publishPath, SITEMAP_XML_VIRTUAL_PUBLISHED_HTML);
+  const container = qaCmsContainer();
+  dockerExec(container, ["test", "-f", html]);
+  const body = dockerExec(container, ["cat", html]);
+  if (!body.includes(SITEMAP_XML_VIRTUAL_PUBLISH_MARKER) && !body.includes("index")) {
+    throw new Error(
+      `Published sitemap-xml HTML missing fixture marker at ${html}: ${body.slice(0, 400)}`,
+    );
+  }
+  return html;
+}
+
 module.exports = {
   SITEMAP_XML_VIRTUAL_QA_ROOT,
   SITEMAP_XML_VIRTUAL_BUILD_MARKER,
+  SITEMAP_XML_VIRTUAL_PUBLISHED_HTML,
+  SITEMAP_XML_VIRTUAL_PUBLISH_MARKER,
   sitemapXmlVirtualFixtureHostDir,
   deploySitemapXmlVirtualFixtureToQaCell,
+  normalizeQaPublishDestPath,
+  posixJoin,
+  assertPublishedSitemapXmlFilesOnQaCell,
   qaCmsContainer,
 };

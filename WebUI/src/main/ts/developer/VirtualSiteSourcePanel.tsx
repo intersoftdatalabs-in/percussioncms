@@ -176,9 +176,10 @@ function validationMessage(
  * Preview last-build HTML for git/csv/sql/http-json/object-storage/rss-atom/
  * icalendar/sitemap-xml (missing build stays unavailable). Publish
  * ({@code POST …/virtual/publish}) for git/csv/sql/http-json/object-storage/
- * rss-atom/icalendar after a successful Build. sitemap-xml Publish chrome stays
- * later. Repository / blank / unknown kinds stay hidden. sitemap-xml uses a
- * local {@code rootPath} only (no live crawl chrome).
+ * rss-atom/icalendar/sitemap-xml after a successful Build (sitemap-xml copies
+ * last-build local HTML to {@code IPSSite.root}; leftover remoteUrl/credentials
+ * fail closed). Repository / blank / unknown kinds stay hidden. sitemap-xml
+ * uses a local {@code rootPath} only (no live crawl chrome).
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -375,8 +376,9 @@ export function VirtualSiteSourcePanel({
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
   /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml (never repository). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
-  /** Publish chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar (never repository/sitemap-xml). */
+  /** Publish chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml (never repository). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
+  const showActionChrome = showBuildChrome || showPreviewChrome || showPublishChrome;
   const busy = saving || building || publishing;
   const buildSummary = buildResult ? formatVirtualSiteBuildSummary(buildResult) : null;
   const publishSummary = publishResult
@@ -616,8 +618,8 @@ export function VirtualSiteSourcePanel({
             ) : null}
           </div>
 
-          {/* Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml (never repository). */}
-          {showBuildChrome ? (
+          {/* Action chrome: Build/Preview/Publish for git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml. Never repository. */}
+          {showActionChrome ? (
             <div
               data-testid="developer-site-virtual-build-section"
               style={{
@@ -626,22 +628,28 @@ export function VirtualSiteSourcePanel({
                 borderTop: `1px dashed ${catalogColors.headerBorder}`,
               }}
             >
-              <p style={{ ...mutedHintText, margin: "0 0 8px" }} data-testid="developer-site-virtual-build-hint">
-                {DEV_MSG.SITE_VIRT_BUILD_HINT}
-              </p>
-              <p style={{ ...mutedHintText, margin: "0 0 10px" }} data-testid="developer-site-virtual-build-save-first">
-                {DEV_MSG.SITE_VIRT_BUILD_SAVE_FIRST}
-              </p>
+              {showBuildChrome ? (
+                <>
+                  <p style={{ ...mutedHintText, margin: "0 0 8px" }} data-testid="developer-site-virtual-build-hint">
+                    {DEV_MSG.SITE_VIRT_BUILD_HINT}
+                  </p>
+                  <p style={{ ...mutedHintText, margin: "0 0 10px" }} data-testid="developer-site-virtual-build-save-first">
+                    {DEV_MSG.SITE_VIRT_BUILD_SAVE_FIRST}
+                  </p>
+                </>
+              ) : null}
               <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" }}>
-                <button
-                  type="button"
-                  data-testid="developer-site-virtual-build"
-                  style={busy ? disabledSecondaryButton : secondaryButton}
-                  disabled={busy}
-                  onClick={() => void onBuild()}
-                >
-                  {building ? DEV_MSG.SITE_VIRT_BUILDING : DEV_MSG.SITE_VIRT_BUILD}
-                </button>
+                {showBuildChrome ? (
+                  <button
+                    type="button"
+                    data-testid="developer-site-virtual-build"
+                    style={busy ? disabledSecondaryButton : secondaryButton}
+                    disabled={busy}
+                    onClick={() => void onBuild()}
+                  >
+                    {building ? DEV_MSG.SITE_VIRT_BUILDING : DEV_MSG.SITE_VIRT_BUILD}
+                  </button>
+                ) : null}
                 {showPreviewChrome ? (
                   <button
                     type="button"

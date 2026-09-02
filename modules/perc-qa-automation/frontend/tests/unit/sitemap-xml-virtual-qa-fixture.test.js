@@ -30,7 +30,11 @@ const path = require("node:path");
 const {
   SITEMAP_XML_VIRTUAL_QA_ROOT,
   SITEMAP_XML_VIRTUAL_BUILD_MARKER,
+  SITEMAP_XML_VIRTUAL_PUBLISHED_HTML,
+  SITEMAP_XML_VIRTUAL_PUBLISH_MARKER,
   sitemapXmlVirtualFixtureHostDir,
+  normalizeQaPublishDestPath,
+  posixJoin,
   qaCmsContainer,
 } = require("../helpers/sitemap-xml-virtual-qa-fixture");
 
@@ -63,7 +67,7 @@ describe("sitemap-xml-virtual-qa-fixture", () => {
     }
   });
 
-  it("host fixture has required _config.yaml, sitemap.xml, page, and theme (no crawl credentials)", () => {
+  it("host fixture has required _config.yaml, sitemap.xml, and theme (no crawl credentials)", () => {
     const dir = sitemapXmlVirtualFixtureHostDir();
     const config = fs.readFileSync(path.join(dir, "_config.yaml"), "utf8");
     assert.match(config, /^site:/m);
@@ -72,11 +76,38 @@ describe("sitemap-xml-virtual-qa-fixture", () => {
     assert.doesNotMatch(config, /password/i);
     assert.doesNotMatch(config, /https?:\/\//i);
     const sitemap = fs.readFileSync(path.join(dir, "sitemap.xml"), "utf8");
-    assert.match(sitemap, /urlset/);
+    assert.match(sitemap, /<urlset/);
     assert.match(sitemap, /pages\/index\.md/);
+    assert.doesNotMatch(sitemap, /authorization/i);
     assert.doesNotMatch(sitemap, /<loc>\s*https?:\/\//i);
     const page = fs.readFileSync(path.join(dir, "pages", "index.md"), "utf8");
     assert.match(page, new RegExp(SITEMAP_XML_VIRTUAL_BUILD_MARKER));
     assert.ok(fs.existsSync(path.join(dir, "_theme", "page.html")));
+  });
+
+  it("normalizeQaPublishDestPath accepts Linux cell abs paths and rejects traversal", () => {
+    assert.equal(
+      normalizeQaPublishDestPath(" /opt/Percussion/fastforward/CI_Home "),
+      "/opt/Percussion/fastforward/CI_Home",
+    );
+    assert.equal(SITEMAP_XML_VIRTUAL_PUBLISHED_HTML, "8.2/index.html");
+    assert.equal(SITEMAP_XML_VIRTUAL_PUBLISH_MARKER, SITEMAP_XML_VIRTUAL_BUILD_MARKER);
+    assert.throws(() => normalizeQaPublishDestPath(""), /blank/);
+    assert.throws(() => normalizeQaPublishDestPath("tmp/out"), /not absolute/);
+    assert.throws(() => normalizeQaPublishDestPath("C:/inetpub/wwwroot"), /Linux QA cell/);
+    assert.throws(() => normalizeQaPublishDestPath("/opt/../etc"), /unsafe/);
+    assert.throws(() => normalizeQaPublishDestPath("/opt/Percussion/tmp/foo/.."), /unsafe/);
+  });
+
+  it("posixJoin appends published HTML with forward slashes only", () => {
+    assert.equal(
+      posixJoin("/opt/Percussion/pub", "8.2", "index.html"),
+      "/opt/Percussion/pub/8.2/index.html",
+    );
+    assert.equal(
+      posixJoin("/opt/Percussion/pub", SITEMAP_XML_VIRTUAL_PUBLISHED_HTML),
+      "/opt/Percussion/pub/8.2/index.html",
+    );
+    assert.throws(() => posixJoin("/opt/Percussion/pub", "../etc/passwd"), /unsafe/);
   });
 });

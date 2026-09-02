@@ -70,7 +70,7 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPreviewChrome("  sitemap-xml  ")).toBe(true);
   });
 
-  it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, and icalendar", () => {
+  it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, and sitemap-xml", () => {
     expect(shouldShowVirtualPublishChrome(null)).toBe(false);
     expect(shouldShowVirtualPublishChrome("")).toBe(false);
     expect(shouldShowVirtualPublishChrome("repository")).toBe(false);
@@ -94,9 +94,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPublishChrome("icalendar")).toBe(true);
     expect(shouldShowVirtualPublishChrome("ICalendar")).toBe(true);
     expect(shouldShowVirtualPublishChrome("  icalendar  ")).toBe(true);
-    expect(shouldShowVirtualPublishChrome("sitemap-xml")).toBe(false);
-    expect(shouldShowVirtualPublishChrome("Sitemap-XML")).toBe(false);
-    expect(shouldShowVirtualPublishChrome("  sitemap-xml  ")).toBe(false);
+    expect(shouldShowVirtualPublishChrome("sitemap-xml")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("Sitemap-XML")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("  sitemap-xml  ")).toBe(true);
   });
 
   it("formatVirtualSitePublishSummary reports files copied and dest path", () => {

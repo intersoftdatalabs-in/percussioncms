@@ -82,29 +82,31 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
   the same way, then **Build Virtual Site**, **Preview assembled site**, and
   **Publish Virtual Site** (local RFC 5545 fixture; leftover `virtual.remoteUrl` and
   credentials are **400**; no CalDAV). Developer Sites can save **Sitemap XML**
-  the same way, then **Build Virtual Site** and **Preview assembled site** (local
-  `sitemap.xml` fixture; leftover `virtual.remoteUrl` and credentials are **400**;
-  no live crawl). **Publish Virtual Site** chrome stays hidden. The endpoint does not accept an
+  the same way, then **Build Virtual Site**, **Preview assembled site**, and
+  **Publish Virtual Site** (local `sitemap.xml` fixture; leftover `virtual.remoteUrl`
+  and credentials are **400**; no live crawl). The endpoint does not accept an
   `outputRoot` body (always the default staging root).
 
 ### Publish a Virtual Site to the Site filesystem target
 
 1. Sign in as **Admin**.
-2. Configure the Site as a Git-filesystem, CSV-filesystem, SQL-database, HTTP JSON, object-storage, or RSS / Atom Virtual Site (see [Sites](id:admin-sites)). After you save **SQL database**, **Build Virtual Site** on Developer Sites runs the same in-memory H2 REST Build as Git/CSV. After you save **HTTP JSON**, **Build Virtual Site** then **Publish Virtual Site** copies assembled HTML to the Site filesystem root. After you save **Object storage**, **Build Virtual Site** then **Preview assembled site** and **Publish Virtual Site** run against that local object-key tree (`POST …/virtual/publish`; leftover `virtual.remoteUrl` is **400**; no cloud URLs or credentials). After you save **RSS / Atom**, **Build Virtual Site** then **Preview assembled site** and **Publish Virtual Site** run against that local RSS/Atom fixture (`POST …/virtual/publish`; leftover `virtual.remoteUrl` and credentials are **400**; no live feeds).
+2. Configure the Site as a Git-filesystem, CSV-filesystem, SQL-database, HTTP JSON, object-storage, RSS / Atom, iCalendar, or Sitemap XML Virtual Site (see [Sites](id:admin-sites)). After you save **SQL database**, **Build Virtual Site** on Developer Sites runs the same in-memory H2 REST Build as Git/CSV. After you save **HTTP JSON**, **Build Virtual Site** then **Publish Virtual Site** copies assembled HTML to the Site filesystem root. After you save **Object storage**, **Build Virtual Site** then **Preview assembled site** and **Publish Virtual Site** run against that local object-key tree (`POST …/virtual/publish`; leftover `virtual.remoteUrl` is **400**; no cloud URLs or credentials). After you save **RSS / Atom**, **Build Virtual Site** then **Preview assembled site** and **Publish Virtual Site** run against that local RSS/Atom fixture (`POST …/virtual/publish`; leftover `virtual.remoteUrl` and credentials are **400**; no live feeds). After you save **iCalendar**, **Build Virtual Site** then **Preview assembled site** and **Publish Virtual Site** run against that local RFC 5545 fixture (`POST …/virtual/publish`; leftover `virtual.remoteUrl` and credentials are **400**; no CalDAV).
 3. Set the Site **publishing filesystem root** (Site root) to a dedicated directory on the CMS
    host. Relative roots (legacy values such as `../CI_Home`) are resolved against the CMS
    install directory. Do **not** point it at `virtual.rootPath` (the Markdown or CSV source tree).
 4. Confirm the source root exists on the host and that the publish directory is writable.
 5. From **Developer → Sites → Site detail**, choose **Publish Virtual Site** (visible for
    **Git filesystem**, **CSV filesystem**, **SQL database**, **HTTP JSON**,
-   **Object storage**, and **RSS / Atom**; hidden for repository Sites). For **SQL database**, **HTTP JSON**,
-   **Object storage**, and **RSS / Atom**, save the source, run **Build Virtual Site**, then
-   **Publish Virtual Site**. The panel reports files copied and the destination path, or a
+   **Object storage**, **RSS / Atom**, **iCalendar**, and **Sitemap XML**; hidden for repository Sites). For **SQL database**, **HTTP JSON**,
+   **Object storage**, **RSS / Atom**, and **iCalendar**, save the source, run **Build Virtual Site**, then
+   **Publish Virtual Site**. For **Sitemap XML**, save the source, run **Build Virtual Site**, then **Publish Virtual Site**
+   (builds then copies last-build local HTML; leftover `virtual.remoteUrl` and credentials
+   fail closed; no live crawl). The panel reports files copied and the destination path, or a
    clear error. Integrators can call `POST /services/sites/{nameOrId}/virtual/publish`
    instead (Git, CSV, SQL, HTTP JSON, object-storage, rss-atom, icalendar, and sitemap-xml).
    `sitemap-xml` REST Publish copies assembled HTML from a local `sitemap.xml` fixture (leftover
-   `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no live crawl; no
-   Developer Sites Publish chrome in this slice). Run **Build Virtual Site** first
+   `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no live crawl).
+   Developer Sites **Publish Virtual Site** is shown for **Sitemap XML**. Run **Build Virtual Site** first
    if you only want staging output.
 6. On success, the result includes `publishPath`, `filesCopied`, `pagesWritten`, and any
    link problems (`hasLinkProblems` can be true with HTTP 200).
