@@ -24,7 +24,7 @@ Cycle Verify #3893 / #3948 / #4141: copying only hashed files under
 (and optional ``index.html``) leaves the live SPA on a stale
 ``import("./developer-<oldhash>.js")``. That chunk has csv/sql/http-json
 but not later kinds (``object-storage``, ``rss-atom``, ``icalendar``,
-``sitemap-xml``).
+``sitemap-xml``) or ``[data-testid=developer-am-new]`` (#4123).
 
 This script copies **every file** under
 ``WebUI/target/generated-webui/cm/modern/`` (entry JS/CSS, hashed chunks,
@@ -41,10 +41,12 @@ By default the script refuses to deploy a bundle whose SPA entry
 chunk that contains the quoted wire values ``object-storage``,
 ``rss-atom``, ``icalendar``, and ``sitemap-xml`` (single quotes,
 double quotes, or JS template-literal backticks — Vite 8 / rolldown
-minifies these SOURCE_KIND_* constants to backtick strings). A bare
-substring such as an API path is not enough. TypeScript identifiers
-are not scanned: production bundles minify them away, while the
-option value strings are what the live ``<select>`` renders.
+minifies these SOURCE_KIND_* constants to backtick strings) and the
+quoted Action Menus catalog testid ``developer-am-new`` (#4123
+dual-ship). A bare substring such as an API path is not enough.
+TypeScript identifiers are not scanned: production bundles minify
+them away, while the option value strings and ``data-testid``
+literals are what the live SPA renders.
 
 Exit codes:
 
@@ -52,7 +54,7 @@ Exit codes:
   1  invocation / argument error
   2  container not running
   3  source tree / entry file not found
-  4  kind marker (object-storage / rss-atom / icalendar / sitemap-xml) missing in built JS
+  4  kind/SPA marker (object-storage, rss-atom, icalendar, sitemap-xml, and/or developer-am-new) missing in built JS
   5  docker cp / docker exec failed
 """
 
@@ -84,11 +86,13 @@ OBJECT_STORAGE_MARKER = "object-storage"
 RSS_ATOM_MARKER = "rss-atom"
 ICALENDAR_MARKER = "icalendar"
 SITEMAP_XML_MARKER = "sitemap-xml"
+DEVELOPER_AM_NEW_MARKER = "developer-am-new"
 REQUIRED_KIND_MARKERS: tuple[str, ...] = (
     OBJECT_STORAGE_MARKER,
     RSS_ATOM_MARKER,
     ICALENDAR_MARKER,
     SITEMAP_XML_MARKER,
+    DEVELOPER_AM_NEW_MARKER,
 )
 # Entry typically has import"./developer-<hash>.js" or import("./developer-<hash>.js").
 _DEVELOPER_IMPORT_RE = re.compile(
@@ -142,8 +146,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         dest="skip_object_storage_check",
         help=(
             "Do not refuse a bundle whose JS lacks quoted object-storage, "
-            "rss-atom, icalendar, and/or sitemap-xml markers "
-            "(escape hatch only; #3948 / #4141)."
+            "rss-atom, icalendar, sitemap-xml, and/or developer-am-new "
+            "markers (escape hatch only; #3948 / #4141 / #4123)."
         ),
     )
     p.add_argument(
@@ -285,8 +289,8 @@ def validate_src(
     """Return an exit code if ``src`` is not a deployable modern tree.
 
     ``require_object_storage`` is an alias for ``require_kind_markers``
-    (object-storage, rss-atom, icalendar, and sitemap-xml;
-    #3893 / #3948 / #4141).
+    (object-storage, rss-atom, icalendar, sitemap-xml, and
+    developer-am-new; #3893 / #3948 / #4141 / #4123).
     """
     if require_object_storage is not None:
         require_kind_markers = require_object_storage
@@ -315,16 +319,17 @@ def validate_src(
                 "built modern JS under %s does not contain quoted %s in "
                 "perc-modern-ui.js or the developer-*.js chunk it imports — "
                 "the live kind select would omit those option[value=…] "
-                "entries (#3893 / #3948 / #4141)",
+                "entries or Action Menus catalog New chrome (#3893 / #3948 / "
+                "#4141 / #4123)",
                 src,
                 ", ".join(repr(m) for m in missing),
             )
             LOG.error(
                 "hint: rebuild WebUI so the developer chunk includes the "
                 "SOURCE_KIND_* wire values as strings (object-storage, "
-                "rss-atom, icalendar, sitemap-xml), then deploy entry + "
-                "hashed chunks (full generated-webui/cm/modern tree, not "
-                "assets/ hashes only)"
+                "rss-atom, icalendar, sitemap-xml) and data-testid "
+                "developer-am-new, then deploy entry + hashed chunks (full "
+                "generated-webui/cm/modern tree, not assets/ hashes only)"
             )
             return EXIT_MARKER_MISSING
     return EXIT_OK

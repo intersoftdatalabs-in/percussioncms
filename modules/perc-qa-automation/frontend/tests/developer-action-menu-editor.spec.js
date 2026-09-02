@@ -165,6 +165,7 @@ test.describe("Developer action menu editor (#4112 / UI-02)", () => {
     await expect(listNotice).toBeVisible({ timeout: 20_000 });
     await expect(listNotice).toContainText(/deleted/i);
 
+
     assertConsoleClean(pageErrors, consoleErrors);
   });
 

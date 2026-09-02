@@ -81,6 +81,7 @@ def _write_modern_tree(
     include_rss_atom: bool = True,
     include_icalendar: bool = True,
     include_sitemap_xml: bool = True,
+    include_developer_am_new: bool = True,
     include_index: bool = True,
 ) -> Path:
     modern = root / "cm" / "modern"
@@ -100,6 +101,8 @@ def _write_modern_tree(
         chunk += 'export const ics="icalendar";\n'
     if include_sitemap_xml:
         chunk += 'export const sm="sitemap-xml";\n'
+    if include_developer_am_new:
+        chunk += 'export const am="developer-am-new";\n'
     (assets / "developer-AbCd1234.js").write_text(chunk, encoding="utf-8")
     if include_index:
         (modern / "index.html").write_text(
@@ -142,12 +145,19 @@ class TestValidateSrc(unittest.TestCase):
                 include_rss_atom=False,
                 include_icalendar=False,
                 include_sitemap_xml=False,
+                include_developer_am_new=False,
             )
             rc = hdw.validate_src(src, require_object_storage=True)
             self.assertEqual(rc, hdw.EXIT_MARKER_MISSING)
             self.assertEqual(
                 hdw.bundle_missing_kind_markers(src),
-                ["object-storage", "rss-atom", "icalendar", "sitemap-xml"],
+                [
+                    "object-storage",
+                    "rss-atom",
+                    "icalendar",
+                    "sitemap-xml",
+                    "developer-am-new",
+                ],
             )
 
     def test_rss_atom_missing_fails_even_when_object_storage_present(self):
@@ -193,6 +203,7 @@ class TestValidateSrc(unittest.TestCase):
             self.assertTrue(hdw.bundle_contains_marker(src, hdw.RSS_ATOM_MARKER))
             self.assertTrue(hdw.bundle_contains_marker(src, hdw.ICALENDAR_MARKER))
             self.assertTrue(hdw.bundle_contains_marker(src, hdw.SITEMAP_XML_MARKER))
+            self.assertTrue(hdw.bundle_contains_marker(src, hdw.DEVELOPER_AM_NEW_MARKER))
             self.assertEqual(hdw.bundle_missing_kind_markers(src), [])
 
     def test_unquoted_object_storage_substring_is_not_enough(self):
@@ -202,7 +213,8 @@ class TestValidateSrc(unittest.TestCase):
             )
             (src / "assets" / "developer-AbCd1234.js").write_text(
                 'const u="https://example.com/object-storage/keys";\n'
-                'const f="feed/rss-atom.xml";\n',
+                'const f="feed/rss-atom.xml";\n'
+                'const am="developer-am-new";\n',
                 encoding="utf-8",
             )
             rc = hdw.validate_src(src, require_object_storage=True)
@@ -223,7 +235,8 @@ class TestValidateSrc(unittest.TestCase):
                 "export const os=`object-storage`;\n"
                 "export const rss=`rss-atom`;\n"
                 "export const ics=`icalendar`;\n"
-                "export const sm=`sitemap-xml`;\n",
+                "export const sm=`sitemap-xml`;\n"
+                "export const am=`developer-am-new`;\n",
                 encoding="utf-8",
             )
             rc = hdw.validate_src(src, require_kind_markers=True)
@@ -232,6 +245,7 @@ class TestValidateSrc(unittest.TestCase):
             self.assertTrue(hdw.bundle_contains_marker(src, hdw.RSS_ATOM_MARKER))
             self.assertTrue(hdw.bundle_contains_marker(src, hdw.ICALENDAR_MARKER))
             self.assertTrue(hdw.bundle_contains_marker(src, hdw.SITEMAP_XML_MARKER))
+            self.assertTrue(hdw.bundle_contains_marker(src, hdw.DEVELOPER_AM_NEW_MARKER))
 
     def test_unquoted_rss_atom_substring_is_not_enough(self):
         with tempfile.TemporaryDirectory() as td:
@@ -265,7 +279,8 @@ class TestValidateSrc(unittest.TestCase):
             assets.mkdir(parents=True)
             (assets / "perc-modern-ui.js").write_text(
                 'const k="object-storage";\nconst r="rss-atom";\n'
-                'const i="icalendar";\nconst s="sitemap-xml";\n',
+                'const i="icalendar";\nconst s="sitemap-xml";\n'
+                'const am="developer-am-new";\n',
                 encoding="utf-8",
             )
             (assets / "perc-modern-ui.css").write_text("/* css */\n", encoding="utf-8")
@@ -278,12 +293,26 @@ class TestValidateSrc(unittest.TestCase):
             assets = src / "assets"
             assets.mkdir(parents=True)
             (assets / "perc-modern-ui.js").write_text(
-                'const k="object-storage";\n',
+                'const k="object-storage";\nconst am="developer-am-new";\n',
                 encoding="utf-8",
             )
             (assets / "perc-modern-ui.css").write_text("/* css */\n", encoding="utf-8")
             rc = hdw.validate_src(src, require_kind_markers=True)
             self.assertEqual(rc, hdw.EXIT_MARKER_MISSING)
+
+    def test_developer_am_new_missing_fails_even_when_kinds_present(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = _write_modern_tree(
+                Path(td),
+                include_object_storage=True,
+                include_rss_atom=True,
+                include_developer_am_new=False,
+            )
+            rc = hdw.validate_src(src, require_kind_markers=True)
+            self.assertEqual(rc, hdw.EXIT_MARKER_MISSING)
+            self.assertEqual(
+                hdw.bundle_missing_kind_markers(src), ["developer-am-new"]
+            )
 
 
 class TestContainerDestFile(unittest.TestCase):
