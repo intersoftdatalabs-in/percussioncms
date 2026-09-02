@@ -156,6 +156,23 @@ describe("action menu wire wrap", () => {
     ).toEqual(["Cascading child menu composition not supported via this API"]);
   });
 
+  it("drops empty-value visibility rows from the wire wrap", () => {
+    expect(
+      wrapActionMenuForWire({
+        name: "MyMenu",
+        visibilityContexts: [
+          { name: "community", value: "1001" },
+          { name: "contentType", value: "" },
+        ],
+      }),
+    ).toEqual({
+      ActionMenu: {
+        name: "MyMenu",
+        visibilityContexts: [{ name: "community", value: "1001" }],
+      },
+    });
+  });
+
   it("wraps PUT usage/command/visibility under ActionMenu root", () => {
     expect(
       wrapActionMenuForWire({

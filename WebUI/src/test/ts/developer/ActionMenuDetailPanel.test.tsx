@@ -417,6 +417,39 @@ describe("ActionMenuDetailPanel", () => {
     expect(saveActionMenuMock.mock.calls[0][0]).toBe("88");
   });
 
+  it("rolls back create when the follow-up PUT fails", async () => {
+    createActionMenuMock.mockResolvedValue({
+      name: "MyMenu",
+      label: "My Menu",
+      description: "",
+      menuType: "MENUITEM",
+      guid: { stringValue: "0-107-88" },
+      id: 88,
+      parameters: [],
+      properties: [],
+    });
+    saveActionMenuMock.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Invalid handler" },
+    });
+    deleteActionMenuMock.mockResolvedValue(undefined);
+    render(<ActionMenuDetailPanel idOrName={null} onBack={() => undefined} />);
+    fireEvent.change(screen.getByTestId("developer-am-name"), {
+      target: { value: "MyMenu" },
+    });
+    fireEvent.change(screen.getByTestId("developer-am-handler"), {
+      target: { value: "SERVER" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-save"));
+    await waitFor(() => {
+      expect(deleteActionMenuMock).toHaveBeenCalledWith("88");
+    });
+    expect(createActionMenuMock).toHaveBeenCalled();
+    expect(saveActionMenuMock).toHaveBeenCalled();
+    expect(screen.getByTestId("developer-am-detail-error").textContent).toContain("Invalid handler");
+  });
+
   it("creates a user action menu when the name is valid", async () => {
     createActionMenuMock.mockResolvedValue({
       name: "MyMenu",

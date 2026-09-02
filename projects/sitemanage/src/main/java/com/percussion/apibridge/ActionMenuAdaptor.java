@@ -866,14 +866,16 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
   }
 
   /**
-   * Merges Workbench Usage/Command properties by name. {@code null} leaves existing
-   * properties. Never overwrites {@link #REST_USER_MENU_PROP}.
+   * Replaces Workbench Usage/Command properties when the PUT body includes {@code
+   * properties} (empty array clears except {@link #REST_USER_MENU_PROP}). {@code null}
+   * leaves existing properties. Never overwrites {@link #REST_USER_MENU_PROP}.
    */
   static void applyCommandProperties(PSAction domain, ActionMenuProperty[] properties) {
     if (domain == null || properties == null) {
       return;
     }
     PSActionProperties dest = domain.getProperties();
+    Map<String, ActionMenuProperty> incoming = new LinkedHashMap<>();
     for (ActionMenuProperty prop : properties) {
       if (prop == null || StringUtils.isBlank(prop.getName())) {
         continue;
@@ -882,12 +884,50 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       if (REST_USER_MENU_PROP.equalsIgnoreCase(name)) {
         continue;
       }
+      incoming.put(name, prop);
+    }
+    List<String> toRemove = new ArrayList<>();
+    Iterator<?> it = dest.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (next instanceof PSActionProperty existing) {
+        String existingName = existing.getName();
+        if (REST_USER_MENU_PROP.equalsIgnoreCase(existingName)) {
+          continue;
+        }
+        if (!containsIgnoreCase(incoming.keySet(), existingName)) {
+          toRemove.add(existingName);
+        }
+      }
+    }
+    for (String name : toRemove) {
+      dest.removeProperty(name);
+    }
+    for (ActionMenuProperty prop : incoming.values()) {
+      String name = prop.getName().trim();
       dest.setProperty(name, prop.getValue() == null ? "" : prop.getValue());
       PSActionProperty stored = findProperty(dest, name);
       if (stored != null && prop.getDescription() != null) {
         stored.setDescription(prop.getDescription());
       }
     }
+  }
+
+  /**
+   * Persisted RXMENUACTION id for mode-uicontext rows. Never {@code "0"} — that would
+   * attach mappings to the wrong menu.
+   */
+  static String persistedActionId(PSAction domain) {
+    if (domain == null) {
+      throw new IllegalStateException("Cannot apply uiContexts until the action is persisted");
+    }
+    // getId() is -1 when unassigned; do not call getGUID() (it synthesizes
+    // from that id and PSGuid rejects negative UUIDs).
+    int id = domain.getId();
+    if (id <= 0) {
+      throw new IllegalStateException("Cannot apply uiContexts until the action is persisted");
+    }
+    return String.valueOf(id);
   }
 
   static boolean containsIgnoreCase(Iterable<String> names, String needle) {
@@ -994,7 +1034,7 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     for (PSMenuModeContextMapping mapping : existing) {
       dest.remove(mapping);
     }
-    String actionId = String.valueOf(Math.max(domain.getId(), 0));
+    String actionId = persistedActionId(domain);
     for (ActionMenuModeUIContext dto : unique.values()) {
       PSMenuModeContextMapping mapping =
           new PSMenuModeContextMapping(

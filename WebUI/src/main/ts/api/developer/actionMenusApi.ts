@@ -310,7 +310,16 @@ export function isActionMenuWriteReady(opts: { isNew: boolean; name: string }): 
 export function wrapActionMenuForWire(
   body: ActionMenuWriteBody,
 ): Record<string, ActionMenuWriteBody> {
-  return { [ACTION_MENU_ROOT]: body };
+  const visibility = body.visibilityContexts;
+  if (visibility == null) {
+    return { [ACTION_MENU_ROOT]: body };
+  }
+  const filtered = visibility.filter((row) => {
+    const name = (row?.name || "").trim();
+    const value = visibilityContextValue(row).trim();
+    return Boolean(name) && Boolean(value);
+  });
+  return { [ACTION_MENU_ROOT]: { ...body, visibilityContexts: filtered } };
 }
 
 /** Drop stale REST write-gap strings now that UI-02/UI-03 ship. */

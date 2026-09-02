@@ -57,12 +57,15 @@ function uniqueActionMenuName(prefix) {
   return `${prefix}${suffix || "x"}`;
 }
 
-async function openActionMenusCatalog(page) {
+async function bustModernAssetCache(page) {
   await page.route("**/cm/modern/assets/**", (route) => {
     const url = route.request().url();
     const sep = url.includes("?") ? "&" : "?";
     return route.continue({ url: `${url}${sep}cb=${Date.now()}` });
   });
+}
+
+async function openActionMenusCatalog(page) {
   await page.goto(developerActionMenusUrl(), { waitUntil: "networkidle" });
   await expect(page.locator('[data-testid="nav-developer"]')).toBeVisible({
     timeout: 20_000,
@@ -200,6 +203,11 @@ test.describe("Developer action menu editor (#4112 / UI-02)", () => {
     assertConsoleClean(pageErrors, consoleErrors);
   });
 
+  test.describe("UI-03 usage/command/visibility", () => {
+    test.beforeEach(async ({ page }) => {
+      await bustModernAssetCache(page);
+    });
+
   test("Admin can set usage, command, and visibility on a user menu", async ({ page }) => {
     test.setTimeout(180_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
@@ -304,5 +312,6 @@ test.describe("Developer action menu editor (#4112 / UI-02)", () => {
     await expect(createdRow(page, "Edit")).toHaveCount(1, { timeout: 20_000 });
 
     assertConsoleClean(pageErrors, consoleErrors);
+  });
   });
 });

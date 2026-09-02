@@ -479,6 +479,40 @@ class ActionMenuAdaptorWriteTest {
   }
 
   @Test
+  void applyCommandProperties_replacesKnownSubsetAndKeepsUserMarker() {
+    PSAction domain = stubAction("MyMenu", 42);
+    domain.getProperties().setProperty(ActionMenuAdaptor.REST_USER_MENU_PROP, PSAction.YES);
+    domain.getProperties().setProperty(PSAction.PROP_REFRESH_HINT, "parent");
+    domain.getProperties().setProperty(PSAction.PROP_ACCEL_KEY, "old");
+    ActionMenuProperty accel = new ActionMenuProperty();
+    accel.setName(PSAction.PROP_ACCEL_KEY);
+    accel.setValue("Z");
+    ActionMenuAdaptor.applyCommandProperties(domain, new ActionMenuProperty[] {accel});
+    assertEquals("Z", domain.getProperty(PSAction.PROP_ACCEL_KEY));
+    assertNull(domain.getProperty(PSAction.PROP_REFRESH_HINT));
+    assertEquals(PSAction.YES, domain.getProperty(ActionMenuAdaptor.REST_USER_MENU_PROP));
+  }
+
+  @Test
+  void persistedActionId_usesPersistedLocatorId() {
+    PSAction domain = stubAction("MyMenu", 42);
+    assertEquals("42", ActionMenuAdaptor.persistedActionId(domain));
+  }
+
+  @Test
+  void applyUiContexts_unpersistedThrows() {
+    PSAction domain = new PSAction("Draft", "Draft");
+    ActionMenuModeUIContext ui = new ActionMenuModeUIContext();
+    ui.setModeId("1");
+    ui.setContextId("2");
+    IllegalStateException ex =
+        assertThrows(
+            IllegalStateException.class,
+            () -> ActionMenuAdaptor.applyUiContexts(domain, new ActionMenuModeUIContext[] {ui}));
+    assertTrue(ex.getMessage().toLowerCase().contains("persisted"), ex.getMessage());
+  }
+
+  @Test
   void applyParameters_emptyArrayClears() {
     PSAction domain = stubAction("MyMenu", 42);
     domain.getParameters().setParameter("gone", "x");

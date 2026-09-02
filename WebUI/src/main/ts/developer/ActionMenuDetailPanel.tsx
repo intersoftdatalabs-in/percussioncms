@@ -327,10 +327,10 @@ export function ActionMenuDetailPanel({
       [ACTION_MENU_PROP.TARGET_STYLE]: targetStyle,
     });
     body.visibilityContexts = visibility
-      .filter((row) => (row.name || "").trim())
+      .filter((row) => (row.name || "").trim() && (row.value || "").trim())
       .map((row) => ({
         name: (row.name || "").trim(),
-        value: row.value || "",
+        value: (row.value || "").trim(),
         description: row.description || "",
       }));
     body.uiContexts = uiContexts
@@ -405,7 +405,16 @@ export function ActionMenuDetailPanel({
           target.trim() !== "" ||
           targetStyle.trim() !== "";
         if (hasUi03) {
-          saved = await saveActionMenu(persistKey, followUp);
+          try {
+            saved = await saveActionMenu(persistKey, followUp);
+          } catch (followUpErr: unknown) {
+            try {
+              await deleteActionMenu(persistKey);
+            } catch {
+              // Identity POST already succeeded; surface the PUT error.
+            }
+            throw followUpErr;
+          }
         }
       }
       setDetail(saved);
