@@ -241,7 +241,7 @@ with `{ "VirtualSiteProperties": { "sourceKind": "csv-filesystem", "rootPath": "
 safe `rootPath` that holds `_config.yaml` with the `sql:` mapping (H2 mem JDBC URL and
 user; do not put passwords on the REST envelope). In-product REST **Build Virtual Site**
 runs for `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`,
-`object-storage`, `rss-atom`, `icalendar`, and `sitemap-xml` (`POST …/virtual/build`). CSV assemble does not require a Git remote;
+`object-storage`, `rss-atom`, `icalendar`, and `sitemap-xml` (`POST …/virtual/build`). A second sitemap-xml Build after an in-process `sitemap.xml` / page edit returns `pagesWritten > 0` HTML that matches the current files (no Jetty restart). CSV assemble does not require a Git remote;
 `_config.yaml` is optional for CSV and required for SQL, HTTP JSON, object-storage, rss-atom, icalendar, and sitemap-xml.
 HTTP JSON trees use `"sourceKind": "http-json"` and a safe `rootPath`; `_config.yaml` is
 required (versions plus `http.url` or `http.file` / default `pages.json`). Developer Sites
