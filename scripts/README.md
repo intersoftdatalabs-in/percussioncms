@@ -349,7 +349,7 @@ Each entry below has been ported to cross-platform Python 3.9+ with pytest cover
 
 - `authenticate-sigstore.py` — Sigstore OIDC token retrieval + cache. Test: `test_authenticate_sigstore.py`.
 - `gh-preflight.py` — pre-flight checks for `gh` CLI usage. Test: `test_gh_preflight.py`.
-- `hot-deploy-local.py` — local hot-deploy helper for the CMS (jar modules + webui). Test: `test_hot_deploy_local.py`. H2 QA SPA copy (entry + hashed chunks, not host-install) is `docker/scripts/hot-deploy-webui-modern.py` / `perc-devctl.py qa-deploy-webui` (#3893 / #3948; refuses bundles missing quoted `object-storage` and `rss-atom`).
+- `hot-deploy-local.py` — local hot-deploy helper for the CMS (jar modules + webui). Test: `test_hot_deploy_local.py`. H2 QA SPA copy (entry + hashed chunks, not host-install) is `docker/scripts/hot-deploy-webui-modern.py` / `perc-devctl.py qa-deploy-webui` (#3893 / #3948 / #4141; refuses bundles missing quoted `object-storage`, `rss-atom`, `icalendar`, and `sitemap-xml`).
 - `resolve-conflicts.py` — git conflict resolution helper (ours / theirs / manual). Test: `test_resolve_conflicts.py`.
 - `verify-no-finder-jsp-references.py` — CI-gate artifact-grep for spec 992 / FR-019a (modern Track B shell, hard-cut in PR #1390). Test: `test_verify_no_finder_jsp_references.py`.
 - `verify-no-jqplot-vendor-refs.py` — CI-gate guard that the removed jqplot vendor library stays gone. Test: `test_verify_no_jqplot_vendor_refs.py`.

@@ -448,7 +448,7 @@ Default container: `percussion-cms-dts`. Default target: `both` (CMS + DTS lib d
 
 ### `docker/scripts/hot-deploy-webui-modern.py`
 
-Hot-copy the **full** built WebUI modern SPA into the H2 QA WAR (`#3893` / `#3948`). Cycle Verify failed when only hashed files under `cm/modern/assets/` were copied, and again when only `rest`/`sitemanage` SNAPSHOTs were jar-copied into a `--skip-image-build` cell: `spa.jsp` still loaded a stale `perc-modern-ui.js` that imported an older `developer-<hash>.js` (csv/sql/http-json present, `option[value=object-storage]` and `option[value=rss-atom]` count 0).
+Hot-copy the **full** built WebUI modern SPA into the H2 QA WAR (`#3893` / `#3948` / `#4141`). Cycle Verify failed when only hashed files under `cm/modern/assets/` were copied, and again when only `rest`/`sitemanage` SNAPSHOTs were jar-copied into a `--skip-image-build` cell: `spa.jsp` still loaded a stale `perc-modern-ui.js` that imported an older `developer-<hash>.js` (csv/sql/http-json present, later kinds such as `option[value=object-storage]`, `rss-atom`, `icalendar`, or `sitemap-xml` count 0).
 
 ```
 python docker/scripts/perc-devctl.py qa-deploy-webui
@@ -460,7 +460,7 @@ python docker/scripts/perc-devctl.py qa-rebuild-chain --skip-tests --then-qa-dep
 python docker/scripts/perc-devctl.py qa-up --skip-image-build --then-qa-deploy-webui
 ```
 
-Default source: `WebUI/target/generated-webui/cm/modern` (entry `assets/perc-modern-ui.js`, `assets/perc-modern-ui.css`, hashed chunks, optional `index.html`). Default container: `perc-matrix-cms-h2`. Dest: `/opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/`. The script refuses a bundle unless `perc-modern-ui.js` or the `developer-*.js` chunk it imports contains the quoted wire values `object-storage` **and** `rss-atom` (single/double quotes or template-literal backticks from Vite 8 minification — not a bare substring; TS identifiers are minified away). It does **not** `docker restart` the cell — restart Jetty inside the cell, then `qa-health`. Unit tests: `docker/scripts/test_hot_deploy_webui_modern.py`.
+Default source: `WebUI/target/generated-webui/cm/modern` (entry `assets/perc-modern-ui.js`, `assets/perc-modern-ui.css`, hashed chunks, optional `index.html`). Default container: `perc-matrix-cms-h2`. Dest: `/opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/`. The script refuses a bundle unless `perc-modern-ui.js` or the `developer-*.js` chunk it imports contains the quoted wire values `object-storage`, `rss-atom`, `icalendar`, **and** `sitemap-xml` (single/double quotes or template-literal backticks from Vite 8 minification — not a bare substring; TS identifiers are minified away). It does **not** `docker restart` the cell — restart Jetty inside the cell, then `qa-health`. Unit tests: `docker/scripts/test_hot_deploy_webui_modern.py`.
 
 ## Container entrypoint
 
