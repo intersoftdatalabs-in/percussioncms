@@ -36,7 +36,8 @@ communities.
    returns that user format (not **404**, and not a packaged format such as
    **By_Author**).
 5. Optional: change label or description and **Save** again.
-6. Click **Delete** and confirm. The catalog no longer lists that format.
+6. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
+   The catalog no longer lists that format.
    Delete of a missing format is **404**. A format still used as a dependent,
    or locked by another user, is **409**. Packaged system formats that REST
    rejects stay locked; the chrome surfaces that conflict and does not steal

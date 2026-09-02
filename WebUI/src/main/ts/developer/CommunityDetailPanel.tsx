@@ -16,6 +16,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { isApiError } from "../api/client";
 import {
   communityGuidForWrite,
@@ -49,6 +50,7 @@ import {
   visibilityEmptyKind,
   visibilitySummaryCounts,
 } from "./communityVisibilityFilters";
+import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -167,6 +169,7 @@ export function CommunityDetailPanel({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [visibleObjects, setVisibleObjects] = useState<CommunityVisibleObject[]>([]);
   const [visibilityLoading, setVisibilityLoading] = useState(false);
   const [visibilityError, setVisibilityError] = useState<string | null>(null);
@@ -362,6 +365,17 @@ export function CommunityDetailPanel({
     }
   }
 
+  function requestDelete(ev: React.MouseEvent<HTMLElement>): void {
+    if (isNew || inflight.current) return;
+    const guid = resolveCommunityGuid(detail, communityGuid);
+    if (!guid) {
+      setError(DEV_MSG.COMM_DELETE_NO_GUID);
+      return;
+    }
+    captureDialogOpener(ev.currentTarget);
+    setConfirmOpen(true);
+  }
+
   async function handleDelete(): Promise<void> {
     if (isNew || inflight.current) return;
     const guid = resolveCommunityGuid(detail, communityGuid);
@@ -369,7 +383,7 @@ export function CommunityDetailPanel({
       setError(DEV_MSG.COMM_DELETE_NO_GUID);
       return;
     }
-    if (!window.confirm(DEV_MSG.COMM_DELETE_CONFIRM)) return;
+    setConfirmOpen(false);
     inflight.current = true;
     setBusy(true);
     setError(null);
@@ -535,7 +549,7 @@ export function CommunityDetailPanel({
                 data-testid="developer-comm-delete"
                 aria-label={DEV_MSG.COMM_DELETE}
                 disabled={busy}
-                onClick={() => void handleDelete()}
+                onClick={requestDelete}
                 style={{
                   padding: "8px 16px",
                   background: "#c53030",
@@ -776,6 +790,13 @@ export function CommunityDetailPanel({
           </section>
         </>
       ) : null}
+      <CatalogConfirmDialog
+        open={confirmOpen}
+        busy={busy}
+        message={DEV_MSG.COMM_DELETE_CONFIRM}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={() => void handleDelete()}
+      />
     </div>
   );
 }

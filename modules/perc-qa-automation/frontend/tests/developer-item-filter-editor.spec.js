@@ -30,6 +30,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { confirmDeveloperCatalogDelete } = require("./helpers/developer-catalog-confirm");
 
 function developerItemFiltersUrl() {
   const q = new URLSearchParams({
@@ -96,8 +97,6 @@ test.describe("Developer item filter editor (#4060 / AS-07)", () => {
   test("Admin can create, save, and delete an item filter", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-    page.on("dialog", (dialog) => dialog.accept());
-
     await loginAsAdmin(page);
     await openItemFiltersCatalog(page);
 
@@ -132,6 +131,7 @@ test.describe("Developer item filter editor (#4060 / AS-07)", () => {
     }
 
     await page.locator('[data-testid="developer-if-delete"]').click();
+    await confirmDeveloperCatalogDelete(page);
     await expect(page.locator('[data-testid="developer-if-panel"]')).toBeVisible({
       timeout: 20_000,
     });

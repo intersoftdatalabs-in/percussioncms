@@ -355,8 +355,6 @@ describe("ItemFilterDetailPanel", () => {
   it("deletes after confirm and omits delete chrome in create mode", async () => {
     getItemFilterDetail.mockResolvedValue(sampleDetail);
     deleteItemFilter.mockResolvedValue(undefined);
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-    try {
       const onDeleted = vi.fn();
       render(
         <ItemFilterDetailPanel
@@ -369,13 +367,11 @@ describe("ItemFilterDetailPanel", () => {
         expect(screen.getByTestId("developer-if-delete")).toBeTruthy();
       });
       fireEvent.click(screen.getByTestId("developer-if-delete"));
+      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
       await waitFor(() => {
         expect(onDeleted).toHaveBeenCalled();
       });
       expect(deleteItemFilter).toHaveBeenCalledWith("publicItems");
-    } finally {
-      confirmSpy.mockRestore();
-    }
   });
 
   it("does not show delete on create", () => {

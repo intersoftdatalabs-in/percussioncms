@@ -30,6 +30,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { confirmDeveloperCatalogDelete } = require("./helpers/developer-catalog-confirm");
 
 function developerSlotsUrl() {
   const q = new URLSearchParams({
@@ -96,8 +97,6 @@ test.describe("Developer slot editor (#4056 / AS-01)", () => {
   test("Admin can create a uniquely named slot and delete it", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-    page.on("dialog", (dialog) => dialog.accept());
-
     await loginAsAdmin(page);
     await openSlotsCatalog(page);
 
@@ -139,6 +138,7 @@ test.describe("Developer slot editor (#4056 / AS-01)", () => {
     await page.locator(`[data-slot-name="${name}"]`).click();
     await expect(page.locator('[data-testid="developer-slot-detail"]')).toBeVisible();
     await page.locator('[data-testid="developer-slot-delete"]').click();
+    await confirmDeveloperCatalogDelete(page);
     await expect(page.locator('[data-testid="developer-slot-panel"]')).toBeVisible({
       timeout: 20_000,
     });
@@ -150,8 +150,6 @@ test.describe("Developer slot editor (#4056 / AS-01)", () => {
   test("duplicate name 409 is surfaced in the UI", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-    page.on("dialog", (dialog) => dialog.accept());
-
     await loginAsAdmin(page);
     await openSlotsCatalog(page);
 
@@ -182,6 +180,7 @@ test.describe("Developer slot editor (#4056 / AS-01)", () => {
       await openCreated.click();
       await expect(page.locator('[data-testid="developer-slot-delete"]')).toBeVisible();
       await page.locator('[data-testid="developer-slot-delete"]').click();
+      await confirmDeveloperCatalogDelete(page);
     }
 
     assertConsoleClean(pageErrors, consoleErrors);
@@ -190,8 +189,6 @@ test.describe("Developer slot editor (#4056 / AS-01)", () => {
   test("system slot delete is 409", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-    page.on("dialog", (dialog) => dialog.accept());
-
     await loginAsAdmin(page);
     await openSlotsCatalog(page);
 
@@ -209,6 +206,7 @@ test.describe("Developer slot editor (#4056 / AS-01)", () => {
     });
     await expect(page.locator('[data-testid="developer-slot-delete"]')).toBeVisible();
     await page.locator('[data-testid="developer-slot-delete"]').click();
+    await confirmDeveloperCatalogDelete(page);
 
     const err = page.locator('[data-testid="developer-slot-detail-error"]');
     await expect(err).toBeVisible({ timeout: 20_000 });

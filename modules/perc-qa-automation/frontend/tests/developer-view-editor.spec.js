@@ -30,6 +30,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { confirmDeveloperCatalogDelete } = require("./helpers/developer-catalog-confirm");
 
 function developerViewsUrl() {
   const q = new URLSearchParams({
@@ -96,8 +97,6 @@ test.describe("Developer view editor (#4085 / UI-07)", () => {
   test("Admin can create and delete a standard view", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-    page.on("dialog", (dialog) => dialog.accept());
-
     await loginAsAdmin(page);
     await openViewsCatalog(page);
 
@@ -136,6 +135,7 @@ test.describe("Developer view editor (#4085 / UI-07)", () => {
     await createdRow.click();
     await expect(page.locator('[data-testid="developer-vw-detail"]')).toBeVisible();
     await page.locator('[data-testid="developer-vw-delete"]').click();
+    await confirmDeveloperCatalogDelete(page);
     await expect(page.locator('[data-testid="developer-vw-panel"]')).toBeVisible({
       timeout: 20_000,
     });
@@ -149,8 +149,6 @@ test.describe("Developer view editor (#4085 / UI-07)", () => {
   test("duplicate view name 409 is surfaced in the UI", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-    page.on("dialog", (dialog) => dialog.accept());
-
     await loginAsAdmin(page);
     await openViewsCatalog(page);
 
@@ -185,6 +183,7 @@ test.describe("Developer view editor (#4085 / UI-07)", () => {
     await page.locator(`[data-vw-name="${viewName}"]`).click();
     await expect(page.locator('[data-testid="developer-vw-detail"]')).toBeVisible();
     await page.locator('[data-testid="developer-vw-delete"]').click();
+    await confirmDeveloperCatalogDelete(page);
     await expect(page.locator('[data-testid="developer-vw-panel"]')).toBeVisible({
       timeout: 20_000,
     });

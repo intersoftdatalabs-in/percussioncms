@@ -45,7 +45,8 @@ full Workbench FTS query designer.
    Click **Save field criteria**. An unknown field name is **400**. A
    packaged/system search does not show the editor (PUT of `fields` is **409**
    and does not steal another user's design lock).
-7. Click **Delete** and confirm. The catalog no longer lists that search.
+7. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
+   The catalog no longer lists that search.
    Delete of a missing search is **404**. A search still used as a dependent,
    or locked by another user, is **409**.
 

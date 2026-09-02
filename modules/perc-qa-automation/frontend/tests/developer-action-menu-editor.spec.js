@@ -35,6 +35,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { confirmDeveloperCatalogDelete } = require("./helpers/developer-catalog-confirm");
 const {
   catalogOpenByExactName,
 } = require("./helpers/developer-catalog-selectors");
@@ -133,8 +134,6 @@ test.describe("Developer action menu editor (#4112 / UI-02)", () => {
   test("Admin create POST is saved in the editor (notice + name read-only)", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-    page.on("dialog", (dialog) => dialog.accept());
-
     await loginAsAdmin(page);
     await openActionMenusCatalog(page);
 
@@ -158,6 +157,7 @@ test.describe("Developer action menu editor (#4112 / UI-02)", () => {
     await expect(page.locator('[data-testid="developer-am-delete"]')).toBeVisible();
 
     await page.locator('[data-testid="developer-am-delete"]').click();
+    await confirmDeveloperCatalogDelete(page);
     await expect(page.locator('[data-testid="developer-am-panel"]')).toBeVisible({
       timeout: 20_000,
     });
@@ -172,8 +172,6 @@ test.describe("Developer action menu editor (#4112 / UI-02)", () => {
   test("system menu Edit is not removed from the catalog after SPA delete", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-    page.on("dialog", (dialog) => dialog.accept());
-
     await loginAsAdmin(page);
     await openActionMenusCatalog(page);
     await expect(createdRow(page, "Edit")).toHaveCount(1, { timeout: 20_000 });
@@ -182,6 +180,7 @@ test.describe("Developer action menu editor (#4112 / UI-02)", () => {
     await expect(page.locator('[data-testid="developer-am-detail"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-am-delete"]')).toBeVisible();
     await page.locator('[data-testid="developer-am-delete"]').click();
+    await confirmDeveloperCatalogDelete(page);
 
     const err = page.locator('[data-testid="developer-am-detail-error"]');
     await expect(err).toBeVisible({ timeout: 20_000 });

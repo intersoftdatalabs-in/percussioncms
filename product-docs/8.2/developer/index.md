@@ -42,6 +42,15 @@ Operators using **Developer → Display Formats** create/delete and column add/r
 
 Operators using **Developer → Action Menus** create/delete chrome: [Developer Action Menus](id:admin-developer-action-menus).
 
+## Accessibility — delete confirm
+
+Destructive **Delete** on Developer catalog editors (Searches, Views, Display
+Formats, Item Filters, Locales, Slots, Communities, Shared Fields, Keywords,
+System definition fields, Content Types, and Action Menus) uses an **in-app
+confirm dialog**, not the browser `window.confirm` prompt. The dialog is a
+modal with a title, message, **Cancel**, and **Delete**. Screen readers can
+announce it; Escape cancels when the delete is not in progress.
+
 ## Architecture snapshot
 
 ```text

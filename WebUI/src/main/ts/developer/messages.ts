@@ -32,6 +32,10 @@ export const DEV_MSG_KEYS = {
   SECTION_LOAD_FAILED:
     "perc.ui.developer@Unable to load {0}. Other Developer tabs remain available.",
   INTRO: "perc.ui.developer@Design-time tools for content types, assembly, and related CMS objects. Replaces the classic Workbench / Design surfaces.",
+  CATALOG_CONFIRM_TITLE: "perc.ui.developer@Confirm delete",
+  CATALOG_CONFIRM_HINT: "perc.ui.developer@This action cannot be undone.",
+  CATALOG_CONFIRM_SUBMIT: "perc.ui.developer@Delete",
+  CATALOG_CONFIRM_CANCEL: "perc.ui.developer@Cancel",
   SESSION_REDIRECT: "perc.ui.developer@Session expired - redirecting to login...",
   ACL_TITLE: "perc.ui.developer@Object ACL",
   ACL_HINT:

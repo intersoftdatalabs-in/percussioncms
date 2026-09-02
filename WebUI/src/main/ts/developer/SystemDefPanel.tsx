@@ -16,6 +16,7 @@
  */
 
 import React, { useEffect, useRef, useState } from "react";
+import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { isApiError } from "../api/client";
 import {
   addSystemDefField,
@@ -33,6 +34,7 @@ import {
   metaGrid,
   monoCell,
 } from "./catalogStyles";
+import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -111,6 +113,7 @@ export function SystemDefPanel(): React.ReactElement {
   const [writeError, setWriteError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [pendingDeleteName, setPendingDeleteName] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
   const [newDataType, setNewDataType] = useState<string>("text");
   const [newSearchable, setNewSearchable] = useState(true);
@@ -206,9 +209,16 @@ export function SystemDefPanel(): React.ReactElement {
     }
   }
 
-  async function handleDelete(fieldName: string): Promise<void> {
+  function requestDelete(ev: React.MouseEvent<HTMLElement>, fieldName: string): void {
     if (!fieldName || inflight.current) return;
-    if (!window.confirm(DEV_MSG.SYS_DELETE_CONFIRM)) return;
+    captureDialogOpener(ev.currentTarget);
+    setPendingDeleteName(fieldName);
+  }
+
+  async function handleDelete(): Promise<void> {
+    const fieldName = pendingDeleteName;
+    if (!fieldName || inflight.current) return;
+    setPendingDeleteName(null);
     inflight.current = true;
     setBusy(true);
     setWriteError(null);
@@ -479,7 +489,7 @@ export function SystemDefPanel(): React.ReactElement {
                     data-testid="developer-sys-delete"
                     aria-label={`${DEV_MSG.SYS_DELETE} ${name}`}
                     disabled={busy || !name}
-                    onClick={() => void handleDelete(name)}
+                    onClick={(ev) => requestDelete(ev, name)}
                     style={{
                       padding: "4px 10px",
                       background: "#c53030",
@@ -508,6 +518,13 @@ export function SystemDefPanel(): React.ReactElement {
           </ul>
         </section>
       ) : null}
+      <CatalogConfirmDialog
+        open={pendingDeleteName != null}
+        busy={busy}
+        message={DEV_MSG.SYS_DELETE_CONFIRM}
+        onCancel={() => setPendingDeleteName(null)}
+        onConfirm={() => void handleDelete()}
+      />
     </div>
   );
 }

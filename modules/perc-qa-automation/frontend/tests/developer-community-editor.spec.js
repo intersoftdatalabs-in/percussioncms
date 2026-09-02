@@ -30,6 +30,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { confirmDeveloperCatalogDelete } = require("./helpers/developer-catalog-confirm");
 
 function developerCommunitiesUrl() {
   const q = new URLSearchParams({
@@ -96,8 +97,6 @@ test.describe("Developer community editor (#4077 / SE-01)", () => {
   test("Admin can create a uniquely named community and delete it", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-    page.on("dialog", (dialog) => dialog.accept());
-
     await loginAsAdmin(page);
     await openCommunitiesCatalog(page);
 
@@ -136,6 +135,7 @@ test.describe("Developer community editor (#4077 / SE-01)", () => {
     await expect(page.locator('[data-testid="developer-comm-detail"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-comm-roles-save"]')).toBeVisible();
     await page.locator('[data-testid="developer-comm-delete"]').click();
+    await confirmDeveloperCatalogDelete(page);
     await expect(page.locator('[data-testid="developer-comm-panel"]')).toBeVisible({
       timeout: 20_000,
     });
@@ -147,8 +147,6 @@ test.describe("Developer community editor (#4077 / SE-01)", () => {
   test("duplicate name 409 is surfaced in the UI", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-    page.on("dialog", (dialog) => dialog.accept());
-
     await loginAsAdmin(page);
     await openCommunitiesCatalog(page);
 
@@ -180,6 +178,7 @@ test.describe("Developer community editor (#4077 / SE-01)", () => {
       await openCreated.click();
       await expect(page.locator('[data-testid="developer-comm-delete"]')).toBeVisible();
       await page.locator('[data-testid="developer-comm-delete"]').click();
+      await confirmDeveloperCatalogDelete(page);
     }
 
     assertConsoleClean(pageErrors, consoleErrors);

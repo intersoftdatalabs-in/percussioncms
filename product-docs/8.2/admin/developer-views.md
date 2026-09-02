@@ -39,7 +39,8 @@ rest of the `sys_cxViews` family) stay protected.
    and returning to the list still shows the row).
 5. Optional: change label, description, type, or display format id and
    **Save** again.
-6. Click **Delete** and confirm. The catalog no longer lists that view.
+6. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
+   The catalog no longer lists that view.
    Delete of a missing view is **404**. Inbox-family / custom URL views have
    no Delete control. A view still used as a dependent, or locked by another
    user, is **409**.

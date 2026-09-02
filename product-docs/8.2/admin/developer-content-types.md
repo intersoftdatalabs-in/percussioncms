@@ -253,7 +253,8 @@ After **Lock**:
    following `GET /services/contenttypes/{idOrName}` includes it.
 2. Duplicate names return **409**. The lock is still held. Fix the name and
    retry, or **Unlock**.
-3. Click **Delete** on a **local** field and confirm. The product DELETEs
+3. Click **Delete** on a **local** field and confirm in the in-app dialog
+   (not a browser prompt). The product DELETEs
    `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}` (`204`). The
    catalog omits that field. System and shared fields have no Delete control
    (REST **400** if you try).
@@ -427,7 +428,8 @@ design-session lock. The catalog **Delete** control stays disabled until **Lock*
 succeeds. The product does **not** steal another user's lock.
 
 1. Open the type and click **Lock**. Status becomes **Locked by you**.
-2. Click **Delete content type** and confirm. The product calls
+2. Click **Delete content type** and confirm in the in-app dialog (not a
+   browser prompt). The product calls
    `DELETE /services/contenttypes/{idOrName}`. Success is **204**; the catalog
    omits the type and a following `GET /services/contenttypes/{idOrName}` is
    **404**.

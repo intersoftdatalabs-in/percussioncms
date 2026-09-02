@@ -16,6 +16,7 @@
  */
 
 import React, { useEffect, useState } from "react";
+import { captureDialogOpener } from "../architecture/useDialogEscape";
 import {
   createKeyword,
   deleteKeyword,
@@ -24,6 +25,7 @@ import {
 } from "../api/developer/keywordsApi";
 import type { KeywordChoiceSummary, KeywordSummary } from "../api/developer/types";
 import { catalogColors, backButton, errorAlert } from "./catalogStyles";
+import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -96,6 +98,7 @@ export function KeywordEditorPanel({
   );
   const [choicesText, setChoicesText] = useState(choicesToText(initial?.choices));
   const [busy, setBusy] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -142,9 +145,15 @@ export function KeywordEditorPanel({
     }
   }
 
+  function requestDelete(ev: React.MouseEvent<HTMLElement>): void {
+    if (!id || isNew) return;
+    captureDialogOpener(ev.currentTarget);
+    setConfirmOpen(true);
+  }
+
   async function handleDelete() {
     if (!id || isNew) return;
-    if (!window.confirm(DEV_MSG.KW_DELETE_CONFIRM)) return;
+    setConfirmOpen(false);
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -266,7 +275,7 @@ export function KeywordEditorPanel({
             data-testid="developer-kw-delete"
             aria-label="Delete keyword"
             disabled={busy}
-            onClick={() => void handleDelete()}
+            onClick={requestDelete}
             style={{
               padding: "8px 16px",
               background: "#c53030",
@@ -281,6 +290,13 @@ export function KeywordEditorPanel({
           </button>
         ) : null}
       </div>
+      <CatalogConfirmDialog
+        open={confirmOpen}
+        busy={busy}
+        message={DEV_MSG.KW_DELETE_CONFIRM}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={() => void handleDelete()}
+      />
     </div>
   );
 }

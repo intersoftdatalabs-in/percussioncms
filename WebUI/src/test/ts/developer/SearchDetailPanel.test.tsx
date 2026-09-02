@@ -359,8 +359,6 @@ describe("SearchDetailPanel", () => {
   it("deletes after confirm and omits delete chrome in create mode", async () => {
     getSearchDetail.mockResolvedValue(sampleDetail);
     deleteSearch.mockResolvedValue(undefined);
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-    try {
       const onDeleted = vi.fn();
       render(
         <SearchDetailPanel
@@ -373,13 +371,11 @@ describe("SearchDetailPanel", () => {
         expect(screen.getByTestId("developer-sr-delete")).toBeTruthy();
       });
       fireEvent.click(screen.getByTestId("developer-sr-delete"));
+      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
       await waitFor(() => {
         expect(onDeleted).toHaveBeenCalled();
       });
       expect(deleteSearch).toHaveBeenCalledWith("All Content");
-    } finally {
-      confirmSpy.mockRestore();
-    }
   });
 
   it("surfaces 404 missing search on delete", async () => {
@@ -389,27 +385,46 @@ describe("SearchDetailPanel", () => {
       statusText: "Not Found",
       body: { message: "Search not found" },
     });
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-    try {
       render(<SearchDetailPanel idOrName="All Content" onBack={() => undefined} />);
       await waitFor(() => {
         expect(screen.getByTestId("developer-sr-delete")).toBeTruthy();
       });
       fireEvent.click(screen.getByTestId("developer-sr-delete"));
+      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
       await waitFor(() => {
         expect(screen.getByTestId("developer-sr-detail-error")).toBeTruthy();
       });
       expect(screen.getByTestId("developer-sr-detail-error").textContent).toContain(
         DEV_MSG.SR_NOT_FOUND,
       );
-    } finally {
-      confirmSpy.mockRestore();
-    }
   });
 
   it("does not show delete on create", () => {
     render(<SearchDetailPanel idOrName={null} onBack={() => undefined} />);
     expect(screen.queryByTestId("developer-sr-delete")).toBeNull();
+  });
+
+  it("cancel on in-app confirm does not delete", async () => {
+    getSearchDetail.mockResolvedValue(sampleDetail);
+    const onDeleted = vi.fn();
+    render(
+      <SearchDetailPanel
+        idOrName="All Content"
+        onBack={() => undefined}
+        onDeleted={onDeleted}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sr-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-sr-delete"));
+    expect(screen.getByTestId("developer-catalog-confirm-dialog").getAttribute("role")).toBe(
+      "dialog",
+    );
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-cancel"));
+    expect(screen.queryByTestId("developer-catalog-confirm-dialog")).toBeNull();
+    expect(deleteSearch).not.toHaveBeenCalled();
+    expect(onDeleted).not.toHaveBeenCalled();
   });
 
   it("saves PUT body fields on a user search", async () => {

@@ -30,6 +30,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { confirmDeveloperCatalogDelete } = require("./helpers/developer-catalog-confirm");
 
 const VALID_FINDER =
   "Java/global/percussion/slotcontentfinder/sys_RelationshipContentFinder";
@@ -122,6 +123,7 @@ async function deleteCurrentSlot(page, name) {
   const del = page.locator('[data-testid="developer-slot-delete"]');
   if (await del.isVisible()) {
     await del.click();
+    await confirmDeveloperCatalogDelete(page);
     const panel = page.locator('[data-testid="developer-slot-panel"]');
     const err = page.locator('[data-testid="developer-slot-detail-error"]');
     await expect(panel.or(err).first()).toBeVisible({ timeout: 20_000 });
@@ -130,6 +132,7 @@ async function deleteCurrentSlot(page, name) {
       if (await unlock.isEnabled()) {
         await unlock.click();
         await page.locator('[data-testid="developer-slot-delete"]').click();
+        await confirmDeveloperCatalogDelete(page);
         await expect(page.locator('[data-testid="developer-slot-panel"]')).toBeVisible({
           timeout: 20_000,
         });
@@ -145,8 +148,6 @@ test.describe("Developer slot finder editor (#4059 / AS-01)", () => {
   }) => {
     test.setTimeout(180_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-    page.on("dialog", (dialog) => dialog.accept());
-
     await loginAsAdmin(page);
     await openSlotsCatalog(page);
 

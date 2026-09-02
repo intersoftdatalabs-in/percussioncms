@@ -15,6 +15,7 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { isApiError } from "../api/client";
 import { listCommunities } from "../api/developer/assemblyApi";
 import {
@@ -62,6 +63,7 @@ import {
   toAllowedCommunitiesWriteBody,
   type AllowedCommunityMap,
 } from "./displayFormatCommunities";
+import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { ObjectAclSection } from "./ObjectAclSection";
@@ -115,6 +117,7 @@ export function DisplayFormatDetailPanel({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(idOrName != null);
   const [draftColumns, setDraftColumns] = useState<DisplayFormatColumn[]>([]);
   const [addSource, setAddSource] = useState("");
@@ -292,9 +295,15 @@ export function DisplayFormatDetailPanel({
     }
   }
 
+  function requestDelete(ev: React.MouseEvent<HTMLElement>): void {
+    if (isNew || !writeKey || inflight.current) return;
+    captureDialogOpener(ev.currentTarget);
+    setConfirmOpen(true);
+  }
+
   async function handleDelete(): Promise<void> {
     if (isNew || !writeKey || inflight.current) return;
-    if (!window.confirm(DEV_MSG.DF_DELETE_CONFIRM)) return;
+    setConfirmOpen(false);
     inflight.current = true;
     setBusy(true);
     setError(null);
@@ -575,7 +584,7 @@ export function DisplayFormatDetailPanel({
                 data-testid="developer-df-delete"
                 aria-label={DEV_MSG.DF_DELETE}
                 disabled={busy}
-                onClick={() => void handleDelete()}
+                onClick={requestDelete}
                 style={{
                   padding: "8px 16px",
                   background: "#c53030",
@@ -857,6 +866,13 @@ export function DisplayFormatDetailPanel({
           ) : null}
         </>
       ) : null}
+      <CatalogConfirmDialog
+        open={confirmOpen}
+        busy={busy}
+        message={DEV_MSG.DF_DELETE_CONFIRM}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={() => void handleDelete()}
+      />
     </div>
   );
 }

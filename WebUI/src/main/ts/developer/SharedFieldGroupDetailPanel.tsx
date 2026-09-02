@@ -16,6 +16,7 @@
  */
 
 import React, { useEffect, useRef, useState } from "react";
+import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { isApiError } from "../api/client";
 import {
   createSharedFieldGroup,
@@ -36,6 +37,7 @@ import {
   tableHeaderRow,
   tableRow,
 } from "./catalogStyles";
+import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -73,6 +75,7 @@ export function SharedFieldGroupDetailPanel({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(name != null);
   const inflight = useRef(false);
 
@@ -158,9 +161,15 @@ export function SharedFieldGroupDetailPanel({
     }
   }
 
+  function requestDelete(ev: React.MouseEvent<HTMLElement>): void {
+    if (isNew || !writeKey || inflight.current) return;
+    captureDialogOpener(ev.currentTarget);
+    setConfirmOpen(true);
+  }
+
   async function handleDelete(): Promise<void> {
     if (isNew || !writeKey || inflight.current) return;
-    if (!window.confirm(DEV_MSG.SF_DELETE_CONFIRM)) return;
+    setConfirmOpen(false);
     inflight.current = true;
     setBusy(true);
     setError(null);
@@ -290,7 +299,7 @@ export function SharedFieldGroupDetailPanel({
                 data-testid="developer-sf-delete"
                 aria-label={DEV_MSG.SF_DELETE}
                 disabled={busy}
-                onClick={() => void handleDelete()}
+                onClick={requestDelete}
                 style={{
                   padding: "8px 16px",
                   background: "#c53030",
@@ -395,6 +404,13 @@ export function SharedFieldGroupDetailPanel({
           ) : null}
         </>
       ) : null}
+      <CatalogConfirmDialog
+        open={confirmOpen}
+        busy={busy}
+        message={DEV_MSG.SF_DELETE_CONFIRM}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={() => void handleDelete()}
+      />
     </div>
   );
 }

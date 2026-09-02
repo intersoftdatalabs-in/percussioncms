@@ -2031,8 +2031,6 @@ describe("ContentTypeDetailPanel", () => {
 
   it("deletes after lock and confirm", async () => {
     getContentTypeDetail.mockResolvedValue(sampleDetail);
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-    try {
       const onDeleted = vi.fn();
       render(
         <ContentTypeDetailPanel
@@ -2053,14 +2051,12 @@ describe("ContentTypeDetailPanel", () => {
         );
       });
       fireEvent.click(screen.getByTestId("developer-ct-delete"));
+      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
       await waitFor(() => {
         expect(onDeleted).toHaveBeenCalled();
       });
       expect(deleteContentType).toHaveBeenCalledWith("percPage");
       expect(unlockContentType).not.toHaveBeenCalled();
-    } finally {
-      confirmSpy.mockRestore();
-    }
   });
 
   it("unlocked DELETE 409 does not steal the lock", async () => {
@@ -2070,8 +2066,6 @@ describe("ContentTypeDetailPanel", () => {
       statusText: "Conflict",
       body: { message: "Design lock required" },
     });
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-    try {
       const onDeleted = vi.fn();
       render(
         <ContentTypeDetailPanel
@@ -2093,6 +2087,7 @@ describe("ContentTypeDetailPanel", () => {
       });
       lockContentType.mockClear();
       fireEvent.click(screen.getByTestId("developer-ct-delete"));
+      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
       await waitFor(() => {
         expect(screen.getByTestId("developer-ct-detail-error")).toBeTruthy();
       });
@@ -2102,9 +2097,6 @@ describe("ContentTypeDetailPanel", () => {
       expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
         DEV_MSG.CT_DELETE_LOCK_REQUIRED,
       );
-    } finally {
-      confirmSpy.mockRestore();
-    }
   });
 
   it("surfaces 403 non-Admin on delete", async () => {
@@ -2114,8 +2106,6 @@ describe("ContentTypeDetailPanel", () => {
       statusText: "Forbidden",
       body: { message: "Admin role required" },
     });
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-    try {
       render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
       await waitFor(() => {
         expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(
@@ -2129,15 +2119,13 @@ describe("ContentTypeDetailPanel", () => {
         );
       });
       fireEvent.click(screen.getByTestId("developer-ct-delete"));
+      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
       await waitFor(() => {
         expect(screen.getByTestId("developer-ct-detail-error")).toBeTruthy();
       });
       expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
         DEV_MSG.CT_FORBIDDEN,
       );
-    } finally {
-      confirmSpy.mockRestore();
-    }
   });
 
   it("exports design XML without a lock (#4034)", async () => {
@@ -2386,6 +2374,7 @@ describe("ContentTypeDetailPanel", () => {
     expect((screen.getByTestId("developer-ct-field-add-name") as HTMLInputElement).value).toBe("");
     fireEvent.click(screen.getByTestId("developer-ct-field-add"));
     fireEvent.click(screen.getByTestId("developer-ct-field-delete-rx_note"));
+    expect(screen.queryByTestId("developer-catalog-confirm-dialog")).toBeNull();
     expect(addLocalContentTypeField).not.toHaveBeenCalled();
     expect(deleteLocalContentTypeField).not.toHaveBeenCalled();
   });
@@ -2501,7 +2490,6 @@ describe("ContentTypeDetailPanel", () => {
   });
 
   it("DELETEs a local field after lock and omits it from the catalog (#4045)", async () => {
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
     getContentTypeDetail
       .mockResolvedValueOnce({
         ...sampleDetail,
@@ -2525,6 +2513,7 @@ describe("ContentTypeDetailPanel", () => {
       ).toBe(false);
     });
     fireEvent.click(screen.getByTestId("developer-ct-field-delete-rx_note"));
+      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
     await waitFor(() => {
       expect(deleteLocalContentTypeField).toHaveBeenCalledWith("percPage", "rx_note");
     });
@@ -2535,7 +2524,6 @@ describe("ContentTypeDetailPanel", () => {
       /Local field deleted/i,
     );
     expect(unlockContentType).not.toHaveBeenCalled();
-    confirmSpy.mockRestore();
   });
 
   it("keeps icon strategy disabled until lock (#4047)", async () => {

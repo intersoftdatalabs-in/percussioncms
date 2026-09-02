@@ -33,7 +33,8 @@ control-property write remain REST-only.
 4. Click **Save**. A duplicate name is **409** and the editor shows that the
    group already exists. After a successful create, you can change the
    filename (or rename) and save again.
-5. Click **Delete** and confirm. The catalog no longer lists that group.
+5. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
+   The catalog no longer lists that group.
    Delete of a missing group is **404**.
 
 ## Limits

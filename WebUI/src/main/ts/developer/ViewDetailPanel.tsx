@@ -16,6 +16,7 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { isApiError } from "../api/client";
 import { resolveViewObjectGuid } from "../api/displayFormatGuid";
 import {
@@ -52,6 +53,7 @@ import {
   tableHeaderRow,
   tableRow,
 } from "./catalogStyles";
+import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { ObjectAclSection } from "./ObjectAclSection";
@@ -113,6 +115,7 @@ export function ViewDetailPanel({
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(idOrName != null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [draftFields, setDraftFields] = useState<ViewFieldSummary[]>([]);
   const [addFieldName, setAddFieldName] = useState("");
   const [addOperator, setAddOperator] = useState("equal");
@@ -283,9 +286,15 @@ export function ViewDetailPanel({
     }
   }
 
+  function requestDelete(ev: React.MouseEvent<HTMLElement>): void {
+    if (isNew || !writeKey || inflight.current || protectedWrite) return;
+    captureDialogOpener(ev.currentTarget);
+    setConfirmOpen(true);
+  }
+
   async function handleDelete(): Promise<void> {
     if (isNew || !writeKey || inflight.current || protectedWrite) return;
-    if (!window.confirm(DEV_MSG.VW_DELETE_CONFIRM)) return;
+    setConfirmOpen(false);
     inflight.current = true;
     setBusy(true);
     setError(null);
@@ -499,7 +508,7 @@ export function ViewDetailPanel({
                 data-testid="developer-vw-delete"
                 aria-label={DEV_MSG.VW_DELETE}
                 disabled={busy}
-                onClick={() => void handleDelete()}
+                onClick={requestDelete}
                 style={{
                   padding: "8px 16px",
                   background: "#c53030",
@@ -794,6 +803,13 @@ export function ViewDetailPanel({
           ) : null}
         </>
       ) : null}
+      <CatalogConfirmDialog
+        open={confirmOpen}
+        busy={busy}
+        message={DEV_MSG.VW_DELETE_CONFIRM}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={() => void handleDelete()}
+      />
     </div>
   );
 }

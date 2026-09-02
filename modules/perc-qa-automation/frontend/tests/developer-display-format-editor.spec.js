@@ -151,8 +151,6 @@ test.describe("Developer display format editor (#4086 / UI-05)", () => {
   test("Admin can create a display format and see it in the catalog", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-    page.on("dialog", (dialog) => dialog.accept());
-
     await loginAsAdmin(page);
     await openDisplayFormatsCatalog(page);
 
@@ -201,8 +199,6 @@ test.describe("Developer display format editor (#4086 / UI-05)", () => {
   test("duplicate display format name 409 is surfaced in the UI", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-    page.on("dialog", (dialog) => dialog.accept());
-
     await loginAsAdmin(page);
     await openDisplayFormatsCatalog(page);
 

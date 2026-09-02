@@ -16,6 +16,7 @@
  */
 
 import React, { useEffect, useRef, useState } from "react";
+import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
   addLocalContentTypeField,
@@ -109,6 +110,7 @@ import {
   type ContentTypeFieldRulesHandle,
 } from "./ContentTypeFieldRulesSection";
 import { extractRestErrorMessage, isApiError } from "../api/client";
+import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { catalogColors, tableHeaderRow, tableRow } from "./catalogStyles";
@@ -243,6 +245,9 @@ export function ContentTypeDetailPanel({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<
+    { kind: "type" } | { kind: "field"; name: string } | null
+  >(null);
   const [label, setLabel] = useState("");
   const [description, setDescription] = useState("");
   const [nameDraft, setNameDraft] = useState("");
@@ -709,6 +714,22 @@ export function ContentTypeDetailPanel({
     }
   }
 
+  function requestDeleteLocalField(
+    ev: React.MouseEvent<HTMLElement>,
+    fieldName: string,
+  ): void {
+    if (!heldLockRef.current) {
+      setError(DEV_MSG.CT_LOCK_REQUIRED);
+      return;
+    }
+    const name = fieldName.trim();
+    if (!name) {
+      return;
+    }
+    captureDialogOpener(ev.currentTarget);
+    setPendingDelete({ kind: "field", name });
+  }
+
   async function handleDeleteLocalField(fieldName: string) {
     if (!heldLockRef.current) {
       setError(DEV_MSG.CT_LOCK_REQUIRED);
@@ -718,9 +739,7 @@ export function ContentTypeDetailPanel({
     if (!name) {
       return;
     }
-    if (!window.confirm(DEV_MSG.CT_FIELD_DELETE_CONFIRM)) {
-      return;
-    }
+    setPendingDelete(null);
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -919,14 +938,20 @@ export function ContentTypeDetailPanel({
     }
   }
 
+  function requestDeleteType(ev: React.MouseEvent<HTMLElement>): void {
+    if (!heldLockRef.current || busy || detail == null) {
+      return;
+    }
+    captureDialogOpener(ev.currentTarget);
+    setPendingDelete({ kind: "type" });
+  }
+
   async function handleDelete(): Promise<void> {
     // Require a held lock in chrome; do not call DELETE (or lock) when unlocked.
     if (!heldLockRef.current || busy || detail == null) {
       return;
     }
-    if (!window.confirm(DEV_MSG.CT_DELETE_CONFIRM)) {
-      return;
-    }
+    setPendingDelete(null);
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -1422,7 +1447,7 @@ export function ContentTypeDetailPanel({
           data-testid="developer-ct-delete"
           aria-label={DEV_MSG.CT_DELETE}
           disabled={busy || !heldLock || detail == null}
-          onClick={() => void handleDelete()}
+          onClick={requestDeleteType}
           style={{
             padding: "8px 16px",
             background: heldLock && detail != null ? "#c53030" : catalogColors.disabled,
@@ -2422,7 +2447,7 @@ export function ContentTypeDetailPanel({
                               data-testid={`developer-ct-field-delete-${f.name}`}
                               aria-label={`${DEV_MSG.CT_FIELD_DELETE} ${f.name}`}
                               disabled={!canEdit}
-                              onClick={() => void handleDeleteLocalField(f.name || "")}
+                              onClick={(ev) => requestDeleteLocalField(ev, f.name || "")}
                               style={{
                                 ...smallBtnStyle,
                                 cursor: canEdit ? "pointer" : "not-allowed",
@@ -2474,6 +2499,23 @@ export function ContentTypeDetailPanel({
         objectGuid={objectGuid}
         objectKind="content-type"
         testIdPrefix="developer-ct-acl"
+      />
+      <CatalogConfirmDialog
+        open={pendingDelete != null}
+        busy={busy}
+        message={
+          pendingDelete?.kind === "field"
+            ? DEV_MSG.CT_FIELD_DELETE_CONFIRM
+            : DEV_MSG.CT_DELETE_CONFIRM
+        }
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          if (pendingDelete?.kind === "field") {
+            void handleDeleteLocalField(pendingDelete.name);
+          } else {
+            void handleDelete();
+          }
+        }}
       />
     </div>
   );

@@ -32,7 +32,8 @@ Those remain later slices.
 5. To **save** properties, change **Searchable** or **Occurrence** on a catalog
    row and click **Save fields**. The request lock is acquired and released on
    that save. Data type and read-only stay display-only.
-6. Click **Delete** on a row and confirm. The catalog no longer lists that
+6. Click **Delete** on a row and confirm in the in-app dialog (not a
+   browser prompt). The catalog no longer lists that
    field. System-mandatory and system-internal fields cannot be deleted
    (**400**).
 

@@ -31,6 +31,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { confirmDeveloperCatalogDelete } = require("./helpers/developer-catalog-confirm");
 const {
   catalogRowSelector,
   catalogRowsSelector,
@@ -226,10 +227,6 @@ test.describe("Developer content type local field create/delete (CD-03 / #4045)"
     );
     const deleteBtn = page.locator(`[data-testid="developer-ct-field-delete-${fieldName}"]`);
 
-    page.on("dialog", (dialog) => {
-      void dialog.accept();
-    });
-
     let fieldPosts = 0;
     await page.route("**/services/contenttypes/**", async (route) => {
       const req = route.request();
@@ -306,6 +303,7 @@ test.describe("Developer content type local field create/delete (CD-03 / #4045)"
 
       await expect(deleteBtn).toBeEnabled();
       await deleteBtn.click();
+      await confirmDeveloperCatalogDelete(page);
       await expect(notice).toContainText(/Local field deleted/i, { timeout: 20_000 });
       await expect(fieldRow).toHaveCount(0);
     } finally {

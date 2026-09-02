@@ -403,8 +403,6 @@ describe("ViewDetailPanel", () => {
   it("deletes after confirm and omits delete chrome in create mode", async () => {
     getViewDetail.mockResolvedValue(sampleDetail);
     deleteView.mockResolvedValue(undefined);
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-    try {
       const onDeleted = vi.fn();
       render(
         <ViewDetailPanel idOrName="My View" onBack={() => undefined} onDeleted={onDeleted} />,
@@ -413,13 +411,11 @@ describe("ViewDetailPanel", () => {
         expect(screen.getByTestId("developer-vw-delete")).toBeTruthy();
       });
       fireEvent.click(screen.getByTestId("developer-vw-delete"));
+      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
       await waitFor(() => {
         expect(onDeleted).toHaveBeenCalled();
       });
       expect(deleteView).toHaveBeenCalledWith("0-27-3");
-    } finally {
-      confirmSpy.mockRestore();
-    }
   });
 
   it("surfaces 404 missing view on delete", async () => {
@@ -429,22 +425,18 @@ describe("ViewDetailPanel", () => {
       statusText: "Not Found",
       body: { message: "View not found" },
     });
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-    try {
       render(<ViewDetailPanel idOrName="My View" onBack={() => undefined} />);
       await waitFor(() => {
         expect(screen.getByTestId("developer-vw-delete")).toBeTruthy();
       });
       fireEvent.click(screen.getByTestId("developer-vw-delete"));
+      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
       await waitFor(() => {
         expect(screen.getByTestId("developer-vw-detail-error")).toBeTruthy();
       });
       expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
         DEV_MSG.VW_NOT_FOUND,
       );
-    } finally {
-      confirmSpy.mockRestore();
-    }
   });
 
   it("does not show delete on create", () => {

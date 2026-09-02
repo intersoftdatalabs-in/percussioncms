@@ -313,8 +313,6 @@ describe("SharedFieldGroupDetailPanel", () => {
   it("deletes after confirm and omits delete chrome in create mode", async () => {
     getSharedFieldGroupDetail.mockResolvedValue(sampleDetail);
     deleteSharedFieldGroup.mockResolvedValue(undefined);
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-    try {
       const onDeleted = vi.fn();
       render(
         <SharedFieldGroupDetailPanel
@@ -327,13 +325,11 @@ describe("SharedFieldGroupDetailPanel", () => {
         expect(screen.getByTestId("developer-sf-delete")).toBeTruthy();
       });
       fireEvent.click(screen.getByTestId("developer-sf-delete"));
+      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
       await waitFor(() => {
         expect(onDeleted).toHaveBeenCalled();
       });
       expect(deleteSharedFieldGroup).toHaveBeenCalledWith("shared");
-    } finally {
-      confirmSpy.mockRestore();
-    }
   });
 
   it("does not show delete on create", () => {

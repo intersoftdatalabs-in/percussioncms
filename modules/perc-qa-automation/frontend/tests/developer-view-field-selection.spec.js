@@ -33,6 +33,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { confirmDeveloperCatalogDelete } = require("./helpers/developer-catalog-confirm");
 
 function developerViewsUrl() {
   const q = new URLSearchParams({
@@ -169,8 +170,6 @@ test.describe("Developer view field-selection (#4111 / UI-08)", () => {
   }) => {
     test.setTimeout(180_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-    page.on("dialog", (dialog) => dialog.accept());
-
     await loginAsAdmin(page);
     await openViewsCatalog(page);
 
@@ -261,6 +260,7 @@ test.describe("Developer view field-selection (#4111 / UI-08)", () => {
     }
 
     await page.locator('[data-testid="developer-vw-delete"]').click();
+    await confirmDeveloperCatalogDelete(page);
     await expect(page.locator('[data-testid="developer-vw-panel"]')).toBeVisible({
       timeout: 20_000,
     });
