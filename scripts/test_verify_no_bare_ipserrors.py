@@ -37,7 +37,8 @@ DEPLOYER_RESIDUAL = (
 # #3756/#3938; com.percussion.data (+ macro/vfs) in #3939; com.percussion.security
 # in #3940; com.percussion.error in #3971; design.catalog leftover call-sites in
 # #3969; com.percussion.mail leftover call-sites in #4017; com.percussion.cx
-# leftover call-sites in #4013.
+# leftover call-sites in #4013; leftover relationship.effect call-sites in
+# #4156.
 # Keep an exact residual that is still frozen (system debug leftover).
 SYSTEM_CMS_RESIDUAL = (
     "system/src/main/java/com/percussion/debug/PSDebugLogHandler.java"
@@ -400,6 +401,9 @@ def test_residual_allowlist_is_exact_paths_only() -> None:
         assert not entry.startswith("system/src/main/java/com/percussion/extension/"), entry
         assert not entry.startswith("system/src/main/java/com/percussion/design/catalog/"), entry
         assert not entry.startswith("system/src/main/java/com/percussion/cx/"), entry
+        assert not entry.startswith(
+            "system/src/main/java/com/percussion/relationship/effect/"
+        ), entry
 
 
 def test_extensions_main_converted_paths_not_allowlisted() -> None:
@@ -464,6 +468,27 @@ def test_system_design_catalog_converted_paths_not_allowlisted() -> None:
         for e in entries
         if e.startswith("system/src/main/java/com/percussion/design/catalog/")
     ]
+    assert resurrected == [], resurrected
+
+
+def test_system_relationship_effect_converted_paths_not_allowlisted() -> None:
+    """#4156 typed leftover com.percussion.relationship.effect production call-sites."""
+    converted = (
+        "system/src/main/java/com/percussion/relationship/effect/PSEffectUtils.java",
+        "system/src/main/java/com/percussion/relationship/effect/PSIsCloneExists.java",
+        "system/src/main/java/com/percussion/relationship/effect/PSPromote.java",
+        "system/src/main/java/com/percussion/relationship/effect/PSPublishMandatory.java",
+        "system/src/main/java/com/percussion/relationship/effect/PSPublishUnpublishMandatory.java",
+        "system/src/main/java/com/percussion/relationship/effect/PSUnpublishMandatory.java",
+        "system/src/main/java/com/percussion/relationship/effect/PSValidate.java",
+    )
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = {
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    resurrected = [p for p in converted if p in entries]
     assert resurrected == [], resurrected
 
 

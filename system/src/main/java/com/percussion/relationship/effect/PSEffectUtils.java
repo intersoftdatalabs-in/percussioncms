@@ -16,9 +16,9 @@
  */
 package com.percussion.relationship.effect;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.error.PSNotFoundException;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.system.utils.IPSHtmlParameters;
@@ -61,7 +61,9 @@ public class PSEffectUtils {
     } else {
       String[] args = {name, resource};
       throw new PSNotFoundException(
-          request.getUserLocale(), IPSExtensionErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+          request.getUserLocale(),
+          ExtensionErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE,
+          args);
     }
   }
 
@@ -95,7 +97,9 @@ public class PSEffectUtils {
     } else {
       String[] args = {name, resource};
       throw new PSNotFoundException(
-          request.getUserLocale(), IPSExtensionErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+          request.getUserLocale(),
+          ExtensionErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE,
+          args);
     }
   }
 

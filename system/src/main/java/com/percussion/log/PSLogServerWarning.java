@@ -34,6 +34,8 @@
 
 package com.percussion.log;
 
+import com.percussion.error.IPSErrorCode;
+
 /**
  * The PSLogServerWarning class is used to log a warning (information) message for the server.
  *
@@ -78,6 +80,29 @@ public class PSLogServerWarning extends PSLogInformation {
    */
   public PSLogServerWarning(int msgCode, Object[] msgParams) {
     this(msgCode, msgParams, false, null);
+  }
+
+  /**
+   * Construct a log message for a server warning from a catalogued {@link IPSErrorCode} and
+   * optionally display the message on the server console.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param msgParams if the string associated with the message code specifies parameters, this is
+   *     an array of values to use to fill the string appropriately
+   * @param toConsole {@code true} to display the message on the server console
+   * @param origin if {@code toConsole} is {@code true} the name to use in the console message. if
+   *     {@code null}, "Server" is used
+   */
+  public PSLogServerWarning(
+      IPSErrorCode code, Object[] msgParams, boolean toConsole, String origin) {
+    this(requireCode(code).numericCode(), msgParams, toConsole, origin);
+  }
+
+  private static IPSErrorCode requireCode(IPSErrorCode code) {
+    if (code == null) {
+      throw new IllegalArgumentException("code may not be null");
+    }
+    return code;
   }
 
   /**

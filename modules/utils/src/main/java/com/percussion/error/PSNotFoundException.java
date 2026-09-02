@@ -106,4 +106,15 @@ public class PSNotFoundException extends PSException {
   public PSNotFoundException(String language, int msgCode, Object[] arrayArgs) {
     super(language, msgCode, arrayArgs);
   }
+
+  /**
+   * Typed construction with a locale and message arguments.
+   *
+   * @param language language string, e.g. 'en-us', may be {@code null} or empty
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSNotFoundException(String language, IPSErrorCode code, Object[] arrayArgs) {
+    super(language, code, arrayArgs);
+  }
 }

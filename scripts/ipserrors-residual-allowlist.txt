@@ -21,10 +21,12 @@
 #   #3971 leftover system/src/main com.percussion.error call sites
 #   #3969 leftover system/src/main design.catalog call sites
 #   #4013 leftover system/src/main com.percussion.cx call sites
+#   #4156 leftover system/src/main relationship.effect call sites
 # Converted (no longer listed): extensions-main #3756/#3938 (allow-list)
 # shrink after #3793 re-listed already-typed production paths);
 # design.catalog leftover #3969; system/src/main com.percussion.mail leftover
-# #4017; cx leftover #4013 (PSFont, PSOption, PSOptions, PSUserOptions).
+# #4017; cx leftover #4013 (PSFont, PSOption, PSOptions, PSUserOptions);
+# leftover relationship.effect call-sites in #4156.
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -63,13 +65,6 @@ system/src/main/java/com/percussion/install/PSJdbcTableMapper.java
 system/src/main/java/com/percussion/install/PSJdbcTransitionRoles.java
 system/src/main/java/com/percussion/install/PSJdbcUniqueColumn.java
 system/src/main/java/com/percussion/publisher/server/PSPubTimeStatistics.java
-system/src/main/java/com/percussion/relationship/effect/PSEffectUtils.java
-system/src/main/java/com/percussion/relationship/effect/PSIsCloneExists.java
-system/src/main/java/com/percussion/relationship/effect/PSPromote.java
-system/src/main/java/com/percussion/relationship/effect/PSPublishMandatory.java
-system/src/main/java/com/percussion/relationship/effect/PSPublishUnpublishMandatory.java
-system/src/main/java/com/percussion/relationship/effect/PSUnpublishMandatory.java
-system/src/main/java/com/percussion/relationship/effect/PSValidate.java
 system/src/main/java/com/percussion/search/PSAddThumbnailURL.java
 system/src/main/java/com/percussion/search/PSAdminLockedException.java
 system/src/main/java/com/percussion/search/PSBaseExecutableSearch.java

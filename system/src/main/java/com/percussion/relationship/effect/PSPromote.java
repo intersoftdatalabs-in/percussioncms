@@ -16,7 +16,9 @@
  */
 package com.percussion.relationship.effect;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.handlers.PSWorkflowCommandHandler;
@@ -29,7 +31,6 @@ import com.percussion.design.objectstore.PSRelationshipSet;
 import com.percussion.error.PSException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.error.PSRelationshipProcessorException;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.log.PSLogManager;
@@ -39,7 +40,6 @@ import com.percussion.relationship.PSEffect;
 import com.percussion.relationship.PSEffectResult;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.system.utils.IPSHtmlParameters;
@@ -92,7 +92,7 @@ public class PSPromote extends PSEffect {
     if (!context.isPostWorkflow()) {
       String[] args = {m_name, "post workflow"};
       result.setWarning(
-          request.getUserLocale(), IPSExtensionErrors.ILLEGAL_EXECUTION_CONTEXT, args);
+          request.getUserLocale(), ExtensionErrorCodes.ILLEGAL_EXECUTION_CONTEXT, args);
       return;
     }
 
@@ -101,7 +101,7 @@ public class PSPromote extends PSEffect {
     if (!relationship.getConfig().isPromotable()) {
       String[] args = {m_name, relationship.getConfig().getName()};
       result.setWarning(
-          request.getUserLocale(), IPSExtensionErrors.NONPROMOTABLE_RELATIONSHIP, args);
+          request.getUserLocale(), ExtensionErrorCodes.NONPROMOTABLE_RELATIONSHIP, args);
       return;
     }
 
@@ -114,7 +114,7 @@ public class PSPromote extends PSEffect {
       if (wfid == null) {
         String[] args = {m_name};
         result.setWarning(
-            request.getUserLocale(), IPSExtensionErrors.WORKFLOWID_IN_REQUEST_ISNULL, args);
+            request.getUserLocale(), ExtensionErrorCodes.WORKFLOWID_IN_REQUEST_ISNULL, args);
         return;
       }
 
@@ -125,7 +125,7 @@ public class PSPromote extends PSEffect {
         wfAction = (wfAction == null) ? "null" : wfAction;
         String[] args = {m_name, wfAction};
         result.setWarning(
-            request.getUserLocale(), IPSExtensionErrors.INVALID_WORKFLOW_ACTION, args);
+            request.getUserLocale(), ExtensionErrorCodes.INVALID_WORKFLOW_ACTION, args);
         return;
       }
 
@@ -133,7 +133,7 @@ public class PSPromote extends PSEffect {
       if (wfAction.equalsIgnoreCase(IPSConstants.TRIGGER_CHECKIN)) {
         String[] args = {m_name, wfAction};
         result.setWarning(
-            request.getUserLocale(), IPSExtensionErrors.INVALID_WORKFLOW_ACTION, args);
+            request.getUserLocale(), ExtensionErrorCodes.INVALID_WORKFLOW_ACTION, args);
         return;
       }
 
@@ -141,7 +141,7 @@ public class PSPromote extends PSEffect {
       if (wfAction.equalsIgnoreCase(IPSConstants.TRIGGER_CHECKOUT)) {
         String[] args = {m_name, wfAction};
         result.setWarning(
-            request.getUserLocale(), IPSExtensionErrors.INVALID_WORKFLOW_ACTION, args);
+            request.getUserLocale(), ExtensionErrorCodes.INVALID_WORKFLOW_ACTION, args);
         return;
       }
 
@@ -150,7 +150,7 @@ public class PSPromote extends PSEffect {
           || !PSWorkFlowUtils.isInPublicState(request, ownerLocator.getId())) {
         String[] args = {m_name};
         result.setWarning(
-            request.getUserLocale(), IPSExtensionErrors.ITEM_NOT_IN_PUBLIC_STATE, args);
+            request.getUserLocale(), ExtensionErrorCodes.ITEM_NOT_IN_PUBLIC_STATE, args);
         return;
       }
 
@@ -260,7 +260,7 @@ public class PSPromote extends PSEffect {
         Object[] args = {resource, "No request handler found."};
 
         throw new PSExtensionProcessingException(
-            IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+            ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
       }
 
       ir.performUpdate();
@@ -269,7 +269,8 @@ public class PSPromote extends PSEffect {
         // validation failed, print message
         String[] args = {"" + item.getId() + ":" + item.getRevision(), transition, errMsg};
         PSLogManager.write(
-            new PSLogServerWarning(IPSExtensionErrors.PROMOTE_TRANSITION_FAILED, args, true, null));
+            new PSLogServerWarning(
+                ExtensionErrorCodes.PROMOTE_TRANSITION_FAILED, args, true, null));
       }
     } catch (PSException e) {
       throw new PSExtensionProcessingException(e.getErrorCode(), e.getErrorArguments());
@@ -322,7 +323,7 @@ public class PSPromote extends PSEffect {
         }
       } else {
         Object[] args = {resource, "No request handler found."};
-        throw new PSNotFoundException(IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+        throw new PSNotFoundException(ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
       }
       // Current workflow and state ids cannot be empty unless there is a
       // serious problem with the item
@@ -357,11 +358,11 @@ public class PSPromote extends PSEffect {
             request.getParameter(IPSHtmlParameters.SYS_WORKFLOWID, curWfId),
             request.getParameter(IPSConstants.DEFAULT_NEWSTATEID_NAME, curStateId)
           };
-          throw new PSExtensionProcessingException(IPSCmsErrors.UNDEFINED_DEFAULT_TRANSITION, args);
+          throw new PSExtensionProcessingException(CmsErrorCodes.UNDEFINED_DEFAULT_TRANSITION, args);
         }
       } else {
         Object[] args = {resource, "No request handler found."};
-        throw new PSNotFoundException(IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+        throw new PSNotFoundException(ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args);
       }
 
       return result;

@@ -16,7 +16,9 @@
  */
 package com.percussion.relationship.effect;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.handlers.PSWorkflowCommandHandler;
@@ -26,7 +28,6 @@ import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.error.PSException;
 import com.percussion.error.PSNotFoundException;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.relationship.IPSExecutionContext;
@@ -34,7 +35,6 @@ import com.percussion.relationship.PSEffect;
 import com.percussion.relationship.PSEffectResult;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSCms;
 import com.percussion.workflow.PSWorkFlowUtils;
@@ -130,7 +130,9 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
         && !params[0].toString().equalsIgnoreCase("no")) {
       String args[] = {m_name, params[0].toString()};
       throw new PSExtensionProcessingException(
-          request.getUserLocale(), IPSExtensionErrors.INVALID_OPTION_FOR_FORCETRANSITION, args);
+          request.getUserLocale(),
+          ExtensionErrorCodes.INVALID_OPTION_FOR_FORCETRANSITION,
+          args);
     }
   }
 
@@ -149,7 +151,7 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
     if (!context.isPreWorkflow()) {
       String[] args = {m_name, "pre-workflow"};
       result.setWarning(
-          request.getUserLocale(), IPSExtensionErrors.ILLEGAL_EXECUTION_CONTEXT, args);
+          request.getUserLocale(), ExtensionErrorCodes.ILLEGAL_EXECUTION_CONTEXT, args);
       return;
     }
 
@@ -172,7 +174,7 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
             // these msgs aren't seen by the user, so I didn't i18n them
             result.setWarning(
                 request.getUserLocale(),
-                IPSServerErrors.RAW_DUMP,
+                ServerErrorCodes.RAW_DUMP,
                 new String[] {"Skip: already processed same owner/dependent."});
             return;
           }
@@ -190,7 +192,7 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
 
     if (forceDependent.equals(String.valueOf(true))) {
       String[] args = {m_name};
-      result.setWarning(request.getUserLocale(), IPSExtensionErrors.EFFECT_SELF_TRIGGERED, args);
+      result.setWarning(request.getUserLocale(), ExtensionErrorCodes.EFFECT_SELF_TRIGGERED, args);
       return;
     }
 
@@ -208,7 +210,7 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
     if (wfAction == null || wfAction.length() == 0) {
       wfAction = (wfAction == null) ? "null" : wfAction;
       String[] args = {m_name, wfAction};
-      result.setWarning(request.getUserLocale(), IPSExtensionErrors.INVALID_WORKFLOW_ACTION, args);
+      result.setWarning(request.getUserLocale(), ExtensionErrorCodes.INVALID_WORKFLOW_ACTION, args);
       return;
     }
 
@@ -231,7 +233,7 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
           // these msgs aren't seen by the user, so I didn't i18n them
           result.setWarning(
               request.getUserLocale(),
-              IPSServerErrors.RAW_DUMP,
+              ServerErrorCodes.RAW_DUMP,
               new String[] {"Skip: invalid endpoint rev"});
           result.setRecurseDependents(false);
         }
@@ -253,7 +255,9 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
       if (!forceTransition) {
         String[] args = {m_name, "" + locator.getId(), getModeName()};
         result.setError(
-            request.getUserLocale(), IPSExtensionErrors.DEPENDENT_ITEM_NOT_IN_DESIRED_STATE, args);
+            request.getUserLocale(),
+            ExtensionErrorCodes.DEPENDENT_ITEM_NOT_IN_DESIRED_STATE,
+            args);
         return;
       }
 
@@ -263,7 +267,7 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
         String[] args = {m_name, getModeName()};
         result.setError(
             request.getUserLocale(),
-            IPSExtensionErrors.DEPENDENT_ITEM_CANNOT_GOTO_DESIRED_STATE,
+            ExtensionErrorCodes.DEPENDENT_ITEM_CANNOT_GOTO_DESIRED_STATE,
             args);
         return;
       }
@@ -272,7 +276,7 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
     } catch (PSNotFoundException nfe) {
       result.setError(
           request.getUserLocale(),
-          IPSExtensionErrors.MISSING_INTERNAL_REQUEST_RESOURCE,
+          ExtensionErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE,
           nfe.getErrorArguments());
     } catch (PSInternalRequestCallException irce) {
       /* Rare possibilty, I18n? */
@@ -360,7 +364,7 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
     String forceDependent = request.getParameter(IPSHtmlParameters.SYS_FORCEDEPENDENT, "");
     if (forceDependent.equals(String.valueOf(true))) {
       String[] args = {m_name};
-      result.setWarning(request.getUserLocale(), IPSExtensionErrors.ITEM_NOT_IN_PUBLIC_STATE, args);
+      result.setWarning(request.getUserLocale(), ExtensionErrorCodes.ITEM_NOT_IN_PUBLIC_STATE, args);
       return;
     }
 
@@ -408,7 +412,9 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
       if (!forceTransition) {
         String[] args = {m_name, "" + locator.getId(), getModeName()};
         result.setError(
-            request.getUserLocale(), IPSExtensionErrors.DEPENDENT_ITEM_NOT_IN_DESIRED_STATE, args);
+            request.getUserLocale(),
+            ExtensionErrorCodes.DEPENDENT_ITEM_NOT_IN_DESIRED_STATE,
+            args);
         return;
       }
 
@@ -418,7 +424,7 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
         String[] args = {m_name, getModeName()};
         result.setError(
             request.getUserLocale(),
-            IPSExtensionErrors.DEPENDENT_ITEM_CANNOT_GOTO_DESIRED_STATE,
+            ExtensionErrorCodes.DEPENDENT_ITEM_CANNOT_GOTO_DESIRED_STATE,
             args);
         return;
       }
@@ -428,7 +434,7 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
       transit(result, request, locator, resource, realTransitionName, true);
     } catch (PSException e) {
       throw new PSExtensionProcessingException(
-          IPSCmsErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+          CmsErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -511,7 +517,9 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
           m_name, resource,
         };
         throw new PSNotFoundException(
-            request.getUserLocale(), IPSExtensionErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+            request.getUserLocale(),
+            ExtensionErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE,
+            args);
       }
       ir.performUpdate();
       String validationErrMsg =
@@ -520,7 +528,7 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
         Object[] args = new Object[] {transition, String.valueOf(item.getId())};
         result.setError(
             request.getUserLocale(),
-            IPSExtensionErrors.MANDATORY_TRANSITION_VALIDATION_FAILURE,
+            ExtensionErrorCodes.MANDATORY_TRANSITION_VALIDATION_FAILURE,
             args);
       } else result.setSuccess();
     } catch (PSException e) {
@@ -574,7 +582,9 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
         m_name, resource,
       };
       throw new PSNotFoundException(
-          request.getUserLocale(), IPSExtensionErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args);
+          request.getUserLocale(),
+          ExtensionErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE,
+          args);
     }
 
     return null;
