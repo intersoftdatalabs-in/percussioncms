@@ -17,8 +17,9 @@
 
 /**
  * Copy the sitemap-xml Virtual Site QA fixture into the H2 Docker cell so
- * Developer Sites Build can POST /virtual/build against a local sitemap.xml
- * (no live crawl URLs or credentials). Loc {@code pages/index.md} assembles
+ * Developer Sites Preview can POST /virtual/build then GET /virtual/preview
+ * against a local sitemap.xml (no live crawl URLs or credentials). Loc
+ * {@code pages/index.md} slugs to {@code index} and assembles
  * {@code 8.2/index.html}.
  */
 
@@ -29,7 +30,7 @@ const path = require("node:path");
 /** Absolute POSIX path inside the Linux QA CMS container. */
 const SITEMAP_XML_VIRTUAL_QA_ROOT = "/opt/Percussion/tmp/sitemap-xml-virtual-qa";
 
-/** Marker from the local Markdown fixture body. */
+/** Marker from the local pages/index.md fixture body. */
 const SITEMAP_XML_VIRTUAL_BUILD_MARKER = "Hello from sitemap.";
 
 function qaCmsContainer() {

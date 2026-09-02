@@ -1015,7 +1015,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
-  it("loads sitemap-xml values with root path and Build chrome (Preview/Publish hidden)", async () => {
+  it("loads sitemap-xml values with root path and shows Build/Preview while hiding Publish chrome", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "sitemap-xml",
       rootPath: "C:/sitemap-xml-docs",
@@ -1036,13 +1036,10 @@ describe("VirtualSiteSourcePanel", () => {
       DEV_MSG.SITE_VIRT_SITEMAP_XML_HINT,
     );
     expect(screen.getByTestId("developer-site-virtual-sitemap-xml-hint").textContent).toContain(
-      "Build Virtual Site",
-    );
-    expect(screen.getByTestId("developer-site-virtual-sitemap-xml-hint").textContent).not.toContain(
-      "later slice",
-    );
-    expect(screen.getByTestId("developer-site-virtual-sitemap-xml-hint").textContent).not.toContain(
       "Preview assembled site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-sitemap-xml-hint").textContent).toContain(
+      "then Build Virtual Site",
     );
     expect(screen.getByTestId("developer-site-virtual-sitemap-xml-hint").textContent).not.toContain(
       "Publish Virtual Site",
@@ -1052,7 +1049,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-config-file")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
@@ -1113,7 +1110,7 @@ describe("VirtualSiteSourcePanel", () => {
     ).toBe("C:/sitemap-xml-docs");
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
@@ -1459,46 +1456,6 @@ describe("VirtualSiteSourcePanel", () => {
     );
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
-  });
-
-  it("shows Build chrome for sitemap-xml and success result without Preview/Publish", async () => {
-    getVirtual.mockResolvedValue({
-      sourceKind: "sitemap-xml",
-      rootPath: "C:/sitemap-xml-docs",
-      virtual: true,
-    });
-    buildVirtual.mockResolvedValue({
-      siteName: "Help",
-      siteKey: "sitemap-xml-docs",
-      outputPath: "C:/tmp/virtual-sites/sitemap-xml-docs",
-      pagesWritten: 1,
-      linkProblemCount: 0,
-      hasLinkProblems: false,
-      linkProblems: [],
-    });
-    render(<VirtualSiteSourcePanel siteName="Help" />);
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
-    });
-    expect(screen.getByTestId("developer-site-virtual-sitemap-xml-hint").textContent).toContain(
-      "Build Virtual Site",
-    );
-    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
-    fireEvent.click(screen.getByTestId("developer-site-virtual-build"));
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-site-virtual-build-result")).toBeTruthy();
-    });
-    expect(buildVirtual).toHaveBeenCalledWith("Help");
-    expect(screen.getByTestId("developer-site-virtual-build-success").textContent).toContain(
-      DEV_MSG.SITE_VIRT_BUILD_SUCCESS,
-    );
-    expect(screen.getByTestId("developer-site-virtual-build-pages").textContent).toBe("1");
-    expect(screen.getByTestId("developer-site-virtual-build-output").textContent).toContain(
-      "sitemap-xml-docs",
-    );
-    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
   it("shows Publish chrome for http-json and success dest path", async () => {
@@ -1968,6 +1925,66 @@ describe("VirtualSiteSourcePanel", () => {
     expect(previewStatus).toHaveBeenCalledWith("RssHelp");
     expect(String(open.mock.calls[0][0])).toContain("8.2/index.html");
     expect(open.mock.calls[0][1]).toBe("_blank");
+  });
+
+  it("shows Preview chrome for sitemap-xml and opens last-build home", async () => {
+    const open = vi.fn();
+    window.open = open;
+    getVirtual.mockResolvedValue({
+      sourceKind: "sitemap-xml",
+      rootPath: "C:/sitemap-xml-docs",
+      virtual: true,
+    });
+    previewStatus.mockResolvedValue({
+      available: true,
+      homePath: "8.2/index.html",
+    });
+    render(<VirtualSiteSourcePanel siteName="SitemapHelp" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-sitemap-xml-hint").textContent).toContain(
+      DEV_MSG.SITE_VIRT_SITEMAP_XML_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-preview-hint").textContent).toContain(
+      DEV_MSG.SITE_VIRT_PREVIEW_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-preview-hint").textContent).toContain(
+      "Sitemap XML",
+    );
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
+    await waitFor(() => {
+      expect(open).toHaveBeenCalled();
+    });
+    expect(previewStatus).toHaveBeenCalledWith("SitemapHelp");
+    expect(String(open.mock.calls[0][0])).toContain("8.2/index.html");
+    expect(open.mock.calls[0][1]).toBe("_blank");
+  });
+
+  it("shows empty preview state for sitemap-xml when no assembled site exists", async () => {
+    window.open = vi.fn();
+    getVirtual.mockResolvedValue({
+      sourceKind: "sitemap-xml",
+      rootPath: "C:/sitemap-xml-docs",
+      virtual: true,
+    });
+    previewStatus.mockResolvedValue({
+      available: false,
+      message: "No assembled Virtual Site to preview. Run Build Virtual Site first.",
+    });
+    render(<VirtualSiteSourcePanel siteName="SitemapHelp" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-preview-error").textContent).toContain(
+        "No assembled",
+      );
+    });
+    expect(window.open).not.toHaveBeenCalled();
   });
 
   it("shows empty preview state when no assembled site exists", async () => {

@@ -1317,7 +1317,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@iCalendar uses the root path only (no Git remote). Point at a local RFC 5545 .ics fixture directory (calendar.ics or _config.yaml icalendar.file). Save sourceKind=icalendar, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target. CalDAV URLs and credentials are never sent on the REST envelope.",
   SITE_VIRT_KIND_SITEMAP_XML: "perc.ui.developer@Sitemap XML",
   SITE_VIRT_SITEMAP_XML_HINT:
-    "perc.ui.developer@Sitemap XML uses the root path only (no Git remote). Point at a local sitemap.xml fixture directory (sitemap.xml or _config.yaml sitemap.file). Save sourceKind=sitemap-xml, then Build Virtual Site. Live crawl URLs and credentials are never sent on the REST envelope.",
+    "perc.ui.developer@Sitemap XML uses the root path only (no Git remote). Point at a local sitemap.xml fixture directory (sitemap.xml or _config.yaml sitemap.file). Save sourceKind=sitemap-xml, then Build Virtual Site, then Preview assembled site. Missing build stays unavailable. Live crawl URLs and credentials are never sent on the REST envelope. Publish chrome stays a later slice.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:
@@ -1344,7 +1344,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Save Virtual Site source before building so the server uses the latest properties.",
   SITE_VIRT_PREVIEW: "perc.ui.developer@Preview assembled site",
   SITE_VIRT_PREVIEW_HINT:
-    "perc.ui.developer@Opens the last assembled home in a new tab after Build (Git filesystem, CSV filesystem, SQL database, HTTP JSON, Object storage, RSS / Atom, or iCalendar). Same-origin preview of the build output. Requires Admin.",
+    "perc.ui.developer@Opens the last assembled home in a new tab after Build (Git filesystem, CSV filesystem, SQL database, HTTP JSON, Object storage, RSS / Atom, iCalendar, or Sitemap XML). Same-origin preview of the build output. Requires Admin.",
   SITE_VIRT_PREVIEW_MISSING:
     "perc.ui.developer@No assembled site to preview. Run Build Virtual Site first.",
   SITE_VIRT_PREVIEW_ERROR: "perc.ui.developer@Could not open Virtual Site preview.",
