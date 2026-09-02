@@ -467,10 +467,6 @@ class PSSitemapXmlVirtualSiteSourceTest {
         root.resolve("pages").resolve("live-home.md"),
         "unique-token-AAA",
         StandardCharsets.UTF_8);
-    Files.writeString(
-        root.resolve("pages").resolve("second-home.md"),
-        "unique-token-BBB",
-        StandardCharsets.UTF_8);
     Path sitemap = root.resolve("sitemap.xml");
     Files.writeString(
         sitemap, urlset("pages/live-home.md", "2026-01-01"), StandardCharsets.UTF_8);
@@ -488,8 +484,12 @@ class PSSitemapXmlVirtualSiteSourceTest {
     assertTrue(firstHtml.contains("First Site Title"), firstHtml);
     assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
     assertTrue(firstHtml.contains("Last modified: 2026-01-01"), firstHtml);
-    assertTrue(firstHtml.contains("live-home"), firstHtml);
+    assertTrue(firstHtml.contains("<h2>live-home</h2>"), firstHtml);
 
+    Files.writeString(
+        root.resolve("pages").resolve("second-home.md"),
+        "unique-token-BBB",
+        StandardCharsets.UTF_8);
     Files.writeString(
         sitemap, urlset("pages/second-home.md", "2026-09-02"), StandardCharsets.UTF_8);
     writeSitemapYaml(root, "Second Site Title", "sitemap.xml");
@@ -516,7 +516,9 @@ class PSSitemapXmlVirtualSiteSourceTest {
     assertTrue(secondHtml.contains("Second Site Title"), secondHtml);
     assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
     assertTrue(secondHtml.contains("Last modified: 2026-09-02"), secondHtml);
-    assertTrue(secondHtml.contains("second-home"), secondHtml);
+    assertTrue(secondHtml.contains("<h2>second-home</h2>"), secondHtml);
+    assertFalse(
+        Files.exists(firstHtmlPath), "stale " + firstHtmlPath + " should be cleared on full rebuild");
     assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
     assertFalse(secondHtml.contains("First Site Title"), secondHtml);
     assertFalse(secondHtml.contains("2026-01-01"), secondHtml);
@@ -537,16 +539,8 @@ class PSSitemapXmlVirtualSiteSourceTest {
         "unique-token-AAA",
         StandardCharsets.UTF_8);
     Files.writeString(
-        root.resolve("pages").resolve("from-alt.md"),
-        "unique-token-BBB",
-        StandardCharsets.UTF_8);
-    Files.writeString(
         root.resolve("sitemap.xml"),
         urlset("pages/from-default.md", "2026-01-01"),
-        StandardCharsets.UTF_8);
-    Files.writeString(
-        root.resolve("alt-sitemap.xml"),
-        urlset("pages/from-alt.md", "2026-09-02"),
         StandardCharsets.UTF_8);
 
     Path out = tempDir.resolve("sm-file-switch-out");
@@ -562,7 +556,16 @@ class PSSitemapXmlVirtualSiteSourceTest {
     assertTrue(firstHtml.contains("First Site Title"), firstHtml);
     assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
     assertTrue(firstHtml.contains("Last modified: 2026-01-01"), firstHtml);
+    assertTrue(firstHtml.contains("<h2>from-default</h2>"), firstHtml);
 
+    Files.writeString(
+        root.resolve("pages").resolve("from-alt.md"),
+        "unique-token-BBB",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        root.resolve("alt-sitemap.xml"),
+        urlset("pages/from-alt.md", "2026-09-02"),
+        StandardCharsets.UTF_8);
     writeSitemapYaml(root, "Second Site Title", "alt-sitemap.xml");
 
     VirtualSiteConfig reloaded =
@@ -583,7 +586,9 @@ class PSSitemapXmlVirtualSiteSourceTest {
     assertTrue(secondHtml.contains("Second Site Title"), secondHtml);
     assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
     assertTrue(secondHtml.contains("Last modified: 2026-09-02"), secondHtml);
-    assertTrue(secondHtml.contains("from-alt"), secondHtml);
+    assertTrue(secondHtml.contains("<h2>from-alt</h2>"), secondHtml);
+    assertFalse(
+        Files.exists(firstHtmlPath), "stale " + firstHtmlPath + " should be cleared on full rebuild");
     assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
     assertFalse(secondHtml.contains("First Site Title"), secondHtml);
     assertFalse(secondHtml.contains("2026-01-01"), secondHtml);
