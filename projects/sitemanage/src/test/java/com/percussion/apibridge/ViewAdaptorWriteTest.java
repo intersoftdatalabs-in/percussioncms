@@ -84,6 +84,7 @@ class ViewAdaptorWriteTest {
     when(designWs.findViews(any(), isNull())).thenReturn(List.of());
     when(designWs.findSearches(any(), isNull())).thenReturn(List.of());
     when(designWs.findAllViews()).thenReturn(List.of());
+    when(designWs.findAllSearches()).thenReturn(List.of());
   }
 
   @AfterEach
@@ -112,7 +113,7 @@ class ViewAdaptorWriteTest {
     assertEquals("My View", out.getLabel());
     assertEquals("created via REST", out.getDescription());
     verify(designWs).createViews(eq(List.of("MyView")), eq("test-session"), eq("Admin"));
-    verify(designWs).findAllViews();
+    verify(designWs, org.mockito.Mockito.atLeastOnce()).findAllViews();
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<PSSearch>> saved = ArgumentCaptor.forClass(List.class);
     verify(designWs).saveViews(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
@@ -153,6 +154,21 @@ class ViewAdaptorWriteTest {
     assertTrue(ex.getMessage().contains("already exists"));
     verify(designWs, never()).createViews(anyList(), any(), any());
     verify(designWs, never()).saveViews(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void create_duplicateName_fromFindAllViews_is409() throws Exception {
+    PSSearch existing = stubView("MyView", false);
+    when(designWs.findAllViews()).thenReturn(List.of(existing));
+
+    ViewDef body = new ViewDef();
+    body.setName("MyView");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.createView(body));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains("already exists"));
+    verify(designWs, never()).createViews(anyList(), any(), any());
   }
 
   @Test
@@ -451,6 +467,6 @@ class ViewAdaptorWriteTest {
   }
 
   private void stubCatalogVisibleAfterSave(PSSearch search) throws Exception {
-    when(designWs.findAllViews()).thenReturn(List.of(search));
+    when(designWs.findAllViews()).thenReturn(List.of()).thenReturn(List.of(search));
   }
 }
