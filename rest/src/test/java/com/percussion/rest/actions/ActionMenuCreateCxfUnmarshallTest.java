@@ -39,6 +39,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.cxf.jaxrs.provider.ServerProviderFactory;
 import org.apache.cxf.message.MessageImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -79,7 +80,9 @@ public class ActionMenuCreateCxfUnmarshallTest {
     jackson.setMapper(
         (tools.jackson.databind.json.JsonMapper)
             new JacksonContextResolver().getContext(ActionMenu.class));
-    factory.setUserProviders(Arrays.asList(custom, jackson, new JacksonContextResolver()));
+    factory.setUserProviders(
+        Arrays.asList(
+            custom, jackson, new JacksonContextResolver(), new JAXBElementProvider<>()));
 
     MessageImpl message = new MessageImpl();
     MessageBodyReader<ActionMenu> selected =
@@ -117,6 +120,20 @@ public class ActionMenuCreateCxfUnmarshallTest {
   @Test
   public void cxfPostFlatActionMenuInvokesCreate() throws Exception {
     assertCreatePost(FLAT, "cxfFlat", "local://issue-4123-actions-flat");
+  }
+
+  @Test
+  public void cxfPostWrappedActionMenuWithJaxbProviderStillInvokesCreate() throws Exception {
+    assertCreatePost(WRAPPED, "cxfN1", "local://issue-4171-actions-jaxb");
+  }
+
+  @Test
+  public void jacksonBarrierBindsWrappedActionMenuWithoutCustomReader() {
+    ActionMenu menu =
+        new JacksonContextResolver()
+            .getContext(ActionMenu.class)
+            .readValue(WRAPPED, ActionMenu.class);
+    assertEquals("cxfN1", menu.getName());
   }
 
   private void assertCreatePost(String json, String expectedName, String address) throws Exception {
@@ -169,6 +186,7 @@ public class ActionMenuCreateCxfUnmarshallTest {
             new AllowedContentTypeMenusRequestJsonReader(),
             jackson,
             new JacksonContextResolver(),
+            new JAXBElementProvider<>(),
             new WebApplicationExceptionMapper()));
     Server created = sf.create();
     assertNotNull(created, "CXF local server must start");

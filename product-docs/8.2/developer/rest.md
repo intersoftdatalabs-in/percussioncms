@@ -1506,7 +1506,8 @@ PUT round-trips GET detail fields already exposed (`label`, `description`,
 | `DELETE` | `/services/actions/{idOrName}` | **Admin.** Delete a user action menu (`deleteActions`, `ignoreDependencies=false`) |
 
 JSON may wrap a single item as `ActionMenu`. **Create** `POST /services/actions`
-sends that envelope (or a flat object with `name`). Do not post
+sends that envelope (or a flat object with `name`). The collection POST is bound
+as `ActionMenu` (not JAXB `allowedWorkflowTransitionsRequest`). Do not post
 `allowedWorkflowTransitionsRequest` on the collection path — that finder lives at
 `POST /services/actions/find/transitions`. Integrators should unwrap the
 `ActionMenu` envelope and read `guid.stringValue` (never assume the GUID is
