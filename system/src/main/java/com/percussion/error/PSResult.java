@@ -115,6 +115,23 @@ public class PSResult {
   }
 
   /**
+   * Sets the message for the object as error using a catalogued {@link IPSErrorCode}. Implicitly
+   * sets the status code to STATUS_ERROR.
+   *
+   * @param lang language string to specify the locale for the string, must not be {@code null}
+   * @param code catalogued error code, never {@code null}
+   * @param args array of arguments required to format the error message, may be {@code null}
+   * @throws IllegalArgumentException if a required parameter is {@code null}
+   */
+  public void setError(String lang, IPSErrorCode code, Object[] args) {
+    if (lang == null) throw new IllegalArgumentException("lang must not be null");
+    if (code == null) throw new IllegalArgumentException("code must not be null");
+
+    m_status = STATUS_ERROR;
+    m_ex = new PSException(lang, code, args);
+  }
+
+  /**
    * Sets status to ERROR a given message and also creates an exception object. Implicitly sets is
    * the staus code to STATUS_ERROR.
    *
@@ -158,6 +175,23 @@ public class PSResult {
 
     m_status = STATUS_WARNING;
     m_ex = new PSException(lang, msgCode, args);
+  }
+
+  /**
+   * Sets the message for the object as warning using a catalogued {@link IPSErrorCode}. Implicitly
+   * sets the status code to STATUS_WARNING.
+   *
+   * @param lang language string to specify the locale for the string, must not be {@code null}
+   * @param code catalogued error code, never {@code null}
+   * @param args array of arguments required to format the error message, may be {@code null}
+   * @throws IllegalArgumentException if a required parameter is {@code null}
+   */
+  public void setWarning(String lang, IPSErrorCode code, Object[] args) {
+    if (lang == null) throw new IllegalArgumentException("lang must not be null");
+    if (code == null) throw new IllegalArgumentException("code must not be null");
+
+    m_status = STATUS_WARNING;
+    m_ex = new PSException(lang, code, args);
   }
 
   /**

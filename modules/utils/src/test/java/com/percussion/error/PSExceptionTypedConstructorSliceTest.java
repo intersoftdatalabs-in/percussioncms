@@ -57,6 +57,13 @@ class PSExceptionTypedConstructorSliceTest {
 
     PSSqlException noArg = new PSSqlException(UtilErrorCode.POST_DATA_ERROR, "08000");
     assertSame(UtilErrorCode.POST_DATA_ERROR, noArg.getTypedErrorCode());
+
+    PSNotFoundException missing =
+        new PSNotFoundException(
+            "en-us", UtilErrorCode.RECEIVE_DATA_ERROR, new Object[] {"host"});
+    assertSame(UtilErrorCode.RECEIVE_DATA_ERROR, missing.getTypedErrorCode());
+    assertEquals(UtilErrorCode.RECEIVE_DATA_ERROR.numericCode(), missing.getErrorCode());
+    assertFalse(missing.isAuditable());
   }
 
   @Test
@@ -108,5 +115,8 @@ class PSExceptionTypedConstructorSliceTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> new PSCatalogException((IPSErrorCode) null, new RuntimeException("x")));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new PSNotFoundException("en-us", (IPSErrorCode) null, new Object[] {"x"}));
   }
 }

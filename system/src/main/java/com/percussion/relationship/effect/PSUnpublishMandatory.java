@@ -17,7 +17,7 @@
 
 package com.percussion.relationship.effect;
 
-import com.percussion.extension.IPSExtensionErrors;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.relationship.PSEffectResult;
 import com.percussion.server.IPSRequestContext;
 import org.w3c.dom.Element;
@@ -98,7 +98,7 @@ public class PSUnpublishMandatory extends PSPublishUnpublishMandatory {
       String[] args = {m_name, "public", "non-public"};
       // unpublish mode
       result.setWarning(
-          request.getUserLocale(), IPSExtensionErrors.INVALID_TRANSITION_FOR_EFFECT, args);
+          request.getUserLocale(), ExtensionErrorCodes.INVALID_TRANSITION_FOR_EFFECT, args);
       result.setRecurseDependents(false);
       return false;
     }

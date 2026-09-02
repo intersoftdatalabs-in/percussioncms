@@ -27,6 +27,7 @@
 #   #4150 leftover system/src/main PSServer/handlers/parsers/console
 #   #4153 leftover system/server command/cache/actions/clone/compare/config
 #   #4155 leftover system search IPSSearchErrors / lucene peers
+#   #4156 leftover system/src/main relationship.effect call sites
 # Converted (no longer listed): extensions-main #3756/#3938 (allow-list)
 # shrink after #3793 re-listed already-typed production paths);
 # design.catalog leftover #3969; system/src/main com.percussion.mail leftover
@@ -38,6 +39,7 @@
 # scripts/verify-no-bare-ipsobjectstoreerrors.py (#3143).
 #
 # Tests, comment-only mentions, and the gate scripts themselves are ignored.
+
 
 
 deployer/src/main/java/com/percussion/deployer/jexl/PSDeployJexlUtils.java
@@ -70,13 +72,6 @@ system/src/main/java/com/percussion/install/PSJdbcTableMapper.java
 system/src/main/java/com/percussion/install/PSJdbcTransitionRoles.java
 system/src/main/java/com/percussion/install/PSJdbcUniqueColumn.java
 system/src/main/java/com/percussion/publisher/server/PSPubTimeStatistics.java
-system/src/main/java/com/percussion/relationship/effect/PSEffectUtils.java
-system/src/main/java/com/percussion/relationship/effect/PSIsCloneExists.java
-system/src/main/java/com/percussion/relationship/effect/PSPromote.java
-system/src/main/java/com/percussion/relationship/effect/PSPublishMandatory.java
-system/src/main/java/com/percussion/relationship/effect/PSPublishUnpublishMandatory.java
-system/src/main/java/com/percussion/relationship/effect/PSUnpublishMandatory.java
-system/src/main/java/com/percussion/relationship/effect/PSValidate.java
 system/src/main/java/com/percussion/search/PSAddThumbnailURL.java
 system/src/main/java/com/percussion/search/PSBaseExecutableSearch.java
 system/src/main/java/com/percussion/server/PSApplicationHandler.java
