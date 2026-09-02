@@ -1321,7 +1321,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@iCalendar uses the root path only (no Git remote). Point at a local RFC 5545 .ics fixture directory (calendar.ics or _config.yaml icalendar.file). Save sourceKind=icalendar, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target. CalDAV URLs and credentials are never sent on the REST envelope.",
   SITE_VIRT_KIND_SITEMAP_XML: "perc.ui.developer@Sitemap XML",
   SITE_VIRT_SITEMAP_XML_HINT:
-    "perc.ui.developer@Sitemap XML uses the root path only (no Git remote). Point at a local sitemap.xml fixture directory (sitemap.xml or _config.yaml sitemap.file). Save sourceKind=sitemap-xml, then Build Virtual Site, then Preview assembled site. Missing build stays unavailable. Live crawl URLs and credentials are never sent on the REST envelope. Publish chrome stays a later slice.",
+    "perc.ui.developer@Sitemap XML uses the root path only (no Git remote). Point at a local sitemap.xml fixture directory (sitemap.xml or _config.yaml sitemap.file). Save sourceKind=sitemap-xml, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target after a local sitemap.xml Build. Missing build stays unavailable. Live crawl URLs and credentials are never sent on the REST envelope.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:
@@ -1355,7 +1355,7 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_PUBLISH: "perc.ui.developer@Publish Virtual Site",
   SITE_VIRT_PUBLISHING: "perc.ui.developer@Publishing Virtual Site...",
   SITE_VIRT_PUBLISH_HINT:
-    "perc.ui.developer@Builds this Virtual Site using saved source properties, then copies assembled files to the Site filesystem publish location (Git filesystem, CSV filesystem, SQL database, HTTP JSON, Object storage, RSS / Atom, or iCalendar). Requires Admin. Traditional repository Sites do not show this control.",
+    "perc.ui.developer@Builds this Virtual Site using saved source properties, then copies assembled files to the Site filesystem publish location (Git filesystem, CSV filesystem, SQL database, HTTP JSON, Object storage, RSS / Atom, iCalendar, or Sitemap XML). Requires Admin. Traditional repository Sites do not show this control.",
   SITE_VIRT_PUBLISH_SAVE_FIRST:
     "perc.ui.developer@Save Virtual Site source before publishing so the server uses the latest properties. The Site publishing filesystem root must be configured.",
   SITE_VIRT_PUBLISH_ERROR: "perc.ui.developer@Could not publish Virtual Site.",

@@ -895,8 +895,9 @@ export interface SiteDef {
  * Preview chrome is shown for git/csv/sql/http-json/object-storage/rss-atom/
  * icalendar/sitemap-xml (last-build local HTML; missing build stays unavailable).
  * Publish chrome is shown for git/csv/sql/http-json/object-storage/rss-atom/
- * icalendar. sitemap-xml Publish chrome stays later. Repository / unknown kinds
- * hide that chrome.
+ * icalendar/sitemap-xml (sitemap-xml copies last-build local HTML to
+ * {@code IPSSite.root}; leftover remoteUrl/credentials fail closed).
+ * Repository / unknown kinds hide that chrome.
  */
 export interface VirtualSiteProperties {
   sourceKind?: string | null;
