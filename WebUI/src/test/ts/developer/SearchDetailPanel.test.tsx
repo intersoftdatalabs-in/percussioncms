@@ -359,23 +359,23 @@ describe("SearchDetailPanel", () => {
   it("deletes after confirm and omits delete chrome in create mode", async () => {
     getSearchDetail.mockResolvedValue(sampleDetail);
     deleteSearch.mockResolvedValue(undefined);
-      const onDeleted = vi.fn();
-      render(
-        <SearchDetailPanel
-          idOrName="All Content"
-          onBack={() => undefined}
-          onDeleted={onDeleted}
-        />,
-      );
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-sr-delete")).toBeTruthy();
-      });
-      fireEvent.click(screen.getByTestId("developer-sr-delete"));
-      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
-      await waitFor(() => {
-        expect(onDeleted).toHaveBeenCalled();
-      });
-      expect(deleteSearch).toHaveBeenCalledWith("All Content");
+    const onDeleted = vi.fn();
+    render(
+      <SearchDetailPanel
+        idOrName="All Content"
+        onBack={() => undefined}
+        onDeleted={onDeleted}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sr-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-sr-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(onDeleted).toHaveBeenCalled();
+    });
+    expect(deleteSearch).toHaveBeenCalledWith("All Content");
   });
 
   it("surfaces 404 missing search on delete", async () => {
@@ -385,18 +385,18 @@ describe("SearchDetailPanel", () => {
       statusText: "Not Found",
       body: { message: "Search not found" },
     });
-      render(<SearchDetailPanel idOrName="All Content" onBack={() => undefined} />);
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-sr-delete")).toBeTruthy();
-      });
-      fireEvent.click(screen.getByTestId("developer-sr-delete"));
-      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-sr-detail-error")).toBeTruthy();
-      });
-      expect(screen.getByTestId("developer-sr-detail-error").textContent).toContain(
-        DEV_MSG.SR_NOT_FOUND,
-      );
+    render(<SearchDetailPanel idOrName="All Content" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sr-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-sr-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sr-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-sr-detail-error").textContent).toContain(
+      DEV_MSG.SR_NOT_FOUND,
+    );
   });
 
   it("does not show delete on create", () => {

@@ -731,6 +731,7 @@ export function ContentTypeDetailPanel({
   }
 
   async function handleDeleteLocalField(fieldName: string) {
+    setPendingDelete(null);
     if (!heldLockRef.current) {
       setError(DEV_MSG.CT_LOCK_REQUIRED);
       return;
@@ -739,7 +740,6 @@ export function ContentTypeDetailPanel({
     if (!name) {
       return;
     }
-    setPendingDelete(null);
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -947,11 +947,14 @@ export function ContentTypeDetailPanel({
   }
 
   async function handleDelete(): Promise<void> {
+    setPendingDelete(null);
     // Require a held lock in chrome; do not call DELETE (or lock) when unlocked.
     if (!heldLockRef.current || busy || detail == null) {
+      if (!heldLockRef.current) {
+        setError(DEV_MSG.CT_LOCK_REQUIRED);
+      }
       return;
     }
-    setPendingDelete(null);
     setBusy(true);
     setError(null);
     setNotice(null);

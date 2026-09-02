@@ -331,7 +331,7 @@ describe("SystemDefPanel", () => {
       expect(screen.getByTestId("developer-sys-delete")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("developer-sys-delete"));
-      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-sys-empty")).toBeTruthy();
     });

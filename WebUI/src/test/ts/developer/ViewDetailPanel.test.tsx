@@ -403,19 +403,19 @@ describe("ViewDetailPanel", () => {
   it("deletes after confirm and omits delete chrome in create mode", async () => {
     getViewDetail.mockResolvedValue(sampleDetail);
     deleteView.mockResolvedValue(undefined);
-      const onDeleted = vi.fn();
-      render(
-        <ViewDetailPanel idOrName="My View" onBack={() => undefined} onDeleted={onDeleted} />,
-      );
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-vw-delete")).toBeTruthy();
-      });
-      fireEvent.click(screen.getByTestId("developer-vw-delete"));
-      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
-      await waitFor(() => {
-        expect(onDeleted).toHaveBeenCalled();
-      });
-      expect(deleteView).toHaveBeenCalledWith("0-27-3");
+    const onDeleted = vi.fn();
+    render(
+      <ViewDetailPanel idOrName="My View" onBack={() => undefined} onDeleted={onDeleted} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(onDeleted).toHaveBeenCalled();
+    });
+    expect(deleteView).toHaveBeenCalledWith("0-27-3");
   });
 
   it("surfaces 404 missing view on delete", async () => {
@@ -425,18 +425,18 @@ describe("ViewDetailPanel", () => {
       statusText: "Not Found",
       body: { message: "View not found" },
     });
-      render(<ViewDetailPanel idOrName="My View" onBack={() => undefined} />);
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-vw-delete")).toBeTruthy();
-      });
-      fireEvent.click(screen.getByTestId("developer-vw-delete"));
-      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-vw-detail-error")).toBeTruthy();
-      });
-      expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
-        DEV_MSG.VW_NOT_FOUND,
-      );
+    render(<ViewDetailPanel idOrName="My View" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
+      DEV_MSG.VW_NOT_FOUND,
+    );
   });
 
   it("does not show delete on create", () => {

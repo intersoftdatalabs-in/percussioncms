@@ -450,23 +450,19 @@ describe("SlotDetailPanel", () => {
   it("deletes after confirm", async () => {
     getSlotDetail.mockResolvedValue(sampleDetail);
     deleteSlot.mockResolvedValue(undefined);
-      const onDeleted = vi.fn();
-      render(
-        <SlotDetailPanel
-          idOrName="rffList"
-          onBack={() => undefined}
-          onDeleted={onDeleted}
-        />,
-      );
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-slot-delete")).toBeTruthy();
-      });
-      fireEvent.click(screen.getByTestId("developer-slot-delete"));
-      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
-      await waitFor(() => {
-        expect(onDeleted).toHaveBeenCalled();
-      });
-      expect(deleteSlot).toHaveBeenCalledWith("rffList");
+    const onDeleted = vi.fn();
+    render(
+      <SlotDetailPanel idOrName="rffList" onBack={() => undefined} onDeleted={onDeleted} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(onDeleted).toHaveBeenCalled();
+    });
+    expect(deleteSlot).toHaveBeenCalledWith("rffList");
   });
 
   it("surfaces 409 system-slot delete", async () => {
@@ -480,27 +476,27 @@ describe("SlotDetailPanel", () => {
       statusText: "Conflict",
       body: { message: "System slots cannot be deleted" },
     });
-      const onDeleted = vi.fn();
-      render(
-        <SlotDetailPanel
-          idOrName="sys_inline_link"
-          onBack={() => undefined}
-          onDeleted={onDeleted}
-        />,
-      );
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-slot-delete")).toBeTruthy();
-      });
-      fireEvent.click(screen.getByTestId("developer-slot-delete"));
-      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-slot-detail-error")).toBeTruthy();
-      });
-      expect(deleteSlot).toHaveBeenCalledWith("sys_inline_link");
-      expect(screen.getByTestId("developer-slot-detail-error").textContent).toContain(
-        DEV_MSG.SLOT_DELETE_SYSTEM,
-      );
-      expect(onDeleted).not.toHaveBeenCalled();
+    const onDeleted = vi.fn();
+    render(
+      <SlotDetailPanel
+        idOrName="sys_inline_link"
+        onBack={() => undefined}
+        onDeleted={onDeleted}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-detail-error")).toBeTruthy();
+    });
+    expect(deleteSlot).toHaveBeenCalledWith("sys_inline_link");
+    expect(screen.getByTestId("developer-slot-detail-error").textContent).toContain(
+      DEV_MSG.SLOT_DELETE_SYSTEM,
+    );
+    expect(onDeleted).not.toHaveBeenCalled();
   });
 
   it("does not treat a generic 409 containing system as a system-slot delete", async () => {
@@ -510,29 +506,25 @@ describe("SlotDetailPanel", () => {
       statusText: "Conflict",
       body: { message: "ecosystem constraint" },
     });
-      const onDeleted = vi.fn();
-      render(
-        <SlotDetailPanel
-          idOrName="rffList"
-          onBack={() => undefined}
-          onDeleted={onDeleted}
-        />,
-      );
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-slot-delete")).toBeTruthy();
-      });
-      fireEvent.click(screen.getByTestId("developer-slot-delete"));
-      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-slot-detail-error")).toBeTruthy();
-      });
-      expect(screen.getByTestId("developer-slot-detail-error").textContent).toContain(
-        DEV_MSG.SLOT_DELETE_ERROR,
-      );
-      expect(screen.getByTestId("developer-slot-detail-error").textContent).not.toContain(
-        DEV_MSG.SLOT_DELETE_SYSTEM,
-      );
-      expect(onDeleted).not.toHaveBeenCalled();
+    const onDeleted = vi.fn();
+    render(
+      <SlotDetailPanel idOrName="rffList" onBack={() => undefined} onDeleted={onDeleted} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-slot-detail-error").textContent).toContain(
+      DEV_MSG.SLOT_DELETE_ERROR,
+    );
+    expect(screen.getByTestId("developer-slot-detail-error").textContent).not.toContain(
+      DEV_MSG.SLOT_DELETE_SYSTEM,
+    );
+    expect(onDeleted).not.toHaveBeenCalled();
   });
 
   it("surfaces 403 non-Admin on delete", async () => {
@@ -542,18 +534,18 @@ describe("SlotDetailPanel", () => {
       statusText: "Forbidden",
       body: { message: "Admin role required" },
     });
-      render(<SlotDetailPanel idOrName="rffList" onBack={() => undefined} />);
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-slot-delete")).toBeTruthy();
-      });
-      fireEvent.click(screen.getByTestId("developer-slot-delete"));
-      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-slot-detail-error")).toBeTruthy();
-      });
-      expect(screen.getByTestId("developer-slot-detail-error").textContent).toContain(
-        DEV_MSG.SLOT_FORBIDDEN,
-      );
+    render(<SlotDetailPanel idOrName="rffList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-slot-detail-error").textContent).toContain(
+      DEV_MSG.SLOT_FORBIDDEN,
+    );
   });
 
   async function renderLoadedSlot() {

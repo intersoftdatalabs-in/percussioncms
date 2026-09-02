@@ -157,21 +157,21 @@ describe("ActionMenusPanel", () => {
     listMock.mockResolvedValue([sampleMenu]);
     detailMock.mockResolvedValue(sampleDetail);
     deleteMock.mockResolvedValue(undefined);
-      render(<ActionMenusPanel />);
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-am-table")).toBeTruthy();
-      });
-      fireEvent.click(screen.getByTestId("developer-am-open"));
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-am-delete")).toBeTruthy();
-      });
-      fireEvent.click(screen.getByTestId("developer-am-delete"));
-      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-am-list-notice")).toBeTruthy();
-      });
-      expect(screen.getByTestId("developer-am-list-notice").textContent).toBe(DEV_MSG.AM_DELETED);
-      expect(screen.getByTestId("developer-am-panel")).toBeTruthy();
+    render(<ActionMenusPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-am-open"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-am-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-list-notice")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-am-list-notice").textContent).toBe(DEV_MSG.AM_DELETED);
+    expect(screen.getByTestId("developer-am-panel")).toBeTruthy();
   });
 
   it("shows fallback when rejection has no message", async () => {

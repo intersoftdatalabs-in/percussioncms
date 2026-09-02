@@ -410,7 +410,7 @@ describe("CommunityDetailPanel", () => {
       expect(screen.getByTestId("developer-comm-delete")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("developer-comm-delete"));
-      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-comm-detail-error")).toBeTruthy();
     });
