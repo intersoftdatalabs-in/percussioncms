@@ -34,7 +34,8 @@ are not cleared. Nested rule create/edit remain REST-only.
 5. Change the description (or parent / authtype) and **Save** again. GET
    fields already on detail (`description`, `parentFilter`, `legacyAuthtype`,
    `rules`) round-trip on save.
-6. Click **Delete** and confirm. The catalog no longer lists that filter.
+6. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
+   The catalog no longer lists that filter.
    Delete of a missing filter is **404**. A filter still associated with a
    content list is **409**.
 

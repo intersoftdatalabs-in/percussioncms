@@ -32,7 +32,8 @@ detail panel.
    that the locale already exists. After a successful create, the language
    field is read-only.
 5. Change the label (or description / status / base flag) and **Save** again.
-6. Click **Delete** and confirm. The catalog no longer lists that language.
+6. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
+   The catalog no longer lists that language.
    Delete of a missing locale is **404**. A locale with remaining dependents
    is **409**.
 

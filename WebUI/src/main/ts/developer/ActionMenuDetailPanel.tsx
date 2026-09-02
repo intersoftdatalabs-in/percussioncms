@@ -15,6 +15,7 @@
  */
 
 import React, { useEffect, useRef, useState } from "react";
+import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { extractRestErrorMessage, isApiError } from "../api/client";
 import {
   ACTION_MENU_TYPE_ITEM,
@@ -39,6 +40,7 @@ import {
   tableHeaderRow,
   tableRow,
 } from "./catalogStyles";
+import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { ObjectAclSection } from "./ObjectAclSection";
@@ -88,6 +90,7 @@ export function ActionMenuDetailPanel({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(idOrName != null);
   const inflight = useRef(false);
 
@@ -205,9 +208,15 @@ export function ActionMenuDetailPanel({
     }
   }
 
+  function requestDelete(ev: React.MouseEvent<HTMLElement>): void {
+    if (isNew || !writeKey || inflight.current) return;
+    captureDialogOpener(ev.currentTarget);
+    setConfirmOpen(true);
+  }
+
   async function handleDelete(): Promise<void> {
     if (isNew || !writeKey || inflight.current) return;
-    if (!window.confirm(DEV_MSG.AM_DELETE_CONFIRM)) return;
+    setConfirmOpen(false);
     inflight.current = true;
     setBusy(true);
     setError(null);
@@ -420,7 +429,7 @@ export function ActionMenuDetailPanel({
                 data-testid="developer-am-delete"
                 aria-label={DEV_MSG.AM_DELETE}
                 disabled={busy}
-                onClick={() => void handleDelete()}
+                onClick={requestDelete}
                 style={{
                   padding: "8px 16px",
                   background: "#c53030",
@@ -531,6 +540,13 @@ export function ActionMenuDetailPanel({
           ) : null}
         </>
       ) : null}
+      <CatalogConfirmDialog
+        open={confirmOpen}
+        busy={busy}
+        message={DEV_MSG.AM_DELETE_CONFIRM}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={() => void handleDelete()}
+      />
     </div>
   );
 }

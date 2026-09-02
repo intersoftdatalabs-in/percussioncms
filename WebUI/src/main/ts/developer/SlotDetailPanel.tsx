@@ -16,6 +16,7 @@
  */
 
 import React, { useEffect, useRef, useState } from "react";
+import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { extractRestErrorMessage, isApiError } from "../api/client";
 import {
   createSlot,
@@ -41,6 +42,7 @@ import {
 } from "../api/developer/designGaps";
 import type { SlotAssociationSummary, SlotDetail } from "../api/developer/types";
 import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
+import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -191,6 +193,7 @@ export function SlotDetailPanel({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(idOrName != null);
   const [name, setName] = useState("");
   const [label, setLabel] = useState("");
@@ -424,9 +427,15 @@ export function SlotDetailPanel({
     }
   }
 
+  function requestDelete(ev: React.MouseEvent<HTMLElement>): void {
+    if (isNew || !writeKey || inflight.current) return;
+    captureDialogOpener(ev.currentTarget);
+    setConfirmOpen(true);
+  }
+
   async function handleDelete() {
     if (isNew || !writeKey || inflight.current) return;
-    if (!window.confirm(DEV_MSG.SLOT_DELETE_CONFIRM)) return;
+    setConfirmOpen(false);
     inflight.current = true;
     setBusy(true);
     setError(null);
@@ -960,7 +969,7 @@ export function SlotDetailPanel({
                 data-testid="developer-slot-delete"
                 aria-label={DEV_MSG.SLOT_DELETE}
                 disabled={busy}
-                onClick={() => void handleDelete()}
+                onClick={requestDelete}
                 style={{
                   padding: "8px 16px",
                   background: "#c53030",
@@ -990,6 +999,13 @@ export function SlotDetailPanel({
           ) : null}
         </>
       ) : null}
+      <CatalogConfirmDialog
+        open={confirmOpen}
+        busy={busy}
+        message={DEV_MSG.SLOT_DELETE_CONFIRM}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={() => void handleDelete()}
+      />
     </div>
   );
 }

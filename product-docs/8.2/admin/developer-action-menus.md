@@ -41,7 +41,8 @@ detail stay **read-only**.
    name); packaged menus such as **Copy** cannot be deleted (**409**).
 5. Optional: change label, description, menu type, or URL and **Save** again.
    Child entries, parameters, properties, and visibility are not written.
-6. Click **Delete** and confirm. The catalog returns with a green **Action
+6. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
+   The catalog returns with a green **Action
    menu deleted** notice and no longer lists that user menu. Delete of a
    missing menu is **404**. Delete of a **system** menu is **409** and the row
    remains. A menu still used as a dependent, or locked by another user, is

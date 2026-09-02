@@ -32,7 +32,8 @@ fields. Unlock releases the design session without saving.
    the slot already exists. An invalid name or slot type is **400**. A
    non-Admin session is **403**. After a successful create, the name field is
    read-only and the catalog includes the new row when you return to the list.
-5. Open an existing non-system slot and click **Delete**, then confirm. The
+5. Open an existing non-system slot and click **Delete**, then confirm in
+   the in-app dialog (not a browser prompt). The
    catalog no longer lists that name. Delete of a **system slot** is **409**
    (system slots cannot be deleted). Locked-by-another-user is **409**.
    Non-Admin is **403**. Missing id/name is **404**.

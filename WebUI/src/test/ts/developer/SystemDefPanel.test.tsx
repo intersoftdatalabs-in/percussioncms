@@ -53,7 +53,6 @@ describe("SystemDefPanel", () => {
     updateMock.mockReset();
     addMock.mockReset();
     deleteMock.mockReset();
-    vi.spyOn(window, "confirm").mockReturnValue(true);
   });
 
   afterEach(() => {
@@ -332,10 +331,10 @@ describe("SystemDefPanel", () => {
       expect(screen.getByTestId("developer-sys-delete")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("developer-sys-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-sys-empty")).toBeTruthy();
     });
     expect(deleteMock).toHaveBeenCalledWith("sys_title");
-    expect(window.confirm).toHaveBeenCalled();
   });
 });

@@ -408,27 +408,23 @@ describe("ActionMenuDetailPanel", () => {
   it("deletes after confirm and omits delete chrome in create mode", async () => {
     getActionMenuDetailMock.mockResolvedValue(sampleDetail);
     deleteActionMenuMock.mockResolvedValue(undefined);
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-    try {
-      const onDeleted = vi.fn();
-      render(
-        <ActionMenuDetailPanel
-          idOrName="Edit"
-          onBack={() => undefined}
-          onDeleted={onDeleted}
-        />,
-      );
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-am-delete")).toBeTruthy();
-      });
-      fireEvent.click(screen.getByTestId("developer-am-delete"));
-      await waitFor(() => {
-        expect(onDeleted).toHaveBeenCalled();
-      });
-      expect(deleteActionMenuMock).toHaveBeenCalledWith("Edit");
-    } finally {
-      confirmSpy.mockRestore();
-    }
+    const onDeleted = vi.fn();
+    render(
+      <ActionMenuDetailPanel
+        idOrName="Edit"
+        onBack={() => undefined}
+        onDeleted={onDeleted}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-am-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(onDeleted).toHaveBeenCalled();
+    });
+    expect(deleteActionMenuMock).toHaveBeenCalledWith("Edit");
   });
 
   it("surfaces 404 missing action menu on delete", async () => {
@@ -438,22 +434,18 @@ describe("ActionMenuDetailPanel", () => {
       statusText: "Not Found",
       body: { message: "Action menu not found" },
     });
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-    try {
-      render(<ActionMenuDetailPanel idOrName="Edit" onBack={() => undefined} />);
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-am-delete")).toBeTruthy();
-      });
-      fireEvent.click(screen.getByTestId("developer-am-delete"));
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-am-detail-error")).toBeTruthy();
-      });
-      expect(screen.getByTestId("developer-am-detail-error").textContent).toContain(
-        DEV_MSG.AM_NOT_FOUND,
-      );
-    } finally {
-      confirmSpy.mockRestore();
-    }
+    render(<ActionMenuDetailPanel idOrName="Edit" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-am-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-am-detail-error").textContent).toContain(
+      DEV_MSG.AM_NOT_FOUND,
+    );
   });
 
   it("surfaces 409 and does not steal lock when deleting a system menu", async () => {
@@ -463,30 +455,24 @@ describe("ActionMenuDetailPanel", () => {
       statusText: "Conflict",
       body: { message: "System action menus cannot be updated or deleted via this API" },
     });
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-    try {
-      const onDeleted = vi.fn();
-      render(
-        <ActionMenuDetailPanel
-          idOrName="Edit"
-          onBack={() => undefined}
-          onDeleted={onDeleted}
-        />,
-      );
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-am-delete")).toBeTruthy();
-      });
-      fireEvent.click(screen.getByTestId("developer-am-delete"));
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-am-detail-error")).toBeTruthy();
-      });
-      expect(screen.getByTestId("developer-am-detail-error").textContent).toContain(
-        DEV_MSG.AM_SYSTEM,
-      );
-      expect(onDeleted).not.toHaveBeenCalled();
-    } finally {
-      confirmSpy.mockRestore();
-    }
+    const onDeleted = vi.fn();
+    render(
+      <ActionMenuDetailPanel
+        idOrName="Edit"
+        onBack={() => undefined}
+        onDeleted={onDeleted}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-am-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-am-detail-error").textContent).toContain(DEV_MSG.AM_SYSTEM);
+    expect(onDeleted).not.toHaveBeenCalled();
   });
 
   it("surfaces 400 body on edit instead of invalid-name chrome", async () => {

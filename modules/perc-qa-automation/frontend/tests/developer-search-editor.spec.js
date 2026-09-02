@@ -30,6 +30,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { confirmDeveloperCatalogDelete } = require("./helpers/developer-catalog-confirm");
 
 function developerSearchesUrl() {
   const q = new URLSearchParams({
@@ -96,8 +97,6 @@ test.describe("Developer search editor (#4076 / UI-06)", () => {
   test("Admin can create and delete a standard search", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-    page.on("dialog", (dialog) => dialog.accept());
-
     await loginAsAdmin(page);
     await openSearchesCatalog(page);
 
@@ -136,6 +135,7 @@ test.describe("Developer search editor (#4076 / UI-06)", () => {
     await createdRow.click();
     await expect(page.locator('[data-testid="developer-sr-detail"]')).toBeVisible();
     await page.locator('[data-testid="developer-sr-delete"]').click();
+    await confirmDeveloperCatalogDelete(page);
     await expect(page.locator('[data-testid="developer-sr-panel"]')).toBeVisible({
       timeout: 20_000,
     });
@@ -149,8 +149,6 @@ test.describe("Developer search editor (#4076 / UI-06)", () => {
   test("duplicate search name 409 is surfaced in the UI", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-    page.on("dialog", (dialog) => dialog.accept());
-
     await loginAsAdmin(page);
     await openSearchesCatalog(page);
 
@@ -185,6 +183,7 @@ test.describe("Developer search editor (#4076 / UI-06)", () => {
     await page.locator(`[data-sr-name="${searchName}"]`).click();
     await expect(page.locator('[data-testid="developer-sr-detail"]')).toBeVisible();
     await page.locator('[data-testid="developer-sr-delete"]').click();
+    await confirmDeveloperCatalogDelete(page);
     await expect(page.locator('[data-testid="developer-sr-panel"]')).toBeVisible({
       timeout: 20_000,
     });

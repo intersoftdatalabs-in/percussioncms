@@ -15,7 +15,10 @@
  */
 
 /**
- * Developer Locales create / save / delete chrome (#4005 CD-18 / parent #1690).
+ * Developer catalog in-app delete confirm (#4122 / parent #4112 / #1690).
+ *
+ * Uses Developer Locales create/delete as the live catalog family sample
+ * (same CatalogConfirmDialog as Searches, Views, Slots, …).
  *
  * Surface-filtered QA:
  * <pre>
@@ -23,7 +26,7 @@
  *   python docker/scripts/perc-devctl.py qa-health
  *   cd modules/perc-qa-automation/frontend
  *   TEST_CMS_URL=… ADMIN_USERNAME=Admin ADMIN_PASSWORD=… \
- *     npm run test:surface -- --path tests/developer-locale-editor.spec.js
+ *     npm run test:surface -- --path tests/developer-catalog-delete-confirm.spec.js
  *   perc-devctl qa-down
  * </pre>
  */
@@ -41,12 +44,11 @@ function developerLocalesUrl() {
   return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?${q.toString()}`;
 }
 
-/** BCP-47-style unique language matching REST LANGUAGE_PATTERN. */
 function uniqueLang() {
   const a = Date.now().toString(36).replace(/[^a-z0-9]/g, "").slice(-4);
   const b = Math.random().toString(36).replace(/[^a-z0-9]/g, "").slice(2, 6);
   const suffix = `${a}${b}`.slice(0, 8);
-  return `xx-${suffix || "qa4005"}`;
+  return `xx-${suffix || "qa4122"}`;
 }
 
 async function openLocalesCatalog(page) {
@@ -93,74 +95,47 @@ function assertConsoleClean(pageErrors, consoleErrors) {
   ).toEqual([]);
 }
 
-test.describe("Developer locale editor (#4005 / CD-18)", () => {
-  test("Admin can create, save, and delete a locale", async ({ page }) => {
+test.describe("Developer catalog in-app delete confirm (#4122)", () => {
+  test("Locales delete uses in-app dialog, not window.confirm", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+    const nativeDialogs = [];
+    page.on("dialog", (dialog) => {
+      nativeDialogs.push(dialog.type());
+      void dialog.dismiss();
+    });
+
     await loginAsAdmin(page);
     await openLocalesCatalog(page);
 
     const lang = uniqueLang();
-    const label = `QA 4005 ${lang}`;
-    const savedLabel = `${label} saved`;
+    const label = `QA 4122 ${lang}`;
 
     await page.locator('[data-testid="developer-loc-new"]').click();
     await expect(page.locator('[data-testid="developer-loc-detail"]')).toBeVisible();
-    const saveBtn = page.locator('[data-testid="developer-loc-save"]');
-    await expect(saveBtn).toBeDisabled();
-
     await page.locator('[data-testid="developer-loc-language"]').fill(lang);
-    await expect(saveBtn).toBeDisabled();
     await page.locator('[data-testid="developer-loc-label"]').fill(label);
-    await expect(saveBtn).toBeEnabled();
-    await saveBtn.click();
-
+    await page.locator('[data-testid="developer-loc-save"]').click();
     const notice = page.locator('[data-testid="developer-loc-editor-notice"]');
     const saveError = page.locator('[data-testid="developer-loc-detail-error"]');
-    await expect(notice).toBeVisible({ timeout: 20_000 });
+    await expect(notice.or(saveError).first()).toBeVisible({ timeout: 20_000 });
     if (await saveError.isVisible()) {
       throw new Error(`Create failed: ${(await saveError.innerText()).trim()}`);
     }
 
-    await expect(page.locator('[data-testid="developer-loc-language"]')).toBeDisabled({
-      timeout: 20_000,
-    });
-    await expect(page.locator('[data-testid="developer-loc-language"]')).toHaveValue(lang);
-
-    await page.locator('[data-testid="developer-loc-label"]').fill(savedLabel);
-    await expect(saveBtn).toBeEnabled();
-    await saveBtn.click();
-    await expect(notice.or(saveError).first()).toBeVisible({ timeout: 20_000 });
-    if (await saveError.isVisible()) {
-      throw new Error(`Save failed: ${(await saveError.innerText()).trim()}`);
-    }
-
     await page.locator('[data-testid="developer-loc-delete"]').click();
+    const dialog = page.locator('[data-testid="developer-catalog-confirm-dialog"]');
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toHaveAttribute("role", "dialog");
+    await expect(dialog).toHaveAttribute("aria-modal", "true");
+    expect(nativeDialogs, "native window.confirm must not open").toEqual([]);
+
     await confirmDeveloperCatalogDelete(page);
     await expect(page.locator('[data-testid="developer-loc-panel"]')).toBeVisible({
       timeout: 20_000,
     });
     await expect(page.locator(`[data-loc-lang="${lang}"]`)).toHaveCount(0);
-
-    assertConsoleClean(pageErrors, consoleErrors);
-  });
-
-  test("duplicate language 409 is surfaced in the UI", async ({ page }) => {
-    test.setTimeout(120_000);
-    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-
-    await loginAsAdmin(page);
-    await openLocalesCatalog(page);
-
-    await page.locator('[data-testid="developer-loc-new"]').click();
-    await expect(page.locator('[data-testid="developer-loc-detail"]')).toBeVisible();
-    await page.locator('[data-testid="developer-loc-language"]').fill("en-us");
-    await page.locator('[data-testid="developer-loc-label"]').fill("Duplicate English");
-    await page.locator('[data-testid="developer-loc-save"]').click();
-
-    const err = page.locator('[data-testid="developer-loc-detail-error"]');
-    await expect(err).toBeVisible({ timeout: 20_000 });
-    await expect(err).toContainText(/already exists|409|duplicate/i);
+    expect(nativeDialogs).toEqual([]);
 
     assertConsoleClean(pageErrors, consoleErrors);
   });

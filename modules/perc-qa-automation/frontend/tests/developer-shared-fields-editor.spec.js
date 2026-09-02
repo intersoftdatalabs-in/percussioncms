@@ -30,6 +30,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { confirmDeveloperCatalogDelete } = require("./helpers/developer-catalog-confirm");
 
 function developerSharedFieldsUrl() {
   const q = new URLSearchParams({
@@ -96,8 +97,6 @@ test.describe("Developer shared field group editor (#4029 / CD-15)", () => {
   test("Admin can create, save, and delete a shared field group", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
-    page.on("dialog", (dialog) => dialog.accept());
-
     await loginAsAdmin(page);
     await openSharedFieldsCatalog(page);
 
@@ -131,6 +130,7 @@ test.describe("Developer shared field group editor (#4029 / CD-15)", () => {
     }
 
     await page.locator('[data-testid="developer-sf-delete"]').click();
+    await confirmDeveloperCatalogDelete(page);
     await expect(page.locator('[data-testid="developer-sf-panel"]')).toBeVisible({
       timeout: 20_000,
     });

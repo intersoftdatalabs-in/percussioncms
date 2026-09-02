@@ -28,7 +28,8 @@ panels (for example content types).
    non-Admin session is **403**. After a successful create, the catalog
    includes the new row when you return to the list, and the detail panel
    still offers **role membership** save.
-5. Open an existing community and click **Delete community**, then confirm.
+5. Open an existing community and click **Delete community**, then confirm
+   in the in-app dialog (not a browser prompt).
    The catalog no longer lists that name. Delete of a missing community is
    **404**. A community that is still **in use** (dependencies) is **409**
    and remains — the SPA does **not** send `ignoredependencies` and does not

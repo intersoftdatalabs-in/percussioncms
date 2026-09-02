@@ -441,27 +441,23 @@ describe("DisplayFormatDetailPanel", () => {
   it("deletes after confirm and omits delete chrome in create mode", async () => {
     getDisplayFormatDetail.mockResolvedValue(sampleDetail);
     deleteDisplayFormat.mockResolvedValue(undefined);
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-    try {
-      const onDeleted = vi.fn();
-      render(
-        <DisplayFormatDetailPanel
-          idOrName="Default"
-          onBack={() => undefined}
-          onDeleted={onDeleted}
-        />,
-      );
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-df-delete")).toBeTruthy();
-      });
-      fireEvent.click(screen.getByTestId("developer-df-delete"));
-      await waitFor(() => {
-        expect(onDeleted).toHaveBeenCalled();
-      });
-      expect(deleteDisplayFormat).toHaveBeenCalledWith("Default");
-    } finally {
-      confirmSpy.mockRestore();
-    }
+    const onDeleted = vi.fn();
+    render(
+      <DisplayFormatDetailPanel
+        idOrName="Default"
+        onBack={() => undefined}
+        onDeleted={onDeleted}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(onDeleted).toHaveBeenCalled();
+    });
+    expect(deleteDisplayFormat).toHaveBeenCalledWith("Default");
   });
 
   it("surfaces 404 missing display format on delete", async () => {
@@ -471,22 +467,18 @@ describe("DisplayFormatDetailPanel", () => {
       statusText: "Not Found",
       body: { message: "Display format not found" },
     });
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-    try {
-      render(<DisplayFormatDetailPanel idOrName="Default" onBack={() => undefined} />);
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-df-delete")).toBeTruthy();
-      });
-      fireEvent.click(screen.getByTestId("developer-df-delete"));
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-df-detail-error")).toBeTruthy();
-      });
-      expect(screen.getByTestId("developer-df-detail-error").textContent).toContain(
-        DEV_MSG.DF_NOT_FOUND,
-      );
-    } finally {
-      confirmSpy.mockRestore();
-    }
+    render(<DisplayFormatDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-df-detail-error").textContent).toContain(
+      DEV_MSG.DF_NOT_FOUND,
+    );
   });
 
   it("does not show delete on create", () => {

@@ -322,23 +322,19 @@ describe("LocaleDetailPanel", () => {
   it("deletes after confirm and omits delete chrome in create mode", async () => {
     getLocaleDetail.mockResolvedValue(sampleDetail);
     deleteLocale.mockResolvedValue(undefined);
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
-    try {
-      const onDeleted = vi.fn();
-      render(
-        <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onDeleted={onDeleted} />,
-      );
-      await waitFor(() => {
-        expect(screen.getByTestId("developer-loc-delete")).toBeTruthy();
-      });
-      fireEvent.click(screen.getByTestId("developer-loc-delete"));
-      await waitFor(() => {
-        expect(onDeleted).toHaveBeenCalled();
-      });
-      expect(deleteLocale).toHaveBeenCalledWith("en-us");
-    } finally {
-      confirmSpy.mockRestore();
-    }
+    const onDeleted = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onDeleted={onDeleted} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(onDeleted).toHaveBeenCalled();
+    });
+    expect(deleteLocale).toHaveBeenCalledWith("en-us");
   });
 
   it("does not show delete on create", () => {

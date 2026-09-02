@@ -374,7 +374,6 @@ describe("CommunityDetailPanel", () => {
       statusText: "Conflict",
       body: { message: "Community has dependencies" },
     });
-    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
     const onDeleted = vi.fn();
     render(
       <CommunityDetailPanel
@@ -387,6 +386,7 @@ describe("CommunityDetailPanel", () => {
       expect(screen.getByTestId("developer-comm-delete")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("developer-comm-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-comm-detail-error")).toBeTruthy();
     });
@@ -396,7 +396,6 @@ describe("CommunityDetailPanel", () => {
     );
     expect(onDeleted).not.toHaveBeenCalled();
     expect(screen.getByTestId("developer-comm-detail-title")).toBeTruthy();
-    confirm.mockRestore();
   });
 
   it("surfaces 403 non-Admin on delete", async () => {
@@ -406,25 +405,23 @@ describe("CommunityDetailPanel", () => {
       statusText: "Forbidden",
       body: { message: "Admin role required" },
     });
-    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
     render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-comm-delete")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("developer-comm-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-comm-detail-error")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-comm-detail-error").textContent).toContain(
       DEV_MSG.COMM_FORBIDDEN,
     );
-    confirm.mockRestore();
   });
 
   it("delete success returns to catalog via onDeleted", async () => {
     getCommunityDetail.mockResolvedValue(sampleDetail);
     deleteCommunity.mockResolvedValue(undefined);
-    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
     const onDeleted = vi.fn();
     render(
       <CommunityDetailPanel
@@ -437,10 +434,10 @@ describe("CommunityDetailPanel", () => {
       expect(screen.getByTestId("developer-comm-delete")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("developer-comm-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
     await waitFor(() => {
       expect(onDeleted).toHaveBeenCalled();
     });
     expect(deleteCommunity).toHaveBeenCalledWith(sampleDetail.guid, false);
-    confirm.mockRestore();
   });
 });
