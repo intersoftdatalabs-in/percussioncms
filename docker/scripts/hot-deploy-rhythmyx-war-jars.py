@@ -170,8 +170,16 @@ def _container_running(container_name: str, *, dry_run: bool) -> bool:
     return container_name in running
 
 
+def is_snapshot_primary_jar(name: str, artifact_id: str) -> bool:
+    """True for ``<artifactId>-<version>-SNAPSHOT.jar`` (not sources/javadoc/tests)."""
+    if any(name.endswith(sfx) for sfx in SKIP_JAR_SUFFIXES):
+        return False
+    prefix = artifact_id + "-"
+    return name.startswith(prefix) and name.endswith("-SNAPSHOT.jar")
+
+
 def newest_primary_jar(target_dir: Path, artifact_id: str) -> Optional[Path]:
-    """Newest ``<artifactId>-*.jar`` that is not sources/javadoc/tests."""
+    """Prefer ``<artifactId>-<version>-SNAPSHOT.jar`` over mtime (shared ``target/``)."""
     if not target_dir.is_dir():
         return None
     candidates: list[Path] = []
@@ -184,7 +192,11 @@ def newest_primary_jar(target_dir: Path, artifact_id: str) -> Optional[Path]:
         candidates.append(p)
     if not candidates:
         return None
-    return max(candidates, key=lambda item: item.stat().st_mtime)
+    snapshots = [p for p in candidates if is_snapshot_primary_jar(p.name, artifact_id)]
+    pool = snapshots if snapshots else candidates
+    chosen = max(pool, key=lambda item: item.name)
+    LOG.info("Selected %s jar: %s", artifact_id, chosen)
+    return chosen
 
 
 def jar_has_sitemap_xml_source(jar_path: Path) -> bool:
@@ -267,6 +279,35 @@ def _remove_artifact_jars(
     return EXIT_OK
 
 
+def is_artifact_backup_name(name: str, artifact_id: str) -> bool:
+    """True for ``<artifactId>-*.jar.bak.<ts>`` next to a deployed SNAPSHOT."""
+    return name.startswith(artifact_id + "-") and ".bak." in name
+
+
+def _prune_artifact_backups(
+    container_name: str,
+    dest: str,
+    artifact_id: str,
+    *,
+    dry_run: bool,
+) -> int:
+    """Remove previous ``*.bak.<ts>`` for this artifact before writing a new backup."""
+    rc, names = _list_lib_jars(container_name, dest, dry_run=dry_run)
+    if rc != EXIT_OK:
+        return rc
+    for name in names:
+        if not is_artifact_backup_name(name, artifact_id):
+            continue
+        remote = f"{dest}/{name}"
+        rc = _run(
+            ["docker", "exec", container_name, "rm", "-f", remote],
+            dry_run=dry_run,
+        )
+        if rc != EXIT_OK:
+            return rc
+    return EXIT_OK
+
+
 def _deploy_one(
     jar_path: Path,
     container_name: str,
@@ -288,6 +329,15 @@ def _deploy_one(
     )
     if rc != EXIT_OK:
         return EXIT_DOCKER_FAILED
+
+    rc = _prune_artifact_backups(
+        container_name,
+        dest,
+        artifact_id,
+        dry_run=dry_run,
+    )
+    if rc != EXIT_OK:
+        return rc
 
     rc = _remove_artifact_jars(
         container_name,

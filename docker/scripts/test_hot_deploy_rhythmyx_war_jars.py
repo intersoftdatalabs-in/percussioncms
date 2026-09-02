@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 import subprocess
 import sys
 import tempfile
@@ -122,6 +123,40 @@ class TestNewestPrimaryJar(unittest.TestCase):
             self.assertIsNone(
                 hdj.newest_primary_jar(Path(td) / "missing", "perc-system")
             )
+
+    def test_prefers_snapshot_filename_over_mtime(self):
+        with tempfile.TemporaryDirectory() as td:
+            target = Path(td) / "system" / "target"
+            older = target / "perc-system-8.1.0-SNAPSHOT.jar"
+            newer_name = target / "perc-system-8.2.0-SNAPSHOT.jar"
+            stale = target / "perc-system-8.0.0.jar"
+            _write_jar(stale, "x")
+            _write_jar(older, "x")
+            _write_jar(newer_name, "x")
+            os.utime(stale, (9_999_999_999, 9_999_999_999))
+            jar = hdj.newest_primary_jar(target, "perc-system")
+            self.assertIsNotNone(jar)
+            self.assertEqual(jar.name, "perc-system-8.2.0-SNAPSHOT.jar")
+
+    def test_is_artifact_backup_name(self):
+        self.assertTrue(
+            hdj.is_artifact_backup_name(
+                "perc-system-8.2.0-SNAPSHOT.jar.bak.20260902120000",
+                "perc-system",
+            )
+        )
+        self.assertFalse(
+            hdj.is_artifact_backup_name(
+                "perc-system-8.2.0-SNAPSHOT.jar",
+                "perc-system",
+            )
+        )
+        self.assertFalse(
+            hdj.is_artifact_backup_name(
+                "sitemanage-8.2.0-SNAPSHOT.jar.bak.1",
+                "perc-system",
+            )
+        )
 
 
 class TestSitemapXmlMarker(unittest.TestCase):

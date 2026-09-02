@@ -157,6 +157,8 @@ QA_CMS_PRODUCT = "cms"
 QA_CMS_DB = "h2"
 QA_CMS_CELL_ID = f"{QA_CMS_PRODUCT}-{QA_CMS_DB}"
 QA_CMS_CONTAINER = f"perc-matrix-{QA_CMS_CELL_ID}"
+# Same default as docker/scripts/hot-deploy-rhythmyx-war-jars.py --dest.
+QA_WAR_JARS_DEST = "/opt/Percussion/jetty/base/webapps/Rhythmyx/WEB-INF/lib"
 # Probe URL path for ``qa-health`` (#2482). The matrix-recommended primary
 # is ``/Rhythmyx/rest/mimetypes`` (Spring-managed ``MimeTypeResource.ping()``
 # — returns 404 when the Rhythmyx Spring ApplicationContext is dead, instead
@@ -464,6 +466,14 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "--skip-image-build is set."
         ),
     )
+    pqu.add_argument(
+        "--no-restart-jetty",
+        action="store_true",
+        help=(
+            "With --then-qa-deploy-war-jars, copy SNAPSHOTs without "
+            "in-cell StopJetty/StartJetty (default restarts Jetty)."
+        ),
+    )
     pqu.add_argument("--dry-run", action="store_true")
 
     # --- Rebuild-chain preflight — #2486 / #2532 ---
@@ -648,6 +658,11 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--skip-sitemap-xml-check",
         action="store_true",
         help="Allow perc-system without PSSitemapXmlVirtualSiteSource.",
+    )
+    pqdj.add_argument(
+        "--dest",
+        default=QA_WAR_JARS_DEST,
+        help=f"Absolute container WEB-INF/lib (default: {QA_WAR_JARS_DEST}).",
     )
     pqdj.add_argument("--dry-run", action="store_true")
 
@@ -1236,6 +1251,7 @@ def _qa_deploy_war_jars_argv(
     container: str,
     restart_jetty: bool,
     skip_sitemap_xml_check: bool,
+    dest: str = QA_WAR_JARS_DEST,
 ) -> List[str]:
     """Build the argv list for ``docker/scripts/hot-deploy-rhythmyx-war-jars.py``."""
     argv = [
@@ -1245,6 +1261,8 @@ def _qa_deploy_war_jars_argv(
         str(repo_root),
         "--container",
         container,
+        "--dest",
+        dest,
     ]
     if restart_jetty:
         argv.append("--restart-jetty")
@@ -1265,6 +1283,7 @@ def cmd_qa_deploy_war_jars(
             getattr(args, "container", QA_CMS_CONTAINER),
             bool(getattr(args, "restart_jetty", False)),
             bool(getattr(args, "skip_sitemap_xml_check", False)),
+            getattr(args, "dest", QA_WAR_JARS_DEST),
         ),
         log_dir=log_dir,
         cwd=repo_root,
@@ -1824,8 +1843,9 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
                 argparse.Namespace(
                     dry_run=True,
                     container=QA_CMS_CONTAINER,
-                    restart_jetty=True,
+                    restart_jetty=not bool(getattr(args, "no_restart_jetty", False)),
                     skip_sitemap_xml_check=False,
+                    dest=QA_WAR_JARS_DEST,
                 ),
                 paths,
             )
@@ -1846,8 +1866,9 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
             argparse.Namespace(
                 dry_run=False,
                 container=QA_CMS_CONTAINER,
-                restart_jetty=True,
+                restart_jetty=not bool(getattr(args, "no_restart_jetty", False)),
                 skip_sitemap_xml_check=False,
+                dest=QA_WAR_JARS_DEST,
             ),
             paths,
         )

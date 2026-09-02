@@ -53,12 +53,12 @@ perc-devctl.py logs-path
 perc-devctl.py inspect-install
 perc-devctl.py show-generated-passwords
 # QA mode — H2-in-Docker CMS for Playwright (no host install) — #1827 / #1927
-perc-devctl.py qa-up [--timeout-seconds N] [--skip-image-build] [--then-qa-deploy-webui] [--then-qa-deploy-war-jars]
+perc-devctl.py qa-up [--timeout-seconds N] [--skip-image-build] [--then-qa-deploy-webui] [--then-qa-deploy-war-jars] [--no-restart-jetty]
 perc-devctl.py qa-preflight [--strict] [--no-content-hash]
 perc-devctl.py qa-rebuild-chain [--skip-tests] [--dist-only] [--then-qa-up] [--then-qa-deploy-webui] [--skip-webui-deploy] [--dry-run]
 perc-devctl.py qa-health [--timeout-seconds N] [--interval-seconds N] [--url URL]
 perc-devctl.py qa-deploy-webui [--src DIR] [--container NAME]
-perc-devctl.py qa-deploy-war-jars [--container NAME] [--restart-jetty]
+perc-devctl.py qa-deploy-war-jars [--container NAME] [--dest PATH] [--restart-jetty]
 perc-devctl.py qa-down [--container NAME]
 ```
 
