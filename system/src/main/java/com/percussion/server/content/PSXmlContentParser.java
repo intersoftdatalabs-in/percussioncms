@@ -17,9 +17,10 @@
 
 package com.percussion.server.content;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.data.PSXmlFieldExtractor;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestParsingException;
 import com.percussion.util.PSBaseHttpUtils;
@@ -82,7 +83,7 @@ public class PSXmlContentParser extends PSContentParser {
     if (!isSupportedContentType(mimeType)) {
       // FB: DMI_INVOKING_TOSTRING_ON_ARRAY 1-17-16
       Object[] args = {mimeType, Arrays.toString(ARRAY_SUPPORTED_TYPES)};
-      throw new PSRequestParsingException(IPSServerErrors.PARSER_UNSUPPORTED_CONTENT_TYPE, args);
+      throw new PSRequestParsingException(ServerErrorCodes.PARSER_UNSUPPORTED_CONTENT_TYPE, args);
     } else if (length == 0) // return an empty document
     return;
 
@@ -103,7 +104,7 @@ public class PSXmlContentParser extends PSContentParser {
       };
       com.percussion.log.PSLogManager.write(
           new com.percussion.log.PSLogServerWarning(
-              IPSServerErrors.CONTENT_LENGTH_DOES_NOT_MATCH_DATA_READ,
+              ServerErrorCodes.CONTENT_LENGTH_DOES_NOT_MATCH_DATA_READ.numericCode(),
               args,
               true,
               "PSXmlContentParser"));
@@ -174,10 +175,10 @@ public class PSXmlContentParser extends PSContentParser {
       Object[] args = {
         getSaxExceptionContextMessage(e) + "  " + getSaxExceptionContextData(e, brdr)
       };
-      throw new PSRequestParsingException(IPSServerErrors.XML_PARSER_SAX_ERROR, args);
+      throw new PSRequestParsingException(ServerErrorCodes.XML_PARSER_SAX_ERROR, args);
     } catch (SAXException e) {
       Object[] args = {e.getMessage()};
-      throw new PSRequestParsingException(IPSServerErrors.XML_PARSER_SAX_ERROR, args);
+      throw new PSRequestParsingException(ServerErrorCodes.XML_PARSER_SAX_ERROR, args);
     } finally {
       if (fin != null) {
         try {

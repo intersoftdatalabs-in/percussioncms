@@ -16,6 +16,8 @@
  */
 package com.percussion.server;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+
 import com.percussion.conn.PSServerException;
 import com.percussion.error.PSHookRequestError;
 import com.percussion.security.PSAuthorizationException;
@@ -114,7 +116,7 @@ public class PSHookRequestHandler implements IPSRequestHandler {
     if (resp == null) {
       sendErrorResponse(
           resp,
-          IPSServerErrors.HOOK_REQUEST_RESPONSE_NULL,
+          ServerErrorCodes.HOOK_REQUEST_RESPONSE_NULL.numericCode(),
           new IllegalArgumentException("response object == null"));
       return;
     }
@@ -125,7 +127,7 @@ public class PSHookRequestHandler implements IPSRequestHandler {
     Method rhMethod = m_requestHandlerMethods.get(reqType);
     if (rhMethod == null) {
       sendErrorResponse(
-          resp, IPSServerErrors.HOOK_REQUEST_INVALID_TYPE, new IllegalArgumentException(reqType));
+          resp, ServerErrorCodes.HOOK_REQUEST_INVALID_TYPE.numericCode(), new IllegalArgumentException(reqType));
       return;
     } else {
       /* now invoke it to get the response doc */
@@ -137,7 +139,7 @@ public class PSHookRequestHandler implements IPSRequestHandler {
           e = ((java.lang.reflect.InvocationTargetException) e).getTargetException();
 
         /* and respond to the user */
-        sendErrorResponse(resp, IPSServerErrors.HOOK_REQUEST_INVOCATION_EXCEPTION, e);
+        sendErrorResponse(resp, ServerErrorCodes.HOOK_REQUEST_INVOCATION_EXCEPTION.numericCode(), e);
         return;
       }
     }

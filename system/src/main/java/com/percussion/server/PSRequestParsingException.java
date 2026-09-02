@@ -17,6 +17,8 @@
 
 package com.percussion.server;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -42,11 +44,21 @@ public class PSRequestParsingException extends PSException {
   }
 
   /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSRequestParsingException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
+  }
+
+  /**
    * Constructs a request parsing exception with the specified error string.
    *
    * @param msg the error string describing the error
    */
   public PSRequestParsingException(java.lang.String msg) {
-    super(IPSServerErrors.RAW_DUMP, (Object) msg);
+    super(ServerErrorCodes.RAW_DUMP, (Object) msg);
   }
 }

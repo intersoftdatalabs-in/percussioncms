@@ -16,6 +16,8 @@
  */
 package com.percussion.server;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.error.PSErrorHandler;
 import com.percussion.error.PSIllegalArgumentException;
@@ -54,7 +56,7 @@ public class PSRemoteConsoleHandler implements IPSRequestHandler, IPSValidateSes
       Object[] args = {request.getUserSessionId(), "null response object"};
       com.percussion.log.PSLogManager.write(
           new com.percussion.log.PSLogServerWarning(
-              com.percussion.server.IPSServerErrors.RESPONSE_SEND_ERROR,
+              ServerErrorCodes.RESPONSE_SEND_ERROR.numericCode(),
               args,
               true,
               "RemoteConsoleHandler"));
@@ -74,7 +76,7 @@ public class PSRemoteConsoleHandler implements IPSRequestHandler, IPSValidateSes
             request,
             resp,
             commandString,
-            new PSIllegalArgumentException(IPSServerErrors.REQ_DOC_MISSING, args));
+            new PSIllegalArgumentException(ServerErrorCodes.REQ_DOC_MISSING, args));
         return;
       }
 
@@ -85,7 +87,7 @@ public class PSRemoteConsoleHandler implements IPSRequestHandler, IPSValidateSes
             request,
             resp,
             commandString,
-            new PSIllegalArgumentException(IPSServerErrors.REQ_DOC_INVALID_TYPE, args));
+            new PSIllegalArgumentException(ServerErrorCodes.REQ_DOC_INVALID_TYPE, args));
         return;
       }
 
@@ -105,7 +107,7 @@ public class PSRemoteConsoleHandler implements IPSRequestHandler, IPSValidateSes
         };
         com.percussion.log.PSLogManager.write(
             new com.percussion.log.PSLogServerWarning(
-                com.percussion.server.IPSServerErrors.RESPONSE_SEND_ERROR,
+                ServerErrorCodes.RESPONSE_SEND_ERROR.numericCode(),
                 args,
                 true,
                 "RemoteConsoleHandler"));
@@ -131,7 +133,7 @@ public class PSRemoteConsoleHandler implements IPSRequestHandler, IPSValidateSes
       };
       com.percussion.log.PSLogManager.write(
           new com.percussion.log.PSLogServerWarning(
-              com.percussion.server.IPSServerErrors.RESPONSE_SEND_ERROR,
+              ServerErrorCodes.RESPONSE_SEND_ERROR.numericCode(),
               args,
               true,
               "RemoteConsoleHandler"));

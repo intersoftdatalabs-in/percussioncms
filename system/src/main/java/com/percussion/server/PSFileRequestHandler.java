@@ -17,6 +17,8 @@
 
 package com.percussion.server;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+
 import com.percussion.content.PSContentFactory;
 import com.percussion.data.IPSDataErrors;
 import com.percussion.data.IPSInternalRequestHandler;
@@ -214,7 +216,7 @@ public class PSFileRequestHandler implements IPSRequestHandler, IPSInternalReque
       File f = new File(m_baseDirectory, request.getRequestPage());
       if (!f.exists())
         throw new PSInternalRequestCallException(
-            IPSServerErrors.APP_FILE_DOES_NOT_EXIST, f.toString());
+            ServerErrorCodes.APP_FILE_DOES_NOT_EXIST.numericCode(), f.toString());
 
       // test if this is an XML file
       is = new FileInputStream(f);
@@ -223,7 +225,7 @@ public class PSFileRequestHandler implements IPSRequestHandler, IPSInternalReque
       String xmlHeader = new String(buffer);
       if (!xmlHeader.equals(XML_HEADER))
         throw new PSInternalRequestCallException(
-            IPSServerErrors.APP_ONLY_XML_FILES_SUPPORTED, f.getName());
+            ServerErrorCodes.APP_ONLY_XML_FILES_SUPPORTED.numericCode(), f.getName());
 
       // reset the input buffer and create the document
       is.close();

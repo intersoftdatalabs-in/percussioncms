@@ -17,11 +17,12 @@
 
 package com.percussion.server.content;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.data.PSConversionException;
 import com.percussion.data.PSXmlDocumentJsonCodec;
 import com.percussion.data.PSXmlFieldExtractor;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestParsingException;
 import com.percussion.util.PSBaseHttpUtils;
@@ -65,7 +66,7 @@ public class PSJsonContentParser extends PSContentParser {
 
     if (!isSupportedContentType(mimeType)) {
       Object[] args = {mimeType, Arrays.toString(ARRAY_SUPPORTED_TYPES)};
-      throw new PSRequestParsingException(IPSServerErrors.PARSER_UNSUPPORTED_CONTENT_TYPE, args);
+      throw new PSRequestParsingException(ServerErrorCodes.PARSER_UNSUPPORTED_CONTENT_TYPE, args);
     }
 
     if (length == 0) {
@@ -104,7 +105,7 @@ public class PSJsonContentParser extends PSContentParser {
         };
         com.percussion.log.PSLogManager.write(
             new com.percussion.log.PSLogServerWarning(
-                IPSServerErrors.CONTENT_LENGTH_DOES_NOT_MATCH_DATA_READ,
+                ServerErrorCodes.CONTENT_LENGTH_DOES_NOT_MATCH_DATA_READ.numericCode(),
                 args,
                 true,
                 "PSJsonContentParser"));
@@ -116,7 +117,7 @@ public class PSJsonContentParser extends PSContentParser {
         doc = PSXmlDocumentJsonCodec.fromJson(reader);
       } catch (PSConversionException e) {
         Object[] args = {e.getLocalizedMessage()};
-        throw new PSRequestParsingException(IPSServerErrors.JSON_PARSER_ERROR, args);
+        throw new PSRequestParsingException(ServerErrorCodes.JSON_PARSER_ERROR, args);
       }
 
       /* Reject embedded file URLs (same security rule as XML content parser). */

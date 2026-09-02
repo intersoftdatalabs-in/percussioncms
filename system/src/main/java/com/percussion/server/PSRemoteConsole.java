@@ -16,6 +16,8 @@
  */
 package com.percussion.server;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+
 import com.percussion.conn.PSDesignerConnection;
 import com.percussion.conn.PSServerException;
 import com.percussion.error.PSIllegalArgumentException;
@@ -82,7 +84,7 @@ public class PSRemoteConsole {
   public PSRemoteConsole(PSDesignerConnection conn) throws PSIllegalArgumentException {
     super();
 
-    if (conn == null) throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_CONN_OBJ_NULL);
+    if (conn == null) throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_CONN_OBJ_NULL);
 
     m_conn = conn;
   }
@@ -215,12 +217,12 @@ public class PSRemoteConsole {
           PSAuthorizationException,
           PSAuthenticationFailedException,
           java.io.IOException {
-    if (command == null) throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_CMD_EMPTY);
+    if (command == null) throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_CMD_EMPTY);
 
     // remove any whitespace so we know if we have some valid text
     command = command.trim();
     if (command.length() == 0)
-      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_CMD_EMPTY);
+      throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_CMD_EMPTY);
 
     /* send the console command as an XML document
      * it's format is:
