@@ -74,10 +74,10 @@ import org.springframework.context.annotation.Lazy;
  *
  * <p>GET catalog uses {@link IPSUiDesignWs#findDisplayFormats}. Admin create/update persist
  * through the same design WS SOAP uses ({@code createDisplayFormats} / {@code loadDisplayFormats}
- * / {@code saveDisplayFormats}). Admin delete loads with a design lock, marks the native format
- * for deletion, and persists via the Workbench objectstore processor so {@code
- * updateDisplayFormats} receives the XML document {@code PSTransactionSet} requires. Locator-only
- * {@code deleteDisplayFormats} does not supply that document ({@code Xml Document Expected}). No
+ * / {@code saveDisplayFormats}). Admin delete resolves a persisted DISPLAYID from the name or
+ * GUID (never an empty id list) then {@code deleteDisplayFormats}, which JDBC-deletes {@code
+ * PSX_DISPLAYFORMATS} the same way POST JDBC-inserts. Locator-only XML delete does not persist
+ * REST-created rows ({@code Xml Document Expected} / {@code ids cannot be null or empty}). No
  * new SOAP methods.
  */
 @PSSiteManageBean
@@ -268,29 +268,36 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     if (!isSafeDisplayFormatKey(idOrName)) {
       return false;
     }
-    DisplayFormat existing = findDisplayFormatByKey(idOrName);
-    if (existing == null) {
-      return false;
-    }
-    IPSGuid id = resolveGuid(existing);
-    if (id == null) {
+    IPSGuid id = resolvePersistedGuid(idOrName.trim());
+    if (id == null || id.getUUID() <= 0) {
       return false;
     }
     String session = currentSession();
     String user = currentUser();
     try {
-      List<PSDisplayFormat> locked =
-          designWs.loadDisplayFormats(List.of(id), true, false, session, user);
-      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
-        throw new WebApplicationException(
-            "Could not delete display format; design lock required or held by another user", 409);
+      try {
+        List<PSDisplayFormat> locked =
+            designWs.loadDisplayFormats(List.of(id), true, false, session, user);
+        if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+          throw new WebApplicationException(
+              "Could not delete display format; design lock required or held by another user", 409);
+        }
+      } catch (IllegalArgumentException e) {
+        if (!isEmptyIdsFailure(e)) {
+          throw e;
+        }
+        // JDBC delete proceeds when no foreign lock exists (hasValidLockForDelete).
+        log.debug("Display format lock-load returned empty ids; JDBC delete continues: {}", id);
       }
-      PSDisplayFormat nativeDf =
-          nativeForDelete(locked.get(0), existing, idOrName);
-      nativeDf.markForDeletion();
-      xmlDeleter.delete(nativeDf, id, session, user);
+      designWs.deleteDisplayFormats(List.of(id), false, session, user);
       return true;
     } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      if (isEmptyIdsFailure(e)) {
+        throw new IllegalStateException(
+            "Display format DELETE resolved an empty id list for " + idOrName, e);
+      }
       throw e;
     } catch (PSErrorResultsException e) {
       if (isNotFound(e, id)) {
@@ -300,10 +307,42 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
           "Could not delete display format; design lock required or held by another user", 409);
     } catch (PSErrorsException e) {
       throw mapSaveOrDeleteFailure("delete", e);
-    } catch (PSCmsException e) {
-      throw mapSaveOrDeleteFailure(
-          "delete", wrapCmsDeleteFailure(id, e));
     }
+  }
+
+  /**
+   * Persisted DISPLAYID for a name or GUID key. Name-keyed REST DELETE must not call
+   * {@code deleteDisplayFormats} with an empty id list (#4172).
+   */
+  IPSGuid resolvePersistedGuid(String idOrName) {
+    if (!isSafeDisplayFormatKey(idOrName)) {
+      return null;
+    }
+    String key = idOrName.trim();
+    try {
+      PSDisplayFormat nativeDf = loadNativeByName(key);
+      if (nativeDf != null
+          && nativeDf.getDisplayId() > 0
+          && (namesMatchIgnoreCase(key, nativeDf.getName())
+              || namesMatchIgnoreCase(key, nativeDf.getInternalName()))) {
+        return new PSGuid(PSTypeEnum.DISPLAY_FORMAT, nativeDf.getDisplayId());
+      }
+    } catch (PSCmsException e) {
+      log.debug("Could not load native display format {}: {}", key, e.toString());
+    }
+    DisplayFormat existing = findDisplayFormatByKey(key);
+    IPSGuid fromDto = resolveGuid(existing);
+    if (fromDto != null && fromDto.getUUID() > 0) {
+      return fromDto;
+    }
+    return null;
+  }
+
+  static boolean isEmptyIdsFailure(IllegalArgumentException e) {
+    if (e == null || e.getMessage() == null) {
+      return false;
+    }
+    return e.getMessage().contains("ids cannot be null or empty");
   }
 
   /**
