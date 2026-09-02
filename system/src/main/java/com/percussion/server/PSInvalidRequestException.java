@@ -17,6 +17,9 @@
 
 package com.percussion.server;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+import com.percussion.error.IPSErrorCode;
+
 /**
  * PSInvalidRequestException is thrown to indicate that a request was received which could not be
  * parsed properly. This usually occurs when the request did not have the sufficient information so
@@ -28,7 +31,18 @@ public class PSInvalidRequestException extends PSRequestParsingException {
    * and hence the default error code.
    */
   public PSInvalidRequestException() {
-    super(IPSServerErrors.INVALID_REQUEST_LINE, null);
+    super(ServerErrorCodes.INVALID_REQUEST_LINE, null);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message, may be
+   *     {@code null} or empty
+   */
+  public PSInvalidRequestException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
   }
 
   /**

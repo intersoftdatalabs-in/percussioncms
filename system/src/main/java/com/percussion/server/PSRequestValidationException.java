@@ -17,6 +17,7 @@
 
 package com.percussion.server;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -96,7 +97,7 @@ public class PSRequestValidationException extends PSException {
    * @param validationRules the rules which were not met
    */
   public PSRequestValidationException(com.percussion.util.PSCollection validationRules) {
-    super(IPSServerErrors.VALIDATION_RULES_NOT_MET, convertRulesToXmlString(validationRules));
+    super(ServerErrorCodes.VALIDATION_RULES_NOT_MET, convertRulesToXmlString(validationRules));
   }
 
   private static String convertRulesToXmlString(com.percussion.util.PSCollection validationRules) {

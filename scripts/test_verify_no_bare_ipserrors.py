@@ -467,6 +467,33 @@ def test_system_design_catalog_converted_paths_not_allowlisted() -> None:
     assert resurrected == [], resurrected
 
 
+def test_system_server_handlers_parsers_converted_paths_not_allowlisted() -> None:
+    """#4150 typed leftover PSServer / handler / parser / console call-sites."""
+    converted = (
+        "system/src/main/java/com/percussion/server/PSConsole.java",
+        "system/src/main/java/com/percussion/server/PSCustomControlManager.java",
+        "system/src/main/java/com/percussion/server/PSHookRequestHandler.java",
+        "system/src/main/java/com/percussion/server/PSInvalidRequestException.java",
+        "system/src/main/java/com/percussion/server/PSRemoteConsole.java",
+        "system/src/main/java/com/percussion/server/PSRemoteConsoleHandler.java",
+        "system/src/main/java/com/percussion/server/PSRequestHandlerConfiguration.java",
+        "system/src/main/java/com/percussion/server/PSRequestParsingException.java",
+        "system/src/main/java/com/percussion/server/PSRequestValidationException.java",
+        "system/src/main/java/com/percussion/server/PSServerLockResult.java",
+        "system/src/main/java/com/percussion/server/content/PSFormContentParser.java",
+        "system/src/main/java/com/percussion/server/content/PSJsonContentParser.java",
+        "system/src/main/java/com/percussion/server/content/PSXmlContentParser.java",
+    )
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = {
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    resurrected = [p for p in converted if p in entries]
+    assert resurrected == [], resurrected
+
+
 def test_system_cx_converted_paths_not_allowlisted() -> None:
     """#4013 typed leftover com.percussion.cx production call-sites."""
     converted = (

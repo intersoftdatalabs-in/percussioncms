@@ -16,6 +16,8 @@
  */
 package com.percussion.server;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.error.PSErrorManager;
 import com.percussion.log.PSLogError;
@@ -202,7 +204,7 @@ public class PSConsole /* extends Thread */ {
 
     Object[] args = {errorMessage};
     String message =
-        PSErrorManager.createMessage(IPSServerErrors.UNEXPECTED_EXCEPTION_CONSOLE, args);
+        PSErrorManager.createMessage(ServerErrorCodes.UNEXPECTED_EXCEPTION_CONSOLE.numericCode(), args);
     printMsg(subsystem, t, message);
   }
 

@@ -17,6 +17,8 @@
 
 package com.percussion.server;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+
 import com.percussion.design.objectstore.PSControlMeta;
 import com.percussion.util.IOTools;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -247,17 +249,17 @@ public class PSCustomControlManager extends PSBaseControlManager {
     if (!fileName.endsWith(ext)) {
       Object[] args = {filePath};
 
-      PSConsole.printMsg(SUBSYSTEM, IPSServerErrors.INVALID_CTRL_FILE_EXT, args);
+      PSConsole.printMsg(SUBSYSTEM, ServerErrorCodes.INVALID_CTRL_FILE_EXT.numericCode(), args);
     } else {
       List<PSControlMeta> ctrls = getControls(file);
       if (ctrls.isEmpty()) {
         Object[] args = {filePath};
 
-        PSConsole.printMsg(SUBSYSTEM, IPSServerErrors.INVALID_CTRL_FILE_MISSING_CTRL, args);
+        PSConsole.printMsg(SUBSYSTEM, ServerErrorCodes.INVALID_CTRL_FILE_MISSING_CTRL.numericCode(), args);
       } else if (ctrls.size() > 1) {
         Object[] args = {filePath};
 
-        PSConsole.printMsg(SUBSYSTEM, IPSServerErrors.INVALID_CTRL_FILE_MULT_CTRLS, args);
+        PSConsole.printMsg(SUBSYSTEM, ServerErrorCodes.INVALID_CTRL_FILE_MULT_CTRLS.numericCode(), args);
       } else {
         PSControlMeta ctrl = ctrls.get(0);
         String ctrlName = ctrl.getName();
@@ -268,7 +270,7 @@ public class PSCustomControlManager extends PSBaseControlManager {
         } else {
           Object[] args = {filePath, ctrlName};
 
-          PSConsole.printMsg(SUBSYSTEM, IPSServerErrors.INVALID_CTRL_FILE_NAME, args);
+          PSConsole.printMsg(SUBSYSTEM, ServerErrorCodes.INVALID_CTRL_FILE_NAME.numericCode(), args);
         }
       }
     }

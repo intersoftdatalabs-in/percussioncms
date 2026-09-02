@@ -16,6 +16,8 @@
  */
 package com.percussion.server;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+
 import com.percussion.data.IPSDataErrors;
 import com.percussion.design.objectstore.PSAttributeList;
 import com.percussion.design.objectstore.PSGlobalSubject;
@@ -2281,7 +2283,7 @@ public class PSRequest {
     PSContentParser parser = ms_ContentParsers.get(mediaType);
     if (parser == null) {
       Object[] args = {contentType};
-      throw new PSRequestParsingException(IPSServerErrors.INVALID_CONTENT_TYPE, args);
+      throw new PSRequestParsingException(ServerErrorCodes.INVALID_CONTENT_TYPE, args);
     }
 
     PSInputStreamReader reader =

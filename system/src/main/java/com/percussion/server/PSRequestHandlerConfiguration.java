@@ -19,6 +19,7 @@ package com.percussion.server;
 
 import com.percussion.conn.PSServerException;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.design.objectstore.PSUnknownDocTypeException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.services.general.IPSRhythmyxInfo;
@@ -265,7 +266,7 @@ public class PSRequestHandlerConfiguration {
     } catch (Exception e) {
       if (!(e instanceof PSServerException)) {
         // wrap it
-        e = new PSServerException(IPSServerErrors.REQUEST_HANDLER_CONFIG_ERROR, e.toString());
+        e = new PSServerException(ServerErrorCodes.REQUEST_HANDLER_CONFIG_ERROR, e.toString());
       }
       throw (PSServerException) e;
     }
@@ -297,7 +298,7 @@ public class PSRequestHandlerConfiguration {
         }
       }
     } catch (Exception e) {
-      throw new PSServerException(IPSServerErrors.REQUEST_HANDLER_CONFIG_ERROR, e.toString());
+      throw new PSServerException(ServerErrorCodes.REQUEST_HANDLER_CONFIG_ERROR, e.toString());
     }
 
     return doc;

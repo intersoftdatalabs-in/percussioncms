@@ -17,6 +17,8 @@
 
 package com.percussion.server;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -172,7 +174,7 @@ public class PSServerLockResult {
 
     String[] args = {resources, m_conflicts.toString()};
 
-    return new PSServerLockException(IPSServerErrors.SERVER_LOCK_NOT_ACQUIRED, args);
+    return new PSServerLockException(ServerErrorCodes.SERVER_LOCK_NOT_ACQUIRED, args);
   }
 
   /**

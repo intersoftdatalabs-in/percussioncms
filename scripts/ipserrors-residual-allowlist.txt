@@ -21,6 +21,7 @@
 #   #3971 leftover system/src/main com.percussion.error call sites
 #   #3969 leftover system/src/main design.catalog call sites
 #   #4013 leftover system/src/main com.percussion.cx call sites
+#   #4150 leftover system/src/main PSServer/handlers/parsers/console
 # Converted (no longer listed): extensions-main #3756/#3938 (allow-list)
 # shrink after #3793 re-listed already-typed production paths);
 # design.catalog leftover #3969; system/src/main com.percussion.mail leftover
@@ -80,21 +81,11 @@ system/src/main/java/com/percussion/search/lucene/PSSearchIndexerImpl.java
 system/src/main/java/com/percussion/search/lucene/PSSearchQueryImpl.java
 system/src/main/java/com/percussion/server/PSApplicationHandler.java
 system/src/main/java/com/percussion/server/PSBaseResponse.java
-system/src/main/java/com/percussion/server/PSConsole.java
-system/src/main/java/com/percussion/server/PSCustomControlManager.java
 system/src/main/java/com/percussion/server/PSFileRequestHandler.java
-system/src/main/java/com/percussion/server/PSHookRequestHandler.java
 system/src/main/java/com/percussion/server/PSInternalRequest.java
-system/src/main/java/com/percussion/server/PSInvalidRequestException.java
-system/src/main/java/com/percussion/server/PSRemoteConsole.java
-system/src/main/java/com/percussion/server/PSRemoteConsoleHandler.java
 system/src/main/java/com/percussion/server/PSRequest.java
-system/src/main/java/com/percussion/server/PSRequestHandlerConfiguration.java
-system/src/main/java/com/percussion/server/PSRequestParsingException.java
-system/src/main/java/com/percussion/server/PSRequestValidationException.java
 system/src/main/java/com/percussion/server/PSResponse.java
 system/src/main/java/com/percussion/server/PSServer.java
-system/src/main/java/com/percussion/server/PSServerLockResult.java
 system/src/main/java/com/percussion/server/PSServerLogHandler.java
 system/src/main/java/com/percussion/server/PSUserSession.java
 system/src/main/java/com/percussion/server/actions/PSAction.java
@@ -150,9 +141,6 @@ system/src/main/java/com/percussion/server/command/PSConsoleCommandStopServer.ja
 system/src/main/java/com/percussion/server/command/PSConsoleCommandTrace.java
 system/src/main/java/com/percussion/server/compare/PSCompare.java
 system/src/main/java/com/percussion/server/config/PSConfigManager.java
-system/src/main/java/com/percussion/server/content/PSFormContentParser.java
-system/src/main/java/com/percussion/server/content/PSJsonContentParser.java
-system/src/main/java/com/percussion/server/content/PSXmlContentParser.java
 system/src/main/java/com/percussion/server/job/PSJobHandler.java
 system/src/main/java/com/percussion/server/job/PSJobHandlerConfiguration.java
 system/src/main/java/com/percussion/server/job/PSJobRunnerFactory.java
