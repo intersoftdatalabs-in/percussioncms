@@ -17,6 +17,7 @@
 
 package com.percussion.server.job;
 
+import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownDocTypeException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
@@ -202,7 +203,7 @@ public class PSJobHandlerConfiguration {
 
     if (className == null) {
       Object[] args = {category, jobType};
-      throw new PSJobException(IPSJobErrors.JOB_DEFINITION_NOT_FOUND, args);
+      throw new PSJobException(JobErrorCodes.JOB_DEFINITION_NOT_FOUND, args);
     }
 
     return className;
@@ -242,7 +243,7 @@ public class PSJobHandlerConfiguration {
 
     if (props == null) {
       Object[] args = {category, jobType};
-      throw new PSJobException(IPSJobErrors.JOB_DEFINITION_NOT_FOUND, args);
+      throw new PSJobException(JobErrorCodes.JOB_DEFINITION_NOT_FOUND, args);
     }
 
     return props;

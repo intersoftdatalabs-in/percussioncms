@@ -18,8 +18,9 @@
 package com.percussion.server.job;
 
 /**
- * The IPSJobErrors interface is provided as a convenient mechanism for accessing the various
- * deployent related error codes.
+ * Legacy numeric bridge for server job error codes. Production throw sites should use typed {@link
+ * com.intsof.percussioncms.auditlog.codes.JobErrorCodes} constructors on {@link PSJobException}.
+ * Constant values here remain the source of the historic int codes (1–11).
  */
 public interface IPSJobErrors {
   /**

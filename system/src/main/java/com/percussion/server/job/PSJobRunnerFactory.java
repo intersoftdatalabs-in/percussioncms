@@ -17,6 +17,8 @@
 
 package com.percussion.server.job;
 
+import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
+
 /**
  * Class for creating classes implementing PSJobRunner based on the type and category of job. Types
  * are paired with class names in the {@link PSJobHandlerConfiguration}. Any class that will be
@@ -63,13 +65,13 @@ public class PSJobRunnerFactory {
       runner = (PSJobRunner) Class.forName(className).newInstance();
     } catch (ClassNotFoundException e) {
       Object[] args = {className, e.getLocalizedMessage()};
-      throw new PSJobException(IPSJobErrors.FACTORY_GET_RUNNER, args);
+      throw new PSJobException(JobErrorCodes.FACTORY_GET_RUNNER, args);
     } catch (InstantiationException e) {
       Object[] args = {className, e.getLocalizedMessage()};
-      throw new PSJobException(IPSJobErrors.FACTORY_GET_RUNNER, args);
+      throw new PSJobException(JobErrorCodes.FACTORY_GET_RUNNER, args);
     } catch (IllegalAccessException e) {
       Object[] args = {className, e.getLocalizedMessage()};
-      throw new PSJobException(IPSJobErrors.FACTORY_GET_RUNNER, args);
+      throw new PSJobException(JobErrorCodes.FACTORY_GET_RUNNER, args);
     }
 
     return runner;
