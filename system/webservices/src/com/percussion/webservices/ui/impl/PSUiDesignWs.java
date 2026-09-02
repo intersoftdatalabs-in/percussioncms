@@ -69,7 +69,9 @@ import com.percussion.webservices.ui.IPSUiDesignWs;
 import com.percussion.webservices.ui.data.ActionType;
 import org.apache.commons.lang3.StringUtils;
 import com.percussion.webservices.ExceptionUtils;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -283,14 +285,24 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    {
       PSWebserviceUtils.validateParameters(ids, "ids", true, session, user);
 
-      deleteComponents(ids, PSAction.class, PSAction.getComponentType(PSAction.class), ignoreDependencies, session,
-            user);
+      try
+      {
+         deleteComponents(ids, PSAction.class, PSAction.getComponentType(PSAction.class), ignoreDependencies, session,
+               user);
+      }
+      catch (PSErrorsException e)
+      {
+         // REST H2 often has RXMENUACTION without the XML design document.
+         // JDBC still removes the catalog row so GET-by-name is 404.
+         log.debug("deleteComponents missed XML action; JDBC RXMENUACTION delete continues", e);
+      }
       for (IPSGuid id : ids)
       {
          if (id != null)
             deleteActionRowPreferringHibernate(id.getUUID());
       }
       invalidateActionCatalog();
+      evictActionMenuRegion();
    }
 
    /*
@@ -1103,6 +1115,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          lockService.releaseLocks(locks);
       }
       invalidateActionCatalog();
+      evictActionMenuRegion();
       for (IPSGuid id : releasedIds)
       {
          if (id != null)
@@ -2595,6 +2608,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    void evictActionMenuCache(int actionId)
    {
+      evictActionMenuRegion();
       try
       {
          SessionFactory factory = getSessionFactory();
@@ -2606,6 +2620,26 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       catch (RuntimeException e)
       {
          log.debug("Could not evict Hibernate RXMENUACTION cache for {}: {}", actionId, e.toString());
+      }
+   }
+
+   /**
+    * Drop the whole {@code PSActionMenu} L2 region so GET catalog does not
+    * reuse a READ_WRITE snapshot from before the JDBC INSERT/DELETE.
+    */
+   void evictActionMenuRegion()
+   {
+      try
+      {
+         SessionFactory factory = getSessionFactory();
+         if (factory != null && factory.getCache() != null)
+         {
+            factory.getCache().evictEntityData(PSActionMenu.class);
+         }
+      }
+      catch (RuntimeException e)
+      {
+         log.debug("Could not evict Hibernate RXMENUACTION region: {}", e.toString());
       }
    }
 
@@ -2715,33 +2749,80 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       SessionFactory factory = getSessionFactory();
       if (factory != null)
       {
-         try
+         if (runActionJdbcOnCurrentSession(factory, conn -> persistActionRowOn(conn, action),
+               action.getName()))
          {
-            factory.getCurrentSession().doWork(conn -> persistActionRowOn(conn, action));
             return;
          }
-         catch (IllegalStateException e)
-         {
-            throw e;
-         }
-         catch (org.hibernate.HibernateException e)
-         {
-            if (e.getCause() instanceof SQLException)
-            {
-               throw new IllegalStateException(
-                     "Action menu was saved but is not visible to findActionMenusTree: " + action.getName(),
-                     e);
-            }
-            log.debug("No Hibernate current session for RXMENUACTION persist; PSConnectionHelper fallback",
-                  e);
-         }
-         catch (RuntimeException e)
-         {
-            log.debug("No Hibernate current session for RXMENUACTION persist; PSConnectionHelper fallback",
-                  e);
-         }
+         runActionJdbcOnOwnSession(factory, conn -> persistActionRowOn(conn, action), action.getName());
+         return;
       }
       ensureActionRowPersisted(action);
+   }
+
+   @FunctionalInterface
+   interface ActionJdbcWork
+   {
+      void accept(Connection conn) throws SQLException;
+   }
+
+   /**
+    * @return {@code true} when the current Hibernate session ran the work
+    */
+   boolean runActionJdbcOnCurrentSession(SessionFactory factory, ActionJdbcWork work, String actionName)
+   {
+      try
+      {
+         Session session = factory.getCurrentSession();
+         session.doWork(conn -> work.accept(conn));
+         session.flush();
+         return true;
+      }
+      catch (IllegalStateException e)
+      {
+         throw e;
+      }
+      catch (org.hibernate.HibernateException e)
+      {
+         if (e.getCause() instanceof SQLException)
+         {
+            throw new IllegalStateException(
+                  "Action menu was saved but is not visible to findActionMenusTree: " + actionName, e);
+         }
+         log.debug("No Hibernate current session for RXMENUACTION JDBC; own session", e);
+         return false;
+      }
+      catch (RuntimeException e)
+      {
+         log.debug("No Hibernate current session for RXMENUACTION JDBC; own session", e);
+         return false;
+      }
+   }
+
+   /**
+    * Independent Hibernate session that commits so GET catalog sees the row
+    * when Spring did not bind {@code SessionFactory.getCurrentSession()}.
+    */
+   void runActionJdbcOnOwnSession(SessionFactory factory, ActionJdbcWork work, String actionName)
+   {
+      Session session = factory.openSession();
+      Transaction tx = session.beginTransaction();
+      try
+      {
+         session.doWork(conn -> work.accept(conn));
+         tx.commit();
+      }
+      catch (RuntimeException e)
+      {
+         if (tx.isActive())
+            tx.rollback();
+         throw new IllegalStateException(
+               "Action menu was saved but is not visible to findActionMenusTree: " + actionName, e);
+      }
+      finally
+      {
+         session.close();
+      }
    }
 
    static void persistActionRowOn(Connection conn, PSAction action) throws SQLException
@@ -2858,32 +2939,15 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    void deleteActionRowPreferringHibernate(int actionId)
    {
       SessionFactory factory = getSessionFactory();
+      String label = String.valueOf(actionId);
       if (factory != null)
       {
-         try
+         if (runActionJdbcOnCurrentSession(factory, conn -> deleteActionRow(conn, actionId), label))
          {
-            factory.getCurrentSession().doWork(conn -> deleteActionRow(conn, actionId));
             return;
          }
-         catch (IllegalStateException e)
-         {
-            throw e;
-         }
-         catch (org.hibernate.HibernateException e)
-         {
-            if (e.getCause() instanceof SQLException)
-            {
-               throw new IllegalStateException(
-                     "Action menu child rows could not be deleted for ACTIONID=" + actionId, e);
-            }
-            log.debug("No Hibernate current session for RXMENUACTION delete; PSConnectionHelper fallback",
-                  e);
-         }
-         catch (RuntimeException e)
-         {
-            log.debug("No Hibernate current session for RXMENUACTION delete; PSConnectionHelper fallback",
-                  e);
-         }
+         runActionJdbcOnOwnSession(factory, conn -> deleteActionRow(conn, actionId), label);
+         return;
       }
       ensureActionRowDeleted(actionId);
    }

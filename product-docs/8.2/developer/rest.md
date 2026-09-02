@@ -1484,7 +1484,8 @@ label / description / menuType / url); cascading children composition (UI-04)
 and usage/command/visibility tab completeness (UI-03) are later slices — see
 [Developer Action Menus](id:admin-developer-action-menus). Finder helpers
 (`GET /services/actions/find`, content-type and template finders) are unchanged.
-After POST the editor notice confirms the save.
+After POST the editor notice confirms the save. Packaged menus (for example
+**Copy**) are **409** on PUT/DELETE, not **404**.
 
 Write is **Admin** only. Name is unique (case-insensitive) and must not contain
 whitespace or wildcards. Duplicate name is **409**. Invalid name or menu type is

@@ -380,7 +380,10 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     try {
       PSAction existing = findPsActionByKey(idOrName.trim());
       if (existing == null) {
-        return null;
+        existing = findHibernateActionByKey(idOrName.trim());
+        if (existing == null) {
+          return null;
+        }
       }
       rejectSystemMenuWrite(existing);
       id = safeGuid(existing);
@@ -423,7 +426,10 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     try {
       PSAction existing = findPsActionByKey(idOrName.trim());
       if (existing == null) {
-        return false;
+        existing = findHibernateActionByKey(idOrName.trim());
+        if (existing == null) {
+          return false;
+        }
       }
       rejectSystemMenuWrite(existing);
       id = safeGuid(existing);
@@ -432,21 +438,23 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       }
       String session = currentSession();
       String user = currentUser();
-      List<PSAction> locked = service.loadActions(List.of(id), true, false, session, user);
-      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
-        throw new WebApplicationException(
-            "Could not delete action menu; design lock required or held by another user", 409);
+      boolean locked = false;
+      try {
+        List<PSAction> held = service.loadActions(List.of(id), true, false, session, user);
+        locked = held != null && !held.isEmpty() && held.get(0) != null;
+      } catch (PSErrorResultsException e) {
+        if (!(id != null && isNotFound(e, id))) {
+          throw new WebApplicationException(
+              "Could not delete action menu; design lock required or held by another user", 409);
+        }
+      }
+      if (!locked && !isRestUserMenu(existing)) {
+        return false;
       }
       service.deleteActions(List.of(id), false, session, user);
       return true;
     } catch (WebApplicationException e) {
       throw e;
-    } catch (PSErrorResultsException e) {
-      if (id != null && isNotFound(e, id)) {
-        return false;
-      }
-      throw new WebApplicationException(
-          "Could not delete action menu; design lock required or held by another user", 409);
     } catch (PSErrorsException e) {
       throw mapSaveOrDeleteFailure("delete", e);
     } finally {
@@ -473,6 +481,10 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       return null;
     }
     String key = idOrName.trim();
+    PSAction fromHibernate = findHibernateActionByKey(key);
+    if (fromHibernate != null) {
+      return fromHibernate;
+    }
     try {
       IPSGuid match = matchSummaryGuid(service.findActions(null, null, null), key);
       if (match == null) {
@@ -498,7 +510,7 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       log.error("Failed to catalog action menus while resolving {}", key, e);
       throw new IllegalStateException("Failed to catalog action menus", e);
     }
-    return findHibernateActionByKey(key);
+    return null;
   }
 
   PSAction findHibernateActionByKey(String key) {

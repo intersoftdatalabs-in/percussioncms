@@ -37,9 +37,8 @@ detail stay **read-only**.
    conflict message (duplicate, system menu, or lock). An invalid name is
    **400**. A non-Admin session is **403**. After a successful create, the name
    field is read-only and the editor notice confirms the save. The catalog
-   row may lag until GitHub issue 4119 (Hibernate `RXMENUACTION` vs design-WS
-   `saveActions`); leaving and returning to the list does not always show the
-   new menu yet.
+   lists the new name immediately (`GET /services/actions/catalog` and GET by
+   name); packaged menus such as **Copy** cannot be deleted (**409**).
 5. Optional: change label, description, menu type, or URL and **Save** again.
    Child entries, parameters, properties, and visibility are not written.
 6. Click **Delete** and confirm. The catalog returns with a green **Action

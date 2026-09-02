@@ -285,12 +285,19 @@ public class PSCmsObjectMgr
 
     public List<PSActionMenu> findActionMenus() {
         Session session = getSession();
-
+        CacheMode previous = session.getCacheMode();
         try {
-            return session.createQuery("from PSActionMenu m order by m.sortOrder asc", PSActionMenu.class).list();
+            // REST POST writes RXMENUACTION via JDBC; the entity region is
+            // READ_WRITE and can hide a just-committed row from GET catalog.
+            session.setCacheMode(CacheMode.IGNORE);
+            return session.createQuery("from PSActionMenu m order by m.sortOrder asc", PSActionMenu.class)
+                    .setCacheable(false)
+                    .list();
         } catch (Exception e) {
             logger.warn("An error occurred while listing action menus: {}" , PSExceptionUtils.getMessageForLog(e));
             return new ArrayList<>();
+        } finally {
+            session.setCacheMode(previous);
         }
     }
 

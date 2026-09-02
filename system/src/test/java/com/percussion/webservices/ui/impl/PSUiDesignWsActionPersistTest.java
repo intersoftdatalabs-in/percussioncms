@@ -101,6 +101,12 @@ class PSUiDesignWsActionPersistTest {
   }
 
   @Test
+  void evictActionMenuRegion_doesNotThrowWhenFactoryMissing() {
+    PSUiDesignWs ws = new PSUiDesignWs();
+    assertDoesNotThrow(ws::evictActionMenuRegion);
+  }
+
+  @Test
   void insertActionRow_isVisibleToSelectAndDeleteOnH2() throws Exception {
     String url = "jdbc:h2:mem:issue4119actions" + System.nanoTime();
     try (Connection conn = DriverManager.getConnection(url);

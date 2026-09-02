@@ -357,6 +357,35 @@ class ActionMenuAdaptorWriteTest {
   }
 
   @Test
+  void delete_packagedCopy_whenDesignWsMissesHibernateRow_is409() throws Exception {
+    PSActionMenu copy = new PSActionMenu("Copy", "Copy", PSAction.TYPE_MENUITEM, "", "SERVER", 0);
+    copy.setActionId(11);
+    adaptor = new ActionMenuAdaptor(designWs, () -> true, () -> List.of(copy));
+    when(designWs.objectIdToPath(any())).thenReturn("//ContentExplorer/Menus/System/Copy");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.deleteActionMenu("Copy"));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(designWs, never()).deleteActions(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void delete_restUser_whenDesignWsLoadMisses_stillDeletes() throws Exception {
+    PSActionMenu user = new PSActionMenu("QaMenu", "QaMenu", PSAction.TYPE_MENU, "", "SERVER", 0);
+    user.setActionId(42);
+    user.addProperty(
+        new com.percussion.services.menus.PSActionMenuProperty(
+            42, ActionMenuAdaptor.REST_USER_MENU_PROP, PSAction.YES));
+    adaptor = new ActionMenuAdaptor(designWs, () -> true, () -> List.of(user));
+    when(designWs.loadActions(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of());
+
+    assertTrue(adaptor.deleteActionMenu("QaMenu"));
+    verify(designWs).deleteActions(anyList(), eq(false), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
   void create_duplicateName_fromHibernateCatalog_is409() {
     PSActionMenu existing = new PSActionMenu("MyMenu", "My Menu", PSAction.TYPE_MENU, "", "SERVER", 0);
     existing.setActionId(9);
