@@ -17,8 +17,9 @@
 
 package com.percussion.server.job;
 
-import com.percussion.conn.PSServerException;
+import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+import com.percussion.conn.PSServerException;
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.design.objectstore.PSUnknownDocTypeException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
@@ -118,13 +119,13 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
     String subReqType;
     try {
       if (reqType == null || !reqType.startsWith("job-")) {
-        throw new PSJobException(IPSJobErrors.INVALID_REQUEST_TYPE, reqType == null ? "" : reqType);
+        throw new PSJobException(JobErrorCodes.INVALID_REQUEST_TYPE, reqType == null ? "" : reqType);
       } else {
         subReqType = reqType.substring("job-".length());
       }
 
       Document inDoc = request.getInputDocument();
-      if (inDoc == null) throw new PSJobException(IPSJobErrors.NULL_INPUT_DOC);
+      if (inDoc == null) throw new PSJobException(JobErrorCodes.NULL_INPUT_DOC);
 
       // all requests have security checked by default - must have admin
       // access
@@ -134,7 +135,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
       else if (subReqType.equals("cancelJob")) respDoc = cancelJob(inDoc, request);
       else if (subReqType.equals("getJobStatus")) respDoc = getJobStatus(inDoc, request);
       else {
-        throw new PSJobException(IPSJobErrors.INVALID_REQUEST_TYPE, reqType);
+        throw new PSJobException(JobErrorCodes.INVALID_REQUEST_TYPE, reqType);
       }
     } catch (Exception e) {
       // Convert to xml response
@@ -142,7 +143,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
       if (e instanceof PSJobException) je = (PSJobException) e;
       else if (e instanceof PSException) je = new PSJobException((PSException) e);
       else {
-        je = new PSJobException(IPSJobErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+        je = new PSJobException(JobErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
 
       respDoc = PSXmlDocumentBuilder.createXmlDocument();
@@ -190,13 +191,13 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
     String category = req.getParameter("sys_jobCategory");
     if (category == null || category.trim().length() == 0) {
       Object[] args = {"sys_jobCategory", category == null ? "null" : category};
-      throw new PSJobException(IPSJobErrors.SERVER_REQUEST_PARAM_INVALID, args);
+      throw new PSJobException(JobErrorCodes.SERVER_REQUEST_PARAM_INVALID, args);
     }
 
     String jobType = req.getParameter("sys_jobType");
     if (jobType == null || jobType.trim().length() == 0) {
       Object[] args = {"sys_jobType", jobType == null ? "null" : jobType};
-      throw new PSJobException(IPSJobErrors.SERVER_REQUEST_PARAM_INVALID, args);
+      throw new PSJobException(JobErrorCodes.SERVER_REQUEST_PARAM_INVALID, args);
     }
 
     // create the job
@@ -269,11 +270,11 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
           new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, msgArgs);
 
       Object[] args = {reqRoot.getTagName(), une.getLocalizedMessage()};
-      throw new PSJobException(IPSJobErrors.SERVER_REQUEST_MALFORMED, args);
+      throw new PSJobException(JobErrorCodes.SERVER_REQUEST_MALFORMED, args);
     }
 
     PSJobRunner job = m_jobRunners.get(jobId);
-    if (job == null) throw new PSJobException(IPSJobErrors.INVALID_JOB_ID, jobId.toString());
+    if (job == null) throw new PSJobException(JobErrorCodes.INVALID_JOB_ID, jobId.toString());
 
     // prepare response
     Document respDoc = PSXmlDocumentBuilder.createXmlDocument();
@@ -325,11 +326,11 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
           new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, msgArgs);
 
       Object[] args = {reqRoot.getTagName(), une.getLocalizedMessage()};
-      throw new PSJobException(IPSJobErrors.SERVER_REQUEST_MALFORMED, args);
+      throw new PSJobException(JobErrorCodes.SERVER_REQUEST_MALFORMED, args);
     }
 
     PSJobRunner job = m_jobRunners.get(jobId);
-    if (job == null) throw new PSJobException(IPSJobErrors.INVALID_JOB_ID, jobId.toString());
+    if (job == null) throw new PSJobException(JobErrorCodes.INVALID_JOB_ID, jobId.toString());
 
     int resultCode = doCancelJob(job);
 
@@ -426,7 +427,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
   private void lockJobHandler(PSJobRunner job) throws PSJobException {
     synchronized (m_jobMonitor) {
       if (m_currentJob != null && m_currentJob.isAlive())
-        throw new PSJobException(IPSJobErrors.JOB_ALREADY_RUNNING);
+        throw new PSJobException(JobErrorCodes.JOB_ALREADY_RUNNING);
       else m_currentJob = job;
     }
   }
