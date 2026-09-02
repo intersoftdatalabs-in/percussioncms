@@ -169,8 +169,9 @@ public interface ISiteAdaptor {
 
   /**
    * Builds a Virtual Site ({@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
-   * {@code http-json}, {@code object-storage}, {@code rss-atom}, or {@code icalendar}) and copies
-   * the static output to the Site filesystem publish root ({@code IPSSite.getRoot()}).
+   * {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, or {@code
+   * sitemap-xml}) and copies the static output to the Site filesystem publish root ({@code
+   * IPSSite.getRoot()}).
    *
    * <p>Publish-includes-build: operators get a published docs tree at the configured Site
    * publishing location, not only {@code tmp/virtual-sites}. {@code sql-database} uses in-memory
@@ -183,8 +184,10 @@ public interface ISiteAdaptor {
    * loopback feed ({@code feed.xml} / {@code atom.xml} or {@code _config.yaml} {@code rss.file});
    * leftover {@code virtual.remoteUrl} and credential properties are 400 (no live feeds). {@code
    * icalendar} uses a local RFC 5545 fixture ({@code calendar.ics} or {@code icalendar.file});
-   * leftover {@code virtual.remoteUrl} and credential properties are 400 (no CalDAV). Failures
-   * are operator-facing 4xx (not a silent no-op). Requires Admin.
+   * leftover {@code virtual.remoteUrl} and credential properties are 400 (no CalDAV). {@code
+   * sitemap-xml} uses a local sitemap.xml fixture ({@code sitemap.xml} or {@code sitemap.file});
+   * leftover {@code virtual.remoteUrl}, credential properties, and cloud URL {@code rootPath} are
+   * 400 (no live crawl). Failures are operator-facing 4xx (not a silent no-op). Requires Admin.
    *
    * @param nameOrId site name or GUID string, not blank
    * @return publish summary (never null)

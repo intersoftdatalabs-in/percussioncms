@@ -33,7 +33,9 @@ import org.springframework.stereotype.Component;
  * same adaptor contract as git/CSV/SQL (local JSON fixture / loopback, local object-key bucket,
  * local RSS/Atom fixture, or local RFC 5545 {@code calendar.ics}; {@code virtual.remoteUrl}
  * stays 400). REST Publish copies last-build HTML to {@code IPSSite.root} for
- * git/CSV/SQL/{@code http-json}/object-storage/{@code rss-atom}/{@code icalendar}. Preview
+ * git/CSV/SQL/{@code http-json}/object-storage/{@code rss-atom}/{@code icalendar}/{@code
+ * sitemap-xml} (local sitemap.xml fixture; leftover {@code virtual.remoteUrl}, credentials,
+ * and cloud URL {@code rootPath} are 400; no live crawl). Preview
  * status is last-output based ({@code available=false} when no build), including {@code
  * http-json}, {@code object-storage}, {@code rss-atom}, and {@code icalendar} last-build output
  * ({@code rss-atom} is a local RSS 2.0 / Atom fixture or loopback feed; {@code icalendar} is a

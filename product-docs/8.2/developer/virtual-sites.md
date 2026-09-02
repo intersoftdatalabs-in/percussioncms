@@ -122,8 +122,11 @@ adapter** — **no live crawl, no robots.txt fetch, no authenticated remotes**.
 are rejected. SPI/CLI assemble is `PSVirtualSiteBuildMain … sitemap-xml` (`pagesWritten > 0`
 from a temp fixture). REST `GET` / `PUT /sites/{nameOrId}/virtual` round-trips
 `sourceKind=sitemap-xml` with a portable-safe local `rootPath` (leftover `virtual.remoteUrl`,
-credentials, and cloud URL `rootPath` are **400**; no live crawl). REST **Build**,
-**Preview**, **Publish**, and Developer Sites chrome stay later slices.
+credentials, and cloud URL `rootPath` are **400**; no live crawl). REST **Publish**
+(`POST …/virtual/publish`) copies assembled HTML to `IPSSite.root` after a local
+`sitemap.xml` Build (leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath`
+are **400**; no live crawl). REST **Build** / **Preview** and Developer Sites chrome stay
+later slices.
 
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
@@ -173,8 +176,10 @@ After the site folder is created, an optional Git root is saved with
   **local `sitemap.xml` SPI** (CLI assemble from `sitemap.xml` / `sitemap.file`; no live
   crawl). REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips `sourceKind=sitemap-xml`
   with a portable-safe local `rootPath` (leftover `virtual.remoteUrl`, credentials, and cloud
-  URL `rootPath` are **400**; no live crawl). REST **Build**, **Preview**, **Publish**, and
-  Developer Sites chrome stay later slices.
+  URL `rootPath` are **400**; no live crawl). REST **Publish** (`POST …/virtual/publish`)
+  copies assembled HTML to `IPSSite.root` after a local `sitemap.xml` Build (leftover
+  `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no live crawl).
+  REST **Build** / **Preview** and Developer Sites chrome stay later slices.
 
 ## Source tree contract
 
@@ -636,9 +641,10 @@ is **required** (versions / site title). Git remotes are not used (`virtual.remo
 rejected). This is a **local sitemap adapter** — no live crawl, no robots.txt fetch, no
 authenticated remotes, no cloud sitemap URLs. REST **GET/PUT** `/sites/{nameOrId}/virtual`
 round-trips `sourceKind=sitemap-xml` with a portable-safe local `rootPath` (leftover
-`virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**). REST **Build**,
-**Preview**, **Publish**, and Developer Sites chrome stay later slices. Operators assemble
-offline with the CLI.
+`virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**). REST **Publish**
+(`POST …/virtual/publish`) copies assembled HTML to `IPSSite.root` after that local
+fixture Build. REST **Build** / **Preview** and Developer Sites chrome stay later slices.
+Operators assemble offline with the CLI.
 
 | `_config.yaml` key | Meaning |
 |--------------------|---------|
@@ -826,9 +832,21 @@ portable-safe local `rootPath` (NIO `Path.normalize()`; no remaining `..`). This
 properties, and cloud URL `rootPath` values (`s3://`, `gs://`, `azure://`, `http(s)://`)
 are **400**. Never send live crawl credentials, Authorization, or API keys on this
 envelope. Unknown kinds remain **400**. Git, CSV, SQL, `http-json`, `object-storage`,
-`rss-atom`, and `icalendar` persist are unchanged. REST **Build**, **Preview**, and
-**Publish** stay later slices. Developer Sites chrome for `sitemap-xml` stays a later
-slice.
+`rss-atom`, and `icalendar` persist are unchanged. REST **Publish** (`POST …/virtual/publish`)
+copies assembled HTML to `IPSSite.root` after a local sitemap.xml Build (leftover
+`virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no live crawl). REST
+**Build** / **Preview** stay later slices. Developer Sites chrome for `sitemap-xml` stays a
+later slice.
+
+### REST Publish for sitemap XML (`sitemap-xml`)
+
+`POST /sites/{nameOrId}/virtual/publish` builds the local `sitemap.xml` fixture then NIO-copies
+assembled HTML to `IPSSite.root`. HTTP **200** returns `filesCopied > 0` and assembled HTML
+under the Site filesystem root (for example `8.2/index.html` when a `<loc>` slugs to `index`).
+Staging `_meta` is not copied. Leftover `virtual.remoteUrl`, credential properties, cloud URL
+`rootPath`, and an unsafe Site root (`..` after NIO normalize) are **400**. No live crawl.
+Git, CSV, SQL, HTTP JSON, object-storage, rss-atom, and icalendar Publish paths are unchanged.
+Developer Sites **Publish Virtual Site** chrome stays a later slice.
 
 ### REST Preview for object storage (`object-storage`)
 
@@ -990,8 +1008,9 @@ POST /sites/{nameOrId}/virtual/publish
 
 The server:
 
-1. Validates the Site is a Git-filesystem, CSV-filesystem, SQL-database, HTTP JSON, or
-   object-storage Virtual Site (repository and unknown kinds stay **400**).
+1. Validates the Site is a Git-filesystem, CSV-filesystem, SQL-database, HTTP JSON,
+   object-storage, rss-atom, icalendar, or sitemap-xml Virtual Site (repository and unknown
+   kinds stay **400**).
 2. Selects the Site filesystem publish root (must be configured, safe after NIO normalize, and
    distinct from `virtual.rootPath`).
 3. Runs the same build as `POST …/virtual/build`.
@@ -1000,9 +1019,12 @@ The server:
 For `http-json`, catalog URL/file stay in `_config.yaml`; leftover `virtual.remoteUrl` is
 **400** (no secrets on the REST envelope). For `object-storage`, REST Publish uses a
 portable-safe local object-key `rootPath` (no cloud URLs, IAM, or access keys); leftover
-`virtual.remoteUrl` is **400**. Developer Sites **Publish Virtual Site** and
-**Preview assembled site** chrome are shown for Git, CSV, SQL, HTTP JSON, and
-object-storage after save (Publish copies last-build HTML after a successful Build).
+`virtual.remoteUrl` is **400**. For `sitemap-xml`, REST Publish uses a portable-safe local
+`sitemap.xml` fixture (`sitemap.xml` / `sitemap.file`; leftover `virtual.remoteUrl`,
+credentials, and cloud URL `rootPath` are **400**; no live crawl). Developer Sites
+**Publish Virtual Site** and **Preview assembled site** chrome are shown for Git, CSV, SQL,
+HTTP JSON, and object-storage after save (Publish copies last-build HTML after a successful
+Build). Sitemap XML Publish chrome stays a later slice.
 
 The response includes `publishPath`, `buildOutputPath`, `pagesWritten`, `filesCopied`, and
 link-problem fields. Failures return **400/403/404** with an operator-readable message (never a

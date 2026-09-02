@@ -98,7 +98,10 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
    **Object storage**, and **RSS / Atom**, save the source, run **Build Virtual Site**, then
    **Publish Virtual Site**. The panel reports files copied and the destination path, or a
    clear error. Integrators can call `POST /services/sites/{nameOrId}/virtual/publish`
-   instead (Git, CSV, SQL, HTTP JSON, object-storage, and rss-atom). Run **Build Virtual Site** first
+   instead (Git, CSV, SQL, HTTP JSON, object-storage, rss-atom, icalendar, and sitemap-xml).
+   `sitemap-xml` REST Publish copies assembled HTML from a local `sitemap.xml` fixture (leftover
+   `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no live crawl; no
+   Developer Sites Publish chrome in this slice). Run **Build Virtual Site** first
    if you only want staging output.
 6. On success, the result includes `publishPath`, `filesCopied`, `pagesWritten`, and any
    link problems (`hasLinkProblems` can be true with HTTP 200).

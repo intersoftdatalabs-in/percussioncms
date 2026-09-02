@@ -58,8 +58,11 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * assemble (missing build is {@code available=false}, HTTP 200). REST {@code POST
  * …/virtual/publish} copies last-build HTML to {@code IPSSite.root} for git, CSV, SQL, {@code
  * http-json}, {@code object-storage} (local object-key fixture; leftover {@code virtual.remoteUrl}
- * is 400), and {@code rss-atom} (local RSS/Atom fixture; leftover {@code virtual.remoteUrl} and
- * credentials are 400).
+ * is 400), {@code rss-atom} (local RSS/Atom fixture; leftover {@code virtual.remoteUrl} and
+ * credentials are 400), {@code icalendar} (local RFC 5545 fixture; leftover {@code
+ * virtual.remoteUrl} and credentials are 400), and {@code sitemap-xml} (local sitemap.xml
+ * fixture; leftover {@code virtual.remoteUrl}, credentials, and cloud URL {@code rootPath} are
+ * 400; no live crawl).
  *
  * <p>Wire getters return plain {@code String} (not {@code Optional}) so JAXB/Jettison and Jackson
  * {@code WRAP_ROOT_VALUE} emit/accept child elements {@code sourceKind}, {@code rootPath},

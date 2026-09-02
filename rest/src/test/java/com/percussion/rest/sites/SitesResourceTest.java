@@ -1155,6 +1155,74 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void publishVirtualSiteDelegatesSitemapXml() {
+    VirtualSitePublishResult published = new VirtualSitePublishResult();
+    published.setSiteName("SitemapHelp");
+    published.setSiteKey("sitemap-docs");
+    published.setPagesWritten(1);
+    published.setFilesCopied(2);
+    published.setPublishPath(tempDir.resolve("sm-pub").toString());
+    when(adaptor.publishVirtualSite("SitemapHelp")).thenReturn(published);
+
+    VirtualSitePublishResult out = resource.publishVirtualSite("SitemapHelp");
+    assertEquals("SitemapHelp", out.getSiteName());
+    assertEquals("sitemap-docs", out.getSiteKey());
+    assertEquals(1, out.getPagesWritten().intValue());
+    assertEquals(2, out.getFilesCopied().intValue());
+    assertEquals(published.getPublishPath(), out.getPublishPath());
+    verify(adaptor).publishVirtualSite("SitemapHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteSitemapXmlRemoteUrlPropagates400() {
+    when(adaptor.publishVirtualSite("SitemapHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for sitemap-xml", Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("SitemapHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(adaptor).publishVirtualSite("SitemapHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteSitemapXmlCloudRootPropagates400() {
+    when(adaptor.publishVirtualSite("SitemapHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for sitemap-xml must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("SitemapHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).publishVirtualSite("SitemapHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteSitemapXmlCredentialsPropagates400() {
+    when(adaptor.publishVirtualSite("SitemapHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for sitemap-xml (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("SitemapHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).publishVirtualSite("SitemapHelp");
+  }
+
+  @Test
   public void publishVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.publishVirtualSite(" "));
@@ -1250,6 +1318,12 @@ public class SitesResourceTest {
     assertTrue(
         publishBlock.contains("icalendar"),
         "publishVirtualSite OpenAPI description must mention icalendar");
+    assertTrue(
+        publishBlock.contains("sitemap-xml"),
+        "publishVirtualSite OpenAPI description must mention sitemap-xml");
+    assertTrue(
+        publishBlock.contains("no live crawl"),
+        "publishVirtualSite OpenAPI description must mention sitemap-xml local fixture only");
     assertTrue(
         publishBlock.contains("calendar.ics") || publishBlock.contains("no CalDAV"),
         "publishVirtualSite OpenAPI description must mention local icalendar fixture");

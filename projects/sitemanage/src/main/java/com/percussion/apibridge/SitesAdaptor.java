@@ -432,15 +432,18 @@ public class SitesAdaptor implements ISiteAdaptor {
 
   /**
    * Build then NIO-copy assembled files to {@link IPSSite#getRoot()} for git-filesystem,
-   * csv-filesystem, sql-database, http-json, object-storage, rss-atom, and icalendar Virtual
-   * Sites. Fail-closed on blank/unsafe/overlapping publish roots. {@code http-json} uses a local
-   * JSON fixture (or loopback catalog from {@code _config.yaml}); leftover {@code
+   * csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, and sitemap-xml
+   * Virtual Sites. Fail-closed on blank/unsafe/overlapping publish roots. {@code http-json} uses
+   * a local JSON fixture (or loopback catalog from {@code _config.yaml}); leftover {@code
    * virtual.remoteUrl} is 400. {@code object-storage} uses a portable-safe local object-key
    * {@code rootPath}; leftover {@code virtual.remoteUrl} is 400 (no cloud URLs, IAM, or access
    * keys). {@code rss-atom} uses a local RSS 2.0 / Atom fixture or loopback feed; leftover
    * {@code virtual.remoteUrl} and credential properties are 400 (no live feeds). {@code
    * icalendar} uses a local RFC 5545 fixture ({@code calendar.ics} / {@code icalendar.file});
-   * leftover {@code virtual.remoteUrl} and credential properties are 400 (no CalDAV).
+   * leftover {@code virtual.remoteUrl} and credential properties are 400 (no CalDAV). {@code
+   * sitemap-xml} uses a local sitemap.xml fixture ({@code sitemap.xml} / {@code sitemap.file});
+   * leftover {@code virtual.remoteUrl}, credential properties, and cloud URL {@code rootPath} are
+   * 400 (no live crawl).
    */
   @Override
   public VirtualSitePublishResult publishVirtualSite(String nameOrId) {
@@ -455,6 +458,14 @@ public class SitesAdaptor implements ISiteAdaptor {
               + PSVirtualSiteHelper.SOURCE_KIND_REPOSITORY
               + "'). Configure virtual.* properties before publishing.",
           Response.Status.BAD_REQUEST);
+    }
+
+    try {
+      // Fail closed on leftover remoteUrl / credentials / cloud URL rootPath before NIO Path.of
+      // (Windows InvalidPathException on https://… would otherwise leak past HTTP 400).
+      PSVirtualSiteHelper.validate(site);
+    } catch (VirtualSiteException e) {
+      throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
     }
 
     Path publishRoot;
@@ -513,12 +524,13 @@ public class SitesAdaptor implements ISiteAdaptor {
 
   /**
    * Load {@code _config.yaml} (required for git-filesystem, sql-database, http-json,
-   * object-storage, rss-atom, and icalendar). CSV trees may omit the file and infer versions from
-   * child directories. HTTP JSON catalog URL/file live in the yaml ({@code http.url} / {@code
-   * http.file} or default {@code pages.json}). Object-storage optional {@code objects.keys} live
-   * in the yaml. RSS / Atom optional {@code rss.file} / {@code rss.url} live in the yaml (default
-   * {@code feed.xml} then {@code atom.xml}). iCalendar optional {@code icalendar.file} lives in
-   * the yaml (default {@code calendar.ics}).
+   * object-storage, rss-atom, icalendar, and sitemap-xml). CSV trees may omit the file and infer
+   * versions from child directories. HTTP JSON catalog URL/file live in the yaml ({@code http.url}
+   * / {@code http.file} or default {@code pages.json}). Object-storage optional {@code
+   * objects.keys} live in the yaml. RSS / Atom optional {@code rss.file} / {@code rss.url} live
+   * in the yaml (default {@code feed.xml} then {@code atom.xml}). iCalendar optional {@code
+   * icalendar.file} lives in the yaml (default {@code calendar.ics}). Sitemap XML optional {@code
+   * sitemap.file} lives in the yaml (default {@code sitemap.xml}).
    */
   static VirtualSiteConfig loadBuildConfig(
       VirtualSiteSourceType type, Path siteRoot, String configFile, String siteKey)
