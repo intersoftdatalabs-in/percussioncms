@@ -37,7 +37,8 @@ DEPLOYER_RESIDUAL = (
 # #3756/#3938; com.percussion.data (+ macro/vfs) in #3939; com.percussion.security
 # in #3940; com.percussion.error in #3971; design.catalog leftover call-sites in
 # #3969; com.percussion.mail leftover call-sites in #4017; com.percussion.cx
-# leftover call-sites in #4013.
+# leftover call-sites in #4013; leftover system/server command/cache/actions/
+# clone/compare/config in #4153.
 # Keep an exact residual that is still frozen (system debug leftover).
 SYSTEM_CMS_RESIDUAL = (
     "system/src/main/java/com/percussion/debug/PSDebugLogHandler.java"

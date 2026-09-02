@@ -34,10 +34,10 @@ package com.percussion.server.command;
  */
 // REFACTORED: CP-JAVA11
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSErrorManager;
 import com.percussion.error.PSException;
 import com.percussion.i18n.PSTmxResourceBundle;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRemoteConsoleHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -104,10 +104,10 @@ public class PSConsoleCommandReloadI18nResources extends PSConsoleCommand {
           respDoc,
           root,
           "resultCode",
-          String.valueOf(IPSServerErrors.RCONSOLE_I18NRESOURCES_RELOADED));
+          String.valueOf(ServerErrorCodes.RCONSOLE_I18NRESOURCES_RELOADED.numericCode()));
       Object[] args = {m_cmdArgs};
       String termMsg =
-          PSErrorManager.createMessage(IPSServerErrors.RCONSOLE_I18NRESOURCES_RELOADED, args, loc);
+          PSErrorManager.createMessage(ServerErrorCodes.RCONSOLE_I18NRESOURCES_RELOADED.numericCode(), args, loc);
       PSXmlDocumentBuilder.addElement(respDoc, root, "resultText", termMsg);
     } catch (Exception e) {
       String msg;
@@ -116,7 +116,7 @@ public class PSConsoleCommandReloadI18nResources extends PSConsoleCommand {
       else msg = e.getMessage();
 
       Object[] args = {(ms_cmdName + " " + m_cmdArgs), msg};
-      throw new PSConsoleCommandException(IPSServerErrors.RCONSOLE_EXEC_EXCEPTION, args);
+      throw new PSConsoleCommandException(ServerErrorCodes.RCONSOLE_EXEC_EXCEPTION, args);
     }
 
     return respDoc;

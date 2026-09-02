@@ -20,6 +20,7 @@ package com.percussion.error;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * The PSNonFatalError class is used to report non-fatal error conditions encountered during
@@ -56,6 +57,26 @@ public class PSNonFatalError extends PSLogError {
    */
   public PSNonFatalError(int errorCode, Object singleArg) {
     this(errorCode, new Object[] {singleArg});
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param errorParams message arguments; may be {@code null}
+   */
+  public PSNonFatalError(IPSErrorCode code, Object[] errorParams) {
+    this(Objects.requireNonNull(code, "code").numericCode(), errorParams);
+  }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message
+   */
+  public PSNonFatalError(IPSErrorCode code, Object singleArg) {
+    this(code, new Object[] {singleArg});
   }
 
   /** sublcasses must override this to build the messages in the specified locale */

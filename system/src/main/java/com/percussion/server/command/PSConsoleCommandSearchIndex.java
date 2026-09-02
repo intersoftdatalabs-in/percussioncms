@@ -34,13 +34,13 @@ package com.percussion.server.command;
  */
 // REFACTORED: CP-JAVA11
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.objectstore.PSContentType;
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.PSKey;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.search.PSSearchException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import org.w3c.dom.Document;
 
@@ -148,10 +148,10 @@ public abstract class PSConsoleCommandSearchIndex extends PSConsoleCommand {
    * Called after the doExecute method has finished.
    *
    * @return The error code to use in the response document. If not overridden,
-   *     IPSServerErrors.RCONSOLE_SUCCESS is returned.
+   *     ServerErrorCodes.RCONSOLE_SUCCESS.numericCode() is returned.
    */
   protected int getResultCode() {
-    return IPSServerErrors.RCONSOLE_CONTENT_TYPES_PROCESSED;
+    return ServerErrorCodes.RCONSOLE_CONTENT_TYPES_PROCESSED.numericCode();
   }
 
   /**

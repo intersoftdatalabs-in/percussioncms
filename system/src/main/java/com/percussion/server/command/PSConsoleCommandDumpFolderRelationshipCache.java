@@ -16,8 +16,8 @@
  */
 package com.percussion.server.command;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.design.objectstore.PSRelationship;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.cache.IPSFolderRelationshipCache;
 import com.percussion.server.cache.PSFolderRelationshipCache;
@@ -111,7 +111,7 @@ public class PSConsoleCommandDumpFolderRelationshipCache extends PSConsoleComman
         id = Integer.parseInt(m_cmdArgs);
       } catch (NumberFormatException e) {
         Object[] args = {getCommandName(), m_cmdArgs};
-        throw new PSConsoleCommandException(IPSServerErrors.RCONSOLE_INVALID_ARGS, args);
+        throw new PSConsoleCommandException(ServerErrorCodes.RCONSOLE_INVALID_ARGS, args);
       }
 
       PSRelationship rel = null;
@@ -119,14 +119,14 @@ public class PSConsoleCommandDumpFolderRelationshipCache extends PSConsoleComman
         rel = cache.getRelationship(id);
       } catch (PSNotFoundException e) {
         throw new PSConsoleCommandException(
-            IPSServerErrors.CANNOT_FIND_CACHED_FOLDER_RELATIONSHIP,
+            ServerErrorCodes.CANNOT_FIND_CACHED_FOLDER_RELATIONSHIP,
             new Object[] {Integer.valueOf(id)});
       }
       if (rel != null) {
         cacheElm = rel.toXml(doc);
       } else {
         throw new PSConsoleCommandException(
-            IPSServerErrors.CANNOT_FIND_CACHED_FOLDER_RELATIONSHIP,
+            ServerErrorCodes.CANNOT_FIND_CACHED_FOLDER_RELATIONSHIP,
             new Object[] {Integer.valueOf(id)});
       }
     } else {

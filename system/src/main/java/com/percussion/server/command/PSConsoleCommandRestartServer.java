@@ -34,8 +34,8 @@ package com.percussion.server.command;
  */
 // REFACTORED: CP-JAVA11
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSIllegalArgumentException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRemoteConsoleHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -63,7 +63,7 @@ public class PSConsoleCommandRestartServer extends PSConsoleCommand {
     // there should be no other args for this command
     if ((cmdArgs != null) && (cmdArgs.length() > 0)) {
       Object[] args = {ms_cmdName, cmdArgs};
-      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_UNEXPECTED_ARGS, args);
+      throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_UNEXPECTED_ARGS, args);
     }
   }
 

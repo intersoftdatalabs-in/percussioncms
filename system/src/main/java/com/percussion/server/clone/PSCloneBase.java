@@ -16,6 +16,7 @@
  */
 package com.percussion.server.clone;
 
+import com.intsof.percussioncms.auditlog.codes.CloneErrorCodes;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSDefaultExtension;
@@ -62,7 +63,7 @@ public abstract class PSCloneBase extends PSDefaultExtension implements IPSResul
         return Integer.parseInt(idString);
       } catch (NumberFormatException e) {
         Object[] args = {idString, e.getLocalizedMessage()};
-        throw new PSParameterMismatchException(IPSCloneErrors.INVALID_CLONESOURCEID, args);
+        throw new PSParameterMismatchException(CloneErrorCodes.INVALID_CLONESOURCEID, args);
       }
     }
 
@@ -111,12 +112,12 @@ public abstract class PSCloneBase extends PSDefaultExtension implements IPSResul
       qrir = request.getInternalRequest(queryResources[i], queryParams, false);
       if (qrir == null)
         throw new PSExtensionProcessingException(
-            IPSCloneErrors.REQUIRED_RESOURCE_MISSING, queryResources[i]);
+            CloneErrorCodes.REQUIRED_RESOURCE_MISSING, queryResources[i]);
       try {
         inputdoc = qrir.getResultDoc();
       } catch (PSInternalRequestCallException e) {
         Object[] args = {updateResources[i], e.getLocalizedMessage()};
-        throw new PSExtensionProcessingException(IPSCloneErrors.INTERNAL_REQUEST_ERROR, args);
+        throw new PSExtensionProcessingException(CloneErrorCodes.INTERNAL_REQUEST_ERROR, args);
       }
       if (inputdoc != null) {
         if (keyElementName != null && keyElementValue != null) {
@@ -133,18 +134,18 @@ public abstract class PSCloneBase extends PSDefaultExtension implements IPSResul
         upir = request.getInternalRequest(updateResources[i], updateParams, false);
         if (upir == null)
           throw new PSExtensionProcessingException(
-              IPSCloneErrors.REQUIRED_RESOURCE_MISSING, updateResources[i]);
+              CloneErrorCodes.REQUIRED_RESOURCE_MISSING, updateResources[i]);
         try {
           upir.performUpdate();
         } catch (PSAuthenticationFailedException e) {
           Object[] args = {e.getLocalizedMessage()};
-          throw new PSExtensionProcessingException(IPSCloneErrors.NOT_AUTHENTICACATED, args);
+          throw new PSExtensionProcessingException(CloneErrorCodes.NOT_AUTHENTICACATED, args);
         } catch (PSAuthorizationException e) {
           Object[] args = {e.getLocalizedMessage()};
-          throw new PSExtensionProcessingException(IPSCloneErrors.NOT_AUTHORIZED, args);
+          throw new PSExtensionProcessingException(CloneErrorCodes.NOT_AUTHORIZED, args);
         } catch (PSInternalRequestCallException e) {
           Object[] args = {updateResources[i], e.getLocalizedMessage()};
-          throw new PSExtensionProcessingException(IPSCloneErrors.INTERNAL_REQUEST_ERROR, args);
+          throw new PSExtensionProcessingException(CloneErrorCodes.INTERNAL_REQUEST_ERROR, args);
         }
       }
     }
@@ -172,18 +173,18 @@ public abstract class PSCloneBase extends PSDefaultExtension implements IPSResul
     upir = request.getInternalRequest(updateResourceName, updateParams, false);
     if (upir == null)
       throw new PSExtensionProcessingException(
-          IPSCloneErrors.REQUIRED_RESOURCE_MISSING, updateResourceName);
+          CloneErrorCodes.REQUIRED_RESOURCE_MISSING, updateResourceName);
     try {
       upir.performUpdate();
     } catch (PSAuthenticationFailedException e) {
       Object[] args = {e.getLocalizedMessage()};
-      throw new PSExtensionProcessingException(IPSCloneErrors.NOT_AUTHENTICACATED, args);
+      throw new PSExtensionProcessingException(CloneErrorCodes.NOT_AUTHENTICACATED, args);
     } catch (PSAuthorizationException e) {
       Object[] args = {e.getLocalizedMessage()};
-      throw new PSExtensionProcessingException(IPSCloneErrors.NOT_AUTHORIZED, args);
+      throw new PSExtensionProcessingException(CloneErrorCodes.NOT_AUTHORIZED, args);
     } catch (PSInternalRequestCallException e) {
       Object[] args = {updateResourceName, e.getLocalizedMessage()};
-      throw new PSExtensionProcessingException(IPSCloneErrors.INTERNAL_REQUEST_ERROR, args);
+      throw new PSExtensionProcessingException(CloneErrorCodes.INTERNAL_REQUEST_ERROR, args);
     }
   }
 

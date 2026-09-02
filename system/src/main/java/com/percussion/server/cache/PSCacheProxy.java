@@ -17,8 +17,8 @@
 
 package com.percussion.server.cache;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.design.objectstore.PSSystemValidationException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.util.PSCacheException;
@@ -122,7 +122,7 @@ public class PSCacheProxy {
       handler.validateKeys(keyMap);
     } catch (PSSystemValidationException e) {
       throw new PSCacheException(
-          IPSServerErrors.CACHE_UNEXPECTED_EXCEPTION, e.getLocalizedMessage());
+          ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, e.getLocalizedMessage());
     }
 
     mgr.flush(keyMap);
@@ -171,7 +171,7 @@ public class PSCacheProxy {
       handler.validateKeys(keyMap);
     } catch (PSSystemValidationException e) {
       throw new PSCacheException(
-          IPSServerErrors.CACHE_UNEXPECTED_EXCEPTION, e.getLocalizedMessage());
+          ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, e.getLocalizedMessage());
     }
 
     mgr.flush(keyMap);

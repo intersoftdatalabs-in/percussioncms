@@ -18,8 +18,10 @@ package com.percussion.server.command;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.server.IPSConsoleCommand;
 import com.percussion.server.IPSServerErrors;
@@ -37,6 +39,7 @@ class PSConsoleCommandParserTest {
     PSIllegalArgumentException ex =
         assertThrows(PSIllegalArgumentException.class, () -> PSConsoleCommandParser.parse(null));
     assertEquals(IPSServerErrors.RCONSOLE_CMD_EMPTY, ex.getErrorCode());
+    assertSame(ServerErrorCodes.RCONSOLE_CMD_EMPTY, ex.getTypedErrorCode());
   }
 
   @Test
@@ -45,6 +48,7 @@ class PSConsoleCommandParserTest {
     PSIllegalArgumentException ex =
         assertThrows(PSIllegalArgumentException.class, () -> PSConsoleCommandParser.parse("   "));
     assertEquals(IPSServerErrors.RCONSOLE_CMD_EMPTY, ex.getErrorCode());
+    assertSame(ServerErrorCodes.RCONSOLE_CMD_EMPTY, ex.getTypedErrorCode());
   }
 
   @Test
@@ -60,6 +64,7 @@ class PSConsoleCommandParserTest {
     PSIllegalArgumentException ex =
         assertThrows(PSIllegalArgumentException.class, () -> PSConsoleCommandParser.parse("start"));
     assertEquals(IPSServerErrors.RCONSOLE_SUBCMD_REQD, ex.getErrorCode());
+    assertSame(ServerErrorCodes.RCONSOLE_SUBCMD_REQD, ex.getTypedErrorCode());
   }
 
   @Test
@@ -68,6 +73,7 @@ class PSConsoleCommandParserTest {
     PSIllegalArgumentException ex =
         assertThrows(PSIllegalArgumentException.class, () -> PSConsoleCommandParser.parse("bogus"));
     assertEquals(IPSServerErrors.RCONSOLE_INVALID_CMD, ex.getErrorCode());
+    assertSame(ServerErrorCodes.RCONSOLE_INVALID_CMD, ex.getTypedErrorCode());
   }
 
   @Test
@@ -77,6 +83,7 @@ class PSConsoleCommandParserTest {
         assertThrows(
             PSIllegalArgumentException.class, () -> PSConsoleCommandParser.parse("start widgets"));
     assertEquals(IPSServerErrors.RCONSOLE_INVALID_SUBCMD, ex.getErrorCode());
+    assertSame(ServerErrorCodes.RCONSOLE_INVALID_SUBCMD, ex.getTypedErrorCode());
   }
 
   @Test

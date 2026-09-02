@@ -16,9 +16,9 @@
  */
 package com.percussion.server.cache;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.design.objectstore.PSServerCacheSettings;
 import com.percussion.error.PSInternalError;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSServer;
 import com.percussion.server.PSServerLogHandler;
@@ -289,13 +289,13 @@ class PSCacheMemoryManager extends Thread
           } catch (NotSerializableException e) {
             Object[] args = {item.toString(), e.getLocalizedMessage()};
             PSServerLogHandler.logMessage(
-                new PSInternalError(IPSServerErrors.CACHE_STORE_TO_DISK_FAILURE, args));
+                new PSInternalError(ServerErrorCodes.CACHE_STORE_TO_DISK_FAILURE, args));
 
             flushItem(item);
           } catch (PSCacheException e) {
             Object[] args = {item.toString(), e.getLocalizedMessage()};
             PSServerLogHandler.logMessage(
-                new PSInternalError(IPSServerErrors.CACHE_STORE_TO_DISK_FAILURE, args));
+                new PSInternalError(ServerErrorCodes.CACHE_STORE_TO_DISK_FAILURE, args));
 
             flushItem(item);
           }
@@ -490,13 +490,13 @@ class PSCacheMemoryManager extends Thread
         } catch (NotSerializableException e) {
           Object[] args = {item.toString(), e.getLocalizedMessage()};
           PSServerLogHandler.logMessage(
-              new PSInternalError(IPSServerErrors.CACHE_STORE_TO_DISK_FAILURE, args));
+              new PSInternalError(ServerErrorCodes.CACHE_STORE_TO_DISK_FAILURE, args));
 
           flushItem(item);
         } catch (PSCacheException e) {
           Object[] args = {item.toString(), e.getLocalizedMessage()};
           PSServerLogHandler.logMessage(
-              new PSInternalError(IPSServerErrors.CACHE_STORE_TO_DISK_FAILURE, args));
+              new PSInternalError(ServerErrorCodes.CACHE_STORE_TO_DISK_FAILURE, args));
 
           flushItem(item);
         }

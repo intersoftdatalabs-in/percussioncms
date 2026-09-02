@@ -16,10 +16,10 @@
  */
 package com.percussion.server.command;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.i18n.PSTmxResourceBundle;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRemoteConsoleHandler;
 import com.percussion.server.PSRequest;
 import java.util.Locale;
@@ -45,7 +45,7 @@ public class PSConsoleCommandDebugI18n extends PSConsoleCommand {
     // need the debug mode ('true'/'false' or 'on/'off' or 'yes/'no')
     // for this command
     if ((cmdArgs == null) || (cmdArgs.length() == 0)) {
-      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_DEBUGMODE_REQD, ms_cmdName);
+      throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_DEBUGMODE_REQD, ms_cmdName);
     }
   }
 
@@ -67,7 +67,7 @@ public class PSConsoleCommandDebugI18n extends PSConsoleCommand {
       Object[] args = {PSTmxResourceBundle.getInstance().getDebugMode() ? "on" : "off"};
 
       Document doc =
-          getResultsDocument(request, ms_cmdName, IPSServerErrors.RCONSOLE_DEBUG_SETTING, args);
+          getResultsDocument(request, ms_cmdName, ServerErrorCodes.RCONSOLE_DEBUG_SETTING, args);
       return doc;
     } catch (Exception e) {
       Locale loc;
@@ -79,7 +79,7 @@ public class PSConsoleCommandDebugI18n extends PSConsoleCommand {
       else msg = e.getMessage();
 
       Object[] args = {(ms_cmdName + " " + m_cmdArgs), msg};
-      throw new PSConsoleCommandException(IPSServerErrors.RCONSOLE_EXEC_EXCEPTION, args);
+      throw new PSConsoleCommandException(ServerErrorCodes.RCONSOLE_EXEC_EXCEPTION, args);
     }
   }
 

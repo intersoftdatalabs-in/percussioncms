@@ -34,12 +34,12 @@ package com.percussion.server.command;
  */
 // REFACTORED: CP-JAVA11
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.search.PSSearchIndexEventQueue;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import org.w3c.dom.Document;
 
@@ -66,7 +66,7 @@ public class PSConsoleCommandSearchIndexItem extends PSConsoleCommand {
       // ignore, later check deals w/ this error
     }
     if (m_id < 0) {
-      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_REQUIRES_CONTENTID, null);
+      throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_REQUIRES_CONTENTID, null);
     }
   }
 
@@ -82,7 +82,7 @@ public class PSConsoleCommandSearchIndexItem extends PSConsoleCommand {
     PSLocator locator = new PSLocator(m_id);
     int result = PSSearchIndexEventQueue.getInstance().indexItem(locator);
     if (result == -1) {
-      code = IPSServerErrors.RCONSOLE_ITEMS_INDEXED_INVALID_CTYPES;
+      code = ServerErrorCodes.RCONSOLE_ITEMS_INDEXED_INVALID_CTYPES.numericCode();
       resultArgs = new String[2];
       resultArgs[0] = "0";
       PSItemDefManager mgr = PSItemDefManager.getInstance();
@@ -93,7 +93,7 @@ public class PSConsoleCommandSearchIndexItem extends PSConsoleCommand {
         resultArgs[1] = type + " (invalid)";
       }
     } else {
-      code = IPSServerErrors.RCONSOLE_ITEMS_INDEXED;
+      code = ServerErrorCodes.RCONSOLE_ITEMS_INDEXED.numericCode();
       resultArgs = new String[1];
       resultArgs[0] = String.valueOf(result);
     }

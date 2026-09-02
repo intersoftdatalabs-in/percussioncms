@@ -34,8 +34,8 @@ package com.percussion.server.command;
  */
 // REFACTORED: CP-JAVA11
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSIllegalArgumentException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSApplicationStatistics;
 import com.percussion.server.PSRemoteConsoleHandler;
@@ -65,7 +65,7 @@ public class PSConsoleCommandShowStatusApplication extends PSConsoleCommandShowS
 
     // need the application name for this command
     if ((cmdArgs == null) || (cmdArgs.length() == 0)) {
-      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_APP_NAME_REQD, ms_cmdName);
+      throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_APP_NAME_REQD, ms_cmdName);
     }
   }
 
@@ -122,11 +122,11 @@ public class PSConsoleCommandShowStatusApplication extends PSConsoleCommandShowS
         createStatistics(stats, respDoc, root);
       } else {
         Object[] args = {ms_cmdName, m_cmdArgs};
-        throw new PSConsoleCommandException(IPSServerErrors.RCONSOLE_APP_STATS_NOT_ENABLED, args);
+        throw new PSConsoleCommandException(ServerErrorCodes.RCONSOLE_APP_STATS_NOT_ENABLED, args);
       }
     } else {
       Object[] args = {ms_cmdName, m_cmdArgs};
-      throw new PSConsoleCommandException(IPSServerErrors.RCONSOLE_APP_NOT_ACTIVE, args);
+      throw new PSConsoleCommandException(ServerErrorCodes.RCONSOLE_APP_NOT_ACTIVE, args);
     }
 
     return respDoc;

@@ -17,6 +17,7 @@
 
 package com.percussion.server.actions;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.data.IPSDataExtractor;
 import com.percussion.data.PSDataExtractionException;
 import com.percussion.data.PSExecutionData;
@@ -33,7 +34,6 @@ import com.percussion.extension.IPSExtension;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSExtensionRef;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.util.PSCollection;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -88,7 +88,7 @@ public class PSAction {
         if (!(ext instanceof IPSResultDocumentProcessor)) {
           // only post-exits are supported
           throw new PSActionSetException(
-              IPSServerErrors.ACTION_SET_INVALID_EXTENSION, new Object[] {ref.toString(), m_name});
+              ServerErrorCodes.ACTION_SET_INVALID_EXTENSION, new Object[] {ref.toString(), m_name});
         }
         m_extensionInstances.add(PSExtensionRunner.createRunner(call, ext));
       }

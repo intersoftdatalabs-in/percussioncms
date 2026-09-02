@@ -17,6 +17,7 @@
 
 package com.percussion.util;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -65,5 +66,45 @@ public class PSCacheException extends PSException {
    */
   public PSCacheException(int msgCode, Throwable cause, Object... arrayArgs) {
     super(msgCode, cause, arrayArgs);
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSCacheException(IPSErrorCode code) {
+    super(code);
+  }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message
+   */
+  public PSCacheException(IPSErrorCode code, Object singleArg) {
+    super(code, singleArg);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSCacheException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
+  }
+
+  /**
+   * Typed construction with a cause and message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param cause the causal exception
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSCacheException(IPSErrorCode code, Throwable cause, Object... arrayArgs) {
+    super(code, arrayArgs, cause);
   }
 }

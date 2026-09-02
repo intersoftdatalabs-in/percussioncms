@@ -34,8 +34,8 @@ package com.percussion.server.command;
  */
 // REFACTORED: CP-JAVA11
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.search.PSSearchIndexEventQueue;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import org.w3c.dom.Document;
 
@@ -66,7 +66,7 @@ public class PSConsoleCommandSearchQueuePause extends PSConsoleCommand {
             : "Indexer was already paused";
     doc =
         getResultsDocument(
-            request, getCommandName(), IPSServerErrors.RAW_DUMP, new Object[] {result});
+            request, getCommandName(), ServerErrorCodes.RAW_DUMP, new Object[] {result});
     return doc;
   }
 

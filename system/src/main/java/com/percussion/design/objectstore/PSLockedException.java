@@ -18,7 +18,7 @@
 package com.percussion.design.objectstore;
 
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
-
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -62,6 +62,35 @@ public class PSLockedException extends PSException {
    */
   public PSLockedException(int msgCode) {
     super(msgCode);
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSLockedException(IPSErrorCode code) {
+    super(code);
+  }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message
+   */
+  public PSLockedException(IPSErrorCode code, Object singleArg) {
+    super(code, singleArg);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSLockedException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
   }
 
   public void setLockingUser(String user) {

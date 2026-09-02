@@ -17,12 +17,12 @@
 
 package com.percussion.server.command;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.data.PSDatabaseMetaData;
 import com.percussion.data.PSMetaDataCache;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.error.PSSqlException;
 import com.percussion.server.IPSConsoleCommand;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.utils.jdbc.PSConnectionDetail;
 import com.percussion.utils.jdbc.PSConnectionHelper;
@@ -161,7 +161,7 @@ public class PSConsoleCommandFlushDbmd extends PSConsoleCommand {
 
     if (isError) {
       Object[] args = {ms_cmdName, badArg};
-      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_INVALID_ARGS, args);
+      throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_INVALID_ARGS, args);
     }
   }
 
@@ -216,10 +216,10 @@ public class PSConsoleCommandFlushDbmd extends PSConsoleCommand {
               detail = PSConnectionHelper.getConnectionDetail(connInfo);
             } catch (NamingException e) {
               throw new PSConsoleCommandException(
-                  IPSServerErrors.RAW_DUMP, e.getLocalizedMessage());
+                  ServerErrorCodes.RAW_DUMP, e.getLocalizedMessage());
             } catch (SQLException e) {
               throw new PSConsoleCommandException(
-                  IPSServerErrors.RAW_DUMP, PSSqlException.getFormattedExceptionText(e));
+                  ServerErrorCodes.RAW_DUMP, PSSqlException.getFormattedExceptionText(e));
             }
             m_origin = detail.getOrigin();
           }

@@ -16,9 +16,10 @@
  */
 package com.percussion.server.cache;
 
+import com.intsof.percussioncms.auditlog.codes.BackEndErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.handlers.PSRelationshipCommandHandler;
-import com.percussion.data.IPSBackEndErrors;
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipConfigSet;
@@ -26,7 +27,6 @@ import com.percussion.design.objectstore.PSRelationshipSet;
 import com.percussion.error.PSException;
 import com.percussion.extension.services.PSDatabasePool;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSConsole;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSCacheException;
@@ -69,7 +69,7 @@ public class PSContentItemDependencyTree {
        * The internal request failed for some reason. Passing this exception up to the next level.
        */
       Object[] args = {e.getLocalizedMessage()};
-      throw new PSCacheException(IPSServerErrors.CACHE_UNEXPECTED_EXCEPTION, args);
+      throw new PSCacheException(ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, args);
     }
   }
 
@@ -128,7 +128,7 @@ public class PSContentItemDependencyTree {
 
       String query = getAAInfoQuery();
       conn = PSDatabasePool.getDatabasePool().getConnection();
-      if (conn == null) throw new PSException(IPSBackEndErrors.EXEC_DATA_NO_CONNECTIONS);
+      if (conn == null) throw new PSException(BackEndErrorCodes.EXEC_DATA_NO_CONNECTIONS);
       stmt = PSPreparedStatement.getPreparedStatement(conn, query);
       rs = stmt.executeQuery();
 
@@ -149,7 +149,7 @@ public class PSContentItemDependencyTree {
            */
           Object[] args = {String.valueOf(sysId), e.getLocalizedMessage()};
           PSCacheException ce =
-              new PSCacheException(IPSServerErrors.CACHE_DEPENDENCY_SKIPPED, args);
+              new PSCacheException(ServerErrorCodes.CACHE_DEPENDENCY_SKIPPED, args);
           PSConsole.printMsg("Cache", ce);
           continue;
         }
@@ -289,7 +289,7 @@ public class PSContentItemDependencyTree {
          * will continue constructing the dependency tree.
          */
         Object[] args = {String.valueOf(sysId), e.getLocalizedMessage()};
-        PSCacheException ce = new PSCacheException(IPSServerErrors.CACHE_DEPENDENCY_SKIPPED, args);
+        PSCacheException ce = new PSCacheException(ServerErrorCodes.CACHE_DEPENDENCY_SKIPPED, args);
         PSConsole.printMsg("Cache", ce);
       }
     }

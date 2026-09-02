@@ -16,9 +16,9 @@
  */
 package com.percussion.server.command;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.error.PSErrorManager;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.cache.IPSCacheHandler;
 import com.percussion.server.cache.PSCacheManager;
@@ -84,7 +84,7 @@ public class PSConsoleCommandFlushCache extends PSConsoleCommandCache {
 
     PSCacheManager mgr = PSCacheManager.getInstance();
     if (!mgr.hasCacheStarted()) {
-      throw new PSConsoleCommandException(IPSServerErrors.RCONSOLE_CACHE_ALREADY_STOPPED);
+      throw new PSConsoleCommandException(ServerErrorCodes.RCONSOLE_CACHE_ALREADY_STOPPED);
     }
 
     Map<String, String> keys = null;
@@ -113,7 +113,7 @@ public class PSConsoleCommandFlushCache extends PSConsoleCommandCache {
             }
 
             Object[] args = {ms_cmdName, handlerType, typeList};
-            throw new PSConsoleCommandException(IPSServerErrors.RCONSOLE_INVALID_SUBCMD, args);
+            throw new PSConsoleCommandException(ServerErrorCodes.RCONSOLE_INVALID_SUBCMD, args);
           } else if (st.hasMoreTokens()) {
             cmdArgs = st.nextToken().trim();
           }
@@ -157,9 +157,9 @@ public class PSConsoleCommandFlushCache extends PSConsoleCommandCache {
     }
 
     PSXmlDocumentBuilder.addElement(
-        respDoc, root, "resultCode", String.valueOf(IPSServerErrors.RCONSOLE_CACHE_FLUSHED));
+        respDoc, root, "resultCode", String.valueOf(ServerErrorCodes.RCONSOLE_CACHE_FLUSHED.numericCode()));
 
-    String termMsg = PSErrorManager.getErrorText(IPSServerErrors.RCONSOLE_CACHE_FLUSHED, true, loc);
+    String termMsg = PSErrorManager.getErrorText(ServerErrorCodes.RCONSOLE_CACHE_FLUSHED.numericCode(), true, loc);
     PSXmlDocumentBuilder.addElement(respDoc, root, "resultText", termMsg);
 
     return respDoc;
