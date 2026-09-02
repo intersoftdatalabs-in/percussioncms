@@ -86,6 +86,29 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
   /** JDBC persist marker on REST-created user menus ({@code RXMENUACTIONPROPERTIES}). */
   static final String REST_USER_MENU_PROP = RxmActionMenuConstants.REST_USER_MENU_PROP;
 
+  /**
+   * Workbench visibility context names are {@code 1}–{@code 11} ({@link
+   * PSActionVisibilityContext} {@code VIS_CONTEXT_*}). Aliases are case-insensitive and
+   * ignore spaces, hyphens, and underscores.
+   */
+  static final Map<String, String> VISIBILITY_CONTEXT_ALIASES =
+      Map.ofEntries(
+          Map.entry("assignmenttype", PSActionVisibilityContext.VIS_CONTEXT_ASSIGNMENT_TYPE),
+          Map.entry("community", PSActionVisibilityContext.VIS_CONTEXT_COMMUNITY),
+          Map.entry("contenttype", PSActionVisibilityContext.VIS_CONTEXT_CONTENT_TYPE),
+          Map.entry("objecttype", PSActionVisibilityContext.VIS_CONTEXT_OBJECT_TYPE),
+          Map.entry("clientcontext", PSActionVisibilityContext.VIS_CONTEXT_CLIENT_CONTEXT),
+          Map.entry("checkoutstatus", PSActionVisibilityContext.VIS_CONTEXT_CHECKOUT_STATUS),
+          Map.entry("roles", PSActionVisibilityContext.VIS_CONTEXT_ROLES_TYPE),
+          Map.entry("role", PSActionVisibilityContext.VIS_CONTEXT_ROLES_TYPE),
+          Map.entry("locales", PSActionVisibilityContext.VIS_CONTEXT_LOCALES_TYPE),
+          Map.entry("locale", PSActionVisibilityContext.VIS_CONTEXT_LOCALES_TYPE),
+          Map.entry("workflows", PSActionVisibilityContext.VIS_CONTEXT_WORKFLOWS_TYPE),
+          Map.entry("workflow", PSActionVisibilityContext.VIS_CONTEXT_WORKFLOWS_TYPE),
+          Map.entry("publishable", PSActionVisibilityContext.VIS_CONTEXT_PUBLISHABLE_TYPE),
+          Map.entry("publishabletype", PSActionVisibilityContext.VIS_CONTEXT_PUBLISHABLE_TYPE),
+          Map.entry("foldersecurity", PSActionVisibilityContext.VIS_CONTEXT_FOLDER_SECURITY));
+
   private final IPSUiDesignWs service;
   private final BooleanSupplier adminChecker;
   private final Supplier<List<PSActionMenu>> hibernateMenus;
@@ -266,13 +289,54 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       String key = idOrName.trim();
       try {
         List<ActionMenu> all = findMenus(null, null, null, null, null);
-        return matchMenuInTree(all, key);
+        ActionMenu catalog = matchMenuInTree(all, key);
+        overlayDesignVisibility(catalog);
+        return catalog;
       } catch (PSErrorResultsException e) {
         log.debug("Action menu lookup failed for {}: {}", key, e.toString());
         return null;
       }
     } finally {
       clearRequestHibernateIndex();
+    }
+  }
+
+  /**
+   * GET catalog detail is Hibernate-backed; overlay visibility/uiContexts from an unlocked
+   * design load so PUT then GET round-trips Workbench Visibility. Failures leave the catalog
+   * DTO unchanged (no 409 on GET).
+   */
+  void overlayDesignVisibility(ActionMenu catalog) {
+    if (catalog == null) {
+      return;
+    }
+    IPSGuid id = null;
+    if (catalog.getGuid() != null && StringUtils.isNotBlank(catalog.getGuid().getStringValue())) {
+      id = parseActionGuid(catalog.getGuid().getStringValue());
+    }
+    if (id == null && catalog.getId() > 0) {
+      try {
+        id = PSAction.getGuidFromId(catalog.getId());
+      } catch (RuntimeException e) {
+        return;
+      }
+    }
+    if (id == null) {
+      return;
+    }
+    try {
+      List<PSAction> loaded =
+          service.loadActions(
+              List.of(id), false, false, currentSession(), currentUser());
+      if (loaded == null || loaded.isEmpty() || loaded.get(0) == null) {
+        return;
+      }
+      PSAction domain = loaded.get(0);
+      catalog.setVisibilityContexts(toDtoVisibilityContexts(domain.getVisibilityContexts()));
+      catalog.setUiContexts(toDtoUiContexts(domain.getModeUIContexts()));
+    } catch (RuntimeException | PSErrorResultsException e) {
+      log.debug(
+          "Action menu design overlay skipped for {}: {}", catalog.getName(), e.toString());
     }
   }
 
@@ -738,11 +802,13 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     applyHandler(domain, body.getHandler());
     applyParameters(domain, body.getParameters());
     applyCommandProperties(domain, body.getProperties());
+    applyVisibilityContexts(domain, body.getVisibilityContexts());
+    applyUiContexts(domain, body.getUiContexts());
   }
 
   /**
    * Workbench Usage handler: {@code CLIENT} or {@code SERVER}. Blank leaves the existing
-   * handler. Visibility contexts are not applied here (UI-03 slice 2).
+   * handler.
    */
   static void applyHandler(PSAction domain, String raw) {
     if (domain == null || StringUtils.isBlank(raw)) {
@@ -801,7 +867,7 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
 
   /**
    * Merges Workbench Usage/Command properties by name. {@code null} leaves existing
-   * properties. Never overwrites {@link #REST_USER_MENU_PROP}. Visibility is not applied.
+   * properties. Never overwrites {@link #REST_USER_MENU_PROP}.
    */
   static void applyCommandProperties(PSAction domain, ActionMenuProperty[] properties) {
     if (domain == null || properties == null) {
@@ -848,6 +914,136 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       }
     }
     return null;
+  }
+
+  /**
+   * Replaces Workbench Visibility contexts when the PUT body includes {@code
+   * visibilityContexts} (empty array clears). {@code null} leaves the existing collection.
+   * Each element is one named context plus one value (repeat the name for multiple values).
+   * Unknown names are {@link IllegalArgumentException} (HTTP 400).
+   */
+  static void applyVisibilityContexts(
+      PSAction domain, ActionMenuVisibilityContext[] visibilityContexts) {
+    if (domain == null || visibilityContexts == null) {
+      return;
+    }
+    LinkedHashMap<String, List<String>> grouped = new LinkedHashMap<>();
+    Map<String, String> descriptions = new LinkedHashMap<>();
+    for (ActionMenuVisibilityContext dto : visibilityContexts) {
+      if (dto == null) {
+        continue;
+      }
+      String name = resolveVisibilityContextName(dto.getName());
+      String value = dto.getValue() == null ? "" : dto.getValue();
+      grouped.computeIfAbsent(name, key -> new ArrayList<>()).add(value);
+      if (dto.getDescription() != null) {
+        descriptions.put(name, dto.getDescription());
+      }
+    }
+    PSActionVisibilityContexts dest = domain.getVisibilityContexts();
+    List<String> existing = new ArrayList<>();
+    Iterator<?> it = dest.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (next instanceof PSActionVisibilityContext ctx && StringUtils.isNotBlank(ctx.getName())) {
+        existing.add(ctx.getName());
+      }
+    }
+    for (String name : existing) {
+      dest.removeContext(name);
+    }
+    for (Map.Entry<String, List<String>> entry : grouped.entrySet()) {
+      String name = entry.getKey();
+      String[] values = entry.getValue().toArray(String[]::new);
+      dest.add(new PSActionVisibilityContext(name, values, descriptions.get(name)));
+    }
+  }
+
+  /**
+   * Replaces mode-uicontext mappings when the PUT body includes {@code uiContexts} (empty
+   * array clears). {@code null} leaves the existing collection. {@code modeId} and {@code
+   * contextId} must be numeric. Duplicate mode/context pairs are {@link
+   * IllegalArgumentException} (HTTP 400).
+   */
+  static void applyUiContexts(PSAction domain, ActionMenuModeUIContext[] uiContexts) {
+    if (domain == null || uiContexts == null) {
+      return;
+    }
+    LinkedHashMap<String, ActionMenuModeUIContext> unique = new LinkedHashMap<>();
+    for (ActionMenuModeUIContext dto : uiContexts) {
+      if (dto == null) {
+        continue;
+      }
+      String modeId = requireNumericId(dto.getModeId(), "modeId");
+      String contextId = requireNumericId(dto.getContextId(), "contextId");
+      String key = modeId + ":" + contextId;
+      if (unique.containsKey(key)) {
+        throw new IllegalArgumentException("Duplicate uiContext mode/context: " + key);
+      }
+      unique.put(key, dto);
+    }
+    PSDbComponentCollection dest = domain.getModeUIContexts();
+    List<PSMenuModeContextMapping> existing = new ArrayList<>();
+    Iterator<?> it = dest.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (next instanceof PSMenuModeContextMapping mapping) {
+        existing.add(mapping);
+      }
+    }
+    for (PSMenuModeContextMapping mapping : existing) {
+      dest.remove(mapping);
+    }
+    String actionId = String.valueOf(Math.max(domain.getId(), 0));
+    for (ActionMenuModeUIContext dto : unique.values()) {
+      PSMenuModeContextMapping mapping =
+          new PSMenuModeContextMapping(
+              dto.getModeId().trim(), dto.getContextId().trim(), actionId);
+      mapping.setModeName(dto.getModeName());
+      mapping.setContextName(dto.getContextName());
+      dest.add(mapping);
+    }
+  }
+
+  /**
+   * Maps a REST visibility context name to a Workbench {@code VIS_CONTEXT_*} id ({@code
+   * 1}–{@code 11}). Package-visible for tests.
+   */
+  static String resolveVisibilityContextName(String raw) {
+    if (StringUtils.isBlank(raw)) {
+      throw new IllegalArgumentException("visibility context name is required");
+    }
+    String trimmed = raw.trim();
+    if (trimmed.chars().allMatch(Character::isDigit)) {
+      int n;
+      try {
+        n = Integer.parseInt(trimmed);
+      } catch (NumberFormatException e) {
+        throw new IllegalArgumentException("Invalid visibility context: " + raw);
+      }
+      if (n >= 1 && n <= 11) {
+        return Integer.toString(n);
+      }
+      throw new IllegalArgumentException("Invalid visibility context: " + raw);
+    }
+    String aliasKey =
+        trimmed.toLowerCase().replace("_", "").replace("-", "").replace(" ", "");
+    String mapped = VISIBILITY_CONTEXT_ALIASES.get(aliasKey);
+    if (mapped != null) {
+      return mapped;
+    }
+    throw new IllegalArgumentException("Invalid visibility context: " + raw);
+  }
+
+  static String requireNumericId(String raw, String field) {
+    if (StringUtils.isBlank(raw)) {
+      throw new IllegalArgumentException(field + " is required");
+    }
+    String trimmed = raw.trim();
+    if (!trimmed.chars().allMatch(Character::isDigit)) {
+      throw new IllegalArgumentException("Invalid " + field + ": " + raw);
+    }
+    return trimmed;
   }
 
   static PSActionProperty findProperty(PSActionProperties props, String name) {
@@ -948,6 +1144,8 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     }
     menu.setParameters(toDtoParameters(action.getParameters()));
     menu.setProperties(toDtoProperties(action.getProperties()));
+    menu.setVisibilityContexts(toDtoVisibilityContexts(action.getVisibilityContexts()));
+    menu.setUiContexts(toDtoUiContexts(action.getModeUIContexts()));
     return menu;
   }
 
@@ -989,6 +1187,62 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       out.add(dto);
     }
     return out.toArray(ActionMenuProperty[]::new);
+  }
+
+  static ActionMenuVisibilityContext[] toDtoVisibilityContexts(
+      PSActionVisibilityContexts visibilityContexts) {
+    if (visibilityContexts == null || visibilityContexts.size() == 0) {
+      return new ActionMenuVisibilityContext[0];
+    }
+    List<ActionMenuVisibilityContext> out = new ArrayList<>();
+    Iterator<?> it = visibilityContexts.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (!(next instanceof PSActionVisibilityContext ctx)
+          || StringUtils.isBlank(ctx.getName())) {
+        continue;
+      }
+      boolean any = false;
+      Iterator<?> values = ctx.iterator();
+      while (values.hasNext()) {
+        any = true;
+        ActionMenuVisibilityContext dto = new ActionMenuVisibilityContext();
+        dto.setName(ctx.getName());
+        dto.setDescription(ctx.getDescription());
+        Object value = values.next();
+        dto.setValue(value == null ? "" : String.valueOf(value));
+        out.add(dto);
+      }
+      if (!any) {
+        ActionMenuVisibilityContext dto = new ActionMenuVisibilityContext();
+        dto.setName(ctx.getName());
+        dto.setDescription(ctx.getDescription());
+        out.add(dto);
+      }
+    }
+    return out.toArray(ActionMenuVisibilityContext[]::new);
+  }
+
+  static ActionMenuModeUIContext[] toDtoUiContexts(PSDbComponentCollection modeUiContexts) {
+    if (modeUiContexts == null || modeUiContexts.size() == 0) {
+      return new ActionMenuModeUIContext[0];
+    }
+    List<ActionMenuModeUIContext> out = new ArrayList<>();
+    Iterator<?> it = modeUiContexts.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (!(next instanceof PSMenuModeContextMapping mapping)) {
+        continue;
+      }
+      ActionMenuModeUIContext dto = new ActionMenuModeUIContext();
+      dto.setModeId(mapping.getModeId());
+      dto.setModeName(mapping.getModeName());
+      dto.setContextId(mapping.getContextId());
+      dto.setContextName(mapping.getContextName());
+      dto.setDescription(mapping.getDescription());
+      out.add(dto);
+    }
+    return out.toArray(ActionMenuModeUIContext[]::new);
   }
 
   static String restMenuType(PSAction action) {
@@ -1324,42 +1578,6 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     }
     log.error("Failed to {} action menu via UI design WS", verb, e);
     return new IllegalStateException("Failed to " + verb + " action menu", e);
-  }
-
-  private ActionMenuVisibilityContext[] copyVisibilityContexts(
-      PSActionVisibilityContexts visibilityContexts) {
-    var ctxs = new ArrayList<ActionMenuVisibilityContext>();
-    var it = visibilityContexts.iterator();
-    while (it.hasNext()) {
-      var v = (PSActionVisibilityContext) it.next();
-      var amc = new ActionMenuVisibilityContext();
-      var values = new ArrayList<>();
-      var vit = v.iterator();
-      while (vit.hasNext()) {
-        values.add(vit.next());
-      }
-      amc.setDescription(v.getDescription());
-      amc.setName(v.getName());
-      // TODO: Set values if needed
-      ctxs.add(amc);
-    }
-    return ctxs.toArray(new ActionMenuVisibilityContext[0]);
-  }
-
-  private ActionMenuModeUIContext[] copyUIContexts(PSDbComponentCollection modeUIContexts) {
-    var uictx = new ArrayList<ActionMenuModeUIContext>();
-    var it = modeUIContexts.iterator();
-    while (it.hasNext()) {
-      var mode = (PSMenuModeContextMapping) it.next();
-      var restMode = new ActionMenuModeUIContext();
-      restMode.setContextId(mode.getContextId());
-      restMode.setContextName(mode.getContextName());
-      restMode.setModeId(mode.getModeId());
-      restMode.setModeName(mode.getModeName());
-      restMode.setDescription(mode.getDescription());
-      uictx.add(restMode);
-    }
-    return uictx.toArray(new ActionMenuModeUIContext[0]);
   }
 
   private ActionMenuParameter[] copyParameters(PSActionParameters parameters) {

@@ -54,8 +54,8 @@ public interface IActionMenuAdaptor {
    *
    * @param idOrName catalog key (same rules as {@link #findMenuByKey})
    * @param body required writable fields (label, description, menuType, url, handler,
-   *     parameters, and command/usage properties as exposed on GET). Visibility is not
-   *     mutated.
+   *     parameters, command/usage properties, visibilityContexts, and uiContexts as exposed
+   *     on GET).
    * @return the persisted menu, or {@code null} when missing/unsafe
    */
   ActionMenu saveActionMenu(String idOrName, ActionMenu body);

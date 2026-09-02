@@ -101,9 +101,9 @@ public class ActionMenuResource {
   @Operation(
       summary = "Get action menu detail",
       description =
-          "Loads one action menu by name or numeric id. Admin PUT/DELETE use"
-              + " /services/actions/{idOrName}. Cascading entry composition remains a later"
-              + " slice.",
+          "Loads one action menu by name or numeric id, including visibilityContexts and"
+              + " uiContexts when present. Admin PUT/DELETE use /services/actions/{idOrName}."
+              + " Cascading entry composition remains a later slice.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -255,12 +255,13 @@ public class ActionMenuResource {
   @Operation(
       summary = "Update action menu",
       description =
-          "Admin. Updates label, description, menuType, url, handler, URL parameters, and"
-              + " command/usage properties by name, numeric id, or GUID. Name is the catalog"
-              + " key and is not renamed on PUT. Loads with a design lock (overrideLock=false)"
-              + " and releases on save. Unknown id is 404. Lock/dependency conflict is 409."
-              + " System menus are 409 (not mutated; the lock is not stolen). Visibility"
-              + " contexts and cascading children composition are later slices.",
+          "Admin. Updates label, description, menuType, url, handler, URL parameters,"
+              + " command/usage properties, visibilityContexts, and uiContexts by name, numeric"
+              + " id, or GUID. Name is the catalog key and is not renamed on PUT. Loads with a"
+              + " design lock (overrideLock=false) and releases on save. Unknown id is 404."
+              + " Lock/dependency conflict is 409. System menus are 409 (not mutated; the lock"
+              + " is not stolen). Invalid visibility or uiContext payload is 400. Cascading"
+              + " children composition is a later slice.",
       responses = {
         @ApiResponse(
             responseCode = "200",
