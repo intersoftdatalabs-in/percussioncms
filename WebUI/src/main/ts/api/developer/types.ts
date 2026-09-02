@@ -891,11 +891,12 @@ export interface SiteDef {
  * object-storage, rss-atom, icalendar, and sitemap-xml (local {@code rootPath}
  * only; no cloud URLs, live feed / CalDAV / crawl credentials, or
  * {@code virtual.remoteUrl} on those kinds). Build chrome is shown after save
- * for git/csv/sql/http-json/object-storage/rss-atom/icalendar. Preview chrome
- * is shown for git/csv/sql/http-json/object-storage/rss-atom/icalendar. Publish
- * chrome is shown for git/csv/sql/http-json/object-storage/rss-atom/icalendar.
- * sitemap-xml is save/GET-roundtrip only in this slice (Build/Preview/Publish
- * later). Repository / unknown kinds hide that chrome.
+ * for git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml.
+ * Preview chrome is shown for git/csv/sql/http-json/object-storage/rss-atom/
+ * icalendar/sitemap-xml (last-build local HTML; missing build stays unavailable).
+ * Publish chrome is shown for git/csv/sql/http-json/object-storage/rss-atom/
+ * icalendar. sitemap-xml Publish chrome stays later. Repository / unknown kinds
+ * hide that chrome.
  */
 export interface VirtualSiteProperties {
   sourceKind?: string | null;

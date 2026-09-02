@@ -173,12 +173,12 @@ function validationMessage(
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
  * build ({@code POST …/virtual/build}) for git-filesystem, csv-filesystem,
  * sql-database, http-json, object-storage, rss-atom, icalendar, and sitemap-xml.
- * Preview last-build HTML for git/csv/sql/http-json/object-storage/rss-atom/icalendar.
- * Publish ({@code POST …/virtual/publish}) for git/csv/sql/http-json/
- * object-storage/rss-atom/icalendar after a successful Build. sitemap-xml shows
- * Build after save (local {@code rootPath}; no live crawl); Preview/Publish stay
- * later. Repository / blank / unknown kinds stay hidden. icalendar uses a local
- * {@code rootPath} only (no CalDAV chrome).
+ * Preview last-build HTML for git/csv/sql/http-json/object-storage/rss-atom/
+ * icalendar/sitemap-xml (missing build stays unavailable). Publish
+ * ({@code POST …/virtual/publish}) for git/csv/sql/http-json/object-storage/
+ * rss-atom/icalendar after a successful Build. sitemap-xml Publish chrome stays
+ * later. Repository / blank / unknown kinds stay hidden. sitemap-xml uses a
+ * local {@code rootPath} only (no live crawl chrome).
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -373,9 +373,9 @@ export function VirtualSiteSourcePanel({
   const sitemapXmlMode = isSitemapXmlSourceKind(form.sourceKind);
   /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
-  /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar (never repository). */
+  /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml (never repository). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
-  /** Publish chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar (never repository). */
+  /** Publish chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar (never repository/sitemap-xml). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
   const busy = saving || building || publishing;
   const buildSummary = buildResult ? formatVirtualSiteBuildSummary(buildResult) : null;
@@ -616,7 +616,7 @@ export function VirtualSiteSourcePanel({
             ) : null}
           </div>
 
-          {/* Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar (never repository). */}
+          {/* Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml (never repository). */}
           {showBuildChrome ? (
             <div
               data-testid="developer-site-virtual-build-section"
