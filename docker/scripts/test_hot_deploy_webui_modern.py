@@ -79,6 +79,7 @@ def _write_modern_tree(
     *,
     include_object_storage: bool,
     include_rss_atom: bool = True,
+    include_developer_am_new: bool = True,
     include_index: bool = True,
 ) -> Path:
     modern = root / "cm" / "modern"
@@ -94,6 +95,8 @@ def _write_modern_tree(
         chunk += 'export const os="object-storage";\n'
     if include_rss_atom:
         chunk += 'export const rss="rss-atom";\n'
+    if include_developer_am_new:
+        chunk += 'export const am="developer-am-new";\n'
     (assets / "developer-AbCd1234.js").write_text(chunk, encoding="utf-8")
     if include_index:
         (modern / "index.html").write_text(
@@ -176,7 +179,8 @@ class TestValidateSrc(unittest.TestCase):
             )
             (src / "assets" / "developer-AbCd1234.js").write_text(
                 'const u="https://example.com/object-storage/keys";\n'
-                'const f="feed/rss-atom.xml";\n',
+                'const f="feed/rss-atom.xml";\n'
+                'const am="developer-am-new";\n',
                 encoding="utf-8",
             )
             rc = hdw.validate_src(src, require_object_storage=True)
@@ -191,7 +195,8 @@ class TestValidateSrc(unittest.TestCase):
             )
             (src / "assets" / "developer-AbCd1234.js").write_text(
                 "export const os=`object-storage`;\n"
-                "export const rss=`rss-atom`;\n",
+                "export const rss=`rss-atom`;\n"
+                "export const am=`developer-am-new`;\n",
                 encoding="utf-8",
             )
             rc = hdw.validate_src(src, require_kind_markers=True)
@@ -230,7 +235,8 @@ class TestValidateSrc(unittest.TestCase):
             assets = src / "assets"
             assets.mkdir(parents=True)
             (assets / "perc-modern-ui.js").write_text(
-                'const k="object-storage";\nconst r="rss-atom";\n',
+                'const k="object-storage";\nconst r="rss-atom";\n'
+                'const am="developer-am-new";\n',
                 encoding="utf-8",
             )
             (assets / "perc-modern-ui.css").write_text("/* css */\n", encoding="utf-8")
@@ -243,12 +249,26 @@ class TestValidateSrc(unittest.TestCase):
             assets = src / "assets"
             assets.mkdir(parents=True)
             (assets / "perc-modern-ui.js").write_text(
-                'const k="object-storage";\n',
+                'const k="object-storage";\nconst am="developer-am-new";\n',
                 encoding="utf-8",
             )
             (assets / "perc-modern-ui.css").write_text("/* css */\n", encoding="utf-8")
             rc = hdw.validate_src(src, require_kind_markers=True)
             self.assertEqual(rc, hdw.EXIT_MARKER_MISSING)
+
+    def test_developer_am_new_missing_fails_even_when_kinds_present(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = _write_modern_tree(
+                Path(td),
+                include_object_storage=True,
+                include_rss_atom=True,
+                include_developer_am_new=False,
+            )
+            rc = hdw.validate_src(src, require_kind_markers=True)
+            self.assertEqual(rc, hdw.EXIT_MARKER_MISSING)
+            self.assertEqual(
+                hdw.bundle_missing_kind_markers(src), ["developer-am-new"]
+            )
 
 
 class TestContainerDestFile(unittest.TestCase):

@@ -23,7 +23,8 @@ Cycle Verify #3893 / #3948: copying only hashed files under
 ``cm/modern/assets/`` without the stable entry ``perc-modern-ui.js``
 (and optional ``index.html``) leaves the live SPA on a stale
 ``import("./developer-<oldhash>.js")``. That chunk has csv/sql/http-json
-but not ``option[value=object-storage]`` or ``option[value=rss-atom]``.
+but not ``option[value=object-storage]`` / ``option[value=rss-atom]``
+or ``[data-testid=developer-am-new]`` (#4123).
 
 This script copies **every file** under
 ``WebUI/target/generated-webui/cm/modern/`` (entry JS/CSS, hashed chunks,
@@ -40,11 +41,12 @@ By default the script refuses to deploy a bundle whose SPA entry
 chunk that contains the quoted wire values ``object-storage`` and
 ``rss-atom`` (single quotes, double quotes, or JS template-literal
 backticks — Vite 8 / rolldown minifies these SOURCE_KIND_* constants
-to backtick strings). A bare substring such as an API path is not
-enough. TypeScript identifiers (``SOURCE_KIND_OBJECT_STORAGE`` /
-``SOURCE_KIND_RSS_ATOM``) are not scanned: production bundles minify
-them away, while the option value strings are what the live
-``<select>`` renders.
+to backtick strings) and the quoted Action Menus catalog testid
+``developer-am-new`` (#4123 dual-ship). A bare substring such as an
+API path is not enough. TypeScript identifiers
+(``SOURCE_KIND_OBJECT_STORAGE`` / ``SOURCE_KIND_RSS_ATOM``) are not
+scanned: production bundles minify them away, while the option value
+strings and ``data-testid`` literals are what the live SPA renders.
 
 Exit codes:
 
@@ -52,7 +54,7 @@ Exit codes:
   1  invocation / argument error
   2  container not running
   3  source tree / entry file not found
-  4  kind marker (object-storage and/or rss-atom) missing in built JS
+  4  kind/SPA marker (object-storage, rss-atom, and/or developer-am-new) missing in built JS
   5  docker cp / docker exec failed
 """
 
@@ -82,7 +84,12 @@ ENTRY_CSS_REL = "assets/perc-modern-ui.css"
 # Wire values of SOURCE_KIND_* / option[value=…] on developer-site-virtual-source-kind.
 OBJECT_STORAGE_MARKER = "object-storage"
 RSS_ATOM_MARKER = "rss-atom"
-REQUIRED_KIND_MARKERS: tuple[str, ...] = (OBJECT_STORAGE_MARKER, RSS_ATOM_MARKER)
+DEVELOPER_AM_NEW_MARKER = "developer-am-new"
+REQUIRED_KIND_MARKERS: tuple[str, ...] = (
+    OBJECT_STORAGE_MARKER,
+    RSS_ATOM_MARKER,
+    DEVELOPER_AM_NEW_MARKER,
+)
 # Entry typically has import"./developer-<hash>.js" or import("./developer-<hash>.js").
 _DEVELOPER_IMPORT_RE = re.compile(
     r"""(?:import\s*\(?\s*["']|from\s+["'])(?:\./)?(developer-[^"']+\.js)["']""",
@@ -134,8 +141,9 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         dest="skip_object_storage_check",
         help=(
-            "Do not refuse a bundle whose JS lacks quoted object-storage "
-            "and/or rss-atom markers (escape hatch only; #3948)."
+            "Do not refuse a bundle whose JS lacks quoted object-storage, "
+            "rss-atom, and/or developer-am-new markers (escape hatch only; "
+            "#3948 / #4123)."
         ),
     )
     p.add_argument(
@@ -277,7 +285,7 @@ def validate_src(
     """Return an exit code if ``src`` is not a deployable modern tree.
 
     ``require_object_storage`` is an alias for ``require_kind_markers``
-    (both object-storage and rss-atom; #3893 / #3948).
+    (object-storage, rss-atom, and developer-am-new; #3893 / #3948 / #4123).
     """
     if require_object_storage is not None:
         require_kind_markers = require_object_storage
@@ -306,15 +314,17 @@ def validate_src(
                 "built modern JS under %s does not contain quoted %s in "
                 "perc-modern-ui.js or the developer-*.js chunk it imports — "
                 "the live kind select would omit those option[value=…] "
-                "entries (#3893 / #3948)",
+                "entries or Action Menus catalog New chrome (#3893 / #3948 / "
+                "#4123)",
                 src,
                 ", ".join(repr(m) for m in missing),
             )
             LOG.error(
                 "hint: rebuild WebUI so the developer chunk includes the "
                 "SOURCE_KIND_OBJECT_STORAGE and SOURCE_KIND_RSS_ATOM wire "
-                "values as strings, then deploy entry + hashed chunks "
-                "(full generated-webui/cm/modern tree, not assets/ hashes only)"
+                "values and data-testid developer-am-new as strings, then "
+                "deploy entry + hashed chunks (full generated-webui/cm/modern "
+                "tree, not assets/ hashes only)"
             )
             return EXIT_MARKER_MISSING
     return EXIT_OK

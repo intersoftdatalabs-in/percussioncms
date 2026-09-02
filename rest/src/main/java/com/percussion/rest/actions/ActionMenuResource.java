@@ -208,12 +208,13 @@ public class ActionMenuResource {
       summary = "Create action menu",
       description =
           "Admin. Creates and persists a user action menu via IPSUiDesignWs.createActions then"
-              + " saveActions (Workbench Finish, held design lock released on save). Name is"
-              + " required, unique (case-insensitive), and must not contain whitespace or"
-              + " wildcards. Optional label, description, menuType, and url (GET detail fields)"
-              + " are applied before save. Duplicate name is 409. System menus are not created"
-              + " here. Cascading children composition is a later slice. This is not Developer"
-              + " Action Menus SPA chrome.",
+              + " saveActions (Workbench Finish, held design lock released on save). JSON body"
+              + " is ActionMenu (wrap {\"ActionMenu\":{…}} or flat). Collection POST is create;"
+              + " allowedWorkflowTransitionsRequest belongs on POST /actions/find/transitions"
+              + " (#4123). Name is required, unique (case-insensitive), and must not contain"
+              + " whitespace or wildcards. Optional label, description, menuType, and url (GET"
+              + " detail fields) are applied before save. Duplicate name is 409. System menus"
+              + " are not created here. Cascading children composition is a later slice.",
       responses = {
         @ApiResponse(
             responseCode = "200",

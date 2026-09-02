@@ -460,7 +460,7 @@ python docker/scripts/perc-devctl.py qa-rebuild-chain --skip-tests --then-qa-dep
 python docker/scripts/perc-devctl.py qa-up --skip-image-build --then-qa-deploy-webui
 ```
 
-Default source: `WebUI/target/generated-webui/cm/modern` (entry `assets/perc-modern-ui.js`, `assets/perc-modern-ui.css`, hashed chunks, optional `index.html`). Default container: `perc-matrix-cms-h2`. Dest: `/opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/`. The script refuses a bundle unless `perc-modern-ui.js` or the `developer-*.js` chunk it imports contains the quoted wire values `object-storage` **and** `rss-atom` (single/double quotes or template-literal backticks from Vite 8 minification — not a bare substring; TS identifiers are minified away). It does **not** `docker restart` the cell — restart Jetty inside the cell, then `qa-health`. Unit tests: `docker/scripts/test_hot_deploy_webui_modern.py`.
+Default source: `WebUI/target/generated-webui/cm/modern` (entry `assets/perc-modern-ui.js`, `assets/perc-modern-ui.css`, hashed chunks, optional `index.html`). Default container: `perc-matrix-cms-h2`. Dest: `/opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/`. The script refuses a bundle unless `perc-modern-ui.js` or the `developer-*.js` chunk it imports contains the quoted wire values `object-storage` **and** `rss-atom` **and** `developer-am-new` (single/double quotes or template-literal backticks from Vite 8 minification — not a bare substring; TS identifiers are minified away). It does **not** `docker restart` the cell — restart Jetty inside the cell, then `qa-health`. Unit tests: `docker/scripts/test_hot_deploy_webui_modern.py`.
 
 ## Container entrypoint
 

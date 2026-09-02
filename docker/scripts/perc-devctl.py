@@ -38,7 +38,7 @@ QA mode (H2-in-Docker, no host install — issue #1827 / #1927) adds:
   files, or jar-only Cycle Verify hot-deploys of rest/sitemanage,
   leaves a stale developer chunk without
   ``option[value=object-storage]`` / ``option[value=rss-atom]``
-  (#3893 / #3948)
+  (#3893 / #3948) or ``[data-testid=developer-am-new]`` (#4123)
 
 Compose ``verify`` / ``verify-fix`` / ``deploy-jar --verify`` apply the same
 Rhythmyx context log scan against the cms-dts container (#2480 companion to
@@ -443,7 +443,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "After a successful qa-up, copy WebUI/target/generated-webui/"
             "cm/modern into the H2 QA WAR (#3948). Required when "
             "--skip-image-build leaves a stale SPA without "
-            "object-storage / rss-atom kind options."
+            "object-storage / rss-atom kind options and Action Menus "
+            "developer-am-new catalog chrome."
         ),
     )
     pqu.add_argument("--dry-run", action="store_true")
@@ -576,7 +577,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "hashed chunks + CSS + any index.html) into the H2 QA WAR. "
             "Post-jar companion: run this after rest/sitemanage SNAPSHOT "
             "copies so the live kind select keeps object-storage and "
-            "rss-atom (#3893 / #3948). Does not docker-restart the cell."
+            "rss-atom and Action Menus catalog New chrome "
+            "(#3893 / #3948 / #4123). Does not docker-restart the cell."
         ),
     )
     pqdw.add_argument(
@@ -598,8 +600,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         dest="skip_object_storage_check",
         help=(
-            "Allow a bundle whose JS lacks quoted object-storage "
-            "and/or rss-atom markers (#3948)."
+            "Allow a bundle whose JS lacks quoted object-storage, "
+            "rss-atom, and/or developer-am-new markers (#3948 / #4123)."
         ),
     )
     pqdw.add_argument("--dry-run", action="store_true")

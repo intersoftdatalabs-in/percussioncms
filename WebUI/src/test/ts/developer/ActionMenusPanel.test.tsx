@@ -6,14 +6,27 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
-import * as actionMenusApi from "../../../main/ts/api/developer/actionMenusApi";
+import {
+  deleteActionMenu,
+  getActionMenuDetail,
+  listActionMenus,
+} from "../../../main/ts/api/developer/actionMenusApi";
 import { ActionMenusPanel } from "../../../main/ts/developer/ActionMenusPanel";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
-vi.mock("../../../main/ts/api/developer/actionMenusApi", () => ({
-  listActionMenus: vi.fn(),
-  getActionMenuDetail: vi.fn(),
-}));
+vi.mock("../../../main/ts/api/developer/actionMenusApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/actionMenusApi")
+  >();
+  return {
+    ...actual,
+    listActionMenus: vi.fn(),
+    getActionMenuDetail: vi.fn(),
+    createActionMenu: vi.fn(),
+    saveActionMenu: vi.fn(),
+    deleteActionMenu: vi.fn(),
+  };
+});
 
 vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
   ObjectAclSection: (props: {
@@ -29,8 +42,9 @@ vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
   ),
 }));
 
-const listActionMenus = actionMenusApi.listActionMenus as ReturnType<typeof vi.fn>;
-const getActionMenuDetail = actionMenusApi.getActionMenuDetail as ReturnType<typeof vi.fn>;
+const listMock = vi.mocked(listActionMenus);
+const detailMock = vi.mocked(getActionMenuDetail);
+const deleteMock = vi.mocked(deleteActionMenu);
 
 const sampleMenu = {
   id: 1,
@@ -56,39 +70,56 @@ describe("ActionMenusPanel", () => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
       message: (key: string) => key,
     };
-    listActionMenus.mockReset();
-    getActionMenuDetail.mockReset();
+    listMock.mockReset();
+    detailMock.mockReset();
+    deleteMock.mockReset();
   });
 
   it("lists action menus and opens detail", async () => {
-    listActionMenus.mockResolvedValue([sampleMenu]);
-    getActionMenuDetail.mockResolvedValue(sampleDetail);
+    listMock.mockResolvedValue([sampleMenu]);
+    detailMock.mockResolvedValue(sampleDetail);
     render(<ActionMenusPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-am-table")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-am-table").textContent).toContain("Edit");
+    expect(screen.getByTestId("developer-am-new")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-am-open"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-am-detail")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-am-params-table")).toBeTruthy();
+    expect(screen.getByTestId("developer-am-save")).toBeTruthy();
+    expect(screen.getByTestId("developer-am-delete")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-am-back"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-am-table")).toBeTruthy();
     });
   });
 
-  it("shows empty state when API returns no action menus", async () => {
-    listActionMenus.mockResolvedValue([]);
+  it("opens create chrome from New action menu", async () => {
+    listMock.mockResolvedValue([]);
     render(<ActionMenusPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-am-empty")).toBeTruthy();
     });
+    fireEvent.click(screen.getByTestId("developer-am-new"));
+    expect(screen.getByTestId("developer-am-detail")).toBeTruthy();
+    expect(screen.getByTestId("developer-am-save")).toBeDisabled();
+    expect(detailMock).not.toHaveBeenCalled();
+  });
+
+  it("shows empty state when API returns no action menus", async () => {
+    listMock.mockResolvedValue([]);
+    render(<ActionMenusPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-empty")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-am-new")).toBeTruthy();
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {
-    listActionMenus.mockRejectedValue(new SessionRedirectError());
+    listMock.mockRejectedValue(new SessionRedirectError());
     render(<ActionMenusPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-am-error")).toBeTruthy();
@@ -98,7 +129,7 @@ describe("ActionMenusPanel", () => {
   });
 
   it("shows ApiError status via panelErrMsg", async () => {
-    listActionMenus.mockRejectedValue({
+    listMock.mockRejectedValue({
       status: 500,
       statusText: "Internal Server Error",
       body: null,
@@ -111,7 +142,7 @@ describe("ActionMenusPanel", () => {
   });
 
   it("shows Error.message via panelErrMsg", async () => {
-    listActionMenus.mockRejectedValue(new Error("network down"));
+    listMock.mockRejectedValue(new Error("network down"));
     render(<ActionMenusPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-am-error")).toBeTruthy();
@@ -122,8 +153,33 @@ describe("ActionMenusPanel", () => {
     expect(screen.queryByTestId("developer-am-table")).toBeNull();
   });
 
+  it("shows deleted notice on the catalog after delete", async () => {
+    listMock.mockResolvedValue([sampleMenu]);
+    detailMock.mockResolvedValue(sampleDetail);
+    deleteMock.mockResolvedValue(undefined);
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+    try {
+      render(<ActionMenusPanel />);
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-am-table")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("developer-am-open"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-am-delete")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("developer-am-delete"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-am-list-notice")).toBeTruthy();
+      });
+      expect(screen.getByTestId("developer-am-list-notice").textContent).toBe(DEV_MSG.AM_DELETED);
+      expect(screen.getByTestId("developer-am-panel")).toBeTruthy();
+    } finally {
+      confirmSpy.mockRestore();
+    }
+  });
+
   it("shows fallback when rejection has no message", async () => {
-    listActionMenus.mockRejectedValue("boom");
+    listMock.mockRejectedValue("boom");
     render(<ActionMenusPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-am-error")).toBeTruthy();
