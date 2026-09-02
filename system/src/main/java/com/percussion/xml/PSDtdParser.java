@@ -19,8 +19,8 @@ package com.percussion.xml;
 
 // java
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSCatalogException;
-import com.percussion.server.IPSServerErrors;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
@@ -435,13 +435,13 @@ public class PSDtdParser extends XMLDTDLoader
         } catch (SAXException se) {
           log.error(se.getMessage());
           log.debug(se.getMessage(), se);
-          throw new PSCatalogException(IPSServerErrors.XML_PARSER_SAX_ERROR, se.toString());
+          throw new PSCatalogException(ServerErrorCodes.XML_PARSER_SAX_ERROR, se.toString());
         }
         return;
       } else {
         log.error(xni.getMessage());
         log.debug(xni.getMessage(), xni);
-        throw new PSCatalogException(IPSServerErrors.XML_PARSER_SAX_ERROR, xni.toString());
+        throw new PSCatalogException(ServerErrorCodes.XML_PARSER_SAX_ERROR, xni.toString());
       }
     }
   }
