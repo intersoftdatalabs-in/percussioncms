@@ -320,8 +320,44 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    {
       PSWebserviceUtils.validateParameters(ids, "ids", true, session, user);
 
-      deleteComponents(ids, PSDisplayFormat.class, PSDisplayFormat.getComponentType(PSDisplayFormat.class),
-            ignoreDependencies, session, user);
+      // Locator XML delete posts updateDisplayFormats with no document (Xml
+      // Document Expected). REST POST persists via JDBC (#4101); DELETE must
+      // remove PSX_DISPLAYFORMATS the same way or name-keyed REST DELETE 400s
+      // with "ids cannot be null or empty" / leaves the catalog row (#4172).
+      PSErrorsException results = new PSErrorsException();
+      for (IPSGuid id : ids)
+      {
+         if (id == null || id.getUUID() <= 0)
+         {
+            continue;
+         }
+         if (!ignoreDependencies)
+         {
+            PSErrorException error = PSWebserviceUtils.checkDependencies(id);
+            if (error != null)
+            {
+               results.addError(id, error);
+               continue;
+            }
+         }
+         if (PSWebserviceUtils.hasValidLockForDelete(id, session, user))
+         {
+            ensureDisplayFormatRowDeleted(id.getUUID());
+            results.addResult(id);
+         }
+         else
+         {
+            PSWebserviceUtils.handleMissingLockError(id, PSDisplayFormat.class, results);
+         }
+      }
+
+      List<IPSGuid> released = results.getResults();
+      if (released != null && !released.isEmpty())
+         PSWebserviceUtils.releaseLocks(released, session, user);
+      invalidateDisplayFormatCatalog();
+
+      if (results.hasErrors())
+         throw results;
    }
 
    /*
@@ -844,6 +880,36 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          String session, String user) throws PSErrorResultsException
    {
       PSWebserviceUtils.validateParameters(ids, "ids", lock, session, user);
+
+      // JDBC-created REST formats are visible to GET-by-name but XML
+      // getDisplayFormats can miss/replay. Lock+delete must see the same row
+      // (#4172) — same catalog-first pattern as loadSearches.
+      List<PSDisplayFormat> fromDb = tryLoadDisplayFormatsFromDb(ids);
+      if (fromDb != null)
+      {
+         if (lock)
+         {
+            IPSObjectLockService lockService = PSObjectLockServiceLocator.getLockingService();
+            for (int i = 0; i < ids.size(); i++)
+            {
+               PSDisplayFormat df = fromDb.get(i);
+               Integer version = 1;
+               if (df instanceof PSVersionableDbComponent versionable && versionable.getVersion() != null)
+                  version = versionable.getVersion();
+               try
+               {
+                  lockService.createLock(ids.get(i), session, user, version, overrideLock);
+               }
+               catch (PSLockException e)
+               {
+                  PSErrorResultsException results = new PSErrorResultsException();
+                  results.addError(ids.get(i), e);
+                  throw results;
+               }
+            }
+         }
+         return fromDb;
+      }
 
       @SuppressWarnings("unchecked")
       List<PSDisplayFormat> loaded =
@@ -3318,6 +3384,68 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       finally
       {
          PSConnectionHelper.releaseDbConnection(conn);
+      }
+   }
+
+   /**
+    * Load every requested DISPLAYID from {@code PSX_DISPLAYFORMATS}. Used so
+    * lock+delete sees REST POST JDBC rows the XML catalog can miss.
+    *
+    * @return hydrated formats in {@code ids} order, or {@code null} to use XML load
+    */
+   static List<PSDisplayFormat> tryLoadDisplayFormatsFromDb(List<IPSGuid> ids)
+   {
+      if (ids == null || ids.isEmpty())
+         return null;
+      List<PSDisplayFormat> out = new ArrayList<>(ids.size());
+      for (IPSGuid id : ids)
+      {
+         if (id == null || id.getUUID() <= 0)
+            return null;
+         PSDisplayFormat df = loadDisplayFormatFromDb(id.getUUID(), null);
+         if (df == null || df.getDisplayId() != id.getUUID())
+            return null;
+         out.add(df);
+      }
+      return out;
+   }
+
+   static void ensureDisplayFormatRowDeleted(int displayId)
+   {
+      if (displayId <= 0)
+         return;
+      Connection conn = null;
+      try
+      {
+         conn = PSConnectionHelper.getDbConnection();
+         deleteDisplayFormatRow(conn, displayId);
+      }
+      catch (NamingException | SQLException e)
+      {
+         log.debug("Could not JDBC-delete PSX_DISPLAYFORMATS DISPLAYID={}: {}", displayId, e.toString());
+      }
+      finally
+      {
+         PSConnectionHelper.releaseDbConnection(conn);
+      }
+   }
+
+   static void deleteDisplayFormatRow(Connection conn, int displayId) throws SQLException
+   {
+      if (conn == null)
+         throw new IllegalArgumentException("connection is required");
+      if (displayId <= 0)
+         throw new IllegalArgumentException("displayId must be persisted");
+      try (PreparedStatement cols = conn.prepareStatement("DELETE FROM PSX_DISPLAYFORMATCOLUMNS WHERE DISPLAYID = ?"))
+      {
+         cols.setInt(1, displayId);
+         cols.executeUpdate();
+      }
+      deleteDisplayFormatProperties(conn, displayId);
+      try (PreparedStatement formats = conn.prepareStatement("DELETE FROM PSX_DISPLAYFORMATS WHERE DISPLAYID = ?"))
+      {
+         formats.setInt(1, displayId);
+         formats.executeUpdate();
       }
    }
 
