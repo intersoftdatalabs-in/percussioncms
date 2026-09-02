@@ -292,8 +292,12 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       }
       catch (PSErrorsException e)
       {
-         // REST H2 often has RXMENUACTION without the XML design document.
-         // JDBC still removes the catalog row so GET-by-name is 404.
+         // REST H2 often has RXMENUACTION without the XML design document
+         // (PSTransactionSet: Xml Document Expected). Other errors — including
+         // genuine dependency violations when ignoreDependencies is false —
+         // must still fail closed.
+         if (!isXmlDocumentExpected(e))
+            throw e;
          log.debug("deleteComponents missed XML action; JDBC RXMENUACTION delete continues", e);
       }
       for (IPSGuid id : ids)
@@ -1097,11 +1101,11 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       }
       catch (PSErrorsException e)
       {
+         // Swallow only the REST H2 missing-XML-document case so Spring can
+         // still roll back unexpected RuntimeException / dependency failures.
+         if (!isXmlDocumentExpected(e))
+            throw e;
          log.debug("saveComponents(updateActions) missed RXMENUACTION; JDBC fallback", e);
-      }
-      catch (RuntimeException e)
-      {
-         log.debug("saveComponents(updateActions) failed; JDBC fallback for REST H2", e);
       }
       for (IPSDbComponent component : components)
       {
@@ -2732,8 +2736,8 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       String type = StringUtils.defaultIfBlank(action.getMenuType(), PSAction.TYPE_MENU);
       String handler = action.isClientAction() ? PSAction.HANDLER_CLIENT : PSAction.HANDLER_SERVER;
       int version = action.getVersion() != null ? action.getVersion().intValue() : 0;
-      boolean restUser = !action.isPersisted()
-            || StringUtils.equalsIgnoreCase(action.getProperty(REST_USER_MENU_PROP), PSAction.YES);
+      boolean restUser =
+            StringUtils.equalsIgnoreCase(action.getProperty(REST_USER_MENU_PROP), PSAction.YES);
       return new ActionRowSpec(id, name, display, description, url, action.getSortRank(), type, handler, version,
             restUser);
    }
@@ -2840,13 +2844,14 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          }
          catch (SQLException insertEx)
          {
-            if (!actionRowExists(conn, spec.actionId, spec.name))
+            if (!isPrimaryKeyViolation(insertEx) || !updateActionRowMatchingName(conn, spec))
                throw insertEx;
-            updateActionRow(conn, spec);
          }
       }
       if (spec.restUserMenu)
          ensureRestUserMenuProperty(conn, spec.actionId);
+      else
+         clearRestUserMenuProperty(conn, spec.actionId);
    }
 
    static void ensureActionRowPersisted(PSAction action)
@@ -2902,6 +2907,80 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          bindActionRow(ps, spec, true);
          ps.executeUpdate();
       }
+   }
+
+   /**
+    * Concurrent insert of the same {@code ACTIONID} must not rename a different
+    * menu. Returns {@code true} only when this {@code NAME} already owns the id.
+    */
+   static boolean updateActionRowMatchingName(Connection conn, ActionRowSpec spec) throws SQLException
+   {
+      String sql = "UPDATE RXMENUACTION SET DISPLAYNAME = ?, DESCRIPTION = ?, URL = ?, SORTORDER = ?, "
+            + "TYPE = ?, HANDLER = ?, VERSION = ? WHERE ACTIONID = ? AND NAME = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setString(1, spec.displayName);
+         ps.setString(2, spec.description);
+         ps.setString(3, spec.url);
+         ps.setInt(4, spec.sortOrder);
+         ps.setString(5, spec.type);
+         ps.setString(6, spec.handler);
+         ps.setInt(7, spec.version);
+         ps.setInt(8, spec.actionId);
+         ps.setString(9, spec.name);
+         return ps.executeUpdate() > 0;
+      }
+   }
+
+   static final String XML_DOCUMENT_EXPECTED = "Xml Document Expected";
+
+   /**
+    * Locator {@code updateActions} posts with no XML document and surfaces this
+    * {@link com.percussion.data.PSTransactionSet} message. Other
+    * {@link PSErrorsException} cases (dependencies, lock, unexpected) must not
+    * be swallowed inside {@code @Transactional} methods.
+    */
+   static boolean isXmlDocumentExpected(Throwable error)
+   {
+      for (Throwable cur = error; cur != null; cur = cur.getCause())
+      {
+         if (messageHasXmlDocumentExpected(cur.getMessage()))
+            return true;
+         if (cur instanceof PSErrorsException pe)
+         {
+            for (Object nested : pe.getErrors().values())
+            {
+               if (nested instanceof Throwable t && isXmlDocumentExpected(t))
+                  return true;
+               if (nested != null && messageHasXmlDocumentExpected(String.valueOf(nested)))
+                  return true;
+            }
+         }
+      }
+      return false;
+   }
+
+   static boolean messageHasXmlDocumentExpected(String message)
+   {
+      return message != null && message.contains(XML_DOCUMENT_EXPECTED);
+   }
+
+   /**
+    * SQL-92 unique/PK violation ({@code 23505}) plus common vendor codes so the
+    * insert-retry path does not treat every {@link SQLException} as a race.
+    */
+   static boolean isPrimaryKeyViolation(SQLException error)
+   {
+      for (SQLException cur = error; cur != null; cur = cur.getNextException())
+      {
+         String state = cur.getSQLState();
+         if ("23505".equals(state) || "23000".equals(state))
+            return true;
+         int vendor = cur.getErrorCode();
+         if (vendor == 2627 || vendor == 2601 || vendor == 1062 || vendor == 1)
+            return true;
+      }
+      return false;
    }
 
    static void bindActionRow(PreparedStatement ps, ActionRowSpec spec, boolean update) throws SQLException
@@ -3003,6 +3082,17 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          ps.setInt(1, actionId);
          if (binds == ActionSqlBinds.ACTION_ID_AND_CHILD)
             ps.setInt(2, actionId);
+         ps.executeUpdate();
+      }
+   }
+
+   static void clearRestUserMenuProperty(Connection conn, int actionId) throws SQLException
+   {
+      String sql = "DELETE FROM RXMENUACTIONPROPERTIES WHERE ACTIONID = ? AND PROPNAME = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, actionId);
+         ps.setString(2, REST_USER_MENU_PROP);
          ps.executeUpdate();
       }
    }

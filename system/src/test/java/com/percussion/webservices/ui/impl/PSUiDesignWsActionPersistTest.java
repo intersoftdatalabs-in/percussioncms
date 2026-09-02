@@ -21,14 +21,19 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.cms.objectstore.IPSDbComponent;
 import com.percussion.cms.objectstore.PSAction;
 import com.percussion.cms.objectstore.PSKey;
+import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.menus.RxmActionMenuConstants;
+import com.percussion.webservices.PSErrorsException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.Statement;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -140,7 +145,9 @@ class PSUiDesignWsActionPersistTest {
           PSUiDesignWs.actionRowSpec(PSUiDesignWs.prepareActionForSave(source));
       assertFalse(PSUiDesignWs.actionRowExists(conn, spec.actionId, spec.name));
       PSUiDesignWs.insertActionRow(conn, spec);
-      assertTrue(spec.restUserMenu);
+      assertFalse(spec.restUserMenu);
+      source.getProperties().setProperty(PSUiDesignWs.REST_USER_MENU_PROP, PSAction.YES);
+      assertTrue(PSUiDesignWs.actionRowSpec(source).restUserMenu);
       PSUiDesignWs.ensureRestUserMenuProperty(conn, spec.actionId);
       assertTrue(PSUiDesignWs.actionRowExists(conn, spec.actionId, spec.name));
       assertTrue(PSUiDesignWs.actionRowExists(conn, spec.actionId, "otherName"));
@@ -184,11 +191,148 @@ class PSUiDesignWsActionPersistTest {
     assertEquals(RxmActionMenuConstants.REST_USER_MENU_PROP, PSUiDesignWs.REST_USER_MENU_PROP);
   }
 
+  @Test
+  void actionRowSpec_restUserMenuOnlyFromExplicitProperty() {
+    PSAction unpersisted = newAction(2048, "QaAm");
+    assertFalse(unpersisted.isPersisted());
+    assertFalse(PSUiDesignWs.actionRowSpec(unpersisted).restUserMenu);
+
+    PSAction prepared = PSUiDesignWs.prepareActionForSave(unpersisted);
+    assertFalse(PSUiDesignWs.actionRowSpec(prepared).restUserMenu);
+
+    unpersisted.getProperties().setProperty(PSUiDesignWs.REST_USER_MENU_PROP, PSAction.YES);
+    assertTrue(PSUiDesignWs.actionRowSpec(unpersisted).restUserMenu);
+  }
+
+  @Test
+  void persistActionRowOn_clearsRestUserMenuWhenPropertyAbsent() throws Exception {
+    try (Connection conn = newActionSchema()) {
+      PSAction source = newAction(2048, "QaH2Am");
+      source.getProperties().setProperty(PSUiDesignWs.REST_USER_MENU_PROP, PSAction.YES);
+      PSUiDesignWs.persistActionRowOn(conn, source);
+      assertTrue(propertyExists(conn, 2048));
+
+      PSAction soapUpdate = newAction(2048, "QaH2Am");
+      PSKey key = PSAction.createKey("2048");
+      soapUpdate.setLocator(key);
+      assertTrue(soapUpdate.isPersisted());
+      assertFalse(PSUiDesignWs.actionRowSpec(soapUpdate).restUserMenu);
+      PSUiDesignWs.persistActionRowOn(conn, soapUpdate);
+      assertFalse(propertyExists(conn, 2048));
+    }
+  }
+
+  @Test
+  void updateActionRowMatchingName_doesNotClobberDifferentName() throws Exception {
+    try (Connection conn = newActionSchema()) {
+      PSAction victim = newAction(2048, "Victim");
+      victim.setLabel("Victim label");
+      PSUiDesignWs.insertActionRow(conn, PSUiDesignWs.actionRowSpec(victim));
+
+      PSAction attacker = newAction(2048, "OtherName");
+      attacker.setLabel("Attacker");
+      assertFalse(
+          PSUiDesignWs.updateActionRowMatchingName(conn, PSUiDesignWs.actionRowSpec(attacker)));
+      try (var rs =
+          conn.prepareStatement("SELECT NAME, DISPLAYNAME FROM RXMENUACTION WHERE ACTIONID = 2048")
+              .executeQuery()) {
+        assertTrue(rs.next());
+        assertEquals("Victim", rs.getString(1));
+        assertEquals("Victim label", rs.getString(2));
+      }
+
+      victim.setLabel("Victim updated");
+      assertTrue(PSUiDesignWs.updateActionRowMatchingName(conn, PSUiDesignWs.actionRowSpec(victim)));
+      try (var rs =
+          conn.prepareStatement("SELECT DISPLAYNAME FROM RXMENUACTION WHERE ACTIONID = 2048")
+              .executeQuery()) {
+        assertTrue(rs.next());
+        assertEquals("Victim updated", rs.getString(1));
+      }
+    }
+  }
+
+  @Test
+  void insertActionRow_duplicateActionIdIsPrimaryKeyViolation() throws Exception {
+    try (Connection conn = newActionSchema()) {
+      PSUiDesignWs.insertActionRow(conn, PSUiDesignWs.actionRowSpec(newAction(2048, "Victim")));
+      SQLException thrown =
+          assertThrows(
+              SQLException.class,
+              () ->
+                  PSUiDesignWs.insertActionRow(
+                      conn, PSUiDesignWs.actionRowSpec(newAction(2048, "OtherName"))));
+      assertTrue(PSUiDesignWs.isPrimaryKeyViolation(thrown));
+      assertFalse(
+          PSUiDesignWs.updateActionRowMatchingName(
+              conn, PSUiDesignWs.actionRowSpec(newAction(2048, "OtherName"))));
+      try (var rs =
+          conn.prepareStatement("SELECT NAME FROM RXMENUACTION WHERE ACTIONID = 2048")
+              .executeQuery()) {
+        assertTrue(rs.next());
+        assertEquals("Victim", rs.getString(1));
+      }
+    }
+  }
+
+  @Test
+  void isXmlDocumentExpected_onlyMatchesMissingXmlDocument() {
+    SQLException xml = new SQLException("Xml Document Expected, none supplied");
+    PSErrorsException xmlWrapped = new PSErrorsException();
+    xmlWrapped.addError(new PSGuid(PSTypeEnum.ACTION, 7), xml);
+    assertTrue(PSUiDesignWs.isXmlDocumentExpected(xmlWrapped));
+    assertTrue(PSUiDesignWs.isXmlDocumentExpected(xml));
+
+    PSErrorsException dependency = new PSErrorsException();
+    dependency.addError(new PSGuid(PSTypeEnum.ACTION, 8), new IllegalStateException("still referenced"));
+    assertFalse(PSUiDesignWs.isXmlDocumentExpected(dependency));
+    assertFalse(PSUiDesignWs.isXmlDocumentExpected(new IllegalStateException("boom")));
+  }
+
+  @Test
+  void isPrimaryKeyViolation_requiresSqlState23505OrVendorIntegrity() {
+    assertTrue(PSUiDesignWs.isPrimaryKeyViolation(new SQLException("dup", "23505")));
+    assertFalse(PSUiDesignWs.isPrimaryKeyViolation(new SQLException("timeout", "HYT00")));
+  }
+
   private static PSAction newAction(int actionId, String name) {
     PSAction source = new PSAction(name, name, PSAction.TYPE_MENU, "", PSAction.HANDLER_SERVER, 0);
     PSKey key = PSAction.createKey(String.valueOf(actionId));
     key.setPersisted(false);
     source.setLocator(key);
     return source;
+  }
+
+  private static Connection newActionSchema() throws SQLException {
+    String url = "jdbc:h2:mem:issue4151actions" + System.nanoTime();
+    Connection conn = DriverManager.getConnection(url);
+    try (Statement st = conn.createStatement()) {
+      st.execute(
+          "CREATE TABLE RXMENUACTION ("
+              + "ACTIONID INTEGER NOT NULL PRIMARY KEY,"
+              + "NAME VARCHAR(50) NOT NULL,"
+              + "DISPLAYNAME VARCHAR(50) NOT NULL,"
+              + "DESCRIPTION VARCHAR(255),"
+              + "URL VARCHAR(4000),"
+              + "SORTORDER INTEGER,"
+              + "TYPE VARCHAR(50),"
+              + "HANDLER VARCHAR(50),"
+              + "VERSION INTEGER NOT NULL)");
+      st.execute(
+          "CREATE TABLE RXMENUACTIONPROPERTIES (ACTIONID INTEGER NOT NULL, PROPNAME VARCHAR(100) NOT NULL, PROPVALUE VARCHAR(4000), DESCRIPTION VARCHAR(255), PRIMARY KEY (ACTIONID, PROPNAME))");
+    }
+    return conn;
+  }
+
+  private static boolean propertyExists(Connection conn, int actionId) throws SQLException {
+    try (var ps =
+        conn.prepareStatement(
+            "SELECT PROPNAME FROM RXMENUACTIONPROPERTIES WHERE ACTIONID = ? AND PROPNAME = ?")) {
+      ps.setInt(1, actionId);
+      ps.setString(2, PSUiDesignWs.REST_USER_MENU_PROP);
+      try (var rs = ps.executeQuery()) {
+        return rs.next();
+      }
+    }
   }
 }
