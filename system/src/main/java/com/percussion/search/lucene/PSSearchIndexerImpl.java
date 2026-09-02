@@ -16,6 +16,7 @@
  */
 package com.percussion.search.lucene;
 
+import com.intsof.percussioncms.auditlog.codes.LuceneErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
@@ -110,7 +111,7 @@ public class PSSearchIndexerImpl extends PSSearchIndexer {
     }
     if (!errors.isEmpty()) {
       Object[] args = {errors.toString()};
-      throw new PSSearchException(IPSLuceneErrors.INDEX_OPTIMIZATION_ERROR, args);
+      throw new PSSearchException(LuceneErrorCodes.INDEX_OPTIMIZATION_ERROR, args);
     }
     for (long id : committedids) {
       m_indexesNotCommitted.remove(id);
@@ -140,7 +141,7 @@ public class PSSearchIndexerImpl extends PSSearchIndexer {
     }
     if (!errors.isEmpty()) {
       Object[] args = {errors.toString()};
-      throw new PSSearchException(IPSLuceneErrors.INDEX_OPTIMIZATION_ERROR, args);
+      throw new PSSearchException(LuceneErrorCodes.INDEX_OPTIMIZATION_ERROR, args);
     }
   }
 
@@ -172,7 +173,7 @@ public class PSSearchIndexerImpl extends PSSearchIndexer {
       }
       if (!errors.isEmpty()) {
         Object[] args = {errors.toString()};
-        throw new PSSearchException(IPSLuceneErrors.INDEX_OPTIMIZATION_ERROR, args);
+        throw new PSSearchException(LuceneErrorCodes.INDEX_OPTIMIZATION_ERROR, args);
       }
     } finally {
       ms_indexWriters.clear();

@@ -826,6 +826,48 @@ class LegacyErrorCodeRegistryTest {
   }
 
   @Test
+  void leftoverSearchProductionCodesSkipDualWrite() {
+    SearchErrorCodes[] skip =
+        new SearchErrorCodes[] {
+          SearchErrorCodes.ADMIN_HANDLER_LOCKED,
+          SearchErrorCodes.SEARCH_ENGINE_FAILED_INIT,
+          SearchErrorCodes.SEARCH_ENGINE_REQUIRED,
+          SearchErrorCodes.USE_GET_INSTANCE,
+          SearchErrorCodes.INVALID_INDEX_CONTENTTYPE,
+          SearchErrorCodes.HTML_SEARCH_MISSING_PARAMETER,
+        };
+    LuceneErrorCodes[] luceneSkip =
+        new LuceneErrorCodes[] {
+          LuceneErrorCodes.INDEX_DIR_PARAM_INVALID_MISSING,
+          LuceneErrorCodes.HITS_IOEXCEPTION,
+          LuceneErrorCodes.SEARCH_QUERY_PARSEEXCEPTION,
+          LuceneErrorCodes.INDEX_IO_EXCEPTION_SEARCHING,
+          LuceneErrorCodes.INDEX_OPTIMIZATION_ERROR,
+        };
+
+    for (SearchErrorCodes code : skip) {
+      CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+      DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+      AuditLogId id =
+          LegacyErrorCodeRegistry.logIfAuditable(
+              svc, code.numericCode(), AuditContext.builder().actor("jdoe").build());
+      assertEquals(LegacyErrorCodeRegistry.SKIPPED, id, code.name());
+      assertTrue(sink.records().isEmpty(), code.name());
+      assertFalse(code.isAuditable(), code.name());
+    }
+    for (LuceneErrorCodes code : luceneSkip) {
+      CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+      DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+      AuditLogId id =
+          LegacyErrorCodeRegistry.logIfAuditable(
+              svc, code.numericCode(), AuditContext.builder().actor("jdoe").build());
+      assertEquals(LegacyErrorCodeRegistry.SKIPPED, id, code.name());
+      assertTrue(sink.records().isEmpty(), code.name());
+      assertFalse(code.isAuditable(), code.name());
+    }
+  }
+
+  @Test
   void localeCodesAreRegisteredButNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(1801));
     assertSame(

@@ -17,6 +17,8 @@
 
 package com.percussion.search;
 
+import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSComponentProcessorProxy;
@@ -37,7 +39,6 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.search.objectstore.PSWSSearchRequest;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import com.percussion.system.utils.IPSHtmlParameters;
@@ -93,7 +94,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
         Object[] args = {"HTML", IPSHtmlParameters.SYS_SEARCHID};
 
         throw new PSExtensionProcessingException(
-            IPSSearchErrors.HTML_SEARCH_MISSING_PARAMETER, args);
+            SearchErrorCodes.HTML_SEARCH_MISSING_PARAMETER, args);
       }
 
       PSSearch search = loadSearch(processor, searchId);
@@ -153,7 +154,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
           // validate length etc.
           String msg = PSCommonSearchUtils.validateFTSSearchQuery(fullTextQuery, null, locale);
           if (msg != null) {
-            throw new PSExtensionProcessingException(IPSServerErrors.RAW_DUMP, msg);
+            throw new PSExtensionProcessingException(ServerErrorCodes.RAW_DUMP, msg);
           }
 
           search.setProperty(PSSearch.PROP_FULLTEXTQUERY, fullTextQuery);
@@ -184,7 +185,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
           field.setFieldValues(op, values);
           String msg = PSSearchFieldOperators.validateSearchFieldValue(field, null, locale);
           if (msg != null) {
-            throw new PSExtensionProcessingException(IPSServerErrors.RAW_DUMP, msg);
+            throw new PSExtensionProcessingException(ServerErrorCodes.RAW_DUMP, msg);
           }
         }
       }
