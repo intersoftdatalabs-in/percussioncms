@@ -485,6 +485,26 @@ def test_system_cx_converted_paths_not_allowlisted() -> None:
     assert resurrected == [], resurrected
 
 
+def test_system_search_converted_paths_not_allowlisted() -> None:
+    """#4155 typed leftover com.percussion.search IPSSearchErrors / lucene peers."""
+    converted = (
+        "system/src/main/java/com/percussion/search/PSAdminLockedException.java",
+        "system/src/main/java/com/percussion/search/PSGenerateSearchResultsExit.java",
+        "system/src/main/java/com/percussion/search/PSSearchEngine.java",
+        "system/src/main/java/com/percussion/search/lucene/PSSearchEngineImpl.java",
+        "system/src/main/java/com/percussion/search/lucene/PSSearchIndexerImpl.java",
+        "system/src/main/java/com/percussion/search/lucene/PSSearchQueryImpl.java",
+    )
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = {
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    resurrected = [p for p in converted if p in entries]
+    assert resurrected == [], resurrected
+
+
 def test_empty_allowlist_fails_on_real_residuals(tmp_path: Path) -> None:
     """Without the residual file, current production leftovers must fail."""
     empty = tmp_path / "empty-allowlist.txt"

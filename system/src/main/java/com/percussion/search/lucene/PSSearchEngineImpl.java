@@ -16,6 +16,7 @@
  */
 package com.percussion.search.lucene;
 
+import com.intsof.percussioncms.auditlog.codes.LuceneErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.design.objectstore.PSSearchConfig;
 import com.percussion.search.PSSearchAdmin;
@@ -69,14 +70,14 @@ public class PSSearchEngineImpl extends PSSearchEngine {
     String indexRoot = cfg.getIndexDirectory();
     if (StringUtils.isBlank(indexRoot)) {
       throw new PSSearchException(
-          IPSLuceneErrors.INDEX_DIR_PARAM_INVALID_MISSING,
+          LuceneErrorCodes.INDEX_DIR_PARAM_INVALID_MISSING,
           IPSLuceneConstants.REQPROP_INDEX_ROOT_DIR);
     }
     File irDir = new File(indexRoot);
     if (irDir.exists() && !irDir.isDirectory()) {
       if (StringUtils.isBlank(indexRoot)) {
         throw new PSSearchException(
-            IPSLuceneErrors.INDEX_DIR_PARAM_INVALID_MISSING,
+            LuceneErrorCodes.INDEX_DIR_PARAM_INVALID_MISSING,
             IPSLuceneConstants.REQPROP_INDEX_ROOT_DIR);
       }
     }

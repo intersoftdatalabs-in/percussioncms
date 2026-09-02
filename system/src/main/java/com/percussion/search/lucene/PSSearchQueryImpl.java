@@ -16,12 +16,13 @@
  */
 package com.percussion.search.lucene;
 
+import com.intsof.percussioncms.auditlog.codes.LuceneErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.objectstore.PSContentType;
 import com.percussion.cms.objectstore.PSKey;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.search.IPSSearchErrors;
 import com.percussion.search.PSSearchException;
 import com.percussion.search.PSSearchQuery;
 import com.percussion.search.PSSearchResult;
@@ -71,7 +72,7 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
   private PSSearchQueryImpl() throws PSSearchException {
     // Prevent from the reflection api.
     if (instance != null) {
-      throw new PSSearchException(IPSSearchErrors.USE_GET_INSTANCE);
+      throw new PSSearchException(SearchErrorCodes.USE_GET_INSTANCE);
     }
   }
 
@@ -141,9 +142,9 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
       }
       searcher.getIndexReader().close();
     } catch (IOException e) {
-      throw new PSSearchException(IPSLuceneErrors.HITS_IOEXCEPTION, e);
+      throw new PSSearchException(LuceneErrorCodes.HITS_IOEXCEPTION, e);
     } catch (ParseException e) {
-      throw new PSSearchException(IPSLuceneErrors.SEARCH_QUERY_PARSEEXCEPTION, e);
+      throw new PSSearchException(LuceneErrorCodes.SEARCH_QUERY_PARSEEXCEPTION, e);
     }
 
     return searchResults;
@@ -251,7 +252,7 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
         searcher = new MultiReader(isList.toArray(new IndexReader[0]));
     } catch (IOException e) {
       Object[] args = {String.valueOf(ctypeIds)};
-      throw new PSSearchException(IPSLuceneErrors.INDEX_IO_EXCEPTION_SEARCHING, e, args);
+      throw new PSSearchException(LuceneErrorCodes.INDEX_IO_EXCEPTION_SEARCHING, e, args);
     }
     return searcher;
   }
@@ -269,7 +270,7 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
   private IndexReader getIndexReader(String ctypeId) throws IOException, PSSearchException {
 
     if (!StringUtils.isNumeric(ctypeId))
-      throw new PSSearchException(IPSSearchErrors.INVALID_INDEX_CONTENTTYPE);
+      throw new PSSearchException(SearchErrorCodes.INVALID_INDEX_CONTENTTYPE);
 
     File f = new File(PSSearchEngineImpl.getLuceneIndexRootPath() + ctypeId);
     if (!f.exists() || !f.isDirectory()) {

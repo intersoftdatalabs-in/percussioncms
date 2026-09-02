@@ -17,6 +17,7 @@
 
 package com.percussion.search;
 
+import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
 import com.percussion.error.PSException;
 
 /**
@@ -27,6 +28,6 @@ import com.percussion.error.PSException;
 public class PSAdminLockedException extends PSException {
   /** Ctor */
   public PSAdminLockedException() {
-    super(IPSSearchErrors.ADMIN_HANDLER_LOCKED);
+    super(SearchErrorCodes.ADMIN_HANDLER_LOCKED);
   }
 }
