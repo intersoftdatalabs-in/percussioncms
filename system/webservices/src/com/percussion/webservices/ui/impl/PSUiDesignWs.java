@@ -1902,13 +1902,26 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          key = PSDisplayFormat.createKey(new String[]
          {String.valueOf(id.getUUID())});
       else if (objType.equals(PSSearch.getComponentType(PSSearch.class)))
-         key = PSSearch.createKey(new String[]
-         {String.valueOf(id.longValue())});
+         key = searchComponentKey(id);
       else
          // should never happen
          throw new RuntimeException("Cannot create component key for object type: " + objType);
 
       return key;
+   }
+
+   /**
+    * {@code PSX_SEARCHES.SEARCHID} is the GUID uuid, not the packed long
+    * ({@code host-type-uuid}). {@link IPSGuid#longValue()} on a {@code VIEW_DEF}
+    * ({@code 0-18-{id}}) or {@code SEARCH_DEF} ({@code 0-15-{id}}) is not the
+    * locator; using it made load/save/delete miss JDBC rows after H2 catalog
+    * lag (POST view then PUT fields 404).
+    */
+   static PSKey searchComponentKey(IPSGuid id)
+   {
+      if (id == null)
+         throw new IllegalArgumentException("id cannot be null");
+      return PSSearch.createKey(new String[] {String.valueOf(id.getUUID())});
    }
 
    /**

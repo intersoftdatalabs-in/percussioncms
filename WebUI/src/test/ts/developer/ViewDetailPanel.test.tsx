@@ -460,6 +460,55 @@ describe("ViewDetailPanel", () => {
     expect(deleteView).not.toHaveBeenCalled();
   });
 
+  it("after create, retries field PUT by name when GUID is 404", async () => {
+    createView.mockResolvedValue({
+      name: "MyView",
+      label: "My View",
+      type: "View",
+      guid: { stringValue: "0-18-42" },
+      fields: [],
+    });
+    saveView
+      .mockRejectedValueOnce({
+        status: 404,
+        statusText: "Not Found",
+        body: { message: "View not found" },
+      })
+      .mockResolvedValueOnce({
+        name: "MyView",
+        label: "My View",
+        type: "View",
+        guid: { stringValue: "0-18-42" },
+        fields: [{ fieldName: "sys_title", operator: "equal", fieldValue: "1" }],
+      });
+    render(<ViewDetailPanel idOrName={null} onBack={() => undefined} />);
+    fireEvent.change(screen.getByTestId("developer-vw-name"), {
+      target: { value: "MyView" },
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-field-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-vw-field-source"), {
+      target: { value: "sys_title" },
+    });
+    fireEvent.change(screen.getByTestId("developer-vw-field-add-value"), {
+      target: { value: "1" },
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-field-add"));
+    fireEvent.click(screen.getByTestId("developer-vw-fields-save"));
+    await waitFor(() => {
+      expect(saveView).toHaveBeenCalledTimes(2);
+    });
+    expect(saveView.mock.calls[0][0]).toBe("0-18-42");
+    expect(saveView.mock.calls[1][0]).toBe("MyView");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-editor-notice").textContent).toBe(
+        DEV_MSG.VW_FIELDS_SAVED,
+      );
+    });
+  });
+
   it("saves PUT body fields on a writable view", async () => {
     getViewDetail.mockResolvedValue(sampleDetail);
     saveView.mockResolvedValue({

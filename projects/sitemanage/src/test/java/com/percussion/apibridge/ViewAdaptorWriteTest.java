@@ -124,7 +124,7 @@ class ViewAdaptorWriteTest {
   }
 
   @Test
-  void create_failsIfNotVisibleToFindAfterSave() throws Exception {
+  void create_returnsSavedViewWhenFindAllViewsLags() throws Exception {
     PSSearch view = stubView("MyView", false);
     when(designWs.createViews(eq(List.of("MyView")), eq("test-session"), eq("Admin")))
         .thenReturn(List.of(view));
@@ -134,9 +134,9 @@ class ViewAdaptorWriteTest {
 
     ViewDef body = new ViewDef();
     body.setName("MyView");
-    IllegalStateException ex =
-        assertThrows(IllegalStateException.class, () -> adaptor.createView(body));
-    assertTrue(ex.getMessage().contains("findViews"), ex.getMessage());
+    ViewDef out = adaptor.createView(body);
+    assertEquals("MyView", out.getName());
+    verify(designWs).saveViews(anyList(), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test

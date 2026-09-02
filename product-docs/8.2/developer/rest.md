@@ -1629,7 +1629,11 @@ and is included in `GET /services/views` (the create is durable; a second POST
 with the same name is **409**).
 
 Update (`PUT /services/views/{idOrName}`) loads with a design lock (`overrideLock=false`)
-and releases it on save. Name is not renamed on PUT. Omitted label / description / type /
+and releases it on save. `{idOrName}` may be the view **name** or GUID
+(`0-18-{searchId}`). After POST, field-criteria save uses that GUID; if the H2
+catalog XML lags the JDBC insert, the server still loads by SEARCHID uuid (not
+the packed GUID long) and, when the path GUID misses, by the body `name`.
+Name is not renamed on PUT. Omitted label / description / type /
 display format leave stored values unchanged. Unknown id/name is **404**. Inbox-family
 and other custom URL views are **409** (not mutated; the lock is not stolen).
 Locked-by-another-user is **409**. Non-Admin is **403**.
@@ -1640,8 +1644,9 @@ Delete (`DELETE /services/views/{idOrName}`) returns **204** when removed; a fol
 is **403**.
 
 Create/update load or create the view with a **held design lock** and release it on
-save. There is no separate lock/unlock REST pair on this catalog. Field criterion
-editing is not supported on write. Execute (`POST …/execute`) is unchanged.
+save. There is no separate lock/unlock REST pair on this catalog. PUT may include
+`fields` to replace field criteria (omit `fields` to leave them unchanged; empty
+array clears). Execute (`POST …/execute`) is unchanged.
 
 JSON objects use the `ViewDef` wire type. POST/PUT JSON is wrapped under a `ViewDef`
 root (JAXB/Jackson UNWRAP_ROOT_VALUE). Prefer the generated OpenAPI schema as the
