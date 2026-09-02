@@ -172,13 +172,13 @@ function validationMessage(
  * Site detail section: view/edit Virtual Site source fields via public Site REST
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
  * build ({@code POST …/virtual/build}) for git-filesystem, csv-filesystem,
- * sql-database, http-json, object-storage, rss-atom, and icalendar. Preview
- * last-build HTML for git/csv/sql/http-json/object-storage/rss-atom/icalendar.
+ * sql-database, http-json, object-storage, rss-atom, icalendar, and sitemap-xml.
+ * Preview last-build HTML for git/csv/sql/http-json/object-storage/rss-atom/icalendar.
  * Publish ({@code POST …/virtual/publish}) for git/csv/sql/http-json/
- * object-storage/rss-atom/icalendar after a successful Build. sitemap-xml is
- * save/GET-roundtrip only in this slice (local {@code rootPath}; no live crawl
- * chrome; Build/Preview/Publish later). Repository / blank / unknown kinds stay
- * hidden. icalendar uses a local {@code rootPath} only (no CalDAV chrome).
+ * object-storage/rss-atom/icalendar after a successful Build. sitemap-xml shows
+ * Build after save (local {@code rootPath}; no live crawl); Preview/Publish stay
+ * later. Repository / blank / unknown kinds stay hidden. icalendar uses a local
+ * {@code rootPath} only (no CalDAV chrome).
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -371,7 +371,7 @@ export function VirtualSiteSourcePanel({
   const rssAtomMode = isRssAtomSourceKind(form.sourceKind);
   const icalendarMode = isIcalendarSourceKind(form.sourceKind);
   const sitemapXmlMode = isSitemapXmlSourceKind(form.sourceKind);
-  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar (never repository/sitemap-xml). */
+  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
   /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar (never repository). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
