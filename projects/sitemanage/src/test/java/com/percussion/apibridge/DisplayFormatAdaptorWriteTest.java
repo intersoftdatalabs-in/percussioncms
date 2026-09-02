@@ -849,9 +849,9 @@ class DisplayFormatAdaptorWriteTest {
         .when(designWs)
         .deleteDisplayFormats(anyList(), anyBoolean(), any(), any());
 
-    IllegalStateException ex =
-        assertThrows(IllegalStateException.class, () -> adaptor.deleteDisplayFormat("MyFmt"));
-    assertTrue(ex.getMessage().contains("empty id list"), ex.getMessage());
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.deleteDisplayFormat("MyFmt"));
+    assertTrue(ex.getMessage().contains("ids cannot be null or empty"), ex.getMessage());
   }
 
   @Test

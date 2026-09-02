@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.cms.objectstore.IPSDbComponent;
@@ -31,6 +32,7 @@ import com.percussion.cms.objectstore.PSKey;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -256,6 +258,36 @@ class PSUiDesignWsDisplayFormatPersistTest {
   void tryLoadDisplayFormatsFromDb_requiresPersistedUuid() {
     assertNull(PSUiDesignWs.tryLoadDisplayFormatsFromDb(null));
     assertNull(PSUiDesignWs.tryLoadDisplayFormatsFromDb(List.of()));
+  }
+
+  @Test
+  void mergePreferJdbcDisplayFormats_keepsJdbcHitsWhenXmlMissesOneId() throws Exception {
+    com.percussion.services.guidmgr.data.PSGuid jdbcId =
+        new com.percussion.services.guidmgr.data.PSGuid(
+            com.percussion.services.catalog.PSTypeEnum.DISPLAY_FORMAT, 4172L);
+    com.percussion.services.guidmgr.data.PSGuid xmlId =
+        new com.percussion.services.guidmgr.data.PSGuid(
+            com.percussion.services.catalog.PSTypeEnum.DISPLAY_FORMAT, 4173L);
+    PSDisplayFormat jdbcHit = newDisplayFormat(4172, "FromJdbc");
+    PSDisplayFormat xmlHit = newDisplayFormat(4173, "FromXml");
+    PSDisplayFormat staleXml = newDisplayFormat(99, "StaleXml");
+    List<PSDisplayFormat> merged =
+        PSUiDesignWs.mergePreferJdbcDisplayFormats(
+            List.of(jdbcId, xmlId),
+            Arrays.asList(jdbcHit, null),
+            List.of(staleXml, xmlHit));
+    assertSame(jdbcHit, merged.get(0));
+    assertSame(xmlHit, merged.get(1));
+    assertTrue(PSUiDesignWs.allDisplayFormatsLoaded(List.of(jdbcId, xmlId), List.of(jdbcHit, xmlHit)));
+    assertFalse(
+        PSUiDesignWs.allDisplayFormatsLoaded(
+            List.of(jdbcId, xmlId), Arrays.asList(jdbcHit, null)));
+  }
+
+  @Test
+  void ensureDisplayFormatRowDeleted_skipsUnpersistedId() {
+    assertDoesNotThrow(() -> PSUiDesignWs.ensureDisplayFormatRowDeleted(0));
+    assertDoesNotThrow(() -> PSUiDesignWs.ensureDisplayFormatRowDeleted(-1));
   }
 
   @Test

@@ -252,13 +252,17 @@ public class ViewAdaptor implements IViewAdaptor {
       return null;
     }
     PSSearch existing = findPsViewByKey(idOrName.trim());
-    if (existing == null && body.getName() != null && isSafeViewKey(body.getName())) {
+    // Body-name / body-guid fallback is only for catalog-lag on a GUID URL
+    // key. A name URL that does not resolve must 404 — never mutate another
+    // view named in the body.
+    boolean urlIsGuid = parseViewGuid(idOrName.trim()) != null;
+    if (existing == null && urlIsGuid && body.getName() != null && isSafeViewKey(body.getName())) {
       String bodyName = body.getName().trim();
       if (!bodyName.equalsIgnoreCase(idOrName.trim())) {
         existing = findPsViewByKey(bodyName);
       }
     }
-    if (existing == null && body.getGuid() != null) {
+    if (existing == null && urlIsGuid && body.getGuid() != null) {
       String gs = StringUtils.trimToNull(body.getGuid().getStringValue());
       if (gs != null && isSafeViewKey(gs) && !gs.equalsIgnoreCase(idOrName.trim())) {
         existing = findPsViewByKey(gs);

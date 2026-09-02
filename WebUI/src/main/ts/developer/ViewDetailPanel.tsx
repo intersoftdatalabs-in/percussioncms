@@ -88,6 +88,12 @@ function typeFromDetail(detail: ViewDef | null, fallback: string): string {
   return fallback;
 }
 
+/** CX view GUID wire shape {@code host-18-uuid} used after create catalog lag. */
+function isViewGuidWriteKey(key: string | null | undefined): boolean {
+  if (!key) return false;
+  return /^\d+-18-\d+$/.test(key.trim());
+}
+
 export function ViewDetailPanel({
   idOrName,
   catalogGuid,
@@ -244,12 +250,20 @@ export function ViewDetailPanel({
         saved = await saveView(writeKey, fieldsBody);
       } catch (err: unknown) {
         const nameKey = normalizeViewName(detail?.name || createdKey || name);
+        const guidWrite = isViewGuidWriteKey(writeKey);
         if (
           isApiError(err) &&
           err.status === 404 &&
+          guidWrite &&
+          createdKey != null &&
           nameKey &&
           nameKey !== writeKey
         ) {
+          console.info(
+            "View field save 404 on create GUID, retrying by name",
+            writeKey,
+            nameKey,
+          );
           saved = await saveView(nameKey, fieldsBody);
         } else {
           throw err;

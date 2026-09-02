@@ -294,10 +294,8 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     } catch (WebApplicationException e) {
       throw e;
     } catch (IllegalArgumentException e) {
-      if (isEmptyIdsFailure(e)) {
-        throw new IllegalStateException(
-            "Display format DELETE resolved an empty id list for " + idOrName, e);
-      }
+      // Id was already resolved; do not relabel a Workbench/lock/dependency
+      // failure as an empty id list.
       throw e;
     } catch (PSErrorResultsException e) {
       if (isNotFound(e, id)) {

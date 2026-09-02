@@ -555,6 +555,32 @@ describe("ViewDetailPanel", () => {
     });
   });
 
+  it("does not retry field PUT 404 by name on an existing view", async () => {
+    getViewDetail.mockResolvedValue(sampleDetail);
+    saveView.mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: { message: "View not found" },
+    });
+    render(<ViewDetailPanel idOrName="My View" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-field-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-vw-field-source"), {
+      target: { value: "sys_title" },
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-field-add"));
+    fireEvent.click(screen.getByTestId("developer-vw-fields-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-detail-error")).toBeTruthy();
+    });
+    expect(saveView).toHaveBeenCalledTimes(1);
+    expect(saveView.mock.calls[0][0]).toBe("0-27-3");
+    expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
+      DEV_MSG.VW_NOT_FOUND,
+    );
+  });
+
   it("surfaces 400 invalid field from PUT", async () => {
     getViewDetail.mockResolvedValue(sampleDetail);
     saveView.mockRejectedValue({

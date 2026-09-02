@@ -296,6 +296,18 @@ class ViewAdaptorWriteTest {
   }
 
   @Test
+  void update_nameKeyDoesNotMutateDifferentBodyName() throws Exception {
+    PSSearch other = stubView("OtherView", false);
+    stubCatalogLoad(other);
+    ViewDef body = new ViewDef();
+    body.setName("OtherView");
+    body.setLabel("Hijack");
+    assertNull(adaptor.saveView("nonexistent", body));
+    verify(designWs, never()).saveViews(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadViews(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
   void update_inbox_is409() throws Exception {
     PSSearch inbox = stubView("Inbox", true);
     stubCatalogLoad(inbox);
