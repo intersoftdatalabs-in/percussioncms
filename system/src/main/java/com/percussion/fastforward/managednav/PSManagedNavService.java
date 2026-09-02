@@ -27,6 +27,7 @@ import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.intsof.percussioncms.auditlog.codes.NavigationErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSAaRelationship;
@@ -206,7 +207,7 @@ public class PSManagedNavService implements IPSManagedNavService {
     PSComponentSummary folder = getParentFolder(getRequestCtx(), navon);
     if (folder == null) {
       throw new PSNavException(
-          IPSNavigationErrors.NAVIGATION_SERVICE_CANT_FIND_RELATED_FOLDER_FOR_NAVON, navonId);
+          NavigationErrorCodes.NAVIGATION_SERVICE_CANT_FIND_RELATED_FOLDER_FOR_NAVON, navonId);
     }
 
     return folder;
@@ -257,7 +258,7 @@ public class PSManagedNavService implements IPSManagedNavService {
     } catch (PSErrorResultsException e) {
       PSNavException ne =
           new PSNavException(
-              IPSNavigationErrors.NAVIGATION_SERVICE_FAILED_TO_MOVE_SOURCE_NAVON_TO_TARGET,
+              NavigationErrorCodes.NAVIGATION_SERVICE_FAILED_TO_MOVE_SOURCE_NAVON_TO_TARGET,
               new Object[] {srcId, targetId},
               e);
       log.error(PSExceptionUtils.getMessageForLog(e));
@@ -408,7 +409,7 @@ public class PSManagedNavService implements IPSManagedNavService {
     } catch (Exception ex) {
       PSNavException ne =
           new PSNavException(
-              IPSNavigationErrors.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER, ex);
+              NavigationErrorCodes.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER, ex);
       if (ex instanceof PSNavException) {
         ne = (PSNavException) ex;
       } else if (ex instanceof PSErrorException) {
@@ -463,7 +464,7 @@ public class PSManagedNavService implements IPSManagedNavService {
     if (id != null) {
       PSNavException e =
           new PSNavException(
-              IPSNavigationErrors
+              NavigationErrorCodes
                   .NAVIGATION_SERVICE_FAILED_TO_MOVE_SECTION_BECAUSE_TARGET_ALREADY_HAS_ITEM,
               new Object[] {targetFolder.getName(), srcFolder.getName()});
       log.warn(PSExceptionUtils.getMessageForLog(e));
@@ -491,10 +492,10 @@ public class PSManagedNavService implements IPSManagedNavService {
     if (navSummary != null) {
       if (getNavonContentTypeIds().contains(navSummary.getContentTypeId())) {
         throw new PSNavException(
-            IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVON);
+            NavigationErrorCodes.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVON);
       } else {
         throw new PSNavException(
-            IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE);
+            NavigationErrorCodes.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE);
       }
     }
 
@@ -502,7 +503,7 @@ public class PSManagedNavService implements IPSManagedNavService {
       List<String> typeNames = getNavTreeContentTypeNames();
       if (typeNames == null || typeNames.isEmpty()) {
         throw new PSNavException(
-            IPSNavigationErrors.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER);
+            NavigationErrorCodes.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER);
       }
       PSCoreItem coreItem = contentWs.createItems(typeNames.get(0), 1).get(0);
       coreItem.setTextField("sys_title", navTreeName);
@@ -527,7 +528,7 @@ public class PSManagedNavService implements IPSManagedNavService {
       List<IPSGuid> guids = contentWs.saveItems(Collections.singletonList(coreItem), false, false);
       if (guids == null || guids.isEmpty() || guids.get(0) == null) {
         throw new PSNavException(
-            IPSNavigationErrors.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER);
+            NavigationErrorCodes.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER);
       }
       contentWs.addFolderChildren(path, guids);
 
@@ -537,7 +538,7 @@ public class PSManagedNavService implements IPSManagedNavService {
     } catch (Exception ex) {
       PSNavException ne =
           new PSNavException(
-              IPSNavigationErrors.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER,
+              NavigationErrorCodes.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER,
               new Object[] {path, navTreeName},
               ex);
       if (ex instanceof PSErrorException) {
@@ -903,7 +904,7 @@ public class PSManagedNavService implements IPSManagedNavService {
       if (id == -1) {
         PSNavException e =
             new PSNavException(
-                IPSNavigationErrors.NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH, folderPath);
+                NavigationErrorCodes.NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH, folderPath);
         log.error(PSExceptionUtils.getMessageForLog(e));
         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         throw (e);
@@ -913,7 +914,7 @@ public class PSManagedNavService implements IPSManagedNavService {
     } catch (PSCmsException e) {
       PSNavException ne =
           new PSNavException(
-              IPSNavigationErrors.NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH,
+              NavigationErrorCodes.NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH,
               new Object[] {folderPath},
               e);
       log.error(PSExceptionUtils.getMessageForLog(e));

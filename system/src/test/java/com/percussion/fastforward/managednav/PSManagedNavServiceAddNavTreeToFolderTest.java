@@ -18,6 +18,7 @@
 package com.percussion.fastforward.managednav;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,6 +29,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.intsof.percussioncms.auditlog.codes.NavigationErrorCodes;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.services.assembly.IPSAssemblyService;
@@ -118,9 +120,14 @@ class PSManagedNavServiceAddNavTreeToFolderTest {
             () ->
                 service.addNavTreeToFolder(
                     "//Sites/QaSite3364", "QaSite3364-NavTree", "Home", -1));
+    assertSame(
+        NavigationErrorCodes.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE,
+        thrown.getTypedErrorCode());
     assertEquals(
-        IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE,
+        NavigationErrorCodes.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE
+            .numericCode(),
         thrown.getErrorCode());
+    assertFalse(thrown.isAuditable());
   }
 
   @Test
@@ -136,9 +143,14 @@ class PSManagedNavServiceAddNavTreeToFolderTest {
             () ->
                 service.addNavTreeToFolder(
                     "//Sites/QaSite3364", "QaSite3364-NavTree", "Home", -1));
+    assertSame(
+        NavigationErrorCodes.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVON,
+        thrown.getTypedErrorCode());
     assertEquals(
-        IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVON,
+        NavigationErrorCodes.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVON
+            .numericCode(),
         thrown.getErrorCode());
+    assertFalse(thrown.isAuditable());
   }
 
   @Test
@@ -152,9 +164,13 @@ class PSManagedNavServiceAddNavTreeToFolderTest {
             () ->
                 service.addNavTreeToFolder(
                     "//Sites/QaSite3364", "QaSite3364-NavTree", "Home", -1));
+    assertSame(
+        NavigationErrorCodes.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER,
+        thrown.getTypedErrorCode());
     assertEquals(
-        IPSNavigationErrors.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER,
+        NavigationErrorCodes.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER.numericCode(),
         thrown.getErrorCode());
+    assertFalse(thrown.isAuditable());
     assertEquals(PSErrorResultsException.class, thrown.getCause().getClass());
     verify(contentWs, never()).addFolderChildren(anyString(), any());
   }
@@ -169,8 +185,12 @@ class PSManagedNavServiceAddNavTreeToFolderTest {
             () ->
                 service.addNavTreeToFolder(
                     "//Sites/QaSite3364", "QaSite3364-NavTree", "Home", -1));
+    assertSame(
+        NavigationErrorCodes.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER,
+        thrown.getTypedErrorCode());
     assertEquals(
-        IPSNavigationErrors.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER,
+        NavigationErrorCodes.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER.numericCode(),
         thrown.getErrorCode());
+    assertFalse(thrown.isAuditable());
   }
 }

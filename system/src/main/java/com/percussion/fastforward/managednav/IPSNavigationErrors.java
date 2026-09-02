@@ -17,6 +17,13 @@
 
 package com.percussion.fastforward.managednav;
 
+/**
+ * Numeric bridge for managed-navigation error codes (18001–18009; category base 18000).
+ *
+ * <p>Prefer {@code com.intsof.percussioncms.auditlog.codes.NavigationErrorCodes} (and typed {@link
+ * PSNavException} constructors) at production throw sites. These ints remain for legacy callers and
+ * message lookup; they match {@code NavigationErrorCodes#numericCode()}.
+ */
 public interface IPSNavigationErrors {
 
   int NAVIGATION_SERVICE_CATEGORY = 18000; // through 18250

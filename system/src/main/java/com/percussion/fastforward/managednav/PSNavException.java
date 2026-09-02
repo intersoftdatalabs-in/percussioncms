@@ -16,6 +16,7 @@
  */
 package com.percussion.fastforward.managednav;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSRuntimeException;
 import com.percussion.security.error.PSExceptionUtils;
 
@@ -128,6 +129,49 @@ public class PSNavException extends PSRuntimeException {
    */
   public PSNavException(int code, Object arg) {
     super(code, arg);
+  }
+
+  /**
+   * Typed construction from a catalogued {@link IPSErrorCode} (e.g. {@code NavigationErrorCodes}).
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSNavException(IPSErrorCode code) {
+    super(code);
+  }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * <p>Do not add a two-arg {@code (IPSErrorCode, Throwable)} overload: existing call sites pass an
+   * {@code Exception} as the message argument via {@link #PSNavException(int, Object)}.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arg sole message argument; may be {@code null}
+   */
+  public PSNavException(IPSErrorCode code, Object arg) {
+    super(code, arg);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   */
+  public PSNavException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
+  }
+
+  /**
+   * Typed construction with message arguments and a cause.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   * @param cause the underlying cause; may be {@code null}
+   */
+  public PSNavException(IPSErrorCode code, Object[] arrayArgs, Throwable cause) {
+    super(code, arrayArgs, cause);
   }
 
   /** The underlying exception that caused this exception. */
