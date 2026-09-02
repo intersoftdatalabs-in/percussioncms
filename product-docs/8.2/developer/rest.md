@@ -1479,12 +1479,11 @@ Admin **write** persists through `IPSUiDesignWs` (`createActions` / `loadActions
 rows are written to `RXMENUACTION` so Hibernate `findActionMenusTree` (GET
 `/services/actions/catalog` and GET by name) includes a user menu immediately
 after POST, and omits it after DELETE. There is no new SOAP surface.
-**Developer → Action Menus** chrome creates and deletes user menus (and saves
-label / description / menuType / url). Admin **PUT** also round-trips Workbench
-**Usage**, **Command**, and **Visibility** fields on user menus (`handler`,
-`url`, `parameters`, command/usage `properties`, `visibilityContexts`, and
-`uiContexts`). Cascading children composition (UI-04) and SPA
-usage-command-visibility tabs remain later slices —
+**Developer → Action Menus** chrome creates and deletes user menus and saves
+label / description / menuType plus Workbench **Usage**, **Command**, and
+**Visibility** on user menus (`handler`, `url`, `parameters`, command/usage
+`properties`, `visibilityContexts`, and `uiContexts`). Cascading children
+composition (UI-04) is a later slice —
 see [Developer Action Menus](id:admin-developer-action-menus). Finder helpers
 (`GET /services/actions/find`, content-type and template finders) are unchanged.
 After POST the editor notice confirms the save. Packaged menus (for example
