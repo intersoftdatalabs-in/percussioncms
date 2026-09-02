@@ -16,8 +16,8 @@
  */
 package com.percussion.server.command;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSIllegalArgumentException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import org.w3c.dom.Document;
@@ -40,7 +40,7 @@ public class PSConsoleCommandDebugSearch extends PSConsoleCommand {
     super(args);
     // need the debug mode ('on/'off') for this command
     if ((args == null) || (args.length() == 0)) {
-      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_DEBUGMODE_REQD, null);
+      throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_DEBUGMODE_REQD, null);
     }
   }
 
@@ -64,7 +64,7 @@ public class PSConsoleCommandDebugSearch extends PSConsoleCommand {
     String[] args = {
       enabled ? "on" : "off",
     };
-    doc = getResultsDocument(request, COMMAND_NAME, IPSServerErrors.RCONSOLE_DEBUG_SETTING, args);
+    doc = getResultsDocument(request, COMMAND_NAME, ServerErrorCodes.RCONSOLE_DEBUG_SETTING, args);
     return doc;
   }
 

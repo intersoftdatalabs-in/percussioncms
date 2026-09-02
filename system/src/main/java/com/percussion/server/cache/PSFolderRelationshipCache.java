@@ -16,6 +16,7 @@
  */
 package com.percussion.server.cache;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSRelationshipChangeEvent;
 import com.percussion.cms.handlers.PSRelationshipCommandHandler;
@@ -28,7 +29,6 @@ import com.percussion.design.objectstore.PSRelationshipConfigSet;
 import com.percussion.design.objectstore.PSRelationshipPropertyData;
 import com.percussion.design.objectstore.PSRelationshipSet;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
@@ -259,7 +259,8 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new PSCacheException(IPSServerErrors.CACHE_UNEXPECTED_EXCEPTION, e, e.getMessage());
+      throw new PSCacheException(
+          ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, new Object[] {e.getMessage()}, e);
     }
 
     int folderRelationshipCount = m_relationshipMap.size();
@@ -331,7 +332,8 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new PSCacheException(IPSServerErrors.CACHE_UNEXPECTED_EXCEPTION, e, e.toString());
+      throw new PSCacheException(
+          ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, new Object[] {e.toString()}, e);
     }
 
     int activeAssemblyRelationshipCount = m_aARelationshipMap.size();

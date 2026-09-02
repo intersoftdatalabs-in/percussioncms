@@ -17,6 +17,7 @@
 
 package com.percussion.server.compare;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -57,5 +58,37 @@ public class PSCompareException extends PSException {
    */
   public PSCompareException(String language, int msgCode) {
     super(language, msgCode);
+  }
+
+  /**
+   * Typed construction with a locale and no message arguments.
+   *
+   * @param language user's logged in language
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSCompareException(String language, IPSErrorCode code) {
+    super(language, code, (Object[]) null);
+  }
+
+  /**
+   * Typed construction with a locale and a single message argument.
+   *
+   * @param language user's logged in language
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg argument
+   */
+  public PSCompareException(String language, IPSErrorCode code, Object singleArg) {
+    super(language, code, singleArg);
+  }
+
+  /**
+   * Typed construction with a locale and message arguments.
+   *
+   * @param language user's logged in language
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs arguments array
+   */
+  public PSCompareException(String language, IPSErrorCode code, Object[] arrayArgs) {
+    super(language, code, arrayArgs);
   }
 }

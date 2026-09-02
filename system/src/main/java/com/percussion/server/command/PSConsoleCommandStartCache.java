@@ -34,8 +34,8 @@ package com.percussion.server.command;
  */
 // REFACTORED: CP-JAVA11
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSErrorManager;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.util.PSCacheException;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -103,9 +103,9 @@ public class PSConsoleCommandStartCache extends PSConsoleCommandCache {
       try {
         startCache();
         PSXmlDocumentBuilder.addElement(
-            respDoc, root, "resultCode", String.valueOf(IPSServerErrors.RCONSOLE_CACHE_STARTED));
+            respDoc, root, "resultCode", String.valueOf(ServerErrorCodes.RCONSOLE_CACHE_STARTED.numericCode()));
         String termMsg =
-            PSErrorManager.getErrorText(IPSServerErrors.RCONSOLE_CACHE_STARTED, true, loc);
+            PSErrorManager.getErrorText(ServerErrorCodes.RCONSOLE_CACHE_STARTED.numericCode(), true, loc);
         PSXmlDocumentBuilder.addElement(respDoc, root, "resultText", termMsg);
       } catch (PSCacheException pscex) {
         PSXmlDocumentBuilder.addElement(
@@ -113,7 +113,7 @@ public class PSConsoleCommandStartCache extends PSConsoleCommandCache {
 
         String termMsg =
             PSErrorManager.createMessage(
-                IPSServerErrors.RCONSOLE_UNABLE_TO_EXECUTE_CACHE_COMMAND,
+                ServerErrorCodes.RCONSOLE_UNABLE_TO_EXECUTE_CACHE_COMMAND.numericCode(),
                 new Object[] {pscex.getLocalizedMessage(loc)},
                 loc);
         PSXmlDocumentBuilder.addElement(respDoc, root, "resultText", termMsg);

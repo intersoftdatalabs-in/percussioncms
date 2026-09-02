@@ -17,11 +17,11 @@
 
 package com.percussion.server.command;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSPasswordHandler;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.utils.jdbc.PSConnectionHelper;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -96,7 +96,7 @@ public class PSConsoleCommandEncryptDBPasswords extends PSConsoleCommand {
       else msg = e.getMessage();
 
       Object[] args = {(ms_cmdName + " " + m_cmdArgs), msg};
-      throw new PSConsoleCommandException(IPSServerErrors.RCONSOLE_EXEC_EXCEPTION, args);
+      throw new PSConsoleCommandException(ServerErrorCodes.RCONSOLE_EXEC_EXCEPTION, args);
     }
 
     return respDoc;

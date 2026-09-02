@@ -57,6 +57,50 @@ class PSExceptionTypedConstructorSliceTest {
 
     PSSqlException noArg = new PSSqlException(UtilErrorCode.POST_DATA_ERROR, "08000");
     assertSame(UtilErrorCode.POST_DATA_ERROR, noArg.getTypedErrorCode());
+
+    PSNotFoundException missing =
+        new PSNotFoundException(
+            "en-us", UtilErrorCode.RECEIVE_DATA_ERROR, new Object[] {"host"});
+    assertSame(UtilErrorCode.RECEIVE_DATA_ERROR, missing.getTypedErrorCode());
+    assertEquals(UtilErrorCode.RECEIVE_DATA_ERROR.numericCode(), missing.getErrorCode());
+    assertFalse(missing.isAuditable());
+  }
+
+  @Test
+  void catalogExceptionTypedConstructorsRetainCodeAndCause() {
+    PSCatalogException single =
+        new PSCatalogException(UtilErrorCode.BASE64_DECODING_EXCEPTION, "bad dtd");
+    assertSame(UtilErrorCode.BASE64_DECODING_EXCEPTION, single.getTypedErrorCode());
+    assertEquals(UtilErrorCode.BASE64_DECODING_EXCEPTION.numericCode(), single.getErrorCode());
+    assertFalse(single.isAuditable());
+
+    RuntimeException cause = new RuntimeException("sax");
+    PSCatalogException withCause =
+        new PSCatalogException(UtilErrorCode.BASE64_ENCODING_EXCEPTION, cause);
+    assertSame(UtilErrorCode.BASE64_ENCODING_EXCEPTION, withCause.getTypedErrorCode());
+    assertSame(cause, withCause.getCause());
+    assertFalse(withCause.isAuditable());
+
+    PSCatalogException withArgsAndCause =
+        new PSCatalogException(
+            UtilErrorCode.RECEIVE_DATA_ERROR, new Object[] {"host"}, cause);
+    assertSame(UtilErrorCode.RECEIVE_DATA_ERROR, withArgsAndCause.getTypedErrorCode());
+    assertSame(cause, withArgsAndCause.getCause());
+  }
+
+  @Test
+  void catalogExceptionObjectArgRejectsThrowableSoCauseIsNotSwallowed() {
+    Object boxedCause = new RuntimeException("sax");
+    IllegalArgumentException thrown =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new PSCatalogException(UtilErrorCode.BASE64_ENCODING_EXCEPTION, boxedCause));
+    assertFalse(thrown.getMessage() == null || thrown.getMessage().isBlank());
+    assertSame(
+        boxedCause,
+        new PSCatalogException(
+                UtilErrorCode.BASE64_ENCODING_EXCEPTION, (Throwable) boxedCause)
+            .getCause());
   }
 
   @Test
@@ -65,5 +109,14 @@ class PSExceptionTypedConstructorSliceTest {
     assertThrows(
         IllegalArgumentException.class, () -> new PSIllegalArgumentException((IPSErrorCode) null));
     assertThrows(IllegalArgumentException.class, () -> new PSSqlException((IPSErrorCode) null, "25000"));
+    assertThrows(IllegalArgumentException.class, () -> new PSCatalogException((IPSErrorCode) null));
+    assertThrows(
+        IllegalArgumentException.class, () -> new PSCatalogException((IPSErrorCode) null, "arg"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new PSCatalogException((IPSErrorCode) null, new RuntimeException("x")));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new PSNotFoundException("en-us", (IPSErrorCode) null, new Object[] {"x"}));
   }
 }

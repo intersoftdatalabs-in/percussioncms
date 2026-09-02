@@ -19,6 +19,7 @@ package com.percussion.server.webservices;
 
 import static com.percussion.cms.objectstore.PSProcessorProxy.RELATIONSHIP_COMPTYPE;
 
+import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.PSCmsObjectNameLookupUtils;
@@ -64,7 +65,6 @@ import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.i18n.PSI18nUtils;
-import com.percussion.search.IPSSearchErrors;
 import com.percussion.search.IPSSearchResultRow;
 import com.percussion.search.IPSSearchResultsProcessor;
 import com.percussion.search.PSSearchEngine;
@@ -450,7 +450,7 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
     boolean isExtQuery =
         ftsQuery != null || !extSearchFields.isEmpty() || searchReq.useExternalSearchEngine();
     if (!useSearchEngine && isExtQuery) {
-      throw new PSSearchException(IPSSearchErrors.SEARCH_ENGINE_REQUIRED);
+      throw new PSSearchException(SearchErrorCodes.SEARCH_ENGINE_REQUIRED);
     }
 
     // do ext search only if fts query or external params supplied

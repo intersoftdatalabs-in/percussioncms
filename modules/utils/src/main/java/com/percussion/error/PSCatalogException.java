@@ -51,6 +51,34 @@ public class PSCatalogException extends PSException {
   }
 
   /**
+   * Typed construction with a single message argument.
+   *
+   * <p>Do not pass a {@link Throwable} here. Overload resolution against {@link
+   * #PSCatalogException(IPSErrorCode, Throwable)} can otherwise swallow the cause into the message
+   * via {@link PSException#PSException(int, Object)}. Use the {@code Throwable} constructor (cast
+   * the second argument to {@code Throwable} when the compile-time type is a subtype of {@code
+   * Exception} and javac reports ambiguity).
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message; must not be a
+   *     {@link Throwable}
+   * @throws IllegalArgumentException if {@code singleArg} is a {@link Throwable}
+   */
+  public PSCatalogException(IPSErrorCode code, Object singleArg) {
+    super(code, rejectThrowableMessageArg(singleArg));
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSCatalogException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
+  }
+
+  /**
    * Construct an exception for messages taking no arguments.
    *
    * @param msgCode the error string to load
@@ -59,7 +87,54 @@ public class PSCatalogException extends PSException {
     super(msgCode);
   }
 
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSCatalogException(IPSErrorCode code) {
+    super(code);
+  }
+
   public PSCatalogException(int msgCode, Throwable t) {
     super(msgCode, t);
+  }
+
+  /**
+   * Typed construction with an optional cause and no message arguments. Prefer this overload (or an
+   * explicit {@code (Throwable)} cast) over {@link #PSCatalogException(IPSErrorCode, Object)} so the
+   * cause is retained rather than reformatted into the message.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param cause causal throwable; may be {@code null}
+   */
+  public PSCatalogException(IPSErrorCode code, Throwable cause) {
+    super(code, (Object[]) null, cause);
+  }
+
+  /**
+   * {@link #PSCatalogException(IPSErrorCode, Object)} must not accept a {@link Throwable}: that
+   * argument belongs on {@link #PSCatalogException(IPSErrorCode, Throwable)} so {@code getCause()}
+   * is populated.
+   */
+  private static Object rejectThrowableMessageArg(Object singleArg) {
+    if (singleArg instanceof Throwable) {
+      throw new IllegalArgumentException(
+          "PSCatalogException(IPSErrorCode, Object) does not preserve cause; use"
+              + " PSCatalogException(IPSErrorCode, Throwable) (cast the second argument if javac"
+              + " reports overload ambiguity)");
+    }
+    return singleArg;
+  }
+
+  /**
+   * Typed construction with message arguments and a cause.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   * @param cause causal throwable; may be {@code null}
+   */
+  public PSCatalogException(IPSErrorCode code, Object[] arrayArgs, Throwable cause) {
+    super(code, arrayArgs, cause);
   }
 }

@@ -16,12 +16,13 @@
  */
 package com.percussion.server.cache;
 
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import static com.percussion.util.PSDataTypeConverter.parseStringToDate;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import com.percussion.cms.IPSCmsErrors;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.objectstore.PSCmsObject;
 import com.percussion.cms.objectstore.PSFolder;
@@ -43,7 +44,6 @@ import com.percussion.design.objectstore.PSUpdatePipe;
 import com.percussion.error.PSException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestHandler;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
@@ -943,7 +943,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
     try {
       acls = PSFolderSecurityManager.loadFolderAcls(null);
     } catch (PSException e) {
-      throw new PSCacheException(IPSServerErrors.CACHE_UNEXPECTED_EXCEPTION, e.toString());
+      throw new PSCacheException(ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, e.toString());
     }
 
     // populate the folder acls
@@ -1006,7 +1006,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
 
       log.debug("loaded {} items", m_items.size());
     } catch (Exception e) {
-      throw new PSCacheException(IPSServerErrors.CACHE_UNEXPECTED_EXCEPTION, e.toString());
+      throw new PSCacheException(ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, e.toString());
     }
   }
 
@@ -1027,7 +1027,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
             null);
     if (ir == null)
       throw new PSCacheException(
-          IPSCmsErrors.REQUIRED_RESOURCE_MISSING, GET_CACHED_FOLDER_PROPS_RSC);
+          CmsErrorCodes.REQUIRED_RESOURCE_MISSING, GET_CACHED_FOLDER_PROPS_RSC);
 
     try (ResultSet rs = ir.getResultSet()) {
       int contentId;
@@ -1049,7 +1049,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
         }
       }
     } catch (Exception e) {
-      throw new PSCacheException(IPSServerErrors.CACHE_UNEXPECTED_EXCEPTION, e.toString());
+      throw new PSCacheException(ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, e.toString());
     } finally {
       ir.cleanUp();
     }

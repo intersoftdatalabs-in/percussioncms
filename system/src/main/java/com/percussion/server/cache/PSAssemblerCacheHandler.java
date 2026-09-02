@@ -16,6 +16,7 @@
  */
 package com.percussion.server.cache;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.IPSEditorChangeListener;
 import com.percussion.cms.IPSRelationshipChangeListener;
@@ -35,7 +36,6 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.server.IPSRequestHandler;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
@@ -478,7 +478,7 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
     // validates the minimum number of keys.
     if (keys.size() < numKeys) {
       throw new PSSystemValidationException(
-          IPSServerErrors.INSUFFICIENT_NUM_CACHE_KEYS, new Object[] {String.valueOf(numKeys)});
+          ServerErrorCodes.INSUFFICIENT_NUM_CACHE_KEYS, new Object[] {String.valueOf(numKeys)});
     }
 
     // validate all required keys are present and the values are valid.
@@ -487,7 +487,7 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
 
       if (!keys.containsKey(keyName)) {
         throw new PSSystemValidationException(
-            IPSServerErrors.MISSING_CACHE_KEY, new Object[] {keyName});
+            ServerErrorCodes.MISSING_CACHE_KEY, new Object[] {keyName});
       }
 
       if (i == KEY_CONTENTID_INDEX || i == KEY_REVISIONID_INDEX || i == KEY_VARIANTID_INDEX) {
@@ -497,7 +497,7 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
             Integer.parseInt(value);
           } catch (NumberFormatException e) {
             throw new PSSystemValidationException(
-                IPSServerErrors.INVALID_NUMBER_CACHE_KEY, new Object[] {value, keyName});
+                ServerErrorCodes.INVALID_NUMBER_CACHE_KEY, new Object[] {value, keyName});
           }
         }
       }
@@ -509,7 +509,7 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
     if ((contentid == null || contentid.trim().length() == 0)
         && (revisionid != null)
         && revisionid.trim().length() > 0) {
-      throw new PSSystemValidationException(IPSServerErrors.INVALID_REVISION_CACHE_KEY);
+      throw new PSSystemValidationException(ServerErrorCodes.INVALID_REVISION_CACHE_KEY);
     }
   }
 
@@ -769,7 +769,7 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
     PSInternalRequest iReq = PSServer.getInternalRequest(VARIANT_REQUEST_NAME, req, null, false);
     if (iReq == null) {
       throw new PSCacheException(
-          IPSServerErrors.CACHE_NO_INTERNAL_REQUEST_HANDLER, VARIANT_REQUEST_NAME);
+          ServerErrorCodes.CACHE_NO_INTERNAL_REQUEST_HANDLER, VARIANT_REQUEST_NAME);
     }
 
     Document doc = null;
@@ -777,7 +777,7 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
       doc = iReq.getResultDoc();
     } catch (Exception e) {
       throw new PSCacheException(
-          IPSServerErrors.CACHE_INTERNAL_REQUEST_FAILURE,
+          ServerErrorCodes.CACHE_INTERNAL_REQUEST_FAILURE,
           new Object[] {VARIANT_REQUEST_NAME, e.getLocalizedMessage()});
     }
 

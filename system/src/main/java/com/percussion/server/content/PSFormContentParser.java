@@ -17,11 +17,12 @@
 
 package com.percussion.server.content;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.log.PSLogManager;
 import com.percussion.log.PSLogServerWarning;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestParsingException;
 import com.percussion.server.PSServer;
@@ -92,7 +93,7 @@ public class PSFormContentParser extends PSContentParser {
     if (!isSupportedContentType(contentType)) {
       // FB: DMI_INVOKING_TOSTRING_ON_ARRAY 1-17-16
       Object[] args = {contentType, Arrays.toString(ARRAY_SUPPORTED_TYPES)};
-      throw new PSRequestParsingException(IPSServerErrors.PARSER_UNSUPPORTED_CONTENT_TYPE, args);
+      throw new PSRequestParsingException(ServerErrorCodes.PARSER_UNSUPPORTED_CONTENT_TYPE, args);
     }
 
     /* this must be simple old URL encoded */
@@ -114,7 +115,7 @@ public class PSFormContentParser extends PSContentParser {
       };
       PSLogManager.write(
           new PSLogServerWarning(
-              IPSServerErrors.CONTENT_LENGTH_DOES_NOT_MATCH_DATA_READ,
+              ServerErrorCodes.CONTENT_LENGTH_DOES_NOT_MATCH_DATA_READ.numericCode(),
               args,
               true,
               "PSXmlContentParser"));
@@ -294,7 +295,7 @@ public class PSFormContentParser extends PSContentParser {
    */
   private static void contentTypeError(String contentType) throws PSRequestParsingException {
     Object[] args = {contentType};
-    throw new PSRequestParsingException(IPSServerErrors.INVALID_MULTIPART_CONTENT_TYPE, args);
+    throw new PSRequestParsingException(ServerErrorCodes.INVALID_MULTIPART_CONTENT_TYPE, args);
   }
 
   /**
@@ -304,7 +305,7 @@ public class PSFormContentParser extends PSContentParser {
    */
   private static void contentDispError(String contentDisp) throws PSRequestParsingException {
     Object[] args = {contentDisp};
-    throw new PSRequestParsingException(IPSServerErrors.INVALID_MULTIPART_CONTENT_DISP, args);
+    throw new PSRequestParsingException(ServerErrorCodes.INVALID_MULTIPART_CONTENT_DISP, args);
   }
 
   /**
@@ -806,7 +807,7 @@ public class PSFormContentParser extends PSContentParser {
     if (line == null) {
       /* no boundary is an error!!! */
       Object[] args = {"End boundary not found: " + value};
-      throw new PSRequestParsingException(IPSServerErrors.INVALID_MULTIPART_CONTENT_DISP, args);
+      throw new PSRequestParsingException(ServerErrorCodes.INVALID_MULTIPART_CONTENT_DISP, args);
     }
 
     /* unless this is an XML file, we're still storing it in the param
@@ -849,7 +850,7 @@ public class PSFormContentParser extends PSContentParser {
         } catch (StringIndexOutOfBoundsException e) {
           /* this can only happen when it's poorly formed! */
           Object[] args = {str};
-          throw new PSRequestParsingException(IPSServerErrors.FORM_PARSER_BAD_HEX_CHAR, args);
+          throw new PSRequestParsingException(ServerErrorCodes.FORM_PARSER_BAD_HEX_CHAR, args);
         }
       }
 

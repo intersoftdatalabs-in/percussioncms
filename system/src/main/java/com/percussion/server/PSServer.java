@@ -37,6 +37,7 @@ import com.percussion.data.PSTableMetaData;
 import com.percussion.debug.PSDebugManager;
 import com.percussion.design.objectstore.IPSJavaPluginConfig;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSAttribute;
@@ -409,7 +410,7 @@ public class PSServer {
         PSConsole.printMsg(
             "Server", serverBundle.getString("thirdPartyCopyright"), null, Level.OFF);
 
-        PSConsole.printInfoMsg("Server", IPSServerErrors.SERVER_INIT_START, null, Level.OFF);
+        PSConsole.printInfoMsg("Server", ServerErrorCodes.SERVER_INIT_START.numericCode(), null, Level.OFF);
 
         initVersion();
         PSConsole.printMsg("Server", getVersionString(), null, Level.OFF);
@@ -559,7 +560,7 @@ public class PSServer {
        */
 
       if (!isCaseSensitiveURL())
-        PSConsole.printInfoMsg("Server", IPSServerErrors.SERVER_INIT_CASE_INSENSITIVE_URLS, null);
+        PSConsole.printInfoMsg("Server", ServerErrorCodes.SERVER_INIT_CASE_INSENSITIVE_URLS.numericCode(), null);
 
       // create the lock file to indicate the server is running
       createServerStartupFileLock(SERVER_FILE_LOCK);
@@ -583,14 +584,14 @@ public class PSServer {
       // free up memory
       ms_allApps = null;
 
-      PSConsole.printInfoMsg("Server", IPSServerErrors.SERVER_INIT_END, null, Level.OFF);
+      PSConsole.printInfoMsg("Server", ServerErrorCodes.SERVER_INIT_END.numericCode(), null, Level.OFF);
 
       return true;
     } catch (Exception e) {
 
       /* trap for unforeseen exceptions, allowing us to log the failure */
       Object[] params = {stackToString(e)};
-      PSServerLogHandler.handleTerminalError(IPSServerErrors.EXCEPTION_NOT_CAUGHT, params);
+      PSServerLogHandler.handleTerminalError(ServerErrorCodes.EXCEPTION_NOT_CAUGHT.numericCode(), params);
       return false;
     } finally {
       itemDefManager.commitUpdateNotifications();
@@ -627,13 +628,13 @@ public class PSServer {
       if (lock == null) {
         PSConsole.printWarnMsg(
             "Server",
-            IPSServerErrors.RUNNING_SERVER_LOCK_NOT_ACQUIRED,
+            ServerErrorCodes.RUNNING_SERVER_LOCK_NOT_ACQUIRED.numericCode(),
             new String[] {"Already locked"});
       }
     } catch (Exception e) {
       PSConsole.printWarnMsg(
           "Server",
-          IPSServerErrors.RUNNING_SERVER_LOCK_NOT_ACQUIRED,
+          ServerErrorCodes.RUNNING_SERVER_LOCK_NOT_ACQUIRED.numericCode(),
           new String[] {e.getLocalizedMessage()});
     }
     ms_serverStartupLock = lock;
@@ -1215,7 +1216,7 @@ public class PSServer {
       PSResponse resp = req.getResponse();
       com.percussion.error.PSServerUnavailableError err =
           new com.percussion.error.PSServerUnavailableError(
-              IPSServerErrors.SERVER_INITIALIZING_ERROR_MSG, null);
+              ServerErrorCodes.SERVER_INITIALIZING_ERROR_MSG.numericCode(), null);
 
       PSServer.ms_serverErrorHandler.reportError(resp, err);
       return null;
@@ -1394,7 +1395,7 @@ public class PSServer {
       /* Some IO or parsing exception probably - log it and return the
        * empty config - resource handler will deal with any missing data.
        */
-      int msgCode = IPSServerErrors.CE_SYSTEM_DEF_LOAD;
+      int msgCode = ServerErrorCodes.CE_SYSTEM_DEF_LOAD.numericCode();
       Object[] args = {e.toString()};
       PSLogManager.write(new PSLogServerWarning(msgCode, args, true, "Server"));
     }
@@ -1425,7 +1426,7 @@ public class PSServer {
        * empty config - resource handler will deal with any missing
        * data.
        */
-      int msgCode = IPSServerErrors.CE_SHARED_DEF_LOAD;
+      int msgCode = ServerErrorCodes.CE_SHARED_DEF_LOAD.numericCode();
       Object[] args = {"unknown", e.toString()};
       PSLogManager.write(new PSLogServerWarning(msgCode, args, true, "Server"));
     }
@@ -1485,7 +1486,7 @@ public class PSServer {
    *     errors.
    */
   private static boolean loadConfig() {
-    PSConsole.printInfoMsg("Server", IPSServerErrors.LOADING_CONFIG, (Object[]) null);
+    PSConsole.printInfoMsg("Server", ServerErrorCodes.LOADING_CONFIG.numericCode(), (Object[]) null);
 
     /* load server configuration settings for:
      *    - Server (log, request queue, etc.)
@@ -1552,7 +1553,7 @@ public class PSServer {
        * we really can't recover from this, so spit out an error.
        */
       Object[] params = {e.getMessage()};
-      PSServerLogHandler.handleTerminalError(IPSServerErrors.LOAD_CONFIG_FAILURE, params);
+      PSServerLogHandler.handleTerminalError(ServerErrorCodes.LOAD_CONFIG_FAILURE.numericCode(), params);
       return false;
     }
   }
@@ -1581,7 +1582,7 @@ public class PSServer {
        * we really can't recover from this, so spit out an error.
        */
       Object[] params = {e.getMessage()};
-      PSServerLogHandler.handleTerminalError(IPSServerErrors.OBJECT_STORE_INIT_FAILED, params);
+      PSServerLogHandler.handleTerminalError(ServerErrorCodes.OBJECT_STORE_INIT_FAILED.numericCode(), params);
 
       return false;
     }
@@ -1610,7 +1611,7 @@ public class PSServer {
    */
   private static PSApplication[] initObjectStore()
       throws PSServerException, PSAuthorizationException {
-    PSConsole.printInfoMsg("Server", IPSServerErrors.OBJECT_STORE_INIT, (Object[]) null);
+    PSConsole.printInfoMsg("Server", ServerErrorCodes.OBJECT_STORE_INIT.numericCode(), (Object[]) null);
 
     PSApplication[] apps = ms_objectStore.init();
     ms_allApps = apps;
@@ -1702,7 +1703,7 @@ public class PSServer {
   }
 
   private static void initSecurity() {
-    PSConsole.printInfoMsg("Server", IPSServerErrors.SEC_POOL_INIT, (Object[]) null);
+    PSConsole.printInfoMsg("Server", ServerErrorCodes.SEC_POOL_INIT.numericCode(), (Object[]) null);
 
     /* initialize server security by:
      *    - initializing the security provider pool
@@ -1747,7 +1748,7 @@ public class PSServer {
      */
     if (!app.isHidden()) {
       PSConsole.printInfoMsg(
-          "Server", IPSServerErrors.APPLICATION_INIT, new Object[] {app.getName()});
+          "Server", ServerErrorCodes.APPLICATION_INIT.numericCode(), new Object[] {app.getName()});
     }
 
     app.validate(validateContext);
@@ -1790,7 +1791,7 @@ public class PSServer {
       fireAppHandlerStateChanged(ah, PSHandlerStateEvent.HANDLER_EVENT_STARTED);
 
       PSConsole.printInfoMsg(
-          "Server", IPSServerErrors.APPLICATION_INIT_COMPLETED, new Object[] {app.getName()});
+          "Server", ServerErrorCodes.APPLICATION_INIT_COMPLETED.numericCode(), new Object[] {app.getName()});
     }
     return ah;
   }
@@ -1876,7 +1877,7 @@ public class PSServer {
    */
   private static void initRequestHandlers(PSApplication[] apps)
       throws PSNotFoundException, PSServerException, PSCacheException {
-    PSConsole.printInfoMsg("Server", IPSServerErrors.REQ_HANDLER_INIT, (Object[]) null);
+    PSConsole.printInfoMsg("Server", ServerErrorCodes.REQ_HANDLER_INIT.numericCode(), (Object[]) null);
 
     ms_RequestHandlers = new ConcurrentHashMap<String, IPSRequestHandler>();
     ms_rootedRequestHandlers = new ConcurrentHashMap<String, IPSRequestHandler>();
@@ -2072,7 +2073,7 @@ public class PSServer {
       } catch (Exception e) {
         // catch any error here and rethrow
         Object[] args = {def.getClassName(), e.toString()};
-        throw new PSServerException(IPSServerErrors.LOADABLE_REQUEST_HANDLER_CREATE_ERROR, args);
+        throw new PSServerException(ServerErrorCodes.LOADABLE_REQUEST_HANDLER_CREATE_ERROR, args);
       }
 
       /* Add to master request handler list, using handler name, and
@@ -2113,7 +2114,7 @@ public class PSServer {
           in = new FileInputStream(cfgFile);
         } catch (FileNotFoundException e) {
           throw new PSServerException(
-              IPSServerErrors.REQUEST_HANDLER_CONFIG_NOT_FOUND, cfgFile.getPath());
+              ServerErrorCodes.REQUEST_HANDLER_CONFIG_NOT_FOUND, cfgFile.getPath());
         }
       }
       loadableHandler.init(requestRoots, in);
@@ -2137,7 +2138,7 @@ public class PSServer {
    * @throws SAXException for XML parsing exceptions.
    */
   private static void initMacros() throws IOException, PSUnknownNodeTypeException, SAXException {
-    PSConsole.printInfoMsg("Server", IPSServerErrors.MACROS_INIT, (Object[]) null);
+    PSConsole.printInfoMsg("Server", ServerErrorCodes.MACROS_INIT.numericCode(), (Object[]) null);
 
     try {
       File systemMacrosFile = new File(getRxFile(SERVER_DIR) + "/sys_macros.xml");
@@ -2159,7 +2160,7 @@ public class PSServer {
           Object[] args = {
             userMacrosFile.toString(), e.getLocalizedMessage(),
           };
-          PSConsole.printMsg("Server", IPSServerErrors.INVALID_USER_MACROS, args);
+          PSConsole.printMsg("Server", ServerErrorCodes.INVALID_USER_MACROS.numericCode(), args);
         }
       }
 
@@ -2177,7 +2178,7 @@ public class PSServer {
    * @return <code>true</code> if it is successfully initialized, <code>false</code> otherwise.
    */
   private static boolean initLogHandling() {
-    PSConsole.printInfoMsg("Server", IPSServerErrors.LOG_MGR_INIT, (Object[]) null);
+    PSConsole.printInfoMsg("Server", ServerErrorCodes.LOG_MGR_INIT.numericCode(), (Object[]) null);
 
     boolean didInit = false;
     try {
@@ -2187,27 +2188,27 @@ public class PSServer {
     } catch (IllegalArgumentException e) {
       /* bad config file */
       Object[] params = {e.getMessage()};
-      PSServerLogHandler.handleTerminalError(IPSServerErrors.LOG_INIT_BAD_CONFIG, params);
+      PSServerLogHandler.handleTerminalError(ServerErrorCodes.LOG_INIT_BAD_CONFIG.numericCode(), params);
     } catch (IOException e) {
       /* file logging problem */
       Object[] params = {e.getMessage()};
-      PSServerLogHandler.handleTerminalError(IPSServerErrors.LOG_INIT_FILE_ERROR, params);
+      PSServerLogHandler.handleTerminalError(ServerErrorCodes.LOG_INIT_FILE_ERROR.numericCode(), params);
     } catch (java.sql.SQLException e) {
       /* SQL logging problem */
       Object[] params = {e.getMessage()};
-      PSServerLogHandler.handleTerminalError(IPSServerErrors.LOG_INIT_SQL_ERROR, params);
+      PSServerLogHandler.handleTerminalError(ServerErrorCodes.LOG_INIT_SQL_ERROR.numericCode(), params);
     } catch (ClassNotFoundException e) {
       /* JDBC driver not found */
       Object[] params = {e.getMessage()};
-      PSServerLogHandler.handleTerminalError(IPSServerErrors.LOG_INIT_DRIVER_ERROR, params);
+      PSServerLogHandler.handleTerminalError(ServerErrorCodes.LOG_INIT_DRIVER_ERROR.numericCode(), params);
     } catch (SAXException e) {
       /* JDBC driver not found */
       Object[] params = {e.getMessage()};
-      PSServerLogHandler.handleTerminalError(IPSServerErrors.LOG_INIT_XML_FILE_ERROR, params);
+      PSServerLogHandler.handleTerminalError(ServerErrorCodes.LOG_INIT_XML_FILE_ERROR.numericCode(), params);
     } catch (NamingException e) {
       /* bad configuration? */
       Object[] params = {e.getMessage()};
-      PSServerLogHandler.handleTerminalError(IPSServerErrors.LOG_INIT_BAD_CONFIG, params);
+      PSServerLogHandler.handleTerminalError(ServerErrorCodes.LOG_INIT_BAD_CONFIG.numericCode(), params);
     }
 
     if (!didInit) return false;
@@ -2244,7 +2245,7 @@ public class PSServer {
   }
 
   private static void initErrorHandling() {
-    PSConsole.printInfoMsg("Server", IPSServerErrors.ERROR_MGR_INIT, (Object[]) null);
+    PSConsole.printInfoMsg("Server", ServerErrorCodes.ERROR_MGR_INIT.numericCode(), (Object[]) null);
 
     PSErrorManager.init();
 
@@ -2527,14 +2528,14 @@ public class PSServer {
     List<PSObjectLock> expiredLocks = service.findExpiredLocks();
     if (expiredLocks != null && !expiredLocks.isEmpty()) service.releaseLocks(expiredLocks);
 
-    PSConsole.printInfoMsg("Server", IPSServerErrors.SERVER_TERM_START, null, Level.OFF);
+    PSConsole.printInfoMsg("Server", ServerErrorCodes.SERVER_TERM_START.numericCode(), null, Level.OFF);
 
     // shutdown the error page cache
     PSPageCache.shutdown();
 
     /* shut down the db pool */
     if (isInited(INITED_DB_POOL)) {
-      PSConsole.printInfoMsg("Server", IPSServerErrors.DB_POOL_TERM, (Object[]) null);
+      PSConsole.printInfoMsg("Server", ServerErrorCodes.DB_POOL_TERM.numericCode(), (Object[]) null);
 
       ms_WhatsUp ^= INITED_DB_POOL;
     }
@@ -2553,7 +2554,7 @@ public class PSServer {
     } catch (Exception e) {
       Object[] args = {e.getLocalizedMessage()};
       PSServerLogHandler.logMessage(
-          new PSInternalError(IPSServerErrors.EXCEPTION_NOT_CAUGHT, args));
+          new PSInternalError(ServerErrorCodes.EXCEPTION_NOT_CAUGHT.numericCode(), args));
     }
 
     // Prevent update notifications during shutdown
@@ -2562,7 +2563,7 @@ public class PSServer {
 
     /* shut down the request handlers */
     if (isInited(INITED_REQ_HANDLERS)) {
-      PSConsole.printInfoMsg("Server", IPSServerErrors.REQ_HANDLER_TERM, (Object[]) null);
+      PSConsole.printInfoMsg("Server", ServerErrorCodes.REQ_HANDLER_TERM.numericCode(), (Object[]) null);
 
       try {
         /* catch all exceptions so we can continue processing */
@@ -2570,7 +2571,7 @@ public class PSServer {
       } catch (Exception t) {
         Object[] args = {t.toString()};
         PSServerLogHandler.logMessage(
-            new PSInternalError(IPSServerErrors.REQ_HANDLER_TERM_EXCEPTION, args));
+            new PSInternalError(ServerErrorCodes.REQ_HANDLER_TERM_EXCEPTION.numericCode(), args));
       }
 
       ms_WhatsUp ^= INITED_REQ_HANDLERS;
@@ -2583,7 +2584,7 @@ public class PSServer {
       } catch (Exception t) {
         Object[] args = {t.toString()};
         PSServerLogHandler.logMessage(
-            new PSInternalError(IPSServerErrors.EXTENSION_MGR_TERM_EXCEPTION, args));
+            new PSInternalError(ServerErrorCodes.EXTENSION_MGR_TERM_EXCEPTION.numericCode(), args));
       }
 
       ms_WhatsUp ^= INITED_REQ_HANDLERS;
@@ -2596,7 +2597,7 @@ public class PSServer {
 
     /* shut down the log/error facilities */
     if (isInited(INITED_ERROR)) {
-      PSConsole.printInfoMsg("Server", IPSServerErrors.ERROR_MGR_TERM, (Object[]) null);
+      PSConsole.printInfoMsg("Server", ServerErrorCodes.ERROR_MGR_TERM.numericCode(), (Object[]) null);
 
       try {
         /* catch all exceptions so we can continue processing */
@@ -2604,7 +2605,7 @@ public class PSServer {
       } catch (Exception t) {
         Object[] args = {t.toString()};
         PSServerLogHandler.logMessage(
-            new PSInternalError(IPSServerErrors.ERROR_MGR_TERM_EXCEPTION, args));
+            new PSInternalError(ServerErrorCodes.ERROR_MGR_TERM_EXCEPTION.numericCode(), args));
       }
 
       try {
@@ -2625,14 +2626,14 @@ public class PSServer {
       PSLogServerStop msg = new PSLogServerStop(ms_serverName);
       ms_serverLogHandler.write(msg);
 
-      PSConsole.printInfoMsg("Server", IPSServerErrors.LOG_MGR_TERM, null);
+      PSConsole.printInfoMsg("Server", ServerErrorCodes.LOG_MGR_TERM.numericCode(), null);
 
       try {
         /* catch all exceptions so we can continue processing */
         PSLogManager.close();
       } catch (Exception t) {
         Object[] args = {t.toString()};
-        PSConsole.printMsg("Server", IPSServerErrors.LOG_MGR_TERM_EXCEPTION, args);
+        PSConsole.printMsg("Server", ServerErrorCodes.LOG_MGR_TERM_EXCEPTION.numericCode(), args);
       }
 
       ms_WhatsUp ^= INITED_LOG;
@@ -2644,7 +2645,7 @@ public class PSServer {
     // Destroy any server lockfile
     destroyStartupFileLock(ms_serverStartupLock);
 
-    PSConsole.printInfoMsg("Server", IPSServerErrors.SERVER_TERM_END, null, Level.OFF);
+    PSConsole.printInfoMsg("Server", ServerErrorCodes.SERVER_TERM_END.numericCode(), null, Level.OFF);
   }
 
   /**
@@ -2993,7 +2994,7 @@ public class PSServer {
       // this should not happen but if it does we like to know
       Object[] args = {hostName};
 
-      PSConsole.printMsg("Server", IPSServerErrors.UNKNOWN_HOST, args);
+      PSConsole.printMsg("Server", ServerErrorCodes.UNKNOWN_HOST.numericCode(), args);
     }
 
     return hostName;
@@ -3180,7 +3181,7 @@ public class PSServer {
             Object[] args = {realUser, userCommunity};
             userCommunity = null;
             throw new PSServerException(
-                IPSServerErrors.COMMUNITIES_AUTHENTICATION_FAILED_INVALID_COMMUNITY, args);
+                ServerErrorCodes.COMMUNITIES_AUTHENTICATION_FAILED_INVALID_COMMUNITY, args);
           } else {
             // Default the user community
             userCommunity = getUserDefaultCommunity(request);
@@ -3189,7 +3190,7 @@ public class PSServer {
               Object[] args = {realUser, ""};
               userCommunity = null;
               throw new PSServerException(
-                  IPSServerErrors.COMMUNITIES_AUTHENTICATION_FAILED_INVALID_COMMUNITY, args);
+                  ServerErrorCodes.COMMUNITIES_AUTHENTICATION_FAILED_INVALID_COMMUNITY, args);
             }
           }
         }
@@ -3199,10 +3200,10 @@ public class PSServer {
       sess.setPrivateObject(IPSHtmlParameters.SYS_COMMUNITY, userCommunity);
     } catch (PSDataExtractionException e) {
       Object[] args = {e.toString()};
-      throw new PSServerException(IPSServerErrors.COMMUNITIES_AUTHENTICATION_FAILED_ERROR, args);
+      throw new PSServerException(ServerErrorCodes.COMMUNITIES_AUTHENTICATION_FAILED_ERROR, args);
     } catch (PSInternalRequestCallException e) {
       Object[] args = {e.toString()};
-      throw new PSServerException(IPSServerErrors.COMMUNITIES_AUTHENTICATION_FAILED_ERROR, args);
+      throw new PSServerException(ServerErrorCodes.COMMUNITIES_AUTHENTICATION_FAILED_ERROR, args);
     }
   }
 

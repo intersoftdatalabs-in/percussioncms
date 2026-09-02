@@ -34,13 +34,13 @@ package com.percussion.server.command;
  */
 // REFACTORED: CP-JAVA11
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.objectstore.PSKey;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.search.PSAdminLockedException;
 import com.percussion.search.PSSearchAdmin;
 import com.percussion.search.PSSearchEngine;
 import com.percussion.search.PSSearchException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 
 /**
@@ -72,7 +72,7 @@ public class PSConsoleCommandSearchIndexRecreate extends PSConsoleCommandSearchI
       throw new PSSearchException(e.getErrorCode(), e.getErrorArguments());
     } catch (IllegalStateException ise) {
       throw new PSSearchException(
-          IPSServerErrors.RCONSOLE_COMMAND_CANT_RUN, ise.getLocalizedMessage());
+          ServerErrorCodes.RCONSOLE_COMMAND_CANT_RUN.numericCode(), ise.getLocalizedMessage());
     } finally {
       if (null != sa) eng.releaseSearchAdmin(sa);
     }

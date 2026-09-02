@@ -17,6 +17,8 @@
 
 package com.percussion.server;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+
 import com.percussion.conn.IPSConnection;
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.error.PSApplicationAuthorizationError;
@@ -72,7 +74,7 @@ public class PSServerLogHandler {
       reportError(conn, new PSRequestPreProcessingError(host, (PSRequestParsingException) error));
     } else {
       Object[] args = {error.getMessage()};
-      handlePreProcessingError(conn, IPSServerErrors.RAW_DUMP, args);
+      handlePreProcessingError(conn, ServerErrorCodes.RAW_DUMP.numericCode(), args);
     }
   }
 
@@ -168,7 +170,7 @@ public class PSServerLogHandler {
 
         resp.setStatus(
             IPSHttpErrors.HTTP_SERVICE_UNAVAILABLE,
-            PSErrorManager.getErrorText(IPSServerErrors.SERVER_SHUTDOWN_MSG));
+            PSErrorManager.getErrorText(ServerErrorCodes.SERVER_SHUTDOWN_MSG.numericCode()));
       }
     } catch (Exception e) {
       /* not much we can do here */
@@ -189,7 +191,7 @@ public class PSServerLogHandler {
     reportError(
         req,
         new PSRequestHandlerNotFoundError(
-            PSLogInformation.NULL_APPLID, IPSServerErrors.REQUEST_HANDLER_NOT_FOUND, params));
+            PSLogInformation.NULL_APPLID, ServerErrorCodes.REQUEST_HANDLER_NOT_FOUND.numericCode(), params));
   }
 
   /**
@@ -212,7 +214,7 @@ public class PSServerLogHandler {
 
     reportError(
         req,
-        new PSRequestHandlerNotFoundError(applId, IPSServerErrors.APP_DATASET_NOT_FOUND, params));
+        new PSRequestHandlerNotFoundError(applId, ServerErrorCodes.APP_DATASET_NOT_FOUND.numericCode(), params));
   }
 
   /**
@@ -243,7 +245,7 @@ public class PSServerLogHandler {
     reportError(
         req,
         new PSRequestHandlerNotFoundError(
-            applId, IPSServerErrors.APP_DATASET_HANDLER_NOT_FOUND, params));
+            applId, ServerErrorCodes.APP_DATASET_HANDLER_NOT_FOUND.numericCode(), params));
   }
 
   /**
@@ -303,7 +305,7 @@ public class PSServerLogHandler {
       PSExceptionUtils.getMessageForLog((Exception) t)
     };
 
-    PSLogError logInfo = new PSInternalError(IPSServerErrors.UNEXPECTED_EXCEPTION_LOG, args);
+    PSLogError logInfo = new PSInternalError(ServerErrorCodes.UNEXPECTED_EXCEPTION_LOG.numericCode(), args);
 
     logMessage(logInfo);
 

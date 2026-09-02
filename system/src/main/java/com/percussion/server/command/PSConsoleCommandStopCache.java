@@ -34,8 +34,8 @@ package com.percussion.server.command;
  */
 // REFACTORED: CP-JAVA11
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSErrorManager;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.util.PSCacheException;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -117,7 +117,7 @@ public class PSConsoleCommandStopCache extends PSConsoleCommandCache {
 
         String termMsg =
             PSErrorManager.createMessage(
-                IPSServerErrors.RCONSOLE_UNABLE_TO_EXECUTE_CACHE_COMMAND,
+                ServerErrorCodes.RCONSOLE_UNABLE_TO_EXECUTE_CACHE_COMMAND.numericCode(),
                 new Object[] {pscex.getLocalizedMessage(loc)},
                 loc);
         PSXmlDocumentBuilder.addElement(respDoc, root, "resultText", termMsg);
@@ -128,20 +128,20 @@ public class PSConsoleCommandStopCache extends PSConsoleCommandCache {
         root.appendChild(statistics);
 
         PSXmlDocumentBuilder.addElement(
-            respDoc, root, "resultCode", String.valueOf(IPSServerErrors.RCONSOLE_CACHE_STOPPED));
+            respDoc, root, "resultCode", String.valueOf(ServerErrorCodes.RCONSOLE_CACHE_STOPPED.numericCode()));
 
         String termMsg =
-            PSErrorManager.getErrorText(IPSServerErrors.RCONSOLE_CACHE_STOPPED, true, loc);
+            PSErrorManager.getErrorText(ServerErrorCodes.RCONSOLE_CACHE_STOPPED.numericCode(), true, loc);
         PSXmlDocumentBuilder.addElement(respDoc, root, "resultText", termMsg);
       } else {
         PSXmlDocumentBuilder.addElement(
             respDoc,
             root,
             "resultCode",
-            String.valueOf(IPSServerErrors.RCONSOLE_CACHE_ALREADY_STOPPED));
+            String.valueOf(ServerErrorCodes.RCONSOLE_CACHE_ALREADY_STOPPED.numericCode()));
 
         String termMsg =
-            PSErrorManager.getErrorText(IPSServerErrors.RCONSOLE_CACHE_ALREADY_STOPPED, true, loc);
+            PSErrorManager.getErrorText(ServerErrorCodes.RCONSOLE_CACHE_ALREADY_STOPPED.numericCode(), true, loc);
         PSXmlDocumentBuilder.addElement(respDoc, root, "resultText", termMsg);
       }
     } else {

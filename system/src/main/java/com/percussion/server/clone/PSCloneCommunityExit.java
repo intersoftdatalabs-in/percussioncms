@@ -16,6 +16,7 @@
  */
 package com.percussion.server.clone;
 
+import com.intsof.percussioncms.auditlog.codes.CloneErrorCodes;
 import com.percussion.conn.PSServerException;
 import com.percussion.design.objectstore.PSRole;
 import com.percussion.design.objectstore.PSRoleConfiguration;
@@ -136,7 +137,7 @@ public class PSCloneCommunityExit extends PSCloneBase {
       } catch (PSException e) {
         request.printTraceMessage("Error occurred while creating the role." + e.getMessage());
         Object[] args = {roleName, e.getLocalizedMessage()};
-        throw new PSExtensionProcessingException(IPSCloneErrors.ROLE_CREATION_ERROR, args);
+        throw new PSExtensionProcessingException(CloneErrorCodes.ROLE_CREATION_ERROR, args);
       } finally {
         if (lockId != null) {
           try {

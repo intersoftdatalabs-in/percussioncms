@@ -17,6 +17,7 @@
 
 package com.percussion.search;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -29,6 +30,48 @@ public class PSSearchException extends PSException {
   // see base class
   public PSSearchException(int msgCode, Object singleArg) {
     super(msgCode, singleArg);
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSSearchException(IPSErrorCode code) {
+    super(code);
+  }
+
+  /**
+   * Typed construction with a single string argument. Prefer this over {@code (IPSErrorCode,
+   * Object)} so {@code (code, throwable)} is not ambiguous with {@link #PSSearchException(IPSErrorCode,
+   * Throwable, Object...)}.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg sole message argument; may be {@code null}
+   */
+  public PSSearchException(IPSErrorCode code, String singleArg) {
+    super(code, singleArg);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   */
+  public PSSearchException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
+  }
+
+  /**
+   * Typed construction with a cause and optional message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param cause causal throwable; may be {@code null}
+   * @param arrayArgs message arguments
+   */
+  public PSSearchException(IPSErrorCode code, Throwable cause, Object... arrayArgs) {
+    super(code, arrayArgs, cause);
   }
 
   // see base class

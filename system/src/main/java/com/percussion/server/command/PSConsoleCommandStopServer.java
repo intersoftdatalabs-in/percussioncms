@@ -34,9 +34,9 @@ package com.percussion.server.command;
  */
 // REFACTORED: CP-JAVA11
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSErrorManager;
 import com.percussion.error.PSIllegalArgumentException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSRemoteConsoleHandler;
 import com.percussion.server.PSRequest;
@@ -66,7 +66,7 @@ public class PSConsoleCommandStopServer extends PSConsoleCommand {
     // there should be no other args for this command
     if ((cmdArgs != null) && (cmdArgs.length() > 0)) {
       Object[] args = {ms_cmdName, cmdArgs};
-      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_UNEXPECTED_ARGS, args);
+      throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_UNEXPECTED_ARGS, args);
     }
   }
 
@@ -116,7 +116,7 @@ public class PSConsoleCommandStopServer extends PSConsoleCommand {
         respDoc,
         root,
         "resultCode",
-        String.valueOf(IPSServerErrors.RCONSOLE_SERVER_SHUTDOWN_SCHEDULED));
+        String.valueOf(ServerErrorCodes.RCONSOLE_SERVER_SHUTDOWN_SCHEDULED.numericCode()));
 
     Locale loc;
     if (request != null) loc = request.getPreferredLocale();
@@ -124,7 +124,7 @@ public class PSConsoleCommandStopServer extends PSConsoleCommand {
 
     Object[] args = {String.valueOf(stopTime)};
     String termMsg =
-        PSErrorManager.createMessage(IPSServerErrors.RCONSOLE_SERVER_SHUTDOWN_SCHEDULED, args, loc);
+        PSErrorManager.createMessage(ServerErrorCodes.RCONSOLE_SERVER_SHUTDOWN_SCHEDULED.numericCode(), args, loc);
     PSXmlDocumentBuilder.addElement(respDoc, root, "resultText", termMsg);
 
     // schedule the shutdown in so we can get our response off

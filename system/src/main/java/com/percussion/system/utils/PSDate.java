@@ -17,6 +17,7 @@
 
 package com.percussion.system.utils;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -268,7 +269,7 @@ public class PSDate {
   }
 
   private void ruleViolation(String message) {
-    int errCode = com.percussion.server.IPSServerErrors.ARGUMENT_ERROR;
-    throw new IllegalArgumentException(errCode + ": " + message);
+    throw new IllegalArgumentException(
+        ServerErrorCodes.ARGUMENT_ERROR.numericCode() + ": " + message);
   }
 }

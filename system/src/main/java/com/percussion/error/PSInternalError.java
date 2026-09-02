@@ -46,6 +46,7 @@ public class PSInternalError extends PSLogError {
     super(0);
     m_errorCode = errorCode;
     m_errorArgs = errorParams;
+    m_typedCode = null;
   }
 
   /**
@@ -57,6 +58,27 @@ public class PSInternalError extends PSLogError {
    */
   public PSInternalError(int errorCode, Object singleArg) {
     this(errorCode, new Object[] {singleArg});
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param errorParams message arguments; may be {@code null}
+   */
+  public PSInternalError(IPSErrorCode code, Object[] errorParams) {
+    this(requireCode(code).numericCode(), errorParams);
+    m_typedCode = code;
+  }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message
+   */
+  public PSInternalError(IPSErrorCode code, Object singleArg) {
+    this(code, new Object[] {singleArg});
   }
 
   /** sublcasses must override this to build the messages in the specified locale */
@@ -78,6 +100,33 @@ public class PSInternalError extends PSLogError {
     return msgs;
   }
 
+  /**
+   * @return the catalogued code when constructed with {@link IPSErrorCode}; otherwise {@code null}
+   */
+  public IPSErrorCode getTypedErrorCode() {
+    return m_typedCode;
+  }
+
+  /** @return the numeric error code stored on this log entry */
+  public int getErrorCode() {
+    return m_errorCode;
+  }
+
+  /**
+   * @return {@code true} only when a typed catalog code was supplied and that code is auditable
+   */
+  public boolean isAuditable() {
+    return m_typedCode != null && m_typedCode.isAuditable();
+  }
+
+  private static IPSErrorCode requireCode(IPSErrorCode code) {
+    if (code == null) {
+      throw new IllegalArgumentException("code");
+    }
+    return code;
+  }
+
   private int m_errorCode;
   private Object[] m_errorArgs;
+  private IPSErrorCode m_typedCode;
 }

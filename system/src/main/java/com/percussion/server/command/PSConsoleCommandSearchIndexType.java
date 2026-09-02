@@ -34,11 +34,11 @@ package com.percussion.server.command;
  */
 // REFACTORED: CP-JAVA11
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.objectstore.PSKey;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.search.PSSearchException;
 import com.percussion.search.PSSearchIndexEventQueue;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -85,8 +85,8 @@ public class PSConsoleCommandSearchIndexType extends PSConsoleCommandSearchIndex
 
     PSKey[] results;
 
-    if (hadBadType) m_resultCode = IPSServerErrors.RCONSOLE_ITEMS_INDEXED_INVALID_CTYPES;
-    else m_resultCode = IPSServerErrors.RCONSOLE_ITEMS_INDEXED;
+    if (hadBadType) m_resultCode = ServerErrorCodes.RCONSOLE_ITEMS_INDEXED_INVALID_CTYPES.numericCode();
+    else m_resultCode = ServerErrorCodes.RCONSOLE_ITEMS_INDEXED.numericCode();
 
     if (cTypeCount < tot) {
       results = new PSKey[cTypeCount];
@@ -118,7 +118,7 @@ public class PSConsoleCommandSearchIndexType extends PSConsoleCommandSearchIndex
     }
 
     String[] args;
-    boolean hadBadType = m_resultCode == IPSServerErrors.RCONSOLE_ITEMS_INDEXED_INVALID_CTYPES;
+    boolean hadBadType = m_resultCode == ServerErrorCodes.RCONSOLE_ITEMS_INDEXED_INVALID_CTYPES.numericCode();
 
     args = hadBadType ? new String[2] : new String[1];
     args[0] = String.valueOf(m_indexCount);
@@ -139,7 +139,7 @@ public class PSConsoleCommandSearchIndexType extends PSConsoleCommandSearchIndex
    * Result of the last call to {@link #doExecute(PSRequest, PSKey[])}, will be returned by calls to
    * {@link #getResultCode()}.
    */
-  private int m_resultCode = IPSServerErrors.RCONSOLE_CONTENT_TYPES_PROCESSED;
+  private int m_resultCode = ServerErrorCodes.RCONSOLE_CONTENT_TYPES_PROCESSED.numericCode();
 
   /** Number of items indexed by last call to {@link #doExecute(PSRequest, PSKey[])}. */
   private int m_indexCount = 0;

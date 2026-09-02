@@ -23,7 +23,7 @@ import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.cms.objectstore.server.PSRelationshipProcessor;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
-import com.percussion.extension.IPSExtensionErrors;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.relationship.IPSExecutionContext;
@@ -61,7 +61,7 @@ public class PSIsCloneExists extends PSEffect {
     if (!context.isPreClone()) {
       String[] args = {m_name, "pre clone"};
       result.setWarning(
-          request.getUserLocale(), IPSExtensionErrors.ILLEGAL_EXECUTION_CONTEXT, args);
+          request.getUserLocale(), ExtensionErrorCodes.ILLEGAL_EXECUTION_CONTEXT, args);
       return;
     }
 
@@ -69,13 +69,13 @@ public class PSIsCloneExists extends PSEffect {
     if (contentid.length() < 1) {
       Object[] args = {contentid, "null or empty"};
       throw new PSExtensionProcessingException(
-          IPSExtensionErrors.EXT_MISSING_HTML_PARAMETER_ERROR, args);
+          ExtensionErrorCodes.EXT_MISSING_HTML_PARAMETER_ERROR, args);
     }
     String relationshipType = request.getParameter(IPSHtmlParameters.SYS_RELATIONSHIPTYPE, "");
     if (relationshipType.length() < 1) {
       Object[] args = {relationshipType, "null or empty"};
       throw new PSExtensionProcessingException(
-          IPSExtensionErrors.EXT_MISSING_HTML_PARAMETER_ERROR, args);
+          ExtensionErrorCodes.EXT_MISSING_HTML_PARAMETER_ERROR, args);
     }
     PSRelationshipProcessor relProxy;
     PSRelationshipConfig config = null;
@@ -97,7 +97,7 @@ public class PSIsCloneExists extends PSEffect {
         if (locale.length() < 1) {
           Object[] args = {locale, "null or empty"};
           throw new PSExtensionProcessingException(
-              IPSExtensionErrors.EXT_MISSING_HTML_PARAMETER_ERROR, args);
+              ExtensionErrorCodes.EXT_MISSING_HTML_PARAMETER_ERROR, args);
         }
         PSComponentSummaries summaries = relProxy.getSummaries(filter, false);
         Iterator<PSComponentSummary> iter = summaries.iterator();

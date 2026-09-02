@@ -16,10 +16,11 @@
  */
 package com.percussion.search;
 
+import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.search.lucene.PSSearchQueryImpl;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSServer;
 import java.util.Enumeration;
@@ -206,13 +207,14 @@ public abstract class PSSearchEngine {
                 + "kill the execd process(es) before attempting to restart "
                 + "the Rhythmyx server.");
         throw new PSSearchException(
-            IPSServerErrors.RAW_DUMP,
+            ServerErrorCodes.RAW_DUMP,
             "Can't start search engine due to previously reported errors.");
       }
     } catch (ExceptionInInitializerError eie) {
       String[] args = {className, eie.getException().getLocalizedMessage()};
       // remap to search exception
-      PSSearchException se = new PSSearchException(IPSSearchErrors.SEARCH_ENGINE_FAILED_INIT, args);
+      PSSearchException se =
+          new PSSearchException(SearchErrorCodes.SEARCH_ENGINE_FAILED_INIT, args);
       throw se;
     } catch (Exception e) {
       /*because many exceptions can be thrown and they are treated basically
@@ -221,7 +223,8 @@ public abstract class PSSearchEngine {
 
       String[] args = {className, e.getLocalizedMessage()};
       // remap to search exception
-      PSSearchException se = new PSSearchException(IPSSearchErrors.SEARCH_ENGINE_FAILED_INIT, args);
+      PSSearchException se =
+          new PSSearchException(SearchErrorCodes.SEARCH_ENGINE_FAILED_INIT, args);
       throw se;
     } finally {
       // unblock calls to getInstance();
@@ -800,7 +803,7 @@ public abstract class PSSearchEngine {
       try {
         if (m_pausedCount > 0) m_pauseMonitor.wait(60000);
         if (m_pausedCount > 0) {
-          throw new PSSearchException(IPSServerErrors.RAW_DUMP, m_pauseMessage);
+          throw new PSSearchException(ServerErrorCodes.RAW_DUMP, m_pauseMessage);
         }
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();

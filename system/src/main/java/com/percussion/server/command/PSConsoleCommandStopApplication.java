@@ -34,9 +34,9 @@ package com.percussion.server.command;
  */
 // REFACTORED: CP-JAVA11
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSErrorManager;
 import com.percussion.error.PSIllegalArgumentException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRemoteConsoleHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
@@ -65,7 +65,7 @@ public class PSConsoleCommandStopApplication extends PSConsoleCommand {
 
     // need the application name for this command
     if ((cmdArgs == null) || (cmdArgs.length() == 0)) {
-      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_APP_NAME_REQD, ms_cmdName);
+      throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_APP_NAME_REQD, ms_cmdName);
     }
   }
 
@@ -105,18 +105,18 @@ public class PSConsoleCommandStopApplication extends PSConsoleCommand {
 
     if (!PSServer.shutdownApplication(m_cmdArgs)) {
       Object[] args = {ms_cmdName, m_cmdArgs};
-      throw new PSConsoleCommandException(IPSServerErrors.RCONSOLE_APP_NOT_ACTIVE, args);
+      throw new PSConsoleCommandException(ServerErrorCodes.RCONSOLE_APP_NOT_ACTIVE, args);
     }
 
     PSXmlDocumentBuilder.addElement(
-        respDoc, root, "resultCode", String.valueOf(IPSServerErrors.RCONSOLE_APP_SHUTDOWN));
+        respDoc, root, "resultCode", String.valueOf(ServerErrorCodes.RCONSOLE_APP_SHUTDOWN.numericCode()));
 
     Locale loc;
     if (request != null) loc = request.getPreferredLocale();
     else loc = Locale.getDefault();
 
     Object[] args = {m_cmdArgs};
-    String termMsg = PSErrorManager.createMessage(IPSServerErrors.RCONSOLE_APP_SHUTDOWN, args, loc);
+    String termMsg = PSErrorManager.createMessage(ServerErrorCodes.RCONSOLE_APP_SHUTDOWN.numericCode(), args, loc);
     PSXmlDocumentBuilder.addElement(respDoc, root, "resultText", termMsg);
 
     return respDoc;

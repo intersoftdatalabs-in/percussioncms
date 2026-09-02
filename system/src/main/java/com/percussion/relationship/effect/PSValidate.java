@@ -16,7 +16,7 @@
  */
 package com.percussion.relationship.effect;
 
-import com.percussion.extension.IPSExtensionErrors;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.relationship.IPSExecutionContext;
@@ -64,7 +64,7 @@ public class PSValidate extends PSEffect {
 
       String[] args = {m_name, msg};
 
-      result.setError(request.getUserLocale(), IPSExtensionErrors.EFFECT_VALIDATE_MESSAGE, args);
+      result.setError(request.getUserLocale(), ExtensionErrorCodes.EFFECT_VALIDATE_MESSAGE, args);
     } else {
       result.setSuccess();
     }

@@ -16,13 +16,13 @@
  */
 package com.percussion.server.config;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSConfig;
 import com.percussion.design.objectstore.PSConfigurationFactory;
 import com.percussion.design.objectstore.PSLockedException;
 import com.percussion.error.PSNotLockedException;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSConsole;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
@@ -147,7 +147,7 @@ public class PSConfigManager {
     PSConfig cfg = (PSConfig) m_configs.get(name);
     if (cfg == null) {
       Object[] args = {name};
-      throw new PSServerConfigException(IPSServerErrors.UNKNOWN_CONFIGURATION, args);
+      throw new PSServerConfigException(ServerErrorCodes.UNKNOWN_CONFIGURATION, args);
     }
 
     if (locked) // need to lock
@@ -157,13 +157,13 @@ public class PSConfigManager {
         {
           if (!overrideSameUser) // if not allowed to override
           {
-            throw new PSLockedException(IPSServerErrors.CONFIG_LOCKED_SAME, new String[] {name});
+            throw new PSLockedException(ServerErrorCodes.CONFIG_LOCKED_SAME, new String[] {name});
           }
         }
         // different user holding the lock and not allowed to override
         else if (!overrideDifferentUser) {
           throw new PSLockedException(
-              IPSServerErrors.CONFIG_LOCKED, new String[] {name, cfg.getLocker()});
+              ServerErrorCodes.CONFIG_LOCKED, new String[] {name, cfg.getLocker()});
         }
       }
 
@@ -172,7 +172,7 @@ public class PSConfigManager {
         saveConfig(name);
       } else {
         throw new PSServerConfigException(
-            IPSServerErrors.CONFIG_NOT_ALLOWED_EDIT, new String[] {name});
+            ServerErrorCodes.CONFIG_NOT_ALLOWED_EDIT, new String[] {name});
       }
     }
 
@@ -247,7 +247,7 @@ public class PSConfigManager {
     PSConfig cfg = (PSConfig) m_configs.get(name);
     if (cfg == null) {
       Object[] args = {name};
-      throw new PSServerConfigException(IPSServerErrors.UNKNOWN_CONFIGURATION, args);
+      throw new PSServerConfigException(ServerErrorCodes.UNKNOWN_CONFIGURATION, args);
     }
 
     if (!(cfg.isLocked() && cfg.getLocker().equals(reqUser))) {
@@ -280,7 +280,7 @@ public class PSConfigManager {
     PSConfig cfg = (PSConfig) m_configs.get(name);
     if (cfg == null) {
       Object[] args = {name};
-      throw new PSServerConfigException(IPSServerErrors.UNKNOWN_CONFIGURATION, args);
+      throw new PSServerConfigException(ServerErrorCodes.UNKNOWN_CONFIGURATION, args);
     }
 
     if (!cfg.isXML()) throw new RuntimeException("the requested config is not an XML config");
@@ -303,7 +303,7 @@ public class PSConfigManager {
     PSConfig cfg = (PSConfig) m_configs.get(name);
     if (cfg == null) {
       Object[] args = {name};
-      throw new PSServerConfigException(IPSServerErrors.UNKNOWN_CONFIGURATION, args);
+      throw new PSServerConfigException(ServerErrorCodes.UNKNOWN_CONFIGURATION, args);
     }
 
     if (cfg.isXML()) throw new RuntimeException("the requested config is not a Property config");
@@ -328,12 +328,12 @@ public class PSConfigManager {
     PSConfig cfg = (PSConfig) m_configs.get(name);
     if (cfg == null) {
       Object[] args = {name};
-      throw new PSServerConfigException(IPSServerErrors.UNKNOWN_CONFIGURATION, args);
+      throw new PSServerConfigException(ServerErrorCodes.UNKNOWN_CONFIGURATION, args);
     }
 
     if (!cfg.isXML()) {
       Object[] args = {config.getClass().getName(), "org.w3c.dom.Document"};
-      throw new PSServerConfigException(IPSServerErrors.INVALID_CONFIG_OBJECT, args);
+      throw new PSServerConfigException(ServerErrorCodes.INVALID_CONFIG_OBJECT, args);
     }
 
     cfg.setConfig(config);
@@ -356,12 +356,12 @@ public class PSConfigManager {
     PSConfig cfg = (PSConfig) m_configs.get(name);
     if (cfg == null) {
       Object[] args = {name};
-      throw new PSServerConfigException(IPSServerErrors.UNKNOWN_CONFIGURATION, args);
+      throw new PSServerConfigException(ServerErrorCodes.UNKNOWN_CONFIGURATION, args);
     }
 
     if (!cfg.isProperty()) {
       Object[] args = {config.getClass().getName(), "org.w3c.dom.Document"};
-      throw new PSServerConfigException(IPSServerErrors.INVALID_CONFIG_OBJECT, args);
+      throw new PSServerConfigException(ServerErrorCodes.INVALID_CONFIG_OBJECT, args);
     }
 
     cfg.setConfig(config);
@@ -393,7 +393,7 @@ public class PSConfigManager {
         m_configs.put(config.getName(), config);
       }
     } catch (Exception e) {
-      throw new PSServerConfigException(IPSServerErrors.ERROR_LOAD_CONFIGS, e.toString());
+      throw new PSServerConfigException(ServerErrorCodes.ERROR_LOAD_CONFIGS, e.toString());
     }
   }
 
@@ -437,7 +437,7 @@ public class PSConfigManager {
       PSConfig cfg = m_configs.get(name);
       if (cfg == null) {
         Object[] args = {name};
-        throw new PSServerConfigException(IPSServerErrors.UNKNOWN_CONFIGURATION, args);
+        throw new PSServerConfigException(ServerErrorCodes.UNKNOWN_CONFIGURATION, args);
       }
 
       IPSCmsObjectMgr cmsMgr = PSCmsObjectMgrLocator.getObjectManager();
@@ -450,7 +450,7 @@ public class PSConfigManager {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       String[] args = {name, e.getLocalizedMessage()};
-      throw new PSServerConfigException(IPSServerErrors.ERROR_LOAD_CONFIGS, args);
+      throw new PSServerConfigException(ServerErrorCodes.ERROR_LOAD_CONFIGS, args);
     }
   }
 

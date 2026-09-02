@@ -17,8 +17,8 @@
 
 package com.percussion.server.cache;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.security.validation.SerializationValidation;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.util.PSCacheException;
 import com.percussion.util.PSPurgableTempFile;
 import java.io.File;
@@ -150,13 +150,13 @@ class PSCacheItem {
           } catch (IOException e) {
             PSCacheException ce =
                 new PSCacheException(
-                    IPSServerErrors.CACHE_UNEXPECTED_EXCEPTION, e.getLocalizedMessage());
+                    ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, e.getLocalizedMessage());
 
             throw ce;
           } catch (ClassNotFoundException e) {
             PSCacheException ce =
                 new PSCacheException(
-                    IPSServerErrors.CACHE_UNEXPECTED_EXCEPTION, e.getLocalizedMessage());
+                    ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, e.getLocalizedMessage());
 
             throw ce;
           }
@@ -236,7 +236,7 @@ class PSCacheItem {
         } catch (IOException e) {
           PSCacheException ce =
               new PSCacheException(
-                  IPSServerErrors.CACHE_UNEXPECTED_EXCEPTION, e.getLocalizedMessage());
+                  ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, e.getLocalizedMessage());
 
           throw ce;
         }

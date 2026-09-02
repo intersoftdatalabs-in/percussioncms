@@ -124,6 +124,17 @@ public class PSExtensionProcessingException extends PSException {
   }
 
   /**
+   * Typed construction with locale and message arguments.
+   *
+   * @param language language string to use while looking up the message text
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSExtensionProcessingException(String language, IPSErrorCode code, Object[] arrayArgs) {
+    super(language, code, arrayArgs);
+  }
+
+  /**
    * Construct an exception when an unknown exception occurs during processing.
    *
    * @param extName the name of the extension being processed

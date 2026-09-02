@@ -16,8 +16,8 @@
  */
 package com.percussion.install;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.tablefactory.IPSJdbcTableDataHandler;
-import com.percussion.tablefactory.IPSTableFactoryErrors;
 import com.percussion.tablefactory.PSJdbcDataTypeMap;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.tablefactory.PSJdbcExecutionStep;
@@ -68,7 +68,7 @@ public class PSJdbcTableMapper implements IPSJdbcTableDataHandler {
       dataTypeMap = new PSJdbcDataTypeMap(m_dbmsDef.getBackEndDB(), m_dbmsDef.getDriver(), null);
     } catch (Exception e) {
       throw new PSJdbcTableFactoryException(
-          IPSTableFactoryErrors.LOAD_DEFAULT_DATATYPE_MAP, e.toString(), e);
+          TableFactoryErrorCodes.LOAD_DEFAULT_DATATYPE_MAP, e.toString(), e);
     }
 
     // check if the source table exists
@@ -131,7 +131,7 @@ public class PSJdbcTableMapper implements IPSJdbcTableDataHandler {
       }
     } catch (SQLException e) {
       Object[] args = {m_destTable, PSJdbcTableFactoryException.formatSqlException(e)};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.DATA_PROCESS_ERROR, args, e);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.DATA_PROCESS_ERROR, args, e);
     } finally {
       if (step != null) step.close();
     }
@@ -150,7 +150,7 @@ public class PSJdbcTableMapper implements IPSJdbcTableDataHandler {
 
     if (!sourceNode.getNodeName().equals(IPSJdbcTableDataHandler.NODE_NAME)) {
       Object[] args = {IPSJdbcTableDataHandler.NODE_NAME, sourceNode.getNodeName()};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker walker = new PSXmlTreeWalker(sourceNode);
@@ -163,7 +163,7 @@ public class PSJdbcTableMapper implements IPSJdbcTableDataHandler {
 
     if (tableMapEl == null) {
       throw new PSJdbcTableFactoryException(
-          IPSTableFactoryErrors.XML_ELEMENT_NULL, PSJdbcTableMapping.NODE_NAME);
+          TableFactoryErrorCodes.XML_ELEMENT_NULL, PSJdbcTableMapping.NODE_NAME);
     }
     m_tableMapEl = tableMapEl;
 
@@ -173,7 +173,7 @@ public class PSJdbcTableMapper implements IPSJdbcTableDataHandler {
       Object[] args = {
         PSJdbcTableMapping.NODE_NAME, DEST_TABLE_ATTR, sTemp == null ? "null" : sTemp
       };
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
     m_destTable = sTemp;
 
@@ -183,7 +183,7 @@ public class PSJdbcTableMapper implements IPSJdbcTableDataHandler {
       Object[] args = {
         PSJdbcTableMapping.NODE_NAME, SRC_TABLE_ATTR, sTemp == null ? "null" : sTemp
       };
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
     m_srcTable = sTemp;
   }

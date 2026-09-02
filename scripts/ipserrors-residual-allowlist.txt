@@ -21,6 +21,14 @@
 #   #3971 leftover system/src/main com.percussion.error call sites
 #   #3969 leftover system/src/main design.catalog call sites
 #   #4013 leftover system/src/main com.percussion.cx call sites
+#   #4142 leftover IPSServerErrors (DTD parser, workflow utils, relationship
+#        utils, PSDate, PSCms) — PSDtdTree/PSPromote/PSUtils stay listed for
+#        remaining IPSXmlErrors / IPSExtensionErrors / IPSCmsErrors
+#   #4150 leftover system/src/main PSServer/handlers/parsers/console
+#   #4153 leftover system/server command/cache/actions/clone/compare/config
+#   #4155 leftover system search IPSSearchErrors / lucene peers
+#   #4156 leftover system/src/main relationship.effect call sites
+#   #4157 leftover system/src/main com.percussion.install JDBC table-factory
 # Converted (no longer listed): extensions-main #3756/#3938 (allow-list)
 # shrink after #3793 re-listed already-typed production paths);
 # design.catalog leftover #3969; system/src/main com.percussion.mail leftover
@@ -32,6 +40,9 @@
 # scripts/verify-no-bare-ipsobjectstoreerrors.py (#3143).
 #
 # Tests, comment-only mentions, and the gate scripts themselves are ignored.
+
+
+
 
 deployer/src/main/java/com/percussion/deployer/jexl/PSDeployJexlUtils.java
 modules/perc-i18n/src/main/java/com/percussion/i18n/ui/PSI18NTranslationKeyValues.java
@@ -58,101 +69,18 @@ system/src/main/java/com/percussion/fastforward/managednav/PSManagedNavService.j
 system/src/main/java/com/percussion/fastforward/utils/PSUtils.java
 system/src/main/java/com/percussion/i18n/PSLocale.java
 system/src/main/java/com/percussion/i18n/PSLocaleManager.java
-system/src/main/java/com/percussion/install/PSJdbcNextNumberColumn.java
-system/src/main/java/com/percussion/install/PSJdbcTableMapper.java
-system/src/main/java/com/percussion/install/PSJdbcTransitionRoles.java
-system/src/main/java/com/percussion/install/PSJdbcUniqueColumn.java
 system/src/main/java/com/percussion/publisher/server/PSPubTimeStatistics.java
-system/src/main/java/com/percussion/relationship/effect/PSEffectUtils.java
-system/src/main/java/com/percussion/relationship/effect/PSIsCloneExists.java
-system/src/main/java/com/percussion/relationship/effect/PSPromote.java
-system/src/main/java/com/percussion/relationship/effect/PSPublishMandatory.java
-system/src/main/java/com/percussion/relationship/effect/PSPublishUnpublishMandatory.java
-system/src/main/java/com/percussion/relationship/effect/PSUnpublishMandatory.java
-system/src/main/java/com/percussion/relationship/effect/PSValidate.java
 system/src/main/java/com/percussion/search/PSAddThumbnailURL.java
-system/src/main/java/com/percussion/search/PSAdminLockedException.java
 system/src/main/java/com/percussion/search/PSBaseExecutableSearch.java
-system/src/main/java/com/percussion/search/PSGenerateSearchResultsExit.java
-system/src/main/java/com/percussion/search/PSSearchEngine.java
-system/src/main/java/com/percussion/search/lucene/PSSearchEngineImpl.java
-system/src/main/java/com/percussion/search/lucene/PSSearchIndexerImpl.java
-system/src/main/java/com/percussion/search/lucene/PSSearchQueryImpl.java
 system/src/main/java/com/percussion/server/PSApplicationHandler.java
 system/src/main/java/com/percussion/server/PSBaseResponse.java
-system/src/main/java/com/percussion/server/PSConsole.java
-system/src/main/java/com/percussion/server/PSCustomControlManager.java
 system/src/main/java/com/percussion/server/PSFileRequestHandler.java
-system/src/main/java/com/percussion/server/PSHookRequestHandler.java
 system/src/main/java/com/percussion/server/PSInternalRequest.java
-system/src/main/java/com/percussion/server/PSInvalidRequestException.java
-system/src/main/java/com/percussion/server/PSRemoteConsole.java
-system/src/main/java/com/percussion/server/PSRemoteConsoleHandler.java
 system/src/main/java/com/percussion/server/PSRequest.java
-system/src/main/java/com/percussion/server/PSRequestHandlerConfiguration.java
-system/src/main/java/com/percussion/server/PSRequestParsingException.java
-system/src/main/java/com/percussion/server/PSRequestValidationException.java
 system/src/main/java/com/percussion/server/PSResponse.java
 system/src/main/java/com/percussion/server/PSServer.java
-system/src/main/java/com/percussion/server/PSServerLockResult.java
 system/src/main/java/com/percussion/server/PSServerLogHandler.java
 system/src/main/java/com/percussion/server/PSUserSession.java
-system/src/main/java/com/percussion/server/actions/PSAction.java
-system/src/main/java/com/percussion/server/actions/PSActionSet.java
-system/src/main/java/com/percussion/server/actions/PSActionSetRequestHandler.java
-system/src/main/java/com/percussion/server/cache/PSAssemblerCacheHandler.java
-system/src/main/java/com/percussion/server/cache/PSCacheHandler.java
-system/src/main/java/com/percussion/server/cache/PSCacheItem.java
-system/src/main/java/com/percussion/server/cache/PSCacheManager.java
-system/src/main/java/com/percussion/server/cache/PSCacheMemoryManager.java
-system/src/main/java/com/percussion/server/cache/PSCacheProxy.java
-system/src/main/java/com/percussion/server/cache/PSContentItemDependencyTree.java
-system/src/main/java/com/percussion/server/cache/PSFolderRelationshipCache.java
-system/src/main/java/com/percussion/server/cache/PSItemSummaryCache.java
-system/src/main/java/com/percussion/server/cache/PSResourceCacheHandler.java
-system/src/main/java/com/percussion/server/clone/PSCloneBase.java
-system/src/main/java/com/percussion/server/clone/PSCloneCommunityExit.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandDebugI18n.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandDebugSearch.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandDumpDatasources.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandDumpFolderRelationshipCache.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandDumpItemSummaryCache.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandEncryptDBPasswords.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandFlushCache.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandFlushDbmd.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandFlushFolderCache.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandLogDump.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandLogFlush.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandParser.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandReloadI18nResources.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandRestartApplication.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandRestartCache.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandRestartServer.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandSearchIndex.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandSearchIndexItem.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandSearchIndexRecreate.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandSearchIndexType.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandSearchQueueClear.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandSearchQueuePause.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandSearchQueueResume.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandShowApplications.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandShowStatusApplication.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandShowStatusObjectStore.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandShowStatusSearch.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandShowStatusServer.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandShowVersion.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandStartApplication.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandStartCache.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandStartServer.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandStopApplication.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandStopCache.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandStopServer.java
-system/src/main/java/com/percussion/server/command/PSConsoleCommandTrace.java
-system/src/main/java/com/percussion/server/compare/PSCompare.java
-system/src/main/java/com/percussion/server/config/PSConfigManager.java
-system/src/main/java/com/percussion/server/content/PSFormContentParser.java
-system/src/main/java/com/percussion/server/content/PSJsonContentParser.java
-system/src/main/java/com/percussion/server/content/PSXmlContentParser.java
 system/src/main/java/com/percussion/server/job/PSJobHandler.java
 system/src/main/java/com/percussion/server/job/PSJobHandlerConfiguration.java
 system/src/main/java/com/percussion/server/job/PSJobRunnerFactory.java
@@ -165,12 +93,7 @@ system/src/main/java/com/percussion/server/webservices/PSServerFolderProcessor.j
 system/src/main/java/com/percussion/server/webservices/PSWebServicesBaseHandler.java
 system/src/main/java/com/percussion/server/webservices/PSWebServicesRequestHandler.java
 system/src/main/java/com/percussion/servlets/PSLoginServlet.java
-system/src/main/java/com/percussion/system/utils/PSCms.java
-system/src/main/java/com/percussion/system/utils/PSDate.java
 system/src/main/java/com/percussion/system/utils/PSExtensionInstallTool.java
-system/src/main/java/com/percussion/system/utils/PSRelationshipUtils.java
 system/src/main/java/com/percussion/workflow/PSContentStatusContext.java
 system/src/main/java/com/percussion/workflow/PSTransitionsContext.java
-system/src/main/java/com/percussion/workflow/PSWorkFlowUtils.java
-system/src/main/java/com/percussion/xml/PSDtdParser.java
 system/src/main/java/com/percussion/xml/PSDtdTree.java

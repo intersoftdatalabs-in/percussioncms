@@ -28,6 +28,7 @@ import com.percussion.debug.PSDebugLogHandler;
 import com.percussion.debug.PSDebugManager;
 import com.percussion.debug.PSTraceMessageFactory;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSContentEditor;
@@ -163,7 +164,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
 
     if (app == null)
       throw new IllegalArgumentException(
-          PSErrorManager.getErrorText(IPSServerErrors.NULL_APPLICATION_ERROR));
+          PSErrorManager.getErrorText(ServerErrorCodes.NULL_APPLICATION_ERROR.numericCode()));
 
     if (objectStoreHandler == null)
       throw new IllegalArgumentException("objectStoreHandler cannot be null");
@@ -215,7 +216,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
   public PSDataSet getDataSetDefinition(String name) throws PSNotFoundException {
     if ((name == null) || (name.length() == 0)) {
       Object[] args = {"", m_name};
-      throw new PSNotFoundException(IPSServerErrors.APP_DATASET_DEF_NOT_FOUND, args);
+      throw new PSNotFoundException(ServerErrorCodes.APP_DATASET_DEF_NOT_FOUND, args);
     }
 
     PSCollection dataSets = m_application.getDataSets();
@@ -228,7 +229,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
     }
 
     Object[] args = {name, m_name};
-    throw new PSNotFoundException(IPSServerErrors.APP_DATASET_NOT_FOUND, args);
+    throw new PSNotFoundException(ServerErrorCodes.APP_DATASET_NOT_FOUND, args);
   }
 
   /**
@@ -256,7 +257,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
       } catch (SQLException e) {
         Object[] args = {ds.getName(), m_name, e.toString()};
         throw new PSSystemValidationException(
-            IPSServerErrors.APP_DATASET_INVALID, args, m_application, ds);
+            ServerErrorCodes.APP_DATASET_INVALID, args, m_application, ds);
       } catch (PSException e) {
         if (e.getErrorCode() == 0) {
           throw new PSSystemValidationException(
@@ -295,7 +296,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
       } catch (SQLException e) {
         Object[] args = {ds.getName(), m_name, e.toString()};
         throw new PSSystemValidationException(
-            IPSServerErrors.APP_DATASET_INVALID, args, m_application, ds);
+            ServerErrorCodes.APP_DATASET_INVALID, args, m_application, ds);
       }
     } else if (ds instanceof PSContentEditor) {
       try {
@@ -311,7 +312,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
         if (!addedSystemMandatoryFields.isEmpty()) {
           // warn the user that we added system mandatory fields
           Object[] args = {addedSystemMandatoryFields.toString()};
-          PSConsole.printMsg("Server", IPSServerErrors.APP_ADDED_SYSTEM_MANDATORY_FIELDS, args);
+          PSConsole.printMsg("Server", ServerErrorCodes.APP_ADDED_SYSTEM_MANDATORY_FIELDS.numericCode(), args);
         }
       } catch (PSException e) {
         if (e.getErrorCode() == 0) {
@@ -332,7 +333,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
     if (!foundOne) {
       // two data sets of the same name not allowed!!!
       Object[] args = {ds.getName(), m_name};
-      throw new PSSystemValidationException(IPSServerErrors.EMPTY_DATASET, args, m_application, ds);
+      throw new PSSystemValidationException(ServerErrorCodes.EMPTY_DATASET, args, m_application, ds);
     }
   }
 
@@ -921,7 +922,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
                   new PSResponseSendError(
                       m_id,
                       request.getUserSessionId(),
-                      IPSServerErrors.EXCEPTION_NOT_CAUGHT,
+                      ServerErrorCodes.EXCEPTION_NOT_CAUGHT.numericCode(),
                       e.toString());
               reportError(request, respErr);
             }
@@ -946,7 +947,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
             new com.percussion.error.PSUnknownProcessingError(
                 m_id,
                 request.getUserSessionId(),
-                IPSServerErrors.EXCEPTION_NOT_CAUGHT,
+                ServerErrorCodes.EXCEPTION_NOT_CAUGHT.numericCode(),
                 t.toString());
         reportError(request, err);
       } catch (Throwable t2) {
@@ -1453,7 +1454,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
      * and indicate the user isn't authorized to perform the requested action.
      */
     String[] args = {request.getUserSession().getRealAuthenticatedUserEntry()};
-    PSLogError err = new PSAuthenticationError(IPSServerErrors.NO_AUTHORIZATION, args);
+    PSLogError err = new PSAuthenticationError(ServerErrorCodes.NO_AUTHORIZATION.numericCode(), args);
     reportError(request, err);
   }
 
@@ -1549,7 +1550,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
           PSLogError err =
               new com.percussion.error.PSApplicationDesignError(
                   m_id,
-                  IPSServerErrors.APP_LOGIN_PAGE_EXCEPTION,
+                  ServerErrorCodes.APP_LOGIN_PAGE_EXCEPTION.numericCode(),
                   args,
                   m_loginPage.toXml(PSXmlDocumentBuilder.createXmlDocument()));
           m_LogHandler.write(err);
@@ -1707,7 +1708,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
       // for unknown exceptions, it's useful to log the stack trace
       Object[] args = {m_name, com.percussion.error.PSException.getStackTraceAsString(e)};
       throw new PSSystemValidationException(
-          IPSServerErrors.APPLICATION_INIT_EXCEPTION, args, m_application, null);
+          ServerErrorCodes.APPLICATION_INIT_EXCEPTION, args, m_application, null);
     } finally {
       if (abnormalExit) {
         // need to shutdown any datahandlers that we've started
@@ -1755,7 +1756,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
     } catch (PSIllegalArgumentException e) {
       Object[] args = {ds.getName(), m_name, e.getMessage()};
       throw new PSSystemValidationException(
-          IPSServerErrors.APP_DATASET_INVALID, args, m_application, ds);
+          ServerErrorCodes.APP_DATASET_INVALID, args, m_application, ds);
     }
   }
 

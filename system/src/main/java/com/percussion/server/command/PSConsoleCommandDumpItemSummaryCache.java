@@ -16,7 +16,7 @@
  */
 package com.percussion.server.command;
 
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.server.PSRequest;
 import com.percussion.server.cache.PSItemSummaryCache;
 import com.percussion.services.legacy.IPSItemEntry;
@@ -107,7 +107,7 @@ public class PSConsoleCommandDumpItemSummaryCache extends PSConsoleCommandCache 
         id = Integer.parseInt(m_cmdArgs);
       } catch (NumberFormatException e) {
         Object[] args = {getCommandName(), m_cmdArgs};
-        throw new PSConsoleCommandException(IPSServerErrors.RCONSOLE_INVALID_ARGS, args);
+        throw new PSConsoleCommandException(ServerErrorCodes.RCONSOLE_INVALID_ARGS, args);
       }
 
       IPSItemEntry item = cache.getItem(id);
@@ -121,7 +121,7 @@ public class PSConsoleCommandDumpItemSummaryCache extends PSConsoleCommandCache 
         cacheElm = itemEl;
       } else {
         throw new PSConsoleCommandException(
-            IPSServerErrors.CANNOT_FIND_CACHED_ITEMSUMMARY, new Object[] {Integer.valueOf(id)});
+            ServerErrorCodes.CANNOT_FIND_CACHED_ITEMSUMMARY, new Object[] {Integer.valueOf(id)});
       }
     } else {
       cacheElm = cache.getCacheStatistics(doc);

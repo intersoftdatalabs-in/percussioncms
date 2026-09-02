@@ -17,6 +17,7 @@
 
 package com.percussion.server.command;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.design.objectstore.PSNotifier;
 import com.percussion.design.objectstore.PSServerConfiguration;
 import com.percussion.error.PSIllegalArgumentException;
@@ -24,7 +25,6 @@ import com.percussion.mail.PSMailMessage;
 import com.percussion.mail.PSMailProvider;
 import com.percussion.mail.PSMailSendException;
 import com.percussion.mail.PSSmtpMailProvider;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRemoteConsoleHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
@@ -95,7 +95,7 @@ public class PSConsoleCommandLogDump extends PSConsoleCommand {
             // is this the last token in the string?
             if (findTok != ' ') {
               Object[] args = {ms_cmdName, cmdArgs};
-              throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_INVALID_ARGS, args);
+              throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_INVALID_ARGS, args);
             } else tokEnd = cmdArgs.length();
           }
 
@@ -123,7 +123,7 @@ public class PSConsoleCommandLogDump extends PSConsoleCommand {
             queryTypes.add(Integer.valueOf(tokValue));
           } catch (NumberFormatException e) {
             Object[] args = {ms_cmdName, tokCmd + " " + tokValue};
-            throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_INVALID_ARGS, args);
+            throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_INVALID_ARGS, args);
           }
         } else if ("server".equals(tokCmd)) {
           applications.add(Integer.valueOf(0));
@@ -136,7 +136,7 @@ public class PSConsoleCommandLogDump extends PSConsoleCommand {
           m_recipients.add(tokValue);
         } else {
           Object[] args = {ms_cmdName, tokCmd};
-          throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_INVALID_ARGS, args);
+          throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_INVALID_ARGS, args);
         }
 
         if (tokEnd == cmdArgs.length()) tokEnd = -1;
@@ -203,7 +203,7 @@ public class PSConsoleCommandLogDump extends PSConsoleCommand {
       PSXmlDocumentBuilder.addElement(logDoc, root, "resultText", "");
     } catch (OutOfMemoryError e) {
       Object[] args = {"command", ms_cmdName, "size too large"};
-      throw new PSConsoleCommandException(IPSServerErrors.LOG_SIZE_TOO_BIG, args);
+      throw new PSConsoleCommandException(ServerErrorCodes.LOG_SIZE_TOO_BIG, args);
     }
 
     return logDoc;
@@ -217,22 +217,22 @@ public class PSConsoleCommandLogDump extends PSConsoleCommand {
       throws PSIllegalArgumentException {
     PSServerConfiguration conf = PSServer.getServerConfiguration();
     if (conf == null) {
-      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_SRVCONFIG_REQD_FOR_MAILTO);
+      throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_SRVCONFIG_REQD_FOR_MAILTO);
     }
 
     PSNotifier notif = conf.getNotifier();
     if (notif == null) {
-      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_NOTIFIER_REQD_FOR_MAILTO);
+      throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_NOTIFIER_REQD_FOR_MAILTO);
     }
 
     String host = notif.getServer();
     if ((host == null) || (host.length() == 0)) {
-      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_NOTIFIER_HOST_REQD_FOR_MAILTO);
+      throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_NOTIFIER_HOST_REQD_FOR_MAILTO);
     }
 
     String from = notif.getFrom();
     if ((from == null) || (from.length() == 0)) {
-      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_NOTIFIER_FROM_REQD_FOR_MAILTO);
+      throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_NOTIFIER_FROM_REQD_FOR_MAILTO);
     }
 
     Properties props = new Properties();
@@ -251,7 +251,7 @@ public class PSConsoleCommandLogDump extends PSConsoleCommand {
       return new PSMailLogDumpFilter(since, until, queryTypes, applications, prov, msg);
     } catch (IOException e) {
       throw new PSIllegalArgumentException(
-          IPSServerErrors.RCONSOLE_EXEC_EXCEPTION, new Object[] {ms_cmdName, e.toString()});
+          ServerErrorCodes.RCONSOLE_EXEC_EXCEPTION, new Object[] {ms_cmdName, e.toString()});
     }
   }
 
@@ -261,7 +261,7 @@ public class PSConsoleCommandLogDump extends PSConsoleCommand {
       return FastDateFormat.getInstance("yyyyMMdd HH:mm:ss").parse(dateToParse);
     } catch (Exception e) {
       Object[] args = {ms_cmdName, tokenName + " '" + dateToParse + "'"};
-      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_INVALID_ARGS, args);
+      throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_INVALID_ARGS, args);
     }
   }
 
@@ -449,10 +449,10 @@ public class PSConsoleCommandLogDump extends PSConsoleCommand {
         m_provider.send(m_msg);
       } catch (IOException e) {
         throw new PSConsoleCommandException(
-            IPSServerErrors.RCONSOLE_EXEC_EXCEPTION, new Object[] {ms_cmdName, e.toString()});
+            ServerErrorCodes.RCONSOLE_EXEC_EXCEPTION, new Object[] {ms_cmdName, e.toString()});
       } catch (PSMailSendException e) {
         throw new PSConsoleCommandException(
-            IPSServerErrors.RCONSOLE_EXEC_EXCEPTION, new Object[] {ms_cmdName, e.toString()});
+            ServerErrorCodes.RCONSOLE_EXEC_EXCEPTION, new Object[] {ms_cmdName, e.toString()});
       } finally {
         if (m_msgStream != null) {
           try {

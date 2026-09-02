@@ -16,12 +16,14 @@
  */
 package com.percussion.server.command;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSErrorManager;
 import com.percussion.server.IPSConsoleCommand;
 import com.percussion.server.PSRemoteConsoleHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.Locale;
+import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -71,10 +73,10 @@ public abstract class PSConsoleCommand implements IPSConsoleCommand {
    *     </code>.
    * @param command The full command, w/o args, never <code>null</code> or empty.
    * @param resultCode The numeric code representing the outcome of the command. Typically, one of
-   *     the IPSServerErrors.RCONSOLE_xxx codes. The numeric value of this code will be used as the
-   *     resultCode and its associated message will be used as the resultText.
-   *     <p>Supply IPSServerErrors.RCONSOLE_SUCCESS if the command is successful and does not have
-   *     any specific result message.
+   *     the {@code ServerErrorCodes.RCONSOLE_xxx} codes. The numeric value of this code will be used
+   *     as the resultCode and its associated message will be used as the resultText.
+   *     <p>Supply {@code ServerErrorCodes.RCONSOLE_SUCCESS} if the command is successful and does
+   *     not have any specific result message.
    * @param args the arguments for the result message
    * @return the result document, never <code>null</code>
    */
@@ -93,6 +95,16 @@ public abstract class PSConsoleCommand implements IPSConsoleCommand {
     String termMsg = PSErrorManager.createMessage(resultCode, args, loc);
     PSXmlDocumentBuilder.addElement(doc, root, "resultText", termMsg);
     return doc;
+  }
+
+  /**
+   * Typed variant of {@link #getResultsDocument(PSRequest, String, int, Object[])} that uses a
+   * catalogued {@link IPSErrorCode} numeric bridge.
+   */
+  protected Document getResultsDocument(
+      PSRequest request, String command, IPSErrorCode resultCode, Object[] args) {
+    return getResultsDocument(
+        request, command, Objects.requireNonNull(resultCode, "resultCode").numericCode(), args);
   }
 
   protected String m_cmdArgs = null;
