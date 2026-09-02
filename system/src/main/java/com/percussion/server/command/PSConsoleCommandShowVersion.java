@@ -34,9 +34,9 @@ package com.percussion.server.command;
  */
 // REFACTORED: CP-JAVA11
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.error.PSIllegalArgumentException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRemoteConsoleHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.system.utils.PSFormatVersion;
@@ -126,7 +126,7 @@ public class PSConsoleCommandShowVersion extends PSConsoleCommand {
       else msg = e.getMessage();
 
       Object[] args = {(ms_cmdName + " " + m_cmdArgs), msg};
-      throw new PSConsoleCommandException(IPSServerErrors.RCONSOLE_EXEC_EXCEPTION, args);
+      throw new PSConsoleCommandException(ServerErrorCodes.RCONSOLE_EXEC_EXCEPTION, args);
     }
 
     return respDoc;

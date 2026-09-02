@@ -17,11 +17,11 @@
 
 package com.percussion.server.compare;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.HTTPClient.HTTPConnection;
 import com.percussion.HTTPClient.HTTPResponse;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.i18n.PSI18nUtils;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
@@ -68,15 +68,15 @@ public class PSCompare {
     m_contentID = request.getParameter(IPSHtmlParameters.SYS_CONTENTID + itemNumber);
 
     if (m_contentID == null || m_contentID.length() == 0) {
-      throw new PSCompareException(lang, IPSServerErrors.COMPARE_CONTENTID_REQUIRED, itemNumber);
+      throw new PSCompareException(lang, ServerErrorCodes.COMPARE_CONTENTID_REQUIRED, itemNumber);
     }
     m_revision = request.getParameter(IPSHtmlParameters.SYS_REVISION + itemNumber);
     if (m_revision == null || m_revision.length() == 0) {
-      throw new PSCompareException(lang, IPSServerErrors.COMPARE_VARIANTID_REQUIRED, itemNumber);
+      throw new PSCompareException(lang, ServerErrorCodes.COMPARE_VARIANTID_REQUIRED, itemNumber);
     }
     m_variantID = request.getParameter(IPSHtmlParameters.SYS_VARIANTID + itemNumber);
     if (m_variantID == null || m_variantID.length() == 0) {
-      throw new PSCompareException(lang, IPSServerErrors.COMPARE_REVISION_REQUIRED, itemNumber);
+      throw new PSCompareException(lang, ServerErrorCodes.COMPARE_REVISION_REQUIRED, itemNumber);
     }
 
     m_context = request.getParameter(IPSHtmlParameters.SYS_CONTEXT + itemNumber, DEFAULT_CONTEXT);
@@ -110,7 +110,7 @@ public class PSCompare {
       assemblyPage = resp.getText();
     } catch (Exception e) {
       throw new PSCompareException(
-          lang, IPSServerErrors.COMPARE_HTTP_CONNECTION_ERROR, e.getMessage());
+          lang, ServerErrorCodes.COMPARE_HTTP_CONNECTION_ERROR, e.getMessage());
     }
 
     return assemblyPage;
@@ -133,19 +133,19 @@ public class PSCompare {
     params.put(IPSHtmlParameters.SYS_VARIANTID, m_variantID);
     PSInternalRequest iReq = PSServer.getInternalRequest(ASSEMBLY_URL, request, params, false);
     if (iReq == null) {
-      throw new PSCompareException(lang, IPSServerErrors.COMPARE_IREQ_CANNOTBE_NULL, ASSEMBLY_URL);
+      throw new PSCompareException(lang, ServerErrorCodes.COMPARE_IREQ_CANNOTBE_NULL, ASSEMBLY_URL);
     }
     // make the internal request and extract the URL from the result XML
     Document result = null;
     try {
       result = iReq.getResultDoc();
     } catch (PSInternalRequestCallException e) {
-      throw new PSCompareException(lang, IPSServerErrors.COMPARE_IREQ_CALL_EXCEPTION);
+      throw new PSCompareException(lang, ServerErrorCodes.COMPARE_IREQ_CALL_EXCEPTION);
     }
 
     String assemblyURL = result.getDocumentElement().getAttribute(ATTRIB_ASSEMBLY_URL);
     if (assemblyURL.length() == 0) {
-      throw new PSCompareException(lang, IPSServerErrors.COMPARE_ASSEMBLY_URL_EMPTY, m_variantID);
+      throw new PSCompareException(lang, ServerErrorCodes.COMPARE_ASSEMBLY_URL_EMPTY, m_variantID);
     }
     Map paramMap = new HashMap(6);
     paramMap.put(IPSHtmlParameters.SYS_SESSIONID, request.getUserSessionId());
@@ -168,11 +168,11 @@ public class PSCompare {
               new PSRequestContext(request));
       url = PSServer.getResolvedURL(url);
     } catch (MalformedURLException e) {
-      throw new PSCompareException(lang, IPSServerErrors.COMPARE_MALLFORMED_URL_ERROR);
+      throw new PSCompareException(lang, ServerErrorCodes.COMPARE_MALLFORMED_URL_ERROR);
     } catch (IOException e) {
       // PSServer.getResolvedURL throws an IOException if there is a problem
       // with the URL, converting it to MalformedURLException and throwing it.
-      throw new PSCompareException(lang, IPSServerErrors.COMPARE_MALLFORMED_URL_ERROR);
+      throw new PSCompareException(lang, ServerErrorCodes.COMPARE_MALLFORMED_URL_ERROR);
     }
     return url;
   }

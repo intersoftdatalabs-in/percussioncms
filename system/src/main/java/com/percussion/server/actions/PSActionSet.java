@@ -17,9 +17,12 @@
 
 package com.percussion.server.actions;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.handlers.PSContentEditorHandler;
 import com.percussion.content.IPSMimeContentTypes;
-import com.percussion.data.IPSDataErrors;
 import com.percussion.data.IPSDataExtractor;
 import com.percussion.data.IPSInternalRequestHandler;
 import com.percussion.data.PSCachedStylesheet;
@@ -37,11 +40,8 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.design.objectstore.PSUrlRequest;
 import com.percussion.error.PSException;
 import com.percussion.extension.IPSExtensionManager;
-import com.percussion.security.IPSSecurityErrors;
 import com.percussion.security.xml.PSCatalogResolver;
-import com.percussion.server.IPSHttpErrors;
 import com.percussion.server.IPSRequestHandler;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSResponse;
@@ -177,7 +177,7 @@ public class PSActionSet {
         // make sure each action name is unique
         if (actionNames.contains(actionName)) {
           Object[] args = {actionName, m_name};
-          throw new PSUnknownNodeTypeException(IPSServerErrors.ACTION_DUPLICATE_NAME, args);
+          throw new PSUnknownNodeTypeException(ServerErrorCodes.ACTION_DUPLICATE_NAME, args);
         }
 
         actionNames.add(actionName);
@@ -326,7 +326,7 @@ public class PSActionSet {
           // didn't find it -- this exception should not be ignored
           error =
               new PSActionSetException(
-                  IPSServerErrors.ACTION_SET_ACTION_NOT_FOUND,
+                  ServerErrorCodes.ACTION_SET_ACTION_NOT_FOUND,
                   new Object[] {action.getName(), actionUrl});
         }
       } catch (Exception e) {
@@ -378,16 +378,17 @@ public class PSActionSet {
           // certain errors must not be ignored
           if (error instanceof PSException) {
             int errorCode = ((PSException) error).getErrorCode();
-            switch (errorCode) {
-              case IPSServerErrors.ACTION_SET_ACTION_NOT_FOUND:
-              case IPSDataErrors.INTERNAL_REQUEST_AUTHORIZATION_EXCEPTION:
-              case IPSDataErrors.INTERNAL_REQUEST_AUTHENTICATION_FAILED_EXCEPTION:
-              case IPSSecurityErrors.SESS_NOT_AUTHORIZED:
-              case IPSServerErrors.SQL_PROBLEM:
-                break; // don't skip these errors
-
-              default:
-                error = null;
+            boolean keepFatal =
+                errorCode == ServerErrorCodes.ACTION_SET_ACTION_NOT_FOUND.numericCode()
+                    || errorCode
+                        == DataErrorCodes.INTERNAL_REQUEST_AUTHORIZATION_EXCEPTION.numericCode()
+                    || errorCode
+                        == DataErrorCodes.INTERNAL_REQUEST_AUTHENTICATION_FAILED_EXCEPTION
+                            .numericCode()
+                    || errorCode == SecurityErrorCodes.SESS_NOT_AUTHORIZED.numericCode()
+                    || errorCode == ServerErrorCodes.SQL_PROBLEM.numericCode();
+            if (!keepFatal) {
+              error = null;
             }
           } else error = null;
         }
@@ -431,7 +432,7 @@ public class PSActionSet {
             // no stylesheet or not HTML request means return XML
             response.setContent(actionSetResult.toXml());
           }
-          response.setStatus(IPSHttpErrors.HTTP_INTERNAL_SERVER_ERROR);
+          response.setStatus(HttpErrorCodes.HTTP_INTERNAL_SERVER_ERROR.numericCode());
         } else {
           response = actionContext.getResponse();
         }
@@ -481,7 +482,7 @@ public class PSActionSet {
       // Not sure how to cause this error but it is syntatically possible
       if (styleUrlObj == null)
         throw new PSActionSetException(
-            IPSServerErrors.ACTION_SET_INVALID_STYLESHEET, new Object[] {m_stylesheet});
+            ServerErrorCodes.ACTION_SET_INVALID_STYLESHEET, new Object[] {m_stylesheet});
 
       String styleUrl = styleUrlObj.toString();
       styleCached = new PSCachedStylesheet(new URL(styleUrl));
@@ -528,11 +529,11 @@ public class PSActionSet {
         // if there is an error while including the context, ignore it
       }
       throw new PSConversionException(
-          IPSDataErrors.XML_CONV_EXCEPTION,
+          DataErrorCodes.XML_CONV_EXCEPTION,
           new Object[] {request.getUserSessionId(), errorMsg.toString()});
     } catch (SAXException e) {
       throw new PSActionSetException(
-          IPSServerErrors.XML_PARSER_SAX_ERROR, new Object[] {e.getLocalizedMessage()});
+          ServerErrorCodes.XML_PARSER_SAX_ERROR, new Object[] {e.getLocalizedMessage()});
     }
   }
 

@@ -34,9 +34,9 @@ package com.percussion.server.command;
  */
 // REFACTORED: CP-JAVA11
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.server.IPSConsoleCommand;
-import com.percussion.server.IPSServerErrors;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -131,12 +131,12 @@ public class PSConsoleCommandParser {
    *     invalid command syntax
    */
   public static IPSConsoleCommand parse(String command) throws PSIllegalArgumentException {
-    if (command == null) throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_CMD_EMPTY);
+    if (command == null) throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_CMD_EMPTY);
 
     // remove any whitespace so we know if we have some valid text
     command = command.trim();
     if (command.length() == 0)
-      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_CMD_EMPTY);
+      throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_CMD_EMPTY);
 
     IPSConsoleCommand retCmd = null;
 
@@ -170,10 +170,10 @@ public class PSConsoleCommandParser {
         // this is not a valid command string!
         if (validCmds == null) {
           Object[] args = {cmdName, (String) ms_cmdSet.get("")};
-          throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_INVALID_CMD, args);
+          throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_INVALID_CMD, args);
         } else {
           Object[] args = {cmdBase, cmdName, validCmds};
-          throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_INVALID_SUBCMD, args);
+          throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_INVALID_SUBCMD, args);
         }
       }
 
@@ -196,7 +196,7 @@ public class PSConsoleCommandParser {
 
             Object[] args = {cmdBase, t.getMessage()};
             throw new PSIllegalArgumentException(
-                IPSServerErrors.RCONSOLE_GET_HANDLER_EXCEPTION, args);
+                ServerErrorCodes.RCONSOLE_GET_HANDLER_EXCEPTION, args);
           }
         }
       } else {
@@ -207,7 +207,7 @@ public class PSConsoleCommandParser {
       if (cmdArgs.length() == 0) {
         // if there are no more tokens, we've got a problem
         Object[] args = {cmdBase, validCmds};
-        throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_SUBCMD_REQD, args);
+        throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_SUBCMD_REQD, args);
       }
     }
   }

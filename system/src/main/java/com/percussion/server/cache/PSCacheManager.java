@@ -16,11 +16,11 @@
  */
 package com.percussion.server.cache;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.design.objectstore.PSServerCacheSettings;
 import com.percussion.server.IPSHandlerInitListener;
 import com.percussion.server.IPSRequestHandler;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSCachedResponse;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSServer;
@@ -62,7 +62,7 @@ public class PSCacheManager implements IPSHandlerInitListener {
   public void init(PSServerCacheSettings cacheSettings) throws PSCacheException {
     if (cacheSettings == null) throw new IllegalArgumentException("cacheSettings may not be null");
 
-    if (!m_started && m_inited) throw new PSCacheException(IPSServerErrors.CACHE_START_FAILED);
+    if (!m_started && m_inited) throw new PSCacheException(ServerErrorCodes.CACHE_START_FAILED);
 
     // create basic manager objects
     PSCacheMemoryManager oldMemMgr = null;
@@ -156,7 +156,7 @@ public class PSCacheManager implements IPSHandlerInitListener {
           // print to console and log
           m_started = false;
           PSCacheException ex =
-              new PSCacheException(IPSServerErrors.CACHE_NOT_STARTED, e.getLocalizedMessage());
+              new PSCacheException(ServerErrorCodes.CACHE_NOT_STARTED, e.getLocalizedMessage());
           PSConsole.printMsg(SUBSYSTEM, ex);
         }
       }
@@ -571,7 +571,7 @@ public class PSCacheManager implements IPSHandlerInitListener {
    */
   private void addHandler(PSCacheHandler handler) throws PSCacheException {
     if (!m_handlerTypes.add(handler.getType())) {
-      throw new PSCacheException(IPSServerErrors.CACHE_HANDLER_DUPE_TYPE, handler.getType());
+      throw new PSCacheException(ServerErrorCodes.CACHE_HANDLER_DUPE_TYPE, handler.getType());
     }
 
     synchronized (m_handlerMonitor) {

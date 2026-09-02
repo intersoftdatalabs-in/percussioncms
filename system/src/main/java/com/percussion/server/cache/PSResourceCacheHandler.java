@@ -16,6 +16,7 @@
  */
 package com.percussion.server.cache;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.data.IPSDataExtractor;
 import com.percussion.data.IPSTableChangeListener;
@@ -35,7 +36,6 @@ import com.percussion.design.objectstore.PSResourceCacheSettings;
 import com.percussion.design.objectstore.PSServerCacheSettings;
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.server.IPSRequestHandler;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import com.percussion.server.PSUserSession;
@@ -135,14 +135,14 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
     // validates the minimum number of keys.
     if (keys.size() < numKeys) {
       throw new PSSystemValidationException(
-          IPSServerErrors.INSUFFICIENT_NUM_CACHE_KEYS, new Object[] {String.valueOf(numKeys)});
+          ServerErrorCodes.INSUFFICIENT_NUM_CACHE_KEYS, new Object[] {String.valueOf(numKeys)});
     }
 
     // validate all required keys are present
     for (String keyName : KEY_ENUM) {
       if (!keys.containsKey(keyName)) {
         throw new PSSystemValidationException(
-            IPSServerErrors.MISSING_CACHE_KEY, new Object[] {keyName});
+            ServerErrorCodes.MISSING_CACHE_KEY, new Object[] {keyName});
       }
     }
   }
@@ -397,7 +397,7 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
       }
     } catch (PSDataExtractionException e) {
       throw new PSCacheException(
-          IPSServerErrors.CACHE_UNEXPECTED_EXCEPTION, e.getLocalizedMessage());
+          ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, e.getLocalizedMessage());
     }
 
     keys[KEY_COMPOSITE_INDEX] = buf.toString();

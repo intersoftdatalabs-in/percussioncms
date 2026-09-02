@@ -16,9 +16,9 @@
  */
 package com.percussion.server.command;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSErrorManager;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.cache.PSCacheProxy;
 import com.percussion.util.PSCacheException;
@@ -84,14 +84,14 @@ public class PSConsoleCommandFlushFolderCache extends PSConsoleCommandCache {
       PSCacheProxy.flushFolderCache();
     } catch (PSCacheException e) {
       throw new PSConsoleCommandException(
-          IPSServerErrors.UNEXPECTED_EXCEPTION_CONSOLE, PSExceptionUtils.getMessageForLog(e));
+          ServerErrorCodes.UNEXPECTED_EXCEPTION_CONSOLE, PSExceptionUtils.getMessageForLog(e));
     }
 
     PSXmlDocumentBuilder.addElement(
-        respDoc, root, "resultCode", String.valueOf(IPSServerErrors.RCONSOLE_FOLDERCACHE_FLUSHED));
+        respDoc, root, "resultCode", String.valueOf(ServerErrorCodes.RCONSOLE_FOLDERCACHE_FLUSHED.numericCode()));
 
     String termMsg =
-        PSErrorManager.getErrorText(IPSServerErrors.RCONSOLE_FOLDERCACHE_FLUSHED, true, loc);
+        PSErrorManager.getErrorText(ServerErrorCodes.RCONSOLE_FOLDERCACHE_FLUSHED.numericCode(), true, loc);
     PSXmlDocumentBuilder.addElement(respDoc, root, "resultText", termMsg);
 
     return respDoc;

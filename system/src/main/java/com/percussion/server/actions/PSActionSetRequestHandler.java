@@ -17,8 +17,9 @@
 
 package com.percussion.server.actions;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.conn.PSServerException;
-import com.percussion.data.IPSDataErrors;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.design.objectstore.server.IPSObjectStoreHandler;
 import com.percussion.error.PSErrorException;
@@ -29,7 +30,6 @@ import com.percussion.error.PSUnknownProcessingError;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.log.PSLogError;
 import com.percussion.server.IPSLoadableRequestHandler;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
@@ -107,7 +107,7 @@ public class PSActionSetRequestHandler implements IPSLoadableRequestHandler {
                 PSActionSet actionSet = new PSActionSet((Element) child);
                 if (this.actionSets.containsKey(actionSet.getName()))
                   throw new PSActionSetException(
-                      IPSServerErrors.ACTION_SET_DUPLICATE_NAME, actionSet.getName());
+                      ServerErrorCodes.ACTION_SET_DUPLICATE_NAME, actionSet.getName());
                 else {
                   // ctor successful, init it
                   actionSet.init(extMgr);
@@ -176,7 +176,7 @@ public class PSActionSetRequestHandler implements IPSLoadableRequestHandler {
     // one or the other can be null, but not both
     if (contentid == null && contenttypeid == null)
       throw new PSActionSetException(
-          IPSServerErrors.ACTION_SET_MISSING_REQUIRED_PARAMS,
+          ServerErrorCodes.ACTION_SET_MISSING_REQUIRED_PARAMS,
           new Object[] {IPSHtmlParameters.SYS_CONTENTID, IPSHtmlParameters.SYS_CONTENTTYPEID});
 
     Map<String, Object> params = new HashMap<>(2);
@@ -197,7 +197,7 @@ public class PSActionSetRequestHandler implements IPSLoadableRequestHandler {
         } else {
           // unexpected error: the result does not contain URL
           throw new PSActionSetException(
-              IPSServerErrors.ACTION_SET_COULD_NOT_DETERMINE_CE,
+              ServerErrorCodes.ACTION_SET_COULD_NOT_DETERMINE_CE,
               new Object[] {
                 IPSHtmlParameters.SYS_CONTENTID,
                 contentid,
@@ -207,11 +207,11 @@ public class PSActionSetRequestHandler implements IPSLoadableRequestHandler {
         }
       } catch (PSInternalRequestCallException e) {
         // check to see if this exception is really an authentication error
-        if (e.getErrorCode() == IPSDataErrors.INTERNAL_REQUEST_AUTHORIZATION_EXCEPTION
-            || e.getErrorCode() == IPSDataErrors.INTERNAL_REQUEST_AUTHENTICATION_FAILED_EXCEPTION) {
+        if (e.getErrorCode() == DataErrorCodes.INTERNAL_REQUEST_AUTHORIZATION_EXCEPTION.numericCode()
+            || e.getErrorCode() == DataErrorCodes.INTERNAL_REQUEST_AUTHENTICATION_FAILED_EXCEPTION.numericCode()) {
           PSLogError err =
               new PSNonFatalError(
-                  IPSServerErrors.NO_AUTHORIZATION,
+                  ServerErrorCodes.NO_AUTHORIZATION,
                   new String[] {request.getUserSession().getRealAuthenticatedUserEntry()});
           throw new PSErrorException(err);
         } else {
@@ -221,7 +221,7 @@ public class PSActionSetRequestHandler implements IPSLoadableRequestHandler {
     } else {
       // unexpected error: the cataloging resource was not found
       throw new PSActionSetException(
-          IPSServerErrors.ACTION_SET_MISSING_CATALOGER, catalogerAppRsrcName);
+          ServerErrorCodes.ACTION_SET_MISSING_CATALOGER, catalogerAppRsrcName);
     }
   }
 
@@ -270,7 +270,7 @@ public class PSActionSetRequestHandler implements IPSLoadableRequestHandler {
       // wrap the exception in a PSLogError so it can be returned
       PSLogError err =
           new PSUnknownProcessingError(
-              0, request.getUserSessionId(), IPSServerErrors.EXCEPTION_NOT_CAUGHT, e.toString());
+              0, request.getUserSessionId(), ServerErrorCodes.EXCEPTION_NOT_CAUGHT.numericCode(), e.toString());
       errorHandler.reportError(response, err);
     }
   }

@@ -34,10 +34,10 @@ package com.percussion.server.command;
  */
 // REFACTORED: CP-JAVA11
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSErrorManager;
 import com.percussion.search.PSSearchEngine;
 import com.percussion.search.PSSearchException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -108,7 +108,7 @@ public class PSConsoleCommandShowStatusSearch extends PSConsoleCommand {
     Element root = PSXmlDocumentBuilder.createRoot(doc, "PSXConsoleCommandResults");
     PSXmlDocumentBuilder.addElement(doc, root, "command", commandName);
 
-    int resultCode = IPSServerErrors.RCONSOLE_FTS_DISABLED;
+    int resultCode = ServerErrorCodes.RCONSOLE_FTS_DISABLED.numericCode();
     PSXmlDocumentBuilder.addElement(doc, root, "resultCode", String.valueOf(resultCode));
 
     Locale loc;

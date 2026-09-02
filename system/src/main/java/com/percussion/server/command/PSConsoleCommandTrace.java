@@ -34,13 +34,13 @@
 
 package com.percussion.server.command;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.debug.PSDebugManager;
 import com.percussion.debug.PSTraceFlag;
 import com.percussion.debug.PSTraceMessageFactory;
 import com.percussion.design.objectstore.PSTraceOption;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.error.PSNotFoundException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.StringTokenizer;
@@ -135,7 +135,7 @@ public class PSConsoleCommandTrace extends PSConsoleCommand {
       else arg = cmdArgs;
 
       Object[] args = {ms_cmdName, arg};
-      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_INVALID_ARGS, args);
+      throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_INVALID_ARGS, args);
     }
   }
 
@@ -225,7 +225,7 @@ public class PSConsoleCommandTrace extends PSConsoleCommand {
     } catch (PSNotFoundException e) {
       // throw a PSConsoleCommandException instead
       Object[] args = {e.getMessage(), m_appname};
-      throw new PSConsoleCommandException(IPSServerErrors.RCONSOLE_INVALID_ARGS, args);
+      throw new PSConsoleCommandException(ServerErrorCodes.RCONSOLE_INVALID_ARGS, args);
     }
 
     return respDoc;

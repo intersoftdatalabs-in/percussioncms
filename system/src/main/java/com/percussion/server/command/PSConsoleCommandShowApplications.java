@@ -34,9 +34,9 @@ package com.percussion.server.command;
  */
 // REFACTORED: CP-JAVA11
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.design.objectstore.server.PSApplicationSummary;
 import com.percussion.error.PSIllegalArgumentException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRemoteConsoleHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
@@ -71,7 +71,7 @@ public class PSConsoleCommandShowApplications extends PSConsoleCommand {
       else if ("disabled".equals(cmdArgs)) m_statusCodesToShow = SHOW_STATUS_DISABLED;
       else { // what's this?!
         Object[] args = {ms_cmdName, "all, active, disabled", cmdArgs};
-        throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_INVALID_SUBCMD, args);
+        throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_INVALID_SUBCMD, args);
       }
     }
   }

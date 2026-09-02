@@ -34,10 +34,10 @@ package com.percussion.server.command;
  */
 // REFACTORED: CP-JAVA11
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.error.PSErrorManager;
 import com.percussion.error.PSException;
 import com.percussion.error.PSIllegalArgumentException;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRemoteConsoleHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
@@ -66,7 +66,7 @@ public class PSConsoleCommandStartApplication extends PSConsoleCommand {
 
     // need the application name for this command
     if ((cmdArgs == null) || (cmdArgs.length() == 0)) {
-      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_APP_NAME_REQD, ms_cmdName);
+      throw new PSIllegalArgumentException(ServerErrorCodes.RCONSOLE_APP_NAME_REQD, ms_cmdName);
     }
   }
 
@@ -113,10 +113,10 @@ public class PSConsoleCommandStartApplication extends PSConsoleCommand {
       if (PSServer.getApplicationHandler(m_cmdArgs) == null) PSServer.startApplication(m_cmdArgs);
 
       PSXmlDocumentBuilder.addElement(
-          respDoc, root, "resultCode", String.valueOf(IPSServerErrors.RCONSOLE_APP_STARTED));
+          respDoc, root, "resultCode", String.valueOf(ServerErrorCodes.RCONSOLE_APP_STARTED.numericCode()));
       Object[] args = {m_cmdArgs};
       String termMsg =
-          PSErrorManager.createMessage(IPSServerErrors.RCONSOLE_APP_STARTED, args, loc);
+          PSErrorManager.createMessage(ServerErrorCodes.RCONSOLE_APP_STARTED.numericCode(), args, loc);
       PSXmlDocumentBuilder.addElement(respDoc, root, "resultText", termMsg);
     } catch (Exception e) {
       String msg;
@@ -125,7 +125,7 @@ public class PSConsoleCommandStartApplication extends PSConsoleCommand {
       else msg = e.getMessage();
 
       Object[] args = {(ms_cmdName + " " + m_cmdArgs), msg};
-      throw new PSConsoleCommandException(IPSServerErrors.RCONSOLE_EXEC_EXCEPTION, args);
+      throw new PSConsoleCommandException(ServerErrorCodes.RCONSOLE_EXEC_EXCEPTION, args);
     }
 
     return respDoc;

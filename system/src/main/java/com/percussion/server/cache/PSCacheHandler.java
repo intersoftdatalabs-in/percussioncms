@@ -17,9 +17,9 @@
 
 package com.percussion.server.cache;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.design.objectstore.PSServerCacheSettings;
 import com.percussion.server.IPSRequestHandler;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSBaseResponse;
 import com.percussion.server.PSCachedResponse;
 import com.percussion.util.PSCacheException;
@@ -171,7 +171,7 @@ public abstract class PSCacheHandler implements IPSCacheHandler {
               doc = PSXmlDocumentBuilder.createXmlDocument(new ByteArrayInputStream(bytes), false);
           } catch (Exception e) {
             throw new PSCacheException(
-                IPSServerErrors.CACHE_UNEXPECTED_EXCEPTION, e.getLocalizedMessage());
+                ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, e.getLocalizedMessage());
           }
           logDebugMessage("retrieved document for item with keys: ", keys);
         } else {
