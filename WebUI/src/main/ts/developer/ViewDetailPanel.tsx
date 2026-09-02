@@ -235,10 +235,26 @@ export function ViewDetailPanel({
     setError(null);
     setNotice(null);
     try {
-      const saved = await saveView(writeKey, {
+      const fieldsBody = {
         ...writeBody(),
         fields: normalizeViewFields(draftFields),
-      });
+      };
+      let saved;
+      try {
+        saved = await saveView(writeKey, fieldsBody);
+      } catch (err: unknown) {
+        const nameKey = normalizeViewName(detail?.name || createdKey || name);
+        if (
+          isApiError(err) &&
+          err.status === 404 &&
+          nameKey &&
+          nameKey !== writeKey
+        ) {
+          saved = await saveView(nameKey, fieldsBody);
+        } else {
+          throw err;
+        }
+      }
       setDetail(saved);
       const nextFields = normalizeViewFields(saved.fields);
       setDraftFields(nextFields);

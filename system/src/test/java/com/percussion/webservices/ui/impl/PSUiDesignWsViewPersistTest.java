@@ -26,6 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.percussion.cms.objectstore.IPSDbComponent;
 import com.percussion.cms.objectstore.PSKey;
 import com.percussion.cms.objectstore.PSSearch;
+import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.utils.guid.IPSGuid;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -175,5 +178,16 @@ class PSUiDesignWsViewPersistTest {
   @Test
   void invalidateSearchCatalog_doesNotThrowWhenCacheUnavailable() {
     assertDoesNotThrow(PSUiDesignWs::invalidateSearchCatalog);
+  }
+
+  @Test
+  void searchComponentKey_usesUuidNotPackedLong() {
+    IPSGuid viewGuid = new PSGuid(1L, PSTypeEnum.VIEW_DEF, 42L);
+    assertTrue(
+        viewGuid.longValue() != 42L, "packed host+type+uuid long is not SEARCHID");
+    PSKey key = PSUiDesignWs.searchComponentKey(viewGuid);
+    assertEquals("42", key.getPart("SEARCHID"));
+    IPSGuid searchGuid = new PSGuid(1L, PSTypeEnum.SEARCH_DEF, 77L);
+    assertEquals("77", PSUiDesignWs.searchComponentKey(searchGuid).getPart("SEARCHID"));
   }
 }

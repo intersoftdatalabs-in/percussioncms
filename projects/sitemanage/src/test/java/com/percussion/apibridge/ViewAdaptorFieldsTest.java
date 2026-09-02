@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -33,6 +34,7 @@ import static org.mockito.Mockito.when;
 import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.cms.objectstore.PSSearchField;
 import com.percussion.rest.views.ViewDef;
+import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.rest.views.ViewFieldSummary;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.service.IPSIdMapper;
@@ -74,6 +76,7 @@ class ViewAdaptorFieldsTest {
     when(guid.longValue()).thenReturn(42L);
     when(guid.getType()).thenReturn((short) 18);
     when(guid.getUUID()).thenReturn(42);
+    when(designWs.findViews(any(), isNull())).thenReturn(List.of());
   }
 
   @AfterEach
@@ -155,6 +158,33 @@ class ViewAdaptorFieldsTest {
             IllegalArgumentException.class,
             () -> ViewAdaptor.applyFields(view, List.of(criterion("sys_title", "bogusOp", "x", 0))));
     assertTrue(ex.getMessage().toLowerCase().contains("operator"));
+  }
+
+  @Test
+  void update_usesBodyNameWhenPathGuidMissesCatalog() throws Exception {
+    when(designWs.findAllViews()).thenReturn(List.of());
+    when(designWs.findViews(eq("0-18-42"), isNull())).thenReturn(List.of());
+    PSSearch found = mockCatalogView("MyView");
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getName()).thenReturn("MyView");
+    when(sum.getGUID()).thenReturn(guid);
+    when(designWs.findViews(eq("MyView"), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadViews(anyList(), eq(false), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of())
+        .thenReturn(List.of(found));
+    PSSearch locked = new PSSearch("MyView");
+    locked.setDisplayName("My View");
+    when(designWs.loadViews(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(locked));
+
+    ViewDef body = new ViewDef();
+    body.setName("MyView");
+    body.setFields(List.of(criterion("sys_contentid", "equal", "9", 0)));
+    ViewDef out = adaptor.saveView("0-18-42", body);
+
+    assertEquals(1, out.getFields().size());
+    assertEquals("sys_contentid", out.getFields().get(0).getFieldName());
+    verify(designWs).saveViews(anyList(), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test
