@@ -21,7 +21,6 @@ import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
 import java.util.Locale;
-import java.util.Objects;
 
 /**
  * The PSFatalError class is used to report end-conditions. These are usually errors which were
@@ -47,6 +46,7 @@ public class PSInternalError extends PSLogError {
     super(0);
     m_errorCode = errorCode;
     m_errorArgs = errorParams;
+    m_typedCode = null;
   }
 
   /**
@@ -67,7 +67,8 @@ public class PSInternalError extends PSLogError {
    * @param errorParams message arguments; may be {@code null}
    */
   public PSInternalError(IPSErrorCode code, Object[] errorParams) {
-    this(Objects.requireNonNull(code, "code").numericCode(), errorParams);
+    this(requireCode(code).numericCode(), errorParams);
+    m_typedCode = code;
   }
 
   /**
@@ -99,6 +100,33 @@ public class PSInternalError extends PSLogError {
     return msgs;
   }
 
+  /**
+   * @return the catalogued code when constructed with {@link IPSErrorCode}; otherwise {@code null}
+   */
+  public IPSErrorCode getTypedErrorCode() {
+    return m_typedCode;
+  }
+
+  /** @return the numeric error code stored on this log entry */
+  public int getErrorCode() {
+    return m_errorCode;
+  }
+
+  /**
+   * @return {@code true} only when a typed catalog code was supplied and that code is auditable
+   */
+  public boolean isAuditable() {
+    return m_typedCode != null && m_typedCode.isAuditable();
+  }
+
+  private static IPSErrorCode requireCode(IPSErrorCode code) {
+    if (code == null) {
+      throw new IllegalArgumentException("code");
+    }
+    return code;
+  }
+
   private int m_errorCode;
   private Object[] m_errorArgs;
+  private IPSErrorCode m_typedCode;
 }

@@ -80,11 +80,16 @@ public class PSCacheException extends PSException {
   /**
    * Typed construction with a single message argument.
    *
+   * <p>Do not pass a {@link Throwable} here. Use {@link #PSCacheException(IPSErrorCode, Throwable)}
+   * (or {@link #PSCacheException(IPSErrorCode, Object[], Throwable)}) so the cause is retained.
+   *
    * @param code catalogued error code, never {@code null}
-   * @param singleArg the argument to use as the sole argument in the error message
+   * @param singleArg the argument to use as the sole argument in the error message; must not be a
+   *     {@link Throwable}
+   * @throws IllegalArgumentException if {@code singleArg} is a {@link Throwable}
    */
   public PSCacheException(IPSErrorCode code, Object singleArg) {
-    super(code, singleArg);
+    super(code, rejectThrowableMessageArg(singleArg));
   }
 
   /**
@@ -98,13 +103,42 @@ public class PSCacheException extends PSException {
   }
 
   /**
-   * Typed construction with a cause and message arguments.
+   * Typed construction with a cause and no message arguments. Prefer this overload over {@link
+   * #PSCacheException(IPSErrorCode, Object)} so the cause is retained rather than reformatted into
+   * the message.
    *
    * @param code catalogued error code, never {@code null}
-   * @param cause the causal exception
-   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   * @param cause causal throwable; may be {@code null}
    */
-  public PSCacheException(IPSErrorCode code, Throwable cause, Object... arrayArgs) {
+  public PSCacheException(IPSErrorCode code, Throwable cause) {
+    super(code, (Object[]) null, cause);
+  }
+
+  /**
+   * Typed construction with message arguments and a cause. Parameter order matches {@link
+   * PSException#PSException(IPSErrorCode, Object[], Throwable)} and {@code PSCatalogException}:
+   * {@code (code, args, cause)}.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   * @param cause causal throwable; may be {@code null}
+   */
+  public PSCacheException(IPSErrorCode code, Object[] arrayArgs, Throwable cause) {
     super(code, arrayArgs, cause);
+  }
+
+  /**
+   * {@link #PSCacheException(IPSErrorCode, Object)} must not accept a {@link Throwable}: that
+   * argument belongs on {@link #PSCacheException(IPSErrorCode, Throwable)} so {@code getCause()} is
+   * populated.
+   */
+  private static Object rejectThrowableMessageArg(Object singleArg) {
+    if (singleArg instanceof Throwable) {
+      throw new IllegalArgumentException(
+          "PSCacheException(IPSErrorCode, Object) does not preserve cause; use"
+              + " PSCacheException(IPSErrorCode, Throwable) (cast the second argument if javac"
+              + " reports overload ambiguity)");
+    }
+    return singleArg;
   }
 }

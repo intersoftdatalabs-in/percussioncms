@@ -19,6 +19,7 @@ package com.percussion.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.percussion.error.IPSErrorCode;
 import org.junit.jupiter.api.Tag;
@@ -56,8 +57,35 @@ class PSCacheExceptionTypedCtorTest {
     assertSame(SAMPLE, array.getTypedErrorCode());
 
     RuntimeException cause = new RuntimeException("boom");
-    PSCacheException withCause = new PSCacheException(SAMPLE, cause, "msg");
+    PSCacheException causeOnly = new PSCacheException(SAMPLE, cause);
+    assertSame(SAMPLE, causeOnly.getTypedErrorCode());
+    assertSame(cause, causeOnly.getCause());
+
+    PSCacheException withCause = new PSCacheException(SAMPLE, new Object[] {"msg"}, cause);
     assertSame(SAMPLE, withCause.getTypedErrorCode());
     assertSame(cause, withCause.getCause());
+  }
+
+  @Test
+  void objectArgRejectsThrowableSoCauseIsNotSwallowed() {
+    Object boxedCause = new RuntimeException("boom");
+    assertThrows(
+        IllegalArgumentException.class, () -> new PSCacheException(SAMPLE, boxedCause));
+    assertSame(boxedCause, new PSCacheException(SAMPLE, (Throwable) boxedCause).getCause());
+  }
+
+  @Test
+  void typedConstructorsRejectNullCode() {
+    assertThrows(IllegalArgumentException.class, () -> new PSCacheException((IPSErrorCode) null));
+    assertThrows(
+        IllegalArgumentException.class, () -> new PSCacheException((IPSErrorCode) null, "disk"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new PSCacheException((IPSErrorCode) null, new RuntimeException("x")));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new PSCacheException(
+                (IPSErrorCode) null, new Object[] {"disk"}, new RuntimeException("x")));
   }
 }

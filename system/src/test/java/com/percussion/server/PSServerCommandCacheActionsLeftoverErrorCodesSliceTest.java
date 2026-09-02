@@ -177,7 +177,9 @@ class PSServerCommandCacheActionsLeftoverErrorCodesSliceTest {
         ServerErrorCodes.CACHE_START_FAILED);
     leftoverNonAuditable(
         new PSCacheException(
-            ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, new RuntimeException("boom"), "disk"),
+            ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION,
+            new Object[] {"disk"},
+            new RuntimeException("boom")),
         ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION);
     leftoverNonAuditable(
         new PSSystemValidationException(

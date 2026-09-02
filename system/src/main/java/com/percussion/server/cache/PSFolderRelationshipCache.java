@@ -259,7 +259,8 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new PSCacheException(ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, e, e.getMessage());
+      throw new PSCacheException(
+          ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, new Object[] {e.getMessage()}, e);
     }
 
     int folderRelationshipCount = m_relationshipMap.size();
@@ -331,7 +332,8 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new PSCacheException(ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, e, e.toString());
+      throw new PSCacheException(
+          ServerErrorCodes.CACHE_UNEXPECTED_EXCEPTION, new Object[] {e.toString()}, e);
     }
 
     int activeAssemblyRelationshipCount = m_aARelationshipMap.size();
