@@ -261,6 +261,36 @@ public class ActionMenuResourceTest {
   }
 
   @Test
+  public void updateActionMenuUsageCommandDelegates() {
+    ActionMenu body = new ActionMenu();
+    body.setHandler("CLIENT");
+    body.setUrl("/sys_cxSupport/foo.xml");
+    ActionMenuParameter param = new ActionMenuParameter();
+    param.setName("sys_contentid");
+    param.setValue("PSX_CONTENTID");
+    body.setParameters(new ActionMenuParameter[] {param});
+    ActionMenuProperty accel = new ActionMenuProperty();
+    accel.setName("AcceleratorKey");
+    accel.setValue("ctrl S");
+    body.setProperties(new ActionMenuProperty[] {accel});
+    ActionMenu updated = new ActionMenu();
+    updated.setName("MyMenu");
+    updated.setHandler("CLIENT");
+    updated.setUrl("/sys_cxSupport/foo.xml");
+    updated.setParameters(body.getParameters());
+    updated.setProperties(body.getProperties());
+    when(adaptor.saveActionMenu(eq("MyMenu"), eq(body))).thenReturn(updated);
+
+    ActionMenu out = resource.updateActionMenu("MyMenu", body);
+
+    assertEquals("CLIENT", out.getHandler());
+    assertEquals("/sys_cxSupport/foo.xml", out.getUrl());
+    assertEquals("sys_contentid", out.getParameters()[0].getName());
+    assertEquals("ctrl S", out.getProperties()[0].getValue());
+    verify(adaptor).saveActionMenu("MyMenu", body);
+  }
+
+  @Test
   public void updateActionMenuUnknownIs404() {
     when(adaptor.saveActionMenu(eq("missing"), any())).thenReturn(null);
     WebApplicationException ex =

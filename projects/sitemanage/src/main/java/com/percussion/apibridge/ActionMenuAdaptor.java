@@ -59,6 +59,8 @@ import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
@@ -733,6 +735,133 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       domain.setURL(body.getUrl());
     }
     applyMenuType(domain, body.getMenuType());
+    applyHandler(domain, body.getHandler());
+    applyParameters(domain, body.getParameters());
+    applyCommandProperties(domain, body.getProperties());
+  }
+
+  /**
+   * Workbench Usage handler: {@code CLIENT} or {@code SERVER}. Blank leaves the existing
+   * handler. Visibility contexts are not applied here (UI-03 slice 2).
+   */
+  static void applyHandler(PSAction domain, String raw) {
+    if (domain == null || StringUtils.isBlank(raw)) {
+      return;
+    }
+    String handler = raw.trim();
+    if (PSAction.HANDLER_CLIENT.equalsIgnoreCase(handler)) {
+      domain.setClientAction(true);
+      return;
+    }
+    if (PSAction.HANDLER_SERVER.equalsIgnoreCase(handler)) {
+      domain.setClientAction(false);
+      return;
+    }
+    throw new IllegalArgumentException("Invalid handler: " + raw);
+  }
+
+  /**
+   * Replaces URL parameters when the PUT body includes {@code parameters} (empty array
+   * clears). {@code null} leaves the existing collection. Names must be non-blank.
+   */
+  static void applyParameters(PSAction domain, ActionMenuParameter[] parameters) {
+    if (domain == null || parameters == null) {
+      return;
+    }
+    PSActionParameters dest = domain.getParameters();
+    Map<String, ActionMenuParameter> incoming = new LinkedHashMap<>();
+    for (ActionMenuParameter param : parameters) {
+      if (param == null || StringUtils.isBlank(param.getName())) {
+        continue;
+      }
+      incoming.put(param.getName().trim(), param);
+    }
+    List<String> toRemove = new ArrayList<>();
+    Iterator<?> it = dest.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (next instanceof PSActionParameter existing) {
+        if (!containsIgnoreCase(incoming.keySet(), existing.getName())) {
+          toRemove.add(existing.getName());
+        }
+      }
+    }
+    for (String name : toRemove) {
+      dest.removeParameter(name);
+    }
+    for (ActionMenuParameter param : incoming.values()) {
+      String name = param.getName().trim();
+      dest.setParameter(name, param.getValue() == null ? "" : param.getValue());
+      PSActionParameter stored = findParameter(dest, name);
+      if (stored != null && param.getDescription() != null) {
+        stored.setDescription(param.getDescription());
+      }
+    }
+  }
+
+  /**
+   * Merges Workbench Usage/Command properties by name. {@code null} leaves existing
+   * properties. Never overwrites {@link #REST_USER_MENU_PROP}. Visibility is not applied.
+   */
+  static void applyCommandProperties(PSAction domain, ActionMenuProperty[] properties) {
+    if (domain == null || properties == null) {
+      return;
+    }
+    PSActionProperties dest = domain.getProperties();
+    for (ActionMenuProperty prop : properties) {
+      if (prop == null || StringUtils.isBlank(prop.getName())) {
+        continue;
+      }
+      String name = prop.getName().trim();
+      if (REST_USER_MENU_PROP.equalsIgnoreCase(name)) {
+        continue;
+      }
+      dest.setProperty(name, prop.getValue() == null ? "" : prop.getValue());
+      PSActionProperty stored = findProperty(dest, name);
+      if (stored != null && prop.getDescription() != null) {
+        stored.setDescription(prop.getDescription());
+      }
+    }
+  }
+
+  static boolean containsIgnoreCase(Iterable<String> names, String needle) {
+    if (names == null || StringUtils.isBlank(needle)) {
+      return false;
+    }
+    for (String name : names) {
+      if (needle.equalsIgnoreCase(name)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static PSActionParameter findParameter(PSActionParameters params, String name) {
+    if (params == null || StringUtils.isBlank(name)) {
+      return null;
+    }
+    Iterator<?> it = params.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (next instanceof PSActionParameter param && name.equalsIgnoreCase(param.getName())) {
+        return param;
+      }
+    }
+    return null;
+  }
+
+  static PSActionProperty findProperty(PSActionProperties props, String name) {
+    if (props == null || StringUtils.isBlank(name)) {
+      return null;
+    }
+    Iterator<?> it = props.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (next instanceof PSActionProperty prop && name.equalsIgnoreCase(prop.getName())) {
+        return prop;
+      }
+    }
+    return null;
   }
 
   static ActionType resolveCreateType(ActionMenu body) {
@@ -817,7 +946,49 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     if (guid != null) {
       menu.setGuid(copyGuid(guid));
     }
+    menu.setParameters(toDtoParameters(action.getParameters()));
+    menu.setProperties(toDtoProperties(action.getProperties()));
     return menu;
+  }
+
+  static ActionMenuParameter[] toDtoParameters(PSActionParameters params) {
+    if (params == null || params.size() == 0) {
+      return new ActionMenuParameter[0];
+    }
+    List<ActionMenuParameter> out = new ArrayList<>();
+    Iterator<?> it = params.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (!(next instanceof PSActionParameter param) || StringUtils.isBlank(param.getName())) {
+        continue;
+      }
+      ActionMenuParameter dto = new ActionMenuParameter();
+      dto.setName(param.getName());
+      dto.setValue(param.getValue());
+      dto.setDescription(param.getDescription());
+      out.add(dto);
+    }
+    return out.toArray(ActionMenuParameter[]::new);
+  }
+
+  static ActionMenuProperty[] toDtoProperties(PSActionProperties props) {
+    if (props == null || props.size() == 0) {
+      return new ActionMenuProperty[0];
+    }
+    List<ActionMenuProperty> out = new ArrayList<>();
+    Iterator<?> it = props.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (!(next instanceof PSActionProperty prop) || StringUtils.isBlank(prop.getName())) {
+        continue;
+      }
+      ActionMenuProperty dto = new ActionMenuProperty();
+      dto.setName(prop.getName());
+      dto.setValue(prop.getValue());
+      dto.setDescription(prop.getDescription());
+      out.add(dto);
+    }
+    return out.toArray(ActionMenuProperty[]::new);
   }
 
   static String restMenuType(PSAction action) {

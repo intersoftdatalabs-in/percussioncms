@@ -21,8 +21,9 @@ be updated or deleted from this catalog. A mutate or delete attempt is **409**;
 the product does not steal the design lock (`overrideLock=false`).
 
 This is **not** the Workbench cascading-children composer (UI-04) or the
-usage / command / visibility tabs (UI-03). Parameters and properties on
-detail stay **read-only**.
+SPA usage / command / visibility tabs. Integrators can persist usage and
+command fields on **PUT** (handler, URL, URL parameters, command properties);
+those tabs in this chrome remain later. Visibility contexts are not written.
 
 ## Product path — create, delete
 
@@ -40,7 +41,8 @@ detail stay **read-only**.
    lists the new name immediately (`GET /services/actions/catalog` and GET by
    name); packaged menus such as **Copy** cannot be deleted (**409**).
 5. Optional: change label, description, menu type, or URL and **Save** again.
-   Child entries, parameters, properties, and visibility are not written.
+   Child entries and visibility are not written from this chrome. REST
+   **PUT** can persist handler, URL parameters, and command properties.
 6. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
    The catalog returns with a green **Action
    menu deleted** notice and no longer lists that user menu. Delete of a
@@ -53,7 +55,8 @@ detail stay **read-only**.
 
 - Name is immutable after create.
 - Cascading child menu composition is not in this chrome (UI-04).
-- Usage / command / visibility tab editing is not in this chrome (UI-03).
+- Usage / command / visibility tab editing is not in this chrome; REST PUT
+  honors usage/command fields (see [REST API — Action menus](id:developer-rest)).
 - System menus cannot be updated or deleted here.
 
 ## REST
@@ -65,7 +68,7 @@ The chrome calls:
 | List | `GET /services/actions/catalog` |
 | Load | `GET /services/actions/catalog/{idOrName}` |
 | Create | `POST /services/actions` (`name` required; unique, no spaces) |
-| Save | `PUT /services/actions/{idOrName}` (label, description, menuType, url) |
+| Save | `PUT /services/actions/{idOrName}` (label, description, menuType, url, handler, parameters, command properties) |
 | Delete | `DELETE /services/actions/{idOrName}` (`204` on success) |
 
 Writes lock the menu for the request (`overrideLock=false`) and release it on

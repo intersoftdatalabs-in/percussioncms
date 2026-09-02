@@ -71,8 +71,9 @@ public class ActionMenuResource {
       summary = "List action menus (catalog)",
       description =
           "Lists CX action menus for the Developer module. Admin create/save/delete user menus"
-              + " via POST/PUT/DELETE on this resource. Cascading children composition and"
-              + " usage/command/visibility tabs remain later slices.",
+              + " via POST/PUT/DELETE on this resource. PUT round-trips usage/command fields"
+              + " (handler, url, parameters, command properties). Visibility contexts and"
+              + " cascading children composition remain later slices.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -254,11 +255,12 @@ public class ActionMenuResource {
   @Operation(
       summary = "Update action menu",
       description =
-          "Admin. Updates label, description, menuType, and/or url by name, numeric id, or GUID."
-              + " Name is the catalog key and is not renamed on PUT. Loads with a design lock"
-              + " (overrideLock=false) and releases on save. Unknown id is 404. Lock/dependency"
-              + " conflict is 409. System menus are 409 (not mutated; the lock is not stolen)."
-              + " Cascading children composition is a later slice.",
+          "Admin. Updates label, description, menuType, url, handler, URL parameters, and"
+              + " command/usage properties by name, numeric id, or GUID. Name is the catalog"
+              + " key and is not renamed on PUT. Loads with a design lock (overrideLock=false)"
+              + " and releases on save. Unknown id is 404. Lock/dependency conflict is 409."
+              + " System menus are 409 (not mutated; the lock is not stolen). Visibility"
+              + " contexts and cascading children composition are later slices.",
       responses = {
         @ApiResponse(
             responseCode = "200",
