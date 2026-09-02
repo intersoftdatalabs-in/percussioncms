@@ -513,12 +513,13 @@ public class SitesAdaptor implements ISiteAdaptor {
 
   /**
    * Load {@code _config.yaml} (required for git-filesystem, sql-database, http-json,
-   * object-storage, rss-atom, and icalendar). CSV trees may omit the file and infer versions from
-   * child directories. HTTP JSON catalog URL/file live in the yaml ({@code http.url} / {@code
-   * http.file} or default {@code pages.json}). Object-storage optional {@code objects.keys} live
-   * in the yaml. RSS / Atom optional {@code rss.file} / {@code rss.url} live in the yaml (default
-   * {@code feed.xml} then {@code atom.xml}). iCalendar optional {@code icalendar.file} lives in
-   * the yaml (default {@code calendar.ics}).
+   * object-storage, rss-atom, icalendar, and sitemap-xml). CSV trees may omit the file and infer
+   * versions from child directories. HTTP JSON catalog URL/file live in the yaml ({@code http.url}
+   * / {@code http.file} or default {@code pages.json}). Object-storage optional {@code
+   * objects.keys} live in the yaml. RSS / Atom optional {@code rss.file} / {@code rss.url} live
+   * in the yaml (default {@code feed.xml} then {@code atom.xml}). iCalendar optional {@code
+   * icalendar.file} lives in the yaml (default {@code calendar.ics}). Sitemap XML optional {@code
+   * sitemap.file} lives in the yaml (default {@code sitemap.xml}; no live crawl).
    */
   static VirtualSiteConfig loadBuildConfig(
       VirtualSiteSourceType type, Path siteRoot, String configFile, String siteKey)
@@ -659,10 +660,12 @@ public class SitesAdaptor implements ISiteAdaptor {
    *
    * <p>Preview is last-output based and applies to allow-listed Virtual kinds ({@code
    * git-filesystem}, {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code
-   * object-storage}, {@code rss-atom}, and {@code icalendar}), not git-only. {@code rss-atom}
-   * streams last-build HTML from a local RSS 2.0 / Atom fixture (or loopback feed); leftover
-   * {@code virtual.remoteUrl} is 400. {@code icalendar} streams last-build HTML from a local
-   * RFC 5545 fixture; leftover {@code virtual.remoteUrl} is 400 (no CalDAV). Traditional
+   * object-storage}, {@code rss-atom}, {@code icalendar}, and {@code sitemap-xml}), not git-only.
+   * {@code rss-atom} streams last-build HTML from a local RSS 2.0 / Atom fixture (or loopback
+   * feed); leftover {@code virtual.remoteUrl} is 400. {@code icalendar} streams last-build HTML
+   * from a local RFC 5545 fixture; leftover {@code virtual.remoteUrl} is 400 (no CalDAV). {@code
+   * sitemap-xml} streams last-build local HTML from a {@code sitemap.xml} fixture; leftover
+   * {@code virtual.remoteUrl} and credential properties are 400 (no live crawl). Traditional
    * {@code repository} Sites and unknown {@code virtual.sourceKind} values return 400 via
    * {@link PSVirtualSiteHelper#validate}.
    */

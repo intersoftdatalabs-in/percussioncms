@@ -54,6 +54,7 @@ import {
   SOURCE_KIND_ICALENDAR,
   SOURCE_KIND_RSS_ATOM,
   SOURCE_KIND_SELECT_VALUES,
+  SOURCE_KIND_SITEMAP_XML,
   SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
   formToVirtualProps,
@@ -63,6 +64,7 @@ import {
   isIcalendarSourceKind,
   isObjectStorageSourceKind,
   isRssAtomSourceKind,
+  isSitemapXmlSourceKind,
   isSqlDatabaseSourceKind,
   isVirtualSourceKind,
   validateVirtualSiteForm,
@@ -82,6 +84,7 @@ const SOURCE_KIND_OPTION_LABEL: Record<
   [SOURCE_KIND_OBJECT_STORAGE]: DEV_MSG.SITE_VIRT_KIND_OBJECT_STORAGE,
   [SOURCE_KIND_RSS_ATOM]: DEV_MSG.SITE_VIRT_KIND_RSS_ATOM,
   [SOURCE_KIND_ICALENDAR]: DEV_MSG.SITE_VIRT_KIND_ICALENDAR,
+  [SOURCE_KIND_SITEMAP_XML]: DEV_MSG.SITE_VIRT_KIND_SITEMAP_XML,
 };
 
 const formRow: React.CSSProperties = {
@@ -172,9 +175,10 @@ function validationMessage(
  * sql-database, http-json, object-storage, rss-atom, and icalendar. Preview
  * last-build HTML for git/csv/sql/http-json/object-storage/rss-atom/icalendar.
  * Publish ({@code POST …/virtual/publish}) for git/csv/sql/http-json/
- * object-storage/rss-atom/icalendar after a successful Build. Repository /
- * blank / unknown kinds stay hidden. icalendar uses a local {@code rootPath}
- * only (no CalDAV chrome).
+ * object-storage/rss-atom/icalendar after a successful Build. sitemap-xml is
+ * save/GET-roundtrip only in this slice (local {@code rootPath}; no live crawl
+ * chrome; Build/Preview/Publish later). Repository / blank / unknown kinds stay
+ * hidden. icalendar uses a local {@code rootPath} only (no CalDAV chrome).
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -366,7 +370,8 @@ export function VirtualSiteSourcePanel({
   const objectStorageMode = isObjectStorageSourceKind(form.sourceKind);
   const rssAtomMode = isRssAtomSourceKind(form.sourceKind);
   const icalendarMode = isIcalendarSourceKind(form.sourceKind);
-  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar (never repository). */
+  const sitemapXmlMode = isSitemapXmlSourceKind(form.sourceKind);
+  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar (never repository/sitemap-xml). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
   /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar (never repository). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
@@ -512,6 +517,14 @@ export function VirtualSiteSourcePanel({
                   data-testid="developer-site-virtual-icalendar-hint"
                 >
                   {DEV_MSG.SITE_VIRT_ICALENDAR_HINT}
+                </p>
+              ) : null}
+              {sitemapXmlMode ? (
+                <p
+                  style={{ ...mutedHintText, margin: "0 0 10px" }}
+                  data-testid="developer-site-virtual-sitemap-xml-hint"
+                >
+                  {DEV_MSG.SITE_VIRT_SITEMAP_XML_HINT}
                 </p>
               ) : null}
               {gitMode ? (

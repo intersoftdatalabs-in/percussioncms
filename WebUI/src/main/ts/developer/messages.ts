@@ -924,7 +924,7 @@ export const DEV_MSG_KEYS = {
   AM_EMPTY: "perc.ui.developer@No action menus returned.",
   AM_ERROR: "perc.ui.developer@Could not load action menus.",
   AM_HINT:
-    "perc.ui.developer@Content Explorer action menus (types, handlers, URL parameters). Open a row for parameters and properties. Create/edit is a later slice.",
+    "perc.ui.developer@Create or delete Content Explorer action menus (name required, no spaces). System menus cannot be changed. Cascading children and visibility stay later slices.",
   AM_COL_NAME: "perc.ui.developer@Name",
   AM_COL_LABEL: "perc.ui.developer@Label",
   AM_COL_TYPE: "perc.ui.developer@Menu type",
@@ -945,9 +945,36 @@ export const DEV_MSG_KEYS = {
   AM_COL_PROP: "perc.ui.developer@Property",
   AM_COL_VALUE: "perc.ui.developer@Value",
   AM_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
-  AM_GAP_WRITE: "perc.ui.developer@Action menu create / update / delete not supported via this API",
+  AM_GAP_UI03: "perc.ui.developer@Usage / command / visibility tab completeness is a later slice.",
   AM_GAP_CHILDREN: "perc.ui.developer@Cascading child menu composition not supported via this API",
   AM_GAP_VISIBILITY: "perc.ui.developer@Visibility context editing not supported via this API",
+  AM_NEW: "perc.ui.developer@New action menu",
+  AM_EDIT: "perc.ui.developer@Edit",
+  AM_SAVE: "perc.ui.developer@Save",
+  AM_CANCEL: "perc.ui.developer@Cancel",
+  AM_DELETE: "perc.ui.developer@Delete",
+  AM_FORM_NAME: "perc.ui.developer@Name",
+  AM_FORM_LABEL: "perc.ui.developer@Label",
+  AM_FORM_DESCRIPTION: "perc.ui.developer@Description",
+  AM_FORM_TYPE: "perc.ui.developer@Menu type",
+  AM_FORM_URL: "perc.ui.developer@URL",
+  AM_NAME_HINT:
+    "perc.ui.developer@Required. Unique, no spaces, wildcards, or path characters.",
+  AM_NAME_READONLY: "perc.ui.developer@Name cannot be changed after the action menu is created.",
+  AM_SAVE_ERROR: "perc.ui.developer@Could not save action menu.",
+  AM_DELETE_ERROR: "perc.ui.developer@Could not delete action menu.",
+  AM_DELETE_CONFIRM: "perc.ui.developer@Delete this action menu?",
+  AM_SAVED: "perc.ui.developer@Action menu saved.",
+  AM_DELETED: "perc.ui.developer@Action menu deleted.",
+  AM_MISSING_PERSISTED_NAME:
+    "perc.ui.developer@Action menu was saved but the server did not return a name.",
+  AM_DUPLICATE: "perc.ui.developer@An action menu with this name already exists.",
+  AM_INVALID_NAME:
+    "perc.ui.developer@Action menu name is invalid. Use a name without spaces or wildcards.",
+  AM_FORBIDDEN: "perc.ui.developer@Admin role required to change action menus.",
+  AM_NOT_FOUND: "perc.ui.developer@Action menu not found.",
+  AM_SYSTEM:
+    "perc.ui.developer@System action menus cannot be updated or deleted. The design lock is not stolen.",
   SR_LOADING: "perc.ui.developer@Loading searches...",
   SR_EMPTY: "perc.ui.developer@No searches returned.",
   SR_ERROR: "perc.ui.developer@Could not load searches.",
@@ -1252,7 +1279,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Workflow association is browsed under the Workflows catalog",
   SITE_VIRT_TITLE: "perc.ui.developer@Virtual Site source",
   SITE_VIRT_HINT:
-    "perc.ui.developer@Configure whether this Site reads content from the repository or from a Virtual Site adapter (Git filesystem, CSV filesystem, SQL database, HTTP JSON, object storage, RSS / Atom, or iCalendar). Blank/repository keeps traditional repository content.",
+    "perc.ui.developer@Configure whether this Site reads content from the repository or from a Virtual Site adapter (Git filesystem, CSV filesystem, SQL database, HTTP JSON, object storage, RSS / Atom, iCalendar, or sitemap XML). Blank/repository keeps traditional repository content.",
   SITE_VIRT_LOADING: "perc.ui.developer@Loading Virtual Site source...",
   SITE_VIRT_ERROR: "perc.ui.developer@Could not load Virtual Site source.",
   SITE_VIRT_SAVE_ERROR: "perc.ui.developer@Could not save Virtual Site source.",
@@ -1288,6 +1315,9 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_KIND_ICALENDAR: "perc.ui.developer@iCalendar",
   SITE_VIRT_ICALENDAR_HINT:
     "perc.ui.developer@iCalendar uses the root path only (no Git remote). Point at a local RFC 5545 .ics fixture directory (calendar.ics or _config.yaml icalendar.file). Save sourceKind=icalendar, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target. CalDAV URLs and credentials are never sent on the REST envelope.",
+  SITE_VIRT_KIND_SITEMAP_XML: "perc.ui.developer@Sitemap XML",
+  SITE_VIRT_SITEMAP_XML_HINT:
+    "perc.ui.developer@Sitemap XML uses the root path only (no Git remote). Point at a local sitemap.xml fixture directory (sitemap.xml or _config.yaml sitemap.file). Save sourceKind=sitemap-xml; GET round-trips the kind. Live crawl URLs and credentials are never sent on the REST envelope. Build, Preview, and Publish chrome stay a later slice.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:
