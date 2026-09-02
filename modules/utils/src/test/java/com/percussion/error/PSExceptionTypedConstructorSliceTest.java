@@ -82,6 +82,21 @@ class PSExceptionTypedConstructorSliceTest {
   }
 
   @Test
+  void catalogExceptionObjectArgRejectsThrowableSoCauseIsNotSwallowed() {
+    Object boxedCause = new RuntimeException("sax");
+    IllegalArgumentException thrown =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new PSCatalogException(UtilErrorCode.BASE64_ENCODING_EXCEPTION, boxedCause));
+    assertFalse(thrown.getMessage() == null || thrown.getMessage().isBlank());
+    assertSame(
+        boxedCause,
+        new PSCatalogException(
+                UtilErrorCode.BASE64_ENCODING_EXCEPTION, (Throwable) boxedCause)
+            .getCause());
+  }
+
+  @Test
   void typedConstructorsRejectNullCode() {
     assertThrows(IllegalArgumentException.class, () -> new PSEvaluationException((IPSErrorCode) null));
     assertThrows(
