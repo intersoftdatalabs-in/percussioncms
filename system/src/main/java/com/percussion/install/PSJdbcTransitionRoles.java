@@ -18,8 +18,8 @@ package com.percussion.install;
 
 // java
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.tablefactory.IPSJdbcTableDataHandler;
-import com.percussion.tablefactory.IPSTableFactoryErrors;
 import com.percussion.tablefactory.PSJdbcColumnData;
 import com.percussion.tablefactory.PSJdbcDataTypeMap;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
@@ -109,7 +109,7 @@ public class PSJdbcTransitionRoles implements IPSJdbcTableDataHandler {
       dataTypeMap = new PSJdbcDataTypeMap(m_dbmsDef.getBackEndDB(), m_dbmsDef.getDriver(), null);
     } catch (Exception e) {
       throw new PSJdbcTableFactoryException(
-          IPSTableFactoryErrors.LOAD_DEFAULT_DATATYPE_MAP, e.toString(), e);
+          TableFactoryErrorCodes.LOAD_DEFAULT_DATATYPE_MAP, e.toString(), e);
     }
 
     // get the schema of "TRANSITIONS" table
@@ -211,7 +211,7 @@ public class PSJdbcTransitionRoles implements IPSJdbcTableDataHandler {
       plan.execute(conn);
     } catch (SQLException e) {
       Object args[] = {TBL_TRANSITIONS, PSJdbcTableFactoryException.formatSqlException(e)};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.SQL_CATALOG_DATA, args, e);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.SQL_CATALOG_DATA, args, e);
     } finally {
       if (transTblStep != null) transTblStep.close();
     }
@@ -236,12 +236,12 @@ public class PSJdbcTransitionRoles implements IPSJdbcTableDataHandler {
     PSJdbcColumnData colData = row.getColumn(colName);
     if (colData == null) {
       Object args[] = {tableName, colName};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.COLUMN_NOT_FOUND, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.COLUMN_NOT_FOUND, args);
     }
     String colValue = colData.getValue();
     if (colValue == null) {
       Object args[] = {tableName, "Column (" + colName + ") has null value"};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.CHECK_EXISTING_DATA, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.CHECK_EXISTING_DATA, args);
     }
     return colValue;
   }
@@ -259,7 +259,7 @@ public class PSJdbcTransitionRoles implements IPSJdbcTableDataHandler {
 
     if (!sourceNode.getNodeName().equals(IPSJdbcTableDataHandler.NODE_NAME)) {
       Object[] args = {IPSJdbcTableDataHandler.NODE_NAME, sourceNode.getNodeName()};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
   }
 

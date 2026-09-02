@@ -28,6 +28,7 @@
 #   #4153 leftover system/server command/cache/actions/clone/compare/config
 #   #4155 leftover system search IPSSearchErrors / lucene peers
 #   #4156 leftover system/src/main relationship.effect call sites
+#   #4157 leftover system/src/main com.percussion.install JDBC table-factory
 # Converted (no longer listed): extensions-main #3756/#3938 (allow-list)
 # shrink after #3793 re-listed already-typed production paths);
 # design.catalog leftover #3969; system/src/main com.percussion.mail leftover
@@ -39,6 +40,7 @@
 # scripts/verify-no-bare-ipsobjectstoreerrors.py (#3143).
 #
 # Tests, comment-only mentions, and the gate scripts themselves are ignored.
+
 
 
 
@@ -67,10 +69,6 @@ system/src/main/java/com/percussion/fastforward/managednav/PSManagedNavService.j
 system/src/main/java/com/percussion/fastforward/utils/PSUtils.java
 system/src/main/java/com/percussion/i18n/PSLocale.java
 system/src/main/java/com/percussion/i18n/PSLocaleManager.java
-system/src/main/java/com/percussion/install/PSJdbcNextNumberColumn.java
-system/src/main/java/com/percussion/install/PSJdbcTableMapper.java
-system/src/main/java/com/percussion/install/PSJdbcTransitionRoles.java
-system/src/main/java/com/percussion/install/PSJdbcUniqueColumn.java
 system/src/main/java/com/percussion/publisher/server/PSPubTimeStatistics.java
 system/src/main/java/com/percussion/search/PSAddThumbnailURL.java
 system/src/main/java/com/percussion/search/PSBaseExecutableSearch.java
