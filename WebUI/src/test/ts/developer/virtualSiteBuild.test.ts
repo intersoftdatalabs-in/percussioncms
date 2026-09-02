@@ -38,6 +38,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualBuildChrome("icalendar")).toBe(true);
     expect(shouldShowVirtualBuildChrome("ICalendar")).toBe(true);
     expect(shouldShowVirtualBuildChrome("  icalendar  ")).toBe(true);
+    expect(shouldShowVirtualBuildChrome("sitemap-xml")).toBe(false);
+    expect(shouldShowVirtualBuildChrome("Sitemap-XML")).toBe(false);
+    expect(shouldShowVirtualBuildChrome("  sitemap-xml  ")).toBe(false);
   });
 
   it("shouldShowVirtualPreviewChrome for git, csv, sql-database, http-json, object-storage, rss-atom, and icalendar (not repository)", () => {
@@ -62,6 +65,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPreviewChrome("icalendar")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("ICalendar")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("  icalendar  ")).toBe(true);
+    expect(shouldShowVirtualPreviewChrome("sitemap-xml")).toBe(false);
+    expect(shouldShowVirtualPreviewChrome("Sitemap-XML")).toBe(false);
+    expect(shouldShowVirtualPreviewChrome("  sitemap-xml  ")).toBe(false);
   });
 
   it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, and icalendar", () => {
@@ -88,6 +94,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPublishChrome("icalendar")).toBe(true);
     expect(shouldShowVirtualPublishChrome("ICalendar")).toBe(true);
     expect(shouldShowVirtualPublishChrome("  icalendar  ")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("sitemap-xml")).toBe(false);
+    expect(shouldShowVirtualPublishChrome("Sitemap-XML")).toBe(false);
+    expect(shouldShowVirtualPublishChrome("  sitemap-xml  ")).toBe(false);
   });
 
   it("formatVirtualSitePublishSummary reports files copied and dest path", () => {

@@ -17,6 +17,7 @@
 
 package com.percussion.rest.actions;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.cms.objectstore.PSAction;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,6 +27,7 @@ import java.util.Objects;
 
 /** Represents an Action Menu in Percussion CMS. */
 @XmlRootElement(name = "ActionMenu")
+@JsonRootName("ActionMenu")
 @Schema(description = "Represents an Action Menu")
 public class ActionMenu {
 

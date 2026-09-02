@@ -15,12 +15,13 @@
  */
 
 /**
- * Developer Sites Virtual Site source-kind option contract (#3893).
+ * Developer Sites Virtual Site source-kind option contract (#3893 / #4141).
  *
  * Cycle Verify failed when the live H2 SPA loaded a stale
  * perc-modern-ui.js entry that still imported an older developer
- * chunk (csv/sql/http-json present, object-storage absent). Dumping
- * the live option values makes that deploy miss obvious.
+ * chunk (csv/sql/http-json present, later kinds such as object-storage
+ * or sitemap-xml absent). Dumping the live option values makes that
+ * deploy miss obvious.
  */
 
 "use strict";
@@ -35,6 +36,7 @@ function requiredVirtualSourceKindValues() {
     "object-storage",
     "rss-atom",
     "icalendar",
+    "sitemap-xml",
   ];
 }
 

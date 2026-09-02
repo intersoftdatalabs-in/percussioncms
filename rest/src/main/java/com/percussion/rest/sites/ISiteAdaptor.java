@@ -106,7 +106,7 @@ public interface ISiteAdaptor {
   /**
    * Builds a Virtual Site from configured {@code virtual.*} properties ({@code git-filesystem},
    * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage},
-   * {@code rss-atom}, or {@code icalendar}).
+   * {@code rss-atom}, {@code icalendar}, or {@code sitemap-xml}).
    *
    * <p>Loads the site, validates via {@code PSVirtualSiteHelper}, optionally clones/fetches {@code
    * virtual.remoteUrl} into a contained work directory (git-filesystem only), runs {@code
@@ -123,7 +123,10 @@ public interface ISiteAdaptor {
    * properties, and cloud {@code rootPath} are 400. {@code icalendar} discovers pages from a
    * local RFC 5545 fixture ({@code calendar.ics} or {@code icalendar.file}) — no CalDAV or live
    * remotes; leftover {@code virtual.remoteUrl}, credential properties, and cloud {@code
-   * rootPath} are 400. Unknown source kinds return 400. Requires Admin (or equivalent
+   * rootPath} are 400. {@code sitemap-xml} discovers pages from a local {@code sitemap.xml}
+   * fixture ({@code sitemap.xml} or {@code sitemap.file}; urlset of portable files under {@code
+   * rootPath}) — no live crawl; leftover {@code virtual.remoteUrl}, credential properties, and
+   * cloud {@code rootPath} are 400. Unknown source kinds return 400. Requires Admin (or equivalent
    * site-manage) authorization.
    *
    * @param nameOrId site name or GUID string, not blank
@@ -138,10 +141,12 @@ public interface ISiteAdaptor {
    * Reports whether the last Virtual Site static build can be previewed (assembled home exists).
    *
    * <p>Last-output based: {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
-   * {@code http-json}, {@code object-storage}, {@code rss-atom}, and {@code icalendar} sites are
-   * previewable after a successful assemble. {@code rss-atom} uses a local RSS 2.0 / Atom
-   * fixture or loopback feed (no live remote feeds). {@code icalendar} uses a local RFC 5545
-   * {@code calendar.ics} fixture (no CalDAV). Missing output is {@code available=false} with a
+   * {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, and {@code
+   * sitemap-xml} sites are previewable after a successful assemble. {@code rss-atom} uses a local
+   * RSS 2.0 / Atom fixture or loopback feed (no live remote feeds). {@code icalendar} uses a local
+   * RFC 5545 {@code calendar.ics} fixture (no CalDAV). {@code sitemap-xml} uses a local {@code
+   * sitemap.xml} fixture (no live crawl). Leftover {@code virtual.remoteUrl} and credential
+   * properties on {@code sitemap-xml} are 400. Missing output is {@code available=false} with a
    * message (not a 500). Repository and unknown source kinds are 400. Requires Admin.
    *
    * @param nameOrId site name or GUID string, not blank
@@ -156,7 +161,7 @@ public interface ISiteAdaptor {
    *
    * <p>Same last-output contract as {@link #getVirtualSitePreviewStatus} for {@code git-filesystem},
    * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage},
-   * {@code rss-atom}, and {@code icalendar}.
+   * {@code rss-atom}, {@code icalendar}, and {@code sitemap-xml}.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param relativePath path under the output root ({@code 8.2/index.html}); blank means assembled
@@ -169,8 +174,9 @@ public interface ISiteAdaptor {
 
   /**
    * Builds a Virtual Site ({@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
-   * {@code http-json}, {@code object-storage}, {@code rss-atom}, or {@code icalendar}) and copies
-   * the static output to the Site filesystem publish root ({@code IPSSite.getRoot()}).
+   * {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, or {@code
+   * sitemap-xml}) and copies the static output to the Site filesystem publish root ({@code
+   * IPSSite.getRoot()}).
    *
    * <p>Publish-includes-build: operators get a published docs tree at the configured Site
    * publishing location, not only {@code tmp/virtual-sites}. {@code sql-database} uses in-memory
@@ -183,8 +189,10 @@ public interface ISiteAdaptor {
    * loopback feed ({@code feed.xml} / {@code atom.xml} or {@code _config.yaml} {@code rss.file});
    * leftover {@code virtual.remoteUrl} and credential properties are 400 (no live feeds). {@code
    * icalendar} uses a local RFC 5545 fixture ({@code calendar.ics} or {@code icalendar.file});
-   * leftover {@code virtual.remoteUrl} and credential properties are 400 (no CalDAV). Failures
-   * are operator-facing 4xx (not a silent no-op). Requires Admin.
+   * leftover {@code virtual.remoteUrl} and credential properties are 400 (no CalDAV). {@code
+   * sitemap-xml} uses a local sitemap.xml fixture ({@code sitemap.xml} or {@code sitemap.file});
+   * leftover {@code virtual.remoteUrl}, credential properties, and cloud URL {@code rootPath} are
+   * 400 (no live crawl). Failures are operator-facing 4xx (not a silent no-op). Requires Admin.
    *
    * @param nameOrId site name or GUID string, not blank
    * @return publish summary (never null)

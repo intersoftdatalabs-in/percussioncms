@@ -2390,6 +2390,180 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void buildVirtualSite_sitemapXmlWritesHtml() throws Exception {
+    Path siteRoot = createMinimalSitemapXmlTree(tempDir.resolve("sm-src"));
+    Path out = tempDir.resolve("sm-out");
+
+    PSSite site = new PSSite();
+    site.setName("SitemapHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "sm-docs");
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult result = adaptor.buildVirtualSite("SitemapHelp", req);
+    assertTrue(result.getPagesWritten().intValue() > 0, "pagesWritten=" + result.getPagesWritten());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertEquals(out.toAbsolutePath().normalize().toString(), result.getOutputPath());
+    assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
+    Path html = out.resolve("8.2").resolve("home.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("home"), body);
+    assertTrue(body.contains("Hello from sitemap"), body);
+  }
+
+  @Test
+  void buildVirtualSite_sitemapXmlMissingFixture400() throws Exception {
+    Path siteRoot = createMinimalSitemapXmlTree(tempDir.resolve("sm-nofile"));
+    Files.deleteIfExists(siteRoot.resolve("sitemap.xml"));
+    Path out = tempDir.resolve("sm-nofile-out");
+
+    PSSite site = new PSSite();
+    site.setName("SitemapHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("SitemapHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String missingMsg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(
+        missingMsg.contains("sitemap"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_sitemapXmlMissingConfig400() throws Exception {
+    Path siteRoot = tempDir.resolve("sm-noconfig");
+    Files.createDirectories(siteRoot);
+    Path out = tempDir.resolve("sm-noconfig-out");
+
+    PSSite site = new PSSite();
+    site.setName("SitemapHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("SitemapHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String missingMsg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(
+        missingMsg.contains("config") && missingMsg.contains("_config.yaml"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_sitemapXmlUnsafePath400() {
+    Path out = tempDir.resolve("sm-unsafe-out");
+    PSSite site = new PSSite();
+    site.setName("SitemapHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, Path.of("a", "..", "..", "etc").toString());
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("SitemapHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(
+        msg.contains("virtual.rootPath") || msg.toLowerCase().contains("unsafe"), msg);
+  }
+
+  @Test
+  void buildVirtualSite_sitemapXmlRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalSitemapXmlTree(tempDir.resolve("sm-remote"));
+    Path out = tempDir.resolve("sm-remote-out");
+
+    PSSite site = new PSSite();
+    site.setName("SitemapHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("SitemapHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_sitemapXmlCloudRootPath400() {
+    Path out = tempDir.resolve("sm-cloud-out");
+    PSSite site = new PSSite();
+    site.setName("SitemapHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, "https://example.com/sitemap.xml");
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("SitemapHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.contains("virtual.rootPath"), msg);
+    assertTrue(msg.toLowerCase().contains("cloud"), msg);
+  }
+
+  @Test
+  void buildVirtualSite_sitemapXmlCredentialProperty400() throws Exception {
+    Path siteRoot = createMinimalSitemapXmlTree(tempDir.resolve("sm-cred"));
+    Path out = tempDir.resolve("sm-cred-out");
+
+    PSSite site = new PSSite();
+    site.setName("SitemapHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, "aws_secret_access_key", "not-a-real-secret");
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("SitemapHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.toLowerCase().contains("credential"), msg);
+    assertFalse(msg.contains("not-a-real-secret"), msg);
+  }
+
+  @Test
   void buildVirtualSite_unknownSourceKind400() {
     Path siteRoot = tempDir.resolve("sql-root");
     PSSite site = new PSSite();
@@ -3305,6 +3479,170 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void publishVirtualSite_sitemapXmlInjectedBuildRunnerCopiesToSiteRoot() throws Exception {
+    Path siteRoot = createMinimalSitemapXmlTree(tempDir.resolve("sm-pub-src"));
+    Path staging = tempDir.resolve("sm-pub-staging");
+    Path publishTo = tempDir.resolve("sm-pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("SitemapHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "sitemap-docs");
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+
+    SitesAdaptor.BuildRunner runner =
+        (config, outputRoot) -> {
+          Files.createDirectories(outputRoot.resolve("8.2"));
+          Files.writeString(
+              outputRoot.resolve("8.2").resolve("index.html"),
+              "<html>Sitemap published</html>",
+              StandardCharsets.UTF_8);
+          Files.createDirectories(outputRoot.resolve("_meta"));
+          Files.writeString(
+              outputRoot.resolve("_meta").resolve("skip.txt"),
+              "not published",
+              StandardCharsets.UTF_8);
+          return new PSVirtualSiteBuildResult(
+              outputRoot, 1, List.of(), List.of("8.2/index.html"));
+        };
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, runner);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("SitemapHelp");
+    assertEquals("SitemapHelp", result.getSiteName());
+    assertEquals("sitemap-docs", result.getSiteKey());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    Path html = publishTo.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    assertTrue(
+        Files.readString(html, StandardCharsets.UTF_8).contains("Sitemap published"),
+        Files.readString(html, StandardCharsets.UTF_8));
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
+    assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
+  }
+
+  @Test
+  void publishVirtualSite_sitemapXmlBuildsThenCopiesToSiteRoot() throws Exception {
+    Path siteRoot = createMinimalSitemapXmlPreviewTree(tempDir.resolve("sm-real-pub-src"));
+    Path staging = tempDir.resolve("sm-real-pub-staging");
+    Path publishTo = tempDir.resolve("sm-real-pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("SitemapHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "sitemap-docs");
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, null);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("SitemapHelp");
+    assertEquals("SitemapHelp", result.getSiteName());
+    assertEquals("sitemap-docs", result.getSiteKey());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    Path html = publishTo.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("Hello from sitemap"), body);
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
+    assertTrue(Files.isRegularFile(staging.resolve("8.2").resolve("index.html")));
+    assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
+  }
+
+  @Test
+  void publishVirtualSite_sitemapXmlRejectsUnsafeSiteRoot() {
+    PSSite site = new PSSite();
+    site.setName("SitemapHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(Path.of("a", "..", "..", "etc").toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, tempDir.resolve("sm-src").toString());
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("SitemapHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void publishVirtualSite_sitemapXmlRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalSitemapXmlTree(tempDir.resolve("sm-pub-remote"));
+    Path publishTo = tempDir.resolve("sm-pub-remote-target");
+    Files.createDirectories(publishTo);
+
+    PSSite site = new PSSite();
+    site.setName("SitemapHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("SitemapHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void publishVirtualSite_sitemapXmlCredentialProperty400() throws Exception {
+    Path siteRoot = createMinimalSitemapXmlTree(tempDir.resolve("sm-pub-cred"));
+    Path publishTo = tempDir.resolve("sm-pub-cred-target");
+    Files.createDirectories(publishTo);
+
+    PSSite site = new PSSite();
+    site.setName("SitemapHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, "aws_secret_access_key", "not-a-real-secret");
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("SitemapHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.toLowerCase().contains("credential"), msg);
+    assertFalse(msg.contains("not-a-real-secret"), msg);
+  }
+
+  @Test
+  void publishVirtualSite_sitemapXmlCloudRootPath400() {
+    Path publishTo = tempDir.resolve("sm-pub-cloud-target");
+    PSSite site = new PSSite();
+    site.setName("SitemapHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, "https://example.com/sitemap.xml");
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("SitemapHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.contains("virtual.rootPath"), msg);
+    assertTrue(msg.toLowerCase().contains("cloud"), msg);
+  }
+
+  @Test
   void publishVirtualSite_unknownSourceKind400() {
     Path siteRoot = tempDir.resolve("unknown-pub-src");
     Path publishTo = tempDir.resolve("unknown-pub-target");
@@ -4125,6 +4463,143 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void previewSitemapXml_afterBuildAvailableWithHtml() throws Exception {
+    Path siteRoot = createMinimalSitemapXmlPreviewTree(tempDir.resolve("sm-preview-src"));
+    Path defaultOut = tempDir.resolve("sm-preview-default");
+    Path built = tempDir.resolve("sm-preview-built");
+
+    PSSite site = virtualSitemapXmlSite(siteRoot);
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(built.toAbsolutePath().normalize().toString());
+    VirtualSiteBuildResult result = previewing.buildVirtualSite("SitemapHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("SitemapHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath());
+
+    VirtualSitePreviewFile file =
+        previewing.previewVirtualSiteFile("SitemapHelp", "8.2/index.html");
+    assertTrue(file.isHtml());
+    assertEquals("8.2/index.html", file.getRelativePath());
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("index"), html);
+    assertTrue(html.contains("Hello from sitemap"), html);
+  }
+
+  @Test
+  void previewSitemapXml_missingBuildIsUnavailableNot500() throws Exception {
+    Path siteRoot = createMinimalSitemapXmlPreviewTree(tempDir.resolve("sm-preview-empty-src"));
+    Path defaultOut = tempDir.resolve("sm-preview-default-empty");
+    PSSite site = virtualSitemapXmlSite(siteRoot);
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("SitemapHelp");
+    assertEquals(Boolean.FALSE, status.getAvailable());
+    assertEquals(SitesAdaptor.MISSING_PREVIEW_MESSAGE, status.getMessage());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("SitemapHelp", "8.2/index.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewSitemapXml_rejectsTraversalAndMissingFile() throws Exception {
+    Path siteRoot = Files.createDirectories(tempDir.resolve("sm-preview-trav-src"));
+    Path defaultOut = tempDir.resolve("sm-preview-trav-default");
+    Path built = tempDir.resolve("sm-preview-trav-built");
+    writeAssembledPreviewTree(
+        built, "<html><body><h1>Sitemap Home</h1>Hello from sitemap</body></html>");
+
+    PSSite site = virtualSitemapXmlSite(siteRoot);
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+    previewing.recordLastOutputRoot("sm-docs", built);
+
+    WebApplicationException traversal =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("SitemapHelp", "../secret.txt"));
+    assertEquals(400, traversal.getResponse().getStatus());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("SitemapHelp", "no-such.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewSitemapXml_defaultOutputFallbackWithoutPointer() throws Exception {
+    Path siteRoot = Files.createDirectories(tempDir.resolve("sm-cli-src"));
+    Path built = tempDir.resolve("sm-cli-default");
+    writeAssembledPreviewTree(
+        built, "<html><body><h1>Sitemap Home</h1>Hello from sitemap</body></html>");
+
+    PSSite site = virtualSitemapXmlSite(siteRoot);
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+    SitesAdaptor previewing = new SitesAdaptor(siteManager, () -> true, key -> built, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("SitemapHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath());
+
+    VirtualSitePreviewFile file =
+        previewing.previewVirtualSiteFile("SitemapHelp", "8.2/index.html");
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("Sitemap Home"), html);
+  }
+
+  @Test
+  void previewSitemapXml_leftoverRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalSitemapXmlPreviewTree(tempDir.resolve("sm-preview-remote"));
+    Path defaultOut = tempDir.resolve("sm-preview-remote-default");
+    PSSite site = virtualSitemapXmlSite(siteRoot);
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.getVirtualSitePreviewStatus("SitemapHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void previewSitemapXml_leftoverCredential400() throws Exception {
+    Path siteRoot = createMinimalSitemapXmlPreviewTree(tempDir.resolve("sm-preview-cred"));
+    Path defaultOut = tempDir.resolve("sm-preview-cred-default");
+    PSSite site = virtualSitemapXmlSite(siteRoot);
+    put(site, "aws_secret_access_key", "not-a-real-secret");
+    when(siteManager.findSite("SitemapHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.getVirtualSitePreviewStatus("SitemapHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.toLowerCase().contains("credential"), msg);
+    assertFalse(msg.contains("not-a-real-secret"), msg);
+  }
+
+  @Test
   void requireSafeRelativePreviewPath_rejectsAbsoluteAndDotDot() {
     WebApplicationException dots =
         assertThrows(
@@ -4251,6 +4726,19 @@ class SitesAdaptorTest {
         PSVirtualSiteHelper.PROP_ROOT_PATH,
         calRoot.toAbsolutePath().normalize().toString());
     put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "cal-docs");
+    return site;
+  }
+
+  private PSSite virtualSitemapXmlSite(Path sitemapRoot) {
+    PSSite site = new PSSite();
+    site.setName("SitemapHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sitemap-xml");
+    put(
+        site,
+        PSVirtualSiteHelper.PROP_ROOT_PATH,
+        sitemapRoot.toAbsolutePath().normalize().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "sm-docs");
     return site;
   }
 
@@ -4513,6 +5001,80 @@ class SitesAdaptorTest {
         """,
         StandardCharsets.UTF_8);
     return siteRoot;
+  }
+
+  /**
+   * Local sitemap.xml fixture for sitemap-xml REST Build. {@code pages/home.md} is referenced from
+   * the urlset so assemble writes {@code 8.2/home.html} with {@code pagesWritten > 0}. Portable NIO
+   * {@link Path} / {@link Files}. No live crawl. Publish tests that need {@code 8.2/index.html}
+   * use {@link #createMinimalSitemapXmlPreviewTree}.
+   */
+  private static Path createMinimalSitemapXmlTree(Path siteRoot) throws Exception {
+    Files.createDirectories(siteRoot.resolve("8.2"));
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    Files.createDirectories(siteRoot.resolve("pages"));
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: Sitemap Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        sitemap:
+          file: sitemap.xml
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${pageTitle}</h1>${content}</body></html>",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("pages").resolve("home.md"),
+        "Hello from sitemap.",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("sitemap.xml"),
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+          <url>
+            <loc>pages/home.md</loc>
+          </url>
+        </urlset>
+        """,
+        StandardCharsets.UTF_8);
+    return siteRoot;
+  }
+
+  /**
+   * Local sitemap.xml fixture whose {@code <loc>} slugs to {@code index} so last-build Preview
+   * and REST Publish report {@code 8.2/index.html}. Portable NIO {@link Path} / {@link Files}.
+   * No live crawl.
+   */
+  private static Path createMinimalSitemapXmlPreviewTree(Path siteRoot) throws Exception {
+    Path root = createMinimalSitemapXmlTree(siteRoot);
+    Files.deleteIfExists(root.resolve("pages").resolve("home.md"));
+    Files.writeString(
+        root.resolve("pages").resolve("index.md"),
+        "Hello from sitemap.",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        root.resolve("sitemap.xml"),
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+          <url>
+            <loc>pages/index.md</loc>
+          </url>
+        </urlset>
+        """,
+        StandardCharsets.UTF_8);
+    return root;
   }
 
   /**
