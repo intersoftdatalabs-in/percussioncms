@@ -27,11 +27,10 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
 /**
  * True when the Build Virtual Site control should be shown.
  * Git-filesystem, csv-filesystem, sql-database, http-json, object-storage,
- * rss-atom, and icalendar Virtual Sites all run POST /virtual/build (SQL JDBC,
- * HTTP JSON catalog, object-storage keys, rss-atom feeds, and icalendar .ics
- * stay in _config.yaml / the local root). sitemap-xml persist is save/GET only
- * in this slice (Build chrome later). Repository / blank / unknown kinds
- * must not display this chrome.
+ * rss-atom, icalendar, and sitemap-xml Virtual Sites all run POST /virtual/build
+ * (SQL JDBC, HTTP JSON catalog, object-storage keys, rss-atom feeds,
+ * icalendar .ics, and sitemap.xml stay in _config.yaml / the local root).
+ * Repository / blank / unknown kinds must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
   sourceKind: string | null | undefined,
@@ -44,7 +43,8 @@ export function shouldShowVirtualBuildChrome(
     v === "http-json" ||
     v === "object-storage" ||
     v === "rss-atom" ||
-    v === "icalendar"
+    v === "icalendar" ||
+    v === "sitemap-xml"
   );
 }
 
