@@ -161,8 +161,8 @@ public class ExtensionsResource {
           "Admin. Registers (installs) a user extension via IPSExtensionService under context"
               + " user/. extensionName and at least one supportedInterfaces entry are required."
               + " handlerName defaults to Java. Duplicate FQN is 409. System/handler contexts"
-              + " cannot be registered (409). This is REST only — there is no Developer SPA"
-              + " create chrome.",
+              + " cannot be registered (409). Developer → Extensions SPA also uses this"
+              + " endpoint for user-extension create.",
       responses = {
         @ApiResponse(
             responseCode = "200",
