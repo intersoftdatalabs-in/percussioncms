@@ -528,6 +528,153 @@ describe("SearchDetailPanel", () => {
     });
     expect(screen.queryByTestId("developer-sr-field-editor")).toBeNull();
     expect(screen.queryByTestId("developer-sr-fields-save")).toBeNull();
+    expect((screen.getByTestId("developer-sr-label") as HTMLInputElement).disabled).toBe(true);
+    expect((screen.getByTestId("developer-sr-type") as HTMLSelectElement).disabled).toBe(true);
+    expect((screen.getByTestId("developer-sr-save") as HTMLButtonElement).disabled).toBe(true);
     expect(saveSearch).not.toHaveBeenCalled();
+  });
+
+  it("requires a URL before saving a CustomSearch", () => {
+    render(<SearchDetailPanel idOrName={null} onBack={() => undefined} />);
+    fireEvent.change(screen.getByTestId("developer-sr-name"), {
+      target: { value: "MyCustom" },
+    });
+    fireEvent.change(screen.getByTestId("developer-sr-type"), {
+      target: { value: "CustomSearch" },
+    });
+    expect(screen.getByTestId("developer-sr-url")).toBeTruthy();
+    expect((screen.getByTestId("developer-sr-save") as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-sr-url"), {
+      target: { value: "   " },
+    });
+    expect((screen.getByTestId("developer-sr-save") as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-sr-url"), {
+      target: { value: "app/has space.xml" },
+    });
+    expect((screen.getByTestId("developer-sr-save") as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-sr-url"), {
+      target: { value: "/Rhythmyx/sys_cxSupport/custom.xml" },
+    });
+    expect((screen.getByTestId("developer-sr-save") as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it("creates a custom URL search with url and customSearch", async () => {
+    createSearch.mockResolvedValue({
+      name: "MyCustom",
+      label: "My Custom",
+      description: "Created via SPA",
+      type: "CustomSearch",
+      customSearch: true,
+      url: "/Rhythmyx/sys_cxSupport/custom.xml",
+      fields: [],
+    });
+    const onSaved = vi.fn();
+    render(<SearchDetailPanel idOrName={null} onBack={() => undefined} onSaved={onSaved} />);
+    fireEvent.change(screen.getByTestId("developer-sr-name"), {
+      target: { value: "MyCustom" },
+    });
+    fireEvent.change(screen.getByTestId("developer-sr-label"), {
+      target: { value: "My Custom" },
+    });
+    fireEvent.change(screen.getByTestId("developer-sr-type"), {
+      target: { value: "CustomSearch" },
+    });
+    fireEvent.change(screen.getByTestId("developer-sr-url"), {
+      target: { value: "/Rhythmyx/sys_cxSupport/custom.xml" },
+    });
+    fireEvent.click(screen.getByTestId("developer-sr-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(createSearch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "MyCustom",
+        label: "My Custom",
+        type: "CustomSearch",
+        customSearch: true,
+        url: "/Rhythmyx/sys_cxSupport/custom.xml",
+      }),
+    );
+    expect(onSaved.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        url: "/Rhythmyx/sys_cxSupport/custom.xml",
+        customSearch: true,
+      }),
+    );
+    expect(screen.queryByTestId("developer-sr-field-editor")).toBeNull();
+    expect(screen.getByTestId("developer-sr-fields-custom-url")).toBeTruthy();
+  });
+
+  it("surfaces 400 missing URL on custom create", async () => {
+    createSearch.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "url is required for CustomSearch" },
+    });
+    const onSaved = vi.fn();
+    render(<SearchDetailPanel idOrName={null} onBack={() => undefined} onSaved={onSaved} />);
+    fireEvent.change(screen.getByTestId("developer-sr-name"), {
+      target: { value: "MyCustom" },
+    });
+    fireEvent.change(screen.getByTestId("developer-sr-type"), {
+      target: { value: "CustomSearch" },
+    });
+    fireEvent.change(screen.getByTestId("developer-sr-url"), {
+      target: { value: "/Rhythmyx/app/custom.xml" },
+    });
+    fireEvent.click(screen.getByTestId("developer-sr-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sr-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-sr-detail-error").textContent).toContain(
+      DEV_MSG.SR_INVALID_URL,
+    );
+    expect(onSaved).not.toHaveBeenCalled();
+  });
+
+  it("saves URL changes on an existing custom search", async () => {
+    const customDetail = {
+      name: "qa4222custom",
+      label: "Custom URL search",
+      description: "URL search",
+      type: "CustomSearch",
+      customSearch: true,
+      url: "/Rhythmyx/old.xml",
+      displayFormatId: "Default",
+      guid: { stringValue: "0-26-99" },
+      fields: [],
+    };
+    getSearchDetail.mockResolvedValue(customDetail);
+    saveSearch.mockResolvedValue({
+      ...customDetail,
+      url: "/Rhythmyx/new.xml",
+    });
+    const onSaved = vi.fn();
+    render(
+      <SearchDetailPanel idOrName="qa4222custom" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sr-url")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-sr-url") as HTMLInputElement).value).toBe(
+      "/Rhythmyx/old.xml",
+    );
+    expect(screen.queryByTestId("developer-sr-field-editor")).toBeNull();
+    fireEvent.change(screen.getByTestId("developer-sr-url"), {
+      target: { value: "/Rhythmyx/new.xml" },
+    });
+    fireEvent.click(screen.getByTestId("developer-sr-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(saveSearch).toHaveBeenCalledWith(
+      "qa4222custom",
+      expect.objectContaining({
+        name: "qa4222custom",
+        type: "CustomSearch",
+        customSearch: true,
+        url: "/Rhythmyx/new.xml",
+      }),
+    );
   });
 });

@@ -27,10 +27,11 @@ import type {
 /**
  * Writable identity fields for POST/PUT /services/searches. Name is the catalog
  * key (not renamed on PUT). When {@code fields} is present it replaces criteria.
+ * Custom URL searches send {@code url} and {@code customSearch}.
  */
 export type SearchWriteBody = Pick<
   SearchDef,
-  "name" | "label" | "description" | "type" | "displayFormatId"
+  "name" | "label" | "description" | "type" | "displayFormatId" | "url" | "customSearch"
 > & {
   /** Omit to leave stored criteria unchanged. Empty array clears criteria. */
   fields?: SearchDef["fields"];
@@ -41,6 +42,9 @@ export const SEARCH_DEF_ROOT = "SearchDef";
 
 /** REST default type on create ({@code PSSearch.TYPE_STANDARDSEARCH}). */
 export const SEARCH_TYPE_STANDARD = "StandardSearch";
+
+/** REST custom-URL type ({@code PSSearch.TYPE_CUSTOMSEARCH}). */
+export const SEARCH_TYPE_CUSTOM = "CustomSearch";
 
 /** {@code PSSearch.INTERNALNAME_LENGTH} — create name max. */
 export const SEARCH_NAME_MAX = 128;
@@ -206,10 +210,48 @@ export function isValidSearchName(name: string | undefined | null): boolean {
   return isSafeSearchName(key);
 }
 
-/** Save is enabled when the search name is valid (create) or already loaded (edit). */
-export function isSearchWriteReady(opts: { isNew: boolean; name: string }): boolean {
-  if (opts.isNew) return isValidSearchName(opts.name);
-  return Boolean(normalizeSearchName(opts.name));
+/** True when the REST / SPA type is a custom URL search. */
+export function isCustomSearchType(type: string | undefined | null): boolean {
+  const t = (type ?? "").trim();
+  if (!t) return false;
+  return t === SEARCH_TYPE_CUSTOM || t.toLowerCase() === "custom";
+}
+
+/** Trim a custom search URL. Empty / null becomes "". */
+export function normalizeSearchUrl(url: string | undefined | null): string {
+  return url == null ? "" : url.trim();
+}
+
+/**
+ * True when the URL is a non-blank URI string (relative or absolute). Whitespace
+ * is rejected; the server stores the string as-is after trim.
+ */
+export function isValidSearchUrl(url: string | undefined | null): boolean {
+  const key = normalizeSearchUrl(url);
+  if (!key) return false;
+  if (containsWhitespace(key)) return false;
+  return true;
+}
+
+/**
+ * Save is enabled when the search name is valid (create) or already loaded (edit).
+ * Custom URL searches also require a non-blank URL.
+ */
+export function isSearchWriteReady(opts: {
+  isNew: boolean;
+  name: string;
+  type?: string;
+  url?: string;
+}): boolean {
+  if (opts.isNew) {
+    if (!isValidSearchName(opts.name)) return false;
+  } else if (!normalizeSearchName(opts.name)) {
+    return false;
+  }
+  if (isCustomSearchType(opts.type) && !isValidSearchUrl(opts.url)) {
+    return false;
+  }
+  return true;
 }
 
 /** Wire JSON for POST/PUT — a flat body fails JAXB root unwrap. */

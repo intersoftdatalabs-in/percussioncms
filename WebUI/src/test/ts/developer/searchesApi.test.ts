@@ -17,15 +17,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   SEARCH_DESIGN_GAPS,
+  SEARCH_TYPE_CUSTOM,
   createSearch,
   deleteSearch,
   executeSearch,
   getSearchDetail,
+  isCustomSearchType,
   isSearchWriteReady,
   isValidSearchName,
+  isValidSearchUrl,
   listExplorerSavedSearches,
   listSearches,
   normalizeSearchName,
+  normalizeSearchUrl,
   saveSearch,
   unwrapSearchDef,
   unwrapSearchDefList,
@@ -288,6 +292,42 @@ describe("search name validation", () => {
     expect(isSearchWriteReady({ isNew: false, name: "MySearch" })).toBe(true);
     expect(isSearchWriteReady({ isNew: false, name: "" })).toBe(false);
   });
+
+  it("requires a non-blank URL for CustomSearch writes", () => {
+    expect(isCustomSearchType(SEARCH_TYPE_CUSTOM)).toBe(true);
+    expect(isCustomSearchType("custom")).toBe(true);
+    expect(isCustomSearchType("StandardSearch")).toBe(false);
+    expect(normalizeSearchUrl("  /app/x.xml  ")).toBe("/app/x.xml");
+    expect(isValidSearchUrl("")).toBe(false);
+    expect(isValidSearchUrl("   ")).toBe(false);
+    expect(isValidSearchUrl("app/has space.xml")).toBe(false);
+    expect(isValidSearchUrl("/Rhythmyx/sys_cxSupport/custom.xml")).toBe(true);
+    expect(isValidSearchUrl("https://example.invalid/search")).toBe(true);
+    expect(
+      isSearchWriteReady({
+        isNew: true,
+        name: "MyCustom",
+        type: SEARCH_TYPE_CUSTOM,
+        url: "",
+      }),
+    ).toBe(false);
+    expect(
+      isSearchWriteReady({
+        isNew: true,
+        name: "MyCustom",
+        type: SEARCH_TYPE_CUSTOM,
+        url: "/Rhythmyx/app.xml",
+      }),
+    ).toBe(true);
+    expect(
+      isSearchWriteReady({
+        isNew: true,
+        name: "MySearch",
+        type: "StandardSearch",
+        url: "",
+      }),
+    ).toBe(true);
+  });
 });
 
 describe("search wire wrap", () => {
@@ -307,6 +347,21 @@ describe("search wire wrap", () => {
         description: "Created via REST",
         type: "StandardSearch",
         displayFormatId: "1",
+      },
+    });
+    expect(
+      wrapSearchDefForWire({
+        name: "MyCustom",
+        type: "CustomSearch",
+        customSearch: true,
+        url: "/Rhythmyx/sys_cxSupport/custom.xml",
+      }),
+    ).toEqual({
+      SearchDef: {
+        name: "MyCustom",
+        type: "CustomSearch",
+        customSearch: true,
+        url: "/Rhythmyx/sys_cxSupport/custom.xml",
       },
     });
   });
