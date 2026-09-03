@@ -194,6 +194,8 @@ export function ExtensionsPanel(): React.ReactElement {
                     type="button"
                     data-testid="developer-ex-open"
                     data-ex-name={e.extensionName || openKey}
+                    data-ex-context={e.context || ""}
+                    data-immutable={isImmutableExtension(e) ? "true" : "false"}
                     aria-label={`Open ${e.extensionName || openKey}`}
                     onClick={(ev) => {
                       ev.stopPropagation();

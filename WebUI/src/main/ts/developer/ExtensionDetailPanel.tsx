@@ -149,6 +149,12 @@ export function ExtensionDetailPanel({
   const writeKey = idOrName || createdKey || normalizeExtensionName(name);
   const canDelete = !isNew && Boolean(writeKey) && !immutable && !busy;
 
+  /**
+   * PUT writes the full initParameters map (round-trip from GET). Only className,
+   * deprecated, interfaces, and restoreRequestParamsOnError are user-editable in
+   * this chrome; other keys are preserved verbatim so out-of-band Workbench keys
+   * are not silently dropped. REST buildDef iterates the map as-is.
+   */
   function writeBody(): ExtensionWriteBody {
     const initParameters: Record<string, string> = {
       ...(detail?.initParameters || {}),
@@ -238,7 +244,9 @@ export function ExtensionDetailPanel({
   }
 
   async function handleDelete(): Promise<void> {
-    if (!canDelete || !writeKey || inflight.current) return;
+    // Create mode never shows delete chrome; guard so a future refactor cannot
+    // delete while selected.idOrName === "new" / idOrName is null.
+    if (isNew || !canDelete || !writeKey || inflight.current) return;
     setConfirmOpen(false);
     inflight.current = true;
     setBusy(true);

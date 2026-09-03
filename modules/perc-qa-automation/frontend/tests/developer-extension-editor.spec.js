@@ -110,16 +110,20 @@ function createdRow(page, extName) {
  * of rows and Playwright text filters over the full table are too slow.
  */
 async function openSystemExtension(page) {
-  const open = page.locator(
+  // Prefer data-immutable (stable across catalog order); fall back to exact name "add".
+  const byImmutable = page.locator(
+    '[data-testid="developer-ex-open"][data-immutable="true"]',
+  );
+  const byName = page.locator(
     catalogOpenByExactName("developer-ex-open", "data-ex-name", "add"),
   );
+  const open = (await byImmutable.count()) > 0 ? byImmutable.first() : byName;
   await expect(open).toBeVisible({ timeout: 30_000 });
   await open.click();
   await expect(page.locator('[data-testid="developer-ex-detail"]')).toBeVisible();
   await expect(page.locator('[data-testid="developer-ex-detail-loading"]')).toHaveCount(0, {
     timeout: 20_000,
   });
-  await expect(page.locator('[data-testid="developer-ex-name"]')).toHaveValue("add");
   await expect(page.locator('[data-testid="developer-ex-immutable-hint"]')).toBeVisible({
     timeout: 10_000,
   });
@@ -167,7 +171,7 @@ test.describe("Developer extension editor (#4241 / SY-01)", () => {
     await loginAsAdmin(page);
     await openExtensionsCatalog(page);
 
-    // System row: Save/Delete disabled (FQN match, not .first())
+    // System row: Save/Delete disabled (data-immutable / exact name, not .first())
     await openSystemExtension(page);
     await page.locator('[data-testid="developer-ex-back"]').click();
     await expect(page.locator('[data-testid="developer-ex-panel"]')).toBeVisible({

@@ -71,6 +71,7 @@ describe("extension name and immutability helpers", () => {
     expect(isValidExtensionName("1bad")).toBe(false);
     expect(isValidExtensionName("a/b")).toBe(false);
     expect(isValidExtensionName("a-b")).toBe(false);
+    expect(isValidExtensionName("Übung")).toBe(true);
   });
 
   it("detects immutable system and handler contexts", () => {
@@ -100,6 +101,13 @@ describe("extension name and immutability helpers", () => {
         extensionName: "my_user_ext",
       }),
     ).toBe(false);
+    expect(
+      isImmutableExtension({
+        context: "user/",
+        handlerName: "",
+        extensionName: "orphan",
+      }),
+    ).toBe(true);
   });
 
   it("requires name, interfaces, and className for Java create", () => {

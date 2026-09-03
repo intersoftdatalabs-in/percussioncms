@@ -251,6 +251,30 @@ describe("ExtensionDetailPanel", () => {
     expect(onSaved).not.toHaveBeenCalled();
   });
 
+  it("re-enables form and skips onSaved when create returns empty identity", async () => {
+    createExtensionMock.mockResolvedValue({ extensionName: "", fqn: "" } as never);
+    const onSaved = vi.fn();
+    render(<ExtensionDetailPanel idOrName={null} onBack={() => undefined} onSaved={onSaved} />);
+    fireEvent.change(screen.getByTestId("developer-ex-name"), {
+      target: { value: "my_user_ext" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ex-interfaces"), {
+      target: { value: "com.percussion.extension.IPSUdfProcessor" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ex-classname"), {
+      target: { value: "com.example.MyUserExtension" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ex-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ex-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ex-detail-error").textContent).toBe(
+      DEV_MSG.EX_MISSING_PERSISTED_NAME,
+    );
+    expect(onSaved).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-ex-save").disabled).toBe(false);
+  });
+
   it("surfaces 403 non-Admin on create", async () => {
     createExtensionMock.mockRejectedValue({
       status: 403,
