@@ -19,8 +19,12 @@ import { describe, expect, it } from "vitest";
 import type { DisplayFormatColumn } from "../../../main/ts/api/developer/types";
 import {
   addDisplayFormatColumn,
+  applyColumnSortDirection,
   catalogFieldsNotInUse,
+  columnsEditEqual,
   columnsOrderEqual,
+  defaultSortSource,
+  isColumnAscendingSort,
   isPackagedDisplayFormat,
   isValidColumnSource,
   moveDisplayFormatColumn,
@@ -93,5 +97,47 @@ describe("column list mutations", () => {
     const remaining = catalogFieldsNotInUse([title]);
     expect(remaining.some((f) => f.source === "sys_title")).toBe(false);
     expect(remaining.some((f) => f.source === "sys_contentid")).toBe(true);
+  });
+});
+
+describe("default sort column and direction", () => {
+  it("treats missing flags as ascending", () => {
+    expect(isColumnAscendingSort(title)).toBe(true);
+    expect(isColumnAscendingSort({ ...title, ascendingSort: true })).toBe(true);
+    expect(isColumnAscendingSort({ ...title, ascendingSort: false })).toBe(false);
+    expect(isColumnAscendingSort({ ...title, descendingSort: true })).toBe(false);
+    expect(isColumnAscendingSort({ ...title, sortOrder: false })).toBe(false);
+  });
+
+  it("prefers sortedColumnNames when that source is in the list", () => {
+    const two = addDisplayFormatColumn([title], "sys_contentid");
+    expect(defaultSortSource(two, "sys_contentid")).toBe("sys_contentid");
+    expect(defaultSortSource(two, "missing")).toBe("sys_title");
+    expect(defaultSortSource([], "sys_title")).toBe("");
+  });
+
+  it("falls back to the first column when no sort is stored", () => {
+    const two = addDisplayFormatColumn([title], "sys_contentid");
+    expect(defaultSortSource(two, null)).toBe("sys_title");
+    expect(defaultSortSource(two, "")).toBe("sys_title");
+    expect(defaultSortSource(two, undefined)).toBe("sys_title");
+  });
+
+  it("applies descending on the named column only", () => {
+    const two = addDisplayFormatColumn([title], "sys_contentid");
+    const next = applyColumnSortDirection(two, "sys_contentid", false);
+    expect(isColumnAscendingSort(next[0])).toBe(true);
+    expect(isColumnAscendingSort(next[1])).toBe(false);
+    expect(next[1].descendingSort).toBe(true);
+    expect(next[1].sortOrder).toBe(false);
+    expect(applyColumnSortDirection(two, "missing", false)).toEqual(two);
+  });
+
+  it("detects sort-direction dirty without a reorder", () => {
+    const two = addDisplayFormatColumn([title], "sys_workflow");
+    const desc = applyColumnSortDirection(two, "sys_title", false);
+    expect(columnsOrderEqual(two, desc)).toBe(true);
+    expect(columnsEditEqual(two, desc)).toBe(false);
+    expect(columnsEditEqual(two, addDisplayFormatColumn([title], "sys_workflow"))).toBe(true);
   });
 });

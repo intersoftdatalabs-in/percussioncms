@@ -191,3 +191,70 @@ export function columnOrderSignature(columns: DisplayFormatColumn[]): string {
 export function columnsOrderEqual(a: DisplayFormatColumn[], b: DisplayFormatColumn[]): boolean {
   return columnOrderSignature(a) === columnOrderSignature(b);
 }
+
+/** True unless the column explicitly requests descending (REST default is ascending). */
+export function isColumnAscendingSort(col: DisplayFormatColumn): boolean {
+  if (col.descendingSort === true) {
+    return false;
+  }
+  if (col.ascendingSort === false) {
+    return false;
+  }
+  if (col.sortOrder === false) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Default sort column source: {@code sortedColumnNames} when it is in the list,
+ * otherwise the first column.
+ */
+export function defaultSortSource(
+  columns: DisplayFormatColumn[],
+  sortedColumnNames?: string | null,
+): string {
+  const requested = normalizeColumnSource(sortedColumnNames);
+  if (requested && hasColumnSource(columns, requested)) {
+    const hit = columns.find((c) => columnSourceKey(c.source) === columnSourceKey(requested));
+    return normalizeColumnSource(hit?.source);
+  }
+  return columns.length > 0 ? normalizeColumnSource(columns[0].source) : "";
+}
+
+/** Set ascending/descending flags on the matching column (identity otherwise). */
+export function applyColumnSortDirection(
+  columns: DisplayFormatColumn[],
+  source: string,
+  ascending: boolean,
+): DisplayFormatColumn[] {
+  const key = columnSourceKey(source);
+  if (!key || !hasColumnSource(columns, source)) {
+    return columns;
+  }
+  return columns.map((c) => {
+    if (columnSourceKey(c.source) !== key) {
+      return c;
+    }
+    return {
+      ...c,
+      ascendingSort: ascending,
+      descendingSort: !ascending,
+      sortOrder: ascending,
+    };
+  });
+}
+
+/** Order + source + per-column sort direction for dirty detection. */
+export function columnEditSignature(columns: DisplayFormatColumn[]): string {
+  return columns
+    .map(
+      (c) =>
+        `${columnSourceKey(c.source)}\t${isColumnAscendingSort(c) ? "asc" : "desc"}`,
+    )
+    .join("\n");
+}
+
+export function columnsEditEqual(a: DisplayFormatColumn[], b: DisplayFormatColumn[]): boolean {
+  return columnEditSignature(a) === columnEditSignature(b);
+}
