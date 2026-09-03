@@ -518,6 +518,14 @@ export const PATHS = {
   get COMMUNITIES() {
     return `${SERVICES_ROOT}/communities`;
   },
+  /** Security roles REST resource (get / list / CRUD). */
+  get ROLES() {
+    return `${SERVICES_ROOT}/roles`;
+  },
+  /** Admin SE-03 roles browse catalog (community / workflow / unassigned). */
+  get ROLES_CATALOG() {
+    return `${SERVICES_ROOT}/roles/catalog`;
+  },
   /** Pipeline / XML application design catalog. */
   get PIPELINES() {
     return `${SERVICES_ROOT}/pipelines`;
@@ -562,9 +570,13 @@ export const PATHS = {
   get VIEWS() {
     return `${SERVICES_ROOT}/views`;
   },
-  /** Server extension design catalog. */
+  /** Server extension design catalog (GET list/detail). */
   get EXTENSIONS() {
     return `${SERVICES_ROOT}/extensions/catalog`;
+  },
+  /** Server extension write root (POST register; PUT/DELETE use catalog/item?key=). */
+  get EXTENSIONS_ROOT() {
+    return `${SERVICES_ROOT}/extensions`;
   },
   /** System relationship type design catalog (SY-03). */
   get RELATIONSHIP_TYPES() {

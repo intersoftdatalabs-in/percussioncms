@@ -215,6 +215,29 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
       return null;
     }
     String key = idOrName.trim();
+    Extension direct = resolveExistingForWrite(baseURI, key);
+    if (direct != null) {
+      return direct;
+    }
+    return null;
+  }
+
+  /**
+   * Prefer {@link IPSExtensionService#getExtensionDef} (O(1)) over catalog enumeration. Tries FQN
+   * first, then {@code Java/user/&lt;name&gt;} for Admin/SPA short names, then scans the catalog.
+   */
+  private Extension resolveExistingForWrite(URI baseURI, String idOrName) {
+    String key = idOrName.trim();
+    Extension direct = tryLoadByExtensionRef(key);
+    if (direct != null) {
+      return direct;
+    }
+    if (key.indexOf('/') < 0) {
+      Extension userGuess = tryLoadByExtensionRef(DEFAULT_HANDLER + "/" + USER_CONTEXT + key);
+      if (userGuess != null) {
+        return userGuess;
+      }
+    }
     List<Extension> all = listExtensions(baseURI);
     if (all == null) {
       return null;
@@ -228,6 +251,28 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
       }
     }
     return null;
+  }
+
+  private Extension tryLoadByExtensionRef(String fqnOrFull) {
+    if (StringUtils.isBlank(fqnOrFull) || fqnOrFull.indexOf('/') < 0) {
+      return null;
+    }
+    final PSExtensionRef ref;
+    try {
+      ref = new PSExtensionRef(fqnOrFull);
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+    try {
+      // Probe existence — copyExtensionRef swallows not-found and would return a skeleton.
+      extensionService.getExtensionDef(ref);
+    } catch (PSNotFoundException e) {
+      return null;
+    } catch (PSExtensionException e) {
+      log.debug("Direct extension def lookup failed for {}: {}", fqnOrFull, e.getMessage());
+      return null;
+    }
+    return copyExtensionRef(ref);
   }
 
   @Override
@@ -287,7 +332,7 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
     if (!isSafeExtensionKey(idOrName)) {
       return null;
     }
-    Extension existing = findExtensionByKey(baseURI, idOrName);
+    Extension existing = resolveExistingForWrite(baseURI, idOrName);
     if (existing == null) {
       return null;
     }
@@ -303,10 +348,15 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
       throw new IllegalStateException("Failed to load extension: " + e.getMessage(), e);
     }
 
-    List<String> interfaces =
-        body.getSupportedInterfaces() != null && !body.getSupportedInterfaces().isEmpty()
-            ? requireInterfaces(body.getSupportedInterfaces())
-            : collectInterfaces(current);
+    List<String> interfaces;
+    if (body.getSupportedInterfaces() == null) {
+      interfaces = collectInterfaces(current);
+    } else if (body.getSupportedInterfaces().isEmpty()) {
+      throw new IllegalArgumentException(
+          "supportedInterfaces must not be empty on update (omit the field to keep current)");
+    } else {
+      interfaces = requireInterfaces(body.getSupportedInterfaces());
+    }
     Map<String, String> initParams =
         mergeInitParams(current, body.getInitParameters());
     if ("Java".equalsIgnoreCase(ref.getHandlerName())) {
@@ -329,7 +379,8 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
             ? body.getRequiredApplications()
             : copyRequiredApps(current);
 
-    // Wire booleans are primitives — clients should round-trip GET then PUT.
+    // Wire booleans/version are primitives — clients should round-trip GET then PUT.
+    // version<=0 means "omit / keep current" (Jackson cannot distinguish omitted from 0).
     boolean deprecated = body.isDeprecated();
     boolean restoreOnError = body.isRestoreRequestParamsOnError();
     long version = body.getVersion() > 0 ? body.getVersion() : current.getVersion();
@@ -494,10 +545,15 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
     if (e == null) {
       return false;
     }
-    if (IPSExtensionHandler.HANDLER_HANDLER.equalsIgnoreCase(
-        StringUtils.defaultString(e.getHandlerName()))) {
+    String handler = StringUtils.trimToEmpty(e.getHandlerName());
+    // Fail closed: blank handler on a catalog row — treat as immutable (SPA mirrors this).
+    if (handler.isEmpty()) {
       return true;
     }
+    if (IPSExtensionHandler.HANDLER_HANDLER.equalsIgnoreCase(handler)) {
+      return true;
+    }
+    // Also covers handlers/... and global/percussion/... via context prefix.
     return isImmutableContext(e.getContext());
   }
 
@@ -574,7 +630,7 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
       if (StringUtils.isNotBlank(e.getFqn())) {
         return new PSExtensionRef(e.getFqn());
       }
-      throw new IllegalStateException("extension identity incomplete");
+      throw new IllegalArgumentException("extension identity incomplete");
     }
     return new PSExtensionRef(category, handler, context, name);
   }
@@ -585,6 +641,10 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
     return out;
   }
 
+  /**
+   * Merge body init params onto the current def. A {@code null} value for a key removes that key
+   * (explicit delete). SPA round-trips the full map from GET so unrelated keys are preserved.
+   */
   private static Map<String, String> mergeInitParams(
       IPSExtensionDef current, Map<String, String> bodyParams) {
     Map<String, String> merged = new HashMap<>();
@@ -661,8 +721,9 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
     } catch (WebApplicationException e) {
       throw e;
     } catch (RuntimeException e) {
-      log.debug("Admin check failed: {}", e.getMessage());
-      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+      // Do not mask unexpected failures (NPE / wiring bugs) as 403.
+      log.error("Admin check failed unexpectedly", e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
     }
     if (!allowed) {
       throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
