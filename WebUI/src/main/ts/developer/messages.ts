@@ -1067,7 +1067,7 @@ export const DEV_MSG_KEYS = {
   SR_EMPTY: "perc.ui.developer@No searches returned.",
   SR_ERROR: "perc.ui.developer@Could not load searches.",
   SR_HINT:
-    "perc.ui.developer@Create or delete Content Explorer searches (name required, no spaces). On a user or standard search, add, remove, or reorder field criteria and save. Views are a separate catalog.",
+    "perc.ui.developer@Create or delete Content Explorer searches (name required, no spaces). Custom searches require a URL. On a user or standard search, add, remove, or reorder field criteria and save. Views are a separate catalog.",
   SR_NEW: "perc.ui.developer@New search",
   SR_EDIT: "perc.ui.developer@Edit",
   SR_SAVE: "perc.ui.developer@Save",
@@ -1077,7 +1077,12 @@ export const DEV_MSG_KEYS = {
   SR_FORM_LABEL: "perc.ui.developer@Label",
   SR_FORM_DESCRIPTION: "perc.ui.developer@Description",
   SR_FORM_TYPE: "perc.ui.developer@Type",
+  SR_FORM_URL: "perc.ui.developer@URL",
   SR_FORM_DF: "perc.ui.developer@Display format id",
+  SR_URL_HINT:
+    "perc.ui.developer@Required for a custom search. Relative or absolute URI, no spaces.",
+  SR_INVALID_URL:
+    "perc.ui.developer@Custom search URL is required. Enter a URI without spaces.",
   SR_NAME_HINT:
     "perc.ui.developer@Required. Unique, no spaces, wildcards, or path characters.",
   SR_NAME_READONLY: "perc.ui.developer@Name cannot be changed after the search is created.",
@@ -1108,6 +1113,8 @@ export const DEV_MSG_KEYS = {
   SR_FIELDS: "perc.ui.developer@Field criteria",
   SR_FIELDS_HINT:
     "perc.ui.developer@Search field conditions. On a user or standard search, add, remove, or reorder criteria and save.",
+  SR_FIELDS_CUSTOM_URL:
+    "perc.ui.developer@Custom URL searches do not use field criteria. Edit the URL instead.",
   SR_FIELDS_READONLY:
     "perc.ui.developer@This packaged/system search is read-only. Field add, remove, and reorder are available on user and standard searches only.",
   SR_FIELDS_ADD: "perc.ui.developer@Add criterion",

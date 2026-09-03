@@ -1,7 +1,7 @@
 ---
 id: admin-developer-searches
 title: Developer Searches
-description: Create, delete, and edit field criteria for Content Explorer searches from Developer Searches chrome
+description: Create, delete, edit field criteria, and set a custom search URL for Content Explorer searches from Developer Searches chrome
 version: "8.2"
 order: 46
 tags: [admin, developer, searches]
@@ -20,11 +20,13 @@ not deleted from this catalog).
 
 Admins can add, remove, and reorder **field criteria** on a user or standard
 search from this chrome. Packaged/system searches (for example
-`Default_Search` and `RC_Search`) stay read-only for field criteria. Custom-URL
-searches are listed but are not executed from this chrome. This is **not** the
+`Default_Search` and `RC_Search`) stay read-only (identity and field criteria).
+When **Type** is **Custom**, a required **URL** field is shown; field criteria
+are hidden because the search is a custom URL, not a field query. Custom-URL
+searches are not executed from this chrome. This is **not** the
 full Workbench FTS query designer.
 
-## Product path — create, delete, field criteria
+## Product path — create, delete, field criteria, custom URL
 
 1. Sign in as **Admin** (write calls require the Admin role).
 2. Open **Developer → Searches**, or deep-link
@@ -32,19 +34,25 @@ full Workbench FTS query designer.
 3. Click **New search**. Enter a **name**. Save stays disabled until the name
    is valid (no spaces, no `*` / `%`, no `/` or `..`). Optional: label,
    description, type (`StandardSearch` default, `CustomSearch`, or user
-   `Search`), and display format id.
+   `Search`), and display format id. For **Custom**, enter a **URL**: `http` /
+   `https`, or a site-relative path starting with `/` (typically `/Rhythmyx/…`).
+   Spaces, `javascript:` / `data:` schemes, and protocol-relative `//` URLs are
+   rejected. Save stays disabled until the URL is valid.
 4. Click **Save**. A duplicate name is **409** and the editor shows that the
-   search already exists. An invalid name is **400**. A non-Admin session is
-   **403**. After a successful create, the name field is read-only and the
-   catalog lists the new search (the save is persisted immediately; leaving
-   and returning to the list still shows the row).
-5. Optional: change label, description, type, or display format id and
-   **Save** again.
+   search already exists. An invalid name is **400**. A missing or invalid
+   custom URL is **400** and the editor shows that a URL is required. A
+   non-Admin session is **403**. After a successful create, the name field is
+   read-only and the catalog lists the new search (the save is persisted
+   immediately; leaving and returning to the list still shows the row). A
+   custom search round-trips `url` and `customSearch` on GET.
+5. Optional: change label, description, type, URL (custom only), or display
+   format id and **Save** again.
 6. On a user or standard search, use **Field criteria** to add a field, set
    operator and value, reorder with **Move up** / **Move down**, or **Remove**.
    Click **Save field criteria**. An unknown field name is **400**. A
    packaged/system search does not show the editor (PUT of `fields` is **409**
-   and does not steal another user's design lock).
+   and does not steal another user's design lock). A custom URL search hides
+   the field-criteria editor.
 7. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
    The catalog no longer lists that search.
    Delete of a missing search is **404**. A search still used as a dependent,
@@ -55,9 +63,10 @@ Existing **execute** of standard searches (Explorer Search panel) is unchanged.
 ## Limits
 
 - Name is immutable after create.
-- Packaged/system searches cannot be field-edited from this catalog.
+- Packaged/system searches cannot be edited from this catalog.
 - Views are a separate Developer catalog (UI-07).
-- Custom URL is not collected or executed on write.
+- Custom URL is collected on create/save (`url` + `customSearch`) and is not
+  executed from this chrome.
 
 ## REST
 
@@ -67,8 +76,8 @@ The chrome calls:
 |--------|---------|
 | List | `GET /services/searches` (views omitted) |
 | Load | `GET /services/searches/{idOrName}` |
-| Create | `POST /services/searches` (`name` required; unique, no spaces) |
-| Save | `PUT /services/searches/{idOrName}` (label, description, type, display format; `fields` replaces criteria when present) |
+| Create | `POST /services/searches` (`name` required; unique, no spaces; CustomSearch also sends `url` and `customSearch`) |
+| Save | `PUT /services/searches/{idOrName}` (label, description, type, display format, custom `url`; `fields` replaces criteria when present) |
 | Delete | `DELETE /services/searches/{idOrName}` (`204` on success) |
 
 Writes lock the search for the request and release it on save.
