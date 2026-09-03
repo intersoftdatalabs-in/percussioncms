@@ -1,19 +1,18 @@
 # Erlang review — #4214 SPA UI-01 user control update/delete
 
-**Branch:** `feat/issue-4214-spa-user-control-update-delete`  
-**Scope:** WebUI Developer CE Controls PUT/DELETE chrome + Vitest + product-docs 8.2  
-**Date:** 2026-09-03  
-**Stacked on:** #4213 / PR #4216
+**Branch:** `feat/issue-4214-spa-user-control-update-delete-2`  
+**Stacked on:** PR #4231 / `feat/issue-4213-spa-user-control-create-2`  
+**Scope:** WebUI Developer CE Controls PUT/DELETE chrome + Vitest + product-docs 8.2 + Playwright spec  
+**Date:** 2026-09-03
 
 ## Summary
 
-Admin **save** (`PUT /services/cecontrols/{name}`) and **delete** (`DELETE` 204,
-following GET 404, catalog omits the row) for user CE controls. In-app
+Admin update and delete of **user** CE controls from **Developer → CE Controls**
+via existing `PUT` / `DELETE /services/cecontrols/{name}`. Metadata save omits
+blank `xslSource` (server default stylesheet). Delete uses in-app
 `CatalogConfirmDialog` (not `window.confirm`). System controls stay read-only
-(409 / no save-delete chrome). 403/404/409 surface in the detail error region.
-Omitted `xslSource` on PUT follows the REST default-stylesheet rule.
-
-Playwright live H2 is sibling #4215 (not in this slice).
+(no save/delete chrome; 409 surfaced if the API returns conflict). 403/404/409
+in the detail error region. Does not duplicate create chrome from #4213.
 
 ## Recommendation
 
@@ -31,27 +30,25 @@ None (bugs / missing behavioral tests / non-portable paths).
 
 | Kind | Status |
 |------|--------|
-| `controlsApi` PUT/DELETE + wrap + `isSystemControl` / `isControlSaveReady` | yes |
-| `ControlDetailPanel` save/delete + `CatalogConfirmDialog` | yes |
-| `ControlsPanel` reload after save/delete | yes |
-| Vitest (API, detail 403/404/409, omit xslSource, confirm, catalog omit) | yes |
-| Playwright | deferred #4215 (issue out of scope; do not steal) |
-| product-docs 8.2 admin + REST + developer index | yes |
+| `controlsApi` PUT/DELETE + wrap + `isControlSaveReady` / `isSystemControl` | yes |
+| `ControlDetailPanel` save/delete + `ControlsPanel` catalog omit after delete | yes |
+| Vitest (API, detail PUT/DELETE/409, catalog omit, GET 404) | yes |
+| Playwright `developer-control-update-delete.spec.js` | yes |
+| product-docs 8.2 admin + REST | yes |
 | Dual-ship `WebUI/war` | N/A (SPA is `src/main/ts` → generated `cm/modern`) |
 
 ## Cross-platform path checklist
 
-N/A — no filesystem path construction. REST URLs use `/` + `encodeURIComponent`.
+N/A — no filesystem path construction. REST URLs use `/`. Playwright `URLSearchParams` is portable.
 
 ## Tests
 
-Focused Vitest: controlsApi 12, ControlDetailPanel 13, ControlsPanel 10,
-ControlCreatePanel 9, DeveloperShell 38 — all passed.
+WebUI standalone `mvnw clean install`: BUILD SUCCESS, Tests 3798 passed.
 
 ## Memory patterns hit
 
-- Wrap JAXB/Jackson root on PUT (same as POST)
+- Wrap JAXB/Jackson root on PUT (flat body fails UNWRAP_ROOT_VALUE)
+- In-app `CatalogConfirmDialog` instead of `window.confirm`
 - System/packaged objects stay non-mutable in SPA
-- In-app confirm, not `window.confirm`
 - 403/404/409 surfaced via `panelErrMsg` + typed fallback
-- Omitted optional write field follows REST default (blank `xslSource`)
+- Omitted optional XSL follows REST default-stylesheet rule

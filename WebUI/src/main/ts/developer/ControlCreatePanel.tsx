@@ -93,7 +93,7 @@ export function ControlCreatePanel({
       body.displayName = trimmedDisplay;
     }
     if (description.trim()) {
-      body.description = description;
+      body.description = description.trim();
     }
     if (dimension.trim()) {
       body.dimension = dimension.trim().toLowerCase();

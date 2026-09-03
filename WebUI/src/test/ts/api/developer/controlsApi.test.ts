@@ -54,8 +54,10 @@ describe("control name validation", () => {
   it("treats system scope as immutable", () => {
     expect(isSystemControl("system")).toBe(true);
     expect(isSystemControl("SYSTEM")).toBe(true);
+    expect(isSystemControl(" SYSTEM ")).toBe(true);
     expect(isSystemControl("user")).toBe(false);
     expect(isSystemControl("")).toBe(false);
+    expect(isSystemControl(null)).toBe(false);
   });
 });
 

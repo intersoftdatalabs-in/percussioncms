@@ -157,10 +157,12 @@ export function ControlDetailPanel({
     const body: ControlWriteBody = {
       name,
       displayName: displayName.trim() || name,
-      description: description.trim(),
       dimension: dimension.trim() ? dimension.trim().toLowerCase() : "single",
       choiceSet: choiceSet.trim() ? choiceSet.trim().toLowerCase() : "none",
     };
+    if (description.trim()) {
+      body.description = description.trim();
+    }
     if (xslSource.trim()) {
       body.xslSource = xslSource.trim();
     }
@@ -176,7 +178,8 @@ export function ControlDetailPanel({
     setError(null);
     setNotice(null);
     try {
-      const saved = await updateControl(name, writeBody());
+      const body = writeBody();
+      const saved = await updateControl(name, body);
       setDetail(saved);
       setDisplayName(saved.displayName || "");
       setDescription(saved.description || "");
@@ -184,6 +187,8 @@ export function ControlDetailPanel({
       setChoiceSet((saved.choiceSet || "").trim().toLowerCase());
       if (saved.xslSource != null) {
         setXslSource(saved.xslSource);
+      } else if (!body.xslSource) {
+        setXslSource("");
       }
       setNotice(DEV_MSG.CTL_SAVED);
       await onSaved?.(saved);
@@ -217,7 +222,7 @@ export function ControlDetailPanel({
       if (onDeleted) {
         await onDeleted();
       } else {
-        setNotice(DEV_MSG.CTL_DELETED);
+        onBack();
       }
     } catch (err: unknown) {
       setError(panelErrMsg(err, deleteErrorFallback(err)));

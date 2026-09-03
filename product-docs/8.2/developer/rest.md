@@ -1848,9 +1848,7 @@ Non-Admin is **403**. The new control is then `GET /services/cecontrols/{name}` 
 appears on `GET /services/cecontrols`.
 
 Update (`PUT /services/cecontrols/{name}`) updates a **user** control. Name is the catalog
-key and is not renamed on PUT. Developer chrome always sends `displayName`, `description`,
-`dimension`, and `choiceSet` so a cleared field is persisted (blank `description` clears;
-blank dimension/choice set send `single` / `none`). Omitted `xslSource` regenerates a
+key and is not renamed on PUT. Developer chrome always sends `displayName`, `dimension`, and `choiceSet` (blank dimension/choice set send `single` / `none`). Blank `description` and `xslSource` are omitted on the wire. Omitted `xslSource` regenerates a
 default stylesheet from metadata (send `xslSource` to keep a custom stylesheet). Unknown
 name is **404**. A **system** control is **409** (packaged files are not mutated).
 Non-Admin is **403**.
