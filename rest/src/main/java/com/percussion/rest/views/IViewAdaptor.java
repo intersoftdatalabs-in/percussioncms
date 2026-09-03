@@ -36,8 +36,9 @@ public interface IViewAdaptor {
   ViewExecuteResult executeView(String idOrName, ViewExecuteRequest request);
 
   /**
-   * Admin. Create and persist a CX standard (field-criteria) view ({@code createViews} then
-   * {@code saveViews}).
+   * Admin. Create and persist a CX view ({@code createViews} then {@code saveViews}). Standard
+   * (field-criteria) views omit {@code url}. User custom URL views require {@code url} (type
+   * {@code CustomView} or {@code customView=true}).
    *
    * @param body required; {@code name} is the unique catalog key
    * @return the persisted view
@@ -46,19 +47,19 @@ public interface IViewAdaptor {
 
   /**
    * Admin. Update and persist a CX view by name or GUID ({@code loadViews} lock, {@code
-   * saveViews} release). Does not steal another user's lock. Inbox-family and custom URL views
-   * are not mutated.
+   * saveViews} release). Does not steal another user's lock. Inbox-family and packaged {@code
+   * sys_cxViews} catalog keys are not mutated. User custom URL views may update {@code url}.
    *
    * @param idOrName catalog key (same rules as {@link #findViewByKey})
-   * @param body required writable fields (label, description, type, displayFormat)
+   * @param body required writable fields (label, description, type, displayFormat, url)
    * @return the persisted view, or {@code null} when missing/unsafe
    */
   ViewDef saveView(String idOrName, ViewDef body);
 
   /**
    * Admin. Delete a CX view by name or GUID ({@code deleteViews}, {@code
-   * ignoreDependencies=false}). Does not steal another user's lock. Inbox-family and custom URL
-   * views return conflict (not deleted).
+   * ignoreDependencies=false}). Does not steal another user's lock. Inbox-family and packaged
+   * {@code sys_cxViews} catalog keys return conflict (not deleted).
    *
    * @param idOrName catalog key (same rules as {@link #findViewByKey})
    * @return {@code true} when deleted, {@code false} when missing/unsafe
