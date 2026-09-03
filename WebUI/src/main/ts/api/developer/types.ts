@@ -611,6 +611,9 @@ export interface ActionMenu {
   handler?: string;
   parameters?: ActionMenuParameter[];
   properties?: ActionMenuProperty[];
+  /** Nested catalog children (GET); write uses PUT /actions/{id}/children. */
+  children?: ActionMenu[];
+  parentId?: number;
   designGaps?: string[];
 }
 

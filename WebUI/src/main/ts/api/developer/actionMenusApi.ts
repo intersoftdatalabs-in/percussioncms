@@ -26,19 +26,30 @@ export { resolveActionMenuObjectGuid };
 
 /**
  * Writable identity fields for POST/PUT /services/actions. Name is the catalog
- * key (not renamed on PUT). Cascading children and visibility are not written
- * from this chrome (UI-04 / UI-03).
+ * key (not renamed on PUT). Nested {@code children} on this body are ignored;
+ * ordered child associations use {@link saveActionMenuChildren}.
  */
 export type ActionMenuWriteBody = Pick<
   ActionMenu,
   "name" | "label" | "description" | "menuType" | "url"
 >;
 
+/** Child identity for PUT /services/actions/{idOrName}/children. */
+export type ActionMenuChildrenWriteBody = Pick<ActionMenu, "name"> & {
+  id?: number;
+};
+
 /** Jackson / JAXB root for ActionMenu (UNWRAP_ROOT_VALUE on POST/PUT). */
 export const ACTION_MENU_ROOT = "ActionMenu";
 
 /** REST default type on create ({@code PSAction.TYPE_MENUITEM}). */
 export const ACTION_MENU_TYPE_ITEM = "MENUITEM";
+
+/** Cascading parent type for UI-04 children PUT ({@code PSAction.TYPE_MENU}). */
+export const ACTION_MENU_TYPE_MENU = "MENU";
+
+/** Marker property on REST-created user menus ({@code RxmActionMenuConstants}). */
+export const REST_USER_MENU_PROP = "sys_restUserMenu";
 
 export const ACTION_MENU_TYPES = [
   "MENUITEM",
@@ -50,16 +61,16 @@ export const ACTION_MENU_TYPES = [
 export type ActionMenuType = (typeof ACTION_MENU_TYPES)[number];
 
 /**
- * Catalog-level design gaps. Create / save / delete are supported (UI-02 SPA).
- * Cascading children (UI-04) and usage/command/visibility (UI-03) remain later.
+ * Catalog-level design gaps. Create / save / delete and cascading children
+ * (UI-04) are supported. Usage/command/visibility (UI-03) remain later.
  */
 export const ACTION_MENU_DESIGN_GAPS: string[] = [
-  "Cascading child menu composition not supported via this API",
   "Visibility context editing not supported via this API",
   "Usage / command / visibility tab completeness is a later slice.",
 ];
 
 const STALE_WRITE_GAP = /create\s*\/\s*update\s*\/\s*delete/i;
+const STALE_CHILDREN_GAP = /cascading child/i;
 
 function asArray<T>(payload: unknown): T[] {
   if (payload == null) return [];
@@ -91,7 +102,36 @@ export function unwrapActionMenu(payload: unknown): ActionMenu {
     body = root as ActionMenu;
   }
   const gs = resolveActionMenuObjectGuid(body);
-  return normalizeDesignObjectGuid(body, gs);
+  const normalized = normalizeDesignObjectGuid(body, gs);
+  return {
+    ...normalized,
+    children: unwrapActionMenuChildren(body.children),
+  };
+}
+
+/**
+ * Unwrap nested {@code children} whether Jackson emitted a raw array or an
+ * {@code ActionMenuList} / {@code children} envelope.
+ */
+export function unwrapActionMenuChildren(children: unknown): ActionMenu[] {
+  if (children == null) {
+    return [];
+  }
+  if (Array.isArray(children)) {
+    return children.map((item) => unwrapActionMenu(item));
+  }
+  if (typeof children === "object") {
+    const env = children as Record<string, unknown>;
+    const listed =
+      env.ActionMenuList ?? env.actionMenuList ?? env.ActionMenu ?? env.actionMenu ?? env.children;
+    if (listed != null && listed !== children) {
+      return unwrapActionMenuChildren(listed);
+    }
+    if ("name" in env || "id" in env) {
+      return [unwrapActionMenu(env)];
+    }
+  }
+  return [];
 }
 
 /** Unwrap list envelopes and normalize each row GUID (#3380). */
@@ -141,10 +181,17 @@ export function wrapActionMenuForWire(
   return { [ACTION_MENU_ROOT]: body };
 }
 
-/** Drop stale REST write-gap strings now that UI-02 create/delete ships. */
+/** Drop stale REST write-gap strings now that UI-02 create/delete and UI-04 children ship. */
 export function withoutStaleActionMenuWriteGap(gaps: string[] | undefined | null): string[] {
   if (gaps == null || gaps.length === 0) return [];
-  return gaps.filter((g) => !STALE_WRITE_GAP.test(g));
+  return gaps.filter((g) => !STALE_WRITE_GAP.test(g) && !STALE_CHILDREN_GAP.test(g));
+}
+
+/** Wire JSON for PUT children — ActionMenuList envelope (array also accepted). */
+export function wrapActionMenuChildrenForWire(
+  children: ActionMenuChildrenWriteBody[],
+): Record<string, ActionMenuChildrenWriteBody[]> {
+  return { ActionMenuList: children };
 }
 
 function withGaps(menu: ActionMenu): ActionMenu {
@@ -189,4 +236,21 @@ export async function saveActionMenu(
 /** DELETE /services/actions/{idOrName} — Admin. 204 on success; missing is 404. */
 export async function deleteActionMenu(idOrName: string): Promise<void> {
   await del(`${PATHS.ACTION_MENUS_ROOT}/${encodeURIComponent(idOrName)}`);
+}
+
+/**
+ * PUT /services/actions/{idOrName}/children — Admin. Replaces ordered child
+ * associations on a user cascading MENU. Empty array clears children. System
+ * parent is 409; non-cascading parent / illegal graph is 400; missing parent
+ * is 404.
+ */
+export async function saveActionMenuChildren(
+  idOrName: string,
+  children: ActionMenuChildrenWriteBody[],
+): Promise<ActionMenu> {
+  const payload = await put<unknown>(
+    `${PATHS.ACTION_MENUS_ROOT}/${encodeURIComponent(idOrName)}/children`,
+    wrapActionMenuChildrenForWire(children),
+  );
+  return withGaps(unwrapActionMenu(payload));
 }
