@@ -312,7 +312,7 @@ public class RoleAdaptor implements IRoleAdaptor {
 
   private Map<String, Set<String>> loadWorkflowMembership() {
     Map<String, Set<String>> out = new HashMap<>();
-    List<PSWorkflow> workflows = workflowService.findWorkflowsByName("");
+    List<PSWorkflow> workflows = workflowService.findWorkflowsByName(null);
     if (workflows == null) {
       return out;
     }

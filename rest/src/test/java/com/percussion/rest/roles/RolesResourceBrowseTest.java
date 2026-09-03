@@ -95,9 +95,22 @@ public class RolesResourceBrowseTest {
   @Test
   public void missingAdaptorIs503() {
     RolesResource bare = new RolesResource();
-    WebApplicationException ex =
+    WebApplicationException browse =
         assertThrows(WebApplicationException.class, () -> bare.browseRoles(null));
-    assertEquals(503, ex.getResponse().getStatus());
+    assertEquals(503, browse.getResponse().getStatus());
+    WebApplicationException get =
+        assertThrows(WebApplicationException.class, () -> bare.getRoleByName("Author"));
+    assertEquals(503, get.getResponse().getStatus());
+    WebApplicationException update =
+        assertThrows(
+            WebApplicationException.class, () -> bare.updateRole(new Role()));
+    assertEquals(503, update.getResponse().getStatus());
+    WebApplicationException find =
+        assertThrows(WebApplicationException.class, () -> bare.findRoles());
+    assertEquals(503, find.getResponse().getStatus());
+    WebApplicationException delete =
+        assertThrows(WebApplicationException.class, () -> bare.deleteRole("Author"));
+    assertEquals(503, delete.getResponse().getStatus());
   }
 
   @Test

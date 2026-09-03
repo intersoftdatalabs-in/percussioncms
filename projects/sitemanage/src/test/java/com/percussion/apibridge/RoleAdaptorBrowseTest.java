@@ -18,7 +18,6 @@
 package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -96,7 +95,7 @@ class RoleAdaptorBrowseTest {
     when(simple.getRoles()).thenReturn(List.of(wfAuthor, wfEditor));
     PSWorkflow local = mock(PSWorkflow.class);
     when(local.getName()).thenReturn(PSWorkflowHelper.LOCAL_WORKFLOW_NAME);
-    when(workflowService.findWorkflowsByName("")).thenReturn(List.of(simple, local));
+    when(workflowService.findWorkflowsByName(null)).thenReturn(List.of(simple, local));
 
     RoleBrowseCatalog catalog = adaptor.browseRoles(null, null);
     assertNull(catalog.getGroup());
@@ -128,7 +127,7 @@ class RoleAdaptorBrowseTest {
     IPSCatalogSummary orphanSum = roleSummary("Orphan", null, orphanGuid);
     when(securityDesignWs.findRoles(isNull())).thenReturn(List.of(orphanSum));
     when(securityDesignWs.findCommunities(isNull())).thenReturn(List.of());
-    when(workflowService.findWorkflowsByName("")).thenReturn(List.of());
+    when(workflowService.findWorkflowsByName(null)).thenReturn(List.of());
 
     RoleBrowseCatalog unassigned = adaptor.browseRoles(null, "unassigned");
     assertEquals("unassigned", unassigned.getGroup());
@@ -157,11 +156,10 @@ class RoleAdaptorBrowseTest {
   void browse_emptyCatalogIs200Shape() throws Exception {
     when(securityDesignWs.findRoles(isNull())).thenReturn(List.of());
     when(securityDesignWs.findCommunities(isNull())).thenReturn(List.of());
-    when(workflowService.findWorkflowsByName("")).thenReturn(List.of());
+    when(workflowService.findWorkflowsByName(null)).thenReturn(List.of());
 
     RoleBrowseCatalog catalog = adaptor.browseRoles(null, null);
     assertTrue(catalog.getRoles().isEmpty());
-    assertFalse(catalog.getRoles() == null);
   }
 
   private static RoleBrowseEntry byName(RoleBrowseCatalog catalog, String name) {
