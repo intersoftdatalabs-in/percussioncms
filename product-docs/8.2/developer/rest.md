@@ -1505,9 +1505,15 @@ or `{"children":[…]}`. Each element is identified by **`name`**, numeric
 **order** is persisted (child `SORTORDER` plus relation rows). Other fields on
 those child objects are ignored. An empty array clears children. Parent
 `PUT /services/actions/{idOrName}` does **not** honor nested `children`
-(label/type/url only). A non-cascading parent is **400**. Unknown parent or
-child is **404**. System parent is **409**. Following GET
-`/services/actions/catalog/{idOrName}` returns those children in order.
+(label/type/url only). Illegal graphs fail closed — the server does **not**
+persist a partial association list. A **cycle** (parent listed as its own
+child, or A→B→A through existing descendants) is **400**. An **unknown
+child** id/name is **400**. A **duplicate child** in one payload (same name
+or same resolved id twice) is **400**. A non-cascading parent is **400**.
+Missing **parent** is **404**. Non-Admin (or missing request session/user) is
+**403**. System parent is **409**. Following GET
+`/services/actions/catalog/{idOrName}` returns those children in order (or the
+previous children when the write was rejected).
 
 | Method | Path | Purpose |
 |--------|------|---------|

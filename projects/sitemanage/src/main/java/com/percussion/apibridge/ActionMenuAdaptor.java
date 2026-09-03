@@ -62,9 +62,11 @@ import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
@@ -783,8 +785,8 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
   }
 
   /**
-   * Resolve child catalog keys to assigned {@link PSAction}s. Unknown child is HTTP 404. Missing
-   * identity on a child row is 400.
+   * Resolve child catalog keys to assigned {@link PSAction}s. Unknown, duplicate, or cyclic children
+   * are HTTP 400 and the caller must not persist a partial graph.
    */
   List<PSAction> resolveChildActions(PSAction parent, ActionMenuList children) {
     if (children == null || children.isEmpty()) {
@@ -792,24 +794,122 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     }
     int parentId = parent != null ? parent.getId() : -1;
     List<PSAction> resolved = new ArrayList<>(children.size());
+    Set<String> seenKeys = new HashSet<>();
+    Set<Integer> seenIds = new HashSet<>();
     for (ActionMenu child : children) {
       String key = childCatalogKey(child);
       if (!isSafeMenuKey(key)) {
         throw new IllegalArgumentException("child name or id is required");
+      }
+      String keyNorm = key.trim().toLowerCase();
+      if (!seenKeys.add(keyNorm)) {
+        throw new IllegalArgumentException("duplicate child in payload");
       }
       PSAction found = findPsActionByKey(key.trim());
       if (found == null) {
         found = findHibernateActionByKey(key.trim());
       }
       if (found == null || found.getId() <= 0) {
-        throw new WebApplicationException("Action menu not found", 404);
+        throw new IllegalArgumentException("unknown child action menu");
+      }
+      if (!seenIds.add(found.getId())) {
+        throw new IllegalArgumentException("duplicate child in payload");
       }
       if (parentId > 0 && found.getId() == parentId) {
-        throw new IllegalArgumentException("a menu cannot be a child of itself");
+        throw new IllegalArgumentException("cascading menu cycle");
       }
       resolved.add(found);
     }
+    rejectChildCycles(parent, resolved);
     return resolved;
+  }
+
+  /**
+   * Fail closed if attaching {@code children} would create a parent-in-descendants cycle (A→B→A
+   * or parent listed as its own child). Does not mutate the graph.
+   */
+  void rejectChildCycles(PSAction parent, List<PSAction> children) {
+    int parentId = parent != null ? parent.getId() : -1;
+    if (parentId <= 0 || children == null || children.isEmpty()) {
+      return;
+    }
+    for (PSAction child : children) {
+      if (child == null) {
+        continue;
+      }
+      if (child.getId() == parentId
+          || descendantContainsParent(child, parentId, new HashSet<>())) {
+        throw new IllegalArgumentException("cascading menu cycle");
+      }
+    }
+  }
+
+  /**
+   * True when {@code parentId} is already in {@code node}'s existing descendant graph (design-WS
+   * children and/or Hibernate nested tree).
+   */
+  boolean descendantContainsParent(PSAction node, int parentId, Set<Integer> seen) {
+    if (node == null || node.getId() <= 0 || parentId <= 0 || seen == null) {
+      return false;
+    }
+    if (!seen.add(node.getId())) {
+      return false;
+    }
+    PSChildActions kids = node.getChildren();
+    if (kids != null) {
+      Iterator<?> it = kids.iterator();
+      while (it.hasNext()) {
+        int childId = childActionId(it.next());
+        if (childId == parentId) {
+          return true;
+        }
+        if (childId > 0) {
+          PSAction child = findPsActionByKey(Integer.toString(childId));
+          if (child == null) {
+            child = findHibernateActionByKey(Integer.toString(childId));
+          }
+          if (descendantContainsParent(child, parentId, seen)) {
+            return true;
+          }
+        }
+      }
+    }
+    PSActionMenu hibernate = requestHibernateIndex().get(Integer.toString(node.getId()));
+    if (hibernate != null && hibernate.getChildren() != null) {
+      for (PSActionMenu child : hibernate.getChildren()) {
+        if (child == null) {
+          continue;
+        }
+        int childId = child.getActionId();
+        if (childId == parentId) {
+          return true;
+        }
+        if (childId > 0) {
+          PSAction loaded = findPsActionByKey(Integer.toString(childId));
+          if (loaded == null) {
+            loaded = psActionFromHibernate(child);
+          }
+          if (descendantContainsParent(loaded, parentId, seen)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  static int childActionId(Object child) {
+    if (child instanceof PSMenuChild menuChild) {
+      try {
+        return Integer.parseInt(menuChild.getChildActionId());
+      } catch (NumberFormatException e) {
+        return -1;
+      }
+    }
+    if (child instanceof PSAction action) {
+      return action.getId();
+    }
+    return -1;
   }
 
   static String childCatalogKey(ActionMenu child) {
