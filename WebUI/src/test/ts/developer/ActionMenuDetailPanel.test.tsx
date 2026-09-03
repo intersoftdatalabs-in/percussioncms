@@ -11,6 +11,8 @@ import {
   deleteActionMenu,
   getActionMenuDetail,
   saveActionMenu,
+  saveActionMenuChildren,
+  listActionMenus,
 } from "../../../main/ts/api/developer/actionMenusApi";
 import { ActionMenuDetailPanel } from "../../../main/ts/developer/ActionMenuDetailPanel";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
@@ -26,6 +28,7 @@ vi.mock("../../../main/ts/api/developer/actionMenusApi", async (importOriginal) 
     createActionMenu: vi.fn(),
     saveActionMenu: vi.fn(),
     deleteActionMenu: vi.fn(),
+    saveActionMenuChildren: vi.fn(),
   };
 });
 
@@ -48,6 +51,8 @@ const getActionMenuDetailMock = vi.mocked(getActionMenuDetail);
 const createActionMenuMock = vi.mocked(createActionMenu);
 const saveActionMenuMock = vi.mocked(saveActionMenu);
 const deleteActionMenuMock = vi.mocked(deleteActionMenu);
+const saveActionMenuChildrenMock = vi.mocked(saveActionMenuChildren);
+const listActionMenusMock = vi.mocked(listActionMenus);
 
 const sampleDetail = {
   id: 1,
@@ -72,6 +77,9 @@ describe("ActionMenuDetailPanel", () => {
     createActionMenuMock.mockReset();
     saveActionMenuMock.mockReset();
     deleteActionMenuMock.mockReset();
+    saveActionMenuChildrenMock.mockReset();
+    listActionMenusMock.mockReset();
+    listActionMenusMock.mockResolvedValue([]);
   });
 
   it("loads detail on success and supports back", async () => {
@@ -823,6 +831,169 @@ describe("ActionMenuDetailPanel", () => {
     );
     expect(screen.getByTestId("developer-am-detail-error").textContent).not.toContain(
       DEV_MSG.AM_INVALID_NAME,
+    );
+  });
+
+  it("enables children composer on a user cascading MENU without sys_restUserMenu", async () => {
+    getActionMenuDetailMock.mockResolvedValue({
+      name: "ParentMenu",
+      menuType: "MENU",
+      url: "",
+      properties: [],
+      children: [],
+    });
+    listActionMenusMock.mockResolvedValue([
+      { name: "ParentMenu", menuType: "MENU" },
+      { name: "ChildA" },
+    ]);
+    render(<ActionMenuDetailPanel idOrName="ParentMenu" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-children-editor")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-am-children-save") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+  });
+
+  it("keeps children save disabled on a system MENUITEM parent", async () => {
+    getActionMenuDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      menuType: "MENU",
+      url: "",
+      properties: [],
+      children: [{ name: "Open" }],
+    });
+    render(<ActionMenuDetailPanel idOrName="Edit" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-children")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-am-children-save") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    expect(screen.getByTestId("developer-am-children-readonly")).toBeTruthy();
+    expect(screen.queryByTestId("developer-am-children-editor")).toBeNull();
+    expect(screen.getByTestId("developer-am-child-row-0").getAttribute("data-am-child-name")).toBe(
+      "Open",
+    );
+  });
+
+  it("adds, reorders, removes, and saves children on a user cascading MENU", async () => {
+    const userMenu = {
+      name: "ParentMenu",
+      label: "Parent",
+      menuType: "MENU",
+      url: "",
+      properties: [{ name: "sys_restUserMenu", value: "yes" }],
+      children: [] as { name: string }[],
+    };
+    getActionMenuDetailMock.mockResolvedValue(userMenu);
+    listActionMenusMock.mockResolvedValue([
+      userMenu,
+      { name: "ChildA", label: "A" },
+      { name: "ChildB", label: "B" },
+    ]);
+    saveActionMenuChildrenMock.mockResolvedValue({
+      ...userMenu,
+      children: [{ name: "ChildB" }, { name: "ChildA" }],
+    });
+    const onSaved = vi.fn();
+    render(
+      <ActionMenuDetailPanel idOrName="ParentMenu" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-children-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-am-child-source"), {
+      target: { value: "ChildA" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-child-add"));
+    fireEvent.change(screen.getByTestId("developer-am-child-source"), {
+      target: { value: "ChildB" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-child-add"));
+    expect(screen.getByTestId("developer-am-child-row-0").getAttribute("data-am-child-name")).toBe(
+      "ChildA",
+    );
+    fireEvent.click(screen.getByTestId("developer-am-child-down-0"));
+    expect(screen.getByTestId("developer-am-child-row-0").getAttribute("data-am-child-name")).toBe(
+      "ChildB",
+    );
+    fireEvent.click(screen.getByTestId("developer-am-children-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(saveActionMenuChildrenMock).toHaveBeenCalledWith("ParentMenu", [
+      { name: "ChildB" },
+      { name: "ChildA" },
+    ]);
+    expect(screen.getByTestId("developer-am-editor-notice").textContent).toBe(
+      DEV_MSG.AM_CHILDREN_SAVED,
+    );
+  });
+
+  it("surfaces 409 system parent on children save", async () => {
+    getActionMenuDetailMock.mockResolvedValue({
+      name: "ParentMenu",
+      menuType: "MENU",
+      url: "",
+      properties: [{ name: "sys_restUserMenu", value: "yes" }],
+      children: [],
+    });
+    listActionMenusMock.mockResolvedValue([
+      { name: "ParentMenu", menuType: "MENU" },
+      { name: "ChildA" },
+    ]);
+    saveActionMenuChildrenMock.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "System action menus cannot be updated or deleted via this API" },
+    });
+    render(<ActionMenuDetailPanel idOrName="ParentMenu" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-children-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-am-child-source"), {
+      target: { value: "ChildA" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-child-add"));
+    fireEvent.click(screen.getByTestId("developer-am-children-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-am-detail-error").textContent).toContain(DEV_MSG.AM_SYSTEM);
+  });
+
+  it("surfaces 400 illegal children graph from the server", async () => {
+    getActionMenuDetailMock.mockResolvedValue({
+      name: "ParentMenu",
+      menuType: "MENU",
+      url: "",
+      properties: [{ name: "sys_restUserMenu", value: "yes" }],
+      children: [],
+    });
+    listActionMenusMock.mockResolvedValue([
+      { name: "ParentMenu", menuType: "MENU" },
+      { name: "ChildA" },
+    ]);
+    saveActionMenuChildrenMock.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Child association would create a cycle" },
+    });
+    render(<ActionMenuDetailPanel idOrName="ParentMenu" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-children-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-am-child-source"), {
+      target: { value: "ChildA" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-child-add"));
+    fireEvent.click(screen.getByTestId("developer-am-children-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-am-detail-error").textContent).toContain(
+      "Child association would create a cycle",
     );
   });
 });

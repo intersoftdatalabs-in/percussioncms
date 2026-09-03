@@ -928,7 +928,7 @@ export const DEV_MSG_KEYS = {
   AM_EMPTY: "perc.ui.developer@No action menus returned.",
   AM_ERROR: "perc.ui.developer@Could not load action menus.",
   AM_HINT:
-    "perc.ui.developer@Create or delete Content Explorer action menus (name required, no spaces). Set usage, command, and visibility on a user menu. System menus cannot be changed. Cascading children stay a later slice.",
+    "perc.ui.developer@Create or delete Content Explorer action menus (name required, no spaces). Set usage, command, and visibility on a user menu. On a user cascading MENU, add, remove, or reorder child menus and save. System menus cannot be changed.",
   AM_COL_NAME: "perc.ui.developer@Name",
   AM_COL_LABEL: "perc.ui.developer@Label",
   AM_COL_TYPE: "perc.ui.developer@Menu type",
@@ -988,8 +988,30 @@ export const DEV_MSG_KEYS = {
   AM_USAGE_HINT:
     "perc.ui.developer@Workbench Usage: handler, accelerator, mnemonic, tooltip, icon, launch window, multi-select, and refresh hint.",
   AM_COMMAND_HINT:
-    "perc.ui.developer@Workbench Command: URL, target, target style, and URL parameters.",
-  AM_NEW: "perc.ui.developer@New action menu",
+    "perc.ui.developer@Workbench Command: URL, target, target style, and URL parameters.",  AM_GAP_UI03: "perc.ui.developer@Usage / command / visibility tab completeness is a later slice.",
+  AM_GAP_VISIBILITY: "perc.ui.developer@Visibility context editing not supported via this API",
+  AM_CHILDREN: "perc.ui.developer@Child menus",
+  AM_CHILDREN_HINT:
+    "perc.ui.developer@Associate existing menus as ordered children of this cascading MENU, then save. Child identity is the catalog name.",
+  AM_CHILDREN_READONLY:
+    "perc.ui.developer@System action menus are read-only. Child add, remove, reorder, and save are available on user cascading MENU parents only.",
+  AM_CHILDREN_NEED_CASCADE:
+    "perc.ui.developer@Child composition requires menu type MENU and a blank URL. Save those identity fields first.",
+  AM_CHILDREN_EMPTY: "perc.ui.developer@No child menus.",
+  AM_CHILDREN_ADD: "perc.ui.developer@Add child",
+  AM_CHILDREN_ADD_PICKER: "perc.ui.developer@Menu to add",
+  AM_CHILDREN_MOVE_UP: "perc.ui.developer@Move up",
+  AM_CHILDREN_MOVE_DOWN: "perc.ui.developer@Move down",
+  AM_CHILDREN_REMOVE: "perc.ui.developer@Remove",
+  AM_CHILDREN_SAVE: "perc.ui.developer@Save children",
+  AM_CHILDREN_SAVING: "perc.ui.developer@Saving children...",
+  AM_CHILDREN_SAVED: "perc.ui.developer@Child menus saved.",
+  AM_CHILDREN_SAVE_ERROR: "perc.ui.developer@Could not save child menus.",
+  AM_CHILDREN_INVALID:
+    "perc.ui.developer@Child list is invalid (unknown child, duplicate, cycle, or parent is not a cascading MENU).",
+  AM_CHILDREN_COL_NAME: "perc.ui.developer@Name",
+  AM_CHILDREN_COL_LABEL: "perc.ui.developer@Label",
+  AM_CHILDREN_COL_ACTIONS: "perc.ui.developer@Actions",  AM_NEW: "perc.ui.developer@New action menu",
   AM_EDIT: "perc.ui.developer@Edit",
   AM_SAVE: "perc.ui.developer@Save",
   AM_CANCEL: "perc.ui.developer@Cancel",

@@ -1482,8 +1482,9 @@ after POST, and omits it after DELETE. There is no new SOAP surface.
 **Developer → Action Menus** chrome creates and deletes user menus and saves
 label / description / menuType plus Workbench **Usage**, **Command**, and
 **Visibility** on user menus (`handler`, `url`, `parameters`, command/usage
-`properties`, `visibilityContexts`, and `uiContexts`). Ordered **child associations**
-on a user cascading `MENU` use `PUT /services/actions/{idOrName}/children` (UI-04) —
+`properties`, `visibilityContexts`, and `uiContexts`). Cascading children on a
+user `MENU` are composed in that chrome via `PUT /services/actions/{idOrName}/children`
+(ordered `ActionMenuList`; identity PUT still ignores nested `children`) —
 see [Developer Action Menus](id:admin-developer-action-menus). Finder helpers
 (`GET /services/actions/find`, content-type and template finders) are unchanged.
 After POST the editor notice confirms the save. Packaged menus (for example

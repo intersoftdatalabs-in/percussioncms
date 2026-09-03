@@ -637,6 +637,9 @@ export interface ActionMenu {
    * Empty collection arrays are then not authoritative; PUT should omit them.
    */
   partialOverlay?: boolean;
+  /** Nested catalog children (GET); write uses PUT /actions/{id}/children. */
+  children?: ActionMenu[];
+  parentId?: number;
   designGaps?: string[];
 }
 

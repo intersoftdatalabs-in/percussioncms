@@ -28,10 +28,13 @@ import {
   isValidActionMenuName,
   normalizeActionMenuName,
   saveActionMenu,
+  saveActionMenuChildren,
   unwrapActionMenu,
+  unwrapActionMenuChildren,
   unwrapActionMenuList,
   visibilityContextValue,
   withoutStaleActionMenuWriteGap,
+  wrapActionMenuChildrenForWire,
   wrapActionMenuForWire,
 } from "../../../../main/ts/api/developer/actionMenusApi";
 
@@ -164,21 +167,49 @@ describe("action menu wire wrap", () => {
     });
   });
 
-  it("drops the create/update/delete gap from ACTION_MENU_DESIGN_GAPS", () => {
+  it("drops the create/update/delete and cascading-children gaps from ACTION_MENU_DESIGN_GAPS", () => {
     expect(ACTION_MENU_DESIGN_GAPS.some((g) => /create/i.test(g))).toBe(false);
     expect(ACTION_MENU_DESIGN_GAPS.some((g) => /usage/i.test(g))).toBe(false);
-    expect(ACTION_MENU_DESIGN_GAPS.some((g) => /cascading/i.test(g))).toBe(true);
+    expect(ACTION_MENU_DESIGN_GAPS.some((g) => /cascading/i.test(g))).toBe(false);
+    expect(ACTION_MENU_DESIGN_GAPS.some((g) => /visibility/i.test(g))).toBe(false);
   });
 
-  it("filters a stale REST write gap on GET detail", () => {
+  it("filters stale REST write and children gaps on GET detail", () => {
     expect(
       withoutStaleActionMenuWriteGap([
         "Action menu create / update / delete not supported via this API",
         "Usage / command / visibility tab completeness is a later slice.",
         "Visibility context editing not supported via this API",
         "Cascading child menu composition not supported via this API",
+        "Visibility context editing not supported via this API",
       ]),
-    ).toEqual(["Cascading child menu composition not supported via this API"]);
+    ).toEqual([]);
+  });
+
+  it("wraps children PUT under ActionMenuList", () => {
+    expect(wrapActionMenuChildrenForWire([{ name: "ChildA" }, { name: "ChildB" }])).toEqual({
+      ActionMenuList: [{ name: "ChildA" }, { name: "ChildB" }],
+    });
+  });
+});
+
+describe("unwrapActionMenuChildren", () => {
+  it("unwraps nested array and ActionMenuList envelopes", () => {
+    expect(unwrapActionMenuChildren([{ name: "Open", id: 8 }]).map((c) => c.name)).toEqual(["Open"]);
+    expect(
+      unwrapActionMenuChildren({ ActionMenuList: [{ name: "Copy" }] }).map((c) => c.name),
+    ).toEqual(["Copy"]);
+  });
+
+  it("attaches unwrapped children on GET detail", () => {
+    const unwrapped = unwrapActionMenu({
+      ActionMenu: {
+        name: "Parent",
+        children: { ActionMenu: [{ name: "Open", id: 3 }] },
+      },
+    });
+    expect(unwrapped.children?.map((c) => c.name)).toEqual(["Open"]);
+    expect(unwrapped.children?.[0].guidString).toBe("0-107-3");
   });
 
   it("drops empty-value visibility rows from the wire wrap", () => {
@@ -271,6 +302,29 @@ describe("actionMenusApi write paths", () => {
     expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.ACTION_MENUS_ROOT}/MyMenu`);
     expect(JSON.parse(String(init.body))).toEqual({
       ActionMenu: { name: "MyMenu", label: "Updated", handler: "SERVER" },
+    });
+  });
+
+  it("PUTs children to /services/actions/{idOrName}/children", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        name: "ParentMenu",
+        menuType: "MENU",
+        children: [{ name: "ChildA" }, { name: "ChildB" }],
+      }),
+    );
+    const saved = await saveActionMenuChildren("ParentMenu", [
+      { name: "ChildA" },
+      { name: "ChildB" },
+    ]);
+    expect(saved.children?.map((c) => c.name)).toEqual(["ChildA", "ChildB"]);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.ACTION_MENUS_ROOT}/ParentMenu/children`,
+    );
+    expect(JSON.parse(String(init.body))).toEqual({
+      ActionMenuList: [{ name: "ChildA" }, { name: "ChildB" }],
     });
   });
 

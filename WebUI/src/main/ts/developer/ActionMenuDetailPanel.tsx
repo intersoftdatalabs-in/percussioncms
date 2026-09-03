@@ -31,12 +31,14 @@ import {
   getActionMenuDetail,
   isActionMenuWriteReady,
   mergeActionMenuProperties,
+  listActionMenus,
   normalizeActionMenuName,
   normalizeActionMenuParameters,
   normalizeUiContexts,
   normalizeVisibilityContexts,
   propertyValue,
   saveActionMenu,
+  saveActionMenuChildren,
   withoutStaleActionMenuWriteGap,
   type ActionMenuWriteBody,
 } from "../api/developer/actionMenusApi";
@@ -48,6 +50,18 @@ import type {
   ActionMenuProperty,
   ActionMenuVisibilityContext,
 } from "../api/developer/types";
+import {
+  addActionMenuChild,
+  catalogsNotInChildren,
+  childrenOrderEqual,
+  isActionMenuChildrenWritable,
+  isKnownSystemActionMenuName,
+  isRestUserActionMenu,
+  moveActionMenuChild,
+  removeActionMenuChild,
+  toChildWriteBody,
+  type ActionMenuChildRef,
+} from "./actionMenuChildren";
 import {
   catalogColors,
   backButton,
@@ -98,7 +112,30 @@ function tabStyle(active: boolean): React.CSSProperties {
 }
 
 type AmTab = "usage" | "command" | "visibility";
+const actionButton: React.CSSProperties = {
+  padding: "4px 8px",
+  border: `1px solid ${catalogColors.softBorder}`,
+  borderRadius: "4px",
+  background: catalogColors.surface,
+  cursor: "pointer",
+  font: "inherit",
+};
 
+function childrenFromDetail(detail: ActionMenu | null): ActionMenuChildRef[] {
+  if (detail == null || !Array.isArray(detail.children)) {
+    return [];
+  }
+  return detail.children.map((c) => {
+    const row: ActionMenuChildRef = { name: (c.name || "").trim() };
+    if (c.id != null && c.id > 0) {
+      row.id = c.id;
+    }
+    if (c.guidString) {
+      row.guidString = c.guidString;
+    }
+    return row;
+  });
+}
 function typeFromDetail(detail: ActionMenu | null, fallback: string): string {
   if (detail?.menuType && detail.menuType.trim()) return detail.menuType.trim();
   return fallback;
@@ -197,6 +234,9 @@ export function ActionMenuDetailPanel({
   const [busy, setBusy] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(idOrName != null);
+  const [draftChildren, setDraftChildren] = useState<ActionMenuChildRef[]>([]);
+  const [catalog, setCatalog] = useState<ActionMenu[]>([]);
+  const [addChildName, setAddChildName] = useState("");
   const inflight = useRef(false);
 
   function hydrate(d: ActionMenu, key: string | null, preserveCollections = false): void {
@@ -247,12 +287,16 @@ export function ActionMenuDetailPanel({
     setDetail(null);
     setError(null);
     setNotice(null);
+    setDraftChildren([]);
+    setAddChildName("");
     setLoading(true);
     getActionMenuDetail(idOrName)
       .then((d) => {
         if (cancelled) return;
         setDetail(d);
         hydrate(d, idOrName);
+        setDraftChildren(childrenFromDetail(d));
+        setAddChildName("");
         setLoading(false);
       })
       .catch((err: unknown) => {
@@ -291,6 +335,42 @@ export function ActionMenuDetailPanel({
   const canSave = !busy && dirty && isActionMenuWriteReady({ isNew, name });
   const writeKey = idOrName || createdKey || normalizeActionMenuName(name);
   const objectGuid = resolveActionMenuObjectGuid(detail, catalogGuid);
+  const restUser =
+    isRestUserActionMenu(detail) ||
+    createdKey != null ||
+    (detail != null && !isKnownSystemActionMenuName(detail.name || writeKey));
+  const childrenWritable = isActionMenuChildrenWritable({
+    isNew,
+    isRestUser: restUser,
+    menuType: typeFromDetail(detail, menuType),
+    url: detail?.url || "",
+  });
+  const loadedChildren = childrenFromDetail(detail);
+  const children = childrenWritable ? draftChildren : loadedChildren;
+  const childrenDirty = childrenWritable && !childrenOrderEqual(draftChildren, loadedChildren);
+  const canSaveChildren = !busy && childrenDirty && Boolean(writeKey);
+  const availableChildren = catalogsNotInChildren(catalog, draftChildren, {
+    name: writeKey,
+    id: detail?.id,
+    guidString: objectGuid,
+  });
+
+  useEffect(() => {
+    if (isNew) {
+      return;
+    }
+    let cancelled = false;
+    listActionMenus()
+      .then((rows) => {
+        if (!cancelled) setCatalog(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setCatalog([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isNew, idOrName, createdKey]);
 
   function identityBody(): ActionMenuWriteBody {
     const body: ActionMenuWriteBody = {
@@ -431,6 +511,7 @@ export function ActionMenuDetailPanel({
       }
       setDetail(saved);
       hydrate(saved, persistedName, true);
+      setDraftChildren(childrenFromDetail(saved));
       setNotice(DEV_MSG.AM_SAVED);
       onSaved?.(saved);
     } catch (err: unknown) {
@@ -477,6 +558,54 @@ export function ActionMenuDetailPanel({
     }
   }
 
+  function childrenSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 409) {
+      const fromBody = extractRestErrorMessage(err.body);
+      if (fromBody && /system/i.test(fromBody)) return DEV_MSG.AM_SYSTEM;
+      return fromBody || DEV_MSG.AM_SYSTEM;
+    }
+    if (isApiError(err) && err.status === 400) {
+      const fromBody = extractRestErrorMessage(err.body);
+      return fromBody || DEV_MSG.AM_CHILDREN_INVALID;
+    }
+    if (isApiError(err) && err.status === 403) return DEV_MSG.AM_FORBIDDEN;
+    if (isApiError(err) && err.status === 404) return DEV_MSG.AM_NOT_FOUND;
+    return DEV_MSG.AM_CHILDREN_SAVE_ERROR;
+  }
+
+  async function handleSaveChildren(): Promise<void> {
+    if (!canSaveChildren || !writeKey || inflight.current) return;
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const saved = await saveActionMenuChildren(writeKey, toChildWriteBody(draftChildren));
+      setDetail(saved);
+      setDraftChildren(childrenFromDetail(saved));
+      setNotice(DEV_MSG.AM_CHILDREN_SAVED);
+      onSaved?.(saved);
+    } catch (err: unknown) {
+      if (isApiError(err) && err.status === 409) {
+        setError(childrenSaveFallback(err));
+      } else {
+        setError(panelErrMsg(err, childrenSaveFallback(err)));
+      }
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  function handleAddChild(): void {
+    const candidate = availableChildren.find(
+      (row) => (row.name || "").trim() === addChildName.trim(),
+    );
+    if (!candidate) return;
+    setDraftChildren(addActionMenuChild(draftChildren, candidate));
+    setAddChildName("");
+  }
+
   const title = isNew
     ? DEV_MSG.AM_NEW
     : detail?.label || detail?.name || idOrName || DEV_MSG.AM_EDIT;
@@ -484,7 +613,7 @@ export function ActionMenuDetailPanel({
   const gapList =
     detail != null && detail.designGaps && detail.designGaps.length > 0
       ? withoutStaleActionMenuWriteGap(detail.designGaps)
-      : [DEV_MSG.AM_GAP_CHILDREN];
+      : [];
 
   function yesNoSelect(
     id: string,
@@ -511,6 +640,13 @@ export function ActionMenuDetailPanel({
       </div>
     );
   }
+
+  const childrenHint = !restUser
+    ? DEV_MSG.AM_CHILDREN_READONLY
+    : childrenWritable
+      ? DEV_MSG.AM_CHILDREN_HINT
+      : DEV_MSG.AM_CHILDREN_NEED_CASCADE;
+
 
   return (
     <div data-testid="developer-am-detail">
@@ -1209,6 +1345,267 @@ export function ActionMenuDetailPanel({
 
           {detail ? (
             <>
+              <section data-testid="developer-am-children">
+                <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.AM_CHILDREN}</h3>
+                <p
+                  style={{ color: catalogColors.muted, fontSize: "0.9rem" }}
+                  data-testid={
+                    childrenWritable ? "developer-am-children-hint" : "developer-am-children-readonly"
+                  }
+                >
+                  {childrenHint}
+                </p>
+                {children.length === 0 ? (
+                  <p style={{ color: catalogColors.empty }} data-testid="developer-am-children-empty">
+                    {DEV_MSG.AM_CHILDREN_EMPTY}
+                  </p>
+                ) : (
+                  <div style={{ overflowX: "auto" }}>
+                    <table
+                      data-testid="developer-am-children-table"
+                      style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
+                    >
+                      <thead>
+                        <tr style={tableHeaderRow}>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.AM_CHILDREN_COL_NAME}</th>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.AM_CHILDREN_COL_LABEL}</th>
+                          {childrenWritable ? (
+                            <th style={{ padding: "8px" }}>{DEV_MSG.AM_CHILDREN_COL_ACTIONS}</th>
+                          ) : null}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {children.map((c, i) => (
+                          <tr
+                            key={`${c.name ?? "child"}-${i}`}
+                            data-testid={`developer-am-child-row-${i}`}
+                            data-am-child-name={c.name || ""}
+                            style={tableRow}
+                          >
+                            <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                              {c.name || "—"}
+                            </td>
+                            <td style={{ padding: "8px" }}>
+                              {catalog.find(
+                                (row) =>
+                                  (row.name || "").trim().toLowerCase() ===
+                                  (c.name || "").trim().toLowerCase(),
+                              )?.label || "—"}
+                            </td>
+                            {childrenWritable ? (
+                              <td style={{ padding: "8px" }}>
+                                <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+                                  <button
+                                    type="button"
+                                    data-testid={`developer-am-child-up-${i}`}
+                                    aria-label={DEV_MSG.AM_CHILDREN_MOVE_UP}
+                                    disabled={busy || i === 0}
+                                    onClick={() =>
+                                      setDraftChildren(moveActionMenuChild(draftChildren, i, -1))
+                                    }
+                                    style={actionButton}
+                                  >
+                                    {DEV_MSG.AM_CHILDREN_MOVE_UP}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    data-testid={`developer-am-child-down-${i}`}
+                                    aria-label={DEV_MSG.AM_CHILDREN_MOVE_DOWN}
+                                    disabled={busy || i === children.length - 1}
+                                    onClick={() =>
+                                      setDraftChildren(moveActionMenuChild(draftChildren, i, 1))
+                                    }
+                                    style={actionButton}
+                                  >
+                                    {DEV_MSG.AM_CHILDREN_MOVE_DOWN}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    data-testid={`developer-am-child-remove-${i}`}
+                                    aria-label={DEV_MSG.AM_CHILDREN_REMOVE}
+                                    disabled={busy}
+                                    onClick={() =>
+                                      setDraftChildren(removeActionMenuChild(draftChildren, i))
+                                    }
+                                    style={actionButton}
+                                  >
+                                    {DEV_MSG.AM_CHILDREN_REMOVE}
+                                  </button>
+                                </div>
+                              </td>
+                            ) : null}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                {childrenWritable ? (
+                  <div
+                    style={{
+                      marginTop: "12px",
+                      display: "flex",
+                      gap: "8px",
+                      flexWrap: "wrap",
+                      alignItems: "flex-end",
+                    }}
+                    data-testid="developer-am-children-editor"
+                  >
+                    <label
+                      htmlFor="am-child-add"
+                      style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+                    >
+                      {DEV_MSG.AM_CHILDREN_ADD_PICKER}
+                      <select
+                        id="am-child-add"
+                        data-testid="developer-am-child-source"
+                        style={inputStyle}
+                        value={addChildName}
+                        disabled={busy || availableChildren.length === 0}
+                        onChange={(e) => setAddChildName(e.target.value)}
+                      >
+                        <option value="">
+                          {availableChildren.length ? "—" : DEV_MSG.AM_NONE}
+                        </option>
+                        {availableChildren.map((row) => (
+                          <option key={row.name || String(row.id)} value={row.name || ""}>
+                            {row.label ? `${row.label} (${row.name})` : row.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <button
+                      type="button"
+                      data-testid="developer-am-child-add"
+                      aria-label={DEV_MSG.AM_CHILDREN_ADD}
+                      disabled={busy || !addChildName.trim()}
+                      onClick={handleAddChild}
+                      style={{
+                        ...actionButton,
+                        padding: "8px 12px",
+                        background: addChildName.trim()
+                          ? catalogColors.accent
+                          : catalogColors.disabled,
+                        color: "#fff",
+                        border: "none",
+                        cursor: addChildName.trim() && !busy ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      {DEV_MSG.AM_CHILDREN_ADD}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-am-children-save"
+                      aria-label={DEV_MSG.AM_CHILDREN_SAVE}
+                      disabled={!canSaveChildren}
+                      onClick={() => void handleSaveChildren()}
+                      style={{
+                        padding: "8px 16px",
+                        background: canSaveChildren ? catalogColors.accent : catalogColors.disabled,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: canSaveChildren ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      {busy ? DEV_MSG.AM_CHILDREN_SAVING : DEV_MSG.AM_CHILDREN_SAVE}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    data-testid="developer-am-children-save"
+                    aria-label={DEV_MSG.AM_CHILDREN_SAVE}
+                    disabled
+                    style={{
+                      marginTop: "12px",
+                      padding: "8px 16px",
+                      background: catalogColors.disabled,
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "not-allowed",
+                    }}
+                  >
+                    {DEV_MSG.AM_CHILDREN_SAVE}
+                  </button>
+                )}
+              </section>
+
+              <section data-testid="developer-am-params" style={{ marginTop: "16px" }}>
+                <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.AM_PARAMS}</h3>
+                <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.AM_PARAMS_HINT}</p>
+                {params.length === 0 ? (
+                  <p style={{ color: catalogColors.empty }} data-testid="developer-am-params-empty">
+                    {DEV_MSG.AM_NONE}
+                  </p>
+                ) : (
+                  <div style={{ overflowX: "auto" }}>
+                    <table
+                      data-testid="developer-am-params-table"
+                      style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
+                    >
+                      <thead>
+                        <tr style={tableHeaderRow}>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_PARAM}</th>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_VALUE}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {params.map((p, i) => (
+                          <tr
+                            key={`${p.name ?? "p"}-${i}`}
+                            data-testid={`developer-am-param-row-${i}`}
+                            style={tableRow}
+                          >
+                            <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                              {p.name || "—"}
+                            </td>
+                            <td style={{ padding: "8px" }}>{p.value || "—"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
+
+              <section style={{ marginTop: "16px" }} data-testid="developer-am-props">
+                <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.AM_PROPS}</h3>
+                {props.length === 0 ? (
+                  <p style={{ color: catalogColors.empty }} data-testid="developer-am-props-empty">
+                    {DEV_MSG.AM_NONE}
+                  </p>
+                ) : (
+                  <div style={{ overflowX: "auto" }}>
+                    <table
+                      data-testid="developer-am-props-table"
+                      style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
+                    >
+                      <thead>
+                        <tr style={tableHeaderRow}>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_PROP}</th>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_VALUE}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {props.map((p, i) => (
+                          <tr
+                            key={`${p.name ?? "prop"}-${i}`}
+                            data-testid={`developer-am-prop-row-${i}`}
+                            style={tableRow}
+                          >
+                            <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                              {p.name || "—"}
+                            </td>
+                            <td style={{ padding: "8px" }}>{p.value || "—"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
               <ObjectAclSection
                 objectGuid={objectGuid}
                 objectKind="action-menu"
