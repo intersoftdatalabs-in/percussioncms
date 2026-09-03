@@ -1809,8 +1809,10 @@ no SOAP design twin and this API does not invent one.
 Admin **write** persists **user** controls as an XSL file under
 `rx_resources/stylesheets/controls` plus the custom-control import list
 (`PSCustomControlManager.writeImports`). Packaged **system** controls are read-only.
-**Do not** treat this as a Developer Controls SPA; chrome for create/save/delete is a later
-sibling. Full XSL source-editor UX is not provided by this API.
+**Developer → CE Controls** SPA chrome **creates**, **saves**, and **deletes** user
+controls (`POST` / `PUT` / `DELETE` `/services/cecontrols`). Full XSL source-editor UX is
+not provided by this API — create and save may send optional `xslSource`, or omit it for
+the server default stylesheet.
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -1836,16 +1838,24 @@ Non-Admin is **403**. The new control is then `GET /services/cecontrols/{name}` 
 appears on `GET /services/cecontrols`.
 
 Update (`PUT /services/cecontrols/{name}`) updates a **user** control. Name is the catalog
-key and is not renamed on PUT. Omitted `xslSource` regenerates a default stylesheet from
-metadata (send `xslSource` to keep a custom stylesheet). Unknown name is **404**. A
-**system** control is **409** (packaged files are not mutated). Non-Admin is **403**.
+key and is not renamed on PUT. Developer chrome always sends `displayName`, `description`,
+`dimension`, and `choiceSet` so a cleared field is persisted (blank `description` clears;
+blank dimension/choice set send `single` / `none`). Omitted `xslSource` regenerates a
+default stylesheet from metadata (send `xslSource` to keep a custom stylesheet). Unknown
+name is **404**. A **system** control is **409** (packaged files are not mutated).
+Non-Admin is **403**.
 
 Delete (`DELETE /services/cecontrols/{name}`) returns **204** when a user control is
 removed; a following `GET` is **404**. Unknown name is **404**. A **system** control is
 **409** (not deleted). Non-Admin is **403**.
 
-There is **no** Developer SPA controls catalog create/delete in this slice — operators and
-integrators call the REST path (or Workbench).
+**Developer → CE Controls** creates a user control from the catalog (**New user control**).
+Name is required, unique, and cannot contain whitespace or wildcards; it is read-only after
+create. Duplicate name is **409**. Invalid name is **400**. Open a user control to **Save**
+(`PUT`) or **Delete** (`DELETE` **204**, following GET **404**, catalog omits the row).
+Omitted `xslSource` on PUT uses the server default stylesheet. Packaged **system**
+controls stay non-creatable / non-editable / non-deletable (POST/PUT/DELETE that uses a
+system name is **409**). See [Developer CE Controls](id:admin-developer-ce-controls).
 
 Example create body:
 
