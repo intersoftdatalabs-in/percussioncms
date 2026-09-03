@@ -9,10 +9,14 @@ import {
   CONTROL_DEF_ROOT,
   CONTROL_DESIGN_GAPS,
   createControl,
+  deleteControl,
   isControlCreateReady,
+  isControlSaveReady,
+  isSystemControl,
   isValidControlName,
   normalizeControlName,
   unwrapControlDef,
+  updateControl,
   withoutStaleControlWriteGap,
   wrapControlCreateForWire,
 } from "../../../../main/ts/api/developer/controlsApi";
@@ -38,6 +42,20 @@ describe("control name validation", () => {
     expect(isControlCreateReady({ name: "qaCtl", dimension: "wide" })).toBe(false);
     expect(isControlCreateReady({ name: "qaCtl", choiceSet: "required" })).toBe(true);
     expect(isControlCreateReady({ name: "qaCtl", choiceSet: "maybe" })).toBe(false);
+  });
+
+  it("save-ready allows blank dimension/choiceSet and rejects invalid values", () => {
+    expect(isControlSaveReady({})).toBe(true);
+    expect(isControlSaveReady({ dimension: "array", choiceSet: "optional" })).toBe(true);
+    expect(isControlSaveReady({ dimension: "wide" })).toBe(false);
+    expect(isControlSaveReady({ choiceSet: "maybe" })).toBe(false);
+  });
+
+  it("treats scope system as packaged (409) and other scopes as user", () => {
+    expect(isSystemControl("system")).toBe(true);
+    expect(isSystemControl(" SYSTEM ")).toBe(true);
+    expect(isSystemControl("user")).toBe(false);
+    expect(isSystemControl(null)).toBe(false);
   });
 });
 
@@ -71,6 +89,7 @@ describe("withoutStaleControlWriteGap", () => {
     expect(
       withoutStaleControlWriteGap([
         "User control create / edit / delete not supported via this API",
+        "User control edit / delete not supported via this API",
         "System controls are read-only packaged defaults",
       ]),
     ).toEqual(["System controls are read-only packaged defaults"]);
@@ -95,5 +114,32 @@ describe("createControl", () => {
     });
     expect(saved.name).toBe("qaCtl");
     expect(saved.designGaps).toEqual(CONTROL_DESIGN_GAPS);
+  });
+});
+
+describe("updateControl / deleteControl", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("PUTs a wrapped body and unwraps the response", async () => {
+    const spy = vi.spyOn(client, "put").mockResolvedValue({
+      ControlDef: { name: "qaCtl", displayName: "QA", scope: "user" },
+    });
+    const saved = await updateControl("qaCtl", {
+      name: "qaCtl",
+      displayName: "QA",
+    });
+    expect(spy).toHaveBeenCalledWith(`${PATHS.CE_CONTROLS}/qaCtl`, {
+      ControlDef: { name: "qaCtl", displayName: "QA" },
+    });
+    expect(saved.name).toBe("qaCtl");
+    expect(saved.designGaps).toEqual(CONTROL_DESIGN_GAPS);
+  });
+
+  it("DELETEs by encoded name", async () => {
+    const spy = vi.spyOn(client, "del").mockResolvedValue(undefined);
+    await deleteControl("qaCtl");
+    expect(spy).toHaveBeenCalledWith(`${PATHS.CE_CONTROLS}/qaCtl`);
   });
 });
