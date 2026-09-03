@@ -813,11 +813,14 @@ export interface ExtensionDef {
   fqn?: string;
   version?: number;
   deprecated?: boolean;
+  restoreRequestParamsOnError?: boolean;
   jexlExtension?: boolean;
   supportedInterfaces?: string[];
   runtimeParameters?: { name?: string; dataType?: string; description?: string }[];
   initParameters?: Record<string, string>;
   methods?: Record<string, { name?: string; description?: string }>;
+  /** Developer surface honesty; defaults filled by extensionsApi when absent. */
+  designGaps?: string[];
 }
 
 /** Effect row on a relationship type. */

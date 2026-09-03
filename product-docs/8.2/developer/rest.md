@@ -1943,7 +1943,8 @@ handler-owned, and user (`user/`) extensions. Backing is **ALT** — `IPSExtensi
 Admin **write** registers, updates, and deletes **user** extensions only. New registrations are
 forced under context `user/`. Packaged **system** extensions (`global/percussion/...`) and
 **handler-owned** extensions (`ExtensionHandler` / `Handlers`) are read-only (**409** on mutate).
-**Do not** treat this as a Developer Extensions SPA; create/edit chrome is a later sibling.
+**Developer → Extensions** SPA chrome creates, saves, and deletes user extensions against this
+API — see [Developer Extensions](id:admin-developer-extensions).
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -1980,8 +1981,8 @@ Delete (`DELETE /services/extensions/catalog/item?key=`) returns **204** when a 
 extension is removed; a following `GET` is **404**. Unknown key is **404**. A **system** or
 **handler-owned** extension is **409** (not deleted). Non-Admin is **403**.
 
-There is **no** Developer SPA extensions create/edit/delete in this slice — operators and
-integrators call the REST path (or Workbench).
+Operators can also use **Developer → Extensions** for the same user-extension write path.
+Integrators may call REST directly (or Workbench).
 
 Example register body:
 

@@ -161,8 +161,8 @@ public class ExtensionsResource {
           "Admin. Registers (installs) a user extension via IPSExtensionService under context"
               + " user/. extensionName and at least one supportedInterfaces entry are required."
               + " handlerName defaults to Java. Duplicate FQN is 409. System/handler contexts"
-              + " cannot be registered (409). This is REST only — there is no Developer SPA"
-              + " create chrome.",
+              + " cannot be registered (409). Developer → Extensions SPA also uses this"
+              + " endpoint for user-extension create.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -199,7 +199,8 @@ public class ExtensionsResource {
       description =
           "Admin. Updates mutable fields of a user extension by FQN or extension name (query"
               + " param key). Identity (handler/context/name) is not renamed on PUT. System and"
-              + " handler-owned extensions are 409. Unknown key is 404.",
+              + " handler-owned extensions are 409. Unknown key is 404. Developer → Extensions"
+              + " SPA also uses this endpoint for user-extension edit.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -242,7 +243,8 @@ public class ExtensionsResource {
       description =
           "Admin. Deletes a user extension by FQN or extension name (query param key). System"
               + " and handler-owned extensions are 409 (not deleted). Unknown key is 404."
-              + " Following GET is 404 after a successful delete.",
+              + " Following GET is 404 after a successful delete. Developer → Extensions SPA"
+              + " also uses this endpoint for user-extension delete.",
       responses = {
         @ApiResponse(responseCode = "204", description = "Deleted"),
         @ApiResponse(responseCode = "400", description = "Invalid input"),

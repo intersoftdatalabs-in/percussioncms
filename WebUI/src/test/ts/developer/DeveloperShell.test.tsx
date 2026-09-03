@@ -629,16 +629,32 @@ vi.mock("../../../main/ts/api/developer/viewsApi", async (importOriginal) => {
   };
 });
 
-vi.mock("../../../main/ts/api/developer/extensionsApi", () => ({
-  listExtensions: vi.fn().mockResolvedValue([
-    { extensionName: "sys_add", handlerName: "Java", fqn: "Java/global/percussion/sys_add" },
-  ]),
-  getExtensionDetail: vi.fn().mockResolvedValue({
-    extensionName: "sys_add",
-    supportedInterfaces: [],
-    runtimeParameters: [],
-  }),
-}));
+vi.mock("../../../main/ts/api/developer/extensionsApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/extensionsApi")
+  >();
+  return {
+    ...actual,
+    listExtensions: vi.fn().mockResolvedValue([
+      {
+        extensionName: "sys_add",
+        handlerName: "Java",
+        context: "global/percussion/",
+        fqn: "Java/global/percussion/sys_add",
+      },
+    ]),
+    getExtensionDetail: vi.fn().mockResolvedValue({
+      extensionName: "sys_add",
+      handlerName: "Java",
+      context: "global/percussion/",
+      supportedInterfaces: [],
+      runtimeParameters: [],
+    }),
+    createExtension: vi.fn(),
+    saveExtension: vi.fn(),
+    deleteExtension: vi.fn(),
+  };
+});
 
 vi.mock("../../../main/ts/api/developer/relationshipTypesApi", () => ({
   listRelationshipTypes: vi.fn().mockResolvedValue([
