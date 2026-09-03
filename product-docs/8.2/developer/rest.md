@@ -398,6 +398,48 @@ community remains (the lock is not stolen). Non-Admin is **403**.
 Role-association save stays `PUT /services/communities/{idOrName}/roles`. See
 [Developer Communities](id:admin-developer-communities).
 
+## Roles browse catalog (Security Design SE-03)
+
+Workbench **Security Design → Roles** is a **read catalog** grouped by usage:
+
+| Navigator folder | Meaning |
+|------------------|---------|
+| **Community** | Role is assigned to at least one community |
+| **Workflow** | Role is assigned to at least one workflow |
+| **Unassigned** | Role is in neither community nor workflow membership |
+
+Admin browse is exposed under `/services/roles/catalog`. This does **not** replace
+community role dual-list save (`PUT /services/communities/{idOrName}/roles`) or full
+role membership CRUD under `/services/roles`.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/roles/catalog` | **Admin.** Full browse catalog with grouping metadata |
+| `GET` | `/services/roles/catalog?group=community` | **Admin.** Only community-assigned roles |
+| `GET` | `/services/roles/catalog?group=workflow` | **Admin.** Only workflow-assigned roles |
+| `GET` | `/services/roles/catalog?group=unassigned` | **Admin.** Only unassigned roles |
+
+Each catalog entry includes:
+
+- `name` / optional `description`
+- `groups` — one or more of `community`, `workflow`, or solely `unassigned`
+- `communities` — community names that include the role (sorted)
+- `workflows` — workflow names that include the role (sorted; excludes internal
+  LocalContent workflow)
+
+A role that is both community- and workflow-assigned appears under **both** groups
+(`groups` lists both keys). Unassigned is exclusive. Unknown `group` values are
+**400**. Non-Admin is **403**. Empty match sets are **200** with `roles: []`.
+
+Existing role get / list / create-update / delete remain:
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/roles/{roleName}` | Load one role |
+| `GET` | `/services/roles/list/{pattern}` | Find roles by pattern |
+| `PUT` | `/services/roles/` | Create or update a role |
+| `DELETE` | `/services/roles/{roleName}` | Delete a role |
+
 ## Item filters (design catalog)
 
 Assembly **item filters** (Workbench **Item Filter** editor: name / description / rules /

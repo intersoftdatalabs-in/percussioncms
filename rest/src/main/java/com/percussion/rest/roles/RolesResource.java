@@ -171,6 +171,58 @@ public class RolesResource {
     }
   }
 
+  /**
+   * Admin SE-03 roles browse catalog with community / workflow / unassigned grouping metadata.
+   *
+   * <p>Literal path {@code /catalog} must not be captured by {@code /{roleName}}.
+   */
+  @GET
+  @Path("/catalog")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Browse roles by community / workflow / unassigned",
+      description =
+          "Admin. Returns system roles with Workbench Security Design grouping metadata"
+              + " (community, workflow, unassigned). Optional group query filter limits the"
+              + " result. Non-Admin is 403.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = RoleBrowseCatalog.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid group filter (expected community, workflow, or unassigned)"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public RoleBrowseCatalog browseRoles(
+      @Parameter(
+              description =
+                  "Optional filter: community, workflow, or unassigned. Omit for the full catalog.")
+          @QueryParam("group")
+          String group) {
+    try {
+      return requireAdaptor().browseRoles(uriInfo != null ? uriInfo.getBaseUri() : null, group);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (RuntimeException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  private IRoleAdaptor requireAdaptor() {
+    if (roleAdaptor == null) {
+      throw new WebApplicationException("Role adaptor not configured", 503);
+    }
+    return roleAdaptor;
+  }
+
   public IRoleAdaptor getRoleAdaptor() {
     return roleAdaptor;
   }
