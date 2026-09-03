@@ -44,6 +44,8 @@ Operators using **Developer → Action Menus** create/delete and usage/command/v
 
 Operators using **Developer → CE Controls** create/save/delete chrome: [Developer CE Controls](id:admin-developer-ce-controls).
 
+Operators using **Developer → CE Controls** create chrome: [Developer CE Controls](id:admin-developer-ce-controls).
+
 ## Accessibility — delete confirm
 
 Destructive **Delete** on Developer catalog editors (Searches, Views, Display
