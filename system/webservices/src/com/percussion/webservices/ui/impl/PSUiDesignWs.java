@@ -2917,6 +2917,12 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     * {@code findActionMenusTree} round-trips REST children PUT on the H2 JDBC fallback path
     * (locator {@code updateActions} can skip the XML graph). Unmodified empty children are
     * skipped so label PUT does not wipe existing associations.
+    *
+    * <p>When the connection is autocommit (typical H2 {@code DriverManager} tests and some
+    * pool checkouts), delete + inserts + sort updates run in one explicit transaction so a
+    * mid-loop {@code SQLException} does not leave an empty relation set or a partial
+    * {@code SORTORDER} chain. When autocommit is already false (Hibernate {@code doWork}
+    * inside an open transaction), this method does not commit or rollback.
     */
    static void persistActionRelationsOn(Connection conn, PSAction action) throws SQLException
    {
@@ -2927,33 +2933,63 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       int parentId = action.getId();
       if (parentId <= 0)
          return;
-      try (PreparedStatement del = conn.prepareStatement("DELETE FROM RXMENUACTIONRELATION WHERE ACTIONID = ?"))
+      boolean startedTx = false;
+      boolean previousAutoCommit = conn.getAutoCommit();
+      if (previousAutoCommit)
       {
-         del.setInt(1, parentId);
-         del.executeUpdate();
+         conn.setAutoCommit(false);
+         startedTx = true;
       }
-      String insertSql = "INSERT INTO RXMENUACTIONRELATION (ACTIONID, CHILDACTIONID) VALUES (?, ?)";
-      String sortSql = "UPDATE RXMENUACTION SET SORTORDER = ? WHERE ACTIONID = ?";
-      int sort = 1;
-      Iterator<?> it = action.getChildren().iterator();
-      while (it.hasNext())
+      try
       {
-         int childId = relationChildId(it.next());
-         if (childId <= 0)
-            continue;
-         try (PreparedStatement ins = conn.prepareStatement(insertSql))
+         try (PreparedStatement del =
+                   conn.prepareStatement("DELETE FROM RXMENUACTIONRELATION WHERE ACTIONID = ?");
+              PreparedStatement ins =
+                   conn.prepareStatement(
+                         "INSERT INTO RXMENUACTIONRELATION (ACTIONID, CHILDACTIONID) VALUES (?, ?)");
+              PreparedStatement sortPs =
+                   conn.prepareStatement("UPDATE RXMENUACTION SET SORTORDER = ? WHERE ACTIONID = ?"))
          {
-            ins.setInt(1, parentId);
-            ins.setInt(2, childId);
-            ins.executeUpdate();
+            del.setInt(1, parentId);
+            del.executeUpdate();
+            int sort = 1;
+            Iterator<?> it = action.getChildren().iterator();
+            while (it.hasNext())
+            {
+               int childId = relationChildId(it.next());
+               if (childId <= 0)
+                  continue;
+               ins.setInt(1, parentId);
+               ins.setInt(2, childId);
+               ins.executeUpdate();
+               sortPs.setInt(1, sort);
+               sortPs.setInt(2, childId);
+               sortPs.executeUpdate();
+               sort++;
+            }
          }
-         try (PreparedStatement sortPs = conn.prepareStatement(sortSql))
+         if (startedTx)
+            conn.commit();
+      }
+      catch (SQLException e)
+      {
+         if (startedTx)
          {
-            sortPs.setInt(1, sort);
-            sortPs.setInt(2, childId);
-            sortPs.executeUpdate();
+            try
+            {
+               conn.rollback();
+            }
+            catch (SQLException rollbackEx)
+            {
+               e.addSuppressed(rollbackEx);
+            }
          }
-         sort++;
+         throw e;
+      }
+      finally
+      {
+         if (startedTx)
+            conn.setAutoCommit(true);
       }
    }
 

@@ -655,6 +655,23 @@ describe("ActionMenuDetailPanel", () => {
     expect(screen.queryByTestId("developer-am-delete")).toBeNull();
   });
 
+  it("maps GET numeric visibility context id to the alias picker", async () => {
+    getActionMenuDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      name: "UserMenu",
+      visibilityContexts: [{ name: "2", value: "1001" }],
+    });
+    render(<ActionMenuDetailPanel idOrName="UserMenu" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-detail")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-am-tab-visibility"));
+    expect((screen.getByTestId("developer-am-vis-name-0") as HTMLSelectElement).value).toBe(
+      "community",
+    );
+    expect((screen.getByTestId("developer-am-vis-value-0") as HTMLInputElement).value).toBe("1001");
+  });
+
   it("saves usage, command, and visibility then reloads PUT fields", async () => {
     getActionMenuDetailMock.mockResolvedValue({
       ...sampleDetail,

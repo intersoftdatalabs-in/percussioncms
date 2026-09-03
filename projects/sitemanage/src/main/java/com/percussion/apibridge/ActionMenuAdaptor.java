@@ -296,7 +296,7 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
         List<ActionMenu> all = findMenus(null, null, null, null, null);
         ActionMenu catalog = matchMenuInTree(all, key);
         if (catalog != null) {
-          catalog.setPartialOverlay(!overlayDesignVisibility(catalog));
+          applyPartialOverlayFlag(catalog, overlayDesignVisibility(catalog));
         }
         return catalog;
       } catch (PSErrorResultsException e) {
@@ -305,6 +305,16 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       }
     } finally {
       clearRequestHibernateIndex();
+    }
+  }
+
+  /**
+   * Sets {@code partialOverlay} only when design overlay failed so GET happy-path JSON omits
+   * the field ({@code JsonInclude.NON_DEFAULT}).
+   */
+  static void applyPartialOverlayFlag(ActionMenu catalog, boolean overlayOk) {
+    if (catalog != null && !overlayOk) {
+      catalog.setPartialOverlay(true);
     }
   }
 

@@ -24,8 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.percussion.rest.actions.ActionMenu;
 import com.percussion.services.menus.PSActionMenu;
 import com.percussion.services.menus.PSActionMenuProperty;
+import com.percussion.services.menus.PSActionMenuVisibility;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -113,6 +116,21 @@ public class ApiUtilsActionMenuConvertTest {
   @Test
   public void convertListNullIsEmpty() {
     assertTrue(ApiUtils.convertPSActionMenuList(null).isEmpty());
+  }
+
+  @Test
+  public void convertVisibilityNameIsWorkbenchContextId() {
+    PSActionMenu leaf =
+        new PSActionMenu("preview", "Preview", TYPE_MENUITEM, "/p", "server", 0);
+    leaf.setActionId(12);
+    Set<PSActionMenuVisibility> vis = new LinkedHashSet<>();
+    vis.add(new PSActionMenuVisibility(12, 2, "1001", "community vis"));
+    leaf.setVisibility(vis);
+    ActionMenu converted = ApiUtils.convertPSActionMenu(leaf);
+    assertNotNull(converted.getVisibilityContexts());
+    assertEquals(1, converted.getVisibilityContexts().length);
+    assertEquals("2", converted.getVisibilityContexts()[0].getName());
+    assertEquals("1001", converted.getVisibilityContexts()[0].getValue());
   }
 
   @Test

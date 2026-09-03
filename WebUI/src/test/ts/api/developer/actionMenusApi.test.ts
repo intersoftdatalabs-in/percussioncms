@@ -20,6 +20,7 @@ import { PATHS } from "../../../../main/ts/api/paths";
 import {
   ACTION_MENU_DESIGN_GAPS,
   ACTION_MENU_VISIBILITY_ALIASES,
+  ACTION_MENU_VISIBILITY_ID_ALIASES,
   createActionMenu,
   deleteActionMenu,
   getActionMenuDetail,
@@ -32,7 +33,9 @@ import {
   unwrapActionMenu,
   unwrapActionMenuChildren,
   unwrapActionMenuList,
+  visibilityContextName,
   visibilityContextValue,
+  normalizeVisibilityContexts,
   withoutStaleActionMenuWriteGap,
   wrapActionMenuChildrenForWire,
   wrapActionMenuForWire,
@@ -99,6 +102,17 @@ describe("visibilityContextValue / ACTION_MENU_VISIBILITY_ALIASES", () => {
     expect(ACTION_MENU_VISIBILITY_ALIASES).toEqual(
       expect.arrayContaining(["role", "locale", "workflow", "publishableType", "roles", "community"]),
     );
+  });
+
+  it("maps GET Workbench numeric ids to picker aliases", () => {
+    expect(visibilityContextName("2")).toBe("community");
+    expect(visibilityContextName({ name: "2", value: "1001" })).toBe("community");
+    expect(visibilityContextName({ name: "community", value: "1001" })).toBe("community");
+    expect(visibilityContextName("99")).toBe("99");
+    expect(ACTION_MENU_VISIBILITY_ID_ALIASES["7"]).toBe("roles");
+    expect(normalizeVisibilityContexts([{ name: "2", value: "1001" }])).toEqual([
+      { name: "community", description: "", value: "1001" },
+    ]);
   });
 });
 

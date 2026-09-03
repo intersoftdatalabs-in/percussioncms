@@ -457,6 +457,15 @@ class ActionMenuAdaptorWriteTest {
   }
 
   @Test
+  void applyPartialOverlayFlag_setsTrueOnlyWhenOverlayFails() {
+    ActionMenu happy = new ActionMenu();
+    ActionMenuAdaptor.applyPartialOverlayFlag(happy, true);
+    assertFalse(happy.isPartialOverlay());
+    ActionMenuAdaptor.applyPartialOverlayFlag(happy, false);
+    assertTrue(happy.isPartialOverlay());
+  }
+
+  @Test
   void overlayDesignVisibility_loadFailureLeavesCatalogAndReturnsFalse() throws Exception {
     ActionMenu catalog = new ActionMenu();
     catalog.setName("MyMenu");

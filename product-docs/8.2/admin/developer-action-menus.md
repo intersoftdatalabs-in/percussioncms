@@ -50,7 +50,8 @@ chrome. Those fields round-trip on **Save** (`PUT` then `GET`).
    accelerator / mnemonic / tooltip / icon / launch-window / multi-select /
    refresh hint, URL and URL parameters, visibility contexts (name alias such
    as `community`, `role`, `locale`, `workflow`, or `publishableType` plus a
-   value), and optional numeric mode/context UI mappings.
+   value; GET may return the Workbench numeric id such as `2` for community,
+   which the picker shows as the alias), and optional numeric mode/context UI mappings.
    Click **Save**. GET after save matches those fields. Child menu composition
    is not written from this Save.
 6. For a user cascading `MENU` (blank URL), use **Children**: pick an existing

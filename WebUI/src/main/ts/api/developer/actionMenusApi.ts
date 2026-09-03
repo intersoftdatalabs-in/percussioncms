@@ -122,6 +122,32 @@ export const ACTION_MENU_VISIBILITY_ALIASES = [
 ] as const;
 
 /**
+ * GET catalog/detail {@code visibilityContexts[].name} is the Workbench numeric
+ * id ({@code 1}–{@code 11}). Map it to the alias the Visibility picker uses.
+ */
+export const ACTION_MENU_VISIBILITY_ID_ALIASES: Record<string, string> = {
+  "1": "assignmentType",
+  "2": "community",
+  "3": "contentType",
+  "4": "objectType",
+  "5": "clientContext",
+  "6": "checkoutStatus",
+  "7": "roles",
+  "8": "locales",
+  "9": "workflows",
+  "10": "publishable",
+  "11": "folderSecurity",
+};
+
+/** REST GET numeric Workbench id or alias → picker alias. */
+export function visibilityContextName(
+  row: ActionMenuVisibilityContext | string | undefined | null,
+): string {
+  const raw = typeof row === "string" ? row : text(row?.name);
+  return ACTION_MENU_VISIBILITY_ID_ALIASES[raw] ?? raw;
+}
+
+/**
  * Catalog-level design gaps. Create/save/delete, UI-03 usage/command/visibility,
  * and UI-04 cascading children write from this chrome.
  */
@@ -228,7 +254,7 @@ export function normalizeVisibilityContexts(
 ): ActionMenuVisibilityContext[] {
   return asNamedArray<ActionMenuVisibilityContext>(rows, "ActionMenuVisibilityContext").map(
     (row) => ({
-      name: text(row.name),
+      name: visibilityContextName(row),
       description: text(row.description),
       value: visibilityContextValue(row),
     }),

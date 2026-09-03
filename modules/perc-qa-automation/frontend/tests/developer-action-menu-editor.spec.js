@@ -345,7 +345,8 @@ test.describe("Developer action menu editor (#4112 / UI-02)", () => {
     if ((await visValue.count()) > 0) {
       await expect(visValue).toHaveValue("100");
       const visName = await page.locator('[data-testid="developer-am-vis-name-0"]').inputValue();
-      expect(["community", "2"]).toContain(visName);
+      // GET wire name is Workbench id "2"; the picker maps it to alias "community".
+      expect(visName).toBe("community");
     }
 
     await page.locator('[data-testid="developer-am-delete"]').click();

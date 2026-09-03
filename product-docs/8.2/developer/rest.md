@@ -1515,12 +1515,17 @@ name, or uiContext id is **400**. Visibility context `name` is `1`–`11`
 (Workbench `VIS_CONTEXT_*`) or an alias such as `community`, `contentType`,
 `roles` / `role`, `locales` / `locale`, `workflows` / `workflow`,
 `publishable` / `publishableType`, `checkoutStatus`, `folderSecurity`. GET
+`visibilityContexts[].name` is the **numeric Workbench id** (`1`–`11`; for
+example `2` is community), including catalog conversion when design overlay
+does not run. PUT still accepts that numeric id or an alias. GET
 `/services/actions/catalog/{idOrName}` overlays Workbench visibility and
 uiContexts from an unlocked design load. When that overlay fails, the response
-includes `partialOverlay: true` and empty collection arrays are **not**
+includes `partialOverlay: true` (omitted on the happy path) and empty collection arrays are **not**
 authoritative — omit `parameters` / `visibilityContexts` / `uiContexts` on the
 next PUT so stored collections are not cleared. After a successful overlay,
-GET returns the same visibility and uiContexts as a successful PUT.
+GET returns the same visibility and uiContexts as a successful PUT. The
+Developer Action Menus Visibility picker maps the numeric GET name to the
+alias (`2` → `community`) so the table round-trips either form.
 **Children PUT** (`PUT /services/actions/{idOrName}/children`) replaces
 `RXMENUACTIONRELATION` for a user cascading `MENU` (type `MENU` with a blank
 URL). The body is an `ActionMenuList`: a JSON array, `{"ActionMenuList":[…]}`,
