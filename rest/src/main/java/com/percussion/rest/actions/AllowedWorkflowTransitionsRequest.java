@@ -18,6 +18,7 @@
 package com.percussion.rest.actions;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 
@@ -27,8 +28,12 @@ import java.util.Arrays;
  * <p>Wire getters return plain nullable types (not {@code Optional}) so Jackson/CXF JSON emits
  * {@code contentIds} and {@code assignmentTypeIds} as JSON arrays, not Optional beans (issue #3388
  * slice 10 / #3432).
+ *
+ * <p>Root name is explicit so JAXB/Jettison cannot treat an {@code ActionMenu} envelope as this
+ * type on {@code POST /actions} (#4171). Finder POST is {@code /actions/find/transitions}.
  */
-@XmlRootElement
+@XmlRootElement(name = "allowedWorkflowTransitionsRequest")
+@JsonRootName("allowedWorkflowTransitionsRequest")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AllowedWorkflowTransitionsRequest {
 
