@@ -1228,7 +1228,7 @@ export const DEV_MSG_KEYS = {
   CTL_EMPTY: "perc.ui.developer@No controls returned.",
   CTL_ERROR: "perc.ui.developer@Could not load controls.",
   CTL_HINT:
-    "perc.ui.developer@Content editor system and user controls (UI-01). Create a user control, or open a row for parameters. System controls stay read-only. Edit and delete of user controls are a later slice.",
+    "perc.ui.developer@Content editor system and user controls (UI-01). Create a user control, or open a row to save or delete. System controls stay read-only.",
   CTL_NEW: "perc.ui.developer@New user control",
   CTL_FORM_NAME: "perc.ui.developer@Name",
   CTL_NAME_HINT:
@@ -1240,6 +1240,8 @@ export const DEV_MSG_KEYS = {
   CTL_FORM_XSL: "perc.ui.developer@XSL source (optional)",
   CTL_XSL_HINT:
     "perc.ui.developer@Leave blank to use the server default stylesheet. This is not a full XSL editor.",
+  CTL_SAVE_HINT:
+    "perc.ui.developer@Save sends display name, description, dimension, and choice set as shown. A blank description is cleared. Blank dimension or choice set uses single / none. Leave XSL blank to regenerate the server default stylesheet.",
   CTL_DIM_DEFAULT: "perc.ui.developer@Server default (single)",
   CTL_CHOICE_DEFAULT: "perc.ui.developer@Server default (none)",
   CTL_CREATE_SAVE: "perc.ui.developer@Create user control",
@@ -1249,7 +1251,19 @@ export const DEV_MSG_KEYS = {
   CTL_DUPLICATE: "perc.ui.developer@A control with this name already exists.",
   CTL_INVALID_NAME: "perc.ui.developer@Control name is invalid (blank, spaces, or wildcard).",
   CTL_FORBIDDEN: "perc.ui.developer@Admin role is required.",
-  CTL_SYSTEM_READONLY: "perc.ui.developer@System controls are packaged defaults and cannot be created or edited here.",
+  CTL_SYSTEM_READONLY:
+    "perc.ui.developer@System controls are packaged defaults and cannot be created, edited, or deleted here.",
+  CTL_SYSTEM_CONFLICT: "perc.ui.developer@System controls cannot be updated or deleted.",
+  CTL_NOT_FOUND: "perc.ui.developer@Control not found.",
+  CTL_SAVE: "perc.ui.developer@Save user control",
+  CTL_SAVED: "perc.ui.developer@User control saved.",
+  CTL_SAVE_ERROR: "perc.ui.developer@Could not save user control.",
+  CTL_DELETE: "perc.ui.developer@Delete user control",
+  CTL_DELETE_CONFIRM:
+    "perc.ui.developer@Delete this user control? The catalog will no longer list it.",
+  CTL_DELETED: "perc.ui.developer@User control deleted.",
+  CTL_DELETE_ERROR: "perc.ui.developer@Could not delete user control.",
+  CTL_NAME_READONLY: "perc.ui.developer@Name cannot be renamed after create.",
   CTL_COL_NAME: "perc.ui.developer@Name",
   CTL_COL_DISPLAY: "perc.ui.developer@Display name",
   CTL_COL_SCOPE: "perc.ui.developer@Scope",
@@ -1270,7 +1284,6 @@ export const DEV_MSG_KEYS = {
   CTL_PARAMS: "perc.ui.developer@Parameters",
   CTL_NONE: "perc.ui.developer@None",
   CTL_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
-  CTL_GAP_USER: "perc.ui.developer@User control edit / delete not supported via this API",
   CTL_GAP_XSL: "perc.ui.developer@Control XSL source editing not supported via this API",
   CTL_GAP_SYS: "perc.ui.developer@System controls are read-only packaged defaults",
   SITE_LOADING: "perc.ui.developer@Loading sites...",
