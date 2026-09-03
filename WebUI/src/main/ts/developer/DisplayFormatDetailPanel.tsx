@@ -347,9 +347,6 @@ export function DisplayFormatDetailPanel({
     }
     const next = addDisplayFormatColumn(draftColumns, addSource);
     setDraftColumns(next);
-    if (!sortSource) {
-      setSortSource(defaultSortSource(next, sortSource));
-    }
     const stillAvailable = catalogFieldsNotInUse(next);
     setAddSource(stillAvailable[0]?.source || "");
   }

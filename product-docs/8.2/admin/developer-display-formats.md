@@ -52,7 +52,10 @@ allowed communities.
 2. Choose a field that is not already a column and click **Add column**.
    `sys_title` cannot be removed (the server always keeps it).
 3. Select **Default** on the column that should sort the list, and set
-   **Direction** to **Ascending** or **Descending**.
+   **Direction** to **Ascending** or **Descending**. If no default is stored
+   yet (new user format, or `sortedColumnNames` missing / not in the column
+   list), the chrome treats the **first column ascending** as the default and
+   sends that on **Save columns**.
 4. Click **Save columns**. After a successful save, a following
    `GET /services/displayformats/{name}` lists the columns in the saved
    order, returns `sortedColumnNames` for the default sort column, and
@@ -100,7 +103,7 @@ The chrome calls:
 | Load | `GET /services/displayformats/{idOrName}` |
 | Create | `POST /services/displayformats` (`name` required; unique, no spaces) |
 | Save | `PUT /services/displayformats/{idOrName}` (label, description) |
-| Save columns | `PUT /services/displayformats/{idOrName}` (`columns` replaces the list; `sortedColumnNames` + column `ascendingSort` persist default sort) |
+| Save columns | `PUT /services/displayformats/{idOrName}` (`columns` replaces the list; `sortedColumnNames` persists default sort — with `columns` uses that column's `ascendingSort`; without `columns` matches the stored list) |
 | Save communities | `PUT /services/displayformats/{idOrName}` (`allowedCommunities` array; empty array is all communities) |
 | Delete | `DELETE /services/displayformats/{idOrName}` (`204` on success) |
 

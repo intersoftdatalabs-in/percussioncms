@@ -116,6 +116,13 @@ describe("default sort column and direction", () => {
     expect(defaultSortSource([], "sys_title")).toBe("");
   });
 
+  it("falls back to the first column when no sort is stored", () => {
+    const two = addDisplayFormatColumn([title], "sys_contentid");
+    expect(defaultSortSource(two, null)).toBe("sys_title");
+    expect(defaultSortSource(two, "")).toBe("sys_title");
+    expect(defaultSortSource(two, undefined)).toBe("sys_title");
+  });
+
   it("applies descending on the named column only", () => {
     const two = addDisplayFormatColumn([title], "sys_contentid");
     const next = applyColumnSortDirection(two, "sys_contentid", false);

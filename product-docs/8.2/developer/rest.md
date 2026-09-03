@@ -1385,7 +1385,7 @@ clients can load **Object ACL** via `GET /services/acls/object/{guid}`.
 | `GET` | `/services/displayformats` | List formats (optional `validForFolder` / `validForViewsAndSearches`) |
 | `GET` | `/services/displayformats/{idOrName}` | Load one format by internal name or GUID string |
 | `POST` | `/services/displayformats` | **Admin.** Create a format (`createDisplayFormats` then `saveDisplayFormats`) |
-| `PUT` | `/services/displayformats/{idOrName}` | **Admin.** Update `label`/`displayName` and/or `description`; `columns` replaces the column list when present; `sortedColumnNames` + column `ascendingSort` persist default sort when `columns` is present; `allowedCommunities` replaces community visibility when present |
+| `PUT` | `/services/displayformats/{idOrName}` | **Admin.** Update `label`/`displayName` and/or `description`; `columns` replaces the column list when present; `sortedColumnNames` persists default sort (with `columns` uses that column's `ascendingSort`; without `columns` matches the stored list and keeps existing direction); `allowedCommunities` replaces community visibility when present |
 | `DELETE` | `/services/displayformats/{idOrName}` | **Admin.** Delete a user format (loaded component XML persist; dependents `ignoreDependencies=false`) |
 
 JSON wraps the list as `DisplayFormatList` (`{"DisplayFormatList":[…]}`) including the empty
@@ -1409,9 +1409,12 @@ Update (`PUT /services/displayformats/{idOrName}`) loads with a design lock
 `displayName` and `description` round-trip. When `columns` is present, the column list
 is **replaced** (add, remove, and reorder). Each column may include `ascendingSort`
 (and `descendingSort` / `sortOrder` as the same boolean). When `sortedColumnNames`
-is also present, it names the **default sort column** (must match a `source` in
-`columns`; unknown is **400**) and the matching column's `ascendingSort` is stored
-as Workbench `sortColumn` / `sortDirection`. GET returns `sortedColumnNames` and
+is present, it names the **default sort column** (unknown is **400**) and is stored
+as Workbench `sortColumn` / `sortDirection`. The name is matched
+case-insensitively and persisted in lowercase (canonical `source`). With `columns`,
+the matching column's `ascendingSort` sets direction. Without `columns`, the name
+must match a stored column (not silently dropped) and the existing format sort
+direction is kept (default ascending). GET returns `sortedColumnNames` and
 format-level `ascendingSort` / `descendingSort`. Omit `sortedColumnNames` to leave
 the stored default sort unchanged. Omit `columns` to leave the stored list
 unchanged. Invalid column `source` (blank, whitespace, wildcards, or path characters)

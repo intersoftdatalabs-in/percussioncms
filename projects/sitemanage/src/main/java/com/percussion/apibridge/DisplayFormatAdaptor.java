@@ -1105,8 +1105,8 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     }
     if (body.getColumns() != null) {
       applyColumns(nativeDf, body.getColumns());
-      applySortFromColumns(nativeDf, body);
     }
+    applySortFromColumns(nativeDf, body);
     if (body.getAllowedCommunities() != null) {
       applyAllowedCommunities(nativeDf, body.getAllowedCommunities());
     }
@@ -1244,11 +1244,14 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
 
   /**
    * Persist Workbench {@code sortColumn} / {@code sortDirection} from PUT {@code
-   * sortedColumnNames} plus the matching column's {@code ascendingSort}. Omitted {@code
-   * sortedColumnNames} leaves those properties unchanged.
+   * sortedColumnNames}. When {@code columns} is present, the matching column's {@code
+   * ascendingSort} sets direction. When {@code columns} is omitted, the name is matched against
+   * the stored column list and the existing format sort direction is kept (default ascending).
+   * Omitted {@code sortedColumnNames} leaves those properties unchanged. The stored sort column
+   * is the matching source in {@code Locale.ROOT} lowercase (SPA {@code columnSourceKey}).
    */
   static void applySortFromColumns(PSDisplayFormat nativeDf, DisplayFormat body) {
-    if (nativeDf == null || body == null || body.getColumns() == null) {
+    if (nativeDf == null || body == null) {
       return;
     }
     String requested = body.getSortedColumnNames();
@@ -1256,26 +1259,66 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
       return;
     }
     String key = requested.trim();
-    DisplayFormatColumn chosen = null;
-    for (DisplayFormatColumn dto : body.getColumns()) {
-      if (dto == null) {
-        continue;
+    boolean ascending;
+    if (body.getColumns() != null) {
+      DisplayFormatColumn chosen = null;
+      for (DisplayFormatColumn dto : body.getColumns()) {
+        if (dto == null) {
+          continue;
+        }
+        String source = StringUtils.trimToEmpty(dto.getSource());
+        if (key.equalsIgnoreCase(source)) {
+          chosen = dto;
+          break;
+        }
       }
-      String source = StringUtils.trimToEmpty(dto.getSource());
-      if (key.equalsIgnoreCase(source)) {
-        chosen = dto;
-        break;
+      if (chosen == null) {
+        throw new IllegalArgumentException("unknown sort column: " + key);
+      }
+      ascending = chosen.isAscendingSort();
+    } else {
+      if (findNativeColumnIgnoreCase(nativeDf, key) == null) {
+        throw new IllegalArgumentException("unknown sort column: " + key);
+      }
+      if (nativeDf.isDescendingSort()) {
+        ascending = false;
+      } else {
+        ascending = true;
       }
     }
-    if (chosen == null) {
-      throw new IllegalArgumentException("unknown sort column: " + key);
-    }
-    nativeDf.setProperty(PSDisplayFormat.PROP_SORT_COLUMN, chosen.getSource());
+    nativeDf.setProperty(PSDisplayFormat.PROP_SORT_COLUMN, canonicalSortColumnSource(nativeDf, key));
     nativeDf.setProperty(
         PSDisplayFormat.PROP_SORT_DIRECTION,
-        chosen.isAscendingSort()
-            ? PSDisplayFormat.SORT_ASCENDING
-            : PSDisplayFormat.SORT_DESCENDING);
+        ascending ? PSDisplayFormat.SORT_ASCENDING : PSDisplayFormat.SORT_DESCENDING);
+  }
+
+  static String canonicalSortColumnSource(PSDisplayFormat nativeDf, String requested) {
+    PSDisplayColumn nativeCol = findNativeColumnIgnoreCase(nativeDf, requested);
+    String source =
+        nativeCol != null && StringUtils.isNotBlank(nativeCol.getSource())
+            ? nativeCol.getSource().trim()
+            : requested.trim();
+    return source.toLowerCase(Locale.ROOT);
+  }
+
+  static PSDisplayColumn findNativeColumnIgnoreCase(PSDisplayFormat nativeDf, String requested) {
+    if (nativeDf == null || StringUtils.isBlank(requested)) {
+      return null;
+    }
+    PSDFColumns cols = nativeDf.getColumnContainer();
+    if (cols == null) {
+      return null;
+    }
+    for (int i = 0; i < cols.size(); i++) {
+      Object raw = cols.get(i);
+      if (!(raw instanceof PSDisplayColumn col)) {
+        continue;
+      }
+      if (requested.equalsIgnoreCase(StringUtils.trimToEmpty(col.getSource()))) {
+        return col;
+      }
+    }
+    return null;
   }
 
   static String requireValidColumnSource(String raw) {
