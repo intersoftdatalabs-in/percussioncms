@@ -518,6 +518,14 @@ export const PATHS = {
   get COMMUNITIES() {
     return `${SERVICES_ROOT}/communities`;
   },
+  /** Security roles REST resource (get / list / CRUD). */
+  get ROLES() {
+    return `${SERVICES_ROOT}/roles`;
+  },
+  /** Admin SE-03 roles browse catalog (community / workflow / unassigned). */
+  get ROLES_CATALOG() {
+    return `${SERVICES_ROOT}/roles/catalog`;
+  },
   /** Pipeline / XML application design catalog. */
   get PIPELINES() {
     return `${SERVICES_ROOT}/pipelines`;
