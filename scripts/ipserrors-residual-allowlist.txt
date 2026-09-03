@@ -7,6 +7,7 @@
 #   #3585 webservices/transformation leftover call sites
 #   #3739 deployer catalog/client/objectstore/PSDeployService
 #   #3740 deployer server/handlers + server/dependencies
+#   #4196 deployer PSDeployJexlUtils (deployer production leftovers converted)
 #   #3741 DCE/ContentUI/TableFactory leftover call sites
 #   #3770 leftover nav/sfp/workflow extension modules
 #   #3860 system/business delivery leftover call sites
@@ -47,7 +48,6 @@
 
 
 
-deployer/src/main/java/com/percussion/deployer/jexl/PSDeployJexlUtils.java
 modules/perc-i18n/src/main/java/com/percussion/i18n/ui/PSI18NTranslationKeyValues.java
 modules/perc-toolkit/src/main/java/com/percussion/pso/jexl/PSOSlotTools.java
 modules/perc-toolkit/src/main/java/com/percussion/pso/relationshipbuilder/exit/PSAbstractBuildRelationshipsExtension.java

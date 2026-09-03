@@ -16,7 +16,7 @@
  */
 package com.percussion.deployer.jexl;
 
-import com.percussion.error.IPSDeploymentErrors;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 import com.percussion.error.PSDeployException;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -49,7 +49,7 @@ public class PSDeployJexlUtils {
       psExp = PSJexlParserUtils.createNewExpression(val, true);
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           e.getCause(),
           "Unable to create JEXL expression from the binding");
     }

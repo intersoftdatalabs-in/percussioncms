@@ -23,10 +23,14 @@ REPO_ROOT = SCRIPT_DIR.parent
 SCRIPT = SCRIPT_DIR / "verify-no-bare-ipserrors.py"
 ALLOWLIST = SCRIPT_DIR / "ipserrors-residual-allowlist.txt"
 
-# Representative leftover from #3739 (deployer) — must stay exact-listed, not a
-# directory prefix (a new file under that tree must fail). Sitemanage leftovers
-# converted in #3846; system/services leftovers in #3847; servlet/WebDAV in #3848.
-DEPLOYER_RESIDUAL = (
+# Representative converted leftovers (not a directory prefix). Deployer
+# production leftovers converted in #3739/#3740/#4196 — a new file under
+# deployer/ must fail. Servletutils Tomcat leftover converted in #4195/#4201 —
+# a new file under modules/servletutils/ must fail.
+SERVLETUTILS_CONVERTED = (
+    "modules/servletutils/src/main/java/com/percussion/servlet_utils/tomcat/PSTomcatUtils.java"
+)
+DEPLOYER_JEXL_CONVERTED = (
     "deployer/src/main/java/com/percussion/deployer/jexl/PSDeployJexlUtils.java"
 )
 
@@ -122,8 +126,9 @@ def test_list_allowlist_exits_zero() -> None:
     assert "#3739" in combined
     assert "#3585" in combined
     combined_posix = combined.replace("\\", "/")
-    assert DEPLOYER_RESIDUAL.replace("\\", "/") in combined_posix
+    assert SERVLETUTILS_CONVERTED.replace("\\", "/") not in combined_posix
     assert SYSTEM_CMS_RESIDUAL.replace("\\", "/") in combined_posix
+    assert DEPLOYER_JEXL_CONVERTED.replace("\\", "/") not in combined_posix
     # Prefix freeze: printed residuals are files, not directory wildcards, and an
     # unlisted probe under the same tree is not advertised as covered.
     residual_lines = [
@@ -391,12 +396,14 @@ def test_residual_allowlist_is_exact_paths_only() -> None:
         if ln.strip() and not ln.strip().startswith("#")
     ]
     assert len(entries) > 0
-    assert DEPLOYER_RESIDUAL in entries
+    assert SERVLETUTILS_CONVERTED not in entries
     assert SYSTEM_CMS_RESIDUAL in entries
+    assert DEPLOYER_JEXL_CONVERTED not in entries
     for entry in entries:
         assert not entry.endswith("/"), entry
         assert "\\" not in entry, entry
         assert entry.endswith(".java"), entry
+        assert not entry.startswith("deployer/"), entry
         assert not entry.startswith("modules/extensions-main/"), entry
         assert not entry.startswith("system/src/main/java/com/percussion/security/"), entry
         assert not entry.startswith("system/src/main/java/com/percussion/extension/"), entry
@@ -604,6 +611,19 @@ def test_system_search_converted_paths_not_allowlisted() -> None:
     assert resurrected == [], resurrected
 
 
+def test_deployer_jexl_converted_path_not_allowlisted() -> None:
+    """#4196 typed leftover PSDeployJexlUtils production call-sites."""
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = {
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    assert DEPLOYER_JEXL_CONVERTED not in entries
+    resurrected = [e for e in entries if e.startswith("deployer/")]
+    assert resurrected == [], resurrected
+
+
 def test_empty_allowlist_fails_on_real_residuals(tmp_path: Path) -> None:
     """Without the residual file, current production leftovers must fail."""
     empty = tmp_path / "empty-allowlist.txt"
@@ -612,10 +632,9 @@ def test_empty_allowlist_fails_on_real_residuals(tmp_path: Path) -> None:
     assert result.returncode == 1, result.stdout + result.stderr
     combined = result.stdout + result.stderr
     assert "FAIL" in combined
-    assert (
-        "PSDeployJexlUtils.java" in combined
-        or "PSActiveAssemblerProcessor.java" in combined
-    )
+    # Prefer a still-listed residual; converted servletutils/PSDtdTree paths
+    # must not be required after #4195/#4197.
+    assert "PSDebugLogHandler.java" in combined or "PSUtils.java" in combined
 
 
 if __name__ == "__main__":
