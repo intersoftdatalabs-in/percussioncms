@@ -162,6 +162,7 @@ related upgrade-only JSPs) until those flows are signed off on the SPA. Bookmark
 - [Developer Templates](id:admin-developer-templates) — catalog export/import XML
 - [REST API](id:developer-rest) — `GET`/`POST`/`PUT`/`DELETE /services/templates`, Admin `GET .../export`, and `POST /services/templates/import`
 - [Extensions & packages](id:developer-extensions)
+- [Developer Extensions](id:admin-developer-extensions)
 - [Product page packages](id:developer-page-packages)
 - [Navigation & site structure](id:admin-architecture-navigation)
 - [Administration](id:admin)
