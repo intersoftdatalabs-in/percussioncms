@@ -277,7 +277,8 @@ public class DisplayFormatResource {
   @Operation(
       summary = "Delete display format",
       description =
-          "Admin. Deletes a display format by internal name or GUID via"
+          "Admin. Deletes a display format by internal name or GUID. The adaptor resolves a"
+              + " persisted DISPLAYID (never an empty id list) then"
               + " IPSUiDesignWs.deleteDisplayFormats (ignoreDependencies=false). Unknown id is"
               + " 404. In-use or lock conflict is 409 (the lock is not stolen). Following GET is"
               + " 404 after a successful delete.",

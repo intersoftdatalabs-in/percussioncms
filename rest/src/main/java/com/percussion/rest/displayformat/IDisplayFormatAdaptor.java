@@ -51,7 +51,9 @@ public interface IDisplayFormatAdaptor {
   DisplayFormat updateDisplayFormat(String idOrName, DisplayFormat body);
 
   /**
-   * Admin delete by internal name or GUID. Does not steal another user's lock.
+   * Admin delete by internal name or GUID. Resolves a persisted DISPLAYID before
+   * calling design-WS delete (never an empty id list). Does not steal another
+   * user's lock.
    *
    * @param idOrName catalog key
    * @return {@code true} when deleted, {@code false} when not found

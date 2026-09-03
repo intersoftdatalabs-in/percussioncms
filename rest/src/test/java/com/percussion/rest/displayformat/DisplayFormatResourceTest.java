@@ -291,6 +291,16 @@ public class DisplayFormatResourceTest {
   }
 
   @Test
+  public void deleteDisplayFormatEmptyIdsIs400() {
+    when(adaptor.deleteDisplayFormat(eq("qa4091fmt")))
+        .thenThrow(new IllegalArgumentException("ids cannot be null or empty"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteDisplayFormat("qa4091fmt"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void deleteDisplayFormatUnknownIs404() {
     when(adaptor.deleteDisplayFormat(eq("missing"))).thenReturn(false);
     WebApplicationException ex =

@@ -222,7 +222,7 @@ public class ViewAdaptor implements IViewAdaptor {
       PSSearch domain = created.get(0);
       applyWritableFields(domain, body);
       designWs.saveViews(List.of(domain), true, session, user);
-      return toDef(reloadAfterWrite(domain, name, session, user, true), true);
+      return toDef(reloadAfterWrite(domain, name, session, user, false), true);
     } catch (WebApplicationException | IllegalStateException e) {
       throw e;
     } catch (IllegalArgumentException e) {
@@ -252,6 +252,22 @@ public class ViewAdaptor implements IViewAdaptor {
       return null;
     }
     PSSearch existing = findPsViewByKey(idOrName.trim());
+    // Body-name / body-guid fallback is only for catalog-lag on a GUID URL
+    // key. A name URL that does not resolve must 404 — never mutate another
+    // view named in the body.
+    boolean urlIsGuid = parseViewGuid(idOrName.trim()) != null;
+    if (existing == null && urlIsGuid && body.getName() != null && isSafeViewKey(body.getName())) {
+      String bodyName = body.getName().trim();
+      if (!bodyName.equalsIgnoreCase(idOrName.trim())) {
+        existing = findPsViewByKey(bodyName);
+      }
+    }
+    if (existing == null && urlIsGuid && body.getGuid() != null) {
+      String gs = StringUtils.trimToNull(body.getGuid().getStringValue());
+      if (gs != null && isSafeViewKey(gs) && !gs.equalsIgnoreCase(idOrName.trim())) {
+        existing = findPsViewByKey(gs);
+      }
+    }
     if (existing == null) {
       return null;
     }
@@ -685,10 +701,10 @@ public class ViewAdaptor implements IViewAdaptor {
   }
 
   /**
-   * After {@code saveViews}, create must be visible to {@code findViews} (H2 REST
-   * UI-07: POST 200 then GET list/detail 404 when the XML resource cache or INSERT
-   * was skipped). Updates return the in-memory saved object: {@code findAllViews}
-   * can still list the name while the XML cache lags field-criterion rows (UI-08).
+   * After {@code saveViews}, prefer the catalog row. H2 {@code findAllViews} XML
+   * cache can lag the JDBC insert (UI-07/UI-08): POST 200 then PUT fields 404.
+   * When the list misses, return the GUID-loaded or in-memory saved object so
+   * the client can PUT by {@code 0-18-{id}}.
    */
   private PSSearch reloadAfterWrite(
       PSSearch saved, String name, String session, String user, boolean requireCatalogVisible) {
@@ -697,6 +713,10 @@ public class ViewAdaptor implements IViewAdaptor {
     }
     try {
       PSSearch fromCatalog = matchLoaded(loadAllViews(), name);
+      if (fromCatalog != null) {
+        return fromCatalog;
+      }
+      fromCatalog = loadViewByNameSummary(name);
       if (fromCatalog != null) {
         return fromCatalog;
       }
@@ -712,10 +732,11 @@ public class ViewAdaptor implements IViewAdaptor {
           if (fromCatalog != null) {
             return fromCatalog;
           }
-          if (!requireCatalogVisible) {
-            return loaded.get(0);
-          }
+          return loaded.get(0);
         }
+      }
+      if (saved != null && saved.isView()) {
+        return saved;
       }
     } catch (PSErrorResultsException e) {
       log.error("Failed to reload view {} after persist", name, e);
@@ -725,6 +746,38 @@ public class ViewAdaptor implements IViewAdaptor {
       throw new IllegalStateException("Failed to reload view after persist", e);
     }
     throw new IllegalStateException("View was saved but is not visible to findViews: " + name);
+  }
+
+  /**
+   * Name-filtered catalog load. {@code findAllViews} can omit a just-saved row on
+   * H2 while {@code findViews(name)} still returns the summary.
+   */
+  private PSSearch loadViewByNameSummary(String name) throws Exception {
+    if (StringUtils.isBlank(name)) {
+      return null;
+    }
+    List<IPSCatalogSummary> summaries = designWs.findViews(name, null);
+    if (!nameExists(summaries, name)) {
+      return null;
+    }
+    List<IPSGuid> guids = new ArrayList<>();
+    for (IPSCatalogSummary summary : summaries) {
+      if (summary != null
+          && name.equalsIgnoreCase(StringUtils.defaultString(summary.getName()))
+          && summary.getGUID() != null) {
+        guids.add(summary.getGUID());
+      }
+    }
+    if (guids.isEmpty()) {
+      return null;
+    }
+    List<PSSearch> loaded =
+        designWs.loadViews(guids, false, false, currentSession(), currentUser());
+    PSSearch found = matchLoaded(loaded, name);
+    if (found != null && !found.isView()) {
+      return null;
+    }
+    return found;
   }
 
   static PSSearch matchLoaded(List<PSSearch> loaded, String key) {

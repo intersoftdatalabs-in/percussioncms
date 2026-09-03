@@ -84,6 +84,7 @@ class SearchAdaptorWriteTest {
     when(designWs.findSearches(any(), isNull())).thenReturn(List.of());
     when(designWs.findAllSearches()).thenReturn(List.of());
     when(designWs.findViews(any(), isNull())).thenReturn(List.of());
+    when(designWs.findAllViews()).thenReturn(List.of());
   }
 
   @AfterEach
@@ -129,7 +130,7 @@ class SearchAdaptorWriteTest {
     verify(search).setDescription("created via REST");
     verify(search).setDisplayFormatId("1");
     verify(designWs).findSearches(eq("MySearch"), isNull());
-    verify(designWs).findAllSearches();
+    verify(designWs, org.mockito.Mockito.atLeastOnce()).findAllSearches();
   }
 
   @Test
@@ -168,6 +169,21 @@ class SearchAdaptorWriteTest {
     assertTrue(ex.getMessage().contains("already exists"));
     verify(designWs, never()).createSearches(anyList(), anyList(), any(), any());
     verify(designWs, never()).saveSearches(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void create_duplicateName_fromFindAllSearches_is409() throws Exception {
+    PSSearch existing = stubSearch("MySearch", PSSearch.TYPE_STANDARDSEARCH);
+    when(designWs.findAllSearches()).thenReturn(List.of(existing));
+
+    SearchDef body = new SearchDef();
+    body.setName("MySearch");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.createSearch(body));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains("already exists"));
+    verify(designWs, never()).createSearches(anyList(), anyList(), any(), any());
   }
 
   @Test
@@ -261,6 +277,8 @@ class SearchAdaptorWriteTest {
     when(designWs.loadSearches(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
         .thenReturn(List.of(locked));
     stubCatalogVisibleAfterSave(locked, "MySearch");
+    // Update lookup uses findAllSearches first; do not consume an empty unique-check stub.
+    when(designWs.findAllSearches()).thenReturn(List.of(locked));
 
     SearchDef body = new SearchDef();
     body.setLabel("Updated");
@@ -437,7 +455,7 @@ class SearchAdaptorWriteTest {
     when(designWs.findSearches(eq(name), isNull()))
         .thenReturn(List.of())
         .thenReturn(List.of(sum));
-    when(designWs.findAllSearches()).thenReturn(List.of(search));
+    when(designWs.findAllSearches()).thenReturn(List.of()).thenReturn(List.of(search));
     when(designWs.loadSearches(
             eq(List.of(guid)), eq(false), eq(false), eq("test-session"), eq("Admin")))
         .thenReturn(List.of(search));

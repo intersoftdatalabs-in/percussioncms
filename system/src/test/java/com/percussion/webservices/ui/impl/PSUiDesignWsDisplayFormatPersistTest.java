@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.cms.objectstore.IPSDbComponent;
@@ -30,6 +32,8 @@ import com.percussion.cms.objectstore.PSKey;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -242,6 +246,100 @@ class PSUiDesignWsDisplayFormatPersistTest {
           loadedAll.doesPropertyHaveValue(
               PSDisplayFormat.PROP_COMMUNITY, PSDisplayFormat.PROP_COMMUNITY_ALL));
       assertFalse(loadedAll.doesPropertyHaveValue(PSDisplayFormat.PROP_COMMUNITY, "1001"));
+
+      PSUiDesignWs.deleteDisplayFormatRow(conn, spec.displayId);
+      assertFalse(PSUiDesignWs.displayFormatRowExists(conn, spec.displayId, spec.internalName));
+      assertFalse(PSUiDesignWs.displayFormatColumnExists(conn, spec.displayId, "sys_title"));
+      assertNull(PSUiDesignWs.loadDisplayFormatFromDb(conn, spec.displayId, spec.internalName));
+    }
+  }
+
+  @Test
+  void tryLoadDisplayFormatsFromDb_requiresPersistedUuid() {
+    assertNull(PSUiDesignWs.tryLoadDisplayFormatsFromDb(null));
+    assertNull(PSUiDesignWs.tryLoadDisplayFormatsFromDb(List.of()));
+  }
+
+  @Test
+  void mergePreferJdbcDisplayFormats_keepsJdbcHitsWhenXmlMissesOneId() throws Exception {
+    com.percussion.services.guidmgr.data.PSGuid jdbcId =
+        new com.percussion.services.guidmgr.data.PSGuid(
+            com.percussion.services.catalog.PSTypeEnum.DISPLAY_FORMAT, 4172L);
+    com.percussion.services.guidmgr.data.PSGuid xmlId =
+        new com.percussion.services.guidmgr.data.PSGuid(
+            com.percussion.services.catalog.PSTypeEnum.DISPLAY_FORMAT, 4173L);
+    PSDisplayFormat jdbcHit = newDisplayFormat(4172, "FromJdbc");
+    PSDisplayFormat xmlHit = newDisplayFormat(4173, "FromXml");
+    PSDisplayFormat staleXml = newDisplayFormat(99, "StaleXml");
+    List<PSDisplayFormat> merged =
+        PSUiDesignWs.mergePreferJdbcDisplayFormats(
+            List.of(jdbcId, xmlId),
+            Arrays.asList(jdbcHit, null),
+            List.of(staleXml, xmlHit));
+    assertSame(jdbcHit, merged.get(0));
+    assertSame(xmlHit, merged.get(1));
+    assertTrue(PSUiDesignWs.allDisplayFormatsLoaded(List.of(jdbcId, xmlId), List.of(jdbcHit, xmlHit)));
+    assertFalse(
+        PSUiDesignWs.allDisplayFormatsLoaded(
+            List.of(jdbcId, xmlId), Arrays.asList(jdbcHit, null)));
+  }
+
+  @Test
+  void ensureDisplayFormatRowDeleted_skipsUnpersistedId() {
+    assertDoesNotThrow(() -> PSUiDesignWs.ensureDisplayFormatRowDeleted(0));
+    assertDoesNotThrow(() -> PSUiDesignWs.ensureDisplayFormatRowDeleted(-1));
+  }
+
+  @Test
+  void tryLoadDisplayFormatsFromDb_matchesInsertedRow() throws Exception {
+    String url = "jdbc:h2:mem:issue4172displayformats" + System.nanoTime();
+    try (Connection conn = DriverManager.getConnection(url);
+        Statement st = conn.createStatement()) {
+      st.execute(
+          "CREATE TABLE PSX_DISPLAYFORMATS ("
+              + "DISPLAYID INTEGER NOT NULL PRIMARY KEY,"
+              + "INTERNALNAME VARCHAR(255) NOT NULL,"
+              + "DISPLAYNAME VARCHAR(255) NOT NULL,"
+              + "DESCRIPTION VARCHAR(255),"
+              + "VERSION INTEGER NOT NULL)");
+      st.execute(
+          "CREATE TABLE PSX_DISPLAYFORMATCOLUMNS ("
+              + "DISPLAYID INTEGER NOT NULL,"
+              + "SOURCE VARCHAR(50) NOT NULL,"
+              + "DISPLAYNAME VARCHAR(255) NOT NULL,"
+              + "TYPE INTEGER,"
+              + "RENDERTYPE VARCHAR(50),"
+              + "SORTORDER CHAR(1),"
+              + "SEQUENCE INTEGER,"
+              + "DESCRIPTION VARCHAR(255),"
+              + "WIDTH INTEGER,"
+              + "PRIMARY KEY (DISPLAYID, SOURCE))");
+      st.execute(
+          "CREATE TABLE PSX_DISPLAYFORMATPROPERTIES ("
+              + "PROPERTYID INTEGER NOT NULL,"
+              + "PROPERTYNAME VARCHAR(50) NOT NULL,"
+              + "PROPERTYVALUE VARCHAR(100) NOT NULL,"
+              + "DESCRIPTION VARCHAR(255),"
+              + "PRIMARY KEY (PROPERTYID, PROPERTYNAME, PROPERTYVALUE))");
+      PSDisplayFormat source = newDisplayFormat(4172, "QaH2Del");
+      source.setDisplayName("QA H2 delete");
+      PSUiDesignWs.DisplayFormatRowSpec spec =
+          PSUiDesignWs.displayFormatRowSpec(PSUiDesignWs.prepareDisplayFormatForSave(source));
+      PSUiDesignWs.insertDisplayFormatRow(conn, spec);
+      PSUiDesignWs.ensureDisplayFormatColumns(conn, spec);
+      PSUiDesignWs.ensureDisplayFormatProperties(conn, spec);
+
+      com.percussion.services.guidmgr.data.PSGuid guid =
+          new com.percussion.services.guidmgr.data.PSGuid(
+              com.percussion.services.catalog.PSTypeEnum.DISPLAY_FORMAT, 4172L);
+      // Without PSConnectionHelper the production tryLoad uses the CMS datasource;
+      // assert the JDBC delete+select contract used after a resolved DISPLAYID.
+      PSDisplayFormat loaded = PSUiDesignWs.loadDisplayFormatFromDb(conn, 4172, "QaH2Del");
+      assertEquals("QaH2Del", loaded.getName());
+      assertEquals(4172, loaded.getDisplayId());
+      assertEquals(4172, guid.getUUID());
+      PSUiDesignWs.deleteDisplayFormatRow(conn, 4172);
+      assertFalse(PSUiDesignWs.displayFormatRowExists(conn, 4172, "QaH2Del"));
     }
   }
 

@@ -1373,9 +1373,9 @@ Content Explorer **display format** definitions (Developer **Display Formats**) 
 under `/services/displayformats`. The REST layer is a thin contract over the UI **design**
 web service (`IPSUiDesignWs`) — create and update use the same
 `createDisplayFormats` / `loadDisplayFormats` / `saveDisplayFormats` operations SOAP uses.
-Admin delete loads the format and persists component XML (Workbench processor path) so
-`updateDisplayFormats` receives a document. There is no new SOAP surface. GET list/detail
-remain a catalog read.
+Admin delete resolves the format’s persisted `DISPLAYID` from the path name or GUID (the
+id list is never empty) and removes the JDBC row the same way POST inserts it. There is
+no new SOAP surface. GET list/detail remain a catalog read.
 
 Responses include a nested `guid` object and a plain `guidString` (`host-type-uuid`) so
 clients can load **Object ACL** via `GET /services/acls/object/{guid}`.
@@ -1386,7 +1386,7 @@ clients can load **Object ACL** via `GET /services/acls/object/{guid}`.
 | `GET` | `/services/displayformats/{idOrName}` | Load one format by internal name or GUID string |
 | `POST` | `/services/displayformats` | **Admin.** Create a format (`createDisplayFormats` then `saveDisplayFormats`) |
 | `PUT` | `/services/displayformats/{idOrName}` | **Admin.** Update `label`/`displayName` and/or `description`; `columns` replaces the column list when present; `allowedCommunities` replaces community visibility when present |
-| `DELETE` | `/services/displayformats/{idOrName}` | **Admin.** Delete a user format (loaded component XML persist; dependents `ignoreDependencies=false`) |
+| `DELETE` | `/services/displayformats/{idOrName}` | **Admin.** Delete a user format by name or GUID (resolved DISPLAYID; dependents `ignoreDependencies=false`) |
 
 JSON wraps the list as `DisplayFormatList` (`{"DisplayFormatList":[…]}`) including the empty
 catalog (`{"DisplayFormatList":[]}`, not a bare `[]`) and a single item as `DisplayFormat`.
@@ -1424,15 +1424,14 @@ from columns** the same way Workbench computes them — they are not independent
 persisted on PUT.
 
 Delete (`DELETE /services/displayformats/{idOrName}`) returns **204** when the format is
-removed from the catalog; a following `GET` is **404**. The REST adaptor loads the format
-with a design lock, marks it for deletion, and persists the **component XML** (the same
-Workbench objectstore path `updateDisplayFormats` expects). Locator-only SOAP
-`deleteDisplayFormats` is not used for this REST path — that request supplies no XML
-document and does not persist. Unknown id/name is **404**. A format that still has
-dependents is **409**. Locked-by-another-user is **409** (the lock is not stolen).
-Non-Admin is **403**. Do **not** delete packaged system formats (for example `By_Author`)
-to prove this path — create a uniquely named user format with `POST`, then `DELETE` that
-name.
+removed from the catalog; a following `GET` is **404**. The REST adaptor resolves a
+persisted `DISPLAYID` from the internal name or GUID (it does **not** call delete with an
+empty id list) then `IPSUiDesignWs.deleteDisplayFormats`. That operation JDBC-deletes
+`PSX_DISPLAYFORMATS` (and columns/properties) — the same persist path POST uses — after
+taking a design lock. Unknown id/name is **404**. A format that still has dependents is
+**409**. Locked-by-another-user is **409** (the lock is not stolen). Non-Admin is **403**.
+Do **not** delete packaged system formats (for example `By_Author`) to prove this path —
+create a uniquely named user format with `POST`, then `DELETE` that name.
 
 **Developer → Display Formats** chrome creates and deletes user display formats
 (and saves label / description), edits columns on **user** formats, and sets
@@ -1629,7 +1628,11 @@ and is included in `GET /services/views` (the create is durable; a second POST
 with the same name is **409**).
 
 Update (`PUT /services/views/{idOrName}`) loads with a design lock (`overrideLock=false`)
-and releases it on save. Name is not renamed on PUT. Omitted label / description / type /
+and releases it on save. `{idOrName}` may be the view **name** or GUID
+(`0-18-{searchId}`). After POST, field-criteria save uses that GUID; if the H2
+catalog XML lags the JDBC insert, the server still loads by SEARCHID uuid (not
+the packed GUID long) and, when the path GUID misses, by the body `name`.
+Name is not renamed on PUT. Omitted label / description / type /
 display format leave stored values unchanged. Unknown id/name is **404**. Inbox-family
 and other custom URL views are **409** (not mutated; the lock is not stolen).
 Locked-by-another-user is **409**. Non-Admin is **403**.
@@ -1640,8 +1643,9 @@ Delete (`DELETE /services/views/{idOrName}`) returns **204** when removed; a fol
 is **403**.
 
 Create/update load or create the view with a **held design lock** and release it on
-save. There is no separate lock/unlock REST pair on this catalog. Field criterion
-editing is not supported on write. Execute (`POST …/execute`) is unchanged.
+save. There is no separate lock/unlock REST pair on this catalog. PUT may include
+`fields` to replace field criteria (omit `fields` to leave them unchanged; empty
+array clears). Execute (`POST …/execute`) is unchanged.
 
 JSON objects use the `ViewDef` wire type. POST/PUT JSON is wrapped under a `ViewDef`
 root (JAXB/Jackson UNWRAP_ROOT_VALUE). Prefer the generated OpenAPI schema as the
