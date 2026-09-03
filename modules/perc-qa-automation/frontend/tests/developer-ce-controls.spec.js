@@ -44,6 +44,11 @@ const {
 const {
   confirmDeveloperCatalogDelete,
 } = require("./helpers/developer-catalog-confirm");
+const {
+  uniqueControlName,
+  ceControlPath,
+  isCeControlsResponse,
+} = require("./helpers/developer-ce-controls");
 
 function developerControlsUrl() {
   const q = new URLSearchParams({
@@ -52,33 +57,6 @@ function developerControlsUrl() {
     _: String(Date.now()),
   });
   return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?${q.toString()}`;
-}
-
-/** REST-safe unique control name (no spaces or wildcards). */
-function uniqueControlName(prefix) {
-  const a = Date.now().toString(36).replace(/[^a-z0-9]/g, "").slice(-4);
-  const b = Math.random().toString(36).replace(/[^a-z0-9]/g, "").slice(2, 6);
-  const suffix = `${a}${b}`.slice(0, 8);
-  return `${prefix}${suffix || "x"}`;
-}
-
-function ceControlPath(name) {
-  return `/Rhythmyx/services/cecontrols/${encodeURIComponent(name)}`;
-}
-
-function isCeControlsResponse(response, method, name) {
-  if (response.request().method() !== method) {
-    return false;
-  }
-  const url = response.url();
-  const marker = `/services/cecontrols`;
-  if (!url.includes(marker)) {
-    return false;
-  }
-  if (!name) {
-    return method === "POST";
-  }
-  return url.includes(encodeURIComponent(name)) || url.includes(`/${name}`);
 }
 
 async function openControlsCatalog(page) {
