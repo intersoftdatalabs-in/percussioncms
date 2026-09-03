@@ -40,6 +40,10 @@ QA mode (H2-in-Docker, no host install — issue #1827 / #1927) adds:
   ``option[value=object-storage]`` / ``rss-atom`` / ``icalendar`` /
   ``sitemap-xml`` (#3893 / #3948 / #4141) or
   ``[data-testid=developer-am-new]`` (#4123)
+* ``qa-deploy-war-jars`` — copy perc-system / rest / sitemanage SNAPSHOTs
+  into the H2 QA WAR ``WEB-INF/lib`` so skip-image-build cells pick up
+  the sitemap-xml allow-list (#4174). Does not ``docker restart``.
+  Optional in-cell StopJetty/StartJetty via ``--restart-jetty``.
 
 Compose ``verify`` / ``verify-fix`` / ``deploy-jar --verify`` apply the same
 Rhythmyx context log scan against the cms-dts container (#2480 companion to
@@ -153,6 +157,8 @@ QA_CMS_PRODUCT = "cms"
 QA_CMS_DB = "h2"
 QA_CMS_CELL_ID = f"{QA_CMS_PRODUCT}-{QA_CMS_DB}"
 QA_CMS_CONTAINER = f"perc-matrix-{QA_CMS_CELL_ID}"
+# Same default as docker/scripts/hot-deploy-rhythmyx-war-jars.py --dest.
+QA_WAR_JARS_DEST = "/opt/Percussion/jetty/base/webapps/Rhythmyx/WEB-INF/lib"
 # Probe URL path for ``qa-health`` (#2482). The matrix-recommended primary
 # is ``/Rhythmyx/rest/mimetypes`` (Spring-managed ``MimeTypeResource.ping()``
 # — returns 404 when the Rhythmyx Spring ApplicationContext is dead, instead
@@ -445,7 +451,27 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "cm/modern into the H2 QA WAR (#3948 / #4141). Required when "
             "--skip-image-build leaves a stale SPA without "
             "object-storage / rss-atom / icalendar / sitemap-xml kind "
-            "options and Action Menus developer-am-new catalog chrome."
+            "options and Action Menus developer-am-new catalog chrome. "
+            "With --skip-image-build, also copies perc-system/rest/"
+            "sitemanage SNAPSHOTs into WEB-INF/lib (#4174)."
+        ),
+    )
+    pqu.add_argument(
+        "--then-qa-deploy-war-jars",
+        action="store_true",
+        help=(
+            "After a successful qa-up, copy perc-system, rest, and "
+            "sitemanage SNAPSHOTs into the H2 QA WAR WEB-INF/lib "
+            "(#4174). Implied by --then-qa-deploy-webui when "
+            "--skip-image-build is set."
+        ),
+    )
+    pqu.add_argument(
+        "--no-restart-jetty",
+        action="store_true",
+        help=(
+            "With --then-qa-deploy-war-jars, copy SNAPSHOTs without "
+            "in-cell StopJetty/StartJetty (default restarts Jetty)."
         ),
     )
     pqu.add_argument("--dry-run", action="store_true")
@@ -608,6 +634,37 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         ),
     )
     pqdw.add_argument("--dry-run", action="store_true")
+
+    pqdj = sub.add_parser(
+        "qa-deploy-war-jars",
+        help=(
+            "Hot-copy perc-system, rest, and sitemanage SNAPSHOT jars "
+            "into the H2 QA WAR WEB-INF/lib so skip-image-build cells "
+            "allow-list sitemap-xml (#4174). Does not docker-restart "
+            "the cell."
+        ),
+    )
+    pqdj.add_argument(
+        "--container",
+        default=QA_CMS_CONTAINER,
+        help=f"QA cell name (default: {QA_CMS_CONTAINER}).",
+    )
+    pqdj.add_argument(
+        "--restart-jetty",
+        action="store_true",
+        help="In-cell StopJetty.sh then detached StartJetty.sh after copy.",
+    )
+    pqdj.add_argument(
+        "--skip-sitemap-xml-check",
+        action="store_true",
+        help="Allow perc-system without PSSitemapXmlVirtualSiteSource.",
+    )
+    pqdj.add_argument(
+        "--dest",
+        default=QA_WAR_JARS_DEST,
+        help=f"Absolute container WEB-INF/lib (default: {QA_WAR_JARS_DEST}).",
+    )
+    pqdj.add_argument("--dry-run", action="store_true")
 
     return p
 
@@ -1189,6 +1246,52 @@ def cmd_qa_deploy_webui(args: argparse.Namespace, paths: tuple[Path, Path, Path]
     return rc
 
 
+def _qa_deploy_war_jars_argv(
+    repo_root: Path,
+    container: str,
+    restart_jetty: bool,
+    skip_sitemap_xml_check: bool,
+    dest: str = QA_WAR_JARS_DEST,
+) -> List[str]:
+    """Build the argv list for ``docker/scripts/hot-deploy-rhythmyx-war-jars.py``."""
+    argv = [
+        sys.executable,
+        str(repo_root / "docker" / "scripts" / "hot-deploy-rhythmyx-war-jars.py"),
+        "--repo-root",
+        str(repo_root),
+        "--container",
+        container,
+        "--dest",
+        dest,
+    ]
+    if restart_jetty:
+        argv.append("--restart-jetty")
+    if skip_sitemap_xml_check:
+        argv.append("--skip-sitemap-xml-check")
+    return argv
+
+
+def cmd_qa_deploy_war_jars(
+    args: argparse.Namespace, paths: tuple[Path, Path, Path]
+) -> int:
+    repo_root, _env_file, _compose_file = paths
+    log_dir = _log_dir(repo_root)
+    rc, _log_path = _run_logged(
+        "qa-deploy-war-jars",
+        _qa_deploy_war_jars_argv(
+            repo_root,
+            getattr(args, "container", QA_CMS_CONTAINER),
+            bool(getattr(args, "restart_jetty", False)),
+            bool(getattr(args, "skip_sitemap_xml_check", False)),
+            getattr(args, "dest", QA_WAR_JARS_DEST),
+        ),
+        log_dir=log_dir,
+        cwd=repo_root,
+        dry_run=args.dry_run,
+    )
+    return rc
+
+
 def _deploy_jar_argv(
     repo_root: Path,
     jar_path: str,
@@ -1720,23 +1823,56 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
         )
         return rc
 
+    deploy_webui = bool(getattr(args, "then_qa_deploy_webui", False))
+    deploy_jars = bool(getattr(args, "then_qa_deploy_war_jars", False)) or (
+        deploy_webui and skip_image_build
+    )
+
     if dry_run:
         _qa_print_endpoint_banner(host_port)
-        if bool(getattr(args, "then_qa_deploy_webui", False)):
-            return cmd_qa_deploy_webui(
+        rc = EXIT_OK
+        if deploy_webui:
+            rc = cmd_qa_deploy_webui(
                 _qa_deploy_webui_ns(dry_run=True, container=QA_CMS_CONTAINER),
                 paths,
             )
-        return EXIT_OK
+            if rc != EXIT_OK:
+                return rc
+        if deploy_jars:
+            return cmd_qa_deploy_war_jars(
+                argparse.Namespace(
+                    dry_run=True,
+                    container=QA_CMS_CONTAINER,
+                    restart_jetty=not bool(getattr(args, "no_restart_jetty", False)),
+                    skip_sitemap_xml_check=False,
+                    dest=QA_WAR_JARS_DEST,
+                ),
+                paths,
+            )
+        return rc
 
     admin_line = _qa_fetch_admin_password(QA_CMS_CONTAINER)
     _qa_print_endpoint_banner(host_port, admin_password_line=admin_line)
-    if bool(getattr(args, "then_qa_deploy_webui", False)):
-        return cmd_qa_deploy_webui(
+    rc = EXIT_OK
+    if deploy_webui:
+        rc = cmd_qa_deploy_webui(
             _qa_deploy_webui_ns(dry_run=False, container=QA_CMS_CONTAINER),
             paths,
         )
-    return EXIT_OK
+        if rc != EXIT_OK:
+            return rc
+    if deploy_jars:
+        return cmd_qa_deploy_war_jars(
+            argparse.Namespace(
+                dry_run=False,
+                container=QA_CMS_CONTAINER,
+                restart_jetty=not bool(getattr(args, "no_restart_jetty", False)),
+                skip_sitemap_xml_check=False,
+                dest=QA_WAR_JARS_DEST,
+            ),
+            paths,
+        )
+    return rc
 
 
 def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
@@ -2053,6 +2189,7 @@ _DISPATCH = {
     "qa-preflight": cmd_qa_preflight,
     "qa-rebuild-chain": cmd_qa_rebuild_chain,
     "qa-deploy-webui": cmd_qa_deploy_webui,
+    "qa-deploy-war-jars": cmd_qa_deploy_war_jars,
 }
 
 

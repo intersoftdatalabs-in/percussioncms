@@ -91,6 +91,7 @@ const {
   deploySitemapXmlVirtualFixtureToQaCell,
   assertPublishedSitemapXmlFilesOnQaCell,
 } = require("./helpers/sitemap-xml-virtual-qa-fixture");
+const { saveVirtualSiteAndExpectSaved } = require("./helpers/virtual-site-save");
 const {
   missingVirtualSourceKindValues,
   formatMissingVirtualSourceKindMessage,
@@ -1485,10 +1486,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
     await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
     await page.locator('[data-testid="developer-site-virtual-root-path"]').fill("C:/sitemap-xml-docs");
-    await page.locator('[data-testid="developer-site-virtual-save"]').click();
-    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
-      timeout: 15_000,
-    });
+    await saveVirtualSiteAndExpectSaved(page, { timeout: 15_000 });
     await expect(kind).toHaveValue("sitemap-xml");
     await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
@@ -1510,10 +1508,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
     await kind.selectOption("repository");
-    await page.locator('[data-testid="developer-site-virtual-save"]').click();
-    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
-      timeout: 15_000,
-    });
+    await saveVirtualSiteAndExpectSaved(page, { timeout: 15_000 });
     await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toHaveCount(0);
     await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
     await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
@@ -5208,10 +5203,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-sitemap-xml-hint"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
     await page.locator('[data-testid="developer-site-virtual-root-path"]').fill(sitemapRoot);
-    await page.locator('[data-testid="developer-site-virtual-save"]').click();
-    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
-      timeout: 20_000,
-    });
+    await saveVirtualSiteAndExpectSaved(page, { timeout: 20_000 });
     await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
@@ -5239,10 +5231,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
     await kind.selectOption("repository");
-    await page.locator('[data-testid="developer-site-virtual-save"]').click();
-    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
-      timeout: 15_000,
-    });
+    await saveVirtualSiteAndExpectSaved(page, { timeout: 15_000 });
     expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
   });
 

@@ -53,11 +53,12 @@ perc-devctl.py logs-path
 perc-devctl.py inspect-install
 perc-devctl.py show-generated-passwords
 # QA mode — H2-in-Docker CMS for Playwright (no host install) — #1827 / #1927
-perc-devctl.py qa-up [--timeout-seconds N] [--skip-image-build]
+perc-devctl.py qa-up [--timeout-seconds N] [--skip-image-build] [--then-qa-deploy-webui] [--then-qa-deploy-war-jars] [--no-restart-jetty]
 perc-devctl.py qa-preflight [--strict] [--no-content-hash]
 perc-devctl.py qa-rebuild-chain [--skip-tests] [--dist-only] [--then-qa-up] [--then-qa-deploy-webui] [--skip-webui-deploy] [--dry-run]
 perc-devctl.py qa-health [--timeout-seconds N] [--interval-seconds N] [--url URL]
 perc-devctl.py qa-deploy-webui [--src DIR] [--container NAME]
+perc-devctl.py qa-deploy-war-jars [--container NAME] [--dest PATH] [--restart-jetty]
 perc-devctl.py qa-down [--container NAME]
 ```
 
@@ -444,7 +445,7 @@ python3 docker/scripts/hot-deploy-jar.py --jar modules/utils/target/utils-8.2.0.
 
 Default container: `percussion-cms-dts`. Default target: `both` (CMS + DTS lib dirs). `--target` accepts `cms`, `dts`, `both`, or an absolute container path.
 
-**H2 QA cell (`perc-matrix-cms-h2`):** this default is **not** the Rhythmyx WAR classpath. Product SNAPSHOTs (`perc-system`, `sitemanage`, …) load from `/opt/Percussion/jetty/base/webapps/Rhythmyx/WEB-INF/lib/`. After `docker cp` into that dir, restart Jetty **inside** the cell and run `perc-devctl.py qa-health`. Do not `docker restart` the cell (silent install wipes copies). `qa-up --skip-image-build` does not refresh `perc-system`; if you copy a newer `sitemanage`, copy a matching `perc-system` too or ROOT fails at startup (`NoClassDefFoundError`).
+**H2 QA cell (`perc-matrix-cms-h2`):** this default is **not** the Rhythmyx WAR classpath. Product SNAPSHOTs (`perc-system`, `sitemanage`, …) load from `/opt/Percussion/jetty/base/webapps/Rhythmyx/WEB-INF/lib/`. After `docker cp` into that dir, restart Jetty **inside** the cell and run `perc-devctl.py qa-health`. Do not `docker restart` the cell (silent install wipes copies). `qa-up --skip-image-build` does not refresh `perc-system`; if you copy a newer `sitemanage`, copy a matching `perc-system` too or ROOT fails at startup (`NoClassDefFoundError`). Cycle Verify #4174: a skip-image-build cell plus SPA-only `--then-qa-deploy-webui` left `option[value=sitemap-xml]` in the UI while PUT `/virtual` 400'd because the in-cell `perc-system` predated the sitemap-xml allow-list. Use `qa-deploy-war-jars` (implied by `qa-up --skip-image-build --then-qa-deploy-webui`) to copy `perc-system` / `rest` / `sitemanage` SNAPSHOTs into `WEB-INF/lib`.
 
 ### `docker/scripts/hot-deploy-webui-modern.py`
 
@@ -456,11 +457,18 @@ python docker/scripts/perc-devctl.py qa-deploy-webui
 python docker/scripts/hot-deploy-webui-modern.py
 # after qa-rebuild-chain when a cell is already running:
 python docker/scripts/perc-devctl.py qa-rebuild-chain --skip-tests --then-qa-deploy-webui
-# qa-up on a skip-image-build cell that must pick up the current SPA:
+# qa-up on a skip-image-build cell that must pick up the current SPA
+# and sitemap-xml allow-list SNAPSHOTs (#4174):
 python docker/scripts/perc-devctl.py qa-up --skip-image-build --then-qa-deploy-webui
+# equivalent jar copy after the cell is already up:
+python docker/scripts/perc-devctl.py qa-deploy-war-jars --restart-jetty
 ```
 
 Default source: `WebUI/target/generated-webui/cm/modern` (entry `assets/perc-modern-ui.js`, `assets/perc-modern-ui.css`, hashed chunks, optional `index.html`). Default container: `perc-matrix-cms-h2`. Dest: `/opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/`. The script refuses a bundle unless `perc-modern-ui.js` or the `developer-*.js` chunk it imports contains the quoted wire values `object-storage`, `rss-atom`, `icalendar`, **and** `sitemap-xml` **and** `developer-am-new` (single/double quotes or template-literal backticks from Vite 8 minification — not a bare substring; TS identifiers are minified away). It does **not** `docker restart` the cell — restart Jetty inside the cell, then `qa-health`. Unit tests: `docker/scripts/test_hot_deploy_webui_modern.py`.
+
+### `docker/scripts/hot-deploy-rhythmyx-war-jars.py`
+
+Hot-copy `perc-system`, `rest`, and `sitemanage` SNAPSHOTs into the H2 QA WAR `WEB-INF/lib` (`#4174`). Refuses `perc-system` that lacks `PSSitemapXmlVirtualSiteSource`. Does **not** `docker restart` the cell. `--restart-jetty` runs in-cell `StopJetty.sh` then detached `StartJetty.sh`. Unit tests: `docker/scripts/test_hot_deploy_rhythmyx_war_jars.py`.
 
 ## Container entrypoint
 

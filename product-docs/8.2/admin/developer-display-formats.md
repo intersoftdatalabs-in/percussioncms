@@ -38,7 +38,8 @@ allowed communities.
    **By_Author**).
 5. Optional: change label or description and **Save** again.
 6. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
-   The catalog no longer lists that format.
+   REST `DELETE /services/displayformats/{name}` returns **204**; a following
+   GET is **404** and the catalog no longer lists that format.
    Delete of a missing format is **404**. A format still used as a dependent,
    or locked by another user, is **409**. Packaged system formats that REST
    rejects stay locked; the chrome surfaces that conflict and does not steal

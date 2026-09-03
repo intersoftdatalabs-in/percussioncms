@@ -55,8 +55,10 @@ rest of the `sys_cxViews` family) stay protected.
    and value, then **Add field**. Use **Move up** / **Move down** to reorder
    and **Remove** to drop a row.
 3. Click **Save fields**. The PUT body includes `fields` in picker order.
-   `GET /services/views/{name}` then lists those criteria in the same order.
-   An unknown field is **400**. A non-Admin session is **403**.
+   The chrome locates the just-created view by GUID (`0-18-{id}`) and, if
+   that lookup is **404**, retries by name. `GET /services/views/{name}` then
+   lists those criteria in the same order. An unknown field is **400**. A
+   non-Admin session is **403**.
 4. Inbox-family and custom URL views show the criteria table **read-only**
    (no add/remove/reorder/save). This chrome does **not** mutate Inbox
    custom-URL views.

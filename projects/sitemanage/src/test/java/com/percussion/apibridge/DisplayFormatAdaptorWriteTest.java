@@ -68,8 +68,8 @@ import org.mockito.ArgumentCaptor;
 
 /**
  * UI-05 POST create / PUT update / DELETE persist via {@code createDisplayFormats}/{@code
- * saveDisplayFormats} and XML component delete (not locator {@code deleteDisplayFormats}). Admin
- * only; unique name; no lock steal.
+ * saveDisplayFormats} and name-keyed {@code deleteDisplayFormats} with a resolved DISPLAYID
+ * (JDBC row delete). Admin only; unique name; no lock steal; never an empty id list.
  */
 @Tag("UnitTest")
 class DisplayFormatAdaptorWriteTest {
@@ -846,11 +846,49 @@ class DisplayFormatAdaptorWriteTest {
     assertTrue(adaptor.deleteDisplayFormat("MyFmt"));
     when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(null);
     assertNull(adaptor.findDisplayFormatByKey("MyFmt"));
-    assertEquals(1, xmlDeleted.size());
-    assertEquals("MyFmt", xmlDeleted.get(0).getName());
-    assertEquals(IPSDbComponent.DBSTATE_MARKEDFORDELETE, xmlDeleted.get(0).getState());
-    verify(designWs, never()).deleteDisplayFormats(anyList(), anyBoolean(), any(), any());
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<IPSGuid>> deleted = ArgumentCaptor.forClass(List.class);
+    verify(designWs)
+        .deleteDisplayFormats(deleted.capture(), eq(false), eq("test-session"), eq("Admin"));
+    assertEquals(1, deleted.getValue().size());
+    assertEquals(42, deleted.getValue().get(0).getUUID());
     verify(designWs, never()).saveDisplayFormats(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void delete_nameKeyResolvesNativeDisplayId_neverEmptyIds() throws Exception {
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "qa4091fmt");
+    when(designWs.findDisplayFormat(eq("qa4091fmt"))).thenReturn(nativeDf);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(nativeDf));
+
+    IPSGuid resolved = adaptor.resolvePersistedGuid("qa4091fmt");
+    assertEquals(42, resolved.getUUID());
+    assertTrue(adaptor.deleteDisplayFormat("qa4091fmt"));
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<IPSGuid>> deleted = ArgumentCaptor.forClass(List.class);
+    verify(designWs).deleteDisplayFormats(deleted.capture(), eq(false), any(), any());
+    assertFalse(deleted.getValue().isEmpty());
+    assertEquals(42, deleted.getValue().get(0).getUUID());
+  }
+
+  @Test
+  void resolvePersistedGuid_rejectsUnpersisted() throws Exception {
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(null);
+    assertNull(adaptor.resolvePersistedGuid("MyFmt"));
+    assertFalse(adaptor.deleteDisplayFormat("MyFmt"));
+    verify(designWs, never()).deleteDisplayFormats(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadDisplayFormats(anyList(), anyBoolean(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void isEmptyIdsFailure_detectsValidateParametersMessage() {
+    assertTrue(
+        DisplayFormatAdaptor.isEmptyIdsFailure(
+            new IllegalArgumentException("ids cannot be null or empty")));
+    assertFalse(
+        DisplayFormatAdaptor.isEmptyIdsFailure(new IllegalArgumentException("name is required")));
+    assertFalse(DisplayFormatAdaptor.isEmptyIdsFailure(null));
   }
 
   @Test
@@ -882,20 +920,16 @@ class DisplayFormatAdaptorWriteTest {
     when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
     when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
         .thenReturn(List.of(nativeDf));
-    adaptor =
-        new DisplayFormatAdaptor(
-            designWs,
-            () -> true,
-            (df, id, session, user) -> {
-              throw new WebApplicationException(
-                  "Display format has dependents and cannot be deleted", 409);
-            });
+    PSErrorsException deps = new PSErrorsException();
+    deps.addError(guid, new PSErrorException("Display format has dependents"));
+    org.mockito.Mockito.doThrow(deps)
+        .when(designWs)
+        .deleteDisplayFormats(anyList(), anyBoolean(), any(), any());
 
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> adaptor.deleteDisplayFormat("MyFmt"));
     assertEquals(409, ex.getResponse().getStatus());
     assertTrue(ex.getMessage().toLowerCase().contains("depend"), ex.getMessage());
-    verify(designWs, never()).deleteDisplayFormats(anyList(), anyBoolean(), any(), any());
   }
 
   @Test
@@ -904,18 +938,44 @@ class DisplayFormatAdaptorWriteTest {
     when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
     when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
         .thenReturn(List.of(nativeDf));
-    adaptor =
-        new DisplayFormatAdaptor(
-            designWs,
-            () -> true,
-            (df, id, session, user) -> {
-              throw new PSCmsException(0, "Xml Document Expected, none supplied");
-            });
+    PSErrorsException failed = new PSErrorsException();
+    failed.addError(guid, new PSErrorException("Xml Document Expected, none supplied"));
+    org.mockito.Mockito.doThrow(failed)
+        .when(designWs)
+        .deleteDisplayFormats(anyList(), anyBoolean(), any(), any());
 
     IllegalStateException ex =
         assertThrows(IllegalStateException.class, () -> adaptor.deleteDisplayFormat("MyFmt"));
     assertTrue(ex.getMessage().toLowerCase().contains("delete"), ex.getMessage());
-    verify(designWs, never()).deleteDisplayFormats(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void delete_lockLoadEmptyIds_stillDeletesResolvedId() throws Exception {
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenThrow(new IllegalArgumentException("ids cannot be null or empty"));
+
+    assertTrue(adaptor.deleteDisplayFormat("MyFmt"));
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<IPSGuid>> deleted = ArgumentCaptor.forClass(List.class);
+    verify(designWs).deleteDisplayFormats(deleted.capture(), eq(false), any(), any());
+    assertEquals(42, deleted.getValue().get(0).getUUID());
+  }
+
+  @Test
+  void delete_emptyIdsFromDesignWs_isNot400IdsMessage() throws Exception {
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(nativeDf));
+    org.mockito.Mockito.doThrow(new IllegalArgumentException("ids cannot be null or empty"))
+        .when(designWs)
+        .deleteDisplayFormats(anyList(), anyBoolean(), any(), any());
+
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.deleteDisplayFormat("MyFmt"));
+    assertTrue(ex.getMessage().contains("ids cannot be null or empty"), ex.getMessage());
   }
 
   @Test

@@ -241,7 +241,7 @@ HTML path in the **virtual participant registry** (`IPSVirtualParticipantService
 | **Process-scoped (default)** | Registrations live in memory until the process exits, or until `clear(siteKey)` / `clearAll()` is called (SPI reset API). Unit tests and one-shot builds use this mode when no store directory is supplied. |
 | **Path-backed (optional)** | Construct the registry with a portable `java.nio.file.Path` base (CLI uses `outputRoot/_meta`). Existing `participants-<siteKey>.jsonl` files are loaded on construct; `flush(siteKey)` rewrites that site’s file. Survives JVM restart when the same Path base is reused. |
 | **Full rebuild** | A complete site build **clears** that site key, then upserts every discovered page, then flushes. A second build therefore does not keep pages removed from the source tree, and does not lose current ids. |
-| **Current filesystem** | Each build reloads `_config.yaml` and re-reads every Markdown/frontmatter file, CSV row, sql-database `SELECT` (`sql.query` or current `sql.queryFile` bytes plus H2 rows), http-json catalog (`http.url` / `http.file` or default `pages.json`), object-storage blobs (Markdown / HTML / JSON keys under `virtual.rootPath`), rss-atom feeds (`rss.file` / `feed.xml` / `atom.xml` / loopback `rss.url`), and iCalendar fixtures (`icalendar.file` / `calendar.ics`), and sitemap fixtures (`sitemap.file` / `sitemap.xml`). The CMS process does **not** keep a parsed-page cache across builds. After `git pull`, a CSV/`_config.yaml` edit, a SQL `_config.yaml`/`queryFile` or H2 row edit, a JSON catalog edit, an object-key edit, an RSS/Atom fixture edit, an iCalendar fixture edit, a sitemap fixture edit, or a local Markdown edit under `virtual.rootPath`, run **Build Virtual Site** (or the offline docs script) again — **no JVM / CMS restart** is required. File watchers are not used; the next explicit build is the refresh. |
+| **Current filesystem** | Each build reloads `_config.yaml` and re-reads every Markdown/frontmatter file, CSV row, sql-database `SELECT` (`sql.query` or current `sql.queryFile` bytes plus H2 rows), http-json catalog (`http.url` / `http.file` or default `pages.json`), object-storage blobs (Markdown / HTML / JSON keys under `virtual.rootPath`), rss-atom feeds (`rss.file` / `feed.xml` / `atom.xml` / loopback `rss.url`), and iCalendar fixtures (`icalendar.file` / `calendar.ics`), and sitemap fixtures (`sitemap.file` / `sitemap.xml` loc, lastmod, and path). The CMS process does **not** keep a parsed-page cache across builds. After `git pull`, a CSV/`_config.yaml` edit, a SQL `_config.yaml`/`queryFile` or H2 row edit, a JSON catalog edit, an object-key edit, an RSS/Atom fixture edit, an iCalendar fixture edit, a sitemap.xml loc/lastmod/path or `_config.yaml` `sitemap.file` edit, or a local Markdown edit under `virtual.rootPath`, run **Build Virtual Site** (or the offline docs script) again — **no JVM / CMS restart** is required. File watchers are not used; the next explicit build is the refresh. |
 
 Operators can treat the JSONL under the build meta directory as a diagnostic dump of stable ids after
 an offline docs build. The registry is **not** a substitute for Git as the system of record.
@@ -669,8 +669,9 @@ stays unavailable). Operators can also assemble offline with the CLI.
 | `sitemap.url` | **Rejected.** Live remote sitemap crawls are out of scope. |
 
 Sitemaps larger than 2 MB fail closed. Each discover/load re-reads the current file (no
-process-lifetime cache). After you edit the fixture (`sitemap.xml` / `sitemap.file`) or
-`_config.yaml` on the CMS host, run REST **Build** (`POST …/virtual/build`) or
+process-lifetime cache of parsed loc/lastmod/path pages). After you edit `sitemap.xml`
+(`<loc>`, `<lastmod>`, or path) or `_config.yaml` `sitemap.file` on the CMS host, run
+REST **Build** (`POST …/virtual/build`), in-product **Build Virtual Site**, or
 `PSVirtualSiteBuildMain … sitemap-xml` again — **no JVM restart**. File watchers are not
 used; the next explicit build is the refresh.
 
@@ -867,8 +868,9 @@ sitemap.xml fixture** under `virtual.rootPath` (`sitemap.xml` or `_config.yaml`
 `pagesWritten > 0`. Missing fixture, unsafe `rootPath` (`..` after NIO normalize), leftover
 `virtual.remoteUrl`, credential properties, and cloud `rootPath` URLs are **400**. No live
 crawl, no robots.txt fetch, and no secrets on the REST envelope. Each Build re-reads the
-current fixture and `_config.yaml` (no parsed-page cache; no JVM restart; no file
-watchers). Git, CSV, SQL, HTTP JSON, object-storage, rss-atom, and icalendar Build paths
+current `sitemap.xml` loc/lastmod/path and `_config.yaml` `sitemap.file` (no parsed-page
+cache; no JVM restart; no file watchers). Git, CSV, SQL, HTTP JSON, object-storage,
+rss-atom, and icalendar Build paths
 are unchanged. REST persist of `sitemap-xml` is covered on GET/PUT
 `/sites/{nameOrId}/virtual`. Developer Sites **Build Virtual Site** is shown so operators
 can produce last-build HTML for **Preview assembled site** and **Publish Virtual Site**.

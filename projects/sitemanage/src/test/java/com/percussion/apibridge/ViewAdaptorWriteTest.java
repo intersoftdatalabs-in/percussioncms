@@ -124,7 +124,7 @@ class ViewAdaptorWriteTest {
   }
 
   @Test
-  void create_failsIfNotVisibleToFindAfterSave() throws Exception {
+  void create_returnsSavedViewWhenFindAllViewsLags() throws Exception {
     PSSearch view = stubView("MyView", false);
     when(designWs.createViews(eq(List.of("MyView")), eq("test-session"), eq("Admin")))
         .thenReturn(List.of(view));
@@ -134,9 +134,9 @@ class ViewAdaptorWriteTest {
 
     ViewDef body = new ViewDef();
     body.setName("MyView");
-    IllegalStateException ex =
-        assertThrows(IllegalStateException.class, () -> adaptor.createView(body));
-    assertTrue(ex.getMessage().contains("findViews"), ex.getMessage());
+    ViewDef out = adaptor.createView(body);
+    assertEquals("MyView", out.getName());
+    verify(designWs).saveViews(anyList(), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test
@@ -293,6 +293,18 @@ class ViewAdaptorWriteTest {
     body.setLabel("Updated");
     assertNull(adaptor.saveView("missing", body));
     verify(designWs, never()).saveViews(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_nameKeyDoesNotMutateDifferentBodyName() throws Exception {
+    PSSearch other = stubView("OtherView", false);
+    stubCatalogLoad(other);
+    ViewDef body = new ViewDef();
+    body.setName("OtherView");
+    body.setLabel("Hijack");
+    assertNull(adaptor.saveView("nonexistent", body));
+    verify(designWs, never()).saveViews(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadViews(anyList(), eq(true), eq(false), any(), any());
   }
 
   @Test
