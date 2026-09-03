@@ -32,7 +32,14 @@ import type { DisplayFormat, DisplayFormatColumn } from "./types";
  */
 export type DisplayFormatWriteBody = Pick<
   DisplayFormat,
-  "name" | "internalName" | "label" | "displayName" | "description"
+  | "name"
+  | "internalName"
+  | "label"
+  | "displayName"
+  | "description"
+  | "sortedColumnNames"
+  | "ascendingSort"
+  | "descendingSort"
 > & {
   columns?: DisplayFormatColumn[];
   /** Empty array is all communities. Omit to leave visibility unchanged. */

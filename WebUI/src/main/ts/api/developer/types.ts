@@ -353,6 +353,25 @@ export interface CommunityDetail extends CommunitySummary {
   roleList?: CommunityRoleSummary[] | { CommunityRole?: CommunityRoleSummary[] };
 }
 
+/**
+ * Search identity in community CX new-search defaults (UI-09).
+ * PUT accepts {@code name}, numeric {@code id}, or {@code guid}.
+ */
+export interface CommunityNewSearchRef {
+  guid?: RestGuid;
+  id?: number;
+  name?: string;
+  label?: string;
+}
+
+/** GET/PUT body for {@code /services/communities/{id}/new-search-defaults}. */
+export interface CommunityNewSearchDefaults {
+  communityGuid?: RestGuid;
+  communityId?: number;
+  communityName?: string;
+  searches?: CommunityNewSearchRef[] | { CommunityNewSearchRef?: CommunityNewSearchRef[] };
+}
+
 /** Object visible to a community (from POST /services/communities/visibility). */
 export interface CommunityVisibleObject {
   id?: number;
@@ -551,6 +570,9 @@ export interface DisplayFormatColumn {
   width?: number;
   categorized?: boolean;
   ascendingSort?: boolean;
+  descendingSort?: boolean;
+  /** Wire alias of ascendingSort (true = ascending default). */
+  sortOrder?: boolean;
   textType?: boolean;
   numberType?: boolean;
   dateType?: boolean;
@@ -571,6 +593,8 @@ export interface DisplayFormat {
   validForRelatedContent?: boolean;
   validForViewsAndSearches?: boolean;
   validForFolder?: boolean;
+  /** Internal name of the default sort column (Workbench sortColumn property). */
+  sortedColumnNames?: string;
   ascendingSort?: boolean;
   descendingSort?: boolean;
   columns?: DisplayFormatColumn[] | { DisplayFormatColumn?: DisplayFormatColumn[] };
@@ -596,7 +620,26 @@ export interface ActionMenuProperty {
   actionId?: number;
 }
 
-/** CX action menu (UI-02). */
+/** Workbench Visibility context (REST {@code ActionMenuVisibilityContext}). */
+export interface ActionMenuVisibilityContext {
+  name?: string;
+  description?: string;
+  /** Jackson/JAXB {@code getValue}/{@code setValue}. */
+  value?: string;
+  /** Alternate wire name if a serializer uses the field, not the getter. */
+  values?: string;
+}
+
+/** Mode-uicontext mapping (REST {@code ActionMenuModeUIContext}). */
+export interface ActionMenuModeUIContext {
+  modeId?: string;
+  modeName?: string;
+  contextId?: string;
+  contextName?: string;
+  description?: string;
+}
+
+/** CX action menu (UI-02 / UI-03). */
 export interface ActionMenu {
   id?: number;
   guid?: RestGuid;
@@ -611,6 +654,16 @@ export interface ActionMenu {
   handler?: string;
   parameters?: ActionMenuParameter[];
   properties?: ActionMenuProperty[];
+  visibilityContexts?: ActionMenuVisibilityContext[];
+  uiContexts?: ActionMenuModeUIContext[];
+  /**
+   * True when GET catalog detail could not overlay design visibility/uiContexts.
+   * Empty collection arrays are then not authoritative; PUT should omit them.
+   */
+  partialOverlay?: boolean;
+  /** Nested catalog children (GET); write uses PUT /actions/{id}/children. */
+  children?: ActionMenu[];
+  parentId?: number;
   designGaps?: string[];
 }
 
@@ -857,6 +910,12 @@ export interface ControlDef {
   deprecatedReplacement?: string;
   parameters?: ControlParameterSummary[];
   designGaps?: string[];
+  /**
+   * Optional full XSL stylesheet on write. Omitted on list/detail unless the
+   * client supplied it. When absent on POST/PUT the server writes a default
+   * user-control stylesheet from metadata.
+   */
+  xslSource?: string;
 }
 
 /**

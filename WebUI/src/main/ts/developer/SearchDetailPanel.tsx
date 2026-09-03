@@ -18,12 +18,17 @@ import React, { useEffect, useRef, useState } from "react";
 import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { isApiError } from "../api/client";
 import {
+  SEARCH_TYPE_CUSTOM,
   SEARCH_TYPE_STANDARD,
+  canonicalSearchType,
   createSearch,
   deleteSearch,
   getSearchDetail,
+  isCustomSearchType,
   isSearchWriteReady,
+  isValidSearchUrl,
   normalizeSearchName,
+  normalizeSearchUrl,
   saveSearch,
   type SearchWriteBody,
 } from "../api/developer/searchesApi";
@@ -78,7 +83,7 @@ const actionButton: React.CSSProperties = {
 
 const TYPE_OPTIONS: { value: string; kind: "standard" | "custom" | "user" }[] = [
   { value: SEARCH_TYPE_STANDARD, kind: "standard" },
-  { value: "CustomSearch", kind: "custom" },
+  { value: SEARCH_TYPE_CUSTOM, kind: "custom" },
   { value: "Search", kind: "user" },
 ];
 
@@ -90,7 +95,7 @@ function typeLabel(kind: "standard" | "custom" | "user"): string {
 
 function typeFromDetail(detail: SearchDef | null, fallback: string): string {
   if (detail?.type && detail.type.trim()) return detail.type.trim();
-  if (detail?.customSearch) return "CustomSearch";
+  if (detail?.customSearch) return SEARCH_TYPE_CUSTOM;
   if (detail?.userSearch) return "Search";
   if (detail?.standardSearch) return SEARCH_TYPE_STANDARD;
   return fallback;
@@ -115,6 +120,7 @@ export function SearchDetailPanel({
   const [label, setLabel] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState(SEARCH_TYPE_STANDARD);
+  const [url, setUrl] = useState("");
   const [displayFormatId, setDisplayFormatId] = useState("");
   const [draftFields, setDraftFields] = useState<SearchFieldSummary[]>([]);
   const [addSource, setAddSource] = useState("");
@@ -144,6 +150,7 @@ export function SearchDetailPanel({
         setLabel(d.label || "");
         setDescription(d.description || "");
         setType(typeFromDetail(d, SEARCH_TYPE_STANDARD));
+        setUrl(d.url || "");
         setDisplayFormatId(d.displayFormatId || "");
         const fields = normalizeSearchFields(d.fields);
         setDraftFields(fields);
@@ -165,21 +172,27 @@ export function SearchDetailPanel({
   const loadedLabel = detail?.label || "";
   const loadedDescription = detail?.description || "";
   const loadedType = typeFromDetail(detail, SEARCH_TYPE_STANDARD);
+  const loadedUrl = detail?.url || "";
   const loadedDf = detail?.displayFormatId || "";
+  const customUrl = isCustomSearchType(type);
+  const writeKey = idOrName || createdKey || normalizeSearchName(name);
+  const packaged = isPackagedSearch(idOrName || createdKey || name);
   const dirty =
     isNew ||
     normalizeSearchName(name) !== loadedName ||
     label !== loadedLabel ||
     description !== loadedDescription ||
-    type !== loadedType ||
+    canonicalSearchType(type) !== canonicalSearchType(loadedType) ||
+    normalizeSearchUrl(url) !== normalizeSearchUrl(loadedUrl) ||
     displayFormatId !== loadedDf;
-  const canSave = !busy && dirty && isSearchWriteReady({ isNew, name });
-  const writeKey = idOrName || createdKey || normalizeSearchName(name);
-  const packaged = isPackagedSearch(idOrName || createdKey || name);
+  const canSave =
+    !busy && dirty && !packaged && isSearchWriteReady({ isNew, name, type, url });
   const loadedFields = normalizeSearchFields(detail?.fields);
-  const fields = packaged ? loadedFields : draftFields;
+  const hideFieldEditor = packaged || customUrl;
+  const fields = hideFieldEditor ? loadedFields : draftFields;
   const availableFields = catalogFieldsNotInUse(draftFields);
-  const fieldsDirty = !packaged && !isNew && !fieldCriteriaEqual(draftFields, loadedFields);
+  const fieldsDirty =
+    !hideFieldEditor && !isNew && !fieldCriteriaEqual(draftFields, loadedFields);
   const canSaveFields = !busy && fieldsDirty && detail != null;
 
   function writeBody(): SearchWriteBody {
@@ -187,17 +200,38 @@ export function SearchDetailPanel({
       name: isNew ? normalizeSearchName(name) : detail?.name || normalizeSearchName(name),
       label,
       description,
-      type,
+      type: canonicalSearchType(type),
     };
     if (displayFormatId.trim()) {
       body.displayFormatId = displayFormatId.trim();
+    }
+    if (customUrl) {
+      body.customSearch = true;
+      body.url = normalizeSearchUrl(url);
     }
     return body;
   }
 
   function saveFallback(err: unknown): string {
     if (isApiError(err) && err.status === 409 && isNew) return DEV_MSG.SR_DUPLICATE;
-    if (isApiError(err) && err.status === 400) return DEV_MSG.SR_INVALID_NAME;
+    if (isApiError(err) && err.status === 400) {
+      if (customUrl) {
+        const raw =
+          typeof err.body === "string"
+            ? err.body
+            : err.body && typeof err.body === "object" && "message" in err.body
+              ? String((err.body as { message?: unknown }).message ?? "")
+              : "";
+        if (
+          !isValidSearchUrl(url) ||
+          /\burl is required\b/i.test(raw) ||
+          /invalid url/i.test(raw)
+        ) {
+          return DEV_MSG.SR_INVALID_URL;
+        }
+      }
+      return DEV_MSG.SR_INVALID_NAME;
+    }
     if (isApiError(err) && err.status === 403) return DEV_MSG.SR_FORBIDDEN;
     if (isApiError(err) && err.status === 404) return DEV_MSG.SR_NOT_FOUND;
     return DEV_MSG.SR_SAVE_ERROR;
@@ -212,7 +246,7 @@ export function SearchDetailPanel({
   }
 
   function handleAddField(): void {
-    if (packaged || busy || isNew || !isValidSearchFieldName(addSource)) {
+    if (hideFieldEditor || busy || isNew || !isValidSearchFieldName(addSource)) {
       return;
     }
     const next = addSearchFieldCriterion(draftFields, addSource, addOperator, addValue);
@@ -223,7 +257,7 @@ export function SearchDetailPanel({
   }
 
   async function handleSaveFields(): Promise<void> {
-    if (!canSaveFields || inflight.current || packaged || !writeKey) {
+    if (!canSaveFields || inflight.current || hideFieldEditor || !writeKey) {
       return;
     }
     inflight.current = true;
@@ -254,7 +288,11 @@ export function SearchDetailPanel({
   }
 
   async function handleSave(): Promise<void> {
-    if (!canSave || inflight.current) return;
+    if (!canSave || inflight.current || packaged) return;
+    if (customUrl && !isValidSearchUrl(url)) {
+      setError(DEV_MSG.SR_INVALID_URL);
+      return;
+    }
     inflight.current = true;
     setBusy(true);
     setError(null);
@@ -272,6 +310,7 @@ export function SearchDetailPanel({
       setLabel(saved.label || "");
       setDescription(saved.description || "");
       setType(typeFromDetail(saved, type));
+      setUrl(saved.url || url);
       setDisplayFormatId(saved.displayFormatId || "");
       const savedFields = normalizeSearchFields(saved.fields);
       setDraftFields(savedFields);
@@ -403,7 +442,7 @@ export function SearchDetailPanel({
               data-testid="developer-sr-label"
               style={inputStyle}
               value={label}
-              disabled={busy}
+              disabled={busy || packaged}
               onChange={(e) => setLabel(e.target.value)}
             />
           </div>
@@ -414,7 +453,7 @@ export function SearchDetailPanel({
               data-testid="developer-sr-description"
               style={inputStyle}
               value={description}
-              disabled={busy}
+              disabled={busy || packaged}
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
@@ -425,7 +464,7 @@ export function SearchDetailPanel({
               data-testid="developer-sr-type"
               style={inputStyle}
               value={type}
-              disabled={busy}
+              disabled={busy || packaged}
               onChange={(e) => setType(e.target.value)}
             >
               {TYPE_OPTIONS.map((opt) => (
@@ -435,6 +474,23 @@ export function SearchDetailPanel({
               ))}
             </select>
           </div>
+          {customUrl ? (
+            <div style={fieldStyle}>
+              <label htmlFor="sr-url">{DEV_MSG.SR_FORM_URL}</label>
+              <input
+                id="sr-url"
+                data-testid="developer-sr-url"
+                style={{ ...inputStyle, fontFamily: "monospace" }}
+                value={url}
+                disabled={busy || packaged}
+                onChange={(e) => setUrl(e.target.value)}
+                autoComplete="off"
+              />
+              <span style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
+                {DEV_MSG.SR_URL_HINT}
+              </span>
+            </div>
+          ) : null}
           <div style={fieldStyle}>
             <label htmlFor="sr-df">{DEV_MSG.SR_FORM_DF}</label>
             <input
@@ -442,7 +498,7 @@ export function SearchDetailPanel({
               data-testid="developer-sr-display-format"
               style={{ ...inputStyle, fontFamily: "monospace" }}
               value={displayFormatId}
-              disabled={busy}
+              disabled={busy || packaged}
               onChange={(e) => setDisplayFormatId(e.target.value)}
               autoComplete="off"
             />
@@ -509,9 +565,19 @@ export function SearchDetailPanel({
                 <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SR_FIELDS}</h3>
                 <p
                   style={{ color: catalogColors.muted, fontSize: "0.9rem" }}
-                  data-testid={packaged ? "developer-sr-fields-readonly" : undefined}
+                  data-testid={
+                    customUrl
+                      ? "developer-sr-fields-custom-url"
+                      : packaged
+                        ? "developer-sr-fields-readonly"
+                        : undefined
+                  }
                 >
-                  {packaged ? DEV_MSG.SR_FIELDS_READONLY : DEV_MSG.SR_FIELDS_HINT}
+                  {customUrl
+                    ? DEV_MSG.SR_FIELDS_CUSTOM_URL
+                    : packaged
+                      ? DEV_MSG.SR_FIELDS_READONLY
+                      : DEV_MSG.SR_FIELDS_HINT}
                 </p>
                 {fields.length === 0 ? (
                   <p style={{ color: catalogColors.empty }} data-testid="developer-sr-fields-empty">
@@ -529,7 +595,7 @@ export function SearchDetailPanel({
                           <th style={{ padding: "8px" }}>{DEV_MSG.SR_COL_OP}</th>
                           <th style={{ padding: "8px" }}>{DEV_MSG.SR_COL_VALUE}</th>
                           <th style={{ padding: "8px" }}>{DEV_MSG.SR_COL_FTYPE}</th>
-                          {!packaged ? (
+                          {!hideFieldEditor ? (
                             <th style={{ padding: "8px" }}>{DEV_MSG.SR_COL_ACTIONS}</th>
                           ) : null}
                         </tr>
@@ -546,7 +612,7 @@ export function SearchDetailPanel({
                               {f.fieldName || f.displayName || "—"}
                             </td>
                             <td style={{ padding: "8px" }}>
-                              {!packaged ? (
+                              {!hideFieldEditor ? (
                                 <select
                                   data-testid={`developer-sr-field-op-${i}`}
                                   style={inputStyle}
@@ -571,7 +637,7 @@ export function SearchDetailPanel({
                               )}
                             </td>
                             <td style={{ padding: "8px" }}>
-                              {!packaged ? (
+                              {!hideFieldEditor ? (
                                 <input
                                   data-testid={`developer-sr-field-value-${i}`}
                                   style={inputStyle}
@@ -590,7 +656,7 @@ export function SearchDetailPanel({
                               )}
                             </td>
                             <td style={{ padding: "8px" }}>{f.fieldType || "—"}</td>
-                            {!packaged ? (
+                            {!hideFieldEditor ? (
                               <td style={{ padding: "8px" }}>
                                 <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
                                   <button
@@ -638,7 +704,7 @@ export function SearchDetailPanel({
                     </table>
                   </div>
                 )}
-                {!packaged && !isNew ? (
+                {!hideFieldEditor && !isNew ? (
                   <div
                     style={{
                       marginTop: "12px",

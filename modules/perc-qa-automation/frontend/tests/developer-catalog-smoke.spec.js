@@ -103,6 +103,11 @@ const CATALOGS = [
     successTestIds: ["developer-site-panel", "developer-site-empty"],
     errorTestId: "developer-site-error",
   },
+  {
+    section: "ce-controls",
+    successTestIds: ["developer-ctl-panel", "developer-ctl-empty"],
+    errorTestId: "developer-ctl-error",
+  },
 ];
 
 function developerUrl(section) {

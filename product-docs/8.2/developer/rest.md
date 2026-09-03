@@ -1385,7 +1385,7 @@ clients can load **Object ACL** via `GET /services/acls/object/{guid}`.
 | `GET` | `/services/displayformats` | List formats (optional `validForFolder` / `validForViewsAndSearches`) |
 | `GET` | `/services/displayformats/{idOrName}` | Load one format by internal name or GUID string |
 | `POST` | `/services/displayformats` | **Admin.** Create a format (`createDisplayFormats` then `saveDisplayFormats`) |
-| `PUT` | `/services/displayformats/{idOrName}` | **Admin.** Update `label`/`displayName` and/or `description`; `columns` replaces the column list when present; `allowedCommunities` replaces community visibility when present |
+| `PUT` | `/services/displayformats/{idOrName}` | **Admin.** Update `label`/`displayName` and/or `description`; `columns` replaces the column list when present; `sortedColumnNames` persists default sort (with `columns` uses that column's `ascendingSort`; without `columns` matches the stored list and keeps existing direction); `allowedCommunities` replaces community visibility when present |
 | `DELETE` | `/services/displayformats/{idOrName}` | **Admin.** Delete a user format (loaded component XML persist; dependents `ignoreDependencies=false`) |
 
 JSON wraps the list as `DisplayFormatList` (`{"DisplayFormatList":[…]}`) including the empty
@@ -1407,7 +1407,16 @@ returns the same user format.
 Update (`PUT /services/displayformats/{idOrName}`) loads with a design lock
 (`overrideLock=false`) and releases it on save. Name is not renamed on PUT. `label` /
 `displayName` and `description` round-trip. When `columns` is present, the column list
-is **replaced** (add, remove, and reorder). Omit `columns` to leave the stored list
+is **replaced** (add, remove, and reorder). Each column may include `ascendingSort`
+(and `descendingSort` / `sortOrder` as the same boolean). When `sortedColumnNames`
+is present, it names the **default sort column** (unknown is **400**) and is stored
+as Workbench `sortColumn` / `sortDirection`. The name is matched
+case-insensitively and persisted in lowercase (canonical `source`). With `columns`,
+the matching column's `ascendingSort` sets direction. Without `columns`, the name
+must match a stored column (not silently dropped) and the existing format sort
+direction is kept (default ascending). GET returns `sortedColumnNames` and
+format-level `ascendingSort` / `descendingSort`. Omit `sortedColumnNames` to leave
+the stored default sort unchanged. Omit `columns` to leave the stored list
 unchanged. Invalid column `source` (blank, whitespace, wildcards, or path characters)
 is **400**. Duplicate sources in the same list are **400**. When `allowedCommunities`
 is present, community visibility is **replaced**. The value is a JSON **array** of
@@ -1416,7 +1425,7 @@ communities (Workbench `sys_community=-1`). Omit `allowedCommunities` to leave
 visibility unchanged. There is no distinct “no communities” state — empty and
 all-communities persist the same way. Unknown community is **400**. Non-Admin is
 **403**. GET returns an empty array when the format is visible to all communities,
-and the restricted rows when it is not. The Developer SPA edits columns and allowed communities on
+and the restricted rows when it is not. The Developer SPA edits columns, default sort, and allowed communities on
 **user** formats only; packaged/system formats stay read-only in that catalog. See
 [Developer Display Formats](id:admin-developer-display-formats). Usage flags on GET
 (`validForFolder`, `validForViewsAndSearches`, `validForRelatedContent`) are **derived
@@ -1435,8 +1444,9 @@ to prove this path — create a uniquely named user format with `POST`, then `DE
 name.
 
 **Developer → Display Formats** chrome creates and deletes user display formats
-(and saves label / description), edits columns on **user** formats, and sets
-**allowed communities** on **user** formats. Packaged formats stay read-only.
+(and saves label / description), edits columns and **default sort** on **user**
+formats, and sets **allowed communities** on **user** formats. Packaged formats
+stay read-only.
 The catalog lists user-created formats and omits a row after a successful REST
 or SPA delete. See [Developer Display Formats](id:admin-developer-display-formats).
 
@@ -1479,10 +1489,13 @@ Admin **write** persists through `IPSUiDesignWs` (`createActions` / `loadActions
 rows are written to `RXMENUACTION` so Hibernate `findActionMenusTree` (GET
 `/services/actions/catalog` and GET by name) includes a user menu immediately
 after POST, and omits it after DELETE. There is no new SOAP surface.
-**Developer → Action Menus** chrome creates and deletes user menus (and saves
-label / description / menuType / url); cascading children composition (UI-04)
-and usage/command/visibility tab completeness (UI-03) are later slices — see
-[Developer Action Menus](id:admin-developer-action-menus). Finder helpers
+**Developer → Action Menus** chrome creates and deletes user menus and saves
+label / description / menuType plus Workbench **Usage**, **Command**, and
+**Visibility** on user menus (`handler`, `url`, `parameters`, command/usage
+`properties`, `visibilityContexts`, and `uiContexts`). Cascading children on a
+user `MENU` are composed in that chrome via `PUT /services/actions/{idOrName}/children`
+(ordered `ActionMenuList`; identity PUT still ignores nested `children`) —
+see [Developer Action Menus](id:admin-developer-action-menus). Finder helpers
 (`GET /services/actions/find`, content-type and template finders) are unchanged.
 After POST the editor notice confirms the save. Packaged menus (for example
 **Copy**) are **409** on PUT/DELETE, not **404**.
@@ -1495,18 +1508,65 @@ updated or deleted — **409**; the design lock is not stolen (`overrideLock=fal
 If Workbench path resolution fails, PUT/DELETE also return **409** (fail closed)
 so a lookup error cannot bypass that protection.
 PUT round-trips GET detail fields already exposed (`label`, `description`,
-`menuType`, `url`). Name is the catalog key and is not renamed on PUT.
+`menuType`, `url`) plus usage/command/visibility fields: `handler` (`CLIENT` or
+`SERVER`), `url`, `parameters` (name/value/description URL parameters; a
+present array replaces the collection, including empty), `properties` used as
+Workbench Usage/Command (for example `AcceleratorKey`, `MnemonicKey`,
+`ShortDescription`, `SmallIcon`, `launchesWindow`, `SupportsMultiSelect`,
+`refreshHint`, `target`, `targetStyle`), `visibilityContexts` (Workbench
+Visibility; each element is a context `name` plus one `value` — repeat the
+name for multiple values), and `uiContexts` (mode-uicontext mappings with
+numeric `modeId` and `contextId`). Omitted `handler` / `parameters` /
+`properties` / `visibilityContexts` / `uiContexts` leave the stored values.
+An empty `visibilityContexts` or `uiContexts` array clears that collection.
+The REST user-menu marker property is not overwritten. Name is the catalog key
+and is not renamed on PUT. Invalid `handler`, `menuType`, visibility context
+name, or uiContext id is **400**. Visibility context `name` is `1`–`11`
+(Workbench `VIS_CONTEXT_*`) or an alias such as `community`, `contentType`,
+`roles` / `role`, `locales` / `locale`, `workflows` / `workflow`,
+`publishable` / `publishableType`, `checkoutStatus`, `folderSecurity`. GET
+`visibilityContexts[].name` is the **numeric Workbench id** (`1`–`11`; for
+example `2` is community), including catalog conversion when design overlay
+does not run. PUT still accepts that numeric id or an alias. GET
+`/services/actions/catalog/{idOrName}` overlays Workbench visibility and
+uiContexts from an unlocked design load. When that overlay fails, the response
+includes `partialOverlay: true` (omitted on the happy path) and empty collection arrays are **not**
+authoritative — omit `parameters` / `visibilityContexts` / `uiContexts` on the
+next PUT so stored collections are not cleared. After a successful overlay,
+GET returns the same visibility and uiContexts as a successful PUT. The
+Developer Action Menus Visibility picker maps the numeric GET name to the
+alias (`2` → `community`) so the table round-trips either form.
+**Children PUT** (`PUT /services/actions/{idOrName}/children`) replaces
+`RXMENUACTIONRELATION` for a user cascading `MENU` (type `MENU` with a blank
+URL). The body is an `ActionMenuList`: a JSON array, `{"ActionMenuList":[…]}`,
+`{"children":[…]}`, or `{"ActionMenu":{"children":[…]}}`. Each element is identified by **`name`**, numeric
+**`id`**, or **`guid.stringValue`** (the same catalog keys as GET). Array
+**order** is persisted (child `SORTORDER` plus relation rows). Other fields on
+those child objects are ignored. An empty array (or an `ActionMenu` envelope with
+no `children`) clears children. An unrecognized JSON object (for example
+`{"foo":"bar"}`) is **400** — it is not treated as an empty list. Parent
+`PUT /services/actions/{idOrName}` does **not** honor nested `children`.
+Illegal graphs fail closed — the server does **not** persist a partial
+association list. A **cycle** (parent listed as its own child, or A→B→A
+through existing descendants) is **400**. An **unknown child** id/name is
+**400**. A **duplicate child** in one payload (same name or same resolved id
+twice) is **400**. A non-cascading parent is **400**. Missing **parent** is
+**404**. Non-Admin (or missing request session/user) is **403**. System parent
+is **409**. Following GET `/services/actions/catalog/{idOrName}` returns those
+children in order (or the previous children when the write was rejected).
 
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/services/actions/catalog` | List action menus (tree roots with children) |
 | `GET` | `/services/actions/catalog/{idOrName}` | Load one menu by name, numeric id, or GUID string |
 | `POST` | `/services/actions` | **Admin.** Create a user action menu (`createActions` then `saveActions`) |
-| `PUT` | `/services/actions/{idOrName}` | **Admin.** Update label, description, menuType, and/or url |
+| `PUT` | `/services/actions/{idOrName}` | **Admin.** Update label, description, menuType, url, handler, parameters, command/usage properties, visibilityContexts, and uiContexts (not children) |
+| `PUT` | `/services/actions/{idOrName}/children` | **Admin.** Replace ordered child associations on a user cascading MENU |
 | `DELETE` | `/services/actions/{idOrName}` | **Admin.** Delete a user action menu (`deleteActions`, `ignoreDependencies=false`) |
 
 JSON may wrap a single item as `ActionMenu`. **Create** `POST /services/actions`
-sends that envelope (or a flat object with `name`). Do not post
+sends that envelope (or a flat object with `name`). The collection POST is bound
+as `ActionMenu` (not JAXB `allowedWorkflowTransitionsRequest`). Do not post
 `allowedWorkflowTransitionsRequest` on the collection path — that finder lives at
 `POST /services/actions/find/transitions`. Integrators should unwrap the
 `ActionMenu` envelope and read `guid.stringValue` (never assume the GUID is
@@ -1759,8 +1819,10 @@ no SOAP design twin and this API does not invent one.
 Admin **write** persists **user** controls as an XSL file under
 `rx_resources/stylesheets/controls` plus the custom-control import list
 (`PSCustomControlManager.writeImports`). Packaged **system** controls are read-only.
-**Do not** treat this as a Developer Controls SPA; chrome for create/save/delete is a later
-sibling. Full XSL source-editor UX is not provided by this API.
+**Developer → CE Controls** SPA chrome **creates**, **saves**, and **deletes** user
+controls (`POST` / `PUT` / `DELETE` `/services/cecontrols`). Full XSL source-editor UX is
+not provided by this API — create and save may send optional `xslSource`, or omit it for
+the server default stylesheet.
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -1786,16 +1848,24 @@ Non-Admin is **403**. The new control is then `GET /services/cecontrols/{name}` 
 appears on `GET /services/cecontrols`.
 
 Update (`PUT /services/cecontrols/{name}`) updates a **user** control. Name is the catalog
-key and is not renamed on PUT. Omitted `xslSource` regenerates a default stylesheet from
-metadata (send `xslSource` to keep a custom stylesheet). Unknown name is **404**. A
-**system** control is **409** (packaged files are not mutated). Non-Admin is **403**.
+key and is not renamed on PUT. Developer chrome always sends `displayName`, `description`,
+`dimension`, and `choiceSet` so a cleared field is persisted (blank `description` clears;
+blank dimension/choice set send `single` / `none`). Omitted `xslSource` regenerates a
+default stylesheet from metadata (send `xslSource` to keep a custom stylesheet). Unknown
+name is **404**. A **system** control is **409** (packaged files are not mutated).
+Non-Admin is **403**.
 
 Delete (`DELETE /services/cecontrols/{name}`) returns **204** when a user control is
 removed; a following `GET` is **404**. Unknown name is **404**. A **system** control is
 **409** (not deleted). Non-Admin is **403**.
 
-There is **no** Developer SPA controls catalog create/delete in this slice — operators and
-integrators call the REST path (or Workbench).
+**Developer → CE Controls** creates a user control from the catalog (**New user control**).
+Name is required, unique, and cannot contain whitespace or wildcards; it is read-only after
+create. Duplicate name is **409**. Invalid name is **400**. Open a user control to **Save**
+(`PUT`) or **Delete** (`DELETE` **204**, following GET **404**, catalog omits the row).
+Omitted `xslSource` on PUT uses the server default stylesheet. Packaged **system**
+controls stay non-creatable / non-editable / non-deletable (POST/PUT/DELETE that uses a
+system name is **409**). See [Developer CE Controls](id:admin-developer-ce-controls).
 
 Example create body:
 
@@ -1828,8 +1898,8 @@ CX design **searches** (and optionally **views** on GET/execute) are exposed und
 `/services/searches`. Admin **write** (UI-06) persists through `IPSUiDesignWs`
 (`createSearches` / `loadSearches` / `saveSearches` / `deleteSearches`) — the same design
 web service SOAP uses. There is no new SOAP surface. **Developer → Searches** chrome
-creates and deletes searches (and saves label / description / type / display format)
-and field criteria on user/standard searches — see
+creates and deletes searches (and saves label / description / type / display format /
+custom `url`) and field criteria on user/standard searches — see
 [Developer Searches](id:admin-developer-searches).
 
 | Method | Path | Purpose |
@@ -1838,7 +1908,7 @@ and field criteria on user/standard searches — see
 | `GET` | `/services/searches?includeViews=true` | List searches **and** views (Explorer saved-search picker) |
 | `GET` | `/services/searches/{idOrName}` | Load one search or view by name, label, GUID, or numeric id |
 | `POST` | `/services/searches` | **Admin.** Create a search (`createSearches` then `saveSearches`) |
-| `PUT` | `/services/searches/{idOrName}` | **Admin.** Update label, description, type, display format, and/or field criteria |
+| `PUT` | `/services/searches/{idOrName}` | **Admin.** Update label, description, type, display format, custom `url`, and/or field criteria |
 | `DELETE` | `/services/searches/{idOrName}` | **Admin.** Delete a search (`deleteSearches`, `ignoreDependencies=false`) |
 | `POST` | `/services/searches/{idOrName}/execute` | Execute a standard/user search or view (not a custom URL) |
 
@@ -1859,9 +1929,13 @@ updating, or deleting a search.
 
 Create (`POST /services/searches`) persists immediately (Workbench Finish, not an unsaved
 stub). JSON body requires `name` (unique across searches **and** views, case-insensitive;
-**no whitespace** or wildcards). Optional `label`, `description`, `type`, and
-`displayFormatId` are applied before save. Default `type` is `StandardSearch`. Accepted
-types: `StandardSearch` (`standard`), `CustomSearch` (`custom`), `Search` (user search).
+**no whitespace** or wildcards). Optional `label`, `description`, `type`,
+`displayFormatId`, `url`, and `customSearch` are applied before save. Default `type` is
+`StandardSearch`. Accepted types: `StandardSearch` (`standard`), `CustomSearch`
+(`custom`), `Search` (user search). When `type` is `CustomSearch`, send a non-blank
+`url` (`http`/`https` or a site-relative path starting with `/`, typically
+`/Rhythmyx/…`) and `customSearch: true`. Omit `url` / `customSearch` on
+non-custom writes. GET round-trips `url` and `customSearch`.
 `View` is **400** — views stay on `/services/views`. Duplicate name is **409**. Blank /
 whitespace / wildcard names are **400**. Missing request session/user is **403**.
 Non-Admin is **403**. The new search is then `GET /services/searches/{name}` **200**
@@ -1870,11 +1944,11 @@ with the same name is **409**).
 
 Update (`PUT /services/searches/{idOrName}`) loads with a design lock (`overrideLock=false`)
 and releases it on save. Name is not renamed on PUT. Omitted label / description / type /
-display format leave stored values unchanged. When `fields` is present it replaces field
-criteria in order (`fieldName`, `operator`, `fieldValue`, `position`). Omitted `fields`
-leaves stored criteria unchanged; an empty array clears them. Unknown / invalid field
-name is **400**. Packaged/system searches (`Default_Search`, `RC_Search`) reject field
-mutation with **409** (the lock is not stolen). Unknown id/name is
+display format / `url` leave stored values unchanged. When `fields` is present it replaces
+field criteria in order (`fieldName`, `operator`, `fieldValue`, `position`). Omitted
+`fields` leaves stored criteria unchanged; an empty array clears them. Unknown / invalid
+field name is **400**. Packaged/system searches (`Default_Search`, `RC_Search`) reject
+field mutation with **409** (the lock is not stolen). Unknown id/name is
 **404**. A view key is **400**. Locked-by-another-user is **409**. Non-Admin is **403**.
 
 Delete (`DELETE /services/searches/{idOrName}`) returns **204** when removed; a following
@@ -1902,11 +1976,25 @@ Example create body:
 }
 ```
 
+Example custom URL create:
+
+```json
+{
+  "SearchDef": {
+    "name": "MyCustom",
+    "label": "My Custom",
+    "type": "CustomSearch",
+    "customSearch": true,
+    "url": "/Rhythmyx/sys_cxSupport/custom.xml"
+  }
+}
+```
+
 | Status | Typical meaning |
 |--------|-----------------|
 | `200` | List / get / create / update success |
 | `204` | Delete success |
-| `400` | Invalid input (missing name, whitespace/wildcard name, invalid or View type, unknown field) |
+| `400` | Invalid input (missing name, whitespace/wildcard name, invalid or View type, unknown field, missing custom `url`) |
 | `403` | Caller is not Admin, or the request has no session/user for the design session |
 | `404` | Search not found |
 | `409` | Duplicate name, packaged/system field mutation, design lock held by another user, or dependents |
@@ -1962,8 +2050,9 @@ Example GET / PUT body:
 | `409` | Design lock held by another user |
 | `500` | Design service or server failure |
 
-There is no Developer SPA for this assignment in this release; operators and
-integrators call the REST surface above.
+Developer **Communities** detail includes **New-search defaults** chrome that
+calls the same GET/PUT. Integrators may still call the REST surface above
+without the SPA.
 
 ### Search execute body
 

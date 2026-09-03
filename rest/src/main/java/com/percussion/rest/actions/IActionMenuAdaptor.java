@@ -53,10 +53,25 @@ public interface IActionMenuAdaptor {
    * saveActions} release). Does not steal another user's lock. System menus are not mutated.
    *
    * @param idOrName catalog key (same rules as {@link #findMenuByKey})
-   * @param body required writable fields (label, description, menuType, url as exposed on GET)
+   * @param body required writable fields (label, description, menuType, url, handler,
+   *     parameters, command/usage properties, visibilityContexts, and uiContexts as exposed
+   *     on GET).
    * @return the persisted menu, or {@code null} when missing/unsafe
    */
   ActionMenu saveActionMenu(String idOrName, ActionMenu body);
+
+  /**
+   * Admin. Replace ordered child associations on a user cascading {@code MENU} ({@code loadActions}
+   * lock, {@code saveActions} release). Does not steal another user's lock. System parents are not
+   * mutated. Child identity is {@code name}, numeric {@code id}, or GUID string (same rules as
+   * {@link #findMenuByKey}); array order is the persisted order. Unknown, duplicate, or cyclic
+   * children are rejected without persisting a partial graph.
+   *
+   * @param idOrName parent catalog key
+   * @param children ordered children; {@code null} or empty clears associations
+   * @return the persisted parent with children, or {@code null} when the parent is missing/unsafe
+   */
+  ActionMenu saveActionMenuChildren(String idOrName, ActionMenuList children);
 
   /**
    * Admin. Delete a user action menu by name or GUID ({@code deleteActions}, {@code

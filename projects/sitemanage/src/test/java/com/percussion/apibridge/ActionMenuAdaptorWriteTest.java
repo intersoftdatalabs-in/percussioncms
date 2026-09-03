@@ -35,13 +35,21 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.cms.objectstore.PSAction;
+import com.percussion.cms.objectstore.PSActionParameter;
+import com.percussion.cms.objectstore.PSActionVisibilityContext;
+import com.percussion.cms.objectstore.PSMenuModeContextMapping;
 import com.percussion.rest.actions.ActionMenu;
 import com.percussion.rest.actions.ActionMenuList;
+import com.percussion.rest.actions.ActionMenuModeUIContext;
+import com.percussion.rest.actions.ActionMenuParameter;
+import com.percussion.rest.actions.ActionMenuProperty;
+import com.percussion.rest.actions.ActionMenuVisibilityContext;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.menus.PSActionMenu;
 import com.percussion.services.menus.RxmActionMenuConstants;
+import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
@@ -49,7 +57,9 @@ import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.ui.IPSUiDesignWs;
 import com.percussion.webservices.ui.data.ActionType;
 import jakarta.ws.rs.WebApplicationException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
@@ -258,6 +268,315 @@ class ActionMenuAdaptorWriteTest {
   }
 
   @Test
+  void update_usageAndCommand_roundTripsOnPutAndDto() throws Exception {
+    PSAction existing = stubAction("MyMenu", 42);
+    existing.getProperties().setProperty(ActionMenuAdaptor.REST_USER_MENU_PROP, PSAction.YES);
+    existing.getParameters().setParameter("oldParam", "old");
+    stubCatalogLoad(existing);
+    PSAction locked = stubAction("MyMenu", 42);
+    locked.getProperties().setProperty(ActionMenuAdaptor.REST_USER_MENU_PROP, PSAction.YES);
+    locked.getParameters().setParameter("oldParam", "old");
+    when(designWs.loadActions(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(locked));
+
+    ActionMenu body = new ActionMenu();
+    body.setHandler(PSAction.HANDLER_CLIENT);
+    body.setUrl("/sys_cxSupport/foo.xml");
+    ActionMenuParameter param = new ActionMenuParameter();
+    param.setName("sys_contentid");
+    param.setValue("PSX_CONTENTID");
+    param.setDescription("content id");
+    body.setParameters(new ActionMenuParameter[] {param});
+    ActionMenuProperty accel = new ActionMenuProperty();
+    accel.setName(PSAction.PROP_ACCEL_KEY);
+    accel.setValue("ctrl S");
+    ActionMenuProperty mnem = new ActionMenuProperty();
+    mnem.setName(PSAction.PROP_MNEM_KEY);
+    mnem.setValue("S");
+    ActionMenuProperty launch = new ActionMenuProperty();
+    launch.setName(PSAction.PROP_LAUNCH_NEW_WND);
+    launch.setValue(PSAction.YES);
+    ActionMenuProperty marker = new ActionMenuProperty();
+    marker.setName(ActionMenuAdaptor.REST_USER_MENU_PROP);
+    marker.setValue(PSAction.NO);
+    body.setProperties(new ActionMenuProperty[] {accel, mnem, launch, marker});
+
+    ActionMenu out = adaptor.saveActionMenu("MyMenu", body);
+
+    assertEquals(PSAction.HANDLER_CLIENT, out.getHandler());
+    assertEquals("/sys_cxSupport/foo.xml", out.getUrl());
+    assertEquals(1, out.getParameters().length);
+    assertEquals("sys_contentid", out.getParameters()[0].getName());
+    assertEquals("PSX_CONTENTID", out.getParameters()[0].getValue());
+    assertEquals("content id", out.getParameters()[0].getDescription());
+    assertEquals("ctrl S", propertyValue(out, PSAction.PROP_ACCEL_KEY));
+    assertEquals("S", propertyValue(out, PSAction.PROP_MNEM_KEY));
+    assertEquals(PSAction.YES, propertyValue(out, PSAction.PROP_LAUNCH_NEW_WND));
+    assertEquals(PSAction.YES, propertyValue(out, ActionMenuAdaptor.REST_USER_MENU_PROP));
+    assertTrue(locked.isClientAction());
+    assertEquals("/sys_cxSupport/foo.xml", locked.getURL());
+    assertEquals("PSX_CONTENTID", locked.getParameters().getParameter("sys_contentid"));
+    assertNull(locked.getParameters().getParameter("oldParam"));
+    assertEquals("ctrl S", locked.getProperty(PSAction.PROP_ACCEL_KEY));
+    assertEquals(PSAction.YES, locked.getProperty(ActionMenuAdaptor.REST_USER_MENU_PROP));
+    verify(designWs).saveActions(anyList(), eq(true), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void update_visibilityAndUiContexts_roundTripsOnPutAndDto() throws Exception {
+    PSAction existing = stubAction("MyMenu", 42);
+    existing.getVisibilityContexts().addContext(PSActionVisibilityContext.VIS_CONTEXT_ROLES_TYPE, "old");
+    stubCatalogLoad(existing);
+    PSAction locked = stubAction("MyMenu", 42);
+    locked.getVisibilityContexts().addContext(PSActionVisibilityContext.VIS_CONTEXT_ROLES_TYPE, "old");
+    when(designWs.loadActions(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(locked));
+
+    ActionMenu body = new ActionMenu();
+    ActionMenuVisibilityContext community = new ActionMenuVisibilityContext();
+    community.setName("community");
+    community.setValue("100");
+    community.setDescription("community id");
+    ActionMenuVisibilityContext community2 = new ActionMenuVisibilityContext();
+    community2.setName(PSActionVisibilityContext.VIS_CONTEXT_COMMUNITY);
+    community2.setValue("200");
+    ActionMenuVisibilityContext contentType = new ActionMenuVisibilityContext();
+    contentType.setName("contentType");
+    contentType.setValue("5");
+    body.setVisibilityContexts(
+        new ActionMenuVisibilityContext[] {community, community2, contentType});
+    ActionMenuModeUIContext ui = new ActionMenuModeUIContext();
+    ui.setModeId("1");
+    ui.setModeName("CX");
+    ui.setContextId("2");
+    ui.setContextName("Folder");
+    body.setUiContexts(new ActionMenuModeUIContext[] {ui});
+
+    ActionMenu out = adaptor.saveActionMenu("MyMenu", body);
+
+    assertEquals(3, out.getVisibilityContexts().length);
+    assertEquals(PSActionVisibilityContext.VIS_CONTEXT_COMMUNITY, out.getVisibilityContexts()[0].getName());
+    assertEquals("100", out.getVisibilityContexts()[0].getValue());
+    assertEquals("community id", out.getVisibilityContexts()[0].getDescription());
+    assertEquals("200", out.getVisibilityContexts()[1].getValue());
+    assertEquals(PSActionVisibilityContext.VIS_CONTEXT_CONTENT_TYPE, out.getVisibilityContexts()[2].getName());
+    assertEquals("5", out.getVisibilityContexts()[2].getValue());
+    assertEquals(1, out.getUiContexts().length);
+    assertEquals("1", out.getUiContexts()[0].getModeId());
+    assertEquals("CX", out.getUiContexts()[0].getModeName());
+    assertEquals("2", out.getUiContexts()[0].getContextId());
+    assertEquals("Folder", out.getUiContexts()[0].getContextName());
+    assertNull(locked.getVisibilityContexts().getContext(PSActionVisibilityContext.VIS_CONTEXT_ROLES_TYPE));
+    assertEquals(
+        "100",
+        firstVisibilityValue(locked, PSActionVisibilityContext.VIS_CONTEXT_COMMUNITY));
+    assertEquals(1, locked.getModeUIContexts().size());
+    verify(designWs).saveActions(anyList(), eq(true), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void update_invalidVisibility_is400BeforeSave() throws Exception {
+    PSAction existing = stubAction("MyMenu", 42);
+    stubCatalogLoad(existing);
+    PSAction locked = stubAction("MyMenu", 42);
+    when(designWs.loadActions(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(locked));
+    ActionMenu body = new ActionMenu();
+    ActionMenuVisibilityContext vis = new ActionMenuVisibilityContext();
+    vis.setName("not-a-context");
+    vis.setValue("x");
+    body.setVisibilityContexts(new ActionMenuVisibilityContext[] {vis});
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.saveActionMenu("MyMenu", body));
+    assertTrue(ex.getMessage().toLowerCase().contains("visibility"));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_invalidUiContext_is400BeforeSave() throws Exception {
+    PSAction existing = stubAction("MyMenu", 42);
+    stubCatalogLoad(existing);
+    PSAction locked = stubAction("MyMenu", 42);
+    when(designWs.loadActions(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(locked));
+    ActionMenu body = new ActionMenu();
+    ActionMenuModeUIContext ui = new ActionMenuModeUIContext();
+    ui.setModeId("cx");
+    ui.setContextId("2");
+    body.setUiContexts(new ActionMenuModeUIContext[] {ui});
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.saveActionMenu("MyMenu", body));
+    assertTrue(ex.getMessage().toLowerCase().contains("modeid"));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void applyVisibilityContexts_emptyArrayClears() {
+    PSAction domain = stubAction("MyMenu", 42);
+    domain.getVisibilityContexts().addContext(PSActionVisibilityContext.VIS_CONTEXT_COMMUNITY, "1");
+    ActionMenuAdaptor.applyVisibilityContexts(domain, new ActionMenuVisibilityContext[0]);
+    assertEquals(0, domain.getVisibilityContexts().size());
+  }
+
+  @Test
+  void applyWritableFields_nullVisibilityLeavesExisting() {
+    PSAction domain = stubAction("MyMenu", 42);
+    domain.getVisibilityContexts().addContext(PSActionVisibilityContext.VIS_CONTEXT_COMMUNITY, "keep");
+    ActionMenu body = new ActionMenu();
+    body.setLabel("Updated");
+    ActionMenuAdaptor.applyWritableFields(domain, body);
+    assertEquals("Updated", domain.getLabel());
+    assertEquals(
+        "keep",
+        firstVisibilityValue(domain, PSActionVisibilityContext.VIS_CONTEXT_COMMUNITY));
+  }
+
+  @Test
+  void overlayDesignVisibility_copiesFromUnlockedLoad() throws Exception {
+    ActionMenu catalog = new ActionMenu();
+    catalog.setName("MyMenu");
+    catalog.setId(42);
+    PSAction loaded = stubAction("MyMenu", 42);
+    loaded.getVisibilityContexts().addContext(PSActionVisibilityContext.VIS_CONTEXT_COMMUNITY, "100");
+    PSMenuModeContextMapping mapping = new PSMenuModeContextMapping("1", "2", "42");
+    mapping.setModeName("CX");
+    mapping.setContextName("Folder");
+    loaded.getModeUIContexts().add(mapping);
+    when(designWs.loadActions(anyList(), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loaded));
+
+    assertTrue(adaptor.overlayDesignVisibility(catalog));
+    assertFalse(catalog.isPartialOverlay());
+
+    assertEquals(1, catalog.getVisibilityContexts().length);
+    assertEquals(PSActionVisibilityContext.VIS_CONTEXT_COMMUNITY, catalog.getVisibilityContexts()[0].getName());
+    assertEquals("100", catalog.getVisibilityContexts()[0].getValue());
+    assertEquals(1, catalog.getUiContexts().length);
+    assertEquals("1", catalog.getUiContexts()[0].getModeId());
+    assertEquals("Folder", catalog.getUiContexts()[0].getContextName());
+  }
+
+  @Test
+  void applyPartialOverlayFlag_setsTrueOnlyWhenOverlayFails() {
+    ActionMenu happy = new ActionMenu();
+    ActionMenuAdaptor.applyPartialOverlayFlag(happy, true);
+    assertFalse(happy.isPartialOverlay());
+    ActionMenuAdaptor.applyPartialOverlayFlag(happy, false);
+    assertTrue(happy.isPartialOverlay());
+  }
+
+  @Test
+  void overlayDesignVisibility_loadFailureLeavesCatalogAndReturnsFalse() throws Exception {
+    ActionMenu catalog = new ActionMenu();
+    catalog.setName("MyMenu");
+    catalog.setId(42);
+    ActionMenuVisibilityContext keep = new ActionMenuVisibilityContext();
+    keep.setName(PSActionVisibilityContext.VIS_CONTEXT_COMMUNITY);
+    keep.setValue("keep");
+    catalog.setVisibilityContexts(new ActionMenuVisibilityContext[] {keep});
+    when(designWs.loadActions(anyList(), eq(false), eq(false), any(), any()))
+        .thenThrow(new RuntimeException("design overlay failed"));
+
+    assertFalse(adaptor.overlayDesignVisibility(catalog));
+    assertEquals(1, catalog.getVisibilityContexts().length);
+    assertEquals("keep", catalog.getVisibilityContexts()[0].getValue());
+  }
+
+  @Test
+  void update_invalidHandler_is400BeforeSave() throws Exception {
+    PSAction existing = stubAction("MyMenu", 42);
+    stubCatalogLoad(existing);
+    PSAction locked = stubAction("MyMenu", 42);
+    when(designWs.loadActions(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(locked));
+    ActionMenu body = new ActionMenu();
+    body.setHandler("neither");
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.saveActionMenu("MyMenu", body));
+    assertTrue(ex.getMessage().toLowerCase().contains("handler"));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void applyWritableFields_nullParametersLeavesExisting() {
+    PSAction domain = stubAction("MyMenu", 42);
+    domain.getParameters().setParameter("keep", "1");
+    ActionMenu body = new ActionMenu();
+    body.setLabel("Updated");
+    ActionMenuAdaptor.applyWritableFields(domain, body);
+    assertEquals("1", domain.getParameters().getParameter("keep"));
+    assertEquals("Updated", domain.getLabel());
+  }
+
+  @Test
+  void applyCommandProperties_replacesKnownSubsetAndKeepsUserMarker() {
+    PSAction domain = stubAction("MyMenu", 42);
+    domain.getProperties().setProperty(ActionMenuAdaptor.REST_USER_MENU_PROP, PSAction.YES);
+    domain.getProperties().setProperty(PSAction.PROP_REFRESH_HINT, "parent");
+    domain.getProperties().setProperty(PSAction.PROP_ACCEL_KEY, "old");
+    ActionMenuProperty accel = new ActionMenuProperty();
+    accel.setName(PSAction.PROP_ACCEL_KEY);
+    accel.setValue("Z");
+    ActionMenuAdaptor.applyCommandProperties(domain, new ActionMenuProperty[] {accel});
+    assertEquals("Z", domain.getProperty(PSAction.PROP_ACCEL_KEY));
+    assertNull(domain.getProperty(PSAction.PROP_REFRESH_HINT));
+    assertEquals(PSAction.YES, domain.getProperty(ActionMenuAdaptor.REST_USER_MENU_PROP));
+  }
+
+  @Test
+  void persistedActionId_usesPersistedLocatorId() {
+    PSAction domain = stubAction("MyMenu", 42);
+    assertEquals("42", ActionMenuAdaptor.persistedActionId(domain));
+  }
+
+  @Test
+  void applyUiContexts_unpersistedThrows() {
+    PSAction domain = new PSAction("Draft", "Draft");
+    ActionMenuModeUIContext ui = new ActionMenuModeUIContext();
+    ui.setModeId("1");
+    ui.setContextId("2");
+    IllegalStateException ex =
+        assertThrows(
+            IllegalStateException.class,
+            () -> ActionMenuAdaptor.applyUiContexts(domain, new ActionMenuModeUIContext[] {ui}));
+    assertTrue(ex.getMessage().toLowerCase().contains("persisted"), ex.getMessage());
+  }
+
+  @Test
+  void applyParameters_emptyArrayClears() {
+    PSAction domain = stubAction("MyMenu", 42);
+    domain.getParameters().setParameter("gone", "x");
+    ActionMenuAdaptor.applyParameters(domain, new ActionMenuParameter[0]);
+    assertEquals(0, domain.getParameters().size());
+  }
+
+  @Test
+  void toDto_mapsHandlerParametersAndProperties() {
+    PSAction action = stubAction("MyMenu", 42);
+    action.setClientAction(false);
+    action.setURL("/cmd");
+    action.getParameters().add(new PSActionParameter("p1", "v1", "d1"));
+    action.getProperties().setProperty(PSAction.PROP_SHORT_DESC, "tip");
+    action.getVisibilityContexts().addContext(PSActionVisibilityContext.VIS_CONTEXT_COMMUNITY, "9");
+    PSMenuModeContextMapping mapping = new PSMenuModeContextMapping("3", "4", "42");
+    mapping.setModeName("Mode");
+    action.getModeUIContexts().add(mapping);
+    ActionMenu dto = ActionMenuAdaptor.toDto(action);
+    assertEquals(PSAction.HANDLER_SERVER, dto.getHandler());
+    assertEquals("/cmd", dto.getUrl());
+    assertEquals(1, dto.getParameters().length);
+    assertEquals("p1", dto.getParameters()[0].getName());
+    assertEquals("v1", dto.getParameters()[0].getValue());
+    assertEquals("d1", dto.getParameters()[0].getDescription());
+    assertEquals("tip", propertyValue(dto, PSAction.PROP_SHORT_DESC));
+    assertEquals(1, dto.getVisibilityContexts().length);
+    assertEquals(PSActionVisibilityContext.VIS_CONTEXT_COMMUNITY, dto.getVisibilityContexts()[0].getName());
+    assertEquals("9", dto.getVisibilityContexts()[0].getValue());
+    assertEquals("3", dto.getUiContexts()[0].getModeId());
+    assertEquals("Mode", dto.getUiContexts()[0].getModeName());
+  }
+
+  @Test
   void update_unknown_returnsNull() throws Exception {
     when(designWs.findActions(
             nullable(String.class), nullable(String.class), nullable(List.class)))
@@ -319,6 +638,204 @@ class ActionMenuAdaptorWriteTest {
         assertThrows(
             WebApplicationException.class, () -> adaptor.saveActionMenu("MyMenu", new ActionMenu()));
     assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void updateChildren_loadsWithLockNoStealAndSavesOrder() throws Exception {
+    PSAction parent = stubCascadingMenu("MyMenu", 42);
+    PSAction childA = stubAction("ChildA", 100);
+    PSAction childB = stubAction("ChildB", 101);
+    stubCatalogLoad(parent, childA, childB);
+    PSAction locked = stubCascadingMenu("MyMenu", 42);
+    when(designWs.loadActions(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(locked));
+
+    ActionMenuList children = new ActionMenuList();
+    ActionMenu first = new ActionMenu();
+    first.setName("ChildB");
+    ActionMenu second = new ActionMenu();
+    second.setId(100);
+    children.add(first);
+    children.add(second);
+
+    ActionMenu out = adaptor.saveActionMenuChildren("MyMenu", children);
+
+    assertEquals("MyMenu", out.getName());
+    assertEquals(2, out.getChildren().size());
+    assertEquals("ChildB", out.getChildren().get(0).getName());
+    assertEquals("ChildA", out.getChildren().get(1).getName());
+    assertEquals(2, childCount(locked));
+    assertEquals(1, childB.getSortRank());
+    assertEquals(2, childA.getSortRank());
+    verify(designWs).saveActions(anyList(), eq(true), eq("test-session"), eq("Admin"));
+    verify(designWs).loadActions(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void updateChildren_unknownParent_returnsNull() throws Exception {
+    when(designWs.findActions(
+            nullable(String.class), nullable(String.class), nullable(List.class)))
+        .thenReturn(List.of());
+    assertNull(adaptor.saveActionMenuChildren("missing", new ActionMenuList()));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void updateChildren_systemParent_is409() throws Exception {
+    PSAction system = stubAction("Edit", 42);
+    stubCatalogLoad(system);
+    when(designWs.objectIdToPath(any())).thenReturn("//ContentExplorer/Menus/System/Edit");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.saveActionMenuChildren("Edit", new ActionMenuList()));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().toLowerCase().contains("system"));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void updateChildren_nonAdmin_is403() {
+    adaptor = new ActionMenuAdaptor(designWs, () -> false);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.saveActionMenuChildren("MyMenu", new ActionMenuList()));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void updateChildren_unknownChild_is400() throws Exception {
+    PSAction parent = stubCascadingMenu("MyMenu", 42);
+    stubCatalogLoad(parent);
+    ActionMenuList children = new ActionMenuList();
+    ActionMenu missing = new ActionMenu();
+    missing.setName("NoSuchChild");
+    children.add(missing);
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.saveActionMenuChildren("MyMenu", children));
+    assertTrue(ex.getMessage().toLowerCase().contains("unknown"));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void updateChildren_partialUnknownChild_doesNotPersist() throws Exception {
+    PSAction parent = stubCascadingMenu("MyMenu", 42);
+    PSAction childA = stubAction("ChildA", 100);
+    stubCatalogLoad(parent, childA);
+    ActionMenuList children = new ActionMenuList();
+    ActionMenu first = new ActionMenu();
+    first.setName("ChildA");
+    ActionMenu missing = new ActionMenu();
+    missing.setName("NoSuchChild");
+    children.add(first);
+    children.add(missing);
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.saveActionMenuChildren("MyMenu", children));
+    assertTrue(ex.getMessage().toLowerCase().contains("unknown"));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void updateChildren_duplicateChild_is400() throws Exception {
+    PSAction parent = stubCascadingMenu("MyMenu", 42);
+    PSAction childA = stubAction("ChildA", 100);
+    stubCatalogLoad(parent, childA);
+    ActionMenuList children = new ActionMenuList();
+    ActionMenu first = new ActionMenu();
+    first.setName("ChildA");
+    ActionMenu second = new ActionMenu();
+    second.setId(100);
+    children.add(first);
+    children.add(second);
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.saveActionMenuChildren("MyMenu", children));
+    assertTrue(ex.getMessage().toLowerCase().contains("duplicate"));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void updateChildren_parentAsOwnChild_is400() throws Exception {
+    PSAction parent = stubCascadingMenu("MyMenu", 42);
+    stubCatalogLoad(parent);
+    ActionMenuList children = new ActionMenuList();
+    ActionMenu self = new ActionMenu();
+    self.setName("MyMenu");
+    children.add(self);
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.saveActionMenuChildren("MyMenu", children));
+    assertTrue(ex.getMessage().toLowerCase().contains("cycle"));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void updateChildren_transitiveCycle_is400() throws Exception {
+    PSAction parent = stubCascadingMenu("MenuA", 42);
+    PSAction childB = stubCascadingMenu("MenuB", 100);
+    childB.getChildren().add(parent);
+    stubCatalogLoad(parent, childB);
+    ActionMenuList children = new ActionMenuList();
+    ActionMenu b = new ActionMenu();
+    b.setName("MenuB");
+    children.add(b);
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.saveActionMenuChildren("MenuA", children));
+    assertTrue(ex.getMessage().toLowerCase().contains("cycle"));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void descendantContainsParent_usesHibernateNestedChildrenWithoutDesignLoad()
+      throws Exception {
+    PSActionMenu menuA = new PSActionMenu("MenuA", "MenuA", PSAction.TYPE_MENU, "", "SERVER", 0);
+    menuA.setActionId(42);
+    PSActionMenu menuB = new PSActionMenu("MenuB", "MenuB", PSAction.TYPE_MENU, "", "SERVER", 0);
+    menuB.setActionId(100);
+    menuB.setChildren(List.of(menuA));
+    adaptor = new ActionMenuAdaptor(designWs, () -> true, () -> List.of(menuB));
+    PSAction nodeB = stubCascadingMenu("MenuB", 100);
+    assertTrue(adaptor.descendantContainsParent(nodeB, 42, new HashSet<>()));
+    verify(designWs, never()).loadActions(anyList(), anyBoolean(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void updateChildren_menuItemParent_is400() throws Exception {
+    PSAction parent = stubAction("MyItem", 42);
+    parent.setMenuType(PSAction.TYPE_MENUITEM);
+    stubCatalogLoad(parent);
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.saveActionMenuChildren("MyItem", new ActionMenuList()));
+    assertTrue(ex.getMessage().toLowerCase().contains("cascading"));
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void updateChildren_emptyClearsAssociations() throws Exception {
+    PSAction parent = stubCascadingMenu("MyMenu", 42);
+    stubCatalogLoad(parent);
+    PSAction locked = stubCascadingMenu("MyMenu", 42);
+    locked.getChildren().add(stubAction("OldChild", 99));
+    when(designWs.loadActions(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(locked));
+
+    ActionMenu out = adaptor.saveActionMenuChildren("MyMenu", new ActionMenuList());
+
+    assertEquals("MyMenu", out.getName());
+    assertTrue(out.getChildren() == null || out.getChildren().isEmpty());
+    assertEquals(0, childCount(locked));
+    verify(designWs).saveActions(anyList(), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test
@@ -613,14 +1130,63 @@ class ActionMenuAdaptorWriteTest {
     return action;
   }
 
-  private void stubCatalogLoad(PSAction action) throws Exception {
-    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
-    when(sum.getGUID()).thenReturn(action.getGUID());
-    when(sum.getName()).thenReturn(action.getName());
+  private static String firstVisibilityValue(PSAction action, String name) {
+    PSActionVisibilityContext ctx = action.getVisibilityContexts().getContext(name);
+    if (ctx == null) {
+      return null;
+    }
+    var it = ctx.iterator();
+    return it.hasNext() ? it.next() : null;
+  }
+
+  private static String propertyValue(ActionMenu menu, String name) {
+    if (menu.getProperties() == null) {
+      return null;
+    }
+    for (ActionMenuProperty prop : menu.getProperties()) {
+      if (prop != null && name.equalsIgnoreCase(prop.getName())) {
+        return prop.getValue();
+      }
+    }
+    return null;
+  }
+
+  private PSAction stubCascadingMenu(String name, int id) {
+    PSAction action = stubAction(name, id);
+    action.setMenuType(PSAction.TYPE_MENU);
+    action.setMenuDynamic(false);
+    return action;
+  }
+
+  private static int childCount(PSAction action) {
+    return action == null || action.getChildren() == null ? 0 : action.getChildren().size();
+  }
+
+  private void stubCatalogLoad(PSAction... actions) throws Exception {
+    List<IPSCatalogSummary> sums = new ArrayList<>();
+    Map<Integer, PSAction> byUuid = new HashMap<>();
+    for (PSAction action : actions) {
+      IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+      when(sum.getGUID()).thenReturn(action.getGUID());
+      when(sum.getName()).thenReturn(action.getName());
+      sums.add(sum);
+      byUuid.put(action.getGUID().getUUID(), action);
+    }
+
     when(designWs.findActions(
             nullable(String.class), nullable(String.class), nullable(List.class)))
-        .thenReturn(List.of(sum));
+        .thenReturn(sums);
     when(designWs.loadActions(anyList(), eq(false), eq(false), any(), any()))
-        .thenReturn(List.of(action));
+        .thenAnswer(
+            inv -> {
+              List<?> ids = inv.getArgument(0);
+              if (ids == null || ids.isEmpty()) {
+                return List.of();
+              }
+              Object first = ids.get(0);
+              int uuid = first instanceof IPSGuid guid ? guid.getUUID() : -1;
+              PSAction hit = byUuid.get(uuid);
+              return hit == null ? List.of() : List.of(hit);
+            });
   }
 }

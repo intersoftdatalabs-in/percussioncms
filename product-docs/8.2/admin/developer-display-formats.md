@@ -1,7 +1,7 @@
 ---
 id: admin-developer-display-formats
 title: Developer Display Formats
-description: Create, delete, edit columns, and set allowed communities on Content Explorer display formats from Developer Display Formats chrome
+description: Create, delete, edit columns, set default sort, and set allowed communities on Content Explorer display formats from Developer Display Formats chrome
 version: "8.2"
 order: 47
 tags: [admin, developer, display-formats]
@@ -12,14 +12,15 @@ tags: [admin, developer, display-formats]
 **Developer → Display Formats** lists Content Explorer display format definitions
 (Workbench **Display Format** editor: unique internal name, label, description,
 and column catalog). Admins can **create** a user display format, **delete** a
-selected user format, **add**, **remove**, and **reorder columns**, and set
+selected user format, **add**, **remove**, and **reorder columns**, set the
+**default sort column and direction**, and set
 **allowed communities** on a **user** format from this chrome. The **name** is required, must be unique
 (case-insensitive), and must not contain spaces, wildcards (`*` / `%`), or path
 characters. Name cannot be renamed after create.
 
 **Packaged/system** formats (`Default`, `By_Author`, `CM1_Default`, and the
-other installer catalog names) stay **read-only** for columns and allowed
-communities.
+other installer catalog names) stay **read-only** for columns, default sort, and
+allowed communities.
 
 ## Product path — create, delete
 
@@ -46,15 +47,23 @@ communities.
 ## Product path — edit columns on a user format
 
 1. Open a **user** format (not a packaged/system name). Detail shows the
-   column table plus **Add column**, move **up** / **down**, **Remove**, and
-   **Save columns**.
+   column table plus **Add column**, move **up** / **down**, **Remove**,
+   **Default sort**, **Direction**, and **Save columns**.
 2. Choose a field that is not already a column and click **Add column**.
    `sys_title` cannot be removed (the server always keeps it).
-3. Click **Save columns**. After a successful save, a following
+3. Select **Default** on the column that should sort the list, and set
+   **Direction** to **Ascending** or **Descending**. If no default is stored
+   yet (new user format, or `sortedColumnNames` missing / not in the column
+   list), the chrome treats the **first column ascending** as the default and
+   sends that on **Save columns**.
+4. Click **Save columns**. After a successful save, a following
    `GET /services/displayformats/{name}` lists the columns in the saved
-   order. An invalid source is **400**. A non-Admin session is **403**.
-4. Open a packaged format such as **By_Author**. The column table is
-   read-only; add/remove/save controls are not shown.
+   order, returns `sortedColumnNames` for the default sort column, and
+   `ascendingSort` / `descendingSort` for the format and that column.
+   An invalid source or unknown sort column is **400**. A non-Admin session
+   is **403**.
+5. Open a packaged format such as **By_Author**. The column table is
+   read-only (including default sort); add/remove/save controls are not shown.
 
 ## Product path — allowed communities on a user format
 
@@ -77,7 +86,7 @@ unchanged. See [Users, roles & security](id:admin-users-roles).
 ## Limits
 
 - Name is immutable after create.
-- Packaged/system formats cannot be column-edited or community-edited from this catalog.
+- Packaged/system formats cannot be column-edited, sort-edited, or community-edited from this catalog.
 - Empty allowed-communities and all-communities are the same persist state.
   There is no “visible to no communities” value.
 - Usage flags on GET (`validForFolder`, `validForViewsAndSearches`,
@@ -94,7 +103,7 @@ The chrome calls:
 | Load | `GET /services/displayformats/{idOrName}` |
 | Create | `POST /services/displayformats` (`name` required; unique, no spaces) |
 | Save | `PUT /services/displayformats/{idOrName}` (label, description) |
-| Save columns | `PUT /services/displayformats/{idOrName}` (`columns` replaces the list) |
+| Save columns | `PUT /services/displayformats/{idOrName}` (`columns` replaces the list; `sortedColumnNames` persists default sort — with `columns` uses that column's `ascendingSort`; without `columns` matches the stored list) |
 | Save communities | `PUT /services/displayformats/{idOrName}` (`allowedCommunities` array; empty array is all communities) |
 | Delete | `DELETE /services/displayformats/{idOrName}` (`204` on success) |
 
