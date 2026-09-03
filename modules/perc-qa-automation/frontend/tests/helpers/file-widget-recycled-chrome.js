@@ -294,7 +294,7 @@ function widgetTestFilePageUrls(baseUrl, relativePagePath) {
   const base = String(baseUrl || "").replace(/\/+$/, "");
   // Editor SPA entry and classic finder paths used in QA docs / #777 repro.
   return [
-    `${base}/Rhythmyx/cm/app/?view=editor&path=//Sites/${rel}`,
+    `${base}/Rhythmyx/cm/app/spa.jsp?entry=editor&path=//Sites/${rel}`,
     `${base}/Rhythmyx/cm/app/index.jsp?view=editor&path=//Sites/${rel}`,
     `${base}/Rhythmyx/assembler/render?sys_path=//Sites/${rel}`,
   ];

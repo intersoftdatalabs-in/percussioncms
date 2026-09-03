@@ -144,6 +144,21 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 Do not bookmark or paste `../sys_cxSupport/…html` URLs from older Desktop Content Explorer
 menus — they are not Explorer pages.
 
+## Leftover Content Editor URLs (retired)
+
+The React Content Editor is the only product editor (`spa.jsp?entry=editor` /
+`/editor`). These leftover CM1 / Data Flow **UI** requestors are retired:
+
+| Retired bookmark | What happens now |
+|------------------|------------------|
+| `editAsset.jsp` | Permanent redirect to the React editor host |
+| `?view=editor` (including login return / `perc_linkback_id`) | Redirects to `spa.jsp?entry=editor` (with `contentId` when known) |
+| `sys_action/checkoutedit.xml`, `sys_cxSupport/contenteditorurls.html` | Not used by Home, Explorer, TopNav, or login return |
+
+The **Data Flow Server** remains platform I/O (lookups, stored actions, content-type
+system definition). Do not treat those XML applications as a product editor UI. Desktop
+Content Explorer is not an 8.2 client.
+
 ## Content Editor controls
 
 The chrome-less React Content Editor (`spa.jsp?entry=editor` / `/editor`) maps

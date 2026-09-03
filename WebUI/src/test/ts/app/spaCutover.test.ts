@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const webappRoot = resolve(__dirname, "../../../main/webapp");
@@ -26,6 +26,18 @@ const pagesIndex = resolve(webappRoot, "cm/pages/app/index.jsp");
 function read(path: string): string {
   // Normalize CRLF/LF so dual-tree equality is portable on Windows checkouts.
   return readFileSync(path, "utf8").replace(/\r\n/g, "\n");
+}
+
+function walkFiles(dir: string, acc: string[] = []): string[] {
+  for (const name of readdirSync(dir)) {
+    const full = join(dir, name);
+    if (statSync(full).isDirectory()) {
+      walkFiles(full, acc);
+    } else {
+      acc.push(full);
+    }
+  }
+  return acc;
 }
 
 /** Pull quoted entries from a JSP `String[] name = new String[]{ ... };` block. */
@@ -59,6 +71,9 @@ const DELETED_PRODUCT_HOSTS = [
   // #3587: leftover Architecture JSP host retired; filter 301 keeps bookmarks
   "cm/app/siteArchitecture.jsp",
   "cm/pages/app/siteArchitecture.jsp",
+  // #3473: leftover Data Flow / CM1 asset editor JSP
+  "cm/app/editAsset.jsp",
+  "cm/pages/app/editAsset.jsp",
 ] as const;
 
 /** Residual bridge dialog hosts (must remain). assetPicker is app-tree only. */
@@ -100,8 +115,13 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
       expect(text).not.toMatch(
         /views\.put\("home",\s*"homeModern\.jsp"\)/,
       );
-      // Legacy exits preserved (dash moved to SPA Home gadgets in PR-7)
-      expect(text).toMatch(/legacyViews\.put\("editor",\s*"webmgt\.jsp"\)/);
+      // #3473: leftover editor / editAsset are SPA, not webmgt.jsp / editAsset.jsp
+      expect(text).not.toMatch(/legacyViews\.put\("editor",\s*"webmgt\.jsp"\)/);
+      expect(text).not.toMatch(/legacyViews\.put\("editAsset",\s*"editAsset\.jsp"\)/);
+      expect(extractStringArray(text, "spaViews")).toContain("editor");
+      expect(text).toContain("PSEditorHostRedirect");
+      expect(text).toMatch(/editasset/i);
+      expect(text).not.toContain('"/cm/app/?view=editor"');
       // #3306: Design template list is SPA entry, not legacyViews design → admin.jsp
       expect(text).not.toMatch(/legacyViews\.put\("design",\s*"admin\.jsp"\)/);
       expect(text).toMatch(/"design"/);
@@ -161,6 +181,29 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
     expect(webXml).toContain("PSRetiredJspRedirectServlet");
     expect(webXml).toContain("/cm/app/siteArchitecture.jsp");
     expect(webXml).toContain("<param-value>arch</param-value>");
+    expect(webXml).toContain("/cm/app/editAsset.jsp");
+    expect(webXml).toContain("/cm/pages/app/editAsset.jsp");
+    expect(webXml).toContain("<param-value>editor</param-value>");
+  });
+
+  it("editAsset.jsp host is retired; filter keeps bookmark 301 (#3473)", () => {
+    const hosts = [
+      resolve(webappRoot, "cm/app/editAsset.jsp"),
+      resolve(webappRoot, "cm/pages/app/editAsset.jsp"),
+    ];
+    for (const jsp of hosts) {
+      expect(existsSync(jsp), jsp).toBe(false);
+    }
+    expect(
+      existsSync(resolve(__dirname, "../../../../war/app/editAsset.jsp")),
+    ).toBe(false);
+    const filter = read(
+      resolve(
+        __dirname,
+        "../../../main/java/com/percussion/webui/filter/PSWebUiSpaFallbackFilter.java",
+      ),
+    );
+    expect(filter).toContain("isRetiredEditAssetJsp");
   });
 
   it("does not pack retired perc_architecture bundles (#3099)", () => {
@@ -179,7 +222,7 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
       /\(proxyURL == null \? "" : proxyURL\) \+ "\/cm\/app\/spa\.jsp\?"/,
     );
     // Never emit hash fragments on server redirects
-    expect(text).not.toMatch(/spa\.jsp\?[^"']*#/);
+    expect(text).not.toMatch(/spa\.jsp\?[^"'\n]*#/);
     expect(text).not.toContain("spa.jsp#");
   });
 
@@ -215,6 +258,9 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
       // there would be a no-op and would not authorize Contributors.
       expect(admin).not.toContain("explorer");
       expect(designer).not.toContain("explorer");
+      // #3473: leftover editor landing is SPA, still ungated like Home
+      expect(spa).toContain("editor");
+      expect(admin).not.toContain("editor");
     }
   });
 });
@@ -313,6 +359,32 @@ describe("PR-9 path-based SPA URLs + fallback filter", () => {
     expect(text).toContain("explorer");
     expect(text).toContain("profile");
     expect(text).not.toMatch(/sendRedirect/);
+  });
+});
+
+describe("leftover Data Flow CE HTML retirement (#3473)", () => {
+  it("product SPA TypeScript does not open leftover CE requestors", () => {
+    const root = resolve(__dirname, "../../../main/ts");
+    const leftover =
+      /['"`][^'"`\n]*(editAsset\.jsp|[?&]view=editor|checkoutedit\.xml|contenteditorurls\.html|sys_ceSupport\/)/i;
+    const offenders: string[] = [];
+    for (const file of walkFiles(root)) {
+      if (!/\.(ts|tsx)$/.test(file)) {
+        continue;
+      }
+      const text = read(file);
+      const hits = text.split("\n").filter((line) => {
+        const t = line.trim();
+        if (t.startsWith("*") || t.startsWith("//") || t.startsWith("/*")) {
+          return false;
+        }
+        return leftover.test(line);
+      });
+      if (hits.length) {
+        offenders.push(file);
+      }
+    }
+    expect(offenders, offenders.join("\n")).toEqual([]);
   });
 });
 

@@ -4,6 +4,7 @@
 <%@ page import="com.percussion.user.data.PSCurrentUser" %>
 <%@ page import="com.percussion.user.service.impl.PSUserService" %>
 <%@ page import="com.percussion.webui.util.PSDefaultLandingView" %>
+<%@ page import="com.percussion.webui.util.PSEditorHostRedirect" %>
 
 <%@ page import="com.percussion.utils.PSSpringBeanProvider" %>
 <%@ page import="com.percussion.utils.container.IPSConnector" %>
@@ -41,6 +42,8 @@
     String linkback = request.getParameter("perc_linkback_id");
 
     String view = request.getParameter("view");
+    if (view != null && "editasset".equalsIgnoreCase(view.trim()))
+        view = "editor";
     String site = request.getParameter("site");
     String path = request.getParameter("path");
     String mode = request.getParameter("mode");
@@ -61,11 +64,10 @@
 
     // Legacy full-page exits only. Modern views redirect to spa.jsp?entry=…
     // PR-7: dash is no longer legacy — gadgets live on Home (see dash → SPA below).
+    // #3473: editor / editAsset are SPA (not webmgt.jsp / editAsset.jsp).
     Map<String, String> legacyViews = new HashMap<String, String>();
-    legacyViews.put("editAsset", "editAsset.jsp");
     // design → SPA entry=design (#3306); admin.jsp hard-redirects (editTemplate.jsp stays)
     // arch / Architecture → SPA entry=architecture (#3094); siteArchitecture.jsp retired (#3587)
-    legacyViews.put("editor", "webmgt.jsp");
     legacyViews.put("editTemplate", "editTemplate.jsp");
 
     // Modern SPA entries (query contract — never hash). *Modern.jsp is not product path.
@@ -84,7 +86,8 @@
             "architecture",
             "navigation",
             "design",
-            "dash"
+            "dash",
+            "editor"
     };
 
     // List of views requiring admin role.
@@ -148,7 +151,7 @@
         response.setHeader( "Pragma", "no-cache" );
         response.setHeader( "Cache-Control", "no-cache" );
         response.setDateHeader( "Expires", 0 );
-        // Default homepage Home → SPA; dash/editor stay legacy exits
+        // Default homepage Home → SPA; leftover editor bookmarks are SPA too (#3473)
         if (ArrayUtils.contains(spaViews, defaultView))
         {
             response.sendRedirect(buildSpaEntryRedirect(proxyURL, defaultView, request));
@@ -189,13 +192,18 @@
     }
     else if(view.equals("editor") && linkback != null)
     {
-        String url = proxyURL+"/cm/app/?view=editor";
+        response.setHeader( "Pragma", "no-cache" );
+        response.setHeader( "Cache-Control", "no-cache" );
+        response.setDateHeader( "Expires", 0 );
         Map params = getItemEditorInfo(request,response);
-        for (Object key : params.keySet())
-        {
-            url += "&" + key.toString() + "=" + params.get(key);
-        }
-        response.sendRedirect(url);
+        Object idObj = params.get("id");
+        String contentId = PSEditorHostRedirect.parseContentId(
+                idObj != null ? idObj.toString() : null);
+        Object modeObj = params.get("mode");
+        String editorMode = PSEditorHostRedirect.normalizeMode(
+                modeObj != null ? modeObj.toString() : "view");
+        response.sendRedirect(
+                PSEditorHostRedirect.buildSpaRedirect(proxyURL, contentId, editorMode));
     }
     else if (ArrayUtils.contains(spaViews, view))
     {
@@ -254,7 +262,8 @@
         else if ("home".equals(view) || "publish".equals(view)
                 || "admin".equals(view)
                 || "developer".equals(view)
-                || "explorer".equals(view))
+                || "explorer".equals(view)
+                || "editor".equals(view))
             entry = view;
         else
             entry = "home";
@@ -346,6 +355,18 @@
             if (section != null)
                 qs.append("&section=").append(URLEncoder.encode(section, "UTF-8"));
         }
+        else if ("editor".equals(view))
+        {
+            // #3473: leftover ?view=editor → React editor host (not webmgt.jsp)
+            String contentId = PSEditorHostRedirect.parseContentId(
+                    firstNonBlank(
+                            request.getParameter("contentId"),
+                            request.getParameter("id")));
+            if (contentId != null)
+                qs.append("&contentId=").append(URLEncoder.encode(contentId, "UTF-8"));
+            String editorMode = PSEditorHostRedirect.normalizeMode(request.getParameter("mode"));
+            qs.append("&mode=").append(URLEncoder.encode(editorMode, "UTF-8"));
+        }
 
         // Canonical SPA document lives under /cm/app/ (both trees redirect here)
         return (proxyURL == null ? "" : proxyURL) + "/cm/app/spa.jsp?" + qs.toString();
@@ -358,6 +379,15 @@
         if (v != null)
             return v;
         return allowToken(secondary, allowed, aliases);
+    }
+
+    private String firstNonBlank(String primary, String secondary)
+    {
+        if (primary != null && !primary.isBlank())
+            return primary;
+        if (secondary != null && !secondary.isBlank())
+            return secondary;
+        return null;
     }
 
     private String allowToken(String raw, String[] allowed, Map<String, String> aliases)

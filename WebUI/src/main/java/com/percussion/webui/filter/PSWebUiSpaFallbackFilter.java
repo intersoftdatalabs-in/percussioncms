@@ -16,6 +16,7 @@
  */
 package com.percussion.webui.filter;
 
+import com.percussion.webui.util.PSEditorHostRedirect;
 import com.percussion.webui.util.PSLegacyViewRedirect;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -43,7 +44,8 @@ import java.util.Set;
  *
  * <p>Retired Architecture hosts {@code /cm/app/siteArchitecture.jsp} and {@code
  * /cm/pages/app/siteArchitecture.jsp} are not shipped (#3587). GET bookmarks 301 to SPA {@code
- * ?view=arch} so operators keep the old URL.
+ * ?view=arch} so operators keep the old URL. Retired {@code editAsset.jsp} hosts (#3473) 301 to
+ * {@code ?view=editor}, which the dispatcher maps to {@code spa.jsp?entry=editor}.
  *
  * <p>Misplaced editor/chrome images under {@code /cm/app/images/**} or {@code
  * /cm/pages/app/images/**} are remapped to {@code /cm/images/**} so those URLs return 200 instead
@@ -162,23 +164,26 @@ public class PSWebUiSpaFallbackFilter implements Filter {
   }
 
   /**
-   * 301 Location for retired classic Architecture JSP bookmarks (#3587 / parent #3092).
+   * 301 Location for retired classic JSP bookmarks (#3587 Architecture, #3473 editAsset).
    *
-   * <p>The JSP hosts are no longer in the WAR. Bookmarks to {@code siteArchitecture.jsp} still
-   * land on SPA Architecture via {@link PSLegacyViewRedirect} ({@code view=arch}). Other JSPs
-   * return {@code null} (pass through).
+   * <p>The JSP hosts are no longer in the WAR. Bookmarks still land on the SPA via {@link
+   * PSLegacyViewRedirect}. Other JSPs return {@code null} (pass through).
    *
    * @param pathWithinContext webapp path (context may still be present if the container did not
    *     strip it); may be null
    * @param queryString raw query without {@code ?}; may be null
-   * @return SPA Location starting with {@code /cm/app/?view=arch}, or {@code null}
+   * @return SPA Location starting with {@code /cm/app/?view=}, or {@code null}
    */
   static String buildRetiredJspRedirectLocation(String pathWithinContext, String queryString) {
     if (pathWithinContext == null || pathWithinContext.isEmpty()) {
       return null;
     }
-    if (isRetiredArchitectureJsp(pathWithinContext.toLowerCase(Locale.ROOT))) {
+    String lower = pathWithinContext.toLowerCase(Locale.ROOT);
+    if (isRetiredArchitectureJsp(lower)) {
       return PSLegacyViewRedirect.buildLocation("arch", queryString);
+    }
+    if (PSEditorHostRedirect.isRetiredEditAssetJsp(lower)) {
+      return PSLegacyViewRedirect.buildLocation("editor", queryString);
     }
     return null;
   }
