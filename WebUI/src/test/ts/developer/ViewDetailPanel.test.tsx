@@ -223,10 +223,11 @@ describe("ViewDetailPanel", () => {
   });
 
   it("creates a user CustomView with URL and hides field criteria", async () => {
+    // REST wire type is PSSearch.TYPE_VIEW ("View") with customView=true + url.
     createView.mockResolvedValue({
       name: "MyCustom",
       label: "My Custom",
-      type: "CustomView",
+      type: "View",
       customView: true,
       url: "../sys_cxViews/myapp.xml",
       guid: { stringValue: "0-18-77" },
@@ -261,6 +262,10 @@ describe("ViewDetailPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-vw-editor-notice").textContent).toBe(DEV_MSG.VW_SAVED);
     });
+    expect((screen.getByTestId("developer-vw-type") as HTMLSelectElement).value).toBe("CustomView");
+    expect((screen.getByTestId("developer-vw-url") as HTMLInputElement).value).toBe(
+      "../sys_cxViews/myapp.xml",
+    );
     expect(screen.getByTestId("developer-vw-fields-custom-url")).toBeTruthy();
     expect(screen.queryByTestId("developer-vw-field-editor")).toBeNull();
     expect(onSaved).toHaveBeenCalled();
