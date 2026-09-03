@@ -222,6 +222,121 @@ describe("ViewDetailPanel", () => {
     expect(save.disabled).toBe(false);
   });
 
+  it("creates a user CustomView with URL and hides field criteria", async () => {
+    createView.mockResolvedValue({
+      name: "MyCustom",
+      label: "My Custom",
+      type: "CustomView",
+      customView: true,
+      url: "../sys_cxViews/myapp.xml",
+      guid: { stringValue: "0-18-77" },
+      fields: [],
+    });
+    const onSaved = vi.fn();
+    render(<ViewDetailPanel idOrName={null} onBack={() => undefined} onSaved={onSaved} />);
+    fireEvent.change(screen.getByTestId("developer-vw-name"), {
+      target: { value: "MyCustom" },
+    });
+    fireEvent.change(screen.getByTestId("developer-vw-type"), {
+      target: { value: "CustomView" },
+    });
+    expect(screen.getByTestId("developer-vw-url")).toBeTruthy();
+    expect((screen.getByTestId("developer-vw-save") as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-vw-url"), {
+      target: { value: "../sys_cxViews/myapp.xml" },
+    });
+    expect((screen.getByTestId("developer-vw-save") as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByTestId("developer-vw-save"));
+    await waitFor(() => {
+      expect(createView).toHaveBeenCalled();
+    });
+    expect(createView.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        name: "MyCustom",
+        type: "CustomView",
+        customView: true,
+        url: "../sys_cxViews/myapp.xml",
+      }),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-editor-notice").textContent).toBe(DEV_MSG.VW_SAVED);
+    });
+    expect(screen.getByTestId("developer-vw-fields-custom-url")).toBeTruthy();
+    expect(screen.queryByTestId("developer-vw-field-editor")).toBeNull();
+    expect(onSaved).toHaveBeenCalled();
+  });
+
+  it("surfaces missing custom URL as invalid URL (client and 400)", async () => {
+    render(<ViewDetailPanel idOrName={null} onBack={() => undefined} />);
+    fireEvent.change(screen.getByTestId("developer-vw-name"), {
+      target: { value: "MyCustom" },
+    });
+    fireEvent.change(screen.getByTestId("developer-vw-type"), {
+      target: { value: "CustomView" },
+    });
+    expect((screen.getByTestId("developer-vw-save") as HTMLButtonElement).disabled).toBe(true);
+
+    createView.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Custom url is required" },
+    });
+    fireEvent.change(screen.getByTestId("developer-vw-url"), {
+      target: { value: "../sys_cxViews/myapp.xml" },
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
+      DEV_MSG.VW_INVALID_URL,
+    );
+  });
+
+  it("updates URL on an existing user CustomView", async () => {
+    getViewDetail.mockResolvedValue({
+      name: "MyCustom",
+      label: "My Custom",
+      type: "CustomView",
+      customView: true,
+      url: "../sys_cxViews/old.xml",
+      guid: { stringValue: "0-18-88" },
+      fields: [],
+    });
+    saveView.mockResolvedValue({
+      name: "MyCustom",
+      label: "My Custom",
+      type: "CustomView",
+      customView: true,
+      url: "../sys_cxViews/new.xml",
+      guid: { stringValue: "0-18-88" },
+      fields: [],
+    });
+    render(<ViewDetailPanel idOrName="MyCustom" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-url")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-vw-fields-custom-url")).toBeTruthy();
+    expect(screen.queryByTestId("developer-vw-field-editor")).toBeNull();
+    fireEvent.change(screen.getByTestId("developer-vw-url"), {
+      target: { value: "../sys_cxViews/new.xml" },
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-save"));
+    await waitFor(() => {
+      expect(saveView).toHaveBeenCalled();
+    });
+    expect(saveView.mock.calls[0][1]).toEqual(
+      expect.objectContaining({
+        type: "CustomView",
+        customView: true,
+        url: "../sys_cxViews/new.xml",
+      }),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-editor-notice").textContent).toBe(DEV_MSG.VW_SAVED);
+    });
+  });
+
   it("keeps name read-only on edit", async () => {
     getViewDetail.mockResolvedValue(sampleDetail);
     render(<ViewDetailPanel idOrName="My View" onBack={() => undefined} />);
@@ -444,10 +559,11 @@ describe("ViewDetailPanel", () => {
     expect(screen.queryByTestId("developer-vw-delete")).toBeNull();
   });
 
-  it("does not delete Inbox-family or custom URL views", async () => {
+  it("does not mutate Inbox-family packaged views", async () => {
     getViewDetail.mockResolvedValue({
       ...sampleDetail,
       name: "Inbox",
+      type: "CustomView",
       customView: true,
       url: "../sys_cxViews/inbox.xml",
     });
@@ -457,6 +573,7 @@ describe("ViewDetailPanel", () => {
     });
     expect(screen.queryByTestId("developer-vw-delete")).toBeNull();
     expect((screen.getByTestId("developer-vw-save") as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByTestId("developer-vw-url") as HTMLInputElement).disabled).toBe(true);
     expect(deleteView).not.toHaveBeenCalled();
   });
 

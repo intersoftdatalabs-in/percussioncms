@@ -20,13 +20,18 @@ import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { isApiError } from "../api/client";
 import { resolveViewObjectGuid } from "../api/displayFormatGuid";
 import {
+  VIEW_TYPE_CUSTOM,
   VIEW_TYPE_STANDARD,
+  canonicalViewType,
   createView,
   deleteView,
   getViewDetail,
+  isCustomViewType,
   isProtectedViewWrite,
+  isValidViewUrl,
   isViewWriteReady,
   normalizeViewName,
+  normalizeViewUrl,
   saveView,
   type ViewWriteBody,
 } from "../api/developer/viewsApi";
@@ -82,10 +87,10 @@ const actionButton: React.CSSProperties = {
 };
 
 function typeFromDetail(detail: ViewDef | null, fallback: string): string {
-  if (detail?.type && detail.type.trim()) return detail.type.trim();
-  if (detail?.customView) return "CustomView";
+  if (detail?.type && detail.type.trim()) return canonicalViewType(detail.type);
+  if (detail?.customView) return VIEW_TYPE_CUSTOM;
   if (detail?.standardView) return VIEW_TYPE_STANDARD;
-  return fallback;
+  return canonicalViewType(fallback);
 }
 
 /** CX view GUID wire shape {@code host-18-uuid} used after create catalog lag. */
@@ -116,6 +121,7 @@ export function ViewDetailPanel({
   const [label, setLabel] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState(VIEW_TYPE_STANDARD);
+  const [url, setUrl] = useState("");
   const [displayFormatId, setDisplayFormatId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -148,6 +154,7 @@ export function ViewDetailPanel({
         setLabel(d.label || "");
         setDescription(d.description || "");
         setType(typeFromDetail(d, VIEW_TYPE_STANDARD));
+        setUrl(d.url || "");
         setDisplayFormatId(d.displayFormatId || "");
         const nextFields = normalizeViewFields(d.fields);
         setDraftFields(nextFields);
@@ -171,23 +178,31 @@ export function ViewDetailPanel({
   const loadedLabel = detail?.label || "";
   const loadedDescription = detail?.description || "";
   const loadedType = typeFromDetail(detail, VIEW_TYPE_STANDARD);
+  const loadedUrl = detail?.url || "";
   const loadedDf = detail?.displayFormatId || "";
+  const customUrl = isCustomViewType(type) || Boolean(detail?.customView);
   const protectedWrite = isProtectedViewWrite(detail);
   const dirty =
     isNew ||
     normalizeViewName(name) !== loadedName ||
     label !== loadedLabel ||
     description !== loadedDescription ||
-    type !== loadedType ||
+    canonicalViewType(type) !== canonicalViewType(loadedType) ||
+    normalizeViewUrl(url) !== normalizeViewUrl(loadedUrl) ||
     displayFormatId !== loadedDf;
-  const canSave = !busy && !protectedWrite && dirty && isViewWriteReady({ isNew, name });
+  const canSave =
+    !busy &&
+    !protectedWrite &&
+    dirty &&
+    isViewWriteReady({ isNew, name, type, url });
   const objectGuid = resolveViewObjectGuid(detail, catalogGuid);
   const writeKey = objectGuid || idOrName || createdKey || normalizeViewName(name);
   const loadedFields = useMemo(
     () => (detail != null ? normalizeViewFields(detail.fields) : []),
     [detail],
   );
-  const fieldsEditable = !protectedWrite && !isNew && detail != null;
+  const hideFieldEditor = protectedWrite || customUrl;
+  const fieldsEditable = !hideFieldEditor && !isNew && detail != null;
   const fields = fieldsEditable ? draftFields : loadedFields;
   const availableFields = catalogViewFieldsNotInUse(draftFields);
   const fieldsDirty = fieldsEditable && !viewFieldsEqual(draftFields, loadedFields);
@@ -199,10 +214,14 @@ export function ViewDetailPanel({
       name: isNew ? normalizeViewName(name) : detail?.name || normalizeViewName(name),
       label: label == null ? "" : String(label),
       description: description == null ? "" : String(description),
-      type: type == null ? "" : String(type),
+      type: canonicalViewType(type),
     };
     if (df.trim()) {
       body.displayFormatId = df.trim();
+    }
+    if (isCustomViewType(type)) {
+      body.customView = true;
+      body.url = normalizeViewUrl(url);
     }
     return body;
   }
@@ -210,7 +229,25 @@ export function ViewDetailPanel({
   function saveFallback(err: unknown): string {
     if (isApiError(err) && err.status === 409 && isNew) return DEV_MSG.VW_DUPLICATE;
     if (isApiError(err) && err.status === 409) return DEV_MSG.VW_PROTECTED;
-    if (isApiError(err) && err.status === 400) return DEV_MSG.VW_INVALID_NAME;
+    if (isApiError(err) && err.status === 400) {
+      if (isCustomViewType(type)) {
+        const raw =
+          typeof err.body === "string"
+            ? err.body
+            : err.body && typeof err.body === "object" && "message" in err.body
+              ? String((err.body as { message?: unknown }).message ?? "")
+              : "";
+        if (
+          !isValidViewUrl(url) ||
+          /\burl is required\b/i.test(raw) ||
+          /custom url/i.test(raw) ||
+          /invalid url/i.test(raw)
+        ) {
+          return DEV_MSG.VW_INVALID_URL;
+        }
+      }
+      return DEV_MSG.VW_INVALID_NAME;
+    }
     if (isApiError(err) && err.status === 403) return DEV_MSG.VW_FORBIDDEN;
     if (isApiError(err) && err.status === 404) return DEV_MSG.VW_NOT_FOUND;
     return DEV_MSG.VW_SAVE_ERROR;
@@ -284,7 +321,11 @@ export function ViewDetailPanel({
   }
 
   async function handleSave(): Promise<void> {
-    if (!canSave || inflight.current) return;
+    if (!canSave || inflight.current || protectedWrite) return;
+    if (isCustomViewType(type) && !isValidViewUrl(url)) {
+      setError(DEV_MSG.VW_INVALID_URL);
+      return;
+    }
     inflight.current = true;
     setBusy(true);
     setError(null);
@@ -302,6 +343,7 @@ export function ViewDetailPanel({
       setLabel(saved.label || "");
       setDescription(saved.description || "");
       setType(typeFromDetail(saved, type));
+      setUrl(saved.url || url);
       setDisplayFormatId(saved.displayFormatId || "");
       const nextFields = normalizeViewFields(saved.fields);
       setDraftFields(nextFields);
@@ -465,18 +507,31 @@ export function ViewDetailPanel({
               id="vw-type"
               data-testid="developer-vw-type"
               style={inputStyle}
-              value={type}
+              value={canonicalViewType(type)}
               disabled={busy || protectedWrite || !isNew}
               onChange={(e) => setType(e.target.value)}
             >
               <option value={VIEW_TYPE_STANDARD}>{DEV_MSG.VW_KIND_STANDARD}</option>
-              {type && type !== VIEW_TYPE_STANDARD ? (
-                <option value={type}>
-                  {detail?.customView ? DEV_MSG.VW_KIND_CUSTOM : type}
-                </option>
-              ) : null}
+              <option value={VIEW_TYPE_CUSTOM}>{DEV_MSG.VW_KIND_CUSTOM}</option>
             </select>
           </div>
+          {isCustomViewType(type) ? (
+            <div style={fieldStyle}>
+              <label htmlFor="vw-url">{DEV_MSG.VW_FORM_URL}</label>
+              <input
+                id="vw-url"
+                data-testid="developer-vw-url"
+                style={{ ...inputStyle, fontFamily: "monospace" }}
+                value={url}
+                disabled={busy || protectedWrite}
+                onChange={(e) => setUrl(e.target.value)}
+                autoComplete="off"
+              />
+              <span style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
+                {DEV_MSG.VW_URL_HINT}
+              </span>
+            </div>
+          ) : null}
           <div style={fieldStyle}>
             <label htmlFor="vw-df">{DEV_MSG.VW_FORM_DF}</label>
             <input
@@ -560,9 +615,19 @@ export function ViewDetailPanel({
                 <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.VW_FIELDS}</h3>
                 <p
                   style={{ color: catalogColors.muted, fontSize: "0.9rem" }}
-                  data-testid={protectedWrite ? "developer-vw-fields-readonly" : undefined}
+                  data-testid={
+                    protectedWrite
+                      ? "developer-vw-fields-readonly"
+                      : customUrl
+                        ? "developer-vw-fields-custom-url"
+                        : undefined
+                  }
                 >
-                  {protectedWrite ? DEV_MSG.VW_FIELDS_READONLY : DEV_MSG.VW_FIELDS_HINT}
+                  {protectedWrite
+                    ? DEV_MSG.VW_FIELDS_READONLY
+                    : customUrl
+                      ? DEV_MSG.VW_FIELDS_CUSTOM_URL
+                      : DEV_MSG.VW_FIELDS_HINT}
                 </p>
                 {fields.length === 0 ? (
                   <p style={{ color: catalogColors.empty }} data-testid="developer-vw-fields-empty">

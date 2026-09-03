@@ -1630,12 +1630,14 @@ and read `guid.stringValue` or synthesize from `id` when the Guid is omitted.
 Admin **write** persists through `IPSUiDesignWs` (`createViews` / `loadViews` / `saveViews` /
 `deleteViews`) — the same design web service SOAP uses. There is no new SOAP surface.
 **Developer → Views** chrome creates and deletes standard views, saves label /
-description / type / display format, and edits **field criteria** on
-user/standard views — see [Developer Views](id:admin-developer-views). Admin REST
-also persists **user** custom URL views (`url` + `customView`). Inbox-family and
-packaged `sys_cxViews` catalog keys cannot be mutated from that catalog. Execute
-is **not** invoked when creating, updating, or deleting a view. Create is durable:
-`GET /services/views` lists the new name after POST.
+description / type / display format, edits **field criteria** on
+user/standard views, and creates/updates **user** custom URL views (`url` +
+`customView`) from the same SPA editor — see
+[Developer Views](id:admin-developer-views). Admin REST persists the same
+shapes. Inbox-family and packaged `sys_cxViews` catalog keys cannot be mutated
+from that catalog. Execute is **not** invoked when creating, updating, or
+deleting a view. Create is durable: `GET /services/views` lists the new name
+after POST.
 
 Operators open Inbox from Explorer **Views → My Content → Inbox** (see
 [Content Explorer](id:admin-content-explorer)). Integrators run the same assignment list

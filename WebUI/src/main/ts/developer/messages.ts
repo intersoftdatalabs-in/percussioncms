@@ -1169,7 +1169,12 @@ export const DEV_MSG_KEYS = {
   VW_FORM_LABEL: "perc.ui.developer@Label",
   VW_FORM_DESCRIPTION: "perc.ui.developer@Description",
   VW_FORM_TYPE: "perc.ui.developer@Type",
+  VW_FORM_URL: "perc.ui.developer@URL",
   VW_FORM_DF: "perc.ui.developer@Display format id",
+  VW_URL_HINT:
+    "perc.ui.developer@Required for a custom URL view. Classic relative path (for example ../sys_cxViews/myapp.xml), no spaces or schemes.",
+  VW_INVALID_URL:
+    "perc.ui.developer@Custom view URL is required. Enter a classic relative path without spaces or schemes.",
   VW_NAME_HINT:
     "perc.ui.developer@Required. Unique, no spaces, wildcards, or path characters.",
   VW_NAME_READONLY: "perc.ui.developer@Name cannot be changed after the view is created.",
@@ -1184,7 +1189,7 @@ export const DEV_MSG_KEYS = {
   VW_FORBIDDEN: "perc.ui.developer@Admin role required to change views.",
   VW_NOT_FOUND: "perc.ui.developer@View not found.",
   VW_PROTECTED:
-    "perc.ui.developer@Inbox-family and custom URL views cannot be updated or deleted from this catalog.",
+    "perc.ui.developer@Inbox-family and packaged sys_cxViews views cannot be updated or deleted from this catalog.",
   VW_COL_NAME: "perc.ui.developer@Name",
   VW_COL_LABEL: "perc.ui.developer@Label",
   VW_COL_KIND: "perc.ui.developer@Kind",
@@ -1201,9 +1206,11 @@ export const DEV_MSG_KEYS = {
   VW_DETAIL_ERROR: "perc.ui.developer@Could not load view.",
   VW_FIELDS: "perc.ui.developer@Field criteria",
   VW_FIELDS_HINT:
-    "perc.ui.developer@Add, remove, or reorder field conditions on this view. Inbox-family and custom URL views stay read-only.",
+    "perc.ui.developer@Add, remove, or reorder field conditions on this view. Packaged Inbox-family views stay read-only.",
+  VW_FIELDS_CUSTOM_URL:
+    "perc.ui.developer@Custom URL views do not use field criteria. Edit the URL instead.",
   VW_FIELDS_READONLY:
-    "perc.ui.developer@Field criteria cannot be edited on Inbox-family or custom URL views.",
+    "perc.ui.developer@Field criteria cannot be edited on Inbox-family or packaged sys_cxViews views.",
   VW_FIELDS_ADD: "perc.ui.developer@Add field",
   VW_FIELDS_REMOVE: "perc.ui.developer@Remove",
   VW_FIELDS_MOVE_UP: "perc.ui.developer@Move up",
@@ -1224,7 +1231,7 @@ export const DEV_MSG_KEYS = {
   VW_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   VW_GAP_FIELDS: "perc.ui.developer@View field criterion editing not supported via this API",
   VW_GAP_PROTECTED:
-    "perc.ui.developer@Inbox-family and custom URL views cannot be updated or deleted via this API",
+    "perc.ui.developer@Inbox-family and packaged sys_cxViews views cannot be updated or deleted via this API",
   VW_GAP_SEARCHES: "perc.ui.developer@Searches are a separate catalog (Developer Searches / UI-06)",
   EX_LOADING: "perc.ui.developer@Loading extensions...",
   EX_EMPTY: "perc.ui.developer@No extensions returned.",

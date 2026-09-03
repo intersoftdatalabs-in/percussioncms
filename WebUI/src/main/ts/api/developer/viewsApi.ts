@@ -26,10 +26,11 @@ export { resolveViewObjectGuid };
  * Writable identity fields for POST/PUT /services/views. Name is the catalog
  * key (not renamed on PUT). Field criteria are included on PUT when the SPA
  * saves the criterion list (omitted fields leave existing criteria unchanged).
+ * Custom URL writes send {@code url} + {@code customView} instead of fields.
  */
 export type ViewWriteBody = Pick<
   ViewDef,
-  "name" | "label" | "description" | "type" | "displayFormatId" | "fields"
+  "name" | "label" | "description" | "type" | "displayFormatId" | "fields" | "url" | "customView"
 >;
 
 /** Jackson / JAXB root for ViewDef (UNWRAP_ROOT_VALUE on POST/PUT). */
@@ -38,8 +39,14 @@ export const VIEW_DEF_ROOT = "ViewDef";
 /** REST default type on create ({@code PSSearch.TYPE_VIEW}). */
 export const VIEW_TYPE_STANDARD = "View";
 
+/** REST custom URL type alias used by Developer Views chrome ({@code CustomView}). */
+export const VIEW_TYPE_CUSTOM = "CustomView";
+
 /** {@code PSSearch.INTERNALNAME_LENGTH} — create name max. */
 export const VIEW_NAME_MAX = 128;
+
+/** {@code PSSearch.CUSTOMURL_LENGTH} — custom URL max. */
+export const VIEW_URL_MAX = 255;
 
 /** Seed / DCE internal name for the operator Inbox view. */
 export const INBOX_VIEW_NAME = "Inbox";
@@ -48,14 +55,28 @@ export const INBOX_VIEW_NAME = "Inbox";
 export const INBOX_DCE_PATH = "//Views//MyContent/Inbox";
 
 /**
+ * Packaged {@code sys_cxViews} catalog keys (REST {@code PACKAGED_CX_VIEW_NAMES}).
+ * PUT/DELETE of these names is 409; user-created custom URL views stay writable.
+ */
+export const PACKAGED_CX_VIEW_NAMES = new Set([
+  "inbox",
+  "outbox",
+  "recent",
+  "session",
+  "checked_out_by_me",
+  "duplicatefolderpaths",
+]);
+
+/**
  * Catalog-level design gaps (REST-GAPS-02). Server omits these on list rows;
  * detail re-attaches or SPA falls back via this constant.
  *
- * <p>Create / save / delete and field-criterion write are supported (UI-07 / UI-08).
- * Inbox-family mutate remains REST-protected.</p>
+ * <p>Create / save / delete, field-criterion write, and user custom URL write are
+ * supported (UI-07). Inbox-family / packaged {@code sys_cxViews} mutate remains
+ * REST-protected.</p>
  */
 export const VIEW_DESIGN_GAPS: string[] = [
-  "Inbox-family and custom URL views cannot be updated or deleted via this API",
+  "Inbox-family and packaged sys_cxViews views cannot be updated or deleted via this API",
   "Searches are a separate catalog (Developer Searches / UI-06)",
 ];
 
@@ -100,30 +121,116 @@ export function isValidViewName(name: string | undefined | null): boolean {
   return isSafeViewName(key);
 }
 
-/** Save is enabled when the view name is valid (create) or already loaded (edit). */
-export function isViewWriteReady(opts: { isNew: boolean; name: string }): boolean {
-  if (opts.isNew) return isValidViewName(opts.name);
-  return Boolean(normalizeViewName(opts.name));
+/** True when the REST / SPA type is a custom URL view. */
+export function isCustomViewType(type: string | undefined | null): boolean {
+  const t = (type ?? "").trim().toLowerCase();
+  if (!t) return false;
+  return t === VIEW_TYPE_CUSTOM.toLowerCase() || t === "custom";
 }
 
 /**
- * True when REST will 409 on PUT/DELETE (Inbox family or custom URL).
- * Catalog chrome must not delete these rows.
+ * Canonical REST type for persist. Aliases {@code custom} / {@code CustomView}
+ * become {@link VIEW_TYPE_CUSTOM} so dirty/compare matches GET.
+ */
+export function canonicalViewType(type: string | undefined | null): string {
+  const t = (type ?? "").trim();
+  if (!t) return VIEW_TYPE_STANDARD;
+  if (isCustomViewType(t)) return VIEW_TYPE_CUSTOM;
+  const lower = t.toLowerCase();
+  if (lower === VIEW_TYPE_STANDARD.toLowerCase() || lower === "standard" || lower === "_standard") {
+    return VIEW_TYPE_STANDARD;
+  }
+  return t;
+}
+
+/** Trim a custom view URL. Empty / null becomes "". */
+export function normalizeViewUrl(url: string | undefined | null): string {
+  return url == null ? "" : url.trim();
+}
+
+/**
+ * True when the URL is accepted by REST custom-view write
+ * ({@code ViewAdaptor.requireValidCustomViewUrl}): non-blank classic relative
+ * path, at most one leading {@code ../}, no schemes / backslash / remaining
+ * {@code ..}, max {@link VIEW_URL_MAX}.
+ */
+export function isValidViewUrl(url: string | undefined | null): boolean {
+  const key = normalizeViewUrl(url);
+  if (!key) return false;
+  if (key.length > VIEW_URL_MAX) return false;
+  if (containsWhitespace(key)) return false;
+  if (key.includes("\\") || key.includes("\0")) return false;
+  const lower = key.toLowerCase();
+  if (lower === "<enter url>") return false;
+  if (lower.includes("://") || lower.startsWith("file:") || lower.startsWith("//")) {
+    return false;
+  }
+  let rest = key;
+  if (rest.startsWith("../")) {
+    rest = rest.slice(3);
+  }
+  if (rest.startsWith("./")) {
+    rest = rest.slice(2);
+  }
+  if (!rest || rest.includes("..")) return false;
+  return true;
+}
+
+/**
+ * Save is enabled when the view name is valid (create) or already loaded (edit).
+ * Custom URL views also require a non-blank URL.
+ */
+export function isViewWriteReady(opts: {
+  isNew: boolean;
+  name: string;
+  type?: string;
+  url?: string;
+}): boolean {
+  if (opts.isNew) {
+    if (!isValidViewName(opts.name)) return false;
+  } else if (!normalizeViewName(opts.name)) {
+    return false;
+  }
+  if (isCustomViewType(opts.type) && !isValidViewUrl(opts.url)) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * True when REST will 409 on PUT/DELETE for the Inbox design row (name or DCE
+ * path). Prefer {@link isPackagedCxViewName} for the full packaged set.
  */
 export function isInboxViewName(name: string | undefined | null): boolean {
   const n = normalizeViewName(name).replace(/\\/g, "/");
   if (!n) return false;
-  return n.toLowerCase() === INBOX_VIEW_NAME.toLowerCase() || n.toLowerCase() === INBOX_DCE_PATH.toLowerCase();
+  return (
+    n.toLowerCase() === INBOX_VIEW_NAME.toLowerCase() ||
+    n.toLowerCase() === INBOX_DCE_PATH.toLowerCase()
+  );
 }
 
-/** Inbox-family / custom-URL / system views are not deleted from this catalog. */
+/**
+ * True when the catalog key is an Inbox-family / packaged {@code sys_cxViews}
+ * name (REST {@code isPackagedCxViewName}). Spaces become underscores.
+ */
+export function isPackagedCxViewName(name: string | undefined | null): boolean {
+  if (isInboxViewName(name)) return true;
+  const key = normalizeViewName(name).toLowerCase().replace(/ /g, "_");
+  if (!key) return false;
+  return PACKAGED_CX_VIEW_NAMES.has(key);
+}
+
+/**
+ * Inbox-family / packaged {@code sys_cxViews} views are not mutated from this
+ * catalog. User-created custom URL views ({@code customView} with a non-packaged
+ * name) remain writable.
+ */
 export function isProtectedViewWrite(
   view: Pick<ViewDef, "name" | "customView" | "url"> | null | undefined,
 ): boolean {
   if (view == null) return false;
-  if (view.customView) return true;
-  if (view.url != null && String(view.url).trim()) return true;
-  return isInboxViewName(view.name);
+  return isPackagedCxViewName(view.name);
 }
 
 /** Wire JSON for POST/PUT — a flat body fails JAXB root unwrap. */
@@ -172,6 +279,7 @@ export function unwrapViewDefList(payload: unknown): ViewDef[] {
 const STALE_WRITE_GAPS = new Set([
   "View create / update / delete not supported via this API",
   "View field criterion editing not supported via this API",
+  "Inbox-family and custom URL views cannot be updated or deleted via this API",
 ]);
 
 /** Drop the pre-UI-07 write gap when REST still attaches it on GET detail. */
