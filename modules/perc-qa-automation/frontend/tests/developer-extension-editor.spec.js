@@ -110,14 +110,24 @@ function createdRow(page, extName) {
  * of rows and Playwright text filters over the full table are too slow.
  */
 async function openSystemExtension(page) {
-  // Prefer data-immutable (stable across catalog order); fall back to exact name "add".
+  // Prefer data-immutable / global/percussion context (stable across catalog order);
+  // fall back to exact name "add" (shipped H2 UDF). Override via SYSTEM_EXTENSION_NAME.
+  const systemName = process.env.SYSTEM_EXTENSION_NAME || "add";
   const byImmutable = page.locator(
     '[data-testid="developer-ex-open"][data-immutable="true"]',
   );
-  const byName = page.locator(
-    catalogOpenByExactName("developer-ex-open", "data-ex-name", "add"),
+  const byContext = page.locator(
+    '[data-testid="developer-ex-open"][data-ex-context^="global/percussion"]',
   );
-  const open = (await byImmutable.count()) > 0 ? byImmutable.first() : byName;
+  const byName = page.locator(
+    catalogOpenByExactName("developer-ex-open", "data-ex-name", systemName),
+  );
+  const open =
+    (await byImmutable.count()) > 0
+      ? byImmutable.first()
+      : (await byContext.count()) > 0
+        ? byContext.first()
+        : byName;
   await expect(open).toBeVisible({ timeout: 30_000 });
   await open.click();
   await expect(page.locator('[data-testid="developer-ex-detail"]')).toBeVisible();

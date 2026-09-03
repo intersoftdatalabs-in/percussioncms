@@ -137,14 +137,17 @@ export function parseExtensionInterfaces(text: string | undefined | null): strin
  * {@link formatExtensionInterfaces} and abort Extension detail load (#4241).
  */
 export function normalizeSupportedInterfaces(
-  raw: string[] | string | undefined | null,
+  raw: string[] | string | undefined | null | unknown,
 ): string[] {
   if (raw == null) return [];
   if (typeof raw === "string") {
     const t = raw.trim();
     return t ? [t] : [];
   }
-  if (!Array.isArray(raw)) return [];
+  if (!Array.isArray(raw)) {
+    // Unexpected object wrapper — do not invent entries; callers treat [] as empty.
+    return [];
+  }
   return raw
     .map((s) => (s == null ? "" : String(s).trim()))
     .filter((s) => s.length > 0);

@@ -170,6 +170,8 @@ describe("extension name and immutability helpers", () => {
     );
     expect(normalizeSupportedInterfaces(["a", "b"])).toEqual(["a", "b"]);
     expect(normalizeSupportedInterfaces(null)).toEqual([]);
+    // Unexpected object wrapper → empty (do not invent entries).
+    expect(normalizeSupportedInterfaces({ item: ["a"] })).toEqual([]);
   });
 
   it("flattens Jackson initParameters entry list for className (#4241)", () => {

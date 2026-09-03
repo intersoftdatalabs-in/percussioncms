@@ -162,11 +162,12 @@ public class ExtensionsResource {
               + " user/. extensionName and at least one supportedInterfaces entry are required."
               + " handlerName defaults to Java. Duplicate FQN is 409. System/handler contexts"
               + " cannot be registered (409). Developer → Extensions SPA also uses this"
-              + " endpoint for user-extension create.",
+              + " endpoint for user-extension create. Success is HTTP 200 (same as other Admin"
+              + " write resources in this module; not 201).",
       responses = {
         @ApiResponse(
             responseCode = "200",
-            description = "Created",
+            description = "Registered (200, not 201 — module-consistent Admin write convention)",
             content = @Content(schema = @Schema(implementation = Extension.class))),
         @ApiResponse(responseCode = "400", description = "Invalid input"),
         @ApiResponse(responseCode = "403", description = "Admin role required"),
@@ -200,7 +201,9 @@ public class ExtensionsResource {
           "Admin. Updates mutable fields of a user extension by FQN or extension name (query"
               + " param key). Identity (handler/context/name) is not renamed on PUT. System and"
               + " handler-owned extensions are 409. Unknown key is 404. Developer → Extensions"
-              + " SPA also uses this endpoint for user-extension edit.",
+              + " SPA also uses this endpoint for user-extension edit. Round-trip GET then PUT:"
+              + " omit supportedInterfaces to keep current (explicit [] is 400); initParameters"
+              + " null values delete keys; version<=0 keeps the current version.",
       responses = {
         @ApiResponse(
             responseCode = "200",
