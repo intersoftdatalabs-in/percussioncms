@@ -29,6 +29,8 @@ import {
   isValidExtensionName,
   listExtensions,
   normalizeExtensionName,
+  normalizeInitParameters,
+  normalizeSupportedInterfaces,
   parseExtensionInterfaces,
   saveExtension,
   unwrapExtension,
@@ -150,10 +152,39 @@ describe("extension name and immutability helpers", () => {
     expect(extensionClassName({ className: " com.example.X " })).toBe("com.example.X");
     expect(extensionClassName(undefined)).toBe("");
   });
+
+  it("coerces Jackson single-string supportedInterfaces (#4241)", () => {
+    expect(normalizeSupportedInterfaces("com.percussion.extension.IPSUdfProcessor")).toEqual([
+      "com.percussion.extension.IPSUdfProcessor",
+    ]);
+    expect(formatExtensionInterfaces("com.percussion.extension.IPSUdfProcessor")).toBe(
+      "com.percussion.extension.IPSUdfProcessor",
+    );
+    expect(normalizeSupportedInterfaces(["a", "b"])).toEqual(["a", "b"]);
+    expect(normalizeSupportedInterfaces(null)).toEqual([]);
+  });
+
+  it("flattens Jackson initParameters entry list for className (#4241)", () => {
+    const flat = normalizeInitParameters({
+      entry: [
+        { key: "com.percussion.extension.version", value: 1 },
+        { key: "className", value: "com.percussion.generic.PSAdd" },
+      ],
+    });
+    expect(flat).toEqual({
+      "com.percussion.extension.version": "1",
+      className: "com.percussion.generic.PSAdd",
+    });
+    expect(
+      extensionClassName({
+        entry: [{ key: "className", value: "com.percussion.generic.PSAdd" }],
+      }),
+    ).toBe("com.percussion.generic.PSAdd");
+  });
 });
 
 describe("extension wire wrap", () => {
-  it("wraps POST/PUT under Extension root", () => {
+  it("wraps POST/PUT under Extension root with entry-list initParameters", () => {
     expect(
       wrapExtensionForWire({
         extensionName: "my_user_ext",
@@ -164,7 +195,9 @@ describe("extension wire wrap", () => {
       Extension: {
         extensionName: "my_user_ext",
         supportedInterfaces: ["com.percussion.extension.IPSUdfProcessor"],
-        initParameters: { className: "com.example.MyExt" },
+        initParameters: {
+          entry: [{ key: "className", value: "com.example.MyExt" }],
+        },
       },
     });
   });
@@ -238,7 +271,9 @@ describe("extensionsApi write paths", () => {
       Extension: {
         extensionName: "my_user_ext",
         supportedInterfaces: ["com.percussion.extension.IPSUdfProcessor"],
-        initParameters: { className: "com.example.MyExt" },
+        initParameters: {
+          entry: [{ key: "className", value: "com.example.MyExt" }],
+        },
       },
     });
   });

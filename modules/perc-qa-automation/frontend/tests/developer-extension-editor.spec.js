@@ -15,11 +15,11 @@
  */
 
 /**
- * Developer Extensions create / save / delete chrome (#4240 SY-01 / parent #1690).
+ * Developer Extensions create / catalog / edit / delete (#4241 SY-01 / parent #1690).
  *
- * SPA catalog exposes New + detail save/delete for user extensions. System
- * rows keep Save/Delete disabled. Live POST requires REST write (#4239) hot-
- * deployed into the QA cell.
+ * SPA catalog (#4240) + REST write (#4239). System rows keep Save/Delete disabled.
+ * Live path requires hot-deployed sitemanage with lazy PSExtensionService manager
+ * resolve (Spring-before-PSServer init on H2 QA).
  *
  * Surface-filtered QA:
  * <pre>
@@ -35,9 +35,7 @@
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 const { confirmDeveloperCatalogDelete } = require("./helpers/developer-catalog-confirm");
-const {
-  catalogOpenByExactName,
-} = require("./helpers/developer-catalog-selectors");
+const { catalogOpenByExactName } = require("./helpers/developer-catalog-selectors");
 
 function developerExtensionsUrl() {
   const q = new URLSearchParams({
@@ -106,7 +104,30 @@ function createdRow(page, extName) {
   );
 }
 
-test.describe("Developer extension editor (#4240 / SY-01)", () => {
+/**
+ * Open a known shipped system UDF (`add` under global/percussion/udf/).
+ * Prefer exact data-ex-name over hasText filters — the H2 catalog has hundreds
+ * of rows and Playwright text filters over the full table are too slow.
+ */
+async function openSystemExtension(page) {
+  const open = page.locator(
+    catalogOpenByExactName("developer-ex-open", "data-ex-name", "add"),
+  );
+  await expect(open).toBeVisible({ timeout: 30_000 });
+  await open.click();
+  await expect(page.locator('[data-testid="developer-ex-detail"]')).toBeVisible();
+  await expect(page.locator('[data-testid="developer-ex-detail-loading"]')).toHaveCount(0, {
+    timeout: 20_000,
+  });
+  await expect(page.locator('[data-testid="developer-ex-name"]')).toHaveValue("add");
+  await expect(page.locator('[data-testid="developer-ex-immutable-hint"]')).toBeVisible({
+    timeout: 10_000,
+  });
+  await expect(page.locator('[data-testid="developer-ex-save"]')).toBeDisabled();
+  await expect(page.locator('[data-testid="developer-ex-delete"]')).toBeDisabled();
+}
+
+test.describe("Developer extension editor (#4241 / SY-01)", () => {
   test("catalog opens create chrome and disables save until fields are valid", async ({
     page,
   }) => {
@@ -124,7 +145,7 @@ test.describe("Developer extension editor (#4240 / SY-01)", () => {
 
     await page.locator('[data-testid="developer-ex-name"]').fill("has space");
     await expect(saveBtn).toBeDisabled();
-    const name = uniqueExtensionName("qa4240");
+    const name = uniqueExtensionName("qa4241");
     await page.locator('[data-testid="developer-ex-name"]').fill(name);
     await page
       .locator('[data-testid="developer-ex-interfaces"]')
@@ -138,7 +159,7 @@ test.describe("Developer extension editor (#4240 / SY-01)", () => {
     assertConsoleClean(pageErrors, consoleErrors);
   });
 
-  test("Admin create/save/delete user extension; system Save/Delete disabled", async ({
+  test("Admin create → catalog → edit → delete user extension; system blocked", async ({
     page,
   }) => {
     test.setTimeout(180_000);
@@ -146,22 +167,14 @@ test.describe("Developer extension editor (#4240 / SY-01)", () => {
     await loginAsAdmin(page);
     await openExtensionsCatalog(page);
 
-    // System row: Save/Delete disabled
-    const systemOpen = page.locator('[data-testid="developer-ex-open"]').first();
-    await expect(systemOpen).toBeVisible({ timeout: 20_000 });
-    await systemOpen.click();
-    await expect(page.locator('[data-testid="developer-ex-detail"]')).toBeVisible();
-    await expect(page.locator('[data-testid="developer-ex-immutable-hint"]')).toBeVisible({
-      timeout: 20_000,
-    });
-    await expect(page.locator('[data-testid="developer-ex-save"]')).toBeDisabled();
-    await expect(page.locator('[data-testid="developer-ex-delete"]')).toBeDisabled();
+    // System row: Save/Delete disabled (FQN match, not .first())
+    await openSystemExtension(page);
     await page.locator('[data-testid="developer-ex-back"]').click();
     await expect(page.locator('[data-testid="developer-ex-panel"]')).toBeVisible({
       timeout: 20_000,
     });
 
-    const extName = uniqueExtensionName("qa4240");
+    const extName = uniqueExtensionName("qa4241");
     await page.locator('[data-testid="developer-ex-new"]').click();
     await expect(page.locator('[data-testid="developer-ex-detail"]')).toBeVisible();
     await page.locator('[data-testid="developer-ex-name"]').fill(extName);
@@ -184,6 +197,15 @@ test.describe("Developer extension editor (#4240 / SY-01)", () => {
     await expect(page.locator('[data-testid="developer-ex-name"]')).toHaveValue(extName);
     await expect(page.locator('[data-testid="developer-ex-name"]')).toBeDisabled();
     await expect(page.locator('[data-testid="developer-ex-delete"]')).toBeEnabled();
+
+    // Catalog list must show the new user extension
+    await page.locator('[data-testid="developer-ex-back"]').click();
+    await expect(page.locator('[data-testid="developer-ex-panel"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(createdRow(page, extName)).toBeVisible({ timeout: 20_000 });
+    await createdRow(page, extName).click();
+    await expect(page.locator('[data-testid="developer-ex-detail"]')).toBeVisible();
 
     await page.locator('[data-testid="developer-ex-deprecated"]').check();
     await page.locator('[data-testid="developer-ex-save"]').click();
