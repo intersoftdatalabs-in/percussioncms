@@ -38,4 +38,15 @@ public interface IRoleAdaptor {
 
   /** Finds roles by pattern. */
   List<Role> findRoles(URI baseUri, String pattern) throws BackendException;
+
+  /**
+   * Admin SE-03 browse catalog: roles with community / workflow / unassigned grouping metadata.
+   *
+   * @param baseUri request base URI (unused today; kept for adaptor parity)
+   * @param groupFilter optional {@link RoleBrowseGroup} wire value; blank means all groups
+   * @return catalog never null; empty roles when none match
+   * @throws jakarta.ws.rs.WebApplicationException 403 when caller is not Admin; 400 when filter is
+   *     invalid
+   */
+  RoleBrowseCatalog browseRoles(URI baseUri, String groupFilter);
 }

@@ -49,4 +49,9 @@ public class RoleTestAdaptor implements IRoleAdaptor {
   public List<Role> findRoles(URI baseURI, String pattern) {
     return null;
   }
+
+  @Override
+  public RoleBrowseCatalog browseRoles(URI baseUri, String groupFilter) {
+    return new RoleBrowseCatalog();
+  }
 }
