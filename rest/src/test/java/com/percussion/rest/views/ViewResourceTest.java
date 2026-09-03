@@ -244,6 +244,40 @@ public class ViewResourceTest {
   }
 
   @Test
+  public void createViewCustomUrlDelegates() {
+    ViewDef body = new ViewDef();
+    body.setName("MyCustom");
+    body.setType("CustomView");
+    body.setCustomView(true);
+    body.setUrl("../myApp/page.xml");
+    ViewDef created = new ViewDef();
+    created.setName("MyCustom");
+    created.setUrl("../myApp/page.xml");
+    created.setCustomView(true);
+    when(adaptor.createView(any())).thenReturn(created);
+
+    ViewDef out = resource.createView(body);
+
+    assertEquals("MyCustom", out.getName());
+    assertEquals("../myApp/page.xml", out.getUrl());
+    assertTrue(out.isCustomView());
+    verify(adaptor).createView(body);
+  }
+
+  @Test
+  public void createViewBlankUrlIs400() {
+    when(adaptor.createView(any()))
+        .thenThrow(new IllegalArgumentException("Custom URL view requires a non-blank url"));
+    ViewDef body = new ViewDef();
+    body.setName("MyCustom");
+    body.setType("CustomView");
+    body.setUrl("  ");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createView(body));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void createViewBlankNameIs400() {
     when(adaptor.createView(any())).thenThrow(new IllegalArgumentException("name is required"));
     ViewDef body = new ViewDef();
@@ -311,11 +345,29 @@ public class ViewResourceTest {
   }
 
   @Test
+  public void updateViewCustomUrlDelegates() {
+    ViewDef body = new ViewDef();
+    body.setUrl("../myApp/updated.xml");
+    body.setCustomView(true);
+    ViewDef updated = new ViewDef();
+    updated.setName("MyCustom");
+    updated.setUrl("../myApp/updated.xml");
+    updated.setCustomView(true);
+    when(adaptor.saveView(eq("MyCustom"), eq(body))).thenReturn(updated);
+
+    ViewDef out = resource.updateView("MyCustom", body);
+
+    assertEquals("../myApp/updated.xml", out.getUrl());
+    assertTrue(out.isCustomView());
+    verify(adaptor).saveView("MyCustom", body);
+  }
+
+  @Test
   public void updateViewInboxIs409() {
     when(adaptor.saveView(eq("Inbox"), any()))
         .thenThrow(
             new WebApplicationException(
-                "Inbox-family and custom URL views cannot be updated or deleted via this API",
+                "Inbox-family and packaged sys_cxViews views cannot be updated or deleted via this API",
                 409));
     WebApplicationException ex =
         assertThrows(
@@ -355,7 +407,7 @@ public class ViewResourceTest {
     when(adaptor.deleteView(eq("Inbox")))
         .thenThrow(
             new WebApplicationException(
-                "Inbox-family and custom URL views cannot be updated or deleted via this API",
+                "Inbox-family and packaged sys_cxViews views cannot be updated or deleted via this API",
                 409));
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.deleteView("Inbox"));

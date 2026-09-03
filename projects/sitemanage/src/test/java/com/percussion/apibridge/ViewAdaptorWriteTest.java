@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -55,7 +56,8 @@ import org.mockito.ArgumentCaptor;
 
 /**
  * UI-07 POST create / PUT update / DELETE persist via {@code createViews}/{@code saveViews}/{@code
- * deleteViews}. Admin only; unique name; no lock steal; Inbox/custom URL is 409.
+ * deleteViews}. Admin only; unique name; no lock steal; Inbox-family / packaged {@code
+ * sys_cxViews} keys are 409. User custom URL views persist {@code url}.
  */
 @Tag("UnitTest")
 class ViewAdaptorWriteTest {
@@ -215,13 +217,52 @@ class ViewAdaptorWriteTest {
   }
 
   @Test
-  void create_customUrl_is400() {
+  void create_customUrl_roundTripsUrlAndCustomView() throws Exception {
+    PSSearch view = stubView("MyCustom", true);
+    when(view.getUrl()).thenReturn("../myApp/page.xml");
+    when(designWs.createViews(eq(List.of("MyCustom")), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(view));
+    stubCatalogVisibleAfterSave(view);
+
     ViewDef body = new ViewDef();
-    body.setName("MyInbox");
-    body.setUrl("../sys_cxViews/inbox.xml");
+    body.setName("MyCustom");
+    body.setType("CustomView");
+    body.setCustomView(true);
+    body.setUrl("../myApp/page.xml");
+    body.setLabel("My Custom");
+
+    ViewDef out = adaptor.createView(body);
+
+    assertEquals("MyCustom", out.getName());
+    assertEquals("../myApp/page.xml", out.getUrl());
+    assertTrue(out.isCustomView());
+    verify(designWs).createViews(eq(List.of("MyCustom")), eq("test-session"), eq("Admin"));
+    verify(view).setCustom(true);
+    verify(view).setUrl("../myApp/page.xml");
+    verify(designWs).saveViews(anyList(), eq(true), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void create_blankCustomUrl_is400() {
+    ViewDef body = new ViewDef();
+    body.setName("MyCustom");
+    body.setType("CustomView");
+    body.setCustomView(true);
+    body.setUrl("  ");
     IllegalArgumentException ex =
         assertThrows(IllegalArgumentException.class, () -> adaptor.createView(body));
-    assertTrue(ex.getMessage().toLowerCase().contains("custom"));
+    assertTrue(ex.getMessage().toLowerCase().contains("url"), ex.getMessage());
+    verify(designWs, never()).createViews(anyList(), any(), any());
+  }
+
+  @Test
+  void create_invalidCustomUrl_is400() {
+    ViewDef body = new ViewDef();
+    body.setName("MyCustom");
+    body.setUrl("https://evil.example/view");
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.createView(body));
+    assertTrue(ex.getMessage().toLowerCase().contains("invalid"), ex.getMessage());
     verify(designWs, never()).createViews(anyList(), any(), any());
   }
 
@@ -321,6 +362,87 @@ class ViewAdaptorWriteTest {
   }
 
   @Test
+  void update_packagedOutbox_is409() throws Exception {
+    PSSearch outbox = stubView("Outbox", true);
+    stubCatalogLoad(outbox);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.saveView("Outbox", new ViewDef()));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(designWs, never()).saveViews(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_userCustomUrl_updatesUrl() throws Exception {
+    PSSearch existing = stubView("MyCustom", true);
+    when(existing.getUrl()).thenReturn("../myApp/page.xml");
+    stubCatalogLoad(existing);
+    PSSearch locked = stubView("MyCustom", true);
+    when(locked.getUrl()).thenReturn("../myApp/updated.xml");
+    when(designWs.loadViews(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(locked));
+
+    ViewDef body = new ViewDef();
+    body.setUrl("../myApp/updated.xml");
+    body.setCustomView(true);
+
+    ViewDef out = adaptor.saveView("MyCustom", body);
+
+    assertEquals("MyCustom", out.getName());
+    assertEquals("../myApp/updated.xml", out.getUrl());
+    assertTrue(out.isCustomView());
+    verify(locked).setCustom(true);
+    verify(locked).setUrl("../myApp/updated.xml");
+    verify(designWs).saveViews(anyList(), eq(true), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void update_userCustomUrl_blankUrl_is400() throws Exception {
+    PSSearch existing = stubView("MyCustom", true);
+    when(existing.getUrl()).thenReturn("../myApp/page.xml");
+    stubCatalogLoad(existing);
+
+    ViewDef body = new ViewDef();
+    body.setUrl("  ");
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.saveView("MyCustom", body));
+    assertTrue(ex.getMessage().toLowerCase().contains("url"), ex.getMessage());
+    verify(designWs, never()).saveViews(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_standardView_toCustomUrl_convertsAndRoundTrips() throws Exception {
+    PSSearch existing = stubView("MyView", false);
+    stubCatalogLoad(existing);
+    PSSearch locked = stubView("MyView", false);
+    when(locked.getUrl()).thenReturn("../myApp/converted.xml");
+    // Mock does not flip isCustomView on setCustom; mirror domain after conversion.
+    doAnswer(
+            inv -> {
+              when(locked.isCustomView()).thenReturn(true);
+              when(locked.isStandardView()).thenReturn(false);
+              return null;
+            })
+        .when(locked)
+        .setCustom(true);
+    when(designWs.loadViews(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(locked));
+
+    ViewDef body = new ViewDef();
+    body.setType("CustomView");
+    body.setCustomView(true);
+    body.setUrl("../myApp/converted.xml");
+
+    ViewDef out = adaptor.saveView("MyView", body);
+
+    assertEquals("MyView", out.getName());
+    assertEquals("../myApp/converted.xml", out.getUrl());
+    assertTrue(out.isCustomView());
+    verify(locked).setCustom(true);
+    verify(locked).setUrl("../myApp/converted.xml");
+    verify(designWs).saveViews(anyList(), eq(true), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
   void update_lockConflict_is409() throws Exception {
     PSSearch existing = stubView("MyView", false);
     stubCatalogLoad(existing);
@@ -375,13 +497,25 @@ class ViewAdaptorWriteTest {
   }
 
   @Test
-  void delete_customUrl_is409() throws Exception {
-    PSSearch custom = stubView("MyCustom", true);
+  void delete_packagedCustomUrl_is409() throws Exception {
+    PSSearch custom = stubView("Recent", true);
     stubCatalogLoad(custom);
     WebApplicationException ex =
-        assertThrows(WebApplicationException.class, () -> adaptor.deleteView("MyCustom"));
+        assertThrows(WebApplicationException.class, () -> adaptor.deleteView("Recent"));
     assertEquals(409, ex.getResponse().getStatus());
     verify(designWs, never()).deleteViews(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void delete_userCustomUrl_succeeds() throws Exception {
+    PSSearch existing = stubView("MyCustom", true);
+    when(existing.getUrl()).thenReturn("../myApp/page.xml");
+    stubCatalogLoad(existing);
+    when(designWs.loadViews(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(existing));
+
+    assertTrue(adaptor.deleteView("MyCustom"));
+    verify(designWs).deleteViews(eq(List.of(guid)), eq(false), eq("test-session"), eq("Admin"));
   }
 
   @Test
@@ -430,10 +564,38 @@ class ViewAdaptorWriteTest {
     assertNull(ViewAdaptor.resolveViewType(null, false));
     assertEquals(PSSearch.TYPE_VIEW, ViewAdaptor.resolveViewType("standard", true));
     assertEquals(PSSearch.TYPE_VIEW, ViewAdaptor.resolveViewType("View", true));
-    assertThrows(IllegalArgumentException.class, () -> ViewAdaptor.resolveViewType("custom", true));
+    assertEquals(PSSearch.TYPE_VIEW, ViewAdaptor.resolveViewType("custom", true));
+    assertEquals(PSSearch.TYPE_VIEW, ViewAdaptor.resolveViewType("CustomView", true));
     assertThrows(
         IllegalArgumentException.class, () -> ViewAdaptor.resolveViewType("StandardSearch", true));
     assertThrows(IllegalArgumentException.class, () -> ViewAdaptor.resolveViewType("nope", true));
+  }
+
+  @Test
+  void requireValidCustomViewUrl_rejectsBlankAndInvalid() {
+    assertEquals("../myApp/page.xml", ViewAdaptor.requireValidCustomViewUrl("../myApp/page.xml"));
+    assertThrows(
+        IllegalArgumentException.class, () -> ViewAdaptor.requireValidCustomViewUrl("  "));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ViewAdaptor.requireValidCustomViewUrl(PSSearch.URL_PLACEHOLDER));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ViewAdaptor.requireValidCustomViewUrl("https://evil.example/x"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ViewAdaptor.requireValidCustomViewUrl("../myApp/../../etc/passwd"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ViewAdaptor.requireValidCustomViewUrl("../../etc/passwd"));
+    assertTrue(ViewAdaptor.isPackagedCxViewName("Inbox"));
+    assertTrue(ViewAdaptor.isPackagedCxViewName("Outbox"));
+    assertTrue(ViewAdaptor.isPackagedCxViewName("Checked_Out_By_Me"));
+    assertTrue(ViewAdaptor.isPackagedCxViewName("INBOX"));
+    assertTrue(ViewAdaptor.isPackagedCxViewName("inbox"));
+    assertTrue(ViewAdaptor.isPackagedCxViewName("Outbox "));
+    assertTrue(ViewAdaptor.isPackagedCxViewName("checked out by me"));
+    assertFalse(ViewAdaptor.isPackagedCxViewName("MyCustom"));
   }
 
   @Test

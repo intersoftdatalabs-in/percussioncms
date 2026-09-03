@@ -1631,9 +1631,10 @@ Admin **write** persists through `IPSUiDesignWs` (`createViews` / `loadViews` / 
 `deleteViews`) — the same design web service SOAP uses. There is no new SOAP surface.
 **Developer → Views** chrome creates and deletes standard views, saves label /
 description / type / display format, and edits **field criteria** on
-user/standard views — see [Developer Views](id:admin-developer-views). Inbox-family
-and custom URL views cannot be mutated from that catalog. Execute is **not**
-invoked when creating, updating, or deleting a view. Create is durable:
+user/standard views — see [Developer Views](id:admin-developer-views). Admin REST
+also persists **user** custom URL views (`url` + `customView`). Inbox-family and
+packaged `sys_cxViews` catalog keys cannot be mutated from that catalog. Execute
+is **not** invoked when creating, updating, or deleting a view. Create is durable:
 `GET /services/views` lists the new name after POST.
 
 Operators open Inbox from Explorer **Views → My Content → Inbox** (see
@@ -1647,8 +1648,8 @@ created name (durable persist; a second POST of that name is **409**).
 |--------|------|---------|
 | `GET` | `/services/views` | List view definitions (name, category, standard vs custom URL; includes `guid`) |
 | `GET` | `/services/views/{idOrName}` | Load one view by name, numeric id, or GUID string (includes `guid` for Object ACL) |
-| `POST` | `/services/views` | **Admin.** Create a standard (field-criteria) view (`createViews` then `saveViews`) |
-| `PUT` | `/services/views/{idOrName}` | **Admin.** Update label, description, type, display format, and/or `fields` (omit to leave criteria unchanged; empty array clears; unknown field is 400) |
+| `POST` | `/services/views` | **Admin.** Create a standard (field-criteria) view or a **user** custom URL view (`createViews` then `saveViews`) |
+| `PUT` | `/services/views/{idOrName}` | **Admin.** Update label, description, type, display format, `url` (user custom URL views), and/or `fields` (omit to leave criteria unchanged; empty array clears; unknown field is 400) |
 | `DELETE` | `/services/views/{idOrName}` | **Admin.** Delete a user/standard view (`deleteViews`, `ignoreDependencies=false`) |
 | `POST` | `/services/views/{idOrName}/execute` | Execute a **standard** (field-criteria) view or an Inbox-family **custom URL** view |
 
@@ -1689,10 +1690,10 @@ Successful response is a paged envelope: `children[]` (Explorer-ready rows with 
 |--------|-----------------|
 | `200` | List / get / create / update / execute success |
 | `204` | Delete success |
-| `400` | Invalid input (missing name, whitespace/wildcard name, invalid or search type, custom URL on create, **unknown field** on PUT `fields`), invalid execute body, or an **unsupported** custom URL view |
+| `400` | Invalid input (missing name, whitespace/wildcard name, invalid or search type, **blank/invalid `url`** on custom URL write, **unknown field** on PUT `fields`), invalid execute body, or an **unsupported** custom URL view on execute |
 | `403` | Caller is not Admin, or the request has no session/user for the design session |
 | `404` | View not found or unsafe key (blank, path separators, `..`) |
-| `409` | Duplicate name, design lock held by another user, dependents, or Inbox/system custom URL write |
+| `409` | Duplicate name, design lock held by another user, dependents, or Inbox-family / packaged `sys_cxViews` write |
 | `500` | Design or execute engine failure (standard views) |
 | `503` | Views adaptor not configured, or custom-view backend unavailable |
 
@@ -1726,24 +1727,32 @@ Create (`POST /services/views`) persists immediately (Workbench Finish, not an u
 stub). JSON body requires `name` (unique across views **and** searches, case-insensitive;
 **no whitespace** or wildcards). Optional `label`, `description`, `type`, and
 `displayFormatId` are applied before save. Default `type` is `View`. Accepted types:
-`View` (`standard`, `standardView`). Search types (`StandardSearch`, `Search`) are
-**400** — searches stay on `/services/searches`. Custom URL (`url` set, or type
-`custom` / `CustomView`) is **400**. Duplicate name is **409**. Blank /
+`View` (`standard`, `standardView`) and **user** custom URL views (`custom`,
+`CustomView`). Search types (`StandardSearch`, `Search`) are **400** — searches stay
+on `/services/searches`. A user custom URL view requires `url` (relative classic
+application path such as `../myApp/page.xml`). Blank, placeholder, absolute/scheme,
+backslash, or traversal URLs are **400**. Duplicate name is **409**. Blank /
 whitespace / wildcard names are **400**. Missing request session/user is **403**.
-Non-Admin is **403**. The new view is then `GET /services/views/{name}` **200**
-and is included in `GET /services/views` (the create is durable; a second POST
-with the same name is **409**).
+Non-Admin is **403**. After POST, `GET /services/views/{name}` returns the stored
+`url` and `customView=true` for a custom URL view. The create is durable; a second
+POST with the same name is **409**.
 
 Update (`PUT /services/views/{idOrName}`) loads with a design lock (`overrideLock=false`)
-and releases it on save. Name is not renamed on PUT. Omitted label / description / type /
-display format leave stored values unchanged. Unknown id/name is **404**. Inbox-family
-and other custom URL views are **409** (not mutated; the lock is not stolen).
-Locked-by-another-user is **409**. Non-Admin is **403**.
+and releases it on save. `{idOrName}` may be the view **name** or GUID
+(`0-18-{searchId}`). After POST, field-criteria save uses that GUID; if the H2
+catalog XML lags the JDBC insert, the server still loads by SEARCHID uuid (not
+the packed GUID long) and, when the path GUID misses, by the body `name`.
+Name is not renamed on PUT. Omitted label / description / type /
+display format / `url` leave stored values unchanged. A user custom URL view may update
+`url`; an explicit blank `url` is **400**. Unknown id/name is **404**. Inbox-family and
+packaged `sys_cxViews` catalog keys (`Inbox`, `Outbox`, `Recent`, `Session`,
+`Checked_Out_By_Me`, `DuplicateFolderPaths`) are **409** (not mutated; the lock is
+not stolen). Locked-by-another-user is **409**. Non-Admin is **403**.
 
 Delete (`DELETE /services/views/{idOrName}`) returns **204** when removed; a following
-`GET` is **404**. Unknown id/name is **404**. Inbox-family and other custom URL views are
-**409** (not deleted). Dependents or a lock held by another user are **409**. Non-Admin
-is **403**.
+`GET` is **404**. Unknown id/name is **404**. Inbox-family and packaged `sys_cxViews`
+catalog keys are **409** (not deleted). User custom URL views may be deleted.
+Dependents or a lock held by another user are **409**. Non-Admin is **403**.
 
 Create/update load or create the view with a **held design lock** and release it on
 save. There is no separate lock/unlock REST pair on this catalog. Field criterion
@@ -1753,7 +1762,7 @@ JSON objects use the `ViewDef` wire type. POST/PUT JSON is wrapped under a `View
 root (JAXB/Jackson UNWRAP_ROOT_VALUE). Prefer the generated OpenAPI schema as the
 integration source of truth.
 
-Example create body:
+Example create body (standard view):
 
 ```json
 {
@@ -1767,16 +1776,32 @@ Example create body:
 }
 ```
 
+Example create body (user custom URL view):
+
+```json
+{
+  "ViewDef": {
+    "name": "MyCustom",
+    "label": "My Custom",
+    "type": "CustomView",
+    "customView": true,
+    "url": "../myApp/page.xml",
+    "displayFormatId": "1"
+  }
+}
+```
+
 ### Integrator notes
 
 - Keys may be the view **name**, numeric **id**, or GUID string (including untyped GUID).
 - Admin write is POST/PUT/DELETE on this resource and from **Developer → Views**
-  (create / save / delete). Inbox-family and custom URL views cannot be updated
-  or deleted (`409`). Field criterion editing remains a `designGaps` note on detail.
+  (create / save / delete). Inbox-family and packaged `sys_cxViews` views cannot
+  be updated or deleted (`409`). User custom URL views persist `url` / `customView`.
 - Admin write is durable on H2 and other supported databases: after POST, GET
   list includes the name. A POST that cannot be cataloged is not **200**.
-- **Developer → Views** chrome can create and delete standard views (field
-  criteria stay read-only). Inbox-family views stay **409** on mutate/delete.
+- **Developer → Views** chrome can create and delete standard views. Inbox-family
+  views stay **409** on mutate/delete. User custom URL view SPA chrome is a
+  separate slice.
 - Operator Inbox run-from-tree is Explorer **Views → My Content → Inbox**, not a
   free-floating Inbox root.
 

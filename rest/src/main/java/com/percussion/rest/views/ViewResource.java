@@ -32,8 +32,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  * <p>Searches (UI-06) remain a separate catalog. Admin POST/PUT/DELETE persist through {@link
  * IViewAdaptor} ({@code IPSUiDesignWs} create/save/delete views). Execute is a separate façade
  * and is not invoked from write. Inbox-family custom-URL views ({@code sys_cxViews/inbox} and
- * documented peers) are executed on this same path; other custom URLs return 400. Inbox/system
- * custom-URL views cannot be updated or deleted here.
+ * documented peers) are executed on this same path; other custom URLs return 400 on execute.
+ * Admin may POST/PUT a <em>user</em> custom URL view ({@code url} required). Inbox-family and
+ * packaged {@code sys_cxViews} catalog keys cannot be updated or deleted here.
  */
 @PSSiteManageBean(value = "restViewResource")
 @Path("/views")
@@ -164,12 +165,12 @@ public class ViewResource {
   @Operation(
       summary = "Create view",
       description =
-          "Admin. Creates and persists a CX standard (field-criteria) view via"
-              + " IPSUiDesignWs.createViews then saveViews (held design lock, released on save)."
-              + " Name is required, unique (case-insensitive), and must not contain whitespace"
-              + " or wildcards. Optional label, description, type (View default), and"
-              + " displayFormatId are applied before save. Duplicate name is 409. Custom URL"
-              + " views are not created here. Searches are not created here (use"
+          "Admin. Creates and persists a CX view via IPSUiDesignWs.createViews then saveViews"
+              + " (held design lock, released on save). Name is required, unique"
+              + " (case-insensitive), and must not contain whitespace or wildcards. Optional"
+              + " label, description, type (View default), and displayFormatId are applied"
+              + " before save. Type CustomView (or customView=true) requires url. Duplicate name"
+              + " is 409. Blank/invalid url is 400. Searches are not created here (use"
               + " /services/searches). Execute is not invoked on write.",
       responses = {
         @ApiResponse(
@@ -209,13 +210,14 @@ public class ViewResource {
   @Operation(
       summary = "Update view",
       description =
-          "Admin. Updates label, description, type, displayFormatId, and/or field criteria by"
-              + " name or GUID. Name is the catalog key and is not renamed on PUT. Omitted"
+          "Admin. Updates label, description, type, displayFormatId, url, and/or field criteria"
+              + " by name or GUID. Name is the catalog key and is not renamed on PUT. Omitted"
               + " fields leave existing criteria unchanged; an empty fields array clears them."
-              + " Unknown field names are 400. Loads with a design lock (overrideLock=false)"
-              + " and releases on save. Unknown id is 404. Lock/dependency conflict is 409."
-              + " Inbox-family and custom URL views are 409 (not mutated). Searches are not"
-              + " saved here. Execute is not invoked on write.",
+              + " Unknown field names are 400. User custom URL views may update url (blank url"
+              + " is 400). Loads with a design lock (overrideLock=false) and releases on save."
+              + " Unknown id is 404. Lock/dependency conflict is 409. Inbox-family and packaged"
+              + " sys_cxViews views are 409 (not mutated). Searches are not saved here. Execute"
+              + " is not invoked on write.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -229,7 +231,7 @@ public class ViewResource {
         @ApiResponse(
             responseCode = "409",
             description =
-                "Design lock, dependency conflict, or Inbox/custom URL view cannot be mutated"),
+                "Design lock, dependency conflict, or packaged sys_cxViews view cannot be mutated"),
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
@@ -257,8 +259,8 @@ public class ViewResource {
       description =
           "Admin. Deletes a CX view by name or GUID via IPSUiDesignWs.deleteViews"
               + " (ignoreDependencies=false). Unknown id is 404. Lock/dependency conflict is 409."
-              + " Inbox-family and custom URL views are 409 (not deleted). Following GET is 404"
-              + " after a successful delete. Searches are not deleted here.",
+              + " Inbox-family and packaged sys_cxViews views are 409 (not deleted). Following"
+              + " GET is 404 after a successful delete. Searches are not deleted here.",
       responses = {
         @ApiResponse(responseCode = "204", description = "Deleted"),
         @ApiResponse(responseCode = "400", description = "Invalid input"),
@@ -269,7 +271,7 @@ public class ViewResource {
         @ApiResponse(
             responseCode = "409",
             description =
-                "Design lock, dependency conflict, or Inbox/custom URL view cannot be deleted"),
+                "Design lock, dependency conflict, or packaged sys_cxViews view cannot be deleted"),
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })

@@ -65,11 +65,13 @@ import org.w3c.dom.NodeList;
 
 /**
  * CX view definition catalog (UI-07 list/detail/write) plus view execute façade for Explorer
- * (#3115 / #3239 / #4070). Loads designs via {@link IPSUiDesignWs#findViews} / {@link
+ * (#3115 / #3239 / #4070 / #4235). Loads designs via {@link IPSUiDesignWs#findViews} / {@link
  * IPSUiDesignWs#loadViews} — not the search catalog. Admin create/save/delete persist through
  * {@link IPSUiDesignWs} — the same design web service SOAP uses. Execute is not invoked on write.
  * Standard views use the design search runner; Inbox-family custom URLs invoke {@code
- * sys_cxViews/*} and map {@code Item} rows to Explorer items.
+ * sys_cxViews/*} and map {@code Item} rows to Explorer items. Admin may persist <em>user</em>
+ * custom URL views ({@code url} + {@code customView}); Inbox-family / packaged {@code
+ * sys_cxViews} catalog keys stay conflict on mutate/delete.
  */
 @PSSiteManageBean
 @Lazy
@@ -80,7 +82,13 @@ public class ViewAdaptor implements IViewAdaptor {
   static final String ADMIN_REQUIRED = "Admin role required to create, update, or delete views";
 
   static final String PROTECTED_VIEW_WRITE =
-      "Inbox-family and custom URL views cannot be updated or deleted via this API";
+      "Inbox-family and packaged sys_cxViews views cannot be updated or deleted via this API";
+
+  /** Explicit 400 when a user custom URL view is missing {@code url}. */
+  static final String CUSTOM_VIEW_URL_REQUIRED = "Custom URL view requires a non-blank url";
+
+  /** Explicit 400 when {@code url} is not a relative classic application path. */
+  static final String CUSTOM_VIEW_URL_INVALID = "Invalid custom view URL";
 
   /** Product default page size when design max is unset/unlimited and client omits maxResults. */
   static final int DEFAULT_PAGE_SIZE = 25;
@@ -107,11 +115,24 @@ public class ViewAdaptor implements IViewAdaptor {
           + " sys_cxViews/outbox, sys_cxViews/recent, sys_cxViews/session,"
           + " sys_cxViews/checkedoutbyme, and sys_cxViews/duplicatefolderpaths.";
 
+  /**
+   * Packaged CX custom-view internal names (sys_cxViews). PUT/DELETE of these keys is 409;
+   * user-created custom URL views with other names remain writable.
+   */
+  static final Set<String> PACKAGED_CX_VIEW_NAMES =
+      Set.of(
+          "inbox",
+          "outbox",
+          "recent",
+          "session",
+          "checked_out_by_me",
+          "duplicatefolderpaths");
+
   /** Catalog-level capability notes. Attached on detail only (REST-GAPS-02 list dedup). */
   static final List<String> DESIGN_GAPS =
       List.of(
           "View rename is not supported on PUT (name is the catalog key)",
-          "Inbox-family and custom URL views cannot be updated or deleted via this API",
+          "Inbox-family and packaged sys_cxViews views cannot be updated or deleted via this API",
           "Custom URL views outside the sys_cxViews Inbox family cannot be executed via this API",
           "Searches are a separate catalog (Developer Searches / UI-06)");
 
@@ -210,7 +231,9 @@ public class ViewAdaptor implements IViewAdaptor {
     }
     String name = requireValidName(body.getName());
     assertNameUnique(name);
-    rejectCustomUrlCreate(body);
+    if (isCustomUrlWrite(body)) {
+      requireValidCustomViewUrl(body.getUrl());
+    }
     resolveViewType(body.getType(), true);
     String session = currentSession();
     String user = currentUser();
@@ -272,6 +295,7 @@ public class ViewAdaptor implements IViewAdaptor {
       return null;
     }
     rejectProtectedViewWrite(existing);
+    rejectBlankCustomUrlOnSave(existing, body);
     IPSGuid id = safeGuid(existing);
     if (id == null) {
       throw new WebApplicationException(PROTECTED_VIEW_WRITE, 409);
@@ -1090,6 +1114,14 @@ public class ViewAdaptor implements IViewAdaptor {
     if (StringUtils.isNotBlank(body.getDisplayFormatId())) {
       domain.setDisplayFormatId(body.getDisplayFormatId().trim());
     }
+    boolean custom = domain.isCustomView() || isCustomUrlWrite(body);
+    if (custom) {
+      domain.setCustom(true);
+      if (StringUtils.isNotBlank(body.getUrl())) {
+        domain.setUrl(requireValidCustomViewUrl(body.getUrl()));
+      }
+      return;
+    }
     if (body.getFields() != null) {
       applyFields(domain, body.getFields());
     }
@@ -1229,7 +1261,8 @@ public class ViewAdaptor implements IViewAdaptor {
 
   /**
    * Map REST type aliases to {@link PSSearch#TYPE_VIEW}. Blank on create defaults to View. Search
-   * and custom types are rejected.
+   * types are rejected. {@code custom} / {@code CustomView} stay {@link PSSearch#TYPE_VIEW} (custom
+   * URL is {@code setCustom} + {@code url}, not a search type).
    *
    * @param creating when true, blank type becomes View; when false, blank means leave unchanged
    */
@@ -1240,16 +1273,13 @@ public class ViewAdaptor implements IViewAdaptor {
     String t = raw.trim();
     if (t.equalsIgnoreCase(PSSearch.TYPE_VIEW)
         || t.equalsIgnoreCase("standard")
-        || t.equalsIgnoreCase("standardview")) {
+        || t.equalsIgnoreCase("standardview")
+        || t.equalsIgnoreCase("custom")
+        || t.equalsIgnoreCase("customview")) {
       return PSSearch.TYPE_VIEW;
     }
-    if (t.equalsIgnoreCase("custom")
-        || t.equalsIgnoreCase("customview")
-        || t.equalsIgnoreCase(PSSearch.TYPE_CUSTOMSEARCH)) {
-      throw new IllegalArgumentException(
-          "Custom URL views cannot be created or updated via this API");
-    }
-    if (t.equalsIgnoreCase(PSSearch.TYPE_STANDARDSEARCH)
+    if (t.equalsIgnoreCase(PSSearch.TYPE_CUSTOMSEARCH)
+        || t.equalsIgnoreCase(PSSearch.TYPE_STANDARDSEARCH)
         || t.equalsIgnoreCase(PSSearch.TYPE_USERSEARCH)
         || t.equalsIgnoreCase("search")
         || t.equalsIgnoreCase("usersearch")) {
@@ -1321,10 +1351,93 @@ public class ViewAdaptor implements IViewAdaptor {
     return false;
   }
 
-  static void rejectCustomUrlCreate(ViewDef body) {
-    if (body != null && StringUtils.isNotBlank(body.getUrl())) {
+  /**
+   * True when the wire body is a user custom URL view write: {@code customView}, type {@code
+   * custom}/{@code CustomView}, or a non-blank {@code url}.
+   */
+  static boolean isCustomUrlWrite(ViewDef body) {
+    if (body == null) {
+      return false;
+    }
+    if (body.isCustomView()) {
+      return true;
+    }
+    if (StringUtils.isNotBlank(body.getUrl())) {
+      return true;
+    }
+    String type = body.getType();
+    if (StringUtils.isBlank(type)) {
+      return false;
+    }
+    String t = type.trim();
+    return t.equalsIgnoreCase("custom") || t.equalsIgnoreCase("customview");
+  }
+
+  /**
+   * Validate a classic custom-view URL. Blank/placeholder is 400; absolute/scheme, backslash,
+   * NUL, and path traversal are invalid. At most one leading {@code ../} is allowed (classic CX
+   * app path); further {@code ../} segments or any remaining {@code ..} are rejected.
+   */
+  static String requireValidCustomViewUrl(String raw) {
+    if (StringUtils.isBlank(raw)) {
+      throw new IllegalArgumentException(CUSTOM_VIEW_URL_REQUIRED);
+    }
+    String url = raw.trim();
+    if (url.equalsIgnoreCase(PSSearch.URL_PLACEHOLDER)) {
+      throw new IllegalArgumentException(CUSTOM_VIEW_URL_REQUIRED);
+    }
+    if (url.length() > PSSearch.CUSTOMURL_LENGTH) {
       throw new IllegalArgumentException(
-          "Custom URL views cannot be created or updated via this API");
+          "Custom url must not exceed " + PSSearch.CUSTOMURL_LENGTH + " characters");
+    }
+    if (url.indexOf('\\') >= 0 || url.indexOf('\0') >= 0) {
+      throw new IllegalArgumentException(CUSTOM_VIEW_URL_INVALID);
+    }
+    String lower = url.toLowerCase(Locale.ROOT);
+    if (lower.contains("://") || lower.startsWith("file:") || lower.startsWith("//")) {
+      throw new IllegalArgumentException(CUSTOM_VIEW_URL_INVALID);
+    }
+    // Classic CX paths use a single leading "../app/...". Strip at most one; leftover ".." is
+    // traversal (e.g. "../../etc/passwd" must not pass after multi-strip).
+    String rest = url;
+    if (rest.startsWith("../")) {
+      rest = rest.substring(3);
+    }
+    if (rest.startsWith("./")) {
+      rest = rest.substring(2);
+    }
+    if (rest.isEmpty() || rest.contains("..")) {
+      throw new IllegalArgumentException(CUSTOM_VIEW_URL_INVALID);
+    }
+    return url;
+  }
+
+  static boolean isPackagedCxViewName(String name) {
+    if (isInboxKey(name)) {
+      return true;
+    }
+    if (StringUtils.isBlank(name)) {
+      return false;
+    }
+    String key = name.trim().toLowerCase(Locale.ROOT).replace(' ', '_');
+    return PACKAGED_CX_VIEW_NAMES.contains(key);
+  }
+
+  private static void rejectBlankCustomUrlOnSave(PSSearch existing, ViewDef body) {
+    boolean converting = existing != null && !existing.isCustomView() && isCustomUrlWrite(body);
+    if (converting) {
+      requireValidCustomViewUrl(body != null ? body.getUrl() : null);
+      return;
+    }
+    if (existing != null
+        && existing.isCustomView()
+        && body != null
+        && body.getUrl() != null
+        && StringUtils.isBlank(body.getUrl())) {
+      throw new IllegalArgumentException(CUSTOM_VIEW_URL_REQUIRED);
+    }
+    if (body != null && body.getUrl() != null && StringUtils.isNotBlank(body.getUrl())) {
+      requireValidCustomViewUrl(body.getUrl());
     }
   }
 
@@ -1332,7 +1445,7 @@ public class ViewAdaptor implements IViewAdaptor {
     if (existing == null) {
       return;
     }
-    if (isInboxKey(existing.getName()) || existing.isCustomView()) {
+    if (isPackagedCxViewName(existing.getName())) {
       throw new WebApplicationException(PROTECTED_VIEW_WRITE, 409);
     }
   }

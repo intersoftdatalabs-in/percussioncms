@@ -124,6 +124,25 @@ class ViewAdaptorFieldsTest {
   }
 
   @Test
+  void applyWritableFields_customUrlRoundTripsOnRealPsSearch() throws Exception {
+    PSSearch view = new PSSearch("MyCustom");
+    view.setType(PSSearch.TYPE_VIEW);
+    ViewDef body = new ViewDef();
+    body.setType("CustomView");
+    body.setCustomView(true);
+    body.setUrl("../myApp/page.xml");
+    body.setLabel("My Custom");
+    ViewAdaptor.applyWritableFields(view, body);
+    assertTrue(view.isCustomView());
+    assertEquals("../myApp/page.xml", view.getUrl());
+    assertEquals("My Custom", view.getLabel());
+    ViewDef out = ViewAdaptor.toDef(view, true);
+    assertTrue(out.isCustomView());
+    assertEquals("../myApp/page.xml", out.getUrl());
+    assertFalse(out.isStandardView());
+  }
+
+  @Test
   void requireValidFieldName_unknownIs400Shape() {
     IllegalArgumentException blank =
         assertThrows(IllegalArgumentException.class, () -> ViewAdaptor.requireValidFieldName("  "));
