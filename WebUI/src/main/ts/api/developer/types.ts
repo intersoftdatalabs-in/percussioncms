@@ -596,7 +596,26 @@ export interface ActionMenuProperty {
   actionId?: number;
 }
 
-/** CX action menu (UI-02). */
+/** Workbench Visibility context (REST {@code ActionMenuVisibilityContext}). */
+export interface ActionMenuVisibilityContext {
+  name?: string;
+  description?: string;
+  /** Jackson/JAXB {@code getValue}/{@code setValue}. */
+  value?: string;
+  /** Alternate wire name if a serializer uses the field, not the getter. */
+  values?: string;
+}
+
+/** Mode-uicontext mapping (REST {@code ActionMenuModeUIContext}). */
+export interface ActionMenuModeUIContext {
+  modeId?: string;
+  modeName?: string;
+  contextId?: string;
+  contextName?: string;
+  description?: string;
+}
+
+/** CX action menu (UI-02 / UI-03). */
 export interface ActionMenu {
   id?: number;
   guid?: RestGuid;
@@ -611,6 +630,16 @@ export interface ActionMenu {
   handler?: string;
   parameters?: ActionMenuParameter[];
   properties?: ActionMenuProperty[];
+  visibilityContexts?: ActionMenuVisibilityContext[];
+  uiContexts?: ActionMenuModeUIContext[];
+  /**
+   * True when GET catalog detail could not overlay design visibility/uiContexts.
+   * Empty collection arrays are then not authoritative; PUT should omit them.
+   */
+  partialOverlay?: boolean;
+  /** Nested catalog children (GET); write uses PUT /actions/{id}/children. */
+  children?: ActionMenu[];
+  parentId?: number;
   designGaps?: string[];
 }
 

@@ -1479,10 +1479,13 @@ Admin **write** persists through `IPSUiDesignWs` (`createActions` / `loadActions
 rows are written to `RXMENUACTION` so Hibernate `findActionMenusTree` (GET
 `/services/actions/catalog` and GET by name) includes a user menu immediately
 after POST, and omits it after DELETE. There is no new SOAP surface.
-**Developer → Action Menus** chrome creates and deletes user menus (and saves
-label / description / menuType / url); cascading children composition (UI-04)
-and usage/command/visibility tab completeness (UI-03) are later slices — see
-[Developer Action Menus](id:admin-developer-action-menus). Finder helpers
+**Developer → Action Menus** chrome creates and deletes user menus and saves
+label / description / menuType plus Workbench **Usage**, **Command**, and
+**Visibility** on user menus (`handler`, `url`, `parameters`, command/usage
+`properties`, `visibilityContexts`, and `uiContexts`). Cascading children on a
+user `MENU` are composed in that chrome via `PUT /services/actions/{idOrName}/children`
+(ordered `ActionMenuList`; identity PUT still ignores nested `children`) —
+see [Developer Action Menus](id:admin-developer-action-menus). Finder helpers
 (`GET /services/actions/find`, content-type and template finders) are unchanged.
 After POST the editor notice confirms the save. Packaged menus (for example
 **Copy**) are **409** on PUT/DELETE, not **404**.
@@ -1495,18 +1498,65 @@ updated or deleted — **409**; the design lock is not stolen (`overrideLock=fal
 If Workbench path resolution fails, PUT/DELETE also return **409** (fail closed)
 so a lookup error cannot bypass that protection.
 PUT round-trips GET detail fields already exposed (`label`, `description`,
-`menuType`, `url`). Name is the catalog key and is not renamed on PUT.
+`menuType`, `url`) plus usage/command/visibility fields: `handler` (`CLIENT` or
+`SERVER`), `url`, `parameters` (name/value/description URL parameters; a
+present array replaces the collection, including empty), `properties` used as
+Workbench Usage/Command (for example `AcceleratorKey`, `MnemonicKey`,
+`ShortDescription`, `SmallIcon`, `launchesWindow`, `SupportsMultiSelect`,
+`refreshHint`, `target`, `targetStyle`), `visibilityContexts` (Workbench
+Visibility; each element is a context `name` plus one `value` — repeat the
+name for multiple values), and `uiContexts` (mode-uicontext mappings with
+numeric `modeId` and `contextId`). Omitted `handler` / `parameters` /
+`properties` / `visibilityContexts` / `uiContexts` leave the stored values.
+An empty `visibilityContexts` or `uiContexts` array clears that collection.
+The REST user-menu marker property is not overwritten. Name is the catalog key
+and is not renamed on PUT. Invalid `handler`, `menuType`, visibility context
+name, or uiContext id is **400**. Visibility context `name` is `1`–`11`
+(Workbench `VIS_CONTEXT_*`) or an alias such as `community`, `contentType`,
+`roles` / `role`, `locales` / `locale`, `workflows` / `workflow`,
+`publishable` / `publishableType`, `checkoutStatus`, `folderSecurity`. GET
+`visibilityContexts[].name` is the **numeric Workbench id** (`1`–`11`; for
+example `2` is community), including catalog conversion when design overlay
+does not run. PUT still accepts that numeric id or an alias. GET
+`/services/actions/catalog/{idOrName}` overlays Workbench visibility and
+uiContexts from an unlocked design load. When that overlay fails, the response
+includes `partialOverlay: true` (omitted on the happy path) and empty collection arrays are **not**
+authoritative — omit `parameters` / `visibilityContexts` / `uiContexts` on the
+next PUT so stored collections are not cleared. After a successful overlay,
+GET returns the same visibility and uiContexts as a successful PUT. The
+Developer Action Menus Visibility picker maps the numeric GET name to the
+alias (`2` → `community`) so the table round-trips either form.
+**Children PUT** (`PUT /services/actions/{idOrName}/children`) replaces
+`RXMENUACTIONRELATION` for a user cascading `MENU` (type `MENU` with a blank
+URL). The body is an `ActionMenuList`: a JSON array, `{"ActionMenuList":[…]}`,
+`{"children":[…]}`, or `{"ActionMenu":{"children":[…]}}`. Each element is identified by **`name`**, numeric
+**`id`**, or **`guid.stringValue`** (the same catalog keys as GET). Array
+**order** is persisted (child `SORTORDER` plus relation rows). Other fields on
+those child objects are ignored. An empty array (or an `ActionMenu` envelope with
+no `children`) clears children. An unrecognized JSON object (for example
+`{"foo":"bar"}`) is **400** — it is not treated as an empty list. Parent
+`PUT /services/actions/{idOrName}` does **not** honor nested `children`.
+Illegal graphs fail closed — the server does **not** persist a partial
+association list. A **cycle** (parent listed as its own child, or A→B→A
+through existing descendants) is **400**. An **unknown child** id/name is
+**400**. A **duplicate child** in one payload (same name or same resolved id
+twice) is **400**. A non-cascading parent is **400**. Missing **parent** is
+**404**. Non-Admin (or missing request session/user) is **403**. System parent
+is **409**. Following GET `/services/actions/catalog/{idOrName}` returns those
+children in order (or the previous children when the write was rejected).
 
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/services/actions/catalog` | List action menus (tree roots with children) |
 | `GET` | `/services/actions/catalog/{idOrName}` | Load one menu by name, numeric id, or GUID string |
 | `POST` | `/services/actions` | **Admin.** Create a user action menu (`createActions` then `saveActions`) |
-| `PUT` | `/services/actions/{idOrName}` | **Admin.** Update label, description, menuType, and/or url |
+| `PUT` | `/services/actions/{idOrName}` | **Admin.** Update label, description, menuType, url, handler, parameters, command/usage properties, visibilityContexts, and uiContexts (not children) |
+| `PUT` | `/services/actions/{idOrName}/children` | **Admin.** Replace ordered child associations on a user cascading MENU |
 | `DELETE` | `/services/actions/{idOrName}` | **Admin.** Delete a user action menu (`deleteActions`, `ignoreDependencies=false`) |
 
 JSON may wrap a single item as `ActionMenu`. **Create** `POST /services/actions`
-sends that envelope (or a flat object with `name`). Do not post
+sends that envelope (or a flat object with `name`). The collection POST is bound
+as `ActionMenu` (not JAXB `allowedWorkflowTransitionsRequest`). Do not post
 `allowedWorkflowTransitionsRequest` on the collection path — that finder lives at
 `POST /services/actions/find/transitions`. Integrators should unwrap the
 `ActionMenu` envelope and read `guid.stringValue` (never assume the GUID is

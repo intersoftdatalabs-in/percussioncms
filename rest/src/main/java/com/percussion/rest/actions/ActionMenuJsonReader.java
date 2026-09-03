@@ -17,6 +17,7 @@
 
 package com.percussion.rest.actions;
 
+import com.percussion.rest.Guid;
 import com.percussion.system.utils.PSSiteManageBean;
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.Consumes;
@@ -46,6 +47,8 @@ import tools.jackson.databind.json.JsonMapper;
  * This reader binds wrap and flat shapes before {@code jacksonProvider}.
  *
  * <p>Must be listed on {@code rest-jax-rs} {@code jaxrs:providers} ahead of {@code jacksonProvider}.
+ * rest-jax-rs also sets {@code skip.default.json.provider.registration} so Jettison JAXB cannot
+ * bind this body as {@code allowedWorkflowTransitionsRequest} (#4171).
  */
 @Provider
 @Consumes({MediaType.APPLICATION_JSON, "text/json", "application/*+json", MediaType.WILDCARD})
@@ -154,7 +157,59 @@ public class ActionMenuJsonReader implements MessageBodyReader<ActionMenu> {
     if (id != null) {
       out.setId(id);
     }
+    Guid guid = guidField(fields.get("guid"));
+    if (guid != null) {
+      out.setGuid(guid);
+    }
+    ActionMenuList children = childrenField(fields.get("children"));
+    if (children != null) {
+      out.setChildren(children);
+    }
     return out;
+  }
+
+  /**
+   * Bind a {@code children} array. Nested {@code ActionMenu} wrap on an element is honored.
+   *
+   * @param node children field; may be null
+   * @return list or {@code null} when the field is absent
+   */
+  static ActionMenuList childrenField(JsonNode node) {
+    if (node == null || node.isNull() || node.isMissingNode()) {
+      return null;
+    }
+    if (!node.isArray()) {
+      throw new WebApplicationException("ActionMenu children must be a JSON array", 400);
+    }
+    ActionMenuList out = new ActionMenuList();
+    for (JsonNode child : node) {
+      if (child == null || child.isNull() || child.isMissingNode()) {
+        continue;
+      }
+      out.add(parseNode(child));
+    }
+    return out;
+  }
+
+  private static Guid guidField(JsonNode node) {
+    if (node == null || node.isNull() || node.isMissingNode() || !node.isObject()) {
+      return null;
+    }
+    String sv = textField(node, "stringValue");
+    if (sv == null) {
+      return null;
+    }
+    Guid guid = new Guid();
+    guid.setStringValue(sv);
+    Integer type = intField(node, "type");
+    if (type != null) {
+      guid.setType(type.shortValue());
+    }
+    Integer uuid = intField(node, "uuid");
+    if (uuid != null) {
+      guid.setUuid(uuid);
+    }
+    return guid;
   }
 
   private static String textField(JsonNode node, String name) {

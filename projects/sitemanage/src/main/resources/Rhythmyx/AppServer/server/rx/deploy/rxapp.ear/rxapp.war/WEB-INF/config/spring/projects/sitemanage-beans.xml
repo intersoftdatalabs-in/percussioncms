@@ -145,6 +145,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <!-- #4123: Admin POST /actions {ActionMenu:{…}} must not JAXB-bind as
                  allowedWorkflowTransitionsRequest (finder is /find/transitions). -->
             <ref bean="actionMenuJsonReader" />
+            <!-- #4204 UI-04: PUT /actions/{id}/children bare array / ActionMenuList wrap. -->
+            <ref bean="actionMenuListJsonReader" />
             <!-- #3905 / #3895 CD-09: PUT /contenttypes/{id}/itemExits wrap can arrive empty
                  under CXF UNWRAP_ROOT_VALUE; bind wrap and flat before jacksonProvider. -->
             <ref bean="contentTypeItemExitsJsonReader" />
@@ -160,6 +162,12 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="jacksonContextResolver" />
             <ref bean="authorizationFilter" />
         </jaxrs:providers>
+        <!-- #4171: do not auto-register Jettison JSONProvider. It JAXB-binds
+             POST /actions as allowedWorkflowTransitionsRequest (finder is
+             /find/transitions). Jackson + ActionMenuJsonReader own JSON. -->
+        <jaxrs:properties>
+            <entry key="skip.default.json.provider.registration" value="true"/>
+        </jaxrs:properties>
         <jaxrs:features>
             <!-- CXF 3.1+/4.x: use LoggingFeature bean (requires cxf-rt-features-logging).
                  Legacy <cxf:logging/> under core NS has no BeanDefinitionParser without that module. -->

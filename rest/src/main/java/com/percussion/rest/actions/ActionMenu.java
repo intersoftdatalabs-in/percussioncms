@@ -17,6 +17,7 @@
 
 package com.percussion.rest.actions;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.cms.objectstore.PSAction;
 import com.percussion.rest.Guid;
@@ -123,6 +124,18 @@ public class ActionMenu {
       description =
           "An array of the Properties defined for this menu. See documentation for details.")
   private ActionMenuProperty[] properties;
+
+  /**
+   * {@code true} when GET catalog detail could not overlay design visibility/uiContexts.
+   * Empty collection arrays are then not authoritative; clients should omit them on PUT.
+   */
+  @Schema(
+      description =
+          "True when GET catalog/{idOrName} could not overlay Workbench visibility/uiContexts"
+              + " from the design load. Empty visibilityContexts/uiContexts/parameters are not"
+              + " authoritative; omit those arrays on PUT so stored collections are not cleared.")
+  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+  private boolean partialOverlay;
 
   /** Default constructor for JAXB. */
   public ActionMenu() {
@@ -401,6 +414,24 @@ public class ActionMenu {
     this.properties = properties;
   }
 
+  /**
+   * Returns whether GET detail failed to overlay design visibility/uiContexts.
+   *
+   * @return {@code true} when overlay was skipped or failed
+   */
+  public boolean isPartialOverlay() {
+    return partialOverlay;
+  }
+
+  /**
+   * Sets the partial-overlay flag for GET catalog detail.
+   *
+   * @param partialOverlay {@code true} when design overlay did not complete
+   */
+  public void setPartialOverlay(boolean partialOverlay) {
+    this.partialOverlay = partialOverlay;
+  }
+
   // --- equals, hashCode, toString ---
 
   @Override
@@ -422,7 +453,8 @@ public class ActionMenu {
         && Arrays.equals(parameters, that.parameters)
         && Arrays.equals(visibilityContexts, that.visibilityContexts)
         && Arrays.equals(uiContexts, that.uiContexts)
-        && Arrays.equals(properties, that.properties);
+        && Arrays.equals(properties, that.properties)
+        && partialOverlay == that.partialOverlay;
   }
 
   @Override
@@ -439,7 +471,8 @@ public class ActionMenu {
             menuType,
             handler,
             parentId,
-            children);
+            children,
+            partialOverlay);
     result = 31 * result + Arrays.hashCode(parameters);
     result = 31 * result + Arrays.hashCode(visibilityContexts);
     result = 31 * result + Arrays.hashCode(uiContexts);
@@ -486,6 +519,8 @@ public class ActionMenu {
         + Arrays.toString(uiContexts)
         + ", properties="
         + Arrays.toString(properties)
+        + ", partialOverlay="
+        + partialOverlay
         + '}';
   }
 }

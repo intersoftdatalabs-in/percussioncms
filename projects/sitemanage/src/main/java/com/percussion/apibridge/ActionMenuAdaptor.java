@@ -27,7 +27,10 @@ import com.percussion.cms.objectstore.PSDbComponentCollection;
 import com.percussion.cms.objectstore.PSMenuModeContextMapping;
 import com.percussion.cms.objectstore.PSAction;
 import com.percussion.rest.Guid;
+import com.percussion.cms.objectstore.PSChildActions;
+import com.percussion.cms.objectstore.PSMenuChild;
 import com.percussion.rest.actions.ActionMenu;
+import com.percussion.rest.actions.ActionMenuList;
 import com.percussion.rest.actions.ActionMenuModeUIContext;
 import com.percussion.rest.actions.ActionMenuParameter;
 import com.percussion.rest.actions.ActionMenuProperty;
@@ -59,8 +62,12 @@ import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
@@ -83,6 +90,29 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
 
   /** JDBC persist marker on REST-created user menus ({@code RXMENUACTIONPROPERTIES}). */
   static final String REST_USER_MENU_PROP = RxmActionMenuConstants.REST_USER_MENU_PROP;
+
+  /**
+   * Workbench visibility context names are {@code 1}–{@code 11} ({@link
+   * PSActionVisibilityContext} {@code VIS_CONTEXT_*}). Aliases are case-insensitive and
+   * ignore spaces, hyphens, and underscores.
+   */
+  static final Map<String, String> VISIBILITY_CONTEXT_ALIASES =
+      Map.ofEntries(
+          Map.entry("assignmenttype", PSActionVisibilityContext.VIS_CONTEXT_ASSIGNMENT_TYPE),
+          Map.entry("community", PSActionVisibilityContext.VIS_CONTEXT_COMMUNITY),
+          Map.entry("contenttype", PSActionVisibilityContext.VIS_CONTEXT_CONTENT_TYPE),
+          Map.entry("objecttype", PSActionVisibilityContext.VIS_CONTEXT_OBJECT_TYPE),
+          Map.entry("clientcontext", PSActionVisibilityContext.VIS_CONTEXT_CLIENT_CONTEXT),
+          Map.entry("checkoutstatus", PSActionVisibilityContext.VIS_CONTEXT_CHECKOUT_STATUS),
+          Map.entry("roles", PSActionVisibilityContext.VIS_CONTEXT_ROLES_TYPE),
+          Map.entry("role", PSActionVisibilityContext.VIS_CONTEXT_ROLES_TYPE),
+          Map.entry("locales", PSActionVisibilityContext.VIS_CONTEXT_LOCALES_TYPE),
+          Map.entry("locale", PSActionVisibilityContext.VIS_CONTEXT_LOCALES_TYPE),
+          Map.entry("workflows", PSActionVisibilityContext.VIS_CONTEXT_WORKFLOWS_TYPE),
+          Map.entry("workflow", PSActionVisibilityContext.VIS_CONTEXT_WORKFLOWS_TYPE),
+          Map.entry("publishable", PSActionVisibilityContext.VIS_CONTEXT_PUBLISHABLE_TYPE),
+          Map.entry("publishabletype", PSActionVisibilityContext.VIS_CONTEXT_PUBLISHABLE_TYPE),
+          Map.entry("foldersecurity", PSActionVisibilityContext.VIS_CONTEXT_FOLDER_SECURITY));
 
   private final IPSUiDesignWs service;
   private final BooleanSupplier adminChecker;
@@ -264,13 +294,71 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       String key = idOrName.trim();
       try {
         List<ActionMenu> all = findMenus(null, null, null, null, null);
-        return matchMenuInTree(all, key);
+        ActionMenu catalog = matchMenuInTree(all, key);
+        if (catalog != null) {
+          applyPartialOverlayFlag(catalog, overlayDesignVisibility(catalog));
+        }
+        return catalog;
       } catch (PSErrorResultsException e) {
         log.debug("Action menu lookup failed for {}: {}", key, e.toString());
         return null;
       }
     } finally {
       clearRequestHibernateIndex();
+    }
+  }
+
+  /**
+   * Sets {@code partialOverlay} only when design overlay failed so GET happy-path JSON omits
+   * the field ({@code JsonInclude.NON_DEFAULT}).
+   */
+  static void applyPartialOverlayFlag(ActionMenu catalog, boolean overlayOk) {
+    if (catalog != null && !overlayOk) {
+      catalog.setPartialOverlay(true);
+    }
+  }
+
+  /**
+   * GET catalog detail is Hibernate-backed; overlay visibility/uiContexts from an unlocked
+   * design load so PUT then GET round-trips Workbench Visibility. Failures leave the catalog
+   * DTO collections unchanged (no 409 on GET) and return {@code false} so the wire can set
+   * {@code partialOverlay}.
+   *
+   * @return {@code true} when design collections were copied onto {@code catalog}
+   */
+  boolean overlayDesignVisibility(ActionMenu catalog) {
+    if (catalog == null) {
+      return false;
+    }
+    IPSGuid id = null;
+    if (catalog.getGuid() != null && StringUtils.isNotBlank(catalog.getGuid().getStringValue())) {
+      id = parseActionGuid(catalog.getGuid().getStringValue());
+    }
+    if (id == null && catalog.getId() > 0) {
+      try {
+        id = PSAction.getGuidFromId(catalog.getId());
+      } catch (RuntimeException e) {
+        return false;
+      }
+    }
+    if (id == null) {
+      return false;
+    }
+    try {
+      List<PSAction> loaded =
+          service.loadActions(
+              List.of(id), false, false, currentSession(), currentUser());
+      if (loaded == null || loaded.isEmpty() || loaded.get(0) == null) {
+        return false;
+      }
+      PSAction domain = loaded.get(0);
+      catalog.setVisibilityContexts(toDtoVisibilityContexts(domain.getVisibilityContexts()));
+      catalog.setUiContexts(toDtoUiContexts(domain.getModeUIContexts()));
+      return true;
+    } catch (RuntimeException | PSErrorResultsException e) {
+      log.warn(
+          "Action menu design overlay skipped for {}: {}", catalog.getName(), e.toString());
+      return false;
     }
   }
 
@@ -400,6 +488,55 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       applyWritableFields(domain, body);
       service.saveActions(List.of(domain), true, session, user);
       return toDto(domain);
+    } catch (WebApplicationException | IllegalArgumentException e) {
+      throw e;
+    } catch (PSErrorResultsException e) {
+      if (id != null && isNotFound(e, id)) {
+        return null;
+      }
+      throw new WebApplicationException(
+          "Could not update action menu; design lock required or held by another user", 409);
+    } catch (PSErrorsException e) {
+      throw mapSaveOrDeleteFailure("update", e);
+    } finally {
+      clearRequestHibernateIndex();
+    }
+  }
+
+  @Override
+  public ActionMenu saveActionMenuChildren(String idOrName, ActionMenuList children) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (!isSafeMenuKey(idOrName)) {
+      return null;
+    }
+    IPSGuid id = null;
+    try {
+      PSAction existing = findPsActionByKey(idOrName.trim());
+      if (existing == null) {
+        existing = findHibernateActionByKey(idOrName.trim());
+        if (existing == null) {
+          return null;
+        }
+      }
+      rejectSystemMenuWrite(existing);
+      rejectNonCascadingParent(existing);
+      id = safeGuid(existing);
+      if (id == null) {
+        throw new WebApplicationException(SYSTEM_MENU_WRITE, 409);
+      }
+      List<PSAction> resolved = resolveChildActions(existing, children);
+      String session = currentSession();
+      String user = currentUser();
+      List<PSAction> loaded = service.loadActions(List.of(id), true, false, session, user);
+      if (loaded == null || loaded.isEmpty() || loaded.get(0) == null) {
+        return null;
+      }
+      PSAction domain = loaded.get(0);
+      rejectNonCascadingParent(domain);
+      replaceChildren(domain, resolved);
+      service.saveActions(List.of(domain), true, session, user);
+      return toDtoWithChildren(domain, resolved);
     } catch (WebApplicationException | IllegalArgumentException e) {
       throw e;
     } catch (PSErrorResultsException e) {
@@ -719,6 +856,215 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     }
   }
 
+  static void rejectNonCascadingParent(PSAction parent) {
+    if (parent == null) {
+      return;
+    }
+    if (!parent.isCascadedMenu()) {
+      throw new IllegalArgumentException(
+          "Child associations can only be saved on a cascading MENU");
+    }
+  }
+
+  /**
+   * Resolve child catalog keys to assigned {@link PSAction}s. Unknown, duplicate, or cyclic children
+   * are HTTP 400 and the caller must not persist a partial graph.
+   */
+  List<PSAction> resolveChildActions(PSAction parent, ActionMenuList children) {
+    if (children == null || children.isEmpty()) {
+      return List.of();
+    }
+    int parentId = parent != null ? parent.getId() : -1;
+    List<PSAction> resolved = new ArrayList<>(children.size());
+    Set<String> seenKeys = new HashSet<>();
+    Set<Integer> seenIds = new HashSet<>();
+    for (ActionMenu child : children) {
+      String key = childCatalogKey(child);
+      if (!isSafeMenuKey(key)) {
+        throw new IllegalArgumentException("child name or id is required");
+      }
+      String keyNorm = key.trim().toLowerCase();
+      if (!seenKeys.add(keyNorm)) {
+        throw new IllegalArgumentException("duplicate child in payload");
+      }
+      PSAction found = findPsActionByKey(key.trim());
+      if (found == null) {
+        found = findHibernateActionByKey(key.trim());
+      }
+      if (found == null || found.getId() <= 0) {
+        throw new IllegalArgumentException("unknown child action menu");
+      }
+      if (!seenIds.add(found.getId())) {
+        throw new IllegalArgumentException("duplicate child in payload");
+      }
+      if (parentId > 0 && found.getId() == parentId) {
+        throw new IllegalArgumentException("cascading menu cycle");
+      }
+      resolved.add(found);
+    }
+    rejectChildCycles(parent, resolved);
+    return resolved;
+  }
+
+  /**
+   * Fail closed if attaching {@code children} would create a parent-in-descendants cycle (A→B→A
+   * or parent listed as its own child). Does not mutate the graph.
+   */
+  void rejectChildCycles(PSAction parent, List<PSAction> children) {
+    int parentId = parent != null ? parent.getId() : -1;
+    if (parentId <= 0 || children == null || children.isEmpty()) {
+      return;
+    }
+    for (PSAction child : children) {
+      if (child == null) {
+        continue;
+      }
+      if (child.getId() == parentId
+          || descendantContainsParent(child, parentId, new HashSet<>())) {
+        throw new IllegalArgumentException("cascading menu cycle");
+      }
+    }
+  }
+
+  /**
+   * True when {@code parentId} is already in {@code node}'s existing descendant graph (design-WS
+   * children and/or Hibernate nested tree). Walks the in-memory Hibernate index first so cycle
+   * checks do not N+1 {@code loadActions} per descendant.
+   */
+  boolean descendantContainsParent(PSAction node, int parentId, Set<Integer> seen) {
+    if (node == null || node.getId() <= 0 || parentId <= 0 || seen == null) {
+      return false;
+    }
+    if (!seen.add(node.getId())) {
+      return false;
+    }
+    PSChildActions kids = node.getChildren();
+    if (kids != null) {
+      Iterator<?> it = kids.iterator();
+      while (it.hasNext()) {
+        Object next = it.next();
+        int childId = childActionId(next);
+        if (childId == parentId) {
+          return true;
+        }
+        if (childId > 0) {
+          PSAction child =
+              next instanceof PSAction action ? action : resolveDescendantForCycle(childId);
+          if (descendantContainsParent(child, parentId, seen)) {
+            return true;
+          }
+        }
+      }
+    }
+    PSActionMenu hibernate = requestHibernateIndex().get(Integer.toString(node.getId()));
+    if (hibernate != null && hibernate.getChildren() != null) {
+      for (PSActionMenu child : hibernate.getChildren()) {
+        if (child == null) {
+          continue;
+        }
+        int childId = child.getActionId();
+        if (childId == parentId) {
+          return true;
+        }
+        if (childId > 0
+            && descendantContainsParent(psActionFromHibernate(child), parentId, seen)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Resolve a descendant for cycle walking: Hibernate request index (already loaded) first, then
+   * design-WS only if the nested row is missing from that catalog.
+   */
+  PSAction resolveDescendantForCycle(int childId) {
+    if (childId <= 0) {
+      return null;
+    }
+    PSActionMenu hibernate = requestHibernateIndex().get(Integer.toString(childId));
+    if (hibernate != null) {
+      return psActionFromHibernate(hibernate);
+    }
+    return findPsActionByKey(Integer.toString(childId));
+  }
+
+  static int childActionId(Object child) {
+    if (child instanceof PSMenuChild menuChild) {
+      try {
+        return Integer.parseInt(menuChild.getChildActionId());
+      } catch (NumberFormatException e) {
+        return -1;
+      }
+    }
+    if (child instanceof PSAction action) {
+      return action.getId();
+    }
+    return -1;
+  }
+
+  static String childCatalogKey(ActionMenu child) {
+    if (child == null) {
+      return null;
+    }
+    if (StringUtils.isNotBlank(child.getName())) {
+      return child.getName().trim();
+    }
+    if (child.getGuid() != null && StringUtils.isNotBlank(child.getGuid().getStringValue())) {
+      return child.getGuid().getStringValue().trim();
+    }
+    if (child.getId() > 0) {
+      return String.valueOf(child.getId());
+    }
+    return null;
+  }
+
+  static void replaceChildren(PSAction parent, List<PSAction> children) {
+    if (parent == null) {
+      return;
+    }
+    PSChildActions existing = parent.getChildren();
+    List<PSMenuChild> toRemove = new ArrayList<>();
+    Iterator<?> it = existing.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (next instanceof PSMenuChild menuChild) {
+        toRemove.add(menuChild);
+      }
+    }
+    for (PSMenuChild menuChild : toRemove) {
+      existing.removeAction(menuChild);
+    }
+    int sort = 1;
+    if (children != null) {
+      for (PSAction child : children) {
+        if (child == null || child.getId() <= 0) {
+          continue;
+        }
+        child.setSortRank(sort++);
+        existing.add(child);
+      }
+    }
+  }
+
+  static ActionMenu toDtoWithChildren(PSAction parent, List<PSAction> children) {
+    ActionMenu menu = toDto(parent);
+    ActionMenuList kids = new ActionMenuList();
+    if (children != null) {
+      int parentId = parent != null ? parent.getId() : 0;
+      for (PSAction child : children) {
+        ActionMenu dto = toDto(child);
+        if (parentId > 0) {
+          dto.setParentId(parentId);
+        }
+        kids.add(dto);
+      }
+    }
+    menu.setChildren(kids);
+    return menu;
+  }
+
   static void applyWritableFields(PSAction domain, ActionMenu body) {
     if (domain == null || body == null) {
       return;
@@ -733,6 +1079,305 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       domain.setURL(body.getUrl());
     }
     applyMenuType(domain, body.getMenuType());
+    applyHandler(domain, body.getHandler());
+    applyParameters(domain, body.getParameters());
+    applyCommandProperties(domain, body.getProperties());
+    applyVisibilityContexts(domain, body.getVisibilityContexts());
+    applyUiContexts(domain, body.getUiContexts());
+  }
+
+  /**
+   * Workbench Usage handler: {@code CLIENT} or {@code SERVER}. Blank leaves the existing
+   * handler.
+   */
+  static void applyHandler(PSAction domain, String raw) {
+    if (domain == null || StringUtils.isBlank(raw)) {
+      return;
+    }
+    String handler = raw.trim();
+    if (PSAction.HANDLER_CLIENT.equalsIgnoreCase(handler)) {
+      domain.setClientAction(true);
+      return;
+    }
+    if (PSAction.HANDLER_SERVER.equalsIgnoreCase(handler)) {
+      domain.setClientAction(false);
+      return;
+    }
+    throw new IllegalArgumentException("Invalid handler: " + raw);
+  }
+
+  /**
+   * Replaces URL parameters when the PUT body includes {@code parameters} (empty array
+   * clears). {@code null} leaves the existing collection. Names must be non-blank.
+   */
+  static void applyParameters(PSAction domain, ActionMenuParameter[] parameters) {
+    if (domain == null || parameters == null) {
+      return;
+    }
+    PSActionParameters dest = domain.getParameters();
+    Map<String, ActionMenuParameter> incoming = new LinkedHashMap<>();
+    for (ActionMenuParameter param : parameters) {
+      if (param == null || StringUtils.isBlank(param.getName())) {
+        continue;
+      }
+      incoming.put(param.getName().trim(), param);
+    }
+    List<String> toRemove = new ArrayList<>();
+    Iterator<?> it = dest.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (next instanceof PSActionParameter existing) {
+        if (!containsIgnoreCase(incoming.keySet(), existing.getName())) {
+          toRemove.add(existing.getName());
+        }
+      }
+    }
+    for (String name : toRemove) {
+      dest.removeParameter(name);
+    }
+    for (ActionMenuParameter param : incoming.values()) {
+      String name = param.getName().trim();
+      dest.setParameter(name, param.getValue() == null ? "" : param.getValue());
+      PSActionParameter stored = findParameter(dest, name);
+      if (stored != null && param.getDescription() != null) {
+        stored.setDescription(param.getDescription());
+      }
+    }
+  }
+
+  /**
+   * Replaces Workbench Usage/Command properties when the PUT body includes {@code
+   * properties} (empty array clears except {@link #REST_USER_MENU_PROP}). {@code null}
+   * leaves existing properties. Never overwrites {@link #REST_USER_MENU_PROP}.
+   */
+  static void applyCommandProperties(PSAction domain, ActionMenuProperty[] properties) {
+    if (domain == null || properties == null) {
+      return;
+    }
+    PSActionProperties dest = domain.getProperties();
+    Map<String, ActionMenuProperty> incoming = new LinkedHashMap<>();
+    for (ActionMenuProperty prop : properties) {
+      if (prop == null || StringUtils.isBlank(prop.getName())) {
+        continue;
+      }
+      String name = prop.getName().trim();
+      if (REST_USER_MENU_PROP.equalsIgnoreCase(name)) {
+        continue;
+      }
+      incoming.put(name, prop);
+    }
+    List<String> toRemove = new ArrayList<>();
+    Iterator<?> it = dest.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (next instanceof PSActionProperty existing) {
+        String existingName = existing.getName();
+        if (REST_USER_MENU_PROP.equalsIgnoreCase(existingName)) {
+          continue;
+        }
+        if (!containsIgnoreCase(incoming.keySet(), existingName)) {
+          toRemove.add(existingName);
+        }
+      }
+    }
+    for (String name : toRemove) {
+      dest.removeProperty(name);
+    }
+    for (ActionMenuProperty prop : incoming.values()) {
+      String name = prop.getName().trim();
+      dest.setProperty(name, prop.getValue() == null ? "" : prop.getValue());
+      PSActionProperty stored = findProperty(dest, name);
+      if (stored != null && prop.getDescription() != null) {
+        stored.setDescription(prop.getDescription());
+      }
+    }
+  }
+
+  /**
+   * Persisted RXMENUACTION id for mode-uicontext rows. Never {@code "0"} — that would
+   * attach mappings to the wrong menu.
+   */
+  static String persistedActionId(PSAction domain) {
+    if (domain == null) {
+      throw new IllegalStateException("Cannot apply uiContexts until the action is persisted");
+    }
+    // getId() is -1 when unassigned; do not call getGUID() (it synthesizes
+    // from that id and PSGuid rejects negative UUIDs).
+    int id = domain.getId();
+    if (id <= 0) {
+      throw new IllegalStateException("Cannot apply uiContexts until the action is persisted");
+    }
+    return String.valueOf(id);
+  }
+
+  static boolean containsIgnoreCase(Iterable<String> names, String needle) {
+    if (names == null || StringUtils.isBlank(needle)) {
+      return false;
+    }
+    for (String name : names) {
+      if (needle.equalsIgnoreCase(name)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static PSActionParameter findParameter(PSActionParameters params, String name) {
+    if (params == null || StringUtils.isBlank(name)) {
+      return null;
+    }
+    Iterator<?> it = params.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (next instanceof PSActionParameter param && name.equalsIgnoreCase(param.getName())) {
+        return param;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Replaces Workbench Visibility contexts when the PUT body includes {@code
+   * visibilityContexts} (empty array clears). {@code null} leaves the existing collection.
+   * Each element is one named context plus one value (repeat the name for multiple values).
+   * Unknown names are {@link IllegalArgumentException} (HTTP 400).
+   */
+  static void applyVisibilityContexts(
+      PSAction domain, ActionMenuVisibilityContext[] visibilityContexts) {
+    if (domain == null || visibilityContexts == null) {
+      return;
+    }
+    LinkedHashMap<String, List<String>> grouped = new LinkedHashMap<>();
+    Map<String, String> descriptions = new LinkedHashMap<>();
+    for (ActionMenuVisibilityContext dto : visibilityContexts) {
+      if (dto == null) {
+        continue;
+      }
+      String name = resolveVisibilityContextName(dto.getName());
+      String value = dto.getValue() == null ? "" : dto.getValue();
+      grouped.computeIfAbsent(name, key -> new ArrayList<>()).add(value);
+      if (dto.getDescription() != null) {
+        descriptions.put(name, dto.getDescription());
+      }
+    }
+    PSActionVisibilityContexts dest = domain.getVisibilityContexts();
+    List<String> existing = new ArrayList<>();
+    Iterator<?> it = dest.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (next instanceof PSActionVisibilityContext ctx && StringUtils.isNotBlank(ctx.getName())) {
+        existing.add(ctx.getName());
+      }
+    }
+    for (String name : existing) {
+      dest.removeContext(name);
+    }
+    for (Map.Entry<String, List<String>> entry : grouped.entrySet()) {
+      String name = entry.getKey();
+      String[] values = entry.getValue().toArray(String[]::new);
+      dest.add(new PSActionVisibilityContext(name, values, descriptions.get(name)));
+    }
+  }
+
+  /**
+   * Replaces mode-uicontext mappings when the PUT body includes {@code uiContexts} (empty
+   * array clears). {@code null} leaves the existing collection. {@code modeId} and {@code
+   * contextId} must be numeric. Duplicate mode/context pairs are {@link
+   * IllegalArgumentException} (HTTP 400).
+   */
+  static void applyUiContexts(PSAction domain, ActionMenuModeUIContext[] uiContexts) {
+    if (domain == null || uiContexts == null) {
+      return;
+    }
+    LinkedHashMap<String, ActionMenuModeUIContext> unique = new LinkedHashMap<>();
+    for (ActionMenuModeUIContext dto : uiContexts) {
+      if (dto == null) {
+        continue;
+      }
+      String modeId = requireNumericId(dto.getModeId(), "modeId");
+      String contextId = requireNumericId(dto.getContextId(), "contextId");
+      String key = modeId + ":" + contextId;
+      if (unique.containsKey(key)) {
+        throw new IllegalArgumentException("Duplicate uiContext mode/context: " + key);
+      }
+      unique.put(key, dto);
+    }
+    PSDbComponentCollection dest = domain.getModeUIContexts();
+    List<PSMenuModeContextMapping> existing = new ArrayList<>();
+    Iterator<?> it = dest.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (next instanceof PSMenuModeContextMapping mapping) {
+        existing.add(mapping);
+      }
+    }
+    for (PSMenuModeContextMapping mapping : existing) {
+      dest.remove(mapping);
+    }
+    String actionId = persistedActionId(domain);
+    for (ActionMenuModeUIContext dto : unique.values()) {
+      PSMenuModeContextMapping mapping =
+          new PSMenuModeContextMapping(
+              dto.getModeId().trim(), dto.getContextId().trim(), actionId);
+      mapping.setModeName(dto.getModeName());
+      mapping.setContextName(dto.getContextName());
+      dest.add(mapping);
+    }
+  }
+
+  /**
+   * Maps a REST visibility context name to a Workbench {@code VIS_CONTEXT_*} id ({@code
+   * 1}–{@code 11}). Package-visible for tests.
+   */
+  static String resolveVisibilityContextName(String raw) {
+    if (StringUtils.isBlank(raw)) {
+      throw new IllegalArgumentException("visibility context name is required");
+    }
+    String trimmed = raw.trim();
+    if (trimmed.chars().allMatch(Character::isDigit)) {
+      int n;
+      try {
+        n = Integer.parseInt(trimmed);
+      } catch (NumberFormatException e) {
+        throw new IllegalArgumentException("Invalid visibility context: " + raw);
+      }
+      if (n >= 1 && n <= 11) {
+        return Integer.toString(n);
+      }
+      throw new IllegalArgumentException("Invalid visibility context: " + raw);
+    }
+    String aliasKey =
+        trimmed.toLowerCase().replace("_", "").replace("-", "").replace(" ", "");
+    String mapped = VISIBILITY_CONTEXT_ALIASES.get(aliasKey);
+    if (mapped != null) {
+      return mapped;
+    }
+    throw new IllegalArgumentException("Invalid visibility context: " + raw);
+  }
+
+  static String requireNumericId(String raw, String field) {
+    if (StringUtils.isBlank(raw)) {
+      throw new IllegalArgumentException(field + " is required");
+    }
+    String trimmed = raw.trim();
+    if (!trimmed.chars().allMatch(Character::isDigit)) {
+      throw new IllegalArgumentException("Invalid " + field + ": " + raw);
+    }
+    return trimmed;
+  }
+
+  static PSActionProperty findProperty(PSActionProperties props, String name) {
+    if (props == null || StringUtils.isBlank(name)) {
+      return null;
+    }
+    Iterator<?> it = props.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (next instanceof PSActionProperty prop && name.equalsIgnoreCase(prop.getName())) {
+        return prop;
+      }
+    }
+    return null;
   }
 
   static ActionType resolveCreateType(ActionMenu body) {
@@ -817,7 +1462,107 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     if (guid != null) {
       menu.setGuid(copyGuid(guid));
     }
+    menu.setParameters(toDtoParameters(action.getParameters()));
+    menu.setProperties(toDtoProperties(action.getProperties()));
+    menu.setVisibilityContexts(toDtoVisibilityContexts(action.getVisibilityContexts()));
+    menu.setUiContexts(toDtoUiContexts(action.getModeUIContexts()));
     return menu;
+  }
+
+  static ActionMenuParameter[] toDtoParameters(PSActionParameters params) {
+    if (params == null || params.size() == 0) {
+      return new ActionMenuParameter[0];
+    }
+    List<ActionMenuParameter> out = new ArrayList<>();
+    Iterator<?> it = params.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (!(next instanceof PSActionParameter param) || StringUtils.isBlank(param.getName())) {
+        continue;
+      }
+      ActionMenuParameter dto = new ActionMenuParameter();
+      dto.setName(param.getName());
+      dto.setValue(param.getValue());
+      dto.setDescription(param.getDescription());
+      out.add(dto);
+    }
+    return out.toArray(ActionMenuParameter[]::new);
+  }
+
+  static ActionMenuProperty[] toDtoProperties(PSActionProperties props) {
+    if (props == null || props.size() == 0) {
+      return new ActionMenuProperty[0];
+    }
+    List<ActionMenuProperty> out = new ArrayList<>();
+    Iterator<?> it = props.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (!(next instanceof PSActionProperty prop) || StringUtils.isBlank(prop.getName())) {
+        continue;
+      }
+      ActionMenuProperty dto = new ActionMenuProperty();
+      dto.setName(prop.getName());
+      dto.setValue(prop.getValue());
+      dto.setDescription(prop.getDescription());
+      out.add(dto);
+    }
+    return out.toArray(ActionMenuProperty[]::new);
+  }
+
+  static ActionMenuVisibilityContext[] toDtoVisibilityContexts(
+      PSActionVisibilityContexts visibilityContexts) {
+    if (visibilityContexts == null || visibilityContexts.size() == 0) {
+      return new ActionMenuVisibilityContext[0];
+    }
+    List<ActionMenuVisibilityContext> out = new ArrayList<>();
+    Iterator<?> it = visibilityContexts.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (!(next instanceof PSActionVisibilityContext ctx)
+          || StringUtils.isBlank(ctx.getName())) {
+        continue;
+      }
+      boolean any = false;
+      Iterator<?> values = ctx.iterator();
+      while (values.hasNext()) {
+        any = true;
+        ActionMenuVisibilityContext dto = new ActionMenuVisibilityContext();
+        dto.setName(ctx.getName());
+        dto.setDescription(ctx.getDescription());
+        Object value = values.next();
+        dto.setValue(value == null ? "" : String.valueOf(value));
+        out.add(dto);
+      }
+      if (!any) {
+        ActionMenuVisibilityContext dto = new ActionMenuVisibilityContext();
+        dto.setName(ctx.getName());
+        dto.setDescription(ctx.getDescription());
+        out.add(dto);
+      }
+    }
+    return out.toArray(ActionMenuVisibilityContext[]::new);
+  }
+
+  static ActionMenuModeUIContext[] toDtoUiContexts(PSDbComponentCollection modeUiContexts) {
+    if (modeUiContexts == null || modeUiContexts.size() == 0) {
+      return new ActionMenuModeUIContext[0];
+    }
+    List<ActionMenuModeUIContext> out = new ArrayList<>();
+    Iterator<?> it = modeUiContexts.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (!(next instanceof PSMenuModeContextMapping mapping)) {
+        continue;
+      }
+      ActionMenuModeUIContext dto = new ActionMenuModeUIContext();
+      dto.setModeId(mapping.getModeId());
+      dto.setModeName(mapping.getModeName());
+      dto.setContextId(mapping.getContextId());
+      dto.setContextName(mapping.getContextName());
+      dto.setDescription(mapping.getDescription());
+      out.add(dto);
+    }
+    return out.toArray(ActionMenuModeUIContext[]::new);
   }
 
   static String restMenuType(PSAction action) {
@@ -1153,42 +1898,6 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     }
     log.error("Failed to {} action menu via UI design WS", verb, e);
     return new IllegalStateException("Failed to " + verb + " action menu", e);
-  }
-
-  private ActionMenuVisibilityContext[] copyVisibilityContexts(
-      PSActionVisibilityContexts visibilityContexts) {
-    var ctxs = new ArrayList<ActionMenuVisibilityContext>();
-    var it = visibilityContexts.iterator();
-    while (it.hasNext()) {
-      var v = (PSActionVisibilityContext) it.next();
-      var amc = new ActionMenuVisibilityContext();
-      var values = new ArrayList<>();
-      var vit = v.iterator();
-      while (vit.hasNext()) {
-        values.add(vit.next());
-      }
-      amc.setDescription(v.getDescription());
-      amc.setName(v.getName());
-      // TODO: Set values if needed
-      ctxs.add(amc);
-    }
-    return ctxs.toArray(new ActionMenuVisibilityContext[0]);
-  }
-
-  private ActionMenuModeUIContext[] copyUIContexts(PSDbComponentCollection modeUIContexts) {
-    var uictx = new ArrayList<ActionMenuModeUIContext>();
-    var it = modeUIContexts.iterator();
-    while (it.hasNext()) {
-      var mode = (PSMenuModeContextMapping) it.next();
-      var restMode = new ActionMenuModeUIContext();
-      restMode.setContextId(mode.getContextId());
-      restMode.setContextName(mode.getContextName());
-      restMode.setModeId(mode.getModeId());
-      restMode.setModeName(mode.getModeName());
-      restMode.setDescription(mode.getDescription());
-      uictx.add(restMode);
-    }
-    return uictx.toArray(new ActionMenuModeUIContext[0]);
   }
 
   private ActionMenuParameter[] copyParameters(PSActionParameters parameters) {

@@ -19,6 +19,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PATHS } from "../../../../main/ts/api/paths";
 import {
   ACTION_MENU_DESIGN_GAPS,
+  ACTION_MENU_VISIBILITY_ALIASES,
+  ACTION_MENU_VISIBILITY_ID_ALIASES,
   createActionMenu,
   deleteActionMenu,
   getActionMenuDetail,
@@ -27,9 +29,15 @@ import {
   isValidActionMenuName,
   normalizeActionMenuName,
   saveActionMenu,
+  saveActionMenuChildren,
   unwrapActionMenu,
+  unwrapActionMenuChildren,
   unwrapActionMenuList,
+  visibilityContextName,
+  visibilityContextValue,
+  normalizeVisibilityContexts,
   withoutStaleActionMenuWriteGap,
+  wrapActionMenuChildrenForWire,
   wrapActionMenuForWire,
 } from "../../../../main/ts/api/developer/actionMenusApi";
 
@@ -59,8 +67,52 @@ describe("unwrapActionMenu (#3380)", () => {
     expect(unwrapped.guidString).toBe("0-107-7");
   });
 
+  it("normalizes visibilityContexts value from values alias", () => {
+    const unwrapped = unwrapActionMenu({
+      name: "Edit",
+      visibilityContexts: [{ name: "community", values: "1001" }],
+    });
+    expect(unwrapped.visibilityContexts).toEqual([
+      { name: "community", description: "", value: "1001" },
+    ]);
+  });
+
+  it("preserves partialOverlay from GET detail", () => {
+    const unwrapped = unwrapActionMenu({
+      name: "Edit",
+      partialOverlay: true,
+      visibilityContexts: [],
+    });
+    expect(unwrapped.partialOverlay).toBe(true);
+  });
+
   it("returns empty object for null payload", () => {
     expect(unwrapActionMenu(null)).toEqual({});
+  });
+});
+
+describe("visibilityContextValue / ACTION_MENU_VISIBILITY_ALIASES", () => {
+  it("returns empty string when value and values are both empty", () => {
+    expect(visibilityContextValue({ name: "community" })).toBe("");
+    expect(visibilityContextValue({ name: "community", value: "" })).toBe("");
+    expect(visibilityContextValue(null)).toBe("");
+  });
+
+  it("includes REST aliases role, locale, workflow, and publishableType", () => {
+    expect(ACTION_MENU_VISIBILITY_ALIASES).toEqual(
+      expect.arrayContaining(["role", "locale", "workflow", "publishableType", "roles", "community"]),
+    );
+  });
+
+  it("maps GET Workbench numeric ids to picker aliases", () => {
+    expect(visibilityContextName("2")).toBe("community");
+    expect(visibilityContextName({ name: "2", value: "1001" })).toBe("community");
+    expect(visibilityContextName({ name: "community", value: "1001" })).toBe("community");
+    expect(visibilityContextName("99")).toBe("99");
+    expect(ACTION_MENU_VISIBILITY_ID_ALIASES["7"]).toBe("roles");
+    expect(normalizeVisibilityContexts([{ name: "2", value: "1001" }])).toEqual([
+      { name: "community", description: "", value: "1001" },
+    ]);
   });
 });
 
@@ -129,18 +181,86 @@ describe("action menu wire wrap", () => {
     });
   });
 
-  it("drops the create/update/delete gap from ACTION_MENU_DESIGN_GAPS", () => {
+  it("drops the create/update/delete and cascading-children gaps from ACTION_MENU_DESIGN_GAPS", () => {
     expect(ACTION_MENU_DESIGN_GAPS.some((g) => /create/i.test(g))).toBe(false);
-    expect(ACTION_MENU_DESIGN_GAPS.some((g) => /cascading/i.test(g))).toBe(true);
+    expect(ACTION_MENU_DESIGN_GAPS.some((g) => /usage/i.test(g))).toBe(false);
+    expect(ACTION_MENU_DESIGN_GAPS.some((g) => /cascading/i.test(g))).toBe(false);
+    expect(ACTION_MENU_DESIGN_GAPS.some((g) => /visibility/i.test(g))).toBe(false);
   });
 
-  it("filters a stale REST write gap on GET detail", () => {
+  it("filters stale REST write and children gaps on GET detail", () => {
     expect(
       withoutStaleActionMenuWriteGap([
         "Action menu create / update / delete not supported via this API",
+        "Usage / command / visibility tab completeness is a later slice.",
+        "Visibility context editing not supported via this API",
         "Cascading child menu composition not supported via this API",
+        "Visibility context editing not supported via this API",
       ]),
-    ).toEqual(["Cascading child menu composition not supported via this API"]);
+    ).toEqual([]);
+  });
+
+  it("wraps children PUT under ActionMenuList", () => {
+    expect(wrapActionMenuChildrenForWire([{ name: "ChildA" }, { name: "ChildB" }])).toEqual({
+      ActionMenuList: [{ name: "ChildA" }, { name: "ChildB" }],
+    });
+  });
+});
+
+describe("unwrapActionMenuChildren", () => {
+  it("unwraps nested array and ActionMenuList envelopes", () => {
+    expect(unwrapActionMenuChildren([{ name: "Open", id: 8 }]).map((c) => c.name)).toEqual(["Open"]);
+    expect(
+      unwrapActionMenuChildren({ ActionMenuList: [{ name: "Copy" }] }).map((c) => c.name),
+    ).toEqual(["Copy"]);
+  });
+
+  it("attaches unwrapped children on GET detail", () => {
+    const unwrapped = unwrapActionMenu({
+      ActionMenu: {
+        name: "Parent",
+        children: { ActionMenu: [{ name: "Open", id: 3 }] },
+      },
+    });
+    expect(unwrapped.children?.map((c) => c.name)).toEqual(["Open"]);
+    expect(unwrapped.children?.[0].guidString).toBe("0-107-3");
+  });
+
+  it("drops empty-value visibility rows from the wire wrap", () => {
+    expect(
+      wrapActionMenuForWire({
+        name: "MyMenu",
+        visibilityContexts: [
+          { name: "community", value: "1001" },
+          { name: "contentType", value: "" },
+        ],
+      }),
+    ).toEqual({
+      ActionMenu: {
+        name: "MyMenu",
+        visibilityContexts: [{ name: "community", value: "1001" }],
+      },
+    });
+  });
+
+  it("wraps PUT usage/command/visibility under ActionMenu root", () => {
+    expect(
+      wrapActionMenuForWire({
+        name: "MyMenu",
+        label: "My Menu",
+        handler: "SERVER",
+        parameters: [{ name: "sys_test", value: "1" }],
+        visibilityContexts: [{ name: "community", value: "1001" }],
+      }),
+    ).toEqual({
+      ActionMenu: {
+        name: "MyMenu",
+        label: "My Menu",
+        handler: "SERVER",
+        parameters: [{ name: "sys_test", value: "1" }],
+        visibilityContexts: [{ name: "community", value: "1001" }],
+      },
+    });
   });
 });
 
@@ -185,11 +305,41 @@ describe("actionMenusApi write paths", () => {
 
   it("PUTs save body to /services/actions/{idOrName}", async () => {
     fetchMock.mockResolvedValueOnce(jsonResponse({ name: "MyMenu", label: "Updated" }));
-    const saved = await saveActionMenu("MyMenu", { name: "MyMenu", label: "Updated" });
+    const saved = await saveActionMenu("MyMenu", {
+      name: "MyMenu",
+      label: "Updated",
+      handler: "SERVER",
+    });
     expect(saved.label).toBe("Updated");
     const init = fetchMock.mock.calls[0][1] as RequestInit;
     expect(init.method).toBe("PUT");
     expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.ACTION_MENUS_ROOT}/MyMenu`);
+    expect(JSON.parse(String(init.body))).toEqual({
+      ActionMenu: { name: "MyMenu", label: "Updated", handler: "SERVER" },
+    });
+  });
+
+  it("PUTs children to /services/actions/{idOrName}/children", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        name: "ParentMenu",
+        menuType: "MENU",
+        children: [{ name: "ChildA" }, { name: "ChildB" }],
+      }),
+    );
+    const saved = await saveActionMenuChildren("ParentMenu", [
+      { name: "ChildA" },
+      { name: "ChildB" },
+    ]);
+    expect(saved.children?.map((c) => c.name)).toEqual(["ChildA", "ChildB"]);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.ACTION_MENUS_ROOT}/ParentMenu/children`,
+    );
+    expect(JSON.parse(String(init.body))).toEqual({
+      ActionMenuList: [{ name: "ChildA" }, { name: "ChildB" }],
+    });
   });
 
   it("DELETEs /services/actions/{idOrName}", async () => {
