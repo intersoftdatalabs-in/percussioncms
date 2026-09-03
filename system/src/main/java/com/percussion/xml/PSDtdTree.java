@@ -18,6 +18,7 @@
 package com.percussion.xml;
 
 import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.XmlErrorCodes;
 import com.percussion.error.PSCatalogException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.validation.SerializationValidation;
@@ -252,7 +253,7 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
 
       parseDtd(in, dtdURL, charSet);
     } catch (IOException e) {
-      throw new PSCatalogException(IPSXmlErrors.DTD_IO_ERROR, PSExceptionUtils.getMessageForLog(e));
+      throw new PSCatalogException(XmlErrorCodes.DTD_IO_ERROR, PSExceptionUtils.getMessageForLog(e));
     } finally {
       if (in != null)
         try {
@@ -420,7 +421,7 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
     PSXmlElementDecl rootElementDecl = myDTD.getElementDeclaration(myDTD.getName());
 
     if (rootElementDecl == null) {
-      throw new PSCatalogException(IPSXmlErrors.DTD_ROOTNOTFOUND_ERROR, myDTD.getName());
+      throw new PSCatalogException(XmlErrorCodes.DTD_ROOTNOTFOUND_ERROR, myDTD.getName());
     }
 
     m_elements = new HashMap();
@@ -513,8 +514,8 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
         String s1 = new String(ch1);
         String s2 = new String(ch2);
         Object[] args = {s1, s2};
-        throw (new PSCatalogException(
-            IPSXmlErrors.DTD_MULTIPLE_OCCURRENCE_NOTSUPPORTED_ERROR, args));
+        throw new PSCatalogException(
+            XmlErrorCodes.DTD_MULTIPLE_OCCURRENCE_NOTSUPPORTED_ERROR, args);
       }
 
       int occurrenceSetType;
@@ -575,7 +576,7 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
       if (!leafName.equalsIgnoreCase("#PCDATA")) {
         PSXmlElementDecl elementDecl = dtd.getElementDeclaration(leafName);
         if (elementDecl == null) {
-          throw (new PSCatalogException(IPSXmlErrors.DTD_ELEMENT_NOTFOUND_ERROR, leafName));
+          throw new PSCatalogException(XmlErrorCodes.DTD_ELEMENT_NOTFOUND_ERROR, leafName);
         }
         // This is an element of TYPE_CHILDREN, but for the parent node's
         // Content Model it was a LEAF node.
