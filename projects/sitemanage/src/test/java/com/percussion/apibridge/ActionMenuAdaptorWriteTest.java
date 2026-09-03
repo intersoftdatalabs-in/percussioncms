@@ -42,6 +42,7 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.menus.PSActionMenu;
 import com.percussion.services.menus.RxmActionMenuConstants;
+import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
@@ -49,6 +50,7 @@ import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.ui.IPSUiDesignWs;
 import com.percussion.webservices.ui.data.ActionType;
 import jakarta.ws.rs.WebApplicationException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -319,6 +321,118 @@ class ActionMenuAdaptorWriteTest {
         assertThrows(
             WebApplicationException.class, () -> adaptor.saveActionMenu("MyMenu", new ActionMenu()));
     assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void updateChildren_loadsWithLockNoStealAndSavesOrder() throws Exception {
+    PSAction parent = stubCascadingMenu("MyMenu", 42);
+    PSAction childA = stubAction("ChildA", 100);
+    PSAction childB = stubAction("ChildB", 101);
+    stubCatalogLoad(parent, childA, childB);
+    PSAction locked = stubCascadingMenu("MyMenu", 42);
+    when(designWs.loadActions(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(locked));
+
+    ActionMenuList children = new ActionMenuList();
+    ActionMenu first = new ActionMenu();
+    first.setName("ChildB");
+    ActionMenu second = new ActionMenu();
+    second.setId(100);
+    children.add(first);
+    children.add(second);
+
+    ActionMenu out = adaptor.saveActionMenuChildren("MyMenu", children);
+
+    assertEquals("MyMenu", out.getName());
+    assertEquals(2, out.getChildren().size());
+    assertEquals("ChildB", out.getChildren().get(0).getName());
+    assertEquals("ChildA", out.getChildren().get(1).getName());
+    assertEquals(2, childCount(locked));
+    assertEquals(1, childB.getSortRank());
+    assertEquals(2, childA.getSortRank());
+    verify(designWs).saveActions(anyList(), eq(true), eq("test-session"), eq("Admin"));
+    verify(designWs).loadActions(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void updateChildren_unknownParent_returnsNull() throws Exception {
+    when(designWs.findActions(
+            nullable(String.class), nullable(String.class), nullable(List.class)))
+        .thenReturn(List.of());
+    assertNull(adaptor.saveActionMenuChildren("missing", new ActionMenuList()));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void updateChildren_systemParent_is409() throws Exception {
+    PSAction system = stubAction("Edit", 42);
+    stubCatalogLoad(system);
+    when(designWs.objectIdToPath(any())).thenReturn("//ContentExplorer/Menus/System/Edit");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.saveActionMenuChildren("Edit", new ActionMenuList()));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().toLowerCase().contains("system"));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void updateChildren_nonAdmin_is403() {
+    adaptor = new ActionMenuAdaptor(designWs, () -> false);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.saveActionMenuChildren("MyMenu", new ActionMenuList()));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void updateChildren_unknownChild_is404() throws Exception {
+    PSAction parent = stubCascadingMenu("MyMenu", 42);
+    stubCatalogLoad(parent);
+    PSAction locked = stubCascadingMenu("MyMenu", 42);
+    when(designWs.loadActions(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(locked));
+    ActionMenuList children = new ActionMenuList();
+    ActionMenu missing = new ActionMenu();
+    missing.setName("NoSuchChild");
+    children.add(missing);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.saveActionMenuChildren("MyMenu", children));
+    assertEquals(404, ex.getResponse().getStatus());
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void updateChildren_menuItemParent_is400() throws Exception {
+    PSAction parent = stubAction("MyItem", 42);
+    parent.setMenuType(PSAction.TYPE_MENUITEM);
+    stubCatalogLoad(parent);
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.saveActionMenuChildren("MyItem", new ActionMenuList()));
+    assertTrue(ex.getMessage().toLowerCase().contains("cascading"));
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void updateChildren_emptyClearsAssociations() throws Exception {
+    PSAction parent = stubCascadingMenu("MyMenu", 42);
+    stubCatalogLoad(parent);
+    PSAction locked = stubCascadingMenu("MyMenu", 42);
+    locked.getChildren().add(stubAction("OldChild", 99));
+    when(designWs.loadActions(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(locked));
+
+    ActionMenu out = adaptor.saveActionMenuChildren("MyMenu", new ActionMenuList());
+
+    assertEquals("MyMenu", out.getName());
+    assertTrue(out.getChildren() == null || out.getChildren().isEmpty());
+    assertEquals(0, childCount(locked));
+    verify(designWs).saveActions(anyList(), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test
@@ -613,14 +727,41 @@ class ActionMenuAdaptorWriteTest {
     return action;
   }
 
-  private void stubCatalogLoad(PSAction action) throws Exception {
-    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
-    when(sum.getGUID()).thenReturn(action.getGUID());
-    when(sum.getName()).thenReturn(action.getName());
+  private PSAction stubCascadingMenu(String name, int id) {
+    PSAction action = stubAction(name, id);
+    action.setMenuType(PSAction.TYPE_MENU);
+    action.setMenuDynamic(false);
+    return action;
+  }
+
+  private static int childCount(PSAction action) {
+    return action == null || action.getChildren() == null ? 0 : action.getChildren().size();
+  }
+
+  private void stubCatalogLoad(PSAction... actions) throws Exception {
+    List<IPSCatalogSummary> sums = new ArrayList<>();
+    Map<Integer, PSAction> byUuid = new HashMap<>();
+    for (PSAction action : actions) {
+      IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+      when(sum.getGUID()).thenReturn(action.getGUID());
+      when(sum.getName()).thenReturn(action.getName());
+      sums.add(sum);
+      byUuid.put(action.getGUID().getUUID(), action);
+    }
     when(designWs.findActions(
             nullable(String.class), nullable(String.class), nullable(List.class)))
-        .thenReturn(List.of(sum));
+        .thenReturn(sums);
     when(designWs.loadActions(anyList(), eq(false), eq(false), any(), any()))
-        .thenReturn(List.of(action));
+        .thenAnswer(
+            inv -> {
+              List<?> ids = inv.getArgument(0);
+              if (ids == null || ids.isEmpty()) {
+                return List.of();
+              }
+              Object first = ids.get(0);
+              int uuid = first instanceof IPSGuid guid ? guid.getUUID() : -1;
+              PSAction hit = byUuid.get(uuid);
+              return hit == null ? List.of() : List.of(hit);
+            });
   }
 }

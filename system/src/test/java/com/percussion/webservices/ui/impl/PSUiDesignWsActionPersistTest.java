@@ -176,6 +176,40 @@ class PSUiDesignWsActionPersistTest {
         ins.setString(2, "sys_contentid");
         ins.executeUpdate();
       }
+      PSAction parent = newAction(2048, "QaH2Am");
+      parent.setLabel("QA H2 AM");
+      PSAction childA = newAction(3001, "ChildA");
+      childA.setLabel("Child A");
+      PSAction childB = newAction(3002, "ChildB");
+      childB.setLabel("Child B");
+      PSUiDesignWs.insertActionRow(conn, PSUiDesignWs.actionRowSpec(childA));
+      PSUiDesignWs.insertActionRow(conn, PSUiDesignWs.actionRowSpec(childB));
+      parent.getChildren().add(childA);
+      parent.getChildren().add(childB);
+      PSUiDesignWs.persistActionRelationsOn(conn, parent);
+      try (var rs =
+          conn.prepareStatement(
+                  "SELECT CHILDACTIONID FROM RXMENUACTIONRELATION WHERE ACTIONID = 2048 ORDER BY CHILDACTIONID")
+              .executeQuery()) {
+        assertTrue(rs.next());
+        assertEquals(3001, rs.getInt(1));
+        assertTrue(rs.next());
+        assertEquals(3002, rs.getInt(1));
+        assertFalse(rs.next());
+      }
+      try (var rs =
+          conn.prepareStatement("SELECT SORTORDER FROM RXMENUACTION WHERE ACTIONID = 3001")
+              .executeQuery()) {
+        assertTrue(rs.next());
+        assertEquals(1, rs.getInt(1));
+      }
+      try (var rs =
+          conn.prepareStatement("SELECT SORTORDER FROM RXMENUACTION WHERE ACTIONID = 3002")
+              .executeQuery()) {
+        assertTrue(rs.next());
+        assertEquals(2, rs.getInt(1));
+      }
+
       PSUiDesignWs.deleteActionRow(conn, spec.actionId);
       assertFalse(PSUiDesignWs.actionRowExists(conn, spec.actionId, spec.name));
       assertTrue(PSUiDesignWs.actionRowExists(conn, 2049, "Victim"));
@@ -320,6 +354,8 @@ class PSUiDesignWsActionPersistTest {
               + "VERSION INTEGER NOT NULL)");
       st.execute(
           "CREATE TABLE RXMENUACTIONPROPERTIES (ACTIONID INTEGER NOT NULL, PROPNAME VARCHAR(100) NOT NULL, PROPVALUE VARCHAR(4000), DESCRIPTION VARCHAR(255), PRIMARY KEY (ACTIONID, PROPNAME))");
+      st.execute(
+          "CREATE TABLE RXMENUACTIONRELATION (ACTIONID INTEGER NOT NULL, CHILDACTIONID INTEGER NOT NULL)");
     }
     return conn;
   }

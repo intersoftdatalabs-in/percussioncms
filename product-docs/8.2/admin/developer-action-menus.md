@@ -40,7 +40,8 @@ detail stay **read-only**.
    lists the new name immediately (`GET /services/actions/catalog` and GET by
    name); packaged menus such as **Copy** cannot be deleted (**409**).
 5. Optional: change label, description, menu type, or URL and **Save** again.
-   Child entries, parameters, properties, and visibility are not written.
+   Child entries are not written from this Save (use REST children PUT).
+   Parameters, properties, and visibility are not written.
 6. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
    The catalog returns with a green **Action
    menu deleted** notice and no longer lists that user menu. Delete of a
@@ -52,7 +53,8 @@ detail stay **read-only**.
 ## Limits
 
 - Name is immutable after create.
-- Cascading child menu composition is not in this chrome (UI-04).
+- Cascading child menu composition is not in this chrome (UI-04 SPA). Admins
+  can persist ordered children with REST `PUT /services/actions/{idOrName}/children`.
 - Usage / command / visibility tab editing is not in this chrome (UI-03).
 - System menus cannot be updated or deleted here.
 
@@ -66,6 +68,7 @@ The chrome calls:
 | Load | `GET /services/actions/catalog/{idOrName}` |
 | Create | `POST /services/actions` (`name` required; unique, no spaces) |
 | Save | `PUT /services/actions/{idOrName}` (label, description, menuType, url) |
+| Children | `PUT /services/actions/{idOrName}/children` (ordered name/id list; not called by this chrome yet) |
 | Delete | `DELETE /services/actions/{idOrName}` (`204` on success) |
 
 Writes lock the menu for the request (`overrideLock=false`) and release it on

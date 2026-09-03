@@ -145,6 +145,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <!-- #4123: Admin POST /actions {ActionMenu:{…}} must not JAXB-bind as
                  allowedWorkflowTransitionsRequest (finder is /find/transitions). -->
             <ref bean="actionMenuJsonReader" />
+            <!-- #4204 UI-04: PUT /actions/{id}/children bare array / ActionMenuList wrap. -->
+            <ref bean="actionMenuListJsonReader" />
             <!-- #3905 / #3895 CD-09: PUT /contenttypes/{id}/itemExits wrap can arrive empty
                  under CXF UNWRAP_ROOT_VALUE; bind wrap and flat before jacksonProvider. -->
             <ref bean="contentTypeItemExitsJsonReader" />

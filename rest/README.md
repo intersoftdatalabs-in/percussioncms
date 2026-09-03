@@ -46,7 +46,7 @@ The module provides 24+ REST resource endpoints organized by functional area:
 ### Workflow & Automation
 
 - **Editions** (`EditionsResource`) - Manage content editions/versions
-- **Action Menus** (`ActionMenuResource`) - UI action menu configuration
+- **Action Menus** (`ActionMenuResource`) - UI action menu configuration (Admin PUT `{id}/children` for cascading MENU associations)
 - **Extensions** (`ExtensionsResource`) - Custom extension management
 
 ### Utilities & Support
