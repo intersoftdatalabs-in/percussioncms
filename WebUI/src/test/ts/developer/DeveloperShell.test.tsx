@@ -706,16 +706,22 @@ vi.mock("../../../main/ts/api/developer/serverConfigsApi", () => ({
   }),
 }));
 
-vi.mock("../../../main/ts/api/developer/controlsApi", () => ({
-  listControls: vi.fn().mockResolvedValue([
-    { name: "sys_EditBox", displayName: "Edit Box", scope: "system", dimension: "single" },
-  ]),
-  getControlDetail: vi.fn().mockResolvedValue({
-    name: "sys_EditBox",
-    parameters: [],
-    designGaps: [],
-  }),
-}));
+vi.mock("../../../main/ts/api/developer/controlsApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/controlsApi")>();
+  return {
+    ...actual,
+    listControls: vi.fn().mockResolvedValue([
+      { name: "sys_EditBox", displayName: "Edit Box", scope: "system", dimension: "single" },
+    ]),
+    getControlDetail: vi.fn().mockResolvedValue({
+      name: "sys_EditBox",
+      parameters: [],
+      designGaps: [],
+    }),
+    createControl: vi.fn(),
+  };
+});
 
 vi.mock("../../../main/ts/api/developer/sitesApi", () => ({
   listSites: vi.fn().mockResolvedValue([

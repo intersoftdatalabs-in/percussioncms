@@ -70,9 +70,19 @@ export function ControlDetailPanel({
             <h2 style={{ margin: "0 0 4px" }} data-testid="developer-ctl-detail-title">
               {detail.displayName || detail.name || name}
             </h2>
+            {(detail.scope || "").toLowerCase() === "system" ? (
+              <p
+                data-testid="developer-ctl-system-readonly"
+                style={{ color: catalogColors.muted, fontSize: "0.9rem", margin: "0 0 8px" }}
+              >
+                {DEV_MSG.CTL_SYSTEM_READONLY}
+              </p>
+            ) : null}
             <dl style={metaGrid}>
               <dt>{DEV_MSG.CTL_COL_NAME}</dt>
-              <dd style={{ margin: 0, ...monoCell }}>{detail.name || "—"}</dd>
+              <dd data-testid="developer-ctl-detail-name" style={{ margin: 0, ...monoCell }}>
+                {detail.name || "—"}
+              </dd>
               <dt>{DEV_MSG.CTL_COL_SCOPE}</dt>
               <dd style={{ margin: 0 }}>{detail.scope || "—"}</dd>
               <dt>{DEV_MSG.CTL_COL_DIM}</dt>
