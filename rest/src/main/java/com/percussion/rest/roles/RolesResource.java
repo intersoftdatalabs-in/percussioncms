@@ -76,7 +76,7 @@ public class RolesResource {
   public Role getRoleByName(@PathParam("roleName") String roleName) {
     try {
       roleName = java.net.URLDecoder.decode(roleName, "UTF-8");
-      return roleAdaptor.getRole(uriInfo.getBaseUri(), roleName);
+      return requireAdaptor().getRole(uriInfo.getBaseUri(), roleName);
     } catch (BackendException | UnsupportedEncodingException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -116,9 +116,11 @@ public class RolesResource {
       message = e.getMessage();
     }
     try {
-      roleAdaptor.deleteRole(uriInfo.getBaseUri(), roleName);
+      requireAdaptor().deleteRole(uriInfo.getBaseUri(), roleName);
       retCode = 200;
       message = "OK";
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (Exception e) {
       retCode = 500;
       message = e.getMessage();
@@ -143,7 +145,7 @@ public class RolesResource {
       })
   public Role updateRole(
       @Parameter(description = "The body containing a JSON payload", name = "body") Role role) {
-    return roleAdaptor.updateRole(uriInfo.getBaseUri(), role);
+    return requireAdaptor().updateRole(uriInfo.getBaseUri(), role);
   }
 
   /** Find available roles on the system by % wild card pattern. */
@@ -162,13 +164,67 @@ public class RolesResource {
       })
   public RoleList findRoles() {
     try {
-      var ret = roleAdaptor.findRoles(uriInfo.getBaseUri(), "%");
+      var ret = requireAdaptor().findRoles(uriInfo.getBaseUri(), "%");
       return new RoleList(ret);
     } catch (BackendException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e);
     }
+  }
+
+  /**
+   * Admin SE-03 roles browse catalog with community / workflow / unassigned grouping metadata.
+   *
+   * <p>Literal path {@code /catalog} must not be captured by {@code /{roleName}}.
+   */
+  @GET
+  @Path("/catalog")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Browse roles by community / workflow / unassigned",
+      description =
+          "Admin. Returns system roles with Workbench Security Design grouping metadata"
+              + " (community, workflow, unassigned). Optional group query filter limits the"
+              + " result. Non-Admin is 403 via adaptor requireAdmin (same Admin gate pattern as"
+              + " other Developer Admin REST; this module does not use JAX-RS @RolesAllowed)."
+              + " Missing adaptor is 503 on all role endpoints.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = RoleBrowseCatalog.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid group filter (expected community, workflow, or unassigned)"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public RoleBrowseCatalog browseRoles(
+      @Parameter(
+              description =
+                  "Optional filter: community, workflow, or unassigned. Omit for the full catalog.")
+          @QueryParam("group")
+          String group) {
+    try {
+      return requireAdaptor().browseRoles(uriInfo != null ? uriInfo.getBaseUri() : null, group);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (RuntimeException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  private IRoleAdaptor requireAdaptor() {
+    if (roleAdaptor == null) {
+      throw new WebApplicationException("Role adaptor not configured", 503);
+    }
+    return roleAdaptor;
   }
 
   public IRoleAdaptor getRoleAdaptor() {
