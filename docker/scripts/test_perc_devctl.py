@@ -398,6 +398,67 @@ class TestSubcommandDryRun(unittest.TestCase):
         self.assertIn("RESULT:OK STEP:qa-up", out)
         self.assertIn("RESULT:OK STEP:qa-deploy-webui", out)
         self.assertIn("TEST_CMS_URL=", out)
+        self.assertNotIn("RESULT:OK STEP:qa-deploy-war-jars", out)
+
+    def test_qa_deploy_war_jars_dry_run(self):
+        rc, out = self.runner.run(["qa-deploy-war-jars"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-deploy-war-jars", out)
+
+    def test_qa_deploy_war_jars_argv_includes_script_and_container(self):
+        argv = pdc._qa_deploy_war_jars_argv(
+            Path("/repo"),
+            pdc.QA_CMS_CONTAINER,
+            True,
+            False,
+        )
+        self.assertEqual(argv[0], sys.executable)
+        self.assertTrue(
+            str(argv[1]).replace("\\", "/").endswith(
+                "docker/scripts/hot-deploy-rhythmyx-war-jars.py"
+            )
+        )
+        self.assertIn("--container", argv)
+        self.assertIn(pdc.QA_CMS_CONTAINER, argv)
+        self.assertIn("--restart-jetty", argv)
+        self.assertIn("--repo-root", argv)
+        self.assertIn("--dest", argv)
+        self.assertIn(pdc.QA_WAR_JARS_DEST, argv)
+        self.assertNotIn("sh", argv)
+        self.assertNotIn("-c", argv)
+
+    def test_qa_deploy_war_jars_argv_forwards_custom_dest(self):
+        argv = pdc._qa_deploy_war_jars_argv(
+            Path("/repo"),
+            pdc.QA_CMS_CONTAINER,
+            False,
+            False,
+            "/opt/custom/WEB-INF/lib",
+        )
+        self.assertIn("--dest", argv)
+        self.assertIn("/opt/custom/WEB-INF/lib", argv)
+        self.assertNotIn("--restart-jetty", argv)
+
+    def test_qa_up_then_war_jars_no_restart_jetty(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+        rc, out = self.runner.run(
+            ["qa-up", "--then-qa-deploy-war-jars", "--no-restart-jetty"]
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-up", out)
+        self.assertIn("RESULT:OK STEP:qa-deploy-war-jars", out)
+
+    def test_qa_up_skip_image_build_then_webui_implies_war_jars(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+        rc, out = self.runner.run(
+            ["qa-up", "--skip-image-build", "--then-qa-deploy-webui"]
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-up", out)
+        self.assertIn("RESULT:OK STEP:qa-deploy-webui", out)
+        self.assertIn("RESULT:OK STEP:qa-deploy-war-jars", out)
 
     def test_verify_fix_dry_run(self):
         rc, out = self.runner.run([
