@@ -353,6 +353,25 @@ export interface CommunityDetail extends CommunitySummary {
   roleList?: CommunityRoleSummary[] | { CommunityRole?: CommunityRoleSummary[] };
 }
 
+/**
+ * Search identity in community CX new-search defaults (UI-09).
+ * PUT accepts {@code name}, numeric {@code id}, or {@code guid}.
+ */
+export interface CommunityNewSearchRef {
+  guid?: RestGuid;
+  id?: number;
+  name?: string;
+  label?: string;
+}
+
+/** GET/PUT body for {@code /services/communities/{id}/new-search-defaults}. */
+export interface CommunityNewSearchDefaults {
+  communityGuid?: RestGuid;
+  communityId?: number;
+  communityName?: string;
+  searches?: CommunityNewSearchRef[] | { CommunityNewSearchRef?: CommunityNewSearchRef[] };
+}
+
 /** Object visible to a community (from POST /services/communities/visibility). */
 export interface CommunityVisibleObject {
   id?: number;

@@ -544,7 +544,7 @@ export const DEV_MSG_KEYS = {
   COMM_EMPTY: "perc.ui.developer@No communities returned.",
   COMM_ERROR: "perc.ui.developer@Could not load communities.",
   COMM_HINT:
-    "perc.ui.developer@Create or delete a community, then open one to edit role membership and inspect object visibility. Per-object COMMUNITY ACL entries are edited on object detail panels (e.g. content types).",
+    "perc.ui.developer@Create or delete a community, then open one to edit role membership, Content Explorer new-search defaults, and inspect object visibility. Per-object COMMUNITY ACL entries are edited on object detail panels (e.g. content types).",
   COMM_NEW: "perc.ui.developer@New community",
   COMM_CREATE: "perc.ui.developer@Create community",
   COMM_CANCEL: "perc.ui.developer@Cancel",
@@ -607,6 +607,24 @@ export const DEV_MSG_KEYS = {
   COMM_COL_OBJ_NAME: "perc.ui.developer@Name",
   COMM_COL_OBJ_LABEL: "perc.ui.developer@Label",
   COMM_COL_OBJ_GUID: "perc.ui.developer@GUID",
+  COMM_NSD: "perc.ui.developer@New-search defaults",
+  COMM_NSD_HINT:
+    "perc.ui.developer@Check Content Explorer searches offered as new search for this community, then save. An empty set clears explicit defaults. This list does not create searches — use Developer Searches.",
+  COMM_NSD_DIRTY: "perc.ui.developer@Unsaved new-search default changes.",
+  COMM_NSD_LOADING: "perc.ui.developer@Loading new-search defaults...",
+  COMM_NSD_ERROR: "perc.ui.developer@Could not load new-search defaults.",
+  COMM_NSD_EMPTY: "perc.ui.developer@No searches in the catalog. Create searches under Developer Searches, then return here.",
+  COMM_NSD_SAVE: "perc.ui.developer@Save new-search defaults",
+  COMM_NSD_SAVED: "perc.ui.developer@New-search defaults saved.",
+  COMM_NSD_SAVED_COUNT: "perc.ui.developer@New-search defaults saved ({0} searches).",
+  COMM_NSD_CLEARED: "perc.ui.developer@New-search defaults cleared.",
+  COMM_NSD_SAVE_ERROR: "perc.ui.developer@Could not save new-search defaults.",
+  COMM_NSD_UNKNOWN_SEARCH: "perc.ui.developer@Unknown search in the default set.",
+  COMM_NSD_LOCK:
+    "perc.ui.developer@Could not save new-search defaults; a design lock is required or held by another user.",
+  COMM_NSD_COL_INCLUDE: "perc.ui.developer@Default",
+  COMM_NSD_COL_NAME: "perc.ui.developer@Search name",
+  COMM_NSD_COL_LABEL: "perc.ui.developer@Label",
   COMM_GAPS: "perc.ui.developer@Known gaps",
   COMM_GAP_ACL:
     "perc.ui.developer@Full ACL editor parity remains a separate slice; assign COMMUNITY principals on object ACL sections where mounted. Use Community Visibility for the SE-05 navigator groups.",

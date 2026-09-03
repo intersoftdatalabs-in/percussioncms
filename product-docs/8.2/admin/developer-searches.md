@@ -86,9 +86,10 @@ community (`cxNewSearch`). Admins and integrators read and replace that set with
 | Replace | `PUT /services/communities/{idOrName}/new-search-defaults` |
 
 **Admin** only (**403** otherwise). An empty set is **200**, not 404. Unknown
-search in the PUT body is **400**; unknown community is **404**. This chrome does
-not yet include a community-defaults editor — use REST (or a later Developer
-screen). Search create/delete remains the table above and does not write these
+search in the PUT body is **400**; unknown community is **404**. Admins edit this
+set on **Developer → Communities** detail (**New-search defaults**): check
+searches from this catalog, save, or clear all checkboxes to remove explicit
+defaults. Search create/delete remains the table above and does not write these
 defaults.
 
 Contract: [REST API — Community new-search defaults](id:developer-rest).
