@@ -109,6 +109,7 @@ Non-administrators never see the Admin top-nav item or these configuration surfa
 - [Users, roles & security](id:admin-users-roles) (includes Developer Object ACL for Sites and Display Formats)
 - [Developer Content Types](id:admin-developer-content-types)
 - [Developer Locales](id:admin-developer-locales)
+- [Developer Relationship Types](id:admin-developer-relationship-types)
 - [Developer Shared Fields](id:admin-developer-shared-fields)
 - [Developer System Def](id:admin-developer-system-def)
 - [Developer Slots](id:admin-developer-slots)
