@@ -24,6 +24,9 @@ Operators using **Developer → Content types** lock/save chrome: [Developer Con
 Operators using **Developer → Locales** create/save/delete chrome and the
 auto-translation set editor: [Developer Locales](id:admin-developer-locales).
 
+Operators using **Developer → Relationship Types** create/save/delete chrome
+(user types; system types read-only): [Developer Relationship Types](id:admin-developer-relationship-types).
+
 Operators using **Developer → Shared Fields** create/save/delete chrome: [Developer Shared Fields](id:admin-developer-shared-fields).
 
 Operators using **Developer → System definition** field save/add/delete chrome: [Developer System Def](id:admin-developer-system-def).

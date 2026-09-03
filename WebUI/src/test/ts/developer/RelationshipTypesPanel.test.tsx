@@ -10,10 +10,19 @@ import * as relationshipTypesApi from "../../../main/ts/api/developer/relationsh
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { RelationshipTypesPanel } from "../../../main/ts/developer/RelationshipTypesPanel";
 
-vi.mock("../../../main/ts/api/developer/relationshipTypesApi", () => ({
-  listRelationshipTypes: vi.fn(),
-  getRelationshipTypeDetail: vi.fn(),
-}));
+vi.mock("../../../main/ts/api/developer/relationshipTypesApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/relationshipTypesApi")
+  >();
+  return {
+    ...actual,
+    listRelationshipTypes: vi.fn(),
+    getRelationshipTypeDetail: vi.fn(),
+    createRelationshipType: vi.fn(),
+    updateRelationshipType: vi.fn(),
+    deleteRelationshipType: vi.fn(),
+  };
+});
 
 const listRelationshipTypes = relationshipTypesApi.listRelationshipTypes as ReturnType<
   typeof vi.fn
@@ -37,6 +46,8 @@ const sampleDetail = {
   label: "Active Assembly",
   categoryLabel: "Active Assembly",
   type: "system",
+  systemType: true,
+  userType: false,
   effects: [
     {
       name: "sys_aaEffect",
@@ -46,7 +57,7 @@ const sampleDetail = {
   ],
   systemProperties: [{ name: "rs_allowcloning", value: "yes" }],
   userProperties: [],
-  designGaps: ["Relationship type create / update / delete not supported via this API"],
+  designGaps: ["Cloning field override editor not supported via this API"],
 };
 
 describe("RelationshipTypesPanel", () => {
@@ -58,13 +69,14 @@ describe("RelationshipTypesPanel", () => {
     getRelationshipTypeDetail.mockReset();
   });
 
-  it("lists relationship types and opens detail", async () => {
+  it("lists relationship types, shows New, and opens detail", async () => {
     listRelationshipTypes.mockResolvedValue([sampleType]);
     getRelationshipTypeDetail.mockResolvedValue(sampleDetail);
     render(<RelationshipTypesPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-rt-table")).toBeTruthy();
     });
+    expect(screen.getByTestId("developer-rt-new")).toBeTruthy();
     expect(screen.getByTestId("developer-rt-table").textContent).toContain("ActiveAssembly");
     fireEvent.click(screen.getByTestId("developer-rt-open"));
     await waitFor(() => {
@@ -77,12 +89,27 @@ describe("RelationshipTypesPanel", () => {
     });
   });
 
-  it("shows empty state when API returns no relationship types", async () => {
+  it("opens create chrome from New", async () => {
+    listRelationshipTypes.mockResolvedValue([sampleType]);
+    render(<RelationshipTypesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-rt-new")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-rt-new"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-rt-detail")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-rt-detail-title").textContent).toContain(DEV_MSG.RT_NEW);
+    expect(screen.getByTestId("developer-rt-save")).toBeDisabled();
+  });
+
+  it("shows empty state with New still available", async () => {
     listRelationshipTypes.mockResolvedValue([]);
     render(<RelationshipTypesPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-rt-empty")).toBeTruthy();
     });
+    expect(screen.getByTestId("developer-rt-new")).toBeTruthy();
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {
