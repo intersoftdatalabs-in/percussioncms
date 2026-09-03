@@ -28,8 +28,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
@@ -43,13 +45,16 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * REST resource for Extension operations. Sunny Sal: "Extension operations? Bas yahi toh mera kaam
- * hai!"
+ * REST resource for Extension catalog and Admin user-extension write (SY-01).
+ *
+ * <p>Admin POST/PUT/DELETE persist <strong>user</strong> extensions through {@link
+ * IExtensionAdaptor} ({@code IPSExtensionService}). System and handler-owned extensions are
+ * read-only. This resource is REST only — it does not add Developer SPA chrome.
  */
 @PSSiteManageBean(value = "restExtensionsResource")
 @Path("/extensions")
 @XmlRootElement
-@Tag(name = "Extensions", description = "Extension operations")
+@Tag(name = "Extensions", description = "Extension catalog and user-extension write")
 public class ExtensionsResource {
 
   private final IExtensionAdaptor adaptor;
@@ -86,8 +91,9 @@ public class ExtensionsResource {
   @Operation(
       summary = "List extensions (catalog)",
       description =
-          "Lists registered server extensions for the Developer module. Install/remove remain"
-              + " later slices.",
+          "Lists registered server extensions for the Developer module. Admin"
+              + " register/update/delete of user extensions are POST/PUT/DELETE on this"
+              + " resource. System and handler-owned extensions remain read-only.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -116,8 +122,9 @@ public class ExtensionsResource {
   @Operation(
       summary = "Get extension detail",
       description =
-          "Loads one extension by FQN or extension name (query param key). Write remains"
-              + " unsupported.",
+          "Loads one extension by FQN or extension name (query param key). Admin write of user"
+              + " extensions is POST/PUT/DELETE on this resource. System and handler-owned"
+              + " extensions cannot be mutated.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -145,13 +152,123 @@ public class ExtensionsResource {
     }
   }
 
-  private IExtensionAdaptor requireAdaptor() {
-    if (adaptor == null) {
-      // Misconfiguration — not a transient handler failure (align with View/Slots/Locales peers)
-      throw new WebApplicationException(
-          "Extension adaptor not configured", Response.Status.SERVICE_UNAVAILABLE);
+  @POST
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Register user extension",
+      description =
+          "Admin. Registers (installs) a user extension via IPSExtensionService under context"
+              + " user/. extensionName and at least one supportedInterfaces entry are required."
+              + " handlerName defaults to Java. Duplicate FQN is 409. System/handler contexts"
+              + " cannot be registered (409). This is REST only — there is no Developer SPA"
+              + " create chrome.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Created",
+            content = @Content(schema = @Schema(implementation = Extension.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Extension already exists or immutable context"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Extension registerExtension(Extension body) {
+    try {
+      Extension created = requireAdaptor().registerExtension(uriInfo.getBaseUri(), body);
+      if (created == null) {
+        throw new WebApplicationException("Failed to register extension", 500);
+      }
+      return created;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
     }
-    return adaptor;
+  }
+
+  @PUT
+  @Path("/catalog/item")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Update user extension",
+      description =
+          "Admin. Updates mutable fields of a user extension by FQN or extension name (query"
+              + " param key). Identity (handler/context/name) is not renamed on PUT. System and"
+              + " handler-owned extensions are 409. Unknown key is 404.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated",
+            content = @Content(schema = @Schema(implementation = Extension.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Extension not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "System or handler-owned extension cannot be mutated"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Extension updateExtension(
+      @Parameter(name = "key", required = true, description = "FQN or extension name")
+          @QueryParam("key")
+          String key,
+      Extension body) {
+    try {
+      if (body == null) {
+        throw new IllegalArgumentException("body is required");
+      }
+      Extension updated = requireAdaptor().updateExtension(uriInfo.getBaseUri(), key, body);
+      if (updated == null) {
+        throw new WebApplicationException("Extension not found", 404);
+      }
+      return updated;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @DELETE
+  @Path("/catalog/item")
+  @Operation(
+      summary = "Delete user extension",
+      description =
+          "Admin. Deletes a user extension by FQN or extension name (query param key). System"
+              + " and handler-owned extensions are 409 (not deleted). Unknown key is 404."
+              + " Following GET is 404 after a successful delete.",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Deleted"),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Extension not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "System or handler-owned extension cannot be deleted"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response deleteExtension(
+      @Parameter(name = "key", required = true, description = "FQN or extension name")
+          @QueryParam("key")
+          String key) {
+    try {
+      boolean deleted = requireAdaptor().deleteExtension(uriInfo.getBaseUri(), key);
+      if (!deleted) {
+        throw new WebApplicationException("Extension not found", 404);
+      }
+      return Response.noContent().build();
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
   }
 
   /**
@@ -190,5 +307,28 @@ public class ExtensionsResource {
     } catch (Exception e) {
       throw new WebApplicationException(e, 500);
     }
+  }
+
+  /**
+   * Map adaptor write failures to HTTP status. Admin 403, duplicate 409, and immutable 409 are
+   * already {@link WebApplicationException}s from the adaptor.
+   */
+  static WebApplicationException mapWriteFailure(RuntimeException e) {
+    if (e instanceof WebApplicationException wae) {
+      return wae;
+    }
+    if (e instanceof IllegalArgumentException) {
+      return new WebApplicationException(e.getMessage(), 400);
+    }
+    return new WebApplicationException(e, 500);
+  }
+
+  private IExtensionAdaptor requireAdaptor() {
+    if (adaptor == null) {
+      // Misconfiguration — not a transient handler failure (align with View/Slots/Locales peers)
+      throw new WebApplicationException(
+          "Extension adaptor not configured", Response.Status.SERVICE_UNAVAILABLE);
+    }
+    return adaptor;
   }
 }

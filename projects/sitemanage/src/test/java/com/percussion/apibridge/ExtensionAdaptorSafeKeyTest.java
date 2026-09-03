@@ -24,4 +24,12 @@ class ExtensionAdaptorSafeKeyTest {
     assertFalse(ExtensionAdaptor.isSafeExtensionKey("a\u0000b"));
     assertFalse(ExtensionAdaptor.isSafeExtensionKey(null));
   }
+
+  @Test
+  void isImmutableContext_systemAndHandlers() {
+    assertTrue(ExtensionAdaptor.isImmutableContext("global/percussion/exit"));
+    assertTrue(ExtensionAdaptor.isImmutableContext("Handlers"));
+    assertFalse(ExtensionAdaptor.isImmutableContext("user/"));
+    assertFalse(ExtensionAdaptor.isImmutableContext(null));
+  }
 }

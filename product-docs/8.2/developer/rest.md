@@ -1891,6 +1891,85 @@ Example create body:
 | `500` | Control manager or file I/O failure |
 | `503` | Control adaptor not configured |
 
+## Extensions (catalog)
+
+Server **extension** registrations (Workbench / Developer **Extension Registration**, SY-01) are
+exposed under `/services/extensions`. List and detail include system (`global/percussion/...`),
+handler-owned, and user (`user/`) extensions. Backing is **ALT** — `IPSExtensionService` /
+`IPSExtensionManager` — there is no SOAP design twin and this API does not invent one.
+
+Admin **write** registers, updates, and deletes **user** extensions only. New registrations are
+forced under context `user/`. Packaged **system** extensions (`global/percussion/...`) and
+**handler-owned** extensions (`ExtensionHandler` / `Handlers`) are read-only (**409** on mutate).
+**Do not** treat this as a Developer Extensions SPA; create/edit chrome is a later sibling.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/extensions/catalog` | List registered extensions |
+| `GET` | `/services/extensions/catalog/item?key=` | Load one extension by FQN or short name |
+| `POST` | `/services/extensions` | **Admin.** Register (install) a user extension under `user/` |
+| `PUT` | `/services/extensions/catalog/item?key=` | **Admin.** Update mutable fields of a user extension |
+| `DELETE` | `/services/extensions/catalog/item?key=` | **Admin.** Delete a user extension |
+| `POST` | `/services/extensions/list` | Filtered list (`ExtensionFilterOptions` body) |
+
+JSON objects use the `Extension` wire type. POST/PUT JSON is wrapped under an `Extension`
+root (JAXB/Jackson UNWRAP_ROOT_VALUE). Prefer the generated OpenAPI schema as the
+integration source of truth. Detail and write keys use a **query** parameter (`key`) because
+FQNs contain `/`.
+
+### Extension write contract (Admin)
+
+Register (`POST /services/extensions`) persists immediately via `IPSExtensionService.installExtension`.
+JSON body requires `extensionName` (valid Java identifier) and at least one
+`supportedInterfaces` entry. `handlerName` defaults to `Java`. Context is forced to `user/`
+(attempting `global/percussion/...` or handler context is **409**; other non-`user/` contexts
+are **400**). For Java handlers, `initParameters.className` is required. Duplicate FQN is
+**409**. Blank / invalid names or missing interfaces are **400**. Non-Admin is **403**. The
+new extension is then `GET /services/extensions/catalog/item?key=<FQN-or-name>` **200** and
+appears on `GET /services/extensions/catalog`.
+
+Update (`PUT /services/extensions/catalog/item?key=`) updates mutable fields of a **user**
+extension (init parameters, interfaces, runtime parameters, resource lists, deprecated /
+restore-on-error flags, version). Identity (`handlerName` / `context` / `extensionName`) is
+not renamed on PUT — round-trip GET then PUT for boolean flags. Unknown key is **404**. A
+**system** or **handler-owned** extension is **409**. Non-Admin is **403**.
+
+Delete (`DELETE /services/extensions/catalog/item?key=`) returns **204** when a user
+extension is removed; a following `GET` is **404**. Unknown key is **404**. A **system** or
+**handler-owned** extension is **409** (not deleted). Non-Admin is **403**.
+
+There is **no** Developer SPA extensions create/edit/delete in this slice — operators and
+integrators call the REST path (or Workbench).
+
+Example register body:
+
+```json
+{
+  "Extension": {
+    "extensionName": "my_user_ext",
+    "handlerName": "Java",
+    "supportedInterfaces": [
+      "com.percussion.extension.IPSUdfProcessor"
+    ],
+    "initParameters": {
+      "className": "com.example.MyUserExtension",
+      "com.percussion.user.description": "Created via REST"
+    }
+  }
+}
+```
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | List / get / register / update success |
+| `204` | Delete success |
+| `400` | Invalid input (missing name/interfaces/className, invalid handler/context/URLs) |
+| `403` | Caller is not Admin |
+| `404` | User extension not found |
+| `409` | Duplicate FQN, or attempt to mutate/delete a system or handler-owned extension |
+| `500` | Extension manager failure |
+| `503` | Extension adaptor not configured |
+
 ## Searches catalog and execute
 
 CX design **searches** (and optionally **views** on GET/execute) are exposed under

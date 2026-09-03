@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import java.net.URI;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-/** Test adaptor for Extension API bridge. */
+/** Test adaptor for Extension API bridge (MainTest Spring context). */
 @Component
 public class TestExtensionAdaptor implements IExtensionAdaptor {
 
@@ -43,5 +43,20 @@ public class TestExtensionAdaptor implements IExtensionAdaptor {
   @Override
   public List<Extension> getExtensions(URI baseURI, ExtensionFilterOptions filter) {
     return null;
+  }
+
+  @Override
+  public Extension registerExtension(URI baseURI, Extension body) {
+    return body;
+  }
+
+  @Override
+  public Extension updateExtension(URI baseURI, String idOrName, Extension body) {
+    return body;
+  }
+
+  @Override
+  public boolean deleteExtension(URI baseURI, String idOrName) {
+    return false;
   }
 }
