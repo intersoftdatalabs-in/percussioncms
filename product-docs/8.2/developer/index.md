@@ -36,6 +36,8 @@ Operators using **Developer → Searches** create/delete chrome: [Developer Sear
 
 Operators using **Developer → Communities** create/delete chrome: [Developer Communities](id:admin-developer-communities).
 
+Operators using **Developer → Roles** browse catalog: [Developer Roles](id:admin-developer-roles).
+
 Operators using **Developer → Views** create/delete chrome: [Developer Views](id:admin-developer-views).
 
 Operators using **Developer → Display Formats** create/delete, column add/remove/reorder, and default sort chrome: [Developer Display Formats](id:admin-developer-display-formats).

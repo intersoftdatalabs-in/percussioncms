@@ -431,6 +431,9 @@ A role that is both community- and workflow-assigned appears under **both** grou
 (`groups` lists both keys). Unassigned is exclusive. Unknown `group` values are
 **400**. Non-Admin is **403**. Empty match sets are **200** with `roles: []`.
 
+The Developer SPA consumes this catalog on **Developer → Roles**
+([Developer Roles](id:admin-developer-roles)).
+
 Existing role get / list / create-update / delete remain:
 
 | Method | Path | Purpose |

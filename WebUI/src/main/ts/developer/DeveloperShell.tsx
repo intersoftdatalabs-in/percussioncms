@@ -35,6 +35,7 @@ import { LocalesPanel } from "./LocalesPanel";
 import { DEV_MSG } from "./messages";
 import { PipelinesPanel } from "./PipelinesPanel";
 import { RelationshipTypesPanel } from "./RelationshipTypesPanel";
+import { RolesPanel } from "./RolesPanel";
 import { SearchesPanel } from "./SearchesPanel";
 import { ServerConfigsPanel } from "./ServerConfigsPanel";
 import { SharedFieldsPanel } from "./SharedFieldsPanel";
@@ -71,6 +72,7 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   "ce-controls": DEV_MSG.TAB_CE_CONTROLS,
   sites: DEV_MSG.TAB_SITES,
   communities: DEV_MSG.TAB_COMMUNITIES,
+  roles: DEV_MSG.TAB_ROLES,
   "community-visibility": DEV_MSG.TAB_COMMUNITY_VISIBILITY,
   pipelines: DEV_MSG.TAB_PIPELINES,
   preferences: DEV_MSG.TAB_PREFERENCES,
@@ -209,6 +211,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
             <SitesPanel />
           ) : active === "communities" ? (
             <CommunitiesPanel />
+          ) : active === "roles" ? (
+            <RolesPanel />
           ) : active === "community-visibility" ? (
             <CommunityVisibilityNavigatorPanel />
           ) : active === "pipelines" ? (
