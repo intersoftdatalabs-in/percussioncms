@@ -123,10 +123,11 @@ describe("sitemap-xml-virtual-qa-fixture", () => {
     assert.match(sitemap, new RegExp(SITEMAP_XML_VIRTUAL_REBUILD_LASTMOD));
     assert.doesNotMatch(sitemap, /<loc>\s*https?:\/\//i);
     const indexRebuild = fs.readFileSync(path.join(dir, "pages", "index-rebuild.md"), "utf8");
-    assert.match(indexRebuild, new RegExp(SITEMAP_XML_VIRTUAL_REBUILD_MARKER.replace(/\./g, "\\.")));
-    assert.doesNotMatch(indexRebuild, new RegExp(SITEMAP_XML_VIRTUAL_BUILD_MARKER.replace(/\./g, "\\.")));
+    // Exact substring checks — avoid RegExp(marker) (`.` is a metacharacter; CodeQL js/incomplete-sanitization).
+    assert.ok(indexRebuild.includes(SITEMAP_XML_VIRTUAL_REBUILD_MARKER));
+    assert.ok(!indexRebuild.includes(SITEMAP_XML_VIRTUAL_BUILD_MARKER));
     const about = fs.readFileSync(path.join(dir, "pages", "about.md"), "utf8");
-    assert.match(about, new RegExp(SITEMAP_XML_VIRTUAL_REBUILD_ABOUT_MARKER));
+    assert.ok(about.includes(SITEMAP_XML_VIRTUAL_REBUILD_ABOUT_MARKER));
     assert.notEqual(SITEMAP_XML_VIRTUAL_BUILD_MARKER, SITEMAP_XML_VIRTUAL_REBUILD_MARKER);
   });
 });
