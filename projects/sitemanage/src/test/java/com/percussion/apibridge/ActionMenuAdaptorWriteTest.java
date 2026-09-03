@@ -59,6 +59,7 @@ import com.percussion.webservices.ui.data.ActionType;
 import jakarta.ws.rs.WebApplicationException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
@@ -695,21 +696,107 @@ class ActionMenuAdaptorWriteTest {
   }
 
   @Test
-  void updateChildren_unknownChild_is404() throws Exception {
+  void updateChildren_unknownChild_is400() throws Exception {
     PSAction parent = stubCascadingMenu("MyMenu", 42);
     stubCatalogLoad(parent);
-    PSAction locked = stubCascadingMenu("MyMenu", 42);
-    when(designWs.loadActions(anyList(), eq(true), eq(false), any(), any()))
-        .thenReturn(List.of(locked));
     ActionMenuList children = new ActionMenuList();
     ActionMenu missing = new ActionMenu();
     missing.setName("NoSuchChild");
     children.add(missing);
-    WebApplicationException ex =
+    IllegalArgumentException ex =
         assertThrows(
-            WebApplicationException.class, () -> adaptor.saveActionMenuChildren("MyMenu", children));
-    assertEquals(404, ex.getResponse().getStatus());
+            IllegalArgumentException.class, () -> adaptor.saveActionMenuChildren("MyMenu", children));
+    assertTrue(ex.getMessage().toLowerCase().contains("unknown"));
     verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void updateChildren_partialUnknownChild_doesNotPersist() throws Exception {
+    PSAction parent = stubCascadingMenu("MyMenu", 42);
+    PSAction childA = stubAction("ChildA", 100);
+    stubCatalogLoad(parent, childA);
+    ActionMenuList children = new ActionMenuList();
+    ActionMenu first = new ActionMenu();
+    first.setName("ChildA");
+    ActionMenu missing = new ActionMenu();
+    missing.setName("NoSuchChild");
+    children.add(first);
+    children.add(missing);
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.saveActionMenuChildren("MyMenu", children));
+    assertTrue(ex.getMessage().toLowerCase().contains("unknown"));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void updateChildren_duplicateChild_is400() throws Exception {
+    PSAction parent = stubCascadingMenu("MyMenu", 42);
+    PSAction childA = stubAction("ChildA", 100);
+    stubCatalogLoad(parent, childA);
+    ActionMenuList children = new ActionMenuList();
+    ActionMenu first = new ActionMenu();
+    first.setName("ChildA");
+    ActionMenu second = new ActionMenu();
+    second.setId(100);
+    children.add(first);
+    children.add(second);
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.saveActionMenuChildren("MyMenu", children));
+    assertTrue(ex.getMessage().toLowerCase().contains("duplicate"));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void updateChildren_parentAsOwnChild_is400() throws Exception {
+    PSAction parent = stubCascadingMenu("MyMenu", 42);
+    stubCatalogLoad(parent);
+    ActionMenuList children = new ActionMenuList();
+    ActionMenu self = new ActionMenu();
+    self.setName("MyMenu");
+    children.add(self);
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.saveActionMenuChildren("MyMenu", children));
+    assertTrue(ex.getMessage().toLowerCase().contains("cycle"));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void updateChildren_transitiveCycle_is400() throws Exception {
+    PSAction parent = stubCascadingMenu("MenuA", 42);
+    PSAction childB = stubCascadingMenu("MenuB", 100);
+    childB.getChildren().add(parent);
+    stubCatalogLoad(parent, childB);
+    ActionMenuList children = new ActionMenuList();
+    ActionMenu b = new ActionMenu();
+    b.setName("MenuB");
+    children.add(b);
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.saveActionMenuChildren("MenuA", children));
+    assertTrue(ex.getMessage().toLowerCase().contains("cycle"));
+    verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void descendantContainsParent_usesHibernateNestedChildrenWithoutDesignLoad()
+      throws Exception {
+    PSActionMenu menuA = new PSActionMenu("MenuA", "MenuA", PSAction.TYPE_MENU, "", "SERVER", 0);
+    menuA.setActionId(42);
+    PSActionMenu menuB = new PSActionMenu("MenuB", "MenuB", PSAction.TYPE_MENU, "", "SERVER", 0);
+    menuB.setActionId(100);
+    menuB.setChildren(List.of(menuA));
+    adaptor = new ActionMenuAdaptor(designWs, () -> true, () -> List.of(menuB));
+    PSAction nodeB = stubCascadingMenu("MenuB", 100);
+    assertTrue(adaptor.descendantContainsParent(nodeB, 42, new HashSet<>()));
+    verify(designWs, never()).loadActions(anyList(), anyBoolean(), anyBoolean(), any(), any());
   }
 
   @Test

@@ -64,7 +64,8 @@ public interface IActionMenuAdaptor {
    * Admin. Replace ordered child associations on a user cascading {@code MENU} ({@code loadActions}
    * lock, {@code saveActions} release). Does not steal another user's lock. System parents are not
    * mutated. Child identity is {@code name}, numeric {@code id}, or GUID string (same rules as
-   * {@link #findMenuByKey}); array order is the persisted order.
+   * {@link #findMenuByKey}); array order is the persisted order. Unknown, duplicate, or cyclic
+   * children are rejected without persisting a partial graph.
    *
    * @param idOrName parent catalog key
    * @param children ordered children; {@code null} or empty clears associations

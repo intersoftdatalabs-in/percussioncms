@@ -61,6 +61,13 @@ public class ActionMenuListJsonReader implements MessageBodyReader<ActionMenuLis
   /** Client 400 for malformed JSON; Jackson parse details stay server-side. */
   static final String INVALID_JSON = "Invalid ActionMenuList JSON";
 
+  /**
+   * Client 400 when the object is not a children envelope. Unrecognized objects must not bind as
+   * an empty list (that would silently clear associations on PUT).
+   */
+  static final String UNRECOGNIZED_ENVELOPE =
+      "ActionMenuList body must be a JSON array or a recognized children envelope";
+
   /** No-op constructor. */
   public ActionMenuListJsonReader() {}
 
@@ -137,8 +144,10 @@ public class ActionMenuListJsonReader implements MessageBodyReader<ActionMenuLis
       ActionMenuList fromMenu = ActionMenuJsonReader.childrenField(menu.get("children"));
       return fromMenu != null ? fromMenu : new ActionMenuList();
     }
-    ActionMenuList fromFlat = ActionMenuJsonReader.childrenField(root.get("children"));
-    return fromFlat != null ? fromFlat : new ActionMenuList();
+    if (root.has("children")) {
+      return ActionMenuJsonReader.childrenField(root.get("children"));
+    }
+    throw new WebApplicationException(UNRECOGNIZED_ENVELOPE, 400);
   }
 
   private static JsonNode firstArray(JsonNode root, String... names) {

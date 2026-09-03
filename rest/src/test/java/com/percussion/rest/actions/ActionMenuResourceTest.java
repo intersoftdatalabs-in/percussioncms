@@ -392,13 +392,46 @@ public class ActionMenuResourceTest {
   }
 
   @Test
-  public void updateActionMenuChildrenUnknownIs404() {
+  public void updateActionMenuChildrenUnknownParentIs404() {
     when(adaptor.saveActionMenuChildren(eq("missing"), any())).thenReturn(null);
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class,
             () -> resource.updateActionMenuChildren("missing", new ActionMenuList()));
     assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateActionMenuChildrenUnknownChildIs400() {
+    when(adaptor.saveActionMenuChildren(eq("MyMenu"), any()))
+        .thenThrow(new IllegalArgumentException("unknown child action menu"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateActionMenuChildren("MyMenu", new ActionMenuList()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateActionMenuChildrenDuplicateIs400() {
+    when(adaptor.saveActionMenuChildren(eq("MyMenu"), any()))
+        .thenThrow(new IllegalArgumentException("duplicate child in payload"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateActionMenuChildren("MyMenu", new ActionMenuList()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateActionMenuChildrenCycleIs400() {
+    when(adaptor.saveActionMenuChildren(eq("MyMenu"), any()))
+        .thenThrow(new IllegalArgumentException("cascading menu cycle"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateActionMenuChildren("MyMenu", new ActionMenuList()));
+    assertEquals(400, ex.getResponse().getStatus());
   }
 
   @Test

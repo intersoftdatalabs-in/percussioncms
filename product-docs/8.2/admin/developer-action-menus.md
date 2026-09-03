@@ -76,7 +76,7 @@ The chrome calls:
 | Load | `GET /services/actions/catalog/{idOrName}` |
 | Create | `POST /services/actions` (`name` required; unique, no spaces) |
 | Save | `PUT /services/actions/{idOrName}` (label, description, menuType, url, handler, parameters, command properties, visibilityContexts, uiContexts) |
-| Children | `PUT /services/actions/{idOrName}/children` (ordered name/id list; not called by this chrome yet) |
+| Children | `PUT /services/actions/{idOrName}/children` (ordered name/id list; cycle/unknown/duplicate child is 400; not called by this chrome yet) |
 | Delete | `DELETE /services/actions/{idOrName}` (`204` on success) |
 
 Writes lock the menu for the request (`overrideLock=false`) and release it on

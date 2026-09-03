@@ -313,18 +313,24 @@ public class ActionMenuResource {
               + " string (same catalog keys as GET). Array order is persisted (child SORTORDER"
               + " plus RXMENUACTIONRELATION). Other child fields are ignored. Empty array"
               + " clears children. Parent PUT /actions/{idOrName} does not honor children."
-              + " System parent is 409. Non-cascading parent is 400. Unknown parent or child"
-              + " is 404. Loads with a design lock (overrideLock=false) and releases on save.",
+              + " Cycle (parent as its own child, or A→B→A), unknown child, or duplicate child"
+              + " in one payload is 400 and is not persisted. System parent is 409. Non-Admin"
+              + " is 403. Missing parent is 404. Non-cascading parent is 400. Loads with a"
+              + " design lock (overrideLock=false) and releases on save.",
       responses = {
         @ApiResponse(
             responseCode = "200",
             description = "Updated parent with children in request order",
             content = @Content(schema = @Schema(implementation = ActionMenu.class))),
-        @ApiResponse(responseCode = "400", description = "Invalid input or parent is not a cascading MENU"),
+        @ApiResponse(
+            responseCode = "400",
+            description =
+                "Invalid input, unknown/duplicate child, cascading cycle, or parent is not a"
+                    + " cascading MENU"),
         @ApiResponse(
             responseCode = "403",
             description = "Admin role required, or request has no session/user"),
-        @ApiResponse(responseCode = "404", description = "Parent or child action menu not found"),
+        @ApiResponse(responseCode = "404", description = "Parent action menu not found"),
         @ApiResponse(
             responseCode = "409",
             description =
