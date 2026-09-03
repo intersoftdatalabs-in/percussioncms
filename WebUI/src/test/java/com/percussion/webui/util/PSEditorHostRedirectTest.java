@@ -66,6 +66,24 @@ public class PSEditorHostRedirectTest {
     assertTrue(PSEditorHostRedirect.isRetiredEditAssetJsp("/cm/pages/app/editasset.jsp"));
     assertTrue(PSEditorHostRedirect.isRetiredEditAssetJsp("/rhythmyx/cm/app/editasset.jsp"));
     assertFalse(PSEditorHostRedirect.isRetiredEditAssetJsp("/cm/app/webmgt.jsp"));
+    assertFalse(PSEditorHostRedirect.isRetiredEditAssetJsp("/cm/app-editasset.jsp"));
+    assertFalse(PSEditorHostRedirect.isRetiredEditAssetJsp("/cm/foo/editasset.jsp"));
     assertFalse(PSEditorHostRedirect.isRetiredEditAssetJsp(null));
+    assertTrue(PSEditorHostRedirect.isRetiredArchitectureJsp("/cm/app/sitearchitecture.jsp"));
+    assertTrue(
+        PSEditorHostRedirect.isRetiredArchitectureJsp("/rhythmyx/cm/pages/app/sitearchitecture.jsp"));
+    assertFalse(PSEditorHostRedirect.isRetiredArchitectureJsp("/cm/app-sitearchitecture.jsp"));
+  }
+
+  @Test
+  public void spaRedirectForwardsLinkbackWarningWithoutLegacySiteHints() {
+    String loc =
+        PSEditorHostRedirect.buildSpaRedirect(
+            "", null, "readonly", "The page you are attempting to reach, does not exist in the CMS.");
+    assertTrue(loc.contains("entry=editor"));
+    assertTrue(loc.contains("warningMessage="));
+    assertTrue(loc.contains("does+not+exist") || loc.contains("does%20not%20exist"));
+    assertFalse(loc.contains("pathType="));
+    assertFalse(loc.contains("editAsset.jsp"));
   }
 }

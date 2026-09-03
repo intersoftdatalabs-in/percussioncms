@@ -202,8 +202,10 @@
         Object modeObj = params.get("mode");
         String editorMode = PSEditorHostRedirect.normalizeMode(
                 modeObj != null ? modeObj.toString() : "view");
+        Object warnObj = params.get("warningMessage");
+        String warning = warnObj != null ? warnObj.toString() : null;
         response.sendRedirect(
-                PSEditorHostRedirect.buildSpaRedirect(proxyURL, contentId, editorMode));
+                PSEditorHostRedirect.buildSpaRedirect(proxyURL, contentId, editorMode, warning));
     }
     else if (ArrayUtils.contains(spaViews, view))
     {

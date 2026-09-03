@@ -196,6 +196,8 @@ public class PSWebUiSpaFallbackFilterTest {
     assertTrue(PSWebUiSpaFallbackFilter.isRetiredArchitectureJsp("/rhythmyx/cm/app/sitearchitecture.jsp"));
     assertTrue(
         !PSWebUiSpaFallbackFilter.isRetiredArchitectureJsp("/cm/app/admin.jsp"));
+    assertTrue(
+        !PSWebUiSpaFallbackFilter.isRetiredArchitectureJsp("/cm/app-sitearchitecture.jsp"));
   }
 
   @Test

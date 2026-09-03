@@ -56,6 +56,21 @@ describe("EditorHost", () => {
     expect(screen.getByTestId("editor-error").textContent).toMatch(/Explorer or Home/i);
   });
 
+  it("surfaces linkback warningMessage when contentId is missing", () => {
+    render(
+      <MemoryRouter
+        initialEntries={[
+          "/editor?warningMessage=The page you are attempting to reach, does not exist in the CMS.",
+        ]}
+      >
+        <Routes>
+          <Route path="/editor" element={<EditorHost />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId("editor-error").textContent).toMatch(/does not exist in the CMS/i);
+  });
+
   it("loads fields after checkout and saves edits", async () => {
     const checkout = vi.fn().mockResolvedValue(undefined);
     const loadFields = vi.fn().mockResolvedValue(fields);

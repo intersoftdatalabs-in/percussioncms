@@ -174,9 +174,16 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
       ),
     );
     expect(filter).toContain("buildRetiredJspRedirectLocation");
-    expect(filter).toContain("sitearchitecture.jsp");
+    expect(filter).toContain("isRetiredArchitectureJsp");
     expect(filter).toContain("SC_MOVED_PERMANENTLY");
     expect(filter).toContain("PSLegacyViewRedirect");
+    const redirect = read(
+      resolve(
+        __dirname,
+        "../../../main/java/com/percussion/webui/util/PSEditorHostRedirect.java",
+      ),
+    );
+    expect(redirect).toContain("sitearchitecture.jsp");
     const webXml = read(resolve(webappRoot, "WEB-INF/web.xml"));
     expect(webXml).toContain("PSRetiredJspRedirectServlet");
     expect(webXml).toContain("/cm/app/siteArchitecture.jsp");

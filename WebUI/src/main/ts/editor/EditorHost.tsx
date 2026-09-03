@@ -199,6 +199,7 @@ export function EditorHost({
   const [params] = useSearchParams();
   const contentId = parsePositiveInt(params.get("contentId"));
   const mode: EditorHostMode = normalizeEditorMode(params.get("mode"));
+  const linkbackWarning = (params.get("warningMessage") ?? "").trim();
   const readOnly = mode === "view";
   const promote = mode === "promote";
 
@@ -209,7 +210,9 @@ export function EditorHost({
   const [errorKey, setErrorKey] = useState<string | null>(
     contentId == null ? EDITOR_MSG.MISSING_ITEM : null,
   );
-  const [errorDetail, setErrorDetail] = useState<string>("");
+  const [errorDetail, setErrorDetail] = useState<string>(
+    contentId == null ? linkbackWarning : "",
+  );
   const [loading, setLoading] = useState(contentId != null && !promote);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);

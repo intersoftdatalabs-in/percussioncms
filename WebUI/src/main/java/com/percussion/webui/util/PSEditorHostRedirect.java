@@ -93,6 +93,20 @@ public final class PSEditorHostRedirect {
    * @return SPA Location starting with {@code /cm/app/spa.jsp?entry=editor}
    */
   public static String buildSpaRedirect(String proxyURL, String contentId, String mode) {
+    return buildSpaRedirect(proxyURL, contentId, mode, null);
+  }
+
+  /**
+   * {@code spa.jsp?entry=editor} Location with optional linkback warning. Never null.
+   *
+   * @param proxyURL proxy prefix; may be null
+   * @param contentId parsed content id; may be null
+   * @param mode already-normalized or raw mode; may be null
+   * @param warningMessage failed linkback lookup text; omitted when blank
+   * @return SPA Location starting with {@code /cm/app/spa.jsp?entry=editor}
+   */
+  public static String buildSpaRedirect(
+      String proxyURL, String contentId, String mode, String warningMessage) {
     StringBuilder qs = new StringBuilder("entry=editor");
     String cid = parseContentId(contentId);
     if (cid != null) {
@@ -100,6 +114,9 @@ public final class PSEditorHostRedirect {
     }
     String normalized = normalizeMode(mode);
     qs.append("&mode=").append(urlEncode(normalized));
+    if (warningMessage != null && !warningMessage.isBlank()) {
+      qs.append("&warningMessage=").append(urlEncode(warningMessage.trim()));
+    }
     String prefix = proxyURL == null ? "" : proxyURL;
     return prefix + SPA_EDITOR + "?" + qs;
   }
@@ -111,10 +128,30 @@ public final class PSEditorHostRedirect {
    * @return true when the path is an app or pages {@code editAsset.jsp}
    */
   public static boolean isRetiredEditAssetJsp(String lowerPath) {
-    if (lowerPath == null || !lowerPath.endsWith("/editasset.jsp")) {
+    return isRetiredAppJsp(lowerPath, "editasset.jsp");
+  }
+
+  /**
+   * True when {@code lowerPath} is a retired {@code siteArchitecture.jsp} bookmark.
+   *
+   * @param lowerPath already lower-cased webapp path; may be null
+   * @return true when the path is an app or pages architecture JSP
+   */
+  public static boolean isRetiredArchitectureJsp(String lowerPath) {
+    return isRetiredAppJsp(lowerPath, "sitearchitecture.jsp");
+  }
+
+  /**
+   * Product-tree JSP bookmark: {@code …/cm/app/<file>} or {@code …/cm/pages/app/<file>}. Uses
+   * suffix match so {@code /cm/app-editasset.jsp} is not a false positive.
+   */
+  static boolean isRetiredAppJsp(String lowerPath, String jspFile) {
+    if (lowerPath == null || jspFile == null || jspFile.isBlank()) {
       return false;
     }
-    return lowerPath.contains("/cm/app/") || lowerPath.contains("/cm/pages/app/");
+    String file = jspFile.toLowerCase(Locale.ROOT);
+    return lowerPath.endsWith("/cm/app/" + file)
+        || lowerPath.endsWith("/cm/pages/app/" + file);
   }
 
   private static String positiveIntToken(String digits) {

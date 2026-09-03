@@ -116,4 +116,23 @@ test.describe("Leftover Data Flow CE HTML retirement (#3473)", () => {
       await expect(page).toHaveURL(/entry=editor|\/editor/);
     },
   );
+
+  test(
+    "editor host shows linkback warning when contentId is missing",
+    { tag: ["@editor"] },
+    async ({ page }) => {
+      await page.goto(
+        `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=editor&warningMessage=${encodeURIComponent(
+          "The page you are attempting to reach, does not exist in the CMS.",
+        )}&_=${Date.now()}`,
+        { waitUntil: "domcontentloaded" },
+      );
+      await expect(page.getByTestId("editor-error")).toBeVisible({
+        timeout: 30_000,
+      });
+      await expect(page.getByTestId("editor-error")).toContainText(
+        /does not exist in the CMS/i,
+      );
+    },
+  );
 });

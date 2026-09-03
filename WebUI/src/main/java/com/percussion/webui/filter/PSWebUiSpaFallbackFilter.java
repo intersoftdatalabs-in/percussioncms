@@ -179,7 +179,7 @@ public class PSWebUiSpaFallbackFilter implements Filter {
       return null;
     }
     String lower = pathWithinContext.toLowerCase(Locale.ROOT);
-    if (isRetiredArchitectureJsp(lower)) {
+    if (PSEditorHostRedirect.isRetiredArchitectureJsp(lower)) {
       return PSLegacyViewRedirect.buildLocation("arch", queryString);
     }
     if (PSEditorHostRedirect.isRetiredEditAssetJsp(lower)) {
@@ -194,10 +194,7 @@ public class PSWebUiSpaFallbackFilter implements Filter {
    * #pathWithinContext(HttpServletRequest)} could not strip it.
    */
   static boolean isRetiredArchitectureJsp(String lowerPath) {
-    if (lowerPath == null || !lowerPath.endsWith("/sitearchitecture.jsp")) {
-      return false;
-    }
-    return lowerPath.contains(APP_PREFIX + "/") || lowerPath.contains(PAGES_PREFIX + "/");
+    return PSEditorHostRedirect.isRetiredArchitectureJsp(lowerPath);
   }
 
   /**
