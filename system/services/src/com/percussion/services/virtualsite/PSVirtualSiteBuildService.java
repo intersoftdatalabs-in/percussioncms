@@ -110,7 +110,7 @@ public class PSVirtualSiteBuildService {
    * _config.yaml} ({@code objects.keys}) edit, an RSS/Atom feed ({@code rss.file} /
    * {@code feed.xml} / {@code atom.xml} / {@code rss.url}) edit, an iCalendar fixture
    * ({@code icalendar.file} / {@code calendar.ics}) edit, or a sitemap fixture ({@code
-   * sitemap.file} / {@code sitemap.xml}) edit.
+   * sitemap.file} / {@code sitemap.xml} loc, lastmod, or path) edit.
    *
    * @param siteRoot source tree ({@code _config.yaml} required for git-filesystem and
    *     sql-database; optional for csv-filesystem)
@@ -236,6 +236,7 @@ public class PSVirtualSiteBuildService {
     }
 
     written.addAll(VirtualRedirectsEmitter.emit(redirects, safeOut, written));
+    pruneStaleEmittedHtml(safeOut, written);
 
     participants.flush(config.siteKey());
 
@@ -250,6 +251,71 @@ public class PSVirtualSiteBuildService {
     written.add("link-report.txt");
 
     return new PSVirtualSiteBuildResult(safeOut, items.size(), linkProblems, written);
+  }
+
+  /**
+   * Delete HTML under the output root that this full rebuild did not emit, so
+   * pages removed from the source tree do not linger on disk.
+   */
+  static void pruneStaleEmittedHtml(Path outputRoot, List<String> written) throws IOException {
+    Path safeOut;
+    try {
+      safeOut = requireSafeBuildRoot(outputRoot);
+    } catch (VirtualSiteException e) {
+      throw new IOException(e.getMessage(), e);
+    }
+    Set<Path> keep = new LinkedHashSet<>();
+    if (written != null) {
+      for (String href : written) {
+        if (href == null || href.isBlank()) {
+          continue;
+        }
+        String slash = href.replace('\\', '/');
+        if (!slash.toLowerCase().endsWith(".html")) {
+          continue;
+        }
+        try {
+          keep.add(resolveHref(safeOut, slash).toAbsolutePath().normalize());
+        } catch (VirtualSiteException ignored) {
+          // skip unsafe keep entries
+        }
+      }
+    }
+    if (!Files.isDirectory(safeOut)) {
+      return;
+    }
+    List<Path> stale = new ArrayList<>();
+    Files.walkFileTree(
+        safeOut,
+        new SimpleFileVisitor<Path>() {
+          @Override
+          public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+            Path name = dir.getFileName();
+            if (name != null) {
+              String n = name.toString();
+              if ("_meta".equals(n) || "assets".equals(n)) {
+                return FileVisitResult.SKIP_SUBTREE;
+              }
+            }
+            return FileVisitResult.CONTINUE;
+          }
+
+          @Override
+          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+            String name = file.getFileName().toString();
+            if (!name.toLowerCase().endsWith(".html")) {
+              return FileVisitResult.CONTINUE;
+            }
+            Path abs = file.toAbsolutePath().normalize();
+            if (!keep.contains(abs)) {
+              stale.add(file);
+            }
+            return FileVisitResult.CONTINUE;
+          }
+        });
+    for (Path file : stale) {
+      Files.deleteIfExists(file);
+    }
   }
 
   private static VersionSpec findVersion(VirtualSiteConfig config, String id) {

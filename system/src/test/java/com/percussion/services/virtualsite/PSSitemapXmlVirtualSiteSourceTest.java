@@ -463,10 +463,13 @@ class PSSitemapXmlVirtualSiteSourceTest {
         "<html><body><h1>${siteTitle}</h1><h2>${pageTitle}</h2>${content}</body></html>",
         StandardCharsets.UTF_8);
     Files.createDirectories(root.resolve("pages"));
-    Path page = root.resolve("pages").resolve("live-home.md");
-    Files.writeString(page, "unique-token-AAA", StandardCharsets.UTF_8);
     Files.writeString(
-        root.resolve("sitemap.xml"), urlset("pages/live-home.md", null), StandardCharsets.UTF_8);
+        root.resolve("pages").resolve("live-home.md"),
+        "unique-token-AAA",
+        StandardCharsets.UTF_8);
+    Path sitemap = root.resolve("sitemap.xml");
+    Files.writeString(
+        sitemap, urlset("pages/live-home.md", "2026-01-01"), StandardCharsets.UTF_8);
 
     Path out = tempDir.resolve("sm-rebuild-out");
     PSSitemapXmlVirtualSiteSource source = new PSSitemapXmlVirtualSiteSource();
@@ -475,30 +478,120 @@ class PSSitemapXmlVirtualSiteSourceTest {
 
     PSVirtualSiteBuildResult first = service.build(root, out, "sm-docs");
     assertEquals(1, first.pageCount());
-    Path html = out.resolve("8.2").resolve("live-home.html");
-    assertTrue(Files.isRegularFile(html), "missing " + html);
-    String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
+    Path firstHtmlPath = out.resolve("8.2").resolve("live-home.html");
+    assertTrue(Files.isRegularFile(firstHtmlPath), "missing " + firstHtmlPath);
+    String firstHtml = Files.readString(firstHtmlPath, StandardCharsets.UTF_8);
     assertTrue(firstHtml.contains("First Site Title"), firstHtml);
     assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
+    assertTrue(firstHtml.contains("Last modified: 2026-01-01"), firstHtml);
+    assertTrue(firstHtml.contains("<h2>live-home</h2>"), firstHtml);
 
-    Files.writeString(page, "unique-token-BBB", StandardCharsets.UTF_8);
+    Files.writeString(
+        root.resolve("pages").resolve("second-home.md"),
+        "unique-token-BBB",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        sitemap, urlset("pages/second-home.md", "2026-09-02"), StandardCharsets.UTF_8);
     writeSitemapYaml(root, "Second Site Title", "sitemap.xml");
 
     VirtualSiteConfig reloaded =
         VirtualSiteConfigLoader.load(root, VirtualSiteConfigLoader.DEFAULT_CONFIG_FILE, "sm-docs");
     assertEquals("Second Site Title", reloaded.siteTitle());
     assertEquals("sitemap.xml", reloaded.sitemap().file());
-    VirtualItem loaded = source.load(reloaded, source.discover(reloaded).get(0));
+    List<VirtualItemRef> refs = source.discover(reloaded);
+    assertEquals(1, refs.size());
+    assertEquals("second-home", refs.get(0).id());
+    VirtualItem loaded = source.load(reloaded, refs.get(0));
+    assertEquals("second-home", loaded.frontmatter().title());
     assertTrue(loaded.markdownBody().contains("unique-token-BBB"), loaded.markdownBody());
+    assertTrue(loaded.markdownBody().contains("Last modified: 2026-09-02"), loaded.markdownBody());
+    assertFalse(loaded.markdownBody().contains("unique-token-AAA"), loaded.markdownBody());
+    assertFalse(loaded.markdownBody().contains("2026-01-01"), loaded.markdownBody());
+
+    PSVirtualSiteBuildResult second = service.build(root, out, "sm-docs");
+    assertEquals(1, second.pageCount());
+    Path secondHtmlPath = out.resolve("8.2").resolve("second-home.html");
+    assertTrue(Files.isRegularFile(secondHtmlPath), "missing " + secondHtmlPath);
+    String secondHtml = Files.readString(secondHtmlPath, StandardCharsets.UTF_8);
+    assertTrue(secondHtml.contains("Second Site Title"), secondHtml);
+    assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
+    assertTrue(secondHtml.contains("Last modified: 2026-09-02"), secondHtml);
+    assertTrue(secondHtml.contains("<h2>second-home</h2>"), secondHtml);
+    assertFalse(
+        Files.exists(firstHtmlPath), "stale " + firstHtmlPath + " should be cleared on full rebuild");
+    assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
+    assertFalse(secondHtml.contains("First Site Title"), secondHtml);
+    assertFalse(secondHtml.contains("2026-01-01"), secondHtml);
+    assertNotEquals(firstHtml, secondHtml);
+  }
+
+  @Test
+  void secondBuildAfterSitemapFileConfigSwitchEmitsUpdatedHtmlWithoutRestart() throws Exception {
+    Path root = writeSite(tempDir.resolve("sm-file-switch"), "sitemap.xml");
+    writeSitemapYaml(root, "First Site Title", "sitemap.xml");
+    Files.writeString(
+        root.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${siteTitle}</h1><h2>${pageTitle}</h2>${content}</body></html>",
+        StandardCharsets.UTF_8);
+    Files.createDirectories(root.resolve("pages"));
+    Files.writeString(
+        root.resolve("pages").resolve("from-default.md"),
+        "unique-token-AAA",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        root.resolve("sitemap.xml"),
+        urlset("pages/from-default.md", "2026-01-01"),
+        StandardCharsets.UTF_8);
+
+    Path out = tempDir.resolve("sm-file-switch-out");
+    PSSitemapXmlVirtualSiteSource source = new PSSitemapXmlVirtualSiteSource();
+    PSVirtualSiteBuildService service =
+        new PSVirtualSiteBuildService(source, new PSInMemoryVirtualParticipantService());
+
+    PSVirtualSiteBuildResult first = service.build(root, out, "sm-docs");
+    assertEquals(1, first.pageCount());
+    Path firstHtmlPath = out.resolve("8.2").resolve("from-default.html");
+    assertTrue(Files.isRegularFile(firstHtmlPath), "missing " + firstHtmlPath);
+    String firstHtml = Files.readString(firstHtmlPath, StandardCharsets.UTF_8);
+    assertTrue(firstHtml.contains("First Site Title"), firstHtml);
+    assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
+    assertTrue(firstHtml.contains("Last modified: 2026-01-01"), firstHtml);
+    assertTrue(firstHtml.contains("<h2>from-default</h2>"), firstHtml);
+
+    Files.writeString(
+        root.resolve("pages").resolve("from-alt.md"),
+        "unique-token-BBB",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        root.resolve("alt-sitemap.xml"),
+        urlset("pages/from-alt.md", "2026-09-02"),
+        StandardCharsets.UTF_8);
+    writeSitemapYaml(root, "Second Site Title", "alt-sitemap.xml");
+
+    VirtualSiteConfig reloaded =
+        VirtualSiteConfigLoader.load(root, VirtualSiteConfigLoader.DEFAULT_CONFIG_FILE, "sm-docs");
+    assertEquals("Second Site Title", reloaded.siteTitle());
+    assertEquals("alt-sitemap.xml", reloaded.sitemap().file());
+    VirtualItem loaded = source.load(reloaded, source.discover(reloaded).get(0));
+    assertEquals("from-alt", loaded.frontmatter().id());
+    assertTrue(loaded.markdownBody().contains("unique-token-BBB"), loaded.markdownBody());
+    assertTrue(loaded.markdownBody().contains("Last modified: 2026-09-02"), loaded.markdownBody());
     assertFalse(loaded.markdownBody().contains("unique-token-AAA"), loaded.markdownBody());
 
     PSVirtualSiteBuildResult second = service.build(root, out, "sm-docs");
     assertEquals(1, second.pageCount());
-    String secondHtml = Files.readString(html, StandardCharsets.UTF_8);
+    Path secondHtmlPath = out.resolve("8.2").resolve("from-alt.html");
+    assertTrue(Files.isRegularFile(secondHtmlPath), "missing " + secondHtmlPath);
+    String secondHtml = Files.readString(secondHtmlPath, StandardCharsets.UTF_8);
     assertTrue(secondHtml.contains("Second Site Title"), secondHtml);
     assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
+    assertTrue(secondHtml.contains("Last modified: 2026-09-02"), secondHtml);
+    assertTrue(secondHtml.contains("<h2>from-alt</h2>"), secondHtml);
+    assertFalse(
+        Files.exists(firstHtmlPath), "stale " + firstHtmlPath + " should be cleared on full rebuild");
     assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
     assertFalse(secondHtml.contains("First Site Title"), secondHtml);
+    assertFalse(secondHtml.contains("2026-01-01"), secondHtml);
     assertNotEquals(firstHtml, secondHtml);
   }
 

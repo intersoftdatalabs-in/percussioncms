@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -36,6 +37,19 @@ import org.junit.jupiter.api.io.TempDir;
 class PSVirtualSiteBuildServiceTest {
 
   @TempDir Path tempDir;
+
+  @Test
+  void pruneStaleEmittedHtmlDeletesHtmlNotInWrittenSet() throws Exception {
+    Path out = tempDir.resolve("prune-out");
+    Files.createDirectories(out.resolve("8.2"));
+    Path keep = out.resolve("8.2").resolve("keep.html");
+    Path drop = out.resolve("8.2").resolve("drop.html");
+    Files.writeString(keep, "keep", StandardCharsets.UTF_8);
+    Files.writeString(drop, "drop", StandardCharsets.UTF_8);
+    PSVirtualSiteBuildService.pruneStaleEmittedHtml(out, List.of("8.2/keep.html"));
+    assertTrue(Files.isRegularFile(keep), "kept " + keep);
+    assertFalse(Files.exists(drop), "stale " + drop + " should be cleared on full rebuild");
+  }
 
   @Test
   void buildsSampleTreeAndRegistersParticipants() throws Exception {
