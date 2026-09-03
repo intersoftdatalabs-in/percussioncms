@@ -240,8 +240,8 @@ class CatalogRestJaxrsRegistrationTest {
         displayFormatReader < jackson,
         DISPLAY_FORMAT_JSON_READER + " must be listed before jacksonProvider");
     assertTrue(
-        restBlock.contains("skip.default.json.provider.registration"),
-        "rest-jax-rs must skip Jettison JSONProvider (POST /actions JAXB "
+        restBlock.contains("skip.default.json.provider.registration\" value=\"true\""),
+        "rest-jax-rs must skip Jettison JSONProvider with value=\"true\" (POST /actions JAXB "
             + "allowedWorkflowTransitionsRequest)");
   }
 

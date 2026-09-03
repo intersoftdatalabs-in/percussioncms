@@ -33,8 +33,8 @@ import jakarta.ws.rs.ext.MessageBodyReader;
 import java.io.ByteArrayInputStream;
 import java.lang.annotation.Annotation;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
@@ -114,29 +114,67 @@ public class ActionMenuCreateCxfUnmarshallTest {
 
   @Test
   public void cxfPostWrappedActionMenuInvokesCreate() throws Exception {
-    assertCreatePost(WRAPPED, "cxfN1", "local://issue-4123-actions-wrap");
+    assertCreatePost(WRAPPED, "cxfN1", "local://issue-4123-actions-wrap", true);
   }
 
   @Test
   public void cxfPostFlatActionMenuInvokesCreate() throws Exception {
-    assertCreatePost(FLAT, "cxfFlat", "local://issue-4123-actions-flat");
+    assertCreatePost(FLAT, "cxfFlat", "local://issue-4123-actions-flat", true);
   }
 
+  /**
+   * Jackson + JAXBElementProvider without {@link ActionMenuJsonReader} must still POST wrapped
+   * {@code ActionMenu} (#4171). Distinct from {@link #cxfPostWrappedActionMenuInvokesCreate}:
+   * production skip.default.json.provider.registration means Jackson unwrap wins, not Jettison
+   * JAXB. {@link #startServer} always registers JAXBElementProvider; omitting the custom reader
+   * is the unique path.
+   */
   @Test
-  public void cxfPostWrappedActionMenuWithJaxbProviderStillInvokesCreate() throws Exception {
-    assertCreatePost(WRAPPED, "cxfN1", "local://issue-4171-actions-jaxb");
+  public void cxfPostWrappedActionMenuWithoutCustomReaderInvokesCreate() throws Exception {
+    assertCreatePost(WRAPPED, "cxfN1", "local://issue-4171-actions-jackson-only", false);
   }
 
+  /**
+   * CXF provider chain (Jackson then JAXBElementProvider, no {@link ActionMenuJsonReader}) must
+   * select Jackson for {@code application/json} ActionMenu and bind the wrapped envelope.
+   */
   @Test
-  public void jacksonBarrierBindsWrappedActionMenuWithoutCustomReader() {
+  public void jacksonBarrierBindsWrappedActionMenuWithoutCustomReader() throws Exception {
+    ServerProviderFactory factory = ServerProviderFactory.createInstance(null);
+    JacksonJsonProvider jackson = new JacksonJsonProvider();
+    jackson.setMapper(
+        (tools.jackson.databind.json.JsonMapper)
+            new JacksonContextResolver().getContext(ActionMenu.class));
+    factory.setUserProviders(
+        Arrays.asList(jackson, new JacksonContextResolver(), new JAXBElementProvider<>()));
+
+    MessageImpl message = new MessageImpl();
+    MessageBodyReader<ActionMenu> selected =
+        factory.createMessageBodyReader(
+            ActionMenu.class,
+            ActionMenu.class,
+            new Annotation[0],
+            MediaType.APPLICATION_JSON_TYPE,
+            message);
+    assertNotNull(selected, "CXF must find a MessageBodyReader for ActionMenu");
+    assertTrue(
+        JacksonJsonProvider.class.isAssignableFrom(selected.getClass()),
+        () -> "Jackson must win the JSON chain, got " + selected.getClass().getName());
+
     ActionMenu menu =
-        new JacksonContextResolver()
-            .getContext(ActionMenu.class)
-            .readValue(WRAPPED, ActionMenu.class);
+        selected.readFrom(
+            ActionMenu.class,
+            ActionMenu.class,
+            new Annotation[0],
+            MediaType.APPLICATION_JSON_TYPE,
+            null,
+            new ByteArrayInputStream(WRAPPED.getBytes(StandardCharsets.UTF_8)));
     assertEquals("cxfN1", menu.getName());
   }
 
-  private void assertCreatePost(String json, String expectedName, String address) throws Exception {
+  private void assertCreatePost(
+      String json, String expectedName, String address, boolean includeActionMenuJsonReader)
+      throws Exception {
     AtomicReference<ActionMenu> captured = new AtomicReference<>();
     IActionMenuAdaptor adaptor = mock(IActionMenuAdaptor.class);
     when(adaptor.createActionMenu(any()))
@@ -156,7 +194,7 @@ public class ActionMenuCreateCxfUnmarshallTest {
     field.setAccessible(true);
     field.set(resource, adaptor);
 
-    server = startServer(resource, address);
+    server = startServer(resource, address, includeActionMenuJsonReader);
 
     WebClient client =
         WebClient.create(address)
@@ -172,7 +210,8 @@ public class ActionMenuCreateCxfUnmarshallTest {
     verify(adaptor).createActionMenu(any());
   }
 
-  private static Server startServer(ActionMenuResource resource, String address) {
+  private static Server startServer(
+      ActionMenuResource resource, String address, boolean includeActionMenuJsonReader) {
     JacksonJsonProvider jackson = new JacksonJsonProvider();
     jackson.setMapper(
         (tools.jackson.databind.json.JsonMapper)
@@ -180,14 +219,16 @@ public class ActionMenuCreateCxfUnmarshallTest {
     JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
     sf.setAddress(address);
     sf.setServiceBean(resource);
-    sf.setProviders(
-        List.of(
-            new ActionMenuJsonReader(),
-            new AllowedContentTypeMenusRequestJsonReader(),
-            jackson,
-            new JacksonContextResolver(),
-            new JAXBElementProvider<>(),
-            new WebApplicationExceptionMapper()));
+    ArrayList<Object> providers = new ArrayList<>();
+    if (includeActionMenuJsonReader) {
+      providers.add(new ActionMenuJsonReader());
+    }
+    providers.add(new AllowedContentTypeMenusRequestJsonReader());
+    providers.add(jackson);
+    providers.add(new JacksonContextResolver());
+    providers.add(new JAXBElementProvider<>());
+    providers.add(new WebApplicationExceptionMapper());
+    sf.setProviders(providers);
     Server created = sf.create();
     assertNotNull(created, "CXF local server must start");
     return created;
