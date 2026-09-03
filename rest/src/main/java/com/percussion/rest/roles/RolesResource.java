@@ -76,7 +76,7 @@ public class RolesResource {
   public Role getRoleByName(@PathParam("roleName") String roleName) {
     try {
       roleName = java.net.URLDecoder.decode(roleName, "UTF-8");
-      return roleAdaptor.getRole(uriInfo.getBaseUri(), roleName);
+      return requireAdaptor().getRole(uriInfo.getBaseUri(), roleName);
     } catch (BackendException | UnsupportedEncodingException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -116,9 +116,11 @@ public class RolesResource {
       message = e.getMessage();
     }
     try {
-      roleAdaptor.deleteRole(uriInfo.getBaseUri(), roleName);
+      requireAdaptor().deleteRole(uriInfo.getBaseUri(), roleName);
       retCode = 200;
       message = "OK";
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (Exception e) {
       retCode = 500;
       message = e.getMessage();
@@ -143,7 +145,7 @@ public class RolesResource {
       })
   public Role updateRole(
       @Parameter(description = "The body containing a JSON payload", name = "body") Role role) {
-    return roleAdaptor.updateRole(uriInfo.getBaseUri(), role);
+    return requireAdaptor().updateRole(uriInfo.getBaseUri(), role);
   }
 
   /** Find available roles on the system by % wild card pattern. */
@@ -162,7 +164,7 @@ public class RolesResource {
       })
   public RoleList findRoles() {
     try {
-      var ret = roleAdaptor.findRoles(uriInfo.getBaseUri(), "%");
+      var ret = requireAdaptor().findRoles(uriInfo.getBaseUri(), "%");
       return new RoleList(ret);
     } catch (BackendException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
@@ -184,7 +186,9 @@ public class RolesResource {
       description =
           "Admin. Returns system roles with Workbench Security Design grouping metadata"
               + " (community, workflow, unassigned). Optional group query filter limits the"
-              + " result. Non-Admin is 403.",
+              + " result. Non-Admin is 403 via adaptor requireAdmin (same Admin gate pattern as"
+              + " other Developer Admin REST; this module does not use JAX-RS @RolesAllowed)."
+              + " Missing adaptor is 503 on all role endpoints.",
       responses = {
         @ApiResponse(
             responseCode = "200",
