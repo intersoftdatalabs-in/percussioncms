@@ -10,12 +10,30 @@ import * as relationshipTypesApi from "../../../main/ts/api/developer/relationsh
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { RelationshipTypeDetailPanel } from "../../../main/ts/developer/RelationshipTypeDetailPanel";
 
-vi.mock("../../../main/ts/api/developer/relationshipTypesApi", () => ({
-  listRelationshipTypes: vi.fn(),
-  getRelationshipTypeDetail: vi.fn(),
-}));
+vi.mock("../../../main/ts/api/developer/relationshipTypesApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/relationshipTypesApi")
+  >();
+  return {
+    ...actual,
+    listRelationshipTypes: vi.fn(),
+    getRelationshipTypeDetail: vi.fn(),
+    createRelationshipType: vi.fn(),
+    updateRelationshipType: vi.fn(),
+    deleteRelationshipType: vi.fn(),
+  };
+});
 
 const getRelationshipTypeDetail = relationshipTypesApi.getRelationshipTypeDetail as ReturnType<
+  typeof vi.fn
+>;
+const createRelationshipType = relationshipTypesApi.createRelationshipType as ReturnType<
+  typeof vi.fn
+>;
+const updateRelationshipType = relationshipTypesApi.updateRelationshipType as ReturnType<
+  typeof vi.fn
+>;
+const deleteRelationshipType = relationshipTypesApi.deleteRelationshipType as ReturnType<
   typeof vi.fn
 >;
 
@@ -25,7 +43,12 @@ const sampleDetail = {
   category: "rs_activeassembly",
   categoryLabel: "Active Assembly",
   type: "system",
+  systemType: true,
+  userType: false,
   description: "AA relationship",
+  allowCloning: true,
+  useOwnerRevision: true,
+  useDependentRevision: false,
   effects: [
     {
       name: "sys_PublishRequired",
@@ -38,15 +61,36 @@ const sampleDetail = {
   designGaps: ["gap-a"],
 };
 
+const sampleUserDetail = {
+  name: "MyUserRel",
+  label: "My User Rel",
+  category: "rs_generic",
+  categoryLabel: "Generic",
+  type: "user",
+  systemType: false,
+  userType: true,
+  description: "user type",
+  allowCloning: false,
+  useOwnerRevision: false,
+  useDependentRevision: false,
+  effects: [],
+  systemProperties: [],
+  userProperties: [],
+  designGaps: ["gap-user"],
+};
+
 describe("RelationshipTypeDetailPanel", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
       message: (key: string) => key,
     };
     getRelationshipTypeDetail.mockReset();
+    createRelationshipType.mockReset();
+    updateRelationshipType.mockReset();
+    deleteRelationshipType.mockReset();
   });
 
-  it("loads detail on success and supports back", async () => {
+  it("loads system detail as read-only (no save/delete)", async () => {
     getRelationshipTypeDetail.mockResolvedValue(sampleDetail);
     const onBack = vi.fn();
     render(<RelationshipTypeDetailPanel idOrName="ActiveAssembly" onBack={onBack} />);
@@ -56,6 +100,10 @@ describe("RelationshipTypeDetailPanel", () => {
     expect(screen.getByTestId("developer-rt-detail-title").textContent).toContain(
       "Active Assembly",
     );
+    expect(screen.getByTestId("developer-rt-system-readonly")).toBeTruthy();
+    expect(screen.queryByTestId("developer-rt-save")).toBeNull();
+    expect(screen.queryByTestId("developer-rt-delete")).toBeNull();
+    expect(screen.getByTestId("developer-rt-label")).toBeDisabled();
     expect(screen.getByTestId("developer-rt-effects-table")).toBeTruthy();
     expect(screen.getByTestId("developer-rt-sysprops-table")).toBeTruthy();
     expect(screen.getByTestId("developer-rt-userprops-table")).toBeTruthy();
@@ -63,6 +111,88 @@ describe("RelationshipTypeDetailPanel", () => {
     expect(getRelationshipTypeDetail).toHaveBeenCalledWith("ActiveAssembly");
     fireEvent.click(screen.getByTestId("developer-rt-back"));
     expect(onBack).toHaveBeenCalled();
+  });
+
+  it("creates a user relationship type with category", async () => {
+    createRelationshipType.mockResolvedValue(sampleUserDetail);
+    const onSaved = vi.fn();
+    render(
+      <RelationshipTypeDetailPanel
+        idOrName={null}
+        catalog={[sampleDetail]}
+        onBack={() => undefined}
+        onSaved={onSaved}
+      />,
+    );
+    expect(screen.getByTestId("developer-rt-detail-title").textContent).toContain(
+      DEV_MSG.RT_NEW,
+    );
+    const saveBtn = screen.getByTestId("developer-rt-save");
+    expect(saveBtn).toBeDisabled();
+    fireEvent.change(screen.getByTestId("developer-rt-name"), {
+      target: { value: "MyUserRel" },
+    });
+    fireEvent.change(screen.getByTestId("developer-rt-category"), {
+      target: { value: "rs_generic" },
+    });
+    fireEvent.change(screen.getByTestId("developer-rt-label"), {
+      target: { value: "My User Rel" },
+    });
+    expect(saveBtn).not.toBeDisabled();
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(createRelationshipType).toHaveBeenCalled();
+    });
+    expect(createRelationshipType.mock.calls[0][0]).toMatchObject({
+      name: "MyUserRel",
+      category: "rs_generic",
+      label: "My User Rel",
+    });
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(screen.getByTestId("developer-rt-editor-notice").textContent).toBe(DEV_MSG.RT_SAVED);
+  });
+
+  it("updates and deletes a user relationship type", async () => {
+    getRelationshipTypeDetail.mockResolvedValue(sampleUserDetail);
+    updateRelationshipType.mockResolvedValue({
+      ...sampleUserDetail,
+      label: "Updated",
+    });
+    deleteRelationshipType.mockResolvedValue(undefined);
+    const onDeleted = vi.fn();
+    render(
+      <RelationshipTypeDetailPanel
+        idOrName="MyUserRel"
+        onBack={() => undefined}
+        onDeleted={onDeleted}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-rt-save")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-rt-system-readonly")).toBeNull();
+    fireEvent.change(screen.getByTestId("developer-rt-label"), {
+      target: { value: "Updated" },
+    });
+    fireEvent.click(screen.getByTestId("developer-rt-save"));
+    await waitFor(() => {
+      expect(updateRelationshipType).toHaveBeenCalledWith(
+        "MyUserRel",
+        expect.objectContaining({ label: "Updated" }),
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("developer-rt-delete"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-catalog-confirm-dialog")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(deleteRelationshipType).toHaveBeenCalledWith("MyUserRel");
+    });
+    expect(onDeleted).toHaveBeenCalled();
   });
 
   it("shows empty effects/props sections when detail has none", async () => {
