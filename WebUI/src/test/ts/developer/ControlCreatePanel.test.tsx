@@ -51,6 +51,21 @@ describe("ControlCreatePanel", () => {
     expect(createControl).not.toHaveBeenCalled();
   });
 
+  it("disables save for wildcard names", () => {
+    render(<ControlCreatePanel onBack={() => undefined} />);
+    const save = screen.getByTestId("developer-ctl-create-save") as HTMLButtonElement;
+    fireEvent.change(screen.getByTestId("developer-ctl-create-name"), {
+      target: { value: "qa*" },
+    });
+    expect(save.disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-ctl-create-name"), {
+      target: { value: "qa%" },
+    });
+    expect(save.disabled).toBe(true);
+    fireEvent.click(save);
+    expect(createControl).not.toHaveBeenCalled();
+  });
+
   it("creates a user control when the name is valid", async () => {
     createControl.mockResolvedValue({
       name: "qaCtl",

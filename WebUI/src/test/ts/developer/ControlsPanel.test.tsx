@@ -61,6 +61,8 @@ describe("ControlsPanel", () => {
     });
     expect(screen.getByTestId("developer-ctl-params-table")).toBeTruthy();
     expect(screen.getByTestId("developer-ctl-gaps").textContent).toContain("gap-a");
+    expect(screen.getByTestId("developer-ctl-system-readonly")).toBeTruthy();
+    expect(screen.queryByTestId("developer-ctl-create-save")).toBeNull();
   });
 
   it("shows loading empty and empty state", async () => {
