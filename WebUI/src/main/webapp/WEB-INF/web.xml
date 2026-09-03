@@ -131,8 +131,25 @@
         <servlet-name>PSRetiredArchitectureRedirect</servlet-name>
         <url-pattern>/cm/pages/app/siteArchitecture.jsp</url-pattern>
     </servlet-mapping>
+    <!-- #3473: leftover editAsset.jsp bookmarks 301 to SPA editor. -->
+    <servlet>
+        <servlet-name>PSRetiredEditAssetRedirect</servlet-name>
+        <servlet-class>com.percussion.webui.servlet.PSRetiredJspRedirectServlet</servlet-class>
+        <init-param>
+            <param-name>view</param-name>
+            <param-value>editor</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PSRetiredEditAssetRedirect</servlet-name>
+        <url-pattern>/cm/app/editAsset.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredEditAssetRedirect</servlet-name>
+        <url-pattern>/cm/pages/app/editAsset.jsp</url-pattern>
+    </servlet-mapping>
     
-    
+     
     <filter>
         <filter-name>PSDispatchFilter</filter-name>
         <filter-class>com.percussion.servlets.PSDispatcherFilter</filter-class>

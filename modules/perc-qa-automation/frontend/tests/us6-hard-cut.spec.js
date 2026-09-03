@@ -73,9 +73,11 @@ const SHELLS = [
   },
   {
     name: "editAsset",
+    // #3473: leftover JSP 301s to SPA editor (not explorer mount)
     path: "/Rhythmyx/cm/app/editAsset.jsp",
-    asserted: true, // T031 complete on 2026-07-19
-    expectModernShell: true,
+    asserted: true,
+    expectModernShell: false,
+    expectEditorSpa: true,
   },
   {
     name: "editTemplate",
@@ -151,6 +153,12 @@ test.describe("US6 hard cut — no miller-column Finder chrome (SC-006)", () => 
       if (shell.expectDesignSpa) {
         // #3306: admin.jsp → SPA Design template library (multi-hop redirect)
         await expect(page.getByTestId("perc-design-shell")).toBeVisible({
+          timeout: 30_000,
+        });
+      }
+      if (shell.expectEditorSpa) {
+        // #3473: editAsset.jsp bookmark → React Content Editor host
+        await expect(page.getByTestId("editor-host")).toBeVisible({
           timeout: 30_000,
         });
       }

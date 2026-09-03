@@ -163,6 +163,25 @@ public class PSWebUiSpaFallbackFilterTest {
   }
 
   @Test
+  public void retiredEditAssetJspRedirectsToEditorView() {
+    assertEquals(
+        "/cm/app/?view=editor",
+        PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+            "/cm/app/editAsset.jsp", null));
+    assertEquals(
+        "/cm/app/?view=editor",
+        PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+            "/cm/pages/app/editAsset.jsp", ""));
+    assertEquals(
+        "/cm/app/?view=editor&id=42",
+        PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+            "/cm/app/editAsset.jsp", "id=42"));
+    assertEquals(
+        "/Rhythmyx/cm/app/?view=editor",
+        PSWebUiSpaFallbackFilter.withContextPath("/Rhythmyx", "/cm/app/?view=editor"));
+  }
+
+  @Test
   public void retiredArchitectureLocationGetsContextPrefix() {
     assertEquals(
         "/Rhythmyx/cm/app/?view=arch",
@@ -177,6 +196,8 @@ public class PSWebUiSpaFallbackFilterTest {
     assertTrue(PSWebUiSpaFallbackFilter.isRetiredArchitectureJsp("/rhythmyx/cm/app/sitearchitecture.jsp"));
     assertTrue(
         !PSWebUiSpaFallbackFilter.isRetiredArchitectureJsp("/cm/app/admin.jsp"));
+    assertTrue(
+        !PSWebUiSpaFallbackFilter.isRetiredArchitectureJsp("/cm/app-sitearchitecture.jsp"));
   }
 
   @Test

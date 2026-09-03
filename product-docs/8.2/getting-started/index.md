@@ -35,7 +35,7 @@ This section covers how to obtain, install, upgrade, and take first steps with P
    The template library is under **Developer → Design** — classic
    `?view=design` / `admin.jsp` bookmarks still redirect there. See
    [Design templates](id:admin-design-templates).
-4. Create or open a **Site**, confirm Explorer navigation, and open the React Content Editor from Explorer **Edit** or **Home → Create** (page, blog, or asset). Those surfaces do not open leftover `?view=editor` or `editAsset.jsp`.
+4. Create or open a **Site**, confirm Explorer navigation, and open the React Content Editor from Explorer **Edit** or **Home → Create** (page, blog, or asset). Those surfaces do not open leftover `?view=editor` or `editAsset.jsp` — those bookmarks redirect to `spa.jsp?entry=editor`. A published-page `perc_linkback_id` that no longer exists still opens that editor host with a missing-item message (not leftover Content Editor HTML).
 5. Open **Developer → Design** to list assembly templates and edit source, JEXL bindings, assembler,
    and slots. See [Design templates](id:admin-design-templates).
 6. Review [Server operations](id:admin-server-ops) for ports, service control, and logs.

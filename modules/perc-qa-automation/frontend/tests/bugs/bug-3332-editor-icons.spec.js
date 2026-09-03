@@ -41,7 +41,7 @@ function explorerUrl() {
 }
 
 function editorUrl() {
-  return `${BASE_URL}/Rhythmyx/cm/app/?view=editor&_=${Date.now()}`;
+  return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=editor&_=${Date.now()}`;
 }
 
 function canonicalIconUrl(name) {
@@ -119,21 +119,10 @@ test.describe("GH-3332 editor icons + chrome not stuck loading", () => {
     await loginAsAdmin(page);
     await page.goto(editorUrl(), { waitUntil: "domcontentloaded" });
 
-    await expect(page.locator("#perc-web-management")).toBeVisible({
+    await expect(page.getByTestId("editor-host")).toBeVisible({
       timeout: 30_000,
     });
-    await expect(page.locator("#perc-pageEditor-tabs")).toBeVisible({
-      timeout: 15_000,
-    });
-    await expect
-      .poll(
-        async () => page.locator(".perc-ui-component-overlay").count(),
-        { timeout: 20_000 },
-      )
-      .toBe(0);
-    await expect(page.locator("#perc-ui-view-indicator")).toHaveClass(
-      /perc-ui-view-ready/,
-    );
+    await expect(page).not.toHaveURL(/view=editor/);
     expect(icon404s, `editor icon 404s: ${icon404s.join(", ")}`).toEqual([]);
   });
 });
