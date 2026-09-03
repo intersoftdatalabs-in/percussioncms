@@ -1482,8 +1482,8 @@ after POST, and omits it after DELETE. There is no new SOAP surface.
 **Developer → Action Menus** chrome creates and deletes user menus and saves
 label / description / menuType plus Workbench **Usage**, **Command**, and
 **Visibility** on user menus (`handler`, `url`, `parameters`, command/usage
-`properties`, `visibilityContexts`, and `uiContexts`). Cascading children
-composition (UI-04) is a later slice —
+`properties`, `visibilityContexts`, and `uiContexts`). Ordered **child associations**
+on a user cascading `MENU` use `PUT /services/actions/{idOrName}/children` (UI-04) —
 see [Developer Action Menus](id:admin-developer-action-menus). Finder helpers
 (`GET /services/actions/find`, content-type and template finders) are unchanged.
 After POST the editor notice confirms the save. Packaged menus (for example
@@ -1520,13 +1520,25 @@ includes `partialOverlay: true` and empty collection arrays are **not**
 authoritative — omit `parameters` / `visibilityContexts` / `uiContexts` on the
 next PUT so stored collections are not cleared. After a successful overlay,
 GET returns the same visibility and uiContexts as a successful PUT.
+**Children PUT** (`PUT /services/actions/{idOrName}/children`) replaces
+`RXMENUACTIONRELATION` for a user cascading `MENU` (type `MENU` with a blank
+URL). The body is an `ActionMenuList`: a JSON array, `{"ActionMenuList":[…]}`,
+or `{"children":[…]}`. Each element is identified by **`name`**, numeric
+**`id`**, or **`guid.stringValue`** (the same catalog keys as GET). Array
+**order** is persisted (child `SORTORDER` plus relation rows). Other fields on
+those child objects are ignored. An empty array clears children. Parent
+`PUT /services/actions/{idOrName}` does **not** honor nested `children`.
+A non-cascading parent is **400**. Unknown parent or child is **404**.
+System parent is **409**. Following GET `/services/actions/catalog/{idOrName}`
+returns those children in order.
 
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/services/actions/catalog` | List action menus (tree roots with children) |
 | `GET` | `/services/actions/catalog/{idOrName}` | Load one menu by name, numeric id, or GUID string |
 | `POST` | `/services/actions` | **Admin.** Create a user action menu (`createActions` then `saveActions`) |
-| `PUT` | `/services/actions/{idOrName}` | **Admin.** Update label, description, menuType, url, handler, parameters, command/usage properties, visibilityContexts, and uiContexts |
+| `PUT` | `/services/actions/{idOrName}` | **Admin.** Update label, description, menuType, url, handler, parameters, command/usage properties, visibilityContexts, and uiContexts (not children) |
+| `PUT` | `/services/actions/{idOrName}/children` | **Admin.** Replace ordered child associations on a user cascading MENU |
 | `DELETE` | `/services/actions/{idOrName}` | **Admin.** Delete a user action menu (`deleteActions`, `ignoreDependencies=false`) |
 
 JSON may wrap a single item as `ActionMenu`. **Create** `POST /services/actions`

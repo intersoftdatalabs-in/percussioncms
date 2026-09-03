@@ -27,7 +27,10 @@ import com.percussion.cms.objectstore.PSDbComponentCollection;
 import com.percussion.cms.objectstore.PSMenuModeContextMapping;
 import com.percussion.cms.objectstore.PSAction;
 import com.percussion.rest.Guid;
+import com.percussion.cms.objectstore.PSChildActions;
+import com.percussion.cms.objectstore.PSMenuChild;
 import com.percussion.rest.actions.ActionMenu;
+import com.percussion.rest.actions.ActionMenuList;
 import com.percussion.rest.actions.ActionMenuModeUIContext;
 import com.percussion.rest.actions.ActionMenuParameter;
 import com.percussion.rest.actions.ActionMenuProperty;
@@ -489,6 +492,55 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
   }
 
   @Override
+  public ActionMenu saveActionMenuChildren(String idOrName, ActionMenuList children) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (!isSafeMenuKey(idOrName)) {
+      return null;
+    }
+    IPSGuid id = null;
+    try {
+      PSAction existing = findPsActionByKey(idOrName.trim());
+      if (existing == null) {
+        existing = findHibernateActionByKey(idOrName.trim());
+        if (existing == null) {
+          return null;
+        }
+      }
+      rejectSystemMenuWrite(existing);
+      rejectNonCascadingParent(existing);
+      id = safeGuid(existing);
+      if (id == null) {
+        throw new WebApplicationException(SYSTEM_MENU_WRITE, 409);
+      }
+      List<PSAction> resolved = resolveChildActions(existing, children);
+      String session = currentSession();
+      String user = currentUser();
+      List<PSAction> loaded = service.loadActions(List.of(id), true, false, session, user);
+      if (loaded == null || loaded.isEmpty() || loaded.get(0) == null) {
+        return null;
+      }
+      PSAction domain = loaded.get(0);
+      rejectNonCascadingParent(domain);
+      replaceChildren(domain, resolved);
+      service.saveActions(List.of(domain), true, session, user);
+      return toDtoWithChildren(domain, resolved);
+    } catch (WebApplicationException | IllegalArgumentException e) {
+      throw e;
+    } catch (PSErrorResultsException e) {
+      if (id != null && isNotFound(e, id)) {
+        return null;
+      }
+      throw new WebApplicationException(
+          "Could not update action menu; design lock required or held by another user", 409);
+    } catch (PSErrorsException e) {
+      throw mapSaveOrDeleteFailure("update", e);
+    } finally {
+      clearRequestHibernateIndex();
+    }
+  }
+
+  @Override
   public boolean deleteActionMenu(String idOrName) {
     requireAdmin();
     requireSessionUserForWrite();
@@ -790,6 +842,107 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     } catch (RuntimeException e) {
       return null;
     }
+  }
+
+  static void rejectNonCascadingParent(PSAction parent) {
+    if (parent == null) {
+      return;
+    }
+    if (!parent.isCascadedMenu()) {
+      throw new IllegalArgumentException(
+          "Child associations can only be saved on a cascading MENU");
+    }
+  }
+
+  /**
+   * Resolve child catalog keys to assigned {@link PSAction}s. Unknown child is HTTP 404. Missing
+   * identity on a child row is 400.
+   */
+  List<PSAction> resolveChildActions(PSAction parent, ActionMenuList children) {
+    if (children == null || children.isEmpty()) {
+      return List.of();
+    }
+    int parentId = parent != null ? parent.getId() : -1;
+    List<PSAction> resolved = new ArrayList<>(children.size());
+    for (ActionMenu child : children) {
+      String key = childCatalogKey(child);
+      if (!isSafeMenuKey(key)) {
+        throw new IllegalArgumentException("child name or id is required");
+      }
+      PSAction found = findPsActionByKey(key.trim());
+      if (found == null) {
+        found = findHibernateActionByKey(key.trim());
+      }
+      if (found == null || found.getId() <= 0) {
+        throw new WebApplicationException("Action menu not found", 404);
+      }
+      if (parentId > 0 && found.getId() == parentId) {
+        throw new IllegalArgumentException("a menu cannot be a child of itself");
+      }
+      resolved.add(found);
+    }
+    return resolved;
+  }
+
+  static String childCatalogKey(ActionMenu child) {
+    if (child == null) {
+      return null;
+    }
+    if (StringUtils.isNotBlank(child.getName())) {
+      return child.getName().trim();
+    }
+    if (child.getGuid() != null && StringUtils.isNotBlank(child.getGuid().getStringValue())) {
+      return child.getGuid().getStringValue().trim();
+    }
+    if (child.getId() > 0) {
+      return String.valueOf(child.getId());
+    }
+    return null;
+  }
+
+  static void replaceChildren(PSAction parent, List<PSAction> children) {
+    if (parent == null) {
+      return;
+    }
+    PSChildActions existing = parent.getChildren();
+    List<PSMenuChild> toRemove = new ArrayList<>();
+    Iterator<?> it = existing.iterator();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (next instanceof PSMenuChild menuChild) {
+        toRemove.add(menuChild);
+      }
+    }
+    for (PSMenuChild menuChild : toRemove) {
+      existing.removeAction(menuChild);
+    }
+    int sort = 1;
+    if (children != null) {
+      for (PSAction child : children) {
+        if (child == null || child.getId() <= 0) {
+          continue;
+        }
+        child.setSortRank(sort++);
+        existing.add(child);
+      }
+    }
+  }
+
+  static ActionMenu toDtoWithChildren(PSAction parent, List<PSAction> children) {
+    ActionMenu menu = toDto(parent);
+    ActionMenuList kids = new ActionMenuList();
+    if (children != null) {
+      int parentId = parent != null ? parent.getId() : 0;
+      for (PSAction child : children) {
+        ActionMenu dto = toDto(child);
+        if (parentId > 0) {
+          dto.setParentId(parentId);
+        }
+        kids.add(dto);
+      }
+    }
+    menu.setChildren(kids);
+    return menu;
   }
 
   static void applyWritableFields(PSAction domain, ActionMenu body) {

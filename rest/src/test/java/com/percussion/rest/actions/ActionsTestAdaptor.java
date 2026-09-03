@@ -64,6 +64,14 @@ public class ActionsTestAdaptor implements IActionMenuAdaptor {
   }
 
   @Override
+  public ActionMenu saveActionMenuChildren(String idOrName, ActionMenuList children) {
+    ActionMenu parent = new ActionMenu();
+    parent.setName(idOrName);
+    parent.setChildren(children);
+    return parent;
+  }
+
+  @Override
   public boolean deleteActionMenu(String idOrName) {
     return false;
   }

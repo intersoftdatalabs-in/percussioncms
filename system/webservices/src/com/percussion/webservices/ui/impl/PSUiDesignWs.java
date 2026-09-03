@@ -27,6 +27,7 @@ import com.percussion.cms.objectstore.PSDisplayFormat;
 import com.percussion.cms.objectstore.PSDFColumns;
 import com.percussion.cms.objectstore.PSDFMultiProperty;
 import com.percussion.cms.objectstore.PSKey;
+import com.percussion.cms.objectstore.PSMenuChild;
 import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.cms.objectstore.PSVersionableDbComponent;
 import com.percussion.data.PSIdGenerator;
@@ -2908,6 +2909,70 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          ensureRestUserMenuProperty(conn, spec.actionId);
       else
          clearRestUserMenuProperty(conn, spec.actionId);
+      persistActionRelationsOn(conn, action);
+   }
+
+   /**
+    * Rewrite {@code RXMENUACTIONRELATION} for a parent whose child collection is dirty so GET
+    * {@code findActionMenusTree} round-trips REST children PUT on the H2 JDBC fallback path
+    * (locator {@code updateActions} can skip the XML graph). Unmodified empty children are
+    * skipped so label PUT does not wipe existing associations.
+    */
+   static void persistActionRelationsOn(Connection conn, PSAction action) throws SQLException
+   {
+      if (conn == null || action == null || action.getChildren() == null)
+         return;
+      if (action.getChildren().getState() == IPSDbComponent.DBSTATE_UNMODIFIED)
+         return;
+      int parentId = action.getId();
+      if (parentId <= 0)
+         return;
+      try (PreparedStatement del = conn.prepareStatement("DELETE FROM RXMENUACTIONRELATION WHERE ACTIONID = ?"))
+      {
+         del.setInt(1, parentId);
+         del.executeUpdate();
+      }
+      String insertSql = "INSERT INTO RXMENUACTIONRELATION (ACTIONID, CHILDACTIONID) VALUES (?, ?)";
+      String sortSql = "UPDATE RXMENUACTION SET SORTORDER = ? WHERE ACTIONID = ?";
+      int sort = 1;
+      Iterator<?> it = action.getChildren().iterator();
+      while (it.hasNext())
+      {
+         int childId = relationChildId(it.next());
+         if (childId <= 0)
+            continue;
+         try (PreparedStatement ins = conn.prepareStatement(insertSql))
+         {
+            ins.setInt(1, parentId);
+            ins.setInt(2, childId);
+            ins.executeUpdate();
+         }
+         try (PreparedStatement sortPs = conn.prepareStatement(sortSql))
+         {
+            sortPs.setInt(1, sort);
+            sortPs.setInt(2, childId);
+            sortPs.executeUpdate();
+         }
+         sort++;
+      }
+   }
+
+   static int relationChildId(Object node)
+   {
+      if (node instanceof PSMenuChild child)
+      {
+         try
+         {
+            return Integer.parseInt(StringUtils.trimToEmpty(child.getChildActionId()));
+         }
+         catch (NumberFormatException e)
+         {
+            return -1;
+         }
+      }
+      if (node instanceof PSAction child)
+         return child.getId();
+      return -1;
    }
 
    static void ensureActionRowPersisted(PSAction action)

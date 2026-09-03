@@ -76,6 +76,17 @@ class ActionMenuJsonReaderTest {
   }
 
   @Test
+  void parse_childrenArrayHonorsNameAndId() {
+    ActionMenu menu =
+        ActionMenuJsonReader.parse(
+            "{\"name\":\"Parent\",\"children\":[{\"name\":\"ChildA\"},{\"id\":12}]}");
+    assertEquals("Parent", menu.getName());
+    assertEquals(2, menu.getChildren().size());
+    assertEquals("ChildA", menu.getChildren().get(0).getName());
+    assertEquals(12, menu.getChildren().get(1).getId());
+  }
+
+  @Test
   void isReadable_actionMenuJsonOnly() {
     ActionMenuJsonReader reader = new ActionMenuJsonReader();
     assertTrue(

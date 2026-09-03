@@ -46,7 +46,7 @@ chrome. Those fields round-trip on **Save** (`PUT` then `GET`).
    as `community`, `role`, `locale`, `workflow`, or `publishableType` plus a
    value), and optional numeric mode/context UI mappings.
    Click **Save**. GET after save matches those fields. Child menu composition
-   is not written (UI-04).
+   is not written from this Save (use REST `PUT /services/actions/{idOrName}/children`).
 6. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
    The catalog returns with a green **Action
    menu deleted** notice and no longer lists that user menu. Delete of a
@@ -58,7 +58,8 @@ chrome. Those fields round-trip on **Save** (`PUT` then `GET`).
 ## Limits
 
 - Name is immutable after create.
-- Cascading child menu composition is not in this chrome (UI-04).
+- Cascading child menu composition is not in this chrome (UI-04 SPA). Admins
+  can persist ordered children with REST `PUT /services/actions/{idOrName}/children`.
 - Usage, command, and visibility are editable here for **user** menus. A
   **system** menu save or delete is **409**; the design lock is not stolen.
   Non-Admin save is **403**. Invalid handler, visibility context name, or
@@ -75,6 +76,7 @@ The chrome calls:
 | Load | `GET /services/actions/catalog/{idOrName}` |
 | Create | `POST /services/actions` (`name` required; unique, no spaces) |
 | Save | `PUT /services/actions/{idOrName}` (label, description, menuType, url, handler, parameters, command properties, visibilityContexts, uiContexts) |
+| Children | `PUT /services/actions/{idOrName}/children` (ordered name/id list; not called by this chrome yet) |
 | Delete | `DELETE /services/actions/{idOrName}` (`204` on success) |
 
 Writes lock the menu for the request (`overrideLock=false`) and release it on

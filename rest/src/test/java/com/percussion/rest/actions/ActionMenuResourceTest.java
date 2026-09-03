@@ -357,6 +357,75 @@ public class ActionMenuResourceTest {
   }
 
   @Test
+  public void updateActionMenuChildrenDelegates() {
+    ActionMenuList children = new ActionMenuList();
+    ActionMenu child = new ActionMenu();
+    child.setName("ChildA");
+    children.add(child);
+    ActionMenu updated = new ActionMenu();
+    updated.setName("MyMenu");
+    updated.setChildren(children);
+    when(adaptor.saveActionMenuChildren(eq("MyMenu"), eq(children))).thenReturn(updated);
+
+    ActionMenu out = resource.updateActionMenuChildren("MyMenu", children);
+
+    assertEquals("MyMenu", out.getName());
+    assertEquals(1, out.getChildren().size());
+    assertEquals("ChildA", out.getChildren().get(0).getName());
+    verify(adaptor).saveActionMenuChildren("MyMenu", children);
+  }
+
+  @Test
+  public void updateActionMenuChildrenNullBodyClears() {
+    ActionMenu updated = new ActionMenu();
+    updated.setName("MyMenu");
+    updated.setChildren(new ActionMenuList());
+    when(adaptor.saveActionMenuChildren(eq("MyMenu"), any())).thenReturn(updated);
+
+    ActionMenu out = resource.updateActionMenuChildren("MyMenu", null);
+
+    assertEquals("MyMenu", out.getName());
+    assertTrue(out.getChildren().isEmpty());
+    ArgumentCaptor<ActionMenuList> captor = ArgumentCaptor.forClass(ActionMenuList.class);
+    verify(adaptor).saveActionMenuChildren(eq("MyMenu"), captor.capture());
+    assertTrue(captor.getValue().isEmpty());
+  }
+
+  @Test
+  public void updateActionMenuChildrenUnknownIs404() {
+    when(adaptor.saveActionMenuChildren(eq("missing"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateActionMenuChildren("missing", new ActionMenuList()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateActionMenuChildrenNonAdminIs403() {
+    when(adaptor.saveActionMenuChildren(eq("MyMenu"), any()))
+        .thenThrow(new WebApplicationException("Admin role required", Response.Status.FORBIDDEN));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateActionMenuChildren("MyMenu", new ActionMenuList()));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateActionMenuChildrenSystemIs409() {
+    when(adaptor.saveActionMenuChildren(eq("Edit"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "System action menus cannot be updated or deleted via this API", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateActionMenuChildren("Edit", new ActionMenuList()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void updateActionMenuSystemIs409() {
     when(adaptor.saveActionMenu(eq("Edit"), any()))
         .thenThrow(
