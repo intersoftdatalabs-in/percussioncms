@@ -138,7 +138,7 @@
         <hikaricp.version>7.0.2</hikaricp.version>
         <!-- HC5: upper-bound pin for enforcer (AntiSamy 1.7.8 pulls 5.4.4/5.3.4;
              AWS SDK apache5-client ${aws.sdk.v2.version} pulls 5.6.2/5.4.3). -->
-        <httpcomponents.client5.version>5.6.2</httpcomponents.client5.version>
+        <httpcomponents.client5.version>5.6.3</httpcomponents.client5.version>
         <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
         <httpcomponents.core5.version>5.4.3</httpcomponents.core5.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
@@ -190,7 +190,7 @@
         <jetty.version>12.1.11</jetty.version>
         <jfx.version>11.0.2</jfx.version>
         <json.version>20251224</json.version>
-        <jsoup.version>1.22.1</jsoup.version>
+        <jsoup.version>1.23.1</jsoup.version>
         <jtds.version>1.3.1</jtds.version>
         <junit4.version>4.13.2</junit4.version>
         <junit5.version>6.1.2</junit5.version>
