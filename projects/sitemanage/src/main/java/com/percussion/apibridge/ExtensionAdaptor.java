@@ -215,6 +215,29 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
       return null;
     }
     String key = idOrName.trim();
+    Extension direct = resolveExistingForWrite(baseURI, key);
+    if (direct != null) {
+      return direct;
+    }
+    return null;
+  }
+
+  /**
+   * Prefer {@link IPSExtensionService#getExtensionDef} (O(1)) over catalog enumeration. Tries FQN
+   * first, then {@code Java/user/&lt;name&gt;} for Admin/SPA short names, then scans the catalog.
+   */
+  private Extension resolveExistingForWrite(URI baseURI, String idOrName) {
+    String key = idOrName.trim();
+    Extension direct = tryLoadByExtensionRef(key);
+    if (direct != null) {
+      return direct;
+    }
+    if (key.indexOf('/') < 0) {
+      Extension userGuess = tryLoadByExtensionRef(DEFAULT_HANDLER + "/" + USER_CONTEXT + key);
+      if (userGuess != null) {
+        return userGuess;
+      }
+    }
     List<Extension> all = listExtensions(baseURI);
     if (all == null) {
       return null;
@@ -228,6 +251,28 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
       }
     }
     return null;
+  }
+
+  private Extension tryLoadByExtensionRef(String fqnOrFull) {
+    if (StringUtils.isBlank(fqnOrFull) || fqnOrFull.indexOf('/') < 0) {
+      return null;
+    }
+    final PSExtensionRef ref;
+    try {
+      ref = new PSExtensionRef(fqnOrFull);
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+    try {
+      // Probe existence — copyExtensionRef swallows not-found and would return a skeleton.
+      extensionService.getExtensionDef(ref);
+    } catch (PSNotFoundException e) {
+      return null;
+    } catch (PSExtensionException e) {
+      log.debug("Direct extension def lookup failed for {}: {}", fqnOrFull, e.getMessage());
+      return null;
+    }
+    return copyExtensionRef(ref);
   }
 
   @Override
@@ -287,7 +332,7 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
     if (!isSafeExtensionKey(idOrName)) {
       return null;
     }
-    Extension existing = findExtensionByKey(baseURI, idOrName);
+    Extension existing = resolveExistingForWrite(baseURI, idOrName);
     if (existing == null) {
       return null;
     }
@@ -494,10 +539,15 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
     if (e == null) {
       return false;
     }
-    if (IPSExtensionHandler.HANDLER_HANDLER.equalsIgnoreCase(
-        StringUtils.defaultString(e.getHandlerName()))) {
+    String handler = StringUtils.trimToEmpty(e.getHandlerName());
+    // Fail closed: blank handler on a catalog row — treat as immutable (SPA mirrors this).
+    if (handler.isEmpty()) {
       return true;
     }
+    if (IPSExtensionHandler.HANDLER_HANDLER.equalsIgnoreCase(handler)) {
+      return true;
+    }
+    // Also covers handlers/... and global/percussion/... via context prefix.
     return isImmutableContext(e.getContext());
   }
 

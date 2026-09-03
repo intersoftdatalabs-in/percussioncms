@@ -300,11 +300,18 @@ class ExtensionAdaptorWriteTest {
     handler.setContext(IPSExtensionHandler.HANDLER_CONTEXT);
     handler.setExtensionName("Java");
     assertTrue(ExtensionAdaptor.isImmutableExtension(handler));
+
+    Extension blankHandler = new Extension();
+    blankHandler.setHandlerName("");
+    blankHandler.setContext("user/");
+    blankHandler.setExtensionName("orphan");
+    assertTrue(ExtensionAdaptor.isImmutableExtension(blankHandler));
   }
 
   @Test
-  void register_nonUniqueFromServiceIs409() throws Exception {
-    // Fresh service so doThrow is not layered over the setUp install Answer (Mockito null probe).
+  void register_raceExistsFalseInstallNonUniqueIs409() throws Exception {
+    // Race: exists() returned false, but installExtension still throws PSNonUniqueException.
+    // Production maps that directly to 409 (not wrapped PSExtensionException → 500).
     IPSExtensionService svc = mock(IPSExtensionService.class);
     when(svc.exists(any())).thenReturn(false);
     doThrow(new PSNonUniqueException(1, "dup")).when(svc).installExtension(any(), any());

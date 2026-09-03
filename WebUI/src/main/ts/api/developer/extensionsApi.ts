@@ -96,7 +96,10 @@ export function isImmutableExtension(
   ext: Pick<ExtensionDef, "context" | "handlerName"> | null | undefined,
 ): boolean {
   if (ext == null) return false;
-  if ((ext.handlerName || "").trim().toLowerCase() === EXTENSION_HANDLER_NAME.toLowerCase()) {
+  const handler = (ext.handlerName || "").trim();
+  // Fail closed: blank handler on a catalog row — treat as immutable (matches ExtensionAdaptor).
+  if (!handler) return true;
+  if (handler.toLowerCase() === EXTENSION_HANDLER_NAME.toLowerCase()) {
     return true;
   }
   return isImmutableExtensionContext(ext.context);
@@ -109,13 +112,14 @@ export function normalizeExtensionName(name: string | undefined | null): string 
 
 /**
  * True when the name matches PSExtensionRef.isValidExtensionName
- * (Java identifier start + parts).
+ * (Character.isJavaIdentifierStart / Part). Uses Unicode property escapes so
+ * non-ASCII letters are accepted client-side the same way the server accepts them.
  */
 export function isValidExtensionName(name: string | undefined | null): boolean {
   const key = normalizeExtensionName(name);
   if (!key) return false;
-  if (!/^[A-Za-z_$]/.test(key)) return false;
-  return /^[A-Za-z_$][\w$]*$/.test(key);
+  // ID_Start + $_ for start; ID_Continue + $ for continuation (Java also allows $).
+  return /^[\p{ID_Start}_$][\p{ID_Continue}$]*$/u.test(key);
 }
 
 /** Parse interfaces from a textarea (one per line; blank lines skipped). */

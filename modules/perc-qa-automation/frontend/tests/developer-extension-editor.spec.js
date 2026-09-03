@@ -146,8 +146,8 @@ test.describe("Developer extension editor (#4240 / SY-01)", () => {
     await loginAsAdmin(page);
     await openExtensionsCatalog(page);
 
-    // System row: Save/Delete disabled
-    const systemOpen = page.locator('[data-testid="developer-ex-open"]').first();
+    // System row: Save/Delete disabled — select by data-immutable, not catalog order.
+    const systemOpen = page.locator('[data-testid="developer-ex-open"][data-immutable="true"]').first();
     await expect(systemOpen).toBeVisible({ timeout: 20_000 });
     await systemOpen.click();
     await expect(page.locator('[data-testid="developer-ex-detail"]')).toBeVisible();
