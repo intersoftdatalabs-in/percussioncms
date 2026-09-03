@@ -450,6 +450,44 @@ describe("ActionMenuDetailPanel", () => {
     expect(screen.getByTestId("developer-am-detail-error").textContent).toContain("Invalid handler");
   });
 
+  it("surfaces a notice when create follow-up rollback DELETE fails", async () => {
+    createActionMenuMock.mockResolvedValue({
+      name: "MyMenu",
+      label: "My Menu",
+      description: "",
+      menuType: "MENUITEM",
+      guid: { stringValue: "0-107-88" },
+      id: 88,
+      parameters: [],
+      properties: [],
+    });
+    saveActionMenuMock.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Invalid handler" },
+    });
+    deleteActionMenuMock.mockRejectedValue({
+      status: 500,
+      statusText: "Server Error",
+      body: { message: "delete failed" },
+    });
+    render(<ActionMenuDetailPanel idOrName={null} onBack={() => undefined} />);
+    fireEvent.change(screen.getByTestId("developer-am-name"), {
+      target: { value: "MyMenu" },
+    });
+    fireEvent.change(screen.getByTestId("developer-am-handler"), {
+      target: { value: "SERVER" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-save"));
+    await waitFor(() => {
+      expect(deleteActionMenuMock).toHaveBeenCalledWith("88");
+    });
+    expect(screen.getByTestId("developer-am-detail-error").textContent).toContain("Invalid handler");
+    expect(screen.getByTestId("developer-am-editor-notice").textContent).toBe(
+      DEV_MSG.AM_CREATE_ROLLBACK_FAILED,
+    );
+  });
+
   it("creates a user action menu when the name is valid", async () => {
     createActionMenuMock.mockResolvedValue({
       name: "MyMenu",
@@ -678,6 +716,42 @@ describe("ActionMenuDetailPanel", () => {
     fireEvent.click(screen.getByTestId("developer-am-tab-usage"));
     expect((screen.getByTestId("developer-am-handler") as HTMLSelectElement).value).toBe("SERVER");
     expect((screen.getByTestId("developer-am-accel") as HTMLInputElement).value).toBe("Z");
+  });
+
+  it("omits empty visibility on save when GET partialOverlay is true", async () => {
+    getActionMenuDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      name: "UserMenu",
+      parameters: [],
+      properties: [],
+      visibilityContexts: [],
+      uiContexts: [],
+      partialOverlay: true,
+    });
+    saveActionMenuMock.mockResolvedValue({
+      ...sampleDetail,
+      name: "UserMenu",
+      partialOverlay: true,
+    });
+    render(<ActionMenuDetailPanel idOrName="UserMenu" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-save")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-am-label"), {
+      target: { value: "Updated label" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-save"));
+    await waitFor(() => {
+      expect(saveActionMenuMock).toHaveBeenCalled();
+    });
+    const putBody = saveActionMenuMock.mock.calls[0][1] as {
+      visibilityContexts?: unknown;
+      uiContexts?: unknown;
+      parameters?: unknown;
+    };
+    expect(putBody.visibilityContexts).toBeUndefined();
+    expect(putBody.uiContexts).toBeUndefined();
+    expect(putBody.parameters).toBeUndefined();
   });
 
   it("surfaces 400 on usage/command save", async () => {

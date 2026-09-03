@@ -632,6 +632,11 @@ export interface ActionMenu {
   properties?: ActionMenuProperty[];
   visibilityContexts?: ActionMenuVisibilityContext[];
   uiContexts?: ActionMenuModeUIContext[];
+  /**
+   * True when GET catalog detail could not overlay design visibility/uiContexts.
+   * Empty collection arrays are then not authoritative; PUT should omit them.
+   */
+  partialOverlay?: boolean;
   designGaps?: string[];
 }
 

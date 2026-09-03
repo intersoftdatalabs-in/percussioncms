@@ -1006,6 +1006,8 @@ export const DEV_MSG_KEYS = {
   AM_DELETE_ERROR: "perc.ui.developer@Could not delete action menu.",
   AM_DELETE_CONFIRM: "perc.ui.developer@Delete this action menu?",
   AM_SAVED: "perc.ui.developer@Action menu saved.",
+  AM_CREATE_ROLLBACK_FAILED:
+    "perc.ui.developer@Create follow-up failed and the new menu could not be rolled back. Delete the orphan menu if it remains in the catalog.",
   AM_DELETED: "perc.ui.developer@Action menu deleted.",
   AM_MISSING_PERSISTED_NAME:
     "perc.ui.developer@Action menu was saved but the server did not return a name.",

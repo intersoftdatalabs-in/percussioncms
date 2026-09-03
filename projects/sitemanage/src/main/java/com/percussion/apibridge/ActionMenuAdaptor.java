@@ -290,7 +290,9 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       try {
         List<ActionMenu> all = findMenus(null, null, null, null, null);
         ActionMenu catalog = matchMenuInTree(all, key);
-        overlayDesignVisibility(catalog);
+        if (catalog != null) {
+          catalog.setPartialOverlay(!overlayDesignVisibility(catalog));
+        }
         return catalog;
       } catch (PSErrorResultsException e) {
         log.debug("Action menu lookup failed for {}: {}", key, e.toString());
@@ -304,11 +306,14 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
   /**
    * GET catalog detail is Hibernate-backed; overlay visibility/uiContexts from an unlocked
    * design load so PUT then GET round-trips Workbench Visibility. Failures leave the catalog
-   * DTO unchanged (no 409 on GET).
+   * DTO collections unchanged (no 409 on GET) and return {@code false} so the wire can set
+   * {@code partialOverlay}.
+   *
+   * @return {@code true} when design collections were copied onto {@code catalog}
    */
-  void overlayDesignVisibility(ActionMenu catalog) {
+  boolean overlayDesignVisibility(ActionMenu catalog) {
     if (catalog == null) {
-      return;
+      return false;
     }
     IPSGuid id = null;
     if (catalog.getGuid() != null && StringUtils.isNotBlank(catalog.getGuid().getStringValue())) {
@@ -318,25 +323,27 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       try {
         id = PSAction.getGuidFromId(catalog.getId());
       } catch (RuntimeException e) {
-        return;
+        return false;
       }
     }
     if (id == null) {
-      return;
+      return false;
     }
     try {
       List<PSAction> loaded =
           service.loadActions(
               List.of(id), false, false, currentSession(), currentUser());
       if (loaded == null || loaded.isEmpty() || loaded.get(0) == null) {
-        return;
+        return false;
       }
       PSAction domain = loaded.get(0);
       catalog.setVisibilityContexts(toDtoVisibilityContexts(domain.getVisibilityContexts()));
       catalog.setUiContexts(toDtoUiContexts(domain.getModeUIContexts()));
+      return true;
     } catch (RuntimeException | PSErrorResultsException e) {
-      log.debug(
+      log.warn(
           "Action menu design overlay skipped for {}: {}", catalog.getName(), e.toString());
+      return false;
     }
   }
 

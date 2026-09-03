@@ -442,7 +442,8 @@ class ActionMenuAdaptorWriteTest {
     when(designWs.loadActions(anyList(), eq(false), eq(false), any(), any()))
         .thenReturn(List.of(loaded));
 
-    adaptor.overlayDesignVisibility(catalog);
+    assertTrue(adaptor.overlayDesignVisibility(catalog));
+    assertFalse(catalog.isPartialOverlay());
 
     assertEquals(1, catalog.getVisibilityContexts().length);
     assertEquals(PSActionVisibilityContext.VIS_CONTEXT_COMMUNITY, catalog.getVisibilityContexts()[0].getName());
@@ -450,6 +451,23 @@ class ActionMenuAdaptorWriteTest {
     assertEquals(1, catalog.getUiContexts().length);
     assertEquals("1", catalog.getUiContexts()[0].getModeId());
     assertEquals("Folder", catalog.getUiContexts()[0].getContextName());
+  }
+
+  @Test
+  void overlayDesignVisibility_loadFailureLeavesCatalogAndReturnsFalse() throws Exception {
+    ActionMenu catalog = new ActionMenu();
+    catalog.setName("MyMenu");
+    catalog.setId(42);
+    ActionMenuVisibilityContext keep = new ActionMenuVisibilityContext();
+    keep.setName(PSActionVisibilityContext.VIS_CONTEXT_COMMUNITY);
+    keep.setValue("keep");
+    catalog.setVisibilityContexts(new ActionMenuVisibilityContext[] {keep});
+    when(designWs.loadActions(anyList(), eq(false), eq(false), any(), any()))
+        .thenThrow(new RuntimeException("design overlay failed"));
+
+    assertFalse(adaptor.overlayDesignVisibility(catalog));
+    assertEquals(1, catalog.getVisibilityContexts().length);
+    assertEquals("keep", catalog.getVisibilityContexts()[0].getValue());
   }
 
   @Test

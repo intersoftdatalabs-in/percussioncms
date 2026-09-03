@@ -304,7 +304,12 @@ test.describe("Developer action menu editor (#4112 / UI-02)", () => {
 
     await page.locator('[data-testid="developer-am-tab-visibility"]').click();
     await page.locator('[data-testid="developer-am-vis-add"]').click();
-    await page.locator('[data-testid="developer-am-vis-name-0"]').selectOption("community");
+    const visSelect = page.locator('[data-testid="developer-am-vis-name-0"]');
+    await expect(visSelect.locator('option[value="role"]')).toHaveCount(1);
+    await expect(visSelect.locator('option[value="locale"]')).toHaveCount(1);
+    await expect(visSelect.locator('option[value="workflow"]')).toHaveCount(1);
+    await expect(visSelect.locator('option[value="publishableType"]')).toHaveCount(1);
+    await visSelect.selectOption("community");
     await page.locator('[data-testid="developer-am-vis-value-0"]').fill("100");
 
     await page.locator('[data-testid="developer-am-save"]').click();

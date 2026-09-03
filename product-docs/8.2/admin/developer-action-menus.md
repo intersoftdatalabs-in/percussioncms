@@ -43,7 +43,8 @@ chrome. Those fields round-trip on **Save** (`PUT` then `GET`).
    **Command**, and **Visibility** tabs to set handler (`CLIENT` / `SERVER`),
    accelerator / mnemonic / tooltip / icon / launch-window / multi-select /
    refresh hint, URL and URL parameters, visibility contexts (name alias such
-   as `community` plus a value), and optional numeric mode/context UI mappings.
+   as `community`, `role`, `locale`, `workflow`, or `publishableType` plus a
+   value), and optional numeric mode/context UI mappings.
    Click **Save**. GET after save matches those fields. Child menu composition
    is not written (UI-04).
 6. Click **Delete** and confirm in the in-app dialog (not a browser prompt).

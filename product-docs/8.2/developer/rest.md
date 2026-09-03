@@ -1512,9 +1512,14 @@ The REST user-menu marker property is not overwritten. Name is the catalog key
 and is not renamed on PUT. Invalid `handler`, `menuType`, visibility context
 name, or uiContext id is **400**. Visibility context `name` is `1`–`11`
 (Workbench `VIS_CONTEXT_*`) or an alias such as `community`, `contentType`,
-`roles`, `workflows`, `checkoutStatus`, `folderSecurity`. GET
-`/services/actions/catalog/{idOrName}` returns the same visibility and
-uiContexts after a successful PUT.
+`roles` / `role`, `locales` / `locale`, `workflows` / `workflow`,
+`publishable` / `publishableType`, `checkoutStatus`, `folderSecurity`. GET
+`/services/actions/catalog/{idOrName}` overlays Workbench visibility and
+uiContexts from an unlocked design load. When that overlay fails, the response
+includes `partialOverlay: true` and empty collection arrays are **not**
+authoritative — omit `parameters` / `visibilityContexts` / `uiContexts` on the
+next PUT so stored collections are not cleared. After a successful overlay,
+GET returns the same visibility and uiContexts as a successful PUT.
 
 | Method | Path | Purpose |
 |--------|------|---------|

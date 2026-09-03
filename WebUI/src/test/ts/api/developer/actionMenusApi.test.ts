@@ -19,6 +19,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PATHS } from "../../../../main/ts/api/paths";
 import {
   ACTION_MENU_DESIGN_GAPS,
+  ACTION_MENU_VISIBILITY_ALIASES,
   createActionMenu,
   deleteActionMenu,
   getActionMenuDetail,
@@ -29,6 +30,7 @@ import {
   saveActionMenu,
   unwrapActionMenu,
   unwrapActionMenuList,
+  visibilityContextValue,
   withoutStaleActionMenuWriteGap,
   wrapActionMenuForWire,
 } from "../../../../main/ts/api/developer/actionMenusApi";
@@ -69,8 +71,31 @@ describe("unwrapActionMenu (#3380)", () => {
     ]);
   });
 
+  it("preserves partialOverlay from GET detail", () => {
+    const unwrapped = unwrapActionMenu({
+      name: "Edit",
+      partialOverlay: true,
+      visibilityContexts: [],
+    });
+    expect(unwrapped.partialOverlay).toBe(true);
+  });
+
   it("returns empty object for null payload", () => {
     expect(unwrapActionMenu(null)).toEqual({});
+  });
+});
+
+describe("visibilityContextValue / ACTION_MENU_VISIBILITY_ALIASES", () => {
+  it("returns empty string when value and values are both empty", () => {
+    expect(visibilityContextValue({ name: "community" })).toBe("");
+    expect(visibilityContextValue({ name: "community", value: "" })).toBe("");
+    expect(visibilityContextValue(null)).toBe("");
+  });
+
+  it("includes REST aliases role, locale, workflow, and publishableType", () => {
+    expect(ACTION_MENU_VISIBILITY_ALIASES).toEqual(
+      expect.arrayContaining(["role", "locale", "workflow", "publishableType", "roles", "community"]),
+    );
   });
 });
 

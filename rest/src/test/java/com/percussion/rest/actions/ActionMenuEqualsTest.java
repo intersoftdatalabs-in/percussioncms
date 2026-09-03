@@ -54,4 +54,13 @@ public class ActionMenuEqualsTest {
     assertNotEquals(sameParentA, otherParent);
     assertNotEquals(sameParentA.hashCode(), otherParent.hashCode());
   }
+
+  @Test
+  public void partialOverlayParticipatesInEqualsAndHashCode() {
+    ActionMenu overlayOk = sample(8);
+    ActionMenu overlayFailed = sample(8);
+    overlayFailed.setPartialOverlay(true);
+    assertNotEquals(overlayOk, overlayFailed);
+    assertNotEquals(overlayOk.hashCode(), overlayFailed.hashCode());
+  }
 }

@@ -201,6 +201,7 @@ export function ActionMenuDetailPanel({
 
   function hydrate(d: ActionMenu, key: string | null, preserveCollections = false): void {
     const loaded = applyLoaded(d, key);
+    const keepCollections = preserveCollections || Boolean(d.partialOverlay);
     setName(loaded.name);
     setLabel(loaded.label);
     setDescription(loaded.description);
@@ -218,7 +219,7 @@ export function ActionMenuDetailPanel({
     setTargetStyle(loaded.targetStyle);
     if (d.parameters != null && d.parameters.length > 0) {
       setParameters(loaded.parameters);
-    } else if (d.parameters != null && d.parameters.length === 0 && !preserveCollections) {
+    } else if (d.parameters != null && d.parameters.length === 0 && !keepCollections) {
       setParameters([]);
     }
     setExtraProps(loaded.extraProps);
@@ -227,13 +228,13 @@ export function ActionMenuDetailPanel({
     } else if (
       d.visibilityContexts != null &&
       d.visibilityContexts.length === 0 &&
-      !preserveCollections
+      !keepCollections
     ) {
       setVisibility([]);
     }
     if (d.uiContexts != null && d.uiContexts.length > 0) {
       setUiContexts(loaded.uiContexts);
-    } else if (d.uiContexts != null && d.uiContexts.length === 0 && !preserveCollections) {
+    } else if (d.uiContexts != null && d.uiContexts.length === 0 && !keepCollections) {
       setUiContexts([]);
     }
   }
@@ -308,13 +309,17 @@ export function ActionMenuDetailPanel({
     const body = identityBody();
     body.handler = handler;
     body.url = url.trim();
-    body.parameters = parameters
+    const overlayPartial = Boolean(detail?.partialOverlay);
+    const nextParams = parameters
       .filter((p) => (p.name || "").trim())
       .map((p) => ({
         name: (p.name || "").trim(),
         value: p.value || "",
         description: p.description || "",
       }));
+    if (!(overlayPartial && nextParams.length === 0)) {
+      body.parameters = nextParams;
+    }
     body.properties = mergeActionMenuProperties(extraProps, {
       [ACTION_MENU_PROP.ACCEL]: accel,
       [ACTION_MENU_PROP.MNEM]: mnem,
@@ -326,14 +331,17 @@ export function ActionMenuDetailPanel({
       [ACTION_MENU_PROP.TARGET]: target,
       [ACTION_MENU_PROP.TARGET_STYLE]: targetStyle,
     });
-    body.visibilityContexts = visibility
+    const nextVis = visibility
       .filter((row) => (row.name || "").trim() && (row.value || "").trim())
       .map((row) => ({
         name: (row.name || "").trim(),
         value: (row.value || "").trim(),
         description: row.description || "",
       }));
-    body.uiContexts = uiContexts
+    if (!(overlayPartial && nextVis.length === 0)) {
+      body.visibilityContexts = nextVis;
+    }
+    const nextUi = uiContexts
       .filter((row) => (row.modeId || "").trim() && (row.contextId || "").trim())
       .map((row) => ({
         modeId: (row.modeId || "").trim(),
@@ -342,6 +350,9 @@ export function ActionMenuDetailPanel({
         contextName: row.contextName || "",
         description: row.description || "",
       }));
+    if (!(overlayPartial && nextUi.length === 0)) {
+      body.uiContexts = nextUi;
+    }
     return body;
   }
 
@@ -410,8 +421,9 @@ export function ActionMenuDetailPanel({
           } catch (followUpErr: unknown) {
             try {
               await deleteActionMenu(persistKey);
-            } catch {
-              // Identity POST already succeeded; surface the PUT error.
+            } catch (rollbackErr: unknown) {
+              console.error("Action menu create rollback DELETE failed", rollbackErr);
+              setNotice(DEV_MSG.AM_CREATE_ROLLBACK_FAILED);
             }
             throw followUpErr;
           }

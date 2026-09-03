@@ -100,9 +100,13 @@ export const ACTION_MENU_VISIBILITY_ALIASES = [
   "clientContext",
   "checkoutStatus",
   "roles",
+  "role",
   "locales",
+  "locale",
   "workflows",
+  "workflow",
   "publishable",
+  "publishableType",
   "folderSecurity",
 ] as const;
 
@@ -153,7 +157,7 @@ export function visibilityContextValue(row: ActionMenuVisibilityContext | undefi
   if (row == null) return "";
   if (row.value != null && String(row.value).length > 0) return String(row.value);
   if (row.values != null) return String(row.values);
-  return row.value == null ? "" : String(row.value);
+  return "";
 }
 
 export function propertyValue(
