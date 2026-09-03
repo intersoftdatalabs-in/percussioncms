@@ -857,6 +857,12 @@ export interface ControlDef {
   deprecatedReplacement?: string;
   parameters?: ControlParameterSummary[];
   designGaps?: string[];
+  /**
+   * Optional full XSL stylesheet on write. Omitted on list/detail unless the
+   * client supplied it. When absent on POST the server writes a default
+   * user-control stylesheet from metadata.
+   */
+  xslSource?: string;
 }
 
 /**
