@@ -87,8 +87,10 @@ const actionButton: React.CSSProperties = {
 };
 
 function typeFromDetail(detail: ViewDef | null, fallback: string): string {
-  if (detail?.type && detail.type.trim()) return canonicalViewType(detail.type);
+  // REST persists CustomView as type "View" + customView=true + url; prefer the flag
+  // so post-save chrome keeps the URL field (Playwright UI-07 / #4237).
   if (detail?.customView) return VIEW_TYPE_CUSTOM;
+  if (detail?.type && detail.type.trim()) return canonicalViewType(detail.type);
   if (detail?.standardView) return VIEW_TYPE_STANDARD;
   return canonicalViewType(fallback);
 }
