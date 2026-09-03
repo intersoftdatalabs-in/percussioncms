@@ -42,14 +42,14 @@ Operators using **Developer → Display Formats** create/delete and column add/r
 
 Operators using **Developer → Action Menus** create/delete chrome: [Developer Action Menus](id:admin-developer-action-menus).
 
-Operators using **Developer → CE Controls** create chrome: [Developer CE Controls](id:admin-developer-ce-controls).
+Operators using **Developer → CE Controls** create/save/delete chrome: [Developer CE Controls](id:admin-developer-ce-controls).
 
 ## Accessibility — delete confirm
 
 Destructive **Delete** on Developer catalog editors (Searches, Views, Display
 Formats, Item Filters, Locales, Slots, Communities, Shared Fields, Keywords,
-System definition fields, Content Types, and Action Menus) uses an **in-app
-confirm dialog**, not the browser `window.confirm` prompt. The dialog is a
+System definition fields, Content Types, Action Menus, and CE Controls) uses an
+**in-app confirm dialog**, not the browser `window.confirm` prompt. The dialog is a
 modal with a title, message, **Cancel**, and **Delete**. Screen readers can
 announce it; Escape cancels when the delete is not in progress.
 

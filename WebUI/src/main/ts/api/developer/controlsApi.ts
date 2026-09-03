@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import { get, post } from "../client";
+import { del, get, post, put } from "../client";
 import { PATHS } from "../paths";
 import type { ControlDef } from "./types";
 
@@ -10,10 +10,10 @@ import type { ControlDef } from "./types";
  * Catalog-level design gaps (REST-GAPS-02). Server omits these on list rows;
  * detail re-attaches or SPA falls back via this constant.
  *
- * <p>Create of user controls is SPA chrome (UI-01). Edit / delete remain later.
+ * <p>Create / save / delete of user controls is SPA chrome (UI-01). Full XSL
+ * IDE and system-control mutation remain out of scope.
  */
 export const CONTROL_DESIGN_GAPS: string[] = [
-  "User control edit / delete not supported via this API",
   "Control XSL source editing not supported via this API",
   "System controls are read-only packaged defaults",
 ];
@@ -36,7 +36,7 @@ export const MAX_CONTROL_NAME_LENGTH = 100;
 export const CONTROL_NAME_PATTERN = /^[A-Za-z0-9_.-]+$/;
 
 /**
- * Writable identity fields for POST /services/cecontrols. Name is the catalog
+ * Writable identity fields for POST/PUT /services/cecontrols. Name is the catalog
  * key (not renamed after create). Optional xslSource; omitted uses server default.
  */
 export type ControlCreateBody = {
@@ -48,6 +48,9 @@ export type ControlCreateBody = {
   xslSource?: string;
 };
 
+/** PUT body is the same wire shape as create (name is the path key, not renamed). */
+export type ControlWriteBody = ControlCreateBody;
+
 const LIST_WRAPPER_KEYS = [
   "ControlDef",
   "controlDef",
@@ -57,7 +60,8 @@ const LIST_WRAPPER_KEYS = [
   "entries",
 ] as const;
 
-const STALE_WRITE_GAP = /create\s*\/\s*edit\s*\/\s*delete/i;
+/** Drop pre-write catalog strings now that create/save/delete ship. */
+const STALE_WRITE_GAP = /(?:create\s*\/\s*)?edit\s*\/\s*delete/i;
 
 function isControlDefShape(raw: unknown): raw is ControlDef {
   return (
@@ -86,7 +90,7 @@ function parseControlList(payload: unknown): ControlDef[] {
   throw new Error("Unexpected control list payload type");
 }
 
-/** Drop stale REST write-gap strings now that UI-01 create ships. */
+/** Drop stale REST write-gap strings now that UI-01 create/save/delete ship. */
 export function withoutStaleControlWriteGap(gaps: string[] | undefined | null): string[] {
   if (gaps == null || gaps.length === 0) return [];
   return gaps.filter((g) => !STALE_WRITE_GAP.test(g));
@@ -186,7 +190,20 @@ export function isControlCreateReady(opts: {
   );
 }
 
-/** Wire JSON for POST — a flat body fails JAXB root unwrap. */
+/** PUT Save is enabled when optional dimension / choiceSet values are allowed. */
+export function isControlSaveReady(opts: {
+  dimension?: string;
+  choiceSet?: string;
+}): boolean {
+  return isAllowedDimension(opts.dimension) && isAllowedChoiceSet(opts.choiceSet);
+}
+
+/** Packaged system controls are 409 on PUT/DELETE. */
+export function isSystemControl(scope: string | undefined | null): boolean {
+  return (scope || "").trim().toLowerCase() === "system";
+}
+
+/** Wire JSON for POST/PUT — a flat body fails JAXB root unwrap. */
 export function wrapControlCreateForWire(
   body: ControlCreateBody,
 ): Record<string, ControlCreateBody> {
@@ -214,4 +231,28 @@ export async function getControlDetail(name: string): Promise<ControlDef> {
 export async function createControl(body: ControlCreateBody): Promise<ControlDef> {
   const payload = await post<unknown>(PATHS.CE_CONTROLS, wrapControlCreateForWire(body));
   return withGaps(unwrapControlDef(payload));
+}
+
+/**
+ * PUT /services/cecontrols/{name} — Admin. Updates a user CE control.
+ * Omitted {@code xslSource} regenerates the default stylesheet. Unknown is 404;
+ * system is 409; non-Admin is 403.
+ */
+export async function updateControl(
+  name: string,
+  body: ControlWriteBody,
+): Promise<ControlDef> {
+  const payload = await put<unknown>(
+    `${PATHS.CE_CONTROLS}/${encodeURIComponent(name)}`,
+    wrapControlCreateForWire(body),
+  );
+  return withGaps(unwrapControlDef(payload));
+}
+
+/**
+ * DELETE /services/cecontrols/{name} — Admin. 204 on success; following GET is
+ * 404. Unknown is 404; system is 409; non-Admin is 403.
+ */
+export async function deleteControl(name: string): Promise<void> {
+  await del(`${PATHS.CE_CONTROLS}/${encodeURIComponent(name)}`);
 }

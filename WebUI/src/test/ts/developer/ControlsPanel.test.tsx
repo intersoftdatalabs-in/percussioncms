@@ -18,12 +18,15 @@ vi.mock("../../../main/ts/api/developer/controlsApi", async (importOriginal) => 
     listControls: vi.fn(),
     getControlDetail: vi.fn(),
     createControl: vi.fn(),
+    updateControl: vi.fn(),
+    deleteControl: vi.fn(),
   };
 });
 
 const listControls = controlsApi.listControls as ReturnType<typeof vi.fn>;
 const getControlDetail = controlsApi.getControlDetail as ReturnType<typeof vi.fn>;
 const createControl = controlsApi.createControl as ReturnType<typeof vi.fn>;
+const deleteControl = controlsApi.deleteControl as ReturnType<typeof vi.fn>;
 
 describe("ControlsPanel", () => {
   beforeEach(() => {
@@ -33,6 +36,7 @@ describe("ControlsPanel", () => {
     listControls.mockReset();
     getControlDetail.mockReset();
     createControl.mockReset();
+    deleteControl.mockReset();
   });
 
   it("lists controls and opens detail", async () => {
@@ -185,5 +189,40 @@ describe("ControlsPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-ctl-table").textContent).toContain("qaCtl");
     });
+  });
+
+  it("delete removes the row from the catalog", async () => {
+    listControls
+      .mockResolvedValueOnce([
+        { name: "qaCtl", displayName: "QA", scope: "user", dimension: "single" },
+        { name: "sys_EditBox", displayName: "Edit Box", scope: "system", dimension: "single" },
+      ])
+      .mockResolvedValue([
+        { name: "sys_EditBox", displayName: "Edit Box", scope: "system", dimension: "single" },
+      ]);
+    getControlDetail.mockResolvedValue({
+      name: "qaCtl",
+      displayName: "QA",
+      scope: "user",
+      parameters: [],
+      designGaps: [],
+    });
+    deleteControl.mockResolvedValue(undefined);
+    render(<ControlsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-table").textContent).toContain("qaCtl");
+    });
+    fireEvent.click(screen.getAllByTestId("developer-ctl-open")[0]);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ctl-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-table")).toBeTruthy();
+    });
+    expect(deleteControl).toHaveBeenCalledWith("qaCtl");
+    expect(screen.getByTestId("developer-ctl-table").textContent).not.toContain("qaCtl");
+    expect(screen.getByTestId("developer-ctl-table").textContent).toContain("sys_EditBox");
   });
 });

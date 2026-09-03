@@ -15,7 +15,7 @@ import { DEV_MSG } from "./messages";
 type SelectedControl = { name: string } | "new" | null;
 
 /**
- * P0.19 — content editor control catalog (UI-01 read + user create).
+ * P0.19 — content editor control catalog (UI-01 read + user create/save/delete).
  */
 export function ControlsPanel(): React.ReactElement {
   const [items, setItems] = useState<ControlDef[] | null>(null);
@@ -76,6 +76,14 @@ export function ControlsPanel(): React.ReactElement {
     }
   }
 
+  async function handleDeleted(): Promise<void> {
+    await reload();
+    if (!mountedRef.current) {
+      return;
+    }
+    setSelected(null);
+  }
+
   if (selected === "new") {
     return (
       <ControlCreatePanel onBack={() => setSelected(null)} onCreated={handleCreated} />
@@ -83,7 +91,14 @@ export function ControlsPanel(): React.ReactElement {
   }
 
   if (selected) {
-    return <ControlDetailPanel name={selected.name} onBack={() => setSelected(null)} />;
+    return (
+      <ControlDetailPanel
+        name={selected.name}
+        onBack={() => setSelected(null)}
+        onSaved={() => void reload()}
+        onDeleted={handleDeleted}
+      />
+    );
   }
 
   return (

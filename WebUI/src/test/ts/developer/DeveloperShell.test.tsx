@@ -720,6 +720,8 @@ vi.mock("../../../main/ts/api/developer/controlsApi", async (importOriginal) => 
       designGaps: [],
     }),
     createControl: vi.fn(),
+    updateControl: vi.fn(),
+    deleteControl: vi.fn(),
   };
 });
 
