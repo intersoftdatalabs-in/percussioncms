@@ -269,10 +269,42 @@ describe("ControlDetailPanel", () => {
     expect(updateControl).toHaveBeenCalledWith("qaCtl", {
       name: "qaCtl",
       displayName: "qaCtl",
-      description: "",
       dimension: "single",
       choiceSet: "none",
     });
+    expect(updateControl.mock.calls[0][1].description).toBeUndefined();
+  });
+
+  it("clears local xslSource after save when PUT omitted it and the server returned none", async () => {
+    getControlDetail.mockResolvedValue({
+      ...sampleDetail,
+      name: "qaCtl",
+      displayName: "QA",
+      scope: "user",
+      xslSource: "<xsl:stylesheet/>",
+    });
+    updateControl.mockResolvedValue({
+      name: "qaCtl",
+      displayName: "QA",
+      scope: "user",
+      xslSource: undefined,
+    });
+    render(<ControlDetailPanel name="qaCtl" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-edit-xsl")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-ctl-edit-xsl") as HTMLTextAreaElement).value).toBe(
+      "<xsl:stylesheet/>",
+    );
+    fireEvent.change(screen.getByTestId("developer-ctl-edit-xsl"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-ctl-save"));
+    await waitFor(() => {
+      expect(updateControl).toHaveBeenCalled();
+    });
+    expect(updateControl.mock.calls[0][1].xslSource).toBeUndefined();
+    expect((screen.getByTestId("developer-ctl-edit-xsl") as HTMLTextAreaElement).value).toBe("");
   });
 
   it("surfaces PUT 403, 404, and system 409 on save", async () => {
@@ -330,6 +362,28 @@ describe("ControlDetailPanel", () => {
     expect(deleteControl).toHaveBeenCalledWith("qaCtl");
     expect(confirmSpy).not.toHaveBeenCalled();
     confirmSpy.mockRestore();
+  });
+
+  it("calls onBack after delete when onDeleted is omitted", async () => {
+    getControlDetail.mockResolvedValue({
+      ...sampleDetail,
+      name: "qaCtl",
+      displayName: "QA",
+      scope: "user",
+    });
+    deleteControl.mockResolvedValue(undefined);
+    const onBack = vi.fn();
+    render(<ControlDetailPanel name="qaCtl" onBack={onBack} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ctl-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(onBack).toHaveBeenCalled();
+    });
+    expect(deleteControl).toHaveBeenCalledWith("qaCtl");
+    expect(screen.queryByTestId("developer-ctl-detail-notice")).toBeNull();
   });
 
   it("surfaces DELETE 409 for a system-control conflict", async () => {

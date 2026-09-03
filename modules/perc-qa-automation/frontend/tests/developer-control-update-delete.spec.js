@@ -16,6 +16,8 @@
 
 /**
  * Developer CE Controls user update/delete chrome (#4214 UI-01 / parent #1690).
+ * PUT omits blank description/xslSource (same as POST create). After DELETE,
+ * the catalog parent lands via onDeleted (onBack if the parent omits it).
  *
  * Surface-filtered QA:
  * <pre>

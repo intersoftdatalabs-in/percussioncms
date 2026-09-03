@@ -106,6 +106,7 @@ describe("ControlCreatePanel", () => {
       expect(createControl).toHaveBeenCalled();
     });
     expect(createControl.mock.calls[0][0].xslSource).toBeUndefined();
+    expect(createControl.mock.calls[0][0].description).toBeUndefined();
   });
 
   it("sends xslSource when provided", async () => {
