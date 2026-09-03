@@ -133,6 +133,7 @@ test.describe("Developer community new-search defaults (UI-09 / #4220)", () => {
     if (await nsdTable.isVisible()) {
       const firstCheck = nsdTable.locator('input[type="checkbox"]').first();
       await expect(firstCheck).toBeVisible();
+      const originallyChecked = await firstCheck.isChecked();
       await firstCheck.click();
       await expect(page.locator('[data-testid="developer-comm-nsd-dirty"]')).toBeVisible();
       await page.locator('[data-testid="developer-comm-nsd-save"]').click();
@@ -144,13 +145,18 @@ test.describe("Developer community new-search defaults (UI-09 / #4220)", () => {
         throw new Error(`Save new-search defaults failed: ${msg}`);
       }
       await expect(page.locator('[data-testid="developer-comm-nsd-dirty"]')).toHaveCount(0);
-      // Restore so the H2 cell is not left dirty for later tests.
-      await firstCheck.click();
+      // Restore the captured original checked state (toggle-twice is not a no-op
+      // when the first row started unchecked).
+      await firstCheck.setChecked(originallyChecked);
+      const restoredChecked = await firstCheck.isChecked();
       const stillDirty = await page
         .locator('[data-testid="developer-comm-nsd-dirty"]')
         .isVisible()
         .catch(() => false);
-      if (stillDirty) {
+      if (stillDirty || restoredChecked !== originallyChecked) {
+        if (restoredChecked !== originallyChecked) {
+          await firstCheck.setChecked(originallyChecked);
+        }
         await page.locator('[data-testid="developer-comm-nsd-save"]').click();
         await expect(notice.or(saveErr).first()).toBeVisible({ timeout: 20_000 });
       }
