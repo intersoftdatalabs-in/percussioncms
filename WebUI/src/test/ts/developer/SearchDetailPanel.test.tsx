@@ -321,6 +321,8 @@ describe("SearchDetailPanel", () => {
         displayFormatId: "1",
       }),
     );
+    expect(createSearch.mock.calls[0][0]).not.toHaveProperty("customSearch");
+    expect(createSearch.mock.calls[0][0]).not.toHaveProperty("url");
     expect(screen.getByTestId("developer-sr-editor-notice").textContent).toBe(DEV_MSG.SR_SAVED);
   });
 

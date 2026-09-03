@@ -18,6 +18,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   SEARCH_DESIGN_GAPS,
   SEARCH_TYPE_CUSTOM,
+  canonicalSearchType,
   createSearch,
   deleteSearch,
   executeSearch,
@@ -297,10 +298,17 @@ describe("search name validation", () => {
     expect(isCustomSearchType(SEARCH_TYPE_CUSTOM)).toBe(true);
     expect(isCustomSearchType("custom")).toBe(true);
     expect(isCustomSearchType("StandardSearch")).toBe(false);
+    expect(canonicalSearchType("custom")).toBe(SEARCH_TYPE_CUSTOM);
+    expect(canonicalSearchType("CustomSearch")).toBe(SEARCH_TYPE_CUSTOM);
+    expect(canonicalSearchType("standard")).toBe("StandardSearch");
     expect(normalizeSearchUrl("  /app/x.xml  ")).toBe("/app/x.xml");
     expect(isValidSearchUrl("")).toBe(false);
     expect(isValidSearchUrl("   ")).toBe(false);
     expect(isValidSearchUrl("app/has space.xml")).toBe(false);
+    expect(isValidSearchUrl("javascript:alert(1)")).toBe(false);
+    expect(isValidSearchUrl("data:text/html,<script>")).toBe(false);
+    expect(isValidSearchUrl("//evil.example/x")).toBe(false);
+    expect(isValidSearchUrl("not a uri at all")).toBe(false);
     expect(isValidSearchUrl("/Rhythmyx/sys_cxSupport/custom.xml")).toBe(true);
     expect(isValidSearchUrl("https://example.invalid/search")).toBe(true);
     expect(

@@ -20,6 +20,7 @@ import { isApiError } from "../api/client";
 import {
   SEARCH_TYPE_CUSTOM,
   SEARCH_TYPE_STANDARD,
+  canonicalSearchType,
   createSearch,
   deleteSearch,
   getSearchDetail,
@@ -181,7 +182,7 @@ export function SearchDetailPanel({
     normalizeSearchName(name) !== loadedName ||
     label !== loadedLabel ||
     description !== loadedDescription ||
-    type !== loadedType ||
+    canonicalSearchType(type) !== canonicalSearchType(loadedType) ||
     normalizeSearchUrl(url) !== normalizeSearchUrl(loadedUrl) ||
     displayFormatId !== loadedDf;
   const canSave =
@@ -199,13 +200,13 @@ export function SearchDetailPanel({
       name: isNew ? normalizeSearchName(name) : detail?.name || normalizeSearchName(name),
       label,
       description,
-      type,
-      customSearch: customUrl,
+      type: canonicalSearchType(type),
     };
     if (displayFormatId.trim()) {
       body.displayFormatId = displayFormatId.trim();
     }
     if (customUrl) {
+      body.customSearch = true;
       body.url = normalizeSearchUrl(url);
     }
     return body;
@@ -221,7 +222,11 @@ export function SearchDetailPanel({
             : err.body && typeof err.body === "object" && "message" in err.body
               ? String((err.body as { message?: unknown }).message ?? "")
               : "";
-        if (!isValidSearchUrl(url) || /url/i.test(raw)) {
+        if (
+          !isValidSearchUrl(url) ||
+          /\burl is required\b/i.test(raw) ||
+          /invalid url/i.test(raw)
+        ) {
           return DEV_MSG.SR_INVALID_URL;
         }
       }

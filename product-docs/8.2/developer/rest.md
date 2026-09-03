@@ -1863,7 +1863,9 @@ stub). JSON body requires `name` (unique across searches **and** views, case-ins
 `displayFormatId`, `url`, and `customSearch` are applied before save. Default `type` is
 `StandardSearch`. Accepted types: `StandardSearch` (`standard`), `CustomSearch`
 (`custom`), `Search` (user search). When `type` is `CustomSearch`, send a non-blank
-`url` (URI string) and `customSearch: true`. GET round-trips `url` and `customSearch`.
+`url` (`http`/`https` or a site-relative path starting with `/`, typically
+`/Rhythmyx/…`) and `customSearch: true`. Omit `url` / `customSearch` on
+non-custom writes. GET round-trips `url` and `customSearch`.
 `View` is **400** — views stay on `/services/views`. Duplicate name is **409**. Blank /
 whitespace / wildcard names are **400**. Missing request session/user is **403**.
 Non-Admin is **403**. The new search is then `GET /services/searches/{name}` **200**

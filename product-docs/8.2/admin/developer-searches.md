@@ -34,8 +34,10 @@ full Workbench FTS query designer.
 3. Click **New search**. Enter a **name**. Save stays disabled until the name
    is valid (no spaces, no `*` / `%`, no `/` or `..`). Optional: label,
    description, type (`StandardSearch` default, `CustomSearch`, or user
-   `Search`), and display format id. For **Custom**, enter a **URL** (relative
-   or absolute URI, no spaces). Save stays disabled until the URL is present.
+   `Search`), and display format id. For **Custom**, enter a **URL**: `http` /
+   `https`, or a site-relative path starting with `/` (typically `/Rhythmyx/…`).
+   Spaces, `javascript:` / `data:` schemes, and protocol-relative `//` URLs are
+   rejected. Save stays disabled until the URL is valid.
 4. Click **Save**. A duplicate name is **409** and the editor shows that the
    search already exists. An invalid name is **400**. A missing or invalid
    custom URL is **400** and the editor shows that a URL is required. A

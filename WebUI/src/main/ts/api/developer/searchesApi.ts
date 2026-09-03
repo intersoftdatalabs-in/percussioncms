@@ -212,9 +212,27 @@ export function isValidSearchName(name: string | undefined | null): boolean {
 
 /** True when the REST / SPA type is a custom URL search. */
 export function isCustomSearchType(type: string | undefined | null): boolean {
-  const t = (type ?? "").trim();
+  const t = (type ?? "").trim().toLowerCase();
   if (!t) return false;
-  return t === SEARCH_TYPE_CUSTOM || t.toLowerCase() === "custom";
+  return t === SEARCH_TYPE_CUSTOM.toLowerCase() || t === "custom" || t === "_custom";
+}
+
+/**
+ * Canonical REST type for persist. Aliases {@code custom} / {@code CustomSearch}
+ * become {@link SEARCH_TYPE_CUSTOM} so dirty/compare matches GET.
+ */
+export function canonicalSearchType(type: string | undefined | null): string {
+  const t = (type ?? "").trim();
+  if (!t) return SEARCH_TYPE_STANDARD;
+  if (isCustomSearchType(t)) return SEARCH_TYPE_CUSTOM;
+  const lower = t.toLowerCase();
+  if (lower === SEARCH_TYPE_STANDARD.toLowerCase() || lower === "standard" || lower === "_standard") {
+    return SEARCH_TYPE_STANDARD;
+  }
+  if (lower === "search" || lower === "user" || lower === "usersearch") {
+    return "Search";
+  }
+  return t;
 }
 
 /** Trim a custom search URL. Empty / null becomes "". */
@@ -223,14 +241,35 @@ export function normalizeSearchUrl(url: string | undefined | null): string {
 }
 
 /**
- * True when the URL is a non-blank URI string (relative or absolute). Whitespace
- * is rejected; the server stores the string as-is after trim.
+ * True when the URL is a safe custom-search target: {@code http}/{@code https}
+ * or a site-relative path starting with {@code /} (not protocol-relative
+ * {@code //}). {@code javascript:}, {@code data:}, and other schemes are
+ * rejected.
  */
 export function isValidSearchUrl(url: string | undefined | null): boolean {
   const key = normalizeSearchUrl(url);
   if (!key) return false;
   if (containsWhitespace(key)) return false;
-  return true;
+  const lower = key.toLowerCase();
+  if (
+    lower.startsWith("javascript:") ||
+    lower.startsWith("data:") ||
+    lower.startsWith("vbscript:")
+  ) {
+    return false;
+  }
+  if (/^https?:\/\//i.test(key)) {
+    try {
+      const parsed = new URL(key);
+      return parsed.protocol === "http:" || parsed.protocol === "https:";
+    } catch {
+      return false;
+    }
+  }
+  if (key.startsWith("//")) {
+    return false;
+  }
+  return key.startsWith("/");
 }
 
 /**
