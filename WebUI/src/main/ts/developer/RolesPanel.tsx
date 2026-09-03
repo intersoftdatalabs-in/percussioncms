@@ -169,7 +169,8 @@ export function RolesPanel(): React.ReactElement {
     }
     setCatalog(null);
     setError(null);
-    return browseRoles()
+    // Pass chip filter to GET ?group= so server-side filter matches product-docs.
+    return browseRoles(filter)
       .then((result) => {
         if (!mountedRef.current) return;
         setCatalog(result.roles);
@@ -179,7 +180,7 @@ export function RolesPanel(): React.ReactElement {
         setError(panelErrMsg(e, DEV_MSG.ROLES_ERROR));
         setCatalog([]);
       });
-  }, []);
+  }, [filter]);
 
   useEffect(() => {
     void reload();

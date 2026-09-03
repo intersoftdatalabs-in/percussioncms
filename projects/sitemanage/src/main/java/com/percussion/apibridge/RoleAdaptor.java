@@ -234,6 +234,12 @@ public class RoleAdaptor implements IRoleAdaptor {
     return catalog;
   }
 
+  /**
+   * Build role→community membership via Security Design WS. There is no narrower
+   * {@code findCommunityRoleAssociations} projection on {@code IPSSecurityDesignWs};
+   * {@code findCommunities(null)} + read-only {@code loadCommunities} is the established
+   * API to reach each community's {@code roleAssociations} (same shape Workbench uses).
+   */
   private Map<String, Set<String>> loadCommunityMembership(Map<Long, String> roleIdToName) {
     Map<String, Set<String>> out = new HashMap<>();
     List<IPSCatalogSummary> communities = securityDesignWs.findCommunities(null);
@@ -304,7 +310,7 @@ public class RoleAdaptor implements IRoleAdaptor {
           partial.add(community);
         }
       } catch (RuntimeException ignored) {
-        // skip missing
+        log.debug("Skipping community {} during partial load: {}", id, ignored.getMessage());
       }
     }
     return partial;

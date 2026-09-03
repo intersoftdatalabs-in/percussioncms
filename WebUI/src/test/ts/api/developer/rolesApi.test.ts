@@ -19,7 +19,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   browseRoles,
   normalizeRoleBrowseGroupFilter,
-  ROLE_BROWSE_CATALOG_ROOT,
   rolesInBrowseGroup,
   unwrapRoleBrowseCatalog,
 } from "../../../../main/ts/api/developer/rolesApi";
@@ -45,20 +44,18 @@ describe("normalizeRoleBrowseGroupFilter", () => {
 });
 
 describe("unwrapRoleBrowseCatalog", () => {
-  it("unwraps Jackson RoleBrowseCatalog root", () => {
+  it("unwraps flat catalog body with group filter", () => {
     const catalog = unwrapRoleBrowseCatalog({
-      [ROLE_BROWSE_CATALOG_ROOT]: {
-        group: "community",
-        roles: [
-          {
-            name: "Author",
-            description: "Content author",
-            groups: ["community"],
-            communities: ["Default"],
-            workflows: [],
-          },
-        ],
-      },
+      group: "community",
+      roles: [
+        {
+          name: "Author",
+          description: "Content author",
+          groups: ["community"],
+          communities: ["Default"],
+          workflows: [],
+        },
+      ],
     });
     expect(catalog.group).toBe("community");
     expect(catalog.roles).toHaveLength(1);
@@ -167,16 +164,14 @@ describe("browseRoles", () => {
   it("GETs full catalog without group query", async () => {
     fetchMock.mockResolvedValueOnce(
       jsonResponse({
-        RoleBrowseCatalog: {
-          roles: [
-            {
-              name: "Admin",
-              groups: ["community"],
-              communities: ["Default"],
-              workflows: [],
-            },
-          ],
-        },
+        roles: [
+          {
+            name: "Admin",
+            groups: ["community"],
+            communities: ["Default"],
+            workflows: [],
+          },
+        ],
       }),
     );
     const catalog = await browseRoles();

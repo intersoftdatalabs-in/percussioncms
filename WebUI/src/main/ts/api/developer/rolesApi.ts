@@ -43,8 +43,6 @@ export type RoleBrowseCatalog = {
   roles: RoleBrowseEntry[];
 };
 
-export const ROLE_BROWSE_CATALOG_ROOT = "RoleBrowseCatalog";
-
 function asRecord(value: unknown): Record<string, unknown> | null {
   return asJsonRecord(value);
 }
@@ -117,21 +115,16 @@ function unwrapRolesList(payload: unknown): unknown[] {
 }
 
 /**
- * Unwrap Jackson WRAP_ROOT {@code RoleBrowseCatalog} or a flat catalog body.
+ * Unwrap flat {@code RoleBrowseCatalog} wire body ({@code {group?, roles:[…]}}).
+ * Production DTO is {@code @JsonInclude(NON_NULL)} without WRAP_ROOT.
  */
 export function unwrapRoleBrowseCatalog(payload: unknown): RoleBrowseCatalog {
   if (payload == null) {
     return { roles: [] };
   }
-  let body = asRecord(payload);
+  const body = asRecord(payload);
   if (!body) {
     return { roles: [] };
-  }
-  const nested = asRecord(
-    body[ROLE_BROWSE_CATALOG_ROOT] ?? body.roleBrowseCatalog,
-  );
-  if (nested) {
-    body = nested;
   }
 
   let group: RoleBrowseGroupKey | null | undefined;

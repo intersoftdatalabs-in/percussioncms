@@ -18,6 +18,7 @@
 package com.percussion.rest.roles;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -118,7 +119,7 @@ public class RolesResourceBrowseTest {
     assertEquals(RoleBrowseGroup.COMMUNITY, RoleBrowseGroup.fromWire("community"));
     assertEquals(RoleBrowseGroup.WORKFLOW, RoleBrowseGroup.fromWire("WORKFLOW"));
     assertEquals(RoleBrowseGroup.UNASSIGNED, RoleBrowseGroup.fromWire("Unassigned"));
-    assertEquals(null, RoleBrowseGroup.fromWire(" "));
+    assertNull(RoleBrowseGroup.fromWire(" "));
     assertThrows(IllegalArgumentException.class, () -> RoleBrowseGroup.fromWire("other"));
   }
 }

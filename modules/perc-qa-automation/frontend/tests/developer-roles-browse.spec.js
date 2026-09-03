@@ -61,6 +61,8 @@ test.describe("Developer SE-03 roles browse catalog (#4243)", () => {
     await expect(page.locator('[data-testid="nav-developer"]')).toBeVisible({
       timeout: 20_000,
     });
+    // DeveloperShell: data-testid={`tab-developer-${section}`} with section "roles"
+    // in DEVELOPER_SECTIONS (allowlists.ts) → tab-developer-roles.
     await expect(page.locator('[data-testid="tab-developer-roles"]')).toBeVisible({
       timeout: 15_000,
     });
