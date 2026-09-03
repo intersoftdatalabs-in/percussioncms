@@ -195,7 +195,7 @@ describe("ActionMenusPanel", () => {
   });
 
   it("shows deleted notice on the catalog after delete", async () => {
-    listMock.mockResolvedValue([sampleMenu]);
+    listMock.mockResolvedValueOnce([sampleMenu]).mockResolvedValue([]);
     detailMock.mockResolvedValue(sampleDetail);
     deleteMock.mockResolvedValue(undefined);
     render(<ActionMenusPanel />);
@@ -213,6 +213,10 @@ describe("ActionMenusPanel", () => {
     });
     expect(screen.getByTestId("developer-am-list-notice").textContent).toBe(DEV_MSG.AM_DELETED);
     expect(screen.getByTestId("developer-am-panel")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-empty")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-am-open")).toBeNull();
   });
 
   it("shows fallback when rejection has no message", async () => {

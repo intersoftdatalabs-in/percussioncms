@@ -19,7 +19,7 @@
  *
  * SPA catalog New POSTs a user menu; GET catalog lists it; detail DELETE
  * omits it (following GET is 404). System menus stay in the catalog (409).
- * Stacks REST JAXB bind (#4189 / #4171) so POST is ActionMenu, not the
+ * Stacks REST JAXB bind (#4171 / PR #4229) so POST is ActionMenu, not the
  * workflow-transitions finder DTO. Does not claim UI-03/UI-04.
  *
  * Surface-filtered QA:

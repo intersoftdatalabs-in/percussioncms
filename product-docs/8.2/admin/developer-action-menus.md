@@ -60,9 +60,10 @@ chrome. Those fields round-trip on **Save** (`PUT` then `GET`).
    A system parent (for example **Edit**) shows Children read-only.
 7. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
    The catalog returns with a green **Action
-   menu deleted** notice and no longer lists that user menu. Delete of a
-   missing menu is **404**. Delete of a **system** menu is **409** and the row
-   remains. A menu still used as a dependent, or locked by another user, is
+   menu deleted** notice and no longer lists that user menu.
+   `GET /services/actions/catalog/{name}` after that delete is **404**.
+   Delete of a missing menu is **404**. Delete of a **system** menu is **409**
+   and the row remains. A menu still used as a dependent, or locked by another user, is
    **409**. On **Save** in edit mode (name is read-only), a **400** shows the
    server message rather than an invalid-name hint.
 
