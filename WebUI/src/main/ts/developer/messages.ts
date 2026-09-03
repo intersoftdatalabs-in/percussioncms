@@ -1240,6 +1240,8 @@ export const DEV_MSG_KEYS = {
   CTL_FORM_XSL: "perc.ui.developer@XSL source (optional)",
   CTL_XSL_HINT:
     "perc.ui.developer@Leave blank to use the server default stylesheet. This is not a full XSL editor.",
+  CTL_SAVE_HINT:
+    "perc.ui.developer@Save sends display name, description, dimension, and choice set as shown. A blank description is cleared. Blank dimension or choice set uses single / none. Leave XSL blank to regenerate the server default stylesheet.",
   CTL_DIM_DEFAULT: "perc.ui.developer@Server default (single)",
   CTL_CHOICE_DEFAULT: "perc.ui.developer@Server default (none)",
   CTL_CREATE_SAVE: "perc.ui.developer@Create user control",
@@ -1282,7 +1284,6 @@ export const DEV_MSG_KEYS = {
   CTL_PARAMS: "perc.ui.developer@Parameters",
   CTL_NONE: "perc.ui.developer@None",
   CTL_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
-  CTL_GAP_USER: "perc.ui.developer@User control create / edit / delete not supported via this API",
   CTL_GAP_XSL: "perc.ui.developer@Control XSL source editing not supported via this API",
   CTL_GAP_SYS: "perc.ui.developer@System controls are read-only packaged defaults",
   SITE_LOADING: "perc.ui.developer@Loading sites...",

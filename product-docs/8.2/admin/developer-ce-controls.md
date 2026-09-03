@@ -46,13 +46,16 @@ stylesheet from the metadata.
 1. Open a **user** control row. Name stays read-only. Edit display name,
    description, dimension, choice set, and optional XSL source.
 2. Click **Save user control**. The chrome calls
-   `PUT /services/cecontrols/{name}`. Leave XSL source blank to apply the
+   `PUT /services/cecontrols/{name}` and sends the fields as shown: a blank
+   description is cleared; a blank dimension or choice set uses the server
+   defaults (`single` / `none`). Leave XSL source blank to apply the
    server default stylesheet (omitted `xslSource` on the wire). Non-Admin is
    **403**. Unknown name is **404**. A **system** control is **409**.
 3. Click **Delete user control**. Confirm in the in-app dialog (not the
    browser `confirm`). Delete is `DELETE /services/cecontrols/{name}`
-   (**204**). A following GET is **404**, and the catalog no longer lists the
-   row. Unknown is **404**. System is **409**. Non-Admin is **403**.
+   (**204**). A following GET is **404**, the catalog no longer lists the
+   row, and the catalog shows **User control deleted.** Unknown is **404**.
+   System is **409**. Non-Admin is **403**.
 4. Open a **system** row to view parameters. The detail is read-only; there is
    no save or delete chrome on a system control.
 

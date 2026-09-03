@@ -156,22 +156,13 @@ export function ControlDetailPanel({
   function writeBody(): ControlWriteBody {
     const body: ControlWriteBody = {
       name,
+      displayName: displayName.trim() || name,
+      description: description.trim(),
+      dimension: dimension.trim() ? dimension.trim().toLowerCase() : "single",
+      choiceSet: choiceSet.trim() ? choiceSet.trim().toLowerCase() : "none",
     };
-    const trimmedDisplay = displayName.trim();
-    if (trimmedDisplay) {
-      body.displayName = trimmedDisplay;
-    }
-    if (description.trim()) {
-      body.description = description;
-    }
-    if (dimension.trim()) {
-      body.dimension = dimension.trim().toLowerCase();
-    }
-    if (choiceSet.trim()) {
-      body.choiceSet = choiceSet.trim().toLowerCase();
-    }
     if (xslSource.trim()) {
-      body.xslSource = xslSource;
+      body.xslSource = xslSource.trim();
     }
     return body;
   }
@@ -223,8 +214,11 @@ export function ControlDetailPanel({
     setNotice(null);
     try {
       await deleteControl(name);
-      setNotice(DEV_MSG.CTL_DELETED);
-      await onDeleted?.();
+      if (onDeleted) {
+        await onDeleted();
+      } else {
+        setNotice(DEV_MSG.CTL_DELETED);
+      }
     } catch (err: unknown) {
       setError(panelErrMsg(err, deleteErrorFallback(err)));
     } finally {
@@ -259,7 +253,13 @@ export function ControlDetailPanel({
       ) : null}
 
       {notice ? (
-        <div data-testid="developer-ctl-detail-notice" style={{ color: "#276749" }}>
+        <div
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          data-testid="developer-ctl-detail-notice"
+          style={{ color: "#276749" }}
+        >
           {notice}
         </div>
       ) : null}
@@ -380,11 +380,13 @@ export function ControlDetailPanel({
               <p style={{ color: catalogColors.muted, fontSize: "0.85rem", marginTop: 0 }}>
                 {DEV_MSG.CTL_NAME_READONLY}
               </p>
+              <p style={{ color: catalogColors.muted, fontSize: "0.85rem", marginTop: 0 }}>
+                {DEV_MSG.CTL_SAVE_HINT}
+              </p>
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
                 <button
                   type="button"
                   data-testid="developer-ctl-save"
-                  aria-label={DEV_MSG.CTL_SAVE}
                   disabled={!canSave}
                   onClick={() => void handleSave()}
                   style={{
@@ -401,7 +403,6 @@ export function ControlDetailPanel({
                 <button
                   type="button"
                   data-testid="developer-ctl-delete"
-                  aria-label={DEV_MSG.CTL_DELETE}
                   disabled={busy}
                   onClick={requestDelete}
                   style={{

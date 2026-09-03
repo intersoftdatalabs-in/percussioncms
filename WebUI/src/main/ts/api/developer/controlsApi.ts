@@ -38,6 +38,11 @@ export const CONTROL_NAME_PATTERN = /^[A-Za-z0-9_.-]+$/;
 /**
  * Writable identity fields for POST/PUT /services/cecontrols. Name is the catalog
  * key (not renamed after create). Optional xslSource; omitted uses server default.
+ *
+ * <p>Save chrome always sends {@code displayName}, {@code description},
+ * {@code dimension}, and {@code choiceSet} so a cleared field is persisted
+ * (blank description clears; blank dimension/choiceSet send {@code single}/
+ * {@code none}). Omitted {@code xslSource} regenerates the default stylesheet.
  */
 export type ControlCreateBody = {
   name: string;

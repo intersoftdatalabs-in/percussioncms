@@ -20,6 +20,7 @@ type SelectedControl = { name: string } | "new" | null;
 export function ControlsPanel(): React.ReactElement {
   const [items, setItems] = useState<ControlDef[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [selected, setSelected] = useState<SelectedControl>(null);
   const mountedRef = useRef(true);
 
@@ -82,6 +83,7 @@ export function ControlsPanel(): React.ReactElement {
       return;
     }
     setSelected(null);
+    setNotice(DEV_MSG.CTL_DELETED);
   }
 
   if (selected === "new") {
@@ -117,7 +119,10 @@ export function ControlsPanel(): React.ReactElement {
         <button
           type="button"
           data-testid="developer-ctl-new"
-          onClick={() => setSelected("new")}
+          onClick={() => {
+            setNotice(null);
+            setSelected("new");
+          }}
           style={{
             padding: "8px 14px",
             background: catalogColors.accent,
@@ -130,6 +135,17 @@ export function ControlsPanel(): React.ReactElement {
           {DEV_MSG.CTL_NEW}
         </button>
       </div>
+      {notice ? (
+        <div
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          data-testid="developer-ctl-notice"
+          style={{ color: "#276749", marginBottom: "12px" }}
+        >
+          {notice}
+        </div>
+      ) : null}
       {error ? (
         <CatalogStatus testId="developer-ctl-error" error>
           {error}
@@ -156,7 +172,10 @@ export function ControlsPanel(): React.ReactElement {
             return {
               key: `${openKey}-${index}`,
               dataAttrs: { "data-ctl-name": openKey },
-              onClick: () => setSelected({ name: openKey }),
+              onClick: () => {
+                setNotice(null);
+                setSelected({ name: openKey });
+              },
               cells: [
                 <button
                   key="open"
@@ -166,6 +185,7 @@ export function ControlsPanel(): React.ReactElement {
                   aria-label={`Open ${openKey}`}
                   onClick={(ev) => {
                     ev.stopPropagation();
+                    setNotice(null);
                     setSelected({ name: openKey });
                   }}
                   style={{ ...openButtonStyle, fontFamily: "monospace" }}

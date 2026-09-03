@@ -224,5 +224,9 @@ describe("ControlsPanel", () => {
     expect(deleteControl).toHaveBeenCalledWith("qaCtl");
     expect(screen.getByTestId("developer-ctl-table").textContent).not.toContain("qaCtl");
     expect(screen.getByTestId("developer-ctl-table").textContent).toContain("sys_EditBox");
+    const notice = screen.getByTestId("developer-ctl-notice");
+    expect(notice.textContent).toBe(DEV_MSG.CTL_DELETED);
+    expect(notice.getAttribute("role")).toBe("status");
+    expect(notice.getAttribute("aria-live")).toBe("polite");
   });
 });

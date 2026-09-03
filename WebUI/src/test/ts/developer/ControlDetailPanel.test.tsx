@@ -222,7 +222,59 @@ describe("ControlDetailPanel", () => {
       }),
     );
     expect(updateControl.mock.calls[0][1].xslSource).toBeUndefined();
-    expect(screen.getByTestId("developer-ctl-detail-notice").textContent).toBe(DEV_MSG.CTL_SAVED);
+    const notice = screen.getByTestId("developer-ctl-detail-notice");
+    expect(notice.textContent).toBe(DEV_MSG.CTL_SAVED);
+    expect(notice.getAttribute("role")).toBe("status");
+    expect(notice.getAttribute("aria-live")).toBe("polite");
+    expect(screen.getByTestId("developer-ctl-save").getAttribute("aria-label")).toBeNull();
+    expect(screen.getByTestId("developer-ctl-delete").getAttribute("aria-label")).toBeNull();
+  });
+
+  it("sends trimmed description and server defaults when optional fields are cleared", async () => {
+    getControlDetail.mockResolvedValue({
+      ...sampleDetail,
+      name: "qaCtl",
+      displayName: "QA",
+      scope: "user",
+      description: "keep me",
+      dimension: "array",
+      choiceSet: "required",
+    });
+    updateControl.mockResolvedValue({
+      name: "qaCtl",
+      displayName: "qaCtl",
+      scope: "user",
+      description: "",
+      dimension: "single",
+      choiceSet: "none",
+    });
+    render(<ControlDetailPanel name="qaCtl" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-edit-description")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-ctl-edit-display"), {
+      target: { value: "  " },
+    });
+    fireEvent.change(screen.getByTestId("developer-ctl-edit-description"), {
+      target: { value: "  " },
+    });
+    fireEvent.change(screen.getByTestId("developer-ctl-edit-dimension"), {
+      target: { value: "" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ctl-edit-choiceset"), {
+      target: { value: "" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ctl-save"));
+    await waitFor(() => {
+      expect(updateControl).toHaveBeenCalled();
+    });
+    expect(updateControl).toHaveBeenCalledWith("qaCtl", {
+      name: "qaCtl",
+      displayName: "qaCtl",
+      description: "",
+      dimension: "single",
+      choiceSet: "none",
+    });
   });
 
   it("surfaces PUT 403, 404, and system 409 on save", async () => {
