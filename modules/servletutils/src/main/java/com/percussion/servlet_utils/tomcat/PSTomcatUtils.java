@@ -19,9 +19,9 @@ package com.percussion.servlet_utils.tomcat;
 
 import com.percussion.utils.container.IPSConnector;
 import com.percussion.utils.tomcat.PSTomcatConnector;
-import com.percussion.utils.xml.IPSXmlErrors;
 import com.percussion.utils.xml.PSInvalidXmlException;
 import com.percussion.utils.xml.PSXmlUtils;
+import com.percussion.utils.xml.XmlErrorCode;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.io.File;
@@ -65,12 +65,12 @@ public class PSTomcatUtils {
     PSXmlTreeWalker tree = new PSXmlTreeWalker(doc);
     Element root = (Element) tree.getCurrent();
     if (root == null || !root.getNodeName().equals(SERVER_NODE_NAME))
-      throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, SERVER_NODE_NAME);
+      throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, SERVER_NODE_NAME);
 
     Element serviceEl =
         tree.getNextElement(SERVICE_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (serviceEl == null)
-      throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, SERVICE_NODE_NAME);
+      throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, SERVICE_NODE_NAME);
 
     int firstFlag =
         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
@@ -122,7 +122,7 @@ public class PSTomcatUtils {
     PSXmlTreeWalker tree = new PSXmlTreeWalker(curDoc);
     Element root = (Element) tree.getCurrent();
     if (root == null || !root.getNodeName().equals(SERVER_NODE_NAME))
-      throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, SERVER_NODE_NAME);
+      throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, SERVER_NODE_NAME);
     copyAttributes(root, newServerEl);
 
     // create a new service element
@@ -133,7 +133,7 @@ public class PSTomcatUtils {
     Element serviceEl =
         tree.getNextElement(SERVICE_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (serviceEl == null)
-      throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, SERVICE_NODE_NAME);
+      throw new PSInvalidXmlException(XmlErrorCode.XML_ELEMENT_MISSING, SERVICE_NODE_NAME);
     copyAttributes(serviceEl, newServiceEl);
 
     // append new connector list
@@ -184,8 +184,10 @@ public class PSTomcatUtils {
         port = Integer.parseInt(sPort);
       } catch (NumberFormatException e) {
         throw new PSInvalidXmlException(
-            IPSXmlErrors.XML_ELEMENT_INVALID_ATTR,
-            new String[] {ajpConnEl.getTagName(), PSTomcatConnector.PORT_ATTR, sPort});
+            XmlErrorCode.XML_ELEMENT_INVALID_ATTR,
+            ajpConnEl.getTagName(),
+            PSTomcatConnector.PORT_ATTR,
+            sPort);
       }
       return port;
     }
@@ -236,7 +238,7 @@ public class PSTomcatUtils {
 
     if (ajpConnEl == null)
       throw new PSInvalidXmlException(
-          IPSXmlErrors.XML_ELEMENT_MISSING, PSTomcatConnector.CONNECTOR_NODE_NAME);
+          XmlErrorCode.XML_ELEMENT_MISSING, PSTomcatConnector.CONNECTOR_NODE_NAME);
     ajpConnEl.setAttribute(PSTomcatConnector.PORT_ATTR, String.valueOf(port));
 
     PSXmlUtils.saveDocToFile(serverFile, doc);

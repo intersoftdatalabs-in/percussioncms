@@ -405,6 +405,7 @@ def test_residual_allowlist_is_exact_paths_only() -> None:
         assert not entry.startswith(
             "system/src/main/java/com/percussion/relationship/effect/"
         ), entry
+        assert not entry.startswith("modules/servletutils/"), entry
 
 
 def test_extensions_main_converted_paths_not_allowlisted() -> None:
@@ -546,6 +547,21 @@ def test_system_cx_converted_paths_not_allowlisted() -> None:
         "system/src/main/java/com/percussion/cx/PSOption.java",
         "system/src/main/java/com/percussion/cx/PSOptions.java",
         "system/src/main/java/com/percussion/cx/PSUserOptions.java",
+    )
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = {
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    resurrected = [p for p in converted if p in entries]
+    assert resurrected == [], resurrected
+
+
+def test_servletutils_pstomcatutils_converted_path_not_allowlisted() -> None:
+    """#4195 typed leftover servletutils PSTomcatUtils IPSXmlErrors call-sites."""
+    converted = (
+        "modules/servletutils/src/main/java/com/percussion/servlet_utils/tomcat/PSTomcatUtils.java",
     )
     text = ALLOWLIST.read_text(encoding="utf-8")
     entries = {

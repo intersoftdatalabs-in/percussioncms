@@ -32,7 +32,8 @@
 # Converted (no longer listed): extensions-main #3756/#3938 (allow-list)
 # shrink after #3793 re-listed already-typed production paths);
 # design.catalog leftover #3969; system/src/main com.percussion.mail leftover
-# #4017; cx leftover #4013 (PSFont, PSOption, PSOptions, PSUserOptions).
+# #4017; cx leftover #4013 (PSFont, PSOption, PSOptions, PSUserOptions);
+# servletutils PSTomcatUtils leftover #4195.
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -49,7 +50,6 @@ modules/perc-i18n/src/main/java/com/percussion/i18n/ui/PSI18NTranslationKeyValue
 modules/perc-toolkit/src/main/java/com/percussion/pso/jexl/PSOSlotTools.java
 modules/perc-toolkit/src/main/java/com/percussion/pso/relationshipbuilder/exit/PSAbstractBuildRelationshipsExtension.java
 modules/segmentation-rx/src/main/java/com/percussion/soln/relationshipbuilder/exit/PSAbstractBuildRelationshipsExtension.java
-modules/servletutils/src/main/java/com/percussion/servlet_utils/tomcat/PSTomcatUtils.java
 system/Testing/Extensions/src/com/percussion/extensions/testing/PSMakeCERequest.java
 system/Testing/Extensions/src/com/percussion/extensions/testing/PSSortDocData.java
 system/Testing/Extensions/src/com/percussion/extensions/testing/TestMakeInternalRequest.java
