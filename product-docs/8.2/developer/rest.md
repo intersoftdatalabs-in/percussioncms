@@ -1961,6 +1961,97 @@ Example create body:
 | `500` | Control manager or file I/O failure |
 | `503` | Control adaptor not configured |
 
+## Relationship types (catalog)
+
+Server **relationship type** definitions (Workbench / Developer **System Design → Relationship
+Types**, SY-03) are exposed under `/services/relationshiptypes`. List and detail include
+**system** and **user** types with category, cloning/revision flags, properties, and effects.
+Backing is `IPSSystemDesignWs` (`findRelationshipTypes` / `loadRelationshipTypes` /
+`createRelationshipTypes` / `saveRelationshipTypes` / `deleteRelationshipTypes`) — the same
+design web service SOAP uses. There is no new SOAP surface.
+
+Admin **write** creates, updates, and deletes **user** relationship types only. Packaged
+**system** types are read-only (**409** on mutate/delete). **Do not** treat this as a Developer
+Relationship Types SPA; create/edit chrome is a later sibling.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/relationshiptypes` | List relationship types |
+| `GET` | `/services/relationshiptypes/{idOrName}` | Load one type by name or GUID string |
+| `POST` | `/services/relationshiptypes` | **Admin.** Create a user relationship type (optional `copyFrom`) |
+| `PUT` | `/services/relationshiptypes/{idOrName}` | **Admin.** Update mutable fields of a user type |
+| `DELETE` | `/services/relationshiptypes/{idOrName}` | **Admin.** Delete a user relationship type |
+
+JSON objects use the `RelationshipType` wire type. Prefer the generated OpenAPI schema as the
+integration source of truth. Detail and write keys use a **path** parameter (`idOrName`) —
+names must not contain `/` or whitespace.
+
+### Relationship type write contract (Admin)
+
+Create (`POST /services/relationshiptypes`) persists immediately via
+`createRelationshipTypes` + `saveRelationshipTypes`. JSON body requires `name` (no whitespace,
+no wildcards). Provide either:
+
+* `category` — category **code** (`rs_activeassembly`, `rs_copy`, `rs_promotable`,
+  `rs_translation`, …) or **label** (`Active Assembly`, `New Copy`, …), or
+* `copyFrom` — name or GUID of an existing type whose mutable fields (label, description,
+  cloning/revision flags, user properties, effects) are copied onto the new **user** type
+  (Workbench copy-from-system).
+
+`label` defaults to `name` when omitted. Duplicate name is **409**. Blank / invalid name or
+missing category (when `copyFrom` is absent) is **400**. Unknown `copyFrom` is **400**.
+Non-Admin is **403**. The new type is then `GET /services/relationshiptypes/{name}` **200** and
+appears on `GET /services/relationshiptypes`.
+
+Update (`PUT /services/relationshiptypes/{idOrName}`) updates mutable fields of a **user** type
+(label, description, category, `allowCloning` / revision flags, user properties). Identity
+(`name`) is not renamed on PUT — round-trip GET then PUT for boolean flags. Effect
+condition/execution-context editing and cloning field-override editor are not supported via
+this API (see `designGaps` on detail). Unknown key is **404**. A **system** type is **409**.
+Non-Admin is **403**. Lock conflicts are **409**.
+
+Delete (`DELETE /services/relationshiptypes/{idOrName}`) returns **204** when a user type is
+removed; a following `GET` is **404**. Unknown key is **404**. A **system** type is **409**
+(not deleted). Non-Admin is **403**.
+
+There is **no** Developer SPA relationship-type create/edit/delete in this slice — operators
+and integrators call the REST path (or Workbench).
+
+Example create body:
+
+```json
+{
+  "RelationshipType": {
+    "name": "MyUserRel",
+    "label": "My User Rel",
+    "category": "rs_activeassembly",
+    "description": "Created via REST"
+  }
+}
+```
+
+Example copy-from-system body:
+
+```json
+{
+  "RelationshipType": {
+    "name": "CopiedRel",
+    "copyFrom": "ActiveAssembly"
+  }
+}
+```
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | List / get / create / update success |
+| `204` | Delete success |
+| `400` | Invalid input (missing name/category, whitespace/wildcard name, unknown copyFrom) |
+| `403` | Caller is not Admin |
+| `404` | User relationship type not found |
+| `409` | Duplicate name, system type immutable, or design lock conflict |
+| `500` | Design WS failure |
+| `503` | Relationship type adaptor not configured |
+
 ## Extensions (catalog)
 
 Server **extension** registrations (Workbench / Developer **Extension Registration**, SY-01) are

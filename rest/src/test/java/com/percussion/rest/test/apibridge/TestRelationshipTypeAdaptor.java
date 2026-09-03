@@ -22,7 +22,7 @@ import com.percussion.rest.relationshiptypes.RelationshipType;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-/** Test adaptor for Relationship Type API bridge. */
+/** Test adaptor for Relationship Type API bridge (MainTest Spring context). */
 @Component
 public class TestRelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
 
@@ -34,5 +34,20 @@ public class TestRelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
   @Override
   public RelationshipType findRelationshipType(String idOrName) {
     return null;
+  }
+
+  @Override
+  public RelationshipType createRelationshipType(RelationshipType body) {
+    return body;
+  }
+
+  @Override
+  public RelationshipType updateRelationshipType(String idOrName, RelationshipType body) {
+    return body;
+  }
+
+  @Override
+  public boolean deleteRelationshipType(String idOrName) {
+    return false;
   }
 }

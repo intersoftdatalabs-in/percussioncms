@@ -21,12 +21,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -132,5 +135,135 @@ public class RelationshipTypeResourceTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> bare.getRelationshipType("any"));
     assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createRelationshipTypeDelegates() {
+    RelationshipType body = userBody("MyUserRel");
+    RelationshipType created = userBody("MyUserRel");
+    created.setUserType(true);
+    when(adaptor.createRelationshipType(eq(body))).thenReturn(created);
+
+    RelationshipType out = resource.createRelationshipType(body);
+
+    assertEquals("MyUserRel", out.getName());
+    assertTrue(out.isUserType());
+    verify(adaptor).createRelationshipType(eq(body));
+  }
+
+  @Test
+  public void createRelationshipTypeBlankNameIs400() {
+    when(adaptor.createRelationshipType(any()))
+        .thenThrow(new IllegalArgumentException("name is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createRelationshipType(new RelationshipType()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createRelationshipTypeDuplicateIs409() {
+    when(adaptor.createRelationshipType(any()))
+        .thenThrow(new WebApplicationException("Relationship type already exists: MyUserRel", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createRelationshipType(userBody("MyUserRel")));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createRelationshipTypeNonAdminIs403() {
+    when(adaptor.createRelationshipType(any()))
+        .thenThrow(new WebApplicationException("Admin role required", Response.Status.FORBIDDEN));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createRelationshipType(userBody("MyUserRel")));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateRelationshipTypeDelegates() {
+    RelationshipType body = userBody("MyUserRel");
+    body.setLabel("Updated");
+    RelationshipType updated = userBody("MyUserRel");
+    updated.setLabel("Updated");
+    when(adaptor.updateRelationshipType(eq("MyUserRel"), eq(body))).thenReturn(updated);
+
+    RelationshipType out = resource.updateRelationshipType("MyUserRel", body);
+
+    assertEquals("Updated", out.getLabel());
+    verify(adaptor).updateRelationshipType(eq("MyUserRel"), eq(body));
+  }
+
+  @Test
+  public void updateRelationshipTypeUnknownIs404() {
+    when(adaptor.updateRelationshipType(eq("missing"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateRelationshipType("missing", new RelationshipType()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateRelationshipTypeNullBodyIs400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.updateRelationshipType("MyUserRel", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).updateRelationshipType(any(), any());
+  }
+
+  @Test
+  public void updateRelationshipTypeSystemIs409() {
+    when(adaptor.updateRelationshipType(eq("ActiveAssembly"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "System relationship types cannot be updated or deleted", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateRelationshipType("ActiveAssembly", new RelationshipType()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteRelationshipTypeDelegates() {
+    when(adaptor.deleteRelationshipType(eq("MyUserRel"))).thenReturn(true);
+    Response resp = resource.deleteRelationshipType("MyUserRel");
+    assertEquals(204, resp.getStatus());
+    verify(adaptor).deleteRelationshipType("MyUserRel");
+  }
+
+  @Test
+  public void deleteRelationshipTypeUnknownIs404() {
+    when(adaptor.deleteRelationshipType(eq("missing"))).thenReturn(false);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteRelationshipType("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteRelationshipTypeSystemIs409() {
+    when(adaptor.deleteRelationshipType(eq("ActiveAssembly")))
+        .thenThrow(
+            new WebApplicationException(
+                "System relationship types cannot be updated or deleted", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteRelationshipType("ActiveAssembly"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  private static RelationshipType userBody(String name) {
+    RelationshipType t = new RelationshipType();
+    t.setName(name);
+    t.setCategory("rs_activeassembly");
+    t.setLabel(name);
+    return t;
   }
 }
