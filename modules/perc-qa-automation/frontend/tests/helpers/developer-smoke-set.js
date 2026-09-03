@@ -173,6 +173,13 @@ const DEVELOPER_SMOKE_SET = [
     notes: "SE-01 SPA community create/delete (#4077 / parent #1690)",
   },
   {
+    id: "community-new-search-defaults",
+    file: "developer-community-new-search-defaults.spec.js",
+    title: "community detail: new-search defaults picker and save",
+    status: "green",
+    notes: "UI-09 SPA community CX new-search defaults (#4220 / parent #1690)",
+  },
+  {
     id: "view-editor",
     file: "developer-view-editor.spec.js",
     title: "Admin can create and delete a standard view",

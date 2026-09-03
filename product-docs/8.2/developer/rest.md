@@ -2022,8 +2022,9 @@ Example GET / PUT body:
 | `409` | Design lock held by another user |
 | `500` | Design service or server failure |
 
-There is no Developer SPA for this assignment in this release; operators and
-integrators call the REST surface above.
+Developer **Communities** detail includes **New-search defaults** chrome that
+calls the same GET/PUT. Integrators may still call the REST surface above
+without the SPA.
 
 ### Search execute body
 
