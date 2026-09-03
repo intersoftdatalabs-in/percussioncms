@@ -52,6 +52,7 @@ import com.percussion.webservices.ui.data.ActionType;
 import jakarta.ws.rs.WebApplicationException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
@@ -475,6 +476,20 @@ class ActionMenuAdaptorWriteTest {
     assertTrue(ex.getMessage().toLowerCase().contains("cycle"));
     verify(designWs, never()).saveActions(anyList(), anyBoolean(), any(), any());
     verify(designWs, never()).loadActions(anyList(), eq(true), eq(false), any(), any());
+  }
+
+  @Test
+  void descendantContainsParent_usesHibernateNestedChildrenWithoutDesignLoad()
+      throws Exception {
+    PSActionMenu menuA = new PSActionMenu("MenuA", "MenuA", PSAction.TYPE_MENU, "", "SERVER", 0);
+    menuA.setActionId(42);
+    PSActionMenu menuB = new PSActionMenu("MenuB", "MenuB", PSAction.TYPE_MENU, "", "SERVER", 0);
+    menuB.setActionId(100);
+    menuB.setChildren(List.of(menuA));
+    adaptor = new ActionMenuAdaptor(designWs, () -> true, () -> List.of(menuB));
+    PSAction nodeB = stubCascadingMenu("MenuB", 100);
+    assertTrue(adaptor.descendantContainsParent(nodeB, 42, new HashSet<>()));
+    verify(designWs, never()).loadActions(anyList(), anyBoolean(), anyBoolean(), any(), any());
   }
 
   @Test

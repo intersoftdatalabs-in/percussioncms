@@ -57,6 +57,31 @@ class ActionMenuListJsonReaderTest {
   }
 
   @Test
+  void parse_actionMenuEnvelopeChildren() {
+    ActionMenuList list =
+        ActionMenuListJsonReader.parse(
+            "{\"ActionMenu\":{\"children\":[{\"name\":\"FromMenu\"},{\"id\":11}]}}");
+    assertEquals(2, list.size());
+    assertEquals("FromMenu", list.get(0).getName());
+    assertEquals(11, list.get(1).getId());
+  }
+
+  @Test
+  void parse_actionMenuEnvelopeOmitsChildrenIsEmpty() {
+    assertTrue(ActionMenuListJsonReader.parse("{\"ActionMenu\":{}}").isEmpty());
+  }
+
+  @Test
+  void parse_unrecognizedObjectIs400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> ActionMenuListJsonReader.parse("{\"foo\":\"bar\"}"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(ActionMenuListJsonReader.UNRECOGNIZED_ENVELOPE, ex.getMessage());
+  }
+
+  @Test
   void parse_emptyIsEmptyList() {
     assertTrue(ActionMenuListJsonReader.parse("  ").isEmpty());
     assertTrue(ActionMenuListJsonReader.parse("[]").isEmpty());

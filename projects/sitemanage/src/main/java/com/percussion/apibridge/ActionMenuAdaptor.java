@@ -846,7 +846,8 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
 
   /**
    * True when {@code parentId} is already in {@code node}'s existing descendant graph (design-WS
-   * children and/or Hibernate nested tree).
+   * children and/or Hibernate nested tree). Walks the in-memory Hibernate index first so cycle
+   * checks do not N+1 {@code loadActions} per descendant.
    */
   boolean descendantContainsParent(PSAction node, int parentId, Set<Integer> seen) {
     if (node == null || node.getId() <= 0 || parentId <= 0 || seen == null) {
@@ -859,15 +860,14 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     if (kids != null) {
       Iterator<?> it = kids.iterator();
       while (it.hasNext()) {
-        int childId = childActionId(it.next());
+        Object next = it.next();
+        int childId = childActionId(next);
         if (childId == parentId) {
           return true;
         }
         if (childId > 0) {
-          PSAction child = findPsActionByKey(Integer.toString(childId));
-          if (child == null) {
-            child = findHibernateActionByKey(Integer.toString(childId));
-          }
+          PSAction child =
+              next instanceof PSAction action ? action : resolveDescendantForCycle(childId);
           if (descendantContainsParent(child, parentId, seen)) {
             return true;
           }
@@ -884,18 +884,28 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
         if (childId == parentId) {
           return true;
         }
-        if (childId > 0) {
-          PSAction loaded = findPsActionByKey(Integer.toString(childId));
-          if (loaded == null) {
-            loaded = psActionFromHibernate(child);
-          }
-          if (descendantContainsParent(loaded, parentId, seen)) {
-            return true;
-          }
+        if (childId > 0
+            && descendantContainsParent(psActionFromHibernate(child), parentId, seen)) {
+          return true;
         }
       }
     }
     return false;
+  }
+
+  /**
+   * Resolve a descendant for cycle walking: Hibernate request index (already loaded) first, then
+   * design-WS only if the nested row is missing from that catalog.
+   */
+  PSAction resolveDescendantForCycle(int childId) {
+    if (childId <= 0) {
+      return null;
+    }
+    PSActionMenu hibernate = requestHibernateIndex().get(Integer.toString(childId));
+    if (hibernate != null) {
+      return psActionFromHibernate(hibernate);
+    }
+    return findPsActionByKey(Integer.toString(childId));
   }
 
   static int childActionId(Object child) {

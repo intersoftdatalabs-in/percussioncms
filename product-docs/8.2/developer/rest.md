@@ -1500,10 +1500,12 @@ PUT round-trips GET detail fields already exposed (`label`, `description`,
 **Children PUT** (`PUT /services/actions/{idOrName}/children`) replaces
 `RXMENUACTIONRELATION` for a user cascading `MENU` (type `MENU` with a blank
 URL). The body is an `ActionMenuList`: a JSON array, `{"ActionMenuList":[…]}`,
-or `{"children":[…]}`. Each element is identified by **`name`**, numeric
+`{"children":[…]}`, or `{"ActionMenu":{"children":[…]}}`. Each element is identified by **`name`**, numeric
 **`id`**, or **`guid.stringValue`** (the same catalog keys as GET). Array
 **order** is persisted (child `SORTORDER` plus relation rows). Other fields on
-those child objects are ignored. An empty array clears children. Parent
+those child objects are ignored. An empty array (or an `ActionMenu` envelope with
+no `children`) clears children. An unrecognized JSON object (for example
+`{"foo":"bar"}`) is **400** — it is not treated as an empty list. Parent
 `PUT /services/actions/{idOrName}` does **not** honor nested `children`
 (label/type/url only). Illegal graphs fail closed — the server does **not**
 persist a partial association list. A **cycle** (parent listed as its own
