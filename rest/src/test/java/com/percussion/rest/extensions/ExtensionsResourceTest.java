@@ -11,10 +11,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.List;
@@ -127,5 +129,149 @@ public class ExtensionsResourceTest {
             WebApplicationException.class, () -> resource.getExtensionCatalogItem("sys_add"));
     assertEquals(500, ex.getResponse().getStatus());
     assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void registerExtensionDelegates() {
+    Extension body = userBody("my_user_ext");
+    Extension created = userBody("my_user_ext");
+    created.setContext("user/");
+    when(adaptor.registerExtension(any(), eq(body))).thenReturn(created);
+
+    Extension out = resource.registerExtension(body);
+
+    assertEquals("my_user_ext", out.getExtensionName());
+    assertEquals("user/", out.getContext());
+    verify(adaptor).registerExtension(any(), eq(body));
+  }
+
+  @Test
+  public void registerExtensionBlankNameIs400() {
+    when(adaptor.registerExtension(any(), any()))
+        .thenThrow(new IllegalArgumentException("extensionName is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.registerExtension(new Extension()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void registerExtensionDuplicateIs409() {
+    when(adaptor.registerExtension(any(), any()))
+        .thenThrow(new WebApplicationException("Extension already exists: Java/user/my_user_ext", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.registerExtension(userBody("my_user_ext")));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void registerExtensionNonAdminIs403() {
+    when(adaptor.registerExtension(any(), any()))
+        .thenThrow(new WebApplicationException("Admin role required", Response.Status.FORBIDDEN));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.registerExtension(userBody("my_user_ext")));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateExtensionDelegates() {
+    Extension body = userBody("my_user_ext");
+    body.setDeprecated(true);
+    Extension updated = userBody("my_user_ext");
+    updated.setDeprecated(true);
+    when(adaptor.updateExtension(any(), eq("my_user_ext"), eq(body))).thenReturn(updated);
+
+    Extension out = resource.updateExtension("my_user_ext", body);
+
+    assertTrue(out.isDeprecated());
+    verify(adaptor).updateExtension(any(), eq("my_user_ext"), eq(body));
+  }
+
+  @Test
+  public void updateExtensionUnknownIs404() {
+    when(adaptor.updateExtension(any(), eq("missing"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateExtension("missing", new Extension()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateExtensionNullBodyIs400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.updateExtension("my_user_ext", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).updateExtension(any(), any(), any());
+  }
+
+  @Test
+  public void updateExtensionSystemIs409() {
+    when(adaptor.updateExtension(any(), eq("sys_add"), any()))
+        .thenThrow(new WebApplicationException("System or handler-owned extensions cannot be updated", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateExtension("sys_add", new Extension()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteExtensionNoContent() {
+    when(adaptor.deleteExtension(any(), eq("my_user_ext"))).thenReturn(true);
+
+    Response r = resource.deleteExtension("my_user_ext");
+
+    assertEquals(204, r.getStatus());
+    verify(adaptor).deleteExtension(any(), eq("my_user_ext"));
+  }
+
+  @Test
+  public void deleteExtensionUnknownIs404() {
+    when(adaptor.deleteExtension(any(), eq("missing"))).thenReturn(false);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteExtension("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteExtensionSystemIs409() {
+    when(adaptor.deleteExtension(any(), eq("sys_add")))
+        .thenThrow(new WebApplicationException("System or handler-owned extensions cannot be deleted", 409));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteExtension("sys_add"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteExtensionNonAdminIs403() {
+    when(adaptor.deleteExtension(any(), eq("my_user_ext")))
+        .thenThrow(new WebApplicationException("Admin role required", Response.Status.FORBIDDEN));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteExtension("my_user_ext"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnRegister() {
+    ExtensionsResource bare = new ExtensionsResource();
+    bare.setUriInfo(uriInfo);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> bare.registerExtension(userBody("x")));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  private static Extension userBody(String name) {
+    Extension e = new Extension();
+    e.setExtensionName(name);
+    e.setHandlerName("Java");
+    e.setSupportedInterfaces(List.of("com.percussion.extension.IPSUdfProcessor"));
+    e.setInitParameters(java.util.Map.of("className", "com.example.MyExt"));
+    return e;
   }
 }
