@@ -1375,7 +1375,8 @@ public class ViewAdaptor implements IViewAdaptor {
 
   /**
    * Validate a classic custom-view URL. Blank/placeholder is 400; absolute/scheme, backslash,
-   * NUL, and path traversal after leading {@code ../} are invalid.
+   * NUL, and path traversal are invalid. At most one leading {@code ../} is allowed (classic CX
+   * app path); further {@code ../} segments or any remaining {@code ..} are rejected.
    */
   static String requireValidCustomViewUrl(String raw) {
     if (StringUtils.isBlank(raw)) {
@@ -1396,8 +1397,10 @@ public class ViewAdaptor implements IViewAdaptor {
     if (lower.contains("://") || lower.startsWith("file:") || lower.startsWith("//")) {
       throw new IllegalArgumentException(CUSTOM_VIEW_URL_INVALID);
     }
+    // Classic CX paths use a single leading "../app/...". Strip at most one; leftover ".." is
+    // traversal (e.g. "../../etc/passwd" must not pass after multi-strip).
     String rest = url;
-    while (rest.startsWith("../")) {
+    if (rest.startsWith("../")) {
       rest = rest.substring(3);
     }
     if (rest.startsWith("./")) {

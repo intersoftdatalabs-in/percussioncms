@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -409,6 +410,39 @@ class ViewAdaptorWriteTest {
   }
 
   @Test
+  void update_standardView_toCustomUrl_convertsAndRoundTrips() throws Exception {
+    PSSearch existing = stubView("MyView", false);
+    stubCatalogLoad(existing);
+    PSSearch locked = stubView("MyView", false);
+    when(locked.getUrl()).thenReturn("../myApp/converted.xml");
+    // Mock does not flip isCustomView on setCustom; mirror domain after conversion.
+    doAnswer(
+            inv -> {
+              when(locked.isCustomView()).thenReturn(true);
+              when(locked.isStandardView()).thenReturn(false);
+              return null;
+            })
+        .when(locked)
+        .setCustom(true);
+    when(designWs.loadViews(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(locked));
+
+    ViewDef body = new ViewDef();
+    body.setType("CustomView");
+    body.setCustomView(true);
+    body.setUrl("../myApp/converted.xml");
+
+    ViewDef out = adaptor.saveView("MyView", body);
+
+    assertEquals("MyView", out.getName());
+    assertEquals("../myApp/converted.xml", out.getUrl());
+    assertTrue(out.isCustomView());
+    verify(locked).setCustom(true);
+    verify(locked).setUrl("../myApp/converted.xml");
+    verify(designWs).saveViews(anyList(), eq(true), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
   void update_lockConflict_is409() throws Exception {
     PSSearch existing = stubView("MyView", false);
     stubCatalogLoad(existing);
@@ -551,9 +585,16 @@ class ViewAdaptorWriteTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> ViewAdaptor.requireValidCustomViewUrl("../myApp/../../etc/passwd"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ViewAdaptor.requireValidCustomViewUrl("../../etc/passwd"));
     assertTrue(ViewAdaptor.isPackagedCxViewName("Inbox"));
     assertTrue(ViewAdaptor.isPackagedCxViewName("Outbox"));
     assertTrue(ViewAdaptor.isPackagedCxViewName("Checked_Out_By_Me"));
+    assertTrue(ViewAdaptor.isPackagedCxViewName("INBOX"));
+    assertTrue(ViewAdaptor.isPackagedCxViewName("inbox"));
+    assertTrue(ViewAdaptor.isPackagedCxViewName("Outbox "));
+    assertTrue(ViewAdaptor.isPackagedCxViewName("checked out by me"));
     assertFalse(ViewAdaptor.isPackagedCxViewName("MyCustom"));
   }
 
