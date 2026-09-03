@@ -19,6 +19,7 @@ package com.percussion.apibridge;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -2415,6 +2416,114 @@ class SitesAdaptorTest {
     String body = Files.readString(html, StandardCharsets.UTF_8);
     assertTrue(body.contains("home"), body);
     assertTrue(body.contains("Hello from sitemap"), body);
+  }
+
+  /**
+   * REST PUT sitemap-xml then two Admin Builds against the same JVM: Path/Files edit of {@code
+   * sitemap.xml} loc/lastmod plus referenced Markdown must change {@code pagesWritten} and HTML
+   * without a process restart. Leftover remoteUrl / credentials / cloud rootPath stay 400 in
+   * sibling tests.
+   */
+  @Test
+  void buildVirtualSite_sitemapXmlSecondBuildAfterCurrentFileEditWritesUpdatedHtml()
+      throws Exception {
+    Path siteRoot = tempDir.resolve("sm-rebuild-src");
+    Path out = tempDir.resolve("sm-rebuild-out");
+
+    PSSite existing = new PSSite();
+    existing.setName("SitemapHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("SitemapHelp");
+    modifiable.setGUID(siteGuid);
+    when(siteManager.findSite("SitemapHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("sitemap-xml");
+    body.setRootPath(siteRoot.toAbsolutePath().toString());
+    body.setSiteKey("sm-docs");
+    VirtualSiteProperties put = adaptor.updateVirtualSiteProperties("SitemapHelp", body);
+    assertEquals("sitemap-xml", put.getSourceKind());
+    ArgumentCaptor<PSSite> saved = ArgumentCaptor.forClass(PSSite.class);
+    verify(siteManager).saveSite(saved.capture());
+    PSSite persisted = saved.getValue();
+    when(siteManager.findSite("SitemapHelp")).thenReturn(persisted);
+
+    createMinimalSitemapXmlTree(siteRoot);
+    Files.writeString(
+        siteRoot.resolve("pages").resolve("home.md"),
+        "unique-token-AAA",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("sitemap.xml"),
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+          <url>
+            <loc>pages/home.md</loc>
+            <lastmod>2020-01-01</lastmod>
+          </url>
+        </urlset>
+        """,
+        StandardCharsets.UTF_8);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult first = adaptor.buildVirtualSite("SitemapHelp", req);
+    assertTrue(first.getPagesWritten().intValue() > 0, "pagesWritten=" + first.getPagesWritten());
+    assertEquals(1, first.getPagesWritten().intValue());
+    Path html = out.resolve("8.2").resolve("home.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    Path secondHtmlPath = out.resolve("8.2").resolve("second.html");
+    assertFalse(Files.isRegularFile(secondHtmlPath), "first build must not emit second.html");
+    String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
+    assertTrue(firstHtml.contains("2020-01-01"), firstHtml);
+    assertFalse(firstHtml.contains("unique-token-BBB"), firstHtml);
+
+    Files.writeString(
+        siteRoot.resolve("pages").resolve("home.md"),
+        "unique-token-BBB",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("pages").resolve("second.md"),
+        "unique-token-SECOND",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("sitemap.xml"),
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+          <url>
+            <loc>pages/home.md</loc>
+            <lastmod>2026-09-02</lastmod>
+          </url>
+          <url>
+            <loc>pages/second.md</loc>
+          </url>
+        </urlset>
+        """,
+        StandardCharsets.UTF_8);
+
+    VirtualSiteBuildResult second = adaptor.buildVirtualSite("SitemapHelp", req);
+    assertTrue(
+        second.getPagesWritten().intValue() > 0, "pagesWritten=" + second.getPagesWritten());
+    assertEquals(2, second.getPagesWritten().intValue());
+    assertNotEquals(first.getPagesWritten(), second.getPagesWritten());
+    String secondHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
+    assertTrue(secondHtml.contains("2026-09-02"), secondHtml);
+    assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
+    assertFalse(secondHtml.contains("2020-01-01"), secondHtml);
+    assertNotEquals(firstHtml, secondHtml);
+    assertTrue(Files.isRegularFile(secondHtmlPath), "missing " + secondHtmlPath);
+    String extra = Files.readString(secondHtmlPath, StandardCharsets.UTF_8);
+    assertTrue(extra.contains("unique-token-SECOND"), extra);
   }
 
   @Test

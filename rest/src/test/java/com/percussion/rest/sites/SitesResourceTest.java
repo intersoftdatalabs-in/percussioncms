@@ -18,6 +18,7 @@ package com.percussion.rest.sites;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -26,6 +27,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -816,6 +818,143 @@ public class SitesResourceTest {
     verify(adaptor).buildVirtualSite("SitemapHelp", req);
   }
 
+  /**
+   * PUT sitemap-xml, write sitemap.xml via Path/Files, POST build, edit the current file, POST
+   * build again. Resource delegates twice; pagesWritten and HTML change. Leftover remoteUrl /
+   * credentials / cloud rootPath stay 400 in sibling tests.
+   */
+  @Test
+  public void buildVirtualSiteSitemapXmlSecondBuildAfterCurrentFileEditDelegates()
+      throws Exception {
+    Path smRoot = tempDir.resolve("sm-rebuild-site");
+    Files.createDirectories(smRoot.resolve("pages"));
+    Files.writeString(
+        smRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: Sitemap Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        sitemap:
+          file: sitemap.xml
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        smRoot.resolve("pages").resolve("home.md"),
+        "unique-token-AAA",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        smRoot.resolve("sitemap.xml"),
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+          <url>
+            <loc>pages/home.md</loc>
+            <lastmod>2020-01-01</lastmod>
+          </url>
+        </urlset>
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("sm-rebuild-out");
+    Files.createDirectories(out);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("sitemap-xml");
+    body.setRootPath(smRoot.toAbsolutePath().toString());
+    VirtualSiteProperties saved = new VirtualSiteProperties();
+    saved.setSourceKind("sitemap-xml");
+    saved.setRootPath(smRoot.toAbsolutePath().toString());
+    saved.setVirtual(true);
+    when(adaptor.updateVirtualSiteProperties(eq("SitemapHelp"), same(body))).thenReturn(saved);
+
+    VirtualSiteProperties put = resource.updateVirtualProperties("SitemapHelp", body);
+    assertEquals("sitemap-xml", put.getSourceKind());
+    verify(adaptor).updateVirtualSiteProperties("SitemapHelp", body);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    when(adaptor.buildVirtualSite(eq("SitemapHelp"), same(req)))
+        .thenAnswer(
+            invocation -> {
+              Path htmlDir = out.resolve("8.2");
+              Files.createDirectories(htmlDir);
+              Path html = htmlDir.resolve("home.html");
+              String md =
+                  Files.readString(
+                      smRoot.resolve("pages").resolve("home.md"), StandardCharsets.UTF_8);
+              String sitemap =
+                  Files.readString(smRoot.resolve("sitemap.xml"), StandardCharsets.UTF_8);
+              Files.writeString(html, "<html>" + md + sitemap + "</html>", StandardCharsets.UTF_8);
+              int pages = sitemap.contains("pages/second.md") ? 2 : 1;
+              if (pages == 2) {
+                Files.writeString(
+                    htmlDir.resolve("second.html"),
+                    "<html>unique-token-SECOND</html>",
+                    StandardCharsets.UTF_8);
+              }
+              VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+              built.setSiteName("SitemapHelp");
+              built.setPagesWritten(pages);
+              built.setLinkProblemCount(0);
+              built.setHasLinkProblems(false);
+              built.setOutputPath(out.toAbsolutePath().toString());
+              return built;
+            });
+
+    VirtualSiteBuildResult first = resource.buildVirtualSite("SitemapHelp", req);
+    assertTrue(first.getPagesWritten().intValue() > 0);
+    assertEquals(1, first.getPagesWritten().intValue());
+    Path html = out.resolve("8.2").resolve("home.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
+    assertTrue(firstHtml.contains("2020-01-01"), firstHtml);
+    assertFalse(Files.isRegularFile(out.resolve("8.2").resolve("second.html")));
+
+    Files.writeString(
+        smRoot.resolve("pages").resolve("home.md"),
+        "unique-token-BBB",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        smRoot.resolve("pages").resolve("second.md"),
+        "unique-token-SECOND",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        smRoot.resolve("sitemap.xml"),
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+          <url>
+            <loc>pages/home.md</loc>
+            <lastmod>2026-09-02</lastmod>
+          </url>
+          <url>
+            <loc>pages/second.md</loc>
+          </url>
+        </urlset>
+        """,
+        StandardCharsets.UTF_8);
+
+    VirtualSiteBuildResult second = resource.buildVirtualSite("SitemapHelp", req);
+    assertTrue(second.getPagesWritten().intValue() > 0);
+    assertEquals(2, second.getPagesWritten().intValue());
+    assertNotEquals(first.getPagesWritten(), second.getPagesWritten());
+    String secondHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
+    assertTrue(secondHtml.contains("2026-09-02"), secondHtml);
+    assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
+    assertNotEquals(firstHtml, secondHtml);
+    Path extra = out.resolve("8.2").resolve("second.html");
+    assertTrue(Files.isRegularFile(extra), "missing " + extra);
+    assertTrue(
+        Files.readString(extra, StandardCharsets.UTF_8).contains("unique-token-SECOND"));
+    verify(adaptor, times(2)).buildVirtualSite("SitemapHelp", req);
+  }
+
   @Test
   public void buildVirtualSiteSitemapXmlRemoteUrlPropagates400() {
     when(adaptor.buildVirtualSite(eq("SitemapHelp"), any()))
@@ -827,6 +966,38 @@ public class SitesResourceTest {
             WebApplicationException.class, () -> resource.buildVirtualSite("SitemapHelp", null));
     assertEquals(400, ex.getResponse().getStatus());
     assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(adaptor).buildVirtualSite("SitemapHelp", null);
+  }
+
+  @Test
+  public void buildVirtualSiteSitemapXmlCloudRootPathPropagates400() {
+    when(adaptor.buildVirtualSite(eq("SitemapHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for sitemap-xml must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("SitemapHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).buildVirtualSite("SitemapHelp", null);
+  }
+
+  @Test
+  public void buildVirtualSiteSitemapXmlCredentialsPropagates400() {
+    when(adaptor.buildVirtualSite(eq("SitemapHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for sitemap-xml (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("SitemapHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
     verify(adaptor).buildVirtualSite("SitemapHelp", null);
   }
 
@@ -1424,6 +1595,10 @@ public class SitesResourceTest {
     assertTrue(
         buildBlock.contains("sitemap.xml") || buildBlock.contains("no live crawl"),
         "buildVirtualSite OpenAPI description must mention local sitemap.xml fixture");
+    assertTrue(
+        buildBlock.contains("current file")
+            && (buildBlock.contains("no JVM") || buildBlock.contains("Jetty")),
+        "buildVirtualSite OpenAPI description must mention sitemap-xml rebuild from current file");
     assertTrue(
         buildBlock.contains("calendar.ics") || buildBlock.contains("no CalDAV"),
         "buildVirtualSite OpenAPI description must mention local icalendar fixture");
