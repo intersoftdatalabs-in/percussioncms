@@ -99,7 +99,8 @@ describe("DisplayFormatDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-df-detail-title").textContent).toContain("Default View");
     expect(screen.getByTestId("developer-df-columns-table")).toBeTruthy();
-    expect(screen.getByTestId("developer-df-gaps")).toBeTruthy();
+    expect(screen.queryByTestId("developer-df-gaps")).toBeNull();
+    expect(screen.getByTestId("developer-df-column-sort-readonly-0")).toBeTruthy();
     expect(getDisplayFormatDetail).toHaveBeenCalledWith("Default");
     fireEvent.click(screen.getByTestId("developer-df-back"));
     expect(onBack).toHaveBeenCalled();
@@ -582,9 +583,75 @@ describe("DisplayFormatDetailPanel", () => {
     });
     expect(screen.queryByTestId("developer-df-column-editor")).toBeNull();
     expect(screen.queryByTestId("developer-df-columns-save")).toBeNull();
+    expect(screen.queryByTestId("developer-df-column-sort-0")).toBeNull();
+    expect(screen.queryByTestId("developer-df-column-sort-dir-0")).toBeNull();
     expect(screen.getByTestId("developer-df-communities-readonly")).toBeTruthy();
     expect(screen.queryByTestId("developer-df-community-editor")).toBeNull();
     expect(updateDisplayFormat).not.toHaveBeenCalled();
+  });
+
+  it("PUTs default sort column and descending direction on a user format", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa4221fmt",
+      label: "User format",
+      sortedColumnNames: "sys_title",
+      columns: [
+        {
+          source: "sys_title",
+          displayName: "Title",
+          position: 0,
+          renderType: "text",
+          width: 200,
+          ascendingSort: true,
+        },
+        {
+          source: "sys_contentid",
+          displayName: "Content id",
+          position: 1,
+          renderType: "text",
+          width: 80,
+          ascendingSort: true,
+        },
+      ],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockResolvedValue({
+      ...userDetail,
+      sortedColumnNames: "sys_contentid",
+      ascendingSort: false,
+      descendingSort: true,
+      columns: [
+        userDetail.columns[0],
+        { ...userDetail.columns[1], ascendingSort: false, descendingSort: true, sortOrder: false },
+      ],
+    });
+    render(<DisplayFormatDetailPanel idOrName="qa4221fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-column-sort-1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-column-sort-1"));
+    fireEvent.change(screen.getByTestId("developer-df-column-sort-dir-1"), {
+      target: { value: "desc" },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-columns-save"));
+    await waitFor(() => {
+      expect(updateDisplayFormat).toHaveBeenCalled();
+    });
+    const [, body] = updateDisplayFormat.mock.calls[0];
+    expect(body.sortedColumnNames).toBe("sys_contentid");
+    expect(body.ascendingSort).toBe(false);
+    expect(body.descendingSort).toBe(true);
+    expect(body.columns.map((c: { source?: string; ascendingSort?: boolean }) => c.source)).toEqual(
+      ["sys_title", "sys_contentid"],
+    );
+    expect(body.columns[1].ascendingSort).toBe(false);
+    expect(body.columns[1].descendingSort).toBe(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-editor-notice").textContent).toBe(
+        DEV_MSG.DF_COLUMNS_SAVED,
+      );
+    });
   });
 
   it("PUTs allowedCommunities for a user display format", async () => {

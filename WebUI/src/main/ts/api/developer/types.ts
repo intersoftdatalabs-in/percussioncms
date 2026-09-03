@@ -551,6 +551,9 @@ export interface DisplayFormatColumn {
   width?: number;
   categorized?: boolean;
   ascendingSort?: boolean;
+  descendingSort?: boolean;
+  /** Wire alias of ascendingSort (true = ascending default). */
+  sortOrder?: boolean;
   textType?: boolean;
   numberType?: boolean;
   dateType?: boolean;
@@ -571,6 +574,8 @@ export interface DisplayFormat {
   validForRelatedContent?: boolean;
   validForViewsAndSearches?: boolean;
   validForFolder?: boolean;
+  /** Internal name of the default sort column (Workbench sortColumn property). */
+  sortedColumnNames?: string;
   ascendingSort?: boolean;
   descendingSort?: boolean;
   columns?: DisplayFormatColumn[] | { DisplayFormatColumn?: DisplayFormatColumn[] };

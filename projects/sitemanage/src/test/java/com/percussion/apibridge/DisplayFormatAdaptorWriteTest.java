@@ -387,6 +387,64 @@ class DisplayFormatAdaptorWriteTest {
   }
 
   @Test
+  void update_persistsDefaultSortColumnAndDirection() throws Exception {
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(nativeDf));
+
+    DisplayFormat body = new DisplayFormat();
+    DisplayFormatColumnList cols = new DisplayFormatColumnList();
+    DisplayFormatColumn title = new DisplayFormatColumn();
+    title.setSource("sys_title");
+    title.setDisplayName("Title");
+    title.setPosition(0);
+    title.setAscendingSort(true);
+    DisplayFormatColumn created = new DisplayFormatColumn();
+    created.setSource("sys_contentcreatedby");
+    created.setDisplayName("Created by");
+    created.setPosition(1);
+    created.setAscendingSort(false);
+    cols.add(title);
+    cols.add(created);
+    body.setColumns(cols);
+    body.setSortedColumnNames("sys_contentcreatedby");
+
+    adaptor.updateDisplayFormat("MyFmt", body);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<PSDisplayFormat>> saved = ArgumentCaptor.forClass(List.class);
+    verify(designWs).saveDisplayFormats(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
+    PSDisplayFormat persisted = saved.getValue().get(0);
+    assertEquals("sys_contentcreatedby", persisted.getSortedColumnName());
+    assertTrue(persisted.isDescendingSort());
+    assertFalse(persisted.isAscendingSort());
+    assertFalse(((PSDisplayColumn) persisted.getColumnContainer().get(1)).isAscendingSort());
+    assertTrue(((PSDisplayColumn) persisted.getColumnContainer().get(0)).isAscendingSort());
+  }
+
+  @Test
+  void update_unknownSortColumn_is400() throws Exception {
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(nativeDf));
+
+    DisplayFormat body = new DisplayFormat();
+    DisplayFormatColumnList cols = new DisplayFormatColumnList();
+    DisplayFormatColumn title = new DisplayFormatColumn();
+    title.setSource("sys_title");
+    cols.add(title);
+    body.setColumns(cols);
+    body.setSortedColumnNames("sys_missing");
+
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.updateDisplayFormat("MyFmt", body));
+    assertTrue(ex.getMessage().contains("unknown sort column"), ex.getMessage());
+    verify(designWs, never()).saveDisplayFormats(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
   void update_invalidColumnSource_is400() throws Exception {
     PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
     when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);

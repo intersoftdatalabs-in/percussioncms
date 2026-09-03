@@ -591,6 +591,7 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
       ret.setColumns(copyDisplayFormatColumns(f.getColumnContainer()));
     }
     ret.setAllowedCommunities(copyCommunitiesFromNative(f));
+    ret.setSortedColumnNames(f.getSortedColumnName());
     ret.setAscendingSort(f.isAscendingSort());
     ret.setDescendingSort(f.isDescendingSort());
     ret.setValidForRelatedContent(f.isValidForRelatedContent());
@@ -1104,6 +1105,7 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     }
     if (body.getColumns() != null) {
       applyColumns(nativeDf, body.getColumns());
+      applySortFromColumns(nativeDf, body);
     }
     if (body.getAllowedCommunities() != null) {
       applyAllowedCommunities(nativeDf, body.getAllowedCommunities());
@@ -1238,6 +1240,42 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
       index++;
     }
     nativeDf.setColumnList(next);
+  }
+
+  /**
+   * Persist Workbench {@code sortColumn} / {@code sortDirection} from PUT {@code
+   * sortedColumnNames} plus the matching column's {@code ascendingSort}. Omitted {@code
+   * sortedColumnNames} leaves those properties unchanged.
+   */
+  static void applySortFromColumns(PSDisplayFormat nativeDf, DisplayFormat body) {
+    if (nativeDf == null || body == null || body.getColumns() == null) {
+      return;
+    }
+    String requested = body.getSortedColumnNames();
+    if (StringUtils.isBlank(requested)) {
+      return;
+    }
+    String key = requested.trim();
+    DisplayFormatColumn chosen = null;
+    for (DisplayFormatColumn dto : body.getColumns()) {
+      if (dto == null) {
+        continue;
+      }
+      String source = StringUtils.trimToEmpty(dto.getSource());
+      if (key.equalsIgnoreCase(source)) {
+        chosen = dto;
+        break;
+      }
+    }
+    if (chosen == null) {
+      throw new IllegalArgumentException("unknown sort column: " + key);
+    }
+    nativeDf.setProperty(PSDisplayFormat.PROP_SORT_COLUMN, chosen.getSource());
+    nativeDf.setProperty(
+        PSDisplayFormat.PROP_SORT_DIRECTION,
+        chosen.isAscendingSort()
+            ? PSDisplayFormat.SORT_ASCENDING
+            : PSDisplayFormat.SORT_DESCENDING);
   }
 
   static String requireValidColumnSource(String raw) {

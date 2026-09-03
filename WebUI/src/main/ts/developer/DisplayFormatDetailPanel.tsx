@@ -46,8 +46,12 @@ import {
 } from "./catalogStyles";
 import {
   addDisplayFormatColumn,
+  applyColumnSortDirection,
   catalogFieldsNotInUse,
-  columnsOrderEqual,
+  columnsEditEqual,
+  columnSourceKey,
+  defaultSortSource,
+  isColumnAscendingSort,
   isPackagedDisplayFormat,
   isSysTitleColumn,
   isValidColumnSource,
@@ -120,6 +124,7 @@ export function DisplayFormatDetailPanel({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(idOrName != null);
   const [draftColumns, setDraftColumns] = useState<DisplayFormatColumn[]>([]);
+  const [sortSource, setSortSource] = useState("");
   const [addSource, setAddSource] = useState("");
   const [communityCatalog, setCommunityCatalog] = useState<CommunitySummary[]>([]);
   const [loadedCommunityMap, setLoadedCommunityMap] = useState<AllowedCommunityMap>({});
@@ -138,6 +143,7 @@ export function DisplayFormatDetailPanel({
     setError(null);
     setNotice(null);
     setDraftColumns([]);
+    setSortSource("");
     setAddSource("");
     setLoadedCommunityMap({});
     setAllCommunities(true);
@@ -152,6 +158,7 @@ export function DisplayFormatDetailPanel({
         setDescription(d.description || "");
         const cols = reindexColumns(normalizeColumns(d.columns));
         setDraftColumns(cols);
+        setSortSource(defaultSortSource(cols, d.sortedColumnNames));
         setAddSource(catalogFieldsNotInUse(cols)[0]?.source || "");
         const communities = normalizeAllowedCommunities(d.allowedCommunities);
         setLoadedCommunityMap(communities);
@@ -186,7 +193,12 @@ export function DisplayFormatDetailPanel({
   const packaged = isPackagedDisplayFormat(idOrName || createdKey || name);
   const columns = packaged ? loadedColumns : draftColumns;
   const availableFields = catalogFieldsNotInUse(draftColumns);
-  const columnsDirty = !packaged && !isNew && !columnsOrderEqual(draftColumns, loadedColumns);
+  const loadedSortSource = defaultSortSource(loadedColumns, detail?.sortedColumnNames);
+  const columnsDirty =
+    !packaged &&
+    !isNew &&
+    (!columnsEditEqual(draftColumns, loadedColumns) ||
+      columnSourceKey(sortSource) !== columnSourceKey(loadedSortSource));
   const canSaveColumns = !busy && columnsDirty && detail != null;
   const objectGuid = resolveDisplayFormatObjectGuid(detail, catalogGuid);
   const loadedCommunityKeys = useMemo(
@@ -280,6 +292,7 @@ export function DisplayFormatDetailPanel({
       setDescription(saved.description || "");
       const cols = reindexColumns(normalizeColumns(saved.columns));
       setDraftColumns(cols);
+      setSortSource(defaultSortSource(cols, saved.sortedColumnNames));
       setAddSource(catalogFieldsNotInUse(cols)[0]?.source || "");
       const communities = normalizeAllowedCommunities(saved.allowedCommunities);
       setLoadedCommunityMap(communities);
@@ -334,8 +347,34 @@ export function DisplayFormatDetailPanel({
     }
     const next = addDisplayFormatColumn(draftColumns, addSource);
     setDraftColumns(next);
+    if (!sortSource) {
+      setSortSource(defaultSortSource(next, sortSource));
+    }
     const stillAvailable = catalogFieldsNotInUse(next);
     setAddSource(stillAvailable[0]?.source || "");
+  }
+
+  function handleRemoveColumn(index: number): void {
+    if (packaged || busy || isNew) {
+      return;
+    }
+    const next = removeDisplayFormatColumn(draftColumns, index);
+    setDraftColumns(next);
+    setSortSource(defaultSortSource(next, sortSource));
+  }
+
+  function handleSetDefaultSort(source: string): void {
+    if (packaged || busy || isNew || !isValidColumnSource(source)) {
+      return;
+    }
+    setSortSource(source);
+  }
+
+  function handleSetSortDirection(source: string, ascending: boolean): void {
+    if (packaged || busy || isNew) {
+      return;
+    }
+    setDraftColumns(applyColumnSortDirection(draftColumns, source, ascending));
   }
 
   async function handleSaveColumns(): Promise<void> {
@@ -347,15 +386,26 @@ export function DisplayFormatDetailPanel({
     setError(null);
     setNotice(null);
     try {
+      const persistedColumns = reindexColumns(draftColumns);
+      const defaultSource = defaultSortSource(persistedColumns, sortSource);
+      const sortCol = persistedColumns.find(
+        (c) => columnSourceKey(c.source) === columnSourceKey(defaultSource),
+      );
+      const ascending = sortCol != null ? isColumnAscendingSort(sortCol) : true;
       const saved = await updateDisplayFormat(writeKey, {
         name: detail?.name || detail?.internalName || writeKey,
         label: detail?.label || detail?.displayName,
         displayName: detail?.displayName || detail?.label,
         description: detail?.description,
-        columns: reindexColumns(draftColumns),
+        columns: persistedColumns,
+        sortedColumnNames: defaultSource || undefined,
+        ascendingSort: ascending,
+        descendingSort: !ascending,
       });
       setDetail(saved);
-      setDraftColumns(reindexColumns(normalizeColumns(saved.columns)));
+      const cols = reindexColumns(normalizeColumns(saved.columns));
+      setDraftColumns(cols);
+      setSortSource(defaultSortSource(cols, saved.sortedColumnNames || defaultSource));
       setNotice(DEV_MSG.DF_COLUMNS_SAVED);
       onColumnsSaved?.(saved);
     } catch (err: unknown) {
@@ -631,6 +681,8 @@ export function DisplayFormatDetailPanel({
                           <th style={{ padding: "8px" }}>{DEV_MSG.DF_COL_COL_LABEL}</th>
                           <th style={{ padding: "8px" }}>{DEV_MSG.DF_COL_RENDER}</th>
                           <th style={{ padding: "8px" }}>{DEV_MSG.DF_COL_WIDTH}</th>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.DF_COL_SORT}</th>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.DF_COL_SORT_DIR}</th>
                           {!packaged ? (
                             <th style={{ padding: "8px" }}>{DEV_MSG.DF_COL_ACTIONS}</th>
                           ) : null}
@@ -654,6 +706,57 @@ export function DisplayFormatDetailPanel({
                             <td style={{ padding: "8px" }}>{c.renderType || "—"}</td>
                             <td style={{ padding: "8px" }}>
                               {c.width != null && c.width > 0 ? String(c.width) : "—"}
+                            </td>
+                            <td style={{ padding: "8px" }}>
+                              {packaged ? (
+                                columnSourceKey(c.source) === columnSourceKey(sortSource) ? (
+                                  <span data-testid={`developer-df-column-sort-readonly-${i}`}>
+                                    {DEV_MSG.DF_SORT_DEFAULT}
+                                  </span>
+                                ) : (
+                                  "—"
+                                )
+                              ) : (
+                                <label
+                                  style={{ display: "flex", alignItems: "center", gap: "4px" }}
+                                >
+                                  <input
+                                    type="radio"
+                                    name="developer-df-default-sort"
+                                    data-testid={`developer-df-column-sort-${i}`}
+                                    aria-label={DEV_MSG.DF_SORT_DEFAULT}
+                                    checked={
+                                      columnSourceKey(c.source) === columnSourceKey(sortSource)
+                                    }
+                                    disabled={busy || !c.source}
+                                    onChange={() => handleSetDefaultSort(c.source || "")}
+                                  />
+                                  {DEV_MSG.DF_SORT_DEFAULT}
+                                </label>
+                              )}
+                            </td>
+                            <td style={{ padding: "8px" }}>
+                              {packaged ? (
+                                <span data-testid={`developer-df-column-sort-dir-readonly-${i}`}>
+                                  {isColumnAscendingSort(c)
+                                    ? DEV_MSG.DF_SORT_ASC
+                                    : DEV_MSG.DF_SORT_DESC}
+                                </span>
+                              ) : (
+                                <select
+                                  data-testid={`developer-df-column-sort-dir-${i}`}
+                                  aria-label={DEV_MSG.DF_COL_SORT_DIR}
+                                  style={inputStyle}
+                                  value={isColumnAscendingSort(c) ? "asc" : "desc"}
+                                  disabled={busy}
+                                  onChange={(e) =>
+                                    handleSetSortDirection(c.source || "", e.target.value === "asc")
+                                  }
+                                >
+                                  <option value="asc">{DEV_MSG.DF_SORT_ASC}</option>
+                                  <option value="desc">{DEV_MSG.DF_SORT_DESC}</option>
+                                </select>
+                              )}
                             </td>
                             {!packaged ? (
                               <td style={{ padding: "8px" }}>
@@ -687,9 +790,7 @@ export function DisplayFormatDetailPanel({
                                     data-testid={`developer-df-column-remove-${i}`}
                                     aria-label={DEV_MSG.DF_COLUMNS_REMOVE}
                                     disabled={busy || isSysTitleColumn(c)}
-                                    onClick={() =>
-                                      setDraftColumns(removeDisplayFormatColumn(draftColumns, i))
-                                    }
+                                    onClick={() => handleRemoveColumn(i)}
                                     style={actionButton}
                                   >
                                     {DEV_MSG.DF_COLUMNS_REMOVE}
@@ -855,13 +956,6 @@ export function DisplayFormatDetailPanel({
                 objectKind="display-format"
                 testIdPrefix="developer-df-acl"
               />
-
-              <section style={{ marginTop: "16px" }} data-testid="developer-df-gaps">
-                <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.DF_GAPS}</h3>
-                <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
-                  <li>{DEV_MSG.DF_GAP_COLUMNS_EDIT}</li>
-                </ul>
-              </section>
             </>
           ) : null}
         </>
