@@ -128,12 +128,13 @@ export function ExtensionDetailPanel({
   const loadedInterfaces = formatExtensionInterfaces(detail?.supportedInterfaces);
   const loadedClassName = extensionClassName(detail?.initParameters);
   const loadedDeprecated = Boolean(detail?.deprecated);
+  // Compare normalized forms so server trim / Jackson map round-trips do not mark dirty on load.
   const dirty =
     isNew ||
     normalizeExtensionName(name) !== loadedName ||
-    handlerName !== loadedHandler ||
-    interfacesText !== loadedInterfaces ||
-    className !== loadedClassName ||
+    handlerName.trim() !== loadedHandler.trim() ||
+    formatExtensionInterfaces(interfaces) !== loadedInterfaces ||
+    className.trim() !== loadedClassName.trim() ||
     deprecated !== loadedDeprecated;
   const canSave =
     !busy &&

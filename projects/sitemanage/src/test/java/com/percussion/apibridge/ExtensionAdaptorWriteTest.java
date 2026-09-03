@@ -323,6 +323,18 @@ class ExtensionAdaptorWriteTest {
     assertEquals(409, ex.getResponse().getStatus());
   }
 
+  @Test
+  void register_existsThrowsPsExtensionExceptionIs500() throws Exception {
+    IPSExtensionService svc = mock(IPSExtensionService.class);
+    when(svc.exists(any())).thenThrow(new PSExtensionException(1, "exists failed"));
+    ExtensionAdaptor local = new ExtensionAdaptor(svc, () -> true);
+    IllegalStateException ex =
+        assertThrows(
+            IllegalStateException.class,
+            () -> local.registerExtension(BASE, userBody("my_user_ext")));
+    assertTrue(ex.getMessage().contains("existence"));
+  }
+
   private void seedSystemExtension() throws Exception {
     PSExtensionRef ref =
         new PSExtensionRef("Java", "global/percussion/generic/", "sys_add");

@@ -26,18 +26,58 @@ import java.net.URL;
 import java.util.Iterator;
 
 // REFACTORED: CP-JAVA11
+/**
+ * Spring-facing facade over {@link PSServer#getExtensionManager}. Resolves the
+ * manager lazily: Spring often constructs this bean before {@code PSServer.init}
+ * installs the extension manager (H2 QA / Jetty), so constructor capture of a
+ * null manager caused catalog NPEs on {@code GET /services/extensions/catalog}.
+ */
 public class PSExtensionService implements IPSExtensionService {
 
-  private final PSExtensionManager manager;
+  /** Cached after first successful resolve; never store a null from early Spring init. */
+  private volatile PSExtensionManager manager;
 
   public PSExtensionService() {
-    this.manager = (PSExtensionManager) PSServer.getExtensionManager(null);
+    // Eager attempt is fine when the server is already up (unit tests / late beans).
+    IPSExtensionManager current = PSServer.getExtensionManager(null);
+    if (current instanceof PSExtensionManager) {
+      this.manager = (PSExtensionManager) current;
+    }
+  }
+
+  /**
+   * Returns the live server extension manager, resolving and caching on first use when
+   * the constructor ran before {@code PSServer} initialized extensions.
+   *
+   * @return non-null manager
+   * @throws IllegalStateException if the server has not installed an extension manager yet
+   */
+  PSExtensionManager resolveManager() {
+    PSExtensionManager local = manager;
+    if (local != null) {
+      return local;
+    }
+    synchronized (this) {
+      local = manager;
+      if (local != null) {
+        return local;
+      }
+      IPSExtensionManager current = PSServer.getExtensionManager(null);
+      if (!(current instanceof PSExtensionManager)) {
+        throw new IllegalStateException(
+            "PSServer extension manager is not initialized (Spring constructed"
+                + " PSExtensionService before PSServer.init)");
+      }
+      local = (PSExtensionManager) current;
+      manager = local;
+      return local;
+    }
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public Iterator<PSExtensionRef> getExtensionHandlerNames() {
-    return manager.getExtensionHandlerNames();
+    return resolveManager().getExtensionHandlerNames();
   }
 
   @Override
@@ -48,87 +88,87 @@ public class PSExtensionService implements IPSExtensionService {
       String interfacePattern,
       String extensionNamePattern)
       throws PSExtensionException {
-    return manager.getExtensionNames(
-        handlerNamePattern, context, interfacePattern, extensionNamePattern);
+    return resolveManager()
+        .getExtensionNames(handlerNamePattern, context, interfacePattern, extensionNamePattern);
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public Iterator<URL> getExtensionFiles(PSExtensionRef ref)
       throws PSNotFoundException, PSExtensionException {
-    return manager.getExtensionFiles(ref);
+    return resolveManager().getExtensionFiles(ref);
   }
 
   @Override
   public boolean exists(PSExtensionRef ref) throws PSExtensionException {
-    return manager.exists(ref);
+    return resolveManager().exists(ref);
   }
 
   @Override
   public IPSExtensionDef getExtensionDef(PSExtensionRef ref)
       throws PSExtensionException, PSNotFoundException {
-    return manager.getExtensionDef(ref);
+    return resolveManager().getExtensionDef(ref);
   }
 
   @Override
   public void startExtensionHandler(String handlerName)
       throws PSExtensionException, PSNotFoundException {
-    manager.startExtensionHandler(handlerName);
+    resolveManager().startExtensionHandler(handlerName);
   }
 
   @Override
   public void stopExtensionHandler(String handlerName)
       throws PSExtensionException, PSNotFoundException {
-    manager.stopExtensionHandler(handlerName);
+    resolveManager().stopExtensionHandler(handlerName);
   }
 
   @Override
   public void installExtension(IPSExtensionDef def, Iterator<?> resources)
       throws PSExtensionException, PSNotFoundException, PSNonUniqueException {
-    manager.installExtension(def, resources);
+    resolveManager().installExtension(def, resources);
   }
 
   @Override
   public void installExtension(
       IPSExtensionDef def, Iterator<?> resources, IPSExtensionListener listener)
       throws PSExtensionException, PSNotFoundException, PSNonUniqueException {
-    manager.installExtension(def, resources, listener);
+    resolveManager().installExtension(def, resources, listener);
   }
 
   @Override
   public void removeExtension(PSExtensionRef ref) throws PSNotFoundException, PSExtensionException {
-    manager.removeExtension(ref);
+    resolveManager().removeExtension(ref);
   }
 
   @Override
   public void updateExtension(IPSExtensionDef def, Iterator<?> resources)
       throws PSExtensionException, PSNotFoundException {
-    manager.updateExtension(def, resources);
+    resolveManager().updateExtension(def, resources);
   }
 
   @Override
   public IPSExtension prepareExtension(PSExtensionRef ref, IPSExtensionListener listener)
       throws PSNotFoundException, PSExtensionException {
-    return manager.prepareExtension(ref, listener);
+    return resolveManager().prepareExtension(ref, listener);
   }
 
   @Override
   public void unregisterListener(PSExtensionRef ref, IPSExtensionListener listener) {
-    manager.unregisterListener(ref, listener);
+    resolveManager().unregisterListener(ref, listener);
   }
 
   @Override
   public File getCodeBase(IPSExtensionDef def) throws PSNotFoundException, PSExtensionException {
-    return manager.getCodeBase(def);
+    return resolveManager().getCodeBase(def);
   }
 
   @Override
   public void notifyAdd(PSExtensionRef ref) {
-    manager.notifyAdd(ref);
+    resolveManager().notifyAdd(ref);
   }
 
   @Override
   public void registerListener(PSExtensionRef ref, IPSExtensionListener listener) {
-    manager.registerListener(ref, listener);
+    resolveManager().registerListener(ref, listener);
   }
 }

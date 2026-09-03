@@ -131,18 +131,69 @@ export function parseExtensionInterfaces(text: string | undefined | null): strin
     .filter((line) => line.length > 0);
 }
 
+/**
+ * Coerce wire supportedInterfaces to string[]. Jackson/JAXB often emits a bare
+ * string when the list has a single element — that used to throw in
+ * {@link formatExtensionInterfaces} and abort Extension detail load (#4241).
+ */
+export function normalizeSupportedInterfaces(
+  raw: string[] | string | undefined | null | unknown,
+): string[] {
+  if (raw == null) return [];
+  if (typeof raw === "string") {
+    const t = raw.trim();
+    return t ? [t] : [];
+  }
+  if (!Array.isArray(raw)) {
+    // Unexpected object wrapper — do not invent entries; callers treat [] as empty.
+    return [];
+  }
+  return raw
+    .map((s) => (s == null ? "" : String(s).trim()))
+    .filter((s) => s.length > 0);
+}
+
 /** Join interfaces for the editor textarea. */
-export function formatExtensionInterfaces(ifaces: string[] | undefined | null): string {
-  if (ifaces == null || ifaces.length === 0) return "";
-  return ifaces.join("\n");
+export function formatExtensionInterfaces(
+  ifaces: string[] | string | undefined | null,
+): string {
+  const list = normalizeSupportedInterfaces(ifaces);
+  return list.length === 0 ? "" : list.join("\n");
+}
+
+/**
+ * Flatten Jackson map wire `{ entry: [{ key, value }, ...] }` (or a plain
+ * object) into a string record for initParameters.
+ */
+export function normalizeInitParameters(
+  raw: unknown,
+): Record<string, string> | undefined {
+  if (raw == null || typeof raw !== "object") return undefined;
+  const obj = raw as Record<string, unknown>;
+  if (Array.isArray(obj.entry)) {
+    const out: Record<string, string> = {};
+    for (const row of obj.entry) {
+      if (row == null || typeof row !== "object") continue;
+      const e = row as Record<string, unknown>;
+      if (e.key == null) continue;
+      out[String(e.key)] = e.value == null ? "" : String(e.value);
+    }
+    return out;
+  }
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v != null && typeof v === "object") continue;
+    out[k] = v == null ? "" : String(v);
+  }
+  return out;
 }
 
 /** Read className from initParameters (Java handlers). */
 export function extensionClassName(
-  initParameters: Record<string, string> | undefined | null,
+  initParameters: Record<string, string> | unknown | undefined | null,
 ): string {
-  if (initParameters == null) return "";
-  const raw = initParameters[EXTENSION_CLASSNAME_PARAM];
+  const map = normalizeInitParameters(initParameters) ?? {};
+  const raw = map[EXTENSION_CLASSNAME_PARAM];
   return raw == null ? "" : String(raw).trim();
 }
 
@@ -166,11 +217,36 @@ export function isExtensionWriteReady(opts: {
   return Boolean(normalizeExtensionName(opts.name));
 }
 
-/** Wire JSON for POST/PUT — flat body fails JAXB root unwrap. */
+/**
+ * Jackson/JAXB Map&lt;String,String&gt; wire shape used by Extension.initParameters
+ * on this stack (flat `{ className: "…" }` does not bind; entry list does).
+ */
+export type JacksonMapEntry = { key: string; value: string };
+export type JacksonStringMapWire = { entry: JacksonMapEntry[] };
+
+/** Convert a flat string map to the Jackson/JAXB entry-list map wire form. */
+export function toJacksonStringMapWire(
+  map: Record<string, string> | undefined | null,
+): JacksonStringMapWire | undefined {
+  if (map == null) return undefined;
+  const entry: JacksonMapEntry[] = Object.entries(map).map(([key, value]) => ({
+    key,
+    value: value == null ? "" : String(value),
+  }));
+  return { entry };
+}
+
+/** Wire JSON for POST/PUT — Extension root + entry-list initParameters. */
 export function wrapExtensionForWire(
   body: ExtensionWriteBody,
-): Record<string, ExtensionWriteBody> {
-  return { [EXTENSION_ROOT]: body };
+): Record<string, unknown> {
+  const { initParameters, ...rest } = body;
+  const wire: Record<string, unknown> = { ...rest };
+  const mapped = toJacksonStringMapWire(initParameters);
+  if (mapped) {
+    wire.initParameters = mapped;
+  }
+  return { [EXTENSION_ROOT]: wire };
 }
 
 /** Drop stale REST write-gap strings now that SY-01 SPA write ships. */
@@ -181,8 +257,13 @@ export function withoutStaleExtensionWriteGap(gaps: string[] | undefined | null)
 
 function withGaps(ext: ExtensionDef): ExtensionDef {
   const fromServer = withoutStaleExtensionWriteGap(ext.designGaps);
+  const initParameters = normalizeInitParameters(ext.initParameters);
   return {
     ...ext,
+    supportedInterfaces: normalizeSupportedInterfaces(
+      ext.supportedInterfaces as string[] | string | undefined | null,
+    ),
+    ...(initParameters ? { initParameters } : {}),
     designGaps: fromServer.length > 0 ? fromServer : EXTENSION_DESIGN_GAPS,
   };
 }
