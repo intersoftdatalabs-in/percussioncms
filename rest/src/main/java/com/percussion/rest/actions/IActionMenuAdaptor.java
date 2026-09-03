@@ -53,7 +53,9 @@ public interface IActionMenuAdaptor {
    * saveActions} release). Does not steal another user's lock. System menus are not mutated.
    *
    * @param idOrName catalog key (same rules as {@link #findMenuByKey})
-   * @param body required writable fields (label, description, menuType, url as exposed on GET)
+   * @param body required writable fields (label, description, menuType, url, handler,
+   *     parameters, command/usage properties, visibilityContexts, and uiContexts as exposed
+   *     on GET).
    * @return the persisted menu, or {@code null} when missing/unsafe
    */
   ActionMenu saveActionMenu(String idOrName, ActionMenu body);

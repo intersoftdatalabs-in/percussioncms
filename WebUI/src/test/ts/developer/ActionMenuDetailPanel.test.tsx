@@ -82,8 +82,13 @@ describe("ActionMenuDetailPanel", () => {
       expect(screen.getByTestId("developer-am-detail-title")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-am-detail-title").textContent).toContain("Edit Item");
+    expect(screen.getByTestId("developer-am-tabs")).toBeTruthy();
+    expect(screen.getByTestId("developer-am-tab-usage").getAttribute("aria-selected")).toBe("true");
+    fireEvent.click(screen.getByTestId("developer-am-tab-command"));
     expect(screen.getByTestId("developer-am-params-table")).toBeTruthy();
-    expect(screen.getByTestId("developer-am-props-table")).toBeTruthy();
+    expect(screen.getByTestId("developer-am-props-empty")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-am-tab-usage"));
+    expect((screen.getByTestId("developer-am-accel") as HTMLInputElement).value).toBe("E");
     const acl = screen.getByTestId("developer-am-acl-stub");
     expect(acl.getAttribute("data-object-kind")).toBe("action-menu");
     expect(acl.getAttribute("data-object-guid")).toBe("0-11-42");
@@ -172,8 +177,10 @@ describe("ActionMenuDetailPanel", () => {
     });
     render(<ActionMenuDetailPanel idOrName="Edit" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-am-params-empty")).toBeTruthy();
+      expect(screen.getByTestId("developer-am-tab-command")).toBeTruthy();
     });
+    fireEvent.click(screen.getByTestId("developer-am-tab-command"));
+    expect(screen.getByTestId("developer-am-params-empty")).toBeTruthy();
     expect(screen.getByTestId("developer-am-props-empty")).toBeTruthy();
     expect(screen.queryByTestId("developer-am-params-table")).toBeNull();
     expect(screen.queryByTestId("developer-am-props-table")).toBeNull();
@@ -370,6 +377,117 @@ describe("ActionMenuDetailPanel", () => {
     });
   });
 
+  it("uses the persisted GUID as the write key after create", async () => {
+    createActionMenuMock.mockResolvedValue({
+      name: "MyMenu",
+      label: "My Menu",
+      description: "",
+      menuType: "MENUITEM",
+      guid: { stringValue: "0-107-88" },
+      id: 88,
+      parameters: [],
+      properties: [],
+    });
+    saveActionMenuMock.mockResolvedValue({
+      name: "MyMenu",
+      label: "Updated",
+      description: "",
+      menuType: "MENUITEM",
+      guid: { stringValue: "0-107-88" },
+      id: 88,
+      handler: "SERVER",
+      parameters: [],
+      properties: [],
+    });
+    render(<ActionMenuDetailPanel idOrName={null} onBack={() => undefined} />);
+    fireEvent.change(screen.getByTestId("developer-am-name"), {
+      target: { value: "MyMenu" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-editor-notice")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-am-handler"), {
+      target: { value: "SERVER" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-save"));
+    await waitFor(() => {
+      expect(saveActionMenuMock).toHaveBeenCalled();
+    });
+    expect(saveActionMenuMock.mock.calls[0][0]).toBe("88");
+  });
+
+  it("rolls back create when the follow-up PUT fails", async () => {
+    createActionMenuMock.mockResolvedValue({
+      name: "MyMenu",
+      label: "My Menu",
+      description: "",
+      menuType: "MENUITEM",
+      guid: { stringValue: "0-107-88" },
+      id: 88,
+      parameters: [],
+      properties: [],
+    });
+    saveActionMenuMock.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Invalid handler" },
+    });
+    deleteActionMenuMock.mockResolvedValue(undefined);
+    render(<ActionMenuDetailPanel idOrName={null} onBack={() => undefined} />);
+    fireEvent.change(screen.getByTestId("developer-am-name"), {
+      target: { value: "MyMenu" },
+    });
+    fireEvent.change(screen.getByTestId("developer-am-handler"), {
+      target: { value: "SERVER" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-save"));
+    await waitFor(() => {
+      expect(deleteActionMenuMock).toHaveBeenCalledWith("88");
+    });
+    expect(createActionMenuMock).toHaveBeenCalled();
+    expect(saveActionMenuMock).toHaveBeenCalled();
+    expect(screen.getByTestId("developer-am-detail-error").textContent).toContain("Invalid handler");
+  });
+
+  it("surfaces a notice when create follow-up rollback DELETE fails", async () => {
+    createActionMenuMock.mockResolvedValue({
+      name: "MyMenu",
+      label: "My Menu",
+      description: "",
+      menuType: "MENUITEM",
+      guid: { stringValue: "0-107-88" },
+      id: 88,
+      parameters: [],
+      properties: [],
+    });
+    saveActionMenuMock.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Invalid handler" },
+    });
+    deleteActionMenuMock.mockRejectedValue({
+      status: 500,
+      statusText: "Server Error",
+      body: { message: "delete failed" },
+    });
+    render(<ActionMenuDetailPanel idOrName={null} onBack={() => undefined} />);
+    fireEvent.change(screen.getByTestId("developer-am-name"), {
+      target: { value: "MyMenu" },
+    });
+    fireEvent.change(screen.getByTestId("developer-am-handler"), {
+      target: { value: "SERVER" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-save"));
+    await waitFor(() => {
+      expect(deleteActionMenuMock).toHaveBeenCalledWith("88");
+    });
+    expect(screen.getByTestId("developer-am-detail-error").textContent).toContain("Invalid handler");
+    expect(screen.getByTestId("developer-am-editor-notice").textContent).toBe(
+      DEV_MSG.AM_CREATE_ROLLBACK_FAILED,
+    );
+  });
+
   it("creates a user action menu when the name is valid", async () => {
     createActionMenuMock.mockResolvedValue({
       name: "MyMenu",
@@ -527,5 +645,184 @@ describe("ActionMenuDetailPanel", () => {
   it("does not show delete on create", () => {
     render(<ActionMenuDetailPanel idOrName={null} onBack={() => undefined} />);
     expect(screen.queryByTestId("developer-am-delete")).toBeNull();
+  });
+
+  it("saves usage, command, and visibility then reloads PUT fields", async () => {
+    getActionMenuDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      name: "UserMenu",
+      parameters: [],
+      properties: [],
+      visibilityContexts: [],
+    });
+    saveActionMenuMock.mockResolvedValue({
+      name: "UserMenu",
+      label: "Edit Item",
+      description: "Edit content item",
+      menuType: "MENUITEM",
+      handler: "SERVER",
+      url: "/Rhythmyx/edit",
+      parameters: [{ name: "sys_test", value: "1" }],
+      properties: [{ name: "AcceleratorKey", value: "Z" }],
+      visibilityContexts: [{ name: "community", value: "1001" }],
+    });
+    render(<ActionMenuDetailPanel idOrName="UserMenu" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-handler")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-am-handler"), {
+      target: { value: "SERVER" },
+    });
+    fireEvent.change(screen.getByTestId("developer-am-accel"), {
+      target: { value: "Z" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-tab-command"));
+    fireEvent.click(screen.getByTestId("developer-am-param-add"));
+    fireEvent.change(screen.getByTestId("developer-am-param-name-0"), {
+      target: { value: "sys_test" },
+    });
+    fireEvent.change(screen.getByTestId("developer-am-param-value-0"), {
+      target: { value: "1" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-tab-visibility"));
+    fireEvent.click(screen.getByTestId("developer-am-vis-add"));
+    fireEvent.change(screen.getByTestId("developer-am-vis-name-0"), {
+      target: { value: "community" },
+    });
+    fireEvent.change(screen.getByTestId("developer-am-vis-value-0"), {
+      target: { value: "1001" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-save"));
+    await waitFor(() => {
+      expect(saveActionMenuMock).toHaveBeenCalled();
+    });
+    expect(saveActionMenuMock).toHaveBeenCalledWith(
+      "UserMenu",
+      expect.objectContaining({
+        handler: "SERVER",
+        parameters: [expect.objectContaining({ name: "sys_test", value: "1" })],
+        visibilityContexts: [expect.objectContaining({ name: "community", value: "1001" })],
+      }),
+    );
+    const putBody = saveActionMenuMock.mock.calls[0][1] as {
+      properties?: { name?: string; value?: string }[];
+    };
+    expect(putBody.properties?.some((p) => p.name === "AcceleratorKey" && p.value === "Z")).toBe(
+      true,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-editor-notice").textContent).toBe(DEV_MSG.AM_SAVED);
+    });
+    fireEvent.click(screen.getByTestId("developer-am-tab-usage"));
+    expect((screen.getByTestId("developer-am-handler") as HTMLSelectElement).value).toBe("SERVER");
+    expect((screen.getByTestId("developer-am-accel") as HTMLInputElement).value).toBe("Z");
+  });
+
+  it("omits empty visibility on save when GET partialOverlay is true", async () => {
+    getActionMenuDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      name: "UserMenu",
+      parameters: [],
+      properties: [],
+      visibilityContexts: [],
+      uiContexts: [],
+      partialOverlay: true,
+    });
+    saveActionMenuMock.mockResolvedValue({
+      ...sampleDetail,
+      name: "UserMenu",
+      partialOverlay: true,
+    });
+    render(<ActionMenuDetailPanel idOrName="UserMenu" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-save")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-am-label"), {
+      target: { value: "Updated label" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-save"));
+    await waitFor(() => {
+      expect(saveActionMenuMock).toHaveBeenCalled();
+    });
+    const putBody = saveActionMenuMock.mock.calls[0][1] as {
+      visibilityContexts?: unknown;
+      uiContexts?: unknown;
+      parameters?: unknown;
+    };
+    expect(putBody.visibilityContexts).toBeUndefined();
+    expect(putBody.uiContexts).toBeUndefined();
+    expect(putBody.parameters).toBeUndefined();
+  });
+
+  it("surfaces 400 on usage/command save", async () => {
+    getActionMenuDetailMock.mockResolvedValue(sampleDetail);
+    saveActionMenuMock.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Invalid handler: NOPE" },
+    });
+    render(<ActionMenuDetailPanel idOrName="Edit" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-handler")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-am-accel"), {
+      target: { value: "Q" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-am-detail-error").textContent).toContain("Invalid handler");
+    expect(screen.getByTestId("developer-am-detail-error").textContent).not.toContain(
+      DEV_MSG.AM_INVALID_NAME,
+    );
+  });
+
+  it("surfaces 403 on usage save for non-Admin", async () => {
+    getActionMenuDetailMock.mockResolvedValue(sampleDetail);
+    saveActionMenuMock.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: { message: "Admin role required" },
+    });
+    render(<ActionMenuDetailPanel idOrName="Edit" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-handler")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-am-handler"), {
+      target: { value: "SERVER" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-am-detail-error").textContent).toContain(
+      DEV_MSG.AM_FORBIDDEN,
+    );
+  });
+
+  it("surfaces 409 on visibility save for a system menu", async () => {
+    getActionMenuDetailMock.mockResolvedValue(sampleDetail);
+    saveActionMenuMock.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "System action menus cannot be updated or deleted via this API" },
+    });
+    render(<ActionMenuDetailPanel idOrName="Edit" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-tab-visibility")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-am-tab-visibility"));
+    fireEvent.click(screen.getByTestId("developer-am-vis-add"));
+    fireEvent.click(screen.getByTestId("developer-am-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-am-detail-error").textContent).toContain(
+      "System action menus cannot be updated or deleted via this API",
+    );
+    expect(screen.getByTestId("developer-am-detail-error").textContent).not.toContain(
+      DEV_MSG.AM_INVALID_NAME,
+    );
   });
 });

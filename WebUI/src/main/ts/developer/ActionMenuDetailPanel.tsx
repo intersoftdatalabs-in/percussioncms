@@ -18,19 +18,36 @@ import React, { useEffect, useRef, useState } from "react";
 import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { extractRestErrorMessage, isApiError } from "../api/client";
 import {
+  ACTION_MENU_HANDLERS,
+  ACTION_MENU_PROP,
+  ACTION_MENU_REFRESH_HINTS,
   ACTION_MENU_TYPE_ITEM,
   ACTION_MENU_TYPES,
+  ACTION_MENU_VISIBILITY_ALIASES,
+  actionMenuRowsEqual,
   createActionMenu,
   deleteActionMenu,
+  extraActionMenuProperties,
   getActionMenuDetail,
   isActionMenuWriteReady,
+  mergeActionMenuProperties,
   normalizeActionMenuName,
+  normalizeActionMenuParameters,
+  normalizeUiContexts,
+  normalizeVisibilityContexts,
+  propertyValue,
   saveActionMenu,
   withoutStaleActionMenuWriteGap,
   type ActionMenuWriteBody,
 } from "../api/developer/actionMenusApi";
 import { resolveActionMenuObjectGuid } from "../api/displayFormatGuid";
-import type { ActionMenu } from "../api/developer/types";
+import type {
+  ActionMenu,
+  ActionMenuModeUIContext,
+  ActionMenuParameter,
+  ActionMenuProperty,
+  ActionMenuVisibilityContext,
+} from "../api/developer/types";
 import {
   catalogColors,
   backButton,
@@ -59,9 +76,82 @@ const inputStyle: React.CSSProperties = {
   font: "inherit",
 };
 
+const tabListStyle: React.CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "4px",
+  borderBottom: `2px solid ${catalogColors.headerBorder}`,
+  margin: "8px 0 16px",
+};
+
+function tabStyle(active: boolean): React.CSSProperties {
+  return {
+    background: "transparent",
+    border: "none",
+    borderBottom: active ? `2px solid ${catalogColors.accent}` : "2px solid transparent",
+    marginBottom: "-2px",
+    padding: "8px 12px",
+    cursor: "pointer",
+    color: active ? catalogColors.accent : catalogColors.text,
+    font: "inherit",
+  };
+}
+
+type AmTab = "usage" | "command" | "visibility";
+
 function typeFromDetail(detail: ActionMenu | null, fallback: string): string {
   if (detail?.menuType && detail.menuType.trim()) return detail.menuType.trim();
   return fallback;
+}
+
+function handlerFromDetail(detail: ActionMenu | null): string {
+  const raw = (detail?.handler || "").trim().toUpperCase();
+  return raw === "SERVER" ? "SERVER" : "CLIENT";
+}
+
+function applyLoaded(detail: ActionMenu, idOrName: string | null): {
+  name: string;
+  label: string;
+  description: string;
+  menuType: string;
+  url: string;
+  handler: string;
+  accel: string;
+  mnem: string;
+  tooltip: string;
+  icon: string;
+  launch: string;
+  multi: string;
+  refresh: string;
+  target: string;
+  targetStyle: string;
+  parameters: ActionMenuParameter[];
+  extraProps: ActionMenuProperty[];
+  visibility: ActionMenuVisibilityContext[];
+  uiContexts: ActionMenuModeUIContext[];
+} {
+  const props = detail.properties || [];
+  return {
+    name: detail.name || idOrName || "",
+    label: detail.label || "",
+    description: detail.description || "",
+    menuType: typeFromDetail(detail, ACTION_MENU_TYPE_ITEM),
+    url: detail.url || "",
+    handler: handlerFromDetail(detail),
+    accel: propertyValue(props, ACTION_MENU_PROP.ACCEL),
+    mnem: propertyValue(props, ACTION_MENU_PROP.MNEM),
+    tooltip: propertyValue(props, ACTION_MENU_PROP.SHORT_DESC),
+    icon: propertyValue(props, ACTION_MENU_PROP.ICON),
+    launch: propertyValue(props, ACTION_MENU_PROP.LAUNCH),
+    multi: propertyValue(props, ACTION_MENU_PROP.MULTI),
+    refresh: propertyValue(props, ACTION_MENU_PROP.REFRESH),
+    target: propertyValue(props, ACTION_MENU_PROP.TARGET),
+    targetStyle: propertyValue(props, ACTION_MENU_PROP.TARGET_STYLE),
+    parameters: normalizeActionMenuParameters(detail.parameters),
+    extraProps: extraActionMenuProperties(props),
+    visibility: normalizeVisibilityContexts(detail.visibilityContexts),
+    uiContexts: normalizeUiContexts(detail.uiContexts),
+  };
 }
 
 export function ActionMenuDetailPanel({
@@ -87,12 +177,67 @@ export function ActionMenuDetailPanel({
   const [description, setDescription] = useState("");
   const [menuType, setMenuType] = useState(ACTION_MENU_TYPE_ITEM);
   const [url, setUrl] = useState("");
+  const [handler, setHandler] = useState<string>("CLIENT");
+  const [accel, setAccel] = useState("");
+  const [mnem, setMnem] = useState("");
+  const [tooltip, setTooltip] = useState("");
+  const [icon, setIcon] = useState("");
+  const [launch, setLaunch] = useState("");
+  const [multi, setMulti] = useState("");
+  const [refresh, setRefresh] = useState("");
+  const [target, setTarget] = useState("");
+  const [targetStyle, setTargetStyle] = useState("");
+  const [parameters, setParameters] = useState<ActionMenuParameter[]>([]);
+  const [extraProps, setExtraProps] = useState<ActionMenuProperty[]>([]);
+  const [visibility, setVisibility] = useState<ActionMenuVisibilityContext[]>([]);
+  const [uiContexts, setUiContexts] = useState<ActionMenuModeUIContext[]>([]);
+  const [tab, setTab] = useState<AmTab>("usage");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(idOrName != null);
   const inflight = useRef(false);
+
+  function hydrate(d: ActionMenu, key: string | null, preserveCollections = false): void {
+    const loaded = applyLoaded(d, key);
+    const keepCollections = preserveCollections || Boolean(d.partialOverlay);
+    setName(loaded.name);
+    setLabel(loaded.label);
+    setDescription(loaded.description);
+    setMenuType(loaded.menuType);
+    setUrl(loaded.url);
+    setHandler(loaded.handler);
+    setAccel(loaded.accel);
+    setMnem(loaded.mnem);
+    setTooltip(loaded.tooltip);
+    setIcon(loaded.icon);
+    setLaunch(loaded.launch);
+    setMulti(loaded.multi);
+    setRefresh(loaded.refresh);
+    setTarget(loaded.target);
+    setTargetStyle(loaded.targetStyle);
+    if (d.parameters != null && d.parameters.length > 0) {
+      setParameters(loaded.parameters);
+    } else if (d.parameters != null && d.parameters.length === 0 && !keepCollections) {
+      setParameters([]);
+    }
+    setExtraProps(loaded.extraProps);
+    if (d.visibilityContexts != null && d.visibilityContexts.length > 0) {
+      setVisibility(loaded.visibility);
+    } else if (
+      d.visibilityContexts != null &&
+      d.visibilityContexts.length === 0 &&
+      !keepCollections
+    ) {
+      setVisibility([]);
+    }
+    if (d.uiContexts != null && d.uiContexts.length > 0) {
+      setUiContexts(loaded.uiContexts);
+    } else if (d.uiContexts != null && d.uiContexts.length === 0 && !keepCollections) {
+      setUiContexts([]);
+    }
+  }
 
   useEffect(() => {
     if (idOrName == null) {
@@ -107,11 +252,7 @@ export function ActionMenuDetailPanel({
       .then((d) => {
         if (cancelled) return;
         setDetail(d);
-        setName(d.name || idOrName);
-        setLabel(d.label || "");
-        setDescription(d.description || "");
-        setMenuType(typeFromDetail(d, ACTION_MENU_TYPE_ITEM));
-        setUrl(d.url || "");
+        hydrate(d, idOrName);
         setLoading(false);
       })
       .catch((err: unknown) => {
@@ -124,23 +265,34 @@ export function ActionMenuDetailPanel({
     };
   }, [idOrName]);
 
+  const loaded = detail != null ? applyLoaded(detail, idOrName) : null;
   const loadedName = normalizeActionMenuName(detail?.name || idOrName || "");
-  const loadedLabel = detail?.label || "";
-  const loadedDescription = detail?.description || "";
-  const loadedType = typeFromDetail(detail, ACTION_MENU_TYPE_ITEM);
-  const loadedUrl = detail?.url || "";
   const dirty =
     isNew ||
+    loaded == null ||
     normalizeActionMenuName(name) !== loadedName ||
-    label !== loadedLabel ||
-    description !== loadedDescription ||
-    menuType !== loadedType ||
-    url !== loadedUrl;
+    label !== loaded.label ||
+    description !== loaded.description ||
+    menuType !== loaded.menuType ||
+    url !== loaded.url ||
+    handler !== loaded.handler ||
+    accel !== loaded.accel ||
+    mnem !== loaded.mnem ||
+    tooltip !== loaded.tooltip ||
+    icon !== loaded.icon ||
+    launch !== loaded.launch ||
+    multi !== loaded.multi ||
+    refresh !== loaded.refresh ||
+    target !== loaded.target ||
+    targetStyle !== loaded.targetStyle ||
+    !actionMenuRowsEqual(parameters, loaded.parameters) ||
+    !actionMenuRowsEqual(visibility, loaded.visibility) ||
+    !actionMenuRowsEqual(uiContexts, loaded.uiContexts);
   const canSave = !busy && dirty && isActionMenuWriteReady({ isNew, name });
   const writeKey = idOrName || createdKey || normalizeActionMenuName(name);
   const objectGuid = resolveActionMenuObjectGuid(detail, catalogGuid);
 
-  function writeBody(): ActionMenuWriteBody {
+  function identityBody(): ActionMenuWriteBody {
     const body: ActionMenuWriteBody = {
       name: isNew ? normalizeActionMenuName(name) : detail?.name || normalizeActionMenuName(name),
       label,
@@ -151,6 +303,62 @@ export function ActionMenuDetailPanel({
       body.url = url.trim();
     }
     return body;
+  }
+
+  function ui03Body(): ActionMenuWriteBody {
+    const body = identityBody();
+    body.handler = handler;
+    body.url = url.trim();
+    const overlayPartial = Boolean(detail?.partialOverlay);
+    const nextParams = parameters
+      .filter((p) => (p.name || "").trim())
+      .map((p) => ({
+        name: (p.name || "").trim(),
+        value: p.value || "",
+        description: p.description || "",
+      }));
+    if (!(overlayPartial && nextParams.length === 0)) {
+      body.parameters = nextParams;
+    }
+    body.properties = mergeActionMenuProperties(extraProps, {
+      [ACTION_MENU_PROP.ACCEL]: accel,
+      [ACTION_MENU_PROP.MNEM]: mnem,
+      [ACTION_MENU_PROP.SHORT_DESC]: tooltip,
+      [ACTION_MENU_PROP.ICON]: icon,
+      [ACTION_MENU_PROP.LAUNCH]: launch,
+      [ACTION_MENU_PROP.MULTI]: multi,
+      [ACTION_MENU_PROP.REFRESH]: refresh,
+      [ACTION_MENU_PROP.TARGET]: target,
+      [ACTION_MENU_PROP.TARGET_STYLE]: targetStyle,
+    });
+    const nextVis = visibility
+      .filter((row) => (row.name || "").trim() && (row.value || "").trim())
+      .map((row) => ({
+        name: (row.name || "").trim(),
+        value: (row.value || "").trim(),
+        description: row.description || "",
+      }));
+    if (!(overlayPartial && nextVis.length === 0)) {
+      body.visibilityContexts = nextVis;
+    }
+    const nextUi = uiContexts
+      .filter((row) => (row.modeId || "").trim() && (row.contextId || "").trim())
+      .map((row) => ({
+        modeId: (row.modeId || "").trim(),
+        contextId: (row.contextId || "").trim(),
+        modeName: row.modeName || "",
+        contextName: row.contextName || "",
+        description: row.description || "",
+      }));
+    if (!(overlayPartial && nextUi.length === 0)) {
+      body.uiContexts = nextUi;
+    }
+    return body;
+  }
+
+  function writeBody(): ActionMenuWriteBody {
+    // POST create stays identity-only so JAXB unwrap (#4171) is unchanged.
+    return isNew ? identityBody() : ui03Body();
   }
 
   function saveFallback(err: unknown): string {
@@ -176,24 +384,53 @@ export function ActionMenuDetailPanel({
     setError(null);
     setNotice(null);
     try {
-      const saved =
-        isNew || !writeKey
-          ? await createActionMenu(writeBody())
-          : await saveActionMenu(writeKey, writeBody());
-      setDetail(saved);
+      const creating = isNew || !writeKey;
+      let saved = creating
+        ? await createActionMenu(identityBody())
+        : await saveActionMenu(writeKey, ui03Body());
       const persistedName = (saved.name || "").trim();
       if (!persistedName) {
         setError(DEV_MSG.AM_MISSING_PERSISTED_NAME);
         return;
       }
-      if (isNew) {
-        setCreatedKey(persistedName);
+      const persistKey =
+        saved.id != null && saved.id > 0
+          ? String(saved.id)
+          : resolveActionMenuObjectGuid(saved) || persistedName;
+      if (creating) {
+        setCreatedKey(persistKey);
+        const followUp = ui03Body();
+        followUp.name = persistedName;
+        const hasUi03 =
+          followUp.handler === "SERVER" ||
+          (followUp.parameters != null && followUp.parameters.length > 0) ||
+          (followUp.visibilityContexts != null && followUp.visibilityContexts.length > 0) ||
+          (followUp.uiContexts != null && followUp.uiContexts.length > 0) ||
+          accel.trim() !== "" ||
+          mnem.trim() !== "" ||
+          tooltip.trim() !== "" ||
+          icon.trim() !== "" ||
+          launch.trim() !== "" ||
+          multi.trim() !== "" ||
+          refresh.trim() !== "" ||
+          target.trim() !== "" ||
+          targetStyle.trim() !== "";
+        if (hasUi03) {
+          try {
+            saved = await saveActionMenu(persistKey, followUp);
+          } catch (followUpErr: unknown) {
+            try {
+              await deleteActionMenu(persistKey);
+            } catch (rollbackErr: unknown) {
+              console.error("Action menu create rollback DELETE failed", rollbackErr);
+              setNotice(DEV_MSG.AM_CREATE_ROLLBACK_FAILED);
+            }
+            throw followUpErr;
+          }
+        }
       }
-      setName(persistedName);
-      setLabel(saved.label || "");
-      setDescription(saved.description || "");
-      setMenuType(typeFromDetail(saved, menuType));
-      setUrl(saved.url || "");
+      setDetail(saved);
+      hydrate(saved, persistedName, true);
       setNotice(DEV_MSG.AM_SAVED);
       onSaved?.(saved);
     } catch (err: unknown) {
@@ -244,12 +481,36 @@ export function ActionMenuDetailPanel({
     ? DEV_MSG.AM_NEW
     : detail?.label || detail?.name || idOrName || DEV_MSG.AM_EDIT;
 
-  const params = detail != null && Array.isArray(detail.parameters) ? detail.parameters : [];
-  const props = detail != null && Array.isArray(detail.properties) ? detail.properties : [];
   const gapList =
     detail != null && detail.designGaps && detail.designGaps.length > 0
       ? withoutStaleActionMenuWriteGap(detail.designGaps)
-      : [DEV_MSG.AM_GAP_CHILDREN, DEV_MSG.AM_GAP_VISIBILITY, DEV_MSG.AM_GAP_UI03];
+      : [DEV_MSG.AM_GAP_CHILDREN];
+
+  function yesNoSelect(
+    id: string,
+    testId: string,
+    labelText: string,
+    value: string,
+    onChange: (next: string) => void,
+  ): React.ReactElement {
+    return (
+      <div style={fieldStyle}>
+        <label htmlFor={id}>{labelText}</label>
+        <select
+          id={id}
+          data-testid={testId}
+          style={inputStyle}
+          value={value}
+          disabled={busy}
+          onChange={(e) => onChange(e.target.value)}
+        >
+          <option value="">{DEV_MSG.AM_UNSET}</option>
+          <option value="yes">{DEV_MSG.AM_YES}</option>
+          <option value="no">{DEV_MSG.AM_NO}</option>
+        </select>
+      </div>
+    );
+  }
 
   return (
     <div data-testid="developer-am-detail">
@@ -298,7 +559,9 @@ export function ActionMenuDetailPanel({
                   {objectGuid}
                 </dd>
                 <dt>{DEV_MSG.AM_COL_HANDLER}</dt>
-                <dd style={{ margin: 0 }}>{detail?.handler || "—"}</dd>
+                <dd style={{ margin: 0 }} data-testid="developer-am-meta-handler">
+                  {handler || "—"}
+                </dd>
                 <dt>{DEV_MSG.AM_COL_SORT}</dt>
                 <dd style={{ margin: 0 }}>
                   {detail?.sortRank != null ? String(detail.sortRank) : "—"}
@@ -377,20 +640,519 @@ export function ActionMenuDetailPanel({
               ))}
             </select>
           </div>
-          <div style={fieldStyle}>
-            <label htmlFor="am-url">{DEV_MSG.AM_FORM_URL}</label>
-            <input
-              id="am-url"
-              data-testid="developer-am-url"
-              style={{ ...inputStyle, fontFamily: "monospace" }}
-              value={url}
-              disabled={busy}
-              onChange={(e) => setUrl(e.target.value)}
-              autoComplete="off"
-            />
+
+          <div
+            role="tablist"
+            aria-label={DEV_MSG.AM_TAB_USAGE}
+            data-testid="developer-am-tabs"
+            style={tabListStyle}
+          >
+            {(
+              [
+                ["usage", DEV_MSG.AM_TAB_USAGE],
+                ["command", DEV_MSG.AM_TAB_COMMAND],
+                ["visibility", DEV_MSG.AM_TAB_VISIBILITY],
+              ] as const
+            ).map(([id, labelText]) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                id={`developer-am-tab-${id}`}
+                data-testid={`developer-am-tab-${id}`}
+                aria-selected={tab === id}
+                aria-controls={`developer-am-panel-${id}`}
+                onClick={() => setTab(id)}
+                style={tabStyle(tab === id)}
+              >
+                {labelText}
+              </button>
+            ))}
           </div>
 
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
+          {tab === "usage" ? (
+            <section
+              role="tabpanel"
+              id="developer-am-panel-usage"
+              data-testid="developer-am-panel-usage"
+              aria-labelledby="developer-am-tab-usage"
+            >
+              <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.AM_USAGE_HINT}</p>
+              <div style={fieldStyle}>
+                <label htmlFor="am-handler">{DEV_MSG.AM_FORM_HANDLER}</label>
+                <select
+                  id="am-handler"
+                  data-testid="developer-am-handler"
+                  style={inputStyle}
+                  value={handler}
+                  disabled={busy}
+                  onChange={(e) => setHandler(e.target.value)}
+                >
+                  {ACTION_MENU_HANDLERS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div style={fieldStyle}>
+                <label htmlFor="am-accel">{DEV_MSG.AM_FORM_ACCEL}</label>
+                <input
+                  id="am-accel"
+                  data-testid="developer-am-accel"
+                  style={inputStyle}
+                  value={accel}
+                  disabled={busy}
+                  onChange={(e) => setAccel(e.target.value)}
+                  autoComplete="off"
+                />
+              </div>
+              <div style={fieldStyle}>
+                <label htmlFor="am-mnem">{DEV_MSG.AM_FORM_MNEM}</label>
+                <input
+                  id="am-mnem"
+                  data-testid="developer-am-mnem"
+                  style={inputStyle}
+                  value={mnem}
+                  disabled={busy}
+                  onChange={(e) => setMnem(e.target.value)}
+                  autoComplete="off"
+                />
+              </div>
+              <div style={fieldStyle}>
+                <label htmlFor="am-tooltip">{DEV_MSG.AM_FORM_TOOLTIP}</label>
+                <input
+                  id="am-tooltip"
+                  data-testid="developer-am-tooltip"
+                  style={inputStyle}
+                  value={tooltip}
+                  disabled={busy}
+                  onChange={(e) => setTooltip(e.target.value)}
+                />
+              </div>
+              <div style={fieldStyle}>
+                <label htmlFor="am-icon">{DEV_MSG.AM_FORM_ICON}</label>
+                <input
+                  id="am-icon"
+                  data-testid="developer-am-icon"
+                  style={{ ...inputStyle, fontFamily: "monospace" }}
+                  value={icon}
+                  disabled={busy}
+                  onChange={(e) => setIcon(e.target.value)}
+                  autoComplete="off"
+                />
+              </div>
+              {yesNoSelect("am-launch", "developer-am-launch", DEV_MSG.AM_FORM_LAUNCH, launch, setLaunch)}
+              {yesNoSelect("am-multi", "developer-am-multiselect", DEV_MSG.AM_FORM_MULTI, multi, setMulti)}
+              <div style={fieldStyle}>
+                <label htmlFor="am-refresh">{DEV_MSG.AM_FORM_REFRESH}</label>
+                <select
+                  id="am-refresh"
+                  data-testid="developer-am-refresh"
+                  style={inputStyle}
+                  value={refresh}
+                  disabled={busy}
+                  onChange={(e) => setRefresh(e.target.value)}
+                >
+                  <option value="">{DEV_MSG.AM_UNSET}</option>
+                  {ACTION_MENU_REFRESH_HINTS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </section>
+          ) : null}
+
+          {tab === "command" ? (
+            <section
+              role="tabpanel"
+              id="developer-am-panel-command"
+              data-testid="developer-am-panel-command"
+              aria-labelledby="developer-am-tab-command"
+            >
+              <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+                {DEV_MSG.AM_COMMAND_HINT}
+              </p>
+              <div style={fieldStyle}>
+                <label htmlFor="am-url">{DEV_MSG.AM_FORM_URL}</label>
+                <input
+                  id="am-url"
+                  data-testid="developer-am-url"
+                  style={{ ...inputStyle, fontFamily: "monospace" }}
+                  value={url}
+                  disabled={busy}
+                  onChange={(e) => setUrl(e.target.value)}
+                  autoComplete="off"
+                />
+              </div>
+              <div style={fieldStyle}>
+                <label htmlFor="am-target">{DEV_MSG.AM_FORM_TARGET}</label>
+                <input
+                  id="am-target"
+                  data-testid="developer-am-target"
+                  style={inputStyle}
+                  value={target}
+                  disabled={busy}
+                  onChange={(e) => setTarget(e.target.value)}
+                  autoComplete="off"
+                />
+              </div>
+              <div style={fieldStyle}>
+                <label htmlFor="am-target-style">{DEV_MSG.AM_FORM_TARGET_STYLE}</label>
+                <input
+                  id="am-target-style"
+                  data-testid="developer-am-target-style"
+                  style={inputStyle}
+                  value={targetStyle}
+                  disabled={busy}
+                  onChange={(e) => setTargetStyle(e.target.value)}
+                  autoComplete="off"
+                />
+              </div>
+              <section data-testid="developer-am-params">
+                <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.AM_PARAMS}</h3>
+                <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.AM_PARAMS_HINT}</p>
+                {parameters.length === 0 ? (
+                  <p style={{ color: catalogColors.empty }} data-testid="developer-am-params-empty">
+                    {DEV_MSG.AM_NONE}
+                  </p>
+                ) : (
+                  <div style={{ overflowX: "auto" }}>
+                    <table
+                      data-testid="developer-am-params-table"
+                      style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
+                    >
+                      <thead>
+                        <tr style={tableHeaderRow}>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_PARAM}</th>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_VALUE}</th>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_ACTIONS}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {parameters.map((p, i) => (
+                          <tr
+                            key={`param-${i}`}
+                            data-testid={`developer-am-param-row-${i}`}
+                            style={tableRow}
+                          >
+                            <td style={{ padding: "8px" }}>
+                              <input
+                                data-testid={`developer-am-param-name-${i}`}
+                                aria-label={DEV_MSG.AM_COL_PARAM}
+                                style={{ ...inputStyle, fontFamily: "monospace", width: "100%" }}
+                                value={p.name || ""}
+                                disabled={busy}
+                                onChange={(e) => {
+                                  const next = [...parameters];
+                                  next[i] = { ...p, name: e.target.value };
+                                  setParameters(next);
+                                }}
+                              />
+                            </td>
+                            <td style={{ padding: "8px" }}>
+                              <input
+                                data-testid={`developer-am-param-value-${i}`}
+                                aria-label={DEV_MSG.AM_COL_VALUE}
+                                style={{ ...inputStyle, width: "100%" }}
+                                value={p.value || ""}
+                                disabled={busy}
+                                onChange={(e) => {
+                                  const next = [...parameters];
+                                  next[i] = { ...p, value: e.target.value };
+                                  setParameters(next);
+                                }}
+                              />
+                            </td>
+                            <td style={{ padding: "8px" }}>
+                              <button
+                                type="button"
+                                data-testid={`developer-am-param-remove-${i}`}
+                                aria-label={DEV_MSG.AM_REMOVE_PARAM}
+                                disabled={busy}
+                                onClick={() => setParameters(parameters.filter((_, j) => j !== i))}
+                              >
+                                {DEV_MSG.AM_REMOVE_PARAM}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  data-testid="developer-am-param-add"
+                  disabled={busy}
+                  onClick={() => setParameters([...parameters, { name: "", value: "" }])}
+                  style={{ marginTop: "8px" }}
+                >
+                  {DEV_MSG.AM_ADD_PARAM}
+                </button>
+              </section>
+              {extraProps.length > 0 ? (
+                <section style={{ marginTop: "16px" }} data-testid="developer-am-props">
+                  <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.AM_PROPS}</h3>
+                  <div style={{ overflowX: "auto" }}>
+                    <table
+                      data-testid="developer-am-props-table"
+                      style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
+                    >
+                      <thead>
+                        <tr style={tableHeaderRow}>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_PROP}</th>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_VALUE}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {extraProps.map((p, i) => (
+                          <tr
+                            key={`${p.name ?? "prop"}-${i}`}
+                            data-testid={`developer-am-prop-row-${i}`}
+                            style={tableRow}
+                          >
+                            <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                              {p.name || "—"}
+                            </td>
+                            <td style={{ padding: "8px" }}>{p.value || "—"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              ) : (
+                <section style={{ marginTop: "16px" }} data-testid="developer-am-props">
+                  <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.AM_PROPS}</h3>
+                  <p style={{ color: catalogColors.empty }} data-testid="developer-am-props-empty">
+                    {DEV_MSG.AM_NONE}
+                  </p>
+                </section>
+              )}
+            </section>
+          ) : null}
+
+          {tab === "visibility" ? (
+            <section
+              role="tabpanel"
+              id="developer-am-panel-visibility"
+              data-testid="developer-am-panel-visibility"
+              aria-labelledby="developer-am-tab-visibility"
+            >
+              <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.AM_VIS_CONTEXTS}</h3>
+              <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.AM_VIS_HINT}</p>
+              {visibility.length === 0 ? (
+                <p style={{ color: catalogColors.empty }} data-testid="developer-am-vis-empty">
+                  {DEV_MSG.AM_NONE}
+                </p>
+              ) : (
+                <div style={{ overflowX: "auto" }}>
+                  <table
+                    data-testid="developer-am-vis-table"
+                    style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
+                  >
+                    <thead>
+                      <tr style={tableHeaderRow}>
+                        <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_CONTEXT}</th>
+                        <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_VALUE}</th>
+                        <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_ACTIONS}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {visibility.map((row, i) => (
+                        <tr
+                          key={`vis-${i}`}
+                          data-testid={`developer-am-vis-row-${i}`}
+                          style={tableRow}
+                        >
+                          <td style={{ padding: "8px" }}>
+                            <select
+                              data-testid={`developer-am-vis-name-${i}`}
+                              aria-label={DEV_MSG.AM_COL_CONTEXT}
+                              style={inputStyle}
+                              value={row.name || ""}
+                              disabled={busy}
+                              onChange={(e) => {
+                                const next = [...visibility];
+                                next[i] = { ...row, name: e.target.value };
+                                setVisibility(next);
+                              }}
+                            >
+                              <option value="">{DEV_MSG.AM_UNSET}</option>
+                              {ACTION_MENU_VISIBILITY_ALIASES.map((alias) => (
+                                <option key={alias} value={alias}>
+                                  {alias}
+                                </option>
+                              ))}
+                              {["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"].map(
+                                (id) => (
+                                  <option key={`vis-id-${id}`} value={id}>
+                                    {id}
+                                  </option>
+                                ),
+                              )}
+                            </select>
+                          </td>
+                          <td style={{ padding: "8px" }}>
+                            <input
+                              data-testid={`developer-am-vis-value-${i}`}
+                              aria-label={DEV_MSG.AM_COL_VALUE}
+                              style={inputStyle}
+                              value={row.value || ""}
+                              disabled={busy}
+                              onChange={(e) => {
+                                const next = [...visibility];
+                                next[i] = { ...row, value: e.target.value };
+                                setVisibility(next);
+                              }}
+                            />
+                          </td>
+                          <td style={{ padding: "8px" }}>
+                            <button
+                              type="button"
+                              data-testid={`developer-am-vis-remove-${i}`}
+                              aria-label={DEV_MSG.AM_REMOVE_VIS}
+                              disabled={busy}
+                              onClick={() => setVisibility(visibility.filter((_, j) => j !== i))}
+                            >
+                              {DEV_MSG.AM_REMOVE_VIS}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              <button
+                type="button"
+                data-testid="developer-am-vis-add"
+                disabled={busy}
+                onClick={() => setVisibility([...visibility, { name: "community", value: "" }])}
+                style={{ marginTop: "8px" }}
+              >
+                {DEV_MSG.AM_ADD_VIS}
+              </button>
+
+              <h3 style={{ fontSize: "1rem", marginTop: "16px" }}>{DEV_MSG.AM_UI_CONTEXTS}</h3>
+              <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.AM_UI_HINT}</p>
+              {uiContexts.length === 0 ? (
+                <p style={{ color: catalogColors.empty }} data-testid="developer-am-uictx-empty">
+                  {DEV_MSG.AM_NONE}
+                </p>
+              ) : (
+                <div style={{ overflowX: "auto" }}>
+                  <table
+                    data-testid="developer-am-uictx-table"
+                    style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
+                  >
+                    <thead>
+                      <tr style={tableHeaderRow}>
+                        <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_MODE_ID}</th>
+                        <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_MODE_NAME}</th>
+                        <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_CTX_ID}</th>
+                        <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_CTX_NAME}</th>
+                        <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_ACTIONS}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {uiContexts.map((row, i) => (
+                        <tr
+                          key={`uictx-${i}`}
+                          data-testid={`developer-am-uictx-row-${i}`}
+                          style={tableRow}
+                        >
+                          <td style={{ padding: "8px" }}>
+                            <input
+                              data-testid={`developer-am-uictx-mode-${i}`}
+                              aria-label={DEV_MSG.AM_COL_MODE_ID}
+                              style={{ ...inputStyle, fontFamily: "monospace" }}
+                              value={row.modeId || ""}
+                              disabled={busy}
+                              onChange={(e) => {
+                                const next = [...uiContexts];
+                                next[i] = { ...row, modeId: e.target.value };
+                                setUiContexts(next);
+                              }}
+                            />
+                          </td>
+                          <td style={{ padding: "8px" }}>
+                            <input
+                              data-testid={`developer-am-uictx-mode-name-${i}`}
+                              aria-label={DEV_MSG.AM_COL_MODE_NAME}
+                              style={inputStyle}
+                              value={row.modeName || ""}
+                              disabled={busy}
+                              onChange={(e) => {
+                                const next = [...uiContexts];
+                                next[i] = { ...row, modeName: e.target.value };
+                                setUiContexts(next);
+                              }}
+                            />
+                          </td>
+                          <td style={{ padding: "8px" }}>
+                            <input
+                              data-testid={`developer-am-uictx-context-${i}`}
+                              aria-label={DEV_MSG.AM_COL_CTX_ID}
+                              style={{ ...inputStyle, fontFamily: "monospace" }}
+                              value={row.contextId || ""}
+                              disabled={busy}
+                              onChange={(e) => {
+                                const next = [...uiContexts];
+                                next[i] = { ...row, contextId: e.target.value };
+                                setUiContexts(next);
+                              }}
+                            />
+                          </td>
+                          <td style={{ padding: "8px" }}>
+                            <input
+                              data-testid={`developer-am-uictx-context-name-${i}`}
+                              aria-label={DEV_MSG.AM_COL_CTX_NAME}
+                              style={inputStyle}
+                              value={row.contextName || ""}
+                              disabled={busy}
+                              onChange={(e) => {
+                                const next = [...uiContexts];
+                                next[i] = { ...row, contextName: e.target.value };
+                                setUiContexts(next);
+                              }}
+                            />
+                          </td>
+                          <td style={{ padding: "8px" }}>
+                            <button
+                              type="button"
+                              data-testid={`developer-am-uictx-remove-${i}`}
+                              aria-label={DEV_MSG.AM_REMOVE_UI}
+                              disabled={busy}
+                              onClick={() => setUiContexts(uiContexts.filter((_, j) => j !== i))}
+                            >
+                              {DEV_MSG.AM_REMOVE_UI}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              <button
+                type="button"
+                data-testid="developer-am-uictx-add"
+                disabled={busy}
+                onClick={() =>
+                  setUiContexts([...uiContexts, { modeId: "", contextId: "", modeName: "", contextName: "" }])
+                }
+                style={{ marginTop: "8px" }}
+              >
+                {DEV_MSG.AM_ADD_UI}
+              </button>
+            </section>
+          ) : null}
+
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", margin: "16px 0" }}>
             <button
               type="button"
               data-testid="developer-am-save"
@@ -447,81 +1209,6 @@ export function ActionMenuDetailPanel({
 
           {detail ? (
             <>
-              <section data-testid="developer-am-params">
-                <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.AM_PARAMS}</h3>
-                <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.AM_PARAMS_HINT}</p>
-                {params.length === 0 ? (
-                  <p style={{ color: catalogColors.empty }} data-testid="developer-am-params-empty">
-                    {DEV_MSG.AM_NONE}
-                  </p>
-                ) : (
-                  <div style={{ overflowX: "auto" }}>
-                    <table
-                      data-testid="developer-am-params-table"
-                      style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
-                    >
-                      <thead>
-                        <tr style={tableHeaderRow}>
-                          <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_PARAM}</th>
-                          <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_VALUE}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {params.map((p, i) => (
-                          <tr
-                            key={`${p.name ?? "p"}-${i}`}
-                            data-testid={`developer-am-param-row-${i}`}
-                            style={tableRow}
-                          >
-                            <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                              {p.name || "—"}
-                            </td>
-                            <td style={{ padding: "8px" }}>{p.value || "—"}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </section>
-
-              <section style={{ marginTop: "16px" }} data-testid="developer-am-props">
-                <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.AM_PROPS}</h3>
-                {props.length === 0 ? (
-                  <p style={{ color: catalogColors.empty }} data-testid="developer-am-props-empty">
-                    {DEV_MSG.AM_NONE}
-                  </p>
-                ) : (
-                  <div style={{ overflowX: "auto" }}>
-                    <table
-                      data-testid="developer-am-props-table"
-                      style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
-                    >
-                      <thead>
-                        <tr style={tableHeaderRow}>
-                          <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_PROP}</th>
-                          <th style={{ padding: "8px" }}>{DEV_MSG.AM_COL_VALUE}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {props.map((p, i) => (
-                          <tr
-                            key={`${p.name ?? "prop"}-${i}`}
-                            data-testid={`developer-am-prop-row-${i}`}
-                            style={tableRow}
-                          >
-                            <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                              {p.name || "—"}
-                            </td>
-                            <td style={{ padding: "8px" }}>{p.value || "—"}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </section>
-
               <ObjectAclSection
                 objectGuid={objectGuid}
                 objectKind="action-menu"
