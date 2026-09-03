@@ -71,8 +71,9 @@ public class ActionMenuResource {
       summary = "List action menus (catalog)",
       description =
           "Lists CX action menus for the Developer module. Admin create/save/delete user menus"
-              + " via POST/PUT/DELETE on this resource. Cascading children composition and"
-              + " usage/command/visibility tabs remain later slices.",
+              + " via POST/PUT/DELETE on this resource. PUT round-trips usage/command fields"
+              + " (handler, url, parameters, command properties). Visibility contexts and"
+              + " cascading children composition remain later slices.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -100,9 +101,9 @@ public class ActionMenuResource {
   @Operation(
       summary = "Get action menu detail",
       description =
-          "Loads one action menu by name or numeric id. Admin PUT/DELETE use"
-              + " /services/actions/{idOrName}. Cascading entry composition remains a later"
-              + " slice.",
+          "Loads one action menu by name or numeric id, including visibilityContexts and"
+              + " uiContexts when present. Admin PUT/DELETE use /services/actions/{idOrName}."
+              + " Cascading entry composition remains a later slice.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -254,11 +255,13 @@ public class ActionMenuResource {
   @Operation(
       summary = "Update action menu",
       description =
-          "Admin. Updates label, description, menuType, and/or url by name, numeric id, or GUID."
-              + " Name is the catalog key and is not renamed on PUT. Loads with a design lock"
-              + " (overrideLock=false) and releases on save. Unknown id is 404. Lock/dependency"
-              + " conflict is 409. System menus are 409 (not mutated; the lock is not stolen)."
-              + " Cascading children composition is a later slice.",
+          "Admin. Updates label, description, menuType, url, handler, URL parameters,"
+              + " command/usage properties, visibilityContexts, and uiContexts by name, numeric"
+              + " id, or GUID. Name is the catalog key and is not renamed on PUT. Loads with a"
+              + " design lock (overrideLock=false) and releases on save. Unknown id is 404."
+              + " Lock/dependency conflict is 409. System menus are 409 (not mutated; the lock"
+              + " is not stolen). Invalid visibility or uiContext payload is 400. Cascading"
+              + " children composition is a later slice.",
       responses = {
         @ApiResponse(
             responseCode = "200",

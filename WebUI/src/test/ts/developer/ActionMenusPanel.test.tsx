@@ -88,6 +88,7 @@ describe("ActionMenusPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-am-detail")).toBeTruthy();
     });
+    fireEvent.click(screen.getByTestId("developer-am-tab-command"));
     expect(screen.getByTestId("developer-am-params-table")).toBeTruthy();
     expect(screen.getByTestId("developer-am-save")).toBeTruthy();
     expect(screen.getByTestId("developer-am-delete")).toBeTruthy();

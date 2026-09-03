@@ -59,6 +59,16 @@ describe("unwrapActionMenu (#3380)", () => {
     expect(unwrapped.guidString).toBe("0-107-7");
   });
 
+  it("normalizes visibilityContexts value from values alias", () => {
+    const unwrapped = unwrapActionMenu({
+      name: "Edit",
+      visibilityContexts: [{ name: "community", values: "1001" }],
+    });
+    expect(unwrapped.visibilityContexts).toEqual([
+      { name: "community", description: "", value: "1001" },
+    ]);
+  });
+
   it("returns empty object for null payload", () => {
     expect(unwrapActionMenu(null)).toEqual({});
   });
@@ -131,6 +141,7 @@ describe("action menu wire wrap", () => {
 
   it("drops the create/update/delete gap from ACTION_MENU_DESIGN_GAPS", () => {
     expect(ACTION_MENU_DESIGN_GAPS.some((g) => /create/i.test(g))).toBe(false);
+    expect(ACTION_MENU_DESIGN_GAPS.some((g) => /usage/i.test(g))).toBe(false);
     expect(ACTION_MENU_DESIGN_GAPS.some((g) => /cascading/i.test(g))).toBe(true);
   });
 
@@ -138,9 +149,48 @@ describe("action menu wire wrap", () => {
     expect(
       withoutStaleActionMenuWriteGap([
         "Action menu create / update / delete not supported via this API",
+        "Usage / command / visibility tab completeness is a later slice.",
+        "Visibility context editing not supported via this API",
         "Cascading child menu composition not supported via this API",
       ]),
     ).toEqual(["Cascading child menu composition not supported via this API"]);
+  });
+
+  it("drops empty-value visibility rows from the wire wrap", () => {
+    expect(
+      wrapActionMenuForWire({
+        name: "MyMenu",
+        visibilityContexts: [
+          { name: "community", value: "1001" },
+          { name: "contentType", value: "" },
+        ],
+      }),
+    ).toEqual({
+      ActionMenu: {
+        name: "MyMenu",
+        visibilityContexts: [{ name: "community", value: "1001" }],
+      },
+    });
+  });
+
+  it("wraps PUT usage/command/visibility under ActionMenu root", () => {
+    expect(
+      wrapActionMenuForWire({
+        name: "MyMenu",
+        label: "My Menu",
+        handler: "SERVER",
+        parameters: [{ name: "sys_test", value: "1" }],
+        visibilityContexts: [{ name: "community", value: "1001" }],
+      }),
+    ).toEqual({
+      ActionMenu: {
+        name: "MyMenu",
+        label: "My Menu",
+        handler: "SERVER",
+        parameters: [{ name: "sys_test", value: "1" }],
+        visibilityContexts: [{ name: "community", value: "1001" }],
+      },
+    });
   });
 });
 
@@ -185,11 +235,18 @@ describe("actionMenusApi write paths", () => {
 
   it("PUTs save body to /services/actions/{idOrName}", async () => {
     fetchMock.mockResolvedValueOnce(jsonResponse({ name: "MyMenu", label: "Updated" }));
-    const saved = await saveActionMenu("MyMenu", { name: "MyMenu", label: "Updated" });
+    const saved = await saveActionMenu("MyMenu", {
+      name: "MyMenu",
+      label: "Updated",
+      handler: "SERVER",
+    });
     expect(saved.label).toBe("Updated");
     const init = fetchMock.mock.calls[0][1] as RequestInit;
     expect(init.method).toBe("PUT");
     expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.ACTION_MENUS_ROOT}/MyMenu`);
+    expect(JSON.parse(String(init.body))).toEqual({
+      ActionMenu: { name: "MyMenu", label: "Updated", handler: "SERVER" },
+    });
   });
 
   it("DELETEs /services/actions/{idOrName}", async () => {

@@ -897,9 +897,12 @@ public class ApiUtils {
         }
         ActionMenuVisibilityContext vc = new ActionMenuVisibilityContext();
 
+        vc.setName(String.valueOf(v.getPrimaryKey().getContextid()));
         vc.setDescription(v.getPrimaryKey().getDescription());
         vc.setValue(v.getPrimaryKey().getValue());
-        vc.setUiContext(copyUIContext(v.getContext()));
+        if (v.getContext() != null) {
+          vc.setUiContext(copyUIContext(v.getContext()));
+        }
         vis.add(vc);
       }
     }
