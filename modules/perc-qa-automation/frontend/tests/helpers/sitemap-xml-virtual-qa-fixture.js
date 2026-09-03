@@ -21,6 +21,9 @@
  * and POST /virtual/publish against a local sitemap.xml (no live crawl URLs or
  * credentials). Loc {@code pages/index.md} slugs to {@code index} and assembles
  * {@code 8.2/index.html}.
+ *
+ * Rebuild coverage copies an edited sitemap.xml (and page bodies) over the
+ * in-cell tree with {@code docker cp} — no Jetty restart.
  */
 
 const { execFileSync } = require("node:child_process");
@@ -38,6 +41,15 @@ const SITEMAP_XML_VIRTUAL_PUBLISHED_HTML = "8.2/index.html";
 
 /** Marker expected in published HTML (same as the page body). */
 const SITEMAP_XML_VIRTUAL_PUBLISH_MARKER = SITEMAP_XML_VIRTUAL_BUILD_MARKER;
+
+/** Marker copied over {@code pages/index.md} for a second Build (#4188). */
+const SITEMAP_XML_VIRTUAL_REBUILD_MARKER = "Sitemap rebuild token BBB.";
+
+/** lastmod written into the in-cell sitemap.xml for a second Build (#4188). */
+const SITEMAP_XML_VIRTUAL_REBUILD_LASTMOD = "2026-12-31";
+
+/** Extra loc body copied for a second Build ({@code pages/about.md}). */
+const SITEMAP_XML_VIRTUAL_REBUILD_ABOUT_MARKER = "Hello from sitemap about.";
 
 function qaCmsContainer() {
   const fromEnv = (
@@ -177,15 +189,43 @@ function assertPublishedSitemapXmlFilesOnQaCell(publishPath) {
   return html;
 }
 
+/**
+ * Overwrite in-cell {@code sitemap.xml} plus page bodies after the first Build.
+ * Uses {@code docker cp} into the existing Linux tree — does not restart Jetty.
+ *
+ * @returns {string} in-container root path (same as {@link deploySitemapXmlVirtualFixtureToQaCell})
+ */
+function copySitemapXmlRebuildIntoQaCell() {
+  const hostDir = sitemapXmlVirtualFixtureHostDir();
+  const sitemap = path.join(hostDir, "sitemap-rebuild.xml");
+  const indexPage = path.join(hostDir, "pages", "index-rebuild.md");
+  const aboutPage = path.join(hostDir, "pages", "about.md");
+  for (const file of [sitemap, indexPage, aboutPage]) {
+    if (!fs.existsSync(file)) {
+      throw new Error(`sitemap-xml Virtual Site rebuild fixture missing: ${file}`);
+    }
+  }
+  const container = qaCmsContainer();
+  dockerExec(container, ["mkdir", "-p", `${SITEMAP_XML_VIRTUAL_QA_ROOT}/pages`]);
+  dockerCp(sitemap, `${container}:${SITEMAP_XML_VIRTUAL_QA_ROOT}/sitemap.xml`);
+  dockerCp(indexPage, `${container}:${SITEMAP_XML_VIRTUAL_QA_ROOT}/pages/index.md`);
+  dockerCp(aboutPage, `${container}:${SITEMAP_XML_VIRTUAL_QA_ROOT}/pages/about.md`);
+  return SITEMAP_XML_VIRTUAL_QA_ROOT;
+}
+
 module.exports = {
   SITEMAP_XML_VIRTUAL_QA_ROOT,
   SITEMAP_XML_VIRTUAL_BUILD_MARKER,
   SITEMAP_XML_VIRTUAL_PUBLISHED_HTML,
   SITEMAP_XML_VIRTUAL_PUBLISH_MARKER,
+  SITEMAP_XML_VIRTUAL_REBUILD_MARKER,
+  SITEMAP_XML_VIRTUAL_REBUILD_LASTMOD,
+  SITEMAP_XML_VIRTUAL_REBUILD_ABOUT_MARKER,
   sitemapXmlVirtualFixtureHostDir,
   deploySitemapXmlVirtualFixtureToQaCell,
   normalizeQaPublishDestPath,
   posixJoin,
   assertPublishedSitemapXmlFilesOnQaCell,
+  copySitemapXmlRebuildIntoQaCell,
   qaCmsContainer,
 };

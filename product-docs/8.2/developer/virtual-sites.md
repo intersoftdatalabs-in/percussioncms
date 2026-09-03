@@ -869,7 +869,7 @@ sitemap.xml fixture** under `virtual.rootPath` (`sitemap.xml` or `_config.yaml`
 `virtual.remoteUrl`, credential properties, and cloud `rootPath` URLs are **400**. No live
 crawl, no robots.txt fetch, and no secrets on the REST envelope. Each Build re-reads the
 current `sitemap.xml` loc/lastmod/path and `_config.yaml` `sitemap.file` (no parsed-page
-cache; no JVM restart; no file watchers). A second Admin `POST /sites/{nameOrId}/virtual/build`
+cache; no JVM restart; no Jetty restart; no file watchers). A second Admin `POST /sites/{nameOrId}/virtual/build`
 after a Path/Files edit of `sitemap.xml` loc/lastmod, `sitemap.file`, or referenced page
 Markdown returns `pagesWritten > 0` HTML that matches the **current** files — no Jetty
 restart. Git, CSV, SQL, HTTP JSON, object-storage, rss-atom, and icalendar Build paths

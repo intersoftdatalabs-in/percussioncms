@@ -50,6 +50,8 @@
  * sitemap-xml live Preview deploys a local sitemap.xml fixture, Builds, then streams last-build
  * home HTML (no live crawl). sitemap-xml live Publish deploys a local sitemap.xml fixture then
  * POST /virtual/publish copies assembled HTML; leftover remoteUrl/credentials stay 400 (no live crawl).
+ * sitemap-xml live rebuild copies an edited sitemap.xml into the cell (docker cp), runs a
+ * second Build without restarting Jetty, and asserts assembled HTML / pagesWritten change.
  *
  * Surface-filtered QA mode:
  * <pre>
@@ -90,6 +92,10 @@ const {
 const {
   deploySitemapXmlVirtualFixtureToQaCell,
   assertPublishedSitemapXmlFilesOnQaCell,
+  copySitemapXmlRebuildIntoQaCell,
+  SITEMAP_XML_VIRTUAL_BUILD_MARKER,
+  SITEMAP_XML_VIRTUAL_REBUILD_MARKER,
+  SITEMAP_XML_VIRTUAL_REBUILD_LASTMOD,
 } = require("./helpers/sitemap-xml-virtual-qa-fixture");
 const { saveVirtualSiteAndExpectSaved } = require("./helpers/virtual-site-save");
 const {
@@ -104,6 +110,50 @@ function developerSectionUrl(section) {
     _: String(Date.now()),
   });
   return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?${q.toString()}`;
+}
+
+/**
+ * Last-build home HTML via Admin preview REST (same-origin cookies).
+ * Path segments are encoded; remaining {@code ..} is rejected.
+ */
+async function readVirtualPreviewHomeHtml(page, siteName) {
+  const statusUrl = `${BASE_URL}/Rhythmyx/services/sites/${encodeURIComponent(siteName)}/virtual/preview`;
+  const statusResp = await page.request.get(statusUrl);
+  const statusBody = await statusResp.text();
+  expect(
+    statusResp.ok(),
+    `GET /virtual/preview HTTP ${statusResp.status()}: ${statusBody}`,
+  ).toBeTruthy();
+  let statusJson = {};
+  try {
+    statusJson = JSON.parse(statusBody);
+  } catch {
+    throw new Error(`Preview status was not JSON: ${statusBody}`);
+  }
+  const statusRoot =
+    statusJson.VirtualSitePreviewStatus ||
+    statusJson.virtualSitePreviewStatus ||
+    statusJson;
+  expect(
+    statusRoot.available === true || statusRoot.available === "true",
+    `preview available: ${statusBody}`,
+  ).toBeTruthy();
+  const homePath = String(statusRoot.homePath || "")
+    .replace(/\\/g, "/")
+    .replace(/^\/+/, "");
+  expect(homePath, `homePath in ${statusBody}`).toMatch(/index\.html$/);
+  const fileUrl = `${BASE_URL}/Rhythmyx/services/sites/${encodeURIComponent(siteName)}/virtual/preview/${homePath
+    .split("/")
+    .filter((seg) => seg.length > 0 && seg !== "." && seg !== "..")
+    .map((seg) => encodeURIComponent(seg))
+    .join("/")}`;
+  const fileResp = await page.request.get(fileUrl);
+  const html = await fileResp.text();
+  expect(
+    fileResp.ok(),
+    `GET preview home HTTP ${fileResp.status()} ${fileUrl}: ${html.slice(0, 400)}`,
+  ).toBeTruthy();
+  return html;
 }
 
 test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => {
@@ -5979,6 +6029,138 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       html,
       "assembled sitemap-xml home HTML should contain fixture title or body",
     ).toMatch(/Sitemap Home|Hello from sitemap/);
+
+    await kind.selectOption("repository");
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
+
+  test("sitemap-xml live rebuild after in-cell sitemap.xml edit without Jetty restart (#4188)", async ({
+    page,
+  }) => {
+    test.setTimeout(180_000);
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+    page.on("console", (msg) => {
+      if (msg.type() !== "error") {
+        return;
+      }
+      const text = msg.text();
+      if (/Failed to load resource:.*404/.test(text)) {
+        return;
+      }
+      pageErrors.push(text);
+    });
+
+    const sitemapRoot = deploySitemapXmlVirtualFixtureToQaCell();
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      throw new Error("No sites in catalog — live sitemap-xml rebuild requires a site row");
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const siteName = (
+      await page.locator('[data-testid="developer-site-detail-title"]').textContent()
+    ).trim();
+    expect(siteName, "Site detail title required for preview URL").toBeTruthy();
+
+    const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
+    await kind.selectOption("sitemap-xml");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-sitemap-xml-hint"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill(sitemapRoot);
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+
+    const firstBuildPromise = page.waitForResponse(
+      (resp) =>
+        resp.request().method() === "POST" && /\/virtual\/build(\?|$)/.test(resp.url()),
+    );
+    await page.locator('[data-testid="developer-site-virtual-build"]').click();
+    const firstBuildResp = await firstBuildPromise;
+    const firstBuildBody = await firstBuildResp.text();
+    expect(
+      firstBuildResp.ok(),
+      `first POST /virtual/build HTTP ${firstBuildResp.status()}: ${firstBuildBody}`,
+    ).toBeTruthy();
+    await expect(page.locator('[data-testid="developer-site-virtual-build-success"]')).toBeVisible({
+      timeout: 60_000,
+    });
+    const firstPagesText = (
+      await page.locator('[data-testid="developer-site-virtual-build-pages"]').textContent()
+    ).trim();
+    const firstPages = Number.parseInt(firstPagesText, 10);
+    expect(firstPages, `first pages written: ${firstPagesText}`).toBeGreaterThan(0);
+    const firstHtml = await readVirtualPreviewHomeHtml(page, siteName);
+    expect(firstHtml, "first assemble should include the original fixture body").toContain(
+      SITEMAP_XML_VIRTUAL_BUILD_MARKER,
+    );
+    expect(firstHtml).not.toContain(SITEMAP_XML_VIRTUAL_REBUILD_MARKER);
+
+    copySitemapXmlRebuildIntoQaCell();
+
+    const secondBuildPromise = page.waitForResponse(
+      (resp) =>
+        resp.request().method() === "POST" && /\/virtual\/build(\?|$)/.test(resp.url()),
+    );
+    await page.locator('[data-testid="developer-site-virtual-build"]').click();
+    const secondBuildResp = await secondBuildPromise;
+    const secondBuildBody = await secondBuildResp.text();
+    expect(
+      secondBuildResp.ok(),
+      `second POST /virtual/build HTTP ${secondBuildResp.status()}: ${secondBuildBody}`,
+    ).toBeTruthy();
+    await expect(page.locator('[data-testid="developer-site-virtual-build-success"]')).toBeVisible({
+      timeout: 60_000,
+    });
+    const secondPagesText = (
+      await page.locator('[data-testid="developer-site-virtual-build-pages"]').textContent()
+    ).trim();
+    const secondPages = Number.parseInt(secondPagesText, 10);
+    expect(secondPages, `second pages written: ${secondPagesText}`).toBeGreaterThan(firstPages);
+    const secondHtml = await readVirtualPreviewHomeHtml(page, siteName);
+    expect(secondHtml, "second assemble should include the edited sitemap page body").toContain(
+      SITEMAP_XML_VIRTUAL_REBUILD_MARKER,
+    );
+    expect(secondHtml).toContain(`Last modified: ${SITEMAP_XML_VIRTUAL_REBUILD_LASTMOD}`);
+    expect(secondHtml).not.toContain(SITEMAP_XML_VIRTUAL_BUILD_MARKER);
+    expect(secondHtml).not.toBe(firstHtml);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
 
     await kind.selectOption("repository");
     await page.locator('[data-testid="developer-site-virtual-save"]').click();
