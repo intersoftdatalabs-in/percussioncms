@@ -24,10 +24,10 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Design-time relationship type (PSRelationshipConfig) catalog projection. */
+/** Design-time relationship type (PSRelationshipConfig) catalog / Admin write projection. */
 @XmlRootElement(name = "RelationshipType")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Relationship type design object (read-only catalog)")
+@Schema(description = "Relationship type design object (catalog + Admin user-type write)")
 public class RelationshipType {
 
   @Schema(description = "Relationship type GUID")
@@ -45,7 +45,7 @@ public class RelationshipType {
   @Schema(description = "Type discriminator (system or user)")
   private String type;
 
-  @Schema(description = "Category code (e.g. rs_activeassembly)")
+  @Schema(description = "Category code (e.g. rs_activeassembly) or label (e.g. Active Assembly)")
   private String category;
 
   @Schema(description = "Human-readable category label when known")
@@ -66,6 +66,12 @@ public class RelationshipType {
   @Schema(description = "Use dependent revision flag")
   private boolean useDependentRevision;
 
+  @Schema(
+      description =
+          "On POST only: name or GUID of an existing type to copy mutable fields from"
+              + " (Workbench copy-from-system). Ignored on GET/PUT.")
+  private String copyFrom;
+
   @Schema(description = "Conditional effects")
   private List<RelationshipTypeEffect> effects = new ArrayList<>();
 
@@ -77,9 +83,8 @@ public class RelationshipType {
 
   @Schema(
       description =
-          "Honest design gaps for this read-only surface. Present on detail GET; typically"
-              + " omitted on list rows to avoid repeating the same catalog-level array"
-              + " (REST-GAPS-02)")
+          "Honest design gaps for this surface. Present on detail GET; typically omitted on"
+              + " list rows to avoid repeating the same catalog-level array (REST-GAPS-02)")
   private List<String> designGaps = new ArrayList<>();
 
   public RelationshipType() {}
@@ -178,6 +183,14 @@ public class RelationshipType {
 
   public void setUseDependentRevision(boolean useDependentRevision) {
     this.useDependentRevision = useDependentRevision;
+  }
+
+  public String getCopyFrom() {
+    return copyFrom;
+  }
+
+  public void setCopyFrom(String copyFrom) {
+    this.copyFrom = copyFrom;
   }
 
   public List<RelationshipTypeEffect> getEffects() {

@@ -19,7 +19,12 @@ package com.percussion.rest.relationshiptypes;
 
 import java.util.List;
 
-/** Adaptor for relationship type design catalog (SY-03 read). */
+/**
+ * Adaptor for relationship type design catalog and Admin user-type write (SY-03).
+ *
+ * <p>Write methods persist <strong>user</strong> relationship types through {@code
+ * IPSSystemDesignWs}. System relationship types are immutable.
+ */
 public interface IRelationshipTypeAdaptor {
 
   /**
@@ -36,4 +41,30 @@ public interface IRelationshipTypeAdaptor {
    * @return type, or null when not found / unsafe key
    */
   RelationshipType findRelationshipType(String idOrName);
+
+  /**
+   * Admin. Create a user relationship type, optionally copying mutable fields from an existing
+   * type ({@code copyFrom}).
+   *
+   * @param body required; {@code name} required; {@code category} or {@code copyFrom} required
+   * @return the persisted relationship type
+   */
+  RelationshipType createRelationshipType(RelationshipType body);
+
+  /**
+   * Admin. Update mutable fields of a user relationship type. Does not mutate system types.
+   *
+   * @param idOrName name or GUID string (same rules as {@link #findRelationshipType})
+   * @param body required writable fields
+   * @return the persisted type, or {@code null} when missing/unsafe
+   */
+  RelationshipType updateRelationshipType(String idOrName, RelationshipType body);
+
+  /**
+   * Admin. Delete a user relationship type. Does not mutate system types.
+   *
+   * @param idOrName name or GUID string (same rules as {@link #findRelationshipType})
+   * @return {@code true} when deleted, {@code false} when missing/unsafe
+   */
+  boolean deleteRelationshipType(String idOrName);
 }

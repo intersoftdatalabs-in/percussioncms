@@ -4,7 +4,9 @@
 
 package com.percussion.apibridge;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Tag;
@@ -24,5 +26,16 @@ class RelationshipTypeAdaptorSafeKeyTest {
     assertFalse(RelationshipTypeAdaptor.isSafeRelationshipTypeKey("   "));
     assertFalse(RelationshipTypeAdaptor.isSafeRelationshipTypeKey("a\u0000b"));
     assertFalse(RelationshipTypeAdaptor.isSafeRelationshipTypeKey(null));
+  }
+
+  @Test
+  void requireValidName_rejectsWhitespaceAndWildcards() {
+    assertEquals("MyRel", RelationshipTypeAdaptor.requireValidName("MyRel"));
+    assertThrows(
+        IllegalArgumentException.class, () -> RelationshipTypeAdaptor.requireValidName(" "));
+    assertThrows(
+        IllegalArgumentException.class, () -> RelationshipTypeAdaptor.requireValidName("My Rel"));
+    assertThrows(
+        IllegalArgumentException.class, () -> RelationshipTypeAdaptor.requireValidName("My*Rel"));
   }
 }
