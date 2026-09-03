@@ -81,6 +81,9 @@ class CatalogRestJaxrsRegistrationTest {
   /** Admin action-menu create POST #4123 — must precede jacksonProvider. */
   private static final String ACTION_MENU_JSON_READER = "actionMenuJsonReader";
 
+  /** UI-04 children PUT #4204 — must precede jacksonProvider. */
+  private static final String ACTION_MENU_LIST_JSON_READER = "actionMenuListJsonReader";
+
   /** CD-18 auto-translation PUT wrap / bare array (#4028) — must precede jacksonProvider. */
   private static final String AUTO_TRANSLATION_ROWS_JSON_READER =
       "autoTranslationRowsJsonReader";
@@ -140,6 +143,8 @@ class CatalogRestJaxrsRegistrationTest {
     int addFolderReader = providerBlock.indexOf("bean=\"" + ADD_FOLDER_JSON_READER + "\"");
     int findTypesReader = providerBlock.indexOf("bean=\"" + FIND_TYPES_JSON_READER + "\"");
     int actionMenuReader = providerBlock.indexOf("bean=\"" + ACTION_MENU_JSON_READER + "\"");
+    int actionMenuListReader =
+        providerBlock.indexOf("bean=\"" + ACTION_MENU_LIST_JSON_READER + "\"");
     int autoTranslationReader =
         providerBlock.indexOf("bean=\"" + AUTO_TRANSLATION_ROWS_JSON_READER + "\"");
     int displayFormatReader =
@@ -186,6 +191,11 @@ class CatalogRestJaxrsRegistrationTest {
             + ACTION_MENU_JSON_READER
             + " (missing → Admin POST /actions JAXB allowedWorkflowTransitionsRequest)");
     assertTrue(
+        actionMenuListReader >= 0,
+        "rest-jax-rs providers must ref "
+            + ACTION_MENU_LIST_JSON_READER
+            + " (missing → Admin PUT /actions/{id}/children ArrayList / bare array 400)");
+    assertTrue(
         autoTranslationReader >= 0,
         "rest-jax-rs providers must ref "
             + AUTO_TRANSLATION_ROWS_JSON_READER
@@ -221,11 +231,18 @@ class CatalogRestJaxrsRegistrationTest {
         actionMenuReader < jackson,
         ACTION_MENU_JSON_READER + " must be listed before jacksonProvider");
     assertTrue(
+        actionMenuListReader < jackson,
+        ACTION_MENU_LIST_JSON_READER + " must be listed before jacksonProvider");
+    assertTrue(
         autoTranslationReader < jackson,
         AUTO_TRANSLATION_ROWS_JSON_READER + " must be listed before jacksonProvider");
     assertTrue(
         displayFormatReader < jackson,
         DISPLAY_FORMAT_JSON_READER + " must be listed before jacksonProvider");
+    assertTrue(
+        restBlock.contains("skip.default.json.provider.registration\" value=\"true\""),
+        "rest-jax-rs must skip Jettison JSONProvider with value=\"true\" (POST /actions JAXB "
+            + "allowedWorkflowTransitionsRequest)");
   }
 
   private static Path resolveRepoRoot() {

@@ -7,6 +7,7 @@ import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
 import {
+  createActionMenu,
   deleteActionMenu,
   getActionMenuDetail,
   listActionMenus,
@@ -44,6 +45,7 @@ vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
 
 const listMock = vi.mocked(listActionMenus);
 const detailMock = vi.mocked(getActionMenuDetail);
+const createMock = vi.mocked(createActionMenu);
 const deleteMock = vi.mocked(deleteActionMenu);
 
 const sampleMenu = {
@@ -72,6 +74,7 @@ describe("ActionMenusPanel", () => {
     };
     listMock.mockReset();
     detailMock.mockReset();
+    createMock.mockReset();
     deleteMock.mockReset();
   });
 
@@ -88,6 +91,7 @@ describe("ActionMenusPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-am-detail")).toBeTruthy();
     });
+    fireEvent.click(screen.getByTestId("developer-am-tab-command"));
     expect(screen.getByTestId("developer-am-params-table")).toBeTruthy();
     expect(screen.getByTestId("developer-am-save")).toBeTruthy();
     expect(screen.getByTestId("developer-am-delete")).toBeTruthy();
@@ -107,6 +111,43 @@ describe("ActionMenusPanel", () => {
     expect(screen.getByTestId("developer-am-detail")).toBeTruthy();
     expect(screen.getByTestId("developer-am-save")).toBeDisabled();
     expect(detailMock).not.toHaveBeenCalled();
+  });
+
+  it("lists the created user menu after save and back", async () => {
+    const created = {
+      name: "MyMenu",
+      label: "My Menu",
+      menuType: "MENUITEM",
+    };
+    listMock.mockResolvedValueOnce([]).mockResolvedValue([created]);
+    createMock.mockResolvedValue(created);
+    render(<ActionMenusPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-empty")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-am-new"));
+    fireEvent.change(screen.getByTestId("developer-am-name"), {
+      target: { value: "MyMenu" },
+    });
+    fireEvent.change(screen.getByTestId("developer-am-label"), {
+      target: { value: "My Menu" },
+    });
+    fireEvent.click(screen.getByTestId("developer-am-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-editor-notice")).toBeTruthy();
+    });
+    expect(createMock).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "MyMenu", label: "My Menu" }),
+    );
+    await waitFor(() => {
+      expect(listMock.mock.calls.length).toBeGreaterThanOrEqual(2);
+    });
+    fireEvent.click(screen.getByTestId("developer-am-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-am-table").textContent).toContain("MyMenu");
+    expect(screen.getByTestId("developer-am-open").getAttribute("data-am-name")).toBe("MyMenu");
   });
 
   it("shows empty state when API returns no action menus", async () => {
@@ -154,7 +195,7 @@ describe("ActionMenusPanel", () => {
   });
 
   it("shows deleted notice on the catalog after delete", async () => {
-    listMock.mockResolvedValue([sampleMenu]);
+    listMock.mockResolvedValueOnce([sampleMenu]).mockResolvedValue([]);
     detailMock.mockResolvedValue(sampleDetail);
     deleteMock.mockResolvedValue(undefined);
     render(<ActionMenusPanel />);
@@ -172,6 +213,10 @@ describe("ActionMenusPanel", () => {
     });
     expect(screen.getByTestId("developer-am-list-notice").textContent).toBe(DEV_MSG.AM_DELETED);
     expect(screen.getByTestId("developer-am-panel")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-empty")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-am-open")).toBeNull();
   });
 
   it("shows fallback when rejection has no message", async () => {

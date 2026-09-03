@@ -90,6 +90,8 @@ community and **delete** one that is not in use, without Workbench.
   catalog. An in-use community (dependencies) is **409** and remains — the
   SPA does not send `ignoredependencies` and does not steal.
 - Role membership on the same detail panel is unchanged (**Save roles**).
+  **New-search defaults** on the same panel assigns Content Explorer searches
+  offered as new search for that community.
   Session **Switch** in the header is a separate membership list; it is not
   this catalog.
 

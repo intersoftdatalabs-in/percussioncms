@@ -27,6 +27,7 @@ import com.percussion.cms.objectstore.PSDisplayFormat;
 import com.percussion.cms.objectstore.PSDFColumns;
 import com.percussion.cms.objectstore.PSDFMultiProperty;
 import com.percussion.cms.objectstore.PSKey;
+import com.percussion.cms.objectstore.PSMenuChild;
 import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.cms.objectstore.PSVersionableDbComponent;
 import com.percussion.data.PSIdGenerator;
@@ -2979,6 +2980,106 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          ensureRestUserMenuProperty(conn, spec.actionId);
       else
          clearRestUserMenuProperty(conn, spec.actionId);
+      persistActionRelationsOn(conn, action);
+   }
+
+   /**
+    * Rewrite {@code RXMENUACTIONRELATION} for a parent whose child collection is dirty so GET
+    * {@code findActionMenusTree} round-trips REST children PUT on the H2 JDBC fallback path
+    * (locator {@code updateActions} can skip the XML graph). Unmodified empty children are
+    * skipped so label PUT does not wipe existing associations.
+    *
+    * <p>When the connection is autocommit (typical H2 {@code DriverManager} tests and some
+    * pool checkouts), delete + inserts + sort updates run in one explicit transaction so a
+    * mid-loop {@code SQLException} does not leave an empty relation set or a partial
+    * {@code SORTORDER} chain. When autocommit is already false (Hibernate {@code doWork}
+    * inside an open transaction), this method does not commit or rollback.
+    */
+   static void persistActionRelationsOn(Connection conn, PSAction action) throws SQLException
+   {
+      if (conn == null || action == null || action.getChildren() == null)
+         return;
+      if (action.getChildren().getState() == IPSDbComponent.DBSTATE_UNMODIFIED)
+         return;
+      int parentId = action.getId();
+      if (parentId <= 0)
+         return;
+      boolean startedTx = false;
+      boolean previousAutoCommit = conn.getAutoCommit();
+      if (previousAutoCommit)
+      {
+         conn.setAutoCommit(false);
+         startedTx = true;
+      }
+      try
+      {
+         try (PreparedStatement del =
+                   conn.prepareStatement("DELETE FROM RXMENUACTIONRELATION WHERE ACTIONID = ?");
+              PreparedStatement ins =
+                   conn.prepareStatement(
+                         "INSERT INTO RXMENUACTIONRELATION (ACTIONID, CHILDACTIONID) VALUES (?, ?)");
+              PreparedStatement sortPs =
+                   conn.prepareStatement("UPDATE RXMENUACTION SET SORTORDER = ? WHERE ACTIONID = ?"))
+         {
+            del.setInt(1, parentId);
+            del.executeUpdate();
+            int sort = 1;
+            Iterator<?> it = action.getChildren().iterator();
+            while (it.hasNext())
+            {
+               int childId = relationChildId(it.next());
+               if (childId <= 0)
+                  continue;
+               ins.setInt(1, parentId);
+               ins.setInt(2, childId);
+               ins.executeUpdate();
+               sortPs.setInt(1, sort);
+               sortPs.setInt(2, childId);
+               sortPs.executeUpdate();
+               sort++;
+            }
+         }
+         if (startedTx)
+            conn.commit();
+      }
+      catch (SQLException e)
+      {
+         if (startedTx)
+         {
+            try
+            {
+               conn.rollback();
+            }
+            catch (SQLException rollbackEx)
+            {
+               e.addSuppressed(rollbackEx);
+            }
+         }
+         throw e;
+      }
+      finally
+      {
+         if (startedTx)
+            conn.setAutoCommit(true);
+      }
+   }
+
+   static int relationChildId(Object node)
+   {
+      if (node instanceof PSMenuChild child)
+      {
+         try
+         {
+            return Integer.parseInt(StringUtils.trimToEmpty(child.getChildActionId()));
+         }
+         catch (NumberFormatException e)
+         {
+            return -1;
+         }
+      }
+      if (node instanceof PSAction child)
+         return child.getId();
+      return -1;
    }
 
    static void ensureActionRowPersisted(PSAction action)

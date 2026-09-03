@@ -176,6 +176,40 @@ class PSUiDesignWsActionPersistTest {
         ins.setString(2, "sys_contentid");
         ins.executeUpdate();
       }
+      PSAction parent = newAction(2048, "QaH2Am");
+      parent.setLabel("QA H2 AM");
+      PSAction childA = newAction(3001, "ChildA");
+      childA.setLabel("Child A");
+      PSAction childB = newAction(3002, "ChildB");
+      childB.setLabel("Child B");
+      PSUiDesignWs.insertActionRow(conn, PSUiDesignWs.actionRowSpec(childA));
+      PSUiDesignWs.insertActionRow(conn, PSUiDesignWs.actionRowSpec(childB));
+      parent.getChildren().add(childA);
+      parent.getChildren().add(childB);
+      PSUiDesignWs.persistActionRelationsOn(conn, parent);
+      try (var rs =
+          conn.prepareStatement(
+                  "SELECT CHILDACTIONID FROM RXMENUACTIONRELATION WHERE ACTIONID = 2048 ORDER BY CHILDACTIONID")
+              .executeQuery()) {
+        assertTrue(rs.next());
+        assertEquals(3001, rs.getInt(1));
+        assertTrue(rs.next());
+        assertEquals(3002, rs.getInt(1));
+        assertFalse(rs.next());
+      }
+      try (var rs =
+          conn.prepareStatement("SELECT SORTORDER FROM RXMENUACTION WHERE ACTIONID = 3001")
+              .executeQuery()) {
+        assertTrue(rs.next());
+        assertEquals(1, rs.getInt(1));
+      }
+      try (var rs =
+          conn.prepareStatement("SELECT SORTORDER FROM RXMENUACTION WHERE ACTIONID = 3002")
+              .executeQuery()) {
+        assertTrue(rs.next());
+        assertEquals(2, rs.getInt(1));
+      }
+
       PSUiDesignWs.deleteActionRow(conn, spec.actionId);
       assertFalse(PSUiDesignWs.actionRowExists(conn, spec.actionId, spec.name));
       assertTrue(PSUiDesignWs.actionRowExists(conn, 2049, "Victim"));
@@ -202,6 +236,66 @@ class PSUiDesignWsActionPersistTest {
 
     unpersisted.getProperties().setProperty(PSUiDesignWs.REST_USER_MENU_PROP, PSAction.YES);
     assertTrue(PSUiDesignWs.actionRowSpec(unpersisted).restUserMenu);
+  }
+
+  @Test
+  void persistActionRelationsOn_rollsBackWhenInsertFails() throws Exception {
+    String url = "jdbc:h2:mem:issue4212relations" + System.nanoTime();
+    try (Connection conn = DriverManager.getConnection(url);
+        Statement st = conn.createStatement()) {
+      assertTrue(conn.getAutoCommit());
+      st.execute(
+          "CREATE TABLE RXMENUACTION ("
+              + "ACTIONID INTEGER NOT NULL PRIMARY KEY,"
+              + "NAME VARCHAR(50) NOT NULL,"
+              + "DISPLAYNAME VARCHAR(50) NOT NULL,"
+              + "DESCRIPTION VARCHAR(255),"
+              + "URL VARCHAR(4000),"
+              + "SORTORDER INTEGER,"
+              + "TYPE VARCHAR(50),"
+              + "HANDLER VARCHAR(50),"
+              + "VERSION INTEGER NOT NULL)");
+      st.execute(
+          "CREATE TABLE RXMENUACTIONRELATION ("
+              + "ACTIONID INTEGER NOT NULL,"
+              + "CHILDACTIONID INTEGER NOT NULL,"
+              + "CONSTRAINT chk_child CHECK (CHILDACTIONID < 9000))");
+
+      PSAction parent = newAction(2048, "QaH2Am");
+      parent.setLabel("QA H2 AM");
+      PSAction childA = newAction(3001, "ChildA");
+      childA.setLabel("Child A");
+      PSAction childB = newAction(3002, "ChildB");
+      childB.setLabel("Child B");
+      PSUiDesignWs.insertActionRow(conn, PSUiDesignWs.actionRowSpec(parent));
+      PSUiDesignWs.insertActionRow(conn, PSUiDesignWs.actionRowSpec(childA));
+      PSUiDesignWs.insertActionRow(conn, PSUiDesignWs.actionRowSpec(childB));
+      parent.getChildren().add(childA);
+      parent.getChildren().add(childB);
+      PSUiDesignWs.persistActionRelationsOn(conn, parent);
+      assertEquals(2, relationCount(conn, 2048));
+      assertTrue(conn.getAutoCommit());
+
+      PSAction badChild = newAction(9001, "TooBig");
+      badChild.setLabel("Too big");
+      PSUiDesignWs.insertActionRow(conn, PSUiDesignWs.actionRowSpec(badChild));
+      PSAction retry = newAction(2048, "QaH2Am");
+      retry.getChildren().add(childA);
+      retry.getChildren().add(badChild);
+      assertThrows(SQLException.class, () -> PSUiDesignWs.persistActionRelationsOn(conn, retry));
+      assertTrue(conn.getAutoCommit());
+      assertEquals(2, relationCount(conn, 2048));
+      try (var rs =
+          conn.prepareStatement(
+                  "SELECT CHILDACTIONID FROM RXMENUACTIONRELATION WHERE ACTIONID = 2048 ORDER BY CHILDACTIONID")
+              .executeQuery()) {
+        assertTrue(rs.next());
+        assertEquals(3001, rs.getInt(1));
+        assertTrue(rs.next());
+        assertEquals(3002, rs.getInt(1));
+        assertFalse(rs.next());
+      }
+    }
   }
 
   @Test
@@ -320,8 +414,21 @@ class PSUiDesignWsActionPersistTest {
               + "VERSION INTEGER NOT NULL)");
       st.execute(
           "CREATE TABLE RXMENUACTIONPROPERTIES (ACTIONID INTEGER NOT NULL, PROPNAME VARCHAR(100) NOT NULL, PROPVALUE VARCHAR(4000), DESCRIPTION VARCHAR(255), PRIMARY KEY (ACTIONID, PROPNAME))");
+      st.execute(
+          "CREATE TABLE RXMENUACTIONRELATION (ACTIONID INTEGER NOT NULL, CHILDACTIONID INTEGER NOT NULL)");
     }
     return conn;
+  }
+
+  private static int relationCount(Connection conn, int parentId) throws SQLException {
+    try (var ps =
+        conn.prepareStatement("SELECT COUNT(*) FROM RXMENUACTIONRELATION WHERE ACTIONID = ?")) {
+      ps.setInt(1, parentId);
+      try (var rs = ps.executeQuery()) {
+        assertTrue(rs.next());
+        return rs.getInt(1);
+      }
+    }
   }
 
   private static boolean propertyExists(Connection conn, int actionId) throws SQLException {

@@ -19,21 +19,27 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { isApiError } from "../api/client";
 import {
+  asCommunityNewSearchRefs,
   communityGuidForWrite,
   createCommunity,
   deleteCommunity,
   getCommunityDetail,
+  getCommunityNewSearchDefaults,
   getCommunityVisibility,
   isCommunityWriteReady,
   listAvailableRoles,
+  replaceCommunityNewSearchDefaults,
   updateCommunityRoles,
 } from "../api/developer/assemblyApi";
+import { listSearches } from "../api/developer/searchesApi";
 import type {
   CommunityDetail,
+  CommunityNewSearchRef,
   CommunityRoleSummary,
   CommunitySummary,
   CommunityVisibleObject,
   RestGuid,
+  SearchDef,
 } from "../api/developer/types";
 import {
   catalogColors,
@@ -44,13 +50,23 @@ import {
   tableHeaderRow,
   tableRow,
 } from "./catalogStyles";
+import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
+import {
+  collectSearchRefKeys,
+  mergeSearchPickerRows,
+  searchRefIsSelected,
+  searchRefPrimaryKey,
+  selectedPickerPrimaryKeys,
+  sameSearchKeySet,
+  toNewSearchWriteRefs,
+  toggleSearchRefSelection,
+} from "./communityNewSearchDefaults";
 import {
   COMMUNITY_VISIBILITY_TYPE_OPTIONS,
   filterVisibleObjects,
   visibilityEmptyKind,
   visibilitySummaryCounts,
 } from "./communityVisibilityFilters";
-import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -141,6 +157,29 @@ function deleteFallback(err: unknown): string {
   return DEV_MSG.COMM_DELETE_ERROR;
 }
 
+function nsdLoadFallback(err: unknown): string {
+  if (!isApiError(err)) return DEV_MSG.COMM_NSD_ERROR;
+  if (err.status === 403) return DEV_MSG.COMM_FORBIDDEN;
+  if (err.status === 404) return DEV_MSG.COMM_MISSING;
+  return DEV_MSG.COMM_NSD_ERROR;
+}
+
+function nsdSaveFallback(err: unknown): string {
+  if (!isApiError(err)) return DEV_MSG.COMM_NSD_SAVE_ERROR;
+  if (err.status === 403) return DEV_MSG.COMM_FORBIDDEN;
+  if (err.status === 400) return DEV_MSG.COMM_NSD_UNKNOWN_SEARCH;
+  if (err.status === 409) return DEV_MSG.COMM_NSD_LOCK;
+  if (err.status === 404) return DEV_MSG.COMM_MISSING;
+  return DEV_MSG.COMM_NSD_SAVE_ERROR;
+}
+
+function formatSavedNsdNotice(searchCount: number): string {
+  if (searchCount === 0) {
+    return DEV_MSG.COMM_NSD_CLEARED;
+  }
+  return DEV_MSG.COMM_NSD_SAVED_COUNT.replace("{0}", String(searchCount));
+}
+
 function resolveCommunityGuid(
   detail: CommunityDetail | null,
   fallback?: RestGuid | null,
@@ -178,7 +217,47 @@ export function CommunityDetailPanel({
   const [communityGuid, setCommunityGuid] = useState<RestGuid | null>(null);
   /** Monotonic id so stale visibility responses (type filter / remount) are ignored. */
   const visibilityReqId = useRef(0);
+  const nsdReqId = useRef(0);
+  const [searchCatalog, setSearchCatalog] = useState<CommunityNewSearchRef[]>([]);
+  const [nsdSelectedKeys, setNsdSelectedKeys] = useState<Set<string>>(new Set());
+  const [nsdInitialKeys, setNsdInitialKeys] = useState<Set<string>>(new Set());
+  const [nsdLoading, setNsdLoading] = useState(false);
+  const [nsdError, setNsdError] = useState<string | null>(null);
   const inflight = useRef(false);
+
+  const applyNewSearchDefaults = useCallback(
+    (assigned: CommunityNewSearchRef[], catalog: SearchDef[]) => {
+      const picker = mergeSearchPickerRows(catalog, assigned);
+      const selected = collectSearchRefKeys(assigned);
+      setSearchCatalog(picker);
+      setNsdSelectedKeys(selected);
+      setNsdInitialKeys(selectedPickerPrimaryKeys(picker, selected));
+    },
+    [],
+  );
+
+  const loadNewSearchDefaults = useCallback(
+    (key: string) => {
+      const req = ++nsdReqId.current;
+      setNsdLoading(true);
+      setNsdError(null);
+      Promise.all([getCommunityNewSearchDefaults(key), listSearches()])
+        .then(([defaults, catalog]) => {
+          if (req !== nsdReqId.current) return;
+          applyNewSearchDefaults(asCommunityNewSearchRefs(defaults.searches), catalog);
+          setNsdLoading(false);
+        })
+        .catch((err: unknown) => {
+          if (req !== nsdReqId.current) return;
+          setNsdLoading(false);
+          setSearchCatalog([]);
+          setNsdSelectedKeys(new Set());
+          setNsdInitialKeys(new Set());
+          setNsdError(panelErrMsg(err, nsdLoadFallback(err)));
+        });
+    },
+    [applyNewSearchDefaults],
+  );
 
   const loadVisibility = useCallback((guid: RestGuid, objectType: string) => {
     const req = ++visibilityReqId.current;
@@ -214,6 +293,12 @@ export function CommunityDetailPanel({
     setCommunityGuid(null);
     setTypeFilter("");
     setNameFilter("");
+    nsdReqId.current += 1;
+    setSearchCatalog([]);
+    setNsdSelectedKeys(new Set());
+    setNsdInitialKeys(new Set());
+    setNsdError(null);
+    setNsdLoading(true);
     Promise.all([getCommunityDetail(idOrName), listAvailableRoles()])
       .then(([d, roles]) => {
         if (cancelled) return;
@@ -242,16 +327,19 @@ export function CommunityDetailPanel({
         } else {
           setVisibilityError(DEV_MSG.COMM_VISIBILITY_NO_GUID);
         }
+        loadNewSearchDefaults(d.name || idOrName);
       })
       .catch((err: unknown) => {
         if (cancelled) return;
+        setNsdLoading(false);
         setError(panelErrMsg(err, DEV_MSG.COMM_DETAIL_ERROR));
       });
     return () => {
       cancelled = true;
       visibilityReqId.current += 1;
+      nsdReqId.current += 1;
     };
-  }, [idOrName]);
+  }, [idOrName, loadNewSearchDefaults]);
 
   const initialKeys = useMemo(
     () =>
@@ -265,6 +353,10 @@ export function CommunityDetailPanel({
   const dirty =
     selectedKeys.size !== initialKeys.size ||
     [...selectedKeys].some((k) => !initialKeys.has(k));
+  const nsdDirty = !sameSearchKeySet(
+    selectedPickerPrimaryKeys(searchCatalog, nsdSelectedKeys),
+    nsdInitialKeys,
+  );
 
   const displayedObjects = useMemo(
     () => filterVisibleObjects(visibleObjects, nameFilter),
@@ -329,6 +421,7 @@ export function CommunityDetailPanel({
     } else {
       setVisibilityError(DEV_MSG.COMM_VISIBILITY_NO_GUID);
     }
+    loadNewSearchDefaults(d.name || key);
   }
 
   async function handleCreate(): Promise<void> {
@@ -354,6 +447,7 @@ export function CommunityDetailPanel({
       } catch {
         setDetail(created as CommunityDetail);
         setCommunityGuid(communityGuidForWrite(created));
+        loadNewSearchDefaults(key);
       }
       setNotice(DEV_MSG.COMM_CREATED);
       onSaved?.(created);
@@ -418,6 +512,34 @@ export function CommunityDetailPanel({
       onSaved?.(saved);
     } catch (err: unknown) {
       setError(panelErrMsg(err, DEV_MSG.COMM_ROLES_SAVE_ERROR));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  function toggleNsd(row: CommunityNewSearchRef) {
+    setNsdSelectedKeys((prev) => toggleSearchRefSelection(row, prev));
+    setNotice(null);
+  }
+
+  async function handleSaveNsd() {
+    if (!writeKey || inflight.current) return;
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    setNsdError(null);
+    const body = toNewSearchWriteRefs(searchCatalog, nsdSelectedKeys);
+    try {
+      const saved = await replaceCommunityNewSearchDefaults(writeKey, body);
+      const assigned = asCommunityNewSearchRefs(saved.searches);
+      const selected = collectSearchRefKeys(assigned);
+      setNsdSelectedKeys(selected);
+      setNsdInitialKeys(selectedPickerPrimaryKeys(searchCatalog, selected));
+      setNotice(formatSavedNsdNotice(assigned.length));
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, nsdSaveFallback(err)));
     } finally {
       inflight.current = false;
       setBusy(false);
@@ -638,6 +760,97 @@ export function CommunityDetailPanel({
                 }}
               >
                 {DEV_MSG.COMM_ROLES_SAVE}
+              </button>
+            </div>
+          </section>
+
+          <section style={{ marginBottom: "16px" }} data-testid="developer-comm-nsd">
+            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.COMM_NSD}</h3>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+              {DEV_MSG.COMM_NSD_HINT}
+            </p>
+            {nsdDirty ? (
+              <div data-testid="developer-comm-nsd-dirty" style={dirtyNoticeStyle}>
+                {DEV_MSG.COMM_NSD_DIRTY}
+              </div>
+            ) : null}
+            {nsdLoading ? (
+              <div data-testid="developer-comm-nsd-loading">{DEV_MSG.COMM_NSD_LOADING}</div>
+            ) : null}
+            {nsdError ? (
+              <div
+                role="alert"
+                data-testid="developer-comm-nsd-error"
+                style={errorAlert}
+              >
+                {nsdError}
+              </div>
+            ) : null}
+            {!nsdLoading && !nsdError && searchCatalog.length === 0 ? (
+              <p data-testid="developer-comm-nsd-empty" style={{ color: catalogColors.empty }}>
+                {DEV_MSG.COMM_NSD_EMPTY}
+              </p>
+            ) : null}
+            {!nsdLoading && !nsdError && searchCatalog.length > 0 ? (
+              <div style={{ overflowX: "auto" }}>
+                <table
+                  data-testid="developer-comm-nsd-table"
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  <thead>
+                    <tr style={tableHeaderRow}>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.COMM_NSD_COL_INCLUDE}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.COMM_NSD_COL_NAME}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.COMM_NSD_COL_LABEL}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {searchCatalog.map((row, i) => {
+                      const key = searchRefPrimaryKey(row) || `nsd-idx:${i}`;
+                      const checked = searchRefIsSelected(row, nsdSelectedKeys);
+                      return (
+                        <tr key={key} style={tableRow}>
+                          <td style={{ padding: "8px" }}>
+                            <input
+                              type="checkbox"
+                              data-testid={`developer-comm-nsd-check-${key}`}
+                              checked={checked}
+                              onChange={() => toggleNsd(row)}
+                              aria-label={`Include search ${row.name || row.label || key}`}
+                            />
+                          </td>
+                          <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                            {row.name || "—"}
+                          </td>
+                          <td style={{ padding: "8px" }}>{row.label || "—"}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
+            <div style={{ marginTop: "12px", display: "flex", gap: "8px", alignItems: "center" }}>
+              <button
+                type="button"
+                data-testid="developer-comm-nsd-save"
+                aria-label={DEV_MSG.COMM_NSD_SAVE}
+                disabled={busy || nsdLoading || !nsdDirty}
+                onClick={() => void handleSaveNsd()}
+                style={{
+                  padding: "8px 16px",
+                  background: nsdDirty ? catalogColors.accent : catalogColors.disabled,
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: busy || nsdLoading || !nsdDirty ? "not-allowed" : "pointer",
+                }}
+              >
+                {DEV_MSG.COMM_NSD_SAVE}
               </button>
             </div>
           </section>

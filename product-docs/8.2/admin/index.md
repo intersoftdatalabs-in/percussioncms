@@ -118,6 +118,7 @@ Non-administrators never see the Admin top-nav item or these configuration surfa
 - [Developer Views](id:admin-developer-views)
 - [Developer Display Formats](id:admin-developer-display-formats)
 - [Developer Action Menus](id:admin-developer-action-menus)
+- [Developer CE Controls](id:admin-developer-ce-controls)
 - [Object ACL & default template](id:admin-object-acl)
 - [Publishing](id:admin-publishing)
 - [Server operations](id:admin-server-ops)

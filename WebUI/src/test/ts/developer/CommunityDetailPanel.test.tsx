@@ -7,6 +7,7 @@ import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as assemblyApi from "../../../main/ts/api/developer/assemblyApi";
+import * as searchesApi from "../../../main/ts/api/developer/searchesApi";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { CommunityDetailPanel } from "../../../main/ts/developer/CommunityDetailPanel";
 
@@ -22,6 +23,18 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", async (importOriginal) => 
     updateCommunityRoles: vi.fn(),
     createCommunity: vi.fn(),
     deleteCommunity: vi.fn(),
+    getCommunityNewSearchDefaults: vi.fn(),
+    replaceCommunityNewSearchDefaults: vi.fn(),
+  };
+});
+
+vi.mock("../../../main/ts/api/developer/searchesApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/searchesApi")
+  >();
+  return {
+    ...actual,
+    listSearches: vi.fn(),
   };
 });
 
@@ -31,6 +44,12 @@ const getCommunityVisibility = assemblyApi.getCommunityVisibility as ReturnType<
 const updateCommunityRoles = assemblyApi.updateCommunityRoles as ReturnType<typeof vi.fn>;
 const createCommunity = assemblyApi.createCommunity as ReturnType<typeof vi.fn>;
 const deleteCommunity = assemblyApi.deleteCommunity as ReturnType<typeof vi.fn>;
+const getCommunityNewSearchDefaults = assemblyApi.getCommunityNewSearchDefaults as ReturnType<
+  typeof vi.fn
+>;
+const replaceCommunityNewSearchDefaults =
+  assemblyApi.replaceCommunityNewSearchDefaults as ReturnType<typeof vi.fn>;
+const listSearches = searchesApi.listSearches as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   name: "Default",
@@ -46,6 +65,11 @@ const sampleRoles = [
   { roleName: "Editor", roleId: 2, roleGuid: { stringValue: "0-6-2" } },
 ];
 
+const sampleSearches = [
+  { name: "SimpleSearch", id: 42, label: "Simple" },
+  { name: "OtherSearch", id: 43, label: "Other" },
+];
+
 describe("CommunityDetailPanel", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
@@ -57,8 +81,14 @@ describe("CommunityDetailPanel", () => {
     updateCommunityRoles.mockReset();
     createCommunity.mockReset();
     deleteCommunity.mockReset();
+    getCommunityNewSearchDefaults.mockReset();
+    replaceCommunityNewSearchDefaults.mockReset();
+    listSearches.mockReset();
     listAvailableRoles.mockResolvedValue(sampleRoles);
     getCommunityVisibility.mockResolvedValue([]);
+    getCommunityNewSearchDefaults.mockResolvedValue({ searches: [] });
+    replaceCommunityNewSearchDefaults.mockResolvedValue({ searches: [] });
+    listSearches.mockResolvedValue(sampleSearches);
   });
 
   it("loads detail on success and supports back", async () => {
@@ -439,5 +469,128 @@ describe("CommunityDetailPanel", () => {
       expect(onDeleted).toHaveBeenCalled();
     });
     expect(deleteCommunity).toHaveBeenCalledWith(sampleDetail.guid, false);
+  });
+
+  it("loads new-search defaults and catalog picker", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    getCommunityNewSearchDefaults.mockResolvedValue({
+      searches: [{ name: "SimpleSearch", id: 42 }],
+    });
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-nsd-table")).toBeTruthy();
+    });
+    expect(getCommunityNewSearchDefaults).toHaveBeenCalledWith("Default");
+    expect(listSearches).toHaveBeenCalled();
+    const simple = screen.getByTestId(
+      "developer-comm-nsd-check-name:simplesearch",
+    ) as HTMLInputElement;
+    const other = screen.getByTestId(
+      "developer-comm-nsd-check-name:othersearch",
+    ) as HTMLInputElement;
+    expect(simple.checked).toBe(true);
+    expect(other.checked).toBe(false);
+  });
+
+  it("saves replaced defaults and shows search count", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    getCommunityNewSearchDefaults.mockResolvedValue({ searches: [] });
+    replaceCommunityNewSearchDefaults.mockResolvedValue({
+      searches: [{ name: "OtherSearch", id: 43 }],
+    });
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-nsd-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-nsd-check-name:othersearch"));
+    expect(screen.getByTestId("developer-comm-nsd-dirty")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-comm-nsd-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-notice").textContent).toMatch(
+        /1 searches/i,
+      );
+    });
+    expect(replaceCommunityNewSearchDefaults).toHaveBeenCalledWith("Default", [
+      { name: "OtherSearch", id: 43 },
+    ]);
+    expect(screen.queryByTestId("developer-comm-nsd-dirty")).toBeNull();
+  });
+
+  it("saves empty set to clear defaults", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    getCommunityNewSearchDefaults.mockResolvedValue({
+      searches: [{ name: "SimpleSearch", id: 42 }],
+    });
+    replaceCommunityNewSearchDefaults.mockResolvedValue({ searches: [] });
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-nsd-check-name:simplesearch")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-nsd-check-name:simplesearch"));
+    fireEvent.click(screen.getByTestId("developer-comm-nsd-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-notice").textContent).toBe(
+        DEV_MSG.COMM_NSD_CLEARED,
+      );
+    });
+    expect(replaceCommunityNewSearchDefaults).toHaveBeenCalledWith("Default", []);
+  });
+
+  it("surfaces 400 unknown search on save", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    replaceCommunityNewSearchDefaults.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Unknown search: Nope" },
+    });
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-nsd-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-nsd-check-name:simplesearch"));
+    fireEvent.click(screen.getByTestId("developer-comm-nsd-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-comm-detail-error").textContent).toContain(
+      DEV_MSG.COMM_NSD_UNKNOWN_SEARCH,
+    );
+  });
+
+  it("surfaces 403 non-Admin on load", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    getCommunityNewSearchDefaults.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: { message: "Admin role required" },
+    });
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-nsd-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-comm-nsd-error").textContent).toContain(
+      DEV_MSG.COMM_FORBIDDEN,
+    );
+  });
+
+  it("surfaces 403 non-Admin on save", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    replaceCommunityNewSearchDefaults.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: { message: "Admin role required" },
+    });
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-nsd-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-nsd-check-name:simplesearch"));
+    fireEvent.click(screen.getByTestId("developer-comm-nsd-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-comm-detail-error").textContent).toContain(
+      DEV_MSG.COMM_FORBIDDEN,
+    );
   });
 });

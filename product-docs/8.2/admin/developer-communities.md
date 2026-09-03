@@ -1,7 +1,7 @@
 ---
 id: admin-developer-communities
 title: Developer Communities
-description: Create and delete CMS communities from Developer Communities chrome
+description: Create and delete CMS communities, edit roles, and set Content Explorer new-search defaults from Developer Communities chrome
 version: "8.2"
 order: 45
 tags: [admin, developer, communities]
@@ -11,9 +11,9 @@ tags: [admin, developer, communities]
 
 **Developer → Communities** lists CMS communities (label, unique name, id, and
 description). Admins can **create** a community and **delete** one from this
-chrome. Open an existing community to **edit role membership** and inspect
-**object visibility**. Per-object COMMUNITY ACL entries stay on object detail
-panels (for example content types).
+chrome. Open an existing community to **edit role membership**, set **Content
+Explorer new-search defaults**, and inspect **object visibility**. Per-object
+COMMUNITY ACL entries stay on object detail panels (for example content types).
 
 ## Product path — create and delete
 
@@ -38,6 +38,21 @@ panels (for example content types).
 Role membership save on the same detail panel is unchanged: check roles and
 **Save roles**.
 
+## Product path — new-search defaults
+
+Workbench assigned which searches are offered as **new search** (`cxNewSearch`)
+for each community. That assignment is now on the community detail panel.
+
+1. Open **Developer → Communities** and open a community.
+2. Under **New-search defaults**, check or uncheck searches from the Developer
+   Searches catalog. This list does **not** create searches — create them on
+   [Developer Searches](id:admin-developer-searches).
+3. Click **Save new-search defaults**. The set is replaced immediately. Clearing
+   every checkbox and saving **clears** explicit defaults for that community
+   (HTTP **200**, empty set — not 404).
+4. An unknown search in the saved set is **400**. A non-Admin session is **403**.
+   A missing community is **404**. A design lock held by another user is **409**.
+
 ## Limits
 
 - Create uses the existing bulk REST (`POST /services/communities/bulk`). The
@@ -47,6 +62,8 @@ Role membership save on the same detail panel is unchanged: check roles and
   and `ignoredependencies=false`.
 - Community visibility remains a read-only lens. Object ACL for a COMMUNITY
   principal is edited on the object, not here.
+- New-search defaults replace the whole set on save. Empty is a valid clear.
+  Search create/delete stays on Developer Searches.
 - Session community switch in the header is a separate membership list; it
   is not this catalog.
 
@@ -60,6 +77,7 @@ The chrome calls:
 | Load | `GET /services/communities/{idOrName}` |
 | Create | `POST /services/communities/bulk` (name list; server persists) |
 | Roles | `PUT /services/communities/{idOrName}/roles` |
+| New-search defaults | `GET` / `PUT /services/communities/{idOrName}/new-search-defaults` |
 | Delete | `DELETE /services/communities/bulk` (GuidList; `ignoredependencies=false`) |
 
 Integrator notes: [REST API](id:developer-rest). Related security chrome:

@@ -30,6 +30,8 @@ describe("Developer DEV_MSG i18n keys", () => {
     expect(DEV_MSG.CT_CONTROL_PROPS).toBe("Control property values");
     expect(DEV_MSG.CT_INCLUDE).toBe("Include system or shared field");
     expect(DEV_MSG.CT_INCLUDE_ACTION).toBe("Include field");
+    expect(DEV_MSG.CTL_SAVE_HINT).toContain("blank description is cleared");
+    expect("CTL_GAP_USER" in DEV_MSG_KEYS).toBe(false);
   });
 
   it("fallbackLabelFromKey extracts text after @", () => {

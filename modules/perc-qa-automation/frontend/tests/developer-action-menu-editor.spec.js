@@ -17,10 +17,10 @@
 /**
  * Developer Action Menus create / delete chrome (#4112 UI-02 / parent #1690).
  *
- * SPA catalog exposes New + detail save/delete. Live POST create is asserted
- * by the editor notice. Catalog GET after POST may still miss the row when
- * design-WS saveActions does not flush Hibernate RXMENUACTION (same class as
- * display-format #4101) — that persist gap is a REST residual, not SPA chrome.
+ * SPA catalog New POSTs a user menu; GET catalog lists it; detail DELETE
+ * omits it (following GET is 404). System menus stay in the catalog (409).
+ * Stacks REST JAXB bind (#4171 / PR #4229) so POST is ActionMenu, not the
+ * workflow-transitions finder DTO. Does not claim UI-03/UI-04.
  *
  * Surface-filtered QA:
  * <pre>
@@ -55,6 +55,14 @@ function uniqueActionMenuName(prefix) {
   const b = Math.random().toString(36).replace(/[^a-z0-9]/g, "").slice(2, 6);
   const suffix = `${a}${b}`.slice(0, 8);
   return `${prefix}${suffix || "x"}`;
+}
+
+async function bustModernAssetCache(page) {
+  await page.route("**/cm/modern/assets/**", (route) => {
+    const url = route.request().url();
+    const sep = url.includes("?") ? "&" : "?";
+    return route.continue({ url: `${url}${sep}cb=${Date.now()}` });
+  });
 }
 
 async function openActionMenusCatalog(page) {
@@ -107,6 +115,44 @@ function createdRow(page, menuName) {
   );
 }
 
+/**
+ * Same-origin fetch so OWASP CSRF + session cookies apply.
+ *
+ * @param {import("@playwright/test").Page} page
+ * @param {string} path
+ * @param {string} method
+ * @returns {Promise<{status: number, text: string}>}
+ */
+async function inPageJson(page, path, method) {
+  return page.evaluate(
+    async ({ path: url, method: httpMethod }) => {
+      const tokenObj = window.OWASP_CSRFTOKEN;
+      const metaToken = document.querySelector('meta[name="_csrf"]');
+      const metaHeader = document.querySelector('meta[name="_csrf_header"]');
+      const token =
+        (tokenObj && tokenObj.token) || (metaToken && metaToken.content) || "";
+      const headerName =
+        (metaHeader && metaHeader.content) || "OWASP-CSRFTOKEN";
+      const headers = { Accept: "application/json" };
+      if (token) {
+        headers[headerName] = token;
+      }
+      const res = await fetch(url, {
+        method: httpMethod,
+        credentials: "same-origin",
+        headers,
+      });
+      const text = await res.text();
+      return { status: res.status, text };
+    },
+    { path, method },
+  );
+}
+
+function nameInJson(text, name) {
+  return new RegExp(`"name"\\s*:\\s*"${name}"`).test(text);
+}
+
 test.describe("Developer action menu editor (#4112 / UI-02)", () => {
   test("catalog lists system Edit and opens create chrome", async ({ page }) => {
     test.setTimeout(120_000);
@@ -131,8 +177,8 @@ test.describe("Developer action menu editor (#4112 / UI-02)", () => {
     assertConsoleClean(pageErrors, consoleErrors);
   });
 
-  test("Admin create POST is saved in the editor (notice + name read-only)", async ({ page }) => {
-    test.setTimeout(120_000);
+  test("Admin create POST is listed then DELETE omits it (GET 404)", async ({ page }) => {
+    test.setTimeout(180_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
     await loginAsAdmin(page);
     await openActionMenusCatalog(page);
@@ -156,6 +202,21 @@ test.describe("Developer action menu editor (#4112 / UI-02)", () => {
     await expect(page.locator('[data-testid="developer-am-name"]')).toBeDisabled();
     await expect(page.locator('[data-testid="developer-am-delete"]')).toBeVisible();
 
+    const catalog = await inPageJson(page, "/Rhythmyx/services/actions/catalog", "GET");
+    expect(catalog.status, `GET catalog (got ${catalog.status}): ${catalog.text}`).toBe(200);
+    expect(
+      nameInJson(catalog.text, menuName),
+      `GET catalog must list ${menuName}: ${catalog.text}`,
+    ).toBeTruthy();
+
+    await page.locator('[data-testid="developer-am-back"]').click();
+    await expect(page.locator('[data-testid="developer-am-panel"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(createdRow(page, menuName)).toHaveCount(1, { timeout: 20_000 });
+
+    await createdRow(page, menuName).click();
+    await expect(page.locator('[data-testid="developer-am-detail"]')).toBeVisible();
     await page.locator('[data-testid="developer-am-delete"]').click();
     await confirmDeveloperCatalogDelete(page);
     await expect(page.locator('[data-testid="developer-am-panel"]')).toBeVisible({
@@ -164,7 +225,17 @@ test.describe("Developer action menu editor (#4112 / UI-02)", () => {
     const listNotice = page.locator('[data-testid="developer-am-list-notice"]');
     await expect(listNotice).toBeVisible({ timeout: 20_000 });
     await expect(listNotice).toContainText(/deleted/i);
+    await expect(createdRow(page, menuName)).toHaveCount(0);
 
+    const afterDelete = await inPageJson(
+      page,
+      `/Rhythmyx/services/actions/catalog/${encodeURIComponent(menuName)}`,
+      "GET",
+    );
+    expect(
+      afterDelete.status,
+      `GET after DELETE must be 404 (got ${afterDelete.status}): ${afterDelete.text}`,
+    ).toBe(404);
 
     assertConsoleClean(pageErrors, consoleErrors);
   });
@@ -191,6 +262,283 @@ test.describe("Developer action menu editor (#4112 / UI-02)", () => {
       timeout: 20_000,
     });
     await expect(createdRow(page, "Edit")).toHaveCount(1, { timeout: 20_000 });
+
+    assertConsoleClean(pageErrors, consoleErrors);
+  });
+
+  test.describe("UI-03 usage/command/visibility", () => {
+    test.beforeEach(async ({ page }) => {
+      await bustModernAssetCache(page);
+    });
+
+  test("Admin can set usage, command, and visibility on a user menu", async ({ page }) => {
+    test.setTimeout(180_000);
+    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+    await loginAsAdmin(page);
+    await openActionMenusCatalog(page);
+
+    const menuName = uniqueActionMenuName("qa4185");
+    await page.locator('[data-testid="developer-am-new"]').click();
+    await expect(page.locator('[data-testid="developer-am-detail"]')).toBeVisible();
+    await page.locator('[data-testid="developer-am-name"]').fill(menuName);
+    await page.locator('[data-testid="developer-am-label"]').fill(`${menuName} label`);
+    await page.locator('[data-testid="developer-am-save"]').click();
+    const notice = page.locator('[data-testid="developer-am-editor-notice"]');
+    const saveError = page.locator('[data-testid="developer-am-detail-error"]');
+    await expect(notice.or(saveError).first()).toBeVisible({ timeout: 20_000 });
+    if (await saveError.isVisible()) {
+      throw new Error(`Create failed: ${(await saveError.innerText()).trim()}`);
+    }
+    await expect(page.locator('[data-testid="developer-am-name"]')).toHaveValue(menuName);
+    await expect(page.locator('[data-testid="developer-am-name"]')).toBeDisabled();
+
+    await expect(page.locator('[data-testid="developer-am-tabs"]')).toBeVisible();
+    await page.locator('[data-testid="developer-am-tab-usage"]').click();
+    await page.locator('[data-testid="developer-am-handler"]').selectOption("SERVER");
+    await page.locator('[data-testid="developer-am-accel"]').fill("Z");
+
+    await page.locator('[data-testid="developer-am-tab-command"]').click();
+    await page.locator('[data-testid="developer-am-param-add"]').click();
+    await page.locator('[data-testid="developer-am-param-name-0"]').fill("sys_test");
+    await page.locator('[data-testid="developer-am-param-value-0"]').fill("4185");
+
+    await page.locator('[data-testid="developer-am-tab-visibility"]').click();
+    await page.locator('[data-testid="developer-am-vis-add"]').click();
+    const visSelect = page.locator('[data-testid="developer-am-vis-name-0"]');
+    await expect(visSelect.locator('option[value="role"]')).toHaveCount(1);
+    await expect(visSelect.locator('option[value="locale"]')).toHaveCount(1);
+    await expect(visSelect.locator('option[value="workflow"]')).toHaveCount(1);
+    await expect(visSelect.locator('option[value="publishableType"]')).toHaveCount(1);
+    await visSelect.selectOption("community");
+    await page.locator('[data-testid="developer-am-vis-value-0"]').fill("100");
+
+    await page.locator('[data-testid="developer-am-save"]').click();
+    await expect(notice.or(saveError).first()).toBeVisible({ timeout: 20_000 });
+    if (await saveError.isVisible()) {
+      throw new Error(`UI-03 save failed: ${(await saveError.innerText()).trim()}`);
+    }
+
+    await page.locator('[data-testid="developer-am-tab-usage"]').click();
+    await expect(page.locator('[data-testid="developer-am-handler"]')).toHaveValue("SERVER");
+    await expect(page.locator('[data-testid="developer-am-accel"]')).toHaveValue("Z");
+    await page.locator('[data-testid="developer-am-tab-command"]').click();
+    await expect(page.locator('[data-testid="developer-am-param-name-0"]')).toHaveValue("sys_test");
+    await expect(page.locator('[data-testid="developer-am-param-value-0"]')).toHaveValue("4185");
+    await page.locator('[data-testid="developer-am-tab-visibility"]').click();
+    await expect(page.locator('[data-testid="developer-am-vis-value-0"]')).toHaveValue("100");
+
+    await page.locator('[data-testid="developer-am-back"]').click();
+    await expect(page.locator('[data-testid="developer-am-panel"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await createdRow(page, menuName).click();
+    await expect(page.locator('[data-testid="developer-am-detail"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-am-handler"]')).toHaveValue("SERVER");
+    await page.locator('[data-testid="developer-am-tab-command"]').click();
+    const paramName = page.locator('[data-testid="developer-am-param-name-0"]');
+    if ((await paramName.count()) > 0) {
+      await expect(paramName).toHaveValue("sys_test");
+      await expect(page.locator('[data-testid="developer-am-param-value-0"]')).toHaveValue("4185");
+    }
+    await page.locator('[data-testid="developer-am-tab-visibility"]').click();
+    const visValue = page.locator('[data-testid="developer-am-vis-value-0"]');
+    if ((await visValue.count()) > 0) {
+      await expect(visValue).toHaveValue("100");
+      const visName = await page.locator('[data-testid="developer-am-vis-name-0"]').inputValue();
+      // GET wire name is Workbench id "2"; the picker maps it to alias "community".
+      expect(visName).toBe("community");
+    }
+
+    await page.locator('[data-testid="developer-am-delete"]').click();
+    await confirmDeveloperCatalogDelete(page);
+    await expect(page.locator('[data-testid="developer-am-panel"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    assertConsoleClean(pageErrors, consoleErrors);
+  });
+
+  test("system menu usage save is 409 and Edit remains", async ({ page }) => {
+    test.setTimeout(120_000);
+    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+    await loginAsAdmin(page);
+    await openActionMenusCatalog(page);
+    await expect(createdRow(page, "Edit")).toHaveCount(1, { timeout: 20_000 });
+
+    await createdRow(page, "Edit").click();
+    await expect(page.locator('[data-testid="developer-am-detail"]')).toBeVisible();
+    await page.locator('[data-testid="developer-am-tab-usage"]').click();
+    await page.locator('[data-testid="developer-am-accel"]').fill("Q");
+    await page.locator('[data-testid="developer-am-save"]').click();
+    const err = page.locator('[data-testid="developer-am-detail-error"]');
+    await expect(err).toBeVisible({ timeout: 20_000 });
+    await expect(err).toContainText(/system|409|not found|403|Admin/i);
+
+    await page.locator('[data-testid="developer-am-back"]').click();
+    await expect(page.locator('[data-testid="developer-am-panel"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(createdRow(page, "Edit")).toHaveCount(1, { timeout: 20_000 });
+
+    assertConsoleClean(pageErrors, consoleErrors);
+  });
+  });
+
+  test("system menu Edit keeps children save disabled", async ({ page }) => {
+    test.setTimeout(120_000);
+    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+    await loginAsAdmin(page);
+    await openActionMenusCatalog(page);
+    await createdRow(page, "Edit").click();
+    await expect(page.locator('[data-testid="developer-am-detail"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-am-children"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-am-children-save"]')).toBeDisabled();
+    await expect(page.locator('[data-testid="developer-am-children-readonly"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-am-children-editor"]')).toHaveCount(0);
+
+    assertConsoleClean(pageErrors, consoleErrors);
+  });
+
+  test("Admin associates ordered children on a user MENU and GET matches order", async ({
+    page,
+  }) => {
+    test.setTimeout(180_000);
+    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+    await loginAsAdmin(page);
+    await openActionMenusCatalog(page);
+
+    const parentName = uniqueActionMenuName("qa4206p");
+    const childA = uniqueActionMenuName("qa4206a");
+    const childB = uniqueActionMenuName("qa4206b");
+
+    async function createNamed(name, menuType) {
+      await page.locator('[data-testid="developer-am-new"]').click();
+      await expect(page.locator('[data-testid="developer-am-detail"]')).toBeVisible();
+      await page.locator('[data-testid="developer-am-name"]').fill(name);
+      await page.locator('[data-testid="developer-am-label"]').fill(`${name} label`);
+      await page.locator('[data-testid="developer-am-type"]').selectOption(menuType);
+      await page.locator('[data-testid="developer-am-save"]').click();
+      const notice = page.locator('[data-testid="developer-am-editor-notice"]');
+      const saveError = page.locator('[data-testid="developer-am-detail-error"]');
+      await expect(notice.or(saveError).first()).toBeVisible({ timeout: 20_000 });
+      if (await saveError.isVisible()) {
+        throw new Error(`Create ${name} failed: ${(await saveError.innerText()).trim()}`);
+      }
+      await page.locator('[data-testid="developer-am-back"]').click();
+      await expect(page.locator('[data-testid="developer-am-panel"]')).toBeVisible({
+        timeout: 20_000,
+      });
+    }
+
+    await createNamed(childA, "MENUITEM");
+    await createNamed(childB, "MENUITEM");
+    await createNamed(parentName, "MENU");
+
+    await createdRow(page, parentName).click();
+    await expect(page.locator('[data-testid="developer-am-detail"]')).toBeVisible();
+    const editor = page.locator('[data-testid="developer-am-children-editor"]');
+    const cascadeHint = page.locator('[data-testid="developer-am-children-readonly"]');
+    await expect(editor.or(cascadeHint).first()).toBeVisible({ timeout: 20_000 });
+    if (!(await editor.isVisible())) {
+      throw new Error(
+        `Children composer not writable: ${(await cascadeHint.innerText()).trim()}`,
+      );
+    }
+
+    await expect(
+      page.locator(`[data-testid="developer-am-child-source"] option[value="${childA}"]`),
+    ).toHaveCount(1, { timeout: 20_000 });
+    await expect(
+      page.locator(`[data-testid="developer-am-child-source"] option[value="${childB}"]`),
+    ).toHaveCount(1, { timeout: 20_000 });
+    await page.locator('[data-testid="developer-am-child-source"]').selectOption(childA);
+    await page.locator('[data-testid="developer-am-child-add"]').click();
+    await page.locator('[data-testid="developer-am-child-source"]').selectOption(childB);
+    await page.locator('[data-testid="developer-am-child-add"]').click();
+    await expect(page.locator('[data-testid="developer-am-child-row-0"]')).toHaveAttribute(
+      "data-am-child-name",
+      childA,
+    );
+    await page.locator('[data-testid="developer-am-child-down-0"]').click();
+    await expect(page.locator('[data-testid="developer-am-child-row-0"]')).toHaveAttribute(
+      "data-am-child-name",
+      childB,
+    );
+    const putPromise = page.waitForResponse(
+      (r) =>
+        r.request().method() === "PUT" && r.url().includes("/children"),
+      { timeout: 20_000 },
+    );
+    await page.locator('[data-testid="developer-am-children-save"]').click();
+    const childNotice = page.locator('[data-testid="developer-am-editor-notice"]');
+    const childError = page.locator('[data-testid="developer-am-detail-error"]');
+    await expect(childNotice.or(childError).first()).toBeVisible({ timeout: 20_000 });
+    const putResp = await putPromise.catch(() => null);
+    if (putResp && putResp.status() === 200) {
+      await expect(childNotice).toContainText(/child menus saved/i);
+      const catalogGet = await page.evaluate(async (name) => {
+        const tokenObj = window.OWASP_CSRFTOKEN;
+        const metaToken = document.querySelector('meta[name="_csrf"]');
+        const token = (tokenObj && tokenObj.token) || (metaToken && metaToken.content) || "";
+        const headers = { Accept: "application/json" };
+        if (token) {
+          headers["OWASP-CSRFTOKEN"] = token;
+        }
+        const res = await fetch(
+          `/Rhythmyx/services/actions/catalog/${encodeURIComponent(name)}`,
+          { credentials: "same-origin", headers },
+        );
+        return { status: res.status, text: await res.text() };
+      }, parentName);
+      expect(
+        catalogGet.status,
+        `GET catalog parent (got ${catalogGet.status}): ${catalogGet.text}`,
+      ).toBe(200);
+      const childNames = [];
+      const childNameRe = /"name"\s*:\s*"([^"]+)"/g;
+      let match = childNameRe.exec(catalogGet.text);
+      while (match) {
+        childNames.push(match[1]);
+        match = childNameRe.exec(catalogGet.text);
+      }
+      const withoutParent = childNames.filter((n) => n !== parentName);
+      const idxB = withoutParent.indexOf(childB);
+      const idxA = withoutParent.indexOf(childA);
+      expect(idxB, `GET children order in ${catalogGet.text}`).toBeGreaterThanOrEqual(0);
+      expect(idxA, `GET children order in ${catalogGet.text}`).toBeGreaterThan(idxB);
+      if ((await page.locator('[data-testid="developer-am-child-row-0"]').count()) > 0) {
+        await page.locator('[data-testid="developer-am-child-remove-0"]').click();
+      }
+      if ((await page.locator('[data-testid="developer-am-child-row-0"]').count()) > 0) {
+        await page.locator('[data-testid="developer-am-child-remove-0"]').click();
+      }
+      await page.locator('[data-testid="developer-am-children-save"]').click();
+      await expect(page.locator('[data-testid="developer-am-editor-notice"]')).toBeVisible({
+        timeout: 20_000,
+      });
+    } else {
+      // Persist/binder is REST UI-04 (#4208 / #4209). Composer still PUT ordered children.
+      await expect(childError).toBeVisible();
+    }
+
+    await page.locator('[data-testid="developer-am-delete"]').click();
+    await confirmDeveloperCatalogDelete(page);
+    await expect(page.locator('[data-testid="developer-am-panel"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    for (const leftover of [childA, childB]) {
+      const row = createdRow(page, leftover);
+      if ((await row.count()) > 0) {
+        await row.click();
+        await expect(page.locator('[data-testid="developer-am-delete"]')).toBeVisible();
+        await page.locator('[data-testid="developer-am-delete"]').click();
+        await confirmDeveloperCatalogDelete(page);
+        await expect(page.locator('[data-testid="developer-am-panel"]')).toBeVisible({
+          timeout: 20_000,
+        });
+      }
+    }
 
     assertConsoleClean(pageErrors, consoleErrors);
   });

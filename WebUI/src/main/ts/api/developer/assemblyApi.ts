@@ -36,6 +36,8 @@ import {
 } from "./slotLists";
 import type {
   CommunityDetail,
+  CommunityNewSearchDefaults,
+  CommunityNewSearchRef,
   CommunityRoleSummary,
   CommunitySummary,
   CommunityVisibility,
@@ -641,4 +643,81 @@ export async function getCommunityVisibility(
   if (Array.isArray(first.visibleObjects)) return first.visibleObjects;
   const env = first.visibleObjects as { ObjectSummary?: CommunityVisibleObject[] };
   return Array.isArray(env.ObjectSummary) ? env.ObjectSummary : [];
+}
+
+/** Jackson / JAXB root for {@link CommunityNewSearchDefaults} (WRAP/UNWRAP_ROOT_VALUE). */
+export const COMMUNITY_NEW_SEARCH_DEFAULTS_ROOT = "CommunityNewSearchDefaults";
+
+/** Flatten GET/PUT {@code searches} (array, single item, or JAXB item wrap). */
+export function asCommunityNewSearchRefs(searches: unknown): CommunityNewSearchRef[] {
+  if (searches == null) {
+    return [];
+  }
+  if (Array.isArray(searches)) {
+    return searches as CommunityNewSearchRef[];
+  }
+  if (typeof searches === "object") {
+    return asArray<CommunityNewSearchRef>(searches, [
+      "CommunityNewSearchRef",
+      "searches",
+      "search",
+    ]);
+  }
+  return [];
+}
+
+/** Unwrap WRAP_ROOT_VALUE {@code { CommunityNewSearchDefaults: {…} }} or a flat body. */
+export function unwrapCommunityNewSearchDefaults(
+  payload: unknown,
+): CommunityNewSearchDefaults {
+  const root = asRecord(payload);
+  if (!root) {
+    return { searches: [] };
+  }
+  const nested = asRecord(
+    root[COMMUNITY_NEW_SEARCH_DEFAULTS_ROOT] ?? root.communityNewSearchDefaults,
+  );
+  const body = (nested ?? root) as CommunityNewSearchDefaults;
+  return {
+    ...body,
+    searches: asCommunityNewSearchRefs(body.searches),
+  };
+}
+
+/** Wire envelope required by UNWRAP_ROOT_VALUE on PUT. */
+export function wrapCommunityNewSearchDefaultsForWire(
+  searches: CommunityNewSearchRef[],
+): Record<string, CommunityNewSearchDefaults> {
+  return {
+    [COMMUNITY_NEW_SEARCH_DEFAULTS_ROOT]: { searches },
+  };
+}
+
+/**
+ * GET /services/communities/{idOrName}/new-search-defaults — Admin.
+ * Empty set is 200 with {@code searches: []}, not 404.
+ */
+export async function getCommunityNewSearchDefaults(
+  idOrName: string,
+): Promise<CommunityNewSearchDefaults> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await get<unknown>(`${PATHS.COMMUNITIES}/${key}/new-search-defaults`);
+  return unwrapCommunityNewSearchDefaults(payload);
+}
+
+/**
+ * PUT /services/communities/{idOrName}/new-search-defaults — Admin. Replace set.
+ * Empty {@code searches} clears explicit defaults. Unknown search is 400.
+ * Non-Admin is 403. Missing community is 404.
+ */
+export async function replaceCommunityNewSearchDefaults(
+  idOrName: string,
+  searches: CommunityNewSearchRef[],
+): Promise<CommunityNewSearchDefaults> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.COMMUNITIES}/${key}/new-search-defaults`,
+    wrapCommunityNewSearchDefaultsForWire(searches),
+  );
+  return unwrapCommunityNewSearchDefaults(payload);
 }

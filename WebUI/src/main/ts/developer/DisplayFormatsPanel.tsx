@@ -35,8 +35,8 @@ type SelectedFormat = {
 };
 
 /**
- * UI-05 / UI-08 — display format catalog with create / save / delete and
- * user-format column add/remove/reorder.
+ * UI-05 / UI-08 — display format catalog with create / save / delete,
+ * user-format column add/remove/reorder, and default sort.
  */
 export function DisplayFormatsPanel(): React.ReactElement {
   const [items, setItems] = useState<DisplayFormat[] | null>(null);

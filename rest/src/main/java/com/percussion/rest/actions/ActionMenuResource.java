@@ -71,8 +71,10 @@ public class ActionMenuResource {
       summary = "List action menus (catalog)",
       description =
           "Lists CX action menus for the Developer module. Admin create/save/delete user menus"
-              + " via POST/PUT/DELETE on this resource. Cascading children composition and"
-              + " usage/command/visibility tabs remain later slices.",
+              + " via POST/PUT/DELETE on this resource. PUT round-trips usage/command fields"
+              + " (handler, url, parameters, command properties) plus visibilityContexts and"
+              + " uiContexts. Ordered child associations on a user cascading MENU use PUT"
+              + " /actions/{idOrName}/children.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -100,9 +102,9 @@ public class ActionMenuResource {
   @Operation(
       summary = "Get action menu detail",
       description =
-          "Loads one action menu by name or numeric id. Admin PUT/DELETE use"
-              + " /services/actions/{idOrName}. Cascading entry composition remains a later"
-              + " slice.",
+          "Loads one action menu by name or numeric id, including visibilityContexts and"
+              + " uiContexts when present. Nested children come from RXMENUACTIONRELATION."
+              + " Admin PUT of ordered children is /services/actions/{idOrName}/children.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -214,7 +216,8 @@ public class ActionMenuResource {
               + " (#4123). Name is required, unique (case-insensitive), and must not contain"
               + " whitespace or wildcards. Optional label, description, menuType, and url (GET"
               + " detail fields) are applied before save. Duplicate name is 409. System menus"
-              + " are not created here. Cascading children composition is a later slice.",
+              + " are not created here. Ordered child associations use PUT"
+              + " /actions/{idOrName}/children after create.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -254,11 +257,14 @@ public class ActionMenuResource {
   @Operation(
       summary = "Update action menu",
       description =
-          "Admin. Updates label, description, menuType, and/or url by name, numeric id, or GUID."
-              + " Name is the catalog key and is not renamed on PUT. Loads with a design lock"
-              + " (overrideLock=false) and releases on save. Unknown id is 404. Lock/dependency"
-              + " conflict is 409. System menus are 409 (not mutated; the lock is not stolen)."
-              + " Cascading children composition is a later slice.",
+          "Admin. Updates label, description, menuType, url, handler, URL parameters,"
+              + " command/usage properties, visibilityContexts, and uiContexts by name, numeric"
+              + " id, or GUID. Name is the catalog key and is not renamed on PUT. Loads with a"
+              + " design lock (overrideLock=false) and releases on save. Unknown id is 404."
+              + " Lock/dependency conflict is 409. System menus are 409 (not mutated; the lock"
+              + " is not stolen). Invalid visibility or uiContext payload is 400. Nested"
+              + " children on this body are ignored; ordered child associations use PUT"
+              + " /actions/{idOrName}/children.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -283,6 +289,61 @@ public class ActionMenuResource {
         throw new IllegalArgumentException("body is required");
       }
       ActionMenu updated = requireAdaptor().saveActionMenu(idOrName, body);
+      if (updated == null) {
+        throw new WebApplicationException("Action menu not found", 404);
+      }
+      return updated;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}/children")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Replace action menu children",
+      description =
+          "Admin. Replaces ordered child associations on a user cascading MENU (type MENU with"
+              + " blank URL). Body is ActionMenuList: a JSON array, {\"ActionMenuList\":[…]},"
+              + " or {\"children\":[…]}. Each child is identified by name, numeric id, or GUID"
+              + " string (same catalog keys as GET). Array order is persisted (child SORTORDER"
+              + " plus RXMENUACTIONRELATION). Other child fields are ignored. Empty array"
+              + " clears children. Parent PUT /actions/{idOrName} does not honor children."
+              + " Cycle (parent as its own child, or A→B→A), unknown child, or duplicate child"
+              + " in one payload is 400 and is not persisted. System parent is 409. Non-Admin"
+              + " is 403. Missing parent is 404. Non-cascading parent is 400. Loads with a"
+              + " design lock (overrideLock=false) and releases on save.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated parent with children in request order",
+            content = @Content(schema = @Schema(implementation = ActionMenu.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description =
+                "Invalid input, unknown/duplicate child, cascading cycle, or parent is not a"
+                    + " cascading MENU"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin role required, or request has no session/user"),
+        @ApiResponse(responseCode = "404", description = "Parent action menu not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description =
+                "Design lock, dependency conflict, or system menu cannot be mutated"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  /** Admin replace of ordered child associations on a user cascading MENU. */
+  public ActionMenu updateActionMenuChildren(
+      @PathParam("idOrName") String idOrName, ActionMenuList children) {
+    try {
+      ActionMenuList body = children != null ? children : new ActionMenuList();
+      ActionMenu updated = requireAdaptor().saveActionMenuChildren(idOrName, body);
       if (updated == null) {
         throw new WebApplicationException("Action menu not found", 404);
       }
