@@ -10,13 +10,20 @@ import * as controlsApi from "../../../main/ts/api/developer/controlsApi";
 import { ControlsPanel } from "../../../main/ts/developer/ControlsPanel";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
-vi.mock("../../../main/ts/api/developer/controlsApi", () => ({
-  listControls: vi.fn(),
-  getControlDetail: vi.fn(),
-}));
+vi.mock("../../../main/ts/api/developer/controlsApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/controlsApi")>();
+  return {
+    ...actual,
+    listControls: vi.fn(),
+    getControlDetail: vi.fn(),
+    createControl: vi.fn(),
+  };
+});
 
 const listControls = controlsApi.listControls as ReturnType<typeof vi.fn>;
 const getControlDetail = controlsApi.getControlDetail as ReturnType<typeof vi.fn>;
+const createControl = controlsApi.createControl as ReturnType<typeof vi.fn>;
 
 describe("ControlsPanel", () => {
   beforeEach(() => {
@@ -25,6 +32,7 @@ describe("ControlsPanel", () => {
     };
     listControls.mockReset();
     getControlDetail.mockReset();
+    createControl.mockReset();
   });
 
   it("lists controls and opens detail", async () => {
@@ -115,5 +123,67 @@ describe("ControlsPanel", () => {
       expect(screen.getByTestId("developer-ctl-error")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-ctl-error").textContent).toBe(DEV_MSG.CTL_ERROR);
+  });
+
+  it("shows New user control on empty catalog", async () => {
+    listControls.mockResolvedValue([]);
+    render(<ControlsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-empty")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ctl-new")).toBeTruthy();
+  });
+
+  it("opens create chrome from New user control", async () => {
+    listControls.mockResolvedValue([]);
+    render(<ControlsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-new")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ctl-new"));
+    expect(screen.getByTestId("developer-ctl-create")).toBeTruthy();
+    expect(screen.getByTestId("developer-ctl-create-save")).toBeDisabled();
+  });
+
+  it("create opens the new control detail", async () => {
+    listControls
+      .mockResolvedValueOnce([])
+      .mockResolvedValue([
+        { name: "qaCtl", displayName: "QA", scope: "user", dimension: "single" },
+      ]);
+    createControl.mockResolvedValue({
+      name: "qaCtl",
+      displayName: "QA",
+      scope: "user",
+    });
+    getControlDetail.mockResolvedValue({
+      name: "qaCtl",
+      displayName: "QA",
+      scope: "user",
+      parameters: [],
+      designGaps: [],
+    });
+    render(<ControlsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-new")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ctl-new"));
+    fireEvent.change(screen.getByTestId("developer-ctl-create-name"), {
+      target: { value: "qaCtl" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ctl-create-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-detail")).toBeTruthy();
+    });
+    expect(createControl).toHaveBeenCalledWith(expect.objectContaining({ name: "qaCtl" }));
+    await waitFor(() => {
+      expect(getControlDetail).toHaveBeenCalledWith("qaCtl");
+    });
+    expect(screen.getByTestId("developer-ctl-detail-name").textContent).toBe("qaCtl");
+    expect(screen.queryByTestId("developer-ctl-create-name")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-ctl-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-table").textContent).toContain("qaCtl");
+    });
   });
 });

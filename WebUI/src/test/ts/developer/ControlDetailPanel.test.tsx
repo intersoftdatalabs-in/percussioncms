@@ -51,6 +51,35 @@ describe("ControlDetailPanel", () => {
     expect(onBack).toHaveBeenCalled();
   });
 
+  it("shows name as read-only text and system controls as non-editable", async () => {
+    getControlDetail.mockResolvedValue(sampleDetail);
+    render(<ControlDetailPanel name="sys_EditBox" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-detail-name")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ctl-detail-name").textContent).toBe("sys_EditBox");
+    expect(screen.queryByTestId("developer-ctl-create-name")).toBeNull();
+    expect(screen.queryByTestId("developer-ctl-create-save")).toBeNull();
+    expect(screen.getByTestId("developer-ctl-system-readonly").textContent).toBe(
+      DEV_MSG.CTL_SYSTEM_READONLY,
+    );
+  });
+
+  it("does not mark user controls as system-readonly", async () => {
+    getControlDetail.mockResolvedValue({
+      ...sampleDetail,
+      name: "qaCtl",
+      displayName: "QA",
+      scope: "user",
+    });
+    render(<ControlDetailPanel name="qaCtl" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-detail-name").textContent).toBe("qaCtl");
+    });
+    expect(screen.queryByTestId("developer-ctl-system-readonly")).toBeNull();
+    expect(screen.queryByTestId("developer-ctl-create-save")).toBeNull();
+  });
+
   it("shows empty params section when detail has none", async () => {
     getControlDetail.mockResolvedValue({
       ...sampleDetail,

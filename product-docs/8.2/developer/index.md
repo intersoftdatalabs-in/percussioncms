@@ -42,6 +42,8 @@ Operators using **Developer → Display Formats** create/delete and column add/r
 
 Operators using **Developer → Action Menus** create/delete chrome: [Developer Action Menus](id:admin-developer-action-menus).
 
+Operators using **Developer → CE Controls** create chrome: [Developer CE Controls](id:admin-developer-ce-controls).
+
 ## Accessibility — delete confirm
 
 Destructive **Delete** on Developer catalog editors (Searches, Views, Display
