@@ -44,7 +44,8 @@ slices (see detail **design gaps** when present).
 - Catalog and detail omit **hidden** applications from the list contract used by
   this chrome; hidden rows are not started or stopped here.
 - Pipe IR execute, mapper/tank editing, and enable/disable are not in this chrome.
-- Playwright H2 proof for Start/Stop is a separate QA slice.
+- Surface-filtered Playwright for Start/Stop lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-start-stop.spec.js`.
 
 ## REST
 
