@@ -98,7 +98,9 @@ describe("PipelinesPanel", () => {
       expect(screen.getByTestId("developer-pipe-table")).toBeTruthy();
     });
 
-    fireEvent.click(screen.getByTestId("developer-pipe-open"));
+    const openBtn = screen.getByTestId("developer-pipe-open");
+    expect(openBtn.getAttribute("data-pipe-name")).toBe("sys_cmpDocuments");
+    fireEvent.click(openBtn);
     await waitFor(() => {
       expect(screen.getByTestId("developer-pipe-detail")).toBeTruthy();
     });

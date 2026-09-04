@@ -42,6 +42,8 @@ class CatalogRestJaxrsRegistrationTest {
     "restViewResource",
     "restServerConfigsResource",
     "restRelationshipTypeResource",
+    // Pipelines Slice A/B — CXF 404 without explicit rest-jax-rs ref (#4314/#4316)
+    "restPipelinesResource",
     // peers already registered by #1714 — keep locked so they cannot regress
     "restKeywordsResource",
     "restLocalesResource",

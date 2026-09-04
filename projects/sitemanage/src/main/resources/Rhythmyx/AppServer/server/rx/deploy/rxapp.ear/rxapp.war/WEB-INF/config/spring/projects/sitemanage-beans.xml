@@ -110,6 +110,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restViewResource" />
             <ref bean="restControlsResource" />
             <ref bean="restServerConfigsResource" />
+            <!-- Pipelines Slice A/B: classic XML Application catalog + IR (#4314/#4316); CXF 404 without ref -->
+            <ref bean="restPipelinesResource" />
             <ref bean="restAuditLogResource" />
         </jaxrs:serviceBeans>
         <jaxrs:extensionMappings>
