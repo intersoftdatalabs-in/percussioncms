@@ -91,6 +91,10 @@ System/User Velocity configuration files (SY-02); it only inserts catalog text
 into the template body. Integrators can call the same REST catalog directly —
 see [REST API](id:developer-rest) (Velocity snippets).
 
+Automated H2 surface coverage lives in
+`modules/perc-qa-automation/frontend/tests/developer-template-snippet-library.spec.js`
+(`npm run test:surface -- --path tests/developer-template-snippet-library.spec.js`).
+
 ## Related
 
 - [Design templates](id:admin-design-templates)

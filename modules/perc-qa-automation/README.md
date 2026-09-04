@@ -1037,6 +1037,31 @@ npm run test:surface:list -- --path tests/design-template-delete.spec.js
 npm run test:surface -- --tag design-spa
 ```
 
+#### Developer Templates AS-09 snippet library (#4307 / parent #1690)
+
+Surface-filtered companion for **Insert snippet** on Developer → Templates source
+(REST catalog `GET /services/velocity/snippets` + SPA dialog). Stacks on #4305 /
+#4306. Requires `restVelocityResource` on `rest-jax-rs` (CXF 404 without the
+ref). Do not run the full suite.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/developer-template-snippet-library.spec.js` |
+| Tags | `@as-09` `@snippet-library` `@developer-templates` `@smoke` `@ui` |
+| Soft skip | Empty templates catalog on the cell |
+| Product docs | `product-docs/8.2/admin/developer-templates.md` (AS-09) |
+
+```bash
+cd modules/perc-qa-automation/frontend
+# After perc-devctl qa-up (use printed TEST_CMS_URL):
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  npm run test:surface -- --path tests/developer-template-snippet-library.spec.js
+
+npm run test:surface:list -- --path tests/developer-template-snippet-library.spec.js
+npm run test:surface -- --tag as-09
+```
+
 #### Explorer shell chrome composition (#2850 / parent #2407 / #2400)
 
 Surface-filtered companion for product Explorer shell composition: DCE menu bar,
