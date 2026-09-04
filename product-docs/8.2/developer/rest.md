@@ -2242,8 +2242,10 @@ snippet library, AS-09) are exposed under `/services/velocity/snippets`. The cat
 Appendix C field, slot, and misc macros (and short samples) with stable ids and insert text
 aligned with shipped `sys_assembly.vm` macros. This surface is **read-only** — it does not
 edit System/User Velocity configuration files (see [Server configuration files](#server-configuration-files-catalog)
-for `USER_VELOCITY_MACROS` / related SY-02 keys). SPA insert chrome is a separate product
-slice; integrators and Developer tooling may call GET directly.
+for `USER_VELOCITY_MACROS` / related SY-02 keys). The **Developer → Templates** source editor
+**Insert snippet** control loads this catalog and inserts the selected text at the caret
+(see [Developer Templates](id:admin-developer-templates)). Integrators may also call GET
+directly.
 
 | Method | Path | Purpose |
 |--------|------|---------|

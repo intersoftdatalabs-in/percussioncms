@@ -21,6 +21,17 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   updateTemplateDetail: vi.fn(),
 }));
 
+vi.mock("../../../main/ts/api/developer/velocitySnippetsApi", () => ({
+  listVelocitySnippets: vi.fn().mockResolvedValue([
+    {
+      id: "misc.inner",
+      title: "inner",
+      category: "misc",
+      insertText: "#inner()",
+    },
+  ]),
+}));
+
 vi.mock("../../../main/ts/api/developer/templateImportExport", async (importOriginal) => {
   const actual =
     await importOriginal<typeof import("../../../main/ts/api/developer/templateImportExport")>();
@@ -106,8 +117,37 @@ describe("TemplateDetailPanel", () => {
     expect(screen.getByTestId("developer-tpl-source-ln-1")).toBeTruthy();
     expect(screen.getByTestId("developer-tpl-source-ln-4")).toBeTruthy();
     expect(screen.getByTestId("developer-tpl-source-copy")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-snippet-open")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-tpl-back"));
     expect(onBack).toHaveBeenCalled();
+  });
+
+  it("opens snippet library and inserts catalog text into source", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      templateSource: "PREFIX",
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-source-edit")).toBeTruthy();
+    });
+    const ta = screen.getByTestId("developer-tpl-source-edit") as HTMLTextAreaElement;
+    ta.setSelectionRange(6, 6);
+    fireEvent.click(screen.getByTestId("developer-tpl-snippet-open"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-snippet-dialog")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-snippet-row-misc.inner"));
+    fireEvent.click(screen.getByTestId("developer-tpl-snippet-insert"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-tpl-source-edit") as HTMLTextAreaElement).value,
+      ).toBe("PREFIX#inner()");
+    });
+    expect(screen.getByTestId("developer-tpl-detail-notice").textContent).toMatch(
+      /Snippet inserted/i,
+    );
+    expect(screen.queryByTestId("developer-tpl-snippet-dialog")).toBeNull();
   });
 
   it("shows Show more for long binding expressions and toggles expand", async () => {

@@ -41,9 +41,14 @@ import {
   isLongBindingExpression,
 } from "./bindingExpressionPreview";
 import {
+  SnippetLibraryDialog,
+  openSnippetLibrary,
+} from "./SnippetLibraryDialog";
+import {
   SOURCE_TOKEN_COLORS,
   copyTextToClipboard,
   highlightTemplateSource,
+  insertTextAtSelection,
   lineNumberGutterWidth,
   lineNumbersForSource,
   type SourceToken,
@@ -254,12 +259,16 @@ export function TemplateDetailPanel({
   /** When true, show editable textarea; otherwise highlighted preview. */
   const [sourceEditing, setSourceEditing] = useState(true);
   const [copyFeedback, setCopyFeedback] = useState<"idle" | "ok" | "err">("idle");
+  const [snippetOpen, setSnippetOpen] = useState(false);
+  /** Pending caret after snippet insert (applied when textarea remounts/edits). */
+  const pendingCaretRef = useRef<number | null>(null);
   /** Row indices with expanded long binding expressions (UI-SRC-02). */
   const [expandedExprRows, setExpandedExprRows] = useState<Set<number>>(
     () => new Set(),
   );
   const copyFeedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const gutterRef = useRef<HTMLDivElement | null>(null);
+  const sourceEditRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     return () => {
@@ -307,6 +316,24 @@ export function TemplateDetailPanel({
       cancelled = true;
     };
   }, [idOrName]);
+
+  useEffect(() => {
+    const caret = pendingCaretRef.current;
+    if (caret == null || !sourceEditing) {
+      return;
+    }
+    const ta = sourceEditRef.current;
+    if (!ta) {
+      return;
+    }
+    pendingCaretRef.current = null;
+    ta.focus();
+    try {
+      ta.setSelectionRange(caret, caret);
+    } catch {
+      // jsdom / older hosts may not support setSelectionRange
+    }
+  }, [source, sourceEditing]);
 
   const initialBindings = cloneBindings(detail?.bindings);
   const initialSlotKeys = new Set(
@@ -484,6 +511,23 @@ export function TemplateDetailPanel({
       clearTimeout(copyFeedbackTimer.current);
     }
     copyFeedbackTimer.current = setTimeout(() => setCopyFeedback("idle"), 2000);
+  }
+
+  function handleOpenSnippetLibrary(ev: React.SyntheticEvent) {
+    openSnippetLibrary(ev);
+    setSnippetOpen(true);
+  }
+
+  function handleInsertSnippet(insertText: string) {
+    const ta = sourceEditRef.current;
+    const start = ta?.selectionStart ?? source.length;
+    const end = ta?.selectionEnd ?? start;
+    const { next, caret } = insertTextAtSelection(source, insertText, start, end);
+    setSourceEditing(true);
+    setSource(next);
+    setNotice(DEV_MSG.TPL_SNIPPET_INSERTED);
+    setSnippetOpen(false);
+    pendingCaretRef.current = caret;
   }
 
   return (
@@ -763,6 +807,19 @@ export function TemplateDetailPanel({
                 </button>
                 <button
                   type="button"
+                  data-testid="developer-tpl-snippet-open"
+                  onClick={handleOpenSnippetLibrary}
+                  disabled={busy}
+                  style={{
+                    ...sourceToolbarBtn,
+                    cursor: busy ? "not-allowed" : "pointer",
+                  }}
+                  aria-label={DEV_MSG.TPL_SNIPPET_OPEN}
+                >
+                  {DEV_MSG.TPL_SNIPPET_OPEN}
+                </button>
+                <button
+                  type="button"
                   data-testid="developer-tpl-source-copy"
                   onClick={() => void handleCopySource()}
                   style={sourceToolbarBtn}
@@ -813,6 +870,7 @@ export function TemplateDetailPanel({
               </div>
               {sourceEditing ? (
                 <textarea
+                  ref={sourceEditRef}
                   data-testid="developer-tpl-source-edit"
                   style={{
                     flex: 1,
@@ -918,6 +976,12 @@ export function TemplateDetailPanel({
               </ul>
             </section>
           ) : null}
+
+          <SnippetLibraryDialog
+            open={snippetOpen}
+            onCancel={() => setSnippetOpen(false)}
+            onInsert={(text) => handleInsertSnippet(text)}
+          />
         </>
       ) : null}
     </div>

@@ -590,6 +590,10 @@ export const PATHS = {
   get APPLICATION_FILES() {
     return `${SERVICES_ROOT}/applicationfiles`;
   },
+  /** Built-in Velocity macro snippet catalog (AS-09). */
+  get VELOCITY_SNIPPETS() {
+    return `${SERVICES_ROOT}/velocity/snippets`;
+  },
   /** Content editor control catalog (UI-01). */
   get CE_CONTROLS() {
     return `${SERVICES_ROOT}/cecontrols`;
