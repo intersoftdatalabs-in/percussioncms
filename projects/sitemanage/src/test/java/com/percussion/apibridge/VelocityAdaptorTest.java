@@ -121,6 +121,14 @@ class VelocityAdaptorTest {
         () -> VelocityAdaptor.snippet(" ", "t", VelocityAdaptor.CATEGORY_FIELD, "#x()"));
     assertThrows(
         IllegalArgumentException.class,
+        () -> VelocityAdaptor.snippet("id", " ", VelocityAdaptor.CATEGORY_FIELD, "#x()"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> VelocityAdaptor.snippet("id", "t", VelocityAdaptor.CATEGORY_FIELD, " "));
+    assertThrows(
+        IllegalArgumentException.class, () -> VelocityAdaptor.snippet("id", "t", " ", "#x()"));
+    assertThrows(
+        IllegalArgumentException.class,
         () -> VelocityAdaptor.snippet("id", "t", "unknown", "#x()"));
   }
 }
