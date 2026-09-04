@@ -46,20 +46,23 @@
 			<artifactId>soln-segment-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
-		<!-- perc-system marks these provided; orphan module needs them at compile. -->
+		<!-- Orphan compile-only: match perc-system provided scope to avoid consumer skew. -->
 		<dependency>
 			<groupId>jakarta.ws.rs</groupId>
 			<artifactId>jakarta.ws.rs-api</artifactId>
 			<version>${jakarta.ws.rs.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.jws</groupId>
 			<artifactId>jakarta.jws-api</artifactId>
 			<version>3.0.0</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>

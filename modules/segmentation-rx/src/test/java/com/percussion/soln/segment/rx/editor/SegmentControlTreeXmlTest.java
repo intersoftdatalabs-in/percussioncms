@@ -28,6 +28,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.percussion.soln.segment.ISegmentNode;
 import com.percussion.soln.segment.ISegmentTree;
@@ -101,12 +103,20 @@ public class SegmentControlTreeXmlTest {
         ISegmentNode b = segMocks.makeSegmentStub(3, "b ' b", "//rootf/bf", true);
         segMocks.noChildren(a); segMocks.noChildren(b);
         segMocks.addChildren(root, a,b);
-        // Apostrophe survives Document round-trip as a literal in double-quoted attrs.
+        Document doc = segTreeXml.segmentTreeToXml(tree);
+
+        // Semantic contract: DOM attribute values (independent of serializer entity style).
+        NodeList nodes = doc.getDocumentElement().getElementsByTagName("node");
+        assertEquals(2, nodes.getLength());
+        assertEquals("a & a", ((Element) nodes.item(0)).getAttribute("label"));
+        assertEquals("b ' b", ((Element) nodes.item(1)).getAttribute("label"));
+
+        // Serialized form: '&' must be &amp;. Apostrophe may be literal in double-quoted
+        // attribute values per XML 1.0 5th ed. §2.3 / §2.4 (AttValue); JDK 21 Xerces does so.
         String expected = "<tree label=\"root\">" +
                             "<node id=\"2\" label=\"a &amp; a\" selectable=\"no\"/>" +
                             "<node id=\"3\" label=\"b ' b\" selectable=\"yes\"/>" +
                           "</tree>";
-        Document doc = segTreeXml.segmentTreeToXml(tree);
         assertEquals(normalizeXml(expected), normalizeXml(xmlToString(doc)));
     }
     
@@ -132,12 +142,5 @@ public class SegmentControlTreeXmlTest {
             +"</node>"
           +"</tree>";
         assertEquals(normalizeXml(expected), normalizeXml(xmlToString(doc)));
-    }
-
-    private static String normalizeXml(String xml) {
-        return xml.replace("\r\n", "\n")
-            .replaceFirst("<\\?xml[^?]*\\?>\\s*", "")
-            .replaceAll(">\\s+<", "><")
-            .trim();
     }
 }

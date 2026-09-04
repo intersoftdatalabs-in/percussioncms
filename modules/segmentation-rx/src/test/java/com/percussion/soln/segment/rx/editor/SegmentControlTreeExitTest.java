@@ -91,11 +91,4 @@ public class SegmentControlTreeExitTest {
           +"</tree>";
         assertEquals(normalizeXml(expected), normalizeXml(xmlToString(doc)));
     }
-
-    private static String normalizeXml(String xml) {
-        return xml.replace("\r\n", "\n")
-            .replaceFirst("<\\?xml[^?]*\\?>\\s*", "")
-            .replaceAll(">\\s+<", "><")
-            .trim();
-    }
 }

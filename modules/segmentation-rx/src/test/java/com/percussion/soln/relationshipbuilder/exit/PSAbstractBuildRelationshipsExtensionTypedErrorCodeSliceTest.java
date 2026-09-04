@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.extension.IPSExtensionErrors;
@@ -80,6 +81,20 @@ class PSAbstractBuildRelationshipsExtensionTypedErrorCodeSliceTest {
     PSExtensionDef def = modeDef("BUILD");
     TestableExtension exit = new TestableExtension();
     exit.init(def, new File("."));
+  }
+
+  /**
+   * Contract for dual-write skip: typed construction must propagate {@code isAuditable()} both ways.
+   * Init path above uses non-auditable {@code EXT_INIT_FAILED}; this parallel slice uses an
+   * auditable catalog entry so a default-{@code false} bug cannot silently pass.
+   */
+  @Test
+  void typedConstructionPropagatesAuditableTrue() {
+    assertTrue(ExtensionErrorCodes.AUTHENTICATION_FAILED1.isAuditable());
+    PSExtensionException ex =
+        new PSExtensionException(ExtensionErrorCodes.AUTHENTICATION_FAILED1, "slice");
+    assertSame(ExtensionErrorCodes.AUTHENTICATION_FAILED1, ex.getTypedErrorCode());
+    assertTrue(ex.isAuditable());
   }
 
   private static PSExtensionDef modeDef(String mode) {

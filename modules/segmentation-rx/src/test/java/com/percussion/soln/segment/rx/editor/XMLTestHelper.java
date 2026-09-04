@@ -22,8 +22,19 @@ import org.w3c.dom.Document;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 public class XMLTestHelper {
-    
+
     public static String xmlToString(Document doc) {
         return PSXmlDocumentBuilder.toString(doc);
+    }
+
+    /**
+     * Platform- and serializer-stable XML string compare: normalize CRLF, drop an optional XML
+     * declaration, and collapse whitespace between tags.
+     */
+    public static String normalizeXml(String xml) {
+        return xml.replace("\r\n", "\n")
+            .replaceFirst("<\\?xml[^?]*\\?>\\s*", "")
+            .replaceAll(">\\s+<", "><")
+            .trim();
     }
 }

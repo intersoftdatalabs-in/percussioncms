@@ -36,6 +36,7 @@ import org.xml.sax.SAXException;
 
 import com.percussion.soln.relationshipbuilder.IPSRelationshipBuilder;
 import com.percussion.soln.relationshipbuilder.exit.PSExtensionHelper;
+import com.percussion.soln.segment.rx.editor.XMLTestHelper;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
@@ -142,8 +143,8 @@ public class PSExtensionHelperTest
        helper.updateDisplayChoices(actual, true);
        // XMLUnit 1.6 Diff is incompatible with modern DOM/Xerces attribute maps here.
        assertEquals(
-           normalizeXml(PSXmlDocumentBuilder.toString(expected)),
-           normalizeXml(PSXmlDocumentBuilder.toString(actual)));
+           XMLTestHelper.normalizeXml(PSXmlDocumentBuilder.toString(expected)),
+           XMLTestHelper.normalizeXml(PSXmlDocumentBuilder.toString(actual)));
    }
 
    private Document getXml(String file) throws IOException, SAXException {
@@ -181,14 +182,10 @@ public class PSExtensionHelperTest
 
        // XMLUnit 1.6 Diff is incompatible with modern DOM/Xerces attribute maps here.
        assertEquals(
-           normalizeXml(PSXmlDocumentBuilder.toString(expected)),
-           normalizeXml(PSXmlDocumentBuilder.toString(actual)));
+           XMLTestHelper.normalizeXml(PSXmlDocumentBuilder.toString(expected)),
+           XMLTestHelper.normalizeXml(PSXmlDocumentBuilder.toString(actual)));
        //307, 318
 
-   }
-
-   private static String normalizeXml(String xml) {
-      return xml.replace("\r\n", "\n").trim();
    }
 
 }
