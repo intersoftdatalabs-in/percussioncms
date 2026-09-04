@@ -96,13 +96,15 @@ public class ApplicationFilesResource {
     try {
       List<ApplicationFileSummary> list = requireAdaptor().listFiles(app);
       if (list == null) {
-        throw new WebApplicationException("Application not found", 404);
+        throw new WebApplicationException(
+            "Application not found",
+            Response.status(Response.Status.NOT_FOUND).entity("Application not found").build());
       }
       return list;
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
-      throw new WebApplicationException(e, 500);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -129,13 +131,17 @@ public class ApplicationFilesResource {
     try {
       ApplicationFileSummary file = requireAdaptor().getFile(app, path);
       if (file == null) {
-        throw new WebApplicationException("Application file not found", 404);
+        throw new WebApplicationException(
+            "Application file not found",
+            Response.status(Response.Status.NOT_FOUND)
+                .entity("Application file not found")
+                .build());
       }
       return file;
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
-      throw new WebApplicationException(e, 500);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -175,13 +181,17 @@ public class ApplicationFilesResource {
       }
       ApplicationFileSummary updated = requireAdaptor().putFile(app, path, body);
       if (updated == null) {
-        throw new WebApplicationException("Application file not found", 404);
+        throw new WebApplicationException(
+            "Application file not found",
+            Response.status(Response.Status.NOT_FOUND)
+                .entity("Application file not found")
+                .build());
       }
       return updated;
     } catch (RuntimeException e) {
       throw mapWriteFailure(e);
     } catch (Exception e) {
-      throw new WebApplicationException(e, 500);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -194,9 +204,11 @@ public class ApplicationFilesResource {
       return wae;
     }
     if (e instanceof IllegalArgumentException) {
-      return new WebApplicationException(e.getMessage(), 400);
+      return new WebApplicationException(
+          e.getMessage(),
+          Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
     }
-    return new WebApplicationException(e, 500);
+    return new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
   }
 
   private IApplicationFileAdaptor requireAdaptor() {

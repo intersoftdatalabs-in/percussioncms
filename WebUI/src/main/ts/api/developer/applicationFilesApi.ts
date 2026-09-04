@@ -27,6 +27,7 @@ export const APPLICATION_FILE_DESIGN_GAPS: string[] = [
   "Design locking / concurrent edit are not exposed on this Developer surface",
   "Binary files may not round-trip as UTF-8 text",
   "Create/delete folder and rename/move are not supported via this API",
+  "Admin PUT may create a new file when the relative path does not yet exist under the application root",
   "Distinct from /serverconfigs (SY-02 fixed server configuration allow-list)",
 ];
 

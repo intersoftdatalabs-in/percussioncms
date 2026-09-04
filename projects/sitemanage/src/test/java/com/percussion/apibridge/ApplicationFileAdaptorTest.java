@@ -205,6 +205,42 @@ class ApplicationFileAdaptorTest {
   }
 
   @Test
+  void put_nullUserServiceFailsClosedAs403() throws Exception {
+    // adminChecker null → isCurrentUserAdmin; userService field stays null → false.
+    adaptor =
+        new ApplicationFileAdaptor(
+            tok -> {
+              PSApplicationSummary sum = mock(PSApplicationSummary.class);
+              when(sum.getName()).thenReturn("sys_resources");
+              when(sum.getId()).thenReturn(42);
+              return new PSApplicationSummary[] {sum};
+            },
+            fileStore,
+            null,
+            () -> token);
+    ApplicationFileSummary body = new ApplicationFileSummary();
+    body.setContent("x");
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.putFile("sys_resources", "ApplicationFiles/a.css", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(fileStore, never()).write(any(), any(), any(), anyBoolean(), any());
+  }
+
+  @Test
+  void toListSummary_setsDirectoryFlag() {
+    ApplicationFileSummary file =
+        ApplicationFileAdaptor.toListSummary("sys_resources", "ApplicationFiles/a.css", false);
+    assertFalse(Boolean.TRUE.equals(file.getDirectory()));
+    ApplicationFileSummary dir =
+        ApplicationFileAdaptor.toListSummary("sys_resources", "ApplicationFiles", true);
+    assertTrue(Boolean.TRUE.equals(dir.getDirectory()));
+    assertEquals("ApplicationFiles", dir.getName());
+  }
+
+  @Test
   void normalizeSafeRelativePath_acceptsNestedRelative() {
     assertEquals(
         "ApplicationFiles/css/site.css",

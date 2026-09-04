@@ -5,11 +5,21 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { BootstrapProvider } from "../../../main/ts/app/bootstrap/BootstrapContext";
+import { DEFAULT_SPA_BOOTSTRAP } from "../../../main/ts/app/bootstrap/types";
 import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as appFilesApi from "../../../main/ts/api/developer/applicationFilesApi";
 import * as pipelinesApi from "../../../main/ts/api/developer/pipelinesApi";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { ApplicationFilesPanel } from "../../../main/ts/developer/ApplicationFilesPanel";
+
+function renderAdmin(ui: React.ReactElement) {
+  return render(
+    <BootstrapProvider value={{ ...DEFAULT_SPA_BOOTSTRAP, isAdmin: true }}>
+      {ui}
+    </BootstrapProvider>,
+  );
+}
 
 vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   listApplications: vi.fn(),
@@ -71,7 +81,7 @@ describe("ApplicationFilesPanel", () => {
       designGaps: ["gap-lock"],
     });
 
-    render(<ApplicationFilesPanel />);
+    renderAdmin(<ApplicationFilesPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-appfile-apps-table")).toBeTruthy();
     });
@@ -106,7 +116,7 @@ describe("ApplicationFilesPanel", () => {
 
   it("shows empty apps state", async () => {
     listApplications.mockResolvedValue([]);
-    render(<ApplicationFilesPanel />);
+    renderAdmin(<ApplicationFilesPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-appfile-apps-empty")).toBeTruthy();
     });
@@ -114,7 +124,7 @@ describe("ApplicationFilesPanel", () => {
 
   it("shows session-redirect message via panelErrMsg", async () => {
     listApplications.mockRejectedValue(new SessionRedirectError());
-    render(<ApplicationFilesPanel />);
+    renderAdmin(<ApplicationFilesPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-appfile-apps-error")).toBeTruthy();
     });
@@ -129,7 +139,7 @@ describe("ApplicationFilesPanel", () => {
       statusText: "Internal Server Error",
       body: null,
     });
-    render(<ApplicationFilesPanel />);
+    renderAdmin(<ApplicationFilesPanel />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-appfile-apps-error")).toBeTruthy();
     });

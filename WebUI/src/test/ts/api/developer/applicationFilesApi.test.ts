@@ -70,8 +70,8 @@ describe("applicationFilesApi", () => {
     const detail = await getApplicationFileDetail("sys_resources", "ApplicationFiles/a.txt");
     expect(detail.content).toBe("hello");
     expect(detail.designGaps?.length).toBeGreaterThan(0);
-    expect(get.mock.calls[0][0]).toContain("/applicationfiles/sys_resources/content?");
-    expect(get.mock.calls[0][0]).toContain("path=ApplicationFiles%2Fa.txt");
+    const expectedGet = `${PATHS.APPLICATION_FILES}/sys_resources/content?path=ApplicationFiles%2Fa.txt`;
+    expect(get.mock.calls[0][0]).toBe(expectedGet);
   });
 
   it("updateApplicationFile PUTs wrapped content and unwraps response", async () => {
@@ -86,10 +86,13 @@ describe("applicationFilesApi", () => {
       content: "updated",
     });
     expect(detail.content).toBe("updated");
-    expect(put.mock.calls[0][0]).toContain("/applicationfiles/sys_resources/content?");
+    const expectedPut = `${PATHS.APPLICATION_FILES}/sys_resources/content?path=ApplicationFiles%2Fa.txt`;
+    expect(put.mock.calls[0][0]).toBe(expectedPut);
     expect(put.mock.calls[0][1]).toEqual({
       ApplicationFile: { content: "updated" },
     });
+    // CSRF: put() from ../client injects OWASP_CSRFTOKEN via buildHeaders; API layer
+    // does not pass a redundant header (peer mutating APIs share the same put helper).
   });
 
   it("updateApplicationFile rejects missing content before PUT", async () => {

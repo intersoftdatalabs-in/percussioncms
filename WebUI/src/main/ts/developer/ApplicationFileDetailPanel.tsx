@@ -3,6 +3,7 @@
  */
 
 import React, { useEffect, useRef, useState } from "react";
+import { useSpaBootstrap } from "../app/bootstrap/BootstrapContext";
 import { isApiError } from "../api/client";
 import {
   APPLICATION_FILE_DESIGN_GAPS,
@@ -13,6 +14,9 @@ import type { ApplicationFileSummary } from "../api/developer/types";
 import { catalogColors, backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+
+/** Soft ceiling for in-browser text editing (bytes). Larger files stay read-blocked. */
+export const APPFILE_MAX_EDIT_BYTES = 2 * 1024 * 1024;
 
 const fieldStyle: React.CSSProperties = {
   display: "flex",
@@ -34,6 +38,24 @@ const textareaStyle: React.CSSProperties = {
   wordBreak: "normal",
 };
 
+function looksLikeXmlPath(path: string): boolean {
+  const lower = (path || "").toLowerCase();
+  return lower.endsWith(".xml") || lower.endsWith(".xsl") || lower.endsWith(".xslt");
+}
+
+/** True when DOMParser reports a parsererror for XML-ish content. */
+export function hasXmlParseError(content: string): boolean {
+  if (typeof DOMParser === "undefined") {
+    return false;
+  }
+  try {
+    const doc = new DOMParser().parseFromString(content, "application/xml");
+    return doc.querySelector("parsererror") != null;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * SY-05 — edit and save one application CMS/resource file body (Admin PUT).
  */
@@ -48,12 +70,14 @@ export function ApplicationFileDetailPanel({
   onBack: () => void;
   onSaved?: (detail: ApplicationFileSummary) => void;
 }): React.ReactElement {
+  const { isAdmin } = useSpaBootstrap();
   const [detail, setDetail] = useState<ApplicationFileSummary | null>(null);
   const [content, setContent] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [tooLarge, setTooLarge] = useState(false);
   const inflight = useRef(false);
 
   useEffect(() => {
@@ -62,10 +86,25 @@ export function ApplicationFileDetailPanel({
     setContent("");
     setError(null);
     setNotice(null);
+    setTooLarge(false);
     setLoading(true);
     getApplicationFileDetail(applicationName, path)
       .then((d) => {
         if (cancelled) return;
+        const len =
+          typeof d.contentLength === "number"
+            ? d.contentLength
+            : d.content != null
+              ? new TextEncoder().encode(d.content).length
+              : 0;
+        if (len > APPFILE_MAX_EDIT_BYTES) {
+          setDetail(d);
+          setTooLarge(true);
+          setContent("");
+          setError(DEV_MSG.APPFILE_TOO_LARGE);
+          setLoading(false);
+          return;
+        }
         setDetail(d);
         setContent(d.content ?? "");
         setLoading(false);
@@ -80,11 +119,36 @@ export function ApplicationFileDetailPanel({
     };
   }, [applicationName, path]);
 
-  const dirty = detail != null && content !== (detail.content ?? "");
-  const canSave = !busy && !loading && detail != null && dirty;
+  const dirty = detail != null && !tooLarge && content !== (detail.content ?? "");
+  const canSave =
+    Boolean(isAdmin) && !busy && !loading && !tooLarge && detail != null && dirty;
+
+  function confirmLeaveIfDirty(): boolean {
+    if (!dirty) {
+      return true;
+    }
+    if (typeof window !== "undefined" && typeof window.confirm === "function") {
+      return window.confirm(DEV_MSG.APPFILE_UNSAVED_CONFIRM);
+    }
+    return true;
+  }
+
+  function handleBack(): void {
+    if (!confirmLeaveIfDirty()) {
+      return;
+    }
+    onBack();
+  }
 
   async function handleSave(): Promise<void> {
     if (!canSave || inflight.current) return;
+    if (looksLikeXmlPath(path) && hasXmlParseError(content)) {
+      if (typeof window !== "undefined" && typeof window.confirm === "function") {
+        if (!window.confirm(DEV_MSG.APPFILE_XML_CONFIRM)) {
+          return;
+        }
+      }
+    }
     inflight.current = true;
     setBusy(true);
     setError(null);
@@ -118,7 +182,7 @@ export function ApplicationFileDetailPanel({
     <div data-testid="developer-appfile-detail">
       <button
         type="button"
-        onClick={onBack}
+        onClick={handleBack}
         data-testid="developer-appfile-back"
         aria-label={DEV_MSG.APPFILE_BACK_FILES}
         style={backButton}
@@ -168,22 +232,24 @@ export function ApplicationFileDetailPanel({
             </dl>
           </header>
 
-          <section data-testid="developer-appfile-content" style={fieldStyle}>
-            <label htmlFor="appfile-content">{DEV_MSG.APPFILE_CONTENT}</label>
-            <textarea
-              id="appfile-content"
-              data-testid="developer-appfile-content-editor"
-              aria-label={DEV_MSG.APPFILE_CONTENT}
-              style={textareaStyle}
-              value={content}
-              disabled={busy}
-              onChange={(e) => setContent(e.target.value)}
-              spellCheck={false}
-            />
-            <span style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
-              {DEV_MSG.APPFILE_CONTENT_HINT}
-            </span>
-          </section>
+          {!tooLarge ? (
+            <section data-testid="developer-appfile-content" style={fieldStyle}>
+              <label htmlFor="appfile-content">{DEV_MSG.APPFILE_CONTENT}</label>
+              <textarea
+                id="appfile-content"
+                data-testid="developer-appfile-content-editor"
+                aria-label={DEV_MSG.APPFILE_CONTENT}
+                style={textareaStyle}
+                value={content}
+                disabled={busy || !isAdmin}
+                onChange={(e) => setContent(e.target.value)}
+                spellCheck={false}
+              />
+              <span style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
+                {DEV_MSG.APPFILE_CONTENT_HINT}
+              </span>
+            </section>
+          ) : null}
 
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
             <button
@@ -191,6 +257,7 @@ export function ApplicationFileDetailPanel({
               data-testid="developer-appfile-save"
               aria-label={DEV_MSG.APPFILE_SAVE}
               disabled={!canSave}
+              title={!isAdmin ? DEV_MSG.APPFILE_SAVE_ADMIN_ONLY : undefined}
               onClick={() => void handleSave()}
               style={{
                 padding: "8px 16px",
@@ -207,7 +274,7 @@ export function ApplicationFileDetailPanel({
               type="button"
               data-testid="developer-appfile-cancel"
               disabled={busy}
-              onClick={onBack}
+              onClick={handleBack}
               style={{
                 padding: "8px 16px",
                 background: "transparent",
@@ -220,6 +287,16 @@ export function ApplicationFileDetailPanel({
               {DEV_MSG.APPFILE_CANCEL}
             </button>
           </div>
+
+          {!isAdmin ? (
+            <div
+              role="status"
+              data-testid="developer-appfile-admin-hint"
+              style={{ color: catalogColors.muted, fontSize: "0.9rem", marginBottom: "12px" }}
+            >
+              {DEV_MSG.APPFILE_SAVE_ADMIN_ONLY}
+            </div>
+          ) : null}
 
           <section style={{ marginTop: "16px" }} data-testid="developer-appfile-gaps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.APPFILE_GAPS}</h3>

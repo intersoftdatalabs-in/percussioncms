@@ -1529,6 +1529,14 @@ export const DEV_MSG_KEYS = {
   APPFILE_SAVE_ERROR: "perc.ui.developer@Could not save application file.",
   APPFILE_FORBIDDEN: "perc.ui.developer@Admin role required to save application files.",
   APPFILE_NOT_FOUND: "perc.ui.developer@Application or file not found.",
+  APPFILE_TOO_LARGE:
+    "perc.ui.developer@File is too large to edit in the browser (2 MB limit).",
+  APPFILE_UNSAVED_CONFIRM:
+    "perc.ui.developer@Discard unsaved application file changes?",
+  APPFILE_XML_CONFIRM:
+    "perc.ui.developer@Content may not be well-formed XML. Save anyway?",
+  APPFILE_SAVE_ADMIN_ONLY:
+    "perc.ui.developer@Admin role required. Save is disabled for this session.",
   APPFILE_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   CTL_LOADING: "perc.ui.developer@Loading controls...",
   CTL_EMPTY: "perc.ui.developer@No controls returned.",

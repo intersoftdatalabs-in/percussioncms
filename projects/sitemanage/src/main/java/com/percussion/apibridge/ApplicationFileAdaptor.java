@@ -73,6 +73,7 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
           "Design locking / concurrent edit are not exposed on this Developer surface",
           "Binary files may not round-trip as UTF-8 text",
           "Create/delete folder and rename/move are not supported via this API",
+          "Admin PUT may create a new file when the relative path does not yet exist under the application root",
           "Distinct from /serverconfigs (SY-02 fixed server configuration allow-list)");
 
   private final Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader;
@@ -123,13 +124,14 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
         if (rel == null || normalizeSafeRelativePath(rel) == null) {
           continue;
         }
-        out.add(toListSummary(resolved.trustedName(), rel));
+        out.add(toListSummary(resolved.trustedName(), rel, f.isDirectory()));
       }
       out.sort(
           Comparator.comparing(
               ApplicationFileSummary::getPath, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
       return out;
     } catch (RuntimeException e) {
+      // Must precede catch (Exception): otherwise RuntimeException is wrapped as IllegalStateException.
       throw e;
     } catch (Exception e) {
       log.warn("Failed to list application files for {}", resolved.trustedName(), e);
@@ -165,6 +167,7 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
           e.toString());
       return null;
     } catch (RuntimeException e) {
+      // Must precede catch (Exception): otherwise RuntimeException is wrapped as IllegalStateException.
       throw e;
     } catch (Exception e) {
       log.warn("Failed to read application file {}:{}", resolved.trustedName(), safePath, e);
@@ -206,6 +209,7 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
       throw new WebApplicationException(
           "Not authorized to update application file", Response.Status.FORBIDDEN);
     } catch (RuntimeException e) {
+      // Must precede catch (Exception): otherwise RuntimeException is remapped to HTTP 500.
       throw e;
     } catch (Exception e) {
       log.error(
@@ -395,18 +399,18 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
     return osPath.replace('\\', '/');
   }
 
-  static ApplicationFileSummary toListSummary(String appName, String apiPath) {
+  static ApplicationFileSummary toListSummary(String appName, String apiPath, boolean directory) {
     ApplicationFileSummary s = new ApplicationFileSummary();
     s.setApplicationName(appName);
     s.setPath(apiPath);
     s.setName(leafName(apiPath));
-    s.setDirectory(Boolean.FALSE);
+    s.setDirectory(directory);
     s.setDesignGaps(null);
     return s;
   }
 
   static ApplicationFileSummary toDetail(String appName, String apiPath, String content) {
-    ApplicationFileSummary s = toListSummary(appName, apiPath);
+    ApplicationFileSummary s = toListSummary(appName, apiPath, false);
     s.setContent(content);
     s.setCharacterEncoding(StandardCharsets.UTF_8.name());
     s.setMimeType(guessMimeType(apiPath));

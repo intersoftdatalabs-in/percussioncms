@@ -35,7 +35,7 @@
  */
 
 const { test, expect } = require("@playwright/test");
-const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { loginAsAdmin, loginAsEditor, BASE_URL } = require("./helpers/auth");
 
 const APP_NAME = process.env.APPLICATION_FILE_APP || "sys_resources";
 const FILE_PATH = process.env.APPLICATION_FILE_PATH || "";
@@ -223,6 +223,36 @@ test.describe("Developer application files write (#4289 / SY-05)", () => {
     // Restore original body so the H2 cell stays clean for later runs.
     await saveFileContent(page, original);
     await expect(editor).toHaveValue(original);
+
+    assertConsoleClean(pageErrors, consoleErrors);
+  });
+
+  test("non-admin Save stays disabled; unsafe path PUT is not 200", async ({ page }) => {
+    test.setTimeout(120_000);
+    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+
+    await loginAsEditor(page);
+    await openApplicationFilesCatalog(page);
+    // Editor may still browse; Save must stay disabled when detail opens.
+    const appOpen = page.locator('[data-testid="developer-appfile-app-open"]').first();
+    if (await appOpen.isVisible({ timeout: 15_000 }).catch(() => false)) {
+      await openAppByName(page, APP_NAME);
+      await openFileRow(page, FILE_PATH);
+      const saveBtn = page.locator('[data-testid="developer-appfile-save"]');
+      await expect(saveBtn).toBeVisible();
+      await expect(saveBtn).toBeDisabled();
+      await expect(page.locator('[data-testid="developer-appfile-admin-hint"]')).toBeVisible();
+    }
+
+    // Path-safety: traversal must never succeed (Admin or Editor session cookie).
+    const putResp = await page.request.put(
+      `${BASE_URL}/Rhythmyx/services/applicationfiles/${encodeURIComponent(APP_NAME)}/content?path=${encodeURIComponent("../escape.css")}`,
+      {
+        data: { ApplicationFile: { content: "x" } },
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+      },
+    );
+    expect([403, 404], `unsafe PUT status=${putResp.status()}`).toContain(putResp.status());
 
     assertConsoleClean(pageErrors, consoleErrors);
   });
