@@ -29,6 +29,7 @@ describe("DEVELOPER_SMOKE_SET", () => {
     assert.ok(ids.has("server-configs-write"));
     assert.ok(ids.has("golden-login-explorer"));
     assert.ok(ids.has("login-admin"));
+    assert.ok(ids.has("application-files-write"));
   });
 
   it("requires unique ids", () => {

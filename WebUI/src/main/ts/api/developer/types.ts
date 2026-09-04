@@ -1040,6 +1040,20 @@ export interface ServerConfigDef {
   designGaps?: string[];
 }
 
+/** Application CMS/resource file from GET /services/applicationfiles (SY-05). */
+export interface ApplicationFileSummary {
+  applicationName?: string;
+  /** Relative path under the application root (`/` separators). */
+  path?: string;
+  name?: string;
+  directory?: boolean;
+  content?: string;
+  mimeType?: string;
+  characterEncoding?: string;
+  contentLength?: number;
+  designGaps?: string[];
+}
+
 /** CE control parameter from GET /services/cecontrols. */
 export interface ControlParameterSummary {
   name?: string;

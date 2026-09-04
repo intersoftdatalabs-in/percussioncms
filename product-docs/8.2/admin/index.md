@@ -125,6 +125,7 @@ Non-administrators never see the Admin top-nav item or these configuration surfa
 - [Developer Extensions](id:admin-developer-extensions)
 - [Developer Server Configs](id:admin-developer-server-configs)
 - [Developer Pipelines](id:admin-developer-pipelines)
+- [Developer Application Files](id:admin-developer-application-files)
 - [Object ACL & default template](id:admin-object-acl)
 - [Publishing](id:admin-publishing)
 - [Server operations](id:admin-server-ops)

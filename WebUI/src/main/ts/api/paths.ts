@@ -586,6 +586,10 @@ export const PATHS = {
   get SERVER_CONFIGS() {
     return `${SERVICES_ROOT}/serverconfigs`;
   },
+  /** XML application CMS/resource files (SY-05). */
+  get APPLICATION_FILES() {
+    return `${SERVICES_ROOT}/applicationfiles`;
+  },
   /** Content editor control catalog (UI-01). */
   get CE_CONTROLS() {
     return `${SERVICES_ROOT}/cecontrols`;

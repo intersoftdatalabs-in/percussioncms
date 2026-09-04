@@ -58,6 +58,10 @@ Operators using **Developer → Server Configs** edit/save chrome:
 Operators using **Developer → Pipelines** browse, Admin start/stop, and pipe IR chrome:
 [Developer Pipelines](id:admin-developer-pipelines).
 
+Operators using **Developer → Application Files** browse/save chrome (XML
+application CMS/resource files; distinct from Server Configs):
+[Developer Application Files](id:admin-developer-application-files).
+
 ## Accessibility — delete confirm
 
 Destructive **Delete** on Developer catalog editors (Searches, Views, Display
