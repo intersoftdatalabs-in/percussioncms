@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  getWorkflowAllowedContentTypes,
   parseWorkflowDetail,
   parseWorkflowList,
+  setWorkflowAllowedContentTypes,
+  wrapWorkflowContentTypesForWire,
 } from "../../../../main/ts/api/developer/workflowsApi";
+import { PATHS } from "../../../../main/ts/api/paths";
 
 describe("parseWorkflowList", () => {
   it("returns bare arrays", () => {
@@ -184,5 +188,76 @@ describe("parseWorkflowDetail (#3562)", () => {
     expect(() => parseWorkflowDetail(null)).toThrow(/not found or empty/);
     expect(() => parseWorkflowDetail([])).toThrow(/not found or empty/);
     expect(() => parseWorkflowDetail("nope")).toThrow(/not found or empty/);
+  });
+});
+
+describe("wrapWorkflowContentTypesForWire (SY-06)", () => {
+  it("wraps allowedContentTypes under WorkflowContentTypes", () => {
+    expect(
+      wrapWorkflowContentTypesForWire({
+        allowedContentTypes: [{ name: "percPage" }],
+      }),
+    ).toEqual({
+      WorkflowContentTypes: {
+        allowedContentTypes: [{ name: "percPage" }],
+      },
+    });
+  });
+});
+
+describe("workflow allowed content types API (SY-06)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("GETs /workflows/{id}/allowedContentTypes and unwraps NamedObjectRefList", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        NamedObjectRefList: [{ name: "percPage", label: "Page" }],
+      }),
+    );
+    const list = await getWorkflowAllowedContentTypes("Simple Workflow");
+    expect(list).toEqual([{ name: "percPage", label: "Page" }]);
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.WORKFLOWS_ASSOC}/${encodeURIComponent("Simple Workflow")}/allowedContentTypes`,
+    );
+    expect((fetchMock.mock.calls[0][1] as RequestInit).method).toBe("GET");
+  });
+
+  it("PUTs WorkflowContentTypes wrap without a client-held lock", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        NamedObjectRefList: [{ name: "percImage" }],
+      }),
+    );
+    const saved = await setWorkflowAllowedContentTypes("Simple Workflow", {
+      allowedContentTypes: [{ name: "percImage" }],
+    });
+    expect(saved).toEqual([{ name: "percImage" }]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.WORKFLOWS_ASSOC}/${encodeURIComponent("Simple Workflow")}/allowedContentTypes`,
+    );
+    expect(JSON.parse(String(init.body))).toEqual({
+      WorkflowContentTypes: {
+        allowedContentTypes: [{ name: "percImage" }],
+      },
+    });
   });
 });

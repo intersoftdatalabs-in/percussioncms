@@ -2,16 +2,16 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import { get } from "../client";
+import { get, put } from "../client";
 import { asJsonRecord } from "../jsonList";
 import { PATHS } from "../paths";
-import type { WorkflowDef } from "./types";
+import type { NamedObjectRef, WorkflowDef } from "./types";
+import { unwrapNamedObjectRefList } from "./contentTypesApi";
 
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
   "Full workflow graph design is not exposed in the Developer catalog",
   "Workflow create / update / delete is not supported from this Developer surface",
-  "Content type workflow association is edited on the content type detail panel",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -220,4 +220,56 @@ export async function getWorkflowDetail(name: string): Promise<WorkflowDef> {
   // PATHS.WORKFLOWS already ends with '/'
   const payload = await get<unknown>(`${PATHS.WORKFLOWS}${key}`);
   return withGaps(parseWorkflowDetail(payload));
+}
+
+/** Wire body for {@code PUT .../workflows/{id}/allowedContentTypes} (Jackson root {@code WorkflowContentTypes}). */
+export type WorkflowContentTypesBody = {
+  allowedContentTypes: NamedObjectRef[];
+};
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code WorkflowContentTypes}. */
+export const WORKFLOW_CONTENT_TYPES_ROOT = "WorkflowContentTypes";
+
+/**
+ * Build the wire JSON body for {@code PUT .../allowedContentTypes} under
+ * {@link WORKFLOW_CONTENT_TYPES_ROOT}. A flat body fails server UNWRAP_ROOT_VALUE.
+ */
+export function wrapWorkflowContentTypesForWire(
+  body: WorkflowContentTypesBody,
+): Record<string, WorkflowContentTypesBody> {
+  return { [WORKFLOW_CONTENT_TYPES_ROOT]: body };
+}
+
+/**
+ * GET /services/workflows/{idOrName}/allowedContentTypes — SY-06 Admin read.
+ * No design lock required. Empty list means none.
+ */
+export async function getWorkflowAllowedContentTypes(
+  idOrName: string,
+): Promise<NamedObjectRef[]> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await get<unknown>(
+    `${PATHS.WORKFLOWS_ASSOC}/${key}/allowedContentTypes`,
+  );
+  return unwrapNamedObjectRefList(payload);
+}
+
+/**
+ * PUT /services/workflows/{idOrName}/allowedContentTypes — SY-06 Admin full replace.
+ *
+ * <p>Admin only. Server acquires and releases a design lock per affected content
+ * type (unlike CD-08 CT→workflow PUT, which requires a pre-held CT lock). Empty
+ * {@code allowedContentTypes} clears associations for this workflow. Response is
+ * the new {@link NamedObjectRef} list.
+ */
+export async function setWorkflowAllowedContentTypes(
+  idOrName: string,
+  body: WorkflowContentTypesBody,
+): Promise<NamedObjectRef[]> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.WORKFLOWS_ASSOC}/${key}/allowedContentTypes`,
+    wrapWorkflowContentTypesForWire(body),
+  );
+  return unwrapNamedObjectRefList(payload);
 }

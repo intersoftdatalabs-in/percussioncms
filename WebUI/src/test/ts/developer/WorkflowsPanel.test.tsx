@@ -13,10 +13,11 @@ import { WorkflowsPanel } from "../../../main/ts/developer/WorkflowsPanel";
 vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   listWorkflows: vi.fn(),
   getWorkflowDetail: vi.fn(),
+  getWorkflowAllowedContentTypes: vi.fn().mockResolvedValue([]),
+  setWorkflowAllowedContentTypes: vi.fn(),
   WORKFLOW_DESIGN_GAPS: [
     "Full workflow graph design is not exposed in the Developer catalog",
     "Workflow create / update / delete is not supported from this Developer surface",
-    "Content type workflow association is edited on the content type detail panel",
   ],
 }));
 

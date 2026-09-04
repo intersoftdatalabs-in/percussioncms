@@ -219,6 +219,11 @@ locked**. After **Lock**:
 This is not a full Workbench workflow picker. The name you add must already
 exist on the server. Template association chrome is a separate surface.
 
+To associate the **same** content-type ↔ workflow links from the workflow side
+(without holding a content-type lock in the client), use
+[Developer Workflows](id:admin-developer-workflows) **Allowed content types**
+(SY-06).
+
 ### Allowed templates (after lock)
 
 The **Allowed templates** list and add field are **disabled** until you hold

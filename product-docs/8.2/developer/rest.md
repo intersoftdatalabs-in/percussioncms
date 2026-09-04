@@ -1827,6 +1827,49 @@ payload without a top-level `workflowName` must still open **Default Workflow** 
 **Simple Workflow** instead of **Could not load workflow**. There is **no Object ACL**
 section on workflow detail.
 
+### Workflow allowed content types (SY-06)
+
+Content-type ↔ workflow associations can be edited from **either** side:
+
+| Side | FR | Path |
+|------|----|------|
+| Content type → workflows | CD-08 | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` (held CT design lock; does not unlock) |
+| Workflow → content types | SY-06 | `GET` / `PUT /services/workflows/{idOrName}/allowedContentTypes` (Admin; acquires/releases a design lock per affected content type) |
+
+These are the **same** underlying associations. CD-08 remains the content-type detail
+editor path. SY-06 is the workflow-side Admin catalog under the public REST
+`/services/workflows` root (not `/services/workflowmanagement/workflows`).
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/workflows/{idOrName}/allowedContentTypes` | List content types associated with the workflow |
+| `PUT` | `/services/workflows/{idOrName}/allowedContentTypes` | Full-replace associations for this workflow (empty list clears) |
+
+PUT body Jackson root wrap:
+
+```json
+{
+  "WorkflowContentTypes": {
+    "allowedContentTypes": [
+      { "name": "percPage", "guid": { "stringValue": "0-2-311" } }
+    ]
+  }
+}
+```
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | Updated; response is the new `NamedObjectRef` list for this workflow |
+| `400` | Missing `allowedContentTypes`, unknown content-type id/name, invalid id, or wildcard |
+| `403` | Caller is not Admin |
+| `404` | Workflow not found |
+| `409` | Design lock conflict on an affected content type |
+| `500` | Unexpected error |
+
+**SPA:** [Developer Workflows](id:admin-developer-workflows) detail exposes **Allowed
+content types** against this API. Content-type side chrome remains
+[Developer Content Types](id:admin-developer-content-types).
+
 ## Design capability gaps (`designGaps`)
 
 Some Developer detail payloads include a **`designGaps`** array so clients know what the REST
