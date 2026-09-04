@@ -368,7 +368,7 @@ public class PSSystemService
             throw new IllegalArgumentException("in may not be null");
 
          cFile = desc.getConfigFile();
-         // Fresh H2/QA installs may lack rxconfig/XSpLit (and similar) parents.
+         // Ensure parent directories exist before writing the config file.
          Path parent = cFile.toPath().toAbsolutePath().normalize().getParent();
          if (parent != null)
          {

@@ -17,6 +17,7 @@ package com.percussion.services.system;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -32,8 +33,10 @@ import com.percussion.services.system.impl.PSSystemService;
 import com.percussion.utils.guid.IPSGuid;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumMap;
@@ -142,11 +145,35 @@ public class PSSystemServiceSaveConfigurationTest {
     assertEquals("wrap: 72\n", Files.readString(saved));
   }
 
+  @Test
+  void saveConfiguration_propagatesWhenParentPathIsRegularFile() throws Exception {
+    Path rxconfig = tempDir.resolve("rxconfig");
+    Files.createDirectories(rxconfig);
+    Path blockedParent = rxconfig.resolve("XSpLit");
+    Files.writeString(blockedParent, "not-a-directory");
+    assertTrue(Files.isRegularFile(blockedParent), "precondition: parent path is a file");
+
+    injectDescriptor(PSConfigurationTypes.TIDY_CONFIG, blockedParent.toFile());
+
+    byte[] payload = "indent-spaces: 2\n".getBytes(StandardCharsets.UTF_8);
+    PSMimeContentAdapter config = new PSMimeContentAdapter();
+    config.setName(PSConfigurationTypes.TIDY_CONFIG.name());
+    config.setContent(new ByteArrayInputStream(payload));
+    config.setContentLength(payload.length);
+
+    IOException thrown = assertThrows(IOException.class, () -> service.saveConfiguration(config));
+    assertTrue(
+        thrown instanceof FileAlreadyExistsException
+            || thrown.getCause() instanceof FileAlreadyExistsException
+            || thrown.getMessage() != null,
+        "createDirectories must fail when parent path is an existing file");
+  }
+
   /**
    * Injects a {@code PSMimeContentDescriptor} for {@code type} under {@code configDir} without
    * calling {@code initContentDescriptors} (which needs a live {@code PSServer} config root).
+   * Descriptor type is package-private inner; map values are stored as {@link Object}.
    */
-  @SuppressWarnings({"rawtypes", "unchecked"})
   private void injectDescriptor(PSConfigurationTypes type, File configDir) throws Exception {
     Class<?> descClass =
         Class.forName(
@@ -162,7 +189,7 @@ public class PSSystemServiceSaveConfigurationTest {
             type.getFileName(),
             configDir);
 
-    Map map = new EnumMap<>(PSConfigurationTypes.class);
+    Map<PSConfigurationTypes, Object> map = new EnumMap<>(PSConfigurationTypes.class);
     map.put(type, descriptor);
     ReflectionTestUtils.setField(service, "m_mimeContentMap", map);
   }
