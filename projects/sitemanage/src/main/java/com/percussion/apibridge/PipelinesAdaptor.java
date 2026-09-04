@@ -29,6 +29,8 @@ import com.percussion.error.PSNotFoundException;
 import com.percussion.rest.pipelines.ApplicationDataSetSummary;
 import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
+import com.percussion.rest.pipelines.ApplicationValidationProblem;
+import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSSecurityToken;
@@ -62,11 +64,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Lists classic XML Applications (pipeline packages) visible to the current security token, thin IR
- * execute via {@link IPSPipelineRuntimeService}, and Admin start/stop via {@link PSServer}.
+ * execute via {@link IPSPipelineRuntimeService}, Admin start/stop via {@link PSServer}, and Admin
+ * validation/problems via {@link CollectingApplicationValidator}.
  *
  * <p>Uses {@link PSServerXmlObjectStore} for summaries; mapping/filter/limit are pure helpers so
  * they can be unit-tested without the object-store singleton. Execute never calls classic {@code
  * PSQueryHandler}. Start/stop peer console {@code start application} / {@code stop application}.
+ * Validation peers {@code PSValidatorAdapter#validateApplication}.
  */
 @PSSiteManageBean
 public class PipelinesAdaptor implements IPipelinesAdaptor {
@@ -79,10 +83,11 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   /** Hard cap to avoid unbounded payloads on large servers. */
   public static final int MAX_LIMIT = 1000;
 
-  static final String ADMIN_REQUIRED = "Admin role required to start or stop pipeline applications";
+  static final String ADMIN_REQUIRED =
+      "Admin role required to start, stop, or validate pipeline applications";
 
   static final String HIDDEN_NOT_ALLOWED =
-      "Hidden applications cannot be started or stopped via this API";
+      "Hidden applications cannot be started, stopped, or validated via this API";
 
   static final String DISABLED_NOT_ALLOWED = "Application is disabled";
 
@@ -91,6 +96,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   private final BooleanSupplier adminChecker;
   private final ApplicationLifecycleOps lifecycleOps;
   private final ApplicationDetailLoader detailLoader;
+  private final ApplicationValidationOps validationOps;
 
   /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
   @Autowired(required = false)
@@ -102,12 +108,19 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
         PSPipelineRuntimeServiceLocator::getPipelineRuntimeService,
         null,
         null,
+        null,
         null);
   }
 
   /** Package-visible for unit tests that inject a fake summary source. */
   PipelinesAdaptor(Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader) {
-    this(summaryLoader, PSPipelineRuntimeServiceLocator::getPipelineRuntimeService, null, null, null);
+    this(
+        summaryLoader,
+        PSPipelineRuntimeServiceLocator::getPipelineRuntimeService,
+        null,
+        null,
+        null,
+        null);
   }
 
   /**
@@ -117,7 +130,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   PipelinesAdaptor(
       Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader,
       Supplier<IPSPipelineRuntimeService> runtimeSupplier) {
-    this(summaryLoader, runtimeSupplier, null, null, null);
+    this(summaryLoader, runtimeSupplier, null, null, null, null);
   }
 
   /**
@@ -130,6 +143,20 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       BooleanSupplier adminChecker,
       ApplicationLifecycleOps lifecycleOps,
       ApplicationDetailLoader detailLoader) {
+    this(summaryLoader, runtimeSupplier, adminChecker, lifecycleOps, detailLoader, null);
+  }
+
+  /**
+   * Package-visible for unit tests covering Admin validation with injected collaborators (no object
+   * store / validator singletons).
+   */
+  PipelinesAdaptor(
+      Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader,
+      Supplier<IPSPipelineRuntimeService> runtimeSupplier,
+      BooleanSupplier adminChecker,
+      ApplicationLifecycleOps lifecycleOps,
+      ApplicationDetailLoader detailLoader,
+      ApplicationValidationOps validationOps) {
     this.summaryLoader = summaryLoader;
     this.runtimeSupplier =
         runtimeSupplier != null
@@ -138,6 +165,8 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
     this.lifecycleOps = lifecycleOps != null ? lifecycleOps : new DefaultApplicationLifecycleOps();
     this.detailLoader = detailLoader != null ? detailLoader : this::loadDetailFromObjectStore;
+    this.validationOps =
+        validationOps != null ? validationOps : this::validateApplicationFromObjectStore;
   }
 
   @Override
@@ -251,6 +280,19 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     return detailAfterLifecycle(resolved);
   }
 
+  @Override
+  public ApplicationValidationResult getValidation(URI baseUri, String idOrName) {
+    requireAdmin();
+    ResolvedApp resolved = resolveForLifecycle(idOrName);
+    if (resolved == null) {
+      return null;
+    }
+    if (resolved.summary.isHidden()) {
+      throw new WebApplicationException(HIDDEN_NOT_ALLOWED, Response.Status.BAD_REQUEST);
+    }
+    return validationOps.validate(resolved.name, resolved.summary, resolved.token);
+  }
+
   private ResolvedApp resolveForLifecycle(String idOrName) {
     if (StringUtils.isBlank(idOrName)) {
       return null;
@@ -305,6 +347,64 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       log.warn("Failed to load application detail for {}", name, e);
       throw new IllegalStateException("Failed to load application detail", e);
     }
+  }
+
+  private ApplicationValidationResult validateApplicationFromObjectStore(
+      String name, PSApplicationSummary summary, PSSecurityToken tok) {
+    try {
+      PSApplication app =
+          PSServerXmlObjectStore.getInstance().getApplicationObject(name, tok, false);
+      if (app == null) {
+        return null;
+      }
+      CollectingApplicationValidator validator = new CollectingApplicationValidator(null);
+      validator.validateApplication(app);
+      return toValidationResult(app.getId(), app.getName(), validator.getProblems());
+    } catch (PSNotFoundException | PSAuthorizationException e) {
+      log.debug("Application not found or not visible for validation {}: {}", name, e.toString());
+      return null;
+    } catch (PSSystemValidationException e) {
+      // Collecting validator should not throw; treat residual throw as a single ERROR problem.
+      ApplicationValidationProblem problem = new ApplicationValidationProblem();
+      problem.setSeverity(CollectingApplicationValidator.SEVERITY_ERROR);
+      problem.setCode(Integer.toString(e.getErrorCode()));
+      String msg = e.getMessage();
+      problem.setMessage(StringUtils.isNotBlank(msg) ? msg : "Application failed validation");
+      return toValidationResult(summary.getId(), name, List.of(problem));
+    } catch (RuntimeException e) {
+      log.warn("Unexpected failure validating application {}", name, e);
+      throw e;
+    } catch (Exception e) {
+      log.warn("Failed to validate application {}", name, e);
+      throw new IllegalStateException("Failed to validate application", e);
+    }
+  }
+
+  /** Package-visible for unit tests. */
+  static ApplicationValidationResult toValidationResult(
+      Integer id, String name, List<ApplicationValidationProblem> problems) {
+    List<ApplicationValidationProblem> safe =
+        problems != null ? new ArrayList<>(problems) : new ArrayList<>();
+    int errors = 0;
+    int warnings = 0;
+    for (ApplicationValidationProblem p : safe) {
+      if (p == null) {
+        continue;
+      }
+      if (CollectingApplicationValidator.SEVERITY_WARNING.equalsIgnoreCase(p.getSeverity())) {
+        warnings++;
+      } else {
+        errors++;
+      }
+    }
+    ApplicationValidationResult result = new ApplicationValidationResult();
+    result.setId(id);
+    result.setName(name);
+    result.setProblems(safe);
+    result.setErrorCount(errors);
+    result.setWarningCount(warnings);
+    result.setValid(errors == 0);
+    return result;
   }
 
   private void requireAdmin() {
@@ -474,9 +574,11 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
 
   static List<String> defaultDesignGaps() {
     List<String> gaps = new ArrayList<>();
+    // Validation/problems read ships via GET …/validation — do not claim it unsupported.
     gaps.add("Pipe IR / SQL mapper / resource tanks not exposed (Pipelines Slice A+)");
     gaps.add("Enable / disable application not supported via this API");
     gaps.add("Classic application import/export not supported via this API");
+    gaps.add("Pipe graph edit / IR write not supported via this API");
     return gaps;
   }
 
@@ -562,6 +664,13 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   @FunctionalInterface
   interface ApplicationDetailLoader {
     ApplicationDetail load(String name, PSSecurityToken token);
+  }
+
+  /** Run object-store validation by trusted catalog name — injectable for unit tests. */
+  @FunctionalInterface
+  interface ApplicationValidationOps {
+    ApplicationValidationResult validate(
+        String name, PSApplicationSummary summary, PSSecurityToken token);
   }
 
   private static final class DefaultApplicationLifecycleOps implements ApplicationLifecycleOps {

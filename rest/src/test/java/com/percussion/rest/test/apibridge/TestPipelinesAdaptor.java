@@ -19,6 +19,7 @@ package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
+import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
@@ -65,6 +66,11 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
 
   @Override
   public ApplicationDetail stopApplication(URI baseUri, String idOrName) {
+    return null;
+  }
+
+  @Override
+  public ApplicationValidationResult getValidation(URI baseUri, String idOrName) {
     return null;
   }
 }

@@ -1833,14 +1833,16 @@ Classic **XML Applications** (data pipeline packages) are exposed under `/servic
 The catalog is a thin contract over the server object store (`PSServerXmlObjectStore`
 summaries / application objects). Admin **start** / **stop** peer the server console
 `start application` / `stop application` commands (`PSServer.startApplication` /
-`PSServer.shutdownApplication`). Thin IR execute (`POST …/execute`) is a separate native
-pipeline runtime path — it does **not** call classic `PSQueryHandler` /
-`PSUpdateHandler`.
+`PSServer.shutdownApplication`). Admin **validation / problems** peers object-store
+`PSValidatorAdapter.validateApplication` and returns a structured problems summary.
+Thin IR execute (`POST …/execute`) is a separate native pipeline runtime path — it does
+**not** call classic `PSQueryHandler` / `PSUpdateHandler`.
 
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/services/pipelines` | List non-hidden applications (optional `name`, `limit`, `offset`) |
 | `GET` | `/services/pipelines/{idOrName}` | Load one application by name or numeric id (data-set catalog + `active`) |
+| `GET` | `/services/pipelines/{idOrName}/validation` | **Admin.** Design-time validation / problems summary |
 | `POST` | `/services/pipelines/{idOrName}/start` | **Admin.** Start application (idempotent if already running) |
 | `POST` | `/services/pipelines/{idOrName}/stop` | **Admin.** Stop application (idempotent if already stopped) |
 | `POST` | `/services/pipelines/{app}/resources/{resource}/execute` | Execute a native pipeline IR resource |
@@ -1861,14 +1863,34 @@ running, start returns **200** with `active=true` without restarting. When alrea
 stopped, stop returns **200** with `active=false`. Successful responses return refreshed
 `ApplicationDetail` (including `active`).
 
-Remaining gaps on detail (`designGaps`) include pipe IR / mapper tanks, enable/disable,
-and classic import/export — SPA chrome and Playwright for start/stop are separate slices.
+### Admin validation / problems
+
+`GET /services/pipelines/{idOrName}/validation` requires **Admin** (**403** otherwise).
+The path id resolves only against the object-store catalog (trusted name); unknown or
+unsafe names are **404**. **Hidden** applications cannot be validated via this API
+(**400**). A successful response is `ApplicationValidationResult`:
+
+| Field | Role |
+|-------|------|
+| `id` / `name` | Trusted catalog identity |
+| `valid` | `true` when there are no `ERROR`-severity problems (warnings alone still count as valid) |
+| `errorCount` / `warningCount` | Counts by severity |
+| `problems[]` | Entries with `severity` (`ERROR` \| `WARNING`), `code` (object-store message code as string), `message`, optional `resource` (dataset name when known), optional `path` (component class/id breadcrumb) |
+
+Empty `problems` with `valid=true` means object-store validation reported no issues.
+This is a **read** of design-time problems only — pipe graph edit, IR write, and classic
+ZIP import remain unsupported (`designGaps` on detail). SPA chrome for the problems panel
+is a separate slice.
+
+Remaining gaps on detail (`designGaps`) include pipe IR / mapper tanks (write), enable/disable,
+classic import/export, and graph edit — SPA chrome and Playwright for validation are separate
+slices.
 
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | List / get / start / stop / execute success |
+| `200` | List / get / validation / start / stop / execute success |
 | `400` | Invalid name, hidden/disabled lifecycle, or IR validation failure |
-| `403` | Caller is not Admin (start/stop) |
+| `403` | Caller is not Admin (start/stop/validation) |
 | `404` | Application (or IR resource) not found / not visible |
 | `500` | Object-store or server failure |
 

@@ -292,4 +292,62 @@ public class PipelinesResourceTest {
     assertEquals(500, ex.getResponse().getStatus());
     assertSame(boom, ex.getCause());
   }
+
+  @Test
+  public void getValidationDelegatesToAdaptor() {
+    ApplicationValidationResult result = new ApplicationValidationResult();
+    result.setName("sys_foo");
+    result.setValid(true);
+    result.setErrorCount(0);
+    result.setWarningCount(0);
+    when(adaptor.getValidation(any(), eq("sys_foo"))).thenReturn(result);
+
+    ApplicationValidationResult out = resource.getValidation("sys_foo");
+    assertEquals("sys_foo", out.getName());
+    assertEquals(Boolean.TRUE, out.getValid());
+    verify(adaptor).getValidation(any(), eq("sys_foo"));
+  }
+
+  @Test
+  public void getValidationNotFound() {
+    when(adaptor.getValidation(any(), eq("missing"))).thenReturn(null);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getValidation("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Application not found", ex.getMessage());
+  }
+
+  @Test
+  public void getValidationRethrowsWebApplicationException() {
+    when(adaptor.getValidation(any(), eq("sys_foo")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getValidation("sys_foo"));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertEquals("Admin role required", ex.getMessage());
+  }
+
+  @Test
+  public void getValidationMapsIllegalArgumentTo400() {
+    when(adaptor.getValidation(any(), eq("sys_foo")))
+        .thenThrow(new IllegalArgumentException("Hidden applications cannot be validated"));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getValidation("sys_foo"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("Hidden applications cannot be validated", ex.getMessage());
+  }
+
+  @Test
+  public void getValidationWrapsUnexpectedFailuresAs500() {
+    IllegalStateException boom = new IllegalStateException("validator down");
+    when(adaptor.getValidation(any(), eq("sys_foo"))).thenThrow(boom);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getValidation("sys_foo"));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
 }
