@@ -440,6 +440,11 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
     dataSets: [],
     designGaps: [],
   }),
+  getPipelineIr: vi.fn().mockResolvedValue({
+    irVersion: "1.0",
+    source: "NATIVE",
+    resources: [],
+  }),
 }));
 
 vi.mock("../../../main/ts/api/developer/localesApi", async (importOriginal) => {

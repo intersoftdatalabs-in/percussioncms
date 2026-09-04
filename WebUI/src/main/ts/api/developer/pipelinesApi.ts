@@ -17,7 +17,11 @@
 
 import { get } from "../client";
 import { PATHS } from "../paths";
-import type { ApplicationDetail, ApplicationSummary } from "./types";
+import type {
+  ApplicationDetail,
+  ApplicationSummary,
+  PipelineIrDocument,
+} from "./types";
 
 export interface ListApplicationsOptions {
   name?: string;
@@ -58,4 +62,12 @@ export async function getApplicationDetail(
 ): Promise<ApplicationDetail> {
   const key = encodeURIComponent(idOrName);
   return get<ApplicationDetail>(`${PATHS.PIPELINES}/${key}`);
+}
+
+/** GET /services/pipelines/{idOrName}/ir — read-only pipeline-ir-v1 document */
+export async function getPipelineIr(
+  idOrName: string,
+): Promise<PipelineIrDocument> {
+  const key = encodeURIComponent(idOrName);
+  return get<PipelineIrDocument>(`${PATHS.PIPELINES}/${key}/ir`);
 }

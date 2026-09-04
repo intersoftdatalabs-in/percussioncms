@@ -1862,8 +1862,9 @@ probing / path injection).
 
 Unknown or unsafe names are **404**. Import/decode failures that are not “not found” are
 **400**. This endpoint does **not** write native IR, edit the graph, or accept ZIP
-import/export — those remain `designGaps` on application detail. Developer UI can use this GET
-to show pipe structure without the Swing designer.
+import/export — those remain `designGaps` on application detail. **Developer → Pipelines**
+detail uses this GET for a read-only resources / tanks / mapper summary (see
+[Developer Pipelines](id:admin-developer-pipelines)).
 
 Remaining gaps on detail (`designGaps`) include IR write / graph editor / native save, start /
 stop / enable, and classic ZIP import/export.

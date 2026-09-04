@@ -8,6 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
 import {
   getApplicationDetail,
+  getPipelineIr,
   listApplications,
 } from "../../../main/ts/api/developer/pipelinesApi";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
@@ -16,10 +17,12 @@ import { PipelinesPanel } from "../../../main/ts/developer/PipelinesPanel";
 vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   listApplications: vi.fn(),
   getApplicationDetail: vi.fn(),
+  getPipelineIr: vi.fn(),
 }));
 
 const listApplicationsMock = vi.mocked(listApplications);
 const getApplicationDetailMock = vi.mocked(getApplicationDetail);
+const getPipelineIrMock = vi.mocked(getPipelineIr);
 
 describe("PipelinesPanel", () => {
   beforeEach(() => {
@@ -28,6 +31,12 @@ describe("PipelinesPanel", () => {
     };
     listApplicationsMock.mockReset();
     getApplicationDetailMock.mockReset();
+    getPipelineIrMock.mockReset();
+    getPipelineIrMock.mockResolvedValue({
+      irVersion: "1.0",
+      source: "NATIVE",
+      resources: [],
+    });
   });
 
   afterEach(() => {
@@ -81,7 +90,7 @@ describe("PipelinesPanel", () => {
           description: "CE",
         },
       ],
-      designGaps: ["Pipe IR not exposed"],
+      designGaps: ["IR write / graph editor not exposed"],
     });
 
     render(<PipelinesPanel />);
@@ -94,11 +103,15 @@ describe("PipelinesPanel", () => {
       expect(screen.getByTestId("developer-pipe-detail")).toBeTruthy();
     });
     expect(getApplicationDetailMock).toHaveBeenCalledWith("sys_cmpDocuments");
+    expect(getPipelineIrMock).toHaveBeenCalledWith("sys_cmpDocuments");
     expect(screen.getByTestId("developer-pipe-detail-title").textContent).toBe(
       "sys_cmpDocuments",
     );
     expect(screen.getByTestId("developer-pipe-datasets-table")).toBeTruthy();
     expect(screen.getByText("contenteditor.html")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-ir")).toBeTruthy();
+    });
     expect(screen.getByTestId("developer-pipe-gaps")).toBeTruthy();
 
     fireEvent.click(screen.getByTestId("developer-pipe-back"));

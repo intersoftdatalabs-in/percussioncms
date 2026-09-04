@@ -16,11 +16,213 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { getApplicationDetail } from "../api/developer/pipelinesApi";
-import type { ApplicationDetail } from "../api/developer/types";
+import { getApplicationDetail, getPipelineIr } from "../api/developer/pipelinesApi";
+import type {
+  ApplicationDetail,
+  PipelineIrDocument,
+  PipelineIrResource,
+  PipelineIrStages,
+} from "../api/developer/types";
 import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+
+const STAGE_KEYS: Array<keyof PipelineIrStages> = [
+  "pageTank",
+  "backendTank",
+  "mapper",
+  "selector",
+  "pager",
+  "updater",
+];
+
+/** Ordered inventory of present stage keys for catalog chrome. */
+export function presentStageLabels(stages: PipelineIrStages | undefined): string[] {
+  if (!stages) return [];
+  const out: string[] = [];
+  for (const key of STAGE_KEYS) {
+    const stage = stages[key];
+    if (stage && stage.present) out.push(key);
+  }
+  return out;
+}
+
+function yesNo(value: boolean | null | undefined): string {
+  if (value == null) return "—";
+  return value ? DEV_MSG.YES : DEV_MSG.NO;
+}
+
+function IrResourceCard({
+  resource,
+  index,
+}: {
+  resource: PipelineIrResource;
+  index: number;
+}): React.ReactElement {
+  const stages = resource.stages;
+  const present = presentStageLabels(stages);
+  const tables = stages?.backendTank?.present ? stages.backendTank.tables || [] : [];
+  const mappings = stages?.mapper?.present ? stages.mapper.mappings || [] : [];
+  const pageTank = stages?.pageTank?.present ? stages.pageTank : null;
+  const selector = stages?.selector?.present ? stages.selector : null;
+  const updater = stages?.updater?.present ? stages.updater : null;
+  const joinCount = stages?.backendTank?.joinCount;
+
+  return (
+    <article
+      data-testid={`developer-pipe-ir-resource-${index}`}
+      style={{
+        marginBottom: "16px",
+        padding: "12px",
+        border: `1px solid ${catalogColors.softBorder}`,
+        borderRadius: "6px",
+        background: catalogColors.surface,
+      }}
+    >
+      <header style={{ marginBottom: "8px" }}>
+        <h4 style={{ margin: "0 0 4px", fontFamily: "monospace" }}>
+          {resource.name || `resource-${index}`}
+        </h4>
+        <div style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+          {[resource.kind, resource.requestPage, resource.pipeName]
+            .filter(Boolean)
+            .join(" · ") || "—"}
+        </div>
+        {resource.description ? (
+          <p style={{ margin: "6px 0 0", color: catalogColors.muted, fontSize: "0.9rem" }}>
+            {resource.description}
+          </p>
+        ) : null}
+      </header>
+
+      <dl style={{ ...metaGrid, marginBottom: "8px" }}>
+        <dt>{DEV_MSG.PIPE_IR_COL_STAGES}</dt>
+        <dd style={{ margin: 0, ...monoCell }}>
+          {present.length > 0 ? present.join(", ") : DEV_MSG.PIPE_NONE}
+        </dd>
+        <dt>{DEV_MSG.PIPE_IR_COL_TX}</dt>
+        <dd style={{ margin: 0, ...monoCell }}>{resource.transactionMode || "—"}</dd>
+        {pageTank ? (
+          <>
+            <dt>{DEV_MSG.PIPE_IR_PAGE_TANK}</dt>
+            <dd style={{ margin: 0, ...monoCell }}>
+              {DEV_MSG.PIPE_IR_SCHEMA}: {pageTank.schemaSource || "—"}
+            </dd>
+          </>
+        ) : null}
+        {selector ? (
+          <>
+            <dt>{DEV_MSG.PIPE_IR_SELECTOR}</dt>
+            <dd style={{ margin: 0 }}>
+              {selector.method || "—"}
+              {selector.whereClauseCount != null
+                ? ` · where ${selector.whereClauseCount}`
+                : ""}
+              {selector.unique ? " · unique" : ""}
+            </dd>
+          </>
+        ) : null}
+        {updater ? (
+          <>
+            <dt>{DEV_MSG.PIPE_IR_UPDATER}</dt>
+            <dd style={{ margin: 0 }}>
+              insert {yesNo(updater.allowInsert)} · update {yesNo(updater.allowUpdate)} ·
+              delete {yesNo(updater.allowDelete)}
+              {updater.updateColumnCount != null
+                ? ` · cols ${updater.updateColumnCount}`
+                : ""}
+            </dd>
+          </>
+        ) : null}
+        {joinCount != null && joinCount > 0 ? (
+          <>
+            <dt>{DEV_MSG.PIPE_IR_JOINS}</dt>
+            <dd style={{ margin: 0 }}>{joinCount}</dd>
+          </>
+        ) : null}
+      </dl>
+
+      {tables.length > 0 ? (
+        <section
+          style={{ marginBottom: "12px" }}
+          data-testid={`developer-pipe-ir-tanks-${index}`}
+        >
+          <h5 style={{ margin: "0 0 6px", fontSize: "0.95rem" }}>{DEV_MSG.PIPE_IR_TANKS}</h5>
+          <div style={{ overflowX: "auto" }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: "0.85rem",
+              }}
+            >
+              <thead>
+                <tr style={tableHeaderRow}>
+                  <th style={{ padding: "6px 8px" }}>{DEV_MSG.PIPE_IR_COL_ALIAS}</th>
+                  <th style={{ padding: "6px 8px" }}>{DEV_MSG.PIPE_IR_COL_TABLE}</th>
+                  <th style={{ padding: "6px 8px" }}>{DEV_MSG.PIPE_IR_COL_DS}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tables.map((t, ti) => (
+                  <tr key={`${t.alias || t.table || "t"}-${ti}`} style={tableRow}>
+                    <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
+                      {t.alias || "—"}
+                    </td>
+                    <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
+                      {t.table || "—"}
+                    </td>
+                    <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
+                      {t.datasource || "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
+
+      {mappings.length > 0 ? (
+        <section data-testid={`developer-pipe-ir-mapper-${index}`}>
+          <h5 style={{ margin: "0 0 6px", fontSize: "0.95rem" }}>
+            {DEV_MSG.PIPE_IR_MAPPER} ({mappings.length})
+          </h5>
+          <div style={{ overflowX: "auto" }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: "0.85rem",
+              }}
+            >
+              <thead>
+                <tr style={tableHeaderRow}>
+                  <th style={{ padding: "6px 8px" }}>{DEV_MSG.PIPE_IR_COL_DOC}</th>
+                  <th style={{ padding: "6px 8px" }}>{DEV_MSG.PIPE_IR_COL_BACKEND}</th>
+                  <th style={{ padding: "6px 8px" }}>{DEV_MSG.PIPE_IR_COL_BACKEND_KIND}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mappings.map((m, mi) => (
+                  <tr key={`${m.documentField || "m"}-${mi}`} style={tableRow}>
+                    <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
+                      {m.documentField || "—"}
+                    </td>
+                    <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
+                      {m.backend || "—"}
+                    </td>
+                    <td style={{ padding: "6px 8px" }}>{m.backendKind || "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
+    </article>
+  );
+}
 
 export function PipelineDetailPanel({
   idOrName,
@@ -31,11 +233,18 @@ export function PipelineDetailPanel({
 }): React.ReactElement {
   const [detail, setDetail] = useState<ApplicationDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [ir, setIr] = useState<PipelineIrDocument | null>(null);
+  const [irError, setIrError] = useState<string | null>(null);
+  const [irLoading, setIrLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     setDetail(null);
     setError(null);
+    setIr(null);
+    setIrError(null);
+    setIrLoading(true);
+
     getApplicationDetail(idOrName)
       .then((d) => {
         if (!cancelled) setDetail(d);
@@ -43,10 +252,27 @@ export function PipelineDetailPanel({
       .catch((err: unknown) => {
         if (!cancelled) setError(panelErrMsg(err, DEV_MSG.PIPE_DETAIL_ERROR));
       });
+
+    getPipelineIr(idOrName)
+      .then((doc) => {
+        if (!cancelled) {
+          setIr(doc);
+          setIrLoading(false);
+        }
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          setIrError(panelErrMsg(err, DEV_MSG.PIPE_IR_ERROR));
+          setIrLoading(false);
+        }
+      });
+
     return () => {
       cancelled = true;
     };
   }, [idOrName]);
+
+  const irResources = ir?.resources || [];
 
   return (
     <div data-testid="developer-pipe-detail">
@@ -153,6 +379,54 @@ export function PipelineDetailPanel({
                 </table>
               </div>
             )}
+          </section>
+
+          <section style={{ marginBottom: "16px" }} data-testid="developer-pipe-ir">
+            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.PIPE_IR}</h3>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.PIPE_IR_HINT}</p>
+
+            {irLoading ? (
+              <div data-testid="developer-pipe-ir-loading">{DEV_MSG.PIPE_IR_LOADING}</div>
+            ) : null}
+
+            {irError ? (
+              <div role="alert" data-testid="developer-pipe-ir-error" style={errorAlert}>
+                {irError}
+              </div>
+            ) : null}
+
+            {!irLoading && !irError && ir ? (
+              <>
+                <dl style={{ ...metaGrid, marginBottom: "12px" }} data-testid="developer-pipe-ir-meta">
+                  <dt>{DEV_MSG.PIPE_IR_SOURCE}</dt>
+                  <dd style={{ margin: 0, ...monoCell }}>{ir.source || "—"}</dd>
+                  <dt>{DEV_MSG.PIPE_IR_VERSION}</dt>
+                  <dd style={{ margin: 0, ...monoCell }}>{ir.irVersion || "—"}</dd>
+                </dl>
+
+                <h4 style={{ fontSize: "0.95rem", margin: "0 0 8px" }}>
+                  {DEV_MSG.PIPE_IR_RESOURCES}
+                </h4>
+                {irResources.length === 0 ? (
+                  <p
+                    style={{ color: catalogColors.empty }}
+                    data-testid="developer-pipe-ir-empty"
+                  >
+                    {DEV_MSG.PIPE_IR_EMPTY}
+                  </p>
+                ) : (
+                  <div data-testid="developer-pipe-ir-resources">
+                    {irResources.map((resource, index) => (
+                      <IrResourceCard
+                        key={resource.name || `ir-res-${index}`}
+                        resource={resource}
+                        index={index}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : null}
           </section>
 
           {detail.designGaps && detail.designGaps.length > 0 ? (
