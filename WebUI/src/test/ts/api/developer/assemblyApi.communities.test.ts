@@ -28,13 +28,17 @@ import {
   getCommunityDetail,
   isCommunityWriteReady,
   isValidCommunityName,
+  listAvailableRoles,
   listCommunities,
   normalizeCommunityName,
   saveCommunities,
   unwrapCommunityDetail,
   unwrapCommunityList,
+  COMMUNITY_ROLE_LIST_ROOT,
+  updateCommunityRoles,
   wrapCommunityListForWire,
   wrapCommunityNameListForWire,
+  wrapCommunityRoleListForWire,
   wrapGuidListForWire,
 } from "../../../../main/ts/api/developer/assemblyApi";
 import { PATHS } from "../../../../main/ts/api/paths";
@@ -258,5 +262,99 @@ describe("createCommunities / saveCommunities / deleteCommunities (SE-01)", () =
     await expect(deleteCommunities([{ stringValue: "0-13-42" }])).rejects.toMatchObject({
       status: 403,
     });
+  });
+});
+
+describe("listAvailableRoles / updateCommunityRoles (SE-02)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      statusText: status === 200 ? "OK" : "Error",
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("lists available roles from GET /communities/roles envelope", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        CommunityRoleList: [
+          { roleName: "Admin", roleId: 1, roleGuid: { stringValue: "0-6-1" } },
+          { roleName: "Editor", roleId: 2, roleGuid: { stringValue: "0-6-2" } },
+        ],
+      }),
+    );
+    const roles = await listAvailableRoles();
+    expect(roles).toEqual([
+      { roleName: "Admin", roleId: 1, roleGuid: { stringValue: "0-6-1" } },
+      { roleName: "Editor", roleId: 2, roleGuid: { stringValue: "0-6-2" } },
+    ]);
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain(`${PATHS.COMMUNITIES}/roles`);
+    expect((fetchMock.mock.calls[0]?.[1] as RequestInit).method ?? "GET").toMatch(/GET/i);
+  });
+
+  it("wrapCommunityRoleListForWire uses CommunityRoleList root", () => {
+    const roles = [{ roleName: "Editor", roleId: 2, roleGuid: { stringValue: "0-6-2" } }];
+    expect(wrapCommunityRoleListForWire(roles)).toEqual({
+      [COMMUNITY_ROLE_LIST_ROOT]: roles,
+    });
+    expect(wrapCommunityRoleListForWire([])).toEqual({ [COMMUNITY_ROLE_LIST_ROOT]: [] });
+  });
+
+  it("PUTs role membership under CommunityRoleList and unwraps Community WRAP_ROOT", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        Community: {
+          name: "Default",
+          id: 1001,
+          guid: { Guid: { stringValue: "0-13-1001" } },
+          roleList: [
+            { roleName: "Editor", roleId: 2, roleGuid: { stringValue: "0-6-2" } },
+          ],
+        },
+      }),
+    );
+    const body = [{ roleName: "Editor", roleId: 2, roleGuid: { stringValue: "0-6-2" } }];
+    const saved = await updateCommunityRoles("Default", body);
+    expect(saved.name).toBe("Default");
+    expect(saved.guid?.stringValue).toBe("0-13-1001");
+    expect(saved.roleList).toEqual(body);
+    const init = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain(
+      `${PATHS.COMMUNITIES}/${encodeURIComponent("Default")}/roles`,
+    );
+    expect(JSON.parse(String(init.body))).toEqual({
+      [COMMUNITY_ROLE_LIST_ROOT]: body,
+    });
+  });
+
+  it("empty PUT body clears all role associations via wrapped list", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        Community: { name: "Default", id: 1001, roleList: [] },
+      }),
+    );
+    const saved = await updateCommunityRoles("Default", []);
+    expect(saved.name).toBe("Default");
+    expect(saved.roleList).toEqual([]);
+    expect(JSON.parse(String((fetchMock.mock.calls[0]?.[1] as RequestInit).body))).toEqual({
+      [COMMUNITY_ROLE_LIST_ROOT]: [],
+    });
+  });
+
+  it("updateCommunityRoles missing community is 404", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Community not found" }, 404));
+    await expect(updateCommunityRoles("missing", [])).rejects.toMatchObject({ status: 404 });
   });
 });

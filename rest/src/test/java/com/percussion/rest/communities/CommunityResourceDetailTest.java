@@ -108,6 +108,30 @@ public class CommunityResourceDetailTest {
   }
 
   @Test
+  public void updateCommunityRolesJsonParsesEnvelope() {
+    Community updated = new Community();
+    updated.setName("Default");
+    updated.setRoleList(new CommunityRoleList());
+    when(adaptor.updateCommunityRoles(eq("Default"), any())).thenReturn(updated);
+    String json =
+        "{\"CommunityRoleList\":[{\"roleName\":\"Editor\",\"roleId\":4,"
+            + "\"roleGuid\":{\"stringValue\":\"0-16-4\"}}]}";
+    assertEquals("Default", resource.updateCommunityRolesJson("Default", json).getName());
+  }
+
+  @Test
+  public void updateCommunityRolesEmptyListUnassignsAll() {
+    CommunityRoleList empty = new CommunityRoleList();
+    Community updated = new Community();
+    updated.setName("Default");
+    updated.setRoleList(empty);
+    when(adaptor.updateCommunityRoles(eq("Default"), any())).thenReturn(updated);
+    Community out = resource.updateCommunityRoles("Default", empty);
+    assertEquals("Default", out.getName());
+    assertEquals(0, out.getRoleList().size());
+  }
+
+  @Test
   public void updateCommunityRolesNotFound() {
     when(adaptor.updateCommunityRoles(eq("missing"), any())).thenReturn(null);
     WebApplicationException ex =

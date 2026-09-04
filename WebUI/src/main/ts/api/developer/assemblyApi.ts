@@ -601,13 +601,37 @@ export async function listAvailableRoles(): Promise<CommunityRoleSummary[]> {
   ]);
 }
 
-/** PUT /services/communities/{idOrName}/roles — replace memberships */
+/** Jackson / JAXB root for {@code CommunityRoleList} (WRAP/UNWRAP_ROOT_VALUE). */
+export const COMMUNITY_ROLE_LIST_ROOT = "CommunityRoleList";
+
+/**
+ * Wire envelope for PUT /communities/{id}/roles. Bare {@code []} / {@code [{…}]}
+ * fails CXF UNWRAP_ROOT_VALUE (JSONObject must begin with '{') — peer of
+ * {@link wrapCommunityNewSearchDefaultsForWire} / auto-translation row wrap.
+ */
+export function wrapCommunityRoleListForWire(
+  roles: CommunityRoleSummary[],
+): Record<string, CommunityRoleSummary[]> {
+  return { [COMMUNITY_ROLE_LIST_ROOT]: roles };
+}
+
+/**
+ * PUT /services/communities/{idOrName}/roles — replace memberships (SE-02).
+ * Include a role to assign; omit a previously associated role to unassign;
+ * empty list clears all. Request body is wrapped as {@link COMMUNITY_ROLE_LIST_ROOT};
+ * response is unwrapped like {@link getCommunityDetail} (Jackson WRAP_ROOT
+ * {@code Community}).
+ */
 export async function updateCommunityRoles(
   idOrName: string,
   roles: CommunityRoleSummary[],
 ): Promise<CommunityDetail> {
   const key = encodeURIComponent(idOrName);
-  return put<CommunityDetail>(`${PATHS.COMMUNITIES}/${key}/roles`, roles);
+  const payload = await put<unknown>(
+    `${PATHS.COMMUNITIES}/${key}/roles`,
+    wrapCommunityRoleListForWire(roles),
+  );
+  return unwrapCommunityDetail(payload);
 }
 
 /** Preferred filter header for community visibility (server also accepts legacy {@code type}). */

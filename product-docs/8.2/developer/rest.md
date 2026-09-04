@@ -378,9 +378,10 @@ surface (`ICommunityAdaptor.createCommunities` / `saveCommunities` /
 |--------|------|---------|
 | `GET` | `/services/communities/find?name=*` | List community summaries |
 | `GET` | `/services/communities/{idOrName}` | Detail with role membership |
+| `GET` | `/services/communities/roles` | Roles available for community membership (picker) |
 | `POST` | `/services/communities/bulk` | **Admin.** Create from a name list (`{"List":["Name"]}`); server persists |
 | `PUT` | `/services/communities/bulk` | **Admin.** Persist edited communities (`release` header) |
-| `PUT` | `/services/communities/{idOrName}/roles` | Replace role membership |
+| `PUT` | `/services/communities/{idOrName}/roles` | Assign/unassign roles by replacing the full membership set (same session auth as other community design calls; not the Admin-gated bulk create/delete surface) |
 | `DELETE` | `/services/communities/bulk` | **Admin.** Delete by GuidList (`ignoredependencies` header) |
 
 Create (`POST /services/communities/bulk`) persists on the server (Workbench
@@ -395,6 +396,25 @@ Missing is **404**. In-use (dependencies) without ignore is **409** and the
 community remains (the lock is not stolen). Non-Admin is **403**.
 
 **Developer → Communities** catalog create and delete use these bulk endpoints.
+
+### Community role membership (Security Design SE-02)
+
+Workbench dual-list **assign / unassign** is modeled as a **full-set replace** (same
+pattern as new-search defaults), not per-role `POST`/`DELETE`:
+
+1. `GET /services/communities/roles` — all security roles (id / name / guid) for the
+   membership picker.
+2. `GET /services/communities/{idOrName}` — current community detail including
+   `roleList` (membership).
+3. `PUT /services/communities/{idOrName}/roles` — prefer body
+   `{"CommunityRoleList":[…]}` (CXF `UNWRAP_ROOT_VALUE`; bare `[{…}]` is rejected).
+   Each entry needs `roleGuid` or `roleId`. The submitted list **becomes** the
+   membership: include a role to assign it; omit a previously associated role to
+   unassign it; send `{"CommunityRoleList":[]}` to clear all associations. Returns
+   the reloaded community detail (**200**). A one-item `roleList` on the response
+   may appear as a single object (Jackson/JAXB); clients should coerce to an array.
+   Unknown community is **404**. Missing role identity is **400**.
+
 Role-association save stays `PUT /services/communities/{idOrName}/roles`. See
 [Developer Communities](id:admin-developer-communities).
 
