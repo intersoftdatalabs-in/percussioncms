@@ -21,6 +21,9 @@ Extension points, REST, assemblers, Virtual Sites, and building Percussion CMS 8
 
 Operators using **Developer → Content types** lock/save chrome: [Developer Content Types](id:admin-developer-content-types).
 
+Operators using **Developer → Workflows** allowed content types chrome:
+[Developer Workflows](id:admin-developer-workflows).
+
 Operators using **Developer → Locales** create/save/delete chrome and the
 auto-translation set editor: [Developer Locales](id:admin-developer-locales).
 
