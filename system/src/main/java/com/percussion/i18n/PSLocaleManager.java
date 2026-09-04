@@ -17,6 +17,7 @@
 
 package com.percussion.i18n;
 
+import com.intsof.percussioncms.auditlog.codes.LocaleErrorCodes;
 import com.percussion.error.PSMissingBeanConfigurationException;
 import com.percussion.i18n.rxlt.PSLocaleRxResourceCopyHandler;
 import com.percussion.services.general.IPSRhythmyxInfo;
@@ -58,7 +59,7 @@ public class PSLocaleManager {
                   .getProperty(IPSRhythmyxInfo.Key.ROOT_DIRECTORY);
       m_curDir = new File(rootDir).getAbsolutePath();
     } catch (Exception e) {
-      throw new PSLocaleException(IPSLocaleErrors.LOCALE_MGR_INIT, e.getLocalizedMessage());
+      throw new PSLocaleException(LocaleErrorCodes.LOCALE_MGR_INIT, e.getLocalizedMessage());
     }
   }
 
@@ -81,12 +82,12 @@ public class PSLocaleManager {
       PSLocale locale = mgr.findLocaleByLanguageString(languageString).orElse(null);
       if (locale == null) {
         throw new PSLocaleException(
-            IPSLocaleErrors.LOCALE_MGR_UNEXPECTED_ERROR, "Cannot find locale: " + languageString);
+            LocaleErrorCodes.LOCALE_MGR_UNEXPECTED_ERROR, "Cannot find locale: " + languageString);
       }
       return locale;
     } catch (PSMissingBeanConfigurationException e) {
       throw new PSLocaleException(
-          IPSLocaleErrors.LOCALE_MGR_UNEXPECTED_ERROR, e.getLocalizedMessage());
+          LocaleErrorCodes.LOCALE_MGR_UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -107,7 +108,7 @@ public class PSLocaleManager {
       return mgr.loadLocale(localeId).orElse(null);
     } catch (PSMissingBeanConfigurationException e) {
       throw new PSLocaleException(
-          IPSLocaleErrors.LOCALE_MGR_UNEXPECTED_ERROR, e.getLocalizedMessage());
+          LocaleErrorCodes.LOCALE_MGR_UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -123,7 +124,7 @@ public class PSLocaleManager {
       return mgr.findAllLocales().iterator();
     } catch (PSMissingBeanConfigurationException e) {
       throw new PSLocaleException(
-          IPSLocaleErrors.LOCALE_MGR_UNEXPECTED_ERROR, e.getLocalizedMessage());
+          LocaleErrorCodes.LOCALE_MGR_UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -160,10 +161,10 @@ public class PSLocaleManager {
       mgr.saveLocale(locale);
     } catch (PSMissingBeanConfigurationException e) {
       throw new PSLocaleException(
-          IPSLocaleErrors.LOCALE_MGR_UNEXPECTED_ERROR, e.getLocalizedMessage());
+          LocaleErrorCodes.LOCALE_MGR_UNEXPECTED_ERROR, e.getLocalizedMessage());
     } catch (PSORMException e) {
       throw new PSLocaleException(
-          IPSLocaleErrors.LOCALE_MGR_UNEXPECTED_ERROR, e.getLocalizedMessage());
+          LocaleErrorCodes.LOCALE_MGR_UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 

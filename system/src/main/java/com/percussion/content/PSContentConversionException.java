@@ -16,6 +16,7 @@
  */
 package com.percussion.content;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 import java.util.Objects;
 
@@ -113,4 +114,45 @@ public final class PSContentConversionException extends PSException {
   public PSContentConversionException(int msgCode, Object[] arrayArgs, Throwable cause) {
     super(msgCode, arrayArgs, cause);
   }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the single argument for the error message, may be {@code null}
+   */
+  public PSContentConversionException(IPSErrorCode code, Object singleArg) {
+    super(code, singleArg);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments for the error message, may be {@code null}
+   */
+  public PSContentConversionException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSContentConversionException(IPSErrorCode code) {
+    super(code);
+  }
+
+  /**
+   * Typed construction with message arguments and cause.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments for the error message, may be {@code null}
+   * @param cause the underlying cause, may be {@code null}
+   */
+  public PSContentConversionException(IPSErrorCode code, Object[] arrayArgs, Throwable cause) {
+    super(code, arrayArgs, cause);
+  }
+
 }

@@ -44,9 +44,9 @@ DEPLOYER_JEXL_CONVERTED = (
 # leftover call-sites in #4013; leftover system/server command/cache/actions/
 # clone/compare/config in #4153; leftover relationship.effect call-sites in
 # #4156.
-# Keep an exact residual that is still frozen (system debug leftover).
+# Keep an exact residual that is still frozen (Testing leftover deferred by #4264).
 SYSTEM_CMS_RESIDUAL = (
-    "system/src/main/java/com/percussion/debug/PSDebugLogHandler.java"
+    "system/Testing/Extensions/src/com/percussion/extensions/testing/PSMakeCERequest.java"
 )
 
 
@@ -624,6 +624,42 @@ def test_deployer_jexl_converted_path_not_allowlisted() -> None:
     assert resurrected == [], resurrected
 
 
+
+def test_issue_4264_modules_misc_converted_paths_not_allowlisted() -> None:
+    """#4264 typed leftover modules+misc system IPS*Errors call-sites."""
+    converted = (
+        "modules/perc-i18n/src/main/java/com/percussion/i18n/ui/PSI18NTranslationKeyValues.java",
+        "modules/perc-toolkit/src/main/java/com/percussion/pso/jexl/PSOSlotTools.java",
+        "modules/perc-toolkit/src/main/java/com/percussion/pso/relationshipbuilder/exit/PSAbstractBuildRelationshipsExtension.java",
+        "system/src/main/java/com/percussion/content/PSContentConverter.java",
+        "system/src/main/java/com/percussion/content/PSFileConverterExit.java",
+        "system/src/main/java/com/percussion/debug/PSDebugLogHandler.java",
+        "system/src/main/java/com/percussion/design/objectstore/PSContainerLocator.java",
+        "system/src/main/java/com/percussion/design/objectstore/PSContentTypeHelper.java",
+        "system/src/main/java/com/percussion/design/objectstore/PSObjectStore.java",
+        "system/src/main/java/com/percussion/design/objectstore/server/PSXmlObjectStoreHandler.java",
+        "system/src/main/java/com/percussion/design/server/PSDesignerConnectionHandler.java",
+        "system/src/main/java/com/percussion/fastforward/managednav/PSManagedNavService.java",
+        "system/src/main/java/com/percussion/fastforward/utils/PSUtils.java",
+        "system/src/main/java/com/percussion/i18n/PSLocale.java",
+        "system/src/main/java/com/percussion/i18n/PSLocaleManager.java",
+        "system/src/main/java/com/percussion/publisher/server/PSPubTimeStatistics.java",
+        "system/src/main/java/com/percussion/search/PSAddThumbnailURL.java",
+        "system/src/main/java/com/percussion/search/PSBaseExecutableSearch.java",
+        "system/src/main/java/com/percussion/system/utils/PSExtensionInstallTool.java",
+        "system/src/main/java/com/percussion/workflow/PSContentStatusContext.java",
+        "system/src/main/java/com/percussion/workflow/PSTransitionsContext.java",
+    )
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = {
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    resurrected = [p for p in converted if p in entries]
+    assert resurrected == [], resurrected
+
+
 def test_empty_allowlist_fails_on_real_residuals(tmp_path: Path) -> None:
     """Without the residual file, current production leftovers must fail."""
     empty = tmp_path / "empty-allowlist.txt"
@@ -632,9 +668,9 @@ def test_empty_allowlist_fails_on_real_residuals(tmp_path: Path) -> None:
     assert result.returncode == 1, result.stdout + result.stderr
     combined = result.stdout + result.stderr
     assert "FAIL" in combined
-    # Prefer a still-listed residual; converted servletutils/PSDtdTree paths
-    # must not be required after #4195/#4197.
-    assert "PSDebugLogHandler.java" in combined or "PSUtils.java" in combined
+    # Prefer a still-listed residual; converted modules/misc (#4264) and
+    # servletutils/PSDtdTree paths must not be required.
+    assert "PSApplicationHandler.java" in combined or "PSServer.java" in combined
 
 
 if __name__ == "__main__":

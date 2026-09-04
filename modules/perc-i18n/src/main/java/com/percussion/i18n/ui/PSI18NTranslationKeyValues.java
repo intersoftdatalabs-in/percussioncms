@@ -16,7 +16,7 @@
  */
 package com.percussion.i18n.ui;
 
-import com.percussion.error.IPSBeansErrors;
+import com.intsof.percussioncms.auditlog.codes.BeansErrorCodes;
 import com.percussion.error.PSBeansException;
 import com.percussion.i18n.PSTmxUnit;
 import com.percussion.util.IPSRemoteRequester;
@@ -80,7 +80,7 @@ public class PSI18NTranslationKeyValues {
         populateMap(key, unit);
       }
     } catch (Exception e) {
-      throw new PSBeansException(IPSBeansErrors.XML_PROCESSING_ERROR, e.getLocalizedMessage());
+      throw new PSBeansException(BeansErrorCodes.XML_PROCESSING_ERROR, e.getLocalizedMessage());
     }
   }
 

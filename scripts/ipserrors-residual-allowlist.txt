@@ -32,11 +32,12 @@
 #   #4155 leftover system search IPSSearchErrors / lucene peers
 #   #4156 leftover system/src/main relationship.effect call sites
 #   #4157 leftover system/src/main com.percussion.install JDBC table-factory
+#   #4264 leftover modules+misc system IPS*Errors typed *ErrorCodes
 # Converted (no longer listed): extensions-main #3756/#3938 (allow-list)
 # shrink after #3793 re-listed already-typed production paths);
 # design.catalog leftover #3969; system/src/main com.percussion.mail leftover
 # #4017; cx leftover #4013 (PSFont, PSOption, PSOptions, PSUserOptions);
-# servletutils PSTomcatUtils leftover #4195.
+# servletutils PSTomcatUtils leftover #4195; modules+misc system leftovers #4264.
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -48,9 +49,6 @@
 
 
 
-modules/perc-i18n/src/main/java/com/percussion/i18n/ui/PSI18NTranslationKeyValues.java
-modules/perc-toolkit/src/main/java/com/percussion/pso/jexl/PSOSlotTools.java
-modules/perc-toolkit/src/main/java/com/percussion/pso/relationshipbuilder/exit/PSAbstractBuildRelationshipsExtension.java
 modules/segmentation-rx/src/main/java/com/percussion/soln/relationshipbuilder/exit/PSAbstractBuildRelationshipsExtension.java
 system/Testing/Extensions/src/com/percussion/extensions/testing/PSMakeCERequest.java
 system/Testing/Extensions/src/com/percussion/extensions/testing/PSSortDocData.java
@@ -59,21 +57,6 @@ system/Testing/cms/HttpItemCopier.java
 system/Tools/RxFix/src/com/percussion/rxfix/dbfixes/PSFixNavigation.java
 system/Tools/RxFix/src/com/percussion/rxverify/modules/PSJdbcTableCheck.java
 
-system/src/main/java/com/percussion/content/PSContentConverter.java
-system/src/main/java/com/percussion/content/PSFileConverterExit.java
-system/src/main/java/com/percussion/debug/PSDebugLogHandler.java
-system/src/main/java/com/percussion/design/objectstore/PSContainerLocator.java
-system/src/main/java/com/percussion/design/objectstore/PSContentTypeHelper.java
-system/src/main/java/com/percussion/design/objectstore/PSObjectStore.java
-system/src/main/java/com/percussion/design/objectstore/server/PSXmlObjectStoreHandler.java
-system/src/main/java/com/percussion/design/server/PSDesignerConnectionHandler.java
-system/src/main/java/com/percussion/fastforward/managednav/PSManagedNavService.java
-system/src/main/java/com/percussion/fastforward/utils/PSUtils.java
-system/src/main/java/com/percussion/i18n/PSLocale.java
-system/src/main/java/com/percussion/i18n/PSLocaleManager.java
-system/src/main/java/com/percussion/publisher/server/PSPubTimeStatistics.java
-system/src/main/java/com/percussion/search/PSAddThumbnailURL.java
-system/src/main/java/com/percussion/search/PSBaseExecutableSearch.java
 system/src/main/java/com/percussion/server/PSApplicationHandler.java
 system/src/main/java/com/percussion/server/PSBaseResponse.java
 system/src/main/java/com/percussion/server/PSFileRequestHandler.java
@@ -95,6 +78,3 @@ system/src/main/java/com/percussion/server/webservices/PSServerFolderProcessor.j
 system/src/main/java/com/percussion/server/webservices/PSWebServicesBaseHandler.java
 system/src/main/java/com/percussion/server/webservices/PSWebServicesRequestHandler.java
 system/src/main/java/com/percussion/servlets/PSLoginServlet.java
-system/src/main/java/com/percussion/system/utils/PSExtensionInstallTool.java
-system/src/main/java/com/percussion/workflow/PSContentStatusContext.java
-system/src/main/java/com/percussion/workflow/PSTransitionsContext.java

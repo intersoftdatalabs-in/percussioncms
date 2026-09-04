@@ -17,7 +17,7 @@
 package com.percussion.fastforward.utils;
 
 import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.security.error.PSExceptionUtils;
@@ -274,7 +274,7 @@ public class PSUtils {
     NodeList nl = doc.getElementsByTagName("Site");
     if (nl.getLength() < 1) {
       Object[] args = {SITE_LOOKUP_RESOURCE, siteId};
-      throw new PSNotFoundException(IPSCmsErrors.SITE_LOOKUP_FAILED, args);
+      throw new PSNotFoundException(PathItemErrorCodes.SITE_LOOKUP_FAILED, args);
     }
     Element site = (Element) nl.item(0);
 

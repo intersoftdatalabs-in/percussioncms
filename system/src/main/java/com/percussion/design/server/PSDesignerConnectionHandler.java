@@ -18,7 +18,7 @@
 package com.percussion.design.server;
 
 import com.percussion.content.IPSMimeContentTypes;
-import com.percussion.design.catalog.IPSCatalogErrors;
+import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
@@ -80,12 +80,12 @@ public class PSDesignerConnectionHandler implements IPSRequestHandler {
        */
       Document reqDoc = request.getInputDocument();
       if (reqDoc == null) {
-        throw new PSIllegalArgumentException(IPSCatalogErrors.REQ_DOC_MISSING_GENERIC);
+        throw new PSIllegalArgumentException(CatalogErrorCodes.REQ_DOC_MISSING_GENERIC);
       }
 
       Element root = reqDoc.getDocumentElement();
       if (root == null) {
-        throw new PSIllegalArgumentException(IPSCatalogErrors.REQ_DOC_ROOT_MISSING_GENERIC);
+        throw new PSIllegalArgumentException(CatalogErrorCodes.REQ_DOC_ROOT_MISSING_GENERIC);
       }
 
       /* locate the catalog handler from our hash table */
@@ -94,7 +94,7 @@ public class PSDesignerConnectionHandler implements IPSRequestHandler {
       else if (ms_closeRoot.equals(reqType)) respDoc = closeSession(request);
       else {
         Object[] args = {ms_openRoot + ", " + ms_closeRoot, reqType};
-        throw new PSIllegalArgumentException(IPSCatalogErrors.REQ_DOC_INVALID_TYPE, args);
+        throw new PSIllegalArgumentException(CatalogErrorCodes.REQ_DOC_INVALID_TYPE, args);
       }
     } catch (Exception e) {
       respDoc = com.percussion.error.PSErrorHandler.fillErrorResponse(e);

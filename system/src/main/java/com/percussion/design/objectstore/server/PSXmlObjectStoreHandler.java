@@ -56,7 +56,7 @@ import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSUserEntry;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.io.PSPathInjectionGuard;
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.server.IPSValidateSession;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSRequest;
@@ -4906,7 +4906,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
               app.getName(), app.getRequestRoot(), PSException.getStackTraceAsString(ex)
             };
             PSLogManager.write(
-                new PSLogServerWarning(IPSServerErrors.ARGUMENT_ERROR, args, true, "ObjectStore"));
+                new PSLogServerWarning(ServerErrorCodes.ARGUMENT_ERROR, args, true, "ObjectStore"));
           }
           return true;
         }

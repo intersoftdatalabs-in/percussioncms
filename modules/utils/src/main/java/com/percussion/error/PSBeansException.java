@@ -67,6 +67,73 @@ public class PSBeansException extends Exception {
   }
 
   /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message, may be {@code
+   *     null}
+   */
+  public PSBeansException(IPSErrorCode code, Object singleArg) {
+    this(code, new Object[] {singleArg});
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message. May be
+   *     {@code null}, and may contain {@code null} elements.
+   */
+  public PSBeansException(IPSErrorCode code, Object[] arrayArgs) {
+    this(requireCode(code).numericCode(), arrayArgs);
+    m_typedCode = code;
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSBeansException(IPSErrorCode code) {
+    this(code, (Object[]) null);
+  }
+
+  /**
+   * Numeric error code for message lookup.
+   *
+   * @return legacy int code
+   */
+  public int getErrorCode() {
+    return m_code;
+  }
+
+  /**
+   * Typed catalog code when constructed via {@link IPSErrorCode} overloads; otherwise {@code null}.
+   *
+   * @return typed code or {@code null}
+   */
+  public IPSErrorCode getTypedErrorCode() {
+    return m_typedCode;
+  }
+
+  /**
+   * Whether this exception's catalogued code is auditable. Defaults to {@code false} for int-only
+   * construction.
+   *
+   * @return auditable flag
+   */
+  public boolean isAuditable() {
+    return m_typedCode != null && m_typedCode.isAuditable();
+  }
+
+  private static IPSErrorCode requireCode(IPSErrorCode code) {
+    if (code == null) {
+      throw new IllegalArgumentException("code must not be null");
+    }
+    return code;
+  }
+
+  /**
    * Returns the localized detail message of this exception.
    *
    * @param locale The locale to generate the message in. If <code>null
@@ -167,6 +234,9 @@ public class PSBeansException extends Exception {
 
   /** The error code of this exception, set during ctor, never modified after that. */
   private int m_code;
+
+  /** Optional typed catalog code retained when constructed via {@link IPSErrorCode} overloads. */
+  private transient IPSErrorCode m_typedCode;
 
   /**
    * The array of arguments to use to format the message with. Set during ctor, may be <code>null

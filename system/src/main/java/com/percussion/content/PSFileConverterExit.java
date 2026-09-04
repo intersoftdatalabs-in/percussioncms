@@ -16,6 +16,7 @@
  */
 package com.percussion.content;
 
+import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSItemInputTransformer;
 import com.percussion.extension.PSDefaultExtension;
@@ -170,7 +171,7 @@ public class PSFileConverterExit extends PSDefaultExtension implements IPSItemIn
    * @throws PSExtensionProcessingException if an unsupported file type is supplied, or if there are
    *     any other errors, and an error message request parameter was not supplied.
    * @deprecated this exit has been deprecated and throws
-   *     PSContentConversionException(IPSContentErrors.UNSUPPORTED_EXTRACTION_EXIT) when used.
+   *     PSContentConversionException(ContentErrorCodes.UNSUPPORTED_EXTRACTION_EXIT) when used.
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -181,7 +182,7 @@ public class PSFileConverterExit extends PSDefaultExtension implements IPSItemIn
     request.printTraceMessage(msg);
     ms_log.info(msg);
     throw new PSExtensionProcessingException(
-        new PSContentConversionException(IPSContentErrors.UNSUPPORTED_EXTRACTION_EXIT));
+        new PSContentConversionException(ContentErrorCodes.UNSUPPORTED_EXTRACTION_EXIT));
   }
 
   /**

@@ -17,7 +17,7 @@
 
 package com.percussion.search;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.cms.objectstore.PSSearchField;
@@ -107,7 +107,7 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
     try {
       resp = new PSWSSearchResponse(executeSearch(null));
     } catch (PSUnknownNodeTypeException e) {
-      throw new PSSearchException(IPSCmsErrors.SEARCH_ERROR, e.toString());
+      throw new PSSearchException(CmsErrorCodes.SEARCH_ERROR, e.toString());
     }
     return resp;
   }
@@ -183,7 +183,7 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
           || ex instanceof SAXException
           || ex instanceof IOException
           || ex instanceof PSCmsException) {
-        throw new PSSearchException(IPSCmsErrors.SEARCH_ERROR, ex.toString());
+        throw new PSSearchException(CmsErrorCodes.SEARCH_ERROR, ex.toString());
       } else {
         throw new RuntimeException(ex);
       }
@@ -212,7 +212,7 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
     String type = root.getAttribute("type");
     if (type != null && !type.equalsIgnoreCase("failure")) return; // must be success or partial
 
-    throw new PSCmsException(IPSCmsErrors.SEARCH_ERROR, PSXmlDocumentBuilder.toString(doc));
+    throw new PSCmsException(CmsErrorCodes.SEARCH_ERROR, PSXmlDocumentBuilder.toString(doc));
   }
 
   /**
