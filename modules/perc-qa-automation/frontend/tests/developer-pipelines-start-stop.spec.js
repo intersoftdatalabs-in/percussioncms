@@ -213,41 +213,60 @@ test.describe("Developer Pipelines start/stop (#4304 / Slice B)", () => {
       const startBtn = page.locator('[data-testid="developer-pipe-start"]');
       const stopBtn = page.locator('[data-testid="developer-pipe-stop"]');
 
-      if (initiallyRunning) {
-        await expect(stopBtn).toBeEnabled();
-        await expect(startBtn).toBeDisabled();
-        await clickLifecycle(page, "stop");
-        await expect
-          .poll(async () => readRunningYes(page), { timeout: 20_000 })
-          .toBe(false);
-        await expect(startBtn).toBeEnabled();
-        await expect(stopBtn).toBeDisabled();
+      try {
+        if (initiallyRunning) {
+          await expect(stopBtn).toBeEnabled();
+          await expect(startBtn).toBeDisabled();
+          await clickLifecycle(page, "stop");
+          await expect
+            .poll(async () => readRunningYes(page), { timeout: 20_000 })
+            .toBe(false);
+          await expect(startBtn).toBeEnabled();
+          await expect(stopBtn).toBeDisabled();
 
-        await clickLifecycle(page, "start");
-        await expect
-          .poll(async () => readRunningYes(page), { timeout: 20_000 })
-          .toBe(true);
-        await expect(stopBtn).toBeEnabled();
-        await expect(startBtn).toBeDisabled();
-      } else {
-        await expect(startBtn).toBeEnabled();
-        await expect(stopBtn).toBeDisabled();
-        await clickLifecycle(page, "start");
-        await expect
-          .poll(async () => readRunningYes(page), { timeout: 20_000 })
-          .toBe(true);
-        await expect(stopBtn).toBeEnabled();
-        await expect(startBtn).toBeDisabled();
+          await clickLifecycle(page, "start");
+          await expect
+            .poll(async () => readRunningYes(page), { timeout: 20_000 })
+            .toBe(true);
+          await expect(stopBtn).toBeEnabled();
+          await expect(startBtn).toBeDisabled();
+        } else {
+          await expect(startBtn).toBeEnabled();
+          await expect(stopBtn).toBeDisabled();
+          await clickLifecycle(page, "start");
+          await expect
+            .poll(async () => readRunningYes(page), { timeout: 20_000 })
+            .toBe(true);
+          await expect(stopBtn).toBeEnabled();
+          await expect(startBtn).toBeDisabled();
 
-        await clickLifecycle(page, "stop");
-        await expect
-          .poll(async () => readRunningYes(page), { timeout: 20_000 })
-          .toBe(false);
-        await expect(startBtn).toBeEnabled();
-        await expect(stopBtn).toBeDisabled();
+          await clickLifecycle(page, "stop");
+          await expect
+            .poll(async () => readRunningYes(page), { timeout: 20_000 })
+            .toBe(false);
+          await expect(startBtn).toBeEnabled();
+          await expect(stopBtn).toBeDisabled();
+        }
+
+        assertConsoleClean(pageErrors, consoleErrors);
+      } finally {
+        // Best-effort restore so a mid-flow assertion failure does not poison H2.
+        try {
+          if (await page.locator('[data-testid="developer-pipe-detail"]').isVisible()) {
+            const nowRunning = await readRunningYes(page);
+            if (nowRunning !== initiallyRunning) {
+              await clickLifecycle(page, initiallyRunning ? "start" : "stop");
+              await expect
+                .poll(async () => readRunningYes(page), { timeout: 20_000 })
+                .toBe(initiallyRunning);
+            }
+          }
+        } catch (restoreErr) {
+          console.warn(
+            `pipeline lifecycle restore failed for ${appName}: ${restoreErr}`,
+          );
+        }
       }
-
-      assertConsoleClean(pageErrors, consoleErrors);
     },
   );
 });

@@ -112,13 +112,18 @@ export function PipelineDetailPanel({
   const [busy, setBusy] = useState(false);
   const [lifecycleAction, setLifecycleAction] = useState<"start" | "stop" | null>(null);
   const inflight = useRef(false);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
     let cancelled = false;
+    mountedRef.current = true;
     setDetail(null);
     setError(null);
     setActionError(null);
     setNotice(null);
+    setBusy(false);
+    setLifecycleAction(null);
+    inflight.current = false;
     getApplicationDetail(idOrName)
       .then((d) => {
         if (!cancelled) setDetail(d);
@@ -128,6 +133,7 @@ export function PipelineDetailPanel({
       });
     return () => {
       cancelled = true;
+      mountedRef.current = false;
     };
   }, [idOrName]);
 
@@ -140,14 +146,18 @@ export function PipelineDetailPanel({
     setNotice(null);
     try {
       const next = await startApplication(idOrName);
+      if (!mountedRef.current) return;
       setDetail(next);
       setNotice(DEV_MSG.PIPE_STARTED);
     } catch (err: unknown) {
+      if (!mountedRef.current) return;
       setActionError(lifecycleErrMsg(err, DEV_MSG.PIPE_START_ERROR));
     } finally {
       inflight.current = false;
-      setBusy(false);
-      setLifecycleAction(null);
+      if (mountedRef.current) {
+        setBusy(false);
+        setLifecycleAction(null);
+      }
     }
   }
 
@@ -160,14 +170,18 @@ export function PipelineDetailPanel({
     setNotice(null);
     try {
       const next = await stopApplication(idOrName);
+      if (!mountedRef.current) return;
       setDetail(next);
       setNotice(DEV_MSG.PIPE_STOPPED);
     } catch (err: unknown) {
+      if (!mountedRef.current) return;
       setActionError(lifecycleErrMsg(err, DEV_MSG.PIPE_STOP_ERROR));
     } finally {
       inflight.current = false;
-      setBusy(false);
-      setLifecycleAction(null);
+      if (mountedRef.current) {
+        setBusy(false);
+        setLifecycleAction(null);
+      }
     }
   }
 

@@ -216,6 +216,73 @@ describe("PipelineDetailPanel", () => {
     });
   });
 
+  it("clears busy when idOrName changes during an in-flight start", async () => {
+    let resolveStart: ((value: typeof sampleDetail) => void) | undefined;
+    getApplicationDetail.mockImplementation(async (id: string) => ({
+      ...sampleDetail,
+      name: id,
+      active: false,
+    }));
+    startApplication.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveStart = resolve;
+        }),
+    );
+
+    const { rerender } = render(
+      <BootstrapProvider
+        value={{
+          userName: "admin",
+          locale: "en-us",
+          entry: "developer",
+          isAdmin: true,
+          isDesigner: true,
+          isWidgetBuilderActive: false,
+          allowExternalAvatarFetch: true,
+        }}
+      >
+        <PipelineDetailPanel idOrName="sys_cmpDocuments" onBack={() => undefined} />
+      </BootstrapProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-start")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-start"));
+    await waitFor(() => {
+      expect(startApplication).toHaveBeenCalledWith("sys_cmpDocuments");
+    });
+    expect((screen.getByTestId("developer-pipe-start") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+
+    rerender(
+      <BootstrapProvider
+        value={{
+          userName: "admin",
+          locale: "en-us",
+          entry: "developer",
+          isAdmin: true,
+          isDesigner: true,
+          isWidgetBuilderActive: false,
+          allowExternalAvatarFetch: true,
+        }}
+      >
+        <PipelineDetailPanel idOrName="sys_otherApp" onBack={() => undefined} />
+      </BootstrapProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-detail-title").textContent).toBe("sys_otherApp");
+    });
+    expect((screen.getByTestId("developer-pipe-start") as HTMLButtonElement).disabled).toBe(
+      false,
+    );
+
+    resolveStart?.({ ...sampleDetail, name: "sys_cmpDocuments", active: true });
+  });
+
   it("shows empty datasets section when detail has none", async () => {
     getApplicationDetail.mockResolvedValue({
       ...sampleDetail,

@@ -394,6 +394,32 @@ class PipelinesAdaptorTest {
   }
 
   @Test
+  void startApplication_adminCheckUnexpectedRuntimeMapsTo500() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> {
+              throw new IllegalStateException("user service exploded");
+            },
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.startApplication(
+                      URI.create("http://localhost/services/"), "sys_cmpDocuments"));
+      assertEquals(500, ex.getResponse().getStatus());
+      assertEquals("Admin authorization check failed", ex.getMessage());
+    }
+  }
+
+  @Test
   void startApplication_startsWhenStopped() throws Exception {
     PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
     AtomicBoolean active = new AtomicBoolean(false);

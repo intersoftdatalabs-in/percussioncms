@@ -314,8 +314,10 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     } catch (WebApplicationException e) {
       throw e;
     } catch (RuntimeException e) {
-      log.debug("Admin check failed: {}", e.getMessage());
-      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+      // Unexpected authz failures must surface as 500, not a misleading 403.
+      log.warn("Unexpected failure during Admin check", e);
+      throw new WebApplicationException(
+          "Admin authorization check failed", Response.Status.INTERNAL_SERVER_ERROR);
     }
     if (!allowed) {
       throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
@@ -333,7 +335,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       }
       return userService.isAdminUser(current.getName());
     } catch (PSDataServiceException e) {
-      log.debug("Unable to resolve current user for Admin check: {}", e.getMessage());
+      log.warn("Unable to resolve current user for Admin check: {}", e.getMessage());
       return false;
     }
   }
