@@ -136,6 +136,39 @@ class PSServerWebServicesLeftoverErrorCodesSliceTest {
         IPSCmsErrors.FOLDER_CREATE_ERROR, PathItemErrorCodes.FOLDER_CREATE_ERROR.numericCode());
     assertEquals(
         IPSCmsErrors.DUPLICATE_ITEM_NAME, PathItemErrorCodes.DUPLICATE_ITEM_NAME.numericCode());
+    // PSServerFolderProcessor production throws — parity with legacy IPSCmsErrors ints
+    assertEquals(
+        IPSCmsErrors.INVALID_FOLDER_NAME, PathItemErrorCodes.INVALID_FOLDER_NAME.numericCode());
+    assertEquals(
+        IPSCmsErrors.INVALID_FOLDER_VALUE, PathItemErrorCodes.INVALID_FOLDER_VALUE.numericCode());
+    assertEquals(
+        IPSCmsErrors.CANNOT_COPY_FOLDER_TO_ITS_DESCENDENT,
+        PathItemErrorCodes.CANNOT_COPY_FOLDER_TO_ITS_DESCENDENT.numericCode());
+    assertEquals(
+        IPSCmsErrors.CANNOT_MOVE_FOLDER_TO_ITS_DESCENDENT,
+        PathItemErrorCodes.CANNOT_MOVE_FOLDER_TO_ITS_DESCENDENT.numericCode());
+    assertEquals(
+        IPSCmsErrors.CIRCULAR_FOLDER_REFERENCE,
+        PathItemErrorCodes.CIRCULAR_FOLDER_REFERENCE.numericCode());
+    assertEquals(
+        IPSCmsErrors.DUPLICATE_ITEM_NAME_COPY_CREATED,
+        PathItemErrorCodes.DUPLICATE_ITEM_NAME_COPY_CREATED.numericCode());
+    assertEquals(
+        IPSCmsErrors.FOLDER_REL_INSERT_ERROR_DUPLICATED_CHILDNAME,
+        PathItemErrorCodes.FOLDER_REL_INSERT_ERROR_DUPLICATED_CHILDNAME.numericCode());
+    assertEquals(
+        IPSCmsErrors.FOLDER_REL_ERROR_DUPLICATED_CHILDNAME,
+        PathItemErrorCodes.FOLDER_REL_ERROR_DUPLICATED_CHILDNAME.numericCode());
+    assertEquals(
+        IPSCmsErrors.FAIL_DELETE_NON_FOLDER, CmsErrorCodes.FAIL_DELETE_NON_FOLDER.numericCode());
+    assertEquals(
+        IPSCmsErrors.MODIFY_ERROR_DUPLICATED_CHILDNAME,
+        CmsErrorCodes.MODIFY_ERROR_DUPLICATED_CHILDNAME.numericCode());
+    assertEquals(
+        IPSCmsErrors.FAILED_GET_SUMMARY, CmsErrorCodes.FAILED_GET_SUMMARY.numericCode());
+    assertEquals(
+        IPSCmsErrors.ERROR_SAVING_RELATIONSHIPS,
+        CmsErrorCodes.ERROR_SAVING_RELATIONSHIPS.numericCode());
     assertEquals(IPSCmsErrors.VALIDATION_ERROR, CmsErrorCodes.VALIDATION_ERROR.numericCode());
     assertEquals(
         IPSCmsErrors.FAIL_GET_COMPONENT_SUMMARIES,
