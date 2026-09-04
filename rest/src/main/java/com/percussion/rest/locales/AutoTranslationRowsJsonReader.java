@@ -42,8 +42,8 @@ import tools.jackson.databind.json.JsonMapper;
 /**
  * JSON reader for PUT {@code /locales/auto-translations} (CD-18 / #4028).
  *
- * <p>CXF {@code UNWRAP_ROOT_VALUE} rejects a bare JSON array ({@code JSONObject text must begin
- * with '{'}) and can bind {@code {"AutoTranslationRow":[…]}} as an empty list. This reader binds
+ * <p>CXF {@code UNWRAP_ROOT_VALUE} rejects a bare JSON array (message text requires a leading
+ * curly brace) and can bind {@code {"AutoTranslationRow":[…]}} as an empty list. This reader binds
  * both envelopes with a mapper that does <em>not</em> unwrap:
  *
  * <ul>

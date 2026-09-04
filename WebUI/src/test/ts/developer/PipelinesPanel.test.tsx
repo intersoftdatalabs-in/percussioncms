@@ -53,6 +53,9 @@ describe("PipelinesPanel", () => {
     });
     expect(screen.getAllByText("sys_cmpDocuments").length).toBeGreaterThan(0);
     expect(screen.getByText("CONTENT_EDITOR")).toBeTruthy();
+    expect(screen.getByTestId("developer-pipe-open").getAttribute("data-pipe-name")).toBe(
+      "sys_cmpDocuments",
+    );
   });
 
   it("opens read-only application detail from catalog row", async () => {
