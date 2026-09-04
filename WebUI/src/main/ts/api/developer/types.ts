@@ -422,6 +422,8 @@ export interface ApplicationSummary {
   name?: string;
   description?: string;
   enabled?: boolean;
+  /** Whether the application is currently running on the server. */
+  active?: boolean;
   appRoot?: string;
   appType?: string;
   version?: string;

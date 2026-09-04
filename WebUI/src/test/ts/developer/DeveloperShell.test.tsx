@@ -426,6 +426,7 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
       name: "sys_cmpDocuments",
       description: "System content editor app",
       enabled: true,
+      active: false,
       appType: "CONTENT_EDITOR",
       appRoot: "sys_cmpDocuments",
     },
@@ -435,11 +436,14 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
     name: "sys_cmpDocuments",
     description: "System content editor app",
     enabled: true,
+    active: false,
     appType: "CONTENT_EDITOR",
     appRoot: "sys_cmpDocuments",
     dataSets: [],
     designGaps: [],
   }),
+  startApplication: vi.fn(),
+  stopApplication: vi.fn(),
 }));
 
 vi.mock("../../../main/ts/api/developer/localesApi", async (importOriginal) => {
