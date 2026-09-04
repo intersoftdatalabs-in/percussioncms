@@ -81,6 +81,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -366,6 +368,12 @@ public class PSSystemService
             throw new IllegalArgumentException("in may not be null");
 
          cFile = desc.getConfigFile();
+         // Ensure parent directories exist before writing the config file.
+         Path parent = cFile.toPath().toAbsolutePath().normalize().getParent();
+         if (parent != null)
+         {
+            Files.createDirectories(parent);
+         }
          try (OutputStream out = new FileOutputStream(cFile)) {
             IOTools.copyStream(in, out);
             isSaved = true;
