@@ -912,6 +912,12 @@ Jackson root wrap:
 | `409` | No design lock, or locked by another user |
 | `500` | Unexpected error (not inferred from names that happen to contain "lock") |
 
+The **workflow → content type** side of the same association (SY-06) is a separate Admin
+surface under `/services/workflows/{idOrName}/allowedContentTypes`. See
+[Workflow allowed content types (SY-06)](#workflow-allowed-content-types-sy-06). Do not use
+CD-08 to replace associations for every content type when editing from a workflow; use SY-06
+instead.
+
 ### Allowed templates (CD-12)
 
 `PUT /services/contenttypes/{idOrName}/allowedTemplates` replaces the content type's
@@ -1891,6 +1897,54 @@ and binds `workflowName` (or the `name` alias) before rendering detail. A wrappe
 payload without a top-level `workflowName` must still open **Default Workflow** /
 **Simple Workflow** instead of **Could not load workflow**. There is **no Object ACL**
 section on workflow detail.
+
+### Workflow allowed content types (SY-06)
+
+Content-type ↔ workflow associations can be edited from **either** side:
+
+| Side | FR | Path |
+|------|----|------|
+| Content type → workflows | CD-08 | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` (held CT design lock; does not unlock) |
+| Workflow → content types | SY-06 | `GET` / `PUT /services/workflows/{idOrName}/allowedContentTypes` (Admin; acquires/releases a design lock per affected content type) |
+
+These are the **same** underlying associations (`PSX_CONTENTTYPE_WORKFLOW` / content-editor
+workflow inclusion list). CD-08 remains the content-type detail editor path. SY-06 is the
+workflow-side Admin catalog under the public REST `/services/workflows` root (not
+`/services/workflowmanagement/workflows`).
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/workflows/{idOrName}/allowedContentTypes` | List content types associated with the workflow |
+| `PUT` | `/services/workflows/{idOrName}/allowedContentTypes` | Full-replace associations for this workflow (empty list clears) |
+
+`idOrName` is a workflow name, numeric uuid, or guid string. Wildcards are rejected (`400`).
+Unknown workflow is `404`. Admin only (`403` otherwise).
+
+PUT body Jackson root wrap:
+
+```json
+{
+  "WorkflowContentTypes": {
+    "allowedContentTypes": [
+      { "name": "percPage", "guid": { "stringValue": "0-2-311" } }
+    ]
+  }
+}
+```
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | Updated; response is the new `NamedObjectRef` list for this workflow |
+| `400` | Missing `allowedContentTypes`, unknown content-type id/name, invalid id, or wildcard |
+| `403` | Caller is not Admin (or missing request session/user on PUT) |
+| `404` | Workflow not found |
+| `409` | Design lock conflict on an affected content type |
+| `500` | Unexpected error |
+
+**Lock model vs CD-08:** CD-08 requires the caller to already hold the content-type design
+lock (`POST .../contenttypes/{id}/lock`) and leaves it held. SY-06 PUT locks each content
+type it changes and releases the lock on save, because a workflow-side replace can touch
+many content types.
 
 ## Design capability gaps (`designGaps`)
 
