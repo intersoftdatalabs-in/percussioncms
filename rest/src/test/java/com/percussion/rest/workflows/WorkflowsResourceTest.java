@@ -170,12 +170,13 @@ public class WorkflowsResourceTest {
   }
 
   @Test
-  public void setAllowedContentTypesRequiresList() {
-    WebApplicationException ex =
-        assertThrows(
-            WebApplicationException.class,
-            () -> resource.setAllowedContentTypes("Simple Workflow", new WorkflowContentTypes()));
-    assertEquals(400, ex.getResponse().getStatus());
+  public void setAllowedContentTypesNullListClearsLikeEmpty() {
+    // Live CXF often deserializes JSON [] as null under UNWRAP_ROOT_VALUE.
+    when(adaptor.setAllowedContentTypes(any(), eq("Simple Workflow"), eq(List.of())))
+        .thenReturn(List.of());
+    assertTrue(
+        resource.setAllowedContentTypes("Simple Workflow", new WorkflowContentTypes()).isEmpty());
+    verify(adaptor).setAllowedContentTypes(any(), eq("Simple Workflow"), eq(List.of()));
   }
 
   @Test

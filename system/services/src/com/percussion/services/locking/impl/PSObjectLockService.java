@@ -635,6 +635,27 @@ public class PSObjectLockService
     * @return the lock session sued to store with the lock objects, never
     *    <code>null</code> or empty.
     */
+   /**
+    * {@code PSX_LOCKS.LOCKSESSION} is {@code VARCHAR(50)}. Modern Jetty session
+    * ids can be 64-char hex; truncate so design locks (CD-08 / SY-06) do not
+    * fail with H2 {@code Value too long for column "LOCKSESSION"}.
+    */
+   static final int LOCK_SESSION_DB_MAX = 50;
+
+   /**
+    * Clamp a lock-session token to {@link #LOCK_SESSION_DB_MAX} characters.
+    * Package-visible for unit tests.
+    */
+   static String clampLockSession(String lockSession) {
+      if (lockSession == null) {
+         return null;
+      }
+      if (lockSession.length() <= LOCK_SESSION_DB_MAX) {
+         return lockSession;
+      }
+      return lockSession.substring(0, LOCK_SESSION_DB_MAX);
+   }
+
    private String getLockSession(String session)
    {
       PSUserSession rxSession = PSUserSessionManager.getUserSession(session);
@@ -645,7 +666,7 @@ public class PSObjectLockService
       if (lockSession == null)
          lockSession = session;
 
-      return lockSession;
+      return clampLockSession(lockSession);
    }
 
    /**
