@@ -134,7 +134,11 @@ export function ServerConfigDetailPanel({
       ) : null}
 
       {notice ? (
-        <div data-testid="developer-cfg-editor-notice" style={{ color: "#276749" }}>
+        <div
+          role="status"
+          data-testid="developer-cfg-editor-notice"
+          style={{ color: "#276749" }}
+        >
           {notice}
         </div>
       ) : null}

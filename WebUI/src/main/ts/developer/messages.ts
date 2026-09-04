@@ -1400,6 +1400,7 @@ export const DEV_MSG_KEYS = {
   CFG_DETAIL_LOADING: "perc.ui.developer@Loading configuration...",
   CFG_DETAIL_ERROR: "perc.ui.developer@Could not load configuration.",
   CFG_CONTENT: "perc.ui.developer@Content",
+  /** @deprecated Retained for i18n key stability; editor always renders textarea (empty string ok). */
   CFG_CONTENT_EMPTY: "perc.ui.developer@No content loaded for this configuration.",
   CFG_CONTENT_HINT:
     "perc.ui.developer@Admin save replaces the allow-listed file body. Empty content is allowed. Configuration create and locking are not supported here.",

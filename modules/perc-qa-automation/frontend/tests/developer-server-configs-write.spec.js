@@ -17,9 +17,10 @@
 /**
  * Developer → Configurations SY-02 allow-listed save (#4277 / parent #1690).
  *
- * Opens an allow-listed server config (TIDY_CONFIG), appends a unique marker,
- * saves, asserts notice + refreshed content, re-opens after back/list, then
- * restores the original body.
+ * Opens an allow-listed server config (NAV_CONFIG by default; TIDY_CONFIG lives
+ * under rxconfig/XSpLit which is often absent on fresh QA cells — residual #4283),
+ * appends a unique marker, saves, asserts notice + refreshed content, re-opens
+ * after back/list, then restores the original body.
  *
  * Consumes REST/SPA tips #4275 / #4276 (#4280 / #4281).
  *
@@ -54,10 +55,16 @@ function developerServerConfigsUrl() {
   return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?${q.toString()}`;
 }
 
+function escapeRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** @returns {{ value: string, escaped: string }} */
 function uniqueMarker() {
   const a = Date.now().toString(36).replace(/[^a-z0-9]/g, "").slice(-4);
   const b = Math.random().toString(36).replace(/[^a-z0-9]/g, "").slice(2, 6);
-  return `# QA-4277-${a}${b || "x"}`;
+  const value = `# QA-4277-${a}${b}`;
+  return { value, escaped: escapeRegex(value) };
 }
 
 function attachConsoleGuards(page) {
@@ -171,18 +178,18 @@ test.describe("Developer server configs write (#4277 / SY-02)", () => {
     const editor = page.locator('[data-testid="developer-cfg-content-editor"]');
     const original = await editor.inputValue();
     const withMarker = original.endsWith("\n")
-      ? `${original}${marker}\n`
-      : `${original}\n${marker}\n`;
+      ? `${original}${marker.value}\n`
+      : `${original}\n${marker.value}\n`;
 
     await saveConfigContent(page, withMarker);
-    await expect(editor).toHaveValue(new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    await expect(editor).toHaveValue(new RegExp(marker.escaped));
 
     await page.locator('[data-testid="developer-cfg-back"]').click();
     await expect(page.locator('[data-testid="developer-cfg-table"]')).toBeVisible({
       timeout: 20_000,
     });
     await openConfigByKey(page, CONFIG_KEY);
-    await expect(editor).toHaveValue(new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    await expect(editor).toHaveValue(new RegExp(marker.escaped));
 
     // Restore original body so the H2 cell stays clean for later runs.
     await saveConfigContent(page, original);
