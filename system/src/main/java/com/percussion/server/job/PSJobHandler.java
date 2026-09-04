@@ -19,6 +19,7 @@ package com.percussion.server.job;
 
 import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.conn.PSServerException;
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.design.objectstore.PSUnknownDocTypeException;
@@ -27,7 +28,6 @@ import com.percussion.error.PSException;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.IPSLoadableRequestHandler;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSResponse;
@@ -67,7 +67,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
     // Must not be null in this instance. Not a runtime exception:
     if (cfgFileIn == null)
       throw new PSServerException(
-          IPSServerErrors.LOADABLE_HANDLER_CONFIGURATION_FILE_IS_NULL, getName());
+          ServerErrorCodes.LOADABLE_HANDLER_CONFIGURATION_FILE_IS_NULL, getName());
 
     PSConsole.printMsg(HANDLER, "Initializing Job Handler");
 
@@ -83,16 +83,16 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
     } catch (SAXException e) {
       Object[] args = {getName(), e.getLocalizedMessage()};
       throw new PSServerException(
-          IPSServerErrors.LOADABLE_HANDLER_CONFIGURATION_FILE_IS_INVALID, args);
+          ServerErrorCodes.LOADABLE_HANDLER_CONFIGURATION_FILE_IS_INVALID, args);
     } catch (IOException e) {
       Object[] args = {getName(), e.getLocalizedMessage()};
-      throw new PSServerException(IPSServerErrors.LOADABLE_HANDLER_UNEXPECTED_EXCEPTION, args);
+      throw new PSServerException(ServerErrorCodes.LOADABLE_HANDLER_UNEXPECTED_EXCEPTION, args);
     } catch (PSUnknownDocTypeException e) {
       Object[] args = {getName(), e.getLocalizedMessage()};
-      throw new PSServerException(IPSServerErrors.LOADABLE_HANDLER_UNEXPECTED_EXCEPTION, args);
+      throw new PSServerException(ServerErrorCodes.LOADABLE_HANDLER_UNEXPECTED_EXCEPTION, args);
     } catch (PSUnknownNodeTypeException e) {
       Object[] args = {getName(), e.getLocalizedMessage()};
-      throw new PSServerException(IPSServerErrors.LOADABLE_HANDLER_UNEXPECTED_EXCEPTION, args);
+      throw new PSServerException(ServerErrorCodes.LOADABLE_HANDLER_UNEXPECTED_EXCEPTION, args);
     }
   }
 

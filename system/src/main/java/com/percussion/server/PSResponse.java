@@ -17,6 +17,8 @@
 
 package com.percussion.server;
 
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.error.PSErrorManager;
 import com.percussion.log.PSLogManager;
@@ -397,7 +399,7 @@ public class PSResponse extends PSBaseResponse {
         };
         com.percussion.log.PSLogManager.write(
             new com.percussion.log.PSLogServerWarning(
-                com.percussion.server.IPSServerErrors.ARGUMENT_ERROR, args, true, "PSResponse"));
+                ServerErrorCodes.ARGUMENT_ERROR, args, true, "PSResponse"));
       }
     }
 
@@ -412,7 +414,7 @@ public class PSResponse extends PSBaseResponse {
 
   /**
    * Prepares the reponse to send a redirection response by setting the HTTP status code to <code>
-   * IPSHttpErrors.HTTP_MOVED_TEMPORARILY</code> and the Location header to the URL provided. Does
+   * HttpErrorCodes.HTTP_MOVED_TEMPORARILY</code> and the Location header to the URL provided. Does
    * not actually send the response. If the request has the IPSHtmlParameters.WIFXUPLOAD flag set to
    * <code>true</code> then send the special WebImageFx response and special redirect header that
    * will be handled by javascript.
@@ -429,7 +431,8 @@ public class PSResponse extends PSBaseResponse {
     // IE only supports URLs up to 2083 characters (KB Article: #Q208427)
     if (url.length() > 2083) {
       Object[] args = {url, "2083"};
-      PSLogManager.write(new PSLogServerWarning(IPSServerErrors.REDIRECT_URL_TOO_LONG, args));
+      PSLogManager.write(
+          new PSLogServerWarning(ServerErrorCodes.REDIRECT_URL_TOO_LONG, args, false, null));
     }
 
     String wifxUpload = request.getParameter(IPSHtmlParameters.WIFXUPLOAD);
@@ -437,7 +440,7 @@ public class PSResponse extends PSBaseResponse {
         && (wifxUpload.equalsIgnoreCase("true") || wifxUpload.equalsIgnoreCase("yes"))) {
       setWifxUploadRedirect(url);
     } else {
-      setStatus(IPSHttpErrors.HTTP_MOVED_TEMPORARILY);
+      setStatus(HttpErrorCodes.HTTP_MOVED_TEMPORARILY.numericCode());
       setHeader(RHDR_LOCATION, url);
     }
   }
@@ -518,7 +521,7 @@ public class PSResponse extends PSBaseResponse {
       // ignore socket exceptions if status is HTTP_NOT_MODIFIED.  This
       // happens when IE closes the socket as soon as it gets this status,
       // before we've finished writing to the socket.
-      if (m_statusCode != IPSHttpErrors.HTTP_NOT_MODIFIED) throw e;
+      if (m_statusCode != HttpErrorCodes.HTTP_NOT_MODIFIED.numericCode()) throw e;
     } finally {
       if (m_contentStream != null)
         try {

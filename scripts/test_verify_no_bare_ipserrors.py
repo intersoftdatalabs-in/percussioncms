@@ -624,6 +624,33 @@ def test_deployer_jexl_converted_path_not_allowlisted() -> None:
     assert resurrected == [], resurrected
 
 
+def test_issue_4262_system_server_core_converted_paths_not_allowlisted() -> None:
+    """#4262 typed leftover system server-core IPS*Errors call-sites."""
+    converted = (
+        "system/src/main/java/com/percussion/server/PSApplicationHandler.java",
+        "system/src/main/java/com/percussion/server/PSBaseResponse.java",
+        "system/src/main/java/com/percussion/server/PSFileRequestHandler.java",
+        "system/src/main/java/com/percussion/server/PSInternalRequest.java",
+        "system/src/main/java/com/percussion/server/PSRequest.java",
+        "system/src/main/java/com/percussion/server/PSResponse.java",
+        "system/src/main/java/com/percussion/server/PSServer.java",
+        "system/src/main/java/com/percussion/server/PSServerLogHandler.java",
+        "system/src/main/java/com/percussion/server/PSUserSession.java",
+        "system/src/main/java/com/percussion/server/job/PSJobHandler.java",
+        "system/src/main/java/com/percussion/server/job/PSJobHandlerConfiguration.java",
+        "system/src/main/java/com/percussion/server/job/PSJobRunnerFactory.java",
+        "system/src/main/java/com/percussion/servlets/PSLoginServlet.java",
+    )
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = {
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    resurrected = [p for p in converted if p in entries]
+    assert resurrected == [], resurrected
+
+
 def test_empty_allowlist_fails_on_real_residuals(tmp_path: Path) -> None:
     """Without the residual file, current production leftovers must fail."""
     empty = tmp_path / "empty-allowlist.txt"

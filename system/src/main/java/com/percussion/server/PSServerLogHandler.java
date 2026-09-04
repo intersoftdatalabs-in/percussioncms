@@ -17,6 +17,7 @@
 
 package com.percussion.server;
 
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 
 import com.percussion.conn.IPSConnection;
@@ -169,7 +170,7 @@ public class PSServerLogHandler {
         PSResponse resp = new PSResponse(null);
 
         resp.setStatus(
-            IPSHttpErrors.HTTP_SERVICE_UNAVAILABLE,
+            HttpErrorCodes.HTTP_SERVICE_UNAVAILABLE.numericCode(),
             PSErrorManager.getErrorText(ServerErrorCodes.SERVER_SHUTDOWN_MSG.numericCode()));
       }
     } catch (Exception e) {

@@ -16,7 +16,7 @@
  */
 package com.percussion.server;
 
-import com.percussion.data.IPSDataErrors;
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.i18n.PSLocale;
 import com.percussion.security.PSEncryptionException;
@@ -631,7 +631,7 @@ public class PSUserSession {
     loadPersistentProperties();
     if (key == null)
       throw new com.percussion.error.PSRuntimeException(
-          IPSDataErrors.EXECDATA_PRIVATE_OBJ_KEY_NULL);
+          DataErrorCodes.EXECDATA_PRIVATE_OBJ_KEY_NULL);
 
     return m_privateObjects.get(key);
   }
@@ -652,7 +652,7 @@ public class PSUserSession {
     loadPersistentProperties();
     if (key == null)
       throw new com.percussion.error.PSRuntimeException(
-          IPSDataErrors.EXECDATA_PRIVATE_OBJ_KEY_NULL);
+          DataErrorCodes.EXECDATA_PRIVATE_OBJ_KEY_NULL);
     m_privateObjects.put(key, o);
   }
 
