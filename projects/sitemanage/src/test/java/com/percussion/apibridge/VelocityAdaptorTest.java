@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.rest.velocity.VelocitySnippet;
@@ -104,5 +105,22 @@ class VelocityAdaptorTest {
   void buildBuiltinCatalogIsImmutableView() {
     List<VelocitySnippet> built = VelocityAdaptor.buildBuiltinCatalog();
     assertEquals(19, built.size());
+  }
+
+  @Test
+  void snippetNormalizesAndValidates() {
+    VelocitySnippet s =
+        VelocityAdaptor.snippet("  field.x  ", "  Title  ", " FIELD ", "  #field(\"rx:x\")  ");
+    assertEquals("field.x", s.getId());
+    assertEquals("Title", s.getTitle());
+    assertEquals(VelocityAdaptor.CATEGORY_FIELD, s.getCategory());
+    assertEquals("#field(\"rx:x\")", s.getInsertText());
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> VelocityAdaptor.snippet(" ", "t", VelocityAdaptor.CATEGORY_FIELD, "#x()"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> VelocityAdaptor.snippet("id", "t", "unknown", "#x()"));
   }
 }

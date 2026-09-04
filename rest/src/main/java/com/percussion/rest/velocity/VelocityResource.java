@@ -91,7 +91,7 @@ public class VelocityResource {
       var filter = new ExtensionFilterOptions();
       filter.setContext("global/percussion/velocity/");
       return new ExtensionList(
-          requireExtensionAdaptor().getExtensions(requireUriInfo().getBaseUri(), filter));
+          requireExtensionAdaptor().getExtensions(uriInfo.getBaseUri(), filter));
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
@@ -177,13 +177,5 @@ public class VelocityResource {
           "Velocity adaptor not configured", Response.Status.SERVICE_UNAVAILABLE);
     }
     return velocityAdaptor;
-  }
-
-  private UriInfo requireUriInfo() {
-    if (uriInfo == null) {
-      throw new WebApplicationException(
-          "UriInfo not configured", Response.Status.SERVICE_UNAVAILABLE);
-    }
-    return uriInfo;
   }
 }
