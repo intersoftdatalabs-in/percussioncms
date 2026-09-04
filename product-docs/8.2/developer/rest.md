@@ -1936,8 +1936,8 @@ avoid repeating the same large array on every list row:
 
 | Response | `designGaps` |
 |----------|--------------|
-| **List** (`GET ./searches`, `./views`, `./cecontrols`, `./serverconfigs`, `./relationshiptypes`, .) | Typically **omitted** (null / empty  not serialized) |
-| **Detail** (`GET ./{idOrName}`) | **Present** with the full catalog-level list |
+| **List** (`GET ./searches`, `./views`, `./cecontrols`, `./serverconfigs`, `./relationshiptypes`, `./applicationfiles/{app}`, .) | Typically **omitted** (null / empty  not serialized) |
+| **Detail** (`GET ./{idOrName}` or `GET ./applicationfiles/{app}/content`) | **Present** with the full catalog-level list |
 
 SPA detail panels already fall back to local constants when the server omits gaps. Integrators
 should treat missing `designGaps` on list rows as "use the detail resource (or known catalog
@@ -2158,6 +2158,63 @@ file from the allow-listed type. Unknown or unsafe names are **404** and never c
 Missing body or missing `content` is **400**. Non-Admin is **403**. On success the response
 is the updated detail (same shape as GET; often wrapped as `{ "ServerConfig": {…} }`),
 including reloaded `content`.
+
+## Application CMS/resource files (SY-05)
+
+XML **application CMS/resource files** (Workbench / Developer **System Design → CMS / Resource
+File** tree under an XML application) are exposed under `/services/applicationfiles`. This surface
+lists and reads/writes **relative files under a catalog application root** via
+`PSServerXmlObjectStore` (same object-store backends Workbench uses for application files).
+
+**Do not conflate with SY-02 server configs.** `/services/serverconfigs` is a **fixed allow-list** of
+named server configuration descriptors (`PSConfigurationTypes` such as `LOG_CONFIG`). It never
+accepts an application name or a relative application path. `/services/applicationfiles` never
+writes those server configuration keys — only files under a resolved XML application directory.
+
+| Concern | SY-05 `/applicationfiles` | SY-02 `/serverconfigs` |
+|---------|---------------------------|------------------------|
+| Scope | Files under one XML application root | Fixed server configuration enum keys |
+| Path key | `{app}` + query `path` (relative) | `{name}` enum key only |
+| Backing | `PSServerXmlObjectStore` application files | `IPSSystemService` configuration load/save |
+| Arbitrary FS write | Rejected (catalog app + path-safe relative only) | Rejected (enum allow-list only) |
+
+Admin **write** updates UTF-8 text for a relative path under a catalog application. Path traversal,
+absolute paths, and unknown applications are **404** (no arbitrary filesystem write). Design
+**locking**, **binary** round-trip, and **folder create/delete/rename** remain design gaps.
+**Developer → application resource** SPA chrome is a later slice; integrators may call this API
+directly.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/applicationfiles/{app}` | List relative file paths under a catalog application (no file body) |
+| `GET` | `/services/applicationfiles/{app}/content?path=` | Load one relative file including `content` when available |
+| `PUT` | `/services/applicationfiles/{app}/content?path=` | **Admin.** Replace UTF-8 text for a relative path under that application |
+
+JSON objects use the `ApplicationFile` / `ApplicationFileSummary` wire type (`applicationName`,
+`path`, `name`, optional `directory`, optional `content` / `mimeType` / `characterEncoding` /
+`contentLength`, and detail-only `designGaps`). Prefer the generated OpenAPI schema as the
+integration source of truth. File paths use a **query** parameter (`path`) because relative paths
+contain `/`.
+
+### Application file write contract (Admin)
+
+Update (`PUT /services/applicationfiles/{app}/content?path=`) requires Admin. `{app}` must resolve
+to a trusted object-store application catalog name (letters/digits/underscore-style single segment;
+numeric id also accepted). `path` must be a **relative** path under that application root (`/`
+separators; no `..`, no absolute / drive / UNC form). The JSON body must include `content` (file
+text; empty string is allowed). A `path` field on the body is **ignored for persistence** — only
+the query `path` selects the file. Unknown or unsafe app/path values are **404** and never call
+save. Missing body or missing `content` is **400**. Non-Admin is **403**. On success the response
+is the updated detail (same shape as GET), including reloaded `content`.
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | List / get / update success |
+| `400` | Missing body, missing `content`, or invalid input |
+| `403` | Caller is not Admin |
+| `404` | Unknown application, unsafe path, or missing file |
+| `500` | Object-store I/O failure |
+| `503` | Application file adaptor not configured |
 
 ## Extensions (catalog)
 
