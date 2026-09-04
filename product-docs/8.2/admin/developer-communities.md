@@ -35,8 +35,15 @@ COMMUNITY ACL entries stay on object detail panels (for example content types).
    and remains — the SPA does **not** send `ignoredependencies` and does not
    steal. Non-Admin is **403**.
 
-Role membership save on the same detail panel is unchanged: check roles and
-**Save roles**.
+## Product path — role membership (assign / unassign)
+
+1. Open an existing community on **Developer → Communities**.
+2. Under role membership, check roles to **assign** and uncheck roles to
+   **unassign**. The picker is the full security role catalog.
+3. Click **Save roles**. The server replaces the community’s role set with the
+   checked roles (same full-set replace as Workbench dual-list save). Clearing
+   every checkbox and saving removes all associations.
+4. A missing community is **404**. A role entry without id/guid is **400**.
 
 ## Product path — new-search defaults
 
@@ -76,7 +83,8 @@ The chrome calls:
 | List | `GET /services/communities/find?name=*` |
 | Load | `GET /services/communities/{idOrName}` |
 | Create | `POST /services/communities/bulk` (name list; server persists) |
-| Roles | `PUT /services/communities/{idOrName}/roles` |
+| Available roles (picker) | `GET /services/communities/roles` |
+| Assign / unassign roles | `PUT /services/communities/{idOrName}/roles` (full membership replace; `[]` clears) |
 | New-search defaults | `GET` / `PUT /services/communities/{idOrName}/new-search-defaults` |
 | Delete | `DELETE /services/communities/bulk` (GuidList; `ignoredependencies=false`) |
 
