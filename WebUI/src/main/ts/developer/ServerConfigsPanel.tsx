@@ -81,6 +81,7 @@ export function ServerConfigsPanel(): React.ReactElement {
                 key="open"
                 type="button"
                 data-testid="developer-cfg-open"
+                data-cfg-name={openKey}
                 aria-label={`Open ${c.displayName || openKey}`}
                 onClick={(ev) => {
                   ev.stopPropagation();

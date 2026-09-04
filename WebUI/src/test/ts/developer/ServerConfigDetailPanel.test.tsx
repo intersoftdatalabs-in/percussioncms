@@ -109,6 +109,9 @@ describe("ServerConfigDetailPanel", () => {
         DEV_MSG.CFG_SAVED,
       );
     });
+    expect(screen.getByTestId("developer-cfg-editor-notice").getAttribute("role")).toBe(
+      "status",
+    );
     expect(
       (screen.getByTestId("developer-cfg-content-editor") as HTMLTextAreaElement).value,
     ).toBe("<Configuration updated/>");

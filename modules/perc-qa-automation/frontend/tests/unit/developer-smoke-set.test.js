@@ -26,6 +26,7 @@ describe("DEVELOPER_SMOKE_SET", () => {
     assert.ok(ids.has("catalog-content-types"));
     assert.ok(ids.has("catalog-keywords"));
     assert.ok(ids.has("template-source-viewer"));
+    assert.ok(ids.has("server-configs-write"));
     assert.ok(ids.has("golden-login-explorer"));
     assert.ok(ids.has("login-admin"));
   });

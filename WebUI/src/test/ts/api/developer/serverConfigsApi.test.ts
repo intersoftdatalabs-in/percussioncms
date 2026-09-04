@@ -6,9 +6,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as client from "../../../../main/ts/api/client";
 import {
   SERVER_CONFIG_DESIGN_GAPS,
+  SERVER_CONFIG_ROOT,
   getServerConfigDetail,
   updateServerConfig,
   withoutStaleServerConfigWriteGap,
+  wrapServerConfigForWire,
 } from "../../../../main/ts/api/developer/serverConfigsApi";
 
 afterEach(() => {
@@ -16,6 +18,13 @@ afterEach(() => {
 });
 
 describe("serverConfigsApi SY-02 write", () => {
+  it("wrapServerConfigForWire uses ServerConfig root for UNWRAP_ROOT_VALUE", () => {
+    expect(SERVER_CONFIG_ROOT).toBe("ServerConfig");
+    expect(wrapServerConfigForWire({ content: "x=1" })).toEqual({
+      ServerConfig: { content: "x=1" },
+    });
+  });
+
   it("withoutStaleServerConfigWriteGap drops pre-write save gaps", () => {
     expect(
       withoutStaleServerConfigWriteGap([
@@ -47,7 +56,7 @@ describe("serverConfigsApi SY-02 write", () => {
     expect(putSpy).toHaveBeenCalled();
     const [url, body] = putSpy.mock.calls[0];
     expect(String(url)).toContain("/LOG_CONFIG");
-    expect(body).toEqual({ content: "rootLogger=INFO" });
+    expect(body).toEqual({ ServerConfig: { content: "rootLogger=INFO" } });
     expect(detail.name).toBe("LOG_CONFIG");
     expect(detail.content).toBe("rootLogger=INFO");
     expect(detail.designGaps).toEqual(SERVER_CONFIG_DESIGN_GAPS);

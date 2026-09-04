@@ -2085,10 +2085,13 @@ integration source of truth.
 Update (`PUT /services/serverconfigs/{name}`) requires Admin. `{name}` must be a
 `PSConfigurationTypes` enum name such as `LOG_CONFIG`, `TIDY_CONFIG`, or
 `USER_VELOCITY_MACROS` (letters, digits, and underscore only). The JSON body must include
-`content` (file text; empty string is allowed). Other metadata fields on the body are ignored
-for persistence — the server resolves the on-disk file from the allow-listed type. Unknown or
-unsafe names are **404** and never call save. Missing body or missing `content` is **400**.
-Non-Admin is **403**. On success the response is the updated detail (same shape as GET),
+`content` (file text; empty string is allowed). Under CXF Jackson
+`WRAP_ROOT_VALUE` / `UNWRAP_ROOT_VALUE`, send
+`{ "ServerConfig": { "content": "…" } }` (a bare `{ "content": "…" }` is **400**). Other
+metadata fields on the body are ignored for persistence — the server resolves the on-disk
+file from the allow-listed type. Unknown or unsafe names are **404** and never call save.
+Missing body or missing `content` is **400**. Non-Admin is **403**. On success the response
+is the updated detail (same shape as GET; often wrapped as `{ "ServerConfig": {…} }`),
 including reloaded `content`.
 
 ## Extensions (catalog)
