@@ -17,6 +17,7 @@
 
 package com.percussion.server.webservices;
 
+import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
 import com.percussion.cms.objectstore.PSItemDefSummary;
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
@@ -71,7 +72,7 @@ public class PSDesignHandler extends PSWebServicesBaseHandler {
       String[] args = {
         "contentType", root.getNodeName(), "<" + EL_CONTENTKEY + ">, <" + EL_CONTENTTYPENAMEID + ">"
       };
-      throw new PSException(IPSWebServicesErrors.WEB_SERVICE_MISSING_ELEMENT, args);
+      throw new PSException(ServerWebServicesErrorCodes.WEB_SERVICE_MISSING_ELEMENT, args);
     }
 
     PSItemDefinition itemDef = getItemDefinition(request, contentType);
@@ -150,7 +151,7 @@ public class PSDesignHandler extends PSWebServicesBaseHandler {
       String[] args = {
         "variantList", root.getNodeName(), "<" + EL_CONTENTKEY + ">, <" + EL_CONTENTTYPENAMEID + ">"
       };
-      throw new PSException(IPSWebServicesErrors.WEB_SERVICE_MISSING_ELEMENT, args);
+      throw new PSException(ServerWebServicesErrorCodes.WEB_SERVICE_MISSING_ELEMENT, args);
     }
 
     request.setParameter(IPSHtmlParameters.SYS_CONTENTTYPEID, "" + typeId);

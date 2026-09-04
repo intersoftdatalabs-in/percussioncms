@@ -34,11 +34,15 @@
 #   #4157 leftover system/src/main com.percussion.install JDBC table-factory
 #   #4262 leftover system server core (PSServer/PSRequest/PSResponse/
 #        PSApplicationHandler/job/PSLoginServlet) typed *ErrorCodes
+#   #4263 leftover system server webservices handlers (PSAssembly/ContentData/
+#        Design/Folder/Search/ServerFolderProcessor/WebServicesBase/Request)
+#        typed *ErrorCodes
 # Converted (no longer listed): extensions-main #3756/#3938 (allow-list)
 # shrink after #3793 re-listed already-typed production paths);
 # design.catalog leftover #3969; system/src/main com.percussion.mail leftover
 # #4017; cx leftover #4013 (PSFont, PSOption, PSOptions, PSUserOptions);
-# servletutils PSTomcatUtils leftover #4195; system server core #4262.
+# servletutils PSTomcatUtils leftover #4195; system server core #4262;
+# system server webservices handlers #4263.
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -46,7 +50,6 @@
 # scripts/verify-no-bare-ipsobjectstoreerrors.py (#3143).
 #
 # Tests, comment-only mentions, and the gate scripts themselves are ignored.
-
 
 
 
@@ -60,7 +63,6 @@ system/Testing/Extensions/src/com/percussion/extensions/testing/TestMakeInternal
 system/Testing/cms/HttpItemCopier.java
 system/Tools/RxFix/src/com/percussion/rxfix/dbfixes/PSFixNavigation.java
 system/Tools/RxFix/src/com/percussion/rxverify/modules/PSJdbcTableCheck.java
-
 system/src/main/java/com/percussion/content/PSContentConverter.java
 system/src/main/java/com/percussion/content/PSFileConverterExit.java
 system/src/main/java/com/percussion/debug/PSDebugLogHandler.java
@@ -76,14 +78,6 @@ system/src/main/java/com/percussion/i18n/PSLocaleManager.java
 system/src/main/java/com/percussion/publisher/server/PSPubTimeStatistics.java
 system/src/main/java/com/percussion/search/PSAddThumbnailURL.java
 system/src/main/java/com/percussion/search/PSBaseExecutableSearch.java
-system/src/main/java/com/percussion/server/webservices/PSAssemblyHandler.java
-system/src/main/java/com/percussion/server/webservices/PSContentDataHandler.java
-system/src/main/java/com/percussion/server/webservices/PSDesignHandler.java
-system/src/main/java/com/percussion/server/webservices/PSFolderHandler.java
-system/src/main/java/com/percussion/server/webservices/PSSearchHandler.java
-system/src/main/java/com/percussion/server/webservices/PSServerFolderProcessor.java
-system/src/main/java/com/percussion/server/webservices/PSWebServicesBaseHandler.java
-system/src/main/java/com/percussion/server/webservices/PSWebServicesRequestHandler.java
 system/src/main/java/com/percussion/system/utils/PSExtensionInstallTool.java
 system/src/main/java/com/percussion/workflow/PSContentStatusContext.java
 system/src/main/java/com/percussion/workflow/PSTransitionsContext.java

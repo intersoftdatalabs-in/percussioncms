@@ -16,11 +16,12 @@
  */
 package com.percussion.server.webservices;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
 import com.percussion.conn.PSServerException;
-import com.percussion.data.IPSDataErrors;
 import com.percussion.error.PSException;
-import com.percussion.security.IPSSecurityErrors;
-import com.percussion.server.IPSHttpErrors;
 import com.percussion.server.IPSLoadableRequestHandler;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSRequest;
@@ -149,7 +150,7 @@ public class PSWebServicesRequestHandler extends PSWebServicesBaseHandler
 
       if (port == null || port.trim().length() == 0) {
         String[] args = {WSDL_PORT};
-        throw new PSException(IPSWebServicesErrors.WEB_SERVICE_MISSING_PARAMETER, args);
+        throw new PSException(ServerWebServicesErrorCodes.WEB_SERVICE_MISSING_PARAMETER, args);
       }
 
       String action = request.getParameter(WS_ACTION);
@@ -157,7 +158,7 @@ public class PSWebServicesRequestHandler extends PSWebServicesBaseHandler
 
       if (action == null || action.trim().length() == 0) {
         String[] args = {WS_ACTION};
-        throw new PSException(IPSWebServicesErrors.WEB_SERVICE_MISSING_PARAMETER, args);
+        throw new PSException(ServerWebServicesErrorCodes.WEB_SERVICE_MISSING_PARAMETER, args);
       }
 
       Element elRoot = inputDoc.getDocumentElement();
@@ -179,13 +180,13 @@ public class PSWebServicesRequestHandler extends PSWebServicesBaseHandler
       int code = e.getErrorCode();
 
       // check to see if this exception is really an authentication error
-      if (code == IPSDataErrors.INTERNAL_REQUEST_AUTHORIZATION_EXCEPTION
-          || code == IPSDataErrors.INTERNAL_REQUEST_AUTHENTICATION_FAILED_EXCEPTION
-          || code == IPSSecurityErrors.SESS_NOT_AUTHORIZED) {
+      if (code == DataErrorCodes.INTERNAL_REQUEST_AUTHORIZATION_EXCEPTION.numericCode()
+          || code == DataErrorCodes.INTERNAL_REQUEST_AUTHENTICATION_FAILED_EXCEPTION.numericCode()
+          || code == SecurityErrorCodes.SESS_NOT_AUTHORIZED.numericCode()) {
         // Using empty "Basic realm" to be consistent with other handlers
         response = request.getResponse();
         response.setResponseHeader(PSResponse.RHDR_WWW_AUTH, "Basic realm=\"\"");
-        response.setStatus(IPSHttpErrors.HTTP_UNAUTHORIZED);
+        response.setStatus(HttpErrorCodes.HTTP_UNAUTHORIZED.numericCode());
       } else {
         addResultResponseXml("failure", code, e.getMessage(), responseDoc);
         request.getResponse().setIsErrorResponse(true);
