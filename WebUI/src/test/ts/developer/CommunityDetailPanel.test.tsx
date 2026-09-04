@@ -208,7 +208,58 @@ describe("CommunityDetailPanel", () => {
         /2 roles/i,
       );
     });
-    expect(updateCommunityRoles).toHaveBeenCalled();
+    expect(updateCommunityRoles).toHaveBeenCalledWith("Default", [
+      { roleName: "Admin", roleId: 1, roleGuid: { stringValue: "0-6-1" } },
+      { roleName: "Editor", roleId: 2, roleGuid: { stringValue: "0-6-2" } },
+    ]);
+    expect(screen.queryByTestId("developer-comm-roles-dirty")).toBeNull();
+  });
+
+  it("unassigns a role and can clear all memberships on save (SE-02)", async () => {
+    getCommunityDetail.mockResolvedValue({
+      ...sampleDetail,
+      roleList: [
+        { roleName: "Admin", roleId: 1, roleGuid: { stringValue: "0-6-1" } },
+        { roleName: "Editor", roleId: 2, roleGuid: { stringValue: "0-6-2" } },
+      ],
+    });
+    updateCommunityRoles
+      .mockResolvedValueOnce({
+        ...sampleDetail,
+        roleList: [{ roleName: "Editor", roleId: 2, roleGuid: { stringValue: "0-6-2" } }],
+      })
+      .mockResolvedValueOnce({
+        ...sampleDetail,
+        roleList: [],
+      });
+
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-roles-table")).toBeTruthy();
+    });
+
+    // Unassign Admin (was checked from detail membership).
+    fireEvent.click(screen.getByTestId("developer-comm-role-check-0-6-1"));
+    expect(screen.getByTestId("developer-comm-roles-dirty")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-comm-roles-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-notice").textContent).toMatch(
+        /1 roles/i,
+      );
+    });
+    expect(updateCommunityRoles).toHaveBeenLastCalledWith("Default", [
+      { roleName: "Editor", roleId: 2, roleGuid: { stringValue: "0-6-2" } },
+    ]);
+
+    // Clear remaining membership.
+    fireEvent.click(screen.getByTestId("developer-comm-role-check-0-6-2"));
+    fireEvent.click(screen.getByTestId("developer-comm-roles-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-notice").textContent).toMatch(
+        /0 roles/i,
+      );
+    });
+    expect(updateCommunityRoles).toHaveBeenLastCalledWith("Default", []);
     expect(screen.queryByTestId("developer-comm-roles-dirty")).toBeNull();
   });
 
