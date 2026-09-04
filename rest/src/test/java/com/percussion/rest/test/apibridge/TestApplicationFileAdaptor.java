@@ -20,10 +20,12 @@ package com.percussion.rest.test.apibridge;
 import com.percussion.rest.applicationfiles.ApplicationFileSummary;
 import com.percussion.rest.applicationfiles.IApplicationFileAdaptor;
 import java.util.List;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /** Test adaptor for Application Files API bridge (MainTest Spring context). */
 @Component
+@Lazy
 public class TestApplicationFileAdaptor implements IApplicationFileAdaptor {
 
   @Override

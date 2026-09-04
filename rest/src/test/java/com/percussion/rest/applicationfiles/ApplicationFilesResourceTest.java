@@ -124,6 +124,30 @@ public class ApplicationFilesResourceTest {
   }
 
   @Test
+  public void putFileNullPathIs400() {
+    ApplicationFileSummary body = new ApplicationFileSummary();
+    body.setContent("x");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.putFile("sys_resources", null, body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("path is required", ex.getMessage());
+    verify(adaptor, never()).putFile(eq("sys_resources"), isNull(), eq(body));
+  }
+
+  @Test
+  public void putFileBlankPathIs400() {
+    ApplicationFileSummary body = new ApplicationFileSummary();
+    body.setContent("x");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.putFile("sys_resources", "  ", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("path is required", ex.getMessage());
+    verify(adaptor, never()).putFile(eq("sys_resources"), eq("  "), eq(body));
+  }
+
+  @Test
   public void putFileUnknownIsGeneric404() {
     ApplicationFileSummary body = new ApplicationFileSummary();
     body.setContent("x");

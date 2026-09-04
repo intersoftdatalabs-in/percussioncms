@@ -170,6 +170,9 @@ public class ApplicationFilesResource {
       if (body == null) {
         throw new IllegalArgumentException("body is required");
       }
+      if (path == null || path.isBlank()) {
+        throw new IllegalArgumentException("path is required");
+      }
       ApplicationFileSummary updated = requireAdaptor().putFile(app, path, body);
       if (updated == null) {
         throw new WebApplicationException("Application file not found", 404);
