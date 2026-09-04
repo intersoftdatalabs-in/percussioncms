@@ -3,6 +3,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from "react";
+import { isValidContentTypeName } from "../api/developer/contentTypesApi";
 import {
   getWorkflowAllowedContentTypes,
   getWorkflowDetail,
@@ -21,10 +22,14 @@ import {
 import {
   cloneNamedObjectRefs,
   namedObjectRefsEqual,
+  refKey,
 } from "./contentTypeWorkflows";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { buildAllowedContentTypesReplaceBody } from "./workflowContentTypes";
+
+/** Canonical Percussion GUID shape: type-host-uuid (three numeric groups). */
+const PERC_GUID_RE = /^\d+-\d+-\d+$/;
 
 const inputStyle: React.CSSProperties = {
   padding: "8px",
@@ -52,11 +57,8 @@ const primaryBtnStyle: React.CSSProperties = {
   font: "inherit",
 };
 
-function refKey(r: NamedObjectRef, index: number): string {
-  if (r.name) return `name:${r.name}`;
-  if (r.guid?.stringValue) return `guid:${r.guid.stringValue}`;
-  if (r.guid?.uuid != null) return `uuid:${r.guid.uuid}`;
-  return `idx:${index}`;
+function isAllowedContentTypeInput(raw: string): boolean {
+  return isValidContentTypeName(raw) || PERC_GUID_RE.test(raw);
 }
 
 export function WorkflowDetailPanel({
@@ -133,22 +135,45 @@ export function WorkflowDetailPanel({
     [contentTypes, baselineContentTypes],
   );
 
+  const trimmedCtInput = newCtName.trim();
+  const ctInputValid = !trimmedCtInput || isAllowedContentTypeInput(trimmedCtInput);
+  const canAddContentType =
+    !!trimmedCtInput && ctInputValid && !busy && !ctLoading;
+
   const addContentType = () => {
     const trimmed = newCtName.trim();
-    if (!trimmed || busy) {
+    if (!trimmed || busy || ctLoading) {
       return;
     }
-    if (
-      contentTypes.some(
-        (r) => (r.name || "").toLowerCase() === trimmed.toLowerCase(),
-      )
-    ) {
+    if (!isAllowedContentTypeInput(trimmed)) {
+      setCtError(DEV_MSG.WF_CT_NAME_INVALID);
+      return;
+    }
+    const looksLikeGuid = PERC_GUID_RE.test(trimmed);
+    const exists = contentTypes.some((r) => {
+      if (looksLikeGuid) {
+        return (
+          r.guid?.stringValue === trimmed ||
+          (r.name || "").toLowerCase() === trimmed.toLowerCase()
+        );
+      }
+      return (
+        (r.name || "").toLowerCase() === trimmed.toLowerCase() ||
+        r.guid?.stringValue === trimmed
+      );
+    });
+    if (exists) {
       setCtError(DEV_MSG.WF_CT_DUP);
       return;
     }
     setCtError(null);
     setNotice(null);
-    setContentTypes((prev) => [...prev, { name: trimmed }]);
+    setContentTypes((prev) => [
+      ...prev,
+      looksLikeGuid
+        ? { guid: { stringValue: trimmed }, name: trimmed, label: trimmed }
+        : { name: trimmed },
+    ]);
     setNewCtName("");
   };
 
@@ -289,10 +314,21 @@ export function WorkflowDetailPanel({
             ) : null}
             {notice ? (
               <div
+                role="status"
+                aria-live="polite"
                 data-testid="developer-wf-ct-notice"
                 style={{ color: catalogColors.accent, marginBottom: "8px" }}
               >
                 {notice}
+              </div>
+            ) : null}
+            {!ctInputValid ? (
+              <div
+                role="alert"
+                data-testid="developer-wf-ct-name-invalid"
+                style={{ ...errorAlert, marginBottom: "8px" }}
+              >
+                {DEV_MSG.WF_CT_NAME_INVALID}
               </div>
             ) : null}
             {ctLoading ? (
@@ -335,7 +371,9 @@ export function WorkflowDetailPanel({
                     <button
                       type="button"
                       data-testid={`developer-wf-ct-remove-${i}`}
-                      aria-label={`${DEV_MSG.CT_ASSOC_REMOVE} ${ct.name || ct.label || ""}`}
+                      aria-label={`${DEV_MSG.CT_ASSOC_REMOVE} ${
+                        ct.name || ct.label || `row ${i}`
+                      }`}
                       disabled={busy}
                       onClick={() => removeContentType(i)}
                       style={{
@@ -361,7 +399,7 @@ export function WorkflowDetailPanel({
             >
               <div>
                 <label htmlFor="wf-ct-add" style={{ display: "block", marginBottom: 4 }}>
-                  {DEV_MSG.WF_CONTENT_TYPES}
+                  {DEV_MSG.WF_CT_ADD_LABEL}
                 </label>
                 <input
                   id="wf-ct-add"
@@ -369,7 +407,12 @@ export function WorkflowDetailPanel({
                   style={inputStyle}
                   placeholder={DEV_MSG.WF_CT_NAME_PLACEHOLDER}
                   value={newCtName}
-                  onChange={(e) => setNewCtName(e.target.value)}
+                  onChange={(e) => {
+                    setNewCtName(e.target.value);
+                    if (ctError === DEV_MSG.WF_CT_NAME_INVALID || ctError === DEV_MSG.WF_CT_DUP) {
+                      setCtError(null);
+                    }
+                  }}
                   disabled={busy || ctLoading}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
@@ -382,13 +425,12 @@ export function WorkflowDetailPanel({
               <button
                 type="button"
                 data-testid="developer-wf-ct-add"
-                disabled={busy || ctLoading || !newCtName.trim()}
+                disabled={!canAddContentType}
                 onClick={addContentType}
                 style={{
                   ...smallBtnStyle,
                   padding: "8px 12px",
-                  cursor:
-                    busy || ctLoading || !newCtName.trim() ? "not-allowed" : "pointer",
+                  cursor: !canAddContentType ? "not-allowed" : "pointer",
                 }}
               >
                 {DEV_MSG.CT_ASSOC_ADD}
