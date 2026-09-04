@@ -14,6 +14,7 @@ import {
   unwrapApplicationValidationResult,
   unwrapPipelineExecuteResult,
   withoutStalePipelineLifecycleGap,
+  wrapPipelineExecuteRequestForWire,
 } from "../../../../main/ts/api/developer/pipelinesApi";
 
 afterEach(() => {
@@ -97,7 +98,13 @@ describe("pipelinesApi wave 3 execute + validation", () => {
     expect(result.rowCount).toBe(2);
   });
 
-  it("executeResource POSTs encoded path with body", async () => {
+  it("wrapPipelineExecuteRequestForWire nests under PipelineExecuteRequest", () => {
+    expect(wrapPipelineExecuteRequestForWire({ params: { TYPE: "workflow" } })).toEqual({
+      PipelineExecuteRequest: { params: { TYPE: "workflow" } },
+    });
+  });
+
+  it("executeResource POSTs encoded path with WRAP_ROOT body", async () => {
     const spy = vi.spyOn(client, "post").mockResolvedValue({
       appName: "lookupApp",
       resourceName: "DatasetQ",
@@ -110,7 +117,9 @@ describe("pipelinesApi wave 3 execute + validation", () => {
     expect(String(spy.mock.calls[0][0])).toContain(
       `/pipelines/${encodeURIComponent("app with spaces")}/resources/${encodeURIComponent("res/one")}/execute`,
     );
-    expect(spy.mock.calls[0][1]).toEqual({ params: { TYPE: "workflow" } });
+    expect(spy.mock.calls[0][1]).toEqual({
+      PipelineExecuteRequest: { params: { TYPE: "workflow" } },
+    });
     expect(out.rowCount).toBe(1);
     expect(out.rows?.[0]).toEqual({ TYPE: "workflow" });
   });

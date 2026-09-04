@@ -82,7 +82,8 @@ later slices (see detail **design gaps** when present).
 - Mapper/tank editing, enable/disable, and IR write are not in this chrome.
 - Surface-filtered Playwright for Start/Stop lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-start-stop.spec.js`.
-  Test-invoke Playwright is a separate wave 3 slice.
+  Test-invoke (+ Problems soft-assert) lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-test-invoke.spec.js`.
 
 ## REST
 
