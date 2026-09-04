@@ -167,4 +167,39 @@ describe("ApplicationFileDetailPanel", () => {
     });
     expect(screen.queryByTestId("developer-appfile-content-editor")).toBeNull();
   });
+
+  it("blocks malformed XML save when window.confirm is unavailable", async () => {
+    const confirmDesc = Object.getOwnPropertyDescriptor(window, "confirm");
+    Object.defineProperty(window, "confirm", {
+      configurable: true,
+      value: undefined,
+    });
+    try {
+      getApplicationFileDetail.mockResolvedValue({
+        applicationName: "sys_resources",
+        path: "ApplicationFiles/a.xml",
+        name: "a.xml",
+        content: "<root/>",
+        designGaps: ["gap-lock"],
+      });
+      renderDetail(true, "ApplicationFiles/a.xml");
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-appfile-content-editor")).toBeTruthy();
+      });
+      fireEvent.change(screen.getByTestId("developer-appfile-content-editor"), {
+        target: { value: "<root><unclosed>" },
+      });
+      fireEvent.click(screen.getByTestId("developer-appfile-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-appfile-detail-error").textContent).toBe(
+          DEV_MSG.APPFILE_XML_BLOCKED,
+        );
+      });
+      expect(updateApplicationFile).not.toHaveBeenCalled();
+    } finally {
+      if (confirmDesc) {
+        Object.defineProperty(window, "confirm", confirmDesc);
+      }
+    }
+  });
 });

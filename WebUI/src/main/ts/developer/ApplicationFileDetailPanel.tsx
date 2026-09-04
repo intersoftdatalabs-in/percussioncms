@@ -43,13 +43,18 @@ function looksLikeXmlPath(path: string): boolean {
   return lower.endsWith(".xml") || lower.endsWith(".xsl") || lower.endsWith(".xslt");
 }
 
-/** True when DOMParser reports a parsererror for XML-ish content. */
+/**
+ * True when DOMParser reports a parsererror for XML-ish content.
+ * Result is never inserted into the live DOM — parse is well-formedness only.
+ */
 export function hasXmlParseError(content: string): boolean {
   if (typeof DOMParser === "undefined") {
     return false;
   }
   try {
-    const doc = new DOMParser().parseFromString(content, "application/xml");
+    // Detached application/xml parse for soft well-formedness before Admin PUT;
+    // never append/innerHTML the Document.
+    const doc = new DOMParser().parseFromString(content, "application/xml"); // codeql[js/xss-through-dom]
     return doc.querySelector("parsererror") != null;
   } catch {
     return false;
@@ -147,6 +152,10 @@ export function ApplicationFileDetailPanel({
         if (!window.confirm(DEV_MSG.APPFILE_XML_CONFIRM)) {
           return;
         }
+      } else {
+        // No confirm available (tests / embedded hosts): block rather than silent bypass.
+        setError(DEV_MSG.APPFILE_XML_BLOCKED);
+        return;
       }
     }
     inflight.current = true;

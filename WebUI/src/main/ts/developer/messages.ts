@@ -1535,6 +1535,8 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Discard unsaved application file changes?",
   APPFILE_XML_CONFIRM:
     "perc.ui.developer@Content may not be well-formed XML. Save anyway?",
+  APPFILE_XML_BLOCKED:
+    "perc.ui.developer@Content may not be well-formed XML. Fix the markup before saving.",
   APPFILE_SAVE_ADMIN_ONLY:
     "perc.ui.developer@Admin role required. Save is disabled for this session.",
   APPFILE_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
