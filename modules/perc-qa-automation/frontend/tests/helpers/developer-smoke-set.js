@@ -206,6 +206,13 @@ const DEVELOPER_SMOKE_SET = [
     notes: "CD-16 SPA system-def field write (#4030 / parent #1690)",
   },
   {
+    id: "server-configs-write",
+    file: "developer-server-configs-write.spec.js",
+    title: "Admin can edit allow-listed config, save, and see refresh",
+    status: "green",
+    notes: "SY-02 SPA server config write H2 (#4277 / parent #1690)",
+  },
+  {
     id: "template-source-viewer",
     file: "developer-template-source-viewer.spec.js",
     title: "template detail source shows line numbers and copy control",

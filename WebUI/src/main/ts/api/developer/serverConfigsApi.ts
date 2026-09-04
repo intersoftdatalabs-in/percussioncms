@@ -58,6 +58,16 @@ function withGaps(c: ServerConfigDef): ServerConfigDef {
   };
 }
 
+/** Jackson / JAXB root for ServerConfigSummary (UNWRAP_ROOT_VALUE on PUT). */
+export const SERVER_CONFIG_ROOT = "ServerConfig";
+
+/** Wire envelope required by CXF UNWRAP_ROOT_VALUE — bare `{ content }` is HTTP 400. */
+export function wrapServerConfigForWire(body: ServerConfigWriteBody): {
+  ServerConfig: ServerConfigWriteBody;
+} {
+  return { [SERVER_CONFIG_ROOT]: body };
+}
+
 /**
  * Unwrap Jackson WRAP_ROOT_VALUE {@code {"ServerConfig":{…}}} so GET/PUT
  * payloads bind the same as a flat ServerConfigDef.
@@ -107,8 +117,9 @@ export async function updateServerConfig(
     throw new Error("content is required");
   }
   const key = encodeURIComponent(name);
-  const payload = await put<unknown>(`${PATHS.SERVER_CONFIGS}/${key}`, {
-    content: body.content,
-  });
+  const payload = await put<unknown>(
+    `${PATHS.SERVER_CONFIGS}/${key}`,
+    wrapServerConfigForWire({ content: body.content }),
+  );
   return withGaps(unwrapServerConfig(payload));
 }

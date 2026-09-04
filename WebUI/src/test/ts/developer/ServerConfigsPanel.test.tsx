@@ -52,7 +52,9 @@ describe("ServerConfigsPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-cfg-table")).toBeTruthy();
     });
-    fireEvent.click(screen.getByTestId("developer-cfg-open"));
+    const openBtn = screen.getByTestId("developer-cfg-open");
+    expect(openBtn.getAttribute("data-cfg-name")).toBe("LOG_CONFIG");
+    fireEvent.click(openBtn);
     await waitFor(() => {
       expect(screen.getByTestId("developer-cfg-detail")).toBeTruthy();
     });
