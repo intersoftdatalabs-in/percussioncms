@@ -10,10 +10,16 @@ import * as api from "../../../main/ts/api/developer/serverConfigsApi";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { ServerConfigsPanel } from "../../../main/ts/developer/ServerConfigsPanel";
 
-vi.mock("../../../main/ts/api/developer/serverConfigsApi", () => ({
-  listServerConfigs: vi.fn(),
-  getServerConfigDetail: vi.fn(),
-}));
+vi.mock("../../../main/ts/api/developer/serverConfigsApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/serverConfigsApi")>();
+  return {
+    ...actual,
+    listServerConfigs: vi.fn(),
+    getServerConfigDetail: vi.fn(),
+    updateServerConfig: vi.fn(),
+  };
+});
 
 const listServerConfigs = api.listServerConfigs as ReturnType<typeof vi.fn>;
 const getServerConfigDetail = api.getServerConfigDetail as ReturnType<typeof vi.fn>;
@@ -40,7 +46,7 @@ describe("ServerConfigsPanel", () => {
       displayName: "Logging configuration",
       fileName: "log4j.xml",
       content: "<Configuration/>",
-      designGaps: ["gap-save"],
+      designGaps: ["Locking and concurrent edit are not exposed on this Developer surface"],
     });
     render(<ServerConfigsPanel />);
     await waitFor(() => {
@@ -50,9 +56,10 @@ describe("ServerConfigsPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-cfg-detail")).toBeTruthy();
     });
-    expect(screen.getByTestId("developer-cfg-content-pre").textContent).toContain(
-      "Configuration",
-    );
+    expect(
+      (screen.getByTestId("developer-cfg-content-editor") as HTMLTextAreaElement).value,
+    ).toContain("Configuration");
+    expect(screen.getByTestId("developer-cfg-save")).toBeTruthy();
   });
 
   it("shows empty state when API returns no configs", async () => {
