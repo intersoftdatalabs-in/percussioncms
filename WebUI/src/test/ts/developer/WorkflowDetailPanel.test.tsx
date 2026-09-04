@@ -214,4 +214,60 @@ describe("WorkflowDetailPanel", () => {
       DEV_MSG.WF_CT_LOAD_ERROR,
     );
   });
+
+  it("rejects invalid content-type names client-side before add", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    render(<WorkflowDetailPanel name="Simple Workflow" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-ct-row-0")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-wf-ct-add-name"), {
+      target: { value: "bad name" },
+    });
+    expect(screen.getByTestId("developer-wf-ct-add")).toBeDisabled();
+    expect(screen.getByTestId("developer-wf-ct-name-invalid").textContent).toBe(
+      DEV_MSG.WF_CT_NAME_INVALID,
+    );
+  });
+
+  it("dedupes by guid stringValue when adding a Percussion GUID", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    getWorkflowAllowedContentTypes.mockResolvedValue([
+      { name: "percPage", guid: { stringValue: "2-1-100" } },
+    ]);
+    render(<WorkflowDetailPanel name="Simple Workflow" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-ct-row-0")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-wf-ct-add-name"), {
+      target: { value: "2-1-100" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-ct-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-ct-error").textContent).toBe(DEV_MSG.WF_CT_DUP);
+    });
+    expect(screen.queryByTestId("developer-wf-ct-row-1")).toBeNull();
+  });
+
+  it("exposes status live region and stable remove aria-label", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    render(<WorkflowDetailPanel name="Simple Workflow" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-ct-row-0")).toBeTruthy();
+    });
+    expect(screen.getByLabelText(`${DEV_MSG.CT_ASSOC_REMOVE} percPage`)).toBeTruthy();
+    expect(screen.getByLabelText(DEV_MSG.WF_CT_ADD_LABEL)).toBeTruthy();
+
+    fireEvent.change(screen.getByTestId("developer-wf-ct-add-name"), {
+      target: { value: "percImage" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-ct-add"));
+    fireEvent.click(screen.getByTestId("developer-wf-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-ct-notice").getAttribute("role")).toBe("status");
+    });
+    expect(screen.getByTestId("developer-wf-ct-notice").getAttribute("aria-live")).toBe(
+      "polite",
+    );
+  });
 });

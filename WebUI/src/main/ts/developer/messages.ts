@@ -1382,7 +1382,10 @@ export const DEV_MSG_KEYS = {
   WF_CONTENT_TYPES: "perc.ui.developer@Allowed content types",
   WF_CONTENT_TYPES_HINT:
     "perc.ui.developer@Admin: add or remove content types by name, then save. Save replaces the allowed set for this workflow (server locks each affected content type). Content-type side editing remains on Content Type detail (CD-08).",
+  WF_CT_ADD_LABEL: "perc.ui.developer@Add content type by name",
   WF_CT_NAME_PLACEHOLDER: "perc.ui.developer@Content type name",
+  WF_CT_NAME_INVALID:
+    "perc.ui.developer@Content type name may only contain letters, digits, underscore, and period (or a Percussion GUID).",
   WF_CT_LOADING: "perc.ui.developer@Loading allowed content types...",
   WF_CT_LOAD_ERROR: "perc.ui.developer@Could not load allowed content types.",
   WF_CT_SAVE: "perc.ui.developer@Save content types",
