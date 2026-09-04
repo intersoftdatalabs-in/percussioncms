@@ -26,9 +26,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.data.PSConversionException;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSFieldOutputTransformer;
 import com.percussion.extension.IPSItemOutputTransformer;
 import com.percussion.extension.IPSResultDocumentProcessor;
@@ -69,7 +69,7 @@ public abstract class PSAbstractBuildRelationshipsExtension extends PSDefaultExt
             String errorMsg =  "Extension Init parameter: "+ MODE_INIT_PARAM 
             +  " is required and was not set, " + validValues ;
             ms_log.error(errorMsg);
-            throw new PSExtensionException(IPSExtensionErrors.EXT_INIT_FAILED, errorMsg);
+            throw new PSExtensionException(ExtensionErrorCodes.EXT_INIT_FAILED, errorMsg);
         }
         else if (mode.trim().toUpperCase().equals(Mode.BUILD.toString())) {
             m_mode = Mode.BUILD;
@@ -82,7 +82,7 @@ public abstract class PSAbstractBuildRelationshipsExtension extends PSDefaultExt
             String errorMsg =  "Extension Init parameter: "+ MODE_INIT_PARAM 
             +  " is required and was set to: "+ mode + ", " + validValues ;
             ms_log.error(errorMsg);
-            throw new PSExtensionException(IPSExtensionErrors.EXT_INIT_FAILED, errorMsg);
+            throw new PSExtensionException(ExtensionErrorCodes.EXT_INIT_FAILED, errorMsg);
         }
         String name = def.getRef().getFQN();
         ms_log.debug("Setting relationship builder extension mode to " + m_mode + " for " + name);

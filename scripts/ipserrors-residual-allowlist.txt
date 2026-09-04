@@ -1,6 +1,6 @@
 # Residual production IPS*Errors call-sites frozen by #3586 (parent #2616).
 # Exact posix paths relative to repo root. One path per line.
-# Do not add directory prefixes — a new file under the same tree must fail
+# Do not add directory prefixes ΓÇö a new file under the same tree must fail
 # the gate until it is listed here with an issue link.
 #
 # Shrink this list as retype PRs merge:
@@ -25,7 +25,7 @@
 #   #4142 leftover IPSServerErrors (DTD parser, workflow utils, relationship
 #        utils, PSDate, PSCms)
 #   #4197 leftover PSDtdTree IPSXmlErrors (typed XmlErrorCodes)
-#        — PSPromote/PSUtils stay listed for remaining IPSExtensionErrors /
+#        ΓÇö PSPromote/PSUtils stay listed for remaining IPSExtensionErrors /
 #        IPSCmsErrors
 #   #4150 leftover system/src/main PSServer/handlers/parsers/console
 #   #4153 leftover system/server command/cache/actions/clone/compare/config
@@ -38,13 +38,15 @@
 #        Design/Folder/Search/ServerFolderProcessor/WebServicesBase/Request)
 #        typed *ErrorCodes
 #   #4264 leftover modules+misc system IPS*Errors typed *ErrorCodes
+#   #4271 segmentation-rx PSAbstractBuildRelationshipsExtension (orphan build)
 # Converted (no longer listed): extensions-main #3756/#3938 (allow-list)
 # shrink after #3793 re-listed already-typed production paths);
 # design.catalog leftover #3969; system/src/main com.percussion.mail leftover
 # #4017; cx leftover #4013 (PSFont, PSOption, PSOptions, PSUserOptions);
 # servletutils PSTomcatUtils leftover #4195; system server core #4262;
 # system server webservices handlers #4263; modules+misc system leftovers #4264.
-# Residual #4271: modules/segmentation-rx orphan build + Testing/Tools leftovers.
+# segmentation-rx orphan #4271.
+# Residual: Testing/Tools leftovers (segmentation-rx converted in #4271).
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -55,7 +57,6 @@
 
 
 
-modules/segmentation-rx/src/main/java/com/percussion/soln/relationshipbuilder/exit/PSAbstractBuildRelationshipsExtension.java
 system/Testing/Extensions/src/com/percussion/extensions/testing/PSMakeCERequest.java
 system/Testing/Extensions/src/com/percussion/extensions/testing/PSSortDocData.java
 system/Testing/Extensions/src/com/percussion/extensions/testing/TestMakeInternalRequest.java

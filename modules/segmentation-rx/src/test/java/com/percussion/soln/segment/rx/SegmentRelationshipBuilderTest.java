@@ -23,11 +23,9 @@ import com.percussion.soln.segment.Segments;
 import com.percussion.soln.segment.rx.editor.SegmentMocks;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,10 +34,9 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith(MockitoExtension.class)
 public class SegmentRelationshipBuilderTest {
 
-    Mockery context = new JUnit4Mockery();
+    Mockery context;
     ISegmentService segServMock;
     TestRelationshipBuilder segRelBuilder;
     SegmentMocks segMocks;
@@ -73,6 +70,7 @@ public class SegmentRelationshipBuilderTest {
     
     @BeforeEach
     public void setUp() throws Exception {
+        context = new JUnit4Mockery();
         segServMock = context.mock(ISegmentService.class);
         segRelBuilder = new TestRelationshipBuilder();
         segRelBuilder.setSegmentService(segServMock);
@@ -167,7 +165,7 @@ public class SegmentRelationshipBuilderTest {
         
         // Then:
         final List<Integer> expectedIds = asList(200,300,400);
-        assertEquals("Segment Ids should be " + expectedIds, expectedIds, actualIds );
+        assertEquals(expectedIds, actualIds, "Segment Ids should be " + expectedIds);
     }
 
 }

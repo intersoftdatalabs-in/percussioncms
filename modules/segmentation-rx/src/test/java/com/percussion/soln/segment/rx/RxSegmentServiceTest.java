@@ -40,11 +40,10 @@ import javax.jcr.query.RowIterator;
 import org.apache.jackrabbit.value.ValueFactoryImpl;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.services.contentmgr.IPSContentMgr;
@@ -60,9 +59,8 @@ import com.percussion.webservices.content.IPSContentWs;
  * @author adamgent
  *
  */
-@ExtendWith(MockitoExtension.class)
 public class RxSegmentServiceTest {
-    Mockery context = new JUnit4Mockery();
+    Mockery context;
     RxSegmentService service = new RxSegmentService();
     private static int nextNameId = 1;
     IPSContentMgr contentManager;
@@ -76,6 +74,7 @@ public class RxSegmentServiceTest {
 
     @BeforeEach
     public void setUp() throws Exception {
+        context = new JUnit4Mockery();
         contentManager = context.mock(IPSContentMgr.class);
         contentWs = context.mock(IPSContentWs.class);
         guidManager = context.mock(IPSGuidManager.class);
@@ -269,9 +268,10 @@ public class RxSegmentServiceTest {
     }
     
     
-    @Test(expected=UnsupportedOperationException.class)
+    @Test
     public void shouldBeUnsupportedToUpdateTreeWithSegmentData() throws Exception {
-        service.updateSegmentTree(new Segments(Collections.<Segment>emptyList()));
+        assertThrows(UnsupportedOperationException.class,
+            () -> service.updateSegmentTree(new Segments(Collections.<Segment>emptyList())));
     }
     
     public void expectJcrQuery(final String jcrQuery, final List<Row> rows, 
