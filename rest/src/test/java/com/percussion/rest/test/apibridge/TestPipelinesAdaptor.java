@@ -57,4 +57,14 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
     result.setAffectedRows(0);
     return result;
   }
+
+  @Override
+  public ApplicationDetail startApplication(URI baseUri, String idOrName) {
+    return null;
+  }
+
+  @Override
+  public ApplicationDetail stopApplication(URI baseUri, String idOrName) {
+    return null;
+  }
 }

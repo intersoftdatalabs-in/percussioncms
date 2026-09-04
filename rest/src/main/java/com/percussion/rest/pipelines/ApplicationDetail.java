@@ -24,9 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Read-only design detail for one classic XML Application / pipeline package.
+ * Design detail for one classic XML Application / pipeline package.
  *
- * <p>Does not expose pipe IR, start/stop, or mapper definitions (later slices).
+ * <p>Includes Admin start/stop lifecycle ({@code active}). Pipe IR / mapper graph remain later
+ * slices (see {@code designGaps}).
  */
 @XmlRootElement(name = "ApplicationDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -47,6 +48,9 @@ public class ApplicationDetail {
 
   /** Whether the application is hidden from listings. */
   private Boolean hidden;
+
+  /** Whether the application is currently running on the server. */
+  private Boolean active;
 
   /** Application root directory. */
   private String appRoot;
@@ -154,6 +158,24 @@ public class ApplicationDetail {
    */
   public void setHidden(Boolean hidden) {
     this.hidden = hidden;
+  }
+
+  /**
+   * Returns whether the application is currently running.
+   *
+   * @return the active flag
+   */
+  public Boolean getActive() {
+    return active;
+  }
+
+  /**
+   * Sets whether the application is currently running.
+   *
+   * @param active the new active flag
+   */
+  public void setActive(Boolean active) {
+    this.active = active;
   }
 
   /**
