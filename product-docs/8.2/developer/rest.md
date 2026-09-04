@@ -1881,6 +1881,10 @@ lock (`POST .../contenttypes/{id}/lock`) and leaves it held. SY-06 PUT locks eac
 type it changes and releases the lock on save, because a workflow-side replace can touch
 many content types.
 
+**Empty list clear:** Send `"allowedContentTypes": []` under the `WorkflowContentTypes`
+root. On some CXF Jackson UNWRAP paths an empty JSON array arrives as a null field; the
+resource treats a present body with a null list as clear (same as `[]`).
+
 **SPA:** [Developer Workflows](id:admin-developer-workflows) detail exposes **Allowed
 content types** against this API. Content-type side chrome remains
 [Developer Content Types](id:admin-developer-content-types).

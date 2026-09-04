@@ -175,14 +175,16 @@ public class WorkflowsResource {
       })
   public NamedObjectRefList setAllowedContentTypes(
       @PathParam("idOrName") String idOrName, WorkflowContentTypes body) {
-    if (body == null || body.getAllowedContentTypes() == null) {
+    if (body == null) {
       throw new WebApplicationException("allowedContentTypes is required", 400);
     }
+    // CXF Jackson UNWRAP of {"WorkflowContentTypes":{"allowedContentTypes":[]}} often yields
+    // null for the list field; treat null as empty (clear associations) per SY-06.
+    List<NamedObjectRef> allowed =
+        body.getAllowedContentTypes() != null ? body.getAllowedContentTypes() : List.of();
     try {
       List<NamedObjectRef> items =
-          requireAdaptor()
-              .setAllowedContentTypes(
-                  uriInfo.getBaseUri(), idOrName, body.getAllowedContentTypes());
+          requireAdaptor().setAllowedContentTypes(uriInfo.getBaseUri(), idOrName, allowed);
       if (items == null) {
         throw new WebApplicationException("Workflow not found: " + idOrName, 404);
       }
