@@ -2055,6 +2055,42 @@ Example copy-from-system body:
 | `500` | Design WS failure |
 | `503` | Relationship type adaptor not configured |
 
+## Server configuration files (catalog)
+
+Named **server configuration** files (Workbench / Developer **Server Configs**, SY-02) are exposed
+under `/services/serverconfigs`. The catalog is the fixed `PSConfigurationTypes` allow-list
+(logging, tidy, navigation, workflow, velocity macros, auth types, and related). Backing is
+`IPSSystemService.loadConfiguration` / `saveConfiguration` — the same typed configuration
+descriptors Workbench system-design uses. Clients never supply a filesystem path.
+
+Admin **write** updates the **file body** of an allow-listed key only. Path traversal, separators,
+and unknown enum names are **404** (no arbitrary filesystem write). Configuration **create**
+(adding new types) and **locking / concurrent edit** remain design gaps on this surface.
+**Developer → Server Configs** SPA save chrome is a later slice; integrators may call PUT
+directly.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/serverconfigs` | List allow-listed server configuration summaries (no file body) |
+| `GET` | `/services/serverconfigs/{name}` | Load one configuration by enum name (e.g. `LOG_CONFIG`) including `content` when available |
+| `PUT` | `/services/serverconfigs/{name}` | **Admin.** Replace the file body for an allow-listed configuration key |
+
+JSON objects use the `ServerConfigSummary` wire type (`name`, `displayName`, `fileName`,
+`description`, `typeId`, optional `content` / `mimeType` / `characterEncoding` /
+`contentLength`, and detail-only `designGaps`). Prefer the generated OpenAPI schema as the
+integration source of truth.
+
+### Server configuration write contract (Admin)
+
+Update (`PUT /services/serverconfigs/{name}`) requires Admin. `{name}` must be a
+`PSConfigurationTypes` enum name such as `LOG_CONFIG`, `TIDY_CONFIG`, or
+`USER_VELOCITY_MACROS` (letters, digits, and underscore only). The JSON body must include
+`content` (file text; empty string is allowed). Other metadata fields on the body are ignored
+for persistence — the server resolves the on-disk file from the allow-listed type. Unknown or
+unsafe names are **404** and never call save. Missing body or missing `content` is **400**.
+Non-Admin is **403**. On success the response is the updated detail (same shape as GET),
+including reloaded `content`.
+
 ## Extensions (catalog)
 
 Server **extension** registrations (Workbench / Developer **Extension Registration**, SY-01) are
