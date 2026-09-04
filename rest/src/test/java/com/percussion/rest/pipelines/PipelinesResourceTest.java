@@ -213,4 +213,83 @@ public class PipelinesResourceTest {
     assertEquals(500, ex.getResponse().getStatus());
     assertInstanceOf(IllegalStateException.class, ex.getCause());
   }
+
+  @Test
+  public void startApplicationDelegatesToAdaptor() {
+    ApplicationDetail d = new ApplicationDetail();
+    d.setName("sys_foo");
+    d.setActive(true);
+    when(adaptor.startApplication(any(), eq("sys_foo"))).thenReturn(d);
+
+    ApplicationDetail out = resource.startApplication("sys_foo");
+    assertEquals("sys_foo", out.getName());
+    assertEquals(Boolean.TRUE, out.getActive());
+    verify(adaptor).startApplication(any(), eq("sys_foo"));
+  }
+
+  @Test
+  public void startApplicationNotFound() {
+    when(adaptor.startApplication(any(), eq("missing"))).thenReturn(null);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.startApplication("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Application not found", ex.getMessage());
+  }
+
+  @Test
+  public void startApplicationRethrowsWebApplicationException() {
+    when(adaptor.startApplication(any(), eq("sys_foo")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.startApplication("sys_foo"));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertEquals("Admin role required", ex.getMessage());
+  }
+
+  @Test
+  public void startApplicationMapsIllegalArgumentTo400() {
+    when(adaptor.startApplication(any(), eq("sys_foo")))
+        .thenThrow(new IllegalArgumentException("Application is disabled"));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.startApplication("sys_foo"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("Application is disabled", ex.getMessage());
+  }
+
+  @Test
+  public void stopApplicationDelegatesToAdaptor() {
+    ApplicationDetail d = new ApplicationDetail();
+    d.setName("sys_foo");
+    d.setActive(false);
+    when(adaptor.stopApplication(any(), eq("sys_foo"))).thenReturn(d);
+
+    ApplicationDetail out = resource.stopApplication("sys_foo");
+    assertEquals("sys_foo", out.getName());
+    assertEquals(Boolean.FALSE, out.getActive());
+    verify(adaptor).stopApplication(any(), eq("sys_foo"));
+  }
+
+  @Test
+  public void stopApplicationNotFound() {
+    when(adaptor.stopApplication(any(), eq("missing"))).thenReturn(null);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.stopApplication("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Application not found", ex.getMessage());
+  }
+
+  @Test
+  public void stopApplicationWrapsUnexpectedFailuresAs500() {
+    IllegalStateException boom = new IllegalStateException("server down");
+    when(adaptor.stopApplication(any(), eq("sys_foo"))).thenThrow(boom);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.stopApplication("sys_foo"));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
 }

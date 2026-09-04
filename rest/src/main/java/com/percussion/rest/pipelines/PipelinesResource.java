@@ -43,18 +43,20 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Catalog of classic XML Applications (pipeline packages) plus thin IR execute for Developer smoke.
+ * Catalog of classic XML Applications (pipeline packages), Admin start/stop, and thin IR execute.
  *
  * <p>Registered via {@link PSSiteManageBean} like sibling catalog resources ({@code Keywords},
  * {@code Slots}). Execute delegates to {@code IPSPipelineRuntimeService} only (never classic {@code
- * PSQueryHandler} as the public path).
+ * PSQueryHandler} as the public path). Start/stop peer {@code PSServer.startApplication} /
+ * {@code shutdownApplication}.
  */
 @PSSiteManageBean(value = "restPipelinesResource")
 @Path("/pipelines")
 @XmlRootElement
 @Tag(
     name = "Pipelines",
-    description = "Data pipeline / XML application design catalog and thin IR execute")
+    description =
+        "Data pipeline / XML application design catalog, Admin start/stop, and thin IR execute")
 public class PipelinesResource {
 
   private final IPipelinesAdaptor adaptor;
@@ -81,8 +83,8 @@ public class PipelinesResource {
       summary = "List pipeline applications",
       description =
           "Lists non-hidden server applications (classic XML Applications) visible to the"
-              + " current user. Supports optional name filter and limit/offset. Editor /"
-              + " start-stop / IR import are later slices.",
+              + " current user. Supports optional name filter and limit/offset. Includes"
+              + " runtime active flag. Pipe IR editor / import remain later slices.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -114,8 +116,9 @@ public class PipelinesResource {
   @Operation(
       summary = "Get pipeline application detail",
       description =
-          "Loads one classic XML Application by name or numeric id (read-only). Includes data set"
-              + " catalog; pipe IR / start-stop / import remain unsupported (see designGaps).",
+          "Loads one classic XML Application by name or numeric id. Includes data set catalog and"
+              + " runtime active flag. Pipe IR / import remain unsupported (see designGaps)."
+              + " Admin start/stop are separate POST endpoints.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -134,6 +137,77 @@ public class PipelinesResource {
       return detail;
     } catch (WebApplicationException e) {
       throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @POST
+  @Path("/{idOrName}/start")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Start a pipeline application",
+      description =
+          "Admin only. Starts a non-hidden classic XML Application via PSServer.startApplication."
+              + " Idempotent when already running. Returns refreshed ApplicationDetail with"
+              + " active=true. Does not echo raw path params on errors.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Started or already running",
+            content = @Content(schema = @Schema(implementation = ApplicationDetail.class))),
+        @ApiResponse(responseCode = "400", description = "Hidden, disabled, or invalid application"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ApplicationDetail startApplication(@PathParam("idOrName") String idOrName) {
+    try {
+      ApplicationDetail detail =
+          requireAdaptor().startApplication(uriInfo.getBaseUri(), idOrName);
+      if (detail == null) {
+        throw new WebApplicationException("Application not found", 404);
+      }
+      return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @POST
+  @Path("/{idOrName}/stop")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Stop a pipeline application",
+      description =
+          "Admin only. Stops a non-hidden classic XML Application via PSServer.shutdownApplication."
+              + " Idempotent when already stopped. Returns refreshed ApplicationDetail with"
+              + " active=false. Does not echo raw path params on errors.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Stopped or already stopped",
+            content = @Content(schema = @Schema(implementation = ApplicationDetail.class))),
+        @ApiResponse(responseCode = "400", description = "Hidden or invalid application"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ApplicationDetail stopApplication(@PathParam("idOrName") String idOrName) {
+    try {
+      ApplicationDetail detail = requireAdaptor().stopApplication(uriInfo.getBaseUri(), idOrName);
+      if (detail == null) {
+        throw new WebApplicationException("Application not found", 404);
+      }
+      return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
     } catch (Exception e) {
       throw new WebApplicationException(e, 500);
     }

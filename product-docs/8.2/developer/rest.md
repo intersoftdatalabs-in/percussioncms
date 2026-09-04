@@ -1827,6 +1827,51 @@ Example create body (user custom URL view):
 - Operator Inbox run-from-tree is Explorer **Views → My Content → Inbox**, not a
   free-floating Inbox root.
 
+## Pipelines (XML Applications catalog and lifecycle)
+
+Classic **XML Applications** (data pipeline packages) are exposed under `/services/pipelines`.
+The catalog is a thin contract over the server object store (`PSServerXmlObjectStore`
+summaries / application objects). Admin **start** / **stop** peer the server console
+`start application` / `stop application` commands (`PSServer.startApplication` /
+`PSServer.shutdownApplication`). Thin IR execute (`POST …/execute`) is a separate native
+pipeline runtime path — it does **not** call classic `PSQueryHandler` /
+`PSUpdateHandler`.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/pipelines` | List non-hidden applications (optional `name`, `limit`, `offset`) |
+| `GET` | `/services/pipelines/{idOrName}` | Load one application by name or numeric id (data-set catalog + `active`) |
+| `POST` | `/services/pipelines/{idOrName}/start` | **Admin.** Start application (idempotent if already running) |
+| `POST` | `/services/pipelines/{idOrName}/stop` | **Admin.** Stop application (idempotent if already stopped) |
+| `POST` | `/services/pipelines/{app}/resources/{resource}/execute` | Execute a native pipeline IR resource |
+
+JSON list rows use `Application` / `ApplicationSummary`; detail uses `ApplicationDetail`
+(fields include `id`, `name`, `description`, `enabled`, `hidden`, `active`, `appRoot`,
+`appType`, `version`, `dataSets[]`, and `designGaps[]`). Prefer the generated OpenAPI
+schema as the integration source of truth. Error bodies use generic messages and **do not
+echo** raw `{idOrName}` path values (name probing / path injection).
+
+### Admin start / stop
+
+Start and stop require the **Admin** role (**403** otherwise). The path id resolves only
+against the object-store catalog (trusted name); unknown or unsafe names are **404** /
+**400**. **Hidden** applications cannot be started or stopped via this API (**400**).
+Start also rejects **disabled** applications (**400**). When the application is already
+running, start returns **200** with `active=true` without restarting. When already
+stopped, stop returns **200** with `active=false`. Successful responses return refreshed
+`ApplicationDetail` (including `active`).
+
+Remaining gaps on detail (`designGaps`) include pipe IR / mapper tanks, enable/disable,
+and classic import/export — SPA chrome and Playwright for start/stop are separate slices.
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | List / get / start / stop / execute success |
+| `400` | Invalid name, hidden/disabled lifecycle, or IR validation failure |
+| `403` | Caller is not Admin (start/stop) |
+| `404` | Application (or IR resource) not found / not visible |
+| `500` | Object-store or server failure |
+
 ## Workflows (design catalog)
 
 Workflow definitions used by **Developer → Workflows** (SY-04 browse) are exposed under

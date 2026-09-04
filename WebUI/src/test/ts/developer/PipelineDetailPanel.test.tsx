@@ -2,9 +2,10 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { BootstrapProvider } from "../../../main/ts/app/bootstrap/BootstrapContext";
 import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as pipelinesApi from "../../../main/ts/api/developer/pipelinesApi";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
@@ -13,15 +14,20 @@ import { PipelineDetailPanel } from "../../../main/ts/developer/PipelineDetailPa
 vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   getApplicationDetail: vi.fn(),
   listApplications: vi.fn(),
+  startApplication: vi.fn(),
+  stopApplication: vi.fn(),
 }));
 
 const getApplicationDetail = pipelinesApi.getApplicationDetail as ReturnType<typeof vi.fn>;
+const startApplication = pipelinesApi.startApplication as ReturnType<typeof vi.fn>;
+const stopApplication = pipelinesApi.stopApplication as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   id: 1,
   name: "sys_cmpDocuments",
   description: "System content editor app",
   enabled: true,
+  active: false,
   hidden: false,
   appType: "CONTENT_EDITOR",
   appRoot: "sys_cmpDocuments",
@@ -37,18 +43,56 @@ const sampleDetail = {
   designGaps: ["Pipe IR not exposed"],
 };
 
+function renderDetail(isAdmin = true) {
+  return render(
+    <BootstrapProvider
+      value={{
+        userName: isAdmin ? "admin" : "editor",
+        locale: "en-us",
+        entry: "developer",
+        isAdmin,
+        isDesigner: true,
+        isWidgetBuilderActive: false,
+        allowExternalAvatarFetch: true,
+      }}
+    >
+      <PipelineDetailPanel idOrName="sys_cmpDocuments" onBack={() => undefined} />
+    </BootstrapProvider>,
+  );
+}
+
 describe("PipelineDetailPanel", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
       message: (key: string) => key,
     };
     getApplicationDetail.mockReset();
+    startApplication.mockReset();
+    stopApplication.mockReset();
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   it("loads detail on success and supports back", async () => {
     getApplicationDetail.mockResolvedValue(sampleDetail);
     const onBack = vi.fn();
-    render(<PipelineDetailPanel idOrName="sys_cmpDocuments" onBack={onBack} />);
+    render(
+      <BootstrapProvider
+        value={{
+          userName: "admin",
+          locale: "en-us",
+          entry: "developer",
+          isAdmin: true,
+          isDesigner: true,
+          isWidgetBuilderActive: false,
+          allowExternalAvatarFetch: true,
+        }}
+      >
+        <PipelineDetailPanel idOrName="sys_cmpDocuments" onBack={onBack} />
+      </BootstrapProvider>,
+    );
     await waitFor(() => {
       expect(screen.getByTestId("developer-pipe-detail-title")).toBeTruthy();
     });
@@ -60,9 +104,183 @@ describe("PipelineDetailPanel", () => {
     expect(screen.getByTestId("developer-pipe-gaps").textContent).toContain(
       "Pipe IR not exposed",
     );
+    expect(screen.getByTestId("developer-pipe-meta-running").textContent).toBe(
+      DEV_MSG.NO,
+    );
     expect(getApplicationDetail).toHaveBeenCalledWith("sys_cmpDocuments");
     fireEvent.click(screen.getByTestId("developer-pipe-back"));
     expect(onBack).toHaveBeenCalled();
+  });
+
+  it("shows Admin Start/Stop chrome and starts when stopped", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    startApplication.mockResolvedValue({
+      ...sampleDetail,
+      active: true,
+      designGaps: ["Pipe IR not exposed"],
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-lifecycle")).toBeTruthy();
+    });
+    const startBtn = screen.getByTestId("developer-pipe-start") as HTMLButtonElement;
+    const stopBtn = screen.getByTestId("developer-pipe-stop") as HTMLButtonElement;
+    expect(startBtn.disabled).toBe(false);
+    expect(stopBtn.disabled).toBe(true);
+    fireEvent.click(startBtn);
+    await waitFor(() => {
+      expect(startApplication).toHaveBeenCalledWith("sys_cmpDocuments");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-meta-running").textContent).toBe(
+        DEV_MSG.YES,
+      );
+    });
+    expect(screen.getByTestId("developer-pipe-lifecycle-notice").textContent).toBe(
+      DEV_MSG.PIPE_STARTED,
+    );
+    expect((screen.getByTestId("developer-pipe-start") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-pipe-stop") as HTMLButtonElement).disabled).toBe(
+      false,
+    );
+  });
+
+  it("stops a running application and refreshes active", async () => {
+    getApplicationDetail.mockResolvedValue({ ...sampleDetail, active: true });
+    stopApplication.mockResolvedValue({ ...sampleDetail, active: false });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-stop")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-stop"));
+    await waitFor(() => {
+      expect(stopApplication).toHaveBeenCalledWith("sys_cmpDocuments");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-meta-running").textContent).toBe(
+        DEV_MSG.NO,
+      );
+    });
+    expect(screen.getByTestId("developer-pipe-lifecycle-notice").textContent).toBe(
+      DEV_MSG.PIPE_STOPPED,
+    );
+  });
+
+  it("hides Start/Stop chrome for non-Admin", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(false);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-detail-title")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-pipe-lifecycle")).toBeNull();
+    expect(screen.queryByTestId("developer-pipe-start")).toBeNull();
+    expect(screen.queryByTestId("developer-pipe-stop")).toBeNull();
+  });
+
+  it("disables Start when application is disabled", async () => {
+    getApplicationDetail.mockResolvedValue({
+      ...sampleDetail,
+      enabled: false,
+      active: false,
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-start")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-pipe-start") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-pipe-stop") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+  });
+
+  it("shows PIPE_FORBIDDEN on 403 start", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    startApplication.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: null,
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-start")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-start"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-lifecycle-error").textContent).toBe(
+        DEV_MSG.PIPE_FORBIDDEN,
+      );
+    });
+  });
+
+  it("clears busy when idOrName changes during an in-flight start", async () => {
+    let resolveStart: ((value: typeof sampleDetail) => void) | undefined;
+    getApplicationDetail.mockImplementation(async (id: string) => ({
+      ...sampleDetail,
+      name: id,
+      active: false,
+    }));
+    startApplication.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveStart = resolve;
+        }),
+    );
+
+    const { rerender } = render(
+      <BootstrapProvider
+        value={{
+          userName: "admin",
+          locale: "en-us",
+          entry: "developer",
+          isAdmin: true,
+          isDesigner: true,
+          isWidgetBuilderActive: false,
+          allowExternalAvatarFetch: true,
+        }}
+      >
+        <PipelineDetailPanel idOrName="sys_cmpDocuments" onBack={() => undefined} />
+      </BootstrapProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-start")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-start"));
+    await waitFor(() => {
+      expect(startApplication).toHaveBeenCalledWith("sys_cmpDocuments");
+    });
+    expect((screen.getByTestId("developer-pipe-start") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+
+    rerender(
+      <BootstrapProvider
+        value={{
+          userName: "admin",
+          locale: "en-us",
+          entry: "developer",
+          isAdmin: true,
+          isDesigner: true,
+          isWidgetBuilderActive: false,
+          allowExternalAvatarFetch: true,
+        }}
+      >
+        <PipelineDetailPanel idOrName="sys_otherApp" onBack={() => undefined} />
+      </BootstrapProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-detail-title").textContent).toBe("sys_otherApp");
+    });
+    expect((screen.getByTestId("developer-pipe-start") as HTMLButtonElement).disabled).toBe(
+      false,
+    );
+
+    resolveStart?.({ ...sampleDetail, name: "sys_cmpDocuments", active: true });
   });
 
   it("shows empty datasets section when detail has none", async () => {
@@ -71,7 +289,7 @@ describe("PipelineDetailPanel", () => {
       dataSets: [],
       designGaps: undefined,
     });
-    render(<PipelineDetailPanel idOrName="sys_cmpDocuments" onBack={() => undefined} />);
+    renderDetail(true);
     await waitFor(() => {
       expect(screen.getByTestId("developer-pipe-datasets-empty")).toBeTruthy();
     });
@@ -84,7 +302,7 @@ describe("PipelineDetailPanel", () => {
 
   it("shows session-redirect message via panelErrMsg", async () => {
     getApplicationDetail.mockRejectedValue(new SessionRedirectError());
-    render(<PipelineDetailPanel idOrName="sys_cmpDocuments" onBack={() => undefined} />);
+    renderDetail(true);
     await waitFor(() => {
       expect(screen.getByTestId("developer-pipe-detail-error")).toBeTruthy();
     });
@@ -101,7 +319,7 @@ describe("PipelineDetailPanel", () => {
       statusText: "Internal Server Error",
       body: null,
     });
-    render(<PipelineDetailPanel idOrName="sys_cmpDocuments" onBack={() => undefined} />);
+    renderDetail(true);
     await waitFor(() => {
       expect(screen.getByTestId("developer-pipe-detail-error")).toBeTruthy();
     });
@@ -112,7 +330,7 @@ describe("PipelineDetailPanel", () => {
 
   it("shows Error.message via panelErrMsg", async () => {
     getApplicationDetail.mockRejectedValue(new Error("network down"));
-    render(<PipelineDetailPanel idOrName="sys_cmpDocuments" onBack={() => undefined} />);
+    renderDetail(true);
     await waitFor(() => {
       expect(screen.getByTestId("developer-pipe-detail-error")).toBeTruthy();
     });
@@ -124,7 +342,7 @@ describe("PipelineDetailPanel", () => {
 
   it("shows fallback when rejection has no message", async () => {
     getApplicationDetail.mockRejectedValue("boom");
-    render(<PipelineDetailPanel idOrName="sys_cmpDocuments" onBack={() => undefined} />);
+    renderDetail(true);
     await waitFor(() => {
       expect(screen.getByTestId("developer-pipe-detail-error")).toBeTruthy();
     });

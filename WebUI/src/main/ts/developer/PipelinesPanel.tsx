@@ -100,6 +100,7 @@ export function PipelinesPanel(): React.ReactElement {
                   key="open"
                   type="button"
                   data-testid="developer-pipe-open"
+                  data-pipe-name={app.name || openKey}
                   aria-label={`Open ${app.name || openKey}`}
                   onClick={(e) => {
                     e.stopPropagation();
