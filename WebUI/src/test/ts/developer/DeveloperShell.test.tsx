@@ -716,20 +716,26 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   }),
 }));
 
-vi.mock("../../../main/ts/api/developer/serverConfigsApi", () => ({
-  listServerConfigs: vi.fn().mockResolvedValue([
-    {
+vi.mock("../../../main/ts/api/developer/serverConfigsApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/serverConfigsApi")>();
+  return {
+    ...actual,
+    listServerConfigs: vi.fn().mockResolvedValue([
+      {
+        name: "LOG_CONFIG",
+        displayName: "Logging configuration",
+        fileName: "log4j.xml",
+      },
+    ]),
+    getServerConfigDetail: vi.fn().mockResolvedValue({
       name: "LOG_CONFIG",
-      displayName: "Logging configuration",
-      fileName: "log4j.xml",
-    },
-  ]),
-  getServerConfigDetail: vi.fn().mockResolvedValue({
-    name: "LOG_CONFIG",
-    content: "<Configuration/>",
-    designGaps: [],
-  }),
-}));
+      content: "<Configuration/>",
+      designGaps: [],
+    }),
+    updateServerConfig: vi.fn(),
+  };
+});
 
 vi.mock("../../../main/ts/api/developer/controlsApi", async (importOriginal) => {
   const actual =

@@ -1390,7 +1390,7 @@ export const DEV_MSG_KEYS = {
   CFG_EMPTY: "perc.ui.developer@No server configs returned.",
   CFG_ERROR: "perc.ui.developer@Could not load server configs.",
   CFG_HINT:
-    "perc.ui.developer@Server configuration files (logging, tidy, navigation, velocity macros). Open a row to view content. Save is a later slice.",
+    "perc.ui.developer@Server configuration files (logging, tidy, navigation, velocity macros). Open a row to edit and save the file body (Admin). Create of new config types and locking remain design gaps.",
   CFG_COL_DISPLAY: "perc.ui.developer@Name",
   CFG_COL_KEY: "perc.ui.developer@Key",
   CFG_COL_FILE: "perc.ui.developer@File",
@@ -1401,7 +1401,16 @@ export const DEV_MSG_KEYS = {
   CFG_DETAIL_ERROR: "perc.ui.developer@Could not load configuration.",
   CFG_CONTENT: "perc.ui.developer@Content",
   CFG_CONTENT_EMPTY: "perc.ui.developer@No content loaded for this configuration.",
+  CFG_CONTENT_HINT:
+    "perc.ui.developer@Admin save replaces the allow-listed file body. Empty content is allowed. Configuration create and locking are not supported here.",
+  CFG_SAVE: "perc.ui.developer@Save configuration",
+  CFG_CANCEL: "perc.ui.developer@Cancel",
+  CFG_SAVED: "perc.ui.developer@Configuration saved.",
+  CFG_SAVE_ERROR: "perc.ui.developer@Could not save configuration.",
+  CFG_FORBIDDEN: "perc.ui.developer@Admin role required to save server configurations.",
+  CFG_NOT_FOUND: "perc.ui.developer@Configuration not found or not allow-listed.",
   CFG_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
+  /** @deprecated Retained for i18n key stability; SPA write retires this gap for writable peers. */
   CFG_GAP_SAVE:
     "perc.ui.developer@Configuration create / update / save not supported via this API",
   CFG_GAP_LOCK:
