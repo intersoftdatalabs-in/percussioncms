@@ -273,14 +273,20 @@ public class CommunityAdaptor implements ICommunityAdaptor {
   /**
    * Ensure each role association has a role GUID. Clients may send {@code roleId} alone; synthesize
    * a ROLE-typed GUID (type/uuid only — avoid stringValue so save does not require GuidMgr). Missing
-   * both identity fields is a 400 from the resource.
+   * both identity fields is a 400 from the resource. When the client supplies {@code roleGuid} with
+   * only {@code stringValue}, normalize {@code type} to ROLE so save does not persist a wrong
+   * ordinal.
    */
   static void ensureRoleIdentity(CommunityRole role) {
     if (role.getRoleGuid() != null
         && (role.getRoleGuid().getUuid() != 0
             || StringUtils.isNotBlank(role.getRoleGuid().getStringValue()))) {
-      if (role.getRoleId() <= 0 && role.getRoleGuid().getUuid() != 0) {
-        role.setRoleId(role.getRoleGuid().getUuid());
+      Guid existing = role.getRoleGuid();
+      if (existing.getType() != PSTypeEnum.ROLE.getOrdinal()) {
+        existing.setType(PSTypeEnum.ROLE.getOrdinal());
+      }
+      if (role.getRoleId() <= 0 && existing.getUuid() != 0) {
+        role.setRoleId(existing.getUuid());
       }
       return;
     }
@@ -290,7 +296,7 @@ public class CommunityAdaptor implements ICommunityAdaptor {
     Guid g = new Guid();
     g.setHostId(0);
     g.setType(PSTypeEnum.ROLE.getOrdinal());
-    g.setUuid((int) role.getRoleId());
+    g.setUuid(Math.toIntExact(role.getRoleId()));
     g.setLongValue(role.getRoleId());
     role.setRoleGuid(g);
   }

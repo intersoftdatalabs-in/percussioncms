@@ -381,7 +381,7 @@ surface (`ICommunityAdaptor.createCommunities` / `saveCommunities` /
 | `GET` | `/services/communities/roles` | Roles available for community membership (picker) |
 | `POST` | `/services/communities/bulk` | **Admin.** Create from a name list (`{"List":["Name"]}`); server persists |
 | `PUT` | `/services/communities/bulk` | **Admin.** Persist edited communities (`release` header) |
-| `PUT` | `/services/communities/{idOrName}/roles` | **Admin.** Assign/unassign roles by replacing the full membership set |
+| `PUT` | `/services/communities/{idOrName}/roles` | Assign/unassign roles by replacing the full membership set (same session auth as other community design calls; not the Admin-gated bulk create/delete surface) |
 | `DELETE` | `/services/communities/bulk` | **Admin.** Delete by GuidList (`ignoredependencies` header) |
 
 Create (`POST /services/communities/bulk`) persists on the server (Workbench

@@ -113,12 +113,17 @@ class CommunityAdaptorRolesTest {
     assertNotNull(updated);
     assertEquals("Default", updated.getName());
 
+    // saveCommunities converts REST DTOs via ApiUtils.convertCommunity (real PSCommunity),
+    // not the loadCommunities mock — assert role associations on that converted instance.
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<PSCommunity>> saved = ArgumentCaptor.forClass(List.class);
     verify(securityDesignWs, times(1))
         .saveCommunities(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
     PSCommunity persisted = saved.getValue().get(0);
     assertEquals(2, persisted.getRoleAssociations().size());
+    assertEquals(
+        List.of(101, 102),
+        persisted.getRoleAssociations().stream().map(IPSGuid::getUUID).toList());
   }
 
   @Test
@@ -129,6 +134,7 @@ class CommunityAdaptorRolesTest {
     Community updated = adaptor.updateCommunityRoles("Default", new CommunityRoleList());
     assertNotNull(updated);
 
+    // Empty roleList → convertCommunity adds no associations on the saved PSCommunity.
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<PSCommunity>> saved = ArgumentCaptor.forClass(List.class);
     verify(securityDesignWs)
@@ -162,7 +168,8 @@ class CommunityAdaptorRolesTest {
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class, () -> adaptor.updateCommunityRoles("Default", body));
-    assertTrue(ex.getMessage().toLowerCase().contains("roleguid") || ex.getMessage().contains("roleId"));
+    String msg = ex.getMessage().toLowerCase();
+    assertTrue(msg.contains("roleguid") || msg.contains("roleid"), msg);
   }
 
   @Test
@@ -180,6 +187,25 @@ class CommunityAdaptorRolesTest {
   void ensureRoleIdentity_rejectsBlank() {
     assertThrows(
         IllegalArgumentException.class, () -> CommunityAdaptor.ensureRoleIdentity(new CommunityRole()));
+  }
+
+  @Test
+  void ensureRoleIdentity_overflowRoleIdThrows() {
+    CommunityRole r = new CommunityRole();
+    r.setRoleId(Integer.MAX_VALUE + 1L);
+    assertThrows(ArithmeticException.class, () -> CommunityAdaptor.ensureRoleIdentity(r));
+  }
+
+  @Test
+  void ensureRoleIdentity_normalizesTypeWhenOnlyStringValuePresent() {
+    CommunityRole r = new CommunityRole();
+    Guid g = new Guid();
+    g.setStringValue("0-0-101");
+    g.setType((short) 0);
+    g.setUuid(0);
+    r.setRoleGuid(g);
+    CommunityAdaptor.ensureRoleIdentity(r);
+    assertEquals(PSTypeEnum.ROLE.getOrdinal(), r.getRoleGuid().getType());
   }
 
   private void stubCommunityRoundTrip(List<IPSGuid> currentRoles) throws Exception {
