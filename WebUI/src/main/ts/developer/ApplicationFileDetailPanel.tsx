@@ -44,21 +44,51 @@ function looksLikeXmlPath(path: string): boolean {
 }
 
 /**
- * True when DOMParser reports a parsererror for XML-ish content.
- * Result is never inserted into the live DOM — parse is well-formedness only.
+ * Soft well-formedness hint for XML-ish paths. Tag-stack only — do not feed
+ * operator XML into {@code DOMParser.parseFromString} (CodeQL
+ * {@code js/xss-through-dom}; peers: templateImportExport / contentTypeImportExport).
  */
 export function hasXmlParseError(content: string): boolean {
-  if (typeof DOMParser === "undefined") {
+  const trimmed = (content ?? "").trim();
+  if (!trimmed) {
     return false;
   }
-  try {
-    // Detached application/xml parse for soft well-formedness before Admin PUT;
-    // never append/innerHTML the Document.
-    const doc = new DOMParser().parseFromString(content, "application/xml"); // codeql[js/xss-through-dom]
-    return doc.querySelector("parsererror") != null;
-  } catch {
-    return false;
+  if (!trimmed.startsWith("<")) {
+    return true;
   }
+  const stripped = trimmed
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, "")
+    .replace(/<\?[\s\S]*?\?>/g, "");
+  const stack: string[] = [];
+  const tagRe = /<\/?([A-Za-z_][\w:.-]*)\b[^>]*\/?>/g;
+  let m: RegExpExecArray | null;
+  let lastIndex = 0;
+  while ((m = tagRe.exec(stripped)) !== null) {
+    const between = stripped.slice(lastIndex, m.index);
+    if (between.includes("<") || between.includes(">")) {
+      return true;
+    }
+    lastIndex = m.index + m[0].length;
+    const full = m[0];
+    const name = m[1].toLowerCase();
+    if (full.endsWith("/>")) {
+      continue;
+    }
+    if (full.startsWith("</")) {
+      if (stack.length === 0 || stack[stack.length - 1] !== name) {
+        return true;
+      }
+      stack.pop();
+    } else {
+      stack.push(name);
+    }
+  }
+  const rest = stripped.slice(lastIndex);
+  if (rest.includes("<") || rest.includes(">")) {
+    return true;
+  }
+  return stack.length !== 0;
 }
 
 /**

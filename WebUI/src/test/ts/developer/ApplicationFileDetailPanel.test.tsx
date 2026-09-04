@@ -8,7 +8,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { BootstrapProvider } from "../../../main/ts/app/bootstrap/BootstrapContext";
 import { DEFAULT_SPA_BOOTSTRAP } from "../../../main/ts/app/bootstrap/types";
 import * as appFilesApi from "../../../main/ts/api/developer/applicationFilesApi";
-import { ApplicationFileDetailPanel } from "../../../main/ts/developer/ApplicationFileDetailPanel";
+import {
+  ApplicationFileDetailPanel,
+  hasXmlParseError,
+} from "../../../main/ts/developer/ApplicationFileDetailPanel";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
 vi.mock("../../../main/ts/api/developer/applicationFilesApi", () => ({
@@ -33,6 +36,22 @@ function renderDetail(isAdmin: boolean, path = "ApplicationFiles/a.css") {
     </BootstrapProvider>,
   );
 }
+
+describe("hasXmlParseError", () => {
+  it("accepts empty, self-closing, and balanced tags", () => {
+    expect(hasXmlParseError("")).toBe(false);
+    expect(hasXmlParseError("   ")).toBe(false);
+    expect(hasXmlParseError("<root/>")).toBe(false);
+    expect(hasXmlParseError("<root></root>")).toBe(false);
+    expect(hasXmlParseError("<a><b/></a>")).toBe(false);
+  });
+
+  it("flags non-XML text and unbalanced tags", () => {
+    expect(hasXmlParseError("not xml")).toBe(true);
+    expect(hasXmlParseError("<root><unclosed>")).toBe(true);
+    expect(hasXmlParseError("<a></b>")).toBe(true);
+  });
+});
 
 describe("ApplicationFileDetailPanel", () => {
   beforeEach(() => {
