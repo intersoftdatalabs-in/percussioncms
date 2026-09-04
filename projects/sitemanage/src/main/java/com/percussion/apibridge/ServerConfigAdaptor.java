@@ -108,13 +108,14 @@ public class ServerConfigAdaptor implements IServerConfigAdaptor {
 
   @Override
   public ServerConfigSummary updateConfig(String name, ServerConfigSummary body) {
-    requireAdmin();
+    // Validate body before Admin so missing content is 400 (not 403) per REST contract.
     if (body == null) {
       throw new IllegalArgumentException("body is required");
     }
     if (body.getContent() == null) {
       throw new IllegalArgumentException("content is required");
     }
+    requireAdmin();
     PSConfigurationTypes type = resolveAllowListedType(name);
     if (type == null) {
       return null;

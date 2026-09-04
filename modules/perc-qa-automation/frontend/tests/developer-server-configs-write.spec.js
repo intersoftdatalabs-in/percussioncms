@@ -61,8 +61,10 @@ function escapeRegex(value) {
 
 /** @returns {{ value: string, escaped: string }} */
 function uniqueMarker() {
-  const a = Date.now().toString(36).replace(/[^a-z0-9]/g, "").slice(-4);
-  const b = Math.random().toString(36).replace(/[^a-z0-9]/g, "").slice(2, 6);
+  const a = Date.now().toString(36).replace(/[^a-z0-9]/g, "").slice(-4) || "xxxx";
+  // padEnd keeps a non-empty base36 tail when Math.random() is near 0
+  const b =
+    Math.random().toString(36).padEnd(8, "x").replace(/[^a-z0-9]/g, "").slice(2, 6) || "xxxx";
   const value = `# QA-4277-${a}${b}`;
   return { value, escaped: escapeRegex(value) };
 }

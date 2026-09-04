@@ -168,6 +168,26 @@ class ServerConfigAdaptorWriteTest {
   }
 
   @Test
+  void update_nonAdminMissingContentIs400Not403() throws Exception {
+    adaptor = new ServerConfigAdaptor(systemService, () -> false);
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.updateConfig("LOG_CONFIG", new ServerConfigSummary()));
+    assertTrue(ex.getMessage().contains("content is required"));
+    verify(systemService, never()).saveConfiguration(any());
+  }
+
+  @Test
+  void update_nonAdminNullBodyIs400Not403() throws Exception {
+    adaptor = new ServerConfigAdaptor(systemService, () -> false);
+
+    assertThrows(IllegalArgumentException.class, () -> adaptor.updateConfig("LOG_CONFIG", null));
+    verify(systemService, never()).saveConfiguration(any());
+  }
+
+  @Test
   void update_ioFailureIs500() throws Exception {
     doThrow(new IOException("disk full"))
         .when(systemService)

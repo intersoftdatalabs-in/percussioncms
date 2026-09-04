@@ -118,6 +118,17 @@ describe("ServerConfigDetailPanel", () => {
     expect(onSaved).toHaveBeenCalled();
   });
 
+  it("disables save when content is unchanged", async () => {
+    getServerConfigDetail.mockResolvedValue(sampleDetail);
+    render(<ServerConfigDetailPanel name="LOG_CONFIG" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-cfg-save")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-cfg-save") as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByTestId("developer-cfg-save"));
+    expect(updateServerConfig).not.toHaveBeenCalled();
+  });
+
   it("shows save error via panelErrMsg", async () => {
     getServerConfigDetail.mockResolvedValue(sampleDetail);
     updateServerConfig.mockRejectedValue({
@@ -127,7 +138,10 @@ describe("ServerConfigDetailPanel", () => {
     });
     render(<ServerConfigDetailPanel name="LOG_CONFIG" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-cfg-save")).toBeTruthy();
+      expect(screen.getByTestId("developer-cfg-content-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-cfg-content-editor"), {
+      target: { value: "<Configuration boom/>" },
     });
     fireEvent.click(screen.getByTestId("developer-cfg-save"));
     await waitFor(() => {
@@ -147,7 +161,10 @@ describe("ServerConfigDetailPanel", () => {
     });
     render(<ServerConfigDetailPanel name="LOG_CONFIG" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-cfg-save")).toBeTruthy();
+      expect(screen.getByTestId("developer-cfg-content-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-cfg-content-editor"), {
+      target: { value: "<Configuration forbidden/>" },
     });
     fireEvent.click(screen.getByTestId("developer-cfg-save"));
     await waitFor(() => {

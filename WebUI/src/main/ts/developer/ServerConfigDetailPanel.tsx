@@ -76,7 +76,8 @@ export function ServerConfigDetailPanel({
     };
   }, [name]);
 
-  const canSave = !busy && !loading && detail != null;
+  const dirty = detail != null && content !== (detail.content ?? "");
+  const canSave = !busy && !loading && detail != null && dirty;
 
   async function handleSave(): Promise<void> {
     if (!canSave || inflight.current) return;

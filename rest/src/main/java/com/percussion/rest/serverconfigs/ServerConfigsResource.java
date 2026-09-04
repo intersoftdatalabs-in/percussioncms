@@ -149,9 +149,8 @@ public class ServerConfigsResource {
       }
       return updated;
     } catch (RuntimeException e) {
+      // Adaptor declares no checked exceptions; mapWriteFailure covers all write failures.
       throw mapWriteFailure(e);
-    } catch (Exception e) {
-      throw new WebApplicationException(e, 500);
     }
   }
 
