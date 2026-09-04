@@ -24,11 +24,9 @@ import java.util.List;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.percussion.soln.segment.ISegmentNode;
 import com.percussion.soln.segment.ISegmentService;
@@ -45,7 +43,6 @@ import com.percussion.soln.segment.Segments;
  * Scenario description: 
  * @author adamgent, Apr 4, 2008
  */
-@ExtendWith(MockitoExtension.class)
 public class SegmentTreeFactoryTest {
 
     Mockery context = new JUnit4Mockery();
@@ -103,8 +100,8 @@ public class SegmentTreeFactoryTest {
         /*
          * Then: 
          */
-        assertEquals("Should be B.", "2", actualB.getId());
-        assertTrue("B should have no children", actualB.getChildren().isEmpty());
+        assertEquals("2", actualB.getId(), "Should be B.");
+        assertTrue(actualB.getChildren().isEmpty(), "B should have no children");
 
     }
     

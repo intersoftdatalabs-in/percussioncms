@@ -17,18 +17,16 @@
 
 package com.percussion.soln.segment.rx.editor;
 
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.percussion.soln.segment.rx.editor.XMLTestHelper.*;
 
 import org.custommonkey.xmlunit.XMLUnit;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
 
 import com.percussion.soln.segment.ISegmentNode;
@@ -37,21 +35,23 @@ import com.percussion.soln.segment.ISegmentTree;
 import com.percussion.soln.segment.ISegmentTreeFactory;
 import com.percussion.soln.segment.rx.editor.SegmentControlTreeExit;
 
-@ExtendWith(MockitoExtension.class)
 public class SegmentControlTreeExitTest {
-    Mockery context = new JUnit4Mockery();
+    Mockery context;
     SegmentControlTreeExit exit;
     ISegmentService segmentServiceMock;
     ISegmentTreeFactory treeFactoryMock;
-    SegmentMocks segMocks = new SegmentMocks(context);
+    SegmentMocks segMocks;
     
     @BeforeAll
     public static void setUpXML() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
+        XMLUnit.setIgnoreAttributeOrder(true);
     }
     
     @BeforeEach
     public void setUp() throws Exception {
+        context = new JUnit4Mockery();
+        segMocks = new SegmentMocks(context);
         exit = new SegmentControlTreeExit();
         segmentServiceMock = context.mock(ISegmentService.class);
         treeFactoryMock = context.mock(ISegmentTreeFactory.class);
@@ -89,6 +89,6 @@ public class SegmentControlTreeExitTest {
               +"</node>"
             +"</node>"
           +"</tree>";
-        assertXMLEqual(expected, xmlToString(doc));
+        assertEquals(normalizeXml(expected), normalizeXml(xmlToString(doc)));
     }
 }

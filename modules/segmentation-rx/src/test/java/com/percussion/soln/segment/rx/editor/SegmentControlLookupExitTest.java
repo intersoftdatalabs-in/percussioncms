@@ -26,12 +26,10 @@ import java.util.Map;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
 
 import com.percussion.extension.IPSExtensionDef;
@@ -40,21 +38,24 @@ import com.percussion.soln.segment.ISegmentService;
 import com.percussion.soln.segment.Segment;
 import com.percussion.soln.segment.rx.editor.SegmentControlLookupExit;
 
-@ExtendWith(MockitoExtension.class)
 public class SegmentControlLookupExitTest {
-    Mockery context = new JUnit4Mockery();
+    Mockery context;
     SegmentControlLookupExit exit;
     ISegmentService segmentServiceMock;
-    ExtensionMocks extMocks = new ExtensionMocks(context);
-    SegmentMocks segMocks = new SegmentMocks(context);
+    ExtensionMocks extMocks;
+    SegmentMocks segMocks;
     
     @BeforeAll
     public static void setUpXML() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
+        XMLUnit.setIgnoreAttributeOrder(true);
     }
     
     @BeforeEach
     public void setUp() throws Exception {
+        context = new JUnit4Mockery();
+        extMocks = new ExtensionMocks(context);
+        segMocks = new SegmentMocks(context);
         exit = new SegmentControlLookupExit();
         segmentServiceMock = context.mock(ISegmentService.class);
         exit.setSegmentService(segmentServiceMock);

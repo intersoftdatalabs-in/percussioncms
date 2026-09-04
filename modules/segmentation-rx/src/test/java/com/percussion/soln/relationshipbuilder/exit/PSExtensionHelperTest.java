@@ -17,7 +17,6 @@
 
 package com.percussion.soln.relationshipbuilder.exit;
 
-import static org.custommonkey.xmlunit.XMLAssert.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -37,6 +36,7 @@ import org.xml.sax.SAXException;
 
 import com.percussion.soln.relationshipbuilder.IPSRelationshipBuilder;
 import com.percussion.soln.relationshipbuilder.exit.PSExtensionHelper;
+import com.percussion.soln.segment.rx.editor.XMLTestHelper;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
@@ -51,6 +51,7 @@ public class PSExtensionHelperTest
    {
       m_output = new HashSet<Integer>();
       XMLUnit.setIgnoreWhitespace(true);
+      XMLUnit.setIgnoreAttributeOrder(true);
    }
 
    @Test
@@ -140,7 +141,10 @@ public class PSExtensionHelperTest
        Document actual = getXml("BeforeCe.xml");
        Document expected = getXml("ExpectedSelectAllCe.xml");
        helper.updateDisplayChoices(actual, true);
-       assertXMLEqual(expected, actual);
+       // XMLUnit 1.6 Diff is incompatible with modern DOM/Xerces attribute maps here.
+       assertEquals(
+           XMLTestHelper.normalizeXml(PSXmlDocumentBuilder.toString(expected)),
+           XMLTestHelper.normalizeXml(PSXmlDocumentBuilder.toString(actual)));
    }
 
    private Document getXml(String file) throws IOException, SAXException {
@@ -176,8 +180,10 @@ public class PSExtensionHelperTest
        Document expected = getXml("ExpectedCe.xml");
        helper.updateDisplayChoices(actual, false);
 
-
-       assertXMLEqual(expected, actual);
+       // XMLUnit 1.6 Diff is incompatible with modern DOM/Xerces attribute maps here.
+       assertEquals(
+           XMLTestHelper.normalizeXml(PSXmlDocumentBuilder.toString(expected)),
+           XMLTestHelper.normalizeXml(PSXmlDocumentBuilder.toString(actual)));
        //307, 318
 
    }

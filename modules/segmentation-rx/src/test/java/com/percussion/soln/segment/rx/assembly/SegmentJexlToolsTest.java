@@ -30,11 +30,9 @@ import javax.jcr.RepositoryException;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.percussion.soln.segment.ISegmentService;
 import com.percussion.soln.segment.Segment;
@@ -49,10 +47,9 @@ import com.percussion.soln.segment.rx.assembly.SegmentJexlTools;
  * Scenario description: 
  * @author adamgent, Apr 18, 2008
  */
-@ExtendWith(MockitoExtension.class)
 public class SegmentJexlToolsTest {
 
-    Mockery context = new JUnit4Mockery();
+    Mockery context;
 
     SegmentJexlTools jexl;
 
@@ -62,6 +59,7 @@ public class SegmentJexlToolsTest {
 
     @BeforeEach
     public void setUp() throws Exception {
+        context = new JUnit4Mockery();
         jexl = new SegmentJexlTools();
         segmentService = context.mock(ISegmentService.class);
         jexl.setSegmentService(segmentService);

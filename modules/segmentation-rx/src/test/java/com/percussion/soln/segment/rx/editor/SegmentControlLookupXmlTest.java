@@ -25,37 +25,38 @@ import java.util.Collections;
 
 import org.custommonkey.xmlunit.XMLUnit;
 import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
 
 import com.percussion.soln.segment.Segment;
 import com.percussion.soln.segment.rx.editor.SegmentControlLookupXml;
 
-@ExtendWith(MockitoExtension.class)
 public class SegmentControlLookupXmlTest {
-    Mockery context = new JUnit4Mockery();
-    SegmentMocks segMocks = new SegmentMocks(context);
+    Mockery context;
+    SegmentMocks segMocks;
     
     SegmentControlLookupXml lookupXml;
     
     @BeforeAll
     public static void setUpXML() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
+        XMLUnit.setIgnoreAttributeOrder(true);
     }
     
     @BeforeEach
     public void setUp() throws Exception {
+        context = new JUnit4Mockery();
+        segMocks = new SegmentMocks(context);
         lookupXml = new SegmentControlLookupXml();
     }
     
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void shouldThrowIllegalArgumentExceptionOnNullInput() throws Exception {
-        lookupXml.segmentsToLookupXml(null);
+        assertThrows(IllegalArgumentException.class, () -> lookupXml.segmentsToLookupXml(null));
     }
     
     @Test

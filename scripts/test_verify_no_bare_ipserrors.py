@@ -5,7 +5,7 @@
 Proves:
 * PASS on the real monorepo (allow-listed residuals only)
 * FAIL when a deliberate new bare production call-site is introduced
-  (negative probes use ``tmp_path`` only — never dirties the real tree)
+  (negative probes use ``tmp_path`` only ΓÇö never dirties the real tree)
 * Interface / typed-bridge / test / comment-only mentions are ignored
 * Directory prefixes do not silently allow new files
 """
@@ -24,8 +24,8 @@ SCRIPT = SCRIPT_DIR / "verify-no-bare-ipserrors.py"
 ALLOWLIST = SCRIPT_DIR / "ipserrors-residual-allowlist.txt"
 
 # Representative converted leftovers (not a directory prefix). Deployer
-# production leftovers converted in #3739/#3740/#4196 — a new file under
-# deployer/ must fail. Servletutils Tomcat leftover converted in #4195/#4201 —
+# production leftovers converted in #3739/#3740/#4196 ΓÇö a new file under
+# deployer/ must fail. Servletutils Tomcat leftover converted in #4195/#4201 ΓÇö
 # a new file under modules/servletutils/ must fail.
 SERVLETUTILS_CONVERTED = (
     "modules/servletutils/src/main/java/com/percussion/servlet_utils/tomcat/PSTomcatUtils.java"
@@ -347,7 +347,7 @@ def test_is_test_path_segment_detection() -> None:
 
 
 def test_new_file_under_sitemanage_tree_not_silently_allowed(tmp_path: Path) -> None:
-    """Exact residual list — a new sitemanage file must fail (#3584 leftover)."""
+    """Exact residual list ΓÇö a new sitemanage file must fail (#3584 leftover)."""
     fake_root = tmp_path / "repo"
     _init_fake_git_repo(fake_root)
     _write_and_add(
@@ -367,7 +367,7 @@ def test_new_file_under_sitemanage_tree_not_silently_allowed(tmp_path: Path) -> 
 
 
 def test_new_file_under_webservices_tree_not_silently_allowed(tmp_path: Path) -> None:
-    """Exact residual list — a new webservices file must fail (#3585 leftover)."""
+    """Exact residual list ΓÇö a new webservices file must fail (#3585 leftover)."""
     fake_root = tmp_path / "repo"
     _init_fake_git_repo(fake_root)
     _write_and_add(
@@ -706,6 +706,22 @@ def test_issue_4264_modules_misc_converted_paths_not_allowlisted() -> None:
     assert resurrected == [], resurrected
 
 
+def test_segmentation_rx_converted_path_not_allowlisted() -> None:
+    """#4271 typed leftover segmentation-rx PSAbstractBuildRelationshipsExtension."""
+    converted = (
+        "modules/segmentation-rx/src/main/java/com/percussion/soln/"
+        "relationshipbuilder/exit/PSAbstractBuildRelationshipsExtension.java",
+    )
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = {
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    resurrected = [p for p in converted if p in entries]
+    assert resurrected == [], resurrected
+
+
 def test_empty_allowlist_fails_on_real_residuals(tmp_path: Path) -> None:
     """Without the residual file, current production leftovers must fail."""
     empty = tmp_path / "empty-allowlist.txt"
@@ -714,16 +730,14 @@ def test_empty_allowlist_fails_on_real_residuals(tmp_path: Path) -> None:
     assert result.returncode == 1, result.stdout + result.stderr
     combined = result.stdout + result.stderr
     assert "FAIL" in combined
-    # Prefer a still-listed residual after #4262/#4263/#4264; Testing/Tools
-    # paths may be ignored as tests — segmentation-rx orphan is #4271.
+    # Prefer still-listed Testing/Tools residuals after #4262/#4263/#4264/#4271.
     assert (
-        "segmentation-rx" in combined
-        or "PSAbstractBuildRelationshipsExtension.java" in combined
-        or "PSFixNavigation.java" in combined
+        "PSFixNavigation.java" in combined
         or "PSJdbcTableCheck.java" in combined
+        or "PSMakeCERequest.java" in combined
+        or "HttpItemCopier.java" in combined
     )
 
 
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))
-

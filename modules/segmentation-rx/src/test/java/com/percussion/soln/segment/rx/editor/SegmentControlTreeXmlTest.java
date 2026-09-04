@@ -17,36 +17,38 @@
 
 package com.percussion.soln.segment.rx.editor;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.custommonkey.xmlunit.XMLAssert.*;
 import static com.percussion.soln.segment.rx.editor.XMLTestHelper.*;
 
 import org.custommonkey.xmlunit.XMLUnit;
 import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.percussion.soln.segment.ISegmentNode;
 import com.percussion.soln.segment.ISegmentTree;
 import com.percussion.soln.segment.rx.editor.SegmentControlTreeXml;
 
-@ExtendWith(MockitoExtension.class)
 public class SegmentControlTreeXmlTest {
     SegmentControlTreeXml segTreeXml;
-    Mockery context = new JUnit4Mockery();
+    Mockery context;
     SegmentMocks segMocks;
     
     @BeforeAll
     public static void setUpXML() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
+        XMLUnit.setIgnoreAttributeOrder(true);
     }
     
     @BeforeEach
     public void setUp() throws Exception {
+        context = new JUnit4Mockery();
         segTreeXml = new SegmentControlTreeXml();
         segMocks = new SegmentMocks(context);
     }
@@ -65,7 +67,7 @@ public class SegmentControlTreeXmlTest {
         segMocks.noChildren(root);
         ISegmentTree tree = segMocks.makeTreeStub(root);
         Document doc = segTreeXml.segmentTreeToXml(tree);
-        assertXMLEqual("<tree label=\"root\"/>", xmlToString(doc));
+        assertEquals(normalizeXml("<tree label=\"root\"/>"), normalizeXml(xmlToString(doc)));
     }
     
     @Test
@@ -74,7 +76,7 @@ public class SegmentControlTreeXmlTest {
         segMocks.noChildren(root);
         ISegmentTree tree = segMocks.makeTreeStub(root);
         Document doc = segTreeXml.segmentTreeToXml(tree);
-        assertXMLEqual("<tree label=\"//\"/>", xmlToString(doc));
+        assertEquals(normalizeXml("<tree label=\"//\"/>"), normalizeXml(xmlToString(doc)));
     }
 
     @Test
@@ -90,7 +92,7 @@ public class SegmentControlTreeXmlTest {
                             "<node id=\"3\" label=\"b\" selectable=\"yes\"/>" +
                           "</tree>";
         Document doc = segTreeXml.segmentTreeToXml(tree);
-        assertXMLEqual(expected, xmlToString(doc));
+        assertEquals(normalizeXml(expected), normalizeXml(xmlToString(doc)));
     }
 
     @Test
@@ -101,12 +103,21 @@ public class SegmentControlTreeXmlTest {
         ISegmentNode b = segMocks.makeSegmentStub(3, "b ' b", "//rootf/bf", true);
         segMocks.noChildren(a); segMocks.noChildren(b);
         segMocks.addChildren(root, a,b);
+        Document doc = segTreeXml.segmentTreeToXml(tree);
+
+        // Semantic contract: DOM attribute values (independent of serializer entity style).
+        NodeList nodes = doc.getDocumentElement().getElementsByTagName("node");
+        assertEquals(2, nodes.getLength());
+        assertEquals("a & a", ((Element) nodes.item(0)).getAttribute("label"));
+        assertEquals("b ' b", ((Element) nodes.item(1)).getAttribute("label"));
+
+        // Serialized form: '&' must be &amp;. Apostrophe may be literal in double-quoted
+        // attribute values per XML 1.0 5th ed. §2.3 / §2.4 (AttValue); JDK 21 Xerces does so.
         String expected = "<tree label=\"root\">" +
                             "<node id=\"2\" label=\"a &amp; a\" selectable=\"no\"/>" +
-                            "<node id=\"3\" label=\"b &apos; b\" selectable=\"yes\"/>" +
+                            "<node id=\"3\" label=\"b ' b\" selectable=\"yes\"/>" +
                           "</tree>";
-        Document doc = segTreeXml.segmentTreeToXml(tree);
-        assertXMLEqual(expected, xmlToString(doc));
+        assertEquals(normalizeXml(expected), normalizeXml(xmlToString(doc)));
     }
     
     @Test
@@ -130,6 +141,6 @@ public class SegmentControlTreeXmlTest {
               +"</node>"
             +"</node>"
           +"</tree>";
-        assertXMLEqual(expected, xmlToString(doc));
+        assertEquals(normalizeXml(expected), normalizeXml(xmlToString(doc)));
     }
 }

@@ -72,17 +72,25 @@ public class SegmentDataTreeTest {
     
     public void assertTree(SegmentDataTree tree, Collection<Segment> segments) {
         for(Segment data : segments) {
-            assertEquals("getSegmentForPath returned differnt object for: " + data.getFolderPath(), 
-                    data, tree.getSegmentForPath(data.getFolderPath()));
-            assertEquals("getSegmentForId returned differnt object for: " + data.getId(), 
-                    data, tree.getSegmentForId(data.getId()));
-            assertEquals("getSegmentForFolderId returned differnt object for: " + data.getFolderId(), 
-                    data, tree.getSegmentForFolderId(data.getFolderId()));
+            assertEquals(
+                    data,
+                    tree.getSegmentForPath(data.getFolderPath()),
+                    "getSegmentForPath returned differnt object for: " + data.getFolderPath());
+            assertEquals(
+                    data,
+                    tree.getSegmentForId(data.getId()),
+                    "getSegmentForId returned differnt object for: " + data.getId());
+            assertEquals(
+                    data,
+                    tree.getSegmentForFolderId(data.getFolderId()),
+                    "getSegmentForFolderId returned differnt object for: " + data.getFolderId());
         }
-        assertNotNull("Root path should not be null", tree.getRootPath());
-        assertNotNull("Root node should not be null", tree.getRootSegment());
-        assertEquals("root segment should have root path", 
-                tree.getRootPath(), tree.getRootSegment().getFolderPath());
+        assertNotNull(tree.getRootPath(), "Root path should not be null");
+        assertNotNull(tree.getRootSegment(), "Root node should not be null");
+        assertEquals(
+                tree.getRootPath(),
+                tree.getRootSegment().getFolderPath(),
+                "root segment should have root path");
     }
     @Test
     public void testUpdate() {
@@ -118,21 +126,21 @@ public class SegmentDataTreeTest {
         tree.setRootPath("//a");
         tree.update(asList(ade,ad,a));
         assertTree(tree, asList(ade,ad,a));
-        assertEquals("A should be the root node", a, tree.getRootSegment());
+        assertEquals(a, tree.getRootSegment(), "A should be the root node");
     }
     
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testSetBadPath() {
         tree.setRootPath("//a");
         Segment bad = createSegment("BAD_PATH", "2", false);
-        tree.update(asList(bad));
+        assertThrows(IllegalArgumentException.class, () -> tree.update(asList(bad)));
     }
     
     @Test
     public void testGetChildrenSimple() {
         // The order should not matter for update so we reverse the list
         tree.update(asList(a,ad));
-        assertEquals("A should have d as a child", asList(ad), tree.getChildren(a));
+        assertEquals(asList(ad), tree.getChildren(a), "A should have d as a child");
         
     }
     
@@ -150,7 +158,7 @@ public class SegmentDataTreeTest {
     public void testGetChildrenReverseUpdate() {
         // The order should not matter for update so we reverse the list
         tree.update(asList(ad,a));
-        assertEquals("A should have d as a child", ad, tree.getChildren(a).get(0));
+        assertEquals(ad, tree.getChildren(a).get(0), "A should have d as a child");
         
     }
     
@@ -162,8 +170,8 @@ public class SegmentDataTreeTest {
         assertTree(tree, updateData);
         List<Segment> expected = asList(ad);
         List<Segment> actual = tree.getChildren(a);
-        assertEquals("A should have d as a child", expected, actual);
-        assertEquals("ad should have e as a child", asList(ade), tree.getChildren(ad));
+        assertEquals(expected, actual, "A should have d as a child");
+        assertEquals(asList(ade), tree.getChildren(ad), "ad should have e as a child");
         
     }
     
@@ -191,7 +199,7 @@ public class SegmentDataTreeTest {
         HashSet<Segment> actual = new HashSet<Segment>();
         actual.addAll(tree.getSegments());
         actual.add(root);
-        assertEquals("All segments should be equal to update data for this case.", expected, actual);
+        assertEquals(expected, actual, "All segments should be equal to update data for this case.");
     }
     
     @Test
@@ -201,7 +209,7 @@ public class SegmentDataTreeTest {
         expected.addAll(asList(a,b));
         HashSet<Segment> actual = new HashSet<Segment>();
         actual.addAll(tree.retrieveSegmentsWithNameOrAlias("adam"));
-        assertEquals("Only a and b should have an alias adam.", expected, actual);
+        assertEquals(expected, actual, "Only a and b should have an alias adam.");
     }
     
     @Test
