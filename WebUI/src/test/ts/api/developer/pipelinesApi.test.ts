@@ -12,6 +12,7 @@ import {
   unwrapApplicationDetail,
   withoutStalePipelineLifecycleGap,
 } from "../../../../main/ts/api/developer/pipelinesApi";
+import { PATHS } from "../../../../main/ts/api/paths";
 
 afterEach(() => {
   vi.restoreAllMocks();

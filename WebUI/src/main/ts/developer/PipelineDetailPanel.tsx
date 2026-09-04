@@ -500,7 +500,7 @@ export function PipelineDetailPanel({
                     : DEV_MSG.NO}
               </dd>
               <dt>{DEV_MSG.PIPE_META_RUNNING}</dt>
-              <dd style={{ margin: 0 }}>
+              <dd style={{ margin: 0 }} data-testid="developer-pipe-meta-running">
                 {detail.active == null ? "—" : detail.active ? DEV_MSG.YES : DEV_MSG.NO}
               </dd>
               <dt>{DEV_MSG.PIPE_META_HIDDEN}</dt>
