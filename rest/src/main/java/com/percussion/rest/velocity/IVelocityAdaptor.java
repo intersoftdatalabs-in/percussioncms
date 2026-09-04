@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,26 @@
 
 package com.percussion.rest.velocity;
 
+import java.util.List;
+
 /**
- * Adaptor interface for Velocity operations. Sunny Sal: "Velocity ka adaptor, template ka factor!"
+ * Adaptor for Velocity template authoring helpers (AS-09 snippet catalog).
+ *
+ * <p>Production implementation lives in sitemanage {@code VelocityAdaptor}. Editing of System/User
+ * Velocity config files is out of scope (SY-02).
  */
 public interface IVelocityAdaptor {
-  // Define Velocity-related methods here in the future.
+
+  /**
+   * List the built-in Velocity snippet catalog (Appendix C field/slot/misc macros and samples).
+   * Never null.
+   */
+  List<VelocitySnippet> listSnippets();
+
+  /**
+   * Resolve one snippet by stable catalog id (case-insensitive). Null when missing or blank.
+   *
+   * @param id catalog id
+   */
+  VelocitySnippet findSnippetById(String id);
 }
