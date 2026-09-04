@@ -22,7 +22,7 @@ import com.percussion.design.objectstore.PSLogger;
 import com.percussion.design.objectstore.PSTraceInfo;
 import com.percussion.log.PSLogHandler;
 import com.percussion.log.PSLogServerWarning;
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.server.PSConsole;
 import com.percussion.util.PSLineBreaker;
 import java.io.BufferedWriter;
@@ -215,7 +215,7 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
         Object[] dumpParams = {MessageFormat.format(logMessage, msgParams)};
 
         // get the trace output stream and write a message
-        write(new PSLogServerWarning(IPSServerErrors.RAW_DUMP, dumpParams, true, "Debug"));
+        write(new PSLogServerWarning(ServerErrorCodes.RAW_DUMP, dumpParams, true, "Debug"));
 
         // change the first param
         msgParams[0] = getFormattedDate();
@@ -271,7 +271,7 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
       // write message to log and console
       write(
           new PSLogServerWarning(
-              com.percussion.server.IPSServerErrors.RAW_DUMP, dumpParams, true, "Debug"));
+              ServerErrorCodes.RAW_DUMP, dumpParams, true, "Debug"));
 
       // change the first param
       msgParams[0] = getFormattedDate();
@@ -438,7 +438,7 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
     // write message to log and console
     write(
         new PSLogServerWarning(
-            com.percussion.server.IPSServerErrors.RAW_DUMP, dumpParams, true, "Debug"));
+            ServerErrorCodes.RAW_DUMP, dumpParams, true, "Debug"));
   }
 
   @Override

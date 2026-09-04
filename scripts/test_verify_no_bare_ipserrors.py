@@ -44,9 +44,9 @@ DEPLOYER_JEXL_CONVERTED = (
 # leftover call-sites in #4013; leftover system/server command/cache/actions/
 # clone/compare/config in #4153; leftover relationship.effect call-sites in
 # #4156.
-# Keep an exact residual that is still frozen (system debug leftover).
+# Keep an exact residual that is still frozen (Testing leftover deferred by #4264).
 SYSTEM_CMS_RESIDUAL = (
-    "system/src/main/java/com/percussion/debug/PSDebugLogHandler.java"
+    "system/Testing/Extensions/src/com/percussion/extensions/testing/PSMakeCERequest.java"
 )
 
 
@@ -537,6 +537,28 @@ def test_system_server_handlers_parsers_converted_paths_not_allowlisted() -> Non
     assert resurrected == [], resurrected
 
 
+def test_system_server_webservices_converted_paths_not_allowlisted() -> None:
+    """#4263 typed leftover system server webservices handler call-sites."""
+    converted = (
+        "system/src/main/java/com/percussion/server/webservices/PSAssemblyHandler.java",
+        "system/src/main/java/com/percussion/server/webservices/PSContentDataHandler.java",
+        "system/src/main/java/com/percussion/server/webservices/PSDesignHandler.java",
+        "system/src/main/java/com/percussion/server/webservices/PSFolderHandler.java",
+        "system/src/main/java/com/percussion/server/webservices/PSSearchHandler.java",
+        "system/src/main/java/com/percussion/server/webservices/PSServerFolderProcessor.java",
+        "system/src/main/java/com/percussion/server/webservices/PSWebServicesBaseHandler.java",
+        "system/src/main/java/com/percussion/server/webservices/PSWebServicesRequestHandler.java",
+    )
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = {
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    resurrected = [p for p in converted if p in entries]
+    assert resurrected == [], resurrected
+
+
 def test_system_relationship_effect_converted_paths_not_allowlisted() -> None:
     """#4156 typed leftover com.percussion.relationship.effect production call-sites."""
     converted = (
@@ -624,6 +646,66 @@ def test_deployer_jexl_converted_path_not_allowlisted() -> None:
     assert resurrected == [], resurrected
 
 
+def test_issue_4262_system_server_core_converted_paths_not_allowlisted() -> None:
+    """#4262 typed leftover system server-core IPS*Errors call-sites."""
+    converted = (
+        "system/src/main/java/com/percussion/server/PSApplicationHandler.java",
+        "system/src/main/java/com/percussion/server/PSBaseResponse.java",
+        "system/src/main/java/com/percussion/server/PSFileRequestHandler.java",
+        "system/src/main/java/com/percussion/server/PSInternalRequest.java",
+        "system/src/main/java/com/percussion/server/PSRequest.java",
+        "system/src/main/java/com/percussion/server/PSResponse.java",
+        "system/src/main/java/com/percussion/server/PSServer.java",
+        "system/src/main/java/com/percussion/server/PSServerLogHandler.java",
+        "system/src/main/java/com/percussion/server/PSUserSession.java",
+        "system/src/main/java/com/percussion/server/job/PSJobHandler.java",
+        "system/src/main/java/com/percussion/server/job/PSJobHandlerConfiguration.java",
+        "system/src/main/java/com/percussion/server/job/PSJobRunnerFactory.java",
+        "system/src/main/java/com/percussion/servlets/PSLoginServlet.java",
+    )
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = {
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    resurrected = [p for p in converted if p in entries]
+    assert resurrected == [], resurrected
+
+
+def test_issue_4264_modules_misc_converted_paths_not_allowlisted() -> None:
+    """#4264 typed leftover modules+misc system IPS*Errors call-sites."""
+    converted = (
+        "modules/perc-i18n/src/main/java/com/percussion/i18n/ui/PSI18NTranslationKeyValues.java",
+        "modules/perc-toolkit/src/main/java/com/percussion/pso/jexl/PSOSlotTools.java",
+        "modules/perc-toolkit/src/main/java/com/percussion/pso/relationshipbuilder/exit/PSAbstractBuildRelationshipsExtension.java",
+        "system/src/main/java/com/percussion/content/PSContentConverter.java",
+        "system/src/main/java/com/percussion/content/PSFileConverterExit.java",
+        "system/src/main/java/com/percussion/debug/PSDebugLogHandler.java",
+        "system/src/main/java/com/percussion/design/objectstore/PSContainerLocator.java",
+        "system/src/main/java/com/percussion/design/objectstore/PSObjectStore.java",
+        "system/src/main/java/com/percussion/design/objectstore/server/PSXmlObjectStoreHandler.java",
+        "system/src/main/java/com/percussion/design/server/PSDesignerConnectionHandler.java",
+        "system/src/main/java/com/percussion/fastforward/utils/PSUtils.java",
+        "system/src/main/java/com/percussion/i18n/PSLocale.java",
+        "system/src/main/java/com/percussion/i18n/PSLocaleManager.java",
+        "system/src/main/java/com/percussion/publisher/server/PSPubTimeStatistics.java",
+        "system/src/main/java/com/percussion/search/PSAddThumbnailURL.java",
+        "system/src/main/java/com/percussion/search/PSBaseExecutableSearch.java",
+        "system/src/main/java/com/percussion/system/utils/PSExtensionInstallTool.java",
+        "system/src/main/java/com/percussion/workflow/PSContentStatusContext.java",
+        "system/src/main/java/com/percussion/workflow/PSTransitionsContext.java",
+    )
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = {
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    resurrected = [p for p in converted if p in entries]
+    assert resurrected == [], resurrected
+
+
 def test_empty_allowlist_fails_on_real_residuals(tmp_path: Path) -> None:
     """Without the residual file, current production leftovers must fail."""
     empty = tmp_path / "empty-allowlist.txt"
@@ -632,10 +714,16 @@ def test_empty_allowlist_fails_on_real_residuals(tmp_path: Path) -> None:
     assert result.returncode == 1, result.stdout + result.stderr
     combined = result.stdout + result.stderr
     assert "FAIL" in combined
-    # Prefer a still-listed residual; converted servletutils/PSDtdTree paths
-    # must not be required after #4195/#4197.
-    assert "PSDebugLogHandler.java" in combined or "PSUtils.java" in combined
+    # Prefer a still-listed residual after #4262/#4263/#4264; Testing/Tools
+    # paths may be ignored as tests — segmentation-rx orphan is #4271.
+    assert (
+        "segmentation-rx" in combined
+        or "PSAbstractBuildRelationshipsExtension.java" in combined
+        or "PSFixNavigation.java" in combined
+        or "PSJdbcTableCheck.java" in combined
+    )
 
 
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))
+

@@ -17,7 +17,7 @@
 
 package com.percussion.server;
 
-import com.percussion.data.IPSDataErrors;
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.data.IPSInternalRequestHandler;
 import com.percussion.data.IPSInternalResultHandler;
 import com.percussion.data.PSDataHandler;
@@ -156,14 +156,14 @@ public class PSInternalRequest {
         return os;
       } catch (PSAuthorizationException e) {
         throw new PSInternalRequestCallException(
-            IPSDataErrors.INTERNAL_REQUEST_AUTHORIZATION_EXCEPTION, e.getLocalizedMessage());
+            DataErrorCodes.INTERNAL_REQUEST_AUTHORIZATION_EXCEPTION, e.getLocalizedMessage());
       } catch (PSAuthenticationFailedException e) {
         throw new PSInternalRequestCallException(
-            IPSDataErrors.INTERNAL_REQUEST_AUTHENTICATION_FAILED_EXCEPTION,
+            DataErrorCodes.INTERNAL_REQUEST_AUTHENTICATION_FAILED_EXCEPTION,
             e.getLocalizedMessage());
       } catch (PSCacheException | IOException e) {
         throw new PSInternalRequestCallException(
-            IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, e.getLocalizedMessage());
+            DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, e.getLocalizedMessage());
       } finally {
         cleanUp();
       }
@@ -183,7 +183,7 @@ public class PSInternalRequest {
         PSMimeContentResult mcr = getResultHandler().getMimeContent(m_execData, false);
         if (mcr == null) {
           throw new PSInternalRequestCallException(
-              IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, "Request returned a SQL NULL");
+              DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, "Request returned a SQL NULL");
         }
         InputStream is = mcr.getContent();
         os = new ByteArrayOutputStream();
@@ -193,14 +193,14 @@ public class PSInternalRequest {
         return os;
       } catch (PSAuthorizationException e) {
         throw new PSInternalRequestCallException(
-            IPSDataErrors.INTERNAL_REQUEST_AUTHORIZATION_EXCEPTION, e.getLocalizedMessage());
+            DataErrorCodes.INTERNAL_REQUEST_AUTHORIZATION_EXCEPTION, e.getLocalizedMessage());
       } catch (PSAuthenticationFailedException e) {
         throw new PSInternalRequestCallException(
-            IPSDataErrors.INTERNAL_REQUEST_AUTHENTICATION_FAILED_EXCEPTION,
+            DataErrorCodes.INTERNAL_REQUEST_AUTHENTICATION_FAILED_EXCEPTION,
             e.getLocalizedMessage());
       } catch (IOException e) {
         throw new PSInternalRequestCallException(
-            IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, e.getLocalizedMessage());
+            DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, e.getLocalizedMessage());
       } finally {
         cleanUp();
       }
@@ -243,14 +243,14 @@ public class PSInternalRequest {
         return result;
       } catch (PSAuthorizationException e) {
         throw new PSInternalRequestCallException(
-            IPSDataErrors.INTERNAL_REQUEST_AUTHORIZATION_EXCEPTION, e.getLocalizedMessage());
+            DataErrorCodes.INTERNAL_REQUEST_AUTHORIZATION_EXCEPTION, e.getLocalizedMessage());
       } catch (PSAuthenticationFailedException e) {
         throw new PSInternalRequestCallException(
-            IPSDataErrors.INTERNAL_REQUEST_AUTHENTICATION_FAILED_EXCEPTION,
+            DataErrorCodes.INTERNAL_REQUEST_AUTHENTICATION_FAILED_EXCEPTION,
             e.getLocalizedMessage());
       } catch (PSCacheException e) {
         throw new PSInternalRequestCallException(
-            IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, e.getLocalizedMessage());
+            DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, e.getLocalizedMessage());
       }
     }
   }
@@ -295,7 +295,7 @@ public class PSInternalRequest {
         return result;
       } catch (PSAuthorizationException e) {
         throw new PSInternalRequestCallException(
-            IPSDataErrors.INTERNAL_REQUEST_AUTHORIZATION_EXCEPTION, e.getLocalizedMessage());
+            DataErrorCodes.INTERNAL_REQUEST_AUTHORIZATION_EXCEPTION, e.getLocalizedMessage());
       } catch (PSAuthenticationFailedException e) {
         // should never happen, as the internal request is constructed from
         // a valid request

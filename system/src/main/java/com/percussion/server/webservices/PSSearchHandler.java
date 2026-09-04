@@ -17,6 +17,9 @@
 
 package com.percussion.server.webservices;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
 import static com.percussion.cms.objectstore.PSProcessorProxy.RELATIONSHIP_COMPTYPE;
 
 import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
@@ -35,7 +38,6 @@ import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.cms.objectstore.server.PSRelationshipProcessor;
 import com.percussion.cms.objectstore.server.PSServerItem;
-import com.percussion.data.IPSDataErrors;
 import com.percussion.data.IPSInternalRequestHandler;
 import com.percussion.data.PSCachedStylesheet;
 import com.percussion.data.PSConversionException;
@@ -79,7 +81,6 @@ import com.percussion.security.PSUserEntry;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.xml.PSCatalogResolver;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSInternalRequest;
@@ -680,7 +681,7 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
 
         if (contentTypeUrl == null) {
           throw new PSException(
-              IPSWebServicesErrors.WEB_SERVICE_INVALID_SEARCH_CONTENTTYPE, typeId.toString());
+              ServerWebServicesErrorCodes.WEB_SERVICE_INVALID_SEARCH_CONTENTTYPE, typeId.toString());
         }
 
         Document doc = null;
@@ -764,7 +765,7 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
 
     if (topFolderId == -1) {
       throw new PSSearchException(
-          IPSWebServicesErrors.WEB_SERVICE_INVALID_FOLDER, searchParams.getFolderPathFilter());
+          ServerWebServicesErrorCodes.WEB_SERVICE_INVALID_FOLDER, searchParams.getFolderPathFilter());
     }
 
     PSServerFolderProcessor folderProc = PSServerFolderProcessor.getInstance();
@@ -1327,7 +1328,7 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
       return PSXmlDocumentBuilder.createXmlDocument(in, false);
     } catch (IOException e) {
       throw new PSConversionException(
-          IPSServerErrors.UNEXPECTED_EXCEPTION_CONSOLE, new Object[] {e.getMessage()});
+          ServerErrorCodes.UNEXPECTED_EXCEPTION_CONSOLE, new Object[] {e.getMessage()});
     } catch (TransformerException e) {
       // add the details of the error to the message
       StringBuilder errorMsg = new StringBuilder(e.toString());
@@ -1340,11 +1341,11 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
         // if there is an error while including the context, ignore it
       }
       throw new PSConversionException(
-          IPSDataErrors.XML_CONV_EXCEPTION,
+          DataErrorCodes.XML_CONV_EXCEPTION,
           new Object[] {request.getUserSessionId(), errorMsg.toString()});
     } catch (SAXException e) {
       throw new PSConversionException(
-          IPSServerErrors.XML_PARSER_SAX_ERROR, new Object[] {e.getLocalizedMessage()});
+          ServerErrorCodes.XML_PARSER_SAX_ERROR, new Object[] {e.getLocalizedMessage()});
     }
   }
 
@@ -1377,7 +1378,7 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
     try {
       getMergedResultDoc(request, path, parent);
     } catch (PSException pse) {
-      if (pse.getErrorCode() == IPSWebServicesErrors.WEB_SERVICE_INTERNAL_REQUEST_NOT_FOUND) {
+      if (pse.getErrorCode() == ServerWebServicesErrorCodes.WEB_SERVICE_INTERNAL_REQUEST_NOT_FOUND.numericCode()) {
         Object[] origExceptionArgs = pse.getErrorArguments();
         Object[] newExceptionArgs = {searchReq.getInternalSearchName(), ""};
 
@@ -1385,7 +1386,7 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
         if (origExceptionArgs.length > 0) newExceptionArgs[1] = origExceptionArgs[0];
 
         throw new PSException(
-            IPSWebServicesErrors.WEB_SERVICE_SEARCH_RESOURCE_NOT_FOUND, newExceptionArgs);
+            ServerWebServicesErrorCodes.WEB_SERVICE_SEARCH_RESOURCE_NOT_FOUND, newExceptionArgs);
       }
     }
   }
@@ -1509,7 +1510,7 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
         } else retList.add(new Long(ctypeToken));
       } catch (NumberFormatException e) {
         String[] args = {ctypeToken};
-        throw new PSException(IPSWebServicesErrors.WEB_SERVICE_CONTENT_TYPE_NOT_FOUND, args);
+        throw new PSException(ServerWebServicesErrorCodes.WEB_SERVICE_CONTENT_TYPE_NOT_FOUND, args);
       }
     } else {
       for (long typeId : allTypes) {

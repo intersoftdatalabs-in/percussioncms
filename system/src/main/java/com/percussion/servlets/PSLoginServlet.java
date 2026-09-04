@@ -25,7 +25,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.i18n.PSI18nUtils;
-import com.percussion.security.IPSSecurityErrors;
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.utils.PSRedirectValidation;
@@ -550,7 +550,7 @@ public class PSLoginServlet extends HttpServlet {
         // create error message
         ex =
             new PSAuthenticationFailedException(
-                IPSSecurityErrors.GENERIC_AUTHENTICATION_FAILED, null);
+                SecurityErrorCodes.GENERIC_AUTHENTICATION_FAILED, null);
       }
 
       final String errorText = ex.getMessage();

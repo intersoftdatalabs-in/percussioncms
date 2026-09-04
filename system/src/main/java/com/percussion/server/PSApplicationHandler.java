@@ -27,7 +27,9 @@ import com.percussion.data.PSUpdateHandler;
 import com.percussion.debug.PSDebugLogHandler;
 import com.percussion.debug.PSDebugManager;
 import com.percussion.debug.PSTraceMessageFactory;
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.design.objectstore.PSApplication;
@@ -447,7 +449,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
     if (m_errorHandler == null) { // this should never happen, but...
       m_LogHandler.write(err);
 
-      resp.setStatus(IPSHttpErrors.HTTP_INTERNAL_SERVER_ERROR, err.toString());
+      resp.setStatus(HttpErrorCodes.HTTP_INTERNAL_SERVER_ERROR.numericCode(), err.toString());
     } else {
       m_errorHandler.reportError(resp, err);
     }
@@ -1695,7 +1697,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
         Object[] args = {app.getName()};
         com.percussion.log.PSLogManager.write(
             new com.percussion.log.PSLogServerWarning(
-                com.percussion.security.IPSSecurityErrors.USER_NOT_AUTHORIZED,
+                SecurityErrorCodes.USER_NOT_AUTHORIZED,
                 args,
                 true,
                 "ApplicationHandler"));

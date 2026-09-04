@@ -17,6 +17,7 @@
 
 package com.percussion.server.webservices;
 
+import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.server.PSRequest;
 import com.percussion.system.utils.IPSHtmlParameters;
@@ -69,14 +70,14 @@ class PSAssemblyHandler extends PSWebServicesBaseHandler {
     Document resultDoc = processInternalRequest(request, ASSEMBLY_URL);
     if (resultDoc == null || resultDoc.getDocumentElement() == null) {
       throw new PSException(
-          IPSWebServicesErrors.WEB_SERVICE_INTERNAL_REQUEST_FAILED, "no assembly found");
+          ServerWebServicesErrorCodes.WEB_SERVICE_INTERNAL_REQUEST_FAILED, "no assembly found");
     }
 
     String assemblyURL = resultDoc.getDocumentElement().getAttribute(ATTRIB_ASSEMBLY_URL);
 
     if (assemblyURL.length() == 0) {
       throw new PSException(
-          IPSWebServicesErrors.WEB_SERVICE_INTERNAL_REQUEST_FAILED, "no assembly found");
+          ServerWebServicesErrorCodes.WEB_SERVICE_INTERNAL_REQUEST_FAILED, "no assembly found");
     }
 
     try (ByteArrayOutputStream out = processMergeResultRequest(request, assemblyURL)) {
@@ -87,7 +88,7 @@ class PSAssemblyHandler extends PSWebServicesBaseHandler {
       PSXmlDocumentBuilder.addElement(parent, root, EL_DATA, encodedData);
     } catch (IOException e) {
       throw new PSException(
-          IPSWebServicesErrors.WEB_SERVICE_INTERNAL_REQUEST_FAILED, "create variant");
+          ServerWebServicesErrorCodes.WEB_SERVICE_INTERNAL_REQUEST_FAILED, "create variant");
     }
   }
 

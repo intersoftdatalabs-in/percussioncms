@@ -37,6 +37,8 @@ import com.percussion.data.PSTableMetaData;
 import com.percussion.debug.PSDebugManager;
 import com.percussion.design.objectstore.IPSJavaPluginConfig;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.design.objectstore.PSApplication;
@@ -81,7 +83,6 @@ import com.percussion.log.PSLogManager;
 import com.percussion.log.PSLogServerStop;
 import com.percussion.log.PSLogServerWarning;
 import com.percussion.process.IPSShutdownListener;
-import com.percussion.search.IPSSearchErrors;
 import com.percussion.search.PSAdminLockedException;
 import com.percussion.search.PSSearchAdmin;
 import com.percussion.search.PSSearchEngine;
@@ -756,7 +757,7 @@ public class PSServer {
     if ((INITED_SECURITY & ms_WhatsUp) == 0) {
       // we have not initialized security yet
       throw new PSAuthorizationException(
-          com.percussion.security.IPSSecurityErrors.SECURITY_NOT_INITIALIZED, null);
+          SecurityErrorCodes.SECURITY_NOT_INITIALIZED, null);
     }
 
     /* verify the user has the appropriate access for what they
@@ -783,7 +784,7 @@ public class PSServer {
     if ((INITED_SECURITY & ms_WhatsUp) == 0) {
       // we have not initialized security yet
       throw new PSAuthorizationException(
-          com.percussion.security.IPSSecurityErrors.SECURITY_NOT_INITIALIZED, null);
+          SecurityErrorCodes.SECURITY_NOT_INITIALIZED, null);
     }
 
     if (!PSUserSessionManager.doesSessionExist(request)) {
@@ -3565,7 +3566,7 @@ public class PSServer {
       // Should never happen since the configuration files should
       // always be writable
       PSConsole.printMsg(PSSearchEngine.SUBSYSTEM_NAME, e);
-      throw new PSRuntimeException(IPSSearchErrors.SEARCH_ENGINE_FAILED_INIT);
+      throw new PSRuntimeException(SearchErrorCodes.SEARCH_ENGINE_FAILED_INIT);
     } finally {
       if (null != sa) ms_searchEngine.releaseSearchAdmin(sa);
     }

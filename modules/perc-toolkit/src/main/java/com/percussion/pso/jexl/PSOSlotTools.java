@@ -22,7 +22,7 @@ import com.percussion.extension.IPSJexlMethod;
 import com.percussion.extension.IPSJexlParam;
 import com.percussion.extension.PSJexlUtilBase;
 import com.percussion.i18n.PSI18nUtils;
-import com.percussion.services.assembly.IPSAssemblyErrors;
+import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult.Status;
 import com.percussion.services.assembly.IPSAssemblyService;
@@ -103,7 +103,7 @@ public class PSOSlotTools extends PSJexlUtilBase implements IPSJexlExpression {
         findername = "Java/global/percussion/slotcontentfinder/sys_RelationshipContentFinder";
       }
       IPSSlotContentFinder finder = asm.loadFinder(findername);
-      if (finder == null) throw new PSAssemblyException(IPSAssemblyErrors.MISSING_FINDER, finder);
+      if (finder == null) throw new PSAssemblyException(AssemblyErrorCodes.MISSING_FINDER, finder);
       List<IPSAssemblyItem> relitems = finder.find(item, slot, params);
       return relitems;
     } catch (PSAssemblyException ae) {

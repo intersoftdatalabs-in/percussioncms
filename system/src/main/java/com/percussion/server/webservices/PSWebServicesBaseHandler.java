@@ -16,7 +16,8 @@
  */
 package com.percussion.server.webservices;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.handlers.PSContentEditorHandler;
@@ -91,20 +92,20 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
       method.invoke(this, new Object[] {request, parent});
     } catch (NoSuchMethodException e) {
       throw new PSException(
-          IPSWebServicesErrors.WEB_SERVICE_ACTION_NOT_FOUND,
+          ServerWebServicesErrorCodes.WEB_SERVICE_ACTION_NOT_FOUND,
           new Object[] {action, port, e.getLocalizedMessage()});
     } catch (SecurityException e) {
       args[2] = e.getClass().getName();
       args[3] = e.getLocalizedMessage();
-      throw new PSException(IPSWebServicesErrors.WEB_SERVICE_DISPATCH_ERROR, args);
+      throw new PSException(ServerWebServicesErrorCodes.WEB_SERVICE_DISPATCH_ERROR, args);
     } catch (IllegalArgumentException e) {
       args[2] = e.getClass().getName();
       args[3] = e.getLocalizedMessage();
-      throw new PSException(IPSWebServicesErrors.WEB_SERVICE_DISPATCH_ERROR, args);
+      throw new PSException(ServerWebServicesErrorCodes.WEB_SERVICE_DISPATCH_ERROR, args);
     } catch (IllegalAccessException e) {
       args[2] = e.getClass().getName();
       args[3] = e.getLocalizedMessage();
-      throw new PSException(IPSWebServicesErrors.WEB_SERVICE_DISPATCH_ERROR, args);
+      throw new PSException(ServerWebServicesErrorCodes.WEB_SERVICE_DISPATCH_ERROR, args);
     } catch (InvocationTargetException e) {
       l.error(
           "WSBaseHandler InvocationTargetException,"
@@ -129,7 +130,7 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
       } else {
         args[2] = "ivt: " + e.getTargetException().getClass().getName();
         args[3] = e.getTargetException().getLocalizedMessage();
-        throw new PSException(IPSWebServicesErrors.WEB_SERVICE_DISPATCH_ERROR, args);
+        throw new PSException(ServerWebServicesErrorCodes.WEB_SERVICE_DISPATCH_ERROR, args);
       }
     }
   }
@@ -365,7 +366,7 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
         PSServer.getInternalRequest(CONTENT_EDITOR_CATALOGER, request, null, true);
     if (ir == null) {
       throw new PSException(
-          IPSWebServicesErrors.WEB_SERVICE_INTERNAL_REQUEST_FAILED, CONTENT_EDITOR_CATALOGER);
+          ServerWebServicesErrorCodes.WEB_SERVICE_INTERNAL_REQUEST_FAILED, CONTENT_EDITOR_CATALOGER);
     } else {
       // make the internal request and extract the URL from the result XML
       Element root = ir.getResultDoc().getDocumentElement();
@@ -386,7 +387,7 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
     args[1] = request.getParameter(IPSHtmlParameters.SYS_REVISION);
 
     // content id not found
-    throw new PSException(IPSWebServicesErrors.WEB_SERVICE_CONTENT_ITEM_NOT_FOUND, args);
+    throw new PSException(ServerWebServicesErrorCodes.WEB_SERVICE_CONTENT_ITEM_NOT_FOUND, args);
   }
 
   /**
@@ -422,7 +423,7 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
       args[1] = request.getParameter(IPSHtmlParameters.SYS_REVISION);
 
       // content id not found
-      throw new PSException(IPSWebServicesErrors.WEB_SERVICE_CONTENT_ITEM_NOT_FOUND, args);
+      throw new PSException(ServerWebServicesErrorCodes.WEB_SERVICE_CONTENT_ITEM_NOT_FOUND, args);
     }
 
     return contentTypeId;
@@ -457,7 +458,7 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
 
     if (itemDef == null) {
       // content type does not exist
-      throw new PSException(IPSWebServicesErrors.WEB_SERVICE_CONTENT_TYPE_NOT_FOUND, contentType);
+      throw new PSException(ServerWebServicesErrorCodes.WEB_SERVICE_CONTENT_TYPE_NOT_FOUND, contentType);
     }
     return itemDef;
   }
@@ -476,7 +477,7 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
       throws PSException {
     PSInternalRequest iReq = PSServer.getInternalRequest(path, request, null, true);
     if (iReq == null) {
-      throw new PSException(IPSWebServicesErrors.WEB_SERVICE_INTERNAL_REQUEST_FAILED, path);
+      throw new PSException(ServerWebServicesErrorCodes.WEB_SERVICE_INTERNAL_REQUEST_FAILED, path);
     }
     handleOverrideCommunity(request);
     iReq.performUpdate();
@@ -524,7 +525,7 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
 
     PSInternalRequest iReq = PSServer.getInternalRequest(path, request, null, true);
     if (iReq == null) {
-      throw new PSException(IPSWebServicesErrors.WEB_SERVICE_INTERNAL_REQUEST_FAILED, path);
+      throw new PSException(ServerWebServicesErrorCodes.WEB_SERVICE_INTERNAL_REQUEST_FAILED, path);
     }
     IPSInternalRequestHandler rh = iReq.getInternalRequestHandler();
 
@@ -603,7 +604,7 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
 
     PSInternalRequest iReq = PSServer.getInternalRequest(path, request, null, true);
     if (iReq == null) {
-      throw new PSException(IPSWebServicesErrors.WEB_SERVICE_INTERNAL_REQUEST_NOT_FOUND, path);
+      throw new PSException(ServerWebServicesErrorCodes.WEB_SERVICE_INTERNAL_REQUEST_NOT_FOUND, path);
     }
     out = iReq.getMergedResult();
     return out;
@@ -638,8 +639,8 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
     String validateError = request.getParameter(IPSHtmlParameters.SYS_VALIDATION_ERROR);
     if (validateError != null && validateError.trim().length() > 0) {
       PSConsole.printMsg(
-          getClass().getName(), IPSCmsErrors.VALIDATION_ERROR, new Object[] {path, validateError});
-      throw new PSCmsException(IPSCmsErrors.VALIDATION_ERROR, new Object[] {path, validateError});
+          getClass().getName(), CmsErrorCodes.VALIDATION_ERROR.numericCode(), new Object[] {path, validateError});
+      throw new PSCmsException(CmsErrorCodes.VALIDATION_ERROR, new Object[] {path, validateError});
     }
   }
 

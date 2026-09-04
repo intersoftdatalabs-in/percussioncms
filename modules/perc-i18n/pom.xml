@@ -17,6 +17,12 @@
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
+            <artifactId>audit-log</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
             <artifactId>perc-security-utils</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

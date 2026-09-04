@@ -22,7 +22,7 @@ import com.percussion.design.objectstore.PSExtensionParamDef;
 import com.percussion.error.PSNonUniqueException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.extension.IPSExtensionHandler;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.PSExtensionDef;
@@ -613,7 +613,7 @@ public class PSExtensionInstallTool {
           Object[] args = {def.getRef().toString()};
 
           throw new PSExtensionException(
-              IPSExtensionErrors.EXT_INSTALLER_DEPLOY_NAME_EXPECTED, args);
+              ExtensionErrorCodes.EXT_INSTALLER_DEPLOY_NAME_EXPECTED, args);
         }
 
         // get the real file location
@@ -622,7 +622,7 @@ public class PSExtensionInstallTool {
           Object[] args = {def.getRef().toString(), u.toString()};
 
           throw new PSExtensionException(
-              IPSExtensionErrors.EXT_INSTALLER_UNSUPPORTED_RESOURCE, args);
+              ExtensionErrorCodes.EXT_INSTALLER_UNSUPPORTED_RESOURCE, args);
         }
 
         String file = u.getFile();
@@ -640,14 +640,14 @@ public class PSExtensionInstallTool {
           Object[] args = {resourceFile};
 
           throw new PSExtensionException(
-              IPSExtensionErrors.EXT_INSTALLER_RESOURCE_NOT_EXITING, args);
+              ExtensionErrorCodes.EXT_INSTALLER_RESOURCE_NOT_EXITING, args);
         }
 
         if (!resourceFile.canRead()) {
           Object[] args = {resourceFile};
 
           throw new PSExtensionException(
-              IPSExtensionErrors.EXT_INSTALLER_RESOURCE_NOT_READABLE, args);
+              ExtensionErrorCodes.EXT_INSTALLER_RESOURCE_NOT_READABLE, args);
         }
 
         InputStream in = new BufferedInputStream(new FileInputStream(resourceFile));

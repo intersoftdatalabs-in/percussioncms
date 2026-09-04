@@ -16,7 +16,7 @@
  */
 package com.percussion.search;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
@@ -166,7 +166,7 @@ public class PSAddThumbnailURL implements IPSSearchResultsProcessor {
     } catch (PSInternalRequestCallException e) {
       // Fatal error
       String[] args = {req, ""};
-      throw new PSExtensionProcessingException(IPSCmsErrors.CMS_INTERNAL_REQUEST_ERROR, args);
+      throw new PSExtensionProcessingException(CmsErrorCodes.CMS_INTERNAL_REQUEST_ERROR, args);
     }
   }
 

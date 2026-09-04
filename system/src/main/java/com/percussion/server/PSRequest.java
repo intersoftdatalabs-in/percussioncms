@@ -16,9 +16,8 @@
  */
 package com.percussion.server;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
-
-import com.percussion.data.IPSDataErrors;
 import com.percussion.design.objectstore.PSAttributeList;
 import com.percussion.design.objectstore.PSGlobalSubject;
 import com.percussion.design.objectstore.PSLocator;
@@ -1641,7 +1640,7 @@ public class PSRequest {
   public Object getPrivateObject(Object key) throws com.percussion.error.PSRuntimeException {
     if (key == null)
       throw new com.percussion.error.PSRuntimeException(
-          IPSDataErrors.EXECDATA_PRIVATE_OBJ_KEY_NULL);
+          DataErrorCodes.EXECDATA_PRIVATE_OBJ_KEY_NULL);
 
     // we do a lazy init of this as we may never need it
     if (m_privateObjects == null) m_privateObjects = new HashMap<>();
@@ -1664,7 +1663,7 @@ public class PSRequest {
       throws com.percussion.error.PSRuntimeException {
     if (key == null)
       throw new com.percussion.error.PSRuntimeException(
-          IPSDataErrors.EXECDATA_PRIVATE_OBJ_KEY_NULL);
+          DataErrorCodes.EXECDATA_PRIVATE_OBJ_KEY_NULL);
 
     // we do a lazy init of this as we may never need it
     if (m_privateObjects == null) m_privateObjects = new HashMap<>();

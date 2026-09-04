@@ -23,7 +23,7 @@ import static com.percussion.pso.relationshipbuilder.exit.PSExtensionHelper.logR
 
 import com.percussion.data.PSConversionException;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.extension.IPSFieldOutputTransformer;
 import com.percussion.extension.IPSItemOutputTransformer;
 import com.percussion.extension.IPSResultDocumentProcessor;
@@ -102,7 +102,7 @@ public abstract class PSAbstractBuildRelationshipsExtension extends PSDefaultExt
               + " is required and was not set, "
               + validValues;
       log.error(errorMsg);
-      throw new PSExtensionException(IPSExtensionErrors.EXT_INIT_FAILED, errorMsg);
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_INIT_FAILED, errorMsg);
     } else if (mode.trim().toUpperCase().equals(Mode.BUILD.toString())) {
       m_mode = Mode.BUILD;
 
@@ -117,7 +117,7 @@ public abstract class PSAbstractBuildRelationshipsExtension extends PSDefaultExt
               + ", "
               + validValues;
       log.error(errorMsg);
-      throw new PSExtensionException(IPSExtensionErrors.EXT_INIT_FAILED, errorMsg);
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_INIT_FAILED, errorMsg);
     }
     String name = def.getRef().getFQN();
     log.debug("Setting relationship builder extension mode to {} for {}", m_mode, name);

@@ -16,11 +16,12 @@
  */
 package com.percussion.server.webservices;
 
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import com.percussion.cms.IPSCmsErrors;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.handlers.PSContentEditorHandler;
 import com.percussion.cms.objectstore.IPSComponentProcessor;
@@ -312,7 +313,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
     if (folder.getName().indexOf('/') > -1) {
       String[] args = new String[] {folder.getName()};
-      throw new PSCmsException(IPSCmsErrors.INVALID_FOLDER_NAME, args);
+      throw new PSCmsException(PathItemErrorCodes.INVALID_FOLDER_NAME, args);
     }
 
     Iterator<PSFolderProperty> props = folder.getProperties();
@@ -342,7 +343,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   private void throwInvalidException(String valueName, int currLength, int max)
       throws PSCmsException {
     String[] args = {valueName, "" + currLength, "" + max};
-    throw new PSCmsException(IPSCmsErrors.INVALID_FOLDER_VALUE, args);
+    throw new PSCmsException(PathItemErrorCodes.INVALID_FOLDER_VALUE, args);
   }
 
   /**
@@ -1181,9 +1182,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
         int id = locators[i].getPartAsInt(PSLocator.KEY_ID);
         item = cache.getItem(id);
         if (item == null) {
-          throw new PSCmsException(IPSCmsErrors.FAIL_GET_COMPONENT_SUMMARIES, String.valueOf(id));
+          throw new PSCmsException(CmsErrorCodes.FAIL_GET_COMPONENT_SUMMARIES, String.valueOf(id));
         } else if (!item.isFolder()) {
-          throw new PSCmsException(IPSCmsErrors.FAIL_DELETE_NON_FOLDER, item.getName());
+          throw new PSCmsException(CmsErrorCodes.FAIL_DELETE_NON_FOLDER, item.getName());
         }
       }
     } else
@@ -1218,7 +1219,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
           }
         }
 
-        throw new PSCmsException(IPSCmsErrors.FAIL_DELETE_NON_FOLDER, itemName);
+        throw new PSCmsException(CmsErrorCodes.FAIL_DELETE_NON_FOLDER, itemName);
       }
     }
   }
@@ -1394,9 +1395,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
         };
 
         if (copyItem)
-          throw new PSCmsException(IPSCmsErrors.CANNOT_COPY_FOLDER_TO_ITS_DESCENDENT, args);
+          throw new PSCmsException(PathItemErrorCodes.CANNOT_COPY_FOLDER_TO_ITS_DESCENDENT, args);
 
-        throw new PSCmsException(IPSCmsErrors.CANNOT_MOVE_FOLDER_TO_ITS_DESCENDENT, args);
+        throw new PSCmsException(PathItemErrorCodes.CANNOT_MOVE_FOLDER_TO_ITS_DESCENDENT, args);
       }
     }
   }
@@ -1497,7 +1498,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
         formatSummaryNames(sameNameSummaries.iterator()),
         formatSummaryNames(duplicateChildren.iterator())
       };
-      throw new PSCmsException(IPSCmsErrors.DUPLICATE_ITEM_NAME, args);
+      throw new PSCmsException(PathItemErrorCodes.DUPLICATE_ITEM_NAME, args);
     }
 
     // remove existing identical objects from supplied children
@@ -1587,9 +1588,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
     // make sure both parents are folders
     if (!srcSummary.isFolder())
-      throw new PSCmsException(IPSCmsErrors.INVALID_FOLDER_ID, srcId + "");
+      throw new PSCmsException(PathItemErrorCodes.INVALID_FOLDER_ID, srcId + "");
     if (!tgtSummary.isFolder())
-      throw new PSCmsException(IPSCmsErrors.INVALID_FOLDER_ID, tgtId + "");
+      throw new PSCmsException(PathItemErrorCodes.INVALID_FOLDER_ID, tgtId + "");
 
     // make sure we do not create a circular reference
     int donotfilterby =
@@ -1613,7 +1614,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
         }
       }
       Object[] args = {tgtSummary.getName(), names};
-      throw new PSCmsException(IPSCmsErrors.CIRCULAR_FOLDER_REFERENCE, args);
+      throw new PSCmsException(PathItemErrorCodes.CIRCULAR_FOLDER_REFERENCE, args);
     }
 
     // validates permission, names, ..etc
@@ -2260,9 +2261,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
           validateChildren(childItems, childSummaries, parent);
         } catch (PSCmsException e) {
-          if (e.getErrorCode() == IPSCmsErrors.DUPLICATE_ITEM_NAME) {
+          if (e.getErrorCode() == PathItemErrorCodes.DUPLICATE_ITEM_NAME.numericCode()) {
             Object[] args = {e.getMessage()};
-            throw new PSCmsException(IPSCmsErrors.DUPLICATE_ITEM_NAME_COPY_CREATED, args);
+            throw new PSCmsException(PathItemErrorCodes.DUPLICATE_ITEM_NAME_COPY_CREATED, args);
           }
 
           throw e;
@@ -3293,7 +3294,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
           PSFolderPermissions folderPerms = new PSFolderPermissions(folderAcl);
           hasPermission = folderPerms.hasReadAccess();
           if ((!hasPermission) && throwException)
-            throw new PSCmsException(IPSCmsErrors.FOLDER_CREATE_ERROR);
+            throw new PSCmsException(PathItemErrorCodes.FOLDER_CREATE_ERROR);
         } catch (PSAuthorizationException ex) {
           throw new PSCmsException(ex.getErrorCode(), ex.getErrorArguments());
         }
@@ -3400,7 +3401,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     if (perm != null && !perm.hasAccess(accessLevel)) {
       if (!throwException) return false;
 
-      throw new PSCmsException(IPSCmsErrors.FOLDER_PERMISSION_DENIED);
+      throw new PSCmsException(PathItemErrorCodes.FOLDER_PERMISSION_DENIED);
     }
 
     if (recursive) {
@@ -3447,7 +3448,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     boolean hasPerm = true;
     PSObjectPermissions perm = folder.getPermissions();
     if (!perm.hasAccess(permissions)) {
-      if (throwException) throw new PSCmsException(IPSCmsErrors.FOLDER_PERMISSION_DENIED);
+      if (throwException) throw new PSCmsException(PathItemErrorCodes.FOLDER_PERMISSION_DENIED);
 
       hasPerm = false;
     }
@@ -3804,10 +3805,10 @@ public class PSServerFolderProcessor extends PSProcessorCommon
         // both action failed and save failed, let us report that
         eNew =
             new PSCmsException(
-                IPSCmsErrors.CROSSSITE_LINK_PROCESS_MULTI_ERROR,
+                CmsErrorCodes.CROSSSITE_LINK_PROCESS_MULTI_ERROR,
                 new String[] {ex.getLocalizedMessage(), e.getLocalizedMessage()});
       } else {
-        eNew = new PSCmsException(IPSCmsErrors.ERROR_SAVING_RELATIONSHIPS, e.getLocalizedMessage());
+        eNew = new PSCmsException(CmsErrorCodes.ERROR_SAVING_RELATIONSHIPS, e.getLocalizedMessage());
       }
       throw eNew;
     } finally {
@@ -3915,10 +3916,10 @@ public class PSServerFolderProcessor extends PSProcessorCommon
         // both action failed and save failed, let us report that
         eNew =
             new PSCmsException(
-                IPSCmsErrors.CROSSSITE_LINK_PROCESS_MULTI_ERROR,
+                CmsErrorCodes.CROSSSITE_LINK_PROCESS_MULTI_ERROR,
                 new String[] {ex.getLocalizedMessage(), e.getLocalizedMessage()});
       } else {
-        eNew = new PSCmsException(IPSCmsErrors.ERROR_SAVING_RELATIONSHIPS, e.getLocalizedMessage());
+        eNew = new PSCmsException(CmsErrorCodes.ERROR_SAVING_RELATIONSHIPS, e.getLocalizedMessage());
       }
       throw eNew;
     } finally {
@@ -5163,7 +5164,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
           Object[] args = {
             sys_title, parentName,
           };
-          throw new PSCmsException(IPSCmsErrors.FOLDER_REL_INSERT_ERROR_DUPLICATED_CHILDNAME, args);
+          throw new PSCmsException(PathItemErrorCodes.FOLDER_REL_INSERT_ERROR_DUPLICATED_CHILDNAME, args);
         }
         Object[] args = {
           String.valueOf(locator.getId()),
@@ -5171,7 +5172,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
           sys_title,
           parentName
         };
-        throw new PSCmsException(IPSCmsErrors.MODIFY_ERROR_DUPLICATED_CHILDNAME, args);
+        throw new PSCmsException(CmsErrorCodes.MODIFY_ERROR_DUPLICATED_CHILDNAME, args);
       }
     }
   }
@@ -5270,7 +5271,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
               depName, parentName,
             };
             PSCmsException exception =
-                new PSCmsException(IPSCmsErrors.FOLDER_REL_INSERT_ERROR_DUPLICATED_CHILDNAME, args);
+                new PSCmsException(PathItemErrorCodes.FOLDER_REL_INSERT_ERROR_DUPLICATED_CHILDNAME, args);
 
             result.setError(exception);
             result.setKeys(null);
@@ -5291,7 +5292,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
               String.valueOf(depLocator.getRevision())
             };
             PSCmsException exception =
-                new PSCmsException(IPSCmsErrors.FOLDER_REL_ERROR_DUPLICATED_CHILDNAME, args);
+                new PSCmsException(PathItemErrorCodes.FOLDER_REL_ERROR_DUPLICATED_CHILDNAME, args);
 
             result.setError(exception);
             result.setKeys(new PSKey[] {depLocator});
@@ -5441,7 +5442,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
       if (summary == null) {
         Object[] args = {String.valueOf(locator.getId()), String.valueOf(locator.getRevision())};
-        throw new PSCmsException(IPSCmsErrors.FAILED_GET_SUMMARY, args);
+        throw new PSCmsException(CmsErrorCodes.FAILED_GET_SUMMARY, args);
       }
 
       item =

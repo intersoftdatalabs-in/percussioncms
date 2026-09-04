@@ -17,7 +17,7 @@
 package com.percussion.workflow;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.extension.IPSExtensionErrors;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
@@ -108,7 +108,7 @@ public class PSTransitionsContext implements IPSTransitionsContext {
       m_Rs = statement.executeQuery();
       if (!moveNext()) {
         close();
-        throw new PSEntryNotFoundException(IPSExtensionErrors.NO_RECORDS);
+        throw new PSEntryNotFoundException(ExtensionErrorCodes.NO_RECORDS);
       }
       m_nCount = 1;
     } catch (SQLException e) {
@@ -143,7 +143,7 @@ public class PSTransitionsContext implements IPSTransitionsContext {
       m_Rs = statement.executeQuery();
       if (!moveNext()) {
         close();
-        throw new PSEntryNotFoundException(IPSExtensionErrors.NO_RECORDS);
+        throw new PSEntryNotFoundException(ExtensionErrorCodes.NO_RECORDS);
       }
       m_nCount = 1;
     } finally {
@@ -179,7 +179,7 @@ public class PSTransitionsContext implements IPSTransitionsContext {
 
       if (0 == m_nCount) {
         close();
-        throw new PSEntryNotFoundException(IPSExtensionErrors.NO_RECORDS);
+        throw new PSEntryNotFoundException(ExtensionErrorCodes.NO_RECORDS);
       }
 
       try {
