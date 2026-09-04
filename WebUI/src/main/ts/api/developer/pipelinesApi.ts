@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { get } from "../client";
+import { get, post } from "../client";
 import { PATHS } from "../paths";
 import type { ApplicationDetail, ApplicationSummary } from "./types";
 
@@ -24,6 +24,9 @@ export interface ListApplicationsOptions {
   limit?: number;
   offset?: number;
 }
+
+/** Drop pre-lifecycle catalog strings once Admin start/stop ships (Slice B). */
+const STALE_LIFECYCLE_GAP = /start\s*\/\s*stop|start\/stop.*not\s+supported/i;
 
 function asArray<T>(payload: unknown): T[] {
   if (payload == null) return [];
@@ -36,6 +39,33 @@ function asArray<T>(payload: unknown): T[] {
     return Array.isArray(raw) ? (raw as T[]) : [raw as T];
   }
   return [];
+}
+
+/**
+ * Unwrap Jackson WRAP_ROOT_VALUE {@code {"ApplicationDetail":{…}}} so GET/POST
+ * payloads bind the same as a flat ApplicationDetail.
+ */
+export function unwrapApplicationDetail(payload: unknown): ApplicationDetail {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("Application detail not found or empty response");
+  }
+  const root = payload as Record<string, unknown>;
+  const nested = root.ApplicationDetail ?? root.applicationDetail;
+  const detail = (nested != null && typeof nested === "object" && !Array.isArray(nested)
+    ? nested
+    : root) as ApplicationDetail;
+  return {
+    ...detail,
+    designGaps: withoutStalePipelineLifecycleGap(detail.designGaps),
+  };
+}
+
+/** Drop stale REST start/stop gap strings now that Slice B lifecycle ships. */
+export function withoutStalePipelineLifecycleGap(
+  gaps: string[] | undefined | null,
+): string[] {
+  if (gaps == null || gaps.length === 0) return [];
+  return gaps.filter((g) => !STALE_LIFECYCLE_GAP.test(g));
 }
 
 /** GET /services/pipelines?name=&limit=&offset= */
@@ -57,5 +87,30 @@ export async function getApplicationDetail(
   idOrName: string,
 ): Promise<ApplicationDetail> {
   const key = encodeURIComponent(idOrName);
-  return get<ApplicationDetail>(`${PATHS.PIPELINES}/${key}`);
+  const payload = await get<unknown>(`${PATHS.PIPELINES}/${key}`);
+  return unwrapApplicationDetail(payload);
+}
+
+/**
+ * POST /services/pipelines/{idOrName}/start — Admin. Idempotent when already running.
+ * Returns refreshed ApplicationDetail with active=true.
+ */
+export async function startApplication(
+  idOrName: string,
+): Promise<ApplicationDetail> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await post<unknown>(`${PATHS.PIPELINES}/${key}/start`);
+  return unwrapApplicationDetail(payload);
+}
+
+/**
+ * POST /services/pipelines/{idOrName}/stop — Admin. Idempotent when already stopped.
+ * Returns refreshed ApplicationDetail with active=false.
+ */
+export async function stopApplication(
+  idOrName: string,
+): Promise<ApplicationDetail> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await post<unknown>(`${PATHS.PIPELINES}/${key}/stop`);
+  return unwrapApplicationDetail(payload);
 }

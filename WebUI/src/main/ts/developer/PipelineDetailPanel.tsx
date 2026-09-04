@@ -15,12 +15,87 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
-import { getApplicationDetail } from "../api/developer/pipelinesApi";
+import React, { useEffect, useRef, useState } from "react";
+import { useSpaBootstrap } from "../app/bootstrap/BootstrapContext";
+import { isApiError } from "../api/client";
+import {
+  getApplicationDetail,
+  startApplication,
+  stopApplication,
+} from "../api/developer/pipelinesApi";
 import type { ApplicationDetail } from "../api/developer/types";
-import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
+import {
+  catalogColors,
+  backButton,
+  errorAlert,
+  metaGrid,
+  monoCell,
+  tableHeaderRow,
+  tableRow,
+} from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+
+const toolbarStyle: React.CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "8px",
+  alignItems: "center",
+  marginBottom: "12px",
+};
+
+const primaryButton: React.CSSProperties = {
+  background: catalogColors.accent,
+  color: "#fff",
+  border: "none",
+  borderRadius: "4px",
+  padding: "8px 14px",
+  cursor: "pointer",
+  fontSize: "0.9rem",
+};
+
+const secondaryButton: React.CSSProperties = {
+  background: "#fff",
+  color: catalogColors.text,
+  border: `1px solid ${catalogColors.softBorder}`,
+  borderRadius: "4px",
+  padding: "8px 14px",
+  cursor: "pointer",
+  fontSize: "0.9rem",
+};
+
+const disabledPrimary: React.CSSProperties = {
+  ...primaryButton,
+  background: catalogColors.disabled,
+  cursor: "not-allowed",
+};
+
+const disabledSecondary: React.CSSProperties = {
+  ...secondaryButton,
+  color: catalogColors.disabled,
+  cursor: "not-allowed",
+};
+
+const successNotice: React.CSSProperties = {
+  color: catalogColors.accent,
+  marginBottom: "12px",
+  fontSize: "0.9rem",
+};
+
+function canStart(detail: ApplicationDetail): boolean {
+  return detail.hidden !== true && detail.enabled !== false && detail.active !== true;
+}
+
+function canStop(detail: ApplicationDetail): boolean {
+  return detail.hidden !== true && detail.active === true;
+}
+
+function lifecycleErrMsg(err: unknown, fallback: string): string {
+  if (isApiError(err) && err.status === 403) {
+    return DEV_MSG.PIPE_FORBIDDEN;
+  }
+  return panelErrMsg(err, fallback);
+}
 
 export function PipelineDetailPanel({
   idOrName,
@@ -29,13 +104,26 @@ export function PipelineDetailPanel({
   idOrName: string;
   onBack: () => void;
 }): React.ReactElement {
+  const { isAdmin } = useSpaBootstrap();
   const [detail, setDetail] = useState<ApplicationDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [lifecycleAction, setLifecycleAction] = useState<"start" | "stop" | null>(null);
+  const inflight = useRef(false);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
     let cancelled = false;
+    mountedRef.current = true;
     setDetail(null);
     setError(null);
+    setActionError(null);
+    setNotice(null);
+    setBusy(false);
+    setLifecycleAction(null);
+    inflight.current = false;
     getApplicationDetail(idOrName)
       .then((d) => {
         if (!cancelled) setDetail(d);
@@ -45,8 +133,60 @@ export function PipelineDetailPanel({
       });
     return () => {
       cancelled = true;
+      mountedRef.current = false;
     };
   }, [idOrName]);
+
+  async function onStart(): Promise<void> {
+    if (!detail || inflight.current || !canStart(detail)) return;
+    inflight.current = true;
+    setBusy(true);
+    setLifecycleAction("start");
+    setActionError(null);
+    setNotice(null);
+    try {
+      const next = await startApplication(idOrName);
+      if (!mountedRef.current) return;
+      setDetail(next);
+      setNotice(DEV_MSG.PIPE_STARTED);
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setActionError(lifecycleErrMsg(err, DEV_MSG.PIPE_START_ERROR));
+    } finally {
+      inflight.current = false;
+      if (mountedRef.current) {
+        setBusy(false);
+        setLifecycleAction(null);
+      }
+    }
+  }
+
+  async function onStop(): Promise<void> {
+    if (!detail || inflight.current || !canStop(detail)) return;
+    inflight.current = true;
+    setBusy(true);
+    setLifecycleAction("stop");
+    setActionError(null);
+    setNotice(null);
+    try {
+      const next = await stopApplication(idOrName);
+      if (!mountedRef.current) return;
+      setDetail(next);
+      setNotice(DEV_MSG.PIPE_STOPPED);
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setActionError(lifecycleErrMsg(err, DEV_MSG.PIPE_STOP_ERROR));
+    } finally {
+      inflight.current = false;
+      if (mountedRef.current) {
+        setBusy(false);
+        setLifecycleAction(null);
+      }
+    }
+  }
+
+  const startEnabled = detail != null && !busy && canStart(detail);
+  const stopEnabled = detail != null && !busy && canStop(detail);
 
   return (
     <div data-testid="developer-pipe-detail">
@@ -87,10 +227,18 @@ export function PipelineDetailPanel({
               <dt>{DEV_MSG.PIPE_COL_TYPE}</dt>
               <dd style={{ margin: 0 }}>{detail.appType || "—"}</dd>
               <dt>{DEV_MSG.PIPE_COL_ENABLED}</dt>
-              <dd style={{ margin: 0 }}>
+              <dd style={{ margin: 0 }} data-testid="developer-pipe-meta-enabled">
                 {detail.enabled == null
                   ? "—"
                   : detail.enabled
+                    ? DEV_MSG.YES
+                    : DEV_MSG.NO}
+              </dd>
+              <dt>{DEV_MSG.PIPE_META_RUNNING}</dt>
+              <dd style={{ margin: 0 }} data-testid="developer-pipe-meta-running">
+                {detail.active == null
+                  ? "—"
+                  : detail.active
                     ? DEV_MSG.YES
                     : DEV_MSG.NO}
               </dd>
@@ -104,6 +252,56 @@ export function PipelineDetailPanel({
               <dd style={{ margin: 0, ...monoCell }}>{detail.appRoot || "—"}</dd>
             </dl>
           </header>
+
+          {isAdmin ? (
+            <div
+              role="toolbar"
+              aria-label="Pipeline application lifecycle"
+              data-testid="developer-pipe-lifecycle"
+              style={toolbarStyle}
+            >
+              <button
+                type="button"
+                data-testid="developer-pipe-start"
+                aria-label={DEV_MSG.PIPE_START}
+                title={
+                  startEnabled ? DEV_MSG.PIPE_START : DEV_MSG.PIPE_START_DISABLED_HINT
+                }
+                disabled={!startEnabled}
+                onClick={() => void onStart()}
+                style={startEnabled ? primaryButton : disabledPrimary}
+              >
+                {lifecycleAction === "start" ? DEV_MSG.PIPE_STARTING : DEV_MSG.PIPE_START}
+              </button>
+              <button
+                type="button"
+                data-testid="developer-pipe-stop"
+                aria-label={DEV_MSG.PIPE_STOP}
+                title={stopEnabled ? DEV_MSG.PIPE_STOP : DEV_MSG.PIPE_STOP_DISABLED_HINT}
+                disabled={!stopEnabled}
+                onClick={() => void onStop()}
+                style={stopEnabled ? secondaryButton : disabledSecondary}
+              >
+                {lifecycleAction === "stop" ? DEV_MSG.PIPE_STOPPING : DEV_MSG.PIPE_STOP}
+              </button>
+            </div>
+          ) : null}
+
+          {notice ? (
+            <div role="status" data-testid="developer-pipe-lifecycle-notice" style={successNotice}>
+              {notice}
+            </div>
+          ) : null}
+
+          {actionError ? (
+            <div
+              role="alert"
+              data-testid="developer-pipe-lifecycle-error"
+              style={{ ...errorAlert, marginBottom: "12px" }}
+            >
+              {actionError}
+            </div>
+          ) : null}
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-pipe-datasets">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.PIPE_DATASETS}</h3>
