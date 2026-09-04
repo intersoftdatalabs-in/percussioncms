@@ -404,6 +404,11 @@ public class CommunityResource implements ICommunityResource {
     return community;
   }
 
+  /**
+   * HTTP PUT {@code /{idOrName}/roles}. Body is parsed by {@link CommunityRoleListJsonReader} so
+   * CXF Jackson/Jettison cannot bind a raw {@code ArrayList} (HTTP 400 ClassCast) or reject a bare
+   * JSON array (org.json ParseError). Peer {@link #saveCommunitiesJson(String, boolean)}.
+   */
   @PUT
   @Path("/{idOrName}/roles")
   @Consumes({MediaType.APPLICATION_JSON})
@@ -411,9 +416,9 @@ public class CommunityResource implements ICommunityResource {
   @Operation(
       summary = "Update community role membership",
       description =
-          "Replaces the set of roles associated with the community. Body is a"
-              + " CommunityRoleList (or array of CommunityRole). Role guid or roleId required"
-              + " per entry. Object ACL editing is not supported.",
+          "Replaces the set of roles associated with the community. Body is"
+              + " {\"CommunityRoleList\":[…]} (preferred) or a JSON array of CommunityRole. Role"
+              + " guid or roleId required per entry. Object ACL editing is not supported.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -423,11 +428,15 @@ public class CommunityResource implements ICommunityResource {
         @ApiResponse(responseCode = "404", description = "Community not found"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
-  public Community updateCommunityRoles(
+  public Community updateCommunityRolesJson(
       @Parameter(description = "Community id, GUID string, or exact name", required = true)
           @PathParam("idOrName")
           String idOrName,
-      CommunityRoleList roles) {
+      @Parameter(description = "CommunityRoleList JSON body", required = true) String json) {
+    return updateCommunityRoles(idOrName, CommunityRoleListJsonReader.parse(json));
+  }
+
+  public Community updateCommunityRoles(String idOrName, CommunityRoleList roles) {
     Community community;
     try {
       community = adaptor.updateCommunityRoles(idOrName, roles);

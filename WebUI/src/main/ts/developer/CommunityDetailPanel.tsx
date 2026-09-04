@@ -100,8 +100,20 @@ const dirtyNoticeStyle: React.CSSProperties = {
 function asRoles(detail: CommunityDetail | null): CommunityRoleSummary[] {
   if (!detail?.roleList) return [];
   if (Array.isArray(detail.roleList)) return detail.roleList;
-  const env = detail.roleList as { CommunityRole?: CommunityRoleSummary[] };
+  const env = detail.roleList as {
+    CommunityRole?: CommunityRoleSummary[] | CommunityRoleSummary;
+    roleName?: string;
+    roleId?: number;
+    roleGuid?: CommunityRoleSummary["roleGuid"];
+  };
   if (Array.isArray(env.CommunityRole)) return env.CommunityRole;
+  if (env.CommunityRole && typeof env.CommunityRole === "object") {
+    return [env.CommunityRole];
+  }
+  // Jackson/JAXB one-item list: roleList is a bare CommunityRole object.
+  if (env.roleName != null || env.roleId != null || env.roleGuid != null) {
+    return [env as CommunityRoleSummary];
+  }
   return [];
 }
 

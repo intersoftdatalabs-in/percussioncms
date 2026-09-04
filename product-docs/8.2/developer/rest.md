@@ -406,12 +406,14 @@ pattern as new-search defaults), not per-role `POST`/`DELETE`:
    membership picker.
 2. `GET /services/communities/{idOrName}` — current community detail including
    `roleList` (membership).
-3. `PUT /services/communities/{idOrName}/roles` — body is a `CommunityRoleList` (or
-   array of `CommunityRole`). Each entry needs `roleGuid` or `roleId`. The submitted
-   list **becomes** the membership: include a role to assign it; omit a previously
-   associated role to unassign it; send `[]` to clear all associations. Returns the
-   reloaded community detail (**200**). Unknown community is **404**. Missing role
-   identity is **400**.
+3. `PUT /services/communities/{idOrName}/roles` — prefer body
+   `{"CommunityRoleList":[…]}` (CXF `UNWRAP_ROOT_VALUE`; bare `[{…}]` is rejected).
+   Each entry needs `roleGuid` or `roleId`. The submitted list **becomes** the
+   membership: include a role to assign it; omit a previously associated role to
+   unassign it; send `{"CommunityRoleList":[]}` to clear all associations. Returns
+   the reloaded community detail (**200**). A one-item `roleList` on the response
+   may appear as a single object (Jackson/JAXB); clients should coerce to an array.
+   Unknown community is **404**. Missing role identity is **400**.
 
 Role-association save stays `PUT /services/communities/{idOrName}/roles`. See
 [Developer Communities](id:admin-developer-communities).

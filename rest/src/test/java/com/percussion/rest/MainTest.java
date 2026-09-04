@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.percussion.rest.GuidListJsonReader;
 import com.percussion.rest.acls.AclListJsonReader;
 import com.percussion.rest.communities.CommunityListJsonReader;
+import com.percussion.rest.communities.CommunityRoleListJsonReader;
 import com.percussion.rest.contentexplorer.folders.AddFolderRequestJsonReader;
 import com.percussion.rest.searches.SearchExecuteRequestJsonReader;
 import com.percussion.rest.errors.RestExceptionMapper;
@@ -166,6 +167,7 @@ public class MainTest {
               waeMapper,
               new AclListJsonReader(),
               new CommunityListJsonReader(),
+              new CommunityRoleListJsonReader(),
               new GuidListJsonReader(),
               new AddFolderRequestJsonReader(),
               new SearchExecuteRequestJsonReader(),

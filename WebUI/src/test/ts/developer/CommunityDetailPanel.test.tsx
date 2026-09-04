@@ -215,6 +215,31 @@ describe("CommunityDetailPanel", () => {
     expect(screen.queryByTestId("developer-comm-roles-dirty")).toBeNull();
   });
 
+  it("treats Jackson one-item roleList object as a single membership (SE-02)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    updateCommunityRoles.mockResolvedValue({
+      ...sampleDetail,
+      // Live CXF often emits a bare CommunityRole object when size === 1.
+      roleList: {
+        roleName: "Editor",
+        roleId: 2,
+        roleGuid: { stringValue: "0-6-2" },
+      } as never,
+    });
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-roles-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-role-check-0-6-2"));
+    fireEvent.click(screen.getByTestId("developer-comm-roles-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-notice").textContent).toMatch(
+        /1 roles/i,
+      );
+    });
+    expect(screen.getByTestId("developer-comm-role-check-0-6-2")).toBeChecked();
+  });
+
   it("unassigns a role and can clear all memberships on save (SE-02)", async () => {
     getCommunityDetail.mockResolvedValue({
       ...sampleDetail,
