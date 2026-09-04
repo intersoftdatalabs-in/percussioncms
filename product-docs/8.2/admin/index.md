@@ -108,6 +108,7 @@ Non-administrators never see the Admin top-nav item or these configuration surfa
 - [Developer Templates](id:admin-developer-templates)
 - [Users, roles & security](id:admin-users-roles) (includes Developer Object ACL for Sites and Display Formats)
 - [Developer Content Types](id:admin-developer-content-types)
+- [Developer Workflows](id:admin-developer-workflows)
 - [Developer Locales](id:admin-developer-locales)
 - [Developer Relationship Types](id:admin-developer-relationship-types)
 - [Developer Shared Fields](id:admin-developer-shared-fields)

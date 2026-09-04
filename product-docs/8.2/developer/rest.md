@@ -1946,6 +1946,10 @@ lock (`POST .../contenttypes/{id}/lock`) and leaves it held. SY-06 PUT locks eac
 type it changes and releases the lock on save, because a workflow-side replace can touch
 many content types.
 
+**SPA:** [Developer Workflows](id:admin-developer-workflows) detail exposes **Allowed
+content types** against this API. Content-type side chrome remains
+[Developer Content Types](id:admin-developer-content-types).
+
 ## Design capability gaps (`designGaps`)
 
 Some Developer detail payloads include a **`designGaps`** array so clients know what the REST

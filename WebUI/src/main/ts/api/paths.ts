@@ -603,7 +603,7 @@ export const PATHS = {
     return `${SERVICES_ROOT}/preferences`;
   },
 
-  /** Workflow management (workflowmanagement) — Feature 993 */
+  /** Workflow management (workflowmanagement) — Feature 993 / SY-04 browse */
   get WORKFLOWS() {
     return `${SERVICES_ROOT}/workflowmanagement/workflows/`;
   },
@@ -612,6 +612,13 @@ export const PATHS = {
   },
   get WORKFLOW_METADATA_DEFAULT() {
     return `${SERVICES_ROOT}/workflowmanagement/workflows/metadata/default`;
+  },
+  /**
+   * Public REST workflow association root ({@code rest} WorkflowsResource).
+   * SY-06 allowed content types — not {@link WORKFLOWS} (workflowmanagement).
+   */
+  get WORKFLOWS_ASSOC() {
+    return `${SERVICES_ROOT}/workflows`;
   },
   /** Folder workflow assignment (foldermanagement) — Feature 993 */
   get FOLDER_ASSIGNMENT_JOB_START() {
