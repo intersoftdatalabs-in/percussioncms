@@ -175,13 +175,15 @@ public class CommunityAdaptor implements ICommunityAdaptor {
     if (current == null || current.getGuid() == null) {
       return null;
     }
-    // Replace memberships on the REST DTO then save via design WS
+    // Replace memberships on the REST DTO then save via design WS (assign/unassign =
+    // full set replace; empty list clears all role associations).
     CommunityRoleList next = roles != null ? roles : new CommunityRoleList();
     Guid communityGuid = current.getGuid();
     for (CommunityRole r : next) {
       if (r == null) {
         continue;
       }
+      ensureRoleIdentity(r);
       r.setCommunityGuid(communityGuid);
       r.setCommunityId(current.getId());
     }
@@ -266,6 +268,37 @@ public class CommunityAdaptor implements ICommunityAdaptor {
       // not a community guid key
     }
     return null;
+  }
+
+  /**
+   * Ensure each role association has a role GUID. Clients may send {@code roleId} alone; synthesize
+   * a ROLE-typed GUID (type/uuid only — avoid stringValue so save does not require GuidMgr). Missing
+   * both identity fields is a 400 from the resource. When the client supplies {@code roleGuid} with
+   * only {@code stringValue}, normalize {@code type} to ROLE so save does not persist a wrong
+   * ordinal.
+   */
+  static void ensureRoleIdentity(CommunityRole role) {
+    if (role.getRoleGuid() != null
+        && (role.getRoleGuid().getUuid() != 0
+            || StringUtils.isNotBlank(role.getRoleGuid().getStringValue()))) {
+      Guid existing = role.getRoleGuid();
+      if (existing.getType() != PSTypeEnum.ROLE.getOrdinal()) {
+        existing.setType(PSTypeEnum.ROLE.getOrdinal());
+      }
+      if (role.getRoleId() <= 0 && existing.getUuid() != 0) {
+        role.setRoleId(existing.getUuid());
+      }
+      return;
+    }
+    if (role.getRoleId() <= 0) {
+      throw new IllegalArgumentException("Each role requires roleGuid or roleId");
+    }
+    Guid g = new Guid();
+    g.setHostId(0);
+    g.setType(PSTypeEnum.ROLE.getOrdinal());
+    g.setUuid(Math.toIntExact(role.getRoleId()));
+    g.setLongValue(role.getRoleId());
+    role.setRoleGuid(g);
   }
 
   private void enrichRoleNames(Community detail) {

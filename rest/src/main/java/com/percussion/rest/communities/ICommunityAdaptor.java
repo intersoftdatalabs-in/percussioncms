@@ -43,8 +43,10 @@ public interface ICommunityAdaptor {
   CommunityRoleList listAvailableRoles();
 
   /**
-   * Replace the role associations for a community. Returns the reloaded community detail, or {@code
-   * null} if the community was not found.
+   * Assign and unassign roles for a community by replacing the full membership set (SE-02). Include
+   * a role to assign it; omit a previously associated role to unassign it; empty list clears all.
+   * Each entry needs {@code roleGuid} or {@code roleId}. Returns the reloaded community detail, or
+   * {@code null} if the community was not found.
    */
   Community updateCommunityRoles(String idOrName, CommunityRoleList roles);
 
