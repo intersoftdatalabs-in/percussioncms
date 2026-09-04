@@ -42,6 +42,9 @@ import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
 import com.percussion.services.pipeline.IPSPipelineRuntimeService;
+import java.util.Optional;
+import com.percussion.services.pipeline.model.PipelineIrDocument;
+import com.percussion.services.pipeline.IPSPipelineIrService;
 import com.percussion.services.pipeline.PSPipelineIrException;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
@@ -704,4 +707,114 @@ class PipelinesAdaptorTest {
     when(sum.getVersion()).thenReturn(null);
     return sum;
   }
+
+  @Test
+  void getPipelineIr_returnsNativeIrWhenPresent() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    PipelineIrDocument doc = new PipelineIrDocument();
+    doc.getApp().setName("sys_cmpDocuments");
+    when(ir.load("sys_cmpDocuments")).thenReturn(Optional.of(doc));
+    AtomicBoolean classicLoaded = new AtomicBoolean(false);
+
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> ir,
+            (name, tok) -> {
+              classicLoaded.set(true);
+              return mock(PSApplication.class);
+            });
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineIrDocument out =
+          adaptor.getPipelineIr(URI.create("http://localhost/services/"), "sys_cmpDocuments");
+      assertEquals("sys_cmpDocuments", out.getApp().getName());
+      assertFalse(classicLoaded.get(), "classic import must not run when native IR exists");
+      verify(ir).load("sys_cmpDocuments");
+      verify(ir, never()).importClassicApplication(any());
+    }
+  }
+
+  @Test
+  void getPipelineIr_fallsBackToClassicImport() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    when(ir.load("sys_cmpDocuments")).thenReturn(Optional.empty());
+    PSApplication app = mock(PSApplication.class);
+    PipelineIrDocument imported = new PipelineIrDocument();
+    imported.setSource(PipelineIrDocument.SOURCE_CLASSIC_IMPORT);
+    imported.getApp().setName("sys_cmpDocuments");
+    when(ir.importClassicApplication(app)).thenReturn(imported);
+
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> ir,
+            (name, tok) -> {
+              assertEquals("sys_cmpDocuments", name);
+              return app;
+            });
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineIrDocument out =
+          adaptor.getPipelineIr(URI.create("http://localhost/services/"), "7");
+      assertEquals(PipelineIrDocument.SOURCE_CLASSIC_IMPORT, out.getSource());
+      verify(ir).importClassicApplication(app);
+      verify(ir, never()).save(any());
+    }
+  }
+
+  @Test
+  void getPipelineIr_unknownOrUnsafeNameReturnsNull() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> ir,
+            (name, tok) -> mock(PSApplication.class));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      assertNull(adaptor.getPipelineIr(URI.create("http://localhost/"), "missing"));
+      assertNull(adaptor.getPipelineIr(URI.create("http://localhost/"), "../evil"));
+      assertNull(adaptor.getPipelineIr(URI.create("http://localhost/"), ""));
+    }
+  }
+
+  @Test
+  void getPipelineIr_mapsImportFailureTo400WithoutEcho() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    when(ir.load("sys_cmpDocuments")).thenReturn(Optional.empty());
+    when(ir.importClassicApplication(any()))
+        .thenThrow(new PSPipelineIrException("Classic import failed: unsupported pipe"));
+
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> ir,
+            (name, tok) -> mock(PSApplication.class));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.getPipelineIr(
+                      URI.create("http://localhost/"), "sys_cmpDocuments"));
+      assertEquals(400, ex.getResponse().getStatus());
+      assertTrue(ex.getMessage().contains("Classic import failed"));
+      assertFalse(ex.getMessage().contains("../"));
+    }
+  }
+
 }

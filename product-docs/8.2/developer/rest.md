@@ -1827,15 +1827,17 @@ Example create body (user custom URL view):
 - Operator Inbox run-from-tree is Explorer **Views → My Content → Inbox**, not a
   free-floating Inbox root.
 
-## Pipelines (XML Applications catalog and lifecycle)
+## Pipelines (XML Applications catalog, lifecycle, and IR read)
 
 Classic **XML Applications** (data pipeline packages) are exposed under `/services/pipelines`.
 The catalog is a thin contract over the server object store (`PSServerXmlObjectStore`
 summaries / application objects). Admin **start** / **stop** peer the server console
 `start application` / `stop application` commands (`PSServer.startApplication` /
-`PSServer.shutdownApplication`). Thin IR execute (`POST …/execute`) is a separate native
-pipeline runtime path — it does **not** call classic `PSQueryHandler` /
-`PSUpdateHandler`.
+`PSServer.shutdownApplication`). **Read-only Pipeline IR** uses the pipeline-ir-v1 loaders
+(`IPSPipelineIrService`): native IR JSON when present under
+`ObjectStore/pipeline-ir/<app>.pipeline.json`, otherwise a classic object-store import into IR
+**without saving**. Thin IR execute (`POST …/execute`) is a separate native pipeline runtime
+path — it does **not** call classic `PSQueryHandler` / `PSUpdateHandler`.
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -1843,13 +1845,16 @@ pipeline runtime path — it does **not** call classic `PSQueryHandler` /
 | `GET` | `/services/pipelines/{idOrName}` | Load one application by name or numeric id (data-set catalog + `active`) |
 | `POST` | `/services/pipelines/{idOrName}/start` | **Admin.** Start application (idempotent if already running) |
 | `POST` | `/services/pipelines/{idOrName}/stop` | **Admin.** Stop application (idempotent if already stopped) |
+| `GET` | `/services/pipelines/{idOrName}/ir` | **Read-only** Pipeline IR (app meta + resources / stages / tanks / mapper) |
 | `POST` | `/services/pipelines/{app}/resources/{resource}/execute` | Execute a native pipeline IR resource |
 
 JSON list rows use `Application` / `ApplicationSummary`; detail uses `ApplicationDetail`
 (fields include `id`, `name`, `description`, `enabled`, `hidden`, `active`, `appRoot`,
-`appType`, `version`, `dataSets[]`, and `designGaps[]`). Prefer the generated OpenAPI
-schema as the integration source of truth. Error bodies use generic messages and **do not
-echo** raw `{idOrName}` path values (name probing / path injection).
+`appType`, `version`, `dataSets[]`, and `designGaps[]`). IR responses use the system
+`PipelineIrDocument` shape (`irVersion`, `source`, `app`, `resources[]` with stage presence,
+backend tank tables, mapper mappings, selector / updater summaries). Prefer the generated
+OpenAPI schema as the integration source of truth. Error bodies use generic messages and
+**do not echo** raw `{idOrName}` path values (name probing / path injection).
 
 ### Admin start / stop
 
@@ -1861,12 +1866,26 @@ running, start returns **200** with `active=true` without restarting. When alrea
 stopped, stop returns **200** with `active=false`. Successful responses return refreshed
 `ApplicationDetail` (including `active`).
 
-Remaining gaps on detail (`designGaps`) include pipe IR / mapper tanks, enable/disable,
-and classic import/export — SPA chrome and Playwright for start/stop are separate slices.
+### Pipeline IR read
+
+`GET /services/pipelines/{idOrName}/ir` resolves the path only against the object-store catalog
+(trusted application name), then:
+
+1. Loads **native** IR when a file exists for that app name.
+2. Otherwise **imports** the classic XML Application into IR in memory (not persisted).
+
+Unknown or unsafe names are **404**. Import/decode failures that are not “not found” are
+**400**. This endpoint does **not** write native IR, edit the graph, or accept ZIP
+import/export — those remain `designGaps` on application detail. **Developer → Pipelines**
+detail uses this GET for a read-only resources / tanks / mapper summary (see
+[Developer Pipelines](id:admin-developer-pipelines)).
+
+Remaining gaps on detail (`designGaps`) include IR write / graph editor / native save,
+enable/disable, and classic ZIP import/export.
 
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | List / get / start / stop / execute success |
+| `200` | List / get / start / stop / IR read / execute success |
 | `400` | Invalid name, hidden/disabled lifecycle, or IR validation failure |
 | `403` | Caller is not Admin (start/stop) |
 | `404` | Application (or IR resource) not found / not visible |

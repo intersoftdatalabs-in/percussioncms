@@ -19,6 +19,7 @@ package com.percussion.rest.pipelines;
 
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
+import com.percussion.services.pipeline.model.PipelineIrDocument;
 import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -43,12 +44,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Catalog of classic XML Applications (pipeline packages), Admin start/stop, and thin IR execute.
+ * Catalog of classic XML Applications (pipeline packages), Admin start/stop, read-only Pipeline IR,
+ * and thin IR execute.
  *
  * <p>Registered via {@link PSSiteManageBean} like sibling catalog resources ({@code Keywords},
- * {@code Slots}). Execute delegates to {@code IPSPipelineRuntimeService} only (never classic {@code
- * PSQueryHandler} as the public path). Start/stop peer {@code PSServer.startApplication} /
- * {@code shutdownApplication}.
+ * {@code Slots}). IR read uses {@code IPSPipelineIrService}; execute delegates to {@code
+ * IPSPipelineRuntimeService} only (never classic {@code PSQueryHandler} as the public path).
+ * Start/stop peer {@code PSServer.startApplication} / {@code shutdownApplication}.
  */
 @PSSiteManageBean(value = "restPipelinesResource")
 @Path("/pipelines")
@@ -56,7 +58,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(
     name = "Pipelines",
     description =
-        "Data pipeline / XML application design catalog, Admin start/stop, and thin IR execute")
+        "Data pipeline / XML application design catalog, Admin start/stop, read-only Pipeline IR, and thin IR execute")
 public class PipelinesResource {
 
   private final IPipelinesAdaptor adaptor;
@@ -84,7 +86,8 @@ public class PipelinesResource {
       description =
           "Lists non-hidden server applications (classic XML Applications) visible to the"
               + " current user. Supports optional name filter and limit/offset. Includes"
-              + " runtime active flag. Pipe IR editor / import remain later slices.",
+              + " runtime active flag. Read-only IR is GET /{idOrName}/ir; IR write / graph"
+              + " editor remain later slices.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -117,8 +120,9 @@ public class PipelinesResource {
       summary = "Get pipeline application detail",
       description =
           "Loads one classic XML Application by name or numeric id. Includes data set catalog and"
-              + " runtime active flag. Pipe IR / import remain unsupported (see designGaps)."
-              + " Admin start/stop are separate POST endpoints.",
+              + " runtime active flag. Pipe IR read is GET /{idOrName}/ir; IR write / classic"
+              + " import-export remain later slices (see designGaps). Admin start/stop are"
+              + " separate POST endpoints.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -204,6 +208,48 @@ public class PipelinesResource {
         throw new WebApplicationException("Application not found", 404);
       }
       return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Read-only Pipeline IR (pipeline-ir-v1): native IR file when present, otherwise a classic
+   * object-store import into IR (not persisted).
+   *
+   * <p>Path is multi-segment so it does not collide with {@code GET /{idOrName}} catalog detail.
+   */
+  @GET
+  @Path("/{idOrName}/ir")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get pipeline IR document",
+      description =
+          "Returns a read-only Pipeline IR document (app meta + resources with stage presence,"
+              + " tanks, mapper mappings) for Developer UI structure views. Loads native IR when"
+              + " present; otherwise imports from the classic XML Application without saving."
+              + " IR write / graph editor / ZIP import-export remain unsupported.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = PipelineIrDocument.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(responseCode = "404", description = "Application or IR not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public PipelineIrDocument getPipelineIr(@PathParam("idOrName") String idOrName) {
+    try {
+      PipelineIrDocument ir = requireAdaptor().getPipelineIr(uriInfo.getBaseUri(), idOrName);
+      if (ir == null) {
+        // Generic body: do not echo raw idOrName (path-injection / name probing).
+        throw new WebApplicationException("Pipeline IR not found", 404);
+      }
+      return ir;
     } catch (WebApplicationException e) {
       throw e;
     } catch (IllegalArgumentException e) {
