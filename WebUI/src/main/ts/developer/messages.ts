@@ -1169,7 +1169,12 @@ export const DEV_MSG_KEYS = {
   VW_FORM_LABEL: "perc.ui.developer@Label",
   VW_FORM_DESCRIPTION: "perc.ui.developer@Description",
   VW_FORM_TYPE: "perc.ui.developer@Type",
+  VW_FORM_URL: "perc.ui.developer@URL",
   VW_FORM_DF: "perc.ui.developer@Display format id",
+  VW_URL_HINT:
+    "perc.ui.developer@Required for a custom URL view. Classic relative path (for example ../sys_cxViews/myapp.xml), no spaces or schemes.",
+  VW_INVALID_URL:
+    "perc.ui.developer@Custom view URL is required. Enter a classic relative path without spaces or schemes.",
   VW_NAME_HINT:
     "perc.ui.developer@Required. Unique, no spaces, wildcards, or path characters.",
   VW_NAME_READONLY: "perc.ui.developer@Name cannot be changed after the view is created.",
@@ -1184,7 +1189,7 @@ export const DEV_MSG_KEYS = {
   VW_FORBIDDEN: "perc.ui.developer@Admin role required to change views.",
   VW_NOT_FOUND: "perc.ui.developer@View not found.",
   VW_PROTECTED:
-    "perc.ui.developer@Inbox-family and custom URL views cannot be updated or deleted from this catalog.",
+    "perc.ui.developer@Inbox-family and packaged sys_cxViews views cannot be updated or deleted from this catalog.",
   VW_COL_NAME: "perc.ui.developer@Name",
   VW_COL_LABEL: "perc.ui.developer@Label",
   VW_COL_KIND: "perc.ui.developer@Kind",
@@ -1201,9 +1206,11 @@ export const DEV_MSG_KEYS = {
   VW_DETAIL_ERROR: "perc.ui.developer@Could not load view.",
   VW_FIELDS: "perc.ui.developer@Field criteria",
   VW_FIELDS_HINT:
-    "perc.ui.developer@Add, remove, or reorder field conditions on this view. Inbox-family and custom URL views stay read-only.",
+    "perc.ui.developer@Add, remove, or reorder field conditions on this view. Packaged Inbox-family views stay read-only.",
+  VW_FIELDS_CUSTOM_URL:
+    "perc.ui.developer@Custom URL views do not use field criteria. Edit the URL instead.",
   VW_FIELDS_READONLY:
-    "perc.ui.developer@Field criteria cannot be edited on Inbox-family or custom URL views.",
+    "perc.ui.developer@Field criteria cannot be edited on Inbox-family or packaged sys_cxViews views.",
   VW_FIELDS_ADD: "perc.ui.developer@Add field",
   VW_FIELDS_REMOVE: "perc.ui.developer@Remove",
   VW_FIELDS_MOVE_UP: "perc.ui.developer@Move up",
@@ -1224,7 +1231,7 @@ export const DEV_MSG_KEYS = {
   VW_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   VW_GAP_FIELDS: "perc.ui.developer@View field criterion editing not supported via this API",
   VW_GAP_PROTECTED:
-    "perc.ui.developer@Inbox-family and custom URL views cannot be updated or deleted via this API",
+    "perc.ui.developer@Inbox-family and packaged sys_cxViews views cannot be updated or deleted via this API",
   VW_GAP_SEARCHES: "perc.ui.developer@Searches are a separate catalog (Developer Searches / UI-06)",
   EX_LOADING: "perc.ui.developer@Loading extensions...",
   EX_EMPTY: "perc.ui.developer@No extensions returned.",
@@ -1290,7 +1297,9 @@ export const DEV_MSG_KEYS = {
   RT_EMPTY: "perc.ui.developer@No relationship types returned.",
   RT_ERROR: "perc.ui.developer@Could not load relationship types.",
   RT_HINT:
-    "perc.ui.developer@System and user relationship types (category, cloning flags, effects). Open a row for properties. Create/edit is a later slice.",
+    "perc.ui.developer@System and user relationship types (category, cloning flags, effects). Admins can create, edit, and delete user types. System types stay read-only.",
+  RT_NEW: "perc.ui.developer@New relationship type",
+  RT_EDIT: "perc.ui.developer@Edit relationship type",
   RT_COL_NAME: "perc.ui.developer@Name",
   RT_COL_LABEL: "perc.ui.developer@Label",
   RT_COL_CATEGORY: "perc.ui.developer@Category",
@@ -1308,17 +1317,48 @@ export const DEV_MSG_KEYS = {
   RT_BACK: "perc.ui.developer@Back to list",
   RT_DETAIL_LOADING: "perc.ui.developer@Loading relationship type...",
   RT_DETAIL_ERROR: "perc.ui.developer@Could not load relationship type.",
+  RT_FORM_NAME: "perc.ui.developer@Name",
+  RT_FORM_LABEL: "perc.ui.developer@Label",
+  RT_FORM_DESCRIPTION: "perc.ui.developer@Description",
+  RT_FORM_CATEGORY: "perc.ui.developer@Category",
+  RT_FORM_COPY_FROM: "perc.ui.developer@Copy from (optional)",
+  RT_FORM_ALLOW_CLONE: "perc.ui.developer@Allow cloning",
+  RT_FORM_OWNER_REV: "perc.ui.developer@Use owner revision",
+  RT_FORM_DEP_REV: "perc.ui.developer@Use dependent revision",
+  RT_NAME_HINT:
+    "perc.ui.developer@Required on create. No spaces or wildcards. Cannot be renamed later.",
+  RT_NAME_READONLY: "perc.ui.developer@Name cannot be changed after create.",
+  RT_COPY_FROM_HINT:
+    "perc.ui.developer@When set, category and mutable fields are copied from the selected type (Workbench copy-from-system).",
+  RT_CATEGORY_REQUIRED:
+    "perc.ui.developer@Choose a category, or pick Copy from an existing type.",
+  RT_SYSTEM_READONLY:
+    "perc.ui.developer@System relationship types are read-only. Create a user type (optionally copy from this one) to customize.",
+  RT_SAVE: "perc.ui.developer@Save",
+  RT_CANCEL: "perc.ui.developer@Cancel",
+  RT_DELETE: "perc.ui.developer@Delete",
+  RT_DELETE_CONFIRM:
+    "perc.ui.developer@Delete this user relationship type? This cannot be undone.",
+  RT_SAVED: "perc.ui.developer@Relationship type saved.",
+  RT_DELETED: "perc.ui.developer@Relationship type deleted.",
+  RT_SAVE_ERROR: "perc.ui.developer@Could not save relationship type.",
+  RT_CREATE_ERROR: "perc.ui.developer@Could not create relationship type.",
+  RT_DELETE_ERROR: "perc.ui.developer@Could not delete relationship type.",
+  RT_DUPLICATE: "perc.ui.developer@A relationship type with this name already exists.",
+  RT_FORBIDDEN: "perc.ui.developer@Admin role required to change relationship types.",
+  RT_IMMUTABLE: "perc.ui.developer@System relationship types cannot be changed or deleted.",
+  RT_INVALID: "perc.ui.developer@Invalid relationship type name or category.",
+  RT_NOT_FOUND: "perc.ui.developer@Relationship type not found.",
   RT_EFFECTS: "perc.ui.developer@Effects",
   RT_SYS_PROPS: "perc.ui.developer@System properties",
   RT_USER_PROPS: "perc.ui.developer@User properties",
   RT_NONE: "perc.ui.developer@None",
   RT_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
-  RT_GAP_WRITE:
-    "perc.ui.developer@Relationship type create / update / delete not supported via this API",
   RT_GAP_CLONE:
     "perc.ui.developer@Cloning field override editor not supported via this API",
   RT_GAP_EFFECTS:
     "perc.ui.developer@Effect condition and execution-context edit not supported via this API",
+  RT_COPY_NONE: "perc.ui.developer@(none — choose category)",
   WF_LOADING: "perc.ui.developer@Loading workflows...",
   WF_EMPTY: "perc.ui.developer@No workflows returned.",
   WF_ERROR: "perc.ui.developer@Could not load workflows.",

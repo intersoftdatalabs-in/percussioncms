@@ -18,14 +18,20 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   VIEW_DESIGN_GAPS,
+  VIEW_TYPE_CUSTOM,
+  VIEW_TYPE_STANDARD,
   createView,
   deleteView,
   getViewDetail,
+  isCustomViewType,
   isInboxViewName,
+  isPackagedCxViewName,
   isProtectedViewWrite,
   isValidViewName,
+  isValidViewUrl,
   isViewWriteReady,
   normalizeViewName,
+  normalizeViewUrl,
   saveView,
   unwrapViewDef,
   unwrapViewDefList,
@@ -108,6 +114,57 @@ describe("view name validation", () => {
     expect(isViewWriteReady({ isNew: false, name: "MyView" })).toBe(true);
     expect(isViewWriteReady({ isNew: false, name: "" })).toBe(false);
   });
+
+  it("requires a classic relative URL for CustomView writes", () => {
+    expect(
+      isViewWriteReady({
+        isNew: true,
+        name: "MyCustom",
+        type: VIEW_TYPE_CUSTOM,
+        url: "",
+      }),
+    ).toBe(false);
+    expect(
+      isViewWriteReady({
+        isNew: true,
+        name: "MyCustom",
+        type: VIEW_TYPE_CUSTOM,
+        url: "../sys_cxViews/myapp.xml",
+      }),
+    ).toBe(true);
+    expect(
+      isViewWriteReady({
+        isNew: false,
+        name: "MyCustom",
+        type: "custom",
+        url: "sys_cxViews/myapp.xml",
+      }),
+    ).toBe(true);
+    expect(isViewWriteReady({ isNew: true, name: "MyView", type: VIEW_TYPE_STANDARD })).toBe(
+      true,
+    );
+  });
+});
+
+describe("custom view URL validation", () => {
+  it("detects CustomView type aliases", () => {
+    expect(isCustomViewType(VIEW_TYPE_CUSTOM)).toBe(true);
+    expect(isCustomViewType("custom")).toBe(true);
+    expect(isCustomViewType(VIEW_TYPE_STANDARD)).toBe(false);
+    expect(isCustomViewType("")).toBe(false);
+  });
+
+  it("accepts classic relative URLs and rejects schemes / traversal", () => {
+    expect(normalizeViewUrl("  ../sys_cxViews/myapp.xml  ")).toBe("../sys_cxViews/myapp.xml");
+    expect(isValidViewUrl("../sys_cxViews/myapp.xml")).toBe(true);
+    expect(isValidViewUrl("sys_cxViews/myapp.xml")).toBe(true);
+    expect(isValidViewUrl("")).toBe(false);
+    expect(isValidViewUrl("https://example.com/x")).toBe(false);
+    expect(isValidViewUrl("//host/path")).toBe(false);
+    expect(isValidViewUrl("../../etc/passwd")).toBe(false);
+    expect(isValidViewUrl("has space")).toBe(false);
+    expect(isValidViewUrl("<enter url>")).toBe(false);
+  });
 });
 
 describe("protected view write", () => {
@@ -118,11 +175,22 @@ describe("protected view write", () => {
     expect(isInboxViewName("MyView")).toBe(false);
   });
 
-  it("does not allow delete of Inbox-family or custom URL views", () => {
+  it("protects packaged sys_cxViews keys but not user custom URL views", () => {
+    expect(isPackagedCxViewName("Inbox")).toBe(true);
+    expect(isPackagedCxViewName("Outbox")).toBe(true);
+    expect(isPackagedCxViewName("Checked Out By Me")).toBe(true);
+    expect(isPackagedCxViewName("MyCustom")).toBe(false);
     expect(isProtectedViewWrite({ name: "Inbox" })).toBe(true);
     expect(isProtectedViewWrite({ name: "Outbox", customView: true })).toBe(true);
     expect(isProtectedViewWrite({ name: "Recent", url: "../sys_cxViews/recent.xml" })).toBe(true);
     expect(isProtectedViewWrite({ name: "MyView" })).toBe(false);
+    expect(
+      isProtectedViewWrite({
+        name: "MyCustom",
+        customView: true,
+        url: "../sys_cxViews/myapp.xml",
+      }),
+    ).toBe(false);
   });
 });
 
@@ -151,28 +219,52 @@ describe("view wire wrap", () => {
     expect(VIEW_DESIGN_GAPS.some((g) => /create/i.test(g))).toBe(false);
     expect(VIEW_DESIGN_GAPS.some((g) => /field criterion/i.test(g))).toBe(false);
     expect(VIEW_DESIGN_GAPS.some((g) => /Inbox-family/i.test(g))).toBe(true);
+    expect(VIEW_DESIGN_GAPS.some((g) => /packaged sys_cxViews/i.test(g))).toBe(true);
   });
 
-  it("filters a stale REST write and field-criterion gap on GET detail", () => {
+  it("filters a stale REST write, field-criterion, and pre-UI-07 custom URL gap on GET detail", () => {
     expect(
       withoutStaleViewWriteGap([
         "View create / update / delete not supported via this API",
         "View field criterion editing not supported via this API",
         "Inbox-family and custom URL views cannot be updated or deleted via this API",
+        "Inbox-family and packaged sys_cxViews views cannot be updated or deleted via this API",
       ]),
-    ).toEqual(["Inbox-family and custom URL views cannot be updated or deleted via this API"]);
+    ).toEqual([
+      "Inbox-family and packaged sys_cxViews views cannot be updated or deleted via this API",
+    ]);
   });
 
   it("does not drop a similar substring that is not the exact stale gap", () => {
     expect(
       withoutStaleViewWriteGap([
         "View create / update / delete must run in sequence",
-        "Inbox-family and custom URL views cannot be updated or deleted via this API",
+        "Inbox-family and packaged sys_cxViews views cannot be updated or deleted via this API",
       ]),
     ).toEqual([
       "View create / update / delete must run in sequence",
-      "Inbox-family and custom URL views cannot be updated or deleted via this API",
+      "Inbox-family and packaged sys_cxViews views cannot be updated or deleted via this API",
     ]);
+  });
+
+  it("wraps custom URL create body with url and customView", () => {
+    expect(
+      wrapViewDefForWire({
+        name: "MyCustom",
+        label: "My Custom",
+        type: VIEW_TYPE_CUSTOM,
+        customView: true,
+        url: "../sys_cxViews/myapp.xml",
+      }),
+    ).toEqual({
+      ViewDef: {
+        name: "MyCustom",
+        label: "My Custom",
+        type: VIEW_TYPE_CUSTOM,
+        customView: true,
+        url: "../sys_cxViews/myapp.xml",
+      },
+    });
   });
 });
 
@@ -211,6 +303,36 @@ describe("viewsApi write paths", () => {
     expect(String(fetchMock.mock.calls[0][0])).toContain(PATHS.VIEWS);
     expect(JSON.parse(String(init.body))).toEqual({
       ViewDef: { name: "MyView", label: "My View", type: "View" },
+    });
+  });
+
+  it("POSTs custom URL create with url and customView", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        name: "MyCustom",
+        label: "My Custom",
+        type: VIEW_TYPE_CUSTOM,
+        customView: true,
+        url: "../sys_cxViews/myapp.xml",
+      }),
+    );
+    const saved = await createView({
+      name: "MyCustom",
+      label: "My Custom",
+      type: VIEW_TYPE_CUSTOM,
+      customView: true,
+      url: "../sys_cxViews/myapp.xml",
+    });
+    expect(saved.customView).toBe(true);
+    expect(saved.url).toBe("../sys_cxViews/myapp.xml");
+    expect(JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body))).toEqual({
+      ViewDef: {
+        name: "MyCustom",
+        label: "My Custom",
+        type: VIEW_TYPE_CUSTOM,
+        customView: true,
+        url: "../sys_cxViews/myapp.xml",
+      },
     });
   });
 

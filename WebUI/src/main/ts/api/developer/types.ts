@@ -836,7 +836,7 @@ export interface RelationshipTypePropertySummary {
   value?: string;
 }
 
-/** System relationship type from GET /services/relationshiptypes (SY-03). */
+/** Relationship type from GET/POST/PUT /services/relationshiptypes (SY-03). */
 export interface RelationshipTypeDef {
   guid?: RestGuid;
   name?: string;
@@ -850,6 +850,8 @@ export interface RelationshipTypeDef {
   allowCloning?: boolean;
   useOwnerRevision?: boolean;
   useDependentRevision?: boolean;
+  /** POST-only: existing name/GUID to copy mutable fields from. */
+  copyFrom?: string;
   effects?: RelationshipTypeEffectSummary[];
   systemProperties?: RelationshipTypePropertySummary[];
   userProperties?: RelationshipTypePropertySummary[];

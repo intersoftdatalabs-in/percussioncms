@@ -1630,12 +1630,14 @@ and read `guid.stringValue` or synthesize from `id` when the Guid is omitted.
 Admin **write** persists through `IPSUiDesignWs` (`createViews` / `loadViews` / `saveViews` /
 `deleteViews`) — the same design web service SOAP uses. There is no new SOAP surface.
 **Developer → Views** chrome creates and deletes standard views, saves label /
-description / type / display format, and edits **field criteria** on
-user/standard views — see [Developer Views](id:admin-developer-views). Admin REST
-also persists **user** custom URL views (`url` + `customView`). Inbox-family and
-packaged `sys_cxViews` catalog keys cannot be mutated from that catalog. Execute
-is **not** invoked when creating, updating, or deleting a view. Create is durable:
-`GET /services/views` lists the new name after POST.
+description / type / display format, edits **field criteria** on
+user/standard views, and creates/updates **user** custom URL views (`url` +
+`customView`) from the same SPA editor — see
+[Developer Views](id:admin-developer-views). Admin REST persists the same
+shapes. Inbox-family and packaged `sys_cxViews` catalog keys cannot be mutated
+from that catalog. Execute is **not** invoked when creating, updating, or
+deleting a view. Create is durable: `GET /services/views` lists the new name
+after POST.
 
 Operators open Inbox from Explorer **Views → My Content → Inbox** (see
 [Content Explorer](id:admin-content-explorer)). Integrators run the same assignment list
@@ -1971,8 +1973,9 @@ Backing is `IPSSystemDesignWs` (`findRelationshipTypes` / `loadRelationshipTypes
 design web service SOAP uses. There is no new SOAP surface.
 
 Admin **write** creates, updates, and deletes **user** relationship types only. Packaged
-**system** types are read-only (**409** on mutate/delete). **Do not** treat this as a Developer
-Relationship Types SPA; create/edit chrome is a later sibling.
+**system** types are read-only (**409** on mutate/delete). **Developer → Relationship Types**
+exposes the same Admin create/save/delete chrome for user types (system types stay
+read-only in the SPA) — see [Developer Relationship Types](id:admin-developer-relationship-types).
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -2014,8 +2017,8 @@ Delete (`DELETE /services/relationshiptypes/{idOrName}`) returns **204** when a 
 removed; a following `GET` is **404**. Unknown key is **404**. A **system** type is **409**
 (not deleted). Non-Admin is **403**.
 
-There is **no** Developer SPA relationship-type create/edit/delete in this slice — operators
-and integrators call the REST path (or Workbench).
+Operators can also use **Developer → Relationship Types** create/edit/delete for user
+types (same REST contract). Integrators may call the REST path directly.
 
 Example create body:
 
