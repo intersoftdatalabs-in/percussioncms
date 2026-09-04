@@ -16,6 +16,7 @@
  */
 package com.percussion.server;
 
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
 import com.percussion.utils.date.PSDateFormatter;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -98,7 +99,7 @@ public abstract class PSBaseResponse implements Serializable {
     if (m_entityHeaders != null) m_entityHeaders.clear();
 
     m_statusLine = HTTP_OK_STATUS_LINE;
-    m_statusCode = IPSHttpErrors.HTTP_OK;
+    m_statusCode = HttpErrorCodes.HTTP_OK.numericCode();
     m_contentStream = null;
     m_contentDoc = null;
     m_isContentDoc = false;
@@ -224,10 +225,10 @@ public abstract class PSBaseResponse implements Serializable {
   protected byte[] m_statusLine = HTTP_OK_STATUS_LINE;
 
   /**
-   * The response status code, initialized to {@link IPSHttpErrors#HTTP_OK}, may be modified after
+   * The response status code, initialized to {@link HttpErrorCodes#HTTP_OK}, may be modified after
    * that.
    */
-  protected int m_statusCode = IPSHttpErrors.HTTP_OK;
+  protected int m_statusCode = HttpErrorCodes.HTTP_OK.numericCode();
 
   /** The general headers for the current response, might be <code>null</code>. */
   protected HashMap<String, String> m_generalHeaders = null;

@@ -17,10 +17,10 @@
 
 package com.percussion.server;
 
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
-
 import com.percussion.content.PSContentFactory;
-import com.percussion.data.IPSDataErrors;
 import com.percussion.data.IPSInternalRequestHandler;
 import com.percussion.data.PSExecutionData;
 import com.percussion.data.PSInternalRequestCallException;
@@ -114,7 +114,7 @@ public class PSFileRequestHandler implements IPSRequestHandler, IPSInternalReque
       if (!f.exists()) {
         f = new File(m_baseDirectory, request.getRequestPage(false));
         if (!f.exists()) {
-          resp.setStatus(IPSHttpErrors.HTTP_NOT_FOUND);
+          resp.setStatus(HttpErrorCodes.HTTP_NOT_FOUND.numericCode());
           return;
         }
       }
@@ -136,7 +136,7 @@ public class PSFileRequestHandler implements IPSRequestHandler, IPSInternalReque
           fileLastModDate = calendar.getTime();
 
           if (fileLastModDate.getTime() <= modDate.getTime()) {
-            resp.setStatus(IPSHttpErrors.HTTP_NOT_MODIFIED);
+            resp.setStatus(HttpErrorCodes.HTTP_NOT_MODIFIED.numericCode());
             return;
           }
         } catch (ParseException e) {
@@ -233,10 +233,10 @@ public class PSFileRequestHandler implements IPSRequestHandler, IPSInternalReque
       resultDoc = PSXmlDocumentBuilder.createXmlDocument(is, false);
     } catch (IOException e) {
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, e.getLocalizedMessage());
+          DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, e.getLocalizedMessage());
     } catch (SAXException e) {
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, e.getLocalizedMessage());
+          DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, e.getLocalizedMessage());
     } finally {
       if (is != null)
         try {
