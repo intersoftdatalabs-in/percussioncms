@@ -662,7 +662,7 @@ export const DEV_MSG_KEYS = {
   PIPE_EMPTY: "perc.ui.developer@No pipeline applications returned.",
   PIPE_ERROR: "perc.ui.developer@Could not load pipelines.",
   PIPE_HINT:
-    "perc.ui.developer@Server applications (classic XML Applications). Open a row for read-only detail and data sets. Editor, start/stop, and IR import are later slices.",
+    "perc.ui.developer@Server applications (classic XML Applications). Open a row for detail and data sets. Admins can Start or Stop a running application. Pipe IR editor and enable/disable remain later slices.",
   PIPE_COL_NAME: "perc.ui.developer@Name",
   PIPE_COL_ID: "perc.ui.developer@Id",
   PIPE_COL_TYPE: "perc.ui.developer@Type",
@@ -674,6 +674,20 @@ export const DEV_MSG_KEYS = {
   PIPE_DETAIL_ERROR: "perc.ui.developer@Could not load pipeline application.",
   PIPE_META_HIDDEN: "perc.ui.developer@Hidden",
   PIPE_META_VERSION: "perc.ui.developer@Version",
+  PIPE_META_RUNNING: "perc.ui.developer@Running",
+  PIPE_START: "perc.ui.developer@Start",
+  PIPE_STOP: "perc.ui.developer@Stop",
+  PIPE_STARTING: "perc.ui.developer@Starting…",
+  PIPE_STOPPING: "perc.ui.developer@Stopping…",
+  PIPE_STARTED: "perc.ui.developer@Application started.",
+  PIPE_STOPPED: "perc.ui.developer@Application stopped.",
+  PIPE_START_ERROR: "perc.ui.developer@Could not start pipeline application.",
+  PIPE_STOP_ERROR: "perc.ui.developer@Could not stop pipeline application.",
+  PIPE_FORBIDDEN: "perc.ui.developer@Admin role is required to start or stop pipeline applications.",
+  PIPE_START_DISABLED_HINT:
+    "perc.ui.developer@Start is unavailable while the application is disabled, hidden, or already running.",
+  PIPE_STOP_DISABLED_HINT:
+    "perc.ui.developer@Stop is unavailable while the application is hidden or not running.",
   PIPE_DATASETS: "perc.ui.developer@Data sets",
   PIPE_DATASETS_HINT:
     "perc.ui.developer@Request pages and content editors defined in this application. Pipe IR and mappers are not exposed yet.",
