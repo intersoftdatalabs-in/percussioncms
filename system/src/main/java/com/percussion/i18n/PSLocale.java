@@ -18,6 +18,7 @@
 package com.percussion.i18n;
 
 import com.percussion.data.PSDataExtractionException;
+import com.intsof.percussioncms.auditlog.codes.LocaleErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.i18n.rxlt.PSLocaleHandler;
@@ -132,7 +133,7 @@ public class PSLocale implements IPSCatalogSummary {
 
     if (!validateStatus(m_status)) {
       Object[] args = {COL_STATUS, status == null ? "null" : status};
-      throw new PSDataExtractionException(IPSLocaleErrors.INVALID_COLUMN_VALUE, args);
+      throw new PSDataExtractionException(LocaleErrorCodes.INVALID_COLUMN_VALUE, args);
     }
 
     // Optional for backward-compatible row shapes; missing / invalid => not base.
@@ -354,12 +355,12 @@ public class PSLocale implements IPSCatalogSummary {
     PSJdbcColumnData col;
     String val = null;
     col = rowData.getColumn(colName);
-    if (col == null) throw new PSDataExtractionException(IPSLocaleErrors.MISSING_COLUMN, colName);
+    if (col == null) throw new PSDataExtractionException(LocaleErrorCodes.MISSING_COLUMN, colName);
 
     val = col.getValue();
     if (required && (val == null || val.trim().length() == 0)) {
       Object[] args = {colName, val == null ? "null" : val};
-      throw new PSDataExtractionException(IPSLocaleErrors.INVALID_COLUMN_VALUE, args);
+      throw new PSDataExtractionException(LocaleErrorCodes.INVALID_COLUMN_VALUE, args);
     }
 
     return val;

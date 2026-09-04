@@ -16,7 +16,7 @@
  */
 package com.percussion.publisher.server;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSExtensionException;
@@ -107,7 +107,7 @@ public class PSPubTimeStatistics implements IPSResultDocumentProcessor {
 
     if (ir == null)
       throw new PSExtensionProcessingException(
-          IPSCmsErrors.REQUIRED_RESOURCE_MISSING, RESOURCE_NAME);
+          CmsErrorCodes.REQUIRED_RESOURCE_MISSING, RESOURCE_NAME);
     try {
       ResultSet rs = ir.getResultSet();
 

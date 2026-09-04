@@ -19,7 +19,7 @@ package com.percussion.workflow;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.data.PSTableChangeEvent;
-import com.percussion.extension.IPSExtensionErrors;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.server.cache.PSItemSummaryCache;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.system.IPSSystemService;
@@ -48,7 +48,7 @@ public class PSContentStatusContext implements IPSContentStatusContext {
 
       if (false == m_Rs.next()) {
         close();
-        throw new PSEntryNotFoundException(IPSExtensionErrors.NO_RECORDS);
+        throw new PSEntryNotFoundException(ExtensionErrorCodes.NO_RECORDS);
       }
       // do not change the order
       m_nStateID = m_Rs.getInt("CONTENTSTATEID");
@@ -388,7 +388,7 @@ public class PSContentStatusContext implements IPSContentStatusContext {
     PSComponentSummary summary =
         PSCmsObjectMgrLocator.getObjectManager().loadComponentSummary(contentID);
     if (summary == null) {
-      throw new PSEntryNotFoundException(IPSExtensionErrors.NO_RECORDS);
+      throw new PSEntryNotFoundException(ExtensionErrorCodes.NO_RECORDS);
     }
     PSContentStatusContext ctx = new PSContentStatusContext();
     ctx.m_nContentID = contentID;

@@ -19,7 +19,7 @@ package com.percussion.design.objectstore;
 
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 
-import com.percussion.conn.IPSConnectionErrors;
+import com.intsof.percussioncms.auditlog.codes.ConnectionErrorCodes;
 import com.percussion.conn.PSDesignerConnection;
 import com.percussion.conn.PSServerException;
 import com.percussion.design.objectstore.server.PSXmlObjectStoreHandler;
@@ -2010,7 +2010,7 @@ public class PSObjectStore {
       try {
         respDoc = makeRequest("design-objectstore-userconfig-load", sendDoc);
       } catch (PSServerException e) {
-        if ((e.getErrorCode() != IPSConnectionErrors.SERVER_GENERATED_EXCEPTION)
+        if ((e.getErrorCode() != ConnectionErrorCodes.SERVER_GENERATED_EXCEPTION.numericCode())
             || !"com.percussion.design.objectstore.PSNotFoundException"
                 .equals(
                     e.getErrorArguments()[0])) { // if this is not found, we'll create a new config

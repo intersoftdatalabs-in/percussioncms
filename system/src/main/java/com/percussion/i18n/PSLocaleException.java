@@ -17,6 +17,7 @@
 
 package com.percussion.i18n;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /** Generic exception class to be used for locale errors. */
@@ -47,4 +48,34 @@ public class PSLocaleException extends PSException {
   public PSLocaleException(int msgCode) {
     super(msgCode);
   }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the single argument for the error message
+   */
+  public PSLocaleException(IPSErrorCode code, Object singleArg) {
+    super(code, singleArg);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments for the error message
+   */
+  public PSLocaleException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSLocaleException(IPSErrorCode code) {
+    super(code);
+  }
+
 }

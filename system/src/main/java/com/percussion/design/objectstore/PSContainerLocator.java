@@ -19,7 +19,7 @@ package com.percussion.design.objectstore;
 
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 
-import com.percussion.server.IPSServerErrors;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Collection;
@@ -239,7 +239,7 @@ public final class PSContainerLocator extends PSComponent {
 
         // if we are here, then this is a duplicate alias
         Object[] args = {sourceRef.getAlias(), badTableName, sourceRef.getName()};
-        throw new PSSystemValidationException(IPSServerErrors.CE_TABLE_ALIAS_DUPLICATE, args);
+        throw new PSSystemValidationException(ServerErrorCodes.CE_TABLE_ALIAS_DUPLICATE, args);
       }
     }
 

@@ -16,6 +16,7 @@
  */
 package com.percussion.content;
 
+import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.search.lucene.textconverter.IPSLuceneTextConverter;
 import com.percussion.search.lucene.textconverter.PSLuceneTextConverterFactory;
@@ -67,7 +68,7 @@ public class PSContentConverter {
       String outputEncoding,
       int pdfConversion)
       throws PSContentConversionException {
-    throw new PSContentConversionException(IPSContentErrors.UNSUPPORTED_CONVERT_CONSTRUCTOR);
+    throw new PSContentConversionException(ContentErrorCodes.UNSUPPORTED_CONVERT_CONSTRUCTOR);
   }
 
   /**
@@ -80,7 +81,7 @@ public class PSContentConverter {
     IPSLuceneTextConverter converter =
         PSLuceneTextConverterFactory.getInstance().getLuceneTextConverter(m_mimetype);
     if (converter == null) {
-      throw new PSContentConversionException(IPSContentErrors.UNSUPPORTED_MIMETYPE);
+      throw new PSContentConversionException(ContentErrorCodes.UNSUPPORTED_MIMETYPE);
     }
     m_converter = converter;
   }
@@ -98,7 +99,7 @@ public class PSContentConverter {
    *     PSContentConversionException if any if called.
    */
   public PSConversionResults convert(InputStream data) throws PSContentConversionException {
-    throw new PSContentConversionException(IPSContentErrors.UNSUPPORTED_CONVERT_METHOD);
+    throw new PSContentConversionException(ContentErrorCodes.UNSUPPORTED_CONVERT_METHOD);
   }
 
   /**
@@ -118,7 +119,7 @@ public class PSContentConverter {
     } catch (PSExtensionProcessingException e) {
       Object[] args = {e.getClass().getName(), e.getLocalizedMessage()};
       throw new PSContentConversionException(
-          IPSContentErrors.CONTENT_CONVERSION_UNEXPECTED_ERROR, args);
+          ContentErrorCodes.CONTENT_CONVERSION_UNEXPECTED_ERROR, args);
     } finally {
       if (data != null) {
         try {
