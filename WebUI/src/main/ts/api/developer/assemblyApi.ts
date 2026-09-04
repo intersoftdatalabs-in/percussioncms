@@ -601,13 +601,19 @@ export async function listAvailableRoles(): Promise<CommunityRoleSummary[]> {
   ]);
 }
 
-/** PUT /services/communities/{idOrName}/roles — replace memberships */
+/**
+ * PUT /services/communities/{idOrName}/roles — replace memberships (SE-02).
+ * Include a role to assign; omit a previously associated role to unassign;
+ * empty list clears all. Response is unwrapped like {@link getCommunityDetail}
+ * (Jackson WRAP_ROOT {@code Community}).
+ */
 export async function updateCommunityRoles(
   idOrName: string,
   roles: CommunityRoleSummary[],
 ): Promise<CommunityDetail> {
   const key = encodeURIComponent(idOrName);
-  return put<CommunityDetail>(`${PATHS.COMMUNITIES}/${key}/roles`, roles);
+  const payload = await put<unknown>(`${PATHS.COMMUNITIES}/${key}/roles`, roles);
+  return unwrapCommunityDetail(payload);
 }
 
 /** Preferred filter header for community visibility (server also accepts legacy {@code type}). */

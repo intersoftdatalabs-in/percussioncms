@@ -39,10 +39,13 @@ COMMUNITY ACL entries stay on object detail panels (for example content types).
 
 1. Open an existing community on **Developer → Communities**.
 2. Under role membership, check roles to **assign** and uncheck roles to
-   **unassign**. The picker is the full security role catalog.
+   **unassign**. The picker is the full security role catalog
+   (`GET /services/communities/roles`).
 3. Click **Save roles**. The server replaces the community’s role set with the
    checked roles (same full-set replace as Workbench dual-list save). Clearing
-   every checkbox and saving removes all associations.
+   every checkbox and saving removes all associations. The detail panel
+   refreshes membership from the PUT response and shows a short saved-count
+   status notice.
 4. A missing community is **404**. A role entry without id/guid is **400**.
 
 ## Product path — new-search defaults
