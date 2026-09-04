@@ -12,7 +12,7 @@ import { DEV_MSG } from "./messages";
 import { ServerConfigDetailPanel } from "./ServerConfigDetailPanel";
 
 /**
- * P0.20 — server configuration files catalog (SY-02 read).
+ * P0.20 / SY-02 — server configuration files catalog (list + Admin save chrome).
  */
 export function ServerConfigsPanel(): React.ReactElement {
   const [items, setItems] = useState<ServerConfigDef[] | null>(null);
@@ -81,6 +81,7 @@ export function ServerConfigsPanel(): React.ReactElement {
                 key="open"
                 type="button"
                 data-testid="developer-cfg-open"
+                data-cfg-name={openKey}
                 aria-label={`Open ${c.displayName || openKey}`}
                 onClick={(ev) => {
                   ev.stopPropagation();

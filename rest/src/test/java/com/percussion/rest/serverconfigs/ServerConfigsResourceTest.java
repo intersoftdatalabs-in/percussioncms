@@ -8,12 +8,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -113,5 +116,89 @@ public class ServerConfigsResourceTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> bare.getConfig("any"));
     assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateConfigDelegates() {
+    ServerConfigSummary body = new ServerConfigSummary();
+    body.setContent("rootLogger=INFO");
+    ServerConfigSummary updated = new ServerConfigSummary();
+    updated.setName("LOG_CONFIG");
+    updated.setContent("rootLogger=INFO");
+    when(adaptor.updateConfig(eq("LOG_CONFIG"), eq(body))).thenReturn(updated);
+
+    ServerConfigSummary out = resource.updateConfig("LOG_CONFIG", body);
+
+    assertEquals("LOG_CONFIG", out.getName());
+    assertEquals("rootLogger=INFO", out.getContent());
+    verify(adaptor).updateConfig("LOG_CONFIG", body);
+  }
+
+  @Test
+  public void updateConfigUnknownIs404() {
+    when(adaptor.updateConfig(eq("NOT_A_REAL_CONFIG"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateConfig("NOT_A_REAL_CONFIG", bodyWithContent("x")));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateConfigUnsafeNameIs404() {
+    when(adaptor.updateConfig(eq("../etc/passwd"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateConfig("../etc/passwd", bodyWithContent("x")));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateConfigNullBodyIs400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.updateConfig("LOG_CONFIG", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).updateConfig(any(), any());
+  }
+
+  @Test
+  public void updateConfigNonAdminIs403() {
+    when(adaptor.updateConfig(eq("LOG_CONFIG"), any()))
+        .thenThrow(
+            new WebApplicationException("Admin role required", Response.Status.FORBIDDEN));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateConfig("LOG_CONFIG", bodyWithContent("x")));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateConfigWrapsIllegalArgumentAs400() {
+    when(adaptor.updateConfig(eq("LOG_CONFIG"), any()))
+        .thenThrow(new IllegalArgumentException("content is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateConfig("LOG_CONFIG", new ServerConfigSummary()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnUpdate() {
+    ServerConfigsResource bare = new ServerConfigsResource();
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> bare.updateConfig("LOG_CONFIG", bodyWithContent("x")));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  private static ServerConfigSummary bodyWithContent(String content) {
+    ServerConfigSummary body = new ServerConfigSummary();
+    body.setContent(content);
+    return body;
   }
 }

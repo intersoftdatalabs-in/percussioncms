@@ -10,28 +10,45 @@ import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.system.PSSystemServiceLocator;
 import com.percussion.services.system.data.PSConfigurationTypes;
 import com.percussion.services.system.data.PSMimeContentAdapter;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.user.data.PSCurrentUser;
+import com.percussion.user.service.IPSUserService;
 import com.percussion.util.IOTools;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
-/** Server configuration catalog (SY-02 read) over PSConfigurationTypes + system service. */
+/**
+ * Server configuration catalog (SY-02) over {@link PSConfigurationTypes} + {@link
+ * IPSSystemService}. Admin PUT updates allow-listed enum names only — no arbitrary filesystem
+ * write.
+ */
 @PSSiteManageBean
 @Lazy
 public class ServerConfigAdaptor implements IServerConfigAdaptor {
 
   private static final Logger log = LogManager.getLogger(ServerConfigAdaptor.class);
 
+  static final String ADMIN_REQUIRED =
+      "Admin role required to update server configuration files";
+
   private static final List<String> DESIGN_GAPS =
       List.of(
-          "Configuration create / update / save not supported via this API",
+          "Configuration create is not supported via this API (fixed allow-listed set only)",
           "Locking and concurrent edit are not exposed on this Developer surface");
 
   private static final Map<PSConfigurationTypes, String> DISPLAY =
@@ -50,14 +67,25 @@ public class ServerConfigAdaptor implements IServerConfigAdaptor {
   }
 
   private final IPSSystemService systemService;
+  private final BooleanSupplier adminChecker;
+
+  /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
+  @Autowired(required = false)
+  private IPSUserService userService;
 
   public ServerConfigAdaptor() {
-    this(PSSystemServiceLocator.getSystemService());
+    this(PSSystemServiceLocator.getSystemService(), null);
   }
 
   /** Package-visible for tests. */
   ServerConfigAdaptor(IPSSystemService systemService) {
+    this(systemService, null);
+  }
+
+  /** Package-visible for tests with an explicit Admin gate. */
+  ServerConfigAdaptor(IPSSystemService systemService, BooleanSupplier adminChecker) {
     this.systemService = systemService;
+    this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
   }
 
   @Override
@@ -71,15 +99,46 @@ public class ServerConfigAdaptor implements IServerConfigAdaptor {
 
   @Override
   public ServerConfigSummary findConfigByName(String name) {
-    if (!isSafeConfigKey(name)) {
+    PSConfigurationTypes type = resolveAllowListedType(name);
+    if (type == null) {
       return null;
     }
-    PSConfigurationTypes type;
+    return toSummary(type, true);
+  }
+
+  @Override
+  public ServerConfigSummary updateConfig(String name, ServerConfigSummary body) {
+    // Validate body before Admin so missing content is 400 (not 403) per REST contract.
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    if (body.getContent() == null) {
+      throw new IllegalArgumentException("content is required");
+    }
+    requireAdmin();
+    PSConfigurationTypes type = resolveAllowListedType(name);
+    if (type == null) {
+      return null;
+    }
+
+    // saveConfiguration resolves the on-disk path solely from the enum name — never from
+    // client-supplied file paths.
+    PSMimeContentAdapter config = new PSMimeContentAdapter();
+    config.setName(type.name());
+    byte[] bytes = body.getContent().getBytes(StandardCharsets.UTF_8);
+    config.setContent(new ByteArrayInputStream(bytes));
+    config.setContentLength(bytes.length);
+
     try {
-      type = PSConfigurationTypes.valueOf(name.trim());
-    } catch (IllegalArgumentException e) {
-      return null;
+      systemService.saveConfiguration(config);
+    } catch (IOException e) {
+      log.error("Failed to save configuration {}: {}", type.name(), e.getMessage());
+      throw new WebApplicationException(
+          "Failed to save configuration: " + e.getMessage(),
+          e,
+          Response.Status.INTERNAL_SERVER_ERROR);
     }
+
     return toSummary(type, true);
   }
 
@@ -123,11 +182,57 @@ public class ServerConfigAdaptor implements IServerConfigAdaptor {
     }
   }
 
+  /**
+   * Resolve an allow-listed {@link PSConfigurationTypes} key. Rejects blank, path traversal, and
+   * unknown enum names — never opens an arbitrary filesystem path.
+   */
+  private static PSConfigurationTypes resolveAllowListedType(String name) {
+    if (!isSafeConfigKey(name)) {
+      return null;
+    }
+    try {
+      return PSConfigurationTypes.valueOf(name.trim());
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
   static boolean isSafeConfigKey(String key) {
     if (key == null || key.isBlank()) {
       return false;
     }
-    // Enum names are simple identifiers
+    // Enum names are simple identifiers — reject separators / traversal
     return key.matches("[A-Za-z0-9_]+");
+  }
+
+  private void requireAdmin() {
+    boolean allowed;
+    try {
+      allowed = adminChecker.getAsBoolean();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      log.error("Admin check failed unexpectedly", e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+    if (!allowed) {
+      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+    }
+  }
+
+  boolean isCurrentUserAdmin() {
+    if (userService == null) {
+      return false;
+    }
+    try {
+      PSCurrentUser current = userService.getCurrentUser();
+      if (current == null || StringUtils.isBlank(current.getName())) {
+        return false;
+      }
+      return userService.isAdminUser(current.getName());
+    } catch (PSDataServiceException e) {
+      log.debug("Unable to resolve current user for Admin check: {}", e.getMessage());
+      return false;
+    }
   }
 }

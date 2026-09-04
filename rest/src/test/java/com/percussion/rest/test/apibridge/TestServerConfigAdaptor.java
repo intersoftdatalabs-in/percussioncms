@@ -22,4 +22,9 @@ public class TestServerConfigAdaptor implements IServerConfigAdaptor {
   public ServerConfigSummary findConfigByName(String name) {
     return null;
   }
+
+  @Override
+  public ServerConfigSummary updateConfig(String name, ServerConfigSummary body) {
+    return null;
+  }
 }
