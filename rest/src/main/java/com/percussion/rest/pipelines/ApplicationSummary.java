@@ -39,6 +39,9 @@ public class ApplicationSummary {
   /** Whether the application is enabled. */
   private Boolean enabled;
 
+  /** Whether the application is currently running on the server. */
+  private Boolean active;
+
   /** Application root directory. */
   private String appRoot;
 
@@ -127,6 +130,24 @@ public class ApplicationSummary {
    */
   public void setEnabled(Boolean enabled) {
     this.enabled = enabled;
+  }
+
+  /**
+   * Returns whether the application is currently running.
+   *
+   * @return the active flag
+   */
+  public Boolean getActive() {
+    return active;
+  }
+
+  /**
+   * Sets whether the application is currently running.
+   *
+   * @param active the new active flag
+   */
+  public void setActive(Boolean active) {
+    this.active = active;
   }
 
   /**

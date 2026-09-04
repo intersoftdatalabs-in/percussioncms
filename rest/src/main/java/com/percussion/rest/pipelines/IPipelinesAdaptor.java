@@ -57,4 +57,24 @@ public interface IPipelinesAdaptor {
    */
   PipelineExecuteResult execute(
       URI baseUri, String appName, String resourceName, PipelineExecuteRequest request);
+
+  /**
+   * Admin: start a non-hidden classic XML Application / pipeline package (peer {@code
+   * PSServer.startApplication}). Idempotent when already running.
+   *
+   * @param baseUri request base URI (reserved for HATEOAS)
+   * @param idOrName application numeric id or name
+   * @return refreshed detail with {@code active=true}, or {@code null} when not found / not visible
+   */
+  ApplicationDetail startApplication(URI baseUri, String idOrName);
+
+  /**
+   * Admin: stop a non-hidden classic XML Application / pipeline package (peer {@code
+   * PSServer.shutdownApplication}). Idempotent when already stopped.
+   *
+   * @param baseUri request base URI (reserved for HATEOAS)
+   * @param idOrName application numeric id or name
+   * @return refreshed detail with {@code active=false}, or {@code null} when not found / not visible
+   */
+  ApplicationDetail stopApplication(URI baseUri, String idOrName);
 }
