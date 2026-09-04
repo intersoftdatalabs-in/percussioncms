@@ -445,6 +445,53 @@ export interface ApplicationDetail extends ApplicationSummary {
   designGaps?: string[];
 }
 
+/**
+ * Body for {@code POST /services/pipelines/{app}/resources/{resource}/execute}.
+ * Peers server {@code PipelineExecuteRequest} ({@code params}, {@code rows}, optional
+ * {@code operation} / {@code keyColumns}).
+ */
+export interface PipelineExecuteRequest {
+  operation?: string;
+  params?: Record<string, unknown>;
+  rows?: Array<Record<string, unknown>>;
+  keyColumns?: string[];
+}
+
+/** Result from native pipeline IR execute. */
+export interface PipelineExecuteResult {
+  appName?: string;
+  resourceName?: string;
+  kind?: string;
+  operation?: string;
+  rowCount?: number;
+  affectedRows?: number;
+  rows?: Array<Record<string, unknown>>;
+  hookTrace?: string[];
+  meta?: Record<string, unknown>;
+}
+
+/**
+ * One design-time validation problem from Admin
+ * {@code GET /services/pipelines/{idOrName}/validation} (wave 3 REST; feature-detect).
+ */
+export interface ApplicationValidationProblem {
+  severity?: string;
+  code?: string;
+  message?: string;
+  resource?: string;
+  path?: string;
+}
+
+/** Validation / problems summary for one pipeline application. */
+export interface ApplicationValidationResult {
+  id?: number;
+  name?: string;
+  valid?: boolean;
+  errorCount?: number;
+  warningCount?: number;
+  problems?: ApplicationValidationProblem[];
+}
+
 /** CMS locale summary from GET /services/locales. */
 export interface LocaleSummary {
   id?: number;

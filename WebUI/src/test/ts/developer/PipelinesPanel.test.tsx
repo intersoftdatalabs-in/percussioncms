@@ -18,6 +18,12 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   getApplicationDetail: vi.fn(),
   startApplication: vi.fn(),
   stopApplication: vi.fn(),
+  executeResource: vi.fn(),
+  getApplicationValidation: vi.fn().mockRejectedValue({
+    status: 404,
+    statusText: "Not Found",
+    body: null,
+  }),
 }));
 
 const listApplicationsMock = vi.mocked(listApplications);

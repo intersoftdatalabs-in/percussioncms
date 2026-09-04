@@ -1844,6 +1844,7 @@ pipeline runtime path — it does **not** call classic `PSQueryHandler` /
 | `POST` | `/services/pipelines/{idOrName}/start` | **Admin.** Start application (idempotent if already running) |
 | `POST` | `/services/pipelines/{idOrName}/stop` | **Admin.** Stop application (idempotent if already stopped) |
 | `POST` | `/services/pipelines/{app}/resources/{resource}/execute` | Execute a native pipeline IR resource |
+| `GET` | `/services/pipelines/{idOrName}/validation` | **Admin.** Validation / problems summary (when deployed) |
 
 JSON list rows use `Application` / `ApplicationSummary`; detail uses `ApplicationDetail`
 (fields include `id`, `name`, `description`, `enabled`, `hidden`, `active`, `appRoot`,
@@ -1861,15 +1862,35 @@ running, start returns **200** with `active=true` without restarting. When alrea
 stopped, stop returns **200** with `active=false`. Successful responses return refreshed
 `ApplicationDetail` (including `active`).
 
+### Test invoke (execute)
+
+`POST …/resources/{resource}/execute` accepts a `PipelineExecuteRequest` JSON body
+(`params`, optional `rows` / `operation` / `keyColumns`) and returns
+`PipelineExecuteResult`. This path uses the native pipeline IR runtime; it does **not**
+call classic `PSQueryHandler` / `PSUpdateHandler`. Unknown app or resource names are
+**404**; unsupported resource kinds or invalid bodies are **400**. **Developer →
+Pipelines** detail exposes Admin **Test invoke** chrome that posts sample JSON and shows
+the structured result.
+
+### Validation / problems
+
+When deployed, Admin `GET …/validation` returns `ApplicationValidationResult` with
+`valid`, `errorCount`, `warningCount`, and `problems[]` (`severity`, `code`, `message`,
+optional `resource` / `path`). Requires **Admin** (**403** otherwise). Hidden apps are
+**400**; unknown apps are **404**. The Developer Pipelines detail **Problems** section
+feature-detects this endpoint: a **404** yields a soft empty state so Test invoke and
+lifecycle chrome still work when validation REST is not yet on the server.
+
 Remaining gaps on detail (`designGaps`) include pipe IR / mapper tanks, enable/disable,
-and classic import/export — SPA chrome and Playwright for start/stop are separate slices.
+and classic import/export — SPA chrome and Playwright for start/stop and test-invoke are
+separate slices.
 
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | List / get / start / stop / execute success |
+| `200` | List / get / start / stop / execute / validation success |
 | `400` | Invalid name, hidden/disabled lifecycle, or IR validation failure |
-| `403` | Caller is not Admin (start/stop) |
-| `404` | Application (or IR resource) not found / not visible |
+| `403` | Caller is not Admin (start/stop/validation) |
+| `404` | Application (or IR resource / validation tip) not found / not visible |
 | `500` | Object-store or server failure |
 
 ## Workflows (design catalog)
