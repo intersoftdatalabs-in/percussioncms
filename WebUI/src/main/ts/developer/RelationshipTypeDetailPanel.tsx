@@ -162,9 +162,25 @@ export function RelationshipTypeDetailPanel({
   const userWritable = isNew || (detail != null && !system);
   const writeKey = idOrName || createdKey || normalizeRelationshipTypeName(name);
 
+  const loadedLabel = detail?.label || "";
+  const loadedDescription = detail?.description || "";
+  const loadedCategory = detail?.category || "";
+  const loadedAllowCloning = Boolean(detail?.allowCloning);
+  const loadedUseOwnerRevision = Boolean(detail?.useOwnerRevision);
+  const loadedUseDependentRevision = Boolean(detail?.useDependentRevision);
+  const dirty =
+    isNew ||
+    label !== loadedLabel ||
+    description !== loadedDescription ||
+    category !== loadedCategory ||
+    allowCloning !== loadedAllowCloning ||
+    useOwnerRevision !== loadedUseOwnerRevision ||
+    useDependentRevision !== loadedUseDependentRevision;
+
   const canSave =
     userWritable &&
     !busy &&
+    dirty &&
     isRelationshipTypeWriteReady({
       isNew,
       name,

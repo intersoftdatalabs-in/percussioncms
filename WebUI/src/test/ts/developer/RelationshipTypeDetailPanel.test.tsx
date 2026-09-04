@@ -154,6 +154,21 @@ describe("RelationshipTypeDetailPanel", () => {
     expect(screen.getByTestId("developer-rt-editor-notice").textContent).toBe(DEV_MSG.RT_SAVED);
   });
 
+  it("disables save until a user relationship type is dirty", async () => {
+    getRelationshipTypeDetail.mockResolvedValue(sampleUserDetail);
+    render(
+      <RelationshipTypeDetailPanel idOrName="MyUserRel" onBack={() => undefined} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-rt-save")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-rt-save")).toBeDisabled();
+    fireEvent.change(screen.getByTestId("developer-rt-label"), {
+      target: { value: "Changed" },
+    });
+    expect(screen.getByTestId("developer-rt-save")).not.toBeDisabled();
+  });
+
   it("updates and deletes a user relationship type", async () => {
     getRelationshipTypeDetail.mockResolvedValue(sampleUserDetail);
     updateRelationshipType.mockResolvedValue({
@@ -173,9 +188,11 @@ describe("RelationshipTypeDetailPanel", () => {
       expect(screen.getByTestId("developer-rt-save")).toBeTruthy();
     });
     expect(screen.queryByTestId("developer-rt-system-readonly")).toBeNull();
+    expect(screen.getByTestId("developer-rt-save")).toBeDisabled();
     fireEvent.change(screen.getByTestId("developer-rt-label"), {
       target: { value: "Updated" },
     });
+    expect(screen.getByTestId("developer-rt-save")).not.toBeDisabled();
     fireEvent.click(screen.getByTestId("developer-rt-save"));
     await waitFor(() => {
       expect(updateRelationshipType).toHaveBeenCalledWith(

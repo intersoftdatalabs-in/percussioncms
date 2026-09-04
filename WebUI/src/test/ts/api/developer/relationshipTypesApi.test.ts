@@ -35,6 +35,7 @@ describe("relationshipTypesApi helpers", () => {
     expect(isValidRelationshipTypeName(" bad")).toBe(true);
     expect(isValidRelationshipTypeName("has space")).toBe(false);
     expect(isValidRelationshipTypeName("star*")).toBe(false);
+    expect(isValidRelationshipTypeName("pct%")).toBe(false);
     expect(isValidRelationshipTypeName("a/b")).toBe(false);
     expect(isValidRelationshipTypeName("")).toBe(false);
   });

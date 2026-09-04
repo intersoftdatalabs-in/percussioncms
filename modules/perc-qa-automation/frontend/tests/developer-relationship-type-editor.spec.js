@@ -190,9 +190,12 @@ test.describe("Developer relationship type editor (#4253 / SY-03 H2)", () => {
     });
 
     await expect(page.locator('[data-testid="developer-rt-allow-cloning"]')).toBeChecked();
+    // Save stays disabled until a field actually changes (dirty gate).
+    await expect(page.locator('[data-testid="developer-rt-save"]')).toBeDisabled();
     await page.locator('[data-testid="developer-rt-label"]').fill(savedLabel);
     await page.locator('[data-testid="developer-rt-allow-cloning"]').uncheck();
     await page.locator('[data-testid="developer-rt-owner-revision"]').check();
+    await expect(page.locator('[data-testid="developer-rt-save"]')).toBeEnabled();
     await page.locator('[data-testid="developer-rt-save"]').click();
 
     const notice = page.locator('[data-testid="developer-rt-editor-notice"]');

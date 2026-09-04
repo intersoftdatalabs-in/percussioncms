@@ -114,13 +114,15 @@ export function normalizeRelationshipTypeName(
   return name.trim();
 }
 
-/** True when the name is safe for REST create (no whitespace / * / path chars). */
+/** True when the name is safe for REST create (no whitespace / * / % / path chars). */
 export function isValidRelationshipTypeName(
   name: string | undefined | null,
 ): boolean {
   const trimmed = normalizeRelationshipTypeName(name);
   if (!trimmed) return false;
-  if (trimmed.includes("*") || trimmed.includes("..")) return false;
+  if (trimmed.includes("*") || trimmed.includes("%") || trimmed.includes("..")) {
+    return false;
+  }
   if (trimmed.includes("/") || trimmed.includes("\\") || trimmed.includes("\0")) {
     return false;
   }
