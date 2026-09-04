@@ -282,10 +282,20 @@ public class ApiUtils {
     p.setName(c.getName());
     p = (PSCommunity) p.tuneClone(c.getId());
 
+    // Full-set replace for SE-02: clear then add. Empty roleList clears all
+    // associations; null leaves tuneClone memberships untouched.
     if (c.getRoleList() != null) {
+      ArrayList<IPSGuid> next = new ArrayList<>();
       for (CommunityRole cr : c.getRoleList()) {
-        p.addRoleAssociation(convertGuid(cr.getRoleGuid()));
+        if (cr == null || cr.getRoleGuid() == null) {
+          continue;
+        }
+        IPSGuid g = convertGuid(cr.getRoleGuid());
+        if (g != null) {
+          next.add(g);
+        }
       }
+      p.setRoleAssociations(next);
     }
 
     return p;

@@ -17,7 +17,9 @@
 
 package com.percussion.rest.communities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -25,16 +27,20 @@ import jakarta.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 /** List of CommunityRole associations. */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "CommunityRoleList")
+@JsonRootName("CommunityRoleList")
+@JsonFormat(shape = JsonFormat.Shape.ARRAY)
 @XmlSeeAlso({CommunityRole.class})
 @ArraySchema(
     schema =
         @Schema(
             implementation = CommunityRole.class,
             description = "A List of CommunityRole associations"))
+@JsonDeserialize(using = CommunityRoleListDeserializer.class)
 public class CommunityRoleList extends ArrayList<CommunityRole> {
 
   private static final long serialVersionUID = 1L;

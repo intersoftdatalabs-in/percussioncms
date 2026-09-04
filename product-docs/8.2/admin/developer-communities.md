@@ -87,7 +87,7 @@ The chrome calls:
 | Load | `GET /services/communities/{idOrName}` |
 | Create | `POST /services/communities/bulk` (name list; server persists) |
 | Available roles (picker) | `GET /services/communities/roles` |
-| Assign / unassign roles | `PUT /services/communities/{idOrName}/roles` (full membership replace; `[]` clears) |
+| Assign / unassign roles | `PUT /services/communities/{idOrName}/roles` (full membership replace; `{"CommunityRoleList":[]}` clears) |
 | New-search defaults | `GET` / `PUT /services/communities/{idOrName}/new-search-defaults` |
 | Delete | `DELETE /services/communities/bulk` (GuidList; `ignoredependencies=false`) |
 
