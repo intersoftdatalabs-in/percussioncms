@@ -84,6 +84,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   public static final int DEFAULT_LIMIT = 500;
 
   /** Hard cap to avoid unbounded payloads on large servers. */
+  public static final int MAX_LIMIT = 1000;
 
   static final String ADMIN_REQUIRED = "Admin role required to start or stop pipeline applications";
 
@@ -514,6 +515,18 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       if (sum != null && idOrName.equalsIgnoreCase(sum.getName())) {
         String trusted = sum.getName();
         return isSafeApplicationName(trusted) ? trusted : null;
+      }
+    }
+    return null;
+  }
+
+  static PSApplicationSummary findSummaryByName(String name, PSApplicationSummary[] sums) {
+    if (name == null || sums == null) {
+      return null;
+    }
+    for (PSApplicationSummary sum : sums) {
+      if (sum != null && name.equals(sum.getName())) {
+        return sum;
       }
     }
     return null;
