@@ -26,7 +26,8 @@ import java.util.List;
 /**
  * Read-only design detail for one classic XML Application / pipeline package.
  *
- * <p>Does not expose pipe IR, start/stop, or mapper definitions (later slices).
+ * <p>Pipe IR structure is available via {@code GET /pipelines/{idOrName}/ir}. IR write / graph
+ * editor / start-stop remain later slices (see {@code designGaps}).
  */
 @XmlRootElement(name = "ApplicationDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)

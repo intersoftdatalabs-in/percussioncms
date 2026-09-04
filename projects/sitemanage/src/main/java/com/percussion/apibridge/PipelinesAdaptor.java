@@ -31,11 +31,14 @@ import com.percussion.rest.pipelines.IPipelinesAdaptor;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
+import com.percussion.services.pipeline.IPSPipelineIrService;
 import com.percussion.services.pipeline.IPSPipelineRuntimeService;
 import com.percussion.services.pipeline.PSPipelineIrException;
+import com.percussion.services.pipeline.PSPipelineIrServiceLocator;
 import com.percussion.services.pipeline.PSPipelineRuntimeServiceLocator;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
+import com.percussion.services.pipeline.model.PipelineIrDocument;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.util.PSCollection;
@@ -45,6 +48,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
@@ -52,12 +57,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Lists classic XML Applications (pipeline packages) visible to the current security token, and
- * thin IR execute via {@link IPSPipelineRuntimeService}.
+ * Lists classic XML Applications (pipeline packages) visible to the current security token,
+ * read-only Pipeline IR via {@link IPSPipelineIrService}, and thin IR execute via {@link
+ * IPSPipelineRuntimeService}.
  *
  * <p>Uses {@link PSServerXmlObjectStore} for summaries; mapping/filter/limit are pure helpers so
  * they can be unit-tested without the object-store singleton. Execute never calls classic {@code
- * PSQueryHandler}.
+ * PSQueryHandler}. IR GET never persists native IR or classic import results.
  */
 @PSSiteManageBean
 public class PipelinesAdaptor implements IPipelinesAdaptor {
@@ -72,16 +78,24 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
 
   private final Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader;
   private final Supplier<IPSPipelineRuntimeService> runtimeSupplier;
+  private final Supplier<IPSPipelineIrService> irSupplier;
+  private final BiFunction<String, PSSecurityToken, PSApplication> applicationLoader;
 
   public PipelinesAdaptor() {
     this(
         tok -> PSServerXmlObjectStore.getInstance().getApplicationSummaryObjects(tok, false),
-        PSPipelineRuntimeServiceLocator::getPipelineRuntimeService);
+        PSPipelineRuntimeServiceLocator::getPipelineRuntimeService,
+        PSPipelineIrServiceLocator::getPipelineIrService,
+        PipelinesAdaptor::loadApplicationObject);
   }
 
   /** Package-visible for unit tests that inject a fake summary source. */
   PipelinesAdaptor(Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader) {
-    this(summaryLoader, PSPipelineRuntimeServiceLocator::getPipelineRuntimeService);
+    this(
+        summaryLoader,
+        PSPipelineRuntimeServiceLocator::getPipelineRuntimeService,
+        PSPipelineIrServiceLocator::getPipelineIrService,
+        PipelinesAdaptor::loadApplicationObject);
   }
 
   /**
@@ -91,11 +105,44 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   PipelinesAdaptor(
       Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader,
       Supplier<IPSPipelineRuntimeService> runtimeSupplier) {
+    this(
+        summaryLoader,
+        runtimeSupplier,
+        PSPipelineIrServiceLocator::getPipelineIrService,
+        PipelinesAdaptor::loadApplicationObject);
+  }
+
+  /**
+   * Package-visible for unit tests covering IR read with injected IR service and optional classic
+   * application loader (no object-store / locator singletons).
+   */
+  PipelinesAdaptor(
+      Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader,
+      Supplier<IPSPipelineRuntimeService> runtimeSupplier,
+      Supplier<IPSPipelineIrService> irSupplier,
+      BiFunction<String, PSSecurityToken, PSApplication> applicationLoader) {
     this.summaryLoader = summaryLoader;
     this.runtimeSupplier =
         runtimeSupplier != null
             ? runtimeSupplier
             : PSPipelineRuntimeServiceLocator::getPipelineRuntimeService;
+    this.irSupplier =
+        irSupplier != null ? irSupplier : PSPipelineIrServiceLocator::getPipelineIrService;
+    this.applicationLoader =
+        applicationLoader != null ? applicationLoader : PipelinesAdaptor::loadApplicationObject;
+  }
+
+  private static PSApplication loadApplicationObject(String name, PSSecurityToken tok) {
+    try {
+      // fixupCeFields=false: IR import only; avoid CE field rewrite cost
+      return PSServerXmlObjectStore.getInstance().getApplicationObject(name, tok, false);
+    } catch (PSNotFoundException | PSAuthorizationException e) {
+      return null;
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new IllegalStateException("Failed to load application for pipeline IR", e);
+    }
   }
 
   @Override
@@ -146,6 +193,49 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       // Checked object-store failures (e.g. PSServerException) surface as 500 via resource
       log.warn("Failed to load application detail for {}", name, e);
       throw new IllegalStateException("Failed to load application detail", e);
+    }
+  }
+
+  @Override
+  public PipelineIrDocument getPipelineIr(URI baseUri, String idOrName) {
+    // baseUri reserved for HATEOAS link building (interface contract)
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for pipeline IR");
+    }
+    PSSecurityToken tok = req.getSecurityToken();
+    // Resolve only against the object-store catalog so the name passed to IR loaders
+    // is never the raw path param (java/path-injection).
+    String name = resolveApplicationName(idOrName.trim(), summaryLoader.apply(tok));
+    if (name == null) {
+      return null;
+    }
+    try {
+      Optional<PipelineIrDocument> nativeIr = irSupplier.get().load(name);
+      if (nativeIr.isPresent()) {
+        return nativeIr.get();
+      }
+      PSApplication app = applicationLoader.apply(name, tok);
+      if (app == null) {
+        return null;
+      }
+      // Classic import is read-only for this endpoint — do not save native IR.
+      return irSupplier.get().importClassicApplication(app);
+    } catch (PSPipelineIrException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Failed to load pipeline IR";
+      if (isNotFoundMessage(msg)) {
+        throw new WebApplicationException("Pipeline IR not found", 404);
+      }
+      // Import/decode failures are client-visible validation problems; no path echo.
+      throw new WebApplicationException(msg, 400);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      log.warn("Unexpected failure loading pipeline IR for {}", name, e);
+      throw e;
     }
   }
 
@@ -274,13 +364,21 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
             ApplicationDataSetSummary::getName,
             Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
     d.setDataSets(sets);
-
-    List<String> gaps = new ArrayList<>();
-    gaps.add("Pipe IR / SQL mapper / resource tanks not exposed (Pipelines Slice A+)");
-    gaps.add("Start / stop / enable application not supported via this API");
-    gaps.add("Classic application import/export not supported via this API");
-    d.setDesignGaps(gaps);
+    d.setDesignGaps(defaultDesignGaps());
     return d;
+  }
+
+  /**
+   * Remaining design gaps after IR <strong>read</strong> ships ({@code GET …/ir}). Start/stop and
+   * IR write / ZIP import remain sibling slices.
+   */
+  static List<String> defaultDesignGaps() {
+    List<String> gaps = new ArrayList<>();
+    gaps.add(
+        "Pipe IR write / graph editor / native IR save not supported (GET …/ir is read-only)");
+    gaps.add("Start / stop / enable application not supported via this API");
+    gaps.add("Classic application import/export ZIP not supported via this API");
+    return gaps;
   }
 
   /** Pure mapping path used by production and unit tests (no object-store singleton). */
