@@ -16,7 +16,8 @@
  */
 package com.percussion.server.webservices;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.IPSDbComponent;
 import com.percussion.cms.objectstore.PSCloneSiteFolderRequest;
@@ -118,7 +119,7 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
       elements = proxy.load(FOLDER_PROXY_TYPE, new PSKey[] {locator});
     } catch (PSCmsException e) {
       String args[] = {String.valueOf(folderId), e.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.FAIL_OPEN_FOLDER, args);
+      throw new PSCmsException(PathItemErrorCodes.FAIL_OPEN_FOLDER, args);
     }
     PSFolder folder = new PSFolder(elements[0]);
 
@@ -571,7 +572,7 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
         if (sum != null) validateId = true;
       }
 
-      if (!validateId) throw new PSCmsException(IPSCmsErrors.INVALID_FOLDER_ID, String.valueOf(id));
+      if (!validateId) throw new PSCmsException(PathItemErrorCodes.INVALID_FOLDER_ID, String.valueOf(id));
     }
   }
 
@@ -601,7 +602,7 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
     summaryArray = proxy.getParentSummaries(new PSLocator(id, 1));
 
     if (summaryArray.length == 0) {
-      throw new PSCmsException(IPSCmsErrors.FAIL_GET_PARENT_FOLDER, String.valueOf(id));
+      throw new PSCmsException(PathItemErrorCodes.FAIL_GET_PARENT_FOLDER, String.valueOf(id));
     }
 
     PSComponentSummaries summaries = new PSComponentSummaries(summaryArray);
@@ -771,7 +772,7 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
       id = Integer.parseInt(PSXMLDomUtil.getElementData(idElem));
     } catch (NumberFormatException e) {
       Object args[] = {idElem.getNodeName(), action};
-      throw new PSException(IPSWebServicesErrors.WEB_SERVICE_MISSING_ID, args);
+      throw new PSException(ServerWebServicesErrorCodes.WEB_SERVICE_MISSING_ID, args);
     }
 
     return id;
@@ -982,7 +983,7 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
             hasName = false;
           } else if (hasName) {
             String args[] = new String[] {PSWsFolderProcessor.CHILD_ID_EL, action};
-            throw new PSException(IPSWebServicesErrors.INVALID_MIXED_CHILD_IDS, args);
+            throw new PSException(ServerWebServicesErrorCodes.INVALID_MIXED_CHILD_IDS, args);
           }
 
           childIds.add(new PSLocator(id, 1));
@@ -991,7 +992,7 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
             hasName = true;
           } else if (!hasName) {
             String args[] = new String[] {PSWsFolderProcessor.CHILD_ID_EL, action};
-            throw new PSException(IPSWebServicesErrors.INVALID_MIXED_CHILD_IDS, args);
+            throw new PSException(ServerWebServicesErrorCodes.INVALID_MIXED_CHILD_IDS, args);
           }
 
           childIds.add(new PSLocatorWithName(id, 1, name));

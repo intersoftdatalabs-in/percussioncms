@@ -16,6 +16,7 @@
  */
 package com.percussion.server.webservices;
 
+import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.handlers.PSRelationshipCommandHandler;
 import com.percussion.cms.objectstore.PSItemChild;
@@ -117,7 +118,7 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
       String[] args = {
         childName, PSItemDefManager.getInstance().contentTypeIdToName(theItem.getContentTypeId())
       };
-      throw new PSException(IPSWebServicesErrors.WEB_SERVICE_ITEM_CHILD_NOT_FOUND, args);
+      throw new PSException(ServerWebServicesErrorCodes.WEB_SERVICE_ITEM_CHILD_NOT_FOUND, args);
     }
 
     // append the xml from the PSServerItem
@@ -573,14 +574,14 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
       executeCheckInOut(request, IPSConstants.TRIGGER_CHECKOUT);
     } catch (Exception e) {
       throw new PSException(
-          IPSWebServicesErrors.WEB_SERVICE_PROMOTE_FAILED_CHECKOUT, e.getLocalizedMessage());
+          ServerWebServicesErrorCodes.WEB_SERVICE_PROMOTE_FAILED_CHECKOUT, e.getLocalizedMessage());
     }
 
     try {
       executeCheckInOut(request, IPSConstants.TRIGGER_CHECKIN);
     } catch (Exception e) {
       throw new PSException(
-          IPSWebServicesErrors.WEB_SERVICE_PROMOTE_FAILED_CHECKIN, e.getLocalizedMessage());
+          ServerWebServicesErrorCodes.WEB_SERVICE_PROMOTE_FAILED_CHECKIN, e.getLocalizedMessage());
     }
 
     addResultResponseXml("success", 0, null, parent);

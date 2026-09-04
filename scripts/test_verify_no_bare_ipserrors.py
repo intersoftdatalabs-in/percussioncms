@@ -537,6 +537,28 @@ def test_system_server_handlers_parsers_converted_paths_not_allowlisted() -> Non
     assert resurrected == [], resurrected
 
 
+def test_system_server_webservices_converted_paths_not_allowlisted() -> None:
+    """#4263 typed leftover system server webservices handler call-sites."""
+    converted = (
+        "system/src/main/java/com/percussion/server/webservices/PSAssemblyHandler.java",
+        "system/src/main/java/com/percussion/server/webservices/PSContentDataHandler.java",
+        "system/src/main/java/com/percussion/server/webservices/PSDesignHandler.java",
+        "system/src/main/java/com/percussion/server/webservices/PSFolderHandler.java",
+        "system/src/main/java/com/percussion/server/webservices/PSSearchHandler.java",
+        "system/src/main/java/com/percussion/server/webservices/PSServerFolderProcessor.java",
+        "system/src/main/java/com/percussion/server/webservices/PSWebServicesBaseHandler.java",
+        "system/src/main/java/com/percussion/server/webservices/PSWebServicesRequestHandler.java",
+    )
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = {
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    resurrected = [p for p in converted if p in entries]
+    assert resurrected == [], resurrected
+
+
 def test_system_relationship_effect_converted_paths_not_allowlisted() -> None:
     """#4156 typed leftover com.percussion.relationship.effect production call-sites."""
     converted = (
