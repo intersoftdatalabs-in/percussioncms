@@ -17,10 +17,12 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.conn.PSServerException;
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSContentEditor;
 import com.percussion.design.objectstore.PSDataSet;
 import com.percussion.design.objectstore.PSRequestor;
+import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.design.objectstore.server.PSApplicationSummary;
 import com.percussion.design.objectstore.server.PSServerXmlObjectStore;
 import com.percussion.error.PSNotFoundException;
@@ -31,33 +33,40 @@ import com.percussion.rest.pipelines.IPipelinesAdaptor;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
+import com.percussion.server.PSServer;
 import com.percussion.services.pipeline.IPSPipelineRuntimeService;
 import com.percussion.services.pipeline.PSPipelineIrException;
 import com.percussion.services.pipeline.PSPipelineRuntimeServiceLocator;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.servlets.PSSecurityFilter;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.user.data.PSCurrentUser;
+import com.percussion.user.service.IPSUserService;
 import com.percussion.util.PSCollection;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Lists classic XML Applications (pipeline packages) visible to the current security token, and
- * thin IR execute via {@link IPSPipelineRuntimeService}.
+ * Lists classic XML Applications (pipeline packages) visible to the current security token, thin IR
+ * execute via {@link IPSPipelineRuntimeService}, and Admin start/stop via {@link PSServer}.
  *
  * <p>Uses {@link PSServerXmlObjectStore} for summaries; mapping/filter/limit are pure helpers so
  * they can be unit-tested without the object-store singleton. Execute never calls classic {@code
- * PSQueryHandler}.
+ * PSQueryHandler}. Start/stop peer console {@code start application} / {@code stop application}.
  */
 @PSSiteManageBean
 public class PipelinesAdaptor implements IPipelinesAdaptor {
@@ -70,18 +79,35 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   /** Hard cap to avoid unbounded payloads on large servers. */
   public static final int MAX_LIMIT = 1000;
 
+  static final String ADMIN_REQUIRED = "Admin role required to start or stop pipeline applications";
+
+  static final String HIDDEN_NOT_ALLOWED =
+      "Hidden applications cannot be started or stopped via this API";
+
+  static final String DISABLED_NOT_ALLOWED = "Application is disabled";
+
   private final Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader;
   private final Supplier<IPSPipelineRuntimeService> runtimeSupplier;
+  private final BooleanSupplier adminChecker;
+  private final ApplicationLifecycleOps lifecycleOps;
+  private final ApplicationDetailLoader detailLoader;
+
+  /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
+  @Autowired(required = false)
+  private IPSUserService userService;
 
   public PipelinesAdaptor() {
     this(
         tok -> PSServerXmlObjectStore.getInstance().getApplicationSummaryObjects(tok, false),
-        PSPipelineRuntimeServiceLocator::getPipelineRuntimeService);
+        PSPipelineRuntimeServiceLocator::getPipelineRuntimeService,
+        null,
+        null,
+        null);
   }
 
   /** Package-visible for unit tests that inject a fake summary source. */
   PipelinesAdaptor(Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader) {
-    this(summaryLoader, PSPipelineRuntimeServiceLocator::getPipelineRuntimeService);
+    this(summaryLoader, PSPipelineRuntimeServiceLocator::getPipelineRuntimeService, null, null, null);
   }
 
   /**
@@ -91,11 +117,27 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   PipelinesAdaptor(
       Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader,
       Supplier<IPSPipelineRuntimeService> runtimeSupplier) {
+    this(summaryLoader, runtimeSupplier, null, null, null);
+  }
+
+  /**
+   * Package-visible for unit tests covering Admin start/stop with injected collaborators (no {@link
+   * PSServer} / object-store singletons).
+   */
+  PipelinesAdaptor(
+      Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader,
+      Supplier<IPSPipelineRuntimeService> runtimeSupplier,
+      BooleanSupplier adminChecker,
+      ApplicationLifecycleOps lifecycleOps,
+      ApplicationDetailLoader detailLoader) {
     this.summaryLoader = summaryLoader;
     this.runtimeSupplier =
         runtimeSupplier != null
             ? runtimeSupplier
             : PSPipelineRuntimeServiceLocator::getPipelineRuntimeService;
+    this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
+    this.lifecycleOps = lifecycleOps != null ? lifecycleOps : new DefaultApplicationLifecycleOps();
+    this.detailLoader = detailLoader != null ? detailLoader : this::loadDetailFromObjectStore;
   }
 
   @Override
@@ -127,26 +169,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     if (name == null) {
       return null;
     }
-    try {
-      // fixupCeFields=false: catalog/detail only; avoid CE field rewrite cost
-      PSApplication app =
-          PSServerXmlObjectStore.getInstance().getApplicationObject(name, tok, false);
-      if (app == null) {
-        return null;
-      }
-      return toDetail(app);
-    } catch (PSNotFoundException | PSAuthorizationException e) {
-      // Expected miss / no design access → resource maps null to generic 404
-      log.debug("Application not found or not visible {}: {}", name, e.toString());
-      return null;
-    } catch (RuntimeException e) {
-      log.warn("Unexpected failure loading application detail for {}", name, e);
-      throw e;
-    } catch (Exception e) {
-      // Checked object-store failures (e.g. PSServerException) surface as 500 via resource
-      log.warn("Failed to load application detail for {}", name, e);
-      throw new IllegalStateException("Failed to load application detail", e);
-    }
+    return detailLoader.load(name, tok);
   }
 
   @Override
@@ -172,6 +195,146 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       }
       // Planner/validation failures are client errors; keep message (no path echo).
       throw new WebApplicationException(msg, 400);
+    }
+  }
+
+  @Override
+  public ApplicationDetail startApplication(URI baseUri, String idOrName) {
+    requireAdmin();
+    ResolvedApp resolved = resolveForLifecycle(idOrName);
+    if (resolved == null) {
+      return null;
+    }
+    if (resolved.summary.isHidden()) {
+      throw new WebApplicationException(HIDDEN_NOT_ALLOWED, Response.Status.BAD_REQUEST);
+    }
+    if (!resolved.summary.isEnabled()) {
+      throw new WebApplicationException(DISABLED_NOT_ALLOWED, Response.Status.BAD_REQUEST);
+    }
+    if (!lifecycleOps.isActive(resolved.name)) {
+      try {
+        lifecycleOps.start(resolved.name);
+      } catch (PSNotFoundException e) {
+        log.debug("Application not found on start {}: {}", resolved.name, e.toString());
+        return null;
+      } catch (PSAuthorizationException e) {
+        throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+      } catch (PSSystemValidationException e) {
+        String msg =
+            StringUtils.isNotBlank(e.getMessage()) ? e.getMessage() : "Application failed validation";
+        throw new WebApplicationException(msg, Response.Status.BAD_REQUEST);
+      } catch (PSServerException e) {
+        throw new IllegalStateException("Failed to start application", e);
+      } catch (RuntimeException e) {
+        throw e;
+      } catch (Exception e) {
+        throw new IllegalStateException("Failed to start application", e);
+      }
+    }
+    return detailAfterLifecycle(resolved);
+  }
+
+  @Override
+  public ApplicationDetail stopApplication(URI baseUri, String idOrName) {
+    requireAdmin();
+    ResolvedApp resolved = resolveForLifecycle(idOrName);
+    if (resolved == null) {
+      return null;
+    }
+    if (resolved.summary.isHidden()) {
+      throw new WebApplicationException(HIDDEN_NOT_ALLOWED, Response.Status.BAD_REQUEST);
+    }
+    // Idempotent when already stopped (peer console stop when not running).
+    if (lifecycleOps.isActive(resolved.name)) {
+      lifecycleOps.stop(resolved.name);
+    }
+    return detailAfterLifecycle(resolved);
+  }
+
+  private ResolvedApp resolveForLifecycle(String idOrName) {
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for application lifecycle");
+    }
+    PSSecurityToken tok = req.getSecurityToken();
+    PSApplicationSummary[] sums = summaryLoader.apply(tok);
+    String name = resolveApplicationName(idOrName.trim(), sums);
+    if (name == null) {
+      return null;
+    }
+    PSApplicationSummary match = findSummaryByName(name, sums);
+    if (match == null) {
+      return null;
+    }
+    return new ResolvedApp(name, match, tok);
+  }
+
+  private ApplicationDetail detailAfterLifecycle(ResolvedApp resolved) {
+    ApplicationDetail detail = detailLoader.load(resolved.name, resolved.token);
+    if (detail == null) {
+      // Fallback from trusted catalog summary when object-store detail is unavailable.
+      detail = toDetailFromSummary(resolved.summary);
+    }
+    detail.setActive(lifecycleOps.isActive(resolved.name));
+    return detail;
+  }
+
+  private ApplicationDetail loadDetailFromObjectStore(String name, PSSecurityToken tok) {
+    try {
+      // fixupCeFields=false: catalog/detail only; avoid CE field rewrite cost
+      PSApplication app =
+          PSServerXmlObjectStore.getInstance().getApplicationObject(name, tok, false);
+      if (app == null) {
+        return null;
+      }
+      ApplicationDetail detail = toDetail(app);
+      detail.setActive(lifecycleOps.isActive(name));
+      return detail;
+    } catch (PSNotFoundException | PSAuthorizationException e) {
+      // Expected miss / no design access → resource maps null to generic 404
+      log.debug("Application not found or not visible {}: {}", name, e.toString());
+      return null;
+    } catch (RuntimeException e) {
+      log.warn("Unexpected failure loading application detail for {}", name, e);
+      throw e;
+    } catch (Exception e) {
+      // Checked object-store failures (e.g. PSServerException) surface as 500 via resource
+      log.warn("Failed to load application detail for {}", name, e);
+      throw new IllegalStateException("Failed to load application detail", e);
+    }
+  }
+
+  private void requireAdmin() {
+    boolean allowed;
+    try {
+      allowed = adminChecker.getAsBoolean();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      log.debug("Admin check failed: {}", e.getMessage());
+      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+    }
+    if (!allowed) {
+      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+    }
+  }
+
+  boolean isCurrentUserAdmin() {
+    if (userService == null) {
+      return false;
+    }
+    try {
+      PSCurrentUser current = userService.getCurrentUser();
+      if (current == null || StringUtils.isBlank(current.getName())) {
+        return false;
+      }
+      return userService.isAdminUser(current.getName());
+    } catch (PSDataServiceException e) {
+      log.debug("Unable to resolve current user for Admin check: {}", e.getMessage());
+      return false;
     }
   }
 
@@ -237,6 +400,18 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     return null;
   }
 
+  static PSApplicationSummary findSummaryByName(String name, PSApplicationSummary[] sums) {
+    if (name == null || sums == null) {
+      return null;
+    }
+    for (PSApplicationSummary sum : sums) {
+      if (sum != null && name.equals(sum.getName())) {
+        return sum;
+      }
+    }
+    return null;
+  }
+
   /** Package-visible for unit tests. */
   static ApplicationDetail toDetail(PSApplication app) {
     ApplicationDetail d = new ApplicationDetail();
@@ -274,13 +449,33 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
             ApplicationDataSetSummary::getName,
             Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
     d.setDataSets(sets);
+    d.setDesignGaps(defaultDesignGaps());
+    return d;
+  }
 
+  static ApplicationDetail toDetailFromSummary(PSApplicationSummary sum) {
+    ApplicationDetail d = new ApplicationDetail();
+    d.setId(sum.getId());
+    d.setName(sum.getName());
+    d.setDescription(sum.getDescription());
+    d.setEnabled(sum.isEnabled());
+    d.setHidden(sum.isHidden());
+    d.setAppRoot(sum.getAppRoot());
+    if (sum.getAppType() != null) {
+      d.setAppType(sum.getAppType().name());
+    }
+    d.setVersion(sum.getVersion());
+    d.setDataSets(List.of());
+    d.setDesignGaps(defaultDesignGaps());
+    return d;
+  }
+
+  static List<String> defaultDesignGaps() {
     List<String> gaps = new ArrayList<>();
     gaps.add("Pipe IR / SQL mapper / resource tanks not exposed (Pipelines Slice A+)");
-    gaps.add("Start / stop / enable application not supported via this API");
+    gaps.add("Enable / disable application not supported via this API");
     gaps.add("Classic application import/export not supported via this API");
-    d.setDesignGaps(gaps);
-    return d;
+    return gaps;
   }
 
   /** Pure mapping path used by production and unit tests (no object-store singleton). */
@@ -329,6 +524,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     dto.setName(sum.getName());
     dto.setDescription(sum.getDescription());
     dto.setEnabled(sum.isEnabled());
+    dto.setActive(sum.isActive());
     dto.setAppRoot(sum.getAppRoot());
     if (sum.getAppType() != null) {
       dto.setAppType(sum.getAppType().name());
@@ -337,5 +533,49 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     dto.setEmpty(sum.isEmpty());
     dto.setHidden(sum.isHidden());
     return dto;
+  }
+
+  private static final class ResolvedApp {
+    final String name;
+    final PSApplicationSummary summary;
+    final PSSecurityToken token;
+
+    ResolvedApp(String name, PSApplicationSummary summary, PSSecurityToken token) {
+      this.name = name;
+      this.summary = summary;
+      this.token = token;
+    }
+  }
+
+  /** Start/stop/active peers of {@link PSServer} — injectable for unit tests. */
+  interface ApplicationLifecycleOps {
+    boolean isActive(String appName);
+
+    void start(String appName) throws Exception;
+
+    boolean stop(String appName);
+  }
+
+  /** Load detail by trusted catalog name — injectable for unit tests. */
+  @FunctionalInterface
+  interface ApplicationDetailLoader {
+    ApplicationDetail load(String name, PSSecurityToken token);
+  }
+
+  private static final class DefaultApplicationLifecycleOps implements ApplicationLifecycleOps {
+    @Override
+    public boolean isActive(String appName) {
+      return PSServer.isApplicationActive(appName);
+    }
+
+    @Override
+    public void start(String appName) throws Exception {
+      PSServer.startApplication(appName);
+    }
+
+    @Override
+    public boolean stop(String appName) {
+      return PSServer.shutdownApplication(appName);
+    }
   }
 }

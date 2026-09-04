@@ -27,6 +27,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,17 +39,22 @@ import com.percussion.design.objectstore.PSRequestor;
 import com.percussion.design.objectstore.server.PSApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
+import com.percussion.security.PSSecurityToken;
+import com.percussion.server.PSRequest;
 import com.percussion.services.pipeline.IPSPipelineRuntimeService;
 import com.percussion.services.pipeline.PSPipelineIrException;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
+import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.util.PSCollection;
 import jakarta.ws.rs.WebApplicationException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 /**
  * Pure unit tests for {@link PipelinesAdaptor} mapping / filter / page helpers (no object-store
@@ -184,6 +191,9 @@ class PipelinesAdaptorTest {
     assertEquals("DATASET", detail.getDataSets().get(0).getKind());
     assertNotNull(detail.getDesignGaps());
     assertFalse(detail.getDesignGaps().isEmpty());
+    assertTrue(
+        detail.getDesignGaps().stream().noneMatch(g -> g.toLowerCase().contains("start")),
+        "start/stop shipped — designGaps must not claim start/stop unsupported");
   }
 
   @Test
@@ -359,6 +369,294 @@ class PipelinesAdaptorTest {
     assertFalse(PipelinesAdaptor.isNotFoundMessage(null));
   }
 
+  @Test
+  void startApplication_requiresAdmin() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> false,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.startApplication(
+                      URI.create("http://localhost/services/"), "sys_cmpDocuments"));
+      assertEquals(403, ex.getResponse().getStatus());
+      assertEquals(PipelinesAdaptor.ADMIN_REQUIRED, ex.getMessage());
+    }
+  }
+
+  @Test
+  void startApplication_startsWhenStopped() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    AtomicBoolean active = new AtomicBoolean(false);
+    AtomicBoolean started = new AtomicBoolean(false);
+    PipelinesAdaptor.ApplicationLifecycleOps ops =
+        new PipelinesAdaptor.ApplicationLifecycleOps() {
+          @Override
+          public boolean isActive(String appName) {
+            return active.get();
+          }
+
+          @Override
+          public void start(String appName) {
+            started.set(true);
+            active.set(true);
+          }
+
+          @Override
+          public boolean stop(String appName) {
+            return false;
+          }
+        };
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> true,
+            ops,
+            (name, tok) -> detailNamed(name, active.get()));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      ApplicationDetail out =
+          adaptor.startApplication(URI.create("http://localhost/services/"), "sys_cmpDocuments");
+      assertNotNull(out);
+      assertEquals("sys_cmpDocuments", out.getName());
+      assertEquals(Boolean.TRUE, out.getActive());
+      assertTrue(started.get());
+    }
+  }
+
+  @Test
+  void startApplication_idempotentWhenAlreadyRunning() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor.ApplicationLifecycleOps ops = mock(PipelinesAdaptor.ApplicationLifecycleOps.class);
+    when(ops.isActive("sys_cmpDocuments")).thenReturn(true);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> true,
+            ops,
+            (name, tok) -> detailNamed(name, true));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      ApplicationDetail out =
+          adaptor.startApplication(URI.create("http://localhost/services/"), "7");
+      assertEquals(Boolean.TRUE, out.getActive());
+      verify(ops, never()).start(anyString());
+    }
+  }
+
+  @Test
+  void startApplication_rejectsHiddenAndDisabled() {
+    PSApplicationSummary hidden = summary(1, "hiddenApp", "h", true, "r", false, true);
+    PSApplicationSummary disabled = summary(2, "disabledApp", "d", false, "r", false, false);
+    PipelinesAdaptor.ApplicationLifecycleOps ops = noopLifecycle();
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+
+      PipelinesAdaptor hiddenAdaptor =
+          new PipelinesAdaptor(
+              tok -> new PSApplicationSummary[] {hidden},
+              () -> mock(IPSPipelineRuntimeService.class),
+              () -> true,
+              ops,
+              (name, tok) -> detailNamed(name, false));
+      WebApplicationException hiddenEx =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  hiddenAdaptor.startApplication(
+                      URI.create("http://localhost/"), "hiddenApp"));
+      assertEquals(400, hiddenEx.getResponse().getStatus());
+      assertEquals(PipelinesAdaptor.HIDDEN_NOT_ALLOWED, hiddenEx.getMessage());
+
+      PipelinesAdaptor disabledAdaptor =
+          new PipelinesAdaptor(
+              tok -> new PSApplicationSummary[] {disabled},
+              () -> mock(IPSPipelineRuntimeService.class),
+              () -> true,
+              ops,
+              (name, tok) -> detailNamed(name, false));
+      WebApplicationException disabledEx =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  disabledAdaptor.startApplication(
+                      URI.create("http://localhost/"), "disabledApp"));
+      assertEquals(400, disabledEx.getResponse().getStatus());
+      assertEquals(PipelinesAdaptor.DISABLED_NOT_ALLOWED, disabledEx.getMessage());
+    }
+  }
+
+  @Test
+  void startApplication_unknownReturnsNull() {
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[0],
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      assertNull(
+          adaptor.startApplication(URI.create("http://localhost/"), "missing"));
+    }
+  }
+
+  @Test
+  void stopApplication_stopsWhenRunningAndIdempotentWhenStopped() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    AtomicBoolean active = new AtomicBoolean(true);
+    AtomicBoolean stopped = new AtomicBoolean(false);
+    PipelinesAdaptor.ApplicationLifecycleOps ops =
+        new PipelinesAdaptor.ApplicationLifecycleOps() {
+          @Override
+          public boolean isActive(String appName) {
+            return active.get();
+          }
+
+          @Override
+          public void start(String appName) {}
+
+          @Override
+          public boolean stop(String appName) {
+            stopped.set(true);
+            active.set(false);
+            return true;
+          }
+        };
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> true,
+            ops,
+            (name, tok) -> detailNamed(name, active.get()));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      ApplicationDetail out =
+          adaptor.stopApplication(URI.create("http://localhost/services/"), "sys_cmpDocuments");
+      assertEquals(Boolean.FALSE, out.getActive());
+      assertTrue(stopped.get());
+
+      // Second stop is idempotent — already stopped, do not call stop again meaningfully.
+      AtomicBoolean secondStop = new AtomicBoolean(false);
+      PipelinesAdaptor.ApplicationLifecycleOps stoppedOps =
+          new PipelinesAdaptor.ApplicationLifecycleOps() {
+            @Override
+            public boolean isActive(String appName) {
+              return false;
+            }
+
+            @Override
+            public void start(String appName) {}
+
+            @Override
+            public boolean stop(String appName) {
+              secondStop.set(true);
+              return false;
+            }
+          };
+      PipelinesAdaptor idempotent =
+          new PipelinesAdaptor(
+              tok -> new PSApplicationSummary[] {sum},
+              () -> mock(IPSPipelineRuntimeService.class),
+              () -> true,
+              stoppedOps,
+              (name, tok) -> detailNamed(name, false));
+      ApplicationDetail again =
+          idempotent.stopApplication(URI.create("http://localhost/services/"), "sys_cmpDocuments");
+      assertEquals(Boolean.FALSE, again.getActive());
+      assertFalse(secondStop.get());
+    }
+  }
+
+  @Test
+  void stopApplication_rejectsHiddenAndRequiresAdmin() {
+    PSApplicationSummary hidden = summary(1, "hiddenApp", "h", true, "r", false, true);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+
+      PipelinesAdaptor forbidden =
+          new PipelinesAdaptor(
+              tok -> new PSApplicationSummary[] {hidden},
+              () -> mock(IPSPipelineRuntimeService.class),
+              () -> false,
+              noopLifecycle(),
+              (name, tok) -> detailNamed(name, true));
+      WebApplicationException adminEx =
+          assertThrows(
+              WebApplicationException.class,
+              () -> forbidden.stopApplication(URI.create("http://localhost/"), "hiddenApp"));
+      assertEquals(403, adminEx.getResponse().getStatus());
+
+      PipelinesAdaptor hiddenAdaptor =
+          new PipelinesAdaptor(
+              tok -> new PSApplicationSummary[] {hidden},
+              () -> mock(IPSPipelineRuntimeService.class),
+              () -> true,
+              noopLifecycle(),
+              (name, tok) -> detailNamed(name, true));
+      WebApplicationException hiddenEx =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  hiddenAdaptor.stopApplication(URI.create("http://localhost/"), "hiddenApp"));
+      assertEquals(400, hiddenEx.getResponse().getStatus());
+      assertEquals(PipelinesAdaptor.HIDDEN_NOT_ALLOWED, hiddenEx.getMessage());
+    }
+  }
+
+  private static void stubCurrentRequest(MockedStatic<PSSecurityFilter> security) {
+    PSRequest req = mock(PSRequest.class);
+    PSSecurityToken tok = mock(PSSecurityToken.class);
+    when(req.getSecurityToken()).thenReturn(tok);
+    security.when(PSSecurityFilter::getCurrentRequest).thenReturn(req);
+  }
+
+  private static ApplicationDetail detailNamed(String name, boolean active) {
+    ApplicationDetail d = new ApplicationDetail();
+    d.setName(name);
+    d.setActive(active);
+    d.setEnabled(true);
+    d.setHidden(false);
+    d.setDesignGaps(PipelinesAdaptor.defaultDesignGaps());
+    return d;
+  }
+
+  private static PipelinesAdaptor.ApplicationLifecycleOps noopLifecycle() {
+    return new PipelinesAdaptor.ApplicationLifecycleOps() {
+      @Override
+      public boolean isActive(String appName) {
+        return false;
+      }
+
+      @Override
+      public void start(String appName) {}
+
+      @Override
+      public boolean stop(String appName) {
+        return false;
+      }
+    };
+  }
+
   private static PSApplicationSummary summary(
       int id,
       String name,
@@ -375,6 +673,7 @@ class PipelinesAdaptorTest {
     when(sum.getAppRoot()).thenReturn(appRoot);
     when(sum.isEmpty()).thenReturn(empty);
     when(sum.isHidden()).thenReturn(hidden);
+    when(sum.isActive()).thenReturn(false);
     when(sum.getAppType()).thenReturn(PSApplicationType.USER);
     when(sum.getVersion()).thenReturn(null);
     return sum;
