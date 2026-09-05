@@ -1856,6 +1856,7 @@ Thin IR execute (`POST …/execute`) is a separate native pipeline runtime path 
 | `POST` | `/services/pipelines/{idOrName}/stop` | **Admin.** Stop application (idempotent if already stopped) |
 | `GET` | `/services/pipelines/{idOrName}/ir` | **Read-only** Pipeline IR (app meta + resources / stages / tanks / mapper) |
 | `POST` | `/services/pipelines/{app}/resources/{resource}/execute` | Execute a native pipeline IR resource |
+| `GET` | `/services/pipelines/{idOrName}/validation` | **Admin.** Validation / problems summary (when deployed) |
 
 JSON list rows use `Application` / `ApplicationSummary`; detail uses `ApplicationDetail`
 (fields include `id`, `name`, `description`, `enabled`, `hidden`, `active`, `appRoot`,
@@ -1889,6 +1890,16 @@ import/export — those remain `designGaps` on application detail. **Developer �
 detail uses this GET for a read-only resources / tanks / mapper summary (see
 [Developer Pipelines](id:admin-developer-pipelines)).
 
+### Test invoke (execute)
+
+`POST …/resources/{resource}/execute` accepts a `PipelineExecuteRequest` JSON body
+(`params`, optional `rows` / `operation` / `keyColumns`) and returns
+`PipelineExecuteResult`. This path uses the native pipeline IR runtime; it does **not**
+call classic `PSQueryHandler` / `PSUpdateHandler`. Unknown app or resource names are
+**404**; unsupported resource kinds or invalid bodies are **400**. **Developer →
+Pipelines** detail exposes Admin **Test invoke** chrome that posts sample JSON and shows
+the structured result.
+
 ### Admin validation / problems
 
 `GET /services/pipelines/{idOrName}/validation` requires **Admin** (**403** otherwise).
@@ -1905,8 +1916,9 @@ unsafe names are **404**. **Hidden** applications cannot be validated via this A
 
 Empty `problems` with `valid=true` means object-store validation reported no issues.
 This is a **read** of design-time problems only — pipe graph edit, IR write, and classic
-ZIP import remain unsupported (`designGaps` on detail). SPA chrome for the problems panel
-is a separate slice.
+ZIP import remain unsupported (`designGaps` on detail). The Developer Pipelines detail
+**Problems** section feature-detects this endpoint: a **404** yields a soft empty state
+so Test invoke, Pipe IR, and lifecycle chrome still work.
 
 Remaining gaps on detail (`designGaps`) include IR write / graph editor / native save,
 enable/disable, and classic ZIP import/export.
@@ -1916,7 +1928,7 @@ enable/disable, and classic ZIP import/export.
 | `200` | List / get / validation / start / stop / IR read / execute success |
 | `400` | Invalid name, hidden/disabled lifecycle, or IR validation failure |
 | `403` | Caller is not Admin (start/stop/validation) |
-| `404` | Application (or IR resource) not found / not visible |
+| `404` | Application (or IR resource / validation tip) not found / not visible |
 | `500` | Object-store or server failure |
 
 ## Workflows (design catalog)

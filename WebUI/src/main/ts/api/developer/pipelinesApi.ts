@@ -20,6 +20,9 @@ import { PATHS } from "../paths";
 import type {
   ApplicationDetail,
   ApplicationSummary,
+  ApplicationValidationResult,
+  PipelineExecuteRequest,
+  PipelineExecuteResult,
   PipelineIrDocument,
 } from "./types";
 
@@ -125,4 +128,72 @@ export async function getPipelineIr(
 ): Promise<PipelineIrDocument> {
   const key = encodeURIComponent(idOrName);
   return get<PipelineIrDocument>(`${PATHS.PIPELINES}/${key}/ir`);
+}
+
+/**
+ * Unwrap Jackson WRAP_ROOT_VALUE {@code {"PipelineExecuteResult":{…}}} so execute
+ * responses bind the same as a flat result.
+ */
+export function unwrapPipelineExecuteResult(payload: unknown): PipelineExecuteResult {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("Pipeline execute result not found or empty response");
+  }
+  const root = payload as Record<string, unknown>;
+  const nested = root.PipelineExecuteResult ?? root.pipelineExecuteResult;
+  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
+    return nested as PipelineExecuteResult;
+  }
+  return root as PipelineExecuteResult;
+}
+
+/**
+ * POST /services/pipelines/{app}/resources/{resource}/execute — native IR smoke invoke.
+ * Body is {@link PipelineExecuteRequest} ({@code params}, {@code rows}, …).
+ */
+export async function executeResource(
+  app: string,
+  resource: string,
+  body: PipelineExecuteRequest = {},
+): Promise<PipelineExecuteResult> {
+  const appKey = encodeURIComponent(app);
+  const resourceKey = encodeURIComponent(resource);
+  const payload = await post<unknown>(
+    `${PATHS.PIPELINES}/${appKey}/resources/${resourceKey}/execute`,
+    body,
+  );
+  return unwrapPipelineExecuteResult(payload);
+}
+
+/**
+ * Unwrap Jackson WRAP_ROOT_VALUE {@code {"ApplicationValidationResult":{…}}}.
+ */
+export function unwrapApplicationValidationResult(
+  payload: unknown,
+): ApplicationValidationResult {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("Application validation result not found or empty response");
+  }
+  const root = payload as Record<string, unknown>;
+  const nested =
+    root.ApplicationValidationResult ?? root.applicationValidationResult;
+  const result = (nested != null && typeof nested === "object" && !Array.isArray(nested)
+    ? nested
+    : root) as ApplicationValidationResult;
+  const problems = result.problems;
+  return {
+    ...result,
+    problems: Array.isArray(problems) ? problems : problems == null ? [] : [problems],
+  };
+}
+
+/**
+ * GET /services/pipelines/{idOrName}/validation — Admin problems summary (wave 3 REST).
+ * Callers should feature-detect: treat HTTP 404 as “not deployed yet” soft-empty.
+ */
+export async function getApplicationValidation(
+  idOrName: string,
+): Promise<ApplicationValidationResult> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await get<unknown>(`${PATHS.PIPELINES}/${key}/validation`);
+  return unwrapApplicationValidationResult(payload);
 }

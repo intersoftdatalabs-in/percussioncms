@@ -449,6 +449,12 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
     source: "NATIVE",
     resources: [],
   }),
+  executeResource: vi.fn(),
+  getApplicationValidation: vi.fn().mockRejectedValue({
+    status: 404,
+    statusText: "Not Found",
+    body: null,
+  }),
 }));
 
 vi.mock("../../../main/ts/api/developer/localesApi", async (importOriginal) => {
