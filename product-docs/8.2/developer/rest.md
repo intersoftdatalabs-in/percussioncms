@@ -2335,8 +2335,9 @@ writes those server configuration keys — only files under a resolved XML appli
 Admin **write** updates UTF-8 text for a relative path under a catalog application. Path traversal,
 absolute paths, and unknown applications are **404** (no arbitrary filesystem write). Design
 **locking**, **binary** round-trip, and **folder create/delete/rename** remain design gaps.
-**Developer → application resource** SPA chrome is a later slice; integrators may call this API
-directly.
+**Developer → Application Files** SPA chrome browses and saves against this API
+([Developer Application Files](id:admin-developer-application-files)). Integrators may also call
+the endpoints directly.
 
 | Method | Path | Purpose |
 |--------|------|---------|

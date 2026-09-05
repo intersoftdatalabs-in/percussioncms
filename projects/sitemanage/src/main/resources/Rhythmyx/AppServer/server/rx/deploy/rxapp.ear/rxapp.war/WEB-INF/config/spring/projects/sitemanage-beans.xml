@@ -113,6 +113,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <!-- Pipelines Slice A/B: catalog + Admin start/stop + IR (#4304/#4314/#4316); CXF 404 without ref -->
             <ref bean="restPipelinesResource" />
             <ref bean="restWorkflowsResource" />
+            <ref bean="restApplicationFilesResource" />
             <ref bean="restAuditLogResource" />
         </jaxrs:serviceBeans>
         <jaxrs:extensionMappings>

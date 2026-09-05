@@ -102,7 +102,7 @@ public class ApplicationFilesResource {
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
-      throw new WebApplicationException(e, 500);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -135,7 +135,7 @@ public class ApplicationFilesResource {
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
-      throw new WebApplicationException(e, 500);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -181,7 +181,7 @@ public class ApplicationFilesResource {
     } catch (RuntimeException e) {
       throw mapWriteFailure(e);
     } catch (Exception e) {
-      throw new WebApplicationException(e, 500);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -196,7 +196,7 @@ public class ApplicationFilesResource {
     if (e instanceof IllegalArgumentException) {
       return new WebApplicationException(e.getMessage(), 400);
     }
-    return new WebApplicationException(e, 500);
+    return new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
   }
 
   private IApplicationFileAdaptor requireAdaptor() {

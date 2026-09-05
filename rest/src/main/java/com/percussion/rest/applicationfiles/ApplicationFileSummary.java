@@ -18,6 +18,7 @@
 package com.percussion.rest.applicationfiles;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import java.util.List;
 
 /** Application CMS/resource file catalog entry (SY-05). */
 @XmlRootElement(name = "ApplicationFile")
+@JsonRootName("ApplicationFile")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "XML application CMS/resource file under an application root")
 public class ApplicationFileSummary {

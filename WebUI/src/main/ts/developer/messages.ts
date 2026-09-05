@@ -105,6 +105,7 @@ export const DEV_MSG_KEYS = {
   TAB_RELATIONSHIP_TYPES: "perc.ui.developer@Relationship Types",
   TAB_WORKFLOWS: "perc.ui.developer@Workflows",
   TAB_SERVER_CONFIGS: "perc.ui.developer@Server Configs",
+  TAB_APPLICATION_FILES: "perc.ui.developer@Application Files",
   TAB_CE_CONTROLS: "perc.ui.developer@CE Controls",
   TAB_SITES: "perc.ui.developer@Sites",
   TAB_COMMUNITIES: "perc.ui.developer@Communities",
@@ -1495,6 +1496,50 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Configuration create / update / save not supported via this API",
   CFG_GAP_LOCK:
     "perc.ui.developer@Locking and concurrent edit are not exposed on this Developer surface",
+  APPFILE_APPS_LOADING: "perc.ui.developer@Loading applications...",
+  APPFILE_APPS_EMPTY: "perc.ui.developer@No applications returned.",
+  APPFILE_APPS_ERROR: "perc.ui.developer@Could not load applications.",
+  APPFILE_APPS_HINT:
+    "perc.ui.developer@Pick an XML application to browse its CMS/resource files (Workbench System Design). Distinct from Server Configs.",
+  APPFILE_FILES_LOADING: "perc.ui.developer@Loading application files...",
+  APPFILE_FILES_EMPTY: "perc.ui.developer@No CMS/resource files under this application.",
+  APPFILE_FILES_ERROR: "perc.ui.developer@Could not load application files.",
+  APPFILE_FILES_HINT:
+    "perc.ui.developer@Relative files under the application root. Open a file to edit and save (Admin). Folders are listed read-only.",
+  APPFILE_COL_APP: "perc.ui.developer@Application",
+  APPFILE_COL_ROOT: "perc.ui.developer@App root",
+  APPFILE_COL_DESCRIPTION: "perc.ui.developer@Description",
+  APPFILE_COL_NAME: "perc.ui.developer@Name",
+  APPFILE_COL_PATH: "perc.ui.developer@Path",
+  APPFILE_COL_KIND: "perc.ui.developer@Kind",
+  APPFILE_COL_MIME: "perc.ui.developer@MIME type",
+  APPFILE_COL_ENC: "perc.ui.developer@Encoding",
+  APPFILE_KIND_FILE: "perc.ui.developer@File",
+  APPFILE_KIND_DIR: "perc.ui.developer@Folder",
+  APPFILE_BACK_APPS: "perc.ui.developer@Back to applications",
+  APPFILE_BACK_FILES: "perc.ui.developer@Back to files",
+  APPFILE_DETAIL_LOADING: "perc.ui.developer@Loading application file...",
+  APPFILE_DETAIL_ERROR: "perc.ui.developer@Could not load application file.",
+  APPFILE_CONTENT: "perc.ui.developer@Content",
+  APPFILE_CONTENT_HINT:
+    "perc.ui.developer@UTF-8 text body. Empty content is allowed. Binary round-trip is a design gap.",
+  APPFILE_SAVE: "perc.ui.developer@Save file",
+  APPFILE_CANCEL: "perc.ui.developer@Cancel",
+  APPFILE_SAVED: "perc.ui.developer@Application file saved.",
+  APPFILE_SAVE_ERROR: "perc.ui.developer@Could not save application file.",
+  APPFILE_FORBIDDEN: "perc.ui.developer@Admin role required to save application files.",
+  APPFILE_NOT_FOUND: "perc.ui.developer@Application or file not found.",
+  APPFILE_TOO_LARGE:
+    "perc.ui.developer@File is too large to edit in the browser (2 MB limit).",
+  APPFILE_UNSAVED_CONFIRM:
+    "perc.ui.developer@Discard unsaved application file changes?",
+  APPFILE_XML_CONFIRM:
+    "perc.ui.developer@Content may not be well-formed XML. Save anyway?",
+  APPFILE_XML_BLOCKED:
+    "perc.ui.developer@Content may not be well-formed XML. Fix the markup before saving.",
+  APPFILE_SAVE_ADMIN_ONLY:
+    "perc.ui.developer@Admin role required. Save is disabled for this session.",
+  APPFILE_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   CTL_LOADING: "perc.ui.developer@Loading controls...",
   CTL_EMPTY: "perc.ui.developer@No controls returned.",
   CTL_ERROR: "perc.ui.developer@Could not load controls.",

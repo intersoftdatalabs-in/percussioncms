@@ -754,6 +754,24 @@ vi.mock("../../../main/ts/api/developer/serverConfigsApi", async (importOriginal
   };
 });
 
+vi.mock("../../../main/ts/api/developer/applicationFilesApi", () => ({
+  listApplicationFiles: vi.fn().mockResolvedValue([
+    {
+      path: "ApplicationFiles/style.css",
+      name: "style.css",
+      directory: false,
+    },
+  ]),
+  getApplicationFileDetail: vi.fn().mockResolvedValue({
+    applicationName: "sys_resources",
+    path: "ApplicationFiles/style.css",
+    content: "body{}",
+    designGaps: [],
+  }),
+  updateApplicationFile: vi.fn(),
+  APPLICATION_FILE_DESIGN_GAPS: [],
+}));
+
 vi.mock("../../../main/ts/api/developer/controlsApi", async (importOriginal) => {
   const actual =
     await importOriginal<typeof import("../../../main/ts/api/developer/controlsApi")>();
@@ -1084,6 +1102,19 @@ it("loads views catalog section", async () => {
     });
     expect(screen.getByTestId("developer-cfg-table").textContent).toContain(
       "Logging configuration",
+    );
+  });
+
+  it("selects application-files section", async () => {
+    render(<DeveloperShell initialSection="application-files" embedded />);
+    expect(
+      screen.getByTestId("tab-developer-application-files").getAttribute("aria-selected"),
+    ).toBe("true");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-panel")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-appfile-apps-table").textContent).toContain(
+      "sys_cmpDocuments",
     );
   });
 
