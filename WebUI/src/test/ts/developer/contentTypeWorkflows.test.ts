@@ -7,11 +7,19 @@ import {
   buildAllowedWorkflowsReplaceBody,
   cloneNamedObjectRefs,
   namedObjectRefsEqual,
+  refKey,
   toNamedObjectRefPayload,
   withDefaultWorkflowFlags,
 } from "../../../main/ts/developer/contentTypeWorkflows";
 
 describe("contentTypeWorkflows helpers (CD-08)", () => {
+  it("refKey prefers name then guid then index", () => {
+    expect(refKey({ name: "percPage" }, 3)).toBe("name:percPage");
+    expect(refKey({ guid: { stringValue: "2-1-9" } }, 3)).toBe("guid:2-1-9");
+    expect(refKey({ guid: { uuid: 9 } }, 3)).toBe("uuid:9");
+    expect(refKey({}, 3)).toBe("idx:3");
+  });
+
   it("clones refs without sharing guid objects", () => {
     const guid = { stringValue: "0-23-4", uuid: 4 };
     const src = [{ name: "Simple Workflow", label: "Simple", guid, isDefault: true }];

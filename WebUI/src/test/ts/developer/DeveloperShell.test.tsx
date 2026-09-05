@@ -718,6 +718,8 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
     workflowName: "Simple Workflow",
     workflowSteps: [{ stepName: "Draft", permissionNames: ["Read"], stepRoles: [] }],
   }),
+  getWorkflowAllowedContentTypes: vi.fn().mockResolvedValue([]),
+  setWorkflowAllowedContentTypes: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("../../../main/ts/api/developer/serverConfigsApi", async (importOriginal) => {

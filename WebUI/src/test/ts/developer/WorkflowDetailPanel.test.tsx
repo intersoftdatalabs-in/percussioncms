@@ -13,14 +13,21 @@ import { WorkflowDetailPanel } from "../../../main/ts/developer/WorkflowDetailPa
 vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   getWorkflowDetail: vi.fn(),
   listWorkflows: vi.fn(),
+  getWorkflowAllowedContentTypes: vi.fn(),
+  setWorkflowAllowedContentTypes: vi.fn(),
+  wrapWorkflowContentTypesForWire: vi.fn((body) => ({ WorkflowContentTypes: body })),
+  WORKFLOW_CONTENT_TYPES_ROOT: "WorkflowContentTypes",
   WORKFLOW_DESIGN_GAPS: [
     "Full workflow graph design is not exposed in the Developer catalog",
     "Workflow create / update / delete is not supported from this Developer surface",
-    "Content type workflow association is edited on the content type detail panel",
   ],
 }));
 
 const getWorkflowDetail = workflowsApi.getWorkflowDetail as ReturnType<typeof vi.fn>;
+const getWorkflowAllowedContentTypes =
+  workflowsApi.getWorkflowAllowedContentTypes as ReturnType<typeof vi.fn>;
+const setWorkflowAllowedContentTypes =
+  workflowsApi.setWorkflowAllowedContentTypes as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   workflowName: "Simple Workflow",
@@ -48,6 +55,10 @@ describe("WorkflowDetailPanel", () => {
       message: (key: string) => key,
     };
     getWorkflowDetail.mockReset();
+    getWorkflowAllowedContentTypes.mockReset();
+    setWorkflowAllowedContentTypes.mockReset();
+    getWorkflowAllowedContentTypes.mockResolvedValue([{ name: "percPage", label: "Page" }]);
+    setWorkflowAllowedContentTypes.mockImplementation(async (_id, body) => body.allowedContentTypes);
   });
 
   it("loads detail on success and supports back", async () => {
@@ -67,6 +78,58 @@ describe("WorkflowDetailPanel", () => {
     expect(back.getAttribute("aria-label")).toBe("Back to list");
     fireEvent.click(back);
     expect(onBack).toHaveBeenCalled();
+  });
+
+  it("loads and edits allowed content types then saves (SY-06)", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    render(<WorkflowDetailPanel name="Simple Workflow" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-ct-row-0")).toBeTruthy();
+    });
+    expect(getWorkflowAllowedContentTypes).toHaveBeenCalledWith("Simple Workflow");
+    expect(screen.getByTestId("developer-wf-ct-row-0").textContent).toContain("percPage");
+    expect(screen.getByTestId("developer-wf-ct-save")).toBeDisabled();
+
+    fireEvent.change(screen.getByTestId("developer-wf-ct-add-name"), {
+      target: { value: "percImage" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-ct-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-ct-row-1")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-ct-save")).not.toBeDisabled();
+
+    fireEvent.click(screen.getByTestId("developer-wf-ct-save"));
+    await waitFor(() => {
+      expect(setWorkflowAllowedContentTypes).toHaveBeenCalled();
+    });
+    expect(setWorkflowAllowedContentTypes).toHaveBeenCalledWith("Simple Workflow", {
+      allowedContentTypes: [{ name: "percPage" }, { name: "percImage" }],
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-ct-notice").textContent).toBe(
+        DEV_MSG.WF_CT_SAVE_SUCCESS,
+      );
+    });
+    expect(screen.getByTestId("developer-wf-ct-save")).toBeDisabled();
+  });
+
+  it("removes a content type and can clear the set on save", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    render(<WorkflowDetailPanel name="Simple Workflow" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-ct-row-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-ct-remove-0"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-ct-empty")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-ct-save"));
+    await waitFor(() => {
+      expect(setWorkflowAllowedContentTypes).toHaveBeenCalledWith("Simple Workflow", {
+        allowedContentTypes: [],
+      });
+    });
   });
 
   it("shows empty steps section when detail has none", async () => {
@@ -130,6 +193,81 @@ describe("WorkflowDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-wf-detail-error").textContent).toBe(
       DEV_MSG.WF_DETAIL_ERROR,
+    );
+  });
+
+  it("surfaces allowed-content-type load errors without blocking detail", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    getWorkflowAllowedContentTypes.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: null,
+    });
+    render(<WorkflowDetailPanel name="Simple Workflow" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-detail-title")).toBeTruthy();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-ct-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-ct-error").textContent).toContain(
+      DEV_MSG.WF_CT_LOAD_ERROR,
+    );
+  });
+
+  it("rejects invalid content-type names client-side before add", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    render(<WorkflowDetailPanel name="Simple Workflow" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-ct-row-0")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-wf-ct-add-name"), {
+      target: { value: "bad name" },
+    });
+    expect(screen.getByTestId("developer-wf-ct-add")).toBeDisabled();
+    expect(screen.getByTestId("developer-wf-ct-name-invalid").textContent).toBe(
+      DEV_MSG.WF_CT_NAME_INVALID,
+    );
+  });
+
+  it("dedupes by guid stringValue when adding a Percussion GUID", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    getWorkflowAllowedContentTypes.mockResolvedValue([
+      { name: "percPage", guid: { stringValue: "2-1-100" } },
+    ]);
+    render(<WorkflowDetailPanel name="Simple Workflow" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-ct-row-0")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-wf-ct-add-name"), {
+      target: { value: "2-1-100" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-ct-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-ct-error").textContent).toBe(DEV_MSG.WF_CT_DUP);
+    });
+    expect(screen.queryByTestId("developer-wf-ct-row-1")).toBeNull();
+  });
+
+  it("exposes status live region and stable remove aria-label", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    render(<WorkflowDetailPanel name="Simple Workflow" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-ct-row-0")).toBeTruthy();
+    });
+    expect(screen.getByLabelText(`${DEV_MSG.CT_ASSOC_REMOVE} percPage`)).toBeTruthy();
+    expect(screen.getByLabelText(DEV_MSG.WF_CT_ADD_LABEL)).toBeTruthy();
+
+    fireEvent.change(screen.getByTestId("developer-wf-ct-add-name"), {
+      target: { value: "percImage" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-ct-add"));
+    fireEvent.click(screen.getByTestId("developer-wf-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-ct-notice").getAttribute("role")).toBe("status");
+    });
+    expect(screen.getByTestId("developer-wf-ct-notice").getAttribute("aria-live")).toBe(
+      "polite",
     );
   });
 });

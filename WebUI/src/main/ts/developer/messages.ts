@@ -1393,13 +1393,27 @@ export const DEV_MSG_KEYS = {
   WF_DETAIL_ERROR: "perc.ui.developer@Could not load workflow.",
   WF_STEPS: "perc.ui.developer@Steps",
   WF_NONE: "perc.ui.developer@None",
+  WF_CONTENT_TYPES: "perc.ui.developer@Allowed content types",
+  WF_CONTENT_TYPES_HINT:
+    "perc.ui.developer@Admin: add or remove content types by name, then save. Save replaces the allowed set for this workflow (server locks each affected content type). Content-type side editing remains on Content Type detail (CD-08).",
+  WF_CT_ADD_LABEL: "perc.ui.developer@Add content type by name",
+  WF_CT_NAME_PLACEHOLDER: "perc.ui.developer@Content type name",
+  WF_CT_NAME_INVALID:
+    "perc.ui.developer@Content type name may only contain letters, digits, underscore, and period (or a Percussion GUID).",
+  WF_CT_LOADING: "perc.ui.developer@Loading allowed content types...",
+  WF_CT_LOAD_ERROR: "perc.ui.developer@Could not load allowed content types.",
+  WF_CT_SAVE: "perc.ui.developer@Save content types",
+  WF_CT_SAVING: "perc.ui.developer@Saving...",
+  WF_CT_SAVE_SUCCESS: "perc.ui.developer@Allowed content types saved.",
+  WF_CT_SAVE_ERROR: "perc.ui.developer@Could not save allowed content types.",
+  WF_CT_DUP: "perc.ui.developer@That content type is already in the list.",
   WF_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   WF_GAP_GRAPH:
     "perc.ui.developer@Full workflow graph design is not exposed in the Developer catalog",
   WF_GAP_WRITE:
     "perc.ui.developer@Workflow create / update / delete is not supported from this Developer surface",
   WF_GAP_CT:
-    "perc.ui.developer@Content type workflow association is edited on the content type detail panel",
+    "perc.ui.developer@Content type workflow association can also be edited on the content type detail panel",
   CFG_LOADING: "perc.ui.developer@Loading server configs...",
   CFG_EMPTY: "perc.ui.developer@No server configs returned.",
   CFG_ERROR: "perc.ui.developer@Could not load server configs.",

@@ -19,7 +19,8 @@ import { normalizeNamedObjectRefs } from "../api/developer/contentTypeLists";
 import type { ContentTypeWorkflowsBody } from "../api/developer/contentTypesApi";
 import type { NamedObjectRef } from "../api/developer/types";
 
-function refKey(r: NamedObjectRef, index: number): string {
+/** Stable React/list key for a NamedObjectRef (name, then guid, then index). */
+export function refKey(r: NamedObjectRef, index: number): string {
   if (r.name) return `name:${r.name}`;
   if (r.guid?.stringValue) return `guid:${r.guid.stringValue}`;
   if (r.guid?.uuid != null) return `uuid:${r.guid.uuid}`;

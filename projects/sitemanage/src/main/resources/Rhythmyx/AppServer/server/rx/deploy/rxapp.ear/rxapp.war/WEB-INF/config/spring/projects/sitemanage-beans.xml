@@ -112,6 +112,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restServerConfigsResource" />
             <!-- #4304 / Slice A–B: classic XML Application catalog + Admin start/stop -->
             <ref bean="restPipelinesResource" />
+            <ref bean="restWorkflowsResource" />
             <ref bean="restAuditLogResource" />
         </jaxrs:serviceBeans>
         <jaxrs:extensionMappings>
