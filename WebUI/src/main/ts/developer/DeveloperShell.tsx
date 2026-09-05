@@ -38,6 +38,7 @@ import { RelationshipTypesPanel } from "./RelationshipTypesPanel";
 import { RolesPanel } from "./RolesPanel";
 import { SearchesPanel } from "./SearchesPanel";
 import { ApplicationFilesPanel } from "./ApplicationFilesPanel";
+import { FileExplorerPanel } from "./FileExplorerPanel";
 import { ServerConfigsPanel } from "./ServerConfigsPanel";
 import { SharedFieldsPanel } from "./SharedFieldsPanel";
 import { SitesPanel } from "./SitesPanel";
@@ -71,6 +72,7 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   workflows: DEV_MSG.TAB_WORKFLOWS,
   "server-configs": DEV_MSG.TAB_SERVER_CONFIGS,
   "application-files": DEV_MSG.TAB_APPLICATION_FILES,
+  "file-explorer": DEV_MSG.TAB_FILE_EXPLORER,
   "ce-controls": DEV_MSG.TAB_CE_CONTROLS,
   sites: DEV_MSG.TAB_SITES,
   communities: DEV_MSG.TAB_COMMUNITIES,
@@ -209,6 +211,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
             <ServerConfigsPanel />
           ) : active === "application-files" ? (
             <ApplicationFilesPanel />
+          ) : active === "file-explorer" ? (
+            <FileExplorerPanel />
           ) : active === "ce-controls" ? (
             <ControlsPanel />
           ) : active === "sites" ? (
