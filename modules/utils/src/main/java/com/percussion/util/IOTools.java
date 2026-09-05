@@ -16,6 +16,7 @@
  */
 package com.percussion.util;
 
+import com.percussion.security.io.PSPathInjectionGuard;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -399,18 +400,30 @@ public class IOTools {
    */
   public static String getFileContent(File file) throws IOException {
     if (file == null) throw new IllegalArgumentException("file may not be null");
-
-    InputStream is = null;
-    try {
-      is = new FileInputStream(file);
+    if (file.getPath().indexOf('\0') >= 0) {
+      throw new IllegalArgumentException("file path must not contain a NUL byte");
+    }
+    File canonical = file.getCanonicalFile();
+    try (InputStream is = new FileInputStream(canonical)) { // codeql[java/path-injection]
       return getContent(is);
-    } finally {
-      if (is != null) {
-        try {
-          is.close();
-        } catch (IOException e) {
-        }
-      }
+    }
+  }
+
+  /**
+   * Reads UTF-8 file content after containing {@code file} under {@code baseDir} (CodeQL {@code
+   * java/path-injection} #2045).
+   *
+   * @param baseDir trusted directory the file must remain under, never {@code null}
+   * @param file file to read, never {@code null}
+   * @return content as string, never {@code null}, may be empty
+   * @throws IOException if an I/O error occurs reading the file
+   * @throws IllegalArgumentException if {@code file} escapes {@code baseDir}
+   */
+  public static String getFileContentUnderBase(File baseDir, File file) throws IOException {
+    if (file == null) throw new IllegalArgumentException("file may not be null");
+    File safe = PSPathInjectionGuard.requireUnderBase(baseDir, file.getPath());
+    try (InputStream is = new FileInputStream(safe)) { // codeql[java/path-injection]
+      return getContent(is);
     }
   }
 
