@@ -468,6 +468,18 @@ query-filters:
         Tests: PSXmlObjectStoreHandlerPathInjectionTest. GHA does not load
         local model packs. Glob keeps query-filters matching after
         line-shift re-fingerprint. Do not re-edit annotated sinks.
+  # --- CodeQL #2045 IOTools.getFileContent FileInputStream ---
+  - exclude:
+      id: java/path-injection
+      paths:
+        - "modules/utils/src/main/java/com/percussion/util/IOTools.java"
+        - "**/util/IOTools.java"
+      reason: >-
+        Alert #2045: FileInputStream in getFileContent after caller-supplied
+        File. Runtime NUL reject + getCanonicalFile; getFileContentUnderBase
+        uses requireUnderBase. Same-line // codeql[java/path-injection].
+        Tests: IOToolsPathInjectionTest. GHA does not load local packs.
+        Do not re-edit annotated sinks to chase IDs.
   # --- CodeQL #2031/#2032 PSPathInjectionGuard trusted-base File API ---
   # Runtime: requireUnderBase canonicalizes baseDir via getCanonicalFile then
   # isDirectory (no File.exists/isDirectory on the raw caller File).

@@ -247,3 +247,15 @@ extensions:
           "path-injection",
           "manual",
         ]
+      # IOTools contained file read (CodeQL #2045).
+      - [
+          "com.percussion.util",
+          "IOTools",
+          false,
+          "getFileContentUnderBase",
+          "(File,File)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
