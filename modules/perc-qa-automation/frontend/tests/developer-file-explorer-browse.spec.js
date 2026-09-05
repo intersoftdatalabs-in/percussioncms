@@ -46,6 +46,7 @@ const {
 const {
   TEST_IDS,
   developerFileExplorerUrl,
+  developerFileExplorerRestUrl,
   unwrapFileExplorerRoots,
   unexpectedConsoleErrors,
 } = require("./helpers/developer-file-explorer-surface");
@@ -74,7 +75,7 @@ test.describe("Developer File Explorer browse (#4327 / #1690)", () => {
         ...adminBasicAuthHeaders(),
         Accept: "application/json",
       };
-      const url = `${BASE_URL}/Rhythmyx/services/fileexplorer`;
+      const url = developerFileExplorerRestUrl(BASE_URL);
       const res = await request.get(url, { headers });
       expect(
         res.status(),
@@ -106,7 +107,7 @@ test.describe("Developer File Explorer browse (#4327 / #1690)", () => {
 
       await loginAsAdmin(page);
       await page.goto(developerFileExplorerUrl(BASE_URL), {
-        waitUntil: "networkidle",
+        waitUntil: "domcontentloaded",
       });
 
       await expect(page.locator('[data-testid="nav-developer"]')).toBeVisible({
@@ -148,10 +149,13 @@ test.describe("Developer File Explorer browse (#4327 / #1690)", () => {
         catalogOpenByExactName(TEST_IDS.openRoot, "data-fe-root", rootId),
       );
 
+      const escapedRoot = rootId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const childrenRe = new RegExp(
+        `/services/fileexplorer/${escapedRoot}/children(?:[/?#]|$)`,
+        "i",
+      );
       const childrenGet = page.waitForResponse(
-        (r) =>
-          /\/services\/fileexplorer\/[^/?#]+\/children/i.test(r.url()) &&
-          r.request().method() === "GET",
+        (r) => childrenRe.test(r.url()) && r.request().method() === "GET",
         { timeout: 30_000 },
       );
       await openExact.click();
@@ -199,6 +203,11 @@ test.describe("Developer File Explorer browse (#4327 / #1690)", () => {
         await expect(page.locator(`[data-testid="${TEST_IDS.up}"]`)).toHaveCount(0, {
           timeout: 15_000,
         });
+        await expect(browse).toBeVisible();
+        await expect(browse).toHaveAttribute("data-fe-root", rootId);
+        await expect(
+          page.locator(`[data-testid="${TEST_IDS.rootsTable}"]`),
+        ).toHaveCount(0);
       }
 
       await expect(

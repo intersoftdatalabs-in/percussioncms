@@ -25,10 +25,14 @@ In `rxconfig/server.properties`:
 fileExplorer.allowListedRoots=rx_resources=rx_resources;drop=/absolute/path/to/drop
 ```
 
-- Each entry is `id=path` separated by `;`.
+- Each entry is `id=path` separated by `;`. The semicolon is a **reserved delimiter** and
+  must not appear inside a configured path (a path with `;` is split and the leftover
+  token is ignored).
 - `id` is the catalog token used in REST (`letters`, digits, `_`, `-`; starts with a letter).
 - Relative `path` values resolve against the CMS install root.
 - Entries that contain `..` are ignored.
+- Child names that contain `:` are skipped (cross-platform: `:` is a Windows drive marker
+  even though it is legal in Linux filenames).
 - If the property is missing or empty, `GET /services/fileexplorer` returns an empty list
   — the server does not walk the filesystem.
 
@@ -39,8 +43,8 @@ Restart the CMS after changing the property.
 1. Sign in as **Admin**.
 2. Open **Developer** and select the **File Explorer** tab
    (`/cm/app/developer/file-explorer`).
-3. The table lists configured roots (`id` and display name). Responses never
-   show the server filesystem path.
+3. The table lists configured roots: display name, catalog `id`, and **On server**
+   (`exists`: Present / Missing). Responses never show the server filesystem path.
 4. Open a root to list immediate children. Directories open; files are listed
    only (name, type, size). Use the breadcrumb or **Up one folder** to move.
 5. If no roots are configured, the panel is empty until

@@ -81,7 +81,7 @@ function parseNamedList(
   if (Array.isArray(payload)) return payload;
   const obj = asJsonRecord(payload);
   if (!obj) {
-    throw new Error("Unexpected File Explorer list payload type");
+    return [];
   }
   for (const key of names) {
     const raw = obj[key];

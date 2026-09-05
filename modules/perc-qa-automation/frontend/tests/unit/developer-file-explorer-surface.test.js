@@ -28,6 +28,7 @@ const assert = require("node:assert/strict");
 const {
   TEST_IDS,
   developerFileExplorerUrl,
+  developerFileExplorerRestUrl,
   unwrapFileExplorerRoots,
   unexpectedConsoleErrors,
 } = require("../helpers/developer-file-explorer-surface");
@@ -45,6 +46,42 @@ describe("developerFileExplorerUrl", () => {
     const url = developerFileExplorerUrl("http://127.0.0.1:1");
     assert.equal(url.includes("\\"), false);
     assert.equal(url.includes(".."), false);
+  });
+});
+
+describe("developerFileExplorerRestUrl", () => {
+  it("defaults to Rhythmyx context", () => {
+    const prev = process.env.CMS_WEBAPP_CONTEXT;
+    delete process.env.CMS_WEBAPP_CONTEXT;
+    try {
+      assert.equal(
+        developerFileExplorerRestUrl("http://127.0.0.1:9992"),
+        "http://127.0.0.1:9992/Rhythmyx/services/fileexplorer",
+      );
+    } finally {
+      if (prev === undefined) {
+        delete process.env.CMS_WEBAPP_CONTEXT;
+      } else {
+        process.env.CMS_WEBAPP_CONTEXT = prev;
+      }
+    }
+  });
+
+  it("honors empty CMS_WEBAPP_CONTEXT as root context", () => {
+    const prev = process.env.CMS_WEBAPP_CONTEXT;
+    process.env.CMS_WEBAPP_CONTEXT = "";
+    try {
+      assert.equal(
+        developerFileExplorerRestUrl("http://127.0.0.1:9992/"),
+        "http://127.0.0.1:9992/services/fileexplorer",
+      );
+    } finally {
+      if (prev === undefined) {
+        delete process.env.CMS_WEBAPP_CONTEXT;
+      } else {
+        process.env.CMS_WEBAPP_CONTEXT = prev;
+      }
+    }
   });
 });
 

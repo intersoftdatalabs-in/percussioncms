@@ -81,6 +81,12 @@ describe("unwrap File Explorer payloads", () => {
     ).toEqual([{ id: "drop", displayName: "Drop folder", exists: false }]);
   });
 
+  it("returns empty for unexpected payload types instead of throwing", () => {
+    expect(unwrapFileExplorerRoots("not-json")).toEqual([]);
+    expect(unwrapFileExplorerRoots(42)).toEqual([]);
+    expect(unwrapFileExplorerEntries(true)).toEqual([]);
+  });
+
   it("skips roots with unsafe ids", () => {
     expect(
       unwrapFileExplorerRoots([{ id: "../etc", displayName: "nope" }, { id: "ok" }]),

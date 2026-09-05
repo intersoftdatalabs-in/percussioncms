@@ -55,6 +55,29 @@ function developerFileExplorerUrl(baseUrl) {
 }
 
 /**
+ * Admin File Explorer REST catalog URL. Context defaults to {@code Rhythmyx}
+ * (product webapp) but {@code CMS_WEBAPP_CONTEXT} may override (empty = root).
+ *
+ * @param {string} baseUrl TEST_CMS_URL / BASE_URL (scheme+host[+port], no path)
+ * @returns {string}
+ */
+function developerFileExplorerRestUrl(baseUrl) {
+  const base = String(baseUrl || "").replace(/\/+$/, "");
+  if (/\/services\/fileexplorer$/i.test(base)) {
+    return base;
+  }
+  const raw = process.env.CMS_WEBAPP_CONTEXT;
+  const ctx =
+    raw === undefined || raw === null
+      ? "Rhythmyx"
+      : String(raw).replace(/^\/+|\/+$/g, "");
+  if (!ctx) {
+    return `${base}/services/fileexplorer`;
+  }
+  return `${base}/${ctx}/services/fileexplorer`;
+}
+
+/**
  * Unwrap Jackson list or `{ FileExplorerRoot: [...] }` catalog payload.
  * @param {unknown} payload
  * @returns {Array<{ id: string, displayName?: string, exists?: boolean }>}
@@ -102,6 +125,7 @@ function unexpectedConsoleErrors(consoleErrors) {
 module.exports = {
   TEST_IDS,
   developerFileExplorerUrl,
+  developerFileExplorerRestUrl,
   unwrapFileExplorerRoots,
   unexpectedConsoleErrors,
 };

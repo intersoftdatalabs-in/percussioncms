@@ -256,6 +256,14 @@ class FileExplorerAdaptorTest {
   }
 
   @Test
+  void isUnderRoot_rejectsStringPrefixSibling() {
+    Path bar = Path.of("/foo", "bar");
+    Path barbaz = Path.of("/foo", "barbaz");
+    assertTrue(FileExplorerAdaptor.isUnderRoot(bar, bar.resolve("child")));
+    assertFalse(FileExplorerAdaptor.isUnderRoot(bar, barbaz));
+  }
+
+  @Test
   void isSafeRootId() {
     assertTrue(FileExplorerAdaptor.isSafeRootId("drop"));
     assertTrue(FileExplorerAdaptor.isSafeRootId("rx_resources"));
