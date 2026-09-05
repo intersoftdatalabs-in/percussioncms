@@ -11,6 +11,7 @@ import * as appFilesApi from "../../../main/ts/api/developer/applicationFilesApi
 import {
   ApplicationFileDetailPanel,
   hasXmlParseError,
+  stripXmlCommentsCdataAndPi,
 } from "../../../main/ts/developer/ApplicationFileDetailPanel";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
@@ -37,6 +38,23 @@ function renderDetail(isAdmin: boolean, path = "ApplicationFiles/a.css") {
   );
 }
 
+describe("stripXmlCommentsCdataAndPi", () => {
+  it("drops comments even when the body contains extra <!-- (CodeQL leftover)", () => {
+    const { text, unclosed } = stripXmlCommentsCdataAndPi(
+      "<!--<!-- --><root/>",
+    );
+    expect(unclosed).toBe(false);
+    expect(text).toBe("<root/>");
+    expect(text.includes("<!--")).toBe(false);
+  });
+
+  it("flags unclosed comments instead of leaving <!-- in the output", () => {
+    const { text, unclosed } = stripXmlCommentsCdataAndPi("<root><!-- oops");
+    expect(unclosed).toBe(true);
+    expect(text.includes("<!--")).toBe(false);
+  });
+});
+
 describe("hasXmlParseError", () => {
   it("accepts empty, self-closing, and balanced tags", () => {
     expect(hasXmlParseError("")).toBe(false);
@@ -50,6 +68,16 @@ describe("hasXmlParseError", () => {
     expect(hasXmlParseError("not xml")).toBe(true);
     expect(hasXmlParseError("<root><unclosed>")).toBe(true);
     expect(hasXmlParseError("<a></b>")).toBe(true);
+  });
+
+  it("ignores comments, CDATA, and PIs for the tag stack", () => {
+    expect(hasXmlParseError("<!--<!-- --><root/>")).toBe(false);
+    expect(hasXmlParseError("<?xml version=\"1.0\"?><root></root>")).toBe(false);
+    expect(hasXmlParseError("<root><![CDATA[<notatag>]]></root>")).toBe(false);
+  });
+
+  it("flags unclosed comments as a parse error", () => {
+    expect(hasXmlParseError("<root><!-- oops")).toBe(true);
   });
 });
 

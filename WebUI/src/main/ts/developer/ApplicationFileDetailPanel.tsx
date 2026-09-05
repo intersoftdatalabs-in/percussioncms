@@ -44,6 +44,67 @@ function looksLikeXmlPath(path: string): boolean {
 }
 
 /**
+ * Drop comments, CDATA, and PIs with a linear scan — never {@code String.replace}
+ * of {@code <!--…-->} (CodeQL {@code js/incomplete-multi-character-sanitization}:
+ * a single non-greedy replace can leave leftover {@code <!--}).
+ * Unclosed regions are parse errors for the soft well-formedness hint.
+ */
+export function stripXmlCommentsCdataAndPi(src: string): {
+  text: string;
+  unclosed: boolean;
+} {
+  const parts: string[] = [];
+  let i = 0;
+  const n = src.length;
+  while (i < n) {
+    const commentAt = src.indexOf("<!--", i);
+    const cdataAt = src.indexOf("<![CDATA[", i);
+    const piAt = src.indexOf("<?", i);
+    let next = n;
+    let kind: "comment" | "cdata" | "pi" | null = null;
+    if (commentAt >= 0 && commentAt < next) {
+      next = commentAt;
+      kind = "comment";
+    }
+    if (cdataAt >= 0 && cdataAt < next) {
+      next = cdataAt;
+      kind = "cdata";
+    }
+    if (piAt >= 0 && piAt < next) {
+      next = piAt;
+      kind = "pi";
+    }
+    if (kind == null) {
+      parts.push(src.slice(i));
+      break;
+    }
+    if (next > i) {
+      parts.push(src.slice(i, next));
+    }
+    if (kind === "comment") {
+      const end = src.indexOf("-->", next + 4);
+      if (end < 0) {
+        return { text: parts.join(""), unclosed: true };
+      }
+      i = end + 3;
+    } else if (kind === "cdata") {
+      const end = src.indexOf("]]>", next + 9);
+      if (end < 0) {
+        return { text: parts.join(""), unclosed: true };
+      }
+      i = end + 3;
+    } else {
+      const end = src.indexOf("?>", next + 2);
+      if (end < 0) {
+        return { text: parts.join(""), unclosed: true };
+      }
+      i = end + 2;
+    }
+  }
+  return { text: parts.join(""), unclosed: false };
+}
+
+/**
  * Soft well-formedness hint for XML-ish paths. Tag-stack only — do not feed
  * operator XML into {@code DOMParser.parseFromString} (CodeQL
  * {@code js/xss-through-dom}; peers: templateImportExport / contentTypeImportExport).
@@ -56,10 +117,10 @@ export function hasXmlParseError(content: string): boolean {
   if (!trimmed.startsWith("<")) {
     return true;
   }
-  const stripped = trimmed
-    .replace(/<!--[\s\S]*?-->/g, "")
-    .replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, "")
-    .replace(/<\?[\s\S]*?\?>/g, "");
+  const { text: stripped, unclosed } = stripXmlCommentsCdataAndPi(trimmed);
+  if (unclosed) {
+    return true;
+  }
   const stack: string[] = [];
   const tagRe = /<\/?([A-Za-z_][\w:.-]*)\b[^>]*\/?>/g;
   let m: RegExpExecArray | null;
