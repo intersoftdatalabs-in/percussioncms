@@ -130,6 +130,19 @@ export async function getPipelineIr(
   return get<PipelineIrDocument>(`${PATHS.PIPELINES}/${key}/ir`);
 }
 
+/** Jackson WRAP/UNWRAP_ROOT_VALUE root for {@link PipelineExecuteRequest}. */
+export const PIPELINE_EXECUTE_REQUEST_ROOT = "PipelineExecuteRequest";
+
+/**
+ * Wrap execute body for CXF UNWRAP_ROOT_VALUE. A flat `{params}` object fails
+ * with HTTP 500 (root name mismatch) — peer of ACL / template wrap helpers.
+ */
+export function wrapPipelineExecuteRequestForWire(
+  body: PipelineExecuteRequest = {},
+): { PipelineExecuteRequest: PipelineExecuteRequest } {
+  return { [PIPELINE_EXECUTE_REQUEST_ROOT]: body ?? {} };
+}
+
 /**
  * Unwrap Jackson WRAP_ROOT_VALUE {@code {"PipelineExecuteResult":{…}}} so execute
  * responses bind the same as a flat result.
@@ -148,7 +161,8 @@ export function unwrapPipelineExecuteResult(payload: unknown): PipelineExecuteRe
 
 /**
  * POST /services/pipelines/{app}/resources/{resource}/execute — native IR smoke invoke.
- * Body is {@link PipelineExecuteRequest} ({@code params}, {@code rows}, …).
+ * Body is {@link PipelineExecuteRequest} ({@code params}, {@code rows}, …) root-wrapped
+ * for Jackson UNWRAP_ROOT_VALUE.
  */
 export async function executeResource(
   app: string,
@@ -159,7 +173,7 @@ export async function executeResource(
   const resourceKey = encodeURIComponent(resource);
   const payload = await post<unknown>(
     `${PATHS.PIPELINES}/${appKey}/resources/${resourceKey}/execute`,
-    body,
+    wrapPipelineExecuteRequestForWire(body),
   );
   return unwrapPipelineExecuteResult(payload);
 }

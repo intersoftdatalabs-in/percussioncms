@@ -106,7 +106,7 @@ chrome does not echo the raw path name in that message.
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-start-stop.spec.js`.
 - Surface-filtered Playwright for pipe IR lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-pipe-ir.spec.js`.
-- Surface-filtered Playwright for Test invoke lives under
+- Surface-filtered Playwright for Test invoke (+ Problems soft-assert) lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-test-invoke.spec.js`.
 
 ## REST
