@@ -110,6 +110,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restViewResource" />
             <ref bean="restControlsResource" />
             <ref bean="restServerConfigsResource" />
+            <!-- #4325 File Explorer allow-listed browse (not SY-05 / SY-02) -->
+            <ref bean="restFileExplorerResource" />
             <!-- Pipelines Slice A/B: catalog + Admin start/stop + IR (#4304/#4314/#4316); CXF 404 without ref -->
             <ref bean="restPipelinesResource" />
             <ref bean="restWorkflowsResource" />
