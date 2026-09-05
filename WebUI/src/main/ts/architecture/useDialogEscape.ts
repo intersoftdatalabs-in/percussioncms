@@ -98,3 +98,59 @@ export function useDialogEscape(
     return () => window.removeEventListener("keydown", onKey);
   }, [open, busy]);
 }
+
+const FOCUSABLE =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+function focusableIn(root: HTMLElement): HTMLElement[] {
+  return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+    (el) => el.tabIndex !== -1 && !el.hasAttribute("disabled"),
+  );
+}
+
+/**
+ * Keep Tab/Shift+Tab inside an open modal (WCAG 2.1 focus trap).
+ * Call with a ref on the {@code role="dialog"} root.
+ */
+export function useDialogFocusTrap(
+  open: boolean,
+  containerRef: { current: HTMLElement | null },
+): void {
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const root = containerRef.current;
+    if (!root) {
+      return;
+    }
+    const initial = focusableIn(root)[0];
+    if (initial && typeof initial.focus === "function") {
+      initial.focus();
+    }
+    const onKey = (ev: KeyboardEvent) => {
+      if (ev.key !== "Tab") {
+        return;
+      }
+      const list = focusableIn(root);
+      if (list.length === 0) {
+        ev.preventDefault();
+        return;
+      }
+      const firstEl = list[0];
+      const lastEl = list[list.length - 1];
+      const active = document.activeElement;
+      if (ev.shiftKey) {
+        if (active === firstEl || !root.contains(active)) {
+          ev.preventDefault();
+          lastEl.focus();
+        }
+      } else if (active === lastEl || !root.contains(active)) {
+        ev.preventDefault();
+        firstEl.focus();
+      }
+    };
+    root.addEventListener("keydown", onKey);
+    return () => root.removeEventListener("keydown", onKey);
+  }, [open, containerRef]);
+}

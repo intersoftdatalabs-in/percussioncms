@@ -71,6 +71,11 @@ public class VelocityResource {
     this.velocityAdaptor = velocityAdaptor;
   }
 
+  /** Package-private test hook so unit tests need not reflect on {@code uriInfo}. */
+  void setUriInfo(UriInfo uriInfo) {
+    this.uriInfo = uriInfo;
+  }
+
   /** Returns a list of all registered Velocity extensions on the system. */
   @GET
   @Path("/tools")
@@ -90,8 +95,9 @@ public class VelocityResource {
     try {
       var filter = new ExtensionFilterOptions();
       filter.setContext("global/percussion/velocity/");
-      return new ExtensionList(
-          requireExtensionAdaptor().getExtensions(uriInfo.getBaseUri(), filter));
+      List<Extension> list =
+          requireExtensionAdaptor().getExtensions(requireUriInfo().getBaseUri(), filter);
+      return new ExtensionList(list != null ? list : List.of());
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
@@ -177,5 +183,13 @@ public class VelocityResource {
           "Velocity adaptor not configured", Response.Status.SERVICE_UNAVAILABLE);
     }
     return velocityAdaptor;
+  }
+
+  private UriInfo requireUriInfo() {
+    if (uriInfo == null) {
+      throw new WebApplicationException(
+          "UriInfo not configured", Response.Status.SERVICE_UNAVAILABLE);
+    }
+    return uriInfo;
   }
 }

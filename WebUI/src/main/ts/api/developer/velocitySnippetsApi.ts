@@ -90,7 +90,11 @@ export async function getVelocitySnippet(id: string): Promise<VelocitySnippet> {
   );
   if (payload != null && typeof payload === "object" && !Array.isArray(payload)) {
     const root = payload as Record<string, unknown>;
-    const nested = root.VelocitySnippet ?? root.velocitySnippet;
+    const nested =
+      root.VelocitySnippet ??
+      root.velocitySnippet ??
+      root.Snippet ??
+      root.snippet;
     const snip = asSnippet(nested ?? payload);
     if (snip) {
       return snip;

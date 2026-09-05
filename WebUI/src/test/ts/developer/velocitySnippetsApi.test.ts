@@ -85,4 +85,28 @@ describe("listVelocitySnippets / getVelocitySnippet", () => {
     expect(snip.id).toBe("field.displayfield");
     expect(snip.insertText).toContain("displayfield");
   });
+
+  it("gets one snippet from Snippet / snippet envelopes", async () => {
+    getMock.mockResolvedValueOnce({
+      Snippet: {
+        id: "misc.inner",
+        title: "inner",
+        category: "misc",
+        insertText: "#inner()",
+      },
+    });
+    expect((await getVelocitySnippet("misc.inner")).id).toBe("misc.inner");
+
+    getMock.mockResolvedValueOnce({
+      snippet: {
+        id: "slot.slot_simple",
+        title: "slot_simple",
+        category: "slot",
+        insertText: '#slot_simple("rffList")',
+      },
+    });
+    expect((await getVelocitySnippet("slot.slot_simple")).id).toBe(
+      "slot.slot_simple",
+    );
+  });
 });

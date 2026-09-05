@@ -92,7 +92,7 @@ test.describe("Developer AS-09 template snippet library (#4307)", () => {
   }) => {
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
 
-    await page.goto(developerTemplatesUrl(), { waitUntil: "networkidle" });
+    await page.goto(developerTemplatesUrl(), { waitUntil: "domcontentloaded" });
 
     await expect(page.locator('[data-testid="nav-developer"]')).toBeVisible({
       timeout: 20_000,
@@ -142,6 +142,15 @@ test.describe("Developer AS-09 template snippet library (#4307)", () => {
     }
 
     const before = await sourceEdit.inputValue();
+    // Insert is client-side only (textarea + notice). Never Save — shared H2
+    // template bodies must stay unchanged across QA reruns.
+    const mutating = [];
+    page.on("request", (req) => {
+      const method = req.method();
+      if (method === "PUT" || method === "POST" || method === "DELETE") {
+        mutating.push(`${method} ${req.url()}`);
+      }
+    });
 
     const snippetsResponsePromise = page.waitForResponse(
       (r) => {
@@ -218,6 +227,14 @@ test.describe("Developer AS-09 template snippet library (#4307)", () => {
     await expect(
       page.locator('[data-testid="developer-tpl-detail-notice"]'),
     ).toContainText(/Snippet inserted/i);
+
+    await expect(
+      page.locator('[data-testid="developer-tpl-save"]'),
+    ).toBeVisible();
+    expect(
+      mutating,
+      `snippet insert must not PUT/POST/DELETE template bodies: ${mutating.join(" | ")}`,
+    ).toEqual([]);
 
     assertConsoleClean(pageErrors, consoleErrors);
   });

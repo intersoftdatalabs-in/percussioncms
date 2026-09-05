@@ -93,4 +93,27 @@ describe("SnippetLibraryDialog", () => {
       expect(screen.getByTestId("developer-tpl-snippet-error")).toBeTruthy();
     });
   });
+
+  it("traps Tab inside the modal dialog", async () => {
+    render(
+      <SnippetLibraryDialog open={true} onCancel={vi.fn()} onInsert={vi.fn()} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-snippet-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-snippet-row-field.field"));
+    const dialog = screen.getByTestId("developer-tpl-snippet-dialog");
+    const last = screen.getByTestId("developer-tpl-snippet-insert");
+    last.focus();
+    const ev = new KeyboardEvent("keydown", {
+      key: "Tab",
+      bubbles: true,
+      cancelable: true,
+    });
+    dialog.dispatchEvent(ev);
+    expect(ev.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(
+      screen.getByTestId("developer-tpl-snippet-filter"),
+    );
+  });
 });

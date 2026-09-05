@@ -15,12 +15,16 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   listVelocitySnippets,
   type VelocitySnippet,
 } from "../api/developer/velocitySnippetsApi";
-import { captureDialogOpener, useDialogEscape } from "../architecture/useDialogEscape";
+import {
+  captureDialogOpener,
+  useDialogEscape,
+  useDialogFocusTrap,
+} from "../architecture/useDialogEscape";
 import { catalogColors, monoCell, mutedCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
@@ -99,8 +103,10 @@ export function SnippetLibraryDialog({
   const [category, setCategory] = useState<CategoryFilter>("all");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
 
   useDialogEscape(open, loading, onCancel);
+  useDialogFocusTrap(open, dialogRef);
 
   useEffect(() => {
     if (!open) {
@@ -163,6 +169,7 @@ export function SnippetLibraryDialog({
 
   return (
     <div
+      ref={dialogRef}
       style={overlayStyle}
       data-testid="developer-tpl-snippet-dialog"
       role="dialog"
