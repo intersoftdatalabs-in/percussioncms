@@ -772,6 +772,20 @@ vi.mock("../../../main/ts/api/developer/applicationFilesApi", () => ({
   APPLICATION_FILE_DESIGN_GAPS: [],
 }));
 
+vi.mock("../../../main/ts/api/developer/fileExplorerApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/fileExplorerApi")>();
+  return {
+    ...actual,
+    listFileExplorerRoots: vi.fn().mockResolvedValue([
+      { id: "rx_resources", displayName: "rx_resources", exists: true },
+    ]),
+    listFileExplorerChildren: vi.fn().mockResolvedValue([
+      { name: "css", relativePath: "css", directory: true },
+    ]),
+  };
+});
+
 vi.mock("../../../main/ts/api/developer/controlsApi", async (importOriginal) => {
   const actual =
     await importOriginal<typeof import("../../../main/ts/api/developer/controlsApi")>();
@@ -1116,6 +1130,17 @@ it("loads views catalog section", async () => {
     expect(screen.getByTestId("developer-appfile-apps-table").textContent).toContain(
       "sys_cmpDocuments",
     );
+  });
+
+  it("loads File Explorer catalog section", async () => {
+    render(<DeveloperShell initialSection="file-explorer" embedded />);
+    expect(
+      screen.getByTestId("tab-developer-file-explorer").getAttribute("aria-selected"),
+    ).toBe("true");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-fe-roots-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-fe-roots-table").textContent).toContain("rx_resources");
   });
 
   it("loads CE controls catalog section", async () => {

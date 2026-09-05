@@ -55,7 +55,7 @@ Operators using **Developer → CE Controls** create/save/delete chrome: [Develo
 Operators using **Developer → Server Configs** edit/save chrome:
 [Developer Server Configs](id:admin-developer-server-configs).
 
-Operators configuring allow-listed **File Explorer** browse REST (not SY-05
+Operators using **Developer → File Explorer** (allow-listed browse; not SY-05
 application files, not SY-02 server configs):
 [Developer File Explorer](id:admin-developer-file-explorer).
 

@@ -21,6 +21,7 @@ describe("Developer DEV_MSG i18n keys", () => {
     expect(DEV_MSG.CATALOG_CONFIRM_TITLE).toBe("Confirm delete");
     expect(DEV_MSG.CATALOG_CONFIRM_SUBMIT).toBe("Delete");
     expect(DEV_MSG.TAB_CONTENT_TYPES).toBe("Content Types");
+    expect(DEV_MSG.TAB_FILE_EXPLORER).toBe("File Explorer");
     expect(DEV_MSG.ACL_SAVED).toBe("Object ACL saved.");
     expect(DEV_MSG.CT_LOCK).toBe("Lock");
     expect(DEV_MSG.CT_UNLOCK).toBe("Unlock");
