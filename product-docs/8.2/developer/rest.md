@@ -2182,6 +2182,45 @@ Example copy-from-system body:
 | `500` | Design WS failure |
 | `503` | Relationship type adaptor not configured |
 
+## Velocity snippets (catalog)
+
+Built-in **Velocity macro snippets** for template authors (Workbench / Developer **Assembly**
+snippet library, AS-09) are exposed under `/services/velocity/snippets`. The catalog covers
+Appendix C field, slot, and misc macros (and short samples) with stable ids and insert text
+aligned with shipped `sys_assembly.vm` macros. This surface is **read-only** — it does not
+edit System/User Velocity configuration files (see [Server configuration files](#server-configuration-files-catalog)
+for `USER_VELOCITY_MACROS` / related SY-02 keys). SPA insert chrome is a separate product
+slice; integrators and Developer tooling may call GET directly.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/velocity/snippets` | List built-in Velocity snippets (`id`, `title`, `category`, `insertText`) |
+| `GET` | `/services/velocity/snippets/{id}` | Load one snippet by stable id (case-insensitive) |
+
+JSON objects use the `VelocitySnippet` wire type. Categories are `field`, `slot`, and `misc`.
+Prefer the generated OpenAPI schema as the integration source of truth.
+
+Example list row:
+
+```json
+{
+  "id": "field.displayfield",
+  "title": "displayfield",
+  "category": "field",
+  "insertText": "#displayfield(\"rx:title\")"
+}
+```
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | List / get success |
+| `404` | Unknown snippet id |
+| `500` | Unexpected adaptor failure |
+| `503` | Velocity adaptor not configured |
+
+Registered Velocity **extensions** (tools) remain on `GET /services/velocity/tools` and are
+separate from this macro snippet catalog.
+
 ## Server configuration files (catalog)
 
 Named **server configuration** files (Workbench / Developer **Server Configs**, SY-02) are exposed
