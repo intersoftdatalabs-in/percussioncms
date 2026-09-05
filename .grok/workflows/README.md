@@ -6,7 +6,7 @@ Project workflows live here and are invocable by name (e.g. `/night-issue-prs` o
 
 ## `night-issue-prs`
 
-**Version:** `2.0.2` (file header `workflow_version` in `night-issue-prs.rhai`). Grok Build workflow `meta` has **no version field** (only `name`, `description`, `when_to_use`, `phases`). The invocation name stays **`night-issue-prs`** — do not put the version in the filename.
+**Version:** `2.0.3` (file header `workflow_version` in `night-issue-prs.rhai`). Grok Build workflow `meta` has **no version field** (only `name`, `description`, `when_to_use`, `phases`). The invocation name stays **`night-issue-prs`** — do not put the version in the filename.
 
 Unattended overnight worker. Specialists spawn only when Preflight (or this-run results) show work; empty phases do not pay a full agent.
 
@@ -68,18 +68,35 @@ Hard bans:
 * `docker restart perc-matrix-cms-h2` after a jar copy (reinstalls and wipes copies).
 * Hot-deploy `sitemanage` onto a `--skip-image-build` cell without a matching `perc-system` jar in `WEB-INF/lib`.
 
-### Oversized priority work → 3 slices into the pool
+### Oversized priority work → 3 **vertical** slices into the pool
 
 When a **p1–p6/Unset PRODUCT** issue is too big for one PR, **or** an **open product epic** has no children for its **next** phase (Phase 1 shipped ≠ epic done), and it is still eligible (agent-safe, not hard-skip, not In Progress, this slice not blocked by a covering open PR):
 
-1. Prefer **existing** open unassigned children of that parent.
-2. Else define **exactly 3** PR-sized slices (not micro-tasks).
+1. Prefer **existing** open unassigned children of that parent. If the parent already has an **OPEN** covering PR, **do not** queue another child tonight.
+2. Else define **exactly 3** PR-sized **vertical** slices (user-visible increments such as browse / write / delete — **not** REST vs SPA vs Playwright layers).
 3. **Live run:** create the 3 child issues (`gh issue create`), copy parent `pN`, leave **unassigned**, update parent `## Agent progress (night-issue-prs)`.
-4. **Queue** those children as `disposition=implement` (do not implement the oversized parent as one mega-PR).
-5. Expand parents in pN order until `max_issues` / priority slots are filled; still create all 3 children if planned, but only queue up to remaining slots.
-6. Create all 3 children if planned, but only queue up to remaining slots.
+4. **Queue at most one** child as `disposition=implement`. The other two stay backlog (`skip` / omitted). Do not implement the oversized parent as one mega-PR.
+5. Fill remaining `max_issues` slots from **other parents / surfaces**. Empty slots beat same-parent parallel PRs.
+6. Still create all 3 children if planned (backlog for later nights).
 
-Fallback Work `disposition=split` still creates exactly 3 children and prefers shipping the first slice the same turn.
+Fallback Work `disposition=split` still creates exactly 3 **vertical** children and ships **only the first** slice the same turn.
+
+**HARD BAN:** splitting one increment into `REST PR` + `SPA PR` + `Playwright PR`. Change-class companions (REST + sitemanage + WebUI + Playwright + `product-docs`) belong **in the same PR** when that increment needs them. Layer splits duplicate `rest.md`, `sitemanage-beans.xml`, `paths.ts`, `messages.ts`, `DeveloperShell.tsx`, admin/developer indexes, and qa `package.json`, then go **CONFLICTING** (File Explorer #4331 / #4332 / #4333).
+
+### Closely related slices / hot-path exclusivity (HARD — 2.0.3)
+
+Cluster + follow-up rebase are **after-the-fact**. They do not stop the night from opening three overlapping PRs against `main`.
+
+| Rule | Behavior |
+|------|----------|
+| **One implement per parent per run** | Triage queues at most one child of a given Parent. Host **skips** later `implement` items whose `parent_issue` (or issue number) already got `pr_opened` this run (`skipped_hot_path_busy`) — no extra Work agent. |
+| **Vertical increment** | One PR = one user-visible slice including required companions. |
+| **Same-parent OPEN PR** | Work **absorbs**: checkout that head, add commits, push, update the existing PR body. **No second PR.** |
+| **Different parent, shared thrash files** | `skipped_hot_path_busy`. Do not absorb unrelated epics (cluster unions those). Leave the issue unassigned. |
+| **Thrash files** | `sitemanage-beans.xml`, `CatalogRestJaxrsRegistrationTest.java`, `WebUI/.../paths.ts`, `messages.ts`, `DeveloperShell.tsx`, `deepLinks/allowlists.ts`, `product-docs/8.2/developer/rest.md`, `admin/index.md`, `developer/index.md`, qa `package.json`, `developer-smoke-set.js` |
+| **Git** | Do **not** `reset --hard origin/main` and re-copy a sibling PR's files onto a fresh branch. That is how later slices become supersets that conflict with each other and with other Developer SPA PRs. |
+
+`parent_issue` is an optional triage queue field. Workers must still live-check owned open PR files; the host skip is the backstop when triage sets `parent_issue`.
 
 ### Peer PR review (other model / no model labels)
 
@@ -176,7 +193,7 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 | Partial PRs leave “rest of the work” only in chat | **Always** log residual work as GitHub issues linked to parent + PR |
 | Split plans disappear if only a comment | Child issues for each slice; residual URLs in structured result |
 | Multi-agent runs thrash merge conflicts on `docs/ai-generated/tasks/**` status markdown | Multi-phase status lives on the **parent GitHub issue** (`## Agent progress (night-issue-prs)` + comments), not committed trackers |
-| Same-area overnight PRs (i18n/TMX/gadgets) go **CONFLICTING** and block each other | **PR follow-up** rebases onto base **oldest-first**, resolves conflicts |
+| Same-area overnight PRs (i18n/TMX/gadgets / Developer SPA chrome) go **CONFLICTING** and block each other | **Prevent:** one implement per parent + hot-path skip/absorb (2.0.3). **Repair:** **PR follow-up** rebases onto base **oldest-first**; **PR cluster** unions leftover thrash |
 | Review threads (human or AI) sit forever while newer conflicts win `max_prs` | Threads are **merge blockers equal to conflicts**; selection is **oldest first** |
 | Empty issue queue early-complete skipped babysit | Empty triage still runs PR follow-up |
 | Agent "touches" a PR (rebase) but leaves 5-7 Kilo threads open | **Completeness:** finish **all** threads on a selected PR before the next PR |
@@ -348,7 +365,7 @@ Not a money budget. It is the **maximum number of child agents** this workflow r
 | **Range** | 1-1,024 if you set `agent_budget` when launching |
 | **Does not count** | Schema-correction retries on the same agent |
 
-Rough agent use (v2.0.0 — specialists are 0 when Preflight says there is nothing to do):
+Rough agent use (v2.0.3 — specialists are 0 when Preflight says there is nothing to do):
 
 | Phase | Agents |
 |-------|--------|
@@ -463,7 +480,8 @@ Runs when `include_pr_cluster` is true (**independent of** `include_pr_followup`
 ### Safety model
 
 - Sequential implementers (shared workspace)  
-- Fresh branch per issue from `origin/<base_branch>`  
+- Fresh branch per issue from `origin/<base_branch>` **unless** absorbing into an existing same-parent OPEN PR  
+- Never a second owned PR on the same parent or on occupied thrash files the same run  
 - No merge, no direct push to `main`  
 - **No bare `--force`**; rebase after conflict resolution may use **`--force-with-lease` only**  
 - Clean install (changed modules) -> tests before PR  
