@@ -20,6 +20,7 @@ import com.percussion.services.virtualsite.VirtualSiteConfig.HttpSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.NavSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.ObjectsSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.IcalendarSpec;
+import com.percussion.services.virtualsite.VirtualSiteConfig.RobotsSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.RssSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.SitemapSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.SqlSpec;
@@ -44,7 +45,7 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
  * <p>Stateless: each {@link #load} / {@link #loadOrDefault} reads the current file (or current
  * child directories). No process-lifetime YAML cache — a second build after a config edit sees
  * the new title/versions (and current {@code sql:} / {@code http:} / {@code objects:} /
- * {@code rss:} / {@code icalendar:} / {@code sitemap:} mapping)
+ * {@code rss:} / {@code icalendar:} / {@code sitemap:} / {@code robots:} mapping)
  * without a JVM restart.
  */
 public final class VirtualSiteConfigLoader {
@@ -245,6 +246,11 @@ public final class VirtualSiteConfigLoader {
         throw new VirtualSiteException("sitemap: must be a mapping in " + sourceLabel);
       }
       SitemapSpec sitemap = parseSitemapSpec(asMap(sitemapObj));
+      Object robotsObj = map.get("robots");
+      if (robotsObj != null && !(robotsObj instanceof Map<?, ?>)) {
+        throw new VirtualSiteException("robots: must be a mapping in " + sourceLabel);
+      }
+      RobotsSpec robots = parseRobotsSpec(asMap(robotsObj));
       return new VirtualSiteConfig(
           root,
           title,
@@ -258,7 +264,8 @@ public final class VirtualSiteConfigLoader {
           objects,
           rss,
           icalendar,
-          sitemap);
+          sitemap,
+          robots);
     } catch (VirtualSiteException e) {
       throw e;
     } catch (Exception e) {
@@ -292,6 +299,13 @@ public final class VirtualSiteConfigLoader {
       return null;
     }
     return new SitemapSpec(stringVal(sitemap.get("url")), stringVal(sitemap.get("file")));
+  }
+
+  private static RobotsSpec parseRobotsSpec(Map<String, Object> robots) {
+    if (robots == null || robots.isEmpty()) {
+      return null;
+    }
+    return new RobotsSpec(stringVal(robots.get("url")), stringVal(robots.get("file")));
   }
 
   private static ObjectsSpec parseObjectsSpec(Map<String, Object> objects, String sourceLabel)

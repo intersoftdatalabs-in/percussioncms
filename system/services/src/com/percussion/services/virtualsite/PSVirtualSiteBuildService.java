@@ -63,7 +63,7 @@ public class PSVirtualSiteBuildService {
   /**
    * Build service for a registered adapter kind ({@code git-filesystem}, {@code csv-filesystem},
    * {@code sql-database}, {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code
-   * icalendar}, {@code sitemap-xml}).
+   * icalendar}, {@code sitemap-xml}, {@code robots-txt}).
    *
    * @param type source kind; null defaults to {@link VirtualSiteSourceType#GIT_FILESYSTEM}
    * @param participants participant registry; null uses an in-memory registry
@@ -100,17 +100,17 @@ public class PSVirtualSiteBuildService {
    * http-json catalog ({@code http.url} / {@code http.file} or default {@code pages.json}), or the
    * current rss-atom feed ({@code rss.file} / {@code feed.xml} / {@code atom.xml} / loopback
    * {@code rss.url}), or the current iCalendar fixture ({@code icalendar.file} / {@code
-   * calendar.ics}), or the current sitemap fixture ({@code sitemap.file} / {@code sitemap.xml})
-   * from the current tree, then overwrites emitted HTML. Missing {@code
-   * _redirects.yaml} is a no-op.
-   * The same service instance does not reuse parsed pages from a previous build — operators do
-   * not need a JVM restart after {@code git pull}, a CSV/{@code _config.yaml} edit, a local
-   * Markdown edit, a SQL query-file/{@code _config.yaml} edit, an H2 row change, an HTTP JSON
-   * catalog/{@code _config.yaml} edit, an object-storage Markdown/HTML/JSON key/{@code
-   * _config.yaml} ({@code objects.keys}) edit, an RSS/Atom feed ({@code rss.file} /
-   * {@code feed.xml} / {@code atom.xml} / {@code rss.url}) edit, an iCalendar fixture
-   * ({@code icalendar.file} / {@code calendar.ics}) edit, or a sitemap fixture ({@code
-   * sitemap.file} / {@code sitemap.xml} loc, lastmod, or path) edit.
+   * calendar.ics}), or the current sitemap fixture ({@code sitemap.file} / {@code sitemap.xml}),
+   * or the current robots.txt fixture ({@code robots.file} / {@code robots.txt}) from the current
+   * tree, then overwrites emitted HTML. Missing {@code _redirects.yaml} is a no-op. The same
+   * service instance does not reuse parsed pages from a previous build — operators do not need a
+   * JVM restart after {@code git pull}, a CSV/{@code _config.yaml} edit, a local Markdown edit, a
+   * SQL query-file/{@code _config.yaml} edit, an H2 row change, an HTTP JSON catalog/{@code
+   * _config.yaml} edit, an object-storage Markdown/HTML/JSON key/{@code _config.yaml} ({@code
+   * objects.keys}) edit, an RSS/Atom feed ({@code rss.file} / {@code feed.xml} / {@code atom.xml}
+   * / {@code rss.url}) edit, an iCalendar fixture ({@code icalendar.file} / {@code calendar.ics})
+   * edit, a sitemap fixture ({@code sitemap.file} / {@code sitemap.xml} loc, lastmod, or path)
+   * edit, or a robots.txt fixture ({@code robots.file} / {@code robots.txt}) edit.
    *
    * @param siteRoot source tree ({@code _config.yaml} required for git-filesystem and
    *     sql-database; optional for csv-filesystem)

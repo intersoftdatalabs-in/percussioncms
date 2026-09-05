@@ -129,7 +129,7 @@ class PSVirtualSiteHelperTest {
   }
 
   @Test
-  void allowedSourceKindsIncludeGitCsvSqlHttpJsonObjectStorageRssAtomIcalendarAndSitemapXml() {
+  void allowedSourceKindsIncludeGitCsvSqlHttpJsonObjectStorageRssAtomIcalendarSitemapXmlAndRobotsTxt() {
     List<String> allowed = PSVirtualSiteHelper.allowedSourceKindWireNames();
     assertEquals(
         List.of(
@@ -140,7 +140,8 @@ class PSVirtualSiteHelperTest {
             "object-storage",
             "rss-atom",
             "icalendar",
-            "sitemap-xml"),
+            "sitemap-xml",
+            "robots-txt"),
         allowed);
   }
 
@@ -599,6 +600,7 @@ class PSVirtualSiteHelperTest {
     assertTrue(ex.getMessage().contains("rss-atom"));
     assertTrue(ex.getMessage().contains("icalendar"));
     assertTrue(ex.getMessage().contains("sitemap-xml"));
+    assertTrue(ex.getMessage().contains("robots-txt"));
   }
 
   @Test
@@ -651,6 +653,58 @@ class PSVirtualSiteHelperTest {
     assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH), ex.getMessage());
     assertTrue(ex.getMessage().toLowerCase().contains("cloud"), ex.getMessage());
     assertTrue(ex.getMessage().contains("sitemap-xml"), ex.getMessage());
+  }
+
+  @Test
+  void validatePassesForRobotsTxtWithSafeRoot() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "robots-txt"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "rb-docs"));
+    assertDoesNotThrow(() -> PSVirtualSiteHelper.validate(site));
+    assertEquals(
+        VirtualSiteSourceType.ROBOTS_TXT,
+        PSVirtualSiteHelper.virtualSourceType(site).orElseThrow());
+  }
+
+  @Test
+  void validateRejectsRemoteUrlForRobotsTxt() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "robots-txt"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "rb-docs"),
+            prop(PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_REMOTE_URL));
+    assertTrue(ex.getMessage().contains("robots-txt"));
+  }
+
+  @Test
+  void validateRejectsCredentialPropertyForRobotsTxt() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "robots-txt"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "rb-docs"),
+            prop("aws_secret_access_key", "not-a-real-secret"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().toLowerCase().contains("credential"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("robots-txt"), ex.getMessage());
+    assertFalse(ex.getMessage().contains("not-a-real-secret"), ex.getMessage());
+  }
+
+  @Test
+  void validateRejectsCloudUrlRootForRobotsTxt() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "robots-txt"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "https://example.com/robots.txt"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH), ex.getMessage());
+    assertTrue(ex.getMessage().toLowerCase().contains("cloud"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("robots-txt"), ex.getMessage());
   }
 
   @Test
