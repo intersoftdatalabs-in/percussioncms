@@ -116,6 +116,22 @@ class PSServerXmlObjectStorePathInjectionTest {
   }
 
   @Test
+  void requireFileUnderRxDir_rejectsEscapeAndAcceptsChild() throws Exception {
+    PathUtils.setThreadOnlyRxDir(tmp.toFile());
+    File outside = tmp.getParent().resolve("escape-save.txt").toFile();
+    Files.writeString(outside.toPath(), "no");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSServerXmlObjectStore.requireFileUnderRxDir(outside));
+
+    File child = tmp.resolve("app").resolve("file.txt").toFile();
+    Files.createDirectories(child.getParentFile().toPath());
+    Files.writeString(child.toPath(), "ok");
+    File safe = PSServerXmlObjectStore.requireFileUnderRxDir(child);
+    assertEquals(child.getCanonicalFile(), safe.getCanonicalFile());
+  }
+
+  @Test
   void recoverableFile_rejectsEscapeAndAcceptsUnderRxDir() throws Exception {
     PathUtils.setThreadOnlyRxDir(tmp.toFile());
     File outside = tmp.getParent().resolve("escape-recover.txt").toFile();

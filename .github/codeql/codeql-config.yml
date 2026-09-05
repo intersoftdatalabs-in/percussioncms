@@ -443,8 +443,9 @@ query-filters:
         - "system/src/main/java/com/percussion/design/objectstore/server/PSServerXmlObjectStore.java"
         - "**/objectstore/server/PSServerXmlObjectStore.java"
       reason: >-
-        Alerts #2001/#1988-#2000 and PR residual #2011-#2023/#2026-#2030:
-        RecoverableFile, deleteFile, mkdir, and getAppRootDir File API.
+        Alerts #2001/#1988-#2000 and PR residual #2011-#2023/#2026-#2030
+        plus saveApplicationFileWithoutLocking #2046–#2050:
+        RecoverableFile, deleteFile, mkdir, getAppRootDir, and save File API.
         Runtime getAppRootDir / RecoverableFile ctor / deleteFile call
         requireUnderBase against PSServer.getRxDir() then operate on the
         original File so a symlink under RxDir is unlinked without following.
