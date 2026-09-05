@@ -2373,6 +2373,55 @@ is the updated detail (same shape as GET), including reloaded `content`.
 | `500` | Object-store I/O failure |
 | `503` | Application file adaptor not configured |
 
+## File Explorer (allow-listed browse)
+
+Workbench **File Explorer** (§12.1) is a **new** Admin catalog under
+`/services/fileexplorer`. It lists **operator-configured allow-listed roots** on the CMS
+server and their **immediate children** by relative path. It is **not** XML application
+CMS/resource files (SY-05, `/services/applicationfiles` when that surface is deployed) and
+**not** the fixed server configuration allow-list (SY-02, `/services/serverconfigs`).
+
+Clients never supply a filesystem path as the root key. Root ids are catalog tokens from
+`server.properties`. Query `path` is relative under that root (`/` separators). Parent
+traversal (`..`), absolute paths, drive letters, and UNC forms are **400**. Unknown
+allow-listed ids or missing directories are **404**. Error bodies do **not** echo the raw
+path. Write, upload, and Database Explorer (§12.2) are out of scope.
+
+Configure roots in `rxconfig/server.properties`:
+
+```properties
+fileExplorer.allowListedRoots=rx_resources=rx_resources;drop=/absolute/path/to/drop
+```
+
+Entries are `id=path` separated by `;`. `id` is letters, digits, `_`, or `-` (must start
+with a letter). Relative paths resolve against the CMS install root. Paths that contain
+`..` are skipped. An empty property lists no roots (the server filesystem is never walked
+by default).
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/fileexplorer` | **Admin.** List allow-listed roots (`id`, `displayName`, `exists`) — no filesystem path |
+| `GET` | `/services/fileexplorer/{rootId}/children?path=` | **Admin.** List immediate children; omit `path` (or blank) for the root |
+
+JSON uses `FileExplorerRoot` / `FileExplorerEntry` (`name`, `relativePath`, `directory`,
+optional `size` for files). Prefer the generated OpenAPI schema as the integration source
+of truth.
+
+| Surface | Path | Domain |
+|---------|------|--------|
+| File Explorer (this API) | `/services/fileexplorer` | Allow-listed **server** filesystem browse (Workbench File Explorer) |
+| SY-05 application files | `/services/applicationfiles` | XML application CMS/resource files under a catalog application root |
+| SY-02 server configs | `/services/serverconfigs` | Fixed `PSConfigurationTypes` configuration file bodies |
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | List success (empty array when no roots are configured) |
+| `400` | Unsafe root id or relative path (`..`, absolute, drive, UNC) |
+| `403` | Caller is not Admin |
+| `404` | Root or relative directory not found / not allow-listed |
+| `503` | File Explorer adaptor not configured |
+| `500` | Unexpected I/O or server error |
+
 ## Extensions (catalog)
 
 Server **extension** registrations (Workbench / Developer **Extension Registration**, SY-01) are

@@ -43,6 +43,8 @@ class CatalogRestJaxrsRegistrationTest {
     "restServerConfigsResource",
     // #4289 / #4288 SY-05 application CMS/resource files (+ pipelines app picker)
     "restApplicationFilesResource",
+    // #4325 File Explorer allow-listed browse
+    "restFileExplorerResource",
     "restRelationshipTypeResource",
     // Pipelines Slice A/B — CXF 404 without explicit rest-jax-rs ref (#4304/#4314/#4316)
     "restPipelinesResource",
