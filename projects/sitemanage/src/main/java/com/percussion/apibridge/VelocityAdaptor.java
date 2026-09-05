@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
@@ -56,12 +57,29 @@ public class VelocityAdaptor implements IVelocityAdaptor {
 
   /** Package-visible for unit tests. */
   VelocityAdaptor(List<VelocitySnippet> snippets) {
+    Objects.requireNonNull(snippets, "snippets");
     List<VelocitySnippet> copy = List.copyOf(snippets);
     this.catalog = copy;
     Map<String, VelocitySnippet> index = new LinkedHashMap<>();
     for (VelocitySnippet s : copy) {
-      if (s != null && StringUtils.isNotBlank(s.getId())) {
-        index.put(s.getId().toLowerCase(Locale.ROOT), s);
+      if (s == null) {
+        throw new IllegalArgumentException("catalog snippet is null");
+      }
+      if (StringUtils.isBlank(s.getId())) {
+        throw new IllegalArgumentException("catalog snippet id is blank");
+      }
+      if (StringUtils.isBlank(s.getTitle())) {
+        throw new IllegalArgumentException("catalog snippet title is blank: " + s.getId());
+      }
+      if (StringUtils.isBlank(s.getCategory())) {
+        throw new IllegalArgumentException("catalog snippet category is blank: " + s.getId());
+      }
+      if (StringUtils.isBlank(s.getInsertText())) {
+        throw new IllegalArgumentException("catalog snippet insertText is blank: " + s.getId());
+      }
+      String key = s.getId().toLowerCase(Locale.ROOT);
+      if (index.put(key, s) != null) {
+        throw new IllegalArgumentException("duplicate catalog snippet id: " + s.getId());
       }
     }
     this.byId = Collections.unmodifiableMap(index);

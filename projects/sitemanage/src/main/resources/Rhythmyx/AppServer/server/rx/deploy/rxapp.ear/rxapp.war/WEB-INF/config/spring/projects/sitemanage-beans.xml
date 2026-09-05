@@ -115,6 +115,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restWorkflowsResource" />
             <ref bean="restApplicationFilesResource" />
             <ref bean="restAuditLogResource" />
+            <!-- AS-09 / #4307: Velocity tools + snippet catalog (missing → CXF 404) -->
+            <ref bean="restVelocityResource" />
         </jaxrs:serviceBeans>
         <jaxrs:extensionMappings>
             <entry key="json" value="application/json" />

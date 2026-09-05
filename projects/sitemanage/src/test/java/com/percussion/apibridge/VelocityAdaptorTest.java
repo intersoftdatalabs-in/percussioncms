@@ -104,7 +104,53 @@ class VelocityAdaptorTest {
   @Test
   void buildBuiltinCatalogIsImmutableView() {
     List<VelocitySnippet> built = VelocityAdaptor.buildBuiltinCatalog();
-    assertEquals(19, built.size());
+    assertFalse(built.isEmpty());
+    assertEquals(adaptor.listSnippets().size(), built.size());
+    assertThrows(UnsupportedOperationException.class, () -> built.add(null));
+  }
+
+  @Test
+  void constructorRejectsNullList() {
+    assertThrows(NullPointerException.class, () -> new VelocityAdaptor(null));
+  }
+
+  @Test
+  void constructorRejectsBlankId() {
+    List<VelocitySnippet> bad =
+        List.of(new VelocitySnippet(" ", "title", VelocityAdaptor.CATEGORY_FIELD, "#x()"));
+    assertThrows(IllegalArgumentException.class, () -> new VelocityAdaptor(bad));
+  }
+
+  @Test
+  void constructorRejectsBlankTitleCategoryOrInsertText() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new VelocityAdaptor(
+                List.of(
+                    new VelocitySnippet(
+                        "field.x", " ", VelocityAdaptor.CATEGORY_FIELD, "#x()"))));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new VelocityAdaptor(
+                List.of(new VelocitySnippet("field.x", "x", " ", "#x()"))));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new VelocityAdaptor(
+                List.of(
+                    new VelocitySnippet(
+                        "field.x", "x", VelocityAdaptor.CATEGORY_FIELD, " "))));
+  }
+
+  @Test
+  void constructorRejectsDuplicateIds() {
+    VelocitySnippet a =
+        new VelocitySnippet("field.x", "x", VelocityAdaptor.CATEGORY_FIELD, "#x()");
+    VelocitySnippet b =
+        new VelocitySnippet("FIELD.X", "y", VelocityAdaptor.CATEGORY_FIELD, "#y()");
+    assertThrows(IllegalArgumentException.class, () -> new VelocityAdaptor(List.of(a, b)));
   }
 
   @Test

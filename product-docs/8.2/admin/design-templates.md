@@ -153,6 +153,9 @@ Choose **Save**. Success and validation errors stay on the editor. Use **Templat
 return to the library. **Delete** on the editor asks for confirmation, then returns you
 to the refreshed library.
 
+For the built-in **Velocity snippet library** (AS-09 insert into source), use
+**Developer → Templates** — see [Developer Templates](id:admin-developer-templates).
+
 The visual layout editor may still open residual classic hosts (`editTemplate.jsp` and
 related upgrade-only JSPs) until those flows are signed off on the SPA. Bookmarks to the
 **list** still land on the SPA.

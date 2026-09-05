@@ -7,6 +7,7 @@ import {
   copyTextToClipboard,
   copyTextViaExecCommand,
   highlightTemplateSource,
+  insertTextAtSelection,
   lineNumberGutterWidth,
   lineNumbersForSource,
   splitSourceLines,
@@ -122,5 +123,26 @@ describe("copyTextToClipboard / copyTextViaExecCommand", () => {
   it("copyTextViaExecCommand returns true when execCommand succeeds", () => {
     stubExecCommand(true);
     expect(copyTextViaExecCommand("ok")).toBe(true);
+  });
+});
+
+describe("insertTextAtSelection", () => {
+  it("inserts at caret and advances caret", () => {
+    const { next, caret } = insertTextAtSelection("ab", "#inner()", 1, 1);
+    expect(next).toBe("a#inner()b");
+    expect(caret).toBe(1 + "#inner()".length);
+  });
+
+  it("replaces a selection range", () => {
+    const { next, caret } = insertTextAtSelection("hello world", "X", 6, 11);
+    expect(next).toBe("hello X");
+    expect(caret).toBe(7);
+  });
+
+  it("clamps out-of-range indices and normalizes inverted ranges", () => {
+    expect(insertTextAtSelection("abc", "Z", 99, 99).next).toBe("abcZ");
+    // Inverted (3,1) becomes selection [1,3] → replace "bc"
+    expect(insertTextAtSelection("abc", "Z", 3, 1).next).toBe("aZ");
+    expect(insertTextAtSelection("abc", "Z", -2, -1).next).toBe("Zabc");
   });
 });

@@ -59,6 +59,8 @@ class CatalogRestJaxrsRegistrationTest {
     "restContentTranslationsResource",
     // #3073 content-explorer folders façade over IPSContentWs
     "restContentExplorerFoldersResource",
+    // AS-09 / #4305 / #4307 Velocity tools + snippet catalog
+    "restVelocityResource",
   };
 
   /** Inbox execute #3323 — must precede jacksonProvider on rest-jax-rs. */

@@ -324,3 +324,37 @@ export function copyTextViaExecCommand(text: string): boolean {
   document.body.removeChild(ta);
   return ok;
 }
+
+export interface InsertAtSelectionResult {
+  /** Source after replacing the selection (or inserting at caret). */
+  next: string;
+  /** Caret index after the inserted text. */
+  caret: number;
+}
+
+/**
+ * Insert {@code insertText} at the current selection in {@code source}.
+ * Clamps indices to source bounds; empty selection inserts at the caret.
+ */
+export function insertTextAtSelection(
+  source: string,
+  insertText: string,
+  selectionStart: number,
+  selectionEnd: number = selectionStart,
+): InsertAtSelectionResult {
+  const len = source.length;
+  let start = Number.isFinite(selectionStart) ? selectionStart : len;
+  let end = Number.isFinite(selectionEnd) ? selectionEnd : start;
+  if (start < 0) start = 0;
+  if (end < 0) end = 0;
+  if (start > len) start = len;
+  if (end > len) end = len;
+  if (end < start) {
+    const tmp = start;
+    start = end;
+    end = tmp;
+  }
+  const text = insertText ?? "";
+  const next = source.slice(0, start) + text + source.slice(end);
+  return { next, caret: start + text.length };
+}
