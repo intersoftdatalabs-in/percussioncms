@@ -88,7 +88,10 @@ export async function getVelocitySnippet(id: string): Promise<VelocitySnippet> {
   const payload = await get<unknown>(
     `${PATHS.VELOCITY_SNIPPETS}/${encodeURIComponent(id)}`,
   );
-  if (payload != null && typeof payload === "object" && !Array.isArray(payload)) {
+  if (Array.isArray(payload)) {
+    throw new Error("Expected single snippet, got array");
+  }
+  if (payload != null && typeof payload === "object") {
     const root = payload as Record<string, unknown>;
     const nested =
       root.VelocitySnippet ??

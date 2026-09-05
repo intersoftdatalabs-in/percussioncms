@@ -7,6 +7,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { listVelocitySnippets } from "../../../main/ts/api/developer/velocitySnippetsApi";
 import { SnippetLibraryDialog } from "../../../main/ts/developer/SnippetLibraryDialog";
+import { DEV_MSG } from "../../../main/ts/developer/messages";
 
 vi.mock("../../../main/ts/api/developer/velocitySnippetsApi", () => ({
   listVelocitySnippets: vi.fn(),
@@ -64,6 +65,27 @@ describe("SnippetLibraryDialog", () => {
     );
     fireEvent.click(screen.getByTestId("developer-tpl-snippet-insert"));
     expect(onInsert).toHaveBeenCalledWith('#field("rx:title")', catalog[0]);
+  });
+
+  it("displays mixed-case server category with the same filter-button label", async () => {
+    listMock.mockResolvedValue([
+      {
+        id: "field.field",
+        title: "field",
+        category: "Field",
+        insertText: '#field("rx:title")',
+      },
+    ]);
+    render(
+      <SnippetLibraryDialog open={true} onCancel={vi.fn()} onInsert={vi.fn()} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-snippet-row-field.field")).toBeTruthy();
+    });
+    const row = screen.getByTestId("developer-tpl-snippet-row-field.field");
+    expect(row.textContent).toContain(DEV_MSG.TPL_SNIPPET_CAT_FIELD);
+    fireEvent.click(screen.getByTestId("developer-tpl-snippet-cat-field"));
+    expect(screen.getByTestId("developer-tpl-snippet-row-field.field")).toBeTruthy();
   });
 
   it("filters by category and search query", async () => {

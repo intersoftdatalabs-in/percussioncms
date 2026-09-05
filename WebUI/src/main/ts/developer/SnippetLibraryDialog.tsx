@@ -88,6 +88,15 @@ function categoryLabel(cat: CategoryFilter): string {
   }
 }
 
+/** Table category uses the same labels as filter buttons (server casing ignored). */
+function tableCategoryLabel(raw: string | undefined): string {
+  const c = (raw || "").trim().toLowerCase();
+  if (c === "field" || c === "slot" || c === "misc") {
+    return categoryLabel(c);
+  }
+  return raw || "—";
+}
+
 /**
  * AS-09 snippet library picker for Developer template source.
  * Loads {@code GET /services/velocity/snippets} and inserts catalog text.
@@ -299,7 +308,7 @@ export function SnippetLibraryDialog({
                     >
                       <td style={{ padding: "8px" }}>{s.title || "—"}</td>
                       <td style={{ padding: "8px", ...mutedCell }}>
-                        {s.category || "—"}
+                        {tableCategoryLabel(s.category)}
                       </td>
                       <td style={{ padding: "8px", ...monoCell }}>{s.id}</td>
                     </tr>
