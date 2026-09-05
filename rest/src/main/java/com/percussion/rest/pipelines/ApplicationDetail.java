@@ -26,9 +26,9 @@ import java.util.List;
 /**
  * Design detail for one classic XML Application / pipeline package.
  *
- * <p>Includes Admin start/stop lifecycle ({@code active}). Pipe IR structure is available via
- * {@code GET /pipelines/{idOrName}/ir}. IR write / graph editor remain later slices (see {@code
- * designGaps}).
+ * <p>Includes Admin start/stop lifecycle ({@code active}). Admin validation/problems are a separate
+ * {@code GET …/validation} resource. Pipe IR structure is available via {@code GET
+ * /pipelines/{idOrName}/ir}. IR write / graph editor remain later slices (see {@code designGaps}).
  */
 @XmlRootElement(name = "ApplicationDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)

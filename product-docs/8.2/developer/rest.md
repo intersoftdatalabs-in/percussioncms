@@ -1833,7 +1833,7 @@ Example create body (user custom URL view):
 - Operator Inbox run-from-tree is Explorer **Views → My Content → Inbox**, not a
   free-floating Inbox root.
 
-## Pipelines (XML Applications catalog, lifecycle, and IR read)
+## Pipelines (XML Applications catalog, lifecycle, IR read, and validation)
 
 Classic **XML Applications** (data pipeline packages) are exposed under `/services/pipelines`.
 The catalog is a thin contract over the server object store (`PSServerXmlObjectStore`
@@ -1842,13 +1842,16 @@ summaries / application objects). Admin **start** / **stop** peer the server con
 `PSServer.shutdownApplication`). **Read-only Pipeline IR** uses the pipeline-ir-v1 loaders
 (`IPSPipelineIrService`): native IR JSON when present under
 `ObjectStore/pipeline-ir/<app>.pipeline.json`, otherwise a classic object-store import into IR
-**without saving**. Thin IR execute (`POST …/execute`) is a separate native pipeline runtime
-path — it does **not** call classic `PSQueryHandler` / `PSUpdateHandler`.
+**without saving**. Admin **validation / problems** peers object-store
+`PSValidatorAdapter.validateApplication` and returns a structured problems summary.
+Thin IR execute (`POST …/execute`) is a separate native pipeline runtime path — it does
+**not** call classic `PSQueryHandler` / `PSUpdateHandler`.
 
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/services/pipelines` | List non-hidden applications (optional `name`, `limit`, `offset`) |
 | `GET` | `/services/pipelines/{idOrName}` | Load one application by name or numeric id (data-set catalog + `active`) |
+| `GET` | `/services/pipelines/{idOrName}/validation` | **Admin.** Design-time validation / problems summary |
 | `POST` | `/services/pipelines/{idOrName}/start` | **Admin.** Start application (idempotent if already running) |
 | `POST` | `/services/pipelines/{idOrName}/stop` | **Admin.** Stop application (idempotent if already stopped) |
 | `GET` | `/services/pipelines/{idOrName}/ir` | **Read-only** Pipeline IR (app meta + resources / stages / tanks / mapper) |
@@ -1886,14 +1889,33 @@ import/export — those remain `designGaps` on application detail. **Developer �
 detail uses this GET for a read-only resources / tanks / mapper summary (see
 [Developer Pipelines](id:admin-developer-pipelines)).
 
+### Admin validation / problems
+
+`GET /services/pipelines/{idOrName}/validation` requires **Admin** (**403** otherwise).
+The path id resolves only against the object-store catalog (trusted name); unknown or
+unsafe names are **404**. **Hidden** applications cannot be validated via this API
+(**400**). A successful response is `ApplicationValidationResult`:
+
+| Field | Role |
+|-------|------|
+| `id` / `name` | Trusted catalog identity |
+| `valid` | `true` when there are no `ERROR`-severity problems (warnings alone still count as valid) |
+| `errorCount` / `warningCount` | Counts by severity |
+| `problems[]` | Entries with `severity` (`ERROR` \| `WARNING`), `code` (object-store message code as string), `message`, optional `resource` (dataset name when known), optional `path` (component class/id breadcrumb) |
+
+Empty `problems` with `valid=true` means object-store validation reported no issues.
+This is a **read** of design-time problems only — pipe graph edit, IR write, and classic
+ZIP import remain unsupported (`designGaps` on detail). SPA chrome for the problems panel
+is a separate slice.
+
 Remaining gaps on detail (`designGaps`) include IR write / graph editor / native save,
 enable/disable, and classic ZIP import/export.
 
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | List / get / start / stop / IR read / execute success |
+| `200` | List / get / validation / start / stop / IR read / execute success |
 | `400` | Invalid name, hidden/disabled lifecycle, or IR validation failure |
-| `403` | Caller is not Admin (start/stop) |
+| `403` | Caller is not Admin (start/stop/validation) |
 | `404` | Application (or IR resource) not found / not visible |
 | `500` | Object-store or server failure |
 

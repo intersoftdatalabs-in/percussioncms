@@ -44,13 +44,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Catalog of classic XML Applications (pipeline packages), Admin start/stop, read-only Pipeline IR,
- * and thin IR execute.
+ * Catalog of classic XML Applications (pipeline packages), Admin start/stop, validation/problems,
+ * read-only Pipeline IR, and thin IR execute.
  *
  * <p>Registered via {@link PSSiteManageBean} like sibling catalog resources ({@code Keywords},
  * {@code Slots}). IR read uses {@code IPSPipelineIrService}; execute delegates to {@code
  * IPSPipelineRuntimeService} only (never classic {@code PSQueryHandler} as the public path).
- * Start/stop peer {@code PSServer.startApplication} / {@code shutdownApplication}.
+ * Start/stop peer {@code PSServer.startApplication} / {@code shutdownApplication}. Validation
+ * peers {@code PSValidatorAdapter#validateApplication}.
  */
 @PSSiteManageBean(value = "restPipelinesResource")
 @Path("/pipelines")
@@ -58,7 +59,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(
     name = "Pipelines",
     description =
-        "Data pipeline / XML application design catalog, Admin start/stop, read-only Pipeline IR, and thin IR execute")
+        "Data pipeline / XML application design catalog, Admin start/stop, validation, read-only Pipeline IR, and thin IR execute")
 public class PipelinesResource {
 
   private final IPipelinesAdaptor adaptor;
@@ -208,6 +209,45 @@ public class PipelinesResource {
         throw new WebApplicationException("Application not found", 404);
       }
       return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @GET
+  @Path("/{idOrName}/validation")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Validate a pipeline application (problems summary)",
+      description =
+          "Admin only. Runs design-time object-store validation for a non-hidden classic XML"
+              + " Application (peer PSValidatorAdapter.validateApplication) and returns a problems"
+              + " summary (severity, code, message, optional resource/path). Does not echo raw path"
+              + " params on errors. Graph edit / IR write / classic ZIP import remain out of scope.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Validation summary (may be empty / valid)",
+            content =
+                @Content(schema = @Schema(implementation = ApplicationValidationResult.class))),
+        @ApiResponse(responseCode = "400", description = "Hidden or invalid application"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ApplicationValidationResult getValidation(@PathParam("idOrName") String idOrName) {
+    try {
+      ApplicationValidationResult result =
+          requireAdaptor().getValidation(uriInfo.getBaseUri(), idOrName);
+      if (result == null) {
+        // Generic body: do not echo raw idOrName (path-injection / name probing).
+        throw new WebApplicationException("Application not found", 404);
+      }
+      return result;
     } catch (WebApplicationException e) {
       throw e;
     } catch (IllegalArgumentException e) {

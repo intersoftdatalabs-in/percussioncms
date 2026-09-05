@@ -88,4 +88,14 @@ public interface IPipelinesAdaptor {
    * @return refreshed detail with {@code active=false}, or {@code null} when not found / not visible
    */
   ApplicationDetail stopApplication(URI baseUri, String idOrName);
+
+  /**
+   * Admin: run design-time validation / problems for a non-hidden classic XML Application (peer
+   * {@code PSValidatorAdapter#validateApplication}).
+   *
+   * @param baseUri request base URI (reserved for HATEOAS)
+   * @param idOrName application numeric id or name
+   * @return validation summary, or {@code null} when not found / not visible
+   */
+  ApplicationValidationResult getValidation(URI baseUri, String idOrName);
 }

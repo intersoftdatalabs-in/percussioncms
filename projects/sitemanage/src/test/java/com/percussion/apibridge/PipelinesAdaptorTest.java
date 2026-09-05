@@ -39,6 +39,8 @@ import com.percussion.design.objectstore.PSRequestor;
 import com.percussion.design.objectstore.server.PSApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
+import com.percussion.rest.pipelines.ApplicationValidationProblem;
+import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
 import com.percussion.services.pipeline.IPSPipelineRuntimeService;
@@ -650,6 +652,141 @@ class PipelinesAdaptorTest {
       assertEquals(400, hiddenEx.getResponse().getStatus());
       assertEquals(PipelinesAdaptor.HIDDEN_NOT_ALLOWED, hiddenEx.getMessage());
     }
+  }
+
+  @Test
+  void getValidation_requiresAdminAndRejectsHidden() {
+    PSApplicationSummary visible = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PSApplicationSummary hidden = summary(1, "hiddenApp", "h", true, "r", false, true);
+    PipelinesAdaptor.ApplicationValidationOps ops =
+        (name, sum, tok) -> PipelinesAdaptor.toValidationResult(sum.getId(), name, List.of());
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+
+      PipelinesAdaptor forbidden =
+          new PipelinesAdaptor(
+              tok -> new PSApplicationSummary[] {visible},
+              () -> mock(IPSPipelineRuntimeService.class),
+              () -> false,
+              noopLifecycle(),
+              (name, tok) -> detailNamed(name, false),
+              ops);
+      WebApplicationException adminEx =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  forbidden.getValidation(
+                      URI.create("http://localhost/"), "sys_cmpDocuments"));
+      assertEquals(403, adminEx.getResponse().getStatus());
+      assertEquals(PipelinesAdaptor.ADMIN_REQUIRED, adminEx.getMessage());
+
+      PipelinesAdaptor hiddenAdaptor =
+          new PipelinesAdaptor(
+              tok -> new PSApplicationSummary[] {hidden},
+              () -> mock(IPSPipelineRuntimeService.class),
+              () -> true,
+              noopLifecycle(),
+              (name, tok) -> detailNamed(name, false),
+              ops);
+      WebApplicationException hiddenEx =
+          assertThrows(
+              WebApplicationException.class,
+              () -> hiddenAdaptor.getValidation(URI.create("http://localhost/"), "hiddenApp"));
+      assertEquals(400, hiddenEx.getResponse().getStatus());
+      assertEquals(PipelinesAdaptor.HIDDEN_NOT_ALLOWED, hiddenEx.getMessage());
+    }
+  }
+
+  @Test
+  void getValidation_returnsProblemsSummaryForTrustedCatalogName() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    ApplicationValidationProblem error = new ApplicationValidationProblem();
+    error.setSeverity(CollectingApplicationValidator.SEVERITY_ERROR);
+    error.setCode("1301");
+    error.setMessage("Missing requestor");
+    error.setResource("contenteditor");
+    error.setPath("PSDataSet#1[contenteditor]");
+    ApplicationValidationProblem warning = new ApplicationValidationProblem();
+    warning.setSeverity(CollectingApplicationValidator.SEVERITY_WARNING);
+    warning.setCode("1400");
+    warning.setMessage("Inefficient mapping");
+
+    PipelinesAdaptor.ApplicationValidationOps ops =
+        (name, summary, tok) ->
+            PipelinesAdaptor.toValidationResult(summary.getId(), name, List.of(error, warning));
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, false),
+            ops);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      ApplicationValidationResult out =
+          adaptor.getValidation(URI.create("http://localhost/services/"), "SYS_CMPDOCUMENTS");
+      assertNotNull(out);
+      assertEquals(7, out.getId());
+      assertEquals("sys_cmpDocuments", out.getName());
+      assertEquals(Boolean.FALSE, out.getValid());
+      assertEquals(1, out.getErrorCount());
+      assertEquals(1, out.getWarningCount());
+      assertEquals(2, out.getProblems().size());
+      assertEquals("1301", out.getProblems().get(0).getCode());
+    }
+  }
+
+  @Test
+  void getValidation_unknownReturnsNullAndRejectsPathTraversal() {
+    PipelinesAdaptor.ApplicationValidationOps ops =
+        (name, sum, tok) -> PipelinesAdaptor.toValidationResult(1, name, List.of());
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[0],
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> null,
+            ops);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      assertNull(adaptor.getValidation(URI.create("http://localhost/"), "missing"));
+      assertNull(adaptor.getValidation(URI.create("http://localhost/"), "../evil"));
+    }
+  }
+
+  @Test
+  void toValidationResult_countsSeveritiesAndMarksValidWhenNoErrors() {
+    ApplicationValidationProblem warning = new ApplicationValidationProblem();
+    warning.setSeverity(CollectingApplicationValidator.SEVERITY_WARNING);
+    warning.setCode("1");
+    warning.setMessage("warn");
+
+    ApplicationValidationResult validOnlyWarnings =
+        PipelinesAdaptor.toValidationResult(3, "app", List.of(warning));
+    assertEquals(Boolean.TRUE, validOnlyWarnings.getValid());
+    assertEquals(0, validOnlyWarnings.getErrorCount());
+    assertEquals(1, validOnlyWarnings.getWarningCount());
+
+    ApplicationValidationResult empty = PipelinesAdaptor.toValidationResult(3, "app", List.of());
+    assertEquals(Boolean.TRUE, empty.getValid());
+    assertEquals(0, empty.getErrorCount());
+    assertEquals(0, empty.getWarningCount());
+  }
+
+  @Test
+  void defaultDesignGaps_doesNotClaimValidationReadUnsupported() {
+    List<String> gaps = PipelinesAdaptor.defaultDesignGaps();
+    assertTrue(
+        gaps.stream().noneMatch(g -> g.toLowerCase().contains("validation")),
+        "validation/problems read shipped — designGaps must not claim it unsupported");
+    assertTrue(
+        gaps.stream().anyMatch(g -> g.toLowerCase().contains("graph edit")),
+        "graph edit / IR write should remain listed as a gap");
   }
 
   private static void stubCurrentRequest(MockedStatic<PSSecurityFilter> security) {
