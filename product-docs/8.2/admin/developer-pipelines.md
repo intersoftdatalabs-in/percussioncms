@@ -1,7 +1,7 @@
 ---
 id: admin-developer-pipelines
 title: Developer Pipelines
-description: Browse classic XML Applications and Admin start/stop from Developer Pipelines chrome
+description: Browse classic XML Applications, Admin start/stop, read-only pipe IR, Test invoke, and Problems from Developer Pipelines chrome
 version: "8.2"
 order: 51
 tags: [admin, developer, pipelines]
@@ -11,7 +11,9 @@ tags: [admin, developer, pipelines]
 
 **Developer → Pipelines** lists classic **XML Applications** (data pipeline
 packages) visible to the current security token. Open a row for application
-metadata and the **data set** catalog (request pages / content editors).
+metadata, the **data set** catalog (request pages / content editors), and a
+**pipe IR** summary (resources, stage presence, backend tanks, mapper mappings)
+so operators can inspect structure without the Swing E2Designer.
 
 **Admins** can **Start** or **Stop** a non-hidden application from the detail
 toolbar. Those actions peer the server console `start application` /
@@ -20,12 +22,27 @@ toolbar. Those actions peer the server console `start application` /
 `POST /services/pipelines/{idOrName}/stop`. Non-Admin sessions do not see the
 lifecycle controls.
 
-Enable/disable, pipe IR / mapper tanks, and design import/export remain later
-slices (see detail **design gaps** when present).
+The IR section calls `GET /services/pipelines/{idOrName}/ir`. When a native IR
+file exists under `ObjectStore/pipeline-ir/`, that document is shown (`source`
+`NATIVE`). Otherwise the server imports the classic application into IR **in
+memory** (`source` `CLASSIC_IMPORT`) and does **not** save it.
+
+**Admins** also get **Test invoke** and **Problems** on the same detail page:
+
+- **Test invoke** posts sample JSON (`params` / `rows`) to
+  `POST /services/pipelines/{app}/resources/{resource}/execute` and shows the
+  structured execute result (or a clear error). Use a data-set name as the
+  resource when the application has native pipe IR.
+- **Problems** loads Admin `GET /services/pipelines/{idOrName}/validation` when
+  that endpoint is present. If validation REST is not deployed yet, the section
+  shows a soft empty state instead of failing the page.
+
+Graph editing, IR write / native save, enable/disable, and classic ZIP
+import/export remain later slices (see detail **design gaps** when present).
 
 ## Product path — browse and lifecycle
 
-1. Sign in (Admin required for Start / Stop).
+1. Sign in (Admin required for Start / Stop, Test invoke, and Problems).
 2. Open **Developer → Pipelines**, or deep-link
    `spa.jsp?entry=developer&section=pipelines`.
 3. Open a listed application. Detail shows type, **Enabled**, **Running**,
@@ -39,13 +56,58 @@ slices (see detail **design gaps** when present).
 6. Non-Admin callers that hit the REST start/stop paths receive **403**. Hidden
    or disabled lifecycle attempts are **400**. Unknown applications are **404**.
 
+## Product path — inspect pipe IR
+
+1. On the same application detail, scroll to **Pipe IR**. Confirm **IR source**
+   (`NATIVE` or `CLASSIC_IMPORT`) and **IR version**. Expand each IR resource for:
+   - Stages present (page tank, backend tank, mapper, selector, pager, updater)
+   - Backend tank tables (alias / table / datasource) and join count when present
+   - Mapper mappings (document field ↔ backend column/extension)
+   - Selector method / where-clause count and updater allow flags when present
+2. Use **Back to list** to return to the catalog.
+
+If IR cannot be loaded (for example **404** for an unknown app or missing IR),
+the catalog detail still renders and the Pipe IR section shows an error — the
+chrome does not echo the raw path name in that message.
+
+## Product path — Test invoke
+
+1. As **Admin**, open an application detail page.
+2. In **Test invoke**, enter a **resource** name (data-set names are offered
+   when present) and edit the **Request JSON** body (default
+   `{ "params": {} }`).
+3. Choose **Invoke**. On success, the structured execute result JSON appears
+   under **Execute result**. Invalid JSON, a blank resource, or server
+   **400**/**404**/**500** responses show a clear error under the form.
+4. Execute uses the native pipeline IR runtime — it does **not** call classic
+   `PSQueryHandler` / `PSUpdateHandler`. Applications without native IR for the
+   named resource return an error from the server.
+
+## Product path — Problems
+
+1. As **Admin**, open an application detail page. The **Problems** section loads
+   automatically.
+2. When validation REST is available, rows show severity, code, message, and
+   optional resource/path. An empty list means the application validated with no
+   errors or warnings.
+3. When validation REST is **not** available (**404**), the section shows a soft
+   empty message that validation is deferred — the rest of the detail page still
+   works (including Test invoke, Pipe IR, and Start/Stop).
+4. Non-Admin sessions do not see the Problems section. Admin callers without the
+   role on the REST path receive **403**.
+
 ## Limits
 
 - Catalog and detail omit **hidden** applications from the list contract used by
   this chrome; hidden rows are not started or stopped here.
-- Pipe IR execute, mapper/tank editing, and enable/disable are not in this chrome.
+- Pipe IR is read-only: no graph editor, drag-drop tanks, or IR save from this chrome.
+- Enable/disable and classic ZIP import/export are not in this chrome.
 - Surface-filtered Playwright for Start/Stop lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-start-stop.spec.js`.
+- Surface-filtered Playwright for pipe IR lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-pipe-ir.spec.js`.
+- Surface-filtered Playwright for Test invoke (+ Problems soft-assert) lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-test-invoke.spec.js`.
 
 ## REST
 
@@ -53,10 +115,15 @@ The chrome calls:
 
 | Action | Request |
 |--------|---------|
-| List | `GET /services/pipelines` |
+| List | `GET /services/pipelines` (optional `name`, `limit`, `offset`) |
 | Load | `GET /services/pipelines/{idOrName}` |
 | Start | `POST /services/pipelines/{idOrName}/start` (**Admin**) |
 | Stop | `POST /services/pipelines/{idOrName}/stop` (**Admin**) |
+| Pipe IR | `GET /services/pipelines/{idOrName}/ir` |
+| Test invoke | `POST /services/pipelines/{app}/resources/{resource}/execute` |
+| Problems | `GET /services/pipelines/{idOrName}/validation` (**Admin**; soft-empty if absent) |
 
 Successful start/stop responses return refreshed `ApplicationDetail` including
-`active` (**Running** in the UI). Integrator notes: [REST API](id:developer-rest).
+`active` (**Running** in the UI). Execute returns `PipelineExecuteResult`.
+Validation returns `ApplicationValidationResult` with `problems[]` when present.
+Integrator notes: [REST API — Pipelines](id:developer-rest).

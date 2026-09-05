@@ -16,11 +16,19 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   listApplications: vi.fn(),
   startApplication: vi.fn(),
   stopApplication: vi.fn(),
+  executeResource: vi.fn(),
+  getApplicationValidation: vi.fn(),
+  getPipelineIr: vi.fn(),
 }));
 
 const getApplicationDetail = pipelinesApi.getApplicationDetail as ReturnType<typeof vi.fn>;
 const startApplication = pipelinesApi.startApplication as ReturnType<typeof vi.fn>;
 const stopApplication = pipelinesApi.stopApplication as ReturnType<typeof vi.fn>;
+const executeResource = pipelinesApi.executeResource as ReturnType<typeof vi.fn>;
+const getApplicationValidation = pipelinesApi.getApplicationValidation as ReturnType<
+  typeof vi.fn
+>;
+const getPipelineIr = pipelinesApi.getPipelineIr as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   id: 1,
@@ -69,6 +77,16 @@ describe("PipelineDetailPanel", () => {
     getApplicationDetail.mockReset();
     startApplication.mockReset();
     stopApplication.mockReset();
+    executeResource.mockReset();
+    getApplicationValidation.mockReset();
+    getPipelineIr.mockReset();
+    getPipelineIr.mockResolvedValue({ irVersion: "1.0", source: "NATIVE", resources: [] });
+    // Soft-empty when validation tip is not merged (default for most tests).
+    getApplicationValidation.mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: null,
+    });
   });
 
   afterEach(() => {
@@ -168,7 +186,7 @@ describe("PipelineDetailPanel", () => {
     );
   });
 
-  it("hides Start/Stop chrome for non-Admin", async () => {
+  it("hides Start/Stop, Test invoke, and Problems chrome for non-Admin", async () => {
     getApplicationDetail.mockResolvedValue(sampleDetail);
     renderDetail(false);
     await waitFor(() => {
@@ -177,6 +195,9 @@ describe("PipelineDetailPanel", () => {
     expect(screen.queryByTestId("developer-pipe-lifecycle")).toBeNull();
     expect(screen.queryByTestId("developer-pipe-start")).toBeNull();
     expect(screen.queryByTestId("developer-pipe-stop")).toBeNull();
+    expect(screen.queryByTestId("developer-pipe-invoke")).toBeNull();
+    expect(screen.queryByTestId("developer-pipe-problems")).toBeNull();
+    expect(getApplicationValidation).not.toHaveBeenCalled();
   });
 
   it("disables Start when application is disabled", async () => {
@@ -348,6 +369,159 @@ describe("PipelineDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-pipe-detail-error").textContent).toBe(
       DEV_MSG.PIPE_DETAIL_ERROR,
+    );
+  });
+
+  it("Admin Test invoke POSTs sample JSON and shows execute result", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    executeResource.mockResolvedValue({
+      appName: "sys_cmpDocuments",
+      resourceName: "contenteditor",
+      kind: "query",
+      rowCount: 1,
+      rows: [{ TYPE: "workflow" }],
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-invoke")).toBeTruthy();
+    });
+    const resourceInput = screen.getByTestId(
+      "developer-pipe-invoke-resource",
+    ) as HTMLInputElement;
+    expect(resourceInput.value).toBe("contenteditor");
+    fireEvent.change(screen.getByTestId("developer-pipe-invoke-body"), {
+      target: { value: '{"params":{"TYPE":"workflow"}}' },
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-invoke-run"));
+    await waitFor(() => {
+      expect(executeResource).toHaveBeenCalledWith(
+        "sys_cmpDocuments",
+        "contenteditor",
+        { params: { TYPE: "workflow" } },
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-invoke-result").textContent).toContain(
+        "contenteditor",
+      );
+    });
+    expect(screen.getByTestId("developer-pipe-invoke-result").textContent).toContain(
+      "workflow",
+    );
+  });
+
+  it("shows clear error for invalid invoke JSON and missing resource", async () => {
+    getApplicationDetail.mockResolvedValue({ ...sampleDetail, dataSets: [] });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-invoke")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-invoke-run"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-invoke-error").textContent).toBe(
+        DEV_MSG.PIPE_INVOKE_RESOURCE_REQUIRED,
+      );
+    });
+    expect(executeResource).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByTestId("developer-pipe-invoke-resource"), {
+      target: { value: "DatasetQ" },
+    });
+    fireEvent.change(screen.getByTestId("developer-pipe-invoke-body"), {
+      target: { value: "not-json" },
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-invoke-run"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-invoke-error").textContent).toBe(
+        DEV_MSG.PIPE_INVOKE_BODY_INVALID,
+      );
+    });
+    expect(executeResource).not.toHaveBeenCalled();
+  });
+
+  it("surfaces execute API errors in Test invoke", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    executeResource.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "unsupported resource kind" },
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-invoke-run")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-invoke-run"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-invoke-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-pipe-invoke-error").textContent).toMatch(
+      /unsupported resource kind|400/,
+    );
+  });
+
+  it("soft-empty Problems when validation REST returns 404", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-problems-unavailable")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-pipe-problems-unavailable").textContent).toBe(
+      DEV_MSG.PIPE_PROBLEMS_UNAVAILABLE,
+    );
+    expect(getApplicationValidation).toHaveBeenCalledWith("sys_cmpDocuments");
+    expect(screen.queryByTestId("developer-pipe-problems-table")).toBeNull();
+  });
+
+  it("renders Problems table when validation REST is present", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    getApplicationValidation.mockResolvedValue({
+      id: 1,
+      name: "sys_cmpDocuments",
+      valid: false,
+      errorCount: 1,
+      warningCount: 1,
+      problems: [
+        {
+          severity: "ERROR",
+          code: "1301",
+          message: "Missing mapper",
+          resource: "contenteditor",
+          path: "PSDataMapper",
+        },
+        {
+          severity: "WARNING",
+          code: "1400",
+          message: "Deprecated exit",
+        },
+      ],
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-problems-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-pipe-problem-row-0").textContent).toContain(
+      "Missing mapper",
+    );
+    expect(screen.getByTestId("developer-pipe-problem-row-1").textContent).toContain(
+      "WARNING",
+    );
+  });
+
+  it("shows empty Problems when validation returns no items", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    getApplicationValidation.mockResolvedValue({
+      name: "sys_cmpDocuments",
+      valid: true,
+      errorCount: 0,
+      warningCount: 0,
+      problems: [],
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-problems-empty")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-pipe-problems-empty").textContent).toBe(
+      DEV_MSG.PIPE_PROBLEMS_EMPTY,
     );
   });
 });

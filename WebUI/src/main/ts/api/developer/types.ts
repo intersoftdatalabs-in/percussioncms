@@ -445,6 +445,151 @@ export interface ApplicationDetail extends ApplicationSummary {
   designGaps?: string[];
 }
 
+/** Backend table row inside a pipeline IR backend tank. */
+export interface PipelineIrBackendTable {
+  alias?: string;
+  table?: string;
+  datasource?: string;
+}
+
+/** Document ↔ backend mapping row inside a pipeline IR mapper stage. */
+export interface PipelineIrMappingEntry {
+  documentField?: string;
+  backend?: string;
+  backendKind?: string;
+}
+
+/** Stage presence / inventory flags shared by IR stages. */
+export interface PipelineIrStagePresence {
+  present?: boolean;
+}
+
+export interface PipelineIrPageTank extends PipelineIrStagePresence {
+  schemaSource?: string;
+  actionTypeXmlField?: string;
+}
+
+export interface PipelineIrBackendTank extends PipelineIrStagePresence {
+  tables?: PipelineIrBackendTable[];
+  joinCount?: number;
+}
+
+export interface PipelineIrMapper extends PipelineIrStagePresence {
+  allowEmptyDocReturn?: boolean;
+  mappings?: PipelineIrMappingEntry[];
+}
+
+export interface PipelineIrSelector extends PipelineIrStagePresence {
+  unique?: boolean;
+  method?: string;
+  whereClauseCount?: number;
+  sortedColumnCount?: number;
+}
+
+export interface PipelineIrPager extends PipelineIrStagePresence {
+  maxRowsPerPage?: number;
+  maxPages?: number;
+  maxPageLinks?: number;
+}
+
+export interface PipelineIrUpdater extends PipelineIrStagePresence {
+  allowInsert?: boolean;
+  allowUpdate?: boolean;
+  allowDelete?: boolean;
+  updateColumnCount?: number;
+}
+
+/** Pipe stages for one IR resource. */
+export interface PipelineIrStages {
+  pageTank?: PipelineIrPageTank;
+  backendTank?: PipelineIrBackendTank;
+  mapper?: PipelineIrMapper;
+  selector?: PipelineIrSelector;
+  pager?: PipelineIrPager;
+  updater?: PipelineIrUpdater;
+}
+
+/** One request resource in GET /services/pipelines/{idOrName}/ir. */
+export interface PipelineIrResource {
+  name?: string;
+  description?: string;
+  kind?: string;
+  requestPage?: string;
+  transactionMode?: string;
+  pipeName?: string;
+  stages?: PipelineIrStages;
+}
+
+/** App meta nested under Pipeline IR. */
+export interface PipelineIrAppMeta {
+  id?: number;
+  name?: string;
+  description?: string;
+  requestRoot?: string;
+  enabled?: boolean;
+  hidden?: boolean;
+  appType?: string;
+  version?: string;
+}
+
+/**
+ * Read-only Pipeline IR document from GET /services/pipelines/{idOrName}/ir
+ * (pipeline-ir-v1). Native IR when present; otherwise classic import in memory.
+ */
+export interface PipelineIrDocument {
+  irVersion?: string;
+  source?: string;
+  app?: PipelineIrAppMeta;
+  resources?: PipelineIrResource[];
+}
+
+/**
+ * Body for {@code POST /services/pipelines/{app}/resources/{resource}/execute}.
+ * Peers server {@code PipelineExecuteRequest} ({@code params}, {@code rows}, optional
+ * {@code operation} / {@code keyColumns}).
+ */
+export interface PipelineExecuteRequest {
+  operation?: string;
+  params?: Record<string, unknown>;
+  rows?: Array<Record<string, unknown>>;
+  keyColumns?: string[];
+}
+
+/** Result from native pipeline IR execute. */
+export interface PipelineExecuteResult {
+  appName?: string;
+  resourceName?: string;
+  kind?: string;
+  operation?: string;
+  rowCount?: number;
+  affectedRows?: number;
+  rows?: Array<Record<string, unknown>>;
+  hookTrace?: string[];
+  meta?: Record<string, unknown>;
+}
+
+/**
+ * One design-time validation problem from Admin
+ * {@code GET /services/pipelines/{idOrName}/validation} (wave 3 REST; feature-detect).
+ */
+export interface ApplicationValidationProblem {
+  severity?: string;
+  code?: string;
+  message?: string;
+  resource?: string;
+  path?: string;
+}
+
+/** Validation / problems summary for one pipeline application. */
+export interface ApplicationValidationResult {
+  id?: number;
+  name?: string;
+  valid?: boolean;
+  errorCount?: number;
+  warningCount?: number;
+  problems?: ApplicationValidationProblem[];
+}
+
 /** CMS locale summary from GET /services/locales. */
 export interface LocaleSummary {
   id?: number;

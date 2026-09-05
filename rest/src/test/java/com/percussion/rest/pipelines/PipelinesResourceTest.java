@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
+import com.percussion.services.pipeline.model.PipelineIrDocument;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.UriInfo;
 import java.lang.reflect.Field;
@@ -133,6 +134,60 @@ public class PipelinesResourceTest {
         assertThrows(WebApplicationException.class, () -> resource.getApplication("sys_foo"));
     assertEquals(500, ex.getResponse().getStatus());
     assertSame(boom, ex.getCause(), "cause chain must preserve the original failure");
+  }
+
+  @Test
+  public void getPipelineIrDelegatesToAdaptor() {
+    PipelineIrDocument ir = new PipelineIrDocument();
+    ir.setIrVersion(PipelineIrDocument.CURRENT_IR_VERSION);
+    ir.getApp().setName("sys_foo");
+    when(adaptor.getPipelineIr(any(), eq("sys_foo"))).thenReturn(ir);
+
+    PipelineIrDocument out = resource.getPipelineIr("sys_foo");
+    assertEquals("sys_foo", out.getApp().getName());
+    assertEquals(PipelineIrDocument.CURRENT_IR_VERSION, out.getIrVersion());
+    verify(adaptor).getPipelineIr(any(), eq("sys_foo"));
+  }
+
+  @Test
+  public void getPipelineIrNotFound() {
+    when(adaptor.getPipelineIr(any(), eq("missing"))).thenReturn(null);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getPipelineIr("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Pipeline IR not found", ex.getMessage());
+  }
+
+  @Test
+  public void getPipelineIrMapsIllegalArgumentTo400() {
+    when(adaptor.getPipelineIr(any(), eq("sys_foo")))
+        .thenThrow(new IllegalArgumentException("bad IR"));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getPipelineIr("sys_foo"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("bad IR", ex.getMessage());
+  }
+
+  @Test
+  public void getPipelineIrWrapsUnexpectedFailuresAs500() {
+    IllegalStateException boom = new IllegalStateException("IR store down");
+    when(adaptor.getPipelineIr(any(), eq("sys_foo"))).thenThrow(boom);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getPipelineIr("sys_foo"));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void getPipelineIrWithoutInjectionFailsWithDiagnostic() {
+    PipelinesResource bare = new PipelinesResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.getPipelineIr("sys_foo"));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertInstanceOf(IllegalStateException.class, ex.getCause());
   }
 
   @Test
@@ -289,6 +344,64 @@ public class PipelinesResourceTest {
 
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.stopApplication("sys_foo"));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void getValidationDelegatesToAdaptor() {
+    ApplicationValidationResult result = new ApplicationValidationResult();
+    result.setName("sys_foo");
+    result.setValid(true);
+    result.setErrorCount(0);
+    result.setWarningCount(0);
+    when(adaptor.getValidation(any(), eq("sys_foo"))).thenReturn(result);
+
+    ApplicationValidationResult out = resource.getValidation("sys_foo");
+    assertEquals("sys_foo", out.getName());
+    assertEquals(Boolean.TRUE, out.getValid());
+    verify(adaptor).getValidation(any(), eq("sys_foo"));
+  }
+
+  @Test
+  public void getValidationNotFound() {
+    when(adaptor.getValidation(any(), eq("missing"))).thenReturn(null);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getValidation("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Application not found", ex.getMessage());
+  }
+
+  @Test
+  public void getValidationRethrowsWebApplicationException() {
+    when(adaptor.getValidation(any(), eq("sys_foo")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getValidation("sys_foo"));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertEquals("Admin role required", ex.getMessage());
+  }
+
+  @Test
+  public void getValidationMapsIllegalArgumentTo400() {
+    when(adaptor.getValidation(any(), eq("sys_foo")))
+        .thenThrow(new IllegalArgumentException("Hidden applications cannot be validated"));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getValidation("sys_foo"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("Hidden applications cannot be validated", ex.getMessage());
+  }
+
+  @Test
+  public void getValidationWrapsUnexpectedFailuresAs500() {
+    IllegalStateException boom = new IllegalStateException("validator down");
+    when(adaptor.getValidation(any(), eq("sys_foo"))).thenThrow(boom);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getValidation("sys_foo"));
     assertEquals(500, ex.getResponse().getStatus());
     assertSame(boom, ex.getCause());
   }
