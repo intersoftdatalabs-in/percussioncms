@@ -109,4 +109,41 @@ describe("listVelocitySnippets / getVelocitySnippet", () => {
       "slot.slot_simple",
     );
   });
+
+  it("gets one snippet from a bare object (no envelope)", async () => {
+    getMock.mockResolvedValue({
+      id: "misc.inner",
+      title: "inner",
+      category: "misc",
+      insertText: "#inner()",
+    });
+    const snip = await getVelocitySnippet("misc.inner");
+    expect(snip.id).toBe("misc.inner");
+    expect(snip.insertText).toBe("#inner()");
+  });
+
+  it("throws when the snippet response is null or empty", async () => {
+    getMock.mockResolvedValueOnce(null);
+    await expect(getVelocitySnippet("missing")).rejects.toThrow(
+      "Velocity snippet response was empty",
+    );
+    getMock.mockResolvedValueOnce({});
+    await expect(getVelocitySnippet("missing")).rejects.toThrow(
+      "Velocity snippet response was empty",
+    );
+  });
+
+  it("throws a shape error when the snippet response is an array", async () => {
+    getMock.mockResolvedValue([
+      {
+        id: "field.field",
+        title: "field",
+        category: "field",
+        insertText: '#field("rx:title")',
+      },
+    ]);
+    await expect(getVelocitySnippet("field.field")).rejects.toThrow(
+      "Expected single snippet, got array",
+    );
+  });
 });
