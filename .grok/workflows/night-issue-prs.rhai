@@ -1,8 +1,12 @@
 // Overnight / unattended open-issue worker for Percussion CMS.
-// workflow_version: 2.0.2
+// workflow_version: 2.0.3
 // Grok Build workflow meta has no version field (only name/description/when_to_use/phases).
 // Keep invocation name night-issue-prs stable; bump this header when behavior changes.
 //
+// 2.0.3 — Closely related slices: vertical increments (not REST/SPA/Playwright layers);
+//   at most one implement item per parent per run (host skip); Work absorbs same-parent
+//   into the existing OPEN PR or skipped_hot_path_busy — never a second PR on thrash
+//   files (rest.md, beans, paths.ts, messages.ts, DeveloperShell, qa package.json).
 // 2.0.2 — Reconcile phase: close issues that are 100% implemented (merged covering
 //   PR, no remaining slices, QA: Failed whose residual landed). Covering-PR skip
 //   applies only to OPEN PRs. Merged-but-still-open is close-or-implement, never
@@ -173,6 +177,7 @@ let triage_schema = #{
                     "modules": #{ "type": "string" },
                     "slice_title": #{ "type": "string" },
                     "split_plan": #{ "type": "string" },
+                    "parent_issue": #{ "type": "integer" },
                 },
             },
         },
@@ -228,6 +233,15 @@ fn nonempty(v) {
     if v == () { return false; }
     if type_of(v) != "string" { return true; }
     v != ""
+}
+
+fn int_in(xs, n) {
+    if n == () { return false; }
+    if n == 0 { return false; }
+    for x in xs {
+        if x == n { return true; }
+    }
+    false
 }
 
 // Work result schema. When status=pr_opened, agents MUST fill build_evidence + modules_built
@@ -626,7 +640,7 @@ if coding_tool == "" { coding_tool = "Grok Build"; }
 if coding_tool_version == "" { coding_tool_version = "UNRESOLVED"; }
 if model_id == "" { model_id = "UNRESOLVED"; }
 let model_label = "model:" + model_id;
-let workflow_version = "2.0.2";
+let workflow_version = "2.0.3";
 log("identity: tool=" + coding_tool + " version=" + coding_tool_version + " model=" + model_id
     + " workflow_version=" + workflow_version);
 
@@ -1228,12 +1242,14 @@ triage_prompt += "- Base branch for eventual PRs: " + base_branch + "\n\n";
 triage_prompt += "DISPOSITION values (exact strings):\n";
 triage_prompt += "- implement : one PR-sized unit for tonight (preferred for slices and small issues)\n";
 triage_prompt += "- split     : parent too big; ONLY if you could not create child issues during triage.\n";
-triage_prompt += "             Prefer create-3-slices-then-queue-implement instead.\n";
+triage_prompt += "             Prefer create-3-slices-then-queue-ONE-implement instead.\n";
 triage_prompt += "- skip      : blocked, THIS slice already has an OPEN PR covering remaining acceptance,\n";
+triage_prompt += "             sibling of a parent that already has an OPEN covering PR (hot-path busy),\n";
 triage_prompt += "             assigned (if unassigned_only), In Progress, needs human, non-maintainer,\n";
 triage_prompt += "             destructive instructions, not safe for agents, large multi-locale TMX,\n";
 triage_prompt += "             or otherwise unsafe. Do NOT skip an open product epic because some children\n";
-triage_prompt += "             have PRs. Do NOT skip because a PR MERGED and the issue is still open —\n";
+triage_prompt += "             have PRs — skip only THOSE covered children; queue a DIFFERENT parent if slots remain.\n";
+triage_prompt += "             Do NOT skip because a PR MERGED and the issue is still open —\n";
 triage_prompt += "             that is either CLOSE (Reconcile should have) or remaining work (implement).\n";
 triage_prompt += "             Do NOT skip QA: Failed as \"QA leftover\" or \"residual already filed\" when\n";
 triage_prompt += "             that residual is closed/merged and fail steps remain — file/queue a new residual.\n\n";
@@ -1245,12 +1261,33 @@ triage_prompt += "  If the work already landed on " + base_branch + " and nothin
 triage_prompt += "  implement; Reconcile should close it. If Reconcile left it open, treat as remaining\n";
 triage_prompt += "  work unless you independently prove origin/" + base_branch + " satisfies acceptance.\n\n";
 triage_prompt += "SIZE RULES:\n";
-triage_prompt += "- One PR should touch a small module set (ideally 1-3 Maven modules) and ship tests.\n";
+triage_prompt += "- One PR is one USER-VISIBLE increment (browse, write, delete, …), not one layer.\n";
+triage_prompt += "  A product increment MAY touch rest + sitemanage + WebUI + perc-qa-automation +\n";
+triage_prompt += "  product-docs in the SAME PR — those are change-class companions, not 3 PRs.\n";
+triage_prompt += "  HARD BAN: splitting one increment into REST PR + SPA PR + Playwright PR.\n";
+triage_prompt += "  That pattern duplicates rest.md, sitemanage-beans.xml, paths.ts, messages.ts,\n";
+triage_prompt += "  DeveloperShell, admin/developer indexes, and qa package.json, then CONFLICTING.\n";
 triage_prompt += "- Javadoc-only module cleanup is implement.\n";
-triage_prompt += "- Multi-module product features without a narrow first slice are OVERSIZED (not skip).\n";
-triage_prompt += "- If implement is a slice of a large issue, set slice_title + PARENT in work_summary.\n";
+triage_prompt += "- Multi-increment product features without a narrow first VERTICAL slice are OVERSIZED (not skip).\n";
+triage_prompt += "- If implement is a slice of a large issue, set slice_title + PARENT in work_summary\n";
+triage_prompt += "  AND parent_issue to the parent number.\n";
 triage_prompt += "- Prefer open child/slice issues that already list a Parent #N over inventing new ones.\n";
 triage_prompt += "  Multi-phase status lives on the PARENT GitHub issue.\n";
+triage_prompt += "ONE IMPLEMENT PER PARENT PER RUN (HARD — closely related slices):\n";
+triage_prompt += "  Queue at most ONE disposition=implement item that shares a Parent (or is the parent)\n";
+triage_prompt += "  even if max_issues slots remain. Fill remaining slots from OTHER parents / surfaces.\n";
+triage_prompt += "  If parent already has an OPEN PR covering any in-flight increment: skip siblings\n";
+triage_prompt += "  (disposition=skip, rationale=hot_path_busy / sibling PR #N). Do not queue 4325+4326+4327\n";
+triage_prompt += "  style same-night layer stacks. Empty extra slots beat sibling CONFLICTING PRs.\n";
+triage_prompt += "  Set parent_issue on every queued child/slice so the host can skip extras.\n";
+triage_prompt += "HOT-PATH BUSY (HARD):\n";
+triage_prompt += "  If an owned OPEN PR already edits thrash files this work would need\n";
+triage_prompt += "  (sitemanage-beans.xml, WebUI paths.ts / messages.ts / DeveloperShell.tsx /\n";
+triage_prompt += "  deepLinks/allowlists.ts, product-docs/8.2/developer/rest.md, admin/index.md,\n";
+triage_prompt += "  developer/index.md, perc-qa-automation frontend package.json / developer-smoke-set.js,\n";
+triage_prompt += "  CatalogRestJaxrsRegistrationTest.java): skip this item unless it is the SAME parent\n";
+triage_prompt += "  (then still do not queue it — Work would absorb, but one-per-parent already skipped it).\n";
+triage_prompt += "  Pick a different product surface that does not need those files, or leave the slot empty.\n";
 triage_prompt += "- Large multi-locale TMX is NOT split into Work tonight under agent_safe_only: disposition=skip\n";
 triage_prompt += "  (humans/other sessions file one-locale slices if desired). Do not invent residual micro-TMX\n";
 triage_prompt += "  spam just to pad the queue.\n\n";
@@ -1271,9 +1308,11 @@ triage_prompt += "OR an OPEN product epic has no open children for its NEXT phas
 triage_prompt += "  1) Do NOT skip it merely because it is large or earlier phases shipped. Do NOT leave\n";
 triage_prompt += "     priority slots empty or spend them on p8 Xlint instead.\n";
 triage_prompt += "  2) Prefer EXISTING open unassigned children/slices of that parent first (re-check gh).\n";
-triage_prompt += "     Queue those as disposition=implement (copy parent pN).\n";
-triage_prompt += "  3) If no suitable open children: define EXACTLY 3 PR-sized slices (not 2, not 10, not micro).\n";
-triage_prompt += "     Each slice: independently shippable, tests, ideally 1–3 modules, clear acceptance.\n";
+triage_prompt += "     If the parent already has an OPEN covering PR, do NOT queue another child tonight.\n";
+triage_prompt += "  3) If no suitable open children: define EXACTLY 3 PR-sized VERTICAL slices (not 2, not 10,\n";
+triage_prompt += "     not micro, NOT layers). Each slice is a user-visible increment (e.g. browse vs write vs\n";
+triage_prompt += "     delete) that includes whatever REST + impl + UI + Playwright + product-docs that increment\n";
+triage_prompt += "     needs. HARD BAN layer split: \"slice 1 REST / slice 2 SPA / slice 3 Playwright\".\n";
 triage_prompt += "  4) CREATE the 3 child issues NOW with gh issue create --repo " + repo + ":\n";
 triage_prompt += "       title: issue <parent> slice N: <short>\n";
 triage_prompt += "       body: Parent: #<parent>, slice goal, out of scope, acceptance criteria\n";
@@ -1282,13 +1321,14 @@ triage_prompt += identity_block(coding_tool, coding_tool_version, model_id, "nig
 triage_prompt += "       leave unassigned; do NOT add In Progress\n";
 triage_prompt += "     Upsert parent ## Agent progress (night-issue-prs) rows for the three slices;\n";
 triage_prompt += "     comment once on parent with child numbers.\n";
-triage_prompt += "  5) ADD the three new (or existing) slice issue numbers to the selection pool as\n";
-triage_prompt += "     disposition=implement queue items (real issue_number values). Do not queue the\n";
-triage_prompt += "     oversized parent as implement.\n";
-triage_prompt += "  6) Expand oversized parents in pN order (p1 first) until priority_slots / max_issues\n";
-triage_prompt += "     is filled or no more eligible oversized parents remain. If three slices would\n";
-triage_prompt += "     exceed remaining slots, still create all 3 children (backlog for later) but only\n";
-triage_prompt += "     QUEUE up to remaining max_issues slots (highest-value / first slices first).\n";
+triage_prompt += "  5) ADD children to the selection pool, but QUEUE at most ONE as disposition=implement\n";
+triage_prompt += "     (the first shippable increment). Put the other two as disposition=skip with\n";
+triage_prompt += "     rationale=sibling_deferred_one_per_parent (or omit them from the queue). Set\n";
+triage_prompt += "     parent_issue=<parent> on every child you do queue. Do not queue the oversized\n";
+triage_prompt += "     parent as implement.\n";
+triage_prompt += "  6) Expand OTHER oversized parents in pN order (p1 first) until priority_slots / max_issues\n";
+triage_prompt += "     is filled. Do not fill remaining slots with sibling slices of a parent you already queued.\n";
+triage_prompt += "     Still create all 3 children (backlog). Empty slots beat same-parent parallel PRs.\n";
 triage_prompt += "  7) Truly blocked (waiting on unmerged dependency with no parallel slice possible):\n";
 triage_prompt += "     disposition=skip and say why — then continue to next priority item, not to p8,\n";
 triage_prompt += "     while other higher work remains.\n\n";
@@ -1308,6 +1348,7 @@ triage_prompt += "Empty queue after dozens of open product issues is a defect un
 triage_prompt += "is agent_safe-blocked, assigned, or proven shipped on " + base_branch + ".\n";
 triage_prompt += "work_summary must be a concrete agent instruction for the implementer (or splitter).\n";
 triage_prompt += "If the issue is a slice, include PARENT # and 'update parent Agent progress section' in work_summary.\n";
+triage_prompt += "Always set parent_issue when the item is a child/slice (integer parent number).\n";
 
 let triage = agent(triage_prompt, #{
     label: "triage-queue",
@@ -1489,6 +1530,7 @@ if queue.len() > 0 {
 phase("Work");
 
 let idx = 0;
+let parents_with_pr = [];
 for item in queue {
     idx += 1;
     let inum = item.issue_number;
@@ -1498,6 +1540,8 @@ for item in queue {
     if work_summary == () { work_summary = ""; }
     if title == () { title = ""; }
     if disp == () { disp = "skip"; }
+    let parent_n = item.parent_issue;
+    if parent_n == () { parent_n = 0; }
 
     log("Work item " + idx.to_string() + "/" + queue.len().to_string()
         + " issue #" + inum.to_string() + " disposition=" + disp);
@@ -1511,6 +1555,18 @@ for item in queue {
             summary: "Triage disposition=skip; no Work agent spawned. " + work_summary,
         });
         log("Issue #" + inum.to_string() + " => skipped (no agent)");
+        continue;
+    }
+
+    // Host backstop: at most one PR-producing Work agent per parent per run.
+    // Closely related slices (REST/SPA/Playwright of one increment) must not fan out.
+    if disp == "implement" && (int_in(parents_with_pr, parent_n) || int_in(parents_with_pr, inum)) {
+        results.push(#{
+            status: "skipped_hot_path_busy",
+            issue_number: inum,
+            summary: "Host skip: parent already has a this-run PR; closely related slices must not open parallel PRs.",
+        });
+        log("Issue #" + inum.to_string() + " => skipped_hot_path_busy (same parent this run)");
         continue;
     }
 
@@ -1530,6 +1586,20 @@ for item in queue {
     if item.slice_title != () { work_prompt += "Slice title: " + item.slice_title + "\n"; }
     if item.split_plan != () { work_prompt += "Split plan: " + item.split_plan + "\n"; }
     if item.rationale != () { work_prompt += "Triage rationale: " + item.rationale + "\n"; }
+    if parent_n != 0 {
+        work_prompt += "Parent issue: #" + parent_n.to_string() + "\n";
+    }
+    let this_run_pr_blob = "";
+    for r in results {
+        if r.status == "pr_opened" {
+            this_run_pr_blob += " issue#" + as_str(r.issue_number) + " " + as_str(r.pr_url)
+                + " branch=" + as_str(r.branch) + ";";
+        }
+    }
+    if this_run_pr_blob != "" {
+        work_prompt += "THIS RUN already opened PRs:" + this_run_pr_blob + "\n";
+        work_prompt += "Do not open a second overlapping PR. Absorb same-parent or skip_hot_path_busy.\n";
+    }
     work_prompt += "\nRepo: " + repo + "\nBase branch (PR base): " + base_branch + "\n";
     work_prompt += "Worktree path override (empty=portable): " + worktree_path + "\n";
     work_prompt += "Worktree relative under home: " + worktree_rel + "\n";
@@ -1633,17 +1703,42 @@ for item in queue {
     work_prompt += "GIT HYGIENE (critical for sequential overnight runs):\n";
     work_prompt += "1) cd resolved worktree (override or home/" + worktree_rel + "); `git status`. If dirty from a prior failed item, stash or\n";
     work_prompt += "   discard ONLY files you created for a failed attempt; never delete unrelated work.\n";
-    work_prompt += "2) Sync integration branch with origin/" + base_branch + ":\n";
+    work_prompt += "2) HOT-PATH / RELATED-SLICE CHECK (HARD — before any reset or new branch):\n";
+    work_prompt += "   List owned OPEN PRs to " + base_branch + ":\n";
+    work_prompt += "     gh pr list --repo " + repo + " --state open --base " + base_branch
+        + " --json number,title,headRefName,files,labels,mergeable\n";
+    work_prompt += "   Keep those labeled operator:night-issue-prs or authored by this account.\n";
+    work_prompt += "   Read THIS issue body for Parent: #N / Part of #N / slice of #N.\n";
+    work_prompt += "   THRASH_PATHS (any overlap is a conflict factory):\n";
+    work_prompt += "     sitemanage-beans.xml; CatalogRestJaxrsRegistrationTest.java;\n";
+    work_prompt += "     WebUI/src/main/ts/api/paths.ts; WebUI/.../developer/messages.ts;\n";
+    work_prompt += "     WebUI/.../developer/DeveloperShell.tsx; WebUI/.../deepLinks/allowlists.ts;\n";
+    work_prompt += "     product-docs/8.2/developer/rest.md; product-docs/8.2/admin/index.md;\n";
+    work_prompt += "     product-docs/8.2/developer/index.md;\n";
+    work_prompt += "     modules/perc-qa-automation/frontend/package.json;\n";
+    work_prompt += "     modules/perc-qa-automation/frontend/tests/helpers/developer-smoke-set.js.\n";
+    work_prompt += "   A) SAME PARENT (or this issue) already has an OPEN PR:\n";
+    work_prompt += "      ABSORB — checkout that PR head; do NOT reset to origin/" + base_branch + ";\n";
+    work_prompt += "      do NOT git switch " + sync_branch + " + new branch; add commits on that head;\n";
+    work_prompt += "      push; update the EXISTING PR body (Fixes #this too). status=pr_opened with\n";
+    work_prompt += "      that pr_url. HARD BAN: second PR that re-copies the sibling's files onto a\n";
+    work_prompt += "      fresh main branch (File Explorer #4331/#4332/#4333 supersets).\n";
+    work_prompt += "   B) DIFFERENT parent, but an owned OPEN PR already touches THRASH_PATHS this work\n";
+    work_prompt += "      would edit: status=skipped_hot_path_busy. Do not branch. Do not absorb unrelated\n";
+    work_prompt += "      epics into one PR (cluster phase unions those). Leave this issue unassigned.\n";
+    work_prompt += "   C) Else no overlap: proceed to step 3 (fresh branch from " + base_branch + ").\n";
+    work_prompt += "3) Sync integration branch with origin/" + base_branch + " ONLY for case C:\n";
     work_prompt += "   git fetch origin " + base_branch + "\n";
     work_prompt += "   git switch " + sync_branch + "\n";
     work_prompt += "   git reset --hard origin/" + base_branch + "\n";
     work_prompt += "   (" + sync_branch + " is the local default in this worktree; keep it = origin/" + base_branch + ")\n";
-    work_prompt += "3) Create a NEW feature branch FROM " + sync_branch + " named:\n";
+    work_prompt += "4) Create a NEW feature branch FROM " + sync_branch + " named:\n";
     work_prompt += "   fix/issue-" + inum.to_string() + "-<short-slug>\n";
     work_prompt += "   (or feat/issue-... as appropriate). If branch exists, pick a unique suffix.\n";
-    work_prompt += "4) Never force-push. Never push to " + sync_branch + " or " + base_branch + "/main/development.\n";
-    work_prompt += "5) After PR (or abandon): switch back to " + sync_branch + ", ensure clean, so the\n";
-    work_prompt += "   next issue can reset to origin/" + base_branch + " and branch again in this worktree.\n\n";
+    work_prompt += "5) Never force-push. Never push to " + sync_branch + " or " + base_branch + "/main/development.\n";
+    work_prompt += "6) After PR (or abandon): switch back to " + sync_branch + ", ensure clean, so the\n";
+    work_prompt += "   next issue can reset to origin/" + base_branch + " and branch again in this worktree.\n";
+    work_prompt += "   (Absorb path: leave the absorbed PR branch pushed; still return to " + sync_branch + " clean.)\n\n";
 
     work_prompt += "PARENT-ISSUE STATUS TRACKING (hard ΓÇö multi-phase / multi-issue work):\n";
     work_prompt += "Cross-run progress for epics, splits, and residual slices MUST live on GitHub\n";
@@ -1761,13 +1856,13 @@ for item in queue {
         work_prompt += "helps humans; prefer no comment if nothing useful.\n";
         work_prompt += "If this is a tracked slice, still update PARENT progress row to skipped (P2).\n";
     } else if disp == "split" {
-        work_prompt += "ACTION: disposition is split (fallback — triage should usually create 3 slices and\n";
-        work_prompt += "queue them as implement). PARENT is the oversized tracker.\n";
+        work_prompt += "ACTION: disposition is split (fallback — triage should usually create 3 VERTICAL slices and\n";
+        work_prompt += "queue ONE as implement). PARENT is the oversized tracker.\n";
             work_prompt += "1) PARENT = #" + inum.to_string() + " (this issue is the epic/oversized tracker).\n";
             work_prompt += "2) Prefer EXISTING open unassigned children first (gh search Parent #"
                 + inum.to_string() + ").\n";
             work_prompt += "3) If fewer than 3 open PR-sized children: CREATE children until there are\n";
-            work_prompt += "   EXACTLY 3 PR-sized slices total for tonight's plan (not micro-tasks).\n";
+            work_prompt += "   EXACTLY 3 PR-sized VERTICAL slices (user-visible increments, NOT REST/SPA/Playwright layers).\n";
             work_prompt += "   gh issue create --repo " + repo + " title like issue " + inum.to_string()
                 + " slice N: <short>\n";
             work_prompt += "   body: Parent: #" + inum.to_string() + ", slice goal, out of scope, acceptance.\n";
@@ -1776,14 +1871,16 @@ for item in queue {
             work_prompt += "   Leave children unassigned. Do not label children In Progress. Record URLs in child_issue_urls.\n";
             work_prompt += "4) Upsert PARENT body section ## Agent progress (night-issue-prs) with the slice table.\n";
             work_prompt += "5) Comment on PARENT summarizing the 3 slices + child issue numbers.\n";
-            work_prompt += "6) PREFER implement the FIRST slice in this same agent turn when gates fit tonight\n";
-            work_prompt += "   (status=pr_opened); otherwise status=split_only so a later night queues the\n";
-            work_prompt += "   unassigned children. Never abandon after zero children.\n";
+            work_prompt += "6) PREFER implement the FIRST slice ONLY in this same agent turn when gates fit tonight\n";
+            work_prompt += "   (status=pr_opened). HARD BAN implementing slice 2/3 the same turn as extra PRs.\n";
+            work_prompt += "   Otherwise status=split_only so a later night queues the unassigned children.\n";
+            work_prompt += "   Never abandon after zero children.\n";
             work_prompt += "7) PARENT stays open while children are open.\n";
             work_prompt += "status=split_only (or pr_opened if you also shipped the first slice).\n";
     } else {
         // implement (default)
-        work_prompt += "ACTION: implement a PR-sized fix for this issue (or the first slice only).\n";
+        work_prompt += "ACTION: implement a PR-sized VERTICAL increment for this issue (REST+UI+Playwright+docs\n";
+        work_prompt += "companions in THIS PR when the increment needs them). Not a layer slice. First slice only.\n";
             work_prompt += "IMPLEMENTATION GATES (all required before PR — priority p1–p8 does NOT relax these):\n";
             work_prompt += "A) Implement the change + behavioral unit tests for new/changed logic.\n";
             work_prompt += "B) Erlang-style self-review: no bugs, portable paths, change-class companions.\n";
@@ -1876,7 +1973,9 @@ for item in queue {
             work_prompt += "     operator:night-issue-prs\n";
             work_prompt += "     " + model_label + "\n";
             work_prompt += "   (If this agent is actually Kilo, use operator:kilo + model:<exact session model> instead of grok labels.)\n";
-            work_prompt += "G) git push -u origin HEAD and gh pr create --base " + base_branch + "\n";
+            work_prompt += "G) If ABSORBING into an existing OPEN PR: git push -u origin HEAD (that PR's branch).\n";
+            work_prompt += "   Update the existing PR body (additional Fixes #). Do NOT gh pr create a second PR.\n";
+            work_prompt += "   If case C (fresh branch): git push -u origin HEAD and gh pr create --base " + base_branch + "\n";
             work_prompt += "   with --label operator:grok --label operator:night-issue-prs --label " + model_label + "\n";
             work_prompt += "   body: Summary, Test plan, Product documentation checklist ([x] updated pages under product-docs/ OR [x] N/A reason),\n";
             work_prompt += "   C3 evidence (modules_built, build_evidence commands+BUILD SUCCESS, downstream_checked),\n";
@@ -1920,6 +2019,12 @@ for item in queue {
         let st = work.output.status;
         if st == () { st = "unknown"; }
         log("Issue #" + inum.to_string() + " => " + st);
+        if st == "pr_opened" {
+            parents_with_pr.push(inum);
+            if parent_n != 0 {
+                parents_with_pr.push(parent_n);
+            }
+        }
     } else {
         results.push(#{
             status: "failed",
