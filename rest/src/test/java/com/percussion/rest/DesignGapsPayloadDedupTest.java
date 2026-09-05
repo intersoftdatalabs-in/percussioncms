@@ -20,6 +20,7 @@ package com.percussion.rest;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.rest.applicationfiles.ApplicationFileSummary;
 import com.percussion.rest.cecontrols.ControlDef;
 import com.percussion.rest.relationshiptypes.RelationshipType;
 import com.percussion.rest.searches.SearchDef;
@@ -90,6 +91,17 @@ class DesignGapsPayloadDedupTest {
   void relationshipType_nullGapsOmitted_viaNonNull() throws Exception {
     RelationshipType row = new RelationshipType();
     row.setName("rs_folder");
+    row.setDesignGaps(null);
+    assertFalse(mapper.writeValueAsString(row).contains("designGaps"));
+
+    row.setDesignGaps(List.of("gap-a"));
+    assertTrue(mapper.writeValueAsString(row).contains("designGaps"));
+  }
+
+  @Test
+  void applicationFile_nullGapsOmitted_viaNonNull() throws Exception {
+    ApplicationFileSummary row = new ApplicationFileSummary();
+    row.setPath("ApplicationFiles/a.css");
     row.setDesignGaps(null);
     assertFalse(mapper.writeValueAsString(row).contains("designGaps"));
 
