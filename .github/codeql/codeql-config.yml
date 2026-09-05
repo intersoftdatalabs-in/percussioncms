@@ -484,3 +484,16 @@ query-filters:
         ReturnValue + Argument[0] barriers; same-line // codeql[java/path-injection]
         on isDirectory. Tests: PSPathInjectionGuardTest. GHA does not load local
         model packs. Do not re-edit the annotated sink to chase IDs.
+  # --- CodeQL #2039–#2044 package config File API ---
+  - exclude:
+      id: java/path-injection
+      paths:
+        - "deployer/src/main/java/com/percussion/rx/config/impl/PSConfigService.java"
+        - "**/rx/config/impl/PSConfigService.java"
+      reason: >-
+        Alerts #2039–#2044: exists / FileInputStream on package config files.
+        Runtime requireSafeFileName(packageName) + requireUnderBase(RxDir)
+        via getConfigFile / requireConfigFileUnderRxDir. Same-line
+        // codeql[java/path-injection] on residual File API. Tests:
+        PSConfigServicePathInjectionTest. GHA does not load local packs.
+        Do not re-edit annotated sinks to chase IDs.
