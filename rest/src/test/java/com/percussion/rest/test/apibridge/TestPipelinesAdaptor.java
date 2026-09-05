@@ -22,6 +22,7 @@ import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
+import com.percussion.services.pipeline.model.PipelineIrDocument;
 import java.net.URI;
 import java.util.List;
 import org.springframework.context.annotation.Lazy;
@@ -43,6 +44,11 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
 
   @Override
   public ApplicationDetail getApplication(URI baseUri, String idOrName) {
+    return null;
+  }
+
+  @Override
+  public PipelineIrDocument getPipelineIr(URI baseUri, String idOrName) {
     return null;
   }
 

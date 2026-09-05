@@ -19,6 +19,7 @@ package com.percussion.rest.pipelines;
 
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
+import com.percussion.services.pipeline.model.PipelineIrDocument;
 import java.net.URI;
 import java.util.List;
 
@@ -41,6 +42,16 @@ public interface IPipelinesAdaptor {
    * @return detail, or {@code null} when not found / not visible
    */
   ApplicationDetail getApplication(URI baseUri, String idOrName);
+
+  /**
+   * Load a read-only Pipeline IR document for an application (native IR file, or classic import
+   * fallback). Does <strong>not</strong> persist IR or mutate the object store.
+   *
+   * @param baseUri request base URI (reserved for HATEOAS)
+   * @param idOrName application numeric id or name
+   * @return IR document aligned with pipeline-ir-v1, or {@code null} when not found / not visible
+   */
+  PipelineIrDocument getPipelineIr(URI baseUri, String idOrName);
 
   /**
    * Execute a native pipeline IR resource via {@code IPSPipelineRuntimeService}.

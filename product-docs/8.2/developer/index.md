@@ -55,7 +55,7 @@ Operators using **Developer → CE Controls** create/save/delete chrome: [Develo
 Operators using **Developer → Server Configs** edit/save chrome:
 [Developer Server Configs](id:admin-developer-server-configs).
 
-Operators using **Developer → Pipelines** browse and Admin start/stop chrome:
+Operators using **Developer → Pipelines** browse, Admin start/stop, and pipe IR chrome:
 [Developer Pipelines](id:admin-developer-pipelines).
 
 ## Accessibility — delete confirm

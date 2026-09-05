@@ -8,9 +8,11 @@ import {
   getApplicationDetail,
   startApplication,
   stopApplication,
+  getPipelineIr,
   unwrapApplicationDetail,
   withoutStalePipelineLifecycleGap,
 } from "../../../../main/ts/api/developer/pipelinesApi";
+import { PATHS } from "../../../../main/ts/api/paths";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -77,4 +79,18 @@ describe("pipelinesApi Slice B lifecycle", () => {
     );
     expect(detail.active).toBe(false);
   });
+  it("getPipelineIr GETs /ir with encoded idOrName", async () => {
+    const doc = {
+      irVersion: "1.0",
+      source: "NATIVE",
+      resources: [{ name: "Dataset34", kind: "QUERY" }],
+    };
+    const spy = vi.spyOn(client, "get").mockResolvedValue(doc);
+    const result = await getPipelineIr("app/with space");
+    expect(spy).toHaveBeenCalledWith(
+      `${PATHS.PIPELINES}/${encodeURIComponent("app/with space")}/ir`,
+    );
+    expect(result).toEqual(doc);
+  });
+
 });

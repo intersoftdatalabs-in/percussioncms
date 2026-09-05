@@ -16,11 +16,13 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   listApplications: vi.fn(),
   startApplication: vi.fn(),
   stopApplication: vi.fn(),
+  getPipelineIr: vi.fn(),
 }));
 
 const getApplicationDetail = pipelinesApi.getApplicationDetail as ReturnType<typeof vi.fn>;
 const startApplication = pipelinesApi.startApplication as ReturnType<typeof vi.fn>;
 const stopApplication = pipelinesApi.stopApplication as ReturnType<typeof vi.fn>;
+const getPipelineIr = pipelinesApi.getPipelineIr as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   id: 1,
@@ -69,6 +71,8 @@ describe("PipelineDetailPanel", () => {
     getApplicationDetail.mockReset();
     startApplication.mockReset();
     stopApplication.mockReset();
+    getPipelineIr.mockReset();
+    getPipelineIr.mockResolvedValue({ irVersion: "1.0", source: "NATIVE", resources: [] });
   });
 
   afterEach(() => {
