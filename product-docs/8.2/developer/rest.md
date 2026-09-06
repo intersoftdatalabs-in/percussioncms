@@ -2413,6 +2413,7 @@ of truth.
 |---------|------|--------|
 | File Explorer (this API) | `/services/fileexplorer` | Allow-listed **server** filesystem browse (Workbench File Explorer) |
 | Database Explorer | `/services/databaseexplorer` | Allow-listed JDBC catalog browse (datasources → tables/views) |
+| Problems | `/services/problems` | Session design/validation problems (Workbench §12.4) |
 | SY-05 application files | `/services/applicationfiles` | XML application CMS/resource files under a catalog application root |
 | SY-02 server configs | `/services/serverconfigs` | Fixed `PSConfigurationTypes` configuration file bodies |
 
@@ -2466,6 +2467,36 @@ of truth.
 | `404` | Allow-listed datasource is configured but unavailable |
 | `503` | Database Explorer adaptor not configured |
 | `500` | Unexpected JDBC or server error |
+
+## Problems (session design validation)
+
+Workbench **Problems** (§12.4) is an **Admin** catalog under
+`/services/problems`. It lists **validation/design problems** for the open
+Developer editor and session. The Developer SPA **Problems** tab consumes this
+API (read-only). It is **not** pipeline application validation
+(`GET /services/pipelines/{id}/validation`).
+
+Optional query `fixture=invalid-session` selects the known invalid open-editor
+fixture. The default session list includes that fixture in this increment.
+Unsafe fixture tokens are **400**. Error bodies do **not** echo filesystem
+paths or JDBC URLs.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/problems` | **Admin.** List session design problems |
+| `GET` | `/services/problems?fixture=invalid-session` | **Admin.** Same list filtered to the known invalid-session fixture |
+
+JSON uses `DesignProblem` (`id`, `severity`, `code`, `message`, `objectType`,
+`objectId`, `objectName`, `location`, optional `navigateSection`). Prefer the
+generated OpenAPI schema as the integration source of truth.
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | List success (empty array when the session has no problems) |
+| `400` | Unsafe or unknown fixture token |
+| `403` | Caller is not Admin |
+| `503` | Problems adaptor not configured |
+| `500` | Unexpected server error |
 
 ## Extensions (catalog)
 

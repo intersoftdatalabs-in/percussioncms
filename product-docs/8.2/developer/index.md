@@ -63,6 +63,11 @@ Operators using **Developer → Database Explorer** (allow-listed JDBC catalog
 browse of datasources → tables/views; read-only; not File Explorer):
 [Developer Database Explorer](id:admin-developer-database-explorer).
 
+Operators using **Developer → Problems** (read-only session design/validation
+list; navigate-to-source when a peer editor exists; not pipeline application
+validation):
+[Developer Problems](id:admin-developer-problems).
+
 Operators using **Developer → Pipelines** browse, Admin start/stop, and pipe IR chrome:
 [Developer Pipelines](id:admin-developer-pipelines).
 

@@ -47,6 +47,8 @@ class CatalogRestJaxrsRegistrationTest {
     "restFileExplorerResource",
     // #4343 Database Explorer allow-listed JDBC catalog browse
     "restDatabaseExplorerResource",
+    // #4345 Problems panel design validation (Workbench §12.4)
+    "restProblemsResource",
     "restRelationshipTypeResource",
     // Pipelines Slice A/B — CXF 404 without explicit rest-jax-rs ref (#4304/#4314/#4316)
     "restPipelinesResource",

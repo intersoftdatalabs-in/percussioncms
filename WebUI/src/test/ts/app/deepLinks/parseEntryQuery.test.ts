@@ -74,6 +74,8 @@ describe("parseEntryQuery", () => {
     expect(parseClientPath("/developer/database-explorer").section).toBe(
       "database-explorer",
     );
+    expect(parseEntryQuery("?entry=developer&section=validation").section).toBe("problems");
+    expect(parseClientPath("/developer/problems").section).toBe("problems");
   });
 
   it("maps design entry and section aliases (#2808)", () => {

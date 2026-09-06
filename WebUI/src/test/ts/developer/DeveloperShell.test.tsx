@@ -800,6 +800,23 @@ vi.mock("../../../main/ts/api/developer/databaseExplorerApi", async (importOrigi
   };
 });
 
+vi.mock("../../../main/ts/api/developer/problemsApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/problemsApi")>();
+  return {
+    ...actual,
+    listDesignProblems: vi.fn().mockResolvedValue([
+      {
+        id: "invalid-session",
+        severity: "ERROR",
+        message: "Open editor is missing a required name.",
+        objectName: "Invalid open editor (fixture)",
+        navigateSection: "content-types",
+      },
+    ]),
+  };
+});
+
 vi.mock("../../../main/ts/api/developer/controlsApi", async (importOriginal) => {
   const actual =
     await importOriginal<typeof import("../../../main/ts/api/developer/controlsApi")>();
@@ -1166,6 +1183,25 @@ it("loads views catalog section", async () => {
       expect(screen.getByTestId("developer-dbx-datasources-table")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-dbx-datasources-table").textContent).toContain("cms");
+  });
+
+  it("loads Problems catalog section and navigates to source", async () => {
+    render(<DeveloperShell initialSection="problems" embedded />);
+    expect(screen.getByTestId("tab-developer-problems").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-prob-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-prob-table").textContent).toContain(
+      "Open editor is missing a required name.",
+    );
+    fireEvent.click(screen.getByTestId("developer-prob-navigate"));
+    await waitFor(() => {
+      expect(screen.getByTestId("tab-developer-content-types").getAttribute("aria-selected")).toBe(
+        "true",
+      );
+    });
   });
 
   it("loads CE controls catalog section", async () => {
