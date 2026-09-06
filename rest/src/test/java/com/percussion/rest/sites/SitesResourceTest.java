@@ -547,6 +547,102 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void getVirtualPropertiesRoundTripsLlmsTxt() {
+    VirtualSiteProperties v = new VirtualSiteProperties();
+    v.setSourceKind("llms-txt");
+    v.setRootPath("C:/llms-docs");
+    v.setVirtual(true);
+    when(adaptor.getVirtualSiteProperties("LlmsHelp")).thenReturn(v);
+
+    VirtualSiteProperties out = resource.getVirtualProperties("LlmsHelp");
+    assertEquals("llms-txt", out.getSourceKind());
+    assertEquals("C:/llms-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).getVirtualSiteProperties("LlmsHelp");
+  }
+
+  @Test
+  public void updateVirtualPropertiesRoundTripsLlmsTxt() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("llms-txt");
+    body.setRootPath("C:/llms-docs");
+    VirtualSiteProperties saved = new VirtualSiteProperties();
+    saved.setSourceKind("llms-txt");
+    saved.setRootPath("C:/llms-docs");
+    saved.setVirtual(true);
+    when(adaptor.updateVirtualSiteProperties(eq("LlmsHelp"), same(body))).thenReturn(saved);
+
+    VirtualSiteProperties out = resource.updateVirtualProperties("LlmsHelp", body);
+    assertEquals("llms-txt", out.getSourceKind());
+    assertEquals("C:/llms-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).updateVirtualSiteProperties("LlmsHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesLlmsTxtRemoteUrlPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("llms-txt");
+    body.setRootPath("C:/llms-docs");
+    body.setRemoteUrl("https://user:secret@git.example.com/org/docs.git");
+    when(adaptor.updateVirtualSiteProperties(eq("LlmsHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for llms-txt", Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("LlmsHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("user:secret"));
+    verify(adaptor).updateVirtualSiteProperties("LlmsHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesLlmsTxtCloudRootPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("llms-txt");
+    body.setRootPath("https://example.com/llms.txt");
+    when(adaptor.updateVirtualSiteProperties(eq("LlmsHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for llms-txt must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("LlmsHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).updateVirtualSiteProperties("LlmsHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesLlmsTxtCredentialsPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("llms-txt");
+    body.setRootPath("C:/llms-docs");
+    when(adaptor.updateVirtualSiteProperties(eq("LlmsHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for llms-txt (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("LlmsHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).updateVirtualSiteProperties("LlmsHelp", body);
+  }
+
+  @Test
   public void updateVirtualPropertiesUnknownKindPropagates400() {
     VirtualSiteProperties body = new VirtualSiteProperties();
     body.setSourceKind("sql-adapter");
@@ -1878,6 +1974,9 @@ public class SitesResourceTest {
         putVirtualBlock.contains("robots-txt"),
         "updateVirtualProperties OpenAPI description must mention robots-txt persist");
     assertTrue(
+        putVirtualBlock.contains("llms-txt"),
+        "updateVirtualProperties OpenAPI description must mention llms-txt persist");
+    assertTrue(
         putVirtualBlock.contains("no CalDAV"),
         "updateVirtualProperties OpenAPI description must mention icalendar local fixture only");
     assertTrue(
@@ -1886,6 +1985,9 @@ public class SitesResourceTest {
     assertTrue(
         putVirtualBlock.contains("robots.txt fixture"),
         "updateVirtualProperties OpenAPI description must mention robots-txt local fixture only");
+    assertTrue(
+        putVirtualBlock.contains("llms.txt fixture"),
+        "updateVirtualProperties OpenAPI description must mention llms-txt local fixture only");
     assertTrue(
         putVirtualBlock.contains("local/loopback"),
         "updateVirtualProperties OpenAPI description must mention rss-atom local/loopback only");

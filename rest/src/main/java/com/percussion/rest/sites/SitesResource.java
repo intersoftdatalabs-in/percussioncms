@@ -205,12 +205,12 @@ public class SitesResource {
       description =
           "Persists virtual.* properties. Validation aligns with PSVirtualSiteHelper:"
               + " sourceKind allow-list (git-filesystem, csv-filesystem, sql-database, http-json,"
-              + " object-storage, rss-atom, icalendar, sitemap-xml, robots-txt), required non-blank rootPath for"
-              + " sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, and robots-txt; for"
+              + " object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt), required non-blank rootPath for"
+              + " sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, and llms-txt; for"
               + " other kinds when virtual and remoteUrl is blank, optional remoteUrl+branch for"
               + " git-filesystem only (https/ssh/file/git@host:path; fail-closed on unsafe URLs /"
               + " '..'; csv-filesystem, sql-database, http-json, object-storage, rss-atom,"
-              + " icalendar, sitemap-xml, and robots-txt reject remoteUrl — no secrets on this envelope), safe"
+              + " icalendar, sitemap-xml, robots-txt, and llms-txt reject remoteUrl — no secrets on this envelope), safe"
               + " NIO path, simple configFile name. sql-database JDBC URL/user/query live in"
               + " _config.yaml under rootPath (H2 mem only; never send passwords on this envelope)."
               + " http-json catalog URL/file live in _config.yaml (http.url / http.file); REST"
@@ -224,7 +224,9 @@ public class SitesResource {
               + " only (portable-safe local rootPath; leftover remoteUrl, credentials, and cloud URL"
               + " rootPath return 400; no live crawl). robots-txt persist is a local robots.txt fixture"
               + " only (portable-safe local rootPath; leftover remoteUrl, credentials, and cloud URL"
-              + " rootPath return 400; no live crawl). GET after PUT round-trips the stored"
+              + " rootPath return 400; no live crawl). llms-txt persist is a local llms.txt fixture"
+              + " only (portable-safe local rootPath; leftover remoteUrl, credentials, and cloud URL"
+              + " rootPath return 400; no live HTTP fetch). GET after PUT round-trips the stored"
               + " sourceKind. Unknown kinds return 400. Blank/repository sourceKind clears virtual"
               + " configuration.",
       responses = {
