@@ -381,11 +381,11 @@ export function VirtualSiteSourcePanel({
   const sitemapXmlMode = isSitemapXmlSourceKind(form.sourceKind);
   const robotsTxtMode = isRobotsTxtSourceKind(form.sourceKind);
   const llmsTxtMode = isLlmsTxtSourceKind(form.sourceKind);
-  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt (never repository; llms-txt hidden). */
+  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
-  /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt (never repository). */
+  /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt (never repository). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
-  /** Publish chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt (never repository). */
+  /** Publish chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt (never repository). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
   const showActionChrome = showBuildChrome || showPreviewChrome || showPublishChrome;
   const busy = saving || building || publishing;

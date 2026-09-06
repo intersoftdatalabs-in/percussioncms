@@ -17,10 +17,10 @@
 
 /**
  * Copy the llms-txt Virtual Site QA fixture into the H2 Docker cell so
- * Developer Sites Build/Preview can POST /virtual/build and GET /virtual/preview
- * against a local llms.txt (no live HTTP fetch URLs or credentials). A single
- * markdown list link assembles {@code 8.2/Quickstart-1.html} (sole HTML home
- * fallback). Publish stays a later slice.
+ * Developer Sites Build/Preview/Publish can POST /virtual/build, GET /virtual/preview,
+ * and POST /virtual/publish against a local llms.txt (no live HTTP fetch URLs or
+ * credentials). A single markdown list link assembles {@code 8.2/Quickstart-1.html}
+ * (sole HTML home fallback; Publish copies that file to IPSSite.root).
  *
  * Bind-mount / docker cp only — no Jetty restart.
  */
@@ -34,6 +34,12 @@ const LLMS_TXT_VIRTUAL_QA_ROOT = "/opt/Percussion/tmp/llms-txt-virtual-qa";
 
 /** Marker from the local llms.txt fixture notes. */
 const LLMS_TXT_VIRTUAL_BUILD_MARKER = "Hello-from-llms";
+
+/** Assembled markdown-list page copied to the Site filesystem root after Publish. */
+const LLMS_TXT_VIRTUAL_PUBLISHED_HTML = "8.2/Quickstart-1.html";
+
+/** Marker expected in published HTML (same as the llms.txt notes token). */
+const LLMS_TXT_VIRTUAL_PUBLISH_MARKER = LLMS_TXT_VIRTUAL_BUILD_MARKER;
 
 function qaCmsContainer() {
   const fromEnv = (
@@ -100,8 +106,81 @@ function deployLlmsTxtVirtualFixtureToQaCell() {
   return LLMS_TXT_VIRTUAL_QA_ROOT;
 }
 
+/**
+ * Normalize Developer Sites publish dest text to a POSIX absolute path inside
+ * the Linux QA cell. Rejects Windows drive letters, UNC, relatives, and
+ * remaining {@code ..} so {@code docker exec … cat} never follows a traversal.
+ * In-container filesystem paths always use {@code /}.
+ *
+ * @param {unknown} raw dest text from {@code developer-site-virtual-publish-dest}
+ * @returns {string} POSIX absolute path
+ */
+function normalizeQaPublishDestPath(raw) {
+  if (typeof raw !== "string") {
+    throw new Error("llms-txt Virtual Site publish dest is missing");
+  }
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    throw new Error("llms-txt Virtual Site publish dest is blank");
+  }
+  const posix = trimmed.replace(/\\/g, "/");
+  if (/^[a-zA-Z]:/.test(posix) || posix.startsWith("//")) {
+    throw new Error(
+      `llms-txt Virtual Site publish dest is not a Linux QA cell path: ${trimmed}`,
+    );
+  }
+  if (!posix.startsWith("/")) {
+    throw new Error(`llms-txt Virtual Site publish dest is not absolute: ${trimmed}`);
+  }
+  const parts = posix.split("/").filter((seg) => seg.length > 0);
+  if (parts.some((seg) => seg === ".." || seg === ".")) {
+    throw new Error(`llms-txt Virtual Site publish dest is unsafe: ${trimmed}`);
+  }
+  return `/${parts.join("/")}`;
+}
+
+function posixJoin(base, ...segments) {
+  const dest = normalizeQaPublishDestPath(base);
+  const extra = [];
+  for (const seg of segments) {
+    const piece = String(seg ?? "").trim().replace(/\\/g, "/");
+    for (const part of piece.split("/")) {
+      if (!part) {
+        continue;
+      }
+      if (part === ".." || part === ".") {
+        throw new Error(`llms-txt Virtual Site publish relpath is unsafe: ${seg}`);
+      }
+      extra.push(part);
+    }
+  }
+  return extra.length === 0 ? dest : `${dest}/${extra.join("/")}`;
+}
+
+/**
+ * Fail closed unless assembled llms-txt HTML exists under the Site
+ * filesystem root inside the QA cell (acceptance: files exist after Publish).
+ *
+ * @param {unknown} publishPath dest shown in Developer Sites Publish chrome
+ */
+function assertPublishedLlmsTxtFilesOnQaCell(publishPath) {
+  const html = posixJoin(publishPath, LLMS_TXT_VIRTUAL_PUBLISHED_HTML);
+  const container = qaCmsContainer();
+  dockerExec(container, ["test", "-f", html]);
+  const body = dockerExec(container, ["cat", html]);
+  if (!body.includes(LLMS_TXT_VIRTUAL_PUBLISH_MARKER) && !body.includes("Quickstart")) {
+    throw new Error(
+      `Published llms-txt HTML missing fixture marker at ${html}: ${body.slice(0, 400)}`,
+    );
+  }
+  return html;
+}
+
 module.exports = {
   deployLlmsTxtVirtualFixtureToQaCell,
+  assertPublishedLlmsTxtFilesOnQaCell,
   LLMS_TXT_VIRTUAL_QA_ROOT,
   LLMS_TXT_VIRTUAL_BUILD_MARKER,
+  LLMS_TXT_VIRTUAL_PUBLISHED_HTML,
+  LLMS_TXT_VIRTUAL_PUBLISH_MARKER,
 };

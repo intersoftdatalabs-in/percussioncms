@@ -2089,6 +2089,74 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void publishVirtualSiteDelegatesLlmsTxt() {
+    VirtualSitePublishResult published = new VirtualSitePublishResult();
+    published.setSiteName("LlmsHelp");
+    published.setSiteKey("llms-docs");
+    published.setPagesWritten(1);
+    published.setFilesCopied(2);
+    published.setPublishPath(tempDir.resolve("llms-pub").toString());
+    when(adaptor.publishVirtualSite("LlmsHelp")).thenReturn(published);
+
+    VirtualSitePublishResult out = resource.publishVirtualSite("LlmsHelp");
+    assertEquals("LlmsHelp", out.getSiteName());
+    assertEquals("llms-docs", out.getSiteKey());
+    assertEquals(1, out.getPagesWritten().intValue());
+    assertEquals(2, out.getFilesCopied().intValue());
+    assertEquals(published.getPublishPath(), out.getPublishPath());
+    verify(adaptor).publishVirtualSite("LlmsHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteLlmsTxtRemoteUrlPropagates400() {
+    when(adaptor.publishVirtualSite("LlmsHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for llms-txt", Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("LlmsHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(adaptor).publishVirtualSite("LlmsHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteLlmsTxtCloudRootPropagates400() {
+    when(adaptor.publishVirtualSite("LlmsHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for llms-txt must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("LlmsHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).publishVirtualSite("LlmsHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteLlmsTxtCredentialsPropagates400() {
+    when(adaptor.publishVirtualSite("LlmsHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for llms-txt (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("LlmsHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).publishVirtualSite("LlmsHelp");
+  }
+
+  @Test
   public void publishVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.publishVirtualSite(" "));
@@ -2224,6 +2292,12 @@ public class SitesResourceTest {
     assertTrue(
         publishBlock.contains("robots.txt") || publishBlock.contains("no live crawl"),
         "publishVirtualSite OpenAPI description must mention robots-txt local fixture only");
+    assertTrue(
+        publishBlock.contains("llms-txt"),
+        "publishVirtualSite OpenAPI description must mention llms-txt");
+    assertTrue(
+        publishBlock.contains("llms.txt") || publishBlock.contains("no live HTTP fetch"),
+        "publishVirtualSite OpenAPI description must mention llms-txt local fixture only");
     assertTrue(
         publishBlock.contains("no live crawl"),
         "publishVirtualSite OpenAPI description must mention sitemap-xml local fixture only");

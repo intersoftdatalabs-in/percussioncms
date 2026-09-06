@@ -1129,14 +1129,13 @@ export interface SiteDef {
  * robots-txt, and llms-txt (local {@code rootPath} only; no cloud URLs, live feed
  * / CalDAV / crawl / llms fetch credentials, or {@code virtual.remoteUrl} on those
  * kinds). Build chrome is shown after save for
- * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt
- * (llms-txt Build stays hidden). Preview chrome is shown for
- * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt
- * (last-build local HTML; missing build stays unavailable; llms-txt Preview stays
- * hidden). Publish chrome is shown for
- * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt
- * (sitemap-xml and robots-txt copy last-build local HTML to {@code IPSSite.root};
- * leftover remoteUrl/credentials fail closed; llms-txt Publish stays hidden).
+ * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt.
+ * Preview chrome is shown for
+ * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt
+ * (last-build local HTML; missing build stays unavailable). Publish chrome is shown for
+ * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt
+ * (sitemap-xml, robots-txt, and llms-txt copy last-build local HTML to {@code IPSSite.root};
+ * leftover remoteUrl/credentials fail closed).
  * Repository / unknown kinds hide that chrome.
  */
 export interface VirtualSiteProperties {

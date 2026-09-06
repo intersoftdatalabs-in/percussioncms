@@ -98,10 +98,9 @@ public class VirtualSiteProperties {
               + " cloud URL rootPath return 400; no live crawl; preview is last-build local HTML only)."
               + " robots-txt persist/build/preview is a local robots.txt fixture only (portable-safe"
               + " rootPath; leftover remoteUrl, credentials, and cloud URL rootPath return 400; no live"
-              + " crawl; preview is last-build local HTML only). llms-txt persist/build/preview is a local llms.txt"
+              + " crawl; preview is last-build local HTML only). llms-txt persist/build/preview/publish is a local llms.txt"
               + " fixture only (portable-safe rootPath; leftover remoteUrl, credentials, and cloud URL"
-              + " rootPath return 400; no live HTTP fetch; preview is last-build local HTML only). REST Publish"
-              + " for llms-txt stays a later slice."
+              + " rootPath return 400; no live HTTP fetch; preview is last-build local HTML only)."
               + " Blank or repository = traditional Site.",
       example = "git-filesystem")
   private String sourceKind;
