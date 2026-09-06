@@ -530,7 +530,7 @@ public class SitesAdaptor implements ISiteAdaptor {
 
   /**
    * Load {@code _config.yaml} (required for git-filesystem, sql-database, http-json,
-   * object-storage, rss-atom, icalendar, sitemap-xml, and robots-txt). CSV trees may omit the file and infer
+   * object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, and llms-txt). CSV trees may omit the file and infer
    * versions from child directories. HTTP JSON catalog URL/file live in the yaml ({@code http.url}
    * / {@code http.file} or default {@code pages.json}). Object-storage optional {@code
    * objects.keys} live in the yaml. RSS / Atom optional {@code rss.file} / {@code rss.url} live
@@ -538,6 +538,8 @@ public class SitesAdaptor implements ISiteAdaptor {
    * icalendar.file} lives in the yaml (default {@code calendar.ics}). Sitemap XML optional {@code
    * sitemap.file} lives in the yaml (default {@code sitemap.xml}; no live crawl). robots-txt
    * optional {@code robots.file} lives in the yaml (default {@code robots.txt}; no live crawl).
+   * llms-txt optional {@code llms.file} lives in the yaml (default {@code llms.txt}; no live HTTP
+   * fetch).
    */
   static VirtualSiteConfig loadBuildConfig(
       VirtualSiteSourceType type, Path siteRoot, String configFile, String siteKey)
@@ -678,15 +680,17 @@ public class SitesAdaptor implements ISiteAdaptor {
    *
    * <p>Preview is last-output based and applies to allow-listed Virtual kinds ({@code
    * git-filesystem}, {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code
-   * object-storage}, {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}, and {@code
-   * robots-txt}), not git-only.
+   * object-storage}, {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code
+   * robots-txt}, and {@code llms-txt}), not git-only.
    * {@code rss-atom} streams last-build HTML from a local RSS 2.0 / Atom fixture (or loopback
    * feed); leftover {@code virtual.remoteUrl} is 400. {@code icalendar} streams last-build HTML
    * from a local RFC 5545 fixture; leftover {@code virtual.remoteUrl} is 400 (no CalDAV). {@code
    * sitemap-xml} streams last-build local HTML from a {@code sitemap.xml} fixture; leftover
    * {@code virtual.remoteUrl} and credential properties are 400 (no live crawl). {@code
    * robots-txt} streams last-build local HTML from a {@code robots.txt} fixture; leftover
-   * {@code virtual.remoteUrl} and credential properties are 400 (no live crawl). Traditional
+   * {@code virtual.remoteUrl} and credential properties are 400 (no live crawl). {@code
+   * llms-txt} streams last-build local HTML from a {@code llms.txt} fixture; leftover
+   * {@code virtual.remoteUrl} and credential properties are 400 (no live HTTP fetch). Traditional
    * {@code repository} Sites and unknown {@code virtual.sourceKind} values return 400 via
    * {@link PSVirtualSiteHelper#validate}.
    */
@@ -788,8 +792,9 @@ public class SitesAdaptor implements ISiteAdaptor {
         }
       }
       // robots-txt User-agent groups assemble to {version}/{slug}.html (for example
-      // 8.2/star-1.html), not index.html. A sole HTML page in a version dir is still a
-      // last-build home so Preview available=true after Build.
+      // 8.2/star-1.html), not index.html. llms-txt markdown list links assemble to
+      // {version}/{title}-{order}.html (for example 8.2/Quickstart-1.html). A sole HTML page
+      // in a version dir is still a last-build home so Preview available=true after Build.
       for (Path dir : dirs) {
         if (isSkippedHomeDirectory(dir)) {
           continue;

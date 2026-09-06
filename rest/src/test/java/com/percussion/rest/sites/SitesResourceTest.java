@@ -1287,6 +1287,99 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void buildVirtualSiteLlmsTxtFixtureDelegates() throws Exception {
+    Path llmsRoot = tempDir.resolve("llms-site");
+    Files.createDirectories(llmsRoot);
+    Files.writeString(
+        llmsRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: Llms Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        llms:
+          file: llms.txt
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        llmsRoot.resolve("llms.txt"),
+        """
+        # Llms Docs
+        - [Quickstart](docs/quickstart.md): Hello-from-llms
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("llms-out");
+    Files.createDirectories(out);
+
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setSiteName("LlmsHelp");
+    built.setPagesWritten(1);
+    built.setLinkProblemCount(0);
+    built.setHasLinkProblems(false);
+    built.setOutputPath(out.toAbsolutePath().toString());
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+    when(adaptor.buildVirtualSite(eq("LlmsHelp"), same(req))).thenReturn(built);
+
+    VirtualSiteBuildResult result = resource.buildVirtualSite("LlmsHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getPagesWritten().intValue() > 0);
+    assertEquals(out.toAbsolutePath().toString(), result.getOutputPath());
+    assertTrue(Files.isRegularFile(llmsRoot.resolve("_config.yaml")));
+    assertTrue(Files.isRegularFile(llmsRoot.resolve("llms.txt")));
+    verify(adaptor).buildVirtualSite("LlmsHelp", req);
+  }
+
+  @Test
+  public void buildVirtualSiteLlmsTxtRemoteUrlPropagates400() {
+    when(adaptor.buildVirtualSite(eq("LlmsHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for llms-txt", Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("LlmsHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(adaptor).buildVirtualSite("LlmsHelp", null);
+  }
+
+  @Test
+  public void buildVirtualSiteLlmsTxtCloudRootPathPropagates400() {
+    when(adaptor.buildVirtualSite(eq("LlmsHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for llms-txt must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("LlmsHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).buildVirtualSite("LlmsHelp", null);
+  }
+
+  @Test
+  public void buildVirtualSiteLlmsTxtCredentialsPropagates400() {
+    when(adaptor.buildVirtualSite(eq("LlmsHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for llms-txt (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("LlmsHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).buildVirtualSite("LlmsHelp", null);
+  }
+
+  @Test
   public void buildVirtualSiteUnknownKindPropagates400() {
     when(adaptor.buildVirtualSite(eq("Help"), any()))
         .thenThrow(
@@ -1681,6 +1774,66 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void previewStatusDelegatesLlmsTxt() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(true);
+    status.setHomePath("8.2/Quickstart-1.html");
+    when(adaptor.getVirtualSitePreviewStatus("LlmsHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("LlmsHelp");
+    assertEquals(Boolean.TRUE, out.getAvailable());
+    assertEquals("8.2/Quickstart-1.html", out.getHomePath());
+    verify(adaptor).getVirtualSitePreviewStatus("LlmsHelp");
+  }
+
+  @Test
+  public void previewStatusLlmsTxtMissingBuildIsUnavailable() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(false);
+    status.setMessage("No assembled Virtual Site to preview. Run Build Virtual Site first.");
+    when(adaptor.getVirtualSitePreviewStatus("LlmsHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("LlmsHelp");
+    assertEquals(Boolean.FALSE, out.getAvailable());
+    assertTrue(out.getMessage() != null && out.getMessage().contains("No assembled"));
+    verify(adaptor).getVirtualSitePreviewStatus("LlmsHelp");
+  }
+
+  @Test
+  public void previewFileDelegatesLlmsTxtHtml() {
+    byte[] html = "<a href=\"/8.2/Quickstart-1.html\">Quickstart</a>".getBytes(StandardCharsets.UTF_8);
+    when(adaptor.previewVirtualSiteFile(eq("LlmsHelp"), eq("8.2/Quickstart-1.html")))
+        .thenReturn(
+            new VirtualSitePreviewFile("text/html; charset=UTF-8", "8.2/Quickstart-1.html", html));
+
+    Response out = resource.previewVirtualSiteFile("LlmsHelp", "8.2/Quickstart-1.html");
+    assertEquals(200, out.getStatus());
+    byte[] body = (byte[]) out.getEntity();
+    String text = new String(body, StandardCharsets.UTF_8);
+    assertTrue(
+        text.contains("/services/sites/LlmsHelp/virtual/preview/8.2/Quickstart-1.html"), text);
+    assertTrue(text.contains("Quickstart"), text);
+    verify(adaptor).previewVirtualSiteFile("LlmsHelp", "8.2/Quickstart-1.html");
+  }
+
+  @Test
+  public void previewStatusLlmsTxtLeftoverRemoteUrl400() {
+    when(adaptor.getVirtualSitePreviewStatus("LlmsHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for llms-txt",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.getVirtualSitePreviewStatus("LlmsHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
   public void buildVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.buildVirtualSite(" ", null));
@@ -2021,6 +2174,12 @@ public class SitesResourceTest {
         buildBlock.contains("robots-txt"),
         "buildVirtualSite OpenAPI description must mention robots-txt");
     assertTrue(
+        buildBlock.contains("llms-txt"),
+        "buildVirtualSite OpenAPI description must mention llms-txt");
+    assertTrue(
+        buildBlock.contains("llms.txt") || buildBlock.contains("no live HTTP fetch"),
+        "buildVirtualSite OpenAPI description must mention local llms.txt fixture");
+    assertTrue(
         buildBlock.contains("sitemap.xml") || buildBlock.contains("no live crawl"),
         "buildVirtualSite OpenAPI description must mention local sitemap.xml fixture");
     assertTrue(
@@ -2110,6 +2269,9 @@ public class SitesResourceTest {
         previewStatusBlock.contains("robots-txt"),
         "getVirtualSitePreviewStatus OpenAPI description must mention robots-txt");
     assertTrue(
+        previewStatusBlock.contains("llms-txt"),
+        "getVirtualSitePreviewStatus OpenAPI description must mention llms-txt");
+    assertTrue(
         previewStatusBlock.contains("no live crawl")
             || previewStatusBlock.contains("last-build local HTML"),
         "getVirtualSitePreviewStatus OpenAPI description must mention sitemap-xml last-build local HTML");
@@ -2137,6 +2299,9 @@ public class SitesResourceTest {
     assertTrue(
         previewFileBlock.contains("robots-txt"),
         "previewVirtualSiteFile OpenAPI description must mention robots-txt");
+    assertTrue(
+        previewFileBlock.contains("llms-txt"),
+        "previewVirtualSiteFile OpenAPI description must mention llms-txt");
     assertTrue(
         previewFileBlock.contains("no live crawl")
             || previewFileBlock.contains("last-build local HTML"),

@@ -3249,6 +3249,250 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void buildVirtualSite_llmsTxtWritesHtml() throws Exception {
+    Path siteRoot = createMinimalLlmsTxtTree(tempDir.resolve("llms-src"));
+    Path out = tempDir.resolve("llms-out");
+
+    PSSite site = new PSSite();
+    site.setName("LlmsHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "llms-txt");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "llms-docs");
+    when(siteManager.findSite("LlmsHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult result = adaptor.buildVirtualSite("LlmsHelp", req);
+    assertTrue(result.getPagesWritten().intValue() > 0, "pagesWritten=" + result.getPagesWritten());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertEquals(out.toAbsolutePath().normalize().toString(), result.getOutputPath());
+    assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
+    Path html = out.resolve("8.2").resolve("Quickstart-1.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("Quickstart"), body);
+    assertTrue(body.contains("Hello-from-llms"), body);
+  }
+
+  @Test
+  void buildVirtualSite_llmsTxtSecondBuildAfterCurrentFileEditWritesUpdatedHtml()
+      throws Exception {
+    Path siteRoot = tempDir.resolve("llms-rebuild-src");
+    Path out = tempDir.resolve("llms-rebuild-out");
+
+    PSSite existing = new PSSite();
+    existing.setName("LlmsHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("LlmsHelp");
+    modifiable.setGUID(siteGuid);
+    when(siteManager.findSite("LlmsHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("llms-txt");
+    body.setRootPath(siteRoot.toAbsolutePath().toString());
+    body.setSiteKey("llms-docs");
+    VirtualSiteProperties put = adaptor.updateVirtualSiteProperties("LlmsHelp", body);
+    assertEquals("llms-txt", put.getSourceKind());
+    ArgumentCaptor<PSSite> saved = ArgumentCaptor.forClass(PSSite.class);
+    verify(siteManager).saveSite(saved.capture());
+    PSSite persisted = saved.getValue();
+    when(siteManager.findSite("LlmsHelp")).thenReturn(persisted);
+
+    createMinimalLlmsTxtTree(siteRoot);
+    Files.writeString(
+        siteRoot.resolve("llms.txt"),
+        """
+        # Llms Docs
+        - [Quickstart](docs/quickstart.md): unique-token-AAA
+        """,
+        StandardCharsets.UTF_8);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult first = adaptor.buildVirtualSite("LlmsHelp", req);
+    assertTrue(first.getPagesWritten().intValue() > 0, "pagesWritten=" + first.getPagesWritten());
+    assertEquals(1, first.getPagesWritten().intValue());
+    Path html = out.resolve("8.2").resolve("Quickstart-1.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    Path guideHtml = out.resolve("8.2").resolve("Guide-1.html");
+    assertFalse(Files.isRegularFile(guideHtml), "first build must not emit Guide-1.html");
+    String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
+    assertFalse(firstHtml.contains("unique-token-BBB"), firstHtml);
+
+    Files.writeString(
+        siteRoot.resolve("llms.txt"),
+        """
+        # Llms Docs
+        - [Guide](docs/guide.md): unique-token-BBB
+        """,
+        StandardCharsets.UTF_8);
+
+    VirtualSiteBuildResult second = adaptor.buildVirtualSite("LlmsHelp", req);
+    assertTrue(
+        second.getPagesWritten().intValue() > 0, "pagesWritten=" + second.getPagesWritten());
+    assertEquals(1, second.getPagesWritten().intValue());
+    assertTrue(Files.isRegularFile(guideHtml), "missing " + guideHtml);
+    String secondHtml = Files.readString(guideHtml, StandardCharsets.UTF_8);
+    assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
+    assertTrue(secondHtml.contains("Guide"), secondHtml);
+    assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
+    assertNotEquals(firstHtml, secondHtml);
+  }
+
+  @Test
+  void buildVirtualSite_llmsTxtMissingFixture400() throws Exception {
+    Path siteRoot = createMinimalLlmsTxtTree(tempDir.resolve("llms-nofile"));
+    Files.deleteIfExists(siteRoot.resolve("llms.txt"));
+    Path out = tempDir.resolve("llms-nofile-out");
+
+    PSSite site = new PSSite();
+    site.setName("LlmsHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "llms-txt");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("LlmsHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("LlmsHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String missingMsg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(missingMsg.contains("llms"), String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_llmsTxtMissingConfig400() throws Exception {
+    Path siteRoot = tempDir.resolve("llms-noconfig");
+    Files.createDirectories(siteRoot);
+    Path out = tempDir.resolve("llms-noconfig-out");
+
+    PSSite site = new PSSite();
+    site.setName("LlmsHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "llms-txt");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("LlmsHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("LlmsHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String missingMsg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(
+        missingMsg.contains("config") && missingMsg.contains("_config.yaml"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_llmsTxtUnsafePath400() {
+    Path out = tempDir.resolve("llms-unsafe-out");
+    PSSite site = new PSSite();
+    site.setName("LlmsHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "llms-txt");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, Path.of("a", "..", "..", "etc").toString());
+    when(siteManager.findSite("LlmsHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("LlmsHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(
+        msg.contains("virtual.rootPath") || msg.toLowerCase().contains("unsafe"), msg);
+  }
+
+  @Test
+  void buildVirtualSite_llmsTxtRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalLlmsTxtTree(tempDir.resolve("llms-remote"));
+    Path out = tempDir.resolve("llms-remote-out");
+
+    PSSite site = new PSSite();
+    site.setName("LlmsHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "llms-txt");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("LlmsHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("LlmsHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_llmsTxtCloudRootPath400() {
+    Path out = tempDir.resolve("llms-cloud-out");
+    PSSite site = new PSSite();
+    site.setName("LlmsHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "llms-txt");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, "https://example.com/llms.txt");
+    when(siteManager.findSite("LlmsHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("LlmsHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.contains("virtual.rootPath"), msg);
+    assertTrue(msg.toLowerCase().contains("cloud"), msg);
+  }
+
+  @Test
+  void buildVirtualSite_llmsTxtCredentialProperty400() throws Exception {
+    Path siteRoot = createMinimalLlmsTxtTree(tempDir.resolve("llms-cred"));
+    Path out = tempDir.resolve("llms-cred-out");
+
+    PSSite site = new PSSite();
+    site.setName("LlmsHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "llms-txt");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, "aws_secret_access_key", "not-a-real-secret");
+    when(siteManager.findSite("LlmsHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("LlmsHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.toLowerCase().contains("credential"), msg);
+    assertFalse(msg.contains("not-a-real-secret"), msg);
+  }
+
+  @Test
   void buildVirtualSite_unknownSourceKind400() {
     Path siteRoot = tempDir.resolve("sql-root");
     PSSite site = new PSSite();
@@ -5563,6 +5807,95 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void previewLlmsTxt_afterBuildAvailableWithHtml() throws Exception {
+    Path siteRoot = createMinimalLlmsTxtTree(tempDir.resolve("llms-preview-src"));
+    Path defaultOut = tempDir.resolve("llms-preview-default");
+    Path built = tempDir.resolve("llms-preview-built");
+
+    PSSite site = virtualLlmsTxtSite(siteRoot);
+    when(siteManager.findSite("LlmsHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(built.toAbsolutePath().normalize().toString());
+    VirtualSiteBuildResult result = previewing.buildVirtualSite("LlmsHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("LlmsHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/Quickstart-1.html", status.getHomePath());
+
+    VirtualSitePreviewFile file =
+        previewing.previewVirtualSiteFile("LlmsHelp", "8.2/Quickstart-1.html");
+    assertTrue(file.isHtml());
+    assertEquals("8.2/Quickstart-1.html", file.getRelativePath());
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("Quickstart"), html);
+    assertTrue(html.contains("Hello-from-llms"), html);
+  }
+
+  @Test
+  void previewLlmsTxt_missingBuildIsUnavailableNot500() throws Exception {
+    Path siteRoot = createMinimalLlmsTxtTree(tempDir.resolve("llms-preview-empty-src"));
+    Path defaultOut = tempDir.resolve("llms-preview-default-empty");
+    PSSite site = virtualLlmsTxtSite(siteRoot);
+    when(siteManager.findSite("LlmsHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("LlmsHelp");
+    assertEquals(Boolean.FALSE, status.getAvailable());
+    assertEquals(SitesAdaptor.MISSING_PREVIEW_MESSAGE, status.getMessage());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("LlmsHelp", "8.2/Quickstart-1.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewLlmsTxt_leftoverRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalLlmsTxtTree(tempDir.resolve("llms-preview-remote"));
+    Path defaultOut = tempDir.resolve("llms-preview-remote-default");
+    PSSite site = virtualLlmsTxtSite(siteRoot);
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("LlmsHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.getVirtualSitePreviewStatus("LlmsHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void previewLlmsTxt_leftoverCredential400() throws Exception {
+    Path siteRoot = createMinimalLlmsTxtTree(tempDir.resolve("llms-preview-cred"));
+    Path defaultOut = tempDir.resolve("llms-preview-cred-default");
+    PSSite site = virtualLlmsTxtSite(siteRoot);
+    put(site, "aws_secret_access_key", "not-a-real-secret");
+    when(siteManager.findSite("LlmsHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.getVirtualSitePreviewStatus("LlmsHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.toLowerCase().contains("credential"), msg);
+    assertFalse(msg.contains("not-a-real-secret"), msg);
+  }
+
+  @Test
   void requireSafeRelativePreviewPath_rejectsAbsoluteAndDotDot() {
     WebApplicationException dots =
         assertThrows(
@@ -5725,6 +6058,19 @@ class SitesAdaptorTest {
         PSVirtualSiteHelper.PROP_ROOT_PATH,
         robotsRoot.toAbsolutePath().normalize().toString());
     put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "rb-docs");
+    return site;
+  }
+
+  private PSSite virtualLlmsTxtSite(Path llmsRoot) {
+    PSSite site = new PSSite();
+    site.setName("LlmsHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "llms-txt");
+    put(
+        site,
+        PSVirtualSiteHelper.PROP_ROOT_PATH,
+        llmsRoot.toAbsolutePath().normalize().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "llms-docs");
     return site;
   }
 
@@ -6096,6 +6442,45 @@ class SitesAdaptorTest {
         """
         User-agent: *
         Disallow: /Hello-from-robots
+        """,
+        StandardCharsets.UTF_8);
+    return siteRoot;
+  }
+
+  /**
+   * Local llms.txt fixture for llms-txt REST Build/Preview. A single markdown list link
+   * assembles {@code 8.2/Quickstart-1.html} with {@code pagesWritten > 0}. Preview uses the
+   * sole-HTML home fallback (no {@code index.html}). Portable NIO {@link Path} / {@link Files}.
+   * No live HTTP fetch.
+   */
+  private static Path createMinimalLlmsTxtTree(Path siteRoot) throws Exception {
+    Files.createDirectories(siteRoot.resolve("8.2"));
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: Llms Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        llms:
+          file: llms.txt
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${pageTitle}</h1>${content}</body></html>",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("llms.txt"),
+        """
+        # Llms Docs
+        - [Quickstart](docs/quickstart.md): Hello-from-llms
         """,
         StandardCharsets.UTF_8);
     return siteRoot;
