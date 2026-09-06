@@ -1098,6 +1098,99 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void buildVirtualSiteRobotsTxtFixtureDelegates() throws Exception {
+    Path rbRoot = tempDir.resolve("rb-site");
+    Files.createDirectories(rbRoot);
+    Files.writeString(
+        rbRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: Robots Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        robots:
+          file: robots.txt
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        rbRoot.resolve("robots.txt"),
+        """
+        User-agent: *
+        Disallow: /Hello-from-robots
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("rb-out");
+    Files.createDirectories(out);
+
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setSiteName("RobotsHelp");
+    built.setPagesWritten(1);
+    built.setLinkProblemCount(0);
+    built.setHasLinkProblems(false);
+    built.setOutputPath(out.toAbsolutePath().toString());
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+    when(adaptor.buildVirtualSite(eq("RobotsHelp"), same(req))).thenReturn(built);
+
+    VirtualSiteBuildResult result = resource.buildVirtualSite("RobotsHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getPagesWritten().intValue() > 0);
+    assertEquals(out.toAbsolutePath().toString(), result.getOutputPath());
+    assertTrue(Files.isRegularFile(rbRoot.resolve("_config.yaml")));
+    assertTrue(Files.isRegularFile(rbRoot.resolve("robots.txt")));
+    verify(adaptor).buildVirtualSite("RobotsHelp", req);
+  }
+
+  @Test
+  public void buildVirtualSiteRobotsTxtRemoteUrlPropagates400() {
+    when(adaptor.buildVirtualSite(eq("RobotsHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for robots-txt", Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("RobotsHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(adaptor).buildVirtualSite("RobotsHelp", null);
+  }
+
+  @Test
+  public void buildVirtualSiteRobotsTxtCloudRootPathPropagates400() {
+    when(adaptor.buildVirtualSite(eq("RobotsHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for robots-txt must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("RobotsHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).buildVirtualSite("RobotsHelp", null);
+  }
+
+  @Test
+  public void buildVirtualSiteRobotsTxtCredentialsPropagates400() {
+    when(adaptor.buildVirtualSite(eq("RobotsHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for robots-txt (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("RobotsHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).buildVirtualSite("RobotsHelp", null);
+  }
+
+  @Test
   public void buildVirtualSiteUnknownKindPropagates400() {
     when(adaptor.buildVirtualSite(eq("Help"), any()))
         .thenThrow(
@@ -1432,6 +1525,66 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void previewStatusDelegatesRobotsTxt() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(true);
+    status.setHomePath("8.2/star-1.html");
+    when(adaptor.getVirtualSitePreviewStatus("RobotsHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("RobotsHelp");
+    assertEquals(Boolean.TRUE, out.getAvailable());
+    assertEquals("8.2/star-1.html", out.getHomePath());
+    verify(adaptor).getVirtualSitePreviewStatus("RobotsHelp");
+  }
+
+  @Test
+  public void previewStatusRobotsTxtMissingBuildIsUnavailable() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(false);
+    status.setMessage("No assembled Virtual Site to preview. Run Build Virtual Site first.");
+    when(adaptor.getVirtualSitePreviewStatus("RobotsHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("RobotsHelp");
+    assertEquals(Boolean.FALSE, out.getAvailable());
+    assertTrue(out.getMessage() != null && out.getMessage().contains("No assembled"));
+    verify(adaptor).getVirtualSitePreviewStatus("RobotsHelp");
+  }
+
+  @Test
+  public void previewFileDelegatesRobotsTxtHtml() {
+    byte[] html = "<a href=\"/8.2/star-1.html\">Robots Home</a>".getBytes(StandardCharsets.UTF_8);
+    when(adaptor.previewVirtualSiteFile(eq("RobotsHelp"), eq("8.2/star-1.html")))
+        .thenReturn(
+            new VirtualSitePreviewFile("text/html; charset=UTF-8", "8.2/star-1.html", html));
+
+    Response out = resource.previewVirtualSiteFile("RobotsHelp", "8.2/star-1.html");
+    assertEquals(200, out.getStatus());
+    byte[] body = (byte[]) out.getEntity();
+    String text = new String(body, StandardCharsets.UTF_8);
+    assertTrue(
+        text.contains("/services/sites/RobotsHelp/virtual/preview/8.2/star-1.html"), text);
+    assertTrue(text.contains("Robots Home"), text);
+    verify(adaptor).previewVirtualSiteFile("RobotsHelp", "8.2/star-1.html");
+  }
+
+  @Test
+  public void previewStatusRobotsTxtLeftoverRemoteUrl400() {
+    when(adaptor.getVirtualSitePreviewStatus("RobotsHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for robots-txt",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.getVirtualSitePreviewStatus("RobotsHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
   public void buildVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.buildVirtualSite(" ", null));
@@ -1695,6 +1848,9 @@ public class SitesResourceTest {
         buildBlock.contains("sitemap-xml"),
         "buildVirtualSite OpenAPI description must mention sitemap-xml");
     assertTrue(
+        buildBlock.contains("robots-txt"),
+        "buildVirtualSite OpenAPI description must mention robots-txt");
+    assertTrue(
         buildBlock.contains("sitemap.xml") || buildBlock.contains("no live crawl"),
         "buildVirtualSite OpenAPI description must mention local sitemap.xml fixture");
     assertTrue(
@@ -1775,6 +1931,9 @@ public class SitesResourceTest {
         previewStatusBlock.contains("sitemap-xml"),
         "getVirtualSitePreviewStatus OpenAPI description must mention sitemap-xml");
     assertTrue(
+        previewStatusBlock.contains("robots-txt"),
+        "getVirtualSitePreviewStatus OpenAPI description must mention robots-txt");
+    assertTrue(
         previewStatusBlock.contains("no live crawl")
             || previewStatusBlock.contains("last-build local HTML"),
         "getVirtualSitePreviewStatus OpenAPI description must mention sitemap-xml last-build local HTML");
@@ -1799,6 +1958,9 @@ public class SitesResourceTest {
     assertTrue(
         previewFileBlock.contains("sitemap-xml"),
         "previewVirtualSiteFile OpenAPI description must mention sitemap-xml");
+    assertTrue(
+        previewFileBlock.contains("robots-txt"),
+        "previewVirtualSiteFile OpenAPI description must mention robots-txt");
     assertTrue(
         previewFileBlock.contains("no live crawl")
             || previewFileBlock.contains("last-build local HTML"),

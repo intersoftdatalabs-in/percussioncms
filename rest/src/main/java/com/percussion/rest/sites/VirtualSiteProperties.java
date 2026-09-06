@@ -54,12 +54,13 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * only — no live crawl; {@code robots-txt} is a local robots.txt fixture only — no live crawl).
  * REST
  * {@code POST …/virtual/build} runs {@code http-json}, {@code object-storage}, {@code
- * rss-atom}, {@code icalendar}, and {@code sitemap-xml} through the existing {@code
+ * rss-atom}, {@code icalendar}, {@code sitemap-xml}, and {@code robots-txt} through the existing {@code
  * IPSVirtualSiteSource} factory (local fixture / loopback JSON; local object-key bucket; local
- * RSS/Atom fixture; local RFC 5545 {@code calendar.ics}; local {@code sitemap.xml} urlset). REST {@code GET …/virtual/preview}
- * streams last-build HTML for {@code object-storage}, {@code rss-atom}, {@code icalendar}, and
- * {@code sitemap-xml} after a successful assemble (missing build is {@code available=false},
- * HTTP 200; {@code sitemap-xml} is last-build local HTML only — no live crawl). REST {@code POST
+ * RSS/Atom fixture; local RFC 5545 {@code calendar.ics}; local {@code sitemap.xml} urlset; local
+ * {@code robots.txt}). REST {@code GET …/virtual/preview}
+ * streams last-build HTML for {@code object-storage}, {@code rss-atom}, {@code icalendar},
+ * {@code sitemap-xml}, and {@code robots-txt} after a successful assemble (missing build is {@code available=false},
+ * HTTP 200; {@code sitemap-xml} and {@code robots-txt} are last-build local HTML only — no live crawl). REST {@code POST
  * …/virtual/publish} copies last-build HTML to {@code IPSSite.root} for git, CSV, SQL, {@code
  * http-json}, {@code object-storage} (local object-key fixture; leftover {@code virtual.remoteUrl}
  * is 400), {@code rss-atom} (local RSS/Atom fixture; leftover {@code virtual.remoteUrl} and
@@ -93,8 +94,9 @@ public class VirtualSiteProperties {
               + " cloud URL rootPath return 400; no CalDAV). sitemap-xml persist/build/preview is a local"
               + " sitemap.xml fixture only (portable-safe rootPath; leftover remoteUrl, credentials, and"
               + " cloud URL rootPath return 400; no live crawl; preview is last-build local HTML only)."
-              + " robots-txt persist is a local robots.txt fixture only (portable-safe rootPath;"
-              + " leftover remoteUrl, credentials, and cloud URL rootPath return 400; no live crawl)."
+              + " robots-txt persist/build/preview is a local robots.txt fixture only (portable-safe"
+              + " rootPath; leftover remoteUrl, credentials, and cloud URL rootPath return 400; no live"
+              + " crawl; preview is last-build local HTML only)."
               + " Blank or repository = traditional Site.",
       example = "git-filesystem")
   private String sourceKind;

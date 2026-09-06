@@ -1144,7 +1144,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
-  it("loads robots-txt values with root path and hides Build/Preview/Publish chrome", async () => {
+  it("loads robots-txt values with root path and shows Build/Preview chrome (Publish hidden)", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "robots-txt",
       rootPath: "C:/robots-txt-docs",
@@ -1165,17 +1165,17 @@ describe("VirtualSiteSourcePanel", () => {
       DEV_MSG.SITE_VIRT_ROBOTS_TXT_HINT,
     );
     expect(screen.getByTestId("developer-site-virtual-robots-txt-hint").textContent).toContain(
-      "later slices",
-    );
-    expect(screen.getByTestId("developer-site-virtual-robots-txt-hint").textContent).not.toContain(
       "then Build Virtual Site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-robots-txt-hint").textContent).toContain(
+      "later slice",
     );
     expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-config-file")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
@@ -1234,9 +1234,9 @@ describe("VirtualSiteSourcePanel", () => {
     expect(
       (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
     ).toBe("C:/robots-txt-docs");
-    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
@@ -2126,6 +2126,42 @@ describe("VirtualSiteSourcePanel", () => {
     });
     expect(previewStatus).toHaveBeenCalledWith("SitemapHelp");
     expect(String(open.mock.calls[0][0])).toContain("8.2/index.html");
+    expect(open.mock.calls[0][1]).toBe("_blank");
+  });
+
+  it("shows Preview chrome for robots-txt and opens last-build home (Publish hidden)", async () => {
+    const open = vi.fn();
+    window.open = open;
+    getVirtual.mockResolvedValue({
+      sourceKind: "robots-txt",
+      rootPath: "C:/robots-txt-docs",
+      virtual: true,
+    });
+    previewStatus.mockResolvedValue({
+      available: true,
+      homePath: "8.2/star-1.html",
+    });
+    render(<VirtualSiteSourcePanel siteName="RobotsHelp" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-robots-txt-hint").textContent).toContain(
+      DEV_MSG.SITE_VIRT_ROBOTS_TXT_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-preview-hint").textContent).toContain(
+      DEV_MSG.SITE_VIRT_PREVIEW_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-preview-hint").textContent).toContain(
+      "Robots.txt",
+    );
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
+    await waitFor(() => {
+      expect(open).toHaveBeenCalled();
+    });
+    expect(previewStatus).toHaveBeenCalledWith("RobotsHelp");
+    expect(String(open.mock.calls[0][0])).toContain("8.2/star-1.html");
     expect(open.mock.calls[0][1]).toBe("_blank");
   });
 

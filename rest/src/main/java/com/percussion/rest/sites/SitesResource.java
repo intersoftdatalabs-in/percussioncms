@@ -276,7 +276,7 @@ public class SitesResource {
       description =
           "Runs the Virtual Site static build for a site configured with"
               + " virtual.sourceKind=git-filesystem, csv-filesystem, sql-database, http-json,"
-              + " object-storage, rss-atom, icalendar, or sitemap-xml. git-filesystem: when virtual.remoteUrl is set, the"
+              + " object-storage, rss-atom, icalendar, sitemap-xml, or robots-txt. git-filesystem: when virtual.remoteUrl is set, the"
               + " server clones or fetches that branch into a contained work directory, then"
               + " discovers Markdown. csv-filesystem: rootPath is a CSV tree (optional _config.yaml;"
               + " required columns id, title, body; fail-closed on unsafe paths). sql-database:"
@@ -295,8 +295,11 @@ public class SitesResource {
               + " credential properties, and cloud rootPath are 400. sitemap-xml: local sitemap.xml"
               + " fixture under rootPath (sitemap.xml or _config.yaml sitemap.file; urlset of"
               + " portable files); no live crawl; leftover virtual.remoteUrl, credential"
-              + " properties, and cloud rootPath are 400. A second sitemap-xml Build after an"
-              + " in-process sitemap.xml / sitemap.file or referenced-page edit returns"
+              + " properties, and cloud rootPath are 400. robots-txt: local robots.txt fixture"
+              + " under rootPath (robots.txt or _config.yaml robots.file); no live crawl; leftover"
+              + " virtual.remoteUrl, credential properties, and cloud rootPath are 400. A second"
+              + " sitemap-xml or robots-txt Build after an in-process sitemap.xml / robots.txt /"
+              + " sitemap.file / robots.file or referenced-page edit returns"
               + " pagesWritten>0 HTML that reflects the current file (no JVM / Jetty restart; no"
               + " file watchers). Unknown"
               + " source kinds return 400. Uses PSVirtualSiteBuildService.forSourceType with"
@@ -349,13 +352,15 @@ public class SitesResource {
       description =
           "Reports whether the last Admin Virtual Site build can be opened from the product UI."
               + " Last-output based for git-filesystem, csv-filesystem, sql-database, http-json,"
-              + " object-storage, rss-atom, icalendar, and sitemap-xml (not git-only). Uses the last"
+              + " object-storage, rss-atom, icalendar, sitemap-xml, and robots-txt (not git-only). Uses the last"
               + " build output path (default {install}/tmp/virtual-sites/{siteKey}). After a successful"
-              + " http-json, object-storage, rss-atom, icalendar, or sitemap-xml Build, available=true"
+              + " http-json, object-storage, rss-atom, icalendar, sitemap-xml, or robots-txt Build, available=true"
               + " plus homePath. rss-atom is a local RSS 2.0 / Atom fixture or loopback feed (no live"
               + " remote feeds). icalendar is a local RFC 5545 calendar.ics fixture (no CalDAV)."
               + " sitemap-xml is last-build local HTML only (sitemap.xml / sitemap.file; no live crawl;"
-              + " leftover virtual.remoteUrl and credentials are 400). Missing or failed builds return"
+              + " leftover virtual.remoteUrl and credentials are 400). robots-txt is last-build local"
+              + " HTML only (robots.txt / robots.file; no live crawl; leftover virtual.remoteUrl and"
+              + " credentials are 400). Missing or failed builds return"
               + " 200 with available=false (not 500). Requires Admin. Traditional repository Sites and"
               + " unknown sourceKind values return 400.",
       responses = {
@@ -402,13 +407,15 @@ public class SitesResource {
       summary = "Preview Virtual Site file",
       description =
           "Streams a file from the last Virtual Site build output (git-filesystem,"
-              + " csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, or"
-              + " sitemap-xml). Paths are resolved with portable NIO Path under the last output root"
+              + " csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar,"
+              + " sitemap-xml, or robots-txt). Paths are resolved with portable NIO Path under the last output root"
               + " (no '..' after normalize). HTML root-relative href/src/url() values are rewritten to"
               + " this preview prefix so navigation works. rss-atom is a local RSS 2.0 / Atom fixture or"
               + " loopback feed (no live remote feeds). icalendar is a local RFC 5545 calendar.ics"
               + " fixture (no CalDAV). sitemap-xml is last-build local HTML only (sitemap.xml /"
               + " sitemap.file; no live crawl; leftover virtual.remoteUrl and credentials are 400)."
+              + " robots-txt is last-build local HTML only (robots.txt / robots.file; no live crawl;"
+              + " leftover virtual.remoteUrl and credentials are 400)."
               + " Requires Admin. Missing files return 404 (not 500). Unsafe paths,"
               + " unknown/repository sourceKind, and files larger than 20 MB return 400.",
       responses = {
