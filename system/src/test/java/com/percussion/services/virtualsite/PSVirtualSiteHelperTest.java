@@ -129,7 +129,7 @@ class PSVirtualSiteHelperTest {
   }
 
   @Test
-  void allowedSourceKindsIncludeGitCsvSqlHttpJsonObjectStorageRssAtomIcalendarSitemapXmlAndRobotsTxt() {
+  void allowedSourceKindsIncludeGitCsvSqlHttpJsonObjectStorageRssAtomIcalendarSitemapXmlRobotsTxtAndLlmsTxt() {
     List<String> allowed = PSVirtualSiteHelper.allowedSourceKindWireNames();
     assertEquals(
         List.of(
@@ -141,7 +141,8 @@ class PSVirtualSiteHelperTest {
             "rss-atom",
             "icalendar",
             "sitemap-xml",
-            "robots-txt"),
+            "robots-txt",
+            "llms-txt"),
         allowed);
   }
 
@@ -601,6 +602,7 @@ class PSVirtualSiteHelperTest {
     assertTrue(ex.getMessage().contains("icalendar"));
     assertTrue(ex.getMessage().contains("sitemap-xml"));
     assertTrue(ex.getMessage().contains("robots-txt"));
+    assertTrue(ex.getMessage().contains("llms-txt"));
   }
 
   @Test
@@ -705,6 +707,58 @@ class PSVirtualSiteHelperTest {
     assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH), ex.getMessage());
     assertTrue(ex.getMessage().toLowerCase().contains("cloud"), ex.getMessage());
     assertTrue(ex.getMessage().contains("robots-txt"), ex.getMessage());
+  }
+
+  @Test
+  void validatePassesForLlmsTxtWithSafeRoot() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "llms-txt"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "llms-docs"));
+    assertDoesNotThrow(() -> PSVirtualSiteHelper.validate(site));
+    assertEquals(
+        VirtualSiteSourceType.LLMS_TXT,
+        PSVirtualSiteHelper.virtualSourceType(site).orElseThrow());
+  }
+
+  @Test
+  void validateRejectsRemoteUrlForLlmsTxt() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "llms-txt"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "llms-docs"),
+            prop(PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_REMOTE_URL));
+    assertTrue(ex.getMessage().contains("llms-txt"));
+  }
+
+  @Test
+  void validateRejectsCredentialPropertyForLlmsTxt() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "llms-txt"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "llms-docs"),
+            prop("aws_secret_access_key", "not-a-real-secret"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().toLowerCase().contains("credential"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("llms-txt"), ex.getMessage());
+    assertFalse(ex.getMessage().contains("not-a-real-secret"), ex.getMessage());
+  }
+
+  @Test
+  void validateRejectsCloudUrlRootForLlmsTxt() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "llms-txt"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "https://example.com/llms.txt"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH), ex.getMessage());
+    assertTrue(ex.getMessage().toLowerCase().contains("cloud"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("llms-txt"), ex.getMessage());
   }
 
   @Test

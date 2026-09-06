@@ -28,20 +28,22 @@ import java.util.List;
  * feed: {@link PSRssAtomVirtualSiteSource} ({@code rss-atom}). Local RFC 5545 iCalendar: {@link
  * PSIcalendarVirtualSiteSource} ({@code icalendar}). Local sitemap.xml: {@link
  * PSSitemapXmlVirtualSiteSource} ({@code sitemap-xml}). Local robots.txt: {@link
- * PSRobotsTxtVirtualSiteSource} ({@code robots-txt}).
+ * PSRobotsTxtVirtualSiteSource} ({@code robots-txt}). Local llms.txt: {@link
+ * PSLlmsTxtVirtualSiteSource} ({@code llms-txt}).
  *
- * <p>Filesystem, SQL, HTTP JSON, object-storage, RSS/Atom, iCalendar, sitemap-xml, and robots-txt
- * implementations must read <em>current</em> source contents on every {@link #discover} and {@link
- * #load}. Process-lifetime parse caches that skip a file because its path or mtime looks unchanged
- * are not allowed — a second build in the same JVM (after {@code git pull}, a CSV row edit, a
- * local Markdown/frontmatter edit, a {@code _config.yaml} or {@code sql.queryFile} edit, an
- * in-memory H2 row change, an HTTP JSON catalog ({@code http.file} / {@code pages.json} /
- * {@code http.url} body) edit, an object-storage Markdown/HTML/JSON key or {@code
- * objects.keys} edit, an RSS/Atom feed ({@code rss.file} / {@code feed.xml} / {@code
- * atom.xml} / {@code rss.url} body) edit, an iCalendar fixture ({@code icalendar.file} /
- * {@code calendar.ics}) edit, a sitemap fixture ({@code sitemap.file} / {@code sitemap.xml})
- * edit, or a robots.txt fixture ({@code robots.file} / {@code robots.txt}) edit) must see the new
- * bytes. File watchers are not required; the next explicit build is the refresh.
+ * <p>Filesystem, SQL, HTTP JSON, object-storage, RSS/Atom, iCalendar, sitemap-xml, robots-txt, and
+ * llms-txt implementations must read <em>current</em> source contents on every {@link #discover}
+ * and {@link #load}. Process-lifetime parse caches that skip a file because its path or mtime
+ * looks unchanged are not allowed — a second build in the same JVM (after {@code git pull}, a CSV
+ * row edit, a local Markdown/frontmatter edit, a {@code _config.yaml} or {@code sql.queryFile}
+ * edit, an in-memory H2 row change, an HTTP JSON catalog ({@code http.file} / {@code pages.json} /
+ * {@code http.url} body) edit, an object-storage Markdown/HTML/JSON key or {@code objects.keys}
+ * edit, an RSS/Atom feed ({@code rss.file} / {@code feed.xml} / {@code atom.xml} / {@code rss.url}
+ * body) edit, an iCalendar fixture ({@code icalendar.file} / {@code calendar.ics}) edit, a sitemap
+ * fixture ({@code sitemap.file} / {@code sitemap.xml}) edit, a robots.txt fixture ({@code
+ * robots.file} / {@code robots.txt}) edit, or an llms.txt fixture ({@code llms.file} / {@code
+ * llms.txt}) edit) must see the new bytes. File watchers are not required; the next explicit
+ * build is the refresh.
  */
 public interface IPSVirtualSiteSource {
 
