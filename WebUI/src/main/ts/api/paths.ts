@@ -594,6 +594,13 @@ export const PATHS = {
   get VELOCITY_SNIPPETS() {
     return `${SERVICES_ROOT}/velocity/snippets`;
   },
+  /**
+   * Allow-listed File Explorer browse (#4325 / #4326). Distinct from
+   * {@link SERVER_CONFIGS} and application CMS/resource files (SY-05).
+   */
+  get FILE_EXPLORER() {
+    return `${SERVICES_ROOT}/fileexplorer`;
+  },
   /** Content editor control catalog (UI-01). */
   get CE_CONTROLS() {
     return `${SERVICES_ROOT}/cecontrols`;

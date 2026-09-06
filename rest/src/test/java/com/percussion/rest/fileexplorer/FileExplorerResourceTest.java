@@ -153,6 +153,15 @@ public class FileExplorerResourceTest {
   }
 
   @Test
+  public void looksLikeRawPathIsPathShapedNotBareSlashInProse() {
+    assertTrue(FileExplorerResource.looksLikeRawPath("/etc/passwd"));
+    assertTrue(FileExplorerResource.looksLikeRawPath("C:\\Windows\\secret"));
+    assertTrue(FileExplorerResource.looksLikeRawPath("a/../b"));
+    assertFalse(FileExplorerResource.looksLikeRawPath("Invalid path"));
+    assertFalse(FileExplorerResource.looksLikeRawPath("See /admin for details"));
+  }
+
+  @Test
   public void missingAdaptorReturnsServiceUnavailableOnListChildren() {
     FileExplorerResource bare = new FileExplorerResource();
     WebApplicationException ex =

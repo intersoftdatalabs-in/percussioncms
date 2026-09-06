@@ -132,7 +132,11 @@ public class FileExplorerAdaptor implements IFileExplorerAdaptor {
     Path rootAbs = rootDir.toAbsolutePath().normalize();
     try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory)) {
       for (Path child : stream) {
-        if (child == null || Files.isSymbolicLink(child)) {
+        if (child == null) {
+          continue;
+        }
+        if (Files.isSymbolicLink(child)) {
+          log.debug("Skipping symbolic link in File Explorer listing: {}", child.getFileName());
           continue;
         }
         Path childAbs = child.toAbsolutePath().normalize();
@@ -227,6 +231,9 @@ public class FileExplorerAdaptor implements IFileExplorerAdaptor {
   /**
    * Parse {@code id=path;id2=path2}. Relative paths resolve against the CMS install root. Malformed
    * or unsafe entries are skipped (fail closed) — never walk them.
+   *
+   * <p>{@code ;} is the reserved entry delimiter and must not appear in a configured path. A path
+   * that contains {@code ;} is split and the leftover token is skipped.
    */
   static Map<String, ConfiguredRoot> parseAllowListedRoots(String spec, Path rxDir) {
     Map<String, ConfiguredRoot> out = new LinkedHashMap<>();
@@ -293,8 +300,10 @@ public class FileExplorerAdaptor implements IFileExplorerAdaptor {
 
   /**
    * Normalize a client relative path under a root. Blank means the root itself ({@code ""}).
-   * Rejects {@code ..}, {@code .}, absolute, drive-letter, UNC, NUL, and empty segments. Returns
-   * {@code null} when unsafe — callers must not echo the raw input.
+   * Rejects {@code ..}, {@code .}, absolute, drive-letter, UNC, NUL, empty segments, and {@code :}
+   * in a segment (cross-platform: {@code :} is a drive-letter marker on Windows even though it is
+   * legal in Linux filenames). Returns {@code null} when unsafe — callers must not echo the raw
+   * input.
    *
    * <p>Segments are validated <em>before</em> {@link Path#normalize()} so {@code a/../b} cannot
    * collapse into an apparently safe leaf.
@@ -377,7 +386,12 @@ public class FileExplorerAdaptor implements IFileExplorerAdaptor {
     }
     Path r = rootAbs.toAbsolutePath().normalize();
     Path c = candidateAbs.toAbsolutePath().normalize();
-    return c.startsWith(r);
+    for (Path p = c; p != null; p = p.getParent()) {
+      if (p.equals(r)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   record ConfiguredRoot(String id, String displayName, Path directory) {}

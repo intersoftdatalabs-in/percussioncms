@@ -159,11 +159,24 @@ public class FileExplorerResource {
     return message;
   }
 
+  /**
+   * True when the message looks like a filesystem path (not merely containing {@code /} in prose).
+   * Adaptor messages such as {@code Invalid path} pass through; {@code See /admin} is not treated
+   * as a path.
+   */
   static boolean looksLikeRawPath(String message) {
-    return message.contains("..")
-        || message.indexOf('/') >= 0
-        || message.indexOf('\\') >= 0
-        || message.indexOf(':') >= 0;
+    if (message.contains("..") || message.indexOf('\\') >= 0) {
+      return true;
+    }
+    if (message.startsWith("/") || message.startsWith("~")) {
+      return true;
+    }
+    if (message.length() >= 2
+        && Character.isLetter(message.charAt(0))
+        && message.charAt(1) == ':') {
+      return true;
+    }
+    return false;
   }
 
   private IFileExplorerAdaptor requireAdaptor() {

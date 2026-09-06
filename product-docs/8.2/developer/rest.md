@@ -2377,7 +2377,8 @@ is the updated detail (same shape as GET), including reloaded `content`.
 
 Workbench **File Explorer** (§12.1) is a **new** Admin catalog under
 `/services/fileexplorer`. It lists **operator-configured allow-listed roots** on the CMS
-server and their **immediate children** by relative path. It is **not** XML application
+server and their **immediate children** by relative path. The Developer SPA
+**File Explorer** tab consumes this API (read-only). It is **not** XML application
 CMS/resource files (SY-05, `/services/applicationfiles` when that surface is deployed) and
 **not** the fixed server configuration allow-list (SY-02, `/services/serverconfigs`).
 
