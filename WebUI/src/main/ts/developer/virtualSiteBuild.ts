@@ -31,8 +31,8 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
  * (SQL JDBC, HTTP JSON catalog, object-storage keys, rss-atom feeds, icalendar
  * .ics, and sitemap.xml stay in _config.yaml / the local root). sitemap-xml
  * Build is shown so operators can produce last-build HTML for Preview and
- * Publish. Repository / blank / unknown kinds must not
- * display this chrome.
+ * Publish. Repository / blank / unknown kinds (including robots-txt persist
+ * until a later slice) must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
   sourceKind: string | null | undefined,

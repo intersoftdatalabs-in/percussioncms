@@ -1112,11 +1112,12 @@ export interface SiteDef {
  * traditional repository Site. Allow-listed virtual adapters:
  * {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
  * {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar},
- * {@code sitemap-xml}. Developer Sites save chrome includes http-json,
- * object-storage, rss-atom, icalendar, and sitemap-xml (local {@code rootPath}
- * only; no cloud URLs, live feed / CalDAV / crawl credentials, or
- * {@code virtual.remoteUrl} on those kinds). Build chrome is shown after save
- * for git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml.
+ * {@code sitemap-xml}, {@code robots-txt}. Developer Sites save chrome includes
+ * http-json, object-storage, rss-atom, icalendar, sitemap-xml, and robots-txt
+ * (local {@code rootPath} only; no cloud URLs, live feed / CalDAV / crawl
+ * credentials, or {@code virtual.remoteUrl} on those kinds). Build chrome is
+ * shown after save for git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml
+ * (robots-txt persist only — Build/Preview/Publish stay later slices).
  * Preview chrome is shown for git/csv/sql/http-json/object-storage/rss-atom/
  * icalendar/sitemap-xml (last-build local HTML; missing build stays unavailable).
  * Publish chrome is shown for git/csv/sql/http-json/object-storage/rss-atom/
