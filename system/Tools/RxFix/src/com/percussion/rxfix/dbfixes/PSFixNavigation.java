@@ -16,8 +16,8 @@
  */
 package com.percussion.rxfix.dbfixes;
 
+import com.intsof.percussioncms.auditlog.codes.NavigationErrorCodes;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.fastforward.managednav.IPSNavigationErrors;
 import com.percussion.fastforward.managednav.PSNavException;
 import com.percussion.rxfix.IPSFix;
 import com.percussion.services.assembly.IPSAssemblyService;
@@ -87,6 +87,16 @@ public class PSFixNavigation extends PSFixDBBase implements IPSFix
     */
    public PSFixNavigation() throws NamingException, SQLException {
       super();
+   }
+
+   /**
+    * Typed exception for "cannot find any navons" (legacy {@code IPSNavigationErrors}
+    * 18008). Kept compiled because the rest of {@link #fix(boolean)} remains disabled.
+    *
+    * @return never {@code null}
+    */
+   static PSNavException cannotFindAnyNavons() {
+      return new PSNavException(NavigationErrorCodes.NAVIGATION_SERVICE_CANNOT_FIND_ANY_NAVONS);
    }
 
    @Override
@@ -166,9 +176,7 @@ public class PSFixNavigation extends PSFixDBBase implements IPSFix
             }
 
             if (navonCount <= 0) {
-               PSNavException ne = new PSNavException(
-                       IPSNavigationErrors.NAVIGATION_SERVICE_CANNOT_FIND_ANY_NAVONS
-               );
+               PSNavException ne = cannotFindAnyNavons();
                logWarn(null, ne.getLocalizedMessage());
                return;
             }

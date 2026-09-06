@@ -45,7 +45,7 @@ DEPLOYER_JEXL_CONVERTED = (
 # clone/compare/config in #4153; leftover relationship.effect call-sites in
 # #4156.
 # Keep an exact residual that is still frozen (Testing Extensions converted in
-# #4337; HttpItemCopier / RxFix leftovers remain).
+# #4337; Tools/RxFix converted in #4339; HttpItemCopier leftover remains).
 SYSTEM_CMS_RESIDUAL = "system/Testing/cms/HttpItemCopier.java"
 
 
@@ -722,6 +722,22 @@ def test_issue_4337_testing_extensions_converted_paths_not_allowlisted() -> None
     assert resurrected == [], resurrected
 
 
+def test_issue_4339_rxfix_converted_paths_not_allowlisted() -> None:
+    """#4339 typed leftover RxFix Tools IPS*Errors call-sites."""
+    converted = (
+        "system/Tools/RxFix/src/com/percussion/rxfix/dbfixes/PSFixNavigation.java",
+        "system/Tools/RxFix/src/com/percussion/rxverify/modules/PSJdbcTableCheck.java",
+    )
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = {
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    resurrected = [p for p in converted if p in entries]
+    assert resurrected == [], resurrected
+
+
 def test_segmentation_rx_converted_path_not_allowlisted() -> None:
     """#4271 typed leftover segmentation-rx PSAbstractBuildRelationshipsExtension."""
     converted = (
@@ -746,12 +762,8 @@ def test_empty_allowlist_fails_on_real_residuals(tmp_path: Path) -> None:
     assert result.returncode == 1, result.stdout + result.stderr
     combined = result.stdout + result.stderr
     assert "FAIL" in combined
-    # Prefer still-listed Testing/cms + RxFix residuals after #4337.
-    assert (
-        "PSFixNavigation.java" in combined
-        or "PSJdbcTableCheck.java" in combined
-        or "HttpItemCopier.java" in combined
-    )
+    # Prefer still-listed Testing/cms HttpItemCopier residual after #4337/#4339.
+    assert "HttpItemCopier.java" in combined
 
 
 if __name__ == "__main__":

@@ -16,6 +16,7 @@
  */
 package com.percussion.rxverify.modules;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.tablefactory.*;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -105,7 +106,7 @@ public class PSJdbcTableCheck extends PSVerifyDatabaseBase
             Object[] args = {
                     PSJdbcTableFactoryException.formatSqlException(e)};
             throw new PSJdbcTableFactoryException(
-                    IPSTableFactoryErrors.SQL_CONNECTION_FAILED, args, e);
+                    TableFactoryErrorCodes.SQL_CONNECTION_FAILED, args, e);
         }
 
         Iterator itrSchemaColl = tableSchemaCollection.iterator();
