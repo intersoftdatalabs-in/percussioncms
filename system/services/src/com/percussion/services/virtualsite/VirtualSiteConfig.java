@@ -42,6 +42,7 @@ public final class VirtualSiteConfig {
   private final SitemapSpec sitemap;
   private final RobotsSpec robots;
   private final LlmsSpec llms;
+  private final OpenApiSpec openapi;
 
   public VirtualSiteConfig(
       Path root,
@@ -204,6 +205,42 @@ public final class VirtualSiteConfig {
       SitemapSpec sitemap,
       RobotsSpec robots,
       LlmsSpec llms) {
+    this(
+        root,
+        siteTitle,
+        siteUrl,
+        layoutFile,
+        versions,
+        nav,
+        siteKey,
+        sql,
+        http,
+        objects,
+        rss,
+        icalendar,
+        sitemap,
+        robots,
+        llms,
+        null);
+  }
+
+  public VirtualSiteConfig(
+      Path root,
+      String siteTitle,
+      String siteUrl,
+      String layoutFile,
+      List<VersionSpec> versions,
+      List<NavSpec> nav,
+      String siteKey,
+      SqlSpec sql,
+      HttpSpec http,
+      ObjectsSpec objects,
+      RssSpec rss,
+      IcalendarSpec icalendar,
+      SitemapSpec sitemap,
+      RobotsSpec robots,
+      LlmsSpec llms,
+      OpenApiSpec openapi) {
     this.root = Objects.requireNonNull(root, "root");
     this.siteTitle = siteTitle != null ? siteTitle : "Documentation";
     this.siteUrl = siteUrl != null ? siteUrl : "";
@@ -223,6 +260,7 @@ public final class VirtualSiteConfig {
     this.sitemap = sitemap;
     this.robots = robots;
     this.llms = llms;
+    this.openapi = openapi;
   }
 
   public Path root() {
@@ -341,6 +379,18 @@ public final class VirtualSiteConfig {
    */
   public LlmsSpec llms() {
     return llms;
+  }
+
+  /**
+   * Optional OpenAPI YAML settings for {@code openapi-yaml} sources ({@code openapi:} in {@code
+   * _config.yaml}).
+   *
+   * @return spec, or null when the mapping is omitted (adapter then uses {@code openapi.yaml} under
+   *     the site root). Legacy constructors always pass {@code null} here; an {@code OPENAPI_YAML}
+   *     site wired that way also falls back to {@code openapi.yaml} and does not fail.
+   */
+  public OpenApiSpec openapi() {
+    return openapi;
   }
 
   public Path themeDir() {
@@ -714,6 +764,42 @@ public final class VirtualSiteConfig {
     @Override
     public String toString() {
       return "LlmsSpec{url='" + url + "', file='" + file + "'}";
+    }
+  }
+
+  /**
+   * OpenAPI 3 YAML fixture settings for {@code openapi-yaml}. {@link #file()} is a portable path
+   * under the site root. {@link #url()} is parsed so the adapter can reject live remote spec
+   * fetches (local fixture only). Both blank means default {@code openapi.yaml}.
+   */
+  public static final class OpenApiSpec {
+    private final String url;
+    private final String file;
+
+    public OpenApiSpec(String url, String file) {
+      this.url = url != null ? url.trim() : "";
+      this.file = file != null ? file.trim() : "";
+    }
+
+    public String url() {
+      return url;
+    }
+
+    public String file() {
+      return file;
+    }
+
+    public boolean hasUrl() {
+      return !url.isBlank();
+    }
+
+    public boolean hasFile() {
+      return !file.isBlank();
+    }
+
+    @Override
+    public String toString() {
+      return "OpenApiSpec{url='" + url + "', file='" + file + "'}";
     }
   }
 

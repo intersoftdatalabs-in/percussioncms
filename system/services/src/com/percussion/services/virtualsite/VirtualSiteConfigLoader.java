@@ -21,6 +21,7 @@ import com.percussion.services.virtualsite.VirtualSiteConfig.NavSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.ObjectsSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.IcalendarSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.LlmsSpec;
+import com.percussion.services.virtualsite.VirtualSiteConfig.OpenApiSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.RobotsSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.RssSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.SitemapSpec;
@@ -46,7 +47,8 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
  * <p>Stateless: each {@link #load} / {@link #loadOrDefault} reads the current file (or current
  * child directories). No process-lifetime YAML cache — a second build after a config edit sees
  * the new title/versions (and current {@code sql:} / {@code http:} / {@code objects:} /
- * {@code rss:} / {@code icalendar:} / {@code sitemap:} / {@code robots:} / {@code llms:} mapping)
+ * {@code rss:} / {@code icalendar:} / {@code sitemap:} / {@code robots:} / {@code llms:} / {@code
+ * openapi:} mapping)
  * without a JVM restart.
  */
 public final class VirtualSiteConfigLoader {
@@ -257,6 +259,11 @@ public final class VirtualSiteConfigLoader {
         throw new VirtualSiteException("llms: must be a mapping in " + sourceLabel);
       }
       LlmsSpec llms = parseLlmsSpec(asMap(llmsObj));
+      Object openapiObj = map.get("openapi");
+      if (openapiObj != null && !(openapiObj instanceof Map<?, ?>)) {
+        throw new VirtualSiteException("openapi: must be a mapping in " + sourceLabel);
+      }
+      OpenApiSpec openapi = parseOpenApiSpec(asMap(openapiObj));
       return new VirtualSiteConfig(
           root,
           title,
@@ -272,7 +279,8 @@ public final class VirtualSiteConfigLoader {
           icalendar,
           sitemap,
           robots,
-          llms);
+          llms,
+          openapi);
     } catch (VirtualSiteException e) {
       throw e;
     } catch (Exception e) {
@@ -320,6 +328,13 @@ public final class VirtualSiteConfigLoader {
       return null;
     }
     return new LlmsSpec(stringVal(llms.get("url")), stringVal(llms.get("file")));
+  }
+
+  private static OpenApiSpec parseOpenApiSpec(Map<String, Object> openapi) {
+    if (openapi == null || openapi.isEmpty()) {
+      return null;
+    }
+    return new OpenApiSpec(stringVal(openapi.get("url")), stringVal(openapi.get("file")));
   }
 
   private static ObjectsSpec parseObjectsSpec(Map<String, Object> objects, String sourceLabel)
