@@ -32,6 +32,11 @@ import { ContentTypeImportWizard } from "./ContentTypeImportWizard";
 import { DeveloperSectionErrorBoundary } from "./DeveloperSectionErrorBoundary";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import {
+  applyObjectSorter,
+  loadObjectSorterPreference,
+  type ObjectSorterRow,
+} from "./objectSorter";
 
 /** Catalog cell / sort keys — JAXB wraps unwrap in {@link asContentTypeText}. */
 function asCatalogText(value: unknown): string {
@@ -55,8 +60,14 @@ function selectionKey(ct: ContentTypeSummary): string | null {
   return contentTypeSelectionKey(ct);
 }
 
-function catalogSortKey(ct: ContentTypeSummary): string {
-  return asCatalogText(ct.label) || asCatalogText(ct.name);
+function catalogSorterRow(ct: ContentTypeSummary): ObjectSorterRow {
+  const name = asCatalogText(ct.name);
+  const label = asCatalogText(ct.label);
+  return {
+    id: selectionKey(ct) || name,
+    name,
+    label,
+  };
 }
 
 type SelectedContentType = {
@@ -163,11 +174,7 @@ export function ContentTypesPanel(): React.ReactElement {
 
   const sorted =
     items && items.length > 0
-      ? [...items].sort((a, b) =>
-          catalogSortKey(a).localeCompare(catalogSortKey(b), undefined, {
-            sensitivity: "base",
-          }),
-        )
+      ? applyObjectSorter(items, catalogSorterRow, loadObjectSorterPreference())
       : [];
 
   return (

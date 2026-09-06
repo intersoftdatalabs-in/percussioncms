@@ -9,6 +9,7 @@ import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as contentTypesApi from "../../../main/ts/api/developer/contentTypesApi";
 import { ContentTypesPanel } from "../../../main/ts/developer/ContentTypesPanel";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
+import { OBJECT_SORTER_STORAGE_KEY } from "../../../main/ts/developer/objectSorter";
 
 vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal) => {
   const actual =
@@ -79,6 +80,7 @@ describe("ContentTypesPanel", () => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
       message: (key: string) => key,
     };
+    sessionStorage.clear();
     listContentTypes.mockReset();
     createContentType.mockReset();
   });
@@ -98,6 +100,27 @@ describe("ContentTypesPanel", () => {
     });
     expect(screen.getByTestId("developer-ct-table").textContent).toContain("Page");
     expect(screen.getByTestId("developer-ct-table").textContent).toContain("percPage");
+  });
+
+  it("applies session Object Sorter name Z-A order to the catalog", async () => {
+    sessionStorage.setItem(
+      OBJECT_SORTER_STORAGE_KEY,
+      JSON.stringify({ version: 1, mode: "name-desc", customOrder: [] }),
+    );
+    listContentTypes.mockResolvedValue([
+      { name: "alphaType", label: "Zulu" },
+      { name: "zetaType", label: "Alpha" },
+    ]);
+    render(<ContentTypesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-row-0").getAttribute("data-ct-name")).toBe(
+      "zetaType",
+    );
+    expect(screen.getByTestId("developer-ct-row-1").getAttribute("data-ct-name")).toBe(
+      "alphaType",
+    );
   });
 
   it("shows empty state when API returns no content types", async () => {

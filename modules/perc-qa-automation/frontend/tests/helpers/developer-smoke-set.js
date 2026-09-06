@@ -227,6 +227,13 @@ const DEVELOPER_SMOKE_SET = [
     notes: "Workbench §12.4 Problems panel invalid-session fixture (#4345 / parent #1690)",
   },
   {
+    id: "object-sorter",
+    file: "developer-object-sorter.spec.js",
+    title: "Admin can sort the current object list and see the order stick for the session",
+    status: "green",
+    notes: "Workbench §12.3 Object Sorter session organization (#4344 / parent #1690)",
+  },
+  {
     id: "template-source-viewer",
     file: "developer-template-source-viewer.spec.js",
     title: "template detail source shows line numbers and copy control",

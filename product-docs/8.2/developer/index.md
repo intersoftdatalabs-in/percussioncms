@@ -68,6 +68,11 @@ list; navigate-to-source when a peer editor exists; not pipeline application
 validation):
 [Developer Problems](id:admin-developer-problems).
 
+Operators using **Developer → Object Sorter** (session-only sort and custom
+order of the current Content Types catalog; not persisted as a CMS user
+preference):
+[Developer Object Sorter](id:admin-developer-object-sorter).
+
 Operators using **Developer → Pipelines** browse, Admin start/stop, and pipe IR chrome:
 [Developer Pipelines](id:admin-developer-pipelines).
 

@@ -30,6 +30,7 @@ describe("DEVELOPER_SMOKE_SET", () => {
     assert.ok(ids.has("golden-login-explorer"));
     assert.ok(ids.has("login-admin"));
     assert.ok(ids.has("application-files-write"));
+    assert.ok(ids.has("object-sorter"));
   });
 
   it("requires unique ids", () => {
