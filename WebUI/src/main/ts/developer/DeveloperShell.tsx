@@ -40,6 +40,7 @@ import { SearchesPanel } from "./SearchesPanel";
 import { ApplicationFilesPanel } from "./ApplicationFilesPanel";
 import { FileExplorerPanel } from "./FileExplorerPanel";
 import { DatabaseExplorerPanel } from "./DatabaseExplorerPanel";
+import { ObjectSorterPanel } from "./ObjectSorterPanel";
 import { ProblemsPanel } from "./ProblemsPanel";
 import { ServerConfigsPanel } from "./ServerConfigsPanel";
 import { SharedFieldsPanel } from "./SharedFieldsPanel";
@@ -77,6 +78,7 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   "file-explorer": DEV_MSG.TAB_FILE_EXPLORER,
   "database-explorer": DEV_MSG.TAB_DATABASE_EXPLORER,
   problems: DEV_MSG.TAB_PROBLEMS,
+  "object-sorter": DEV_MSG.TAB_OBJECT_SORTER,
   "ce-controls": DEV_MSG.TAB_CE_CONTROLS,
   sites: DEV_MSG.TAB_SITES,
   communities: DEV_MSG.TAB_COMMUNITIES,
@@ -221,6 +223,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
             <DatabaseExplorerPanel />
           ) : active === "problems" ? (
             <ProblemsPanel onNavigateToSource={setActive} />
+          ) : active === "object-sorter" ? (
+            <ObjectSorterPanel />
           ) : active === "ce-controls" ? (
             <ControlsPanel />
           ) : active === "sites" ? (

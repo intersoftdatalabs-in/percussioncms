@@ -76,6 +76,10 @@ describe("parseEntryQuery", () => {
     );
     expect(parseEntryQuery("?entry=developer&section=validation").section).toBe("problems");
     expect(parseClientPath("/developer/problems").section).toBe("problems");
+    expect(parseEntryQuery("?entry=developer&section=objectsorter").section).toBe(
+      "object-sorter",
+    );
+    expect(parseClientPath("/developer/object-sorter").section).toBe("object-sorter");
   });
 
   it("maps design entry and section aliases (#2808)", () => {

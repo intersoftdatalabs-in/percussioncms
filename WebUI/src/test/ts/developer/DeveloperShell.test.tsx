@@ -855,6 +855,7 @@ describe("DeveloperShell", () => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
       message: (key: string) => key,
     };
+    sessionStorage.clear();
   });
 
   afterEach(() => {
@@ -1202,6 +1203,17 @@ it("loads views catalog section", async () => {
         "true",
       );
     });
+  });
+
+  it("loads Object Sorter catalog section", async () => {
+    render(<DeveloperShell initialSection="object-sorter" embedded />);
+    expect(
+      screen.getByTestId("tab-developer-object-sorter").getAttribute("aria-selected"),
+    ).toBe("true");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-os-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-os-table").textContent).toContain("percPage");
   });
 
   it("loads CE controls catalog section", async () => {
