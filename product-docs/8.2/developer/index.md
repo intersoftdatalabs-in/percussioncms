@@ -59,6 +59,10 @@ Operators using **Developer → File Explorer** (allow-listed browse; not SY-05
 application files, not SY-02 server configs):
 [Developer File Explorer](id:admin-developer-file-explorer).
 
+Operators using **Developer → Database Explorer** (allow-listed JDBC catalog
+browse of datasources → tables/views; read-only; not File Explorer):
+[Developer Database Explorer](id:admin-developer-database-explorer).
+
 Operators using **Developer → Pipelines** browse, Admin start/stop, and pipe IR chrome:
 [Developer Pipelines](id:admin-developer-pipelines).
 

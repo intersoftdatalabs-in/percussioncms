@@ -683,6 +683,7 @@ npm run test:unit
 # List matches only — safe without a CMS
 npm run test:surface:list -- --path tests/login.spec.js
 npm run test:surface:list -- --path tests/developer-file-explorer-browse.spec.js
+npm run test:surface:list -- --path tests/developer-database-explorer-browse.spec.js
 npm run test:surface:list -- --grep "Content Explorer"
 npm run test:surface:print -- --tag smoke
 
