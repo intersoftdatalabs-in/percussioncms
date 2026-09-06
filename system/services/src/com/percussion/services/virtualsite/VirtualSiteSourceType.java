@@ -19,12 +19,14 @@ package com.percussion.services.virtualsite;
 /**
  * Registered Virtual Site adapter kinds. {@link #GIT_FILESYSTEM}, {@link #CSV_FILESYSTEM}, {@link
  * #SQL_DATABASE}, {@link #HTTP_JSON}, {@link #OBJECT_STORAGE}, {@link #RSS_ATOM}, {@link
- * #ICALENDAR}, and {@link #SITEMAP_XML} are wired through {@link PSVirtualSiteSourceFactory} and
- * allow-listed for Site property validation. REST GET/PUT persist round-trips {@link #RSS_ATOM},
- * {@link #ICALENDAR}, and {@link #SITEMAP_XML} with a portable-safe local {@code rootPath}. {@link
- * #ICALENDAR} assemble remains SPI/CLI ({@code calendar.ics}); REST Build/Preview/Publish and
- * Developer Sites chrome stay later slices. {@link #SITEMAP_XML} assemble is SPI/CLI ({@code
- * sitemap.xml}); REST Build/Preview/Publish and Developer Sites chrome stay later slices.
+ * #ICALENDAR}, {@link #SITEMAP_XML}, and {@link #ROBOTS_TXT} are wired through {@link
+ * PSVirtualSiteSourceFactory} and allow-listed for Site property validation. REST GET/PUT persist
+ * round-trips {@link #RSS_ATOM}, {@link #ICALENDAR}, and {@link #SITEMAP_XML} with a portable-safe
+ * local {@code rootPath}. {@link #ICALENDAR} assemble remains SPI/CLI ({@code calendar.ics}); REST
+ * Build/Preview/Publish and Developer Sites chrome stay later slices. {@link #SITEMAP_XML}
+ * assemble is SPI/CLI ({@code sitemap.xml}); REST Build/Preview/Publish and Developer Sites chrome
+ * stay later slices. {@link #ROBOTS_TXT} assemble is SPI/CLI ({@code robots.txt}); REST
+ * persist/Build/Preview/Publish and Developer Sites chrome stay later slices.
  */
 public enum VirtualSiteSourceType {
   GIT_FILESYSTEM("git-filesystem"),
@@ -84,7 +86,17 @@ public enum VirtualSiteSourceType {
    * {@code ..}). REST Build/Preview/Publish and Developer Sites chrome stay later slices. SPI/CLI
    * assemble is {@code PSVirtualSiteBuildMain … sitemap-xml}.
    */
-  SITEMAP_XML("sitemap-xml");
+  SITEMAP_XML("sitemap-xml"),
+  /**
+   * Local robots.txt ({@code robots-txt}). Discovers pages from {@code robots.txt} (or {@code
+   * _config.yaml} {@code robots.file}) under a portable-safe {@code virtual.rootPath}. Each {@code
+   * User-agent} group maps into assemble {@code id}/{@code title}/{@code body}. {@code robots.url},
+   * Git {@code virtual.remoteUrl}, credential properties, cloud URLs, and {@code Sitemap:} values
+   * with a remote/cloud scheme are rejected. No live crawl or network fetch. REST persist,
+   * Build/Preview/Publish, and Developer Sites chrome stay later slices. SPI/CLI assemble is
+   * {@code PSVirtualSiteBuildMain … robots-txt}.
+   */
+  ROBOTS_TXT("robots-txt");
 
   private final String wireName;
 

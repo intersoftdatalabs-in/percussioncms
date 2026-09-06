@@ -27,9 +27,10 @@ import java.util.List;
  * bucket: {@link PSObjectStorageVirtualSiteSource} ({@code object-storage}). Local RSS 2.0 / Atom
  * feed: {@link PSRssAtomVirtualSiteSource} ({@code rss-atom}). Local RFC 5545 iCalendar: {@link
  * PSIcalendarVirtualSiteSource} ({@code icalendar}). Local sitemap.xml: {@link
- * PSSitemapXmlVirtualSiteSource} ({@code sitemap-xml}).
+ * PSSitemapXmlVirtualSiteSource} ({@code sitemap-xml}). Local robots.txt: {@link
+ * PSRobotsTxtVirtualSiteSource} ({@code robots-txt}).
  *
- * <p>Filesystem, SQL, HTTP JSON, object-storage, RSS/Atom, iCalendar, and sitemap-xml
+ * <p>Filesystem, SQL, HTTP JSON, object-storage, RSS/Atom, iCalendar, sitemap-xml, and robots-txt
  * implementations must read <em>current</em> source contents on every {@link #discover} and {@link
  * #load}. Process-lifetime parse caches that skip a file because its path or mtime looks unchanged
  * are not allowed — a second build in the same JVM (after {@code git pull}, a CSV row edit, a
@@ -38,9 +39,9 @@ import java.util.List;
  * {@code http.url} body) edit, an object-storage Markdown/HTML/JSON key or {@code
  * objects.keys} edit, an RSS/Atom feed ({@code rss.file} / {@code feed.xml} / {@code
  * atom.xml} / {@code rss.url} body) edit, an iCalendar fixture ({@code icalendar.file} /
- * {@code calendar.ics}) edit, or a sitemap fixture ({@code sitemap.file} / {@code sitemap.xml})
- * edit) must see the new bytes. File watchers are not required; the next explicit build is the
- * refresh.
+ * {@code calendar.ics}) edit, a sitemap fixture ({@code sitemap.file} / {@code sitemap.xml})
+ * edit, or a robots.txt fixture ({@code robots.file} / {@code robots.txt}) edit) must see the new
+ * bytes. File watchers are not required; the next explicit build is the refresh.
  */
 public interface IPSVirtualSiteSource {
 
