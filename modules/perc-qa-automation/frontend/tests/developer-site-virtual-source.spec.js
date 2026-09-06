@@ -6370,13 +6370,18 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await kind.selectOption("sitemap-xml");
     await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-sitemap-xml-hint"]')).toBeVisible();
-    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    // #4166: sitemap-xml shows Build + Preview + Publish chrome (shouldShowVirtualPublishChrome).
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
     await page.locator('[data-testid="developer-site-virtual-root-path"]').fill(sitemapRoot);
     await page.locator('[data-testid="developer-site-virtual-save"]').click();
     await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
       timeout: 20_000,
     });
     await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
     const firstBuildPromise = page.waitForResponse(
       (resp) =>
@@ -6431,7 +6436,8 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     expect(secondHtml).toContain(`Last modified: ${SITEMAP_XML_VIRTUAL_REBUILD_LASTMOD}`);
     expect(secondHtml).not.toContain(SITEMAP_XML_VIRTUAL_BUILD_MARKER);
     expect(secondHtml).not.toBe(firstHtml);
-    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
     await kind.selectOption("repository");
     await page.locator('[data-testid="developer-site-virtual-save"]').click();
