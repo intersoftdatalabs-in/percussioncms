@@ -50,6 +50,18 @@ function asArray<T>(payload: unknown): T[] {
 }
 
 /**
+ * Jackson WRAP_ROOT / XML-bridge often emits a single child as an object
+ * instead of a one-element array. `.map` on that object throws in catalog
+ * detail (#4384 sys_cmpCaLeftnav).
+ */
+export function jacksonSingularAsList<T>(raw: unknown): T[] {
+  if (raw == null) return [];
+  if (Array.isArray(raw)) return raw as T[];
+  if (typeof raw === "object") return [raw as T];
+  return [];
+}
+
+/**
  * Unwrap Jackson WRAP_ROOT_VALUE {@code {"ApplicationDetail":{…}}} so GET/POST
  * payloads bind the same as a flat ApplicationDetail.
  */
@@ -64,6 +76,7 @@ export function unwrapApplicationDetail(payload: unknown): ApplicationDetail {
     : root) as ApplicationDetail;
   return {
     ...detail,
+    dataSets: jacksonSingularAsList(detail.dataSets),
     designGaps: withoutStalePipelineLifecycleGap(detail.designGaps),
   };
 }
@@ -123,12 +136,29 @@ export async function stopApplication(
   return unwrapApplicationDetail(payload);
 }
 
+/** Unwrap Jackson WRAP_ROOT_VALUE {@code {"PipelineIrDocument":{…}}}. */
+export function unwrapPipelineIrDocument(payload: unknown): PipelineIrDocument {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("Pipeline IR not found or empty response");
+  }
+  const root = payload as Record<string, unknown>;
+  const nested = root.PipelineIrDocument ?? root.pipelineIrDocument;
+  const doc = (nested != null && typeof nested === "object" && !Array.isArray(nested)
+    ? nested
+    : root) as PipelineIrDocument;
+  return {
+    ...doc,
+    resources: jacksonSingularAsList(doc.resources),
+  };
+}
+
 /** GET /services/pipelines/{idOrName}/ir — read-only pipeline-ir-v1 document */
 export async function getPipelineIr(
   idOrName: string,
 ): Promise<PipelineIrDocument> {
   const key = encodeURIComponent(idOrName);
-  return get<PipelineIrDocument>(`${PATHS.PIPELINES}/${key}/ir`);
+  const payload = await get<unknown>(`${PATHS.PIPELINES}/${key}/ir`);
+  return unwrapPipelineIrDocument(payload);
 }
 
 export type PipelineOpenApiFormat = "yaml" | "json";

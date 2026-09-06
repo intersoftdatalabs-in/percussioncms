@@ -84,7 +84,12 @@ chrome does not echo the raw path name in that message.
 
 ## Product path — view and download OpenAPI
 
-1. On the same application detail, scroll to **OpenAPI**.
+1. On the same application detail, scroll to **OpenAPI**. The section is always
+   on the detail page (it is not limited to the first catalog row). Apps such as
+   `sys_ActionPage` may have data sets but **no IR resources**, so the document
+   can omit execute paths — pick a content-editor app (`sys_cmp…`) or another
+   application that lists IR resources when you need a documented
+   `POST …/execute` path.
 2. Confirm the document starts with OpenAPI 3 and includes at least one
    `POST /pipelines/{app}/resources/{resource}/execute` path when the
    application has IR resources.
@@ -143,7 +148,9 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
 - Surface-filtered Playwright for HTTP datasource save + Test invoke lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-http-execute.spec.js`.
 - Surface-filtered Playwright for OpenAPI view/download lives under
-  `modules/perc-qa-automation/frontend/tests/developer-pipelines-openapi.spec.js`.
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-openapi.spec.js`
+  (prefers `sys_cmp*` IR/execute apps, or `PIPELINE_APP_NAME`; does not require
+  OpenAPI execute paths on empty-IR first-catalog rows).
 
 ## REST
 

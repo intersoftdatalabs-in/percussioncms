@@ -14,6 +14,8 @@ import {
   getPipelineOpenApi,
   openApiDownloadFilename,
   unwrapApplicationDetail,
+  jacksonSingularAsList,
+  unwrapPipelineIrDocument,
   unwrapApplicationValidationResult,
   unwrapPipelineExecuteResult,
   withoutStalePipelineLifecycleGap,
@@ -42,6 +44,17 @@ describe("pipelinesApi Slice B lifecycle", () => {
     ]);
   });
 
+  it("jacksonSingularAsList promotes a single Jackson child object (#4384)", () => {
+    expect(jacksonSingularAsList(null)).toEqual([]);
+    expect(jacksonSingularAsList([{ name: "a" }, { name: "b" }])).toEqual([
+      { name: "a" },
+      { name: "b" },
+    ]);
+    expect(jacksonSingularAsList({ name: "Dataset3850", kind: "DATASET" })).toEqual([
+      { name: "Dataset3850", kind: "DATASET" },
+    ]);
+  });
+
   it("unwrapApplicationDetail flattens ApplicationDetail root and strips stale gaps", () => {
     const detail = unwrapApplicationDetail({
       ApplicationDetail: {
@@ -53,6 +66,29 @@ describe("pipelinesApi Slice B lifecycle", () => {
     expect(detail.name).toBe("sys_cmpDocuments");
     expect(detail.active).toBe(true);
     expect(detail.designGaps).toEqual([]);
+    expect(detail.dataSets).toEqual([]);
+  });
+
+  it("unwrapApplicationDetail promotes a singular dataSets object (#4384)", () => {
+    const detail = unwrapApplicationDetail({
+      ApplicationDetail: {
+        name: "sys_cmpCaLeftnav",
+        dataSets: { name: "Dataset3850", kind: "DATASET", requestPage: "leftnav" },
+      },
+    });
+    expect(detail.dataSets).toEqual([
+      { name: "Dataset3850", kind: "DATASET", requestPage: "leftnav" },
+    ]);
+  });
+
+  it("unwrapPipelineIrDocument promotes a singular resources object (#4384)", () => {
+    const ir = unwrapPipelineIrDocument({
+      PipelineIrDocument: {
+        source: "CLASSIC_IMPORT",
+        resources: { name: "Dataset3850", kind: "QUERY" },
+      },
+    });
+    expect(ir.resources).toEqual([{ name: "Dataset3850", kind: "QUERY" }]);
   });
 
   it("getApplicationDetail GETs encoded path and unwraps", async () => {
