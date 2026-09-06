@@ -31,7 +31,8 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
  * POST /virtual/build (SQL JDBC, HTTP JSON catalog, object-storage keys,
  * rss-atom feeds, icalendar .ics, sitemap.xml, robots.txt, and llms.txt stay in
  * _config.yaml / the local root). llms-txt Build produces last-build HTML for
- * Preview and Publish. Repository / blank / unknown kinds must not display this chrome.
+ * Preview and Publish. Repository / blank / unknown kinds (including openapi-yaml
+ * persist-only) must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
   sourceKind: string | null | undefined,

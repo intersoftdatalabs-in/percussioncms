@@ -643,6 +643,103 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void getVirtualPropertiesRoundTripsOpenApiYaml() {
+    VirtualSiteProperties v = new VirtualSiteProperties();
+    v.setSourceKind("openapi-yaml");
+    v.setRootPath("C:/openapi-docs");
+    v.setVirtual(true);
+    when(adaptor.getVirtualSiteProperties("OpenApiHelp")).thenReturn(v);
+
+    VirtualSiteProperties out = resource.getVirtualProperties("OpenApiHelp");
+    assertEquals("openapi-yaml", out.getSourceKind());
+    assertEquals("C:/openapi-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).getVirtualSiteProperties("OpenApiHelp");
+  }
+
+  @Test
+  public void updateVirtualPropertiesRoundTripsOpenApiYaml() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("openapi-yaml");
+    body.setRootPath("C:/openapi-docs");
+    VirtualSiteProperties saved = new VirtualSiteProperties();
+    saved.setSourceKind("openapi-yaml");
+    saved.setRootPath("C:/openapi-docs");
+    saved.setVirtual(true);
+    when(adaptor.updateVirtualSiteProperties(eq("OpenApiHelp"), same(body))).thenReturn(saved);
+
+    VirtualSiteProperties out = resource.updateVirtualProperties("OpenApiHelp", body);
+    assertEquals("openapi-yaml", out.getSourceKind());
+    assertEquals("C:/openapi-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).updateVirtualSiteProperties("OpenApiHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesOpenApiYamlRemoteUrlPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("openapi-yaml");
+    body.setRootPath("C:/openapi-docs");
+    body.setRemoteUrl("https://user:secret@git.example.com/org/docs.git");
+    when(adaptor.updateVirtualSiteProperties(eq("OpenApiHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for openapi-yaml",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("OpenApiHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("user:secret"));
+    verify(adaptor).updateVirtualSiteProperties("OpenApiHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesOpenApiYamlCloudRootPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("openapi-yaml");
+    body.setRootPath("https://example.com/openapi.yaml");
+    when(adaptor.updateVirtualSiteProperties(eq("OpenApiHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for openapi-yaml must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("OpenApiHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).updateVirtualSiteProperties("OpenApiHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesOpenApiYamlCredentialsPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("openapi-yaml");
+    body.setRootPath("C:/openapi-docs");
+    when(adaptor.updateVirtualSiteProperties(eq("OpenApiHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for openapi-yaml (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("OpenApiHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).updateVirtualSiteProperties("OpenApiHelp", body);
+  }
+
+  @Test
   public void updateVirtualPropertiesUnknownKindPropagates400() {
     VirtualSiteProperties body = new VirtualSiteProperties();
     body.setSourceKind("sql-adapter");
@@ -2198,6 +2295,9 @@ public class SitesResourceTest {
         putVirtualBlock.contains("llms-txt"),
         "updateVirtualProperties OpenAPI description must mention llms-txt persist");
     assertTrue(
+        putVirtualBlock.contains("openapi-yaml"),
+        "updateVirtualProperties OpenAPI description must mention openapi-yaml persist");
+    assertTrue(
         putVirtualBlock.contains("no CalDAV"),
         "updateVirtualProperties OpenAPI description must mention icalendar local fixture only");
     assertTrue(
@@ -2209,6 +2309,9 @@ public class SitesResourceTest {
     assertTrue(
         putVirtualBlock.contains("llms.txt fixture"),
         "updateVirtualProperties OpenAPI description must mention llms-txt local fixture only");
+    assertTrue(
+        putVirtualBlock.contains("OpenAPI 3 YAML fixture"),
+        "updateVirtualProperties OpenAPI description must mention openapi-yaml local fixture only");
     assertTrue(
         putVirtualBlock.contains("local/loopback"),
         "updateVirtualProperties OpenAPI description must mention rss-atom local/loopback only");
