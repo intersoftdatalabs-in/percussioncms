@@ -56,13 +56,13 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * only — no live HTTP fetch).
  * REST
  * {@code POST …/virtual/build} runs {@code http-json}, {@code object-storage}, {@code
- * rss-atom}, {@code icalendar}, {@code sitemap-xml}, and {@code robots-txt} through the existing {@code
+ * rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, and {@code llms-txt} through the existing {@code
  * IPSVirtualSiteSource} factory (local fixture / loopback JSON; local object-key bucket; local
  * RSS/Atom fixture; local RFC 5545 {@code calendar.ics}; local {@code sitemap.xml} urlset; local
- * {@code robots.txt}). REST {@code GET …/virtual/preview}
+ * {@code robots.txt}; local {@code llms.txt}). REST {@code GET …/virtual/preview}
  * streams last-build HTML for {@code object-storage}, {@code rss-atom}, {@code icalendar},
- * {@code sitemap-xml}, and {@code robots-txt} after a successful assemble (missing build is {@code available=false},
- * HTTP 200; {@code sitemap-xml} and {@code robots-txt} are last-build local HTML only — no live crawl). REST {@code POST
+ * {@code sitemap-xml}, {@code robots-txt}, and {@code llms-txt} after a successful assemble (missing build is {@code available=false},
+ * HTTP 200; {@code sitemap-xml}, {@code robots-txt}, and {@code llms-txt} are last-build local HTML only — no live crawl or HTTP fetch). REST {@code POST
  * …/virtual/publish} copies last-build HTML to {@code IPSSite.root} for git, CSV, SQL, {@code
  * http-json}, {@code object-storage} (local object-key fixture; leftover {@code virtual.remoteUrl}
  * is 400), {@code rss-atom} (local RSS/Atom fixture; leftover {@code virtual.remoteUrl} and
@@ -98,10 +98,10 @@ public class VirtualSiteProperties {
               + " cloud URL rootPath return 400; no live crawl; preview is last-build local HTML only)."
               + " robots-txt persist/build/preview is a local robots.txt fixture only (portable-safe"
               + " rootPath; leftover remoteUrl, credentials, and cloud URL rootPath return 400; no live"
-              + " crawl; preview is last-build local HTML only). llms-txt persist is a local llms.txt"
+              + " crawl; preview is last-build local HTML only). llms-txt persist/build/preview is a local llms.txt"
               + " fixture only (portable-safe rootPath; leftover remoteUrl, credentials, and cloud URL"
-              + " rootPath return 400; no live HTTP fetch). REST Build/Preview/Publish for llms-txt stay"
-              + " later slices."
+              + " rootPath return 400; no live HTTP fetch; preview is last-build local HTML only). REST Publish"
+              + " for llms-txt stays a later slice."
               + " Blank or repository = traditional Site.",
       example = "git-filesystem")
   private String sourceKind;

@@ -108,7 +108,8 @@ public interface ISiteAdaptor {
   /**
    * Builds a Virtual Site from configured {@code virtual.*} properties ({@code git-filesystem},
    * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage},
-   * {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}, or {@code robots-txt}).
+   * {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, or {@code
+   * llms-txt}).
    *
    * <p>Loads the site, validates via {@code PSVirtualSiteHelper}, optionally clones/fetches {@code
    * virtual.remoteUrl} into a contained work directory (git-filesystem only), runs {@code
@@ -130,7 +131,10 @@ public interface ISiteAdaptor {
    * rootPath}) — no live crawl; leftover {@code virtual.remoteUrl}, credential properties, and
    * cloud {@code rootPath} are 400. {@code robots-txt} discovers pages from a local {@code
    * robots.txt} fixture ({@code robots.txt} or {@code robots.file}) — no live crawl; leftover
-   * {@code virtual.remoteUrl}, credential properties, and cloud {@code rootPath} are 400. Unknown
+   * {@code virtual.remoteUrl}, credential properties, and cloud {@code rootPath} are 400. {@code
+   * llms-txt} discovers pages from a local {@code llms.txt} fixture ({@code llms.txt} or {@code
+   * llms.file}) — no live HTTP fetch; leftover {@code virtual.remoteUrl}, credential properties,
+   * and cloud {@code rootPath} are 400. Unknown
    * source kinds return 400. Requires Admin (or equivalent site-manage) authorization.
    *
    * @param nameOrId site name or GUID string, not blank
@@ -146,12 +150,14 @@ public interface ISiteAdaptor {
    *
    * <p>Last-output based: {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
    * {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, {@code
-   * sitemap-xml}, and {@code robots-txt} sites are previewable after a successful assemble. {@code
-   * rss-atom} uses a local RSS 2.0 / Atom fixture or loopback feed (no live remote feeds). {@code
-   * icalendar} uses a local RFC 5545 {@code calendar.ics} fixture (no CalDAV). {@code sitemap-xml}
-   * uses a local {@code sitemap.xml} fixture (no live crawl). {@code robots-txt} uses a local
-   * {@code robots.txt} fixture (no live crawl). Leftover {@code virtual.remoteUrl} and credential
-   * properties on {@code sitemap-xml} and {@code robots-txt} are 400. Missing output is {@code
+   * sitemap-xml}, {@code robots-txt}, and {@code llms-txt} sites are previewable after a successful
+   * assemble. {@code rss-atom} uses a local RSS 2.0 / Atom fixture or loopback feed (no live remote
+   * feeds). {@code icalendar} uses a local RFC 5545 {@code calendar.ics} fixture (no CalDAV). {@code
+   * sitemap-xml} uses a local {@code sitemap.xml} fixture (no live crawl). {@code robots-txt} uses a
+   * local {@code robots.txt} fixture (no live crawl). {@code llms-txt} uses a local {@code
+   * llms.txt} fixture (no live HTTP fetch). Leftover {@code virtual.remoteUrl} and credential
+   * properties on {@code sitemap-xml}, {@code robots-txt}, and {@code llms-txt} are 400. Missing
+   * output is {@code
    * available=false} with a message (not a 500). Repository and unknown source kinds are 400.
    * Requires Admin.
    *
@@ -167,7 +173,8 @@ public interface ISiteAdaptor {
    *
    * <p>Same last-output contract as {@link #getVirtualSitePreviewStatus} for {@code git-filesystem},
    * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage},
-   * {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}, and {@code robots-txt}.
+   * {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, and {@code
+   * llms-txt}.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param relativePath path under the output root ({@code 8.2/index.html}); blank means assembled
