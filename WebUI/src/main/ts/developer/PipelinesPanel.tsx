@@ -27,6 +27,12 @@ import { PipelineDetailPanel } from "./PipelineDetailPanel";
 /**
  * P0.6 / P0.6b — classic XML Application catalog + read-only detail.
  */
+
+/** Keep a loaded catalog when a later list GET fails (#4384). */
+export function retainCatalogOnListError<T>(prev: T[] | null): T[] {
+  return prev ?? [];
+}
+
 export function PipelinesPanel(): React.ReactElement {
   const [items, setItems] = useState<ApplicationSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +47,8 @@ export function PipelinesPanel(): React.ReactElement {
       .catch((e: unknown) => {
         if (cancelled) return;
         setError(panelErrMsg(e, DEV_MSG.PIPE_ERROR));
-        setItems([]);
+        // Keep a previously loaded catalog (#4384) instead of wiping to empty.
+        setItems((prev) => retainCatalogOnListError(prev));
       });
     return () => {
       cancelled = true;
@@ -61,7 +68,7 @@ export function PipelinesPanel(): React.ReactElement {
     );
   }
 
-  if (error)
+  if (error && (items == null || items.length === 0))
     return (
       <CatalogStatus testId="developer-pipe-error" error>
         {error}

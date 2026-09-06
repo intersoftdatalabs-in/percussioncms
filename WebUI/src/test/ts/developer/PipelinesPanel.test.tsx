@@ -12,7 +12,10 @@ import {
   listApplications,
 } from "../../../main/ts/api/developer/pipelinesApi";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
-import { PipelinesPanel } from "../../../main/ts/developer/PipelinesPanel";
+import {
+  PipelinesPanel,
+  retainCatalogOnListError,
+} from "../../../main/ts/developer/PipelinesPanel";
 
 vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   listApplications: vi.fn(),
@@ -179,6 +182,12 @@ describe("PipelinesPanel", () => {
       `${DEV_MSG.PIPE_ERROR} network down`,
     );
     expect(screen.queryByTestId("developer-pipe-table")).toBeNull();
+  });
+
+  it("retainCatalogOnListError keeps rows instead of wiping to empty (#4384)", () => {
+    const prev = [{ id: 1, name: "sys_cmpDocuments" }];
+    expect(retainCatalogOnListError(prev)).toEqual(prev);
+    expect(retainCatalogOnListError(null)).toEqual([]);
   });
 
   it("shows fallback when rejection has no message", async () => {
