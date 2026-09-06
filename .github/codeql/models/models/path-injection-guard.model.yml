@@ -213,6 +213,17 @@ extensions:
           "path-injection",
           "manual",
         ]
+      - [
+          "com.percussion.design.objectstore.server",
+          "PSServerXmlObjectStore",
+          false,
+          "requireFileUnderRxDir",
+          "(File)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
       # Object-store application XML + lock-stream files (CodeQL #2002/#1920/#1921).
       - [
           "com.percussion.design.objectstore.server",
@@ -242,6 +253,41 @@ extensions:
           false,
           "getApplicationFile",
           "(String)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      # Package config files under RxDir (CodeQL #2039–#2044).
+      - [
+          "com.percussion.rx.config.impl",
+          "PSConfigService",
+          false,
+          "getConfigFile",
+          "(com.percussion.rx.config.IPSConfigService$ConfigTypes,String)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.rx.config.impl",
+          "PSConfigService",
+          false,
+          "requireConfigFileUnderRxDir",
+          "(File)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      # IOTools contained file read (CodeQL #2045).
+      - [
+          "com.percussion.util",
+          "IOTools",
+          false,
+          "getFileContentUnderBase",
+          "(File,File)",
           "",
           "ReturnValue",
           "path-injection",

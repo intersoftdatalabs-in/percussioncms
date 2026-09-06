@@ -28,6 +28,7 @@ import com.percussion.rx.config.PSConfigValidation;
 import com.percussion.rx.config.data.PSConfigStatus;
 import com.percussion.rx.config.data.PSConfigStatus.ConfigStatus;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.server.PSServer;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.util.IOTools;
@@ -161,7 +162,9 @@ public class PSConfigService implements IPSConfigService {
     var lcFile = getConfigFile(ConfigTypes.LOCAL_CONFIG, cfgName);
     var dcFile = getConfigFile(ConfigTypes.DEFAULT_CONFIG, cfgName);
     var cdFile = getConfigFile(ConfigTypes.CONFIG_DEF, cfgName);
-    return lcFile.exists() && dcFile.exists() && cdFile.exists();
+    return lcFile.exists() // codeql[java/path-injection]
+        && dcFile.exists() // codeql[java/path-injection]
+        && cdFile.exists(); // codeql[java/path-injection]
   }
 
   /**
@@ -173,13 +176,14 @@ public class PSConfigService implements IPSConfigService {
    */
   public void applyLocalConfiguration(File localConfigFile, boolean changesOnly) {
     Objects.requireNonNull(localConfigFile, "file must not be null");
+    var safeLocal = requireConfigFileUnderRxDir(localConfigFile);
 
-    var fileName = localConfigFile.getName();
+    var fileName = safeLocal.getName();
     var configName = fileName.substring(0, fileName.indexOf(LOCAL_CONFIG_FILE_SUFFIX));
     var prevCfg = getLastSuccessConfig(configName);
     var prevProps = prevCfg != null ? prevCfg.getSecond() : new HashMap<String, Object>();
 
-    applyLocalConfiguration(localConfigFile, prevProps, changesOnly);
+    applyLocalConfiguration(safeLocal, prevProps, changesOnly);
   }
 
   /**
@@ -195,16 +199,17 @@ public class PSConfigService implements IPSConfigService {
       File localConfigFile, Map<String, Object> prevProps, boolean changesOnly) {
     Objects.requireNonNull(localConfigFile, "file must not be null");
     Objects.requireNonNull(prevProps, "Previous properties must not be null");
+    var safeLocal = requireConfigFileUnderRxDir(localConfigFile);
 
-    var fileName = localConfigFile.getName();
+    var fileName = safeLocal.getName();
     var configName = fileName.substring(0, fileName.indexOf(LOCAL_CONFIG_FILE_SUFFIX));
     var status = ConfigStatus.FAILURE;
 
     try (var defConfIs =
-        new FileInputStream(getConfigFile(ConfigTypes.DEFAULT_CONFIG, configName))) {
+        new FileInputStream(getConfigFile(ConfigTypes.DEFAULT_CONFIG, configName))) { // codeql[java/path-injection]
       var normalizer = new PSConfigNormalizer();
       var defaultProps = normalizer.getNormalizedMap(defConfIs);
-      var newProps = getNewProps(localConfigFile, defaultProps);
+      var newProps = getNewProps(safeLocal, defaultProps);
       Map<String, Object> propsToProcess;
       if (changesOnly) {
         var df = new PSConfigDeltaFinder();
@@ -272,9 +277,11 @@ public class PSConfigService implements IPSConfigService {
     var localFile = getConfigFile(ConfigTypes.LOCAL_CONFIG, cfgName);
     var cfgDefFile = getConfigFile(ConfigTypes.CONFIG_DEF, cfgName);
 
-    try (var defIS = new FileInputStream(defaultFile)) {
-      try (var localIS = new FileInputStream(localFile)) {
-        if (!(defaultFile.exists() && localFile.exists() && cfgDefFile.exists()))
+    try (var defIS = new FileInputStream(defaultFile)) { // codeql[java/path-injection]
+      try (var localIS = new FileInputStream(localFile)) { // codeql[java/path-injection]
+        if (!(defaultFile.exists() // codeql[java/path-injection]
+            && localFile.exists() // codeql[java/path-injection]
+            && cfgDefFile.exists())) // codeql[java/path-injection]
           return Collections.emptyList();
 
         var normalizer = new PSConfigNormalizer();
@@ -482,7 +489,8 @@ public class PSConfigService implements IPSConfigService {
   }
 
   private Map<String, Object> getNewProps(File localConfigFile, Map<String, Object> defaultProps) {
-    try (var locConfigIs = new FileInputStream(localConfigFile)) {
+    var safeLocal = requireConfigFileUnderRxDir(localConfigFile);
+    try (var locConfigIs = new FileInputStream(safeLocal)) { // codeql[java/path-injection]
       var normalizer = new PSConfigNormalizer();
       var localProps = normalizer.getNormalizedMap(locConfigIs);
       return applyDefaultProps(localProps, defaultProps);
@@ -540,7 +548,7 @@ public class PSConfigService implements IPSConfigService {
   private String getConfigContent(ConfigTypes type, String pkgName) {
     var file = getConfigFile(type, pkgName);
     var configuration = "";
-    if (file.exists()) {
+    if (file.exists()) { // codeql[java/path-injection]
       try {
         configuration = IOTools.getFileContent(file);
       } catch (Exception e) {
@@ -566,6 +574,7 @@ public class PSConfigService implements IPSConfigService {
     Objects.requireNonNull(type, "type cannot be null.");
     if (StringUtils.isBlank(packageName))
       throw new IllegalArgumentException("packageName cannot be null or empty.");
+    PSPathInjectionGuard.requireSafeFileName(packageName);
 
     var sb = new StringBuilder();
     var postfix = "";
@@ -587,7 +596,16 @@ public class PSConfigService implements IPSConfigService {
     sb.append(postfix);
     sb.append(".xml");
 
-    return new File(PSServer.getRxDir(), sb.toString());
+    return requireConfigFileUnderRxDir(new File(PSServer.getRxDir(), sb.toString()));
+  }
+
+  /**
+   * Contains {@code file} under the server Rx directory (CodeQL {@code java/path-injection}
+   * #2039–#2044).
+   */
+  static File requireConfigFileUnderRxDir(File file) {
+    Objects.requireNonNull(file, "file must not be null");
+    return PSPathInjectionGuard.requireUnderBase(PSServer.getRxDir(), file.getPath());
   }
 
   /**

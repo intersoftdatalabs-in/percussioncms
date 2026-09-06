@@ -709,11 +709,11 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     // If this app file is flagged as a folder then just check for existance
     // and create the directory if it does not exist.
     if (isFolder) {
-      File appFolder = new File(appDir, path);
-      if (appFolder.exists() && appDir.isDirectory()) {
+      File appFolder = requireFileUnderRxDir(new File(appDir, path));
+      if (appFolder.exists() && appDir.isDirectory()) { // codeql[java/path-injection]
         return true;
       } else {
-        appFolder.mkdirs();
+        appFolder.mkdirs(); // codeql[java/path-injection]
         return false;
       }
     }
@@ -725,10 +725,10 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
       throw new PSNotFoundException(ObjectStoreErrorCodes.APP_DIR_NOT_FOUND.numericCode(), args);
     }
 
-    File appFileName = new File(appDir, path);
+    File appFileName = requireFileUnderRxDir(new File(appDir, path));
     boolean exists = false;
-    if (appFileName.exists()) {
-      if (!appFileName.isFile()) {
+    if (appFileName.exists()) { // codeql[java/path-injection]
+      if (!appFileName.isFile()) { // codeql[java/path-injection]
         Object[] args = {appName, appFileName.getPath()};
         throw new PSNotFoundException(ObjectStoreErrorCodes.APP_FILE_NOT_FOUND.numericCode(), args);
       }
@@ -738,7 +738,8 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
       // directory, so create all necessary subdirectories
       File parentDir = appFileName.getParentFile();
       if (parentDir != null) {
-        if ((!parentDir.exists() && !parentDir.mkdirs()) || !parentDir.isDirectory()) {
+        if ((!parentDir.exists() && !parentDir.mkdirs()) // codeql[java/path-injection]
+            || !parentDir.isDirectory()) { // codeql[java/path-injection]
           Object[] args = {appName, appFileName.getPath()};
           throw new PSServerException(ObjectStoreErrorCodes.APP_FILE_MKSUBDIR_ERROR.numericCode(), args);
         }
@@ -830,11 +831,11 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     // If this app file is flagged as a folder then just check for existance
     // and create the directory if it does not exist.
     if (isFolder) {
-      File appFolder = new File(appDir, path);
-      if (appFolder.exists() && appDir.isDirectory()) {
+      File appFolder = requireFileUnderRxDir(new File(appDir, path));
+      if (appFolder.exists() && appDir.isDirectory()) { // codeql[java/path-injection]
         return true;
       } else {
-        appFolder.mkdirs();
+        appFolder.mkdirs(); // codeql[java/path-injection]
         return false;
       }
     }
@@ -846,10 +847,10 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
       throw new PSNotFoundException(ObjectStoreErrorCodes.APP_DIR_NOT_FOUND.numericCode(), args);
     }
 
-    File appFileName = new File(appDir, path);
+    File appFileName = requireFileUnderRxDir(new File(appDir, path));
     boolean exists = false;
-    if (appFileName.exists()) {
-      if (!appFileName.isFile()) {
+    if (appFileName.exists()) { // codeql[java/path-injection]
+      if (!appFileName.isFile()) { // codeql[java/path-injection]
         Object[] args = {appName, appFileName.getPath()};
         throw new PSNotFoundException(ObjectStoreErrorCodes.APP_FILE_NOT_FOUND.numericCode(), args);
       }
@@ -859,7 +860,8 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
       // directory, so create all necessary subdirectories
       File parentDir = appFileName.getParentFile();
       if (parentDir != null) {
-        if ((!parentDir.exists() && !parentDir.mkdirs()) || !parentDir.isDirectory()) {
+        if ((!parentDir.exists() && !parentDir.mkdirs()) // codeql[java/path-injection]
+            || !parentDir.isDirectory()) { // codeql[java/path-injection]
           Object[] args = {appName, appFileName.getPath()};
           throw new PSServerException(ObjectStoreErrorCodes.APP_FILE_MKSUBDIR_ERROR.numericCode(), args);
         }
@@ -3275,6 +3277,17 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
       return PSServer.getRxDir();
     }
     return PSPathInjectionGuard.requireUnderBase(PSServer.getRxDir(), appRoot);
+  }
+
+  /**
+   * Contains {@code file} under the server Rx directory (CodeQL {@code java/path-injection}
+   * #2046–#2050).
+   */
+  static File requireFileUnderRxDir(File file) {
+    if (file == null) {
+      throw new IllegalArgumentException("file may not be null");
+    }
+    return PSPathInjectionGuard.requireUnderBase(PSServer.getRxDir(), file.getPath());
   }
 
   private static final String XML_FILE_EXTENSION = ".xml";
