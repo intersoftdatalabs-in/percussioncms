@@ -31,7 +31,7 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
  * POST /virtual/build (SQL JDBC, HTTP JSON catalog, object-storage keys,
  * rss-atom feeds, icalendar .ics, sitemap.xml, and robots.txt stay in
  * _config.yaml / the local root). robots-txt Build is shown so operators can
- * produce last-build HTML for Preview. Publish stays hidden (later slice).
+ * produce last-build HTML for Preview and Publish.
  * Repository / blank / unknown kinds must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
@@ -78,10 +78,10 @@ export function shouldShowVirtualPreviewChrome(
 /**
  * True when the Publish Virtual Site control should be shown.
  * Git-filesystem, csv-filesystem, sql-database, http-json, object-storage,
- * rss-atom, icalendar, and sitemap-xml all run POST /virtual/publish (build
- * then copy last-build HTML to IPSSite.root). sitemap-xml leftover remoteUrl
- * and credentials fail closed on the server. Repository / blank / unknown
- * kinds stay hidden.
+ * rss-atom, icalendar, sitemap-xml, and robots-txt all run POST /virtual/publish
+ * (build then copy last-build HTML to IPSSite.root). sitemap-xml and robots-txt
+ * leftover remoteUrl, credentials, and cloud rootPath fail closed on the server.
+ * Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPublishChrome(
   sourceKind: string | null | undefined,
@@ -95,7 +95,8 @@ export function shouldShowVirtualPublishChrome(
     v === "object-storage" ||
     v === "rss-atom" ||
     v === "icalendar" ||
-    v === "sitemap-xml"
+    v === "sitemap-xml" ||
+    v === "robots-txt"
   );
 }
 

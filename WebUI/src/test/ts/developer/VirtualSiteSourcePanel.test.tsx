@@ -1144,7 +1144,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
-  it("loads robots-txt values with root path and shows Build/Preview chrome (Publish hidden)", async () => {
+  it("loads robots-txt values with root path and shows Build/Preview/Publish chrome", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "robots-txt",
       rootPath: "C:/robots-txt-docs",
@@ -1168,7 +1168,7 @@ describe("VirtualSiteSourcePanel", () => {
       "then Build Virtual Site",
     );
     expect(screen.getByTestId("developer-site-virtual-robots-txt-hint").textContent).toContain(
-      "later slice",
+      "Publish Virtual Site",
     );
     expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
@@ -1176,7 +1176,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
@@ -1237,7 +1237,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
@@ -2129,7 +2129,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(open.mock.calls[0][1]).toBe("_blank");
   });
 
-  it("shows Preview chrome for robots-txt and opens last-build home (Publish hidden)", async () => {
+  it("shows Preview chrome for robots-txt and opens last-build home (Publish shown)", async () => {
     const open = vi.fn();
     window.open = open;
     getVirtual.mockResolvedValue({
@@ -2155,7 +2155,7 @@ describe("VirtualSiteSourcePanel", () => {
       "Robots.txt",
     );
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
     await waitFor(() => {
       expect(open).toHaveBeenCalled();
@@ -2356,6 +2356,47 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-publish-files").textContent).toBe("3");
     expect(screen.getByTestId("developer-site-virtual-publish-dest").textContent).toContain(
       "sitemap-xml-help",
+    );
+  });
+
+  it("shows Publish chrome for robots-txt and success dest path", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "robots-txt",
+      rootPath: "C:/robots-txt-docs",
+      virtual: true,
+    });
+    publishVirtual.mockResolvedValue({
+      siteName: "RobotsHelp",
+      publishPath: "C:/inetpub/wwwroot/robots-txt-help",
+      filesCopied: 3,
+      pagesWritten: 1,
+      hasLinkProblems: false,
+    });
+    render(<VirtualSiteSourcePanel siteName="RobotsHelp" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-robots-txt-hint").textContent).toContain(
+      "Publish Virtual Site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-publish-hint").textContent).toContain(
+      "Robots.txt",
+    );
+    const savedBodyHint = screen.getByTestId("developer-site-virtual-robots-txt-hint").textContent;
+    expect(savedBodyHint).not.toMatch(/authorization|api[_-]?key|crawl credential|password/i);
+    fireEvent.click(screen.getByTestId("developer-site-virtual-publish"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish-result")).toBeTruthy();
+    });
+    expect(publishVirtual).toHaveBeenCalledWith("RobotsHelp");
+    expect(screen.getByTestId("developer-site-virtual-publish-success").textContent).toContain(
+      DEV_MSG.SITE_VIRT_PUBLISH_SUCCESS,
+    );
+    expect(screen.getByTestId("developer-site-virtual-publish-files").textContent).toBe("3");
+    expect(screen.getByTestId("developer-site-virtual-publish-dest").textContent).toContain(
+      "robots-txt-help",
     );
   });
 
