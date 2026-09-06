@@ -1,7 +1,7 @@
 ---
 id: admin-developer-pipelines
 title: Developer Pipelines
-description: Browse classic XML Applications, Admin start/stop, pipe IR, HTTP datasource Test invoke, and Problems from Developer Pipelines chrome
+description: Browse classic XML Applications, Admin start/stop, pipe IR, OpenAPI from resources, HTTP datasource Test invoke, and Problems from Developer Pipelines chrome
 version: "8.2"
 order: 51
 tags: [admin, developer, pipelines]
@@ -27,6 +27,11 @@ file exists under `ObjectStore/pipeline-ir/`, that document is shown (`source`
 `NATIVE`). Otherwise the server imports the classic application into IR **in
 memory** (`source` `CLASSIC_IMPORT`) until an Admin **saves an HTTP backend
 tank**, which writes native IR without rewriting classic XML Applications.
+
+The **OpenAPI** section calls `GET /services/pipelines/{idOrName}/openapi`
+(default YAML; JSON via `format=json`) and lets operators **view** or
+**download** an OpenAPI 3 document generated from the application's IR
+resources. It does not publish to an external registry.
 
 **Admins** also get **HTTP datasource**, **Test invoke**, and **Problems** on the
 same detail page:
@@ -77,6 +82,19 @@ If IR cannot be loaded (for example **404** for an unknown app or missing IR),
 the catalog detail still renders and the Pipe IR section shows an error — the
 chrome does not echo the raw path name in that message.
 
+## Product path — view and download OpenAPI
+
+1. On the same application detail, scroll to **OpenAPI**.
+2. Confirm the document starts with OpenAPI 3 and includes at least one
+   `POST /pipelines/{app}/resources/{resource}/execute` path when the
+   application has IR resources.
+3. Optionally switch **YAML** / **JSON**, choose **View OpenAPI** to refresh, or
+   **Download** to save `{app}.openapi.yaml` (or `.json`).
+4. Hidden applications cannot be documented via this API (**400**). Unknown
+   applications are **404**. Error chrome does not echo the raw path name.
+
+Integrator notes: [REST API — Pipelines](id:developer-rest).
+
 ## Product path — HTTP datasource and Test invoke
 
 1. As **Admin**, open an application detail page.
@@ -124,6 +142,8 @@ chrome does not echo the raw path name in that message.
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-test-invoke.spec.js`.
 - Surface-filtered Playwright for HTTP datasource save + Test invoke lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-http-execute.spec.js`.
+- Surface-filtered Playwright for OpenAPI view/download lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-openapi.spec.js`.
 
 ## REST
 
@@ -136,6 +156,7 @@ The chrome calls:
 | Start | `POST /services/pipelines/{idOrName}/start` (**Admin**) |
 | Stop | `POST /services/pipelines/{idOrName}/stop` (**Admin**) |
 | Pipe IR | `GET /services/pipelines/{idOrName}/ir` |
+| OpenAPI | `GET /services/pipelines/{idOrName}/openapi` (`format=yaml` default, or `json`) |
 | HTTP tank | `PUT /services/pipelines/{app}/resources/{resource}/backendTank` (**Admin**) |
 | Test invoke | `POST /services/pipelines/{app}/resources/{resource}/execute` |
 | Problems | `GET /services/pipelines/{idOrName}/validation` (**Admin**; soft-empty if absent) |

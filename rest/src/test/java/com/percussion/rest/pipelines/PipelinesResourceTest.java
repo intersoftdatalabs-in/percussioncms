@@ -18,9 +18,11 @@
 package com.percussion.rest.pipelines;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -33,6 +35,8 @@ import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -430,5 +434,94 @@ public class PipelinesResourceTest {
         assertThrows(WebApplicationException.class, () -> resource.getValidation("sys_foo"));
     assertEquals(500, ex.getResponse().getStatus());
     assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void getOpenApiReturnsYamlByDefault() {
+    Map<String, Object> spec = sampleOpenApiSpec();
+    when(adaptor.getOpenApi(any(), eq("sys_foo"))).thenReturn(spec);
+
+    Response out = resource.getOpenApi("sys_foo", "yaml");
+    assertEquals(200, out.getStatus());
+    assertTrue(
+        String.valueOf(out.getMediaType()).contains("yaml"),
+        () -> "expected yaml media type, got " + out.getMediaType());
+    String yaml = String.valueOf(out.getEntity());
+    assertTrue(yaml.contains("openapi:"));
+    assertTrue(yaml.contains("/pipelines/sys_foo/resources/DatasetQ/execute"));
+    verify(adaptor).getOpenApi(any(), eq("sys_foo"));
+  }
+
+  @Test
+  public void getOpenApiReturnsJsonMap() {
+    Map<String, Object> spec = sampleOpenApiSpec();
+    when(adaptor.getOpenApi(any(), eq("sys_foo"))).thenReturn(spec);
+
+    Response out = resource.getOpenApi("sys_foo", "json");
+    assertEquals(200, out.getStatus());
+    assertEquals(MediaType.APPLICATION_JSON_TYPE, out.getMediaType());
+    assertSame(spec, out.getEntity());
+  }
+
+  @Test
+  public void getOpenApiNotFound() {
+    when(adaptor.getOpenApi(any(), eq("missing"))).thenReturn(null);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getOpenApi("missing", "yaml"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Application not found", ex.getMessage());
+  }
+
+  @Test
+  public void getOpenApiInvalidFormatIs400WithoutEcho() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.getOpenApi("../evil", "xml"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("OpenAPI format must be yaml or json", ex.getMessage());
+    assertFalse(ex.getMessage().contains("../"));
+  }
+
+  @Test
+  public void getOpenApiRethrowsHiddenAs400() {
+    when(adaptor.getOpenApi(any(), eq("secret")))
+        .thenThrow(new WebApplicationException("Hidden applications cannot be documented", 400));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getOpenApi("secret", "yaml"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertFalse(ex.getMessage().contains("secret"));
+  }
+
+  @Test
+  public void getOpenApiWrapsUnexpectedFailuresAs500() {
+    IllegalStateException boom = new IllegalStateException("generator down");
+    when(adaptor.getOpenApi(any(), eq("sys_foo"))).thenThrow(boom);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getOpenApi("sys_foo", "yaml"));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void getOpenApiWithoutInjectionFailsWithDiagnostic() {
+    PipelinesResource bare = new PipelinesResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.getOpenApi("sys_foo", "yaml"));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertInstanceOf(IllegalStateException.class, ex.getCause());
+  }
+
+  private static Map<String, Object> sampleOpenApiSpec() {
+    PipelineIrDocument ir = new PipelineIrDocument();
+    ir.getApp().setName("sys_foo");
+    com.percussion.services.pipeline.model.PipelineResourceIr res =
+        new com.percussion.services.pipeline.model.PipelineResourceIr();
+    res.setName("DatasetQ");
+    res.setKind(com.percussion.services.pipeline.model.PipelineResourceIr.KIND_QUERY);
+    ir.getResources().add(res);
+    return PipelineOpenApiGenerator.toSpec(ir);
   }
 }

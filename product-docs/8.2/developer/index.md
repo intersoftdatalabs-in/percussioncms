@@ -73,7 +73,7 @@ order of the current Content Types catalog; not persisted as a CMS user
 preference):
 [Developer Object Sorter](id:admin-developer-object-sorter).
 
-Operators using **Developer → Pipelines** browse, Admin start/stop, and pipe IR chrome:
+Operators using **Developer → Pipelines** browse, Admin start/stop, pipe IR, and OpenAPI chrome:
 [Developer Pipelines](id:admin-developer-pipelines).
 
 Operators using **Developer → Application Files** browse/save chrome (XML

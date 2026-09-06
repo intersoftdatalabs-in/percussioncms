@@ -23,10 +23,13 @@ import {
   getApplicationDetail,
   getApplicationValidation,
   getPipelineIr,
+  getPipelineOpenApi,
+  openApiDownloadFilename,
   putHttpBackendTank,
   startApplication,
   stopApplication,
 } from "../api/developer/pipelinesApi";
+import type { PipelineOpenApiFormat } from "../api/developer/pipelinesApi";
 import type {
   ApplicationDetail,
   ApplicationValidationProblem,
@@ -440,6 +443,11 @@ export function PipelineDetailPanel({
   const [httpBusy, setHttpBusy] = useState(false);
   const [httpError, setHttpError] = useState<string | null>(null);
   const [httpNotice, setHttpNotice] = useState<string | null>(null);
+  const [openApiFormat, setOpenApiFormat] = useState<PipelineOpenApiFormat>("yaml");
+  const [openApiText, setOpenApiText] = useState<string | null>(null);
+  const [openApiError, setOpenApiError] = useState<string | null>(null);
+  const [openApiLoading, setOpenApiLoading] = useState(true);
+  const openApiInflight = useRef(false);
   const inflight = useRef(false);
   const invokeInflight = useRef(false);
   const httpInflight = useRef(false);
@@ -468,6 +476,11 @@ export function PipelineDetailPanel({
     setHttpBusy(false);
     setHttpError(null);
     setHttpNotice(null);
+    setOpenApiFormat("yaml");
+    setOpenApiText(null);
+    setOpenApiError(null);
+    setOpenApiLoading(true);
+    openApiInflight.current = false;
     inflight.current = false;
     invokeInflight.current = false;
     httpInflight.current = false;
@@ -515,6 +528,29 @@ export function PipelineDetailPanel({
   }, [idOrName]);
 
   useEffect(() => {
+    let cancelled = false;
+    setOpenApiText(null);
+    setOpenApiError(null);
+    setOpenApiLoading(true);
+    getPipelineOpenApi(idOrName, openApiFormat)
+      .then((text) => {
+        if (!cancelled) {
+          setOpenApiText(text);
+          setOpenApiLoading(false);
+        }
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          setOpenApiError(panelErrMsg(err, DEV_MSG.PIPE_OPENAPI_ERROR));
+          setOpenApiLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [idOrName, openApiFormat]);
+
+  useEffect(() => {
     if (!isAdmin || detail == null) {
       setProblems({ status: "idle" });
       return;
@@ -544,6 +580,41 @@ export function PipelineDetailPanel({
       cancelled = true;
     };
   }, [isAdmin, idOrName, detail]);
+
+  async function onViewOpenApi(): Promise<void> {
+    if (openApiInflight.current) return;
+    openApiInflight.current = true;
+    setOpenApiLoading(true);
+    setOpenApiError(null);
+    try {
+      const text = await getPipelineOpenApi(idOrName, openApiFormat);
+      if (!mountedRef.current) return;
+      setOpenApiText(text);
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setOpenApiError(panelErrMsg(err, DEV_MSG.PIPE_OPENAPI_ERROR));
+      setOpenApiText(null);
+    } finally {
+      openApiInflight.current = false;
+      if (mountedRef.current) setOpenApiLoading(false);
+    }
+  }
+
+  function onDownloadOpenApi(): void {
+    if (!openApiText) return;
+    const name = openApiDownloadFilename(detail?.name || idOrName, openApiFormat);
+    const mime = openApiFormat === "json" ? "application/json" : "application/yaml";
+    const blob = new Blob([openApiText], { type: `${mime};charset=utf-8` });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
 
   async function onStart(): Promise<void> {
     if (!detail || inflight.current || !canStart(detail)) return;
@@ -894,6 +965,70 @@ export function PipelineDetailPanel({
                   </div>
                 )}
               </>
+            ) : null}
+          </section>
+
+          <section style={{ marginBottom: "16px" }} data-testid="developer-pipe-openapi">
+            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.PIPE_OPENAPI}</h3>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+              {DEV_MSG.PIPE_OPENAPI_HINT}
+            </p>
+            <div style={toolbarStyle}>
+              <label htmlFor="developer-pipe-openapi-format" style={fieldLabel}>
+                {DEV_MSG.PIPE_OPENAPI}
+              </label>
+              <select
+                id="developer-pipe-openapi-format"
+                data-testid="developer-pipe-openapi-format"
+                value={openApiFormat}
+                onChange={(e) =>
+                  setOpenApiFormat(e.target.value === "json" ? "json" : "yaml")
+                }
+                disabled={openApiLoading}
+                style={{ ...textInput, maxWidth: "160px" }}
+              >
+                <option value="yaml">{DEV_MSG.PIPE_OPENAPI_FORMAT_YAML}</option>
+                <option value="json">{DEV_MSG.PIPE_OPENAPI_FORMAT_JSON}</option>
+              </select>
+              <button
+                type="button"
+                data-testid="developer-pipe-openapi-view"
+                aria-label={DEV_MSG.PIPE_OPENAPI_VIEW}
+                disabled={openApiLoading}
+                onClick={() => void onViewOpenApi()}
+                style={openApiLoading ? disabledPrimary : primaryButton}
+              >
+                {openApiLoading ? DEV_MSG.PIPE_OPENAPI_LOADING : DEV_MSG.PIPE_OPENAPI_VIEW}
+              </button>
+              <button
+                type="button"
+                data-testid="developer-pipe-openapi-download"
+                aria-label={DEV_MSG.PIPE_OPENAPI_DOWNLOAD}
+                disabled={openApiLoading || !openApiText}
+                onClick={() => onDownloadOpenApi()}
+                style={
+                  openApiLoading || !openApiText ? disabledSecondary : secondaryButton
+                }
+              >
+                {DEV_MSG.PIPE_OPENAPI_DOWNLOAD}
+              </button>
+            </div>
+            {openApiLoading ? (
+              <div data-testid="developer-pipe-openapi-loading">{DEV_MSG.PIPE_OPENAPI_LOADING}</div>
+            ) : null}
+            {openApiError ? (
+              <div
+                role="alert"
+                data-testid="developer-pipe-openapi-error"
+                style={errorAlert}
+              >
+                {openApiError}
+              </div>
+            ) : null}
+            {!openApiLoading && !openApiError && openApiText ? (
+              <pre data-testid="developer-pipe-openapi-doc" style={resultPre}>
+                {openApiText}
+              </pre>
             ) : null}
           </section>
 

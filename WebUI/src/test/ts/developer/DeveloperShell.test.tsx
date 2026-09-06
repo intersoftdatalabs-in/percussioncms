@@ -449,6 +449,8 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
     source: "NATIVE",
     resources: [],
   }),
+  getPipelineOpenApi: vi.fn().mockResolvedValue('openapi: "3.0.3"\npaths: {}\n'),
+  openApiDownloadFilename: (app: string) => `${app}.openapi.yaml`,
   executeResource: vi.fn(),
   putHttpBackendTank: vi.fn(),
   getApplicationValidation: vi.fn().mockRejectedValue({

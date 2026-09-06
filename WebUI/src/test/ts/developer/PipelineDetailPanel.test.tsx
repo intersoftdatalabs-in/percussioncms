@@ -19,6 +19,9 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   executeResource: vi.fn(),
   getApplicationValidation: vi.fn(),
   getPipelineIr: vi.fn(),
+  getPipelineOpenApi: vi.fn(),
+  openApiDownloadFilename: (app: string, format = "yaml") =>
+    `${app}.openapi.${format === "json" ? "json" : "yaml"}`,
   putHttpBackendTank: vi.fn(),
 }));
 
@@ -30,6 +33,7 @@ const getApplicationValidation = pipelinesApi.getApplicationValidation as Return
   typeof vi.fn
 >;
 const getPipelineIr = pipelinesApi.getPipelineIr as ReturnType<typeof vi.fn>;
+const getPipelineOpenApi = pipelinesApi.getPipelineOpenApi as ReturnType<typeof vi.fn>;
 const putHttpBackendTank = pipelinesApi.putHttpBackendTank as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
@@ -82,8 +86,12 @@ describe("PipelineDetailPanel", () => {
     executeResource.mockReset();
     getApplicationValidation.mockReset();
     getPipelineIr.mockReset();
+    getPipelineOpenApi.mockReset();
     putHttpBackendTank.mockReset();
     getPipelineIr.mockResolvedValue({ irVersion: "1.0", source: "NATIVE", resources: [] });
+    getPipelineOpenApi.mockResolvedValue(
+      'openapi: "3.0.3"\npaths:\n  /pipelines/sys_cmpDocuments/resources/contenteditor/execute:\n',
+    );
     putHttpBackendTank.mockResolvedValue({
       adapterType: "HTTP",
       url: "http://127.0.0.1/pipeline-http-fixture",
@@ -591,6 +599,70 @@ describe("PipelineDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-pipe-problems-empty").textContent).toBe(
       DEV_MSG.PIPE_PROBLEMS_EMPTY,
+    );
+  });
+
+  it("views OpenAPI YAML documenting a resource path", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-openapi-doc")).toBeTruthy();
+    });
+    expect(getPipelineOpenApi).toHaveBeenCalledWith("sys_cmpDocuments", "yaml");
+    expect(screen.getByTestId("developer-pipe-openapi-doc").textContent).toContain(
+      "openapi:",
+    );
+    expect(screen.getByTestId("developer-pipe-openapi-doc").textContent).toContain(
+      "/pipelines/sys_cmpDocuments/resources/contenteditor/execute",
+    );
+    fireEvent.click(screen.getByTestId("developer-pipe-openapi-view"));
+    await waitFor(() => {
+      expect(getPipelineOpenApi.mock.calls.length).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  it("downloads OpenAPI with a safe filename", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-openapi-download")).toBeTruthy();
+    });
+    const createObjectURL = vi.fn(() => "blob:openapi");
+    const revoke = vi.fn();
+    URL.createObjectURL = createObjectURL;
+    URL.revokeObjectURL = revoke;
+    const click = vi.fn();
+    const realCreate = document.createElement.bind(document);
+    const createSpy = vi.spyOn(document, "createElement").mockImplementation((tag: string) => {
+      const el = realCreate(tag);
+      if (tag === "a") {
+        el.click = click;
+      }
+      return el;
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-openapi-download"));
+    expect(createObjectURL).toHaveBeenCalled();
+    expect(click).toHaveBeenCalled();
+    expect(revoke).toHaveBeenCalled();
+    createSpy.mockRestore();
+  });
+
+  it("shows OpenAPI error without echoing the path id", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    getPipelineOpenApi.mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: { message: "Application not found" },
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-openapi-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-pipe-openapi-error").textContent).toContain(
+      "Application not found",
+    );
+    expect(screen.getByTestId("developer-pipe-openapi-error").textContent).not.toContain(
+      "../",
     );
   });
 });
