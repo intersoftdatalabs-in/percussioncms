@@ -6,7 +6,7 @@
  *
  ******************************************************************************/
 
-import com.percussion.server.IPSHttpErrors;
+import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
 import com.percussion.test.http.HttpRequest;
 import com.percussion.test.io.IOTools;
 import com.percussion.util.PSBase64Encoder;
@@ -287,8 +287,8 @@ public class HttpItemCopier
             req.sendRequest();
             int resp = req.getResponseCode();
 
-            // we are expecting a redirect as a sign of success
-            if (resp != IPSHttpErrors.HTTP_MOVED_TEMPORARILY)
+            // we are expecting a redirect as a sign of success (HTTP 302)
+            if (resp != HttpErrorCodes.HTTP_MOVED_TEMPORARILY.numericCode())
             {
                 result = "An error occurred after creating " + i + " copies: \n";
 

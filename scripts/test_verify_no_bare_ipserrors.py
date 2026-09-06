@@ -44,9 +44,9 @@ DEPLOYER_JEXL_CONVERTED = (
 # leftover call-sites in #4013; leftover system/server command/cache/actions/
 # clone/compare/config in #4153; leftover relationship.effect call-sites in
 # #4156.
-# Keep an exact residual that is still frozen (Testing Extensions converted in
-# #4337; Tools/RxFix converted in #4339; HttpItemCopier leftover remains).
-SYSTEM_CMS_RESIDUAL = "system/Testing/cms/HttpItemCopier.java"
+# Last production residual converted in #4338 (Testing Extensions #4337,
+# Tools/RxFix #4339, Testing/cms HttpItemCopier #4338). Allow-list is empty.
+HTTPITEMCOPIER_CONVERTED = "system/Testing/cms/HttpItemCopier.java"
 
 
 def _run(*args: str, cwd: Path | None = None) -> subprocess.CompletedProcess:
@@ -126,7 +126,7 @@ def test_list_allowlist_exits_zero() -> None:
     assert "#3585" in combined
     combined_posix = combined.replace("\\", "/")
     assert SERVLETUTILS_CONVERTED.replace("\\", "/") not in combined_posix
-    assert SYSTEM_CMS_RESIDUAL.replace("\\", "/") in combined_posix
+    assert HTTPITEMCOPIER_CONVERTED.replace("\\", "/") not in combined_posix
     assert DEPLOYER_JEXL_CONVERTED.replace("\\", "/") not in combined_posix
     # Prefix freeze: printed residuals are files, not directory wildcards, and an
     # unlisted probe under the same tree is not advertised as covered.
@@ -394,10 +394,11 @@ def test_residual_allowlist_is_exact_paths_only() -> None:
         for ln in text.splitlines()
         if ln.strip() and not ln.strip().startswith("#")
     ]
-    assert len(entries) > 0
     assert SERVLETUTILS_CONVERTED not in entries
-    assert SYSTEM_CMS_RESIDUAL in entries
+    assert HTTPITEMCOPIER_CONVERTED not in entries
     assert DEPLOYER_JEXL_CONVERTED not in entries
+    # #4338 converted the last residual; exact-path freeze still applies.
+    assert len(entries) == 0
     for entry in entries:
         assert not entry.endswith("/"), entry
         assert "\\" not in entry, entry
@@ -754,16 +755,26 @@ def test_segmentation_rx_converted_path_not_allowlisted() -> None:
     assert resurrected == [], resurrected
 
 
-def test_empty_allowlist_fails_on_real_residuals(tmp_path: Path) -> None:
-    """Without the residual file, current production leftovers must fail."""
+def test_issue_4338_httpitemcopier_converted_path_not_allowlisted() -> None:
+    """#4338 typed leftover Testing/cms HttpItemCopier IPSHttpErrors."""
+    converted = (HTTPITEMCOPIER_CONVERTED,)
+    text = ALLOWLIST.read_text(encoding="utf-8")
+    entries = {
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    }
+    resurrected = [p for p in converted if p in entries]
+    assert resurrected == [], resurrected
+
+
+def test_empty_allowlist_passes_when_no_production_residuals(tmp_path: Path) -> None:
+    """After #4338, an empty residual allow-list still matches a clean tree."""
     empty = tmp_path / "empty-allowlist.txt"
     empty.write_text("# none\n", encoding="utf-8")
     result = _run("--repo-root", str(REPO_ROOT), "--allowlist", str(empty))
-    assert result.returncode == 1, result.stdout + result.stderr
-    combined = result.stdout + result.stderr
-    assert "FAIL" in combined
-    # Prefer still-listed Testing/cms HttpItemCopier residual after #4337/#4339.
-    assert "HttpItemCopier.java" in combined
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "PASS" in result.stdout
 
 
 if __name__ == "__main__":

@@ -43,6 +43,8 @@
 #        TestMakeInternalRequest) typed *ErrorCodes
 #   #4339 leftover system/Tools/RxFix (PSFixNavigation, PSJdbcTableCheck)
 #        typed *ErrorCodes
+#   #4338 leftover system/Testing/cms HttpItemCopier IPSHttpErrors
+#        (typed HttpErrorCodes HTTP 302)
 # Converted (no longer listed): extensions-main #3756/#3938 (allow-list)
 # shrink after #3793 re-listed already-typed production paths);
 # design.catalog leftover #3969; system/src/main com.percussion.mail leftover
@@ -50,8 +52,8 @@
 # servletutils PSTomcatUtils leftover #4195; system server core #4262;
 # system server webservices handlers #4263; modules+misc system leftovers #4264.
 # segmentation-rx orphan #4271; Testing Extensions leftover #4337;
-# Tools/RxFix leftover #4339.
-# Residual: Testing/cms HttpItemCopier leftover (#4338).
+# Tools/RxFix leftover #4339; Testing/cms HttpItemCopier leftover #4338.
+# Residual production call-sites: none (allow-list empty).
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -59,7 +61,3 @@
 # scripts/verify-no-bare-ipsobjectstoreerrors.py (#3143).
 #
 # Tests, comment-only mentions, and the gate scripts themselves are ignored.
-
-
-
-system/Testing/cms/HttpItemCopier.java
