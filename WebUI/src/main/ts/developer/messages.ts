@@ -1794,7 +1794,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Robots.txt uses the root path only (no Git remote). Point at a local robots.txt fixture directory (robots.txt or _config.yaml robots.file). Save sourceKind=robots-txt, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target after a local robots.txt Build. Missing build stays unavailable. Live crawl URLs and credentials are never sent on the REST envelope.",
   SITE_VIRT_KIND_LLMS_TXT: "perc.ui.developer@llms.txt",
   SITE_VIRT_LLMS_TXT_HINT:
-    "perc.ui.developer@llms.txt uses the root path only (no Git remote). Point at a local llms.txt fixture directory (llms.txt or _config.yaml llms.file). Save sourceKind=llms-txt, then Build Virtual Site, then Preview assembled site. Publish Virtual Site stays a later slice. Missing build stays unavailable. Live HTTP fetches and credentials are never sent on the REST envelope.",
+    "perc.ui.developer@llms.txt uses the root path only (no Git remote). Point at a local llms.txt fixture directory (llms.txt or _config.yaml llms.file). Save sourceKind=llms-txt, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target after a local llms.txt Build. Missing build stays unavailable. Live HTTP fetches and credentials are never sent on the REST envelope.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:

@@ -82,7 +82,7 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPreviewChrome("  llms-txt  ")).toBe(true);
   });
 
-  it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, and robots-txt", () => {
+  it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, and llms-txt", () => {
     expect(shouldShowVirtualPublishChrome(null)).toBe(false);
     expect(shouldShowVirtualPublishChrome("")).toBe(false);
     expect(shouldShowVirtualPublishChrome("repository")).toBe(false);
@@ -112,8 +112,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPublishChrome("robots-txt")).toBe(true);
     expect(shouldShowVirtualPublishChrome("Robots-TXT")).toBe(true);
     expect(shouldShowVirtualPublishChrome("  robots-txt  ")).toBe(true);
-    expect(shouldShowVirtualPublishChrome("llms-txt")).toBe(false);
-    expect(shouldShowVirtualPublishChrome("Llms-TXT")).toBe(false);
+    expect(shouldShowVirtualPublishChrome("llms-txt")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("Llms-TXT")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("  llms-txt  ")).toBe(true);
   });
 
   it("formatVirtualSitePublishSummary reports files copied and dest path", () => {

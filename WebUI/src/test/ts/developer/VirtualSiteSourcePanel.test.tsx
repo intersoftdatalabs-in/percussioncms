@@ -1267,7 +1267,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
-  it("loads llms-txt values with root path and shows Build/Preview chrome (Publish hidden)", async () => {
+  it("loads llms-txt values with root path and shows Build/Preview/Publish chrome", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "llms-txt",
       rootPath: "C:/llms-txt-docs",
@@ -1294,6 +1294,9 @@ describe("VirtualSiteSourcePanel", () => {
       "Preview assembled site",
     );
     expect(screen.getByTestId("developer-site-virtual-llms-txt-hint").textContent).toContain(
+      "Publish Virtual Site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-llms-txt-hint").textContent).not.toContain(
       "later slice",
     );
     expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
@@ -1302,13 +1305,13 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
   });
 
-  it("saves llms-txt configuration without Git remote fields, credentials, or Publish chrome", async () => {
+  it("saves llms-txt configuration without Git remote fields or fetch credentials", async () => {
     getVirtual
       .mockResolvedValueOnce({ sourceKind: null, virtual: false })
       .mockResolvedValueOnce({
@@ -1363,7 +1366,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
@@ -2291,7 +2294,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(open.mock.calls[0][1]).toBe("_blank");
   });
 
-  it("shows Preview chrome for llms-txt and opens last-build home (Publish hidden)", async () => {
+  it("shows Preview chrome for llms-txt and opens last-build home", async () => {
     const open = vi.fn();
     window.open = open;
     getVirtual.mockResolvedValue({
@@ -2317,7 +2320,7 @@ describe("VirtualSiteSourcePanel", () => {
       "llms.txt",
     );
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
     await waitFor(() => {
       expect(open).toHaveBeenCalled();
