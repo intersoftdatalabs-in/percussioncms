@@ -135,7 +135,15 @@ const bootstrap: SpaBootstrap = {
   allowExternalAvatarFetch: true,
 };
 
-describe("App shell", () => {
+// Lazy feature shells routinely resolve in a few hundred ms; under full
+// suite load they occasionally exceed RTL's 1000ms default. Keep waits
+// consistent so App tests do not flake on slower CI agents.
+const SHELL_TIMEOUT = 8000;
+// Vitest default it() timeout is 5000ms. findBy waits up to SHELL_TIMEOUT,
+// so the test budget must exceed that wait (GH-4359).
+const APP_SHELL_TEST_TIMEOUT = SHELL_TIMEOUT + 4000;
+
+describe("App shell", { timeout: APP_SHELL_TEST_TIMEOUT }, () => {
   beforeEach(() => {
     (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
       message: (key: string) => key,
@@ -148,11 +156,6 @@ describe("App shell", () => {
     cleanup();
     window.history.replaceState({}, "", "/");
   });
-
-  // Lazy feature shells routinely resolve in a few hundred ms; under full
-  // suite load they occasionally exceed RTL's 1000ms default. Keep waits
-  // consistent so App tests do not flake on slower CI agents.
-  const SHELL_TIMEOUT = 8000;
 
   it("renders TopNav and embedded Home shell from entry query", async () => {
     window.history.replaceState({}, "", "/cm/app/home");
@@ -172,26 +175,30 @@ describe("App shell", () => {
     ).toBeTruthy();
   });
 
-  it("shows publish nav for designer and loads PublishingShell", async () => {
-    // Seed path route so BrowserRouter initial location is publish even if
-    // entry-query handoff races with the first paint (order-sensitive suites).
-    window.history.replaceState({}, "", "/cm/app/publish");
-    render(
-      <App
-        bootstrap={bootstrap}
-        entrySearch="?entry=publish"
-        basename="/cm/app"
-      />,
-    );
-    expect(screen.getByTestId("nav-publish")).toBeTruthy();
-    expect(
-      await screen.findByTestId(
-        "publishing-shell",
-        {},
-        { timeout: SHELL_TIMEOUT },
-      ),
-    ).toBeTruthy();
-  });
+  it(
+    "shows publish nav for designer and loads PublishingShell",
+    async () => {
+      // Seed path route so BrowserRouter initial location is publish even if
+      // entry-query handoff races with the first paint (order-sensitive suites).
+      window.history.replaceState({}, "", "/cm/app/publish");
+      render(
+        <App
+          bootstrap={bootstrap}
+          entrySearch="?entry=publish"
+          basename="/cm/app"
+        />,
+      );
+      expect(screen.getByTestId("nav-publish")).toBeTruthy();
+      expect(
+        await screen.findByTestId(
+          "publishing-shell",
+          {},
+          { timeout: SHELL_TIMEOUT },
+        ),
+      ).toBeTruthy();
+    },
+    APP_SHELL_TEST_TIMEOUT,
+  );
 
   it("shows developer nav for designer and loads DeveloperShell", async () => {
     window.history.replaceState({}, "", "/cm/app/developer/templates");
