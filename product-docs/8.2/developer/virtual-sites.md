@@ -154,6 +154,16 @@ URLs, and link hrefs with a remote/cloud scheme are rejected. SPI/CLI assemble i
 `PSVirtualSiteBuildMain … llms-txt` (`pagesWritten > 0` from a temp fixture). REST
 persist, Build/Preview/Publish, and Developer Sites chrome stay later slices.
 
+An **OpenAPI 3 YAML** adapter (`openapi-yaml`) discovers pages from a **local
+`openapi.yaml`** under `virtual.rootPath` (`openapi.yaml`, or `_config.yaml`
+`openapi.file`). Each path/operation maps into assemble `id` / `title` / `body`.
+A fixture with no operations still emits one HTML page from `info`. This is a
+**local fixture SPI** — **no live HTTP spec fetch, no remote OpenAPI URLs, no
+authenticated remotes**. `virtual.remoteUrl`, credential properties, `openapi.url`,
+cloud `rootPath` URLs, and remote `$ref` values are rejected. SPI/CLI assemble is
+`PSVirtualSiteBuildMain … openapi-yaml` (`pagesWritten > 0` from a temp fixture).
+REST persist, Build/Preview/Publish, and Developer Sites chrome stay later slices.
+
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
 After the site folder is created, an optional Git root is saved with
@@ -261,7 +271,7 @@ HTML path in the **virtual participant registry** (`IPSVirtualParticipantService
 | **Process-scoped (default)** | Registrations live in memory until the process exits, or until `clear(siteKey)` / `clearAll()` is called (SPI reset API). Unit tests and one-shot builds use this mode when no store directory is supplied. |
 | **Path-backed (optional)** | Construct the registry with a portable `java.nio.file.Path` base (CLI uses `outputRoot/_meta`). Existing `participants-<siteKey>.jsonl` files are loaded on construct; `flush(siteKey)` rewrites that site’s file. Survives JVM restart when the same Path base is reused. |
 | **Full rebuild** | A complete site build **clears** that site key, then upserts every discovered page, then flushes. A second build therefore does not keep pages removed from the source tree, and does not lose current ids. |
-| **Current filesystem** | Each build reloads `_config.yaml` and re-reads every Markdown/frontmatter file, CSV row, sql-database `SELECT` (`sql.query` or current `sql.queryFile` bytes plus H2 rows), http-json catalog (`http.url` / `http.file` or default `pages.json`), object-storage blobs (Markdown / HTML / JSON keys under `virtual.rootPath`), rss-atom feeds (`rss.file` / `feed.xml` / `atom.xml` / loopback `rss.url`), and iCalendar fixtures (`icalendar.file` / `calendar.ics`), sitemap fixtures (`sitemap.file` / `sitemap.xml` loc, lastmod, and path), and robots.txt fixtures (`robots.file` / `robots.txt`). The CMS process does **not** keep a parsed-page cache across builds. After `git pull`, a CSV/`_config.yaml` edit, a SQL `_config.yaml`/`queryFile` or H2 row edit, a JSON catalog edit, an object-key edit, an RSS/Atom fixture edit, an iCalendar fixture edit, a sitemap.xml loc/lastmod/path or `_config.yaml` `sitemap.file` edit, a robots.txt or `_config.yaml` `robots.file` edit, or a local Markdown edit under `virtual.rootPath`, run **Build Virtual Site** (or the offline docs script) again — **no JVM / CMS restart** is required. File watchers are not used; the next explicit build is the refresh. |
+| **Current filesystem** | Each build reloads `_config.yaml` and re-reads every Markdown/frontmatter file, CSV row, sql-database `SELECT` (`sql.query` or current `sql.queryFile` bytes plus H2 rows), http-json catalog (`http.url` / `http.file` or default `pages.json`), object-storage blobs (Markdown / HTML / JSON keys under `virtual.rootPath`), rss-atom feeds (`rss.file` / `feed.xml` / `atom.xml` / loopback `rss.url`), and iCalendar fixtures (`icalendar.file` / `calendar.ics`), sitemap fixtures (`sitemap.file` / `sitemap.xml` loc, lastmod, and path), and robots.txt fixtures (`robots.file` / `robots.txt`), llms.txt fixtures (`llms.file` / `llms.txt`), and OpenAPI YAML fixtures (`openapi.file` / `openapi.yaml`). The CMS process does **not** keep a parsed-page cache across builds. After `git pull`, a CSV/`_config.yaml` edit, a SQL `_config.yaml`/`queryFile` or H2 row edit, a JSON catalog edit, an object-key edit, an RSS/Atom fixture edit, an iCalendar fixture edit, a sitemap.xml loc/lastmod/path or `_config.yaml` `sitemap.file` edit, a robots.txt or `_config.yaml` `robots.file` edit, an llms.txt or `_config.yaml` `llms.file` edit, an OpenAPI YAML or `_config.yaml` `openapi.file` edit, or a local Markdown edit under `virtual.rootPath`, run **Build Virtual Site** (or the offline docs script) again — **no JVM / CMS restart** is required. File watchers are not used; the next explicit build is the refresh. |
 
 Operators can treat the JSONL under the build meta directory as a diagnostic dump of stable ids after
 an offline docs build. The registry is **not** a substitute for Git as the system of record.
@@ -275,7 +285,7 @@ treated as a safe Virtual Site source.
 
 | Property | Required | Example | Meaning |
 |----------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, `rss-atom`, `icalendar`, `sitemap-xml`, `robots-txt`, or `llms-txt` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, `rss-atom`, `icalendar`, `sitemap-xml`, `robots-txt`, `llms-txt`. **`llms-txt`** is a local `llms.txt` SPI (`llms.txt` or `_config.yaml` `llms.file`; no live HTTP fetch). SPI/CLI assemble is `PSVirtualSiteBuildMain … llms-txt` (`pagesWritten > 0`). Leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are rejected. REST persist/Build/Preview/Publish and Developer Sites chrome stay later slices. **`robots-txt`** is a local `robots.txt` SPI (`robots.txt` or `_config.yaml` `robots.file`; no live crawl). SPI/CLI assemble is `PSVirtualSiteBuildMain … robots-txt` (`pagesWritten > 0`). Leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are rejected. REST persist/Build/Preview/Publish and Developer Sites chrome stay later slices. **`sitemap-xml`** is a local `sitemap.xml` SPI (`sitemap.xml` or `_config.yaml` `sitemap.file`; no live crawl). SPI/CLI assemble is `PSVirtualSiteBuildMain … sitemap-xml`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips `sitemap-xml` with a portable-safe local `rootPath` (leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no live crawl). REST **Build** (`POST …/virtual/build`) writes HTML from that local `sitemap.xml` / `sitemap.file` fixture (`pagesWritten > 0`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**; no live crawl). REST **Preview** (`GET …/virtual/preview`) streams last-build local HTML (`available=true`; missing build is `available=false` HTTP 200; leftover `virtual.remoteUrl` and credentials are **400**; no live crawl). REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to `IPSSite.root` after a local sitemap.xml Build (leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no live crawl). Developer Sites can save and GET-roundtrip `sourceKind=sitemap-xml` (local `rootPath` only; leftover `virtual.remoteUrl` and crawl credentials are never sent), then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site** (last-build local HTML; missing build stays unavailable). **`icalendar`** is a local RFC 5545 `.ics` SPI (`calendar.ics` or `_config.yaml` `icalendar.file`; no CalDAV). SPI/CLI assemble is `PSVirtualSiteBuildMain … icalendar`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips `icalendar` with a portable-safe local `rootPath` (leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no CalDAV). REST **Build** (`POST …/virtual/build`) runs **`icalendar`** against that local `calendar.ics` / `icalendar.file` fixture (`pagesWritten > 0`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**). REST **Preview** streams last-build HTML after Build (`available=true`; missing build is `available=false` HTTP 200). REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to `IPSSite.root`. Developer Sites can save and GET-roundtrip `sourceKind=icalendar` and then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, SQL (H2), HTTP JSON (local JSON fixture or loopback catalog), **object-storage** (local object-key bucket; `virtual.remoteUrl` is **400**), **`rss-atom`** (local RSS 2.0 / Atom fixture or loopback `rss.url`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**), and **`icalendar`** (local RFC 5545 `calendar.ics` / `icalendar.file`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**; no CalDAV). Preview REST streams last-build HTML for git, CSV, SQL, HTTP JSON, `object-storage`, **`rss-atom`**, and **`icalendar`**. REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for git, CSV, SQL, HTTP JSON, `object-storage` (local object-key `rootPath`; leftover `virtual.remoteUrl` is **400**), **`rss-atom`** (local RSS/Atom fixture; leftover `virtual.remoteUrl` and credentials are **400**; no live feeds), and **`icalendar`** (local `.ics` fixture; leftover `virtual.remoteUrl` and credentials are **400**; no CalDAV). Developer Sites can save and build Git, CSV, SQL, HTTP JSON, and object-storage, then **Preview assembled site** and **Publish Virtual Site**. Developer Sites can also save and GET-roundtrip `object-storage`, then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400`), `object-storage` (portable-safe local `rootPath`; cloud URLs and credential properties are **400**; `virtual.remoteUrl` is **400**), and `rss-atom` (portable-safe local `rootPath`; leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; local/loopback only, no live feed credentials). Developer Sites can **Build Virtual Site** for `rss-atom` after save (local fixture only), **Preview assembled site**, and **Publish Virtual Site**. SPI/CLI assemble for `object-storage` is `PSVirtualSiteBuildMain … object-storage`. SPI/CLI assemble for `rss-atom` is `PSVirtualSiteBuildMain … rss-atom`. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, `rss-atom`, `icalendar`, `sitemap-xml`, `robots-txt`, `llms-txt`, or `openapi-yaml` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`, `object-storage`, `rss-atom`, `icalendar`, `sitemap-xml`, `robots-txt`, `llms-txt`, `openapi-yaml`. **`openapi-yaml`** is a local OpenAPI 3 YAML SPI (`openapi.yaml` or `_config.yaml` `openapi.file`; no live HTTP spec fetch). SPI/CLI assemble is `PSVirtualSiteBuildMain … openapi-yaml` (`pagesWritten > 0`). Leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are rejected. REST persist/Build/Preview/Publish stay later slices. **`llms-txt`** is a local `llms.txt` SPI (`llms.txt` or `_config.yaml` `llms.file`; no live HTTP fetch). SPI/CLI assemble is `PSVirtualSiteBuildMain … llms-txt` (`pagesWritten > 0`). Leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are rejected. REST persist/Build/Preview/Publish and Developer Sites chrome stay later slices. **`robots-txt`** is a local `robots.txt` SPI (`robots.txt` or `_config.yaml` `robots.file`; no live crawl). SPI/CLI assemble is `PSVirtualSiteBuildMain … robots-txt` (`pagesWritten > 0`). Leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are rejected. REST persist/Build/Preview/Publish and Developer Sites chrome stay later slices. **`sitemap-xml`** is a local `sitemap.xml` SPI (`sitemap.xml` or `_config.yaml` `sitemap.file`; no live crawl). SPI/CLI assemble is `PSVirtualSiteBuildMain … sitemap-xml`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips `sitemap-xml` with a portable-safe local `rootPath` (leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no live crawl). REST **Build** (`POST …/virtual/build`) writes HTML from that local `sitemap.xml` / `sitemap.file` fixture (`pagesWritten > 0`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**; no live crawl). REST **Preview** (`GET …/virtual/preview`) streams last-build local HTML (`available=true`; missing build is `available=false` HTTP 200; leftover `virtual.remoteUrl` and credentials are **400**; no live crawl). REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to `IPSSite.root` after a local sitemap.xml Build (leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no live crawl). Developer Sites can save and GET-roundtrip `sourceKind=sitemap-xml` (local `rootPath` only; leftover `virtual.remoteUrl` and crawl credentials are never sent), then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site** (last-build local HTML; missing build stays unavailable). **`icalendar`** is a local RFC 5545 `.ics` SPI (`calendar.ics` or `_config.yaml` `icalendar.file`; no CalDAV). SPI/CLI assemble is `PSVirtualSiteBuildMain … icalendar`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips `icalendar` with a portable-safe local `rootPath` (leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no CalDAV). REST **Build** (`POST …/virtual/build`) runs **`icalendar`** against that local `calendar.ics` / `icalendar.file` fixture (`pagesWritten > 0`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**). REST **Preview** streams last-build HTML after Build (`available=true`; missing build is `available=false` HTTP 200). REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to `IPSSite.root`. Developer Sites can save and GET-roundtrip `sourceKind=icalendar` and then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, SQL (H2), HTTP JSON (local JSON fixture or loopback catalog), **object-storage** (local object-key bucket; `virtual.remoteUrl` is **400**), **`rss-atom`** (local RSS 2.0 / Atom fixture or loopback `rss.url`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**), and **`icalendar`** (local RFC 5545 `calendar.ics` / `icalendar.file`; leftover `virtual.remoteUrl`, credentials, and cloud `rootPath` are **400**; no CalDAV). Preview REST streams last-build HTML for git, CSV, SQL, HTTP JSON, `object-storage`, **`rss-atom`**, and **`icalendar`**. REST **Publish** (`POST …/virtual/publish`) copies assembled HTML to the Site filesystem root for git, CSV, SQL, HTTP JSON, `object-storage` (local object-key `rootPath`; leftover `virtual.remoteUrl` is **400**), **`rss-atom`** (local RSS/Atom fixture; leftover `virtual.remoteUrl` and credentials are **400**; no live feeds), and **`icalendar`** (local `.ics` fixture; leftover `virtual.remoteUrl` and credentials are **400**; no CalDAV). Developer Sites can save and build Git, CSV, SQL, HTTP JSON, and object-storage, then **Preview assembled site** and **Publish Virtual Site**. Developer Sites can also save and GET-roundtrip `object-storage`, then **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400`), `object-storage` (portable-safe local `rootPath`; cloud URLs and credential properties are **400**; `virtual.remoteUrl` is **400**), and `rss-atom` (portable-safe local `rootPath`; leftover `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; local/loopback only, no live feed credentials). Developer Sites can **Build Virtual Site** for `rss-atom` after save (local fixture only), **Preview assembled site**, and **Publish Virtual Site**. SPI/CLI assemble for `object-storage` is `PSVirtualSiteBuildMain … object-storage`. SPI/CLI assemble for `rss-atom` is `PSVirtualSiteBuildMain … rss-atom`. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` (or install-relative) | Local filesystem root when `virtual.remoteUrl` is blank. When a remote is set, optional **relative** path inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. When set, **Build** clones or fetches into a contained work directory, then reuses git-filesystem discover. Blank keeps local-path mode. Allowed: `https://`, `ssh://`, `file://`, or `git@host:path`. `http` and other schemes are rejected. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. Simple ref name only (no `..` or leading `-`). |
@@ -824,6 +834,58 @@ Site property validation allow-lists `llms-txt` (same helper as Git/CSV/SQL/HTTP
 object-storage / rss-atom / icalendar / sitemap-xml / robots-txt). Unknown kinds remain
 rejected.
 
+### Offline build from OpenAPI 3 YAML (`openapi-yaml`)
+
+The `openapi-yaml` adapter discovers pages from a **local OpenAPI 3 YAML fixture**.
+`_config.yaml` is **required** (versions / site title). Git remotes are not used
+(`virtual.remoteUrl` is rejected). This is a **local OpenAPI adapter** — no live HTTP
+spec fetch, no remote OpenAPI URLs, no authenticated remotes, no cloud spec URLs. REST
+persist, Build, Preview, Publish, and Developer Sites chrome stay later slices.
+Operators assemble offline with the CLI.
+
+| `_config.yaml` key | Meaning |
+|--------------------|---------|
+| `openapi.file` | Portable NIO path under the site root (for example `openapi.yaml`). Must be relative (no remaining `..`, no Windows/Unix absolute roots). |
+| *(omitted)* | Default local file `openapi.yaml` under `virtual.rootPath`. |
+| `openapi.url` | **Rejected.** Live remote OpenAPI fetches are out of scope. |
+
+OpenAPI YAML files larger than 2 MB fail closed. Each discover/load re-reads the current
+file (no process-lifetime cache of parsed operations). After you edit `openapi.yaml` or
+`_config.yaml` `openapi.file` on the CMS host, run `PSVirtualSiteBuildMain … openapi-yaml`
+again — **no JVM restart**. File watchers are not used; the next explicit build is the
+refresh.
+
+Path/operation mapping:
+
+| OpenAPI field | Assemble field |
+|---------------|----------------|
+| `operationId` (or `METHOD` + path) | required `id` (slug plus operation order) |
+| `summary` (else `operationId`, else `METHOD path`) | `title` |
+| method, path, description | Markdown in `body` |
+
+Remote `$ref` values (`http(s)://`, `s3://`, or other remote/cloud schemes), leftover
+`virtual.remoteUrl`, credential properties, empty files, `openapi.url`, non-OpenAPI-3
+documents, and unsafe `openapi.file` paths fail closed (`VirtualSiteException`). A
+fixture with no path operations still emits one page from `info` so CLI assemble writes
+HTML (`pagesWritten > 0`).
+
+Example `_config.yaml` fragment (local fixture):
+
+```yaml
+openapi:
+  file: openapi.yaml
+```
+
+CLI:
+
+```text
+PSVirtualSiteBuildMain <siteRoot> <outputRoot> [siteKey] openapi-yaml
+```
+
+Site property validation allow-lists `openapi-yaml` (same helper as Git/CSV/SQL/HTTP JSON /
+object-storage / rss-atom / icalendar / sitemap-xml / robots-txt / llms-txt). Unknown kinds
+remain rejected.
+
 ### REST Build for iCalendar (`icalendar`)
 
 `POST /sites/{nameOrId}/virtual/build` runs `sourceKind=icalendar` against a **local RFC 5545
@@ -1161,8 +1223,8 @@ The Git/filesystem, CSV/filesystem, SQL/database, and HTTP JSON adapters always 
    `PSVirtualSiteBuildMain … csv-filesystem`, `PSVirtualSiteBuildMain … sql-database`,
    `PSVirtualSiteBuildMain … http-json`, `PSVirtualSiteBuildMain … object-storage`,
    `PSVirtualSiteBuildMain … rss-atom`, `PSVirtualSiteBuildMain … icalendar`,
-   `PSVirtualSiteBuildMain … sitemap-xml`, `PSVirtualSiteBuildMain … robots-txt`, or
-   `PSVirtualSiteBuildMain … llms-txt`).
+   `PSVirtualSiteBuildMain … sitemap-xml`, `PSVirtualSiteBuildMain … robots-txt`,
+   `PSVirtualSiteBuildMain … llms-txt`, or `PSVirtualSiteBuildMain … openapi-yaml`).
 3. Preview or publish the new output.
 
 You do **not** restart the CMS JVM for those file or H2 row changes to appear. A restart is

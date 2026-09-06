@@ -19,7 +19,8 @@ package com.percussion.services.virtualsite;
 /**
  * Registered Virtual Site adapter kinds. {@link #GIT_FILESYSTEM}, {@link #CSV_FILESYSTEM}, {@link
  * #SQL_DATABASE}, {@link #HTTP_JSON}, {@link #OBJECT_STORAGE}, {@link #RSS_ATOM}, {@link
- * #ICALENDAR}, {@link #SITEMAP_XML}, {@link #ROBOTS_TXT}, and {@link #LLMS_TXT} are wired through
+ * #ICALENDAR}, {@link #SITEMAP_XML}, {@link #ROBOTS_TXT}, {@link #LLMS_TXT}, and {@link
+ * #OPENAPI_YAML} are wired through
  * {@link PSVirtualSiteSourceFactory} and allow-listed for Site property validation. REST GET/PUT
  * persist round-trips {@link #RSS_ATOM}, {@link #ICALENDAR}, and {@link #SITEMAP_XML} with a
  * portable-safe local {@code rootPath}. {@link #ICALENDAR} assemble remains SPI/CLI ({@code
@@ -28,7 +29,8 @@ package com.percussion.services.virtualsite;
  * Developer Sites chrome stay later slices. {@link #ROBOTS_TXT} assemble is SPI/CLI ({@code
  * robots.txt}); REST persist/Build/Preview/Publish and Developer Sites chrome stay later slices.
  * {@link #LLMS_TXT} assemble is SPI/CLI ({@code llms.txt}); REST persist/Build/Preview/Publish
- * and Developer Sites chrome stay later slices.
+ * and Developer Sites chrome stay later slices. {@link #OPENAPI_YAML} assemble is SPI/CLI ({@code
+ * openapi.yaml}); REST persist/Build/Preview/Publish and Developer Sites chrome stay later slices.
  */
 public enum VirtualSiteSourceType {
   GIT_FILESYSTEM("git-filesystem"),
@@ -108,7 +110,17 @@ public enum VirtualSiteSourceType {
    * and Developer Sites chrome stay later slices. SPI/CLI assemble is {@code
    * PSVirtualSiteBuildMain … llms-txt}.
    */
-  LLMS_TXT("llms-txt");
+  LLMS_TXT("llms-txt"),
+  /**
+   * Local OpenAPI 3 YAML ({@code openapi-yaml}). Discovers pages from {@code openapi.yaml} (or
+   * {@code _config.yaml} {@code openapi.file}) under a portable-safe {@code virtual.rootPath}.
+   * Each path/operation maps into assemble {@code id}/{@code title}/{@code body}. {@code
+   * openapi.url}, Git {@code virtual.remoteUrl}, credential properties, cloud URLs, remote {@code
+   * $ref} values, and live HTTP spec fetch are rejected. REST persist, Build/Preview/Publish,
+   * and Developer Sites chrome stay later slices. SPI/CLI assemble is {@code
+   * PSVirtualSiteBuildMain … openapi-yaml}.
+   */
+  OPENAPI_YAML("openapi-yaml");
 
   private final String wireName;
 

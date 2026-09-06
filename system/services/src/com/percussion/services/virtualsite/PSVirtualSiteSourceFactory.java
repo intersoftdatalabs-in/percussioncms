@@ -25,12 +25,12 @@ import java.util.stream.Stream;
  *
  * <p>Used by {@link PSVirtualSiteBuildService} (CLI and CMS REST {@code POST
  * /sites/{nameOrId}/virtual/build}) so git-filesystem, csv-filesystem, sql-database, http-json,
- * object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, and llms-txt share one assemble
- * pipeline. REST GET/PUT persist {@code http-json}, {@code object-storage}, {@code rss-atom},
- * {@code icalendar}, and {@code sitemap-xml}. {@code icalendar} assemble remains SPI/CLI in this
- * slice (REST Build/Preview/Publish later). {@code sitemap-xml} assemble is SPI/CLI only (REST
- * Build/Preview/Publish later). {@code robots-txt} and {@code llms-txt} assemble are SPI/CLI only
- * (REST persist and Build/Preview/Publish later).
+ * object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, and openapi-yaml share
+ * one assemble pipeline. REST GET/PUT persist {@code http-json}, {@code object-storage}, {@code
+ * rss-atom}, {@code icalendar}, and {@code sitemap-xml}. {@code icalendar} assemble remains SPI/CLI
+ * in this slice (REST Build/Preview/Publish later). {@code sitemap-xml} assemble is SPI/CLI only
+ * (REST Build/Preview/Publish later). {@code robots-txt}, {@code llms-txt}, and {@code
+ * openapi-yaml} assemble are SPI/CLI only (REST persist and Build/Preview/Publish later).
  */
 public final class PSVirtualSiteSourceFactory {
 
@@ -55,6 +55,7 @@ public final class PSVirtualSiteSourceFactory {
       case SITEMAP_XML -> new PSSitemapXmlVirtualSiteSource();
       case ROBOTS_TXT -> new PSRobotsTxtVirtualSiteSource();
       case LLMS_TXT -> new PSLlmsTxtVirtualSiteSource();
+      case OPENAPI_YAML -> new PSOpenApiYamlVirtualSiteSource();
     };
   }
 
@@ -63,7 +64,7 @@ public final class PSVirtualSiteSourceFactory {
    *
    * @param wireName e.g. {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
    *     {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, {@code
-   *     sitemap-xml}, {@code robots-txt}, or {@code llms-txt}
+   *     sitemap-xml}, {@code robots-txt}, {@code llms-txt}, or {@code openapi-yaml}
    * @return new source
    * @throws VirtualSiteException when the name is blank or unknown
    */
