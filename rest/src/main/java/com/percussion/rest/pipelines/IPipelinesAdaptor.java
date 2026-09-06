@@ -22,6 +22,7 @@ import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 public interface IPipelinesAdaptor {
 
@@ -52,6 +53,16 @@ public interface IPipelinesAdaptor {
    * @return IR document aligned with pipeline-ir-v1, or {@code null} when not found / not visible
    */
   PipelineIrDocument getPipelineIr(URI baseUri, String idOrName);
+
+  /**
+   * Build an OpenAPI 3 object graph from a pipeline's IR resources (native file or classic
+   * import preview). Does <strong>not</strong> persist IR or publish to a registry.
+   *
+   * @param baseUri request base URI (reserved for HATEOAS)
+   * @param idOrName application numeric id or name
+   * @return OpenAPI 3 map, or {@code null} when not found / not visible
+   */
+  Map<String, Object> getOpenApi(URI baseUri, String idOrName);
 
   /**
    * Execute a native pipeline IR resource via {@code IPSPipelineRuntimeService}.

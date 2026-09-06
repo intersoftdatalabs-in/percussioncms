@@ -131,6 +131,48 @@ export async function getPipelineIr(
   return get<PipelineIrDocument>(`${PATHS.PIPELINES}/${key}/ir`);
 }
 
+export type PipelineOpenApiFormat = "yaml" | "json";
+
+/** Safe download basename for OpenAPI (no path separators). */
+export function openApiDownloadFilename(
+  appName: string,
+  format: PipelineOpenApiFormat = "yaml",
+): string {
+  const ext = format === "json" ? "json" : "yaml";
+  const raw = (appName || "pipeline").trim() || "pipeline";
+  const safe = raw
+    .replace(/[\\/:*?"<>|]+/g, "_")
+    .replace(/\.\./g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_|_$/g, "");
+  return `${safe}.openapi.${ext}`;
+}
+
+/**
+ * GET /services/pipelines/{idOrName}/openapi?format=yaml|json
+ * Returns the document as text (JSON is pretty-printed when the body is an object).
+ */
+export async function getPipelineOpenApi(
+  idOrName: string,
+  format: PipelineOpenApiFormat = "yaml",
+): Promise<string> {
+  const key = encodeURIComponent(idOrName);
+  const fmt = format === "json" ? "json" : "yaml";
+  const accept =
+    fmt === "json" ? "application/json" : "application/yaml, text/yaml, */*";
+  const payload = await get<unknown>(
+    `${PATHS.PIPELINES}/${key}/openapi?format=${fmt}`,
+    { Accept: accept },
+  );
+  if (typeof payload === "string") {
+    return payload;
+  }
+  if (payload == null) {
+    throw new Error("OpenAPI document not found or empty response");
+  }
+  return JSON.stringify(payload, null, 2);
+}
+
 /** Jackson WRAP/UNWRAP_ROOT_VALUE root for {@link PipelineExecuteRequest}. */
 export const PIPELINE_EXECUTE_REQUEST_ROOT = "PipelineExecuteRequest";
 

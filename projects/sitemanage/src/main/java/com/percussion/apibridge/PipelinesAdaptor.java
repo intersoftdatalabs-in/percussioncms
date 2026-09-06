@@ -31,6 +31,7 @@ import com.percussion.rest.pipelines.ApplicationValidationProblem;
 import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
+import com.percussion.rest.pipelines.PipelineOpenApiGenerator;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
@@ -67,6 +68,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -79,7 +81,8 @@ import org.apache.logging.log4j.Logger;
  * Lists classic XML Applications (pipeline packages) visible to the current security token,
  * Admin start/stop via {@link PSServer}, Admin validation/problems via {@link
  * CollectingApplicationValidator}, read-only Pipeline IR via {@link IPSPipelineIrService}, and
- * thin IR execute via {@link IPSPipelineRuntimeService}, and native HTTP backend tank persist.
+ * thin IR execute via {@link IPSPipelineRuntimeService}, native HTTP backend tank persist, and
+ * OpenAPI 3 generation from IR resources.
  *
  * <p>Uses {@link PSServerXmlObjectStore} for summaries; mapping/filter/limit are pure helpers so
  * they can be unit-tested without the object-store singleton. Execute never calls classic {@code
@@ -102,7 +105,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       "Admin role required to start, stop, validate, or persist HTTP backend tanks";
 
   static final String HIDDEN_NOT_ALLOWED =
-      "Hidden applications cannot be started, stopped, or validated via this API";
+      "Hidden applications cannot be started, stopped, validated, or documented via this API";
 
   static final String DISABLED_NOT_ALLOWED = "Application is disabled";
 
@@ -351,6 +354,28 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       log.warn("Unexpected failure loading pipeline IR for {}", name, e);
       throw e;
     }
+  }
+
+  @Override
+  public Map<String, Object> getOpenApi(URI baseUri, String idOrName) {
+    if (StringUtils.isBlank(idOrName) || !isSafeApplicationName(idOrName.trim())) {
+      throw new WebApplicationException("Invalid pipeline application name", 400);
+    }
+    ResolvedApp resolved = resolveForLifecycle(idOrName);
+    if (resolved == null) {
+      return null;
+    }
+    if (resolved.summary.isHidden()) {
+      throw new WebApplicationException(HIDDEN_NOT_ALLOWED, Response.Status.BAD_REQUEST);
+    }
+    PipelineIrDocument ir = getPipelineIr(baseUri, resolved.name);
+    if (ir == null) {
+      return null;
+    }
+    if (ir.getApp() != null && StringUtils.isBlank(ir.getApp().getName())) {
+      ir.getApp().setName(resolved.name);
+    }
+    return PipelineOpenApiGenerator.toSpec(ir);
   }
 
   @Override

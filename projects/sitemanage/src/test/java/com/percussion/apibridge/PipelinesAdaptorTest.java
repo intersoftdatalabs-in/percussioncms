@@ -50,6 +50,7 @@ import java.util.Optional;
 import com.percussion.services.pipeline.http.PSPipelineHttpUrl;
 import com.percussion.services.pipeline.model.BackendTankStageIr;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
+import com.percussion.services.pipeline.model.PipelineResourceIr;
 import com.percussion.services.pipeline.IPSPipelineIrService;
 import com.percussion.services.pipeline.PSPipelineIrException;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
@@ -1060,6 +1061,98 @@ class PipelinesAdaptorTest {
       assertEquals(400, ex.getResponse().getStatus());
       assertTrue(ex.getMessage().contains("Classic import failed"));
       assertFalse(ex.getMessage().contains("../"));
+    }
+  }
+
+  @Test
+  void getOpenApi_documentsNativeResourcePath() throws Exception {
+    PSApplicationSummary sum = summary(7, "lookupApp", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    PipelineIrDocument doc = new PipelineIrDocument();
+    doc.getApp().setName("lookupApp");
+    PipelineResourceIr res = new PipelineResourceIr();
+    res.setName("DatasetQ");
+    res.setKind(PipelineResourceIr.KIND_QUERY);
+    doc.getResources().add(res);
+    when(ir.load("lookupApp")).thenReturn(Optional.of(doc));
+
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> ir,
+            (name, tok) -> mock(PSApplication.class));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      Map<String, Object> spec =
+          adaptor.getOpenApi(URI.create("http://localhost/services/"), "lookupApp");
+      assertNotNull(spec);
+      assertEquals("3.0.3", spec.get("openapi"));
+      @SuppressWarnings("unchecked")
+      Map<String, Object> paths = (Map<String, Object>) spec.get("paths");
+      assertTrue(paths.containsKey("/pipelines/lookupApp/resources/DatasetQ/execute"));
+    }
+  }
+
+  @Test
+  void getOpenApi_hiddenIs400WithoutEcho() {
+    PSApplicationSummary hidden = summary(1, "hiddenApp", "h", true, "r", false, true);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {hidden},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> ir,
+            (name, tok) -> mock(PSApplication.class));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () -> adaptor.getOpenApi(URI.create("http://localhost/"), "hiddenApp"));
+      assertEquals(400, ex.getResponse().getStatus());
+      assertEquals(PipelinesAdaptor.HIDDEN_NOT_ALLOWED, ex.getMessage());
+      assertFalse(ex.getMessage().contains("hiddenApp"));
+    }
+  }
+
+  @Test
+  void getOpenApi_unsafeNameIs400WithoutEcho() {
+    PSApplicationSummary sum = summary(7, "lookupApp", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () -> adaptor.getOpenApi(URI.create("http://localhost/"), "../evil"));
+      assertEquals(400, ex.getResponse().getStatus());
+      assertEquals("Invalid pipeline application name", ex.getMessage());
+      assertFalse(ex.getMessage().contains("../"));
+    }
+  }
+
+  @Test
+  void getOpenApi_unknownReturnsNull() {
+    PSApplicationSummary sum = summary(7, "lookupApp", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      assertNull(adaptor.getOpenApi(URI.create("http://localhost/"), "missing"));
     }
   }
 

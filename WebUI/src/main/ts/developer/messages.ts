@@ -687,7 +687,7 @@ export const DEV_MSG_KEYS = {
   PIPE_EMPTY: "perc.ui.developer@No pipeline applications returned.",
   PIPE_ERROR: "perc.ui.developer@Could not load pipelines.",
   PIPE_HINT:
-    "perc.ui.developer@Server applications (classic XML Applications). Open a row for detail, data sets, pipe IR, Admin Start/Stop, HTTP backend tank (loopback/local fixture), Test invoke, and Problems when available. Graph editor remains a later slice.",
+    "perc.ui.developer@Server applications (classic XML Applications). Open a row for detail, data sets, pipe IR, OpenAPI, Admin Start/Stop, HTTP backend tank (loopback/local fixture), Test invoke, and Problems when available. Graph editor remains a later slice.",
   PIPE_COL_NAME: "perc.ui.developer@Name",
   PIPE_COL_ID: "perc.ui.developer@Id",
   PIPE_COL_TYPE: "perc.ui.developer@Type",
@@ -771,6 +771,15 @@ export const DEV_MSG_KEYS = {
   PIPE_HTTP_SAVE_ERROR: "perc.ui.developer@Could not save HTTP backend tank.",
   PIPE_HTTP_URL_REQUIRED: "perc.ui.developer@Enter a loopback or local fixture URL.",
   PIPE_HTTP_RESOURCE_REQUIRED: "perc.ui.developer@Enter a resource name before saving the HTTP tank.",
+  PIPE_OPENAPI: "perc.ui.developer@OpenAPI",
+  PIPE_OPENAPI_HINT:
+    "perc.ui.developer@OpenAPI 3 generated from this pipeline's IR resources (view or download YAML/JSON). Not published to an external registry.",
+  PIPE_OPENAPI_VIEW: "perc.ui.developer@View OpenAPI",
+  PIPE_OPENAPI_DOWNLOAD: "perc.ui.developer@Download",
+  PIPE_OPENAPI_LOADING: "perc.ui.developer@Loading OpenAPI…",
+  PIPE_OPENAPI_ERROR: "perc.ui.developer@Could not load OpenAPI for this pipeline.",
+  PIPE_OPENAPI_FORMAT_YAML: "perc.ui.developer@YAML",
+  PIPE_OPENAPI_FORMAT_JSON: "perc.ui.developer@JSON",
   PIPE_PROBLEMS: "perc.ui.developer@Problems",
   PIPE_PROBLEMS_HINT:
     "perc.ui.developer@Design-time validation problems from Admin GET …/validation when that REST is available on the server.",

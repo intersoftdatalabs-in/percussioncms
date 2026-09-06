@@ -39,14 +39,16 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Catalog of classic XML Applications (pipeline packages), Admin start/stop, validation/problems,
- * read-only Pipeline IR, and thin IR execute.
+ * read-only Pipeline IR, OpenAPI from resources, and thin IR execute.
  *
  * <p>Registered via {@link PSSiteManageBean} like sibling catalog resources ({@code Keywords},
  * {@code Slots}). IR read uses {@code IPSPipelineIrService}; execute delegates to {@code
@@ -60,7 +62,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(
     name = "Pipelines",
     description =
-        "Data pipeline / XML application design catalog, Admin start/stop, validation, Pipeline IR, HTTP backend tank persist, and IR execute")
+        "Data pipeline / XML application design catalog, Admin start/stop, validation, Pipeline IR, OpenAPI from resources, HTTP backend tank persist, and IR execute")
 public class PipelinesResource {
 
   private final IPipelinesAdaptor adaptor;
@@ -291,6 +293,54 @@ public class PipelinesResource {
         throw new WebApplicationException("Pipeline IR not found", 404);
       }
       return ir;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * OpenAPI 3 generated from the pipeline IR resources (native or classic import). Query {@code
+   * format=yaml|json} (default yaml). Does not echo raw path params on errors.
+   */
+  @GET
+  @Path("/{idOrName}/openapi")
+  @Produces({
+    MediaType.APPLICATION_JSON,
+    PipelineOpenApiGenerator.MEDIA_TYPE_YAML,
+    "text/yaml",
+    "application/vnd.oai.openapi"
+  })
+  @Operation(
+      summary = "Get OpenAPI 3 generated from pipeline resources",
+      description =
+          "Returns OpenAPI 3 documenting POST …/resources/{resource}/execute for each IR"
+              + " resource (native IR or classic import preview). format=yaml (default) or"
+              + " json. Unknown applications 404; unsafe names and hidden apps 400. Does not"
+              + " echo raw path params. Does not publish to an external registry.",
+      responses = {
+        @ApiResponse(responseCode = "200", description = "OpenAPI 3 YAML or JSON"),
+        @ApiResponse(responseCode = "400", description = "Hidden, unsafe, or invalid format"),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response getOpenApi(
+      @PathParam("idOrName") String idOrName,
+      @QueryParam("format") @DefaultValue("yaml") String format) {
+    try {
+      String fmt = PipelineOpenApiGenerator.normalizeFormat(format);
+      Map<String, Object> spec = requireAdaptor().getOpenApi(uriInfo.getBaseUri(), idOrName);
+      if (spec == null) {
+        throw new WebApplicationException("Application not found", 404);
+      }
+      if (PipelineOpenApiGenerator.FORMAT_JSON.equals(fmt)) {
+        return Response.ok(spec, MediaType.APPLICATION_JSON_TYPE).build();
+      }
+      return Response.ok(PipelineOpenApiGenerator.toYaml(spec), PipelineOpenApiGenerator.MEDIA_TYPE_YAML)
+          .build();
     } catch (WebApplicationException e) {
       throw e;
     } catch (IllegalArgumentException e) {

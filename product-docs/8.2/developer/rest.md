@@ -1833,7 +1833,7 @@ Example create body (user custom URL view):
 - Operator Inbox run-from-tree is Explorer **Views → My Content → Inbox**, not a
   free-floating Inbox root.
 
-## Pipelines (XML Applications catalog, lifecycle, IR, HTTP execute, and validation)
+## Pipelines (XML Applications catalog, lifecycle, IR, OpenAPI, HTTP execute, and validation)
 
 Classic **XML Applications** (data pipeline packages) are exposed under `/services/pipelines`.
 The catalog is a thin contract over the server object store (`PSServerXmlObjectStore`
@@ -1847,7 +1847,8 @@ summaries / application objects). Admin **start** / **stop** peer the server con
 Thin IR execute (`POST …/execute`) is a separate native pipeline runtime path — it does
 **not** call classic `PSQueryHandler` / `PSUpdateHandler`. **Slice C** adds native IR
 **HTTP backend tank persist** (`PUT …/backendTank`) and execute against a **loopback /
-local fixture URL** only (no live internet, no credentials in the URL).
+local fixture URL** only (no live internet, no credentials in the URL). **Slice C**
+also generates **OpenAPI 3** from the pipeline's IR resources (`GET …/openapi`).
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -1857,6 +1858,7 @@ local fixture URL** only (no live internet, no credentials in the URL).
 | `POST` | `/services/pipelines/{idOrName}/start` | **Admin.** Start application (idempotent if already running) |
 | `POST` | `/services/pipelines/{idOrName}/stop` | **Admin.** Stop application (idempotent if already stopped) |
 | `GET` | `/services/pipelines/{idOrName}/ir` | Pipeline IR (app meta + resources / stages / tanks / mapper). Native file when present; otherwise classic import preview |
+| `GET` | `/services/pipelines/{idOrName}/openapi` | OpenAPI 3 generated from IR resources (`format=yaml` default, or `json`). Hidden apps **400**. Not a registry publish |
 | `PUT` | `/services/pipelines/{app}/resources/{resource}/backendTank` | **Admin.** Persist native IR HTTP backend tank (`adapterType=HTTP`, loopback/local fixture URL) |
 | `POST` | `/services/pipelines/{app}/resources/{resource}/execute` | Execute a native pipeline IR resource (SQL or HTTP adapter) |
 | `GET` | `/services/pipelines/{idOrName}/validation` | **Admin.** Validation / problems summary (when deployed) |
@@ -1892,6 +1894,20 @@ Unknown or unsafe names are **404**. Import/decode failures that are not “not 
 backend tank** persist is a separate Admin PUT (below). **Developer → Pipelines**
 detail uses this GET for a resources / tanks / mapper summary (see
 [Developer Pipelines](id:admin-developer-pipelines)).
+
+### OpenAPI from resources (Slice C)
+
+`GET /services/pipelines/{idOrName}/openapi` resolves the path only against the
+object-store catalog (trusted application name), loads native IR or a classic
+import preview (not persisted), and returns **OpenAPI 3.0.3** documenting
+`POST /pipelines/{app}/resources/{resource}/execute` for each safe IR resource
+name. Query `format=yaml` (default) or `format=json`. **Hidden** applications
+are **400**. Unknown names are **404**; unsafe names (path separators /
+traversal) are **400**. Error bodies **do not echo** the raw `{idOrName}` path
+value. This endpoint does **not** publish to Swagger Hub or other registries.
+
+**Developer → Pipelines** detail **OpenAPI** chrome views and downloads this
+document (see [Developer Pipelines](id:admin-developer-pipelines)).
 
 ### HTTP backend tank persist (Slice C)
 

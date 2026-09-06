@@ -11,6 +11,8 @@ import {
   startApplication,
   stopApplication,
   getPipelineIr,
+  getPipelineOpenApi,
+  openApiDownloadFilename,
   unwrapApplicationDetail,
   unwrapApplicationValidationResult,
   unwrapPipelineExecuteResult,
@@ -99,6 +101,34 @@ describe("pipelinesApi Slice B lifecycle", () => {
       `${PATHS.PIPELINES}/${encodeURIComponent("app/with space")}/ir`,
     );
     expect(result).toEqual(doc);
+  });
+
+  it("getPipelineOpenApi GETs /openapi with format and Accept", async () => {
+    const yaml = 'openapi: "3.0.3"\npaths:\n  /pipelines/a/resources/r/execute:\n';
+    const spy = vi.spyOn(client, "get").mockResolvedValue(yaml);
+    const result = await getPipelineOpenApi("app with spaces", "yaml");
+    expect(spy).toHaveBeenCalledWith(
+      `${PATHS.PIPELINES}/${encodeURIComponent("app with spaces")}/openapi?format=yaml`,
+      { Accept: "application/yaml, text/yaml, */*" },
+    );
+    expect(result).toContain("openapi:");
+  });
+
+  it("getPipelineOpenApi stringifies JSON objects", async () => {
+    vi.spyOn(client, "get").mockResolvedValue({
+      openapi: "3.0.3",
+      paths: { "/pipelines/a/resources/r/execute": {} },
+    });
+    const result = await getPipelineOpenApi("a", "json");
+    expect(result).toContain('"openapi": "3.0.3"');
+    expect(result).toContain("/pipelines/a/resources/r/execute");
+  });
+
+  it("openApiDownloadFilename strips separators", () => {
+    expect(openApiDownloadFilename("sys_cmpDocuments", "yaml")).toBe(
+      "sys_cmpDocuments.openapi.yaml",
+    );
+    expect(openApiDownloadFilename("a/../b", "json")).toBe("a_b.openapi.json");
   });
 
 });

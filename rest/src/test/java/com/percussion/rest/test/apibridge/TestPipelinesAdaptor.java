@@ -26,7 +26,9 @@ import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
 import java.net.URI;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -52,6 +54,18 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
   @Override
   public PipelineIrDocument getPipelineIr(URI baseUri, String idOrName) {
     return null;
+  }
+
+  @Override
+  public Map<String, Object> getOpenApi(URI baseUri, String idOrName) {
+    Map<String, Object> spec = new LinkedHashMap<>();
+    spec.put("openapi", "3.0.3");
+    Map<String, Object> info = new LinkedHashMap<>();
+    info.put("title", "stub pipeline");
+    info.put("version", "1.0");
+    spec.put("info", info);
+    spec.put("paths", new LinkedHashMap<String, Object>());
+    return spec;
   }
 
   @Override
