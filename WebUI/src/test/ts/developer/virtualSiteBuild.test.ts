@@ -14,7 +14,7 @@ import {
 } from "../../../main/ts/developer/virtualSiteBuild";
 
 describe("virtualSiteBuild helpers", () => {
-  it("shouldShowVirtualBuildChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, and sitemap-xml", () => {
+  it("shouldShowVirtualBuildChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, and robots-txt", () => {
     expect(shouldShowVirtualBuildChrome(null)).toBe(false);
     expect(shouldShowVirtualBuildChrome("")).toBe(false);
     expect(shouldShowVirtualBuildChrome("repository")).toBe(false);
@@ -41,11 +41,12 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualBuildChrome("sitemap-xml")).toBe(true);
     expect(shouldShowVirtualBuildChrome("Sitemap-XML")).toBe(true);
     expect(shouldShowVirtualBuildChrome("  sitemap-xml  ")).toBe(true);
-    expect(shouldShowVirtualBuildChrome("robots-txt")).toBe(false);
-    expect(shouldShowVirtualBuildChrome("Robots-TXT")).toBe(false);
+    expect(shouldShowVirtualBuildChrome("robots-txt")).toBe(true);
+    expect(shouldShowVirtualBuildChrome("Robots-TXT")).toBe(true);
+    expect(shouldShowVirtualBuildChrome("  robots-txt  ")).toBe(true);
   });
 
-  it("shouldShowVirtualPreviewChrome for git, csv, sql-database, http-json, object-storage, rss-atom, icalendar, and sitemap-xml (not repository)", () => {
+  it("shouldShowVirtualPreviewChrome for git, csv, sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, and robots-txt (not repository)", () => {
     expect(shouldShowVirtualPreviewChrome(null)).toBe(false);
     expect(shouldShowVirtualPreviewChrome("")).toBe(false);
     expect(shouldShowVirtualPreviewChrome("repository")).toBe(false);
@@ -70,7 +71,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPreviewChrome("sitemap-xml")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("Sitemap-XML")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("  sitemap-xml  ")).toBe(true);
-    expect(shouldShowVirtualPreviewChrome("robots-txt")).toBe(false);
+    expect(shouldShowVirtualPreviewChrome("robots-txt")).toBe(true);
+    expect(shouldShowVirtualPreviewChrome("Robots-TXT")).toBe(true);
+    expect(shouldShowVirtualPreviewChrome("  robots-txt  ")).toBe(true);
   });
 
   it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, and sitemap-xml", () => {

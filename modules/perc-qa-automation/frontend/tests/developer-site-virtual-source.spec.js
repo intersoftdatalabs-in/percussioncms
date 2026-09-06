@@ -29,7 +29,7 @@
  * uses a portable-safe local rootPath only (no live crawl credentials, no virtual.remoteUrl);
  * Build, Preview, and Publish chrome are shown after save for sitemap-xml. robots-txt save/GET-roundtrip
  * uses a portable-safe local rootPath only (no live crawl credentials, no virtual.remoteUrl);
- * Build, Preview, and Publish chrome stay hidden (later slices). Also intercepts build REST
+ * Build and Preview chrome are shown after save (Publish stays hidden — later slice). Also intercepts build REST
  * to prove link-problem detail lines render on HTTP 200 and publish REST to prove
  * dest path + files copied on HTTP 200 (including csv-filesystem, http-json, object-storage, rss-atom, and icalendar). Live H2 QA
  * deploys a CSV tree into the cell and asserts POST /virtual/build, GET
@@ -54,6 +54,9 @@
  * POST /virtual/publish copies assembled HTML; leftover remoteUrl/credentials stay 400 (no live crawl).
  * sitemap-xml live rebuild copies an edited sitemap.xml into the cell (docker cp), runs a
  * second Build without restarting Jetty, and asserts assembled HTML / pagesWritten change.
+ * robots-txt live Build deploys a local robots.txt fixture and asserts pagesWritten > 0
+ * (no Jetty restart). robots-txt live Preview deploys the same fixture, Builds, then streams
+ * last-build home HTML (sole User-agent page; no live crawl). Publish chrome stays hidden.
  *
  * Surface-filtered QA mode:
  * <pre>
@@ -99,6 +102,10 @@ const {
   SITEMAP_XML_VIRTUAL_REBUILD_MARKER,
   SITEMAP_XML_VIRTUAL_REBUILD_LASTMOD,
 } = require("./helpers/sitemap-xml-virtual-qa-fixture");
+const {
+  deployRobotsTxtVirtualFixtureToQaCell,
+  ROBOTS_TXT_VIRTUAL_BUILD_MARKER,
+} = require("./helpers/robots-txt-virtual-qa-fixture");
 const { saveVirtualSiteAndExpectSaved } = require("./helpers/virtual-site-save");
 const {
   missingVirtualSourceKindValues,
@@ -385,18 +392,18 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
-      // Switch to robots-txt reveals root path (no Git remotes, no Build/Preview/Publish yet)
+      // Switch to robots-txt reveals root path + Build / Preview (no Git remotes, no Publish)
       await kind.selectOption("robots-txt");
       await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-robots-txt-hint"]')).toBeVisible();
       await expect(
         page.locator('[data-testid="developer-site-virtual-robots-txt-hint"]'),
-      ).toContainText("later slices");
+      ).toContainText("Build Virtual Site");
       await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
       await expect(page.locator('[data-testid="developer-site-virtual-branch"]')).toHaveCount(0);
-      await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(0);
-      await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
-      await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
 
       // Switch to git-filesystem reveals root path, optional remote, + Build / Publish
@@ -1582,7 +1589,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
   });
 
-  test("robots-txt save PUTs envelope and GET-roundtrip persists without Build chrome (#4360)", async ({
+  test("robots-txt save PUTs envelope and GET-roundtrip persists with Build/Preview chrome (#4360 / #4361)", async ({
     page,
   }) => {
     const pageErrors = [];
@@ -1715,9 +1722,9 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-robots-txt-hint"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
 
     await page.locator('[data-testid="developer-site-virtual-root-path"]').fill("C:/robots-txt-docs");
@@ -1741,8 +1748,8 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toHaveValue(
       "C:/robots-txt-docs",
     );
-    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
 
     await kind.selectOption("repository");
@@ -1807,12 +1814,12 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-robots-txt-hint"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
     await page.locator('[data-testid="developer-site-virtual-root-path"]').fill("C:/robots-txt-docs");
     await saveVirtualSiteAndExpectSaved(page, { timeout: 15_000 });
     await expect(kind).toHaveValue("robots-txt");
-    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
 
     await page.locator('[data-testid="developer-site-back"]').click();
@@ -1825,8 +1832,8 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       "C:/robots-txt-docs",
     );
     await expect(page.locator('[data-testid="developer-site-virtual-robots-txt-hint"]')).toBeVisible();
-    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
 
     await kind.selectOption("repository");
@@ -6300,6 +6307,239 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       html,
       "assembled sitemap-xml home HTML should contain fixture title or body",
     ).toMatch(/Sitemap Home|Hello from sitemap/);
+
+    await kind.selectOption("repository");
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
+
+  test("robots-txt live Build Virtual Site completes on H2 QA (#4361)", async ({ page }) => {
+    test.setTimeout(120_000);
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    const robotsRoot = deployRobotsTxtVirtualFixtureToQaCell();
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      throw new Error("No sites in catalog — live robots-txt Build requires a site row");
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
+    await kind.selectOption("robots-txt");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-robots-txt-hint"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill(robotsRoot);
+    await saveVirtualSiteAndExpectSaved(page, { timeout: 20_000 });
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+
+    const buildRespPromise = page.waitForResponse(
+      (resp) =>
+        resp.request().method() === "POST" && /\/virtual\/build(\?|$)/.test(resp.url()),
+    );
+    await page.locator('[data-testid="developer-site-virtual-build"]').click();
+    const buildResp = await buildRespPromise;
+    const buildBody = await buildResp.text();
+    expect(
+      buildResp.ok(),
+      `POST /virtual/build HTTP ${buildResp.status()}: ${buildBody}`,
+    ).toBeTruthy();
+    await expect(page.locator('[data-testid="developer-site-virtual-build-result"]')).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build-success"]')).toBeVisible();
+    const pagesText = (
+      await page.locator('[data-testid="developer-site-virtual-build-pages"]').textContent()
+    ).trim();
+    expect(Number.parseInt(pagesText, 10), `pages written: ${pagesText}`).toBeGreaterThan(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+
+    await kind.selectOption("repository");
+    await saveVirtualSiteAndExpectSaved(page, { timeout: 15_000 });
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
+
+  test("robots-txt live Preview assembled site after Build (#4361)", async ({ page }) => {
+    test.setTimeout(120_000);
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    const robotsRoot = deployRobotsTxtVirtualFixtureToQaCell();
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      throw new Error("No sites in catalog — live robots-txt Preview requires a site row");
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const siteName = (
+      await page.locator('[data-testid="developer-site-detail-title"]').textContent()
+    ).trim();
+    expect(siteName, "Site detail title required for preview URL").toBeTruthy();
+
+    const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
+    await kind.selectOption("robots-txt");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-robots-txt-hint"]')).toContainText(
+      "Preview assembled site",
+    );
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview-hint"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview-hint"]')).toContainText(
+      "Robots.txt",
+    );
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill(robotsRoot);
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+
+    const buildRespPromise = page.waitForResponse(
+      (resp) =>
+        resp.request().method() === "POST" && /\/virtual\/build(\?|$)/.test(resp.url()),
+    );
+    await page.locator('[data-testid="developer-site-virtual-build"]').click();
+    const buildResp = await buildRespPromise;
+    const buildBody = await buildResp.text();
+    expect(
+      buildResp.ok(),
+      `POST /virtual/build HTTP ${buildResp.status()}: ${buildBody}`,
+    ).toBeTruthy();
+    await expect(page.locator('[data-testid="developer-site-virtual-build-result"]')).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build-success"]')).toBeVisible();
+
+    const previewStatusPromise = page.waitForResponse((resp) => {
+      if (resp.request().method() !== "GET") {
+        return false;
+      }
+      const url = resp.url();
+      return /\/virtual\/preview(\?|$)/.test(url) && !/\/virtual\/preview\/.+/.test(url);
+    });
+    const popupPromise = page.waitForEvent("popup", { timeout: 20_000 }).catch(() => null);
+    await page.locator('[data-testid="developer-site-virtual-preview"]').click();
+    const statusResp = await previewStatusPromise;
+    const statusBody = await statusResp.text();
+    expect(
+      statusResp.ok(),
+      `GET /virtual/preview HTTP ${statusResp.status()}: ${statusBody}`,
+    ).toBeTruthy();
+    let statusJson = {};
+    try {
+      statusJson = JSON.parse(statusBody);
+    } catch {
+      throw new Error(`Preview status was not JSON: ${statusBody}`);
+    }
+    const statusRoot =
+      statusJson.VirtualSitePreviewStatus ||
+      statusJson.virtualSitePreviewStatus ||
+      statusJson;
+    expect(
+      statusRoot.available === true || statusRoot.available === "true",
+      `preview available: ${statusBody}`,
+    ).toBeTruthy();
+    const homePath = String(statusRoot.homePath || "").replace(/\\/g, "/").replace(/^\/+/, "");
+    expect(homePath, `homePath in ${statusBody}`).toMatch(/\.html$/);
+
+    const popup = await popupPromise;
+    let html = "";
+    if (popup) {
+      await popup.waitForLoadState("domcontentloaded").catch(() => {});
+      html = await popup.content().catch(() => "");
+      if (!html || /about:blank/i.test(popup.url())) {
+        const probeUrl = popup.url();
+        if (probeUrl && !/about:blank/i.test(probeUrl)) {
+          const probe = await page.request.get(probeUrl);
+          html = await probe.text();
+        }
+      }
+      if (!popup.isClosed()) {
+        await popup.close().catch(() => {});
+      }
+    }
+    if (!/User-agent: \*|Hello-from-robots|Hello from robots/.test(html)) {
+      const fileUrl = `${BASE_URL}/Rhythmyx/services/sites/${encodeURIComponent(siteName)}/virtual/preview/${homePath
+        .split("/")
+        .filter((seg) => seg.length > 0 && seg !== "." && seg !== "..")
+        .map((seg) => encodeURIComponent(seg))
+        .join("/")}`;
+      const fileResp = await page.request.get(fileUrl);
+      expect(
+        fileResp.ok(),
+        `GET preview home HTTP ${fileResp.status()} ${fileUrl}`,
+      ).toBeTruthy();
+      html = await fileResp.text();
+    }
+    expect(
+      html,
+      "assembled robots-txt home HTML should contain fixture title or body",
+    ).toMatch(/User-agent: \*|Hello-from-robots|Hello from robots/);
+    expect(html).toContain(ROBOTS_TXT_VIRTUAL_BUILD_MARKER);
 
     await kind.selectOption("repository");
     await page.locator('[data-testid="developer-site-virtual-save"]').click();

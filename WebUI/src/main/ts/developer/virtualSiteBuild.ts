@@ -27,12 +27,12 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
 /**
  * True when the Build Virtual Site control should be shown.
  * Git-filesystem, csv-filesystem, sql-database, http-json, object-storage,
- * rss-atom, icalendar, and sitemap-xml Virtual Sites all run POST /virtual/build
- * (SQL JDBC, HTTP JSON catalog, object-storage keys, rss-atom feeds, icalendar
- * .ics, and sitemap.xml stay in _config.yaml / the local root). sitemap-xml
- * Build is shown so operators can produce last-build HTML for Preview and
- * Publish. Repository / blank / unknown kinds (including robots-txt persist
- * until a later slice) must not display this chrome.
+ * rss-atom, icalendar, sitemap-xml, and robots-txt Virtual Sites all run
+ * POST /virtual/build (SQL JDBC, HTTP JSON catalog, object-storage keys,
+ * rss-atom feeds, icalendar .ics, sitemap.xml, and robots.txt stay in
+ * _config.yaml / the local root). robots-txt Build is shown so operators can
+ * produce last-build HTML for Preview. Publish stays hidden (later slice).
+ * Repository / blank / unknown kinds must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
   sourceKind: string | null | undefined,
@@ -46,16 +46,17 @@ export function shouldShowVirtualBuildChrome(
     v === "object-storage" ||
     v === "rss-atom" ||
     v === "icalendar" ||
-    v === "sitemap-xml"
+    v === "sitemap-xml" ||
+    v === "robots-txt"
   );
 }
 
 /**
  * True when Preview assembled site should be shown.
  * Last-output preview for git-filesystem, csv-filesystem, sql-database,
- * http-json, object-storage, rss-atom, icalendar, and sitemap-xml. Missing
- * last-build stays unavailable (GET /virtual/preview available=false; no fake
- * preview). Repository / blank / unknown kinds stay hidden.
+ * http-json, object-storage, rss-atom, icalendar, sitemap-xml, and robots-txt.
+ * Missing last-build stays unavailable (GET /virtual/preview available=false;
+ * no fake preview). Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPreviewChrome(
   sourceKind: string | null | undefined,
@@ -69,7 +70,8 @@ export function shouldShowVirtualPreviewChrome(
     v === "object-storage" ||
     v === "rss-atom" ||
     v === "icalendar" ||
-    v === "sitemap-xml"
+    v === "sitemap-xml" ||
+    v === "robots-txt"
   );
 }
 
