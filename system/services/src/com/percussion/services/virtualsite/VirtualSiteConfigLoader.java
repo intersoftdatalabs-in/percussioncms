@@ -20,6 +20,7 @@ import com.percussion.services.virtualsite.VirtualSiteConfig.HttpSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.NavSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.ObjectsSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.IcalendarSpec;
+import com.percussion.services.virtualsite.VirtualSiteConfig.LlmsSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.RobotsSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.RssSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.SitemapSpec;
@@ -45,7 +46,7 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
  * <p>Stateless: each {@link #load} / {@link #loadOrDefault} reads the current file (or current
  * child directories). No process-lifetime YAML cache — a second build after a config edit sees
  * the new title/versions (and current {@code sql:} / {@code http:} / {@code objects:} /
- * {@code rss:} / {@code icalendar:} / {@code sitemap:} / {@code robots:} mapping)
+ * {@code rss:} / {@code icalendar:} / {@code sitemap:} / {@code robots:} / {@code llms:} mapping)
  * without a JVM restart.
  */
 public final class VirtualSiteConfigLoader {
@@ -251,6 +252,11 @@ public final class VirtualSiteConfigLoader {
         throw new VirtualSiteException("robots: must be a mapping in " + sourceLabel);
       }
       RobotsSpec robots = parseRobotsSpec(asMap(robotsObj));
+      Object llmsObj = map.get("llms");
+      if (llmsObj != null && !(llmsObj instanceof Map<?, ?>)) {
+        throw new VirtualSiteException("llms: must be a mapping in " + sourceLabel);
+      }
+      LlmsSpec llms = parseLlmsSpec(asMap(llmsObj));
       return new VirtualSiteConfig(
           root,
           title,
@@ -265,7 +271,8 @@ public final class VirtualSiteConfigLoader {
           rss,
           icalendar,
           sitemap,
-          robots);
+          robots,
+          llms);
     } catch (VirtualSiteException e) {
       throw e;
     } catch (Exception e) {
@@ -306,6 +313,13 @@ public final class VirtualSiteConfigLoader {
       return null;
     }
     return new RobotsSpec(stringVal(robots.get("url")), stringVal(robots.get("file")));
+  }
+
+  private static LlmsSpec parseLlmsSpec(Map<String, Object> llms) {
+    if (llms == null || llms.isEmpty()) {
+      return null;
+    }
+    return new LlmsSpec(stringVal(llms.get("url")), stringVal(llms.get("file")));
   }
 
   private static ObjectsSpec parseObjectsSpec(Map<String, Object> objects, String sourceLabel)

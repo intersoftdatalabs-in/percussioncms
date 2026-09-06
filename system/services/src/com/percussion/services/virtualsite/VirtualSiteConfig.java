@@ -41,6 +41,7 @@ public final class VirtualSiteConfig {
   private final IcalendarSpec icalendar;
   private final SitemapSpec sitemap;
   private final RobotsSpec robots;
+  private final LlmsSpec llms;
 
   public VirtualSiteConfig(
       Path root,
@@ -169,6 +170,40 @@ public final class VirtualSiteConfig {
       IcalendarSpec icalendar,
       SitemapSpec sitemap,
       RobotsSpec robots) {
+    this(
+        root,
+        siteTitle,
+        siteUrl,
+        layoutFile,
+        versions,
+        nav,
+        siteKey,
+        sql,
+        http,
+        objects,
+        rss,
+        icalendar,
+        sitemap,
+        robots,
+        null);
+  }
+
+  public VirtualSiteConfig(
+      Path root,
+      String siteTitle,
+      String siteUrl,
+      String layoutFile,
+      List<VersionSpec> versions,
+      List<NavSpec> nav,
+      String siteKey,
+      SqlSpec sql,
+      HttpSpec http,
+      ObjectsSpec objects,
+      RssSpec rss,
+      IcalendarSpec icalendar,
+      SitemapSpec sitemap,
+      RobotsSpec robots,
+      LlmsSpec llms) {
     this.root = Objects.requireNonNull(root, "root");
     this.siteTitle = siteTitle != null ? siteTitle : "Documentation";
     this.siteUrl = siteUrl != null ? siteUrl : "";
@@ -187,6 +222,7 @@ public final class VirtualSiteConfig {
     this.icalendar = icalendar;
     this.sitemap = sitemap;
     this.robots = robots;
+    this.llms = llms;
   }
 
   public Path root() {
@@ -293,6 +329,18 @@ public final class VirtualSiteConfig {
    */
   public RobotsSpec robots() {
     return robots;
+  }
+
+  /**
+   * Optional llms.txt settings for {@code llms-txt} sources ({@code llms:} in {@code
+   * _config.yaml}).
+   *
+   * @return spec, or null when the mapping is omitted (adapter then uses {@code llms.txt} under
+   *     the site root). Legacy constructors always pass {@code null} here; a {@code LLMS_TXT}
+   *     site wired that way also falls back to {@code llms.txt} and does not fail.
+   */
+  public LlmsSpec llms() {
+    return llms;
   }
 
   public Path themeDir() {
@@ -630,6 +678,42 @@ public final class VirtualSiteConfig {
     @Override
     public String toString() {
       return "RobotsSpec{url='" + url + "', file='" + file + "'}";
+    }
+  }
+
+  /**
+   * llms.txt fixture settings for {@code llms-txt}. {@link #file()} is a portable path under the
+   * site root. {@link #url()} is parsed so the adapter can reject live remote llms.txt fetches
+   * (local fixture only). Both blank means default {@code llms.txt}.
+   */
+  public static final class LlmsSpec {
+    private final String url;
+    private final String file;
+
+    public LlmsSpec(String url, String file) {
+      this.url = url != null ? url.trim() : "";
+      this.file = file != null ? file.trim() : "";
+    }
+
+    public String url() {
+      return url;
+    }
+
+    public String file() {
+      return file;
+    }
+
+    public boolean hasUrl() {
+      return !url.isBlank();
+    }
+
+    public boolean hasFile() {
+      return !file.isBlank();
+    }
+
+    @Override
+    public String toString() {
+      return "LlmsSpec{url='" + url + "', file='" + file + "'}";
     }
   }
 
