@@ -434,10 +434,10 @@ public class SitesAdaptor implements ISiteAdaptor {
 
   /**
    * Build then NIO-copy assembled files to {@link IPSSite#getRoot()} for git-filesystem,
-   * csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, and sitemap-xml
-   * Virtual Sites. Fail-closed on blank/unsafe/overlapping publish roots. {@code http-json} uses
-   * a local JSON fixture (or loopback catalog from {@code _config.yaml}); leftover {@code
-   * virtual.remoteUrl} is 400. {@code object-storage} uses a portable-safe local object-key
+   * csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml,
+   * and robots-txt Virtual Sites. Fail-closed on blank/unsafe/overlapping publish roots. {@code
+   * http-json} uses a local JSON fixture (or loopback catalog from {@code _config.yaml}); leftover
+   * {@code virtual.remoteUrl} is 400. {@code object-storage} uses a portable-safe local object-key
    * {@code rootPath}; leftover {@code virtual.remoteUrl} is 400 (no cloud URLs, IAM, or access
    * keys). {@code rss-atom} uses a local RSS 2.0 / Atom fixture or loopback feed; leftover
    * {@code virtual.remoteUrl} and credential properties are 400 (no live feeds). {@code
@@ -445,7 +445,10 @@ public class SitesAdaptor implements ISiteAdaptor {
    * leftover {@code virtual.remoteUrl} and credential properties are 400 (no CalDAV). {@code
    * sitemap-xml} uses a local sitemap.xml fixture ({@code sitemap.xml} / {@code sitemap.file});
    * leftover {@code virtual.remoteUrl}, credential properties, and cloud URL {@code rootPath} are
-   * 400 (no live crawl).
+   * 400 (no live crawl). {@code robots-txt} uses a local robots.txt fixture ({@code robots.txt} /
+   * {@code robots.file}); leftover {@code virtual.remoteUrl}, credential properties, and cloud URL
+   * {@code rootPath} are 400 (no live crawl). Missing fixture or failed assemble is 400 (do not
+   * invent pages).
    */
   @Override
   public VirtualSitePublishResult publishVirtualSite(String nameOrId) {

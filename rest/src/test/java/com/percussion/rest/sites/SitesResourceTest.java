@@ -1772,6 +1772,74 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void publishVirtualSiteDelegatesRobotsTxt() {
+    VirtualSitePublishResult published = new VirtualSitePublishResult();
+    published.setSiteName("RobotsHelp");
+    published.setSiteKey("rb-docs");
+    published.setPagesWritten(1);
+    published.setFilesCopied(2);
+    published.setPublishPath(tempDir.resolve("rb-pub").toString());
+    when(adaptor.publishVirtualSite("RobotsHelp")).thenReturn(published);
+
+    VirtualSitePublishResult out = resource.publishVirtualSite("RobotsHelp");
+    assertEquals("RobotsHelp", out.getSiteName());
+    assertEquals("rb-docs", out.getSiteKey());
+    assertEquals(1, out.getPagesWritten().intValue());
+    assertEquals(2, out.getFilesCopied().intValue());
+    assertEquals(published.getPublishPath(), out.getPublishPath());
+    verify(adaptor).publishVirtualSite("RobotsHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteRobotsTxtRemoteUrlPropagates400() {
+    when(adaptor.publishVirtualSite("RobotsHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for robots-txt", Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("RobotsHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(adaptor).publishVirtualSite("RobotsHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteRobotsTxtCloudRootPropagates400() {
+    when(adaptor.publishVirtualSite("RobotsHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for robots-txt must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("RobotsHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).publishVirtualSite("RobotsHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteRobotsTxtCredentialsPropagates400() {
+    when(adaptor.publishVirtualSite("RobotsHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for robots-txt (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("RobotsHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).publishVirtualSite("RobotsHelp");
+  }
+
+  @Test
   public void publishVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.publishVirtualSite(" "));
@@ -1889,6 +1957,12 @@ public class SitesResourceTest {
     assertTrue(
         publishBlock.contains("sitemap-xml"),
         "publishVirtualSite OpenAPI description must mention sitemap-xml");
+    assertTrue(
+        publishBlock.contains("robots-txt"),
+        "publishVirtualSite OpenAPI description must mention robots-txt");
+    assertTrue(
+        publishBlock.contains("robots.txt") || publishBlock.contains("no live crawl"),
+        "publishVirtualSite OpenAPI description must mention robots-txt local fixture only");
     assertTrue(
         publishBlock.contains("no live crawl"),
         "publishVirtualSite OpenAPI description must mention sitemap-xml local fixture only");

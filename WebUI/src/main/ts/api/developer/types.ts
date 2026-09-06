@@ -1128,12 +1128,11 @@ export interface SiteDef {
  * http-json, object-storage, rss-atom, icalendar, sitemap-xml, and robots-txt
  * (local {@code rootPath} only; no cloud URLs, live feed / CalDAV / crawl
  * credentials, or {@code virtual.remoteUrl} on those kinds). Build chrome is
- * shown after save for git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml
- * (robots-txt persist only — Build/Preview/Publish stay later slices).
+ * shown after save for git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt.
  * Preview chrome is shown for git/csv/sql/http-json/object-storage/rss-atom/
- * icalendar/sitemap-xml (last-build local HTML; missing build stays unavailable).
+ * icalendar/sitemap-xml/robots-txt (last-build local HTML; missing build stays unavailable).
  * Publish chrome is shown for git/csv/sql/http-json/object-storage/rss-atom/
- * icalendar/sitemap-xml (sitemap-xml copies last-build local HTML to
+ * icalendar/sitemap-xml/robots-txt (sitemap-xml and robots-txt copy last-build local HTML to
  * {@code IPSSite.root}; leftover remoteUrl/credentials fail closed).
  * Repository / unknown kinds hide that chrome.
  */

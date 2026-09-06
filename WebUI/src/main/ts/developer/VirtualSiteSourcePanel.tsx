@@ -175,16 +175,15 @@ function validationMessage(
  * Site detail section: view/edit Virtual Site source fields via public Site REST
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
  * build ({@code POST …/virtual/build}) for git-filesystem, csv-filesystem,
- * sql-database, http-json, object-storage, rss-atom, icalendar, and sitemap-xml.
- * Preview last-build HTML for git/csv/sql/http-json/object-storage/rss-atom/
- * icalendar/sitemap-xml (missing build stays unavailable). Publish
- * ({@code POST …/virtual/publish}) for git/csv/sql/http-json/object-storage/
- * rss-atom/icalendar/sitemap-xml after a successful Build (sitemap-xml copies
- * last-build local HTML to {@code IPSSite.root}; leftover remoteUrl/credentials
- * fail closed). Repository / blank / unknown kinds stay hidden. sitemap-xml
- * uses a local {@code rootPath} only (no live crawl chrome). robots-txt save
- * chrome uses a local {@code rootPath} only; Build/Preview/Publish stay hidden
- * until later slices.
+ * sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, and
+ * robots-txt. Preview last-build HTML for git/csv/sql/http-json/object-storage/
+ * rss-atom/icalendar/sitemap-xml/robots-txt (missing build stays unavailable).
+ * Publish ({@code POST …/virtual/publish}) for git/csv/sql/http-json/object-storage/
+ * rss-atom/icalendar/sitemap-xml/robots-txt after a successful Build (sitemap-xml
+ * and robots-txt copy last-build local HTML to {@code IPSSite.root}; leftover
+ * remoteUrl/credentials/cloud rootPath fail closed). Repository / blank / unknown
+ * kinds stay hidden. sitemap-xml and robots-txt use a local {@code rootPath} only
+ * (no live crawl chrome).
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -378,11 +377,11 @@ export function VirtualSiteSourcePanel({
   const icalendarMode = isIcalendarSourceKind(form.sourceKind);
   const sitemapXmlMode = isSitemapXmlSourceKind(form.sourceKind);
   const robotsTxtMode = isRobotsTxtSourceKind(form.sourceKind);
-  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml (never repository or robots-txt persist). */
+  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
-  /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml (never repository). */
+  /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt (never repository). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
-  /** Publish chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml (never repository). */
+  /** Publish chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt (never repository). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
   const showActionChrome = showBuildChrome || showPreviewChrome || showPublishChrome;
   const busy = saving || building || publishing;
