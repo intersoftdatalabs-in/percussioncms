@@ -41,14 +41,17 @@
 #   #4271 segmentation-rx PSAbstractBuildRelationshipsExtension (orphan build)
 #   #4337 leftover system/Testing/Extensions (PSMakeCERequest, PSSortDocData,
 #        TestMakeInternalRequest) typed *ErrorCodes
+#   #4339 leftover system/Tools/RxFix (PSFixNavigation, PSJdbcTableCheck)
+#        typed *ErrorCodes
 # Converted (no longer listed): extensions-main #3756/#3938 (allow-list)
 # shrink after #3793 re-listed already-typed production paths);
 # design.catalog leftover #3969; system/src/main com.percussion.mail leftover
 # #4017; cx leftover #4013 (PSFont, PSOption, PSOptions, PSUserOptions);
 # servletutils PSTomcatUtils leftover #4195; system server core #4262;
 # system server webservices handlers #4263; modules+misc system leftovers #4264.
-# segmentation-rx orphan #4271; Testing Extensions leftover #4337.
-# Residual: Testing/cms HttpItemCopier + Tools/RxFix leftovers.
+# segmentation-rx orphan #4271; Testing Extensions leftover #4337;
+# Tools/RxFix leftover #4339.
+# Residual: Testing/cms HttpItemCopier leftover (#4338).
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -60,5 +63,3 @@
 
 
 system/Testing/cms/HttpItemCopier.java
-system/Tools/RxFix/src/com/percussion/rxfix/dbfixes/PSFixNavigation.java
-system/Tools/RxFix/src/com/percussion/rxverify/modules/PSJdbcTableCheck.java
