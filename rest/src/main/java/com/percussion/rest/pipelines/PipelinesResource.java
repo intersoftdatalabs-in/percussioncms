@@ -31,6 +31,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -59,7 +60,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(
     name = "Pipelines",
     description =
-        "Data pipeline / XML application design catalog, Admin start/stop, validation, read-only Pipeline IR, and thin IR execute")
+        "Data pipeline / XML application design catalog, Admin start/stop, validation, Pipeline IR, HTTP backend tank persist, and IR execute")
 public class PipelinesResource {
 
   private final IPipelinesAdaptor adaptor;
@@ -330,6 +331,45 @@ public class PipelinesResource {
       PipelineExecuteRequest body) {
     try {
       return requireAdaptor().execute(uriInfo.getBaseUri(), app, resource, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Persist native IR HTTP backend tank (adapterType=HTTP + loopback/local fixture URL). Does not
+   * rewrite classic XML Applications.
+   */
+  @PUT
+  @Path("/{app}/resources/{resource}/backendTank")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Persist HTTP backend tank on a native pipeline resource",
+      description =
+          "Admin only. Saves native IR backendTank.adapterType=HTTP (or REST) and a"
+              + " loopback/local fixture URL. Cloud hosts, credentials (userinfo), and non-http(s)"
+              + " schemes are 400. Classic XML Applications stay read-only.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Saved",
+            content = @Content(schema = @Schema(implementation = PipelineHttpBackendTank.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid URL, adapter, or name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public PipelineHttpBackendTank putHttpBackendTank(
+      @PathParam("app") String app,
+      @PathParam("resource") String resource,
+      PipelineHttpBackendTank body) {
+    try {
+      return requireAdaptor().putHttpBackendTank(uriInfo.getBaseUri(), app, resource, body);
     } catch (WebApplicationException e) {
       throw e;
     } catch (IllegalArgumentException e) {

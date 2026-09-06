@@ -19,6 +19,7 @@ package com.percussion.services.pipeline.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -27,13 +28,23 @@ import java.util.Objects;
  * <p>{@link #joins} holds the join-graph edges used by the multi-table SQL planner. {@link
  * #joinCount} remains for inventory / legacy IR and should match {@code joins.size()} when edges
  * were imported.
+ *
+ * <p>Slice C HTTP adapter: {@link #adapterType} {@code HTTP} (or {@code REST}) plus {@link #url}
+ * (loopback / local fixture only). Blank adapter type remains SQL.
  */
 public class BackendTankStageIr {
+
+  public static final String ADAPTER_SQL = "SQL";
+  public static final String ADAPTER_HTTP = "HTTP";
+  public static final String ADAPTER_REST = "REST";
 
   private boolean present;
   private List<BackendTableRefIr> tables = new ArrayList<>();
   private List<BackendJoinIr> joins = new ArrayList<>();
   private int joinCount;
+  private String adapterType;
+  private String url;
+  private String httpMethod;
 
   public boolean isPresent() {
     return present;
@@ -67,6 +78,39 @@ public class BackendTankStageIr {
     this.joinCount = joinCount;
   }
 
+  public String getAdapterType() {
+    return adapterType;
+  }
+
+  public void setAdapterType(String adapterType) {
+    this.adapterType = adapterType;
+  }
+
+  public String getUrl() {
+    return url;
+  }
+
+  public void setUrl(String url) {
+    this.url = url;
+  }
+
+  public String getHttpMethod() {
+    return httpMethod;
+  }
+
+  public void setHttpMethod(String httpMethod) {
+    this.httpMethod = httpMethod;
+  }
+
+  /** True when this tank is an HTTP/REST datasource (Slice C). */
+  public boolean isHttpAdapter() {
+    if (adapterType == null || adapterType.isBlank()) {
+      return false;
+    }
+    String n = adapterType.trim().toUpperCase(Locale.ROOT);
+    return ADAPTER_HTTP.equals(n) || ADAPTER_REST.equals(n);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -78,11 +122,14 @@ public class BackendTankStageIr {
     return present == that.present
         && joinCount == that.joinCount
         && Objects.equals(tables, that.tables)
-        && Objects.equals(joins, that.joins);
+        && Objects.equals(joins, that.joins)
+        && Objects.equals(adapterType, that.adapterType)
+        && Objects.equals(url, that.url)
+        && Objects.equals(httpMethod, that.httpMethod);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(present, tables, joins, joinCount);
+    return Objects.hash(present, tables, joins, joinCount, adapterType, url, httpMethod);
   }
 }

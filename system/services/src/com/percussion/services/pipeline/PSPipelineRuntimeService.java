@@ -20,6 +20,9 @@ package com.percussion.services.pipeline;
 import com.percussion.services.pipeline.hooks.IPSPipelinePostExecuteHook;
 import com.percussion.services.pipeline.hooks.IPSPipelinePreExecuteHook;
 import com.percussion.services.pipeline.hooks.PipelineHookContext;
+import com.percussion.services.pipeline.http.IPSPipelineHttpAdapter;
+import com.percussion.services.pipeline.http.PSPipelineHttpAdapter;
+import com.percussion.services.pipeline.model.BackendTankStageIr;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
@@ -35,18 +38,19 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Default {@link IPSPipelineRuntimeService}: load IR → pre hooks → plan SQL → adapter → post hooks
- * → JSON result.
+ * Default {@link IPSPipelineRuntimeService}: load IR → pre hooks → HTTP or SQL adapter → post
+ * hooks → JSON result.
  */
 public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
 
   private final IPSPipelineIrService irService;
   private final IPSPipelineSqlAdapter sqlAdapter;
+  private final IPSPipelineHttpAdapter httpAdapter;
   private final List<IPSPipelinePreExecuteHook> preHooks;
   private final List<IPSPipelinePostExecuteHook> postHooks;
 
   public PSPipelineRuntimeService(IPSPipelineIrService irService, IPSPipelineSqlAdapter sqlAdapter) {
-    this(irService, sqlAdapter, List.of(), List.of());
+    this(irService, sqlAdapter, new PSPipelineHttpAdapter(), List.of(), List.of());
   }
 
   public PSPipelineRuntimeService(
@@ -54,8 +58,18 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
       IPSPipelineSqlAdapter sqlAdapter,
       List<IPSPipelinePreExecuteHook> preHooks,
       List<IPSPipelinePostExecuteHook> postHooks) {
+    this(irService, sqlAdapter, new PSPipelineHttpAdapter(), preHooks, postHooks);
+  }
+
+  public PSPipelineRuntimeService(
+      IPSPipelineIrService irService,
+      IPSPipelineSqlAdapter sqlAdapter,
+      IPSPipelineHttpAdapter httpAdapter,
+      List<IPSPipelinePreExecuteHook> preHooks,
+      List<IPSPipelinePostExecuteHook> postHooks) {
     this.irService = Objects.requireNonNull(irService, "irService");
     this.sqlAdapter = Objects.requireNonNull(sqlAdapter, "sqlAdapter");
+    this.httpAdapter = httpAdapter != null ? httpAdapter : new PSPipelineHttpAdapter();
     this.preHooks = preHooks != null ? List.copyOf(preHooks) : List.of();
     this.postHooks = postHooks != null ? List.copyOf(postHooks) : List.of();
   }
@@ -105,7 +119,22 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
     result.setResourceName(resource.getName());
     result.setKind(resource.getKind());
 
-    if (PipelineResourceIr.KIND_QUERY.equals(resource.getKind())) {
+    BackendTankStageIr tank =
+        resource.getStages() != null ? resource.getStages().getBackendTank() : null;
+    if (tank != null && tank.isHttpAdapter()) {
+      if (!PipelineResourceIr.KIND_QUERY.equals(resource.getKind())
+          && resource.getKind() != null
+          && !PipelineResourceIr.KIND_UNKNOWN.equals(resource.getKind())) {
+        throw new PSPipelineIrException(
+            "HTTP datasource supports QUERY resources only in this slice");
+      }
+      List<Map<String, Object>> rows = httpAdapter.query(resource, req);
+      result.setOperation("http-query");
+      result.setKind(PipelineResourceIr.KIND_QUERY);
+      result.setRows(rows);
+      result.getMeta().put("adapterType", BackendTankStageIr.ADAPTER_HTTP);
+      result.getMeta().put("httpUrl", tank.getUrl());
+    } else if (PipelineResourceIr.KIND_QUERY.equals(resource.getKind())) {
       PSPipelineSqlPlan plan = PSPipelineSqlPlanner.planQuery(resource, req);
       List<Map<String, Object>> rows = sqlAdapter.query(plan);
       result.setOperation("query");

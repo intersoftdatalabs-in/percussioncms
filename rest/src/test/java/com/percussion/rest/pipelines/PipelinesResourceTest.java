@@ -270,6 +270,32 @@ public class PipelinesResourceTest {
   }
 
   @Test
+  public void putHttpBackendTankDelegatesToAdaptor() {
+    PipelineHttpBackendTank body = new PipelineHttpBackendTank();
+    body.setAdapterType("HTTP");
+    body.setUrl("http://127.0.0.1/pipeline-http-fixture");
+    when(adaptor.putHttpBackendTank(any(), eq("lookupApp"), eq("DatasetQ"), eq(body)))
+        .thenReturn(body);
+
+    PipelineHttpBackendTank out = resource.putHttpBackendTank("lookupApp", "DatasetQ", body);
+    assertEquals("HTTP", out.getAdapterType());
+    verify(adaptor).putHttpBackendTank(any(), eq("lookupApp"), eq("DatasetQ"), eq(body));
+  }
+
+  @Test
+  public void putHttpBackendTankMapsIllegalArgumentTo400() {
+    when(adaptor.putHttpBackendTank(any(), eq("app"), eq("res"), any()))
+        .thenThrow(new IllegalArgumentException("cloud url"));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.putHttpBackendTank("app", "res", new PipelineHttpBackendTank()));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("cloud url", ex.getMessage());
+  }
+
+  @Test
   public void startApplicationDelegatesToAdaptor() {
     ApplicationDetail d = new ApplicationDetail();
     d.setName("sys_foo");

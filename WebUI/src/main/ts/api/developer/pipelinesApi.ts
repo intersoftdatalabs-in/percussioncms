@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { get, post } from "../client";
+import { get, post, put } from "../client";
 import { PATHS } from "../paths";
 import type {
   ApplicationDetail,
@@ -23,6 +23,7 @@ import type {
   ApplicationValidationResult,
   PipelineExecuteRequest,
   PipelineExecuteResult,
+  PipelineHttpBackendTank,
   PipelineIrDocument,
 } from "./types";
 
@@ -164,6 +165,47 @@ export function unwrapPipelineExecuteResult(payload: unknown): PipelineExecuteRe
  * Body is {@link PipelineExecuteRequest} ({@code params}, {@code rows}, …) root-wrapped
  * for Jackson UNWRAP_ROOT_VALUE.
  */
+/** Jackson WRAP/UNWRAP_ROOT_VALUE root for {@link PipelineHttpBackendTank}. */
+export const PIPELINE_HTTP_BACKEND_TANK_ROOT = "PipelineHttpBackendTank";
+
+export function wrapPipelineHttpBackendTankForWire(
+  body: PipelineHttpBackendTank,
+): { PipelineHttpBackendTank: PipelineHttpBackendTank } {
+  return { [PIPELINE_HTTP_BACKEND_TANK_ROOT]: body ?? {} };
+}
+
+export function unwrapPipelineHttpBackendTank(
+  payload: unknown,
+): PipelineHttpBackendTank {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("HTTP backend tank not found or empty response");
+  }
+  const root = payload as Record<string, unknown>;
+  const nested = root.PipelineHttpBackendTank ?? root.pipelineHttpBackendTank;
+  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
+    return nested as PipelineHttpBackendTank;
+  }
+  return root as PipelineHttpBackendTank;
+}
+
+/**
+ * PUT /services/pipelines/{app}/resources/{resource}/backendTank — Admin native IR HTTP tank.
+ * Cloud / credentialed / non-local URLs are rejected by the server (HTTP 400).
+ */
+export async function putHttpBackendTank(
+  app: string,
+  resource: string,
+  body: PipelineHttpBackendTank,
+): Promise<PipelineHttpBackendTank> {
+  const appKey = encodeURIComponent(app);
+  const resourceKey = encodeURIComponent(resource);
+  const payload = await put<unknown>(
+    `${PATHS.PIPELINES}/${appKey}/resources/${resourceKey}/backendTank`,
+    wrapPipelineHttpBackendTankForWire(body),
+  );
+  return unwrapPipelineHttpBackendTank(payload);
+}
+
 export async function executeResource(
   app: string,
   resource: string,

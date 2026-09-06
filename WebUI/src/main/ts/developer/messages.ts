@@ -687,7 +687,7 @@ export const DEV_MSG_KEYS = {
   PIPE_EMPTY: "perc.ui.developer@No pipeline applications returned.",
   PIPE_ERROR: "perc.ui.developer@Could not load pipelines.",
   PIPE_HINT:
-    "perc.ui.developer@Server applications (classic XML Applications). Open a row for detail, data sets, pipe IR (resources, tanks, mapper), Admin Start/Stop, Test invoke, and Problems when available. Graph edit and IR write remain later slices.",
+    "perc.ui.developer@Server applications (classic XML Applications). Open a row for detail, data sets, pipe IR, Admin Start/Stop, HTTP backend tank (loopback/local fixture), Test invoke, and Problems when available. Graph editor remains a later slice.",
   PIPE_COL_NAME: "perc.ui.developer@Name",
   PIPE_COL_ID: "perc.ui.developer@Id",
   PIPE_COL_TYPE: "perc.ui.developer@Type",
@@ -723,7 +723,7 @@ export const DEV_MSG_KEYS = {
   PIPE_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   PIPE_IR: "perc.ui.developer@Pipe IR",
   PIPE_IR_HINT:
-    "perc.ui.developer@Read-only pipeline-ir-v1 structure (resources, stage presence, backend tanks, mapper mappings). Native IR when present; otherwise a classic import preview that is not saved.",
+    "perc.ui.developer@Pipeline-ir-v1 structure (resources, stage presence, backend tanks, mapper mappings). Native IR when present; otherwise a classic import preview. Admins can persist an HTTP backend tank (loopback/local fixture URL) without a graph editor.",
   PIPE_IR_LOADING: "perc.ui.developer@Loading pipe IR...",
   PIPE_IR_ERROR: "perc.ui.developer@Could not load pipe IR.",
   PIPE_IR_EMPTY: "perc.ui.developer@No IR resources returned for this application.",
@@ -757,6 +757,20 @@ export const DEV_MSG_KEYS = {
   PIPE_INVOKE_ERROR: "perc.ui.developer@Could not execute pipeline resource.",
   PIPE_INVOKE_BODY_INVALID: "perc.ui.developer@Request JSON must be a valid JSON object.",
   PIPE_INVOKE_RESOURCE_REQUIRED: "perc.ui.developer@Enter a resource name to invoke.",
+  PIPE_HTTP: "perc.ui.developer@HTTP datasource",
+  PIPE_HTTP_HINT:
+    "perc.ui.developer@Point this resource at a loopback or bundled local HTTP fixture. Cloud URLs and credentials are rejected. Classic XML Applications are not rewritten.",
+  PIPE_HTTP_ADAPTER: "perc.ui.developer@Adapter",
+  PIPE_HTTP_ADAPTER_SQL: "perc.ui.developer@SQL (default)",
+  PIPE_HTTP_ADAPTER_HTTP: "perc.ui.developer@HTTP",
+  PIPE_HTTP_URL: "perc.ui.developer@URL",
+  PIPE_HTTP_URL_PLACEHOLDER: "perc.ui.developer@http://127.0.0.1/pipeline-http-fixture",
+  PIPE_HTTP_SAVE: "perc.ui.developer@Save HTTP tank",
+  PIPE_HTTP_SAVING: "perc.ui.developer@Saving…",
+  PIPE_HTTP_SAVED: "perc.ui.developer@HTTP backend tank saved.",
+  PIPE_HTTP_SAVE_ERROR: "perc.ui.developer@Could not save HTTP backend tank.",
+  PIPE_HTTP_URL_REQUIRED: "perc.ui.developer@Enter a loopback or local fixture URL.",
+  PIPE_HTTP_RESOURCE_REQUIRED: "perc.ui.developer@Enter a resource name before saving the HTTP tank.",
   PIPE_PROBLEMS: "perc.ui.developer@Problems",
   PIPE_PROBLEMS_HINT:
     "perc.ui.developer@Design-time validation problems from Admin GET …/validation when that REST is available on the server.",

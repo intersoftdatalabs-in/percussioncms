@@ -70,6 +70,15 @@ public interface IPipelinesAdaptor {
       URI baseUri, String appName, String resourceName, PipelineExecuteRequest request);
 
   /**
+   * Admin: persist native IR HTTP backend tank for one resource (loopback / local fixture URL
+   * only). Classic XML Applications are not mutated.
+   *
+   * @return saved tank, never {@code null}
+   */
+  PipelineHttpBackendTank putHttpBackendTank(
+      URI baseUri, String appName, String resourceName, PipelineHttpBackendTank tank);
+
+  /**
    * Admin: start a non-hidden classic XML Application / pipeline package (peer {@code
    * PSServer.startApplication}). Idempotent when already running.
    *

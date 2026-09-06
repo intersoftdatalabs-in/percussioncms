@@ -450,6 +450,7 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
     resources: [],
   }),
   executeResource: vi.fn(),
+  putHttpBackendTank: vi.fn(),
   getApplicationValidation: vi.fn().mockRejectedValue({
     status: 404,
     statusText: "Not Found",

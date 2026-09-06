@@ -23,6 +23,7 @@ import {
   getApplicationDetail,
   getApplicationValidation,
   getPipelineIr,
+  putHttpBackendTank,
   startApplication,
   stopApplication,
 } from "../api/developer/pipelinesApi";
@@ -234,6 +235,8 @@ function IrResourceCard({
   const selector = stages?.selector?.present ? stages.selector : null;
   const updater = stages?.updater?.present ? stages.updater : null;
   const joinCount = stages?.backendTank?.joinCount;
+  const adapterType = stages?.backendTank?.adapterType;
+  const httpUrl = stages?.backendTank?.url;
 
   return (
     <article
@@ -305,6 +308,15 @@ function IrResourceCard({
           <>
             <dt>{DEV_MSG.PIPE_IR_JOINS}</dt>
             <dd style={{ margin: 0 }}>{joinCount}</dd>
+          </>
+        ) : null}
+        {adapterType ? (
+          <>
+            <dt>{DEV_MSG.PIPE_HTTP_ADAPTER}</dt>
+            <dd style={{ margin: 0, ...monoCell }} data-testid={`developer-pipe-ir-adapter-${index}`}>
+              {adapterType}
+              {httpUrl ? ` · ${httpUrl}` : ""}
+            </dd>
           </>
         ) : null}
       </dl>
@@ -423,8 +435,14 @@ export function PipelineDetailPanel({
   const [ir, setIr] = useState<PipelineIrDocument | null>(null);
   const [irError, setIrError] = useState<string | null>(null);
   const [irLoading, setIrLoading] = useState(true);
+  const [httpAdapter, setHttpAdapter] = useState("HTTP");
+  const [httpUrl, setHttpUrl] = useState("http://127.0.0.1/pipeline-http-fixture");
+  const [httpBusy, setHttpBusy] = useState(false);
+  const [httpError, setHttpError] = useState<string | null>(null);
+  const [httpNotice, setHttpNotice] = useState<string | null>(null);
   const inflight = useRef(false);
   const invokeInflight = useRef(false);
+  const httpInflight = useRef(false);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -445,8 +463,14 @@ export function PipelineDetailPanel({
     setIr(null);
     setIrError(null);
     setIrLoading(true);
+    setHttpAdapter("HTTP");
+    setHttpUrl("http://127.0.0.1/pipeline-http-fixture");
+    setHttpBusy(false);
+    setHttpError(null);
+    setHttpNotice(null);
     inflight.current = false;
     invokeInflight.current = false;
+    httpInflight.current = false;
     getApplicationDetail(idOrName)
       .then((d) => {
         if (!cancelled) {
@@ -463,6 +487,18 @@ export function PipelineDetailPanel({
         if (!cancelled) {
           setIr(doc);
           setIrLoading(false);
+          const firstHttp = (doc.resources || []).find((r) =>
+            (r.stages?.backendTank?.adapterType || "").toUpperCase().includes("HTTP"),
+          );
+          const tank = firstHttp?.stages?.backendTank;
+          if (tank?.url) {
+            setHttpUrl(tank.url);
+            if (tank.adapterType) setHttpAdapter(tank.adapterType);
+          }
+          const named = firstHttp?.name?.trim();
+          if (named) {
+            setResourceName((current) => current || named);
+          }
         }
       })
       .catch((err: unknown) => {
@@ -554,6 +590,55 @@ export function PipelineDetailPanel({
         setBusy(false);
         setLifecycleAction(null);
       }
+    }
+  }
+
+  async function onSaveHttpTank(): Promise<void> {
+    if (!detail || httpInflight.current) return;
+    const resource = resourceName.trim();
+    if (!resource) {
+      setHttpError(DEV_MSG.PIPE_HTTP_RESOURCE_REQUIRED);
+      setHttpNotice(null);
+      return;
+    }
+    const url = httpUrl.trim();
+    if (!url) {
+      setHttpError(DEV_MSG.PIPE_HTTP_URL_REQUIRED);
+      setHttpNotice(null);
+      return;
+    }
+    const adapter = httpAdapter.trim().toUpperCase();
+    if (adapter !== "HTTP" && adapter !== "REST") {
+      setHttpError(DEV_MSG.PIPE_HTTP_SAVE_ERROR);
+      setHttpNotice(null);
+      return;
+    }
+    httpInflight.current = true;
+    setHttpBusy(true);
+    setHttpError(null);
+    setHttpNotice(null);
+    try {
+      const saved = await putHttpBackendTank(idOrName, resource, {
+        adapterType: httpAdapter.trim() || "HTTP",
+        url,
+        httpMethod: "GET",
+      });
+      if (!mountedRef.current) return;
+      if (saved.url) setHttpUrl(saved.url);
+      if (saved.adapterType) setHttpAdapter(saved.adapterType);
+      setHttpNotice(DEV_MSG.PIPE_HTTP_SAVED);
+      try {
+        const nextIr = await getPipelineIr(idOrName);
+        if (mountedRef.current) setIr(nextIr);
+      } catch {
+        // persist succeeded; IR refresh is best-effort
+      }
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setHttpError(lifecycleErrMsg(err, DEV_MSG.PIPE_HTTP_SAVE_ERROR));
+    } finally {
+      httpInflight.current = false;
+      if (mountedRef.current) setHttpBusy(false);
     }
   }
 
@@ -811,6 +896,74 @@ export function PipelineDetailPanel({
               </>
             ) : null}
           </section>
+
+          {isAdmin ? (
+            <section style={{ marginBottom: "16px" }} data-testid="developer-pipe-http">
+              <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.PIPE_HTTP}</h3>
+              <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+                {DEV_MSG.PIPE_HTTP_HINT}
+              </p>
+              <div style={{ marginBottom: "12px" }}>
+                <label htmlFor="developer-pipe-http-adapter" style={fieldLabel}>
+                  {DEV_MSG.PIPE_HTTP_ADAPTER}
+                </label>
+                <select
+                  id="developer-pipe-http-adapter"
+                  data-testid="developer-pipe-http-adapter"
+                  value={httpAdapter}
+                  onChange={(e) => setHttpAdapter(e.target.value)}
+                  disabled={httpBusy}
+                  style={{ ...textInput, maxWidth: "240px" }}
+                >
+                  <option value="HTTP">{DEV_MSG.PIPE_HTTP_ADAPTER_HTTP}</option>
+                  <option value="SQL">{DEV_MSG.PIPE_HTTP_ADAPTER_SQL}</option>
+                </select>
+              </div>
+              <div style={{ marginBottom: "12px" }}>
+                <label htmlFor="developer-pipe-http-url" style={fieldLabel}>
+                  {DEV_MSG.PIPE_HTTP_URL}
+                </label>
+                <input
+                  id="developer-pipe-http-url"
+                  data-testid="developer-pipe-http-url"
+                  value={httpUrl}
+                  onChange={(e) => setHttpUrl(e.target.value)}
+                  disabled={httpBusy}
+                  style={textInput}
+                  placeholder={DEV_MSG.PIPE_HTTP_URL_PLACEHOLDER}
+                  autoComplete="off"
+                />
+              </div>
+              <button
+                type="button"
+                data-testid="developer-pipe-http-save"
+                aria-label={DEV_MSG.PIPE_HTTP_SAVE}
+                disabled={httpBusy}
+                onClick={() => void onSaveHttpTank()}
+                style={httpBusy ? disabledPrimary : primaryButton}
+              >
+                {httpBusy ? DEV_MSG.PIPE_HTTP_SAVING : DEV_MSG.PIPE_HTTP_SAVE}
+              </button>
+              {httpNotice ? (
+                <div
+                  role="status"
+                  data-testid="developer-pipe-http-notice"
+                  style={{ ...successNotice, marginTop: "12px" }}
+                >
+                  {httpNotice}
+                </div>
+              ) : null}
+              {httpError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-pipe-http-error"
+                  style={{ ...errorAlert, marginTop: "12px" }}
+                >
+                  {httpError}
+                </div>
+              ) : null}
+            </section>
+          ) : null}
 
           {isAdmin ? (
             <section style={{ marginBottom: "16px" }} data-testid="developer-pipe-invoke">

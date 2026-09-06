@@ -1833,7 +1833,7 @@ Example create body (user custom URL view):
 - Operator Inbox run-from-tree is Explorer **Views → My Content → Inbox**, not a
   free-floating Inbox root.
 
-## Pipelines (XML Applications catalog, lifecycle, IR read, and validation)
+## Pipelines (XML Applications catalog, lifecycle, IR, HTTP execute, and validation)
 
 Classic **XML Applications** (data pipeline packages) are exposed under `/services/pipelines`.
 The catalog is a thin contract over the server object store (`PSServerXmlObjectStore`
@@ -1845,7 +1845,9 @@ summaries / application objects). Admin **start** / **stop** peer the server con
 **without saving**. Admin **validation / problems** peers object-store
 `PSValidatorAdapter.validateApplication` and returns a structured problems summary.
 Thin IR execute (`POST …/execute`) is a separate native pipeline runtime path — it does
-**not** call classic `PSQueryHandler` / `PSUpdateHandler`.
+**not** call classic `PSQueryHandler` / `PSUpdateHandler`. **Slice C** adds native IR
+**HTTP backend tank persist** (`PUT …/backendTank`) and execute against a **loopback /
+local fixture URL** only (no live internet, no credentials in the URL).
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -1854,8 +1856,9 @@ Thin IR execute (`POST …/execute`) is a separate native pipeline runtime path 
 | `GET` | `/services/pipelines/{idOrName}/validation` | **Admin.** Design-time validation / problems summary |
 | `POST` | `/services/pipelines/{idOrName}/start` | **Admin.** Start application (idempotent if already running) |
 | `POST` | `/services/pipelines/{idOrName}/stop` | **Admin.** Stop application (idempotent if already stopped) |
-| `GET` | `/services/pipelines/{idOrName}/ir` | **Read-only** Pipeline IR (app meta + resources / stages / tanks / mapper) |
-| `POST` | `/services/pipelines/{app}/resources/{resource}/execute` | Execute a native pipeline IR resource |
+| `GET` | `/services/pipelines/{idOrName}/ir` | Pipeline IR (app meta + resources / stages / tanks / mapper). Native file when present; otherwise classic import preview |
+| `PUT` | `/services/pipelines/{app}/resources/{resource}/backendTank` | **Admin.** Persist native IR HTTP backend tank (`adapterType=HTTP`, loopback/local fixture URL) |
+| `POST` | `/services/pipelines/{app}/resources/{resource}/execute` | Execute a native pipeline IR resource (SQL or HTTP adapter) |
 | `GET` | `/services/pipelines/{idOrName}/validation` | **Admin.** Validation / problems summary (when deployed) |
 
 JSON list rows use `Application` / `ApplicationSummary`; detail uses `ApplicationDetail`
@@ -1885,20 +1888,42 @@ stopped, stop returns **200** with `active=false`. Successful responses return r
 2. Otherwise **imports** the classic XML Application into IR in memory (not persisted).
 
 Unknown or unsafe names are **404**. Import/decode failures that are not “not found” are
-**400**. This endpoint does **not** write native IR, edit the graph, or accept ZIP
-import/export — those remain `designGaps` on application detail. **Developer → Pipelines**
-detail uses this GET for a read-only resources / tanks / mapper summary (see
+**400**. Full graph editing and classic XML rewrite remain `designGaps`. Native **HTTP
+backend tank** persist is a separate Admin PUT (below). **Developer → Pipelines**
+detail uses this GET for a resources / tanks / mapper summary (see
 [Developer Pipelines](id:admin-developer-pipelines)).
+
+### HTTP backend tank persist (Slice C)
+
+`PUT …/resources/{resource}/backendTank` requires **Admin** (**403** otherwise). Body is
+`PipelineHttpBackendTank`:
+
+| Field | Role |
+|-------|------|
+| `adapterType` | Must be `HTTP` (or `REST`) |
+| `url` | Loopback `http(s)` URL or the bundled local fixture `http://127.0.0.1/pipeline-http-fixture` |
+| `httpMethod` | Optional; **GET** only in this slice |
+
+The path application name resolves against the object-store catalog (trusted name). The
+server writes **native IR** under `ObjectStore/pipeline-ir/` and does **not** mutate
+classic XML Applications. **400** when the URL is missing, uses credentials (`userinfo`),
+is a cloud/non-loopback host, is not `http`/`https`, or is an open-redirect risk. Unknown
+applications are **404**.
+
+The bundled fixture URL is resolved from a classpath JSON document (`sku` / `name` /
+`qty` rows) so H2 QA and air-gapped installs can Test invoke without a live HTTP server.
 
 ### Test invoke (execute)
 
 `POST …/resources/{resource}/execute` accepts a `PipelineExecuteRequest` JSON body
 (`params`, optional `rows` / `operation` / `keyColumns`) and returns
 `PipelineExecuteResult`. This path uses the native pipeline IR runtime; it does **not**
-call classic `PSQueryHandler` / `PSUpdateHandler`. Unknown app or resource names are
-**404**; unsupported resource kinds or invalid bodies are **400**. **Developer →
-Pipelines** detail exposes Admin **Test invoke** chrome that posts sample JSON and shows
-the structured result.
+call classic `PSQueryHandler` / `PSUpdateHandler`. When the resource backend tank
+`adapterType` is `HTTP`, execute GETs the configured loopback/local fixture and returns
+mapped JSON `rows` (document fields such as `sku` / `name` when a mapper is present).
+Cloud URLs, credentials, and redirects off loopback are **400**. Unknown app or resource
+names are **404**; unsupported resource kinds or invalid bodies are **400**. **Developer →
+Pipelines** detail exposes Admin **HTTP datasource** fields plus **Test invoke**.
 
 ### Admin validation / problems
 
@@ -1915,12 +1940,13 @@ unsafe names are **404**. **Hidden** applications cannot be validated via this A
 | `problems[]` | Entries with `severity` (`ERROR` \| `WARNING`), `code` (object-store message code as string), `message`, optional `resource` (dataset name when known), optional `path` (component class/id breadcrumb) |
 
 Empty `problems` with `valid=true` means object-store validation reported no issues.
-This is a **read** of design-time problems only — pipe graph edit, IR write, and classic
-ZIP import remain unsupported (`designGaps` on detail). The Developer Pipelines detail
-**Problems** section feature-detects this endpoint: a **404** yields a soft empty state
-so Test invoke, Pipe IR, and lifecycle chrome still work.
+This is a **read** of design-time problems only. Native HTTP backend tank persist ships
+via PUT (Slice C). Full pipe graph edit, enable/disable, and classic ZIP import remain
+unsupported (`designGaps` on detail). The Developer Pipelines detail **Problems** section
+feature-detects this endpoint: a **404** yields a soft empty state so Test invoke, Pipe
+IR, HTTP tank save, and lifecycle chrome still work.
 
-Remaining gaps on detail (`designGaps`) include IR write / graph editor / native save,
+Remaining gaps on detail (`designGaps`) include graph editor / classic XML write,
 enable/disable, and classic ZIP import/export.
 
 | Status | Typical meaning |

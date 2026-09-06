@@ -19,6 +19,7 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   executeResource: vi.fn(),
   getApplicationValidation: vi.fn(),
   getPipelineIr: vi.fn(),
+  putHttpBackendTank: vi.fn(),
 }));
 
 const getApplicationDetail = pipelinesApi.getApplicationDetail as ReturnType<typeof vi.fn>;
@@ -29,6 +30,7 @@ const getApplicationValidation = pipelinesApi.getApplicationValidation as Return
   typeof vi.fn
 >;
 const getPipelineIr = pipelinesApi.getPipelineIr as ReturnType<typeof vi.fn>;
+const putHttpBackendTank = pipelinesApi.putHttpBackendTank as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   id: 1,
@@ -80,7 +82,13 @@ describe("PipelineDetailPanel", () => {
     executeResource.mockReset();
     getApplicationValidation.mockReset();
     getPipelineIr.mockReset();
+    putHttpBackendTank.mockReset();
     getPipelineIr.mockResolvedValue({ irVersion: "1.0", source: "NATIVE", resources: [] });
+    putHttpBackendTank.mockResolvedValue({
+      adapterType: "HTTP",
+      url: "http://127.0.0.1/pipeline-http-fixture",
+      httpMethod: "GET",
+    });
     // Soft-empty when validation tip is not merged (default for most tests).
     getApplicationValidation.mockRejectedValue({
       status: 404,
@@ -196,6 +204,7 @@ describe("PipelineDetailPanel", () => {
     expect(screen.queryByTestId("developer-pipe-start")).toBeNull();
     expect(screen.queryByTestId("developer-pipe-stop")).toBeNull();
     expect(screen.queryByTestId("developer-pipe-invoke")).toBeNull();
+    expect(screen.queryByTestId("developer-pipe-http")).toBeNull();
     expect(screen.queryByTestId("developer-pipe-problems")).toBeNull();
     expect(getApplicationValidation).not.toHaveBeenCalled();
   });
@@ -437,6 +446,66 @@ describe("PipelineDetailPanel", () => {
       );
     });
     expect(executeResource).not.toHaveBeenCalled();
+  });
+
+  it("Admin saves HTTP backend tank for the selected resource", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-http")).toBeTruthy();
+    });
+    const url = screen.getByTestId("developer-pipe-http-url") as HTMLInputElement;
+    expect(url.value).toContain("pipeline-http-fixture");
+    fireEvent.click(screen.getByTestId("developer-pipe-http-save"));
+    await waitFor(() => {
+      expect(putHttpBackendTank).toHaveBeenCalledWith(
+        "sys_cmpDocuments",
+        "contenteditor",
+        {
+          adapterType: "HTTP",
+          url: "http://127.0.0.1/pipeline-http-fixture",
+          httpMethod: "GET",
+        },
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-http-notice").textContent).toBe(
+        DEV_MSG.PIPE_HTTP_SAVED,
+      );
+    });
+  });
+
+  it("HTTP save fail-closes on blank URL and cloud 400", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-http-url")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-pipe-http-url"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-http-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-http-error").textContent).toBe(
+        DEV_MSG.PIPE_HTTP_URL_REQUIRED,
+      );
+    });
+    expect(putHttpBackendTank).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByTestId("developer-pipe-http-url"), {
+      target: { value: "https://erp.example/api/items" },
+    });
+    putHttpBackendTank.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "HTTP datasource URL must be loopback" },
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-http-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-http-error").textContent).toMatch(
+        /loopback/i,
+      );
+    });
   });
 
   it("surfaces execute API errors in Test invoke", async () => {

@@ -1,0 +1,14 @@
+{
+  "rows": [
+    {
+      "sku": "SKU-1",
+      "name": "Loopback Widget",
+      "qty": 3
+    },
+    {
+      "sku": "SKU-2",
+      "name": "Local Gadget",
+      "qty": 7
+    }
+  ]
+}

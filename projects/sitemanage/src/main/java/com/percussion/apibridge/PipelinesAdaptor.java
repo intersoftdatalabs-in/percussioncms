@@ -30,6 +30,7 @@ import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationValidationProblem;
 import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
+import com.percussion.rest.pipelines.PipelineHttpBackendTank;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
@@ -47,9 +48,16 @@ import com.percussion.services.pipeline.IPSPipelineRuntimeService;
 import com.percussion.services.pipeline.PSPipelineIrException;
 import com.percussion.services.pipeline.PSPipelineIrServiceLocator;
 import com.percussion.services.pipeline.PSPipelineRuntimeServiceLocator;
+import com.percussion.services.pipeline.http.PSPipelineHttpAdapter;
+import com.percussion.services.pipeline.http.PSPipelineHttpUrl;
+import com.percussion.services.pipeline.model.BackendTankStageIr;
+import com.percussion.services.pipeline.model.MapperStageIr;
+import com.percussion.services.pipeline.model.MappingEntryIr;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
+import com.percussion.services.pipeline.model.PipelineResourceIr;
+import com.percussion.services.pipeline.model.PipelineStagesIr;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.util.PSCollection;
@@ -71,7 +79,7 @@ import org.apache.logging.log4j.Logger;
  * Lists classic XML Applications (pipeline packages) visible to the current security token,
  * Admin start/stop via {@link PSServer}, Admin validation/problems via {@link
  * CollectingApplicationValidator}, read-only Pipeline IR via {@link IPSPipelineIrService}, and
- * thin IR execute via {@link IPSPipelineRuntimeService}.
+ * thin IR execute via {@link IPSPipelineRuntimeService}, and native HTTP backend tank persist.
  *
  * <p>Uses {@link PSServerXmlObjectStore} for summaries; mapping/filter/limit are pure helpers so
  * they can be unit-tested without the object-store singleton. Execute never calls classic {@code
@@ -91,7 +99,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   public static final int MAX_LIMIT = 1000;
 
   static final String ADMIN_REQUIRED =
-      "Admin role required to start, stop, or validate pipeline applications";
+      "Admin role required to start, stop, validate, or persist HTTP backend tanks";
 
   static final String HIDDEN_NOT_ALLOWED =
       "Hidden applications cannot be started, stopped, or validated via this API";
@@ -369,6 +377,125 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       // Planner/validation failures are client errors; keep message (no path echo).
       throw new WebApplicationException(msg, 400);
     }
+  }
+
+  @Override
+  public PipelineHttpBackendTank putHttpBackendTank(
+      URI baseUri, String appName, String resourceName, PipelineHttpBackendTank tank) {
+    requireAdmin();
+    if (StringUtils.isBlank(appName) || !isSafeApplicationName(appName.trim())) {
+      throw new WebApplicationException("Invalid pipeline application name", 400);
+    }
+    if (StringUtils.isBlank(resourceName) || !isSafeResourceName(resourceName.trim())) {
+      throw new WebApplicationException("Invalid pipeline resource name", 400);
+    }
+    if (tank == null) {
+      throw new WebApplicationException("HTTP backend tank body is required", 400);
+    }
+    String adapter = tank.getAdapterType();
+    if (!PSPipelineHttpAdapter.isHttpAdapterType(adapter)) {
+      throw new WebApplicationException(
+          "adapterType must be HTTP (loopback / local fixture datasource)", 400);
+    }
+    try {
+      PSPipelineHttpUrl.requireSafe(tank.getUrl());
+    } catch (PSPipelineIrException e) {
+      throw new WebApplicationException(
+          e.getMessage() != null ? e.getMessage() : "Invalid HTTP datasource URL", 400);
+    }
+    String method = tank.getHttpMethod();
+    if (StringUtils.isNotBlank(method) && !"GET".equalsIgnoreCase(method.trim())) {
+      throw new WebApplicationException("HTTP datasource supports GET only in this slice", 400);
+    }
+
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for pipeline HTTP backend persist");
+    }
+    PSSecurityToken tok = req.getSecurityToken();
+    String name = resolveApplicationName(appName.trim(), summaryLoader.apply(tok));
+    if (name == null) {
+      throw new WebApplicationException("Application not found", 404);
+    }
+    String safeResource = resourceName.trim();
+    try {
+      IPSPipelineIrService ir = irSupplier.get();
+      PipelineIrDocument doc = ir.load(name).orElse(null);
+      if (doc == null) {
+        PSApplication app = applicationLoader.apply(name, tok);
+        if (app != null) {
+          doc = ir.importClassicApplication(app);
+        } else {
+          doc = new PipelineIrDocument();
+          doc.getApp().setName(name);
+        }
+      }
+      doc.setSource(PipelineIrDocument.SOURCE_NATIVE);
+      if (doc.getApp() == null || StringUtils.isBlank(doc.getApp().getName())) {
+        doc.getApp().setName(name);
+      }
+      PipelineResourceIr resource = doc.findResource(safeResource);
+      if (resource == null) {
+        resource = new PipelineResourceIr();
+        resource.setName(safeResource);
+        resource.setKind(PipelineResourceIr.KIND_QUERY);
+        doc.getResources().add(resource);
+      }
+      if (resource.getKind() == null
+          || PipelineResourceIr.KIND_UNKNOWN.equals(resource.getKind())) {
+        resource.setKind(PipelineResourceIr.KIND_QUERY);
+      }
+      PipelineStagesIr stages =
+          resource.getStages() != null ? resource.getStages() : new PipelineStagesIr();
+      BackendTankStageIr backend =
+          stages.getBackendTank() != null ? stages.getBackendTank() : new BackendTankStageIr();
+      backend.setPresent(true);
+      backend.setAdapterType(BackendTankStageIr.ADAPTER_HTTP);
+      backend.setUrl(tank.getUrl().trim());
+      backend.setHttpMethod(StringUtils.isBlank(method) ? "GET" : method.trim().toUpperCase(Locale.ROOT));
+      stages.setBackendTank(backend);
+      ensureHttpIdentityMapper(stages);
+      resource.setStages(stages);
+      ir.save(doc);
+
+      PipelineHttpBackendTank saved = new PipelineHttpBackendTank();
+      saved.setAdapterType(backend.getAdapterType());
+      saved.setUrl(backend.getUrl());
+      saved.setHttpMethod(backend.getHttpMethod());
+      return saved;
+    } catch (PSPipelineIrException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Failed to persist HTTP backend tank";
+      if (isNotFoundMessage(msg)) {
+        throw new WebApplicationException("Pipeline application or resource not found", 404);
+      }
+      throw new WebApplicationException(msg, 400);
+    }
+  }
+
+  /**
+   * Identity mapper for bundled HTTP fixture fields when the resource has no mappings yet so
+   * execute returns document fields (sku/name) rather than an empty mapped document.
+   */
+  static void ensureHttpIdentityMapper(PipelineStagesIr stages) {
+    MapperStageIr mapper = stages.getMapper();
+    if (mapper != null && mapper.getMappings() != null && !mapper.getMappings().isEmpty()) {
+      return;
+    }
+    if (mapper == null) {
+      mapper = new MapperStageIr();
+    }
+    mapper.setPresent(true);
+    mapper.setMappings(
+        List.of(httpMapping("sku", "sku"), httpMapping("name", "name"), httpMapping("qty", "qty")));
+    stages.setMapper(mapper);
+  }
+
+  private static MappingEntryIr httpMapping(String documentField, String backend) {
+    MappingEntryIr m = new MappingEntryIr();
+    m.setDocumentField(documentField);
+    m.setBackend(backend);
+    m.setBackendKind(MappingEntryIr.BACKEND_KIND_OTHER);
+    return m;
   }
 
   @Override
@@ -724,7 +851,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     List<String> gaps = new ArrayList<>();
     // Validation/problems read ships via GET …/validation — do not claim it unsupported.
     gaps.add(
-        "Pipe IR write / graph editor / native IR save not supported (GET …/ir is read-only)");
+        "Pipe IR graph editor / classic XML write not supported (native HTTP backend tank persist is PUT …/backendTank)");
     gaps.add("Enable / disable application not supported via this API");
     gaps.add("Classic application import/export ZIP not supported via this API");
     return gaps;
