@@ -608,6 +608,13 @@ export const PATHS = {
   get DATABASE_EXPLORER() {
     return `${SERVICES_ROOT}/databaseexplorer`;
   },
+  /**
+   * Developer Problems session list (#4345 / Workbench §12.4). Distinct from
+   * pipeline {@code GET /pipelines/{id}/validation}.
+   */
+  get PROBLEMS() {
+    return `${SERVICES_ROOT}/problems`;
+  },
   /** Content editor control catalog (UI-01). */
   get CE_CONTROLS() {
     return `${SERVICES_ROOT}/cecontrols`;

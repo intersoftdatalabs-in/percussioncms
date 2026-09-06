@@ -684,6 +684,7 @@ npm run test:unit
 npm run test:surface:list -- --path tests/login.spec.js
 npm run test:surface:list -- --path tests/developer-file-explorer-browse.spec.js
 npm run test:surface:list -- --path tests/developer-database-explorer-browse.spec.js
+npm run test:surface:list -- --path tests/developer-problems-panel.spec.js
 npm run test:surface:list -- --grep "Content Explorer"
 npm run test:surface:print -- --tag smoke
 

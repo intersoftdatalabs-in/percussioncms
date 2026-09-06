@@ -220,6 +220,13 @@ const DEVELOPER_SMOKE_SET = [
     notes: "SY-05 SPA application CMS/resource file write H2 (#4289 / parent #1690)",
   },
   {
+    id: "problems-panel",
+    file: "developer-problems-panel.spec.js",
+    title: "Admin sees a problem row and can navigate to source",
+    status: "green",
+    notes: "Workbench §12.4 Problems panel invalid-session fixture (#4345 / parent #1690)",
+  },
+  {
     id: "template-source-viewer",
     file: "developer-template-source-viewer.spec.js",
     title: "template detail source shows line numbers and copy control",
