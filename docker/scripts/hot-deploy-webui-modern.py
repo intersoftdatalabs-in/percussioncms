@@ -39,7 +39,7 @@ Callers restart Jetty *inside* the cell (StopJetty/StartJetty) then run
 By default the script refuses to deploy a bundle whose SPA entry
 (``assets/perc-modern-ui.js``) does not import a ``developer-*.js``
 chunk that contains the quoted wire values ``object-storage``,
-``rss-atom``, ``icalendar``, and ``sitemap-xml`` (single quotes,
+``rss-atom``, ``icalendar``, ``sitemap-xml``, and ``robots-txt`` (single quotes,
 double quotes, or JS template-literal backticks — Vite 8 / rolldown
 minifies these SOURCE_KIND_* constants to backtick strings) and the
 quoted Action Menus catalog testid ``developer-am-new`` (#4123
@@ -54,7 +54,7 @@ Exit codes:
   1  invocation / argument error
   2  container not running
   3  source tree / entry file not found
-  4  kind/SPA marker (object-storage, rss-atom, icalendar, sitemap-xml, and/or developer-am-new) missing in built JS
+  4  kind/SPA marker (object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, and/or developer-am-new) missing in built JS
   5  docker cp / docker exec failed
 """
 
@@ -86,12 +86,14 @@ OBJECT_STORAGE_MARKER = "object-storage"
 RSS_ATOM_MARKER = "rss-atom"
 ICALENDAR_MARKER = "icalendar"
 SITEMAP_XML_MARKER = "sitemap-xml"
+ROBOTS_TXT_MARKER = "robots-txt"
 DEVELOPER_AM_NEW_MARKER = "developer-am-new"
 REQUIRED_KIND_MARKERS: tuple[str, ...] = (
     OBJECT_STORAGE_MARKER,
     RSS_ATOM_MARKER,
     ICALENDAR_MARKER,
     SITEMAP_XML_MARKER,
+    ROBOTS_TXT_MARKER,
     DEVELOPER_AM_NEW_MARKER,
 )
 # Entry typically has import"./developer-<hash>.js" or import("./developer-<hash>.js").
@@ -146,8 +148,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         dest="skip_object_storage_check",
         help=(
             "Do not refuse a bundle whose JS lacks quoted object-storage, "
-            "rss-atom, icalendar, sitemap-xml, and/or developer-am-new "
-            "markers (escape hatch only; #3948 / #4141 / #4123)."
+            "rss-atom, icalendar, sitemap-xml, robots-txt, and/or developer-am-new "
+            "markers (escape hatch only; #3948 / #4141 / #4123 / #4360)."
         ),
     )
     p.add_argument(
@@ -289,8 +291,8 @@ def validate_src(
     """Return an exit code if ``src`` is not a deployable modern tree.
 
     ``require_object_storage`` is an alias for ``require_kind_markers``
-    (object-storage, rss-atom, icalendar, sitemap-xml, and
-    developer-am-new; #3893 / #3948 / #4141 / #4123).
+    (object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, and
+    developer-am-new; #3893 / #3948 / #4141 / #4123 / #4360).
     """
     if require_object_storage is not None:
         require_kind_markers = require_object_storage
@@ -327,7 +329,7 @@ def validate_src(
             LOG.error(
                 "hint: rebuild WebUI so the developer chunk includes the "
                 "SOURCE_KIND_* wire values as strings (object-storage, "
-                "rss-atom, icalendar, sitemap-xml) and data-testid "
+                "rss-atom, icalendar, sitemap-xml, robots-txt) and data-testid "
                 "developer-am-new, then deploy entry + hashed chunks (full "
                 "generated-webui/cm/modern tree, not assets/ hashes only)"
             )

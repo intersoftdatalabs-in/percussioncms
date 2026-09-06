@@ -1775,6 +1775,9 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_KIND_SITEMAP_XML: "perc.ui.developer@Sitemap XML",
   SITE_VIRT_SITEMAP_XML_HINT:
     "perc.ui.developer@Sitemap XML uses the root path only (no Git remote). Point at a local sitemap.xml fixture directory (sitemap.xml or _config.yaml sitemap.file). Save sourceKind=sitemap-xml, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target after a local sitemap.xml Build. Missing build stays unavailable. Live crawl URLs and credentials are never sent on the REST envelope.",
+  SITE_VIRT_KIND_ROBOTS_TXT: "perc.ui.developer@Robots.txt",
+  SITE_VIRT_ROBOTS_TXT_HINT:
+    "perc.ui.developer@Robots.txt uses the root path only (no Git remote). Point at a local robots.txt fixture directory (robots.txt or _config.yaml robots.file). Save sourceKind=robots-txt. Build Virtual Site, Preview assembled site, and Publish Virtual Site stay later slices. Live crawl URLs and credentials are never sent on the REST envelope.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:

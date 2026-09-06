@@ -54,6 +54,7 @@ import {
   SOURCE_KIND_ICALENDAR,
   SOURCE_KIND_RSS_ATOM,
   SOURCE_KIND_SELECT_VALUES,
+  SOURCE_KIND_ROBOTS_TXT,
   SOURCE_KIND_SITEMAP_XML,
   SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
@@ -63,6 +64,7 @@ import {
   isHttpJsonSourceKind,
   isIcalendarSourceKind,
   isObjectStorageSourceKind,
+  isRobotsTxtSourceKind,
   isRssAtomSourceKind,
   isSitemapXmlSourceKind,
   isSqlDatabaseSourceKind,
@@ -85,6 +87,7 @@ const SOURCE_KIND_OPTION_LABEL: Record<
   [SOURCE_KIND_RSS_ATOM]: DEV_MSG.SITE_VIRT_KIND_RSS_ATOM,
   [SOURCE_KIND_ICALENDAR]: DEV_MSG.SITE_VIRT_KIND_ICALENDAR,
   [SOURCE_KIND_SITEMAP_XML]: DEV_MSG.SITE_VIRT_KIND_SITEMAP_XML,
+  [SOURCE_KIND_ROBOTS_TXT]: DEV_MSG.SITE_VIRT_KIND_ROBOTS_TXT,
 };
 
 const formRow: React.CSSProperties = {
@@ -179,7 +182,9 @@ function validationMessage(
  * rss-atom/icalendar/sitemap-xml after a successful Build (sitemap-xml copies
  * last-build local HTML to {@code IPSSite.root}; leftover remoteUrl/credentials
  * fail closed). Repository / blank / unknown kinds stay hidden. sitemap-xml
- * uses a local {@code rootPath} only (no live crawl chrome).
+ * uses a local {@code rootPath} only (no live crawl chrome). robots-txt save
+ * chrome uses a local {@code rootPath} only; Build/Preview/Publish stay hidden
+ * until later slices.
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -372,7 +377,8 @@ export function VirtualSiteSourcePanel({
   const rssAtomMode = isRssAtomSourceKind(form.sourceKind);
   const icalendarMode = isIcalendarSourceKind(form.sourceKind);
   const sitemapXmlMode = isSitemapXmlSourceKind(form.sourceKind);
-  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml (never repository). */
+  const robotsTxtMode = isRobotsTxtSourceKind(form.sourceKind);
+  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml (never repository or robots-txt persist). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
   /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml (never repository). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
@@ -527,6 +533,14 @@ export function VirtualSiteSourcePanel({
                   data-testid="developer-site-virtual-sitemap-xml-hint"
                 >
                   {DEV_MSG.SITE_VIRT_SITEMAP_XML_HINT}
+                </p>
+              ) : null}
+              {robotsTxtMode ? (
+                <p
+                  style={{ ...mutedHintText, margin: "0 0 10px" }}
+                  data-testid="developer-site-virtual-robots-txt-hint"
+                >
+                  {DEV_MSG.SITE_VIRT_ROBOTS_TXT_HINT}
                 </p>
               ) : null}
               {gitMode ? (

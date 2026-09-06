@@ -142,7 +142,11 @@ under `virtual.rootPath` (`robots.txt`, or `_config.yaml` `robots.file`). Each
 `virtual.remoteUrl`, credential properties, `robots.url`, cloud `rootPath` URLs, and
 `Sitemap:` values with a remote/cloud scheme are rejected. SPI/CLI assemble is
 `PSVirtualSiteBuildMain … robots-txt` (`pagesWritten > 0` from a temp fixture). REST
-persist, Build/Preview/Publish, and Developer Sites chrome stay later slices.
+`GET` / `PUT /sites/{nameOrId}/virtual` round-trips `sourceKind=robots-txt` with a
+portable-safe local `rootPath` (leftover `virtual.remoteUrl`, credentials, and cloud
+URL `rootPath` are **400**; no live crawl). Developer Sites can save and GET-roundtrip
+`sourceKind=robots-txt` (local `rootPath` only; leftover `virtual.remoteUrl` and crawl
+credentials are never sent). REST/UI Build, Preview, and Publish stay later slices.
 
 A **llms.txt** adapter (`llms-txt`) discovers pages from a **local `llms.txt`**
 under `virtual.rootPath` (`llms.txt`, or `_config.yaml` `llms.file`). Each
@@ -739,8 +743,12 @@ object-storage / rss-atom / icalendar). Unknown kinds remain rejected.
 The `robots-txt` adapter discovers pages from a **local robots.txt fixture**. `_config.yaml`
 is **required** (versions / site title). Git remotes are not used (`virtual.remoteUrl` is
 rejected). This is a **local robots adapter** — no live crawl, no remote robots.txt fetch,
-no authenticated remotes, no cloud robots URLs. REST persist, Build, Preview, Publish, and
-Developer Sites chrome stay later slices. Operators assemble offline with the CLI.
+no authenticated remotes, no cloud robots URLs. REST **GET/PUT** `/sites/{nameOrId}/virtual`
+round-trips `sourceKind=robots-txt` with a portable-safe local `rootPath` (leftover
+`virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**). Developer Sites
+can save and GET-roundtrip `sourceKind=robots-txt` (local `rootPath` only; leftover
+`virtual.remoteUrl` and crawl credentials are never sent). REST/UI Build, Preview, and
+Publish stay later slices. Operators assemble offline with the CLI.
 
 | `_config.yaml` key | Meaning |
 |--------------------|---------|
@@ -782,6 +790,15 @@ PSVirtualSiteBuildMain <siteRoot> <outputRoot> [siteKey] robots-txt
 
 Site property validation allow-lists `robots-txt` (same helper as Git/CSV/SQL/HTTP JSON /
 object-storage / rss-atom / icalendar / sitemap-xml). Unknown kinds remain rejected.
+
+### REST persist for robots.txt (`robots-txt`)
+
+REST `PUT` / `GET /sites/{nameOrId}/virtual` round-trips `sourceKind=robots-txt` with a
+portable-safe local `rootPath`. Leftover `virtual.remoteUrl`, credential properties, and
+cloud URL `rootPath` are **400**. This is a **local robots.txt fixture** only — no live
+crawl. Developer Sites can save and GET-roundtrip `sourceKind=robots-txt` (local fixture
+`rootPath` only); leftover crawl URLs and credentials are never sent on the REST envelope.
+REST/UI Build, Preview, and Publish stay later slices.
 
 ### Offline build from llms.txt (`llms-txt`)
 

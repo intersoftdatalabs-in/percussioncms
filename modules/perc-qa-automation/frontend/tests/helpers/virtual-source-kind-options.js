@@ -37,6 +37,7 @@ function requiredVirtualSourceKindValues() {
     "rss-atom",
     "icalendar",
     "sitemap-xml",
+    "robots-txt",
   ];
 }
 

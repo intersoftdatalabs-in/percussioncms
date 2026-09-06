@@ -44,6 +44,9 @@ export const SOURCE_KIND_ICALENDAR = "icalendar";
 /** Virtual Site adapter wire name for a local sitemap.xml fixture (no live crawl). */
 export const SOURCE_KIND_SITEMAP_XML = "sitemap-xml";
 
+/** Virtual Site adapter wire name for a local robots.txt fixture (no live crawl). */
+export const SOURCE_KIND_ROBOTS_TXT = "robots-txt";
+
 /** Form select values for source kind. */
 export type VirtualSourceKindOption =
   | typeof SOURCE_KIND_REPOSITORY
@@ -54,7 +57,8 @@ export type VirtualSourceKindOption =
   | typeof SOURCE_KIND_OBJECT_STORAGE
   | typeof SOURCE_KIND_RSS_ATOM
   | typeof SOURCE_KIND_ICALENDAR
-  | typeof SOURCE_KIND_SITEMAP_XML;
+  | typeof SOURCE_KIND_SITEMAP_XML
+  | typeof SOURCE_KIND_ROBOTS_TXT;
 
 /**
  * Product order for the Developer Sites source-kind {@code <select>}.
@@ -71,6 +75,7 @@ export const SOURCE_KIND_SELECT_VALUES: readonly VirtualSourceKindOption[] = [
   SOURCE_KIND_RSS_ATOM,
   SOURCE_KIND_ICALENDAR,
   SOURCE_KIND_SITEMAP_XML,
+  SOURCE_KIND_ROBOTS_TXT,
 ];
 
 /** Editable form model for the Virtual Site source panel. */
@@ -87,8 +92,8 @@ export interface VirtualSiteFormModel {
  * Normalize a wire/sourceKind string into a form select option.
  * Blank, missing, or {@code repository} → repository; git-filesystem,
  * csv-filesystem, sql-database, http-json, object-storage, rss-atom,
- * icalendar, and sitemap-xml map to themselves; unknown kinds → repository
- * (safe default).
+ * icalendar, sitemap-xml, and robots-txt map to themselves; unknown kinds →
+ * repository (safe default).
  */
 export function normalizeSourceKindOption(
   raw: string | null | undefined,
@@ -120,6 +125,9 @@ export function normalizeSourceKindOption(
   }
   if (v === SOURCE_KIND_SITEMAP_XML) {
     return SOURCE_KIND_SITEMAP_XML;
+  }
+  if (v === SOURCE_KIND_ROBOTS_TXT) {
+    return SOURCE_KIND_ROBOTS_TXT;
   }
   // Unknown kinds: surface as repository so operators do not accidentally
   // re-save an unsupported adapter without changing the select.
@@ -170,6 +178,11 @@ export function isIcalendarSourceKind(kind: string | null | undefined): boolean 
 /** True when source kind is the local sitemap XML adapter (root path only; no live crawl). */
 export function isSitemapXmlSourceKind(kind: string | null | undefined): boolean {
   return (kind ?? "").trim().toLowerCase() === SOURCE_KIND_SITEMAP_XML;
+}
+
+/** True when source kind is the local robots.txt adapter (root path only; no live crawl). */
+export function isRobotsTxtSourceKind(kind: string | null | undefined): boolean {
+  return (kind ?? "").trim().toLowerCase() === SOURCE_KIND_ROBOTS_TXT;
 }
 
 /**
@@ -269,6 +282,16 @@ export function formToVirtualProps(form: VirtualSiteFormModel): VirtualSitePrope
     // sitemap.xml fixture directory only — never send crawl URLs or credentials.
     return {
       sourceKind: SOURCE_KIND_SITEMAP_XML,
+      rootPath: form.rootPath.trim() || null,
+      remoteUrl: "",
+      branch: "",
+    };
+  }
+  if (kind === SOURCE_KIND_ROBOTS_TXT) {
+    // robots.txt rejects a non-blank virtual.remoteUrl (REST 400). Local
+    // robots.txt fixture directory only — never send crawl URLs or credentials.
+    return {
+      sourceKind: SOURCE_KIND_ROBOTS_TXT,
       rootPath: form.rootPath.trim() || null,
       remoteUrl: "",
       branch: "",

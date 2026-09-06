@@ -1197,6 +1197,172 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void updateVirtualSiteProperties_robotsTxtRoundTripsOnGet() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("RobotsHelp");
+    existing.setGUID(siteGuid);
+
+    PSSite modifiable = new PSSite();
+    modifiable.setName("RobotsHelp");
+    modifiable.setGUID(siteGuid);
+
+    when(siteManager.findSite("RobotsHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("robots-txt");
+    body.setRootPath("C:/robots-docs");
+    body.setSiteKey("robots-help");
+
+    VirtualSiteProperties out = adaptor.updateVirtualSiteProperties("RobotsHelp", body);
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    assertEquals("robots-txt", out.getSourceKind());
+    assertEquals("C:/robots-docs", out.getRootPath());
+    assertEquals("robots-help", out.getSiteKey());
+    assertNull(out.getRemoteUrl());
+
+    ArgumentCaptor<PSSite> saved = ArgumentCaptor.forClass(PSSite.class);
+    verify(siteManager).saveSite(saved.capture());
+    PSSite persisted = saved.getValue();
+    assertTrue(PSVirtualSiteHelper.isVirtual(persisted));
+    assertEquals(
+        "robots-txt",
+        PSVirtualSiteHelper.findProperty(persisted, PSVirtualSiteHelper.PROP_SOURCE_KIND)
+            .orElse(null));
+
+    when(siteManager.findSite("RobotsHelp")).thenReturn(persisted);
+    VirtualSiteProperties loaded = adaptor.getVirtualSiteProperties("RobotsHelp");
+    assertEquals("robots-txt", loaded.getSourceKind());
+    assertEquals("C:/robots-docs", loaded.getRootPath());
+    assertTrue(Boolean.TRUE.equals(loaded.getVirtual()));
+  }
+
+  @Test
+  void updateVirtualSiteProperties_robotsTxtRejectsParentRootPath() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("RobotsHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("RobotsHelp");
+    modifiable.setGUID(siteGuid);
+
+    when(siteManager.findSite("RobotsHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("robots-txt");
+    body.setRootPath("../outside");
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.updateVirtualSiteProperties("RobotsHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void updateVirtualSiteProperties_robotsTxtRejectsRemoteUrl() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("RobotsHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("RobotsHelp");
+    modifiable.setGUID(siteGuid);
+
+    when(siteManager.findSite("RobotsHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("robots-txt");
+    body.setRootPath("C:/robots-docs");
+    body.setRemoteUrl("https://user:secret@git.example.com/org/docs.git");
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.updateVirtualSiteProperties("RobotsHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("user:secret"));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void updateVirtualSiteProperties_robotsTxtRejectsCloudUrl() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("RobotsHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("RobotsHelp");
+    modifiable.setGUID(siteGuid);
+
+    when(siteManager.findSite("RobotsHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("robots-txt");
+    body.setRootPath("https://example.com/robots.txt");
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.updateVirtualSiteProperties("RobotsHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void updateVirtualSiteProperties_robotsTxtRejectsCredentialProperty() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("RobotsHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("RobotsHelp");
+    modifiable.setGUID(siteGuid);
+    put(modifiable, "aws_secret_access_key", "not-a-real-secret");
+
+    when(siteManager.findSite("RobotsHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("robots-txt");
+    body.setRootPath("C:/robots-docs");
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.updateVirtualSiteProperties("RobotsHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
   void updateVirtualSiteProperties_rejectsUnknownSourceKind() throws Exception {
     PSSite existing = new PSSite();
     existing.setName("Help");
