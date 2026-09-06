@@ -601,6 +601,13 @@ export const PATHS = {
   get FILE_EXPLORER() {
     return `${SERVICES_ROOT}/fileexplorer`;
   },
+  /**
+   * Allow-listed Database Explorer JDBC catalog browse (#4343). Distinct from
+   * {@link FILE_EXPLORER}.
+   */
+  get DATABASE_EXPLORER() {
+    return `${SERVICES_ROOT}/databaseexplorer`;
+  },
   /** Content editor control catalog (UI-01). */
   get CE_CONTROLS() {
     return `${SERVICES_ROOT}/cecontrols`;

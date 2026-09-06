@@ -786,6 +786,20 @@ vi.mock("../../../main/ts/api/developer/fileExplorerApi", async (importOriginal)
   };
 });
 
+vi.mock("../../../main/ts/api/developer/databaseExplorerApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/databaseExplorerApi")>();
+  return {
+    ...actual,
+    listDatabaseExplorerDatasources: vi.fn().mockResolvedValue([
+      { id: "cms", displayName: "cms", repository: true, available: true },
+    ]),
+    listDatabaseExplorerTables: vi.fn().mockResolvedValue([
+      { name: "CONTENTSTATUS", type: "TABLE", schema: "PUBLIC" },
+    ]),
+  };
+});
+
 vi.mock("../../../main/ts/api/developer/controlsApi", async (importOriginal) => {
   const actual =
     await importOriginal<typeof import("../../../main/ts/api/developer/controlsApi")>();
@@ -1141,6 +1155,17 @@ it("loads views catalog section", async () => {
       expect(screen.getByTestId("developer-fe-roots-table")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-fe-roots-table").textContent).toContain("rx_resources");
+  });
+
+  it("loads Database Explorer catalog section", async () => {
+    render(<DeveloperShell initialSection="database-explorer" embedded />);
+    expect(
+      screen.getByTestId("tab-developer-database-explorer").getAttribute("aria-selected"),
+    ).toBe("true");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-dbx-datasources-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-dbx-datasources-table").textContent).toContain("cms");
   });
 
   it("loads CE controls catalog section", async () => {

@@ -2386,7 +2386,8 @@ Clients never supply a filesystem path as the root key. Root ids are catalog tok
 `server.properties`. Query `path` is relative under that root (`/` separators). Parent
 traversal (`..`), absolute paths, drive letters, and UNC forms are **400**. Unknown
 allow-listed ids or missing directories are **404**. Error bodies do **not** echo the raw
-path. Write, upload, and Database Explorer (§12.2) are out of scope.
+path. Write and upload are out of scope. Database Explorer (§12.2) is a
+separate Admin catalog under `/services/databaseexplorer`.
 
 Configure roots in `rxconfig/server.properties`:
 
@@ -2411,6 +2412,7 @@ of truth.
 | Surface | Path | Domain |
 |---------|------|--------|
 | File Explorer (this API) | `/services/fileexplorer` | Allow-listed **server** filesystem browse (Workbench File Explorer) |
+| Database Explorer | `/services/databaseexplorer` | Allow-listed JDBC catalog browse (datasources → tables/views) |
 | SY-05 application files | `/services/applicationfiles` | XML application CMS/resource files under a catalog application root |
 | SY-02 server configs | `/services/serverconfigs` | Fixed `PSConfigurationTypes` configuration file bodies |
 
@@ -2422,6 +2424,48 @@ of truth.
 | `404` | Root or relative directory not found / not allow-listed |
 | `503` | File Explorer adaptor not configured |
 | `500` | Unexpected I/O or server error |
+
+## Database Explorer (allow-listed JDBC catalog)
+
+Workbench **Database Explorer** (§12.2) is an **Admin** catalog under
+`/services/databaseexplorer`. It lists **operator-configured allow-listed
+datasources** and their **TABLE** / **VIEW** objects from JDBC
+`DatabaseMetaData`. The Developer SPA **Database Explorer** tab consumes this
+API (read-only). It is **not** File Explorer (`/services/fileexplorer`).
+
+Clients never supply a JDBC URL as the catalog key. Datasource ids are catalog
+tokens from `server.properties`. Parent traversal, JDBC URLs, and
+**non-allow-listed** names are **400**. Error bodies do **not** echo JDBC URLs
+or credentials. Write, SQL, and DDL are out of scope.
+
+Configure datasources in `rxconfig/Server/server.properties`:
+
+```properties
+databaseExplorer.allowListedDatasources=cms=repository
+```
+
+Entries are `id` or `id=cmsDatasourceName` separated by `;`. `id` is letters,
+digits, `_`, or `-` (must start with a letter). The reserved token `repository`
+maps to the CMS repository datasource. An empty property lists no datasources
+(JDBC metadata is never cataloged by default).
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/databaseexplorer` | **Admin.** List allow-listed datasources (`id`, `displayName`, `repository`, `available`) — no JDBC URL |
+| `GET` | `/services/databaseexplorer/{datasourceId}/tables` | **Admin.** List TABLE and VIEW objects for that catalog id |
+
+JSON uses `DatabaseExplorerDatasource` / `DatabaseExplorerTable` (`name`, `type`,
+optional `schema`). Prefer the generated OpenAPI schema as the integration source
+of truth.
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | List success (empty array when no datasources are configured) |
+| `400` | Unsafe or non-allow-listed datasource id |
+| `403` | Caller is not Admin |
+| `404` | Allow-listed datasource is configured but unavailable |
+| `503` | Database Explorer adaptor not configured |
+| `500` | Unexpected JDBC or server error |
 
 ## Extensions (catalog)
 
