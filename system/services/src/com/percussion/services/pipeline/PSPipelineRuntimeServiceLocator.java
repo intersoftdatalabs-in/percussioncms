@@ -17,14 +17,18 @@
 
 package com.percussion.services.pipeline;
 
+import com.percussion.services.pipeline.http.PSPipelineHttpAdapter;
+import com.percussion.services.pipeline.sql.IPSPipelineSqlAdapter;
+import com.percussion.services.pipeline.sql.PSPipelineSqlPlan;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Thread-safe locator for {@link IPSPipelineRuntimeService}.
  *
- * <p>No default production wiring in this slice — callers (and tests) must {@link
- * #setPipelineRuntimeService(IPSPipelineRuntimeService)} with an instance that has a configured
- * SQL adapter (CMS datasource / H2). Production wiring is a later integration concern.
+ * <p>Default production wiring is HTTP-capable (loopback/local fixture) with an unconfigured SQL
+ * adapter. Tests may {@link #setPipelineRuntimeService(IPSPipelineRuntimeService)} to inject H2.
  */
 public final class PSPipelineRuntimeServiceLocator {
 
@@ -33,15 +37,24 @@ public final class PSPipelineRuntimeServiceLocator {
   private PSPipelineRuntimeServiceLocator() {}
 
   /**
-   * @return configured runtime service
-   * @throws IllegalStateException when not set
+   * @return configured runtime service (lazy default includes HTTP adapter)
    */
   public static IPSPipelineRuntimeService getPipelineRuntimeService() {
     IPSPipelineRuntimeService svc = SERVICE.get();
     if (svc == null) {
-      throw new IllegalStateException(
-          "IPSPipelineRuntimeService is not configured; call setPipelineRuntimeService with a"
-              + " SQL-backed implementation");
+      synchronized (PSPipelineRuntimeServiceLocator.class) {
+        svc = SERVICE.get();
+        if (svc == null) {
+          svc =
+              new PSPipelineRuntimeService(
+                  PSPipelineIrServiceLocator.getPipelineIrService(),
+                  new UnconfiguredSqlAdapter(),
+                  new PSPipelineHttpAdapter(),
+                  List.of(),
+                  List.of());
+          SERVICE.set(svc);
+        }
+      }
     }
     return svc;
   }
@@ -53,5 +66,26 @@ public final class PSPipelineRuntimeServiceLocator {
    */
   public static void setPipelineRuntimeService(IPSPipelineRuntimeService service) {
     SERVICE.set(service);
+  }
+
+  /**
+   * SQL path placeholder when no CMS datasource is wired. HTTP execute does not use this adapter.
+   */
+  static final class UnconfiguredSqlAdapter implements IPSPipelineSqlAdapter {
+    @Override
+    public List<Map<String, Object>> query(PSPipelineSqlPlan plan) throws PSPipelineIrException {
+      throw new PSPipelineIrException("SQL pipeline adapter is not configured");
+    }
+
+    @Override
+    public int update(PSPipelineSqlPlan plan) throws PSPipelineIrException {
+      throw new PSPipelineIrException("SQL pipeline adapter is not configured");
+    }
+
+    @Override
+    public int updateAll(List<PSPipelineSqlPlan> plans, String transactionMode)
+        throws PSPipelineIrException {
+      throw new PSPipelineIrException("SQL pipeline adapter is not configured");
+    }
   }
 }

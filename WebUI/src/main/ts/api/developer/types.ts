@@ -472,6 +472,18 @@ export interface PipelineIrPageTank extends PipelineIrStagePresence {
 export interface PipelineIrBackendTank extends PipelineIrStagePresence {
   tables?: PipelineIrBackendTable[];
   joinCount?: number;
+  /** SQL (default) or HTTP / REST (Slice C). */
+  adapterType?: string;
+  /** Loopback or bundled local fixture URL when adapterType is HTTP. */
+  url?: string;
+  httpMethod?: string;
+}
+
+/** Body/result for PUT /services/pipelines/{app}/resources/{resource}/backendTank. */
+export interface PipelineHttpBackendTank {
+  adapterType?: string;
+  url?: string;
+  httpMethod?: string;
 }
 
 export interface PipelineIrMapper extends PipelineIrStagePresence {

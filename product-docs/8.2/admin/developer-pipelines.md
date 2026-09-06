@@ -1,7 +1,7 @@
 ---
 id: admin-developer-pipelines
 title: Developer Pipelines
-description: Browse classic XML Applications, Admin start/stop, read-only pipe IR, Test invoke, and Problems from Developer Pipelines chrome
+description: Browse classic XML Applications, Admin start/stop, pipe IR, HTTP datasource Test invoke, and Problems from Developer Pipelines chrome
 version: "8.2"
 order: 51
 tags: [admin, developer, pipelines]
@@ -25,20 +25,27 @@ lifecycle controls.
 The IR section calls `GET /services/pipelines/{idOrName}/ir`. When a native IR
 file exists under `ObjectStore/pipeline-ir/`, that document is shown (`source`
 `NATIVE`). Otherwise the server imports the classic application into IR **in
-memory** (`source` `CLASSIC_IMPORT`) and does **not** save it.
+memory** (`source` `CLASSIC_IMPORT`) until an Admin **saves an HTTP backend
+tank**, which writes native IR without rewriting classic XML Applications.
 
-**Admins** also get **Test invoke** and **Problems** on the same detail page:
+**Admins** also get **HTTP datasource**, **Test invoke**, and **Problems** on the
+same detail page:
 
+- **HTTP datasource** sets `adapterType=HTTP` and a **loopback / local fixture
+  URL** (default `http://127.0.0.1/pipeline-http-fixture`) on the selected
+  resource via `PUT /services/pipelines/{app}/resources/{resource}/backendTank`.
+  Cloud hosts, credentials in the URL, and non-http(s) schemes return **400**.
 - **Test invoke** posts sample JSON (`params` / `rows`) to
   `POST /services/pipelines/{app}/resources/{resource}/execute` and shows the
-  structured execute result (or a clear error). Use a data-set name as the
-  resource when the application has native pipe IR.
+  structured execute result (or a clear error). HTTP tanks return mapped JSON
+  `rows` (for example `sku` / `name` from the bundled fixture) — not empty
+  invented data.
 - **Problems** loads Admin `GET /services/pipelines/{idOrName}/validation` when
   that endpoint is present. If validation REST is not deployed yet, the section
   shows a soft empty state instead of failing the page.
 
-Graph editing, IR write / native save, enable/disable, and classic ZIP
-import/export remain later slices (see detail **design gaps** when present).
+Graph editing, enable/disable, and classic ZIP import/export remain later slices
+(see detail **design gaps** when present).
 
 ## Product path — browse and lifecycle
 
@@ -70,18 +77,24 @@ If IR cannot be loaded (for example **404** for an unknown app or missing IR),
 the catalog detail still renders and the Pipe IR section shows an error — the
 chrome does not echo the raw path name in that message.
 
-## Product path — Test invoke
+## Product path — HTTP datasource and Test invoke
 
 1. As **Admin**, open an application detail page.
-2. In **Test invoke**, enter a **resource** name (data-set names are offered
-   when present) and edit the **Request JSON** body (default
-   `{ "params": {} }`).
-3. Choose **Invoke**. On success, the structured execute result JSON appears
-   under **Execute result**. Invalid JSON, a blank resource, or server
+2. In **HTTP datasource**, keep **Adapter** = **HTTP** and set **URL** to a
+   loopback address or the bundled fixture
+   `http://127.0.0.1/pipeline-http-fixture`. Enter a **resource** name in
+   **Test invoke** (data-set names are offered when present).
+3. Choose **Save HTTP tank**. Success shows a saved notice. Cloud URLs such as
+   `https://erp.example/api/items` or URLs with userinfo fail closed with a
+   clear **400** error.
+4. In **Test invoke**, edit the **Request JSON** body (default
+   `{ "params": {} }`) and choose **Invoke**. On success, the structured execute
+   result JSON appears under **Execute result** with non-empty `rows` (or
+   document fields). Invalid JSON, a blank resource, or server
    **400**/**404**/**500** responses show a clear error under the form.
-4. Execute uses the native pipeline IR runtime — it does **not** call classic
-   `PSQueryHandler` / `PSUpdateHandler`. Applications without native IR for the
-   named resource return an error from the server.
+5. Execute uses the native pipeline IR runtime — it does **not** call classic
+   `PSQueryHandler` / `PSUpdateHandler`. HTTP execute never leaves loopback /
+   the bundled local fixture.
 
 ## Product path — Problems
 
@@ -100,7 +113,8 @@ chrome does not echo the raw path name in that message.
 
 - Catalog and detail omit **hidden** applications from the list contract used by
   this chrome; hidden rows are not started or stopped here.
-- Pipe IR is read-only: no graph editor, drag-drop tanks, or IR save from this chrome.
+- Pipe IR has no graph editor or drag-drop tanks. Admins may persist an HTTP
+  backend tank (native IR overlay) only.
 - Enable/disable and classic ZIP import/export are not in this chrome.
 - Surface-filtered Playwright for Start/Stop lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-start-stop.spec.js`.
@@ -108,6 +122,8 @@ chrome does not echo the raw path name in that message.
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-pipe-ir.spec.js`.
 - Surface-filtered Playwright for Test invoke (+ Problems soft-assert) lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-test-invoke.spec.js`.
+- Surface-filtered Playwright for HTTP datasource save + Test invoke lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-http-execute.spec.js`.
 
 ## REST
 
@@ -120,6 +136,7 @@ The chrome calls:
 | Start | `POST /services/pipelines/{idOrName}/start` (**Admin**) |
 | Stop | `POST /services/pipelines/{idOrName}/stop` (**Admin**) |
 | Pipe IR | `GET /services/pipelines/{idOrName}/ir` |
+| HTTP tank | `PUT /services/pipelines/{app}/resources/{resource}/backendTank` (**Admin**) |
 | Test invoke | `POST /services/pipelines/{app}/resources/{resource}/execute` |
 | Problems | `GET /services/pipelines/{idOrName}/validation` (**Admin**; soft-empty if absent) |
 

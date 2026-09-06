@@ -16,6 +16,9 @@ import {
   unwrapPipelineExecuteResult,
   withoutStalePipelineLifecycleGap,
   wrapPipelineExecuteRequestForWire,
+  wrapPipelineHttpBackendTankForWire,
+  unwrapPipelineHttpBackendTank,
+  putHttpBackendTank,
 } from "../../../../main/ts/api/developer/pipelinesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -165,5 +168,47 @@ describe("pipelinesApi wave 3 execute + validation", () => {
     );
     expect(result.valid).toBe(true);
     expect(result.problems).toEqual([]);
+  });
+});
+
+describe("pipelinesApi Slice C HTTP backend tank", () => {
+  it("wraps and unwraps PipelineHttpBackendTank", () => {
+    expect(
+      wrapPipelineHttpBackendTankForWire({
+        adapterType: "HTTP",
+        url: "http://127.0.0.1/pipeline-http-fixture",
+      }),
+    ).toEqual({
+      PipelineHttpBackendTank: {
+        adapterType: "HTTP",
+        url: "http://127.0.0.1/pipeline-http-fixture",
+      },
+    });
+    expect(
+      unwrapPipelineHttpBackendTank({
+        PipelineHttpBackendTank: { adapterType: "HTTP", url: "http://127.0.0.1/x" },
+      }).url,
+    ).toBe("http://127.0.0.1/x");
+  });
+
+  it("putHttpBackendTank PUTs encoded path with WRAP_ROOT body", async () => {
+    const spy = vi.spyOn(client, "put").mockResolvedValue({
+      adapterType: "HTTP",
+      url: "http://127.0.0.1/pipeline-http-fixture",
+    });
+    const out = await putHttpBackendTank("app with spaces", "res/one", {
+      adapterType: "HTTP",
+      url: "http://127.0.0.1/pipeline-http-fixture",
+    });
+    expect(String(spy.mock.calls[0][0])).toContain(
+      `/pipelines/${encodeURIComponent("app with spaces")}/resources/${encodeURIComponent("res/one")}/backendTank`,
+    );
+    expect(spy.mock.calls[0][1]).toEqual({
+      PipelineHttpBackendTank: {
+        adapterType: "HTTP",
+        url: "http://127.0.0.1/pipeline-http-fixture",
+      },
+    });
+    expect(out.adapterType).toBe("HTTP");
   });
 });

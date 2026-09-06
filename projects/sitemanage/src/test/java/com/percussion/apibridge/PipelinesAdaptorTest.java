@@ -31,6 +31,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.mockito.ArgumentCaptor;
 
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSApplicationType;
@@ -41,10 +42,13 @@ import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationValidationProblem;
 import com.percussion.rest.pipelines.ApplicationValidationResult;
+import com.percussion.rest.pipelines.PipelineHttpBackendTank;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
 import com.percussion.services.pipeline.IPSPipelineRuntimeService;
 import java.util.Optional;
+import com.percussion.services.pipeline.http.PSPipelineHttpUrl;
+import com.percussion.services.pipeline.model.BackendTankStageIr;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
 import com.percussion.services.pipeline.IPSPipelineIrService;
 import com.percussion.services.pipeline.PSPipelineIrException;
@@ -787,6 +791,111 @@ class PipelinesAdaptorTest {
     assertTrue(
         gaps.stream().anyMatch(g -> g.toLowerCase().contains("graph edit")),
         "graph edit / IR write should remain listed as a gap");
+    assertTrue(
+        gaps.stream().anyMatch(g -> g.toLowerCase().contains("backendtank")),
+        "HTTP backend tank persist should be called out as the native write that shipped");
+  }
+
+  @Test
+  void putHttpBackendTank_requiresAdmin() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> false,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineHttpBackendTank body = new PipelineHttpBackendTank();
+      body.setAdapterType("HTTP");
+      body.setUrl(PSPipelineHttpUrl.BUNDLED_FIXTURE_URL);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putHttpBackendTank(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "items", body));
+      assertEquals(403, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void putHttpBackendTank_rejectsCloudUrl() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineHttpBackendTank body = new PipelineHttpBackendTank();
+      body.setAdapterType("HTTP");
+      body.setUrl("https://erp.example/api/items");
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putHttpBackendTank(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "items", body));
+      assertEquals(400, ex.getResponse().getStatus());
+      assertTrue(ex.getMessage().toLowerCase().contains("loopback"), ex.getMessage());
+    }
+  }
+
+  @Test
+  void putHttpBackendTank_savesNativeIrWithoutClassicXmlWrite() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    when(ir.load("sys_cmpDocuments")).thenReturn(Optional.empty());
+    PipelineIrDocument imported = new PipelineIrDocument();
+    imported.setSource(PipelineIrDocument.SOURCE_CLASSIC_IMPORT);
+    imported.getApp().setName("sys_cmpDocuments");
+    PSApplication app = mock(PSApplication.class);
+    when(ir.importClassicApplication(app)).thenReturn(imported);
+
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> ir,
+            (name, tok) -> app,
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineHttpBackendTank body = new PipelineHttpBackendTank();
+      body.setAdapterType("HTTP");
+      body.setUrl(PSPipelineHttpUrl.BUNDLED_FIXTURE_URL);
+      PipelineHttpBackendTank saved =
+          adaptor.putHttpBackendTank(
+              URI.create("http://localhost/"), "sys_cmpDocuments", "items", body);
+      assertEquals("HTTP", saved.getAdapterType());
+      assertEquals(PSPipelineHttpUrl.BUNDLED_FIXTURE_URL, saved.getUrl());
+      ArgumentCaptor<PipelineIrDocument> cap = ArgumentCaptor.forClass(PipelineIrDocument.class);
+      verify(ir).save(cap.capture());
+      PipelineIrDocument persisted = cap.getValue();
+      assertEquals(PipelineIrDocument.SOURCE_NATIVE, persisted.getSource());
+      BackendTankStageIr tank = persisted.findResource("items").getStages().getBackendTank();
+      assertTrue(tank.isHttpAdapter());
+      assertEquals(PSPipelineHttpUrl.BUNDLED_FIXTURE_URL, tank.getUrl());
+      verify(app, never()).setName(any());
+    }
   }
 
   private static void stubCurrentRequest(MockedStatic<PSSecurityFilter> security) {

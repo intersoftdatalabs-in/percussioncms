@@ -21,6 +21,7 @@ import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
+import com.percussion.rest.pipelines.PipelineHttpBackendTank;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
@@ -78,5 +79,15 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
   @Override
   public ApplicationValidationResult getValidation(URI baseUri, String idOrName) {
     return null;
+  }
+
+  @Override
+  public PipelineHttpBackendTank putHttpBackendTank(
+      URI baseUri, String appName, String resourceName, PipelineHttpBackendTank tank) {
+    PipelineHttpBackendTank out = tank != null ? tank : new PipelineHttpBackendTank();
+    if (out.getAdapterType() == null) {
+      out.setAdapterType("HTTP");
+    }
+    return out;
   }
 }
