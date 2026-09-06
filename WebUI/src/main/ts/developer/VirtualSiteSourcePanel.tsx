@@ -56,6 +56,7 @@ import {
   SOURCE_KIND_SELECT_VALUES,
   SOURCE_KIND_ROBOTS_TXT,
   SOURCE_KIND_LLMS_TXT,
+  SOURCE_KIND_OPENAPI_YAML,
   SOURCE_KIND_SITEMAP_XML,
   SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
@@ -65,6 +66,7 @@ import {
   isHttpJsonSourceKind,
   isIcalendarSourceKind,
   isLlmsTxtSourceKind,
+  isOpenApiYamlSourceKind,
   isObjectStorageSourceKind,
   isRobotsTxtSourceKind,
   isRssAtomSourceKind,
@@ -91,6 +93,7 @@ const SOURCE_KIND_OPTION_LABEL: Record<
   [SOURCE_KIND_SITEMAP_XML]: DEV_MSG.SITE_VIRT_KIND_SITEMAP_XML,
   [SOURCE_KIND_ROBOTS_TXT]: DEV_MSG.SITE_VIRT_KIND_ROBOTS_TXT,
   [SOURCE_KIND_LLMS_TXT]: DEV_MSG.SITE_VIRT_KIND_LLMS_TXT,
+  [SOURCE_KIND_OPENAPI_YAML]: DEV_MSG.SITE_VIRT_KIND_OPENAPI_YAML,
 };
 
 const formRow: React.CSSProperties = {
@@ -184,9 +187,10 @@ function validationMessage(
  * Publish ({@code POST …/virtual/publish}) for git/csv/sql/http-json/object-storage/
  * rss-atom/icalendar/sitemap-xml/robots-txt after a successful Build (sitemap-xml
  * and robots-txt copy last-build local HTML to {@code IPSSite.root}; leftover
- * remoteUrl/credentials/cloud rootPath fail closed). Repository / blank / unknown
- * kinds stay hidden. sitemap-xml and robots-txt use a local {@code rootPath} only
- * (no live crawl chrome).
+ * remoteUrl/credentials/cloud rootPath fail closed). {@code openapi-yaml} persist
+ * uses a local {@code rootPath} only; Build/Preview/Publish chrome stay later slices.
+ * Repository / blank / unknown kinds stay hidden. sitemap-xml and robots-txt use a
+ * local {@code rootPath} only (no live crawl chrome).
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -381,6 +385,7 @@ export function VirtualSiteSourcePanel({
   const sitemapXmlMode = isSitemapXmlSourceKind(form.sourceKind);
   const robotsTxtMode = isRobotsTxtSourceKind(form.sourceKind);
   const llmsTxtMode = isLlmsTxtSourceKind(form.sourceKind);
+  const openApiYamlMode = isOpenApiYamlSourceKind(form.sourceKind);
   /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
   /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt (never repository). */
@@ -552,6 +557,14 @@ export function VirtualSiteSourcePanel({
                   data-testid="developer-site-virtual-llms-txt-hint"
                 >
                   {DEV_MSG.SITE_VIRT_LLMS_TXT_HINT}
+                </p>
+              ) : null}
+              {openApiYamlMode ? (
+                <p
+                  style={{ ...mutedHintText, margin: "0 0 10px" }}
+                  data-testid="developer-site-virtual-openapi-yaml-hint"
+                >
+                  {DEV_MSG.SITE_VIRT_OPENAPI_YAML_HINT}
                 </p>
               ) : null}
               {gitMode ? (

@@ -20,7 +20,7 @@
  *
  * Opens Sites catalog detail and asserts the Virtual Site source section mounts
  * with source-kind control (repository default, git-filesystem, csv-filesystem,
- * sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt), save chrome, Build + Preview + Publish chrome for git-filesystem,
+ * sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml), save chrome, Build + Preview + Publish chrome for git-filesystem,
  * csv-filesystem, sql-database, http-json, object-storage, rss-atom, and icalendar (never repository). rss-atom save/GET-roundtrip
  * uses a local fixture rootPath only (no live feed credentials, no virtual.remoteUrl);
  * Build, Preview, and Publish chrome are shown after save for rss-atom. icalendar save/GET-roundtrip
@@ -31,7 +31,9 @@
  * uses a portable-safe local rootPath only (no live crawl credentials, no virtual.remoteUrl);
  * Build, Preview, and Publish chrome are shown after save for robots-txt. llms-txt save/GET-roundtrip
  * uses a portable-safe local rootPath only (no live HTTP fetch credentials, no virtual.remoteUrl);
- * Build, Preview, and Publish chrome are shown after save for llms-txt. Also intercepts build REST
+ * Build, Preview, and Publish chrome are shown after save for llms-txt. openapi-yaml save/GET-roundtrip
+ * uses a portable-safe local rootPath only (no live spec fetch credentials, no virtual.remoteUrl);
+ * Build, Preview, and Publish chrome stay hidden for openapi-yaml. Also intercepts build REST
  * to prove link-problem detail lines render on HTTP 200 and publish REST to prove
  * dest path + files copied on HTTP 200 (including csv-filesystem, http-json, object-storage, rss-atom, and icalendar). Live H2 QA
  * deploys a CSV tree into the cell and asserts POST /virtual/build, GET
@@ -260,10 +262,11 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       await expect(kind.locator('option[value="sitemap-xml"]')).toHaveCount(1);
       await expect(kind.locator('option[value="robots-txt"]')).toHaveCount(1);
       await expect(kind.locator('option[value="llms-txt"]')).toHaveCount(1);
+      await expect(kind.locator('option[value="openapi-yaml"]')).toHaveCount(1);
       await expect(kind.locator('option[value="sql-api"]')).toHaveCount(0);
       // Default traditional sites use repository option
       await expect(kind).toHaveValue(
-        /repository|git-filesystem|csv-filesystem|sql-database|http-json|object-storage|rss-atom|icalendar|sitemap-xml|robots-txt|llms-txt/,
+        /repository|git-filesystem|csv-filesystem|sql-database|http-json|object-storage|rss-atom|icalendar|sitemap-xml|robots-txt|llms-txt|openapi-yaml/,
       );
       await expect(page.locator('[data-testid="developer-site-virtual-save"]')).toBeVisible();
 
@@ -441,6 +444,20 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+
+      // Switch to openapi-yaml reveals root path only (no Git remotes; no Build/Preview/Publish)
+      await kind.selectOption("openapi-yaml");
+      await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-openapi-yaml-hint"]')).toBeVisible();
+      await expect(
+        page.locator('[data-testid="developer-site-virtual-openapi-yaml-hint"]'),
+      ).toContainText("later slices");
+      await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-branch"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
 
       // Switch to git-filesystem reveals root path, optional remote, + Build / Publish
       await kind.selectOption("git-filesystem");
@@ -2126,6 +2143,251 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+
+    await kind.selectOption("repository");
+    await saveVirtualSiteAndExpectSaved(page, { timeout: 15_000 });
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
+
+  test("openapi-yaml save PUTs envelope and GET-roundtrip persists without Build chrome (#4380)", async ({
+    page,
+  }) => {
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    let virtualState = {
+      sourceKind: "repository",
+      rootPath: null,
+      remoteUrl: null,
+      branch: null,
+      configFile: null,
+      siteKey: null,
+      virtual: false,
+    };
+    /** @type {unknown} */
+    let lastPutBody = null;
+
+    await page.route(
+      (url) => /\/services\/sites\/?(\?|$)/.test(url.toString()),
+      async (route) => {
+        if (route.request().method() !== "GET") {
+          await route.continue();
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            SiteList: [{ name: "Help", label: "Help" }],
+          }),
+        });
+      },
+    );
+
+    await page.route("**/services/sites/**/virtual", async (route) => {
+      const url = route.request().url();
+      if (/\/virtual\//.test(url)) {
+        await route.fallback();
+        return;
+      }
+      const method = route.request().method();
+      if (method === "PUT") {
+        lastPutBody = route.request().postDataJSON();
+        const envelope =
+          lastPutBody &&
+          typeof lastPutBody === "object" &&
+          lastPutBody.VirtualSiteProperties
+            ? lastPutBody.VirtualSiteProperties
+            : lastPutBody;
+        virtualState = {
+          sourceKind: envelope.sourceKind || "repository",
+          rootPath: envelope.rootPath || null,
+          remoteUrl:
+            envelope.remoteUrl === undefined || envelope.remoteUrl === null
+              ? virtualState.remoteUrl
+              : envelope.remoteUrl || null,
+          branch:
+            envelope.branch === undefined || envelope.branch === null
+              ? virtualState.branch
+              : envelope.branch || null,
+          configFile: envelope.configFile || null,
+          siteKey: envelope.siteKey || null,
+          virtual: envelope.sourceKind === "openapi-yaml",
+        };
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ VirtualSiteProperties: virtualState }),
+        });
+        return;
+      }
+      if (method !== "GET") {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ VirtualSiteProperties: virtualState }),
+      });
+    });
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      test.info().annotations.push({
+        type: "note",
+        description: "No sites in catalog — openapi-yaml Virtual Site save test requires a site row",
+      });
+      return;
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+
+    await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
+    await kind.selectOption("openapi-yaml");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-openapi-yaml-hint"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill("C:/openapi-docs");
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    expect(lastPutBody).toBeTruthy();
+    expect(lastPutBody).toHaveProperty("VirtualSiteProperties");
+    expect(lastPutBody.VirtualSiteProperties.sourceKind).toBe("openapi-yaml");
+    expect(lastPutBody.VirtualSiteProperties.rootPath).toBe("C:/openapi-docs");
+    expect(lastPutBody.VirtualSiteProperties.remoteUrl ?? "").toBe("");
+    expect(lastPutBody).not.toHaveProperty("sourceKind");
+    expect(lastPutBody.VirtualSiteProperties).not.toHaveProperty("password");
+    expect(JSON.stringify(lastPutBody)).not.toMatch(
+      /password|authorization|api[_-]?key|crawl|credential|token/i,
+    );
+
+    await expect(kind).toHaveValue("openapi-yaml");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toHaveValue(
+      "C:/openapi-docs",
+    );
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+
+    await kind.selectOption("repository");
+    lastPutBody = null;
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    expect(lastPutBody.VirtualSiteProperties.sourceKind).toBe("repository");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
+
+  test("openapi-yaml live save+reload persists then restore repository (#4380)", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      test.info().annotations.push({
+        type: "note",
+        description: "No sites in catalog — live openapi-yaml persist requires a site row",
+      });
+      return;
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    async function openFirstSite() {
+      const rows = page.locator(catalogRowsSelector("developer-site-row"));
+      await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+      await rows.first().locator('[data-testid="developer-site-open"]').click();
+      await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+        timeout: 20_000,
+      });
+    }
+
+    await openFirstSite();
+    const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
+    await kind.selectOption("openapi-yaml");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-openapi-yaml-hint"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(0);
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill("C:/openapi-docs");
+    await saveVirtualSiteAndExpectSaved(page, { timeout: 15_000 });
+    await expect(kind).toHaveValue("openapi-yaml");
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+
+    await page.locator('[data-testid="developer-site-back"]').click();
+    await expect(page.locator(catalogRowsSelector("developer-site-row")).first()).toBeVisible({
+      timeout: 15_000,
+    });
+    await openFirstSite();
+    await expect(kind).toHaveValue("openapi-yaml");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toHaveValue(
+      "C:/openapi-docs",
+    );
+    await expect(page.locator('[data-testid="developer-site-virtual-openapi-yaml-hint"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
 
     await kind.selectOption("repository");
     await saveVirtualSiteAndExpectSaved(page, { timeout: 15_000 });

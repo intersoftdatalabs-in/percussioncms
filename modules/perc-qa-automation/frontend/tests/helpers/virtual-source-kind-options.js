@@ -39,6 +39,7 @@ function requiredVirtualSourceKindValues() {
     "sitemap-xml",
     "robots-txt",
     "llms-txt",
+    "openapi-yaml",
   ];
 }
 
