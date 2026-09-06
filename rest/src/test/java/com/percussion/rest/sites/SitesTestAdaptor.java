@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
  * Spring test stub for {@link ISiteAdaptor} so rest {@code MainTest} / shared contexts can inject a
  * bean. Production wiring is {@code SitesAdaptor} in sitemanage. PUT echoes the envelope
  * (including {@code sql-database}, {@code http-json}, {@code object-storage}, {@code rss-atom},
- * {@code icalendar}, {@code sitemap-xml}, and {@code robots-txt} {@code sourceKind}); JDBC credentials, HTTP secrets,
+ * {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, and {@code llms-txt} {@code sourceKind}); JDBC credentials, HTTP secrets,
  * object-storage cloud credentials, rss-atom live feed credentials, CalDAV credentials, and
  * sitemap crawl credentials are never logged. REST Build
  * for {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, {@code

@@ -302,13 +302,14 @@ public class SitesAdaptor implements ISiteAdaptor {
 
       try {
         // Allow-list includes git-filesystem, csv-filesystem, sql-database, http-json,
-        // object-storage, rss-atom, icalendar, sitemap-xml, and robots-txt. object-storage,
-        // rss-atom, icalendar, sitemap-xml, and robots-txt are local-root only (NIO Path; no
-        // remaining '..'); cloud URLs and credential properties fail closed (400). rss-atom
-        // persist is local/loopback only (no live feed credentials). icalendar persist is a
-        // local RFC 5545 fixture only (no CalDAV). sitemap-xml persist is a local sitemap.xml
-        // fixture only (no live crawl). robots-txt persist is a local robots.txt fixture only
-        // (no live crawl).
+        // object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, and llms-txt.
+        // object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, and llms-txt are
+        // local-root only (NIO Path; no remaining '..'); cloud URLs and credential properties
+        // fail closed (400). rss-atom persist is local/loopback only (no live feed credentials).
+        // icalendar persist is a local RFC 5545 fixture only (no CalDAV). sitemap-xml persist is
+        // a local sitemap.xml fixture only (no live crawl). robots-txt persist is a local
+        // robots.txt fixture only (no live crawl). llms-txt persist is a local llms.txt fixture
+        // only (no live HTTP fetch).
         PSVirtualSiteHelper.validate(psSite);
       } catch (VirtualSiteException e) {
         throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);

@@ -71,6 +71,7 @@ describe("VirtualSiteSourcePanel", () => {
       "icalendar",
       "sitemap-xml",
       "robots-txt",
+      "llms-txt",
     ]);
     expect(kindSelect.value).toBe("repository");
     // Root path / remote hidden until virtual selected
@@ -1260,6 +1261,125 @@ describe("VirtualSiteSourcePanel", () => {
       expect(screen.queryByTestId("developer-site-virtual-root-path")).toBeNull();
     });
     expect(screen.queryByTestId("developer-site-virtual-robots-txt-hint")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+  });
+
+  it("loads llms-txt values with root path and hides Build/Preview/Publish chrome", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "llms-txt",
+      rootPath: "C:/llms-txt-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    expect(
+      (screen.getByTestId("developer-site-virtual-source-kind") as HTMLSelectElement).value,
+    ).toBe("llms-txt");
+    expect(
+      (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
+    ).toBe("C:/llms-txt-docs");
+    expect(screen.getByTestId("developer-site-virtual-llms-txt-hint")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-llms-txt-hint").textContent).toBe(
+      DEV_MSG.SITE_VIRT_LLMS_TXT_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-llms-txt-hint").textContent).toContain(
+      "stay later slices",
+    );
+    expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-config-file")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
+      DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
+    );
+  });
+
+  it("saves llms-txt configuration without Git remote fields, credentials, or Build chrome", async () => {
+    getVirtual
+      .mockResolvedValueOnce({ sourceKind: null, virtual: false })
+      .mockResolvedValueOnce({
+        sourceKind: "llms-txt",
+        rootPath: "C:/llms-txt-docs",
+        virtual: true,
+      });
+    updateVirtual.mockResolvedValue({
+      sourceKind: "llms-txt",
+      rootPath: "C:/llms-txt-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Corporate" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-form")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-site-virtual-source-kind"), {
+      target: { value: "llms-txt" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-error").textContent).toContain(
+        DEV_MSG.SITE_VIRT_ERR_ROOT_REQUIRED,
+      );
+    });
+    expect(updateVirtual).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId("developer-site-virtual-root-path"), {
+      target: { value: "C:/llms-txt-docs" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-saved")).toBeTruthy();
+    });
+    expect(updateVirtual).toHaveBeenCalledWith("Corporate", {
+      sourceKind: "llms-txt",
+      rootPath: "C:/llms-txt-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+    const savedBody = updateVirtual.mock.calls[0][1] as Record<string, unknown>;
+    expect(savedBody).not.toHaveProperty("password");
+    expect(JSON.stringify(savedBody)).not.toMatch(
+      /authorization|api[_-]?key|crawl|credential|token/i,
+    );
+    expect(getVirtual).toHaveBeenCalledTimes(2);
+    expect(
+      (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
+    ).toBe("C:/llms-txt-docs");
+    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
+      DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
+    );
+  });
+
+  it("switching llms-txt back to repository hides virtual fields", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "llms-txt",
+      rootPath: "C:/llms-txt-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-site-virtual-source-kind"), {
+      target: { value: "repository" },
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-site-virtual-root-path")).toBeNull();
+    });
+    expect(screen.queryByTestId("developer-site-virtual-llms-txt-hint")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();

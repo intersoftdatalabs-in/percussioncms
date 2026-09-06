@@ -55,6 +55,7 @@ import {
   SOURCE_KIND_RSS_ATOM,
   SOURCE_KIND_SELECT_VALUES,
   SOURCE_KIND_ROBOTS_TXT,
+  SOURCE_KIND_LLMS_TXT,
   SOURCE_KIND_SITEMAP_XML,
   SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
@@ -63,6 +64,7 @@ import {
   isGitFilesystemSourceKind,
   isHttpJsonSourceKind,
   isIcalendarSourceKind,
+  isLlmsTxtSourceKind,
   isObjectStorageSourceKind,
   isRobotsTxtSourceKind,
   isRssAtomSourceKind,
@@ -88,6 +90,7 @@ const SOURCE_KIND_OPTION_LABEL: Record<
   [SOURCE_KIND_ICALENDAR]: DEV_MSG.SITE_VIRT_KIND_ICALENDAR,
   [SOURCE_KIND_SITEMAP_XML]: DEV_MSG.SITE_VIRT_KIND_SITEMAP_XML,
   [SOURCE_KIND_ROBOTS_TXT]: DEV_MSG.SITE_VIRT_KIND_ROBOTS_TXT,
+  [SOURCE_KIND_LLMS_TXT]: DEV_MSG.SITE_VIRT_KIND_LLMS_TXT,
 };
 
 const formRow: React.CSSProperties = {
@@ -377,7 +380,8 @@ export function VirtualSiteSourcePanel({
   const icalendarMode = isIcalendarSourceKind(form.sourceKind);
   const sitemapXmlMode = isSitemapXmlSourceKind(form.sourceKind);
   const robotsTxtMode = isRobotsTxtSourceKind(form.sourceKind);
-  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt (never repository). */
+  const llmsTxtMode = isLlmsTxtSourceKind(form.sourceKind);
+  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt (never repository; llms-txt hidden). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
   /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt (never repository). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
@@ -540,6 +544,14 @@ export function VirtualSiteSourcePanel({
                   data-testid="developer-site-virtual-robots-txt-hint"
                 >
                   {DEV_MSG.SITE_VIRT_ROBOTS_TXT_HINT}
+                </p>
+              ) : null}
+              {llmsTxtMode ? (
+                <p
+                  style={{ ...mutedHintText, margin: "0 0 10px" }}
+                  data-testid="developer-site-virtual-llms-txt-hint"
+                >
+                  {DEV_MSG.SITE_VIRT_LLMS_TXT_HINT}
                 </p>
               ) : null}
               {gitMode ? (

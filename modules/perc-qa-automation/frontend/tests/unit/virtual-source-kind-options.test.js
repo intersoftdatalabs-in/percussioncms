@@ -31,7 +31,7 @@ const {
 } = require("../helpers/virtual-source-kind-options");
 
 describe("virtual-source-kind-options", () => {
-  it("requires object-storage, rss-atom, icalendar, sitemap-xml, and robots-txt among the live kind options (#3893 / #3927 / #3983 / #4115 / #4360)", () => {
+  it("requires object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, and llms-txt among the live kind options (#3893 / #3927 / #3983 / #4115 / #4360 / #4373)", () => {
     const required = requiredVirtualSourceKindValues();
     assert.deepEqual(required, [
       "repository",
@@ -44,12 +44,14 @@ describe("virtual-source-kind-options", () => {
       "icalendar",
       "sitemap-xml",
       "robots-txt",
+      "llms-txt",
     ]);
     assert.equal(required.includes("object-storage"), true);
     assert.equal(required.includes("rss-atom"), true);
     assert.equal(required.includes("icalendar"), true);
     assert.equal(required.includes("sitemap-xml"), true);
     assert.equal(required.includes("robots-txt"), true);
+    assert.equal(required.includes("llms-txt"), true);
     assert.equal(required.includes("sql-api"), false);
   });
 

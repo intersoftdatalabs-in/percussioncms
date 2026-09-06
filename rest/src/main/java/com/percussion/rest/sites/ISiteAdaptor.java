@@ -87,15 +87,16 @@ public interface ISiteAdaptor {
    * Validation aligns with {@code PSVirtualSiteHelper} (source-kind allow-list {@code
    * git-filesystem} / {@code csv-filesystem} / {@code sql-database} / {@code http-json} / {@code
    * object-storage} / {@code rss-atom} / {@code icalendar} / {@code sitemap-xml} / {@code
-   * robots-txt}, required root path when virtual and remote is blank, optional remoteUrl/branch for
-   * git-filesystem only, safe path / config file name). {@code sql-database} JDBC settings stay in
-   * {@code _config.yaml} (never on this envelope). {@code object-storage}, {@code rss-atom}, {@code
-   * icalendar}, {@code sitemap-xml}, and {@code robots-txt} require a portable-safe local {@code
-   * rootPath}; leftover {@code remoteUrl}, cloud URLs, and credential properties are 400 ({@code
-   * rss-atom} is local/loopback only; {@code icalendar} is a local RFC 5545 fixture only — no
-   * CalDAV; {@code sitemap-xml} is a local sitemap.xml fixture only — no live crawl; {@code
-   * robots-txt} is a local robots.txt fixture only — no live crawl). GET after PUT round-trips the
-   * stored {@code sourceKind}.
+   * robots-txt} / {@code llms-txt}, required root path when virtual and remote is blank, optional
+   * remoteUrl/branch for git-filesystem only, safe path / config file name). {@code sql-database}
+   * JDBC settings stay in {@code _config.yaml} (never on this envelope). {@code object-storage},
+   * {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, and {@code
+   * llms-txt} require a portable-safe local {@code rootPath}; leftover {@code remoteUrl}, cloud
+   * URLs, and credential properties are 400 ({@code rss-atom} is local/loopback only; {@code
+   * icalendar} is a local RFC 5545 fixture only — no CalDAV; {@code sitemap-xml} is a local
+   * sitemap.xml fixture only — no live crawl; {@code robots-txt} is a local robots.txt fixture
+   * only — no live crawl; {@code llms-txt} is a local llms.txt fixture only — no live HTTP fetch).
+   * GET after PUT round-trips the stored {@code sourceKind}.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param props properties to apply; not null

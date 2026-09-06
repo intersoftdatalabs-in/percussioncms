@@ -44,6 +44,8 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualBuildChrome("robots-txt")).toBe(true);
     expect(shouldShowVirtualBuildChrome("Robots-TXT")).toBe(true);
     expect(shouldShowVirtualBuildChrome("  robots-txt  ")).toBe(true);
+    expect(shouldShowVirtualBuildChrome("llms-txt")).toBe(false);
+    expect(shouldShowVirtualBuildChrome("Llms-TXT")).toBe(false);
   });
 
   it("shouldShowVirtualPreviewChrome for git, csv, sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, and robots-txt (not repository)", () => {
@@ -74,6 +76,8 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPreviewChrome("robots-txt")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("Robots-TXT")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("  robots-txt  ")).toBe(true);
+    expect(shouldShowVirtualPreviewChrome("llms-txt")).toBe(false);
+    expect(shouldShowVirtualPreviewChrome("Llms-TXT")).toBe(false);
   });
 
   it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, and robots-txt", () => {
@@ -106,6 +110,8 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPublishChrome("robots-txt")).toBe(true);
     expect(shouldShowVirtualPublishChrome("Robots-TXT")).toBe(true);
     expect(shouldShowVirtualPublishChrome("  robots-txt  ")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("llms-txt")).toBe(false);
+    expect(shouldShowVirtualPublishChrome("Llms-TXT")).toBe(false);
   });
 
   it("formatVirtualSitePublishSummary reports files copied and dest path", () => {

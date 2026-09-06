@@ -38,6 +38,7 @@ function requiredVirtualSourceKindValues() {
     "icalendar",
     "sitemap-xml",
     "robots-txt",
+    "llms-txt",
   ];
 }
 

@@ -31,7 +31,8 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
  * POST /virtual/build (SQL JDBC, HTTP JSON catalog, object-storage keys,
  * rss-atom feeds, icalendar .ics, sitemap.xml, and robots.txt stay in
  * _config.yaml / the local root). robots-txt Build is shown so operators can
- * produce last-build HTML for Preview and Publish.
+ * produce last-build HTML for Preview and Publish. llms-txt persist is available
+ * but Build chrome stays hidden (later slice).
  * Repository / blank / unknown kinds must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
@@ -56,7 +57,8 @@ export function shouldShowVirtualBuildChrome(
  * Last-output preview for git-filesystem, csv-filesystem, sql-database,
  * http-json, object-storage, rss-atom, icalendar, sitemap-xml, and robots-txt.
  * Missing last-build stays unavailable (GET /virtual/preview available=false;
- * no fake preview). Repository / blank / unknown kinds stay hidden.
+ * no fake preview). llms-txt Preview chrome stays hidden (later slice).
+ * Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPreviewChrome(
   sourceKind: string | null | undefined,
@@ -81,6 +83,7 @@ export function shouldShowVirtualPreviewChrome(
  * rss-atom, icalendar, sitemap-xml, and robots-txt all run POST /virtual/publish
  * (build then copy last-build HTML to IPSSite.root). sitemap-xml and robots-txt
  * leftover remoteUrl, credentials, and cloud rootPath fail closed on the server.
+ * llms-txt Publish chrome stays hidden (later slice).
  * Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPublishChrome(
