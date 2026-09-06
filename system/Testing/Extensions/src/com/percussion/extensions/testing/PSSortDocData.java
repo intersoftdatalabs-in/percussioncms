@@ -11,10 +11,10 @@ package com.percussion.extensions.testing;
 
 import com.percussion.data.PSDataConverter;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionProcessingException;
-import com.percussion.extension.IPSExtensionErrors;
 
 import com.percussion.server.PSRequest;
 import com.percussion.server.IPSRequestContext;
@@ -121,7 +121,7 @@ public class PSSortDocData extends PSDefaultExtension
             "\r\n message: Sort order fields is not a sub set of mapper fields";
 
          throw new PSExtensionProcessingException(
-            IPSExtensionErrors.EXT_PARAM_VALUE_INVALID, message);
+            ExtensionErrorCodes.EXT_PARAM_VALUE_INVALID, message);
       }
 
       return applySorting(resultDoc, mapFields, sortOrderFields, mapper_fields);
@@ -170,7 +170,7 @@ public class PSSortDocData extends PSDefaultExtension
             "' element in the document";
 
             throw new PSExtensionProcessingException(
-               IPSExtensionErrors.EXT_PARAM_VALUE_INVALID, message);
+               ExtensionErrorCodes.EXT_PARAM_VALUE_INVALID, message);
          }
       }
 

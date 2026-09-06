@@ -21,9 +21,9 @@ import com.percussion.error.PSException;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionProcessingException;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.util.PSStopwatch;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -283,13 +283,10 @@ public class PSMakeCERequest extends PSDefaultExtension
    {
       IPSInternalRequest intRequest = request.getInternalRequest(resource);
 
-      /* DEV NOTE: IPSServerErrors is an obfuscated class, but since we are
-         referencing a static final variable, the compiler stores the value
-         directly into the generated code, rather than a reference.  Therefore,
-         the exit will continue to work in a obfuscated environment. */
+      /* Typed ServerErrorCodes keeps numeric 1308 (IPSServerErrors bridge). */
       if (intRequest == null)
          throw new PSExtensionProcessingException(
-            IPSServerErrors.REQUEST_HANDLER_NOT_FOUND,
+            ServerErrorCodes.REQUEST_HANDLER_NOT_FOUND,
             new Object[]{ "-internal request-", resource } );
 
       Document doc = null;

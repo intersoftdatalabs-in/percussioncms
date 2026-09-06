@@ -8,12 +8,12 @@
 
 package com.percussion.extensions.testing;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.IPSRequestPreProcessor;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.IPSResultDocumentProcessor;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestValidationException;
 import com.percussion.server.IPSInternalRequest;
@@ -91,7 +91,7 @@ public class TestMakeInternalRequest extends PSDefaultExtension
 
       if (null == params[0] ||  0 == params[0].toString().trim().length())
          throw new PSExtensionProcessingException(
-            IPSExtensionErrors.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
+            ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
             new Object[] { "Internal request path", params[0] } );
 
       String path = params[0].toString().trim();
@@ -142,7 +142,7 @@ public class TestMakeInternalRequest extends PSDefaultExtension
          {
             // we must have hit an update resource
             throw new PSExtensionProcessingException(
-               IPSExtensionErrors.EXT_PARAM_VALUE_INVALID,
+               ExtensionErrorCodes.EXT_PARAM_VALUE_INVALID,
                "this exit cannot be used to make requests to update resources");
 
          } catch (PSInternalRequestCallException e)
@@ -195,7 +195,7 @@ public class TestMakeInternalRequest extends PSDefaultExtension
          {
             // we must have hit an update resource
             throw new PSExtensionProcessingException(
-               IPSExtensionErrors.EXT_PARAM_VALUE_INVALID,
+               ExtensionErrorCodes.EXT_PARAM_VALUE_INVALID,
                "this exit cannot be used to make requests to update resources");
 
          } catch (PSInternalRequestCallException e)
