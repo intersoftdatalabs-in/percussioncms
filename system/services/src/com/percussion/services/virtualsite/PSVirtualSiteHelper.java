@@ -42,7 +42,7 @@ import org.apache.commons.lang3.StringUtils;
  *   <li>{@code virtual.sourceKind} — allow-listed adapter wire name ({@code git-filesystem},
  *       {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage},
  *       {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code
- *       llms-txt}, {@code openapi-yaml}); blank or {@code repository} ⇒
+ *       llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}); blank or {@code repository} ⇒
  *       traditional repository Site
  *   <li>{@code virtual.rootPath} — filesystem path to Virtual Site root when no remote is set
  *       (required when virtual and {@code virtual.remoteUrl} is blank); when a remote is set,
@@ -78,7 +78,7 @@ public final class PSVirtualSiteHelper {
    * Allow-listed {@link #PROP_SOURCE_KIND} wire names for Virtual adapters ({@code git-filesystem},
    * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage}, {@code
    * rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code
-   * openapi-yaml}). Does
+   * openapi-yaml}, {@code asyncapi-yaml}). Does
    * not include {@link #SOURCE_KIND_REPOSITORY}.
    *
    * @return unmodifiable list of wire names in enum declaration order
@@ -180,9 +180,9 @@ public final class PSVirtualSiteHelper {
    *   <li>use an allow-listed {@code virtual.sourceKind} (see {@link #allowedSourceKindWireNames()};
    *       {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage},
    *       {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code
-   *       llms-txt}, and {@code openapi-yaml} do not accept {@code virtual.remoteUrl})
+   *       llms-txt}, {@code openapi-yaml}, and {@code asyncapi-yaml} do not accept {@code virtual.remoteUrl})
    *   <li>{@code object-storage}, {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code
-   *       robots-txt}, {@code llms-txt}, and {@code openapi-yaml} require a local filesystem {@code
+   *       robots-txt}, {@code llms-txt}, {@code openapi-yaml}, and {@code asyncapi-yaml} require a local filesystem {@code
    *       virtual.rootPath} (NIO
    *       {@link Path}; no remaining {@code ..}); cloud URLs and credential properties are rejected
    *   <li>when {@code virtual.remoteUrl} is blank: provide a non-blank safe {@code virtual.rootPath}
@@ -495,10 +495,10 @@ public final class PSVirtualSiteHelper {
 
   /**
    * {@code object-storage} / {@code rss-atom} / {@code icalendar} / {@code sitemap-xml} / {@code
-   * robots-txt} / {@code llms-txt} / {@code openapi-yaml} roots must be local filesystem paths.
+   * robots-txt} / {@code llms-txt} / {@code openapi-yaml} / {@code asyncapi-yaml} roots must be local filesystem paths.
    * Cloud / remote URI schemes are fail-closed (no S3/GCS/Azure/HTTP object buckets, live feeds,
-   * CalDAV URLs, live sitemap crawls, live robots.txt crawls, live llms.txt fetches, or live
-   * OpenAPI spec fetches, no credentials in the path).
+   * CalDAV URLs, live sitemap crawls, live robots.txt crawls, live llms.txt fetches, live
+   * OpenAPI spec fetches, or live AsyncAPI spec fetches, no credentials in the path).
    *
    * <p>Windows drive letters ({@code C:\…}) are not treated as URI schemes.
    *
@@ -575,7 +575,8 @@ public final class PSVirtualSiteHelper {
         || type == VirtualSiteSourceType.SITEMAP_XML
         || type == VirtualSiteSourceType.ROBOTS_TXT
         || type == VirtualSiteSourceType.LLMS_TXT
-        || type == VirtualSiteSourceType.OPENAPI_YAML;
+        || type == VirtualSiteSourceType.OPENAPI_YAML
+        || type == VirtualSiteSourceType.ASYNCAPI_YAML;
   }
 
   private static boolean isVirtualContractProperty(String name) {

@@ -129,7 +129,7 @@ class PSVirtualSiteHelperTest {
   }
 
   @Test
-  void allowedSourceKindsIncludeGitCsvSqlHttpJsonObjectStorageRssAtomIcalendarSitemapXmlRobotsTxtLlmsTxtAndOpenApiYaml() {
+  void allowedSourceKindsIncludeGitCsvSqlHttpJsonObjectStorageRssAtomIcalendarSitemapXmlRobotsTxtLlmsTxtOpenApiYamlAndAsyncApiYaml() {
     List<String> allowed = PSVirtualSiteHelper.allowedSourceKindWireNames();
     assertEquals(
         List.of(
@@ -143,7 +143,8 @@ class PSVirtualSiteHelperTest {
             "sitemap-xml",
             "robots-txt",
             "llms-txt",
-            "openapi-yaml"),
+            "openapi-yaml",
+            "asyncapi-yaml"),
         allowed);
   }
 
@@ -813,6 +814,58 @@ class PSVirtualSiteHelperTest {
     assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH), ex.getMessage());
     assertTrue(ex.getMessage().toLowerCase().contains("cloud"), ex.getMessage());
     assertTrue(ex.getMessage().contains("openapi-yaml"), ex.getMessage());
+  }
+
+  @Test
+  void validatePassesForAsyncApiYamlWithSafeRoot() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "aa-docs"));
+    assertDoesNotThrow(() -> PSVirtualSiteHelper.validate(site));
+    assertEquals(
+        VirtualSiteSourceType.ASYNCAPI_YAML,
+        PSVirtualSiteHelper.virtualSourceType(site).orElseThrow());
+  }
+
+  @Test
+  void validateRejectsRemoteUrlForAsyncApiYaml() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "aa-docs"),
+            prop(PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_REMOTE_URL));
+    assertTrue(ex.getMessage().contains("asyncapi-yaml"));
+  }
+
+  @Test
+  void validateRejectsCredentialPropertyForAsyncApiYaml() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "aa-docs"),
+            prop("aws_secret_access_key", "not-a-real-secret"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().toLowerCase().contains("credential"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("asyncapi-yaml"), ex.getMessage());
+    assertFalse(ex.getMessage().contains("not-a-real-secret"), ex.getMessage());
+  }
+
+  @Test
+  void validateRejectsCloudUrlRootForAsyncApiYaml() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "https://example.com/asyncapi.yaml"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH), ex.getMessage());
+    assertTrue(ex.getMessage().toLowerCase().contains("cloud"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("asyncapi-yaml"), ex.getMessage());
   }
 
   @Test
