@@ -5947,6 +5947,196 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void publishVirtualSite_asyncapiYamlInjectedBuildRunnerCopiesToSiteRoot() throws Exception {
+    Path siteRoot = createMinimalAsyncApiYamlTree(tempDir.resolve("aa-pub-src"));
+    Path staging = tempDir.resolve("aa-pub-staging");
+    Path publishTo = tempDir.resolve("aa-pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("AsyncApiHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "aa-docs");
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+
+    SitesAdaptor.BuildRunner runner =
+        (config, outputRoot) -> {
+          Files.createDirectories(outputRoot.resolve("8.2"));
+          Files.writeString(
+              outputRoot.resolve("8.2").resolve("onLightMeasured-1.html"),
+              "<html>AsyncAPI published</html>",
+              StandardCharsets.UTF_8);
+          Files.createDirectories(outputRoot.resolve("_meta"));
+          Files.writeString(
+              outputRoot.resolve("_meta").resolve("skip.txt"),
+              "not published",
+              StandardCharsets.UTF_8);
+          return new PSVirtualSiteBuildResult(
+              outputRoot, 1, List.of(), List.of("8.2/onLightMeasured-1.html"));
+        };
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, runner);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("AsyncApiHelp");
+    assertEquals("AsyncApiHelp", result.getSiteName());
+    assertEquals("aa-docs", result.getSiteKey());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    Path html = publishTo.resolve("8.2").resolve("onLightMeasured-1.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    assertTrue(
+        Files.readString(html, StandardCharsets.UTF_8).contains("AsyncAPI published"),
+        Files.readString(html, StandardCharsets.UTF_8));
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
+    assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
+  }
+
+  @Test
+  void publishVirtualSite_asyncapiYamlBuildsThenCopiesToSiteRoot() throws Exception {
+    Path siteRoot = createMinimalAsyncApiYamlTree(tempDir.resolve("aa-real-pub-src"));
+    Path staging = tempDir.resolve("aa-real-pub-staging");
+    Path publishTo = tempDir.resolve("aa-real-pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("AsyncApiHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "aa-docs");
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, null);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("AsyncApiHelp");
+    assertEquals("AsyncApiHelp", result.getSiteName());
+    assertEquals("aa-docs", result.getSiteKey());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    Path html = publishTo.resolve("8.2").resolve("onLightMeasured-1.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("Hello-from-asyncapi"), body);
+    assertTrue(
+        body.contains("Inform about lighting") || body.contains("onLightMeasured"), body);
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
+    assertTrue(Files.isRegularFile(staging.resolve("8.2").resolve("onLightMeasured-1.html")));
+    assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
+  }
+
+  @Test
+  void publishVirtualSite_asyncapiYamlMissingFixture400() throws Exception {
+    Path siteRoot = createMinimalAsyncApiYamlTree(tempDir.resolve("aa-pub-nofile"));
+    Files.deleteIfExists(siteRoot.resolve("asyncapi.yaml"));
+    Path publishTo = tempDir.resolve("aa-pub-nofile-target");
+    Files.createDirectories(publishTo);
+
+    PSSite site = new PSSite();
+    site.setName("AsyncApiHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("AsyncApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    String missingMsg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(missingMsg.contains("asyncapi"), String.valueOf(ex.getMessage()));
+    assertFalse(Files.exists(publishTo.resolve("8.2").resolve("onLightMeasured-1.html")));
+  }
+
+  @Test
+  void publishVirtualSite_asyncapiYamlRejectsUnsafeSiteRoot() {
+    PSSite site = new PSSite();
+    site.setName("AsyncApiHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(Path.of("a", "..", "..", "etc").toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, tempDir.resolve("aa-src").toString());
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("AsyncApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void publishVirtualSite_asyncapiYamlRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalAsyncApiYamlTree(tempDir.resolve("aa-pub-remote"));
+    Path publishTo = tempDir.resolve("aa-pub-remote-target");
+    Files.createDirectories(publishTo);
+
+    PSSite site = new PSSite();
+    site.setName("AsyncApiHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("AsyncApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void publishVirtualSite_asyncapiYamlCredentialProperty400() throws Exception {
+    Path siteRoot = createMinimalAsyncApiYamlTree(tempDir.resolve("aa-pub-cred"));
+    Path publishTo = tempDir.resolve("aa-pub-cred-target");
+    Files.createDirectories(publishTo);
+
+    PSSite site = new PSSite();
+    site.setName("AsyncApiHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, "aws_secret_access_key", "not-a-real-secret");
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("AsyncApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.toLowerCase().contains("credential"), msg);
+    assertFalse(msg.contains("not-a-real-secret"), msg);
+  }
+
+  @Test
+  void publishVirtualSite_asyncapiYamlCloudRootPath400() {
+    Path publishTo = tempDir.resolve("aa-pub-cloud-target");
+    PSSite site = new PSSite();
+    site.setName("AsyncApiHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, "https://example.com/asyncapi.yaml");
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("AsyncApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.contains("virtual.rootPath"), msg);
+    assertTrue(msg.toLowerCase().contains("cloud"), msg);
+  }
+
+  @Test
   void publishVirtualSite_unknownSourceKind400() {
     Path siteRoot = tempDir.resolve("unknown-pub-src");
     Path publishTo = tempDir.resolve("unknown-pub-target");
@@ -7932,10 +8122,11 @@ class SitesAdaptorTest {
   }
 
   /**
-   * Local AsyncAPI 2 YAML fixture for asyncapi-yaml REST Build/Preview. A single PUBLISH
+   * Local AsyncAPI 2 YAML fixture for asyncapi-yaml REST Build/Preview/Publish. A single PUBLISH
    * light/measured operation assembles {@code 8.2/onLightMeasured-1.html} with {@code
    * pagesWritten > 0}. Preview uses the sole-HTML home fallback (no {@code index.html}).
-   * Portable NIO {@link Path} / {@link Files}. No live spec fetch.
+   * Publish copies that file to IPSSite.root. Portable NIO {@link Path} / {@link Files}. No live
+   * spec fetch.
    */
   private static Path createMinimalAsyncApiYamlTree(Path siteRoot) throws Exception {
     Files.createDirectories(siteRoot.resolve("8.2"));

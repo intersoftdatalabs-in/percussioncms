@@ -1823,7 +1823,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@OpenAPI YAML uses the root path only (no Git remote). Point at a local OpenAPI 3 YAML fixture directory (openapi.yaml or _config.yaml openapi.file). Save sourceKind=openapi-yaml, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target after a local OpenAPI YAML Build. Missing build stays unavailable. Live spec fetches, remote URLs, and credentials are never sent on the REST envelope.",
   SITE_VIRT_KIND_ASYNCAPI_YAML: "perc.ui.developer@AsyncAPI YAML",
   SITE_VIRT_ASYNCAPI_YAML_HINT:
-    "perc.ui.developer@AsyncAPI YAML uses the root path only (no Git remote). Point at a local AsyncAPI 2/3 YAML fixture directory (asyncapi.yaml or _config.yaml asyncapi.file). Save sourceKind=asyncapi-yaml, then Build Virtual Site, then Preview assembled site. Missing build stays unavailable. Live spec fetches, remote URLs, and credentials are never sent on the REST envelope. Publish Virtual Site stays a later slice.",
+    "perc.ui.developer@AsyncAPI YAML uses the root path only (no Git remote). Point at a local AsyncAPI 2/3 YAML fixture directory (asyncapi.yaml or _config.yaml asyncapi.file). Save sourceKind=asyncapi-yaml, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target after a local AsyncAPI YAML Build. Missing build stays unavailable. Live spec fetches, remote URLs, and credentials are never sent on the REST envelope.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:
@@ -1857,7 +1857,7 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_PUBLISH: "perc.ui.developer@Publish Virtual Site",
   SITE_VIRT_PUBLISHING: "perc.ui.developer@Publishing Virtual Site...",
   SITE_VIRT_PUBLISH_HINT:
-    "perc.ui.developer@Builds this Virtual Site using saved source properties, then copies assembled files to the Site filesystem publish location (Git filesystem, CSV filesystem, SQL database, HTTP JSON, Object storage, RSS / Atom, iCalendar, Sitemap XML, or Robots.txt). Requires Admin. Traditional repository Sites do not show this control.",
+    "perc.ui.developer@Builds this Virtual Site using saved source properties, then copies assembled files to the Site filesystem publish location (Git filesystem, CSV filesystem, SQL database, HTTP JSON, Object storage, RSS / Atom, iCalendar, Sitemap XML, Robots.txt, llms.txt, OpenAPI YAML, or AsyncAPI YAML). Requires Admin. Traditional repository Sites do not show this control.",
   SITE_VIRT_PUBLISH_SAVE_FIRST:
     "perc.ui.developer@Save Virtual Site source before publishing so the server uses the latest properties. The Site publishing filesystem root must be configured.",
   SITE_VIRT_PUBLISH_ERROR: "perc.ui.developer@Could not publish Virtual Site.",

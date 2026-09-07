@@ -439,7 +439,8 @@ public class SitesAdaptor implements ISiteAdaptor {
   /**
    * Build then NIO-copy assembled files to {@link IPSSite#getRoot()} for git-filesystem,
    * csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml,
-   * robots-txt, llms-txt, and openapi-yaml Virtual Sites. Fail-closed on blank/unsafe/overlapping
+   * robots-txt, llms-txt, openapi-yaml, and asyncapi-yaml Virtual Sites. Fail-closed on
+   * blank/unsafe/overlapping
    * publish roots. {@code
    * http-json} uses a local JSON fixture (or loopback catalog from {@code _config.yaml}); leftover
    * {@code virtual.remoteUrl} is 400. {@code object-storage} uses a portable-safe local object-key
@@ -457,7 +458,10 @@ public class SitesAdaptor implements ISiteAdaptor {
    * properties, and cloud URL {@code rootPath} are 400 (no live HTTP fetch). {@code openapi-yaml}
    * uses a local OpenAPI 3 YAML fixture ({@code openapi.yaml} / {@code openapi.file}); leftover
    * {@code virtual.remoteUrl}, credential properties, and cloud URL {@code rootPath} are 400 (no
-   * live spec fetch). Missing fixture or failed assemble is 400 (do not invent pages).
+   * live spec fetch). {@code asyncapi-yaml} uses a local AsyncAPI 2/3 YAML fixture ({@code
+   * asyncapi.yaml} / {@code asyncapi.file}); leftover {@code virtual.remoteUrl}, credential
+   * properties, and cloud URL {@code rootPath} are 400 (no live spec fetch). Missing fixture or
+   * failed assemble is 400 (do not invent pages).
    */
   @Override
   public VirtualSitePublishResult publishVirtualSite(String nameOrId) {

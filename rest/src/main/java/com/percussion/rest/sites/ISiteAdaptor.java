@@ -198,7 +198,8 @@ public interface ISiteAdaptor {
   /**
    * Builds a Virtual Site ({@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
    * {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, {@code
-   * sitemap-xml}, {@code robots-txt}, {@code llms-txt}, or {@code openapi-yaml}) and copies the
+   * sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, or {@code
+   * asyncapi-yaml}) and copies the
    * static output to the Site filesystem publish root ({@code IPSSite.getRoot()}).
    *
    * <p>Publish-includes-build: operators get a published docs tree at the configured Site
@@ -222,7 +223,10 @@ public interface ISiteAdaptor {
    * properties, and cloud URL {@code rootPath} are 400 (no live HTTP fetch). {@code openapi-yaml}
    * uses a local OpenAPI 3 YAML fixture ({@code openapi.yaml} or {@code openapi.file}); leftover
    * {@code virtual.remoteUrl}, credential properties, and cloud URL {@code rootPath} are 400 (no
-   * live spec fetch). Missing assemble is 400 (do not invent pages).
+   * live spec fetch). {@code asyncapi-yaml} uses a local AsyncAPI 2/3 YAML fixture ({@code
+   * asyncapi.yaml} or {@code asyncapi.file}); leftover {@code virtual.remoteUrl}, credential
+   * properties, and cloud URL {@code rootPath} are 400 (no live spec fetch). Missing assemble is
+   * 400 (do not invent pages).
    * Failures are operator-facing 4xx (not a silent no-op). Requires Admin.
    *
    * @param nameOrId site name or GUID string, not blank

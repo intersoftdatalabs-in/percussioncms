@@ -57,8 +57,9 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * robots.txt fixture only — no live crawl; {@code llms-txt} is a local llms.txt fixture only — no
  * live HTTP fetch; {@code openapi-yaml} is a local OpenAPI 3 YAML fixture only — no live spec
  * fetch; {@code asyncapi-yaml} is a local AsyncAPI 2/3 YAML fixture only — no live spec fetch).
- * REST persist for {@code asyncapi-yaml} is GET/PUT plus REST Build/Preview (Publish stays later). REST Build/Preview/Publish for {@code openapi-yaml} use that local fixture (Publish
- * copies last-build HTML to {@code IPSSite.root}). REST
+ * REST persist for {@code asyncapi-yaml} is GET/PUT plus REST Build/Preview/Publish. REST
+ * Build/Preview/Publish for {@code openapi-yaml} and {@code asyncapi-yaml} use that local fixture
+ * (Publish copies last-build HTML to {@code IPSSite.root}). REST
  * {@code POST …/virtual/build} runs {@code http-json}, {@code object-storage}, {@code
  * rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, and {@code asyncapi-yaml} through the existing {@code
  * IPSVirtualSiteSource} factory (local fixture / loopback JSON; local object-key bucket; local
@@ -73,9 +74,11 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * credentials are 400), {@code icalendar} (local RFC 5545 fixture; leftover {@code
  * virtual.remoteUrl} and credentials are 400), {@code sitemap-xml} (local sitemap.xml
  * fixture; leftover {@code virtual.remoteUrl}, credentials, and cloud URL {@code rootPath} are
- * 400; no live crawl), {@code robots-txt}, {@code llms-txt}, and {@code openapi-yaml} (local
+ * 400; no live crawl), {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml} (local
  * OpenAPI 3 YAML fixture; leftover {@code virtual.remoteUrl}, credentials, and cloud URL {@code
- * rootPath} are 400; no live spec fetch; missing assemble is 400).
+ * rootPath} are 400; no live spec fetch; missing assemble is 400), and {@code asyncapi-yaml}
+ * (local AsyncAPI 2/3 YAML fixture; leftover {@code virtual.remoteUrl}, credentials, and cloud
+ * URL {@code rootPath} are 400; no live spec fetch; missing assemble is 400).
  *
  * <p>Wire getters return plain {@code String} (not {@code Optional}) so JAXB/Jettison and Jackson
  * {@code WRAP_ROOT_VALUE} emit/accept child elements {@code sourceKind}, {@code rootPath},
@@ -112,9 +115,10 @@ public class VirtualSiteProperties {
               + " rootPath; leftover remoteUrl, credentials, and cloud URL rootPath return 400; no live"
               + " spec fetch; preview is last-build local HTML only; publish copies last-build HTML to"
               + " IPSSite.root)."
-              + " asyncapi-yaml persist/build/preview is a local AsyncAPI 2/3 YAML fixture only (portable-safe"
+              + " asyncapi-yaml persist/build/preview/publish is a local AsyncAPI 2/3 YAML fixture only (portable-safe"
               + " rootPath; leftover remoteUrl, credentials, and cloud URL rootPath return 400; no live"
-              + " spec fetch; preview is last-build local HTML only). REST Publish for asyncapi-yaml stays later."
+              + " spec fetch; preview is last-build local HTML only; publish copies last-build HTML to"
+              + " IPSSite.root)."
               + " Blank or repository = traditional Site.",
       example = "git-filesystem")
   private String sourceKind;
