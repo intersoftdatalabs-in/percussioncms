@@ -1675,6 +1675,107 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void buildVirtualSiteAsyncApiYamlFixtureDelegates() throws Exception {
+    Path aaRoot = tempDir.resolve("aa-site");
+    Files.createDirectories(aaRoot);
+    Files.writeString(
+        aaRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: AsyncAPI Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        asyncapi:
+          file: asyncapi.yaml
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        aaRoot.resolve("asyncapi.yaml"),
+        """
+        asyncapi: 2.6.0
+        info:
+          title: Lights
+          version: "1.0.0"
+        channels:
+          "light/measured":
+            publish:
+              summary: Inform about lighting
+              operationId: onLightMeasured
+              description: Hello-from-asyncapi
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("aa-out");
+    Files.createDirectories(out);
+
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setSiteName("AsyncApiHelp");
+    built.setPagesWritten(1);
+    built.setLinkProblemCount(0);
+    built.setHasLinkProblems(false);
+    built.setOutputPath(out.toAbsolutePath().toString());
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+    when(adaptor.buildVirtualSite(eq("AsyncApiHelp"), same(req))).thenReturn(built);
+
+    VirtualSiteBuildResult result = resource.buildVirtualSite("AsyncApiHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getPagesWritten().intValue() > 0);
+    assertEquals(out.toAbsolutePath().toString(), result.getOutputPath());
+    assertTrue(Files.isRegularFile(aaRoot.resolve("_config.yaml")));
+    assertTrue(Files.isRegularFile(aaRoot.resolve("asyncapi.yaml")));
+    verify(adaptor).buildVirtualSite("AsyncApiHelp", req);
+  }
+
+  @Test
+  public void buildVirtualSiteAsyncApiYamlRemoteUrlPropagates400() {
+    when(adaptor.buildVirtualSite(eq("AsyncApiHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for asyncapi-yaml", Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("AsyncApiHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(adaptor).buildVirtualSite("AsyncApiHelp", null);
+  }
+
+  @Test
+  public void buildVirtualSiteAsyncApiYamlCloudRootPathPropagates400() {
+    when(adaptor.buildVirtualSite(eq("AsyncApiHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for asyncapi-yaml must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("AsyncApiHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).buildVirtualSite("AsyncApiHelp", null);
+  }
+
+  @Test
+  public void buildVirtualSiteAsyncApiYamlCredentialsPropagates400() {
+    when(adaptor.buildVirtualSite(eq("AsyncApiHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for asyncapi-yaml (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("AsyncApiHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).buildVirtualSite("AsyncApiHelp", null);
+  }
+
+  @Test
   public void buildVirtualSiteUnknownKindPropagates400() {
     when(adaptor.buildVirtualSite(eq("Help"), any()))
         .thenThrow(
@@ -2189,6 +2290,70 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void previewStatusDelegatesAsyncApiYaml() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(true);
+    status.setHomePath("8.2/onLightMeasured-1.html");
+    when(adaptor.getVirtualSitePreviewStatus("AsyncApiHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("AsyncApiHelp");
+    assertEquals(Boolean.TRUE, out.getAvailable());
+    assertEquals("8.2/onLightMeasured-1.html", out.getHomePath());
+    verify(adaptor).getVirtualSitePreviewStatus("AsyncApiHelp");
+  }
+
+  @Test
+  public void previewStatusAsyncApiYamlMissingBuildIsUnavailable() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(false);
+    status.setMessage("No assembled Virtual Site to preview. Run Build Virtual Site first.");
+    when(adaptor.getVirtualSitePreviewStatus("AsyncApiHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("AsyncApiHelp");
+    assertEquals(Boolean.FALSE, out.getAvailable());
+    assertTrue(out.getMessage() != null && out.getMessage().contains("No assembled"));
+    verify(adaptor).getVirtualSitePreviewStatus("AsyncApiHelp");
+  }
+
+  @Test
+  public void previewFileDelegatesAsyncApiYamlHtml() {
+    byte[] html =
+        "<a href=\"/8.2/onLightMeasured-1.html\">Inform about lighting</a>"
+            .getBytes(StandardCharsets.UTF_8);
+    when(adaptor.previewVirtualSiteFile(eq("AsyncApiHelp"), eq("8.2/onLightMeasured-1.html")))
+        .thenReturn(
+            new VirtualSitePreviewFile(
+                "text/html; charset=UTF-8", "8.2/onLightMeasured-1.html", html));
+
+    Response out = resource.previewVirtualSiteFile("AsyncApiHelp", "8.2/onLightMeasured-1.html");
+    assertEquals(200, out.getStatus());
+    byte[] body = (byte[]) out.getEntity();
+    String text = new String(body, StandardCharsets.UTF_8);
+    assertTrue(
+        text.contains("/services/sites/AsyncApiHelp/virtual/preview/8.2/onLightMeasured-1.html"),
+        text);
+    assertTrue(text.contains("Inform about lighting"), text);
+    verify(adaptor).previewVirtualSiteFile("AsyncApiHelp", "8.2/onLightMeasured-1.html");
+  }
+
+  @Test
+  public void previewStatusAsyncApiYamlLeftoverRemoteUrl400() {
+    when(adaptor.getVirtualSitePreviewStatus("AsyncApiHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for asyncapi-yaml",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.getVirtualSitePreviewStatus("AsyncApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
   public void buildVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.buildVirtualSite(" ", null));
@@ -2683,11 +2848,17 @@ public class SitesResourceTest {
         buildBlock.contains("openapi-yaml"),
         "buildVirtualSite OpenAPI description must mention openapi-yaml");
     assertTrue(
+        buildBlock.contains("asyncapi-yaml"),
+        "buildVirtualSite OpenAPI description must mention asyncapi-yaml");
+    assertTrue(
         buildBlock.contains("llms.txt") || buildBlock.contains("no live HTTP fetch"),
         "buildVirtualSite OpenAPI description must mention local llms.txt fixture");
     assertTrue(
         buildBlock.contains("openapi.yaml") || buildBlock.contains("no live spec fetch"),
         "buildVirtualSite OpenAPI description must mention local openapi.yaml fixture");
+    assertTrue(
+        buildBlock.contains("asyncapi.yaml") || buildBlock.contains("AsyncAPI 2/3"),
+        "buildVirtualSite OpenAPI description must mention local asyncapi.yaml fixture");
     assertTrue(
         buildBlock.contains("sitemap.xml") || buildBlock.contains("no live crawl"),
         "buildVirtualSite OpenAPI description must mention local sitemap.xml fixture");
@@ -2796,6 +2967,9 @@ public class SitesResourceTest {
         previewStatusBlock.contains("openapi-yaml"),
         "getVirtualSitePreviewStatus OpenAPI description must mention openapi-yaml");
     assertTrue(
+        previewStatusBlock.contains("asyncapi-yaml"),
+        "getVirtualSitePreviewStatus OpenAPI description must mention asyncapi-yaml");
+    assertTrue(
         previewStatusBlock.contains("no live crawl")
             || previewStatusBlock.contains("last-build local HTML"),
         "getVirtualSitePreviewStatus OpenAPI description must mention sitemap-xml last-build local HTML");
@@ -2829,6 +3003,9 @@ public class SitesResourceTest {
     assertTrue(
         previewFileBlock.contains("openapi-yaml"),
         "previewVirtualSiteFile OpenAPI description must mention openapi-yaml");
+    assertTrue(
+        previewFileBlock.contains("asyncapi-yaml"),
+        "previewVirtualSiteFile OpenAPI description must mention asyncapi-yaml");
     assertTrue(
         previewFileBlock.contains("no live crawl")
             || previewFileBlock.contains("last-build local HTML"),

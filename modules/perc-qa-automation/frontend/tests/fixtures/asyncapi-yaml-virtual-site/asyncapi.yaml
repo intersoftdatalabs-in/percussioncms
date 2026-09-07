@@ -1,0 +1,10 @@
+asyncapi: 2.6.0
+info:
+  title: Lights
+  version: "1.0.0"
+channels:
+  "light/measured":
+    publish:
+      summary: Inform about lighting
+      operationId: onLightMeasured
+      description: Hello-from-asyncapi
