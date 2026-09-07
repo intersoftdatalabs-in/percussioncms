@@ -1,0 +1,10 @@
+openapi: 3.0.3
+info:
+  title: Pets API
+  version: "1.0.0"
+paths:
+  /pets:
+    get:
+      summary: List pets
+      operationId: listPets
+      description: Hello-from-openapi

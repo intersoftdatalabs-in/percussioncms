@@ -181,16 +181,16 @@ function validationMessage(
  * Site detail section: view/edit Virtual Site source fields via public Site REST
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
  * build ({@code POST …/virtual/build}) for git-filesystem, csv-filesystem,
- * sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, and
- * robots-txt. Preview last-build HTML for git/csv/sql/http-json/object-storage/
- * rss-atom/icalendar/sitemap-xml/robots-txt (missing build stays unavailable).
+ * sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml,
+ * robots-txt, llms-txt, and openapi-yaml. Preview last-build HTML for
+ * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/
+ * llms-txt/openapi-yaml (missing build stays unavailable).
  * Publish ({@code POST …/virtual/publish}) for git/csv/sql/http-json/object-storage/
- * rss-atom/icalendar/sitemap-xml/robots-txt after a successful Build (sitemap-xml
- * and robots-txt copy last-build local HTML to {@code IPSSite.root}; leftover
- * remoteUrl/credentials/cloud rootPath fail closed). {@code openapi-yaml} persist
- * uses a local {@code rootPath} only; Build/Preview/Publish chrome stay later slices.
- * Repository / blank / unknown kinds stay hidden. sitemap-xml and robots-txt use a
- * local {@code rootPath} only (no live crawl chrome).
+ * rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt after a successful Build.
+ * {@code openapi-yaml} uses a local {@code rootPath} only; Publish chrome stays a later
+ * slice. Repository / blank / unknown kinds stay hidden. sitemap-xml, robots-txt,
+ * llms-txt, and openapi-yaml use a local {@code rootPath} only (no live crawl / spec
+ * fetch chrome).
  */
 export function VirtualSiteSourcePanel({
   siteName,

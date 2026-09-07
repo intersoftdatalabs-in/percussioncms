@@ -3659,6 +3659,244 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void buildVirtualSite_openApiYamlWritesHtml() throws Exception {
+    Path siteRoot = createMinimalOpenApiYamlTree(tempDir.resolve("oa-src"));
+    Path out = tempDir.resolve("oa-out");
+
+    PSSite site = new PSSite();
+    site.setName("OpenApiHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "openapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "openapi-docs");
+    when(siteManager.findSite("OpenApiHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult result = adaptor.buildVirtualSite("OpenApiHelp", req);
+    assertTrue(result.getPagesWritten().intValue() > 0, "pagesWritten=" + result.getPagesWritten());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertEquals(out.toAbsolutePath().normalize().toString(), result.getOutputPath());
+    assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
+    Path html = out.resolve("8.2").resolve("listPets-1.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("List pets"), body);
+    assertTrue(body.contains("Hello-from-openapi"), body);
+  }
+
+  @Test
+  void buildVirtualSite_openApiYamlSecondBuildAfterCurrentFileEditWritesUpdatedHtml()
+      throws Exception {
+    Path siteRoot = tempDir.resolve("oa-rebuild-src");
+    Path out = tempDir.resolve("oa-rebuild-out");
+
+    PSSite existing = new PSSite();
+    existing.setName("OpenApiHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("OpenApiHelp");
+    modifiable.setGUID(siteGuid);
+    when(siteManager.findSite("OpenApiHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("openapi-yaml");
+    body.setRootPath(siteRoot.toAbsolutePath().toString());
+    body.setSiteKey("openapi-docs");
+    VirtualSiteProperties put = adaptor.updateVirtualSiteProperties("OpenApiHelp", body);
+    assertEquals("openapi-yaml", put.getSourceKind());
+    ArgumentCaptor<PSSite> saved = ArgumentCaptor.forClass(PSSite.class);
+    verify(siteManager).saveSite(saved.capture());
+    PSSite persisted = saved.getValue();
+    when(siteManager.findSite("OpenApiHelp")).thenReturn(persisted);
+
+    createMinimalOpenApiYamlTree(siteRoot);
+    Files.writeString(
+        siteRoot.resolve("openapi.yaml"),
+        openApiYamlSpec("First", "firstOp", "unique-token-AAA"),
+        StandardCharsets.UTF_8);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult first = adaptor.buildVirtualSite("OpenApiHelp", req);
+    assertTrue(first.getPagesWritten().intValue() > 0, "pagesWritten=" + first.getPagesWritten());
+    assertEquals(1, first.getPagesWritten().intValue());
+    Path html = out.resolve("8.2").resolve("firstOp-1.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    Path secondHtmlPath = out.resolve("8.2").resolve("secondOp-1.html");
+    assertFalse(Files.isRegularFile(secondHtmlPath), "first build must not emit secondOp-1.html");
+    String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
+    assertFalse(firstHtml.contains("unique-token-BBB"), firstHtml);
+
+    Files.writeString(
+        siteRoot.resolve("openapi.yaml"),
+        openApiYamlSpec("Second", "secondOp", "unique-token-BBB"),
+        StandardCharsets.UTF_8);
+
+    VirtualSiteBuildResult second = adaptor.buildVirtualSite("OpenApiHelp", req);
+    assertTrue(
+        second.getPagesWritten().intValue() > 0, "pagesWritten=" + second.getPagesWritten());
+    assertEquals(1, second.getPagesWritten().intValue());
+    assertTrue(Files.isRegularFile(secondHtmlPath), "missing " + secondHtmlPath);
+    String secondHtml = Files.readString(secondHtmlPath, StandardCharsets.UTF_8);
+    assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
+    assertTrue(secondHtml.contains("Second"), secondHtml);
+    assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
+    assertNotEquals(firstHtml, secondHtml);
+  }
+
+  @Test
+  void buildVirtualSite_openApiYamlMissingFixture400() throws Exception {
+    Path siteRoot = createMinimalOpenApiYamlTree(tempDir.resolve("oa-nofile"));
+    Files.deleteIfExists(siteRoot.resolve("openapi.yaml"));
+    Path out = tempDir.resolve("oa-nofile-out");
+
+    PSSite site = new PSSite();
+    site.setName("OpenApiHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "openapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("OpenApiHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("OpenApiHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String missingMsg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(missingMsg.contains("openapi"), String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_openApiYamlMissingConfig400() throws Exception {
+    Path siteRoot = tempDir.resolve("oa-noconfig");
+    Files.createDirectories(siteRoot);
+    Path out = tempDir.resolve("oa-noconfig-out");
+
+    PSSite site = new PSSite();
+    site.setName("OpenApiHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "openapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("OpenApiHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("OpenApiHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String missingMsg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(
+        missingMsg.contains("config") && missingMsg.contains("_config.yaml"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_openApiYamlUnsafePath400() {
+    Path out = tempDir.resolve("oa-unsafe-out");
+    PSSite site = new PSSite();
+    site.setName("OpenApiHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "openapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, Path.of("a", "..", "..", "etc").toString());
+    when(siteManager.findSite("OpenApiHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("OpenApiHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(
+        msg.contains("virtual.rootPath") || msg.toLowerCase().contains("unsafe"), msg);
+  }
+
+  @Test
+  void buildVirtualSite_openApiYamlRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalOpenApiYamlTree(tempDir.resolve("oa-remote"));
+    Path out = tempDir.resolve("oa-remote-out");
+
+    PSSite site = new PSSite();
+    site.setName("OpenApiHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "openapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("OpenApiHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("OpenApiHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_openApiYamlCloudRootPath400() {
+    Path out = tempDir.resolve("oa-cloud-out");
+    PSSite site = new PSSite();
+    site.setName("OpenApiHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "openapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, "https://example.com/openapi.yaml");
+    when(siteManager.findSite("OpenApiHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("OpenApiHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.contains("virtual.rootPath"), msg);
+    assertTrue(msg.toLowerCase().contains("cloud"), msg);
+  }
+
+  @Test
+  void buildVirtualSite_openApiYamlCredentialProperty400() throws Exception {
+    Path siteRoot = createMinimalOpenApiYamlTree(tempDir.resolve("oa-cred"));
+    Path out = tempDir.resolve("oa-cred-out");
+
+    PSSite site = new PSSite();
+    site.setName("OpenApiHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "openapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, "aws_secret_access_key", "not-a-real-secret");
+    when(siteManager.findSite("OpenApiHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("OpenApiHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.toLowerCase().contains("credential"), msg);
+    assertFalse(msg.contains("not-a-real-secret"), msg);
+  }
+
+  @Test
   void buildVirtualSite_unknownSourceKind400() {
     Path siteRoot = tempDir.resolve("sql-root");
     PSSite site = new PSSite();
@@ -6251,6 +6489,95 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void previewOpenApiYaml_afterBuildAvailableWithHtml() throws Exception {
+    Path siteRoot = createMinimalOpenApiYamlTree(tempDir.resolve("oa-preview-src"));
+    Path defaultOut = tempDir.resolve("oa-preview-default");
+    Path built = tempDir.resolve("oa-preview-built");
+
+    PSSite site = virtualOpenApiYamlSite(siteRoot);
+    when(siteManager.findSite("OpenApiHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(built.toAbsolutePath().normalize().toString());
+    VirtualSiteBuildResult result = previewing.buildVirtualSite("OpenApiHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("OpenApiHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/listPets-1.html", status.getHomePath());
+
+    VirtualSitePreviewFile file =
+        previewing.previewVirtualSiteFile("OpenApiHelp", "8.2/listPets-1.html");
+    assertTrue(file.isHtml());
+    assertEquals("8.2/listPets-1.html", file.getRelativePath());
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("List pets"), html);
+    assertTrue(html.contains("Hello-from-openapi"), html);
+  }
+
+  @Test
+  void previewOpenApiYaml_missingBuildIsUnavailableNot500() throws Exception {
+    Path siteRoot = createMinimalOpenApiYamlTree(tempDir.resolve("oa-preview-empty-src"));
+    Path defaultOut = tempDir.resolve("oa-preview-default-empty");
+    PSSite site = virtualOpenApiYamlSite(siteRoot);
+    when(siteManager.findSite("OpenApiHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("OpenApiHelp");
+    assertEquals(Boolean.FALSE, status.getAvailable());
+    assertEquals(SitesAdaptor.MISSING_PREVIEW_MESSAGE, status.getMessage());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("OpenApiHelp", "8.2/listPets-1.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewOpenApiYaml_leftoverRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalOpenApiYamlTree(tempDir.resolve("oa-preview-remote"));
+    Path defaultOut = tempDir.resolve("oa-preview-remote-default");
+    PSSite site = virtualOpenApiYamlSite(siteRoot);
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("OpenApiHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.getVirtualSitePreviewStatus("OpenApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void previewOpenApiYaml_leftoverCredential400() throws Exception {
+    Path siteRoot = createMinimalOpenApiYamlTree(tempDir.resolve("oa-preview-cred"));
+    Path defaultOut = tempDir.resolve("oa-preview-cred-default");
+    PSSite site = virtualOpenApiYamlSite(siteRoot);
+    put(site, "aws_secret_access_key", "not-a-real-secret");
+    when(siteManager.findSite("OpenApiHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.getVirtualSitePreviewStatus("OpenApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.toLowerCase().contains("credential"), msg);
+    assertFalse(msg.contains("not-a-real-secret"), msg);
+  }
+
+  @Test
   void requireSafeRelativePreviewPath_rejectsAbsoluteAndDotDot() {
     WebApplicationException dots =
         assertThrows(
@@ -6426,6 +6753,19 @@ class SitesAdaptorTest {
         PSVirtualSiteHelper.PROP_ROOT_PATH,
         llmsRoot.toAbsolutePath().normalize().toString());
     put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "llms-docs");
+    return site;
+  }
+
+  private PSSite virtualOpenApiYamlSite(Path oaRoot) {
+    PSSite site = new PSSite();
+    site.setName("OpenApiHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "openapi-yaml");
+    put(
+        site,
+        PSVirtualSiteHelper.PROP_ROOT_PATH,
+        oaRoot.toAbsolutePath().normalize().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "openapi-docs");
     return site;
   }
 
@@ -6839,6 +7179,61 @@ class SitesAdaptorTest {
         """,
         StandardCharsets.UTF_8);
     return siteRoot;
+  }
+
+  /**
+   * Local OpenAPI 3 YAML fixture for openapi-yaml REST Build/Preview. A single GET /pets
+   * operation assembles {@code 8.2/listPets-1.html} with {@code pagesWritten > 0}. Preview uses
+   * the sole-HTML home fallback (no {@code index.html}). Portable NIO {@link Path} / {@link
+   * Files}. No live spec fetch.
+   */
+  private static Path createMinimalOpenApiYamlTree(Path siteRoot) throws Exception {
+    Files.createDirectories(siteRoot.resolve("8.2"));
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: OpenAPI Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        openapi:
+          file: openapi.yaml
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${pageTitle}</h1>${content}</body></html>",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("openapi.yaml"),
+        openApiYamlSpec("List pets", "listPets", "Hello-from-openapi"),
+        StandardCharsets.UTF_8);
+    return siteRoot;
+  }
+
+  private static String openApiYamlSpec(String summary, String operationId, String description) {
+    String descLine =
+        description == null || description.isBlank()
+            ? ""
+            : "\n      description: " + description;
+    return """
+        openapi: 3.0.3
+        info:
+          title: Pets API
+          version: "1.0.0"
+        paths:
+          /pets:
+            get:
+              summary: %s
+              operationId: %s%s
+        """
+        .formatted(summary, operationId, descLine);
   }
 
   /**

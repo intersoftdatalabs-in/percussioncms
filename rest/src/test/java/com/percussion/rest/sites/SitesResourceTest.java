@@ -1477,6 +1477,107 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void buildVirtualSiteOpenApiYamlFixtureDelegates() throws Exception {
+    Path oaRoot = tempDir.resolve("oa-site");
+    Files.createDirectories(oaRoot);
+    Files.writeString(
+        oaRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: OpenAPI Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        openapi:
+          file: openapi.yaml
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        oaRoot.resolve("openapi.yaml"),
+        """
+        openapi: 3.0.3
+        info:
+          title: Pets API
+          version: "1.0.0"
+        paths:
+          /pets:
+            get:
+              summary: List pets
+              operationId: listPets
+              description: Hello-from-openapi
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("oa-out");
+    Files.createDirectories(out);
+
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setSiteName("OpenApiHelp");
+    built.setPagesWritten(1);
+    built.setLinkProblemCount(0);
+    built.setHasLinkProblems(false);
+    built.setOutputPath(out.toAbsolutePath().toString());
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+    when(adaptor.buildVirtualSite(eq("OpenApiHelp"), same(req))).thenReturn(built);
+
+    VirtualSiteBuildResult result = resource.buildVirtualSite("OpenApiHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getPagesWritten().intValue() > 0);
+    assertEquals(out.toAbsolutePath().toString(), result.getOutputPath());
+    assertTrue(Files.isRegularFile(oaRoot.resolve("_config.yaml")));
+    assertTrue(Files.isRegularFile(oaRoot.resolve("openapi.yaml")));
+    verify(adaptor).buildVirtualSite("OpenApiHelp", req);
+  }
+
+  @Test
+  public void buildVirtualSiteOpenApiYamlRemoteUrlPropagates400() {
+    when(adaptor.buildVirtualSite(eq("OpenApiHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for openapi-yaml", Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("OpenApiHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(adaptor).buildVirtualSite("OpenApiHelp", null);
+  }
+
+  @Test
+  public void buildVirtualSiteOpenApiYamlCloudRootPathPropagates400() {
+    when(adaptor.buildVirtualSite(eq("OpenApiHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for openapi-yaml must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("OpenApiHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).buildVirtualSite("OpenApiHelp", null);
+  }
+
+  @Test
+  public void buildVirtualSiteOpenApiYamlCredentialsPropagates400() {
+    when(adaptor.buildVirtualSite(eq("OpenApiHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for openapi-yaml (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("OpenApiHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).buildVirtualSite("OpenApiHelp", null);
+  }
+
+  @Test
   public void buildVirtualSiteUnknownKindPropagates400() {
     when(adaptor.buildVirtualSite(eq("Help"), any()))
         .thenThrow(
@@ -1931,6 +2032,66 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void previewStatusDelegatesOpenApiYaml() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(true);
+    status.setHomePath("8.2/listPets-1.html");
+    when(adaptor.getVirtualSitePreviewStatus("OpenApiHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("OpenApiHelp");
+    assertEquals(Boolean.TRUE, out.getAvailable());
+    assertEquals("8.2/listPets-1.html", out.getHomePath());
+    verify(adaptor).getVirtualSitePreviewStatus("OpenApiHelp");
+  }
+
+  @Test
+  public void previewStatusOpenApiYamlMissingBuildIsUnavailable() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(false);
+    status.setMessage("No assembled Virtual Site to preview. Run Build Virtual Site first.");
+    when(adaptor.getVirtualSitePreviewStatus("OpenApiHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("OpenApiHelp");
+    assertEquals(Boolean.FALSE, out.getAvailable());
+    assertTrue(out.getMessage() != null && out.getMessage().contains("No assembled"));
+    verify(adaptor).getVirtualSitePreviewStatus("OpenApiHelp");
+  }
+
+  @Test
+  public void previewFileDelegatesOpenApiYamlHtml() {
+    byte[] html = "<a href=\"/8.2/listPets-1.html\">List pets</a>".getBytes(StandardCharsets.UTF_8);
+    when(adaptor.previewVirtualSiteFile(eq("OpenApiHelp"), eq("8.2/listPets-1.html")))
+        .thenReturn(
+            new VirtualSitePreviewFile("text/html; charset=UTF-8", "8.2/listPets-1.html", html));
+
+    Response out = resource.previewVirtualSiteFile("OpenApiHelp", "8.2/listPets-1.html");
+    assertEquals(200, out.getStatus());
+    byte[] body = (byte[]) out.getEntity();
+    String text = new String(body, StandardCharsets.UTF_8);
+    assertTrue(
+        text.contains("/services/sites/OpenApiHelp/virtual/preview/8.2/listPets-1.html"), text);
+    assertTrue(text.contains("List pets"), text);
+    verify(adaptor).previewVirtualSiteFile("OpenApiHelp", "8.2/listPets-1.html");
+  }
+
+  @Test
+  public void previewStatusOpenApiYamlLeftoverRemoteUrl400() {
+    when(adaptor.getVirtualSitePreviewStatus("OpenApiHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for openapi-yaml",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.getVirtualSitePreviewStatus("OpenApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
   public void buildVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.buildVirtualSite(" ", null));
@@ -2348,8 +2509,14 @@ public class SitesResourceTest {
         buildBlock.contains("llms-txt"),
         "buildVirtualSite OpenAPI description must mention llms-txt");
     assertTrue(
+        buildBlock.contains("openapi-yaml"),
+        "buildVirtualSite OpenAPI description must mention openapi-yaml");
+    assertTrue(
         buildBlock.contains("llms.txt") || buildBlock.contains("no live HTTP fetch"),
         "buildVirtualSite OpenAPI description must mention local llms.txt fixture");
+    assertTrue(
+        buildBlock.contains("openapi.yaml") || buildBlock.contains("no live spec fetch"),
+        "buildVirtualSite OpenAPI description must mention local openapi.yaml fixture");
     assertTrue(
         buildBlock.contains("sitemap.xml") || buildBlock.contains("no live crawl"),
         "buildVirtualSite OpenAPI description must mention local sitemap.xml fixture");
@@ -2449,6 +2616,9 @@ public class SitesResourceTest {
         previewStatusBlock.contains("llms-txt"),
         "getVirtualSitePreviewStatus OpenAPI description must mention llms-txt");
     assertTrue(
+        previewStatusBlock.contains("openapi-yaml"),
+        "getVirtualSitePreviewStatus OpenAPI description must mention openapi-yaml");
+    assertTrue(
         previewStatusBlock.contains("no live crawl")
             || previewStatusBlock.contains("last-build local HTML"),
         "getVirtualSitePreviewStatus OpenAPI description must mention sitemap-xml last-build local HTML");
@@ -2479,6 +2649,9 @@ public class SitesResourceTest {
     assertTrue(
         previewFileBlock.contains("llms-txt"),
         "previewVirtualSiteFile OpenAPI description must mention llms-txt");
+    assertTrue(
+        previewFileBlock.contains("openapi-yaml"),
+        "previewVirtualSiteFile OpenAPI description must mention openapi-yaml");
     assertTrue(
         previewFileBlock.contains("no live crawl")
             || previewFileBlock.contains("last-build local HTML"),
