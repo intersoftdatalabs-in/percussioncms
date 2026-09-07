@@ -55,8 +55,8 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * sitemap-xml} is a local sitemap.xml fixture only — no live crawl; {@code robots-txt} is a local
  * robots.txt fixture only — no live crawl; {@code llms-txt} is a local llms.txt fixture only — no
  * live HTTP fetch; {@code openapi-yaml} is a local OpenAPI 3 YAML fixture only — no live spec
- * fetch). REST Build/Preview for {@code openapi-yaml} use that local fixture (Publish stays a later
- * slice). REST
+ * fetch). REST Build/Preview/Publish for {@code openapi-yaml} use that local fixture (Publish
+ * copies last-build HTML to {@code IPSSite.root}). REST
  * {@code POST …/virtual/build} runs {@code http-json}, {@code object-storage}, {@code
  * rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, and {@code openapi-yaml} through the existing {@code
  * IPSVirtualSiteSource} factory (local fixture / loopback JSON; local object-key bucket; local
@@ -69,9 +69,11 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * http-json}, {@code object-storage} (local object-key fixture; leftover {@code virtual.remoteUrl}
  * is 400), {@code rss-atom} (local RSS/Atom fixture; leftover {@code virtual.remoteUrl} and
  * credentials are 400), {@code icalendar} (local RFC 5545 fixture; leftover {@code
- * virtual.remoteUrl} and credentials are 400), and {@code sitemap-xml} (local sitemap.xml
+ * virtual.remoteUrl} and credentials are 400), {@code sitemap-xml} (local sitemap.xml
  * fixture; leftover {@code virtual.remoteUrl}, credentials, and cloud URL {@code rootPath} are
- * 400; no live crawl).
+ * 400; no live crawl), {@code robots-txt}, {@code llms-txt}, and {@code openapi-yaml} (local
+ * OpenAPI 3 YAML fixture; leftover {@code virtual.remoteUrl}, credentials, and cloud URL {@code
+ * rootPath} are 400; no live spec fetch; missing assemble is 400).
  *
  * <p>Wire getters return plain {@code String} (not {@code Optional}) so JAXB/Jettison and Jackson
  * {@code WRAP_ROOT_VALUE} emit/accept child elements {@code sourceKind}, {@code rootPath},
@@ -104,9 +106,10 @@ public class VirtualSiteProperties {
               + " crawl; preview is last-build local HTML only). llms-txt persist/build/preview/publish is a local llms.txt"
               + " fixture only (portable-safe rootPath; leftover remoteUrl, credentials, and cloud URL"
               + " rootPath return 400; no live HTTP fetch; preview is last-build local HTML only)."
-              + " openapi-yaml persist/build/preview is a local OpenAPI 3 YAML fixture only (portable-safe"
+              + " openapi-yaml persist/build/preview/publish is a local OpenAPI 3 YAML fixture only (portable-safe"
               + " rootPath; leftover remoteUrl, credentials, and cloud URL rootPath return 400; no live"
-              + " spec fetch; preview is last-build local HTML only). REST Publish for openapi-yaml stays a later slice."
+              + " spec fetch; preview is last-build local HTML only; publish copies last-build HTML to"
+              + " IPSSite.root)."
               + " Blank or repository = traditional Site.",
       example = "git-filesystem")
   private String sourceKind;

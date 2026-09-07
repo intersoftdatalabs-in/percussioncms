@@ -1129,14 +1129,13 @@ export interface SiteDef {
  * sitemap-xml, robots-txt, llms-txt, and openapi-yaml (local {@code rootPath} only; no
  * cloud URLs, live feed / CalDAV / crawl / llms / OpenAPI fetch credentials, or
  * {@code virtual.remoteUrl} on those kinds). Build chrome is shown after save for
- * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml
- * (openapi-yaml Publish stays a later slice).
+ * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml.
  * Preview chrome is shown for
  * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml
  * (last-build local HTML; missing build stays unavailable). Publish chrome is shown for
- * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt
- * (sitemap-xml, robots-txt, and llms-txt copy last-build local HTML to {@code IPSSite.root};
- * leftover remoteUrl/credentials fail closed).
+ * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml
+ * (sitemap-xml, robots-txt, llms-txt, and openapi-yaml copy last-build local HTML to
+ * {@code IPSSite.root}; leftover remoteUrl/credentials fail closed).
  * Repository / unknown kinds hide that chrome.
  */
 export interface VirtualSiteProperties {

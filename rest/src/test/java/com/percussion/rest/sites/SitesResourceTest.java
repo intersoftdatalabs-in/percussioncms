@@ -2415,6 +2415,74 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void publishVirtualSiteDelegatesOpenapiYaml() {
+    VirtualSitePublishResult published = new VirtualSitePublishResult();
+    published.setSiteName("OpenApiHelp");
+    published.setSiteKey("oa-docs");
+    published.setPagesWritten(1);
+    published.setFilesCopied(2);
+    published.setPublishPath(tempDir.resolve("oa-pub").toString());
+    when(adaptor.publishVirtualSite("OpenApiHelp")).thenReturn(published);
+
+    VirtualSitePublishResult out = resource.publishVirtualSite("OpenApiHelp");
+    assertEquals("OpenApiHelp", out.getSiteName());
+    assertEquals("oa-docs", out.getSiteKey());
+    assertEquals(1, out.getPagesWritten().intValue());
+    assertEquals(2, out.getFilesCopied().intValue());
+    assertEquals(published.getPublishPath(), out.getPublishPath());
+    verify(adaptor).publishVirtualSite("OpenApiHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteOpenapiYamlRemoteUrlPropagates400() {
+    when(adaptor.publishVirtualSite("OpenApiHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for openapi-yaml", Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("OpenApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(adaptor).publishVirtualSite("OpenApiHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteOpenapiYamlCloudRootPropagates400() {
+    when(adaptor.publishVirtualSite("OpenApiHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for openapi-yaml must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("OpenApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).publishVirtualSite("OpenApiHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteOpenapiYamlCredentialsPropagates400() {
+    when(adaptor.publishVirtualSite("OpenApiHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for openapi-yaml (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("OpenApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).publishVirtualSite("OpenApiHelp");
+  }
+
+  @Test
   public void publishVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.publishVirtualSite(" "));
@@ -2568,6 +2636,12 @@ public class SitesResourceTest {
     assertTrue(
         publishBlock.contains("llms.txt") || publishBlock.contains("no live HTTP fetch"),
         "publishVirtualSite OpenAPI description must mention llms-txt local fixture only");
+    assertTrue(
+        publishBlock.contains("openapi-yaml"),
+        "publishVirtualSite OpenAPI description must mention openapi-yaml");
+    assertTrue(
+        publishBlock.contains("openapi.yaml") || publishBlock.contains("no live spec fetch"),
+        "publishVirtualSite OpenAPI description must mention openapi-yaml local fixture only");
     assertTrue(
         publishBlock.contains("no live crawl"),
         "publishVirtualSite OpenAPI description must mention sitemap-xml local fixture only");
