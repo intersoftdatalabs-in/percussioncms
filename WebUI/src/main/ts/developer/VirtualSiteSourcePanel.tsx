@@ -57,6 +57,7 @@ import {
   SOURCE_KIND_ROBOTS_TXT,
   SOURCE_KIND_LLMS_TXT,
   SOURCE_KIND_OPENAPI_YAML,
+  SOURCE_KIND_ASYNCAPI_YAML,
   SOURCE_KIND_SITEMAP_XML,
   SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
@@ -67,6 +68,7 @@ import {
   isIcalendarSourceKind,
   isLlmsTxtSourceKind,
   isOpenApiYamlSourceKind,
+  isAsyncApiYamlSourceKind,
   isObjectStorageSourceKind,
   isRobotsTxtSourceKind,
   isRssAtomSourceKind,
@@ -94,6 +96,7 @@ const SOURCE_KIND_OPTION_LABEL: Record<
   [SOURCE_KIND_ROBOTS_TXT]: DEV_MSG.SITE_VIRT_KIND_ROBOTS_TXT,
   [SOURCE_KIND_LLMS_TXT]: DEV_MSG.SITE_VIRT_KIND_LLMS_TXT,
   [SOURCE_KIND_OPENAPI_YAML]: DEV_MSG.SITE_VIRT_KIND_OPENAPI_YAML,
+  [SOURCE_KIND_ASYNCAPI_YAML]: DEV_MSG.SITE_VIRT_KIND_ASYNCAPI_YAML,
 };
 
 const formRow: React.CSSProperties = {
@@ -188,8 +191,8 @@ function validationMessage(
  * Publish ({@code POST …/virtual/publish}) for git/csv/sql/http-json/object-storage/
  * rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml after a successful
  * Build. Repository / blank / unknown kinds stay hidden. sitemap-xml, robots-txt,
- * llms-txt, and openapi-yaml use a local {@code rootPath} only (no live crawl / spec
- * fetch chrome).
+ * llms-txt, openapi-yaml, and asyncapi-yaml use a local {@code rootPath} only (no live crawl / spec
+ * fetch chrome). asyncapi-yaml save/GET-roundtrip is persist only (Build/Preview/Publish stay later).
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -385,6 +388,7 @@ export function VirtualSiteSourcePanel({
   const robotsTxtMode = isRobotsTxtSourceKind(form.sourceKind);
   const llmsTxtMode = isLlmsTxtSourceKind(form.sourceKind);
   const openApiYamlMode = isOpenApiYamlSourceKind(form.sourceKind);
+  const asyncApiYamlMode = isAsyncApiYamlSourceKind(form.sourceKind);
   /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
   /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml (never repository). */
@@ -564,6 +568,14 @@ export function VirtualSiteSourcePanel({
                   data-testid="developer-site-virtual-openapi-yaml-hint"
                 >
                   {DEV_MSG.SITE_VIRT_OPENAPI_YAML_HINT}
+                </p>
+              ) : null}
+              {asyncApiYamlMode ? (
+                <p
+                  style={{ ...mutedHintText, margin: "0 0 10px" }}
+                  data-testid="developer-site-virtual-asyncapi-yaml-hint"
+                >
+                  {DEV_MSG.SITE_VIRT_ASYNCAPI_YAML_HINT}
                 </p>
               ) : null}
               {gitMode ? (

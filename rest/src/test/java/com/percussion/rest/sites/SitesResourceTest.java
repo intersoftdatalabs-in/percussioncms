@@ -740,6 +740,103 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void getVirtualPropertiesRoundTripsAsyncApiYaml() {
+    VirtualSiteProperties v = new VirtualSiteProperties();
+    v.setSourceKind("asyncapi-yaml");
+    v.setRootPath("C:/asyncapi-docs");
+    v.setVirtual(true);
+    when(adaptor.getVirtualSiteProperties("AsyncApiHelp")).thenReturn(v);
+
+    VirtualSiteProperties out = resource.getVirtualProperties("AsyncApiHelp");
+    assertEquals("asyncapi-yaml", out.getSourceKind());
+    assertEquals("C:/asyncapi-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).getVirtualSiteProperties("AsyncApiHelp");
+  }
+
+  @Test
+  public void updateVirtualPropertiesRoundTripsAsyncApiYaml() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("asyncapi-yaml");
+    body.setRootPath("C:/asyncapi-docs");
+    VirtualSiteProperties saved = new VirtualSiteProperties();
+    saved.setSourceKind("asyncapi-yaml");
+    saved.setRootPath("C:/asyncapi-docs");
+    saved.setVirtual(true);
+    when(adaptor.updateVirtualSiteProperties(eq("AsyncApiHelp"), same(body))).thenReturn(saved);
+
+    VirtualSiteProperties out = resource.updateVirtualProperties("AsyncApiHelp", body);
+    assertEquals("asyncapi-yaml", out.getSourceKind());
+    assertEquals("C:/asyncapi-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).updateVirtualSiteProperties("AsyncApiHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesAsyncApiYamlRemoteUrlPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("asyncapi-yaml");
+    body.setRootPath("C:/asyncapi-docs");
+    body.setRemoteUrl("https://user:secret@git.example.com/org/docs.git");
+    when(adaptor.updateVirtualSiteProperties(eq("AsyncApiHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for asyncapi-yaml",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("AsyncApiHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("user:secret"));
+    verify(adaptor).updateVirtualSiteProperties("AsyncApiHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesAsyncApiYamlCloudRootPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("asyncapi-yaml");
+    body.setRootPath("https://example.com/asyncapi.yaml");
+    when(adaptor.updateVirtualSiteProperties(eq("AsyncApiHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for asyncapi-yaml must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("AsyncApiHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).updateVirtualSiteProperties("AsyncApiHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesAsyncApiYamlCredentialsPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("asyncapi-yaml");
+    body.setRootPath("C:/asyncapi-docs");
+    when(adaptor.updateVirtualSiteProperties(eq("AsyncApiHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for asyncapi-yaml (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("AsyncApiHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).updateVirtualSiteProperties("AsyncApiHelp", body);
+  }
+
+  @Test
   public void updateVirtualPropertiesUnknownKindPropagates400() {
     VirtualSiteProperties body = new VirtualSiteProperties();
     body.setSourceKind("sql-adapter");
@@ -2527,6 +2624,9 @@ public class SitesResourceTest {
         putVirtualBlock.contains("openapi-yaml"),
         "updateVirtualProperties OpenAPI description must mention openapi-yaml persist");
     assertTrue(
+        putVirtualBlock.contains("asyncapi-yaml"),
+        "updateVirtualProperties OpenAPI description must mention asyncapi-yaml persist");
+    assertTrue(
         putVirtualBlock.contains("no CalDAV"),
         "updateVirtualProperties OpenAPI description must mention icalendar local fixture only");
     assertTrue(
@@ -2541,6 +2641,9 @@ public class SitesResourceTest {
     assertTrue(
         putVirtualBlock.contains("OpenAPI 3 YAML fixture"),
         "updateVirtualProperties OpenAPI description must mention openapi-yaml local fixture only");
+    assertTrue(
+        putVirtualBlock.contains("AsyncAPI 2/3 YAML fixture"),
+        "updateVirtualProperties OpenAPI description must mention asyncapi-yaml local fixture only");
     assertTrue(
         putVirtualBlock.contains("local/loopback"),
         "updateVirtualProperties OpenAPI description must mention rss-atom local/loopback only");

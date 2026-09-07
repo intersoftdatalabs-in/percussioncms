@@ -15,6 +15,7 @@ import {
   SOURCE_KIND_ROBOTS_TXT,
   SOURCE_KIND_LLMS_TXT,
   SOURCE_KIND_OPENAPI_YAML,
+  SOURCE_KIND_ASYNCAPI_YAML,
   SOURCE_KIND_SITEMAP_XML,
   SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
@@ -25,6 +26,7 @@ import {
   isIcalendarSourceKind,
   isLlmsTxtSourceKind,
   isOpenApiYamlSourceKind,
+  isAsyncApiYamlSourceKind,
   isObjectStorageSourceKind,
   isRobotsTxtSourceKind,
   isRssAtomSourceKind,
@@ -37,7 +39,7 @@ import {
 } from "../../../main/ts/developer/virtualSiteForm";
 
 describe("virtualSiteForm helpers", () => {
-  it("SOURCE_KIND_SELECT_VALUES lists object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, and openapi-yaml with the other product kinds", () => {
+  it("SOURCE_KIND_SELECT_VALUES lists object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, and asyncapi-yaml with the other product kinds", () => {
     expect(SOURCE_KIND_SELECT_VALUES).toEqual([
       SOURCE_KIND_REPOSITORY,
       SOURCE_KIND_GIT_FILESYSTEM,
@@ -51,6 +53,7 @@ describe("virtualSiteForm helpers", () => {
       SOURCE_KIND_ROBOTS_TXT,
       SOURCE_KIND_LLMS_TXT,
       SOURCE_KIND_OPENAPI_YAML,
+      SOURCE_KIND_ASYNCAPI_YAML,
     ]);
   });
 
@@ -82,6 +85,8 @@ describe("virtualSiteForm helpers", () => {
     expect(normalizeSourceKindOption("Llms-TXT")).toBe(SOURCE_KIND_LLMS_TXT);
     expect(normalizeSourceKindOption("openapi-yaml")).toBe(SOURCE_KIND_OPENAPI_YAML);
     expect(normalizeSourceKindOption("OpenAPI-YAML")).toBe(SOURCE_KIND_OPENAPI_YAML);
+    expect(normalizeSourceKindOption("asyncapi-yaml")).toBe(SOURCE_KIND_ASYNCAPI_YAML);
+    expect(normalizeSourceKindOption("AsyncAPI-YAML")).toBe(SOURCE_KIND_ASYNCAPI_YAML);
     expect(normalizeSourceKindOption("future-adapter")).toBe(SOURCE_KIND_REPOSITORY);
     expect(normalizeSourceKindOption("sql-api")).toBe(SOURCE_KIND_REPOSITORY);
   });
@@ -101,6 +106,7 @@ describe("virtualSiteForm helpers", () => {
     expect(isVirtualSourceKind("robots-txt")).toBe(true);
     expect(isVirtualSourceKind("llms-txt")).toBe(true);
     expect(isVirtualSourceKind("openapi-yaml")).toBe(true);
+    expect(isVirtualSourceKind("asyncapi-yaml")).toBe(true);
     expect(isGitFilesystemSourceKind("git-filesystem")).toBe(true);
     expect(isGitFilesystemSourceKind("csv-filesystem")).toBe(false);
     expect(isGitFilesystemSourceKind("sql-database")).toBe(false);
@@ -175,6 +181,10 @@ describe("virtualSiteForm helpers", () => {
     expect(isOpenApiYamlSourceKind("OpenAPI-YAML")).toBe(true);
     expect(isOpenApiYamlSourceKind("llms-txt")).toBe(false);
     expect(isOpenApiYamlSourceKind("git-filesystem")).toBe(false);
+    expect(isAsyncApiYamlSourceKind("asyncapi-yaml")).toBe(true);
+    expect(isAsyncApiYamlSourceKind("AsyncAPI-YAML")).toBe(true);
+    expect(isAsyncApiYamlSourceKind("openapi-yaml")).toBe(false);
+    expect(isAsyncApiYamlSourceKind("git-filesystem")).toBe(false);
   });
 
   it("virtualPropsToForm and formToVirtualProps round-trip repository clear", () => {
@@ -601,6 +611,43 @@ describe("virtualSiteForm helpers", () => {
     );
   });
 
+  it("virtualPropsToForm maps asyncapi-yaml and PUT omits Git remotes", () => {
+    const form = virtualPropsToForm({
+      sourceKind: "asyncapi-yaml",
+      rootPath: "C:/asyncapi-docs",
+      virtual: true,
+    });
+    expect(form.sourceKind).toBe(SOURCE_KIND_ASYNCAPI_YAML);
+    expect(form.rootPath).toBe("C:/asyncapi-docs");
+    expect(formToVirtualProps(form)).toEqual({
+      sourceKind: SOURCE_KIND_ASYNCAPI_YAML,
+      rootPath: "C:/asyncapi-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+  });
+
+  it("formToVirtualProps for asyncapi-yaml clears leftover Git remote fields", () => {
+    const body = formToVirtualProps({
+      sourceKind: SOURCE_KIND_ASYNCAPI_YAML,
+      rootPath: "  C:/asyncapi-docs  ",
+      remoteUrl: "https://example.com/asyncapi.yaml",
+      branch: "main",
+      configFile: "_config.yaml",
+      siteKey: "docs",
+    });
+    expect(body).toEqual({
+      sourceKind: SOURCE_KIND_ASYNCAPI_YAML,
+      rootPath: "C:/asyncapi-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+    expect(body).not.toHaveProperty("password");
+    expect(JSON.stringify(body)).not.toMatch(
+      /authorization|api[_-]?key|crawl|credential|token/i,
+    );
+  });
+
   it("formToVirtualProps trims and nulls empty optional fields", () => {
     const body = formToVirtualProps({
       sourceKind: SOURCE_KIND_GIT_FILESYSTEM,
@@ -999,6 +1046,39 @@ describe("virtualSiteForm helpers", () => {
       validateVirtualSiteForm({
         sourceKind: SOURCE_KIND_OPENAPI_YAML,
         rootPath: "C:/openapi-docs",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBeNull();
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_ASYNCAPI_YAML,
+        rootPath: "",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBe("root-required");
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_ASYNCAPI_YAML,
+        rootPath: "../escape",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBe("root-unsafe");
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_ASYNCAPI_YAML,
+        rootPath: "C:/asyncapi-docs",
         remoteUrl: "",
         branch: "",
         configFile: "",

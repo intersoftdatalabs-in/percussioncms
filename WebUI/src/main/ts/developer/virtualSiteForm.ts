@@ -53,6 +53,9 @@ export const SOURCE_KIND_LLMS_TXT = "llms-txt";
 /** Virtual Site adapter wire name for a local OpenAPI 3 YAML fixture (no live spec fetch). */
 export const SOURCE_KIND_OPENAPI_YAML = "openapi-yaml";
 
+/** Virtual Site adapter wire name for a local AsyncAPI 2/3 YAML fixture (no live spec fetch). */
+export const SOURCE_KIND_ASYNCAPI_YAML = "asyncapi-yaml";
+
 /** Form select values for source kind. */
 export type VirtualSourceKindOption =
   | typeof SOURCE_KIND_REPOSITORY
@@ -66,7 +69,8 @@ export type VirtualSourceKindOption =
   | typeof SOURCE_KIND_SITEMAP_XML
   | typeof SOURCE_KIND_ROBOTS_TXT
   | typeof SOURCE_KIND_LLMS_TXT
-  | typeof SOURCE_KIND_OPENAPI_YAML;
+  | typeof SOURCE_KIND_OPENAPI_YAML
+  | typeof SOURCE_KIND_ASYNCAPI_YAML;
 
 /**
  * Product order for the Developer Sites source-kind {@code <select>}.
@@ -86,6 +90,7 @@ export const SOURCE_KIND_SELECT_VALUES: readonly VirtualSourceKindOption[] = [
   SOURCE_KIND_ROBOTS_TXT,
   SOURCE_KIND_LLMS_TXT,
   SOURCE_KIND_OPENAPI_YAML,
+  SOURCE_KIND_ASYNCAPI_YAML,
 ];
 
 /** Editable form model for the Virtual Site source panel. */
@@ -102,7 +107,7 @@ export interface VirtualSiteFormModel {
  * Normalize a wire/sourceKind string into a form select option.
  * Blank, missing, or {@code repository} → repository; git-filesystem,
  * csv-filesystem, sql-database, http-json, object-storage, rss-atom,
- * icalendar, sitemap-xml, robots-txt, llms-txt, and openapi-yaml map to themselves;
+ * icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, and asyncapi-yaml map to themselves;
  * unknown kinds → repository (safe default).
  */
 export function normalizeSourceKindOption(
@@ -144,6 +149,9 @@ export function normalizeSourceKindOption(
   }
   if (v === SOURCE_KIND_OPENAPI_YAML) {
     return SOURCE_KIND_OPENAPI_YAML;
+  }
+  if (v === SOURCE_KIND_ASYNCAPI_YAML) {
+    return SOURCE_KIND_ASYNCAPI_YAML;
   }
   // Unknown kinds: surface as repository so operators do not accidentally
   // re-save an unsupported adapter without changing the select.
@@ -209,6 +217,11 @@ export function isLlmsTxtSourceKind(kind: string | null | undefined): boolean {
 /** True when source kind is the local OpenAPI YAML adapter (root path only; no live spec fetch). */
 export function isOpenApiYamlSourceKind(kind: string | null | undefined): boolean {
   return (kind ?? "").trim().toLowerCase() === SOURCE_KIND_OPENAPI_YAML;
+}
+
+/** True when source kind is the local AsyncAPI YAML adapter (root path only; no live spec fetch). */
+export function isAsyncApiYamlSourceKind(kind: string | null | undefined): boolean {
+  return (kind ?? "").trim().toLowerCase() === SOURCE_KIND_ASYNCAPI_YAML;
 }
 
 /**
@@ -338,6 +351,16 @@ export function formToVirtualProps(form: VirtualSiteFormModel): VirtualSitePrope
     // openapi.yaml fixture directory only — never send live spec URLs or credentials.
     return {
       sourceKind: SOURCE_KIND_OPENAPI_YAML,
+      rootPath: form.rootPath.trim() || null,
+      remoteUrl: "",
+      branch: "",
+    };
+  }
+  if (kind === SOURCE_KIND_ASYNCAPI_YAML) {
+    // AsyncAPI YAML rejects a non-blank virtual.remoteUrl (REST 400). Local
+    // asyncapi.yaml fixture directory only — never send live spec URLs or credentials.
+    return {
+      sourceKind: SOURCE_KIND_ASYNCAPI_YAML,
       rootPath: form.rootPath.trim() || null,
       remoteUrl: "",
       branch: "",

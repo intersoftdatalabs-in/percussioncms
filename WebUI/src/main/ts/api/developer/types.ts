@@ -1132,12 +1132,14 @@ export interface SiteDef {
  * traditional repository Site. Allow-listed virtual adapters:
  * {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
  * {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar},
- * {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}.
+ * {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml},
+ * {@code asyncapi-yaml}.
  * Developer Sites save chrome includes http-json, object-storage, rss-atom, icalendar,
- * sitemap-xml, robots-txt, llms-txt, and openapi-yaml (local {@code rootPath} only; no
- * cloud URLs, live feed / CalDAV / crawl / llms / OpenAPI fetch credentials, or
+ * sitemap-xml, robots-txt, llms-txt, openapi-yaml, and asyncapi-yaml (local {@code rootPath} only; no
+ * cloud URLs, live feed / CalDAV / crawl / llms / OpenAPI / AsyncAPI fetch credentials, or
  * {@code virtual.remoteUrl} on those kinds). Build chrome is shown after save for
- * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml.
+ * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml
+ * (asyncapi-yaml Build/Preview/Publish stay later).
  * Preview chrome is shown for
  * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml
  * (last-build local HTML; missing build stays unavailable). Publish chrome is shown for
