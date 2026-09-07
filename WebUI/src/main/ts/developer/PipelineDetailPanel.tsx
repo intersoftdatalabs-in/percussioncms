@@ -25,6 +25,7 @@ import {
   getPipelineIr,
   getPipelineOpenApi,
   openApiDownloadFilename,
+  putFilterGroup,
   putHttpBackendTank,
   putWebhookHooks,
   startApplication,
@@ -37,10 +38,16 @@ import type {
   ApplicationValidationResult,
   PipelineExecuteRequest,
   PipelineExecuteResult,
+  PipelineFilterGroup,
   PipelineIrDocument,
   PipelineIrResource,
   PipelineIrStages,
 } from "../api/developer/types";
+import {
+  clientFilterGroupError,
+  defaultNestedFilterGroup,
+  predicateNode,
+} from "./pipelineFilterGroup";
 import {
   catalogColors,
   backButton,
@@ -54,6 +61,64 @@ import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
 const DEFAULT_INVOKE_BODY = '{\n  "params": {}\n}\n';
+
+function rootPredicate(group: PipelineFilterGroup): PipelineFilterGroup {
+  const first = (group.children || [])[0];
+  if (first && (first.type || "").toUpperCase() === "PREDICATE") {
+    return first;
+  }
+  return predicateNode("sku", "=", "SKU-1");
+}
+
+function nestedGroup(group: PipelineFilterGroup): PipelineFilterGroup {
+  const second = (group.children || [])[1];
+  if (second && (second.type || "GROUP").toUpperCase() === "GROUP") {
+    return second;
+  }
+  return {
+    type: "GROUP",
+    op: "OR",
+    children: [predicateNode("qty", "=", "3"), predicateNode("qty", "=", "99")],
+  };
+}
+
+function nestedPredicate(group: PipelineFilterGroup, index: number): PipelineFilterGroup {
+  const child = (nestedGroup(group).children || [])[index];
+  if (child && (child.type || "").toUpperCase() === "PREDICATE") {
+    return child;
+  }
+  return predicateNode("qty", "=", index === 0 ? "3" : "99");
+}
+
+function rebuildFilterGroup(
+  group: PipelineFilterGroup,
+  patch: {
+    rootOp?: string;
+    pred?: Partial<PipelineFilterGroup>;
+    nestedOp?: string;
+    nestedIndex?: number;
+    nestedPred?: Partial<PipelineFilterGroup>;
+  },
+): PipelineFilterGroup {
+  const pred = { ...rootPredicate(group), ...patch.pred };
+  const inner = nestedGroup(group);
+  const innerChildren = [nestedPredicate(group, 0), nestedPredicate(group, 1)];
+  if (patch.nestedIndex != null && patch.nestedPred) {
+    innerChildren[patch.nestedIndex] = { ...innerChildren[patch.nestedIndex], ...patch.nestedPred };
+  }
+  return {
+    type: "GROUP",
+    op: patch.rootOp ?? group.op ?? "AND",
+    children: [
+      pred,
+      {
+        type: "GROUP",
+        op: patch.nestedOp ?? inner.op ?? "OR",
+        children: innerChildren,
+      },
+    ],
+  };
+}
 
 const toolbarStyle: React.CSSProperties = {
   display: "flex",
@@ -453,6 +518,10 @@ export function PipelineDetailPanel({
   const [webhookBusy, setWebhookBusy] = useState(false);
   const [webhookError, setWebhookError] = useState<string | null>(null);
   const [webhookNotice, setWebhookNotice] = useState<string | null>(null);
+  const [filterGroup, setFilterGroup] = useState<PipelineFilterGroup>(defaultNestedFilterGroup);
+  const [filterBusy, setFilterBusy] = useState(false);
+  const [filterError, setFilterError] = useState<string | null>(null);
+  const [filterNotice, setFilterNotice] = useState<string | null>(null);
   const [openApiFormat, setOpenApiFormat] = useState<PipelineOpenApiFormat>("yaml");
   const [openApiText, setOpenApiText] = useState<string | null>(null);
   const [openApiError, setOpenApiError] = useState<string | null>(null);
@@ -462,6 +531,7 @@ export function PipelineDetailPanel({
   const invokeInflight = useRef(false);
   const httpInflight = useRef(false);
   const webhookInflight = useRef(false);
+  const filterInflight = useRef(false);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -492,6 +562,10 @@ export function PipelineDetailPanel({
     setWebhookBusy(false);
     setWebhookError(null);
     setWebhookNotice(null);
+    setFilterGroup(defaultNestedFilterGroup());
+    setFilterBusy(false);
+    setFilterError(null);
+    setFilterNotice(null);
     setOpenApiFormat("yaml");
     setOpenApiText(null);
     setOpenApiError(null);
@@ -501,6 +575,7 @@ export function PipelineDetailPanel({
     invokeInflight.current = false;
     httpInflight.current = false;
     webhookInflight.current = false;
+    filterInflight.current = false;
     getApplicationDetail(idOrName)
       .then((d) => {
         if (!cancelled) {
@@ -528,6 +603,13 @@ export function PipelineDetailPanel({
           const named = firstHttp?.name?.trim();
           if (named) {
             setResourceName((current) => current || named);
+          }
+          const storedGroup =
+            firstHttp?.stages?.selector?.filterGroup ||
+            (doc.resources || []).find((r) => r.stages?.selector?.filterGroup)?.stages
+              ?.selector?.filterGroup;
+          if (storedGroup) {
+            setFilterGroup(storedGroup);
           }
         }
       })
@@ -771,6 +853,44 @@ export function PipelineDetailPanel({
     } finally {
       webhookInflight.current = false;
       if (mountedRef.current) setWebhookBusy(false);
+    }
+  }
+
+  async function onSaveFilterGroup(): Promise<void> {
+    if (!detail || filterInflight.current) return;
+    const resource = resourceName.trim();
+    if (!resource) {
+      setFilterError(DEV_MSG.PIPE_FILTER_RESOURCE_REQUIRED);
+      setFilterNotice(null);
+      return;
+    }
+    const invalid = clientFilterGroupError(filterGroup);
+    if (invalid) {
+      setFilterError(invalid);
+      setFilterNotice(null);
+      return;
+    }
+    filterInflight.current = true;
+    setFilterBusy(true);
+    setFilterError(null);
+    setFilterNotice(null);
+    try {
+      const saved = await putFilterGroup(idOrName, resource, filterGroup);
+      if (!mountedRef.current) return;
+      setFilterGroup(saved);
+      setFilterNotice(DEV_MSG.PIPE_FILTER_SAVED);
+      try {
+        const nextIr = await getPipelineIr(idOrName);
+        if (mountedRef.current) setIr(nextIr);
+      } catch {
+        // persist succeeded; IR refresh is best-effort
+      }
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setFilterError(lifecycleErrMsg(err, DEV_MSG.PIPE_FILTER_SAVE_ERROR));
+    } finally {
+      filterInflight.current = false;
+      if (mountedRef.current) setFilterBusy(false);
     }
   }
 
@@ -1223,6 +1343,175 @@ export function PipelineDetailPanel({
                   style={{ ...errorAlert, marginTop: "12px" }}
                 >
                   {webhookError}
+                </div>
+              ) : null}
+            </section>
+          ) : null}
+
+          {isAdmin ? (
+            <section style={{ marginBottom: "16px" }} data-testid="developer-pipe-filter">
+              <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.PIPE_FILTER}</h3>
+              <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+                {DEV_MSG.PIPE_FILTER_HINT}
+              </p>
+              <div style={{ marginBottom: "12px" }}>
+                <label htmlFor="developer-pipe-filter-root-op" style={fieldLabel}>
+                  {DEV_MSG.PIPE_FILTER_ROOT_OP}
+                </label>
+                <select
+                  id="developer-pipe-filter-root-op"
+                  data-testid="developer-pipe-filter-root-op"
+                  value={filterGroup.op || "AND"}
+                  onChange={(e) =>
+                    setFilterGroup((g) => rebuildFilterGroup(g, { rootOp: e.target.value }))
+                  }
+                  disabled={filterBusy}
+                  style={{ ...textInput, maxWidth: "160px" }}
+                >
+                  <option value="AND">AND</option>
+                  <option value="OR">OR</option>
+                </select>
+              </div>
+              <div style={{ marginBottom: "12px" }}>
+                <span style={fieldLabel}>{DEV_MSG.PIPE_FILTER_PRED}</span>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                  <input
+                    data-testid="developer-pipe-filter-pred-0-left"
+                    aria-label={DEV_MSG.PIPE_FILTER_COLUMN}
+                    value={rootPredicate(filterGroup).left || ""}
+                    onChange={(e) =>
+                      setFilterGroup((g) => rebuildFilterGroup(g, { pred: { left: e.target.value } }))
+                    }
+                    disabled={filterBusy}
+                    style={{ ...textInput, maxWidth: "160px" }}
+                  />
+                  <select
+                    data-testid="developer-pipe-filter-pred-0-op"
+                    aria-label={DEV_MSG.PIPE_FILTER_OPERATOR}
+                    value={rootPredicate(filterGroup).operator || "="}
+                    onChange={(e) =>
+                      setFilterGroup((g) =>
+                        rebuildFilterGroup(g, { pred: { operator: e.target.value } }),
+                      )
+                    }
+                    disabled={filterBusy}
+                    style={{ ...textInput, maxWidth: "120px" }}
+                  >
+                    <option value="=">=</option>
+                    <option value="<>">≠</option>
+                    <option value="LIKE">LIKE</option>
+                  </select>
+                  <input
+                    data-testid="developer-pipe-filter-pred-0-right"
+                    aria-label={DEV_MSG.PIPE_FILTER_VALUE}
+                    value={rootPredicate(filterGroup).right || ""}
+                    onChange={(e) =>
+                      setFilterGroup((g) =>
+                        rebuildFilterGroup(g, { pred: { right: e.target.value } }),
+                      )
+                    }
+                    disabled={filterBusy}
+                    style={{ ...textInput, maxWidth: "180px" }}
+                  />
+                </div>
+              </div>
+              <div style={{ marginBottom: "12px" }}>
+                <label htmlFor="developer-pipe-filter-nested-op" style={fieldLabel}>
+                  {DEV_MSG.PIPE_FILTER_NESTED_OP}
+                </label>
+                <select
+                  id="developer-pipe-filter-nested-op"
+                  data-testid="developer-pipe-filter-nested-op"
+                  value={nestedGroup(filterGroup).op || "OR"}
+                  onChange={(e) =>
+                    setFilterGroup((g) => rebuildFilterGroup(g, { nestedOp: e.target.value }))
+                  }
+                  disabled={filterBusy}
+                  style={{ ...textInput, maxWidth: "160px" }}
+                >
+                  <option value="AND">AND</option>
+                  <option value="OR">OR</option>
+                </select>
+              </div>
+              {[0, 1].map((i) => (
+                <div key={i} style={{ marginBottom: "12px", display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                  <input
+                    data-testid={`developer-pipe-filter-nested-${i}-left`}
+                    aria-label={`${DEV_MSG.PIPE_FILTER_COLUMN} ${i + 1}`}
+                    value={nestedPredicate(filterGroup, i).left || ""}
+                    onChange={(e) =>
+                      setFilterGroup((g) =>
+                        rebuildFilterGroup(g, {
+                          nestedIndex: i,
+                          nestedPred: { left: e.target.value },
+                        }),
+                      )
+                    }
+                    disabled={filterBusy}
+                    style={{ ...textInput, maxWidth: "160px" }}
+                  />
+                  <select
+                    data-testid={`developer-pipe-filter-nested-${i}-op`}
+                    aria-label={`${DEV_MSG.PIPE_FILTER_OPERATOR} ${i + 1}`}
+                    value={nestedPredicate(filterGroup, i).operator || "="}
+                    onChange={(e) =>
+                      setFilterGroup((g) =>
+                        rebuildFilterGroup(g, {
+                          nestedIndex: i,
+                          nestedPred: { operator: e.target.value },
+                        }),
+                      )
+                    }
+                    disabled={filterBusy}
+                    style={{ ...textInput, maxWidth: "120px" }}
+                  >
+                    <option value="=">=</option>
+                    <option value="<>">≠</option>
+                    <option value="LIKE">LIKE</option>
+                  </select>
+                  <input
+                    data-testid={`developer-pipe-filter-nested-${i}-right`}
+                    aria-label={`${DEV_MSG.PIPE_FILTER_VALUE} ${i + 1}`}
+                    value={nestedPredicate(filterGroup, i).right || ""}
+                    onChange={(e) =>
+                      setFilterGroup((g) =>
+                        rebuildFilterGroup(g, {
+                          nestedIndex: i,
+                          nestedPred: { right: e.target.value },
+                        }),
+                      )
+                    }
+                    disabled={filterBusy}
+                    style={{ ...textInput, maxWidth: "180px" }}
+                  />
+                </div>
+              ))}
+              <button
+                type="button"
+                data-testid="developer-pipe-filter-save"
+                aria-label={DEV_MSG.PIPE_FILTER_SAVE}
+                disabled={filterBusy}
+                onClick={() => void onSaveFilterGroup()}
+                style={filterBusy ? disabledPrimary : primaryButton}
+              >
+                {filterBusy ? DEV_MSG.PIPE_FILTER_SAVING : DEV_MSG.PIPE_FILTER_SAVE}
+              </button>
+              {filterNotice ? (
+                <div
+                  role="status"
+                  data-testid="developer-pipe-filter-notice"
+                  style={{ ...successNotice, marginTop: "12px" }}
+                >
+                  {filterNotice}
+                </div>
+              ) : null}
+              {filterError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-pipe-filter-error"
+                  style={{ ...errorAlert, marginTop: "12px" }}
+                >
+                  {filterError}
                 </div>
               ) : null}
             </section>

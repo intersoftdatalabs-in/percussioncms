@@ -36,6 +36,8 @@ public class SelectorStageIr {
   private int sortedColumnCount;
   private String nativeStatement;
   private List<WhereClauseIr> whereClauses = new ArrayList<>();
+  /** Nested AND/OR filter tree; when present, execute prefers this over flat whereClauses. */
+  private FilterGroupIr filterGroup;
 
   public boolean isPresent() {
     return present;
@@ -101,6 +103,14 @@ public class SelectorStageIr {
     this.whereClauseCount = this.whereClauses.size();
   }
 
+  public FilterGroupIr getFilterGroup() {
+    return filterGroup;
+  }
+
+  public void setFilterGroup(FilterGroupIr filterGroup) {
+    this.filterGroup = filterGroup;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -115,7 +125,8 @@ public class SelectorStageIr {
         && sortedColumnCount == that.sortedColumnCount
         && Objects.equals(method, that.method)
         && Objects.equals(nativeStatement, that.nativeStatement)
-        && Objects.equals(whereClauses, that.whereClauses);
+        && Objects.equals(whereClauses, that.whereClauses)
+        && Objects.equals(filterGroup, that.filterGroup);
   }
 
   @Override
@@ -127,6 +138,7 @@ public class SelectorStageIr {
         getWhereClauseCount(),
         sortedColumnCount,
         nativeStatement,
-        whereClauses);
+        whereClauses,
+        filterGroup);
   }
 }

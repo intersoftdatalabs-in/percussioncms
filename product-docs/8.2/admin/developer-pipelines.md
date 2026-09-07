@@ -1,7 +1,7 @@
 ---
 id: admin-developer-pipelines
 title: Developer Pipelines
-description: Browse classic XML Applications, Admin start/stop, pipe IR, OpenAPI from resources, HTTP datasource, webhook hooks, Test invoke, and Problems from Developer Pipelines chrome
+description: Browse classic XML Applications, Admin start/stop, pipe IR, OpenAPI from resources, HTTP datasource, nested filter groups, webhook hooks, Test invoke, and Problems from Developer Pipelines chrome
 version: "8.2"
 order: 51
 tags: [admin, developer, pipelines]
@@ -33,8 +33,8 @@ The **OpenAPI** section calls `GET /services/pipelines/{idOrName}/openapi`
 **download** an OpenAPI 3 document generated from the application's IR
 resources. It does not publish to an external registry.
 
-**Admins** also get **HTTP datasource**, **HTTP webhook hooks**, **Test invoke**,
-and **Problems** on the same detail page:
+**Admins** also get **HTTP datasource**, **nested filter groups**, **HTTP webhook hooks**,
+**Test invoke**, and **Problems** on the same detail page:
 
 - **HTTP datasource** sets `adapterType=HTTP` and a **loopback / local fixture
   URL** (default `http://127.0.0.1/pipeline-http-fixture`) on the selected
@@ -47,6 +47,14 @@ and **Problems** on the same detail page:
   `http://127.0.0.1/pipeline-webhook-fixture`). Cloud hosts, credentials, and
   non-http(s) schemes return **400**. A **blank URL skips** that hook (no
   invented delivery).
+- **Nested filter groups** save an AND/OR tree of selector predicates on the
+  selected native resource via
+  `PUT /services/pipelines/{app}/resources/{resource}/filterGroup`. The default
+  editor is `(sku = SKU-1) AND (qty = 3 OR qty = 99)` so Test invoke against the
+  bundled HTTP fixture returns **SKU-1** only. Empty columns and other malformed
+  groups fail closed (**400**). If the resource already has a non-local HTTP
+  backend or leftover credentials in the URL, save is **400**. Classic XML
+  Applications are not rewritten.
 - **Test invoke** posts sample JSON (`params` / `rows`) to
   `POST /services/pipelines/{app}/resources/{resource}/execute` and shows the
   structured execute result (or a clear error). HTTP tanks return mapped JSON
@@ -128,6 +136,21 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
    `PSQueryHandler` / `PSUpdateHandler`. HTTP execute never leaves loopback /
    the bundled local fixture.
 
+## Product path — nested filter groups
+
+1. As **Admin**, open an application detail page and enter a **resource** name
+   in **Test invoke**.
+2. In **Nested filter groups**, set the **root** AND/OR operator, a leaf
+   predicate (column / operator / value), and a nested group of two predicates.
+   The default tree is `(sku = SKU-1) AND (qty = 3 OR qty = 99)`.
+3. Choose **Save filter groups**. Success shows a saved notice. A blank column
+   or other malformed group fails closed in the chrome (or **400** from REST).
+   A leftover credentialed URL or cloud HTTP backend on the same resource is
+   **400**.
+4. Save an **HTTP datasource** tank (bundled fixture) if needed, then
+   **Invoke**. The execute result includes mapped fixture rows that match the
+   nested predicate (`SKU-1`) and does **not** invent empty rows.
+
 ## Product path — HTTP webhook hooks
 
 1. As **Admin**, open an application detail page.
@@ -164,7 +187,8 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
 - Catalog and detail omit **hidden** applications from the list contract used by
   this chrome; hidden rows are not started or stopped here.
 - Pipe IR has no graph editor or drag-drop tanks. Admins may persist an HTTP
-  backend tank and HTTP webhook hooks (native IR overlay) only.
+  backend tank, nested selector filter groups, and HTTP webhook hooks (native IR
+  overlay) only.
 - Enable/disable and classic ZIP import/export are not in this chrome.
 - Surface-filtered Playwright for Start/Stop lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-start-stop.spec.js`.
@@ -176,6 +200,8 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-http-execute.spec.js`.
 - Surface-filtered Playwright for webhook hooks save + Test invoke lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-webhook-hooks.spec.js`.
+- Surface-filtered Playwright for nested filter groups save + Test invoke lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-nested-filter-groups.spec.js`.
 - Surface-filtered Playwright for OpenAPI view/download lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-openapi.spec.js`
   (prefers `sys_cmp*` IR/execute apps, or `PIPELINE_APP_NAME`; does not require
@@ -195,6 +221,7 @@ The chrome calls:
 | OpenAPI | `GET /services/pipelines/{idOrName}/openapi` (`format=yaml` default, or `json`) |
 | HTTP tank | `PUT /services/pipelines/{app}/resources/{resource}/backendTank` (**Admin**) |
 | Webhook hooks | `PUT /services/pipelines/{app}/resources/{resource}/webhookHooks` (**Admin**) |
+| Filter groups | `PUT /services/pipelines/{app}/resources/{resource}/filterGroup` (**Admin**) |
 | Test invoke | `POST /services/pipelines/{app}/resources/{resource}/execute` |
 | Problems | `GET /services/pipelines/{idOrName}/validation` (**Admin**; soft-empty if absent) |
 

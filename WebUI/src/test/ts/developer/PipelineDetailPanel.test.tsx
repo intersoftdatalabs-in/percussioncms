@@ -24,6 +24,7 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
     `${app}.openapi.${format === "json" ? "json" : "yaml"}`,
   putHttpBackendTank: vi.fn(),
   putWebhookHooks: vi.fn(),
+  putFilterGroup: vi.fn(),
 }));
 
 const getApplicationDetail = pipelinesApi.getApplicationDetail as ReturnType<typeof vi.fn>;
@@ -37,6 +38,7 @@ const getPipelineIr = pipelinesApi.getPipelineIr as ReturnType<typeof vi.fn>;
 const getPipelineOpenApi = pipelinesApi.getPipelineOpenApi as ReturnType<typeof vi.fn>;
 const putHttpBackendTank = pipelinesApi.putHttpBackendTank as ReturnType<typeof vi.fn>;
 const putWebhookHooks = pipelinesApi.putWebhookHooks as ReturnType<typeof vi.fn>;
+const putFilterGroup = pipelinesApi.putFilterGroup as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   id: 1,
@@ -91,6 +93,7 @@ describe("PipelineDetailPanel", () => {
     getPipelineOpenApi.mockReset();
     putHttpBackendTank.mockReset();
     putWebhookHooks.mockReset();
+    putFilterGroup.mockReset();
     getPipelineIr.mockResolvedValue({ irVersion: "1.0", source: "NATIVE", resources: [] });
     getPipelineOpenApi.mockResolvedValue(
       'openapi: "3.0.3"\npaths:\n  /pipelines/sys_cmpDocuments/resources/contenteditor/execute:\n',
@@ -104,6 +107,42 @@ describe("PipelineDetailPanel", () => {
       preUrl: "http://127.0.0.1/pipeline-webhook-fixture",
       postUrl: "http://127.0.0.1/pipeline-webhook-fixture",
       httpMethod: "POST",
+    });
+    putFilterGroup.mockResolvedValue({
+      type: "GROUP",
+      op: "AND",
+      children: [
+        {
+          type: "PREDICATE",
+          leftKind: "COLUMN",
+          left: "sku",
+          operator: "=",
+          rightKind: "LITERAL",
+          right: "SKU-1",
+        },
+        {
+          type: "GROUP",
+          op: "OR",
+          children: [
+            {
+              type: "PREDICATE",
+              leftKind: "COLUMN",
+              left: "qty",
+              operator: "=",
+              rightKind: "LITERAL",
+              right: "3",
+            },
+            {
+              type: "PREDICATE",
+              leftKind: "COLUMN",
+              left: "qty",
+              operator: "=",
+              rightKind: "LITERAL",
+              right: "99",
+            },
+          ],
+        },
+      ],
     });
     // Soft-empty when validation tip is not merged (default for most tests).
     getApplicationValidation.mockRejectedValue({
@@ -579,6 +618,63 @@ describe("PipelineDetailPanel", () => {
     fireEvent.click(screen.getByTestId("developer-pipe-webhook-save"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-pipe-webhook-error").textContent).toMatch(
+        /loopback/i,
+      );
+    });
+  });
+
+  it("Admin saves nested filter groups for the selected resource", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-filter")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-filter-save"));
+    await waitFor(() => {
+      expect(putFilterGroup).toHaveBeenCalledWith(
+        "sys_cmpDocuments",
+        "contenteditor",
+        expect.objectContaining({
+          type: "GROUP",
+          op: "AND",
+        }),
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-filter-notice").textContent).toBe(
+        DEV_MSG.PIPE_FILTER_SAVED,
+      );
+    });
+  });
+
+  it("filter save fail-closes on blank column and server 400", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-filter-pred-0-left")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-pipe-filter-pred-0-left"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-filter-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-filter-error").textContent).toMatch(
+        /column/i,
+      );
+    });
+    expect(putFilterGroup).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByTestId("developer-pipe-filter-pred-0-left"), {
+      target: { value: "sku" },
+    });
+    putFilterGroup.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "HTTP datasource URL must be loopback" },
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-filter-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-filter-error").textContent).toMatch(
         /loopback/i,
       );
     });

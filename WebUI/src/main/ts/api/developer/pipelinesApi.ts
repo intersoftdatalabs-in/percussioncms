@@ -23,6 +23,7 @@ import type {
   ApplicationValidationResult,
   PipelineExecuteRequest,
   PipelineExecuteResult,
+  PipelineFilterGroup,
   PipelineHttpBackendTank,
   PipelineIrDocument,
   PipelineWebhookHooks,
@@ -316,6 +317,45 @@ export async function putWebhookHooks(
     wrapPipelineWebhookHooksForWire(body),
   );
   return unwrapPipelineWebhookHooks(payload);
+}
+
+/** Jackson WRAP/UNWRAP_ROOT_VALUE root for {@link PipelineFilterGroup}. */
+export const PIPELINE_FILTER_GROUP_ROOT = "PipelineFilterGroup";
+
+export function wrapPipelineFilterGroupForWire(
+  body: PipelineFilterGroup,
+): { PipelineFilterGroup: PipelineFilterGroup } {
+  return { [PIPELINE_FILTER_GROUP_ROOT]: body ?? {} };
+}
+
+export function unwrapPipelineFilterGroup(payload: unknown): PipelineFilterGroup {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("Filter group not found or empty response");
+  }
+  const root = payload as Record<string, unknown>;
+  const nested = root.PipelineFilterGroup ?? root.pipelineFilterGroup;
+  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
+    return nested as PipelineFilterGroup;
+  }
+  return root as PipelineFilterGroup;
+}
+
+/**
+ * PUT /services/pipelines/{app}/resources/{resource}/filterGroup — Admin nested AND/OR groups.
+ * Malformed groups, leftover credentials, and non-local HTTP backends are HTTP 400.
+ */
+export async function putFilterGroup(
+  app: string,
+  resource: string,
+  body: PipelineFilterGroup,
+): Promise<PipelineFilterGroup> {
+  const appKey = encodeURIComponent(app);
+  const resourceKey = encodeURIComponent(resource);
+  const payload = await put<unknown>(
+    `${PATHS.PIPELINES}/${appKey}/resources/${resourceKey}/filterGroup`,
+    wrapPipelineFilterGroupForWire(body),
+  );
+  return unwrapPipelineFilterGroup(payload);
 }
 
 export async function executeResource(

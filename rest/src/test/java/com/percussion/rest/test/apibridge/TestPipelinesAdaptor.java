@@ -21,6 +21,7 @@ import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
+import com.percussion.rest.pipelines.PipelineFilterGroup;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
 import com.percussion.rest.pipelines.PipelineWebhookHooks;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
@@ -112,6 +113,19 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
     PipelineWebhookHooks out = hooks != null ? hooks : new PipelineWebhookHooks();
     if (out.getHttpMethod() == null) {
       out.setHttpMethod("POST");
+    }
+    return out;
+  }
+
+  @Override
+  public PipelineFilterGroup putFilterGroup(
+      URI baseUri, String appName, String resourceName, PipelineFilterGroup group) {
+    PipelineFilterGroup out = group != null ? group : new PipelineFilterGroup();
+    if (out.getType() == null) {
+      out.setType("GROUP");
+    }
+    if (out.getOp() == null) {
+      out.setOp("AND");
     }
     return out;
   }

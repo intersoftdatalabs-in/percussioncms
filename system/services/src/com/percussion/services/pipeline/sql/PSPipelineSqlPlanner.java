@@ -25,6 +25,8 @@ import com.percussion.services.pipeline.model.MapperStageIr;
 import com.percussion.services.pipeline.model.MappingEntryIr;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
+import com.percussion.services.pipeline.PSPipelineFilterGroup;
+import com.percussion.services.pipeline.model.FilterGroupIr;
 import com.percussion.services.pipeline.model.SelectorStageIr;
 import com.percussion.services.pipeline.model.UpdaterStageIr;
 import com.percussion.services.pipeline.model.WhereClauseIr;
@@ -693,7 +695,11 @@ public final class PSPipelineSqlPlanner {
             ? selector.getWhereClauses()
             : List.of();
     boolean whereStarted = false;
-    if (!irClauses.isEmpty()) {
+    if (selector != null && PSPipelineFilterGroup.isPresent(selector.getFilterGroup())) {
+      whereStarted =
+          appendWhereFromFilterGroup(
+              sql, binds, selector.getFilterGroup(), params, resource.getName(), multiTable);
+    } else if (!irClauses.isEmpty()) {
       whereStarted = appendWhereFromIr(sql, binds, irClauses, params, resource.getName(), multiTable);
     } else if (!params.isEmpty()) {
       whereStarted = appendWhereFromRequestParams(sql, binds, mappings, params, multiTable);
@@ -978,6 +984,64 @@ public final class PSPipelineSqlPlanner {
       this.tableAlias = tableAlias;
       this.column = column;
     }
+  }
+
+  /**
+   * Build parenthesized WHERE from a nested filter group (AND/OR trees).
+   *
+   * @return true when a WHERE clause was appended
+   */
+  private static boolean appendWhereFromFilterGroup(
+      StringBuilder sql,
+      List<Object> binds,
+      FilterGroupIr group,
+      Map<String, Object> params,
+      String resourceName,
+      boolean multiTable)
+      throws PSPipelineIrException {
+    PSPipelineFilterGroup.validate(group);
+    PredicateFrag frag = compileFilterNode(group, params, resourceName, multiTable);
+    if (frag == null || frag.sql == null || frag.sql.isBlank()) {
+      return false;
+    }
+    sql.append(" WHERE ").append(frag.sql);
+    binds.addAll(frag.binds);
+    return true;
+  }
+
+  private static PredicateFrag compileFilterNode(
+      FilterGroupIr node,
+      Map<String, Object> params,
+      String resourceName,
+      boolean multiTable)
+      throws PSPipelineIrException {
+    if (node == null) {
+      return null;
+    }
+    if (node.isPredicate()) {
+      return compileWherePredicate(node.toWhereClause(), params, resourceName, multiTable);
+    }
+    List<String> parts = new ArrayList<>();
+    List<Object> allBinds = new ArrayList<>();
+    String joiner = node.normalizedOp();
+    if (node.getChildren() != null) {
+      for (FilterGroupIr child : node.getChildren()) {
+        PredicateFrag frag = compileFilterNode(child, params, resourceName, multiTable);
+        if (frag == null) {
+          continue;
+        }
+        parts.add(frag.sql);
+        allBinds.addAll(frag.binds);
+      }
+    }
+    if (parts.isEmpty()) {
+      return null;
+    }
+    if (parts.size() == 1) {
+      return new PredicateFrag(parts.get(0), allBinds, joiner);
+    }
+    String joined = "(" + String.join(" " + joiner + " ", parts) + ")";
+    return new PredicateFrag(joined, allBinds, joiner);
   }
 
   /**

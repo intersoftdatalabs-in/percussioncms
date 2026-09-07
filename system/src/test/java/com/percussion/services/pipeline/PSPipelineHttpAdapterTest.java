@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.percussion.services.pipeline.http.PSPipelineHttpAdapter;
 import com.percussion.services.pipeline.http.PSPipelineHttpUrl;
 import com.percussion.services.pipeline.model.BackendTankStageIr;
+import com.percussion.services.pipeline.model.FilterGroupIr;
 import com.percussion.services.pipeline.model.MapperStageIr;
 import com.percussion.services.pipeline.model.MappingEntryIr;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
@@ -32,6 +33,7 @@ import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
 import com.percussion.services.pipeline.model.PipelineStagesIr;
+import com.percussion.services.pipeline.model.SelectorStageIr;
 import com.percussion.services.pipeline.sql.IPSPipelineSqlAdapter;
 import com.percussion.services.pipeline.sql.PSPipelineSqlPlan;
 import com.sun.net.httpserver.HttpServer;
@@ -39,6 +41,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -93,6 +96,64 @@ class PSPipelineHttpAdapterTest {
     assertEquals("SKU-1", result.getRows().get(0).get("sku"));
     assertEquals("Loopback Widget", result.getRows().get(0).get("name"));
     assertFalse(result.getRows().isEmpty());
+  }
+
+  @Test
+  @DisplayName("nested AND/OR filter group keeps matching bundled fixture rows")
+  void execute_bundledFixture_nestedFilterGroup() throws Exception {
+    IPSPipelineIrService ir = new PSPipelineIrService(tempDir);
+    PipelineIrDocument doc = httpDoc("httpFilterApp", "items", PSPipelineHttpUrl.BUNDLED_FIXTURE_URL);
+    MappingEntryIr qty = new MappingEntryIr();
+    qty.setDocumentField("qty");
+    qty.setBackend("qty");
+    MapperStageIr mapper = doc.findResource("items").getStages().getMapper();
+    List<MappingEntryIr> mappings = new ArrayList<>(mapper.getMappings());
+    mappings.add(qty);
+    mapper.setMappings(mappings);
+
+    FilterGroupIr sku = predicate("sku", "=", "SKU-1");
+    FilterGroupIr nested = new FilterGroupIr();
+    nested.setType(FilterGroupIr.TYPE_GROUP);
+    nested.setOp(FilterGroupIr.OP_OR);
+    nested.setChildren(List.of(predicate("qty", "=", "3"), predicate("qty", "=", "99")));
+    FilterGroupIr root = new FilterGroupIr();
+    root.setType(FilterGroupIr.TYPE_GROUP);
+    root.setOp(FilterGroupIr.OP_AND);
+    root.setChildren(List.of(sku, nested));
+    SelectorStageIr selector = new SelectorStageIr();
+    selector.setPresent(true);
+    selector.setMethod(SelectorStageIr.METHOD_WHERE);
+    selector.setFilterGroup(root);
+    doc.findResource("items").getStages().setSelector(selector);
+    ir.save(doc);
+
+    IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(ir, throwingSql());
+    PipelineExecuteResult result =
+        runtime.execute("httpFilterApp", "items", PipelineExecuteRequest.empty());
+    assertEquals(1, result.getRowCount());
+    assertEquals("SKU-1", result.getRows().get(0).get("sku"));
+    assertFalse(result.getRows().stream().anyMatch(r -> "SKU-2".equals(r.get("sku"))));
+  }
+
+  @Test
+  @DisplayName("malformed nested filter group is rejected on execute")
+  void execute_malformedFilterGroup() throws Exception {
+    IPSPipelineIrService ir = new PSPipelineIrService(tempDir);
+    PipelineIrDocument doc = httpDoc("badFilterApp", "items", PSPipelineHttpUrl.BUNDLED_FIXTURE_URL);
+    FilterGroupIr root = new FilterGroupIr();
+    root.setType(FilterGroupIr.TYPE_GROUP);
+    root.setOp(FilterGroupIr.OP_AND);
+    SelectorStageIr selector = new SelectorStageIr();
+    selector.setPresent(true);
+    selector.setFilterGroup(root);
+    doc.findResource("items").getStages().setSelector(selector);
+    ir.save(doc);
+    IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(ir, throwingSql());
+    PSPipelineIrException ex =
+        assertThrows(
+            PSPipelineIrException.class,
+            () -> runtime.execute("badFilterApp", "items", PipelineExecuteRequest.empty()));
+    assertTrue(ex.getMessage().toLowerCase().contains("child"), ex.getMessage());
   }
 
   @Test
@@ -192,6 +253,17 @@ class PSPipelineHttpAdapterTest {
     List<Map<String, Object>> rows = PSPipelineHttpAdapter.parseRows("{\"sku\":\"X\",\"name\":\"Y\"}");
     assertEquals(1, rows.size());
     assertEquals("X", rows.get(0).get("sku"));
+  }
+
+  private static FilterGroupIr predicate(String left, String operator, String right) {
+    FilterGroupIr p = new FilterGroupIr();
+    p.setType(FilterGroupIr.TYPE_PREDICATE);
+    p.setLeftKind("COLUMN");
+    p.setLeft(left);
+    p.setOperator(operator);
+    p.setRightKind("LITERAL");
+    p.setRight(right);
+    return p;
   }
 
   private static PipelineIrDocument httpDoc(String app, String resource, String url) {
