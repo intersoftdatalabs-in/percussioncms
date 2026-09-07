@@ -1821,6 +1821,9 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_KIND_OPENAPI_YAML: "perc.ui.developer@OpenAPI YAML",
   SITE_VIRT_OPENAPI_YAML_HINT:
     "perc.ui.developer@OpenAPI YAML uses the root path only (no Git remote). Point at a local OpenAPI 3 YAML fixture directory (openapi.yaml or _config.yaml openapi.file). Save sourceKind=openapi-yaml, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target after a local OpenAPI YAML Build. Missing build stays unavailable. Live spec fetches, remote URLs, and credentials are never sent on the REST envelope.",
+  SITE_VIRT_KIND_ASYNCAPI_YAML: "perc.ui.developer@AsyncAPI YAML",
+  SITE_VIRT_ASYNCAPI_YAML_HINT:
+    "perc.ui.developer@AsyncAPI YAML uses the root path only (no Git remote). Point at a local AsyncAPI 2/3 YAML fixture directory (asyncapi.yaml or _config.yaml asyncapi.file). Save sourceKind=asyncapi-yaml. Live spec fetches, remote URLs, and credentials are never sent on the REST envelope. Build, Preview, and Publish stay later slices.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:

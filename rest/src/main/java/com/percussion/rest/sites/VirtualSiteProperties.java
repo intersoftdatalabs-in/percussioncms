@@ -38,24 +38,26 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * <p>Blank / missing {@code sourceKind} (or value {@code repository}) means a traditional repository
  * Site. Allow-listed virtual adapters: {@code git-filesystem}, {@code csv-filesystem}, {@code
  * sql-database}, {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar},
- * {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}. Optional {@code
+ * {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code
+ * asyncapi-yaml}. Optional {@code
  * remoteUrl} + {@code branch} apply to {@code git-filesystem} only (fetch/clone into a contained
  * work directory before discover); blank remote keeps local {@code rootPath}. {@code
  * csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage}, {@code
- * rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, and
- * {@code openapi-yaml} reject {@code remoteUrl} (no secrets on this envelope). {@code
+ * rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code
+ * openapi-yaml}, and {@code asyncapi-yaml} reject {@code remoteUrl} (no secrets on this envelope). {@code
  * sql-database} connection fields (JDBC URL, user, query) live in {@code _config.yaml} under
  * {@code rootPath} — never put passwords on this envelope or in logs. {@code http-json} catalog
  * URL/file live in {@code _config.yaml} ({@code http.url} / {@code http.file}); REST persists a
  * safe {@code rootPath} JSON fixture directory. {@code object-storage}, {@code rss-atom}, {@code
- * icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, and {@code openapi-yaml}
- * persist a portable-safe local {@code rootPath} (NIO Path; no remaining {@code ..}); cloud URLs
+ * icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, and
+ * {@code asyncapi-yaml} persist a portable-safe local {@code rootPath} (NIO Path; no remaining {@code ..}); cloud URLs
  * and credential properties are 400 ({@code rss-atom} is local/loopback only; no live feed
  * credentials; {@code icalendar} is a local RFC 5545 fixture only — no CalDAV; {@code
  * sitemap-xml} is a local sitemap.xml fixture only — no live crawl; {@code robots-txt} is a local
  * robots.txt fixture only — no live crawl; {@code llms-txt} is a local llms.txt fixture only — no
  * live HTTP fetch; {@code openapi-yaml} is a local OpenAPI 3 YAML fixture only — no live spec
- * fetch). REST Build/Preview/Publish for {@code openapi-yaml} use that local fixture (Publish
+ * fetch; {@code asyncapi-yaml} is a local AsyncAPI 2/3 YAML fixture only — no live spec fetch).
+ * REST persist for {@code asyncapi-yaml} is GET/PUT only (Build/Preview/Publish stay later). REST Build/Preview/Publish for {@code openapi-yaml} use that local fixture (Publish
  * copies last-build HTML to {@code IPSSite.root}). REST
  * {@code POST …/virtual/build} runs {@code http-json}, {@code object-storage}, {@code
  * rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, and {@code openapi-yaml} through the existing {@code
@@ -95,7 +97,7 @@ public class VirtualSiteProperties {
       description =
           "Adapter wire name. Allow-list: git-filesystem, csv-filesystem, sql-database, http-json,"
               + " object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt,"
-              + " openapi-yaml. rss-atom persist/build/preview/publish is"
+              + " openapi-yaml, asyncapi-yaml. rss-atom persist/build/preview/publish is"
               + " local/loopback only (no live feed credentials). icalendar persist is a local RFC"
               + " 5545 fixture only (portable-safe rootPath; leftover remoteUrl, credentials, and"
               + " cloud URL rootPath return 400; no CalDAV). sitemap-xml persist/build/preview is a local"
@@ -110,6 +112,9 @@ public class VirtualSiteProperties {
               + " rootPath; leftover remoteUrl, credentials, and cloud URL rootPath return 400; no live"
               + " spec fetch; preview is last-build local HTML only; publish copies last-build HTML to"
               + " IPSSite.root)."
+              + " asyncapi-yaml persist is a local AsyncAPI 2/3 YAML fixture only (portable-safe"
+              + " rootPath; leftover remoteUrl, credentials, and cloud URL rootPath return 400; no live"
+              + " spec fetch). REST Build/Preview/Publish for asyncapi-yaml stay later."
               + " Blank or repository = traditional Site.",
       example = "git-filesystem")
   private String sourceKind;

@@ -40,6 +40,7 @@ function requiredVirtualSourceKindValues() {
     "robots-txt",
     "llms-txt",
     "openapi-yaml",
+    "asyncapi-yaml",
   ];
 }
 
