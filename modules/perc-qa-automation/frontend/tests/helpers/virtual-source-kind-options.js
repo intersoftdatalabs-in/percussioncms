@@ -41,6 +41,7 @@ function requiredVirtualSourceKindValues() {
     "llms-txt",
     "openapi-yaml",
     "asyncapi-yaml",
+    "graphql-sdl",
   ];
 }
 

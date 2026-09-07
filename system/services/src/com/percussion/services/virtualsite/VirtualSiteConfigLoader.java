@@ -22,6 +22,7 @@ import com.percussion.services.virtualsite.VirtualSiteConfig.ObjectsSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.IcalendarSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.LlmsSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.AsyncApiSpec;
+import com.percussion.services.virtualsite.VirtualSiteConfig.GraphQlSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.OpenApiSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.RobotsSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.RssSpec;
@@ -49,7 +50,7 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
  * child directories). No process-lifetime YAML cache — a second build after a config edit sees
  * the new title/versions (and current {@code sql:} / {@code http:} / {@code objects:} /
  * {@code rss:} / {@code icalendar:} / {@code sitemap:} / {@code robots:} / {@code llms:} / {@code
- * openapi:} / {@code asyncapi:} mapping)
+ * openapi:} / {@code asyncapi:} / {@code graphql:} mapping)
  * without a JVM restart.
  */
 public final class VirtualSiteConfigLoader {
@@ -270,6 +271,11 @@ public final class VirtualSiteConfigLoader {
         throw new VirtualSiteException("asyncapi: must be a mapping in " + sourceLabel);
       }
       AsyncApiSpec asyncapi = parseAsyncApiSpec(asMap(asyncapiObj));
+      Object graphqlObj = map.get("graphql");
+      if (graphqlObj != null && !(graphqlObj instanceof Map<?, ?>)) {
+        throw new VirtualSiteException("graphql: must be a mapping in " + sourceLabel);
+      }
+      GraphQlSpec graphql = parseGraphQlSpec(asMap(graphqlObj));
       return new VirtualSiteConfig(
           root,
           title,
@@ -287,7 +293,8 @@ public final class VirtualSiteConfigLoader {
           robots,
           llms,
           openapi,
-          asyncapi);
+          asyncapi,
+          graphql);
     } catch (VirtualSiteException e) {
       throw e;
     } catch (Exception e) {
@@ -349,6 +356,13 @@ public final class VirtualSiteConfigLoader {
       return null;
     }
     return new AsyncApiSpec(stringVal(asyncapi.get("url")), stringVal(asyncapi.get("file")));
+  }
+
+  private static GraphQlSpec parseGraphQlSpec(Map<String, Object> graphql) {
+    if (graphql == null || graphql.isEmpty()) {
+      return null;
+    }
+    return new GraphQlSpec(stringVal(graphql.get("url")), stringVal(graphql.get("file")));
   }
 
   private static ObjectsSpec parseObjectsSpec(Map<String, Object> objects, String sourceLabel)

@@ -379,6 +379,28 @@ public class VirtualSitePropertiesSerialDeserialTest {
   }
 
   @Test
+  public void productionMapperRoundTripsGraphQlSdlSourceKind() {
+    VirtualSiteProperties props = new VirtualSiteProperties();
+    props.setSourceKind("graphql-sdl");
+    props.setRootPath("graphql-docs");
+    props.setSiteKey("graphql-help");
+    props.setVirtual(true);
+
+    ObjectMapper mapper = new JacksonContextResolver().getContext(VirtualSiteProperties.class);
+    String json = mapper.writeValueAsString(props);
+    assertTrue(json.contains("\"VirtualSiteProperties\""), json);
+    assertTrue(json.contains("\"graphql-sdl\""), json);
+    assertFalse(json.toLowerCase().contains("password"), json);
+    assertFalse(json.toLowerCase().contains("authorization"), json);
+
+    VirtualSiteProperties roundTrip = mapper.readValue(json, VirtualSiteProperties.class);
+    assertEquals("graphql-sdl", roundTrip.getSourceKind());
+    assertEquals("graphql-docs", roundTrip.getRootPath());
+    assertEquals("graphql-help", roundTrip.getSiteKey());
+    assertEquals(Boolean.TRUE, roundTrip.getVirtual());
+  }
+
+  @Test
   public void jaxbRejectsBareSourceKindRoot() throws Exception {
     JAXBContext ctx = JAXBContext.newInstance(VirtualSiteProperties.class);
     Unmarshaller unmarshaller = ctx.createUnmarshaller();

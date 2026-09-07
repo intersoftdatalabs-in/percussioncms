@@ -1840,6 +1840,9 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_KIND_ASYNCAPI_YAML: "perc.ui.developer@AsyncAPI YAML",
   SITE_VIRT_ASYNCAPI_YAML_HINT:
     "perc.ui.developer@AsyncAPI YAML uses the root path only (no Git remote). Point at a local AsyncAPI 2/3 YAML fixture directory (asyncapi.yaml or _config.yaml asyncapi.file). Save sourceKind=asyncapi-yaml, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target after a local AsyncAPI YAML Build. Missing build stays unavailable. Live spec fetches, remote URLs, and credentials are never sent on the REST envelope.",
+  SITE_VIRT_KIND_GRAPHQL_SDL: "perc.ui.developer@GraphQL SDL",
+  SITE_VIRT_GRAPHQL_SDL_HINT:
+    "perc.ui.developer@GraphQL SDL uses the root path only (no Git remote). Point at a local GraphQL schema fixture directory (schema.graphql or _config.yaml graphql.file). Save sourceKind=graphql-sdl, then GET-roundtrip the kind. Build Virtual Site, Preview assembled site, and Publish Virtual Site stay later slices. Live GraphQL HTTP, introspection, graphql.url, remote URLs, and credentials are never sent on the REST envelope.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:

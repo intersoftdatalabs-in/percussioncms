@@ -20,7 +20,7 @@ package com.percussion.services.virtualsite;
  * Registered Virtual Site adapter kinds. {@link #GIT_FILESYSTEM}, {@link #CSV_FILESYSTEM}, {@link
  * #SQL_DATABASE}, {@link #HTTP_JSON}, {@link #OBJECT_STORAGE}, {@link #RSS_ATOM}, {@link
  * #ICALENDAR}, {@link #SITEMAP_XML}, {@link #ROBOTS_TXT}, {@link #LLMS_TXT}, and {@link
- * #OPENAPI_YAML}, and {@link #ASYNCAPI_YAML} are wired through
+ * #OPENAPI_YAML}, {@link #ASYNCAPI_YAML}, and {@link #GRAPHQL_SDL} are wired through
  * {@link PSVirtualSiteSourceFactory} and allow-listed for Site property validation. REST GET/PUT
  * persist round-trips {@link #RSS_ATOM}, {@link #ICALENDAR}, and {@link #SITEMAP_XML} with a
  * portable-safe local {@code rootPath}. {@link #ICALENDAR} assemble remains SPI/CLI ({@code
@@ -32,7 +32,9 @@ package com.percussion.services.virtualsite;
  * and Developer Sites chrome stay later slices. {@link #OPENAPI_YAML} assemble is SPI/CLI ({@code
  * openapi.yaml}); REST persist/Build/Preview/Publish and Developer Sites chrome stay later slices.
  * {@link #ASYNCAPI_YAML} assemble is SPI/CLI ({@code asyncapi.yaml}); REST persist/Build/Preview/Publish
- * and Developer Sites chrome stay later slices.
+ * and Developer Sites chrome stay later slices. {@link #GRAPHQL_SDL} assemble is SPI/CLI ({@code
+ * schema.graphql}); REST GET/PUT persist and Developer Sites chrome land in this slice; REST
+ * Build/Preview/Publish stay later slices.
  */
 public enum VirtualSiteSourceType {
   GIT_FILESYSTEM("git-filesystem"),
@@ -132,7 +134,18 @@ public enum VirtualSiteSourceType {
    * and Developer Sites chrome stay later slices. SPI/CLI assemble is {@code
    * PSVirtualSiteBuildMain … asyncapi-yaml}.
    */
-  ASYNCAPI_YAML("asyncapi-yaml");
+  ASYNCAPI_YAML("asyncapi-yaml"),
+  /**
+   * Local GraphQL SDL ({@code graphql-sdl}). Discovers pages from {@code schema.graphql} (or
+   * {@code _config.yaml} {@code graphql.file}) under a portable-safe {@code virtual.rootPath}.
+   * Each Query/Mutation/Subscription field maps into assemble {@code id}/{@code title}/{@code
+   * body}. {@code graphql.url}, Git {@code virtual.remoteUrl}, credential properties, cloud URLs,
+   * remote {@code #import} URLs, and live GraphQL HTTP / introspection are rejected. REST GET/PUT
+   * persist round-trips this kind with a portable-safe {@code virtual.rootPath} (NIO {@link
+   * java.nio.file.Path}; no remaining {@code ..}). REST Build/Preview/Publish stay later slices.
+   * SPI/CLI assemble is {@code PSVirtualSiteBuildMain … graphql-sdl}.
+   */
+  GRAPHQL_SDL("graphql-sdl");
 
   private final String wireName;
 

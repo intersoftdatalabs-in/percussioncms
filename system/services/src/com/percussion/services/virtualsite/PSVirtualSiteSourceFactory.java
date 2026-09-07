@@ -31,8 +31,8 @@ import java.util.stream.Stream;
  * rss-atom}, {@code icalendar}, and {@code sitemap-xml}. {@code icalendar} assemble remains SPI/CLI
  * in this slice (REST Build/Preview/Publish later). {@code sitemap-xml} assemble is SPI/CLI only
  * (REST Build/Preview/Publish later). {@code robots-txt}, {@code llms-txt}, {@code
- * openapi-yaml}, and {@code asyncapi-yaml} assemble are SPI/CLI only (REST persist and
- * Build/Preview/Publish later).
+ * openapi-yaml}, {@code asyncapi-yaml}, and {@code graphql-sdl} assemble are SPI/CLI ({@code
+ * graphql-sdl} REST persist lands in this slice; REST Build/Preview/Publish later).
  */
 public final class PSVirtualSiteSourceFactory {
 
@@ -59,6 +59,7 @@ public final class PSVirtualSiteSourceFactory {
       case LLMS_TXT -> new PSLlmsTxtVirtualSiteSource();
       case OPENAPI_YAML -> new PSOpenApiYamlVirtualSiteSource();
       case ASYNCAPI_YAML -> new PSAsyncApiYamlVirtualSiteSource();
+      case GRAPHQL_SDL -> new PSGraphQlSdlVirtualSiteSource();
     };
   }
 
@@ -67,8 +68,8 @@ public final class PSVirtualSiteSourceFactory {
    *
    * @param wireName e.g. {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
    *     {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, {@code
-   *     sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, or {@code
-   *     asyncapi-yaml}
+   *     sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code
+   *     asyncapi-yaml}, or {@code graphql-sdl}
    * @return new source
    * @throws VirtualSiteException when the name is blank or unknown
    */

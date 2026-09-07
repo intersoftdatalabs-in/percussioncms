@@ -837,6 +837,123 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void getVirtualPropertiesRoundTripsGraphQlSdl() {
+    VirtualSiteProperties v = new VirtualSiteProperties();
+    v.setSourceKind("graphql-sdl");
+    v.setRootPath("C:/graphql-docs");
+    v.setVirtual(true);
+    when(adaptor.getVirtualSiteProperties("GraphQlHelp")).thenReturn(v);
+
+    VirtualSiteProperties out = resource.getVirtualProperties("GraphQlHelp");
+    assertEquals("graphql-sdl", out.getSourceKind());
+    assertEquals("C:/graphql-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).getVirtualSiteProperties("GraphQlHelp");
+  }
+
+  @Test
+  public void updateVirtualPropertiesRoundTripsGraphQlSdl() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("graphql-sdl");
+    body.setRootPath("C:/graphql-docs");
+    VirtualSiteProperties saved = new VirtualSiteProperties();
+    saved.setSourceKind("graphql-sdl");
+    saved.setRootPath("C:/graphql-docs");
+    saved.setVirtual(true);
+    when(adaptor.updateVirtualSiteProperties(eq("GraphQlHelp"), same(body))).thenReturn(saved);
+
+    VirtualSiteProperties out = resource.updateVirtualProperties("GraphQlHelp", body);
+    assertEquals("graphql-sdl", out.getSourceKind());
+    assertEquals("C:/graphql-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).updateVirtualSiteProperties("GraphQlHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesGraphQlSdlRemoteUrlPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("graphql-sdl");
+    body.setRootPath("C:/graphql-docs");
+    body.setRemoteUrl("https://user:secret@git.example.com/org/docs.git");
+    when(adaptor.updateVirtualSiteProperties(eq("GraphQlHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for graphql-sdl",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("GraphQlHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("user:secret"));
+    verify(adaptor).updateVirtualSiteProperties("GraphQlHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesGraphQlSdlCloudRootPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("graphql-sdl");
+    body.setRootPath("https://example.com/graphql");
+    when(adaptor.updateVirtualSiteProperties(eq("GraphQlHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for graphql-sdl must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("GraphQlHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).updateVirtualSiteProperties("GraphQlHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesGraphQlSdlCredentialsPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("graphql-sdl");
+    body.setRootPath("C:/graphql-docs");
+    when(adaptor.updateVirtualSiteProperties(eq("GraphQlHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for graphql-sdl (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("GraphQlHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).updateVirtualSiteProperties("GraphQlHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesGraphQlSdlGraphqlUrlPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("graphql-sdl");
+    body.setRootPath("C:/graphql-docs");
+    when(adaptor.updateVirtualSiteProperties(eq("GraphQlHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "graphql.url is not allowed for graphql-sdl (local schema.graphql fixture only; no live GraphQL HTTP or introspection).",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("GraphQlHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("graphql.url"));
+    verify(adaptor).updateVirtualSiteProperties("GraphQlHelp", body);
+  }
+
+  @Test
   public void updateVirtualPropertiesUnknownKindPropagates400() {
     VirtualSiteProperties body = new VirtualSiteProperties();
     body.setSourceKind("sql-adapter");
@@ -2861,6 +2978,9 @@ public class SitesResourceTest {
         putVirtualBlock.contains("asyncapi-yaml"),
         "updateVirtualProperties OpenAPI description must mention asyncapi-yaml persist");
     assertTrue(
+        putVirtualBlock.contains("graphql-sdl"),
+        "updateVirtualProperties OpenAPI description must mention graphql-sdl persist");
+    assertTrue(
         putVirtualBlock.contains("no CalDAV"),
         "updateVirtualProperties OpenAPI description must mention icalendar local fixture only");
     assertTrue(
@@ -2878,6 +2998,9 @@ public class SitesResourceTest {
     assertTrue(
         putVirtualBlock.contains("AsyncAPI 2/3 YAML fixture"),
         "updateVirtualProperties OpenAPI description must mention asyncapi-yaml local fixture only");
+    assertTrue(
+        putVirtualBlock.contains("GraphQL SDL fixture"),
+        "updateVirtualProperties OpenAPI description must mention graphql-sdl local fixture only");
     assertTrue(
         putVirtualBlock.contains("local/loopback"),
         "updateVirtualProperties OpenAPI description must mention rss-atom local/loopback only");

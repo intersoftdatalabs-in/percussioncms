@@ -31,10 +31,11 @@ import java.util.List;
  * PSRobotsTxtVirtualSiteSource} ({@code robots-txt}). Local llms.txt: {@link
  * PSLlmsTxtVirtualSiteSource} ({@code llms-txt}). Local OpenAPI 3 YAML: {@link
  * PSOpenApiYamlVirtualSiteSource} ({@code openapi-yaml}). Local AsyncAPI 2/3 YAML: {@link
- * PSAsyncApiYamlVirtualSiteSource} ({@code asyncapi-yaml}).
+ * PSAsyncApiYamlVirtualSiteSource} ({@code asyncapi-yaml}). Local GraphQL SDL: {@link
+ * PSGraphQlSdlVirtualSiteSource} ({@code graphql-sdl}).
  *
  * <p>Filesystem, SQL, HTTP JSON, object-storage, RSS/Atom, iCalendar, sitemap-xml, robots-txt,
- * llms-txt, openapi-yaml, and asyncapi-yaml implementations must read <em>current</em> source contents on every
+ * llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl implementations must read <em>current</em> source contents on every
  * {@link #discover}
  * and {@link #load}. Process-lifetime parse caches that skip a file because its path or mtime
  * looks unchanged are not allowed — a second build in the same JVM (after {@code git pull}, a CSV
@@ -46,7 +47,8 @@ import java.util.List;
  * fixture ({@code sitemap.file} / {@code sitemap.xml}) edit, a robots.txt fixture ({@code
  * robots.file} / {@code robots.txt}) edit, an llms.txt fixture ({@code llms.file} / {@code
  * llms.txt}) edit, an OpenAPI YAML fixture ({@code openapi.file} / {@code openapi.yaml})
- * edit, or an AsyncAPI YAML fixture ({@code asyncapi.file} / {@code asyncapi.yaml})
+ * edit, an AsyncAPI YAML fixture ({@code asyncapi.file} / {@code asyncapi.yaml})
+ * edit, or a GraphQL SDL fixture ({@code graphql.file} / {@code schema.graphql})
  * edit) must see the new bytes. File watchers are not required; the next explicit build is the
  * refresh.
  */

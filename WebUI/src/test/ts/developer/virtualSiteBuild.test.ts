@@ -53,6 +53,8 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualBuildChrome("asyncapi-yaml")).toBe(true);
     expect(shouldShowVirtualBuildChrome("AsyncAPI-YAML")).toBe(true);
     expect(shouldShowVirtualBuildChrome("  asyncapi-yaml  ")).toBe(true);
+    expect(shouldShowVirtualBuildChrome("graphql-sdl")).toBe(false);
+    expect(shouldShowVirtualBuildChrome("GraphQL-SDL")).toBe(false);
   });
 
   it("shouldShowVirtualPreviewChrome for git, csv, sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, and asyncapi-yaml (not repository)", () => {
@@ -92,6 +94,8 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPreviewChrome("asyncapi-yaml")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("AsyncAPI-YAML")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("  asyncapi-yaml  ")).toBe(true);
+    expect(shouldShowVirtualPreviewChrome("graphql-sdl")).toBe(false);
+    expect(shouldShowVirtualPreviewChrome("GraphQL-SDL")).toBe(false);
   });
 
   it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, and asyncapi-yaml", () => {
@@ -133,6 +137,8 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPublishChrome("asyncapi-yaml")).toBe(true);
     expect(shouldShowVirtualPublishChrome("AsyncAPI-YAML")).toBe(true);
     expect(shouldShowVirtualPublishChrome("  asyncapi-yaml  ")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("graphql-sdl")).toBe(false);
+    expect(shouldShowVirtualPublishChrome("GraphQL-SDL")).toBe(false);
   });
 
   it("formatVirtualSitePublishSummary reports files copied and dest path", () => {
