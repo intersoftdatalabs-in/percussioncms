@@ -88,7 +88,7 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPreviewChrome("  openapi-yaml  ")).toBe(true);
   });
 
-  it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, and llms-txt", () => {
+  it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, and openapi-yaml", () => {
     expect(shouldShowVirtualPublishChrome(null)).toBe(false);
     expect(shouldShowVirtualPublishChrome("")).toBe(false);
     expect(shouldShowVirtualPublishChrome("repository")).toBe(false);
@@ -121,8 +121,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPublishChrome("llms-txt")).toBe(true);
     expect(shouldShowVirtualPublishChrome("Llms-TXT")).toBe(true);
     expect(shouldShowVirtualPublishChrome("  llms-txt  ")).toBe(true);
-    expect(shouldShowVirtualPublishChrome("openapi-yaml")).toBe(false);
-    expect(shouldShowVirtualPublishChrome("OpenAPI-YAML")).toBe(false);
+    expect(shouldShowVirtualPublishChrome("openapi-yaml")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("OpenAPI-YAML")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("  openapi-yaml  ")).toBe(true);
   });
 
   it("formatVirtualSitePublishSummary reports files copied and dest path", () => {

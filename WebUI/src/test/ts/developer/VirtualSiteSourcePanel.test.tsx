@@ -1396,7 +1396,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
-  it("loads openapi-yaml values with root path and shows Build/Preview chrome (Publish hidden)", async () => {
+  it("loads openapi-yaml values with root path and shows Build/Preview/Publish chrome", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "openapi-yaml",
       rootPath: "C:/openapi-docs",
@@ -1423,10 +1423,10 @@ describe("VirtualSiteSourcePanel", () => {
       "Preview assembled site",
     );
     expect(screen.getByTestId("developer-site-virtual-openapi-yaml-hint").textContent).toContain(
-      "later slice",
+      "Publish Virtual Site",
     );
     expect(screen.getByTestId("developer-site-virtual-openapi-yaml-hint").textContent).not.toContain(
-      "copies assembled files",
+      "later slice",
     );
     expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
@@ -1434,7 +1434,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
@@ -1495,7 +1495,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
@@ -2459,7 +2459,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(open.mock.calls[0][1]).toBe("_blank");
   });
 
-  it("shows Preview chrome for openapi-yaml and opens last-build home (Publish hidden)", async () => {
+  it("shows Preview chrome for openapi-yaml and opens last-build home", async () => {
     const open = vi.fn();
     window.open = open;
     getVirtual.mockResolvedValue({
@@ -2485,7 +2485,7 @@ describe("VirtualSiteSourcePanel", () => {
       "OpenAPI YAML",
     );
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
     await waitFor(() => {
       expect(open).toHaveBeenCalled();

@@ -16,10 +16,10 @@
 
 /**
  * Copy the openapi-yaml Virtual Site QA fixture into the H2 Docker cell so
- * Developer Sites Build/Preview can POST /virtual/build and GET /virtual/preview
- * against a local OpenAPI 3 YAML file (no live spec fetch URLs or credentials).
- * A single GET /pets operation assembles {@code 8.2/listPets-1.html}
- * (sole HTML home fallback).
+ * Developer Sites Build/Preview/Publish can POST /virtual/build, GET /virtual/preview,
+ * and POST /virtual/publish against a local OpenAPI 3 YAML file (no live spec fetch
+ * URLs or credentials). A single GET /pets operation assembles {@code 8.2/listPets-1.html}
+ * (sole HTML home fallback; Publish copies that file to IPSSite.root).
  *
  * Bind-mount / docker cp only — no Jetty restart.
  */
@@ -33,6 +33,12 @@ const OPENAPI_YAML_VIRTUAL_QA_ROOT = "/opt/Percussion/tmp/openapi-yaml-virtual-q
 
 /** Marker from the local openapi.yaml fixture description. */
 const OPENAPI_YAML_VIRTUAL_BUILD_MARKER = "Hello-from-openapi";
+
+/** Assembled operation page copied to the Site filesystem root after Publish. */
+const OPENAPI_YAML_VIRTUAL_PUBLISHED_HTML = "8.2/listPets-1.html";
+
+/** Marker expected in published HTML (same as the OpenAPI description token). */
+const OPENAPI_YAML_VIRTUAL_PUBLISH_MARKER = OPENAPI_YAML_VIRTUAL_BUILD_MARKER;
 
 function qaCmsContainer() {
   const fromEnv = (
@@ -99,8 +105,85 @@ function deployOpenApiYamlVirtualFixtureToQaCell() {
   return OPENAPI_YAML_VIRTUAL_QA_ROOT;
 }
 
+/**
+ * Normalize Developer Sites publish dest text to a POSIX absolute path inside
+ * the Linux QA cell. Rejects Windows drive letters, UNC, relatives, and
+ * remaining {@code ..} so {@code docker exec … cat} never follows a traversal.
+ * In-container filesystem paths always use {@code /}.
+ *
+ * @param {unknown} raw dest text from {@code developer-site-virtual-publish-dest}
+ * @returns {string} POSIX absolute path
+ */
+function normalizeQaPublishDestPath(raw) {
+  if (typeof raw !== "string") {
+    throw new Error("openapi-yaml Virtual Site publish dest is missing");
+  }
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    throw new Error("openapi-yaml Virtual Site publish dest is blank");
+  }
+  const posix = trimmed.replace(/\\/g, "/");
+  if (/^[a-zA-Z]:/.test(posix) || posix.startsWith("//")) {
+    throw new Error(
+      `openapi-yaml Virtual Site publish dest is not a Linux QA cell path: ${trimmed}`,
+    );
+  }
+  if (!posix.startsWith("/")) {
+    throw new Error(`openapi-yaml Virtual Site publish dest is not absolute: ${trimmed}`);
+  }
+  const parts = posix.split("/").filter((seg) => seg.length > 0);
+  if (parts.some((seg) => seg === ".." || seg === ".")) {
+    throw new Error(`openapi-yaml Virtual Site publish dest is unsafe: ${trimmed}`);
+  }
+  return `/${parts.join("/")}`;
+}
+
+function posixJoin(base, ...segments) {
+  const dest = normalizeQaPublishDestPath(base);
+  const extra = [];
+  for (const seg of segments) {
+    const piece = String(seg ?? "").trim().replace(/\\/g, "/");
+    for (const part of piece.split("/")) {
+      if (!part) {
+        continue;
+      }
+      if (part === ".." || part === ".") {
+        throw new Error(`openapi-yaml Virtual Site publish relpath is unsafe: ${seg}`);
+      }
+      extra.push(part);
+    }
+  }
+  return extra.length === 0 ? dest : `${dest}/${extra.join("/")}`;
+}
+
+/**
+ * Fail closed unless assembled openapi-yaml HTML exists under the Site
+ * filesystem root inside the QA cell (acceptance: files exist after Publish).
+ *
+ * @param {unknown} publishPath dest shown in Developer Sites Publish chrome
+ */
+function assertPublishedOpenApiYamlFilesOnQaCell(publishPath) {
+  const html = posixJoin(publishPath, OPENAPI_YAML_VIRTUAL_PUBLISHED_HTML);
+  const container = qaCmsContainer();
+  dockerExec(container, ["test", "-f", html]);
+  const body = dockerExec(container, ["cat", html]);
+  if (
+    !body.includes(OPENAPI_YAML_VIRTUAL_PUBLISH_MARKER) &&
+    !body.includes("List pets") &&
+    !body.includes("listPets")
+  ) {
+    throw new Error(
+      `Published openapi-yaml HTML missing fixture marker at ${html}: ${body.slice(0, 400)}`,
+    );
+  }
+  return html;
+}
+
 module.exports = {
   deployOpenApiYamlVirtualFixtureToQaCell,
+  assertPublishedOpenApiYamlFilesOnQaCell,
   OPENAPI_YAML_VIRTUAL_QA_ROOT,
   OPENAPI_YAML_VIRTUAL_BUILD_MARKER,
+  OPENAPI_YAML_VIRTUAL_PUBLISHED_HTML,
+  OPENAPI_YAML_VIRTUAL_PUBLISH_MARKER,
 };

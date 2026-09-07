@@ -186,9 +186,8 @@ function validationMessage(
  * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/
  * llms-txt/openapi-yaml (missing build stays unavailable).
  * Publish ({@code POST …/virtual/publish}) for git/csv/sql/http-json/object-storage/
- * rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt after a successful Build.
- * {@code openapi-yaml} uses a local {@code rootPath} only; Publish chrome stays a later
- * slice. Repository / blank / unknown kinds stay hidden. sitemap-xml, robots-txt,
+ * rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml after a successful
+ * Build. Repository / blank / unknown kinds stay hidden. sitemap-xml, robots-txt,
  * llms-txt, and openapi-yaml use a local {@code rootPath} only (no live crawl / spec
  * fetch chrome).
  */
@@ -386,11 +385,11 @@ export function VirtualSiteSourcePanel({
   const robotsTxtMode = isRobotsTxtSourceKind(form.sourceKind);
   const llmsTxtMode = isLlmsTxtSourceKind(form.sourceKind);
   const openApiYamlMode = isOpenApiYamlSourceKind(form.sourceKind);
-  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt (never repository). */
+  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
-  /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt (never repository). */
+  /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml (never repository). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
-  /** Publish chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt (never repository). */
+  /** Publish chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml (never repository). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
   const showActionChrome = showBuildChrome || showPreviewChrome || showPublishChrome;
   const busy = saving || building || publishing;
