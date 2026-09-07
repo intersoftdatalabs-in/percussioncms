@@ -4063,6 +4063,244 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void buildVirtualSite_asyncApiYamlWritesHtml() throws Exception {
+    Path siteRoot = createMinimalAsyncApiYamlTree(tempDir.resolve("aa-src"));
+    Path out = tempDir.resolve("aa-out");
+
+    PSSite site = new PSSite();
+    site.setName("AsyncApiHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "asyncapi-docs");
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult result = adaptor.buildVirtualSite("AsyncApiHelp", req);
+    assertTrue(result.getPagesWritten().intValue() > 0, "pagesWritten=" + result.getPagesWritten());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertEquals(out.toAbsolutePath().normalize().toString(), result.getOutputPath());
+    assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
+    Path html = out.resolve("8.2").resolve("onLightMeasured-1.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("Inform about lighting"), body);
+    assertTrue(body.contains("Hello-from-asyncapi"), body);
+  }
+
+  @Test
+  void buildVirtualSite_asyncApiYamlSecondBuildAfterCurrentFileEditWritesUpdatedHtml()
+      throws Exception {
+    Path siteRoot = tempDir.resolve("aa-rebuild-src");
+    Path out = tempDir.resolve("aa-rebuild-out");
+
+    PSSite existing = new PSSite();
+    existing.setName("AsyncApiHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("AsyncApiHelp");
+    modifiable.setGUID(siteGuid);
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("asyncapi-yaml");
+    body.setRootPath(siteRoot.toAbsolutePath().toString());
+    body.setSiteKey("asyncapi-docs");
+    VirtualSiteProperties put = adaptor.updateVirtualSiteProperties("AsyncApiHelp", body);
+    assertEquals("asyncapi-yaml", put.getSourceKind());
+    ArgumentCaptor<PSSite> saved = ArgumentCaptor.forClass(PSSite.class);
+    verify(siteManager).saveSite(saved.capture());
+    PSSite persisted = saved.getValue();
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(persisted);
+
+    createMinimalAsyncApiYamlTree(siteRoot);
+    Files.writeString(
+        siteRoot.resolve("asyncapi.yaml"),
+        asyncApiYamlSpec("First", "firstOp", "unique-token-AAA"),
+        StandardCharsets.UTF_8);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult first = adaptor.buildVirtualSite("AsyncApiHelp", req);
+    assertTrue(first.getPagesWritten().intValue() > 0, "pagesWritten=" + first.getPagesWritten());
+    assertEquals(1, first.getPagesWritten().intValue());
+    Path html = out.resolve("8.2").resolve("firstOp-1.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    Path secondHtmlPath = out.resolve("8.2").resolve("secondOp-1.html");
+    assertFalse(Files.isRegularFile(secondHtmlPath), "first build must not emit secondOp-1.html");
+    String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
+    assertFalse(firstHtml.contains("unique-token-BBB"), firstHtml);
+
+    Files.writeString(
+        siteRoot.resolve("asyncapi.yaml"),
+        asyncApiYamlSpec("Second", "secondOp", "unique-token-BBB"),
+        StandardCharsets.UTF_8);
+
+    VirtualSiteBuildResult second = adaptor.buildVirtualSite("AsyncApiHelp", req);
+    assertTrue(
+        second.getPagesWritten().intValue() > 0, "pagesWritten=" + second.getPagesWritten());
+    assertEquals(1, second.getPagesWritten().intValue());
+    assertTrue(Files.isRegularFile(secondHtmlPath), "missing " + secondHtmlPath);
+    String secondHtml = Files.readString(secondHtmlPath, StandardCharsets.UTF_8);
+    assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
+    assertTrue(secondHtml.contains("Second"), secondHtml);
+    assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
+    assertNotEquals(firstHtml, secondHtml);
+  }
+
+  @Test
+  void buildVirtualSite_asyncApiYamlMissingFixture400() throws Exception {
+    Path siteRoot = createMinimalAsyncApiYamlTree(tempDir.resolve("aa-nofile"));
+    Files.deleteIfExists(siteRoot.resolve("asyncapi.yaml"));
+    Path out = tempDir.resolve("aa-nofile-out");
+
+    PSSite site = new PSSite();
+    site.setName("AsyncApiHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("AsyncApiHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String missingMsg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(missingMsg.contains("asyncapi"), String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_asyncApiYamlMissingConfig400() throws Exception {
+    Path siteRoot = tempDir.resolve("aa-noconfig");
+    Files.createDirectories(siteRoot);
+    Path out = tempDir.resolve("aa-noconfig-out");
+
+    PSSite site = new PSSite();
+    site.setName("AsyncApiHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("AsyncApiHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String missingMsg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(
+        missingMsg.contains("config") && missingMsg.contains("_config.yaml"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_asyncApiYamlUnsafePath400() {
+    Path out = tempDir.resolve("aa-unsafe-out");
+    PSSite site = new PSSite();
+    site.setName("AsyncApiHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, Path.of("a", "..", "..", "etc").toString());
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("AsyncApiHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(
+        msg.contains("virtual.rootPath") || msg.toLowerCase().contains("unsafe"), msg);
+  }
+
+  @Test
+  void buildVirtualSite_asyncApiYamlRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalAsyncApiYamlTree(tempDir.resolve("aa-remote"));
+    Path out = tempDir.resolve("aa-remote-out");
+
+    PSSite site = new PSSite();
+    site.setName("AsyncApiHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("AsyncApiHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_asyncApiYamlCloudRootPath400() {
+    Path out = tempDir.resolve("aa-cloud-out");
+    PSSite site = new PSSite();
+    site.setName("AsyncApiHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, "https://example.com/asyncapi.yaml");
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("AsyncApiHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.contains("virtual.rootPath"), msg);
+    assertTrue(msg.toLowerCase().contains("cloud"), msg);
+  }
+
+  @Test
+  void buildVirtualSite_asyncApiYamlCredentialProperty400() throws Exception {
+    Path siteRoot = createMinimalAsyncApiYamlTree(tempDir.resolve("aa-cred"));
+    Path out = tempDir.resolve("aa-cred-out");
+
+    PSSite site = new PSSite();
+    site.setName("AsyncApiHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, "aws_secret_access_key", "not-a-real-secret");
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("AsyncApiHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.toLowerCase().contains("credential"), msg);
+    assertFalse(msg.contains("not-a-real-secret"), msg);
+  }
+
+  @Test
   void buildVirtualSite_unknownSourceKind400() {
     Path siteRoot = tempDir.resolve("sql-root");
     PSSite site = new PSSite();
@@ -6933,6 +7171,95 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void previewAsyncApiYaml_afterBuildAvailableWithHtml() throws Exception {
+    Path siteRoot = createMinimalAsyncApiYamlTree(tempDir.resolve("aa-preview-src"));
+    Path defaultOut = tempDir.resolve("aa-preview-default");
+    Path built = tempDir.resolve("aa-preview-built");
+
+    PSSite site = virtualAsyncApiYamlSite(siteRoot);
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(built.toAbsolutePath().normalize().toString());
+    VirtualSiteBuildResult result = previewing.buildVirtualSite("AsyncApiHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("AsyncApiHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/onLightMeasured-1.html", status.getHomePath());
+
+    VirtualSitePreviewFile file =
+        previewing.previewVirtualSiteFile("AsyncApiHelp", "8.2/onLightMeasured-1.html");
+    assertTrue(file.isHtml());
+    assertEquals("8.2/onLightMeasured-1.html", file.getRelativePath());
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("Inform about lighting"), html);
+    assertTrue(html.contains("Hello-from-asyncapi"), html);
+  }
+
+  @Test
+  void previewAsyncApiYaml_missingBuildIsUnavailableNot500() throws Exception {
+    Path siteRoot = createMinimalAsyncApiYamlTree(tempDir.resolve("aa-preview-empty-src"));
+    Path defaultOut = tempDir.resolve("aa-preview-default-empty");
+    PSSite site = virtualAsyncApiYamlSite(siteRoot);
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("AsyncApiHelp");
+    assertEquals(Boolean.FALSE, status.getAvailable());
+    assertEquals(SitesAdaptor.MISSING_PREVIEW_MESSAGE, status.getMessage());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("AsyncApiHelp", "8.2/onLightMeasured-1.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewAsyncApiYaml_leftoverRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalAsyncApiYamlTree(tempDir.resolve("aa-preview-remote"));
+    Path defaultOut = tempDir.resolve("aa-preview-remote-default");
+    PSSite site = virtualAsyncApiYamlSite(siteRoot);
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.getVirtualSitePreviewStatus("AsyncApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void previewAsyncApiYaml_leftoverCredential400() throws Exception {
+    Path siteRoot = createMinimalAsyncApiYamlTree(tempDir.resolve("aa-preview-cred"));
+    Path defaultOut = tempDir.resolve("aa-preview-cred-default");
+    PSSite site = virtualAsyncApiYamlSite(siteRoot);
+    put(site, "aws_secret_access_key", "not-a-real-secret");
+    when(siteManager.findSite("AsyncApiHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.getVirtualSitePreviewStatus("AsyncApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.toLowerCase().contains("credential"), msg);
+    assertFalse(msg.contains("not-a-real-secret"), msg);
+  }
+
+  @Test
   void requireSafeRelativePreviewPath_rejectsAbsoluteAndDotDot() {
     WebApplicationException dots =
         assertThrows(
@@ -7121,6 +7448,19 @@ class SitesAdaptorTest {
         PSVirtualSiteHelper.PROP_ROOT_PATH,
         oaRoot.toAbsolutePath().normalize().toString());
     put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "openapi-docs");
+    return site;
+  }
+
+  private PSSite virtualAsyncApiYamlSite(Path aaRoot) {
+    PSSite site = new PSSite();
+    site.setName("AsyncApiHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "asyncapi-yaml");
+    put(
+        site,
+        PSVirtualSiteHelper.PROP_ROOT_PATH,
+        aaRoot.toAbsolutePath().normalize().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "asyncapi-docs");
     return site;
   }
 
@@ -7589,6 +7929,58 @@ class SitesAdaptorTest {
               operationId: %s%s
         """
         .formatted(summary, operationId, descLine);
+  }
+
+  /**
+   * Local AsyncAPI 2 YAML fixture for asyncapi-yaml REST Build/Preview. A single PUBLISH
+   * light/measured operation assembles {@code 8.2/onLightMeasured-1.html} with {@code
+   * pagesWritten > 0}. Preview uses the sole-HTML home fallback (no {@code index.html}).
+   * Portable NIO {@link Path} / {@link Files}. No live spec fetch.
+   */
+  private static Path createMinimalAsyncApiYamlTree(Path siteRoot) throws Exception {
+    Files.createDirectories(siteRoot.resolve("8.2"));
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: AsyncAPI Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        asyncapi:
+          file: asyncapi.yaml
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${pageTitle}</h1>${content}</body></html>",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("asyncapi.yaml"),
+        asyncApiYamlSpec("Inform about lighting", "onLightMeasured", "Hello-from-asyncapi"),
+        StandardCharsets.UTF_8);
+    return siteRoot;
+  }
+
+  private static String asyncApiYamlSpec(String summary, String operationId, String description) {
+    return """
+        asyncapi: 2.6.0
+        info:
+          title: Lights
+          version: "1.0.0"
+        channels:
+          "light/measured":
+            publish:
+              summary: %s
+              operationId: %s
+              description: %s
+        """
+        .formatted(summary, operationId, description == null ? "" : description);
   }
 
   /**

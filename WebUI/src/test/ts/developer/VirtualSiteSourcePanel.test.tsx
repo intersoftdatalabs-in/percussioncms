@@ -1525,7 +1525,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
-  it("loads asyncapi-yaml values with root path and hides Build/Preview/Publish chrome", async () => {
+  it("loads asyncapi-yaml values with root path and shows Build/Preview chrome (Publish hidden)", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "asyncapi-yaml",
       rootPath: "C:/asyncapi-docs",
@@ -1546,17 +1546,20 @@ describe("VirtualSiteSourcePanel", () => {
       DEV_MSG.SITE_VIRT_ASYNCAPI_YAML_HINT,
     );
     expect(screen.getByTestId("developer-site-virtual-asyncapi-yaml-hint").textContent).toContain(
-      "later slices",
-    );
-    expect(screen.getByTestId("developer-site-virtual-asyncapi-yaml-hint").textContent).not.toContain(
       "then Build Virtual Site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-asyncapi-yaml-hint").textContent).toContain(
+      "Preview assembled site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-asyncapi-yaml-hint").textContent).toContain(
+      "later slice",
     );
     expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-config-file")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
@@ -1615,9 +1618,9 @@ describe("VirtualSiteSourcePanel", () => {
     expect(
       (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
     ).toBe("C:/asyncapi-docs");
-    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
@@ -2615,6 +2618,42 @@ describe("VirtualSiteSourcePanel", () => {
     });
     expect(previewStatus).toHaveBeenCalledWith("OpenApiHelp");
     expect(String(open.mock.calls[0][0])).toContain("8.2/listPets-1.html");
+    expect(open.mock.calls[0][1]).toBe("_blank");
+  });
+
+  it("shows Preview chrome for asyncapi-yaml and opens last-build home (Publish hidden)", async () => {
+    const open = vi.fn();
+    window.open = open;
+    getVirtual.mockResolvedValue({
+      sourceKind: "asyncapi-yaml",
+      rootPath: "C:/asyncapi-docs",
+      virtual: true,
+    });
+    previewStatus.mockResolvedValue({
+      available: true,
+      homePath: "8.2/onLightMeasured-1.html",
+    });
+    render(<VirtualSiteSourcePanel siteName="AsyncApiHelp" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-asyncapi-yaml-hint").textContent).toContain(
+      DEV_MSG.SITE_VIRT_ASYNCAPI_YAML_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-preview-hint").textContent).toContain(
+      DEV_MSG.SITE_VIRT_PREVIEW_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-preview-hint").textContent).toContain(
+      "AsyncAPI YAML",
+    );
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
+    await waitFor(() => {
+      expect(open).toHaveBeenCalled();
+    });
+    expect(previewStatus).toHaveBeenCalledWith("AsyncApiHelp");
+    expect(String(open.mock.calls[0][0])).toContain("8.2/onLightMeasured-1.html");
     expect(open.mock.calls[0][1]).toBe("_blank");
   });
 

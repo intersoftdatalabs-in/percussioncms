@@ -57,16 +57,16 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * robots.txt fixture only — no live crawl; {@code llms-txt} is a local llms.txt fixture only — no
  * live HTTP fetch; {@code openapi-yaml} is a local OpenAPI 3 YAML fixture only — no live spec
  * fetch; {@code asyncapi-yaml} is a local AsyncAPI 2/3 YAML fixture only — no live spec fetch).
- * REST persist for {@code asyncapi-yaml} is GET/PUT only (Build/Preview/Publish stay later). REST Build/Preview/Publish for {@code openapi-yaml} use that local fixture (Publish
+ * REST persist for {@code asyncapi-yaml} is GET/PUT plus REST Build/Preview (Publish stays later). REST Build/Preview/Publish for {@code openapi-yaml} use that local fixture (Publish
  * copies last-build HTML to {@code IPSSite.root}). REST
  * {@code POST …/virtual/build} runs {@code http-json}, {@code object-storage}, {@code
- * rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, and {@code openapi-yaml} through the existing {@code
+ * rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, and {@code asyncapi-yaml} through the existing {@code
  * IPSVirtualSiteSource} factory (local fixture / loopback JSON; local object-key bucket; local
  * RSS/Atom fixture; local RFC 5545 {@code calendar.ics}; local {@code sitemap.xml} urlset; local
- * {@code robots.txt}; local {@code llms.txt}; local {@code openapi.yaml}). REST {@code GET …/virtual/preview}
+ * {@code robots.txt}; local {@code llms.txt}; local {@code openapi.yaml}; local {@code asyncapi.yaml}). REST {@code GET …/virtual/preview}
  * streams last-build HTML for {@code object-storage}, {@code rss-atom}, {@code icalendar},
- * {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, and {@code openapi-yaml} after a successful assemble (missing build is {@code available=false},
- * HTTP 200; {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, and {@code openapi-yaml} are last-build local HTML only — no live crawl or HTTP fetch). REST {@code POST
+ * {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, and {@code asyncapi-yaml} after a successful assemble (missing build is {@code available=false},
+ * HTTP 200; {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, and {@code asyncapi-yaml} are last-build local HTML only — no live crawl or HTTP fetch). REST {@code POST
  * …/virtual/publish} copies last-build HTML to {@code IPSSite.root} for git, CSV, SQL, {@code
  * http-json}, {@code object-storage} (local object-key fixture; leftover {@code virtual.remoteUrl}
  * is 400), {@code rss-atom} (local RSS/Atom fixture; leftover {@code virtual.remoteUrl} and
@@ -112,9 +112,9 @@ public class VirtualSiteProperties {
               + " rootPath; leftover remoteUrl, credentials, and cloud URL rootPath return 400; no live"
               + " spec fetch; preview is last-build local HTML only; publish copies last-build HTML to"
               + " IPSSite.root)."
-              + " asyncapi-yaml persist is a local AsyncAPI 2/3 YAML fixture only (portable-safe"
+              + " asyncapi-yaml persist/build/preview is a local AsyncAPI 2/3 YAML fixture only (portable-safe"
               + " rootPath; leftover remoteUrl, credentials, and cloud URL rootPath return 400; no live"
-              + " spec fetch). REST Build/Preview/Publish for asyncapi-yaml stay later."
+              + " spec fetch; preview is last-build local HTML only). REST Publish for asyncapi-yaml stays later."
               + " Blank or repository = traditional Site.",
       example = "git-filesystem")
   private String sourceKind;

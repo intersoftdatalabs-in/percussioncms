@@ -538,7 +538,8 @@ public class SitesAdaptor implements ISiteAdaptor {
 
   /**
    * Load {@code _config.yaml} (required for git-filesystem, sql-database, http-json,
-   * object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, and openapi-yaml). CSV trees may omit the file and infer
+   * object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, and
+   * asyncapi-yaml). CSV trees may omit the file and infer
    * versions from child directories. HTTP JSON catalog URL/file live in the yaml ({@code http.url}
    * / {@code http.file} or default {@code pages.json}). Object-storage optional {@code
    * objects.keys} live in the yaml. RSS / Atom optional {@code rss.file} / {@code rss.url} live
@@ -548,7 +549,8 @@ public class SitesAdaptor implements ISiteAdaptor {
    * optional {@code robots.file} lives in the yaml (default {@code robots.txt}; no live crawl).
    * llms-txt optional {@code llms.file} lives in the yaml (default {@code llms.txt}; no live HTTP
    * fetch). openapi-yaml optional {@code openapi.file} lives in the yaml (default {@code
-   * openapi.yaml}; no live spec fetch).
+   * openapi.yaml}; no live spec fetch). asyncapi-yaml optional {@code asyncapi.file} lives in the
+   * yaml (default {@code asyncapi.yaml}; no live spec fetch).
    */
   static VirtualSiteConfig loadBuildConfig(
       VirtualSiteSourceType type, Path siteRoot, String configFile, String siteKey)
@@ -690,7 +692,7 @@ public class SitesAdaptor implements ISiteAdaptor {
    * <p>Preview is last-output based and applies to allow-listed Virtual kinds ({@code
    * git-filesystem}, {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code
    * object-storage}, {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code
-   * robots-txt}, {@code llms-txt}, and {@code openapi-yaml}), not git-only.
+   * robots-txt}, {@code llms-txt}, {@code openapi-yaml}, and {@code asyncapi-yaml}), not git-only.
    * {@code rss-atom} streams last-build HTML from a local RSS 2.0 / Atom fixture (or loopback
    * feed); leftover {@code virtual.remoteUrl} is 400. {@code icalendar} streams last-build HTML
    * from a local RFC 5545 fixture; leftover {@code virtual.remoteUrl} is 400 (no CalDAV). {@code
@@ -701,6 +703,8 @@ public class SitesAdaptor implements ISiteAdaptor {
    * llms-txt} streams last-build local HTML from a {@code llms.txt} fixture; leftover
    * {@code virtual.remoteUrl} and credential properties are 400 (no live HTTP fetch). {@code
    * openapi-yaml} streams last-build local HTML from an OpenAPI 3 YAML fixture; leftover
+   * {@code virtual.remoteUrl} and credential properties are 400 (no live spec fetch). {@code
+   * asyncapi-yaml} streams last-build local HTML from an AsyncAPI 2/3 YAML fixture; leftover
    * {@code virtual.remoteUrl} and credential properties are 400 (no live spec fetch). Traditional
    * {@code repository} Sites and unknown {@code virtual.sourceKind} values return 400 via
    * {@link PSVirtualSiteHelper#validate}.
@@ -806,7 +810,8 @@ public class SitesAdaptor implements ISiteAdaptor {
       // 8.2/star-1.html), not index.html. llms-txt markdown list links assemble to
       // {version}/{title}-{order}.html (for example 8.2/Quickstart-1.html). openapi-yaml
       // operations assemble to {version}/{operationId}-{order}.html (for example
-      // 8.2/listPets-1.html). A sole HTML page
+      // 8.2/listPets-1.html). asyncapi-yaml operations assemble to
+      // {version}/{operationId}-{order}.html (for example 8.2/onLightMeasured-1.html). A sole HTML page
       // in a version dir is still a last-build home so Preview available=true after Build.
       for (Path dir : dirs) {
         if (isSkippedHomeDirectory(dir)) {

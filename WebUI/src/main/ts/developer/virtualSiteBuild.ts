@@ -27,12 +27,12 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
 /**
  * True when the Build Virtual Site control should be shown.
  * Git-filesystem, csv-filesystem, sql-database, http-json, object-storage,
- * rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, and openapi-yaml Virtual
- * Sites all run POST /virtual/build (SQL JDBC, HTTP JSON catalog, object-storage keys,
- * rss-atom feeds, icalendar .ics, sitemap.xml, robots.txt, llms.txt, and openapi.yaml
- * stay in _config.yaml / the local root). openapi-yaml Build produces last-build HTML
- * for Preview and Publish. Repository / blank / unknown kinds must not display this
- * chrome.
+ * rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, and
+ * asyncapi-yaml Virtual Sites all run POST /virtual/build (SQL JDBC, HTTP JSON catalog,
+ * object-storage keys, rss-atom feeds, icalendar .ics, sitemap.xml, robots.txt, llms.txt,
+ * openapi.yaml, and asyncapi.yaml stay in _config.yaml / the local root). openapi-yaml
+ * and asyncapi-yaml Build produce last-build HTML for Preview (openapi-yaml also for
+ * Publish). Repository / blank / unknown kinds must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
   sourceKind: string | null | undefined,
@@ -49,7 +49,8 @@ export function shouldShowVirtualBuildChrome(
     v === "sitemap-xml" ||
     v === "robots-txt" ||
     v === "llms-txt" ||
-    v === "openapi-yaml"
+    v === "openapi-yaml" ||
+    v === "asyncapi-yaml"
   );
 }
 
@@ -57,8 +58,9 @@ export function shouldShowVirtualBuildChrome(
  * True when Preview assembled site should be shown.
  * Last-output preview for git-filesystem, csv-filesystem, sql-database,
  * http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt,
- * llms-txt, and openapi-yaml. Missing last-build stays unavailable (GET /virtual/preview
- * available=false; no fake preview). Repository / blank / unknown kinds stay hidden.
+ * llms-txt, openapi-yaml, and asyncapi-yaml. Missing last-build stays unavailable
+ * (GET /virtual/preview available=false; no fake preview). Repository / blank /
+ * unknown kinds stay hidden.
  */
 export function shouldShowVirtualPreviewChrome(
   sourceKind: string | null | undefined,
@@ -75,7 +77,8 @@ export function shouldShowVirtualPreviewChrome(
     v === "sitemap-xml" ||
     v === "robots-txt" ||
     v === "llms-txt" ||
-    v === "openapi-yaml"
+    v === "openapi-yaml" ||
+    v === "asyncapi-yaml"
   );
 }
 
@@ -85,8 +88,9 @@ export function shouldShowVirtualPreviewChrome(
  * rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, and openapi-yaml all
  * run POST /virtual/publish (build then copy last-build HTML to IPSSite.root).
  * sitemap-xml, robots-txt, llms-txt, and openapi-yaml leftover remoteUrl,
- * credentials, and cloud rootPath fail closed on the server. Repository / blank /
- * unknown kinds stay hidden.
+ * credentials, and cloud rootPath fail closed on the server. asyncapi-yaml
+ * Publish chrome stays hidden (later slice). Repository / blank / unknown kinds
+ * stay hidden.
  */
 export function shouldShowVirtualPublishChrome(
   sourceKind: string | null | undefined,
