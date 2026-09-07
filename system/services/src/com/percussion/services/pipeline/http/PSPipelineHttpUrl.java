@@ -42,6 +42,15 @@ public final class PSPipelineHttpUrl {
   /** Path of {@link #BUNDLED_FIXTURE_URL}. */
   public static final String BUNDLED_FIXTURE_PATH = "/pipeline-http-fixture";
 
+  /**
+   * Portable webhook fixture URL (no port). Resolved from classpath, not fetched from the wire.
+   */
+  public static final String BUNDLED_WEBHOOK_FIXTURE_URL =
+      "http://127.0.0.1/pipeline-webhook-fixture";
+
+  /** Path of {@link #BUNDLED_WEBHOOK_FIXTURE_URL}. */
+  public static final String BUNDLED_WEBHOOK_FIXTURE_PATH = "/pipeline-webhook-fixture";
+
   static final Set<String> LOOPBACK_HOSTS = Set.of("localhost", "127.0.0.1", "::1", "[::1]");
 
   private PSPipelineHttpUrl() {}
@@ -52,41 +61,53 @@ public final class PSPipelineHttpUrl {
    * @return validated URL, never {@code null}
    */
   public static URL requireSafe(String urlString) throws PSPipelineIrException {
+    return requireSafe(urlString, "HTTP datasource URL");
+  }
+
+  /**
+   * Validate operator-configured loopback HTTP URL (datasource or webhook).
+   *
+   * @param label human-readable noun used in fail-closed messages (never null)
+   * @return validated URL, never {@code null}
+   */
+  public static URL requireSafe(String urlString, String label) throws PSPipelineIrException {
+    String noun = StringUtils.isBlank(label) ? "HTTP URL" : label.trim();
     if (StringUtils.isBlank(urlString)) {
-      throw new PSPipelineIrException("HTTP datasource URL is required");
+      throw new PSPipelineIrException(noun + " is required");
     }
     String raw = urlString.trim();
     if (raw.indexOf('\0') >= 0) {
-      throw new PSPipelineIrException("HTTP datasource URL must not contain NUL");
+      throw new PSPipelineIrException(noun + " must not contain NUL");
     }
     URI parsed;
     try {
       parsed = new URI(raw);
     } catch (URISyntaxException e) {
-      throw new PSPipelineIrException("HTTP datasource URL is not a valid URL", e);
+      throw new PSPipelineIrException(noun + " is not a valid URL", e);
     }
     String protocol = parsed.getScheme();
     if (protocol == null
         || (!"http".equalsIgnoreCase(protocol) && !"https".equalsIgnoreCase(protocol))) {
       throw new PSPipelineIrException(
-          "HTTP datasource URL must be http or https (loopback/local fixture only)");
+          noun + " must be http or https (loopback/local fixture only)");
     }
     if (parsed.getUserInfo() != null && !parsed.getUserInfo().isBlank()) {
       throw new PSPipelineIrException(
-          "HTTP datasource URL must not contain userinfo (no credentials in the URL)");
+          noun + " must not contain userinfo (no credentials in the URL)");
     }
     URL validated;
     try {
       validated = URLValidation.validateURLString(raw);
     } catch (MalformedURLException e) {
-      throw new PSPipelineIrException("HTTP datasource URL is not a valid URL", e);
+      throw new PSPipelineIrException(noun + " is not a valid URL", e);
     } catch (IllegalArgumentException | SecurityException e) {
       throw new PSPipelineIrException(
-          "HTTP datasource URL rejected (SSRF fail-closed): " + e.getMessage(), e);
+          noun + " rejected (SSRF fail-closed): " + e.getMessage(), e);
     }
     if (!isLiteralLoopback(validated.getHost())) {
       throw new PSPipelineIrException(
-          "HTTP datasource URL must be loopback or the local fixture (no cloud hosts). Rejected host: "
+          noun
+              + " must be loopback or the local fixture (no cloud hosts). Rejected host: "
               + validated.getHost());
     }
     return validated;
@@ -94,7 +115,16 @@ public final class PSPipelineHttpUrl {
 
   /** True when the URL is the bundled classpath fixture (any loopback host, no port required). */
   public static boolean isBundledFixture(URL url) {
-    if (url == null) {
+    return isBundledPath(url, BUNDLED_FIXTURE_PATH);
+  }
+
+  /** True when the URL is the bundled webhook classpath fixture. */
+  public static boolean isBundledWebhookFixture(URL url) {
+    return isBundledPath(url, BUNDLED_WEBHOOK_FIXTURE_PATH);
+  }
+
+  static boolean isBundledPath(URL url, String expectedPath) {
+    if (url == null || expectedPath == null) {
       return false;
     }
     if (!isLiteralLoopback(url.getHost())) {
@@ -104,8 +134,9 @@ public final class PSPipelineHttpUrl {
     if (path == null) {
       return false;
     }
-    String normalized = path.endsWith("/") && path.length() > 1 ? path.substring(0, path.length() - 1) : path;
-    return BUNDLED_FIXTURE_PATH.equals(normalized);
+    String normalized =
+        path.endsWith("/") && path.length() > 1 ? path.substring(0, path.length() - 1) : path;
+    return expectedPath.equals(normalized);
   }
 
   static boolean isLiteralLoopback(String host) {
@@ -117,7 +148,7 @@ public final class PSPipelineHttpUrl {
         || LOOPBACK_HOSTS.contains(host.trim().toLowerCase(Locale.ROOT));
   }
 
-  static URI toRequestUri(URL validated) throws PSPipelineIrException {
+  public static URI toRequestUri(URL validated) throws PSPipelineIrException {
     String protocol = "https".equalsIgnoreCase(validated.getProtocol()) ? "https" : "http";
     String path = validated.getPath();
     if (path == null || path.isBlank()) {
@@ -131,7 +162,7 @@ public final class PSPipelineHttpUrl {
     }
   }
 
-  static String redact(URL url) {
+  public static String redact(URL url) {
     if (url == null) {
       return "";
     }

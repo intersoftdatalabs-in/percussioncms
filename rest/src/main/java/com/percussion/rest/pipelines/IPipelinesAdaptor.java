@@ -90,6 +90,16 @@ public interface IPipelinesAdaptor {
       URI baseUri, String appName, String resourceName, PipelineHttpBackendTank tank);
 
   /**
+   * Admin: persist native IR HTTP webhook pre/post execute hooks for one resource (loopback /
+   * local fixture URL only). Blank URLs skip delivery (not a fake success). Classic XML
+   * Applications are not mutated.
+   *
+   * @return saved hooks, never {@code null}
+   */
+  PipelineWebhookHooks putWebhookHooks(
+      URI baseUri, String appName, String resourceName, PipelineWebhookHooks hooks);
+
+  /**
    * Admin: start a non-hidden classic XML Application / pipeline package (peer {@code
    * PSServer.startApplication}). Idempotent when already running.
    *

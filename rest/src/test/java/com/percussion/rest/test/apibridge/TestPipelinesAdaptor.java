@@ -22,6 +22,7 @@ import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
+import com.percussion.rest.pipelines.PipelineWebhookHooks;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
@@ -101,6 +102,16 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
     PipelineHttpBackendTank out = tank != null ? tank : new PipelineHttpBackendTank();
     if (out.getAdapterType() == null) {
       out.setAdapterType("HTTP");
+    }
+    return out;
+  }
+
+  @Override
+  public PipelineWebhookHooks putWebhookHooks(
+      URI baseUri, String appName, String resourceName, PipelineWebhookHooks hooks) {
+    PipelineWebhookHooks out = hooks != null ? hooks : new PipelineWebhookHooks();
+    if (out.getHttpMethod() == null) {
+      out.setHttpMethod("POST");
     }
     return out;
   }

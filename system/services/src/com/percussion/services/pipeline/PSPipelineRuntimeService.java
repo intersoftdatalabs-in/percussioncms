@@ -20,6 +20,7 @@ package com.percussion.services.pipeline;
 import com.percussion.services.pipeline.hooks.IPSPipelinePostExecuteHook;
 import com.percussion.services.pipeline.hooks.IPSPipelinePreExecuteHook;
 import com.percussion.services.pipeline.hooks.PipelineHookContext;
+import com.percussion.services.pipeline.hooks.PSPipelineHttpWebhookInvoker;
 import com.percussion.services.pipeline.http.IPSPipelineHttpAdapter;
 import com.percussion.services.pipeline.http.PSPipelineHttpAdapter;
 import com.percussion.services.pipeline.model.BackendTankStageIr;
@@ -48,6 +49,7 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
   private final IPSPipelineHttpAdapter httpAdapter;
   private final List<IPSPipelinePreExecuteHook> preHooks;
   private final List<IPSPipelinePostExecuteHook> postHooks;
+  private final PSPipelineHttpWebhookInvoker webhookInvoker;
 
   public PSPipelineRuntimeService(IPSPipelineIrService irService, IPSPipelineSqlAdapter sqlAdapter) {
     this(irService, sqlAdapter, new PSPipelineHttpAdapter(), List.of(), List.of());
@@ -72,6 +74,7 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
     this.httpAdapter = httpAdapter != null ? httpAdapter : new PSPipelineHttpAdapter();
     this.preHooks = preHooks != null ? List.copyOf(preHooks) : List.of();
     this.postHooks = postHooks != null ? List.copyOf(postHooks) : List.of();
+    this.webhookInvoker = new PSPipelineHttpWebhookInvoker();
   }
 
   @Override
@@ -112,6 +115,7 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
     for (IPSPipelinePreExecuteHook hook : preHooks) {
       hook.beforeExecute(ctx);
     }
+    webhookInvoker.invokePre(ctx);
 
     PipelineExecuteResult result = new PipelineExecuteResult();
     String appName = document.getApp() != null ? document.getApp().getName() : null;
@@ -171,6 +175,13 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
 
     for (IPSPipelinePostExecuteHook hook : postHooks) {
       hook.afterExecute(ctx, result);
+    }
+    webhookInvoker.invokePost(ctx, result);
+    if (ctx.getPreWebhookStatus() != null) {
+      result.getMeta().put("preWebhookStatus", ctx.getPreWebhookStatus());
+    }
+    if (ctx.getPreWebhookBody() != null && !ctx.getPreWebhookBody().isBlank()) {
+      result.getMeta().put("preWebhookBody", ctx.getPreWebhookBody());
     }
     // Post hooks may append to context trace; publish full ordered trace on the result.
     result.setHookTrace(new ArrayList<>(ctx.getHookTrace()));

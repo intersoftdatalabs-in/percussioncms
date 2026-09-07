@@ -486,6 +486,13 @@ export interface PipelineHttpBackendTank {
   httpMethod?: string;
 }
 
+/** Body/result for PUT /services/pipelines/{app}/resources/{resource}/webhookHooks. */
+export interface PipelineWebhookHooks {
+  preUrl?: string;
+  postUrl?: string;
+  httpMethod?: string;
+}
+
 export interface PipelineIrMapper extends PipelineIrStagePresence {
   allowEmptyDocReturn?: boolean;
   mappings?: PipelineIrMappingEntry[];
@@ -530,6 +537,7 @@ export interface PipelineIrResource {
   transactionMode?: string;
   pipeName?: string;
   stages?: PipelineIrStages;
+  webhookHooks?: PipelineWebhookHooks;
 }
 
 /** App meta nested under Pipeline IR. */

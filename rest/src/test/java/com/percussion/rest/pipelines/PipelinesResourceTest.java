@@ -300,6 +300,32 @@ public class PipelinesResourceTest {
   }
 
   @Test
+  public void putWebhookHooksDelegatesToAdaptor() {
+    PipelineWebhookHooks body = new PipelineWebhookHooks();
+    body.setPreUrl("http://127.0.0.1/pipeline-webhook-fixture");
+    body.setHttpMethod("POST");
+    when(adaptor.putWebhookHooks(any(), eq("lookupApp"), eq("DatasetQ"), eq(body)))
+        .thenReturn(body);
+
+    PipelineWebhookHooks out = resource.putWebhookHooks("lookupApp", "DatasetQ", body);
+    assertEquals("http://127.0.0.1/pipeline-webhook-fixture", out.getPreUrl());
+    verify(adaptor).putWebhookHooks(any(), eq("lookupApp"), eq("DatasetQ"), eq(body));
+  }
+
+  @Test
+  public void putWebhookHooksMapsIllegalArgumentTo400() {
+    when(adaptor.putWebhookHooks(any(), eq("app"), eq("res"), any()))
+        .thenThrow(new IllegalArgumentException("cloud url"));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.putWebhookHooks("app", "res", new PipelineWebhookHooks()));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("cloud url", ex.getMessage());
+  }
+
+  @Test
   public void startApplicationDelegatesToAdaptor() {
     ApplicationDetail d = new ApplicationDetail();
     d.setName("sys_foo");

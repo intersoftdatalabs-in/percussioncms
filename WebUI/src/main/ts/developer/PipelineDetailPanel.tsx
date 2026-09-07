@@ -26,6 +26,7 @@ import {
   getPipelineOpenApi,
   openApiDownloadFilename,
   putHttpBackendTank,
+  putWebhookHooks,
   startApplication,
   stopApplication,
 } from "../api/developer/pipelinesApi";
@@ -443,6 +444,15 @@ export function PipelineDetailPanel({
   const [httpBusy, setHttpBusy] = useState(false);
   const [httpError, setHttpError] = useState<string | null>(null);
   const [httpNotice, setHttpNotice] = useState<string | null>(null);
+  const [webhookPreUrl, setWebhookPreUrl] = useState(
+    "http://127.0.0.1/pipeline-webhook-fixture",
+  );
+  const [webhookPostUrl, setWebhookPostUrl] = useState(
+    "http://127.0.0.1/pipeline-webhook-fixture",
+  );
+  const [webhookBusy, setWebhookBusy] = useState(false);
+  const [webhookError, setWebhookError] = useState<string | null>(null);
+  const [webhookNotice, setWebhookNotice] = useState<string | null>(null);
   const [openApiFormat, setOpenApiFormat] = useState<PipelineOpenApiFormat>("yaml");
   const [openApiText, setOpenApiText] = useState<string | null>(null);
   const [openApiError, setOpenApiError] = useState<string | null>(null);
@@ -451,6 +461,7 @@ export function PipelineDetailPanel({
   const inflight = useRef(false);
   const invokeInflight = useRef(false);
   const httpInflight = useRef(false);
+  const webhookInflight = useRef(false);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -476,6 +487,11 @@ export function PipelineDetailPanel({
     setHttpBusy(false);
     setHttpError(null);
     setHttpNotice(null);
+    setWebhookPreUrl("http://127.0.0.1/pipeline-webhook-fixture");
+    setWebhookPostUrl("http://127.0.0.1/pipeline-webhook-fixture");
+    setWebhookBusy(false);
+    setWebhookError(null);
+    setWebhookNotice(null);
     setOpenApiFormat("yaml");
     setOpenApiText(null);
     setOpenApiError(null);
@@ -484,6 +500,7 @@ export function PipelineDetailPanel({
     inflight.current = false;
     invokeInflight.current = false;
     httpInflight.current = false;
+    webhookInflight.current = false;
     getApplicationDetail(idOrName)
       .then((d) => {
         if (!cancelled) {
@@ -710,6 +727,50 @@ export function PipelineDetailPanel({
     } finally {
       httpInflight.current = false;
       if (mountedRef.current) setHttpBusy(false);
+    }
+  }
+
+  async function onSaveWebhookHooks(): Promise<void> {
+    if (!detail || webhookInflight.current) return;
+    const resource = resourceName.trim();
+    if (!resource) {
+      setWebhookError(DEV_MSG.PIPE_WEBHOOK_RESOURCE_REQUIRED);
+      setWebhookNotice(null);
+      return;
+    }
+    const preUrl = webhookPreUrl.trim();
+    const postUrl = webhookPostUrl.trim();
+    if (!preUrl && !postUrl) {
+      setWebhookError(DEV_MSG.PIPE_WEBHOOK_URL_REQUIRED);
+      setWebhookNotice(null);
+      return;
+    }
+    webhookInflight.current = true;
+    setWebhookBusy(true);
+    setWebhookError(null);
+    setWebhookNotice(null);
+    try {
+      const saved = await putWebhookHooks(idOrName, resource, {
+        preUrl: preUrl || undefined,
+        postUrl: postUrl || undefined,
+        httpMethod: "POST",
+      });
+      if (!mountedRef.current) return;
+      setWebhookPreUrl(saved.preUrl ?? "");
+      setWebhookPostUrl(saved.postUrl ?? "");
+      setWebhookNotice(DEV_MSG.PIPE_WEBHOOK_SAVED);
+      try {
+        const nextIr = await getPipelineIr(idOrName);
+        if (mountedRef.current) setIr(nextIr);
+      } catch {
+        // persist succeeded; IR refresh is best-effort
+      }
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setWebhookError(lifecycleErrMsg(err, DEV_MSG.PIPE_WEBHOOK_SAVE_ERROR));
+    } finally {
+      webhookInflight.current = false;
+      if (mountedRef.current) setWebhookBusy(false);
     }
   }
 
@@ -1095,6 +1156,73 @@ export function PipelineDetailPanel({
                   style={{ ...errorAlert, marginTop: "12px" }}
                 >
                   {httpError}
+                </div>
+              ) : null}
+            </section>
+          ) : null}
+
+          {isAdmin ? (
+            <section style={{ marginBottom: "16px" }} data-testid="developer-pipe-webhook">
+              <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.PIPE_WEBHOOK}</h3>
+              <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+                {DEV_MSG.PIPE_WEBHOOK_HINT}
+              </p>
+              <div style={{ marginBottom: "12px" }}>
+                <label htmlFor="developer-pipe-webhook-pre" style={fieldLabel}>
+                  {DEV_MSG.PIPE_WEBHOOK_PRE}
+                </label>
+                <input
+                  id="developer-pipe-webhook-pre"
+                  data-testid="developer-pipe-webhook-pre"
+                  value={webhookPreUrl}
+                  onChange={(e) => setWebhookPreUrl(e.target.value)}
+                  disabled={webhookBusy}
+                  style={textInput}
+                  placeholder={DEV_MSG.PIPE_WEBHOOK_URL_PLACEHOLDER}
+                  autoComplete="off"
+                />
+              </div>
+              <div style={{ marginBottom: "12px" }}>
+                <label htmlFor="developer-pipe-webhook-post" style={fieldLabel}>
+                  {DEV_MSG.PIPE_WEBHOOK_POST}
+                </label>
+                <input
+                  id="developer-pipe-webhook-post"
+                  data-testid="developer-pipe-webhook-post"
+                  value={webhookPostUrl}
+                  onChange={(e) => setWebhookPostUrl(e.target.value)}
+                  disabled={webhookBusy}
+                  style={textInput}
+                  placeholder={DEV_MSG.PIPE_WEBHOOK_URL_PLACEHOLDER}
+                  autoComplete="off"
+                />
+              </div>
+              <button
+                type="button"
+                data-testid="developer-pipe-webhook-save"
+                aria-label={DEV_MSG.PIPE_WEBHOOK_SAVE}
+                disabled={webhookBusy}
+                onClick={() => void onSaveWebhookHooks()}
+                style={webhookBusy ? disabledPrimary : primaryButton}
+              >
+                {webhookBusy ? DEV_MSG.PIPE_WEBHOOK_SAVING : DEV_MSG.PIPE_WEBHOOK_SAVE}
+              </button>
+              {webhookNotice ? (
+                <div
+                  role="status"
+                  data-testid="developer-pipe-webhook-notice"
+                  style={{ ...successNotice, marginTop: "12px" }}
+                >
+                  {webhookNotice}
+                </div>
+              ) : null}
+              {webhookError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-pipe-webhook-error"
+                  style={{ ...errorAlert, marginTop: "12px" }}
+                >
+                  {webhookError}
                 </div>
               ) : null}
             </section>

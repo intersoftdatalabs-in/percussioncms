@@ -1833,7 +1833,7 @@ Example create body (user custom URL view):
 - Operator Inbox run-from-tree is Explorer **Views → My Content → Inbox**, not a
   free-floating Inbox root.
 
-## Pipelines (XML Applications catalog, lifecycle, IR, OpenAPI, HTTP execute, and validation)
+## Pipelines (XML Applications catalog, lifecycle, IR, OpenAPI, HTTP execute, webhook hooks, and validation)
 
 Classic **XML Applications** (data pipeline packages) are exposed under `/services/pipelines`.
 The catalog is a thin contract over the server object store (`PSServerXmlObjectStore`
@@ -1848,7 +1848,9 @@ Thin IR execute (`POST …/execute`) is a separate native pipeline runtime path 
 **not** call classic `PSQueryHandler` / `PSUpdateHandler`. **Slice C** adds native IR
 **HTTP backend tank persist** (`PUT …/backendTank`) and execute against a **loopback /
 local fixture URL** only (no live internet, no credentials in the URL). **Slice C**
-also generates **OpenAPI 3** from the pipeline's IR resources (`GET …/openapi`).
+also persists **HTTP webhook pre/post execute hooks** (`PUT …/webhookHooks`, loopback
+only; blank URL skips) and generates **OpenAPI 3** from the pipeline's IR resources
+(`GET …/openapi`).
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -1860,7 +1862,8 @@ also generates **OpenAPI 3** from the pipeline's IR resources (`GET …/openapi`
 | `GET` | `/services/pipelines/{idOrName}/ir` | Pipeline IR (app meta + resources / stages / tanks / mapper). Native file when present; otherwise classic import preview |
 | `GET` | `/services/pipelines/{idOrName}/openapi` | OpenAPI 3 generated from IR resources (`format=yaml` default, or `json`). Hidden apps **400**. Not a registry publish |
 | `PUT` | `/services/pipelines/{app}/resources/{resource}/backendTank` | **Admin.** Persist native IR HTTP backend tank (`adapterType=HTTP`, loopback/local fixture URL) |
-| `POST` | `/services/pipelines/{app}/resources/{resource}/execute` | Execute a native pipeline IR resource (SQL or HTTP adapter) |
+| `PUT` | `/services/pipelines/{app}/resources/{resource}/webhookHooks` | **Admin.** Persist native IR HTTP webhook pre/post execute hooks (loopback/local fixture URL; blank URL skips) |
+| `POST` | `/services/pipelines/{app}/resources/{resource}/execute` | Execute a native pipeline IR resource (SQL or HTTP adapter; honors webhook hooks) |
 | `GET` | `/services/pipelines/{idOrName}/validation` | **Admin.** Validation / problems summary (when deployed) |
 
 JSON list rows use `Application` / `ApplicationSummary`; detail uses `ApplicationDetail`
@@ -1926,8 +1929,36 @@ classic XML Applications. **400** when the URL is missing, uses credentials (`us
 is a cloud/non-loopback host, is not `http`/`https`, or is an open-redirect risk. Unknown
 applications are **404**.
 
-The bundled fixture URL is resolved from a classpath JSON document (`sku` / `name` /
+The bundled HTTP fixture URL is resolved from a classpath JSON document (`sku` / `name` /
 `qty` rows) so H2 QA and air-gapped installs can Test invoke without a live HTTP server.
+
+### HTTP webhook hooks persist (Slice C)
+
+`PUT …/resources/{resource}/webhookHooks` requires **Admin** (**403** otherwise). Body is
+`PipelineWebhookHooks`:
+
+| Field | Role |
+|-------|------|
+| `preUrl` | Optional pre-execute POST URL (loopback or bundled `http://127.0.0.1/pipeline-webhook-fixture`) |
+| `postUrl` | Optional post-execute POST URL (same SSRF rules as `preUrl`) |
+| `httpMethod` | Optional; **POST** only in this slice |
+
+The path application name resolves against the object-store catalog (trusted name). The
+server writes **native IR** under `ObjectStore/pipeline-ir/` and does **not** mutate
+classic XML Applications. **400** when a provided URL uses credentials (`userinfo`),
+is a cloud/non-loopback host, is not `http`/`https`, or is an open-redirect risk.
+Unknown applications are **404**.
+
+**Missing URL policy:** a blank `preUrl` or `postUrl` **skips** that hook on execute
+(no invented delivery). Persist may save one URL only. The Developer chrome requires
+at least one URL before save.
+
+The bundled webhook fixture URL is resolved from a classpath JSON document
+(`received` / `fixture=pipeline-webhook` / `echo=hook-ok`) so H2 QA and air-gapped
+installs can Test invoke without a live HTTP server. Live loopback URLs are POSTed
+with a small JSON payload (`phase`, `app`, `resource`). Execute results include
+`meta.preWebhookStatus` / `meta.preWebhookBody` (and post equivalents) plus
+`hookTrace` entries — real fixture status/body, not a fake success.
 
 ### Test invoke (execute)
 
@@ -1939,7 +1970,9 @@ call classic `PSQueryHandler` / `PSUpdateHandler`. When the resource backend tan
 mapped JSON `rows` (document fields such as `sku` / `name` when a mapper is present).
 Cloud URLs, credentials, and redirects off loopback are **400**. Unknown app or resource
 names are **404**; unsupported resource kinds or invalid bodies are **400**. **Developer →
-Pipelines** detail exposes Admin **HTTP datasource** fields plus **Test invoke**.
+Pipelines** detail exposes Admin **HTTP datasource**, **HTTP webhook hooks**, and **Test invoke**.
+When webhook hooks are configured, execute records real fixture HTTP status and body snippets
+in `meta` / `hookTrace` (blank URLs skip).
 
 ### Admin validation / problems
 
