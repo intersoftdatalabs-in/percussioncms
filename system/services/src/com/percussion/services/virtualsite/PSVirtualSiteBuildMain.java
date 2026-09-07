@@ -29,7 +29,8 @@ import java.nio.file.Path;
  * local RSS 2.0 / Atom XML fixture, {@code icalendar} for a local RFC 5545 {@code
  * calendar.ics} fixture, {@code sitemap-xml} for a local {@code sitemap.xml} fixture, or {@code
  * robots-txt} for a local {@code robots.txt} fixture, {@code llms-txt} for a local {@code
- * llms.txt} fixture, or {@code openapi-yaml} for a local OpenAPI 3 {@code openapi.yaml} fixture
+ * llms.txt} fixture, {@code openapi-yaml} for a local OpenAPI 3 {@code openapi.yaml} fixture,
+ * or {@code asyncapi-yaml} for a local AsyncAPI 2/3 {@code asyncapi.yaml} fixture
  * (see product-docs Virtual Sites).
  */
 public final class PSVirtualSiteBuildMain {

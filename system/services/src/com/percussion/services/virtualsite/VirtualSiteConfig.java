@@ -43,6 +43,7 @@ public final class VirtualSiteConfig {
   private final RobotsSpec robots;
   private final LlmsSpec llms;
   private final OpenApiSpec openapi;
+  private final AsyncApiSpec asyncapi;
 
   public VirtualSiteConfig(
       Path root,
@@ -241,6 +242,44 @@ public final class VirtualSiteConfig {
       RobotsSpec robots,
       LlmsSpec llms,
       OpenApiSpec openapi) {
+    this(
+        root,
+        siteTitle,
+        siteUrl,
+        layoutFile,
+        versions,
+        nav,
+        siteKey,
+        sql,
+        http,
+        objects,
+        rss,
+        icalendar,
+        sitemap,
+        robots,
+        llms,
+        openapi,
+        null);
+  }
+
+  public VirtualSiteConfig(
+      Path root,
+      String siteTitle,
+      String siteUrl,
+      String layoutFile,
+      List<VersionSpec> versions,
+      List<NavSpec> nav,
+      String siteKey,
+      SqlSpec sql,
+      HttpSpec http,
+      ObjectsSpec objects,
+      RssSpec rss,
+      IcalendarSpec icalendar,
+      SitemapSpec sitemap,
+      RobotsSpec robots,
+      LlmsSpec llms,
+      OpenApiSpec openapi,
+      AsyncApiSpec asyncapi) {
     this.root = Objects.requireNonNull(root, "root");
     this.siteTitle = siteTitle != null ? siteTitle : "Documentation";
     this.siteUrl = siteUrl != null ? siteUrl : "";
@@ -261,6 +300,7 @@ public final class VirtualSiteConfig {
     this.robots = robots;
     this.llms = llms;
     this.openapi = openapi;
+    this.asyncapi = asyncapi;
   }
 
   public Path root() {
@@ -391,6 +431,18 @@ public final class VirtualSiteConfig {
    */
   public OpenApiSpec openapi() {
     return openapi;
+  }
+
+  /**
+   * Optional AsyncAPI YAML settings for {@code asyncapi-yaml} sources ({@code asyncapi:} in {@code
+   * _config.yaml}).
+   *
+   * @return spec, or null when the mapping is omitted (adapter then uses {@code asyncapi.yaml} under
+   *     the site root). Legacy constructors always pass {@code null} here; an {@code ASYNCAPI_YAML}
+   *     site wired that way also falls back to {@code asyncapi.yaml} and does not fail.
+   */
+  public AsyncApiSpec asyncapi() {
+    return asyncapi;
   }
 
   public Path themeDir() {
@@ -800,6 +852,42 @@ public final class VirtualSiteConfig {
     @Override
     public String toString() {
       return "OpenApiSpec{url='" + url + "', file='" + file + "'}";
+    }
+  }
+
+  /**
+   * AsyncAPI 2/3 YAML fixture settings for {@code asyncapi-yaml}. {@link #file()} is a portable path
+   * under the site root. {@link #url()} is parsed so the adapter can reject live remote spec
+   * fetches (local fixture only). Both blank means default {@code asyncapi.yaml}.
+   */
+  public static final class AsyncApiSpec {
+    private final String url;
+    private final String file;
+
+    public AsyncApiSpec(String url, String file) {
+      this.url = url != null ? url.trim() : "";
+      this.file = file != null ? file.trim() : "";
+    }
+
+    public String url() {
+      return url;
+    }
+
+    public String file() {
+      return file;
+    }
+
+    public boolean hasUrl() {
+      return !url.isBlank();
+    }
+
+    public boolean hasFile() {
+      return !file.isBlank();
+    }
+
+    @Override
+    public String toString() {
+      return "AsyncApiSpec{url='" + url + "', file='" + file + "'}";
     }
   }
 
