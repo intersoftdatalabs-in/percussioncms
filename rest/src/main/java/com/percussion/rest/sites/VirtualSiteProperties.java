@@ -60,15 +60,16 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * {@code graphql-sdl} is a local GraphQL SDL fixture only — no live GraphQL HTTP or introspection).
  * REST persist for {@code asyncapi-yaml} is GET/PUT plus REST Build/Preview/Publish. REST
  * Build/Preview/Publish for {@code openapi-yaml} and {@code asyncapi-yaml} use that local fixture
- * (Publish copies last-build HTML to {@code IPSSite.root}). REST
+ * (Publish copies last-build HTML to {@code IPSSite.root}). REST Build/Preview for {@code
+ * graphql-sdl} uses that local fixture (Publish stays a later slice). REST
  * {@code POST …/virtual/build} runs {@code http-json}, {@code object-storage}, {@code
- * rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, and {@code asyncapi-yaml} through the existing {@code
+ * rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, and {@code graphql-sdl} through the existing {@code
  * IPSVirtualSiteSource} factory (local fixture / loopback JSON; local object-key bucket; local
  * RSS/Atom fixture; local RFC 5545 {@code calendar.ics}; local {@code sitemap.xml} urlset; local
- * {@code robots.txt}; local {@code llms.txt}; local {@code openapi.yaml}; local {@code asyncapi.yaml}). REST {@code GET …/virtual/preview}
+ * {@code robots.txt}; local {@code llms.txt}; local {@code openapi.yaml}; local {@code asyncapi.yaml}; local {@code schema.graphql}). REST {@code GET …/virtual/preview}
  * streams last-build HTML for {@code object-storage}, {@code rss-atom}, {@code icalendar},
- * {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, and {@code asyncapi-yaml} after a successful assemble (missing build is {@code available=false},
- * HTTP 200; {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, and {@code asyncapi-yaml} are last-build local HTML only — no live crawl or HTTP fetch). REST {@code POST
+ * {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, and {@code graphql-sdl} after a successful assemble (missing build is {@code available=false},
+ * HTTP 200; {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, and {@code graphql-sdl} are last-build local HTML only — no live crawl, HTTP fetch, or GraphQL introspection). REST {@code POST
  * …/virtual/publish} copies last-build HTML to {@code IPSSite.root} for git, CSV, SQL, {@code
  * http-json}, {@code object-storage} (local object-key fixture; leftover {@code virtual.remoteUrl}
  * is 400), {@code rss-atom} (local RSS/Atom fixture; leftover {@code virtual.remoteUrl} and
@@ -120,10 +121,10 @@ public class VirtualSiteProperties {
               + " rootPath; leftover remoteUrl, credentials, and cloud URL rootPath return 400; no live"
               + " spec fetch; preview is last-build local HTML only; publish copies last-build HTML to"
               + " IPSSite.root)."
-              + " graphql-sdl persist is a local GraphQL SDL fixture only (portable-safe"
+              + " graphql-sdl persist/build/preview is a local GraphQL SDL fixture only (portable-safe"
               + " rootPath; leftover remoteUrl, credentials, cloud URL rootPath, and graphql.url"
-              + " return 400; no live GraphQL HTTP or introspection). REST Build/Preview/Publish for"
-              + " graphql-sdl stay later slices."
+              + " return 400; no live GraphQL HTTP or introspection; preview is last-build local HTML"
+              + " only). REST Publish for graphql-sdl stays a later slice."
               + " Blank or repository = traditional Site.",
       example = "git-filesystem")
   private String sourceKind;

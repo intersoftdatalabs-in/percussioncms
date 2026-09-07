@@ -27,11 +27,12 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
 /**
  * True when the Build Virtual Site control should be shown.
  * Git-filesystem, csv-filesystem, sql-database, http-json, object-storage,
- * rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, and
- * asyncapi-yaml Virtual Sites all run POST /virtual/build (SQL JDBC, HTTP JSON catalog,
+ * rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml,
+ * asyncapi-yaml, and graphql-sdl Virtual Sites all run POST /virtual/build (SQL JDBC, HTTP JSON catalog,
  * object-storage keys, rss-atom feeds, icalendar .ics, sitemap.xml, robots.txt, llms.txt,
- * openapi.yaml, and asyncapi.yaml stay in _config.yaml / the local root). openapi-yaml
- * and asyncapi-yaml Build produce last-build HTML for Preview and Publish.
+ * openapi.yaml, asyncapi.yaml, and schema.graphql stay in _config.yaml / the local root).
+ * openapi-yaml, asyncapi-yaml, and graphql-sdl Build produce last-build HTML for Preview
+ * (Publish chrome for graphql-sdl stays a later slice).
  * Repository / blank / unknown kinds must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
@@ -50,7 +51,8 @@ export function shouldShowVirtualBuildChrome(
     v === "robots-txt" ||
     v === "llms-txt" ||
     v === "openapi-yaml" ||
-    v === "asyncapi-yaml"
+    v === "asyncapi-yaml" ||
+    v === "graphql-sdl"
   );
 }
 
@@ -58,7 +60,7 @@ export function shouldShowVirtualBuildChrome(
  * True when Preview assembled site should be shown.
  * Last-output preview for git-filesystem, csv-filesystem, sql-database,
  * http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt,
- * llms-txt, openapi-yaml, and asyncapi-yaml. Missing last-build stays unavailable
+ * llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl. Missing last-build stays unavailable
  * (GET /virtual/preview available=false; no fake preview). Repository / blank /
  * unknown kinds stay hidden.
  */
@@ -78,7 +80,8 @@ export function shouldShowVirtualPreviewChrome(
     v === "robots-txt" ||
     v === "llms-txt" ||
     v === "openapi-yaml" ||
-    v === "asyncapi-yaml"
+    v === "asyncapi-yaml" ||
+    v === "graphql-sdl"
   );
 }
 

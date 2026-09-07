@@ -4498,6 +4498,267 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void buildVirtualSite_graphQlSdlWritesHtml() throws Exception {
+    Path siteRoot = createMinimalGraphQlSdlTree(tempDir.resolve("gql-src"));
+    Path out = tempDir.resolve("gql-out");
+
+    PSSite site = new PSSite();
+    site.setName("GraphQlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "graphql-sdl");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "graphql-docs");
+    when(siteManager.findSite("GraphQlHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult result = adaptor.buildVirtualSite("GraphQlHelp", req);
+    assertTrue(result.getPagesWritten().intValue() > 0, "pagesWritten=" + result.getPagesWritten());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertEquals(out.toAbsolutePath().normalize().toString(), result.getOutputPath());
+    assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
+    Path html = out.resolve("8.2").resolve("user-1.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("Query.user") || body.contains("user"), body);
+  }
+
+  @Test
+  void buildVirtualSite_graphQlSdlSecondBuildAfterCurrentFileEditWritesUpdatedHtml()
+      throws Exception {
+    Path siteRoot = tempDir.resolve("gql-rebuild-src");
+    Path out = tempDir.resolve("gql-rebuild-out");
+
+    PSSite existing = new PSSite();
+    existing.setName("GraphQlHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("GraphQlHelp");
+    modifiable.setGUID(siteGuid);
+    when(siteManager.findSite("GraphQlHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("graphql-sdl");
+    body.setRootPath(siteRoot.toAbsolutePath().toString());
+    body.setSiteKey("graphql-docs");
+    VirtualSiteProperties put = adaptor.updateVirtualSiteProperties("GraphQlHelp", body);
+    assertEquals("graphql-sdl", put.getSourceKind());
+    ArgumentCaptor<PSSite> saved = ArgumentCaptor.forClass(PSSite.class);
+    verify(siteManager).saveSite(saved.capture());
+    PSSite persisted = saved.getValue();
+    when(siteManager.findSite("GraphQlHelp")).thenReturn(persisted);
+
+    createMinimalGraphQlSdlTree(siteRoot);
+    Files.writeString(
+        siteRoot.resolve("schema.graphql"),
+        graphQlSdlSpec("firstOp", "unique-token-AAA"),
+        StandardCharsets.UTF_8);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult first = adaptor.buildVirtualSite("GraphQlHelp", req);
+    assertTrue(first.getPagesWritten().intValue() > 0, "pagesWritten=" + first.getPagesWritten());
+    assertEquals(1, first.getPagesWritten().intValue());
+    Path html = out.resolve("8.2").resolve("firstOp-1.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    Path secondHtmlPath = out.resolve("8.2").resolve("secondOp-1.html");
+    assertFalse(Files.isRegularFile(secondHtmlPath), "first build must not emit secondOp-1.html");
+    String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(firstHtml.contains("firstOp"), firstHtml);
+    assertFalse(firstHtml.contains("secondOp"), firstHtml);
+
+    Files.writeString(
+        siteRoot.resolve("schema.graphql"),
+        graphQlSdlSpec("secondOp", "unique-token-BBB"),
+        StandardCharsets.UTF_8);
+
+    VirtualSiteBuildResult second = adaptor.buildVirtualSite("GraphQlHelp", req);
+    assertTrue(
+        second.getPagesWritten().intValue() > 0, "pagesWritten=" + second.getPagesWritten());
+    assertEquals(1, second.getPagesWritten().intValue());
+    assertTrue(Files.isRegularFile(secondHtmlPath), "missing " + secondHtmlPath);
+    String secondHtml = Files.readString(secondHtmlPath, StandardCharsets.UTF_8);
+    assertTrue(secondHtml.contains("Query.secondOp") || secondHtml.contains("secondOp"), secondHtml);
+    assertFalse(secondHtml.contains("firstOp"), secondHtml);
+    assertNotEquals(firstHtml, secondHtml);
+  }
+
+  @Test
+  void buildVirtualSite_graphQlSdlMissingFixture400() throws Exception {
+    Path siteRoot = createMinimalGraphQlSdlTree(tempDir.resolve("gql-nofile"));
+    Files.deleteIfExists(siteRoot.resolve("schema.graphql"));
+    Path out = tempDir.resolve("gql-nofile-out");
+
+    PSSite site = new PSSite();
+    site.setName("GraphQlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "graphql-sdl");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("GraphQlHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("GraphQlHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String missingMsg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(missingMsg.contains("graphql"), String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_graphQlSdlMissingConfig400() throws Exception {
+    Path siteRoot = tempDir.resolve("gql-noconfig");
+    Files.createDirectories(siteRoot);
+    Path out = tempDir.resolve("gql-noconfig-out");
+
+    PSSite site = new PSSite();
+    site.setName("GraphQlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "graphql-sdl");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("GraphQlHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("GraphQlHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String missingMsg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(
+        missingMsg.contains("config") && missingMsg.contains("_config.yaml"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_graphQlSdlUnsafePath400() {
+    Path out = tempDir.resolve("gql-unsafe-out");
+    PSSite site = new PSSite();
+    site.setName("GraphQlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "graphql-sdl");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, Path.of("a", "..", "..", "etc").toString());
+    when(siteManager.findSite("GraphQlHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("GraphQlHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(
+        msg.contains("virtual.rootPath") || msg.toLowerCase().contains("unsafe"), msg);
+  }
+
+  @Test
+  void buildVirtualSite_graphQlSdlRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalGraphQlSdlTree(tempDir.resolve("gql-remote"));
+    Path out = tempDir.resolve("gql-remote-out");
+
+    PSSite site = new PSSite();
+    site.setName("GraphQlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "graphql-sdl");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("GraphQlHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("GraphQlHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_graphQlSdlCloudRootPath400() {
+    Path out = tempDir.resolve("gql-cloud-out");
+    PSSite site = new PSSite();
+    site.setName("GraphQlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "graphql-sdl");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, "https://example.com/graphql");
+    when(siteManager.findSite("GraphQlHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("GraphQlHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.contains("virtual.rootPath"), msg);
+    assertTrue(msg.toLowerCase().contains("cloud"), msg);
+  }
+
+  @Test
+  void buildVirtualSite_graphQlSdlCredentialProperty400() throws Exception {
+    Path siteRoot = createMinimalGraphQlSdlTree(tempDir.resolve("gql-cred"));
+    Path out = tempDir.resolve("gql-cred-out");
+
+    PSSite site = new PSSite();
+    site.setName("GraphQlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "graphql-sdl");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, "aws_secret_access_key", "not-a-real-secret");
+    when(siteManager.findSite("GraphQlHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("GraphQlHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.toLowerCase().contains("credential"), msg);
+    assertFalse(msg.contains("not-a-real-secret"), msg);
+  }
+
+  @Test
+  void buildVirtualSite_graphQlSdlGraphqlUrl400() throws Exception {
+    Path siteRoot = createMinimalGraphQlSdlTree(tempDir.resolve("gql-url"));
+    Path out = tempDir.resolve("gql-url-out");
+
+    PSSite site = new PSSite();
+    site.setName("GraphQlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "graphql-sdl");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, "graphql.url", "https://example.com/graphql");
+    when(siteManager.findSite("GraphQlHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("GraphQlHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.contains("graphql.url"), msg);
+    assertFalse(msg.contains("example.com"), msg);
+  }
+
+  @Test
   void buildVirtualSite_unknownSourceKind400() {
     Path siteRoot = tempDir.resolve("sql-root");
     PSSite site = new PSSite();
@@ -7647,6 +7908,94 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void previewGraphQlSdl_afterBuildAvailableWithHtml() throws Exception {
+    Path siteRoot = createMinimalGraphQlSdlTree(tempDir.resolve("gql-preview-src"));
+    Path defaultOut = tempDir.resolve("gql-preview-default");
+    Path built = tempDir.resolve("gql-preview-built");
+
+    PSSite site = virtualGraphQlSdlSite(siteRoot);
+    when(siteManager.findSite("GraphQlHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(built.toAbsolutePath().normalize().toString());
+    VirtualSiteBuildResult result = previewing.buildVirtualSite("GraphQlHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("GraphQlHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/user-1.html", status.getHomePath());
+
+    VirtualSitePreviewFile file =
+        previewing.previewVirtualSiteFile("GraphQlHelp", "8.2/user-1.html");
+    assertTrue(file.isHtml());
+    assertEquals("8.2/user-1.html", file.getRelativePath());
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("Query.user") || html.contains("user"), html);
+  }
+
+  @Test
+  void previewGraphQlSdl_missingBuildIsUnavailableNot500() throws Exception {
+    Path siteRoot = createMinimalGraphQlSdlTree(tempDir.resolve("gql-preview-empty-src"));
+    Path defaultOut = tempDir.resolve("gql-preview-default-empty");
+    PSSite site = virtualGraphQlSdlSite(siteRoot);
+    when(siteManager.findSite("GraphQlHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("GraphQlHelp");
+    assertEquals(Boolean.FALSE, status.getAvailable());
+    assertEquals(SitesAdaptor.MISSING_PREVIEW_MESSAGE, status.getMessage());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("GraphQlHelp", "8.2/user-1.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewGraphQlSdl_leftoverRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalGraphQlSdlTree(tempDir.resolve("gql-preview-remote"));
+    Path defaultOut = tempDir.resolve("gql-preview-remote-default");
+    PSSite site = virtualGraphQlSdlSite(siteRoot);
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("GraphQlHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.getVirtualSitePreviewStatus("GraphQlHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void previewGraphQlSdl_leftoverCredential400() throws Exception {
+    Path siteRoot = createMinimalGraphQlSdlTree(tempDir.resolve("gql-preview-cred"));
+    Path defaultOut = tempDir.resolve("gql-preview-cred-default");
+    PSSite site = virtualGraphQlSdlSite(siteRoot);
+    put(site, "aws_secret_access_key", "not-a-real-secret");
+    when(siteManager.findSite("GraphQlHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.getVirtualSitePreviewStatus("GraphQlHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.toLowerCase().contains("credential"), msg);
+    assertFalse(msg.contains("not-a-real-secret"), msg);
+  }
+
+  @Test
   void requireSafeRelativePreviewPath_rejectsAbsoluteAndDotDot() {
     WebApplicationException dots =
         assertThrows(
@@ -7848,6 +8197,19 @@ class SitesAdaptorTest {
         PSVirtualSiteHelper.PROP_ROOT_PATH,
         aaRoot.toAbsolutePath().normalize().toString());
     put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "asyncapi-docs");
+    return site;
+  }
+
+  private PSSite virtualGraphQlSdlSite(Path gqlRoot) {
+    PSSite site = new PSSite();
+    site.setName("GraphQlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "graphql-sdl");
+    put(
+        site,
+        PSVirtualSiteHelper.PROP_ROOT_PATH,
+        gqlRoot.toAbsolutePath().normalize().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "graphql-docs");
     return site;
   }
 
@@ -8369,6 +8731,55 @@ class SitesAdaptorTest {
               description: %s
         """
         .formatted(summary, operationId, description == null ? "" : description);
+  }
+
+  /**
+   * Local GraphQL SDL fixture for graphql-sdl REST Build/Preview. A single Query.user field
+   * assembles {@code 8.2/user-1.html} with {@code pagesWritten > 0}. Preview uses the sole-HTML
+   * home fallback (no {@code index.html}). Portable NIO {@link Path} / {@link Files}. No live
+   * GraphQL HTTP.
+   */
+  private static Path createMinimalGraphQlSdlTree(Path siteRoot) throws Exception {
+    Files.createDirectories(siteRoot.resolve("8.2"));
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: GraphQL Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        graphql:
+          file: schema.graphql
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${pageTitle}</h1>${content}</body></html>",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("schema.graphql"),
+        graphQlSdlSpec("user", "Hello-from-graphql"),
+        StandardCharsets.UTF_8);
+    return siteRoot;
+  }
+
+  private static String graphQlSdlSpec(String fieldName, String description) {
+    String comment = description == null || description.isBlank() ? "" : "# " + description + "\n";
+    return """
+        %stype Query {
+          %s(id: ID!): User
+        }
+        type User {
+          id: ID!
+        }
+        """
+        .formatted(comment, fieldName);
   }
 
   /**

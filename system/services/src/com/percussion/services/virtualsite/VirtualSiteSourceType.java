@@ -33,8 +33,8 @@ package com.percussion.services.virtualsite;
  * openapi.yaml}); REST persist/Build/Preview/Publish and Developer Sites chrome stay later slices.
  * {@link #ASYNCAPI_YAML} assemble is SPI/CLI ({@code asyncapi.yaml}); REST persist/Build/Preview/Publish
  * and Developer Sites chrome stay later slices. {@link #GRAPHQL_SDL} assemble is SPI/CLI ({@code
- * schema.graphql}); REST GET/PUT persist and Developer Sites chrome land in this slice; REST
- * Build/Preview/Publish stay later slices.
+ * schema.graphql}); REST GET/PUT persist plus REST Build/Preview and Developer Sites
+ * Build/Preview chrome land with the persist slice; REST Publish stays a later slice.
  */
 public enum VirtualSiteSourceType {
   GIT_FILESYSTEM("git-filesystem"),
@@ -142,7 +142,9 @@ public enum VirtualSiteSourceType {
    * body}. {@code graphql.url}, Git {@code virtual.remoteUrl}, credential properties, cloud URLs,
    * remote {@code #import} URLs, and live GraphQL HTTP / introspection are rejected. REST GET/PUT
    * persist round-trips this kind with a portable-safe {@code virtual.rootPath} (NIO {@link
-   * java.nio.file.Path}; no remaining {@code ..}). REST Build/Preview/Publish stay later slices.
+   * java.nio.file.Path}; no remaining {@code ..}). REST Build/Preview assemble last-build local HTML
+   * from that fixture (leftover {@code virtual.remoteUrl}, credentials, cloud {@code rootPath}, and
+   * {@code graphql.url} are 400). REST Publish stays a later slice.
    * SPI/CLI assemble is {@code PSVirtualSiteBuildMain … graphql-sdl}.
    */
   GRAPHQL_SDL("graphql-sdl");
