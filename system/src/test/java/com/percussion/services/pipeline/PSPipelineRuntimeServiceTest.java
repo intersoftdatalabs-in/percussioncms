@@ -24,6 +24,7 @@ import com.percussion.services.pipeline.hooks.IPSPipelinePreExecuteHook;
 import com.percussion.services.pipeline.model.BackendJoinIr;
 import com.percussion.services.pipeline.model.BackendTableRefIr;
 import com.percussion.services.pipeline.model.BackendTankStageIr;
+import com.percussion.services.pipeline.model.FilterGroupIr;
 import com.percussion.services.pipeline.model.MapperStageIr;
 import com.percussion.services.pipeline.model.MappingEntryIr;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
@@ -330,6 +331,53 @@ class PSPipelineRuntimeServiceTest {
             PSPipelineIrException.class,
             () -> PSPipelineSqlPlanner.planQuery(res, PipelineExecuteRequest.empty()));
     assertTrue(missing.getMessage().contains("altType"), missing.getMessage());
+  }
+
+  @Test
+  @DisplayName("nested filter group compiles parenthesized AND/OR WHERE")
+  void planQuery_nestedFilterGroupParentheses() throws Exception {
+    PipelineIrDocument doc = nativeQueryDoc("nestedFgApp", "N1");
+    PipelineResourceIr res = doc.findResource("N1");
+    SelectorStageIr selector = res.getStages().getSelector();
+    FilterGroupIr typeWorkflow = new FilterGroupIr();
+    typeWorkflow.setType(FilterGroupIr.TYPE_PREDICATE);
+    typeWorkflow.setLeftKind(WhereClauseIr.KIND_COLUMN);
+    typeWorkflow.setLeft("TYPE");
+    typeWorkflow.setOperator("=");
+    typeWorkflow.setRightKind(WhereClauseIr.KIND_LITERAL);
+    typeWorkflow.setRight("workflow");
+    FilterGroupIr typeLocale = new FilterGroupIr();
+    typeLocale.setType(FilterGroupIr.TYPE_PREDICATE);
+    typeLocale.setLeftKind(WhereClauseIr.KIND_COLUMN);
+    typeLocale.setLeft("TYPE");
+    typeLocale.setOperator("=");
+    typeLocale.setRightKind(WhereClauseIr.KIND_LITERAL);
+    typeLocale.setRight("locale");
+    FilterGroupIr orGroup = new FilterGroupIr();
+    orGroup.setType(FilterGroupIr.TYPE_GROUP);
+    orGroup.setOp(FilterGroupIr.OP_OR);
+    orGroup.setChildren(List.of(typeWorkflow, typeLocale));
+    FilterGroupIr nameLike = new FilterGroupIr();
+    nameLike.setType(FilterGroupIr.TYPE_PREDICATE);
+    nameLike.setLeftKind(WhereClauseIr.KIND_COLUMN);
+    nameLike.setLeft("NAME");
+    nameLike.setOperator("LIKE");
+    nameLike.setRightKind(WhereClauseIr.KIND_LITERAL);
+    nameLike.setRight("%");
+    FilterGroupIr root = new FilterGroupIr();
+    root.setType(FilterGroupIr.TYPE_GROUP);
+    root.setOp(FilterGroupIr.OP_AND);
+    root.setChildren(List.of(orGroup, nameLike));
+    selector.setFilterGroup(root);
+
+    PSPipelineSqlPlan plan = PSPipelineSqlPlanner.planQuery(res, PipelineExecuteRequest.empty());
+    String sql = plan.getSql();
+    assertTrue(sql.contains("WHERE ("), sql);
+    assertTrue(sql.contains(" OR "), sql);
+    assertTrue(sql.contains(" AND "), sql);
+    assertTrue(sql.contains("\"TYPE\" = ?"), sql);
+    assertTrue(sql.contains("\"NAME\" LIKE ?"), sql);
+    assertEquals(List.of("workflow", "locale", "%"), plan.getParameters());
   }
 
   @Test

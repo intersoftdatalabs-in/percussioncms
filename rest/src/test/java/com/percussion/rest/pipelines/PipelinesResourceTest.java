@@ -326,6 +326,31 @@ public class PipelinesResourceTest {
   }
 
   @Test
+  public void putFilterGroupDelegatesToAdaptor() {
+    PipelineFilterGroup body = new PipelineFilterGroup();
+    body.setType("GROUP");
+    body.setOp("AND");
+    when(adaptor.putFilterGroup(any(), eq("lookupApp"), eq("DatasetQ"), eq(body))).thenReturn(body);
+
+    PipelineFilterGroup out = resource.putFilterGroup("lookupApp", "DatasetQ", body);
+    assertEquals("AND", out.getOp());
+    verify(adaptor).putFilterGroup(any(), eq("lookupApp"), eq("DatasetQ"), eq(body));
+  }
+
+  @Test
+  public void putFilterGroupMapsIllegalArgumentTo400() {
+    when(adaptor.putFilterGroup(any(), eq("app"), eq("res"), any()))
+        .thenThrow(new IllegalArgumentException("malformed group"));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.putFilterGroup("app", "res", new PipelineFilterGroup()));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("malformed group", ex.getMessage());
+  }
+
+  @Test
   public void startApplicationDelegatesToAdaptor() {
     ApplicationDetail d = new ApplicationDetail();
     d.setName("sys_foo");

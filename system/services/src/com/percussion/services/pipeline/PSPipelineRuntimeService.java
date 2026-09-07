@@ -24,10 +24,12 @@ import com.percussion.services.pipeline.hooks.PSPipelineHttpWebhookInvoker;
 import com.percussion.services.pipeline.http.IPSPipelineHttpAdapter;
 import com.percussion.services.pipeline.http.PSPipelineHttpAdapter;
 import com.percussion.services.pipeline.model.BackendTankStageIr;
+import com.percussion.services.pipeline.model.FilterGroupIr;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
+import com.percussion.services.pipeline.model.SelectorStageIr;
 import com.percussion.services.pipeline.sql.IPSPipelineSqlAdapter;
 import com.percussion.services.pipeline.sql.PSPipelineSqlPlan;
 import com.percussion.services.pipeline.sql.PSPipelineSqlPlanner;
@@ -133,6 +135,7 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
             "HTTP datasource supports QUERY resources only in this slice");
       }
       List<Map<String, Object>> rows = httpAdapter.query(resource, req);
+      rows = applyHttpFilterGroup(resource, rows, req);
       result.setOperation("http-query");
       result.setKind(PipelineResourceIr.KIND_QUERY);
       result.setRows(rows);
@@ -187,5 +190,18 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
     result.setHookTrace(new ArrayList<>(ctx.getHookTrace()));
 
     return result;
+  }
+
+  private static List<Map<String, Object>> applyHttpFilterGroup(
+      PipelineResourceIr resource, List<Map<String, Object>> rows, PipelineExecuteRequest req)
+      throws PSPipelineIrException {
+    SelectorStageIr selector =
+        resource.getStages() != null ? resource.getStages().getSelector() : null;
+    FilterGroupIr group = selector != null ? selector.getFilterGroup() : null;
+    if (!PSPipelineFilterGroup.isPresent(group)) {
+      return rows;
+    }
+    return PSPipelineFilterGroup.filterRows(
+        group, rows, req.getParams() != null ? req.getParams() : Map.of());
   }
 }

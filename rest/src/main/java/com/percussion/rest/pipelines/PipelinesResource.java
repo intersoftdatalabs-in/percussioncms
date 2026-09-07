@@ -62,7 +62,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(
     name = "Pipelines",
     description =
-        "Data pipeline / XML application design catalog, Admin start/stop, validation, Pipeline IR, OpenAPI from resources, HTTP backend tank persist, and IR execute")
+        "Data pipeline / XML application design catalog, Admin start/stop, validation, Pipeline IR, OpenAPI from resources, HTTP backend tank persist, nested filter groups, and IR execute")
 public class PipelinesResource {
 
   private final IPipelinesAdaptor adaptor;
@@ -460,6 +460,45 @@ public class PipelinesResource {
       PipelineWebhookHooks body) {
     try {
       return requireAdaptor().putWebhookHooks(uriInfo.getBaseUri(), app, resource, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Persist nested AND/OR selector filter groups on native IR. Does not rewrite classic XML
+   * Applications. Malformed groups, leftover credentials, and non-local backends are 400.
+   */
+  @PUT
+  @Path("/{app}/resources/{resource}/filterGroup")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Persist nested boolean filter groups on a native pipeline resource",
+      description =
+          "Admin only. Saves a nested AND/OR selector filter group on native IR. Malformed"
+              + " groups, leftover HTTP credentials (userinfo), and non-local backends are 400."
+              + " Classic XML Applications stay read-only.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Saved",
+            content = @Content(schema = @Schema(implementation = PipelineFilterGroup.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid group, URL, or name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public PipelineFilterGroup putFilterGroup(
+      @PathParam("app") String app,
+      @PathParam("resource") String resource,
+      PipelineFilterGroup body) {
+    try {
+      return requireAdaptor().putFilterGroup(uriInfo.getBaseUri(), app, resource, body);
     } catch (WebApplicationException e) {
       throw e;
     } catch (IllegalArgumentException e) {

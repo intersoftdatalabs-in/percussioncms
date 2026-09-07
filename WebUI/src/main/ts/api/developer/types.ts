@@ -493,6 +493,19 @@ export interface PipelineWebhookHooks {
   httpMethod?: string;
 }
 
+/** Nested AND/OR filter group for PUT /services/pipelines/{app}/resources/{resource}/filterGroup. */
+export interface PipelineFilterGroup {
+  type?: string;
+  op?: string;
+  children?: PipelineFilterGroup[];
+  leftKind?: string;
+  left?: string;
+  operator?: string;
+  rightKind?: string;
+  right?: string;
+  omitWhenNull?: boolean;
+}
+
 export interface PipelineIrMapper extends PipelineIrStagePresence {
   allowEmptyDocReturn?: boolean;
   mappings?: PipelineIrMappingEntry[];
@@ -503,6 +516,7 @@ export interface PipelineIrSelector extends PipelineIrStagePresence {
   method?: string;
   whereClauseCount?: number;
   sortedColumnCount?: number;
+  filterGroup?: PipelineFilterGroup;
 }
 
 export interface PipelineIrPager extends PipelineIrStagePresence {

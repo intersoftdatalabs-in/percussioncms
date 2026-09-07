@@ -100,6 +100,16 @@ public interface IPipelinesAdaptor {
       URI baseUri, String appName, String resourceName, PipelineWebhookHooks hooks);
 
   /**
+   * Admin: persist nested AND/OR selector filter groups on a native pipeline resource. Classic
+   * XML Applications are not mutated. Malformed groups, leftover HTTP credentials, and non-local
+   * backends are rejected.
+   *
+   * @return saved group, never {@code null}
+   */
+  PipelineFilterGroup putFilterGroup(
+      URI baseUri, String appName, String resourceName, PipelineFilterGroup group);
+
+  /**
    * Admin: start a non-hidden classic XML Application / pipeline package (peer {@code
    * PSServer.startApplication}). Idempotent when already running.
    *

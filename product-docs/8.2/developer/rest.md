@@ -1833,7 +1833,7 @@ Example create body (user custom URL view):
 - Operator Inbox run-from-tree is Explorer **Views → My Content → Inbox**, not a
   free-floating Inbox root.
 
-## Pipelines (XML Applications catalog, lifecycle, IR, OpenAPI, HTTP execute, webhook hooks, and validation)
+## Pipelines (XML Applications catalog, lifecycle, IR, OpenAPI, HTTP execute, nested filter groups, webhook hooks, and validation)
 
 Classic **XML Applications** (data pipeline packages) are exposed under `/services/pipelines`.
 The catalog is a thin contract over the server object store (`PSServerXmlObjectStore`
@@ -1850,7 +1850,9 @@ Thin IR execute (`POST …/execute`) is a separate native pipeline runtime path 
 local fixture URL** only (no live internet, no credentials in the URL). **Slice C**
 also persists **HTTP webhook pre/post execute hooks** (`PUT …/webhookHooks`, loopback
 only; blank URL skips) and generates **OpenAPI 3** from the pipeline's IR resources
-(`GET …/openapi`).
+(`GET …/openapi`). Nested **AND/OR filter groups** persist on native IR
+(`PUT …/filterGroup`) and execute honors the nested predicate against SQL or
+the local HTTP fixture.
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -1863,7 +1865,8 @@ only; blank URL skips) and generates **OpenAPI 3** from the pipeline's IR resour
 | `GET` | `/services/pipelines/{idOrName}/openapi` | OpenAPI 3 generated from IR resources (`format=yaml` default, or `json`). Hidden apps **400**. Not a registry publish |
 | `PUT` | `/services/pipelines/{app}/resources/{resource}/backendTank` | **Admin.** Persist native IR HTTP backend tank (`adapterType=HTTP`, loopback/local fixture URL) |
 | `PUT` | `/services/pipelines/{app}/resources/{resource}/webhookHooks` | **Admin.** Persist native IR HTTP webhook pre/post execute hooks (loopback/local fixture URL; blank URL skips) |
-| `POST` | `/services/pipelines/{app}/resources/{resource}/execute` | Execute a native pipeline IR resource (SQL or HTTP adapter; honors webhook hooks) |
+| `PUT` | `/services/pipelines/{app}/resources/{resource}/filterGroup` | **Admin.** Persist nested AND/OR selector filter groups on native IR |
+| `POST` | `/services/pipelines/{app}/resources/{resource}/execute` | Execute a native pipeline IR resource (SQL or HTTP adapter; honors nested filter groups and webhook hooks) |
 | `GET` | `/services/pipelines/{idOrName}/validation` | **Admin.** Validation / problems summary (when deployed) |
 
 JSON list rows use `Application` / `ApplicationSummary`; detail uses `ApplicationDetail`
@@ -1932,6 +1935,32 @@ applications are **404**.
 The bundled HTTP fixture URL is resolved from a classpath JSON document (`sku` / `name` /
 `qty` rows) so H2 QA and air-gapped installs can Test invoke without a live HTTP server.
 
+### Nested filter groups persist
+
+`PUT …/resources/{resource}/filterGroup` requires **Admin** (**403** otherwise). Body is
+`PipelineFilterGroup` (recursive):
+
+| Field | Role |
+|-------|------|
+| `type` | `GROUP` (root and nested groups) or `PREDICATE` (leaf) |
+| `op` | `AND` or `OR` when `type` is `GROUP` |
+| `children` | Nested `GROUP` / `PREDICATE` nodes |
+| `leftKind` / `left` | Predicate left side; `COLUMN` and a backend/document field name |
+| `operator` | `=`, `<>`, `LIKE`, and the other generated-planner operators |
+| `rightKind` / `right` | `LITERAL`, `PARAM`, or `COLUMN` plus the value or name |
+| `omitWhenNull` | Optional; skip a PARAM/LITERAL leaf when the value is missing |
+
+The path application name resolves against the object-store catalog (trusted name). The
+server writes **native IR** under `ObjectStore/pipeline-ir/` and does **not** mutate
+classic XML Applications. **400** when the group is malformed (empty children, missing
+column, illegal `op` / `type`, nesting deeper than 8), when a leftover HTTP tank URL
+uses credentials (`userinfo`), or when that tank is a cloud/non-loopback host.
+Unknown applications are **404**.
+
+Execute honors the saved tree: SQL resources compile parenthesized WHERE; HTTP
+resources filter mapped fixture rows in memory. Matching rows are returned as
+HTTP **200** (not invented empty documents).
+
 ### HTTP webhook hooks persist (Slice C)
 
 `PUT …/resources/{resource}/webhookHooks` requires **Admin** (**403** otherwise). Body is
@@ -1969,8 +1998,9 @@ call classic `PSQueryHandler` / `PSUpdateHandler`. When the resource backend tan
 `adapterType` is `HTTP`, execute GETs the configured loopback/local fixture and returns
 mapped JSON `rows` (document fields such as `sku` / `name` when a mapper is present).
 Cloud URLs, credentials, and redirects off loopback are **400**. Unknown app or resource
-names are **404**; unsupported resource kinds or invalid bodies are **400**. **Developer →
-Pipelines** detail exposes Admin **HTTP datasource**, **HTTP webhook hooks**, and **Test invoke**.
+names are **404**; unsupported resource kinds, malformed nested filter groups, or invalid
+bodies are **400**. **Developer →
+Pipelines** detail exposes Admin **HTTP datasource**, **nested filter groups**, **HTTP webhook hooks**, and **Test invoke**.
 When webhook hooks are configured, execute records real fixture HTTP status and body snippets
 in `meta` / `hookTrace` (blank URLs skip).
 

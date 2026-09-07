@@ -30,6 +30,7 @@ import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationValidationProblem;
 import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
+import com.percussion.rest.pipelines.PipelineFilterGroup;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
 import com.percussion.rest.pipelines.PipelineOpenApiGenerator;
 import com.percussion.rest.pipelines.PipelineWebhookHooks;
@@ -47,12 +48,14 @@ import java.util.function.BooleanSupplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.percussion.services.pipeline.IPSPipelineIrService;
 import com.percussion.services.pipeline.IPSPipelineRuntimeService;
+import com.percussion.services.pipeline.PSPipelineFilterGroup;
 import com.percussion.services.pipeline.PSPipelineIrException;
 import com.percussion.services.pipeline.PSPipelineIrServiceLocator;
 import com.percussion.services.pipeline.PSPipelineRuntimeServiceLocator;
 import com.percussion.services.pipeline.http.PSPipelineHttpAdapter;
 import com.percussion.services.pipeline.http.PSPipelineHttpUrl;
 import com.percussion.services.pipeline.model.BackendTankStageIr;
+import com.percussion.services.pipeline.model.FilterGroupIr;
 import com.percussion.services.pipeline.model.MapperStageIr;
 import com.percussion.services.pipeline.model.MappingEntryIr;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
@@ -61,6 +64,8 @@ import com.percussion.services.pipeline.model.PipelineIrDocument;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
 import com.percussion.services.pipeline.model.PipelineStagesIr;
 import com.percussion.services.pipeline.model.PipelineWebhookHooksIr;
+import com.percussion.services.pipeline.model.SelectorStageIr;
+import com.percussion.services.pipeline.model.WhereClauseIr;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.util.PSCollection;
@@ -104,7 +109,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   public static final int MAX_LIMIT = 1000;
 
   static final String ADMIN_REQUIRED =
-      "Admin role required to start, stop, validate, or persist HTTP backend tanks";
+      "Admin role required to start, stop, validate, persist HTTP backend tanks, or persist filter groups";
 
   static final String HIDDEN_NOT_ALLOWED =
       "Hidden applications cannot be started, stopped, validated, or documented via this API";
@@ -588,6 +593,163 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     }
   }
 
+  @Override
+  public PipelineFilterGroup putFilterGroup(
+      URI baseUri, String appName, String resourceName, PipelineFilterGroup group) {
+    requireAdmin();
+    if (StringUtils.isBlank(appName) || !isSafeApplicationName(appName.trim())) {
+      throw new WebApplicationException("Invalid pipeline application name", 400);
+    }
+    if (StringUtils.isBlank(resourceName) || !isSafeResourceName(resourceName.trim())) {
+      throw new WebApplicationException("Invalid pipeline resource name", 400);
+    }
+    if (group == null) {
+      throw new WebApplicationException("Filter group body is required", 400);
+    }
+    FilterGroupIr irGroup = toFilterGroupIr(group);
+    try {
+      PSPipelineFilterGroup.validate(irGroup);
+    } catch (PSPipelineIrException e) {
+      throw new WebApplicationException(
+          e.getMessage() != null ? e.getMessage() : "Invalid filter group", 400);
+    }
+
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for pipeline filter group persist");
+    }
+    PSSecurityToken tok = req.getSecurityToken();
+    String name = resolveApplicationName(appName.trim(), summaryLoader.apply(tok));
+    if (name == null) {
+      throw new WebApplicationException("Application not found", 404);
+    }
+    String safeResource = resourceName.trim();
+    try {
+      IPSPipelineIrService ir = irSupplier.get();
+      PipelineIrDocument doc = ir.load(name).orElse(null);
+      if (doc == null) {
+        PSApplication app = applicationLoader.apply(name, tok);
+        if (app != null) {
+          doc = ir.importClassicApplication(app);
+        } else {
+          doc = new PipelineIrDocument();
+          doc.getApp().setName(name);
+        }
+      }
+      doc.setSource(PipelineIrDocument.SOURCE_NATIVE);
+      if (doc.getApp() == null || StringUtils.isBlank(doc.getApp().getName())) {
+        doc.getApp().setName(name);
+      }
+      PipelineResourceIr resource = doc.findResource(safeResource);
+      if (resource == null) {
+        resource = new PipelineResourceIr();
+        resource.setName(safeResource);
+        resource.setKind(PipelineResourceIr.KIND_QUERY);
+        doc.getResources().add(resource);
+      }
+      if (resource.getKind() == null
+          || PipelineResourceIr.KIND_UNKNOWN.equals(resource.getKind())) {
+        resource.setKind(PipelineResourceIr.KIND_QUERY);
+      }
+      PipelineStagesIr stages =
+          resource.getStages() != null ? resource.getStages() : new PipelineStagesIr();
+      BackendTankStageIr backend = stages.getBackendTank();
+      if (backend != null && backend.isHttpAdapter()) {
+        if (StringUtils.isNotBlank(backend.getUrl())) {
+          PSPipelineHttpUrl.requireSafe(backend.getUrl());
+        }
+        ensureHttpIdentityMapper(stages);
+      }
+      SelectorStageIr selector =
+          stages.getSelector() != null ? stages.getSelector() : new SelectorStageIr();
+      selector.setPresent(true);
+      selector.setMethod(SelectorStageIr.METHOD_WHERE);
+      selector.setFilterGroup(irGroup);
+      selector.setWhereClauses(flattenPredicates(irGroup));
+      stages.setSelector(selector);
+      resource.setStages(stages);
+      ir.save(doc);
+      return fromFilterGroupIr(irGroup);
+    } catch (PSPipelineIrException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Failed to persist filter group";
+      if (isNotFoundMessage(msg)) {
+        throw new WebApplicationException("Pipeline application or resource not found", 404);
+      }
+      throw new WebApplicationException(msg, 400);
+    }
+  }
+
+  static FilterGroupIr toFilterGroupIr(PipelineFilterGroup dto) {
+    if (dto == null) {
+      return null;
+    }
+    FilterGroupIr node = new FilterGroupIr();
+    node.setType(dto.getType());
+    node.setOp(dto.getOp());
+    node.setLeftKind(dto.getLeftKind());
+    node.setLeft(dto.getLeft());
+    node.setOperator(dto.getOperator());
+    node.setRightKind(dto.getRightKind());
+    node.setRight(dto.getRight());
+    node.setOmitWhenNull(Boolean.TRUE.equals(dto.getOmitWhenNull()));
+    List<FilterGroupIr> children = new ArrayList<>();
+    if (dto.getChildren() != null) {
+      for (PipelineFilterGroup child : dto.getChildren()) {
+        if (child != null) {
+          children.add(toFilterGroupIr(child));
+        }
+      }
+    }
+    node.setChildren(children);
+    return node;
+  }
+
+  static PipelineFilterGroup fromFilterGroupIr(FilterGroupIr node) {
+    if (node == null) {
+      return null;
+    }
+    PipelineFilterGroup dto = new PipelineFilterGroup();
+    dto.setType(node.getType());
+    dto.setOp(node.getOp());
+    dto.setLeftKind(node.getLeftKind());
+    dto.setLeft(node.getLeft());
+    dto.setOperator(node.getOperator());
+    dto.setRightKind(node.getRightKind());
+    dto.setRight(node.getRight());
+    dto.setOmitWhenNull(node.isOmitWhenNull());
+    if (node.getChildren() != null && !node.getChildren().isEmpty()) {
+      List<PipelineFilterGroup> children = new ArrayList<>();
+      for (FilterGroupIr child : node.getChildren()) {
+        if (child != null) {
+          children.add(fromFilterGroupIr(child));
+        }
+      }
+      dto.setChildren(children);
+    }
+    return dto;
+  }
+
+  static List<WhereClauseIr> flattenPredicates(FilterGroupIr node) {
+    List<WhereClauseIr> out = new ArrayList<>();
+    collectPredicates(node, out);
+    return out;
+  }
+
+  private static void collectPredicates(FilterGroupIr node, List<WhereClauseIr> out) {
+    if (node == null) {
+      return;
+    }
+    if (node.isPredicate()) {
+      out.add(node.toWhereClause());
+      return;
+    }
+    if (node.getChildren() != null) {
+      for (FilterGroupIr child : node.getChildren()) {
+        collectPredicates(child, out);
+      }
+    }
+  }
+
   private static String blankToNull(String value) {
     return StringUtils.isBlank(value) ? null : value.trim();
   }
@@ -971,7 +1133,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     List<String> gaps = new ArrayList<>();
     // Validation/problems read ships via GET …/validation — do not claim it unsupported.
     gaps.add(
-        "Pipe IR graph editor / classic XML write not supported (native HTTP backend tank persist is PUT …/backendTank; webhook hooks are PUT …/webhookHooks)");
+        "Pipe IR graph editor / classic XML write not supported (native HTTP backend tank persist is PUT …/backendTank; webhook hooks are PUT …/webhookHooks; nested filter groups are PUT …/filterGroup)");
     gaps.add("Enable / disable application not supported via this API");
     gaps.add("Classic application import/export ZIP not supported via this API");
     return gaps;

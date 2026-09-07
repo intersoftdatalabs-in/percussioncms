@@ -85,7 +85,26 @@ Slice A part 1 delivers **IR model + load/save + classic import**. Execution, SQ
             }
           ],
           "sortedColumnCount": 0,
-          "nativeStatement": null
+          "nativeStatement": null,
+          "filterGroup": {
+            "type": "GROUP",
+            "op": "AND",
+            "children": [
+              {
+                "type": "PREDICATE",
+                "leftKind": "COLUMN",
+                "left": "sku",
+                "operator": "=",
+                "rightKind": "LITERAL",
+                "right": "SKU-1"
+              },
+              {
+                "type": "GROUP",
+                "op": "OR",
+                "children": []
+              }
+            ]
+          }
         },
         "pager": { "present": false, "maxRowsPerPage": 0, "maxPages": 0, "maxPageLinks": 0 },
         "updater": {
@@ -123,7 +142,7 @@ From classic `PSApplication` / `PSDataSet` / pipes:
 | `PSPageDataTank` | `stages.pageTank` |
 | `PSBackEndDataTank` | `stages.backendTank` (tables + `joins[]` edges + join count) |
 | `PSDataMapper` | `stages.mapper` (field inventory) |
-| `PSDataSelector` | `stages.selector` (method + whereClauses IR + counts) |
+| `PSDataSelector` | `stages.selector` (method + whereClauses IR + optional nested `filterGroup` + counts) |
 | `PSWhereClause` / `PSConditional` | `selector.whereClauses[]` (COLUMN/PARAM/LITERAL/OTHER) |
 | `PSResultPager` | `stages.pager` |
 | `PSDataSynchronizer` | `stages.updater` |

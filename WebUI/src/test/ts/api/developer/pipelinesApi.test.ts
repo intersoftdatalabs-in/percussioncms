@@ -26,6 +26,9 @@ import {
   wrapPipelineWebhookHooksForWire,
   unwrapPipelineWebhookHooks,
   putWebhookHooks,
+  wrapPipelineFilterGroupForWire,
+  unwrapPipelineFilterGroup,
+  putFilterGroup,
 } from "../../../../main/ts/api/developer/pipelinesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -319,5 +322,47 @@ describe("pipelinesApi Slice C webhook hooks", () => {
       },
     });
     expect(out.httpMethod).toBe("POST");
+  });
+});
+
+describe("pipelinesApi nested filter groups", () => {
+  it("wraps and unwraps PipelineFilterGroup", () => {
+    expect(
+      wrapPipelineFilterGroupForWire({
+        type: "GROUP",
+        op: "AND",
+      }),
+    ).toEqual({
+      PipelineFilterGroup: {
+        type: "GROUP",
+        op: "AND",
+      },
+    });
+    expect(
+      unwrapPipelineFilterGroup({
+        PipelineFilterGroup: { type: "GROUP", op: "OR" },
+      }).op,
+    ).toBe("OR");
+  });
+
+  it("putFilterGroup PUTs encoded path with WRAP_ROOT body", async () => {
+    const spy = vi.spyOn(client, "put").mockResolvedValue({
+      type: "GROUP",
+      op: "AND",
+    });
+    const out = await putFilterGroup("app with spaces", "res/one", {
+      type: "GROUP",
+      op: "AND",
+    });
+    expect(String(spy.mock.calls[0][0])).toContain(
+      `/pipelines/${encodeURIComponent("app with spaces")}/resources/${encodeURIComponent("res/one")}/filterGroup`,
+    );
+    expect(spy.mock.calls[0][1]).toEqual({
+      PipelineFilterGroup: {
+        type: "GROUP",
+        op: "AND",
+      },
+    });
+    expect(out.op).toBe("AND");
   });
 });

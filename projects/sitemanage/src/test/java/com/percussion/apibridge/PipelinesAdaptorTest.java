@@ -42,6 +42,7 @@ import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationValidationProblem;
 import com.percussion.rest.pipelines.ApplicationValidationResult;
+import com.percussion.rest.pipelines.PipelineFilterGroup;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
 import com.percussion.rest.pipelines.PipelineWebhookHooks;
 import com.percussion.security.PSSecurityToken;
@@ -52,6 +53,7 @@ import com.percussion.services.pipeline.http.PSPipelineHttpUrl;
 import com.percussion.services.pipeline.model.BackendTankStageIr;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
+import com.percussion.services.pipeline.model.PipelineStagesIr;
 import com.percussion.services.pipeline.IPSPipelineIrService;
 import com.percussion.services.pipeline.PSPipelineIrException;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
@@ -998,6 +1000,190 @@ class PipelinesAdaptorTest {
           persisted.findResource("items").getWebhookHooks().getPreUrl());
       verify(app, never()).setName(any());
     }
+  }
+
+  @Test
+  void putFilterGroup_requiresAdmin() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> false,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putFilterGroup(
+                      URI.create("http://localhost/"),
+                      "sys_cmpDocuments",
+                      "items",
+                      sampleAndOrGroup()));
+      assertEquals(403, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void putFilterGroup_rejectsMalformedGroup() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineFilterGroup empty = new PipelineFilterGroup();
+      empty.setType("GROUP");
+      empty.setOp("AND");
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putFilterGroup(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "items", empty));
+      assertEquals(400, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void putFilterGroup_rejectsNonLocalExistingHttpTank() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    PipelineIrDocument existing = new PipelineIrDocument();
+    existing.setSource(PipelineIrDocument.SOURCE_NATIVE);
+    existing.getApp().setName("sys_cmpDocuments");
+    PipelineResourceIr res = new PipelineResourceIr();
+    res.setName("items");
+    res.setKind(PipelineResourceIr.KIND_QUERY);
+    PipelineStagesIr stages = new PipelineStagesIr();
+    BackendTankStageIr tank = new BackendTankStageIr();
+    tank.setPresent(true);
+    tank.setAdapterType(BackendTankStageIr.ADAPTER_HTTP);
+    tank.setUrl("https://erp.example/api/items");
+    stages.setBackendTank(tank);
+    res.setStages(stages);
+    existing.getResources().add(res);
+    when(ir.load("sys_cmpDocuments")).thenReturn(Optional.of(existing));
+
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> ir,
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putFilterGroup(
+                      URI.create("http://localhost/"),
+                      "sys_cmpDocuments",
+                      "items",
+                      sampleAndOrGroup()));
+      assertEquals(400, ex.getResponse().getStatus());
+      assertTrue(ex.getMessage().toLowerCase().contains("loopback"), ex.getMessage());
+      verify(ir, never()).save(any());
+    }
+  }
+
+  @Test
+  void putFilterGroup_savesNativeIrWithoutClassicXmlWrite() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    when(ir.load("sys_cmpDocuments")).thenReturn(Optional.empty());
+    PipelineIrDocument imported = new PipelineIrDocument();
+    imported.setSource(PipelineIrDocument.SOURCE_CLASSIC_IMPORT);
+    imported.getApp().setName("sys_cmpDocuments");
+    PSApplication app = mock(PSApplication.class);
+    when(ir.importClassicApplication(app)).thenReturn(imported);
+
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> ir,
+            (name, tok) -> app,
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineFilterGroup saved =
+          adaptor.putFilterGroup(
+              URI.create("http://localhost/"), "sys_cmpDocuments", "items", sampleAndOrGroup());
+      assertEquals("AND", saved.getOp());
+      assertEquals("GROUP", saved.getType());
+      ArgumentCaptor<PipelineIrDocument> cap = ArgumentCaptor.forClass(PipelineIrDocument.class);
+      verify(ir).save(cap.capture());
+      PipelineIrDocument persisted = cap.getValue();
+      assertEquals(PipelineIrDocument.SOURCE_NATIVE, persisted.getSource());
+      assertNotNull(persisted.findResource("items").getStages().getSelector().getFilterGroup());
+      assertEquals(
+          "AND",
+          persisted.findResource("items").getStages().getSelector().getFilterGroup().normalizedOp());
+      verify(app, never()).setName(any());
+    }
+  }
+
+  private static PipelineFilterGroup sampleAndOrGroup() {
+    PipelineFilterGroup sku = new PipelineFilterGroup();
+    sku.setType("PREDICATE");
+    sku.setLeftKind("COLUMN");
+    sku.setLeft("sku");
+    sku.setOperator("=");
+    sku.setRightKind("LITERAL");
+    sku.setRight("SKU-1");
+    PipelineFilterGroup qty = new PipelineFilterGroup();
+    qty.setType("PREDICATE");
+    qty.setLeftKind("COLUMN");
+    qty.setLeft("qty");
+    qty.setOperator("=");
+    qty.setRightKind("LITERAL");
+    qty.setRight("3");
+    PipelineFilterGroup nested = new PipelineFilterGroup();
+    nested.setType("GROUP");
+    nested.setOp("OR");
+    nested.setChildren(List.of(qty, copyPred("qty", "99")));
+    PipelineFilterGroup root = new PipelineFilterGroup();
+    root.setType("GROUP");
+    root.setOp("AND");
+    root.setChildren(List.of(sku, nested));
+    return root;
+  }
+
+  private static PipelineFilterGroup copyPred(String left, String right) {
+    PipelineFilterGroup p = new PipelineFilterGroup();
+    p.setType("PREDICATE");
+    p.setLeftKind("COLUMN");
+    p.setLeft(left);
+    p.setOperator("=");
+    p.setRightKind("LITERAL");
+    p.setRight(right);
+    return p;
   }
 
   private static void stubCurrentRequest(MockedStatic<PSSecurityFilter> security) {

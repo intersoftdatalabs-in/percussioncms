@@ -687,7 +687,7 @@ export const DEV_MSG_KEYS = {
   PIPE_EMPTY: "perc.ui.developer@No pipeline applications returned.",
   PIPE_ERROR: "perc.ui.developer@Could not load pipelines.",
   PIPE_HINT:
-    "perc.ui.developer@Server applications (classic XML Applications). Open a row for detail, data sets, pipe IR, OpenAPI, Admin Start/Stop, HTTP backend tank (loopback/local fixture), Test invoke, and Problems when available. Graph editor remains a later slice.",
+    "perc.ui.developer@Server applications (classic XML Applications). Open a row for detail, data sets, pipe IR, OpenAPI, Admin Start/Stop, HTTP backend tank (loopback/local fixture), nested filter groups, Test invoke, and Problems when available. Graph editor remains a later slice.",
   PIPE_COL_NAME: "perc.ui.developer@Name",
   PIPE_COL_ID: "perc.ui.developer@Id",
   PIPE_COL_TYPE: "perc.ui.developer@Type",
@@ -785,6 +785,22 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Enter at least one loopback or local fixture webhook URL.",
   PIPE_WEBHOOK_RESOURCE_REQUIRED:
     "perc.ui.developer@Enter a resource name before saving webhook hooks.",
+  PIPE_FILTER: "perc.ui.developer@Nested filter groups",
+  PIPE_FILTER_HINT:
+    "perc.ui.developer@Save nested AND/OR selector groups on this native resource. Test invoke honors the nested predicate against the local/H2 fixture. Malformed groups and non-local HTTP backends are rejected.",
+  PIPE_FILTER_ROOT_OP: "perc.ui.developer@Root group",
+  PIPE_FILTER_PRED: "perc.ui.developer@Predicate",
+  PIPE_FILTER_NESTED_OP: "perc.ui.developer@Nested group",
+  PIPE_FILTER_COLUMN: "perc.ui.developer@Column",
+  PIPE_FILTER_OPERATOR: "perc.ui.developer@Operator",
+  PIPE_FILTER_VALUE: "perc.ui.developer@Value",
+  PIPE_FILTER_SAVE: "perc.ui.developer@Save filter groups",
+  PIPE_FILTER_SAVING: "perc.ui.developer@Saving…",
+  PIPE_FILTER_SAVED: "perc.ui.developer@Nested filter groups saved.",
+  PIPE_FILTER_SAVE_ERROR: "perc.ui.developer@Could not save nested filter groups.",
+  PIPE_FILTER_RESOURCE_REQUIRED:
+    "perc.ui.developer@Enter a resource name before saving filter groups.",
+  PIPE_FILTER_INVALID: "perc.ui.developer@Filter group is invalid.",
   PIPE_OPENAPI: "perc.ui.developer@OpenAPI",
   PIPE_OPENAPI_HINT:
     "perc.ui.developer@OpenAPI 3 generated from this pipeline's IR resources (view or download YAML/JSON). Not published to an external registry.",
