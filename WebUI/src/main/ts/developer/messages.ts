@@ -771,6 +771,20 @@ export const DEV_MSG_KEYS = {
   PIPE_HTTP_SAVE_ERROR: "perc.ui.developer@Could not save HTTP backend tank.",
   PIPE_HTTP_URL_REQUIRED: "perc.ui.developer@Enter a loopback or local fixture URL.",
   PIPE_HTTP_RESOURCE_REQUIRED: "perc.ui.developer@Enter a resource name before saving the HTTP tank.",
+  PIPE_WEBHOOK: "perc.ui.developer@HTTP webhook hooks",
+  PIPE_WEBHOOK_HINT:
+    "perc.ui.developer@Attach loopback or bundled local HTTP webhooks as pre/post execute hooks. Cloud URLs and credentials are rejected. Missing URL skips that hook (no invented delivery).",
+  PIPE_WEBHOOK_PRE: "perc.ui.developer@Pre-execute URL",
+  PIPE_WEBHOOK_POST: "perc.ui.developer@Post-execute URL",
+  PIPE_WEBHOOK_URL_PLACEHOLDER: "perc.ui.developer@http://127.0.0.1/pipeline-webhook-fixture",
+  PIPE_WEBHOOK_SAVE: "perc.ui.developer@Save webhook hooks",
+  PIPE_WEBHOOK_SAVING: "perc.ui.developer@Saving…",
+  PIPE_WEBHOOK_SAVED: "perc.ui.developer@HTTP webhook hooks saved.",
+  PIPE_WEBHOOK_SAVE_ERROR: "perc.ui.developer@Could not save HTTP webhook hooks.",
+  PIPE_WEBHOOK_URL_REQUIRED:
+    "perc.ui.developer@Enter at least one loopback or local fixture webhook URL.",
+  PIPE_WEBHOOK_RESOURCE_REQUIRED:
+    "perc.ui.developer@Enter a resource name before saving webhook hooks.",
   PIPE_OPENAPI: "perc.ui.developer@OpenAPI",
   PIPE_OPENAPI_HINT:
     "perc.ui.developer@OpenAPI 3 generated from this pipeline's IR resources (view or download YAML/JSON). Not published to an external registry.",

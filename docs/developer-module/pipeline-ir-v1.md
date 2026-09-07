@@ -151,6 +151,7 @@ Not imported in v1 (deferred): join **translators** (edges still import with `tr
 - Generated SELECT **WHERE** prefers `selector.whereClauses` IR when present (COLUMN left; operators `=`, `<>`, `!=`, `<`, `<=`, `>`, `>=`, `LIKE`, `NOT LIKE`, `IS NULL`, `IS NOT NULL`; right PARAM/LITERAL/COLUMN; AND/OR; `omitWhenNull`). Otherwise falls back to request-param equality on mapped columns.
 - Generated multi-table SELECT uses `backendTank.joins[]` (`joinType` = `INNER`|`LEFT`|`RIGHT`|`FULL`; `left`/`right` = `alias.column`). ANSI `INNER` / `LEFT OUTER` / `RIGHT OUTER` / `FULL OUTER` JOIN … ON. Join edges with classic translators are rejected (native SELECT escape hatch). Mutations remain single-table.
 - Pre/post hooks: `IPSPipelinePreExecuteHook` / `IPSPipelinePostExecuteHook`
+- HTTP webhook hooks (Slice C): `PipelineResourceIr.webhookHooks` + `PSPipelineHttpWebhookInvoker` (loopback/local fixture POST; blank URL skips)
 - JSON I/O: `PipelineExecuteRequest` / `PipelineExecuteResult` + `PSPipelineExecuteJsonCodec`
 - Thin REST: `POST /services/pipelines/{app}/resources/{resource}/execute` (see #2269 / PR #2341)
 

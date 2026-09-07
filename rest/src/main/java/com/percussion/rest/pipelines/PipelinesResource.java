@@ -429,6 +429,46 @@ public class PipelinesResource {
     }
   }
 
+  /**
+   * Persist native IR HTTP webhook pre/post execute hooks (loopback/local fixture URL). Does not
+   * rewrite classic XML Applications. Missing URL is skip (no invented delivery).
+   */
+  @PUT
+  @Path("/{app}/resources/{resource}/webhookHooks")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Persist HTTP webhook hooks on a native pipeline resource",
+      description =
+          "Admin only. Saves native IR webhook pre/post execute URLs (loopback/local fixture)."
+              + " Cloud hosts, credentials (userinfo), and non-http(s) schemes are 400. Blank"
+              + " URLs skip delivery on execute (documented skip, not a fake success). Classic"
+              + " XML Applications stay read-only.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Saved",
+            content = @Content(schema = @Schema(implementation = PipelineWebhookHooks.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid URL, method, or name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public PipelineWebhookHooks putWebhookHooks(
+      @PathParam("app") String app,
+      @PathParam("resource") String resource,
+      PipelineWebhookHooks body) {
+    try {
+      return requireAdaptor().putWebhookHooks(uriInfo.getBaseUri(), app, resource, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   private IPipelinesAdaptor requireAdaptor() {
     if (adaptor == null) {
       throw new IllegalStateException(

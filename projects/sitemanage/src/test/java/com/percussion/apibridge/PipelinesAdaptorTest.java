@@ -43,6 +43,7 @@ import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationValidationProblem;
 import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
+import com.percussion.rest.pipelines.PipelineWebhookHooks;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
 import com.percussion.services.pipeline.IPSPipelineRuntimeService;
@@ -895,6 +896,106 @@ class PipelinesAdaptorTest {
       BackendTankStageIr tank = persisted.findResource("items").getStages().getBackendTank();
       assertTrue(tank.isHttpAdapter());
       assertEquals(PSPipelineHttpUrl.BUNDLED_FIXTURE_URL, tank.getUrl());
+      verify(app, never()).setName(any());
+    }
+  }
+
+  @Test
+  void putWebhookHooks_requiresAdmin() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> false,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineWebhookHooks body = new PipelineWebhookHooks();
+      body.setPreUrl(PSPipelineHttpUrl.BUNDLED_WEBHOOK_FIXTURE_URL);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putWebhookHooks(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "items", body));
+      assertEquals(403, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void putWebhookHooks_rejectsCloudUrl() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineWebhookHooks body = new PipelineWebhookHooks();
+      body.setPreUrl("https://hooks.example/catch");
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putWebhookHooks(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "items", body));
+      assertEquals(400, ex.getResponse().getStatus());
+      assertTrue(ex.getMessage().toLowerCase().contains("loopback"), ex.getMessage());
+    }
+  }
+
+  @Test
+  void putWebhookHooks_savesNativeIrWithoutClassicXmlWrite() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    when(ir.load("sys_cmpDocuments")).thenReturn(Optional.empty());
+    PipelineIrDocument imported = new PipelineIrDocument();
+    imported.setSource(PipelineIrDocument.SOURCE_CLASSIC_IMPORT);
+    imported.getApp().setName("sys_cmpDocuments");
+    PSApplication app = mock(PSApplication.class);
+    when(ir.importClassicApplication(app)).thenReturn(imported);
+
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> ir,
+            (name, tok) -> app,
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineWebhookHooks body = new PipelineWebhookHooks();
+      body.setPreUrl(PSPipelineHttpUrl.BUNDLED_WEBHOOK_FIXTURE_URL);
+      body.setPostUrl(PSPipelineHttpUrl.BUNDLED_WEBHOOK_FIXTURE_URL);
+      PipelineWebhookHooks saved =
+          adaptor.putWebhookHooks(
+              URI.create("http://localhost/"), "sys_cmpDocuments", "items", body);
+      assertEquals(PSPipelineHttpUrl.BUNDLED_WEBHOOK_FIXTURE_URL, saved.getPreUrl());
+      assertEquals("POST", saved.getHttpMethod());
+      ArgumentCaptor<PipelineIrDocument> cap = ArgumentCaptor.forClass(PipelineIrDocument.class);
+      verify(ir).save(cap.capture());
+      PipelineIrDocument persisted = cap.getValue();
+      assertEquals(PipelineIrDocument.SOURCE_NATIVE, persisted.getSource());
+      assertEquals(
+          PSPipelineHttpUrl.BUNDLED_WEBHOOK_FIXTURE_URL,
+          persisted.findResource("items").getWebhookHooks().getPreUrl());
       verify(app, never()).setName(any());
     }
   }

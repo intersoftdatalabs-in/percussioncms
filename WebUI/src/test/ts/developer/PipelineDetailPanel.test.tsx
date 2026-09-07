@@ -23,6 +23,7 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   openApiDownloadFilename: (app: string, format = "yaml") =>
     `${app}.openapi.${format === "json" ? "json" : "yaml"}`,
   putHttpBackendTank: vi.fn(),
+  putWebhookHooks: vi.fn(),
 }));
 
 const getApplicationDetail = pipelinesApi.getApplicationDetail as ReturnType<typeof vi.fn>;
@@ -35,6 +36,7 @@ const getApplicationValidation = pipelinesApi.getApplicationValidation as Return
 const getPipelineIr = pipelinesApi.getPipelineIr as ReturnType<typeof vi.fn>;
 const getPipelineOpenApi = pipelinesApi.getPipelineOpenApi as ReturnType<typeof vi.fn>;
 const putHttpBackendTank = pipelinesApi.putHttpBackendTank as ReturnType<typeof vi.fn>;
+const putWebhookHooks = pipelinesApi.putWebhookHooks as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   id: 1,
@@ -88,6 +90,7 @@ describe("PipelineDetailPanel", () => {
     getPipelineIr.mockReset();
     getPipelineOpenApi.mockReset();
     putHttpBackendTank.mockReset();
+    putWebhookHooks.mockReset();
     getPipelineIr.mockResolvedValue({ irVersion: "1.0", source: "NATIVE", resources: [] });
     getPipelineOpenApi.mockResolvedValue(
       'openapi: "3.0.3"\npaths:\n  /pipelines/sys_cmpDocuments/resources/contenteditor/execute:\n',
@@ -96,6 +99,11 @@ describe("PipelineDetailPanel", () => {
       adapterType: "HTTP",
       url: "http://127.0.0.1/pipeline-http-fixture",
       httpMethod: "GET",
+    });
+    putWebhookHooks.mockResolvedValue({
+      preUrl: "http://127.0.0.1/pipeline-webhook-fixture",
+      postUrl: "http://127.0.0.1/pipeline-webhook-fixture",
+      httpMethod: "POST",
     });
     // Soft-empty when validation tip is not merged (default for most tests).
     getApplicationValidation.mockRejectedValue({
@@ -213,6 +221,7 @@ describe("PipelineDetailPanel", () => {
     expect(screen.queryByTestId("developer-pipe-stop")).toBeNull();
     expect(screen.queryByTestId("developer-pipe-invoke")).toBeNull();
     expect(screen.queryByTestId("developer-pipe-http")).toBeNull();
+    expect(screen.queryByTestId("developer-pipe-webhook")).toBeNull();
     expect(screen.queryByTestId("developer-pipe-problems")).toBeNull();
     expect(getApplicationValidation).not.toHaveBeenCalled();
   });
@@ -511,6 +520,65 @@ describe("PipelineDetailPanel", () => {
     fireEvent.click(screen.getByTestId("developer-pipe-http-save"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-pipe-http-error").textContent).toMatch(
+        /loopback/i,
+      );
+    });
+  });
+
+  it("Admin saves webhook hooks for the selected resource", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-webhook")).toBeTruthy();
+    });
+    const pre = screen.getByTestId("developer-pipe-webhook-pre") as HTMLInputElement;
+    expect(pre.value).toContain("pipeline-webhook-fixture");
+    fireEvent.click(screen.getByTestId("developer-pipe-webhook-save"));
+    await waitFor(() => {
+      expect(putWebhookHooks).toHaveBeenCalledWith("sys_cmpDocuments", "contenteditor", {
+        preUrl: "http://127.0.0.1/pipeline-webhook-fixture",
+        postUrl: "http://127.0.0.1/pipeline-webhook-fixture",
+        httpMethod: "POST",
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-webhook-notice").textContent).toBe(
+        DEV_MSG.PIPE_WEBHOOK_SAVED,
+      );
+    });
+  });
+
+  it("webhook save fail-closes on blank URLs and cloud 400", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-webhook-pre")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-pipe-webhook-pre"), {
+      target: { value: "   " },
+    });
+    fireEvent.change(screen.getByTestId("developer-pipe-webhook-post"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-webhook-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-webhook-error").textContent).toBe(
+        DEV_MSG.PIPE_WEBHOOK_URL_REQUIRED,
+      );
+    });
+    expect(putWebhookHooks).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByTestId("developer-pipe-webhook-pre"), {
+      target: { value: "https://hooks.example/catch" },
+    });
+    putWebhookHooks.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "HTTP webhook URL must be loopback" },
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-webhook-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-webhook-error").textContent).toMatch(
         /loopback/i,
       );
     });

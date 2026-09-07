@@ -34,6 +34,8 @@ public class PipelineHookContext {
   private final PipelineResourceIr resource;
   private final PipelineExecuteRequest request;
   private final List<String> hookTrace = new ArrayList<>();
+  private Integer preWebhookStatus;
+  private String preWebhookBody;
 
   public PipelineHookContext(
       PipelineIrDocument document, PipelineResourceIr resource, PipelineExecuteRequest request) {
@@ -62,5 +64,21 @@ public class PipelineHookContext {
     if (entry != null && !entry.isBlank()) {
       hookTrace.add(entry);
     }
+  }
+
+  public Integer getPreWebhookStatus() {
+    return preWebhookStatus;
+  }
+
+  public void setPreWebhookStatus(Integer preWebhookStatus) {
+    this.preWebhookStatus = preWebhookStatus;
+  }
+
+  public String getPreWebhookBody() {
+    return preWebhookBody;
+  }
+
+  public void setPreWebhookBody(String preWebhookBody) {
+    this.preWebhookBody = preWebhookBody;
   }
 }

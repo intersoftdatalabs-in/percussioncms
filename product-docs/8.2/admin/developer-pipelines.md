@@ -1,7 +1,7 @@
 ---
 id: admin-developer-pipelines
 title: Developer Pipelines
-description: Browse classic XML Applications, Admin start/stop, pipe IR, OpenAPI from resources, HTTP datasource Test invoke, and Problems from Developer Pipelines chrome
+description: Browse classic XML Applications, Admin start/stop, pipe IR, OpenAPI from resources, HTTP datasource, webhook hooks, Test invoke, and Problems from Developer Pipelines chrome
 version: "8.2"
 order: 51
 tags: [admin, developer, pipelines]
@@ -33,18 +33,27 @@ The **OpenAPI** section calls `GET /services/pipelines/{idOrName}/openapi`
 **download** an OpenAPI 3 document generated from the application's IR
 resources. It does not publish to an external registry.
 
-**Admins** also get **HTTP datasource**, **Test invoke**, and **Problems** on the
-same detail page:
+**Admins** also get **HTTP datasource**, **HTTP webhook hooks**, **Test invoke**,
+and **Problems** on the same detail page:
 
 - **HTTP datasource** sets `adapterType=HTTP` and a **loopback / local fixture
   URL** (default `http://127.0.0.1/pipeline-http-fixture`) on the selected
   resource via `PUT /services/pipelines/{app}/resources/{resource}/backendTank`.
   Cloud hosts, credentials in the URL, and non-http(s) schemes return **400**.
+- **HTTP webhook hooks** attach **pre-execute** and **post-execute** HTTP POST
+  URLs on the same native resource via
+  `PUT /services/pipelines/{app}/resources/{resource}/webhookHooks`. Only
+  loopback / local fixture URLs are accepted (default
+  `http://127.0.0.1/pipeline-webhook-fixture`). Cloud hosts, credentials, and
+  non-http(s) schemes return **400**. A **blank URL skips** that hook (no
+  invented delivery).
 - **Test invoke** posts sample JSON (`params` / `rows`) to
   `POST /services/pipelines/{app}/resources/{resource}/execute` and shows the
   structured execute result (or a clear error). HTTP tanks return mapped JSON
   `rows` (for example `sku` / `name` from the bundled fixture) — not empty
-  invented data.
+  invented data. When webhook hooks are saved, the result includes real
+  `preWebhookStatus` / `postWebhookStatus` and body snippets (for example
+  `hook-ok`) from the fixture — not a fake success.
 - **Problems** loads Admin `GET /services/pipelines/{idOrName}/validation` when
   that endpoint is present. If validation REST is not deployed yet, the section
   shows a soft empty state instead of failing the page.
@@ -119,6 +128,24 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
    `PSQueryHandler` / `PSUpdateHandler`. HTTP execute never leaves loopback /
    the bundled local fixture.
 
+## Product path — HTTP webhook hooks
+
+1. As **Admin**, open an application detail page.
+2. Enter a **resource** name in **Test invoke** (data-set names are offered when
+   present).
+3. In **HTTP webhook hooks**, set **Pre-execute URL** and/or **Post-execute URL**
+   to a loopback address or the bundled fixture
+   `http://127.0.0.1/pipeline-webhook-fixture`.
+4. Choose **Save webhook hooks**. Success shows a saved notice. Cloud URLs such
+   as `https://hooks.example/catch` or URLs with userinfo fail closed with a
+   clear **400** error. If both URLs are blank, the chrome asks for at least
+   one URL. On the server, a blank URL **skips** that hook (no delivery is
+   invented).
+5. Save an **HTTP datasource** tank (bundled HTTP fixture) so Test invoke can
+   execute the native resource, then choose **Invoke**. The execute result JSON
+   includes webhook `status` / body evidence (`hook-ok`, `pipeline-webhook`)
+   from the local fixture.
+
 ## Product path — Problems
 
 1. As **Admin**, open an application detail page. The **Problems** section loads
@@ -137,7 +164,7 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
 - Catalog and detail omit **hidden** applications from the list contract used by
   this chrome; hidden rows are not started or stopped here.
 - Pipe IR has no graph editor or drag-drop tanks. Admins may persist an HTTP
-  backend tank (native IR overlay) only.
+  backend tank and HTTP webhook hooks (native IR overlay) only.
 - Enable/disable and classic ZIP import/export are not in this chrome.
 - Surface-filtered Playwright for Start/Stop lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-start-stop.spec.js`.
@@ -147,6 +174,8 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-test-invoke.spec.js`.
 - Surface-filtered Playwright for HTTP datasource save + Test invoke lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-http-execute.spec.js`.
+- Surface-filtered Playwright for webhook hooks save + Test invoke lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-webhook-hooks.spec.js`.
 - Surface-filtered Playwright for OpenAPI view/download lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-openapi.spec.js`
   (prefers `sys_cmp*` IR/execute apps, or `PIPELINE_APP_NAME`; does not require
@@ -165,6 +194,7 @@ The chrome calls:
 | Pipe IR | `GET /services/pipelines/{idOrName}/ir` |
 | OpenAPI | `GET /services/pipelines/{idOrName}/openapi` (`format=yaml` default, or `json`) |
 | HTTP tank | `PUT /services/pipelines/{app}/resources/{resource}/backendTank` (**Admin**) |
+| Webhook hooks | `PUT /services/pipelines/{app}/resources/{resource}/webhookHooks` (**Admin**) |
 | Test invoke | `POST /services/pipelines/{app}/resources/{resource}/execute` |
 | Problems | `GET /services/pipelines/{idOrName}/validation` (**Admin**; soft-empty if absent) |
 

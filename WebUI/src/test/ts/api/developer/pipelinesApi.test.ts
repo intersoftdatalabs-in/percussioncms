@@ -23,6 +23,9 @@ import {
   wrapPipelineHttpBackendTankForWire,
   unwrapPipelineHttpBackendTank,
   putHttpBackendTank,
+  wrapPipelineWebhookHooksForWire,
+  unwrapPipelineWebhookHooks,
+  putWebhookHooks,
 } from "../../../../main/ts/api/developer/pipelinesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -276,5 +279,45 @@ describe("pipelinesApi Slice C HTTP backend tank", () => {
       },
     });
     expect(out.adapterType).toBe("HTTP");
+  });
+});
+
+describe("pipelinesApi Slice C webhook hooks", () => {
+  it("wraps and unwraps PipelineWebhookHooks", () => {
+    expect(
+      wrapPipelineWebhookHooksForWire({
+        preUrl: "http://127.0.0.1/pipeline-webhook-fixture",
+        postUrl: "http://127.0.0.1/pipeline-webhook-fixture",
+      }),
+    ).toEqual({
+      PipelineWebhookHooks: {
+        preUrl: "http://127.0.0.1/pipeline-webhook-fixture",
+        postUrl: "http://127.0.0.1/pipeline-webhook-fixture",
+      },
+    });
+    expect(
+      unwrapPipelineWebhookHooks({
+        PipelineWebhookHooks: { preUrl: "http://127.0.0.1/x" },
+      }).preUrl,
+    ).toBe("http://127.0.0.1/x");
+  });
+
+  it("putWebhookHooks PUTs encoded path with WRAP_ROOT body", async () => {
+    const spy = vi.spyOn(client, "put").mockResolvedValue({
+      preUrl: "http://127.0.0.1/pipeline-webhook-fixture",
+      httpMethod: "POST",
+    });
+    const out = await putWebhookHooks("app with spaces", "res/one", {
+      preUrl: "http://127.0.0.1/pipeline-webhook-fixture",
+    });
+    expect(String(spy.mock.calls[0][0])).toContain(
+      `/pipelines/${encodeURIComponent("app with spaces")}/resources/${encodeURIComponent("res/one")}/webhookHooks`,
+    );
+    expect(spy.mock.calls[0][1]).toEqual({
+      PipelineWebhookHooks: {
+        preUrl: "http://127.0.0.1/pipeline-webhook-fixture",
+      },
+    });
+    expect(out.httpMethod).toBe("POST");
   });
 });

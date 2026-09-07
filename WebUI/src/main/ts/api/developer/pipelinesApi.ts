@@ -25,6 +25,7 @@ import type {
   PipelineExecuteResult,
   PipelineHttpBackendTank,
   PipelineIrDocument,
+  PipelineWebhookHooks,
 } from "./types";
 
 export interface ListApplicationsOptions {
@@ -276,6 +277,45 @@ export async function putHttpBackendTank(
     wrapPipelineHttpBackendTankForWire(body),
   );
   return unwrapPipelineHttpBackendTank(payload);
+}
+
+/** Jackson WRAP/UNWRAP_ROOT_VALUE root for {@link PipelineWebhookHooks}. */
+export const PIPELINE_WEBHOOK_HOOKS_ROOT = "PipelineWebhookHooks";
+
+export function wrapPipelineWebhookHooksForWire(
+  body: PipelineWebhookHooks,
+): { PipelineWebhookHooks: PipelineWebhookHooks } {
+  return { [PIPELINE_WEBHOOK_HOOKS_ROOT]: body ?? {} };
+}
+
+export function unwrapPipelineWebhookHooks(payload: unknown): PipelineWebhookHooks {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("HTTP webhook hooks not found or empty response");
+  }
+  const root = payload as Record<string, unknown>;
+  const nested = root.PipelineWebhookHooks ?? root.pipelineWebhookHooks;
+  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
+    return nested as PipelineWebhookHooks;
+  }
+  return root as PipelineWebhookHooks;
+}
+
+/**
+ * PUT /services/pipelines/{app}/resources/{resource}/webhookHooks — Admin native IR webhooks.
+ * Cloud / credentialed / non-local URLs are rejected by the server (HTTP 400). Blank URLs skip.
+ */
+export async function putWebhookHooks(
+  app: string,
+  resource: string,
+  body: PipelineWebhookHooks,
+): Promise<PipelineWebhookHooks> {
+  const appKey = encodeURIComponent(app);
+  const resourceKey = encodeURIComponent(resource);
+  const payload = await put<unknown>(
+    `${PATHS.PIPELINES}/${appKey}/resources/${resourceKey}/webhookHooks`,
+    wrapPipelineWebhookHooksForWire(body),
+  );
+  return unwrapPipelineWebhookHooks(payload);
 }
 
 export async function executeResource(

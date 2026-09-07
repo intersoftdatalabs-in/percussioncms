@@ -32,6 +32,7 @@ import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
 import com.percussion.rest.pipelines.PipelineOpenApiGenerator;
+import com.percussion.rest.pipelines.PipelineWebhookHooks;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
@@ -59,6 +60,7 @@ import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
 import com.percussion.services.pipeline.model.PipelineStagesIr;
+import com.percussion.services.pipeline.model.PipelineWebhookHooksIr;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.util.PSCollection;
@@ -497,6 +499,99 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     }
   }
 
+  @Override
+  public PipelineWebhookHooks putWebhookHooks(
+      URI baseUri, String appName, String resourceName, PipelineWebhookHooks hooks) {
+    requireAdmin();
+    if (StringUtils.isBlank(appName) || !isSafeApplicationName(appName.trim())) {
+      throw new WebApplicationException("Invalid pipeline application name", 400);
+    }
+    if (StringUtils.isBlank(resourceName) || !isSafeResourceName(resourceName.trim())) {
+      throw new WebApplicationException("Invalid pipeline resource name", 400);
+    }
+    if (hooks == null) {
+      throw new WebApplicationException("HTTP webhook hooks body is required", 400);
+    }
+    String method = hooks.getHttpMethod();
+    if (StringUtils.isNotBlank(method) && !"POST".equalsIgnoreCase(method.trim())) {
+      throw new WebApplicationException("HTTP webhook supports POST only in this slice", 400);
+    }
+    String pre = blankToNull(hooks.getPreUrl());
+    String post = blankToNull(hooks.getPostUrl());
+    try {
+      if (pre != null) {
+        PSPipelineHttpUrl.requireSafe(pre, "HTTP webhook URL");
+      }
+      if (post != null) {
+        PSPipelineHttpUrl.requireSafe(post, "HTTP webhook URL");
+      }
+    } catch (PSPipelineIrException e) {
+      throw new WebApplicationException(
+          e.getMessage() != null ? e.getMessage() : "Invalid HTTP webhook URL", 400);
+    }
+
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for pipeline webhook persist");
+    }
+    PSSecurityToken tok = req.getSecurityToken();
+    String name = resolveApplicationName(appName.trim(), summaryLoader.apply(tok));
+    if (name == null) {
+      throw new WebApplicationException("Application not found", 404);
+    }
+    String safeResource = resourceName.trim();
+    try {
+      IPSPipelineIrService ir = irSupplier.get();
+      PipelineIrDocument doc = ir.load(name).orElse(null);
+      if (doc == null) {
+        PSApplication app = applicationLoader.apply(name, tok);
+        if (app != null) {
+          doc = ir.importClassicApplication(app);
+        } else {
+          doc = new PipelineIrDocument();
+          doc.getApp().setName(name);
+        }
+      }
+      doc.setSource(PipelineIrDocument.SOURCE_NATIVE);
+      if (doc.getApp() == null || StringUtils.isBlank(doc.getApp().getName())) {
+        doc.getApp().setName(name);
+      }
+      PipelineResourceIr resource = doc.findResource(safeResource);
+      if (resource == null) {
+        resource = new PipelineResourceIr();
+        resource.setName(safeResource);
+        resource.setKind(PipelineResourceIr.KIND_QUERY);
+        doc.getResources().add(resource);
+      }
+      if (resource.getKind() == null
+          || PipelineResourceIr.KIND_UNKNOWN.equals(resource.getKind())) {
+        resource.setKind(PipelineResourceIr.KIND_QUERY);
+      }
+      PipelineWebhookHooksIr stored = new PipelineWebhookHooksIr();
+      stored.setPreUrl(pre);
+      stored.setPostUrl(post);
+      stored.setHttpMethod(StringUtils.isBlank(method) ? "POST" : method.trim().toUpperCase(Locale.ROOT));
+      resource.setWebhookHooks(stored);
+      ir.save(doc);
+
+      PipelineWebhookHooks saved = new PipelineWebhookHooks();
+      saved.setPreUrl(stored.getPreUrl());
+      saved.setPostUrl(stored.getPostUrl());
+      saved.setHttpMethod(stored.getHttpMethod());
+      return saved;
+    } catch (PSPipelineIrException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Failed to persist HTTP webhook hooks";
+      if (isNotFoundMessage(msg)) {
+        throw new WebApplicationException("Pipeline application or resource not found", 404);
+      }
+      throw new WebApplicationException(msg, 400);
+    }
+  }
+
+  private static String blankToNull(String value) {
+    return StringUtils.isBlank(value) ? null : value.trim();
+  }
+
   /**
    * Identity mapper for bundled HTTP fixture fields when the resource has no mappings yet so
    * execute returns document fields (sku/name) rather than an empty mapped document.
@@ -876,7 +971,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     List<String> gaps = new ArrayList<>();
     // Validation/problems read ships via GET …/validation — do not claim it unsupported.
     gaps.add(
-        "Pipe IR graph editor / classic XML write not supported (native HTTP backend tank persist is PUT …/backendTank)");
+        "Pipe IR graph editor / classic XML write not supported (native HTTP backend tank persist is PUT …/backendTank; webhook hooks are PUT …/webhookHooks)");
     gaps.add("Enable / disable application not supported via this API");
     gaps.add("Classic application import/export ZIP not supported via this API");
     return gaps;

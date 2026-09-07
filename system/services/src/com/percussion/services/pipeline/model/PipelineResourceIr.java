@@ -41,6 +41,7 @@ public class PipelineResourceIr {
   private String transactionMode;
   private String pipeName;
   private PipelineStagesIr stages = new PipelineStagesIr();
+  private PipelineWebhookHooksIr webhookHooks;
 
   public String getName() {
     return name;
@@ -98,6 +99,14 @@ public class PipelineResourceIr {
     this.stages = stages != null ? stages : new PipelineStagesIr();
   }
 
+  public PipelineWebhookHooksIr getWebhookHooks() {
+    return webhookHooks;
+  }
+
+  public void setWebhookHooks(PipelineWebhookHooksIr webhookHooks) {
+    this.webhookHooks = webhookHooks;
+  }
+
   /**
    * Ordered inventory of present stage kinds for assertions and catalog UIs.
    *
@@ -124,6 +133,9 @@ public class PipelineResourceIr {
     if (s.getUpdater() != null && s.getUpdater().isPresent()) {
       out.add("updater");
     }
+    if (webhookHooks != null && webhookHooks.isPresent()) {
+      out.add("webhookHooks");
+    }
     return out;
   }
 
@@ -141,11 +153,13 @@ public class PipelineResourceIr {
         && Objects.equals(requestPage, that.requestPage)
         && Objects.equals(transactionMode, that.transactionMode)
         && Objects.equals(pipeName, that.pipeName)
-        && Objects.equals(stages, that.stages);
+        && Objects.equals(stages, that.stages)
+        && Objects.equals(webhookHooks, that.webhookHooks);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, description, kind, requestPage, transactionMode, pipeName, stages);
+    return Objects.hash(
+        name, description, kind, requestPage, transactionMode, pipeName, stages, webhookHooks);
   }
 }

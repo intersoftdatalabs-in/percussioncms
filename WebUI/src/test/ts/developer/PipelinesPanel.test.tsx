@@ -27,6 +27,7 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   openApiDownloadFilename: (app: string) => `${app}.openapi.yaml`,
   executeResource: vi.fn(),
   putHttpBackendTank: vi.fn(),
+  putWebhookHooks: vi.fn(),
   getApplicationValidation: vi.fn().mockRejectedValue({
     status: 404,
     statusText: "Not Found",
