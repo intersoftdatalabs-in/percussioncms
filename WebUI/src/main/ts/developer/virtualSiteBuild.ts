@@ -27,12 +27,12 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
 /**
  * True when the Build Virtual Site control should be shown.
  * Git-filesystem, csv-filesystem, sql-database, http-json, object-storage,
- * rss-atom, icalendar, sitemap-xml, robots-txt, and llms-txt Virtual Sites all run
- * POST /virtual/build (SQL JDBC, HTTP JSON catalog, object-storage keys,
- * rss-atom feeds, icalendar .ics, sitemap.xml, robots.txt, and llms.txt stay in
- * _config.yaml / the local root). llms-txt Build produces last-build HTML for
- * Preview and Publish. Repository / blank / unknown kinds (including openapi-yaml
- * persist-only) must not display this chrome.
+ * rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, and openapi-yaml Virtual
+ * Sites all run POST /virtual/build (SQL JDBC, HTTP JSON catalog, object-storage keys,
+ * rss-atom feeds, icalendar .ics, sitemap.xml, robots.txt, llms.txt, and openapi.yaml
+ * stay in _config.yaml / the local root). openapi-yaml Build produces last-build HTML
+ * for Preview (Publish stays a later slice). Repository / blank / unknown kinds must
+ * not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
   sourceKind: string | null | undefined,
@@ -48,7 +48,8 @@ export function shouldShowVirtualBuildChrome(
     v === "icalendar" ||
     v === "sitemap-xml" ||
     v === "robots-txt" ||
-    v === "llms-txt"
+    v === "llms-txt" ||
+    v === "openapi-yaml"
   );
 }
 
@@ -56,7 +57,7 @@ export function shouldShowVirtualBuildChrome(
  * True when Preview assembled site should be shown.
  * Last-output preview for git-filesystem, csv-filesystem, sql-database,
  * http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt,
- * and llms-txt. Missing last-build stays unavailable (GET /virtual/preview
+ * llms-txt, and openapi-yaml. Missing last-build stays unavailable (GET /virtual/preview
  * available=false; no fake preview). Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPreviewChrome(
@@ -73,7 +74,8 @@ export function shouldShowVirtualPreviewChrome(
     v === "icalendar" ||
     v === "sitemap-xml" ||
     v === "robots-txt" ||
-    v === "llms-txt"
+    v === "llms-txt" ||
+    v === "openapi-yaml"
   );
 }
 

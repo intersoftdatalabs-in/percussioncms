@@ -1806,7 +1806,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@llms.txt uses the root path only (no Git remote). Point at a local llms.txt fixture directory (llms.txt or _config.yaml llms.file). Save sourceKind=llms-txt, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target after a local llms.txt Build. Missing build stays unavailable. Live HTTP fetches and credentials are never sent on the REST envelope.",
   SITE_VIRT_KIND_OPENAPI_YAML: "perc.ui.developer@OpenAPI YAML",
   SITE_VIRT_OPENAPI_YAML_HINT:
-    "perc.ui.developer@OpenAPI YAML uses the root path only (no Git remote). Point at a local OpenAPI 3 YAML fixture directory (openapi.yaml or _config.yaml openapi.file). Save sourceKind=openapi-yaml. Live spec fetches, remote URLs, and credentials are never sent on the REST envelope. Build, Preview, and Publish stay later slices.",
+    "perc.ui.developer@OpenAPI YAML uses the root path only (no Git remote). Point at a local OpenAPI 3 YAML fixture directory (openapi.yaml or _config.yaml openapi.file). Save sourceKind=openapi-yaml, then Build Virtual Site, then Preview assembled site. Publish Virtual Site stays a later slice. Live spec fetches, remote URLs, and credentials are never sent on the REST envelope.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:
@@ -1833,7 +1833,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Save Virtual Site source before building so the server uses the latest properties.",
   SITE_VIRT_PREVIEW: "perc.ui.developer@Preview assembled site",
   SITE_VIRT_PREVIEW_HINT:
-    "perc.ui.developer@Opens the last assembled home in a new tab after Build (Git filesystem, CSV filesystem, SQL database, HTTP JSON, Object storage, RSS / Atom, iCalendar, Sitemap XML, Robots.txt, or llms.txt). Same-origin preview of the build output. Requires Admin.",
+    "perc.ui.developer@Opens the last assembled home in a new tab after Build (Git filesystem, CSV filesystem, SQL database, HTTP JSON, Object storage, RSS / Atom, iCalendar, Sitemap XML, Robots.txt, llms.txt, or OpenAPI YAML). Same-origin preview of the build output. Requires Admin.",
   SITE_VIRT_PREVIEW_MISSING:
     "perc.ui.developer@No assembled site to preview. Run Build Virtual Site first.",
   SITE_VIRT_PREVIEW_ERROR: "perc.ui.developer@Could not open Virtual Site preview.",

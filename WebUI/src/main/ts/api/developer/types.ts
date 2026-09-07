@@ -1129,10 +1129,10 @@ export interface SiteDef {
  * sitemap-xml, robots-txt, llms-txt, and openapi-yaml (local {@code rootPath} only; no
  * cloud URLs, live feed / CalDAV / crawl / llms / OpenAPI fetch credentials, or
  * {@code virtual.remoteUrl} on those kinds). Build chrome is shown after save for
- * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt
- * (openapi-yaml persist only; Build/Preview/Publish stay later slices).
+ * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml
+ * (openapi-yaml Publish stays a later slice).
  * Preview chrome is shown for
- * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt
+ * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml
  * (last-build local HTML; missing build stays unavailable). Publish chrome is shown for
  * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt
  * (sitemap-xml, robots-txt, and llms-txt copy last-build local HTML to {@code IPSSite.root};

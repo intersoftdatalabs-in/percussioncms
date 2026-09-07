@@ -229,7 +229,8 @@ public class SitesResource {
               + " only (portable-safe local rootPath; leftover remoteUrl, credentials, and cloud URL"
               + " rootPath return 400; no live HTTP fetch). openapi-yaml persist is a local OpenAPI 3 YAML fixture"
               + " only (portable-safe local rootPath; leftover remoteUrl, credentials, and cloud URL"
-              + " rootPath return 400; no live spec fetch). GET after PUT round-trips the stored"
+              + " rootPath return 400; no live spec fetch). REST Build/Preview for openapi-yaml use that"
+              + " local fixture (Publish stays a later slice). GET after PUT round-trips the stored"
               + " sourceKind. Unknown kinds return 400. Blank/repository sourceKind clears virtual"
               + " configuration.",
       responses = {
@@ -281,7 +282,7 @@ public class SitesResource {
       description =
           "Runs the Virtual Site static build for a site configured with"
               + " virtual.sourceKind=git-filesystem, csv-filesystem, sql-database, http-json,"
-              + " object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, or llms-txt. git-filesystem: when virtual.remoteUrl is set, the"
+              + " object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, or openapi-yaml. git-filesystem: when virtual.remoteUrl is set, the"
               + " server clones or fetches that branch into a contained work directory, then"
               + " discovers Markdown. csv-filesystem: rootPath is a CSV tree (optional _config.yaml;"
               + " required columns id, title, body; fail-closed on unsafe paths). sql-database:"
@@ -305,9 +306,12 @@ public class SitesResource {
               + " virtual.remoteUrl, credential properties, and cloud rootPath are 400. llms-txt:"
               + " local llms.txt fixture under rootPath (llms.txt or _config.yaml llms.file); no"
               + " live HTTP fetch; leftover virtual.remoteUrl, credential properties, and cloud"
-              + " rootPath are 400. A second"
-              + " sitemap-xml, robots-txt, or llms-txt Build after an in-process sitemap.xml /"
-              + " robots.txt / llms.txt / sitemap.file / robots.file / llms.file or referenced-page"
+              + " rootPath are 400. openapi-yaml: local OpenAPI 3 YAML fixture under rootPath"
+              + " (openapi.yaml or _config.yaml openapi.file); no live spec fetch; leftover"
+              + " virtual.remoteUrl, credential properties, and cloud rootPath are 400. A second"
+              + " sitemap-xml, robots-txt, llms-txt, or openapi-yaml Build after an in-process sitemap.xml /"
+              + " robots.txt / llms.txt / openapi.yaml / sitemap.file / robots.file / llms.file /"
+              + " openapi.file or referenced-page"
               + " edit returns"
               + " pagesWritten>0 HTML that reflects the current file (no JVM / Jetty restart; no"
               + " file watchers). Unknown"
@@ -361,9 +365,9 @@ public class SitesResource {
       description =
           "Reports whether the last Admin Virtual Site build can be opened from the product UI."
               + " Last-output based for git-filesystem, csv-filesystem, sql-database, http-json,"
-              + " object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, and llms-txt (not git-only). Uses the last"
+              + " object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, and openapi-yaml (not git-only). Uses the last"
               + " build output path (default {install}/tmp/virtual-sites/{siteKey}). After a successful"
-              + " http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, or llms-txt Build, available=true"
+              + " http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, or openapi-yaml Build, available=true"
               + " plus homePath. rss-atom is a local RSS 2.0 / Atom fixture or loopback feed (no live"
               + " remote feeds). icalendar is a local RFC 5545 calendar.ics fixture (no CalDAV)."
               + " sitemap-xml is last-build local HTML only (sitemap.xml / sitemap.file; no live crawl;"
@@ -371,7 +375,9 @@ public class SitesResource {
               + " HTML only (robots.txt / robots.file; no live crawl; leftover virtual.remoteUrl and"
               + " credentials are 400). llms-txt is last-build local"
               + " HTML only (llms.txt / llms.file; no live HTTP fetch; leftover virtual.remoteUrl and"
-              + " credentials are 400). Missing or failed builds return"
+              + " credentials are 400). openapi-yaml is last-build local HTML only (openapi.yaml /"
+              + " openapi.file; no live spec fetch; leftover virtual.remoteUrl and credentials are"
+              + " 400). Missing or failed builds return"
               + " 200 with available=false (not 500). Requires Admin. Traditional repository Sites and"
               + " unknown sourceKind values return 400.",
       responses = {
@@ -419,7 +425,7 @@ public class SitesResource {
       description =
           "Streams a file from the last Virtual Site build output (git-filesystem,"
               + " csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar,"
-              + " sitemap-xml, robots-txt, or llms-txt). Paths are resolved with portable NIO Path under the last output root"
+              + " sitemap-xml, robots-txt, llms-txt, or openapi-yaml). Paths are resolved with portable NIO Path under the last output root"
               + " (no '..' after normalize). HTML root-relative href/src/url() values are rewritten to"
               + " this preview prefix so navigation works. rss-atom is a local RSS 2.0 / Atom fixture or"
               + " loopback feed (no live remote feeds). icalendar is a local RFC 5545 calendar.ics"
@@ -429,6 +435,8 @@ public class SitesResource {
               + " leftover virtual.remoteUrl and credentials are 400)."
               + " llms-txt is last-build local HTML only (llms.txt / llms.file; no live HTTP fetch;"
               + " leftover virtual.remoteUrl and credentials are 400)."
+              + " openapi-yaml is last-build local HTML only (openapi.yaml / openapi.file; no live spec"
+              + " fetch; leftover virtual.remoteUrl and credentials are 400)."
               + " Requires Admin. Missing files return 404 (not 500). Unsafe paths,"
               + " unknown/repository sourceKind, and files larger than 20 MB return 400.",
       responses = {

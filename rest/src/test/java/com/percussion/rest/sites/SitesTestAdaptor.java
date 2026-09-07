@@ -31,17 +31,18 @@ import org.springframework.stereotype.Component;
  * object-storage cloud credentials, rss-atom live feed credentials, CalDAV credentials, and
  * sitemap crawl credentials are never logged. REST Build
  * for {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, {@code
- * sitemap-xml}, {@code robots-txt}, and {@code llms-txt} uses the same adaptor contract as git/CSV/SQL (local JSON fixture / loopback,
+ * sitemap-xml}, {@code robots-txt}, {@code llms-txt}, and {@code openapi-yaml} uses the same adaptor contract as git/CSV/SQL (local JSON fixture / loopback,
  * local object-key bucket, local RSS/Atom fixture, local RFC 5545 {@code calendar.ics}, local
- * {@code sitemap.xml}, local {@code robots.txt}, or local {@code llms.txt}; {@code virtual.remoteUrl} stays 400). REST Publish copies last-build HTML
+ * {@code sitemap.xml}, local {@code robots.txt}, local {@code llms.txt}, or local {@code
+ * openapi.yaml}; {@code virtual.remoteUrl} stays 400). REST Publish copies last-build HTML
  * to {@code IPSSite.root} for git/CSV/SQL/{@code http-json}/object-storage/{@code
  * rss-atom}/{@code icalendar}/{@code sitemap-xml} (local sitemap.xml fixture; leftover
  * {@code virtual.remoteUrl}, credentials, and cloud URL {@code rootPath} are 400; no live crawl).
  * Preview status is last-output based ({@code available=false} when no build), including {@code
  * http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, {@code
- * sitemap-xml}, {@code robots-txt}, and {@code llms-txt} last-build output ({@code rss-atom} is a local RSS 2.0 / Atom fixture or
+ * sitemap-xml}, {@code robots-txt}, {@code llms-txt}, and {@code openapi-yaml} last-build output ({@code rss-atom} is a local RSS 2.0 / Atom fixture or
  * loopback feed; {@code icalendar} is a local RFC 5545 fixture only — no CalDAV;
- * {@code sitemap-xml}, {@code robots-txt}, and {@code llms-txt} are last-build local HTML only — no live crawl or HTTP fetch).
+ * {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, and {@code openapi-yaml} are last-build local HTML only — no live crawl or HTTP fetch).
  */
 @Component
 @Lazy
