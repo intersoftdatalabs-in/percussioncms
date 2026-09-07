@@ -44,6 +44,7 @@ public final class VirtualSiteConfig {
   private final LlmsSpec llms;
   private final OpenApiSpec openapi;
   private final AsyncApiSpec asyncapi;
+  private final GraphQlSpec graphql;
 
   public VirtualSiteConfig(
       Path root,
@@ -280,6 +281,46 @@ public final class VirtualSiteConfig {
       LlmsSpec llms,
       OpenApiSpec openapi,
       AsyncApiSpec asyncapi) {
+    this(
+        root,
+        siteTitle,
+        siteUrl,
+        layoutFile,
+        versions,
+        nav,
+        siteKey,
+        sql,
+        http,
+        objects,
+        rss,
+        icalendar,
+        sitemap,
+        robots,
+        llms,
+        openapi,
+        asyncapi,
+        null);
+  }
+
+  public VirtualSiteConfig(
+      Path root,
+      String siteTitle,
+      String siteUrl,
+      String layoutFile,
+      List<VersionSpec> versions,
+      List<NavSpec> nav,
+      String siteKey,
+      SqlSpec sql,
+      HttpSpec http,
+      ObjectsSpec objects,
+      RssSpec rss,
+      IcalendarSpec icalendar,
+      SitemapSpec sitemap,
+      RobotsSpec robots,
+      LlmsSpec llms,
+      OpenApiSpec openapi,
+      AsyncApiSpec asyncapi,
+      GraphQlSpec graphql) {
     this.root = Objects.requireNonNull(root, "root");
     this.siteTitle = siteTitle != null ? siteTitle : "Documentation";
     this.siteUrl = siteUrl != null ? siteUrl : "";
@@ -301,6 +342,7 @@ public final class VirtualSiteConfig {
     this.llms = llms;
     this.openapi = openapi;
     this.asyncapi = asyncapi;
+    this.graphql = graphql;
   }
 
   public Path root() {
@@ -443,6 +485,19 @@ public final class VirtualSiteConfig {
    */
   public AsyncApiSpec asyncapi() {
     return asyncapi;
+  }
+
+  /**
+   * Optional GraphQL SDL settings for {@code graphql-sdl} sources ({@code graphql:} in {@code
+   * _config.yaml}).
+   *
+   * @return spec, or null when the mapping is omitted (adapter then uses {@code schema.graphql}
+   *     under the site root). Legacy constructors always pass {@code null} here; a {@code
+   *     GRAPHQL_SDL} site wired that way also falls back to {@code schema.graphql} and does not
+   *     fail.
+   */
+  public GraphQlSpec graphql() {
+    return graphql;
   }
 
   public Path themeDir() {
@@ -888,6 +943,42 @@ public final class VirtualSiteConfig {
     @Override
     public String toString() {
       return "AsyncApiSpec{url='" + url + "', file='" + file + "'}";
+    }
+  }
+
+  /**
+   * GraphQL SDL fixture settings for {@code graphql-sdl}. {@link #file()} is a portable path
+   * under the site root. {@link #url()} is parsed so the adapter can reject live remote GraphQL
+   * fetches (local fixture only). Both blank means default {@code schema.graphql}.
+   */
+  public static final class GraphQlSpec {
+    private final String url;
+    private final String file;
+
+    public GraphQlSpec(String url, String file) {
+      this.url = url != null ? url.trim() : "";
+      this.file = file != null ? file.trim() : "";
+    }
+
+    public String url() {
+      return url;
+    }
+
+    public String file() {
+      return file;
+    }
+
+    public boolean hasUrl() {
+      return !url.isBlank();
+    }
+
+    public boolean hasFile() {
+      return !file.isBlank();
+    }
+
+    @Override
+    public String toString() {
+      return "GraphQlSpec{url='" + url + "', file='" + file + "'}";
     }
   }
 

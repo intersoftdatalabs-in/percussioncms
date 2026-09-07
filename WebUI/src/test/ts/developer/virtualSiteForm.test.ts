@@ -16,6 +16,7 @@ import {
   SOURCE_KIND_LLMS_TXT,
   SOURCE_KIND_OPENAPI_YAML,
   SOURCE_KIND_ASYNCAPI_YAML,
+  SOURCE_KIND_GRAPHQL_SDL,
   SOURCE_KIND_SITEMAP_XML,
   SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
@@ -27,6 +28,7 @@ import {
   isLlmsTxtSourceKind,
   isOpenApiYamlSourceKind,
   isAsyncApiYamlSourceKind,
+  isGraphQlSdlSourceKind,
   isObjectStorageSourceKind,
   isRobotsTxtSourceKind,
   isRssAtomSourceKind,
@@ -54,6 +56,7 @@ describe("virtualSiteForm helpers", () => {
       SOURCE_KIND_LLMS_TXT,
       SOURCE_KIND_OPENAPI_YAML,
       SOURCE_KIND_ASYNCAPI_YAML,
+      SOURCE_KIND_GRAPHQL_SDL,
     ]);
   });
 
@@ -87,6 +90,8 @@ describe("virtualSiteForm helpers", () => {
     expect(normalizeSourceKindOption("OpenAPI-YAML")).toBe(SOURCE_KIND_OPENAPI_YAML);
     expect(normalizeSourceKindOption("asyncapi-yaml")).toBe(SOURCE_KIND_ASYNCAPI_YAML);
     expect(normalizeSourceKindOption("AsyncAPI-YAML")).toBe(SOURCE_KIND_ASYNCAPI_YAML);
+    expect(normalizeSourceKindOption("graphql-sdl")).toBe(SOURCE_KIND_GRAPHQL_SDL);
+    expect(normalizeSourceKindOption("GraphQL-SDL")).toBe(SOURCE_KIND_GRAPHQL_SDL);
     expect(normalizeSourceKindOption("future-adapter")).toBe(SOURCE_KIND_REPOSITORY);
     expect(normalizeSourceKindOption("sql-api")).toBe(SOURCE_KIND_REPOSITORY);
   });
@@ -107,6 +112,7 @@ describe("virtualSiteForm helpers", () => {
     expect(isVirtualSourceKind("llms-txt")).toBe(true);
     expect(isVirtualSourceKind("openapi-yaml")).toBe(true);
     expect(isVirtualSourceKind("asyncapi-yaml")).toBe(true);
+    expect(isVirtualSourceKind("graphql-sdl")).toBe(true);
     expect(isGitFilesystemSourceKind("git-filesystem")).toBe(true);
     expect(isGitFilesystemSourceKind("csv-filesystem")).toBe(false);
     expect(isGitFilesystemSourceKind("sql-database")).toBe(false);
@@ -185,6 +191,10 @@ describe("virtualSiteForm helpers", () => {
     expect(isAsyncApiYamlSourceKind("AsyncAPI-YAML")).toBe(true);
     expect(isAsyncApiYamlSourceKind("openapi-yaml")).toBe(false);
     expect(isAsyncApiYamlSourceKind("git-filesystem")).toBe(false);
+    expect(isGraphQlSdlSourceKind("graphql-sdl")).toBe(true);
+    expect(isGraphQlSdlSourceKind("GraphQL-SDL")).toBe(true);
+    expect(isGraphQlSdlSourceKind("asyncapi-yaml")).toBe(false);
+    expect(isGraphQlSdlSourceKind("git-filesystem")).toBe(false);
   });
 
   it("virtualPropsToForm and formToVirtualProps round-trip repository clear", () => {
@@ -648,6 +658,43 @@ describe("virtualSiteForm helpers", () => {
     );
   });
 
+  it("virtualPropsToForm maps graphql-sdl and PUT omits Git remotes", () => {
+    const form = virtualPropsToForm({
+      sourceKind: "graphql-sdl",
+      rootPath: "C:/graphql-docs",
+      virtual: true,
+    });
+    expect(form.sourceKind).toBe(SOURCE_KIND_GRAPHQL_SDL);
+    expect(form.rootPath).toBe("C:/graphql-docs");
+    expect(formToVirtualProps(form)).toEqual({
+      sourceKind: SOURCE_KIND_GRAPHQL_SDL,
+      rootPath: "C:/graphql-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+  });
+
+  it("formToVirtualProps for graphql-sdl clears leftover Git remote fields", () => {
+    const body = formToVirtualProps({
+      sourceKind: SOURCE_KIND_GRAPHQL_SDL,
+      rootPath: "  C:/graphql-docs  ",
+      remoteUrl: "https://example.com/graphql",
+      branch: "main",
+      configFile: "_config.yaml",
+      siteKey: "docs",
+    });
+    expect(body).toEqual({
+      sourceKind: SOURCE_KIND_GRAPHQL_SDL,
+      rootPath: "C:/graphql-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+    expect(body).not.toHaveProperty("password");
+    expect(JSON.stringify(body)).not.toMatch(
+      /authorization|api[_-]?key|crawl|credential|token/i,
+    );
+  });
+
   it("formToVirtualProps trims and nulls empty optional fields", () => {
     const body = formToVirtualProps({
       sourceKind: SOURCE_KIND_GIT_FILESYSTEM,
@@ -1079,6 +1126,39 @@ describe("virtualSiteForm helpers", () => {
       validateVirtualSiteForm({
         sourceKind: SOURCE_KIND_ASYNCAPI_YAML,
         rootPath: "C:/asyncapi-docs",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBeNull();
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_GRAPHQL_SDL,
+        rootPath: "",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBe("root-required");
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_GRAPHQL_SDL,
+        rootPath: "../escape",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBe("root-unsafe");
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_GRAPHQL_SDL,
+        rootPath: "C:/graphql-docs",
         remoteUrl: "",
         branch: "",
         configFile: "",

@@ -58,6 +58,7 @@ import {
   SOURCE_KIND_LLMS_TXT,
   SOURCE_KIND_OPENAPI_YAML,
   SOURCE_KIND_ASYNCAPI_YAML,
+  SOURCE_KIND_GRAPHQL_SDL,
   SOURCE_KIND_SITEMAP_XML,
   SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
@@ -69,6 +70,7 @@ import {
   isLlmsTxtSourceKind,
   isOpenApiYamlSourceKind,
   isAsyncApiYamlSourceKind,
+  isGraphQlSdlSourceKind,
   isObjectStorageSourceKind,
   isRobotsTxtSourceKind,
   isRssAtomSourceKind,
@@ -97,6 +99,7 @@ const SOURCE_KIND_OPTION_LABEL: Record<
   [SOURCE_KIND_LLMS_TXT]: DEV_MSG.SITE_VIRT_KIND_LLMS_TXT,
   [SOURCE_KIND_OPENAPI_YAML]: DEV_MSG.SITE_VIRT_KIND_OPENAPI_YAML,
   [SOURCE_KIND_ASYNCAPI_YAML]: DEV_MSG.SITE_VIRT_KIND_ASYNCAPI_YAML,
+  [SOURCE_KIND_GRAPHQL_SDL]: DEV_MSG.SITE_VIRT_KIND_GRAPHQL_SDL,
 };
 
 const formRow: React.CSSProperties = {
@@ -389,6 +392,7 @@ export function VirtualSiteSourcePanel({
   const llmsTxtMode = isLlmsTxtSourceKind(form.sourceKind);
   const openApiYamlMode = isOpenApiYamlSourceKind(form.sourceKind);
   const asyncApiYamlMode = isAsyncApiYamlSourceKind(form.sourceKind);
+  const graphQlSdlMode = isGraphQlSdlSourceKind(form.sourceKind);
   /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
   /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml (never repository). */
@@ -576,6 +580,14 @@ export function VirtualSiteSourcePanel({
                   data-testid="developer-site-virtual-asyncapi-yaml-hint"
                 >
                   {DEV_MSG.SITE_VIRT_ASYNCAPI_YAML_HINT}
+                </p>
+              ) : null}
+              {graphQlSdlMode ? (
+                <p
+                  style={{ ...mutedHintText, margin: "0 0 10px" }}
+                  data-testid="developer-site-virtual-graphql-sdl-hint"
+                >
+                  {DEV_MSG.SITE_VIRT_GRAPHQL_SDL_HINT}
                 </p>
               ) : null}
               {gitMode ? (

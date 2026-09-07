@@ -64,7 +64,7 @@ public class PSVirtualSiteBuildService {
    * Build service for a registered adapter kind ({@code git-filesystem}, {@code csv-filesystem},
    * {@code sql-database}, {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code
    * icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml},
-   * {@code asyncapi-yaml}).
+   * {@code asyncapi-yaml}, {@code graphql-sdl}).
    *
    * @param type source kind; null defaults to {@link VirtualSiteSourceType#GIT_FILESYSTEM}
    * @param participants participant registry; null uses an in-memory registry

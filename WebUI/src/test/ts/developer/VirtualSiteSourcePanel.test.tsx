@@ -74,6 +74,7 @@ describe("VirtualSiteSourcePanel", () => {
       "llms-txt",
       "openapi-yaml",
       "asyncapi-yaml",
+      "graphql-sdl",
     ]);
     expect(kindSelect.value).toBe("repository");
     // Root path / remote hidden until virtual selected
@@ -1647,6 +1648,131 @@ describe("VirtualSiteSourcePanel", () => {
       expect(screen.queryByTestId("developer-site-virtual-root-path")).toBeNull();
     });
     expect(screen.queryByTestId("developer-site-virtual-asyncapi-yaml-hint")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+  });
+
+  it("loads graphql-sdl values with root path and hides Build/Preview/Publish chrome", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "graphql-sdl",
+      rootPath: "C:/graphql-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    expect(
+      (screen.getByTestId("developer-site-virtual-source-kind") as HTMLSelectElement).value,
+    ).toBe("graphql-sdl");
+    expect(
+      (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
+    ).toBe("C:/graphql-docs");
+    expect(screen.getByTestId("developer-site-virtual-graphql-sdl-hint")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-graphql-sdl-hint").textContent).toBe(
+      DEV_MSG.SITE_VIRT_GRAPHQL_SDL_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-graphql-sdl-hint").textContent).toContain(
+      "GET-roundtrip",
+    );
+    expect(screen.getByTestId("developer-site-virtual-graphql-sdl-hint").textContent).toContain(
+      "later slices",
+    );
+    expect(screen.getByTestId("developer-site-virtual-graphql-sdl-hint").textContent).toContain(
+      "graphql.url",
+    );
+    expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-config-file")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
+      DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
+    );
+  });
+
+  it("saves graphql-sdl configuration without Git remote fields or graphql.url", async () => {
+    getVirtual
+      .mockResolvedValueOnce({ sourceKind: null, virtual: false })
+      .mockResolvedValueOnce({
+        sourceKind: "graphql-sdl",
+        rootPath: "C:/graphql-docs",
+        virtual: true,
+      });
+    updateVirtual.mockResolvedValue({
+      sourceKind: "graphql-sdl",
+      rootPath: "C:/graphql-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Corporate" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-form")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-site-virtual-source-kind"), {
+      target: { value: "graphql-sdl" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-error").textContent).toContain(
+        DEV_MSG.SITE_VIRT_ERR_ROOT_REQUIRED,
+      );
+    });
+    expect(updateVirtual).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId("developer-site-virtual-root-path"), {
+      target: { value: "C:/graphql-docs" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-saved")).toBeTruthy();
+    });
+    expect(updateVirtual).toHaveBeenCalledWith("Corporate", {
+      sourceKind: "graphql-sdl",
+      rootPath: "C:/graphql-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+    const savedBody = updateVirtual.mock.calls[0][1] as Record<string, unknown>;
+    expect(savedBody).not.toHaveProperty("password");
+    expect(JSON.stringify(savedBody)).not.toMatch(
+      /authorization|api[_-]?key|crawl|credential|token|graphql\.url/i,
+    );
+    expect(getVirtual).toHaveBeenCalledTimes(2);
+    expect(
+      (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
+    ).toBe("C:/graphql-docs");
+    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
+      DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
+    );
+  });
+
+  it("switching graphql-sdl back to repository hides virtual fields", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "graphql-sdl",
+      rootPath: "C:/graphql-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-site-virtual-source-kind"), {
+      target: { value: "repository" },
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-site-virtual-root-path")).toBeNull();
+    });
+    expect(screen.queryByTestId("developer-site-virtual-graphql-sdl-hint")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
