@@ -2745,6 +2745,75 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void publishVirtualSiteDelegatesAsyncapiYaml() {
+    VirtualSitePublishResult published = new VirtualSitePublishResult();
+    published.setSiteName("AsyncApiHelp");
+    published.setSiteKey("aa-docs");
+    published.setPagesWritten(1);
+    published.setFilesCopied(2);
+    published.setPublishPath(tempDir.resolve("aa-pub").toString());
+    when(adaptor.publishVirtualSite("AsyncApiHelp")).thenReturn(published);
+
+    VirtualSitePublishResult out = resource.publishVirtualSite("AsyncApiHelp");
+    assertEquals("AsyncApiHelp", out.getSiteName());
+    assertEquals("aa-docs", out.getSiteKey());
+    assertEquals(1, out.getPagesWritten().intValue());
+    assertEquals(2, out.getFilesCopied().intValue());
+    assertEquals(published.getPublishPath(), out.getPublishPath());
+    verify(adaptor).publishVirtualSite("AsyncApiHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteAsyncapiYamlRemoteUrlPropagates400() {
+    when(adaptor.publishVirtualSite("AsyncApiHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for asyncapi-yaml",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("AsyncApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(adaptor).publishVirtualSite("AsyncApiHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteAsyncapiYamlCloudRootPropagates400() {
+    when(adaptor.publishVirtualSite("AsyncApiHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for asyncapi-yaml must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("AsyncApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).publishVirtualSite("AsyncApiHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteAsyncapiYamlCredentialsPropagates400() {
+    when(adaptor.publishVirtualSite("AsyncApiHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for asyncapi-yaml (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("AsyncApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).publishVirtualSite("AsyncApiHelp");
+  }
+
+  @Test
   public void publishVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.publishVirtualSite(" "));
@@ -2916,6 +2985,12 @@ public class SitesResourceTest {
     assertTrue(
         publishBlock.contains("openapi.yaml") || publishBlock.contains("no live spec fetch"),
         "publishVirtualSite OpenAPI description must mention openapi-yaml local fixture only");
+    assertTrue(
+        publishBlock.contains("asyncapi-yaml"),
+        "publishVirtualSite OpenAPI description must mention asyncapi-yaml");
+    assertTrue(
+        publishBlock.contains("asyncapi.yaml") || publishBlock.contains("no live spec fetch"),
+        "publishVirtualSite OpenAPI description must mention asyncapi-yaml local fixture only");
     assertTrue(
         publishBlock.contains("no live crawl"),
         "publishVirtualSite OpenAPI description must mention sitemap-xml local fixture only");
