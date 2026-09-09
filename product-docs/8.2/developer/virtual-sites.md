@@ -159,7 +159,7 @@ GET-roundtrip `sourceKind=robots-txt` (local `rootPath` only; leftover
 
 A **llms.txt** adapter (`llms-txt`) discovers pages from a **local `llms.txt`**
 under `virtual.rootPath` (`llms.txt`, or `_config.yaml` `llms.file`). Each
-markdown list link (`- [title](href)`) maps into assemble `id` / `title` / `body`. A
+markdown list link (`- [title](…)` with a local path) maps into assemble `id` / `title` / `body`. A
 fixture with no links still emits one HTML page from the file. This is a **local
 fixture SPI** — **no live HTTP fetch, no remote llms.txt fetch, no authenticated
 remotes**. `virtual.remoteUrl`, credential properties, `llms.url`, cloud `rootPath`
