@@ -16,10 +16,11 @@
 
 /**
  * Copy the graphql-sdl Virtual Site QA fixture into the H2 Docker cell so
- * Developer Sites Build/Preview can POST /virtual/build and GET /virtual/preview
- * against a local schema.graphql file (no live GraphQL HTTP or graphql.url).
- * A single Query.user field assembles {@code 8.2/user-1.html} (sole HTML home
- * fallback). Bind-mount / docker cp only — no Jetty restart.
+ * Developer Sites Build/Preview/Publish can POST /virtual/build, GET /virtual/preview,
+ * and POST /virtual/publish against a local schema.graphql file (no live GraphQL HTTP
+ * or graphql.url). A single Query.user field assembles {@code 8.2/user-1.html} (sole
+ * HTML home fallback; Publish copies that file to IPSSite.root). Bind-mount /
+ * docker cp only — no Jetty restart.
  */
 
 const { execFileSync } = require("node:child_process");
@@ -31,6 +32,12 @@ const GRAPHQL_SDL_VIRTUAL_QA_ROOT = "/opt/Percussion/tmp/graphql-sdl-virtual-qa"
 
 /** Marker from assembled Query.user page title/body. */
 const GRAPHQL_SDL_VIRTUAL_BUILD_MARKER = "Query.user";
+
+/** Assembled Query.user page copied to the Site filesystem root after Publish. */
+const GRAPHQL_SDL_VIRTUAL_PUBLISHED_HTML = "8.2/user-1.html";
+
+/** Marker expected in published HTML (same as the Query.user token). */
+const GRAPHQL_SDL_VIRTUAL_PUBLISH_MARKER = GRAPHQL_SDL_VIRTUAL_BUILD_MARKER;
 
 function qaCmsContainer() {
   const fromEnv = (
@@ -97,8 +104,85 @@ function deployGraphQlSdlVirtualFixtureToQaCell() {
   return GRAPHQL_SDL_VIRTUAL_QA_ROOT;
 }
 
+/**
+ * Normalize Developer Sites publish dest text to a POSIX absolute path inside
+ * the Linux QA cell. Rejects Windows drive letters, UNC, relatives, and
+ * remaining {@code ..} so {@code docker exec … cat} never follows a traversal.
+ * In-container filesystem paths always use {@code /}.
+ *
+ * @param {unknown} raw dest text from {@code developer-site-virtual-publish-dest}
+ * @returns {string} POSIX absolute path
+ */
+function normalizeQaPublishDestPath(raw) {
+  if (typeof raw !== "string") {
+    throw new Error("graphql-sdl Virtual Site publish dest is missing");
+  }
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    throw new Error("graphql-sdl Virtual Site publish dest is blank");
+  }
+  const posix = trimmed.replace(/\\/g, "/");
+  if (/^[a-zA-Z]:/.test(posix) || posix.startsWith("//")) {
+    throw new Error(
+      `graphql-sdl Virtual Site publish dest is not a Linux QA cell path: ${trimmed}`,
+    );
+  }
+  if (!posix.startsWith("/")) {
+    throw new Error(`graphql-sdl Virtual Site publish dest is not absolute: ${trimmed}`);
+  }
+  const parts = posix.split("/").filter((seg) => seg.length > 0);
+  if (parts.some((seg) => seg === ".." || seg === ".")) {
+    throw new Error(`graphql-sdl Virtual Site publish dest is unsafe: ${trimmed}`);
+  }
+  return `/${parts.join("/")}`;
+}
+
+function posixJoin(base, ...segments) {
+  const dest = normalizeQaPublishDestPath(base);
+  const extra = [];
+  for (const seg of segments) {
+    const piece = String(seg ?? "").trim().replace(/\\/g, "/");
+    for (const part of piece.split("/")) {
+      if (!part) {
+        continue;
+      }
+      if (part === ".." || part === ".") {
+        throw new Error(`graphql-sdl Virtual Site publish relpath is unsafe: ${seg}`);
+      }
+      extra.push(part);
+    }
+  }
+  return extra.length === 0 ? dest : `${dest}/${extra.join("/")}`;
+}
+
+/**
+ * Fail closed unless assembled graphql-sdl HTML exists under the Site
+ * filesystem root inside the QA cell (acceptance: files exist after Publish).
+ *
+ * @param {unknown} publishPath dest shown in Developer Sites Publish chrome
+ */
+function assertPublishedGraphQlSdlFilesOnQaCell(publishPath) {
+  const html = posixJoin(publishPath, GRAPHQL_SDL_VIRTUAL_PUBLISHED_HTML);
+  const container = qaCmsContainer();
+  dockerExec(container, ["test", "-f", html]);
+  const body = dockerExec(container, ["cat", html]);
+  if (
+    !body.includes(GRAPHQL_SDL_VIRTUAL_PUBLISH_MARKER) &&
+    !body.includes("Hello-from-graphql") &&
+    !body.includes("user")
+  ) {
+    throw new Error(
+      `Published graphql-sdl HTML missing fixture marker at ${html}: ${body.slice(0, 400)}`,
+    );
+  }
+  return html;
+}
+
 module.exports = {
   deployGraphQlSdlVirtualFixtureToQaCell,
+  assertPublishedGraphQlSdlFilesOnQaCell,
   GRAPHQL_SDL_VIRTUAL_QA_ROOT,
   GRAPHQL_SDL_VIRTUAL_BUILD_MARKER,
+  GRAPHQL_SDL_VIRTUAL_PUBLISHED_HTML,
+  GRAPHQL_SDL_VIRTUAL_PUBLISH_MARKER,
 };

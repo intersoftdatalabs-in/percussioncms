@@ -38,9 +38,9 @@ import org.springframework.stereotype.Component;
  * openapi.yaml} / {@code asyncapi.yaml}, or local {@code schema.graphql}; {@code virtual.remoteUrl} stays 400). REST Publish copies last-build HTML
  * to {@code IPSSite.root} for git/CSV/SQL/{@code http-json}/object-storage/{@code
  * rss-atom}/{@code icalendar}/{@code sitemap-xml}/{@code robots-txt}/{@code llms-txt}/{@code
- * openapi-yaml}/{@code asyncapi-yaml} (local OpenAPI 3 YAML or AsyncAPI 2/3 YAML fixture;
- * leftover {@code virtual.remoteUrl}, credentials, and cloud URL {@code rootPath} are 400; no
- * live spec fetch).
+ * openapi-yaml}/{@code asyncapi-yaml}/{@code graphql-sdl} (local OpenAPI 3 YAML, AsyncAPI 2/3 YAML,
+ * or GraphQL SDL fixture; leftover {@code virtual.remoteUrl}, credentials, cloud URL {@code
+ * rootPath}, and {@code graphql.url} are 400; no live spec fetch or GraphQL HTTP).
  * Preview status is last-output based ({@code available=false} when no build), including {@code
  * http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, {@code
  * sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code

@@ -32,7 +32,7 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
  * object-storage keys, rss-atom feeds, icalendar .ics, sitemap.xml, robots.txt, llms.txt,
  * openapi.yaml, asyncapi.yaml, and schema.graphql stay in _config.yaml / the local root).
  * openapi-yaml, asyncapi-yaml, and graphql-sdl Build produce last-build HTML for Preview
- * (Publish chrome for graphql-sdl stays a later slice).
+ * and Publish (copy to IPSSite.root).
  * Repository / blank / unknown kinds must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
@@ -88,11 +88,12 @@ export function shouldShowVirtualPreviewChrome(
 /**
  * True when the Publish Virtual Site control should be shown.
  * Git-filesystem, csv-filesystem, sql-database, http-json, object-storage,
- * rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, and
- * asyncapi-yaml all run POST /virtual/publish (build then copy last-build HTML
- * to IPSSite.root). sitemap-xml, robots-txt, llms-txt, openapi-yaml, and
- * asyncapi-yaml leftover remoteUrl, credentials, and cloud rootPath fail closed
- * on the server. Repository / blank / unknown kinds stay hidden.
+ * rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml,
+ * asyncapi-yaml, and graphql-sdl all run POST /virtual/publish (build then copy
+ * last-build HTML to IPSSite.root). sitemap-xml, robots-txt, llms-txt,
+ * openapi-yaml, asyncapi-yaml, and graphql-sdl leftover remoteUrl, credentials,
+ * cloud rootPath, and graphql.url fail closed on the server. Repository / blank
+ * / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPublishChrome(
   sourceKind: string | null | undefined,
@@ -110,7 +111,8 @@ export function shouldShowVirtualPublishChrome(
     v === "robots-txt" ||
     v === "llms-txt" ||
     v === "openapi-yaml" ||
-    v === "asyncapi-yaml"
+    v === "asyncapi-yaml" ||
+    v === "graphql-sdl"
   );
 }
 
