@@ -145,7 +145,8 @@ class PSVirtualSiteHelperTest {
             "llms-txt",
             "openapi-yaml",
             "asyncapi-yaml",
-            "graphql-sdl"),
+            "graphql-sdl",
+            "json-schema"),
         allowed);
   }
 
@@ -919,6 +920,72 @@ class PSVirtualSiteHelperTest {
     assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH), ex.getMessage());
     assertTrue(ex.getMessage().toLowerCase().contains("cloud"), ex.getMessage());
     assertTrue(ex.getMessage().contains("graphql-sdl"), ex.getMessage());
+  }
+
+  @Test
+  void validatePassesForJsonSchemaWithSafeRoot() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "json-schema"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "jsonschema-docs"));
+    assertDoesNotThrow(() -> PSVirtualSiteHelper.validate(site));
+    assertEquals(
+        VirtualSiteSourceType.JSON_SCHEMA,
+        PSVirtualSiteHelper.virtualSourceType(site).orElseThrow());
+  }
+
+  @Test
+  void validateRejectsRemoteUrlForJsonSchema() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "json-schema"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "jsonschema-docs"),
+            prop(PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_REMOTE_URL));
+    assertTrue(ex.getMessage().contains("json-schema"));
+  }
+
+  @Test
+  void validateRejectsCredentialPropertyForJsonSchema() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "json-schema"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "jsonschema-docs"),
+            prop("aws_secret_access_key", "not-a-real-secret"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().toLowerCase().contains("credential"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("json-schema"), ex.getMessage());
+    assertFalse(ex.getMessage().contains("not-a-real-secret"), ex.getMessage());
+  }
+
+  @Test
+  void validateRejectsCloudUrlRootForJsonSchema() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "json-schema"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "https://example.com/schema.json"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH), ex.getMessage());
+    assertTrue(ex.getMessage().toLowerCase().contains("cloud"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("json-schema"), ex.getMessage());
+  }
+
+  @Test
+  void validateRejectsJsonSchemaUrlPropertyForJsonSchema() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "json-schema"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "jsonschema-docs"),
+            prop("jsonschema.url", "https://example.com/schema.json"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains("jsonschema.url"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("json-schema"), ex.getMessage());
+    assertFalse(ex.getMessage().contains("example.com"), ex.getMessage());
   }
 
   @Test

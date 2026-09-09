@@ -23,6 +23,7 @@ import com.percussion.services.virtualsite.VirtualSiteConfig.IcalendarSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.LlmsSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.AsyncApiSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.GraphQlSpec;
+import com.percussion.services.virtualsite.VirtualSiteConfig.JsonSchemaSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.OpenApiSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.RobotsSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.RssSpec;
@@ -50,7 +51,7 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
  * child directories). No process-lifetime YAML cache — a second build after a config edit sees
  * the new title/versions (and current {@code sql:} / {@code http:} / {@code objects:} /
  * {@code rss:} / {@code icalendar:} / {@code sitemap:} / {@code robots:} / {@code llms:} / {@code
- * openapi:} / {@code asyncapi:} / {@code graphql:} mapping)
+ * openapi:} / {@code asyncapi:} / {@code graphql:} / {@code jsonschema:} mapping)
  * without a JVM restart.
  */
 public final class VirtualSiteConfigLoader {
@@ -276,6 +277,11 @@ public final class VirtualSiteConfigLoader {
         throw new VirtualSiteException("graphql: must be a mapping in " + sourceLabel);
       }
       GraphQlSpec graphql = parseGraphQlSpec(asMap(graphqlObj));
+      Object jsonschemaObj = map.get("jsonschema");
+      if (jsonschemaObj != null && !(jsonschemaObj instanceof Map<?, ?>)) {
+        throw new VirtualSiteException("jsonschema: must be a mapping in " + sourceLabel);
+      }
+      JsonSchemaSpec jsonschema = parseJsonSchemaSpec(asMap(jsonschemaObj));
       return new VirtualSiteConfig(
           root,
           title,
@@ -294,7 +300,8 @@ public final class VirtualSiteConfigLoader {
           llms,
           openapi,
           asyncapi,
-          graphql);
+          graphql,
+          jsonschema);
     } catch (VirtualSiteException e) {
       throw e;
     } catch (Exception e) {
@@ -363,6 +370,13 @@ public final class VirtualSiteConfigLoader {
       return null;
     }
     return new GraphQlSpec(stringVal(graphql.get("url")), stringVal(graphql.get("file")));
+  }
+
+  private static JsonSchemaSpec parseJsonSchemaSpec(Map<String, Object> jsonschema) {
+    if (jsonschema == null || jsonschema.isEmpty()) {
+      return null;
+    }
+    return new JsonSchemaSpec(stringVal(jsonschema.get("url")), stringVal(jsonschema.get("file")));
   }
 
   private static ObjectsSpec parseObjectsSpec(Map<String, Object> objects, String sourceLabel)

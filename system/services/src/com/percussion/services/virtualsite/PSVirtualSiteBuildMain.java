@@ -31,8 +31,8 @@ import java.nio.file.Path;
  * robots-txt} for a local {@code robots.txt} fixture, {@code llms-txt} for a local {@code
  * llms.txt} fixture, {@code openapi-yaml} for a local OpenAPI 3 {@code openapi.yaml} fixture,
  * or {@code asyncapi-yaml} for a local AsyncAPI 2/3 {@code asyncapi.yaml} fixture,
- * or {@code graphql-sdl} for a local GraphQL {@code schema.graphql} fixture
- * (see product-docs Virtual Sites).
+ * {@code graphql-sdl} for a local GraphQL {@code schema.graphql} fixture, or {@code json-schema}
+ * for a local JSON Schema {@code schema.json} fixture (see product-docs Virtual Sites).
  */
 public final class PSVirtualSiteBuildMain {
 

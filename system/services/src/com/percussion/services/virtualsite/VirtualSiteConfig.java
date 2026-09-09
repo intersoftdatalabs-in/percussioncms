@@ -45,6 +45,7 @@ public final class VirtualSiteConfig {
   private final OpenApiSpec openapi;
   private final AsyncApiSpec asyncapi;
   private final GraphQlSpec graphql;
+  private final JsonSchemaSpec jsonschema;
 
   public VirtualSiteConfig(
       Path root,
@@ -321,6 +322,48 @@ public final class VirtualSiteConfig {
       OpenApiSpec openapi,
       AsyncApiSpec asyncapi,
       GraphQlSpec graphql) {
+    this(
+        root,
+        siteTitle,
+        siteUrl,
+        layoutFile,
+        versions,
+        nav,
+        siteKey,
+        sql,
+        http,
+        objects,
+        rss,
+        icalendar,
+        sitemap,
+        robots,
+        llms,
+        openapi,
+        asyncapi,
+        graphql,
+        null);
+  }
+
+  public VirtualSiteConfig(
+      Path root,
+      String siteTitle,
+      String siteUrl,
+      String layoutFile,
+      List<VersionSpec> versions,
+      List<NavSpec> nav,
+      String siteKey,
+      SqlSpec sql,
+      HttpSpec http,
+      ObjectsSpec objects,
+      RssSpec rss,
+      IcalendarSpec icalendar,
+      SitemapSpec sitemap,
+      RobotsSpec robots,
+      LlmsSpec llms,
+      OpenApiSpec openapi,
+      AsyncApiSpec asyncapi,
+      GraphQlSpec graphql,
+      JsonSchemaSpec jsonschema) {
     this.root = Objects.requireNonNull(root, "root");
     this.siteTitle = siteTitle != null ? siteTitle : "Documentation";
     this.siteUrl = siteUrl != null ? siteUrl : "";
@@ -343,6 +386,7 @@ public final class VirtualSiteConfig {
     this.openapi = openapi;
     this.asyncapi = asyncapi;
     this.graphql = graphql;
+    this.jsonschema = jsonschema;
   }
 
   public Path root() {
@@ -498,6 +542,18 @@ public final class VirtualSiteConfig {
    */
   public GraphQlSpec graphql() {
     return graphql;
+  }
+
+  /**
+   * Optional JSON Schema settings for {@code json-schema} sources ({@code jsonschema:} in {@code
+   * _config.yaml}).
+   *
+   * @return spec, or null when the mapping is omitted (adapter then uses {@code schema.json} under
+   *     the site root). Legacy constructors always pass {@code null} here; a {@code JSON_SCHEMA}
+   *     site wired that way also falls back to {@code schema.json} and does not fail.
+   */
+  public JsonSchemaSpec jsonschema() {
+    return jsonschema;
   }
 
   public Path themeDir() {
@@ -979,6 +1035,42 @@ public final class VirtualSiteConfig {
     @Override
     public String toString() {
       return "GraphQlSpec{url='" + url + "', file='" + file + "'}";
+    }
+  }
+
+  /**
+   * JSON Schema fixture settings for {@code json-schema}. {@link #file()} is a portable path under
+   * the site root. {@link #url()} is parsed so the adapter can reject live remote schema fetches
+   * (local fixture only). Both blank means default {@code schema.json}.
+   */
+  public static final class JsonSchemaSpec {
+    private final String url;
+    private final String file;
+
+    public JsonSchemaSpec(String url, String file) {
+      this.url = url != null ? url.trim() : "";
+      this.file = file != null ? file.trim() : "";
+    }
+
+    public String url() {
+      return url;
+    }
+
+    public String file() {
+      return file;
+    }
+
+    public boolean hasUrl() {
+      return !url.isBlank();
+    }
+
+    public boolean hasFile() {
+      return !file.isBlank();
+    }
+
+    @Override
+    public String toString() {
+      return "JsonSchemaSpec{url='" + url + "', file='" + file + "'}";
     }
   }
 
