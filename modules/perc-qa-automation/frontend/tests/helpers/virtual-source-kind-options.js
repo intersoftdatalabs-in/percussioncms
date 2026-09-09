@@ -42,6 +42,7 @@ function requiredVirtualSourceKindValues() {
     "openapi-yaml",
     "asyncapi-yaml",
     "graphql-sdl",
+    "json-schema",
   ];
 }
 

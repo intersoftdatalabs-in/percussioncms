@@ -303,8 +303,8 @@ public class SitesAdaptor implements ISiteAdaptor {
       try {
         // Allow-list includes git-filesystem, csv-filesystem, sql-database, http-json,
         // object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt,
-        // openapi-yaml, asyncapi-yaml, and graphql-sdl. object-storage, rss-atom, icalendar, sitemap-xml,
-        // robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl are local-root only (NIO Path;
+        // openapi-yaml, asyncapi-yaml, graphql-sdl, and json-schema. object-storage, rss-atom, icalendar, sitemap-xml,
+        // robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, graphql-sdl, and json-schema are local-root only (NIO Path;
         // no remaining '..'); cloud URLs and credential properties fail closed (400). rss-atom
         // persist is local/loopback only (no live feed credentials). icalendar persist is a
         // local RFC 5545 fixture only (no CalDAV). sitemap-xml persist is a local sitemap.xml
@@ -313,7 +313,8 @@ public class SitesAdaptor implements ISiteAdaptor {
         // fetch). openapi-yaml persist is a local OpenAPI 3 YAML fixture only (no live spec
         // fetch). asyncapi-yaml persist is a local AsyncAPI 2/3 YAML fixture only (no live spec
         // fetch). graphql-sdl persist is a local GraphQL SDL fixture only (no live GraphQL HTTP
-        // or introspection; leftover graphql.url is 400).
+        // or introspection; leftover graphql.url is 400). json-schema persist is a local JSON Schema
+        // fixture only (no live HTTP schema fetch; leftover jsonschema.url is 400).
         PSVirtualSiteHelper.validate(psSite);
       } catch (VirtualSiteException e) {
         throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);

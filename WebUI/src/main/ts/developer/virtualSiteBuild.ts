@@ -33,6 +33,7 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
  * openapi.yaml, asyncapi.yaml, and schema.graphql stay in _config.yaml / the local root).
  * openapi-yaml, asyncapi-yaml, and graphql-sdl Build produce last-build HTML for Preview
  * and Publish (copy to IPSSite.root).
+ * json-schema persist chrome is save only (Build stays a later slice).
  * Repository / blank / unknown kinds must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
@@ -61,8 +62,8 @@ export function shouldShowVirtualBuildChrome(
  * Last-output preview for git-filesystem, csv-filesystem, sql-database,
  * http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt,
  * llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl. Missing last-build stays unavailable
- * (GET /virtual/preview available=false; no fake preview). Repository / blank /
- * unknown kinds stay hidden.
+ * (GET /virtual/preview available=false; no fake preview). json-schema persist chrome is
+ * save only (Preview stays a later slice). Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPreviewChrome(
   sourceKind: string | null | undefined,
@@ -92,8 +93,8 @@ export function shouldShowVirtualPreviewChrome(
  * asyncapi-yaml, and graphql-sdl all run POST /virtual/publish (build then copy
  * last-build HTML to IPSSite.root). sitemap-xml, robots-txt, llms-txt,
  * openapi-yaml, asyncapi-yaml, and graphql-sdl leftover remoteUrl, credentials,
- * cloud rootPath, and graphql.url fail closed on the server. Repository / blank
- * / unknown kinds stay hidden.
+ * cloud rootPath, and graphql.url fail closed on the server. json-schema persist chrome is
+ * save only (Publish stays a later slice). Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPublishChrome(
   sourceKind: string | null | undefined,

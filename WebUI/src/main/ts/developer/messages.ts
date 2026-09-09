@@ -1861,6 +1861,9 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_KIND_GRAPHQL_SDL: "perc.ui.developer@GraphQL SDL",
   SITE_VIRT_GRAPHQL_SDL_HINT:
     "perc.ui.developer@GraphQL SDL uses the root path only (no Git remote). Point at a local GraphQL schema fixture directory (schema.graphql or _config.yaml graphql.file). Save sourceKind=graphql-sdl, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target after a local GraphQL SDL Build. Missing build stays unavailable. Live GraphQL HTTP, introspection, graphql.url, remote URLs, and credentials are never sent on the REST envelope.",
+  SITE_VIRT_KIND_JSON_SCHEMA: "perc.ui.developer@JSON Schema",
+  SITE_VIRT_JSON_SCHEMA_HINT:
+    "perc.ui.developer@JSON Schema uses the root path only (no Git remote). Point at a local JSON Schema fixture directory (schema.json or _config.yaml jsonschema.file). Save sourceKind=json-schema. Build Virtual Site, Preview assembled site, and Publish Virtual Site stay later slices. Live HTTP schema fetch, jsonschema.url, remote URLs, and credentials are never sent on the REST envelope.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:

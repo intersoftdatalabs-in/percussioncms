@@ -954,6 +954,123 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void getVirtualPropertiesRoundTripsJsonSchema() {
+    VirtualSiteProperties v = new VirtualSiteProperties();
+    v.setSourceKind("json-schema");
+    v.setRootPath("C:/json-schema-docs");
+    v.setVirtual(true);
+    when(adaptor.getVirtualSiteProperties("JsonSchemaHelp")).thenReturn(v);
+
+    VirtualSiteProperties out = resource.getVirtualProperties("JsonSchemaHelp");
+    assertEquals("json-schema", out.getSourceKind());
+    assertEquals("C:/json-schema-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).getVirtualSiteProperties("JsonSchemaHelp");
+  }
+
+  @Test
+  public void updateVirtualPropertiesRoundTripsJsonSchema() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("json-schema");
+    body.setRootPath("C:/json-schema-docs");
+    VirtualSiteProperties saved = new VirtualSiteProperties();
+    saved.setSourceKind("json-schema");
+    saved.setRootPath("C:/json-schema-docs");
+    saved.setVirtual(true);
+    when(adaptor.updateVirtualSiteProperties(eq("JsonSchemaHelp"), same(body))).thenReturn(saved);
+
+    VirtualSiteProperties out = resource.updateVirtualProperties("JsonSchemaHelp", body);
+    assertEquals("json-schema", out.getSourceKind());
+    assertEquals("C:/json-schema-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).updateVirtualSiteProperties("JsonSchemaHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesJsonSchemaRemoteUrlPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("json-schema");
+    body.setRootPath("C:/json-schema-docs");
+    body.setRemoteUrl("https://user:secret@git.example.com/org/docs.git");
+    when(adaptor.updateVirtualSiteProperties(eq("JsonSchemaHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for json-schema",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("JsonSchemaHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("user:secret"));
+    verify(adaptor).updateVirtualSiteProperties("JsonSchemaHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesJsonSchemaCloudRootPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("json-schema");
+    body.setRootPath("https://example.com/schema.json");
+    when(adaptor.updateVirtualSiteProperties(eq("JsonSchemaHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for json-schema must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("JsonSchemaHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).updateVirtualSiteProperties("JsonSchemaHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesJsonSchemaCredentialsPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("json-schema");
+    body.setRootPath("C:/json-schema-docs");
+    when(adaptor.updateVirtualSiteProperties(eq("JsonSchemaHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for json-schema (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("JsonSchemaHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).updateVirtualSiteProperties("JsonSchemaHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesJsonSchemaJsonSchemaUrlPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("json-schema");
+    body.setRootPath("C:/json-schema-docs");
+    when(adaptor.updateVirtualSiteProperties(eq("JsonSchemaHelp"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "jsonschema.url is not allowed for json-schema (local schema.json fixture only; no live HTTP schema fetch).",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateVirtualProperties("JsonSchemaHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("jsonschema.url"));
+    verify(adaptor).updateVirtualSiteProperties("JsonSchemaHelp", body);
+  }
+
+  @Test
   public void updateVirtualPropertiesUnknownKindPropagates400() {
     VirtualSiteProperties body = new VirtualSiteProperties();
     body.setSourceKind("sql-adapter");
@@ -3242,6 +3359,9 @@ public class SitesResourceTest {
         putVirtualBlock.contains("graphql-sdl"),
         "updateVirtualProperties OpenAPI description must mention graphql-sdl persist");
     assertTrue(
+        putVirtualBlock.contains("json-schema"),
+        "updateVirtualProperties OpenAPI description must mention json-schema persist");
+    assertTrue(
         putVirtualBlock.contains("no CalDAV"),
         "updateVirtualProperties OpenAPI description must mention icalendar local fixture only");
     assertTrue(
@@ -3262,6 +3382,9 @@ public class SitesResourceTest {
     assertTrue(
         putVirtualBlock.contains("GraphQL SDL fixture"),
         "updateVirtualProperties OpenAPI description must mention graphql-sdl local fixture only");
+    assertTrue(
+        putVirtualBlock.contains("JSON Schema fixture"),
+        "updateVirtualProperties OpenAPI description must mention json-schema local fixture only");
     assertTrue(
         putVirtualBlock.contains("local/loopback"),
         "updateVirtualProperties OpenAPI description must mention rss-atom local/loopback only");

@@ -42,7 +42,8 @@ import org.apache.commons.lang3.StringUtils;
  *   <li>{@code virtual.sourceKind} — allow-listed adapter wire name ({@code git-filesystem},
  *       {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage},
  *       {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code
- *       llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, {@code graphql-sdl}); blank or {@code repository} ⇒
+ *       llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, {@code graphql-sdl}, {@code
+ *       json-schema}); blank or {@code repository} ⇒
  *       traditional repository Site
  *   <li>{@code virtual.rootPath} — filesystem path to Virtual Site root when no remote is set
  *       (required when virtual and {@code virtual.remoteUrl} is blank); when a remote is set,
@@ -180,9 +181,11 @@ public final class PSVirtualSiteHelper {
    *   <li>use an allow-listed {@code virtual.sourceKind} (see {@link #allowedSourceKindWireNames()};
    *       {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage},
    *       {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code
-   *       llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, and {@code graphql-sdl} do not accept {@code virtual.remoteUrl})
+   *       llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, {@code graphql-sdl}, and {@code
+   *       json-schema} do not accept {@code virtual.remoteUrl})
    *   <li>{@code object-storage}, {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code
-   *       robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, and {@code graphql-sdl} require a local filesystem {@code
+   *       robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, {@code
+   *       graphql-sdl}, and {@code json-schema} require a local filesystem {@code
    *       virtual.rootPath} (NIO
    *       {@link Path}; no remaining {@code ..}); cloud URLs and credential properties are rejected
    *   <li>when {@code virtual.remoteUrl} is blank: provide a non-blank safe {@code virtual.rootPath}
@@ -501,7 +504,8 @@ public final class PSVirtualSiteHelper {
 
   /**
    * {@code object-storage} / {@code rss-atom} / {@code icalendar} / {@code sitemap-xml} / {@code
-   * robots-txt} / {@code llms-txt} / {@code openapi-yaml} / {@code asyncapi-yaml} / {@code graphql-sdl} roots must be local filesystem paths.
+   * robots-txt} / {@code llms-txt} / {@code openapi-yaml} / {@code asyncapi-yaml} / {@code
+   * graphql-sdl} / {@code json-schema} roots must be local filesystem paths.
    * Cloud / remote URI schemes are fail-closed (no S3/GCS/Azure/HTTP object buckets, live feeds,
    * CalDAV URLs, live sitemap crawls, live robots.txt crawls, live llms.txt fetches, live
    * OpenAPI spec fetches, live AsyncAPI spec fetches, or live GraphQL HTTP, no credentials in the path).

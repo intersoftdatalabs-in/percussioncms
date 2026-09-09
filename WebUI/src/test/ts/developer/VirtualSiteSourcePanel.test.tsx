@@ -75,6 +75,7 @@ describe("VirtualSiteSourcePanel", () => {
       "openapi-yaml",
       "asyncapi-yaml",
       "graphql-sdl",
+      "json-schema",
     ]);
     expect(kindSelect.value).toBe("repository");
     // Root path / remote hidden until virtual selected
@@ -1779,6 +1780,128 @@ describe("VirtualSiteSourcePanel", () => {
       expect(screen.queryByTestId("developer-site-virtual-root-path")).toBeNull();
     });
     expect(screen.queryByTestId("developer-site-virtual-graphql-sdl-hint")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+  });
+
+  it("loads json-schema values with root path and hides Build/Preview/Publish chrome", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "json-schema",
+      rootPath: "C:/json-schema-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    expect(
+      (screen.getByTestId("developer-site-virtual-source-kind") as HTMLSelectElement).value,
+    ).toBe("json-schema");
+    expect(
+      (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
+    ).toBe("C:/json-schema-docs");
+    expect(screen.getByTestId("developer-site-virtual-json-schema-hint")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-json-schema-hint").textContent).toBe(
+      DEV_MSG.SITE_VIRT_JSON_SCHEMA_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-json-schema-hint").textContent).toContain(
+      "later slices",
+    );
+    expect(screen.getByTestId("developer-site-virtual-json-schema-hint").textContent).toContain(
+      "jsonschema.url",
+    );
+    expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-config-file")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
+      DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
+    );
+  });
+
+  it("saves json-schema configuration without Git remote fields or jsonschema.url", async () => {
+    getVirtual
+      .mockResolvedValueOnce({ sourceKind: null, virtual: false })
+      .mockResolvedValueOnce({
+        sourceKind: "json-schema",
+        rootPath: "C:/json-schema-docs",
+        virtual: true,
+      });
+    updateVirtual.mockResolvedValue({
+      sourceKind: "json-schema",
+      rootPath: "C:/json-schema-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Corporate" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-form")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-site-virtual-source-kind"), {
+      target: { value: "json-schema" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-error").textContent).toContain(
+        DEV_MSG.SITE_VIRT_ERR_ROOT_REQUIRED,
+      );
+    });
+    expect(updateVirtual).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId("developer-site-virtual-root-path"), {
+      target: { value: "C:/json-schema-docs" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-saved")).toBeTruthy();
+    });
+    expect(updateVirtual).toHaveBeenCalledWith("Corporate", {
+      sourceKind: "json-schema",
+      rootPath: "C:/json-schema-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+    const savedBody = updateVirtual.mock.calls[0][1] as Record<string, unknown>;
+    expect(savedBody).not.toHaveProperty("password");
+    expect(JSON.stringify(savedBody)).not.toMatch(
+      /authorization|api[_-]?key|crawl|credential|token|jsonschema\.url/i,
+    );
+    expect(getVirtual).toHaveBeenCalledTimes(2);
+    expect(
+      (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
+    ).toBe("C:/json-schema-docs");
+    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
+      DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
+    );
+  });
+
+  it("switching json-schema back to repository hides virtual fields", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "json-schema",
+      rootPath: "C:/json-schema-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-site-virtual-source-kind"), {
+      target: { value: "repository" },
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-site-virtual-root-path")).toBeNull();
+    });
+    expect(screen.queryByTestId("developer-site-virtual-json-schema-hint")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();

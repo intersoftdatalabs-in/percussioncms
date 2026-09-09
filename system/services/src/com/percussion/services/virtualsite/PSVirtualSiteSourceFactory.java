@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  * (REST Build/Preview/Publish later). {@code robots-txt}, {@code llms-txt}, {@code
  * openapi-yaml}, {@code asyncapi-yaml}, {@code graphql-sdl}, and {@code json-schema} assemble are
  * SPI/CLI ({@code graphql-sdl} REST persist lands in this slice; REST Build/Preview/Publish later).
- * {@code json-schema} REST persist/Build/Preview/Publish stay later slices.
+ * {@code json-schema} REST GET/PUT persist lands in this slice; REST Build/Preview/Publish stay later slices.
  */
 public final class PSVirtualSiteSourceFactory {
 

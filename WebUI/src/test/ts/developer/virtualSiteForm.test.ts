@@ -17,6 +17,7 @@ import {
   SOURCE_KIND_OPENAPI_YAML,
   SOURCE_KIND_ASYNCAPI_YAML,
   SOURCE_KIND_GRAPHQL_SDL,
+  SOURCE_KIND_JSON_SCHEMA,
   SOURCE_KIND_SITEMAP_XML,
   SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
@@ -29,6 +30,7 @@ import {
   isOpenApiYamlSourceKind,
   isAsyncApiYamlSourceKind,
   isGraphQlSdlSourceKind,
+  isJsonSchemaSourceKind,
   isObjectStorageSourceKind,
   isRobotsTxtSourceKind,
   isRssAtomSourceKind,
@@ -57,6 +59,7 @@ describe("virtualSiteForm helpers", () => {
       SOURCE_KIND_OPENAPI_YAML,
       SOURCE_KIND_ASYNCAPI_YAML,
       SOURCE_KIND_GRAPHQL_SDL,
+      SOURCE_KIND_JSON_SCHEMA,
     ]);
   });
 
@@ -92,6 +95,8 @@ describe("virtualSiteForm helpers", () => {
     expect(normalizeSourceKindOption("AsyncAPI-YAML")).toBe(SOURCE_KIND_ASYNCAPI_YAML);
     expect(normalizeSourceKindOption("graphql-sdl")).toBe(SOURCE_KIND_GRAPHQL_SDL);
     expect(normalizeSourceKindOption("GraphQL-SDL")).toBe(SOURCE_KIND_GRAPHQL_SDL);
+    expect(normalizeSourceKindOption("json-schema")).toBe(SOURCE_KIND_JSON_SCHEMA);
+    expect(normalizeSourceKindOption("JSON-Schema")).toBe(SOURCE_KIND_JSON_SCHEMA);
     expect(normalizeSourceKindOption("future-adapter")).toBe(SOURCE_KIND_REPOSITORY);
     expect(normalizeSourceKindOption("sql-api")).toBe(SOURCE_KIND_REPOSITORY);
   });
@@ -113,6 +118,7 @@ describe("virtualSiteForm helpers", () => {
     expect(isVirtualSourceKind("openapi-yaml")).toBe(true);
     expect(isVirtualSourceKind("asyncapi-yaml")).toBe(true);
     expect(isVirtualSourceKind("graphql-sdl")).toBe(true);
+    expect(isVirtualSourceKind("json-schema")).toBe(true);
     expect(isGitFilesystemSourceKind("git-filesystem")).toBe(true);
     expect(isGitFilesystemSourceKind("csv-filesystem")).toBe(false);
     expect(isGitFilesystemSourceKind("sql-database")).toBe(false);
@@ -195,6 +201,10 @@ describe("virtualSiteForm helpers", () => {
     expect(isGraphQlSdlSourceKind("GraphQL-SDL")).toBe(true);
     expect(isGraphQlSdlSourceKind("asyncapi-yaml")).toBe(false);
     expect(isGraphQlSdlSourceKind("git-filesystem")).toBe(false);
+    expect(isJsonSchemaSourceKind("json-schema")).toBe(true);
+    expect(isJsonSchemaSourceKind("JSON-Schema")).toBe(true);
+    expect(isJsonSchemaSourceKind("graphql-sdl")).toBe(false);
+    expect(isJsonSchemaSourceKind("git-filesystem")).toBe(false);
   });
 
   it("virtualPropsToForm and formToVirtualProps round-trip repository clear", () => {
@@ -695,6 +705,43 @@ describe("virtualSiteForm helpers", () => {
     );
   });
 
+  it("virtualPropsToForm maps json-schema and PUT omits Git remotes", () => {
+    const form = virtualPropsToForm({
+      sourceKind: "json-schema",
+      rootPath: "C:/json-schema-docs",
+      virtual: true,
+    });
+    expect(form.sourceKind).toBe(SOURCE_KIND_JSON_SCHEMA);
+    expect(form.rootPath).toBe("C:/json-schema-docs");
+    expect(formToVirtualProps(form)).toEqual({
+      sourceKind: SOURCE_KIND_JSON_SCHEMA,
+      rootPath: "C:/json-schema-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+  });
+
+  it("formToVirtualProps for json-schema clears leftover Git remote fields", () => {
+    const body = formToVirtualProps({
+      sourceKind: SOURCE_KIND_JSON_SCHEMA,
+      rootPath: "  C:/json-schema-docs  ",
+      remoteUrl: "https://example.com/schema.json",
+      branch: "main",
+      configFile: "_config.yaml",
+      siteKey: "docs",
+    });
+    expect(body).toEqual({
+      sourceKind: SOURCE_KIND_JSON_SCHEMA,
+      rootPath: "C:/json-schema-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+    expect(body).not.toHaveProperty("password");
+    expect(JSON.stringify(body)).not.toMatch(
+      /authorization|api[_-]?key|crawl|credential|token|jsonschema\.url/i,
+    );
+  });
+
   it("formToVirtualProps trims and nulls empty optional fields", () => {
     const body = formToVirtualProps({
       sourceKind: SOURCE_KIND_GIT_FILESYSTEM,
@@ -1159,6 +1206,39 @@ describe("virtualSiteForm helpers", () => {
       validateVirtualSiteForm({
         sourceKind: SOURCE_KIND_GRAPHQL_SDL,
         rootPath: "C:/graphql-docs",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBeNull();
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_JSON_SCHEMA,
+        rootPath: "",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBe("root-required");
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_JSON_SCHEMA,
+        rootPath: "../escape",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBe("root-unsafe");
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_JSON_SCHEMA,
+        rootPath: "C:/json-schema-docs",
         remoteUrl: "",
         branch: "",
         configFile: "",
