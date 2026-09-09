@@ -54,7 +54,9 @@ resources. It does not publish to an external registry.
   Cloud URLs, credentials in the path, and path traversal return **400**.
   **Retrieve bytes** calls `GET …/binary` and shows the fixture bytes
   (`PIPE-BIN-FIXTURE`) with the IR content type. A missing or empty fixture is
-  **404** — the server does **not** invent content.
+  **404** — the server does **not** invent content. Retrieve is capped at 1 MB
+  by default; operators may raise the cap with JVM system property
+  `perc.pipeline.binary.maxBodyBytes` (positive integer, bytes).
 - **Nested filter groups** save an AND/OR tree of selector predicates on the
   selected native resource via
   `PUT /services/pipelines/{app}/resources/{resource}/filterGroup`. The default

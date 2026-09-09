@@ -19,6 +19,7 @@ package com.percussion.services.pipeline;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -78,6 +79,14 @@ class PSPipelineBinaryAdapterTest {
     assertThrows(
         PSPipelineIrException.class,
         () -> PSPipelineBinaryPath.requireSafe("s3://bucket/key.bin"));
+
+    PSPipelineIrException javascript =
+        assertThrows(
+            PSPipelineIrException.class,
+            () -> PSPipelineBinaryPath.requireSafe("javascript:alert(1)"));
+    assertTrue(javascript.getMessage().contains("javascript"), javascript.getMessage());
+
+    assertEquals("files/userinfo.bin", PSPipelineBinaryPath.requireSafe("files/userinfo.bin"));
   }
 
   @Test
@@ -90,6 +99,9 @@ class PSPipelineBinaryAdapterTest {
         PSPipelineBinaryAdapter.BUNDLED_FIXTURE_UTF8,
         new String(payload.getBytes(), StandardCharsets.UTF_8));
     assertTrue(payload.getByteLength() > 0);
+    assertFalse(
+        new String(payload.getBytes(), StandardCharsets.UTF_8)
+            .startsWith("version https://git-lfs.github.com/"));
   }
 
   @Test
@@ -128,6 +140,43 @@ class PSPipelineBinaryAdapterTest {
     PipelineBinaryPayload payload =
         new PSPipelineBinaryAdapter(tempDir).retrieve("sys_cmpDocuments", resource);
     assertArrayEquals(stored, payload.getBytes());
+  }
+
+  @Test
+  @DisplayName("constructor maxBodyBytes rejects oversized sandbox fixture")
+  void retrieve_exceedsConstructorMaxBodyBytes() throws Exception {
+    Path appDir = tempDir.resolve("sys_cmpDocuments");
+    Files.createDirectories(appDir);
+    Files.write(appDir.resolve("big.bin"), "12345".getBytes(StandardCharsets.UTF_8));
+    PipelineResourceIr resource = binaryResource("big.bin", "application/octet-stream");
+    PSPipelineIrException ex =
+        assertThrows(
+            PSPipelineIrException.class,
+            () -> new PSPipelineBinaryAdapter(tempDir, 4).retrieve("sys_cmpDocuments", resource));
+    assertTrue(ex.getMessage().toLowerCase().contains("size"), ex.getMessage());
+  }
+
+  @Test
+  @DisplayName("perc.pipeline.binary.maxBodyBytes property is parsed")
+  void resolveMaxBodyBytes_property() {
+    String key = PSPipelineBinaryAdapter.MAX_BODY_BYTES_PROPERTY;
+    String previous = System.getProperty(key);
+    try {
+      System.clearProperty(key);
+      assertEquals(PSPipelineBinaryAdapter.DEFAULT_MAX_BODY_BYTES, PSPipelineBinaryAdapter.resolveMaxBodyBytes());
+      System.setProperty(key, "2048");
+      assertEquals(2048, PSPipelineBinaryAdapter.resolveMaxBodyBytes());
+      System.setProperty(key, "0");
+      assertEquals(PSPipelineBinaryAdapter.DEFAULT_MAX_BODY_BYTES, PSPipelineBinaryAdapter.resolveMaxBodyBytes());
+      System.setProperty(key, "nope");
+      assertEquals(PSPipelineBinaryAdapter.DEFAULT_MAX_BODY_BYTES, PSPipelineBinaryAdapter.resolveMaxBodyBytes());
+    } finally {
+      if (previous == null) {
+        System.clearProperty(key);
+      } else {
+        System.setProperty(key, previous);
+      }
+    }
   }
 
   @Test

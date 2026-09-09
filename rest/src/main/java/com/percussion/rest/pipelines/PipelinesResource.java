@@ -539,6 +539,10 @@ public class PipelinesResource {
       @PathParam("resource") String resource,
       PipelineBinaryResource body) {
     try {
+      if (body == null) {
+        throw new IllegalArgumentException("Binary resource path is required");
+      }
+      body.requireWriteFields();
       return requireAdaptor().putBinaryResource(uriInfo.getBaseUri(), app, resource, body);
     } catch (WebApplicationException e) {
       throw e;
@@ -572,7 +576,7 @@ public class PipelinesResource {
     try {
       PipelineBinaryPayload payload =
           requireAdaptor().retrieveBinary(uriInfo.getBaseUri(), app, resource);
-      if (payload == null || payload.getBytes() == null || payload.getByteLength() == 0) {
+      if (payload == null || payload.getByteLength() == 0) {
         throw new WebApplicationException("Binary fixture not found", 404);
       }
       String type =

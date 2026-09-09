@@ -2009,6 +2009,9 @@ URL or other scheme (`https://…`, `s3://…`, `file://…`), contains credenti
 (`PIPE-BIN-FIXTURE`) so H2 QA and air-gapped installs retrieve without a live
 network. Missing or empty fixtures are **404** — the server does **not** invent
 content. Unsafe names are **400**. Unknown applications or resources are **404**.
+Retrieve rejects fixtures larger than 1 MB (**400**-style size-limit error)
+unless JVM system property `perc.pipeline.binary.maxBodyBytes` is set to a
+positive byte count.
 
 **Developer → Pipelines** detail exposes Admin **Binary resource** save,
 retrieve, and download (see [Developer Pipelines](id:admin-developer-pipelines)).

@@ -30,10 +30,19 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @Schema(description = "Native pipeline binary resource (local fixture path only)")
 public class PipelineBinaryResource {
 
+  static final int MAX_PATH_CHARS = 255;
+
+  static final int MAX_CONTENT_TYPE_CHARS = 128;
+
   /** Portable-safe relative path or bundled fixture token. */
+  @Schema(
+      description = "Bundled fixture token or portable-safe relative path (no URLs)",
+      maxLength = MAX_PATH_CHARS,
+      requiredMode = Schema.RequiredMode.REQUIRED)
   private String path;
 
   /** Content-Type returned on retrieve. */
+  @Schema(description = "MIME type returned on retrieve", maxLength = MAX_CONTENT_TYPE_CHARS)
   private String contentType;
 
   public String getPath() {
@@ -50,5 +59,21 @@ public class PipelineBinaryResource {
 
   public void setContentType(String contentType) {
     this.contentType = contentType;
+  }
+
+  /**
+   * Fail-fast REST-layer checks before the adaptor path guard. Does not replace
+   * scheme/traversal validation.
+   */
+  public void requireWriteFields() {
+    if (path == null || path.isBlank()) {
+      throw new IllegalArgumentException("Binary resource path is required");
+    }
+    if (path.length() > MAX_PATH_CHARS) {
+      throw new IllegalArgumentException("Binary resource path exceeds length limit");
+    }
+    if (contentType != null && contentType.length() > MAX_CONTENT_TYPE_CHARS) {
+      throw new IllegalArgumentException("Binary resource content type exceeds length limit");
+    }
   }
 }

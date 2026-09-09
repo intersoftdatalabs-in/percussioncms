@@ -136,24 +136,39 @@ public final class PSPipelineBinaryPath {
   }
 
   static void rejectUrl(String raw) throws PSPipelineIrException {
-    String lower = raw.toLowerCase(Locale.ROOT);
-    if (raw.contains("@")
-        || lower.contains("userinfo")
-        || credentialUserInfo(raw)) {
+    if (raw.contains("@") || credentialUserInfo(raw)) {
       throw new PSPipelineIrException(
           "Binary resource path must not contain userinfo (no credentials in the path)");
+    }
+    String scheme = schemeOf(raw);
+    if (scheme != null) {
+      throw new PSPipelineIrException(
+          "Binary resource path must be a local fixture (no cloud URLs). Rejected scheme '"
+              + scheme
+              + "'");
     }
     throw new PSPipelineIrException(
         "Binary resource path must be a local fixture (no cloud URLs). Rejected scheme/host path");
   }
 
   static boolean looksLikeUrl(String raw) {
+    return schemeOf(raw) != null;
+  }
+
+  /**
+   * RFC 3986 scheme token before {@code :}, or {@code null} when the path is not URI-like.
+   * Windows drive letters ({@code C:}) are also scheme-shaped and are rejected as non-local.
+   */
+  static String schemeOf(String raw) {
     int colon = raw.indexOf(':');
     if (colon <= 0) {
-      return false;
+      return null;
     }
     String scheme = raw.substring(0, colon);
-    return scheme.chars().allMatch(ch -> Character.isLetterOrDigit(ch) || ch == '+' || ch == '.' || ch == '-');
+    if (scheme.chars().allMatch(ch -> Character.isLetterOrDigit(ch) || ch == '+' || ch == '.' || ch == '-')) {
+      return scheme.toLowerCase(Locale.ROOT);
+    }
+    return null;
   }
 
   static boolean credentialUserInfo(String raw) {

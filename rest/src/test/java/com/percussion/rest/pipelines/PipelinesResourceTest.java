@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -370,12 +371,24 @@ public class PipelinesResourceTest {
     when(adaptor.putBinaryResource(any(), eq("app"), eq("res"), any()))
         .thenThrow(new IllegalArgumentException("cloud url"));
 
+    PipelineBinaryResource body = new PipelineBinaryResource();
+    body.setPath("pipeline-binary-fixture");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.putBinaryResource("app", "res", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("cloud url", ex.getMessage());
+  }
+
+  @Test
+  public void putBinaryResourceRejectsBlankPathBeforeAdaptor() {
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class,
             () -> resource.putBinaryResource("app", "res", new PipelineBinaryResource()));
     assertEquals(400, ex.getResponse().getStatus());
-    assertEquals("cloud url", ex.getMessage());
+    assertEquals("Binary resource path is required", ex.getMessage());
+    verify(adaptor, never()).putBinaryResource(any(), any(), any(), any());
   }
 
   @Test

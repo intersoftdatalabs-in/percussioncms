@@ -35,12 +35,19 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PSPipelineBinaryAdapter {
 
-  static final int MAX_BODY_BYTES = 1_000_000;
+  /** JVM override for {@link #DEFAULT_MAX_BODY_BYTES}; non-positive or unparsable values are ignored. */
+  public static final String MAX_BODY_BYTES_PROPERTY = "perc.pipeline.binary.maxBodyBytes";
+
+  public static final int DEFAULT_MAX_BODY_BYTES = 1_000_000;
+
+  static final int MAX_BODY_BYTES = DEFAULT_MAX_BODY_BYTES;
 
   /** Known bundled fixture UTF-8 marker (classpath {@link PSPipelineBinaryPath#BUNDLED_RESOURCE}). */
   public static final String BUNDLED_FIXTURE_UTF8 = "PIPE-BIN-FIXTURE\n";
 
   private final Path sandboxRoot;
+
+  private final int maxBodyBytes;
 
   public PSPipelineBinaryAdapter() {
     this(null);
@@ -51,8 +58,33 @@ public class PSPipelineBinaryAdapter {
    *     sandboxRoot/&lt;appName&gt;/}. {@code null} means only the bundled fixture can retrieve.
    */
   public PSPipelineBinaryAdapter(Path sandboxRoot) {
+    this(sandboxRoot, resolveMaxBodyBytes());
+  }
+
+  /**
+   * @param sandboxRoot optional application-owned files root
+   * @param maxBodyBytes positive retrieve size cap (bytes)
+   */
+  public PSPipelineBinaryAdapter(Path sandboxRoot, int maxBodyBytes) {
     this.sandboxRoot =
         sandboxRoot != null ? sandboxRoot.toAbsolutePath().normalize() : null;
+    if (maxBodyBytes < 1) {
+      throw new IllegalArgumentException("maxBodyBytes must be positive");
+    }
+    this.maxBodyBytes = maxBodyBytes;
+  }
+
+  public static int resolveMaxBodyBytes() {
+    String raw = System.getProperty(MAX_BODY_BYTES_PROPERTY);
+    if (raw == null || raw.isBlank()) {
+      return DEFAULT_MAX_BODY_BYTES;
+    }
+    try {
+      int parsed = Integer.parseInt(raw.trim());
+      return parsed > 0 ? parsed : DEFAULT_MAX_BODY_BYTES;
+    } catch (NumberFormatException e) {
+      return DEFAULT_MAX_BODY_BYTES;
+    }
   }
 
   /**
@@ -78,7 +110,7 @@ public class PSPipelineBinaryAdapter {
     if (bytes == null || bytes.length == 0) {
       throw new PSPipelineIrException("Binary fixture not found");
     }
-    if (bytes.length > MAX_BODY_BYTES) {
+    if (bytes.length > maxBodyBytes) {
       throw new PSPipelineIrException("Binary fixture exceeds size limit");
     }
     return new PipelineBinaryPayload(contentType, bytes, path);
