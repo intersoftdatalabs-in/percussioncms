@@ -29,6 +29,10 @@ import {
   wrapPipelineFilterGroupForWire,
   unwrapPipelineFilterGroup,
   putFilterGroup,
+  wrapPipelineBinaryResourceForWire,
+  unwrapPipelineBinaryResource,
+  putBinaryResource,
+  retrieveBinaryResource,
 } from "../../../../main/ts/api/developer/pipelinesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -364,5 +368,62 @@ describe("pipelinesApi nested filter groups", () => {
       },
     });
     expect(out.op).toBe("AND");
+  });
+});
+
+describe("pipelinesApi Slice D binary resource", () => {
+  it("wraps and unwraps PipelineBinaryResource", () => {
+    expect(
+      wrapPipelineBinaryResourceForWire({
+        path: "pipeline-binary-fixture",
+        contentType: "text/plain",
+      }),
+    ).toEqual({
+      PipelineBinaryResource: {
+        path: "pipeline-binary-fixture",
+        contentType: "text/plain",
+      },
+    });
+    expect(
+      unwrapPipelineBinaryResource({
+        PipelineBinaryResource: { path: "pipeline-binary-fixture" },
+      }).path,
+    ).toBe("pipeline-binary-fixture");
+  });
+
+  it("putBinaryResource PUTs encoded path with WRAP_ROOT body", async () => {
+    const spy = vi.spyOn(client, "put").mockResolvedValue({
+      path: "pipeline-binary-fixture",
+      contentType: "text/plain",
+    });
+    const out = await putBinaryResource("app with spaces", "res/one", {
+      path: "pipeline-binary-fixture",
+      contentType: "text/plain",
+    });
+    expect(String(spy.mock.calls[0][0])).toContain(
+      `/pipelines/${encodeURIComponent("app with spaces")}/resources/${encodeURIComponent("res/one")}/binaryResource`,
+    );
+    expect(spy.mock.calls[0][1]).toEqual({
+      PipelineBinaryResource: {
+        path: "pipeline-binary-fixture",
+        contentType: "text/plain",
+      },
+    });
+    expect(out.path).toBe("pipeline-binary-fixture");
+  });
+
+  it("retrieveBinaryResource GETs encoded path as bytes", async () => {
+    const bytes = new TextEncoder().encode("PIPE-BIN-FIXTURE\n");
+    const spy = vi.spyOn(client, "getBinary").mockResolvedValue({
+      bytes,
+      contentType: "text/plain",
+      status: 200,
+    });
+    const out = await retrieveBinaryResource("app with spaces", "res/one");
+    expect(String(spy.mock.calls[0][0])).toContain(
+      `/pipelines/${encodeURIComponent("app with spaces")}/resources/${encodeURIComponent("res/one")}/binary`,
+    );
+    expect(new TextDecoder().decode(out.bytes)).toBe("PIPE-BIN-FIXTURE\n");
+    expect(out.contentType).toBe("text/plain");
   });
 });

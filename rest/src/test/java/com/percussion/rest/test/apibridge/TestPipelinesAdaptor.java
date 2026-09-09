@@ -21,9 +21,11 @@ import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
+import com.percussion.rest.pipelines.PipelineBinaryResource;
 import com.percussion.rest.pipelines.PipelineFilterGroup;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
 import com.percussion.rest.pipelines.PipelineWebhookHooks;
+import com.percussion.services.pipeline.model.PipelineBinaryPayload;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
@@ -128,5 +130,25 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
       out.setOp("AND");
     }
     return out;
+  }
+
+  @Override
+  public PipelineBinaryResource putBinaryResource(
+      URI baseUri, String appName, String resourceName, PipelineBinaryResource body) {
+    PipelineBinaryResource out = body != null ? body : new PipelineBinaryResource();
+    if (out.getPath() == null) {
+      out.setPath("pipeline-binary-fixture");
+    }
+    if (out.getContentType() == null) {
+      out.setContentType("application/octet-stream");
+    }
+    return out;
+  }
+
+  @Override
+  public PipelineBinaryPayload retrieveBinary(URI baseUri, String appName, String resourceName) {
+    return new PipelineBinaryPayload(
+        "text/plain", "PIPE-BIN-FIXTURE\n".getBytes(java.nio.charset.StandardCharsets.UTF_8),
+        "pipeline-binary-fixture");
   }
 }

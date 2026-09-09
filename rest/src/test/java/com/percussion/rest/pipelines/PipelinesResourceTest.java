@@ -17,6 +17,7 @@
 
 package com.percussion.rest.pipelines;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.percussion.services.pipeline.model.PipelineBinaryPayload;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
@@ -348,6 +350,54 @@ public class PipelinesResourceTest {
             () -> resource.putFilterGroup("app", "res", new PipelineFilterGroup()));
     assertEquals(400, ex.getResponse().getStatus());
     assertEquals("malformed group", ex.getMessage());
+  }
+
+  @Test
+  public void putBinaryResourceDelegatesToAdaptor() {
+    PipelineBinaryResource body = new PipelineBinaryResource();
+    body.setPath("pipeline-binary-fixture");
+    body.setContentType("text/plain");
+    when(adaptor.putBinaryResource(any(), eq("lookupApp"), eq("DatasetQ"), eq(body)))
+        .thenReturn(body);
+
+    PipelineBinaryResource out = resource.putBinaryResource("lookupApp", "DatasetQ", body);
+    assertEquals("pipeline-binary-fixture", out.getPath());
+    verify(adaptor).putBinaryResource(any(), eq("lookupApp"), eq("DatasetQ"), eq(body));
+  }
+
+  @Test
+  public void putBinaryResourceMapsIllegalArgumentTo400() {
+    when(adaptor.putBinaryResource(any(), eq("app"), eq("res"), any()))
+        .thenThrow(new IllegalArgumentException("cloud url"));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.putBinaryResource("app", "res", new PipelineBinaryResource()));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("cloud url", ex.getMessage());
+  }
+
+  @Test
+  public void getBinaryReturnsFixtureBytesAndContentType() {
+    byte[] bytes = "PIPE-BIN-FIXTURE\n".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+    when(adaptor.retrieveBinary(any(), eq("lookupApp"), eq("binRes")))
+        .thenReturn(new PipelineBinaryPayload("text/plain", bytes, "pipeline-binary-fixture"));
+
+    Response out = resource.getBinary("lookupApp", "binRes");
+    assertEquals(200, out.getStatus());
+    assertTrue(out.getMediaType().toString().startsWith("text/plain"));
+    assertArrayEquals(bytes, (byte[]) out.getEntity());
+    verify(adaptor).retrieveBinary(any(), eq("lookupApp"), eq("binRes"));
+  }
+
+  @Test
+  public void getBinaryMapsMissingFixtureTo404() {
+    when(adaptor.retrieveBinary(any(), eq("app"), eq("res"))).thenReturn(null);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getBinary("app", "res"));
+    assertEquals(404, ex.getResponse().getStatus());
   }
 
   @Test

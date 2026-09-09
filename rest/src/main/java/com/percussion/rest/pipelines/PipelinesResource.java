@@ -17,6 +17,7 @@
 
 package com.percussion.rest.pipelines;
 
+import com.percussion.services.pipeline.model.PipelineBinaryPayload;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
@@ -62,7 +63,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(
     name = "Pipelines",
     description =
-        "Data pipeline / XML application design catalog, Admin start/stop, validation, Pipeline IR, OpenAPI from resources, HTTP backend tank persist, nested filter groups, and IR execute")
+        "Data pipeline / XML application design catalog, Admin start/stop, validation, Pipeline IR, OpenAPI from resources, HTTP backend tank persist, nested filter groups, binary resource persist/retrieve, and IR execute")
 public class PipelinesResource {
 
   private final IPipelinesAdaptor adaptor;
@@ -499,6 +500,86 @@ public class PipelinesResource {
       PipelineFilterGroup body) {
     try {
       return requireAdaptor().putFilterGroup(uriInfo.getBaseUri(), app, resource, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Persist native IR binary resource (content type + portable-safe local fixture path). Does not
+   * rewrite classic XML Applications. Cloud URLs, credentials, and traversal are 400.
+   */
+  @PUT
+  @Path("/{app}/resources/{resource}/binaryResource")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Persist a native pipeline binary resource",
+      description =
+          "Admin only. Saves native IR binary resource path + content type. Path must be the"
+              + " bundled local fixture token or a portable-safe relative path. Cloud URLs,"
+              + " credentials (userinfo), and path traversal are 400. Classic XML Applications"
+              + " stay read-only.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Saved",
+            content = @Content(schema = @Schema(implementation = PipelineBinaryResource.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid path, content type, or name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public PipelineBinaryResource putBinaryResource(
+      @PathParam("app") String app,
+      @PathParam("resource") String resource,
+      PipelineBinaryResource body) {
+    try {
+      return requireAdaptor().putBinaryResource(uriInfo.getBaseUri(), app, resource, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Retrieve fixture bytes for a native BINARY resource. Missing/empty fixtures are 404 (not
+   * invented content). Content-Type comes from IR.
+   */
+  @GET
+  @Path("/{app}/resources/{resource}/binary")
+  @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.WILDCARD})
+  @Operation(
+      summary = "Retrieve native pipeline binary fixture bytes",
+      description =
+          "Returns the local fixture bytes for a native BINARY resource. Content-Type is the"
+              + " IR content type. Missing or empty fixtures are 404 (bytes are never invented)."
+              + " Unsafe names are 400. Does not fetch from the internet.",
+      responses = {
+        @ApiResponse(responseCode = "200", description = "Fixture bytes"),
+        @ApiResponse(responseCode = "400", description = "Invalid name or path"),
+        @ApiResponse(responseCode = "404", description = "Application, resource, or fixture not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response getBinary(@PathParam("app") String app, @PathParam("resource") String resource) {
+    try {
+      PipelineBinaryPayload payload =
+          requireAdaptor().retrieveBinary(uriInfo.getBaseUri(), app, resource);
+      if (payload == null || payload.getBytes() == null || payload.getByteLength() == 0) {
+        throw new WebApplicationException("Binary fixture not found", 404);
+      }
+      String type =
+          payload.getContentType() != null && !payload.getContentType().isBlank()
+              ? payload.getContentType()
+              : MediaType.APPLICATION_OCTET_STREAM;
+      return Response.ok(payload.getBytes()).type(type).build();
     } catch (WebApplicationException e) {
       throw e;
     } catch (IllegalArgumentException e) {

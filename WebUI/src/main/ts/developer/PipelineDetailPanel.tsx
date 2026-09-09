@@ -25,9 +25,11 @@ import {
   getPipelineIr,
   getPipelineOpenApi,
   openApiDownloadFilename,
+  putBinaryResource,
   putFilterGroup,
   putHttpBackendTank,
   putWebhookHooks,
+  retrieveBinaryResource,
   startApplication,
   stopApplication,
 } from "../api/developer/pipelinesApi";
@@ -118,6 +120,11 @@ function rebuildFilterGroup(
       },
     ],
   };
+}
+
+function decodeBinaryPreview(bytes: Uint8Array): string {
+  const slice = bytes.length > 4096 ? bytes.subarray(0, 4096) : bytes;
+  return new TextDecoder("utf-8", { fatal: false }).decode(slice);
 }
 
 const toolbarStyle: React.CSSProperties = {
@@ -522,6 +529,14 @@ export function PipelineDetailPanel({
   const [filterBusy, setFilterBusy] = useState(false);
   const [filterError, setFilterError] = useState<string | null>(null);
   const [filterNotice, setFilterNotice] = useState<string | null>(null);
+  const [binaryPath, setBinaryPath] = useState("pipeline-binary-fixture");
+  const [binaryContentType, setBinaryContentType] = useState("text/plain");
+  const [binaryBusy, setBinaryBusy] = useState(false);
+  const [binaryError, setBinaryError] = useState<string | null>(null);
+  const [binaryNotice, setBinaryNotice] = useState<string | null>(null);
+  const [binaryPreview, setBinaryPreview] = useState<string | null>(null);
+  const [binaryPreviewType, setBinaryPreviewType] = useState<string | null>(null);
+  const [binaryBytes, setBinaryBytes] = useState<Uint8Array | null>(null);
   const [openApiFormat, setOpenApiFormat] = useState<PipelineOpenApiFormat>("yaml");
   const [openApiText, setOpenApiText] = useState<string | null>(null);
   const [openApiError, setOpenApiError] = useState<string | null>(null);
@@ -532,6 +547,7 @@ export function PipelineDetailPanel({
   const httpInflight = useRef(false);
   const webhookInflight = useRef(false);
   const filterInflight = useRef(false);
+  const binaryInflight = useRef(false);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -566,6 +582,14 @@ export function PipelineDetailPanel({
     setFilterBusy(false);
     setFilterError(null);
     setFilterNotice(null);
+    setBinaryPath("pipeline-binary-fixture");
+    setBinaryContentType("text/plain");
+    setBinaryBusy(false);
+    setBinaryError(null);
+    setBinaryNotice(null);
+    setBinaryPreview(null);
+    setBinaryPreviewType(null);
+    setBinaryBytes(null);
     setOpenApiFormat("yaml");
     setOpenApiText(null);
     setOpenApiError(null);
@@ -576,6 +600,7 @@ export function PipelineDetailPanel({
     httpInflight.current = false;
     webhookInflight.current = false;
     filterInflight.current = false;
+    binaryInflight.current = false;
     getApplicationDetail(idOrName)
       .then((d) => {
         if (!cancelled) {
@@ -892,6 +917,93 @@ export function PipelineDetailPanel({
       filterInflight.current = false;
       if (mountedRef.current) setFilterBusy(false);
     }
+  }
+
+  async function onSaveBinaryResource(): Promise<void> {
+    if (!detail || binaryInflight.current) return;
+    const resource = resourceName.trim();
+    if (!resource) {
+      setBinaryError(DEV_MSG.PIPE_BINARY_RESOURCE_REQUIRED);
+      setBinaryNotice(null);
+      return;
+    }
+    const path = binaryPath.trim();
+    if (!path) {
+      setBinaryError(DEV_MSG.PIPE_BINARY_PATH_REQUIRED);
+      setBinaryNotice(null);
+      return;
+    }
+    binaryInflight.current = true;
+    setBinaryBusy(true);
+    setBinaryError(null);
+    setBinaryNotice(null);
+    try {
+      const saved = await putBinaryResource(idOrName, resource, {
+        path,
+        contentType: binaryContentType.trim() || "application/octet-stream",
+      });
+      if (!mountedRef.current) return;
+      if (saved.path) setBinaryPath(saved.path);
+      if (saved.contentType) setBinaryContentType(saved.contentType);
+      setBinaryNotice(DEV_MSG.PIPE_BINARY_SAVED);
+      try {
+        const nextIr = await getPipelineIr(idOrName);
+        if (mountedRef.current) setIr(nextIr);
+      } catch {
+        // persist succeeded; IR refresh is best-effort
+      }
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setBinaryError(lifecycleErrMsg(err, DEV_MSG.PIPE_BINARY_SAVE_ERROR));
+    } finally {
+      binaryInflight.current = false;
+      if (mountedRef.current) setBinaryBusy(false);
+    }
+  }
+
+  async function onRetrieveBinary(): Promise<void> {
+    if (!detail || binaryInflight.current) return;
+    const resource = resourceName.trim();
+    if (!resource) {
+      setBinaryError(DEV_MSG.PIPE_BINARY_RESOURCE_REQUIRED);
+      setBinaryNotice(null);
+      setBinaryPreview(null);
+      setBinaryBytes(null);
+      return;
+    }
+    binaryInflight.current = true;
+    setBinaryBusy(true);
+    setBinaryError(null);
+    try {
+      const payload = await retrieveBinaryResource(idOrName, resource);
+      if (!mountedRef.current) return;
+      setBinaryBytes(payload.bytes);
+      setBinaryPreviewType(payload.contentType);
+      setBinaryPreview(decodeBinaryPreview(payload.bytes));
+      if (payload.contentType) setBinaryContentType(payload.contentType.split(";")[0].trim());
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setBinaryPreview(null);
+      setBinaryBytes(null);
+      setBinaryError(lifecycleErrMsg(err, DEV_MSG.PIPE_BINARY_RETRIEVE_ERROR));
+    } finally {
+      binaryInflight.current = false;
+      if (mountedRef.current) setBinaryBusy(false);
+    }
+  }
+
+  function onDownloadBinary(): void {
+    if (!binaryBytes || binaryBytes.length === 0) return;
+    const type = binaryPreviewType || "application/octet-stream";
+    const ab = new ArrayBuffer(binaryBytes.byteLength);
+    new Uint8Array(ab).set(binaryBytes);
+    const blob = new Blob([ab], { type });
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = objectUrl;
+    a.download = "pipeline-binary-fixture.bin";
+    a.click();
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
   }
 
   async function onInvoke(): Promise<void> {
@@ -1344,6 +1456,115 @@ export function PipelineDetailPanel({
                 >
                   {webhookError}
                 </div>
+              ) : null}
+            </section>
+          ) : null}
+
+          {isAdmin ? (
+            <section style={{ marginBottom: "16px" }} data-testid="developer-pipe-binary">
+              <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.PIPE_BINARY}</h3>
+              <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+                {DEV_MSG.PIPE_BINARY_HINT}
+              </p>
+              <div style={{ marginBottom: "12px" }}>
+                <label htmlFor="developer-pipe-binary-path" style={fieldLabel}>
+                  {DEV_MSG.PIPE_BINARY_PATH}
+                </label>
+                <input
+                  id="developer-pipe-binary-path"
+                  data-testid="developer-pipe-binary-path"
+                  value={binaryPath}
+                  onChange={(e) => setBinaryPath(e.target.value)}
+                  disabled={binaryBusy}
+                  style={textInput}
+                  placeholder={DEV_MSG.PIPE_BINARY_PATH_PLACEHOLDER}
+                  autoComplete="off"
+                />
+              </div>
+              <div style={{ marginBottom: "12px" }}>
+                <label htmlFor="developer-pipe-binary-type" style={fieldLabel}>
+                  {DEV_MSG.PIPE_BINARY_CONTENT_TYPE}
+                </label>
+                <input
+                  id="developer-pipe-binary-type"
+                  data-testid="developer-pipe-binary-type"
+                  value={binaryContentType}
+                  onChange={(e) => setBinaryContentType(e.target.value)}
+                  disabled={binaryBusy}
+                  style={textInput}
+                  autoComplete="off"
+                />
+              </div>
+              <button
+                type="button"
+                data-testid="developer-pipe-binary-save"
+                aria-label={DEV_MSG.PIPE_BINARY_SAVE}
+                disabled={binaryBusy}
+                onClick={() => void onSaveBinaryResource()}
+                style={binaryBusy ? disabledPrimary : primaryButton}
+              >
+                {binaryBusy ? DEV_MSG.PIPE_BINARY_SAVING : DEV_MSG.PIPE_BINARY_SAVE}
+              </button>
+              <button
+                type="button"
+                data-testid="developer-pipe-binary-retrieve"
+                aria-label={DEV_MSG.PIPE_BINARY_RETRIEVE}
+                disabled={binaryBusy}
+                onClick={() => void onRetrieveBinary()}
+                style={{
+                  ...(binaryBusy ? disabledPrimary : primaryButton),
+                  marginLeft: "8px",
+                }}
+              >
+                {binaryBusy ? DEV_MSG.PIPE_BINARY_RETRIEVING : DEV_MSG.PIPE_BINARY_RETRIEVE}
+              </button>
+              {binaryBytes && binaryBytes.length > 0 ? (
+                <button
+                  type="button"
+                  data-testid="developer-pipe-binary-download"
+                  aria-label={DEV_MSG.PIPE_BINARY_DOWNLOAD}
+                  disabled={binaryBusy}
+                  onClick={onDownloadBinary}
+                  style={{
+                    ...(binaryBusy ? disabledPrimary : primaryButton),
+                    marginLeft: "8px",
+                  }}
+                >
+                  {DEV_MSG.PIPE_BINARY_DOWNLOAD}
+                </button>
+              ) : null}
+              {binaryNotice ? (
+                <div
+                  role="status"
+                  data-testid="developer-pipe-binary-notice"
+                  style={{ ...successNotice, marginTop: "12px" }}
+                >
+                  {binaryNotice}
+                </div>
+              ) : null}
+              {binaryError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-pipe-binary-error"
+                  style={{ ...errorAlert, marginTop: "12px" }}
+                >
+                  {binaryError}
+                </div>
+              ) : null}
+              {binaryPreview ? (
+                <pre
+                  data-testid="developer-pipe-binary-preview"
+                  style={{
+                    marginTop: "12px",
+                    padding: "8px",
+                    overflow: "auto",
+                    maxHeight: "12rem",
+                    background: catalogColors.surface,
+                    fontSize: "0.85rem",
+                  }}
+                >
+                  {binaryPreview}
+                </pre>
               ) : null}
             </section>
           ) : null}

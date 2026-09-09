@@ -1852,7 +1852,11 @@ also persists **HTTP webhook pre/post execute hooks** (`PUT …/webhookHooks`, l
 only; blank URL skips) and generates **OpenAPI 3** from the pipeline's IR resources
 (`GET …/openapi`). Nested **AND/OR filter groups** persist on native IR
 (`PUT …/filterGroup`) and execute honors the nested predicate against SQL or
-the local HTTP fixture.
+the local HTTP fixture. **Slice D** persists a **binary resource**
+(`PUT …/binaryResource`, portable-safe local fixture path + content type) and
+retrieves fixture bytes (`GET …/binary`). Cloud URLs, credentials, and path
+traversal are **400**. Missing or empty fixtures are **404** (bytes are never
+invented).
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -1866,6 +1870,8 @@ the local HTTP fixture.
 | `PUT` | `/services/pipelines/{app}/resources/{resource}/backendTank` | **Admin.** Persist native IR HTTP backend tank (`adapterType=HTTP`, loopback/local fixture URL) |
 | `PUT` | `/services/pipelines/{app}/resources/{resource}/webhookHooks` | **Admin.** Persist native IR HTTP webhook pre/post execute hooks (loopback/local fixture URL; blank URL skips) |
 | `PUT` | `/services/pipelines/{app}/resources/{resource}/filterGroup` | **Admin.** Persist nested AND/OR selector filter groups on native IR |
+| `PUT` | `/services/pipelines/{app}/resources/{resource}/binaryResource` | **Admin.** Persist native IR binary resource (content type + portable-safe local fixture path) |
+| `GET` | `/services/pipelines/{app}/resources/{resource}/binary` | Retrieve native binary fixture bytes (`Content-Type` from IR; missing/empty is **404**, not invented) |
 | `POST` | `/services/pipelines/{app}/resources/{resource}/execute` | Execute a native pipeline IR resource (SQL or HTTP adapter; honors nested filter groups and webhook hooks) |
 | `GET` | `/services/pipelines/{idOrName}/validation` | **Admin.** Validation / problems summary (when deployed) |
 
@@ -1982,6 +1988,31 @@ Unknown applications are **404**.
 (no invented delivery). Persist may save one URL only. The Developer chrome requires
 at least one URL before save.
 
+### Binary resource persist and retrieve (Slice D)
+
+`PUT …/resources/{resource}/binaryResource` requires **Admin** (**403** otherwise).
+Body is `PipelineBinaryResource`:
+
+| Field | Role |
+|-------|------|
+| `path` | Bundled token `pipeline-binary-fixture` (or `.bin` filename) or a portable-safe relative path |
+| `contentType` | MIME type returned on retrieve (default `application/octet-stream`) |
+
+The path application name resolves against the object-store catalog (trusted name).
+The server writes **native IR** under `ObjectStore/pipeline-ir/` and does **not**
+mutate classic XML Applications. **400** when the path is missing, uses a cloud
+URL or other scheme (`https://…`, `s3://…`, `file://…`), contains credentials
+(`userinfo`), uses `..` traversal, or is an absolute/drive path.
+
+`GET …/resources/{resource}/binary` returns the fixture **bytes** with
+`Content-Type` from IR. The bundled token is resolved from a classpath document
+(`PIPE-BIN-FIXTURE`) so H2 QA and air-gapped installs retrieve without a live
+network. Missing or empty fixtures are **404** — the server does **not** invent
+content. Unsafe names are **400**. Unknown applications or resources are **404**.
+
+**Developer → Pipelines** detail exposes Admin **Binary resource** save,
+retrieve, and download (see [Developer Pipelines](id:admin-developer-pipelines)).
+
 The bundled webhook fixture URL is resolved from a classpath JSON document
 (`received` / `fixture=pipeline-webhook` / `echo=hook-ok`) so H2 QA and air-gapped
 installs can Test invoke without a live HTTP server. Live loopback URLs are POSTed
@@ -2000,7 +2031,7 @@ mapped JSON `rows` (document fields such as `sku` / `name` when a mapper is pres
 Cloud URLs, credentials, and redirects off loopback are **400**. Unknown app or resource
 names are **404**; unsupported resource kinds, malformed nested filter groups, or invalid
 bodies are **400**. **Developer →
-Pipelines** detail exposes Admin **HTTP datasource**, **nested filter groups**, **HTTP webhook hooks**, and **Test invoke**.
+Pipelines** detail exposes Admin **HTTP datasource**, **nested filter groups**, **HTTP webhook hooks**, **binary resource**, and **Test invoke**.
 When webhook hooks are configured, execute records real fixture HTTP status and body snippets
 in `meta` / `hookTrace` (blank URLs skip).
 

@@ -17,6 +17,7 @@
 
 package com.percussion.rest.pipelines;
 
+import com.percussion.services.pipeline.model.PipelineBinaryPayload;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
@@ -108,6 +109,24 @@ public interface IPipelinesAdaptor {
    */
   PipelineFilterGroup putFilterGroup(
       URI baseUri, String appName, String resourceName, PipelineFilterGroup group);
+
+  /**
+   * Admin: persist native IR binary resource (content type + portable-safe local fixture path).
+   * Cloud URLs, credentials, and path traversal are rejected. Classic XML Applications are not
+   * mutated.
+   *
+   * @return saved resource, never {@code null}
+   */
+  PipelineBinaryResource putBinaryResource(
+      URI baseUri, String appName, String resourceName, PipelineBinaryResource body);
+
+  /**
+   * Retrieve fixture bytes for a native BINARY resource. Missing or empty fixtures fail closed
+   * (documented 404/400, not invented content).
+   *
+   * @return payload, or {@code null} when the application/resource is not visible
+   */
+  PipelineBinaryPayload retrieveBinary(URI baseUri, String appName, String resourceName);
 
   /**
    * Admin: start a non-hidden classic XML Application / pipeline package (peer {@code

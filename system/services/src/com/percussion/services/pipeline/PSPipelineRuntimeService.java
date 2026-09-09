@@ -17,6 +17,7 @@
 
 package com.percussion.services.pipeline;
 
+import com.percussion.services.pipeline.binary.PSPipelineBinaryAdapter;
 import com.percussion.services.pipeline.hooks.IPSPipelinePostExecuteHook;
 import com.percussion.services.pipeline.hooks.IPSPipelinePreExecuteHook;
 import com.percussion.services.pipeline.hooks.PipelineHookContext;
@@ -25,6 +26,7 @@ import com.percussion.services.pipeline.http.IPSPipelineHttpAdapter;
 import com.percussion.services.pipeline.http.PSPipelineHttpAdapter;
 import com.percussion.services.pipeline.model.BackendTankStageIr;
 import com.percussion.services.pipeline.model.FilterGroupIr;
+import com.percussion.services.pipeline.model.PipelineBinaryPayload;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
@@ -49,6 +51,7 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
   private final IPSPipelineIrService irService;
   private final IPSPipelineSqlAdapter sqlAdapter;
   private final IPSPipelineHttpAdapter httpAdapter;
+  private final PSPipelineBinaryAdapter binaryAdapter;
   private final List<IPSPipelinePreExecuteHook> preHooks;
   private final List<IPSPipelinePostExecuteHook> postHooks;
   private final PSPipelineHttpWebhookInvoker webhookInvoker;
@@ -74,6 +77,7 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
     this.irService = Objects.requireNonNull(irService, "irService");
     this.sqlAdapter = Objects.requireNonNull(sqlAdapter, "sqlAdapter");
     this.httpAdapter = httpAdapter != null ? httpAdapter : new PSPipelineHttpAdapter();
+    this.binaryAdapter = new PSPipelineBinaryAdapter();
     this.preHooks = preHooks != null ? List.copyOf(preHooks) : List.of();
     this.postHooks = postHooks != null ? List.copyOf(postHooks) : List.of();
     this.webhookInvoker = new PSPipelineHttpWebhookInvoker();
@@ -96,6 +100,24 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
           "Resource not found in IR " + appName + ": " + resourceName);
     }
     return execute(doc, resource, request);
+  }
+
+  @Override
+  public PipelineBinaryPayload retrieveBinary(String appName, String resourceName)
+      throws PSPipelineIrException {
+    Objects.requireNonNull(appName, "appName");
+    Objects.requireNonNull(resourceName, "resourceName");
+    Optional<PipelineIrDocument> loaded = irService.load(appName);
+    if (loaded.isEmpty()) {
+      throw new PSPipelineIrException("Pipeline IR not found: " + appName);
+    }
+    PipelineIrDocument doc = loaded.get();
+    PipelineResourceIr resource = doc.findResource(resourceName);
+    if (resource == null) {
+      throw new PSPipelineIrException(
+          "Resource not found in IR " + appName + ": " + resourceName);
+    }
+    return binaryAdapter.retrieve(appName, resource);
   }
 
   @Override
@@ -148,6 +170,16 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
       result.setRows(rows);
       result.getMeta().put("sqlDescription", plan.getDescription());
       result.getMeta().put("parameterCount", plan.getParameters().size());
+    } else if (PipelineResourceIr.KIND_BINARY.equals(resource.getKind())
+        || (resource.getBinary() != null && resource.getBinary().isPresent())) {
+      PipelineBinaryPayload payload = binaryAdapter.retrieve(appName, resource);
+      result.setOperation("binary");
+      result.setKind(PipelineResourceIr.KIND_BINARY);
+      result.setRowCount(0);
+      result.getMeta().put("contentType", payload.getContentType());
+      result.getMeta().put("byteLength", payload.getByteLength());
+      result.getMeta().put("path", payload.getPath());
+      // Fixture bytes themselves are returned on GET …/binary (not invented JSON rows).
     } else if (PipelineResourceIr.KIND_UPDATE.equals(resource.getKind())) {
       String mutation = PSPipelineSqlPlanner.resolveMutationOperation(resource, req);
       List<PSPipelineSqlPlan> plans;
