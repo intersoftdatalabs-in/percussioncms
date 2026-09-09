@@ -38,6 +38,8 @@ import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
 import com.percussion.services.pipeline.model.PipelineRequestTrace;
+import com.percussion.services.pipeline.model.PipelineResourceIr;
+import com.percussion.services.pipeline.model.PipelineResultPageIr;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -155,6 +157,30 @@ public class PipelinesResourceTest {
     assertEquals("sys_foo", out.getApp().getName());
     assertEquals(PipelineIrDocument.CURRENT_IR_VERSION, out.getIrVersion());
     verify(adaptor).getPipelineIr(any(), eq("sys_foo"));
+  }
+
+  @Test
+  public void getPipelineIrReturnsImportedResultPages() {
+    PipelineIrDocument ir = new PipelineIrDocument();
+    ir.setIrVersion(PipelineIrDocument.CURRENT_IR_VERSION);
+    ir.getApp().setName("sys_foo");
+    PipelineResourceIr irResource = new PipelineResourceIr();
+    irResource.setName("Dataset34");
+    PipelineResultPageIr page = new PipelineResultPageIr();
+    page.setRequestExtension(".html");
+    page.setMimeType("text/html");
+    page.setStylesheetUri("pages/result.xsl");
+    irResource.setResultPages(List.of(page));
+    ir.setResources(List.of(irResource));
+    when(adaptor.getPipelineIr(any(), eq("sys_foo"))).thenReturn(ir);
+
+    PipelineIrDocument out = resource.getPipelineIr("sys_foo");
+    assertEquals(1, out.findResource("Dataset34").getResultPages().size());
+    assertEquals(
+        "pages/result.xsl",
+        out.findResource("Dataset34").getResultPages().get(0).getStylesheetUri());
+    assertEquals(".html", out.findResource("Dataset34").getResultPages().get(0).getRequestExtension());
+    assertEquals("text/html", out.findResource("Dataset34").getResultPages().get(0).getMimeType());
   }
 
   @Test

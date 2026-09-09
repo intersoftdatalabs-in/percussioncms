@@ -37,6 +37,8 @@ import com.percussion.design.objectstore.PSPageDataTank;
 import com.percussion.design.objectstore.PSPipe;
 import com.percussion.design.objectstore.PSQueryPipe;
 import com.percussion.design.objectstore.PSRequestor;
+import com.percussion.design.objectstore.PSResultPage;
+import com.percussion.design.objectstore.PSResultPageSet;
 import com.percussion.design.objectstore.PSResultPager;
 import com.percussion.design.objectstore.PSSingleHtmlParameter;
 import com.percussion.design.objectstore.PSTextLiteral;
@@ -54,10 +56,12 @@ import com.percussion.services.pipeline.model.PagerStageIr;
 import com.percussion.services.pipeline.model.PipelineAppMeta;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
+import com.percussion.services.pipeline.model.PipelineResultPageIr;
 import com.percussion.services.pipeline.model.PipelineStagesIr;
 import com.percussion.services.pipeline.model.SelectorStageIr;
 import com.percussion.services.pipeline.model.UpdaterStageIr;
 import com.percussion.services.pipeline.model.WhereClauseIr;
+import com.percussion.services.pipeline.xsl.PSPipelineResultPagePath;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.IOException;
@@ -74,8 +78,8 @@ import org.xml.sax.SAXException;
  * Imports a classic XML Application ({@link PSApplication} / objectstore) into pipeline IR.
  *
  * <p>Subset only: app meta + datasets with query/update pipe stage inventory (tanks, mapper,
- * selector, pager, updater flags). Content Editor pipes are labeled but not deeply expanded (Slice
- * A scope).
+ * selector, pager, updater flags) and path-safe classic result-page inspect. Content Editor pipes
+ * are labeled but not deeply expanded (Slice A scope).
  */
 public final class PSClassicPipelineImporter {
 
@@ -152,8 +156,11 @@ public final class PSClassicPipelineImporter {
 
     if (ds instanceof PSContentEditor) {
       res.setKind(PipelineResourceIr.KIND_CONTENT_EDITOR);
-      // CE pipe DNA is out of Slice A import depth; leave stages empty/not present.
+      // CE pipe DNA is out of Slice A import depth; still import path-safe result pages.
       res.setStages(new PipelineStagesIr());
+      List<PipelineResultPageIr> importedPages = mapResultPages(ds.getOutputResultPages());
+      res.setResultPages(importedPages);
+      res.setResultPage(firstHtmlApplyPage(importedPages));
       return res;
     }
 
@@ -178,6 +185,9 @@ public final class PSClassicPipelineImporter {
 
     stages.setPageTank(mapPageTank(ds.getPageDataTank()));
     stages.setPager(mapPager(ds.getResultPager()));
+    List<PipelineResultPageIr> importedPages = mapResultPages(ds.getOutputResultPages());
+    res.setResultPages(importedPages);
+    res.setResultPage(firstHtmlApplyPage(importedPages));
     res.setStages(stages);
     return res;
   }
@@ -409,6 +419,92 @@ public final class PSClassicPipelineImporter {
       ir.setRightKind(kind);
       ir.setRight(text);
     }
+  }
+
+  /**
+   * Map classic {@link PSResultPageSet} onto IR inspect pages. Unsafe stylesheet URIs ({@code ..},
+   * absolute {@code file:/} paths, cloud URLs) are skipped so one bad page does not fail the
+   * application import.
+   */
+  private static List<PipelineResultPageIr> mapResultPages(PSResultPageSet pageSet) {
+    List<PipelineResultPageIr> out = new ArrayList<>();
+    if (pageSet == null) {
+      return out;
+    }
+    PSCollection pages = pageSet.getResultPages();
+    if (pages == null) {
+      return out;
+    }
+    for (Object o : pages) {
+      if (o instanceof PSResultPage page) {
+        out.addAll(mapResultPage(page));
+      }
+    }
+    return out;
+  }
+
+  private static List<PipelineResultPageIr> mapResultPage(PSResultPage page) {
+    List<PipelineResultPageIr> out = new ArrayList<>();
+    String stylesheet = PSPipelineResultPagePath.tryImportedStylesheetUri(page.getStyleSheet());
+    if (stylesheet == null) {
+      return out;
+    }
+    String mime = null;
+    if (page.getMimeType() != null) {
+      mime = PSPipelineResultPagePath.tryImportedMimeType(page.getMimeType().getValueText());
+    }
+    java.util.Collection<?> extensions = page.getExtensions();
+    if (extensions == null || extensions.isEmpty()) {
+      out.add(newResultPageIr(null, mime, stylesheet));
+      return out;
+    }
+    for (Object ext : extensions) {
+      if (ext == null) {
+        continue;
+      }
+      String requestExtension = PSPipelineResultPagePath.tryImportedRequestExtension(String.valueOf(ext));
+      if (requestExtension == null) {
+        continue;
+      }
+      out.add(newResultPageIr(requestExtension, mime, stylesheet));
+    }
+    if (out.isEmpty()) {
+      out.add(newResultPageIr(null, mime, stylesheet));
+    }
+    return out;
+  }
+
+  private static PipelineResultPageIr newResultPageIr(
+      String requestExtension, String mimeType, String stylesheetUri) {
+    PipelineResultPageIr ir = new PipelineResultPageIr();
+    ir.setRequestExtension(requestExtension);
+    ir.setMimeType(mimeType);
+    ir.setStylesheetUri(stylesheetUri);
+    return ir;
+  }
+
+  /**
+   * First imported page that is eligible for native HTML apply ({@code .html}/{@code .htm} + {@code
+   * text/html} defaults). Inspect-only XML/JSON pages are not copied onto {@code resultPage}.
+   */
+  private static PipelineResultPageIr firstHtmlApplyPage(List<PipelineResultPageIr> pages) {
+    if (pages == null) {
+      return null;
+    }
+    for (PipelineResultPageIr page : pages) {
+      if (page == null || !page.isPresent()) {
+        continue;
+      }
+      try {
+        PSPipelineResultPagePath.requireSafeStylesheetUri(page.getStylesheetUri());
+        PSPipelineResultPagePath.requireSafeRequestExtension(page.getRequestExtension());
+        PSPipelineResultPagePath.requireSafeMimeType(page.getMimeType());
+        return page;
+      } catch (PSPipelineIrException ignored) {
+        // inspect-only (non-HTML extension or mime)
+      }
+    }
+    return null;
   }
 
   private static PagerStageIr mapPager(PSResultPager pager) {

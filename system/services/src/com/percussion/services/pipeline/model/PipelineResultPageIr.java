@@ -21,8 +21,9 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Native IR result-page binding (Slice D PRE-01): HTML request extension + stylesheet URI. Classic
- * XML Applications are not rewritten.
+ * Native IR result-page binding (Slice D): request extension + MIME + stylesheet URI. Used as the
+ * HTML apply binding ({@code resultPage}) and as classic-import inspect entries ({@code
+ * resultPages[]}). Classic XML Applications are not rewritten.
  */
 public class PipelineResultPageIr {
 

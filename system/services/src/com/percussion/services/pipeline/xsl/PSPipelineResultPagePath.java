@@ -19,6 +19,9 @@ package com.percussion.services.pipeline.xsl;
 
 import com.percussion.services.pipeline.PSPipelineIrException;
 import com.percussion.services.pipeline.model.PipelineResultPageIr;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Locale;
@@ -99,6 +102,101 @@ public final class PSPipelineResultPagePath {
       }
     } catch (InvalidPathException e) {
       throw new PSPipelineIrException("Result page stylesheet URI is not a valid local path", e);
+    }
+    return raw;
+  }
+
+  /**
+   * Classic {@code PSResultPage} stylesheet URL → portable relative IR URI, or {@code null} when
+   * missing or fail-closed (non-{@code file:} schemes, absolute paths, traversal, cloud URLs).
+   *
+   * <p>Classic XML stores app-local sheets as {@code file:pages/result.xsl}. Absolute {@code
+   * file:/…} / {@code file:///…} customer paths and {@code http(s):} URLs are skipped, not
+   * rewritten.
+   *
+   * @param url classic stylesheet URL, may be {@code null}
+   * @return trimmed relative URI, or {@code null} to skip the page
+   */
+  public static String tryImportedStylesheetUri(URL url) {
+    if (url == null) {
+      return null;
+    }
+    String protocol = url.getProtocol();
+    if (protocol == null || !"file".equalsIgnoreCase(protocol)) {
+      return null;
+    }
+    String external = url.toExternalForm();
+    if (external.length() <= 5) {
+      return null;
+    }
+    String rest = external.substring(5);
+    if (rest.startsWith("/")) {
+      return null;
+    }
+    String decoded;
+    try {
+      decoded = URLDecoder.decode(rest, StandardCharsets.UTF_8);
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+    try {
+      return requireSafeStylesheetUri(decoded);
+    } catch (PSPipelineIrException e) {
+      return null;
+    }
+  }
+
+  /**
+   * Classic request extension for IR inspect. Any alphanumeric token is kept (html, xml, json);
+   * path separators and traversal are skipped. Unlike {@link #requireSafeRequestExtension}, this
+   * does not restrict to HTML — presentation=none / JSON skip-XSL is a later slice.
+   *
+   * @param extension classic extension with or without a leading dot, may be blank
+   * @return dotted lowercase extension, or {@code null} when blank/unsafe
+   */
+  public static String tryImportedRequestExtension(String extension) {
+    if (StringUtils.isBlank(extension)) {
+      return null;
+    }
+    String raw = extension.trim();
+    if (raw.indexOf('\0') >= 0
+        || raw.indexOf('/') >= 0
+        || raw.indexOf('\\') >= 0
+        || raw.contains("..")) {
+      return null;
+    }
+    if (raw.length() > MAX_EXTENSION_CHARS) {
+      return null;
+    }
+    String token = raw.startsWith(".") ? raw.substring(1) : raw;
+    if (token.isBlank() || !token.chars().allMatch(Character::isLetterOrDigit)) {
+      return null;
+    }
+    return "." + token.toLowerCase(Locale.ROOT);
+  }
+
+  /**
+   * Classic MIME replacement text for IR inspect. Control characters and oversize values are
+   * skipped. Non-{@code text/html} values are kept for inspect (HTML apply still uses {@link
+   * #requireSafeMimeType}).
+   *
+   * @param mimeType classic MIME text, may be blank
+   * @return trimmed MIME type, or {@code null} when blank/unsafe
+   */
+  public static String tryImportedMimeType(String mimeType) {
+    if (StringUtils.isBlank(mimeType)) {
+      return null;
+    }
+    String raw = mimeType.trim();
+    if (raw.indexOf('\0') >= 0 || raw.indexOf('\r') >= 0 || raw.indexOf('\n') >= 0) {
+      return null;
+    }
+    if (raw.length() > MAX_MIME_CHARS) {
+      return null;
+    }
+    int slash = raw.indexOf('/');
+    if (slash <= 0 || slash >= raw.length() - 1) {
+      return null;
     }
     return raw;
   }

@@ -1669,6 +1669,46 @@ class PipelinesAdaptorTest {
   }
 
   @Test
+  void getPipelineIr_classicImportExposesResultPages() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    when(ir.load("sys_cmpDocuments")).thenReturn(Optional.empty());
+    PSApplication app = mock(PSApplication.class);
+    PipelineIrDocument imported = new PipelineIrDocument();
+    imported.setSource(PipelineIrDocument.SOURCE_CLASSIC_IMPORT);
+    imported.getApp().setName("sys_cmpDocuments");
+    PipelineResourceIr resource = new PipelineResourceIr();
+    resource.setName("Dataset34");
+    PipelineResultPageIr html = new PipelineResultPageIr();
+    html.setRequestExtension(".html");
+    html.setMimeType("text/html");
+    html.setStylesheetUri("pages/result.xsl");
+    resource.setResultPages(java.util.List.of(html));
+    resource.setResultPage(html);
+    imported.setResources(java.util.List.of(resource));
+    when(ir.importClassicApplication(app)).thenReturn(imported);
+
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> ir,
+            (name, tok) -> app);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineIrDocument out =
+          adaptor.getPipelineIr(URI.create("http://localhost/services/"), "sys_cmpDocuments");
+      assertEquals(1, out.findResource("Dataset34").getResultPages().size());
+      assertEquals(
+          "pages/result.xsl",
+          out.findResource("Dataset34").getResultPages().get(0).getStylesheetUri());
+      assertEquals("text/html", out.findResource("Dataset34").getResultPages().get(0).getMimeType());
+      assertEquals(".html", out.findResource("Dataset34").getResultPages().get(0).getRequestExtension());
+    }
+  }
+
+  @Test
   void getPipelineIr_unknownOrUnsafeNameReturnsNull() {
     PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
     IPSPipelineIrService ir = mock(IPSPipelineIrService.class);

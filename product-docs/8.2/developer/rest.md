@@ -1861,7 +1861,12 @@ invented). **Slice D** also persists an **HTML result-page** binding
 invoke with `requestExtension=.html` (or `accept=text/html`) applies the
 stylesheet merge and returns HTML in `PipelineExecuteResult.html` (not raw
 XML/JSON). Cloud stylesheet URIs, credentials, and path traversal are **400**.
-Missing stylesheets fail closed (no invented HTML). **Slice D** also enables
+Missing stylesheets fail closed (no invented HTML). Classic XML Application
+**import** (GET IR when no native file exists) maps `PSResultPage` /
+`PSResultPageSet` onto `resources[].resultPages[]` (extension, MIME,
+stylesheet URI). Relative `file:` sheets import; `..`, absolute paths, and
+cloud stylesheet URLs are skipped. Classic XML is **not** rewritten.
+**Slice D** also enables
 **request tracing** (`PUT …/tracing`) and returns a fail-closed **last-trace**
 (`GET …/lastTrace`) after Test invoke: stages and timings only. Passwords,
 tokens, and `Authorization` values are **redacted**; result rows are never
@@ -1892,7 +1897,8 @@ JSON list rows use `Application` / `ApplicationSummary`; detail uses `Applicatio
 (fields include `id`, `name`, `description`, `enabled`, `hidden`, `active`, `appRoot`,
 `appType`, `version`, `dataSets[]`, and `designGaps[]`). IR responses use the system
 `PipelineIrDocument` shape (`irVersion`, `source`, `app`, `resources[]` with stage presence,
-backend tank tables, mapper mappings, selector / updater summaries). Prefer the generated
+backend tank tables, mapper mappings, selector / updater summaries, and imported
+`resultPages[]` / HTML `resultPage` when present). Prefer the generated
 OpenAPI schema as the integration source of truth. Error bodies use generic messages and
 **do not echo** raw `{idOrName}` path values (name probing / path injection).
 
@@ -1915,9 +1921,13 @@ stopped, stop returns **200** with `active=false`. Successful responses return r
 2. Otherwise **imports** the classic XML Application into IR in memory (not persisted).
 
 Unknown or unsafe names are **404**. Import/decode failures that are not “not found” are
-**400**. Full graph editing and classic XML rewrite remain `designGaps`. Native **HTTP
-backend tank** persist is a separate Admin PUT (below). **Developer → Pipelines**
-detail uses this GET for a resources / tanks / mapper summary (see
+**400**. Full graph editing and classic XML rewrite remain `designGaps`. Classic
+**result-page import** is included on this GET: path-safe `file:` stylesheets
+appear on `resources[].resultPages[]` (and the first HTML-eligible page on
+`resultPage`). Traversal, absolute customer paths, and `http(s)` stylesheet
+URLs are omitted. Native **HTTP backend tank** persist is a separate Admin PUT
+(below). **Developer → Pipelines** detail uses this GET for a resources /
+tanks / mapper / result-page inspect summary (see
 [Developer Pipelines](id:admin-developer-pipelines)).
 
 ### OpenAPI from resources (Slice C)

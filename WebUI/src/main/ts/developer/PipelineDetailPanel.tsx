@@ -48,6 +48,7 @@ import type {
   PipelineIrResource,
   PipelineIrStages,
   PipelineRequestTrace,
+  PipelineResultPage,
 } from "../api/developer/types";
 import {
   clientFilterGroupError,
@@ -300,6 +301,15 @@ function yesNo(value: boolean | null | undefined): string {
   return value ? DEV_MSG.YES : DEV_MSG.NO;
 }
 
+/** Classic import + native inspect pages (stylesheet URI required). */
+export function inspectResultPages(resource: PipelineIrResource | undefined): PipelineResultPage[] {
+  if (!resource) return [];
+  const listed = (resource.resultPages || []).filter((p) => !!p?.stylesheetUri?.trim());
+  if (listed.length > 0) return listed;
+  if (resource.resultPage?.stylesheetUri?.trim()) return [resource.resultPage];
+  return [];
+}
+
 function IrResourceCard({
   resource,
   index,
@@ -317,6 +327,8 @@ function IrResourceCard({
   const joinCount = stages?.backendTank?.joinCount;
   const adapterType = stages?.backendTank?.adapterType;
   const httpUrl = stages?.backendTank?.url;
+  const resultPages = inspectResultPages(resource);
+  const stageLabels = resultPages.length > 0 ? [...present, "resultPages"] : present;
 
   return (
     <article
@@ -348,7 +360,7 @@ function IrResourceCard({
       <dl style={{ ...metaGrid, marginBottom: "8px" }}>
         <dt>{DEV_MSG.PIPE_IR_COL_STAGES}</dt>
         <dd style={{ margin: 0, ...monoCell }}>
-          {present.length > 0 ? present.join(", ") : DEV_MSG.PIPE_NONE}
+          {stageLabels.length > 0 ? stageLabels.join(", ") : DEV_MSG.PIPE_NONE}
         </dd>
         <dt>{DEV_MSG.PIPE_IR_COL_TX}</dt>
         <dd style={{ margin: 0, ...monoCell }}>{resource.transactionMode || "—"}</dd>
@@ -433,6 +445,56 @@ function IrResourceCard({
                     </td>
                     <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
                       {t.datasource || "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
+
+      {resultPages.length > 0 ? (
+        <section
+          style={{ marginBottom: "12px" }}
+          data-testid={`developer-pipe-ir-result-pages-${index}`}
+        >
+          <h5 style={{ margin: "0 0 6px", fontSize: "0.95rem" }}>
+            {DEV_MSG.PIPE_IR_RESULT_PAGES} ({resultPages.length})
+          </h5>
+          <div style={{ overflowX: "auto" }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: "0.85rem",
+              }}
+            >
+              <thead>
+                <tr style={tableHeaderRow}>
+                  <th style={{ padding: "6px 8px" }}>{DEV_MSG.PIPE_IR_RESULT_PAGE_EXT}</th>
+                  <th style={{ padding: "6px 8px" }}>{DEV_MSG.PIPE_IR_RESULT_PAGE_MIME}</th>
+                  <th style={{ padding: "6px 8px" }}>{DEV_MSG.PIPE_IR_RESULT_PAGE_XSL}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {resultPages.map((p, pi) => (
+                  <tr
+                    key={`${p.stylesheetUri || "rp"}-${pi}`}
+                    style={tableRow}
+                    data-testid={`developer-pipe-ir-result-page-${index}-${pi}`}
+                  >
+                    <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
+                      {p.requestExtension?.trim() || DEV_MSG.PIPE_IR_RESULT_PAGE_ANY}
+                    </td>
+                    <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
+                      {p.mimeType?.trim() || "—"}
+                    </td>
+                    <td
+                      style={{ padding: "6px 8px", fontFamily: "monospace" }}
+                      data-testid={`developer-pipe-ir-result-page-xsl-${index}-${pi}`}
+                    >
+                      {p.stylesheetUri || "—"}
                     </td>
                   </tr>
                 ))}

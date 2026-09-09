@@ -600,6 +600,8 @@ export interface PipelineIrResource {
   webhookHooks?: PipelineWebhookHooks;
   binary?: PipelineBinaryResource;
   resultPage?: PipelineResultPage;
+  /** Classic import inspect list (path-safe stylesheets). */
+  resultPages?: PipelineResultPage[];
 }
 
 /** App meta nested under Pipeline IR. */

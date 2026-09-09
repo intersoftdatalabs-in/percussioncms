@@ -45,6 +45,7 @@ public class PipelineResourceIr {
   private PipelineWebhookHooksIr webhookHooks;
   private PipelineBinaryResourceIr binary;
   private PipelineResultPageIr resultPage;
+  private List<PipelineResultPageIr> resultPages = new ArrayList<>();
 
   public String getName() {
     return name;
@@ -127,6 +128,20 @@ public class PipelineResourceIr {
   }
 
   /**
+   * Classic import (and native inspect) inventory of result pages. Distinct from {@link
+   * #getResultPage()} which is the HTML apply binding.
+   *
+   * @return never {@code null}
+   */
+  public List<PipelineResultPageIr> getResultPages() {
+    return resultPages;
+  }
+
+  public void setResultPages(List<PipelineResultPageIr> resultPages) {
+    this.resultPages = resultPages != null ? resultPages : new ArrayList<>();
+  }
+
+  /**
    * Ordered inventory of present stage kinds for assertions and catalog UIs.
    *
    * @return non-null list of stage keys (e.g. {@code pageTank}, {@code mapper})
@@ -161,6 +176,9 @@ public class PipelineResourceIr {
     if (resultPage != null && resultPage.isPresent()) {
       out.add("resultPage");
     }
+    if (resultPages != null && resultPages.stream().anyMatch(PipelineResultPageIr::isPresent)) {
+      out.add("resultPages");
+    }
     return out;
   }
 
@@ -181,7 +199,8 @@ public class PipelineResourceIr {
         && Objects.equals(stages, that.stages)
         && Objects.equals(webhookHooks, that.webhookHooks)
         && Objects.equals(binary, that.binary)
-        && Objects.equals(resultPage, that.resultPage);
+        && Objects.equals(resultPage, that.resultPage)
+        && Objects.equals(resultPages, that.resultPages);
   }
 
   @Override
@@ -196,6 +215,7 @@ public class PipelineResourceIr {
         stages,
         webhookHooks,
         binary,
-        resultPage);
+        resultPage,
+        resultPages);
   }
 }

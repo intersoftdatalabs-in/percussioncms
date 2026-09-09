@@ -772,6 +772,46 @@ describe("PipelineDetailPanel", () => {
     });
   });
 
+  it("inspects classic imported result pages from GET IR", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    getPipelineIr.mockResolvedValue({
+      irVersion: "1.0",
+      source: "CLASSIC_IMPORT",
+      resources: [
+        {
+          name: "Dataset34",
+          kind: "QUERY",
+          resultPages: [
+            {
+              requestExtension: ".html",
+              mimeType: "text/html",
+              stylesheetUri: "pages/result.xsl",
+            },
+            {
+              requestExtension: ".xml",
+              mimeType: "text/xml",
+              stylesheetUri: "pages/result.xml.xsl",
+            },
+          ],
+        },
+      ],
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-ir-result-pages-0")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-pipe-ir-result-page-xsl-0-0").textContent).toBe(
+      "pages/result.xsl",
+    );
+    expect(screen.getByTestId("developer-pipe-ir-result-page-0-0").textContent).toMatch(/\.html/);
+    expect(screen.getByTestId("developer-pipe-ir-result-page-0-0").textContent).toMatch(
+      /text\/html/,
+    );
+    expect(screen.getByTestId("developer-pipe-ir-result-page-xsl-0-1").textContent).toBe(
+      "pages/result.xml.xsl",
+    );
+  });
+
   it("result page save fail-closes on blank URI and cloud 400", async () => {
     getApplicationDetail.mockResolvedValue(sampleDetail);
     renderDetail(true);
