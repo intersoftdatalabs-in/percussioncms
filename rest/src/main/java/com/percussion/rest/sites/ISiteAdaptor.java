@@ -113,7 +113,7 @@ public interface ISiteAdaptor {
    * Builds a Virtual Site from configured {@code virtual.*} properties ({@code git-filesystem},
    * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage},
    * {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code
-   * llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, or {@code graphql-sdl}).
+   * llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, {@code graphql-sdl}, or {@code json-schema}).
    *
    * <p>Loads the site, validates via {@code PSVirtualSiteHelper}, optionally clones/fetches {@code
    * virtual.remoteUrl} into a contained work directory (git-filesystem only), runs {@code
@@ -146,7 +146,10 @@ public interface ISiteAdaptor {
    * credential properties, and cloud {@code rootPath} are 400. {@code graphql-sdl} discovers pages
    * from a local GraphQL SDL fixture ({@code schema.graphql} or {@code graphql.file}) — no live
    * GraphQL HTTP or introspection; leftover {@code virtual.remoteUrl}, credential properties,
-   * cloud {@code rootPath}, and {@code graphql.url} are 400. Unknown source kinds return 400.
+   * cloud {@code rootPath}, and {@code graphql.url} are 400. {@code json-schema} discovers pages
+   * from a local JSON Schema fixture ({@code schema.json} or {@code jsonschema.file}) — no live
+   * HTTP schema fetch; leftover {@code virtual.remoteUrl}, credential properties,
+   * cloud {@code rootPath}, {@code jsonschema.url}, and remote {@code $ref}/{@code $id} HTTP are 400. Unknown source kinds return 400.
    * Requires Admin (or equivalent site-manage) authorization.
    *
    * @param nameOrId site name or GUID string, not blank
@@ -163,7 +166,7 @@ public interface ISiteAdaptor {
    * <p>Last-output based: {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
    * {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, {@code
    * sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code
-   * asyncapi-yaml}, and {@code graphql-sdl} sites are previewable after a successful assemble. {@code rss-atom} uses a
+   * asyncapi-yaml}, {@code graphql-sdl}, and {@code json-schema} sites are previewable after a successful assemble. {@code rss-atom} uses a
    * local RSS 2.0 / Atom fixture or loopback feed (no live remote feeds). {@code icalendar} uses a
    * local RFC 5545 {@code calendar.ics} fixture (no CalDAV). {@code sitemap-xml} uses a local
    * {@code sitemap.xml} fixture (no live crawl). {@code robots-txt} uses a local {@code
@@ -171,9 +174,11 @@ public interface ISiteAdaptor {
    * (no live HTTP fetch). {@code openapi-yaml} uses a local OpenAPI 3 YAML fixture (no live spec
    * fetch). {@code asyncapi-yaml} uses a local AsyncAPI 2/3 YAML fixture (no live spec fetch).
    * {@code graphql-sdl} uses a local GraphQL SDL fixture (no live GraphQL HTTP or introspection).
+   * {@code json-schema} uses a local JSON Schema fixture (no live HTTP schema fetch).
    * Leftover {@code virtual.remoteUrl} and credential properties on {@code sitemap-xml}, {@code
-   * robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, and {@code
-   * graphql-sdl} are 400 ({@code graphql.url} leftover is also 400). Missing
+   * robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, {@code
+   * graphql-sdl}, and {@code json-schema} are 400 ({@code graphql.url} leftover is also 400;
+   * {@code jsonschema.url} leftover is also 400). Missing
    * output is {@code
    * available=false} with a message (not a 500). Repository and unknown source kinds are 400.
    * Requires Admin.
@@ -191,7 +196,7 @@ public interface ISiteAdaptor {
    * <p>Same last-output contract as {@link #getVirtualSitePreviewStatus} for {@code git-filesystem},
    * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage},
    * {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code
-   * llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, and {@code graphql-sdl}.
+   * llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, {@code graphql-sdl}, and {@code json-schema}.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param relativePath path under the output root ({@code 8.2/index.html}); blank means assembled

@@ -1863,7 +1863,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@GraphQL SDL uses the root path only (no Git remote). Point at a local GraphQL schema fixture directory (schema.graphql or _config.yaml graphql.file). Save sourceKind=graphql-sdl, then Build Virtual Site, then Preview assembled site. Publish Virtual Site copies assembled files to the Site filesystem target after a local GraphQL SDL Build. Missing build stays unavailable. Live GraphQL HTTP, introspection, graphql.url, remote URLs, and credentials are never sent on the REST envelope.",
   SITE_VIRT_KIND_JSON_SCHEMA: "perc.ui.developer@JSON Schema",
   SITE_VIRT_JSON_SCHEMA_HINT:
-    "perc.ui.developer@JSON Schema uses the root path only (no Git remote). Point at a local JSON Schema fixture directory (schema.json or _config.yaml jsonschema.file). Save sourceKind=json-schema. Build Virtual Site, Preview assembled site, and Publish Virtual Site stay later slices. Live HTTP schema fetch, jsonschema.url, remote URLs, and credentials are never sent on the REST envelope.",
+    "perc.ui.developer@JSON Schema uses the root path only (no Git remote). Point at a local JSON Schema fixture directory (schema.json or _config.yaml jsonschema.file). Save sourceKind=json-schema, then Build Virtual Site, then Preview assembled site. Publish Virtual Site stays a later slice. Missing build stays unavailable. Live HTTP schema fetch, jsonschema.url, remote $ref/$id HTTP, remote URLs, and credentials are never sent on the REST envelope.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:
@@ -1890,7 +1890,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Save Virtual Site source before building so the server uses the latest properties.",
   SITE_VIRT_PREVIEW: "perc.ui.developer@Preview assembled site",
   SITE_VIRT_PREVIEW_HINT:
-    "perc.ui.developer@Opens the last assembled home in a new tab after Build (Git filesystem, CSV filesystem, SQL database, HTTP JSON, Object storage, RSS / Atom, iCalendar, Sitemap XML, Robots.txt, llms.txt, OpenAPI YAML, AsyncAPI YAML, or GraphQL SDL). Same-origin preview of the build output. Requires Admin.",
+    "perc.ui.developer@Opens the last assembled home in a new tab after Build (Git filesystem, CSV filesystem, SQL database, HTTP JSON, Object storage, RSS / Atom, iCalendar, Sitemap XML, Robots.txt, llms.txt, OpenAPI YAML, AsyncAPI YAML, GraphQL SDL, or JSON Schema). Same-origin preview of the build output. Requires Admin.",
   SITE_VIRT_PREVIEW_MISSING:
     "perc.ui.developer@No assembled site to preview. Run Build Virtual Site first.",
   SITE_VIRT_PREVIEW_ERROR: "perc.ui.developer@Could not open Virtual Site preview.",

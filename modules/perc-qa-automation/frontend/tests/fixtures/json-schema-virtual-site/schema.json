@@ -1,0 +1,7 @@
+{
+  "title": "Catalog",
+  "type": "object",
+  "properties": {
+    "sku": { "type": "string", "title": "SKU", "description": "Hello-from-jsonschema" }
+  }
+}

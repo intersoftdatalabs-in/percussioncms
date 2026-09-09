@@ -39,7 +39,7 @@
  * uses a portable-safe local rootPath only (no live GraphQL HTTP, no graphql.url, no virtual.remoteUrl);
  * Build, Preview, and Publish chrome are shown after save for graphql-sdl. json-schema save/GET-roundtrip
  * uses a portable-safe local rootPath only (no live HTTP schema fetch, no jsonschema.url, no virtual.remoteUrl);
- * Build, Preview, and Publish chrome stay hidden for json-schema (later slices). Also intercepts build REST
+ * Build and Preview chrome are shown after save for json-schema; Publish chrome stays hidden (later leftover). Also intercepts build REST
  * to prove link-problem detail lines render on HTTP 200 and publish REST to prove
  * dest path + files copied on HTTP 200 (including csv-filesystem, http-json, object-storage, rss-atom, and icalendar). Live H2 QA
  * deploys a CSV tree into the cell and asserts POST /virtual/build, GET
@@ -89,6 +89,9 @@
  * last-build home HTML (sole Query.user page; no live GraphQL HTTP). graphql-sdl live Publish
  * deploys the same fixture then POST /virtual/publish copies assembled HTML under Site
  * root (8.2/user-1.html); leftover remoteUrl/credentials/graphql.url stay 400 (no live GraphQL HTTP).
+ * json-schema live Build deploys a local schema.json fixture and asserts pagesWritten > 0
+ * (no Jetty restart). json-schema live Preview deploys the same fixture, Builds, then streams
+ * last-build home HTML (sole sku page; no live HTTP schema fetch). Publish chrome stays hidden.
  *
  * Surface-filtered QA mode:
  * <pre>
@@ -159,6 +162,10 @@ const {
   assertPublishedGraphQlSdlFilesOnQaCell,
   GRAPHQL_SDL_VIRTUAL_BUILD_MARKER,
 } = require("./helpers/graphql-sdl-virtual-qa-fixture");
+const {
+  deployJsonSchemaVirtualFixtureToQaCell,
+  JSON_SCHEMA_VIRTUAL_BUILD_MARKER,
+} = require("./helpers/json-schema-virtual-qa-fixture");
 const { saveVirtualSiteAndExpectSaved } = require("./helpers/virtual-site-save");
 const {
   missingVirtualSourceKindValues,
@@ -547,21 +554,27 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
-      // Switch to json-schema reveals root path (no Git remotes; Build/Preview/Publish later)
+      // Switch to json-schema reveals root path + Build / Preview (no Git remotes; Publish later)
       await kind.selectOption("json-schema");
       await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-json-schema-hint"]')).toBeVisible();
       await expect(
         page.locator('[data-testid="developer-site-virtual-json-schema-hint"]'),
-      ).toContainText("later slices");
+      ).toContainText("Build Virtual Site");
+      await expect(
+        page.locator('[data-testid="developer-site-virtual-json-schema-hint"]'),
+      ).toContainText("Preview assembled site");
+      await expect(
+        page.locator('[data-testid="developer-site-virtual-json-schema-hint"]'),
+      ).toContainText("later slice");
       await expect(
         page.locator('[data-testid="developer-site-virtual-json-schema-hint"]'),
       ).toContainText("jsonschema.url");
       await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
       await expect(page.locator('[data-testid="developer-site-virtual-branch"]')).toHaveCount(0);
-      await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(0);
-      await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
-      await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
 
       // Switch to git-filesystem reveals root path, optional remote, + Build / Publish
@@ -2832,7 +2845,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
   });
 
-  test("json-schema save PUTs envelope and GET-roundtrip persists without Build/Preview/Publish chrome (#4416)", async ({
+  test("json-schema save PUTs envelope and GET-roundtrip persists with Build/Preview chrome (#4417)", async ({
     page,
   }) => {
     const pageErrors = [];
@@ -2956,9 +2969,9 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-json-schema-hint"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
 
     await page.locator('[data-testid="developer-site-virtual-root-path"]').fill("C:/json-schema-docs");
@@ -2982,8 +2995,8 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toHaveValue(
       "C:/json-schema-docs",
     );
-    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
 
     await kind.selectOption("repository");
@@ -3205,12 +3218,12 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-json-schema-hint"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
     await page.locator('[data-testid="developer-site-virtual-root-path"]').fill("C:/json-schema-docs");
     await saveVirtualSiteAndExpectSaved(page, { timeout: 15_000 });
     await expect(kind).toHaveValue("json-schema");
-    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
 
     await page.locator('[data-testid="developer-site-back"]').click();
@@ -3223,8 +3236,8 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       "C:/json-schema-docs",
     );
     await expect(page.locator('[data-testid="developer-site-virtual-json-schema-hint"]')).toBeVisible();
-    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
 
     await kind.selectOption("repository");
@@ -8863,6 +8876,239 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       "assembled graphql-sdl home HTML should contain fixture title or body",
     ).toMatch(/Query\.user|Hello-from-graphql|GraphQL QA Docs/);
     expect(html).toContain(GRAPHQL_SDL_VIRTUAL_BUILD_MARKER);
+
+    await kind.selectOption("repository");
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
+
+  test("json-schema live Build Virtual Site completes on H2 QA (#4417)", async ({ page }) => {
+    test.setTimeout(120_000);
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    const jsRoot = deployJsonSchemaVirtualFixtureToQaCell();
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      throw new Error("No sites in catalog — live json-schema Build requires a site row");
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
+    await kind.selectOption("json-schema");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-json-schema-hint"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill(jsRoot);
+    await saveVirtualSiteAndExpectSaved(page, { timeout: 20_000 });
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+
+    const buildRespPromise = page.waitForResponse(
+      (resp) =>
+        resp.request().method() === "POST" && /\/virtual\/build(\?|$)/.test(resp.url()),
+    );
+    await page.locator('[data-testid="developer-site-virtual-build"]').click();
+    const buildResp = await buildRespPromise;
+    const buildBody = await buildResp.text();
+    expect(
+      buildResp.ok(),
+      `POST /virtual/build HTTP ${buildResp.status()}: ${buildBody}`,
+    ).toBeTruthy();
+    await expect(page.locator('[data-testid="developer-site-virtual-build-result"]')).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build-success"]')).toBeVisible();
+    const pagesText = (
+      await page.locator('[data-testid="developer-site-virtual-build-pages"]').textContent()
+    ).trim();
+    expect(Number.parseInt(pagesText, 10), `pages written: ${pagesText}`).toBeGreaterThan(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+
+    await kind.selectOption("repository");
+    await saveVirtualSiteAndExpectSaved(page, { timeout: 15_000 });
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
+
+  test("json-schema live Preview assembled site after Build (#4417)", async ({ page }) => {
+    test.setTimeout(120_000);
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    const jsRoot = deployJsonSchemaVirtualFixtureToQaCell();
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      throw new Error("No sites in catalog — live json-schema Preview requires a site row");
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const siteName = (
+      await page.locator('[data-testid="developer-site-detail-title"]').textContent()
+    ).trim();
+    expect(siteName, "Site detail title required for preview URL").toBeTruthy();
+
+    const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
+    await kind.selectOption("json-schema");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-json-schema-hint"]')).toContainText(
+      "Preview assembled site",
+    );
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview-hint"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview-hint"]')).toContainText(
+      "JSON Schema",
+    );
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill(jsRoot);
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+
+    const buildRespPromise = page.waitForResponse(
+      (resp) =>
+        resp.request().method() === "POST" && /\/virtual\/build(\?|$)/.test(resp.url()),
+    );
+    await page.locator('[data-testid="developer-site-virtual-build"]').click();
+    const buildResp = await buildRespPromise;
+    const buildBody = await buildResp.text();
+    expect(
+      buildResp.ok(),
+      `POST /virtual/build HTTP ${buildResp.status()}: ${buildBody}`,
+    ).toBeTruthy();
+    await expect(page.locator('[data-testid="developer-site-virtual-build-result"]')).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build-success"]')).toBeVisible();
+
+    const previewStatusPromise = page.waitForResponse((resp) => {
+      if (resp.request().method() !== "GET") {
+        return false;
+      }
+      const url = resp.url();
+      return /\/virtual\/preview(\?|$)/.test(url) && !/\/virtual\/preview\/.+/.test(url);
+    });
+    const popupPromise = page.waitForEvent("popup", { timeout: 20_000 }).catch(() => null);
+    await page.locator('[data-testid="developer-site-virtual-preview"]').click();
+    const statusResp = await previewStatusPromise;
+    const statusBody = await statusResp.text();
+    expect(
+      statusResp.ok(),
+      `GET /virtual/preview HTTP ${statusResp.status()}: ${statusBody}`,
+    ).toBeTruthy();
+    let statusJson = {};
+    try {
+      statusJson = JSON.parse(statusBody);
+    } catch {
+      throw new Error(`Preview status was not JSON: ${statusBody}`);
+    }
+    const statusRoot =
+      statusJson.VirtualSitePreviewStatus ||
+      statusJson.virtualSitePreviewStatus ||
+      statusJson;
+    expect(
+      statusRoot.available === true || statusRoot.available === "true",
+      `preview available: ${statusBody}`,
+    ).toBeTruthy();
+    const homePath = String(statusRoot.homePath || "").replace(/\\/g, "/").replace(/^\/+/, "");
+    expect(homePath, `homePath in ${statusBody}`).toMatch(/\.html$/);
+
+    const popup = await popupPromise;
+    let html = "";
+    if (popup) {
+      await popup.waitForLoadState("domcontentloaded").catch(() => {});
+      html = await popup.content().catch(() => "");
+      if (!html || /about:blank/i.test(popup.url())) {
+        const probeUrl = popup.url();
+        if (probeUrl && !/about:blank/i.test(probeUrl)) {
+          const probe = await page.request.get(probeUrl);
+          html = await probe.text();
+        }
+      }
+      if (!popup.isClosed()) {
+        await popup.close().catch(() => {});
+      }
+    }
+    if (!/SKU|Hello-from-jsonschema|JSON Schema QA Docs/.test(html)) {
+      const fileUrl = `${BASE_URL}/Rhythmyx/services/sites/${encodeURIComponent(siteName)}/virtual/preview/${homePath
+        .split("/")
+        .filter((seg) => seg.length > 0 && seg !== "." && seg !== "..")
+        .map((seg) => encodeURIComponent(seg))
+        .join("/")}`;
+      const fileResp = await page.request.get(fileUrl);
+      expect(
+        fileResp.ok(),
+        `GET preview home HTTP ${fileResp.status()} ${fileUrl}`,
+      ).toBeTruthy();
+      html = await fileResp.text();
+    }
+    expect(
+      html,
+      "assembled json-schema home HTML should contain fixture title or body",
+    ).toMatch(/SKU|Hello-from-jsonschema|JSON Schema QA Docs/);
+    expect(html).toContain(JSON_SCHEMA_VIRTUAL_BUILD_MARKER);
 
     await kind.selectOption("repository");
     await page.locator('[data-testid="developer-site-virtual-save"]').click();
