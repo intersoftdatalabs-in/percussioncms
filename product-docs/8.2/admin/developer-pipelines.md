@@ -1,7 +1,7 @@
 ---
 id: admin-developer-pipelines
 title: Developer Pipelines
-description: Browse classic XML Applications, Admin start/stop, pipe IR, OpenAPI from resources, HTTP datasource, nested filter groups, webhook hooks, binary resource retrieve, Test invoke, and Problems from Developer Pipelines chrome
+description: Browse classic XML Applications, Admin start/stop, pipe IR, OpenAPI from resources, HTTP datasource, nested filter groups, webhook hooks, binary resource retrieve, request tracing, Test invoke, and Problems from Developer Pipelines chrome
 version: "8.2"
 order: 51
 tags: [admin, developer, pipelines]
@@ -34,7 +34,7 @@ The **OpenAPI** section calls `GET /services/pipelines/{idOrName}/openapi`
 resources. It does not publish to an external registry.
 
 **Admins** also get **HTTP datasource**, **nested filter groups**, **HTTP webhook hooks**,
-**binary resource**, **Test invoke**, and **Problems** on the same detail page:
+**binary resource**, **request tracing**, **Test invoke**, and **Problems** on the same detail page:
 
 - **HTTP datasource** sets `adapterType=HTTP` and a **loopback / local fixture
   URL** (default `http://127.0.0.1/pipeline-http-fixture`) on the selected
@@ -65,6 +65,11 @@ resources. It does not publish to an external registry.
   groups fail closed (**400**). If the resource already has a non-local HTTP
   backend or leftover credentials in the URL, save is **400**. Classic XML
   Applications are not rewritten.
+- **Request tracing** turns last-trace capture on or off for the application
+  via `PUT /services/pipelines/{idOrName}/tracing`. After **Test invoke**,
+  **Last trace** loads `GET …/lastTrace` and shows stages with timings.
+  Passwords, tokens, and `Authorization` values are **redacted** (`[REDACTED]`);
+  result rows are never shown on the trace. Disabling tracing clears last-trace.
 - **Test invoke** posts sample JSON (`params` / `rows`) to
   `POST /services/pipelines/{app}/resources/{resource}/execute` and shows the
   structured execute result (or a clear error). HTTP tanks return mapped JSON
@@ -179,6 +184,19 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
    includes webhook `status` / body evidence (`hook-ok`, `pipeline-webhook`)
    from the local fixture.
 
+## Product path — request tracing
+
+1. As **Admin**, open an application detail page.
+2. In **Request tracing**, check **Trace requests** and choose **Save tracing**.
+   Success shows a saved notice.
+3. Enter a **resource** name in **Test invoke** and save an **HTTP datasource**
+   tank (bundled `http://127.0.0.1/pipeline-http-fixture`) so execute has rows.
+4. Optionally put `password`, `token`, or `Authorization` in the **Request JSON**
+   `params` object to confirm fail-closed redaction.
+5. Choose **Invoke**. **Last trace** lists stages (`adapter`, hooks) with
+   durations and a JSON snapshot. Secret values appear as `[REDACTED]`, never
+   the original password/token/Authorization strings.
+
 ## Product path — binary resource retrieve
 
 1. As **Admin**, open an application detail page.
@@ -229,6 +247,8 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-nested-filter-groups.spec.js`.
 - Surface-filtered Playwright for binary resource save + retrieve lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-binary-resource.spec.js`.
+- Surface-filtered Playwright for request tracing + last-trace lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-request-tracing.spec.js`.
 - Surface-filtered Playwright for OpenAPI view/download lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-openapi.spec.js`
   (prefers `sys_cmp*` IR/execute apps, or `PIPELINE_APP_NAME`; does not require
@@ -251,6 +271,8 @@ The chrome calls:
 | Filter groups | `PUT /services/pipelines/{app}/resources/{resource}/filterGroup` (**Admin**) |
 | Binary resource | `PUT /services/pipelines/{app}/resources/{resource}/binaryResource` (**Admin**) |
 | Retrieve binary | `GET /services/pipelines/{app}/resources/{resource}/binary` |
+| Request tracing | `PUT` / `GET /services/pipelines/{idOrName}/tracing` (**Admin**) |
+| Last trace | `GET /services/pipelines/{idOrName}/lastTrace` (**Admin**) |
 | Test invoke | `POST /services/pipelines/{app}/resources/{resource}/execute` |
 | Problems | `GET /services/pipelines/{idOrName}/validation` (**Admin**; soft-empty if absent) |
 

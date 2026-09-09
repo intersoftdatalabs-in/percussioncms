@@ -22,12 +22,14 @@ import {
   executeResource,
   getApplicationDetail,
   getApplicationValidation,
+  getLastTrace,
   getPipelineIr,
   getPipelineOpenApi,
   openApiDownloadFilename,
   putBinaryResource,
   putFilterGroup,
   putHttpBackendTank,
+  putTracing,
   putWebhookHooks,
   retrieveBinaryResource,
   startApplication,
@@ -44,6 +46,7 @@ import type {
   PipelineIrDocument,
   PipelineIrResource,
   PipelineIrStages,
+  PipelineRequestTrace,
 } from "../api/developer/types";
 import {
   clientFilterGroupError,
@@ -537,6 +540,12 @@ export function PipelineDetailPanel({
   const [binaryPreview, setBinaryPreview] = useState<string | null>(null);
   const [binaryPreviewType, setBinaryPreviewType] = useState<string | null>(null);
   const [binaryBytes, setBinaryBytes] = useState<Uint8Array | null>(null);
+  const [tracingEnabled, setTracingEnabled] = useState(false);
+  const [tracingBusy, setTracingBusy] = useState(false);
+  const [tracingError, setTracingError] = useState<string | null>(null);
+  const [tracingNotice, setTracingNotice] = useState<string | null>(null);
+  const [lastTrace, setLastTrace] = useState<PipelineRequestTrace | null>(null);
+  const [lastTraceError, setLastTraceError] = useState<string | null>(null);
   const [openApiFormat, setOpenApiFormat] = useState<PipelineOpenApiFormat>("yaml");
   const [openApiText, setOpenApiText] = useState<string | null>(null);
   const [openApiError, setOpenApiError] = useState<string | null>(null);
@@ -548,6 +557,7 @@ export function PipelineDetailPanel({
   const webhookInflight = useRef(false);
   const filterInflight = useRef(false);
   const binaryInflight = useRef(false);
+  const tracingInflight = useRef(false);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -590,6 +600,12 @@ export function PipelineDetailPanel({
     setBinaryPreview(null);
     setBinaryPreviewType(null);
     setBinaryBytes(null);
+    setTracingEnabled(false);
+    setTracingBusy(false);
+    setTracingError(null);
+    setTracingNotice(null);
+    setLastTrace(null);
+    setLastTraceError(null);
     setOpenApiFormat("yaml");
     setOpenApiText(null);
     setOpenApiError(null);
@@ -601,6 +617,7 @@ export function PipelineDetailPanel({
     webhookInflight.current = false;
     filterInflight.current = false;
     binaryInflight.current = false;
+    tracingInflight.current = false;
     getApplicationDetail(idOrName)
       .then((d) => {
         if (!cancelled) {
@@ -636,6 +653,7 @@ export function PipelineDetailPanel({
           if (storedGroup) {
             setFilterGroup(storedGroup);
           }
+          setTracingEnabled(doc.app?.tracingEnabled === true);
         }
       })
       .catch((err: unknown) => {
@@ -1006,6 +1024,53 @@ export function PipelineDetailPanel({
     window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
   }
 
+  async function refreshLastTrace(): Promise<void> {
+    try {
+      const trace = await getLastTrace(idOrName);
+      if (!mountedRef.current) return;
+      setLastTrace(trace);
+      setLastTraceError(null);
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      if (isApiError(err) && err.status === 404) {
+        setLastTrace(null);
+        setLastTraceError(null);
+        return;
+      }
+      setLastTrace(null);
+      setLastTraceError(lifecycleErrMsg(err, DEV_MSG.PIPE_TRACING_LAST_ERROR));
+    }
+  }
+
+  async function onSaveTracing(): Promise<void> {
+    if (!detail || tracingInflight.current) return;
+    tracingInflight.current = true;
+    setTracingBusy(true);
+    setTracingError(null);
+    setTracingNotice(null);
+    try {
+      const saved = await putTracing(idOrName, { enabled: tracingEnabled });
+      if (!mountedRef.current) return;
+      setTracingEnabled(saved.enabled === true);
+      setTracingNotice(DEV_MSG.PIPE_TRACING_SAVED);
+      if (saved.enabled !== true) {
+        setLastTrace(null);
+      }
+      try {
+        const nextIr = await getPipelineIr(idOrName);
+        if (mountedRef.current) setIr(nextIr);
+      } catch {
+        // persist succeeded; IR refresh is best-effort
+      }
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setTracingError(lifecycleErrMsg(err, DEV_MSG.PIPE_TRACING_SAVE_ERROR));
+    } finally {
+      tracingInflight.current = false;
+      if (mountedRef.current) setTracingBusy(false);
+    }
+  }
+
   async function onInvoke(): Promise<void> {
     if (!detail || invokeInflight.current) return;
     const resource = resourceName.trim();
@@ -1028,6 +1093,9 @@ export function PipelineDetailPanel({
       const result = await executeResource(idOrName, resource, parsed.body);
       if (!mountedRef.current) return;
       setInvokeResult(formatExecuteResult(result));
+      if (tracingEnabled) {
+        await refreshLastTrace();
+      }
     } catch (err: unknown) {
       if (!mountedRef.current) return;
       setInvokeError(invokeErrMsg(err));
@@ -1735,6 +1803,135 @@ export function PipelineDetailPanel({
                   {filterError}
                 </div>
               ) : null}
+            </section>
+          ) : null}
+
+          {isAdmin ? (
+            <section style={{ marginBottom: "16px" }} data-testid="developer-pipe-tracing">
+              <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.PIPE_TRACING}</h3>
+              <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+                {DEV_MSG.PIPE_TRACING_HINT}
+              </p>
+              <label
+                htmlFor="developer-pipe-tracing-enabled"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  marginBottom: "12px",
+                  fontSize: "0.9rem",
+                }}
+              >
+                <input
+                  id="developer-pipe-tracing-enabled"
+                  data-testid="developer-pipe-tracing-enabled"
+                  type="checkbox"
+                  checked={tracingEnabled}
+                  onChange={(e) => setTracingEnabled(e.target.checked)}
+                  disabled={tracingBusy}
+                />
+                {DEV_MSG.PIPE_TRACING_ENABLED}
+              </label>
+              <button
+                type="button"
+                data-testid="developer-pipe-tracing-save"
+                aria-label={DEV_MSG.PIPE_TRACING_SAVE}
+                disabled={tracingBusy}
+                onClick={() => void onSaveTracing()}
+                style={tracingBusy ? disabledPrimary : primaryButton}
+              >
+                {tracingBusy ? DEV_MSG.PIPE_TRACING_SAVING : DEV_MSG.PIPE_TRACING_SAVE}
+              </button>
+              {tracingNotice ? (
+                <div
+                  role="status"
+                  data-testid="developer-pipe-tracing-notice"
+                  style={{ ...successNotice, marginTop: "12px" }}
+                >
+                  {tracingNotice}
+                </div>
+              ) : null}
+              {tracingError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-pipe-tracing-error"
+                  style={{ ...errorAlert, marginTop: "12px" }}
+                >
+                  {tracingError}
+                </div>
+              ) : null}
+              <div style={{ marginTop: "16px" }} data-testid="developer-pipe-last-trace">
+                <h4 style={{ fontSize: "0.95rem", margin: "0 0 8px" }}>
+                  {DEV_MSG.PIPE_TRACING_LAST}
+                </h4>
+                {lastTraceError ? (
+                  <div
+                    role="alert"
+                    data-testid="developer-pipe-last-trace-error"
+                    style={errorAlert}
+                  >
+                    {lastTraceError}
+                  </div>
+                ) : null}
+                {!lastTrace && !lastTraceError ? (
+                  <p
+                    style={{ color: catalogColors.empty }}
+                    data-testid="developer-pipe-last-trace-empty"
+                  >
+                    {DEV_MSG.PIPE_TRACING_LAST_EMPTY}
+                  </p>
+                ) : null}
+                {lastTrace ? (
+                  <>
+                    {(lastTrace.stages || []).length > 0 ? (
+                      <div style={{ overflowX: "auto", marginBottom: "12px" }}>
+                        <table
+                          data-testid="developer-pipe-last-trace-stages"
+                          style={{
+                            width: "100%",
+                            maxWidth: "720px",
+                            borderCollapse: "collapse",
+                            fontSize: "0.85rem",
+                          }}
+                        >
+                          <thead>
+                            <tr style={tableHeaderRow}>
+                              <th style={{ padding: "6px 8px" }}>{DEV_MSG.PIPE_TRACING_STAGE}</th>
+                              <th style={{ padding: "6px 8px" }}>
+                                {DEV_MSG.PIPE_TRACING_DURATION}
+                              </th>
+                              <th style={{ padding: "6px 8px" }}>{DEV_MSG.PIPE_TRACING_STATUS}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(lastTrace.stages || []).map((stage, i) => (
+                              <tr
+                                key={`${stage.name || "stage"}-${i}`}
+                                style={tableRow}
+                                data-testid={`developer-pipe-last-trace-stage-${i}`}
+                              >
+                                <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
+                                  {stage.name || "—"}
+                                </td>
+                                <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
+                                  {stage.durationMs ?? "—"}
+                                </td>
+                                <td style={{ padding: "6px 8px" }}>{stage.status || "—"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : null}
+                    <pre
+                      style={resultPre}
+                      data-testid="developer-pipe-last-trace-json"
+                    >
+                      {JSON.stringify(lastTrace, null, 2)}
+                    </pre>
+                  </>
+                ) : null}
+              </div>
             </section>
           ) : null}
 

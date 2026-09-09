@@ -34,6 +34,7 @@ import com.percussion.rest.pipelines.PipelineBinaryResource;
 import com.percussion.rest.pipelines.PipelineFilterGroup;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
 import com.percussion.rest.pipelines.PipelineOpenApiGenerator;
+import com.percussion.rest.pipelines.PipelineTracingSettings;
 import com.percussion.rest.pipelines.PipelineWebhookHooks;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSSecurityToken;
@@ -65,6 +66,7 @@ import com.percussion.services.pipeline.model.PipelineBinaryResourceIr;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
+import com.percussion.services.pipeline.model.PipelineRequestTrace;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
 import com.percussion.services.pipeline.model.PipelineStagesIr;
 import com.percussion.services.pipeline.model.PipelineWebhookHooksIr;
@@ -113,7 +115,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   public static final int MAX_LIMIT = 1000;
 
   static final String ADMIN_REQUIRED =
-      "Admin role required to start, stop, validate, persist HTTP backend tanks, persist filter groups, or persist binary resources";
+      "Admin role required to start, stop, validate, persist HTTP backend tanks, persist filter groups, persist binary resources, or manage request tracing";
 
   static final String HIDDEN_NOT_ALLOWED =
       "Hidden applications cannot be started, stopped, validated, or documented via this API";
@@ -756,6 +758,104 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       }
       throw new WebApplicationException(msg, 400);
     }
+  }
+
+  @Override
+  public PipelineTracingSettings putTracing(
+      URI baseUri, String idOrName, PipelineTracingSettings settings) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName) || !isSafeApplicationName(idOrName.trim())) {
+      throw new WebApplicationException("Invalid pipeline application name", 400);
+    }
+    boolean enabled = settings != null && settings.isEnabled();
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for pipeline tracing persist");
+    }
+    PSSecurityToken tok = req.getSecurityToken();
+    String name = resolveApplicationName(idOrName.trim(), summaryLoader.apply(tok));
+    if (name == null) {
+      throw new WebApplicationException("Application not found", 404);
+    }
+    try {
+      IPSPipelineIrService ir = irSupplier.get();
+      PipelineIrDocument doc = ir.load(name).orElse(null);
+      if (doc == null) {
+        PSApplication app = applicationLoader.apply(name, tok);
+        if (app != null) {
+          doc = ir.importClassicApplication(app);
+        } else {
+          doc = new PipelineIrDocument();
+          doc.getApp().setName(name);
+        }
+      }
+      doc.setSource(PipelineIrDocument.SOURCE_NATIVE);
+      if (doc.getApp() == null || StringUtils.isBlank(doc.getApp().getName())) {
+        doc.getApp().setName(name);
+      }
+      doc.getApp().setTracingEnabled(enabled);
+      ir.save(doc);
+      if (!enabled) {
+        runtimeSupplier.get().clearLastTrace(name);
+      }
+      PipelineTracingSettings saved = new PipelineTracingSettings();
+      saved.setEnabled(enabled);
+      return saved;
+    } catch (PSPipelineIrException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Failed to persist request tracing";
+      if (isNotFoundMessage(msg)) {
+        throw new WebApplicationException("Pipeline application or resource not found", 404);
+      }
+      throw new WebApplicationException(msg, 400);
+    }
+  }
+
+  @Override
+  public PipelineTracingSettings getTracing(URI baseUri, String idOrName) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName) || !isSafeApplicationName(idOrName.trim())) {
+      throw new WebApplicationException("Invalid pipeline application name", 400);
+    }
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for pipeline tracing read");
+    }
+    PSSecurityToken tok = req.getSecurityToken();
+    String name = resolveApplicationName(idOrName.trim(), summaryLoader.apply(tok));
+    if (name == null) {
+      return null;
+    }
+    try {
+      IPSPipelineIrService ir = irSupplier.get();
+      PipelineIrDocument doc = ir.load(name).orElse(null);
+      PipelineTracingSettings out = new PipelineTracingSettings();
+      out.setEnabled(doc != null && doc.getApp() != null && doc.getApp().isTracingEnabled());
+      return out;
+    } catch (PSPipelineIrException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Failed to load request tracing";
+      if (isNotFoundMessage(msg)) {
+        return null;
+      }
+      throw new WebApplicationException(msg, 400);
+    }
+  }
+
+  @Override
+  public PipelineRequestTrace getLastTrace(URI baseUri, String idOrName) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName) || !isSafeApplicationName(idOrName.trim())) {
+      throw new WebApplicationException("Invalid pipeline application name", 400);
+    }
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for pipeline last-trace");
+    }
+    PSSecurityToken tok = req.getSecurityToken();
+    String name = resolveApplicationName(idOrName.trim(), summaryLoader.apply(tok));
+    if (name == null) {
+      return null;
+    }
+    return runtimeSupplier.get().getLastTrace(name);
   }
 
   @Override

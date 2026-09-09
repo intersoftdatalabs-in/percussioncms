@@ -21,6 +21,7 @@ import com.percussion.services.pipeline.model.PipelineBinaryPayload;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
+import com.percussion.services.pipeline.model.PipelineRequestTrace;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
 
 /**
@@ -62,4 +63,19 @@ public interface IPSPipelineRuntimeService {
    */
   PipelineBinaryPayload retrieveBinary(String appName, String resourceName)
       throws PSPipelineIrException;
+
+  /**
+   * Last fail-closed request trace for a native application after execute with tracing enabled.
+   *
+   * @param appName native IR application name
+   * @return last trace, or {@code null} when none
+   */
+  PipelineRequestTrace getLastTrace(String appName);
+
+  /**
+   * Drop the last-trace snapshot for an application (tracing disabled / fail-closed).
+   *
+   * @param appName native IR application name
+   */
+  void clearLastTrace(String appName);
 }

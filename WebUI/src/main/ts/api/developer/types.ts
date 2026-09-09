@@ -506,6 +506,32 @@ export interface PipelineBinaryBytes {
   path?: string;
 }
 
+/** Body/result for PUT/GET /services/pipelines/{idOrName}/tracing. */
+export interface PipelineTracingSettings {
+  enabled?: boolean;
+}
+
+/** One timed stage in GET /services/pipelines/{idOrName}/lastTrace. */
+export interface PipelineRequestTraceStage {
+  name?: string;
+  durationMs?: number;
+  status?: string;
+  detail?: string;
+}
+
+/** Fail-closed last-trace after Test invoke with tracing enabled. */
+export interface PipelineRequestTrace {
+  appName?: string;
+  resourceName?: string;
+  capturedAt?: string;
+  tracingEnabled?: boolean;
+  operation?: string;
+  totalDurationMs?: number;
+  stages?: PipelineRequestTraceStage[];
+  requestParams?: Record<string, unknown>;
+  error?: string;
+}
+
 /** Nested AND/OR filter group for PUT /services/pipelines/{app}/resources/{resource}/filterGroup. */
 export interface PipelineFilterGroup {
   type?: string;
@@ -578,6 +604,7 @@ export interface PipelineIrAppMeta {
   hidden?: boolean;
   appType?: string;
   version?: string;
+  tracingEnabled?: boolean;
 }
 
 /**

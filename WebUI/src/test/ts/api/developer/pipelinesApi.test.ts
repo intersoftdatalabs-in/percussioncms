@@ -33,6 +33,11 @@ import {
   unwrapPipelineBinaryResource,
   putBinaryResource,
   retrieveBinaryResource,
+  wrapPipelineTracingSettingsForWire,
+  unwrapPipelineTracingSettings,
+  unwrapPipelineRequestTrace,
+  putTracing,
+  getLastTrace,
 } from "../../../../main/ts/api/developer/pipelinesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -425,5 +430,48 @@ describe("pipelinesApi Slice D binary resource", () => {
     );
     expect(new TextDecoder().decode(out.bytes)).toBe("PIPE-BIN-FIXTURE\n");
     expect(out.contentType).toBe("text/plain");
+  });
+});
+
+describe("pipelinesApi Slice D request tracing", () => {
+  it("wraps and unwraps PipelineTracingSettings", () => {
+    expect(wrapPipelineTracingSettingsForWire({ enabled: true })).toEqual({
+      PipelineTracingSettings: { enabled: true },
+    });
+    expect(
+      unwrapPipelineTracingSettings({
+        PipelineTracingSettings: { enabled: true },
+      }).enabled,
+    ).toBe(true);
+  });
+
+  it("putTracing PUTs encoded path with WRAP_ROOT body", async () => {
+    const spy = vi.spyOn(client, "put").mockResolvedValue({ enabled: true });
+    const out = await putTracing("app with spaces", { enabled: true });
+    expect(String(spy.mock.calls[0][0])).toContain(
+      `/pipelines/${encodeURIComponent("app with spaces")}/tracing`,
+    );
+    expect(spy.mock.calls[0][1]).toEqual({
+      PipelineTracingSettings: { enabled: true },
+    });
+    expect(out.enabled).toBe(true);
+  });
+
+  it("getLastTrace GETs encoded lastTrace path", async () => {
+    const spy = vi.spyOn(client, "get").mockResolvedValue({
+      PipelineRequestTrace: {
+        appName: "lookupApp",
+        resourceName: "DatasetQ",
+        stages: [{ name: "adapter", durationMs: 2, status: "ok" }],
+        requestParams: { password: "[REDACTED]" },
+      },
+    });
+    const out = await getLastTrace("app with spaces");
+    expect(String(spy.mock.calls[0][0])).toContain(
+      `/pipelines/${encodeURIComponent("app with spaces")}/lastTrace`,
+    );
+    expect(unwrapPipelineRequestTrace({ appName: "x" }).appName).toBe("x");
+    expect(out.resourceName).toBe("DatasetQ");
+    expect(out.requestParams?.password).toBe("[REDACTED]");
   });
 });

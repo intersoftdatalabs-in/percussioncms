@@ -27,6 +27,9 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   putFilterGroup: vi.fn(),
   putBinaryResource: vi.fn(),
   retrieveBinaryResource: vi.fn(),
+  putTracing: vi.fn(),
+  getTracing: vi.fn(),
+  getLastTrace: vi.fn(),
 }));
 
 const getApplicationDetail = pipelinesApi.getApplicationDetail as ReturnType<typeof vi.fn>;
@@ -45,6 +48,8 @@ const putBinaryResource = pipelinesApi.putBinaryResource as ReturnType<typeof vi
 const retrieveBinaryResource = pipelinesApi.retrieveBinaryResource as ReturnType<
   typeof vi.fn
 >;
+const putTracing = pipelinesApi.putTracing as ReturnType<typeof vi.fn>;
+const getLastTrace = pipelinesApi.getLastTrace as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   id: 1,
@@ -102,6 +107,8 @@ describe("PipelineDetailPanel", () => {
     putFilterGroup.mockReset();
     putBinaryResource.mockReset();
     retrieveBinaryResource.mockReset();
+    putTracing.mockReset();
+    getLastTrace.mockReset();
     getPipelineIr.mockResolvedValue({ irVersion: "1.0", source: "NATIVE", resources: [] });
     getPipelineOpenApi.mockResolvedValue(
       'openapi: "3.0.3"\npaths:\n  /pipelines/sys_cmpDocuments/resources/contenteditor/execute:\n',
@@ -123,6 +130,12 @@ describe("PipelineDetailPanel", () => {
     retrieveBinaryResource.mockResolvedValue({
       bytes: new TextEncoder().encode("PIPE-BIN-FIXTURE\n"),
       contentType: "text/plain",
+    });
+    putTracing.mockResolvedValue({ enabled: true });
+    getLastTrace.mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: null,
     });
     putFilterGroup.mockResolvedValue({
       type: "GROUP",
@@ -705,6 +718,57 @@ describe("PipelineDetailPanel", () => {
         /cloud/i,
       );
     });
+  });
+
+  it("Admin saves request tracing and shows last-trace after Test invoke", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    executeResource.mockResolvedValue({
+      appName: "sys_cmpDocuments",
+      resourceName: "contenteditor",
+      operation: "http-query",
+      rowCount: 1,
+    });
+    getLastTrace.mockResolvedValue({
+      appName: "sys_cmpDocuments",
+      resourceName: "contenteditor",
+      tracingEnabled: true,
+      operation: "http-query",
+      totalDurationMs: 4,
+      stages: [{ name: "adapter", durationMs: 3, status: "ok", detail: "http-query" }],
+      requestParams: { sku: "SKU-1", password: "[REDACTED]" },
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-tracing")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-tracing-enabled"));
+    fireEvent.click(screen.getByTestId("developer-pipe-tracing-save"));
+    await waitFor(() => {
+      expect(putTracing).toHaveBeenCalledWith("sys_cmpDocuments", { enabled: true });
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-tracing-notice").textContent).toBe(
+        DEV_MSG.PIPE_TRACING_SAVED,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-invoke-run"));
+    await waitFor(() => {
+      expect(getLastTrace).toHaveBeenCalledWith("sys_cmpDocuments");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-last-trace-json").textContent).toContain(
+        "adapter",
+      );
+    });
+    expect(screen.getByTestId("developer-pipe-last-trace-json").textContent).toContain(
+      "[REDACTED]",
+    );
+    expect(screen.getByTestId("developer-pipe-last-trace-json").textContent).not.toMatch(
+      /s3cret/,
+    );
+    expect(screen.getByTestId("developer-pipe-last-trace-stages").textContent).toContain(
+      "adapter",
+    );
   });
 
   it("Admin saves nested filter groups for the selected resource", async () => {

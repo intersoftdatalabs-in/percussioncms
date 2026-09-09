@@ -37,6 +37,7 @@ import com.percussion.services.pipeline.model.PipelineBinaryPayload;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
+import com.percussion.services.pipeline.model.PipelineRequestTrace;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -411,6 +412,46 @@ public class PipelinesResourceTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.getBinary("app", "res"));
     assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void putTracingDelegatesToAdaptor() {
+    PipelineTracingSettings body = new PipelineTracingSettings();
+    body.setEnabled(true);
+    when(adaptor.putTracing(any(), eq("lookupApp"), eq(body))).thenReturn(body);
+
+    PipelineTracingSettings out = resource.putTracing("lookupApp", body);
+    assertTrue(out.isEnabled());
+    verify(adaptor).putTracing(any(), eq("lookupApp"), eq(body));
+  }
+
+  @Test
+  public void getTracingNotFound() {
+    when(adaptor.getTracing(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getTracing("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getLastTraceDelegatesToAdaptor() {
+    PipelineRequestTrace trace = new PipelineRequestTrace();
+    trace.setAppName("lookupApp");
+    trace.setResourceName("DatasetQ");
+    when(adaptor.getLastTrace(any(), eq("lookupApp"))).thenReturn(trace);
+
+    PipelineRequestTrace out = resource.getLastTrace("lookupApp");
+    assertEquals("DatasetQ", out.getResourceName());
+    verify(adaptor).getLastTrace(any(), eq("lookupApp"));
+  }
+
+  @Test
+  public void getLastTraceNotFound() {
+    when(adaptor.getLastTrace(any(), eq("lookupApp"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getLastTrace("lookupApp"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Last request trace not found", ex.getMessage());
   }
 
   @Test
