@@ -1893,6 +1893,120 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void buildVirtualSiteGraphQlSdlFixtureDelegates() throws Exception {
+    Path gqlRoot = tempDir.resolve("gql-site");
+    Files.createDirectories(gqlRoot);
+    Files.writeString(
+        gqlRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: GraphQL Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        graphql:
+          file: schema.graphql
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        gqlRoot.resolve("schema.graphql"),
+        """
+        # Hello-from-graphql
+        type Query {
+          user(id: ID!): User
+        }
+        type User {
+          id: ID!
+        }
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("gql-out");
+    Files.createDirectories(out);
+
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setSiteName("GraphQlHelp");
+    built.setPagesWritten(1);
+    built.setLinkProblemCount(0);
+    built.setHasLinkProblems(false);
+    built.setOutputPath(out.toAbsolutePath().toString());
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+    when(adaptor.buildVirtualSite(eq("GraphQlHelp"), same(req))).thenReturn(built);
+
+    VirtualSiteBuildResult result = resource.buildVirtualSite("GraphQlHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getPagesWritten().intValue() > 0);
+    assertEquals(out.toAbsolutePath().toString(), result.getOutputPath());
+    assertTrue(Files.isRegularFile(gqlRoot.resolve("_config.yaml")));
+    assertTrue(Files.isRegularFile(gqlRoot.resolve("schema.graphql")));
+    verify(adaptor).buildVirtualSite("GraphQlHelp", req);
+  }
+
+  @Test
+  public void buildVirtualSiteGraphQlSdlRemoteUrlPropagates400() {
+    when(adaptor.buildVirtualSite(eq("GraphQlHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for graphql-sdl", Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("GraphQlHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(adaptor).buildVirtualSite("GraphQlHelp", null);
+  }
+
+  @Test
+  public void buildVirtualSiteGraphQlSdlCloudRootPathPropagates400() {
+    when(adaptor.buildVirtualSite(eq("GraphQlHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for graphql-sdl must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("GraphQlHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).buildVirtualSite("GraphQlHelp", null);
+  }
+
+  @Test
+  public void buildVirtualSiteGraphQlSdlCredentialsPropagates400() {
+    when(adaptor.buildVirtualSite(eq("GraphQlHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for graphql-sdl (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("GraphQlHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).buildVirtualSite("GraphQlHelp", null);
+  }
+
+  @Test
+  public void buildVirtualSiteGraphQlSdlGraphqlUrlPropagates400() {
+    when(adaptor.buildVirtualSite(eq("GraphQlHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "graphql.url is not allowed for graphql-sdl (local schema.graphql fixture only; no live GraphQL HTTP or introspection).",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("GraphQlHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("graphql.url"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("example.com"));
+    verify(adaptor).buildVirtualSite("GraphQlHelp", null);
+  }
+
+  @Test
   public void buildVirtualSiteUnknownKindPropagates400() {
     when(adaptor.buildVirtualSite(eq("Help"), any()))
         .thenThrow(
@@ -2464,6 +2578,67 @@ public class SitesResourceTest {
         assertThrows(
             WebApplicationException.class,
             () -> resource.getVirtualSitePreviewStatus("AsyncApiHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  public void previewStatusDelegatesGraphQlSdl() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(true);
+    status.setHomePath("8.2/user-1.html");
+    when(adaptor.getVirtualSitePreviewStatus("GraphQlHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("GraphQlHelp");
+    assertEquals(Boolean.TRUE, out.getAvailable());
+    assertEquals("8.2/user-1.html", out.getHomePath());
+    verify(adaptor).getVirtualSitePreviewStatus("GraphQlHelp");
+  }
+
+  @Test
+  public void previewStatusGraphQlSdlMissingBuildIsUnavailable() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(false);
+    status.setMessage("No assembled Virtual Site to preview. Run Build Virtual Site first.");
+    when(adaptor.getVirtualSitePreviewStatus("GraphQlHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("GraphQlHelp");
+    assertEquals(Boolean.FALSE, out.getAvailable());
+    assertTrue(out.getMessage() != null && out.getMessage().contains("No assembled"));
+    verify(adaptor).getVirtualSitePreviewStatus("GraphQlHelp");
+  }
+
+  @Test
+  public void previewFileDelegatesGraphQlSdlHtml() {
+    byte[] html =
+        "<a href=\"/8.2/user-1.html\">Query.user</a>".getBytes(StandardCharsets.UTF_8);
+    when(adaptor.previewVirtualSiteFile(eq("GraphQlHelp"), eq("8.2/user-1.html")))
+        .thenReturn(
+            new VirtualSitePreviewFile("text/html; charset=UTF-8", "8.2/user-1.html", html));
+
+    Response out = resource.previewVirtualSiteFile("GraphQlHelp", "8.2/user-1.html");
+    assertEquals(200, out.getStatus());
+    byte[] body = (byte[]) out.getEntity();
+    String text = new String(body, StandardCharsets.UTF_8);
+    assertTrue(
+        text.contains("/services/sites/GraphQlHelp/virtual/preview/8.2/user-1.html"), text);
+    assertTrue(text.contains("Query.user"), text);
+    verify(adaptor).previewVirtualSiteFile("GraphQlHelp", "8.2/user-1.html");
+  }
+
+  @Test
+  public void previewStatusGraphQlSdlLeftoverRemoteUrl400() {
+    when(adaptor.getVirtualSitePreviewStatus("GraphQlHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for graphql-sdl",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.getVirtualSitePreviewStatus("GraphQlHelp"));
     assertEquals(400, ex.getResponse().getStatus());
     assertTrue(
         String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
@@ -3043,6 +3218,9 @@ public class SitesResourceTest {
         buildBlock.contains("asyncapi-yaml"),
         "buildVirtualSite OpenAPI description must mention asyncapi-yaml");
     assertTrue(
+        buildBlock.contains("graphql-sdl"),
+        "buildVirtualSite OpenAPI description must mention graphql-sdl");
+    assertTrue(
         buildBlock.contains("llms.txt") || buildBlock.contains("no live HTTP fetch"),
         "buildVirtualSite OpenAPI description must mention local llms.txt fixture");
     assertTrue(
@@ -3168,6 +3346,9 @@ public class SitesResourceTest {
         previewStatusBlock.contains("asyncapi-yaml"),
         "getVirtualSitePreviewStatus OpenAPI description must mention asyncapi-yaml");
     assertTrue(
+        previewStatusBlock.contains("graphql-sdl"),
+        "getVirtualSitePreviewStatus OpenAPI description must mention graphql-sdl");
+    assertTrue(
         previewStatusBlock.contains("no live crawl")
             || previewStatusBlock.contains("last-build local HTML"),
         "getVirtualSitePreviewStatus OpenAPI description must mention sitemap-xml last-build local HTML");
@@ -3204,6 +3385,9 @@ public class SitesResourceTest {
     assertTrue(
         previewFileBlock.contains("asyncapi-yaml"),
         "previewVirtualSiteFile OpenAPI description must mention asyncapi-yaml");
+    assertTrue(
+        previewFileBlock.contains("graphql-sdl"),
+        "previewVirtualSiteFile OpenAPI description must mention graphql-sdl");
     assertTrue(
         previewFileBlock.contains("no live crawl")
             || previewFileBlock.contains("last-build local HTML"),

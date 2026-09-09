@@ -31,11 +31,11 @@ import org.springframework.stereotype.Component;
  * object-storage cloud credentials, rss-atom live feed credentials, CalDAV credentials, and
  * sitemap crawl credentials are never logged. REST Build
  * for {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, {@code
- * sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, and {@code
- * asyncapi-yaml} uses the same adaptor contract as git/CSV/SQL (local JSON fixture / loopback,
+ * sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code
+ * asyncapi-yaml}, and {@code graphql-sdl} uses the same adaptor contract as git/CSV/SQL (local JSON fixture / loopback,
  * local object-key bucket, local RSS/Atom fixture, local RFC 5545 {@code calendar.ics}, local
- * {@code sitemap.xml}, local {@code robots.txt}, local {@code llms.txt}, or local {@code
- * openapi.yaml} / {@code asyncapi.yaml}; {@code virtual.remoteUrl} stays 400). REST Publish copies last-build HTML
+ * {@code sitemap.xml}, local {@code robots.txt}, local {@code llms.txt}, local {@code
+ * openapi.yaml} / {@code asyncapi.yaml}, or local {@code schema.graphql}; {@code virtual.remoteUrl} stays 400). REST Publish copies last-build HTML
  * to {@code IPSSite.root} for git/CSV/SQL/{@code http-json}/object-storage/{@code
  * rss-atom}/{@code icalendar}/{@code sitemap-xml}/{@code robots-txt}/{@code llms-txt}/{@code
  * openapi-yaml}/{@code asyncapi-yaml} (local OpenAPI 3 YAML or AsyncAPI 2/3 YAML fixture;
@@ -43,11 +43,11 @@ import org.springframework.stereotype.Component;
  * live spec fetch).
  * Preview status is last-output based ({@code available=false} when no build), including {@code
  * http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, {@code
- * sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, and {@code
- * asyncapi-yaml} last-build output ({@code rss-atom} is a local RSS 2.0 / Atom fixture or
+ * sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code
+ * asyncapi-yaml}, and {@code graphql-sdl} last-build output ({@code rss-atom} is a local RSS 2.0 / Atom fixture or
  * loopback feed; {@code icalendar} is a local RFC 5545 fixture only — no CalDAV;
- * {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, and {@code
- * asyncapi-yaml} are last-build local HTML only — no live crawl or HTTP fetch).
+ * {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code
+ * asyncapi-yaml}, and {@code graphql-sdl} are last-build local HTML only — no live crawl, HTTP fetch, or GraphQL introspection).
  */
 @Component
 @Lazy

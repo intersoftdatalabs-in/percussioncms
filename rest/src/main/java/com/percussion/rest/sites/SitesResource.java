@@ -237,7 +237,8 @@ public class SitesResource {
               + " IPSSite.root). graphql-sdl persist is a local GraphQL SDL fixture"
               + " only (portable-safe local rootPath; leftover remoteUrl, credentials, cloud URL"
               + " rootPath, and graphql.url return 400; no live GraphQL HTTP or introspection)."
-              + " REST Build/Preview/Publish for graphql-sdl stay later slices. GET after PUT"
+              + " REST Build/Preview for graphql-sdl use that local fixture (Publish stays a later"
+              + " slice). GET after PUT"
               + " round-trips the stored"
               + " sourceKind. Unknown kinds return 400. Blank/repository sourceKind clears virtual"
               + " configuration.",
@@ -290,7 +291,7 @@ public class SitesResource {
       description =
           "Runs the Virtual Site static build for a site configured with"
               + " virtual.sourceKind=git-filesystem, csv-filesystem, sql-database, http-json,"
-              + " object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, or asyncapi-yaml. git-filesystem: when virtual.remoteUrl is set, the"
+              + " object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, or graphql-sdl. git-filesystem: when virtual.remoteUrl is set, the"
               + " server clones or fetches that branch into a contained work directory, then"
               + " discovers Markdown. csv-filesystem: rootPath is a CSV tree (optional _config.yaml;"
               + " required columns id, title, body; fail-closed on unsafe paths). sql-database:"
@@ -319,10 +320,13 @@ public class SitesResource {
               + " virtual.remoteUrl, credential properties, and cloud rootPath are 400. asyncapi-yaml:"
               + " local AsyncAPI 2/3 YAML fixture under rootPath (asyncapi.yaml or _config.yaml"
               + " asyncapi.file); no live spec fetch; leftover virtual.remoteUrl, credential"
-              + " properties, and cloud rootPath are 400. A second"
-              + " sitemap-xml, robots-txt, llms-txt, openapi-yaml, or asyncapi-yaml Build after an in-process sitemap.xml /"
-              + " robots.txt / llms.txt / openapi.yaml / asyncapi.yaml / sitemap.file / robots.file / llms.file /"
-              + " openapi.file / asyncapi.file or referenced-page"
+              + " properties, and cloud rootPath are 400. graphql-sdl:"
+              + " local GraphQL SDL fixture under rootPath (schema.graphql or _config.yaml"
+              + " graphql.file); no live GraphQL HTTP or introspection; leftover virtual.remoteUrl,"
+              + " credential properties, cloud rootPath, and graphql.url are 400. A second"
+              + " sitemap-xml, robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, or graphql-sdl Build after an in-process sitemap.xml /"
+              + " robots.txt / llms.txt / openapi.yaml / asyncapi.yaml / schema.graphql / sitemap.file / robots.file / llms.file /"
+              + " openapi.file / asyncapi.file / graphql.file or referenced-page"
               + " edit returns"
               + " pagesWritten>0 HTML that reflects the current file (no JVM / Jetty restart; no"
               + " file watchers). Unknown"
@@ -376,9 +380,9 @@ public class SitesResource {
       description =
           "Reports whether the last Admin Virtual Site build can be opened from the product UI."
               + " Last-output based for git-filesystem, csv-filesystem, sql-database, http-json,"
-              + " object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, and asyncapi-yaml (not git-only). Uses the last"
+              + " object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl (not git-only). Uses the last"
               + " build output path (default {install}/tmp/virtual-sites/{siteKey}). After a successful"
-              + " http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, or asyncapi-yaml Build, available=true"
+              + " http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, or graphql-sdl Build, available=true"
               + " plus homePath. rss-atom is a local RSS 2.0 / Atom fixture or loopback feed (no live"
               + " remote feeds). icalendar is a local RFC 5545 calendar.ics fixture (no CalDAV)."
               + " sitemap-xml is last-build local HTML only (sitemap.xml / sitemap.file; no live crawl;"
@@ -390,7 +394,9 @@ public class SitesResource {
               + " openapi.file; no live spec fetch; leftover virtual.remoteUrl and credentials are"
               + " 400). asyncapi-yaml is last-build local HTML only (asyncapi.yaml /"
               + " asyncapi.file; no live spec fetch; leftover virtual.remoteUrl and credentials are"
-              + " 400). Missing or failed builds return"
+              + " 400). graphql-sdl is last-build local HTML only (schema.graphql /"
+              + " graphql.file; no live GraphQL HTTP or introspection; leftover virtual.remoteUrl,"
+              + " credentials, cloud rootPath, and graphql.url are 400). Missing or failed builds return"
               + " 200 with available=false (not 500). Requires Admin. Traditional repository Sites and"
               + " unknown sourceKind values return 400.",
       responses = {
@@ -438,7 +444,7 @@ public class SitesResource {
       description =
           "Streams a file from the last Virtual Site build output (git-filesystem,"
               + " csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar,"
-              + " sitemap-xml, robots-txt, llms-txt, openapi-yaml, or asyncapi-yaml). Paths are resolved with portable NIO Path under the last output root"
+              + " sitemap-xml, robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, or graphql-sdl). Paths are resolved with portable NIO Path under the last output root"
               + " (no '..' after normalize). HTML root-relative href/src/url() values are rewritten to"
               + " this preview prefix so navigation works. rss-atom is a local RSS 2.0 / Atom fixture or"
               + " loopback feed (no live remote feeds). icalendar is a local RFC 5545 calendar.ics"
@@ -452,6 +458,9 @@ public class SitesResource {
               + " fetch; leftover virtual.remoteUrl and credentials are 400)."
               + " asyncapi-yaml is last-build local HTML only (asyncapi.yaml / asyncapi.file; no live spec"
               + " fetch; leftover virtual.remoteUrl and credentials are 400)."
+              + " graphql-sdl is last-build local HTML only (schema.graphql / graphql.file; no live"
+              + " GraphQL HTTP or introspection; leftover virtual.remoteUrl, credentials, cloud"
+              + " rootPath, and graphql.url are 400)."
               + " Requires Admin. Missing files return 404 (not 500). Unsafe paths,"
               + " unknown/repository sourceKind, and files larger than 20 MB return 400.",
       responses = {
