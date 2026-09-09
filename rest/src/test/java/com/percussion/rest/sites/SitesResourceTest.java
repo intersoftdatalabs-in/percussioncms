@@ -3106,6 +3106,92 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void publishVirtualSiteDelegatesGraphQlSdl() {
+    VirtualSitePublishResult published = new VirtualSitePublishResult();
+    published.setSiteName("GraphQlHelp");
+    published.setSiteKey("graphql-docs");
+    published.setPagesWritten(1);
+    published.setFilesCopied(2);
+    published.setPublishPath(tempDir.resolve("gql-pub").toString());
+    when(adaptor.publishVirtualSite("GraphQlHelp")).thenReturn(published);
+
+    VirtualSitePublishResult out = resource.publishVirtualSite("GraphQlHelp");
+    assertEquals("GraphQlHelp", out.getSiteName());
+    assertEquals("graphql-docs", out.getSiteKey());
+    assertEquals(1, out.getPagesWritten().intValue());
+    assertEquals(2, out.getFilesCopied().intValue());
+    assertEquals(published.getPublishPath(), out.getPublishPath());
+    verify(adaptor).publishVirtualSite("GraphQlHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteGraphQlSdlRemoteUrlPropagates400() {
+    when(adaptor.publishVirtualSite("GraphQlHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for graphql-sdl",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("GraphQlHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(adaptor).publishVirtualSite("GraphQlHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteGraphQlSdlCloudRootPropagates400() {
+    when(adaptor.publishVirtualSite("GraphQlHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for graphql-sdl must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("GraphQlHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).publishVirtualSite("GraphQlHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteGraphQlSdlCredentialsPropagates400() {
+    when(adaptor.publishVirtualSite("GraphQlHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for graphql-sdl (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("GraphQlHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).publishVirtualSite("GraphQlHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteGraphQlSdlGraphqlUrlPropagates400() {
+    when(adaptor.publishVirtualSite("GraphQlHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "graphql.url is not allowed for graphql-sdl (local schema.graphql fixture only; no live GraphQL HTTP or introspection).",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("GraphQlHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("graphql.url"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("example.com"));
+    verify(adaptor).publishVirtualSite("GraphQlHelp");
+  }
+
+  @Test
   public void publishVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.publishVirtualSite(" "));
@@ -3292,6 +3378,14 @@ public class SitesResourceTest {
     assertTrue(
         publishBlock.contains("asyncapi.yaml") || publishBlock.contains("no live spec fetch"),
         "publishVirtualSite OpenAPI description must mention asyncapi-yaml local fixture only");
+    assertTrue(
+        publishBlock.contains("graphql-sdl"),
+        "publishVirtualSite OpenAPI description must mention graphql-sdl");
+    assertTrue(
+        publishBlock.contains("schema.graphql")
+            || publishBlock.contains("no live GraphQL HTTP")
+            || publishBlock.contains("graphql.url"),
+        "publishVirtualSite OpenAPI description must mention graphql-sdl local fixture only");
     assertTrue(
         publishBlock.contains("no live crawl"),
         "publishVirtualSite OpenAPI description must mention sitemap-xml local fixture only");

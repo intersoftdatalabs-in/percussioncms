@@ -37,7 +37,7 @@
  * uses a portable-safe local rootPath only (no live spec fetch credentials, no virtual.remoteUrl);
  * Build, Preview, and Publish chrome are shown after save for asyncapi-yaml. graphql-sdl save/GET-roundtrip
  * uses a portable-safe local rootPath only (no live GraphQL HTTP, no graphql.url, no virtual.remoteUrl);
- * Build and Preview chrome are shown after save (Publish stays a later slice). Also intercepts build REST
+ * Build, Preview, and Publish chrome are shown after save for graphql-sdl. Also intercepts build REST
  * to prove link-problem detail lines render on HTTP 200 and publish REST to prove
  * dest path + files copied on HTTP 200 (including csv-filesystem, http-json, object-storage, rss-atom, and icalendar). Live H2 QA
  * deploys a CSV tree into the cell and asserts POST /virtual/build, GET
@@ -84,7 +84,9 @@
  * root (8.2/onLightMeasured-1.html); leftover remoteUrl/credentials stay 400 (no live spec fetch).
  * graphql-sdl live Build deploys a local schema.graphql fixture and asserts pagesWritten > 0
  * (no Jetty restart). graphql-sdl live Preview deploys the same fixture, Builds, then streams
- * last-build home HTML (sole Query.user page; no live GraphQL HTTP). Publish chrome stays hidden.
+ * last-build home HTML (sole Query.user page; no live GraphQL HTTP). graphql-sdl live Publish
+ * deploys the same fixture then POST /virtual/publish copies assembled HTML under Site
+ * root (8.2/user-1.html); leftover remoteUrl/credentials/graphql.url stay 400 (no live GraphQL HTTP).
  *
  * Surface-filtered QA mode:
  * <pre>
@@ -152,6 +154,7 @@ const {
 } = require("./helpers/asyncapi-yaml-virtual-qa-fixture");
 const {
   deployGraphQlSdlVirtualFixtureToQaCell,
+  assertPublishedGraphQlSdlFilesOnQaCell,
   GRAPHQL_SDL_VIRTUAL_BUILD_MARKER,
 } = require("./helpers/graphql-sdl-virtual-qa-fixture");
 const { saveVirtualSiteAndExpectSaved } = require("./helpers/virtual-site-save");
@@ -518,7 +521,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
-      // Switch to graphql-sdl reveals root path + Build / Preview (no Git remotes; Publish later)
+      // Switch to graphql-sdl reveals root path + Build / Preview / Publish (no Git remotes)
       await kind.selectOption("graphql-sdl");
       await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-graphql-sdl-hint"]')).toBeVisible();
@@ -530,13 +533,16 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       ).toContainText("Preview assembled site");
       await expect(
         page.locator('[data-testid="developer-site-virtual-graphql-sdl-hint"]'),
+      ).toContainText("Publish Virtual Site");
+      await expect(
+        page.locator('[data-testid="developer-site-virtual-graphql-sdl-hint"]'),
       ).toContainText("graphql.url");
       await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
       await expect(page.locator('[data-testid="developer-site-virtual-branch"]')).toHaveCount(0);
       await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
-      await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
       // Switch to git-filesystem reveals root path, optional remote, + Build / Publish
       await kind.selectOption("git-filesystem");
@@ -2641,7 +2647,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
   });
 
-  test("graphql-sdl save PUTs envelope and GET-roundtrip persists with Build/Preview chrome (#4401 / #4402)", async ({
+  test("graphql-sdl save PUTs envelope and GET-roundtrip persists with Build/Preview/Publish chrome (#4401 / #4402 / #4403)", async ({
     page,
   }) => {
     const pageErrors = [];
@@ -2768,7 +2774,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
-    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
     await page.locator('[data-testid="developer-site-virtual-root-path"]').fill("C:/graphql-docs");
     await page.locator('[data-testid="developer-site-virtual-save"]').click();
@@ -2793,7 +2799,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     );
     await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
-    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
     await kind.selectOption("repository");
     lastPutBody = null;
@@ -2941,7 +2947,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(kind).toHaveValue("graphql-sdl");
     await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
-    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
     await page.locator('[data-testid="developer-site-back"]').click();
     await expect(page.locator(catalogRowsSelector("developer-site-row")).first()).toBeVisible({
@@ -2955,7 +2961,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-graphql-sdl-hint"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
-    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
     await kind.selectOption("repository");
     await saveVirtualSiteAndExpectSaved(page, { timeout: 15_000 });
@@ -8418,7 +8424,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await saveVirtualSiteAndExpectSaved(page, { timeout: 20_000 });
     await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
-    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
     const buildRespPromise = page.waitForResponse(
       (resp) =>
@@ -8440,7 +8446,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     ).trim();
     expect(Number.parseInt(pagesText, 10), `pages written: ${pagesText}`).toBeGreaterThan(0);
     await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
-    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
     await kind.selectOption("repository");
     await saveVirtualSiteAndExpectSaved(page, { timeout: 15_000 });
@@ -8501,7 +8507,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-preview-hint"]')).toContainText(
       "GraphQL SDL",
     );
-    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
     await page.locator('[data-testid="developer-site-virtual-root-path"]').fill(gqlRoot);
     await page.locator('[data-testid="developer-site-virtual-save"]').click();
     await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
@@ -8509,7 +8515,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     });
     await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
-    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
 
     const buildRespPromise = page.waitForResponse(
       (resp) =>
@@ -8900,6 +8906,219 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     );
     await expect(page.locator('[data-testid="developer-site-virtual-publish-dest"]')).toContainText(
       "asyncapi-yaml-help",
+    );
+    expect(consoleErrors).toEqual([]);
+  });
+
+  test("graphql-sdl live Publish Virtual Site completes on H2 QA (#4403)", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    const gqlRoot = deployGraphQlSdlVirtualFixtureToQaCell();
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      throw new Error("No sites in catalog - live graphql-sdl Publish requires a site row");
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
+    await kind.selectOption("graphql-sdl");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-graphql-sdl-hint"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill(gqlRoot);
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+
+    const publishRespPromise = page.waitForResponse(
+      (resp) =>
+        resp.request().method() === "POST" && /\/virtual\/publish(\?|$)/.test(resp.url()),
+    );
+    await page.locator('[data-testid="developer-site-virtual-publish"]').click();
+    const publishResp = await publishRespPromise;
+    const publishBody = await publishResp.text();
+    expect(
+      publishResp.ok(),
+      `POST /virtual/publish HTTP ${publishResp.status()}: ${publishBody}`,
+    ).toBeTruthy();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-result"]')).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-success"]')).toBeVisible();
+    const filesText = (
+      await page.locator('[data-testid="developer-site-virtual-publish-files"]').textContent()
+    ).trim();
+    expect(Number.parseInt(filesText, 10), `files copied: ${filesText}`).toBeGreaterThan(0);
+    const destText = (
+      await page.locator('[data-testid="developer-site-virtual-publish-dest"]').textContent()
+    ).trim();
+    assertPublishedGraphQlSdlFilesOnQaCell(destText);
+
+    await kind.selectOption("repository");
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
+
+  test("graphql-sdl publish result shows files copied on HTTP 200 (#4403)", async ({
+    page,
+  }) => {
+    const consoleErrors = [];
+    page.on("pageerror", (err) => {
+      consoleErrors.push(String(err && err.message ? err.message : err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() !== "error") {
+        return;
+      }
+      const text = msg.text();
+      if (/Failed to load resource:.*404/.test(text)) {
+        return;
+      }
+      consoleErrors.push(text);
+    });
+
+    await page.route(
+      (url) => /\/services\/sites\/?(\?|$)/.test(url.toString()),
+      async (route) => {
+        if (route.request().method() !== "GET") {
+          await route.continue();
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            SiteList: [{ name: "Help", label: "Help" }],
+          }),
+        });
+      },
+    );
+
+    await page.route("**/services/sites/**/virtual/publish", async (route) => {
+      if (route.request().method() !== "POST") {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          siteName: "Help",
+          publishPath: "C:/inetpub/wwwroot/graphql-sdl-help",
+          filesCopied: 3,
+          pagesWritten: 1,
+          hasLinkProblems: false,
+        }),
+      });
+    });
+    await page.route("**/services/sites/**/virtual", async (route) => {
+      const url = route.request().url();
+      if (url.includes("/virtual/publish") || url.includes("/virtual/build")) {
+        await route.fallback();
+        return;
+      }
+      if (route.request().method() !== "GET") {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          sourceKind: "graphql-sdl",
+          rootPath: "C:/graphql-docs",
+          virtual: true,
+        }),
+      });
+    });
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+
+    const empty = page.locator('[data-testid="developer-site-empty"]');
+    if (await empty.isVisible().catch(() => false)) {
+      throw new Error(
+        "No sites in catalog - graphql-sdl Virtual Site publish intercept requires a site row",
+      );
+    }
+    const err = page.locator('[data-testid="developer-site-error"]');
+    if (await err.isVisible().catch(() => false)) {
+      throw new Error(`Sites catalog error: ${await err.textContent()}`);
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-graphql-sdl-hint"]')).toContainText(
+      "Publish Virtual Site",
+    );
+    await page.locator('[data-testid="developer-site-virtual-publish"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-result"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-success"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-files"]')).toHaveText(
+      "3",
+    );
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-dest"]')).toContainText(
+      "graphql-sdl-help",
     );
     expect(consoleErrors).toEqual([]);
   });

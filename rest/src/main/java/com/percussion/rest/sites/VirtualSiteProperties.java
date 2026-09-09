@@ -59,9 +59,8 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * fetch; {@code asyncapi-yaml} is a local AsyncAPI 2/3 YAML fixture only — no live spec fetch;
  * {@code graphql-sdl} is a local GraphQL SDL fixture only — no live GraphQL HTTP or introspection).
  * REST persist for {@code asyncapi-yaml} is GET/PUT plus REST Build/Preview/Publish. REST
- * Build/Preview/Publish for {@code openapi-yaml} and {@code asyncapi-yaml} use that local fixture
- * (Publish copies last-build HTML to {@code IPSSite.root}). REST Build/Preview for {@code
- * graphql-sdl} uses that local fixture (Publish stays a later slice). REST
+ * Build/Preview/Publish for {@code openapi-yaml}, {@code asyncapi-yaml}, and {@code graphql-sdl}
+ * use that local fixture (Publish copies last-build HTML to {@code IPSSite.root}). REST
  * {@code POST …/virtual/build} runs {@code http-json}, {@code object-storage}, {@code
  * rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, and {@code graphql-sdl} through the existing {@code
  * IPSVirtualSiteSource} factory (local fixture / loopback JSON; local object-key bucket; local
@@ -78,9 +77,12 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * fixture; leftover {@code virtual.remoteUrl}, credentials, and cloud URL {@code rootPath} are
  * 400; no live crawl), {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml} (local
  * OpenAPI 3 YAML fixture; leftover {@code virtual.remoteUrl}, credentials, and cloud URL {@code
- * rootPath} are 400; no live spec fetch; missing assemble is 400), and {@code asyncapi-yaml}
+ * rootPath} are 400; no live spec fetch; missing assemble is 400), {@code asyncapi-yaml}
  * (local AsyncAPI 2/3 YAML fixture; leftover {@code virtual.remoteUrl}, credentials, and cloud
- * URL {@code rootPath} are 400; no live spec fetch; missing assemble is 400).
+ * URL {@code rootPath} are 400; no live spec fetch; missing assemble is 400), and {@code
+ * graphql-sdl} (local GraphQL SDL fixture; leftover {@code virtual.remoteUrl}, credentials,
+ * cloud URL {@code rootPath}, and {@code graphql.url} are 400; no live GraphQL HTTP or
+ * introspection; missing assemble is 400).
  *
  * <p>Wire getters return plain {@code String} (not {@code Optional}) so JAXB/Jettison and Jackson
  * {@code WRAP_ROOT_VALUE} emit/accept child elements {@code sourceKind}, {@code rootPath},
@@ -121,10 +123,10 @@ public class VirtualSiteProperties {
               + " rootPath; leftover remoteUrl, credentials, and cloud URL rootPath return 400; no live"
               + " spec fetch; preview is last-build local HTML only; publish copies last-build HTML to"
               + " IPSSite.root)."
-              + " graphql-sdl persist/build/preview is a local GraphQL SDL fixture only (portable-safe"
+              + " graphql-sdl persist/build/preview/publish is a local GraphQL SDL fixture only (portable-safe"
               + " rootPath; leftover remoteUrl, credentials, cloud URL rootPath, and graphql.url"
               + " return 400; no live GraphQL HTTP or introspection; preview is last-build local HTML"
-              + " only). REST Publish for graphql-sdl stays a later slice."
+              + " only; publish copies last-build HTML to IPSSite.root)."
               + " Blank or repository = traditional Site.",
       example = "git-filesystem")
   private String sourceKind;

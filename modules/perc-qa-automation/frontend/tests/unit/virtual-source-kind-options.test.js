@@ -31,7 +31,7 @@ const {
 } = require("../helpers/virtual-source-kind-options");
 
 describe("virtual-source-kind-options", () => {
-  it("requires object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, and asyncapi-yaml among the live kind options (#3893 / #3927 / #3983 / #4115 / #4360 / #4373 / #4380 / #4390)", () => {
+  it("requires object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl among the live kind options (#3893 / #3927 / #3983 / #4115 / #4360 / #4373 / #4380 / #4390 / #4403)", () => {
     const required = requiredVirtualSourceKindValues();
     assert.deepEqual(required, [
       "repository",
@@ -47,6 +47,7 @@ describe("virtual-source-kind-options", () => {
       "llms-txt",
       "openapi-yaml",
       "asyncapi-yaml",
+      "graphql-sdl",
     ]);
     assert.equal(required.includes("object-storage"), true);
     assert.equal(required.includes("rss-atom"), true);
@@ -56,6 +57,7 @@ describe("virtual-source-kind-options", () => {
     assert.equal(required.includes("llms-txt"), true);
     assert.equal(required.includes("openapi-yaml"), true);
     assert.equal(required.includes("asyncapi-yaml"), true);
+    assert.equal(required.includes("graphql-sdl"), true);
     assert.equal(required.includes("sql-api"), false);
   });
 
@@ -73,6 +75,7 @@ describe("virtual-source-kind-options", () => {
       "llms-txt",
       "openapi-yaml",
       "asyncapi-yaml",
+      "graphql-sdl",
     ];
     const missing = missingVirtualSourceKindValues(live);
     assert.deepEqual(missing, ["object-storage"]);

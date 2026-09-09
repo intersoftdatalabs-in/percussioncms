@@ -97,7 +97,7 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
 4. Confirm the source root exists on the host and that the publish directory is writable.
 5. From **Developer → Sites → Site detail**, choose **Publish Virtual Site** (visible for
    **Git filesystem**, **CSV filesystem**, **SQL database**, **HTTP JSON**,
-   **Object storage**, **RSS / Atom**, **iCalendar**, **Sitemap XML**, **Robots.txt**, **llms.txt**, **OpenAPI YAML**, and **AsyncAPI YAML**; hidden for repository Sites). For **SQL database**, **HTTP JSON**,
+   **Object storage**, **RSS / Atom**, **iCalendar**, **Sitemap XML**, **Robots.txt**, **llms.txt**, **OpenAPI YAML**, **AsyncAPI YAML**, and **GraphQL SDL**; hidden for repository Sites). For **SQL database**, **HTTP JSON**,
    **Object storage**, **RSS / Atom**, and **iCalendar**, save the source, run **Build Virtual Site**, then
    **Publish Virtual Site**. For **Sitemap XML**, save the source, run **Build Virtual Site**, then **Publish Virtual Site**
    (builds then copies last-build local HTML; leftover `virtual.remoteUrl` and credentials
@@ -109,9 +109,11 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
    (builds then copies last-build local HTML; leftover `virtual.remoteUrl` and credentials
    fail closed; missing assemble is **400**; no live spec fetch). For **AsyncAPI YAML**, save the source, run **Build Virtual Site**, then **Publish Virtual Site**
    (builds then copies last-build local HTML; leftover `virtual.remoteUrl` and credentials
-   fail closed; missing assemble is **400**; no live spec fetch). The panel reports files copied and the destination path, or a
+   fail closed; missing assemble is **400**; no live spec fetch). For **GraphQL SDL**, save the source, run **Build Virtual Site**, then **Publish Virtual Site**
+   (builds then copies last-build local HTML; leftover `virtual.remoteUrl`, credentials, and `graphql.url`
+   fail closed; missing assemble is **400**; no live GraphQL HTTP). The panel reports files copied and the destination path, or a
    clear error. Integrators can call `POST /services/sites/{nameOrId}/virtual/publish`
-   instead (Git, CSV, SQL, HTTP JSON, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, and asyncapi-yaml).
+   instead (Git, CSV, SQL, HTTP JSON, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl).
    `sitemap-xml` REST Publish copies assembled HTML from a local `sitemap.xml` fixture (leftover
    `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no live crawl).
    `robots-txt` REST Publish copies assembled HTML from a local `robots.txt` fixture (leftover
@@ -122,7 +124,9 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
    `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no live spec fetch).
    `asyncapi-yaml` REST Publish copies assembled HTML from a local `asyncapi.yaml` fixture (leftover
    `virtual.remoteUrl`, credentials, and cloud URL `rootPath` are **400**; no live spec fetch).
-   Developer Sites **Publish Virtual Site** is shown for **Sitemap XML**, **Robots.txt**, **llms.txt**, **OpenAPI YAML**, and **AsyncAPI YAML**. Run **Build Virtual Site** first
+   `graphql-sdl` REST Publish copies assembled HTML from a local `schema.graphql` fixture (leftover
+   `virtual.remoteUrl`, credentials, cloud URL `rootPath`, and `graphql.url` are **400**; no live GraphQL HTTP).
+   Developer Sites **Publish Virtual Site** is shown for **Sitemap XML**, **Robots.txt**, **llms.txt**, **OpenAPI YAML**, **AsyncAPI YAML**, and **GraphQL SDL**. Run **Build Virtual Site** first
    if you only want staging output.
 6. On success, the result includes `publishPath`, `filesCopied`, `pagesWritten`, and any
    link problems (`hasLinkProblems` can be true with HTTP 200).

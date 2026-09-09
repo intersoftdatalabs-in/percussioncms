@@ -1156,9 +1156,9 @@ export interface SiteDef {
  * Preview chrome is shown for
  * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl
  * (last-build local HTML; missing build stays unavailable). Publish chrome is shown for
- * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml
- * (sitemap-xml, robots-txt, llms-txt, openapi-yaml, and asyncapi-yaml copy last-build local HTML to
- * {@code IPSSite.root}; leftover remoteUrl/credentials fail closed; graphql-sdl Publish stays later).
+ * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl
+ * (sitemap-xml, robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl copy last-build local HTML to
+ * {@code IPSSite.root}; leftover remoteUrl/credentials/graphql.url fail closed).
  * Repository / unknown kinds hide that chrome.
  */
 export interface VirtualSiteProperties {

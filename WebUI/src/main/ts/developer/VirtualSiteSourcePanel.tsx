@@ -188,13 +188,13 @@ function validationMessage(
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
  * build ({@code POST …/virtual/build}) for git-filesystem, csv-filesystem,
  * sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml,
- * robots-txt, llms-txt, openapi-yaml, and asyncapi-yaml. Preview last-build HTML for
+ * robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl. Preview last-build HTML for
  * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/
- * llms-txt/openapi-yaml/asyncapi-yaml (missing build stays unavailable).
+ * llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl (missing build stays unavailable).
  * Publish ({@code POST …/virtual/publish}) for git/csv/sql/http-json/object-storage/
- * rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml after a
+ * rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl after a
  * successful Build. Repository / blank / unknown kinds stay hidden. sitemap-xml, robots-txt,
- * llms-txt, openapi-yaml, and asyncapi-yaml use a local {@code rootPath} only (no live crawl / spec
+ * llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl use a local {@code rootPath} only (no live crawl / spec
  * fetch chrome).
  */
 export function VirtualSiteSourcePanel({
@@ -393,11 +393,11 @@ export function VirtualSiteSourcePanel({
   const openApiYamlMode = isOpenApiYamlSourceKind(form.sourceKind);
   const asyncApiYamlMode = isAsyncApiYamlSourceKind(form.sourceKind);
   const graphQlSdlMode = isGraphQlSdlSourceKind(form.sourceKind);
-  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml (never repository). */
+  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
-  /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml (never repository). */
+  /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl (never repository). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
-  /** Publish chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml (never repository). */
+  /** Publish chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl (never repository). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
   const showActionChrome = showBuildChrome || showPreviewChrome || showPublishChrome;
   const busy = saving || building || publishing;
