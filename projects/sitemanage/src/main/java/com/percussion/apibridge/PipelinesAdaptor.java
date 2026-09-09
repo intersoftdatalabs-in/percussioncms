@@ -776,13 +776,29 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     if (body == null) {
       throw new WebApplicationException("Result page body is required", 400);
     }
-    String stylesheetUri;
-    String requestExtension;
-    String mimeType;
+    String presentation;
     try {
-      stylesheetUri = PSPipelineResultPagePath.requireSafeStylesheetUri(body.getStylesheetUri());
-      requestExtension = PSPipelineResultPagePath.requireSafeRequestExtension(body.getRequestExtension());
-      mimeType = PSPipelineResultPagePath.requireSafeMimeType(body.getMimeType());
+      presentation = PSPipelineResultPagePath.requireSafePresentation(body.getPresentation());
+    } catch (PSPipelineIrException e) {
+      throw new WebApplicationException(
+          e.getMessage() != null ? e.getMessage() : "Invalid result page presentation", 400);
+    }
+    boolean none = PSPipelineResultPagePath.isNonePresentation(presentation);
+    String stylesheetUri = null;
+    String requestExtension = null;
+    String mimeType = null;
+    try {
+      if (!none || StringUtils.isNotBlank(body.getStylesheetUri())) {
+        stylesheetUri = PSPipelineResultPagePath.requireSafeStylesheetUri(body.getStylesheetUri());
+      }
+      if (!none) {
+        requestExtension =
+            PSPipelineResultPagePath.requireSafeRequestExtension(body.getRequestExtension());
+        mimeType = PSPipelineResultPagePath.requireSafeMimeType(body.getMimeType());
+      } else if (StringUtils.isNotBlank(body.getRequestExtension())) {
+        requestExtension =
+            PSPipelineResultPagePath.tryImportedRequestExtension(body.getRequestExtension());
+      }
     } catch (PSPipelineIrException e) {
       throw new WebApplicationException(
           e.getMessage() != null ? e.getMessage() : "Invalid result page stylesheet URI", 400);
@@ -825,10 +841,18 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
           || PipelineResourceIr.KIND_UNKNOWN.equals(resource.getKind())) {
         resource.setKind(PipelineResourceIr.KIND_QUERY);
       }
+      if (none && StringUtils.isBlank(stylesheetUri)) {
+        resource.setResultPage(null);
+        ir.save(doc);
+        PipelineResultPage saved = new PipelineResultPage();
+        saved.setPresentation(PipelineResultPageIr.PRESENTATION_NONE);
+        return saved;
+      }
       PipelineResultPageIr stored = new PipelineResultPageIr();
       stored.setStylesheetUri(stylesheetUri);
       stored.setRequestExtension(requestExtension);
       stored.setMimeType(mimeType);
+      stored.setPresentation(presentation);
       resource.setResultPage(stored);
       ir.save(doc);
 
@@ -836,6 +860,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       saved.setStylesheetUri(stored.getStylesheetUri());
       saved.setRequestExtension(stored.getRequestExtension());
       saved.setMimeType(stored.getMimeType());
+      saved.setPresentation(stored.getPresentation());
       return saved;
     } catch (PSPipelineIrException e) {
       String msg = e.getMessage() != null ? e.getMessage() : "Failed to persist result page";

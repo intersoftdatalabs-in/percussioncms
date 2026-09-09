@@ -48,7 +48,12 @@ public final class PSPipelineResultPagePath {
 
   static final int MAX_EXTENSION_CHARS = 16;
 
+  static final int MAX_PRESENTATION_CHARS = 16;
+
   private static final Set<String> HTML_EXTENSIONS = Set.of("html", "htm");
+
+  private static final Set<String> PRESENTATIONS =
+      Set.of(PipelineResultPageIr.PRESENTATION_HTML, PipelineResultPageIr.PRESENTATION_NONE);
 
   private PSPipelineResultPagePath() {}
 
@@ -255,6 +260,42 @@ public final class PSPipelineResultPagePath {
       throw new PSPipelineIrException("Result page mime type must be text/html in this slice");
     }
     return PipelineResultPageIr.DEFAULT_MIME_TYPE;
+  }
+
+  /**
+   * {@code html} (apply XSL) or {@code none} (raw structured JSON/XML). Blank defaults to {@code
+   * html}. Path separators and unknown tokens fail closed.
+   *
+   * @return {@link PipelineResultPageIr#PRESENTATION_HTML} or {@link
+   *     PipelineResultPageIr#PRESENTATION_NONE}, never {@code null}
+   */
+  public static String requireSafePresentation(String presentation) throws PSPipelineIrException {
+    if (StringUtils.isBlank(presentation)) {
+      return PipelineResultPageIr.PRESENTATION_HTML;
+    }
+    String raw = presentation.trim();
+    if (raw.indexOf('\0') >= 0
+        || raw.indexOf('\r') >= 0
+        || raw.indexOf('\n') >= 0
+        || raw.indexOf('/') >= 0
+        || raw.indexOf('\\') >= 0
+        || raw.contains("..")
+        || raw.contains(":")) {
+      throw new PSPipelineIrException("Result page presentation is invalid");
+    }
+    if (raw.length() > MAX_PRESENTATION_CHARS) {
+      throw new PSPipelineIrException("Result page presentation exceeds length limit");
+    }
+    String lower = raw.toLowerCase(Locale.ROOT);
+    if (!PRESENTATIONS.contains(lower)) {
+      throw new PSPipelineIrException("Result page presentation must be html or none");
+    }
+    return lower;
+  }
+
+  public static boolean isNonePresentation(String presentation) {
+    return PipelineResultPageIr.PRESENTATION_NONE.equalsIgnoreCase(
+        StringUtils.trimToEmpty(presentation));
   }
 
   static void rejectUrl(String raw) throws PSPipelineIrException {

@@ -148,7 +148,7 @@ From classic `PSApplication` / `PSDataSet` / pipes:
 | `PSDataSynchronizer` | `stages.updater` |
 | `PSResultPage` / `PSResultPageSet` | `resultPages[]` (inspect) + first HTML-eligible `resultPage` |
 
-Not imported in v1 (deferred): join **translators** (edges still import with `translatorPresent=true`; generated planner rejects those edges), ACLs, CE field maps. Classic result-page import is path-safe: relative `file:pages/result.xsl` maps; `..`, absolute `file:/` customer paths, and `http(s)` stylesheet URLs are skipped. Unsupported where right-hand kinds stay as `OTHER` (planner requires native SQL for those). Native IR may persist one HTML **result-page** binding (`resultPage.stylesheetUri` + `.html`) and apply XSL on execute when the request asks for HTML — classic XML Applications are not rewritten.
+Not imported in v1 (deferred): join **translators** (edges still import with `translatorPresent=true`; generated planner rejects those edges), ACLs, CE field maps. Classic result-page import is path-safe: relative `file:pages/result.xsl` maps; `..`, absolute `file:/` customer paths, and `http(s)` stylesheet URLs are skipped. Unsupported where right-hand kinds stay as `OTHER` (planner requires native SQL for those). Native IR may persist one HTML **result-page** binding (`resultPage.stylesheetUri` + `.html`) and apply XSL on execute when the request asks for HTML — unless `presentation=none` or the request is JSON (`.json` / `Accept: application/json`) or XML (`.xml`). Classic XML Applications are not rewritten.
 
 ## Service API
 

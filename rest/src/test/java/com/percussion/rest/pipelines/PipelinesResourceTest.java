@@ -457,6 +457,17 @@ public class PipelinesResourceTest {
   }
 
   @Test
+  public void putResultPagePresentationNoneAllowsBlankStylesheet() {
+    PipelineResultPage body = new PipelineResultPage();
+    body.setPresentation("none");
+    when(adaptor.putResultPage(any(), eq("lookupApp"), eq("DatasetQ"), eq(body))).thenReturn(body);
+
+    PipelineResultPage out = resource.putResultPage("lookupApp", "DatasetQ", body);
+    assertEquals("none", out.getPresentation());
+    verify(adaptor).putResultPage(any(), eq("lookupApp"), eq("DatasetQ"), eq(body));
+  }
+
+  @Test
   public void getBinaryReturnsFixtureBytesAndContentType() {
     byte[] bytes = "PIPE-BIN-FIXTURE\n".getBytes(java.nio.charset.StandardCharsets.UTF_8);
     when(adaptor.retrieveBinary(any(), eq("lookupApp"), eq("binRes")))

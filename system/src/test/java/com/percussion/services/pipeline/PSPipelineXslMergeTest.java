@@ -128,4 +128,57 @@ class PSPipelineXslMergeTest {
     assertFalse(PSPipelineXslMerge.wantsHtml(PipelineExecuteRequest.empty()));
     assertFalse(PSPipelineXslMerge.wantsHtml(null));
   }
+
+  @Test
+  @DisplayName("JSON and XML skip XSL even when HTML Accept is also present")
+  void wantsJsonXml_skipXslFailClosed() {
+    PipelineExecuteRequest jsonExt = PipelineExecuteRequest.empty();
+    jsonExt.setRequestExtension(".json");
+    jsonExt.setAccept("text/html");
+    assertTrue(PSPipelineXslMerge.wantsJson(jsonExt));
+    assertFalse(PSPipelineXslMerge.wantsHtml(jsonExt));
+
+    PipelineExecuteRequest jsonAccept = PipelineExecuteRequest.empty();
+    jsonAccept.setAccept("application/json");
+    assertTrue(PSPipelineXslMerge.wantsJson(jsonAccept));
+    assertFalse(PSPipelineXslMerge.wantsHtml(jsonAccept));
+
+    PipelineExecuteRequest xmlExt = PipelineExecuteRequest.empty();
+    xmlExt.setRequestExtension(".xml");
+    assertTrue(PSPipelineXslMerge.wantsXml(xmlExt));
+    assertFalse(PSPipelineXslMerge.wantsJson(xmlExt));
+
+    PipelineResultPageIr page = new PipelineResultPageIr();
+    page.setStylesheetUri(PSPipelineResultPagePath.BUNDLED_TOKEN);
+    assertFalse(PSPipelineXslMerge.shouldApplyXsl(page, jsonExt));
+    assertFalse(PSPipelineXslMerge.shouldApplyXsl(page, jsonAccept));
+    assertFalse(PSPipelineXslMerge.shouldApplyXsl(page, xmlExt));
+
+    PipelineExecuteRequest html = PipelineExecuteRequest.empty();
+    html.setRequestExtension(".html");
+    assertTrue(PSPipelineXslMerge.shouldApplyXsl(page, html));
+
+    page.setPresentation(PipelineResultPageIr.PRESENTATION_NONE);
+    assertFalse(page.isPresent());
+    assertFalse(PSPipelineXslMerge.shouldApplyXsl(page, html));
+  }
+
+  @Test
+  @DisplayName("presentation token: html/none ok; path injection rejected")
+  void requireSafePresentation_rejectsInjection() throws Exception {
+    assertEquals(
+        PipelineResultPageIr.PRESENTATION_HTML,
+        PSPipelineResultPagePath.requireSafePresentation(null));
+    assertEquals(
+        PipelineResultPageIr.PRESENTATION_NONE,
+        PSPipelineResultPagePath.requireSafePresentation("none"));
+    assertThrows(
+        PSPipelineIrException.class,
+        () -> PSPipelineResultPagePath.requireSafePresentation("../etc/passwd"));
+    assertThrows(
+        PSPipelineIrException.class,
+        () -> PSPipelineResultPagePath.requireSafePresentation("html/../x"));
+    assertThrows(
+        PSPipelineIrException.class, () -> PSPipelineResultPagePath.requireSafePresentation("xsl"));
+  }
 }

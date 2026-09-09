@@ -1213,8 +1213,81 @@ class PipelinesAdaptorTest {
       assertEquals(PipelineIrDocument.SOURCE_NATIVE, persisted.getSource());
       PipelineResultPageIr stored = persisted.findResource("xslHtmlFixture").getResultPage();
       assertEquals(PSPipelineResultPagePath.BUNDLED_TOKEN, stored.getStylesheetUri());
+      assertEquals(PipelineResultPageIr.PRESENTATION_HTML, stored.getPresentation());
       assertEquals(PipelineResourceIr.KIND_QUERY, persisted.findResource("xslHtmlFixture").getKind());
       verify(app, never()).setName(any());
+    }
+  }
+
+  @Test
+  void putResultPage_presentationNoneClearsBinding() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    PipelineIrDocument existing = new PipelineIrDocument();
+    existing.setSource(PipelineIrDocument.SOURCE_NATIVE);
+    existing.getApp().setName("sys_cmpDocuments");
+    PipelineResourceIr res = new PipelineResourceIr();
+    res.setName("xslHtmlFixture");
+    res.setKind(PipelineResourceIr.KIND_QUERY);
+    PipelineResultPageIr bound = new PipelineResultPageIr();
+    bound.setStylesheetUri(PSPipelineResultPagePath.BUNDLED_TOKEN);
+    bound.setPresentation(PipelineResultPageIr.PRESENTATION_HTML);
+    res.setResultPage(bound);
+    existing.getResources().add(res);
+    when(ir.load("sys_cmpDocuments")).thenReturn(Optional.of(existing));
+
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> ir,
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineResultPage body = new PipelineResultPage();
+      body.setPresentation(PipelineResultPageIr.PRESENTATION_NONE);
+      PipelineResultPage saved =
+          adaptor.putResultPage(
+              URI.create("http://localhost/"), "sys_cmpDocuments", "xslHtmlFixture", body);
+      assertEquals(PipelineResultPageIr.PRESENTATION_NONE, saved.getPresentation());
+      assertNull(saved.getStylesheetUri());
+      ArgumentCaptor<PipelineIrDocument> cap = ArgumentCaptor.forClass(PipelineIrDocument.class);
+      verify(ir).save(cap.capture());
+      assertNull(cap.getValue().findResource("xslHtmlFixture").getResultPage());
+    }
+  }
+
+  @Test
+  void putResultPage_rejectsPresentationPathInjection() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineResultPage body = new PipelineResultPage();
+      body.setPresentation("../etc/passwd");
+      body.setStylesheetUri(PSPipelineResultPagePath.BUNDLED_TOKEN);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putResultPage(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "xslHtmlFixture", body));
+      assertEquals(400, ex.getResponse().getStatus());
     }
   }
 

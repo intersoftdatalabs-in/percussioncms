@@ -440,8 +440,9 @@ export function unwrapPipelineResultPage(payload: unknown): PipelineResultPage {
 }
 
 /**
- * PUT /services/pipelines/{app}/resources/{resource}/resultPage — Admin native IR HTML result page.
- * Cloud / credentialed / traversal stylesheet URIs are rejected by the server (HTTP 400).
+ * PUT /services/pipelines/{app}/resources/{resource}/resultPage — Admin native IR result page.
+ * {@code presentation: "none"} clears/disables XSL. Cloud / credentialed / traversal stylesheet
+ * URIs are rejected by the server (HTTP 400).
  */
 export async function putResultPage(
   app: string,

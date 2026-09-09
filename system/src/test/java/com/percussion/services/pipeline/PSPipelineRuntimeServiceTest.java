@@ -195,6 +195,67 @@ class PSPipelineRuntimeServiceTest {
         runtime.execute("xslSkip", "DatasetQ", PipelineExecuteRequest.empty());
     assertNull(result.getHtml());
     assertFalse(Boolean.TRUE.equals(result.getMeta().get("resultPageApplied")));
+
+    PipelineExecuteRequest json = PipelineExecuteRequest.empty();
+    json.setRequestExtension(".json");
+    json.setAccept("application/json");
+    PipelineExecuteResult jsonResult = runtime.execute("xslSkip", "DatasetQ", json);
+    assertNull(jsonResult.getHtml());
+    assertEquals("application/json", jsonResult.getMeta().get("contentType"));
+    assertEquals(Boolean.FALSE, jsonResult.getMeta().get("resultPageApplied"));
+    assertTrue(jsonResult.getRowCount() > 0);
+
+    PipelineExecuteRequest jsonOverHtml = PipelineExecuteRequest.empty();
+    jsonOverHtml.setRequestExtension(".json");
+    jsonOverHtml.setAccept("text/html");
+    PipelineExecuteResult jsonOverHtmlResult = runtime.execute("xslSkip", "DatasetQ", jsonOverHtml);
+    assertNull(jsonOverHtmlResult.getHtml());
+    assertEquals(Boolean.FALSE, jsonOverHtmlResult.getMeta().get("resultPageApplied"));
+  }
+
+  @Test
+  @DisplayName("XML execute returns untransformed row XML when a result page is bound")
+  void execute_xmlSkipsXslWhenResultPagePresent() throws Exception {
+    PipelineIrDocument doc = nativeQueryDoc("xslXml", "DatasetQ");
+    PipelineResourceIr res = doc.findResource("DatasetQ");
+    PipelineResultPageIr page = new PipelineResultPageIr();
+    page.setStylesheetUri(PSPipelineResultPagePath.BUNDLED_TOKEN);
+    res.setResultPage(page);
+    irService.save(doc);
+
+    IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
+    PipelineExecuteRequest xml = PipelineExecuteRequest.empty();
+    xml.setRequestExtension(".xml");
+    PipelineExecuteResult result = runtime.execute("xslXml", "DatasetQ", xml);
+    assertNull(result.getHtml());
+    assertNotNull(result.getXml());
+    assertTrue(result.getXml().contains("<rows>"), result.getXml());
+    assertFalse(result.getXml().contains("PIPE-XSL-HTML"), result.getXml());
+    assertEquals("text/xml", result.getMeta().get("contentType"));
+    assertEquals(Boolean.FALSE, result.getMeta().get("resultPageApplied"));
+  }
+
+  @Test
+  @DisplayName("presentation=none leaves HTML invoke untransformed")
+  void execute_presentationNoneSkipsHtmlXsl() throws Exception {
+    PipelineIrDocument doc = nativeQueryDoc("xslNone", "DatasetQ");
+    PipelineResourceIr res = doc.findResource("DatasetQ");
+    PipelineResultPageIr page = new PipelineResultPageIr();
+    page.setStylesheetUri(PSPipelineResultPagePath.BUNDLED_TOKEN);
+    page.setPresentation(PipelineResultPageIr.PRESENTATION_NONE);
+    res.setResultPage(page);
+    irService.save(doc);
+
+    IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
+    PipelineExecuteRequest html = PipelineExecuteRequest.empty();
+    html.setRequestExtension(".html");
+    html.setAccept("text/html");
+    PipelineExecuteResult result = runtime.execute("xslNone", "DatasetQ", html);
+    assertNull(result.getHtml());
+    assertNotNull(result.getXml());
+    assertFalse(result.getXml().contains("PIPE-XSL-HTML"), result.getXml());
+    assertEquals(Boolean.FALSE, result.getMeta().get("resultPageApplied"));
+    assertEquals(PipelineResultPageIr.PRESENTATION_NONE, result.getMeta().get("presentation"));
   }
 
   @Test

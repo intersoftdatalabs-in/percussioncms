@@ -511,6 +511,8 @@ export interface PipelineResultPage {
   requestExtension?: string;
   mimeType?: string;
   stylesheetUri?: string;
+  /** {@code html} applies XSL; {@code none} returns raw JSON/XML. */
+  presentation?: string;
 }
 
 /** Body/result for PUT/GET /services/pipelines/{idOrName}/tracing. */
@@ -638,9 +640,9 @@ export interface PipelineExecuteRequest {
   params?: Record<string, unknown>;
   rows?: Array<Record<string, unknown>>;
   keyColumns?: string[];
-  /** {@code .html} applies the bound result-page XSL merge. */
+  /** {@code .html} applies XSL; {@code .json}/{@code .xml} skip XSL (raw structured). */
   requestExtension?: string;
-  /** {@code text/html} applies the bound result-page XSL merge. */
+  /** {@code text/html} applies XSL; {@code application/json} / XML skip XSL. */
   accept?: string;
 }
 
@@ -657,6 +659,8 @@ export interface PipelineExecuteResult {
   meta?: Record<string, unknown>;
   /** HTML from result-page XSL merge when the request asked for HTML. */
   html?: string;
+  /** Untransformed row XML when the request asked for XML (no XSL). */
+  xml?: string;
 }
 
 /**

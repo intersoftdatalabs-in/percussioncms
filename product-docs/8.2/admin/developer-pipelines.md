@@ -1,7 +1,7 @@
 ---
 id: admin-developer-pipelines
 title: Developer Pipelines
-description: Browse classic XML Applications, Admin start/stop, pipe IR, OpenAPI from resources, HTTP datasource, nested filter groups, webhook hooks, binary resource retrieve, HTML result pages, request tracing, Test invoke, and Problems from Developer Pipelines chrome
+description: Browse classic XML Applications, Admin start/stop, pipe IR, OpenAPI from resources, HTTP datasource, nested filter groups, webhook hooks, binary resource retrieve, HTML result pages or raw JSON/XML, request tracing, Test invoke, and Problems from Developer Pipelines chrome
 version: "8.2"
 order: 51
 tags: [admin, developer, pipelines]
@@ -72,8 +72,10 @@ resources. It does not publish to an external registry.
   URLs, credentials in the path, and path traversal return **400**. **Test HTML**
   posts `requestExtension=.html` to execute and shows the merged HTML marker
   `PIPE-XSL-HTML` (plus fixture row fields such as `SKU-1`) — not raw JSON.
-  Missing stylesheets fail closed; HTML is never invented. JSON **Invoke** still
-  returns structured rows when you do not ask for HTML.
+  Missing stylesheets fail closed; HTML is never invented. **Use raw structured
+  output** sends `presentation=none` so HTML Test invoke is untransformed.
+  **Test JSON** (`.json` / `Accept: application/json`) **never** applies XSL
+  even when a result page remains. **Test XML** returns untransformed row XML.
 - **Nested filter groups** save an AND/OR tree of selector predicates on the
   selected native resource via
   `PUT /services/pipelines/{app}/resources/{resource}/filterGroup`. The default
@@ -92,7 +94,8 @@ resources. It does not publish to an external registry.
   structured execute result (or a clear error). HTTP tanks return mapped JSON
   `rows` (for example `sku` / `name` from the bundled fixture) — not empty
   invented data. **Test HTML** asks for `.html` so a bound result page merges
-  those rows through XSL. When webhook hooks are saved, the result includes real
+  those rows through XSL unless presentation is `none`. **Test JSON** / **Test
+  XML** skip XSL. When webhook hooks are saved, the result includes real
   `preWebhookStatus` / `postWebhookStatus` and body snippets (for example
   `hook-ok`) from the fixture — not a fake success.
 - **Problems** loads Admin `GET /services/pipelines/{idOrName}/validation` when
@@ -246,6 +249,11 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
 6. Choose **Test HTML**. The HTML result shows the local fixture marker
    `PIPE-XSL-HTML` and fixture fields such as `SKU-1` (stylesheet merge, not
    raw JSON). Missing stylesheets fail closed.
+7. Choose **Test JSON**. The structured result shows fixture rows (for example
+   `SKU-1`) and **does not** wrap them in `PIPE-XSL-HTML`, even while the
+   result page is still bound.
+8. Choose **Use raw structured output**. Then **Test HTML** is untransformed
+   (no HTML wrapper). **Test XML** shows a `<rows>` document without XSL.
 
 ## Product path — Problems
 
@@ -288,6 +296,8 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-result-page-html.spec.js`.
   Classic import inspect lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-result-page-import.spec.js`.
+  Raw JSON/XML (clear presentation) lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-result-page-raw.spec.js`.
 - Surface-filtered Playwright for OpenAPI view/download lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-openapi.spec.js`
   (prefers `sys_cmp*` IR/execute apps, or `PIPELINE_APP_NAME`; does not require
