@@ -106,7 +106,7 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPreviewChrome("  json-schema  ")).toBe(true);
   });
 
-  it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl", () => {
+  it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, graphql-sdl, and json-schema", () => {
     expect(shouldShowVirtualPublishChrome(null)).toBe(false);
     expect(shouldShowVirtualPublishChrome("")).toBe(false);
     expect(shouldShowVirtualPublishChrome("repository")).toBe(false);
@@ -148,9 +148,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPublishChrome("graphql-sdl")).toBe(true);
     expect(shouldShowVirtualPublishChrome("GraphQL-SDL")).toBe(true);
     expect(shouldShowVirtualPublishChrome("  graphql-sdl  ")).toBe(true);
-    expect(shouldShowVirtualPublishChrome("json-schema")).toBe(false);
-    expect(shouldShowVirtualPublishChrome("JSON-Schema")).toBe(false);
-    expect(shouldShowVirtualPublishChrome("  json-schema  ")).toBe(false);
+    expect(shouldShowVirtualPublishChrome("json-schema")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("JSON-Schema")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("  json-schema  ")).toBe(true);
   });
 
   it("formatVirtualSitePublishSummary reports files copied and dest path", () => {

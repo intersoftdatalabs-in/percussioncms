@@ -441,7 +441,7 @@ public class SitesAdaptor implements ISiteAdaptor {
   /**
    * Build then NIO-copy assembled files to {@link IPSSite#getRoot()} for git-filesystem,
    * csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml,
-   * robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl Virtual Sites. Fail-closed on
+   * robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, graphql-sdl, and json-schema Virtual Sites. Fail-closed on
    * blank/unsafe/overlapping
    * publish roots. {@code
    * http-json} uses a local JSON fixture (or loopback catalog from {@code _config.yaml}); leftover
@@ -465,8 +465,11 @@ public class SitesAdaptor implements ISiteAdaptor {
    * properties, and cloud URL {@code rootPath} are 400 (no live spec fetch). {@code graphql-sdl}
    * uses a local GraphQL SDL fixture ({@code schema.graphql} / {@code graphql.file}); leftover
    * {@code virtual.remoteUrl}, credential properties, cloud URL {@code rootPath}, and {@code
-   * graphql.url} are 400 (no live GraphQL HTTP or introspection). Missing fixture or
-   * failed assemble is 400 (do not invent pages).
+   * graphql.url} are 400 (no live GraphQL HTTP or introspection). {@code json-schema}
+   * uses a local JSON Schema fixture ({@code schema.json} / {@code jsonschema.file}); leftover
+   * {@code virtual.remoteUrl}, credential properties, cloud URL {@code rootPath}, {@code
+   * jsonschema.url}, and remote {@code $ref}/{@code $id} HTTP are 400 (no live HTTP schema fetch).
+   * Missing fixture or failed assemble is 400 (do not invent pages).
    */
   @Override
   public VirtualSitePublishResult publishVirtualSite(String nameOrId) {

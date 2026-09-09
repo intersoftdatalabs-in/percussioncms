@@ -60,9 +60,9 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * {@code graphql-sdl} is a local GraphQL SDL fixture only — no live GraphQL HTTP or introspection;
  * {@code json-schema} is a local JSON Schema fixture only — no live HTTP schema fetch).
  * REST persist for {@code asyncapi-yaml} is GET/PUT plus REST Build/Preview/Publish. REST
- * Build/Preview/Publish for {@code openapi-yaml}, {@code asyncapi-yaml}, and {@code graphql-sdl}
- * use that local fixture (Publish copies last-build HTML to {@code IPSSite.root}). REST
- * Build/Preview for {@code json-schema} uses that local fixture (Publish stays a later leftover). REST
+ * Build/Preview/Publish for {@code openapi-yaml}, {@code asyncapi-yaml}, {@code graphql-sdl},
+ * and {@code json-schema} use that local fixture (Publish copies last-build HTML to {@code
+ * IPSSite.root}). REST
  * {@code POST …/virtual/build} runs {@code http-json}, {@code object-storage}, {@code
  * rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, {@code graphql-sdl}, and {@code json-schema} through the existing {@code
  * IPSVirtualSiteSource} factory (local fixture / loopback JSON; local object-key bucket; local
@@ -81,10 +81,13 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * OpenAPI 3 YAML fixture; leftover {@code virtual.remoteUrl}, credentials, and cloud URL {@code
  * rootPath} are 400; no live spec fetch; missing assemble is 400), {@code asyncapi-yaml}
  * (local AsyncAPI 2/3 YAML fixture; leftover {@code virtual.remoteUrl}, credentials, and cloud
- * URL {@code rootPath} are 400; no live spec fetch; missing assemble is 400), and {@code
+ * URL {@code rootPath} are 400; no live spec fetch; missing assemble is 400), {@code
  * graphql-sdl} (local GraphQL SDL fixture; leftover {@code virtual.remoteUrl}, credentials,
  * cloud URL {@code rootPath}, and {@code graphql.url} are 400; no live GraphQL HTTP or
- * introspection; missing assemble is 400).
+ * introspection; missing assemble is 400), and {@code json-schema} (local JSON Schema fixture;
+ * leftover {@code virtual.remoteUrl}, credentials, cloud URL {@code rootPath}, {@code
+ * jsonschema.url}, and remote {@code $ref}/{@code $id} HTTP are 400; no live HTTP schema fetch;
+ * missing assemble is 400).
  *
  * <p>Wire getters return plain {@code String} (not {@code Optional}) so JAXB/Jettison and Jackson
  * {@code WRAP_ROOT_VALUE} emit/accept child elements {@code sourceKind}, {@code rootPath},
@@ -129,10 +132,10 @@ public class VirtualSiteProperties {
               + " rootPath; leftover remoteUrl, credentials, cloud URL rootPath, and graphql.url"
               + " return 400; no live GraphQL HTTP or introspection; preview is last-build local HTML"
               + " only; publish copies last-build HTML to IPSSite.root)."
-              + " json-schema persist/build/preview is a local JSON Schema fixture only (portable-safe rootPath;"
-              + " leftover remoteUrl, credentials, cloud URL rootPath, jsonschema.url, and remote $ref/$id HTTP return 400;"
-              + " no live HTTP schema fetch; preview is last-build local HTML only). REST Publish for json-schema stays a later"
-              + " slice."
+              + " json-schema persist/build/preview/publish is a local JSON Schema fixture only (portable-safe"
+              + " rootPath; leftover remoteUrl, credentials, cloud URL rootPath, jsonschema.url, and remote"
+              + " $ref/$id HTTP return 400; no live HTTP schema fetch; preview is last-build local HTML"
+              + " only; publish copies last-build HTML to IPSSite.root)."
               + " Blank or repository = traditional Site.",
       example = "git-filesystem")
   private String sourceKind;

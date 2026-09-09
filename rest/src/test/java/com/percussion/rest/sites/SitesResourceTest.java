@@ -3406,6 +3406,92 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void publishVirtualSiteDelegatesJsonSchema() {
+    VirtualSitePublishResult published = new VirtualSitePublishResult();
+    published.setSiteName("JsonSchemaHelp");
+    published.setSiteKey("jsonschema-docs");
+    published.setPagesWritten(1);
+    published.setFilesCopied(2);
+    published.setPublishPath(tempDir.resolve("js-pub").toString());
+    when(adaptor.publishVirtualSite("JsonSchemaHelp")).thenReturn(published);
+
+    VirtualSitePublishResult out = resource.publishVirtualSite("JsonSchemaHelp");
+    assertEquals("JsonSchemaHelp", out.getSiteName());
+    assertEquals("jsonschema-docs", out.getSiteKey());
+    assertEquals(1, out.getPagesWritten().intValue());
+    assertEquals(2, out.getFilesCopied().intValue());
+    assertEquals(published.getPublishPath(), out.getPublishPath());
+    verify(adaptor).publishVirtualSite("JsonSchemaHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteJsonSchemaRemoteUrlPropagates400() {
+    when(adaptor.publishVirtualSite("JsonSchemaHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for json-schema",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("JsonSchemaHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(adaptor).publishVirtualSite("JsonSchemaHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteJsonSchemaCloudRootPropagates400() {
+    when(adaptor.publishVirtualSite("JsonSchemaHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for json-schema must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("JsonSchemaHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).publishVirtualSite("JsonSchemaHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteJsonSchemaCredentialsPropagates400() {
+    when(adaptor.publishVirtualSite("JsonSchemaHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for json-schema (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("JsonSchemaHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).publishVirtualSite("JsonSchemaHelp");
+  }
+
+  @Test
+  public void publishVirtualSiteJsonSchemaJsonschemaUrlPropagates400() {
+    when(adaptor.publishVirtualSite("JsonSchemaHelp"))
+        .thenThrow(
+            new WebApplicationException(
+                "jsonschema.url is not allowed for json-schema (local schema.json fixture only; no live HTTP schema fetch).",
+                Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.publishVirtualSite("JsonSchemaHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("jsonschema.url"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("example.com"));
+    verify(adaptor).publishVirtualSite("JsonSchemaHelp");
+  }
+
+  @Test
   public void publishVirtualSiteGraphQlSdlGraphqlUrlPropagates400() {
     when(adaptor.publishVirtualSite("GraphQlHelp"))
         .thenThrow(
@@ -3626,6 +3712,14 @@ public class SitesResourceTest {
             || publishBlock.contains("no live GraphQL HTTP")
             || publishBlock.contains("graphql.url"),
         "publishVirtualSite OpenAPI description must mention graphql-sdl local fixture only");
+    assertTrue(
+        publishBlock.contains("json-schema"),
+        "publishVirtualSite OpenAPI description must mention json-schema");
+    assertTrue(
+        publishBlock.contains("schema.json")
+            || publishBlock.contains("no live HTTP schema fetch")
+            || publishBlock.contains("jsonschema.url"),
+        "publishVirtualSite OpenAPI description must mention json-schema local fixture only");
     assertTrue(
         publishBlock.contains("no live crawl"),
         "publishVirtualSite OpenAPI description must mention sitemap-xml local fixture only");

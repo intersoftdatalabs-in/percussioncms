@@ -32,7 +32,7 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
  * object-storage keys, rss-atom feeds, icalendar .ics, sitemap.xml, robots.txt, llms.txt,
  * openapi.yaml, asyncapi.yaml, schema.graphql, and schema.json stay in _config.yaml / the local root).
  * openapi-yaml, asyncapi-yaml, graphql-sdl, and json-schema Build produce last-build HTML for Preview.
- * graphql-sdl Publish copies to IPSSite.root. json-schema Publish chrome stays a later slice.
+ * graphql-sdl and json-schema Publish copy last-build HTML to IPSSite.root.
  * Repository / blank / unknown kinds must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
@@ -62,8 +62,7 @@ export function shouldShowVirtualBuildChrome(
  * Last-output preview for git-filesystem, csv-filesystem, sql-database,
  * http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt,
  * llms-txt, openapi-yaml, asyncapi-yaml, graphql-sdl, and json-schema. Missing last-build stays unavailable
- * (GET /virtual/preview available=false; no fake preview). json-schema Publish chrome stays a later
- * slice. Repository / blank / unknown kinds stay hidden.
+ * (GET /virtual/preview available=false; no fake preview). Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPreviewChrome(
   sourceKind: string | null | undefined,
@@ -91,11 +90,11 @@ export function shouldShowVirtualPreviewChrome(
  * True when the Publish Virtual Site control should be shown.
  * Git-filesystem, csv-filesystem, sql-database, http-json, object-storage,
  * rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml,
- * asyncapi-yaml, and graphql-sdl all run POST /virtual/publish (build then copy
+ * asyncapi-yaml, graphql-sdl, and json-schema all run POST /virtual/publish (build then copy
  * last-build HTML to IPSSite.root). sitemap-xml, robots-txt, llms-txt,
- * openapi-yaml, asyncapi-yaml, and graphql-sdl leftover remoteUrl, credentials,
- * cloud rootPath, and graphql.url fail closed on the server. json-schema Publish chrome stays
- * a later slice. Repository / blank / unknown kinds stay hidden.
+ * openapi-yaml, asyncapi-yaml, graphql-sdl, and json-schema leftover remoteUrl, credentials,
+ * cloud rootPath, graphql.url, and jsonschema.url fail closed on the server. Repository /
+ * blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPublishChrome(
   sourceKind: string | null | undefined,
@@ -114,7 +113,8 @@ export function shouldShowVirtualPublishChrome(
     v === "llms-txt" ||
     v === "openapi-yaml" ||
     v === "asyncapi-yaml" ||
-    v === "graphql-sdl"
+    v === "graphql-sdl" ||
+    v === "json-schema"
   );
 }
 
