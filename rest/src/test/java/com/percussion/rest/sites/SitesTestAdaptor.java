@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
  * bean. Production wiring is {@code SitesAdaptor} in sitemanage. PUT echoes the envelope
  * (including {@code sql-database}, {@code http-json}, {@code object-storage}, {@code rss-atom},
  * {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code
- * openapi-yaml}, {@code asyncapi-yaml}, and {@code graphql-sdl} {@code sourceKind}); JDBC credentials, HTTP secrets,
+ * openapi-yaml}, {@code asyncapi-yaml}, {@code graphql-sdl}, and {@code json-schema} {@code sourceKind}); JDBC credentials, HTTP secrets,
  * object-storage cloud credentials, rss-atom live feed credentials, CalDAV credentials, and
  * sitemap crawl credentials are never logged. REST Build
  * for {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar}, {@code

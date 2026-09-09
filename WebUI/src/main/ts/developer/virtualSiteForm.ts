@@ -59,6 +59,9 @@ export const SOURCE_KIND_ASYNCAPI_YAML = "asyncapi-yaml";
 /** Virtual Site adapter wire name for a local GraphQL SDL fixture (no live GraphQL HTTP). */
 export const SOURCE_KIND_GRAPHQL_SDL = "graphql-sdl";
 
+/** Virtual Site adapter wire name for a local JSON Schema fixture (no live HTTP schema fetch). */
+export const SOURCE_KIND_JSON_SCHEMA = "json-schema";
+
 /** Form select values for source kind. */
 export type VirtualSourceKindOption =
   | typeof SOURCE_KIND_REPOSITORY
@@ -74,7 +77,8 @@ export type VirtualSourceKindOption =
   | typeof SOURCE_KIND_LLMS_TXT
   | typeof SOURCE_KIND_OPENAPI_YAML
   | typeof SOURCE_KIND_ASYNCAPI_YAML
-  | typeof SOURCE_KIND_GRAPHQL_SDL;
+  | typeof SOURCE_KIND_GRAPHQL_SDL
+  | typeof SOURCE_KIND_JSON_SCHEMA;
 
 /**
  * Product order for the Developer Sites source-kind {@code <select>}.
@@ -96,6 +100,7 @@ export const SOURCE_KIND_SELECT_VALUES: readonly VirtualSourceKindOption[] = [
   SOURCE_KIND_OPENAPI_YAML,
   SOURCE_KIND_ASYNCAPI_YAML,
   SOURCE_KIND_GRAPHQL_SDL,
+  SOURCE_KIND_JSON_SCHEMA,
 ];
 
 /** Editable form model for the Virtual Site source panel. */
@@ -112,7 +117,7 @@ export interface VirtualSiteFormModel {
  * Normalize a wire/sourceKind string into a form select option.
  * Blank, missing, or {@code repository} → repository; git-filesystem,
  * csv-filesystem, sql-database, http-json, object-storage, rss-atom,
- * icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl map to themselves;
+ * icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, graphql-sdl, and json-schema map to themselves;
  * unknown kinds → repository (safe default).
  */
 export function normalizeSourceKindOption(
@@ -160,6 +165,9 @@ export function normalizeSourceKindOption(
   }
   if (v === SOURCE_KIND_GRAPHQL_SDL) {
     return SOURCE_KIND_GRAPHQL_SDL;
+  }
+  if (v === SOURCE_KIND_JSON_SCHEMA) {
+    return SOURCE_KIND_JSON_SCHEMA;
   }
   // Unknown kinds: surface as repository so operators do not accidentally
   // re-save an unsupported adapter without changing the select.
@@ -235,6 +243,11 @@ export function isAsyncApiYamlSourceKind(kind: string | null | undefined): boole
 /** True when source kind is the local GraphQL SDL adapter (root path only; no live GraphQL HTTP). */
 export function isGraphQlSdlSourceKind(kind: string | null | undefined): boolean {
   return (kind ?? "").trim().toLowerCase() === SOURCE_KIND_GRAPHQL_SDL;
+}
+
+/** True when source kind is the local JSON Schema adapter (root path only; no live HTTP schema fetch). */
+export function isJsonSchemaSourceKind(kind: string | null | undefined): boolean {
+  return (kind ?? "").trim().toLowerCase() === SOURCE_KIND_JSON_SCHEMA;
 }
 
 /**
@@ -384,6 +397,16 @@ export function formToVirtualProps(form: VirtualSiteFormModel): VirtualSitePrope
     // schema.graphql fixture directory only — never send graphql.url or credentials.
     return {
       sourceKind: SOURCE_KIND_GRAPHQL_SDL,
+      rootPath: form.rootPath.trim() || null,
+      remoteUrl: "",
+      branch: "",
+    };
+  }
+  if (kind === SOURCE_KIND_JSON_SCHEMA) {
+    // JSON Schema rejects a non-blank virtual.remoteUrl (REST 400). Local
+    // schema.json fixture directory only — never send jsonschema.url or credentials.
+    return {
+      sourceKind: SOURCE_KIND_JSON_SCHEMA,
       rootPath: form.rootPath.trim() || null,
       remoteUrl: "",
       branch: "",

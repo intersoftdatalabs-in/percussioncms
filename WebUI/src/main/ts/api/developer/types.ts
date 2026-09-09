@@ -1161,11 +1161,11 @@ export interface SiteDef {
  * {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
  * {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar},
  * {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml},
- * {@code asyncapi-yaml}, {@code graphql-sdl}.
+ * {@code asyncapi-yaml}, {@code graphql-sdl}, {@code json-schema}.
  * Developer Sites save chrome includes http-json, object-storage, rss-atom, icalendar,
- * sitemap-xml, robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl (local {@code rootPath} only; no
- * cloud URLs, live feed / CalDAV / crawl / llms / OpenAPI / AsyncAPI / GraphQL fetch credentials, or
- * {@code virtual.remoteUrl} on those kinds). Build chrome is shown after save for
+ * sitemap-xml, robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, graphql-sdl, and json-schema (local {@code rootPath} only; no
+ * cloud URLs, live feed / CalDAV / crawl / llms / OpenAPI / AsyncAPI / GraphQL / JSON Schema fetch credentials, or
+ * {@code virtual.remoteUrl} on those kinds). json-schema hides Build/Preview/Publish chrome (later slices). Build chrome is shown after save for
  * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl.
  * Preview chrome is shown for
  * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl

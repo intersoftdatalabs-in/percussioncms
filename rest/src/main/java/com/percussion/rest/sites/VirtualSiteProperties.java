@@ -39,25 +39,26 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * Site. Allow-listed virtual adapters: {@code git-filesystem}, {@code csv-filesystem}, {@code
  * sql-database}, {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar},
  * {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code
- * asyncapi-yaml}, {@code graphql-sdl}. Optional {@code
+ * asyncapi-yaml}, {@code graphql-sdl}, {@code json-schema}. Optional {@code
  * remoteUrl} + {@code branch} apply to {@code git-filesystem} only (fetch/clone into a contained
  * work directory before discover); blank remote keeps local {@code rootPath}. {@code
  * csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage}, {@code
  * rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code
- * openapi-yaml}, {@code asyncapi-yaml}, and {@code graphql-sdl} reject {@code remoteUrl} (no secrets on this envelope). {@code
+ * openapi-yaml}, {@code asyncapi-yaml}, {@code graphql-sdl}, and {@code json-schema} reject {@code remoteUrl} (no secrets on this envelope). {@code
  * sql-database} connection fields (JDBC URL, user, query) live in {@code _config.yaml} under
  * {@code rootPath} — never put passwords on this envelope or in logs. {@code http-json} catalog
  * URL/file live in {@code _config.yaml} ({@code http.url} / {@code http.file}); REST persists a
  * safe {@code rootPath} JSON fixture directory. {@code object-storage}, {@code rss-atom}, {@code
  * icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml},
- * {@code asyncapi-yaml}, and {@code graphql-sdl} persist a portable-safe local {@code rootPath} (NIO Path; no remaining {@code ..}); cloud URLs
+ * {@code asyncapi-yaml}, {@code graphql-sdl}, and {@code json-schema} persist a portable-safe local {@code rootPath} (NIO Path; no remaining {@code ..}); cloud URLs
  * and credential properties are 400 ({@code rss-atom} is local/loopback only; no live feed
  * credentials; {@code icalendar} is a local RFC 5545 fixture only — no CalDAV; {@code
  * sitemap-xml} is a local sitemap.xml fixture only — no live crawl; {@code robots-txt} is a local
  * robots.txt fixture only — no live crawl; {@code llms-txt} is a local llms.txt fixture only — no
  * live HTTP fetch; {@code openapi-yaml} is a local OpenAPI 3 YAML fixture only — no live spec
  * fetch; {@code asyncapi-yaml} is a local AsyncAPI 2/3 YAML fixture only — no live spec fetch;
- * {@code graphql-sdl} is a local GraphQL SDL fixture only — no live GraphQL HTTP or introspection).
+ * {@code graphql-sdl} is a local GraphQL SDL fixture only — no live GraphQL HTTP or introspection;
+ * {@code json-schema} is a local JSON Schema fixture only — no live HTTP schema fetch).
  * REST persist for {@code asyncapi-yaml} is GET/PUT plus REST Build/Preview/Publish. REST
  * Build/Preview/Publish for {@code openapi-yaml}, {@code asyncapi-yaml}, and {@code graphql-sdl}
  * use that local fixture (Publish copies last-build HTML to {@code IPSSite.root}). REST
@@ -104,7 +105,7 @@ public class VirtualSiteProperties {
       description =
           "Adapter wire name. Allow-list: git-filesystem, csv-filesystem, sql-database, http-json,"
               + " object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt,"
-              + " openapi-yaml, asyncapi-yaml, graphql-sdl. rss-atom persist/build/preview/publish is"
+              + " openapi-yaml, asyncapi-yaml, graphql-sdl, json-schema. rss-atom persist/build/preview/publish is"
               + " local/loopback only (no live feed credentials). icalendar persist is a local RFC"
               + " 5545 fixture only (portable-safe rootPath; leftover remoteUrl, credentials, and"
               + " cloud URL rootPath return 400; no CalDAV). sitemap-xml persist/build/preview is a local"
@@ -127,6 +128,10 @@ public class VirtualSiteProperties {
               + " rootPath; leftover remoteUrl, credentials, cloud URL rootPath, and graphql.url"
               + " return 400; no live GraphQL HTTP or introspection; preview is last-build local HTML"
               + " only; publish copies last-build HTML to IPSSite.root)."
+              + " json-schema persist is a local JSON Schema fixture only (portable-safe rootPath;"
+              + " leftover remoteUrl, credentials, cloud URL rootPath, and jsonschema.url return 400;"
+              + " no live HTTP schema fetch). REST Build/Preview/Publish for json-schema stay later"
+              + " slices."
               + " Blank or repository = traditional Site.",
       example = "git-filesystem")
   private String sourceKind;

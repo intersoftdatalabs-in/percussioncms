@@ -59,6 +59,7 @@ import {
   SOURCE_KIND_OPENAPI_YAML,
   SOURCE_KIND_ASYNCAPI_YAML,
   SOURCE_KIND_GRAPHQL_SDL,
+  SOURCE_KIND_JSON_SCHEMA,
   SOURCE_KIND_SITEMAP_XML,
   SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
@@ -71,6 +72,7 @@ import {
   isOpenApiYamlSourceKind,
   isAsyncApiYamlSourceKind,
   isGraphQlSdlSourceKind,
+  isJsonSchemaSourceKind,
   isObjectStorageSourceKind,
   isRobotsTxtSourceKind,
   isRssAtomSourceKind,
@@ -100,6 +102,7 @@ const SOURCE_KIND_OPTION_LABEL: Record<
   [SOURCE_KIND_OPENAPI_YAML]: DEV_MSG.SITE_VIRT_KIND_OPENAPI_YAML,
   [SOURCE_KIND_ASYNCAPI_YAML]: DEV_MSG.SITE_VIRT_KIND_ASYNCAPI_YAML,
   [SOURCE_KIND_GRAPHQL_SDL]: DEV_MSG.SITE_VIRT_KIND_GRAPHQL_SDL,
+  [SOURCE_KIND_JSON_SCHEMA]: DEV_MSG.SITE_VIRT_KIND_JSON_SCHEMA,
 };
 
 const formRow: React.CSSProperties = {
@@ -194,8 +197,8 @@ function validationMessage(
  * Publish ({@code POST …/virtual/publish}) for git/csv/sql/http-json/object-storage/
  * rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl after a
  * successful Build. Repository / blank / unknown kinds stay hidden. sitemap-xml, robots-txt,
- * llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl use a local {@code rootPath} only (no live crawl / spec
- * fetch chrome).
+ * llms-txt, openapi-yaml, asyncapi-yaml, graphql-sdl, and json-schema use a local {@code rootPath} only (no live crawl / spec
+ * fetch chrome). json-schema persist chrome is save/GET-roundtrip only (Build/Preview/Publish stay later slices).
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -393,6 +396,7 @@ export function VirtualSiteSourcePanel({
   const openApiYamlMode = isOpenApiYamlSourceKind(form.sourceKind);
   const asyncApiYamlMode = isAsyncApiYamlSourceKind(form.sourceKind);
   const graphQlSdlMode = isGraphQlSdlSourceKind(form.sourceKind);
+  const jsonSchemaMode = isJsonSchemaSourceKind(form.sourceKind);
   /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
   /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl (never repository). */
@@ -588,6 +592,14 @@ export function VirtualSiteSourcePanel({
                   data-testid="developer-site-virtual-graphql-sdl-hint"
                 >
                   {DEV_MSG.SITE_VIRT_GRAPHQL_SDL_HINT}
+                </p>
+              ) : null}
+              {jsonSchemaMode ? (
+                <p
+                  style={{ ...mutedHintText, margin: "0 0 10px" }}
+                  data-testid="developer-site-virtual-json-schema-hint"
+                >
+                  {DEV_MSG.SITE_VIRT_JSON_SCHEMA_HINT}
                 </p>
               ) : null}
               {gitMode ? (

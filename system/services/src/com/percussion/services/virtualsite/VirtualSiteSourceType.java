@@ -35,8 +35,8 @@ package com.percussion.services.virtualsite;
  * and Developer Sites chrome stay later slices. {@link #GRAPHQL_SDL} assemble is SPI/CLI ({@code
  * schema.graphql}); REST GET/PUT persist plus REST Build/Preview and Developer Sites
  * Build/Preview chrome land with the persist slice; REST Publish stays a later slice.
- * {@link #JSON_SCHEMA} assemble is SPI/CLI ({@code schema.json}); REST persist/Build/Preview/Publish
- * and Developer Sites chrome stay later slices.
+ * {@link #JSON_SCHEMA} assemble is SPI/CLI ({@code schema.json}); REST GET/PUT persist and
+ * Developer Sites source chrome land with the persist slice; REST Build/Preview/Publish stay later slices.
  */
 public enum VirtualSiteSourceType {
   GIT_FILESYSTEM("git-filesystem"),
@@ -157,8 +157,10 @@ public enum VirtualSiteSourceType {
    * body}. A fixture with no properties or defs still emits one page from {@code title} /
    * {@code description}. {@code jsonschema.url}, Git {@code virtual.remoteUrl}, credential
    * properties, cloud URLs, remote {@code $ref}/{@code $id} HTTP, and live schema fetch are
-   * rejected. REST persist, Build/Preview/Publish, and Developer Sites chrome stay later slices.
-   * SPI/CLI assemble is {@code PSVirtualSiteBuildMain … json-schema}.
+   * rejected. REST GET/PUT persist round-trips this kind with a portable-safe {@code
+   * virtual.rootPath} (NIO {@link java.nio.file.Path}; no remaining {@code ..}). REST
+   * Build/Preview/Publish stay later slices. SPI/CLI assemble is {@code PSVirtualSiteBuildMain …
+   * json-schema}.
    */
   JSON_SCHEMA("json-schema");
 
