@@ -56,8 +56,17 @@ describe("item filter wire wrap", () => {
   it("unwraps ItemFilter envelope and flat bodies", () => {
     expect(
       unwrapItemFilter({ ItemFilter: { name: "public", description: "Public" } }),
-    ).toEqual({ name: "public", description: "Public" });
-    expect(unwrapItemFilter({ name: "preview" })).toEqual({ name: "preview" });
+    ).toEqual({
+      name: "public",
+      description: "Public",
+      rules: [],
+      parentFilter: undefined,
+    });
+    expect(unwrapItemFilter({ name: "preview" })).toEqual({
+      name: "preview",
+      rules: [],
+      parentFilter: undefined,
+    });
     expect(unwrapItemFilter(null)).toEqual({});
   });
 });
@@ -121,7 +130,7 @@ describe("itemFiltersApi write paths", () => {
       jsonResponse({ ItemFilter: [{ name: "public", description: "Public" }] }),
     );
     const list = await listItemFilters();
-    expect(list).toEqual([{ name: "public", description: "Public" }]);
+    expect(list).toEqual([{ name: "public", description: "Public", rules: [] }]);
   });
 
   it("unwraps GET /services/itemfilters/{idOrName} Jackson root", async () => {
@@ -131,6 +140,28 @@ describe("itemFiltersApi write paths", () => {
     const detail = await getItemFilterDetail("public");
     expect(detail.name).toBe("public");
     expect(detail.description).toBe("Public");
+    expect(detail.rules).toEqual([]);
+  });
+
+  it("coerces a single Jackson rules object to an array on unwrap", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ItemFilter: {
+          name: "preview",
+          rules: {
+            name: "Java/global/percussion/itemfilter/sys_previewFilter",
+            params: { name: "sys_user", value: "Admin" },
+          },
+        },
+      }),
+    );
+    const detail = await getItemFilterDetail("preview");
+    expect(detail.rules).toEqual([
+      {
+        name: "Java/global/percussion/itemfilter/sys_previewFilter",
+        params: [{ name: "sys_user", value: "Admin" }],
+      },
+    ]);
   });
 
   it("surfaces 400 invalid name", async () => {

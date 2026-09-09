@@ -1158,7 +1158,7 @@ class JacksonContextResolverOptionalTest {
     ItemFilter filter = new ItemFilter();
     filter.setName("site_folder");
     filter.setDescription("Site folder filter");
-    filter.setRules(java.util.Set.of(rule));
+    filter.setRules(java.util.List.of(rule));
 
     ObjectMapper filterMapper = new JacksonContextResolver().getContext(ItemFilter.class);
     String json = filterMapper.writeValueAsString(filter);

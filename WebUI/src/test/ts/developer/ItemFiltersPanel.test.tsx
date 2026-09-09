@@ -80,7 +80,9 @@ describe("ItemFiltersPanel", () => {
       expect(screen.getByTestId("developer-if-detail")).toBeTruthy();
     });
     expect(detailMock).toHaveBeenCalledWith("public");
-    expect(screen.getByText("sys_IsPublic")).toBeTruthy();
+    expect(
+      (screen.getByTestId("developer-if-rule-name-0") as HTMLInputElement).value,
+    ).toBe("sys_IsPublic");
     expect(screen.getByTestId("developer-if-save")).toBeTruthy();
     expect(screen.getByTestId("developer-if-delete")).toBeTruthy();
   });

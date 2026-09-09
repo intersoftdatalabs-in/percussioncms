@@ -27,7 +27,7 @@ import {
   updateItemFilter,
   type ItemFilterWriteBody,
 } from "../api/developer/itemFiltersApi";
-import type { ItemFilter } from "../api/developer/types";
+import type { ItemFilter, ItemFilterRule } from "../api/developer/types";
 import {
   catalogColors,
   backButton,
@@ -39,6 +39,13 @@ import {
 } from "./catalogStyles";
 import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
+import {
+  cloneRules,
+  emptyParam,
+  emptyRule,
+  rulesFingerprint,
+  toWireRules,
+} from "./itemFilterRules";
 import { DEV_MSG } from "./messages";
 
 const AUTHTYPE_OPTIONS: { value: string; label: string }[] = [
@@ -60,6 +67,15 @@ const inputStyle: React.CSSProperties = {
   padding: "8px",
   border: `1px solid ${catalogColors.softBorder}`,
   borderRadius: "4px",
+  font: "inherit",
+};
+
+const actionButton: React.CSSProperties = {
+  padding: "6px 10px",
+  background: "transparent",
+  border: `1px solid ${catalogColors.softBorder}`,
+  borderRadius: "4px",
+  cursor: "pointer",
   font: "inherit",
 };
 
@@ -86,6 +102,8 @@ export function ItemFilterDetailPanel({
   const [description, setDescription] = useState("");
   const [parentName, setParentName] = useState("");
   const [legacyAuthtype, setLegacyAuthtype] = useState("");
+  const [draftRules, setDraftRules] = useState<ItemFilterRule[]>([]);
+  const [loadedRulesFp, setLoadedRulesFp] = useState(() => rulesFingerprint([]));
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -95,6 +113,8 @@ export function ItemFilterDetailPanel({
 
   useEffect(() => {
     if (idOrName == null) {
+      setDraftRules([]);
+      setLoadedRulesFp(rulesFingerprint([]));
       return;
     }
     let cancelled = false;
@@ -105,11 +125,14 @@ export function ItemFilterDetailPanel({
     getItemFilterDetail(idOrName)
       .then((d) => {
         if (cancelled) return;
+        const rules = cloneRules(d.rules);
         setDetail(d);
         setName(d.name || idOrName);
         setDescription(d.description || "");
         setParentName(d.parentFilter?.name || "");
         setLegacyAuthtype(authtypeValue(d.legacyAuthtype));
+        setDraftRules(rules);
+        setLoadedRulesFp(rulesFingerprint(rules));
         setLoading(false);
       })
       .catch((err: unknown) => {
@@ -126,15 +149,28 @@ export function ItemFilterDetailPanel({
   const loadedDescription = detail?.description || "";
   const loadedParent = detail?.parentFilter?.name || "";
   const loadedAuthtype = authtypeValue(detail?.legacyAuthtype);
+  const rulesDirty = rulesFingerprint(draftRules) !== loadedRulesFp;
   const dirty =
     isNew ||
     normalizeFilterName(name) !== loadedName ||
     description !== loadedDescription ||
     parentName.trim() !== loadedParent ||
-    legacyAuthtype !== loadedAuthtype;
+    legacyAuthtype !== loadedAuthtype ||
+    rulesDirty;
   const canSave =
     !busy && dirty && isItemFilterWriteReady({ isNew, name });
   const writeKey = idOrName || createdKey || normalizeFilterName(name);
+
+  function applySaved(saved: ItemFilter): void {
+    const rules = cloneRules(saved.rules);
+    setDetail(saved);
+    setName(saved.name || name);
+    setDescription(saved.description || "");
+    setParentName(saved.parentFilter?.name || "");
+    setLegacyAuthtype(authtypeValue(saved.legacyAuthtype));
+    setDraftRules(rules);
+    setLoadedRulesFp(rulesFingerprint(rules));
+  }
 
   function writeBody(): ItemFilterWriteBody {
     const body: ItemFilterWriteBody = {
@@ -153,8 +189,12 @@ export function ItemFilterDetailPanel({
     } else if (!isNew) {
       body.parentFilter = {};
     }
-    if (!isNew && detail != null && Array.isArray(detail.rules)) {
-      body.rules = detail.rules;
+    // Always send rules on write so add/edit/clear persist. Empty + clearRules
+    // clears (some JAX-RS paths drop rules:[] before the adaptor).
+    const wireRules = toWireRules(draftRules);
+    body.rules = wireRules;
+    if (wireRules.length === 0) {
+      body.clearRules = true;
     }
     return body;
   }
@@ -178,14 +218,10 @@ export function ItemFilterDetailPanel({
         isNew || !writeKey
           ? await createItemFilter(writeBody())
           : await updateItemFilter(writeKey, writeBody());
-      setDetail(saved);
       if (isNew) {
         setCreatedKey(saved.name || normalizeFilterName(name));
       }
-      setName(saved.name || name);
-      setDescription(saved.description || "");
-      setParentName(saved.parentFilter?.name || "");
-      setLegacyAuthtype(authtypeValue(saved.legacyAuthtype));
+      applySaved(saved);
       setNotice(DEV_MSG.IF_SAVED);
       onSaved?.(saved);
     } catch (err: unknown) {
@@ -227,11 +263,30 @@ export function ItemFilterDetailPanel({
     }
   }
 
+  function updateRule(index: number, patch: Partial<ItemFilterRule>): void {
+    setDraftRules((prev) =>
+      prev.map((r, i) => (i === index ? { ...r, ...patch } : r)),
+    );
+  }
+
+  function updateRuleParam(
+    ruleIndex: number,
+    paramIndex: number,
+    patch: { name?: string; value?: string },
+  ): void {
+    setDraftRules((prev) =>
+      prev.map((r, i) => {
+        if (i !== ruleIndex) return r;
+        const params = [...(r.params || [])];
+        params[paramIndex] = { ...params[paramIndex], ...patch };
+        return { ...r, params };
+      }),
+    );
+  }
+
   const title = isNew
     ? DEV_MSG.IF_NEW
     : detail?.name || idOrName || DEV_MSG.IF_EDIT;
-
-  const ruleList = detail != null && Array.isArray(detail.rules) ? detail.rules : [];
 
   return (
     <div data-testid="developer-if-detail">
@@ -392,70 +447,180 @@ export function ItemFilterDetailPanel({
             ) : null}
           </div>
 
-          {detail ? (
-            <>
-              <section data-testid="developer-if-rules">
-                <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.IF_RULES}</h3>
-                <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
-                  {DEV_MSG.IF_RULES_HINT}
-                </p>
-                {ruleList.length === 0 ? (
-                  <p
-                    style={{ color: catalogColors.empty }}
-                    data-testid="developer-if-rules-empty"
-                  >
-                    {DEV_MSG.IF_NONE}
-                  </p>
-                ) : (
-                  <div style={{ overflowX: "auto" }}>
-                    <table
-                      data-testid="developer-if-rules-table"
-                      style={{
-                        width: "100%",
-                        borderCollapse: "collapse",
-                        fontSize: "0.9rem",
-                      }}
-                    >
-                      <thead>
-                        <tr style={tableHeaderRow}>
-                          <th style={{ padding: "8px" }}>{DEV_MSG.IF_COL_RULE}</th>
-                          <th style={{ padding: "8px" }}>{DEV_MSG.IF_COL_PARAMS}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {ruleList.map((r, i) => {
-                          const params = (r.params || [])
-                            .map((p) => `${p.name ?? ""}=${p.value ?? ""}`)
-                            .join("; ");
-                          return (
-                            <tr
-                              key={r.ruleId?.stringValue || `${r.name ?? "rule"}-${i}`}
-                              data-testid={`developer-if-rule-row-${i}`}
-                              style={tableRow}
+          <section data-testid="developer-if-rules">
+            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.IF_RULES}</h3>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+              {DEV_MSG.IF_RULES_HINT}
+            </p>
+            {draftRules.length === 0 ? (
+              <p
+                style={{ color: catalogColors.empty }}
+                data-testid="developer-if-rules-empty"
+              >
+                {DEV_MSG.IF_NONE}
+              </p>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table
+                  data-testid="developer-if-rules-table"
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  <thead>
+                    <tr style={tableHeaderRow}>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.IF_COL_RULE}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.IF_COL_PARAMS}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.IF_COL_ACTIONS}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {draftRules.map((r, i) => (
+                      <tr
+                        key={r.ruleId?.stringValue || `draft-rule-${i}`}
+                        data-testid={`developer-if-rule-row-${i}`}
+                        style={tableRow}
+                      >
+                        <td style={{ padding: "8px", verticalAlign: "top" }}>
+                          <input
+                            data-testid={`developer-if-rule-name-${i}`}
+                            style={{ ...inputStyle, fontFamily: "monospace", width: "100%" }}
+                            value={r.name ?? ""}
+                            disabled={busy}
+                            onChange={(e) => updateRule(i, { name: e.target.value })}
+                            autoComplete="off"
+                            aria-label={DEV_MSG.IF_COL_RULE}
+                          />
+                        </td>
+                        <td style={{ padding: "8px", verticalAlign: "top" }}>
+                          <div data-testid={`developer-if-rule-params-${i}`}>
+                            {(r.params || []).map((p, pi) => (
+                              <div
+                                key={`param-${i}-${pi}`}
+                                data-testid={`developer-if-rule-param-${i}-${pi}`}
+                                style={{
+                                  display: "flex",
+                                  gap: "6px",
+                                  flexWrap: "wrap",
+                                  marginBottom: "6px",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <input
+                                  data-testid={`developer-if-rule-param-name-${i}-${pi}`}
+                                  style={{ ...inputStyle, fontFamily: "monospace", flex: "1 1 100px" }}
+                                  value={p.name ?? ""}
+                                  disabled={busy}
+                                  placeholder={DEV_MSG.IF_PARAM_NAME}
+                                  onChange={(e) =>
+                                    updateRuleParam(i, pi, { name: e.target.value })
+                                  }
+                                  autoComplete="off"
+                                />
+                                <input
+                                  data-testid={`developer-if-rule-param-value-${i}-${pi}`}
+                                  style={{ ...inputStyle, flex: "1 1 100px" }}
+                                  value={p.value ?? ""}
+                                  disabled={busy}
+                                  placeholder={DEV_MSG.IF_PARAM_VALUE}
+                                  onChange={(e) =>
+                                    updateRuleParam(i, pi, { value: e.target.value })
+                                  }
+                                  autoComplete="off"
+                                />
+                                <button
+                                  type="button"
+                                  data-testid={`developer-if-rule-param-remove-${i}-${pi}`}
+                                  aria-label={DEV_MSG.IF_PARAM_REMOVE}
+                                  disabled={busy}
+                                  onClick={() =>
+                                    updateRule(i, {
+                                      params: (r.params || []).filter((_, idx) => idx !== pi),
+                                    })
+                                  }
+                                  style={actionButton}
+                                >
+                                  {DEV_MSG.IF_PARAM_REMOVE}
+                                </button>
+                              </div>
+                            ))}
+                            <button
+                              type="button"
+                              data-testid={`developer-if-rule-param-add-${i}`}
+                              aria-label={DEV_MSG.IF_PARAM_ADD}
+                              disabled={busy}
+                              onClick={() =>
+                                updateRule(i, {
+                                  params: [...(r.params || []), emptyParam()],
+                                })
+                              }
+                              style={actionButton}
                             >
-                              <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                                {r.name || "—"}
-                              </td>
-                              <td style={{ padding: "8px", color: catalogColors.muted }}>
-                                {params}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </section>
-
-              <section style={{ marginTop: "16px" }} data-testid="developer-if-gaps">
-                <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.IF_GAPS}</h3>
-                <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
-                  <li>{DEV_MSG.IF_GAP_RULE_EDIT}</li>
-                </ul>
-              </section>
-            </>
-          ) : null}
+                              {DEV_MSG.IF_PARAM_ADD}
+                            </button>
+                          </div>
+                        </td>
+                        <td style={{ padding: "8px", verticalAlign: "top" }}>
+                          <button
+                            type="button"
+                            data-testid={`developer-if-rule-remove-${i}`}
+                            aria-label={DEV_MSG.IF_RULE_REMOVE}
+                            disabled={busy}
+                            onClick={() =>
+                              setDraftRules((prev) => prev.filter((_, idx) => idx !== i))
+                            }
+                            style={actionButton}
+                          >
+                            {DEV_MSG.IF_RULE_REMOVE}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            <div
+              style={{
+                marginTop: "12px",
+                display: "flex",
+                gap: "8px",
+                flexWrap: "wrap",
+              }}
+            >
+              <button
+                type="button"
+                data-testid="developer-if-rule-add"
+                aria-label={DEV_MSG.IF_RULE_ADD}
+                disabled={busy}
+                onClick={() => setDraftRules((prev) => [...prev, emptyRule()])}
+                style={{
+                  ...actionButton,
+                  padding: "8px 12px",
+                  background: catalogColors.accent,
+                  color: "#fff",
+                  border: "none",
+                  cursor: busy ? "wait" : "pointer",
+                }}
+              >
+                {DEV_MSG.IF_RULE_ADD}
+              </button>
+              {draftRules.length > 0 ? (
+                <button
+                  type="button"
+                  data-testid="developer-if-rules-clear"
+                  aria-label={DEV_MSG.IF_RULES_CLEAR}
+                  disabled={busy}
+                  onClick={() => setDraftRules([])}
+                  style={actionButton}
+                >
+                  {DEV_MSG.IF_RULES_CLEAR}
+                </button>
+              ) : null}
+            </div>
+          </section>
         </>
       ) : null}
       <CatalogConfirmDialog

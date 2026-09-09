@@ -22,7 +22,7 @@ package com.percussion.rest.itemfilter;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Set;
+import java.util.List;
 
 /** Represents an ItemFilter. Sunny Sal: "Filter ka hero, rules ka zero!" */
 @XmlRootElement(name = "ItemFilter")
@@ -44,8 +44,20 @@ public class ItemFilter {
       description = "Values map to All Content, All Public Content, Custom, Site Folder")
   private Integer legacyAuthtype;
 
+  /**
+   * Rule definitions. Wire type is {@link List}. Omitted / {@code null} leaves stored rules
+   * unchanged on PUT. Prefer {@link #clearRules}{@code true} to clear when a provider drops empty
+   * {@code rules: []} arrays.
+   */
   @Schema(name = "rules")
-  private Set<ItemFilterRuleDefinition> rules;
+  private List<ItemFilterRuleDefinition> rules;
+
+  /**
+   * When {@code true}, clear all stored rules (same intent as {@code rules: []}). Used because some
+   * JAX-RS/Jackson paths drop empty arrays before the adaptor sees them.
+   */
+  @Schema(name = "clearRules", description = "When true, clears all rules on create/update.")
+  private Boolean clearRules;
 
   @Schema(
       name = "parentFilter",
@@ -88,12 +100,20 @@ public class ItemFilter {
     this.legacyAuthtype = legacyAuthtype;
   }
 
-  public Set<ItemFilterRuleDefinition> getRules() {
+  public List<ItemFilterRuleDefinition> getRules() {
     return rules;
   }
 
-  public void setRules(Set<ItemFilterRuleDefinition> rules) {
+  public void setRules(List<ItemFilterRuleDefinition> rules) {
     this.rules = rules;
+  }
+
+  public Boolean getClearRules() {
+    return clearRules;
+  }
+
+  public void setClearRules(Boolean clearRules) {
+    this.clearRules = clearRules;
   }
 
   public ItemFilter getParentFilter() {

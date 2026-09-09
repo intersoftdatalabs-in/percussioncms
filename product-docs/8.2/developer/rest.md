@@ -493,7 +493,8 @@ request session/user is **403**. Non-Admin is **403**. The new filter is then
 Update (`PUT /services/itemfilters/{idOrName}`) loads with a design lock and releases it
 on save. Name is not renamed on PUT. Omitted `rules` / `parentFilter` leave the stored
 values unchanged; send `parentFilter` with no name or id to clear the parent; send
-`rules: []` to clear rules.
+`rules: []` and/or `clearRules: true` to clear rules (`clearRules` is the reliable clear
+when a client stack drops empty arrays).
 
 Delete (`DELETE /services/itemfilters/{idOrName}`) returns **204** when removed; a
 following `GET` is **404**. Unknown id/name is **404**. A filter still associated with a
@@ -501,8 +502,9 @@ content list (or other dependents) is **409**. Locked-by-another-user is **409**
 lock is not stolen). Non-Admin is **403**.
 
 **Developer → Item Filters** chrome uses list, load, create, save, and delete
-(see [Developer Item Filters](id:admin-developer-item-filters)). Rule rows on
-detail are read-only in the SPA and round-tripped on save.
+(see [Developer Item Filters](id:admin-developer-item-filters)). Operators can
+add, edit, and remove rule rows (name + params) on detail; Save writes
+`rules[]`. Clear-all then Save sends `rules: []`.
 
 ### Request / response shape
 

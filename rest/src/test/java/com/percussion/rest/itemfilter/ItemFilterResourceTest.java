@@ -161,11 +161,11 @@ public class ItemFilterResourceTest {
     body.setDescription("updated");
     ItemFilterRuleDefinition rule = new ItemFilterRuleDefinition();
     rule.setName("sys_filterByPublishDate");
-    body.setRules(Set.of(rule));
+    body.setRules(List.of(rule));
     ItemFilter updated = new ItemFilter();
     updated.setName("preview");
     updated.setDescription("updated");
-    updated.setRules(Set.of(rule));
+    updated.setRules(List.of(rule));
     when(adaptor.updateOrCreateItemFilter(any())).thenReturn(updated);
 
     ItemFilter out = resource.updateItemFilter("preview", body);

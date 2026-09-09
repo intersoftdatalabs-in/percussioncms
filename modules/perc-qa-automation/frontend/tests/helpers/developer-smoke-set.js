@@ -150,7 +150,14 @@ const DEVELOPER_SMOKE_SET = [
     file: "developer-item-filter-editor.spec.js",
     title: "Admin can create, save, and delete an item filter",
     status: "green",
-    notes: "AS-07 SPA item filter write (#4060 / parent #1690)",
+    notes: "AS-07 SPA item filter write + rules (#4438 / parent #1690)",
+  },
+  {
+    id: "item-filter-rules-write",
+    file: "developer-item-filter-editor.spec.js",
+    title: "Admin can add, persist, and clear item-filter rules",
+    status: "green",
+    notes: "AS-07 rules write slice (#4438 / parent #1690)",
   },
   {
     id: "catalog-searches",

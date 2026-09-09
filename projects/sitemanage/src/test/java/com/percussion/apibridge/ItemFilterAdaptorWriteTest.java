@@ -144,7 +144,7 @@ class ItemFilterAdaptorWriteTest {
     param.setName("maxAge");
     param.setValue("30");
     rule.setParams(List.of(param));
-    body.setRules(Set.of(rule));
+    body.setRules(List.of(rule));
 
     ItemFilter out = adaptor.updateOrCreateItemFilter(body);
 
@@ -274,7 +274,7 @@ class ItemFilterAdaptorWriteTest {
     body.setParentFilter(parentDto);
     ItemFilterRuleDefinition rule = new ItemFilterRuleDefinition();
     rule.setName("sys_filterByPublishDate");
-    body.setRules(Set.of(rule));
+    body.setRules(List.of(rule));
 
     ItemFilter out = adaptor.updateOrCreateItemFilter(body);
 
@@ -283,6 +283,49 @@ class ItemFilterAdaptorWriteTest {
     verify(filter).setParentFilter(parent);
     verify(designWs).saveItemFilters(anyList(), eq(true), eq("test-session"), eq("Admin"));
     verify(designWs, never()).createItemFilters(anyList(), any(), any());
+  }
+
+  @Test
+  void update_emptyRules_removesExistingRuleDefs() throws Exception {
+    PSItemFilter filter = stubFilter("preview", "old");
+    IPSItemFilterRuleDef existing = mock(IPSItemFilterRuleDef.class);
+    when(existing.getRuleName()).thenReturn("sys_filterByPublishDate");
+    when(filter.getRuleDefs()).thenReturn(Set.of(existing));
+    when(designWs.loadItemFilters(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(filter));
+    when(filterService.loadFilter(eq(guid))).thenReturn(filter);
+
+    ItemFilter body = new ItemFilter();
+    body.setFilterId(restGuid(guid));
+    body.setDescription("cleared rules");
+    body.setRules(List.of());
+
+    adaptor.updateOrCreateItemFilter(body);
+
+    verify(filter, org.mockito.Mockito.atLeastOnce()).removeRuleDef(existing);
+    verify(filter, never()).setRuleDefs(org.mockito.ArgumentMatchers.<Set<IPSItemFilterRuleDef>>any());
+    verify(designWs).saveItemFilters(anyList(), eq(true), eq("test-session"), eq("Admin"));
+    verify(filterService, org.mockito.Mockito.atLeastOnce()).saveFilter(filter);
+  }
+
+  @Test
+  void update_clearRulesFlag_removesExistingRuleDefsWhenRulesOmitted() throws Exception {
+    PSItemFilter filter = stubFilter("preview", "old");
+    IPSItemFilterRuleDef existing = mock(IPSItemFilterRuleDef.class);
+    when(existing.getRuleName()).thenReturn("sys_filterByPublishDate");
+    when(filter.getRuleDefs()).thenReturn(Set.of(existing));
+    when(designWs.loadItemFilters(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(filter));
+    when(filterService.loadFilter(eq(guid))).thenReturn(filter);
+
+    ItemFilter body = new ItemFilter();
+    body.setFilterId(restGuid(guid));
+    body.setClearRules(true);
+
+    adaptor.updateOrCreateItemFilter(body);
+
+    verify(filter, org.mockito.Mockito.atLeastOnce()).removeRuleDef(existing);
+    verify(filterService, org.mockito.Mockito.atLeastOnce()).saveFilter(filter);
   }
 
   @Test
