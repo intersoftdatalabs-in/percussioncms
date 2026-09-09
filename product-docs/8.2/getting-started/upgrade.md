@@ -29,7 +29,7 @@ and installer guidance for the exact build you are deploying.
 |------|----------|
 | **8.1.x** | Preferred path into 8.2. Apply latest 8.1.x security patches first when possible, then run the 8.2 installer upgrade mode against a clone of production. |
 | **Older 8.x / CM1 lineage** | Plan multi-hop upgrades (stable intermediate releases) rather than jumping multiple major lines at once. Engage Intersoft support for complex multi-version leaps. |
-| **Customized installs** | Catalog custom Java extensions, XSL/variants, WebUI overlays, and third-party JARs; recompile against the 8.2 toolchain (JDK 21) and retest. |
+| **Customized installs** | Catalog custom Java extensions, XSL/variants, WebUI overlays, and third-party JARs; recompile against the 8.2 toolchain (JDK 21) and retest. Existing **Legacy / XSL** (`legacyAssembler`) templates **keep running** — 8.2 does not force conversion on upgrade. Prefer HTML-first, Markdown, or Velocity for new work; see [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler). |
 
 ## Upgrade steps (high level)
 
@@ -87,5 +87,6 @@ Document your environment-specific rollback runbook before production cutover.
 ## Related
 
 - [Installation Overview](id:install-overview)
+- [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler) — no forced XSL conversion on 8.2 upgrade
 - [Server operations](id:admin-server-ops)
 - [Publishing](id:admin-publishing)

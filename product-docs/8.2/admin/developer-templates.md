@@ -70,7 +70,9 @@ The **assembler** extension name (for example
 `Java/global/percussion/assembly/htmlAssembler`) is **read-only** on this
 catalog. To create a template or to switch **HTML-first**, **Markdown**, or
 **Velocity** (and to avoid **Legacy / XSL** for new work), use
-[Design templates](id:admin-design-templates).
+[Design templates](id:admin-design-templates). Existing XSL variants that still
+work stay on Legacy / XSL until you follow
+[XSL and legacyAssembler support](id:admin-xsl-legacy-assembler).
 
 Create and delete of modern assembly templates remain on
 [Design templates](id:admin-design-templates) — this Developer catalog does not
@@ -109,6 +111,7 @@ Automated H2 surface coverage lives in
 ## Related
 
 - [Design templates](id:admin-design-templates) — create/delete and HTML-first / Markdown / Velocity assembler picker
+- [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler) — 8.2 Legacy/XSL support and migration cookbook
 - [REST API](id:developer-rest)
 - [Object ACL & default template](id:admin-object-acl)
 - [Administration](id:admin)

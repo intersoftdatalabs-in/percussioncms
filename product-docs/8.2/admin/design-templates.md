@@ -128,7 +128,8 @@ the body omits `assembler`.
 2. The body is mostly fixed HTML with a handful of field or system values → **HTML-first**.
 3. The body is long-form content (headings, lists, links) that should render as HTML → **Markdown**.
 4. The template is an existing XSL / XML-application variant that still works → leave **Legacy / XSL**.
-   Do not convert it on this page; XSL migration is a separate operator topic.
+   Do not convert it on this page. See [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler)
+   for the 8.2 support statement and a short migration cookbook.
 
 You can change the assembler later on the Design editor. Changing assembler does **not**
 rewrite source automatically — update **Template source** so it matches the new language
@@ -189,7 +190,7 @@ These remain in the picker for existing templates and specialized output. They a
 | Assembler (picker) | Extension | Operator note |
 |--------------------|-----------|----------------|
 | **Page (CM1)** | `Java/global/percussion/assembly/pageAssembler` | CM1 page context and `$perc` (page/region composition). Keep on shipped page templates such as `perc.page`. It is page context plus a text render path — not a fourth authoring language. |
-| **Legacy / XSL** | `Java/global/percussion/assembly/legacyAssembler` | Compatibility only. Existing XML applications and stylesheets continue to run. Do not choose this for new templates. |
+| **Legacy / XSL** | `Java/global/percussion/assembly/legacyAssembler` | Compatibility only. Existing XML applications and stylesheets continue to run. Do not choose this for new templates. Support statement and migration: [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler). |
 | **Binary** | `Java/global/percussion/assembly/binaryAssembler` | Binary / resource output. |
 | **Dispatch** | `Java/global/percussion/assembly/dispatchAssembler` | Dispatch to another template. |
 | **Database** | `Java/global/percussion/assembly/databaseAssembler` | Database result-set output. |
@@ -200,7 +201,8 @@ that value as **Current (custom)** so you can save without forcing a catalog ass
 ### What not to do
 
 - Do not delete or disable **Legacy / XSL** on the server to “clean up” — existing
-  sites may still assemble through it.
+  sites may still assemble through it. See
+  [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler).
 - Do not treat definition-XML shims or Workbench XML export as the way to pick a
   modern assembler. Create and edit assemblers on Design (or REST `assembler` on
   `POST` / `PUT /services/templates`).
@@ -276,6 +278,7 @@ related upgrade-only JSPs) until those flows are signed off on the SPA. Bookmark
 
 ## Related
 
+- [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler) — 8.2 XSL support statement and migration cookbook
 - [Developer Templates](id:admin-developer-templates) — catalog export/import XML and Velocity snippet insert
 - [REST API](id:developer-rest) — `GET`/`POST`/`PUT`/`DELETE /services/templates`, Admin `GET .../export`, and `POST /services/templates/import`
 - [Extensions & packages](id:developer-extensions)

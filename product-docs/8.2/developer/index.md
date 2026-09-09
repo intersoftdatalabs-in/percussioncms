@@ -113,7 +113,10 @@ Key rules for modern APIs:
 ## Assemblers
 
 8.2 continues assembler modernization (HTML-first and Markdown helpers). Product documentation
-dogfoods Markdown assembly through Virtual Sites.
+dogfoods Markdown assembly through Virtual Sites. **Legacy / XSL** (`legacyAssembler`) remains
+supported for existing templates; it is not recommended for new work. Operator support
+statement and cookbook: [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler).
+Assembler picker: [Design templates](id:admin-design-templates).
 
 ## Related engineering notes
 
