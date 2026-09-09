@@ -1,7 +1,7 @@
 ---
 id: admin-developer-templates
 title: Developer Templates
-description: Export and import assembly-template design XML from Developer Templates, edit source with Velocity snippet insert, bindings, and slots
+description: Export and import assembly-template design XML from Developer Templates, edit source with Velocity snippet insert, bindings, and slots; assembler choice lives on Design
 version: "8.2"
 order: 45
 tags: [admin, developer, templates]
@@ -62,9 +62,15 @@ Integrators can also call `POST /services/templates/import` with
 
 ## Edit from detail
 
-Open a template row to change label, description, assembler source, JEXL
+Open a template row to change label, description, template source, JEXL
 bindings, and contained slots, then **Save**. **Export XML** is available on the
 same toolbar. Object ACL for the template is on the detail panel.
+
+The **assembler** extension name (for example
+`Java/global/percussion/assembly/htmlAssembler`) is **read-only** on this
+catalog. To create a template or to switch **HTML-first**, **Markdown**, or
+**Velocity** (and to avoid **Legacy / XSL** for new work), use
+[Design templates](id:admin-design-templates).
 
 Create and delete of modern assembly templates remain on
 [Design templates](id:admin-design-templates) — this Developer catalog does not
@@ -86,7 +92,12 @@ shipped assembly macros).
    double-click the row).
 
 The selected macro text is inserted at the caret (or replaces the selection).
-Save the template when you are ready. The snippet library does **not** edit
+Save the template when you are ready. Snippets are **Velocity** macros — they
+belong on templates whose assembler is **Velocity**. Do not insert them into
+HTML-first or Markdown source; change the assembler on
+[Design templates](id:admin-design-templates) first if you need macros.
+
+The snippet library does **not** edit
 System/User Velocity configuration files (SY-02); it only inserts catalog text
 into the template body. Integrators can call the same REST catalog directly —
 see [REST API](id:developer-rest) (Velocity snippets).
@@ -97,7 +108,7 @@ Automated H2 surface coverage lives in
 
 ## Related
 
-- [Design templates](id:admin-design-templates)
+- [Design templates](id:admin-design-templates) — create/delete and HTML-first / Markdown / Velocity assembler picker
 - [REST API](id:developer-rest)
 - [Object ACL & default template](id:admin-object-acl)
 - [Administration](id:admin)
