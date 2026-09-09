@@ -64,7 +64,8 @@ describe("ItemFilterDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-if-detail-title").textContent).toContain("publicItems");
     expect(screen.getByTestId("developer-if-rules-table")).toBeTruthy();
-    expect(screen.getByTestId("developer-if-gaps")).toBeTruthy();
+    expect(screen.getByTestId("developer-if-rule-add")).toBeTruthy();
+    expect(screen.queryByTestId("developer-if-gaps")).toBeNull();
     expect(getItemFilterDetail).toHaveBeenCalledWith("publicItems");
     fireEvent.click(screen.getByTestId("developer-if-back"));
     expect(onBack).toHaveBeenCalled();
@@ -345,11 +346,102 @@ describe("ItemFilterDetailPanel", () => {
       expect.objectContaining({
         name: "publicItems",
         description: "Updated public",
-        rules: sampleDetail.rules,
+        rules: [
+          {
+            name: "sys_filterByPublishable",
+            params: [{ name: "state", value: "public" }],
+          },
+        ],
         parentFilter: { name: "allItems" },
         legacyAuthtype: 1,
       }),
     );
+  });
+
+  it("adds, edits, and clears rule rows on save", async () => {
+    getItemFilterDetail.mockResolvedValue({ ...sampleDetail, rules: [] });
+    updateItemFilter.mockResolvedValue({
+      ...sampleDetail,
+      rules: [
+        {
+          name: "Java/global/percussion/itemfilter/sys_filterByPublishableFlag",
+          params: [{ name: "sys_flagValues", value: "y" }],
+        },
+      ],
+    });
+    const onSaved = vi.fn();
+    render(
+      <ItemFilterDetailPanel
+        idOrName="publicItems"
+        onBack={() => undefined}
+        onSaved={onSaved}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-if-rules-empty")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-if-rule-add"));
+    expect(screen.getByTestId("developer-if-rule-row-0")).toBeTruthy();
+    fireEvent.change(screen.getByTestId("developer-if-rule-name-0"), {
+      target: {
+        value: "Java/global/percussion/itemfilter/sys_filterByPublishableFlag",
+      },
+    });
+    fireEvent.click(screen.getByTestId("developer-if-rule-param-add-0"));
+    fireEvent.change(screen.getByTestId("developer-if-rule-param-name-0-0"), {
+      target: { value: "sys_flagValues" },
+    });
+    fireEvent.change(screen.getByTestId("developer-if-rule-param-value-0-0"), {
+      target: { value: "y" },
+    });
+    fireEvent.click(screen.getByTestId("developer-if-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateItemFilter).toHaveBeenCalledWith(
+      "publicItems",
+      expect.objectContaining({
+        rules: [
+          {
+            name: "Java/global/percussion/itemfilter/sys_filterByPublishableFlag",
+            params: [{ name: "sys_flagValues", value: "y" }],
+          },
+        ],
+      }),
+    );
+
+    onSaved.mockClear();
+    updateItemFilter.mockResolvedValue({ ...sampleDetail, rules: [] });
+    fireEvent.click(screen.getByTestId("developer-if-rules-clear"));
+    expect(screen.getByTestId("developer-if-rules-empty")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-if-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateItemFilter).toHaveBeenLastCalledWith(
+      "publicItems",
+      expect.objectContaining({ rules: [], clearRules: true }),
+    );
+  });
+
+  it("removes a single rule row before save", async () => {
+    getItemFilterDetail.mockResolvedValue(sampleDetail);
+    updateItemFilter.mockResolvedValue({ ...sampleDetail, rules: [] });
+    render(
+      <ItemFilterDetailPanel idOrName="publicItems" onBack={() => undefined} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-if-rule-row-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-if-rule-remove-0"));
+    expect(screen.getByTestId("developer-if-rules-empty")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-if-save"));
+    await waitFor(() => {
+      expect(updateItemFilter).toHaveBeenCalledWith(
+        "publicItems",
+        expect.objectContaining({ rules: [], clearRules: true }),
+      );
+    });
   });
 
   it("deletes after confirm and omits delete chrome in create mode", async () => {

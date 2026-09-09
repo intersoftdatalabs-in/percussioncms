@@ -123,7 +123,7 @@ public class ItemFilterAdaptor implements IItemFilterAdaptor {
         filter.getRuleDefs().stream()
             .map(this::copyItemFilterRuleDef)
             .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
+            .collect(Collectors.toList());
     ret.setRules(rules);
     return ret;
   }
@@ -304,8 +304,18 @@ public class ItemFilterAdaptor implements IItemFilterAdaptor {
         return null;
       }
       PSItemFilter domain = loaded.get(0);
+      boolean clearRules =
+          Boolean.TRUE.equals(body.getClearRules())
+              || (body.getRules() != null && body.getRules().isEmpty());
       applyWritableFields(domain, body);
       designWs.saveItemFilters(List.of(domain), true, session, user);
+      if (clearRules) {
+        // Design-WS round-trip historically keeps prior rules when the SOAP/DTO
+        // rules wrapper is empty; force orphanRemoval via filter service.
+        IPSItemFilter persisted = filterService.loadFilter(id);
+        clearRuleDefs(persisted);
+        filterService.saveFilter(persisted);
+      }
       return reload(domain);
     } catch (WebApplicationException e) {
       throw e;
@@ -336,13 +346,31 @@ public class ItemFilterAdaptor implements IItemFilterAdaptor {
     if (body.getLegacyAuthtype() != null) {
       domain.setLegacyAuthtypeId(body.getLegacyAuthtype());
     }
-    applyRules(domain, body.getRules());
+    boolean clearRules =
+        Boolean.TRUE.equals(body.getClearRules())
+            || (body.getRules() != null && body.getRules().isEmpty());
+    if (clearRules) {
+      clearRuleDefs(domain);
+    } else {
+      applyRules(domain, body.getRules());
+    }
     applyParent(domain, body.getParentFilter());
   }
 
-  private void applyRules(IPSItemFilter domain, Set<ItemFilterRuleDefinition> rules)
+  /** Remove every live rule association (getRuleDefs returns a copy). */
+  private void clearRuleDefs(IPSItemFilter domain) {
+    for (IPSItemFilterRuleDef def : new HashSet<>(domain.getRuleDefs())) {
+      domain.removeRuleDef(def);
+    }
+  }
+
+  private void applyRules(IPSItemFilter domain, List<ItemFilterRuleDefinition> rules)
       throws PSFilterException {
     if (rules == null) {
+      return;
+    }
+    if (rules.isEmpty()) {
+      clearRuleDefs(domain);
       return;
     }
     Set<IPSItemFilterRuleDef> defs = new HashSet<>();

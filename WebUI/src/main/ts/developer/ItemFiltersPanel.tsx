@@ -22,6 +22,7 @@ import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
 import { catalogColors, monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { ItemFilterDetailPanel } from "./ItemFilterDetailPanel";
+import { coerceRules } from "./itemFilterRules";
 import { DEV_MSG } from "./messages";
 
 /**
@@ -155,7 +156,7 @@ export function ItemFiltersPanel(): React.ReactElement {
           rows={sorted.map((f, index) => {
             const openKey = f.name || f.filterId?.stringValue || "";
             const interactive = openKey.length > 0;
-            const ruleCount = Array.isArray(f.rules) ? f.rules.length : 0;
+            const ruleCount = coerceRules(f.rules).length;
             return {
               key: f.filterId?.stringValue || f.name || `if-${index}`,
               onClick: interactive ? () => setSelected(openKey) : undefined,

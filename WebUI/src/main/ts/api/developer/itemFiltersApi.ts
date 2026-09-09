@@ -17,16 +17,46 @@
 
 import { del, get, post, put } from "../client";
 import { PATHS } from "../paths";
-import type { ItemFilter } from "./types";
+import type { ItemFilter, ItemFilterRule, ItemFilterRuleParam } from "./types";
+
+/**
+ * Coerce wire {@code rules} to an array. Jackson/JAXB often emits a single
+ * rule as an object (not a one-element array) for Set-backed fields.
+ */
+export function coerceRules(rules: unknown): ItemFilterRule[] {
+  if (rules == null) {
+    return [];
+  }
+  if (Array.isArray(rules)) {
+    return rules as ItemFilterRule[];
+  }
+  if (typeof rules === "object") {
+    return [rules as ItemFilterRule];
+  }
+  return [];
+}
+
+function coerceParams(params: unknown): ItemFilterRuleParam[] {
+  if (params == null) {
+    return [];
+  }
+  if (Array.isArray(params)) {
+    return params as ItemFilterRuleParam[];
+  }
+  if (typeof params === "object") {
+    return [params as ItemFilterRuleParam];
+  }
+  return [];
+}
 
 /**
  * Writable fields for POST/PUT /services/itemfilters. Name is the catalog key
- * (not renamed on PUT). Rule rows are round-tripped from GET; there is no
- * dedicated rule editor in this chrome.
+ * (not renamed on PUT). {@code rules[]} may be sent on create/update; omit to
+ * leave stored rules unchanged; send {@code []} to clear.
  */
 export type ItemFilterWriteBody = Pick<
   ItemFilter,
-  "name" | "description" | "legacyAuthtype" | "rules" | "parentFilter"
+  "name" | "description" | "legacyAuthtype" | "rules" | "clearRules" | "parentFilter"
 >;
 
 /** Jackson / JAXB root for ItemFilter (UNWRAP_ROOT_VALUE on POST/PUT). */
@@ -84,6 +114,19 @@ export function wrapItemFilterForWire(
   return { [ITEM_FILTER_ROOT]: body };
 }
 
+/** Normalize ItemFilter so {@code rules} / nested params are always arrays. */
+export function normalizeItemFilter(filter: ItemFilter): ItemFilter {
+  const rules = coerceRules(filter.rules).map((r) => ({
+    ...r,
+    params: coerceParams(r.params),
+  }));
+  let parentFilter = filter.parentFilter;
+  if (parentFilter != null && typeof parentFilter === "object") {
+    parentFilter = normalizeItemFilter(parentFilter);
+  }
+  return { ...filter, rules, parentFilter };
+}
+
 /** Unwrap GET/POST/PUT payload that may be wrapped as { ItemFilter: {...} }. */
 export function unwrapItemFilter(payload: unknown): ItemFilter {
   if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
@@ -92,15 +135,15 @@ export function unwrapItemFilter(payload: unknown): ItemFilter {
   const obj = payload as Record<string, unknown>;
   const raw = obj.ItemFilter ?? obj.itemFilter;
   if (raw != null && typeof raw === "object" && !Array.isArray(raw)) {
-    return raw as ItemFilter;
+    return normalizeItemFilter(raw as ItemFilter);
   }
-  return obj as ItemFilter;
+  return normalizeItemFilter(obj as ItemFilter);
 }
 
 /** GET /services/itemfilters */
 export async function listItemFilters(): Promise<ItemFilter[]> {
   const payload = await get<unknown>(PATHS.ITEM_FILTERS);
-  return asArray<ItemFilter>(payload);
+  return asArray<ItemFilter>(payload).map(normalizeItemFilter);
 }
 
 /** GET /services/itemfilters/{idOrName} */

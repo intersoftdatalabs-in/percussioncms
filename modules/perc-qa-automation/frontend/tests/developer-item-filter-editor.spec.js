@@ -15,7 +15,8 @@
  */
 
 /**
- * Developer Item Filters create / save / delete chrome (#4060 AS-07 / parent #1690).
+ * Developer Item Filters create / save / delete / rules write
+ * (#4438 AS-07 slice 1 / parent #1690; create/delete from #4060).
  *
  * Surface-filtered QA:
  * <pre>
@@ -93,7 +94,11 @@ function assertConsoleClean(pageErrors, consoleErrors) {
   ).toEqual([]);
 }
 
-test.describe("Developer item filter editor (#4060 / AS-07)", () => {
+/** Stock item-filter rule extension used by baseline filters. */
+const RULE_NAME =
+  "Java/global/percussion/itemfilter/sys_filterByPublishableFlag";
+
+test.describe("Developer item filter editor (#4438 / AS-07)", () => {
   test("Admin can create, save, and delete an item filter", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
@@ -135,6 +140,65 @@ test.describe("Developer item filter editor (#4060 / AS-07)", () => {
     await expect(page.locator('[data-testid="developer-if-panel"]')).toBeVisible({
       timeout: 20_000,
     });
+    await expect(page.locator(`[data-if-name="${filterName}"]`)).toHaveCount(0);
+
+    assertConsoleClean(pageErrors, consoleErrors);
+  });
+
+  test("Admin can add, persist, and clear item-filter rules", async ({ page }) => {
+    test.setTimeout(150_000);
+    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+    await loginAsAdmin(page);
+    await openItemFiltersCatalog(page);
+
+    const filterName = uniqueFilterName();
+    await page.locator('[data-testid="developer-if-new"]').click();
+    await expect(page.locator('[data-testid="developer-if-detail"]')).toBeVisible();
+    await page.locator('[data-testid="developer-if-name"]').fill(filterName);
+
+    const saveBtn = page.locator('[data-testid="developer-if-save"]');
+    const notice = page.locator('[data-testid="developer-if-editor-notice"]');
+    const saveError = page.locator('[data-testid="developer-if-detail-error"]');
+
+    await page.locator('[data-testid="developer-if-rule-add"]').click();
+    await page.locator('[data-testid="developer-if-rule-name-0"]').fill(RULE_NAME);
+    await page.locator('[data-testid="developer-if-rule-param-add-0"]').click();
+    await page.locator('[data-testid="developer-if-rule-param-name-0-0"]').fill("sys_flagValues");
+    await page.locator('[data-testid="developer-if-rule-param-value-0-0"]').fill("y");
+    await saveBtn.click();
+    await expect(notice.or(saveError).first()).toBeVisible({ timeout: 20_000 });
+    if (await saveError.isVisible()) {
+      throw new Error(`Create with rules failed: ${(await saveError.innerText()).trim()}`);
+    }
+    await expect(page.locator('[data-testid="developer-if-rule-name-0"]')).toHaveValue(RULE_NAME);
+    await expect(page.locator('[data-testid="developer-if-rule-param-value-0-0"]')).toHaveValue(
+      "y",
+    );
+
+    await page.locator('[data-testid="developer-if-back"]').click();
+    await expect(page.locator('[data-testid="developer-if-panel"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await page.locator(`[data-if-name="${filterName}"]`).click();
+    await expect(page.locator('[data-testid="developer-if-detail"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-if-rule-name-0"]')).toHaveValue(RULE_NAME, {
+      timeout: 20_000,
+    });
+
+    await page.locator('[data-testid="developer-if-rules-clear"]').click();
+    await expect(page.locator('[data-testid="developer-if-rules-empty"]')).toBeVisible();
+    await expect(saveBtn).toBeEnabled();
+    await saveBtn.click();
+    await expect(notice.or(saveError).first()).toBeVisible({ timeout: 20_000 });
+    if (await saveError.isVisible()) {
+      throw new Error(`Clear rules failed: ${(await saveError.innerText()).trim()}`);
+    }
+    await expect(page.locator('[data-testid="developer-if-rules-empty"]')).toBeVisible();
+
+    await page.locator('[data-testid="developer-if-delete"]').click();
+    await confirmDeveloperCatalogDelete(page);
     await expect(page.locator(`[data-if-name="${filterName}"]`)).toHaveCount(0);
 
     assertConsoleClean(pageErrors, consoleErrors);

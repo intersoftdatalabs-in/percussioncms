@@ -799,6 +799,8 @@ export interface ItemFilter {
   description?: string;
   legacyAuthtype?: number;
   rules?: ItemFilterRule[];
+  /** When true, clears all rules (companion to rules: [] when providers drop empty arrays). */
+  clearRules?: boolean;
   parentFilter?: ItemFilter | null;
 }
 
