@@ -723,7 +723,7 @@ export const DEV_MSG_KEYS = {
   PIPE_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   PIPE_IR: "perc.ui.developer@Pipe IR",
   PIPE_IR_HINT:
-    "perc.ui.developer@Pipeline-ir-v1 structure (resources, stage presence, backend tanks, mapper mappings). Native IR when present; otherwise a classic import preview. Admins can persist an HTTP backend tank (loopback/local fixture URL) without a graph editor.",
+    "perc.ui.developer@Pipeline-ir-v1 structure (resources, stage presence, backend tanks, mapper mappings, imported result pages). Native IR when present; otherwise a classic import preview. Path-safe classic stylesheets are listed for inspect; Admins can persist an HTTP backend tank (loopback/local fixture URL) without a graph editor.",
   PIPE_IR_LOADING: "perc.ui.developer@Loading pipe IR...",
   PIPE_IR_ERROR: "perc.ui.developer@Could not load pipe IR.",
   PIPE_IR_EMPTY: "perc.ui.developer@No IR resources returned for this application.",
@@ -746,6 +746,11 @@ export const DEV_MSG_KEYS = {
   PIPE_IR_UPDATER: "perc.ui.developer@Updater",
   PIPE_IR_PAGE_TANK: "perc.ui.developer@Page tank",
   PIPE_IR_SCHEMA: "perc.ui.developer@Schema source",
+  PIPE_IR_RESULT_PAGES: "perc.ui.developer@Result pages",
+  PIPE_IR_RESULT_PAGE_EXT: "perc.ui.developer@Extension",
+  PIPE_IR_RESULT_PAGE_MIME: "perc.ui.developer@MIME",
+  PIPE_IR_RESULT_PAGE_XSL: "perc.ui.developer@Stylesheet",
+  PIPE_IR_RESULT_PAGE_ANY: "perc.ui.developer@(any)",
   PIPE_INVOKE: "perc.ui.developer@Test invoke",
   PIPE_INVOKE_HINT:
     "perc.ui.developer@Admin smoke-test: POST sample JSON params/rows to a native pipeline IR resource and inspect the structured execute result.",

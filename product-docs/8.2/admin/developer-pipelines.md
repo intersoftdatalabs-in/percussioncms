@@ -12,8 +12,9 @@ tags: [admin, developer, pipelines]
 **Developer → Pipelines** lists classic **XML Applications** (data pipeline
 packages) visible to the current security token. Open a row for application
 metadata, the **data set** catalog (request pages / content editors), and a
-**pipe IR** summary (resources, stage presence, backend tanks, mapper mappings)
-so operators can inspect structure without the Swing E2Designer.
+**pipe IR** summary (resources, stage presence, backend tanks, mapper mappings,
+imported **result pages**) so operators can inspect structure without the Swing
+E2Designer.
 
 **Admins** can **Start** or **Stop** a non-hidden application from the detail
 toolbar. Those actions peer the server console `start application` /
@@ -27,6 +28,13 @@ file exists under `ObjectStore/pipeline-ir/`, that document is shown (`source`
 `NATIVE`). Otherwise the server imports the classic application into IR **in
 memory** (`source` `CLASSIC_IMPORT`) until an Admin **saves an HTTP backend
 tank**, which writes native IR without rewriting classic XML Applications.
+Classic **result pages** (`PSResultPage` / `PSResultPageSet`) import onto
+`resources[].resultPages[]` (request extension, MIME type, stylesheet URI).
+Relative application sheets such as `file:login.xsl` become `login.xsl`. Path
+traversal (`..`), absolute customer paths, and cloud stylesheet URLs are
+**skipped** (not imported). Developer chrome lists those imported pages as
+read-only inspect; saving a native HTML result page is a separate Admin PUT
+and still does not rewrite classic XML.
 
 The **OpenAPI** section calls `GET /services/pipelines/{idOrName}/openapi`
 (default YAML; JSON via `format=json`) and lets operators **view** or
@@ -278,6 +286,8 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-request-tracing.spec.js`.
 - Surface-filtered Playwright for HTML result-page save + Test HTML lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-result-page-html.spec.js`.
+  Classic import inspect lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-result-page-import.spec.js`.
 - Surface-filtered Playwright for OpenAPI view/download lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-openapi.spec.js`
   (prefers `sys_cmp*` IR/execute apps, or `PIPELINE_APP_NAME`; does not require
