@@ -16,10 +16,11 @@
 
 /**
  * Copy the json-schema Virtual Site QA fixture into the H2 Docker cell so
- * Developer Sites Build/Preview can POST /virtual/build and GET /virtual/preview
- * against a local schema.json file (no live HTTP schema fetch or jsonschema.url).
- * A single sku property assembles {@code 8.2/sku-1.html} (sole HTML home fallback).
- * Bind-mount / docker cp only — no Jetty restart. Publish chrome stays a later slice.
+ * Developer Sites Build/Preview/Publish can POST /virtual/build, GET /virtual/preview,
+ * and POST /virtual/publish against a local schema.json file (no live HTTP schema
+ * fetch or jsonschema.url). A single sku property assembles {@code 8.2/sku-1.html}
+ * (sole HTML home fallback; Publish copies that file to IPSSite.root). Bind-mount /
+ * docker cp only — no Jetty restart.
  */
 
 const { execFileSync } = require("node:child_process");
@@ -31,6 +32,12 @@ const JSON_SCHEMA_VIRTUAL_QA_ROOT = "/opt/Percussion/tmp/json-schema-virtual-qa"
 
 /** Marker from assembled sku page title/body. */
 const JSON_SCHEMA_VIRTUAL_BUILD_MARKER = "SKU";
+
+/** Assembled sku page copied to the Site filesystem root after Publish. */
+const JSON_SCHEMA_VIRTUAL_PUBLISHED_HTML = "8.2/sku-1.html";
+
+/** Marker expected in published HTML (same as the sku title token). */
+const JSON_SCHEMA_VIRTUAL_PUBLISH_MARKER = JSON_SCHEMA_VIRTUAL_BUILD_MARKER;
 
 function qaCmsContainer() {
   const fromEnv = (
@@ -97,8 +104,85 @@ function deployJsonSchemaVirtualFixtureToQaCell() {
   return JSON_SCHEMA_VIRTUAL_QA_ROOT;
 }
 
+/**
+ * Normalize Developer Sites publish dest text to a POSIX absolute path inside
+ * the Linux QA cell. Rejects Windows drive letters, UNC, relatives, and
+ * remaining {@code ..} so {@code docker exec … cat} never follows a traversal.
+ * In-container filesystem paths always use {@code /}.
+ *
+ * @param {unknown} raw dest text from {@code developer-site-virtual-publish-dest}
+ * @returns {string} POSIX absolute path
+ */
+function normalizeQaPublishDestPath(raw) {
+  if (typeof raw !== "string") {
+    throw new Error("json-schema Virtual Site publish dest is missing");
+  }
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    throw new Error("json-schema Virtual Site publish dest is blank");
+  }
+  const posix = trimmed.replace(/\\/g, "/");
+  if (/^[a-zA-Z]:/.test(posix) || posix.startsWith("//")) {
+    throw new Error(
+      `json-schema Virtual Site publish dest is not a Linux QA cell path: ${trimmed}`,
+    );
+  }
+  if (!posix.startsWith("/")) {
+    throw new Error(`json-schema Virtual Site publish dest is not absolute: ${trimmed}`);
+  }
+  const parts = posix.split("/").filter((seg) => seg.length > 0);
+  if (parts.some((seg) => seg === ".." || seg === ".")) {
+    throw new Error(`json-schema Virtual Site publish dest is unsafe: ${trimmed}`);
+  }
+  return `/${parts.join("/")}`;
+}
+
+function posixJoin(base, ...segments) {
+  const dest = normalizeQaPublishDestPath(base);
+  const extra = [];
+  for (const seg of segments) {
+    const piece = String(seg ?? "").trim().replace(/\\/g, "/");
+    for (const part of piece.split("/")) {
+      if (!part) {
+        continue;
+      }
+      if (part === ".." || part === ".") {
+        throw new Error(`json-schema Virtual Site publish relpath is unsafe: ${seg}`);
+      }
+      extra.push(part);
+    }
+  }
+  return extra.length === 0 ? dest : `${dest}/${extra.join("/")}`;
+}
+
+/**
+ * Fail closed unless assembled json-schema HTML exists under the Site
+ * filesystem root inside the QA cell (acceptance: files exist after Publish).
+ *
+ * @param {unknown} publishPath dest shown in Developer Sites Publish chrome
+ */
+function assertPublishedJsonSchemaFilesOnQaCell(publishPath) {
+  const html = posixJoin(publishPath, JSON_SCHEMA_VIRTUAL_PUBLISHED_HTML);
+  const container = qaCmsContainer();
+  dockerExec(container, ["test", "-f", html]);
+  const body = dockerExec(container, ["cat", html]);
+  if (
+    !body.includes(JSON_SCHEMA_VIRTUAL_PUBLISH_MARKER) &&
+    !body.includes("Hello-from-jsonschema") &&
+    !body.includes("sku")
+  ) {
+    throw new Error(
+      `Published json-schema HTML missing fixture marker at ${html}: ${body.slice(0, 400)}`,
+    );
+  }
+  return html;
+}
+
 module.exports = {
   deployJsonSchemaVirtualFixtureToQaCell,
+  assertPublishedJsonSchemaFilesOnQaCell,
   JSON_SCHEMA_VIRTUAL_QA_ROOT,
   JSON_SCHEMA_VIRTUAL_BUILD_MARKER,
+  JSON_SCHEMA_VIRTUAL_PUBLISHED_HTML,
+  JSON_SCHEMA_VIRTUAL_PUBLISH_MARKER,
 };

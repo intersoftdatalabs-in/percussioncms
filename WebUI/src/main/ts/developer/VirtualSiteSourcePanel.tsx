@@ -195,10 +195,10 @@ function validationMessage(
  * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/
  * llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl/json-schema (missing build stays unavailable).
  * Publish ({@code POST …/virtual/publish}) for git/csv/sql/http-json/object-storage/
- * rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl after a
- * successful Build. json-schema Publish chrome stays a later slice. Repository / blank / unknown kinds stay hidden. sitemap-xml, robots-txt,
+ * rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl/json-schema after a
+ * successful Build. Repository / blank / unknown kinds stay hidden. sitemap-xml, robots-txt,
  * llms-txt, openapi-yaml, asyncapi-yaml, graphql-sdl, and json-schema use a local {@code rootPath} only (no live crawl / spec
- * fetch chrome). json-schema shows Build/Preview after save (Publish stays hidden).
+ * fetch chrome). json-schema shows Build/Preview/Publish after save.
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -401,7 +401,7 @@ export function VirtualSiteSourcePanel({
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
   /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl/json-schema (never repository). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
-  /** Publish chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl (never repository). */
+  /** Publish chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl/json-schema (never repository). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
   const showActionChrome = showBuildChrome || showPreviewChrome || showPublishChrome;
   const busy = saving || building || publishing;

@@ -27,7 +27,7 @@ import java.util.List;
  * publish root ({@code IPSSite.root}) for {@code git-filesystem}, {@code csv-filesystem}, {@code
  * sql-database}, {@code http-json}, {@code object-storage}, {@code rss-atom}, {@code icalendar},
  * {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code
- * asyncapi-yaml}, and {@code graphql-sdl}.
+ * asyncapi-yaml}, {@code graphql-sdl}, and {@code json-schema}.
  *
  * <p>Wire getters return plain types (not {@code Optional}) so Jackson emits scalars, not
  * Optional-bean {@code empty}/{@code present} keys (#3411 / #3388).

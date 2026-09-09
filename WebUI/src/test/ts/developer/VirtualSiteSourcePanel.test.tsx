@@ -1786,7 +1786,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
-  it("loads json-schema values with root path and shows Build/Preview chrome (Publish hidden)", async () => {
+  it("loads json-schema values with root path and shows Build/Preview/Publish chrome", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "json-schema",
       rootPath: "C:/json-schema-docs",
@@ -1813,6 +1813,9 @@ describe("VirtualSiteSourcePanel", () => {
       "Preview assembled site",
     );
     expect(screen.getByTestId("developer-site-virtual-json-schema-hint").textContent).toContain(
+      "Publish Virtual Site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-json-schema-hint").textContent).not.toContain(
       "later slice",
     );
     expect(screen.getByTestId("developer-site-virtual-json-schema-hint").textContent).toContain(
@@ -1824,7 +1827,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
@@ -1885,7 +1888,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
@@ -2921,7 +2924,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(open.mock.calls[0][1]).toBe("_blank");
   });
 
-  it("shows Preview chrome for json-schema and opens last-build home (Publish hidden)", async () => {
+  it("shows Preview chrome for json-schema and opens last-build home", async () => {
     const open = vi.fn();
     window.open = open;
     getVirtual.mockResolvedValue({
@@ -2947,7 +2950,7 @@ describe("VirtualSiteSourcePanel", () => {
       "JSON Schema",
     );
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
     await waitFor(() => {
       expect(open).toHaveBeenCalled();
@@ -3271,6 +3274,47 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-publish-files").textContent).toBe("3");
     expect(screen.getByTestId("developer-site-virtual-publish-dest").textContent).toContain(
       "graphql-sdl-help",
+    );
+  });
+
+  it("shows Publish chrome for json-schema and success dest path", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "json-schema",
+      rootPath: "C:/json-schema-docs",
+      virtual: true,
+    });
+    publishVirtual.mockResolvedValue({
+      siteName: "JsonSchemaHelp",
+      publishPath: "C:/inetpub/wwwroot/json-schema-help",
+      filesCopied: 3,
+      pagesWritten: 1,
+      hasLinkProblems: false,
+    });
+    render(<VirtualSiteSourcePanel siteName="JsonSchemaHelp" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-json-schema-hint").textContent).toContain(
+      "Publish Virtual Site",
+    );
+    expect(screen.getByTestId("developer-site-virtual-publish-hint").textContent).toContain(
+      "JSON Schema",
+    );
+    const savedBodyHint = screen.getByTestId("developer-site-virtual-json-schema-hint").textContent;
+    expect(savedBodyHint).not.toMatch(/authorization|api[_-]?key|crawl credential|password/i);
+    fireEvent.click(screen.getByTestId("developer-site-virtual-publish"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish-result")).toBeTruthy();
+    });
+    expect(publishVirtual).toHaveBeenCalledWith("JsonSchemaHelp");
+    expect(screen.getByTestId("developer-site-virtual-publish-success").textContent).toContain(
+      DEV_MSG.SITE_VIRT_PUBLISH_SUCCESS,
+    );
+    expect(screen.getByTestId("developer-site-virtual-publish-files").textContent).toBe("3");
+    expect(screen.getByTestId("developer-site-virtual-publish-dest").textContent).toContain(
+      "json-schema-help",
     );
   });
 
