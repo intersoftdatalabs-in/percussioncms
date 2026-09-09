@@ -1,7 +1,7 @@
 ---
 id: admin-developer-pipelines
 title: Developer Pipelines
-description: Browse classic XML Applications, Admin start/stop, pipe IR, OpenAPI from resources, HTTP datasource, nested filter groups, webhook hooks, binary resource retrieve, request tracing, Test invoke, and Problems from Developer Pipelines chrome
+description: Browse classic XML Applications, Admin start/stop, pipe IR, OpenAPI from resources, HTTP datasource, nested filter groups, webhook hooks, binary resource retrieve, HTML result pages, request tracing, Test invoke, and Problems from Developer Pipelines chrome
 version: "8.2"
 order: 51
 tags: [admin, developer, pipelines]
@@ -34,7 +34,7 @@ The **OpenAPI** section calls `GET /services/pipelines/{idOrName}/openapi`
 resources. It does not publish to an external registry.
 
 **Admins** also get **HTTP datasource**, **nested filter groups**, **HTTP webhook hooks**,
-**binary resource**, **request tracing**, **Test invoke**, and **Problems** on the same detail page:
+**binary resource**, **result page (HTML)**, **request tracing**, **Test invoke**, and **Problems** on the same detail page:
 
 - **HTTP datasource** sets `adapterType=HTTP` and a **loopback / local fixture
   URL** (default `http://127.0.0.1/pipeline-http-fixture`) on the selected
@@ -57,6 +57,15 @@ resources. It does not publish to an external registry.
   **404** — the server does **not** invent content. Retrieve is capped at 1 MB
   by default; operators may raise the cap with JVM system property
   `perc.pipeline.binary.maxBodyBytes` (positive integer, bytes).
+- **Result page (HTML)** attaches a **request extension** (`.html`) and a
+  **local stylesheet URI** via
+  `PUT /services/pipelines/{app}/resources/{resource}/resultPage`. The bundled
+  token is `pipeline-xsl-result-fixture` (classpath XSL, no internet). Cloud
+  URLs, credentials in the path, and path traversal return **400**. **Test HTML**
+  posts `requestExtension=.html` to execute and shows the merged HTML marker
+  `PIPE-XSL-HTML` (plus fixture row fields such as `SKU-1`) — not raw JSON.
+  Missing stylesheets fail closed; HTML is never invented. JSON **Invoke** still
+  returns structured rows when you do not ask for HTML.
 - **Nested filter groups** save an AND/OR tree of selector predicates on the
   selected native resource via
   `PUT /services/pipelines/{app}/resources/{resource}/filterGroup`. The default
@@ -74,7 +83,8 @@ resources. It does not publish to an external registry.
   `POST /services/pipelines/{app}/resources/{resource}/execute` and shows the
   structured execute result (or a clear error). HTTP tanks return mapped JSON
   `rows` (for example `sku` / `name` from the bundled fixture) — not empty
-  invented data. When webhook hooks are saved, the result includes real
+  invented data. **Test HTML** asks for `.html` so a bound result page merges
+  those rows through XSL. When webhook hooks are saved, the result includes real
   `preWebhookStatus` / `postWebhookStatus` and body snippets (for example
   `hook-ok`) from the fixture — not a fake success.
 - **Problems** loads Admin `GET /services/pipelines/{idOrName}/validation` when
@@ -212,6 +222,23 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
    `PIPE-BIN-FIXTURE` (not invented content). Missing or empty files are
    **404**. Optionally **Download** the retrieved bytes.
 
+## Product path — HTML result page
+
+1. As **Admin**, open an application detail page.
+2. Enter a **resource** name in **Test invoke** (use a dedicated name such as
+   `xslHtmlFixture`).
+3. In **HTTP datasource**, keep the bundled loopback URL
+   `http://127.0.0.1/pipeline-http-fixture` and choose **Save HTTP tank** so
+   Test HTML has fixture rows to merge.
+4. In **Result page (HTML)**, keep **Stylesheet URI** as
+   `pipeline-xsl-result-fixture` (or another portable-safe relative path).
+5. Choose **Save result page**. Success shows a saved notice. Cloud URLs such as
+   `https://cdn.example/result.xsl`, credentialed URLs, and `..` traversal fail
+   closed with a clear **400** error.
+6. Choose **Test HTML**. The HTML result shows the local fixture marker
+   `PIPE-XSL-HTML` and fixture fields such as `SKU-1` (stylesheet merge, not
+   raw JSON). Missing stylesheets fail closed.
+
 ## Product path — Problems
 
 1. As **Admin**, open an application detail page. The **Problems** section loads
@@ -230,8 +257,8 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
 - Catalog and detail omit **hidden** applications from the list contract used by
   this chrome; hidden rows are not started or stopped here.
 - Pipe IR has no graph editor or drag-drop tanks. Admins may persist an HTTP
-  backend tank, nested selector filter groups, HTTP webhook hooks, and a binary
-  resource (native IR overlay) only.
+  backend tank, nested selector filter groups, HTTP webhook hooks, a binary
+  resource, and an HTML result-page binding (native IR overlay) only.
 - Enable/disable and classic ZIP import/export are not in this chrome.
 - Surface-filtered Playwright for Start/Stop lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-start-stop.spec.js`.
@@ -249,6 +276,8 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-binary-resource.spec.js`.
 - Surface-filtered Playwright for request tracing + last-trace lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-request-tracing.spec.js`.
+- Surface-filtered Playwright for HTML result-page save + Test HTML lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-result-page-html.spec.js`.
 - Surface-filtered Playwright for OpenAPI view/download lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-openapi.spec.js`
   (prefers `sys_cmp*` IR/execute apps, or `PIPELINE_APP_NAME`; does not require
@@ -271,6 +300,7 @@ The chrome calls:
 | Filter groups | `PUT /services/pipelines/{app}/resources/{resource}/filterGroup` (**Admin**) |
 | Binary resource | `PUT /services/pipelines/{app}/resources/{resource}/binaryResource` (**Admin**) |
 | Retrieve binary | `GET /services/pipelines/{app}/resources/{resource}/binary` |
+| Result page | `PUT /services/pipelines/{app}/resources/{resource}/resultPage` (**Admin**) |
 | Request tracing | `PUT` / `GET /services/pipelines/{idOrName}/tracing` (**Admin**) |
 | Last trace | `GET /services/pipelines/{idOrName}/lastTrace` (**Admin**) |
 | Test invoke | `POST /services/pipelines/{app}/resources/{resource}/execute` |

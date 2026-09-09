@@ -834,6 +834,24 @@ export const DEV_MSG_KEYS = {
   PIPE_BINARY_RETRIEVE_ERROR: "perc.ui.developer@Could not retrieve binary fixture bytes.",
   PIPE_BINARY_PREVIEW: "perc.ui.developer@Fixture preview",
   PIPE_BINARY_DOWNLOAD: "perc.ui.developer@Download",
+  PIPE_RESULT_PAGE: "perc.ui.developer@Result page (HTML)",
+  PIPE_RESULT_PAGE_HINT:
+    "perc.ui.developer@Associate a local XSL stylesheet with this resource. Test HTML applies the stylesheet merge (not raw XML/JSON). Cloud URLs, credentials, and path traversal are rejected.",
+  PIPE_RESULT_PAGE_STYLESHEET: "perc.ui.developer@Stylesheet URI",
+  PIPE_RESULT_PAGE_STYLESHEET_PLACEHOLDER: "perc.ui.developer@pipeline-xsl-result-fixture",
+  PIPE_RESULT_PAGE_EXTENSION: "perc.ui.developer@Request extension",
+  PIPE_RESULT_PAGE_MIME: "perc.ui.developer@MIME type",
+  PIPE_RESULT_PAGE_SAVE: "perc.ui.developer@Save result page",
+  PIPE_RESULT_PAGE_SAVING: "perc.ui.developer@Saving…",
+  PIPE_RESULT_PAGE_SAVED: "perc.ui.developer@Result page saved.",
+  PIPE_RESULT_PAGE_SAVE_ERROR: "perc.ui.developer@Could not save result page.",
+  PIPE_RESULT_PAGE_STYLESHEET_REQUIRED:
+    "perc.ui.developer@Enter a local stylesheet URI or bundled token.",
+  PIPE_RESULT_PAGE_RESOURCE_REQUIRED:
+    "perc.ui.developer@Enter a resource name before saving the result page.",
+  PIPE_INVOKE_HTML: "perc.ui.developer@Test HTML",
+  PIPE_INVOKE_HTML_RUNNING: "perc.ui.developer@Testing HTML…",
+  PIPE_INVOKE_HTML_RESULT: "perc.ui.developer@HTML result",
   PIPE_OPENAPI: "perc.ui.developer@OpenAPI",
   PIPE_OPENAPI_HINT:
     "perc.ui.developer@OpenAPI 3 generated from this pipeline's IR resources (view or download YAML/JSON). Not published to an external registry.",

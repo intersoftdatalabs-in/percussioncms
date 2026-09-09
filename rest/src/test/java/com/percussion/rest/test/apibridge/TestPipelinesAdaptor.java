@@ -23,6 +23,7 @@ import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
 import com.percussion.rest.pipelines.PipelineBinaryResource;
 import com.percussion.rest.pipelines.PipelineFilterGroup;
+import com.percussion.rest.pipelines.PipelineResultPage;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
 import com.percussion.rest.pipelines.PipelineTracingSettings;
 import com.percussion.rest.pipelines.PipelineWebhookHooks;
@@ -143,6 +144,22 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
     }
     if (out.getContentType() == null) {
       out.setContentType("application/octet-stream");
+    }
+    return out;
+  }
+
+  @Override
+  public PipelineResultPage putResultPage(
+      URI baseUri, String appName, String resourceName, PipelineResultPage body) {
+    PipelineResultPage out = body != null ? body : new PipelineResultPage();
+    if (out.getStylesheetUri() == null) {
+      out.setStylesheetUri("pipeline-xsl-result-fixture");
+    }
+    if (out.getRequestExtension() == null) {
+      out.setRequestExtension(".html");
+    }
+    if (out.getMimeType() == null) {
+      out.setMimeType("text/html");
     }
     return out;
   }

@@ -71,6 +71,10 @@ public class PipelineExecuteRequest {
   private Map<String, Object> params = new LinkedHashMap<>();
   private List<Map<String, Object>> rows = new ArrayList<>();
   private List<String> keyColumns = new ArrayList<>();
+  /** Request extension for presentation ({@code .html} applies the result-page XSL). */
+  private String requestExtension;
+  /** Optional Accept hint ({@code text/html} applies the result-page XSL). */
+  private String accept;
 
   public static PipelineExecuteRequest ofParams(Map<String, Object> params) {
     PipelineExecuteRequest req = new PipelineExecuteRequest();
@@ -120,6 +124,22 @@ public class PipelineExecuteRequest {
     this.keyColumns = keyColumns != null ? new ArrayList<>(keyColumns) : new ArrayList<>();
   }
 
+  public String getRequestExtension() {
+    return requestExtension;
+  }
+
+  public void setRequestExtension(String requestExtension) {
+    this.requestExtension = requestExtension;
+  }
+
+  public String getAccept() {
+    return accept;
+  }
+
+  public void setAccept(String accept) {
+    this.accept = accept;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -131,11 +151,13 @@ public class PipelineExecuteRequest {
     return Objects.equals(operation, that.operation)
         && Objects.equals(params, that.params)
         && Objects.equals(rows, that.rows)
-        && Objects.equals(keyColumns, that.keyColumns);
+        && Objects.equals(keyColumns, that.keyColumns)
+        && Objects.equals(requestExtension, that.requestExtension)
+        && Objects.equals(accept, that.accept);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(operation, params, rows, keyColumns);
+    return Objects.hash(operation, params, rows, keyColumns, requestExtension, accept);
   }
 }

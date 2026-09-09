@@ -122,6 +122,16 @@ public interface IPipelinesAdaptor {
       URI baseUri, String appName, String resourceName, PipelineBinaryResource body);
 
   /**
+   * Admin: persist a native IR HTML result-page binding (request extension + stylesheet URI).
+   * Cloud URLs, credentials, and path traversal are rejected. Classic XML Applications are
+   * not mutated.
+   *
+   * @return saved binding, never {@code null}
+   */
+  PipelineResultPage putResultPage(
+      URI baseUri, String appName, String resourceName, PipelineResultPage body);
+
+  /**
    * Retrieve fixture bytes for a native BINARY resource. Missing or empty fixtures fail closed
    * (documented 404/400, not invented content).
    *

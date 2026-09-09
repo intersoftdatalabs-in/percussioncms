@@ -28,6 +28,7 @@ import {
   openApiDownloadFilename,
   putBinaryResource,
   putFilterGroup,
+  putResultPage,
   putHttpBackendTank,
   putTracing,
   putWebhookHooks,
@@ -540,6 +541,13 @@ export function PipelineDetailPanel({
   const [binaryPreview, setBinaryPreview] = useState<string | null>(null);
   const [binaryPreviewType, setBinaryPreviewType] = useState<string | null>(null);
   const [binaryBytes, setBinaryBytes] = useState<Uint8Array | null>(null);
+  const [resultPageUri, setResultPageUri] = useState("pipeline-xsl-result-fixture");
+  const [resultPageExtension, setResultPageExtension] = useState(".html");
+  const [resultPageMime, setResultPageMime] = useState("text/html");
+  const [resultPageBusy, setResultPageBusy] = useState(false);
+  const [resultPageError, setResultPageError] = useState<string | null>(null);
+  const [resultPageNotice, setResultPageNotice] = useState<string | null>(null);
+  const [invokeHtml, setInvokeHtml] = useState<string | null>(null);
   const [tracingEnabled, setTracingEnabled] = useState(false);
   const [tracingBusy, setTracingBusy] = useState(false);
   const [tracingError, setTracingError] = useState<string | null>(null);
@@ -557,6 +565,7 @@ export function PipelineDetailPanel({
   const webhookInflight = useRef(false);
   const filterInflight = useRef(false);
   const binaryInflight = useRef(false);
+  const resultPageInflight = useRef(false);
   const tracingInflight = useRef(false);
   const mountedRef = useRef(true);
 
@@ -574,6 +583,7 @@ export function PipelineDetailPanel({
     setInvokeBusy(false);
     setInvokeError(null);
     setInvokeResult(null);
+    setInvokeHtml(null);
     setProblems({ status: "idle" });
     setIr(null);
     setIrError(null);
@@ -600,6 +610,12 @@ export function PipelineDetailPanel({
     setBinaryPreview(null);
     setBinaryPreviewType(null);
     setBinaryBytes(null);
+    setResultPageUri("pipeline-xsl-result-fixture");
+    setResultPageExtension(".html");
+    setResultPageMime("text/html");
+    setResultPageBusy(false);
+    setResultPageError(null);
+    setResultPageNotice(null);
     setTracingEnabled(false);
     setTracingBusy(false);
     setTracingError(null);
@@ -617,6 +633,7 @@ export function PipelineDetailPanel({
     webhookInflight.current = false;
     filterInflight.current = false;
     binaryInflight.current = false;
+    resultPageInflight.current = false;
     tracingInflight.current = false;
     getApplicationDetail(idOrName)
       .then((d) => {
@@ -652,6 +669,13 @@ export function PipelineDetailPanel({
               ?.selector?.filterGroup;
           if (storedGroup) {
             setFilterGroup(storedGroup);
+          }
+          const storedPage =
+            (doc.resources || []).find((r) => r.resultPage?.stylesheetUri)?.resultPage;
+          if (storedPage?.stylesheetUri) {
+            setResultPageUri(storedPage.stylesheetUri);
+            if (storedPage.requestExtension) setResultPageExtension(storedPage.requestExtension);
+            if (storedPage.mimeType) setResultPageMime(storedPage.mimeType);
           }
           setTracingEnabled(doc.app?.tracingEnabled === true);
         }
@@ -1024,6 +1048,50 @@ export function PipelineDetailPanel({
     window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
   }
 
+  async function onSaveResultPage(): Promise<void> {
+    if (!detail || resultPageInflight.current) return;
+    const resource = resourceName.trim();
+    if (!resource) {
+      setResultPageError(DEV_MSG.PIPE_RESULT_PAGE_RESOURCE_REQUIRED);
+      setResultPageNotice(null);
+      return;
+    }
+    const stylesheetUri = resultPageUri.trim();
+    if (!stylesheetUri) {
+      setResultPageError(DEV_MSG.PIPE_RESULT_PAGE_STYLESHEET_REQUIRED);
+      setResultPageNotice(null);
+      return;
+    }
+    resultPageInflight.current = true;
+    setResultPageBusy(true);
+    setResultPageError(null);
+    setResultPageNotice(null);
+    try {
+      const saved = await putResultPage(idOrName, resource, {
+        stylesheetUri,
+        requestExtension: resultPageExtension.trim() || ".html",
+        mimeType: resultPageMime.trim() || "text/html",
+      });
+      if (!mountedRef.current) return;
+      if (saved.stylesheetUri) setResultPageUri(saved.stylesheetUri);
+      if (saved.requestExtension) setResultPageExtension(saved.requestExtension);
+      if (saved.mimeType) setResultPageMime(saved.mimeType);
+      setResultPageNotice(DEV_MSG.PIPE_RESULT_PAGE_SAVED);
+      try {
+        const nextIr = await getPipelineIr(idOrName);
+        if (mountedRef.current) setIr(nextIr);
+      } catch {
+        // persist succeeded; IR refresh is best-effort
+      }
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setResultPageError(lifecycleErrMsg(err, DEV_MSG.PIPE_RESULT_PAGE_SAVE_ERROR));
+    } finally {
+      resultPageInflight.current = false;
+      if (mountedRef.current) setResultPageBusy(false);
+    }
+  }
+
   async function refreshLastTrace(): Promise<void> {
     try {
       const trace = await getLastTrace(idOrName);
@@ -1077,22 +1145,68 @@ export function PipelineDetailPanel({
     if (!resource) {
       setInvokeError(DEV_MSG.PIPE_INVOKE_RESOURCE_REQUIRED);
       setInvokeResult(null);
+      setInvokeHtml(null);
       return;
     }
     const parsed = parseExecuteBody(invokeBody);
     if (!parsed.ok) {
       setInvokeError(parsed.message);
       setInvokeResult(null);
+      setInvokeHtml(null);
       return;
     }
     invokeInflight.current = true;
     setInvokeBusy(true);
     setInvokeError(null);
     setInvokeResult(null);
+    setInvokeHtml(null);
     try {
       const result = await executeResource(idOrName, resource, parsed.body);
       if (!mountedRef.current) return;
       setInvokeResult(formatExecuteResult(result));
+      setInvokeHtml(result.html?.trim() ? result.html : null);
+      if (tracingEnabled) {
+        await refreshLastTrace();
+      }
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setInvokeError(invokeErrMsg(err));
+    } finally {
+      invokeInflight.current = false;
+      if (mountedRef.current) setInvokeBusy(false);
+    }
+  }
+
+  async function onInvokeHtml(): Promise<void> {
+    if (!detail || invokeInflight.current) return;
+    const resource = resourceName.trim();
+    if (!resource) {
+      setInvokeError(DEV_MSG.PIPE_INVOKE_RESOURCE_REQUIRED);
+      setInvokeResult(null);
+      setInvokeHtml(null);
+      return;
+    }
+    const parsed = parseExecuteBody(invokeBody);
+    if (!parsed.ok) {
+      setInvokeError(parsed.message);
+      setInvokeResult(null);
+      setInvokeHtml(null);
+      return;
+    }
+    invokeInflight.current = true;
+    setInvokeBusy(true);
+    setInvokeError(null);
+    setInvokeResult(null);
+    setInvokeHtml(null);
+    try {
+      const result = await executeResource(idOrName, resource, {
+        ...parsed.body,
+        requestExtension: ".html",
+        accept: "text/html",
+      });
+      if (!mountedRef.current) return;
+      setInvokeResult(formatExecuteResult(result));
+      setInvokeHtml(result.html?.trim() ? result.html : null);
       if (tracingEnabled) {
         await refreshLastTrace();
       }
@@ -1638,6 +1752,86 @@ export function PipelineDetailPanel({
           ) : null}
 
           {isAdmin ? (
+            <section style={{ marginBottom: "16px" }} data-testid="developer-pipe-result-page">
+              <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.PIPE_RESULT_PAGE}</h3>
+              <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+                {DEV_MSG.PIPE_RESULT_PAGE_HINT}
+              </p>
+              <div style={{ marginBottom: "12px" }}>
+                <label htmlFor="developer-pipe-result-page-uri" style={fieldLabel}>
+                  {DEV_MSG.PIPE_RESULT_PAGE_STYLESHEET}
+                </label>
+                <input
+                  id="developer-pipe-result-page-uri"
+                  data-testid="developer-pipe-result-page-uri"
+                  value={resultPageUri}
+                  onChange={(e) => setResultPageUri(e.target.value)}
+                  disabled={resultPageBusy}
+                  style={textInput}
+                  placeholder={DEV_MSG.PIPE_RESULT_PAGE_STYLESHEET_PLACEHOLDER}
+                  autoComplete="off"
+                />
+              </div>
+              <div style={{ marginBottom: "12px" }}>
+                <label htmlFor="developer-pipe-result-page-extension" style={fieldLabel}>
+                  {DEV_MSG.PIPE_RESULT_PAGE_EXTENSION}
+                </label>
+                <input
+                  id="developer-pipe-result-page-extension"
+                  data-testid="developer-pipe-result-page-extension"
+                  value={resultPageExtension}
+                  onChange={(e) => setResultPageExtension(e.target.value)}
+                  disabled={resultPageBusy}
+                  style={textInput}
+                  autoComplete="off"
+                />
+              </div>
+              <div style={{ marginBottom: "12px" }}>
+                <label htmlFor="developer-pipe-result-page-mime" style={fieldLabel}>
+                  {DEV_MSG.PIPE_RESULT_PAGE_MIME}
+                </label>
+                <input
+                  id="developer-pipe-result-page-mime"
+                  data-testid="developer-pipe-result-page-mime"
+                  value={resultPageMime}
+                  onChange={(e) => setResultPageMime(e.target.value)}
+                  disabled={resultPageBusy}
+                  style={textInput}
+                  autoComplete="off"
+                />
+              </div>
+              <button
+                type="button"
+                data-testid="developer-pipe-result-page-save"
+                aria-label={DEV_MSG.PIPE_RESULT_PAGE_SAVE}
+                disabled={resultPageBusy}
+                onClick={() => void onSaveResultPage()}
+                style={resultPageBusy ? disabledPrimary : primaryButton}
+              >
+                {resultPageBusy ? DEV_MSG.PIPE_RESULT_PAGE_SAVING : DEV_MSG.PIPE_RESULT_PAGE_SAVE}
+              </button>
+              {resultPageNotice ? (
+                <div
+                  role="status"
+                  data-testid="developer-pipe-result-page-notice"
+                  style={{ ...successNotice, marginTop: "12px" }}
+                >
+                  {resultPageNotice}
+                </div>
+              ) : null}
+              {resultPageError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-pipe-result-page-error"
+                  style={{ ...errorAlert, marginTop: "12px" }}
+                >
+                  {resultPageError}
+                </div>
+              ) : null}
+            </section>
+          ) : null}
+
+          {isAdmin ? (
             <section style={{ marginBottom: "16px" }} data-testid="developer-pipe-filter">
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.PIPE_FILTER}</h3>
               <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
@@ -1987,6 +2181,19 @@ export function PipelineDetailPanel({
               >
                 {invokeBusy ? DEV_MSG.PIPE_INVOKE_RUNNING : DEV_MSG.PIPE_INVOKE_RUN}
               </button>
+              <button
+                type="button"
+                data-testid="developer-pipe-invoke-html"
+                aria-label={DEV_MSG.PIPE_INVOKE_HTML}
+                disabled={!invokeEnabled}
+                onClick={() => void onInvokeHtml()}
+                style={{
+                  ...(invokeEnabled ? primaryButton : disabledPrimary),
+                  marginLeft: "8px",
+                }}
+              >
+                {invokeBusy ? DEV_MSG.PIPE_INVOKE_HTML_RUNNING : DEV_MSG.PIPE_INVOKE_HTML}
+              </button>
               {invokeError ? (
                 <div
                   role="alert"
@@ -1994,6 +2201,14 @@ export function PipelineDetailPanel({
                   style={{ ...errorAlert, marginTop: "12px" }}
                 >
                   {invokeError}
+                </div>
+              ) : null}
+              {invokeHtml ? (
+                <div style={{ marginTop: "12px" }} data-testid="developer-pipe-invoke-html-result">
+                  <h4 style={{ fontSize: "0.95rem", margin: "0 0 8px" }}>
+                    {DEV_MSG.PIPE_INVOKE_HTML_RESULT}
+                  </h4>
+                  <pre style={resultPre}>{invokeHtml}</pre>
                 </div>
               ) : null}
               {invokeResult ? (

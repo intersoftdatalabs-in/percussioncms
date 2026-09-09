@@ -44,6 +44,7 @@ public class PipelineResourceIr {
   private PipelineStagesIr stages = new PipelineStagesIr();
   private PipelineWebhookHooksIr webhookHooks;
   private PipelineBinaryResourceIr binary;
+  private PipelineResultPageIr resultPage;
 
   public String getName() {
     return name;
@@ -117,6 +118,14 @@ public class PipelineResourceIr {
     this.binary = binary;
   }
 
+  public PipelineResultPageIr getResultPage() {
+    return resultPage;
+  }
+
+  public void setResultPage(PipelineResultPageIr resultPage) {
+    this.resultPage = resultPage;
+  }
+
   /**
    * Ordered inventory of present stage kinds for assertions and catalog UIs.
    *
@@ -149,6 +158,9 @@ public class PipelineResourceIr {
     if (binary != null && binary.isPresent()) {
       out.add("binary");
     }
+    if (resultPage != null && resultPage.isPresent()) {
+      out.add("resultPage");
+    }
     return out;
   }
 
@@ -168,7 +180,8 @@ public class PipelineResourceIr {
         && Objects.equals(pipeName, that.pipeName)
         && Objects.equals(stages, that.stages)
         && Objects.equals(webhookHooks, that.webhookHooks)
-        && Objects.equals(binary, that.binary);
+        && Objects.equals(binary, that.binary)
+        && Objects.equals(resultPage, that.resultPage);
   }
 
   @Override
@@ -182,6 +195,7 @@ public class PipelineResourceIr {
         pipeName,
         stages,
         webhookHooks,
-        binary);
+        binary,
+        resultPage);
   }
 }

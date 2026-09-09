@@ -24,6 +24,7 @@ import type {
   PipelineBinaryBytes,
   PipelineBinaryResource,
   PipelineExecuteRequest,
+  PipelineResultPage,
   PipelineExecuteResult,
   PipelineFilterGroup,
   PipelineHttpBackendTank,
@@ -415,6 +416,45 @@ export async function retrieveBinaryResource(
     `${PATHS.PIPELINES}/${appKey}/resources/${resourceKey}/binary`,
   );
   return { bytes: out.bytes, contentType: out.contentType };
+}
+
+/** Jackson WRAP/UNWRAP_ROOT_VALUE root for {@link PipelineResultPage}. */
+export const PIPELINE_RESULT_PAGE_ROOT = "PipelineResultPage";
+
+export function wrapPipelineResultPageForWire(
+  body: PipelineResultPage,
+): { PipelineResultPage: PipelineResultPage } {
+  return { [PIPELINE_RESULT_PAGE_ROOT]: body ?? {} };
+}
+
+export function unwrapPipelineResultPage(payload: unknown): PipelineResultPage {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("Result page not found or empty response");
+  }
+  const root = payload as Record<string, unknown>;
+  const nested = root.PipelineResultPage ?? root.pipelineResultPage;
+  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
+    return nested as PipelineResultPage;
+  }
+  return root as PipelineResultPage;
+}
+
+/**
+ * PUT /services/pipelines/{app}/resources/{resource}/resultPage — Admin native IR HTML result page.
+ * Cloud / credentialed / traversal stylesheet URIs are rejected by the server (HTTP 400).
+ */
+export async function putResultPage(
+  app: string,
+  resource: string,
+  body: PipelineResultPage,
+): Promise<PipelineResultPage> {
+  const appKey = encodeURIComponent(app);
+  const resourceKey = encodeURIComponent(resource);
+  const payload = await put<unknown>(
+    `${PATHS.PIPELINES}/${appKey}/resources/${resourceKey}/resultPage`,
+    wrapPipelineResultPageForWire(body),
+  );
+  return unwrapPipelineResultPage(payload);
 }
 
 /** Jackson WRAP/UNWRAP_ROOT_VALUE root for {@link PipelineTracingSettings}. */
