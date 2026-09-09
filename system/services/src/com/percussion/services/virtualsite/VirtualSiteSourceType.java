@@ -20,7 +20,7 @@ package com.percussion.services.virtualsite;
  * Registered Virtual Site adapter kinds. {@link #GIT_FILESYSTEM}, {@link #CSV_FILESYSTEM}, {@link
  * #SQL_DATABASE}, {@link #HTTP_JSON}, {@link #OBJECT_STORAGE}, {@link #RSS_ATOM}, {@link
  * #ICALENDAR}, {@link #SITEMAP_XML}, {@link #ROBOTS_TXT}, {@link #LLMS_TXT}, and {@link
- * #OPENAPI_YAML}, {@link #ASYNCAPI_YAML}, and {@link #GRAPHQL_SDL} are wired through
+ * #OPENAPI_YAML}, {@link #ASYNCAPI_YAML}, {@link #GRAPHQL_SDL}, and {@link #JSON_SCHEMA} are wired through
  * {@link PSVirtualSiteSourceFactory} and allow-listed for Site property validation. REST GET/PUT
  * persist round-trips {@link #RSS_ATOM}, {@link #ICALENDAR}, and {@link #SITEMAP_XML} with a
  * portable-safe local {@code rootPath}. {@link #ICALENDAR} assemble remains SPI/CLI ({@code
@@ -35,6 +35,8 @@ package com.percussion.services.virtualsite;
  * and Developer Sites chrome stay later slices. {@link #GRAPHQL_SDL} assemble is SPI/CLI ({@code
  * schema.graphql}); REST GET/PUT persist plus REST Build/Preview and Developer Sites
  * Build/Preview chrome land with the persist slice; REST Publish stays a later slice.
+ * {@link #JSON_SCHEMA} assemble is SPI/CLI ({@code schema.json}); REST persist/Build/Preview/Publish
+ * and Developer Sites chrome stay later slices.
  */
 public enum VirtualSiteSourceType {
   GIT_FILESYSTEM("git-filesystem"),
@@ -147,7 +149,18 @@ public enum VirtualSiteSourceType {
    * {@code graphql.url} are 400). REST Publish stays a later slice.
    * SPI/CLI assemble is {@code PSVirtualSiteBuildMain … graphql-sdl}.
    */
-  GRAPHQL_SDL("graphql-sdl");
+  GRAPHQL_SDL("graphql-sdl"),
+  /**
+   * Local JSON Schema ({@code json-schema}). Discovers pages from {@code schema.json} (or {@code
+   * _config.yaml} {@code jsonschema.file}) under a portable-safe {@code virtual.rootPath}. Each
+   * {@code properties} / {@code $defs} entry maps into assemble {@code id}/{@code title}/{@code
+   * body}. A fixture with no properties or defs still emits one page from {@code title} /
+   * {@code description}. {@code jsonschema.url}, Git {@code virtual.remoteUrl}, credential
+   * properties, cloud URLs, remote {@code $ref}/{@code $id} HTTP, and live schema fetch are
+   * rejected. REST persist, Build/Preview/Publish, and Developer Sites chrome stay later slices.
+   * SPI/CLI assemble is {@code PSVirtualSiteBuildMain … json-schema}.
+   */
+  JSON_SCHEMA("json-schema");
 
   private final String wireName;
 

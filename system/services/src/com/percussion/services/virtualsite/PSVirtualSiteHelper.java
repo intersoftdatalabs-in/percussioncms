@@ -78,7 +78,7 @@ public final class PSVirtualSiteHelper {
    * Allow-listed {@link #PROP_SOURCE_KIND} wire names for Virtual adapters ({@code git-filesystem},
    * {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code object-storage}, {@code
    * rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code robots-txt}, {@code llms-txt}, {@code
-   * openapi-yaml}, {@code asyncapi-yaml}, {@code graphql-sdl}). Does
+   * openapi-yaml}, {@code asyncapi-yaml}, {@code graphql-sdl}, {@code json-schema}). Does
    * not include {@link #SOURCE_KIND_REPOSITORY}.
    *
    * @return unmodifiable list of wire names in enum declaration order
@@ -225,6 +225,9 @@ public final class PSVirtualSiteHelper {
     }
     if (type == VirtualSiteSourceType.GRAPHQL_SDL) {
       rejectGraphqlUrlProperties(site, type);
+    }
+    if (type == VirtualSiteSourceType.JSON_SCHEMA) {
+      rejectJsonSchemaUrlProperties(site, type);
     }
 
     Optional<String> remoteRaw = remoteUrl(site);
@@ -580,7 +583,8 @@ public final class PSVirtualSiteHelper {
         || type == VirtualSiteSourceType.LLMS_TXT
         || type == VirtualSiteSourceType.OPENAPI_YAML
         || type == VirtualSiteSourceType.ASYNCAPI_YAML
-        || type == VirtualSiteSourceType.GRAPHQL_SDL;
+        || type == VirtualSiteSourceType.GRAPHQL_SDL
+        || type == VirtualSiteSourceType.JSON_SCHEMA;
   }
 
   /**
@@ -605,6 +609,31 @@ public final class PSVirtualSiteHelper {
             "graphql.url is not allowed for "
                 + kind
                 + " (local schema.graphql fixture only; no live GraphQL HTTP or introspection).");
+      }
+    }
+  }
+
+  /**
+   * Leftover {@code jsonschema.url} (live JSON Schema fetch) is fail-closed for {@code
+   * json-schema}. Standard {@code virtual.*} keys are never treated as a schema URL.
+   */
+  static void rejectJsonSchemaUrlProperties(IPSSite site, VirtualSiteSourceType type)
+      throws VirtualSiteException {
+    String kind = Objects.requireNonNull(type, "type").wireName();
+    for (PSSiteProperty p : propertiesOf(site)) {
+      if (p == null || StringUtils.isBlank(p.getName())) {
+        continue;
+      }
+      String name = p.getName().trim();
+      if (isVirtualContractProperty(name)) {
+        continue;
+      }
+      String compact = name.toLowerCase(Locale.ROOT).replace("_", "").replace("-", "");
+      if ("jsonschema.url".equalsIgnoreCase(name) || "jsonschemaurl".equals(compact)) {
+        throw new VirtualSiteException(
+            "jsonschema.url is not allowed for "
+                + kind
+                + " (local schema.json fixture only; no live HTTP schema fetch).");
       }
     }
   }
