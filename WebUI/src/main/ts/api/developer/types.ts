@@ -506,6 +506,13 @@ export interface PipelineBinaryBytes {
   path?: string;
 }
 
+/** Body/result for PUT /services/pipelines/{app}/resources/{resource}/resultPage. */
+export interface PipelineResultPage {
+  requestExtension?: string;
+  mimeType?: string;
+  stylesheetUri?: string;
+}
+
 /** Body/result for PUT/GET /services/pipelines/{idOrName}/tracing. */
 export interface PipelineTracingSettings {
   enabled?: boolean;
@@ -592,6 +599,7 @@ export interface PipelineIrResource {
   stages?: PipelineIrStages;
   webhookHooks?: PipelineWebhookHooks;
   binary?: PipelineBinaryResource;
+  resultPage?: PipelineResultPage;
 }
 
 /** App meta nested under Pipeline IR. */
@@ -628,6 +636,10 @@ export interface PipelineExecuteRequest {
   params?: Record<string, unknown>;
   rows?: Array<Record<string, unknown>>;
   keyColumns?: string[];
+  /** {@code .html} applies the bound result-page XSL merge. */
+  requestExtension?: string;
+  /** {@code text/html} applies the bound result-page XSL merge. */
+  accept?: string;
 }
 
 /** Result from native pipeline IR execute. */
@@ -641,6 +653,8 @@ export interface PipelineExecuteResult {
   rows?: Array<Record<string, unknown>>;
   hookTrace?: string[];
   meta?: Record<string, unknown>;
+  /** HTML from result-page XSL merge when the request asked for HTML. */
+  html?: string;
 }
 
 /**

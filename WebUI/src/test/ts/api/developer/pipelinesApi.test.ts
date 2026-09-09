@@ -33,6 +33,9 @@ import {
   unwrapPipelineBinaryResource,
   putBinaryResource,
   retrieveBinaryResource,
+  wrapPipelineResultPageForWire,
+  unwrapPipelineResultPage,
+  putResultPage,
   wrapPipelineTracingSettingsForWire,
   unwrapPipelineTracingSettings,
   unwrapPipelineRequestTrace,
@@ -430,6 +433,53 @@ describe("pipelinesApi Slice D binary resource", () => {
     );
     expect(new TextDecoder().decode(out.bytes)).toBe("PIPE-BIN-FIXTURE\n");
     expect(out.contentType).toBe("text/plain");
+  });
+});
+
+describe("pipelinesApi Slice D result page", () => {
+  it("wraps and unwraps PipelineResultPage", () => {
+    expect(
+      wrapPipelineResultPageForWire({
+        stylesheetUri: "pipeline-xsl-result-fixture",
+        requestExtension: ".html",
+        mimeType: "text/html",
+      }),
+    ).toEqual({
+      PipelineResultPage: {
+        stylesheetUri: "pipeline-xsl-result-fixture",
+        requestExtension: ".html",
+        mimeType: "text/html",
+      },
+    });
+    expect(
+      unwrapPipelineResultPage({
+        PipelineResultPage: { stylesheetUri: "pipeline-xsl-result-fixture" },
+      }).stylesheetUri,
+    ).toBe("pipeline-xsl-result-fixture");
+  });
+
+  it("putResultPage PUTs encoded path with WRAP_ROOT body", async () => {
+    const spy = vi.spyOn(client, "put").mockResolvedValue({
+      stylesheetUri: "pipeline-xsl-result-fixture",
+      requestExtension: ".html",
+      mimeType: "text/html",
+    });
+    const out = await putResultPage("app with spaces", "res/one", {
+      stylesheetUri: "pipeline-xsl-result-fixture",
+      requestExtension: ".html",
+      mimeType: "text/html",
+    });
+    expect(String(spy.mock.calls[0][0])).toContain(
+      `/pipelines/${encodeURIComponent("app with spaces")}/resources/${encodeURIComponent("res/one")}/resultPage`,
+    );
+    expect(spy.mock.calls[0][1]).toEqual({
+      PipelineResultPage: {
+        stylesheetUri: "pipeline-xsl-result-fixture",
+        requestExtension: ".html",
+        mimeType: "text/html",
+      },
+    });
+    expect(out.stylesheetUri).toBe("pipeline-xsl-result-fixture");
   });
 });
 

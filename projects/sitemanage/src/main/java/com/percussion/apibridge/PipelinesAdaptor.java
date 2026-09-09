@@ -32,6 +32,7 @@ import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
 import com.percussion.rest.pipelines.PipelineBinaryResource;
 import com.percussion.rest.pipelines.PipelineFilterGroup;
+import com.percussion.rest.pipelines.PipelineResultPage;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
 import com.percussion.rest.pipelines.PipelineOpenApiGenerator;
 import com.percussion.rest.pipelines.PipelineTracingSettings;
@@ -55,6 +56,7 @@ import com.percussion.services.pipeline.PSPipelineIrException;
 import com.percussion.services.pipeline.PSPipelineIrServiceLocator;
 import com.percussion.services.pipeline.PSPipelineRuntimeServiceLocator;
 import com.percussion.services.pipeline.binary.PSPipelineBinaryPath;
+import com.percussion.services.pipeline.xsl.PSPipelineResultPagePath;
 import com.percussion.services.pipeline.http.PSPipelineHttpAdapter;
 import com.percussion.services.pipeline.http.PSPipelineHttpUrl;
 import com.percussion.services.pipeline.model.BackendTankStageIr;
@@ -68,6 +70,7 @@ import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
 import com.percussion.services.pipeline.model.PipelineRequestTrace;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
+import com.percussion.services.pipeline.model.PipelineResultPageIr;
 import com.percussion.services.pipeline.model.PipelineStagesIr;
 import com.percussion.services.pipeline.model.PipelineWebhookHooksIr;
 import com.percussion.services.pipeline.model.SelectorStageIr;
@@ -115,7 +118,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   public static final int MAX_LIMIT = 1000;
 
   static final String ADMIN_REQUIRED =
-      "Admin role required to start, stop, validate, persist HTTP backend tanks, persist filter groups, persist binary resources, or manage request tracing";
+      "Admin role required to start, stop, validate, persist HTTP backend tanks, persist filter groups, persist binary resources, persist result pages, or manage request tracing";
 
   static final String HIDDEN_NOT_ALLOWED =
       "Hidden applications cannot be started, stopped, validated, or documented via this API";
@@ -761,6 +764,89 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   }
 
   @Override
+  public PipelineResultPage putResultPage(
+      URI baseUri, String appName, String resourceName, PipelineResultPage body) {
+    requireAdmin();
+    if (StringUtils.isBlank(appName) || !isSafeApplicationName(appName.trim())) {
+      throw new WebApplicationException("Invalid pipeline application name", 400);
+    }
+    if (StringUtils.isBlank(resourceName) || !isSafeResourceName(resourceName.trim())) {
+      throw new WebApplicationException("Invalid pipeline resource name", 400);
+    }
+    if (body == null) {
+      throw new WebApplicationException("Result page body is required", 400);
+    }
+    String stylesheetUri;
+    String requestExtension;
+    String mimeType;
+    try {
+      stylesheetUri = PSPipelineResultPagePath.requireSafeStylesheetUri(body.getStylesheetUri());
+      requestExtension = PSPipelineResultPagePath.requireSafeRequestExtension(body.getRequestExtension());
+      mimeType = PSPipelineResultPagePath.requireSafeMimeType(body.getMimeType());
+    } catch (PSPipelineIrException e) {
+      throw new WebApplicationException(
+          e.getMessage() != null ? e.getMessage() : "Invalid result page stylesheet URI", 400);
+    }
+
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for pipeline result page persist");
+    }
+    PSSecurityToken tok = req.getSecurityToken();
+    String name = resolveApplicationName(appName.trim(), summaryLoader.apply(tok));
+    if (name == null) {
+      throw new WebApplicationException("Application not found", 404);
+    }
+    String safeResource = resourceName.trim();
+    try {
+      IPSPipelineIrService ir = irSupplier.get();
+      PipelineIrDocument doc = ir.load(name).orElse(null);
+      if (doc == null) {
+        PSApplication app = applicationLoader.apply(name, tok);
+        if (app != null) {
+          doc = ir.importClassicApplication(app);
+        } else {
+          doc = new PipelineIrDocument();
+          doc.getApp().setName(name);
+        }
+      }
+      doc.setSource(PipelineIrDocument.SOURCE_NATIVE);
+      if (doc.getApp() == null || StringUtils.isBlank(doc.getApp().getName())) {
+        doc.getApp().setName(name);
+      }
+      PipelineResourceIr resource = doc.findResource(safeResource);
+      if (resource == null) {
+        resource = new PipelineResourceIr();
+        resource.setName(safeResource);
+        resource.setKind(PipelineResourceIr.KIND_QUERY);
+        doc.getResources().add(resource);
+      }
+      if (resource.getKind() == null
+          || PipelineResourceIr.KIND_UNKNOWN.equals(resource.getKind())) {
+        resource.setKind(PipelineResourceIr.KIND_QUERY);
+      }
+      PipelineResultPageIr stored = new PipelineResultPageIr();
+      stored.setStylesheetUri(stylesheetUri);
+      stored.setRequestExtension(requestExtension);
+      stored.setMimeType(mimeType);
+      resource.setResultPage(stored);
+      ir.save(doc);
+
+      PipelineResultPage saved = new PipelineResultPage();
+      saved.setStylesheetUri(stored.getStylesheetUri());
+      saved.setRequestExtension(stored.getRequestExtension());
+      saved.setMimeType(stored.getMimeType());
+      return saved;
+    } catch (PSPipelineIrException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Failed to persist result page";
+      if (isNotFoundMessage(msg)) {
+        throw new WebApplicationException("Pipeline application or resource not found", 404);
+      }
+      throw new WebApplicationException(msg, 400);
+    }
+  }
+
+  @Override
   public PipelineTracingSettings putTracing(
       URI baseUri, String idOrName, PipelineTracingSettings settings) {
     requireAdmin();
@@ -1202,7 +1288,8 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     return m.contains("pipeline ir not found")
         || m.contains("resource not found in ir")
         || m.contains("binary fixture not found")
-        || m.contains("binary resource not found");
+        || m.contains("binary resource not found")
+        || m.contains("result page stylesheet not found");
   }
 
   /**

@@ -393,6 +393,44 @@ public class PipelinesResourceTest {
   }
 
   @Test
+  public void putResultPageDelegatesToAdaptor() {
+    PipelineResultPage body = new PipelineResultPage();
+    body.setStylesheetUri("pipeline-xsl-result-fixture");
+    body.setRequestExtension(".html");
+    body.setMimeType("text/html");
+    when(adaptor.putResultPage(any(), eq("lookupApp"), eq("DatasetQ"), eq(body))).thenReturn(body);
+
+    PipelineResultPage out = resource.putResultPage("lookupApp", "DatasetQ", body);
+    assertEquals("pipeline-xsl-result-fixture", out.getStylesheetUri());
+    verify(adaptor).putResultPage(any(), eq("lookupApp"), eq("DatasetQ"), eq(body));
+  }
+
+  @Test
+  public void putResultPageMapsIllegalArgumentTo400() {
+    when(adaptor.putResultPage(any(), eq("app"), eq("res"), any()))
+        .thenThrow(new IllegalArgumentException("cloud url"));
+
+    PipelineResultPage body = new PipelineResultPage();
+    body.setStylesheetUri("pipeline-xsl-result-fixture");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.putResultPage("app", "res", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("cloud url", ex.getMessage());
+  }
+
+  @Test
+  public void putResultPageRejectsBlankStylesheetBeforeAdaptor() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.putResultPage("app", "res", new PipelineResultPage()));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("Result page stylesheet URI is required", ex.getMessage());
+    verify(adaptor, never()).putResultPage(any(), any(), any(), any());
+  }
+
+  @Test
   public void getBinaryReturnsFixtureBytesAndContentType() {
     byte[] bytes = "PIPE-BIN-FIXTURE\n".getBytes(java.nio.charset.StandardCharsets.UTF_8);
     when(adaptor.retrieveBinary(any(), eq("lookupApp"), eq("binRes")))

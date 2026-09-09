@@ -33,7 +33,9 @@ import com.percussion.services.pipeline.model.PipelineIrDocument;
 import com.percussion.services.pipeline.model.PipelineRequestTrace;
 import com.percussion.services.pipeline.model.PipelineRequestTraceStage;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
+import com.percussion.services.pipeline.model.PipelineResultPageIr;
 import com.percussion.services.pipeline.model.SelectorStageIr;
+import com.percussion.services.pipeline.xsl.PSPipelineXslMerge;
 import com.percussion.services.pipeline.sql.IPSPipelineSqlAdapter;
 import com.percussion.services.pipeline.sql.PSPipelineSqlPlan;
 import com.percussion.services.pipeline.sql.PSPipelineSqlPlanner;
@@ -258,6 +260,7 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
       if (clock != null) {
         clock.stage("adapter", "ok", result.getOperation());
       }
+      applyResultPageHtml(resource, req, result, clock);
 
       for (IPSPipelinePostExecuteHook hook : postHooks) {
         hook.afterExecute(ctx, result);
@@ -335,6 +338,27 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
 
     long totalMs() {
       return Math.max(0L, (System.nanoTime() - started) / 1_000_000L);
+    }
+  }
+
+  private static void applyResultPageHtml(
+      PipelineResourceIr resource,
+      PipelineExecuteRequest req,
+      PipelineExecuteResult result,
+      StageClock clock)
+      throws PSPipelineIrException {
+    PipelineResultPageIr page = resource.getResultPage();
+    if (page == null || !page.isPresent() || !PSPipelineXslMerge.wantsHtml(req)) {
+      return;
+    }
+    String html =
+        PSPipelineXslMerge.merge(result.getAppName(), page, result.getRows(), null);
+    result.setHtml(html);
+    result.getMeta().put("contentType", page.resolvedMimeType());
+    result.getMeta().put("resultPageApplied", true);
+    result.getMeta().put("requestExtension", page.resolvedRequestExtension());
+    if (clock != null) {
+      clock.stage("resultPage", "ok", page.resolvedMimeType());
     }
   }
 

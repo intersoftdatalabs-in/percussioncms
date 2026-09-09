@@ -44,6 +44,7 @@ import com.percussion.rest.pipelines.ApplicationValidationProblem;
 import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.PipelineBinaryResource;
 import com.percussion.rest.pipelines.PipelineFilterGroup;
+import com.percussion.rest.pipelines.PipelineResultPage;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
 import com.percussion.rest.pipelines.PipelineTracingSettings;
 import com.percussion.rest.pipelines.PipelineWebhookHooks;
@@ -52,6 +53,7 @@ import com.percussion.server.PSRequest;
 import com.percussion.services.pipeline.IPSPipelineRuntimeService;
 import java.util.Optional;
 import com.percussion.services.pipeline.binary.PSPipelineBinaryPath;
+import com.percussion.services.pipeline.xsl.PSPipelineResultPagePath;
 import com.percussion.services.pipeline.http.PSPipelineHttpUrl;
 import com.percussion.services.pipeline.model.BackendTankStageIr;
 import com.percussion.services.pipeline.model.PipelineBinaryPayload;
@@ -59,6 +61,7 @@ import com.percussion.services.pipeline.model.PipelineBinaryResourceIr;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
 import com.percussion.services.pipeline.model.PipelineRequestTrace;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
+import com.percussion.services.pipeline.model.PipelineResultPageIr;
 import com.percussion.services.pipeline.model.PipelineStagesIr;
 import com.percussion.services.pipeline.IPSPipelineIrService;
 import com.percussion.services.pipeline.PSPipelineIrException;
@@ -1106,6 +1109,111 @@ class PipelinesAdaptorTest {
       PipelineBinaryResourceIr stored = persisted.findResource("binaryFixture").getBinary();
       assertEquals(PSPipelineBinaryPath.BUNDLED_TOKEN, stored.getPath());
       assertEquals(PipelineResourceIr.KIND_BINARY, persisted.findResource("binaryFixture").getKind());
+      verify(app, never()).setName(any());
+    }
+  }
+
+  @Test
+  void putResultPage_requiresAdmin() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> false,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineResultPage body = new PipelineResultPage();
+      body.setStylesheetUri(PSPipelineResultPagePath.BUNDLED_TOKEN);
+      body.setRequestExtension(".html");
+      body.setMimeType("text/html");
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putResultPage(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "xslHtmlFixture", body));
+      assertEquals(403, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void putResultPage_rejectsCloudUrl() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineResultPage body = new PipelineResultPage();
+      body.setStylesheetUri("https://cdn.example/result.xsl");
+      body.setMimeType("text/html");
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putResultPage(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "xslHtmlFixture", body));
+      assertEquals(400, ex.getResponse().getStatus());
+      assertTrue(ex.getMessage().toLowerCase().contains("cloud"), ex.getMessage());
+    }
+  }
+
+  @Test
+  void putResultPage_savesNativeIrWithoutClassicXmlWrite() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    when(ir.load("sys_cmpDocuments")).thenReturn(Optional.empty());
+    PipelineIrDocument imported = new PipelineIrDocument();
+    imported.setSource(PipelineIrDocument.SOURCE_CLASSIC_IMPORT);
+    imported.getApp().setName("sys_cmpDocuments");
+    PSApplication app = mock(PSApplication.class);
+    when(ir.importClassicApplication(app)).thenReturn(imported);
+
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> ir,
+            (name, tok) -> app,
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineResultPage body = new PipelineResultPage();
+      body.setStylesheetUri(PSPipelineResultPagePath.BUNDLED_TOKEN);
+      body.setRequestExtension(".html");
+      body.setMimeType("text/html");
+      PipelineResultPage saved =
+          adaptor.putResultPage(
+              URI.create("http://localhost/"), "sys_cmpDocuments", "xslHtmlFixture", body);
+      assertEquals(PSPipelineResultPagePath.BUNDLED_TOKEN, saved.getStylesheetUri());
+      assertEquals(".html", saved.getRequestExtension());
+      assertEquals("text/html", saved.getMimeType());
+      ArgumentCaptor<PipelineIrDocument> cap = ArgumentCaptor.forClass(PipelineIrDocument.class);
+      verify(ir).save(cap.capture());
+      PipelineIrDocument persisted = cap.getValue();
+      assertEquals(PipelineIrDocument.SOURCE_NATIVE, persisted.getSource());
+      PipelineResultPageIr stored = persisted.findResource("xslHtmlFixture").getResultPage();
+      assertEquals(PSPipelineResultPagePath.BUNDLED_TOKEN, stored.getStylesheetUri());
+      assertEquals(PipelineResourceIr.KIND_QUERY, persisted.findResource("xslHtmlFixture").getKind());
       verify(app, never()).setName(any());
     }
   }

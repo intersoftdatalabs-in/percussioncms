@@ -33,6 +33,8 @@ import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
 import com.percussion.services.pipeline.model.PipelineRequestTrace;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
+import com.percussion.services.pipeline.model.PipelineResultPageIr;
+import com.percussion.services.pipeline.xsl.PSPipelineResultPagePath;
 import com.percussion.services.pipeline.model.PipelineStagesIr;
 import com.percussion.services.pipeline.model.SelectorStageIr;
 import com.percussion.services.pipeline.model.UpdaterStageIr;
@@ -153,6 +155,46 @@ class PSPipelineRuntimeServiceTest {
 
     assertEquals(3, result.getRowCount());
     assertEquals(3, result.getRows().size());
+  }
+
+  @Test
+  @DisplayName("HTML request extension applies bundled result-page XSL")
+  void execute_htmlResultPageAppliesXsl() throws Exception {
+    PipelineIrDocument doc = nativeQueryDoc("xslApp", "DatasetQ");
+    PipelineResourceIr res = doc.findResource("DatasetQ");
+    PipelineResultPageIr page = new PipelineResultPageIr();
+    page.setStylesheetUri(PSPipelineResultPagePath.BUNDLED_TOKEN);
+    page.setRequestExtension(".html");
+    page.setMimeType("text/html");
+    res.setResultPage(page);
+    irService.save(doc);
+
+    IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
+    PipelineExecuteRequest req = PipelineExecuteRequest.empty();
+    req.setRequestExtension(".html");
+    PipelineExecuteResult result = runtime.execute("xslApp", "DatasetQ", req);
+    assertNotNull(result.getHtml());
+    assertTrue(result.getHtml().contains("PIPE-XSL-HTML"), result.getHtml());
+    assertEquals(Boolean.TRUE, result.getMeta().get("resultPageApplied"));
+    assertEquals("text/html", result.getMeta().get("contentType"));
+    assertTrue(result.getRowCount() > 0);
+  }
+
+  @Test
+  @DisplayName("JSON execute skips XSL even when result page is bound")
+  void execute_jsonSkipsXslWhenResultPagePresent() throws Exception {
+    PipelineIrDocument doc = nativeQueryDoc("xslSkip", "DatasetQ");
+    PipelineResourceIr res = doc.findResource("DatasetQ");
+    PipelineResultPageIr page = new PipelineResultPageIr();
+    page.setStylesheetUri(PSPipelineResultPagePath.BUNDLED_TOKEN);
+    res.setResultPage(page);
+    irService.save(doc);
+
+    IPSPipelineRuntimeService runtime = new PSPipelineRuntimeService(irService, sqlAdapter);
+    PipelineExecuteResult result =
+        runtime.execute("xslSkip", "DatasetQ", PipelineExecuteRequest.empty());
+    assertNull(result.getHtml());
+    assertFalse(Boolean.TRUE.equals(result.getMeta().get("resultPageApplied")));
   }
 
   @Test

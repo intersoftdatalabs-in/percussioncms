@@ -64,7 +64,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(
     name = "Pipelines",
     description =
-        "Data pipeline / XML application design catalog, Admin start/stop, validation, Pipeline IR, OpenAPI from resources, HTTP backend tank persist, nested filter groups, binary resource persist/retrieve, request tracing, and IR execute")
+        "Data pipeline / XML application design catalog, Admin start/stop, validation, Pipeline IR, OpenAPI from resources, HTTP backend tank persist, nested filter groups, binary resource persist/retrieve, HTML result-page persist, request tracing, and IR execute")
 public class PipelinesResource {
 
   private final IPipelinesAdaptor adaptor;
@@ -545,6 +545,51 @@ public class PipelinesResource {
       }
       body.requireWriteFields();
       return requireAdaptor().putBinaryResource(uriInfo.getBaseUri(), app, resource, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Persist native IR HTML result-page binding (stylesheet URI + request extension). Does not
+   * rewrite classic XML Applications. Cloud URLs, credentials, and traversal are 400.
+   */
+  @PUT
+  @Path("/{app}/resources/{resource}/resultPage")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Persist a native pipeline HTML result-page binding",
+      description =
+          "Admin only. Saves native IR result-page request extension (.html) + stylesheet URI."
+              + " URI must be the bundled local fixture token or a portable-safe relative path."
+              + " Cloud URLs, credentials (userinfo), and path traversal are 400. Classic XML"
+              + " Applications stay read-only. Test invoke with requestExtension=.html applies"
+              + " the stylesheet merge.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Saved",
+            content = @Content(schema = @Schema(implementation = PipelineResultPage.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid stylesheet URI, extension, or name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public PipelineResultPage putResultPage(
+      @PathParam("app") String app,
+      @PathParam("resource") String resource,
+      PipelineResultPage body) {
+    try {
+      if (body == null) {
+        throw new IllegalArgumentException("Result page stylesheet URI is required");
+      }
+      body.requireWriteFields();
+      return requireAdaptor().putResultPage(uriInfo.getBaseUri(), app, resource, body);
     } catch (WebApplicationException e) {
       throw e;
     } catch (IllegalArgumentException e) {

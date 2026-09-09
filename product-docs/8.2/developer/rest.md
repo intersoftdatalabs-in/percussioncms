@@ -1833,7 +1833,7 @@ Example create body (user custom URL view):
 - Operator Inbox run-from-tree is Explorer **Views → My Content → Inbox**, not a
   free-floating Inbox root.
 
-## Pipelines (XML Applications catalog, lifecycle, IR, OpenAPI, HTTP execute, nested filter groups, webhook hooks, request tracing, and validation)
+## Pipelines (XML Applications catalog, lifecycle, IR, OpenAPI, HTTP execute, nested filter groups, webhook hooks, result pages, request tracing, and validation)
 
 Classic **XML Applications** (data pipeline packages) are exposed under `/services/pipelines`.
 The catalog is a thin contract over the server object store (`PSServerXmlObjectStore`
@@ -1856,10 +1856,16 @@ the local HTTP fixture. **Slice D** persists a **binary resource**
 (`PUT …/binaryResource`, portable-safe local fixture path + content type) and
 retrieves fixture bytes (`GET …/binary`). Cloud URLs, credentials, and path
 traversal are **400**. Missing or empty fixtures are **404** (bytes are never
-invented). **Slice D** also enables **request tracing** (`PUT …/tracing`) and
-returns a fail-closed **last-trace** (`GET …/lastTrace`) after Test invoke:
-stages and timings only. Passwords, tokens, and `Authorization` values are
-**redacted**; result rows are never copied onto the trace.
+invented). **Slice D** also persists an **HTML result-page** binding
+(`PUT …/resultPage`, request extension `.html` + local stylesheet URI). Test
+invoke with `requestExtension=.html` (or `accept=text/html`) applies the
+stylesheet merge and returns HTML in `PipelineExecuteResult.html` (not raw
+XML/JSON). Cloud stylesheet URIs, credentials, and path traversal are **400**.
+Missing stylesheets fail closed (no invented HTML). **Slice D** also enables
+**request tracing** (`PUT …/tracing`) and returns a fail-closed **last-trace**
+(`GET …/lastTrace`) after Test invoke: stages and timings only. Passwords,
+tokens, and `Authorization` values are **redacted**; result rows are never
+copied onto the trace.
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -1875,7 +1881,8 @@ stages and timings only. Passwords, tokens, and `Authorization` values are
 | `PUT` | `/services/pipelines/{app}/resources/{resource}/filterGroup` | **Admin.** Persist nested AND/OR selector filter groups on native IR |
 | `PUT` | `/services/pipelines/{app}/resources/{resource}/binaryResource` | **Admin.** Persist native IR binary resource (content type + portable-safe local fixture path) |
 | `GET` | `/services/pipelines/{app}/resources/{resource}/binary` | Retrieve native binary fixture bytes (`Content-Type` from IR; missing/empty is **404**, not invented) |
-| `POST` | `/services/pipelines/{app}/resources/{resource}/execute` | Execute a native pipeline IR resource (SQL or HTTP adapter; honors nested filter groups and webhook hooks) |
+| `PUT` | `/services/pipelines/{app}/resources/{resource}/resultPage` | **Admin.** Persist native IR HTML result-page binding (`.html` + local stylesheet URI) |
+| `POST` | `/services/pipelines/{app}/resources/{resource}/execute` | Execute a native pipeline IR resource (SQL or HTTP adapter; honors nested filter groups, webhook hooks, and HTML result-page XSL when requested) |
 | `PUT` | `/services/pipelines/{idOrName}/tracing` | **Admin.** Enable or disable request tracing on native IR (`app.tracingEnabled`). Disabled tracing clears last-trace |
 | `GET` | `/services/pipelines/{idOrName}/tracing` | **Admin.** Current tracing on/off (`false` when unset) |
 | `GET` | `/services/pipelines/{idOrName}/lastTrace` | **Admin.** Last fail-closed request trace (stages + timings). **404** when none |
@@ -2022,6 +2029,34 @@ positive byte count.
 **Developer → Pipelines** detail exposes Admin **Binary resource** save,
 retrieve, and download (see [Developer Pipelines](id:admin-developer-pipelines)).
 
+### HTML result-page persist and XSL apply (Slice D)
+
+`PUT …/resources/{resource}/resultPage` requires **Admin** (**403** otherwise).
+Body is `PipelineResultPage`:
+
+| Field | Role |
+|-------|------|
+| `stylesheetUri` | Bundled token `pipeline-xsl-result-fixture` (or `.xsl` filename) or a portable-safe relative path |
+| `requestExtension` | `.html` or `.htm` (default `.html`) |
+| `mimeType` | `text/html` in this slice |
+
+The path application name resolves against the object-store catalog (trusted name).
+The server writes **native IR** under `ObjectStore/pipeline-ir/` and does **not**
+mutate classic XML Applications. **400** when the stylesheet URI is missing, uses
+a cloud URL or other scheme (`https://…`, `s3://…`, `file://…`), contains
+credentials (`userinfo`), uses `..` traversal, or is an absolute/drive path.
+
+`POST …/execute` with `requestExtension=.html` or `accept=text/html` applies the
+bound stylesheet to query rows and returns HTML in `html` plus
+`meta.resultPageApplied=true` / `meta.contentType=text/html`. The bundled token
+is resolved from a classpath XSL document (`PIPE-XSL-HTML`) so H2 QA and
+air-gapped installs transform without a live network. Missing stylesheets fail
+closed (**400** / **404**-style) — HTML is never invented. JSON Test invoke
+without those HTML hints leaves rows as JSON even when a result page is bound.
+
+**Developer → Pipelines** detail exposes Admin **Result page (HTML)** save and
+**Test HTML** (see [Developer Pipelines](id:admin-developer-pipelines)).
+
 The bundled webhook fixture URL is resolved from a classpath JSON document
 (`received` / `fixture=pipeline-webhook` / `echo=hook-ok`) so H2 QA and air-gapped
 installs can Test invoke without a live HTTP server. Live loopback URLs are POSTed
@@ -2066,15 +2101,17 @@ copied onto the trace.
 ### Test invoke (execute)
 
 `POST …/resources/{resource}/execute` accepts a `PipelineExecuteRequest` JSON body
-(`params`, optional `rows` / `operation` / `keyColumns`) and returns
-`PipelineExecuteResult`. This path uses the native pipeline IR runtime; it does **not**
-call classic `PSQueryHandler` / `PSUpdateHandler`. When the resource backend tank
-`adapterType` is `HTTP`, execute GETs the configured loopback/local fixture and returns
-mapped JSON `rows` (document fields such as `sku` / `name` when a mapper is present).
-Cloud URLs, credentials, and redirects off loopback are **400**. Unknown app or resource
-names are **404**; unsupported resource kinds, malformed nested filter groups, or invalid
-bodies are **400**. **Developer →
-Pipelines** detail exposes Admin **HTTP datasource**, **nested filter groups**, **HTTP webhook hooks**, **binary resource**, **request tracing**, and **Test invoke**.
+(`params`, optional `rows` / `operation` / `keyColumns`, optional `requestExtension` /
+`accept`) and returns `PipelineExecuteResult`. This path uses the native pipeline IR
+runtime; it does **not** call classic `PSQueryHandler` / `PSUpdateHandler`. When the
+resource backend tank `adapterType` is `HTTP`, execute GETs the configured
+loopback/local fixture and returns mapped JSON `rows` (document fields such as
+`sku` / `name` when a mapper is present). When a result page is bound and the
+request asks for HTML (`.html` / `text/html`), execute also returns merged HTML
+in `html`. Cloud URLs, credentials, and redirects off loopback are **400**.
+Unknown app or resource names are **404**; unsupported resource kinds, malformed
+nested filter groups, or invalid bodies are **400**. **Developer →
+Pipelines** detail exposes Admin **HTTP datasource**, **nested filter groups**, **HTTP webhook hooks**, **binary resource**, **result page (HTML)**, **request tracing**, and **Test invoke**.
 When webhook hooks are configured, execute records real fixture HTTP status and body snippets
 in `meta` / `hookTrace` (blank URLs skip).
 

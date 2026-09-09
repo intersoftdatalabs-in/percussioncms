@@ -27,6 +27,7 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   putFilterGroup: vi.fn(),
   putBinaryResource: vi.fn(),
   retrieveBinaryResource: vi.fn(),
+  putResultPage: vi.fn(),
   putTracing: vi.fn(),
   getTracing: vi.fn(),
   getLastTrace: vi.fn(),
@@ -48,6 +49,7 @@ const putBinaryResource = pipelinesApi.putBinaryResource as ReturnType<typeof vi
 const retrieveBinaryResource = pipelinesApi.retrieveBinaryResource as ReturnType<
   typeof vi.fn
 >;
+const putResultPage = pipelinesApi.putResultPage as ReturnType<typeof vi.fn>;
 const putTracing = pipelinesApi.putTracing as ReturnType<typeof vi.fn>;
 const getLastTrace = pipelinesApi.getLastTrace as ReturnType<typeof vi.fn>;
 
@@ -107,6 +109,7 @@ describe("PipelineDetailPanel", () => {
     putFilterGroup.mockReset();
     putBinaryResource.mockReset();
     retrieveBinaryResource.mockReset();
+    putResultPage.mockReset();
     putTracing.mockReset();
     getLastTrace.mockReset();
     getPipelineIr.mockResolvedValue({ irVersion: "1.0", source: "NATIVE", resources: [] });
@@ -130,6 +133,11 @@ describe("PipelineDetailPanel", () => {
     retrieveBinaryResource.mockResolvedValue({
       bytes: new TextEncoder().encode("PIPE-BIN-FIXTURE\n"),
       contentType: "text/plain",
+    });
+    putResultPage.mockResolvedValue({
+      stylesheetUri: "pipeline-xsl-result-fixture",
+      requestExtension: ".html",
+      mimeType: "text/html",
     });
     putTracing.mockResolvedValue({ enabled: true });
     getLastTrace.mockRejectedValue({
@@ -715,6 +723,83 @@ describe("PipelineDetailPanel", () => {
     fireEvent.click(screen.getByTestId("developer-pipe-binary-save"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-pipe-binary-error").textContent).toMatch(
+        /cloud/i,
+      );
+    });
+  });
+
+  it("Admin saves HTML result page and Test HTML shows transformed markup", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    executeResource.mockResolvedValue({
+      appName: "sys_cmpDocuments",
+      resourceName: "contenteditor",
+      operation: "http-query",
+      rowCount: 1,
+      html: "<html><body><h1>PIPE-XSL-HTML</h1><li>SKU-1 Loopback Widget</li></body></html>",
+      meta: { resultPageApplied: true, contentType: "text/html" },
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-result-page")).toBeTruthy();
+    });
+    const uri = screen.getByTestId("developer-pipe-result-page-uri") as HTMLInputElement;
+    expect(uri.value).toBe("pipeline-xsl-result-fixture");
+    fireEvent.click(screen.getByTestId("developer-pipe-result-page-save"));
+    await waitFor(() => {
+      expect(putResultPage).toHaveBeenCalledWith("sys_cmpDocuments", "contenteditor", {
+        stylesheetUri: "pipeline-xsl-result-fixture",
+        requestExtension: ".html",
+        mimeType: "text/html",
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-result-page-notice").textContent).toBe(
+        DEV_MSG.PIPE_RESULT_PAGE_SAVED,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-invoke-html"));
+    await waitFor(() => {
+      expect(executeResource).toHaveBeenCalledWith(
+        "sys_cmpDocuments",
+        "contenteditor",
+        expect.objectContaining({ requestExtension: ".html", accept: "text/html" }),
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-invoke-html-result").textContent).toMatch(
+        /PIPE-XSL-HTML/,
+      );
+    });
+  });
+
+  it("result page save fail-closes on blank URI and cloud 400", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-result-page-uri")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-pipe-result-page-uri"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-result-page-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-result-page-error").textContent).toBe(
+        DEV_MSG.PIPE_RESULT_PAGE_STYLESHEET_REQUIRED,
+      );
+    });
+    expect(putResultPage).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByTestId("developer-pipe-result-page-uri"), {
+      target: { value: "https://cdn.example/result.xsl" },
+    });
+    putResultPage.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Result page stylesheet URI must be a local fixture (no cloud URLs)" },
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-result-page-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-result-page-error").textContent).toMatch(
         /cloud/i,
       );
     });

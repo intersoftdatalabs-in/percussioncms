@@ -31,6 +31,10 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   putFilterGroup: vi.fn(),
   putBinaryResource: vi.fn(),
   retrieveBinaryResource: vi.fn(),
+  putResultPage: vi.fn(),
+  putTracing: vi.fn(),
+  getTracing: vi.fn(),
+  getLastTrace: vi.fn(),
   getApplicationValidation: vi.fn().mockRejectedValue({
     status: 404,
     statusText: "Not Found",
