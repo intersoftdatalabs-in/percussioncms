@@ -30,6 +30,8 @@ public class PipelineAppMeta {
   private boolean hidden;
   private String appType;
   private String version;
+  /** When true, IR execute records a fail-closed last-trace (stages + timings). */
+  private boolean tracingEnabled;
 
   public int getId() {
     return id;
@@ -95,6 +97,14 @@ public class PipelineAppMeta {
     this.version = version;
   }
 
+  public boolean isTracingEnabled() {
+    return tracingEnabled;
+  }
+
+  public void setTracingEnabled(boolean tracingEnabled) {
+    this.tracingEnabled = tracingEnabled;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -106,6 +116,7 @@ public class PipelineAppMeta {
     return id == that.id
         && enabled == that.enabled
         && hidden == that.hidden
+        && tracingEnabled == that.tracingEnabled
         && Objects.equals(name, that.name)
         && Objects.equals(description, that.description)
         && Objects.equals(requestRoot, that.requestRoot)
@@ -115,6 +126,7 @@ public class PipelineAppMeta {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, name, description, requestRoot, enabled, hidden, appType, version);
+    return Objects.hash(
+        id, name, description, requestRoot, enabled, hidden, appType, version, tracingEnabled);
   }
 }

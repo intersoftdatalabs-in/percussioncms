@@ -1833,7 +1833,7 @@ Example create body (user custom URL view):
 - Operator Inbox run-from-tree is Explorer **Views → My Content → Inbox**, not a
   free-floating Inbox root.
 
-## Pipelines (XML Applications catalog, lifecycle, IR, OpenAPI, HTTP execute, nested filter groups, webhook hooks, and validation)
+## Pipelines (XML Applications catalog, lifecycle, IR, OpenAPI, HTTP execute, nested filter groups, webhook hooks, request tracing, and validation)
 
 Classic **XML Applications** (data pipeline packages) are exposed under `/services/pipelines`.
 The catalog is a thin contract over the server object store (`PSServerXmlObjectStore`
@@ -1856,7 +1856,10 @@ the local HTTP fixture. **Slice D** persists a **binary resource**
 (`PUT …/binaryResource`, portable-safe local fixture path + content type) and
 retrieves fixture bytes (`GET …/binary`). Cloud URLs, credentials, and path
 traversal are **400**. Missing or empty fixtures are **404** (bytes are never
-invented).
+invented). **Slice D** also enables **request tracing** (`PUT …/tracing`) and
+returns a fail-closed **last-trace** (`GET …/lastTrace`) after Test invoke:
+stages and timings only. Passwords, tokens, and `Authorization` values are
+**redacted**; result rows are never copied onto the trace.
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -1873,6 +1876,9 @@ invented).
 | `PUT` | `/services/pipelines/{app}/resources/{resource}/binaryResource` | **Admin.** Persist native IR binary resource (content type + portable-safe local fixture path) |
 | `GET` | `/services/pipelines/{app}/resources/{resource}/binary` | Retrieve native binary fixture bytes (`Content-Type` from IR; missing/empty is **404**, not invented) |
 | `POST` | `/services/pipelines/{app}/resources/{resource}/execute` | Execute a native pipeline IR resource (SQL or HTTP adapter; honors nested filter groups and webhook hooks) |
+| `PUT` | `/services/pipelines/{idOrName}/tracing` | **Admin.** Enable or disable request tracing on native IR (`app.tracingEnabled`). Disabled tracing clears last-trace |
+| `GET` | `/services/pipelines/{idOrName}/tracing` | **Admin.** Current tracing on/off (`false` when unset) |
+| `GET` | `/services/pipelines/{idOrName}/lastTrace` | **Admin.** Last fail-closed request trace (stages + timings). **404** when none |
 | `GET` | `/services/pipelines/{idOrName}/validation` | **Admin.** Validation / problems summary (when deployed) |
 
 JSON list rows use `Application` / `ApplicationSummary`; detail uses `ApplicationDetail`
@@ -2023,6 +2029,40 @@ with a small JSON payload (`phase`, `app`, `resource`). Execute results include
 `meta.preWebhookStatus` / `meta.preWebhookBody` (and post equivalents) plus
 `hookTrace` entries — real fixture status/body, not a fake success.
 
+### Request tracing and last-trace (Slice D)
+
+`PUT /services/pipelines/{idOrName}/tracing` requires **Admin** (**403**
+otherwise). Body is `PipelineTracingSettings`:
+
+| Field | Role |
+|-------|------|
+| `enabled` | `true` records a last-trace on execute; `false` clears last-trace |
+
+The path application name resolves against the object-store catalog (trusted
+name). The server writes **native IR** (`app.tracingEnabled`) under
+`ObjectStore/pipeline-ir/` and does **not** mutate classic XML Applications.
+Unknown applications are **404**; unsafe names are **400**.
+
+`GET …/tracing` returns the current flag (`false` when native IR has no flag).
+`GET …/lastTrace` returns `PipelineRequestTrace` after a Test invoke while
+tracing is on:
+
+| Field | Role |
+|-------|------|
+| `stages[]` | Ordered stages (`preHooks`, `preWebhook`, `adapter`, `postHooks`, `postWebhook`) with `durationMs` and `status` |
+| `totalDurationMs` | Wall time for the execute |
+| `requestParams` | Sanitized execute `params` — `password`, `token`, `Authorization`, and similar keys are `[REDACTED]` |
+| `operation` | Adapter operation (`query`, `http-query`, …) |
+
+Last-trace is in-memory (last execute only). **404** when tracing never ran or
+was disabled. Bearer/Basic values and `Authorization` header-shaped strings are
+redacted even when the key is not a known secret name. Result rows are **never**
+copied onto the trace.
+
+**Developer → Pipelines** detail exposes Admin **Request tracing** on/off and a
+**Last trace** panel after Test invoke (see
+[Developer Pipelines](id:admin-developer-pipelines)).
+
 ### Test invoke (execute)
 
 `POST …/resources/{resource}/execute` accepts a `PipelineExecuteRequest` JSON body
@@ -2034,7 +2074,7 @@ mapped JSON `rows` (document fields such as `sku` / `name` when a mapper is pres
 Cloud URLs, credentials, and redirects off loopback are **400**. Unknown app or resource
 names are **404**; unsupported resource kinds, malformed nested filter groups, or invalid
 bodies are **400**. **Developer →
-Pipelines** detail exposes Admin **HTTP datasource**, **nested filter groups**, **HTTP webhook hooks**, **binary resource**, and **Test invoke**.
+Pipelines** detail exposes Admin **HTTP datasource**, **nested filter groups**, **HTTP webhook hooks**, **binary resource**, **request tracing**, and **Test invoke**.
 When webhook hooks are configured, execute records real fixture HTTP status and body snippets
 in `meta` / `hookTrace` (blank URLs skip).
 

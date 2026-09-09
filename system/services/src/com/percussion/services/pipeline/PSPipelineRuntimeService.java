@@ -30,11 +30,14 @@ import com.percussion.services.pipeline.model.PipelineBinaryPayload;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
+import com.percussion.services.pipeline.model.PipelineRequestTrace;
+import com.percussion.services.pipeline.model.PipelineRequestTraceStage;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
 import com.percussion.services.pipeline.model.SelectorStageIr;
 import com.percussion.services.pipeline.sql.IPSPipelineSqlAdapter;
 import com.percussion.services.pipeline.sql.PSPipelineSqlPlan;
 import com.percussion.services.pipeline.sql.PSPipelineSqlPlanner;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -55,6 +58,7 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
   private final List<IPSPipelinePreExecuteHook> preHooks;
   private final List<IPSPipelinePostExecuteHook> postHooks;
   private final PSPipelineHttpWebhookInvoker webhookInvoker;
+  private final PSPipelineRequestTraceStore traceStore;
 
   public PSPipelineRuntimeService(IPSPipelineIrService irService, IPSPipelineSqlAdapter sqlAdapter) {
     this(irService, sqlAdapter, new PSPipelineHttpAdapter(), List.of(), List.of());
@@ -81,6 +85,27 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
     this.preHooks = preHooks != null ? List.copyOf(preHooks) : List.of();
     this.postHooks = postHooks != null ? List.copyOf(postHooks) : List.of();
     this.webhookInvoker = new PSPipelineHttpWebhookInvoker();
+    this.traceStore = PSPipelineRequestTraceStore.getInstance();
+  }
+
+  /**
+   * Package-visible for tests that isolate last-trace storage from the process singleton.
+   */
+  PSPipelineRuntimeService(
+      IPSPipelineIrService irService,
+      IPSPipelineSqlAdapter sqlAdapter,
+      IPSPipelineHttpAdapter httpAdapter,
+      List<IPSPipelinePreExecuteHook> preHooks,
+      List<IPSPipelinePostExecuteHook> postHooks,
+      PSPipelineRequestTraceStore traceStore) {
+    this.irService = Objects.requireNonNull(irService, "irService");
+    this.sqlAdapter = Objects.requireNonNull(sqlAdapter, "sqlAdapter");
+    this.httpAdapter = httpAdapter != null ? httpAdapter : new PSPipelineHttpAdapter();
+    this.binaryAdapter = new PSPipelineBinaryAdapter();
+    this.preHooks = preHooks != null ? List.copyOf(preHooks) : List.of();
+    this.postHooks = postHooks != null ? List.copyOf(postHooks) : List.of();
+    this.webhookInvoker = new PSPipelineHttpWebhookInvoker();
+    this.traceStore = traceStore != null ? traceStore : PSPipelineRequestTraceStore.getInstance();
   }
 
   @Override
@@ -121,6 +146,16 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
   }
 
   @Override
+  public PipelineRequestTrace getLastTrace(String appName) {
+    return traceStore.get(appName).orElse(null);
+  }
+
+  @Override
+  public void clearLastTrace(String appName) {
+    traceStore.clear(appName);
+  }
+
+  @Override
   public PipelineExecuteResult execute(
       PipelineIrDocument document, PipelineResourceIr resource, PipelineExecuteRequest request)
       throws PSPipelineIrException {
@@ -134,94 +169,173 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
               + (resourceName != null ? ": " + resourceName : ""));
     }
     PipelineExecuteRequest req = request != null ? request : PipelineExecuteRequest.empty();
-
-    PipelineHookContext ctx = new PipelineHookContext(document, resource, req);
-    for (IPSPipelinePreExecuteHook hook : preHooks) {
-      hook.beforeExecute(ctx);
-    }
-    webhookInvoker.invokePre(ctx);
-
-    PipelineExecuteResult result = new PipelineExecuteResult();
+    boolean tracing = document.getApp() != null && document.getApp().isTracingEnabled();
+    StageClock clock = tracing ? new StageClock() : null;
     String appName = document.getApp() != null ? document.getApp().getName() : null;
-    result.setAppName(appName);
-    result.setResourceName(resource.getName());
-    result.setKind(resource.getKind());
-
-    BackendTankStageIr tank =
-        resource.getStages() != null ? resource.getStages().getBackendTank() : null;
-    if (tank != null && tank.isHttpAdapter()) {
-      if (!PipelineResourceIr.KIND_QUERY.equals(resource.getKind())
-          && resource.getKind() != null
-          && !PipelineResourceIr.KIND_UNKNOWN.equals(resource.getKind())) {
-        throw new PSPipelineIrException(
-            "HTTP datasource supports QUERY resources only in this slice");
+    try {
+      PipelineHookContext ctx = new PipelineHookContext(document, resource, req);
+      if (clock != null) {
+        clock.mark();
       }
-      List<Map<String, Object>> rows = httpAdapter.query(resource, req);
-      rows = applyHttpFilterGroup(resource, rows, req);
-      result.setOperation("http-query");
-      result.setKind(PipelineResourceIr.KIND_QUERY);
-      result.setRows(rows);
-      result.getMeta().put("adapterType", BackendTankStageIr.ADAPTER_HTTP);
-      result.getMeta().put("httpUrl", tank.getUrl());
-    } else if (PipelineResourceIr.KIND_QUERY.equals(resource.getKind())) {
-      PSPipelineSqlPlan plan = PSPipelineSqlPlanner.planQuery(resource, req);
-      List<Map<String, Object>> rows = sqlAdapter.query(plan);
-      result.setOperation("query");
-      result.setRows(rows);
-      result.getMeta().put("sqlDescription", plan.getDescription());
-      result.getMeta().put("parameterCount", plan.getParameters().size());
-    } else if (PipelineResourceIr.KIND_BINARY.equals(resource.getKind())
-        || (resource.getBinary() != null && resource.getBinary().isPresent())) {
-      PipelineBinaryPayload payload = binaryAdapter.retrieve(appName, resource);
-      result.setOperation("binary");
-      result.setKind(PipelineResourceIr.KIND_BINARY);
-      result.setRowCount(0);
-      result.getMeta().put("contentType", payload.getContentType());
-      result.getMeta().put("byteLength", payload.getByteLength());
-      result.getMeta().put("path", payload.getPath());
-      // Fixture bytes themselves are returned on GET …/binary (not invented JSON rows).
-    } else if (PipelineResourceIr.KIND_UPDATE.equals(resource.getKind())) {
-      String mutation = PSPipelineSqlPlanner.resolveMutationOperation(resource, req);
-      List<PSPipelineSqlPlan> plans;
-      if (PipelineExecuteRequest.OP_INSERT.equals(mutation)) {
-        plans = PSPipelineSqlPlanner.planInserts(resource, req);
-      } else if (PipelineExecuteRequest.OP_UPDATE.equals(mutation)) {
-        plans = PSPipelineSqlPlanner.planUpdates(resource, req);
-      } else if (PipelineExecuteRequest.OP_DELETE.equals(mutation)) {
-        plans = PSPipelineSqlPlanner.planDeletes(resource, req);
+      for (IPSPipelinePreExecuteHook hook : preHooks) {
+        hook.beforeExecute(ctx);
+      }
+      if (clock != null) {
+        clock.stage("preHooks", "ok", null);
+      }
+      webhookInvoker.invokePre(ctx);
+      if (clock != null) {
+        String preStatus =
+            ctx.getPreWebhookStatus() != null ? String.valueOf(ctx.getPreWebhookStatus()) : "skip";
+        clock.stage("preWebhook", "ok", preStatus);
+      }
+
+      PipelineExecuteResult result = new PipelineExecuteResult();
+      result.setAppName(appName);
+      result.setResourceName(resource.getName());
+      result.setKind(resource.getKind());
+
+      BackendTankStageIr tank =
+          resource.getStages() != null ? resource.getStages().getBackendTank() : null;
+      if (tank != null && tank.isHttpAdapter()) {
+        if (!PipelineResourceIr.KIND_QUERY.equals(resource.getKind())
+            && resource.getKind() != null
+            && !PipelineResourceIr.KIND_UNKNOWN.equals(resource.getKind())) {
+          throw new PSPipelineIrException(
+              "HTTP datasource supports QUERY resources only in this slice");
+        }
+        List<Map<String, Object>> rows = httpAdapter.query(resource, req);
+        rows = applyHttpFilterGroup(resource, rows, req);
+        result.setOperation("http-query");
+        result.setKind(PipelineResourceIr.KIND_QUERY);
+        result.setRows(rows);
+        result.getMeta().put("adapterType", BackendTankStageIr.ADAPTER_HTTP);
+        result.getMeta().put("httpUrl", tank.getUrl());
+      } else if (PipelineResourceIr.KIND_QUERY.equals(resource.getKind())) {
+        PSPipelineSqlPlan plan = PSPipelineSqlPlanner.planQuery(resource, req);
+        List<Map<String, Object>> rows = sqlAdapter.query(plan);
+        result.setOperation("query");
+        result.setRows(rows);
+        result.getMeta().put("sqlDescription", plan.getDescription());
+        result.getMeta().put("parameterCount", plan.getParameters().size());
+      } else if (PipelineResourceIr.KIND_BINARY.equals(resource.getKind())
+          || (resource.getBinary() != null && resource.getBinary().isPresent())) {
+        PipelineBinaryPayload payload = binaryAdapter.retrieve(appName, resource);
+        result.setOperation("binary");
+        result.setKind(PipelineResourceIr.KIND_BINARY);
+        result.setRowCount(0);
+        result.getMeta().put("contentType", payload.getContentType());
+        result.getMeta().put("byteLength", payload.getByteLength());
+        result.getMeta().put("path", payload.getPath());
+        // Fixture bytes themselves are returned on GET …/binary (not invented JSON rows).
+      } else if (PipelineResourceIr.KIND_UPDATE.equals(resource.getKind())) {
+        String mutation = PSPipelineSqlPlanner.resolveMutationOperation(resource, req);
+        List<PSPipelineSqlPlan> plans;
+        if (PipelineExecuteRequest.OP_INSERT.equals(mutation)) {
+          plans = PSPipelineSqlPlanner.planInserts(resource, req);
+        } else if (PipelineExecuteRequest.OP_UPDATE.equals(mutation)) {
+          plans = PSPipelineSqlPlanner.planUpdates(resource, req);
+        } else if (PipelineExecuteRequest.OP_DELETE.equals(mutation)) {
+          plans = PSPipelineSqlPlanner.planDeletes(resource, req);
+        } else {
+          throw new PSPipelineIrException("Unsupported mutation operation: " + mutation);
+        }
+        String txMode = resource.getTransactionMode();
+        int affected = sqlAdapter.updateAll(plans, txMode);
+        result.setOperation(mutation);
+        result.setAffectedRows(affected);
+        result.setRowCount(0);
+        result.getMeta().put("planCount", plans.size());
+        result.getMeta().put(
+            "transactionMode",
+            txMode != null && !txMode.isBlank()
+                ? txMode.trim().toLowerCase(Locale.ROOT)
+                : "none");
       } else {
-        throw new PSPipelineIrException("Unsupported mutation operation: " + mutation);
+        throw new PSPipelineIrException(
+            "Unsupported resource kind for runtime execute: " + resource.getKind());
       }
-      String txMode = resource.getTransactionMode();
-      int affected = sqlAdapter.updateAll(plans, txMode);
-      result.setOperation(mutation);
-      result.setAffectedRows(affected);
-      result.setRowCount(0);
-      result.getMeta().put("planCount", plans.size());
-      result.getMeta().put(
-          "transactionMode",
-          txMode != null && !txMode.isBlank()
-              ? txMode.trim().toLowerCase(Locale.ROOT)
-              : "none");
-    } else {
-      throw new PSPipelineIrException(
-          "Unsupported resource kind for runtime execute: " + resource.getKind());
+      if (clock != null) {
+        clock.stage("adapter", "ok", result.getOperation());
+      }
+
+      for (IPSPipelinePostExecuteHook hook : postHooks) {
+        hook.afterExecute(ctx, result);
+      }
+      if (clock != null) {
+        clock.stage("postHooks", "ok", null);
+      }
+      webhookInvoker.invokePost(ctx, result);
+      if (clock != null) {
+        clock.stage("postWebhook", "ok", null);
+      }
+      if (ctx.getPreWebhookStatus() != null) {
+        result.getMeta().put("preWebhookStatus", ctx.getPreWebhookStatus());
+      }
+      if (ctx.getPreWebhookBody() != null && !ctx.getPreWebhookBody().isBlank()) {
+        result.getMeta().put("preWebhookBody", ctx.getPreWebhookBody());
+      }
+      // Post hooks may append to context trace; publish full ordered trace on the result.
+      result.setHookTrace(new ArrayList<>(ctx.getHookTrace()));
+
+      if (clock != null) {
+        publishTrace(appName, resource.getName(), result.getOperation(), req, clock, null);
+      }
+      return result;
+    } catch (PSPipelineIrException | RuntimeException e) {
+      if (clock != null) {
+        clock.stage("error", "error", e.getClass().getSimpleName());
+        publishTrace(appName, resource.getName(), null, req, clock, e.getMessage());
+      }
+      throw e;
+    }
+  }
+
+  private void publishTrace(
+      String appName,
+      String resourceName,
+      String operation,
+      PipelineExecuteRequest req,
+      StageClock clock,
+      String error) {
+    if (appName == null || appName.isBlank()) {
+      return;
+    }
+    PipelineRequestTrace trace = new PipelineRequestTrace();
+    trace.setAppName(appName);
+    trace.setResourceName(resourceName);
+    trace.setCapturedAt(Instant.now().toString());
+    trace.setTracingEnabled(true);
+    trace.setOperation(operation);
+    trace.setTotalDurationMs(clock.totalMs());
+    trace.setStages(clock.stages);
+    trace.setRequestParams(PSPipelineRequestTraceSanitizer.sanitizeParams(req.getParams()));
+    if (error != null && !error.isBlank()) {
+      trace.setError(error);
+    }
+    traceStore.put(appName, trace);
+  }
+
+  /** NanoTime stage stopwatch used only when application tracing is enabled. */
+  private static final class StageClock {
+    private final List<PipelineRequestTraceStage> stages = new ArrayList<>();
+    private final long started = System.nanoTime();
+    private long mark = started;
+
+    void mark() {
+      mark = System.nanoTime();
     }
 
-    for (IPSPipelinePostExecuteHook hook : postHooks) {
-      hook.afterExecute(ctx, result);
+    void stage(String name, String status, String detail) {
+      long now = System.nanoTime();
+      long durationMs = Math.max(0L, (now - mark) / 1_000_000L);
+      stages.add(new PipelineRequestTraceStage(name, durationMs, status, detail));
+      mark = now;
     }
-    webhookInvoker.invokePost(ctx, result);
-    if (ctx.getPreWebhookStatus() != null) {
-      result.getMeta().put("preWebhookStatus", ctx.getPreWebhookStatus());
-    }
-    if (ctx.getPreWebhookBody() != null && !ctx.getPreWebhookBody().isBlank()) {
-      result.getMeta().put("preWebhookBody", ctx.getPreWebhookBody());
-    }
-    // Post hooks may append to context trace; publish full ordered trace on the result.
-    result.setHookTrace(new ArrayList<>(ctx.getHookTrace()));
 
-    return result;
+    long totalMs() {
+      return Math.max(0L, (System.nanoTime() - started) / 1_000_000L);
+    }
   }
 
   private static List<Map<String, Object>> applyHttpFilterGroup(

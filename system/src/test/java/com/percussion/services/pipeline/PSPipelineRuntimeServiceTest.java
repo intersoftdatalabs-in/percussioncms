@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.services.pipeline.hooks.IPSPipelinePostExecuteHook;
 import com.percussion.services.pipeline.hooks.IPSPipelinePreExecuteHook;
+import com.percussion.services.pipeline.http.PSPipelineHttpAdapter;
 import com.percussion.services.pipeline.model.BackendJoinIr;
 import com.percussion.services.pipeline.model.BackendTableRefIr;
 import com.percussion.services.pipeline.model.BackendTankStageIr;
@@ -30,6 +31,7 @@ import com.percussion.services.pipeline.model.MappingEntryIr;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
+import com.percussion.services.pipeline.model.PipelineRequestTrace;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
 import com.percussion.services.pipeline.model.PipelineStagesIr;
 import com.percussion.services.pipeline.model.SelectorStageIr;
@@ -151,6 +153,60 @@ class PSPipelineRuntimeServiceTest {
 
     assertEquals(3, result.getRowCount());
     assertEquals(3, result.getRows().size());
+  }
+
+  @Test
+  @DisplayName("tracing: last-trace records stages and redacts secrets")
+  void execute_withTracing_recordsSanitizedLastTrace() throws Exception {
+    PipelineIrDocument doc = nativeQueryDoc("traceApp", "DatasetQ");
+    doc.getApp().setTracingEnabled(true);
+    irService.save(doc);
+
+    PSPipelineRequestTraceStore store = new PSPipelineRequestTraceStore();
+    IPSPipelineRuntimeService runtime =
+        new PSPipelineRuntimeService(
+            irService, sqlAdapter, new PSPipelineHttpAdapter(), List.of(), List.of(), store);
+
+    Map<String, Object> params = new LinkedHashMap<>();
+    params.put("TYPE", "workflow");
+    params.put("password", "s3cret-password-value");
+    params.put("token", "s3cret-token-value");
+    params.put("Authorization", "Bearer s3cret-auth-value");
+    PipelineExecuteResult result =
+        runtime.execute("traceApp", "DatasetQ", PipelineExecuteRequest.ofParams(params));
+    assertEquals(2, result.getRowCount());
+
+    PipelineRequestTrace trace = runtime.getLastTrace("traceApp");
+    assertNotNull(trace);
+    assertEquals("traceApp", trace.getAppName());
+    assertEquals("DatasetQ", trace.getResourceName());
+    assertEquals("query", trace.getOperation());
+    assertTrue(trace.isTracingEnabled());
+    assertFalse(trace.getStages().isEmpty());
+    assertTrue(trace.getStages().stream().anyMatch(s -> "adapter".equals(s.getName())));
+    assertEquals(PSPipelineRequestTraceSanitizer.REDACTED, trace.getRequestParams().get("password"));
+    assertEquals(PSPipelineRequestTraceSanitizer.REDACTED, trace.getRequestParams().get("token"));
+    assertEquals(
+        PSPipelineRequestTraceSanitizer.REDACTED, trace.getRequestParams().get("Authorization"));
+    assertEquals("workflow", trace.getRequestParams().get("TYPE"));
+    assertFalse(trace.getStages().toString().contains("s3cret"));
+    assertFalse(String.valueOf(trace.getRequestParams()).contains("s3cret"));
+
+    runtime.clearLastTrace("traceApp");
+    assertNull(runtime.getLastTrace("traceApp"));
+  }
+
+  @Test
+  @DisplayName("tracing off: execute does not write last-trace")
+  void execute_withoutTracing_doesNotRecordLastTrace() throws Exception {
+    PipelineIrDocument doc = nativeQueryDoc("quietApp", "DatasetQ");
+    irService.save(doc);
+    PSPipelineRequestTraceStore store = new PSPipelineRequestTraceStore();
+    IPSPipelineRuntimeService runtime =
+        new PSPipelineRuntimeService(
+            irService, sqlAdapter, new PSPipelineHttpAdapter(), List.of(), List.of(), store);
+    runtime.execute("quietApp", "DatasetQ", PipelineExecuteRequest.empty());
+    assertNull(runtime.getLastTrace("quietApp"));
   }
 
   @Test

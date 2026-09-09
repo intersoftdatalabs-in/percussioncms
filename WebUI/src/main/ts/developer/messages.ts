@@ -757,6 +757,21 @@ export const DEV_MSG_KEYS = {
   PIPE_INVOKE_ERROR: "perc.ui.developer@Could not execute pipeline resource.",
   PIPE_INVOKE_BODY_INVALID: "perc.ui.developer@Request JSON must be a valid JSON object.",
   PIPE_INVOKE_RESOURCE_REQUIRED: "perc.ui.developer@Enter a resource name to invoke.",
+  PIPE_TRACING: "perc.ui.developer@Request tracing",
+  PIPE_TRACING_HINT:
+    "perc.ui.developer@Enable request tracing, then Test invoke. Last-trace shows stages and timings. Passwords, tokens, and Authorization values are never shown.",
+  PIPE_TRACING_ENABLED: "perc.ui.developer@Trace requests",
+  PIPE_TRACING_SAVE: "perc.ui.developer@Save tracing",
+  PIPE_TRACING_SAVING: "perc.ui.developer@Saving…",
+  PIPE_TRACING_SAVED: "perc.ui.developer@Request tracing saved.",
+  PIPE_TRACING_SAVE_ERROR: "perc.ui.developer@Could not save request tracing.",
+  PIPE_TRACING_LAST: "perc.ui.developer@Last trace",
+  PIPE_TRACING_LAST_EMPTY:
+    "perc.ui.developer@No last trace yet. Enable tracing and Test invoke.",
+  PIPE_TRACING_LAST_ERROR: "perc.ui.developer@Could not load last request trace.",
+  PIPE_TRACING_STAGE: "perc.ui.developer@Stage",
+  PIPE_TRACING_DURATION: "perc.ui.developer@Duration (ms)",
+  PIPE_TRACING_STATUS: "perc.ui.developer@Status",
   PIPE_HTTP: "perc.ui.developer@HTTP datasource",
   PIPE_HTTP_HINT:
     "perc.ui.developer@Point this resource at a loopback or bundled local HTTP fixture. Cloud URLs and credentials are rejected. Classic XML Applications are not rewritten.",

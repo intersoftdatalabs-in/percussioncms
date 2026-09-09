@@ -21,6 +21,7 @@ import com.percussion.services.pipeline.model.PipelineBinaryPayload;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
+import com.percussion.services.pipeline.model.PipelineRequestTrace;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -127,6 +128,28 @@ public interface IPipelinesAdaptor {
    * @return payload, or {@code null} when the application/resource is not visible
    */
   PipelineBinaryPayload retrieveBinary(URI baseUri, String appName, String resourceName);
+
+  /**
+   * Admin: enable or disable request tracing on a native pipeline application. When disabled, the
+   * last-trace snapshot is cleared (fail-closed). Classic XML Applications are not mutated.
+   *
+   * @return saved settings, never {@code null}
+   */
+  PipelineTracingSettings putTracing(URI baseUri, String idOrName, PipelineTracingSettings settings);
+
+  /**
+   * Admin: current tracing on/off for a catalog application (defaults to {@code false}).
+   *
+   * @return settings, or {@code null} when the application is not visible
+   */
+  PipelineTracingSettings getTracing(URI baseUri, String idOrName);
+
+  /**
+   * Admin: last fail-closed request trace after execute with tracing enabled.
+   *
+   * @return last trace, or {@code null} when none / not visible
+   */
+  PipelineRequestTrace getLastTrace(URI baseUri, String idOrName);
 
   /**
    * Admin: start a non-hidden classic XML Application / pipeline package (peer {@code

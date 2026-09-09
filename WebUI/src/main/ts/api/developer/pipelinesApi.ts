@@ -28,6 +28,8 @@ import type {
   PipelineFilterGroup,
   PipelineHttpBackendTank,
   PipelineIrDocument,
+  PipelineRequestTrace,
+  PipelineTracingSettings,
   PipelineWebhookHooks,
 } from "./types";
 
@@ -413,6 +415,76 @@ export async function retrieveBinaryResource(
     `${PATHS.PIPELINES}/${appKey}/resources/${resourceKey}/binary`,
   );
   return { bytes: out.bytes, contentType: out.contentType };
+}
+
+/** Jackson WRAP/UNWRAP_ROOT_VALUE root for {@link PipelineTracingSettings}. */
+export const PIPELINE_TRACING_SETTINGS_ROOT = "PipelineTracingSettings";
+
+export function wrapPipelineTracingSettingsForWire(
+  body: PipelineTracingSettings,
+): { PipelineTracingSettings: PipelineTracingSettings } {
+  return { [PIPELINE_TRACING_SETTINGS_ROOT]: body ?? {} };
+}
+
+export function unwrapPipelineTracingSettings(payload: unknown): PipelineTracingSettings {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("Tracing settings not found or empty response");
+  }
+  const root = payload as Record<string, unknown>;
+  const nested = root.PipelineTracingSettings ?? root.pipelineTracingSettings;
+  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
+    return nested as PipelineTracingSettings;
+  }
+  return root as PipelineTracingSettings;
+}
+
+/**
+ * PUT /services/pipelines/{idOrName}/tracing — Admin enable/disable request tracing.
+ */
+export async function putTracing(
+  idOrName: string,
+  body: PipelineTracingSettings,
+): Promise<PipelineTracingSettings> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.PIPELINES}/${key}/tracing`,
+    wrapPipelineTracingSettingsForWire(body),
+  );
+  return unwrapPipelineTracingSettings(payload);
+}
+
+/**
+ * GET /services/pipelines/{idOrName}/tracing — Admin tracing on/off.
+ */
+export async function getTracing(idOrName: string): Promise<PipelineTracingSettings> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await get<unknown>(`${PATHS.PIPELINES}/${key}/tracing`);
+  return unwrapPipelineTracingSettings(payload);
+}
+
+/** Jackson WRAP/UNWRAP_ROOT_VALUE root for {@link PipelineRequestTrace}. */
+export const PIPELINE_REQUEST_TRACE_ROOT = "PipelineRequestTrace";
+
+export function unwrapPipelineRequestTrace(payload: unknown): PipelineRequestTrace {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("Last request trace not found or empty response");
+  }
+  const root = payload as Record<string, unknown>;
+  const nested = root.PipelineRequestTrace ?? root.pipelineRequestTrace;
+  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
+    return nested as PipelineRequestTrace;
+  }
+  return root as PipelineRequestTrace;
+}
+
+/**
+ * GET /services/pipelines/{idOrName}/lastTrace — last fail-closed request trace.
+ * HTTP 404 when none.
+ */
+export async function getLastTrace(idOrName: string): Promise<PipelineRequestTrace> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await get<unknown>(`${PATHS.PIPELINES}/${key}/lastTrace`);
+  return unwrapPipelineRequestTrace(payload);
 }
 
 export async function executeResource(

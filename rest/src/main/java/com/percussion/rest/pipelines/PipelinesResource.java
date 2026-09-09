@@ -21,6 +21,7 @@ import com.percussion.services.pipeline.model.PipelineBinaryPayload;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
+import com.percussion.services.pipeline.model.PipelineRequestTrace;
 import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -63,7 +64,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(
     name = "Pipelines",
     description =
-        "Data pipeline / XML application design catalog, Admin start/stop, validation, Pipeline IR, OpenAPI from resources, HTTP backend tank persist, nested filter groups, binary resource persist/retrieve, and IR execute")
+        "Data pipeline / XML application design catalog, Admin start/stop, validation, Pipeline IR, OpenAPI from resources, HTTP backend tank persist, nested filter groups, binary resource persist/retrieve, request tracing, and IR execute")
 public class PipelinesResource {
 
   private final IPipelinesAdaptor adaptor;
@@ -584,6 +585,116 @@ public class PipelinesResource {
               ? payload.getContentType()
               : MediaType.APPLICATION_OCTET_STREAM;
       return Response.ok(payload.getBytes()).type(type).build();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Admin: enable or disable request tracing on a native pipeline application. Disabled tracing
+   * clears last-trace (fail-closed).
+   */
+  @PUT
+  @Path("/{idOrName}/tracing")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Enable or disable request tracing on a native pipeline",
+      description =
+          "Admin only. Persists native IR app.tracingEnabled. When disabled, last-trace is"
+              + " cleared. Last-trace never includes passwords, tokens, or Authorization values."
+              + " Classic XML Applications stay read-only.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Saved",
+            content = @Content(schema = @Schema(implementation = PipelineTracingSettings.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public PipelineTracingSettings putTracing(
+      @PathParam("idOrName") String idOrName, PipelineTracingSettings body) {
+    try {
+      PipelineTracingSettings settings = body != null ? body : new PipelineTracingSettings();
+      return requireAdaptor().putTracing(uriInfo.getBaseUri(), idOrName, settings);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /** Admin: current tracing on/off (defaults to false when native IR has no flag). */
+  @GET
+  @Path("/{idOrName}/tracing")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get request tracing on/off for a pipeline application",
+      description = "Admin only. Returns tracingEnabled from native IR (false when unset).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = PipelineTracingSettings.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public PipelineTracingSettings getTracing(@PathParam("idOrName") String idOrName) {
+    try {
+      PipelineTracingSettings settings =
+          requireAdaptor().getTracing(uriInfo.getBaseUri(), idOrName);
+      if (settings == null) {
+        throw new WebApplicationException("Application not found", 404);
+      }
+      return settings;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Admin: last fail-closed request trace after Test invoke with tracing enabled. 404 when none.
+   */
+  @GET
+  @Path("/{idOrName}/lastTrace")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get last pipeline request trace",
+      description =
+          "Admin only. Returns stages and timings from the last execute while tracing was on."
+              + " Passwords, tokens, and Authorization values are redacted. Result rows are never"
+              + " copied. 404 when no last-trace exists.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = PipelineRequestTrace.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application or last-trace not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public PipelineRequestTrace getLastTrace(@PathParam("idOrName") String idOrName) {
+    try {
+      PipelineRequestTrace trace = requireAdaptor().getLastTrace(uriInfo.getBaseUri(), idOrName);
+      if (trace == null) {
+        throw new WebApplicationException("Last request trace not found", 404);
+      }
+      return trace;
     } catch (WebApplicationException e) {
       throw e;
     } catch (IllegalArgumentException e) {

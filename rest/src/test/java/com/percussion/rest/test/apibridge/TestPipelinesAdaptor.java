@@ -24,11 +24,13 @@ import com.percussion.rest.pipelines.IPipelinesAdaptor;
 import com.percussion.rest.pipelines.PipelineBinaryResource;
 import com.percussion.rest.pipelines.PipelineFilterGroup;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
+import com.percussion.rest.pipelines.PipelineTracingSettings;
 import com.percussion.rest.pipelines.PipelineWebhookHooks;
 import com.percussion.services.pipeline.model.PipelineBinaryPayload;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
+import com.percussion.services.pipeline.model.PipelineRequestTrace;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -150,5 +152,22 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
     return new PipelineBinaryPayload(
         "text/plain", "PIPE-BIN-FIXTURE\n".getBytes(java.nio.charset.StandardCharsets.UTF_8),
         "pipeline-binary-fixture");
+  }
+
+  @Override
+  public PipelineTracingSettings putTracing(
+      URI baseUri, String idOrName, PipelineTracingSettings settings) {
+    PipelineTracingSettings out = settings != null ? settings : new PipelineTracingSettings();
+    return out;
+  }
+
+  @Override
+  public PipelineTracingSettings getTracing(URI baseUri, String idOrName) {
+    return new PipelineTracingSettings();
+  }
+
+  @Override
+  public PipelineRequestTrace getLastTrace(URI baseUri, String idOrName) {
+    return null;
   }
 }

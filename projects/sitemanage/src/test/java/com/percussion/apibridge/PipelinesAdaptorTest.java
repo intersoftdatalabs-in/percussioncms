@@ -45,6 +45,7 @@ import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.PipelineBinaryResource;
 import com.percussion.rest.pipelines.PipelineFilterGroup;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
+import com.percussion.rest.pipelines.PipelineTracingSettings;
 import com.percussion.rest.pipelines.PipelineWebhookHooks;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
@@ -56,6 +57,7 @@ import com.percussion.services.pipeline.model.BackendTankStageIr;
 import com.percussion.services.pipeline.model.PipelineBinaryPayload;
 import com.percussion.services.pipeline.model.PipelineBinaryResourceIr;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
+import com.percussion.services.pipeline.model.PipelineRequestTrace;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
 import com.percussion.services.pipeline.model.PipelineStagesIr;
 import com.percussion.services.pipeline.IPSPipelineIrService;
@@ -1156,6 +1158,105 @@ class PipelinesAdaptorTest {
                 adaptor.retrieveBinary(
                     URI.create("http://localhost/"), "sys_cmpDocuments", "binaryFixture"));
     assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void putTracing_requiresAdmin() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> false,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineTracingSettings body = new PipelineTracingSettings();
+      body.setEnabled(true);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () -> adaptor.putTracing(URI.create("http://localhost/"), "sys_cmpDocuments", body));
+      assertEquals(403, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void putTracing_savesNativeIrAndClearsLastTraceWhenDisabled() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    when(ir.load("sys_cmpDocuments")).thenReturn(Optional.empty());
+    PipelineIrDocument imported = new PipelineIrDocument();
+    imported.setSource(PipelineIrDocument.SOURCE_CLASSIC_IMPORT);
+    imported.getApp().setName("sys_cmpDocuments");
+    PSApplication app = mock(PSApplication.class);
+    when(ir.importClassicApplication(app)).thenReturn(imported);
+    IPSPipelineRuntimeService runtime = mock(IPSPipelineRuntimeService.class);
+
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> runtime,
+            () -> ir,
+            (name, tok) -> app,
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineTracingSettings on = new PipelineTracingSettings();
+      on.setEnabled(true);
+      PipelineTracingSettings savedOn =
+          adaptor.putTracing(URI.create("http://localhost/"), "sys_cmpDocuments", on);
+      assertTrue(savedOn.isEnabled());
+      ArgumentCaptor<PipelineIrDocument> cap = ArgumentCaptor.forClass(PipelineIrDocument.class);
+      verify(ir).save(cap.capture());
+      assertTrue(cap.getValue().getApp().isTracingEnabled());
+      verify(runtime, never()).clearLastTrace(anyString());
+
+      PipelineTracingSettings off = new PipelineTracingSettings();
+      off.setEnabled(false);
+      PipelineTracingSettings savedOff =
+          adaptor.putTracing(URI.create("http://localhost/"), "sys_cmpDocuments", off);
+      assertFalse(savedOff.isEnabled());
+      verify(runtime).clearLastTrace("sys_cmpDocuments");
+    }
+  }
+
+  @Test
+  void getLastTrace_returnsRuntimeSnapshot() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineRuntimeService runtime = mock(IPSPipelineRuntimeService.class);
+    PipelineRequestTrace stored = new PipelineRequestTrace();
+    stored.setAppName("sys_cmpDocuments");
+    stored.setResourceName("items");
+    stored.setTracingEnabled(true);
+    when(runtime.getLastTrace("sys_cmpDocuments")).thenReturn(stored);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> runtime,
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineRequestTrace out =
+          adaptor.getLastTrace(URI.create("http://localhost/"), "sys_cmpDocuments");
+      assertEquals("items", out.getResourceName());
+      verify(runtime).getLastTrace("sys_cmpDocuments");
+    }
   }
 
   @Test
