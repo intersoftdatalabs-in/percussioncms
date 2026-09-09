@@ -368,6 +368,45 @@ export async function postText<T>(
   return handleResponse<T>(response);
 }
 
+/**
+ * GET raw bytes (pipeline binary retrieve, similar octet-stream downloads).
+ * Does not JSON-parse the body. Failures still use {@link ApiError}.
+ */
+export async function getBinary(
+  url: string,
+  headers?: HeadersInit,
+): Promise<{ bytes: Uint8Array; contentType: string; status: number }> {
+  const response = await fetch(url, {
+    method: "GET",
+    headers: buildHeaders({ Accept: "*/*", ...headers }, false),
+    credentials: "same-origin",
+  });
+  if (response.status === 401) {
+    redirectToLoginOnUnauthorized({ reason: "api-401" });
+    throw new SessionRedirectError();
+  }
+  if (!response.ok) {
+    let body: unknown;
+    try {
+      body = await parseBody(response);
+    } catch {
+      body = undefined;
+    }
+    const error: ApiError = {
+      status: response.status,
+      statusText: response.statusText,
+      body,
+    };
+    throw error;
+  }
+  const buf = await response.arrayBuffer();
+  return {
+    bytes: new Uint8Array(buf),
+    contentType: response.headers.get("Content-Type") || "application/octet-stream",
+    status: response.status,
+  };
+}
+
 /** Sends a DELETE request. Optional JSON body for bulk delete endpoints. */
 export async function del<T>(
   url: string,

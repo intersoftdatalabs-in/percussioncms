@@ -25,6 +25,8 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   putHttpBackendTank: vi.fn(),
   putWebhookHooks: vi.fn(),
   putFilterGroup: vi.fn(),
+  putBinaryResource: vi.fn(),
+  retrieveBinaryResource: vi.fn(),
 }));
 
 const getApplicationDetail = pipelinesApi.getApplicationDetail as ReturnType<typeof vi.fn>;
@@ -39,6 +41,10 @@ const getPipelineOpenApi = pipelinesApi.getPipelineOpenApi as ReturnType<typeof 
 const putHttpBackendTank = pipelinesApi.putHttpBackendTank as ReturnType<typeof vi.fn>;
 const putWebhookHooks = pipelinesApi.putWebhookHooks as ReturnType<typeof vi.fn>;
 const putFilterGroup = pipelinesApi.putFilterGroup as ReturnType<typeof vi.fn>;
+const putBinaryResource = pipelinesApi.putBinaryResource as ReturnType<typeof vi.fn>;
+const retrieveBinaryResource = pipelinesApi.retrieveBinaryResource as ReturnType<
+  typeof vi.fn
+>;
 
 const sampleDetail = {
   id: 1,
@@ -94,6 +100,8 @@ describe("PipelineDetailPanel", () => {
     putHttpBackendTank.mockReset();
     putWebhookHooks.mockReset();
     putFilterGroup.mockReset();
+    putBinaryResource.mockReset();
+    retrieveBinaryResource.mockReset();
     getPipelineIr.mockResolvedValue({ irVersion: "1.0", source: "NATIVE", resources: [] });
     getPipelineOpenApi.mockResolvedValue(
       'openapi: "3.0.3"\npaths:\n  /pipelines/sys_cmpDocuments/resources/contenteditor/execute:\n',
@@ -107,6 +115,14 @@ describe("PipelineDetailPanel", () => {
       preUrl: "http://127.0.0.1/pipeline-webhook-fixture",
       postUrl: "http://127.0.0.1/pipeline-webhook-fixture",
       httpMethod: "POST",
+    });
+    putBinaryResource.mockResolvedValue({
+      path: "pipeline-binary-fixture",
+      contentType: "text/plain",
+    });
+    retrieveBinaryResource.mockResolvedValue({
+      bytes: new TextEncoder().encode("PIPE-BIN-FIXTURE\n"),
+      contentType: "text/plain",
     });
     putFilterGroup.mockResolvedValue({
       type: "GROUP",
@@ -261,6 +277,7 @@ describe("PipelineDetailPanel", () => {
     expect(screen.queryByTestId("developer-pipe-invoke")).toBeNull();
     expect(screen.queryByTestId("developer-pipe-http")).toBeNull();
     expect(screen.queryByTestId("developer-pipe-webhook")).toBeNull();
+    expect(screen.queryByTestId("developer-pipe-binary")).toBeNull();
     expect(screen.queryByTestId("developer-pipe-problems")).toBeNull();
     expect(getApplicationValidation).not.toHaveBeenCalled();
   });
@@ -619,6 +636,73 @@ describe("PipelineDetailPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-pipe-webhook-error").textContent).toMatch(
         /loopback/i,
+      );
+    });
+  });
+
+  it("Admin saves binary resource and retrieves fixture bytes", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-binary")).toBeTruthy();
+    });
+    const path = screen.getByTestId("developer-pipe-binary-path") as HTMLInputElement;
+    expect(path.value).toBe("pipeline-binary-fixture");
+    fireEvent.click(screen.getByTestId("developer-pipe-binary-save"));
+    await waitFor(() => {
+      expect(putBinaryResource).toHaveBeenCalledWith("sys_cmpDocuments", "contenteditor", {
+        path: "pipeline-binary-fixture",
+        contentType: "text/plain",
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-binary-notice").textContent).toBe(
+        DEV_MSG.PIPE_BINARY_SAVED,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-binary-retrieve"));
+    await waitFor(() => {
+      expect(retrieveBinaryResource).toHaveBeenCalledWith(
+        "sys_cmpDocuments",
+        "contenteditor",
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-binary-preview").textContent).toMatch(
+        /PIPE-BIN-FIXTURE/,
+      );
+    });
+  });
+
+  it("binary save fail-closes on blank path and cloud 400", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-binary-path")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-pipe-binary-path"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-binary-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-binary-error").textContent).toBe(
+        DEV_MSG.PIPE_BINARY_PATH_REQUIRED,
+      );
+    });
+    expect(putBinaryResource).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByTestId("developer-pipe-binary-path"), {
+      target: { value: "https://cdn.example/blob.bin" },
+    });
+    putBinaryResource.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Binary resource path must be a local fixture (no cloud URLs)" },
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-binary-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-binary-error").textContent).toMatch(
+        /cloud/i,
       );
     });
   });

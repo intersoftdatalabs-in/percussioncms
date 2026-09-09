@@ -17,6 +17,7 @@
 
 package com.percussion.services.pipeline;
 
+import com.percussion.services.pipeline.model.PipelineBinaryPayload;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
@@ -50,5 +51,15 @@ public interface IPSPipelineRuntimeService {
    */
   PipelineExecuteResult execute(
       PipelineIrDocument document, PipelineResourceIr resource, PipelineExecuteRequest request)
+      throws PSPipelineIrException;
+
+  /**
+   * Retrieve fixture bytes for a native BINARY resource. Missing or empty fixtures fail closed
+   * (no invented content).
+   *
+   * @param appName native IR application name
+   * @param resourceName resource within the document
+   */
+  PipelineBinaryPayload retrieveBinary(String appName, String resourceName)
       throws PSPipelineIrException;
 }

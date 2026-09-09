@@ -25,13 +25,14 @@ import java.util.Objects;
  * One request resource (classic {@code PSDataSet}) in pipeline IR form.
  *
  * <p>Kind values: {@link #KIND_QUERY}, {@link #KIND_UPDATE}, {@link #KIND_CONTENT_EDITOR}, {@link
- * #KIND_UNKNOWN}.
+ * #KIND_BINARY}, {@link #KIND_UNKNOWN}.
  */
 public class PipelineResourceIr {
 
   public static final String KIND_QUERY = "QUERY";
   public static final String KIND_UPDATE = "UPDATE";
   public static final String KIND_CONTENT_EDITOR = "CONTENT_EDITOR";
+  public static final String KIND_BINARY = "BINARY";
   public static final String KIND_UNKNOWN = "UNKNOWN";
 
   private String name;
@@ -42,6 +43,7 @@ public class PipelineResourceIr {
   private String pipeName;
   private PipelineStagesIr stages = new PipelineStagesIr();
   private PipelineWebhookHooksIr webhookHooks;
+  private PipelineBinaryResourceIr binary;
 
   public String getName() {
     return name;
@@ -107,6 +109,14 @@ public class PipelineResourceIr {
     this.webhookHooks = webhookHooks;
   }
 
+  public PipelineBinaryResourceIr getBinary() {
+    return binary;
+  }
+
+  public void setBinary(PipelineBinaryResourceIr binary) {
+    this.binary = binary;
+  }
+
   /**
    * Ordered inventory of present stage kinds for assertions and catalog UIs.
    *
@@ -136,6 +146,9 @@ public class PipelineResourceIr {
     if (webhookHooks != null && webhookHooks.isPresent()) {
       out.add("webhookHooks");
     }
+    if (binary != null && binary.isPresent()) {
+      out.add("binary");
+    }
     return out;
   }
 
@@ -154,12 +167,21 @@ public class PipelineResourceIr {
         && Objects.equals(transactionMode, that.transactionMode)
         && Objects.equals(pipeName, that.pipeName)
         && Objects.equals(stages, that.stages)
-        && Objects.equals(webhookHooks, that.webhookHooks);
+        && Objects.equals(webhookHooks, that.webhookHooks)
+        && Objects.equals(binary, that.binary);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(
-        name, description, kind, requestPage, transactionMode, pipeName, stages, webhookHooks);
+        name,
+        description,
+        kind,
+        requestPage,
+        transactionMode,
+        pipeName,
+        stages,
+        webhookHooks,
+        binary);
   }
 }

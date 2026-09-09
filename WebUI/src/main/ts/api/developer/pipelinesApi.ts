@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
-import { get, post, put } from "../client";
+import { get, getBinary, post, put } from "../client";
 import { PATHS } from "../paths";
 import type {
   ApplicationDetail,
   ApplicationSummary,
   ApplicationValidationResult,
+  PipelineBinaryBytes,
+  PipelineBinaryResource,
   PipelineExecuteRequest,
   PipelineExecuteResult,
   PipelineFilterGroup,
@@ -356,6 +358,61 @@ export async function putFilterGroup(
     wrapPipelineFilterGroupForWire(body),
   );
   return unwrapPipelineFilterGroup(payload);
+}
+
+/** Jackson WRAP/UNWRAP_ROOT_VALUE root for {@link PipelineBinaryResource}. */
+export const PIPELINE_BINARY_RESOURCE_ROOT = "PipelineBinaryResource";
+
+export function wrapPipelineBinaryResourceForWire(
+  body: PipelineBinaryResource,
+): { PipelineBinaryResource: PipelineBinaryResource } {
+  return { [PIPELINE_BINARY_RESOURCE_ROOT]: body ?? {} };
+}
+
+export function unwrapPipelineBinaryResource(payload: unknown): PipelineBinaryResource {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("Binary resource not found or empty response");
+  }
+  const root = payload as Record<string, unknown>;
+  const nested = root.PipelineBinaryResource ?? root.pipelineBinaryResource;
+  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
+    return nested as PipelineBinaryResource;
+  }
+  return root as PipelineBinaryResource;
+}
+
+/**
+ * PUT /services/pipelines/{app}/resources/{resource}/binaryResource — Admin native IR binary.
+ * Cloud / credentialed / traversal paths are rejected by the server (HTTP 400).
+ */
+export async function putBinaryResource(
+  app: string,
+  resource: string,
+  body: PipelineBinaryResource,
+): Promise<PipelineBinaryResource> {
+  const appKey = encodeURIComponent(app);
+  const resourceKey = encodeURIComponent(resource);
+  const payload = await put<unknown>(
+    `${PATHS.PIPELINES}/${appKey}/resources/${resourceKey}/binaryResource`,
+    wrapPipelineBinaryResourceForWire(body),
+  );
+  return unwrapPipelineBinaryResource(payload);
+}
+
+/**
+ * GET /services/pipelines/{app}/resources/{resource}/binary — fixture bytes (not invented).
+ * Missing/empty fixtures are HTTP 404/400.
+ */
+export async function retrieveBinaryResource(
+  app: string,
+  resource: string,
+): Promise<PipelineBinaryBytes> {
+  const appKey = encodeURIComponent(app);
+  const resourceKey = encodeURIComponent(resource);
+  const out = await getBinary(
+    `${PATHS.PIPELINES}/${appKey}/resources/${resourceKey}/binary`,
+  );
+  return { bytes: out.bytes, contentType: out.contentType };
 }
 
 export async function executeResource(

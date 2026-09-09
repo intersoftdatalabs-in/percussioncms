@@ -1,7 +1,7 @@
 ---
 id: admin-developer-pipelines
 title: Developer Pipelines
-description: Browse classic XML Applications, Admin start/stop, pipe IR, OpenAPI from resources, HTTP datasource, nested filter groups, webhook hooks, Test invoke, and Problems from Developer Pipelines chrome
+description: Browse classic XML Applications, Admin start/stop, pipe IR, OpenAPI from resources, HTTP datasource, nested filter groups, webhook hooks, binary resource retrieve, Test invoke, and Problems from Developer Pipelines chrome
 version: "8.2"
 order: 51
 tags: [admin, developer, pipelines]
@@ -34,7 +34,7 @@ The **OpenAPI** section calls `GET /services/pipelines/{idOrName}/openapi`
 resources. It does not publish to an external registry.
 
 **Admins** also get **HTTP datasource**, **nested filter groups**, **HTTP webhook hooks**,
-**Test invoke**, and **Problems** on the same detail page:
+**binary resource**, **Test invoke**, and **Problems** on the same detail page:
 
 - **HTTP datasource** sets `adapterType=HTTP` and a **loopback / local fixture
   URL** (default `http://127.0.0.1/pipeline-http-fixture`) on the selected
@@ -47,6 +47,16 @@ resources. It does not publish to an external registry.
   `http://127.0.0.1/pipeline-webhook-fixture`). Cloud hosts, credentials, and
   non-http(s) schemes return **400**. A **blank URL skips** that hook (no
   invented delivery).
+- **Binary resource** attaches a **portable-safe local fixture path** and
+  **content type** via
+  `PUT /services/pipelines/{app}/resources/{resource}/binaryResource`. The
+  bundled token is `pipeline-binary-fixture` (classpath bytes, no internet).
+  Cloud URLs, credentials in the path, and path traversal return **400**.
+  **Retrieve bytes** calls `GET …/binary` and shows the fixture bytes
+  (`PIPE-BIN-FIXTURE`) with the IR content type. A missing or empty fixture is
+  **404** — the server does **not** invent content. Retrieve is capped at 1 MB
+  by default; operators may raise the cap with JVM system property
+  `perc.pipeline.binary.maxBodyBytes` (positive integer, bytes).
 - **Nested filter groups** save an AND/OR tree of selector predicates on the
   selected native resource via
   `PUT /services/pipelines/{app}/resources/{resource}/filterGroup`. The default
@@ -169,6 +179,21 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
    includes webhook `status` / body evidence (`hook-ok`, `pipeline-webhook`)
    from the local fixture.
 
+## Product path — binary resource retrieve
+
+1. As **Admin**, open an application detail page.
+2. Enter a **resource** name in **Test invoke** (use a dedicated name such as
+   `binaryFixture` so you do not convert an existing query resource).
+3. In **Binary resource**, keep **Fixture path** as `pipeline-binary-fixture`
+   (or another portable-safe relative path) and set **Content type** (default
+   `text/plain`).
+4. Choose **Save binary resource**. Success shows a saved notice. Cloud URLs
+   such as `https://cdn.example/blob.bin`, credentialed URLs, and `..`
+   traversal fail closed with a clear **400** error.
+5. Choose **Retrieve bytes**. The preview shows the local fixture marker
+   `PIPE-BIN-FIXTURE` (not invented content). Missing or empty files are
+   **404**. Optionally **Download** the retrieved bytes.
+
 ## Product path — Problems
 
 1. As **Admin**, open an application detail page. The **Problems** section loads
@@ -187,8 +212,8 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
 - Catalog and detail omit **hidden** applications from the list contract used by
   this chrome; hidden rows are not started or stopped here.
 - Pipe IR has no graph editor or drag-drop tanks. Admins may persist an HTTP
-  backend tank, nested selector filter groups, and HTTP webhook hooks (native IR
-  overlay) only.
+  backend tank, nested selector filter groups, HTTP webhook hooks, and a binary
+  resource (native IR overlay) only.
 - Enable/disable and classic ZIP import/export are not in this chrome.
 - Surface-filtered Playwright for Start/Stop lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-start-stop.spec.js`.
@@ -202,6 +227,8 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-webhook-hooks.spec.js`.
 - Surface-filtered Playwright for nested filter groups save + Test invoke lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-nested-filter-groups.spec.js`.
+- Surface-filtered Playwright for binary resource save + retrieve lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-binary-resource.spec.js`.
 - Surface-filtered Playwright for OpenAPI view/download lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-openapi.spec.js`
   (prefers `sys_cmp*` IR/execute apps, or `PIPELINE_APP_NAME`; does not require
@@ -222,6 +249,8 @@ The chrome calls:
 | HTTP tank | `PUT /services/pipelines/{app}/resources/{resource}/backendTank` (**Admin**) |
 | Webhook hooks | `PUT /services/pipelines/{app}/resources/{resource}/webhookHooks` (**Admin**) |
 | Filter groups | `PUT /services/pipelines/{app}/resources/{resource}/filterGroup` (**Admin**) |
+| Binary resource | `PUT /services/pipelines/{app}/resources/{resource}/binaryResource` (**Admin**) |
+| Retrieve binary | `GET /services/pipelines/{app}/resources/{resource}/binary` |
 | Test invoke | `POST /services/pipelines/{app}/resources/{resource}/execute` |
 | Problems | `GET /services/pipelines/{idOrName}/validation` (**Admin**; soft-empty if absent) |
 

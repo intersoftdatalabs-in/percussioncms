@@ -42,6 +42,7 @@ import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationValidationProblem;
 import com.percussion.rest.pipelines.ApplicationValidationResult;
+import com.percussion.rest.pipelines.PipelineBinaryResource;
 import com.percussion.rest.pipelines.PipelineFilterGroup;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
 import com.percussion.rest.pipelines.PipelineWebhookHooks;
@@ -49,8 +50,11 @@ import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
 import com.percussion.services.pipeline.IPSPipelineRuntimeService;
 import java.util.Optional;
+import com.percussion.services.pipeline.binary.PSPipelineBinaryPath;
 import com.percussion.services.pipeline.http.PSPipelineHttpUrl;
 import com.percussion.services.pipeline.model.BackendTankStageIr;
+import com.percussion.services.pipeline.model.PipelineBinaryPayload;
+import com.percussion.services.pipeline.model.PipelineBinaryResourceIr;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
 import com.percussion.services.pipeline.model.PipelineResourceIr;
 import com.percussion.services.pipeline.model.PipelineStagesIr;
@@ -1000,6 +1004,158 @@ class PipelinesAdaptorTest {
           persisted.findResource("items").getWebhookHooks().getPreUrl());
       verify(app, never()).setName(any());
     }
+  }
+
+  @Test
+  void putBinaryResource_requiresAdmin() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> false,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineBinaryResource body = new PipelineBinaryResource();
+      body.setPath(PSPipelineBinaryPath.BUNDLED_TOKEN);
+      body.setContentType("text/plain");
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putBinaryResource(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "binaryFixture", body));
+      assertEquals(403, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void putBinaryResource_rejectsCloudUrl() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineBinaryResource body = new PipelineBinaryResource();
+      body.setPath("https://cdn.example/blob.bin");
+      body.setContentType("application/octet-stream");
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putBinaryResource(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "binaryFixture", body));
+      assertEquals(400, ex.getResponse().getStatus());
+      assertTrue(ex.getMessage().toLowerCase().contains("cloud"), ex.getMessage());
+    }
+  }
+
+  @Test
+  void putBinaryResource_savesNativeIrWithoutClassicXmlWrite() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    when(ir.load("sys_cmpDocuments")).thenReturn(Optional.empty());
+    PipelineIrDocument imported = new PipelineIrDocument();
+    imported.setSource(PipelineIrDocument.SOURCE_CLASSIC_IMPORT);
+    imported.getApp().setName("sys_cmpDocuments");
+    PSApplication app = mock(PSApplication.class);
+    when(ir.importClassicApplication(app)).thenReturn(imported);
+
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> ir,
+            (name, tok) -> app,
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineBinaryResource body = new PipelineBinaryResource();
+      body.setPath(PSPipelineBinaryPath.BUNDLED_TOKEN);
+      body.setContentType("text/plain");
+      PipelineBinaryResource saved =
+          adaptor.putBinaryResource(
+              URI.create("http://localhost/"), "sys_cmpDocuments", "binaryFixture", body);
+      assertEquals(PSPipelineBinaryPath.BUNDLED_TOKEN, saved.getPath());
+      assertEquals("text/plain", saved.getContentType());
+      ArgumentCaptor<PipelineIrDocument> cap = ArgumentCaptor.forClass(PipelineIrDocument.class);
+      verify(ir).save(cap.capture());
+      PipelineIrDocument persisted = cap.getValue();
+      assertEquals(PipelineIrDocument.SOURCE_NATIVE, persisted.getSource());
+      PipelineBinaryResourceIr stored = persisted.findResource("binaryFixture").getBinary();
+      assertEquals(PSPipelineBinaryPath.BUNDLED_TOKEN, stored.getPath());
+      assertEquals(PipelineResourceIr.KIND_BINARY, persisted.findResource("binaryFixture").getKind());
+      verify(app, never()).setName(any());
+    }
+  }
+
+  @Test
+  void retrieveBinary_returnsFixtureBytes() throws Exception {
+    byte[] bytes = "PIPE-BIN-FIXTURE\n".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+    IPSPipelineRuntimeService runtime = mock(IPSPipelineRuntimeService.class);
+    when(runtime.retrieveBinary("sys_cmpDocuments", "binaryFixture"))
+        .thenReturn(
+            new PipelineBinaryPayload("text/plain", bytes, PSPipelineBinaryPath.BUNDLED_TOKEN));
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[0],
+            () -> runtime,
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    PipelineBinaryPayload payload =
+        adaptor.retrieveBinary(
+            URI.create("http://localhost/"), "sys_cmpDocuments", "binaryFixture");
+    assertEquals("text/plain", payload.getContentType());
+    assertEquals("PIPE-BIN-FIXTURE\n", new String(payload.getBytes()));
+  }
+
+  @Test
+  void retrieveBinary_missingFixtureIs404() throws Exception {
+    IPSPipelineRuntimeService runtime = mock(IPSPipelineRuntimeService.class);
+    when(runtime.retrieveBinary("sys_cmpDocuments", "binaryFixture"))
+        .thenThrow(new PSPipelineIrException("Binary fixture not found"));
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[0],
+            () -> runtime,
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.retrieveBinary(
+                    URI.create("http://localhost/"), "sys_cmpDocuments", "binaryFixture"));
+    assertEquals(404, ex.getResponse().getStatus());
   }
 
   @Test

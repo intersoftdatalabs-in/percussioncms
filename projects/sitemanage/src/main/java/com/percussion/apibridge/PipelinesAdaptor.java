@@ -30,6 +30,7 @@ import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationValidationProblem;
 import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
+import com.percussion.rest.pipelines.PipelineBinaryResource;
 import com.percussion.rest.pipelines.PipelineFilterGroup;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
 import com.percussion.rest.pipelines.PipelineOpenApiGenerator;
@@ -52,12 +53,15 @@ import com.percussion.services.pipeline.PSPipelineFilterGroup;
 import com.percussion.services.pipeline.PSPipelineIrException;
 import com.percussion.services.pipeline.PSPipelineIrServiceLocator;
 import com.percussion.services.pipeline.PSPipelineRuntimeServiceLocator;
+import com.percussion.services.pipeline.binary.PSPipelineBinaryPath;
 import com.percussion.services.pipeline.http.PSPipelineHttpAdapter;
 import com.percussion.services.pipeline.http.PSPipelineHttpUrl;
 import com.percussion.services.pipeline.model.BackendTankStageIr;
 import com.percussion.services.pipeline.model.FilterGroupIr;
 import com.percussion.services.pipeline.model.MapperStageIr;
 import com.percussion.services.pipeline.model.MappingEntryIr;
+import com.percussion.services.pipeline.model.PipelineBinaryPayload;
+import com.percussion.services.pipeline.model.PipelineBinaryResourceIr;
 import com.percussion.services.pipeline.model.PipelineExecuteRequest;
 import com.percussion.services.pipeline.model.PipelineExecuteResult;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
@@ -109,7 +113,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   public static final int MAX_LIMIT = 1000;
 
   static final String ADMIN_REQUIRED =
-      "Admin role required to start, stop, validate, persist HTTP backend tanks, or persist filter groups";
+      "Admin role required to start, stop, validate, persist HTTP backend tanks, persist filter groups, or persist binary resources";
 
   static final String HIDDEN_NOT_ALLOWED =
       "Hidden applications cannot be started, stopped, validated, or documented via this API";
@@ -679,6 +683,102 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     }
   }
 
+  @Override
+  public PipelineBinaryResource putBinaryResource(
+      URI baseUri, String appName, String resourceName, PipelineBinaryResource body) {
+    requireAdmin();
+    if (StringUtils.isBlank(appName) || !isSafeApplicationName(appName.trim())) {
+      throw new WebApplicationException("Invalid pipeline application name", 400);
+    }
+    if (StringUtils.isBlank(resourceName) || !isSafeResourceName(resourceName.trim())) {
+      throw new WebApplicationException("Invalid pipeline resource name", 400);
+    }
+    if (body == null) {
+      throw new WebApplicationException("Binary resource body is required", 400);
+    }
+    String path;
+    String contentType;
+    try {
+      path = PSPipelineBinaryPath.requireSafe(body.getPath());
+      contentType = PSPipelineBinaryPath.requireSafeContentType(body.getContentType());
+    } catch (PSPipelineIrException e) {
+      throw new WebApplicationException(
+          e.getMessage() != null ? e.getMessage() : "Invalid binary resource path", 400);
+    }
+
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for pipeline binary persist");
+    }
+    PSSecurityToken tok = req.getSecurityToken();
+    String name = resolveApplicationName(appName.trim(), summaryLoader.apply(tok));
+    if (name == null) {
+      throw new WebApplicationException("Application not found", 404);
+    }
+    String safeResource = resourceName.trim();
+    try {
+      IPSPipelineIrService ir = irSupplier.get();
+      PipelineIrDocument doc = ir.load(name).orElse(null);
+      if (doc == null) {
+        PSApplication app = applicationLoader.apply(name, tok);
+        if (app != null) {
+          doc = ir.importClassicApplication(app);
+        } else {
+          doc = new PipelineIrDocument();
+          doc.getApp().setName(name);
+        }
+      }
+      doc.setSource(PipelineIrDocument.SOURCE_NATIVE);
+      if (doc.getApp() == null || StringUtils.isBlank(doc.getApp().getName())) {
+        doc.getApp().setName(name);
+      }
+      PipelineResourceIr resource = doc.findResource(safeResource);
+      if (resource == null) {
+        resource = new PipelineResourceIr();
+        resource.setName(safeResource);
+        doc.getResources().add(resource);
+      }
+      resource.setKind(PipelineResourceIr.KIND_BINARY);
+      PipelineBinaryResourceIr stored = new PipelineBinaryResourceIr();
+      stored.setPath(path);
+      stored.setContentType(contentType);
+      resource.setBinary(stored);
+      ir.save(doc);
+
+      PipelineBinaryResource saved = new PipelineBinaryResource();
+      saved.setPath(stored.getPath());
+      saved.setContentType(stored.getContentType());
+      return saved;
+    } catch (PSPipelineIrException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Failed to persist binary resource";
+      if (isNotFoundMessage(msg)) {
+        throw new WebApplicationException("Pipeline application or resource not found", 404);
+      }
+      throw new WebApplicationException(msg, 400);
+    }
+  }
+
+  @Override
+  public PipelineBinaryPayload retrieveBinary(URI baseUri, String appName, String resourceName) {
+    if (StringUtils.isBlank(appName) || !isSafeApplicationName(appName.trim())) {
+      throw new WebApplicationException("Invalid pipeline application name", 400);
+    }
+    if (StringUtils.isBlank(resourceName) || !isSafeResourceName(resourceName.trim())) {
+      throw new WebApplicationException("Invalid pipeline resource name", 400);
+    }
+    String safeApp = appName.trim();
+    String safeResource = resourceName.trim();
+    try {
+      return runtimeSupplier.get().retrieveBinary(safeApp, safeResource);
+    } catch (PSPipelineIrException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Binary retrieve failed";
+      if (isNotFoundMessage(msg)) {
+        throw new WebApplicationException("Binary fixture not found", 404);
+      }
+      throw new WebApplicationException(msg, 400);
+    }
+  }
+
   static FilterGroupIr toFilterGroupIr(PipelineFilterGroup dto) {
     if (dto == null) {
       return null;
@@ -999,7 +1099,10 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       return false;
     }
     String m = message.toLowerCase(Locale.ROOT);
-    return m.contains("pipeline ir not found") || m.contains("resource not found in ir");
+    return m.contains("pipeline ir not found")
+        || m.contains("resource not found in ir")
+        || m.contains("binary fixture not found")
+        || m.contains("binary resource not found");
   }
 
   /**

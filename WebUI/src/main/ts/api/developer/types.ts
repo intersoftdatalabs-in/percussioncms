@@ -493,6 +493,19 @@ export interface PipelineWebhookHooks {
   httpMethod?: string;
 }
 
+/** Body/result for PUT /services/pipelines/{app}/resources/{resource}/binaryResource. */
+export interface PipelineBinaryResource {
+  path?: string;
+  contentType?: string;
+}
+
+/** GET /services/pipelines/{app}/resources/{resource}/binary fixture bytes. */
+export interface PipelineBinaryBytes {
+  bytes: Uint8Array;
+  contentType: string;
+  path?: string;
+}
+
 /** Nested AND/OR filter group for PUT /services/pipelines/{app}/resources/{resource}/filterGroup. */
 export interface PipelineFilterGroup {
   type?: string;
@@ -552,6 +565,7 @@ export interface PipelineIrResource {
   pipeName?: string;
   stages?: PipelineIrStages;
   webhookHooks?: PipelineWebhookHooks;
+  binary?: PipelineBinaryResource;
 }
 
 /** App meta nested under Pipeline IR. */

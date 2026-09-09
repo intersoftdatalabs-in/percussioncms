@@ -801,6 +801,24 @@ export const DEV_MSG_KEYS = {
   PIPE_FILTER_RESOURCE_REQUIRED:
     "perc.ui.developer@Enter a resource name before saving filter groups.",
   PIPE_FILTER_INVALID: "perc.ui.developer@Filter group is invalid.",
+  PIPE_BINARY: "perc.ui.developer@Binary resource",
+  PIPE_BINARY_HINT:
+    "perc.ui.developer@Attach a portable-safe local fixture path (bundled token pipeline-binary-fixture). Cloud URLs, credentials, and path traversal are rejected. Retrieve returns fixture bytes — missing files are 404, not invented content.",
+  PIPE_BINARY_PATH: "perc.ui.developer@Fixture path",
+  PIPE_BINARY_PATH_PLACEHOLDER: "perc.ui.developer@pipeline-binary-fixture",
+  PIPE_BINARY_CONTENT_TYPE: "perc.ui.developer@Content type",
+  PIPE_BINARY_SAVE: "perc.ui.developer@Save binary resource",
+  PIPE_BINARY_SAVING: "perc.ui.developer@Saving…",
+  PIPE_BINARY_SAVED: "perc.ui.developer@Binary resource saved.",
+  PIPE_BINARY_SAVE_ERROR: "perc.ui.developer@Could not save binary resource.",
+  PIPE_BINARY_PATH_REQUIRED: "perc.ui.developer@Enter a local fixture path or bundled token.",
+  PIPE_BINARY_RESOURCE_REQUIRED:
+    "perc.ui.developer@Enter a resource name before saving the binary resource.",
+  PIPE_BINARY_RETRIEVE: "perc.ui.developer@Retrieve bytes",
+  PIPE_BINARY_RETRIEVING: "perc.ui.developer@Retrieving…",
+  PIPE_BINARY_RETRIEVE_ERROR: "perc.ui.developer@Could not retrieve binary fixture bytes.",
+  PIPE_BINARY_PREVIEW: "perc.ui.developer@Fixture preview",
+  PIPE_BINARY_DOWNLOAD: "perc.ui.developer@Download",
   PIPE_OPENAPI: "perc.ui.developer@OpenAPI",
   PIPE_OPENAPI_HINT:
     "perc.ui.developer@OpenAPI 3 generated from this pipeline's IR resources (view or download YAML/JSON). Not published to an external registry.",
