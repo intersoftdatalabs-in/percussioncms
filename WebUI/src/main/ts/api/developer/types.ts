@@ -1165,14 +1165,14 @@ export interface SiteDef {
  * Developer Sites save chrome includes http-json, object-storage, rss-atom, icalendar,
  * sitemap-xml, robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, graphql-sdl, and json-schema (local {@code rootPath} only; no
  * cloud URLs, live feed / CalDAV / crawl / llms / OpenAPI / AsyncAPI / GraphQL / JSON Schema fetch credentials, or
- * {@code virtual.remoteUrl} on those kinds). json-schema hides Build/Preview/Publish chrome (later slices). Build chrome is shown after save for
- * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl.
+ * {@code virtual.remoteUrl} on those kinds). json-schema shows Build/Preview chrome after save (Publish stays a later slice). Build chrome is shown after save for
+ * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl/json-schema.
  * Preview chrome is shown for
- * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl
+ * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl/json-schema
  * (last-build local HTML; missing build stays unavailable). Publish chrome is shown for
  * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl
  * (sitemap-xml, robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl copy last-build local HTML to
- * {@code IPSSite.root}; leftover remoteUrl/credentials/graphql.url fail closed).
+ * {@code IPSSite.root}; leftover remoteUrl/credentials/graphql.url fail closed). json-schema Publish chrome stays hidden.
  * Repository / unknown kinds hide that chrome.
  */
 export interface VirtualSiteProperties {

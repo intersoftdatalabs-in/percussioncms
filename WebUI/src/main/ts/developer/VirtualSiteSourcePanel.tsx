@@ -191,14 +191,14 @@ function validationMessage(
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
  * build ({@code POST …/virtual/build}) for git-filesystem, csv-filesystem,
  * sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml,
- * robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl. Preview last-build HTML for
+ * robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, graphql-sdl, and json-schema. Preview last-build HTML for
  * git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/
- * llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl (missing build stays unavailable).
+ * llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl/json-schema (missing build stays unavailable).
  * Publish ({@code POST …/virtual/publish}) for git/csv/sql/http-json/object-storage/
  * rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl after a
- * successful Build. Repository / blank / unknown kinds stay hidden. sitemap-xml, robots-txt,
+ * successful Build. json-schema Publish chrome stays a later slice. Repository / blank / unknown kinds stay hidden. sitemap-xml, robots-txt,
  * llms-txt, openapi-yaml, asyncapi-yaml, graphql-sdl, and json-schema use a local {@code rootPath} only (no live crawl / spec
- * fetch chrome). json-schema persist chrome is save/GET-roundtrip only (Build/Preview/Publish stay later slices).
+ * fetch chrome). json-schema shows Build/Preview after save (Publish stays hidden).
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -397,9 +397,9 @@ export function VirtualSiteSourcePanel({
   const asyncApiYamlMode = isAsyncApiYamlSourceKind(form.sourceKind);
   const graphQlSdlMode = isGraphQlSdlSourceKind(form.sourceKind);
   const jsonSchemaMode = isJsonSchemaSourceKind(form.sourceKind);
-  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl (never repository). */
+  /** Build chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl/json-schema (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
-  /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl (never repository). */
+  /** Preview chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl/json-schema (never repository). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
   /** Publish chrome: git/csv/sql/http-json/object-storage/rss-atom/icalendar/sitemap-xml/robots-txt/llms-txt/openapi-yaml/asyncapi-yaml/graphql-sdl (never repository). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);

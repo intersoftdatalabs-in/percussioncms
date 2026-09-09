@@ -561,6 +561,8 @@ public class SitesAdaptor implements ISiteAdaptor {
    * openapi.yaml}; no live spec fetch). asyncapi-yaml optional {@code asyncapi.file} lives in the
    * yaml (default {@code asyncapi.yaml}; no live spec fetch). graphql-sdl optional {@code
    * graphql.file} lives in the yaml (default {@code schema.graphql}; no live GraphQL HTTP).
+   * json-schema optional {@code jsonschema.file} lives in the yaml (default {@code schema.json};
+   * no live HTTP schema fetch).
    */
   static VirtualSiteConfig loadBuildConfig(
       VirtualSiteSourceType type, Path siteRoot, String configFile, String siteKey)
@@ -702,8 +704,8 @@ public class SitesAdaptor implements ISiteAdaptor {
    * <p>Preview is last-output based and applies to allow-listed Virtual kinds ({@code
    * git-filesystem}, {@code csv-filesystem}, {@code sql-database}, {@code http-json}, {@code
    * object-storage}, {@code rss-atom}, {@code icalendar}, {@code sitemap-xml}, {@code
-   * robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, and {@code
-   * graphql-sdl}), not git-only.
+   * robots-txt}, {@code llms-txt}, {@code openapi-yaml}, {@code asyncapi-yaml}, {@code
+   * graphql-sdl}, and {@code json-schema}), not git-only.
    * {@code rss-atom} streams last-build HTML from a local RSS 2.0 / Atom fixture (or loopback
    * feed); leftover {@code virtual.remoteUrl} is 400. {@code icalendar} streams last-build HTML
    * from a local RFC 5545 fixture; leftover {@code virtual.remoteUrl} is 400 (no CalDAV). {@code
@@ -719,7 +721,10 @@ public class SitesAdaptor implements ISiteAdaptor {
    * {@code virtual.remoteUrl} and credential properties are 400 (no live spec fetch). {@code
    * graphql-sdl} streams last-build local HTML from a GraphQL SDL fixture; leftover
    * {@code virtual.remoteUrl}, credential properties, and {@code graphql.url} are 400 (no live
-   * GraphQL HTTP or introspection). Traditional
+   * GraphQL HTTP or introspection). {@code json-schema} streams last-build local HTML from a JSON
+   * Schema fixture; leftover {@code virtual.remoteUrl}, credential properties, {@code
+   * jsonschema.url}, and remote {@code $ref}/{@code $id} HTTP are 400 (no live HTTP schema fetch).
+   * Traditional
    * {@code repository} Sites and unknown {@code virtual.sourceKind} values return 400 via
    * {@link PSVirtualSiteHelper#validate}.
    */
@@ -827,7 +832,8 @@ public class SitesAdaptor implements ISiteAdaptor {
       // 8.2/listPets-1.html). asyncapi-yaml operations assemble to
       // {version}/{operationId}-{order}.html (for example 8.2/onLightMeasured-1.html). graphql-sdl
       // Query/Mutation fields assemble to {version}/{field}-{order}.html (for example
-      // 8.2/user-1.html). A sole HTML page
+      // 8.2/user-1.html). json-schema properties assemble to {version}/{property}-{order}.html
+      // (for example 8.2/sku-1.html). A sole HTML page
       // in a version dir is still a last-build home so Preview available=true after Build.
       for (Path dir : dirs) {
         if (isSkippedHomeDirectory(dir)) {

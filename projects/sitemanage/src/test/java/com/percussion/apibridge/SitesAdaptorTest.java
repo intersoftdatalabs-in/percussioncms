@@ -4956,6 +4956,305 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void buildVirtualSite_jsonSchemaWritesHtml() throws Exception {
+    Path siteRoot = createMinimalJsonSchemaTree(tempDir.resolve("js-src"));
+    Path out = tempDir.resolve("js-out");
+
+    PSSite site = new PSSite();
+    site.setName("JsonSchemaHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "json-schema");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "jsonschema-docs");
+    when(siteManager.findSite("JsonSchemaHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult result = adaptor.buildVirtualSite("JsonSchemaHelp", req);
+    assertTrue(result.getPagesWritten().intValue() > 0, "pagesWritten=" + result.getPagesWritten());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertEquals(out.toAbsolutePath().normalize().toString(), result.getOutputPath());
+    assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
+    Path html = out.resolve("8.2").resolve("sku-1.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("SKU") || body.contains("sku") || body.contains("Hello-from-jsonschema"), body);
+  }
+
+  @Test
+  void buildVirtualSite_jsonSchemaSecondBuildAfterCurrentFileEditWritesUpdatedHtml()
+      throws Exception {
+    Path siteRoot = tempDir.resolve("js-rebuild-src");
+    Path out = tempDir.resolve("js-rebuild-out");
+
+    PSSite existing = new PSSite();
+    existing.setName("JsonSchemaHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("JsonSchemaHelp");
+    modifiable.setGUID(siteGuid);
+    when(siteManager.findSite("JsonSchemaHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("json-schema");
+    body.setRootPath(siteRoot.toAbsolutePath().toString());
+    body.setSiteKey("jsonschema-docs");
+    VirtualSiteProperties put = adaptor.updateVirtualSiteProperties("JsonSchemaHelp", body);
+    assertEquals("json-schema", put.getSourceKind());
+    ArgumentCaptor<PSSite> saved = ArgumentCaptor.forClass(PSSite.class);
+    verify(siteManager).saveSite(saved.capture());
+    PSSite persisted = saved.getValue();
+    when(siteManager.findSite("JsonSchemaHelp")).thenReturn(persisted);
+
+    createMinimalJsonSchemaTree(siteRoot);
+    Files.writeString(
+        siteRoot.resolve("schema.json"),
+        jsonSchemaSpec("firstOp", "First", "unique-token-AAA"),
+        StandardCharsets.UTF_8);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult first = adaptor.buildVirtualSite("JsonSchemaHelp", req);
+    assertTrue(first.getPagesWritten().intValue() > 0, "pagesWritten=" + first.getPagesWritten());
+    assertEquals(1, first.getPagesWritten().intValue());
+    Path html = out.resolve("8.2").resolve("firstOp-1.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    Path secondHtmlPath = out.resolve("8.2").resolve("secondOp-1.html");
+    assertFalse(Files.isRegularFile(secondHtmlPath), "first build must not emit secondOp-1.html");
+    String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(firstHtml.contains("firstOp") || firstHtml.contains("First"), firstHtml);
+    assertFalse(firstHtml.contains("secondOp"), firstHtml);
+
+    Files.writeString(
+        siteRoot.resolve("schema.json"),
+        jsonSchemaSpec("secondOp", "Second", "unique-token-BBB"),
+        StandardCharsets.UTF_8);
+
+    VirtualSiteBuildResult second = adaptor.buildVirtualSite("JsonSchemaHelp", req);
+    assertTrue(
+        second.getPagesWritten().intValue() > 0, "pagesWritten=" + second.getPagesWritten());
+    assertEquals(1, second.getPagesWritten().intValue());
+    assertTrue(Files.isRegularFile(secondHtmlPath), "missing " + secondHtmlPath);
+    String secondHtml = Files.readString(secondHtmlPath, StandardCharsets.UTF_8);
+    assertTrue(secondHtml.contains("secondOp") || secondHtml.contains("Second"), secondHtml);
+    assertFalse(secondHtml.contains("firstOp"), secondHtml);
+    assertNotEquals(firstHtml, secondHtml);
+  }
+
+  @Test
+  void buildVirtualSite_jsonSchemaMissingFixture400() throws Exception {
+    Path siteRoot = createMinimalJsonSchemaTree(tempDir.resolve("js-nofile"));
+    Files.deleteIfExists(siteRoot.resolve("schema.json"));
+    Path out = tempDir.resolve("js-nofile-out");
+
+    PSSite site = new PSSite();
+    site.setName("JsonSchemaHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "json-schema");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("JsonSchemaHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("JsonSchemaHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String missingMsg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(
+        missingMsg.contains("json") || missingMsg.contains("schema"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_jsonSchemaMissingConfig400() throws Exception {
+    Path siteRoot = tempDir.resolve("js-noconfig");
+    Files.createDirectories(siteRoot);
+    Path out = tempDir.resolve("js-noconfig-out");
+
+    PSSite site = new PSSite();
+    site.setName("JsonSchemaHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "json-schema");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("JsonSchemaHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("JsonSchemaHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String missingMsg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(
+        missingMsg.contains("config") && missingMsg.contains("_config.yaml"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_jsonSchemaUnsafePath400() {
+    Path out = tempDir.resolve("js-unsafe-out");
+    PSSite site = new PSSite();
+    site.setName("JsonSchemaHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "json-schema");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, Path.of("a", "..", "..", "etc").toString());
+    when(siteManager.findSite("JsonSchemaHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("JsonSchemaHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(
+        msg.contains("virtual.rootPath") || msg.toLowerCase().contains("unsafe"), msg);
+  }
+
+  @Test
+  void buildVirtualSite_jsonSchemaRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalJsonSchemaTree(tempDir.resolve("js-remote"));
+    Path out = tempDir.resolve("js-remote-out");
+
+    PSSite site = new PSSite();
+    site.setName("JsonSchemaHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "json-schema");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("JsonSchemaHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("JsonSchemaHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_jsonSchemaCloudRootPath400() {
+    Path out = tempDir.resolve("js-cloud-out");
+    PSSite site = new PSSite();
+    site.setName("JsonSchemaHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "json-schema");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, "https://example.com/schema.json");
+    when(siteManager.findSite("JsonSchemaHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("JsonSchemaHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.contains("virtual.rootPath"), msg);
+    assertTrue(msg.toLowerCase().contains("cloud"), msg);
+  }
+
+  @Test
+  void buildVirtualSite_jsonSchemaCredentialProperty400() throws Exception {
+    Path siteRoot = createMinimalJsonSchemaTree(tempDir.resolve("js-cred"));
+    Path out = tempDir.resolve("js-cred-out");
+
+    PSSite site = new PSSite();
+    site.setName("JsonSchemaHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "json-schema");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, "aws_secret_access_key", "not-a-real-secret");
+    when(siteManager.findSite("JsonSchemaHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("JsonSchemaHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.toLowerCase().contains("credential"), msg);
+    assertFalse(msg.contains("not-a-real-secret"), msg);
+  }
+
+  @Test
+  void buildVirtualSite_jsonSchemaJsonSchemaUrl400() throws Exception {
+    Path siteRoot = createMinimalJsonSchemaTree(tempDir.resolve("js-url"));
+    Path out = tempDir.resolve("js-url-out");
+
+    PSSite site = new PSSite();
+    site.setName("JsonSchemaHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "json-schema");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, "jsonschema.url", "https://example.com/schema.json");
+    when(siteManager.findSite("JsonSchemaHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("JsonSchemaHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.contains("jsonschema.url"), msg);
+    assertFalse(msg.contains("example.com"), msg);
+  }
+
+  @Test
+  void buildVirtualSite_jsonSchemaRemoteRef400() throws Exception {
+    Path siteRoot = createMinimalJsonSchemaTree(tempDir.resolve("js-ref"));
+    Files.writeString(
+        siteRoot.resolve("schema.json"),
+        """
+        {
+          "type": "object",
+          "properties": {
+            "sku": { "$ref": "https://example.com/sku.json" }
+          }
+        }
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("js-ref-out");
+
+    PSSite site = new PSSite();
+    site.setName("JsonSchemaHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "json-schema");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("JsonSchemaHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("JsonSchemaHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(msg.contains("$ref") || msg.contains("ref"), String.valueOf(ex.getMessage()));
+    assertTrue(msg.contains("live"), String.valueOf(ex.getMessage()));
+    assertFalse(Files.exists(out.resolve("8.2").resolve("sku-1.html")));
+  }
+
+  @Test
   void buildVirtualSite_unknownSourceKind400() {
     Path siteRoot = tempDir.resolve("sql-root");
     PSSite site = new PSSite();
@@ -8405,6 +8704,96 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void previewJsonSchema_afterBuildAvailableWithHtml() throws Exception {
+    Path siteRoot = createMinimalJsonSchemaTree(tempDir.resolve("js-preview-src"));
+    Path defaultOut = tempDir.resolve("js-preview-default");
+    Path built = tempDir.resolve("js-preview-built");
+
+    PSSite site = virtualJsonSchemaSite(siteRoot);
+    when(siteManager.findSite("JsonSchemaHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(built.toAbsolutePath().normalize().toString());
+    VirtualSiteBuildResult result = previewing.buildVirtualSite("JsonSchemaHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("JsonSchemaHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/sku-1.html", status.getHomePath());
+
+    VirtualSitePreviewFile file =
+        previewing.previewVirtualSiteFile("JsonSchemaHelp", "8.2/sku-1.html");
+    assertTrue(file.isHtml());
+    assertEquals("8.2/sku-1.html", file.getRelativePath());
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(
+        html.contains("SKU") || html.contains("sku") || html.contains("Hello-from-jsonschema"),
+        html);
+  }
+
+  @Test
+  void previewJsonSchema_missingBuildIsUnavailableNot500() throws Exception {
+    Path siteRoot = createMinimalJsonSchemaTree(tempDir.resolve("js-preview-empty-src"));
+    Path defaultOut = tempDir.resolve("js-preview-default-empty");
+    PSSite site = virtualJsonSchemaSite(siteRoot);
+    when(siteManager.findSite("JsonSchemaHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("JsonSchemaHelp");
+    assertEquals(Boolean.FALSE, status.getAvailable());
+    assertEquals(SitesAdaptor.MISSING_PREVIEW_MESSAGE, status.getMessage());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("JsonSchemaHelp", "8.2/sku-1.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewJsonSchema_leftoverRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalJsonSchemaTree(tempDir.resolve("js-preview-remote"));
+    Path defaultOut = tempDir.resolve("js-preview-remote-default");
+    PSSite site = virtualJsonSchemaSite(siteRoot);
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("JsonSchemaHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.getVirtualSitePreviewStatus("JsonSchemaHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void previewJsonSchema_leftoverCredential400() throws Exception {
+    Path siteRoot = createMinimalJsonSchemaTree(tempDir.resolve("js-preview-cred"));
+    Path defaultOut = tempDir.resolve("js-preview-cred-default");
+    PSSite site = virtualJsonSchemaSite(siteRoot);
+    put(site, "aws_secret_access_key", "not-a-real-secret");
+    when(siteManager.findSite("JsonSchemaHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.getVirtualSitePreviewStatus("JsonSchemaHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage());
+    assertTrue(msg.toLowerCase().contains("credential"), msg);
+    assertFalse(msg.contains("not-a-real-secret"), msg);
+  }
+
+  @Test
   void requireSafeRelativePreviewPath_rejectsAbsoluteAndDotDot() {
     WebApplicationException dots =
         assertThrows(
@@ -8619,6 +9008,19 @@ class SitesAdaptorTest {
         PSVirtualSiteHelper.PROP_ROOT_PATH,
         gqlRoot.toAbsolutePath().normalize().toString());
     put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "graphql-docs");
+    return site;
+  }
+
+  private PSSite virtualJsonSchemaSite(Path jsRoot) {
+    PSSite site = new PSSite();
+    site.setName("JsonSchemaHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "json-schema");
+    put(
+        site,
+        PSVirtualSiteHelper.PROP_ROOT_PATH,
+        jsRoot.toAbsolutePath().normalize().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "jsonschema-docs");
     return site;
   }
 
@@ -9189,6 +9591,59 @@ class SitesAdaptorTest {
         }
         """
         .formatted(comment, fieldName);
+  }
+
+  /**
+   * Local JSON Schema fixture for json-schema REST Build/Preview. A single {@code sku} property
+   * assembles {@code 8.2/sku-1.html} with {@code pagesWritten > 0}. Preview uses the sole-HTML
+   * home fallback (no {@code index.html}). Portable NIO {@link Path} / {@link Files}. No live HTTP
+   * schema fetch.
+   */
+  private static Path createMinimalJsonSchemaTree(Path siteRoot) throws Exception {
+    Files.createDirectories(siteRoot.resolve("8.2"));
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: JSON Schema Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        jsonschema:
+          file: schema.json
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${pageTitle}</h1>${content}</body></html>",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("schema.json"),
+        jsonSchemaSpec("sku", "SKU", "Hello-from-jsonschema"),
+        StandardCharsets.UTF_8);
+    return siteRoot;
+  }
+
+  private static String jsonSchemaSpec(String propertyName, String title, String description) {
+    String descJson =
+        description == null || description.isBlank()
+            ? ""
+            : ", \"description\": \"" + description.replace("\"", "\\\"") + "\"";
+    return """
+        {
+          "title": "Catalog",
+          "type": "object",
+          "properties": {
+            "%s": { "type": "string", "title": "%s"%s }
+          }
+        }
+        """
+        .formatted(propertyName, title, descJson);
   }
 
   /**

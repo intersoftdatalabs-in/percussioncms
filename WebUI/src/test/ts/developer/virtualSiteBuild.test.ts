@@ -56,9 +56,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualBuildChrome("graphql-sdl")).toBe(true);
     expect(shouldShowVirtualBuildChrome("GraphQL-SDL")).toBe(true);
     expect(shouldShowVirtualBuildChrome("  graphql-sdl  ")).toBe(true);
-    expect(shouldShowVirtualBuildChrome("json-schema")).toBe(false);
-    expect(shouldShowVirtualBuildChrome("JSON-Schema")).toBe(false);
-    expect(shouldShowVirtualBuildChrome("  json-schema  ")).toBe(false);
+    expect(shouldShowVirtualBuildChrome("json-schema")).toBe(true);
+    expect(shouldShowVirtualBuildChrome("JSON-Schema")).toBe(true);
+    expect(shouldShowVirtualBuildChrome("  json-schema  ")).toBe(true);
   });
 
   it("shouldShowVirtualPreviewChrome for git, csv, sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, and asyncapi-yaml (not repository)", () => {
@@ -101,9 +101,9 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPreviewChrome("graphql-sdl")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("GraphQL-SDL")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("  graphql-sdl  ")).toBe(true);
-    expect(shouldShowVirtualPreviewChrome("json-schema")).toBe(false);
-    expect(shouldShowVirtualPreviewChrome("JSON-Schema")).toBe(false);
-    expect(shouldShowVirtualPreviewChrome("  json-schema  ")).toBe(false);
+    expect(shouldShowVirtualPreviewChrome("json-schema")).toBe(true);
+    expect(shouldShowVirtualPreviewChrome("JSON-Schema")).toBe(true);
+    expect(shouldShowVirtualPreviewChrome("  json-schema  ")).toBe(true);
   });
 
   it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, sql-database, http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl", () => {

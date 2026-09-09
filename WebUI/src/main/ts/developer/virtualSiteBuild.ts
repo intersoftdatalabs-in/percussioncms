@@ -28,12 +28,11 @@ function normalizedSourceKind(sourceKind: string | null | undefined): string {
  * True when the Build Virtual Site control should be shown.
  * Git-filesystem, csv-filesystem, sql-database, http-json, object-storage,
  * rss-atom, icalendar, sitemap-xml, robots-txt, llms-txt, openapi-yaml,
- * asyncapi-yaml, and graphql-sdl Virtual Sites all run POST /virtual/build (SQL JDBC, HTTP JSON catalog,
+ * asyncapi-yaml, graphql-sdl, and json-schema Virtual Sites all run POST /virtual/build (SQL JDBC, HTTP JSON catalog,
  * object-storage keys, rss-atom feeds, icalendar .ics, sitemap.xml, robots.txt, llms.txt,
- * openapi.yaml, asyncapi.yaml, and schema.graphql stay in _config.yaml / the local root).
- * openapi-yaml, asyncapi-yaml, and graphql-sdl Build produce last-build HTML for Preview
- * and Publish (copy to IPSSite.root).
- * json-schema persist chrome is save only (Build stays a later slice).
+ * openapi.yaml, asyncapi.yaml, schema.graphql, and schema.json stay in _config.yaml / the local root).
+ * openapi-yaml, asyncapi-yaml, graphql-sdl, and json-schema Build produce last-build HTML for Preview.
+ * graphql-sdl Publish copies to IPSSite.root. json-schema Publish chrome stays a later slice.
  * Repository / blank / unknown kinds must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
@@ -53,7 +52,8 @@ export function shouldShowVirtualBuildChrome(
     v === "llms-txt" ||
     v === "openapi-yaml" ||
     v === "asyncapi-yaml" ||
-    v === "graphql-sdl"
+    v === "graphql-sdl" ||
+    v === "json-schema"
   );
 }
 
@@ -61,9 +61,9 @@ export function shouldShowVirtualBuildChrome(
  * True when Preview assembled site should be shown.
  * Last-output preview for git-filesystem, csv-filesystem, sql-database,
  * http-json, object-storage, rss-atom, icalendar, sitemap-xml, robots-txt,
- * llms-txt, openapi-yaml, asyncapi-yaml, and graphql-sdl. Missing last-build stays unavailable
- * (GET /virtual/preview available=false; no fake preview). json-schema persist chrome is
- * save only (Preview stays a later slice). Repository / blank / unknown kinds stay hidden.
+ * llms-txt, openapi-yaml, asyncapi-yaml, graphql-sdl, and json-schema. Missing last-build stays unavailable
+ * (GET /virtual/preview available=false; no fake preview). json-schema Publish chrome stays a later
+ * slice. Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPreviewChrome(
   sourceKind: string | null | undefined,
@@ -82,7 +82,8 @@ export function shouldShowVirtualPreviewChrome(
     v === "llms-txt" ||
     v === "openapi-yaml" ||
     v === "asyncapi-yaml" ||
-    v === "graphql-sdl"
+    v === "graphql-sdl" ||
+    v === "json-schema"
   );
 }
 
@@ -93,8 +94,8 @@ export function shouldShowVirtualPreviewChrome(
  * asyncapi-yaml, and graphql-sdl all run POST /virtual/publish (build then copy
  * last-build HTML to IPSSite.root). sitemap-xml, robots-txt, llms-txt,
  * openapi-yaml, asyncapi-yaml, and graphql-sdl leftover remoteUrl, credentials,
- * cloud rootPath, and graphql.url fail closed on the server. json-schema persist chrome is
- * save only (Publish stays a later slice). Repository / blank / unknown kinds stay hidden.
+ * cloud rootPath, and graphql.url fail closed on the server. json-schema Publish chrome stays
+ * a later slice. Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPublishChrome(
   sourceKind: string | null | undefined,

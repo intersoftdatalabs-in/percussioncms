@@ -2124,6 +2124,120 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void buildVirtualSiteJsonSchemaFixtureDelegates() throws Exception {
+    Path jsRoot = tempDir.resolve("js-site");
+    Files.createDirectories(jsRoot);
+    Files.writeString(
+        jsRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: JSON Schema Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        jsonschema:
+          file: schema.json
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        jsRoot.resolve("schema.json"),
+        """
+        {
+          "title": "Catalog",
+          "type": "object",
+          "properties": {
+            "sku": { "type": "string", "title": "SKU", "description": "Hello-from-jsonschema" }
+          }
+        }
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("js-out");
+    Files.createDirectories(out);
+
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setSiteName("JsonSchemaHelp");
+    built.setPagesWritten(1);
+    built.setLinkProblemCount(0);
+    built.setHasLinkProblems(false);
+    built.setOutputPath(out.toAbsolutePath().toString());
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+    when(adaptor.buildVirtualSite(eq("JsonSchemaHelp"), same(req))).thenReturn(built);
+
+    VirtualSiteBuildResult result = resource.buildVirtualSite("JsonSchemaHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getPagesWritten().intValue() > 0);
+    assertEquals(out.toAbsolutePath().toString(), result.getOutputPath());
+    assertTrue(Files.isRegularFile(jsRoot.resolve("_config.yaml")));
+    assertTrue(Files.isRegularFile(jsRoot.resolve("schema.json")));
+    verify(adaptor).buildVirtualSite("JsonSchemaHelp", req);
+  }
+
+  @Test
+  public void buildVirtualSiteJsonSchemaRemoteUrlPropagates400() {
+    when(adaptor.buildVirtualSite(eq("JsonSchemaHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.remoteUrl is not supported for json-schema", Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("JsonSchemaHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(adaptor).buildVirtualSite("JsonSchemaHelp", null);
+  }
+
+  @Test
+  public void buildVirtualSiteJsonSchemaCloudRootPathPropagates400() {
+    when(adaptor.buildVirtualSite(eq("JsonSchemaHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "virtual.rootPath for json-schema must be a local filesystem path (NIO Path). Cloud URLs are rejected.",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("JsonSchemaHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("cloud"));
+    verify(adaptor).buildVirtualSite("JsonSchemaHelp", null);
+  }
+
+  @Test
+  public void buildVirtualSiteJsonSchemaCredentialsPropagates400() {
+    when(adaptor.buildVirtualSite(eq("JsonSchemaHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "Credential property is not allowed for json-schema (no AWS/IAM/secrets on this envelope).",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("JsonSchemaHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("credential"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("not-a-real-secret"));
+    verify(adaptor).buildVirtualSite("JsonSchemaHelp", null);
+  }
+
+  @Test
+  public void buildVirtualSiteJsonSchemaJsonSchemaUrlPropagates400() {
+    when(adaptor.buildVirtualSite(eq("JsonSchemaHelp"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "jsonschema.url is not allowed for json-schema (local schema.json fixture only; no live HTTP schema fetch).",
+                Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("JsonSchemaHelp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("jsonschema.url"));
+    assertFalse(String.valueOf(ex.getMessage()).contains("example.com"));
+    verify(adaptor).buildVirtualSite("JsonSchemaHelp", null);
+  }
+
+  @Test
   public void buildVirtualSiteUnknownKindPropagates400() {
     when(adaptor.buildVirtualSite(eq("Help"), any()))
         .thenThrow(
@@ -3430,6 +3544,9 @@ public class SitesResourceTest {
         buildBlock.contains("graphql-sdl"),
         "buildVirtualSite OpenAPI description must mention graphql-sdl");
     assertTrue(
+        buildBlock.contains("json-schema"),
+        "buildVirtualSite OpenAPI description must mention json-schema");
+    assertTrue(
         buildBlock.contains("llms.txt") || buildBlock.contains("no live HTTP fetch"),
         "buildVirtualSite OpenAPI description must mention local llms.txt fixture");
     assertTrue(
@@ -3566,6 +3683,9 @@ public class SitesResourceTest {
         previewStatusBlock.contains("graphql-sdl"),
         "getVirtualSitePreviewStatus OpenAPI description must mention graphql-sdl");
     assertTrue(
+        previewStatusBlock.contains("json-schema"),
+        "getVirtualSitePreviewStatus OpenAPI description must mention json-schema");
+    assertTrue(
         previewStatusBlock.contains("no live crawl")
             || previewStatusBlock.contains("last-build local HTML"),
         "getVirtualSitePreviewStatus OpenAPI description must mention sitemap-xml last-build local HTML");
@@ -3605,6 +3725,9 @@ public class SitesResourceTest {
     assertTrue(
         previewFileBlock.contains("graphql-sdl"),
         "previewVirtualSiteFile OpenAPI description must mention graphql-sdl");
+    assertTrue(
+        previewFileBlock.contains("json-schema"),
+        "previewVirtualSiteFile OpenAPI description must mention json-schema");
     assertTrue(
         previewFileBlock.contains("no live crawl")
             || previewFileBlock.contains("last-build local HTML"),
