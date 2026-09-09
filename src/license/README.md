@@ -57,6 +57,12 @@ Windows: use `mvnw.cmd` and `;` / path separators as appropriate.
 A full reactor build runs the Maven aggregate on the root `generate-resources` phase and
 the Java merge on `perc-distribution-tree` `generate-resources` (after `utilities` is built).
 
+The QA rebuild chain (`python3 docker/scripts/perc-devctl.py qa-rebuild-chain`) invokes
+`license:aggregate-add-third-party` from the repo root (never `-N`) before packaging
+`perc-distribution-tree`, and skips that Maven step only when `THIRD-PARTY-MAVEN.txt`
+already exists and is non-empty (#4420). Do not treat the aggregate as a hidden
+manual prereq of a standalone dist package.
+
 ## npm package locks
 
 Edit `npm-package-locks.txt` to add product-shipped frontend lockfiles. **Do not** list

@@ -127,7 +127,12 @@ Manual equivalent (same order the driver executes):
 ```bash
 cd projects/sitemanage && ../../mvnw clean install   # or package if tests already green
 cd ../../WebUI && ../mvnw package -DskipTests
-cd ../modules/perc-distribution-tree && ../../mvnw clean package -DskipTests
+# perc-distribution-tree merge-third-party-inventory --require-maven needs
+# reactor-root target/generated-sources/license/THIRD-PARTY-MAVEN.txt (#4420).
+# Do not pass -N — that only loads the empty root POM.
+./mvnw license:aggregate-add-third-party
+cd deliverytiersuite/delivery-tier-suite/secure-membership && ../../../mvnw package -DskipTests
+cd ../../../modules/perc-distribution-tree && ../../mvnw clean package -DskipTests
 # Windows: use mvnw.cmd and the same module order
 ```
 
@@ -135,6 +140,7 @@ If only installer packaging scripts/resources changed (no Java SNAPSHOT under th
 
 ```bash
 python docker/scripts/perc-devctl.py qa-rebuild-chain --dist-only
+# still generates the Maven license inventory when missing, then:
 # manual: cd modules/perc-distribution-tree && ../../mvnw package -DskipTests
 # Windows: cd modules\perc-distribution-tree && ..\..\mvnw.cmd package -DskipTests
 ```

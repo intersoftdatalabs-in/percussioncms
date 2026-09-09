@@ -420,6 +420,9 @@
               copy runs. Standalone: from repo root first run
                 mvnw.cmd license:aggregate-add-third-party
               (full reactor load required — do not use -N).
+              The QA rebuild chain (docker/scripts/qa_rebuild_chain.py,
+              issue #4420) invokes that goal itself before this module
+              package; operators should not need a hidden extra step.
             -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

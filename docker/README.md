@@ -99,6 +99,9 @@ When preflight reports `STALE:` (or after any sitemanage / WebUI SNAPSHOT change
 python3 docker/scripts/perc-devctl.py qa-rebuild-chain --dry-run
 
 # Full chain: sitemanage clean install → WebUI package -DskipTests →
+# license:aggregate-add-third-party (repo root, no -N; skipped when
+# THIRD-PARTY-MAVEN.txt already exists) →
+# secure-membership package (skipped when target/dependency exists) →
 # modules/perc-distribution-tree clean package -DskipTests
 python3 docker/scripts/perc-devctl.py qa-rebuild-chain --skip-tests
 

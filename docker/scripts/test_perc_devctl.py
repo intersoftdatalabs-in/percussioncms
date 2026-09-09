@@ -187,6 +187,12 @@ class TestQaRebuildChain(unittest.TestCase):
         (self.repo_root / "projects" / "sitemanage").mkdir(parents=True)
         (self.repo_root / "WebUI").mkdir(parents=True)
         (self.repo_root / "modules" / "perc-distribution-tree").mkdir(parents=True)
+        (
+            self.repo_root
+            / "deliverytiersuite"
+            / "delivery-tier-suite"
+            / "secure-membership"
+        ).mkdir(parents=True)
         (self.repo_root / "mvnw.cmd").write_text("@echo stub\r\n", encoding="utf-8")
         self.runner = _CliRunner(self.repo_root)
 
@@ -194,6 +200,7 @@ class TestQaRebuildChain(unittest.TestCase):
         rc, out = self.runner.run(["qa-rebuild-chain", "--skip-tests"])
         self.assertEqual(rc, pdc.EXIT_OK)
         self.assertIn("PLANNED STEP:qa-rebuild-sitemanage", out)
+        self.assertIn("PLANNED STEP:qa-rebuild-license-inventory", out)
         self.assertIn("RESULT:OK STEP:qa-rebuild-chain", out)
 
     def test_qa_rebuild_chain_then_qa_up_dry_run(self):
@@ -350,9 +357,17 @@ class TestSubcommandDryRun(unittest.TestCase):
         (self.repo_root / "modules" / "perc-distribution-tree").mkdir(
             parents=True, exist_ok=True
         )
+        (
+            self.repo_root
+            / "deliverytiersuite"
+            / "delivery-tier-suite"
+            / "secure-membership"
+        ).mkdir(parents=True, exist_ok=True)
         (self.repo_root / "mvnw.cmd").write_text("@echo stub\r\n", encoding="utf-8")
         rc, out = self.runner.run(["qa-rebuild-chain", "--dist-only"])
         self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("PLANNED STEP:qa-rebuild-license-inventory", out)
+        self.assertIn("PLANNED STEP:qa-rebuild-secure-membership", out)
         self.assertIn("RESULT:OK STEP:qa-rebuild-chain", out)
 
     def test_it_verify_dry_run(self):
