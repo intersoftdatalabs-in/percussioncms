@@ -468,6 +468,7 @@ describe("pipelinesApi Slice D result page", () => {
       stylesheetUri: "pipeline-xsl-result-fixture",
       requestExtension: ".html",
       mimeType: "text/html",
+      presentation: "none",
     });
     expect(String(spy.mock.calls[0][0])).toContain(
       `/pipelines/${encodeURIComponent("app with spaces")}/resources/${encodeURIComponent("res/one")}/resultPage`,
@@ -477,6 +478,7 @@ describe("pipelinesApi Slice D result page", () => {
         stylesheetUri: "pipeline-xsl-result-fixture",
         requestExtension: ".html",
         mimeType: "text/html",
+        presentation: "none",
       },
     });
     expect(out.stylesheetUri).toBe("pipeline-xsl-result-fixture");

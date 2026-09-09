@@ -41,6 +41,8 @@ public class PipelineExecuteResult {
   private Map<String, Object> meta = new LinkedHashMap<>();
   /** HTML produced by result-page XSL merge when the request asked for HTML. */
   private String html;
+  /** Untransformed row XML when the request asked for XML (no XSL). */
+  private String xml;
 
   public String getAppName() {
     return appName;
@@ -123,6 +125,14 @@ public class PipelineExecuteResult {
     this.html = html;
   }
 
+  public String getXml() {
+    return xml;
+  }
+
+  public void setXml(String xml) {
+    this.xml = xml;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -140,12 +150,23 @@ public class PipelineExecuteResult {
         && Objects.equals(rows, that.rows)
         && Objects.equals(hookTrace, that.hookTrace)
         && Objects.equals(meta, that.meta)
-        && Objects.equals(html, that.html);
+        && Objects.equals(html, that.html)
+        && Objects.equals(xml, that.xml);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(
-        appName, resourceName, kind, operation, rowCount, affectedRows, rows, hookTrace, meta, html);
+        appName,
+        resourceName,
+        kind,
+        operation,
+        rowCount,
+        affectedRows,
+        rows,
+        hookTrace,
+        meta,
+        html,
+        xml);
   }
 }

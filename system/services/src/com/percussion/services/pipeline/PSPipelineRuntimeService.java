@@ -348,7 +348,29 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
       StageClock clock)
       throws PSPipelineIrException {
     PipelineResultPageIr page = resource.getResultPage();
-    if (page == null || !page.isPresent() || !PSPipelineXslMerge.wantsHtml(req)) {
+    if (PSPipelineXslMerge.wantsJson(req)) {
+      result.getMeta().put("contentType", "application/json");
+      result.getMeta().put("resultPageApplied", false);
+      result.getMeta().put("presentation", PipelineResultPageIr.PRESENTATION_NONE);
+      return;
+    }
+    if (PSPipelineXslMerge.wantsXml(req)) {
+      result.setXml(PSPipelineXslMerge.rowsToXml(result.getRows()));
+      result.getMeta().put("contentType", "text/xml");
+      result.getMeta().put("resultPageApplied", false);
+      result.getMeta().put("presentation", PipelineResultPageIr.PRESENTATION_NONE);
+      if (clock != null) {
+        clock.stage("resultPage", "skipped", "xml");
+      }
+      return;
+    }
+    if (!PSPipelineXslMerge.shouldApplyXsl(page, req)) {
+      if (PSPipelineXslMerge.wantsHtml(req)) {
+        result.setXml(PSPipelineXslMerge.rowsToXml(result.getRows()));
+        result.getMeta().put("contentType", "application/xml");
+        result.getMeta().put("resultPageApplied", false);
+        result.getMeta().put("presentation", PipelineResultPageIr.PRESENTATION_NONE);
+      }
       return;
     }
     String html =
@@ -357,6 +379,7 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
     result.getMeta().put("contentType", page.resolvedMimeType());
     result.getMeta().put("resultPageApplied", true);
     result.getMeta().put("requestExtension", page.resolvedRequestExtension());
+    result.getMeta().put("presentation", PipelineResultPageIr.PRESENTATION_HTML);
     if (clock != null) {
       clock.stage("resultPage", "ok", page.resolvedMimeType());
     }

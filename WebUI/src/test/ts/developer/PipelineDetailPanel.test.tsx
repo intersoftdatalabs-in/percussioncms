@@ -750,6 +750,7 @@ describe("PipelineDetailPanel", () => {
         stylesheetUri: "pipeline-xsl-result-fixture",
         requestExtension: ".html",
         mimeType: "text/html",
+        presentation: "html",
       });
     });
     await waitFor(() => {
@@ -770,6 +771,78 @@ describe("PipelineDetailPanel", () => {
         /PIPE-XSL-HTML/,
       );
     });
+  });
+
+  it("Admin clears presentation; Test JSON skips HTML wrapper", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    putResultPage.mockResolvedValue({ presentation: "none" });
+    executeResource.mockResolvedValue({
+      appName: "sys_cmpDocuments",
+      resourceName: "contenteditor",
+      operation: "http-query",
+      rowCount: 1,
+      rows: [{ sku: "SKU-1" }],
+      meta: { resultPageApplied: false, contentType: "application/json", presentation: "none" },
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-result-page-clear")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-result-page-clear"));
+    await waitFor(() => {
+      expect(putResultPage).toHaveBeenCalledWith("sys_cmpDocuments", "contenteditor", {
+        presentation: "none",
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-result-page-notice").textContent).toBe(
+        DEV_MSG.PIPE_RESULT_PAGE_CLEARED,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-invoke-json"));
+    await waitFor(() => {
+      expect(executeResource).toHaveBeenCalledWith(
+        "sys_cmpDocuments",
+        "contenteditor",
+        expect.objectContaining({
+          requestExtension: ".json",
+          accept: "application/json",
+        }),
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-invoke-result").textContent).toMatch(/SKU-1/);
+    });
+    expect(screen.queryByTestId("developer-pipe-invoke-html-result")).toBeNull();
+  });
+
+  it("Test XML shows untransformed row XML", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    executeResource.mockResolvedValue({
+      appName: "sys_cmpDocuments",
+      resourceName: "contenteditor",
+      rowCount: 1,
+      xml: "<rows><row><sku>SKU-1</sku></row></rows>",
+      meta: { resultPageApplied: false, contentType: "text/xml", presentation: "none" },
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-invoke-xml")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-invoke-xml"));
+    await waitFor(() => {
+      expect(executeResource).toHaveBeenCalledWith(
+        "sys_cmpDocuments",
+        "contenteditor",
+        expect.objectContaining({ requestExtension: ".xml", accept: "application/xml" }),
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-invoke-xml-result").textContent).toMatch(
+        /<rows>/,
+      );
+    });
+    expect(screen.queryByTestId("developer-pipe-invoke-html-result")).toBeNull();
   });
 
   it("inspects classic imported result pages from GET IR", async () => {

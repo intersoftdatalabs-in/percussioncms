@@ -21,9 +21,10 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Native IR result-page binding (Slice D): request extension + MIME + stylesheet URI. Used as the
- * HTML apply binding ({@code resultPage}) and as classic-import inspect entries ({@code
- * resultPages[]}). Classic XML Applications are not rewritten.
+ * Native IR result-page binding (Slice D): request extension + MIME + stylesheet URI + optional
+ * {@code presentation}. Used as the HTML apply binding ({@code resultPage}) and as
+ * classic-import inspect entries ({@code resultPages[]}). {@code presentation=none} disables
+ * XSL so Test invoke returns raw JSON/XML. Classic XML Applications are not rewritten.
  */
 public class PipelineResultPageIr {
 
@@ -31,9 +32,15 @@ public class PipelineResultPageIr {
 
   public static final String DEFAULT_MIME_TYPE = "text/html";
 
+  public static final String PRESENTATION_HTML = "html";
+
+  public static final String PRESENTATION_NONE = "none";
+
   private String requestExtension;
   private String mimeType;
   private String stylesheetUri;
+  /** {@code html} (apply XSL when requested) or {@code none} (raw structured output). */
+  private String presentation;
 
   public String getRequestExtension() {
     return requestExtension;
@@ -59,9 +66,22 @@ public class PipelineResultPageIr {
     this.stylesheetUri = stylesheetUri;
   }
 
-  /** True when a stylesheet URI is configured. */
+  public String getPresentation() {
+    return presentation;
+  }
+
+  public void setPresentation(String presentation) {
+    this.presentation = presentation;
+  }
+
+  /** True when presentation is {@code none} (XSL disabled even if a stylesheet URI remains). */
+  public boolean isNonePresentation() {
+    return PRESENTATION_NONE.equalsIgnoreCase(StringUtils.trimToEmpty(presentation));
+  }
+
+  /** True when a stylesheet URI is configured and presentation is not {@code none}. */
   public boolean isPresent() {
-    return StringUtils.isNotBlank(stylesheetUri);
+    return StringUtils.isNotBlank(stylesheetUri) && !isNonePresentation();
   }
 
   public String resolvedRequestExtension() {
@@ -88,11 +108,12 @@ public class PipelineResultPageIr {
     }
     return Objects.equals(requestExtension, that.requestExtension)
         && Objects.equals(mimeType, that.mimeType)
-        && Objects.equals(stylesheetUri, that.stylesheetUri);
+        && Objects.equals(stylesheetUri, that.stylesheetUri)
+        && Objects.equals(presentation, that.presentation);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requestExtension, mimeType, stylesheetUri);
+    return Objects.hash(requestExtension, mimeType, stylesheetUri, presentation);
   }
 }

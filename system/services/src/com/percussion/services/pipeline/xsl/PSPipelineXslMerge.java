@@ -59,19 +59,88 @@ public final class PSPipelineXslMerge {
     if (request == null) {
       return false;
     }
-    String ext = request.getRequestExtension();
+    String ext = extensionToken(request);
+    if ("html".equals(ext) || "htm".equals(ext)) {
+      return true;
+    }
     if (StringUtils.isNotBlank(ext)) {
-      String token = ext.trim().toLowerCase(Locale.ROOT);
-      if (token.startsWith(".")) {
-        token = token.substring(1);
-      }
-      if ("html".equals(token) || "htm".equals(token)) {
-        return true;
-      }
+      return false;
     }
     String accept = request.getAccept();
     return StringUtils.isNotBlank(accept)
         && accept.toLowerCase(Locale.ROOT).contains("text/html");
+  }
+
+  /**
+   * True when the request is JSON ({@code .json} or {@code Accept: application/json}). Extension
+   * wins over Accept, matching classic JSON I/O. Fail-closed: JSON never applies XSL.
+   */
+  public static boolean wantsJson(PipelineExecuteRequest request) {
+    if (request == null) {
+      return false;
+    }
+    String ext = extensionToken(request);
+    if ("json".equals(ext)) {
+      return true;
+    }
+    if (StringUtils.isNotBlank(ext)) {
+      return false;
+    }
+    String accept = request.getAccept();
+    if (StringUtils.isBlank(accept)) {
+      return false;
+    }
+    String lower = accept.toLowerCase(Locale.ROOT);
+    return lower.contains("application/json") || lower.contains("+json");
+  }
+
+  /**
+   * True when the request is XML ({@code .xml} / {@code .txt} or {@code Accept} XML). Extension
+   * wins over Accept. XML never applies XSL.
+   */
+  public static boolean wantsXml(PipelineExecuteRequest request) {
+    if (request == null) {
+      return false;
+    }
+    String ext = extensionToken(request);
+    if ("xml".equals(ext) || "txt".equals(ext)) {
+      return true;
+    }
+    if (StringUtils.isNotBlank(ext)) {
+      return false;
+    }
+    String accept = request.getAccept();
+    if (StringUtils.isBlank(accept)) {
+      return false;
+    }
+    String lower = accept.toLowerCase(Locale.ROOT);
+    return lower.contains("application/xml") || lower.contains("text/xml");
+  }
+
+  /**
+   * Apply XSL only when a stylesheet is bound, presentation is not {@code none}, the request
+   * asks for HTML, and the request is not JSON or XML.
+   */
+  public static boolean shouldApplyXsl(
+      PipelineResultPageIr page, PipelineExecuteRequest request) {
+    if (page == null || !page.isPresent()) {
+      return false;
+    }
+    if (wantsJson(request) || wantsXml(request)) {
+      return false;
+    }
+    return wantsHtml(request);
+  }
+
+  static String extensionToken(PipelineExecuteRequest request) {
+    if (request == null || StringUtils.isBlank(request.getRequestExtension())) {
+      return "";
+    }
+    String token = request.getRequestExtension().trim().toLowerCase(Locale.ROOT);
+    if (token.startsWith(".")) {
+      token = token.substring(1);
+    }
+    return token;
   }
 
   /**
@@ -171,7 +240,8 @@ public final class PSPipelineXslMerge {
     }
   }
 
-  static String rowsToXml(List<Map<String, Object>> rows) {
+  /** Row document used for XSL merge and raw XML Test invoke (no stylesheet). */
+  public static String rowsToXml(List<Map<String, Object>> rows) {
     StringBuilder sb = new StringBuilder();
     sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     sb.append("<rows>");

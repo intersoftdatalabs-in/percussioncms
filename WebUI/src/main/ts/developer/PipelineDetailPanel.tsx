@@ -610,6 +610,7 @@ export function PipelineDetailPanel({
   const [resultPageError, setResultPageError] = useState<string | null>(null);
   const [resultPageNotice, setResultPageNotice] = useState<string | null>(null);
   const [invokeHtml, setInvokeHtml] = useState<string | null>(null);
+  const [invokeXml, setInvokeXml] = useState<string | null>(null);
   const [tracingEnabled, setTracingEnabled] = useState(false);
   const [tracingBusy, setTracingBusy] = useState(false);
   const [tracingError, setTracingError] = useState<string | null>(null);
@@ -1133,12 +1134,44 @@ export function PipelineDetailPanel({
         stylesheetUri,
         requestExtension: resultPageExtension.trim() || ".html",
         mimeType: resultPageMime.trim() || "text/html",
+        presentation: "html",
       });
       if (!mountedRef.current) return;
       if (saved.stylesheetUri) setResultPageUri(saved.stylesheetUri);
       if (saved.requestExtension) setResultPageExtension(saved.requestExtension);
       if (saved.mimeType) setResultPageMime(saved.mimeType);
       setResultPageNotice(DEV_MSG.PIPE_RESULT_PAGE_SAVED);
+      try {
+        const nextIr = await getPipelineIr(idOrName);
+        if (mountedRef.current) setIr(nextIr);
+      } catch {
+        // persist succeeded; IR refresh is best-effort
+      }
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setResultPageError(lifecycleErrMsg(err, DEV_MSG.PIPE_RESULT_PAGE_SAVE_ERROR));
+    } finally {
+      resultPageInflight.current = false;
+      if (mountedRef.current) setResultPageBusy(false);
+    }
+  }
+
+  async function onClearResultPage(): Promise<void> {
+    if (!detail || resultPageInflight.current) return;
+    const resource = resourceName.trim();
+    if (!resource) {
+      setResultPageError(DEV_MSG.PIPE_RESULT_PAGE_RESOURCE_REQUIRED);
+      setResultPageNotice(null);
+      return;
+    }
+    resultPageInflight.current = true;
+    setResultPageBusy(true);
+    setResultPageError(null);
+    setResultPageNotice(null);
+    try {
+      await putResultPage(idOrName, resource, { presentation: "none" });
+      if (!mountedRef.current) return;
+      setResultPageNotice(DEV_MSG.PIPE_RESULT_PAGE_CLEARED);
       try {
         const nextIr = await getPipelineIr(idOrName);
         if (mountedRef.current) setIr(nextIr);
@@ -1208,6 +1241,7 @@ export function PipelineDetailPanel({
       setInvokeError(DEV_MSG.PIPE_INVOKE_RESOURCE_REQUIRED);
       setInvokeResult(null);
       setInvokeHtml(null);
+      setInvokeXml(null);
       return;
     }
     const parsed = parseExecuteBody(invokeBody);
@@ -1215,6 +1249,7 @@ export function PipelineDetailPanel({
       setInvokeError(parsed.message);
       setInvokeResult(null);
       setInvokeHtml(null);
+      setInvokeXml(null);
       return;
     }
     invokeInflight.current = true;
@@ -1222,11 +1257,60 @@ export function PipelineDetailPanel({
     setInvokeError(null);
     setInvokeResult(null);
     setInvokeHtml(null);
+    setInvokeXml(null);
     try {
       const result = await executeResource(idOrName, resource, parsed.body);
       if (!mountedRef.current) return;
       setInvokeResult(formatExecuteResult(result));
       setInvokeHtml(result.html?.trim() ? result.html : null);
+      setInvokeXml(result.xml?.trim() ? result.xml : null);
+      if (tracingEnabled) {
+        await refreshLastTrace();
+      }
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setInvokeError(invokeErrMsg(err));
+    } finally {
+      invokeInflight.current = false;
+      if (mountedRef.current) setInvokeBusy(false);
+    }
+  }
+
+  async function runInvoke(
+    extras: Pick<PipelineExecuteRequest, "requestExtension" | "accept">,
+  ): Promise<void> {
+    if (!detail || invokeInflight.current) return;
+    const resource = resourceName.trim();
+    if (!resource) {
+      setInvokeError(DEV_MSG.PIPE_INVOKE_RESOURCE_REQUIRED);
+      setInvokeResult(null);
+      setInvokeHtml(null);
+      setInvokeXml(null);
+      return;
+    }
+    const parsed = parseExecuteBody(invokeBody);
+    if (!parsed.ok) {
+      setInvokeError(parsed.message);
+      setInvokeResult(null);
+      setInvokeHtml(null);
+      setInvokeXml(null);
+      return;
+    }
+    invokeInflight.current = true;
+    setInvokeBusy(true);
+    setInvokeError(null);
+    setInvokeResult(null);
+    setInvokeHtml(null);
+    setInvokeXml(null);
+    try {
+      const result = await executeResource(idOrName, resource, {
+        ...parsed.body,
+        ...extras,
+      });
+      if (!mountedRef.current) return;
+      setInvokeResult(formatExecuteResult(result));
+      setInvokeHtml(result.html?.trim() ? result.html : null);
+      setInvokeXml(result.xml?.trim() ? result.xml : null);
       if (tracingEnabled) {
         await refreshLastTrace();
       }
@@ -1240,45 +1324,15 @@ export function PipelineDetailPanel({
   }
 
   async function onInvokeHtml(): Promise<void> {
-    if (!detail || invokeInflight.current) return;
-    const resource = resourceName.trim();
-    if (!resource) {
-      setInvokeError(DEV_MSG.PIPE_INVOKE_RESOURCE_REQUIRED);
-      setInvokeResult(null);
-      setInvokeHtml(null);
-      return;
-    }
-    const parsed = parseExecuteBody(invokeBody);
-    if (!parsed.ok) {
-      setInvokeError(parsed.message);
-      setInvokeResult(null);
-      setInvokeHtml(null);
-      return;
-    }
-    invokeInflight.current = true;
-    setInvokeBusy(true);
-    setInvokeError(null);
-    setInvokeResult(null);
-    setInvokeHtml(null);
-    try {
-      const result = await executeResource(idOrName, resource, {
-        ...parsed.body,
-        requestExtension: ".html",
-        accept: "text/html",
-      });
-      if (!mountedRef.current) return;
-      setInvokeResult(formatExecuteResult(result));
-      setInvokeHtml(result.html?.trim() ? result.html : null);
-      if (tracingEnabled) {
-        await refreshLastTrace();
-      }
-    } catch (err: unknown) {
-      if (!mountedRef.current) return;
-      setInvokeError(invokeErrMsg(err));
-    } finally {
-      invokeInflight.current = false;
-      if (mountedRef.current) setInvokeBusy(false);
-    }
+    await runInvoke({ requestExtension: ".html", accept: "text/html" });
+  }
+
+  async function onInvokeJson(): Promise<void> {
+    await runInvoke({ requestExtension: ".json", accept: "application/json" });
+  }
+
+  async function onInvokeXml(): Promise<void> {
+    await runInvoke({ requestExtension: ".xml", accept: "application/xml" });
   }
 
   const startEnabled = detail != null && !busy && canStart(detail);
@@ -1872,6 +1926,19 @@ export function PipelineDetailPanel({
               >
                 {resultPageBusy ? DEV_MSG.PIPE_RESULT_PAGE_SAVING : DEV_MSG.PIPE_RESULT_PAGE_SAVE}
               </button>
+              <button
+                type="button"
+                data-testid="developer-pipe-result-page-clear"
+                aria-label={DEV_MSG.PIPE_RESULT_PAGE_CLEAR}
+                disabled={resultPageBusy}
+                onClick={() => void onClearResultPage()}
+                style={{
+                  ...(resultPageBusy ? disabledPrimary : primaryButton),
+                  marginLeft: "8px",
+                }}
+              >
+                {resultPageBusy ? DEV_MSG.PIPE_RESULT_PAGE_CLEARING : DEV_MSG.PIPE_RESULT_PAGE_CLEAR}
+              </button>
               {resultPageNotice ? (
                 <div
                   role="status"
@@ -2256,6 +2323,32 @@ export function PipelineDetailPanel({
               >
                 {invokeBusy ? DEV_MSG.PIPE_INVOKE_HTML_RUNNING : DEV_MSG.PIPE_INVOKE_HTML}
               </button>
+              <button
+                type="button"
+                data-testid="developer-pipe-invoke-json"
+                aria-label={DEV_MSG.PIPE_INVOKE_JSON}
+                disabled={!invokeEnabled}
+                onClick={() => void onInvokeJson()}
+                style={{
+                  ...(invokeEnabled ? primaryButton : disabledPrimary),
+                  marginLeft: "8px",
+                }}
+              >
+                {invokeBusy ? DEV_MSG.PIPE_INVOKE_JSON_RUNNING : DEV_MSG.PIPE_INVOKE_JSON}
+              </button>
+              <button
+                type="button"
+                data-testid="developer-pipe-invoke-xml"
+                aria-label={DEV_MSG.PIPE_INVOKE_XML}
+                disabled={!invokeEnabled}
+                onClick={() => void onInvokeXml()}
+                style={{
+                  ...(invokeEnabled ? primaryButton : disabledPrimary),
+                  marginLeft: "8px",
+                }}
+              >
+                {invokeBusy ? DEV_MSG.PIPE_INVOKE_XML_RUNNING : DEV_MSG.PIPE_INVOKE_XML}
+              </button>
               {invokeError ? (
                 <div
                   role="alert"
@@ -2271,6 +2364,14 @@ export function PipelineDetailPanel({
                     {DEV_MSG.PIPE_INVOKE_HTML_RESULT}
                   </h4>
                   <pre style={resultPre}>{invokeHtml}</pre>
+                </div>
+              ) : null}
+              {invokeXml ? (
+                <div style={{ marginTop: "12px" }} data-testid="developer-pipe-invoke-xml-result">
+                  <h4 style={{ fontSize: "0.95rem", margin: "0 0 8px" }}>
+                    {DEV_MSG.PIPE_INVOKE_XML_RESULT}
+                  </h4>
+                  <pre style={resultPre}>{invokeXml}</pre>
                 </div>
               ) : null}
               {invokeResult ? (

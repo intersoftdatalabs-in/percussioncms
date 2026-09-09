@@ -122,9 +122,9 @@ public interface IPipelinesAdaptor {
       URI baseUri, String appName, String resourceName, PipelineBinaryResource body);
 
   /**
-   * Admin: persist a native IR HTML result-page binding (request extension + stylesheet URI).
-   * Cloud URLs, credentials, and path traversal are rejected. Classic XML Applications are
-   * not mutated.
+   * Admin: persist a native IR result-page binding (request extension + stylesheet URI), or
+   * {@code presentation=none} to disable/omit XSL. Cloud URLs, credentials, and path traversal
+   * are rejected. Classic XML Applications are not mutated.
    *
    * @return saved binding, never {@code null}
    */

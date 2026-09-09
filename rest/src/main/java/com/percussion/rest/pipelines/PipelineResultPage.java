@@ -22,12 +22,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
- * Native IR write for Slice D PRE-01: persist one HTML result-page binding (stylesheet URI +
- * request extension). No classic XML rewrite.
+ * Native IR write for Slice D: persist one result-page binding (stylesheet URI + request
+ * extension + presentation). {@code presentation=none} omits/disables XSL. No classic XML
+ * rewrite.
  */
 @XmlRootElement(name = "PipelineResultPage")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Native pipeline HTML result-page binding (local stylesheet URI only)")
+@Schema(description = "Native pipeline result-page binding (local stylesheet URI or presentation=none)")
 public class PipelineResultPage {
 
   static final int MAX_PATH_CHARS = 255;
@@ -35,6 +36,10 @@ public class PipelineResultPage {
   static final int MAX_MIME_CHARS = 64;
 
   static final int MAX_EXTENSION_CHARS = 16;
+
+  static final int MAX_PRESENTATION_CHARS = 16;
+
+  static final String PRESENTATION_NONE = "none";
 
   @Schema(
       description = "Request extension that selects this result page (.html / .htm)",
@@ -46,9 +51,13 @@ public class PipelineResultPage {
 
   @Schema(
       description = "Bundled fixture token or portable-safe relative stylesheet path (no URLs)",
-      maxLength = MAX_PATH_CHARS,
-      requiredMode = Schema.RequiredMode.REQUIRED)
+      maxLength = MAX_PATH_CHARS)
   private String stylesheetUri;
+
+  @Schema(
+      description = "html (apply XSL) or none (raw JSON/XML, no presentation)",
+      maxLength = MAX_PRESENTATION_CHARS)
+  private String presentation;
 
   public String getRequestExtension() {
     return requestExtension;
@@ -74,15 +83,28 @@ public class PipelineResultPage {
     this.stylesheetUri = stylesheetUri;
   }
 
+  public String getPresentation() {
+    return presentation;
+  }
+
+  public void setPresentation(String presentation) {
+    this.presentation = presentation;
+  }
+
+  public boolean isRawPresentation() {
+    return presentation != null && PRESENTATION_NONE.equalsIgnoreCase(presentation.trim());
+  }
+
   /**
    * Fail-fast REST-layer checks before the adaptor path guard. Does not replace
-   * scheme/traversal validation.
+   * scheme/traversal validation. {@code presentation=none} allows a blank stylesheet (clear
+   * binding).
    */
   public void requireWriteFields() {
-    if (stylesheetUri == null || stylesheetUri.isBlank()) {
+    if (!isRawPresentation() && (stylesheetUri == null || stylesheetUri.isBlank())) {
       throw new IllegalArgumentException("Result page stylesheet URI is required");
     }
-    if (stylesheetUri.length() > MAX_PATH_CHARS) {
+    if (stylesheetUri != null && stylesheetUri.length() > MAX_PATH_CHARS) {
       throw new IllegalArgumentException("Result page stylesheet URI exceeds length limit");
     }
     if (requestExtension != null && requestExtension.length() > MAX_EXTENSION_CHARS) {
@@ -90,6 +112,9 @@ public class PipelineResultPage {
     }
     if (mimeType != null && mimeType.length() > MAX_MIME_CHARS) {
       throw new IllegalArgumentException("Result page mime type exceeds length limit");
+    }
+    if (presentation != null && presentation.length() > MAX_PRESENTATION_CHARS) {
+      throw new IllegalArgumentException("Result page presentation exceeds length limit");
     }
   }
 }

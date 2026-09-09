@@ -152,6 +152,10 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
   public PipelineResultPage putResultPage(
       URI baseUri, String appName, String resourceName, PipelineResultPage body) {
     PipelineResultPage out = body != null ? body : new PipelineResultPage();
+    if (out.isRawPresentation()) {
+      out.setPresentation("none");
+      return out;
+    }
     if (out.getStylesheetUri() == null) {
       out.setStylesheetUri("pipeline-xsl-result-fixture");
     }
@@ -160,6 +164,9 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
     }
     if (out.getMimeType() == null) {
       out.setMimeType("text/html");
+    }
+    if (out.getPresentation() == null) {
+      out.setPresentation("html");
     }
     return out;
   }
