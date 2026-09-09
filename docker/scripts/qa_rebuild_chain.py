@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""QA rebuild chain driver: sitemanage → WebUI → perc-distribution-tree (#2533).
+"""QA rebuild chain driver: sitemanage → WebUI → license inventory → dist (#2533 / #4420).
 
 Preflight (``qa_preflight.py`` / ``perc-devctl qa-preflight``) only **detects**
 a stale WebUI WAR vs a freshly installed sitemanage SNAPSHOT. Operators and
@@ -13,7 +13,14 @@ wrapper (``mvnw`` / ``mvnw.cmd``), ``pathlib.Path``, and
 
 1. ``projects/sitemanage`` — ``clean install`` (optional ``-DskipTests``)
 2. ``WebUI`` — ``package -DskipTests``
-3. ``modules/perc-distribution-tree`` — ``clean package -DskipTests``
+3. reactor root — ``license:aggregate-add-third-party`` (no ``-N``) when
+   ``target/generated-sources/license/THIRD-PARTY-MAVEN.txt`` is missing
+   (#4420). ``perc-distribution-tree`` merge-third-party-inventory
+   ``--require-maven`` fails closed without that file.
+4. ``deliverytiersuite/delivery-tier-suite/secure-membership`` —
+   ``package -DskipTests`` when ``target/dependency`` is missing
+   (ANT copies those jars into the installer; #4420 residual).
+5. ``modules/perc-distribution-tree`` — ``clean package -DskipTests``
 
 Each step emits a parseable ``RESULT:OK`` / ``RESULT:FAIL`` line. ``--dry-run``
 prints the planned argv + cwd for every step and never invokes Maven.
@@ -45,6 +52,17 @@ EXIT_OK = 0
 EXIT_INVOCATION = 1
 EXIT_SUBPROCESS_FAILED = 2
 
+# Root license-maven-plugin aggregator goal. Must not be invoked with -N:
+# non-recursive mode only loads the empty parent POM and never writes
+# THIRD-PARTY-MAVEN.txt (#4420 / src/license/README.md).
+LICENSE_AGGREGATE_GOAL = "license:aggregate-add-third-party"
+LICENSE_INVENTORY_REL = (
+    Path("target") / "generated-sources" / "license" / "THIRD-PARTY-MAVEN.txt"
+)
+SECURE_MEMBERSHIP_REL = (
+    Path("deliverytiersuite") / "delivery-tier-suite" / "secure-membership"
+)
+
 # Callable matching subprocess.run for tests to inject stubs.
 RunFn = Callable[..., subprocess.CompletedProcess]
 
@@ -63,6 +81,64 @@ class ChainStep:
 
     def argv(self, mvnw: Path) -> List[str]:
         return [str(mvnw), *self.goals, *self.extra_args]
+
+
+def maven_inventory_path(repo_root: Path) -> Path:
+    """Reactor-root Maven third-party inventory produced by license aggregate."""
+    return (repo_root / LICENSE_INVENTORY_REL).resolve()
+
+
+def maven_inventory_present(repo_root: Path) -> bool:
+    """True when THIRD-PARTY-MAVEN.txt exists and is non-empty."""
+    path = maven_inventory_path(repo_root)
+    try:
+        return path.is_file() and path.stat().st_size > 0
+    except OSError:
+        return False
+
+
+def license_inventory_step() -> ChainStep:
+    """Repo-root license aggregate. Never pass ``-N`` / ``--non-recursive``."""
+    return ChainStep(
+        label="qa-rebuild-license-inventory",
+        module_rel=Path("."),
+        goals=(LICENSE_AGGREGATE_GOAL,),
+        extra_args=(),
+    )
+
+
+def secure_membership_dependency_dir(repo_root: Path) -> Path:
+    """Directory populated by secure-membership ``dependency:copy-dependencies``."""
+    return (repo_root / SECURE_MEMBERSHIP_REL / "target" / "dependency").resolve()
+
+
+def _nonempty_dir(path: Path) -> bool:
+    try:
+        if not path.is_dir():
+            return False
+        next(path.iterdir())
+        return True
+    except OSError:
+        return False
+    except StopIteration:
+        return False
+
+
+def secure_membership_deps_present(repo_root: Path) -> bool:
+    """True when ANT can copy secure-membership runtime jars + classes."""
+    dep = secure_membership_dependency_dir(repo_root)
+    classes = (repo_root / SECURE_MEMBERSHIP_REL / "target" / "classes").resolve()
+    return _nonempty_dir(dep) and classes.is_dir()
+
+
+def secure_membership_step() -> ChainStep:
+    """Package perc-secure-membership so ``target/dependency`` exists for ANT."""
+    return ChainStep(
+        label="qa-rebuild-secure-membership",
+        module_rel=SECURE_MEMBERSHIP_REL,
+        goals=("package",),
+        extra_args=("-DskipTests",),
+    )
 
 
 def resolve_mvnw(repo_root: Path) -> Path:
@@ -90,20 +166,24 @@ def plan_chain(
         WebUI and perc-distribution-tree always skip tests (matches the
         documented operator commands in workbench-rest-and-qa-modes.md).
     dist_only:
-        When True, only package ``perc-distribution-tree`` (no clean on
-        sitemanage/WebUI). Use when only installer packaging resources
-        changed and SNAPSHOT artifacts under the WAR are already fresh.
+        When True, skip sitemanage/WebUI and only run the license
+        inventory prereq plus ``perc-distribution-tree`` package. Use
+        when only installer packaging resources changed and SNAPSHOT
+        artifacts under the WAR are already fresh.
     """
     skip = ("-DskipTests",)
+    dist_steps = [
+        license_inventory_step(),
+        secure_membership_step(),
+        ChainStep(
+            label="qa-rebuild-dist",
+            module_rel=Path("modules") / "perc-distribution-tree",
+            goals=("package",) if dist_only else ("clean", "package"),
+            extra_args=skip,
+        ),
+    ]
     if dist_only:
-        return [
-            ChainStep(
-                label="qa-rebuild-dist",
-                module_rel=Path("modules") / "perc-distribution-tree",
-                goals=("package",),
-                extra_args=skip,
-            ),
-        ]
+        return dist_steps
 
     sitemanage_extra = skip if skip_tests else ()
     return [
@@ -119,12 +199,7 @@ def plan_chain(
             goals=("package",),
             extra_args=skip,
         ),
-        ChainStep(
-            label="qa-rebuild-dist",
-            module_rel=Path("modules") / "perc-distribution-tree",
-            goals=("clean", "package"),
-            extra_args=skip,
-        ),
+        *dist_steps,
     ]
 
 
@@ -193,6 +268,18 @@ def run_chain(
             log_dir.mkdir(parents=True, exist_ok=True)
             log_path = log_dir / f"{step.label}-{index}.log"
 
+        if step.label == "qa-rebuild-license-inventory":
+            banned = {"-N", "--non-recursive"}
+            if banned.intersection(argv):
+                print(
+                    "ERROR: license aggregate must not use -N / --non-recursive "
+                    "(empty root POM; THIRD-PARTY-MAVEN.txt is never written)",
+                    file=sys.stderr,
+                )
+                _print_result(False, step.label, log_path)
+                overall_ok = False
+                break
+
         if dry_run:
             if log_path is not None:
                 with log_path.open("w", encoding="utf-8") as fh:
@@ -208,6 +295,31 @@ def run_chain(
             _print_result(False, step.label, log_path)
             overall_ok = False
             break
+
+        skip_reason: Optional[str] = None
+        if step.label == "qa-rebuild-license-inventory" and maven_inventory_present(
+            repo_root
+        ):
+            skip_reason = (
+                f"inventory-present PATH:{maven_inventory_path(repo_root)}"
+            )
+        elif step.label == "qa-rebuild-secure-membership" and secure_membership_deps_present(
+            repo_root
+        ):
+            skip_reason = (
+                "secure-membership-deps-present "
+                f"PATH:{secure_membership_dependency_dir(repo_root)}"
+            )
+        if skip_reason is not None:
+            skip_line = f"SKIP STEP:{step.label} REASON:{skip_reason}"
+            print(skip_line)
+            LOG.info(skip_line)
+            if log_path is not None:
+                with log_path.open("w", encoding="utf-8") as fh:
+                    fh.write(planned + "\n")
+                    fh.write(skip_line + "\n")
+            _print_result(True, step.label, log_path)
+            continue
 
         LOG.info("Running: %s (cwd=%s)", " ".join(argv), cwd)
         try:
@@ -273,7 +385,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
         prog="qa_rebuild_chain.py",
         description=(
             "Run the QA Maven rebuild chain: sitemanage install → "
-            "WebUI package → perc-distribution-tree package (#2533). "
+            "WebUI package → license:aggregate-add-third-party (no -N) → "
+            "perc-distribution-tree package (#2533 / #4420). "
             "Uses repo-root mvnw/mvnw.cmd with shell=False."
         ),
     )
@@ -300,7 +413,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--dist-only",
         action="store_true",
         help=(
-            "Only run modules/perc-distribution-tree package -DskipTests "
+            "Skip sitemanage/WebUI. Still generate the Maven license "
+            "inventory when missing, then package perc-distribution-tree "
             "(when SNAPSHOT WAR inputs are already fresh)."
         ),
     )

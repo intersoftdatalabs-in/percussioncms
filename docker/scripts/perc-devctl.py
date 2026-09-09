@@ -27,9 +27,10 @@ QA mode (H2-in-Docker, no host install — issue #1827 / #1927) adds:
   rebuild hint instead of waiting the full ``--probe-timeout`` for
   ``docker_health_timeout health=none`` (#2484)
 * ``qa-rebuild-chain`` — drive the documented Maven order
-  (sitemanage install → WebUI package → perc-distribution-tree package)
+  (sitemanage install → WebUI package → license:aggregate-add-third-party
+  without ``-N`` → perc-distribution-tree package)
   via repo-root ``mvnw``/``mvnw.cmd``, portable paths, ``shell=False``
-  (#2533 residual of #2423 / #2486). ``--then-qa-up`` also copies
+  (#2533 / #4420 residual of #2423 / #2486). ``--then-qa-up`` also copies
   ``WebUI/target/generated-webui/cm/modern`` into the H2 QA cell after
   the cell is up (post-jar SPA deploy; #3948) unless ``--skip-webui-deploy``.
 * ``qa-deploy-webui`` — copy the full generated ``cm/modern`` tree
@@ -499,8 +500,10 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "qa-rebuild-chain",
         help=(
             "Run sitemanage install → WebUI package → "
+            "license:aggregate-add-third-party (no -N) → "
+            "secure-membership package → "
             "perc-distribution-tree package via repo-root mvnw "
-            "(#2533). Use after STALE preflight or SNAPSHOT changes."
+            "(#2533 / #4420). Use after STALE preflight or SNAPSHOT changes."
         ),
     )
     pqrc.add_argument(
@@ -511,7 +514,10 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     pqrc.add_argument(
         "--dist-only",
         action="store_true",
-        help="Only package perc-distribution-tree (WAR inputs already fresh).",
+        help=(
+            "Skip sitemanage/WebUI; still generate Maven license inventory "
+            "when missing, then package perc-distribution-tree."
+        ),
     )
     pqrc.add_argument(
         "--timeout-seconds",

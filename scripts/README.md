@@ -174,6 +174,8 @@ cd modules/perc-packages
 
 - Root: `license-maven-plugin` → `THIRD-PARTY-MAVEN.txt`
 - `perc-distribution-tree`: Java merge → `THIRD-PARTY.txt` + copy into assembly
+- QA rebuild chain (`docker/scripts/qa_rebuild_chain.py`) runs
+  `license:aggregate-add-third-party` without `-N` before dist package (#4420)
 
 See `src/license/README.md` and `modules/intsof-common-utilities/README.md`.
 
