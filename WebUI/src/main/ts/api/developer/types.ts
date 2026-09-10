@@ -779,6 +779,18 @@ export interface SystemDefDetail {
   designGaps?: string[];
 }
 
+/**
+ * Jackson {@code SystemDefControlProperties} body for CD-16
+ * GET/PUT {@code /services/systemdef/fields/{fieldName}/controlProperties}.
+ */
+export interface SystemDefControlProperties {
+  fieldName?: string;
+  control?: string;
+  properties?: ContentTypeControlProperty[];
+  choices?: ContentTypeChoiceCatalog;
+  designGaps?: DesignGapWire[];
+}
+
 /** Item filter rule param from GET /services/itemfilters. */
 export interface ItemFilterRuleParam {
   name?: string;

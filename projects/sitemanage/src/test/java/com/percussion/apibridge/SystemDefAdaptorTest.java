@@ -34,14 +34,27 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.percussion.design.objectstore.PSChoices;
 import com.percussion.design.objectstore.PSContentEditorSystemDef;
+import com.percussion.design.objectstore.PSControlRef;
 import com.percussion.design.objectstore.PSDisplayMapper;
+import com.percussion.design.objectstore.PSDisplayMapping;
+import com.percussion.design.objectstore.PSDisplayText;
+import com.percussion.design.objectstore.PSEntry;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
+import com.percussion.design.objectstore.PSParam;
+import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.design.objectstore.PSUIDefinition;
+import com.percussion.rest.contenttypes.ContentTypeChoiceCatalog;
+import com.percussion.rest.contenttypes.ContentTypeChoiceEntry;
+import com.percussion.rest.contenttypes.ContentTypeControlProperty;
+import com.percussion.rest.systemdef.SystemDefControlProperties;
 import com.percussion.rest.systemdef.SystemDefDesignLockException;
 import com.percussion.rest.systemdef.SystemDefDetail;
+import com.percussion.rest.systemdef.SystemDefFieldNotFoundException;
 import com.percussion.rest.systemdef.SystemDefFieldSummary;
+import com.percussion.util.PSCollection;
 import com.percussion.utils.request.PSRequestInfoBase;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSLockErrorException;
@@ -791,6 +804,215 @@ class SystemDefAdaptorTest {
     assertThrows(IllegalArgumentException.class, () -> SystemDefAdaptor.validateFieldName("user"));
   }
 
+  @Test
+  void getFieldControlProperties_returnsValuesAndChoices() {
+    PSContentEditorSystemDef def = defWithControlAndChoices("sys_title");
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(() -> def);
+
+    SystemDefControlProperties out = adaptor.getFieldControlProperties(null, "sys_title");
+    assertEquals("sys_title", out.getFieldName());
+    assertEquals("sys_EditBox", out.getControl());
+    assertEquals(1, out.getProperties().size());
+    assertEquals("height", out.getProperties().get(0).getName());
+    assertEquals("200", out.getProperties().get(0).getValue());
+    assertEquals("local", out.getChoices().getType());
+    assertEquals("open", out.getChoices().getEntries().get(0).getValue());
+    assertEquals(2, out.getDesignGaps().size());
+    assertEquals("SYS_STYLESHEET", out.getDesignGaps().get(0).getCode());
+    assertEquals("SYS_APP_FLOW", out.getDesignGaps().get(1).getCode());
+  }
+
+  @Test
+  void getFieldControlProperties_unknownFieldIs404() {
+    PSContentEditorSystemDef def = newSystemDefWithEmptyFields();
+    SystemDefFieldSummary existing = new SystemDefFieldSummary();
+    existing.setName("sys_title");
+    SystemDefAdaptor.addPersistableField(def, existing);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(() -> def);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.getFieldControlProperties(null, "nope"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void getFieldControlProperties_unsafeNameIs404() {
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(() -> newSystemDefWithEmptyFields());
+    WebApplicationException slash =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.getFieldControlProperties(null, "a/b"));
+    assertEquals(404, slash.getResponse().getStatus());
+    WebApplicationException dots =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.getFieldControlProperties(null, ".."));
+    assertEquals(404, dots.getResponse().getStatus());
+  }
+
+  @Test
+  void getFieldControlProperties_forbiddenWhenNotAdmin() {
+    AtomicInteger loads = new AtomicInteger();
+    SystemDefAdaptor denied =
+        new SystemDefAdaptor(
+            () -> {
+              loads.incrementAndGet();
+              return mock(PSContentEditorSystemDef.class);
+            },
+            () -> false);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> denied.getFieldControlProperties(null, "sys_title"));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertEquals(0, loads.get());
+  }
+
+  @Test
+  void replaceFieldControlProperties_persistsValuesAndReleasesLock() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = defWithControlAndChoices("sys_title");
+    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+
+    SystemDefControlProperties body = new SystemDefControlProperties();
+    body.setProperties(List.of(new ContentTypeControlProperty("width", "640")));
+    ContentTypeChoiceCatalog choices = new ContentTypeChoiceCatalog();
+    choices.setType("local");
+    choices.setEntries(List.of(new ContentTypeChoiceEntry("closed", "Closed")));
+    body.setChoices(choices);
+
+    SystemDefControlProperties out =
+        adaptor.replaceFieldControlProperties(null, "sys_title", body);
+
+    verify(designWs)
+        .saveContentEditorSystemDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
+    assertEquals("640", out.getProperties().get(0).getValue());
+    assertTrue(
+        out.getDesignGaps().stream().anyMatch(g -> "SYS_STYLESHEET".equals(g.getCode())),
+        () -> String.valueOf(out.getDesignGaps()));
+    assertEquals("closed", out.getChoices().getEntries().get(0).getValue());
+    PSControlRef control = def.getUIDefinition().getMapping("sys_title").getUISet().getControl();
+    PSParam first = (PSParam) control.getParameters().next();
+    assertEquals("width", first.getName());
+    assertEquals("640", first.getValue().getValueText());
+  }
+
+  @Test
+  void replaceFieldControlProperties_emptyPropertiesClears() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = defWithControlAndChoices("sys_title");
+    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+
+    SystemDefControlProperties body = new SystemDefControlProperties();
+    body.setProperties(List.of());
+    SystemDefControlProperties out =
+        adaptor.replaceFieldControlProperties(null, "sys_title", body);
+
+    assertTrue(out.getProperties().isEmpty());
+    PSControlRef control = def.getUIDefinition().getMapping("sys_title").getUISet().getControl();
+    assertTrue(!control.getParameters().hasNext(), "expected empty control parameters");
+  }
+
+  @Test
+  void replaceFieldControlProperties_omittedChoicesLeaveCatalog() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = defWithControlAndChoices("sys_title");
+    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+
+    SystemDefControlProperties body = new SystemDefControlProperties();
+    body.setProperties(List.of(new ContentTypeControlProperty("height", "12")));
+    SystemDefControlProperties out =
+        adaptor.replaceFieldControlProperties(null, "sys_title", body);
+
+    assertEquals("local", out.getChoices().getType());
+    assertEquals("open", out.getChoices().getEntries().get(0).getValue());
+  }
+
+  @Test
+  void replaceFieldControlProperties_unknownFieldIs404() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = newSystemDefWithEmptyFields();
+    SystemDefFieldSummary existing = new SystemDefFieldSummary();
+    existing.setName("sys_title");
+    SystemDefAdaptor.addPersistableField(def, existing);
+    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+    SystemDefControlProperties body = new SystemDefControlProperties();
+    body.setProperties(List.of());
+    assertThrows(
+        SystemDefFieldNotFoundException.class,
+        () -> adaptor.replaceFieldControlProperties(null, "nope", body));
+    verify(designWs, never()).saveContentEditorSystemDef(any(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void replaceFieldControlProperties_forbiddenWhenNotAdmin() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SystemDefAdaptor denied = new SystemDefAdaptor(designWs, () -> false);
+    SystemDefControlProperties body = new SystemDefControlProperties();
+    body.setProperties(List.of());
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> denied.replaceFieldControlProperties(null, "sys_title", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(designWs, never()).loadContentEditorSystemDef(anyBoolean(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void replaceFieldControlProperties_lockConflictIs409() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSLockErrorException lockErr =
+        new PSLockErrorException(1, "locked", "stack", "other", 1000L);
+    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin"))
+        .thenThrow(lockErr);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+    SystemDefControlProperties body = new SystemDefControlProperties();
+    body.setProperties(List.of());
+    SystemDefDesignLockException ex =
+        assertThrows(
+            SystemDefDesignLockException.class,
+            () -> adaptor.replaceFieldControlProperties(null, "sys_title", body));
+    assertTrue(ex.getMessage().contains("locked by other"));
+  }
+
+  @Test
+  void replaceFieldControlProperties_missingPropertiesIs400() {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+    SystemDefControlProperties body = new SystemDefControlProperties();
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.replaceFieldControlProperties(null, "sys_title", body));
+    assertTrue(ex.getMessage().contains("properties"));
+  }
+
+  @Test
+  void replaceFieldControlProperties_blankFieldNameIs400() {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+    SystemDefControlProperties body = new SystemDefControlProperties();
+    body.setProperties(List.of(new ContentTypeControlProperty("width", "640")));
+    IllegalArgumentException blank =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.replaceFieldControlProperties(null, "  ", body));
+    assertTrue(blank.getMessage().contains("name is required"));
+  }
+
+  @Test
+  void isSafeFieldName_rejectsPathInjection() {
+    assertTrue(SystemDefAdaptor.isSafeFieldName("sys_title"));
+    assertFalse(SystemDefAdaptor.isSafeFieldName("a/b"));
+    assertFalse(SystemDefAdaptor.isSafeFieldName("a\\b"));
+    assertFalse(SystemDefAdaptor.isSafeFieldName(".."));
+    assertFalse(SystemDefAdaptor.isSafeFieldName("a\0b"));
+    assertFalse(SystemDefAdaptor.isSafeFieldName(" "));
+  }
+
   /**
    * Mocked system def with a real empty field set and display mapper so persist/remove can run
    * without loading ContentEditorSystemDef XML.
@@ -803,6 +1025,21 @@ class SystemDefAdaptorTest {
     when(def.getUIDefinition()).thenReturn(ui);
     when(def.getContainerLocator()).thenReturn(null);
     when(def.getCacheTimeout()).thenReturn(15);
+    return def;
+  }
+
+  private static PSContentEditorSystemDef defWithControlAndChoices(String fieldName) {
+    PSContentEditorSystemDef def = newSystemDefWithEmptyFields();
+    SystemDefFieldSummary existing = new SystemDefFieldSummary();
+    existing.setName(fieldName);
+    SystemDefAdaptor.addPersistableField(def, existing);
+    PSDisplayMapping mapping = def.getUIDefinition().getMapping(fieldName);
+    PSCollection params = new PSCollection(PSParam.class);
+    params.add(new PSParam("height", new PSTextLiteral("200")));
+    mapping.getUISet().getControl().setParameters(params);
+    PSCollection local = new PSCollection(PSEntry.class);
+    local.add(new PSEntry("open", new PSDisplayText("Open")));
+    mapping.getUISet().setChoices(new PSChoices(local));
     return def;
   }
 }

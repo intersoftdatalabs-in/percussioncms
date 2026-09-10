@@ -20,6 +20,8 @@ vi.mock("../../../main/ts/api/developer/systemDefApi", async (importOriginal) =>
     updateSystemDef: vi.fn(),
     addSystemDefField: vi.fn(),
     deleteSystemDefField: vi.fn(),
+    getSystemDefFieldControlProperties: vi.fn(),
+    replaceSystemDefFieldControlProperties: vi.fn(),
   };
 });
 
@@ -27,6 +29,8 @@ const getMock = vi.mocked(systemDefApi.getSystemDef);
 const updateMock = vi.mocked(systemDefApi.updateSystemDef);
 const addMock = vi.mocked(systemDefApi.addSystemDefField);
 const deleteMock = vi.mocked(systemDefApi.deleteSystemDefField);
+const getCpMock = vi.mocked(systemDefApi.getSystemDefFieldControlProperties);
+const replaceCpMock = vi.mocked(systemDefApi.replaceSystemDefFieldControlProperties);
 
 const sampleDetail = {
   fieldCount: 1,
@@ -53,6 +57,18 @@ describe("SystemDefPanel", () => {
     updateMock.mockReset();
     addMock.mockReset();
     deleteMock.mockReset();
+    getCpMock.mockReset();
+    replaceCpMock.mockReset();
+    getCpMock.mockResolvedValue({
+      fieldName: "sys_title",
+      control: "sys_EditBox",
+      properties: [{ name: "height", value: "200" }],
+    });
+    replaceCpMock.mockResolvedValue({
+      fieldName: "sys_title",
+      control: "sys_EditBox",
+      properties: [{ name: "height", value: "240" }],
+    });
   });
 
   afterEach(() => {
@@ -66,7 +82,7 @@ describe("SystemDefPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-sys-fields-table")).toBeTruthy();
     });
-    expect(screen.getByText("sys_title")).toBeTruthy();
+    expect(screen.getByTestId("developer-sys-fields-table").querySelector('[data-sys-field="sys_title"]')).toBeTruthy();
     expect(screen.getByTestId("developer-sys-gaps")).toBeTruthy();
     expect(screen.getByTestId("developer-sys-add")).toBeTruthy();
     expect((screen.getByTestId("developer-sys-save") as HTMLButtonElement).disabled).toBe(true);
@@ -307,7 +323,9 @@ describe("SystemDefPanel", () => {
     });
     fireEvent.click(screen.getByTestId("developer-sys-add-btn"));
     await waitFor(() => {
-      expect(screen.getByText("qa_note")).toBeTruthy();
+      expect(
+        screen.getByTestId("developer-sys-fields-table").querySelector('[data-sys-field="qa_note"]'),
+      ).toBeTruthy();
     });
     expect(addMock).toHaveBeenCalledWith({
       name: "qa_note",
@@ -336,5 +354,29 @@ describe("SystemDefPanel", () => {
       expect(screen.getByTestId("developer-sys-empty")).toBeTruthy();
     });
     expect(deleteMock).toHaveBeenCalledWith("sys_title");
+  });
+
+  it("loads and saves a control property value", async () => {
+    getMock.mockResolvedValue(sampleDetail);
+    render(<SystemDefPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sys-cp-value-0")).toBeTruthy();
+    });
+    expect(getCpMock).toHaveBeenCalledWith("sys_title");
+    fireEvent.change(screen.getByTestId("developer-sys-cp-value-0"), {
+      target: { value: "240" },
+    });
+    const save = screen.getByTestId("developer-sys-cp-save") as HTMLButtonElement;
+    expect(save.disabled).toBe(false);
+    fireEvent.click(save);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sys-notice")).toBeTruthy();
+    });
+    expect(replaceCpMock).toHaveBeenCalledWith("sys_title", {
+      properties: [{ name: "height", value: "240" }],
+    });
+    expect(screen.getByTestId("developer-sys-notice").textContent).toBe(
+      DEV_MSG.SYS_CONTROL_PROPS_SAVED,
+    );
   });
 });

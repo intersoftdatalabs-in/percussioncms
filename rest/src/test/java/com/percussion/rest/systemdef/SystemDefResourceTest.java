@@ -28,10 +28,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -259,5 +261,124 @@ public class SystemDefResourceTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.deleteField("sys_custom"));
     assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getFieldControlPropertiesDelegatesToAdaptor() {
+    SystemDefControlProperties envelope = new SystemDefControlProperties();
+    envelope.setFieldName("sys_title");
+    envelope.setProperties(List.of(new ContentTypeControlProperty("height", "200")));
+    when(adaptor.getFieldControlProperties(any(), eq("sys_title"))).thenReturn(envelope);
+
+    SystemDefControlProperties out = resource.getFieldControlProperties("sys_title");
+    assertEquals("sys_title", out.getFieldName());
+    assertEquals("200", out.getProperties().get(0).getValue());
+  }
+
+  @Test
+  public void getFieldControlPropertiesNullIs404() {
+    when(adaptor.getFieldControlProperties(any(), eq("nope"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.getFieldControlProperties("nope"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getFieldControlPropertiesFieldNotFoundIs404() {
+    when(adaptor.getFieldControlProperties(any(), eq("nope")))
+        .thenThrow(new WebApplicationException("System field not found", 404));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.getFieldControlProperties("nope"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getFieldControlPropertiesForbiddenWhenNotAdmin() {
+    when(adaptor.getFieldControlProperties(any(), eq("sys_title")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.getFieldControlProperties("sys_title"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesSuccess() {
+    SystemDefControlProperties body = new SystemDefControlProperties();
+    body.setProperties(List.of(new ContentTypeControlProperty("width", "640")));
+    SystemDefControlProperties updated = new SystemDefControlProperties();
+    updated.setFieldName("sys_title");
+    updated.setProperties(List.of(new ContentTypeControlProperty("width", "640")));
+    when(adaptor.replaceFieldControlProperties(any(), eq("sys_title"), any())).thenReturn(updated);
+
+    SystemDefControlProperties out =
+        resource.replaceFieldControlProperties("sys_title", body);
+    assertEquals("640", out.getProperties().get(0).getValue());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesRequiresProperties() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.replaceFieldControlProperties(
+                    "sys_title", new SystemDefControlProperties()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesBlankPathNameIs400() {
+    SystemDefControlProperties body = new SystemDefControlProperties();
+    body.setProperties(List.of());
+    when(adaptor.replaceFieldControlProperties(any(), eq(" "), any()))
+        .thenThrow(new IllegalArgumentException("name is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldControlProperties(" ", body));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesLockConflictIs409() {
+    SystemDefControlProperties body = new SystemDefControlProperties();
+    body.setProperties(List.of());
+    when(adaptor.replaceFieldControlProperties(any(), eq("sys_title"), any()))
+        .thenThrow(
+            new SystemDefDesignLockException("Could not save system definition; locked by other"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldControlProperties("sys_title", body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesForbiddenWhenNotAdmin() {
+    SystemDefControlProperties body = new SystemDefControlProperties();
+    body.setProperties(List.of());
+    when(adaptor.replaceFieldControlProperties(any(), eq("sys_title"), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldControlProperties("sys_title", body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesFieldNotFoundIs404() {
+    SystemDefControlProperties body = new SystemDefControlProperties();
+    body.setProperties(List.of());
+    when(adaptor.replaceFieldControlProperties(any(), eq("nope"), any()))
+        .thenThrow(new SystemDefFieldNotFoundException("System field not found"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldControlProperties("nope", body));
+    assertEquals(404, ex.getResponse().getStatus());
   }
 }

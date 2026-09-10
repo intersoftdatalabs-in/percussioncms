@@ -78,4 +78,32 @@ public interface ISystemDefAdaptor {
    *     locked for this session
    */
   void deleteField(URI baseUri, String fieldName);
+
+  /**
+   * Load control property values and the choice catalog for one system-def field (CD-16 / CD-07).
+   * Admin only. No design lock is required. Empty {@code properties} means none configured. {@code
+   * choices} is null when none.
+   *
+   * @return envelope, or {@code null} when the field name is unsafe (maps to 404)
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin; {@code
+   *     404} when the field is unknown
+   */
+  SystemDefControlProperties getFieldControlProperties(URI baseUri, String fieldName);
+
+  /**
+   * Replace control property values (and optionally the choice catalog) for one system-def field.
+   * Admin only. Acquires the system-def design lock for this request and releases it on save.
+   * {@code properties} is a full replace (empty clears). {@code choices} null leaves the catalog
+   * unchanged.
+   *
+   * @return persisted envelope, or {@code null} when the field name is unsafe (maps to 404)
+   * @throws SystemDefFieldNotFoundException when the field does not exist
+   * @throws IllegalArgumentException when the path name is blank, properties is missing, or a
+   *     choice catalog is invalid
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin
+   * @throws SystemDefDesignLockException when the system def is locked by another user or is not
+   *     locked for this session
+   */
+  SystemDefControlProperties replaceFieldControlProperties(
+      URI baseUri, String fieldName, SystemDefControlProperties body);
 }
