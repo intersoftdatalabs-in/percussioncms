@@ -172,6 +172,7 @@ application packaging for greenfield work.
 - [Design templates](id:admin-design-templates) — create/edit assembler picker
 - [Developer Templates](id:admin-developer-templates) — export/import XML and Velocity snippets
 - [Upgrade Overview](id:upgrade-overview)
+- [Convert definition XML (dual-run)](id:admin-definition-xml-dual-run) — Widget/Page/Gadget XML packages, not XSL
 - [Getting Started](id:getting-started)
 - [Glossary](id:reference-glossary)
 - [Administration](id:admin)
