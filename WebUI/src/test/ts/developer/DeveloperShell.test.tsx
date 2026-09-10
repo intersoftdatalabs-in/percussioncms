@@ -554,6 +554,12 @@ vi.mock("../../../main/ts/api/developer/systemDefApi", async (importOriginal) =>
     updateSystemDef: vi.fn(),
     addSystemDefField: vi.fn(),
     deleteSystemDefField: vi.fn(),
+    getSystemDefFieldControlProperties: vi.fn().mockResolvedValue({
+      fieldName: "sys_title",
+      control: "sys_EditBox",
+      properties: [{ name: "height", value: "200" }],
+    }),
+    replaceSystemDefFieldControlProperties: vi.fn(),
   };
 });
 
@@ -933,7 +939,9 @@ describe("DeveloperShell", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-sys-fields-table")).toBeTruthy();
     });
-    expect(screen.getByText("sys_title")).toBeTruthy();
+    expect(
+      screen.getByTestId("developer-sys-fields-table").querySelector('[data-sys-field="sys_title"]'),
+    ).toBeTruthy();
   });
 
   it("loads item filters catalog section", async () => {

@@ -18,9 +18,11 @@
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.systemdef.ISystemDefAdaptor;
+import com.percussion.rest.systemdef.SystemDefControlProperties;
 import com.percussion.rest.systemdef.SystemDefDetail;
 import com.percussion.rest.systemdef.SystemDefFieldSummary;
 import java.net.URI;
+import java.util.List;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -53,5 +55,19 @@ public class TestSystemDefAdaptor implements ISystemDefAdaptor {
   @Override
   public void deleteField(URI baseUri, String fieldName) {
     // no-op for tests
+  }
+
+  @Override
+  public SystemDefControlProperties getFieldControlProperties(URI baseUri, String fieldName) {
+    SystemDefControlProperties out = new SystemDefControlProperties();
+    out.setFieldName(fieldName);
+    out.setProperties(List.of());
+    return out;
+  }
+
+  @Override
+  public SystemDefControlProperties replaceFieldControlProperties(
+      URI baseUri, String fieldName, SystemDefControlProperties body) {
+    return body != null ? body : new SystemDefControlProperties();
   }
 }

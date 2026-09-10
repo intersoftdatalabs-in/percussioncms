@@ -22,11 +22,17 @@ import {
   addSystemDefField,
   deleteSystemDefField,
   getSystemDef,
+  getSystemDefFieldControlProperties,
   isSystemDefFieldAddReady,
+  replaceSystemDefFieldControlProperties,
   updateSystemDef,
   type SystemDefFieldPatch,
 } from "../api/developer/systemDefApi";
-import type { SystemDefDetail, SystemDefFieldSummary } from "../api/developer/types";
+import type {
+  ContentTypeControlProperty,
+  SystemDefDetail,
+  SystemDefFieldSummary,
+} from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
 import {
   catalogColors,
@@ -35,6 +41,11 @@ import {
   monoCell,
 } from "./catalogStyles";
 import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
+import {
+  cloneControlProperties,
+  controlPropertiesEqual,
+  toControlPropertyPayload,
+} from "./contentTypeControlProperties";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -118,11 +129,28 @@ export function SystemDefPanel(): React.ReactElement {
   const [newDataType, setNewDataType] = useState<string>("text");
   const [newSearchable, setNewSearchable] = useState(true);
   const [newRequired, setNewRequired] = useState(false);
+  const [selectedFieldName, setSelectedFieldName] = useState("");
+  const [controlName, setControlName] = useState<string | null>(null);
+  const [controlProps, setControlProps] = useState<ContentTypeControlProperty[]>([]);
+  const [controlPropsInitial, setControlPropsInitial] = useState<
+    ContentTypeControlProperty[]
+  >([]);
+  const [controlPropsLoading, setControlPropsLoading] = useState(false);
+  const [controlPropsError, setControlPropsError] = useState<string | null>(null);
+  const [newPropName, setNewPropName] = useState("");
+  const [newPropValue, setNewPropValue] = useState("");
   const inflight = useRef(false);
 
   function applyDetail(d: SystemDefDetail): void {
     setDetail(d);
     setEdits(editsFromFields(d.fields || []));
+    const names = (d.fields || []).map((f) => f.name).filter((n): n is string => !!n);
+    setSelectedFieldName((prev) => {
+      if (prev && names.includes(prev)) {
+        return prev;
+      }
+      return names[0] || "";
+    });
   }
 
   useEffect(() => {
@@ -140,6 +168,43 @@ export function SystemDefPanel(): React.ReactElement {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!selectedFieldName) {
+      setControlProps([]);
+      setControlPropsInitial([]);
+      setControlName(null);
+      setControlPropsError(null);
+      setControlPropsLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setControlPropsLoading(true);
+    setControlPropsError(null);
+    getSystemDefFieldControlProperties(selectedFieldName)
+      .then((loaded) => {
+        if (cancelled) return;
+        const props = cloneControlProperties(loaded.properties);
+        setControlProps(props);
+        setControlPropsInitial(cloneControlProperties(props));
+        setControlName(loaded.control || null);
+        setNewPropName("");
+        setNewPropValue("");
+      })
+      .catch((e: unknown) => {
+        if (cancelled) return;
+        setControlProps([]);
+        setControlPropsInitial([]);
+        setControlName(null);
+        setControlPropsError(panelErrMsg(e, DEV_MSG.SYS_CONTROL_PROPS_ERROR));
+      })
+      .finally(() => {
+        if (!cancelled) setControlPropsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedFieldName]);
 
   const fields = detail?.fields || [];
   const canAdd = !busy && isSystemDefFieldAddReady(newName);
@@ -163,6 +228,9 @@ export function SystemDefPanel(): React.ReactElement {
       );
     });
   const canSave = !busy && dirtyPatches.length > 0;
+  const controlPropsDirty = !controlPropertiesEqual(controlProps, controlPropsInitial);
+  const canSaveControl =
+    !busy && !controlPropsLoading && !!selectedFieldName && controlPropsDirty;
 
   async function handleSave(): Promise<void> {
     if (!canSave || inflight.current) return;
@@ -203,6 +271,53 @@ export function SystemDefPanel(): React.ReactElement {
       setNotice(DEV_MSG.SYS_ADDED);
     } catch (err: unknown) {
       setWriteError(panelErrMsg(err, writeFallback(err, true, true, DEV_MSG.SYS_ADD_ERROR)));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  function setControlPropValue(index: number, value: string): void {
+    setControlProps((prev) =>
+      prev.map((p, i) => (i === index ? { ...p, value } : p)),
+    );
+  }
+
+  function removeControlProp(index: number): void {
+    setControlProps((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function addControlProp(): void {
+    const name = newPropName.trim();
+    if (!name) return;
+    if (controlProps.some((p) => (p.name || "").toLowerCase() === name.toLowerCase())) {
+      return;
+    }
+    setControlProps((prev) => [...prev, { name, value: newPropValue }]);
+    setNewPropName("");
+    setNewPropValue("");
+  }
+
+  async function handleSaveControlProperties(): Promise<void> {
+    if (!canSaveControl || inflight.current || !selectedFieldName) return;
+    inflight.current = true;
+    setBusy(true);
+    setWriteError(null);
+    setNotice(null);
+    try {
+      const saved = await replaceSystemDefFieldControlProperties(
+        selectedFieldName,
+        { properties: toControlPropertyPayload(controlProps) },
+      );
+      const nextProps = cloneControlProperties(saved.properties);
+      setControlProps(nextProps);
+      setControlPropsInitial(cloneControlProperties(nextProps));
+      setControlName(saved.control || null);
+      setNotice(DEV_MSG.SYS_CONTROL_PROPS_SAVED);
+    } catch (err: unknown) {
+      setWriteError(
+        panelErrMsg(err, writeFallback(err, false, false, DEV_MSG.SYS_CONTROL_PROPS_SAVE_ERROR)),
+      );
     } finally {
       inflight.current = false;
       setBusy(false);
@@ -506,6 +621,229 @@ export function SystemDefPanel(): React.ReactElement {
             })}
           />
         )}
+      </section>
+
+      <section
+        data-testid="developer-sys-control-props"
+        style={{
+          marginTop: "16px",
+          padding: "12px",
+          border: `1px solid ${catalogColors.headerBorder}`,
+          borderRadius: "4px",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "12px",
+            flexWrap: "wrap",
+          }}
+        >
+          <h3 style={{ fontSize: "1rem", marginTop: 0 }}>{DEV_MSG.SYS_CONTROL_PROPS}</h3>
+          <button
+            type="button"
+            data-testid="developer-sys-cp-save"
+            aria-label={DEV_MSG.SYS_CONTROL_PROPS_SAVE}
+            disabled={!canSaveControl}
+            onClick={() => void handleSaveControlProperties()}
+            style={{
+              padding: "8px 16px",
+              background: canSaveControl ? catalogColors.accent : catalogColors.disabled,
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: canSaveControl ? "pointer" : "not-allowed",
+            }}
+          >
+            {DEV_MSG.SYS_CONTROL_PROPS_SAVE}
+          </button>
+        </div>
+        <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+          {DEV_MSG.SYS_CONTROL_PROPS_HINT}
+        </p>
+        <div style={{ marginBottom: "12px" }}>
+          <label htmlFor="sys-cp-field" style={{ display: "block", marginBottom: 4 }}>
+            {DEV_MSG.SYS_CONTROL_PROPS_FIELD}
+          </label>
+          <select
+            id="sys-cp-field"
+            data-testid="developer-sys-cp-field"
+            aria-label={DEV_MSG.SYS_CONTROL_PROPS_FIELD}
+            style={inputStyle}
+            value={selectedFieldName}
+            disabled={busy || controlPropsDirty}
+            onChange={(e) => {
+              if (busy || controlPropsDirty) return;
+              setSelectedFieldName(e.target.value);
+              setNotice(null);
+            }}
+          >
+            {fields.filter((f) => !!f.name).length === 0 ? (
+              <option value="">{DEV_MSG.SYS_CONTROL_PROPS_NO_FIELD}</option>
+            ) : (
+              fields
+                .filter((f) => !!f.name)
+                .map((f) => (
+                  <option key={f.name} value={f.name}>
+                    {f.name}
+                  </option>
+                ))
+            )}
+          </select>
+        </div>
+        {controlName ? (
+          <p
+            data-testid="developer-sys-cp-control"
+            style={{ color: catalogColors.muted, fontSize: "0.9rem", fontFamily: "monospace" }}
+          >
+            {DEV_MSG.SYS_CONTROL_PROPS_CONTROL}: {controlName}
+          </p>
+        ) : null}
+        {controlPropsError ? (
+          <p
+            role="status"
+            data-testid="developer-sys-cp-error"
+            style={{ color: catalogColors.error }}
+          >
+            {controlPropsError}
+          </p>
+        ) : null}
+        {controlPropsLoading ? (
+          <p data-testid="developer-sys-cp-loading" style={{ color: catalogColors.muted }}>
+            {DEV_MSG.SYS_CONTROL_PROPS_LOADING}
+          </p>
+        ) : null}
+        {!controlPropsLoading && selectedFieldName && controlProps.length === 0 ? (
+          <p style={{ color: catalogColors.empty }} data-testid="developer-sys-cp-empty">
+            {DEV_MSG.SYS_CONTROL_PROPS_EMPTY}
+          </p>
+        ) : null}
+        {!controlPropsLoading && controlProps.length > 0 ? (
+          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+            {controlProps.map((p, i) => (
+              <li
+                key={`${p.name || "prop"}-${i}`}
+                data-testid={`developer-sys-cp-row-${i}`}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr auto",
+                  gap: 8,
+                  alignItems: "center",
+                  padding: "6px 0",
+                }}
+              >
+                <span
+                  data-testid={`developer-sys-cp-name-${i}`}
+                  style={{ fontFamily: "monospace" }}
+                >
+                  {p.name}
+                </span>
+                <input
+                  type="text"
+                  data-testid={`developer-sys-cp-value-${i}`}
+                  aria-label={`${DEV_MSG.SYS_CONTROL_PROPS_VALUE} ${p.name || i}`}
+                  style={inputStyle}
+                  value={p.value || ""}
+                  disabled={busy}
+                  onChange={(e) => setControlPropValue(i, e.target.value)}
+                />
+                <button
+                  type="button"
+                  data-testid={`developer-sys-cp-remove-${i}`}
+                  aria-label={`${DEV_MSG.SYS_CONTROL_PROPS_REMOVE} ${p.name || i}`}
+                  disabled={busy}
+                  onClick={() => removeControlProp(i)}
+                  style={{
+                    padding: "4px 10px",
+                    background: "#c53030",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: busy ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {DEV_MSG.SYS_CONTROL_PROPS_REMOVE}
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        <div
+          style={{
+            marginTop: "12px",
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr auto",
+            gap: "8px",
+            alignItems: "end",
+          }}
+        >
+          <div>
+            <label htmlFor="sys-cp-add-name" style={{ display: "block", marginBottom: 4 }}>
+              {DEV_MSG.SYS_CONTROL_PROPS_NAME}
+            </label>
+            <input
+              id="sys-cp-add-name"
+              type="text"
+              autoComplete="off"
+              data-testid="developer-sys-cp-add-name"
+              style={inputStyle}
+              placeholder={DEV_MSG.SYS_CONTROL_PROPS_NAME_PLACEHOLDER}
+              value={newPropName}
+              disabled={busy || !selectedFieldName}
+              onChange={(e) => setNewPropName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addControlProp();
+                }
+              }}
+            />
+          </div>
+          <div>
+            <label htmlFor="sys-cp-add-value" style={{ display: "block", marginBottom: 4 }}>
+              {DEV_MSG.SYS_CONTROL_PROPS_VALUE}
+            </label>
+            <input
+              id="sys-cp-add-value"
+              type="text"
+              autoComplete="off"
+              data-testid="developer-sys-cp-add-value"
+              style={inputStyle}
+              placeholder={DEV_MSG.SYS_CONTROL_PROPS_VALUE_PLACEHOLDER}
+              value={newPropValue}
+              disabled={busy || !selectedFieldName}
+              onChange={(e) => setNewPropValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addControlProp();
+                }
+              }}
+            />
+          </div>
+          <button
+            type="button"
+            data-testid="developer-sys-cp-add"
+            disabled={busy || !selectedFieldName || !newPropName.trim()}
+            onClick={addControlProp}
+            style={{
+              padding: "8px 16px",
+              background:
+                busy || !selectedFieldName || !newPropName.trim()
+                  ? catalogColors.disabled
+                  : catalogColors.accent,
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor:
+                busy || !selectedFieldName || !newPropName.trim() ? "not-allowed" : "pointer",
+            }}
+          >
+            {DEV_MSG.SYS_CONTROL_PROPS_ADD}
+          </button>
+        </div>
       </section>
 
       {detail.designGaps && detail.designGaps.length > 0 ? (

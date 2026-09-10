@@ -17,7 +17,17 @@
 
 import { del, get, post, put } from "../client";
 import { PATHS } from "../paths";
-import type { SystemDefDetail, SystemDefFieldSummary } from "./types";
+import { parseChoiceCatalog } from "./contentTypeChoiceCatalog";
+import {
+  normalizeContentTypeControlProperties,
+  normalizeContentTypeDesignGaps,
+} from "./contentTypeLists";
+import type {
+  ContentTypeControlProperty,
+  SystemDefControlProperties,
+  SystemDefDetail,
+  SystemDefFieldSummary,
+} from "./types";
 
 /**
  * REST field-name rule (SystemDefAdaptor.validateFieldName): letter, then
@@ -176,4 +186,98 @@ export async function addSystemDefField(
  */
 export async function deleteSystemDefField(fieldName: string): Promise<void> {
   await del(`${PATHS.SYSTEM_DEF}/fields/${encodeURIComponent(fieldName)}`);
+}
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code SystemDefControlProperties}. */
+export const SYSTEM_DEF_CONTROL_PROPERTIES_ROOT = "SystemDefControlProperties";
+
+export type SystemDefControlPropertiesBody = {
+  properties: ContentTypeControlProperty[];
+  /** When omitted, PUT leaves the catalog unchanged. */
+  choices?: SystemDefControlProperties["choices"];
+};
+
+function controlPropertiesUrl(fieldName: string): string {
+  return `${PATHS.SYSTEM_DEF}/fields/${encodeURIComponent(fieldName)}/controlProperties`;
+}
+
+/**
+ * Flatten GET/PUT {@code .../fields/{field}/controlProperties} JSON.
+ *
+ * <p>Handles WRAP_ROOT {@code SystemDefControlProperties}, a flat body,
+ * JAXB property envelopes, and empty-collection beans.
+ */
+export function unwrapSystemDefControlProperties(
+  payload: unknown,
+): SystemDefControlProperties {
+  const root = asRecord(payload);
+  if (!root) {
+    return { properties: [] };
+  }
+  const nested = asRecord(
+    root[SYSTEM_DEF_CONTROL_PROPERTIES_ROOT] ?? root.systemDefControlProperties,
+  );
+  const body = nested ?? root;
+  const out: SystemDefControlProperties = {
+    properties: normalizeContentTypeControlProperties(body.properties),
+  };
+  if (typeof body.fieldName === "string") {
+    out.fieldName = body.fieldName;
+  }
+  if (typeof body.control === "string") {
+    out.control = body.control;
+  }
+  if (body.choices != null) {
+    const choices = parseChoiceCatalog(body.choices);
+    if (choices) {
+      out.choices = choices;
+    }
+  }
+  if (body.designGaps != null) {
+    out.designGaps = normalizeContentTypeDesignGaps(body.designGaps);
+  }
+  return out;
+}
+
+/**
+ * Build the wire JSON body for {@code PUT .../controlProperties} under
+ * {@link SYSTEM_DEF_CONTROL_PROPERTIES_ROOT}. A flat body fails server
+ * UNWRAP_ROOT_VALUE. Omit {@code choices} to leave the catalog unchanged.
+ */
+export function wrapSystemDefControlPropertiesForWire(
+  body: SystemDefControlPropertiesBody,
+): Record<string, SystemDefControlPropertiesBody> {
+  const wrapped: SystemDefControlPropertiesBody = {
+    properties: body.properties,
+  };
+  if (body.choices !== undefined) {
+    wrapped.choices = body.choices;
+  }
+  return { [SYSTEM_DEF_CONTROL_PROPERTIES_ROOT]: wrapped };
+}
+
+/**
+ * GET /services/systemdef/fields/{fieldName}/controlProperties — Admin. No lock.
+ * Empty properties means none.
+ */
+export async function getSystemDefFieldControlProperties(
+  fieldName: string,
+): Promise<SystemDefControlProperties> {
+  const payload = await get<unknown>(controlPropertiesUrl(fieldName));
+  return unwrapSystemDefControlProperties(payload);
+}
+
+/**
+ * PUT /services/systemdef/fields/{fieldName}/controlProperties — Admin. Request
+ * lock is acquired and released on save. Empty properties clears.
+ */
+export async function replaceSystemDefFieldControlProperties(
+  fieldName: string,
+  body: SystemDefControlPropertiesBody,
+): Promise<SystemDefControlProperties> {
+  const payload = await put<unknown>(
+    controlPropertiesUrl(fieldName),
+    wrapSystemDefControlPropertiesForWire(body),
+  );
+  return unwrapSystemDefControlProperties(payload);
 }

@@ -32,9 +32,13 @@ import com.percussion.design.objectstore.PSTableRef;
 import com.percussion.design.objectstore.PSTableSet;
 import com.percussion.design.objectstore.PSUIDefinition;
 import com.percussion.design.objectstore.PSUISet;
+import com.percussion.rest.DesignGap;
+import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import com.percussion.rest.systemdef.ISystemDefAdaptor;
+import com.percussion.rest.systemdef.SystemDefControlProperties;
 import com.percussion.rest.systemdef.SystemDefDesignLockException;
 import com.percussion.rest.systemdef.SystemDefDetail;
+import com.percussion.rest.systemdef.SystemDefFieldNotFoundException;
 import com.percussion.rest.systemdef.SystemDefFieldSummary;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
@@ -82,8 +86,17 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
 
   private static final List<String> DESIGN_GAPS =
       List.of(
-          "Control properties, stylesheets, and application flow not exposed",
+          "Stylesheets and application flow not exposed",
           "Shared field groups are a separate catalog (Developer Shared Fields)");
+
+  /**
+   * Structured gaps on GET/PUT {@code .../controlProperties} (stylesheet / flow remain later
+   * slices).
+   */
+  static final List<DesignGap> CONTROL_PROPERTY_DESIGN_GAPS =
+      List.of(
+          DesignGap.of("SYS_STYLESHEET", "Stylesheets are not exposed"),
+          DesignGap.of("SYS_APP_FLOW", "Application flow is not exposed"));
 
   private static final int MAX_FIELD_NAME_LENGTH = 50;
 
@@ -470,7 +483,7 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
 
   /**
    * Persistable TYPE_SYSTEM field with backend column locator, default text mapping, and display
-   * mapping ({@code sys_EditBox}). Control/stylesheet/flow write is a later slice.
+   * mapping ({@code sys_EditBox}). Stylesheet/flow write is a later slice.
    */
   static PSField addPersistableField(PSContentEditorSystemDef def, SystemDefFieldSummary body) {
     if (def == null) {
@@ -695,6 +708,124 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
           e.getMessage());
     }
     saveSystemDef(def, session, user);
+  }
+
+  @Override
+  public SystemDefControlProperties getFieldControlProperties(URI baseUri, String fieldName) {
+    requireAdmin();
+    if (StringUtils.isBlank(fieldName) || !isSafeFieldName(fieldName)) {
+      throw new WebApplicationException("System field not found", 404);
+    }
+    return loadFieldControlProperties(systemDefLoader.get(), fieldName.trim());
+  }
+
+  @Override
+  public SystemDefControlProperties replaceFieldControlProperties(
+      URI baseUri, String fieldName, SystemDefControlProperties body) {
+    requireAdmin();
+    requireDesignWs();
+    requireSessionUserForWrite();
+    if (StringUtils.isBlank(fieldName)) {
+      throw new IllegalArgumentException("name is required");
+    }
+    if (body == null || body.getProperties() == null) {
+      throw new IllegalArgumentException("properties is required");
+    }
+    if (!isSafeFieldName(fieldName)) {
+      throw new SystemDefFieldNotFoundException("System field not found");
+    }
+    String session = currentSession();
+    String user = currentUser();
+    PSContentEditorSystemDef def = loadSystemDefLocked(session, user);
+    PSDisplayMapping mapping = requireFieldMapping(def, fieldName.trim(), true);
+    applyControlPropertyUpdates(mapping, body);
+    saveSystemDef(def, session, user);
+    return toFieldControlProperties(fieldName.trim(), mapping);
+  }
+
+  private SystemDefControlProperties loadFieldControlProperties(
+      PSContentEditorSystemDef def, String fieldName) {
+    PSDisplayMapping mapping = requireFieldMapping(def, fieldName, false);
+    return toFieldControlProperties(fieldName, mapping);
+  }
+
+  /**
+   * Resolve the field by submit name then its display mapping. Missing field or mapping is 404.
+   *
+   * @param notFoundIsDeleteStyle {@code true} throws {@link SystemDefFieldNotFoundException} (PUT);
+   *     {@code false} throws HTTP 404 (GET)
+   */
+  private PSDisplayMapping requireFieldMapping(
+      PSContentEditorSystemDef def, String fieldName, boolean notFoundIsDeleteStyle) {
+    PSField field =
+        def != null && def.getFieldSet() != null
+            ? def.getFieldSet().findFieldByName(fieldName, false)
+            : null;
+    PSDisplayMapper mapper =
+        def != null && def.getUIDefinition() != null
+            ? def.getUIDefinition().getDisplayMapper()
+            : null;
+    String actual = field != null ? field.getSubmitName() : fieldName;
+    PSDisplayMapping mapping = ContentTypeAdaptor.findDisplayMapping(mapper, actual);
+    if (field == null || mapping == null) {
+      if (notFoundIsDeleteStyle) {
+        throw new SystemDefFieldNotFoundException("System field not found");
+      }
+      throw new WebApplicationException("System field not found", 404);
+    }
+    return mapping;
+  }
+
+  static SystemDefControlProperties toFieldControlProperties(
+      String fieldName, PSDisplayMapping mapping) {
+    SystemDefControlProperties out = new SystemDefControlProperties();
+    out.setFieldName(fieldName);
+    PSUISet ui = mapping != null ? mapping.getUISet() : null;
+    PSControlRef control = ui != null ? ui.getControl() : null;
+    if (control != null && StringUtils.isNotBlank(control.getName())) {
+      out.setControl(control.getName());
+    }
+    out.setProperties(new ArrayList<>(ContentTypeAdaptor.controlProperties(control)));
+    if (ui != null) {
+      out.setChoices(ContentTypeAdaptor.toChoiceCatalog(ui.getChoices()));
+    }
+    out.setDesignGaps(new ArrayList<>(CONTROL_PROPERTY_DESIGN_GAPS));
+    return out;
+  }
+
+  static void applyControlPropertyUpdates(
+      PSDisplayMapping mapping, SystemDefControlProperties body) {
+    PSUISet ui = mapping.getUISet();
+    if (ui == null) {
+      ui = new PSUISet();
+      mapping.setUISet(ui);
+    }
+    List<ContentTypeControlProperty> properties = body.getProperties();
+    PSControlRef control = ui.getControl();
+    if (control == null) {
+      if (!properties.isEmpty()) {
+        throw new IllegalArgumentException("field has no display control");
+      }
+    } else {
+      control.setParameters(ContentTypeAdaptor.toParamCollection(properties));
+    }
+    if (body.getChoices() != null) {
+      ui.setChoices(ContentTypeAdaptor.fromChoiceCatalog(body.getChoices()));
+    }
+  }
+
+  /**
+   * Field names are path-ish identifiers. Reject path traversal and separators so a user-supplied
+   * name cannot escape expected object-store layout ({@code java/path-injection}).
+   */
+  static boolean isSafeFieldName(String name) {
+    if (StringUtils.isBlank(name)) {
+      return false;
+    }
+    return !name.contains("..")
+        && name.indexOf('/') < 0
+        && name.indexOf('\\') < 0
+        && name.indexOf('\0') < 0;
   }
 
   private void requireAdmin() {

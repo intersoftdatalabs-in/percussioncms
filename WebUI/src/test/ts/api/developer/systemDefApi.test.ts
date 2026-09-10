@@ -7,10 +7,14 @@ import {
   addSystemDefField,
   deleteSystemDefField,
   getSystemDef,
+  getSystemDefFieldControlProperties,
   isSystemDefFieldAddReady,
   isValidSystemDefFieldName,
+  replaceSystemDefFieldControlProperties,
+  unwrapSystemDefControlProperties,
   unwrapSystemDefDetail,
   updateSystemDef,
+  wrapSystemDefControlPropertiesForWire,
   wrapSystemDefDetailForWire,
   wrapSystemDefFieldForWire,
 } from "../../../../main/ts/api/developer/systemDefApi";
@@ -79,6 +83,38 @@ describe("system def wire wrap", () => {
     });
     expect(unwrapSystemDefDetail(null)).toEqual({ fields: [] });
   });
+
+  it("wraps PUT control properties under SystemDefControlProperties root", () => {
+    expect(
+      wrapSystemDefControlPropertiesForWire({
+        properties: [{ name: "height", value: "200" }],
+      }),
+    ).toEqual({
+      SystemDefControlProperties: {
+        properties: [{ name: "height", value: "200" }],
+      },
+    });
+  });
+
+  it("unwraps SystemDefControlProperties envelope and flat bodies", () => {
+    expect(
+      unwrapSystemDefControlProperties({
+        SystemDefControlProperties: {
+          fieldName: "sys_title",
+          control: "sys_EditBox",
+          properties: [{ name: "height", value: "200" }],
+        },
+      }),
+    ).toEqual({
+      fieldName: "sys_title",
+      control: "sys_EditBox",
+      properties: [{ name: "height", value: "200" }],
+    });
+    expect(unwrapSystemDefControlProperties({ properties: [] })).toEqual({
+      properties: [],
+    });
+    expect(unwrapSystemDefControlProperties(null)).toEqual({ properties: [] });
+  });
 });
 
 describe("systemDefApi write paths", () => {
@@ -146,5 +182,40 @@ describe("systemDefApi write paths", () => {
     const init = fetchMock.mock.calls[0][1] as RequestInit;
     expect(init.method).toBe("DELETE");
     expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.SYSTEM_DEF}/fields/qa_note`);
+  });
+
+  it("GETs wrapped control properties", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        SystemDefControlProperties: {
+          fieldName: "sys_title",
+          properties: [{ name: "height", value: "200" }],
+        },
+      }),
+    );
+    const out = await getSystemDefFieldControlProperties("sys_title");
+    expect(out.properties?.[0]?.value).toBe("200");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.SYSTEM_DEF}/fields/sys_title/controlProperties`,
+    );
+  });
+
+  it("PUTs wrapped control properties", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        properties: [{ name: "width", value: "640" }],
+      }),
+    );
+    const saved = await replaceSystemDefFieldControlProperties("sys_title", {
+      properties: [{ name: "width", value: "640" }],
+    });
+    expect(saved.properties?.[0]?.value).toBe("640");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(JSON.parse(String(init.body))).toEqual({
+      SystemDefControlProperties: {
+        properties: [{ name: "width", value: "640" }],
+      },
+    });
   });
 });

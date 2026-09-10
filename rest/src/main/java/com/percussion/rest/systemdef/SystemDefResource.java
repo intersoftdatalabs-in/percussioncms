@@ -79,7 +79,8 @@ public class SystemDefResource {
           "Loads the content-editor system definition field catalog (global system fields)."
               + " Admin (Design) only. Save uses PUT /systemdef to patch existing field properties."
               + " Add a field with POST /systemdef/fields; remove one with DELETE"
-              + " /systemdef/fields/{fieldName}.",
+              + " /systemdef/fields/{fieldName}. Control properties use GET/PUT"
+              + " /systemdef/fields/{fieldName}/controlProperties.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -146,8 +147,9 @@ public class SystemDefResource {
               + " case-insensitive, and must be a letter followed by letters, digits, or"
               + " underscore. Optional dataType defaults to text. Optional searchable and"
               + " occurrence/required use the same rules as PUT field patches. Duplicate field is"
-              + " 409. Lock held by another user is 409. Control/stylesheet/flow remain"
-              + " unsupported.",
+              + " 409. Lock held by another user is 409. Stylesheet and application-flow editors"
+              + " remain unsupported. Control properties use GET/PUT"
+              + " .../fields/{fieldName}/controlProperties.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -199,9 +201,92 @@ public class SystemDefResource {
     }
   }
 
+  @GET
+  @Path("/fields/{fieldName}/controlProperties")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get system-def field control property values and choice catalog",
+      description =
+          "CD-16 GET (CD-07 on system def): control parameter name/value pairs and the choice"
+              + " catalog for one system field. Admin only. No design lock is required. Empty"
+              + " properties means none. choices is omitted when none. Jackson root wrap is"
+              + " SystemDefControlProperties. Path separators and .. are 404.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(schema = @Schema(implementation = SystemDefControlProperties.class))),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Field not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public SystemDefControlProperties getFieldControlProperties(
+      @PathParam("fieldName") String fieldName) {
+    try {
+      SystemDefControlProperties out =
+          requireAdaptor().getFieldControlProperties(uriInfo.getBaseUri(), fieldName);
+      if (out == null) {
+        throw new WebApplicationException("System field not found", 404);
+      }
+      return out;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/fields/{fieldName}/controlProperties")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Replace system-def field control property values and optional choice catalog",
+      description =
+          "CD-16 PUT (CD-07 on system def): full replace of control parameter values via"
+              + " IPSContentDesignWs.loadContentEditorSystemDef (lock) then"
+              + " saveContentEditorSystemDef (release). Admin only. Empty properties clears."
+              + " choices omitted leaves the catalog unchanged; type none clears. Jackson root wrap"
+              + " is SystemDefControlProperties. Blank field path name is 400.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Replaced (system-def lock released)",
+            content =
+                @Content(schema = @Schema(implementation = SystemDefControlProperties.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Missing properties, invalid choice catalog, or blank field path name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Field not found"),
+        @ApiResponse(responseCode = "409", description = "System def locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public SystemDefControlProperties replaceFieldControlProperties(
+      @PathParam("fieldName") String fieldName, SystemDefControlProperties body) {
+    if (body == null || body.getProperties() == null) {
+      throw new WebApplicationException("properties is required", 400);
+    }
+    try {
+      SystemDefControlProperties out =
+          requireAdaptor()
+              .replaceFieldControlProperties(uriInfo.getBaseUri(), fieldName, body);
+      if (out == null) {
+        throw new WebApplicationException("System field not found", 404);
+      }
+      return out;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   /**
    * Map adaptor write failures to HTTP status. Lock conflicts are always 409 via {@link
-   * SystemDefDesignLockException}.
+   * SystemDefDesignLockException}. Unknown fields on control-property write are 404 via {@link
+   * SystemDefFieldNotFoundException}.
    */
   static WebApplicationException mapWriteFailure(RuntimeException e) {
     if (e instanceof WebApplicationException wae) {
@@ -209,6 +294,10 @@ public class SystemDefResource {
     }
     if (e instanceof SystemDefDesignLockException) {
       return new WebApplicationException(e.getMessage(), 409);
+    }
+    if (e instanceof SystemDefFieldNotFoundException) {
+      return new WebApplicationException(
+          e.getMessage() != null ? e.getMessage() : "System field not found", 404);
     }
     if (e instanceof IllegalArgumentException) {
       return new WebApplicationException(e.getMessage(), 400);
