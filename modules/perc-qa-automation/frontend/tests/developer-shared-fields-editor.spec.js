@@ -168,15 +168,13 @@ function jsonHeaders() {
 }
 
 function uniqueNestedGroupName() {
-  const a = Date.now().toString(36).replace(/[^a-z0-9]/g, "");
-  const b = Math.random().toString(36).replace(/[^a-z0-9]/g, "").slice(2, 8);
-  return `qa4439g${a}${b}`.slice(0, 24);
+  const uuid = crypto.randomUUID().replace(/-/g, "").slice(0, 12);
+  return `qa4439g${uuid}`.slice(0, 24);
 }
 
 function uniqueFieldName() {
-  const a = Date.now().toString(36).replace(/[^a-z0-9]/g, "");
-  const b = Math.random().toString(36).replace(/[^a-z0-9]/g, "").slice(2, 6);
-  return `qa4439f${a}${b}`.slice(0, 24);
+  const uuid = crypto.randomUUID().replace(/-/g, "").slice(0, 12);
+  return `qa4439f${uuid}`.slice(0, 24);
 }
 
 function flattenFields(raw) {

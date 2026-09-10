@@ -444,13 +444,26 @@ export function SharedFieldGroupDetailPanel({
     setBusy(true);
     setError(null);
     setNotice(null);
+    let deleted = false;
     try {
       await deleteSharedField(writeKey, fieldName);
+      deleted = true;
       const saved = await getSharedFieldGroupDetail(writeKey);
       applyDetail(saved);
       setNotice(DEV_MSG.SF_FIELD_DELETED);
       onSaved?.(saved);
     } catch (err: unknown) {
+      if (deleted) {
+        setDetail((prev) =>
+          prev == null
+            ? prev
+            : {
+                ...prev,
+                fields: (prev.fields || []).filter((f) => f.name !== fieldName),
+              },
+        );
+        setSelectedFieldName((prev) => (prev === fieldName ? "" : prev));
+      }
       setError(panelErrMsg(err, writeFallback(err, false, false, DEV_MSG.SF_FIELD_DELETE_ERROR)));
     } finally {
       inflight.current = false;

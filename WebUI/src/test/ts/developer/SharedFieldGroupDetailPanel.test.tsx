@@ -452,6 +452,29 @@ describe("SharedFieldGroupDetailPanel", () => {
     );
   });
 
+  it("drops the field from the table when re-fetch fails after delete", async () => {
+    getSharedFieldGroupDetail
+      .mockResolvedValueOnce(sampleDetail)
+      .mockRejectedValueOnce({
+        status: 500,
+        statusText: "Server Error",
+        body: { message: "reload failed" },
+      });
+    deleteSharedField.mockResolvedValue(undefined);
+    render(<SharedFieldGroupDetailPanel name="shared" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-field-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-sf-field-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-detail-error")).toBeTruthy();
+    });
+    expect(deleteSharedField).toHaveBeenCalledWith("shared", "rx_title");
+    expect(screen.getByTestId("developer-sf-fields-empty")).toBeTruthy();
+    expect(screen.queryByTestId("developer-sf-fields-table")).toBeNull();
+  });
+
   it("loads and saves a control property without sending choices", async () => {
     getSharedFieldGroupDetail.mockResolvedValue(sampleDetail);
     render(<SharedFieldGroupDetailPanel name="shared" onBack={() => undefined} />);

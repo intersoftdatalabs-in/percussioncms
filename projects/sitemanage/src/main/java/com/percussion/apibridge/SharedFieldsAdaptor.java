@@ -214,7 +214,8 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
 
   /**
    * Run a locked shared-def mutation. The request lock is always released: save on success, and a
-   * no-op save on failure so duplicate/not-found 409/404 cannot leak the lock (C5 #4439).
+   * no-op save on failure ({@code RuntimeException}, checked exception, or {@code Error}) so
+   * duplicate/not-found 409/404 cannot leak the lock (C5 #4439).
    */
   private <T> T withLockedWrite(java.util.function.Function<PSContentEditorSharedDef, T> op) {
     String session = currentSession();
@@ -224,13 +225,19 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
       T result = op.apply(def);
       saveSharedDef(def, session, user);
       return result;
-    } catch (RuntimeException e) {
+    } catch (Throwable t) {
       try {
         saveSharedDef(def, session, user);
       } catch (RuntimeException releaseErr) {
         log.warn("Failed to release shared-def lock after write failure", releaseErr);
       }
-      throw e;
+      if (t instanceof Error err) {
+        throw err;
+      }
+      if (t instanceof RuntimeException re) {
+        throw re;
+      }
+      throw new IllegalStateException("Shared-def write failed", t);
     }
   }
 
