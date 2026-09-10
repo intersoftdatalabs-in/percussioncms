@@ -25,7 +25,8 @@ import { DEV_MSG } from "./messages";
 import { SharedFieldGroupDetailPanel } from "./SharedFieldGroupDetailPanel";
 
 /**
- * CD-15 — shared field group catalog with create / save / delete.
+ * CD-15 — shared field group catalog with create / save / delete, plus nested
+ * field add/delete and control-property / choice save on detail.
  */
 export function SharedFieldsPanel(): React.ReactElement {
   const [items, setItems] = useState<SharedFieldGroupSummary[] | null>(null);

@@ -212,6 +212,28 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
     }
   }
 
+  /**
+   * Run a locked shared-def mutation. The request lock is always released: save on success, and a
+   * no-op save on failure so duplicate/not-found 409/404 cannot leak the lock (C5 #4439).
+   */
+  private <T> T withLockedWrite(java.util.function.Function<PSContentEditorSharedDef, T> op) {
+    String session = currentSession();
+    String user = currentUser();
+    PSContentEditorSharedDef def = loadSharedDefLocked(session, user);
+    try {
+      T result = op.apply(def);
+      saveSharedDef(def, session, user);
+      return result;
+    } catch (RuntimeException e) {
+      try {
+        saveSharedDef(def, session, user);
+      } catch (RuntimeException releaseErr) {
+        log.warn("Failed to release shared-def lock after write failure", releaseErr);
+      }
+      throw e;
+    }
+  }
+
   static SharedFieldDesignLockException mapLockConflict(PSLockErrorException e) {
     String locker = e != null ? e.getLocker() : null;
     if (StringUtils.isNotBlank(locker)) {
@@ -615,16 +637,15 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
     }
     String name = validateGroupName(body.getName().trim());
     String filename = normalizeFilename(body.getFilename(), name);
-    String session = currentSession();
-    String user = currentUser();
-    PSContentEditorSharedDef def = loadSharedDefLocked(session, user);
-    if (findGroup(def, name) != null) {
-      throw new WebApplicationException("Shared field group already exists: " + name, 409);
-    }
-    PSSharedFieldGroup created = newEmptyGroup(name, filename);
-    def.addFieldGroup(created);
-    saveSharedDef(def, session, user);
-    return toDetail(created);
+    return withLockedWrite(
+        def -> {
+          if (findGroup(def, name) != null) {
+            throw new WebApplicationException("Shared field group already exists: " + name, 409);
+          }
+          PSSharedFieldGroup created = newEmptyGroup(name, filename);
+          def.addFieldGroup(created);
+          return toDetail(created);
+        });
   }
 
   @Override
@@ -641,28 +662,28 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
     if (body == null) {
       throw new IllegalArgumentException("body is required");
     }
-    String session = currentSession();
-    String user = currentUser();
-    PSContentEditorSharedDef def = loadSharedDefLocked(session, user);
-    PSSharedFieldGroup group = findGroup(def, name.trim());
-    if (group == null) {
-      return null;
-    }
-    if (StringUtils.isNotBlank(body.getFilename())) {
-      group.setFilename(normalizeFilename(body.getFilename(), group.getName()));
-    }
-    if (StringUtils.isNotBlank(body.getName())) {
-      String newName = validateGroupName(body.getName().trim());
-      if (!newName.equalsIgnoreCase(group.getName())) {
-        if (findGroup(def, newName) != null) {
-          throw new WebApplicationException("Shared field group already exists: " + newName, 409);
-        }
-        group.setName(newName);
-      }
-    }
-    applyFieldPatches(group, body.getFields());
-    saveSharedDef(def, session, user);
-    return toDetail(group);
+    return withLockedWrite(
+        def -> {
+          PSSharedFieldGroup group = findGroup(def, name.trim());
+          if (group == null) {
+            return null;
+          }
+          if (StringUtils.isNotBlank(body.getFilename())) {
+            group.setFilename(normalizeFilename(body.getFilename(), group.getName()));
+          }
+          if (StringUtils.isNotBlank(body.getName())) {
+            String newName = validateGroupName(body.getName().trim());
+            if (!newName.equalsIgnoreCase(group.getName())) {
+              if (findGroup(def, newName) != null) {
+                throw new WebApplicationException(
+                    "Shared field group already exists: " + newName, 409);
+              }
+              group.setName(newName);
+            }
+          }
+          applyFieldPatches(group, body.getFields());
+          return toDetail(group);
+        });
   }
 
   @Override
@@ -676,15 +697,15 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
     if (!isSafeGroupName(name)) {
       throw new SharedFieldNotFoundException("Shared field group not found");
     }
-    String session = currentSession();
-    String user = currentUser();
-    PSContentEditorSharedDef def = loadSharedDefLocked(session, user);
-    PSSharedFieldGroup group = findGroup(def, name.trim());
-    if (group == null) {
-      throw new SharedFieldNotFoundException("Shared field group not found");
-    }
-    def.removeFieldGroup(group);
-    saveSharedDef(def, session, user);
+    withLockedWrite(
+        def -> {
+          PSSharedFieldGroup group = findGroup(def, name.trim());
+          if (group == null) {
+            throw new SharedFieldNotFoundException("Shared field group not found");
+          }
+          def.removeFieldGroup(group);
+          return null;
+        });
   }
 
   @Override
@@ -702,19 +723,18 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
       throw new IllegalArgumentException("body is required");
     }
     String fieldName = validateFieldName(body.getName());
-    String session = currentSession();
-    String user = currentUser();
-    PSContentEditorSharedDef def = loadSharedDefLocked(session, user);
-    PSSharedFieldGroup group = findGroup(def, groupName.trim());
-    if (group == null) {
-      return null;
-    }
-    if (findSharedField(def, fieldName) != null) {
-      throw new WebApplicationException("Shared field already exists: " + fieldName, 409);
-    }
-    addPersistableField(group, body);
-    saveSharedDef(def, session, user);
-    return toDetail(group);
+    return withLockedWrite(
+        def -> {
+          PSSharedFieldGroup group = findGroup(def, groupName.trim());
+          if (group == null) {
+            return null;
+          }
+          if (findSharedField(def, fieldName) != null) {
+            throw new WebApplicationException("Shared field already exists: " + fieldName, 409);
+          }
+          addPersistableField(group, body);
+          return toDetail(group);
+        });
   }
 
   @Override
@@ -731,17 +751,17 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
     if (!isSafeGroupName(fieldName)) {
       throw new SharedFieldNotFoundException("Shared field not found");
     }
-    String session = currentSession();
-    String user = currentUser();
-    PSContentEditorSharedDef def = loadSharedDefLocked(session, user);
-    PSSharedFieldGroup group = findGroup(def, groupName.trim());
-    if (group == null) {
-      throw new SharedFieldNotFoundException("Shared field group not found");
-    }
-    if (!removeFieldAndMapping(group, fieldName.trim())) {
-      throw new SharedFieldNotFoundException("Shared field not found");
-    }
-    saveSharedDef(def, session, user);
+    withLockedWrite(
+        def -> {
+          PSSharedFieldGroup group = findGroup(def, groupName.trim());
+          if (group == null) {
+            throw new SharedFieldNotFoundException("Shared field group not found");
+          }
+          if (!removeFieldAndMapping(group, fieldName.trim())) {
+            throw new SharedFieldNotFoundException("Shared field not found");
+          }
+          return null;
+        });
   }
 
   @Override
@@ -780,17 +800,16 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
     if (!isSafeGroupName(fieldName)) {
       throw new SharedFieldNotFoundException("Shared field not found");
     }
-    String session = currentSession();
-    String user = currentUser();
-    PSContentEditorSharedDef def = loadSharedDefLocked(session, user);
-    PSSharedFieldGroup group = findGroup(def, idOrName.trim());
-    if (group == null) {
-      return null;
-    }
-    PSDisplayMapping mapping = requireFieldMapping(group, fieldName.trim(), true);
-    applyControlPropertyUpdates(mapping, body);
-    saveSharedDef(def, session, user);
-    return toFieldControlProperties(fieldName.trim(), mapping);
+    return withLockedWrite(
+        def -> {
+          PSSharedFieldGroup group = findGroup(def, idOrName.trim());
+          if (group == null) {
+            return null;
+          }
+          PSDisplayMapping mapping = requireFieldMapping(group, fieldName.trim(), true);
+          applyControlPropertyUpdates(mapping, body);
+          return toFieldControlProperties(fieldName.trim(), mapping);
+        });
   }
 
   private SharedFieldControlProperties loadFieldControlProperties(

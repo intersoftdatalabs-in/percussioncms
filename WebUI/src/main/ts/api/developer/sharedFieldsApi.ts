@@ -17,13 +17,59 @@
 
 import { del, get, post, put } from "../client";
 import { PATHS } from "../paths";
-import type { SharedFieldGroupDetail, SharedFieldGroupSummary } from "./types";
+import { parseChoiceCatalog } from "./contentTypeChoiceCatalog";
+import {
+  normalizeContentTypeControlProperties,
+  normalizeContentTypeDesignGaps,
+} from "./contentTypeLists";
+import { asJacksonArray } from "./slotLists";
+import type {
+  ContentTypeControlProperty,
+  SharedFieldControlProperties,
+  SharedFieldGroupDetail,
+  SharedFieldGroupSummary,
+  SharedFieldSummary,
+} from "./types";
 
 /** Writable fields for POST/PUT /services/sharedfields. Fields catalog is not written here. */
 export type SharedFieldGroupWriteBody = Pick<SharedFieldGroupDetail, "name" | "filename">;
 
+/**
+ * REST field-name rule (SharedFieldsAdaptor.validateFieldName): letter, then
+ * letters/digits/underscore, max 50 characters, no spaces or path chars.
+ */
+export const SHARED_FIELD_NAME_PATTERN = /^[A-Za-z][A-Za-z0-9_]{0,49}$/;
+
+/**
+ * JAXB / Jackson WRAP_ROOT_VALUE for POST /sharedfields/{name}/fields.
+ * Live CMS expects {@code @XmlRootElement(name = "SharedField")}.
+ */
+export const SHARED_FIELD_ROOT = "SharedField";
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code SharedFieldControlProperties}. */
+export const SHARED_FIELD_CONTROL_PROPERTIES_ROOT = "SharedFieldControlProperties";
+
+/** Writable add-field body on POST /services/sharedfields/{name}/fields. */
+export type SharedFieldWriteBody = Pick<
+  SharedFieldSummary,
+  "name" | "dataType" | "searchable" | "required" | "occurrence"
+>;
+
+export type SharedFieldControlPropertiesBody = {
+  properties: ContentTypeControlProperty[];
+  /** When omitted, PUT leaves the catalog unchanged. */
+  choices?: SharedFieldControlProperties["choices"];
+};
+
 /** Jackson / JAXB root for SharedFieldGroupDetail (UNWRAP_ROOT_VALUE on POST/PUT). */
 export const SHARED_FIELD_GROUP_DETAIL_ROOT = "SharedFieldGroupDetail";
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (value != null && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return null;
+}
 
 function asArray<T>(payload: unknown): T[] {
   if (payload == null) return [];
@@ -35,6 +81,14 @@ function asArray<T>(payload: unknown): T[] {
     return Array.isArray(raw) ? (raw as T[]) : [raw as T];
   }
   return [];
+}
+
+function asFieldArray(value: unknown): SharedFieldSummary[] {
+  return asJacksonArray<SharedFieldSummary>(
+    value,
+    ["SharedField", "sharedField", "SharedFieldSummary", "sharedFieldSummary", "fields"],
+    (o) => "name" in o || "dataType" in o || "occurrence" in o,
+  );
 }
 
 function containsWhitespace(value: string): boolean {
@@ -96,6 +150,19 @@ export function isSharedFieldGroupWriteReady(opts: {
   return isValidGroupName(opts.name) && isValidFilename(opts.filename);
 }
 
+/** True when the name matches REST nested-field create rules. */
+export function isValidSharedFieldName(name: string | undefined | null): boolean {
+  if (name == null) return false;
+  if (name !== name.trim()) return false;
+  if (!SHARED_FIELD_NAME_PATTERN.test(name)) return false;
+  return isSafeGroupName(name);
+}
+
+/** Add is enabled when the new nested field name is valid. */
+export function isSharedFieldAddReady(name: string): boolean {
+  return isValidSharedFieldName(name);
+}
+
 /** Wire JSON for POST/PUT — a flat body fails JAXB root unwrap. */
 export function wrapSharedFieldGroupDetailForWire(
   body: SharedFieldGroupWriteBody,
@@ -105,15 +172,83 @@ export function wrapSharedFieldGroupDetailForWire(
 
 /** Unwrap GET/POST/PUT payload that may be wrapped as { SharedFieldGroupDetail: {...} }. */
 export function unwrapSharedFieldGroupDetail(payload: unknown): SharedFieldGroupDetail {
-  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+  const obj = asRecord(payload);
+  if (!obj) {
     return {};
   }
-  const obj = payload as Record<string, unknown>;
-  const raw = obj.SharedFieldGroupDetail ?? obj.sharedFieldGroupDetail;
-  if (raw != null && typeof raw === "object" && !Array.isArray(raw)) {
-    return raw as SharedFieldGroupDetail;
+  const nested = asRecord(obj.SharedFieldGroupDetail ?? obj.sharedFieldGroupDetail);
+  const raw = nested ?? obj;
+  const out: SharedFieldGroupDetail = { ...raw };
+  if (raw.fields !== undefined) {
+    out.fields = asFieldArray(raw.fields);
   }
-  return obj as SharedFieldGroupDetail;
+  return out;
+}
+
+/** Wire JSON for POST /fields — a flat body fails JAXB root unwrap. */
+export function wrapSharedFieldForWire(
+  body: SharedFieldWriteBody,
+): Record<string, SharedFieldWriteBody> {
+  return { [SHARED_FIELD_ROOT]: body };
+}
+
+/**
+ * Flatten GET/PUT {@code .../fields/{field}/controlProperties} JSON.
+ *
+ * <p>Handles WRAP_ROOT {@code SharedFieldControlProperties}, a flat body,
+ * JAXB property envelopes, and empty-collection beans.
+ */
+export function unwrapSharedFieldControlProperties(
+  payload: unknown,
+): SharedFieldControlProperties {
+  const root = asRecord(payload);
+  if (!root) {
+    return { properties: [] };
+  }
+  const nested = asRecord(
+    root[SHARED_FIELD_CONTROL_PROPERTIES_ROOT] ?? root.sharedFieldControlProperties,
+  );
+  const body = nested ?? root;
+  const out: SharedFieldControlProperties = {
+    properties: normalizeContentTypeControlProperties(body.properties),
+  };
+  if (typeof body.fieldName === "string") {
+    out.fieldName = body.fieldName;
+  }
+  if (typeof body.control === "string") {
+    out.control = body.control;
+  }
+  if (body.choices != null) {
+    const choices = parseChoiceCatalog(body.choices);
+    if (choices) {
+      out.choices = choices;
+    }
+  }
+  if (body.designGaps != null) {
+    out.designGaps = normalizeContentTypeDesignGaps(body.designGaps);
+  }
+  return out;
+}
+
+/**
+ * Build the wire JSON body for {@code PUT .../controlProperties} under
+ * {@link SHARED_FIELD_CONTROL_PROPERTIES_ROOT}. A flat body fails server
+ * UNWRAP_ROOT_VALUE. Omit {@code choices} to leave the catalog unchanged.
+ */
+export function wrapSharedFieldControlPropertiesForWire(
+  body: SharedFieldControlPropertiesBody,
+): Record<string, SharedFieldControlPropertiesBody> {
+  const wrapped: SharedFieldControlPropertiesBody = {
+    properties: body.properties,
+  };
+  if (body.choices !== undefined) {
+    wrapped.choices = body.choices;
+  }
+  return { [SHARED_FIELD_CONTROL_PROPERTIES_ROOT]: wrapped };
+}
+
+function nestedFieldUrl(groupName: string, suffix: string): string {
+  return `${PATHS.SHARED_FIELDS}/${encodeURIComponent(groupName)}/fields/${suffix}`;
 }
 
 /** GET /services/sharedfields */
@@ -157,4 +292,59 @@ export async function updateSharedFieldGroup(
 /** DELETE /services/sharedfields/{name} — Admin. 204 on success; missing is 404. */
 export async function deleteSharedFieldGroup(name: string): Promise<void> {
   await del(`${PATHS.SHARED_FIELDS}/${encodeURIComponent(name)}`);
+}
+
+/**
+ * POST /services/sharedfields/{name}/fields — Admin. Add a persistable nested
+ * field. Duplicate name is 409; invalid name is 400; lock held by another user
+ * is 409.
+ */
+export async function addSharedField(
+  groupName: string,
+  body: SharedFieldWriteBody,
+): Promise<SharedFieldGroupDetail> {
+  const payload = await post<unknown>(
+    `${PATHS.SHARED_FIELDS}/${encodeURIComponent(groupName)}/fields`,
+    wrapSharedFieldForWire(body),
+  );
+  return unwrapSharedFieldGroupDetail(payload);
+}
+
+/**
+ * DELETE /services/sharedfields/{name}/fields/{fieldName} — Admin. 204 on
+ * success. Unknown group/field is 404; lock is 409.
+ */
+export async function deleteSharedField(groupName: string, fieldName: string): Promise<void> {
+  await del(nestedFieldUrl(groupName, encodeURIComponent(fieldName)));
+}
+
+/**
+ * GET /services/sharedfields/{name}/fields/{fieldName}/controlProperties —
+ * Admin. No lock. Empty properties means none.
+ */
+export async function getSharedFieldControlProperties(
+  groupName: string,
+  fieldName: string,
+): Promise<SharedFieldControlProperties> {
+  const payload = await get<unknown>(
+    nestedFieldUrl(groupName, `${encodeURIComponent(fieldName)}/controlProperties`),
+  );
+  return unwrapSharedFieldControlProperties(payload);
+}
+
+/**
+ * PUT /services/sharedfields/{name}/fields/{fieldName}/controlProperties —
+ * Admin. Request lock is acquired and released on save. Empty properties
+ * clears. Omit {@code choices} to leave the catalog unchanged.
+ */
+export async function replaceSharedFieldControlProperties(
+  groupName: string,
+  fieldName: string,
+  body: SharedFieldControlPropertiesBody,
+): Promise<SharedFieldControlProperties> {
+  const payload = await put<unknown>(
+    nestedFieldUrl(groupName, `${encodeURIComponent(fieldName)}/controlProperties`),
+    wrapSharedFieldControlPropertiesForWire(body),
+  );
+  return unwrapSharedFieldControlProperties(payload);
 }

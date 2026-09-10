@@ -1179,11 +1179,12 @@ previously held lock).
 **Admin (Design) only.** There is no global JAX-RS Admin filter on this path — the
 sitemanage adaptor checks `IPSUserService.isAdminUser` for the current user and maps
 a non-Admin caller to **403**. **Developer → Shared Fields** chrome uses list,
-load, create, save, and delete for **groups** (see [Developer Shared Fields](id:admin-developer-shared-fields)).
+load, create, save, and delete for **groups**, plus nested field add/delete and
+control-property / choice save on detail (see [Developer Shared Fields](id:admin-developer-shared-fields)).
 Nested field create/delete persist a backend column
 mapping and a default `sys_EditBox` display mapping. Control property **values**
 and optional choice catalogs use `GET`/`PUT
-.../fields/{fieldName}/controlProperties` (CD-15 remainder / CD-07 on shared defs).
+.../fields/{fieldName}/controlProperties` (CD-15 / CD-07 on shared defs).
 System-def field-property save and field create/delete are a
 separate catalog (`PUT /services/systemdef`, `POST /services/systemdef/fields`,
 `DELETE /services/systemdef/fields/{fieldName}`, CD-16).
@@ -1197,7 +1198,7 @@ separate catalog (`PUT /services/systemdef`, `POST /services/systemdef/fields`,
 | `DELETE` | `/services/sharedfields/{idOrName}` | Delete the group (**204**). |
 | `POST` | `/services/sharedfields/{idOrName}/fields` | Add a field to an existing group (`name` required, unique across shared groups). Optional `dataType` defaults to `text`. Optional `searchable` and occurrence / required use the same rules as PUT patches. |
 | `DELETE` | `/services/sharedfields/{idOrName}/fields/{fieldName}` | Remove a field and its display mapping (**204**). |
-| `GET` | `/services/sharedfields/{idOrName}/fields/{fieldName}/controlProperties` | Control parameter **name/value** pairs and the choice catalog for one shared field (CD-15). No lock required. Empty `properties` means none. `choices` omitted when none. `designGaps` lists remaining shared-field work (SPA editor and system-def catalog) — same notes as group detail, not an empty content-type control-property list. |
+| `GET` | `/services/sharedfields/{idOrName}/fields/{fieldName}/controlProperties` | Control parameter **name/value** pairs and the choice catalog for one shared field (CD-15). No lock required. Empty `properties` means none. `choices` omitted when none. **Developer → Shared Fields** detail loads and saves this envelope. |
 | `PUT` | `/services/sharedfields/{idOrName}/fields/{fieldName}/controlProperties` | **Admin** (CD-15). Acquires the shared-definition lock for this request and **releases** it on save. Full replace of `properties` (empty clears). `choices` omitted leaves the catalog unchanged; `type: none` clears. Blank group or field path name is **400**. **409** if the shared def is locked by another user. |
 
 `{idOrName}` is the shared field group name (for example a product set such as
@@ -1243,10 +1244,11 @@ List entries use `SharedFieldGroupSummary`. Detail uses `SharedFieldGroupDetail`
 - `name`, `filename`
 - `fields[]`: `name`, `dataType`, `searchable`, `required`, `readOnly`, `occurrence`
   (`optional` / `required` / `oneOrMore` / `zeroOrMore` / `count` / `unknown`)
-- `designGaps[]` strings — choice filters / null-entry / default-selected and the
-  SPA field/control editor remain later slices. **Developer → Shared Fields**
-  chrome can create, save, and delete a **group** (this catalog). Nested field
-  and control-property writes stay REST-only. System-def field-property save is
+- `designGaps[]` strings — remaining Workbench-only choice extras when present.
+  **Developer → Shared Fields** chrome can create, save, and delete a **group**,
+  add or delete nested fields, and save control properties / choices (this
+  catalog). Nested POST/DELETE `.../fields` and GET/PUT `.../controlProperties`
+  are the write paths. System-def field-property save is
   `PUT /services/systemdef`; field create/delete are
   `POST /services/systemdef/fields` and `DELETE /services/systemdef/fields/{fieldName}`.
 
