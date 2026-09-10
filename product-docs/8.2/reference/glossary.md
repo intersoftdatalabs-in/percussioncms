@@ -11,7 +11,7 @@ tags: [reference]
 
 | Term | Definition |
 |------|------------|
-| **Assembler** | Render plugin on an assembly template. 8.2 recommended choices are **HTML-first**, **Markdown**, and **Velocity**. **Legacy / XSL** is compatibility only. See [Design templates](id:admin-design-templates). |
+| **Assembler** | Render plugin on an assembly template. 8.2 recommended choices are **HTML-first**, **Markdown**, and **Velocity**. **Legacy / XSL** is compatibility only. See [Design templates](id:admin-design-templates) and [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler). |
 | **Assembly** | Process of merging content with templates/variants to produce deliverable output |
 | **HTML-first assembler** | Default modern assembler (`htmlAssembler`): HTML source with <code>&#36;{dotted.path}</code> placeholders from JEXL bindings; no Velocity directives |
 | **Markdown assembler** | Modern assembler (`markdownAssembler`): placeholders, then CommonMark → HTML |
@@ -40,6 +40,7 @@ tags: [reference]
 ## Related
 
 - [Design templates](id:admin-design-templates)
+- [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler)
 - [Sites & content structure](id:admin-sites)
 - [Product page packages](id:developer-page-packages)
 - [Virtual Sites](id:developer-virtual-sites)
