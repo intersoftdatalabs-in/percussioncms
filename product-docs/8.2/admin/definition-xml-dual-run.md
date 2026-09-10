@@ -98,7 +98,7 @@ From a checkout of this repository, after the module is compiled, run one packag
 directory at a time. Use a **staging copy** of the customer package (or a folder that
 contains `rxconfig` / `Widgets` XML, which the compiler also accepts).
 
-**Windows** (from `modules\perc-packages`):
+**Windows** (from `modules/perc-packages`):
 
 ```bat
 ..\..\mvnw.cmd -q exec:java -Dexec.classpathScope=compile ^
@@ -187,9 +187,11 @@ You do **not** need to convert shipped product widgets. Optional inventory CLIs
 (after compiling `perc-packages`) scan **product** package source trees — they are
 CI gates, not a customer dump. Example, from `modules/perc-packages`:
 
-**Windows:** `..\..\mvnw.cmd -q exec:java -Dexec.classpathScope=compile -Dexec.mainClass=com.percussion.packages.widgetxml.PSWidgetDefinitionXmlInventory -Dexec.args="src\main\resources\Packages"`
+**Windows:** `..\..\mvnw.cmd -q exec:java -Dexec.classpathScope=compile -Dexec.mainClass=com.percussion.packages.widgetxml.PSWidgetDefinitionXmlInventory -Dexec.args="src/main/resources/Packages"`
 
 **Unix:** `../../mvnw -q exec:java -Dexec.classpathScope=compile -Dexec.mainClass=com.percussion.packages.widgetxml.PSWidgetDefinitionXmlInventory -Dexec.args="src/main/resources/Packages"`
+
+The `-Dexec.args` value is a relative path from `modules/perc-packages`. Forward slashes work on Windows with this Java CLI.
 
 Page and gadget siblings: `PSPageDefinitionXmlInventory`, `PSGadgetDefinitionXmlInventory`.
 A **zero** product ship-path count does **not** mean your **customer** XML is gone.
