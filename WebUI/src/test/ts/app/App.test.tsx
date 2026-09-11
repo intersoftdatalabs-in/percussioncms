@@ -119,6 +119,8 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   updateSlotDetail: vi.fn(),
   lockSlot: vi.fn(),
   unlockSlot: vi.fn(),
+  lockTemplate: vi.fn(),
+  unlockTemplate: vi.fn(),
   isSlotCreateReady: vi.fn((opts: { name?: string }) => Boolean(opts?.name?.trim())),
   isValidSlotName: vi.fn((n: string) => Boolean(n?.trim())),
   isValidSlotType: vi.fn(() => true),

@@ -367,6 +367,8 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", async (importOriginal) => 
   deleteSlot: vi.fn(),
   lockSlot: vi.fn().mockResolvedValue({ locker: "Admin" }),
   unlockSlot: vi.fn().mockResolvedValue(undefined),
+  lockTemplate: vi.fn().mockResolvedValue({ locker: "Admin", remainingTime: 30 }),
+  unlockTemplate: vi.fn().mockResolvedValue(undefined),
   isSlotCreateReady: vi.fn((opts: { name?: string }) => Boolean(opts?.name?.trim())),
   isValidSlotName: vi.fn((n: string) => Boolean(n?.trim())),
   isValidSlotType: vi.fn(() => true),
@@ -1572,6 +1574,11 @@ it("loads views catalog section", async () => {
     });
     const saveBtn = screen.getByTestId("developer-tpl-save");
     expect((saveBtn as HTMLButtonElement).disabled).toBe(true);
+
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
 
     fireEvent.change(screen.getByTestId("developer-tpl-binding-expr-0"), {
       target: { value: "$sys.item.fields.title" },

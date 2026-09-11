@@ -265,9 +265,10 @@ Open a template row from the library. The editor (same Design tab) lets you:
 - Edit Velocity / HTML / Markdown **source** to match the assembler
 - Add, edit, or remove **JEXL bindings** (saved as a full replace)
 
-Choose **Save**. Success and validation errors stay on the editor. Use **Templates** to
-return to the library. **Delete** on the editor asks for confirmation, then returns you
-to the refreshed library.
+Choose **Save**. The editor acquires a self-only design-session lock for the PUT, then
+releases it (unlocked or stolen lock is **409**). Success and validation errors stay on
+the editor. Use **Templates** to return to the library. **Delete** on the editor asks
+for confirmation, then returns you to the refreshed library.
 
 For the built-in **Velocity snippet library** (AS-09 insert into source), use
 **Developer → Templates** — see [Developer Templates](id:admin-developer-templates).

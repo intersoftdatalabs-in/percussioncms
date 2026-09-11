@@ -28,6 +28,8 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   deleteTemplate: vi.fn(),
   getSlotDetail: vi.fn(),
   updateSlotDetail: vi.fn(),
+  lockTemplate: vi.fn().mockResolvedValue({ locker: "Admin" }),
+  unlockTemplate: vi.fn().mockResolvedValue(undefined),
 }));
 
 const getTemplateDetail = assemblyApi.getTemplateDetail as ReturnType<typeof vi.fn>;

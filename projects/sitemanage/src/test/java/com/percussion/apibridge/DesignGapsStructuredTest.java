@@ -117,10 +117,10 @@ class DesignGapsStructuredTest {
 
   @Test
   void templateDesignGaps_areStructured() {
-    assertEquals(2, TemplateAdaptor.TEMPLATE_DESIGN_GAPS.size());
+    assertEquals(1, TemplateAdaptor.TEMPLATE_DESIGN_GAPS.size());
     DesignGap first = TemplateAdaptor.TEMPLATE_DESIGN_GAPS.get(0);
-    assertEquals("TPL_LOCK", first.getCode());
-    assertTrue(first.getMessage().contains("Lock"));
+    assertEquals("TPL_CONTENT_TYPE_ASSOC", first.getCode());
+    assertTrue(first.getMessage().contains("Content-type"));
   }
 
   @Test

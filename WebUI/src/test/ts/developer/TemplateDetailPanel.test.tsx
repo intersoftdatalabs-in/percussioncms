@@ -9,6 +9,9 @@ import { SessionRedirectError } from "../../../main/ts/api/client";
 import {
   getTemplateDetail,
   listSlots,
+  lockTemplate,
+  unlockTemplate,
+  updateTemplateDetail,
 } from "../../../main/ts/api/developer/assemblyApi";
 import * as importExportApi from "../../../main/ts/api/developer/templateImportExport";
 import { TemplateDetailPanel } from "../../../main/ts/developer/TemplateDetailPanel";
@@ -19,6 +22,8 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   getTemplateDetail: vi.fn(),
   listSlots: vi.fn().mockResolvedValue([]),
   updateTemplateDetail: vi.fn(),
+  lockTemplate: vi.fn(),
+  unlockTemplate: vi.fn(),
 }));
 
 vi.mock("../../../main/ts/api/developer/velocitySnippetsApi", () => ({
@@ -59,6 +64,9 @@ vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
 
 const getTemplateDetailMock = vi.mocked(getTemplateDetail);
 const listSlotsMock = vi.mocked(listSlots);
+const updateTemplateDetailMock = vi.mocked(updateTemplateDetail);
+const lockTemplateMock = vi.mocked(lockTemplate);
+const unlockTemplateMock = vi.mocked(unlockTemplate);
 const exportTemplate = importExportApi.exportTemplate as ReturnType<typeof vi.fn>;
 const downloadXmlFile = importExportApi.downloadXmlFile as ReturnType<typeof vi.fn>;
 
@@ -82,6 +90,15 @@ describe("TemplateDetailPanel", () => {
     getTemplateDetailMock.mockReset();
     listSlotsMock.mockReset();
     listSlotsMock.mockResolvedValue([]);
+    updateTemplateDetailMock.mockReset();
+    lockTemplateMock.mockReset();
+    unlockTemplateMock.mockReset();
+    lockTemplateMock.mockResolvedValue({ locker: "Admin", remainingTime: 30 });
+    unlockTemplateMock.mockResolvedValue(undefined);
+    updateTemplateDetailMock.mockImplementation(async (_id, body) => ({
+      ...sampleDetail,
+      ...body,
+    }));
     exportTemplate.mockReset();
     downloadXmlFile.mockReset();
     exportTemplate.mockResolvedValue({
@@ -445,7 +462,70 @@ describe("TemplateDetailPanel", () => {
     expect(save.disabled).toBe(true);
     const sourceEdit = screen.getByTestId("developer-tpl-source-edit") as HTMLTextAreaElement;
     fireEvent.change(sourceEdit, { target: { value: "<html>edited</html>" } });
+    expect(save.disabled).toBe(true);
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(lockTemplateMock).toHaveBeenCalledWith("perc.page");
+    });
     expect(save.disabled).toBe(false);
+  });
+
+  it("locks, saves while held, and unlocks (#4454)", async () => {
+    getTemplateDetailMock.mockResolvedValue(sampleDetail);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-toolbar")).toBeTruthy();
+    });
+    const save = screen.getByTestId("developer-tpl-save") as HTMLButtonElement;
+    const unlock = screen.getByTestId("developer-tpl-unlock") as HTMLButtonElement;
+    expect(save.disabled).toBe(true);
+    expect(unlock.disabled).toBe(true);
+    expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Not locked/i);
+
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    fireEvent.change(screen.getByTestId("developer-tpl-description"), {
+      target: { value: "Page template locked" },
+    });
+    expect(save.disabled).toBe(false);
+    fireEvent.click(save);
+    await waitFor(() => {
+      expect(updateTemplateDetailMock).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-detail-notice").textContent).toMatch(/saved/i);
+    });
+    fireEvent.click(unlock);
+    await waitFor(() => {
+      expect(unlockTemplateMock).toHaveBeenCalledWith("perc.page");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Not locked/i);
+    });
+  });
+
+  it("surfaces lock 409 without enabling save (#4454)", async () => {
+    getTemplateDetailMock.mockResolvedValue(sampleDetail);
+    lockTemplateMock.mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Locked by another user" },
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-tpl-description"), {
+      target: { value: "stolen" },
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Not locked/i);
+    expect((screen.getByTestId("developer-tpl-save") as HTMLButtonElement).disabled).toBe(true);
   });
 
   it("exports design XML from detail (#4057)", async () => {

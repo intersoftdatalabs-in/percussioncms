@@ -21,7 +21,9 @@ import {
   createTemplate,
   deleteTemplate,
   getTemplateDetail,
+  lockTemplate,
   unwrapTemplateDetail,
+  unlockTemplate,
   updateTemplateDetail,
   wrapTemplateDetailForWire,
 } from "../../../../main/ts/api/developer/assemblyApi";
@@ -150,6 +152,28 @@ describe("getTemplateDetail / updateTemplateDetail wire binding (#3039)", () => 
     expect(sent).toEqual({
       TemplateDetail: { templateSource: savedSource },
     });
+  });
+
+  it("lockTemplate POSTs /templates/{id}/lock", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ ObjectLockSummary: { locker: "Admin", remainingTime: 30 } }),
+    );
+    const out = await lockTemplate("perc.page");
+    expect(out.locker).toBe("Admin");
+    const url = String(fetchMock.mock.calls[0][0]);
+    expect(url).toContain(`${PATHS.TEMPLATES}/`);
+    expect(url).toContain("/lock");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
+  });
+
+  it("unlockTemplate POSTs /templates/{id}/unlock", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+    await unlockTemplate("perc.page");
+    const url = String(fetchMock.mock.calls[0][0]);
+    expect(url).toContain("/unlock");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
   });
 
   it("createTemplate wraps request and unwraps response", async () => {

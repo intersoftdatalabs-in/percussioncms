@@ -252,15 +252,20 @@ Assembly templates used by the [Design SPA](id:admin-design-templates) are expos
 | `GET` | `/services/templates` | List template summaries (label, name, id, description) |
 | `GET` | `/services/templates/{idOrName}` | Design detail (source, bindings, slots, assembler, `designGaps`) |
 | `GET` | `/services/templates/{idOrName}/export` | **Admin.** AS-08 export: Workbench-equivalent design XML (no lock steal). Import is not on this path |
-| `PUT` | `/services/templates/{idOrName}` | Update label, description, templateSource, assembler, bindings, and/or slots |
+| `PUT` | `/services/templates/{idOrName}` | **Admin.** Update label, description, templateSource, assembler, bindings, and/or slots. Requires a held design-session lock |
+| `POST` | `/services/templates/{idOrName}/lock` | **Admin.** Acquire a self-only design-session lock (does not save; does not steal) |
+| `POST` | `/services/templates/{idOrName}/unlock` | **Admin.** Release a lock owned by this session (does not save; does not steal) |
 | `POST` | `/services/templates` | Create a modern assembly template (**when installed**) — no Widget XML |
 | `DELETE` | `/services/templates/{idOrName}` | Delete a modern assembly template — no Widget XML |
 | `POST` | `/services/templates/import` | **Admin.** Import one Workbench-equivalent `assembly-template` design XML (AS-08) |
 | `POST` | `/services/templates/summaries-by-filter` | List summaries matching a `TemplateFilter` |
 
 `PUT` omits unchanged fields. Name/id remain unsupported. Delete returns **204** when
-the template is removed and **404** when it is not found. Lock remains unsupported
-(`designGaps` code `TPL_LOCK`).
+the template is removed and **404** when it is not found. `PUT` requires a lock
+already held by the current Admin session (`POST .../lock`); unlocked or stolen
+locks are **409**. Non-Admin callers are **403**. Save does not release the lock
+(`POST .../unlock`). Content-type associations remain out of scope on this payload
+(`designGaps` code `TPL_CONTENT_TYPE_ASSOC`).
 Create (`POST /services/templates`) is the Design **Create template** contract when that
 slice is on the server; otherwise create stays on residual classic hosts.
 
@@ -1492,7 +1497,9 @@ Create uses the modern package/manifest model — **no Widget definition XML**.
 | `GET` | `/services/templates/{idOrName}` | Load design detail (source, bindings, slots, assembler) |
 | `GET` | `/services/templates/{idOrName}/export` | **Admin.** AS-08 export of Workbench-equivalent design XML |
 | `POST` | `/services/templates/import` | **Admin.** AS-08 import of one Workbench-equivalent `assembly-template` XML |
-| `PUT` | `/services/templates/{idOrName}` | Update label, description, source, assembler, bindings, slots |
+| `PUT` | `/services/templates/{idOrName}` | **Admin.** Update label, description, source, assembler, bindings, slots (held lock required) |
+| `POST` | `/services/templates/{idOrName}/lock` | **Admin.** Self-only design-session lock |
+| `POST` | `/services/templates/{idOrName}/unlock` | **Admin.** Release a lock owned by this session |
 | `POST` | `/services/templates` | Create a modern assembly template (`name` required, unique, no spaces) |
 | `DELETE` | `/services/templates/{idOrName}` | Delete a modern assembly template (204; no Widget XML) |
 
@@ -1515,7 +1522,26 @@ invalid name or a duplicate name.
 
 `DELETE /services/templates/{idOrName}` removes the template from the assembly catalog
 and returns **204**. It does **not** write Widget definition XML. `404` means the name
-or id was not found. Lock remains out of scope (`designGaps` code `TPL_LOCK`).
+or id was not found.
+
+`POST /services/templates/{idOrName}/lock` acquires a self-only design-session lock
+through `IPSAssemblyDesignWs` (`lock=true`, `overrideLock=false`). Re-lock by the same
+session extends the lock. `POST .../unlock` releases a lock owned by the current
+session. Neither call saves the template or steals another user's lock.
+
+`PUT /services/templates/{idOrName}` requires that lock. Typical write:
+
+| Status | Meaning |
+|--------|---------|
+| `200` | Locked, or PUT saved (lock still held) |
+| `204` | Unlocked |
+| `400` | Invalid id/name or body |
+| `403` | Caller is not Admin, or the request has no session/user |
+| `404` | Unknown id or name |
+| `409` | Unlocked PUT, or lock owned by another user |
+
+Content-type associations remain out of scope on this payload (`designGaps` code
+`TPL_CONTENT_TYPE_ASSOC`).
 
 ### Template design XML export (AS-08)
 

@@ -19,6 +19,7 @@
 
 package com.percussion.rest.test.apibridge;
 
+import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.templates.ITemplatesAdaptor;
 import com.percussion.rest.templates.TemplateDetail;
 import com.percussion.rest.templates.TemplateExport;
@@ -51,6 +52,16 @@ public class TestTemplatesAdaptor implements ITemplatesAdaptor {
 
   @Override
   public TemplateDetail updateTemplate(URI baseUri, String idOrName, TemplateDetail body) {
+    return null;
+  }
+
+  @Override
+  public ObjectLockSummary lockTemplate(URI baseUri, String idOrName) {
+    return null;
+  }
+
+  @Override
+  public Boolean unlockTemplate(URI baseUri, String idOrName) {
     return null;
   }
 

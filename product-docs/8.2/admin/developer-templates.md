@@ -1,7 +1,7 @@
 ---
 id: admin-developer-templates
 title: Developer Templates
-description: Export and import assembly-template design XML from Developer Templates, edit source with Velocity snippet insert, bindings, and slots; assembler choice lives on Design
+description: Lock, save, and unlock assembly templates from Developer Templates; export and import design XML; edit source with Velocity snippet insert, bindings, and slots; assembler choice lives on Design
 version: "8.2"
 order: 45
 tags: [admin, developer, templates]
@@ -10,10 +10,10 @@ tags: [admin, developer, templates]
 # Developer Templates
 
 **Developer → Templates** lists assembly templates from the public REST catalog
-(`GET /services/templates`). Open a row to edit label, description, source, JEXL
-bindings, and contained slots. This catalog is **list + open** plus **AS-08 import
-and export**, and **AS-09 snippet library** insert into template source. Create and
-delete of modern templates stay on
+(`GET /services/templates`). Open a row to **lock**, edit label, description, source, JEXL
+bindings, and contained slots, **save while the lock is held**, then **unlock**. This catalog
+is **list + open** plus **AS-08 import and export**, **design-session lock**, and **AS-09
+snippet library** insert into template source. Create and delete of modern templates stay on
 [Design templates](id:admin-design-templates) (`POST` / `DELETE /services/templates`).
 
 ## Product path — catalog
@@ -60,10 +60,26 @@ existing template and does **not** steal a design lock.
 Integrators can also call `POST /services/templates/import` with
 `Content-Type: application/xml`. See [REST API](id:developer-rest).
 
+## Lock, save, and unlock
+
+Template PUT requires a design-session lock owned by the current Admin user
+(the same pattern as content types). Save does **not** release the lock.
+
+1. Open a template from the catalog.
+2. Choose **Lock**. Status shows **Locked by you**.
+3. Change label, description, source, bindings, or slots, then **Save template**.
+4. Choose **Unlock** when you are done. **Back** also releases a lock you still hold.
+
+Unlocked save is refused (**409**). A lock held by another designer is **409** and is not
+stolen. Non-Admin sessions are **403**. Unknown names are **404**.
+
+Integrators can call `POST /services/templates/{idOrName}/lock`, `PUT
+/services/templates/{idOrName}`, and `POST /services/templates/{idOrName}/unlock`.
+
 ## Edit from detail
 
-Open a template row to change label, description, template source, JEXL
-bindings, and contained slots, then **Save**. **Export XML** is available on the
+Open a template row to **Lock**, then change label, description, template source, JEXL
+bindings, and contained slots, then **Save template**. **Export XML** is available on the
 same toolbar. Object ACL for the template is on the detail panel.
 
 The **assembler** extension name (for example
