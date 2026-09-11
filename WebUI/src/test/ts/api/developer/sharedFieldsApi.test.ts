@@ -4,15 +4,24 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  addSharedField,
   createSharedFieldGroup,
+  deleteSharedField,
   deleteSharedFieldGroup,
+  getSharedFieldControlProperties,
+  isSharedFieldAddReady,
   isSharedFieldGroupWriteReady,
   isValidFilename,
   isValidGroupName,
+  isValidSharedFieldName,
   listSharedFieldGroups,
   normalizeGroupName,
+  replaceSharedFieldControlProperties,
+  unwrapSharedFieldControlProperties,
   unwrapSharedFieldGroupDetail,
   updateSharedFieldGroup,
+  wrapSharedFieldControlPropertiesForWire,
+  wrapSharedFieldForWire,
   wrapSharedFieldGroupDetailForWire,
 } from "../../../../main/ts/api/developer/sharedFieldsApi";
 import { PATHS } from "../../../../main/ts/api/paths";
@@ -62,6 +71,28 @@ describe("shared field group name validation", () => {
   });
 });
 
+describe("shared nested field name validation", () => {
+  it("accepts letter-start word names and rejects junk", () => {
+    expect(isValidSharedFieldName("rx_note")).toBe(true);
+    expect(isValidSharedFieldName("qa4439f")).toBe(true);
+    expect(isValidSharedFieldName("A")).toBe(true);
+    expect(isValidSharedFieldName("")).toBe(false);
+    expect(isValidSharedFieldName("1bad")).toBe(false);
+    expect(isValidSharedFieldName("has space")).toBe(false);
+    expect(isValidSharedFieldName("bad-name")).toBe(false);
+    expect(isValidSharedFieldName("a".repeat(51))).toBe(false);
+    expect(isValidSharedFieldName(" rx_note")).toBe(false);
+    expect(isValidSharedFieldName("rx_note ")).toBe(false);
+    expect(isValidSharedFieldName("../x")).toBe(false);
+  });
+
+  it("disables add until the name is valid", () => {
+    expect(isSharedFieldAddReady("")).toBe(false);
+    expect(isSharedFieldAddReady("1x")).toBe(false);
+    expect(isSharedFieldAddReady("qa_field")).toBe(true);
+  });
+});
+
 describe("shared field group detail wire wrap", () => {
   it("wraps POST/PUT under SharedFieldGroupDetail root", () => {
     expect(wrapSharedFieldGroupDetailForWire({ name: "custom", filename: "custom.xml" })).toEqual({
@@ -80,6 +111,66 @@ describe("shared field group detail wire wrap", () => {
       filename: "shared.xml",
     });
     expect(unwrapSharedFieldGroupDetail(null)).toEqual({});
+  });
+
+  it("unwraps JAXB one-item fields envelopes", () => {
+    expect(
+      unwrapSharedFieldGroupDetail({
+        SharedFieldGroupDetail: {
+          name: "shared",
+          fields: { SharedField: { name: "rx_note", dataType: "text" } },
+        },
+      }).fields,
+    ).toEqual([{ name: "rx_note", dataType: "text" }]);
+  });
+
+  it("wraps POST field under SharedField root", () => {
+    expect(wrapSharedFieldForWire({ name: "rx_note", dataType: "text" })).toEqual({
+      SharedField: { name: "rx_note", dataType: "text" },
+    });
+  });
+
+  it("wraps PUT control properties under SharedFieldControlProperties root", () => {
+    expect(
+      wrapSharedFieldControlPropertiesForWire({
+        properties: [{ name: "height", value: "200" }],
+      }),
+    ).toEqual({
+      SharedFieldControlProperties: {
+        properties: [{ name: "height", value: "200" }],
+      },
+    });
+    expect(
+      wrapSharedFieldControlPropertiesForWire({
+        properties: [],
+        choices: { type: "none" },
+      }),
+    ).toEqual({
+      SharedFieldControlProperties: {
+        properties: [],
+        choices: { type: "none" },
+      },
+    });
+  });
+
+  it("unwraps SharedFieldControlProperties envelope and flat bodies", () => {
+    expect(
+      unwrapSharedFieldControlProperties({
+        SharedFieldControlProperties: {
+          fieldName: "rx_note",
+          control: "sys_EditBox",
+          properties: [{ name: "height", value: "200" }],
+        },
+      }),
+    ).toEqual({
+      fieldName: "rx_note",
+      control: "sys_EditBox",
+      properties: [{ name: "height", value: "200" }],
+    });
+    expect(unwrapSharedFieldControlProperties({ properties: [] })).toEqual({
+      properties: [],
+    });
+    expect(unwrapSharedFieldControlProperties(null)).toEqual({ properties: [] });
   });
 });
 
@@ -159,5 +250,69 @@ describe("sharedFieldsApi write paths", () => {
     const detail = await getSharedFieldGroupDetail("shared");
     expect(detail.name).toBe("shared");
     expect(detail.filename).toBe("shared.xml");
+  });
+
+  it("POSTs wrapped add-field body", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        SharedFieldGroupDetail: {
+          name: "shared",
+          fields: [{ name: "rx_note", dataType: "text" }],
+        },
+      }),
+    );
+    const saved = await addSharedField("shared", { name: "rx_note", dataType: "text" });
+    expect(saved.fields?.[0]?.name).toBe("rx_note");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.SHARED_FIELDS}/shared/fields`);
+    expect(JSON.parse(String(init.body))).toEqual({
+      SharedField: { name: "rx_note", dataType: "text" },
+    });
+  });
+
+  it("DELETEs nested field", async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
+    await deleteSharedField("shared", "rx_note");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("DELETE");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.SHARED_FIELDS}/shared/fields/rx_note`,
+    );
+  });
+
+  it("GETs wrapped control properties", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        SharedFieldControlProperties: {
+          fieldName: "rx_note",
+          properties: [{ name: "height", value: "200" }],
+        },
+      }),
+    );
+    const out = await getSharedFieldControlProperties("shared", "rx_note");
+    expect(out.properties?.[0]?.value).toBe("200");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.SHARED_FIELDS}/shared/fields/rx_note/controlProperties`,
+    );
+  });
+
+  it("PUTs wrapped control properties omitting choices when unchanged", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        properties: [{ name: "width", value: "640" }],
+      }),
+    );
+    const saved = await replaceSharedFieldControlProperties("shared", "rx_note", {
+      properties: [{ name: "width", value: "640" }],
+    });
+    expect(saved.properties?.[0]?.value).toBe("640");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(JSON.parse(String(init.body))).toEqual({
+      SharedFieldControlProperties: {
+        properties: [{ name: "width", value: "640" }],
+      },
+    });
   });
 });

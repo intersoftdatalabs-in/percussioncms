@@ -528,6 +528,10 @@ vi.mock("../../../main/ts/api/developer/sharedFieldsApi", async (importOriginal)
     createSharedFieldGroup: vi.fn(),
     updateSharedFieldGroup: vi.fn(),
     deleteSharedFieldGroup: vi.fn(),
+    addSharedField: vi.fn(),
+    deleteSharedField: vi.fn(),
+    getSharedFieldControlProperties: vi.fn().mockResolvedValue({ properties: [] }),
+    replaceSharedFieldControlProperties: vi.fn(),
   };
 });
 

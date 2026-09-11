@@ -28,10 +28,10 @@
             </exclusions>
         </dependency>
         <!-- Needed at compile time for PSWorkFlowUtils.sendMailWithAttachment (AssetsResource).
-             Version from parent dependencyManagement (${commons-email.version}). -->
+             Version from parent dependencyManagement (${commons-email.version} = commons-email2-jakarta). -->
         <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-email</artifactId>
+            <artifactId>commons-email2-jakarta</artifactId>
             <version>${commons-email.version}</version>
         </dependency>
         <!-- Swagger annotations kept for source-level OpenAPI documentation support.

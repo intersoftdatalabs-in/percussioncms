@@ -761,6 +761,18 @@ export interface SharedFieldGroupDetail {
   designGaps?: string[];
 }
 
+/**
+ * Jackson {@code SharedFieldControlProperties} body for CD-15
+ * GET/PUT {@code /services/sharedfields/{group}/fields/{field}/controlProperties}.
+ */
+export interface SharedFieldControlProperties {
+  fieldName?: string;
+  control?: string;
+  properties?: ContentTypeControlProperty[];
+  choices?: ContentTypeChoiceCatalog;
+  designGaps?: DesignGapWire[];
+}
+
 /** Field row from GET /services/systemdef (PUT patches searchable / occurrence). */
 export interface SystemDefFieldSummary {
   name?: string;

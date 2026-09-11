@@ -21,10 +21,10 @@ import com.percussion.delivery.exceptions.PSEmailException;
 import com.percussion.security.error.PSExceptionUtils;
 import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.mail.DefaultAuthenticator;
-import org.apache.commons.mail.EmailConstants;
-import org.apache.commons.mail.EmailException;
-import org.apache.commons.mail.MultiPartEmail;
+import org.apache.commons.mail2.core.EmailConstants;
+import org.apache.commons.mail2.core.EmailException;
+import org.apache.commons.mail2.jakarta.DefaultAuthenticator;
+import org.apache.commons.mail2.jakarta.MultiPartEmail;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -177,12 +177,12 @@ public class PSEmailHelper implements IPSEmailHelper {
                 (String) emailProps.get(EMAIL_PROPS_SMTP_PASSWORD)));
       }
 
-      // Default TLS to false
+      // Default TLS to false (commons-email2: setTLS → setStartTLSEnabled)
       if (!emailProps.containsKey(EMAIL_PROPS_TLS)
           || StringUtils.isBlank((String) emailProps.get(EMAIL_PROPS_TLS)))
-        commonsMultiPartEmail.setTLS(false);
+        commonsMultiPartEmail.setStartTLSEnabled(false);
       else
-        commonsMultiPartEmail.setTLS(
+        commonsMultiPartEmail.setStartTLSEnabled(
             Boolean.parseBoolean((String) emailProps.get(EMAIL_PROPS_TLS)));
 
       // Allow for the from name to be set
@@ -196,7 +196,7 @@ public class PSEmailHelper implements IPSEmailHelper {
       commonsMultiPartEmail.setBounceAddress((String) emailProps.get(EMAIL_PROPS_BOUNCE_ADDRESS));
 
       if (StringUtils.isNotBlank((String) emailProps.get(EMAIL_PROPS_SSLPORT))) {
-        commonsMultiPartEmail.setSSL(true);
+        commonsMultiPartEmail.setSSLOnConnect(true);
         commonsMultiPartEmail.setSslSmtpPort((String) emailProps.get(EMAIL_PROPS_SSLPORT));
       }
     } catch (EmailException e) {
