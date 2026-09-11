@@ -852,6 +852,13 @@ public class PSCmsObjectMgr
       getSession().merge(format);
    }
 
+   @Override
+   public void deleteLocaleFormat(String lang)
+   {
+      Optional<PSLocaleFormat> existing = findLocaleFormatByLanguageString(lang);
+      existing.ifPresent(row -> getSession().remove(row));
+   }
+
 
    public List<PSComponentSummary> loadComponentSummaries(Collection<Integer> ids)
    {

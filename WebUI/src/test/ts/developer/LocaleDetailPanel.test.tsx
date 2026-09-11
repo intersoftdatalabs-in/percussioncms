@@ -66,7 +66,9 @@ describe("LocaleDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-loc-detail-title").textContent).toContain("English");
     expect(screen.getByTestId("developer-loc-format-grid")).toBeTruthy();
-    expect(screen.getByText("MM/dd/yyyy")).toBeTruthy();
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
     expect(screen.getByTestId("developer-loc-gaps")).toBeTruthy();
     expect(getLocaleDetail).toHaveBeenCalledWith("en-us");
     fireEvent.click(screen.getByTestId("developer-loc-back"));
@@ -85,7 +87,7 @@ describe("LocaleDetailPanel", () => {
       expect(screen.getByTestId("developer-loc-format-empty")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-loc-format-empty").textContent).toBe(
-      DEV_MSG.LOC_FORMAT_EMPTY,
+      DEV_MSG.LOC_FORMAT_CLEAR_HINT,
     );
     expect(screen.queryByTestId("developer-loc-format-grid")).toBeNull();
     expect(screen.queryByTestId("developer-loc-gaps")).toBeNull();
@@ -288,6 +290,7 @@ describe("LocaleDetailPanel", () => {
         label: "French Canada",
       }),
     );
+    expect(createLocale.mock.calls[0][0].hasFormatProfile).toBeUndefined();
     expect(screen.getByTestId("developer-loc-editor-notice").textContent).toBe(
       DEV_MSG.LOC_SAVED,
     );
@@ -315,8 +318,75 @@ describe("LocaleDetailPanel", () => {
     });
     expect(updateLocale).toHaveBeenCalledWith(
       "en-us",
-      expect.objectContaining({ label: "US English", languageString: "en-us" }),
+      expect.objectContaining({
+        label: "US English",
+        languageString: "en-us",
+        hasFormatProfile: true,
+        format: expect.objectContaining({ datePattern: "MM/dd/yyyy", currencyCode: "USD" }),
+      }),
     );
+  });
+
+  it("saves format profile fields on the locale PUT", async () => {
+    getLocaleDetail.mockResolvedValue({
+      ...sampleDetail,
+      hasFormatProfile: false,
+      format: undefined,
+    });
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      hasFormatProfile: true,
+      format: { languageString: "en-us", datePattern: "yyyy-MM-dd", textDir: "ltr" },
+    });
+    const onSaved = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-format-enable")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-format-enable"));
+    fireEvent.change(screen.getByTestId("developer-loc-fmt-date"), {
+      target: { value: "yyyy-MM-dd" },
+    });
+    fireEvent.change(screen.getByTestId("developer-loc-fmt-dir"), {
+      target: { value: "ltr" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateLocale).toHaveBeenCalledWith(
+      "en-us",
+      expect.objectContaining({
+        hasFormatProfile: true,
+        format: expect.objectContaining({ datePattern: "yyyy-MM-dd", textDir: "ltr" }),
+      }),
+    );
+  });
+
+  it("clears format profile when store-format is unchecked", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      hasFormatProfile: false,
+      format: undefined,
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-format-enable")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-format-enable"));
+    fireEvent.click(screen.getByTestId("developer-loc-save"));
+    await waitFor(() => {
+      expect(updateLocale).toHaveBeenCalled();
+    });
+    expect(updateLocale).toHaveBeenCalledWith(
+      "en-us",
+      expect.objectContaining({ hasFormatProfile: false }),
+    );
+    const body = updateLocale.mock.calls[0][1] as { format?: unknown };
+    expect(body.format).toBeUndefined();
   });
 
   it("deletes after confirm and omits delete chrome in create mode", async () => {

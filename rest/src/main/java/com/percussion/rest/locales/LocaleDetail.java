@@ -37,6 +37,10 @@ public class LocaleDetail extends LocaleSummary {
   /** Exact-match RXLOCALEFORMAT row when present; null if none stored for this language string. */
   private LocaleFormatSummary format;
 
+  /**
+   * Design-gap strings. JAXB JSON may unwrap a one-element list to a scalar string; the SPA
+   * Locales editor normalizes that before {@code .map}.
+   */
   private List<String> designGaps = new ArrayList<>();
 
   public LocaleDetail() {}

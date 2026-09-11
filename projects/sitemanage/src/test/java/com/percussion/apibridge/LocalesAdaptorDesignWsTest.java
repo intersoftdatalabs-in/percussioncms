@@ -21,8 +21,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.i18n.PSLocale;
+import com.percussion.i18n.PSLocaleFormat;
 import com.percussion.rest.locales.LocaleDesignLockException;
 import com.percussion.rest.locales.LocaleDetail;
+import com.percussion.rest.locales.LocaleFormatSummary;
 import com.percussion.rest.locales.LocaleNotFoundException;
 import com.percussion.rest.locales.LocaleSummary;
 import com.percussion.services.catalog.IPSCatalogSummary;
@@ -36,10 +38,12 @@ import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import jakarta.ws.rs.WebApplicationException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -371,6 +375,118 @@ class LocalesAdaptorDesignWsTest {
   }
 
   @Test
+  void updateLocale_savesFormatProfileWhenRequested() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    PSLocale loc = newLocale(9, "en-us", "English");
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    List<String> deleted = new ArrayList<>();
+    LocalesAdaptor adaptor = allowAdmin(designWs, saved::add, deleted::add);
+
+    LocaleDetail body = new LocaleDetail();
+    body.setLabel("English");
+    body.setHasFormatProfile(true);
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setDatePattern("yyyy-MM-dd");
+    fmt.setTextDir("ltr");
+    fmt.setCurrencyCode("USD");
+    body.setFormat(fmt);
+
+    adaptor.updateLocale(null, "en-us", body);
+
+    assertEquals(1, saved.size());
+    assertEquals("en-us", saved.get(0).getLanguageString());
+    assertEquals("yyyy-MM-dd", saved.get(0).getDatePattern());
+    assertEquals("ltr", saved.get(0).getTextDir());
+    assertTrue(deleted.isEmpty());
+  }
+
+  @Test
+  void updateLocale_clearsFormatProfileWhenHasFormatProfileFalse() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    PSLocale loc = newLocale(9, "en-us", "English");
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    List<String> deleted = new ArrayList<>();
+    LocalesAdaptor adaptor = allowAdmin(designWs, saved::add, deleted::add);
+
+    LocaleDetail body = new LocaleDetail();
+    body.setLabel("English");
+    body.setHasFormatProfile(false);
+
+    adaptor.updateLocale(null, "en-us", body);
+
+    assertTrue(saved.isEmpty());
+    assertEquals(List.of("en-us"), deleted);
+  }
+
+  @Test
+  void updateLocale_omittedFormatDoesNotTouchProfile() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    PSLocale loc = newLocale(9, "en-us", "English");
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    List<String> deleted = new ArrayList<>();
+    LocalesAdaptor adaptor = allowAdmin(designWs, saved::add, deleted::add);
+
+    LocaleDetail body = new LocaleDetail();
+    body.setLabel("Updated");
+    adaptor.updateLocale(null, "en-us", body);
+
+    assertTrue(saved.isEmpty());
+    assertTrue(deleted.isEmpty());
+  }
+
+  @Test
+  void updateLocale_invalidFormatPattern_throwsBeforeSave() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    PSLocale loc = newLocale(9, "en-us", "English");
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+
+    LocalesAdaptor adaptor = allowAdmin(designWs);
+    LocaleDetail body = new LocaleDetail();
+    body.setLabel("English");
+    body.setHasFormatProfile(true);
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setDatePattern("'unclosed");
+    body.setFormat(fmt);
+
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.updateLocale(null, "en-us", body));
+    assertTrue(ex.getMessage().contains("datePattern"));
+    verify(designWs, never()).saveLocales(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
   void parseStatus_knownAndUnknown() {
     assertEquals(PSLocale.STATUS_ACTIVE, LocalesAdaptor.parseStatus("active"));
     assertEquals(PSLocale.STATUS_INACTIVE, LocalesAdaptor.parseStatus("INACTIVE"));
@@ -393,6 +509,14 @@ class LocalesAdaptorDesignWsTest {
 
   private static LocalesAdaptor allowAdmin(IPSContentDesignWs designWs) {
     return new LocalesAdaptor(designWs, lang -> Optional.empty(), Set::of, () -> true);
+  }
+
+  private static LocalesAdaptor allowAdmin(
+      IPSContentDesignWs designWs,
+      Consumer<PSLocaleFormat> saver,
+      Consumer<String> deleter) {
+    return new LocalesAdaptor(
+        designWs, lang -> Optional.empty(), Set::of, () -> true, saver, deleter);
   }
 
   private static PSLocale newLocale(int id, String lang, String label) {

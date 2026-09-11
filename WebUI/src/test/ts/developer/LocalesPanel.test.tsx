@@ -145,7 +145,9 @@ describe("LocalesPanel", () => {
     });
     expect(detailMock).toHaveBeenCalledWith("en-us");
     expect(screen.getByTestId("developer-loc-format-grid")).toBeTruthy();
-    expect(screen.getByText("MM/dd/yyyy")).toBeTruthy();
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
     expect(screen.getByTestId("developer-loc-gaps")).toBeTruthy();
     expect(screen.getByTestId("developer-loc-save")).toBeTruthy();
     expect(screen.getByTestId("developer-loc-delete")).toBeTruthy();

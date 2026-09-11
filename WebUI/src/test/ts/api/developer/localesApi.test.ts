@@ -103,6 +103,31 @@ describe("localesApi write paths", () => {
     });
   });
 
+  it("POSTs format profile on create when requested", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        languageString: "fr-ca",
+        hasFormatProfile: true,
+        format: { datePattern: "yyyy-MM-dd" },
+      }),
+    );
+    await createLocale({
+      languageString: "fr-ca",
+      label: "French Canada",
+      hasFormatProfile: true,
+      format: { datePattern: "yyyy-MM-dd" },
+    });
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(JSON.parse(String(init.body))).toEqual({
+      LocaleDetail: {
+        languageString: "fr-ca",
+        label: "French Canada",
+        hasFormatProfile: true,
+        format: { datePattern: "yyyy-MM-dd" },
+      },
+    });
+  });
+
   it("PUTs update body to /services/locales/{idOrLang}", async () => {
     fetchMock.mockResolvedValueOnce(
       jsonResponse({ languageString: "en-us", label: "US English" }),

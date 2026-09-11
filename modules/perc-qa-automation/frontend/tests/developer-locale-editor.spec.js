@@ -57,12 +57,14 @@ async function openLocalesCatalog(page) {
   const panel = page.locator('[data-testid="developer-loc-panel"]');
   const empty = page.locator('[data-testid="developer-loc-empty"]');
   const listError = page.locator('[data-testid="developer-loc-error"]');
-  await expect(panel.or(empty).or(listError).first()).toBeVisible({
+  const sectionError = page.locator('[data-testid="developer-section-error"]');
+  await expect(panel.or(empty).or(listError).or(sectionError).first()).toBeVisible({
     timeout: 30_000,
   });
-  if (await listError.isVisible()) {
+  if (await listError.isVisible() || await sectionError.isVisible()) {
+    const node = (await listError.isVisible()) ? listError : sectionError;
     throw new Error(
-      `Developer locales catalog error: ${(await listError.innerText()).trim()}`,
+      `Developer locales catalog error: ${(await node.innerText()).trim()}`,
     );
   }
   await expect(page.locator('[data-testid="developer-loc-new"]')).toBeVisible();
@@ -117,7 +119,7 @@ test.describe("Developer locale editor (#4005 / CD-18)", () => {
 
     const notice = page.locator('[data-testid="developer-loc-editor-notice"]');
     const saveError = page.locator('[data-testid="developer-loc-detail-error"]');
-    await expect(notice).toBeVisible({ timeout: 20_000 });
+    await expect(notice.or(saveError).first()).toBeVisible({ timeout: 20_000 });
     if (await saveError.isVisible()) {
       throw new Error(`Create failed: ${(await saveError.innerText()).trim()}`);
     }
@@ -161,6 +163,54 @@ test.describe("Developer locale editor (#4005 / CD-18)", () => {
     const err = page.locator('[data-testid="developer-loc-detail-error"]');
     await expect(err).toBeVisible({ timeout: 20_000 });
     await expect(err).toContainText(/already exists|409|duplicate/i);
+
+    assertConsoleClean(pageErrors, consoleErrors);
+  });
+
+  test("Admin can set and clear a locale format profile", async ({ page }) => {
+    test.setTimeout(120_000);
+    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+    await loginAsAdmin(page);
+    await openLocalesCatalog(page);
+
+    const lang = uniqueLang();
+    const label = `QA 4448 ${lang}`;
+
+    await page.locator('[data-testid="developer-loc-new"]').click();
+    await expect(page.locator('[data-testid="developer-loc-detail"]')).toBeVisible();
+    await page.locator('[data-testid="developer-loc-language"]').fill(lang);
+    await page.locator('[data-testid="developer-loc-label"]').fill(label);
+    await page.locator('[data-testid="developer-loc-format-enable"]').check();
+    await expect(page.locator('[data-testid="developer-loc-fmt-date"]')).toBeVisible();
+    await page.locator('[data-testid="developer-loc-fmt-date"]').fill("yyyy-MM-dd");
+    await page.locator('[data-testid="developer-loc-fmt-dir"]').selectOption("ltr");
+    await page.locator('[data-testid="developer-loc-save"]').click();
+
+    const notice = page.locator('[data-testid="developer-loc-editor-notice"]');
+    const saveError = page.locator('[data-testid="developer-loc-detail-error"]');
+    await expect(notice.or(saveError).first()).toBeVisible({ timeout: 20_000 });
+    if (await saveError.isVisible()) {
+      throw new Error(`Create with format failed: ${(await saveError.innerText()).trim()}`);
+    }
+    await expect(page.locator('[data-testid="developer-loc-fmt-date"]')).toHaveValue(
+      "yyyy-MM-dd",
+    );
+    await expect(page.locator('[data-testid="developer-loc-format-enable"]')).toBeChecked();
+
+    await page.locator('[data-testid="developer-loc-format-enable"]').uncheck();
+    await page.locator('[data-testid="developer-loc-save"]').click();
+    await expect(page.locator('[data-testid="developer-loc-format-empty"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    if (await saveError.isVisible()) {
+      throw new Error(`Clear format failed: ${(await saveError.innerText()).trim()}`);
+    }
+
+    await page.locator('[data-testid="developer-loc-delete"]').click();
+    await confirmDeveloperCatalogDelete(page);
+    await expect(page.locator('[data-testid="developer-loc-panel"]')).toBeVisible({
+      timeout: 20_000,
+    });
 
     assertConsoleClean(pageErrors, consoleErrors);
   });
