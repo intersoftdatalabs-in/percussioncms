@@ -1284,7 +1284,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
         throw new IllegalArgumentException("associatedContentTypes[" + i + "] is null");
       }
       IPSCatalogSummary sum = resolveContentTypeSummary(ref, "associatedContentTypes[" + i + "]");
-      IPSGuid ctGuid = sum.getGUID();
+      IPSGuid ctGuid = persistableContentTypeGuid(sum.getGUID());
       desired.put(ctGuid.getUUID(), ctGuid);
       i++;
     }
@@ -1301,9 +1301,26 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   }
 
   /**
-   * Content types currently associated with {@code templateGuid}, keyed by UUID. GUIDs come from
-   * {@link PSContentTemplateDesc#getContentTypeId()} (Workbench {@code loadAssociatedTemplates(null)}
-   * grouping), not REST Guid uuid / reconstructed {@code new PSGuid(NODEDEF, uuid)}.
+   * Workbench {@link PSContentTemplateDesc#getContentTypeId()} rebuilds {@code new PSGuid(NODEDEF,
+   * storedLong)}. Stored values are often UUID-only, so the rebuilt GUID is host-0 while {@code
+   * findContentTypes} returns the catalog/host GUID. Lock/load/save must use the catalog GUID
+   * (same as add); host-0 save is a no-op on the real node and PUT still lists the type.
+   */
+  private IPSGuid persistableContentTypeGuid(IPSGuid fromDescOrCatalog) {
+    if (fromDescOrCatalog == null) {
+      return null;
+    }
+    IPSCatalogSummary sum = contentTypeSummariesByUuid().get(fromDescOrCatalog.getUUID());
+    if (sum != null && sum.getGUID() != null) {
+      return sum.getGUID();
+    }
+    return fromDescOrCatalog;
+  }
+
+  /**
+   * Content types currently associated with {@code templateGuid}, keyed by UUID. Persist GUIDs are
+   * {@code findContentTypes} catalog GUIDs (same as add). Descriptor {@code getContentTypeId()} is
+   * remapped; a host-0 NODEDEF rebuild is never passed to lock/load/save.
    */
   private Map<Integer, IPSGuid> associatedContentTypeGuids(IPSGuid templateGuid) {
     Map<Integer, IPSGuid> out = new LinkedHashMap<>();
@@ -1320,7 +1337,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
         if (desc == null || !sameTemplate(desc.getTemplateId(), templateGuid)) {
           continue;
         }
-        IPSGuid ctGuid = desc.getContentTypeId();
+        IPSGuid ctGuid = persistableContentTypeGuid(desc.getContentTypeId());
         if (ctGuid != null) {
           out.put(ctGuid.getUUID(), ctGuid);
         }

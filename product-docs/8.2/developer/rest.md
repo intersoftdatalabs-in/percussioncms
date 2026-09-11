@@ -1551,7 +1551,8 @@ session. Neither call saves the template or steals another user's lock.
 always includes it (empty when none). PUT replaces the set when the field is present;
 empty clears; omit preserves. A Developer Templates **Remove** then **Save** must PUT
 the remaining array (including `[]`); the server keys replace by content-type UUID and
-locks each content type with its catalog/descriptor GUID (not a host-0 uuid rebuild).
+locks each content type with its **catalog** GUID from `findContentTypes` (never a
+host-0 rebuild of the association descriptor, which made add persist and remove no-op).
 Unknown content-type name or guid is **400** and does not persist other PUT
 fields. Guid-only refs may omit `name`. GET may emit `TPL_CT_ASSOC_LOAD` when
 association load fails. Template detail `designGaps` no longer includes

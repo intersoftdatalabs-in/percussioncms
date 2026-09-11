@@ -256,6 +256,54 @@ class TemplateAdaptorContentTypesTest {
   }
 
   @Test
+  void updateTemplate_removeUsesCatalogGuidWhenDescriptorIsHostZero() throws Exception {
+    PSAssemblyTemplate template = mockTemplate("perc.page");
+    stubLookup("perc.page", template);
+    IPSGuid catalogImage = new PSGuid(1001L, PSTypeEnum.NODEDEF, 312L);
+    IPSGuid descriptorHostZero = new PSGuid(PSTypeEnum.NODEDEF, 312L);
+    IPSCatalogSummary page = mockCtSummary(311L, "percPage", "Page");
+    IPSCatalogSummary image = mockCtSummary(catalogImage, "percImageAsset", "Image Asset");
+    when(contentDesign.findContentTypes(null)).thenReturn(List.of(page, image));
+    when(contentDesign.loadAssociatedTemplates(isNull(), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(desc(311L, templateGuid), desc(descriptorHostZero, templateGuid)));
+    when(contentDesign.loadAssociatedTemplates(any(IPSGuid.class), eq(true), eq(true), any(), any()))
+        .thenAnswer(
+            inv -> {
+              IPSGuid ct = inv.getArgument(0);
+              return List.of(desc(ct, templateGuid));
+            });
+
+    NamedObjectRef keep = new NamedObjectRef();
+    keep.setName("percPage");
+    TemplateDetail body = new TemplateDetail();
+    body.setAssociatedContentTypes(List.of(keep));
+
+    adaptor.updateTemplate(null, "perc.page", body);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<IPSGuid>> templates = ArgumentCaptor.forClass(List.class);
+    ArgumentCaptor<IPSGuid> ctCap = ArgumentCaptor.forClass(IPSGuid.class);
+    verify(contentDesign, atLeastOnce())
+        .saveAssociatedTemplates(ctCap.capture(), templates.capture(), eq(true), any(), any());
+    boolean clearedImage = false;
+    for (int i = 0; i < ctCap.getAllValues().size(); i++) {
+      IPSGuid ct = ctCap.getAllValues().get(i);
+      List<IPSGuid> saved = templates.getAllValues().get(i);
+      if (ct != null && ct.getUUID() == 312) {
+        assertEquals(
+            1001L,
+            ct.getHostId(),
+            "remove must lock/save catalog CT guid, not host-0 descriptor rebuild");
+        assertTrue(
+            saved == null || saved.stream().noneMatch(g -> g != null && g.getUUID() == 42),
+            "remove must persist without perc.page on percImageAsset");
+        clearedImage = true;
+      }
+    }
+    assertTrue(clearedImage, "remove must target catalog percImageAsset guid");
+  }
+
+  @Test
   void updateTemplate_hostedEmptyListClearsUsingDescriptorGuid() throws Exception {
     PSAssemblyTemplate template = mockTemplate("perc.page");
     stubLookup("perc.page", template);

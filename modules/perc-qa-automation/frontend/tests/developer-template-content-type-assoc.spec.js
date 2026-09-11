@@ -124,9 +124,17 @@ async function openTemplateDetail(page, namePattern) {
   const table = page.locator('[data-testid="developer-tpl-table"]');
   await expect(table).toBeVisible({ timeout: 15_000 });
   const wantName = namePattern || "perc.page";
-  const named = table.locator('[data-testid^="developer-tpl-row-"]').filter({
-    has: page.locator("td", { hasText: new RegExp(`^${wantName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`) }),
-  });
+  const byNameAttr = table.locator(`[data-tpl-name="${wantName}"]`);
+  const named =
+    (await byNameAttr.count()) > 0
+      ? byNameAttr
+      : table.locator('[data-testid^="developer-tpl-row-"]').filter({
+          has: page.locator("td", {
+            hasText: new RegExp(
+              `^${wantName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+            ),
+          }),
+        });
   if ((await named.count()) === 0) {
     throw new Error(
       `Template ${wantName} not in Developer catalog — fail closed (do not fall back to row 0)`,
@@ -314,7 +322,10 @@ test.describe("Developer template content-type associations (#4461)", () => {
     expect(lastAssoc).not.toContain(addName.toLowerCase());
     expect(restorePutHttp.status(), `restore PUT HTTP ${restorePutHttp.status()}`).toBe(200);
     const restorePutNames = assocNames(await restorePutHttp.json()).map((n) => n.toLowerCase());
-    expect(restorePutNames).not.toContain(addName.toLowerCase());
+    expect(
+      restorePutNames,
+      `restore PUT HTTP ${restorePutHttp.status()} still lists ${addName} after UI remove+save`,
+    ).not.toContain(addName.toLowerCase());
 
     const afterRestore = await page.request.get(
       `${BASE_URL}/Rhythmyx/services/templates/${encodeURIComponent(name)}`,

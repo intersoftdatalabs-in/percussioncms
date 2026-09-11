@@ -96,7 +96,8 @@ Browse is available without a lock. After **Lock**:
 3. **Save template** replaces the full set (the SPA always sends the remaining
    `associatedContentTypes` list, including an empty list after the last **Remove**).
    An empty list **clears** all associations. Omitting the field on REST leaves
-   associations unchanged.
+   associations unchanged. After **Save**, a subsequent GET of the same template
+   must match the remaining list (add and remove both persist).
 
 Unlocked save is **409**. Unknown content-type names or GUIDs are **400** (the rest of
 the save is not applied). Non-Admin is
