@@ -41,10 +41,13 @@ QA mode (H2-in-Docker, no host install — issue #1827 / #1927) adds:
   ``option[value=object-storage]`` / ``rss-atom`` / ``icalendar`` /
   ``sitemap-xml`` (#3893 / #3948 / #4141) or
   ``[data-testid=developer-am-new]`` (#4123)
-* ``qa-deploy-war-jars`` — copy perc-system / rest / sitemanage SNAPSHOTs
-  into the H2 QA WAR ``WEB-INF/lib`` so skip-image-build cells pick up
-  the sitemap-xml allow-list (#4174). Does not ``docker restart``.
-  Optional in-cell StopJetty/StartJetty via ``--restart-jetty``.
+* ``qa-deploy-war-jars`` — copy perc-system / rest / sitemanage /
+  extensions-workflow SNAPSHOTs plus ``commons-email2-core`` /
+  ``commons-email2-jakarta`` / ``jakarta.mail`` 2.x into the H2 QA WAR
+  ``WEB-INF/lib`` so skip-image-build cells pick up the sitemap-xml
+  allow-list (#4174) and the mail2 classpath (#4456). Does not
+  ``docker restart``. Optional in-cell StopJetty/StartJetty via
+  ``--restart-jetty``.
 
 Compose ``verify`` / ``verify-fix`` / ``deploy-jar --verify`` apply the same
 Rhythmyx context log scan against the cms-dts container (#2480 companion to
@@ -462,8 +465,9 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help=(
             "After a successful qa-up, copy perc-system, rest, and "
-            "sitemanage SNAPSHOTs into the H2 QA WAR WEB-INF/lib "
-            "(#4174). Implied by --then-qa-deploy-webui when "
+            "sitemanage SNAPSHOTs plus commons-email2-core / "
+            "commons-email2-jakarta into the H2 QA WAR WEB-INF/lib "
+            "(#4174 / #4456). Implied by --then-qa-deploy-webui when "
             "--skip-image-build is set."
         ),
     )
@@ -645,9 +649,10 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "qa-deploy-war-jars",
         help=(
             "Hot-copy perc-system, rest, and sitemanage SNAPSHOT jars "
-            "into the H2 QA WAR WEB-INF/lib so skip-image-build cells "
-            "allow-list sitemap-xml (#4174). Does not docker-restart "
-            "the cell."
+            "plus commons-email2-core / commons-email2-jakarta into the "
+            "H2 QA WAR WEB-INF/lib so skip-image-build cells allow-list "
+            "sitemap-xml (#4174) and ship mail2 (#4456). Does not "
+            "docker-restart the cell."
         ),
     )
     pqdj.add_argument(

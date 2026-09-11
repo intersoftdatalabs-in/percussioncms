@@ -26,6 +26,14 @@ sitemap-xml allow-list. Live PUT ``/services/sites/{name}/virtual`` then
 returns 400, so ``[data-testid=developer-site-virtual-saved]`` never
 appears.
 
+Cycle Verify #4456: a skip-image-build cell plus SNAPSHOT-only jar copy
+left ``perc-system`` referencing Commons Email 2 (``org.apache.commons.mail2``)
+while WEB-INF/lib still lacked ``commons-email2-core`` /
+``commons-email2-jakarta``. Jetty then logged ``Failed startup of context``
+(``sys_emailQueueListener`` / ``PSEmailMessageHandler`` /
+``NoClassDefFoundError: EmailException``). This script also copies those
+mail2 jars and removes stale ``commons-email-*.jar`` (1.x) files.
+
 This script copies matching module ``target/*.jar`` files into:
 
 ``perc-matrix-cms-h2:/opt/Percussion/jetty/base/webapps/Rhythmyx/WEB-INF/lib/``
@@ -43,7 +51,7 @@ Exit codes:
   0  deploy complete (or dry-run plan printed)
   1  invocation / argument error
   2  container not running
-  3  SNAPSHOT jar not found
+  3  SNAPSHOT or required mail2 jar not found
   4  perc-system jar lacks sitemap-xml allow-list class
   5  docker cp / docker exec failed
 """
@@ -52,6 +60,8 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
+import re
 import subprocess
 import sys
 import zipfile
@@ -72,6 +82,7 @@ DEFAULT_CONTAINER = "perc-matrix-cms-h2"
 DEFAULT_DEST = "/opt/Percussion/jetty/base/webapps/Rhythmyx/WEB-INF/lib"
 STOP_JETTY = "/opt/Percussion/jetty/StopJetty.sh"
 START_JETTY = "/opt/Percussion/jetty/StartJetty.sh"
+SERVER_LOG = "/opt/Percussion/jetty/base/logs/server.log"
 SITEMAP_XML_CLASS = (
     "com/percussion/services/virtualsite/PSSitemapXmlVirtualSiteSource.class"
 )
@@ -82,19 +93,83 @@ DEFAULT_MODULES: tuple[tuple[str, str], ...] = (
     ("system", "perc-system"),
     ("rest", "rest"),
     ("projects/sitemanage", "sitemanage"),
+    ("modules/extensions-workflow", "extensions-workflow"),
 )
+
+# perc-system compile deps (GH-4411 / #4456). Skip-image-build cells do not
+# refresh WEB-INF/lib transitives when only SNAPSHOTs are copied.
+# Each tuple is (artifactId, parent POM version property, Maven group path).
+EXTRA_RUNTIME_JARS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
+    ("commons-email2-core", "commons-email.version", ("org", "apache", "commons")),
+    ("commons-email2-jakarta", "commons-email.version", ("org", "apache", "commons")),
+    ("jakarta.mail", "jakarta.mail.impl.version", ("com", "sun", "mail")),
+)
+MAIL2_ARTIFACTS: tuple[str, ...] = tuple(item[0] for item in EXTRA_RUNTIME_JARS)
 
 
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
+def default_m2_root() -> Path:
+    """Cross-platform Maven local repository (``Path('~')`` does not expand on Windows)."""
+    return Path(os.path.expanduser("~")) / ".m2" / "repository"
+
+
+def parse_pom_property(repo_root: Path, property_name: str) -> Optional[str]:
+    """Read ``<property_name>`` from the parent POM (no XML parser; stdlib regex)."""
+    pom = repo_root / "pom.xml"
+    try:
+        text = pom.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    pattern = re.compile(
+        r"<" + re.escape(property_name) + r">\s*([^<\s]+)\s*</" + re.escape(property_name) + r">"
+    )
+    match = pattern.search(text)
+    if match is None:
+        return None
+    return match.group(1).strip() or None
+
+
+def parse_commons_email_version(repo_root: Path) -> Optional[str]:
+    """Read ``<commons-email.version>`` from the parent POM."""
+    return parse_pom_property(repo_root, "commons-email.version")
+
+
+def is_stale_commons_email1_name(name: str) -> bool:
+    """True for Commons Email 1.x jars (not ``commons-email2-*``)."""
+    if not name.endswith(".jar"):
+        return False
+    if name.startswith("commons-email2"):
+        return False
+    return name.startswith("commons-email")
+
+
+def is_versioned_artifact_jar(name: str, artifact_id: str) -> bool:
+    """True for ``<artifactId>-<version>.jar`` where version starts with a digit.
+
+    Distinguishes ``jakarta.mail-2.0.2.jar`` from ``jakarta.mail-api-2.1.3.jar``.
+    """
+    if not name.endswith(".jar"):
+        return False
+    if any(name.endswith(sfx) for sfx in SKIP_JAR_SUFFIXES):
+        return False
+    prefix = artifact_id + "-"
+    if not name.startswith(prefix):
+        return False
+    version = name[len(prefix) : -len(".jar")]
+    return bool(version) and version[0].isdigit()
+
+
 def _build_arg_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="hot-deploy-rhythmyx-war-jars.py",
         description=(
-            "Copy perc-system, rest, and sitemanage SNAPSHOT jars into the "
-            "H2 QA Rhythmyx WAR WEB-INF/lib (#4174). Default container: "
+            "Copy perc-system, rest, and sitemanage SNAPSHOT jars plus "
+            "commons-email2-core / commons-email2-jakarta / com.sun.mail "
+            "jakarta.mail 2.x into the H2 QA Rhythmyx WAR WEB-INF/lib "
+            "(#4174 / #4456). Default container: "
             f"{DEFAULT_CONTAINER}; dest: {DEFAULT_DEST}."
         ),
     )
@@ -126,6 +201,12 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--skip-sitemap-xml-check",
         action="store_true",
         help="Do not refuse perc-system without PSSitemapXmlVirtualSiteSource.",
+    )
+    p.add_argument(
+        "--m2-root",
+        type=Path,
+        default=None,
+        help="Maven local repository root (default: ~/.m2/repository).",
     )
     p.add_argument(
         "--dry-run",
@@ -226,6 +307,95 @@ def resolve_module_jars(repo_root: Path) -> tuple[list[tuple[str, Path]], int]:
     return found, EXIT_OK
 
 
+def _mail2_candidates_in_dir(directory: Path, artifact_id: str) -> list[Path]:
+    if not directory.is_dir():
+        return []
+    found: list[Path] = []
+    for p in directory.glob(f"{artifact_id}-*.jar"):
+        name = p.name
+        if name.startswith("original-"):
+            continue
+        if not is_versioned_artifact_jar(name, artifact_id):
+            continue
+        found.append(p)
+    return found
+
+
+def resolve_mail2_jar(
+    repo_root: Path,
+    artifact_id: str,
+    version: str,
+    group_segments: tuple[str, ...],
+    *,
+    m2_root: Path,
+) -> Optional[Path]:
+    """Locate one extra runtime jar: system/target, then WebUI WAR lib, then local m2."""
+    system_hits = _mail2_candidates_in_dir(repo_root / "system" / "target", artifact_id)
+    if system_hits:
+        return max(system_hits, key=lambda item: item.name)
+
+    webui_lib = repo_root / "WebUI" / "target" / "perc-web-ui" / "WEB-INF" / "lib"
+    webui_hits = _mail2_candidates_in_dir(webui_lib, artifact_id)
+    if webui_hits:
+        return max(webui_hits, key=lambda item: item.name)
+
+    war_target = repo_root / "WebUI" / "target"
+    if war_target.is_dir():
+        for child in war_target.iterdir():
+            if not child.is_dir():
+                continue
+            hits = _mail2_candidates_in_dir(child / "WEB-INF" / "lib", artifact_id)
+            if hits:
+                return max(hits, key=lambda item: item.name)
+
+    m2_jar = m2_root.joinpath(
+        *group_segments, artifact_id, version, f"{artifact_id}-{version}.jar"
+    )
+    if m2_jar.is_file():
+        return m2_jar
+    return None
+
+
+def resolve_mail2_jars(
+    repo_root: Path, *, m2_root: Optional[Path] = None
+) -> tuple[list[tuple[str, Path]], int]:
+    """Return extra runtime ``[(artifactId, jar_path), ...]`` or EXIT_JAR_NOT_FOUND."""
+    resolved_m2 = m2_root if m2_root is not None else default_m2_root()
+    found: list[tuple[str, Path]] = []
+    for artifact_id, version_prop, group_segments in EXTRA_RUNTIME_JARS:
+        version = parse_pom_property(repo_root, version_prop)
+        if not version:
+            LOG.error(
+                "Could not read <%s> from %s (needed for %s, #4456).",
+                version_prop,
+                repo_root / "pom.xml",
+                artifact_id,
+            )
+            return [], EXIT_JAR_NOT_FOUND
+        jar = resolve_mail2_jar(
+            repo_root,
+            artifact_id,
+            version,
+            group_segments,
+            m2_root=resolved_m2,
+        )
+        if jar is None:
+            LOG.error(
+                "Required runtime jar not found for %s version %s "
+                "(system/target, WebUI WEB-INF/lib, or %s). "
+                "perc-system email beans need commons-email2 + jakarta.mail 2.x; "
+                "skip-image-build cells fail with EmailException / "
+                "jakarta.mail.Authenticator (#4456).",
+                artifact_id,
+                version,
+                resolved_m2,
+            )
+            return [], EXIT_JAR_NOT_FOUND
+        LOG.info("Selected %s jar: %s", artifact_id, jar)
+        found.append((artifact_id, jar))
+    return found, EXIT_OK
+
+
 def _list_lib_jars(
     container_name: str, dest: str, *, dry_run: bool
 ) -> tuple[int, list[str]]:
@@ -262,12 +432,40 @@ def _remove_artifact_jars(
     if rc != EXIT_OK:
         return rc
     prefix = artifact_id + "-"
+    extra_ids = {item[0] for item in EXTRA_RUNTIME_JARS}
     for name in names:
         if name == keep_name:
             continue
-        if not name.startswith(prefix) or not name.endswith(".jar"):
-            continue
-        if any(name.endswith(sfx) for sfx in SKIP_JAR_SUFFIXES):
+        if artifact_id in extra_ids:
+            if not is_versioned_artifact_jar(name, artifact_id):
+                continue
+        else:
+            if not name.startswith(prefix) or not name.endswith(".jar"):
+                continue
+            if any(name.endswith(sfx) for sfx in SKIP_JAR_SUFFIXES):
+                continue
+        remote = f"{dest}/{name}"
+        rc = _run(
+            ["docker", "exec", container_name, "rm", "-f", remote],
+            dry_run=dry_run,
+        )
+        if rc != EXIT_OK:
+            return rc
+    return EXIT_OK
+
+
+def _remove_stale_commons_email1(
+    container_name: str,
+    dest: str,
+    *,
+    dry_run: bool,
+) -> int:
+    """Drop Commons Email 1.x jars so mail2 is the only email implementation."""
+    rc, names = _list_lib_jars(container_name, dest, dry_run=dry_run)
+    if rc != EXIT_OK:
+        return rc
+    for name in names:
+        if not is_stale_commons_email1_name(name):
             continue
         remote = f"{dest}/{name}"
         rc = _run(
@@ -390,6 +588,13 @@ def _restart_jetty(container_name: str, *, dry_run: bool) -> int:
     )
     if rc != EXIT_OK:
         LOG.warning("StopJetty.sh returned %s (continuing to StartJetty)", rc)
+    # Drop prior Failed startup of context lines so qa-health only sees this boot.
+    rc = _run(
+        ["docker", "exec", container_name, "truncate", "-s", "0", SERVER_LOG],
+        dry_run=dry_run,
+    )
+    if rc != EXIT_OK:
+        LOG.warning("Could not truncate %s (qa-health may match an older boot)", SERVER_LOG)
     # Detached so StartJetty.sh cannot hold this process in the foreground.
     rc = _run(
         ["docker", "exec", "-d", container_name, START_JETTY],
@@ -414,6 +619,7 @@ def deploy(
     restart_jetty: bool = False,
     require_sitemap_xml: bool = True,
     dry_run: bool = False,
+    m2_root: Optional[Path] = None,
 ) -> int:
     if not dest.startswith("/"):
         LOG.error("unsupported --dest (must be absolute POSIX): %s", dest)
@@ -430,6 +636,10 @@ def deploy(
                     SITEMAP_XML_CLASS,
                 )
                 return EXIT_MARKER_MISSING
+    mail2, rc = resolve_mail2_jars(repo_root, m2_root=m2_root)
+    if rc != EXIT_OK:
+        return rc
+    jars = jars + mail2
     if not _container_running(container_name, dry_run=dry_run):
         LOG.error("container not running: %s", container_name)
         return EXIT_CONTAINER_NOT_RUNNING
@@ -443,10 +653,15 @@ def deploy(
         )
         if rc != EXIT_OK:
             return rc
+    rc = _remove_stale_commons_email1(
+        container_name, dest, dry_run=dry_run
+    )
+    if rc != EXIT_OK:
+        return rc
     if restart_jetty:
         return _restart_jetty(container_name, dry_run=dry_run)
     LOG.info(
-        "Copied %d SNAPSHOTs -> %s:%s. Next: in-cell StopJetty/StartJetty, then qa-health.",
+        "Copied %d jars (SNAPSHOTs + mail2) -> %s:%s. Next: in-cell StopJetty/StartJetty, then qa-health.",
         len(jars),
         container_name,
         dest,
@@ -458,6 +673,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
     parser = _build_arg_parser()
     args = parser.parse_args(list(argv) if argv is not None else None)
     root = args.repo_root.resolve() if args.repo_root is not None else _repo_root()
+    m2 = args.m2_root.resolve() if args.m2_root is not None else None
     return deploy(
         root,
         container_name=args.container,
@@ -465,6 +681,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
         restart_jetty=bool(args.restart_jetty),
         require_sitemap_xml=not bool(args.skip_sitemap_xml_check),
         dry_run=bool(args.dry_run),
+        m2_root=m2,
     )
 
 
