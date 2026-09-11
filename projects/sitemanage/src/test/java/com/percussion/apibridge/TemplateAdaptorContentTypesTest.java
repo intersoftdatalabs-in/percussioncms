@@ -310,6 +310,27 @@ class TemplateAdaptorContentTypesTest {
     assertTrue(ex.getMessage().toLowerCase().contains("not found"));
     verify(contentDesign, never())
         .saveAssociatedTemplates(any(), anyList(), anyBoolean(), any(), any());
+    verify(asm, never()).saveTemplate(any());
+  }
+
+  @Test
+  void updateTemplate_unknownContentType_doesNotPersistLabel() throws Exception {
+    PSAssemblyTemplate template = mockTemplate("perc.page");
+    stubLookup("perc.page", template);
+    when(contentDesign.findContentTypes(null)).thenReturn(List.of());
+    when(contentDesign.loadAssociatedTemplates(isNull(), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of());
+
+    NamedObjectRef want = new NamedObjectRef();
+    want.setName("noSuchType");
+    TemplateDetail body = new TemplateDetail();
+    body.setLabel("Renamed");
+    body.setAssociatedContentTypes(List.of(want));
+
+    assertThrows(
+        IllegalArgumentException.class, () -> adaptor.updateTemplate(null, "perc.page", body));
+    verify(asm, never()).saveTemplate(any());
+    verify(template, never()).setLabel(any());
   }
 
   @Test
@@ -331,6 +352,26 @@ class TemplateAdaptorContentTypesTest {
         IllegalArgumentException.class, () -> adaptor.updateTemplate(null, "perc.page", body));
     verify(contentDesign, never())
         .saveAssociatedTemplates(any(), anyList(), anyBoolean(), any(), any());
+    verify(asm, never()).saveTemplate(any());
+  }
+
+  @Test
+  void getTemplate_assocLoadFailure_addsDesignGapAndEmptyList() throws Exception {
+    PSAssemblyTemplate template = mockTemplate("perc.page");
+    when(asm.findTemplateByName("perc.page")).thenReturn(template);
+    when(contentDesign.loadAssociatedTemplates(isNull(), eq(false), eq(false), any(), any()))
+        .thenThrow(new RuntimeException("design ws down"));
+
+    TemplateDetail out = adaptor.getTemplate(null, "perc.page");
+
+    assertNotNull(out);
+    assertNotNull(out.getAssociatedContentTypes());
+    assertTrue(out.getAssociatedContentTypes().isEmpty());
+    assertNotNull(out.getDesignGaps());
+    assertTrue(
+        out.getDesignGaps().stream()
+            .anyMatch(g -> TemplateAdaptor.TPL_CT_ASSOC_LOAD.equals(g.getCode())),
+        () -> String.valueOf(out.getDesignGaps()));
   }
 
   @Test

@@ -98,8 +98,11 @@ Browse is available without a lock. After **Lock**:
    An empty list **clears** all associations. Omitting the field on REST leaves
    associations unchanged.
 
-Unlocked save is **409**. Unknown content-type names or GUIDs are **400**. Non-Admin is
-**403**. Unknown templates are **404**. Save does **not** release the lock.
+Unlocked save is **409**. Unknown content-type names or GUIDs are **400** (the rest of
+the save is not applied). Non-Admin is
+**403**. Unknown templates are **404**. Save does **not** release the lock. Add by GUID
+sends the GUID only (name is filled after a successful save). If association load
+fails, the list may be empty and the detail shows design gap `TPL_CT_ASSOC_LOAD`.
 
 Integrators read and write the same list on `GET` / `PUT /services/templates/{idOrName}` as
 `associatedContentTypes` (see [REST API](id:developer-rest)). The inverse association

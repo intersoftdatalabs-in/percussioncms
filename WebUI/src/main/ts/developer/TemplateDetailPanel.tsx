@@ -462,7 +462,7 @@ export function TemplateDetailPanel({
     setContentTypes((prev) => [
       ...prev,
       looksLikeGuid
-        ? { guid: { stringValue: trimmed }, name: trimmed, label: trimmed }
+        ? { guid: { stringValue: trimmed } }
         : { name: trimmed },
     ]);
     setNewCtName("");

@@ -105,6 +105,12 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
    */
   static final List<DesignGap> TEMPLATE_DESIGN_GAPS = List.of();
 
+  /**
+   * Runtime GET gap when {@link IPSContentDesignWs} association load fails. Distinguishes
+   * "none" from "errored" (empty list + this code). Not a static capability gap.
+   */
+  static final String TPL_CT_ASSOC_LOAD = "TPL_CT_ASSOC_LOAD";
+
   static final String ADMIN_REQUIRED =
       "Admin role required to lock, save, export, or import assembly templates";
 
@@ -243,13 +249,19 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
         return null;
       }
       requireHeldLock(current.getGUID(), "Could not save template");
+      List<NamedObjectRef> assoc = body.getAssociatedContentTypes();
+      if (assoc != null) {
+        // Validate names/guids before mutating or saveTemplate so a 400 unknown
+        // type is a no-op (label/source/bindings/slots must not persist).
+        validateAssociatedContentTypes(assoc);
+      }
       applyMutableTemplateUpdates(current, body);
       // Persist through the assembly catalog (same path as pre-lock PUT). Design-WS
       // save replaces Hibernate orphan collections. Lock is checked above and not
       // released here — clients call POST .../unlock.
       asmSvc.saveTemplate(current);
-      if (body.getAssociatedContentTypes() != null) {
-        replaceAssociatedContentTypes(current.getGUID(), body.getAssociatedContentTypes());
+      if (assoc != null) {
+        replaceAssociatedContentTypes(current.getGUID(), assoc);
       }
       IPSAssemblyTemplate reloaded = resolveTemplate(trimmed);
       return reloaded != null ? toDetail(reloaded) : toDetail(current);
@@ -1151,12 +1163,14 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
               TemplateSlotSummary::getLabel, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
     }
     d.setSlots(slots);
-    d.setAssociatedContentTypes(loadAssociatedContentTypes(t.getGUID()));
-    d.setDesignGaps(new ArrayList<>(TEMPLATE_DESIGN_GAPS));
+    List<DesignGap> gaps = new ArrayList<>(TEMPLATE_DESIGN_GAPS);
+    d.setAssociatedContentTypes(loadAssociatedContentTypes(t.getGUID(), gaps));
+    d.setDesignGaps(gaps);
     return d;
   }
 
-  private List<NamedObjectRef> loadAssociatedContentTypes(IPSGuid templateGuid) {
+  private List<NamedObjectRef> loadAssociatedContentTypes(
+      IPSGuid templateGuid, List<DesignGap> gaps) {
     List<NamedObjectRef> out = new ArrayList<>();
     if (templateGuid == null || contentDesign == null) {
       return out;
@@ -1180,10 +1194,14 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
         out.add(toContentTypeRef(ctGuid, sum));
       }
     } catch (Exception e) {
-      log.debug(
-          "Could not load content-type associations for template {}: {}",
-          templateGuid,
-          e.getMessage());
+      log.warn(
+          "Could not load content-type associations for template {}", templateGuid, e);
+      if (gaps != null) {
+        gaps.add(
+            DesignGap.of(
+                TPL_CT_ASSOC_LOAD,
+                "Could not load content-type associations; listed types may be incomplete"));
+      }
     }
     out.sort(
         Comparator.comparing(
@@ -1239,6 +1257,17 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
    * (desired longValue not in current uuid set) and remove miss the row (current uuid not in
    * desired longValues, then {@code new PSGuid(NODEDEF, uuid)} failed to lock/load the CT).
    */
+  private void validateAssociatedContentTypes(List<NamedObjectRef> refs) {
+    int i = 0;
+    for (NamedObjectRef ref : refs) {
+      if (ref == null) {
+        throw new IllegalArgumentException("associatedContentTypes[" + i + "] is null");
+      }
+      resolveContentTypeSummary(ref, "associatedContentTypes[" + i + "]");
+      i++;
+    }
+  }
+
   private void replaceAssociatedContentTypes(IPSGuid templateGuid, List<NamedObjectRef> refs) {
     if (contentDesign == null) {
       throw new IllegalStateException(

@@ -720,4 +720,35 @@ describe("TemplateDetailPanel", () => {
     };
     expect(body.associatedContentTypes).toEqual([]);
   });
+
+  it("guid-only add omits name from PUT payload (#4464)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      associatedContentTypes: [],
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-ct-assoc")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    fireEvent.change(screen.getByTestId("developer-tpl-ct-input"), {
+      target: { value: "0-6-312" },
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-ct-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-ct-guid-0").textContent).toContain("0-6-312");
+    });
+    expect(screen.getByTestId("developer-tpl-ct-name-0").textContent).toBe("—");
+    fireEvent.click(screen.getByTestId("developer-tpl-save"));
+    await waitFor(() => {
+      expect(updateTemplateDetailMock).toHaveBeenCalled();
+    });
+    const body = updateTemplateDetailMock.mock.calls.at(-1)?.[1] as {
+      associatedContentTypes?: { name?: string; guid?: { stringValue?: string } }[];
+    };
+    expect(body.associatedContentTypes).toEqual([{ guid: { stringValue: "0-6-312" } }]);
+  });
 });
