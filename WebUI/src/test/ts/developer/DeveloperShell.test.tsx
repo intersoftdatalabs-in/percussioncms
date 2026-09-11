@@ -574,6 +574,16 @@ vi.mock("../../../main/ts/api/developer/systemDefApi", async (importOriginal) =>
       designGaps: [],
     }),
     replaceSystemDefStylesheets: vi.fn(),
+    getSystemDefApplicationFlow: vi.fn().mockResolvedValue({
+      handlers: [
+        {
+          commandHandler: "relate",
+          href: "../sys_cx/mainpage.html",
+        },
+      ],
+      designGaps: [],
+    }),
+    replaceSystemDefApplicationFlow: vi.fn(),
   };
 });
 

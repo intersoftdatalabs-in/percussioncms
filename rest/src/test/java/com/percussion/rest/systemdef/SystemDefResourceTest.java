@@ -461,4 +461,86 @@ public class SystemDefResourceTest {
         assertThrows(WebApplicationException.class, () -> resource.replaceStylesheets(body));
     assertEquals(403, ex.getResponse().getStatus());
   }
+
+  @Test
+  public void getApplicationFlowDelegatesToAdaptor() {
+    SystemDefApplicationFlow envelope = new SystemDefApplicationFlow();
+    SystemDefCommandHandlerRedirect row = new SystemDefCommandHandlerRedirect();
+    row.setCommandHandler("relate");
+    row.setHref("../sys_cx/mainpage.html");
+    envelope.setHandlers(List.of(row));
+    when(adaptor.getApplicationFlow(any())).thenReturn(envelope);
+
+    SystemDefApplicationFlow out = resource.getApplicationFlow();
+    assertEquals("relate", out.getHandlers().get(0).getCommandHandler());
+    verify(adaptor).getApplicationFlow(any());
+  }
+
+  @Test
+  public void getApplicationFlowForbiddenWhenNotAdmin() {
+    when(adaptor.getApplicationFlow(any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getApplicationFlow());
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceApplicationFlowSuccess() {
+    SystemDefApplicationFlow body = new SystemDefApplicationFlow();
+    SystemDefCommandHandlerRedirect row = new SystemDefCommandHandlerRedirect();
+    row.setCommandHandler("relate");
+    row.setHref("../sys_action/checkoutedit.xml");
+    body.setHandlers(List.of(row));
+    when(adaptor.replaceApplicationFlow(any(), any())).thenReturn(body);
+
+    SystemDefApplicationFlow out = resource.replaceApplicationFlow(body);
+    assertEquals("../sys_action/checkoutedit.xml", out.getHandlers().get(0).getHref());
+    verify(adaptor).replaceApplicationFlow(any(), eq(body));
+  }
+
+  @Test
+  public void replaceApplicationFlowRequiresHandlers() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.replaceApplicationFlow(null));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceApplicationFlowInvalidHrefIs400() {
+    SystemDefApplicationFlow body = new SystemDefApplicationFlow();
+    body.setHandlers(List.of());
+    when(adaptor.replaceApplicationFlow(any(), any()))
+        .thenThrow(new IllegalArgumentException("Invalid application flow href"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.replaceApplicationFlow(body));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceApplicationFlowLockConflictIs409() {
+    SystemDefApplicationFlow body = new SystemDefApplicationFlow();
+    body.setHandlers(List.of());
+    when(adaptor.replaceApplicationFlow(any(), any()))
+        .thenThrow(
+            new SystemDefDesignLockException("Could not save system definition; locked by other"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.replaceApplicationFlow(body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceApplicationFlowForbiddenWhenNotAdmin() {
+    SystemDefApplicationFlow body = new SystemDefApplicationFlow();
+    body.setHandlers(List.of());
+    when(adaptor.replaceApplicationFlow(any(), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.replaceApplicationFlow(body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
 }

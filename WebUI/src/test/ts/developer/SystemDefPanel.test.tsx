@@ -24,6 +24,8 @@ vi.mock("../../../main/ts/api/developer/systemDefApi", async (importOriginal) =>
     replaceSystemDefFieldControlProperties: vi.fn(),
     getSystemDefStylesheets: vi.fn(),
     replaceSystemDefStylesheets: vi.fn(),
+    getSystemDefApplicationFlow: vi.fn(),
+    replaceSystemDefApplicationFlow: vi.fn(),
   };
 });
 
@@ -35,6 +37,8 @@ const getCpMock = vi.mocked(systemDefApi.getSystemDefFieldControlProperties);
 const replaceCpMock = vi.mocked(systemDefApi.replaceSystemDefFieldControlProperties);
 const getSsMock = vi.mocked(systemDefApi.getSystemDefStylesheets);
 const replaceSsMock = vi.mocked(systemDefApi.replaceSystemDefStylesheets);
+const getAfMock = vi.mocked(systemDefApi.getSystemDefApplicationFlow);
+const replaceAfMock = vi.mocked(systemDefApi.replaceSystemDefApplicationFlow);
 
 const sampleDetail = {
   fieldCount: 1,
@@ -65,6 +69,8 @@ describe("SystemDefPanel", () => {
     replaceCpMock.mockReset();
     getSsMock.mockReset();
     replaceSsMock.mockReset();
+    getAfMock.mockReset();
+    replaceAfMock.mockReset();
     getCpMock.mockResolvedValue({
       fieldName: "sys_title",
       control: "sys_EditBox",
@@ -88,6 +94,22 @@ describe("SystemDefPanel", () => {
         {
           commandHandler: "preview",
           href: "file:../sys_resources/stylesheets/contentEdit.xsl",
+        },
+      ],
+    });
+    getAfMock.mockResolvedValue({
+      handlers: [
+        {
+          commandHandler: "relate",
+          href: "../sys_cx/mainpage.html",
+        },
+      ],
+    });
+    replaceAfMock.mockResolvedValue({
+      handlers: [
+        {
+          commandHandler: "relate",
+          href: "../sys_action/checkoutedit.xml",
         },
       ],
     });
@@ -444,5 +466,49 @@ describe("SystemDefPanel", () => {
     const save = screen.getByTestId("developer-sys-ss-save") as HTMLButtonElement;
     expect(save.disabled).toBe(false);
     expect(screen.getByTestId("developer-sys-ss-href-1")).toBeTruthy();
+  });
+
+  it("loads and saves an application-flow href", async () => {
+    getMock.mockResolvedValue(sampleDetail);
+    render(<SystemDefPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sys-af-href-0")).toBeTruthy();
+    });
+    expect(getAfMock).toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId("developer-sys-af-href-0"), {
+      target: { value: "../sys_action/checkoutedit.xml" },
+    });
+    const save = screen.getByTestId("developer-sys-af-save") as HTMLButtonElement;
+    expect(save.disabled).toBe(false);
+    fireEvent.click(save);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sys-notice")).toBeTruthy();
+    });
+    expect(replaceAfMock).toHaveBeenCalledWith({
+      handlers: [
+        {
+          commandHandler: "relate",
+          href: "../sys_action/checkoutedit.xml",
+        },
+      ],
+    });
+    expect(screen.getByTestId("developer-sys-notice").textContent).toBe(DEV_MSG.SYS_AF_SAVED);
+  });
+
+  it("adds an application-flow handler then enables save", async () => {
+    getMock.mockResolvedValue(sampleDetail);
+    render(<SystemDefPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sys-af-add")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-sys-af-add-name"), {
+      target: { value: "qa4453" },
+    });
+    const add = screen.getByTestId("developer-sys-af-add") as HTMLButtonElement;
+    expect(add.disabled).toBe(false);
+    fireEvent.click(add);
+    const save = screen.getByTestId("developer-sys-af-save") as HTMLButtonElement;
+    expect(save.disabled).toBe(false);
+    expect(screen.getByTestId("developer-sys-af-href-1")).toBeTruthy();
   });
 });

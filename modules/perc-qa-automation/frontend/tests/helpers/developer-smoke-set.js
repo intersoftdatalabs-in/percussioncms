@@ -220,6 +220,13 @@ const DEVELOPER_SMOKE_SET = [
     notes: "CD-16 SYS_STYLESHEET write (#4452 / parent #1690)",
   },
   {
+    id: "system-def-application-flow",
+    file: "developer-system-def-application-flow.spec.js",
+    title: "system-def: application-flow GET/PUT + SPA save (#4453)",
+    status: "green",
+    notes: "CD-16 SYS_APP_FLOW write (#4453 / parent #1690)",
+  },
+  {
     id: "server-configs-write",
     file: "developer-server-configs-write.spec.js",
     title: "Admin can edit allow-listed config, save, and see refresh",

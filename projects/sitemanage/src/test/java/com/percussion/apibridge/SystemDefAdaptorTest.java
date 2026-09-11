@@ -34,9 +34,13 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.percussion.design.objectstore.PSApplicationFlow;
 import com.percussion.design.objectstore.PSChoices;
 import com.percussion.design.objectstore.PSCommandHandlerStylesheets;
 import com.percussion.design.objectstore.PSContentEditorSystemDef;
+import com.percussion.design.objectstore.PSExtensionCall;
+import com.percussion.design.objectstore.PSExtensionParamValue;
+import com.percussion.extension.PSExtensionRef;
 import com.percussion.design.objectstore.PSControlRef;
 import com.percussion.design.objectstore.PSDisplayMapper;
 import com.percussion.design.objectstore.PSDisplayMapping;
@@ -52,6 +56,8 @@ import com.percussion.design.objectstore.PSUrlRequest;
 import com.percussion.rest.contenttypes.ContentTypeChoiceCatalog;
 import com.percussion.rest.contenttypes.ContentTypeChoiceEntry;
 import com.percussion.rest.contenttypes.ContentTypeControlProperty;
+import com.percussion.rest.systemdef.SystemDefApplicationFlow;
+import com.percussion.rest.systemdef.SystemDefCommandHandlerRedirect;
 import com.percussion.rest.systemdef.SystemDefCommandHandlerStylesheet;
 import com.percussion.rest.systemdef.SystemDefControlProperties;
 import com.percussion.rest.systemdef.SystemDefDesignLockException;
@@ -822,8 +828,7 @@ class SystemDefAdaptorTest {
     assertEquals("200", out.getProperties().get(0).getValue());
     assertEquals("local", out.getChoices().getType());
     assertEquals("open", out.getChoices().getEntries().get(0).getValue());
-    assertEquals(1, out.getDesignGaps().size());
-    assertEquals("SYS_APP_FLOW", out.getDesignGaps().get(0).getCode());
+    assertTrue(out.getDesignGaps().isEmpty());
   }
 
   @Test
@@ -892,7 +897,7 @@ class SystemDefAdaptorTest {
         .saveContentEditorSystemDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
     assertEquals("640", out.getProperties().get(0).getValue());
     assertTrue(
-        out.getDesignGaps().stream().anyMatch(g -> "SYS_APP_FLOW".equals(g.getCode())),
+        out.getDesignGaps().stream().noneMatch(g -> "SYS_APP_FLOW".equals(g.getCode())),
         () -> String.valueOf(out.getDesignGaps()));
     assertTrue(
         out.getDesignGaps().stream().noneMatch(g -> "SYS_STYLESHEET".equals(g.getCode())),
@@ -1020,8 +1025,7 @@ class SystemDefAdaptorTest {
     assertEquals(
         "file:../sys_resources/stylesheets/activeEdit.xsl",
         out.getHandlers().get(0).getHref());
-    assertEquals(1, out.getDesignGaps().size());
-    assertEquals("SYS_APP_FLOW", out.getDesignGaps().get(0).getCode());
+    assertTrue(out.getDesignGaps().isEmpty());
   }
 
   @Test
@@ -1223,11 +1227,222 @@ class SystemDefAdaptorTest {
     return def;
   }
 
+  @Test
+  void getApplicationFlow_mapsDefaultHref() {
+    PSContentEditorSystemDef def = defWithApplicationFlow();
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(() -> def);
+    SystemDefApplicationFlow out = adaptor.getApplicationFlow(null);
+    assertEquals(1, out.getHandlers().size());
+    assertEquals("relate", out.getHandlers().get(0).getCommandHandler());
+    assertEquals("../sys_cx/mainpage.html", out.getHandlers().get(0).getHref());
+    assertTrue(out.getDesignGaps().isEmpty());
+  }
+
+  @Test
+  void getApplicationFlow_mapsMakeAbsLinkFirstTextParam() {
+    PSContentEditorSystemDef def = defWithMakeAbsLinkFlow();
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(() -> def);
+    SystemDefApplicationFlow out = adaptor.getApplicationFlow(null);
+    assertEquals("../sys_action/checkoutedit.xml", out.getHandlers().get(0).getHref());
+  }
+
+  @Test
+  void getApplicationFlow_forbiddenWhenNotAdmin() {
+    AtomicInteger loads = new AtomicInteger();
+    SystemDefAdaptor denied =
+        new SystemDefAdaptor(
+            () -> {
+              loads.incrementAndGet();
+              return mock(PSContentEditorSystemDef.class);
+            },
+            () -> false);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> denied.getApplicationFlow(null));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertEquals(0, loads.get());
+  }
+
+  @Test
+  void replaceApplicationFlow_persistsHrefAndReleasesLock() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = defWithApplicationFlow();
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+
+    SystemDefApplicationFlow body = new SystemDefApplicationFlow();
+    body.setHandlers(List.of(flowHandler("relate", "../sys_action/checkoutedit.xml")));
+
+    SystemDefApplicationFlow out = adaptor.replaceApplicationFlow(null, body);
+    verify(designWs)
+        .saveContentEditorSystemDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
+    assertEquals("../sys_action/checkoutedit.xml", out.getHandlers().get(0).getHref());
+    assertEquals(
+        "../sys_action/checkoutedit.xml",
+        def.getApplicationFlow().getDefaultRedirect("relate").getHref());
+  }
+
+  @Test
+  void replaceApplicationFlow_updatesMakeAbsLinkTextAndPreservesConverter() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = defWithMakeAbsLinkFlow();
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+
+    SystemDefApplicationFlow body = new SystemDefApplicationFlow();
+    body.setHandlers(List.of(flowHandler("relate", "../sys_cx/mainpage.html")));
+    adaptor.replaceApplicationFlow(null, body);
+
+    PSUrlRequest saved = def.getApplicationFlow().getDefaultRedirect("relate");
+    assertNotNull(saved.getConverter());
+    PSTextLiteral text = (PSTextLiteral) saved.getConverter().getParamValues()[0].getValue();
+    assertEquals("../sys_cx/mainpage.html", text.getText());
+  }
+
+  @Test
+  void replaceApplicationFlow_addsAndRemovesHandler() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = defWithApplicationFlow();
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+
+    SystemDefApplicationFlow addBody = new SystemDefApplicationFlow();
+    addBody.setHandlers(
+        List.of(
+            flowHandler("relate", "../sys_cx/mainpage.html"),
+            flowHandler("qa4453", "../sys_action/checkoutedit.xml")));
+    SystemDefApplicationFlow added = adaptor.replaceApplicationFlow(null, addBody);
+    assertEquals(2, added.getHandlers().size());
+    assertTrue(
+        added.getHandlers().stream().anyMatch(h -> "qa4453".equals(h.getCommandHandler())));
+
+    SystemDefApplicationFlow removeBody = new SystemDefApplicationFlow();
+    removeBody.setHandlers(List.of(flowHandler("relate", "../sys_cx/mainpage.html")));
+    SystemDefApplicationFlow removed = adaptor.replaceApplicationFlow(null, removeBody);
+    assertEquals(1, removed.getHandlers().size());
+    assertEquals("relate", removed.getHandlers().get(0).getCommandHandler());
+    assertNull(def.getApplicationFlow().getDefaultRedirect("qa4453"));
+  }
+
+  @Test
+  void replaceApplicationFlow_emptyKeepIs400() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = defWithApplicationFlow();
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+
+    SystemDefApplicationFlow body = new SystemDefApplicationFlow();
+    body.setHandlers(List.of());
+    IllegalArgumentException empty =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.replaceApplicationFlow(null, body));
+    assertTrue(empty.getMessage().contains("At least one"));
+    verify(designWs, never()).loadContentEditorSystemDef(anyBoolean(), anyBoolean(), any(), any());
+    verify(designWs, never()).saveContentEditorSystemDef(any(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void replaceApplicationFlow_invalidHrefIs400() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = defWithApplicationFlow();
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+
+    SystemDefApplicationFlow body = new SystemDefApplicationFlow();
+    body.setHandlers(List.of(flowHandler("relate", "https://evil.example/x.html")));
+    assertThrows(IllegalArgumentException.class, () -> adaptor.replaceApplicationFlow(null, body));
+    verify(designWs, never()).loadContentEditorSystemDef(anyBoolean(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void replaceApplicationFlow_forbiddenWhenNotAdmin() {
+    SystemDefAdaptor denied = new SystemDefAdaptor(() -> defWithApplicationFlow(), () -> false);
+    SystemDefApplicationFlow body = new SystemDefApplicationFlow();
+    body.setHandlers(List.of(flowHandler("relate", "../sys_cx/mainpage.html")));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> denied.replaceApplicationFlow(null, body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void replaceApplicationFlow_lockConflictIs409() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSLockErrorException lockErr =
+        new PSLockErrorException(1, "locked", "stack", "other", 1000L);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin"))
+        .thenThrow(lockErr);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+    SystemDefApplicationFlow body = new SystemDefApplicationFlow();
+    body.setHandlers(List.of(flowHandler("relate", "../sys_cx/mainpage.html")));
+    SystemDefDesignLockException ex =
+        assertThrows(
+            SystemDefDesignLockException.class,
+            () -> adaptor.replaceApplicationFlow(null, body));
+    assertTrue(ex.getMessage().contains("locked by other"));
+  }
+
+  @Test
+  void requireSafeApplicationFlowHref_acceptsWorkbenchDefaults() {
+    assertEquals(
+        "../sys_cx/mainpage.html",
+        SystemDefAdaptor.requireSafeApplicationFlowHref("../sys_cx/mainpage.html"));
+    assertEquals(
+        "../sys_action/checkoutedit.xml",
+        SystemDefAdaptor.requireSafeApplicationFlowHref("../sys_action/checkoutedit.xml"));
+    assertEquals("", SystemDefAdaptor.requireSafeApplicationFlowHref("  "));
+  }
+
+  @Test
+  void requireSafeApplicationFlowHref_rejectsTraversalAndSchemes() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SystemDefAdaptor.requireSafeApplicationFlowHref("../sys_cx/../secret.html"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SystemDefAdaptor.requireSafeApplicationFlowHref("http://example/x.html"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            SystemDefAdaptor.requireSafeApplicationFlowHref(
+                "file:../sys_resources/stylesheets/activeEdit.xsl"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SystemDefAdaptor.requireSafeApplicationFlowHref("../sys_cx\\mainpage.html"));
+  }
+
   private static SystemDefCommandHandlerStylesheet handler(String name, String href) {
     SystemDefCommandHandlerStylesheet row = new SystemDefCommandHandlerStylesheet();
     row.setCommandHandler(name);
     row.setHref(href);
     return row;
+  }
+
+  private static SystemDefCommandHandlerRedirect flowHandler(String name, String href) {
+    SystemDefCommandHandlerRedirect row = new SystemDefCommandHandlerRedirect();
+    row.setCommandHandler(name);
+    row.setHref(href);
+    return row;
+  }
+
+  private static PSContentEditorSystemDef defWithApplicationFlow() {
+    PSContentEditorSystemDef def = newSystemDefWithEmptyFields();
+    PSUrlRequest request =
+        new PSUrlRequest(null, "../sys_cx/mainpage.html", new PSCollection(PSParam.class));
+    when(def.getApplicationFlow()).thenReturn(new PSApplicationFlow("relate", request));
+    return def;
+  }
+
+  private static PSContentEditorSystemDef defWithMakeAbsLinkFlow() {
+    PSContentEditorSystemDef def = newSystemDefWithEmptyFields();
+    PSExtensionCall call =
+        new PSExtensionCall(
+            new PSExtensionRef("Java/global/percussion/generic/sys_MakeAbsLink"),
+            new PSExtensionParamValue[] {
+              new PSExtensionParamValue(new PSTextLiteral("../sys_action/checkoutedit.xml"))
+            });
+    PSUrlRequest request = new PSUrlRequest(null, call);
+    when(def.getApplicationFlow()).thenReturn(new PSApplicationFlow("relate", request));
+    return def;
   }
 
   private static PSContentEditorSystemDef defWithControlAndChoices(String fieldName) {

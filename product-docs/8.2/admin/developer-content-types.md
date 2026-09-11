@@ -71,8 +71,8 @@ Field names cannot be SQL reserved words (`SELECT`, `USER`, `TABLE`, `ORDER`).
 Duplicate field names are **409**.
 System-mandatory and system-internal fields cannot be deleted (**400**).
 **Developer → System definition** exposes save / add / delete for those field
-properties (request lock released on save). Control, stylesheet, and flow
-editors are not in that chrome. See
+properties (request lock released on save). Control, stylesheet, and application-flow
+editors live on **Developer → System definition**, not this content-type chrome. See
 [Developer System Def](id:admin-developer-system-def). Admin `GET /services/contenttypes/{idOrName}/export`
 downloads Workbench-equivalent design XML (CD-14; no lock steal). REST import of
 that XML is `POST /services/contenttypes/import` (above). Developer **Content

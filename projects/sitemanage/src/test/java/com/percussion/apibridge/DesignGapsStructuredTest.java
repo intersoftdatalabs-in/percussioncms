@@ -146,9 +146,12 @@ class DesignGapsStructuredTest {
   }
 
   @Test
-  void systemDefControlPropertyDesignGaps_dropStylesheetKeepAppFlow() {
-    assertEquals(1, SystemDefAdaptor.CONTROL_PROPERTY_DESIGN_GAPS.size());
-    assertEquals("SYS_APP_FLOW", SystemDefAdaptor.CONTROL_PROPERTY_DESIGN_GAPS.get(0).getCode());
-    assertEquals(SystemDefAdaptor.CONTROL_PROPERTY_DESIGN_GAPS, SystemDefAdaptor.STYLESHEET_DESIGN_GAPS);
+  void systemDefControlPropertyDesignGaps_dropStylesheetAndAppFlow() {
+    assertTrue(SystemDefAdaptor.CONTROL_PROPERTY_DESIGN_GAPS.isEmpty());
+    assertEquals(
+        SystemDefAdaptor.CONTROL_PROPERTY_DESIGN_GAPS, SystemDefAdaptor.STYLESHEET_DESIGN_GAPS);
+    assertEquals(
+        SystemDefAdaptor.CONTROL_PROPERTY_DESIGN_GAPS,
+        SystemDefAdaptor.APPLICATION_FLOW_DESIGN_GAPS);
   }
 }

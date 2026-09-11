@@ -19,10 +19,15 @@ import {
   wrapSystemDefDetailForWire,
   wrapSystemDefFieldForWire,
   wrapSystemDefStylesheetsForWire,
+  wrapSystemDefApplicationFlowForWire,
   getSystemDefStylesheets,
   replaceSystemDefStylesheets,
+  getSystemDefApplicationFlow,
+  replaceSystemDefApplicationFlow,
   isValidSystemDefCommandHandler,
   isValidSystemDefStylesheetHref,
+  isValidSystemDefApplicationFlowHref,
+  unwrapSystemDefApplicationFlow,
 } from "../../../../main/ts/api/developer/systemDefApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -179,6 +184,55 @@ describe("system def wire wrap", () => {
     expect(
       isValidSystemDefStylesheetHref("file:../sys_resources/stylesheets/../x.xsl"),
     ).toBe(false);
+    expect(isValidSystemDefApplicationFlowHref("../sys_cx/mainpage.html")).toBe(true);
+    expect(isValidSystemDefApplicationFlowHref("")).toBe(true);
+    expect(isValidSystemDefApplicationFlowHref("https://evil.example/x.html")).toBe(false);
+    expect(isValidSystemDefApplicationFlowHref("../sys_cx/../x.html")).toBe(false);
+  });
+
+  it("wraps PUT application flow under SystemDefApplicationFlow root", () => {
+    expect(
+      wrapSystemDefApplicationFlowForWire({
+        handlers: [
+          {
+            commandHandler: "relate",
+            href: "../sys_cx/mainpage.html",
+          },
+        ],
+      }),
+    ).toEqual({
+      SystemDefApplicationFlow: {
+        handlers: [
+          {
+            commandHandler: "relate",
+            href: "../sys_cx/mainpage.html",
+          },
+        ],
+      },
+    });
+  });
+
+  it("unwraps SystemDefApplicationFlow envelope and JAXB one-item handlers", () => {
+    expect(
+      unwrapSystemDefApplicationFlow({
+        SystemDefApplicationFlow: {
+          handlers: {
+            SystemDefCommandHandlerRedirect: {
+              commandHandler: "relate",
+              href: "../sys_cx/mainpage.html",
+            },
+          },
+        },
+      }),
+    ).toEqual({
+      handlers: [
+        {
+          commandHandler: "relate",
+          href: "../sys_cx/mainpage.html",
+        },
+      ],
+    });
+    expect(unwrapSystemDefApplicationFlow(null)).toEqual({ handlers: [] });
   });
 });
 
@@ -330,6 +384,58 @@ describe("systemDefApi write paths", () => {
           {
             commandHandler: "preview",
             href: "file:../sys_resources/stylesheets/contentEdit.xsl",
+          },
+        ],
+      },
+    });
+  });
+
+  it("GETs and unwraps /services/systemdef/applicationFlow", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        SystemDefApplicationFlow: {
+          handlers: [
+            {
+              commandHandler: "relate",
+              href: "../sys_cx/mainpage.html",
+            },
+          ],
+        },
+      }),
+    );
+    const loaded = await getSystemDefApplicationFlow();
+    expect(loaded.handlers?.[0]?.commandHandler).toBe("relate");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.SYSTEM_DEF}/applicationFlow`);
+  });
+
+  it("PUTs wrapped application flow", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        handlers: [
+          {
+            commandHandler: "relate",
+            href: "../sys_action/checkoutedit.xml",
+          },
+        ],
+      }),
+    );
+    const saved = await replaceSystemDefApplicationFlow({
+      handlers: [
+        {
+          commandHandler: "relate",
+          href: "../sys_action/checkoutedit.xml",
+        },
+      ],
+    });
+    expect(saved.handlers?.[0]?.href).toContain("checkoutedit.xml");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(JSON.parse(String(init.body))).toEqual({
+      SystemDefApplicationFlow: {
+        handlers: [
+          {
+            commandHandler: "relate",
+            href: "../sys_action/checkoutedit.xml",
           },
         ],
       },
