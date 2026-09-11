@@ -307,6 +307,10 @@
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 		</dependency>
+		<!-- Compile (not provided): WebUI WAR WEB-INF/lib must ship mail2 so
+		     sys_emailQueueListener / PSEmailMessageHandler can load EmailException
+		     (#4456). Skip-image-build QA cells also copy these via
+		     docker/scripts/hot-deploy-rhythmyx-war-jars.py. -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-email2-jakarta</artifactId>
