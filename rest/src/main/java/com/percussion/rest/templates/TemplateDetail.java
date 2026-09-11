@@ -68,13 +68,16 @@ public class TemplateDetail {
 
   /**
    * Associated content types (name + guid). GET always returns a list (empty when none). PUT:
-   * non-null list fully replaces (empty clears); omit preserves.
+   * non-null list fully replaces (empty clears); omit preserves. ALWAYS include so empty {@code
+   * []} is distinguishable from omit on WRAP_ROOT_VALUE (empty would otherwise drop under class
+   * {@code NON_NULL}).
    */
   @Schema(
       description =
           "Associated content types (name + guid). GET always lists them. PUT: present list"
               + " replaces (empty clears); omit leaves associations unchanged. Unknown id/name is"
               + " 400. Requires a held design-session lock on write.")
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private List<NamedObjectRef> associatedContentTypes;
 
   /**

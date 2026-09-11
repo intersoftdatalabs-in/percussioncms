@@ -32,7 +32,6 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
-const { catalogRowSelector } = require("./helpers/developer-catalog-selectors");
 
 const CANDIDATE_TYPES = [
   "percImageAsset",
@@ -124,13 +123,16 @@ async function openTemplateDetail(page, namePattern) {
 
   const table = page.locator('[data-testid="developer-tpl-table"]');
   await expect(table).toBeVisible({ timeout: 15_000 });
+  const wantName = namePattern || "perc.page";
   const named = table.locator('[data-testid^="developer-tpl-row-"]').filter({
-    hasText: namePattern || /\bperc\.page\b/,
+    has: page.locator("td", { hasText: new RegExp(`^${wantName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`) }),
   });
-  const targetRow =
-    (await named.count()) > 0
-      ? named.first()
-      : page.locator(catalogRowSelector("developer-tpl-row", 0));
+  if ((await named.count()) === 0) {
+    throw new Error(
+      `Template ${wantName} not in Developer catalog — fail closed (do not fall back to row 0)`,
+    );
+  }
+  const targetRow = named.first();
   await expect(targetRow).toBeVisible();
   const openBtn = targetRow.locator('button[aria-label^="Open "]');
   if (await openBtn.count()) {
@@ -210,6 +212,22 @@ test.describe("Developer template content-type associations (#4461)", () => {
     const unlockBtn = page.locator('[data-testid="developer-tpl-unlock"]');
     const status = page.locator('[data-testid="developer-tpl-lock-status"]');
 
+    const putBodies = [];
+    page.on("request", (req) => {
+      if (req.method() !== "PUT") {
+        return;
+      }
+      const url = req.url();
+      if (!/\/services\/templates\/[^/?]+(?:\?|$)/.test(url)) {
+        return;
+      }
+      try {
+        putBodies.push(req.postDataJSON());
+      } catch {
+        putBodies.push(null);
+      }
+    });
+
     await expect(lockBtn).toBeEnabled();
     await expect(page.locator('[data-testid="developer-tpl-ct-add"]')).toBeDisabled();
 
@@ -268,12 +286,35 @@ test.describe("Developer template content-type associations (#4461)", () => {
     await expect(row.first()).toBeVisible();
     await row.first().locator('button[data-testid^="developer-tpl-ct-remove-"]').click();
     await expect(saveBtn).toBeEnabled();
+    const restorePutWait = page.waitForResponse(
+      (res) =>
+        res.request().method() === "PUT" && /\/services\/templates\/[^/?]+(?:\?|$)/.test(res.url()),
+      { timeout: 20_000 },
+    );
     await saveBtn.click();
+    const restorePutHttp = await restorePutWait;
     await expect(notice.or(saveError).first()).toBeVisible({ timeout: 20_000 });
     if (await saveError.isVisible()) {
       throw new Error(`Save (restore) failed: ${(await saveError.innerText()).trim()}`);
     }
     await expect(notice).toContainText(/saved/i);
+
+    const lastPut = putBodies.at(-1);
+    const lastDetail =
+      lastPut && lastPut.TemplateDetail && typeof lastPut.TemplateDetail === "object"
+        ? lastPut.TemplateDetail
+        : lastPut;
+    const lastAssoc = asNamedObjectRefList(
+      lastDetail && lastDetail.associatedContentTypes,
+    ).map((r) => String((r && (r.name || r.label)) || "").toLowerCase());
+    expect(
+      lastDetail && lastDetail.associatedContentTypes,
+      "remove+save PUT must send associatedContentTypes (full replace; omit preserves)",
+    ).toBeTruthy();
+    expect(lastAssoc).not.toContain(addName.toLowerCase());
+    expect(restorePutHttp.status(), `restore PUT HTTP ${restorePutHttp.status()}`).toBe(200);
+    const restorePutNames = assocNames(await restorePutHttp.json()).map((n) => n.toLowerCase());
+    expect(restorePutNames).not.toContain(addName.toLowerCase());
 
     const afterRestore = await page.request.get(
       `${BASE_URL}/Rhythmyx/services/templates/${encodeURIComponent(name)}`,

@@ -93,8 +93,10 @@ Browse is available without a lock. After **Lock**:
 1. Enter a content type **name** (for example `percImage`) or a GUID (`0-6-311`) and choose
    **Add content type**.
 2. Choose **Remove** on a row to drop an association.
-3. **Save template** replaces the full set. An empty list **clears** all associations.
-   Omitting the field on REST leaves associations unchanged.
+3. **Save template** replaces the full set (the SPA always sends the remaining
+   `associatedContentTypes` list, including an empty list after the last **Remove**).
+   An empty list **clears** all associations. Omitting the field on REST leaves
+   associations unchanged.
 
 Unlocked save is **409**. Unknown content-type names or GUIDs are **400**. Non-Admin is
 **403**. Unknown templates are **404**. Save does **not** release the lock.

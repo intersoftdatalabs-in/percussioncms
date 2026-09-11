@@ -1168,12 +1168,8 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
         return out;
       }
       Map<Integer, IPSCatalogSummary> byUuid = contentTypeSummariesByUuid();
-      long want = templateGuid.longValue();
       for (PSContentTemplateDesc desc : descs) {
-        if (desc == null || desc.getTemplateId() == null) {
-          continue;
-        }
-        if (desc.getTemplateId().longValue() != want) {
+        if (desc == null || !sameTemplate(desc.getTemplateId(), templateGuid)) {
           continue;
         }
         IPSGuid ctGuid = desc.getContentTypeId();
@@ -1236,6 +1232,12 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   /**
    * Replace template→content-type rows via {@link IPSContentDesignWs} (same lock/save as
    * content-type allowed-templates). Empty list clears; caller must omit the field to preserve.
+   *
+   * <p>Diff keys are content-type {@link IPSGuid#getUUID() UUID}s. Add/remove pass the catalog or
+   * descriptor GUID (host+type+uuid), never a host-0 reconstruction from REST {@code Guid.uuid}.
+   * REST uuid and {@link IPSGuid#longValue()} diverge when hostId != 0, which made add succeed
+   * (desired longValue not in current uuid set) and remove miss the row (current uuid not in
+   * desired longValues, then {@code new PSGuid(NODEDEF, uuid)} failed to lock/load the CT).
    */
   private void replaceAssociatedContentTypes(IPSGuid templateGuid, List<NamedObjectRef> refs) {
     if (contentDesign == null) {
@@ -1245,8 +1247,8 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
     if (templateGuid == null) {
       throw new IllegalStateException("Could not save content-type associations; template GUID missing");
     }
-    Set<Long> current = associatedContentTypeUuids(templateGuid);
-    Map<Long, IPSGuid> desired = new LinkedHashMap<>();
+    Map<Integer, IPSGuid> current = associatedContentTypeGuids(templateGuid);
+    Map<Integer, IPSGuid> desired = new LinkedHashMap<>();
     int i = 0;
     for (NamedObjectRef ref : refs) {
       if (ref == null) {
@@ -1254,29 +1256,54 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
       }
       IPSCatalogSummary sum = resolveContentTypeSummary(ref, "associatedContentTypes[" + i + "]");
       IPSGuid ctGuid = sum.getGUID();
-      desired.put(ctGuid.longValue(), ctGuid);
+      desired.put(ctGuid.getUUID(), ctGuid);
       i++;
     }
-    for (Map.Entry<Long, IPSGuid> e : desired.entrySet()) {
-      if (!current.contains(e.getKey())) {
+    for (Map.Entry<Integer, IPSGuid> e : desired.entrySet()) {
+      if (!current.containsKey(e.getKey())) {
         addTemplateToContentType(e.getValue(), templateGuid);
       }
     }
-    for (Long uuid : current) {
-      if (!desired.containsKey(uuid)) {
-        IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, uuid);
-        removeTemplateFromContentType(ctGuid, templateGuid);
+    for (Map.Entry<Integer, IPSGuid> e : current.entrySet()) {
+      if (!desired.containsKey(e.getKey())) {
+        removeTemplateFromContentType(e.getValue(), templateGuid);
       }
     }
   }
 
-  private Set<Long> associatedContentTypeUuids(IPSGuid templateGuid) {
-    Set<Long> out = new HashSet<>();
-    List<NamedObjectRef> current = loadAssociatedContentTypes(templateGuid);
-    for (NamedObjectRef ref : current) {
-      if (ref != null && ref.getGuid() != null) {
-        out.add((long) ref.getGuid().getUuid());
+  /**
+   * Content types currently associated with {@code templateGuid}, keyed by UUID. GUIDs come from
+   * {@link PSContentTemplateDesc#getContentTypeId()} (Workbench {@code loadAssociatedTemplates(null)}
+   * grouping), not REST Guid uuid / reconstructed {@code new PSGuid(NODEDEF, uuid)}.
+   */
+  private Map<Integer, IPSGuid> associatedContentTypeGuids(IPSGuid templateGuid) {
+    Map<Integer, IPSGuid> out = new LinkedHashMap<>();
+    if (templateGuid == null || contentDesign == null) {
+      return out;
+    }
+    try {
+      List<PSContentTemplateDesc> descs =
+          contentDesign.loadAssociatedTemplates(null, false, false, currentSession(), currentUser());
+      if (descs == null) {
+        return out;
       }
+      for (PSContentTemplateDesc desc : descs) {
+        if (desc == null || !sameTemplate(desc.getTemplateId(), templateGuid)) {
+          continue;
+        }
+        IPSGuid ctGuid = desc.getContentTypeId();
+        if (ctGuid != null) {
+          out.put(ctGuid.getUUID(), ctGuid);
+        }
+      }
+    } catch (PSErrorResultsException e) {
+      throw new WebApplicationException(
+          "Could not save content-type associations; design lock required or held by another user",
+          409);
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new IllegalStateException("Could not load content-type associations", e);
     }
     return out;
   }
@@ -1290,9 +1317,10 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   }
 
   private void removeTemplateFromContentType(IPSGuid ctGuid, IPSGuid templateGuid) {
+    List<IPSGuid> loaded = templateGuidsForContentType(ctGuid);
     List<IPSGuid> next = new ArrayList<>();
-    for (IPSGuid g : templateGuidsForContentType(ctGuid)) {
-      if (g != null && g.longValue() != templateGuid.longValue()) {
+    for (IPSGuid g : loaded) {
+      if (g != null && !sameTemplate(g, templateGuid)) {
         next.add(g);
       }
     }
@@ -1336,13 +1364,29 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   }
 
   private static boolean containsGuid(List<IPSGuid> guids, IPSGuid want) {
-    long w = want.longValue();
     for (IPSGuid g : guids) {
-      if (g != null && g.longValue() == w) {
+      if (sameTemplate(g, want)) {
         return true;
       }
     }
     return false;
+  }
+
+  /**
+   * Template identity: {@link IPSGuid#equals} (Workbench save path), then {@code longValue}, then
+   * UUID. Host-0 longValue is UUID-only while equals uses packed m_guid.
+   */
+  private static boolean sameTemplate(IPSGuid a, IPSGuid b) {
+    if (a == null || b == null) {
+      return false;
+    }
+    if (a.equals(b)) {
+      return true;
+    }
+    if (a.longValue() == b.longValue()) {
+      return true;
+    }
+    return a.getUUID() == b.getUUID();
   }
 
   private IPSCatalogSummary resolveContentTypeSummary(NamedObjectRef ref, String field) {

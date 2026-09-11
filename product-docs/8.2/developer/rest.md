@@ -265,7 +265,9 @@ the template is removed and **404** when it is not found. `PUT` requires a lock
 already held by the current Admin session (`POST .../lock`); unlocked or stolen
 locks are **409**. Non-Admin callers are **403**. Save does not release the lock
 (`POST .../unlock`). `associatedContentTypes` on GET lists name + guid. PUT: a present
-list replaces associations (empty clears); omit preserves. Unknown content-type id/name
+list replaces associations (empty clears); omit preserves. Remove+save must send the
+remaining list (or `[]`); omitting the field after a UI remove leaves the association
+in place. Unknown content-type id/name
 is **400**. The former `designGaps` code `TPL_CONTENT_TYPE_ASSOC` is no longer emitted.
 Create (`POST /services/templates`) is the Design **Create template** contract when that
 slice is on the server; otherwise create stays on residual classic hosts.
@@ -1543,7 +1545,10 @@ session. Neither call saves the template or steals another user's lock.
 
 `associatedContentTypes` is an array of named object refs (`name`, `label`, `guid`). GET
 always includes it (empty when none). PUT replaces the set when the field is present;
-empty clears; omit preserves. Unknown content-type name or guid is **400**. Template
+empty clears; omit preserves. A Developer Templates **Remove** then **Save** must PUT
+the remaining array (including `[]`); the server keys replace by content-type UUID and
+locks each content type with its catalog/descriptor GUID (not a host-0 uuid rebuild).
+Unknown content-type name or guid is **400**. Template
 detail `designGaps` no longer includes `TPL_CONTENT_TYPE_ASSOC`.
 
 ### Template design XML export (AS-08)

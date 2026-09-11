@@ -87,6 +87,15 @@ public class TemplateDetailSerialDeserialTest {
   }
 
   @Test
+  public void spaShapedPutWithEmptyAssociatedContentTypesBindsEmptyListNotNull() {
+    String json =
+        "{\"TemplateDetail\":{\"label\":\"Page\",\"description\":\"d\",\"templateSource\":\"#x\","
+            + "\"associatedContentTypes\":[]}}";
+    TemplateDetail d = mapper.readValue(json, TemplateDetail.class);
+    assertEquals(0, d.getAssociatedContentTypes().size());
+  }
+
+  @Test
   public void emptyAssociatedContentTypesRoundTrips() {
     TemplateDetail d = new TemplateDetail();
     d.setName("perc.page");

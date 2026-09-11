@@ -59,6 +59,9 @@ describe("TemplatesPanel", () => {
     });
     expect(screen.getByTestId("developer-tpl-table").textContent).toContain("Page");
     expect(screen.getByTestId("developer-tpl-table").textContent).toContain("perc.page");
+    expect(screen.getByTestId("developer-tpl-row-0").getAttribute("data-tpl-name")).toBe(
+      "perc.page",
+    );
     expect(screen.getByTestId("developer-tpl-import")).toBeTruthy();
   });
 

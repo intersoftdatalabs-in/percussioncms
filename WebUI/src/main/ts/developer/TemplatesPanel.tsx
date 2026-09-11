@@ -128,6 +128,7 @@ export function TemplatesPanel(): React.ReactElement {
             const openKey = selectionKey(t);
             return {
               key: String(t.templateId ?? t.templateName ?? `tpl-${index}`),
+              dataAttrs: openKey ? { "data-tpl-name": openKey } : undefined,
               cells: [
                 openKey ? (
                   <button

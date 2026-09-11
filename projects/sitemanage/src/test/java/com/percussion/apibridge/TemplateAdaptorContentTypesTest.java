@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -59,6 +60,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 @Tag("UnitTest")
 class TemplateAdaptorContentTypesTest {
@@ -105,17 +107,24 @@ class TemplateAdaptorContentTypesTest {
   }
 
   private IPSCatalogSummary mockCtSummary(long uuid, String name, String label) {
+    return mockCtSummary(new PSGuid(PSTypeEnum.NODEDEF, uuid), name, label);
+  }
+
+  private IPSCatalogSummary mockCtSummary(IPSGuid guid, String name, String label) {
     IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
-    IPSGuid g = new PSGuid(PSTypeEnum.NODEDEF, uuid);
-    when(sum.getGUID()).thenReturn(g);
+    when(sum.getGUID()).thenReturn(guid);
     when(sum.getName()).thenReturn(name);
     when(sum.getLabel()).thenReturn(label);
     return sum;
   }
 
   private PSContentTemplateDesc desc(long ctUuid, IPSGuid tpl) {
+    return desc(new PSGuid(PSTypeEnum.NODEDEF, ctUuid), tpl);
+  }
+
+  private PSContentTemplateDesc desc(IPSGuid ctGuid, IPSGuid tpl) {
     PSContentTemplateDesc d = new PSContentTemplateDesc();
-    d.setContentTypeId(new PSGuid(PSTypeEnum.NODEDEF, ctUuid));
+    d.setContentTypeId(ctGuid);
     d.setTemplateId(tpl);
     return d;
   }
@@ -201,6 +210,70 @@ class TemplateAdaptorContentTypesTest {
 
     verify(contentDesign)
         .saveAssociatedTemplates(any(IPSGuid.class), eq(List.of()), eq(true), any(), any());
+  }
+
+  @Test
+  void updateTemplate_removeKeepsOthersAndUsesDescriptorContentTypeGuid() throws Exception {
+    PSAssemblyTemplate template = mockTemplate("perc.page");
+    stubLookup("perc.page", template);
+    IPSGuid imageGuid = new PSGuid(1001L, PSTypeEnum.NODEDEF, 312L);
+    IPSCatalogSummary page = mockCtSummary(311L, "percPage", "Page");
+    IPSCatalogSummary image = mockCtSummary(imageGuid, "percImageAsset", "Image Asset");
+    when(contentDesign.findContentTypes(null)).thenReturn(List.of(page, image));
+    when(contentDesign.loadAssociatedTemplates(isNull(), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(desc(311L, templateGuid), desc(imageGuid, templateGuid)));
+    when(contentDesign.loadAssociatedTemplates(any(IPSGuid.class), eq(true), eq(true), any(), any()))
+        .thenAnswer(
+            inv -> {
+              IPSGuid ct = inv.getArgument(0);
+              return List.of(desc(ct, templateGuid));
+            });
+
+    NamedObjectRef keep = new NamedObjectRef();
+    keep.setName("percPage");
+    TemplateDetail body = new TemplateDetail();
+    body.setAssociatedContentTypes(List.of(keep));
+
+    adaptor.updateTemplate(null, "perc.page", body);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<IPSGuid>> templates = ArgumentCaptor.forClass(List.class);
+    ArgumentCaptor<IPSGuid> ctCap = ArgumentCaptor.forClass(IPSGuid.class);
+    verify(contentDesign, atLeastOnce())
+        .saveAssociatedTemplates(ctCap.capture(), templates.capture(), eq(true), any(), any());
+    boolean clearedImage = false;
+    for (int i = 0; i < ctCap.getAllValues().size(); i++) {
+      IPSGuid ct = ctCap.getAllValues().get(i);
+      List<IPSGuid> saved = templates.getAllValues().get(i);
+      if (ct != null && ct.getUUID() == 312 && ct.getHostId() == 1001L) {
+        assertTrue(
+            saved == null || saved.stream().noneMatch(g -> g != null && g.getUUID() == 42),
+            "remove must persist an empty/without-template list on the hosted CT guid");
+        clearedImage = true;
+      }
+    }
+    assertTrue(clearedImage, "remove must target descriptor CT guid (host 1001), not host-0 uuid");
+  }
+
+  @Test
+  void updateTemplate_hostedEmptyListClearsUsingDescriptorGuid() throws Exception {
+    PSAssemblyTemplate template = mockTemplate("perc.page");
+    stubLookup("perc.page", template);
+    IPSGuid imageGuid = new PSGuid(1001L, PSTypeEnum.NODEDEF, 312L);
+    IPSCatalogSummary image = mockCtSummary(imageGuid, "percImageAsset", "Image Asset");
+    when(contentDesign.findContentTypes(null)).thenReturn(List.of(image));
+    when(contentDesign.loadAssociatedTemplates(isNull(), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(desc(imageGuid, templateGuid)));
+    when(contentDesign.loadAssociatedTemplates(any(IPSGuid.class), eq(true), eq(true), any(), any()))
+        .thenReturn(List.of(desc(imageGuid, templateGuid)));
+
+    TemplateDetail body = new TemplateDetail();
+    body.setAssociatedContentTypes(List.of());
+
+    adaptor.updateTemplate(null, "perc.page", body);
+
+    verify(contentDesign)
+        .saveAssociatedTemplates(eq(imageGuid), eq(List.of()), eq(true), any(), any());
   }
 
   @Test
