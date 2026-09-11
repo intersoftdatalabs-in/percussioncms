@@ -24,3 +24,10 @@ None (bugs). Behavioral test added for the host-0 vs catalog GUID remove path.
 ## Memory patterns hit
 
 GUID identity / host-0 vs catalog packed long; omit vs empty list on collection replace.
+
+## Re-review
+
+Live H2 showed non-empty replace worked and `associatedContentTypes: []` was treated as omit
+under CXF UNWRAP_ROOT_VALUE (same class as display-format `allowedCommunities:[]` / #4098).
+Added `TemplateDetailJsonReader` + jaxrs:providers registration ahead of jacksonProvider.
+Playwright 1 passed; golden 2; login 2. Gate still approve.

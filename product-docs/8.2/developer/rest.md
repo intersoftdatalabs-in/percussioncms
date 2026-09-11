@@ -1549,7 +1549,7 @@ session. Neither call saves the template or steals another user's lock.
 
 `associatedContentTypes` is an array of named object refs (`name`, `label`, `guid`). GET
 always includes it (empty when none). PUT replaces the set when the field is present;
-empty clears; omit preserves. A Developer Templates **Remove** then **Save** must PUT
+empty \[]\ clears (bound before CXF UNWRAP_ROOT_VALUE so it is not treated as omit); omit preserves. A Developer Templates **Remove** then **Save** must PUT
 the remaining array (including `[]`); the server keys replace by content-type UUID and
 locks each content type with its **catalog** GUID from `findContentTypes` (never a
 host-0 rebuild of the association descriptor, which made add persist and remove no-op).
