@@ -41,6 +41,29 @@ describe("unwrapContentTypeFieldRuleExpressions", () => {
     expect(unwrapped.visibility).toEqual([]);
     expect(unwrapped.inputTranslation?.[0].extension).toContain("sys_ToUpperCase");
     expect(unwrapped.outputTranslation).toEqual([]);
+    expect(unwrapped.applyWhen).toEqual([]);
+    expect(unwrapped.applyWhenIfFieldEmpty).toBe(false);
+  });
+
+  it("unwraps applyWhen rules and ifFieldEmpty", () => {
+    const unwrapped = unwrapContentTypeFieldRuleExpressions({
+      ContentTypeFieldRuleExpressions: {
+        fieldName: "sys_title",
+        validation: [],
+        visibility: [],
+        inputTranslation: [],
+        outputTranslation: [],
+        applyWhen: [
+          { type: "conditional", conditionals: [{ variable: "sys_workflowid", operator: "=", value: "5" }] },
+        ],
+        applyWhenIfFieldEmpty: true,
+        applyWhenExpression: "sys_workflowid = 5",
+      },
+    });
+    expect(unwrapped.applyWhen).toHaveLength(1);
+    expect(unwrapped.applyWhen?.[0].conditionals?.[0].variable).toBe("sys_workflowid");
+    expect(unwrapped.applyWhenIfFieldEmpty).toBe(true);
+    expect(unwrapped.applyWhenExpression).toBe("sys_workflowid = 5");
   });
 
   it("unwraps a lone validation rule object and empty-collection beans", () => {
@@ -115,6 +138,8 @@ describe("field-rule expression text parse/format", () => {
       visibility: "ext:Java/global/percussion/generic/sys_ToUpperCase",
       inputTranslation: "Java/global/percussion/generic/sys_ToUpperCase | sys_title",
       outputTranslation: "",
+      applyWhen: "sys_workflowid = 5",
+      applyWhenIfFieldEmpty: true,
     });
     const texts = fieldRuleExpressionsToTexts(env);
     expect(texts.validation).toBe('sys_title <> ""');
@@ -123,6 +148,8 @@ describe("field-rule expression text parse/format", () => {
       "Java/global/percussion/generic/sys_ToUpperCase | sys_title",
     );
     expect(texts.outputTranslation).toBe("");
+    expect(texts.applyWhen).toBe("sys_workflowid = 5");
+    expect(texts.applyWhenIfFieldEmpty).toBe(true);
     expect(formatFieldRuleLine(env.validation![0])).toContain("sys_title");
   });
 
@@ -134,8 +161,22 @@ describe("field-rule expression text parse/format", () => {
     expect(fieldRuleExpressionsEqual(a, b)).toBe(false);
     expect(
       fieldRuleExpressionTextsEqual(
-        { validation: "", visibility: "", inputTranslation: "", outputTranslation: "" },
-        { validation: "", visibility: "", inputTranslation: "", outputTranslation: "" },
+        {
+          validation: "",
+          visibility: "",
+          inputTranslation: "",
+          outputTranslation: "",
+          applyWhen: "",
+          applyWhenIfFieldEmpty: false,
+        },
+        {
+          validation: "",
+          visibility: "",
+          inputTranslation: "",
+          outputTranslation: "",
+          applyWhen: "",
+          applyWhenIfFieldEmpty: false,
+        },
       ),
     ).toBe(true);
   });
@@ -153,10 +194,16 @@ describe("toFieldRuleExpressionsPutBody / wrap", () => {
       outputTranslation: [],
       designGaps: [{ code: "CT_FIELD_RULE_APPLY_WHEN" }],
       validationExpression: "ignored",
+      applyWhen: [
+        { type: "conditional", conditionals: [{ variable: "sys_workflowid", operator: "=", value: "5" }] },
+      ],
+      applyWhenIfFieldEmpty: true,
     });
     expect(body.designGaps).toBeUndefined();
     expect(body.validationExpression).toBeUndefined();
     expect(body.validation?.[0].type).toBe("conditional");
+    expect(body.applyWhen?.[0].conditionals?.[0].variable).toBe("sys_workflowid");
+    expect(body.applyWhenIfFieldEmpty).toBe(true);
     expect(wrapContentTypeFieldRuleExpressionsForWire(body)).toEqual({
       [CONTENT_TYPE_FIELD_RULE_EXPRESSIONS_ROOT]: body,
     });
@@ -221,6 +268,8 @@ describe("get/replace field rule expressions", () => {
           visibility: [],
           inputTranslation: [],
           outputTranslation: [],
+          applyWhen: [],
+          applyWhenIfFieldEmpty: false,
         },
       },
     );

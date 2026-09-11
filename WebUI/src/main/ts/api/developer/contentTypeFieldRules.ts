@@ -70,6 +70,9 @@ export interface ContentTypeFieldRuleExpressions {
   visibility?: ContentTypeFieldRule[];
   inputTranslation?: ContentTypeFieldTranslation[];
   outputTranslation?: ContentTypeFieldTranslation[];
+  applyWhen?: ContentTypeFieldRule[];
+  applyWhenIfFieldEmpty?: boolean;
+  applyWhenExpression?: string;
   maxErrorsToStop?: number;
   errorMessage?: string;
   validationExpression?: string;
@@ -79,12 +82,14 @@ export interface ContentTypeFieldRuleExpressions {
   designGaps?: DesignGapWire[];
 }
 
-/** Operator-facing text for the four rule lists. */
+/** Operator-facing text for the four rule lists plus field-validation apply-when. */
 export interface FieldRuleExpressionTexts {
   validation: string;
   visibility: string;
   inputTranslation: string;
   outputTranslation: string;
+  applyWhen: string;
+  applyWhenIfFieldEmpty: boolean;
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -222,6 +227,8 @@ export function emptyFieldRuleExpressions(fieldName = ""): ContentTypeFieldRuleE
     visibility: [],
     inputTranslation: [],
     outputTranslation: [],
+    applyWhen: [],
+    applyWhenIfFieldEmpty: false,
   };
 }
 
@@ -260,8 +267,19 @@ export function unwrapContentTypeFieldRuleExpressions(
     visibility: normalizeFieldRules(body.visibility),
     inputTranslation: normalizeFieldTranslations(body.inputTranslation),
     outputTranslation: normalizeFieldTranslations(body.outputTranslation),
+    applyWhen: normalizeFieldRules(body.applyWhen),
     designGaps: normalizeContentTypeDesignGaps(body.designGaps),
   };
+  if (typeof body.applyWhenIfFieldEmpty === "boolean") {
+    out.applyWhenIfFieldEmpty = body.applyWhenIfFieldEmpty;
+  } else if (body.applyWhenIfFieldEmpty === "true" || body.applyWhenIfFieldEmpty === "false") {
+    out.applyWhenIfFieldEmpty = body.applyWhenIfFieldEmpty === "true";
+  } else {
+    out.applyWhenIfFieldEmpty = false;
+  }
+  if (typeof body.applyWhenExpression === "string") {
+    out.applyWhenExpression = body.applyWhenExpression;
+  }
   if (typeof body.fieldName === "string") {
     out.fieldName = body.fieldName;
   }
@@ -334,6 +352,9 @@ export function cloneFieldRuleExpressions(
     visibility: (env.visibility ?? []).map(cloneRule),
     inputTranslation: (env.inputTranslation ?? []).map(cloneTranslation),
     outputTranslation: (env.outputTranslation ?? []).map(cloneTranslation),
+    applyWhen: (env.applyWhen ?? []).map(cloneRule),
+    applyWhenIfFieldEmpty: env.applyWhenIfFieldEmpty,
+    applyWhenExpression: env.applyWhenExpression,
     maxErrorsToStop: env.maxErrorsToStop,
     errorMessage: env.errorMessage,
     validationExpression: env.validationExpression,
@@ -447,7 +468,9 @@ export function fieldRuleExpressionsEqual(
     rulesEqual(a.validation, b.validation) &&
     rulesEqual(a.visibility, b.visibility) &&
     translationsEqual(a.inputTranslation, b.inputTranslation) &&
-    translationsEqual(a.outputTranslation, b.outputTranslation)
+    translationsEqual(a.outputTranslation, b.outputTranslation) &&
+    rulesEqual(a.applyWhen, b.applyWhen) &&
+    Boolean(a.applyWhenIfFieldEmpty) === Boolean(b.applyWhenIfFieldEmpty)
   );
 }
 
@@ -457,6 +480,8 @@ export function emptyFieldRuleExpressionTexts(): FieldRuleExpressionTexts {
     visibility: "",
     inputTranslation: "",
     outputTranslation: "",
+    applyWhen: "",
+    applyWhenIfFieldEmpty: false,
   };
 }
 
@@ -468,7 +493,9 @@ export function fieldRuleExpressionTextsEqual(
     a.validation === b.validation &&
     a.visibility === b.visibility &&
     a.inputTranslation === b.inputTranslation &&
-    a.outputTranslation === b.outputTranslation
+    a.outputTranslation === b.outputTranslation &&
+    a.applyWhen === b.applyWhen &&
+    Boolean(a.applyWhenIfFieldEmpty) === Boolean(b.applyWhenIfFieldEmpty)
   );
 }
 
@@ -694,6 +721,8 @@ export function fieldRuleExpressionsToTexts(
     visibility: formatFieldRuleLines(env.visibility),
     inputTranslation: formatTranslationLines(env.inputTranslation),
     outputTranslation: formatTranslationLines(env.outputTranslation),
+    applyWhen: formatFieldRuleLines(env.applyWhen),
+    applyWhenIfFieldEmpty: Boolean(env.applyWhenIfFieldEmpty),
   };
 }
 
@@ -710,12 +739,15 @@ export function textsToFieldRuleExpressions(
     const visibility = parseFieldRuleLines(texts.visibility, "visibility");
     const inputTranslation = parseTranslationLines(texts.inputTranslation);
     const outputTranslation = parseTranslationLines(texts.outputTranslation);
+    const applyWhen = parseFieldRuleLines(texts.applyWhen, "visibility");
     return {
       fieldName,
       validation,
       visibility,
       inputTranslation,
       outputTranslation,
+      applyWhen,
+      applyWhenIfFieldEmpty: Boolean(texts.applyWhenIfFieldEmpty),
     };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -786,6 +818,8 @@ export function toFieldRuleExpressionsPutBody(
     visibility: (env.visibility ?? []).map(toRulePutPayload),
     inputTranslation: (env.inputTranslation ?? []).map(toTranslationPutPayload),
     outputTranslation: (env.outputTranslation ?? []).map(toTranslationPutPayload),
+    applyWhen: (env.applyWhen ?? []).map(toRulePutPayload),
+    applyWhenIfFieldEmpty: Boolean(env.applyWhenIfFieldEmpty),
   };
 }
 

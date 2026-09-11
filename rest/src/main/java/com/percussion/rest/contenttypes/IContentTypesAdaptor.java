@@ -306,7 +306,7 @@ public interface IContentTypesAdaptor {
       URI baseUri, String idOrName, String fieldName, ContentTypeFieldControlProperties body);
 
   /**
-   * Load field-level validation, visibility, and input/output translation expressions (CD-05–07).
+   * Load field-level validation, visibility, translation, and apply-when expressions (CD-05–07).
    * No design lock is required. Empty lists mean none configured.
    *
    * @return envelope, or {@code null} when the content type is not found
@@ -316,15 +316,16 @@ public interface IContentTypesAdaptor {
       URI baseUri, String idOrName, String fieldName);
 
   /**
-   * Replace field-level validation, visibility, and translation expressions. Requires a
+   * Replace field-level validation, visibility, translation, and apply-when expressions. Requires a
    * design-session lock already held by the current user. Does not acquire or release the lock.
    * {@code validation}, {@code visibility}, {@code inputTranslation}, and {@code outputTranslation}
-   * are full replace (empty clears).
+   * are full replace (empty clears). {@code applyWhen} empty clears; omit preserves.
    *
    * @return persisted envelope, or {@code null} when the content type is not found
    * @throws ContentTypeDesignLockException when no lock is held or another user owns the lock
-   * @throws IllegalArgumentException when required lists are missing, a rule is invalid, or the
-   *     field name is unknown
+   * @throws IllegalArgumentException when required lists are missing or a rule is invalid
+   * @throws jakarta.ws.rs.WebApplicationException {@code 404} when the field name is unknown;
+   *     {@code 403} when the caller is not Admin
    */
   ContentTypeFieldRuleExpressions replaceFieldRuleExpressions(
       URI baseUri, String idOrName, String fieldName, ContentTypeFieldRuleExpressions body);

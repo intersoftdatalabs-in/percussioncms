@@ -578,8 +578,8 @@ Example create body:
 | Delete local field | `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}` | **Admin** (CD-03). Requires a **held** design-session lock. Removes a **local** field and its display mapping. System/shared fields are **400**. Missing type or field is **404**. Does not acquire or release the lock. `204` on success (lock still held). |
 | Field control properties | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` | Control parameter **name/value** pairs and the choice catalog for one field (CD-07). No lock required. Empty `properties` means none. `choices` omitted when none. GET round-trips `filter`, `nullEntry`, and `defaultSelected` when present. |
 | Replace field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` | **Admin** (CD-07). Requires a **held** design-session lock. Full replace of `properties` (empty clears). `choices` omitted leaves the catalog unchanged; present replaces including choice filter, null-entry, and default-selected; `type: none` clears. **409** if unlocked or locked by another user. Does not acquire or release the lock. |
-| Field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` | Field-level validation, visibility, and input/output translation expressions (CD-05–07). No lock required. Empty lists mean none. Unknown field is **404**. Jackson root wrap is `ContentTypeFieldRuleExpressions`. |
-| Replace field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` | **Admin** (CD-05–07). Requires a **held** design-session lock. Full replace of `validation`, `visibility`, `inputTranslation`, and `outputTranslation` (empty lists clear). Unknown field names are **400**. **409** if unlocked or locked by another user. Does not acquire or release the lock. |
+| Field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` | Field-level validation, visibility, input/output translation expressions, and field-validation **apply-when** (CD-05–07). No lock required. Empty lists mean none. Unknown field is **404**. Jackson root wrap is `ContentTypeFieldRuleExpressions`. |
+| Replace field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` | **Admin** (CD-05–07). Requires a **held** design-session lock. Full replace of `validation`, `visibility`, `inputTranslation`, and `outputTranslation` (empty lists clear). Optional `applyWhen` writes field-validation apply-when (empty list clears; omit preserves). Unknown type or field is **404**. Invalid operators are **400**. **409** if unlocked or locked by another user. **403** if not Admin. Does not acquire or release the lock. |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
 | Delete | `DELETE /services/contenttypes/{idOrName}` | **Admin.** Requires a **held** design-session lock (`POST .../lock` first). Calls `IPSContentDesignWs.deleteContentTypes` with `ignoreDependencies=false`. **204** on success; a following `GET .../{idOrName}` is **404**. **409** if unlocked or locked by another user (the lock is not stolen). **404** if missing. **400** if the design web service rejects an in-use type (dependents). Does **not** cascade item delete. |
 
@@ -1031,13 +1031,13 @@ human-readable **expression summaries**. Those summary strings are **not** writt
 | `controlProperties` | Control parameter **name and value** pairs |
 
 `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` returns the
-structured rules for one field. No design lock is required. Empty arrays mean none.
-`404` means the content type or field was not found. GET also repeats the same summary
-strings as the detail field row.
+structured rules for one field, including field-validation `applyWhen`. No design
+lock is required. Empty arrays mean none. `404` means the content type or field was not
+found. GET also repeats the same summary strings as the detail field row.
 
-`PUT` on the same path replaces validation, visibility, and input/output translation
-expressions. Hold the design-session lock first; save keeps the lock so you can continue
-editing, then unlock.
+`PUT` on the same path replaces validation, visibility, input/output translation
+expressions, and optional apply-when. Hold the design-session lock first; save keeps the
+lock so you can continue editing, then unlock.
 
 Typical flow: `POST .../lock` → `PUT .../fields/{fieldName}/ruleExpressions` → (optional
 further design writes) → `POST .../unlock`.
@@ -1063,31 +1063,47 @@ Jackson root wrap:
         "parameters": [{ "value": "sys_title" }]
       }
     ],
-    "outputTranslation": []
+    "outputTranslation": [],
+    "applyWhen": [
+      {
+        "type": "conditional",
+        "conditionals": [
+          { "variable": "sys_workflowid", "operator": "=", "value": "5" }
+        ]
+      }
+    ],
+    "applyWhenIfFieldEmpty": false
   }
 }
 ```
 
 `validation`, `visibility`, `inputTranslation`, and `outputTranslation` are required on
 PUT (empty list clears). Rule `type` is `conditional`, `extension`, or `reference`
-(validation only; visibility rejects `reference`). Conditional `variable` / `value` are
-stored as text literals. Operator `!=` is accepted as `<>`. Apply-when on field
-validation is not written (see `designGaps` code `CT_FIELD_RULE_APPLY_WHEN`).
+(validation only; visibility and apply-when reject `reference`). Conditional
+`variable` / `value` are stored as text literals. Operator `!=` is accepted as `<>`.
+Invalid operators are **400**.
+
+`applyWhen` is the field-validation apply-when list (same conditional/extension
+shape as visibility). GET always returns it (empty means none). On PUT, an empty
+list **clears**; omit **preserves** the current apply-when. `applyWhenIfFieldEmpty`
+is the Workbench “apply if field is empty” flag. The `CT_FIELD_RULE_APPLY_WHEN`
+design gap is removed now that apply-when is writable.
 
 | Status | Typical meaning |
 |--------|-----------------|
 | `200` | GET envelope, or PUT replaced (lock still held) |
-| `400` | Missing required lists, invalid rule, or unknown field name |
+| `400` | Missing required lists, invalid rule, or invalid apply-when operator |
 | `403` | Caller is not Admin (PUT) |
-| `404` | Content type not found (PUT), or content type / field not found (GET) |
+| `404` | Content type or field not found |
 | `409` | No design lock, or locked by another user |
 | `500` | Unexpected error |
 
-**Developer → Content types** detail chrome edits these four lists as expression
-**text** after **Lock** (one line per rule or extension call). **Save content type**
-calls this PUT, then GET reflects the new expressions. Save stays disabled until
-the lock is held; the product does not steal another user's lock. This is not
-the Workbench visual rule builder. See [Developer Content Types](id:admin-developer-content-types).
+**Developer → Content types** detail chrome edits these four lists plus
+**apply-when** as expression **text** after **Lock** (one line per rule or
+extension call). **Save content type** calls this PUT, then GET reflects the new
+expressions and apply-when. Save stays disabled until the lock is held; the
+product does not steal another user's lock. This is not the Workbench visual
+rule builder. See [Developer Content Types](id:admin-developer-content-types).
 
 Control property **values** and the field **choice catalog** use the dedicated
 CD-07 path below and the Developer Content Types **Control property values** /

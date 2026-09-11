@@ -1015,15 +1015,15 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
-  public void replaceFieldRuleExpressionsUnknownField400() {
+  public void replaceFieldRuleExpressionsUnknownField404() {
     ContentTypeFieldRuleExpressions body = emptyRuleExpressionsBody();
     when(adaptor.replaceFieldRuleExpressions(any(), eq("percPage"), eq("nope"), any()))
-        .thenThrow(new IllegalArgumentException("Unknown field: nope"));
+        .thenThrow(new WebApplicationException("Unknown field: nope", 404));
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class,
             () -> resource.replaceFieldRuleExpressions("percPage", "nope", body));
-    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(404, ex.getResponse().getStatus());
   }
 
   @Test
@@ -1035,11 +1035,13 @@ public class ContentTypesResourceDetailTest {
     rule.setConditionals(List.of(new ContentTypeFieldConditional("sys_title", "<>", "")));
     env.setValidation(List.of(rule));
     env.setValidationExpression("sys_title <> ");
-    env.setDesignGaps(
-        List.of(
-            DesignGap.of(
-                "CT_FIELD_RULE_APPLY_WHEN",
-                "Apply-when on field validation is read-only")));
+    ContentTypeFieldRule applyWhen = new ContentTypeFieldRule();
+    applyWhen.setType(ContentTypeFieldRule.TYPE_CONDITIONAL);
+    applyWhen.setConditionals(List.of(new ContentTypeFieldConditional("sys_workflowid", "=", "5")));
+    env.setApplyWhen(List.of(applyWhen));
+    env.setApplyWhenIfFieldEmpty(true);
+    env.setApplyWhenExpression("sys_workflowid = 5");
+    env.setDesignGaps(List.of());
 
     ObjectMapper mapper =
         new JacksonContextResolver().getContext(ContentTypeFieldRuleExpressions.class);
@@ -1047,7 +1049,10 @@ public class ContentTypesResourceDetailTest {
     assertTrue(json.contains("validation"), json);
     assertTrue(json.contains("sys_title"), json);
     assertTrue(json.contains("validationExpression"), json);
-    assertTrue(json.contains("CT_FIELD_RULE_APPLY_WHEN"), json);
+    assertTrue(json.contains("applyWhen"), json);
+    assertTrue(json.contains("sys_workflowid"), json);
+    assertTrue(json.contains("applyWhenIfFieldEmpty"), json);
+    assertFalse(json.contains("CT_FIELD_RULE_APPLY_WHEN"), json);
   }
 
   private static ContentTypeFieldRuleExpressions emptyRuleExpressionsBody() {
