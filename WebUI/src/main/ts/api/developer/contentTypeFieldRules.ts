@@ -766,6 +766,11 @@ function toParamPayload(p: ContentTypeFieldRuleParam): ContentTypeFieldRuleParam
   return out;
 }
 
+/** PUT payload for one field rule (conditional / extension / reference). */
+export function toFieldRulePutPayload(rule: ContentTypeFieldRule): ContentTypeFieldRule {
+  return toRulePutPayload(rule);
+}
+
 function toRulePutPayload(rule: ContentTypeFieldRule): ContentTypeFieldRule {
   const type = (rule.type || FIELD_RULE_TYPE_CONDITIONAL).toLowerCase();
   const out: ContentTypeFieldRule = { type };

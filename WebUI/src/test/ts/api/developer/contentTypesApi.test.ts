@@ -778,6 +778,12 @@ describe("unwrapContentTypeItemExits / wrapContentTypeItemExitsForWire (CD-09)",
           {
             extension: "Java/global/percussion/generic/sys_ToUpperCase",
             parameters: [{ value: "sys_title" }],
+            applyWhen: [
+              {
+                type: "conditional",
+                conditionals: [{ variable: "sys_communityid", operator: "=", value: "1001" }],
+              },
+            ],
           },
         ],
         outputTranslations: [],
@@ -792,6 +798,12 @@ describe("unwrapContentTypeItemExits / wrapContentTypeItemExitsForWire (CD-09)",
       "Java/global/percussion/generic/sys_ToUpperCase",
     );
     expect(out.inputTranslations?.[0]?.parameters).toEqual([{ value: "sys_title" }]);
+    expect(out.inputTranslations?.[0]?.applyWhen?.[0]?.conditionals?.[0]).toEqual({
+      variable: "sys_communityid",
+      operator: "=",
+      value: "1001",
+    });
+    expect(out.inputTranslations?.[0]?.applyWhenText).toContain("sys_communityid");
     expect(out.maxErrorsToStopValidation).toBe(10);
     expect(out.designGaps).toEqual([{ code: "CT_ITEM_EXIT_CONDITIONS", message: "read-only" }]);
   });
@@ -894,6 +906,7 @@ describe("itemExits GET/PUT (CD-09)", () => {
     expect(body.ContentTypeItemExits.inputTranslations[0].extension).toBe(
       "Java/global/percussion/generic/sys_ToUpperCase",
     );
+    expect(body.ContentTypeItemExits.inputTranslations[0].applyWhen).toEqual([]);
     expect(body.ContentTypeItemExits.preExits).toBeUndefined();
     expect(body.ContentTypeItemExits.postExits).toBeUndefined();
   });

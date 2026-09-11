@@ -18,8 +18,11 @@
 import React, { useState } from "react";
 import {
   addItemExit,
+  itemExitApplyWhenText,
   itemExitDisplay,
+  itemExitListSupportsApplyWhen,
   removeItemExit,
+  setItemExitApplyWhenText,
   type ItemExitListKey,
 } from "../api/developer/contentTypeItemExits";
 import type { ContentTypeItemExits } from "../api/developer/types";
@@ -33,6 +36,13 @@ const inputStyle: React.CSSProperties = {
   font: "inherit",
   width: "100%",
   boxSizing: "border-box",
+};
+
+const textareaStyle: React.CSSProperties = {
+  ...inputStyle,
+  fontFamily: "monospace",
+  minHeight: "2.75rem",
+  resize: "vertical",
 };
 
 const smallBtnStyle: React.CSSProperties = {
@@ -116,46 +126,77 @@ function ItemExitListEditor({
               style={{
                 ...tableRow,
                 display: "flex",
-                alignItems: "center",
-                gap: 12,
+                flexDirection: "column",
+                alignItems: "stretch",
+                gap: 8,
                 padding: "6px 0",
               }}
             >
-              <span style={{ fontFamily: "monospace", fontSize: "0.85rem" }}>
-                {itemExitDisplay(exit)}
-                {(exit.parameters ?? []).length > 0 ? (
-                  <span style={{ color: catalogColors.empty, marginLeft: "8px" }}>
-                    {(exit.parameters ?? [])
-                      .map((p) => (p.name ? `${p.name}=${p.value ?? ""}` : p.value ?? ""))
-                      .filter(Boolean)
-                      .join(", ")}
-                  </span>
-                ) : null}
-                {exit.condition ? (
-                  <span style={{ color: catalogColors.muted, marginLeft: "8px" }}>
-                    {exit.condition}
-                  </span>
-                ) : null}
-              </span>
-              <button
-                type="button"
-                data-testid={`${prefix}-remove-${i}`}
-                aria-label={`Remove ${label} ${itemExitDisplay(exit)}`}
-                disabled={!canEdit}
-                onClick={() => {
-                  if (!canEdit) {
-                    return;
-                  }
-                  onChange(removeItemExit(value, listKey, i));
-                }}
-                style={{
-                  ...smallBtnStyle,
-                  marginLeft: "auto",
-                  cursor: canEdit ? "pointer" : "not-allowed",
-                }}
-              >
-                {DEV_MSG.CT_ASSOC_REMOVE}
-              </button>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ fontFamily: "monospace", fontSize: "0.85rem" }}>
+                  {itemExitDisplay(exit)}
+                  {(exit.parameters ?? []).length > 0 ? (
+                    <span style={{ color: catalogColors.empty, marginLeft: "8px" }}>
+                      {(exit.parameters ?? [])
+                        .map((p) => (p.name ? `${p.name}=${p.value ?? ""}` : p.value ?? ""))
+                        .filter(Boolean)
+                        .join(", ")}
+                    </span>
+                  ) : null}
+                  {exit.condition && !itemExitApplyWhenText(exit) ? (
+                    <span style={{ color: catalogColors.muted, marginLeft: "8px" }}>
+                      {exit.condition}
+                    </span>
+                  ) : null}
+                </span>
+                <button
+                  type="button"
+                  data-testid={`${prefix}-remove-${i}`}
+                  aria-label={`Remove ${label} ${itemExitDisplay(exit)}`}
+                  disabled={!canEdit}
+                  onClick={() => {
+                    if (!canEdit) {
+                      return;
+                    }
+                    onChange(removeItemExit(value, listKey, i));
+                  }}
+                  style={{
+                    ...smallBtnStyle,
+                    marginLeft: "auto",
+                    cursor: canEdit ? "pointer" : "not-allowed",
+                  }}
+                >
+                  {DEV_MSG.CT_ASSOC_REMOVE}
+                </button>
+              </div>
+              {itemExitListSupportsApplyWhen(listKey) ? (
+                <div>
+                  <label
+                    htmlFor={`${prefix}-apply-when-${i}`}
+                    style={{ display: "block", marginBottom: 4, fontSize: "0.85rem" }}
+                  >
+                    {DEV_MSG.CT_IE_APPLY_WHEN}
+                  </label>
+                  <p style={{ color: catalogColors.muted, fontSize: "0.8rem", margin: "0 0 4px" }}>
+                    {DEV_MSG.CT_IE_APPLY_WHEN_HINT}
+                  </p>
+                  <textarea
+                    id={`${prefix}-apply-when-${i}`}
+                    data-testid={`${prefix}-apply-when-${i}`}
+                    style={textareaStyle}
+                    value={itemExitApplyWhenText(exit)}
+                    disabled={!canEdit}
+                    readOnly={!canEdit}
+                    aria-disabled={canEdit ? undefined : true}
+                    onChange={(e) => {
+                      if (!canEdit) {
+                        return;
+                      }
+                      onChange(setItemExitApplyWhenText(value, listKey, i, e.target.value));
+                    }}
+                  />
+                </div>
+              ) : null}
             </li>
           ))}
         </ul>

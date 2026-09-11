@@ -262,7 +262,8 @@ public interface IContentTypesAdaptor {
 
   /**
    * Load item-level pre/post exits, input/output translations, and validations (CD-09). No design
-   * lock is required. Empty lists mean none configured.
+   * lock is required. Empty lists mean none configured. Each translation/validation row includes
+   * {@code applyWhen} (empty when the exit always runs) and a {@code condition} summary.
    *
    * @return envelope (lists may be empty), or {@code null} when the content type is not found
    */
@@ -273,7 +274,8 @@ public interface IContentTypesAdaptor {
    * design-session lock already held by the current user. Does not acquire or release the lock.
    * {@code inputTranslations}, {@code outputTranslations}, and {@code validations} are full
    * replace (empty clears). {@code preExits}/{@code postExits} null leaves pipe extensions
-   * unchanged. Apply-when conditions are not written.
+   * unchanged. Apply-when on translations/validations is written ({@code applyWhen} empty clears;
+   * omit preserves matching GET rows).
    *
    * @return persisted envelope, or {@code null} when the content type is not found
    * @throws ContentTypeDesignLockException when no lock is held or another user owns the lock

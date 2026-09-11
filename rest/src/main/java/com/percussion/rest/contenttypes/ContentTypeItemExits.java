@@ -32,8 +32,8 @@ import java.util.List;
  * <p>Jackson root wrap is {@code ContentTypeItemExits}. GET always returns the five lists (empty
  * when none). PUT is a full replace of {@code inputTranslations}, {@code outputTranslations}, and
  * {@code validations} (empty list clears). {@code preExits} / {@code postExits} omitted leave pipe
- * extensions unchanged; empty list clears. Apply-when conditions are read-only (see {@code
- * designGaps}).
+ * extensions unchanged; empty list clears. Apply-when on translations/validations is writable
+ * ({@code ContentTypeItemExit.applyWhen}: empty clears; omit preserves matching GET rows).
  *
  * <p>Jackson 3.2 still ships {@link JsonRootName} under {@code com.fasterxml.jackson.annotation}
  * (there is no {@code tools.jackson.annotation} package). {@link
@@ -44,7 +44,13 @@ import java.util.List;
 @XmlRootElement(name = "ContentTypeItemExits")
 @JsonRootName("ContentTypeItemExits")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@XmlSeeAlso({ContentTypeItemExit.class, ContentTypeItemExitParam.class, DesignGap.class})
+@XmlSeeAlso({
+  ContentTypeItemExit.class,
+  ContentTypeItemExitParam.class,
+  ContentTypeFieldRule.class,
+  ContentTypeFieldConditional.class,
+  DesignGap.class
+})
 @Schema(description = "Item-level content type exits, translations, and validations (CD-09)")
 public class ContentTypeItemExits {
 
@@ -85,7 +91,7 @@ public class ContentTypeItemExits {
 
   @Schema(
       description =
-          "Structured capability notes vs full Workbench (apply-when write). GET always present.")
+          "Structured capability notes vs full Workbench. GET always present (may be empty).")
   private List<DesignGap> designGaps = new ArrayList<>();
 
   public ContentTypeItemExits() {}

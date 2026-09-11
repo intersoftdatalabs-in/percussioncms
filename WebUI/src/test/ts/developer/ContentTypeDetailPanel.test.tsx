@@ -1885,6 +1885,47 @@ describe("ContentTypeDetailPanel", () => {
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
   });
 
+  it("locks, writes item-exit apply-when, save keeps the lock (#4447)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    getContentTypeItemExits.mockResolvedValue({
+      ...emptyItemExits,
+      inputTranslations: [
+        {
+          extension: "Java/global/percussion/content/sys_cleanReservedHtmlClasses",
+          parameters: [{ value: "sys_title" }],
+          applyWhen: [],
+        },
+      ],
+    });
+    replaceContentTypeItemExits.mockImplementation(async (_id, body) => body);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    expect((screen.getByTestId("developer-ct-ie-in-apply-when-0") as HTMLTextAreaElement).disabled).toBe(
+      true,
+    );
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-ct-ie-in-apply-when-0") as HTMLTextAreaElement).disabled,
+      ).toBe(false);
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-ie-in-apply-when-0"), {
+      target: { value: "sys_communityid = 1001" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(replaceContentTypeItemExits).toHaveBeenCalled();
+    });
+    const putBody = replaceContentTypeItemExits.mock.calls.at(-1)?.[1] as {
+      inputTranslations?: Array<{ applyWhenText?: string }>;
+    };
+    expect(putBody.inputTranslations?.[0]?.applyWhenText).toBe("sys_communityid = 1001");
+    expect(unlockContentType).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+  });
+
   it("clears the held lock when itemExits PUT returns 409 (#3895)", async () => {
     getContentTypeDetail.mockResolvedValue(sampleDetail);
     replaceContentTypeItemExits.mockRejectedValueOnce({

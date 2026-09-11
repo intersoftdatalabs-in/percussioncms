@@ -96,7 +96,8 @@ lock. Item-level input translations must be request pre-processors (for
 example `sys_cleanReservedHtmlClasses` or `sys_itemHTMLEncodeTransformer`),
 not field UDFs such as `sys_ToUpperCase` (those stay on field rule
 expressions). Omitting `preExits`/`postExits` leaves pipe extensions
-unchanged. Apply-when conditions remain read-only. Field **choice catalogs**
+unchanged. Apply-when conditions on item-level translations and validations
+are writable after **Lock** (see **Item-level exits**). Field **choice catalogs**
 (source, local entries, filter, null-entry, default-selected) are edited
 from **Control property values** after **Lock** (see **Field choice catalog**
 below).
@@ -278,17 +279,23 @@ validations, pipe pre-exits, and post-exits) are **read-only** until you hold
 the lock. After **Lock**:
 
 1. Add an extension by its fully-qualified name (for example
-   `Java/global/percussion/generic/sys_ToUpperCase`) and an optional parameter
-   value (for example `sys_title`), then click **Add**, or **Remove** a row.
-2. Click **Save content type**. The product replaces the item-level exits set
-   (`PUT /services/contenttypes/{idOrName}/itemExits`). Save does **not**
-   unlock. A following `GET .../itemExits` lists the new set.
-3. Without a lock, Add / Remove / Save stay **disabled**. The product does
-   **not** steal another user's lock (lock failure is **409**). An empty list
-   clears that list. Unknown extension FQNs return an error; the lock is not
-   stolen.
+   `Java/global/percussion/content/sys_cleanReservedHtmlClasses`) and an optional
+   parameter value (for example `sys_title`), then click **Add**, or **Remove**
+   a row.
+2. After a row exists, set **Apply when** on that input translation, output
+   translation, or validation (one expression per line, same syntax as field
+   visibility rules, for example `sys_communityid = 1001`). Leave the box empty
+   so the exit always runs. Pipe pre/post exits have no apply-when.
+3. Click **Save content type**. The product replaces the item-level exits set
+   (`PUT /services/contenttypes/{idOrName}/itemExits`), including `applyWhen` on
+   translations and validations. Save does **not** unlock. A following
+   `GET .../itemExits` lists the new set and round-trips apply-when. An empty
+   apply-when list **clears** the condition.
+4. Without a lock, Add / Remove / Apply when / Save stay **disabled**. The
+   product does **not** steal another user's lock (lock failure is **409**).
+   An empty list clears that list. Unknown extension FQNs or invalid apply-when
+   operators return an error; the lock is not stolen.
 
-Apply-when conditions on exits are **read-only** and are not written on save.
 This is not the full Workbench Properties-tab condition editor.
 
 ### Control property values (after lock)
@@ -470,7 +477,7 @@ The chrome calls:
 | Save allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` (requires a held lock; does not unlock) |
 | Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` (held lock; full replace) |
 | Confirm allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` |
-| Replace item-level exits | `PUT /services/contenttypes/{idOrName}/itemExits` (CD-09; held lock; full replace of translations/validations; empty lists clear) |
+| Replace item-level exits | `PUT /services/contenttypes/{idOrName}/itemExits` (CD-09; held lock; full replace of translations/validations; `applyWhen` empty clears, omit preserves matching GET rows) |
 | Confirm item-level exits | `GET /services/contenttypes/{idOrName}/itemExits` |
 | Load field control properties | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` (CD-07; no lock) |
 | Save field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` (held lock; full replace of values; omit `choices` to leave the catalog unchanged; `type: none` clears) |

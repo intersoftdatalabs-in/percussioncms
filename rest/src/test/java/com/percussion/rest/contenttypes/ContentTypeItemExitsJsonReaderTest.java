@@ -53,6 +53,23 @@ public class ContentTypeItemExitsJsonReaderTest {
   }
 
   @Test
+  public void parseWrappedEnvelopePopulatesApplyWhen() {
+    ContentTypeItemExits out =
+        ContentTypeItemExitsJsonReader.parse(
+            "{\"ContentTypeItemExits\":{"
+                + "\"inputTranslations\":[{\"extension\":\"Java/global/percussion/content/sys_cleanReservedHtmlClasses\","
+                + "\"applyWhen\":[{\"type\":\"conditional\",\"conditionals\":["
+                + "{\"variable\":\"sys_communityid\",\"operator\":\"=\",\"value\":\"1001\"}]}]}],"
+                + "\"outputTranslations\":[],\"validations\":[]}}");
+    assertEquals(1, out.getInputTranslations().size());
+    assertNotNull(out.getInputTranslations().get(0).getApplyWhen());
+    assertEquals(1, out.getInputTranslations().get(0).getApplyWhen().size());
+    assertEquals(
+        "sys_communityid",
+        out.getInputTranslations().get(0).getApplyWhen().get(0).getConditionals().get(0).getVariable());
+  }
+
+  @Test
   public void parseFlatBodyPopulatesRequiredLists() {
     ContentTypeItemExits out =
         ContentTypeItemExitsJsonReader.parse(

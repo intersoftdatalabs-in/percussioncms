@@ -1678,9 +1678,9 @@ public class ContentTypesResource {
       summary = "Get item-level exits and validations for a content type",
       description =
           "CD-09 GET: item-level input/output translations, validations, and pipe pre/post"
-              + " exits. No design lock is required. Empty lists mean none. Apply-when conditions"
-              + " are summarized as read-only text (see designGaps). Jackson root wrap is"
-              + " ContentTypeItemExits.",
+              + " exits. No design lock is required. Empty lists mean none. Apply-when rules on"
+              + " translations/validations are in applyWhen (condition is a GET summary)."
+              + " Jackson root wrap is ContentTypeItemExits.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -1714,8 +1714,10 @@ public class ContentTypesResource {
               + " validations via IPSContentDesignWs.saveContentTypes. Requires a held"
               + " design-session lock (POST .../lock). Does not acquire or release the lock."
               + " Empty lists clear. preExits/postExits omitted leave pipe extensions unchanged;"
-              + " empty list clears. Each exit needs a resolvable extension FQN. Apply-when"
-              + " conditions are not written. Jackson root wrap is ContentTypeItemExits.",
+              + " empty list clears. Each exit needs a resolvable extension FQN. applyWhen on"
+              + " translations/validations is written (empty list clears; omit preserves matching"
+              + " GET rows). Invalid operators or type=reference are 400. Jackson root wrap is"
+              + " ContentTypeItemExits.",
       requestBody =
           @RequestBody(
               required = true,
@@ -1729,8 +1731,9 @@ public class ContentTypesResource {
         @ApiResponse(
             responseCode = "400",
             description =
-                "Missing required lists, invalid extension FQN, or design-save validation"
-                    + " (wrong item-level extension interface / SAVE_FAILED validation)"),
+                "Missing required lists, invalid extension FQN, invalid applyWhen, or"
+                    + " design-save validation (wrong item-level extension interface /"
+                    + " SAVE_FAILED validation)"),
         @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(responseCode = "404", description = "Content type not found"),
         @ApiResponse(
