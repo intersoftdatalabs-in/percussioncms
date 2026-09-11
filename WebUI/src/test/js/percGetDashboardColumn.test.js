@@ -73,14 +73,22 @@ function withFreshWindow(href, run) {
     percJQuery: globalThis.percJQuery,
   };
   globalThis.window = dom.window;
-  globalThis.document = dom.window.document;
+  Object.defineProperty(globalThis, "document", {
+    configurable: true,
+    writable: true,
+    value: dom.window.document,
+  });
   delete globalThis.gadgets;
   delete globalThis.percJQuery;
   try {
     run(dom);
   } finally {
     globalThis.window = prev.window;
-    globalThis.document = prev.document;
+    Object.defineProperty(globalThis, "document", {
+      configurable: true,
+      writable: true,
+      value: prev.document,
+    });
     globalThis.gadgets = prev.gadgets;
     globalThis.percJQuery = prev.percJQuery;
   }

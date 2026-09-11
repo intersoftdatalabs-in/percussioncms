@@ -301,6 +301,33 @@ export const ContentTypeFieldRulesSection = React.forwardRef<
             onChange={(validation) => patchDraft({ validation })}
           />
           <FieldRuleTextarea
+            id="ct-fr-apply-when"
+            testId="developer-ct-fr-apply-when"
+            label={DEV_MSG.CT_FR_APPLY_WHEN}
+            hint={DEV_MSG.CT_FR_APPLY_WHEN_HINT}
+            value={current.applyWhen}
+            canEdit={canEdit}
+            onChange={(applyWhen) => patchDraft({ applyWhen })}
+          />
+          <div style={{ marginTop: "8px" }}>
+            <label htmlFor="ct-fr-apply-when-if-empty" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <input
+                id="ct-fr-apply-when-if-empty"
+                data-testid="developer-ct-fr-apply-when-if-empty"
+                type="checkbox"
+                checked={Boolean(current.applyWhenIfFieldEmpty)}
+                disabled={!canEdit}
+                onChange={(e) => {
+                  if (!canEdit) {
+                    return;
+                  }
+                  patchDraft({ applyWhenIfFieldEmpty: e.target.checked });
+                }}
+              />
+              {DEV_MSG.CT_FR_APPLY_WHEN_IF_EMPTY}
+            </label>
+          </div>
+          <FieldRuleTextarea
             id="ct-fr-visibility"
             testId="developer-ct-fr-visibility"
             label={DEV_MSG.CT_FR_VISIBILITY}

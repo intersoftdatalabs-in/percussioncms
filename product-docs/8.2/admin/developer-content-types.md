@@ -84,7 +84,8 @@ types** chrome exposes the same pair: **Export XML** on the detail toolbar and
 This is **not** the full Workbench field-rule editor. The detail table still
 shows rule **flags** (validation / visibility / transforms present). After
 **Lock**, **Field rule expressions** lets you edit validation, visibility,
-input translation, and output translation **text** (one expression per line)
+input translation, output translation, and field-validation **apply-when**
+**text** (one expression per line)
 and save with the same **Save content type** control. Integrators can also
 call REST
 `GET`/`PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions`
@@ -357,17 +358,24 @@ lock.
      (optional literal parameter after `|`).
    * Named validation rule: `ref:ruleName` (validation only; visibility
      rejects `ref:`).
+   * **Apply when (field validation)**: the same conditional/extension lines as
+     visibility (`ref:` is not allowed). Empty text **clears** apply-when. The
+     **Also apply when the field is empty** checkbox is the Workbench if-field-empty
+     flag.
    * Input / output translation: one extension FQN per line, optional
      `| parameter`.
 3. Click **Save content type**. The product replaces that field's four lists
+   and apply-when
    (`PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions`).
    Empty text clears that list. Save does **not** unlock. A following GET of
-   the same path reflects the new expressions.
-4. Without a lock, the text areas and Save stay **disabled**. The product does
-   **not** steal another user's lock (lock failure is **409**).
+   the same path reflects the new expressions and apply-when.
+4. Without a lock, the text areas, apply-when checkbox, and Save stay
+   **disabled**. The product does **not** steal another user's lock (lock
+   failure is **409**). Unlocked or another user's lock is **409**. Non-Admin
+   is **403**. Unknown type or field is **404**.
 
-This is expression **text**, not the Workbench visual rule builder. Apply-when
-conditions on field validation are not written.
+This is expression **text**, not the Workbench visual rule builder. Item-exit
+apply-when remains a separate surface.
 
 Locks expire after **30 minutes**. If Save fails because the lock expired,
 click **Lock** again and retry.
@@ -467,7 +475,7 @@ The chrome calls:
 | Load field control properties | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` (CD-07; no lock) |
 | Save field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` (held lock; full replace of values; omit `choices` to leave the catalog unchanged; `type: none` clears) |
 | Load field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` |
-| Save field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` (held lock; full replace of validation, visibility, inputTranslation, outputTranslation) |
+| Save field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` (held lock; full replace of validation, visibility, inputTranslation, outputTranslation; `applyWhen` empty clears, omit preserves) |
 | Include system or shared field | `POST /services/contenttypes/{idOrName}/fields/include` (CD-04; held lock; origin stays system/shared; duplicate 409; unknown catalog field 404; invalid `fieldType` 400) |
 | Add local field | `POST /services/contenttypes/{idOrName}/fields` (CD-03; held lock; origin always `local`; duplicate name **409**) |
 | Delete local field | `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}` (CD-03; held lock; **204**; system/shared **400**) |

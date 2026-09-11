@@ -18,9 +18,9 @@
  * Developer Content Type field-rule expressions chrome (CD-05–07 / #3896).
  *
  * Admin locks a type, edits validation/visibility/input/output translation
- * expression text, saves via PUT .../fields/{field}/ruleExpressions, then GET
- * reflects the expressions. Unlocked editors stay disabled; 409 lock is not
- * stolen.
+ * expression text and field-validation apply-when, saves via PUT
+ * .../fields/{field}/ruleExpressions, then GET reflects the expressions.
+ * Unlocked editors stay disabled; 409 lock is not stolen.
  *
  * Surface-filtered QA:
  * <pre>
@@ -201,6 +201,8 @@ test.describe("Developer content type field-rule expressions (CD-05-07 / #3896)"
     await expect(page.locator('[data-testid="developer-ct-fr-visibility"]')).toBeDisabled();
     await expect(page.locator('[data-testid="developer-ct-fr-input"]')).toBeDisabled();
     await expect(page.locator('[data-testid="developer-ct-fr-output"]')).toBeDisabled();
+    await expect(page.locator('[data-testid="developer-ct-fr-apply-when"]')).toBeDisabled();
+    await expect(page.locator('[data-testid="developer-ct-fr-apply-when-if-empty"]')).toBeDisabled();
     await expect(saveBtn).toBeDisabled();
 
     const putUrls = [];
@@ -341,6 +343,165 @@ test.describe("Developer content type field-rule expressions (CD-05-07 / #3896)"
       await expect(status).toHaveText(/Not locked/i, { timeout: 20_000 });
       await expect(validation).toBeDisabled();
       await expect(saveBtn).toBeDisabled();
+    } finally {
+      await releaseDesignLock(page);
+    }
+
+    assertConsoleClean(pageErrors, consoleErrors);
+  });
+
+  test("Admin lock, set and clear apply-when, GET round-trip (#4446)", async ({ page }) => {
+    test.setTimeout(180_000);
+    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+    const applyMarker = "#4446-apply-when";
+
+    await loginAsAdmin(page);
+    await openContentTypeDetail(
+      page,
+      /percSimpleTextAsset|percFileAsset|percRawHtmlAsset|percPage/,
+    );
+
+    const typeName = (
+      await page.locator('[data-testid="developer-ct-detail-name"]').innerText()
+    ).trim();
+    expect(typeName.length, "detail name for GET").toBeGreaterThan(0);
+
+    const fieldSelect = page.locator('[data-testid="developer-ct-fr-field"]');
+    await expect(fieldSelect).toBeVisible({ timeout: 20_000 });
+    const fieldName = (await fieldSelect.inputValue()) || "sys_title";
+
+    const applyWhen = page.locator('textarea[data-testid="developer-ct-fr-apply-when"]');
+    const validation = page.locator('textarea[data-testid="developer-ct-fr-validation"]');
+    await expect(applyWhen).toBeVisible();
+    await expect(page.locator('[data-testid="developer-ct-fr-loading"]')).toHaveCount(0, {
+      timeout: 20_000,
+    });
+
+    const lockBtn = page.locator('[data-testid="developer-ct-lock"]');
+    const saveBtn = page.locator('[data-testid="developer-ct-save"]');
+    const unlockBtn = page.locator('[data-testid="developer-ct-unlock"]');
+    const status = page.locator('[data-testid="developer-ct-lock-status"]');
+    const notice = page.locator('[data-testid="developer-ct-detail-notice"]');
+    const saveError = page.locator('[data-testid="developer-ct-detail-error"]');
+    const frError = page.locator('[data-testid="developer-ct-fr-error"]');
+
+    await expect(lockBtn).toBeEnabled({ timeout: 30_000 });
+    const lockResponsePromise = page.waitForResponse(
+      (r) => r.request().method() === "POST" && /\/contenttypes\/[^/]+\/lock(?:\?|$)/.test(r.url()),
+      { timeout: 20_000 },
+    );
+    await lockBtn.click();
+    const lockRes = await lockResponsePromise;
+    if (!lockRes.ok()) {
+      const body = await lockRes.text();
+      throw new Error(`Lock HTTP ${lockRes.status()} ${body}`);
+    }
+    await expect(status).toHaveText(/Locked by you/i, { timeout: 20_000 });
+    await expect(applyWhen).toBeEnabled();
+
+    const originalApply = await applyWhen.inputValue();
+    const originalValidation = await validation.inputValue();
+    try {
+      const validationLine = originalValidation.trim()
+        ? originalValidation
+        : `${fieldName} <> ""`;
+      await validation.fill(validationLine);
+      await applyWhen.click();
+      await applyWhen.fill(`${fieldName} <> "${applyMarker}"`);
+      await expect(applyWhen).toHaveValue(new RegExp(applyMarker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+      await expect(saveBtn).toBeEnabled();
+
+      const putRespPromise = page.waitForResponse(
+        (res) =>
+          res.request().method() === "PUT" && /\/ruleExpressions(?:\?|$)/.test(res.url()),
+        { timeout: 20_000 },
+      );
+      await saveBtn.click();
+      const putRes = await putRespPromise;
+      let putPayload = "";
+      try {
+        putPayload = JSON.stringify(await putRes.json());
+      } catch {
+        putPayload = await putRes.text();
+      }
+      await expect(notice.or(saveError).or(frError).first()).toBeVisible({ timeout: 20_000 });
+      if (await saveError.isVisible()) {
+        throw new Error(
+          `Save failed: ${(await saveError.innerText()).trim()} PUT ${putRes.status()}`,
+        );
+      }
+      if (await frError.isVisible()) {
+        throw new Error(`Apply-when save failed: ${(await frError.innerText()).trim()}`);
+      }
+      expect(putRes.status(), `PUT ruleExpressions HTTP ${putRes.status()}`).toBe(200);
+      await expect(notice).toContainText(/saved/i);
+      await expect(status).toHaveText(/Locked by you/i);
+
+      const after = await getRuleExpressions(page, typeName, fieldName);
+      expect(
+        putPayload.includes(applyMarker) || JSON.stringify(after).includes(applyMarker),
+        `PUT/GET should mention marker; PUT=${putPayload} GET=${JSON.stringify(after)}`,
+      ).toBe(true);
+      const applyRaw = after.applyWhen ?? after.ApplyWhen;
+      const applyRules = Array.isArray(applyRaw)
+        ? applyRaw
+        : applyRaw && applyRaw.ContentTypeFieldRule
+          ? [].concat(applyRaw.ContentTypeFieldRule)
+          : applyRaw
+            ? [applyRaw]
+            : [];
+      const applyValues = [];
+      for (const rule of applyRules) {
+        const conds = Array.isArray(rule.conditionals)
+          ? rule.conditionals
+          : rule.conditionals
+            ? [rule.conditionals]
+            : [];
+        for (const c of conds) {
+          if (c && c.value != null) {
+            applyValues.push(String(c.value));
+          }
+        }
+      }
+      if (after.applyWhenExpression) {
+        applyValues.push(String(after.applyWhenExpression));
+      }
+      expect(
+        applyValues.some((v) => v.includes(applyMarker)),
+        `GET applyWhen should include marker ${applyMarker}; got ${JSON.stringify(after.applyWhen)}`,
+      ).toBe(true);
+
+      await applyWhen.fill("");
+      await expect(saveBtn).toBeEnabled();
+      await saveBtn.click();
+      await expect(notice.or(saveError).or(frError).first()).toBeVisible({ timeout: 20_000 });
+      if (await saveError.isVisible()) {
+        throw new Error(`Clear apply-when save failed: ${(await saveError.innerText()).trim()}`);
+      }
+      if (await frError.isVisible()) {
+        throw new Error(`Clear apply-when field-rule failed: ${(await frError.innerText()).trim()}`);
+      }
+      await expect(notice).toContainText(/saved/i);
+
+      const cleared = await getRuleExpressions(page, typeName, fieldName);
+      const clearedRules = Array.isArray(cleared.applyWhen)
+        ? cleared.applyWhen
+        : cleared.applyWhen
+          ? [cleared.applyWhen]
+          : [];
+      expect(clearedRules.length, "GET applyWhen after clear must be empty").toBe(0);
+
+      await validation.fill(originalValidation);
+      await applyWhen.fill(originalApply);
+      if (originalValidation !== validationLine || originalApply) {
+        await expect(saveBtn).toBeEnabled();
+        await saveBtn.click();
+        await expect(notice.or(saveError).or(frError).first()).toBeVisible({ timeout: 20_000 });
+      }
+
+      await unlockBtn.click();
+      await expect(status).toHaveText(/Not locked/i, { timeout: 20_000 });
+      await expect(applyWhen).toBeDisabled();
     } finally {
       await releaseDesignLock(page);
     }

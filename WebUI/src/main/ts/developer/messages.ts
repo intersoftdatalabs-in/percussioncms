@@ -371,6 +371,10 @@ export const DEV_MSG_KEYS = {
   CT_FR_FIELD: "perc.ui.developer@Field",
   CT_FR_VALIDATION: "perc.ui.developer@Validation",
   CT_FR_VISIBILITY: "perc.ui.developer@Visibility",
+  CT_FR_APPLY_WHEN: "perc.ui.developer@Apply when (field validation)",
+  CT_FR_APPLY_WHEN_HINT:
+    "perc.ui.developer@When field validation runs. Same conditional lines as visibility (no ref:). Empty clears. Save round-trips GET applyWhen.",
+  CT_FR_APPLY_WHEN_IF_EMPTY: "perc.ui.developer@Also apply when the field is empty",
   CT_FR_INPUT: "perc.ui.developer@Input translation",
   CT_FR_OUTPUT: "perc.ui.developer@Output translation",
   CT_FR_VALIDATION_HINT:

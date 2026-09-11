@@ -40,7 +40,10 @@ public class ContentTypeFieldRuleExpressionsJsonReaderTest {
           + "[{\"variable\":\"sys_title\",\"operator\":\"<>\",\"value\":\"#3896\"}]}],"
           + "\"visibility\":[],"
           + "\"inputTranslation\":[],"
-          + "\"outputTranslation\":[]"
+          + "\"outputTranslation\":[],"
+          + "\"applyWhen\":[{\"type\":\"conditional\",\"conditionals\":"
+          + "[{\"variable\":\"sys_workflowid\",\"operator\":\"=\",\"value\":\"5\"}]}],"
+          + "\"applyWhenIfFieldEmpty\":true"
           + "}";
 
   private final ContentTypeFieldRuleExpressionsJsonReader reader =
@@ -60,6 +63,10 @@ public class ContentTypeFieldRuleExpressionsJsonReaderTest {
     assertTrue(out.getVisibility().isEmpty());
     assertNotNull(out.getInputTranslation());
     assertNotNull(out.getOutputTranslation());
+    assertNotNull(out.getApplyWhen());
+    assertEquals(1, out.getApplyWhen().size());
+    assertEquals("sys_workflowid", out.getApplyWhen().get(0).getConditionals().get(0).getVariable());
+    assertEquals(Boolean.TRUE, out.getApplyWhenIfFieldEmpty());
   }
 
   @Test

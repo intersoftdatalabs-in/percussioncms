@@ -2000,10 +2000,10 @@ public class ContentTypesResource {
   @Operation(
       summary = "Get field rule expressions",
       description =
-          "CD-05–07 GET: field-level validation, visibility, and input/output translation"
-              + " expressions for one field. No design lock is required. Empty lists mean none."
-              + " Summary strings match ContentTypeDetail field rows. Jackson root wrap is"
-              + " ContentTypeFieldRuleExpressions.",
+          "CD-05–07 GET: field-level validation, visibility, input/output translation"
+              + " expressions, and field-validation apply-when for one field. No design lock is"
+              + " required. Empty lists mean none. Summary strings match ContentTypeDetail field"
+              + " rows. Jackson root wrap is ContentTypeFieldRuleExpressions.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -2037,10 +2037,11 @@ public class ContentTypesResource {
       summary = "Replace field rule expressions",
       description =
           "CD-05–07 PUT: full replace of field validation, visibility, and input/output"
-              + " translation expressions via IPSContentDesignWs.saveContentTypes. Requires a held"
-              + " design-session lock (POST .../lock). Does not acquire or release the lock. Empty"
-              + " lists clear. Unknown field names are rejected. Conditional variable/value are"
-              + " stored as text literals. Apply-when on field validation is not written. Jackson"
+              + " translation expressions via IPSContentDesignWs.saveContentTypes. Optional"
+              + " applyWhen writes field-validation apply-when (empty list clears; omit preserves)."
+              + " Requires a held design-session lock (POST .../lock). Does not acquire or release"
+              + " the lock. Empty lists clear. Unknown type or field is 404. Conditional"
+              + " variable/value are stored as text literals. Invalid operators are 400. Jackson"
               + " root wrap is ContentTypeFieldRuleExpressions.",
       responses = {
         @ApiResponse(
@@ -2050,9 +2051,9 @@ public class ContentTypesResource {
                 @Content(schema = @Schema(implementation = ContentTypeFieldRuleExpressions.class))),
         @ApiResponse(
             responseCode = "400",
-            description = "Missing required lists, invalid rule, or unknown field name"),
+            description = "Missing required lists, invalid rule, or invalid apply-when operator"),
         @ApiResponse(responseCode = "403", description = "Admin role required"),
-        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(responseCode = "404", description = "Content type or field not found"),
         @ApiResponse(
             responseCode = "409",
             description = "Design lock not held by the current user"),

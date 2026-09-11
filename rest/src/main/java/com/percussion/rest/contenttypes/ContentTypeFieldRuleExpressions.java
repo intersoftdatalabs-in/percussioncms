@@ -31,7 +31,8 @@ import java.util.List;
  * <p>Jackson root wrap is {@code ContentTypeFieldRuleExpressions}. GET always returns the four
  * lists (may be empty) plus summary strings when rules exist. PUT is a full replace of {@code
  * validation}, {@code visibility}, {@code inputTranslation}, and {@code outputTranslation} (empty
- * list clears). Requires a held design-session lock.
+ * list clears). {@code applyWhen} (field-validation apply-when rules) is optional on PUT: empty
+ * list clears; omit preserves the current apply-when. Requires a held design-session lock.
  *
  * <p>Jackson 3.2 still ships {@link JsonRootName} under {@code com.fasterxml.jackson.annotation}
  * (there is no {@code tools.jackson.annotation} package). {@link
@@ -83,6 +84,22 @@ public class ContentTypeFieldRuleExpressions {
 
   @Schema(description = "Validation error message text. PUT: omit leaves unchanged; empty clears.")
   private String errorMessage;
+
+  @Schema(
+      description =
+          "Apply-when rules on field validation (CD-06). GET: always present (may be [])."
+              + " PUT: empty list clears; omit preserves the current apply-when. type=reference"
+              + " is not allowed. Invalid operators are 400.")
+  private List<ContentTypeFieldRule> applyWhen;
+
+  @Schema(
+      description =
+          "Workbench 'apply if field is empty'. GET: false when unset. PUT: omit keeps current"
+              + " (or false when creating apply-when).")
+  private Boolean applyWhenIfFieldEmpty;
+
+  @Schema(description = "GET convenience: summary of apply-when rules (ignored on PUT)")
+  private String applyWhenExpression;
 
   @Schema(description = "GET convenience: summary of validation rules (same as detail field row)")
   private String validationExpression;
@@ -155,6 +172,30 @@ public class ContentTypeFieldRuleExpressions {
 
   public void setErrorMessage(String errorMessage) {
     this.errorMessage = errorMessage;
+  }
+
+  public List<ContentTypeFieldRule> getApplyWhen() {
+    return applyWhen;
+  }
+
+  public void setApplyWhen(List<ContentTypeFieldRule> applyWhen) {
+    this.applyWhen = applyWhen;
+  }
+
+  public Boolean getApplyWhenIfFieldEmpty() {
+    return applyWhenIfFieldEmpty;
+  }
+
+  public void setApplyWhenIfFieldEmpty(Boolean applyWhenIfFieldEmpty) {
+    this.applyWhenIfFieldEmpty = applyWhenIfFieldEmpty;
+  }
+
+  public String getApplyWhenExpression() {
+    return applyWhenExpression;
+  }
+
+  public void setApplyWhenExpression(String applyWhenExpression) {
+    this.applyWhenExpression = applyWhenExpression;
   }
 
   public String getValidationExpression() {

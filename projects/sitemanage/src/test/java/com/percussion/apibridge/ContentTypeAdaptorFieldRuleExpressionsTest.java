@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
+import com.percussion.design.objectstore.PSApplyWhen;
 import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
@@ -177,7 +178,8 @@ class ContentTypeAdaptorFieldRuleExpressionsTest {
     assertTrue(out.getValidationExpression().contains("sys_title"), out.getValidationExpression());
     assertTrue(out.getVisibility().isEmpty());
     assertTrue(out.getInputTranslation().isEmpty());
-    assertEquals("CT_FIELD_RULE_APPLY_WHEN", out.getDesignGaps().get(0).getCode());
+    assertTrue(out.getApplyWhen().isEmpty());
+    assertTrue(out.getDesignGaps() == null || out.getDesignGaps().isEmpty());
   }
 
   @Test
@@ -289,15 +291,99 @@ class ContentTypeAdaptorFieldRuleExpressionsTest {
   }
 
   @Test
-  void put_unknownField_isBadRequest() throws Exception {
+  void put_unknownField_is404() throws Exception {
     stubHeldLock();
     stubDefinition();
-    IllegalArgumentException ex =
+    WebApplicationException ex =
         assertThrows(
-            IllegalArgumentException.class,
+            WebApplicationException.class,
             () -> adaptor.replaceFieldRuleExpressions(null, "311", "nope", emptyBody()));
+    assertEquals(404, ex.getResponse().getStatus());
     assertTrue(ex.getMessage().contains("Unknown field"), ex.getMessage());
     verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void put_writesApplyWhenAndClears() throws Exception {
+    stubHeldLock();
+    stubDefinition();
+    ContentTypeFieldRuleExpressions body = emptyBody();
+    ContentTypeFieldRule rule = new ContentTypeFieldRule();
+    rule.setType(ContentTypeFieldRule.TYPE_CONDITIONAL);
+    rule.setConditionals(List.of(new ContentTypeFieldConditional("sys_title", "<>", "")));
+    body.setValidation(List.of(rule));
+    ContentTypeFieldRule when = new ContentTypeFieldRule();
+    when.setType(ContentTypeFieldRule.TYPE_CONDITIONAL);
+    when.setConditionals(List.of(new ContentTypeFieldConditional("sys_workflowid", "=", "5")));
+    body.setApplyWhen(List.of(when));
+    body.setApplyWhenIfFieldEmpty(true);
+
+    ContentTypeFieldRuleExpressions out =
+        adaptor.replaceFieldRuleExpressions(null, "311", "sys_title", body);
+    assertEquals(1, out.getApplyWhen().size());
+    assertEquals("sys_workflowid", out.getApplyWhen().get(0).getConditionals().get(0).getVariable());
+    assertEquals("=", out.getApplyWhen().get(0).getConditionals().get(0).getOperator());
+    assertEquals(Boolean.TRUE, out.getApplyWhenIfFieldEmpty());
+    assertTrue(out.getApplyWhenExpression().contains("sys_workflowid"), out.getApplyWhenExpression());
+
+    ContentTypeFieldRuleExpressions clear = emptyBody();
+    clear.setValidation(List.of(rule));
+    clear.setApplyWhen(List.of());
+    clear.setApplyWhenIfFieldEmpty(false);
+    ContentTypeFieldRuleExpressions cleared =
+        adaptor.replaceFieldRuleExpressions(null, "311", "sys_title", clear);
+    assertTrue(cleared.getApplyWhen().isEmpty());
+    assertEquals(Boolean.FALSE, cleared.getApplyWhenIfFieldEmpty());
+  }
+
+  @Test
+  void put_omittedApplyWhenPreservesExisting() throws Exception {
+    stubHeldLock();
+    stubDefinition();
+    PSApplyWhen existing = new PSApplyWhen();
+    PSCollection conds = new PSCollection(PSConditional.class);
+    conds.add(
+        new PSConditional(
+            new PSTextLiteral("sys_communityid"),
+            PSConditional.OPTYPE_EQUALS,
+            new PSTextLiteral("10")));
+    existing.add(new PSRule(conds));
+    existing.setIfFieldEmpty(true);
+    PSFieldValidationRules current = new PSFieldValidationRules();
+    current.setApplyWhen(existing);
+    field.setValidationRules(current);
+
+    ContentTypeFieldRuleExpressions body = emptyBody();
+    ContentTypeFieldRule rule = new ContentTypeFieldRule();
+    rule.setType(ContentTypeFieldRule.TYPE_CONDITIONAL);
+    rule.setConditionals(List.of(new ContentTypeFieldConditional("sys_title", "<>", "")));
+    body.setValidation(List.of(rule));
+
+    ContentTypeFieldRuleExpressions out =
+        adaptor.replaceFieldRuleExpressions(null, "311", "sys_title", body);
+    assertEquals(1, out.getApplyWhen().size());
+    assertEquals("sys_communityid", out.getApplyWhen().get(0).getConditionals().get(0).getVariable());
+    assertEquals(Boolean.TRUE, out.getApplyWhenIfFieldEmpty());
+  }
+
+  @Test
+  void toApplyWhen_rejectsReferenceAndInvalidOperator() {
+    ContentTypeFieldRuleExpressions body = emptyBody();
+    ContentTypeFieldRule ref = new ContentTypeFieldRule();
+    ref.setType(ContentTypeFieldRule.TYPE_REFERENCE);
+    ref.setReference("sharedRequired");
+    body.setApplyWhen(List.of(ref));
+    IllegalArgumentException refEx =
+        assertThrows(IllegalArgumentException.class, () -> ContentTypeAdaptor.toApplyWhen(body, null));
+    assertTrue(refEx.getMessage().contains("reference"), refEx.getMessage());
+
+    ContentTypeFieldRule badOp = new ContentTypeFieldRule();
+    badOp.setType(ContentTypeFieldRule.TYPE_CONDITIONAL);
+    badOp.setConditionals(List.of(new ContentTypeFieldConditional("sys_title", "~~", "x")));
+    body.setApplyWhen(List.of(badOp));
+    IllegalArgumentException opEx =
+        assertThrows(IllegalArgumentException.class, () -> ContentTypeAdaptor.toApplyWhen(body, null));
+    assertTrue(opEx.getMessage().toLowerCase().contains("invalid"), opEx.getMessage());
   }
 
   @Test
@@ -332,9 +418,8 @@ class ContentTypeAdaptorFieldRuleExpressionsTest {
   }
 
   @Test
-  void fieldRuleDesignGaps_areStructured() {
-    assertEquals(
-        "CT_FIELD_RULE_APPLY_WHEN", ContentTypeAdaptor.fieldRuleDesignGaps().get(0).getCode());
+  void fieldRuleDesignGaps_applyWhenWriteShipped() {
+    assertTrue(ContentTypeAdaptor.fieldRuleDesignGaps().isEmpty());
   }
 
   private void stubHeldLock() throws Exception {

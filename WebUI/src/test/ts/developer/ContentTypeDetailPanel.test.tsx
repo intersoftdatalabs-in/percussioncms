@@ -241,6 +241,8 @@ describe("ContentTypeDetailPanel", () => {
       visibility: body.visibility ?? [],
       inputTranslation: body.inputTranslation ?? [],
       outputTranslation: body.outputTranslation ?? [],
+      applyWhen: body.applyWhen ?? [],
+      applyWhenIfFieldEmpty: Boolean(body.applyWhenIfFieldEmpty),
     }));
   });
 
@@ -1936,6 +1938,12 @@ describe("ContentTypeDetailPanel", () => {
     expect(validation.value).toBe("");
     expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
     expect(replaceContentTypeFieldRuleExpressions).not.toHaveBeenCalled();
+    expect((screen.getByTestId("developer-ct-fr-apply-when") as HTMLTextAreaElement).disabled).toBe(
+      true,
+    );
+    expect(
+      (screen.getByTestId("developer-ct-fr-apply-when-if-empty") as HTMLInputElement).disabled,
+    ).toBe(true);
   });
 
   it("saves field-rule expressions via dedicated PUT after lock (#3896)", async () => {
@@ -1965,12 +1973,44 @@ describe("ContentTypeDetailPanel", () => {
     expect(call?.[0]).toBe("percPage");
     expect(call?.[1]).toBe("sys_title");
     expect(call?.[2].validation?.[0].conditionals?.[0].value).toBe("#3896-field-rule");
+    expect(call?.[2].applyWhen).toEqual([]);
+    expect(call?.[2].applyWhenIfFieldEmpty).toBe(false);
     expect(updateContentTypeDetail).not.toHaveBeenCalled();
     expect(unlockContentType).not.toHaveBeenCalled();
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
     });
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+  });
+
+  it("saves field-rule apply-when after lock (#4446)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleWithField);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-fr-apply-when") as HTMLTextAreaElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-fr-apply-when"), {
+      target: { value: "sys_workflowid = 5" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-fr-apply-when-if-empty"));
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(replaceContentTypeFieldRuleExpressions).toHaveBeenCalled();
+    });
+    const call = replaceContentTypeFieldRuleExpressions.mock.calls.at(-1);
+    expect(call?.[2].applyWhen?.[0].conditionals?.[0]).toEqual({
+      variable: "sys_workflowid",
+      operator: "=",
+      value: "5",
+    });
+    expect(call?.[2].applyWhenIfFieldEmpty).toBe(true);
+    expect(unlockContentType).not.toHaveBeenCalled();
   });
 
   it("clears the held lock when field-rule PUT returns 409 (#3896)", async () => {

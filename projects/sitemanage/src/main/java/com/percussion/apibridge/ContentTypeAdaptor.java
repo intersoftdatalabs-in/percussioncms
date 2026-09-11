@@ -1626,7 +1626,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         return null;
       }
       PSItemDefinition def = locked.get(0);
-      PSField target = requireField(def, field, true);
+      PSField target = requireField(def, field, false);
       applyFieldRuleExpressions(target, body);
       try {
         designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
@@ -3225,8 +3225,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   /**
    * Locate a field by submit name on the parent field set and complex children.
    *
-   * @param notFoundIsBadRequest {@code true} throws {@link IllegalArgumentException} (PUT);
-   *     {@code false} throws HTTP 404 (GET)
+   * @param notFoundIsBadRequest {@code true} throws {@link IllegalArgumentException};
+   *     {@code false} throws HTTP 404 (GET and field-rule PUT)
    */
   private PSField requireField(
       PSItemDefinition def, String fieldName, boolean notFoundIsBadRequest) {
@@ -3998,6 +3998,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       out.setVisibility(List.of());
       out.setInputTranslation(List.of());
       out.setOutputTranslation(List.of());
+      out.setApplyWhen(List.of());
+      out.setApplyWhenIfFieldEmpty(false);
       return out;
     }
     PSFieldValidationRules validation = field.getValidationRules();
@@ -4005,6 +4007,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     out.setVisibility(toVisibilityFieldRules(field.getVisibilityRules()));
     out.setInputTranslation(mapExtensionCalls(translationCalls(field.getInputTranslation())));
     out.setOutputTranslation(mapExtensionCalls(translationCalls(field.getOutputTranslation())));
+    PSApplyWhen applyWhen = validation != null ? validation.getApplyWhen() : null;
+    out.setApplyWhen(toApplyWhenFieldRules(applyWhen));
+    out.setApplyWhenIfFieldEmpty(applyWhen != null && applyWhen.ifFieldEmpty());
+    out.setApplyWhenExpression(summarizeApplyWhen(applyWhen));
     out.setValidationExpression(summarizeValidationRules(validation));
     out.setVisibilityExpression(summarizeVisibilityRules(field.getVisibilityRules()));
     out.setInputTranslationExpression(summarizeTranslation(field.getInputTranslation()));
@@ -4020,11 +4026,20 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   static List<DesignGap> fieldRuleDesignGaps() {
-    return List.of(
-        DesignGap.of(
-            "CT_FIELD_RULE_APPLY_WHEN",
-            "Apply-when on field validation is not written; conditional variable/value are"
-                + " stored as text literals"));
+    return List.of();
+  }
+
+  static List<ContentTypeFieldRule> toApplyWhenFieldRules(PSApplyWhen when) {
+    List<ContentTypeFieldRule> out = new ArrayList<>();
+    if (when == null || when.isEmpty()) {
+      return out;
+    }
+    for (Object o : when) {
+      if (o instanceof PSRule rule) {
+        out.addAll(toFieldRules(rule));
+      }
+    }
+    return out;
   }
 
   static List<ContentTypeFieldRule> toValidationFieldRules(PSFieldValidationRules rules) {
@@ -4124,7 +4139,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   static void applyFieldRuleExpressions(PSField field, ContentTypeFieldRuleExpressions body) {
-    field.setValidationRules(toFieldValidationRules(body));
+    PSApplyWhen previous =
+        field.getValidationRules() != null ? field.getValidationRules().getApplyWhen() : null;
+    field.setValidationRules(toFieldValidationRules(body, previous));
     field.setVisibilityRules(toVisibilityRules(body.getVisibility(), "visibility"));
     field.setInputTranslation(
         toFieldTranslation(body.getInputTranslation(), "inputTranslation"));
@@ -4132,12 +4149,19 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         toFieldTranslation(body.getOutputTranslation(), "outputTranslation"));
   }
 
-  @SuppressWarnings("unchecked")
   static PSFieldValidationRules toFieldValidationRules(ContentTypeFieldRuleExpressions body) {
+    return toFieldValidationRules(body, null);
+  }
+
+  @SuppressWarnings("unchecked")
+  static PSFieldValidationRules toFieldValidationRules(
+      ContentTypeFieldRuleExpressions body, PSApplyWhen previousApplyWhen) {
     List<ContentTypeFieldRule> items = body.getValidation();
+    PSApplyWhen applyWhen = toApplyWhen(body, previousApplyWhen);
     if (items.isEmpty()
         && body.getMaxErrorsToStop() == null
-        && body.getErrorMessage() == null) {
+        && body.getErrorMessage() == null
+        && applyWhen == null) {
       return null;
     }
     PSCollection<PSRule> rules = new PSCollection<>(PSRule.class);
@@ -4156,12 +4180,13 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       }
       i++;
     }
-    if (rules.isEmpty() && refs.isEmpty()) {
+    if (rules.isEmpty() && refs.isEmpty() && applyWhen == null) {
       return null;
     }
     PSFieldValidationRules out = new PSFieldValidationRules();
     out.setRules(rules);
     out.setRuleReferences(refs);
+    out.setApplyWhen(applyWhen);
     if (body.getMaxErrorsToStop() != null) {
       int max = body.getMaxErrorsToStop();
       if (max <= 0) {
@@ -4176,6 +4201,39 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         out.setErrorMessage(new PSDisplayText(body.getErrorMessage().trim()));
       }
     }
+    return out;
+  }
+
+  @SuppressWarnings("unchecked")
+  static PSApplyWhen toApplyWhen(ContentTypeFieldRuleExpressions body, PSApplyWhen previous) {
+    boolean rulesSpecified = body.getApplyWhen() != null;
+    boolean flagSpecified = body.getApplyWhenIfFieldEmpty() != null;
+    if (!rulesSpecified && !flagSpecified) {
+      return previous;
+    }
+    List<ContentTypeFieldRule> items =
+        rulesSpecified ? body.getApplyWhen() : toApplyWhenFieldRules(previous);
+    boolean ifFieldEmpty =
+        flagSpecified
+            ? Boolean.TRUE.equals(body.getApplyWhenIfFieldEmpty())
+            : previous != null && previous.ifFieldEmpty();
+    if ((items == null || items.isEmpty()) && !ifFieldEmpty) {
+      return null;
+    }
+    PSApplyWhen out = new PSApplyWhen();
+    if (items != null) {
+      int i = 0;
+      for (ContentTypeFieldRule item : items) {
+        String path = "applyWhen[" + i + "]";
+        String type = ruleType(item, path);
+        if (ContentTypeFieldRule.TYPE_REFERENCE.equals(type)) {
+          throw new IllegalArgumentException(path + " type=reference is not allowed on applyWhen");
+        }
+        out.add(toPsRule(item, path));
+        i++;
+      }
+    }
+    out.setIfFieldEmpty(ifFieldEmpty);
     return out;
   }
 
