@@ -19,6 +19,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   deleteTemplate,
   getTemplateDetail,
+  lockTemplate,
+  unlockTemplate,
   updateSlotDetail,
   updateTemplateDetail,
 } from "../api/developer/assemblyApi";
@@ -210,7 +212,10 @@ export function TemplateSourceEditor({
     setError(null);
     setValidationError(null);
     setNotice(null);
+    let acquiredLock = false;
     try {
+      await lockTemplate(idOrName);
+      acquiredLock = true;
       const saved = await updateTemplateDetail(idOrName, {
         templateSource: source,
         assembler: assembler.trim(),
@@ -256,6 +261,13 @@ export function TemplateSourceEditor({
     } catch (err: unknown) {
       setError(editorErrMsg(err, DESIGN_MSG.EDITOR_SAVE_ERROR));
     } finally {
+      if (acquiredLock) {
+        try {
+          await unlockTemplate(idOrName);
+        } catch {
+          // Best-effort; PUT already applied or failed independently of unlock.
+        }
+      }
       setBusy(false);
     }
   }

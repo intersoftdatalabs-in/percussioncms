@@ -21,6 +21,7 @@ package com.percussion.apibridge;
 
 import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 import com.percussion.rest.DesignGap;
+import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.templates.ITemplatesAdaptor;
 import com.percussion.rest.templates.TemplateBindingSummary;
 import com.percussion.rest.templates.TemplateDetail;
@@ -39,6 +40,9 @@ import com.percussion.services.catalog.IPSCatalogItem;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSCatalogException;
 import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.catalog.data.PSObjectSummary;
+import com.percussion.services.locking.data.PSObjectLock;
+import com.percussion.services.locking.data.PSObjectLockSummary;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.guidmgr.data.PSGuid;
@@ -58,11 +62,14 @@ import com.percussion.webservices.assembly.PSAssemblyWsLocator;
 import com.percussion.webservices.assembly.data.PSAssemblyTemplateWs;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
+import com.percussion.webservices.system.IPSSystemDesignWs;
+import com.percussion.webservices.system.PSSystemWsLocator;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -88,16 +95,19 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   /** API capability notes shared by every detail payload (not per-template data). */
   static final List<DesignGap> TEMPLATE_DESIGN_GAPS =
       List.of(
-          DesignGap.of("TPL_LOCK", "Lock not supported via this API"),
           DesignGap.of(
               "TPL_CONTENT_TYPE_ASSOC", "Content-type associations not listed on this payload"));
 
   static final String ADMIN_REQUIRED =
-      "Admin role required to export or import assembly templates";
+      "Admin role required to lock, save, export, or import assembly templates";
+
+  /** Typical design-session lock duration in minutes ({@link PSObjectLock#LOCK_INTERVAL}). */
+  static final long DESIGN_LOCK_MINUTES = PSObjectLock.LOCK_INTERVAL / 60_000L;
 
   private final IPSAssemblyService asmSvc;
   private final IPSContentWs contentwsService;
   private final IPSAssemblyDesignWs designWs;
+  private final IPSSystemDesignWs systemDesign;
   private final BooleanSupplier adminChecker;
 
   /**
@@ -112,12 +122,13 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
         PSAssemblyServiceLocator.getAssemblyService(),
         PSContentWsLocator.getContentWebservice(),
         PSAssemblyWsLocator.getAssemblyDesignWebservice(),
+        PSSystemWsLocator.getSystemDesignWebservice(),
         null);
   }
 
   /** Package-visible for unit tests that inject a fake assembly service. */
   TemplateAdaptor(IPSAssemblyService asmSvc, IPSContentWs contentwsService) {
-    this(asmSvc, contentwsService, null, () -> true);
+    this(asmSvc, contentwsService, null, null, () -> true);
   }
 
   /**
@@ -129,9 +140,22 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
       IPSContentWs contentwsService,
       IPSAssemblyDesignWs designWs,
       BooleanSupplier adminChecker) {
+    this(asmSvc, contentwsService, designWs, null, adminChecker);
+  }
+
+  /**
+   * Package-visible for lock / PUT tests that inject design WS, lock service, and an Admin gate.
+   */
+  TemplateAdaptor(
+      IPSAssemblyService asmSvc,
+      IPSContentWs contentwsService,
+      IPSAssemblyDesignWs designWs,
+      IPSSystemDesignWs systemDesign,
+      BooleanSupplier adminChecker) {
     this.asmSvc = asmSvc;
     this.contentwsService = contentwsService;
     this.designWs = designWs;
+    this.systemDesign = systemDesign;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
   }
 
@@ -178,46 +202,43 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
 
   @Override
   public TemplateDetail updateTemplate(URI baseUri, String idOrName, TemplateDetail body) {
+    requireAdmin();
     if (StringUtils.isBlank(idOrName)) {
       throw new IllegalArgumentException("idOrName is required");
     }
     if (body == null) {
       throw new IllegalArgumentException("body is required");
     }
+    requireSessionUserForDesignWrite();
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
     try {
-      IPSAssemblyTemplate t = resolveTemplate(idOrName.trim());
-      if (t == null) {
+      IPSAssemblyTemplate current = resolveTemplate(trimmed);
+      if (current == null || current.getGUID() == null) {
         return null;
       }
-      if (body.getLabel() != null) {
-        t.setLabel(body.getLabel());
-      }
-      if (body.getDescription() != null) {
-        t.setDescription(body.getDescription());
-      }
-      if (body.getTemplateSource() != null) {
-        t.setTemplate(body.getTemplateSource());
-      }
-      // null = leave unchanged; non-blank string sets assembler extension name
-      if (body.getAssembler() != null) {
-        String assembler = body.getAssembler().trim();
-        if (StringUtils.isBlank(assembler)) {
-          throw new IllegalArgumentException("assembler must not be blank when provided");
-        }
-        t.setAssembler(assembler);
-      }
-      // null = leave unchanged; non-null list (including empty) = full replace
-      if (body.getBindings() != null) {
-        t.setBindings(toBindings(body.getBindings()));
-      }
-      if (body.getSlots() != null) {
-        t.setSlots(toSlots(body.getSlots()));
-      }
-      asmSvc.saveTemplate(t);
-      IPSAssemblyTemplate reloaded = resolveTemplate(idOrName.trim());
-      return reloaded != null ? toDetail(reloaded) : toDetail(t);
-    } catch (IllegalArgumentException e) {
+      requireHeldLock(current.getGUID(), "Could not save template");
+      applyMutableTemplateUpdates(current, body);
+      // Persist through the assembly catalog (same path as pre-lock PUT). Design-WS
+      // save replaces Hibernate orphan collections. Lock is checked above and not
+      // released here — clients call POST .../unlock.
+      asmSvc.saveTemplate(current);
+      IPSAssemblyTemplate reloaded = resolveTemplate(trimmed);
+      return reloaded != null ? toDetail(reloaded) : toDetail(current);
+    } catch (IllegalArgumentException | IllegalStateException | WebApplicationException e) {
       throw e;
+    } catch (PSErrorResultsException e) {
+      throw new WebApplicationException(
+          "Could not save template; design lock required or held by another user", 409);
+    } catch (PSErrorsException e) {
+      if (isLockFailure(e)) {
+        throw new WebApplicationException(
+            "Could not save template; design lock required or held by another user", 409);
+      }
+      log.error("Failed to save template {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to save template", e);
     } catch (PSAssemblyException e) {
       log.error("Failed to save template {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to save template", e);
@@ -229,6 +250,88 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
           e.getMessage(),
           e);
       throw new IllegalStateException("Failed to update template", e);
+    }
+  }
+
+  @Override
+  public ObjectLockSummary lockTemplate(URI baseUri, String idOrName) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    requireSessionUserForDesignWrite();
+    if (designWs == null) {
+      throw new IllegalStateException("assembly design WS is not configured");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    try {
+      IPSAssemblyTemplate current = resolveTemplate(trimmed);
+      if (current == null || current.getGUID() == null) {
+        return null;
+      }
+      if (isLockedByOtherUser(current.getGUID())) {
+        throw new WebApplicationException(
+            "Could not acquire design lock for template; locked by another user", 409);
+      }
+      boolean overrideOwn = isHeldByCurrentUser(current.getGUID());
+      List<PSAssemblyTemplateWs> lockedList =
+          designWs.loadAssemblyTemplates(
+              List.of(current.getGUID()),
+              true,
+              overrideOwn,
+              currentSession(),
+              currentUser());
+      PSAssemblyTemplateWs locked =
+          lockedList == null || lockedList.isEmpty() ? null : lockedList.get(0);
+      if (locked == null || locked.getTemplate() == null || locked.getGUID() == null) {
+        throw new WebApplicationException(
+            "Could not acquire design lock for template; locked by another user", 409);
+      }
+      return toLockSummary(
+          currentSession(), currentUser(), remainingLockMinutes(locked.getGUID()));
+    } catch (IllegalArgumentException | IllegalStateException | WebApplicationException e) {
+      throw e;
+    } catch (PSErrorResultsException e) {
+      throw new WebApplicationException(
+          "Could not acquire design lock for template; locked by another user", 409);
+    } catch (Exception e) {
+      log.error("Failed to lock template {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to lock template", e);
+    }
+  }
+
+  @Override
+  public Boolean unlockTemplate(URI baseUri, String idOrName) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    requireSessionUserForDesignWrite();
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    if (systemDesign == null) {
+      throw new IllegalStateException(
+          "Could not release template design session; design service unavailable");
+    }
+    try {
+      IPSAssemblyTemplate current = resolveTemplate(trimmed);
+      if (current == null || current.getGUID() == null) {
+        return null;
+      }
+      requireNotLockedByOther(current.getGUID(), "Could not release design lock for template");
+      systemDesign.releaseLocks(
+          Collections.singletonList(current.getGUID()), currentSession(), currentUser());
+      return Boolean.TRUE;
+    } catch (IllegalArgumentException | IllegalStateException | WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Failed to unlock template {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to unlock template", e);
     }
   }
 
@@ -426,17 +529,22 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   }
 
   /**
-   * Load one template through {@link IPSAssemblyDesignWs} without locking ({@code lock=false},
-   * {@code overrideLock=false}) so export never steals a Workbench lock.
+   * Load one template through {@link IPSAssemblyDesignWs}. Export uses {@code lock=false} so it
+   * never steals a Workbench lock. Lock/save uses {@code lock=true}, {@code overrideLock=false}.
    */
   private PSAssemblyTemplateWs loadTemplateWsReadOnly(String idOrName)
+      throws PSErrorResultsException {
+    return loadTemplateWs(idOrName, false);
+  }
+
+  private PSAssemblyTemplateWs loadTemplateWs(String idOrName, boolean lock)
       throws PSErrorResultsException {
     String session = currentSession();
     String user = currentUser();
     IPSGuid guid = parseTemplateGuid(idOrName);
     if (guid != null) {
       List<PSAssemblyTemplateWs> loaded =
-          designWs.loadAssemblyTemplates(List.of(guid), false, false, session, user);
+          designWs.loadAssemblyTemplates(List.of(guid), lock, false, session, user);
       if (loaded == null || loaded.isEmpty()) {
         return null;
       }
@@ -453,7 +561,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
       }
       if (idOrName.equalsIgnoreCase(sum.getName()) || idOrName.equalsIgnoreCase(sum.getLabel())) {
         List<PSAssemblyTemplateWs> loaded =
-            designWs.loadAssemblyTemplates(List.of(sum.getGUID()), false, false, session, user);
+            designWs.loadAssemblyTemplates(List.of(sum.getGUID()), lock, false, session, user);
         if (loaded != null && !loaded.isEmpty()) {
           return loaded.get(0);
         }
@@ -462,12 +570,128 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
     if (found.size() == 1 && found.get(0) != null && found.get(0).getGUID() != null) {
       List<PSAssemblyTemplateWs> loaded =
           designWs.loadAssemblyTemplates(
-              List.of(found.get(0).getGUID()), false, false, session, user);
+              List.of(found.get(0).getGUID()), lock, false, session, user);
       if (loaded != null && !loaded.isEmpty()) {
         return loaded.get(0);
       }
     }
     return null;
+  }
+
+  private void applyMutableTemplateUpdates(IPSAssemblyTemplate t, TemplateDetail body)
+      throws PSAssemblyException {
+    if (body.getLabel() != null) {
+      t.setLabel(body.getLabel());
+    }
+    if (body.getDescription() != null) {
+      t.setDescription(body.getDescription());
+    }
+    if (body.getTemplateSource() != null) {
+      t.setTemplate(body.getTemplateSource());
+    }
+    if (body.getAssembler() != null) {
+      String assembler = body.getAssembler().trim();
+      if (StringUtils.isBlank(assembler)) {
+        throw new IllegalArgumentException("assembler must not be blank when provided");
+      }
+      t.setAssembler(assembler);
+    }
+    if (body.getBindings() != null) {
+      t.setBindings(toBindings(body.getBindings()));
+    }
+    if (body.getSlots() != null) {
+      t.setSlots(toSlots(body.getSlots()));
+    }
+  }
+
+  private void requireHeldLock(IPSGuid templateGuid, String prefix) {
+    if (systemDesign == null) {
+      throw new IllegalStateException(prefix + "; design service unavailable");
+    }
+    List<PSObjectSummary> locked;
+    try {
+      locked = systemDesign.isLocked(Collections.singletonList(templateGuid), currentUser());
+    } catch (PSErrorResultsException e) {
+      throw new WebApplicationException(prefix + "; design lock required", 409);
+    }
+    PSObjectSummary summary = locked == null || locked.isEmpty() ? null : locked.get(0);
+    if (summary == null || !summary.isLocked()) {
+      throw new WebApplicationException(prefix + "; design lock required", 409);
+    }
+    String user = currentUser();
+    if (!summary.isLockedBy(user)) {
+      PSObjectLockSummary info = summary.getLocked();
+      String locker = info != null ? info.getLocker() : null;
+      throw new WebApplicationException(
+          locker != null ? prefix + "; locked by " + locker : prefix + "; design lock required",
+          409);
+    }
+  }
+
+  private boolean isHeldByCurrentUser(IPSGuid templateGuid) {
+    PSObjectSummary summary = lockSummary(templateGuid);
+    return summary != null && summary.isLocked() && summary.isLockedBy(currentUser());
+  }
+
+  private boolean isLockedByOtherUser(IPSGuid templateGuid) {
+    PSObjectSummary summary = lockSummary(templateGuid);
+    return summary != null && summary.isLocked() && !summary.isLockedBy(currentUser());
+  }
+
+  private PSObjectSummary lockSummary(IPSGuid templateGuid) {
+    if (systemDesign == null || templateGuid == null) {
+      return null;
+    }
+    try {
+      List<PSObjectSummary> locked =
+          systemDesign.isLocked(Collections.singletonList(templateGuid), currentUser());
+      return locked == null || locked.isEmpty() ? null : locked.get(0);
+    } catch (PSErrorResultsException e) {
+      return null;
+    }
+  }
+
+  private void requireNotLockedByOther(IPSGuid templateGuid, String prefix) {
+    List<PSObjectSummary> locked;
+    try {
+      locked = systemDesign.isLocked(Collections.singletonList(templateGuid), currentUser());
+    } catch (PSErrorResultsException e) {
+      throw new WebApplicationException(prefix, 409);
+    }
+    PSObjectSummary summary = locked == null || locked.isEmpty() ? null : locked.get(0);
+    if (summary != null && summary.isLocked() && !summary.isLockedBy(currentUser())) {
+      PSObjectLockSummary info = summary.getLocked();
+      String locker = info != null ? info.getLocker() : null;
+      throw new WebApplicationException(
+          locker != null ? prefix + "; locked by " + locker : prefix, 409);
+    }
+  }
+
+  private long remainingLockMinutes(IPSGuid templateGuid) {
+    if (systemDesign == null || templateGuid == null) {
+      return DESIGN_LOCK_MINUTES;
+    }
+    try {
+      List<PSObjectSummary> locked =
+          systemDesign.isLocked(Collections.singletonList(templateGuid), currentUser());
+      if (locked != null && !locked.isEmpty() && locked.get(0) != null) {
+        PSObjectLockSummary info = locked.get(0).getLocked();
+        if (info != null && info.getRemainingTime() > 0) {
+          return info.getRemainingTime();
+        }
+      }
+    } catch (Exception e) {
+      log.debug("Could not read remaining lock time: {}", e.getMessage());
+    }
+    return DESIGN_LOCK_MINUTES;
+  }
+
+  static ObjectLockSummary toLockSummary(String session, String user, long remainingMinutes) {
+    ObjectLockSummary summary = new ObjectLockSummary();
+    summary.setSession(session);
+    summary.setLocker(user);
+    summary.setRemainingTime(remainingMinutes);
+    return summary;
   }
 
   static String toDesignXml(IPSAssemblyTemplate template) {
@@ -674,7 +898,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   private static void requireSessionUserForDesignWrite() {
     if (StringUtils.isBlank(currentSession()) || StringUtils.isBlank(currentUser())) {
       throw new WebApplicationException(
-          "Request session/user required for template design import", Response.Status.FORBIDDEN);
+          "Request session/user required for template design write", Response.Status.FORBIDDEN);
     }
   }
 

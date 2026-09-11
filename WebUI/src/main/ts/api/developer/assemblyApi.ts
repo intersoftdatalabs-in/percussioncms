@@ -275,9 +275,10 @@ export async function getTemplateDetail(
 
 /**
  * PUT /services/templates/{idOrName} — label, description, source, optional bindings/slots.
- * Omitted fields are left unchanged server-side; {@code bindings}/{@code slots} when present
- * fully replace the collection (including empty list). Request body is root-wrapped for
- * server UNWRAP_ROOT_VALUE; response is unwrapped the same way as GET.
+ * Admin. Requires a held design-session lock ({@link lockTemplate}); HTTP 409 when unlocked
+ * or stolen. Omitted fields are left unchanged server-side; {@code bindings}/{@code slots}
+ * when present fully replace the collection (including empty list). Request body is
+ * root-wrapped for server UNWRAP_ROOT_VALUE; response is unwrapped the same way as GET.
  */
 export async function updateTemplateDetail(
   idOrName: string,
@@ -294,6 +295,19 @@ export async function updateTemplateDetail(
     wrapTemplateDetailForWire(body),
   );
   return unwrapTemplateDetail(payload);
+}
+
+/** POST /services/templates/{idOrName}/lock — Admin self-only design-session lock. */
+export async function lockTemplate(idOrName: string): Promise<ContentTypeLockSummary> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await post<unknown>(`${PATHS.TEMPLATES}/${key}/lock`);
+  return unwrapObjectLockSummary(payload);
+}
+
+/** POST /services/templates/{idOrName}/unlock — release a lock owned by this session. */
+export async function unlockTemplate(idOrName: string): Promise<void> {
+  const key = encodeURIComponent(idOrName);
+  await post(`${PATHS.TEMPLATES}/${key}/unlock`);
 }
 
 /** Fields accepted on POST /services/templates (modern create — no Widget XML). */

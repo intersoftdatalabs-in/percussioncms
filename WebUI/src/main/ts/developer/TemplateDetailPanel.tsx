@@ -21,6 +21,8 @@ import { resolveTemplateObjectGuid } from "../api/displayFormatGuid";
 import {
   getTemplateDetail,
   listSlots,
+  lockTemplate,
+  unlockTemplate,
   updateTemplateDetail,
 } from "../api/developer/assemblyApi";
 import { downloadXmlFile, exportTemplate } from "../api/developer/templateImportExport";
@@ -260,6 +262,9 @@ export function TemplateDetailPanel({
   const [sourceEditing, setSourceEditing] = useState(true);
   const [copyFeedback, setCopyFeedback] = useState<"idle" | "ok" | "err">("idle");
   const [snippetOpen, setSnippetOpen] = useState(false);
+  const [heldLock, setHeldLock] = useState(false);
+  const heldLockRef = useRef(false);
+  const inflight = useRef(false);
   /** Pending caret after snippet insert (applied when textarea remounts/edits). */
   const pendingCaretRef = useRef<number | null>(null);
   /** Row indices with expanded long binding expressions (UI-SRC-02). */
@@ -399,7 +404,66 @@ export function TemplateDetailPanel({
     setNotice(null);
   }
 
+  async function handleLock() {
+    if (inflight.current) return;
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await lockTemplate(idOrName);
+      heldLockRef.current = true;
+      setHeldLock(true);
+      setNotice(DEV_MSG.TPL_LOCKED);
+    } catch (err: unknown) {
+      heldLockRef.current = false;
+      setHeldLock(false);
+      setError(panelErrMsg(err, DEV_MSG.TPL_LOCK_ERROR));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  async function handleUnlock() {
+    if (inflight.current) return;
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await unlockTemplate(idOrName);
+      heldLockRef.current = false;
+      setHeldLock(false);
+      setNotice(DEV_MSG.TPL_UNLOCKED_NOTICE);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, DEV_MSG.TPL_UNLOCK_ERROR));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  async function handleBack() {
+    if (heldLockRef.current) {
+      try {
+        await unlockTemplate(idOrName);
+      } catch {
+        // Best-effort release so Back cannot trap the operator on a stale lock.
+      }
+      heldLockRef.current = false;
+      setHeldLock(false);
+    }
+    onBack();
+  }
+
   async function handleSave() {
+    if (!heldLock) {
+      setError(DEV_MSG.TPL_LOCK_REQUIRED);
+      return;
+    }
+    if (inflight.current) return;
+    inflight.current = true;
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -430,12 +494,17 @@ export function TemplateDetailPanel({
         label,
         description,
         templateSource: source,
-        bindings: bindings.map((b, i) => ({
-          executionOrder: b.executionOrder != null && b.executionOrder > 0 ? b.executionOrder : i + 1,
-          variable: (b.variable || "").trim(),
-          expression: (b.expression || "").trim(),
-        })),
-        slots: slotPayload,
+        ...(bindingsEqual(bindings, initialBindings)
+          ? {}
+          : {
+              bindings: bindings.map((b, i) => ({
+                executionOrder:
+                  b.executionOrder != null && b.executionOrder > 0 ? b.executionOrder : i + 1,
+                variable: (b.variable || "").trim(),
+                expression: (b.expression || "").trim(),
+              })),
+            }),
+        ...(slotsEqual(slotKeys, initialSlotKeys) ? {} : { slots: slotPayload }),
       });
       setDetail(saved);
       setLabel(saved.label || "");
@@ -453,6 +522,7 @@ export function TemplateDetailPanel({
     } catch (err: unknown) {
       setError(panelErrMsg(err, DEV_MSG.TPL_SAVE_ERROR));
     } finally {
+      inflight.current = false;
       setBusy(false);
     }
   }
@@ -534,7 +604,7 @@ export function TemplateDetailPanel({
     <div data-testid="developer-tpl-detail">
       <button
         type="button"
-        onClick={onBack}
+        onClick={() => void handleBack()}
         data-testid="developer-tpl-back"
         aria-label="Back to templates list"
         style={{
@@ -564,6 +634,87 @@ export function TemplateDetailPanel({
         </div>
       ) : null}
 
+      <div
+        role="toolbar"
+        aria-label={DEV_MSG.TPL_LOCK_TOOLBAR}
+        data-testid="developer-tpl-lock-toolbar"
+        style={{
+          marginBottom: "16px",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "8px",
+          alignItems: "center",
+          position: "sticky",
+          top: 0,
+          zIndex: 2,
+          background: catalogColors.surface,
+          padding: "8px 0",
+        }}
+      >
+        <p style={{ margin: 0, width: "100%", color: catalogColors.muted, fontSize: "0.9rem" }}>
+          {DEV_MSG.TPL_LOCK_HINT}
+        </p>
+        <div
+          role="status"
+          aria-live="polite"
+          data-testid="developer-tpl-lock-status"
+          style={{ marginRight: "8px", fontSize: "0.9rem" }}
+        >
+          {heldLock ? DEV_MSG.TPL_LOCKED : DEV_MSG.TPL_UNLOCKED}
+        </div>
+        <button
+          type="button"
+          data-testid="developer-tpl-lock"
+          aria-label={DEV_MSG.TPL_LOCK}
+          disabled={busy || heldLock || detail == null}
+          onClick={() => void handleLock()}
+          style={{
+            padding: "8px 16px",
+            background: heldLock ? catalogColors.disabled : catalogColors.accent,
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: busy || heldLock || detail == null ? "not-allowed" : "pointer",
+          }}
+        >
+          {DEV_MSG.TPL_LOCK}
+        </button>
+        <button
+          type="button"
+          data-testid="developer-tpl-save"
+          aria-label={DEV_MSG.TPL_SAVE}
+          disabled={busy || !heldLock || !dirty}
+          onClick={() => void handleSave()}
+          style={{
+            padding: "8px 16px",
+            background: heldLock && dirty ? catalogColors.accent : catalogColors.disabled,
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: busy || !heldLock || !dirty ? "not-allowed" : "pointer",
+          }}
+        >
+          {DEV_MSG.TPL_SAVE}
+        </button>
+        <button
+          type="button"
+          data-testid="developer-tpl-unlock"
+          aria-label={DEV_MSG.TPL_UNLOCK}
+          disabled={busy || !heldLock}
+          onClick={() => void handleUnlock()}
+          style={{
+            padding: "8px 16px",
+            background: "transparent",
+            color: "inherit",
+            border: `1px solid ${catalogColors.softBorder}`,
+            borderRadius: "4px",
+            cursor: busy || !heldLock ? "not-allowed" : "pointer",
+          }}
+        >
+          {DEV_MSG.TPL_UNLOCK}
+        </button>
+      </div>
+
       {loading && detail == null ? (
         <div data-testid="developer-tpl-detail-loading">
           {DEV_MSG.TPL_DETAIL_LOADING}
@@ -578,7 +729,7 @@ export function TemplateDetailPanel({
             </h2>
             <div style={mutedCell}>
               <span style={monoCell}>
-                {detail.name}
+                <span data-testid="developer-tpl-detail-name">{detail.name}</span>
                 {detail.templateId != null ? ` · ${detail.templateId}` : ""}
                 {" · "}
                 <span data-testid="developer-tpl-detail-guid">{objectGuid || "—"}</span>
@@ -922,23 +1073,6 @@ export function TemplateDetailPanel({
           </section>
 
           <div style={{ marginBottom: "16px", display: "flex", flexWrap: "wrap", gap: "8px" }}>
-            <button
-              type="button"
-              data-testid="developer-tpl-save"
-              aria-label="Save template"
-              disabled={busy || !dirty}
-              onClick={() => void handleSave()}
-              style={{
-                padding: "8px 16px",
-                background: dirty ? catalogColors.accent : catalogColors.disabled,
-                color: "#fff",
-                border: "none",
-                borderRadius: "4px",
-                cursor: busy || !dirty ? "not-allowed" : "pointer",
-              }}
-            >
-              {DEV_MSG.TPL_SAVE}
-            </button>
             <button
               type="button"
               data-testid="developer-tpl-export"

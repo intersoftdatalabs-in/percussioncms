@@ -28,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.rest.DesignGap;
+import com.percussion.rest.ObjectLockSummary;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
@@ -152,6 +153,90 @@ public class TemplatesResourceDetailTest {
     updated.setBindings(java.util.List.of(b));
     when(adaptor.updateTemplate(any(), eq("perc.page"), any())).thenReturn(updated);
     assertEquals(1, resource.updateTemplate("perc.page", body).getBindings().size());
+  }
+
+  @Test
+  public void updateTemplateForbidden() {
+    when(adaptor.updateTemplate(any(), eq("perc.page"), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateTemplate("perc.page", new TemplateDetail()));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateTemplateConflictWhenUnlocked() {
+    when(adaptor.updateTemplate(any(), eq("perc.page"), any()))
+        .thenThrow(new WebApplicationException("design lock required", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateTemplate("perc.page", new TemplateDetail()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void lockTemplateSuccess() {
+    ObjectLockSummary summary = new ObjectLockSummary();
+    summary.setLocker("Admin");
+    summary.setRemainingTime(30L);
+    when(adaptor.lockTemplate(any(), eq("perc.page"))).thenReturn(summary);
+    ObjectLockSummary out = resource.lockTemplate("perc.page");
+    assertEquals("Admin", out.getLocker());
+    assertEquals(30L, out.getRemainingTime());
+  }
+
+  @Test
+  public void lockTemplateNotFound() {
+    when(adaptor.lockTemplate(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.lockTemplate("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void lockTemplateConflictWhenLockedByOtherUser() {
+    when(adaptor.lockTemplate(any(), eq("perc.page")))
+        .thenThrow(new WebApplicationException("locked by editor2", 409));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.lockTemplate("perc.page"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void lockTemplateForbidden() {
+    when(adaptor.lockTemplate(any(), eq("perc.page")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.lockTemplate("perc.page"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void unlockTemplateSuccess() {
+    when(adaptor.unlockTemplate(any(), eq("perc.page"))).thenReturn(Boolean.TRUE);
+    Response response = resource.unlockTemplate("perc.page");
+    assertEquals(204, response.getStatus());
+    verify(adaptor).unlockTemplate(any(), eq("perc.page"));
+  }
+
+  @Test
+  public void unlockTemplateNotFound() {
+    when(adaptor.unlockTemplate(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.unlockTemplate("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void unlockTemplateConflictWhenLockedByOtherUser() {
+    when(adaptor.unlockTemplate(any(), eq("perc.page")))
+        .thenThrow(new WebApplicationException("locked by editor2", 409));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.unlockTemplate("perc.page"));
+    assertEquals(409, ex.getResponse().getStatus());
   }
 
   @Test

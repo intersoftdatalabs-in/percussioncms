@@ -19,6 +19,7 @@
 
 package com.percussion.rest.templates;
 
+import com.percussion.rest.ObjectLockSummary;
 import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -238,7 +239,7 @@ public class TemplatesResource {
       description =
           "Template detail including bindings and slots. Source is included when present."
               + " Create is POST /templates. Delete is DELETE /templates/{idOrName}."
-              + " Lock remains unsupported (see designGaps).",
+              + " Design-session lock is POST .../lock and POST .../unlock.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -269,18 +270,24 @@ public class TemplatesResource {
   @Operation(
       summary = "Update template design fields",
       description =
-          "Updates mutable template fields: label, description, templateSource, and/or"
-              + " assembler. When assembler is present it must be non-blank. When bindings or"
-              + " slots is present (including empty), replaces that collection. Omit fields to"
-              + " leave unchanged. Name/id remain unsupported. Delete is DELETE"
-              + " /templates/{idOrName}. Lock remains unsupported (see designGaps).",
+          "Admin. Requires a design-session lock already held by the current user/session"
+              + " (POST .../lock). Updates mutable template fields: label, description,"
+              + " templateSource, and/or assembler. When assembler is present it must be"
+              + " non-blank. When bindings or slots is present (including empty), replaces that"
+              + " collection. Omit fields to leave unchanged. Name/id remain unsupported. Does"
+              + " not acquire or release the lock (POST .../unlock). Unlocked or stolen lock is"
+              + " 409. Non-Admin is 403.",
       responses = {
         @ApiResponse(
             responseCode = "200",
-            description = "Updated",
+            description = "Updated (lock is still held)",
             content = @Content(schema = @Schema(implementation = TemplateDetail.class))),
         @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(responseCode = "404", description = "Template not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock required, or locked by another user"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public TemplateDetail updateTemplate(
@@ -291,6 +298,85 @@ public class TemplatesResource {
         throw new WebApplicationException("Template not found: " + idOrName, 404);
       }
       return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Locks an assembly template for a design session.
+   *
+   * @param idOrName template uuid or unique name
+   * @return lock summary
+   */
+  @POST
+  @Path("/{idOrName}/lock")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Lock template design session",
+      description =
+          "Admin. Acquires a self-only design-session lock via IPSAssemblyDesignWs"
+              + ".loadAssemblyTemplates (lock=true, overrideLock=false). Does not save. Does not"
+              + " steal another user's lock. Re-lock by the same session user extends the lock.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Locked",
+            content = @Content(schema = @Schema(implementation = ObjectLockSummary.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid id/name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Template not found"),
+        @ApiResponse(responseCode = "409", description = "Locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ObjectLockSummary lockTemplate(@PathParam("idOrName") String idOrName) {
+    try {
+      ObjectLockSummary summary = adaptor.lockTemplate(uriInfo.getBaseUri(), idOrName);
+      if (summary == null) {
+        throw new WebApplicationException("Template not found: " + idOrName, 404);
+      }
+      return summary;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Unlocks an assembly template design session.
+   *
+   * @param idOrName template uuid or unique name
+   * @return 204 when released
+   */
+  @POST
+  @Path("/{idOrName}/unlock")
+  @Operation(
+      summary = "Unlock template design session",
+      description =
+          "Admin. Releases a design-session lock owned by the current user/session. Does not save."
+              + " Locks held by another user are not stolen (409).",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Unlocked"),
+        @ApiResponse(responseCode = "400", description = "Invalid id/name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Template not found"),
+        @ApiResponse(responseCode = "409", description = "Locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response unlockTemplate(@PathParam("idOrName") String idOrName) {
+    try {
+      Boolean released = adaptor.unlockTemplate(uriInfo.getBaseUri(), idOrName);
+      if (released == null) {
+        throw new WebApplicationException("Template not found: " + idOrName, 404);
+      }
+      return Response.noContent().build();
     } catch (WebApplicationException e) {
       throw e;
     } catch (IllegalArgumentException e) {

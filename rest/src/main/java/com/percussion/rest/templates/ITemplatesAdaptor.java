@@ -19,6 +19,7 @@
 
 package com.percussion.rest.templates;
 
+import com.percussion.rest.ObjectLockSummary;
 import java.net.URI;
 import java.util.List;
 
@@ -60,9 +61,35 @@ public interface ITemplatesAdaptor {
    * extension name (must be non-blank). When {@code body.bindings} or {@code body.slots} is
    * non-null, that collection is fully replaced (empty list clears). Name/id remain out of scope.
    *
+   * <p>Admin only. Requires a design-session lock already held by the current user ({@link
+   * #lockTemplate}). Does not acquire, steal, or release the lock.
+   *
    * @return updated detail, or {@code null} if not found
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin or the
+   *     request has no session/user; {@code 409} when unlocked or locked by another user
    */
   TemplateDetail updateTemplate(URI baseUri, String idOrName, TemplateDetail body);
+
+  /**
+   * Acquire a self-only design-session lock via {@code IPSAssemblyDesignWs.loadAssemblyTemplates}
+   * ({@code lock=true}, {@code overrideLock=false}). Admin only. Does not save and does not steal
+   * another user's lock. Re-lock by the same session user extends the lock.
+   *
+   * @return lock summary, or {@code null} if the template is not found
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin or the
+   *     request has no session/user; {@code 409} when locked by another user
+   */
+  ObjectLockSummary lockTemplate(URI baseUri, String idOrName);
+
+  /**
+   * Release a design-session lock owned by the current Admin user/session. Does not save and does
+   * not steal another user's lock.
+   *
+   * @return {@code Boolean.TRUE} when released; {@code null} when not found
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin; {@code
+   *     409} when locked by another user
+   */
+  Boolean unlockTemplate(URI baseUri, String idOrName);
 
   /**
    * Create a modern assembly template (package/manifest model — no Widget definition XML).
