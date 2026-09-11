@@ -1329,7 +1329,7 @@ service as Workbench (`IPSContentDesignWs.loadContentEditorSystemDef` /
 the request and **release** it on save (same request-lock pattern as shared-field
 PUT; unlike content-type PUT, which requires a previously held lock). The
 Developer SPA **System definition** chrome uses these calls for field save /
-add / delete and field **control properties** — see
+add / delete, field **control properties**, and **stylesheet** associations — see
 [Developer System Def](id:admin-developer-system-def).
 
 **Admin (Design) only.** There is no global JAX-RS Admin filter on this path — the
@@ -1343,8 +1343,9 @@ fail the request with **500** and do **not** save the catalog. A **PUT** with a
 null or empty `fields` array does not rewrite
 the system-definition file (the catalog is unchanged). Control property
 **values** and optional choice catalogs use `GET`/`PUT
-/services/systemdef/fields/{fieldName}/controlProperties`. Stylesheets and
-application flow remain unsupported.
+/services/systemdef/fields/{fieldName}/controlProperties`. Command-handler
+**stylesheet** associations use `GET`/`PUT /services/systemdef/stylesheets`.
+Application flow remains unsupported.
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -1354,6 +1355,8 @@ application flow remain unsupported.
 | `DELETE` | `/services/systemdef/fields/{fieldName}` | Remove a field and its display mapping (**204**). |
 | `GET` | `/services/systemdef/fields/{fieldName}/controlProperties` | Control parameter **name/value** pairs and the choice catalog for one system field (CD-16). No lock required. Empty `properties` means none. `choices` omitted when none. Path separators and `..` are **404**. |
 | `PUT` | `/services/systemdef/fields/{fieldName}/controlProperties` | **Admin** (CD-16). Acquires the system-definition lock for this request and **releases** it on save. Full replace of `properties` (empty clears). `choices` omitted leaves the catalog unchanged; `type: none` clears. Blank field path name is **400**. **409** if the system def is locked by another user. |
+| `GET` | `/services/systemdef/stylesheets` | Command-handler default stylesheet hrefs (CD-16). No lock required. Conditional hrefs are read-only. |
+| `PUT` | `/services/systemdef/stylesheets` | **Admin** (CD-16). Acquires the system-definition lock for this request and **releases** it on save. Full replace of `handlers`. Omitted handlers (or blank `href`) are removed. At least one remaining handler with a valid `file:../sys_resources/stylesheets/*.xsl` or `file:../rx_resources/stylesheets/*.xsl` href is required (**400**). Duplicate handler names and extra `..` / non-file schemes are **400**. **409** if the system def is locked by another user. |
 
 PUT may include `fields[]` to patch existing fields by `name`. Unknown field names
 are **400**. PUT does **not** create or delete fields — use nested POST/DELETE
@@ -1396,7 +1399,7 @@ Detail uses `SystemDefDetail`:
 - `fieldCount`, `cacheTimeoutMinutes` (read-only)
 - `fields[]`: `name`, `dataType`, `searchable`, `required`, `readOnly`, `occurrence`
   (`optional` / `required` / `oneOrMore` / `zeroOrMore` / `count` / `unknown`)
-- `designGaps[]` strings — stylesheet/application flow, and shared-field
+- `designGaps[]` strings — application flow, and shared-field
   groups (separate catalog)
 
 Control property GET/PUT uses Jackson wrap `SystemDefControlProperties` (same
@@ -1416,15 +1419,33 @@ control properties). Typical write:
 Omit `choices` to leave the catalog unchanged. Send `"choices": { "type": "none" }`
 to clear it.
 
+Stylesheet GET/PUT uses Jackson wrap `SystemDefStylesheets`. Typical write:
+
+```json
+{
+  "SystemDefStylesheets": {
+    "handlers": [
+      {
+        "commandHandler": "preview",
+        "href": "file:../sys_resources/stylesheets/activeEdit.xsl"
+      }
+    ]
+  }
+}
+```
+
+PUT is a full replace of the command-handler set. Conditional stylesheet hrefs
+are returned on GET and are preserved when the default `href` is updated.
+
 Prefer the generated OpenAPI schema as the integration source of truth.
 
 ### Status codes and authorization
 
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | Catalog, save, add-field, or control-property GET/PUT |
+| `200` | Catalog, save, add-field, control-property GET/PUT, or stylesheet GET/PUT |
 | `204` | Field deleted |
-| `400` | Missing body, unknown field on catalog PUT, invalid name/`dataType` (including SQL reserved identifiers), conflicting `occurrence`/`required`, delete of a system-mandatory / system-internal field, missing `properties` on control PUT, or blank field path name on control PUT |
+| `400` | Missing body, unknown field on catalog PUT, invalid name/`dataType` (including SQL reserved identifiers), conflicting `occurrence`/`required`, delete of a system-mandatory / system-internal field, missing `properties` on control PUT, blank field path name on control PUT, missing `handlers` on stylesheet PUT, invalid stylesheet href/name, duplicate command handler, or emptying the stylesheet set |
 | `403` | Caller is not Admin, or the request has no session/user (writes) |
 | `404` | System field not found or unsafe `{fieldName}` on control-property GET/PUT. Non-Admin callers receive **403**, not 404 |
 | `409` | Duplicate field name, system definition locked by another user, or design lock required for save |

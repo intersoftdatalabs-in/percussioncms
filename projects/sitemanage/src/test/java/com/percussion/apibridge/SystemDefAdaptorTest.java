@@ -35,6 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.design.objectstore.PSChoices;
+import com.percussion.design.objectstore.PSCommandHandlerStylesheets;
 import com.percussion.design.objectstore.PSContentEditorSystemDef;
 import com.percussion.design.objectstore.PSControlRef;
 import com.percussion.design.objectstore.PSDisplayMapper;
@@ -44,16 +45,20 @@ import com.percussion.design.objectstore.PSEntry;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSParam;
+import com.percussion.design.objectstore.PSStylesheet;
 import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.design.objectstore.PSUIDefinition;
+import com.percussion.design.objectstore.PSUrlRequest;
 import com.percussion.rest.contenttypes.ContentTypeChoiceCatalog;
 import com.percussion.rest.contenttypes.ContentTypeChoiceEntry;
 import com.percussion.rest.contenttypes.ContentTypeControlProperty;
+import com.percussion.rest.systemdef.SystemDefCommandHandlerStylesheet;
 import com.percussion.rest.systemdef.SystemDefControlProperties;
 import com.percussion.rest.systemdef.SystemDefDesignLockException;
 import com.percussion.rest.systemdef.SystemDefDetail;
 import com.percussion.rest.systemdef.SystemDefFieldNotFoundException;
 import com.percussion.rest.systemdef.SystemDefFieldSummary;
+import com.percussion.rest.systemdef.SystemDefStylesheets;
 import com.percussion.util.PSCollection;
 import com.percussion.utils.request.PSRequestInfoBase;
 import com.percussion.webservices.PSErrorException;
@@ -235,7 +240,7 @@ class SystemDefAdaptorTest {
     PSContentEditorSystemDef def = mock(PSContentEditorSystemDef.class);
     when(def.getFieldSet()).thenReturn(set);
     when(def.getCacheTimeout()).thenReturn(15);
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
 
     SystemDefFieldSummary patch = new SystemDefFieldSummary();
@@ -257,7 +262,7 @@ class SystemDefAdaptorTest {
     when(set.findFieldByName("missing", false)).thenReturn(null);
     PSContentEditorSystemDef def = mock(PSContentEditorSystemDef.class);
     when(def.getFieldSet()).thenReturn(set);
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
 
     SystemDefFieldSummary patch = new SystemDefFieldSummary();
@@ -297,7 +302,7 @@ class SystemDefAdaptorTest {
   void updateSystemDef_lockConflictIs409() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
     PSLockErrorException lockErr = new PSLockErrorException(1, "locked", "stack", "other", 1000L);
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin"))
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin"))
         .thenThrow(lockErr);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
     SystemDefFieldSummary patch = new SystemDefFieldSummary();
@@ -325,7 +330,7 @@ class SystemDefAdaptorTest {
     PSContentEditorSystemDef def = mock(PSContentEditorSystemDef.class);
     when(def.getFieldSet()).thenReturn(set);
     when(def.getCacheTimeout()).thenReturn(15);
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     doThrow(new PSLockErrorException(1, "not locked", "stack"))
         .when(designWs)
         .saveContentEditorSystemDef(any(), eq(true), eq("test-session"), eq("Admin"));
@@ -399,7 +404,7 @@ class SystemDefAdaptorTest {
   void addField_addsPersistableFieldAndSaves() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
     PSContentEditorSystemDef def = newSystemDefWithEmptyFields();
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
 
     SystemDefFieldSummary body = new SystemDefFieldSummary();
@@ -423,7 +428,7 @@ class SystemDefAdaptorTest {
     SystemDefFieldSummary existing = new SystemDefFieldSummary();
     existing.setName("sys_custom");
     SystemDefAdaptor.addPersistableField(def, existing);
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
 
     SystemDefFieldSummary body = new SystemDefFieldSummary();
@@ -450,7 +455,7 @@ class SystemDefAdaptorTest {
   void addField_lockConflictIs409() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
     PSLockErrorException lockErr = new PSLockErrorException(1, "locked", "stack", "other", 1000L);
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin"))
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin"))
         .thenThrow(lockErr);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
     SystemDefFieldSummary body = new SystemDefFieldSummary();
@@ -485,7 +490,7 @@ class SystemDefAdaptorTest {
   void addField_invalidDataTypeIs400() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
     PSContentEditorSystemDef def = newSystemDefWithEmptyFields();
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
     SystemDefFieldSummary body = new SystemDefFieldSummary();
     body.setName("sys_custom");
@@ -503,7 +508,7 @@ class SystemDefAdaptorTest {
     SystemDefFieldSummary existing = new SystemDefFieldSummary();
     existing.setName("sys_custom");
     SystemDefAdaptor.addPersistableField(def, existing);
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
 
     adaptor.deleteField(null, "sys_custom");
@@ -517,7 +522,7 @@ class SystemDefAdaptorTest {
   void deleteField_unknownFieldIs400() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
     PSContentEditorSystemDef def = newSystemDefWithEmptyFields();
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
     IllegalArgumentException ex =
         assertThrows(IllegalArgumentException.class, () -> adaptor.deleteField(null, "missing"));
@@ -535,7 +540,7 @@ class SystemDefAdaptorTest {
     when(set.getFieldByName("sys_title")).thenReturn(field);
     PSContentEditorSystemDef def = mock(PSContentEditorSystemDef.class);
     when(def.getFieldSet()).thenReturn(set);
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
     IllegalArgumentException ex =
         assertThrows(IllegalArgumentException.class, () -> adaptor.deleteField(null, "sys_title"));
@@ -554,7 +559,7 @@ class SystemDefAdaptorTest {
     when(set.getFieldByName("sys_internal")).thenReturn(field);
     PSContentEditorSystemDef def = mock(PSContentEditorSystemDef.class);
     when(def.getFieldSet()).thenReturn(set);
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
     IllegalArgumentException ex =
         assertThrows(
@@ -579,7 +584,7 @@ class SystemDefAdaptorTest {
     SystemDefFieldSummary existing = new SystemDefFieldSummary();
     existing.setName("sys_custom");
     SystemDefAdaptor.addPersistableField(def, existing);
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     doThrow(new PSLockErrorException(1, "not locked", "stack"))
         .when(designWs)
         .saveContentEditorSystemDef(any(), eq(true), eq("test-session"), eq("Admin"));
@@ -676,7 +681,7 @@ class SystemDefAdaptorTest {
     PSContentEditorSystemDef def = mock(PSContentEditorSystemDef.class);
     when(def.getFieldSet()).thenReturn(set);
     when(def.getCacheTimeout()).thenReturn(15);
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     when(designWs.loadContentEditorSystemDef(false, false, "test-session", "Admin"))
         .thenReturn(def);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
@@ -698,7 +703,7 @@ class SystemDefAdaptorTest {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
     SystemDefColumnSchema columns = mock(SystemDefColumnSchema.class);
     PSContentEditorSystemDef def = newSystemDefWithEmptyFields();
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true, columns);
 
     SystemDefFieldSummary body = new SystemDefFieldSummary();
@@ -715,7 +720,7 @@ class SystemDefAdaptorTest {
     SystemDefFieldSummary existing = new SystemDefFieldSummary();
     existing.setName("sys_title");
     SystemDefAdaptor.addPersistableField(def, existing);
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin"))
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin"))
         .thenThrow(new RuntimeException("no such column QA4030PROBE"))
         .thenReturn(def);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
@@ -736,7 +741,7 @@ class SystemDefAdaptorTest {
     SystemDefFieldSummary existing = new SystemDefFieldSummary();
     existing.setName("qa4030probe");
     SystemDefAdaptor.addPersistableField(def, existing);
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin"))
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin"))
         .thenThrow(new RuntimeException("no such column QA4030PROBE"))
         .thenReturn(def);
     doThrow(new IllegalStateException("no such column QA4030PROBE"))
@@ -759,7 +764,7 @@ class SystemDefAdaptorTest {
     SystemDefFieldSummary existing = new SystemDefFieldSummary();
     existing.setName("sys_custom");
     SystemDefAdaptor.addPersistableField(def, existing);
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true, columns);
 
     adaptor.deleteField(null, "sys_custom");
@@ -775,7 +780,7 @@ class SystemDefAdaptorTest {
     SystemDefFieldSummary existing = new SystemDefFieldSummary();
     existing.setName("sys_custom");
     SystemDefAdaptor.addPersistableField(def, existing);
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     doThrow(new IllegalStateException("permissions denied"))
         .when(columns)
         .dropColumnIfPresent("CONTENTSTATUS", "SYS_CUSTOM");
@@ -817,9 +822,8 @@ class SystemDefAdaptorTest {
     assertEquals("200", out.getProperties().get(0).getValue());
     assertEquals("local", out.getChoices().getType());
     assertEquals("open", out.getChoices().getEntries().get(0).getValue());
-    assertEquals(2, out.getDesignGaps().size());
-    assertEquals("SYS_STYLESHEET", out.getDesignGaps().get(0).getCode());
-    assertEquals("SYS_APP_FLOW", out.getDesignGaps().get(1).getCode());
+    assertEquals(1, out.getDesignGaps().size());
+    assertEquals("SYS_APP_FLOW", out.getDesignGaps().get(0).getCode());
   }
 
   @Test
@@ -871,7 +875,7 @@ class SystemDefAdaptorTest {
   void replaceFieldControlProperties_persistsValuesAndReleasesLock() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
     PSContentEditorSystemDef def = defWithControlAndChoices("sys_title");
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
 
     SystemDefControlProperties body = new SystemDefControlProperties();
@@ -888,7 +892,10 @@ class SystemDefAdaptorTest {
         .saveContentEditorSystemDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
     assertEquals("640", out.getProperties().get(0).getValue());
     assertTrue(
-        out.getDesignGaps().stream().anyMatch(g -> "SYS_STYLESHEET".equals(g.getCode())),
+        out.getDesignGaps().stream().anyMatch(g -> "SYS_APP_FLOW".equals(g.getCode())),
+        () -> String.valueOf(out.getDesignGaps()));
+    assertTrue(
+        out.getDesignGaps().stream().noneMatch(g -> "SYS_STYLESHEET".equals(g.getCode())),
         () -> String.valueOf(out.getDesignGaps()));
     assertEquals("closed", out.getChoices().getEntries().get(0).getValue());
     PSControlRef control = def.getUIDefinition().getMapping("sys_title").getUISet().getControl();
@@ -901,7 +908,7 @@ class SystemDefAdaptorTest {
   void replaceFieldControlProperties_emptyPropertiesClears() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
     PSContentEditorSystemDef def = defWithControlAndChoices("sys_title");
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
 
     SystemDefControlProperties body = new SystemDefControlProperties();
@@ -918,7 +925,7 @@ class SystemDefAdaptorTest {
   void replaceFieldControlProperties_omittedChoicesLeaveCatalog() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
     PSContentEditorSystemDef def = defWithControlAndChoices("sys_title");
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
 
     SystemDefControlProperties body = new SystemDefControlProperties();
@@ -937,7 +944,7 @@ class SystemDefAdaptorTest {
     SystemDefFieldSummary existing = new SystemDefFieldSummary();
     existing.setName("sys_title");
     SystemDefAdaptor.addPersistableField(def, existing);
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
     SystemDefControlProperties body = new SystemDefControlProperties();
     body.setProperties(List.of());
@@ -966,7 +973,7 @@ class SystemDefAdaptorTest {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
     PSLockErrorException lockErr =
         new PSLockErrorException(1, "locked", "stack", "other", 1000L);
-    when(designWs.loadContentEditorSystemDef(true, false, "test-session", "Admin"))
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin"))
         .thenThrow(lockErr);
     SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
     SystemDefControlProperties body = new SystemDefControlProperties();
@@ -1004,6 +1011,181 @@ class SystemDefAdaptorTest {
   }
 
   @Test
+  void getStylesheets_mapsDefaultHref() {
+    PSContentEditorSystemDef def = defWithStylesheets();
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(() -> def);
+    SystemDefStylesheets out = adaptor.getStylesheets(null);
+    assertEquals(1, out.getHandlers().size());
+    assertEquals("preview", out.getHandlers().get(0).getCommandHandler());
+    assertEquals(
+        "file:../sys_resources/stylesheets/activeEdit.xsl",
+        out.getHandlers().get(0).getHref());
+    assertEquals(1, out.getDesignGaps().size());
+    assertEquals("SYS_APP_FLOW", out.getDesignGaps().get(0).getCode());
+  }
+
+  @Test
+  void getStylesheets_forbiddenWhenNotAdmin() {
+    AtomicInteger loads = new AtomicInteger();
+    SystemDefAdaptor denied =
+        new SystemDefAdaptor(
+            () -> {
+              loads.incrementAndGet();
+              return mock(PSContentEditorSystemDef.class);
+            },
+            () -> false);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> denied.getStylesheets(null));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertEquals(0, loads.get());
+  }
+
+  @Test
+  void replaceStylesheets_persistsHrefAndReleasesLock() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = defWithStylesheets();
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+
+    SystemDefStylesheets body = new SystemDefStylesheets();
+    SystemDefCommandHandlerStylesheet row = new SystemDefCommandHandlerStylesheet();
+    row.setCommandHandler("preview");
+    row.setHref("file:../sys_resources/stylesheets/contentEdit.xsl");
+    body.setHandlers(List.of(row));
+
+    SystemDefStylesheets out = adaptor.replaceStylesheets(null, body);
+    verify(designWs)
+        .saveContentEditorSystemDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
+    assertEquals("file:../sys_resources/stylesheets/contentEdit.xsl", out.getHandlers().get(0).getHref());
+    assertEquals(
+        "file:../sys_resources/stylesheets/contentEdit.xsl",
+        def.getStyleSheetSet().getDefaultStylesheet("preview").getRequest().getHref());
+  }
+
+  @Test
+  void replaceStylesheets_addsAndRemovesHandler() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = defWithStylesheets();
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+
+    SystemDefStylesheets addBody = new SystemDefStylesheets();
+    addBody.setHandlers(
+        List.of(
+            handler("preview", "file:../sys_resources/stylesheets/activeEdit.xsl"),
+            handler("qa4452", "file:../rx_resources/stylesheets/qa4452.xsl")));
+    SystemDefStylesheets added = adaptor.replaceStylesheets(null, addBody);
+    assertEquals(2, added.getHandlers().size());
+    assertTrue(
+        added.getHandlers().stream().anyMatch(h -> "qa4452".equals(h.getCommandHandler())));
+
+    SystemDefStylesheets removeBody = new SystemDefStylesheets();
+    removeBody.setHandlers(
+        List.of(handler("preview", "file:../sys_resources/stylesheets/activeEdit.xsl")));
+    SystemDefStylesheets removed = adaptor.replaceStylesheets(null, removeBody);
+    assertEquals(1, removed.getHandlers().size());
+    assertEquals("preview", removed.getHandlers().get(0).getCommandHandler());
+    assertNull(def.getStyleSheetSet().getDefaultStylesheet("qa4452"));
+  }
+
+  @Test
+  void replaceStylesheets_blankHrefRemovesHandler() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = defWithStylesheets();
+    def.getStyleSheetSet()
+        .setDefaultStylesheet(
+            "qa4452",
+            new PSStylesheet(
+                new PSUrlRequest(
+                    null,
+                    "file:../sys_resources/stylesheets/singleFieldEdit.xsl",
+                    new PSCollection(PSParam.class))));
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+
+    SystemDefStylesheets body = new SystemDefStylesheets();
+    body.setHandlers(
+        List.of(
+            handler("preview", "file:../sys_resources/stylesheets/activeEdit.xsl"),
+            handler("qa4452", "")));
+    SystemDefStylesheets out = adaptor.replaceStylesheets(null, body);
+    assertEquals(1, out.getHandlers().size());
+    assertEquals("preview", out.getHandlers().get(0).getCommandHandler());
+  }
+
+  @Test
+  void replaceStylesheets_emptyKeepIs400() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = defWithStylesheets();
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+
+    SystemDefStylesheets body = new SystemDefStylesheets();
+    body.setHandlers(List.of());
+    IllegalArgumentException empty =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.replaceStylesheets(null, body));
+    assertTrue(empty.getMessage().contains("At least one"));
+    verify(designWs, never()).loadContentEditorSystemDef(anyBoolean(), anyBoolean(), any(), any());
+    verify(designWs, never()).saveContentEditorSystemDef(any(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void replaceStylesheets_invalidHrefIs400() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSystemDef def = defWithStylesheets();
+    when(designWs.loadContentEditorSystemDef(true, true, "test-session", "Admin")).thenReturn(def);
+    SystemDefAdaptor adaptor = new SystemDefAdaptor(designWs, () -> true);
+
+    SystemDefStylesheets body = new SystemDefStylesheets();
+    body.setHandlers(List.of(handler("preview", "https://evil.example/x.xsl")));
+    assertThrows(IllegalArgumentException.class, () -> adaptor.replaceStylesheets(null, body));
+    verify(designWs, never()).loadContentEditorSystemDef(anyBoolean(), anyBoolean(), any(), any());
+    verify(designWs, never()).saveContentEditorSystemDef(any(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void replaceStylesheets_forbiddenWhenNotAdmin() {
+    SystemDefAdaptor denied = new SystemDefAdaptor(() -> defWithStylesheets(), () -> false);
+    SystemDefStylesheets body = new SystemDefStylesheets();
+    body.setHandlers(List.of(handler("preview", "file:../sys_resources/stylesheets/activeEdit.xsl")));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> denied.replaceStylesheets(null, body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void requireSafeStylesheetHref_acceptsWorkbenchDefaults() {
+    assertEquals(
+        "file:../sys_resources/stylesheets/activeEdit.xsl",
+        SystemDefAdaptor.requireSafeStylesheetHref(
+            "file:../sys_resources/stylesheets/activeEdit.xsl"));
+    assertEquals(
+        "file:../rx_resources/stylesheets/custom.xsl",
+        SystemDefAdaptor.requireSafeStylesheetHref("file:../rx_resources/stylesheets/custom.xsl"));
+  }
+
+  @Test
+  void requireSafeStylesheetHref_rejectsTraversalAndSchemes() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SystemDefAdaptor.requireSafeStylesheetHref("file:../sys_resources/stylesheets/../x.xsl"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SystemDefAdaptor.requireSafeStylesheetHref("file:/C:/temp/x.xsl"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SystemDefAdaptor.requireSafeStylesheetHref("http://example/x.xsl"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SystemDefAdaptor.requireSafeStylesheetHref("file:../sys_resources/stylesheets/x.xslt"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            SystemDefAdaptor.requireSafeStylesheetHref(
+                "file:../sys_resources/stylesheets/x\\y.xsl"));
+  }
+
+  @Test
   void isSafeFieldName_rejectsPathInjection() {
     assertTrue(SystemDefAdaptor.isSafeFieldName("sys_title"));
     assertFalse(SystemDefAdaptor.isSafeFieldName("a/b"));
@@ -1026,6 +1208,26 @@ class SystemDefAdaptorTest {
     when(def.getContainerLocator()).thenReturn(null);
     when(def.getCacheTimeout()).thenReturn(15);
     return def;
+  }
+
+  private static PSContentEditorSystemDef defWithStylesheets() {
+    PSContentEditorSystemDef def = newSystemDefWithEmptyFields();
+    PSUrlRequest request =
+        new PSUrlRequest(
+            null,
+            "file:../sys_resources/stylesheets/activeEdit.xsl",
+            new PSCollection(PSParam.class));
+    PSCommandHandlerStylesheets sheets =
+        new PSCommandHandlerStylesheets("preview", new PSStylesheet(request));
+    when(def.getStyleSheetSet()).thenReturn(sheets);
+    return def;
+  }
+
+  private static SystemDefCommandHandlerStylesheet handler(String name, String href) {
+    SystemDefCommandHandlerStylesheet row = new SystemDefCommandHandlerStylesheet();
+    row.setCommandHandler(name);
+    row.setHref(href);
+    return row;
   }
 
   private static PSContentEditorSystemDef defWithControlAndChoices(String fieldName) {

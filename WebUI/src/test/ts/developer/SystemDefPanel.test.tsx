@@ -22,6 +22,8 @@ vi.mock("../../../main/ts/api/developer/systemDefApi", async (importOriginal) =>
     deleteSystemDefField: vi.fn(),
     getSystemDefFieldControlProperties: vi.fn(),
     replaceSystemDefFieldControlProperties: vi.fn(),
+    getSystemDefStylesheets: vi.fn(),
+    replaceSystemDefStylesheets: vi.fn(),
   };
 });
 
@@ -31,6 +33,8 @@ const addMock = vi.mocked(systemDefApi.addSystemDefField);
 const deleteMock = vi.mocked(systemDefApi.deleteSystemDefField);
 const getCpMock = vi.mocked(systemDefApi.getSystemDefFieldControlProperties);
 const replaceCpMock = vi.mocked(systemDefApi.replaceSystemDefFieldControlProperties);
+const getSsMock = vi.mocked(systemDefApi.getSystemDefStylesheets);
+const replaceSsMock = vi.mocked(systemDefApi.replaceSystemDefStylesheets);
 
 const sampleDetail = {
   fieldCount: 1,
@@ -59,6 +63,8 @@ describe("SystemDefPanel", () => {
     deleteMock.mockReset();
     getCpMock.mockReset();
     replaceCpMock.mockReset();
+    getSsMock.mockReset();
+    replaceSsMock.mockReset();
     getCpMock.mockResolvedValue({
       fieldName: "sys_title",
       control: "sys_EditBox",
@@ -68,6 +74,22 @@ describe("SystemDefPanel", () => {
       fieldName: "sys_title",
       control: "sys_EditBox",
       properties: [{ name: "height", value: "240" }],
+    });
+    getSsMock.mockResolvedValue({
+      handlers: [
+        {
+          commandHandler: "preview",
+          href: "file:../sys_resources/stylesheets/activeEdit.xsl",
+        },
+      ],
+    });
+    replaceSsMock.mockResolvedValue({
+      handlers: [
+        {
+          commandHandler: "preview",
+          href: "file:../sys_resources/stylesheets/contentEdit.xsl",
+        },
+      ],
     });
   });
 
@@ -378,5 +400,49 @@ describe("SystemDefPanel", () => {
     expect(screen.getByTestId("developer-sys-notice").textContent).toBe(
       DEV_MSG.SYS_CONTROL_PROPS_SAVED,
     );
+  });
+
+  it("loads and saves a stylesheet href", async () => {
+    getMock.mockResolvedValue(sampleDetail);
+    render(<SystemDefPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sys-ss-href-0")).toBeTruthy();
+    });
+    expect(getSsMock).toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId("developer-sys-ss-href-0"), {
+      target: { value: "file:../sys_resources/stylesheets/contentEdit.xsl" },
+    });
+    const save = screen.getByTestId("developer-sys-ss-save") as HTMLButtonElement;
+    expect(save.disabled).toBe(false);
+    fireEvent.click(save);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sys-notice")).toBeTruthy();
+    });
+    expect(replaceSsMock).toHaveBeenCalledWith({
+      handlers: [
+        {
+          commandHandler: "preview",
+          href: "file:../sys_resources/stylesheets/contentEdit.xsl",
+        },
+      ],
+    });
+    expect(screen.getByTestId("developer-sys-notice").textContent).toBe(DEV_MSG.SYS_SS_SAVED);
+  });
+
+  it("adds a command handler then enables save", async () => {
+    getMock.mockResolvedValue(sampleDetail);
+    render(<SystemDefPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sys-ss-add")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-sys-ss-add-name"), {
+      target: { value: "qa4452" },
+    });
+    const add = screen.getByTestId("developer-sys-ss-add") as HTMLButtonElement;
+    expect(add.disabled).toBe(false);
+    fireEvent.click(add);
+    const save = screen.getByTestId("developer-sys-ss-save") as HTMLButtonElement;
+    expect(save.disabled).toBe(false);
+    expect(screen.getByTestId("developer-sys-ss-href-1")).toBeTruthy();
   });
 });

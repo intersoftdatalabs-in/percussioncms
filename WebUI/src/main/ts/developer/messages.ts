@@ -1051,7 +1051,7 @@ export const DEV_MSG_KEYS = {
   SYS_ERROR: "perc.ui.developer@Could not load system definition.",
   SYS_EMPTY: "perc.ui.developer@No system fields returned.",
   SYS_HINT:
-    "perc.ui.developer@Global system fields from the content-editor system definition. Admins can save field properties, add or delete fields, and edit control properties. Stylesheet and application-flow editors remain later slices.",
+    "perc.ui.developer@Global system fields from the content-editor system definition. Admins can save field properties, add or delete fields, edit control properties, and persist command-handler stylesheet associations. Application-flow editors remain a later slice.",
   SYS_TITLE: "perc.ui.developer@Content editor system definition",
   SYS_META_FIELD_COUNT: "perc.ui.developer@Field count",
   SYS_META_CACHE: "perc.ui.developer@Error cache timeout",
@@ -1088,7 +1088,30 @@ export const DEV_MSG_KEYS = {
   SYS_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   SYS_CONTROL_PROPS: "perc.ui.developer@Control property values",
   SYS_CONTROL_PROPS_HINT:
-    "perc.ui.developer@View and save control parameter name/value pairs for the selected system field. The request lock is acquired and released on save. Choice catalogs, stylesheets, and application flow stay out of this chrome.",
+    "perc.ui.developer@View and save control parameter name/value pairs for the selected system field. The request lock is acquired and released on save. Choice catalogs and application flow stay out of this chrome.",
+  SYS_SS: "perc.ui.developer@Stylesheets",
+  SYS_SS_HINT:
+    "perc.ui.developer@Command-handler default stylesheet associations (Workbench System Def stylesheets). Save acquires and releases the system-definition lock. Blank href or Remove drops that handler. At least one handler is required. Conditional stylesheets are shown read-only.",
+  SYS_SS_COL_HANDLER: "perc.ui.developer@Command handler",
+  SYS_SS_COL_HREF: "perc.ui.developer@Stylesheet href",
+  SYS_SS_COL_CONDITIONALS: "perc.ui.developer@Conditionals",
+  SYS_SS_COL_ACTIONS: "perc.ui.developer@Actions",
+  SYS_SS_SAVE: "perc.ui.developer@Save stylesheets",
+  SYS_SS_SAVED: "perc.ui.developer@System-def stylesheets saved.",
+  SYS_SS_SAVE_ERROR: "perc.ui.developer@Could not save system-def stylesheets.",
+  SYS_SS_LOADING: "perc.ui.developer@Loading stylesheets...",
+  SYS_SS_ERROR: "perc.ui.developer@Could not load system-def stylesheets.",
+  SYS_SS_EMPTY: "perc.ui.developer@No stylesheet associations returned.",
+  SYS_SS_ADD: "perc.ui.developer@Add handler",
+  SYS_SS_REMOVE: "perc.ui.developer@Remove",
+  SYS_SS_NEW_HANDLER: "perc.ui.developer@Command handler name",
+  SYS_SS_NEW_HREF: "perc.ui.developer@Stylesheet href",
+  SYS_SS_HREF_PLACEHOLDER:
+    "perc.ui.developer@file:../sys_resources/stylesheets/activeEdit.xsl",
+  SYS_SS_INVALID:
+    "perc.ui.developer@Use a letter-start handler name and a file:../sys_resources or rx_resources/stylesheets/*.xsl href.",
+  SYS_SS_LAST:
+    "perc.ui.developer@At least one command handler stylesheet is required.",
   SYS_CONTROL_PROPS_FIELD: "perc.ui.developer@Field",
   SYS_CONTROL_PROPS_NAME: "perc.ui.developer@Property name",
   SYS_CONTROL_PROPS_VALUE: "perc.ui.developer@Value",

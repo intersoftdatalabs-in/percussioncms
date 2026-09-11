@@ -564,6 +564,16 @@ vi.mock("../../../main/ts/api/developer/systemDefApi", async (importOriginal) =>
       properties: [{ name: "height", value: "200" }],
     }),
     replaceSystemDefFieldControlProperties: vi.fn(),
+    getSystemDefStylesheets: vi.fn().mockResolvedValue({
+      handlers: [
+        {
+          commandHandler: "preview",
+          href: "file:../sys_resources/stylesheets/activeEdit.xsl",
+        },
+      ],
+      designGaps: [],
+    }),
+    replaceSystemDefStylesheets: vi.fn(),
   };
 });
 

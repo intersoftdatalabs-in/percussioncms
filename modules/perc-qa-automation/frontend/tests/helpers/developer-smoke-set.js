@@ -213,6 +213,13 @@ const DEVELOPER_SMOKE_SET = [
     notes: "CD-16 SPA system-def field write (#4030 / parent #1690)",
   },
   {
+    id: "system-def-stylesheets",
+    file: "developer-system-def-stylesheets.spec.js",
+    title: "system-def: stylesheet GET/PUT + SPA save (#4452)",
+    status: "green",
+    notes: "CD-16 SYS_STYLESHEET write (#4452 / parent #1690)",
+  },
+  {
     id: "server-configs-write",
     file: "developer-server-configs-write.spec.js",
     title: "Admin can edit allow-listed config, save, and see refresh",

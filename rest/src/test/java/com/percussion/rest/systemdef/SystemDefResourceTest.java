@@ -381,4 +381,84 @@ public class SystemDefResourceTest {
             () -> resource.replaceFieldControlProperties("nope", body));
     assertEquals(404, ex.getResponse().getStatus());
   }
+
+  @Test
+  public void getStylesheetsDelegatesToAdaptor() {
+    SystemDefStylesheets envelope = new SystemDefStylesheets();
+    SystemDefCommandHandlerStylesheet row = new SystemDefCommandHandlerStylesheet();
+    row.setCommandHandler("preview");
+    row.setHref("file:../sys_resources/stylesheets/activeEdit.xsl");
+    envelope.setHandlers(List.of(row));
+    when(adaptor.getStylesheets(any())).thenReturn(envelope);
+
+    SystemDefStylesheets out = resource.getStylesheets();
+    assertEquals("preview", out.getHandlers().get(0).getCommandHandler());
+    verify(adaptor).getStylesheets(any());
+  }
+
+  @Test
+  public void getStylesheetsForbiddenWhenNotAdmin() {
+    when(adaptor.getStylesheets(any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getStylesheets());
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceStylesheetsSuccess() {
+    SystemDefStylesheets body = new SystemDefStylesheets();
+    SystemDefCommandHandlerStylesheet row = new SystemDefCommandHandlerStylesheet();
+    row.setCommandHandler("preview");
+    row.setHref("file:../sys_resources/stylesheets/contentEdit.xsl");
+    body.setHandlers(List.of(row));
+    when(adaptor.replaceStylesheets(any(), any())).thenReturn(body);
+
+    SystemDefStylesheets out = resource.replaceStylesheets(body);
+    assertEquals(
+        "file:../sys_resources/stylesheets/contentEdit.xsl", out.getHandlers().get(0).getHref());
+    verify(adaptor).replaceStylesheets(any(), eq(body));
+  }
+
+  @Test
+  public void replaceStylesheetsRequiresHandlers() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.replaceStylesheets(null));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceStylesheetsInvalidHrefIs400() {
+    SystemDefStylesheets body = new SystemDefStylesheets();
+    body.setHandlers(List.of());
+    when(adaptor.replaceStylesheets(any(), any()))
+        .thenThrow(new IllegalArgumentException("Invalid stylesheet href"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.replaceStylesheets(body));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceStylesheetsLockConflictIs409() {
+    SystemDefStylesheets body = new SystemDefStylesheets();
+    body.setHandlers(List.of());
+    when(adaptor.replaceStylesheets(any(), any()))
+        .thenThrow(
+            new SystemDefDesignLockException("Could not save system definition; locked by other"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.replaceStylesheets(body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceStylesheetsForbiddenWhenNotAdmin() {
+    SystemDefStylesheets body = new SystemDefStylesheets();
+    body.setHandlers(List.of());
+    when(adaptor.replaceStylesheets(any(), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.replaceStylesheets(body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
 }

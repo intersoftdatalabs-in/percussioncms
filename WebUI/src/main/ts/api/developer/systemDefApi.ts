@@ -24,9 +24,12 @@ import {
 } from "./contentTypeLists";
 import type {
   ContentTypeControlProperty,
+  SystemDefCommandHandlerStylesheet,
+  SystemDefConditionalStylesheet,
   SystemDefControlProperties,
   SystemDefDetail,
   SystemDefFieldSummary,
+  SystemDefStylesheets,
 } from "./types";
 
 /**
@@ -280,4 +283,138 @@ export async function replaceSystemDefFieldControlProperties(
     wrapSystemDefControlPropertiesForWire(body),
   );
   return unwrapSystemDefControlProperties(payload);
+}
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code SystemDefStylesheets}. */
+export const SYSTEM_DEF_STYLESHEETS_ROOT = "SystemDefStylesheets";
+
+/** REST command-handler name: letter, then letters/digits/underscore, max 50. */
+export const SYSTEM_DEF_COMMAND_HANDLER_PATTERN = /^[A-Za-z][A-Za-z0-9_]{0,49}$/;
+
+/**
+ * Workbench default hrefs: {@code file:../sys_resources|rx_resources/stylesheets/*.xsl}.
+ */
+export const SYSTEM_DEF_STYLESHEET_HREF_PATTERN =
+  /^file:\.\.\/(sys_resources|rx_resources)\/stylesheets\/[A-Za-z0-9][A-Za-z0-9._-]{0,120}\.xsl$/;
+
+export type SystemDefStylesheetsBody = {
+  handlers: SystemDefCommandHandlerStylesheet[];
+};
+
+function stylesheetsUrl(): string {
+  return `${PATHS.SYSTEM_DEF}/stylesheets`;
+}
+
+function asHandlerArray(value: unknown): SystemDefCommandHandlerStylesheet[] {
+  if (Array.isArray(value)) {
+    return value.filter((item) => item != null && typeof item === "object") as SystemDefCommandHandlerStylesheet[];
+  }
+  if (value == null || typeof value !== "object") {
+    return [];
+  }
+  const obj = value as Record<string, unknown>;
+  const raw =
+    obj.SystemDefCommandHandlerStylesheet ??
+    obj.systemDefCommandHandlerStylesheet ??
+    obj.handler;
+  if (Array.isArray(raw)) {
+    return raw.filter((item) => item != null && typeof item === "object") as SystemDefCommandHandlerStylesheet[];
+  }
+  if (raw != null && typeof raw === "object") {
+    return [raw as SystemDefCommandHandlerStylesheet];
+  }
+  return [];
+}
+
+function asConditionalArray(value: unknown): SystemDefConditionalStylesheet[] {
+  if (Array.isArray(value)) {
+    return value.filter((item) => item != null && typeof item === "object") as SystemDefConditionalStylesheet[];
+  }
+  if (value == null || typeof value !== "object") {
+    return [];
+  }
+  const obj = value as Record<string, unknown>;
+  const raw =
+    obj.SystemDefConditionalStylesheet ?? obj.systemDefConditionalStylesheet;
+  if (Array.isArray(raw)) {
+    return raw.filter((item) => item != null && typeof item === "object") as SystemDefConditionalStylesheet[];
+  }
+  if (raw != null && typeof raw === "object") {
+    return [raw as SystemDefConditionalStylesheet];
+  }
+  return [];
+}
+
+export function isValidSystemDefCommandHandler(
+  name: string | undefined | null,
+): boolean {
+  if (!name) return false;
+  return SYSTEM_DEF_COMMAND_HANDLER_PATTERN.test(name);
+}
+
+export function isValidSystemDefStylesheetHref(
+  href: string | undefined | null,
+): boolean {
+  if (!href) return false;
+  return SYSTEM_DEF_STYLESHEET_HREF_PATTERN.test(href.trim());
+}
+
+export function unwrapSystemDefStylesheets(payload: unknown): SystemDefStylesheets {
+  const root = asRecord(payload);
+  if (!root) {
+    return { handlers: [] };
+  }
+  const nested = asRecord(
+    root[SYSTEM_DEF_STYLESHEETS_ROOT] ?? root.systemDefStylesheets,
+  );
+  const body = nested ?? root;
+  const handlers = asHandlerArray(body.handlers).map((h) => {
+    const rec = asRecord(h) || {};
+    const commandHandler =
+      typeof rec.commandHandler === "string"
+        ? rec.commandHandler
+        : typeof rec.CommandHandler === "string"
+          ? rec.CommandHandler
+          : undefined;
+    const href =
+      typeof rec.href === "string"
+        ? rec.href
+        : typeof rec.Href === "string"
+          ? rec.Href
+          : undefined;
+    const row: SystemDefCommandHandlerStylesheet = { commandHandler, href };
+    const conds = asConditionalArray(h.conditionals);
+    if (conds.length > 0) {
+      row.conditionals = conds.map((c) => ({
+        href: typeof c.href === "string" ? c.href : undefined,
+      }));
+    }
+    return row;
+  });
+  const out: SystemDefStylesheets = { handlers };
+  if (body.designGaps != null) {
+    out.designGaps = normalizeContentTypeDesignGaps(body.designGaps);
+  }
+  return out;
+}
+
+export function wrapSystemDefStylesheetsForWire(
+  body: SystemDefStylesheetsBody,
+): Record<string, SystemDefStylesheetsBody> {
+  return { [SYSTEM_DEF_STYLESHEETS_ROOT]: { handlers: body.handlers } };
+}
+
+export async function getSystemDefStylesheets(): Promise<SystemDefStylesheets> {
+  const payload = await get<unknown>(stylesheetsUrl());
+  return unwrapSystemDefStylesheets(payload);
+}
+
+export async function replaceSystemDefStylesheets(
+  body: SystemDefStylesheetsBody,
+): Promise<SystemDefStylesheets> {
+  const payload = await put<unknown>(
+    stylesheetsUrl(),
+    wrapSystemDefStylesheetsForWire(body),
+  );
+  return unwrapSystemDefStylesheets(payload);
 }
