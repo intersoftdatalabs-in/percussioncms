@@ -144,4 +144,11 @@ class DesignGapsStructuredTest {
         "SF_SYSTEM_DEF_SEPARATE",
         SharedFieldsAdaptor.CONTROL_PROPERTY_DESIGN_GAPS.get(1).getCode());
   }
+
+  @Test
+  void systemDefControlPropertyDesignGaps_dropStylesheetKeepAppFlow() {
+    assertEquals(1, SystemDefAdaptor.CONTROL_PROPERTY_DESIGN_GAPS.size());
+    assertEquals("SYS_APP_FLOW", SystemDefAdaptor.CONTROL_PROPERTY_DESIGN_GAPS.get(0).getCode());
+    assertEquals(SystemDefAdaptor.CONTROL_PROPERTY_DESIGN_GAPS, SystemDefAdaptor.STYLESHEET_DESIGN_GAPS);
+  }
 }

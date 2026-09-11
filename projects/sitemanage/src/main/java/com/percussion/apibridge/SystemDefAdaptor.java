@@ -18,6 +18,7 @@ package com.percussion.apibridge;
 
 import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSBackEndTable;
+import com.percussion.design.objectstore.PSCommandHandlerStylesheets;
 import com.percussion.design.objectstore.PSContainerLocator;
 import com.percussion.design.objectstore.PSContentEditorSystemDef;
 import com.percussion.design.objectstore.PSControlRef;
@@ -26,20 +27,27 @@ import com.percussion.design.objectstore.PSDisplayMapping;
 import com.percussion.design.objectstore.PSDisplayText;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
+import com.percussion.design.objectstore.PSParam;
 import com.percussion.design.objectstore.PSSearchProperties;
+import com.percussion.design.objectstore.PSStylesheet;
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.design.objectstore.PSTableRef;
 import com.percussion.design.objectstore.PSTableSet;
 import com.percussion.design.objectstore.PSUIDefinition;
 import com.percussion.design.objectstore.PSUISet;
+import com.percussion.design.objectstore.PSUrlRequest;
+import com.percussion.util.PSCollection;
 import com.percussion.rest.DesignGap;
 import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import com.percussion.rest.systemdef.ISystemDefAdaptor;
+import com.percussion.rest.systemdef.SystemDefCommandHandlerStylesheet;
+import com.percussion.rest.systemdef.SystemDefConditionalStylesheet;
 import com.percussion.rest.systemdef.SystemDefControlProperties;
 import com.percussion.rest.systemdef.SystemDefDesignLockException;
 import com.percussion.rest.systemdef.SystemDefDetail;
 import com.percussion.rest.systemdef.SystemDefFieldNotFoundException;
 import com.percussion.rest.systemdef.SystemDefFieldSummary;
+import com.percussion.rest.systemdef.SystemDefStylesheets;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.data.PSCurrentUser;
@@ -56,8 +64,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -86,17 +96,32 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
 
   private static final List<String> DESIGN_GAPS =
       List.of(
-          "Stylesheets and application flow not exposed",
+          "Application flow is not exposed",
           "Shared field groups are a separate catalog (Developer Shared Fields)");
 
   /**
-   * Structured gaps on GET/PUT {@code .../controlProperties} (stylesheet / flow remain later
-   * slices).
+   * Structured gaps on GET/PUT {@code .../controlProperties} and {@code .../stylesheets} (application
+   * flow remains a later slice). {@code SYS_STYLESHEET} is dropped now that stylesheet write
+   * ships.
    */
   static final List<DesignGap> CONTROL_PROPERTY_DESIGN_GAPS =
-      List.of(
-          DesignGap.of("SYS_STYLESHEET", "Stylesheets are not exposed"),
-          DesignGap.of("SYS_APP_FLOW", "Application flow is not exposed"));
+      List.of(DesignGap.of("SYS_APP_FLOW", "Application flow is not exposed"));
+
+  static final List<DesignGap> STYLESHEET_DESIGN_GAPS = CONTROL_PROPERTY_DESIGN_GAPS;
+
+  private static final Pattern COMMAND_HANDLER_NAME =
+      Pattern.compile("^[A-Za-z][A-Za-z0-9_]{0,49}$");
+
+  /**
+   * Workbench system-def stylesheet hrefs are {@code file:} URLs relative to the content-editor
+   * app ({@code file:../sys_resources/stylesheets/activeEdit.xsl}). Extra {@code ..}, absolute
+   * paths, and non-file schemes are rejected.
+   */
+  private static final Pattern SAFE_STYLESHEET_HREF =
+      Pattern.compile(
+          "^file:\\.\\./(sys_resources|rx_resources)/stylesheets/[A-Za-z0-9][A-Za-z0-9._-]{0,120}\\.xsl$");
+
+  private static final int MAX_STYLESHEET_HREF_LENGTH = 200;
 
   private static final int MAX_FIELD_NAME_LENGTH = 50;
 
@@ -190,8 +215,10 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
   private static PSContentEditorSystemDef loadSystemDefFromDesignWsOnce(
       IPSContentDesignWs designWs, boolean lock, String sessionId, String user) {
     try {
+      // Request-lock writes override a stale lock owned by the same user in another
+      // session (REST basic vs SPA cookie) so a leaked lock cannot 409 later Admin PUTs.
       PSContentEditorSystemDef def =
-          designWs.loadContentEditorSystemDef(lock, false, sessionId, user);
+          designWs.loadContentEditorSystemDef(lock, lock, sessionId, user);
       if (lock && def == null) {
         throw new IllegalStateException("Failed to load system def for write");
       }
@@ -743,6 +770,33 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
     return toFieldControlProperties(fieldName.trim(), mapping);
   }
 
+  @Override
+  public SystemDefStylesheets getStylesheets(URI baseUri) {
+    requireAdmin();
+    return toStylesheets(systemDefLoader.get());
+  }
+
+  @Override
+  public SystemDefStylesheets replaceStylesheets(URI baseUri, SystemDefStylesheets body) {
+    requireAdmin();
+    requireDesignWs();
+    requireSessionUserForWrite();
+    if (body == null || body.getHandlers() == null) {
+      throw new IllegalArgumentException("handlers is required");
+    }
+    List<SystemDefCommandHandlerStylesheet> keep =
+        validateStylesheetHandlers(body.getHandlers());
+    String session = currentSession();
+    String user = currentUser();
+    PSContentEditorSystemDef def = loadSystemDefLocked(session, user);
+    if (def == null || def.getStyleSheetSet() == null) {
+      throw new IllegalStateException("Failed to load system def for write");
+    }
+    applyValidatedStylesheetUpdates(def.getStyleSheetSet(), keep);
+    saveSystemDef(def, session, user);
+    return toStylesheets(def);
+  }
+
   private SystemDefControlProperties loadFieldControlProperties(
       PSContentEditorSystemDef def, String fieldName) {
     PSDisplayMapping mapping = requireFieldMapping(def, fieldName, false);
@@ -812,6 +866,192 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
     if (body.getChoices() != null) {
       ui.setChoices(ContentTypeAdaptor.fromChoiceCatalog(body.getChoices()));
     }
+  }
+
+  static SystemDefStylesheets toStylesheets(PSContentEditorSystemDef def) {
+    SystemDefStylesheets out = new SystemDefStylesheets();
+    List<SystemDefCommandHandlerStylesheet> handlers = new ArrayList<>();
+    PSCommandHandlerStylesheets set = def != null ? def.getStyleSheetSet() : null;
+    if (set != null) {
+      List<String> names = commandHandlerNames(set);
+      names.sort(String.CASE_INSENSITIVE_ORDER);
+      for (String name : names) {
+        handlers.add(toHandlerRow(set, name));
+      }
+    }
+    out.setHandlers(handlers);
+    out.setDesignGaps(new ArrayList<>(STYLESHEET_DESIGN_GAPS));
+    return out;
+  }
+
+  static SystemDefCommandHandlerStylesheet toHandlerRow(
+      PSCommandHandlerStylesheets set, String name) {
+    SystemDefCommandHandlerStylesheet row = new SystemDefCommandHandlerStylesheet();
+    row.setCommandHandler(name);
+    PSStylesheet defaultSheet = set.getDefaultStylesheet(name);
+    if (defaultSheet != null && defaultSheet.getRequest() != null) {
+      row.setHref(defaultSheet.getRequest().getHref());
+    }
+    List<SystemDefConditionalStylesheet> conditionals = new ArrayList<>();
+    List<PSStylesheet> all = stylesheetList(set, name);
+    for (int i = 0; i < all.size() - 1; i++) {
+      PSStylesheet sheet = all.get(i);
+      SystemDefConditionalStylesheet cond = new SystemDefConditionalStylesheet();
+      if (sheet != null && sheet.getRequest() != null) {
+        cond.setHref(sheet.getRequest().getHref());
+      }
+      conditionals.add(cond);
+    }
+    if (!conditionals.isEmpty()) {
+      row.setConditionals(conditionals);
+    }
+    return row;
+  }
+
+  /**
+   * Full replace of command-handler default hrefs. Omitted handlers (and blank hrefs) are
+   * removed. Conditionals on remaining handlers are preserved via {@link
+   * PSCommandHandlerStylesheets#setDefaultStylesheet}. At least one remaining handler is
+   * required.
+   */
+  static void applyStylesheetUpdates(
+      PSCommandHandlerStylesheets set, List<SystemDefCommandHandlerStylesheet> handlers) {
+    applyValidatedStylesheetUpdates(set, validateStylesheetHandlers(handlers));
+  }
+
+  /**
+   * Validate PUT handlers without mutating the object store so a 400 does not hold the
+   * system-def design lock.
+   */
+  static List<SystemDefCommandHandlerStylesheet> validateStylesheetHandlers(
+      List<SystemDefCommandHandlerStylesheet> handlers) {
+    if (handlers == null) {
+      throw new IllegalArgumentException("handlers is required");
+    }
+    List<SystemDefCommandHandlerStylesheet> keep = new ArrayList<>();
+    Set<String> seen = new LinkedHashSet<>();
+    for (SystemDefCommandHandlerStylesheet row : handlers) {
+      if (row == null) {
+        continue;
+      }
+      String name = validateCommandHandlerName(row.getCommandHandler());
+      String folded = name.toLowerCase(Locale.ROOT);
+      if (seen.contains(folded)) {
+        throw new IllegalArgumentException("Duplicate command handler: " + name);
+      }
+      seen.add(folded);
+      if (StringUtils.isBlank(row.getHref())) {
+        continue;
+      }
+      SystemDefCommandHandlerStylesheet copy = new SystemDefCommandHandlerStylesheet();
+      copy.setCommandHandler(name);
+      copy.setHref(requireSafeStylesheetHref(row.getHref()));
+      keep.add(copy);
+    }
+    if (keep.isEmpty()) {
+      throw new IllegalArgumentException("At least one command handler stylesheet is required");
+    }
+    return keep;
+  }
+
+  static void applyValidatedStylesheetUpdates(
+      PSCommandHandlerStylesheets set, List<SystemDefCommandHandlerStylesheet> keep) {
+    if (set == null) {
+      throw new IllegalArgumentException("System def has no stylesheet set");
+    }
+    if (keep == null || keep.isEmpty()) {
+      throw new IllegalArgumentException("At least one command handler stylesheet is required");
+    }
+    Set<String> keepFolded = new LinkedHashSet<>();
+    for (SystemDefCommandHandlerStylesheet row : keep) {
+      keepFolded.add(row.getCommandHandler().toLowerCase(Locale.ROOT));
+    }
+    for (String existing : commandHandlerNames(set)) {
+      if (!keepFolded.contains(existing.toLowerCase(Locale.ROOT))) {
+        set.removeStylesheets(existing);
+      }
+    }
+    for (SystemDefCommandHandlerStylesheet row : keep) {
+      String storedName = findExistingHandlerName(set, row.getCommandHandler());
+      String name = storedName != null ? storedName : row.getCommandHandler();
+      PSUrlRequest request =
+          new PSUrlRequest(null, row.getHref(), new PSCollection<PSParam>(PSParam.class));
+      set.setDefaultStylesheet(name, new PSStylesheet(request));
+    }
+  }
+
+  static String validateCommandHandlerName(String name) {
+    if (StringUtils.isBlank(name)) {
+      throw new IllegalArgumentException("commandHandler is required");
+    }
+    String trimmed = name.trim();
+    if (!isSafeFieldName(trimmed) || !COMMAND_HANDLER_NAME.matcher(trimmed).matches()) {
+      throw new IllegalArgumentException("Invalid command handler name: " + trimmed);
+    }
+    return trimmed;
+  }
+
+  /**
+   * Workbench default hrefs are {@code file:../sys_resources/stylesheets/*.xsl} (or {@code
+   * rx_resources}). Rejects extra traversal, backslashes, absolute paths, and non-file schemes.
+   */
+  static String requireSafeStylesheetHref(String href) {
+    if (StringUtils.isBlank(href)) {
+      throw new IllegalArgumentException("stylesheet href is required");
+    }
+    String trimmed = href.trim();
+    if (trimmed.length() > MAX_STYLESHEET_HREF_LENGTH) {
+      throw new IllegalArgumentException("stylesheet href exceeds length limit");
+    }
+    if (trimmed.indexOf('\\') >= 0 || trimmed.indexOf('\0') >= 0) {
+      throw new IllegalArgumentException("Invalid stylesheet href");
+    }
+    if (!SAFE_STYLESHEET_HREF.matcher(trimmed).matches()) {
+      throw new IllegalArgumentException("Invalid stylesheet href");
+    }
+    return trimmed;
+  }
+
+  static List<String> commandHandlerNames(PSCommandHandlerStylesheets set) {
+    List<String> names = new ArrayList<>();
+    if (set == null) {
+      return names;
+    }
+    Iterator<?> it = set.getCommandHandlerNames();
+    while (it != null && it.hasNext()) {
+      Object next = it.next();
+      if (next != null) {
+        names.add(String.valueOf(next));
+      }
+    }
+    return names;
+  }
+
+  static String findExistingHandlerName(PSCommandHandlerStylesheets set, String name) {
+    if (set == null || name == null) {
+      return null;
+    }
+    for (String existing : commandHandlerNames(set)) {
+      if (existing.equalsIgnoreCase(name)) {
+        return existing;
+      }
+    }
+    return null;
+  }
+
+  static List<PSStylesheet> stylesheetList(PSCommandHandlerStylesheets set, String name) {
+    List<PSStylesheet> all = new ArrayList<>();
+    if (set == null || name == null) {
+      return all;
+    }
+    Iterator<?> it = set.getStylesheets(name);
+    while (it != null && it.hasNext()) {
+      Object next = it.next();
+      if (next instanceof PSStylesheet sheet) {
+        all.add(sheet);
+      }
+    }
+    return all;
   }
 
   /**

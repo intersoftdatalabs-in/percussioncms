@@ -23,13 +23,18 @@ import {
   deleteSystemDefField,
   getSystemDef,
   getSystemDefFieldControlProperties,
+  getSystemDefStylesheets,
   isSystemDefFieldAddReady,
+  isValidSystemDefCommandHandler,
+  isValidSystemDefStylesheetHref,
   replaceSystemDefFieldControlProperties,
+  replaceSystemDefStylesheets,
   updateSystemDef,
   type SystemDefFieldPatch,
 } from "../api/developer/systemDefApi";
 import type {
   ContentTypeControlProperty,
+  SystemDefCommandHandlerStylesheet,
   SystemDefDetail,
   SystemDefFieldSummary,
 } from "../api/developer/types";
@@ -139,6 +144,14 @@ export function SystemDefPanel(): React.ReactElement {
   const [controlPropsError, setControlPropsError] = useState<string | null>(null);
   const [newPropName, setNewPropName] = useState("");
   const [newPropValue, setNewPropValue] = useState("");
+  const [ssHandlers, setSsHandlers] = useState<SystemDefCommandHandlerStylesheet[]>([]);
+  const [ssInitial, setSsInitial] = useState<SystemDefCommandHandlerStylesheet[]>([]);
+  const [ssLoading, setSsLoading] = useState(true);
+  const [ssError, setSsError] = useState<string | null>(null);
+  const [ssNewHandler, setSsNewHandler] = useState("");
+  const [ssNewHref, setSsNewHref] = useState(
+    "file:../sys_resources/stylesheets/activeEdit.xsl",
+  );
   const inflight = useRef(false);
 
   function applyDetail(d: SystemDefDetail): void {
@@ -153,6 +166,16 @@ export function SystemDefPanel(): React.ReactElement {
     });
   }
 
+  function applyStylesheets(handlers: SystemDefCommandHandlerStylesheet[]): void {
+    const next = handlers.map((h) => ({
+      commandHandler: h.commandHandler,
+      href: h.href,
+      conditionals: h.conditionals,
+    }));
+    setSsHandlers(next);
+    setSsInitial(next.map((h) => ({ commandHandler: h.commandHandler, href: h.href })));
+  }
+
   useEffect(() => {
     let cancelled = false;
     getSystemDef()
@@ -163,6 +186,22 @@ export function SystemDefPanel(): React.ReactElement {
         if (cancelled) return;
         setError(panelErrMsg(e, DEV_MSG.SYS_ERROR));
         setDetail(null);
+      });
+    setSsLoading(true);
+    getSystemDefStylesheets()
+      .then((loaded) => {
+        if (cancelled) return;
+        applyStylesheets(loaded.handlers || []);
+        setSsError(null);
+      })
+      .catch((e: unknown) => {
+        if (cancelled) return;
+        setSsHandlers([]);
+        setSsInitial([]);
+        setSsError(panelErrMsg(e, DEV_MSG.SYS_SS_ERROR));
+      })
+      .finally(() => {
+        if (!cancelled) setSsLoading(false);
       });
     return () => {
       cancelled = true;
@@ -231,6 +270,34 @@ export function SystemDefPanel(): React.ReactElement {
   const controlPropsDirty = !controlPropertiesEqual(controlProps, controlPropsInitial);
   const canSaveControl =
     !busy && !controlPropsLoading && !!selectedFieldName && controlPropsDirty;
+  const ssDirty =
+    ssHandlers.length !== ssInitial.length ||
+    ssHandlers.some((h, i) => {
+      const orig = ssInitial[i];
+      return (
+        !orig ||
+        (h.commandHandler || "") !== (orig.commandHandler || "") ||
+        (h.href || "") !== (orig.href || "")
+      );
+    });
+  const canSaveSs =
+    !busy &&
+    !ssLoading &&
+    ssDirty &&
+    ssHandlers.length > 0 &&
+    ssHandlers.every(
+      (h) =>
+        isValidSystemDefCommandHandler(h.commandHandler) &&
+        isValidSystemDefStylesheetHref(h.href),
+    );
+  const canAddSs =
+    !busy &&
+    !ssLoading &&
+    isValidSystemDefCommandHandler(ssNewHandler.trim()) &&
+    isValidSystemDefStylesheetHref(ssNewHref) &&
+    !ssHandlers.some(
+      (h) => (h.commandHandler || "").toLowerCase() === ssNewHandler.trim().toLowerCase(),
+    );
 
   async function handleSave(): Promise<void> {
     if (!canSave || inflight.current) return;
@@ -318,6 +385,44 @@ export function SystemDefPanel(): React.ReactElement {
       setWriteError(
         panelErrMsg(err, writeFallback(err, false, false, DEV_MSG.SYS_CONTROL_PROPS_SAVE_ERROR)),
       );
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  function setSsHref(index: number, href: string): void {
+    setSsHandlers((prev) => prev.map((h, i) => (i === index ? { ...h, href } : h)));
+  }
+
+  function removeSsHandler(index: number): void {
+    setSsHandlers((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== index)));
+  }
+
+  function addSsHandler(): void {
+    if (!canAddSs) return;
+    const commandHandler = ssNewHandler.trim();
+    setSsHandlers((prev) => [...prev, { commandHandler, href: ssNewHref.trim() }]);
+    setSsNewHandler("");
+  }
+
+  async function handleSaveStylesheets(): Promise<void> {
+    if (!canSaveSs || inflight.current) return;
+    inflight.current = true;
+    setBusy(true);
+    setWriteError(null);
+    setNotice(null);
+    try {
+      const saved = await replaceSystemDefStylesheets({
+        handlers: ssHandlers.map((h) => ({
+          commandHandler: h.commandHandler,
+          href: h.href,
+        })),
+      });
+      applyStylesheets(saved.handlers || []);
+      setNotice(DEV_MSG.SYS_SS_SAVED);
+    } catch (err: unknown) {
+      setWriteError(panelErrMsg(err, writeFallback(err, false, false, DEV_MSG.SYS_SS_SAVE_ERROR)));
     } finally {
       inflight.current = false;
       setBusy(false);
@@ -842,6 +947,175 @@ export function SystemDefPanel(): React.ReactElement {
             }}
           >
             {DEV_MSG.SYS_CONTROL_PROPS_ADD}
+          </button>
+        </div>
+      </section>
+
+      <section
+        data-testid="developer-sys-ss"
+        style={{
+          marginTop: "16px",
+          padding: "12px",
+          border: `1px solid ${catalogColors.headerBorder}`,
+          borderRadius: "4px",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "12px",
+            flexWrap: "wrap",
+          }}
+        >
+          <h3 style={{ fontSize: "1rem", marginTop: 0 }}>{DEV_MSG.SYS_SS}</h3>
+          <button
+            type="button"
+            data-testid="developer-sys-ss-save"
+            aria-label={DEV_MSG.SYS_SS_SAVE}
+            disabled={!canSaveSs}
+            onClick={() => void handleSaveStylesheets()}
+            style={{
+              padding: "8px 16px",
+              background: canSaveSs ? catalogColors.accent : catalogColors.disabled,
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: canSaveSs ? "pointer" : "not-allowed",
+            }}
+          >
+            {DEV_MSG.SYS_SS_SAVE}
+          </button>
+        </div>
+        <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.SYS_SS_HINT}</p>
+        {ssError ? (
+          <p role="status" data-testid="developer-sys-ss-error" style={{ color: catalogColors.error }}>
+            {ssError}
+          </p>
+        ) : null}
+        {ssLoading ? (
+          <p data-testid="developer-sys-ss-loading" style={{ color: catalogColors.muted }}>
+            {DEV_MSG.SYS_SS_LOADING}
+          </p>
+        ) : null}
+        {!ssLoading && ssHandlers.length === 0 ? (
+          <p style={{ color: catalogColors.empty }} data-testid="developer-sys-ss-empty">
+            {DEV_MSG.SYS_SS_EMPTY}
+          </p>
+        ) : null}
+        {!ssLoading && ssHandlers.length > 0 ? (
+          <SimpleCatalogTable
+            tableTestId="developer-sys-ss-table"
+            rowTestId="developer-sys-ss-row"
+            columns={[
+              DEV_MSG.SYS_SS_COL_HANDLER,
+              DEV_MSG.SYS_SS_COL_HREF,
+              DEV_MSG.SYS_SS_COL_CONDITIONALS,
+              DEV_MSG.SYS_SS_COL_ACTIONS,
+            ]}
+            rows={ssHandlers.map((h, i) => {
+              const name = h.commandHandler || "";
+              const condCount = h.conditionals?.length || 0;
+              return {
+                key: name || `ss-${i}`,
+                dataAttrs: name ? { "data-sys-ss-handler": name } : undefined,
+                cells: [
+                  <span key="n" style={monoCell}>
+                    {name || "—"}
+                  </span>,
+                  <input
+                    key="href"
+                    type="text"
+                    data-testid={`developer-sys-ss-href-${i}`}
+                    aria-label={`${DEV_MSG.SYS_SS_COL_HREF} ${name || i}`}
+                    style={{ ...inputStyle, fontFamily: "monospace", minWidth: "22rem" }}
+                    value={h.href || ""}
+                    disabled={busy}
+                    onChange={(e) => setSsHref(i, e.target.value)}
+                  />,
+                  <span key="c" data-testid={`developer-sys-ss-cond-${i}`}>
+                    {condCount}
+                  </span>,
+                  <button
+                    key="rm"
+                    type="button"
+                    data-testid={`developer-sys-ss-remove-${i}`}
+                    aria-label={`${DEV_MSG.SYS_SS_REMOVE} ${name}`}
+                    disabled={busy || ssHandlers.length <= 1}
+                    onClick={() => removeSsHandler(i)}
+                    title={ssHandlers.length <= 1 ? DEV_MSG.SYS_SS_LAST : DEV_MSG.SYS_SS_REMOVE}
+                    style={{
+                      padding: "4px 10px",
+                      background: "#c53030",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: busy || ssHandlers.length <= 1 ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    {DEV_MSG.SYS_SS_REMOVE}
+                  </button>,
+                ],
+              };
+            })}
+          />
+        ) : null}
+        <div
+          style={{
+            marginTop: "12px",
+            display: "grid",
+            gridTemplateColumns: "1fr 2fr auto",
+            gap: "8px",
+            alignItems: "end",
+          }}
+        >
+          <div>
+            <label htmlFor="sys-ss-add-name" style={{ display: "block", marginBottom: 4 }}>
+              {DEV_MSG.SYS_SS_NEW_HANDLER}
+            </label>
+            <input
+              id="sys-ss-add-name"
+              type="text"
+              autoComplete="off"
+              data-testid="developer-sys-ss-add-name"
+              style={{ ...inputStyle, fontFamily: "monospace" }}
+              value={ssNewHandler}
+              disabled={busy}
+              onChange={(e) => setSsNewHandler(e.target.value)}
+            />
+          </div>
+          <div>
+            <label htmlFor="sys-ss-add-href" style={{ display: "block", marginBottom: 4 }}>
+              {DEV_MSG.SYS_SS_NEW_HREF}
+            </label>
+            <input
+              id="sys-ss-add-href"
+              type="text"
+              autoComplete="off"
+              data-testid="developer-sys-ss-add-href"
+              style={{ ...inputStyle, fontFamily: "monospace" }}
+              placeholder={DEV_MSG.SYS_SS_HREF_PLACEHOLDER}
+              value={ssNewHref}
+              disabled={busy}
+              onChange={(e) => setSsNewHref(e.target.value)}
+            />
+          </div>
+          <button
+            type="button"
+            data-testid="developer-sys-ss-add"
+            disabled={!canAddSs}
+            onClick={addSsHandler}
+            style={{
+              padding: "8px 16px",
+              background: canAddSs ? catalogColors.accent : catalogColors.disabled,
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: canAddSs ? "pointer" : "not-allowed",
+            }}
+          >
+            {DEV_MSG.SYS_SS_ADD}
           </button>
         </div>
       </section>

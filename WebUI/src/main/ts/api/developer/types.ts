@@ -808,6 +808,27 @@ export interface SystemDefControlProperties {
   designGaps?: DesignGapWire[];
 }
 
+/** GET-only conditional stylesheet href on a command handler. */
+export interface SystemDefConditionalStylesheet {
+  href?: string;
+}
+
+/** Command-handler default stylesheet association (CD-16 SYS_STYLESHEET). */
+export interface SystemDefCommandHandlerStylesheet {
+  commandHandler?: string;
+  href?: string;
+  conditionals?: SystemDefConditionalStylesheet[];
+}
+
+/**
+ * Jackson {@code SystemDefStylesheets} body for CD-16
+ * GET/PUT {@code /services/systemdef/stylesheets}.
+ */
+export interface SystemDefStylesheets {
+  handlers?: SystemDefCommandHandlerStylesheet[];
+  designGaps?: DesignGapWire[];
+}
+
 /** Item filter rule param from GET /services/itemfilters. */
 export interface ItemFilterRuleParam {
   name?: string;

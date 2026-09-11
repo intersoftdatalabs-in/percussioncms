@@ -106,4 +106,28 @@ public interface ISystemDefAdaptor {
    */
   SystemDefControlProperties replaceFieldControlProperties(
       URI baseUri, String fieldName, SystemDefControlProperties body);
+
+  /**
+   * Load command-handler stylesheet associations from the content-editor system definition (CD-16).
+   * Admin only. No design lock is required.
+   *
+   * @return envelope, never {@code null} (empty handlers when none)
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin
+   */
+  SystemDefStylesheets getStylesheets(URI baseUri);
+
+  /**
+   * Replace command-handler stylesheet associations. Admin only. Acquires the system-def design
+   * lock for this request and releases it on save. Full replace of {@code handlers}: omitted
+   * handlers are removed; a blank {@code href} removes that handler. At least one remaining
+   * handler with a valid href is required.
+   *
+   * @return persisted envelope, never {@code null}
+   * @throws IllegalArgumentException when handlers is missing, empty after clear, a name/href is
+   *     invalid, or a command handler is duplicated
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin
+   * @throws SystemDefDesignLockException when the system def is locked by another user or is not
+   *     locked for this session
+   */
+  SystemDefStylesheets replaceStylesheets(URI baseUri, SystemDefStylesheets body);
 }

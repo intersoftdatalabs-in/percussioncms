@@ -50,7 +50,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 @XmlRootElement
 @Tag(
     name = "SystemDef",
-    description = "Content editor system definition catalog, field-property write, and field create/delete")
+    description =
+        "Content editor system definition catalog, field-property write, field create/delete,"
+            + " and command-handler stylesheet associations")
 public class SystemDefResource {
 
   private final ISystemDefAdaptor adaptor;
@@ -80,7 +82,8 @@ public class SystemDefResource {
               + " Admin (Design) only. Save uses PUT /systemdef to patch existing field properties."
               + " Add a field with POST /systemdef/fields; remove one with DELETE"
               + " /systemdef/fields/{fieldName}. Control properties use GET/PUT"
-              + " /systemdef/fields/{fieldName}/controlProperties.",
+              + " /systemdef/fields/{fieldName}/controlProperties. Stylesheets use GET/PUT"
+              + " /systemdef/stylesheets.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -147,9 +150,10 @@ public class SystemDefResource {
               + " case-insensitive, and must be a letter followed by letters, digits, or"
               + " underscore. Optional dataType defaults to text. Optional searchable and"
               + " occurrence/required use the same rules as PUT field patches. Duplicate field is"
-              + " 409. Lock held by another user is 409. Stylesheet and application-flow editors"
-              + " remain unsupported. Control properties use GET/PUT"
-              + " .../fields/{fieldName}/controlProperties.",
+              + " 409. Lock held by another user is 409. Application-flow editors remain"
+              + " unsupported. Control properties use GET/PUT"
+              + " .../fields/{fieldName}/controlProperties. Stylesheets use GET/PUT"
+              + " /systemdef/stylesheets.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -276,6 +280,71 @@ public class SystemDefResource {
         throw new WebApplicationException("System field not found", 404);
       }
       return out;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @GET
+  @Path("/stylesheets")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get system-def command handler stylesheet associations",
+      description =
+          "CD-16 GET: command-handler default stylesheet hrefs (and read-only conditionals)."
+              + " Admin only. No design lock is required. Jackson root wrap is"
+              + " SystemDefStylesheets.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = SystemDefStylesheets.class))),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public SystemDefStylesheets getStylesheets() {
+    try {
+      return requireAdaptor().getStylesheets(uriInfo.getBaseUri());
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/stylesheets")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Replace system-def command handler stylesheet associations",
+      description =
+          "CD-16 PUT: full replace of command-handler default stylesheet hrefs via"
+              + " IPSContentDesignWs.loadContentEditorSystemDef (lock) then"
+              + " saveContentEditorSystemDef (release). Admin only. Omitted handlers are"
+              + " removed; blank href removes that handler. At least one remaining handler with"
+              + " a valid file:../sys_resources|rx_resources/stylesheets/*.xsl href is required."
+              + " Conditional rows are preserved. Jackson root wrap is SystemDefStylesheets.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Replaced (system-def lock released)",
+            content = @Content(schema = @Schema(implementation = SystemDefStylesheets.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Missing handlers, invalid name/href, duplicate handler, or empty set"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "409", description = "System def locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public SystemDefStylesheets replaceStylesheets(SystemDefStylesheets body) {
+    if (body == null || body.getHandlers() == null) {
+      throw new WebApplicationException("handlers is required", 400);
+    }
+    try {
+      return requireAdaptor().replaceStylesheets(uriInfo.getBaseUri(), body);
     } catch (RuntimeException e) {
       throw mapWriteFailure(e);
     } catch (Exception e) {

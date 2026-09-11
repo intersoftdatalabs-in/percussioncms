@@ -13,10 +13,16 @@ import {
   replaceSystemDefFieldControlProperties,
   unwrapSystemDefControlProperties,
   unwrapSystemDefDetail,
+  unwrapSystemDefStylesheets,
   updateSystemDef,
   wrapSystemDefControlPropertiesForWire,
   wrapSystemDefDetailForWire,
   wrapSystemDefFieldForWire,
+  wrapSystemDefStylesheetsForWire,
+  getSystemDefStylesheets,
+  replaceSystemDefStylesheets,
+  isValidSystemDefCommandHandler,
+  isValidSystemDefStylesheetHref,
 } from "../../../../main/ts/api/developer/systemDefApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -114,6 +120,65 @@ describe("system def wire wrap", () => {
       properties: [],
     });
     expect(unwrapSystemDefControlProperties(null)).toEqual({ properties: [] });
+  });
+
+  it("wraps PUT stylesheets under SystemDefStylesheets root", () => {
+    expect(
+      wrapSystemDefStylesheetsForWire({
+        handlers: [
+          {
+            commandHandler: "preview",
+            href: "file:../sys_resources/stylesheets/activeEdit.xsl",
+          },
+        ],
+      }),
+    ).toEqual({
+      SystemDefStylesheets: {
+        handlers: [
+          {
+            commandHandler: "preview",
+            href: "file:../sys_resources/stylesheets/activeEdit.xsl",
+          },
+        ],
+      },
+    });
+  });
+
+  it("unwraps SystemDefStylesheets envelope and JAXB one-item handlers", () => {
+    expect(
+      unwrapSystemDefStylesheets({
+        SystemDefStylesheets: {
+          handlers: {
+            SystemDefCommandHandlerStylesheet: {
+              commandHandler: "preview",
+              href: "file:../sys_resources/stylesheets/activeEdit.xsl",
+            },
+          },
+        },
+      }),
+    ).toEqual({
+      handlers: [
+        {
+          commandHandler: "preview",
+          href: "file:../sys_resources/stylesheets/activeEdit.xsl",
+        },
+      ],
+    });
+    expect(unwrapSystemDefStylesheets(null)).toEqual({ handlers: [] });
+  });
+
+  it("validates command handler names and stylesheet hrefs", () => {
+    expect(isValidSystemDefCommandHandler("preview")).toBe(true);
+    expect(isValidSystemDefCommandHandler("qa4452")).toBe(true);
+    expect(isValidSystemDefCommandHandler("1bad")).toBe(false);
+    expect(isValidSystemDefCommandHandler("has space")).toBe(false);
+    expect(
+      isValidSystemDefStylesheetHref("file:../sys_resources/stylesheets/activeEdit.xsl"),
+    ).toBe(true);
+    expect(isValidSystemDefStylesheetHref("https://evil.example/x.xsl")).toBe(false);
+    expect(
+      isValidSystemDefStylesheetHref("file:../sys_resources/stylesheets/../x.xsl"),
+    ).toBe(false);
   });
 });
 
@@ -215,6 +280,58 @@ describe("systemDefApi write paths", () => {
     expect(JSON.parse(String(init.body))).toEqual({
       SystemDefControlProperties: {
         properties: [{ name: "width", value: "640" }],
+      },
+    });
+  });
+
+  it("GETs and unwraps /services/systemdef/stylesheets", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        SystemDefStylesheets: {
+          handlers: [
+            {
+              commandHandler: "preview",
+              href: "file:../sys_resources/stylesheets/activeEdit.xsl",
+            },
+          ],
+        },
+      }),
+    );
+    const loaded = await getSystemDefStylesheets();
+    expect(loaded.handlers?.[0]?.commandHandler).toBe("preview");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.SYSTEM_DEF}/stylesheets`);
+  });
+
+  it("PUTs wrapped stylesheets", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        handlers: [
+          {
+            commandHandler: "preview",
+            href: "file:../sys_resources/stylesheets/contentEdit.xsl",
+          },
+        ],
+      }),
+    );
+    const saved = await replaceSystemDefStylesheets({
+      handlers: [
+        {
+          commandHandler: "preview",
+          href: "file:../sys_resources/stylesheets/contentEdit.xsl",
+        },
+      ],
+    });
+    expect(saved.handlers?.[0]?.href).toContain("contentEdit.xsl");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(JSON.parse(String(init.body))).toEqual({
+      SystemDefStylesheets: {
+        handlers: [
+          {
+            commandHandler: "preview",
+            href: "file:../sys_resources/stylesheets/contentEdit.xsl",
+          },
+        ],
       },
     });
   });

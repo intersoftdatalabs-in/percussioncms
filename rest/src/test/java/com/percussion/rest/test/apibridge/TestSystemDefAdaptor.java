@@ -21,6 +21,7 @@ import com.percussion.rest.systemdef.ISystemDefAdaptor;
 import com.percussion.rest.systemdef.SystemDefControlProperties;
 import com.percussion.rest.systemdef.SystemDefDetail;
 import com.percussion.rest.systemdef.SystemDefFieldSummary;
+import com.percussion.rest.systemdef.SystemDefStylesheets;
 import java.net.URI;
 import java.util.List;
 import org.springframework.context.annotation.Lazy;
@@ -69,5 +70,17 @@ public class TestSystemDefAdaptor implements ISystemDefAdaptor {
   public SystemDefControlProperties replaceFieldControlProperties(
       URI baseUri, String fieldName, SystemDefControlProperties body) {
     return body != null ? body : new SystemDefControlProperties();
+  }
+
+  @Override
+  public SystemDefStylesheets getStylesheets(URI baseUri) {
+    SystemDefStylesheets out = new SystemDefStylesheets();
+    out.setHandlers(List.of());
+    return out;
+  }
+
+  @Override
+  public SystemDefStylesheets replaceStylesheets(URI baseUri, SystemDefStylesheets body) {
+    return body != null ? body : new SystemDefStylesheets();
   }
 }
