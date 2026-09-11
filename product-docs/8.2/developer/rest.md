@@ -562,8 +562,8 @@ Example create body:
 | Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `enabled`, `designGaps` |
 | Export | `GET /services/contenttypes/{idOrName}/export` | **Admin.** CD-14 export of Workbench-equivalent design XML (`IPSContentDesignWs.loadContentTypes` with `lock=false`, `overrideLock=false` — the lock is **not** stolen). `Content-Type: application/xml` and `Content-Disposition: attachment` with a filename derived from the **type name** (for example `percPage.xml`). Path separators and Windows-invalid characters (`* ? < > \| :`) are replaced with `_`. The header includes an ASCII `filename` fallback and RFC 5987 `filename*` for non-ASCII names. Unknown id/name is **404**. Non-Admin is **403**. Import is a separate `POST /services/contenttypes/import`. Developer **Content types** detail chrome exposes **Export XML** for this path. |
 | Allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` | Read-only list of associated templates (CD-12). No lock required. Empty list means none. Same set as `ContentTypeDetail.allowedTemplates`. |
-| Item-level exits | `GET /services/contenttypes/{idOrName}/itemExits` | Item-level input/output translations, validations, and pipe pre/post exits (CD-09). No lock required. Empty lists mean none. Apply-when conditions are a read-only summary. Jackson root wrap is `ContentTypeItemExits`. |
-| Replace item-level exits | `PUT /services/contenttypes/{idOrName}/itemExits` | Full replace of item-level translations/validations via `IPSContentDesignWs.saveContentTypes` (CD-09). Requires a **held** design-session lock. Empty lists clear. **409** if unlocked or locked by another user. **400** if required lists are missing or an extension FQN is invalid. `preExits`/`postExits` omitted leave pipe extensions unchanged. Apply-when is not written. Does not acquire or release the lock. |
+| Item-level exits | `GET /services/contenttypes/{idOrName}/itemExits` | Item-level input/output translations, validations, and pipe pre/post exits (CD-09). No lock required. Empty lists mean none. Apply-when rules on translations/validations are in `applyWhen` (`condition` is a GET summary). Jackson root wrap is `ContentTypeItemExits`. |
+| Replace item-level exits | `PUT /services/contenttypes/{idOrName}/itemExits` | Full replace of item-level translations/validations via `IPSContentDesignWs.saveContentTypes` (CD-09). Requires a **held** design-session lock. Empty lists clear. **409** if unlocked or locked by another user. **400** if required lists are missing, an extension FQN is invalid, or `applyWhen` is invalid. `preExits`/`postExits` omitted leave pipe extensions unchanged. `applyWhen` empty clears; omit preserves matching GET rows. Does not acquire or release the lock. |
 | Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` | Full replace of associated templates (CD-12). Requires a **held** design-session lock. Empty list clears associations. **409** if unlocked or locked by another user. **400** if a template name/guid cannot be resolved. Does not acquire or release the lock. |
 | Lock | `POST /services/contenttypes/{idOrName}/lock` | **Admin.** Self-only design-session lock (`IPSContentDesignWs.loadContentTypes` with `lock=true`, `overrideLock=false`). Does **not** save. `200` + `ObjectLockSummary` (`session`, `locker`, `remainingTime` minutes from the lock service). Locks expire after **30 minutes** (`PSObjectLock.LOCK_INTERVAL`). Re-lock by the same session user extends the lock. |
 | Save | `PUT /services/contenttypes/{idOrName}` | **Admin.** Requires a lock already held by the current user. Saves label, description, enabled, per-field searchable/occurrence, workflows, and templates. Does **not** change name (use `PUT .../name`). Does **not** release the lock. POST `/lock` and PUT share the packed NODEDEF design-object id so a lock you hold is found on save. The save load (`lock=true`) **extends** a still-valid lock; a PUT after expiry returns `409` and the client must re-lock. Field rule expressions use the dedicated path below (not this PUT). |
@@ -952,9 +952,11 @@ required. Empty arrays mean none are configured.
 
 Each exit is an object with `extension` (fully-qualified ref such as
 `Java/global/percussion/content/sys_cleanReservedHtmlClasses`), optional `name`,
-`parameters[]` (`name`/`value`), a read-only `condition` summary, optional
-`maxErrorsToStop`, and a human-readable `summary`. `maxErrorsToStopValidation`
-is the item-validation stop count.
+`parameters[]` (`name`/`value`), writable `applyWhen` rules on translations and
+validations (same shape as field-rule conditionals), a GET `condition` summary,
+optional `maxErrorsToStop`, and a human-readable `summary`.
+`maxErrorsToStopValidation` is the item-validation stop count. Pipe pre/post
+exits ignore `applyWhen`.
 
 Item-level **input** translations and **pre-exits** must implement
 `IPSRequestPreProcessor` / `IPSItemInputTransformer`. Item-level **output**
@@ -970,16 +972,19 @@ unchanged; a non-null list is a full replace (content-editor pipes use the
 CE-specific input-data setter; `setInputDataExtensions` is not supported on
 percPage). Each exit needs a resolvable extension FQN; parameter values are
 stored as literals. Unchanged GET rows keep their original apply-when and
-parameter types. **Apply-when conditions are not written** for new rows (see
-`designGaps` code `CT_ITEM_EXIT_CONDITIONS`).
+parameter types when `applyWhen` is omitted. Send `applyWhen: []` to clear, or
+a list of `{ "type": "conditional", "conditionals": [...] }` (or `type=extension`)
+to write. `type=reference` and invalid operators are **400**. `CT_ITEM_EXIT_CONDITIONS`
+is retired; the item-exits envelope `designGaps` is empty.
 
 Typical flow: `POST .../lock` → `PUT .../itemExits` → `POST .../unlock`.
 
 **Developer → Content types** detail chrome follows that flow after **Lock**: add
 or remove item-level input/output translations, validations, and pipe pre/post
-exits by extension FQN, **Save content type** (dedicated PUT, then GET lists the
-new set), then **Unlock**. Save is disabled until the lock is held; the product
-does not steal another user's lock. Apply-when conditions stay read-only. See
+exits by extension FQN, edit **Apply when** on translations/validations, **Save
+content type** (dedicated PUT, then GET lists the new set and apply-when), then
+**Unlock**. Save is disabled until the lock is held and does not release the lock;
+the product does not steal another user's lock. See
 [Developer Content Types](id:admin-developer-content-types).
 
 Jackson root wrap:
@@ -990,7 +995,13 @@ Jackson root wrap:
     "inputTranslations": [
       {
         "extension": "Java/global/percussion/content/sys_itemHTMLEncodeTransformer",
-        "parameters": [{ "value": "sys_title" }]
+        "parameters": [{ "value": "sys_title" }],
+        "applyWhen": [
+          {
+            "type": "conditional",
+            "conditionals": [{ "variable": "sys_communityid", "operator": "=", "value": "1001" }]
+          }
+        ]
       }
     ],
     "outputTranslations": [],
@@ -1003,16 +1014,16 @@ Jackson root wrap:
 | Status | Typical meaning |
 |--------|-----------------|
 | `200` | GET or PUT success (PUT keeps the lock held) |
-| `400` | Missing required lists, invalid extension FQN, `maxErrorsToStopValidation` ≤ 0, or design-save validation (wrong item-level extension interface) |
+| `400` | Missing required lists, invalid extension FQN, invalid `applyWhen`, `maxErrorsToStopValidation` ≤ 0, or design-save validation (wrong item-level extension interface) |
 | `403` | Caller is not Admin (PUT) |
 | `404` | Content type not found |
 | `409` | No design lock, or locked by another user |
 | `500` | Design service or server failure |
 
 Content type **detail** still lists `designGaps` code `CT_ITEM_EXITS` pointing
-at this dedicated path. Developer Content Types detail chrome consumes that
-path after a held design lock (CD-09). Apply-when write remains a gap
-(`CT_ITEM_EXIT_CONDITIONS`).
+at this dedicated path (apply-when on translations/validations is writable).
+Developer Content Types detail chrome consumes that path after a held design
+lock (CD-09).
 
 ### Field rule expressions (CD-05–07)
 
@@ -2313,7 +2324,7 @@ On those three detail responses, each gap is a structured object:
   "designGaps": [
     {
       "code": "CT_ITEM_EXITS",
-      "message": "Item-level exits/validations: GET/PUT /contenttypes/{idOrName}/itemExits (held lock for write). Apply-when conditions are read-only"
+      "message": "Item-level exits/validations: GET/PUT /contenttypes/{idOrName}/itemExits (held lock for write). Apply-when on translations/validations is writable"
     }
   ]
 }

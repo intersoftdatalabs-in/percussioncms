@@ -286,17 +286,18 @@ public class ContentTypesResourceDetailTest {
     env.setValidations(List.of());
     env.setPreExits(List.of());
     env.setPostExits(List.of());
-    env.setDesignGaps(
-        List.of(
-            DesignGap.of(
-                "CT_ITEM_EXIT_CONDITIONS", "Apply-when conditions on item-level exits are read-only")));
+    ContentTypeFieldRule when = new ContentTypeFieldRule();
+    when.setType(ContentTypeFieldRule.TYPE_CONDITIONAL);
+    when.setConditionals(List.of(new ContentTypeFieldConditional("sys_communityid", "=", "1001")));
+    exit.setApplyWhen(List.of(when));
+    env.setDesignGaps(List.of());
 
     ObjectMapper mapper = new JacksonContextResolver().getContext(ContentTypeItemExits.class);
     String json = mapper.writeValueAsString(env);
     assertTrue(json.contains("inputTranslations"), json);
     assertTrue(json.contains("sys_ToUpperCase"), json);
-    assertTrue(json.contains("CT_ITEM_EXIT_CONDITIONS"), json);
-    assertTrue(json.contains("\"code\""), json);
+    assertTrue(json.contains("applyWhen"), json);
+    assertTrue(json.contains("sys_communityid"), json);
     assertTrue(json.contains("ContentTypeItemExits"), json);
     ContentTypeItemExits back = mapper.readValue(json, ContentTypeItemExits.class);
     assertNotNull(back.getInputTranslations());
@@ -327,6 +328,24 @@ public class ContentTypesResourceDetailTest {
     assertTrue(back.getValidations().isEmpty());
     assertNotNull(back.getPreExits());
     assertEquals(Integer.valueOf(10), back.getMaxErrorsToStopValidation());
+  }
+
+  @Test
+  public void itemExitsPutJsonRoundTripsApplyWhen() throws Exception {
+    ObjectMapper mapper = new JacksonContextResolver().getContext(ContentTypeItemExits.class);
+    String json =
+        "{\"ContentTypeItemExits\":{"
+            + "\"inputTranslations\":[{\"extension\":\"Java/global/percussion/content/sys_cleanReservedHtmlClasses\","
+            + "\"parameters\":[{\"value\":\"sys_title\"}],"
+            + "\"applyWhen\":[{\"type\":\"conditional\",\"conditionals\":[{\"variable\":\"sys_communityid\",\"operator\":\"=\",\"value\":\"1001\"}]}]}],"
+            + "\"outputTranslations\":[],\"validations\":[]}}";
+    ContentTypeItemExits back = mapper.readValue(json, ContentTypeItemExits.class);
+    assertEquals(1, back.getInputTranslations().size());
+    assertNotNull(back.getInputTranslations().get(0).getApplyWhen());
+    assertEquals(1, back.getInputTranslations().get(0).getApplyWhen().size());
+    assertEquals(
+        "sys_communityid",
+        back.getInputTranslations().get(0).getApplyWhen().get(0).getConditionals().get(0).getVariable());
   }
 
   @Test
@@ -409,6 +428,19 @@ public class ContentTypesResourceDetailTest {
   public void replaceItemExitsInvalidExtension400() {
     when(adaptor.replaceItemExits(any(), eq("percPage"), any()))
         .thenThrow(new IllegalArgumentException("inputTranslations[0].extension is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceItemExits("percPage", emptyItemExitsBody()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceItemExitsInvalidApplyWhen400() {
+    when(adaptor.replaceItemExits(any(), eq("percPage"), any()))
+        .thenThrow(
+            new IllegalArgumentException(
+                "inputTranslations[0].applyWhen[0] invalid conditional: operator"));
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class,

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import type { ContentTypeFieldRule } from "./contentTypeFieldRules";
 import type { DesignGap, DesignGapWire } from "./designGaps";
 
 export type { DesignGap, DesignGapWire } from "./designGaps";
@@ -215,7 +216,11 @@ export interface ContentTypeItemExit {
   extension?: string;
   name?: string;
   parameters?: ContentTypeItemExitParam[];
-  /** Read-only apply-when summary on GET; not written. */
+  /** Apply-when rules on translations/validations. GET always present (may be []). */
+  applyWhen?: ContentTypeFieldRule[];
+  /** Local textarea draft (not a REST field). */
+  applyWhenText?: string;
+  /** GET convenience summary of applyWhen. Ignored on PUT. */
   condition?: string;
   maxErrorsToStop?: number;
   summary?: string;

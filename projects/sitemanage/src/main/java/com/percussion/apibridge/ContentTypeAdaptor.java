@@ -663,7 +663,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         DesignGap.of(
             "CT_ITEM_EXITS",
             "Item-level exits/validations: GET/PUT /contenttypes/{idOrName}/itemExits"
-                + " (held lock for write). Apply-when conditions are read-only"));
+                + " (held lock for write). Apply-when on translations/validations is writable"));
     gaps.add(
         DesignGap.of(
             "CT_CREATE_DELETE",
@@ -2405,13 +2405,12 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     return String.join("; ", calls);
   }
 
-  /** Structured gaps for the item-exits envelope (apply-when write). Package-visible for tests. */
+  /**
+   * Structured gaps for the item-exits envelope. Apply-when write shipped (#4447); envelope
+   * {@code designGaps} is empty.
+   */
   static List<DesignGap> itemExitDesignGaps() {
-    return List.of(
-        DesignGap.of(
-            "CT_ITEM_EXIT_CONDITIONS",
-            "Apply-when conditions on item-level exits are read-only; PUT replaces extension"
-                + " calls and literal parameters only"));
+    return List.of();
   }
 
   /** Package-visible for unit tests. Maps item def exits onto the CD-09 envelope. */
@@ -2460,6 +2459,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       for (Object callObj : calls) {
         if (callObj instanceof PSExtensionCall call) {
           ContentTypeItemExit dto = toExitDto(call);
+          dto.setApplyWhen(toApplyWhenFieldRules(conditional.getCondition()));
           dto.setCondition(condition);
           dto.setMaxErrorsToStop(maxErrors);
           out.add(dto);
@@ -2626,7 +2626,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
    * Keep the original {@link PSConditionalExit} (apply-when, extra rules, ids, param value types)
    * when GET→PUT reconstructs a matching row. Match is the first extension-ref FQN plus ordered
    * param display texts, regardless of how many rules the original has. New FQN/param rows are
-   * created from the DTO.
+   * created from the DTO. When {@code applyWhen} is present (including empty), it replaces the
+   * cloned or created condition; omit preserves the original apply-when.
    */
   static PSConditionalExit reuseOrCreateConditionalExit(
       ContentTypeItemExit item, List<PSConditionalExit> existing, String field) {
@@ -2653,6 +2654,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
           }
           clone.setMaxErrorsToStop(max);
         }
+        applyItemExitApplyWhen(clone, item, field);
         return clone;
       }
     }
@@ -2734,7 +2736,39 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       }
       exit.setMaxErrorsToStop(max);
     }
+    applyItemExitApplyWhen(exit, item, field);
     return exit;
+  }
+
+  /**
+   * Write {@code applyWhen} onto a conditional exit. {@code null} list omits (preserve or none);
+   * empty list clears.
+   */
+  static void applyItemExitApplyWhen(
+      PSConditionalExit exit, ContentTypeItemExit item, String field) {
+    if (exit == null || item == null || item.getApplyWhen() == null) {
+      return;
+    }
+    exit.setCondition(toItemExitApplyWhen(item.getApplyWhen(), field + ".applyWhen"));
+  }
+
+  @SuppressWarnings("unchecked")
+  static PSApplyWhen toItemExitApplyWhen(List<ContentTypeFieldRule> items, String field) {
+    if (items == null || items.isEmpty()) {
+      return null;
+    }
+    PSApplyWhen out = new PSApplyWhen();
+    int i = 0;
+    for (ContentTypeFieldRule item : items) {
+      String path = field + "[" + i + "]";
+      String type = ruleType(item, path);
+      if (ContentTypeFieldRule.TYPE_REFERENCE.equals(type)) {
+        throw new IllegalArgumentException(path + " type=reference is not allowed on applyWhen");
+      }
+      out.add(toPsRule(item, path));
+      i++;
+    }
+    return out;
   }
 
   static PSExtensionCall toExtensionCall(ContentTypeItemExit item, String field) {

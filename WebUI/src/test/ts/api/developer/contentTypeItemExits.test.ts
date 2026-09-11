@@ -10,6 +10,7 @@ import {
   emptyContentTypeItemExits,
   listContainsExtension,
   removeItemExit,
+  setItemExitApplyWhenText,
   toContentTypeItemExitsPutBody,
 } from "../../../../main/ts/api/developer/contentTypeItemExits";
 
@@ -79,7 +80,31 @@ describe("contentTypeItemExits helpers (CD-09)", () => {
     expect(body.inputTranslations?.[0]?.extension).toBe(
       "Java/global/percussion/generic/sys_ToUpperCase",
     );
+    expect(body.inputTranslations?.[0]?.applyWhen).toEqual([]);
     expect(withPipe.maxErrorsToStopValidation).toBe(10);
+  });
+
+  it("round-trips apply-when text onto PUT applyWhen and treats empty as clear", () => {
+    const added = addItemExit(
+      emptyContentTypeItemExits(),
+      "inputTranslations",
+      "Java/global/percussion/content/sys_cleanReservedHtmlClasses",
+      "sys_title",
+    );
+    const withWhen = setItemExitApplyWhenText(
+      added,
+      "inputTranslations",
+      0,
+      "sys_communityid = 1001",
+    );
+    expect(contentTypeItemExitsEqual(added, withWhen)).toBe(false);
+    const body = toContentTypeItemExitsPutBody(withWhen);
+    expect(body.inputTranslations?.[0]?.applyWhen?.[0]).toEqual({
+      type: "conditional",
+      conditionals: [{ variable: "sys_communityid", operator: "=", value: "1001" }],
+    });
+    const cleared = setItemExitApplyWhenText(withWhen, "inputTranslations", 0, "");
+    expect(toContentTypeItemExitsPutBody(cleared).inputTranslations?.[0]?.applyWhen).toEqual([]);
   });
 
   it("detects an extension already in a list", () => {

@@ -27,8 +27,10 @@ import java.util.List;
  * One item-level content-type extension call (input/output translation, validation, or pipe
  * pre/post exit).
  *
- * <p>{@code condition} is a read-only apply-when summary on GET. PUT reconstructs the extension
- * call from {@code extension} (FQN) plus literal {@code parameters}; apply-when is not written.
+ * <p>{@code condition} is a GET convenience summary of {@code applyWhen}. PUT reconstructs the
+ * extension call from {@code extension} (FQN) plus literal {@code parameters}. {@code applyWhen}
+ * is written on item translations and validations: empty list clears; omit preserves the current
+ * apply-when on matching GET rows. Pipe pre/post exits ignore {@code applyWhen}.
  */
 @XmlRootElement(name = "ContentTypeItemExit")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -49,7 +51,15 @@ public class ContentTypeItemExit {
 
   @Schema(
       description =
-          "Read-only apply-when condition summary. Null when the exit always runs. Not writable.")
+          "Apply-when rules on this item-level translation or validation. GET: always present"
+              + " (may be []). PUT: empty list clears; omit preserves the current apply-when on"
+              + " matching GET rows. type=reference is not allowed. Ignored on pipe pre/post"
+              + " exits.")
+  private List<ContentTypeFieldRule> applyWhen;
+
+  @Schema(
+      description =
+          "GET convenience: summary of applyWhen. Null when the exit always runs. Ignored on PUT.")
   private String condition;
 
   @Schema(description = "Max errors to stop for this conditional exit (item translations/validations)")
@@ -82,6 +92,14 @@ public class ContentTypeItemExit {
 
   public void setParameters(List<ContentTypeItemExitParam> parameters) {
     this.parameters = parameters != null ? parameters : new ArrayList<>();
+  }
+
+  public List<ContentTypeFieldRule> getApplyWhen() {
+    return applyWhen;
+  }
+
+  public void setApplyWhen(List<ContentTypeFieldRule> applyWhen) {
+    this.applyWhen = applyWhen;
   }
 
   public String getCondition() {

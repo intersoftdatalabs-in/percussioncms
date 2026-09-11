@@ -78,7 +78,15 @@ function unwrapItemExits(payload) {
     if (typeof raw.empty === "boolean" && Object.keys(raw).every((k) => k === "empty")) {
       return [];
     }
-    if (raw.extension || raw.name || "value" in raw) {
+    if (
+      raw.extension ||
+      raw.name ||
+      raw.type ||
+      raw.conditionals ||
+      raw.variable ||
+      raw.summary ||
+      "value" in raw
+    ) {
       return [raw];
     }
     return [];
@@ -92,10 +100,24 @@ function unwrapItemExits(payload) {
       out.value = p && p.value != null ? String(p.value) : "";
       return out;
     });
+  const normalizeConditionals = (raw) =>
+    asList(raw, "ContentTypeFieldConditional").map((c) => ({
+      variable: c && c.variable != null ? String(c.variable) : "",
+      operator: c && c.operator != null ? String(c.operator) : "",
+      value: c && c.value != null ? String(c.value) : "",
+    }));
+  const normalizeApplyWhen = (raw) =>
+    asList(raw, "ContentTypeFieldRule").map((rule) => ({
+      type: rule && rule.type != null ? String(rule.type) : "",
+      conditionals: normalizeConditionals(rule && rule.conditionals),
+      summary: rule && rule.summary != null ? String(rule.summary) : "",
+    }));
   const normalizeExits = (raw) =>
     asList(raw, "ContentTypeItemExit").map((item) => ({
       extension: exitExtension(item),
       parameters: normalizeParams(item && item.parameters),
+      applyWhen: normalizeApplyWhen(item && item.applyWhen),
+      condition: item && item.condition != null ? String(item.condition) : "",
     }));
   return {
     inputTranslations: normalizeExits(nested.inputTranslations),
@@ -201,9 +223,21 @@ function persistEnvelope(current, extraInput) {
     inputs.push(extraInput);
   }
   const envelope = {
-    inputTranslations: inputs,
-    outputTranslations: current.outputTranslations || [],
-    validations: current.validations || [],
+    inputTranslations: inputs.map((item) => ({
+      extension: exitExtension(item),
+      parameters: item.parameters || [],
+      applyWhen: item.applyWhen || [],
+    })),
+    outputTranslations: (current.outputTranslations || []).map((item) => ({
+      extension: exitExtension(item),
+      parameters: item.parameters || [],
+      applyWhen: item.applyWhen || [],
+    })),
+    validations: (current.validations || []).map((item) => ({
+      extension: exitExtension(item),
+      parameters: item.parameters || [],
+      applyWhen: item.applyWhen || [],
+    })),
   };
   if (current.maxErrorsToStopValidation != null) {
     envelope.maxErrorsToStopValidation = current.maxErrorsToStopValidation;
@@ -408,6 +442,37 @@ test.describe("Developer content type item-level exits (CD-09 / #3905)", () => {
         .inputTranslations.map(exitExtension)
         .filter(Boolean);
       expect([...restoredFqns].sort()).toEqual([...originalFqns].sort());
+
+      const applyWhenRule = {
+        type: "conditional",
+        conditionals: [{ variable: "sys_communityid", operator: "=", value: "1001" }],
+      };
+      const withWhen =
+        current.inputTranslations.length > 0
+          ? persistEnvelope({
+              ...current,
+              inputTranslations: current.inputTranslations.map((item, i) =>
+                i === 0 ? { ...item, applyWhen: [applyWhenRule] } : item,
+              ),
+            })
+          : persistEnvelope(current, {
+              extension: SAMPLE_FQN,
+              parameters: [{ value: SAMPLE_PARAM }],
+              applyWhen: [applyWhenRule],
+            });
+      const whenPut = await putItemExits(page, typeName, withWhen);
+      expect(whenPut.status, `apply-when PUT ${whenPut.status} ${whenPut.text}`).toBe(200);
+      const whenGet = unwrapItemExits(JSON.parse(whenPut.text || "{}"));
+      const whenRow = whenGet.inputTranslations[0];
+      expect(
+        JSON.stringify(whenRow && whenRow.applyWhen),
+        `GET applyWhen after PUT body=${whenPut.text.slice(0, 1800)}`,
+      ).toMatch(/sys_communityid/);
+      const restoreAfterWhen = await putItemExits(page, typeName, persistEnvelope(current));
+      expect(
+        restoreAfterWhen.status,
+        `restore after apply-when ${restoreAfterWhen.status} ${restoreAfterWhen.text}`,
+      ).toBe(200);
     } finally {
       const unlock = await postJson(page, unlockUrl(typeName));
       expect(
@@ -561,6 +626,100 @@ test.describe("Developer content type item-level exits (CD-09 / #3895)", () => {
 
     await expect(addFqn).toBeDisabled();
     await expect(saveBtn).toBeDisabled();
+    assertConsoleClean(pageErrors, consoleErrors);
+  });
+
+  test("Admin lock, apply-when round-trips on GET, empty clears (#4447)", async ({ page }) => {
+    test.setTimeout(180_000);
+    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+
+    await loginAsAdmin(page);
+    await openContentTypeDetail(page, /percRawHtmlAsset/);
+
+    const addFqn = page.locator('[data-testid="developer-ct-ie-in-add-fqn"]');
+    const addParam = page.locator('[data-testid="developer-ct-ie-in-add-param"]');
+    const addBtn = page.locator('[data-testid="developer-ct-ie-in-add"]');
+    const lockBtn = page.locator('[data-testid="developer-ct-lock"]');
+    const saveBtn = page.locator('[data-testid="developer-ct-save"]');
+    const unlockBtn = page.locator('[data-testid="developer-ct-unlock"]');
+    const status = page.locator('[data-testid="developer-ct-lock-status"]');
+    const notice = page.locator('[data-testid="developer-ct-detail-notice"]');
+    const saveError = page.locator('[data-testid="developer-ct-detail-error"]');
+
+    await expect(page.locator('[data-testid="developer-ct-detail-name"]')).toBeVisible({
+      timeout: 30_000,
+    });
+    const typeName = (
+      await page.locator('[data-testid="developer-ct-detail-name"]').innerText()
+    ).trim();
+    expect(typeName.length, "detail name for GET").toBeGreaterThan(0);
+
+    const original = await getItemExitsViaRest(page, typeName);
+    const originalFqns = original.inputTranslations.map(exitExtension).filter(Boolean);
+
+    await lockBtn.click();
+    await expect(status).toHaveText(/Locked by you/i, { timeout: 20_000 });
+
+    const saveItemExits = async (label) => {
+      const putWait = page.waitForResponse(
+        (res) =>
+          res.request().method() === "PUT" &&
+          /\/contenttypes\/[^/?]+\/itemExits(?:\?|$)/.test(res.url()),
+        { timeout: 20_000 },
+      );
+      await expect(saveBtn).toBeEnabled();
+      await saveBtn.click();
+      const putRes = await putWait;
+      const putBody = putRes.request().postData() || "";
+      await expect(notice.or(saveError).first()).toBeVisible({ timeout: 20_000 });
+      if (await saveError.isVisible()) {
+        throw new Error(
+          `${label}: ${(await saveError.innerText()).trim()} PUT ${putRes.status()} ${putBody}`,
+        );
+      }
+      expect(putRes.status(), `${label} PUT itemExits ${putBody}`).toBe(200);
+      expect(putBody, `${label} PUT applyWhen`).toContain("applyWhen");
+      await expect(notice).toContainText(/saved/i);
+      await expect(status).toHaveText(/Locked by you/i);
+      return getItemExitsViaRest(page, typeName);
+    };
+
+    try {
+      let rowCount = await page.locator('[data-testid^="developer-ct-ie-in-row-"]').count();
+      if (rowCount === 0) {
+        await addFqn.fill(SAMPLE_FQN);
+        await addParam.fill(SAMPLE_PARAM);
+        await addBtn.click();
+        rowCount = await page.locator('[data-testid^="developer-ct-ie-in-row-"]').count();
+      }
+      expect(rowCount, "need an input translation row for apply-when").toBeGreaterThan(0);
+
+      const applyWhen = page.locator('[data-testid="developer-ct-ie-in-apply-when-0"]');
+      await expect(applyWhen).toBeEnabled();
+      await applyWhen.fill("sys_communityid = 1001");
+      const afterSet = await saveItemExits("Apply-when save failed");
+      const firstWhen = afterSet.inputTranslations[0] && afterSet.inputTranslations[0].applyWhen;
+      const whenText = JSON.stringify(firstWhen || []);
+      expect(whenText, `GET applyWhen ${whenText}`).toMatch(/sys_communityid/);
+
+      await applyWhen.fill("");
+      const afterClear = await saveItemExits("Clear apply-when save failed");
+      const cleared = afterClear.inputTranslations[0] && afterClear.inputTranslations[0].applyWhen;
+      expect(Array.isArray(cleared) ? cleared.length : 0, JSON.stringify(cleared)).toBe(0);
+
+      const restore = await putItemExits(page, typeName, persistEnvelope(original));
+      expect(restore.status, `restore PUT ${restore.status} ${restore.text}`).toBe(200);
+      const restored = unwrapItemExits(JSON.parse(restore.text || "{}"));
+      expect(restored.inputTranslations.map(exitExtension).filter(Boolean).sort()).toEqual(
+        [...originalFqns].sort(),
+      );
+    } finally {
+      if (await unlockBtn.isEnabled()) {
+        await unlockBtn.click();
+        await expect(status).toHaveText(/Not locked/i, { timeout: 20_000 });
+      }
+    }
+
     assertConsoleClean(pageErrors, consoleErrors);
   });
 });

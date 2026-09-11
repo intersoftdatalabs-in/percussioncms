@@ -354,7 +354,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Table choice catalogs need table name, label column, and value column.",
   CT_ITEM_EXITS: "perc.ui.developer@Item-level exits",
   CT_ITEM_EXITS_HINT:
-    "perc.ui.developer@Lock to edit item-level input/output translations, validations, and pipe pre/post exits. Save replaces the set (held lock) and does not unlock. Apply-when conditions are read-only.",
+    "perc.ui.developer@Lock to edit item-level input/output translations, validations, and pipe pre/post exits. Save replaces the set (held lock) and does not unlock. Apply-when on translations and validations is written on save.",
   CT_IE_INPUT: "perc.ui.developer@Input translations",
   CT_IE_OUTPUT: "perc.ui.developer@Output translations",
   CT_IE_VALIDATIONS: "perc.ui.developer@Validations",
@@ -364,7 +364,11 @@ export const DEV_MSG_KEYS = {
   CT_IE_PARAM_PLACEHOLDER: "perc.ui.developer@Optional parameter value (e.g. sys_title)",
   CT_IE_MAX_ERRORS: "perc.ui.developer@Max errors to stop validation",
   CT_IE_LOAD_ERROR: "perc.ui.developer@Could not load item-level exits.",
-  CT_IE_CONDITIONS_HINT: "perc.ui.developer@Apply-when conditions are read-only and are not written on save.",
+  CT_IE_CONDITIONS_HINT:
+    "perc.ui.developer@After Lock, set apply-when on each input/output translation or validation (one expression per line, same as field-rule visibility). Empty clears. Pipe pre/post exits have no apply-when. Save keeps the lock.",
+  CT_IE_APPLY_WHEN: "perc.ui.developer@Apply when",
+  CT_IE_APPLY_WHEN_HINT:
+    "perc.ui.developer@When this exit runs. Conditional lines such as sys_communityid = 1001. Empty always runs.",
   CT_FIELD_RULES: "perc.ui.developer@Field rule expressions",
   CT_FIELD_RULES_HINT:
     "perc.ui.developer@Lock to edit. One expression per line. Save writes GET/PUT .../fields/{field}/ruleExpressions while the lock is held and does not unlock. This is not the Workbench rule builder.",

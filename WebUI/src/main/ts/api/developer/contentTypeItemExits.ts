@@ -17,6 +17,12 @@
 
 import { asJacksonArray } from "./slotLists";
 import { normalizeContentTypeDesignGaps } from "./contentTypeLists";
+import {
+  formatFieldRuleLines,
+  normalizeFieldRules,
+  parseFieldRuleLines,
+  toFieldRulePutPayload,
+} from "./contentTypeFieldRules";
 import type {
   ContentTypeItemExit,
   ContentTypeItemExitParam,
@@ -66,7 +72,8 @@ function looksLikeItemExit(obj: Record<string, unknown>): boolean {
     "name" in obj ||
     "parameters" in obj ||
     "summary" in obj ||
-    "condition" in obj
+    "condition" in obj ||
+    "applyWhen" in obj
   );
 }
 
@@ -85,8 +92,13 @@ export function normalizeContentTypeItemExitsList(raw: unknown): ContentTypeItem
       out.name = exit.name;
     }
     out.parameters = normalizeParams(exit.parameters);
+    out.applyWhen = normalizeFieldRules(exit.applyWhen);
+    out.applyWhenText = formatFieldRuleLines(out.applyWhen);
     if (typeof exit.condition === "string") {
       out.condition = exit.condition;
+      if (!out.applyWhenText) {
+        out.applyWhenText = exit.condition;
+      }
     }
     if (typeof exit.maxErrorsToStop === "number") {
       out.maxErrorsToStop = exit.maxErrorsToStop;
@@ -151,6 +163,8 @@ export function cloneContentTypeItemExits(env: ContentTypeItemExits): ContentTyp
       extension: e.extension,
       name: e.name,
       parameters: (e.parameters ?? []).map((p) => ({ name: p.name, value: p.value })),
+      applyWhen: (e.applyWhen ?? []).map((r) => ({ ...r, conditionals: r.conditionals ? [...r.conditionals] : undefined })),
+      applyWhenText: e.applyWhenText,
       condition: e.condition,
       maxErrorsToStop: e.maxErrorsToStop,
       summary: e.summary,
@@ -209,8 +223,25 @@ function listsEqual(
     if ((left[i].maxErrorsToStop ?? null) !== (right[i].maxErrorsToStop ?? null)) {
       return false;
     }
+    if (itemExitApplyWhenText(left[i]) !== itemExitApplyWhenText(right[i])) {
+      return false;
+    }
   }
   return true;
+}
+
+export function itemExitApplyWhenText(exit: ContentTypeItemExit | undefined): string {
+  if (!exit) {
+    return "";
+  }
+  if (typeof exit.applyWhenText === "string") {
+    return exit.applyWhenText;
+  }
+  const formatted = formatFieldRuleLines(exit.applyWhen);
+  if (formatted) {
+    return formatted;
+  }
+  return (exit.condition || "").trim();
 }
 
 export function contentTypeItemExitsEqual(
@@ -236,13 +267,27 @@ function toParamPayload(p: ContentTypeItemExitParam): ContentTypeItemExitParam {
   return out;
 }
 
-function toExitPutPayload(exit: ContentTypeItemExit): ContentTypeItemExit {
+function toExitPutPayload(
+  exit: ContentTypeItemExit,
+  field: string,
+  includeApplyWhen: boolean,
+): ContentTypeItemExit {
   const out: ContentTypeItemExit = {
     extension: (exit.extension || exit.name || "").trim(),
   };
   const params = (exit.parameters ?? []).map(toParamPayload).filter((p) => p.value != null || p.name);
   if (params.length > 0) {
     out.parameters = params;
+  }
+  if (includeApplyWhen) {
+    try {
+      out.applyWhen = parseFieldRuleLines(itemExitApplyWhenText(exit), "visibility").map(
+        toFieldRulePutPayload,
+      );
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      throw new Error(`${field}: ${msg}`);
+    }
   }
   return out;
 }
@@ -266,13 +311,21 @@ export function toContentTypeItemExitsPutBody(
   includeMaxErrors = false,
 ): ContentTypeItemExits {
   const body: ContentTypeItemExits = {
-    inputTranslations: (env.inputTranslations ?? []).map(toExitPutPayload),
-    outputTranslations: (env.outputTranslations ?? []).map(toExitPutPayload),
-    validations: (env.validations ?? []).map(toExitPutPayload),
+    inputTranslations: (env.inputTranslations ?? []).map((e, i) =>
+      toExitPutPayload(e, `inputTranslations[${i}]`, true),
+    ),
+    outputTranslations: (env.outputTranslations ?? []).map((e, i) =>
+      toExitPutPayload(e, `outputTranslations[${i}]`, true),
+    ),
+    validations: (env.validations ?? []).map((e, i) =>
+      toExitPutPayload(e, `validations[${i}]`, true),
+    ),
   };
   if (includePipeExits) {
-    body.preExits = (env.preExits ?? []).map(toExitPutPayload);
-    body.postExits = (env.postExits ?? []).map(toExitPutPayload);
+    body.preExits = (env.preExits ?? []).map((e, i) => toExitPutPayload(e, `preExits[${i}]`, false));
+    body.postExits = (env.postExits ?? []).map((e, i) =>
+      toExitPutPayload(e, `postExits[${i}]`, false),
+    );
   }
   if (includeMaxErrors && env.maxErrorsToStopValidation != null) {
     body.maxErrorsToStopValidation = env.maxErrorsToStopValidation;
@@ -337,5 +390,32 @@ export function removeItemExit(
     return env;
   }
   list.splice(index, 1);
+  return { ...env, [listKey]: list };
+}
+
+const APPLY_WHEN_LISTS: ReadonlySet<ItemExitListKey> = new Set([
+  "inputTranslations",
+  "outputTranslations",
+  "validations",
+]);
+
+export function itemExitListSupportsApplyWhen(listKey: ItemExitListKey): boolean {
+  return APPLY_WHEN_LISTS.has(listKey);
+}
+
+export function setItemExitApplyWhenText(
+  env: ContentTypeItemExits,
+  listKey: ItemExitListKey,
+  index: number,
+  text: string,
+): ContentTypeItemExits {
+  if (!itemExitListSupportsApplyWhen(listKey)) {
+    return env;
+  }
+  const list = [...(env[listKey] ?? [])];
+  if (index < 0 || index >= list.length) {
+    return env;
+  }
+  list[index] = { ...list[index], applyWhenText: text };
   return { ...env, [listKey]: list };
 }

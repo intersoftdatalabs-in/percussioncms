@@ -54,6 +54,8 @@ import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.design.objectstore.PSValidationRules;
 import com.percussion.extension.PSExtensionRef;
 import com.percussion.rest.contenttypes.ContentTypeDesignLockException;
+import com.percussion.rest.contenttypes.ContentTypeFieldConditional;
+import com.percussion.rest.contenttypes.ContentTypeFieldRule;
 import com.percussion.rest.contenttypes.ContentTypeItemExit;
 import com.percussion.rest.contenttypes.ContentTypeItemExitParam;
 import com.percussion.rest.contenttypes.ContentTypeItemExits;
@@ -149,7 +151,9 @@ class ContentTypeAdaptorItemExitsTest {
     assertEquals(1, out.getPreExits().size());
     assertTrue(out.getPreExits().get(0).getName().contains("sys_PreProcess"));
     assertTrue(out.getPostExits().isEmpty());
-    assertEquals("CT_ITEM_EXIT_CONDITIONS", out.getDesignGaps().get(0).getCode());
+    assertTrue(out.getDesignGaps().isEmpty());
+    assertNotNull(out.getInputTranslations().get(0).getApplyWhen());
+    assertTrue(out.getInputTranslations().get(0).getApplyWhen().isEmpty());
   }
 
   @Test
@@ -546,11 +550,123 @@ class ContentTypeAdaptorItemExitsTest {
     assertEquals(1, mapped.size());
     assertEquals(Integer.valueOf(3), mapped.get(0).getMaxErrorsToStop());
     assertTrue(mapped.get(0).getCondition().contains("sys_title"), mapped.get(0).getCondition());
+    assertEquals(1, mapped.get(0).getApplyWhen().size());
+    ContentTypeFieldRule whenRule = mapped.get(0).getApplyWhen().get(0);
+    assertEquals(ContentTypeFieldRule.TYPE_CONDITIONAL, whenRule.getType());
+    assertEquals("sys_title", whenRule.getConditionals().get(0).getVariable());
   }
 
   @Test
-  void itemExitDesignGaps_areStructured() {
-    assertEquals("CT_ITEM_EXIT_CONDITIONS", ContentTypeAdaptor.itemExitDesignGaps().get(0).getCode());
+  void itemExitDesignGaps_applyWhenWriteShipped() {
+    assertTrue(ContentTypeAdaptor.itemExitDesignGaps().isEmpty());
+  }
+
+  @Test
+  void replaceItemExits_writesApplyWhen_andEmptyClears() throws Exception {
+    stubHeldLock();
+    when(editor.getInputTranslations()).thenReturn(Collections.emptyIterator());
+    when(editor.getOutputTranslations()).thenReturn(Collections.emptyIterator());
+    when(editor.getValidationRules()).thenReturn(Collections.emptyIterator());
+    when(editor.getPipe()).thenReturn(null);
+    when(designSvc.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("test-user")))
+        .thenReturn(List.of(percPage));
+
+    ContentTypeItemExits body = emptyBody();
+    ContentTypeItemExit call = new ContentTypeItemExit();
+    call.setExtension("Java/global/percussion/content/sys_cleanReservedHtmlClasses");
+    call.setParameters(List.of(new ContentTypeItemExitParam(null, "sys_title")));
+    ContentTypeFieldRule when = new ContentTypeFieldRule();
+    when.setType(ContentTypeFieldRule.TYPE_CONDITIONAL);
+    when.setConditionals(
+        List.of(new ContentTypeFieldConditional("sys_communityid", "=", "1001")));
+    call.setApplyWhen(List.of(when));
+    body.setInputTranslations(List.of(call));
+
+    assertNotNull(adaptor.replaceItemExits(null, "percPage", body));
+    ArgumentCaptor<PSInputTranslations> applied = ArgumentCaptor.forClass(PSInputTranslations.class);
+    verify(editor).setInputTranslation(applied.capture());
+    PSConditionalExit first = (PSConditionalExit) applied.getValue().get(0);
+    assertNotNull(first.getCondition());
+    assertEquals(1, first.getCondition().size());
+
+    ContentTypeItemExits clear = emptyBody();
+    ContentTypeItemExit keep = new ContentTypeItemExit();
+    keep.setExtension("Java/global/percussion/content/sys_cleanReservedHtmlClasses");
+    keep.setParameters(List.of(new ContentTypeItemExitParam(null, "sys_title")));
+    keep.setApplyWhen(List.of());
+    clear.setInputTranslations(List.of(keep));
+    PSInputTranslations existingCol = new PSInputTranslations();
+    existingCol.add(first);
+    when(editor.getInputTranslations()).thenAnswer(inv -> existingCol.iterator());
+    assertNotNull(adaptor.replaceItemExits(null, "percPage", clear));
+    ArgumentCaptor<PSInputTranslations> cleared = ArgumentCaptor.forClass(PSInputTranslations.class);
+    verify(editor, org.mockito.Mockito.times(2)).setInputTranslation(cleared.capture());
+    PSConditionalExit afterClear =
+        (PSConditionalExit) cleared.getAllValues().get(1).get(0);
+    assertTrue(afterClear.getCondition() == null || afterClear.getCondition().isEmpty());
+  }
+
+  @Test
+  void replaceItemExits_invalidApplyWhenOperator_throws400() throws Exception {
+    stubHeldLock();
+    when(designSvc.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("test-user")))
+        .thenReturn(List.of(percPage));
+    ContentTypeItemExits body = emptyBody();
+    ContentTypeItemExit call = new ContentTypeItemExit();
+    call.setExtension("Java/global/percussion/content/sys_cleanReservedHtmlClasses");
+    ContentTypeFieldRule badOp = new ContentTypeFieldRule();
+    badOp.setType(ContentTypeFieldRule.TYPE_CONDITIONAL);
+    badOp.setConditionals(List.of(new ContentTypeFieldConditional("sys_title", "~~", "x")));
+    call.setApplyWhen(List.of(badOp));
+    body.setInputTranslations(List.of(call));
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.replaceItemExits(null, "percPage", body));
+    assertTrue(ex.getMessage().toLowerCase().contains("invalid"), ex.getMessage());
+    verify(designSvc, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void replaceItemExits_emptyRequiredApplyWhenConditionals_throws400() throws Exception {
+    stubHeldLock();
+    when(designSvc.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("test-user")))
+        .thenReturn(List.of(percPage));
+    ContentTypeItemExits body = emptyBody();
+    ContentTypeItemExit call = new ContentTypeItemExit();
+    call.setExtension("Java/global/percussion/content/sys_cleanReservedHtmlClasses");
+    ContentTypeFieldRule emptyConds = new ContentTypeFieldRule();
+    emptyConds.setType(ContentTypeFieldRule.TYPE_CONDITIONAL);
+    emptyConds.setConditionals(List.of());
+    call.setApplyWhen(List.of(emptyConds));
+    body.setInputTranslations(List.of(call));
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.replaceItemExits(null, "percPage", body));
+    assertTrue(ex.getMessage().contains("conditionals"), ex.getMessage());
+    verify(designSvc, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void reuseOrCreateConditionalExit_writesApplyWhenWhenSpecified() {
+    PSExtensionCallSet calls = new PSExtensionCallSet();
+    calls.add(
+        new PSExtensionCall(
+            new PSExtensionRef("Java/global/percussion/content/sys_cleanReservedHtmlClasses"),
+            new PSExtensionParamValue[] {new PSExtensionParamValue(new PSTextLiteral("html"))}));
+    PSConditionalExit orig = new PSConditionalExit(calls);
+    ContentTypeItemExit dto = new ContentTypeItemExit();
+    dto.setExtension("Java/global/percussion/content/sys_cleanReservedHtmlClasses");
+    dto.setParameters(List.of(new ContentTypeItemExitParam(null, "html")));
+    ContentTypeFieldRule when = new ContentTypeFieldRule();
+    when.setType(ContentTypeFieldRule.TYPE_CONDITIONAL);
+    when.setConditionals(List.of(new ContentTypeFieldConditional("sys_communityid", "=", "1001")));
+    dto.setApplyWhen(List.of(when));
+    List<PSConditionalExit> existing = new ArrayList<>();
+    existing.add(orig);
+    PSConditionalExit reused =
+        ContentTypeAdaptor.reuseOrCreateConditionalExit(dto, existing, "inputTranslations[0]");
+    assertNotNull(reused.getCondition());
+    assertEquals(1, reused.getCondition().size());
   }
 
   private void stubHeldLock() throws Exception {
