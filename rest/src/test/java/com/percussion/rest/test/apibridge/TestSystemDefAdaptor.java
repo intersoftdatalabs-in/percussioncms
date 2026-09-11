@@ -18,6 +18,7 @@
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.systemdef.ISystemDefAdaptor;
+import com.percussion.rest.systemdef.SystemDefApplicationFlow;
 import com.percussion.rest.systemdef.SystemDefControlProperties;
 import com.percussion.rest.systemdef.SystemDefDetail;
 import com.percussion.rest.systemdef.SystemDefFieldSummary;
@@ -82,5 +83,18 @@ public class TestSystemDefAdaptor implements ISystemDefAdaptor {
   @Override
   public SystemDefStylesheets replaceStylesheets(URI baseUri, SystemDefStylesheets body) {
     return body != null ? body : new SystemDefStylesheets();
+  }
+
+  @Override
+  public SystemDefApplicationFlow getApplicationFlow(URI baseUri) {
+    SystemDefApplicationFlow out = new SystemDefApplicationFlow();
+    out.setHandlers(List.of());
+    return out;
+  }
+
+  @Override
+  public SystemDefApplicationFlow replaceApplicationFlow(
+      URI baseUri, SystemDefApplicationFlow body) {
+    return body != null ? body : new SystemDefApplicationFlow();
   }
 }

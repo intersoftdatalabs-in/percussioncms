@@ -16,12 +16,15 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.design.objectstore.PSApplicationFlow;
 import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.design.objectstore.PSCommandHandlerStylesheets;
 import com.percussion.design.objectstore.PSContainerLocator;
 import com.percussion.design.objectstore.PSContentEditorSystemDef;
 import com.percussion.design.objectstore.PSControlRef;
+import com.percussion.design.objectstore.PSExtensionCall;
+import com.percussion.design.objectstore.PSExtensionParamValue;
 import com.percussion.design.objectstore.PSDisplayMapper;
 import com.percussion.design.objectstore.PSDisplayMapping;
 import com.percussion.design.objectstore.PSDisplayText;
@@ -31,6 +34,7 @@ import com.percussion.design.objectstore.PSParam;
 import com.percussion.design.objectstore.PSSearchProperties;
 import com.percussion.design.objectstore.PSStylesheet;
 import com.percussion.design.objectstore.PSSystemValidationException;
+import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.design.objectstore.PSTableRef;
 import com.percussion.design.objectstore.PSTableSet;
 import com.percussion.design.objectstore.PSUIDefinition;
@@ -40,7 +44,10 @@ import com.percussion.util.PSCollection;
 import com.percussion.rest.DesignGap;
 import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import com.percussion.rest.systemdef.ISystemDefAdaptor;
+import com.percussion.rest.systemdef.SystemDefApplicationFlow;
+import com.percussion.rest.systemdef.SystemDefCommandHandlerRedirect;
 import com.percussion.rest.systemdef.SystemDefCommandHandlerStylesheet;
+import com.percussion.rest.systemdef.SystemDefConditionalRedirect;
 import com.percussion.rest.systemdef.SystemDefConditionalStylesheet;
 import com.percussion.rest.systemdef.SystemDefControlProperties;
 import com.percussion.rest.systemdef.SystemDefDesignLockException;
@@ -95,19 +102,18 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
   static final String ADMIN_REQUIRED = "Admin role required to read or write the system definition";
 
   private static final List<String> DESIGN_GAPS =
-      List.of(
-          "Application flow is not exposed",
-          "Shared field groups are a separate catalog (Developer Shared Fields)");
+      List.of("Shared field groups are a separate catalog (Developer Shared Fields)");
 
   /**
-   * Structured gaps on GET/PUT {@code .../controlProperties} and {@code .../stylesheets} (application
-   * flow remains a later slice). {@code SYS_STYLESHEET} is dropped now that stylesheet write
-   * ships.
+   * Structured gaps on GET/PUT {@code .../controlProperties}, {@code .../stylesheets}, and {@code
+   * .../applicationFlow}. {@code SYS_STYLESHEET} and {@code SYS_APP_FLOW} are dropped now that those
+   * writes ship.
    */
-  static final List<DesignGap> CONTROL_PROPERTY_DESIGN_GAPS =
-      List.of(DesignGap.of("SYS_APP_FLOW", "Application flow is not exposed"));
+  static final List<DesignGap> CONTROL_PROPERTY_DESIGN_GAPS = List.of();
 
   static final List<DesignGap> STYLESHEET_DESIGN_GAPS = CONTROL_PROPERTY_DESIGN_GAPS;
+
+  static final List<DesignGap> APPLICATION_FLOW_DESIGN_GAPS = CONTROL_PROPERTY_DESIGN_GAPS;
 
   private static final Pattern COMMAND_HANDLER_NAME =
       Pattern.compile("^[A-Za-z][A-Za-z0-9_]{0,49}$");
@@ -122,6 +128,17 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
           "^file:\\.\\./(sys_resources|rx_resources)/stylesheets/[A-Za-z0-9][A-Za-z0-9._-]{0,120}\\.xsl$");
 
   private static final int MAX_STYLESHEET_HREF_LENGTH = 200;
+
+  /**
+   * Workbench application-flow default paths are relative CMS app resources ({@code
+   * ../sys_cx/mainpage.html}). Extra {@code ..}, absolute paths, and schemes are rejected. Empty
+   * href is allowed (Workbench empty MakeAbsLink first param).
+   */
+  private static final Pattern SAFE_APP_FLOW_HREF =
+      Pattern.compile(
+          "^\\.\\./(sys_|rx_)[A-Za-z0-9]+(/[A-Za-z0-9][A-Za-z0-9._-]*)+\\.(html|xml|jsp)$");
+
+  private static final int MAX_APP_FLOW_HREF_LENGTH = 200;
 
   private static final int MAX_FIELD_NAME_LENGTH = 50;
 
@@ -797,6 +814,34 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
     return toStylesheets(def);
   }
 
+  @Override
+  public SystemDefApplicationFlow getApplicationFlow(URI baseUri) {
+    requireAdmin();
+    return toApplicationFlow(systemDefLoader.get());
+  }
+
+  @Override
+  public SystemDefApplicationFlow replaceApplicationFlow(
+      URI baseUri, SystemDefApplicationFlow body) {
+    requireAdmin();
+    requireDesignWs();
+    requireSessionUserForWrite();
+    if (body == null || body.getHandlers() == null) {
+      throw new IllegalArgumentException("handlers is required");
+    }
+    List<SystemDefCommandHandlerRedirect> keep =
+        validateApplicationFlowHandlers(body.getHandlers());
+    String session = currentSession();
+    String user = currentUser();
+    PSContentEditorSystemDef def = loadSystemDefLocked(session, user);
+    if (def == null || def.getApplicationFlow() == null) {
+      throw new IllegalStateException("Failed to load system def for write");
+    }
+    applyValidatedApplicationFlowUpdates(def.getApplicationFlow(), keep);
+    saveSystemDef(def, session, user);
+    return toApplicationFlow(def);
+  }
+
   private SystemDefControlProperties loadFieldControlProperties(
       PSContentEditorSystemDef def, String fieldName) {
     PSDisplayMapping mapping = requireFieldMapping(def, fieldName, false);
@@ -1037,6 +1082,203 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
       }
     }
     return null;
+  }
+
+  static SystemDefApplicationFlow toApplicationFlow(PSContentEditorSystemDef def) {
+    SystemDefApplicationFlow out = new SystemDefApplicationFlow();
+    List<SystemDefCommandHandlerRedirect> handlers = new ArrayList<>();
+    PSApplicationFlow flow = def != null ? def.getApplicationFlow() : null;
+    if (flow != null) {
+      List<String> names = applicationFlowHandlerNames(flow);
+      names.sort(String.CASE_INSENSITIVE_ORDER);
+      for (String name : names) {
+        handlers.add(toApplicationFlowRow(flow, name));
+      }
+    }
+    out.setHandlers(handlers);
+    out.setDesignGaps(new ArrayList<>(APPLICATION_FLOW_DESIGN_GAPS));
+    return out;
+  }
+
+  static SystemDefCommandHandlerRedirect toApplicationFlowRow(PSApplicationFlow flow, String name) {
+    SystemDefCommandHandlerRedirect row = new SystemDefCommandHandlerRedirect();
+    row.setCommandHandler(name);
+    PSUrlRequest defaultRedirect = flow.getDefaultRedirect(name);
+    row.setHref(applicationFlowHref(defaultRedirect));
+    List<SystemDefConditionalRedirect> conditionals = new ArrayList<>();
+    List<PSUrlRequest> all = applicationFlowRedirectList(flow, name);
+    for (int i = 0; i < all.size() - 1; i++) {
+      SystemDefConditionalRedirect cond = new SystemDefConditionalRedirect();
+      cond.setHref(applicationFlowHref(all.get(i)));
+      conditionals.add(cond);
+    }
+    if (!conditionals.isEmpty()) {
+      row.setConditionals(conditionals);
+    }
+    return row;
+  }
+
+  /**
+   * Validate PUT application-flow handlers without mutating the object store so a 400 does not hold
+   * the system-def design lock.
+   */
+  static List<SystemDefCommandHandlerRedirect> validateApplicationFlowHandlers(
+      List<SystemDefCommandHandlerRedirect> handlers) {
+    if (handlers == null) {
+      throw new IllegalArgumentException("handlers is required");
+    }
+    List<SystemDefCommandHandlerRedirect> keep = new ArrayList<>();
+    Set<String> seen = new LinkedHashSet<>();
+    for (SystemDefCommandHandlerRedirect row : handlers) {
+      if (row == null) {
+        continue;
+      }
+      String name = validateCommandHandlerName(row.getCommandHandler());
+      String folded = name.toLowerCase(Locale.ROOT);
+      if (seen.contains(folded)) {
+        throw new IllegalArgumentException("Duplicate command handler: " + name);
+      }
+      seen.add(folded);
+      SystemDefCommandHandlerRedirect copy = new SystemDefCommandHandlerRedirect();
+      copy.setCommandHandler(name);
+      copy.setHref(requireSafeApplicationFlowHref(row.getHref()));
+      keep.add(copy);
+    }
+    if (keep.isEmpty()) {
+      throw new IllegalArgumentException("At least one command handler redirect is required");
+    }
+    return keep;
+  }
+
+  static void applyValidatedApplicationFlowUpdates(
+      PSApplicationFlow flow, List<SystemDefCommandHandlerRedirect> keep) {
+    if (flow == null) {
+      throw new IllegalArgumentException("System def has no application flow");
+    }
+    if (keep == null || keep.isEmpty()) {
+      throw new IllegalArgumentException("At least one command handler redirect is required");
+    }
+    Set<String> keepFolded = new LinkedHashSet<>();
+    for (SystemDefCommandHandlerRedirect row : keep) {
+      keepFolded.add(row.getCommandHandler().toLowerCase(Locale.ROOT));
+    }
+    for (String existing : applicationFlowHandlerNames(flow)) {
+      if (!keepFolded.contains(existing.toLowerCase(Locale.ROOT))) {
+        flow.removeStylesheets(existing);
+      }
+    }
+    for (SystemDefCommandHandlerRedirect row : keep) {
+      String storedName = findExistingApplicationFlowHandlerName(flow, row.getCommandHandler());
+      String name = storedName != null ? storedName : row.getCommandHandler();
+      PSUrlRequest existing = storedName != null ? flow.getDefaultRedirect(storedName) : null;
+      flow.setDefaultRedirect(name, withApplicationFlowHref(existing, row.getHref()));
+    }
+  }
+
+  /**
+   * Href from a default or conditional redirect: {@code PSXUrlRequest/Href} when present, otherwise
+   * the first {@code sys_MakeAbsLink} text parameter (Workbench default).
+   */
+  static String applicationFlowHref(PSUrlRequest request) {
+    if (request == null) {
+      return "";
+    }
+    if (StringUtils.isNotBlank(request.getHref())) {
+      return request.getHref();
+    }
+    PSExtensionCall converter = request.getConverter();
+    if (converter == null) {
+      return request.getHref() != null ? request.getHref() : "";
+    }
+    PSExtensionParamValue[] params = converter.getParamValues();
+    if (params == null || params.length == 0 || params[0] == null) {
+      return "";
+    }
+    if (params[0].getValue() instanceof PSTextLiteral text) {
+      return text.getText() != null ? text.getText() : "";
+    }
+    return "";
+  }
+
+  static PSUrlRequest withApplicationFlowHref(PSUrlRequest existing, String href) {
+    String value = href != null ? href : "";
+    if (existing != null && existing.getConverter() != null) {
+      PSUrlRequest copy = (PSUrlRequest) existing.clone();
+      PSExtensionCall converter = copy.getConverter();
+      PSExtensionParamValue[] params = converter != null ? converter.getParamValues() : null;
+      if (params != null
+          && params.length > 0
+          && params[0] != null
+          && params[0].getValue() instanceof PSTextLiteral text) {
+        text.setText(value);
+        return copy;
+      }
+      throw new IllegalArgumentException("application flow default redirect is not a text path");
+    }
+    return new PSUrlRequest(null, value, new PSCollection(PSParam.class));
+  }
+
+  /**
+   * Relative CMS application resource, or empty. Rejects extra traversal, backslashes, absolute
+   * paths, and schemes.
+   */
+  static String requireSafeApplicationFlowHref(String href) {
+    String trimmed = href != null ? href.trim() : "";
+    if (trimmed.isEmpty()) {
+      return "";
+    }
+    if (trimmed.length() > MAX_APP_FLOW_HREF_LENGTH) {
+      throw new IllegalArgumentException("application flow href exceeds length limit");
+    }
+    if (trimmed.indexOf('\\') >= 0 || trimmed.indexOf('\0') >= 0) {
+      throw new IllegalArgumentException("Invalid application flow href");
+    }
+    if (!SAFE_APP_FLOW_HREF.matcher(trimmed).matches()) {
+      throw new IllegalArgumentException("Invalid application flow href");
+    }
+    return trimmed;
+  }
+
+  static List<String> applicationFlowHandlerNames(PSApplicationFlow flow) {
+    List<String> names = new ArrayList<>();
+    if (flow == null) {
+      return names;
+    }
+    Iterator<?> it = flow.getCommandHandlerNames();
+    while (it != null && it.hasNext()) {
+      Object next = it.next();
+      if (next != null) {
+        names.add(String.valueOf(next));
+      }
+    }
+    return names;
+  }
+
+  static String findExistingApplicationFlowHandlerName(PSApplicationFlow flow, String name) {
+    if (flow == null || name == null) {
+      return null;
+    }
+    for (String existing : applicationFlowHandlerNames(flow)) {
+      if (existing.equalsIgnoreCase(name)) {
+        return existing;
+      }
+    }
+    return null;
+  }
+
+  static List<PSUrlRequest> applicationFlowRedirectList(PSApplicationFlow flow, String name) {
+    List<PSUrlRequest> all = new ArrayList<>();
+    if (flow == null || name == null) {
+      return all;
+    }
+    Iterator<?> it = flow.getRedirects(name);
+    while (it != null && it.hasNext()) {
+      Object next = it.next();
+      if (next instanceof PSUrlRequest request) {
+        all.add(request);
+      }
+    }
+    return all;
   }
 
   static List<PSStylesheet> stylesheetList(PSCommandHandlerStylesheets set, String name) {

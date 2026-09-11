@@ -1,7 +1,7 @@
 ---
 id: admin-developer-system-def
 title: Developer System Def
-description: Save, add, and delete content-editor system fields, edit control properties, and persist stylesheet associations from Developer System definition chrome
+description: Save, add, and delete content-editor system fields, edit control properties, persist stylesheet associations, and persist application-flow redirects from Developer System definition chrome
 version: "8.2"
 order: 44
 tags: [admin, developer, system-def]
@@ -12,13 +12,11 @@ tags: [admin, developer, system-def]
 **Developer → System definition** lists global content-editor system fields
 (name, data type, occurrence, required, searchable, read-only). Admins can
 **save** property patches on existing fields, **add** or **delete** a system
-field, **view/save control properties** for a selected field, and **view/save
-command-handler stylesheet associations**. Writes use a
+field, **view/save control properties** for a selected field, **view/save
+command-handler stylesheet associations**, and **view/save application-flow
+redirects**. Writes use a
 **request lock that is released on save** (there is no separate Lock / Unlock
 toolbar).
-
-This is **not** the Workbench application-flow editor. Application flow remains
-a later slice.
 
 ## Product path — save, add, delete
 
@@ -48,14 +46,22 @@ a later slice.
    stylesheet rows are shown read-only. GET does not require a lock. PUT
    acquires the system-definition lock and **releases** it on save. Non-Admin
    callers receive **403**. Invalid href or handler name is **400**.
-8. Click **Delete** on a row and confirm in the in-app dialog (not a
+8. To **save application flow**, edit a command-handler **redirect href** in
+   **Application flow** (relative `../sys_*` or `../rx_*` CMS app path ending
+   in `.html` / `.xml` / `.jsp`, or empty to keep an empty default path) and
+   click **Save application flow**. **Remove** drops that handler. At least one
+   handler must remain (**400** if the set would be empty). Conditional
+   redirects are shown read-only. GET does not require a lock. PUT acquires the
+   system-definition lock and **releases** it on save. Non-Admin callers
+   receive **403**. Invalid href or handler name is **400**. Extra `..`,
+   absolute paths, and `http(s)` URLs are **400**.
+9. Click **Delete** on a row and confirm in the in-app dialog (not a
    browser prompt). The catalog no longer lists that
    field. System-mandatory and system-internal fields cannot be deleted
    (**400**).
 
 ## Limits
 
-- Application flow is not in this chrome.
 - Shared field groups are a separate catalog (**Developer → Shared fields**).
 - There is no persistent design-session lock UI; each write holds the lock only
   for that request.
@@ -74,5 +80,7 @@ The chrome calls:
 | Save control properties | `PUT /services/systemdef/fields/{fieldName}/controlProperties` (request lock released on save; wrap root `SystemDefControlProperties`) |
 | Load stylesheets | `GET /services/systemdef/stylesheets` (no lock) |
 | Save stylesheets | `PUT /services/systemdef/stylesheets` (request lock released on save; wrap root `SystemDefStylesheets`; full replace of handlers) |
+| Load application flow | `GET /services/systemdef/applicationFlow` (no lock) |
+| Save application flow | `PUT /services/systemdef/applicationFlow` (request lock released on save; wrap root `SystemDefApplicationFlow`; full replace of handlers) |
 
 Integrator notes: [REST API — System definition](id:developer-rest).

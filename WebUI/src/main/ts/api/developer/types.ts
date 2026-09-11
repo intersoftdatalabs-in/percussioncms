@@ -829,6 +829,27 @@ export interface SystemDefStylesheets {
   designGaps?: DesignGapWire[];
 }
 
+/** GET-only conditional application-flow href on a command handler. */
+export interface SystemDefConditionalRedirect {
+  href?: string;
+}
+
+/** Command-handler default application-flow redirect (CD-16 SYS_APP_FLOW). */
+export interface SystemDefCommandHandlerRedirect {
+  commandHandler?: string;
+  href?: string;
+  conditionals?: SystemDefConditionalRedirect[];
+}
+
+/**
+ * Jackson {@code SystemDefApplicationFlow} body for CD-16
+ * GET/PUT {@code /services/systemdef/applicationFlow}.
+ */
+export interface SystemDefApplicationFlow {
+  handlers?: SystemDefCommandHandlerRedirect[];
+  designGaps?: DesignGapWire[];
+}
+
 /** Item filter rule param from GET /services/itemfilters. */
 export interface ItemFilterRuleParam {
   name?: string;

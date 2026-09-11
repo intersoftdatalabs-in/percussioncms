@@ -23,10 +23,13 @@ import {
   deleteSystemDefField,
   getSystemDef,
   getSystemDefFieldControlProperties,
+  getSystemDefApplicationFlow,
   getSystemDefStylesheets,
   isSystemDefFieldAddReady,
+  isValidSystemDefApplicationFlowHref,
   isValidSystemDefCommandHandler,
   isValidSystemDefStylesheetHref,
+  replaceSystemDefApplicationFlow,
   replaceSystemDefFieldControlProperties,
   replaceSystemDefStylesheets,
   updateSystemDef,
@@ -34,6 +37,7 @@ import {
 } from "../api/developer/systemDefApi";
 import type {
   ContentTypeControlProperty,
+  SystemDefCommandHandlerRedirect,
   SystemDefCommandHandlerStylesheet,
   SystemDefDetail,
   SystemDefFieldSummary,
@@ -152,6 +156,12 @@ export function SystemDefPanel(): React.ReactElement {
   const [ssNewHref, setSsNewHref] = useState(
     "file:../sys_resources/stylesheets/activeEdit.xsl",
   );
+  const [afHandlers, setAfHandlers] = useState<SystemDefCommandHandlerRedirect[]>([]);
+  const [afInitial, setAfInitial] = useState<SystemDefCommandHandlerRedirect[]>([]);
+  const [afLoading, setAfLoading] = useState(true);
+  const [afError, setAfError] = useState<string | null>(null);
+  const [afNewHandler, setAfNewHandler] = useState("");
+  const [afNewHref, setAfNewHref] = useState("../sys_cx/mainpage.html");
   const inflight = useRef(false);
 
   function applyDetail(d: SystemDefDetail): void {
@@ -174,6 +184,16 @@ export function SystemDefPanel(): React.ReactElement {
     }));
     setSsHandlers(next);
     setSsInitial(next.map((h) => ({ commandHandler: h.commandHandler, href: h.href })));
+  }
+
+  function applyApplicationFlow(handlers: SystemDefCommandHandlerRedirect[]): void {
+    const next = handlers.map((h) => ({
+      commandHandler: h.commandHandler,
+      href: h.href,
+      conditionals: h.conditionals,
+    }));
+    setAfHandlers(next);
+    setAfInitial(next.map((h) => ({ commandHandler: h.commandHandler, href: h.href })));
   }
 
   useEffect(() => {
@@ -202,6 +222,22 @@ export function SystemDefPanel(): React.ReactElement {
       })
       .finally(() => {
         if (!cancelled) setSsLoading(false);
+      });
+    setAfLoading(true);
+    getSystemDefApplicationFlow()
+      .then((loaded) => {
+        if (cancelled) return;
+        applyApplicationFlow(loaded.handlers || []);
+        setAfError(null);
+      })
+      .catch((e: unknown) => {
+        if (cancelled) return;
+        setAfHandlers([]);
+        setAfInitial([]);
+        setAfError(panelErrMsg(e, DEV_MSG.SYS_AF_ERROR));
+      })
+      .finally(() => {
+        if (!cancelled) setAfLoading(false);
       });
     return () => {
       cancelled = true;
@@ -297,6 +333,34 @@ export function SystemDefPanel(): React.ReactElement {
     isValidSystemDefStylesheetHref(ssNewHref) &&
     !ssHandlers.some(
       (h) => (h.commandHandler || "").toLowerCase() === ssNewHandler.trim().toLowerCase(),
+    );
+  const afDirty =
+    afHandlers.length !== afInitial.length ||
+    afHandlers.some((h, i) => {
+      const orig = afInitial[i];
+      return (
+        !orig ||
+        (h.commandHandler || "") !== (orig.commandHandler || "") ||
+        (h.href || "") !== (orig.href || "")
+      );
+    });
+  const canSaveAf =
+    !busy &&
+    !afLoading &&
+    afDirty &&
+    afHandlers.length > 0 &&
+    afHandlers.every(
+      (h) =>
+        isValidSystemDefCommandHandler(h.commandHandler) &&
+        isValidSystemDefApplicationFlowHref(h.href),
+    );
+  const canAddAf =
+    !busy &&
+    !afLoading &&
+    isValidSystemDefCommandHandler(afNewHandler.trim()) &&
+    isValidSystemDefApplicationFlowHref(afNewHref) &&
+    !afHandlers.some(
+      (h) => (h.commandHandler || "").toLowerCase() === afNewHandler.trim().toLowerCase(),
     );
 
   async function handleSave(): Promise<void> {
@@ -423,6 +487,44 @@ export function SystemDefPanel(): React.ReactElement {
       setNotice(DEV_MSG.SYS_SS_SAVED);
     } catch (err: unknown) {
       setWriteError(panelErrMsg(err, writeFallback(err, false, false, DEV_MSG.SYS_SS_SAVE_ERROR)));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  function setAfHref(index: number, href: string): void {
+    setAfHandlers((prev) => prev.map((h, i) => (i === index ? { ...h, href } : h)));
+  }
+
+  function removeAfHandler(index: number): void {
+    setAfHandlers((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== index)));
+  }
+
+  function addAfHandler(): void {
+    if (!canAddAf) return;
+    const commandHandler = afNewHandler.trim();
+    setAfHandlers((prev) => [...prev, { commandHandler, href: afNewHref.trim() }]);
+    setAfNewHandler("");
+  }
+
+  async function handleSaveApplicationFlow(): Promise<void> {
+    if (!canSaveAf || inflight.current) return;
+    inflight.current = true;
+    setBusy(true);
+    setWriteError(null);
+    setNotice(null);
+    try {
+      const saved = await replaceSystemDefApplicationFlow({
+        handlers: afHandlers.map((h) => ({
+          commandHandler: h.commandHandler,
+          href: h.href,
+        })),
+      });
+      applyApplicationFlow(saved.handlers || []);
+      setNotice(DEV_MSG.SYS_AF_SAVED);
+    } catch (err: unknown) {
+      setWriteError(panelErrMsg(err, writeFallback(err, false, false, DEV_MSG.SYS_AF_SAVE_ERROR)));
     } finally {
       inflight.current = false;
       setBusy(false);
@@ -1116,6 +1218,175 @@ export function SystemDefPanel(): React.ReactElement {
             }}
           >
             {DEV_MSG.SYS_SS_ADD}
+          </button>
+        </div>
+      </section>
+
+      <section
+        data-testid="developer-sys-af"
+        style={{
+          marginTop: "16px",
+          padding: "12px",
+          border: `1px solid ${catalogColors.headerBorder}`,
+          borderRadius: "4px",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "12px",
+            flexWrap: "wrap",
+          }}
+        >
+          <h3 style={{ fontSize: "1rem", marginTop: 0 }}>{DEV_MSG.SYS_AF}</h3>
+          <button
+            type="button"
+            data-testid="developer-sys-af-save"
+            aria-label={DEV_MSG.SYS_AF_SAVE}
+            disabled={!canSaveAf}
+            onClick={() => void handleSaveApplicationFlow()}
+            style={{
+              padding: "8px 16px",
+              background: canSaveAf ? catalogColors.accent : catalogColors.disabled,
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: canSaveAf ? "pointer" : "not-allowed",
+            }}
+          >
+            {DEV_MSG.SYS_AF_SAVE}
+          </button>
+        </div>
+        <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.SYS_AF_HINT}</p>
+        {afError ? (
+          <p role="status" data-testid="developer-sys-af-error" style={{ color: catalogColors.error }}>
+            {afError}
+          </p>
+        ) : null}
+        {afLoading ? (
+          <p data-testid="developer-sys-af-loading" style={{ color: catalogColors.muted }}>
+            {DEV_MSG.SYS_AF_LOADING}
+          </p>
+        ) : null}
+        {!afLoading && afHandlers.length === 0 ? (
+          <p style={{ color: catalogColors.empty }} data-testid="developer-sys-af-empty">
+            {DEV_MSG.SYS_AF_EMPTY}
+          </p>
+        ) : null}
+        {!afLoading && afHandlers.length > 0 ? (
+          <SimpleCatalogTable
+            tableTestId="developer-sys-af-table"
+            rowTestId="developer-sys-af-row"
+            columns={[
+              DEV_MSG.SYS_AF_COL_HANDLER,
+              DEV_MSG.SYS_AF_COL_HREF,
+              DEV_MSG.SYS_AF_COL_CONDITIONALS,
+              DEV_MSG.SYS_AF_COL_ACTIONS,
+            ]}
+            rows={afHandlers.map((h, i) => {
+              const name = h.commandHandler || "";
+              const condCount = h.conditionals?.length || 0;
+              return {
+                key: name || `af-${i}`,
+                dataAttrs: name ? { "data-sys-af-handler": name } : undefined,
+                cells: [
+                  <span key="n" style={monoCell}>
+                    {name || "—"}
+                  </span>,
+                  <input
+                    key="href"
+                    type="text"
+                    data-testid={`developer-sys-af-href-${i}`}
+                    aria-label={`${DEV_MSG.SYS_AF_COL_HREF} ${name || i}`}
+                    style={{ ...inputStyle, fontFamily: "monospace", minWidth: "22rem" }}
+                    value={h.href || ""}
+                    disabled={busy}
+                    onChange={(e) => setAfHref(i, e.target.value)}
+                  />,
+                  <span key="c" data-testid={`developer-sys-af-cond-${i}`}>
+                    {condCount}
+                  </span>,
+                  <button
+                    key="rm"
+                    type="button"
+                    data-testid={`developer-sys-af-remove-${i}`}
+                    aria-label={`${DEV_MSG.SYS_AF_REMOVE} ${name}`}
+                    disabled={busy || afHandlers.length <= 1}
+                    onClick={() => removeAfHandler(i)}
+                    title={afHandlers.length <= 1 ? DEV_MSG.SYS_AF_LAST : DEV_MSG.SYS_AF_REMOVE}
+                    style={{
+                      padding: "4px 10px",
+                      background: "#c53030",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: busy || afHandlers.length <= 1 ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    {DEV_MSG.SYS_AF_REMOVE}
+                  </button>,
+                ],
+              };
+            })}
+          />
+        ) : null}
+        <div
+          style={{
+            marginTop: "12px",
+            display: "grid",
+            gridTemplateColumns: "1fr 2fr auto",
+            gap: "8px",
+            alignItems: "end",
+          }}
+        >
+          <div>
+            <label htmlFor="sys-af-add-name" style={{ display: "block", marginBottom: 4 }}>
+              {DEV_MSG.SYS_AF_NEW_HANDLER}
+            </label>
+            <input
+              id="sys-af-add-name"
+              type="text"
+              autoComplete="off"
+              data-testid="developer-sys-af-add-name"
+              style={{ ...inputStyle, fontFamily: "monospace" }}
+              value={afNewHandler}
+              disabled={busy}
+              onChange={(e) => setAfNewHandler(e.target.value)}
+            />
+          </div>
+          <div>
+            <label htmlFor="sys-af-add-href" style={{ display: "block", marginBottom: 4 }}>
+              {DEV_MSG.SYS_AF_NEW_HREF}
+            </label>
+            <input
+              id="sys-af-add-href"
+              type="text"
+              autoComplete="off"
+              data-testid="developer-sys-af-add-href"
+              style={{ ...inputStyle, fontFamily: "monospace" }}
+              placeholder={DEV_MSG.SYS_AF_HREF_PLACEHOLDER}
+              value={afNewHref}
+              disabled={busy}
+              onChange={(e) => setAfNewHref(e.target.value)}
+            />
+          </div>
+          <button
+            type="button"
+            data-testid="developer-sys-af-add"
+            disabled={!canAddAf}
+            onClick={addAfHandler}
+            style={{
+              padding: "8px 16px",
+              background: canAddAf ? catalogColors.accent : catalogColors.disabled,
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: canAddAf ? "pointer" : "not-allowed",
+            }}
+          >
+            {DEV_MSG.SYS_AF_ADD}
           </button>
         </div>
       </section>

@@ -130,4 +130,28 @@ public interface ISystemDefAdaptor {
    *     locked for this session
    */
   SystemDefStylesheets replaceStylesheets(URI baseUri, SystemDefStylesheets body);
+
+  /**
+   * Load command-handler application-flow redirects from the content-editor system definition
+   * (CD-16). Admin only. No design lock is required.
+   *
+   * @return envelope, never {@code null} (empty handlers when none)
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin
+   */
+  SystemDefApplicationFlow getApplicationFlow(URI baseUri);
+
+  /**
+   * Replace command-handler application-flow default redirects. Admin only. Acquires the system-def
+   * design lock for this request and releases it on save. Full replace of {@code handlers}: omitted
+   * handlers are removed. Empty {@code href} keeps the handler with an empty default path. At least
+   * one remaining handler is required.
+   *
+   * @return persisted envelope, never {@code null}
+   * @throws IllegalArgumentException when handlers is missing, empty after omit, a name/href is
+   *     invalid, or a command handler is duplicated
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin
+   * @throws SystemDefDesignLockException when the system def is locked by another user or is not
+   *     locked for this session
+   */
+  SystemDefApplicationFlow replaceApplicationFlow(URI baseUri, SystemDefApplicationFlow body);
 }

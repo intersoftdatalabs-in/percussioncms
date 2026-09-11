@@ -32,7 +32,7 @@ Operators using **Developer → Relationship Types** create/save/delete chrome
 
 Operators using **Developer → Shared Fields** create/save/delete chrome: [Developer Shared Fields](id:admin-developer-shared-fields).
 
-Operators using **Developer → System definition** field save/add/delete, control properties, and stylesheet chrome: [Developer System Def](id:admin-developer-system-def).
+Operators using **Developer → System definition** field save/add/delete, control properties, stylesheet, and application-flow chrome: [Developer System Def](id:admin-developer-system-def).
 
 Operators using **Developer → Slots** create/delete chrome: [Developer Slots](id:admin-developer-slots).
 

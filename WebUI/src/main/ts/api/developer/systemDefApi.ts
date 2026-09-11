@@ -24,7 +24,10 @@ import {
 } from "./contentTypeLists";
 import type {
   ContentTypeControlProperty,
+  SystemDefApplicationFlow,
+  SystemDefCommandHandlerRedirect,
   SystemDefCommandHandlerStylesheet,
+  SystemDefConditionalRedirect,
   SystemDefConditionalStylesheet,
   SystemDefControlProperties,
   SystemDefDetail,
@@ -417,4 +420,131 @@ export async function replaceSystemDefStylesheets(
     wrapSystemDefStylesheetsForWire(body),
   );
   return unwrapSystemDefStylesheets(payload);
+}
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code SystemDefApplicationFlow}. */
+export const SYSTEM_DEF_APPLICATION_FLOW_ROOT = "SystemDefApplicationFlow";
+
+/**
+ * Workbench application-flow hrefs: relative {@code ../sys_*|rx_* /….html|xml|jsp}.
+ * Empty string is valid (empty MakeAbsLink path).
+ */
+export const SYSTEM_DEF_APP_FLOW_HREF_PATTERN =
+  /^\.\.\/(sys_|rx_)[A-Za-z0-9]+(\/[A-Za-z0-9][A-Za-z0-9._-]*)+\.(html|xml|jsp)$/;
+
+export type SystemDefApplicationFlowBody = {
+  handlers: SystemDefCommandHandlerRedirect[];
+};
+
+function applicationFlowUrl(): string {
+  return `${PATHS.SYSTEM_DEF}/applicationFlow`;
+}
+
+function asRedirectArray(value: unknown): SystemDefCommandHandlerRedirect[] {
+  if (Array.isArray(value)) {
+    return value.filter((item) => item != null && typeof item === "object") as SystemDefCommandHandlerRedirect[];
+  }
+  if (value == null || typeof value !== "object") {
+    return [];
+  }
+  const obj = value as Record<string, unknown>;
+  const raw =
+    obj.SystemDefCommandHandlerRedirect ??
+    obj.systemDefCommandHandlerRedirect ??
+    obj.handler;
+  if (Array.isArray(raw)) {
+    return raw.filter((item) => item != null && typeof item === "object") as SystemDefCommandHandlerRedirect[];
+  }
+  if (raw != null && typeof raw === "object") {
+    return [raw as SystemDefCommandHandlerRedirect];
+  }
+  return [];
+}
+
+function asFlowConditionalArray(value: unknown): SystemDefConditionalRedirect[] {
+  if (Array.isArray(value)) {
+    return value.filter((item) => item != null && typeof item === "object") as SystemDefConditionalRedirect[];
+  }
+  if (value == null || typeof value !== "object") {
+    return [];
+  }
+  const obj = value as Record<string, unknown>;
+  const raw =
+    obj.SystemDefConditionalRedirect ?? obj.systemDefConditionalRedirect;
+  if (Array.isArray(raw)) {
+    return raw.filter((item) => item != null && typeof item === "object") as SystemDefConditionalRedirect[];
+  }
+  if (raw != null && typeof raw === "object") {
+    return [raw as SystemDefConditionalRedirect];
+  }
+  return [];
+}
+
+export function isValidSystemDefApplicationFlowHref(
+  href: string | undefined | null,
+): boolean {
+  if (href == null) return true;
+  const trimmed = href.trim();
+  if (!trimmed) return true;
+  return SYSTEM_DEF_APP_FLOW_HREF_PATTERN.test(trimmed);
+}
+
+export function unwrapSystemDefApplicationFlow(payload: unknown): SystemDefApplicationFlow {
+  const root = asRecord(payload);
+  if (!root) {
+    return { handlers: [] };
+  }
+  const nested = asRecord(
+    root[SYSTEM_DEF_APPLICATION_FLOW_ROOT] ?? root.systemDefApplicationFlow,
+  );
+  const body = nested ?? root;
+  const handlers = asRedirectArray(body.handlers).map((h) => {
+    const rec = asRecord(h) || {};
+    const commandHandler =
+      typeof rec.commandHandler === "string"
+        ? rec.commandHandler
+        : typeof rec.CommandHandler === "string"
+          ? rec.CommandHandler
+          : undefined;
+    const href =
+      typeof rec.href === "string"
+        ? rec.href
+        : typeof rec.Href === "string"
+          ? rec.Href
+          : undefined;
+    const row: SystemDefCommandHandlerRedirect = { commandHandler, href };
+    const conds = asFlowConditionalArray(h.conditionals);
+    if (conds.length > 0) {
+      row.conditionals = conds.map((c) => ({
+        href: typeof c.href === "string" ? c.href : undefined,
+      }));
+    }
+    return row;
+  });
+  const out: SystemDefApplicationFlow = { handlers };
+  if (body.designGaps != null) {
+    out.designGaps = normalizeContentTypeDesignGaps(body.designGaps);
+  }
+  return out;
+}
+
+export function wrapSystemDefApplicationFlowForWire(
+  body: SystemDefApplicationFlowBody,
+): Record<string, SystemDefApplicationFlowBody> {
+  return { [SYSTEM_DEF_APPLICATION_FLOW_ROOT]: { handlers: body.handlers } };
+}
+
+export async function getSystemDefApplicationFlow(): Promise<SystemDefApplicationFlow> {
+  const payload = await get<unknown>(applicationFlowUrl());
+  return unwrapSystemDefApplicationFlow(payload);
+}
+
+export async function replaceSystemDefApplicationFlow(
+  body: SystemDefApplicationFlowBody,
+): Promise<SystemDefApplicationFlow> {
+  const payload = await put<unknown>(
+    applicationFlowUrl(),
+    wrapSystemDefApplicationFlowForWire(body),
+  );
+  return unwrapSystemDefApplicationFlow(payload);
 }
