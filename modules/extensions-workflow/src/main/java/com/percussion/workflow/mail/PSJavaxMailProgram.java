@@ -20,19 +20,19 @@ import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * This is the default implementation of the Mail Program interface <code>IPSMailProgram</code> that
  * needs to be implemented by any mail plugin to be used by the workflow engine. This implementation
- * uses the JAVAX mail provided by Sun.
+ * uses Jakarta Mail.
  */
 public class PSJavaxMailProgram implements IPSMailProgram {
   /** Constructor */
