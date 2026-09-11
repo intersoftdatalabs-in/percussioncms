@@ -24,6 +24,10 @@ vi.mock("../../../main/ts/api/developer/sharedFieldsApi", async (importOriginal)
     createSharedFieldGroup: vi.fn(),
     updateSharedFieldGroup: vi.fn(),
     deleteSharedFieldGroup: vi.fn(),
+    addSharedField: vi.fn(),
+    deleteSharedField: vi.fn(),
+    getSharedFieldControlProperties: vi.fn().mockResolvedValue({ properties: [] }),
+    replaceSharedFieldControlProperties: vi.fn(),
   };
 });
 
@@ -86,7 +90,9 @@ describe("SharedFieldsPanel", () => {
     });
     expect(detailMock).toHaveBeenCalledWith("shared");
     expect(screen.getByTestId("developer-sf-detail-title").textContent).toBe("shared");
-    expect(screen.getByText("rx_title")).toBeTruthy();
+    expect(
+      screen.getByTestId("developer-sf-fields-table").querySelector('[data-sf-field="rx_title"]'),
+    ).toBeTruthy();
     expect(screen.getByTestId("developer-sf-gaps")).toBeTruthy();
     expect(screen.getByTestId("developer-sf-save")).toBeTruthy();
     expect(screen.getByTestId("developer-sf-delete")).toBeTruthy();

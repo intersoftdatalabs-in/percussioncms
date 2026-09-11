@@ -21,6 +21,10 @@ vi.mock("../../../main/ts/api/developer/sharedFieldsApi", async (importOriginal)
     createSharedFieldGroup: vi.fn(),
     updateSharedFieldGroup: vi.fn(),
     deleteSharedFieldGroup: vi.fn(),
+    addSharedField: vi.fn(),
+    deleteSharedField: vi.fn(),
+    getSharedFieldControlProperties: vi.fn(),
+    replaceSharedFieldControlProperties: vi.fn(),
   };
 });
 
@@ -36,6 +40,12 @@ const updateSharedFieldGroup = sharedFieldsApi.updateSharedFieldGroup as ReturnT
 const deleteSharedFieldGroup = sharedFieldsApi.deleteSharedFieldGroup as ReturnType<
   typeof vi.fn
 >;
+const addSharedField = sharedFieldsApi.addSharedField as ReturnType<typeof vi.fn>;
+const deleteSharedField = sharedFieldsApi.deleteSharedField as ReturnType<typeof vi.fn>;
+const getSharedFieldControlProperties =
+  sharedFieldsApi.getSharedFieldControlProperties as ReturnType<typeof vi.fn>;
+const replaceSharedFieldControlProperties =
+  sharedFieldsApi.replaceSharedFieldControlProperties as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   name: "shared",
@@ -62,6 +72,20 @@ describe("SharedFieldGroupDetailPanel", () => {
     createSharedFieldGroup.mockReset();
     updateSharedFieldGroup.mockReset();
     deleteSharedFieldGroup.mockReset();
+    addSharedField.mockReset();
+    deleteSharedField.mockReset();
+    getSharedFieldControlProperties.mockReset();
+    replaceSharedFieldControlProperties.mockReset();
+    getSharedFieldControlProperties.mockResolvedValue({
+      fieldName: "rx_title",
+      control: "sys_EditBox",
+      properties: [{ name: "height", value: "200" }],
+    });
+    replaceSharedFieldControlProperties.mockResolvedValue({
+      fieldName: "rx_title",
+      control: "sys_EditBox",
+      properties: [{ name: "height", value: "240" }],
+    });
   });
 
   it("loads detail on success and supports back", async () => {
@@ -73,7 +97,7 @@ describe("SharedFieldGroupDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-sf-detail-title").textContent).toBe("shared");
     expect(screen.getByTestId("developer-sf-fields-table")).toBeTruthy();
-    expect(screen.getByText("rx_title")).toBeTruthy();
+    expect(screen.getByTestId("developer-sf-fields-table").querySelector('[data-sf-field="rx_title"]')).toBeTruthy();
     expect(screen.getByTestId("developer-sf-gaps")).toBeTruthy();
     expect(getSharedFieldGroupDetail).toHaveBeenCalledWith("shared");
     fireEvent.click(screen.getByTestId("developer-sf-back"));
@@ -335,5 +359,173 @@ describe("SharedFieldGroupDetailPanel", () => {
   it("does not show delete on create", () => {
     render(<SharedFieldGroupDetailPanel name={null} onBack={() => undefined} />);
     expect(screen.queryByTestId("developer-sf-delete")).toBeNull();
+  });
+
+  it("disables add until the nested field name is valid", async () => {
+    getSharedFieldGroupDetail.mockResolvedValue(sampleDetail);
+    render(<SharedFieldGroupDetailPanel name="shared" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-add-btn")).toBeTruthy();
+    });
+    const add = screen.getByTestId("developer-sf-add-btn") as HTMLButtonElement;
+    expect(add.disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-sf-new-name"), {
+      target: { value: "1bad" },
+    });
+    expect(add.disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-sf-new-name"), {
+      target: { value: "rx_note" },
+    });
+    expect(add.disabled).toBe(false);
+  });
+
+  it("adds a nested field and lists it", async () => {
+    getSharedFieldGroupDetail.mockResolvedValue(sampleDetail);
+    addSharedField.mockResolvedValue({
+      ...sampleDetail,
+      fields: [
+        ...sampleDetail.fields,
+        { name: "rx_note", dataType: "text", occurrence: "optional" },
+      ],
+    });
+    render(<SharedFieldGroupDetailPanel name="shared" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-new-name")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-sf-new-name"), {
+      target: { value: "rx_note" },
+    });
+    fireEvent.click(screen.getByTestId("developer-sf-add-btn"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("developer-sf-fields-table").querySelector('[data-sf-field="rx_note"]'),
+      ).toBeTruthy();
+    });
+    expect(addSharedField).toHaveBeenCalledWith("shared", {
+      name: "rx_note",
+      dataType: "text",
+      occurrence: "optional",
+    });
+    expect(screen.getByTestId("developer-sf-editor-notice").textContent).toBe(DEV_MSG.SF_ADDED);
+  });
+
+  it("surfaces 409 duplicate nested field name", async () => {
+    getSharedFieldGroupDetail.mockResolvedValue(sampleDetail);
+    addSharedField.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Shared field already exists: rx_title" },
+    });
+    render(<SharedFieldGroupDetailPanel name="shared" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-new-name")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-sf-new-name"), {
+      target: { value: "rx_title" },
+    });
+    fireEvent.click(screen.getByTestId("developer-sf-add-btn"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-sf-detail-error").textContent).toContain(
+      DEV_MSG.SF_FIELD_DUPLICATE,
+    );
+  });
+
+  it("deletes a nested field after confirm", async () => {
+    getSharedFieldGroupDetail
+      .mockResolvedValueOnce(sampleDetail)
+      .mockResolvedValueOnce({ ...sampleDetail, fields: [] });
+    deleteSharedField.mockResolvedValue(undefined);
+    render(<SharedFieldGroupDetailPanel name="shared" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-field-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-sf-field-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-fields-empty")).toBeTruthy();
+    });
+    expect(deleteSharedField).toHaveBeenCalledWith("shared", "rx_title");
+    expect(screen.getByTestId("developer-sf-editor-notice").textContent).toBe(
+      DEV_MSG.SF_FIELD_DELETED,
+    );
+  });
+
+  it("drops the field from the table when re-fetch fails after delete", async () => {
+    getSharedFieldGroupDetail
+      .mockResolvedValueOnce(sampleDetail)
+      .mockRejectedValueOnce({
+        status: 500,
+        statusText: "Server Error",
+        body: { message: "reload failed" },
+      });
+    deleteSharedField.mockResolvedValue(undefined);
+    render(<SharedFieldGroupDetailPanel name="shared" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-field-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-sf-field-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-detail-error")).toBeTruthy();
+    });
+    expect(deleteSharedField).toHaveBeenCalledWith("shared", "rx_title");
+    expect(screen.getByTestId("developer-sf-fields-empty")).toBeTruthy();
+    expect(screen.queryByTestId("developer-sf-fields-table")).toBeNull();
+  });
+
+  it("loads and saves a control property without sending choices", async () => {
+    getSharedFieldGroupDetail.mockResolvedValue(sampleDetail);
+    render(<SharedFieldGroupDetailPanel name="shared" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-cp-value-0")).toBeTruthy();
+    });
+    expect(getSharedFieldControlProperties).toHaveBeenCalledWith("shared", "rx_title");
+    fireEvent.change(screen.getByTestId("developer-sf-cp-value-0"), {
+      target: { value: "240" },
+    });
+    const save = screen.getByTestId("developer-sf-cp-save") as HTMLButtonElement;
+    expect(save.disabled).toBe(false);
+    fireEvent.click(save);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-editor-notice")).toBeTruthy();
+    });
+    expect(replaceSharedFieldControlProperties).toHaveBeenCalledWith("shared", "rx_title", {
+      properties: [{ name: "height", value: "240" }],
+    });
+    expect(screen.getByTestId("developer-sf-editor-notice").textContent).toBe(
+      DEV_MSG.SF_CONTROL_PROPS_SAVED,
+    );
+  });
+
+  it("sends choices type none when the catalog is cleared", async () => {
+    getSharedFieldGroupDetail.mockResolvedValue(sampleDetail);
+    getSharedFieldControlProperties.mockResolvedValue({
+      fieldName: "rx_title",
+      control: "sys_EditBox",
+      properties: [{ name: "height", value: "200" }],
+      choices: { type: "local", entries: [{ value: "a", label: "A" }] },
+    });
+    replaceSharedFieldControlProperties.mockResolvedValue({
+      fieldName: "rx_title",
+      control: "sys_EditBox",
+      properties: [{ name: "height", value: "200" }],
+    });
+    render(<SharedFieldGroupDetailPanel name="shared" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-ch-type")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-ch-type"), {
+      target: { value: "none" },
+    });
+    fireEvent.click(screen.getByTestId("developer-sf-cp-save"));
+    await waitFor(() => {
+      expect(replaceSharedFieldControlProperties).toHaveBeenCalled();
+    });
+    expect(replaceSharedFieldControlProperties).toHaveBeenCalledWith("shared", "rx_title", {
+      properties: [{ name: "height", value: "200" }],
+      choices: { type: "none" },
+    });
   });
 });

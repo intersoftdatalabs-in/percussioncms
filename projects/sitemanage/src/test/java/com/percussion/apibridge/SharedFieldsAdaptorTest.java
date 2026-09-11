@@ -307,7 +307,7 @@ class SharedFieldsAdaptorTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> adaptor.createGroup(null, body));
     assertEquals(409, ex.getResponse().getStatus());
-    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+    verify(designWs).saveContentEditorSharedDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test
@@ -396,7 +396,7 @@ class SharedFieldsAdaptorTest {
         assertThrows(
             IllegalArgumentException.class, () -> adaptor.updateGroup(null, "shared", body));
     assertTrue(ex.getMessage().contains("Unknown field"));
-    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+    verify(designWs).saveContentEditorSharedDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test
@@ -467,11 +467,11 @@ class SharedFieldsAdaptorTest {
   @Test
   void updateGroup_missingReturnsNull() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
-    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin"))
-        .thenReturn(new PSContentEditorSharedDef());
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
     SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
     assertNull(adaptor.updateGroup(null, "missing", new SharedFieldGroupDetail()));
-    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+    verify(designWs).saveContentEditorSharedDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test
@@ -515,11 +515,11 @@ class SharedFieldsAdaptorTest {
   @Test
   void deleteGroup_missingThrowsNotFound() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
-    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin"))
-        .thenReturn(new PSContentEditorSharedDef());
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
     SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
     assertThrows(SharedFieldNotFoundException.class, () -> adaptor.deleteGroup(null, "missing"));
-    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+    verify(designWs).saveContentEditorSharedDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test
@@ -614,7 +614,7 @@ class SharedFieldsAdaptorTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> adaptor.addField(null, "shared", body));
     assertEquals(409, ex.getResponse().getStatus());
-    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+    verify(designWs).saveContentEditorSharedDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test
@@ -653,13 +653,13 @@ class SharedFieldsAdaptorTest {
   @Test
   void addField_missingGroupReturnsNull() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
-    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin"))
-        .thenReturn(new PSContentEditorSharedDef());
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
     SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
     SharedFieldSummary body = new SharedFieldSummary();
     body.setName("rx_note");
     assertNull(adaptor.addField(null, "missing", body));
-    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+    verify(designWs).saveContentEditorSharedDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test
@@ -714,7 +714,7 @@ class SharedFieldsAdaptorTest {
     IllegalArgumentException ex =
         assertThrows(IllegalArgumentException.class, () -> adaptor.addField(null, "shared", body));
     assertTrue(ex.getMessage().contains("dataType"));
-    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+    verify(designWs).saveContentEditorSharedDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test
@@ -746,21 +746,21 @@ class SharedFieldsAdaptorTest {
     SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
     assertThrows(
         SharedFieldNotFoundException.class, () -> adaptor.deleteField(null, "shared", "missing"));
-    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+    verify(designWs).saveContentEditorSharedDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test
   void deleteField_missingGroupThrowsNotFound() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
-    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin"))
-        .thenReturn(new PSContentEditorSharedDef());
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
     SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
     SharedFieldNotFoundException ex =
         assertThrows(
             SharedFieldNotFoundException.class,
             () -> adaptor.deleteField(null, "missing", "rx_note"));
     assertTrue(ex.getMessage().contains("group"));
-    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+    verify(designWs).saveContentEditorSharedDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test
@@ -958,13 +958,13 @@ class SharedFieldsAdaptorTest {
   @Test
   void replaceFieldControlProperties_unknownGroupReturnsNull() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
-    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin"))
-        .thenReturn(new PSContentEditorSharedDef());
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
     SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
     SharedFieldControlProperties body = new SharedFieldControlProperties();
     body.setProperties(List.of());
     assertNull(adaptor.replaceFieldControlProperties(null, "missing", "rx_note", body));
-    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+    verify(designWs).saveContentEditorSharedDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test
@@ -983,7 +983,7 @@ class SharedFieldsAdaptorTest {
     assertThrows(
         SharedFieldNotFoundException.class,
         () -> adaptor.replaceFieldControlProperties(null, "shared", "nope", body));
-    verify(designWs, never()).saveContentEditorSharedDef(any(), anyBoolean(), any(), any());
+    verify(designWs).saveContentEditorSharedDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
   }
 
   @Test
