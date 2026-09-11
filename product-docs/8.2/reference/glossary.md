@@ -21,6 +21,9 @@ tags: [reference]
 | **Design (SPA)** | Assembly template library under **Developer** (not a top-nav item) |
 | **Content repository** | Traditional storage of CMS items (pages, assets, design objects) |
 | **DTS** | Delivery Tier Service — dynamic microservices for published sites |
+| **Dual-run** | Runtime selection: modern `component-package.json` first, customer Widget/Page/Gadget definition XML if modern is absent. Shim stays in 8.2. See [Convert definition XML (dual-run)](id:admin-definition-xml-dual-run). |
+| **Dual-ship** | Package-build emit of root `*.templateDef` next to modern `pages/`. Retired as the product ship path. See [Product page packages](id:developer-page-packages). |
+| **Definition XML** | Legacy Widget / Page / Gadget XML used as **upgrade input** and dual-run fallback — not the 8.2 authoring format |
 | **Edition / publish job** | Configured publishing unit of work |
 | **Extension** | In-process plugin implementing a CMS extension point |
 | **Finder** | UI navigation over Sites, folders, and items |
@@ -43,4 +46,5 @@ tags: [reference]
 - [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler)
 - [Sites & content structure](id:admin-sites)
 - [Product page packages](id:developer-page-packages)
+- [Convert definition XML (dual-run)](id:admin-definition-xml-dual-run)
 - [Virtual Sites](id:developer-virtual-sites)

@@ -284,6 +284,7 @@ related upgrade-only JSPs) until those flows are signed off on the SPA. Bookmark
 - [Extensions & packages](id:developer-extensions)
 - [Developer Extensions](id:admin-developer-extensions)
 - [Product page packages](id:developer-page-packages)
+- [Convert definition XML (dual-run)](id:admin-definition-xml-dual-run) — customer Widget XML → modern packages (shim stays)
 - [Glossary](id:reference-glossary)
 - [Navigation & site structure](id:admin-architecture-navigation)
 - [Administration](id:admin)

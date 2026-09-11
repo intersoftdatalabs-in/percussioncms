@@ -74,10 +74,14 @@ packages on 8.2 are native-only.
 | **Dual-run** definition XML shim | **Runtime** selection | Still required so customer Widget / Page / Gadget XML loads when no modern package is present. |
 
 Native page package install is **not** the same as removing the runtime legacy-definition
-XML shim. Customer XML fallback stays until Phase 5 removal criteria are met.
+XML shim. Customer XML fallback stays until remaining definitions have modern packages
+and engineering removal criteria pass. Operators convert customer XML with
+[Convert definition XML (dual-run)](id:admin-definition-xml-dual-run). Do **not** delete
+or hard-disable the dual-run shim as an upgrade cleanup step.
 
 ## Related
 
+- [Convert definition XML (dual-run)](id:admin-definition-xml-dual-run)
 - [Extensions & packages](id:developer-extensions)
 - [Design templates](id:admin-design-templates)
 - [Installation Overview](id:install-overview)

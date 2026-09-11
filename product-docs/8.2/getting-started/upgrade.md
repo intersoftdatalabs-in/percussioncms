@@ -29,7 +29,7 @@ and installer guidance for the exact build you are deploying.
 |------|----------|
 | **8.1.x** | Preferred path into 8.2. Apply latest 8.1.x security patches first when possible, then run the 8.2 installer upgrade mode against a clone of production. |
 | **Older 8.x / CM1 lineage** | Plan multi-hop upgrades (stable intermediate releases) rather than jumping multiple major lines at once. Engage Intersoft support for complex multi-version leaps. |
-| **Customized installs** | Catalog custom Java extensions, XSL/variants, WebUI overlays, and third-party JARs; recompile against the 8.2 toolchain (JDK 21) and retest. Existing **Legacy / XSL** (`legacyAssembler`) templates **keep running** — 8.2 does not force conversion on upgrade. Prefer HTML-first, Markdown, or Velocity for new work; see [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler). |
+| **Customized installs** | Catalog custom Java extensions, XSL/variants, WebUI overlays, and third-party JARs; recompile against the 8.2 toolchain (JDK 21) and retest. Existing **Legacy / XSL** (`legacyAssembler`) templates **keep running** — 8.2 does not force conversion on upgrade. Prefer HTML-first, Markdown, or Velocity for new work; see [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler). Customer **Widget / Page / Gadget definition XML** still loads when no modern package is present (dual-run). Convert incrementally; do not remove the runtime shim — see [Convert definition XML (dual-run)](id:admin-definition-xml-dual-run). |
 
 ## Upgrade steps (high level)
 
@@ -65,6 +65,24 @@ New defaults do **not** promise Derby Network Server / DRDA remote access. Stead
 Engineering release-note draft and support FAQ (Am I affected?): see repository folder  
 `docs/ai-generated/tasks/548-derby-embedded-migration/` (issue **#548**).
 
+## Customer definition XML (dual-run)
+
+8.2 does **not** require converting every customer Widget / Page / Gadget definition XML
+file on upgrade day. Runtime selection is **modern-first**: a `component-package.json`
+wins even if old XML remains on disk; XML still loads when modern is absent.
+
+After the installer upgrade:
+
+1. Inventory **your** leftover XML under the install `rxconfig` Widgets / Pages / Gadgets
+   directories (not product engineering inventories).
+2. Convert → deploy modern packages on a lower environment, then smoke.
+3. Remove XML only for ids that now have a modern package.
+4. Keep the dual-run shim until remaining customer XML is converted or waived.
+
+Cookbook: [Convert definition XML (dual-run)](id:admin-definition-xml-dual-run).
+Do not confuse this with retired **dual-ship** page `*.templateDef` files — see
+[Product page packages](id:developer-page-packages).
+
 ## Post-upgrade smoke tests
 
 - [ ] Login and role-based navigation work.
@@ -88,5 +106,7 @@ Document your environment-specific rollback runbook before production cutover.
 
 - [Installation Overview](id:install-overview)
 - [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler) — no forced XSL conversion on 8.2 upgrade
+- [Convert definition XML (dual-run)](id:admin-definition-xml-dual-run) — customer Widget/Page/Gadget XML → modern packages
+- [Product page packages](id:developer-page-packages) — dual-ship vs dual-run
 - [Server operations](id:admin-server-ops)
 - [Publishing](id:admin-publishing)

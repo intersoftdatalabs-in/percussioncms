@@ -38,7 +38,9 @@ distributed as a `.ppkg` (zip). Installers and startup packaging deploy packages
 **Product page layout packages** (`perc.baseTemplates`, `perc.responsiveTemplates`,
 `perc.Baseline`, and converted file/image binary TemplateDefs) install **natively**
 (`page.installMode=native`). Dual-ship of root `*.templateDef` files is retired as the
-product ship path. See [Product page packages](id:developer-page-packages).
+product ship path. See [Product page packages](id:developer-page-packages). Customer
+Widget / Page / Gadget **definition XML** is still a runtime fallback (dual-run) until
+you convert those packages — see [Convert definition XML (dual-run)](id:admin-definition-xml-dual-run).
 
 `perc.Baseline` system templates (`perc.page`, `perc.pageDatabase`, `perc.pageDispatcher`,
 `perc.pageXml`, `perc.sys.resource`, `perc.widget`, `perc.widgetDispatcher`) install with stable
@@ -60,5 +62,6 @@ extension points.
 ## Related
 
 - [Product page packages](id:developer-page-packages)
+- [Convert definition XML (dual-run)](id:admin-definition-xml-dual-run)
 - [REST API](id:developer-rest)
 - [Publishing](id:admin-publishing)
