@@ -1,7 +1,7 @@
 ---
 id: admin-developer-templates
 title: Developer Templates
-description: Lock, save, and unlock assembly templates from Developer Templates; export and import design XML; edit source with Velocity snippet insert, bindings, and slots; assembler choice lives on Design
+description: Lock, save, and unlock assembly templates from Developer Templates; browse and persist content-type associations; export and import design XML; edit source with Velocity snippet insert, bindings, and slots; assembler choice lives on Design
 version: "8.2"
 order: 45
 tags: [admin, developer, templates]
@@ -11,9 +11,10 @@ tags: [admin, developer, templates]
 
 **Developer → Templates** lists assembly templates from the public REST catalog
 (`GET /services/templates`). Open a row to **lock**, edit label, description, source, JEXL
-bindings, and contained slots, **save while the lock is held**, then **unlock**. This catalog
-is **list + open** plus **AS-08 import and export**, **design-session lock**, and **AS-09
-snippet library** insert into template source. Create and delete of modern templates stay on
+bindings, contained slots, and **content-type associations**, **save while the lock is held**,
+then **unlock**. This catalog is **list + open** plus **AS-08 import and export**,
+**design-session lock**, **content-type associations**, and **AS-09 snippet library** insert
+into template source. Create and delete of modern templates stay on
 [Design templates](id:admin-design-templates) (`POST` / `DELETE /services/templates`).
 
 ## Product path — catalog
@@ -67,7 +68,8 @@ Template PUT requires a design-session lock owned by the current Admin user
 
 1. Open a template from the catalog.
 2. Choose **Lock**. Status shows **Locked by you**.
-3. Change label, description, source, bindings, or slots, then **Save template**.
+3. Change label, description, source, bindings, slots, or **content-type associations**, then
+   **Save template**.
 4. Choose **Unlock** when you are done. **Back** also releases a lock you still hold.
 
 Unlocked save is refused (**409**). A lock held by another designer is **409** and is not
@@ -79,8 +81,30 @@ Integrators can call `POST /services/templates/{idOrName}/lock`, `PUT
 ## Edit from detail
 
 Open a template row to **Lock**, then change label, description, template source, JEXL
-bindings, and contained slots, then **Save template**. **Export XML** is available on the
-same toolbar. Object ACL for the template is on the detail panel.
+bindings, contained slots, and **content-type associations**, then **Save template**.
+**Export XML** is available on the same toolbar. Object ACL for the template is on the
+detail panel.
+
+### Content-type associations
+
+The **Content types** section lists each associated content type with **name** and **GUID**.
+Browse is available without a lock. After **Lock**:
+
+1. Enter a content type **name** (for example `percImage`) or a GUID (`0-6-311`) and choose
+   **Add content type**.
+2. Choose **Remove** on a row to drop an association.
+3. **Save template** replaces the full set. An empty list **clears** all associations.
+   Omitting the field on REST leaves associations unchanged.
+
+Unlocked save is **409**. Unknown content-type names or GUIDs are **400**. Non-Admin is
+**403**. Unknown templates are **404**. Save does **not** release the lock.
+
+Integrators read and write the same list on `GET` / `PUT /services/templates/{idOrName}` as
+`associatedContentTypes` (see [REST API](id:developer-rest)). The inverse association
+(content type → templates) remains on [Developer Content Types](id:admin-developer-content-types).
+
+Automated H2 surface coverage lives in
+`modules/perc-qa-automation/frontend/tests/developer-template-content-type-assoc.spec.js`.
 
 The **assembler** extension name (for example
 `Java/global/percussion/assembly/htmlAssembler`) is **read-only** on this

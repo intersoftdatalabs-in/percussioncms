@@ -583,4 +583,65 @@ describe("TemplateDetailPanel", () => {
     });
     expect(downloadXmlFile).not.toHaveBeenCalled();
   });
+
+  it("lists associated content types with name and guid (#4461)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      associatedContentTypes: [
+        {
+          name: "percPage",
+          label: "Page",
+          guid: { stringValue: "0-6-311", uuid: 311 },
+        },
+      ],
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-ct-assoc")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-tpl-ct-table")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-ct-name-0").textContent).toContain("percPage");
+    expect(screen.getByTestId("developer-tpl-ct-guid-0").textContent).toContain("0-6-311");
+    expect((screen.getByTestId("developer-tpl-ct-add") as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByTestId("developer-tpl-ct-remove-0") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+  });
+
+  it("locks then add/remove content types and save keeps lock (#4461)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      associatedContentTypes: [
+        { name: "percPage", label: "Page", guid: { stringValue: "0-6-311", uuid: 311 } },
+      ],
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-ct-assoc")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    fireEvent.change(screen.getByTestId("developer-tpl-ct-input"), {
+      target: { value: "percImage" },
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-ct-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-ct-name-1").textContent).toContain("percImage");
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-ct-remove-0"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-tpl-ct-name-1")).toBeNull();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-save"));
+    await waitFor(() => {
+      expect(updateTemplateDetailMock).toHaveBeenCalled();
+    });
+    const body = updateTemplateDetailMock.mock.calls.at(-1)?.[1] as {
+      associatedContentTypes?: { name?: string }[];
+    };
+    expect(body.associatedContentTypes).toEqual([{ name: "percImage" }]);
+    expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+  });
 });

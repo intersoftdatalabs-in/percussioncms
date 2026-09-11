@@ -302,6 +302,8 @@ export interface TemplateDetail {
   templateSource?: string;
   bindings?: TemplateBindingSummary[];
   slots?: TemplateSlotSummary[];
+  /** Associated content types (name + guid). Empty list is none; omit on PUT preserves. */
+  associatedContentTypes?: NamedObjectRef[];
   /** Structured {code,message} on template detail (REST-GAPS-01). */
   designGaps?: DesignGapWire[];
 }

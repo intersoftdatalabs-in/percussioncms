@@ -273,8 +273,9 @@ public class TemplatesResource {
           "Admin. Requires a design-session lock already held by the current user/session"
               + " (POST .../lock). Updates mutable template fields: label, description,"
               + " templateSource, and/or assembler. When assembler is present it must be"
-              + " non-blank. When bindings or slots is present (including empty), replaces that"
-              + " collection. Omit fields to leave unchanged. Name/id remain unsupported. Does"
+              + " non-blank. When bindings, slots, or associatedContentTypes is present"
+              + " (including empty), replaces that collection. Omit fields to leave unchanged."
+              + " Unknown associated content-type id/name is 400. Name/id remain unsupported. Does"
               + " not acquire or release the lock (POST .../unlock). Unlocked or stolen lock is"
               + " 409. Non-Admin is 403.",
       responses = {

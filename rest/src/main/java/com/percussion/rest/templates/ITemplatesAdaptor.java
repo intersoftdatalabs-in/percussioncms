@@ -57,9 +57,10 @@ public interface ITemplatesAdaptor {
 
   /**
    * Update mutable template design fields (label, description, source, assembler) and optionally
-   * bindings / contained slots. When {@code body.assembler} is non-null, sets the assembler
-   * extension name (must be non-blank). When {@code body.bindings} or {@code body.slots} is
-   * non-null, that collection is fully replaced (empty list clears). Name/id remain out of scope.
+   * bindings / contained slots / associated content types. When {@code body.assembler} is
+   * non-null, sets the assembler extension name (must be non-blank). When {@code body.bindings},
+   * {@code body.slots}, or {@code body.associatedContentTypes} is non-null, that collection is
+   * fully replaced (empty list clears). Name/id remain out of scope.
    *
    * <p>Admin only. Requires a design-session lock already held by the current user ({@link
    * #lockTemplate}). Does not acquire, steal, or release the lock.

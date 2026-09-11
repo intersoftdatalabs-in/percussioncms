@@ -221,8 +221,10 @@ numeric id). If delete fails (template in use, not found, or server error), the 
 dialog stays open with an operator-facing message. Choose **Cancel** to leave the
 template unchanged.
 
-Lock and content-type associations remain out of scope on this REST surface (see
-`designGaps` on the template detail payload).
+Design-session lock and content-type associations are on
+[Developer Templates](id:admin-developer-templates) (`POST .../lock`, `PUT` with
+`associatedContentTypes`, `POST .../unlock`). The Design SPA library does not edit those
+fields.
 
 ## Export template design XML (AS-08)
 

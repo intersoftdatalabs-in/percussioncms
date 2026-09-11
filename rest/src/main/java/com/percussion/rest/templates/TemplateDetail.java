@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
+import com.percussion.rest.contenttypes.NamedObjectRef;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -37,7 +38,10 @@ import java.util.List;
 @XmlRootElement(name = "TemplateDetail")
 @JsonRootName("TemplateDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Template detail with bindings, slots, and partial write support")
+@Schema(
+      description =
+          "Template detail with bindings, slots, associated content types, and partial write"
+              + " support")
 public class TemplateDetail {
 
   private Guid guid;
@@ -61,6 +65,17 @@ public class TemplateDetail {
   private String templateSource;
   private List<TemplateBindingSummary> bindings = new ArrayList<>();
   private List<TemplateSlotSummary> slots = new ArrayList<>();
+
+  /**
+   * Associated content types (name + guid). GET always returns a list (empty when none). PUT:
+   * non-null list fully replaces (empty clears); omit preserves.
+   */
+  @Schema(
+      description =
+          "Associated content types (name + guid). GET always lists them. PUT: present list"
+              + " replaces (empty clears); omit leaves associations unchanged. Unknown id/name is"
+              + " 400. Requires a held design-session lock on write.")
+  private List<NamedObjectRef> associatedContentTypes;
 
   /**
    * Structured design capability gaps (REST-GAPS-01).
@@ -243,6 +258,14 @@ public class TemplateDetail {
 
   public void setSlots(List<TemplateSlotSummary> slots) {
     this.slots = slots != null ? slots : new ArrayList<>();
+  }
+
+  public List<NamedObjectRef> getAssociatedContentTypes() {
+    return associatedContentTypes;
+  }
+
+  public void setAssociatedContentTypes(List<NamedObjectRef> associatedContentTypes) {
+    this.associatedContentTypes = associatedContentTypes;
   }
 
   public List<DesignGap> getDesignGaps() {
