@@ -901,7 +901,7 @@ export const DEV_MSG_KEYS = {
   LOC_EMPTY: "perc.ui.developer@No locales returned.",
   LOC_ERROR: "perc.ui.developer@Could not load locales.",
   LOC_HINT:
-    "perc.ui.developer@Create, save, or delete CMS locales (language string and label required). Language cannot be renamed after create. Auto-translations (locale × content type) are edited from this chrome. Format-profile write is not in this chrome.",
+    "perc.ui.developer@Create, save, or delete CMS locales (language string and label required). Language cannot be renamed after create. Format profiles (date/number/currency) save with the locale. Auto-translations (locale × content type) are edited from this chrome.",
   LOC_NEW: "perc.ui.developer@New locale",
   LOC_AT_OPEN: "perc.ui.developer@Auto-translations",
   LOC_EDIT: "perc.ui.developer@Edit",
@@ -933,10 +933,14 @@ export const DEV_MSG_KEYS = {
   LOC_DETAIL_ERROR: "perc.ui.developer@Could not load locale.",
   LOC_FORMAT: "perc.ui.developer@Format profile (RXLOCALEFORMAT)",
   LOC_FORMAT_HINT:
-    "perc.ui.developer@Exact format row for this language string. Runtime may still resolve via regional -> base -> en-us defaults when empty.",
+    "perc.ui.developer@Exact format row for this language string. Save with the locale (no separate lock). Runtime may still resolve via regional -> base -> en-us defaults when empty. Invalid patterns return 400.",
+  LOC_FORMAT_ENABLE: "perc.ui.developer@Store format profile",
   LOC_FORMAT_YES: "perc.ui.developer@Yes",
   LOC_FORMAT_NO: "perc.ui.developer@No",
-  LOC_FORMAT_EMPTY: "perc.ui.developer@No exact format row stored for this language string.",
+  LOC_FORMAT_EMPTY:
+    "perc.ui.developer@No exact format row stored for this language string. Uncheck and save to clear a stored row.",
+  LOC_FORMAT_CLEAR_HINT:
+    "perc.ui.developer@Uncheck and save to remove the RXLOCALEFORMAT row for this language.",
   LOC_FMT_DIR: "perc.ui.developer@Text direction",
   LOC_FMT_DATE: "perc.ui.developer@Date pattern",
   LOC_FMT_TIME: "perc.ui.developer@Time pattern",
@@ -944,6 +948,8 @@ export const DEV_MSG_KEYS = {
   LOC_FMT_DECIMAL: "perc.ui.developer@Decimal separator",
   LOC_FMT_GROUPING: "perc.ui.developer@Grouping separator",
   LOC_FMT_CURRENCY: "perc.ui.developer@Currency",
+  LOC_FMT_CURRENCY_CODE: "perc.ui.developer@Currency code",
+  LOC_FMT_CURRENCY_PATTERN: "perc.ui.developer@Currency pattern",
   LOC_FMT_FIRST_DAY: "perc.ui.developer@First day of week",
   LOC_FMT_MEASURE: "perc.ui.developer@Measurement",
   LOC_FMT_TZ: "perc.ui.developer@Default timezone",

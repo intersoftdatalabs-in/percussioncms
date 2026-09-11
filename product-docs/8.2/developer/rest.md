@@ -114,8 +114,8 @@ design lock released on save).
 |--------|------|---------|
 | `GET` | `/services/locales` | List CMS locales (language string, label, status, base flag) |
 | `GET` | `/services/locales/{idOrLang}` | Load one locale by language string (e.g. `en-us`) or numeric locale id |
-| `POST` | `/services/locales` | **Admin.** Create a locale (`languageString` and `label` required; optional description, status, `baseLocale`) |
-| `PUT` | `/services/locales/{idOrLang}` | **Admin.** Update label / description / status / `baseLocale`. `languageString` is immutable |
+| `POST` | `/services/locales` | **Admin.** Create a locale (`languageString` and `label` required; optional description, status, `baseLocale`, format profile) |
+| `PUT` | `/services/locales/{idOrLang}` | **Admin.** Update label / description / status / `baseLocale` and optional format profile. `languageString` is immutable |
 | `DELETE` | `/services/locales/{idOrLang}` | **Admin.** Delete a locale (`204` on success) |
 | `GET` | `/services/locales/auto-translations` | **Admin.** Load the singleton auto-translation set (locale × content type, plus workflow and community). Returns every existing `PSX_AUTOTRANSLATION` row (not an empty list when rows exist). |
 | `PUT` | `/services/locales/auto-translations` | **Admin.** Replace the auto-translation set. Empty list (`[]`) **clears** all rows. Same-user leftover design locks are stolen so a retry after a failed save can succeed; another user's lock is **409** (not **500**). |
@@ -165,7 +165,7 @@ Example auto-translation PUT body (JSON array; empty `[]` clears the set):
 |--------|-----------------|
 | `200` | List / get / create / update / auto-translation GET/PUT success |
 | `204` | Delete success |
-| `400` | Invalid input (missing language string or label, invalid status, immutable language change, unknown auto-translation locale or content type, duplicate locale/content-type row) |
+| `400` | Invalid input (missing language string or label, invalid status, immutable language change, invalid format pattern, unknown auto-translation locale or content type, duplicate locale/content-type row) |
 | `403` | Caller is not Admin, or the request has no session/user for the design session |
 | `404` | Locale not found |
 | `409` | Duplicate language string, design lock held by another user, remaining dependents, or auto-translation set lock conflict |
@@ -178,7 +178,12 @@ Example auto-translation PUT body (JSON array; empty `[]` clears the set):
 - Create/update load or create the locale with a **held design lock** and release it on save. Auto-translation
   PUT uses the same pattern (`loadTranslationSettings` with lock, `saveTranslationSettings` with
   release). There is no separate lock/unlock REST pair on this catalog (unlike content types).
-- Format-profile (`RXLOCALEFORMAT`) create/edit remains unsupported (`designGaps` on locale detail).
+- Format-profile (`RXLOCALEFORMAT`) create/update/clear is on the same locale POST/PUT.
+  Send `hasFormatProfile=true` and `format` to persist a row keyed by BCP-47 language
+  string (not `LOCALEID`). Send `hasFormatProfile=false` to **delete** the row. Omit both
+  `format` and `hasFormatProfile` to leave an existing row unchanged (Jackson null vs
+  missing). Invalid date/time/currency patterns are **400**. Non-Admin is **403**. Unknown
+  locale is **404**. GET round-trips `hasFormatProfile` and format fields.
   Auto-translation configuration is **GET/PUT** `/services/locales/auto-translations`.
   The Developer **Locales** SPA chrome uses that GET/PUT surface to view and replace the
   set (add/remove locale × content-type rows; empty list clears).
@@ -186,15 +191,15 @@ Example auto-translation PUT body (JSON array; empty `[]` clears the set):
 ### Integrator notes
 
 - After create/update the server reloads the locale so the response includes the assigned `id` and
-  current format-profile flag.
+  current format-profile flag and exact `format` row when stored.
 - Prefer language string or numeric id for update/delete. Language string is the catalog key and
   cannot be renamed via PUT.
 - Deleting a locale that still has dependents is **409** (`ignoreDependencies=false`).
 - Auto-translation PUT is a full replace of the singleton set. GET after PUT returns the persisted
   rows (names filled from the locale, content-type, workflow, and community catalogs). Duplicate
   locale/content-type pairs in the request are **400**.
-- The Developer SPA Locales editor uses these endpoints; integrators can call the same surface
-  without the UI. Auto-translation set editing is not part of this chrome.
+- The Developer SPA Locales editor uses these endpoints for locale CRUD, format-profile
+  write, and auto-translation set replace; integrators can call the same surface without the UI.
 
 ## User preferences
 

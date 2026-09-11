@@ -207,6 +207,15 @@ public interface IPSCmsObjectMgr extends IPSCmsContentSummaries {
     void saveLocaleFormat(PSLocaleFormat format) throws PSORMException;
 
     /**
+     * Deletes the locale format profile for a BCP-47 language string, if present.
+     * No-op when no {@code RXLOCALEFORMAT} row exists.
+     *
+     * @param lang language string, never null or empty
+     * @throws PSORMException if persistence fails
+     */
+    void deleteLocaleFormat(String lang) throws PSORMException;
+
+    /**
      * Saves or updates a locale object with enhanced error handling.
      *
      * @param locale the locale object, never null

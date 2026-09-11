@@ -1,7 +1,7 @@
 ---
 id: admin-developer-locales
 title: Developer Locales
-description: Create, save, and delete CMS locales and edit the auto-translation set from Developer Locales chrome
+description: Create, save, and delete CMS locales, edit format profiles, and edit the auto-translation set from Developer Locales chrome
 version: "8.2"
 order: 43
 tags: [admin, developer, locales]
@@ -14,10 +14,14 @@ status, base-locale flag, and whether an exact format profile exists). Admins
 can **create**, **save**, and **delete** a locale from this chrome. The
 language string is required on create and **cannot be renamed** later.
 
+Admins can **create, update, and clear** a locale **format profile**
+(`RXLOCALEFORMAT`: date/number/currency/text direction and related fields)
+on the locale detail panel. Format save uses the same locale **Save** action
+(no separate lock). Clearing the stored row is **uncheck Store format
+profile** and **Save**.
+
 Admins can also **view and replace** the singleton **auto-translation** set
 (locale × content-type rows, plus workflow and community) from this chrome.
-Format-profile (`RXLOCALEFORMAT`) rows remain **read-only** on the locale
-detail panel.
 
 ## Product path — create, save, delete
 
@@ -32,7 +36,12 @@ detail panel.
    that the locale already exists. After a successful create, the language
    field is read-only.
 5. Change the label (or description / status / base flag) and **Save** again.
-6. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
+6. To store a format profile, check **Store format profile**, fill date /
+   time / number / currency / text-direction fields, and **Save**. GET then
+   reports `hasFormatProfile=true` and the fields round-trip. Uncheck **Store
+   format profile** and **Save** to **remove** the `RXLOCALEFORMAT` row.
+   An invalid date/time/currency pattern is **400**.
+7. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
    The catalog no longer lists that language.
    Delete of a missing locale is **404**. A locale with remaining dependents
    is **409**.
@@ -63,8 +72,9 @@ same Admin after a failed save is taken over so a retry can succeed.
 ## Limits
 
 - Language string is immutable after create (REST `PUT` rejects a change).
-- Format-profile create/edit is not in this chrome (read of the exact row
-  only).
+- Format profiles are keyed by language string (not locale id). Runtime UI
+  may still resolve date/number formats via regional → base → en-us defaults
+  when no exact row is stored.
 - Auto-translation save is a full replace of the singleton set via
   GET/PUT `/services/locales/auto-translations` (not a per-row PATCH). Empty
   list clears. There is no TMX bulk translate in this chrome.
@@ -78,7 +88,7 @@ The chrome calls:
 | List | `GET /services/locales` |
 | Load | `GET /services/locales/{idOrLang}` |
 | Create | `POST /services/locales` (`languageString` and `label` required) |
-| Save | `PUT /services/locales/{idOrLang}` (language immutable) |
+| Save | `PUT /services/locales/{idOrLang}` (language immutable; optional `format` / `hasFormatProfile`) |
 | Delete | `DELETE /services/locales/{idOrLang}` (`204` on success) |
 | Auto-translation list | `GET /services/locales/auto-translations` |
 | Auto-translation replace | `PUT /services/locales/auto-translations` (empty `[]` clears) |

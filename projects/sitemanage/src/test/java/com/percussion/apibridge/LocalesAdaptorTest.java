@@ -89,6 +89,33 @@ class LocalesAdaptorTest {
     assertEquals("MM/dd/yyyy", d.getFormat().getDatePattern());
     assertNotNull(d.getDesignGaps());
     assertFalse(d.getDesignGaps().isEmpty());
+    assertFalse(
+        d.getDesignGaps().stream().anyMatch(g -> g.contains("RXLOCALEFORMAT create")));
+  }
+
+  @Test
+  void validateFormat_rejectsInvalidDatePattern() {
+    com.percussion.rest.locales.LocaleFormatSummary src =
+        new com.percussion.rest.locales.LocaleFormatSummary();
+    src.setDatePattern("'unclosed");
+    IllegalArgumentException ex =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            IllegalArgumentException.class, () -> LocalesAdaptor.validateFormat(src));
+    assertTrue(ex.getMessage().contains("datePattern"));
+  }
+
+  @Test
+  void validateFormat_acceptsCommonPatterns() {
+    com.percussion.rest.locales.LocaleFormatSummary src =
+        new com.percussion.rest.locales.LocaleFormatSummary();
+    src.setDatePattern("yyyy-MM-dd");
+    src.setTimePattern("HH:mm:ss");
+    src.setCurrencyPattern("#,##0.00");
+    src.setTextDir("ltr");
+    src.setMeasurementSystem("metric");
+    src.setFirstDayOfWeek(1);
+    src.setCurrencyCode("USD");
+    LocalesAdaptor.validateFormat(src);
   }
 
   @Test

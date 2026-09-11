@@ -25,10 +25,20 @@ import type { LocaleDetail, LocaleSummary } from "./types";
  */
 export const LOCALE_LANGUAGE_PATTERN = /^[a-z]{2,8}(-[a-z0-9]{1,8})*$/;
 
-/** Writable fields for POST/PUT /services/locales. Format / designGaps are not written. */
+/**
+ * Writable fields for POST/PUT /services/locales.
+ * {@code hasFormatProfile=false} clears RXLOCALEFORMAT; omit both format fields to leave the row
+ * unchanged. {@code designGaps} are not written.
+ */
 export type LocaleWriteBody = Pick<
   LocaleDetail,
-  "languageString" | "label" | "description" | "status" | "baseLocale"
+  | "languageString"
+  | "label"
+  | "description"
+  | "status"
+  | "baseLocale"
+  | "hasFormatProfile"
+  | "format"
 >;
 
 /** Jackson / JAXB root for LocaleDetail (UNWRAP_ROOT_VALUE on POST/PUT). */

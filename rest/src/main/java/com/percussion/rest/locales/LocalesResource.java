@@ -193,7 +193,9 @@ public class LocalesResource {
       description =
           "Admin. Creates and persists a locale via IPSContentDesignWs.createLocales then"
               + " saveLocales (held design lock, released on save). languageString and label are"
-              + " required. Duplicate language string is 409. Lock/dependency conflict is 409.",
+              + " required. Optional format / hasFormatProfile persist RXLOCALEFORMAT. Duplicate"
+              + " language string is 409. Invalid format pattern is 400. Lock/dependency conflict"
+              + " is 409.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -226,8 +228,11 @@ public class LocalesResource {
       summary = "Update CMS locale",
       description =
           "Admin. Updates label, description, status, and/or baseLocale by language string or"
-              + " numeric id. languageString is immutable. Loads with a design lock and releases"
-              + " on save. Unknown id is 404. Lock/dependency conflict is 409.",
+              + " numeric id. languageString is immutable. Optional format profile write: send"
+              + " hasFormatProfile=true and format to create/update RXLOCALEFORMAT (keyed by"
+              + " language string); hasFormatProfile=false clears the row. Omitted format fields"
+              + " leave the row unchanged. Invalid pattern is 400. Loads with a design lock and"
+              + " releases on save. Unknown id is 404. Lock/dependency conflict is 409.",
       responses = {
         @ApiResponse(
             responseCode = "200",

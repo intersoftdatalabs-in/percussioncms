@@ -39,9 +39,12 @@ import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
+import com.percussion.utils.exceptions.PSORMException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -52,6 +55,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -67,8 +71,10 @@ import org.springframework.beans.factory.annotation.Autowired;
  * IPSContentDesignWs#loadLocales} / {@link IPSContentDesignWs#createLocales} / {@link
  * IPSContentDesignWs#saveLocales} / {@link IPSContentDesignWs#deleteLocales} (same design web
  * service SOAP uses). Writes acquire a design lock for the request and release it on save. Format
- * profiles ({@link PSLocaleFormat} / RXLOCALEFORMAT) have no design-WS twin — still enriched from
- * {@link IPSCmsObjectMgr} as an optional secondary read.
+ * profiles ({@link PSLocaleFormat} / RXLOCALEFORMAT) have no design-WS twin — read and write go
+ * through {@link IPSCmsObjectMgr} keyed by BCP-47 language string (not LOCALEID). Format writes
+ * ride locale POST/PUT when {@code hasFormatProfile} or {@code format} is present so omitted
+ * fields do not clear an existing row.
  *
  * <p>Admin only for create/update/delete — same {@link IPSUserService#isAdminUser} gate as other
  * design catalog writes. GET remains a catalog read.
@@ -81,9 +87,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
   static final String ADMIN_REQUIRED = "Admin role required to create, update, or delete locales";
 
   private static final List<String> DESIGN_GAPS =
-      List.of(
-          "RXLOCALEFORMAT create / edit not supported via this API (read of exact row only)",
-          "Format resolution chain (regional → base → en-us defaults) is runtime-only");
+      List.of("Format resolution chain (regional → base → en-us defaults) is runtime-only");
 
   private static final String LANGUAGE_PATTERN = "[a-z]{2,8}(-[a-z0-9]{1,8})*";
 
@@ -91,6 +95,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
   private final Function<String, Optional<PSLocaleFormat>> formatByLang;
   private final Supplier<Set<String>> formatLanguageIndex;
   private final BooleanSupplier adminChecker;
+  private final Consumer<PSLocaleFormat> formatSaver;
+  private final Consumer<String> formatDeleter;
 
   /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
   @Autowired(required = false)
@@ -110,7 +116,21 @@ public class LocalesAdaptor implements ILocalesAdaptor {
                 .filter(StringUtils::isNotBlank)
                 .map(LocalesAdaptor::normalizeLanguageString)
                 .collect(Collectors.toCollection(HashSet::new)),
-        null);
+        null,
+        fmt -> {
+          try {
+            PSCmsObjectMgrLocator.getObjectManager().saveLocaleFormat(fmt);
+          } catch (PSORMException e) {
+            throw new IllegalStateException("Failed to save locale format", e);
+          }
+        },
+        lang -> {
+          try {
+            PSCmsObjectMgrLocator.getObjectManager().deleteLocaleFormat(lang);
+          } catch (PSORMException e) {
+            throw new IllegalStateException("Failed to delete locale format", e);
+          }
+        });
   }
 
   /** Package-visible for unit tests. {@code null} adminChecker uses {@link #isCurrentUserAdmin()}. */
@@ -127,10 +147,23 @@ public class LocalesAdaptor implements ILocalesAdaptor {
       Function<String, Optional<PSLocaleFormat>> formatByLang,
       Supplier<Set<String>> formatLanguageIndex,
       BooleanSupplier adminChecker) {
+    this(designWs, formatByLang, formatLanguageIndex, adminChecker, fmt -> {}, lang -> {});
+  }
+
+  /** Package-visible for unit tests that inject format save/delete. */
+  LocalesAdaptor(
+      IPSContentDesignWs designWs,
+      Function<String, Optional<PSLocaleFormat>> formatByLang,
+      Supplier<Set<String>> formatLanguageIndex,
+      BooleanSupplier adminChecker,
+      Consumer<PSLocaleFormat> formatSaver,
+      Consumer<String> formatDeleter) {
     this.designWs = designWs;
     this.formatByLang = formatByLang;
     this.formatLanguageIndex = formatLanguageIndex;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
+    this.formatSaver = formatSaver != null ? formatSaver : fmt -> {};
+    this.formatDeleter = formatDeleter != null ? formatDeleter : lang -> {};
   }
 
   @Override
@@ -181,6 +214,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     if (StringUtils.isBlank(body.getLabel())) {
       throw new IllegalArgumentException("label is required");
     }
+    validateFormatWrite(body);
     assertLanguageUnique(code);
     String session = currentSession();
     String user = currentUser();
@@ -197,6 +231,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
       PSLocale loc = created.get(0);
       applyWritableFields(loc, body, false);
       designWs.saveLocales(Collections.singletonList(loc), true, session, user);
+      persistFormatIfRequested(code, body);
       return reloadDetail(loc);
     } catch (WebApplicationException e) {
       throw e;
@@ -235,9 +270,11 @@ public class LocalesAdaptor implements ILocalesAdaptor {
         throw new IllegalArgumentException("languageString cannot be changed");
       }
     }
+    validateFormatWrite(body);
     IPSGuid g = existing.getGUID();
     String session = currentSession();
     String user = currentUser();
+    String lang = normalizeLanguageString(existing.getLanguageString());
     try {
       List<PSLocale> loaded =
           designWs.loadLocales(Collections.singletonList(g), true, false, session, user);
@@ -247,6 +284,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
       PSLocale loc = loaded.get(0);
       applyWritableFields(loc, body, true);
       designWs.saveLocales(Collections.singletonList(loc), true, session, user);
+      persistFormatIfRequested(lang, body);
       return reloadDetail(loc);
     } catch (PSErrorResultsException e) {
       if (isNotFound(e, g)) {
@@ -274,10 +312,14 @@ public class LocalesAdaptor implements ILocalesAdaptor {
       throw new LocaleNotFoundException("Locale not found");
     }
     IPSGuid g = existing.getGUID();
+    String lang = normalizeLanguageString(existing.getLanguageString());
     String session = currentSession();
     String user = currentUser();
     try {
       designWs.deleteLocales(Collections.singletonList(g), false, session, user);
+      if (lang != null) {
+        formatDeleter.accept(lang);
+      }
     } catch (PSErrorsException e) {
       throw mapSaveOrDeleteFailure("delete", e);
     }
@@ -430,6 +472,171 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     String t = lang.trim().toLowerCase(Locale.ROOT).replace('_', '-');
     return t.isEmpty() ? null : t;
+  }
+
+  /**
+   * Opt-in format write. Omitted {@code hasFormatProfile} and {@code format} leave the
+   * RXLOCALEFORMAT row unchanged so existing locale PUT clients are safe.
+   */
+  void persistFormatIfRequested(String language, LocaleDetail body) {
+    if (body == null || language == null) {
+      return;
+    }
+    boolean clear = Boolean.FALSE.equals(body.getHasFormatProfile());
+    boolean write = Boolean.TRUE.equals(body.getHasFormatProfile()) || body.getFormat() != null;
+    if (!clear && !write) {
+      return;
+    }
+    if (clear) {
+      formatDeleter.accept(language);
+      return;
+    }
+    LocaleFormatSummary src =
+        body.getFormat() != null ? body.getFormat() : new LocaleFormatSummary();
+    PSLocaleFormat row = formatByLang.apply(language).orElseGet(() -> new PSLocaleFormat(language));
+    applyFormatFields(row, src);
+    row.setLanguageString(language);
+    formatSaver.accept(row);
+  }
+
+  static void validateFormatWrite(LocaleDetail body) {
+    if (body == null) {
+      return;
+    }
+    if (Boolean.FALSE.equals(body.getHasFormatProfile())) {
+      return;
+    }
+    if (!Boolean.TRUE.equals(body.getHasFormatProfile()) && body.getFormat() == null) {
+      return;
+    }
+    LocaleFormatSummary src =
+        body.getFormat() != null ? body.getFormat() : new LocaleFormatSummary();
+    validateFormat(src);
+  }
+
+  static void validateFormat(LocaleFormatSummary src) {
+    if (src == null) {
+      return;
+    }
+    validateDateTimePattern("datePattern", src.getDatePattern());
+    validateDateTimePattern("timePattern", src.getTimePattern());
+    validateDateTimePattern("dateTimePattern", src.getDateTimePattern());
+    validateCurrencyPattern(src.getCurrencyPattern());
+    validateTextDir(src.getTextDir());
+    validateMeasurement(src.getMeasurementSystem());
+    validateFirstDay(src.getFirstDayOfWeek());
+    validateCurrencyCode(src.getCurrencyCode());
+    validateSep("decimalSep", src.getDecimalSep(), 4);
+    validateSep("groupingSep", src.getGroupingSep(), 4);
+    validateMaxLen("defaultTz", src.getDefaultTz(), 64);
+    validateMaxLen("numberingSystem", src.getNumberingSystem(), 16);
+    validateMaxLen("calendar", src.getCalendar(), 32);
+    if (StringUtils.isNotBlank(src.getLanguageString())) {
+      String want = normalizeLanguageString(src.getLanguageString());
+      if (want != null && !isValidLanguageString(want)) {
+        throw new IllegalArgumentException("invalid format languageString: " + src.getLanguageString());
+      }
+    }
+  }
+
+  static void applyFormatFields(PSLocaleFormat row, LocaleFormatSummary src) {
+    if (row == null || src == null) {
+      return;
+    }
+    row.setTextDir(src.getTextDir());
+    row.setDatePattern(src.getDatePattern());
+    row.setTimePattern(src.getTimePattern());
+    row.setDateTimePattern(src.getDateTimePattern());
+    row.setDecimalSep(src.getDecimalSep());
+    row.setGroupingSep(src.getGroupingSep());
+    row.setCurrencyCode(src.getCurrencyCode());
+    row.setCurrencyPattern(src.getCurrencyPattern());
+    row.setFirstDayOfWeek(src.getFirstDayOfWeek());
+    row.setMeasurementSystem(src.getMeasurementSystem());
+    row.setDefaultTz(src.getDefaultTz());
+    row.setNumberingSystem(src.getNumberingSystem());
+    row.setCalendar(src.getCalendar());
+  }
+
+  static void validateDateTimePattern(String field, String pattern) {
+    if (StringUtils.isBlank(pattern)) {
+      return;
+    }
+    try {
+      new SimpleDateFormat(pattern.trim(), Locale.ROOT);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("invalid " + field + " pattern: " + pattern, e);
+    }
+  }
+
+  static void validateCurrencyPattern(String pattern) {
+    if (StringUtils.isBlank(pattern)) {
+      return;
+    }
+    try {
+      new DecimalFormat(pattern.trim());
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("invalid currencyPattern pattern: " + pattern, e);
+    }
+  }
+
+  static void validateTextDir(String textDir) {
+    if (StringUtils.isBlank(textDir)) {
+      return;
+    }
+    String v = textDir.trim().toLowerCase(Locale.ROOT);
+    if (!PSLocaleFormat.TEXT_DIR_LTR.equals(v) && !PSLocaleFormat.TEXT_DIR_RTL.equals(v)) {
+      throw new IllegalArgumentException("invalid textDir: " + textDir);
+    }
+  }
+
+  static void validateMeasurement(String measurement) {
+    if (StringUtils.isBlank(measurement)) {
+      return;
+    }
+    String v = measurement.trim().toLowerCase(Locale.ROOT);
+    if (!PSLocaleFormat.MEASUREMENT_US.equals(v)
+        && !PSLocaleFormat.MEASUREMENT_UK.equals(v)
+        && !PSLocaleFormat.MEASUREMENT_METRIC.equals(v)) {
+      throw new IllegalArgumentException("invalid measurementSystem: " + measurement);
+    }
+  }
+
+  static void validateFirstDay(Integer firstDay) {
+    if (firstDay == null) {
+      return;
+    }
+    if (firstDay < PSLocaleFormat.FIRST_DAY_MONDAY || firstDay > PSLocaleFormat.FIRST_DAY_SUNDAY) {
+      throw new IllegalArgumentException("invalid firstDayOfWeek: " + firstDay);
+    }
+  }
+
+  static void validateCurrencyCode(String code) {
+    if (StringUtils.isBlank(code)) {
+      return;
+    }
+    String v = code.trim();
+    if (v.length() != 3 || !v.chars().allMatch(Character::isLetter)) {
+      throw new IllegalArgumentException("invalid currencyCode: " + code);
+    }
+  }
+
+  static void validateSep(String field, String value, int maxLen) {
+    if (StringUtils.isBlank(value)) {
+      return;
+    }
+    if (value.trim().length() > maxLen) {
+      throw new IllegalArgumentException("invalid " + field + ": too long");
+    }
+  }
+
+  static void validateMaxLen(String field, String value, int maxLen) {
+    if (StringUtils.isBlank(value)) {
+      return;
+    }
+    if (value.trim().length() > maxLen) {
+      throw new IllegalArgumentException("invalid " + field + ": too long");
+    }
   }
 
   static void applyWritableFields(PSLocale loc, LocaleDetail body, boolean allowLabel) {
