@@ -581,6 +581,33 @@ def _deploy_one(
     )
 
 
+def _truncate_server_log(container_name: str, *, dry_run: bool) -> int:
+    """Zero ``server.log`` so qa-health cannot match a prior Failed startup.
+
+    Prefer coreutils ``truncate`` (Ubuntu Jammy matrix image). Fall back to
+    POSIX ``: > path`` when ``truncate`` is missing.
+    """
+    rc = _run(
+        ["docker", "exec", container_name, "truncate", "-s", "0", SERVER_LOG],
+        dry_run=dry_run,
+    )
+    if rc == EXIT_OK:
+        return rc
+    return _run(
+        [
+            "docker",
+            "exec",
+            container_name,
+            "sh",
+            "-c",
+            ': > "$1"',
+            "perc-truncate-server-log",
+            SERVER_LOG,
+        ],
+        dry_run=dry_run,
+    )
+
+
 def _restart_jetty(container_name: str, *, dry_run: bool) -> int:
     rc = _run(
         ["docker", "exec", container_name, STOP_JETTY],
@@ -589,10 +616,7 @@ def _restart_jetty(container_name: str, *, dry_run: bool) -> int:
     if rc != EXIT_OK:
         LOG.warning("StopJetty.sh returned %s (continuing to StartJetty)", rc)
     # Drop prior Failed startup of context lines so qa-health only sees this boot.
-    rc = _run(
-        ["docker", "exec", container_name, "truncate", "-s", "0", SERVER_LOG],
-        dry_run=dry_run,
-    )
+    rc = _truncate_server_log(container_name, dry_run=dry_run)
     if rc != EXIT_OK:
         LOG.warning("Could not truncate %s (qa-health may match an older boot)", SERVER_LOG)
     # Detached so StartJetty.sh cannot hold this process in the foreground.

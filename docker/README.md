@@ -471,7 +471,7 @@ Default source: `WebUI/target/generated-webui/cm/modern` (entry `assets/perc-mod
 
 ### `docker/scripts/hot-deploy-rhythmyx-war-jars.py`
 
-Hot-copy `perc-system`, `rest`, `sitemanage`, and `extensions-workflow` SNAPSHOTs plus `commons-email2-core` / `commons-email2-jakarta` / `com.sun.mail:jakarta.mail` 2.x into the H2 QA WAR `WEB-INF/lib` (`#4174` / `#4456`). Refuses `perc-system` that lacks `PSSitemapXmlVirtualSiteSource`. Refuses deploy when those jars are missing from `system/target`, the WebUI WAR lib, or `~/.m2/repository`. Removes stale `commons-email-*.jar` (1.x) and `jakarta.mail-1.x` (not `jakarta.mail-api`) so they cannot shadow mail2. Does **not** `docker restart` the cell. `--restart-jetty` runs in-cell `StopJetty.sh` then detached `StartJetty.sh`. Unit tests: `docker/scripts/test_hot_deploy_rhythmyx_war_jars.py`.
+Hot-copy `perc-system`, `rest`, `sitemanage`, and `extensions-workflow` SNAPSHOTs plus `commons-email2-core` / `commons-email2-jakarta` / `com.sun.mail:jakarta.mail` 2.x into the H2 QA WAR `WEB-INF/lib` (`#4174` / `#4456`). Refuses `perc-system` that lacks `PSSitemapXmlVirtualSiteSource`. Refuses deploy when those jars are missing from `system/target`, the WebUI WAR lib, or `~/.m2/repository`. Removes stale `commons-email-*.jar` (1.x) and `jakarta.mail-1.x` (not `jakarta.mail-api`) so they cannot shadow mail2. Does **not** `docker restart` the cell. `--restart-jetty` runs in-cell `StopJetty.sh`, truncates `jetty/base/logs/server.log` (so `qa-health` cannot match a prior `Failed startup of context`), then detached `StartJetty.sh`. Unit tests: `docker/scripts/test_hot_deploy_rhythmyx_war_jars.py`.
 
 ## Container entrypoint
 

@@ -457,18 +457,20 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "object-storage / rss-atom / icalendar / sitemap-xml kind "
             "options and Action Menus developer-am-new catalog chrome. "
             "With --skip-image-build, also copies perc-system/rest/"
-            "sitemanage SNAPSHOTs into WEB-INF/lib (#4174)."
+            "sitemanage/extensions-workflow SNAPSHOTs plus mail2 / "
+            "jakarta.mail 2.x into WEB-INF/lib (#4174 / #4456)."
         ),
     )
     pqu.add_argument(
         "--then-qa-deploy-war-jars",
         action="store_true",
         help=(
-            "After a successful qa-up, copy perc-system, rest, and "
-            "sitemanage SNAPSHOTs plus commons-email2-core / "
-            "commons-email2-jakarta into the H2 QA WAR WEB-INF/lib "
-            "(#4174 / #4456). Implied by --then-qa-deploy-webui when "
-            "--skip-image-build is set."
+            "After a successful qa-up, copy perc-system, rest, "
+            "sitemanage, and extensions-workflow SNAPSHOTs plus "
+            "commons-email2-core / commons-email2-jakarta / jakarta.mail "
+            "2.x into the H2 QA WAR WEB-INF/lib (#4174 / #4456). "
+            "Implied by --then-qa-deploy-webui when --skip-image-build "
+            "is set."
         ),
     )
     pqu.add_argument(
@@ -648,9 +650,10 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     pqdj = sub.add_parser(
         "qa-deploy-war-jars",
         help=(
-            "Hot-copy perc-system, rest, and sitemanage SNAPSHOT jars "
-            "plus commons-email2-core / commons-email2-jakarta into the "
-            "H2 QA WAR WEB-INF/lib so skip-image-build cells allow-list "
+            "Hot-copy perc-system, rest, sitemanage, and "
+            "extensions-workflow SNAPSHOT jars plus commons-email2-core "
+            "/ commons-email2-jakarta / jakarta.mail 2.x into the H2 QA "
+            "WAR WEB-INF/lib so skip-image-build cells allow-list "
             "sitemap-xml (#4174) and ship mail2 (#4456). Does not "
             "docker-restart the cell."
         ),

@@ -50,6 +50,18 @@ None at `bug` severity.
 
 ## Tests observed (pre-commit)
 
-- `python docker/scripts/test_hot_deploy_rhythmyx_war_jars.py` — 20 tests, OK
-- `cd system && ../mvnw.cmd clean install` — BUILD SUCCESS; `CommonsEmail2WarLibContractTest` Tests run: 2, Failures: 0; suite Tests run: 3075, Failures: 0, Errors: 0, Skipped: 254
-- WebUI standalone `clean install` in progress at review time
+- `python docker/scripts/test_hot_deploy_rhythmyx_war_jars.py` — 23 tests, OK (includes truncate fallback)
+- `python docker/scripts/test_perc_devctl.py` — 77 tests, OK
+- `cd system && ../mvnw.cmd clean install` — see follow-up commit evidence
+
+## Follow-up (Kilo merge blocker / argparse lockstep)
+
+Kilo Code Review on PR #4457 failed with **zero inline threads** (`Review failed: The model output limit was reached`). No code findings.
+
+This follow-up:
+
+1. Aligns `perc-devctl.py` argparse help with the module docstring (extensions-workflow + jakarta.mail 2.x).
+2. Adds `_truncate_server_log` POSIX `sh -c ': > "$1"'` fallback when coreutils `truncate` is missing (Jammy has `truncate`; still tested).
+3. Documents log truncate in `docker/README.md`.
+
+No new bugs. Paths remain `Path` / container POSIX dest. **May commit/push: yes**.

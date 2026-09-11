@@ -424,6 +424,49 @@ class TestDeploy(unittest.TestCase):
                 ["docker", "exec", "-d", "perc-matrix-cms-h2", hdj.START_JETTY],
                 calls,
             )
+            self.assertFalse(
+                any("perc-truncate-server-log" in c for c in calls),
+                msg=calls,
+            )
+
+    def test_restart_jetty_falls_back_when_truncate_missing(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = _layout(Path(td))
+            calls, fake = _stub_subprocess()
+
+            def fake_with_missing_truncate(argv, *args, **kwargs):
+                if (
+                    argv[:2] == ["docker", "exec"]
+                    and len(argv) >= 4
+                    and argv[3] == "truncate"
+                ):
+                    calls.append(list(argv))
+                    return subprocess.CompletedProcess(
+                        args=argv,
+                        returncode=127,
+                        stdout="",
+                        stderr="truncate: not found",
+                    )
+                return fake(argv, *args, **kwargs)
+
+            with unittest.mock.patch.object(
+                hdj.subprocess, "run", side_effect=fake_with_missing_truncate
+            ):
+                rc = hdj.deploy(root, dry_run=False, restart_jetty=True)
+            self.assertEqual(rc, hdj.EXIT_OK)
+            self.assertIn(
+                [
+                    "docker",
+                    "exec",
+                    "perc-matrix-cms-h2",
+                    "sh",
+                    "-c",
+                    ': > "$1"',
+                    "perc-truncate-server-log",
+                    hdj.SERVER_LOG,
+                ],
+                calls,
+            )
 
 
 if __name__ == "__main__":
