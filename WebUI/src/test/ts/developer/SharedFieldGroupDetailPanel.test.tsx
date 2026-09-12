@@ -513,11 +513,21 @@ describe("SharedFieldGroupDetailPanel", () => {
       properties: [{ name: "height", value: "200" }],
     });
     render(<SharedFieldGroupDetailPanel name="shared" onBack={() => undefined} />);
+    // Type select is mounted (disabled) before GET controlProperties returns; wait until
+    // the catalog is loaded so canSaveControl sees choicesDirty after clearing.
     await waitFor(() => {
-      expect(screen.getByTestId("developer-ct-ch-type")).toBeTruthy();
+      const typeSelect = screen.getByTestId("developer-ct-ch-type") as HTMLSelectElement;
+      expect(typeSelect.disabled).toBe(false);
+      expect(typeSelect.value).toBe("local");
+      expect(screen.getByTestId("developer-ct-ch-entry-0")).toBeTruthy();
     });
     fireEvent.change(screen.getByTestId("developer-ct-ch-type"), {
       target: { value: "none" },
+    });
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-sf-cp-save") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
     });
     fireEvent.click(screen.getByTestId("developer-sf-cp-save"));
     await waitFor(() => {
