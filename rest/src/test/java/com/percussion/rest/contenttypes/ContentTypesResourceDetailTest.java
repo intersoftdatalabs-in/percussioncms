@@ -503,6 +503,28 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
+  public void updateContentTypeUnknownFieldIs404() {
+    when(adaptor.updateContentType(any(), eq("percPage"), any()))
+        .thenThrow(new WebApplicationException("Unknown field: missing_field", 404));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateContentType("percPage", new ContentTypeDetail()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateContentTypeBlankFieldLabelIs400() {
+    when(adaptor.updateContentType(any(), eq("percPage"), any()))
+        .thenThrow(new IllegalArgumentException("Field display label is required for field rx_note"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateContentType("percPage", new ContentTypeDetail()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void lockContentTypeBadRequestForWildcardName() {
     when(adaptor.lockContentType(any(), eq("perc*")))
         .thenThrow(new IllegalArgumentException("Content type name must not contain wildcards"));

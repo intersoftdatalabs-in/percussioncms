@@ -24,9 +24,10 @@ import java.util.List;
 
 /**
  * Field summary for a content type (Developer module design view). GET catalog rows are read-only
- * except searchable/occurrence on PUT detail. Create uses POST {@code
- * /contenttypes/{idOrName}/fields} (held design lock); include system/shared uses POST {@code
- * .../fields/include}; delete uses DELETE {@code .../fields/{fieldName}}.
+ * except searchable/occurrence and <strong>local</strong> display {@code label} on PUT detail.
+ * Create uses POST {@code /contenttypes/{idOrName}/fields} (held design lock); include
+ * system/shared uses POST {@code .../fields/include}; delete uses DELETE {@code
+ * .../fields/{fieldName}}.
  */
 @XmlRootElement(name = "ContentTypeField")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -39,7 +40,10 @@ public class ContentTypeField {
   @Schema(description = "Field submit name (system name)")
   private String name;
 
-  @Schema(description = "Display label when known")
+  @Schema(
+      description =
+          "Display label when known. Writable on PUT content-type detail for local fields"
+              + " (held design lock). Blank is 400. System/shared labels are 400.")
   private String label;
 
   @Schema(

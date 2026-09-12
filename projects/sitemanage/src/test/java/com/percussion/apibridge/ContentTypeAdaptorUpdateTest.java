@@ -37,6 +37,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.cms.objectstore.PSItemDefinition;
+import com.percussion.design.objectstore.PSBackEndTable;
+import com.percussion.design.objectstore.PSDisplayMapper;
+import com.percussion.design.objectstore.PSDisplayMapping;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
@@ -215,7 +218,6 @@ class ContentTypeAdaptorUpdateTest {
     patch.setInputTranslationExpression("sys_ToUpper");
     patch.setOutputTranslationExpression("sys_ToLower");
     patch.setControlPropertyNames(List.of("height"));
-    patch.setLabel("Hacked label");
     ContentTypeDetail body = new ContentTypeDetail();
     body.setFields(List.of(patch));
 
@@ -277,6 +279,75 @@ class ContentTypeAdaptorUpdateTest {
   }
 
   @Test
+  void update_writesLocalFieldDisplayLabelWhenLockHeld() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubLockedDefinitionWithLocalField("rx_note", "Note:");
+    ContentTypeField patch = new ContentTypeField();
+    patch.setName("rx_note");
+    patch.setLabel("Headline");
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setFields(List.of(patch));
+
+    adaptor.updateContentType(null, "311", body);
+
+    verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    PSDisplayMapping mapping =
+        ContentTypeAdaptor.findDisplayMapping(def.getDisplayMapper("percPage"), "rx_note");
+    assertEquals("Headline:", mapping.getUISet().getLabel().getText());
+  }
+
+  @Test
+  void update_blankLocalFieldLabelIs400() throws Exception {
+    stubHeldLock();
+    stubLockedDefinitionWithLocalField("rx_note", "Note:");
+    ContentTypeField patch = new ContentTypeField();
+    patch.setName("rx_note");
+    patch.setLabel("   ");
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setFields(List.of(patch));
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.updateContentType(null, "311", body));
+    assertTrue(ex.getMessage().toLowerCase().contains("label"), ex.getMessage());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_systemFieldLabelIs400() throws Exception {
+    stubHeldLock();
+    stubLockedDefinitionWithSystemField("sys_title");
+    ContentTypeField patch = new ContentTypeField();
+    patch.setName("sys_title");
+    patch.setLabel("Hacked");
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setFields(List.of(patch));
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.updateContentType(null, "311", body));
+    assertTrue(ex.getMessage().toLowerCase().contains("local"), ex.getMessage());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_unknownFieldIs404() throws Exception {
+    stubHeldLock();
+    stubLockedDefinitionWithLocalField("rx_note", "Note:");
+    ContentTypeField patch = new ContentTypeField();
+    patch.setName("missing_field");
+    patch.setLabel("Nope");
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setFields(List.of(patch));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.updateContentType(null, "311", body));
+    assertEquals(404, ex.getResponse().getStatus());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
   void update_oversizedNumericId_isBadRequest() {
     assertThrows(
         IllegalArgumentException.class,
@@ -326,6 +397,36 @@ class ContentTypeAdaptorUpdateTest {
         .setLabel(any());
     when(designWs.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
         .thenReturn(List.of(def));
+    return def;
+  }
+
+  private PSItemDefinition stubLockedDefinitionWithLocalField(String fieldName, String label)
+      throws Exception {
+    PSItemDefinition def = stubLockedDefinition("percPage", "Page", "desc");
+    PSFieldSet parent = new PSFieldSet("percPage");
+    PSDisplayMapper mapper = new PSDisplayMapper("percPage");
+    when(def.getFieldSet()).thenReturn(parent);
+    when(def.getComplexChildren()).thenReturn(List.of());
+    when(def.getDisplayMapper("percPage")).thenReturn(mapper);
+    when(def.getTypeTables()).thenReturn(List.of(new PSBackEndTable("PERCPAGE")));
+    ContentTypeField body = new ContentTypeField();
+    body.setName(fieldName);
+    body.setLabel(label);
+    ContentTypeAdaptor.addPersistableLocalField(def, body);
+    return def;
+  }
+
+  private PSItemDefinition stubLockedDefinitionWithSystemField(String fieldName) throws Exception {
+    PSItemDefinition def = stubLockedDefinition("percPage", "Page", "desc");
+    PSField field = mock(PSField.class);
+    when(field.getSubmitName()).thenReturn(fieldName);
+    when(field.getType()).thenReturn(PSField.TYPE_SYSTEM);
+    PSFieldSet fieldSet = mock(PSFieldSet.class);
+    when(fieldSet.findFieldByName(fieldName, false)).thenReturn(field);
+    when(fieldSet.getName()).thenReturn("percPage");
+    when(def.getFieldSet()).thenReturn(fieldSet);
+    when(def.getComplexChildren()).thenReturn(List.of());
+    when(def.getDisplayMapper("percPage")).thenReturn(new PSDisplayMapper("percPage"));
     return def;
   }
 }

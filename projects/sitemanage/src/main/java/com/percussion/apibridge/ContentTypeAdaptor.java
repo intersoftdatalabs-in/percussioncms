@@ -703,10 +703,6 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
                 + " SPA picker remain Workbench"));
     gaps.add(
         DesignGap.of(
-            "CT_FIELD_LABELS_WRITE",
-            "Field display labels are not writable via PUT content type detail"));
-    gaps.add(
-        DesignGap.of(
             "CT_SEARCH_INDEXING",
             "Type-level search indexing: GET/PUT /contenttypes/{idOrName}/searchIndexing"
                 + " (held lock for write). Default is on. Per-field searchable is a separate PUT"
@@ -2046,34 +2042,24 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   /**
-   * Apply writable field patches only ({@code searchable}, occurrence / required). Rule
-   * expressions use {@link #replaceFieldRuleExpressions}; control property names/values use
-   * {@link #replaceFieldControlProperties}. Field labels on the wire DTO are ignored.
+   * Apply writable field patches ({@code searchable}, occurrence / required, local display {@code
+   * label}). Rule expressions use {@link #replaceFieldRuleExpressions}; control property
+   * names/values use {@link #replaceFieldControlProperties}.
    */
   private void applyFieldUpdates(PSItemDefinition def, List<ContentTypeField> fields) {
     if (fields == null || fields.isEmpty()) {
-      return;
-    }
-    PSFieldSet parentFs = def.getFieldSet();
-    if (parentFs == null) {
       return;
     }
     for (ContentTypeField patch : fields) {
       if (patch == null || StringUtils.isBlank(patch.getName())) {
         continue;
       }
-      // systemModOnly=false includes classic + extended fields
-      PSField field = parentFs.findFieldByName(patch.getName(), false);
+      PSField field = findField(def, patch.getName());
       if (field == null) {
-        // also search complex children
-        for (PSFieldSet child : def.getComplexChildren()) {
-          if (child == null) continue;
-          field = child.findFieldByName(patch.getName(), false);
-          if (field != null) break;
-        }
+        throw new WebApplicationException("Unknown field: " + patch.getName(), 404);
       }
-      if (field == null) {
-        throw new IllegalArgumentException("Unknown field: " + patch.getName());
+      if (patch.getLabel() != null) {
+        applyLocalFieldDisplayLabel(def, field, patch.getLabel());
       }
       if (patch.getSearchable() != null) {
         field.setUserSearchable(patch.getSearchable());
@@ -2103,6 +2089,49 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         }
       }
     }
+  }
+
+  /**
+   * Write a local field's display mapping label (Workbench UI set). Blank is 400. System and
+   * shared fields are 400 — origin stays catalog-owned. Missing display mapping is created.
+   * Stored text matches local-field create (trailing colon).
+   */
+  static void applyLocalFieldDisplayLabel(PSItemDefinition def, PSField field, String rawLabel) {
+    if (field == null || StringUtils.isBlank(field.getSubmitName())) {
+      throw new WebApplicationException("Unknown field", 404);
+    }
+    if (field.getType() != PSField.TYPE_LOCAL) {
+      throw new IllegalArgumentException(
+          "Field display label is writable only for local fields: " + field.getSubmitName());
+    }
+    if (StringUtils.isBlank(rawLabel)) {
+      throw new IllegalArgumentException(
+          "Field display label is required for field " + field.getSubmitName());
+    }
+    String label = rawLabel.trim();
+    if (!label.endsWith(":")) {
+      label = label + ":";
+    }
+    PSDisplayMapper mapper = displayMapperOfStatic(def);
+    if (mapper == null) {
+      throw new IllegalArgumentException("Content type has no display mapper");
+    }
+    PSDisplayMapping mapping = findDisplayMapping(mapper, field.getSubmitName());
+    if (mapping == null) {
+      ContentTypeField body = new ContentTypeField();
+      body.setName(field.getSubmitName());
+      body.setLabel(label);
+      appendDefaultDisplayMapping(mapper, field.getSubmitName(), body);
+      return;
+    }
+    PSUISet ui = mapping.getUISet();
+    if (ui == null) {
+      ui = new PSUISet();
+      mapping.setUISet(ui);
+    }
+    PSDisplayText text = new PSDisplayText(label);
+    ui.setLabel(text);
+    ui.setErrorLabel(text);
   }
 
   /** Map API occurrence string back to PSField dimension, or null if unknown. */

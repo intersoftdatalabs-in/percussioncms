@@ -225,7 +225,8 @@ export const DEV_MSG_KEYS = {
   CT_SAVE_ERROR: "perc.ui.developer@Could not save content type.",
   CT_FIELDS: "perc.ui.developer@Fields",
   CT_FIELDS_HINT:
-    "perc.ui.developer@Lock to add or delete a local field (POST/DELETE .../fields; origin always local). Toggle searchable / required for local fields after lock. Include an existing system or shared field from the picker (origin stays system/shared). Save writes while the lock is held and does not unlock.",
+    "perc.ui.developer@Lock to add or delete a local field (POST/DELETE .../fields; origin always local). After lock, edit a local field display label and toggle searchable / required. Include an existing system or shared field from the picker (origin stays system/shared). Save writes while the lock is held and does not unlock.",
+  CT_FIELD_LABEL_BLANK: "perc.ui.developer@Enter a display label for the local field.",
   CT_INCLUDE: "perc.ui.developer@Include system or shared field",
   CT_INCLUDE_HINT:
     "perc.ui.developer@After lock, pick origin (system or shared) and a catalog field, or type a name. Include keeps the origin (not copied as local). Duplicate or unlocked is 409. Unknown catalog field is 404. Invalid fieldType is 400.",

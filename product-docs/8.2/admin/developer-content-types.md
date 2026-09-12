@@ -155,7 +155,8 @@ name (bulk `PUT /services/contenttypes/{idOrName}` still does not rename).
    **Allowed templates** add/remove chrome are visible immediately (add/remove
    stay **disabled** until the type body has loaded and you hold the lock). The
    status line starts as **Not locked**. Label, description, enabled, type-level
-   search indexing, icon strategy, field flags, and association editors stay
+   search indexing, icon strategy, field flags, local field display labels, and
+   association editors stay
    **read-only** until you hold the lock. You do not need to scroll past the
    fields table to lock or save. Enabled, Search indexing, and Icon strategy
    stay disabled until you hold the lock; a failed lock (**409**) does not steal
@@ -165,7 +166,8 @@ name (bulk `PUT /services/contenttypes/{idOrName}` still does not rename).
    holds the lock, the panel shows an error and Save stays disabled (the product
    does **not** steal the lock).
 6. Change the **Description**, **Enabled** checkbox, **Search indexing**
-   checkbox, **Icon strategy**, and any other unlocked fields, then click
+   checkbox, **Icon strategy**, a **local** field display label on the Fields
+   table, and any other unlocked fields, then click
    **Save content type**. Save writes while the lock is still held. It does
    **not** unlock. **Enabled** is written with a dedicated
    `PUT /services/contenttypes/{idOrName}/enabled` (CD-13), not the bulk
@@ -268,6 +270,24 @@ After **Lock**:
 4. Without a lock, Add / Delete stay **disabled**. The product does **not**
    steal another user's lock (lock failure is **409**). An unlocked add or
    delete does not persist.
+
+### Local field display labels (after lock)
+
+The **Fields** table shows each field's display label. **System** and **shared**
+rows stay read-only. After **Lock**, a **local** field's label is an editable
+text box.
+
+1. Change the local field display label (for example **Headline**).
+2. Click **Save content type**. The product writes the label on
+   `PUT /services/contenttypes/{idOrName}` (`fields[].label`) while the lock is
+   still held and does **not** unlock. A following
+   `GET /services/contenttypes/{idOrName}` returns the new label (Workbench
+   trailing colon is stored when the value does not already end with `:`).
+3. A blank label is **400**. A label on a system or shared field is **400**.
+   Unknown type or field is **404**. Unlocked or another user's lock is
+   **409**. Non-Admin is **403**.
+4. Without a lock, the label box stays **disabled**. An unlocked save does not
+   persist.
 
 This is not the full Workbench field editor. Child field-set reorder and
 include of system/shared fields are later slices.
@@ -468,7 +488,7 @@ The chrome calls:
 |--------|---------|
 | Create | `POST /services/contenttypes` (Admin; unique name, no spaces; 409 duplicate; 400 invalid; 403 non-Admin) |
 | Lock | `POST /services/contenttypes/{idOrName}/lock` |
-| Save (label, description, fields) | `PUT /services/contenttypes/{idOrName}` (requires a held lock; does not send `enabled`, type-level `searchIndexing`, `allowedWorkflows`, or `allowedTemplates`) |
+| Save (label, description, fields) | `PUT /services/contenttypes/{idOrName}` (requires a held lock; local field `fields[].label` plus searchable/occurrence; does not send `enabled`, type-level `searchIndexing`, `allowedWorkflows`, or `allowedTemplates`) |
 | Enable / disable | `PUT /services/contenttypes/{idOrName}/enabled` (CD-13; requires a held lock; does not acquire or release it) |
 | Type-level search indexing | `GET` / `PUT /services/contenttypes/{idOrName}/searchIndexing` (CD-10; Developer detail **Search indexing** checkbox after lock; PUT requires a held lock; default on; not the per-field searchable flag) |
 | Load icon strategy | `GET /services/contenttypes/{idOrName}/icon` (CD-11; no lock; `none` / `specified` / `fromFileField`) |

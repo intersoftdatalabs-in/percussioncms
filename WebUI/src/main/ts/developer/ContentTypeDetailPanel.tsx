@@ -137,6 +137,8 @@ type FieldDraft = {
   name: string;
   searchable: boolean;
   required: boolean;
+  label: string;
+  local: boolean;
 };
 
 function fieldKey(f: ContentTypeFieldSummary): string {
@@ -151,6 +153,8 @@ function toDrafts(fields: unknown): Record<string, FieldDraft> {
       name: f.name,
       searchable: !!f.searchable,
       required: !!f.required,
+      label: f.label || "",
+      local: (f.fieldType || "").toLowerCase() === "local",
     };
   }
   return out;
@@ -501,7 +505,11 @@ export function ContentTypeDetailPanel({
       const d = fieldDrafts[k];
       const i = initialDrafts[k];
       if (!d || !i) return false;
-      return d.searchable !== i.searchable || d.required !== i.required;
+      return (
+        d.searchable !== i.searchable ||
+        d.required !== i.required ||
+        (d.local && d.label !== i.label)
+      );
     });
 
   const initialWorkflows = withDefaultWorkflowFlags(
@@ -566,6 +574,15 @@ export function ContentTypeDetailPanel({
       const cur = prev[key];
       if (!cur) return prev;
       return { ...prev, [key]: { ...cur, [prop]: !cur[prop] } };
+    });
+    setNotice(null);
+  }
+
+  function setFieldLabel(key: string, value: string) {
+    setFieldDrafts((prev) => {
+      const cur = prev[key];
+      if (!cur || !cur.local) return prev;
+      return { ...prev, [key]: { ...cur, label: value } };
     });
     setNotice(null);
   }
@@ -1006,6 +1023,14 @@ export function ContentTypeDetailPanel({
     ) {
       return;
     }
+    const blankLocalLabel = Object.values(fieldDrafts).some((d) => {
+      const initial = Object.values(initialDrafts).find((i) => i.name === d.name);
+      return Boolean(d.local && initial && initial.label !== d.label && !d.label.trim());
+    });
+    if (blankLocalLabel) {
+      setError(DEV_MSG.CT_FIELD_LABEL_BLANK);
+      return;
+    }
     if (choicesDirty) {
       const payloadErr = choiceCatalogPayloadError(choiceCatalog);
       if (payloadErr === "local-entries") {
@@ -1036,14 +1061,27 @@ export function ContentTypeDetailPanel({
           return (
             !initial ||
             initial.searchable !== d.searchable ||
-            initial.required !== d.required
+            initial.required !== d.required ||
+            (d.local && initial.label !== d.label)
           );
         })
-        .map((d) => ({
-          name: d.name,
-          searchable: d.searchable,
-          required: d.required,
-        }));
+        .map((d) => {
+          const initial = Object.values(initialDrafts).find((i) => i.name === d.name);
+          const patch: {
+            name: string;
+            searchable: boolean;
+            required: boolean;
+            label?: string;
+          } = {
+            name: d.name,
+            searchable: d.searchable,
+            required: d.required,
+          };
+          if (d.local && initial && initial.label !== d.label) {
+            patch.label = d.label.trim();
+          }
+          return patch;
+        });
 
       let saved: ContentTypeDetail | null = null;
       let workflowSaved: ContentTypeDetail | undefined;
@@ -2370,7 +2408,27 @@ export function ContentTypeDetailPanel({
                         style={tableRow}
                       >
                         <td style={{ padding: "8px" }}>
-                          <div>{f.label || f.name}</div>
+                          {draft && isLocal ? (
+                            <input
+                              type="text"
+                              autoComplete="off"
+                              data-testid={`developer-ct-field-label-${f.name}`}
+                              aria-label={`${DEV_MSG.CT_FIELD_LABEL} ${f.name}`}
+                              style={inputStyle}
+                              value={draft.label}
+                              disabled={!canEdit}
+                              readOnly={!canEdit}
+                              aria-disabled={canEdit ? undefined : true}
+                              onChange={(e) => {
+                                if (!canEdit) {
+                                  return;
+                                }
+                                setFieldLabel(k, e.target.value);
+                              }}
+                            />
+                          ) : (
+                            <div>{f.label || f.name}</div>
+                          )}
                           <div
                             style={{
                               fontFamily: "monospace",

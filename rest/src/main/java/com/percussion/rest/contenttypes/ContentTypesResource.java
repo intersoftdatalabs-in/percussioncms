@@ -1119,7 +1119,8 @@ public class ContentTypesResource {
               + " (POST .../lock). Locks expire after 30 minutes; a PUT after expiry returns 409"
               + " and the client must re-lock. The save load extends a still-valid lock (it does"
               + " not release). Applies mutable fields (label, description, enabled, per-field"
-              + " searchable/occurrence, allowedWorkflows + defaultWorkflow, allowedTemplates)"
+              + " searchable/occurrence, local field display labels, allowedWorkflows +"
+              + " defaultWorkflow, allowedTemplates)"
               + " and saves without releasing the lock (POST .../unlock). Association lists:"
               + " omit/null = leave unchanged; non-null list = full replace (empty clears"
               + " workflows/templates). GET responses always include association arrays (may be"
@@ -1137,9 +1138,15 @@ public class ContentTypesResource {
             responseCode = "200",
             description = "Updated (lock is still held)",
             content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
-        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(
+            responseCode = "400",
+            description =
+                "Invalid input (blank local field display label, or label write on"
+                    + " system/shared field)"),
         @ApiResponse(responseCode = "403", description = "Admin role required"),
-        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Content type or field not found"),
         @ApiResponse(
             responseCode = "409",
             description = "Design lock required, or locked by another user"),

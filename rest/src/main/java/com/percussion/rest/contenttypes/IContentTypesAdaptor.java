@@ -92,12 +92,12 @@ public interface IContentTypesAdaptor {
    * user/session ({@link #lockContentType}); does not acquire or release the lock.
    *
    * <p>Supports label, description, enabled, per-field {@code searchable} (and optional
-   * occurrence), allowed workflows (+ default workflow id), and allowed templates. Association
-   * lists use full-replace semantics when non-null; omit them to leave associations unchanged.
-   * Does not change name — use {@link #renameContentType}. Field rule expressions use {@link
-   * #replaceFieldRuleExpressions}. Control property values use
-   * {@link #replaceFieldControlProperties}. Local field create/delete uses {@link #addLocalField}
-   * / {@link #deleteLocalField}.
+   * occurrence), per-field display {@code label} for local fields, allowed workflows (+ default
+   * workflow id), and allowed templates. Association lists use full-replace semantics when
+   * non-null; omit them to leave associations unchanged. Does not change name — use {@link
+   * #renameContentType}. Field rule expressions use {@link #replaceFieldRuleExpressions}. Control
+   * property values use {@link #replaceFieldControlProperties}. Local field create/delete uses
+   * {@link #addLocalField} / {@link #deleteLocalField}.
    *
    * @return updated detail, or {@code null} when not found
    * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
