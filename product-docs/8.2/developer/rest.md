@@ -591,7 +591,7 @@ Example create body:
 | Replace item-level exits | `PUT /services/contenttypes/{idOrName}/itemExits` | Full replace of item-level translations/validations via `IPSContentDesignWs.saveContentTypes` (CD-09). Requires a **held** design-session lock. Empty lists clear. **409** if unlocked or locked by another user. **400** if required lists are missing, an extension FQN is invalid, or `applyWhen` is invalid. `preExits`/`postExits` omitted leave pipe extensions unchanged. `applyWhen` empty clears; omit preserves matching GET rows. Does not acquire or release the lock. |
 | Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` | Full replace of associated templates (CD-12). Requires a **held** design-session lock. Empty list clears associations. **409** if unlocked or locked by another user. **400** if a template name/guid cannot be resolved. Does not acquire or release the lock. |
 | Lock | `POST /services/contenttypes/{idOrName}/lock` | **Admin.** Self-only design-session lock (`IPSContentDesignWs.loadContentTypes` with `lock=true`, `overrideLock=false`). Does **not** save. `200` + `ObjectLockSummary` (`session`, `locker`, `remainingTime` minutes from the lock service). Locks expire after **30 minutes** (`PSObjectLock.LOCK_INTERVAL`). Re-lock by the same session user extends the lock. |
-| Save | `PUT /services/contenttypes/{idOrName}` | **Admin.** Requires a lock already held by the current user. Saves label, description, enabled, per-field searchable/occurrence, workflows, and templates. Does **not** change name (use `PUT .../name`). Does **not** release the lock. POST `/lock` and PUT share the packed NODEDEF design-object id so a lock you hold is found on save. The save load (`lock=true`) **extends** a still-valid lock; a PUT after expiry returns `409` and the client must re-lock. Field rule expressions use the dedicated path below (not this PUT). |
+| Save | `PUT /services/contenttypes/{idOrName}` | **Admin.** Requires a lock already held by the current user. Saves label, description, enabled, per-field searchable/occurrence, **local** field display labels (`fields[].label`), workflows, and templates. Does **not** change name (use `PUT .../name`). Does **not** release the lock. POST `/lock` and PUT share the packed NODEDEF design-object id so a lock you hold is found on save. The save load (`lock=true`) **extends** a still-valid lock; a PUT after expiry returns `409` and the client must re-lock. Blank local field label is **400**. Label write on a system/shared field is **400**. Unknown field is **404**. Field rule expressions use the dedicated path below (not this PUT). |
 | Allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` | **Admin** (CD-08 design action). Requires a held design-session lock (`POST .../lock` first). Does **not** acquire or release the lock. Full replace of `allowedWorkflows` (empty list clears). Optional `defaultWorkflow`. Workflow name/guid must exist. `200` + `ContentTypeDetail` with the new `allowedWorkflows` / `defaultWorkflow` (lock still held). |
 | Enable/disable | `PUT /services/contenttypes/{idOrName}/enabled` | **Admin** (CD-13 design action). Requires a held design-session lock — `POST .../lock` first, then `PUT .../enabled`, then `POST .../unlock` when done. Does **not** acquire or release the lock. `200` + `ContentTypeDetail` with the new `enabled` value (lock still held). |
 | Search indexing | `GET` / `PUT /services/contenttypes/{idOrName}/searchIndexing` | **Admin** PUT (CD-10). Type-level search indexing — Workbench Properties **Enable searching for this Content Type** (root field-set `isUserSearchable`). **Default is on.** Distinct from per-field `searchable` on PUT detail. GET does not require a lock. PUT requires a **held** design-session lock and does **not** acquire or release it. Missing `searchIndexing` boolean is **400**. Jackson root wrap is `ContentTypeSearchIndexing`. The Developer SPA Content type detail **Search indexing** checkbox uses this surface after lock. |
@@ -616,9 +616,9 @@ Lock / save / unlock / create / import / rename / delete status codes:
 |--------|-----------------|
 | `200` | Lock acquired (body is `ObjectLockSummary`), PUT save / enable / disable / icon / rename succeeded (lock still held), POST create or POST import succeeded (`ContentTypeDetail`), POST local field succeeded, POST include field succeeded, or GET export returned design XML |
 | `204` | Unlock success, content type deleted, or local field deleted |
-| `400` | Invalid PUT body (unknown field name, bad workflow/template ref, missing `enabled` or `searchIndexing` flag, invalid icon `source` or blank non-none icon `value`, invalid or colliding rename), invalid create name (blank, spaces, wildcard), invalid or missing `ItemDefData` import XML, invalid local-field name/`dataType`/origin, invalid include `fieldType`/`name`, DELETE field of a system/shared field, or DELETE type rejected because the type has dependents |
+| `400` | Invalid PUT body (blank local field display label, label write on a system/shared field, bad workflow/template ref, missing `enabled` or `searchIndexing` flag, invalid icon `source` or blank non-none icon `value`, invalid or colliding rename), invalid create name (blank, spaces, wildcard), invalid or missing `ItemDefData` import XML, invalid local-field name/`dataType`/origin, invalid include `fieldType`/`name`, DELETE field of a system/shared field, or DELETE type rejected because the type has dependents |
 | `403` | Caller is not Admin, or the request has no session/user for the design session |
-| `404` | Content type not found, or include of an unknown system/shared catalog field |
+| `404` | Content type not found, unknown field on PUT detail or field-rule/control-property paths, or include of an unknown system/shared catalog field |
 | `409` | No lock held, or locked by another user/session (self-only; the lock is not stolen); POST create or POST import duplicate name (catalog or persist-time), including reserved system types such as Folder; POST local field when the field name already exists on the type; POST include when the field is already on the type |
 | `500` | Design service or server failure |
 
@@ -756,6 +756,14 @@ application is saved and re-initialized, so a following `GET` catalog includes
 the field and the editor starts. Unknown field on DELETE is **404**. Deleting a
 system or shared field is **400**. Field **order** in the editor remains
 Workbench-only.
+
+To change a **local** field display label after the field exists, send
+`fields[].label` on `PUT /services/contenttypes/{idOrName}` while the lock is
+held. Omit `label` to leave the mapping unchanged. Blank is **400**. System and
+shared field labels are **400**. Unknown field is **404**. GET detail returns
+the stored UI-set label (Workbench trailing colon is stored when the value does
+not already end with `:`). The Developer SPA Fields table exposes this after
+**Lock**.
 
 ### Include system or shared fields (CD-04)
 

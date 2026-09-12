@@ -3043,4 +3043,108 @@ describe("ContentTypeDetailPanel", () => {
       DEV_MSG.CT_FORBIDDEN,
     );
   });
+
+  it("keeps local field display labels read-only until lock (#4463)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [{ name: "rx_note", fieldType: "local", label: "Note:", searchable: true }],
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-field-label-rx_note")).toBeTruthy();
+    });
+    const input = screen.getByTestId("developer-ct-field-label-rx_note") as HTMLInputElement;
+    expect(input.disabled).toBe(true);
+    expect(input.value).toBe("Note:");
+    fireEvent.change(input, { target: { value: "Headline" } });
+    expect(input.value).toBe("Note:");
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+  });
+
+  it("saves a local field display label after lock and keeps the lock (#4463)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [{ name: "rx_note", fieldType: "local", label: "Note:", searchable: true }],
+    });
+    updateContentTypeDetail.mockImplementation(async (_id, body) => ({
+      ...sampleDetail,
+      ...body,
+      fields: [{ name: "rx_note", fieldType: "local", label: "Headline:", searchable: true }],
+    }));
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-ct-field-label-rx_note") as HTMLInputElement).disabled,
+      ).toBe(false);
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-field-label-rx_note"), {
+      target: { value: "Headline" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(updateContentTypeDetail).toHaveBeenCalledWith(
+        "percPage",
+        expect.objectContaining({
+          fields: [expect.objectContaining({ name: "rx_note", label: "Headline" })],
+        }),
+      );
+    });
+    expect(unlockContentType).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+    expect(
+      (screen.getByTestId("developer-ct-field-label-rx_note") as HTMLInputElement).value,
+    ).toBe("Headline:");
+  });
+
+  it("rejects a blank local field display label before PUT (#4463)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [{ name: "rx_note", fieldType: "local", label: "Note:", searchable: true }],
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-ct-field-label-rx_note") as HTMLInputElement).disabled,
+      ).toBe(false);
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-field-label-rx_note"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        DEV_MSG.CT_FIELD_LABEL_BLANK,
+      );
+    });
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+  });
+
+  it("does not expose an editable label on system fields (#4463)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [{ name: "sys_title", fieldType: "system", label: "Title:", searchable: true }],
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-field-origin-sys_title").textContent).toBe("system");
+    });
+    expect(screen.queryByTestId("developer-ct-field-label-sys_title")).toBeNull();
+  });
 });

@@ -99,6 +99,9 @@ class DesignGapsStructuredTest {
                         && g.getMessage().toLowerCase().contains("held")),
         () -> gaps.toString());
     assertFalse(codes.contains("CT_CONTROL_RESOLUTION"));
+    assertFalse(
+        codes.contains("CT_FIELD_LABELS_WRITE"),
+        "local field display labels are writable on PUT detail");
     for (DesignGap g : gaps) {
       assertNotNull(g.getCode());
       assertFalse(g.getCode().isBlank());
