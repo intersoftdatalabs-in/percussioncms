@@ -1613,11 +1613,18 @@ it("loads views catalog section", async () => {
     const saveBtn = screen.getByTestId("developer-slot-save");
     expect((saveBtn as HTMLButtonElement).disabled).toBe(true);
 
+    fireEvent.click(screen.getByTestId("developer-slot-lock"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-slot-assoc-ct") as HTMLInputElement).disabled,
+      ).toBe(false);
+    });
+
     fireEvent.change(screen.getByTestId("developer-slot-assoc-ct"), {
-      target: { value: "0-2-999" },
+      target: { value: "percPage" },
     });
     fireEvent.change(screen.getByTestId("developer-slot-assoc-tpl"), {
-      target: { value: "0-10-99" },
+      target: { value: "perc.page" },
     });
     fireEvent.click(screen.getByTestId("developer-slot-assoc-add"));
     expect((saveBtn as HTMLButtonElement).disabled).toBe(false);
@@ -1628,8 +1635,8 @@ it("loads views catalog section", async () => {
     });
     const body = (updateSlotDetail as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1];
     expect(body.associations).toHaveLength(2);
-    expect(body.associations[1].contentTypeGuid.stringValue).toBe("0-2-999");
-    expect(body.associations[1].templateGuid.stringValue).toBe("0-10-99");
+    expect(body.associations[1].contentTypeName).toBe("percPage");
+    expect(body.associations[1].templateName).toBe("perc.page");
     await waitFor(() => {
       expect(screen.getByTestId("developer-slot-detail-notice").textContent).toMatch(/saved/i);
     });

@@ -75,6 +75,8 @@ export function normalizeSlotAssociations(raw: unknown): SlotAssociationSummary[
     (o) =>
       "contentTypeGuid" in o ||
       "templateGuid" in o ||
+      "contentTypeName" in o ||
+      "templateName" in o ||
       "contentTypeId" in o ||
       "templateId" in o,
   );
@@ -179,26 +181,71 @@ function stringMapsEqual(
   return true;
 }
 
+function guidWire(
+  g: SlotAssociationSummary["contentTypeGuid"],
+): SlotAssociationSummary["contentTypeGuid"] {
+  if (!g) return g;
+  return g.stringValue ? { stringValue: g.stringValue } : g;
+}
+
 function mapAssociationsForWire(
   associations: SlotAssociationSummary[] | undefined,
 ): SlotAssociationSummary[] | undefined {
   if (!associations) {
     return associations;
   }
-  return associations.map((a) => ({
-    contentTypeGuid: a.contentTypeGuid?.stringValue
-      ? { stringValue: a.contentTypeGuid.stringValue }
-      : a.contentTypeGuid,
-    templateGuid: a.templateGuid?.stringValue
-      ? { stringValue: a.templateGuid.stringValue }
-      : a.templateGuid,
-  }));
+  return associations.map((a) => {
+    const row: SlotAssociationSummary = {};
+    if (a.contentTypeName) row.contentTypeName = a.contentTypeName;
+    if (a.templateName) row.templateName = a.templateName;
+    const ctGuid = guidWire(a.contentTypeGuid);
+    const tplGuid = guidWire(a.templateGuid);
+    if (ctGuid) row.contentTypeGuid = ctGuid;
+    if (tplGuid) row.templateGuid = tplGuid;
+    return row;
+  });
+}
+
+function guidPart(g: SlotAssociationSummary["contentTypeGuid"] | undefined): string {
+  if (g?.stringValue) return g.stringValue;
+  if (g?.uuid != null) return String(g.uuid);
+  return "";
+}
+
+function assocSideKey(name: string | undefined, guid: SlotAssociationSummary["contentTypeGuid"]): string {
+  const n = (name || "").trim().toLowerCase();
+  if (n) return `n:${n}`;
+  const g = guidPart(guid);
+  return g ? `g:${g}` : "";
+}
+
+/** True when association rows match for omit-on-PUT (name or guid identity, order-sensitive). */
+export function slotAssociationsEqual(
+  a: SlotAssociationSummary[],
+  b: SlotAssociationSummary[],
+): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    const left = a[i];
+    const right = b[i];
+    if (!left || !right) return false;
+    if (
+      assocSideKey(left.contentTypeName, left.contentTypeGuid) !==
+        assocSideKey(right.contentTypeName, right.contentTypeGuid) ||
+      assocSideKey(left.templateName, left.templateGuid) !==
+        assocSideKey(right.templateName, right.templateGuid)
+    ) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /**
- * Build a slot PUT body. Finder / relationship / arguments are included only when
- * they differ from the loaded catalog values so a properties-only save does not
- * wipe them. Empty {@code relationshipName} clears; empty {@code finderArguments}
+ * Build a slot PUT body. Finder / relationship / arguments / associations are
+ * included only when they differ from the loaded catalog values so a
+ * properties-only save does not wipe them. Empty {@code relationshipName}
+ * clears; empty {@code finderArguments} clears; empty {@code associations}
  * clears.
  */
 export function buildSlotUpdateBody(opts: {
@@ -213,8 +260,11 @@ export function buildSlotUpdateBody(opts: {
   const body: SlotUpdateBody = {
     label: opts.label.trim(),
     description: opts.description.trim(),
-    associations: mapAssociationsForWire(opts.associations),
   };
+  const initialAssocs = normalizeSlotAssociations(opts.initial.associations);
+  if (!slotAssociationsEqual(opts.associations, initialAssocs)) {
+    body.associations = mapAssociationsForWire(opts.associations) ?? [];
+  }
   const initFinder = opts.initial.finderName || "";
   const initRel = opts.initial.relationshipName || "";
   const initArgs = normalizeSlotStringMap(opts.initial.finderArguments);
@@ -240,4 +290,9 @@ export function slotFinderWriteRequested(body: SlotUpdateBody): boolean {
     body.relationshipName != null ||
     body.finderArguments != null
   );
+}
+
+/** True when the PUT would replace associations (needs a held lock). */
+export function slotAssociationWriteRequested(body: SlotUpdateBody): boolean {
+  return body.associations != null;
 }

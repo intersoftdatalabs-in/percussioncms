@@ -125,11 +125,12 @@ class DesignGapsStructuredTest {
   }
 
   @Test
-  void slotDesignGaps_areStructured() {
-    assertEquals(1, SlotsAdaptor.SLOT_DESIGN_GAPS.size());
-    DesignGap first = SlotsAdaptor.SLOT_DESIGN_GAPS.get(0);
-    assertEquals("SLOT_ASSOC_GUIDS_ONLY", first.getCode());
-    assertTrue(first.getMessage().contains("GUIDs only"));
+  void slotDesignGaps_dropAssocGuidsOnlyWhenShipped() {
+    assertTrue(
+        SlotsAdaptor.SLOT_DESIGN_GAPS.stream()
+            .noneMatch(g -> "SLOT_ASSOC_GUIDS_ONLY".equals(g.getCode())),
+        () -> SlotsAdaptor.SLOT_DESIGN_GAPS.toString());
+    assertEquals(0, SlotsAdaptor.SLOT_DESIGN_GAPS.size());
   }
 
   @Test

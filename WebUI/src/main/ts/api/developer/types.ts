@@ -317,7 +317,11 @@ export interface SlotSummary {
 
 export interface SlotAssociationSummary {
   contentTypeGuid?: RestGuid;
+  contentTypeName?: string;
+  contentTypeLabel?: string;
   templateGuid?: RestGuid;
+  templateName?: string;
+  templateLabel?: string;
 }
 
 export interface SlotDetail {

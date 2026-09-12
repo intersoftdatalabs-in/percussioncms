@@ -51,6 +51,8 @@ import type {
 
 export {
   buildSlotUpdateBody,
+  slotAssociationWriteRequested,
+  slotAssociationsEqual,
   slotFinderWriteRequested,
   type SlotUpdateBody,
 } from "./slotLists";

@@ -38,9 +38,11 @@ public interface ISlotsAdaptor {
    * Update mutable slot design fields (label, description, {@code slotLayout}, {@code slotStyles})
    * and optionally replace content-type / template associations. When {@code body.associations} is
    * {@code null}, associations are left unchanged; a non-null list (including empty) replaces the
-   * full association set. When {@code body.slotLayout} / {@code body.slotStyles} is non-null, that
-   * map replaces the definition layout/styles (empty or schema-only clears to defaults); null
-   * leaves the field unchanged. Name/id is not changed via this path.
+   * full association set as an Admin design action (held lock required). Each association accepts
+   * content-type and template {@code name} or {@code guid}. When {@code body.slotLayout} / {@code
+   * body.slotStyles} is non-null, that map replaces the definition layout/styles (empty or
+   * schema-only clears to defaults); null leaves the field unchanged. Name/id is not changed via
+   * this path.
    *
    * <p>When {@code finderName}, {@code relationshipName}, or {@code finderArguments} is non-null,
    * those fields are written as an Admin design action. That path requires a design-session lock
@@ -49,10 +51,11 @@ public interface ISlotsAdaptor {
    * rejected. Empty {@code relationshipName} / empty {@code finderArguments} clear those fields.
    *
    * @return updated detail, or {@code null} if not found
-   * @throws IllegalArgumentException when finder/relationship input is invalid
-   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when finder write is requested and
-   *     the caller is not Admin or has no session/user; {@code 409} when finder write is requested
-   *     and the slot is unlocked or locked by another user
+   * @throws IllegalArgumentException when finder/relationship input is invalid or an association
+   *     pair cannot be resolved
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when finder or association write is
+   *     requested and the caller is not Admin or has no session/user; {@code 409} when that write
+   *     is requested and the slot is unlocked or locked by another user
    */
   @Nullable
   SlotDetail updateSlot(URI baseUri, String idOrName, SlotDetail body);

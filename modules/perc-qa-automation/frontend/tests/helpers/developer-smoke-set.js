@@ -127,6 +127,13 @@ const DEVELOPER_SMOKE_SET = [
     notes: "AS-01 SPA slot finder/relationship write (#4059 / parent #1690)",
   },
   {
+    id: "slot-assoc-names",
+    file: "developer-slot-assoc-names.spec.js",
+    title: "Admin can lock a slot and save associations by name",
+    status: "green",
+    notes: "AS-01 SPA slot association names (#4462 / parent #1690)",
+  },
+  {
     id: "catalog-shared-fields",
     file: "developer-catalog-smoke.spec.js",
     title: "shared-fields: catalog loads without API error",

@@ -32,6 +32,8 @@ import {
   normalizeSlotAssociations,
   normalizeSlotDesignGaps,
   normalizeSlotStringMap,
+  slotAssociationWriteRequested,
+  slotAssociationsEqual,
   slotFinderWriteRequested,
 } from "../api/developer/slotLists";
 import {
@@ -65,42 +67,33 @@ function assocKey(a: SlotAssociationSummary, index: number): string {
   return `${guidKey(a.contentTypeGuid, "ct")}:${guidKey(a.templateGuid, "tpl")}:${index}`;
 }
 
-function associationsEqual(
-  a: SlotAssociationSummary[],
-  b: SlotAssociationSummary[],
-): boolean {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) {
-    // Indexed access may be undefined under noUncheckedIndexedAccess.
-    const left = a[i];
-    const right = b[i];
-    if (!left || !right) return false;
-    const as =
-      left.contentTypeGuid?.stringValue ||
-      (left.contentTypeGuid?.uuid != null
-        ? String(left.contentTypeGuid.uuid)
-        : "");
-    const at =
-      left.templateGuid?.stringValue ||
-      (left.templateGuid?.uuid != null ? String(left.templateGuid.uuid) : "");
-    const bs =
-      right.contentTypeGuid?.stringValue ||
-      (right.contentTypeGuid?.uuid != null
-        ? String(right.contentTypeGuid.uuid)
-        : "");
-    const bt =
-      right.templateGuid?.stringValue ||
-      (right.templateGuid?.uuid != null ? String(right.templateGuid.uuid) : "");
-    if (as !== bs || at !== bt) return false;
-  }
-  return true;
-}
+const PERC_GUID_RE = /^\d+-\d+-\d+$/;
 
 function cloneAssociations(list: unknown): SlotAssociationSummary[] {
   return normalizeSlotAssociations(list).map((a) => ({
     contentTypeGuid: a.contentTypeGuid ? { ...a.contentTypeGuid } : undefined,
+    contentTypeName: a.contentTypeName,
+    contentTypeLabel: a.contentTypeLabel,
     templateGuid: a.templateGuid ? { ...a.templateGuid } : undefined,
+    templateName: a.templateName,
+    templateLabel: a.templateLabel,
   }));
+}
+
+function assocDisplay(name?: string, label?: string, guid?: { stringValue?: string; uuid?: number }): string {
+  if (name) return name;
+  if (label) return label;
+  if (guid?.stringValue) return guid.stringValue;
+  if (guid?.uuid != null) return String(guid.uuid);
+  return "—";
+}
+
+function assocRefFromInput(raw: string): Pick<SlotAssociationSummary, "contentTypeName" | "contentTypeGuid"> {
+  const trimmed = raw.trim();
+  if (PERC_GUID_RE.test(trimmed)) {
+    return { contentTypeGuid: { stringValue: trimmed } };
+  }
+  return { contentTypeName: trimmed };
 }
 
 function slotDesignGaps(list: unknown): DesignGapWire[] {
@@ -171,6 +164,9 @@ function updateSaveFallback(err: unknown): string {
       return DEV_MSG.SLOT_FINDER_INVALID;
     }
     if (/unknown relationship/i.test(msg)) return DEV_MSG.SLOT_RELATIONSHIP_INVALID;
+    if (/association\[|not found|requires name or guid/i.test(msg)) {
+      return DEV_MSG.SLOT_ASSOC_UNKNOWN;
+    }
   }
   return DEV_MSG.SLOT_SAVE_ERROR;
 }
@@ -269,17 +265,19 @@ export function SlotDetailPanel({
         })
       : null;
   const finderDirty = putPreview != null && slotFinderWriteRequested(putPreview);
+  const assocDirty = putPreview != null && slotAssociationWriteRequested(putPreview);
   const dirty =
     detail != null &&
     (label !== (detail.label || "") ||
       description !== (detail.description || "") ||
-      !associationsEqual(associations, initialAssocs) ||
+      !slotAssociationsEqual(associations, initialAssocs) ||
       finderDirty);
   const canSave = isNew
     ? !busy && isSlotCreateReady({ name, slotType })
     : !busy && dirty;
 
   function removeAssociation(index: number) {
+    if (!heldLock) return;
     setAssociations((prev) => prev.filter((_, i) => i !== index));
     setNotice(null);
   }
@@ -287,12 +285,16 @@ export function SlotDetailPanel({
   function addAssociation() {
     const ct = newCtGuid.trim();
     const tpl = newTplGuid.trim();
-    if (!ct || !tpl) return;
+    if (!ct || !tpl || !heldLock) return;
+    const ctRef = assocRefFromInput(ct);
+    const tplRaw = assocRefFromInput(tpl);
     setAssociations((prev) => [
       ...prev,
       {
-        contentTypeGuid: { stringValue: ct },
-        templateGuid: { stringValue: tpl },
+        contentTypeName: ctRef.contentTypeName,
+        contentTypeGuid: ctRef.contentTypeGuid,
+        templateName: tplRaw.contentTypeName,
+        templateGuid: tplRaw.contentTypeGuid,
       },
     ]);
     setNewCtGuid("");
@@ -354,6 +356,9 @@ export function SlotDetailPanel({
       heldLockRef.current = false;
       setHeldLock(false);
       applyFinderFromDetail(detail);
+      setAssociations(cloneAssociations(detail?.associations));
+      setNewCtGuid("");
+      setNewTplGuid("");
       setNewArgKey("");
       setNewArgValue("");
       setNotice(DEV_MSG.SLOT_UNLOCKED_NOTICE);
@@ -380,7 +385,7 @@ export function SlotDetailPanel({
 
   async function handleSave() {
     if (!canSave || inflight.current) return;
-    if (!isNew && finderDirty && !heldLock) {
+    if (!isNew && (finderDirty || assocDirty) && !heldLock) {
       setError(DEV_MSG.SLOT_LOCK_REQUIRED);
       return;
     }
@@ -454,6 +459,7 @@ export function SlotDetailPanel({
 
   const gaps = slotDesignGaps(detail?.designGaps);
   const finderEditable = !isNew && heldLock && !busy;
+  const assocEditable = finderEditable;
   const title = isNew
     ? DEV_MSG.SLOT_NEW
     : label || detail?.name || idOrName || DEV_MSG.SLOT_NEW;
@@ -824,37 +830,47 @@ export function SlotDetailPanel({
                       </thead>
                       <tbody>
                         {associations.map((a, i) => {
-                          const ctDisplay =
-                            a.contentTypeGuid?.stringValue ||
-                            (a.contentTypeGuid?.uuid != null
-                              ? String(a.contentTypeGuid.uuid)
-                              : "—");
-                          const tplDisplay =
-                            a.templateGuid?.stringValue ||
-                            (a.templateGuid?.uuid != null
-                              ? String(a.templateGuid.uuid)
-                              : "—");
+                          const ctDisplay = assocDisplay(
+                            a.contentTypeName,
+                            a.contentTypeLabel,
+                            a.contentTypeGuid,
+                          );
+                          const tplDisplay = assocDisplay(
+                            a.templateName,
+                            a.templateLabel,
+                            a.templateGuid,
+                          );
                           return (
                             <tr
                               key={assocKey(a, i)}
                               style={tableRow}
                               data-testid={`developer-slot-assoc-row-${i}`}
                             >
-                              <td style={{ padding: "8px", fontFamily: "monospace" }}>{ctDisplay}</td>
-                              <td style={{ padding: "8px", fontFamily: "monospace" }}>{tplDisplay}</td>
+                              <td
+                                style={{ padding: "8px", fontFamily: "monospace" }}
+                                data-testid={`developer-slot-assoc-ct-name-${i}`}
+                              >
+                                {ctDisplay}
+                              </td>
+                              <td
+                                style={{ padding: "8px", fontFamily: "monospace" }}
+                                data-testid={`developer-slot-assoc-tpl-name-${i}`}
+                              >
+                                {tplDisplay}
+                              </td>
                               <td style={{ padding: "8px" }}>
                                 <button
                                   type="button"
                                   data-testid={`developer-slot-assoc-remove-${i}`}
                                   aria-label={`Remove association ${ctDisplay} / ${tplDisplay}`}
-                                  disabled={busy}
+                                  disabled={!assocEditable}
                                   onClick={() => removeAssociation(i)}
                                   style={{
                                     background: "transparent",
                                     border: `1px solid ${catalogColors.softBorder}`,
                                     borderRadius: "4px",
                                     padding: "4px 8px",
-                                    cursor: busy ? "not-allowed" : "pointer",
+                                    cursor: assocEditable ? "pointer" : "not-allowed",
                                   }}
                                 >
                                   {DEV_MSG.SLOT_ASSOC_REMOVE}
@@ -887,7 +903,7 @@ export function SlotDetailPanel({
                       placeholder={DEV_MSG.SLOT_ASSOC_CT_PLACEHOLDER}
                       value={newCtGuid}
                       onChange={(e) => setNewCtGuid(e.target.value)}
-                      disabled={busy}
+                      disabled={!assocEditable}
                     />
                   </div>
                   <div>
@@ -901,23 +917,26 @@ export function SlotDetailPanel({
                       placeholder={DEV_MSG.SLOT_ASSOC_TPL_PLACEHOLDER}
                       value={newTplGuid}
                       onChange={(e) => setNewTplGuid(e.target.value)}
-                      disabled={busy}
+                      disabled={!assocEditable}
                     />
                   </div>
                   <button
                     type="button"
                     data-testid="developer-slot-assoc-add"
                     aria-label="Add slot association"
-                    disabled={busy || !newCtGuid.trim() || !newTplGuid.trim()}
+                    disabled={!assocEditable || !newCtGuid.trim() || !newTplGuid.trim()}
                     onClick={addAssociation}
                     style={{
                       padding: "8px 12px",
-                      background: newCtGuid.trim() && newTplGuid.trim() ? catalogColors.accent : catalogColors.disabled,
+                      background:
+                        assocEditable && newCtGuid.trim() && newTplGuid.trim()
+                          ? catalogColors.accent
+                          : catalogColors.disabled,
                       color: "#fff",
                       border: "none",
                       borderRadius: "4px",
                       cursor:
-                        busy || !newCtGuid.trim() || !newTplGuid.trim()
+                        !assocEditable || !newCtGuid.trim() || !newTplGuid.trim()
                           ? "not-allowed"
                           : "pointer",
                       whiteSpace: "nowrap",
