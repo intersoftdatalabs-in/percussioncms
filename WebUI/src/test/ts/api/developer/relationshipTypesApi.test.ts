@@ -5,8 +5,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as client from "../../../../main/ts/api/client";
 import {
+  DEFAULT_CLONE_OVERRIDE_EXTENSION,
   RELATIONSHIP_TYPE_DESIGN_GAPS,
   RELATIONSHIP_TYPE_ROOT,
+  copyCloneOverrides,
   createRelationshipType,
   deleteRelationshipType,
   getRelationshipTypeDetail,
@@ -14,6 +16,7 @@ import {
   isSystemRelationshipType,
   isValidRelationshipTypeName,
   listRelationshipTypes,
+  serializeCloneOverrides,
   updateRelationshipType,
   wrapRelationshipTypeForWire,
 } from "../../../../main/ts/api/developer/relationshipTypesApi";
@@ -82,9 +85,31 @@ describe("relationshipTypesApi helpers", () => {
     expect(isSystemRelationshipType(null)).toBe(false);
   });
 
-  it("omits create/update/delete from remaining design gaps constant", () => {
+  it("omits create/update/delete and cloning-override from remaining design gaps", () => {
     expect(RELATIONSHIP_TYPE_DESIGN_GAPS.join(" ")).not.toMatch(/create|update|delete/i);
+    expect(RELATIONSHIP_TYPE_DESIGN_GAPS.join(" ")).not.toMatch(/cloning field/i);
+    expect(RELATIONSHIP_TYPE_DESIGN_GAPS.some((g) => /effect condition/i.test(g))).toBe(
+      true,
+    );
     expect(RELATIONSHIP_TYPE_DESIGN_GAPS.length).toBeGreaterThan(0);
+  });
+
+  it("copies and serializes clone overrides for dirty compare", () => {
+    const rows = [
+      {
+        fieldName: "sys_title",
+        extensionRef: DEFAULT_CLONE_OVERRIDE_EXTENSION,
+        extensionParams: ["a"],
+      },
+    ];
+    const copied = copyCloneOverrides(rows);
+    expect(copied).toEqual(rows);
+    expect(copied).not.toBe(rows);
+    expect(copied[0].extensionParams).not.toBe(rows[0].extensionParams);
+    expect(serializeCloneOverrides(rows)).toBe(
+      serializeCloneOverrides(copyCloneOverrides(rows)),
+    );
+    expect(serializeCloneOverrides(undefined)).toBe("[]");
   });
 });
 
@@ -95,6 +120,20 @@ describe("relationshipTypesApi REST", () => {
     });
     const list = await listRelationshipTypes();
     expect(list.map((t) => t.name)).toEqual(["A", "B"]);
+    spy.mockRestore();
+  });
+
+  it("getRelationshipTypeDetail coerces a single-element designGaps string", async () => {
+    const spy = vi.spyOn(client, "get").mockResolvedValue({
+      RelationshipType: {
+        name: "rs_folder",
+        designGaps: "Effect condition and execution-context edit not supported via this API",
+      },
+    });
+    const detail = await getRelationshipTypeDetail("rs_folder");
+    expect(detail.designGaps).toEqual([
+      "Effect condition and execution-context edit not supported via this API",
+    ]);
     spy.mockRestore();
   });
 

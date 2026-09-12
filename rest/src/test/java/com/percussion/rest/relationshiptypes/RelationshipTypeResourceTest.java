@@ -218,6 +218,17 @@ public class RelationshipTypeResourceTest {
   }
 
   @Test
+  public void updateRelationshipTypeInvalidCloneOverrideIs400() {
+    when(adaptor.updateRelationshipType(eq("MyUserRel"), any()))
+        .thenThrow(new IllegalArgumentException("clone override fieldName is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateRelationshipType("MyUserRel", new RelationshipType()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void updateRelationshipTypeSystemIs409() {
     when(adaptor.updateRelationshipType(eq("ActiveAssembly"), any()))
         .thenThrow(

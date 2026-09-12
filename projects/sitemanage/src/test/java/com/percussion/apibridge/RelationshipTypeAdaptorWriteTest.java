@@ -33,8 +33,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.percussion.design.objectstore.PSCloneOverrideField;
+import com.percussion.design.objectstore.PSCloneOverrideFieldList;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.rest.relationshiptypes.RelationshipType;
+import com.percussion.rest.relationshiptypes.RelationshipTypeCloneOverride;
 import com.percussion.rest.relationshiptypes.RelationshipTypeProperty;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.data.PSObjectSummary;
@@ -314,6 +317,113 @@ class RelationshipTypeAdaptorWriteTest {
             () -> adaptor.updateRelationshipType("ActiveAssembly", body));
     assertEquals(409, ex.getResponse().getStatus());
     verify(designWs, never()).saveRelationshipTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_cloneOverridesRoundTripAndClear() {
+    seedUser("MyUserRel");
+    RelationshipType body = new RelationshipType();
+    body.setLabel("MyUserRel");
+    RelationshipTypeCloneOverride row =
+        new RelationshipTypeCloneOverride(
+            "sys_title", "Java/global/percussion/cms/sys_cloneOverrideField");
+    row.setExtensionParams(List.of("../sys_psxCloning/copytitle.xml", "Value"));
+    body.setCloneOverrides(List.of(row));
+
+    RelationshipType out = adaptor.updateRelationshipType("MyUserRel", body);
+    assertEquals(1, out.getCloneOverrides().size());
+    assertEquals("sys_title", out.getCloneOverrides().get(0).getFieldName());
+    assertEquals(
+        "Java/global/percussion/cms/sys_cloneOverrideField",
+        out.getCloneOverrides().get(0).getExtensionRef());
+    assertEquals(
+        List.of("../sys_psxCloning/copytitle.xml", "Value"),
+        out.getCloneOverrides().get(0).getExtensionParams());
+
+    RelationshipType fetched = adaptor.findRelationshipType("MyUserRel");
+    assertEquals(1, fetched.getCloneOverrides().size());
+    assertFalse(
+        fetched.getDesignGaps().stream().anyMatch(g -> g.toLowerCase().contains("cloning field")));
+
+    body.setCloneOverrides(List.of());
+    RelationshipType cleared = adaptor.updateRelationshipType("MyUserRel", body);
+    assertTrue(cleared.getCloneOverrides().isEmpty());
+  }
+
+  @Test
+  void update_cloneOverridesInvalidFieldIs400() {
+    seedUser("MyUserRel");
+    RelationshipType body = new RelationshipType();
+    body.setCloneOverrides(List.of(new RelationshipTypeCloneOverride("  ", "Java/global/x/y")));
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.updateRelationshipType("MyUserRel", body));
+    assertTrue(ex.getMessage().contains("fieldName"));
+  }
+
+  @Test
+  void update_cloneOverridesDuplicateFieldIs400() {
+    seedUser("MyUserRel");
+    RelationshipType body = new RelationshipType();
+    String ext = "Java/global/percussion/cms/sys_cloneOverrideField";
+    body.setCloneOverrides(
+        List.of(
+            new RelationshipTypeCloneOverride("sys_title", ext),
+            new RelationshipTypeCloneOverride("SYS_TITLE", ext)));
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.updateRelationshipType("MyUserRel", body));
+    assertTrue(ex.getMessage().toLowerCase().contains("duplicate"));
+  }
+
+  @Test
+  void update_cloneOverridesInvalidExtensionIs400() {
+    seedUser("MyUserRel");
+    RelationshipType body = new RelationshipType();
+    body.setCloneOverrides(List.of(new RelationshipTypeCloneOverride("sys_title", "not-a-ref")));
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.updateRelationshipType("MyUserRel", body));
+    assertTrue(ex.getMessage().contains("extensionRef"));
+  }
+
+  @Test
+  void create_copyFromCopiesCloneOverrides() {
+    PSRelationshipConfig system =
+        new PSRelationshipConfig(
+            "ActiveAssembly",
+            PSRelationshipConfig.RS_TYPE_SYSTEM,
+            PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
+    system.setId(1);
+    system.setLabel("Active Assembly");
+    PSCloneOverrideFieldList list = new PSCloneOverrideFieldList();
+    list.add(
+        new PSCloneOverrideField(
+            "sys_title",
+            RelationshipTypeAdaptor.toExtensionCall(
+                "Java/global/percussion/cms/sys_cloneOverrideField", List.of("a"))));
+    system.setCloneOverrideFieldList(list);
+    store.put(system.getName().toLowerCase(), system);
+
+    RelationshipType body = new RelationshipType();
+    body.setName("CopiedRel");
+    body.setCopyFrom("ActiveAssembly");
+    RelationshipType out = adaptor.createRelationshipType(body);
+    assertEquals(1, out.getCloneOverrides().size());
+    assertEquals("sys_title", out.getCloneOverrides().get(0).getFieldName());
+  }
+
+  @Test
+  void designGaps_omitsCloningFieldOverride() {
+    assertFalse(
+        RelationshipTypeAdaptor.DESIGN_GAPS.stream()
+            .anyMatch(g -> g.toLowerCase().contains("cloning field")));
+    assertTrue(
+        RelationshipTypeAdaptor.DESIGN_GAPS.stream()
+            .anyMatch(g -> g.toLowerCase().contains("effect condition")));
   }
 
   @Test

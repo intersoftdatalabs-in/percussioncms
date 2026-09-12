@@ -17,6 +17,7 @@
 
 package com.percussion.rest.relationshiptypes;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -83,8 +84,18 @@ public class RelationshipType {
 
   @Schema(
       description =
+          "Cloning field overrides (PSCloneOverrideField list). PUT/POST with a list replaces"
+              + " the set; empty list clears; omit (null) to leave unchanged. Conditions on"
+              + " existing overrides are preserved when the field name is kept.")
+  /** Null on write means leave unchanged; empty list clears. GET always sets a list. */
+  @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+  private List<RelationshipTypeCloneOverride> cloneOverrides;
+
+  @Schema(
+      description =
           "Honest design gaps for this surface. Present on detail GET; typically omitted on"
               + " list rows to avoid repeating the same catalog-level array (REST-GAPS-02)")
+  @JsonFormat(shape = JsonFormat.Shape.ARRAY)
   private List<String> designGaps = new ArrayList<>();
 
   public RelationshipType() {}
@@ -215,6 +226,14 @@ public class RelationshipType {
 
   public void setUserProperties(List<RelationshipTypeProperty> userProperties) {
     this.userProperties = userProperties;
+  }
+
+  public List<RelationshipTypeCloneOverride> getCloneOverrides() {
+    return cloneOverrides;
+  }
+
+  public void setCloneOverrides(List<RelationshipTypeCloneOverride> cloneOverrides) {
+    this.cloneOverrides = cloneOverrides;
   }
 
   public List<String> getDesignGaps() {

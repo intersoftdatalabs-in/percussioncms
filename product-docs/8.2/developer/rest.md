@@ -2551,7 +2551,8 @@ Example create body:
 
 Server **relationship type** definitions (Workbench / Developer **System Design → Relationship
 Types**, SY-03) are exposed under `/services/relationshiptypes`. List and detail include
-**system** and **user** types with category, cloning/revision flags, properties, and effects.
+**system** and **user** types with category, cloning/revision flags, cloning field
+overrides (`cloneOverrides`), properties, and effects.
 Backing is `IPSSystemDesignWs` (`findRelationshipTypes` / `loadRelationshipTypes` /
 `createRelationshipTypes` / `saveRelationshipTypes` / `deleteRelationshipTypes`) — the same
 design web service SOAP uses. There is no new SOAP surface.
@@ -2582,8 +2583,8 @@ no wildcards). Provide either:
 * `category` — category **code** (`rs_activeassembly`, `rs_copy`, `rs_promotable`,
   `rs_translation`, …) or **label** (`Active Assembly`, `New Copy`, …), or
 * `copyFrom` — name or GUID of an existing type whose mutable fields (label, description,
-  cloning/revision flags, user properties, effects) are copied onto the new **user** type
-  (Workbench copy-from-system).
+  cloning/revision flags, user properties, effects, cloning field overrides) are copied onto
+  the new **user** type (Workbench copy-from-system).
 
 `label` defaults to `name` when omitted. Duplicate name is **409**. Blank / invalid name or
 missing category (when `copyFrom` is absent) is **400**. Unknown `copyFrom` is **400**.
@@ -2591,11 +2592,15 @@ Non-Admin is **403**. The new type is then `GET /services/relationshiptypes/{nam
 appears on `GET /services/relationshiptypes`.
 
 Update (`PUT /services/relationshiptypes/{idOrName}`) updates mutable fields of a **user** type
-(label, description, category, `allowCloning` / revision flags, user properties). Identity
-(`name`) is not renamed on PUT — round-trip GET then PUT for boolean flags. Effect
-condition/execution-context editing and cloning field-override editor are not supported via
-this API (see `designGaps` on detail). Unknown key is **404**. A **system** type is **409**.
-Non-Admin is **403**. Lock conflicts are **409**.
+(label, description, category, `allowCloning` / revision flags, user properties, cloning
+field overrides). Identity (`name`) is not renamed on PUT — round-trip GET then PUT for
+boolean flags. `cloneOverrides` is an array of `{ fieldName, extensionRef, extensionParams }`.
+Omit (`null`) to leave the list unchanged; send `[]` to clear. Duplicate or blank
+`fieldName`, missing `extensionRef`, or an invalid extension ref is **400**. Existing
+per-field conditions are preserved when the same field name is kept. Effect
+condition/execution-context editing is not supported via this API (see `designGaps` on
+detail). Unknown key is **404**. A **system** type is **409**. Non-Admin is **403**. Lock
+conflicts are **409**.
 
 Delete (`DELETE /services/relationshiptypes/{idOrName}`) returns **204** when a user type is
 removed; a following `GET` is **404**. Unknown key is **404**. A **system** type is **409**
@@ -2632,7 +2637,7 @@ Example copy-from-system body:
 |--------|-----------------|
 | `200` | List / get / create / update success |
 | `204` | Delete success |
-| `400` | Invalid input (missing name/category, whitespace/wildcard name, unknown copyFrom) |
+| `400` | Invalid input (missing name/category, whitespace/wildcard name, unknown copyFrom, invalid cloneOverrides) |
 | `403` | Caller is not Admin |
 | `404` | User relationship type not found |
 | `409` | Duplicate name, system type immutable, or design lock conflict |

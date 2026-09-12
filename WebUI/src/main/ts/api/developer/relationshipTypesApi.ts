@@ -17,7 +17,10 @@
 
 import { del, get, post, put } from "../client";
 import { PATHS } from "../paths";
-import type { RelationshipTypeDef } from "./types";
+import type {
+  RelationshipTypeCloneOverrideSummary,
+  RelationshipTypeDef,
+} from "./types";
 
 /**
  * Catalog-level design gaps remaining after Admin write (REST-GAPS-02).
@@ -25,9 +28,12 @@ import type { RelationshipTypeDef } from "./types";
  * Create/update/delete of user types is supported — not listed.
  */
 export const RELATIONSHIP_TYPE_DESIGN_GAPS: string[] = [
-  "Cloning field override editor not supported via this API",
   "Effect condition and execution-context edit not supported via this API",
 ];
+
+/** Default UDF used by Workbench / packaged clone overrides. */
+export const DEFAULT_CLONE_OVERRIDE_EXTENSION =
+  "Java/global/percussion/cms/sys_cloneOverrideField";
 
 /** Category codes/labels aligned with PSRelationshipConfig.CATEGORY_ENUM. */
 export const RELATIONSHIP_TYPE_CATEGORIES: ReadonlyArray<{
@@ -55,7 +61,41 @@ export type RelationshipTypeWriteBody = Pick<
   | "allowCloning"
   | "useOwnerRevision"
   | "useDependentRevision"
+  | "cloneOverrides"
 >;
+
+/** Copy clone-override rows for editor state (never shares array identity). */
+export function copyCloneOverrides(
+  rows: RelationshipTypeCloneOverrideSummary[] | undefined | null,
+): RelationshipTypeCloneOverrideSummary[] {
+  let list: unknown = rows;
+  if (list == null) return [];
+  if (!Array.isArray(list) && typeof list === "object") {
+    list = [list];
+  }
+  if (!Array.isArray(list)) return [];
+  return (list as RelationshipTypeCloneOverrideSummary[]).map((r) => ({
+    fieldName: r?.fieldName || "",
+    extensionRef: r?.extensionRef || "",
+    extensionParams: Array.isArray(r?.extensionParams)
+      ? [...r.extensionParams]
+      : r?.extensionParams != null
+        ? [String(r.extensionParams)]
+        : [],
+  }));
+}
+
+/** Stable JSON for dirty-compare of clone override editor rows. */
+export function serializeCloneOverrides(
+  rows: RelationshipTypeCloneOverrideSummary[] | undefined | null,
+): string {
+  const normalized = copyCloneOverrides(rows).map((r) => ({
+    fieldName: (r.fieldName || "").trim(),
+    extensionRef: (r.extensionRef || "").trim(),
+    extensionParams: (r.extensionParams || []).map((p) => (p == null ? "" : String(p))),
+  }));
+  return JSON.stringify(normalized);
+}
 
 /** Jackson / JAXB root for RelationshipType (UNWRAP_ROOT_VALUE on POST/PUT). */
 export const RELATIONSHIP_TYPE_ROOT = "RelationshipType";
@@ -96,13 +136,24 @@ function asArray<T>(payload: unknown): T[] {
   return [];
 }
 
+/** Jackson may unwrap a one-element list to a bare string. */
+function asStringArray(value: unknown): string[] {
+  if (value == null) return [];
+  if (Array.isArray(value)) {
+    return value.filter((v): v is string => typeof v === "string");
+  }
+  if (typeof value === "string" && value.length > 0) {
+    return [value];
+  }
+  return [];
+}
+
 function withGaps(t: RelationshipTypeDef): RelationshipTypeDef {
+  const fromServer = asStringArray(t.designGaps);
   return {
     ...t,
-    designGaps:
-      t.designGaps && t.designGaps.length > 0
-        ? t.designGaps
-        : [...RELATIONSHIP_TYPE_DESIGN_GAPS],
+    cloneOverrides: copyCloneOverrides(t.cloneOverrides),
+    designGaps: fromServer.length > 0 ? fromServer : [...RELATIONSHIP_TYPE_DESIGN_GAPS],
   };
 }
 

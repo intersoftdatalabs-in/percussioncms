@@ -17,17 +17,25 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.design.objectstore.PSCloneOverrideField;
+import com.percussion.design.objectstore.PSCloneOverrideFieldList;
 import com.percussion.design.objectstore.PSConditionalEffect;
 import com.percussion.design.objectstore.PSEntry;
 import com.percussion.design.objectstore.PSExtensionCall;
+import com.percussion.design.objectstore.PSExtensionParamValue;
 import com.percussion.design.objectstore.PSProperty;
 import com.percussion.design.objectstore.PSPropertySet;
 import com.percussion.design.objectstore.PSRelationshipConfig;
+import com.percussion.design.objectstore.PSRule;
+import com.percussion.design.objectstore.PSTextLiteral;
+import com.percussion.extension.PSExtensionRef;
 import com.percussion.rest.Guid;
 import com.percussion.rest.relationshiptypes.IRelationshipTypeAdaptor;
 import com.percussion.rest.relationshiptypes.RelationshipType;
+import com.percussion.rest.relationshiptypes.RelationshipTypeCloneOverride;
 import com.percussion.rest.relationshiptypes.RelationshipTypeEffect;
 import com.percussion.rest.relationshiptypes.RelationshipTypeProperty;
+import com.percussion.util.PSCollection;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
@@ -45,10 +53,13 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -73,9 +84,7 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
 
   /** Catalog-level capability notes. Attached on detail only (REST-GAPS-02 list dedup). */
   static final List<String> DESIGN_GAPS =
-      List.of(
-          "Cloning field override editor not supported via this API",
-          "Effect condition and execution-context edit not supported via this API");
+      List.of("Effect condition and execution-context edit not supported via this API");
 
   private final IPSSystemDesignWs designWs;
   private final BooleanSupplier adminChecker;
@@ -399,6 +408,9 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
     if (body.getUserProperties() != null && !body.getUserProperties().isEmpty()) {
       applyUserProperties(config, body.getUserProperties());
     }
+    if (body.getCloneOverrides() != null) {
+      applyCloneOverrides(config, body.getCloneOverrides());
+    }
   }
 
   private void applyUpdateFields(PSRelationshipConfig config, RelationshipType body) {
@@ -422,6 +434,9 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
         config, PSRelationshipConfig.RS_USEDEPENDENTREVISION, body.isUseDependentRevision());
     if (body.getUserProperties() != null) {
       applyUserProperties(config, body.getUserProperties());
+    }
+    if (body.getCloneOverrides() != null) {
+      applyCloneOverrides(config, body.getCloneOverrides());
     }
   }
 
@@ -462,6 +477,7 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
       }
     }
     dest.setEffects(effects.iterator());
+    dest.setCloneOverrideFieldList(copyCloneOverrideFieldList(source.getCloneOverrideFieldList()));
   }
 
   private static void applyUserProperties(
@@ -478,6 +494,111 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
       }
     }
     config.setUserDefProperties(set.iterator());
+  }
+
+  /**
+   * Replace the clone-override list. Empty incoming list clears. Existing per-field condition
+   * rules are preserved when the same field name is kept (condition editor is slice 14).
+   */
+  static void applyCloneOverrides(
+      PSRelationshipConfig config, List<RelationshipTypeCloneOverride> incoming) {
+    Map<String, PSCollection> rulesByField = new HashMap<>();
+    PSCloneOverrideFieldList existing = config.getCloneOverrideFieldList();
+    if (existing != null) {
+      for (Object o : existing) {
+        if (o instanceof PSCloneOverrideField field && StringUtils.isNotBlank(field.getName())) {
+          rulesByField.put(field.getName().toLowerCase(Locale.ROOT), field.getRules());
+        }
+      }
+    }
+    PSCloneOverrideFieldList next = new PSCloneOverrideFieldList();
+    Set<String> seen = new HashSet<>();
+    if (incoming != null) {
+      for (RelationshipTypeCloneOverride row : incoming) {
+        if (row == null) {
+          continue;
+        }
+        String fieldName = StringUtils.trimToNull(row.getFieldName());
+        if (fieldName == null) {
+          throw new IllegalArgumentException("clone override fieldName is required");
+        }
+        if (fieldName.contains("..")
+            || fieldName.indexOf('/') >= 0
+            || fieldName.indexOf('\\') >= 0
+            || fieldName.indexOf('\0') >= 0) {
+          throw new IllegalArgumentException("clone override fieldName is invalid: " + fieldName);
+        }
+        String key = fieldName.toLowerCase(Locale.ROOT);
+        if (!seen.add(key)) {
+          throw new IllegalArgumentException("duplicate clone override field: " + fieldName);
+        }
+        String ext = StringUtils.trimToNull(row.getExtensionRef());
+        if (ext == null) {
+          throw new IllegalArgumentException(
+              "clone override extensionRef is required for field " + fieldName);
+        }
+        PSExtensionCall call = toExtensionCall(ext, row.getExtensionParams());
+        PSCloneOverrideField field = new PSCloneOverrideField(fieldName, call);
+        PSCollection rules = rulesByField.get(key);
+        if (rules != null && !rules.isEmpty()) {
+          field.setRules(copyRules(rules));
+        }
+        next.add(field);
+      }
+    }
+    config.setCloneOverrideFieldList(next);
+  }
+
+  static PSCloneOverrideFieldList copyCloneOverrideFieldList(PSCloneOverrideFieldList source) {
+    PSCloneOverrideFieldList dest = new PSCloneOverrideFieldList();
+    if (source == null) {
+      return dest;
+    }
+    for (Object o : source) {
+      if (o instanceof PSCloneOverrideField field) {
+        dest.add(copyCloneOverrideField(field));
+      }
+    }
+    return dest;
+  }
+
+  static PSCloneOverrideField copyCloneOverrideField(PSCloneOverrideField field) {
+    PSExtensionCall call = (PSExtensionCall) field.getReplacementValue();
+    PSCloneOverrideField copy =
+        new PSCloneOverrideField(field.getName(), (PSExtensionCall) call.clone());
+    copy.setRules(copyRules(field.getRules()));
+    return copy;
+  }
+
+  @SuppressWarnings("unchecked")
+  static PSCollection copyRules(PSCollection rules) {
+    PSCollection copy = new PSCollection(PSRule.class);
+    if (rules == null) {
+      return copy;
+    }
+    for (Object o : rules) {
+      if (o instanceof PSRule rule) {
+        copy.add((PSRule) rule.clone());
+      }
+    }
+    return copy;
+  }
+
+  static PSExtensionCall toExtensionCall(String extensionRef, List<String> params) {
+    PSExtensionRef ref;
+    try {
+      ref = new PSExtensionRef(extensionRef.trim());
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(
+          "invalid clone override extensionRef: " + extensionRef, e);
+    }
+    List<PSExtensionParamValue> values = new ArrayList<>();
+    if (params != null) {
+      for (String p : params) {
+        values.add(new PSExtensionParamValue(new PSTextLiteral(p == null ? "" : p)));
+      }
+    }
+    return new PSExtensionCall(ref, values.toArray(new PSExtensionParamValue[0]));
   }
 
   private static void setBooleanSysProp(
@@ -696,6 +817,7 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
 
     ret.setSystemProperties(mapToProps(cfg.getSystemProperties()));
     ret.setUserProperties(mapToProps(cfg.getUserProperties()));
+    ret.setCloneOverrides(copyCloneOverrides(cfg.getCloneOverrideFieldList()));
     ret.setDesignGaps(includeDesignGaps ? new ArrayList<>(DESIGN_GAPS) : null);
     return ret;
   }
@@ -707,6 +829,36 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
     }
     listRow.setDesignGaps(new ArrayList<>(DESIGN_GAPS));
     return listRow;
+  }
+
+  static List<RelationshipTypeCloneOverride> copyCloneOverrides(PSCloneOverrideFieldList list) {
+    List<RelationshipTypeCloneOverride> out = new ArrayList<>();
+    if (list == null) {
+      return out;
+    }
+    for (Object o : list) {
+      if (!(o instanceof PSCloneOverrideField field)) {
+        continue;
+      }
+      RelationshipTypeCloneOverride row = new RelationshipTypeCloneOverride();
+      row.setFieldName(field.getName());
+      if (field.getReplacementValue() instanceof PSExtensionCall call) {
+        if (call.getExtensionRef() != null) {
+          row.setExtensionRef(call.getExtensionRef().toString());
+        }
+        List<String> params = new ArrayList<>();
+        for (PSExtensionParamValue p : call.getParamValues()) {
+          if (p == null || p.getValue() == null) {
+            params.add("");
+          } else {
+            params.add(p.getValue().getValueText());
+          }
+        }
+        row.setExtensionParams(params);
+      }
+      out.add(row);
+    }
+    return out;
   }
 
   private RelationshipTypeEffect copyEffect(PSConditionalEffect ce) {

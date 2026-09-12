@@ -300,4 +300,66 @@ test.describe("Developer relationship type editor (#4253 / SY-03 H2)", () => {
 
     assertConsoleClean(pageErrors, consoleErrors);
   });
+
+  test("Admin can add, persist, and clear cloning field overrides", async ({ page }) => {
+    test.setTimeout(150_000);
+    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+    await loginAsAdmin(page);
+    await openRtCatalog(page);
+
+    const name = uniqueRtName("QaCl");
+    const label = `QA clone ${name}`;
+
+    await createUserRelationshipType(page, {
+      name,
+      label,
+      category: "rs_generic",
+      allowCloning: true,
+    });
+
+    const cloneSection = page.locator('[data-testid="developer-rt-clone-overrides"]');
+    await expect(cloneSection).toBeVisible();
+    await expect(page.locator('[data-testid="developer-rt-clone-empty"]')).toBeVisible();
+
+    await page.locator('[data-testid="developer-rt-clone-field"]').fill("sys_title");
+    await page
+      .locator('[data-testid="developer-rt-clone-params"]')
+      .fill("../sys_psxCloning/copytitle.xml\nValue");
+    await page.locator('[data-testid="developer-rt-clone-add"]').click();
+    await expect(page.locator('[data-testid="developer-rt-clone-row-sys_title"]')).toBeVisible();
+    const saveBtn = page.locator('[data-testid="developer-rt-save"]');
+    await expect(saveBtn).toBeEnabled();
+    await saveBtn.click();
+
+    const saveError = page.locator('[data-testid="developer-rt-detail-error"]');
+    await expect(saveBtn.or(saveError).first()).toBeVisible({ timeout: 20_000 });
+    if (await saveError.isVisible()) {
+      throw new Error(`Clone override save failed: ${(await saveError.innerText()).trim()}`);
+    }
+    await expect(saveBtn).toBeDisabled({ timeout: 20_000 });
+    await expect(page.locator('[data-testid="developer-rt-clone-row-sys_title"]')).toBeVisible();
+
+    await page.locator('[data-testid="developer-rt-back"]').click();
+    await expect(rtOpen(page, name)).toBeVisible({ timeout: 20_000 });
+    await rtOpen(page, name).click();
+    await expect(page.locator('[data-testid="developer-rt-clone-row-sys_title"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    await page.locator('[data-testid="developer-rt-clone-clear"]').click();
+    await expect(page.locator('[data-testid="developer-rt-clone-empty"]')).toBeVisible();
+    await expect(saveBtn).toBeEnabled();
+    await saveBtn.click();
+    await expect(saveBtn.or(saveError).first()).toBeVisible({ timeout: 20_000 });
+    if (await saveError.isVisible()) {
+      throw new Error(`Clear clone overrides failed: ${(await saveError.innerText()).trim()}`);
+    }
+    await expect(saveBtn).toBeDisabled({ timeout: 20_000 });
+    await expect(page.locator('[data-testid="developer-rt-clone-empty"]')).toBeVisible();
+
+    await deleteCurrentUserType(page);
+    await expect(rtOpen(page, name)).toHaveCount(0);
+
+    assertConsoleClean(pageErrors, consoleErrors);
+  });
 });

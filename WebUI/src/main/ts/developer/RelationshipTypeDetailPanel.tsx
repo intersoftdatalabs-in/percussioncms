@@ -19,7 +19,9 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { isApiError } from "../api/client";
 import {
+  DEFAULT_CLONE_OVERRIDE_EXTENSION,
   RELATIONSHIP_TYPE_CATEGORIES,
+  copyCloneOverrides,
   createRelationshipType,
   deleteRelationshipType,
   getRelationshipTypeDetail,
@@ -27,10 +29,14 @@ import {
   isSystemRelationshipType,
   isValidRelationshipTypeName,
   normalizeRelationshipTypeName,
+  serializeCloneOverrides,
   updateRelationshipType,
   type RelationshipTypeWriteBody,
 } from "../api/developer/relationshipTypesApi";
-import type { RelationshipTypeDef } from "../api/developer/types";
+import type {
+  RelationshipTypeCloneOverrideSummary,
+  RelationshipTypeDef,
+} from "../api/developer/types";
 import {
   backButton,
   catalogColors,
@@ -116,6 +122,12 @@ export function RelationshipTypeDetailPanel({
   const [allowCloning, setAllowCloning] = useState(false);
   const [useOwnerRevision, setUseOwnerRevision] = useState(false);
   const [useDependentRevision, setUseDependentRevision] = useState(false);
+  const [cloneOverrides, setCloneOverrides] = useState<
+    RelationshipTypeCloneOverrideSummary[]
+  >([]);
+  const [draftField, setDraftField] = useState("");
+  const [draftExtension, setDraftExtension] = useState(DEFAULT_CLONE_OVERRIDE_EXTENSION);
+  const [draftParams, setDraftParams] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -146,6 +158,10 @@ export function RelationshipTypeDetailPanel({
         setAllowCloning(Boolean(d.allowCloning));
         setUseOwnerRevision(Boolean(d.useOwnerRevision));
         setUseDependentRevision(Boolean(d.useDependentRevision));
+        setCloneOverrides(copyCloneOverrides(d.cloneOverrides));
+        setDraftField("");
+        setDraftExtension(DEFAULT_CLONE_OVERRIDE_EXTENSION);
+        setDraftParams("");
         setLoading(false);
       })
       .catch((err: unknown) => {
@@ -168,6 +184,7 @@ export function RelationshipTypeDetailPanel({
   const loadedAllowCloning = Boolean(detail?.allowCloning);
   const loadedUseOwnerRevision = Boolean(detail?.useOwnerRevision);
   const loadedUseDependentRevision = Boolean(detail?.useDependentRevision);
+  const loadedCloneOverrides = serializeCloneOverrides(detail?.cloneOverrides);
   const dirty =
     isNew ||
     label !== loadedLabel ||
@@ -175,7 +192,8 @@ export function RelationshipTypeDetailPanel({
     category !== loadedCategory ||
     allowCloning !== loadedAllowCloning ||
     useOwnerRevision !== loadedUseOwnerRevision ||
-    useDependentRevision !== loadedUseDependentRevision;
+    useDependentRevision !== loadedUseDependentRevision ||
+    serializeCloneOverrides(cloneOverrides) !== loadedCloneOverrides;
 
   const canSave =
     userWritable &&
@@ -221,6 +239,7 @@ export function RelationshipTypeDetailPanel({
         body.name = detail.name;
       }
     }
+    body.cloneOverrides = copyCloneOverrides(cloneOverrides);
     return body;
   }
 
@@ -247,6 +266,10 @@ export function RelationshipTypeDetailPanel({
       setAllowCloning(Boolean(saved.allowCloning));
       setUseOwnerRevision(Boolean(saved.useOwnerRevision));
       setUseDependentRevision(Boolean(saved.useDependentRevision));
+      setCloneOverrides(copyCloneOverrides(saved.cloneOverrides));
+      setDraftField("");
+      setDraftExtension(DEFAULT_CLONE_OVERRIDE_EXTENSION);
+      setDraftParams("");
       setNotice(DEV_MSG.RT_SAVED);
       await onSaved?.(saved);
     } catch (err: unknown) {
@@ -292,9 +315,34 @@ export function RelationshipTypeDetailPanel({
   const userProps =
     detail != null && Array.isArray(detail.userProperties) ? detail.userProperties : [];
   const gaps =
-    detail != null && detail.designGaps && detail.designGaps.length
+    detail != null && Array.isArray(detail.designGaps) && detail.designGaps.length
       ? detail.designGaps
-      : [DEV_MSG.RT_GAP_CLONE, DEV_MSG.RT_GAP_EFFECTS];
+      : [DEV_MSG.RT_GAP_EFFECTS];
+
+  function addCloneOverride(): void {
+    const fieldName = draftField.trim();
+    const extensionRef = draftExtension.trim() || DEFAULT_CLONE_OVERRIDE_EXTENSION;
+    if (!fieldName || !userWritable || busy) return;
+    const dup = cloneOverrides.some(
+      (r) => (r.fieldName || "").trim().toLowerCase() === fieldName.toLowerCase(),
+    );
+    if (dup) return;
+    const extensionParams = draftParams
+      .split(/\r?\n/)
+      .map((p) => p.trim())
+      .filter((p) => p.length > 0);
+    setCloneOverrides([
+      ...cloneOverrides,
+      { fieldName, extensionRef, extensionParams },
+    ]);
+    setDraftField("");
+    setDraftParams("");
+  }
+
+  function removeCloneOverride(index: number): void {
+    if (!userWritable || busy) return;
+    setCloneOverrides(cloneOverrides.filter((_, i) => i !== index));
+  }
 
   const title = isNew
     ? DEV_MSG.RT_NEW
@@ -498,6 +546,161 @@ export function RelationshipTypeDetailPanel({
               </label>
             </div>
           ) : null}
+
+          <section style={{ marginBottom: "16px" }} data-testid="developer-rt-clone-overrides">
+            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.RT_CLONE_OVERRIDES}</h3>
+            <p style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
+              {DEV_MSG.RT_CLONE_HINT}
+            </p>
+            {cloneOverrides.length === 0 ? (
+              <p
+                data-testid="developer-rt-clone-empty"
+                style={{ color: catalogColors.empty }}
+              >
+                {DEV_MSG.RT_CLONE_NONE}
+              </p>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table
+                  data-testid="developer-rt-clone-table"
+                  style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
+                >
+                  <thead>
+                    <tr style={tableHeaderRow}>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.RT_CLONE_FIELD}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.RT_CLONE_EXT}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.RT_CLONE_PARAMS}</th>
+                      {userWritable ? <th style={{ padding: "8px" }}>{DEV_MSG.RT_CLONE_REMOVE}</th> : null}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cloneOverrides.map((row, i) => (
+                      <tr
+                        key={`${row.fieldName ?? "f"}-${i}`}
+                        data-testid={`developer-rt-clone-row-${row.fieldName || i}`}
+                        style={tableRow}
+                      >
+                        <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                          {row.fieldName || "—"}
+                        </td>
+                        <td style={{ padding: "8px", ...monoCell, fontSize: "0.85rem" }}>
+                          {row.extensionRef || "—"}
+                        </td>
+                        <td style={{ padding: "8px", fontFamily: "monospace", fontSize: "0.85rem" }}>
+                          {(row.extensionParams || []).join(", ") || "—"}
+                        </td>
+                        {userWritable ? (
+                          <td style={{ padding: "8px" }}>
+                            <button
+                              type="button"
+                              data-testid={`developer-rt-clone-remove-${row.fieldName || i}`}
+                              disabled={fieldsDisabled}
+                              onClick={() => removeCloneOverride(i)}
+                              style={{
+                                padding: "4px 8px",
+                                background: "transparent",
+                                border: `1px solid ${catalogColors.softBorder}`,
+                                borderRadius: "4px",
+                                cursor: fieldsDisabled ? "not-allowed" : "pointer",
+                              }}
+                            >
+                              {DEV_MSG.RT_CLONE_REMOVE}
+                            </button>
+                          </td>
+                        ) : null}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {userWritable ? (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                  marginTop: "8px",
+                }}
+              >
+                <div style={fieldStyle}>
+                  <label htmlFor="rt-clone-field">{DEV_MSG.RT_CLONE_FIELD}</label>
+                  <input
+                    id="rt-clone-field"
+                    data-testid="developer-rt-clone-field"
+                    style={{ ...inputStyle, fontFamily: "monospace" }}
+                    value={draftField}
+                    disabled={fieldsDisabled}
+                    onChange={(e) => setDraftField(e.target.value)}
+                    autoComplete="off"
+                  />
+                </div>
+                <div style={fieldStyle}>
+                  <label htmlFor="rt-clone-ext">{DEV_MSG.RT_CLONE_EXT}</label>
+                  <input
+                    id="rt-clone-ext"
+                    data-testid="developer-rt-clone-ext"
+                    style={{ ...inputStyle, fontFamily: "monospace" }}
+                    value={draftExtension}
+                    disabled={fieldsDisabled}
+                    onChange={(e) => setDraftExtension(e.target.value)}
+                    autoComplete="off"
+                  />
+                </div>
+                <div style={fieldStyle}>
+                  <label htmlFor="rt-clone-params">{DEV_MSG.RT_CLONE_PARAMS}</label>
+                  <textarea
+                    id="rt-clone-params"
+                    data-testid="developer-rt-clone-params"
+                    style={{ ...inputStyle, minHeight: "64px", fontFamily: "monospace" }}
+                    value={draftParams}
+                    disabled={fieldsDisabled}
+                    onChange={(e) => setDraftParams(e.target.value)}
+                  />
+                </div>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    data-testid="developer-rt-clone-add"
+                    disabled={fieldsDisabled || !draftField.trim()}
+                    onClick={() => addCloneOverride()}
+                    style={{
+                      padding: "8px 16px",
+                      background:
+                        !fieldsDisabled && draftField.trim()
+                          ? catalogColors.accent
+                          : catalogColors.disabled,
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor:
+                        !fieldsDisabled && draftField.trim() ? "pointer" : "not-allowed",
+                    }}
+                  >
+                    {DEV_MSG.RT_CLONE_ADD}
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="developer-rt-clone-clear"
+                    disabled={fieldsDisabled || cloneOverrides.length === 0}
+                    onClick={() => setCloneOverrides([])}
+                    style={{
+                      padding: "8px 16px",
+                      background: "transparent",
+                      border: `1px solid ${catalogColors.softBorder}`,
+                      borderRadius: "4px",
+                      cursor:
+                        fieldsDisabled || cloneOverrides.length === 0
+                          ? "not-allowed"
+                          : "pointer",
+                    }}
+                  >
+                    {DEV_MSG.RT_CLONE_CLEAR}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </section>
 
           {userWritable ? (
             <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>

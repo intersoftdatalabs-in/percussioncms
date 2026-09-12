@@ -177,9 +177,10 @@ public class RelationshipTypeResource {
       summary = "Update user relationship type",
       description =
           "Admin. Updates mutable fields of a user relationship type (label, description,"
-              + " category, cloning/revision flags, user properties). Name is not renamed on PUT."
-              + " System types are 409. Unknown key is 404. Prefer round-trip GET then PUT for"
-              + " boolean flags.",
+              + " category, cloning/revision flags, user properties, cloning field overrides)."
+              + " Name is not renamed on PUT. cloneOverrides null leaves the list unchanged;"
+              + " empty list clears. System types are 409. Unknown key is 404. Prefer"
+              + " round-trip GET then PUT for boolean flags.",
       responses = {
         @ApiResponse(
             responseCode = "200",

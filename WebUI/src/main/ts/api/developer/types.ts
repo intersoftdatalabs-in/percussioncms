@@ -1157,6 +1157,13 @@ export interface RelationshipTypePropertySummary {
   value?: string;
 }
 
+/** Cloning field override on a relationship type (PSCloneOverrideField). */
+export interface RelationshipTypeCloneOverrideSummary {
+  fieldName?: string;
+  extensionRef?: string;
+  extensionParams?: string[];
+}
+
 /** Relationship type from GET/POST/PUT /services/relationshiptypes (SY-03). */
 export interface RelationshipTypeDef {
   guid?: RestGuid;
@@ -1176,6 +1183,7 @@ export interface RelationshipTypeDef {
   effects?: RelationshipTypeEffectSummary[];
   systemProperties?: RelationshipTypePropertySummary[];
   userProperties?: RelationshipTypePropertySummary[];
+  cloneOverrides?: RelationshipTypeCloneOverrideSummary[];
   designGaps?: string[];
 }
 

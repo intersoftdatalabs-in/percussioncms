@@ -76,6 +76,7 @@ const sampleUserDetail = {
   effects: [],
   systemProperties: [],
   userProperties: [],
+  cloneOverrides: [],
   designGaps: ["gap-user"],
 };
 
@@ -210,6 +211,50 @@ describe("RelationshipTypeDetailPanel", () => {
       expect(deleteRelationshipType).toHaveBeenCalledWith("MyUserRel");
     });
     expect(onDeleted).toHaveBeenCalled();
+  });
+
+  it("adds and saves cloning field overrides on a user type", async () => {
+    getRelationshipTypeDetail.mockResolvedValue(sampleUserDetail);
+    updateRelationshipType.mockResolvedValue({
+      ...sampleUserDetail,
+      cloneOverrides: [
+        {
+          fieldName: "sys_title",
+          extensionRef: "Java/global/percussion/cms/sys_cloneOverrideField",
+          extensionParams: ["p1"],
+        },
+      ],
+    });
+    render(
+      <RelationshipTypeDetailPanel idOrName="MyUserRel" onBack={() => undefined} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-rt-clone-overrides")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-rt-clone-empty")).toBeTruthy();
+    fireEvent.change(screen.getByTestId("developer-rt-clone-field"), {
+      target: { value: "sys_title" },
+    });
+    fireEvent.change(screen.getByTestId("developer-rt-clone-params"), {
+      target: { value: "p1" },
+    });
+    fireEvent.click(screen.getByTestId("developer-rt-clone-add"));
+    expect(screen.getByTestId("developer-rt-clone-row-sys_title")).toBeTruthy();
+    expect(screen.getByTestId("developer-rt-save")).not.toBeDisabled();
+    fireEvent.click(screen.getByTestId("developer-rt-save"));
+    await waitFor(() => {
+      expect(updateRelationshipType).toHaveBeenCalledWith(
+        "MyUserRel",
+        expect.objectContaining({
+          cloneOverrides: [
+            expect.objectContaining({
+              fieldName: "sys_title",
+              extensionParams: ["p1"],
+            }),
+          ],
+        }),
+      );
+    });
   });
 
   it("shows empty effects/props sections when detail has none", async () => {

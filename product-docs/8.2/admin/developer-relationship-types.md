@@ -10,11 +10,12 @@ tags: [admin, developer, relationship-types]
 # Developer Relationship Types
 
 **Developer → Relationship Types** lists system and user relationship type
-definitions (name, label, category, cloning flags, effects, and properties).
-Admins can **create**, **save**, and **delete** **user** relationship types
-from this chrome. Packaged **system** types remain **read-only** — open them
-to inspect effects and properties, then create a user type (optionally
-**Copy from** a system type) to customize.
+definitions (name, label, category, cloning flags, cloning field overrides,
+effects, and properties). Admins can **create**, **save**, and **delete**
+**user** relationship types from this chrome. Packaged **system** types remain
+**read-only** — open them to inspect effects, properties, and cloning field
+overrides, then create a user type (optionally **Copy from** a system type) to
+customize.
 
 ## Product path — create, save, delete
 
@@ -28,8 +29,14 @@ to inspect effects and properties, then create a user type (optionally
 4. Optional: label, description, and cloning / revision flags (when not
    copying). Click **Save**. A duplicate name is **409**. After a successful
    create, the name field is read-only and the type appears in the catalog.
-5. Open a **user** type, change the label (or category / flags), and **Save**
-   again.
+5. Open a **user** type, change the label (or category / flags / cloning field
+   overrides), and **Save** again. Cloning field overrides are a list of
+   content-editor **field names** (for example `sys_title`) plus a UDF
+   **extension** (default `Java/global/percussion/cms/sys_cloneOverrideField`)
+   and optional literal **parameters** (one per line). **Add override** appends
+   a row; **Remove** or **Clear all overrides** then **Save** persists the
+   list. An empty saved list clears all overrides. Conditions on an existing
+   override are preserved when that field name is kept.
 6. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
    The catalog no longer lists that type. Delete of a missing type is **404**.
    A **system** type cannot be deleted (**409**); the editor hides Save/Delete
@@ -39,8 +46,8 @@ to inspect effects and properties, then create a user type (optionally
 
 - System relationship types are immutable in this chrome (and via REST).
 - Name is immutable after create.
-- Cloning field-override editor and effect condition / execution-context edit
-  are not in this chrome (see `designGaps` on detail).
+- Effect condition and execution-context edit are not in this chrome (see
+  `designGaps` on detail).
 - Deep effect/function property dialogs remain Workbench parity debt.
 
 ## REST

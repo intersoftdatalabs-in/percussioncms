@@ -1647,7 +1647,7 @@ export const DEV_MSG_KEYS = {
   RT_EMPTY: "perc.ui.developer@No relationship types returned.",
   RT_ERROR: "perc.ui.developer@Could not load relationship types.",
   RT_HINT:
-    "perc.ui.developer@System and user relationship types (category, cloning flags, effects). Admins can create, edit, and delete user types. System types stay read-only.",
+    "perc.ui.developer@System and user relationship types (category, cloning flags, cloning field overrides, effects). Admins can create, edit, and delete user types. System types stay read-only.",
   RT_NEW: "perc.ui.developer@New relationship type",
   RT_EDIT: "perc.ui.developer@Edit relationship type",
   RT_COL_NAME: "perc.ui.developer@Name",
@@ -1697,11 +1697,22 @@ export const DEV_MSG_KEYS = {
   RT_DUPLICATE: "perc.ui.developer@A relationship type with this name already exists.",
   RT_FORBIDDEN: "perc.ui.developer@Admin role required to change relationship types.",
   RT_IMMUTABLE: "perc.ui.developer@System relationship types cannot be changed or deleted.",
-  RT_INVALID: "perc.ui.developer@Invalid relationship type name or category.",
+  RT_INVALID:
+    "perc.ui.developer@Invalid relationship type name, category, or cloning field override.",
   RT_NOT_FOUND: "perc.ui.developer@Relationship type not found.",
   RT_EFFECTS: "perc.ui.developer@Effects",
   RT_SYS_PROPS: "perc.ui.developer@System properties",
   RT_USER_PROPS: "perc.ui.developer@User properties",
+  RT_CLONE_OVERRIDES: "perc.ui.developer@Cloning field overrides",
+  RT_CLONE_FIELD: "perc.ui.developer@Field name",
+  RT_CLONE_EXT: "perc.ui.developer@Extension",
+  RT_CLONE_PARAMS: "perc.ui.developer@Parameters (one per line)",
+  RT_CLONE_ADD: "perc.ui.developer@Add override",
+  RT_CLONE_REMOVE: "perc.ui.developer@Remove",
+  RT_CLONE_CLEAR: "perc.ui.developer@Clear all overrides",
+  RT_CLONE_HINT:
+    "perc.ui.developer@Override content fields on clone. Field name is a content editor field (for example sys_title). Extension is a UDF that computes the clone value. Parameters are literal strings, one per line. Conditions on existing overrides are preserved when the field is kept.",
+  RT_CLONE_NONE: "perc.ui.developer@No cloning field overrides.",
   RT_NONE: "perc.ui.developer@None",
   RT_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   RT_GAP_CLONE:
