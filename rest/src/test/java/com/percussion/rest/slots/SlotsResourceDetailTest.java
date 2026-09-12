@@ -29,7 +29,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.percussion.rest.DesignGap;
 import com.percussion.rest.ObjectLockSummary;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -126,20 +125,37 @@ public class SlotsResourceDetailTest {
   }
 
   @Test
-  public void getSlotReturnsStructuredDesignGaps() {
+  public void getSlotPassesThroughDesignGaps() {
     SlotDetail d = new SlotDetail();
     d.setName("target");
-    d.setDesignGaps(
-        List.of(
-            DesignGap.of(
-                "SLOT_ASSOC_GUIDS_ONLY", "Content-type and template names not resolved (GUIDs only)")));
+    d.setDesignGaps(List.of());
     when(adaptor.getSlot(any(), eq("target"))).thenReturn(d);
 
     SlotDetail out = resource.getSlot("target");
-    assertNotNull(out.getDesignGaps());
-    assertEquals(1, out.getDesignGaps().size());
-    assertEquals("SLOT_ASSOC_GUIDS_ONLY", out.getDesignGaps().get(0).getCode());
-    assertTrue(out.getDesignGaps().get(0).getMessage().contains("GUIDs only"));
+    assertNotNull(out);
+    assertTrue(out.getDesignGaps() == null || out.getDesignGaps().isEmpty());
+  }
+
+  @Test
+  public void getSlotReturnsAssociationNames() {
+    SlotDetail d = new SlotDetail();
+    d.setName("target");
+    SlotAssociationSummary a = new SlotAssociationSummary();
+    com.percussion.rest.Guid ct = new com.percussion.rest.Guid();
+    ct.setStringValue("0-2-301");
+    com.percussion.rest.Guid tpl = new com.percussion.rest.Guid();
+    tpl.setStringValue("0-10-1");
+    a.setContentTypeGuid(ct);
+    a.setTemplateGuid(tpl);
+    a.setContentTypeName("percPage");
+    a.setTemplateName("perc.page");
+    d.setAssociations(List.of(a));
+    when(adaptor.getSlot(any(), eq("target"))).thenReturn(d);
+
+    SlotDetail out = resource.getSlot("target");
+    assertEquals(1, out.getAssociations().size());
+    assertEquals("percPage", out.getAssociations().get(0).getContentTypeName());
+    assertEquals("perc.page", out.getAssociations().get(0).getTemplateName());
   }
 
   @Test
@@ -235,6 +251,25 @@ public class SlotsResourceDetailTest {
     assertEquals(
         "0-2-301",
         result.getAssociations().get(0).getContentTypeGuid().getStringValue());
+  }
+
+  @Test
+  public void updateSlotWithAssociationNames() {
+    SlotDetail body = new SlotDetail();
+    SlotAssociationSummary a = new SlotAssociationSummary();
+    a.setContentTypeName("percPage");
+    a.setTemplateName("perc.page");
+    body.setAssociations(java.util.List.of(a));
+    SlotDetail updated = new SlotDetail();
+    updated.setName("target");
+    SlotAssociationSummary round = new SlotAssociationSummary();
+    round.setContentTypeName("percPage");
+    round.setTemplateName("perc.page");
+    updated.setAssociations(java.util.List.of(round));
+    when(adaptor.updateSlot(any(), eq("target"), any())).thenReturn(updated);
+    SlotDetail result = resource.updateSlot("target", body);
+    assertEquals("percPage", result.getAssociations().get(0).getContentTypeName());
+    assertEquals("perc.page", result.getAssociations().get(0).getTemplateName());
   }
 
   @Test

@@ -1,7 +1,7 @@
 ---
 id: admin-developer-slots
 title: Developer Slots
-description: Create, delete, and edit assembly slot finder, relationship, and arguments from Developer Slots chrome
+description: Create, delete, and edit assembly slot finder, relationship, arguments, and named content-type/template associations from Developer Slots chrome
 version: "8.2"
 order: 44
 tags: [admin, developer, slots]
@@ -11,12 +11,13 @@ tags: [admin, developer, slots]
 
 **Developer → Slots** lists assembly slot definitions (label, unique name, and
 description). Admins can **create** a slot and **delete** a non-system slot
-from this chrome. Label, description, and content-type/template associations
-can still be saved on an existing slot.
+from this chrome. Label and description can still be saved on an existing slot
+without a design lock.
 
-After **Lock**, Admins can edit **finder**, **relationship**, and **finder
-arguments** on an existing slot and **Save**. Create does not write finder
-fields. Unlock releases the design session without saving.
+After **Lock**, Admins can edit **finder**, **relationship**, **finder
+arguments**, and **content-type / template associations** (by **name** or GUID)
+on an existing slot and **Save**. Create does not write finder fields or
+associations. Unlock releases the design session without saving.
 
 ## Product path — create and delete
 
@@ -57,15 +58,27 @@ fields. Unlock releases the design session without saving.
 5. Click **Unlock** when finished (or **Back**, which releases a lock you
    hold).
 
+## Product path — content-type / template associations
+
+1. Open an existing slot. Association add/remove is **read-only** until you
+   hold the design lock. Rows show the content-type and template **names**
+   (GUID is used only as a fallback when a name is missing).
+2. Click **Lock**. Locked-by-another-user is **409**. Non-Admin is **403**.
+3. Enter a content-type **name or GUID** and a template **name or GUID**, then
+   **Add association**. Remove a row with **Remove**. Save applies a **full
+   replace** of the association list.
+4. Click **Save slot**. Unknown names or GUIDs are **400**. Unlocked or
+   locked-by-another-user is **409**. Non-Admin is **403**. Missing slot is
+   **404**. Following GET round-trips names and guids. Unchanged associations
+   are omitted on a properties-only save so they are not wiped.
+5. Click **Unlock** when finished.
+
 ## Limits
 
 - Name is immutable after create.
-- Create does not write finder, relationship, or finder arguments.
-- Finder writes require a lock you already hold. The save request does not
-  acquire or steal the lock.
-- Association GUID pairs can still be added or removed on an existing slot
-  and saved with **Save slot** (full replace), including without a finder
-  lock when finder fields are unchanged.
+- Create does not write finder, relationship, finder arguments, or associations.
+- Finder and association writes require a lock you already hold. The save
+  request does not acquire or steal the lock.
 
 ## REST
 
@@ -78,7 +91,7 @@ The chrome calls:
 | Create | `POST /services/slots` (`name` required; optional `label`, `description`, `slotType`) |
 | Lock | `POST /services/slots/{idOrName}/lock` |
 | Unlock | `POST /services/slots/{idOrName}/unlock` |
-| Save | `PUT /services/slots/{idOrName}` (label, description, associations; optional `finderName` / `relationshipName` / `finderArguments` when those fields changed) |
+| Save | `PUT /services/slots/{idOrName}` (label, description; optional `associations` / `finderName` / `relationshipName` / `finderArguments` when those fields changed) |
 | Delete | `DELETE /services/slots/{idOrName}` (`204` on success) |
 
 Integrator notes: [REST API — Slots](id:developer-rest).

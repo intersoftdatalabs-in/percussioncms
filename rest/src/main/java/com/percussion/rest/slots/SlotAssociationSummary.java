@@ -19,15 +19,26 @@ package com.percussion.rest.slots;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Guid;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
-/** Content-type ↔ template association on a slot (pair of guids). */
+/**
+ * Content-type ↔ template association on a slot.
+ *
+ * <p>GET includes names (and labels when cataloged) plus guids. PUT accepts {@code name} or {@code
+ * guid} on each side (guid wins when both are present).
+ */
 @XmlRootElement(name = "SlotAssociation")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(description = "Slot content-type / template association (names and guids)")
 public class SlotAssociationSummary {
 
   private Guid contentTypeGuid;
+  private String contentTypeName;
+  private String contentTypeLabel;
   private Guid templateGuid;
+  private String templateName;
+  private String templateLabel;
 
   public SlotAssociationSummary() {}
 
@@ -39,11 +50,43 @@ public class SlotAssociationSummary {
     this.contentTypeGuid = contentTypeGuid;
   }
 
+  public String getContentTypeName() {
+    return contentTypeName;
+  }
+
+  public void setContentTypeName(String contentTypeName) {
+    this.contentTypeName = contentTypeName;
+  }
+
+  public String getContentTypeLabel() {
+    return contentTypeLabel;
+  }
+
+  public void setContentTypeLabel(String contentTypeLabel) {
+    this.contentTypeLabel = contentTypeLabel;
+  }
+
   public Guid getTemplateGuid() {
     return templateGuid;
   }
 
   public void setTemplateGuid(Guid templateGuid) {
     this.templateGuid = templateGuid;
+  }
+
+  public String getTemplateName() {
+    return templateName;
+  }
+
+  public void setTemplateName(String templateName) {
+    this.templateName = templateName;
+  }
+
+  public String getTemplateLabel() {
+    return templateLabel;
+  }
+
+  public void setTemplateLabel(String templateLabel) {
+    this.templateLabel = templateLabel;
   }
 }

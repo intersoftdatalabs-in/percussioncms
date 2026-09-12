@@ -45,6 +45,8 @@ import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.assembly.IPSAssemblyDesignWs;
 import com.percussion.webservices.assembly.PSAssemblyWsLocator;
+import com.percussion.webservices.content.IPSContentDesignWs;
+import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.system.IPSSystemDesignWs;
 import com.percussion.webservices.system.PSSystemWsLocator;
 import jakarta.ws.rs.WebApplicationException;
@@ -54,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
@@ -75,20 +78,19 @@ public class SlotsAdaptor implements ISlotsAdaptor {
   private static final Logger log = LogManager.getLogger(SlotsAdaptor.class);
 
   static final String ADMIN_REQUIRED =
-      "Admin role required to create, delete, lock, or write slot finder/relationship";
+      "Admin role required to create, delete, lock, or write slot finder/relationship or"
+          + " associations";
 
   /** Typical design-session lock duration in minutes ({@link PSObjectLock#LOCK_INTERVAL}). */
   static final long DESIGN_LOCK_MINUTES = PSObjectLock.LOCK_INTERVAL / 60_000L;
 
-  public static final List<DesignGap> SLOT_DESIGN_GAPS =
-      List.of(
-          DesignGap.of(
-              "SLOT_ASSOC_GUIDS_ONLY",
-              "Content-type and template names not resolved (GUIDs only)"));
+  /** Empty after SLOT_ASSOC_GUIDS_ONLY shipped (#4462). */
+  public static final List<DesignGap> SLOT_DESIGN_GAPS = List.of();
 
   private final IPSAssemblyDesignWs designWs;
   private final IPSAssemblyService assemblyService;
   private final IPSSystemDesignWs systemDesign;
+  private final IPSContentDesignWs contentDesign;
   private final BooleanSupplier adminChecker;
 
   /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
@@ -100,7 +102,8 @@ public class SlotsAdaptor implements ISlotsAdaptor {
         PSAssemblyWsLocator.getAssemblyDesignWebservice(),
         null,
         PSAssemblyServiceLocator.getAssemblyService(),
-        PSSystemWsLocator.getSystemDesignWebservice());
+        PSSystemWsLocator.getSystemDesignWebservice(),
+        PSContentWsLocator.getContentDesignWebservice());
   }
 
   /** Package-visible for unit tests. Admin is allowed so existing PUT tests stay focused. */
@@ -122,10 +125,24 @@ public class SlotsAdaptor implements ISlotsAdaptor {
       BooleanSupplier adminChecker,
       IPSAssemblyService assemblyService,
       IPSSystemDesignWs systemDesign) {
+    this(designWs, adminChecker, assemblyService, systemDesign, null);
+  }
+
+  /**
+   * Package-visible for unit tests that resolve association names via {@link
+   * IPSContentDesignWs} and {@link IPSAssemblyDesignWs#findAssemblyTemplates}.
+   */
+  SlotsAdaptor(
+      IPSAssemblyDesignWs designWs,
+      BooleanSupplier adminChecker,
+      IPSAssemblyService assemblyService,
+      IPSSystemDesignWs systemDesign,
+      IPSContentDesignWs contentDesign) {
     this.designWs = designWs;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
     this.assemblyService = assemblyService;
     this.systemDesign = systemDesign;
+    this.contentDesign = contentDesign;
   }
 
   @Override
@@ -189,7 +206,10 @@ public class SlotsAdaptor implements ISlotsAdaptor {
       throw new IllegalArgumentException("body is required");
     }
     boolean finderWrite = wantsFinderWrite(body);
-    if (finderWrite) {
+    boolean assocWrite = body.getAssociations() != null;
+    boolean designWrite = finderWrite || assocWrite;
+    String lockPrefix = designLockPrefix(finderWrite, assocWrite);
+    if (designWrite) {
       requireAdmin();
       requireSessionUserForDesignWrite();
     } else {
@@ -199,47 +219,43 @@ public class SlotsAdaptor implements ISlotsAdaptor {
     String user = currentUser();
     String trimmed = idOrName.trim();
     try {
-      if (finderWrite) {
+      if (designWrite) {
         IPSTemplateSlot current = resolveSlot(trimmed, false);
         if (current == null || current.getGUID() == null) {
           return null;
         }
-        requireHeldLock(current.getGUID(), "Could not save slot finder/relationship");
-        applyFinderRelationshipUpdates(body);
+        requireHeldLock(current.getGUID(), lockPrefix);
+        if (finderWrite) {
+          applyFinderRelationshipUpdates(body);
+        }
       }
       IPSTemplateSlot slot = resolveSlot(trimmed, true);
       if (slot == null) {
-        if (finderWrite) {
+        if (designWrite) {
           throw new WebApplicationException(
-              "Could not save slot finder/relationship; design lock required or held by another"
-                  + " user",
-              409);
+              lockPrefix + "; design lock required or held by another user", 409);
         }
         return null;
       }
       applyMutableSlotUpdates(slot, body);
-      // Finder write keeps the held lock (clients unlock via POST .../unlock). Label-only
+      // Design writes keep the held lock (clients unlock via POST .../unlock). Label-only
       // updates continue to acquire+release in one request.
-      designWs.saveSlots(Collections.singletonList(slot), !finderWrite, session, user);
+      designWs.saveSlots(Collections.singletonList(slot), !designWrite, session, user);
       IPSTemplateSlot reloaded = resolveSlot(trimmed, false);
       return reloaded != null ? toDetail(reloaded) : toDetail(slot);
     } catch (IllegalArgumentException | IllegalStateException | WebApplicationException e) {
       throw e;
     } catch (PSErrorResultsException e) {
-      if (finderWrite) {
+      if (designWrite) {
         throw new WebApplicationException(
-            "Could not save slot finder/relationship; design lock required or held by another"
-                + " user",
-            409);
+            lockPrefix + "; design lock required or held by another user", 409);
       }
       log.error("Failed to load slot for update {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to update slot", e);
     } catch (PSErrorsException e) {
-      if (finderWrite && isLockFailure(e)) {
+      if (designWrite && isLockFailure(e)) {
         throw new WebApplicationException(
-            "Could not save slot finder/relationship; design lock required or held by another"
-                + " user",
-            409);
+            lockPrefix + "; design lock required or held by another user", 409);
       }
       log.error("Failed to save slot {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to save slot", e);
@@ -433,17 +449,90 @@ public class SlotsAdaptor implements ISlotsAdaptor {
     if (associations == null) {
       return pairs;
     }
+    Map<Integer, IPSCatalogSummary> contentTypes = contentTypeSummariesByUuid();
+    Map<Integer, IPSCatalogSummary> templates = templateSummariesByUuid();
     int i = 0;
     for (SlotAssociationSummary a : associations) {
       i++;
       if (a == null) {
         throw new IllegalArgumentException("association[" + (i - 1) + "] is null");
       }
-      IPSGuid ct = toIpsGuid(a.getContentTypeGuid(), "contentTypeGuid", i - 1);
-      IPSGuid tpl = toIpsGuid(a.getTemplateGuid(), "templateGuid", i - 1);
+      int idx = i - 1;
+      IPSGuid ct =
+          resolveAssocGuid(
+              a.getContentTypeGuid(),
+              a.getContentTypeName(),
+              contentTypes,
+              "contentType",
+              idx);
+      IPSGuid tpl =
+          resolveAssocGuid(a.getTemplateGuid(), a.getTemplateName(), templates, "template", idx);
       pairs.add(new PSPair<>(ct, tpl));
     }
     return pairs;
+  }
+
+  /**
+   * Resolve a content-type or template from guid (preferred) or name. Unknown pairs are 400.
+   * Guid-only writes still succeed when the catalog is unavailable (unit tests).
+   */
+  private IPSGuid resolveAssocGuid(
+      com.percussion.rest.Guid g,
+      String name,
+      Map<Integer, IPSCatalogSummary> byUuid,
+      String role,
+      int index) {
+    String field = "association[" + index + "]." + role;
+    boolean cataloged = byUuid != null && !byUuid.isEmpty();
+    if (hasGuidValue(g)) {
+      IPSGuid parsed = toIpsGuid(g, role + "Guid", index);
+      if (cataloged) {
+        IPSCatalogSummary sum = byUuid.get(parsed.getUUID());
+        if (sum == null || sum.getGUID() == null) {
+          throw new IllegalArgumentException(field + " not found: " + parsed.getUUID());
+        }
+        return sum.getGUID();
+      }
+      return parsed;
+    }
+    if (StringUtils.isNotBlank(name)) {
+      String want = name.trim();
+      if (want.contains("*")) {
+        throw new IllegalArgumentException(field + " must not contain wildcards");
+      }
+      IPSCatalogSummary sum = findSummaryByName(byUuid, want);
+      if (sum == null || sum.getGUID() == null) {
+        throw new IllegalArgumentException(field + " not found: " + want);
+      }
+      return sum.getGUID();
+    }
+    throw new IllegalArgumentException(field + " requires name or guid");
+  }
+
+  private static IPSCatalogSummary findSummaryByName(
+      Map<Integer, IPSCatalogSummary> byUuid, String want) {
+    if (byUuid == null || byUuid.isEmpty()) {
+      return null;
+    }
+    for (IPSCatalogSummary sum : byUuid.values()) {
+      if (sum == null) {
+        continue;
+      }
+      String wire = catalogWireName(sum.getName());
+      if (want.equalsIgnoreCase(StringUtils.defaultString(wire))
+          || want.equalsIgnoreCase(StringUtils.defaultString(sum.getName()))
+          || want.equalsIgnoreCase(StringUtils.defaultString(sum.getLabel()))) {
+        return sum;
+      }
+    }
+    return null;
+  }
+
+  private static boolean hasGuidValue(com.percussion.rest.Guid g) {
+    if (g == null) {
+      return false;
+    }
+    return StringUtils.isNotBlank(g.getStringValue()) || g.getUuid() > 0 || g.getLongValue() != 0;
   }
 
   private IPSGuid toIpsGuid(com.percussion.rest.Guid g, String field, int index) {
@@ -453,8 +542,12 @@ public class SlotsAdaptor implements ISlotsAdaptor {
     String sv = g.getStringValue();
     if (StringUtils.isNotBlank(sv)) {
       try {
-        return ApiUtils.convertGuid(g);
-      } catch (Exception e) {
+        PSGuid parsed = new PSGuid(sv);
+        if (parsed.getType() == 0 && g.getType() > 0) {
+          parsed = new PSGuid(PSTypeEnum.valueOf(g.getType()), parsed.getUUID());
+        }
+        return parsed;
+      } catch (RuntimeException e) {
         throw new IllegalArgumentException(
             "association[" + index + "]." + field + " is not a valid GUID: " + sv, e);
       }
@@ -587,15 +680,19 @@ public class SlotsAdaptor implements ISlotsAdaptor {
 
     List<SlotAssociationSummary> associations = new ArrayList<>();
     if (slot.getSlotAssociations() != null) {
+      Map<Integer, IPSCatalogSummary> contentTypes = contentTypeSummariesByUuid();
+      Map<Integer, IPSCatalogSummary> templates = templateSummariesByUuid();
       for (PSPair<IPSGuid, IPSGuid> pair : slot.getSlotAssociations()) {
         if (pair == null) continue;
         SlotAssociationSummary a = new SlotAssociationSummary();
         try {
           if (pair.getFirst() != null) {
             a.setContentTypeGuid(ApiUtils.convertGuid(pair.getFirst()));
+            applyCatalogNames(a, pair.getFirst(), contentTypes, true);
           }
           if (pair.getSecond() != null) {
             a.setTemplateGuid(ApiUtils.convertGuid(pair.getSecond()));
+            applyCatalogNames(a, pair.getSecond(), templates, false);
           }
         } catch (Exception e) {
           log.warn(
@@ -608,8 +705,90 @@ public class SlotsAdaptor implements ISlotsAdaptor {
       }
     }
     d.setAssociations(associations.isEmpty() ? null : associations);
-    d.setDesignGaps(new ArrayList<>(SLOT_DESIGN_GAPS));
+    d.setDesignGaps(SLOT_DESIGN_GAPS.isEmpty() ? null : new ArrayList<>(SLOT_DESIGN_GAPS));
     return d;
+  }
+
+  private static void applyCatalogNames(
+      SlotAssociationSummary a,
+      IPSGuid guid,
+      Map<Integer, IPSCatalogSummary> byUuid,
+      boolean contentType) {
+    if (guid == null || byUuid == null) {
+      return;
+    }
+    IPSCatalogSummary sum = byUuid.get(guid.getUUID());
+    if (sum == null) {
+      return;
+    }
+    String name = catalogWireName(sum.getName());
+    String label =
+        StringUtils.isNotBlank(sum.getLabel()) ? sum.getLabel() : StringUtils.defaultString(name);
+    if (contentType) {
+      a.setContentTypeName(name);
+      a.setContentTypeLabel(label);
+    } else {
+      a.setTemplateName(name);
+      a.setTemplateLabel(label);
+    }
+  }
+
+  private Map<Integer, IPSCatalogSummary> contentTypeSummariesByUuid() {
+    Map<Integer, IPSCatalogSummary> out = new LinkedHashMap<>();
+    if (contentDesign == null) {
+      return out;
+    }
+    try {
+      List<IPSCatalogSummary> found = contentDesign.findContentTypes(null);
+      putSummaries(out, found);
+    } catch (RuntimeException e) {
+      log.debug("Could not list content types for slot associations: {}", e.getMessage());
+    }
+    return out;
+  }
+
+  private Map<Integer, IPSCatalogSummary> templateSummariesByUuid() {
+    Map<Integer, IPSCatalogSummary> out = new LinkedHashMap<>();
+    if (designWs == null) {
+      return out;
+    }
+    try {
+      List<IPSCatalogSummary> found =
+          designWs.findAssemblyTemplates(null, null, null, null, null, null, null);
+      putSummaries(out, found);
+    } catch (RuntimeException e) {
+      log.debug("Could not list templates for slot associations: {}", e.getMessage());
+    }
+    return out;
+  }
+
+  private static void putSummaries(
+      Map<Integer, IPSCatalogSummary> out, List<IPSCatalogSummary> found) {
+    if (found == null) {
+      return;
+    }
+    for (IPSCatalogSummary sum : found) {
+      if (sum != null && sum.getGUID() != null) {
+        out.put(sum.getGUID().getUUID(), sum);
+      }
+    }
+  }
+
+  static String catalogWireName(String name) {
+    if (name != null && name.startsWith("rx:")) {
+      return name.substring(3);
+    }
+    return name;
+  }
+
+  static String designLockPrefix(boolean finderWrite, boolean assocWrite) {
+    if (finderWrite && assocWrite) {
+      return "Could not save slot finder/relationship or associations";
+    }
+    if (assocWrite) {
+      return "Could not save slot associations";
+    }
+    return "Could not save slot finder/relationship";
   }
 
   static boolean wantsFinderWrite(SlotDetail body) {

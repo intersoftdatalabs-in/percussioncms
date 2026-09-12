@@ -28,6 +28,7 @@ import {
   lockSlot,
   normalizeSlotAssociations,
   normalizeSlotDesignGaps,
+  slotAssociationWriteRequested,
   slotFinderWriteRequested,
   unlockSlot,
   unwrapSlotDetail,
@@ -339,7 +340,25 @@ describe("buildSlotUpdateBody finder omit / clear (#4059)", () => {
     expect(body).not.toHaveProperty("finderName");
     expect(body).not.toHaveProperty("relationshipName");
     expect(body).not.toHaveProperty("finderArguments");
+    expect(body).not.toHaveProperty("associations");
     expect(slotFinderWriteRequested(body)).toBe(false);
+    expect(slotAssociationWriteRequested(body)).toBe(false);
+  });
+
+  it("includes associations by name when they change (#4462)", () => {
+    const body = buildSlotUpdateBody({
+      label: "List",
+      description: "List slot",
+      associations: [{ contentTypeName: "percPage", templateName: "perc.page" }],
+      finderName: "sys_SlotContentFinder",
+      relationshipName: "Active Assembly",
+      finderArguments: { template: "rffSnTitle" },
+      initial: finderInitial,
+    });
+    expect(body.associations).toEqual([
+      { contentTypeName: "percPage", templateName: "perc.page" },
+    ]);
+    expect(slotAssociationWriteRequested(body)).toBe(true);
   });
 
   it("includes empty relationshipName to clear", () => {

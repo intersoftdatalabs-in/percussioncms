@@ -144,12 +144,14 @@ public class SlotsResource {
       description =
           "Updates mutable slot fields: label, description, slotLayout, and/or slotStyles. When"
               + " associations is present (including empty), replaces the full content-type/template"
-              + " association set. Non-null slotLayout/slotStyles replace definition maps (empty or"
+              + " association set (Admin, held lock). Each pair accepts content-type and template"
+              + " name or guid. Non-null slotLayout/slotStyles replace definition maps (empty or"
               + " schema-only clears to defaults); omit to leave unchanged. Name/id is immutable."
               + " Non-null finderName, relationshipName, or finderArguments are Admin writes that"
               + " require a held design-session lock (POST .../lock first). Does not acquire or"
-              + " steal the lock. Invalid finder extension or unknown relationship type is 400."
-              + " Unlocked or locked-by-another-user is 409. Non-Admin is 403.",
+              + " steal the lock. Invalid finder extension, unknown relationship type, or unknown"
+              + " association pair is 400. Unlocked or locked-by-another-user is 409. Non-Admin is"
+              + " 403.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -157,12 +159,17 @@ public class SlotsResource {
             content = @Content(schema = @Schema(implementation = SlotDetail.class))),
         @ApiResponse(
             responseCode = "400",
-            description = "Invalid input, finder extension, or relationship type"),
-        @ApiResponse(responseCode = "403", description = "Admin role required for finder write"),
+            description =
+                "Invalid input, finder extension, relationship type, or unknown association pair"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin role required for finder or association write"),
         @ApiResponse(responseCode = "404", description = "Slot not found"),
         @ApiResponse(
             responseCode = "409",
-            description = "Finder write requires a held lock; unlocked or locked by another user"),
+            description =
+                "Finder or association write requires a held lock; unlocked or locked by another"
+                    + " user"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public SlotDetail updateSlot(@PathParam("idOrName") String idOrName, SlotDetail body) {

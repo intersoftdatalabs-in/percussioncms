@@ -600,6 +600,7 @@ describe("SlotDetailPanel", () => {
     expect(body).not.toHaveProperty("finderName");
     expect(body).not.toHaveProperty("relationshipName");
     expect(body).not.toHaveProperty("finderArguments");
+    expect(body).not.toHaveProperty("associations");
   });
 
   it("sends empty relationshipName to clear after lock", async () => {
@@ -681,6 +682,92 @@ describe("SlotDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-slot-detail-error").textContent).toContain(
       DEV_MSG.SLOT_RELATIONSHIP_INVALID,
+    );
+  });
+
+  it("renders association names instead of GUID-only rows (#4462)", async () => {
+    getSlotDetail.mockResolvedValue({
+      ...sampleDetail,
+      associations: [
+        {
+          contentTypeName: "percPage",
+          contentTypeLabel: "Page",
+          contentTypeGuid: { stringValue: "0-2-301" },
+          templateName: "perc.page",
+          templateLabel: "Page",
+          templateGuid: { stringValue: "0-10-1" },
+        },
+      ],
+    });
+    render(<SlotDetailPanel idOrName="rffList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-assoc-ct-name-0")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-slot-assoc-ct-name-0").textContent).toBe("percPage");
+    expect(screen.getByTestId("developer-slot-assoc-tpl-name-0").textContent).toBe("perc.page");
+    expect(
+      (screen.getByTestId("developer-slot-assoc-ct") as HTMLInputElement).disabled,
+    ).toBe(true);
+    expect(
+      (screen.getByTestId("developer-slot-assoc-remove-0") as HTMLButtonElement).disabled,
+    ).toBe(true);
+  });
+
+  it("lock then add association by name PUTs names (#4462)", async () => {
+    await renderLoadedSlot();
+    await lockSlotPanel();
+    updateSlotDetail.mockResolvedValue({
+      ...sampleDetail,
+      associations: [
+        {
+          contentTypeName: "percPage",
+          templateName: "perc.page",
+          contentTypeGuid: { stringValue: "0-2-301" },
+          templateGuid: { stringValue: "0-10-1" },
+        },
+      ],
+    });
+    fireEvent.change(screen.getByTestId("developer-slot-assoc-ct"), {
+      target: { value: "percPage" },
+    });
+    fireEvent.change(screen.getByTestId("developer-slot-assoc-tpl"), {
+      target: { value: "perc.page" },
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-assoc-add"));
+    fireEvent.click(screen.getByTestId("developer-slot-save"));
+    await waitFor(() => {
+      expect(updateSlotDetail).toHaveBeenCalled();
+    });
+    const body = updateSlotDetail.mock.calls.at(-1)?.[1] as {
+      associations?: { contentTypeName?: string; templateName?: string }[];
+    };
+    expect(body.associations).toEqual([
+      { contentTypeName: "percPage", templateName: "perc.page" },
+    ]);
+    expect(screen.getByTestId("developer-slot-assoc-ct-name-0").textContent).toBe("percPage");
+  });
+
+  it("surfaces unknown association pair 400 (#4462)", async () => {
+    await renderLoadedSlot();
+    await lockSlotPanel();
+    updateSlotDetail.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "association[0].contentType not found: nope" },
+    });
+    fireEvent.change(screen.getByTestId("developer-slot-assoc-ct"), {
+      target: { value: "nope" },
+    });
+    fireEvent.change(screen.getByTestId("developer-slot-assoc-tpl"), {
+      target: { value: "perc.page" },
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-assoc-add"));
+    fireEvent.click(screen.getByTestId("developer-slot-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-slot-detail-error").textContent).toContain(
+      DEV_MSG.SLOT_ASSOC_UNKNOWN,
     );
   });
 });
