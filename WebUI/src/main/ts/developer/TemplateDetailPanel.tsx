@@ -17,6 +17,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { isApiError } from "../api/client";
+import { isValidContentTypeName } from "../api/developer/contentTypesApi";
 import { resolveTemplateObjectGuid } from "../api/displayFormatGuid";
 import {
   getTemplateDetail,
@@ -28,11 +29,18 @@ import {
 import { downloadXmlFile, exportTemplate } from "../api/developer/templateImportExport";
 import { designGapCode, designGapKey, formatDesignGap } from "../api/developer/designGaps";
 import type {
+  NamedObjectRef,
   SlotSummary,
   TemplateBindingSummary,
   TemplateDetail,
   TemplateSlotSummary,
 } from "../api/developer/types";
+import {
+  cloneNamedObjectRefs,
+  namedObjectRefsEqual,
+  refKey,
+  toNamedObjectRefPayload,
+} from "./contentTypeWorkflows";
 import { catalogColors, monoCell, mutedCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
@@ -237,6 +245,12 @@ function slotsEqual(a: Set<string>, b: Set<string>): boolean {
   return true;
 }
 
+const PERC_GUID_RE = /^\d+-\d+-\d+$/;
+
+function isAllowedContentTypeInput(raw: string): boolean {
+  return isValidContentTypeName(raw) || PERC_GUID_RE.test(raw);
+}
+
 export function TemplateDetailPanel({
   idOrName,
   catalogGuid,
@@ -258,6 +272,9 @@ export function TemplateDetailPanel({
   const [bindings, setBindings] = useState<TemplateBindingSummary[]>([]);
   const [slotKeys, setSlotKeys] = useState<Set<string>>(new Set());
   const [allSlots, setAllSlots] = useState<SlotSummary[]>([]);
+  const [contentTypes, setContentTypes] = useState<NamedObjectRef[]>([]);
+  const [newCtName, setNewCtName] = useState("");
+  const [ctError, setCtError] = useState<string | null>(null);
   /** When true, show editable textarea; otherwise highlighted preview. */
   const [sourceEditing, setSourceEditing] = useState(true);
   const [copyFeedback, setCopyFeedback] = useState<"idle" | "ok" | "err">("idle");
@@ -304,6 +321,9 @@ export function TemplateDetailPanel({
             new Set(slotRows.map((s) => slotKey(s)).filter((k) => k.length > 0)),
           );
           setAllSlots(Array.isArray(slots) ? slots : []);
+          setContentTypes(cloneNamedObjectRefs(d?.associatedContentTypes));
+          setNewCtName("");
+          setCtError(null);
           setLoading(false);
         } catch (applyErr: unknown) {
           // Missing / envelope fields must stay in-panel — never unmount Developer.
@@ -344,6 +364,7 @@ export function TemplateDetailPanel({
   const initialSlotKeys = new Set(
     asSlotList(detail?.slots).map((s) => slotKey(s)).filter((k) => k.length > 0),
   );
+  const initialContentTypes = cloneNamedObjectRefs(detail?.associatedContentTypes);
 
   const dirty =
     detail != null &&
@@ -351,7 +372,13 @@ export function TemplateDetailPanel({
       description !== (detail.description || "") ||
       source !== asSourceText(detail.templateSource) ||
       !bindingsEqual(bindings, initialBindings) ||
-      !slotsEqual(slotKeys, initialSlotKeys));
+      !slotsEqual(slotKeys, initialSlotKeys) ||
+      !namedObjectRefsEqual(contentTypes, initialContentTypes));
+
+  const trimmedCtInput = newCtName.trim();
+  const ctInputValid = !trimmedCtInput || isAllowedContentTypeInput(trimmedCtInput);
+  const canAddContentType =
+    !!trimmedCtInput && ctInputValid && !busy && heldLock && detail != null;
 
   const objectGuid = resolveTemplateObjectGuid(detail, catalogGuid);
 
@@ -402,6 +429,52 @@ export function TemplateDetailPanel({
       return next;
     });
     setNotice(null);
+  }
+
+  function addContentType() {
+    const trimmed = newCtName.trim();
+    if (!trimmed || busy || !heldLock) {
+      return;
+    }
+    if (!isAllowedContentTypeInput(trimmed)) {
+      setCtError(DEV_MSG.TPL_CT_NAME_INVALID);
+      return;
+    }
+    const looksLikeGuid = PERC_GUID_RE.test(trimmed);
+    const exists = contentTypes.some((r) => {
+      if (looksLikeGuid) {
+        return (
+          r.guid?.stringValue === trimmed ||
+          (r.name || "").toLowerCase() === trimmed.toLowerCase()
+        );
+      }
+      return (
+        (r.name || "").toLowerCase() === trimmed.toLowerCase() ||
+        r.guid?.stringValue === trimmed
+      );
+    });
+    if (exists) {
+      setCtError(DEV_MSG.TPL_CT_DUP);
+      return;
+    }
+    setCtError(null);
+    setNotice(null);
+    setContentTypes((prev) => [
+      ...prev,
+      looksLikeGuid
+        ? { guid: { stringValue: trimmed } }
+        : { name: trimmed },
+    ]);
+    setNewCtName("");
+  }
+
+  function removeContentType(index: number) {
+    if (busy || !heldLock) {
+      return;
+    }
+    setCtError(null);
+    setNotice(null);
+    setContentTypes((prev) => prev.filter((_, i) => i !== index));
   }
 
   async function handleLock() {
@@ -505,6 +578,9 @@ export function TemplateDetailPanel({
               })),
             }),
         ...(slotsEqual(slotKeys, initialSlotKeys) ? {} : { slots: slotPayload }),
+        ...(namedObjectRefsEqual(contentTypes, initialContentTypes)
+          ? {}
+          : { associatedContentTypes: toNamedObjectRefPayload(contentTypes) }),
       });
       setDetail(saved);
       setLabel(saved.label || "");
@@ -518,6 +594,8 @@ export function TemplateDetailPanel({
             .filter((x) => x.length > 0),
         ),
       );
+      setContentTypes(cloneNamedObjectRefs(saved.associatedContentTypes));
+      setCtError(null);
       setNotice(DEV_MSG.TPL_SAVED);
     } catch (err: unknown) {
       setError(panelErrMsg(err, DEV_MSG.TPL_SAVE_ERROR));
@@ -933,6 +1011,148 @@ export function TemplateDetailPanel({
                 </table>
               </div>
             )}
+          </section>
+
+          <section style={{ marginBottom: "16px" }} data-testid="developer-tpl-ct-assoc">
+            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.TPL_CT_ASSOC}</h3>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+              {DEV_MSG.TPL_CT_ASSOC_HINT}
+            </p>
+            {ctError ? (
+              <div
+                role="alert"
+                data-testid="developer-tpl-ct-error"
+                style={{ color: catalogColors.error, marginBottom: "8px" }}
+              >
+                {ctError}
+              </div>
+            ) : null}
+            {!ctInputValid ? (
+              <div
+                role="alert"
+                data-testid="developer-tpl-ct-name-invalid"
+                style={{ color: catalogColors.error, marginBottom: "8px" }}
+              >
+                {DEV_MSG.TPL_CT_NAME_INVALID}
+              </div>
+            ) : null}
+            {contentTypes.length === 0 ? (
+              <p style={{ color: catalogColors.empty }} data-testid="developer-tpl-ct-empty">
+                {DEV_MSG.TPL_CT_EMPTY}
+              </p>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table
+                  data-testid="developer-tpl-ct-table"
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  <thead>
+                    <tr style={tableHeaderRow}>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_LABEL}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_NAME}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.TPL_CT_COL_GUID}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_ACTIONS}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {contentTypes.map((ct, i) => (
+                      <tr
+                        key={refKey(ct, i)}
+                        style={tableRow}
+                        data-testid={`developer-tpl-ct-row-${i}`}
+                      >
+                        <td style={{ padding: "8px" }}>{ct.label || "—"}</td>
+                        <td
+                          style={{ padding: "8px", fontFamily: "monospace" }}
+                          data-testid={`developer-tpl-ct-name-${i}`}
+                        >
+                          {ct.name || "—"}
+                        </td>
+                        <td
+                          style={{ padding: "8px", fontFamily: "monospace" }}
+                          data-testid={`developer-tpl-ct-guid-${i}`}
+                        >
+                          {ct.guid?.stringValue ||
+                            (ct.guid?.uuid != null ? String(ct.guid.uuid) : "—")}
+                        </td>
+                        <td style={{ padding: "8px" }}>
+                          <button
+                            type="button"
+                            data-testid={`developer-tpl-ct-remove-${i}`}
+                            aria-label={`${DEV_MSG.TPL_CT_REMOVE} ${
+                              ct.name || ct.label || `row ${i}`
+                            }`}
+                            disabled={busy || !heldLock}
+                            onClick={() => removeContentType(i)}
+                            style={{
+                              background: "transparent",
+                              border: `1px solid ${catalogColors.softBorder}`,
+                              borderRadius: "4px",
+                              padding: "4px 8px",
+                              cursor: busy || !heldLock ? "not-allowed" : "pointer",
+                            }}
+                          >
+                            {DEV_MSG.TPL_CT_REMOVE}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            <div
+              style={{
+                marginTop: "12px",
+                display: "grid",
+                gridTemplateColumns: "1fr auto",
+                gap: "8px",
+                alignItems: "end",
+              }}
+            >
+              <label style={{ display: "block" }}>
+                <span style={{ display: "block", marginBottom: 4, fontSize: "0.85rem" }}>
+                  {DEV_MSG.TPL_CT_ADD}
+                </span>
+                <input
+                  data-testid="developer-tpl-ct-input"
+                  style={inputStyle}
+                  value={newCtName}
+                  disabled={busy || !heldLock}
+                  placeholder={DEV_MSG.TPL_CT_NAME_PLACEHOLDER}
+                  onChange={(e) => {
+                    setNewCtName(e.target.value);
+                    setCtError(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addContentType();
+                    }
+                  }}
+                />
+              </label>
+              <button
+                type="button"
+                data-testid="developer-tpl-ct-add"
+                disabled={!canAddContentType}
+                onClick={addContentType}
+                style={{
+                  padding: "8px 12px",
+                  background: canAddContentType ? catalogColors.accent : catalogColors.disabled,
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: canAddContentType ? "pointer" : "not-allowed",
+                }}
+              >
+                {DEV_MSG.TPL_CT_ADD}
+              </button>
+            </div>
           </section>
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-tpl-source">

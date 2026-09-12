@@ -21,7 +21,9 @@ package com.percussion.apibridge;
 
 import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 import com.percussion.rest.DesignGap;
+import com.percussion.rest.Guid;
 import com.percussion.rest.ObjectLockSummary;
+import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.rest.templates.ITemplatesAdaptor;
 import com.percussion.rest.templates.TemplateBindingSummary;
 import com.percussion.rest.templates.TemplateDetail;
@@ -41,6 +43,7 @@ import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSCatalogException;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.catalog.data.PSObjectSummary;
+import com.percussion.services.contentmgr.data.PSContentTemplateDesc;
 import com.percussion.services.locking.data.PSObjectLock;
 import com.percussion.services.locking.data.PSObjectLockSummary;
 import com.percussion.services.error.PSNotFoundException;
@@ -60,6 +63,7 @@ import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.assembly.IPSAssemblyDesignWs;
 import com.percussion.webservices.assembly.PSAssemblyWsLocator;
 import com.percussion.webservices.assembly.data.PSAssemblyTemplateWs;
+import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.system.IPSSystemDesignWs;
@@ -72,10 +76,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -92,11 +99,17 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   public static final String DEFAULT_CREATE_ASSEMBLER =
       "Java/global/percussion/assembly/htmlAssembler";
 
-  /** API capability notes shared by every detail payload (not per-template data). */
-  static final List<DesignGap> TEMPLATE_DESIGN_GAPS =
-      List.of(
-          DesignGap.of(
-              "TPL_CONTENT_TYPE_ASSOC", "Content-type associations not listed on this payload"));
+  /**
+   * API capability notes shared by every detail payload (not per-template data). Empty after
+   * TPL_CONTENT_TYPE_ASSOC shipped (#4461). Slot association names remain a slot-detail gap.
+   */
+  static final List<DesignGap> TEMPLATE_DESIGN_GAPS = List.of();
+
+  /**
+   * Runtime GET gap when {@link IPSContentDesignWs} association load fails. Distinguishes
+   * "none" from "errored" (empty list + this code). Not a static capability gap.
+   */
+  static final String TPL_CT_ASSOC_LOAD = "TPL_CT_ASSOC_LOAD";
 
   static final String ADMIN_REQUIRED =
       "Admin role required to lock, save, export, or import assembly templates";
@@ -108,6 +121,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   private final IPSContentWs contentwsService;
   private final IPSAssemblyDesignWs designWs;
   private final IPSSystemDesignWs systemDesign;
+  private final IPSContentDesignWs contentDesign;
   private final BooleanSupplier adminChecker;
 
   /**
@@ -123,6 +137,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
         PSContentWsLocator.getContentWebservice(),
         PSAssemblyWsLocator.getAssemblyDesignWebservice(),
         PSSystemWsLocator.getSystemDesignWebservice(),
+        PSContentWsLocator.getContentDesignWebservice(),
         null);
   }
 
@@ -152,10 +167,24 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
       IPSAssemblyDesignWs designWs,
       IPSSystemDesignWs systemDesign,
       BooleanSupplier adminChecker) {
+    this(asmSvc, contentwsService, designWs, systemDesign, null, adminChecker);
+  }
+
+  /**
+   * Package-visible for content-type association tests that inject {@link IPSContentDesignWs}.
+   */
+  TemplateAdaptor(
+      IPSAssemblyService asmSvc,
+      IPSContentWs contentwsService,
+      IPSAssemblyDesignWs designWs,
+      IPSSystemDesignWs systemDesign,
+      IPSContentDesignWs contentDesign,
+      BooleanSupplier adminChecker) {
     this.asmSvc = asmSvc;
     this.contentwsService = contentwsService;
     this.designWs = designWs;
     this.systemDesign = systemDesign;
+    this.contentDesign = contentDesign;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
   }
 
@@ -220,11 +249,20 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
         return null;
       }
       requireHeldLock(current.getGUID(), "Could not save template");
+      List<NamedObjectRef> assoc = body.getAssociatedContentTypes();
+      if (assoc != null) {
+        // Validate names/guids before mutating or saveTemplate so a 400 unknown
+        // type is a no-op (label/source/bindings/slots must not persist).
+        validateAssociatedContentTypes(assoc);
+      }
       applyMutableTemplateUpdates(current, body);
       // Persist through the assembly catalog (same path as pre-lock PUT). Design-WS
       // save replaces Hibernate orphan collections. Lock is checked above and not
       // released here — clients call POST .../unlock.
       asmSvc.saveTemplate(current);
+      if (assoc != null) {
+        replaceAssociatedContentTypes(current.getGUID(), assoc);
+      }
       IPSAssemblyTemplate reloaded = resolveTemplate(trimmed);
       return reloaded != null ? toDetail(reloaded) : toDetail(current);
     } catch (IllegalArgumentException | IllegalStateException | WebApplicationException e) {
@@ -1125,8 +1163,324 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
               TemplateSlotSummary::getLabel, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
     }
     d.setSlots(slots);
-    d.setDesignGaps(new ArrayList<>(TEMPLATE_DESIGN_GAPS));
+    List<DesignGap> gaps = new ArrayList<>(TEMPLATE_DESIGN_GAPS);
+    d.setAssociatedContentTypes(loadAssociatedContentTypes(t.getGUID(), gaps));
+    d.setDesignGaps(gaps);
     return d;
+  }
+
+  private List<NamedObjectRef> loadAssociatedContentTypes(
+      IPSGuid templateGuid, List<DesignGap> gaps) {
+    List<NamedObjectRef> out = new ArrayList<>();
+    if (templateGuid == null || contentDesign == null) {
+      return out;
+    }
+    try {
+      List<PSContentTemplateDesc> descs =
+          contentDesign.loadAssociatedTemplates(null, false, false, currentSession(), currentUser());
+      if (descs == null) {
+        return out;
+      }
+      Map<Integer, IPSCatalogSummary> byUuid = contentTypeSummariesByUuid();
+      for (PSContentTemplateDesc desc : descs) {
+        if (desc == null || !sameTemplate(desc.getTemplateId(), templateGuid)) {
+          continue;
+        }
+        IPSGuid ctGuid = desc.getContentTypeId();
+        if (ctGuid == null) {
+          continue;
+        }
+        IPSCatalogSummary sum = byUuid.get(ctGuid.getUUID());
+        out.add(toContentTypeRef(ctGuid, sum));
+      }
+    } catch (Exception e) {
+      log.warn(
+          "Could not load content-type associations for template {}", templateGuid, e);
+      if (gaps != null) {
+        gaps.add(
+            DesignGap.of(
+                TPL_CT_ASSOC_LOAD,
+                "Could not load content-type associations; listed types may be incomplete"));
+      }
+    }
+    out.sort(
+        Comparator.comparing(
+            r -> r.getLabel() != null ? r.getLabel() : "", String.CASE_INSENSITIVE_ORDER));
+    return out;
+  }
+
+  private Map<Integer, IPSCatalogSummary> contentTypeSummariesByUuid() {
+    Map<Integer, IPSCatalogSummary> out = new LinkedHashMap<>();
+    if (contentDesign == null) {
+      return out;
+    }
+    List<IPSCatalogSummary> found = contentDesign.findContentTypes(null);
+    if (found == null) {
+      return out;
+    }
+    for (IPSCatalogSummary sum : found) {
+      if (sum != null && sum.getGUID() != null) {
+        out.put(sum.getGUID().getUUID(), sum);
+      }
+    }
+    return out;
+  }
+
+  private static NamedObjectRef toContentTypeRef(IPSGuid ctGuid, IPSCatalogSummary sum) {
+    NamedObjectRef ref = new NamedObjectRef();
+    try {
+      ref.setGuid(ApiUtils.convertGuid(sum != null && sum.getGUID() != null ? sum.getGUID() : ctGuid));
+    } catch (Exception ignore) {
+      // optional
+    }
+    String name = sum != null ? catalogWireName(sum.getName()) : String.valueOf(ctGuid.getUUID());
+    ref.setName(name);
+    String label = sum != null ? sum.getLabel() : name;
+    ref.setLabel(StringUtils.defaultIfBlank(label, name));
+    return ref;
+  }
+
+  private static String catalogWireName(String name) {
+    if (name != null && name.startsWith("rx:")) {
+      return name.substring(3);
+    }
+    return name;
+  }
+
+  /**
+   * Replace template→content-type rows via {@link IPSContentDesignWs} (same lock/save as
+   * content-type allowed-templates). Empty list clears; caller must omit the field to preserve.
+   *
+   * <p>Diff keys are content-type {@link IPSGuid#getUUID() UUID}s. Add/remove pass the catalog or
+   * descriptor GUID (host+type+uuid), never a host-0 reconstruction from REST {@code Guid.uuid}.
+   * REST uuid and {@link IPSGuid#longValue()} diverge when hostId != 0, which made add succeed
+   * (desired longValue not in current uuid set) and remove miss the row (current uuid not in
+   * desired longValues, then {@code new PSGuid(NODEDEF, uuid)} failed to lock/load the CT).
+   */
+  private void validateAssociatedContentTypes(List<NamedObjectRef> refs) {
+    int i = 0;
+    for (NamedObjectRef ref : refs) {
+      if (ref == null) {
+        throw new IllegalArgumentException("associatedContentTypes[" + i + "] is null");
+      }
+      resolveContentTypeSummary(ref, "associatedContentTypes[" + i + "]");
+      i++;
+    }
+  }
+
+  private void replaceAssociatedContentTypes(IPSGuid templateGuid, List<NamedObjectRef> refs) {
+    if (contentDesign == null) {
+      throw new IllegalStateException(
+          "Could not save content-type associations; content design service unavailable");
+    }
+    if (templateGuid == null) {
+      throw new IllegalStateException("Could not save content-type associations; template GUID missing");
+    }
+    Map<Integer, IPSGuid> current = associatedContentTypeGuids(templateGuid);
+    Map<Integer, IPSGuid> desired = new LinkedHashMap<>();
+    int i = 0;
+    for (NamedObjectRef ref : refs) {
+      if (ref == null) {
+        throw new IllegalArgumentException("associatedContentTypes[" + i + "] is null");
+      }
+      IPSCatalogSummary sum = resolveContentTypeSummary(ref, "associatedContentTypes[" + i + "]");
+      IPSGuid ctGuid = persistableContentTypeGuid(sum.getGUID());
+      desired.put(ctGuid.getUUID(), ctGuid);
+      i++;
+    }
+    for (Map.Entry<Integer, IPSGuid> e : desired.entrySet()) {
+      if (!current.containsKey(e.getKey())) {
+        addTemplateToContentType(e.getValue(), templateGuid);
+      }
+    }
+    for (Map.Entry<Integer, IPSGuid> e : current.entrySet()) {
+      if (!desired.containsKey(e.getKey())) {
+        removeTemplateFromContentType(e.getValue(), templateGuid);
+      }
+    }
+  }
+
+  /**
+   * Workbench {@link PSContentTemplateDesc#getContentTypeId()} rebuilds {@code new PSGuid(NODEDEF,
+   * storedLong)}. Stored values are often UUID-only, so the rebuilt GUID is host-0 while {@code
+   * findContentTypes} returns the catalog/host GUID. Lock/load/save must use the catalog GUID
+   * (same as add); host-0 save is a no-op on the real node and PUT still lists the type.
+   */
+  private IPSGuid persistableContentTypeGuid(IPSGuid fromDescOrCatalog) {
+    if (fromDescOrCatalog == null) {
+      return null;
+    }
+    IPSCatalogSummary sum = contentTypeSummariesByUuid().get(fromDescOrCatalog.getUUID());
+    if (sum != null && sum.getGUID() != null) {
+      return sum.getGUID();
+    }
+    return fromDescOrCatalog;
+  }
+
+  /**
+   * Content types currently associated with {@code templateGuid}, keyed by UUID. Persist GUIDs are
+   * {@code findContentTypes} catalog GUIDs (same as add). Descriptor {@code getContentTypeId()} is
+   * remapped; a host-0 NODEDEF rebuild is never passed to lock/load/save.
+   */
+  private Map<Integer, IPSGuid> associatedContentTypeGuids(IPSGuid templateGuid) {
+    Map<Integer, IPSGuid> out = new LinkedHashMap<>();
+    if (templateGuid == null || contentDesign == null) {
+      return out;
+    }
+    try {
+      List<PSContentTemplateDesc> descs =
+          contentDesign.loadAssociatedTemplates(null, false, false, currentSession(), currentUser());
+      if (descs == null) {
+        return out;
+      }
+      for (PSContentTemplateDesc desc : descs) {
+        if (desc == null || !sameTemplate(desc.getTemplateId(), templateGuid)) {
+          continue;
+        }
+        IPSGuid ctGuid = persistableContentTypeGuid(desc.getContentTypeId());
+        if (ctGuid != null) {
+          out.put(ctGuid.getUUID(), ctGuid);
+        }
+      }
+    } catch (PSErrorResultsException e) {
+      throw new WebApplicationException(
+          "Could not save content-type associations; design lock required or held by another user",
+          409);
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new IllegalStateException("Could not load content-type associations", e);
+    }
+    return out;
+  }
+
+  private void addTemplateToContentType(IPSGuid ctGuid, IPSGuid templateGuid) {
+    List<IPSGuid> next = new ArrayList<>(templateGuidsForContentType(ctGuid));
+    if (!containsGuid(next, templateGuid)) {
+      next.add(templateGuid);
+    }
+    saveTemplateGuids(ctGuid, next);
+  }
+
+  private void removeTemplateFromContentType(IPSGuid ctGuid, IPSGuid templateGuid) {
+    List<IPSGuid> loaded = templateGuidsForContentType(ctGuid);
+    List<IPSGuid> next = new ArrayList<>();
+    for (IPSGuid g : loaded) {
+      if (g != null && !sameTemplate(g, templateGuid)) {
+        next.add(g);
+      }
+    }
+    saveTemplateGuids(ctGuid, next);
+  }
+
+  private List<IPSGuid> templateGuidsForContentType(IPSGuid ctGuid) {
+    try {
+      List<PSContentTemplateDesc> descs =
+          contentDesign.loadAssociatedTemplates(
+              ctGuid, true, true, currentSession(), currentUser());
+      List<IPSGuid> out = new ArrayList<>();
+      if (descs != null) {
+        for (PSContentTemplateDesc desc : descs) {
+          if (desc != null && desc.getTemplateId() != null) {
+            out.add(desc.getTemplateId());
+          }
+        }
+      }
+      return out;
+    } catch (PSErrorResultsException e) {
+      throw new WebApplicationException(
+          "Could not save content-type associations; design lock required or held by another user",
+          409);
+    }
+  }
+
+  private void saveTemplateGuids(IPSGuid ctGuid, List<IPSGuid> templateIds) {
+    try {
+      contentDesign.saveAssociatedTemplates(
+          ctGuid, templateIds, true, currentSession(), currentUser());
+    } catch (PSErrorsException e) {
+      if (isLockFailure(e)) {
+        throw new WebApplicationException(
+            "Could not save content-type associations; design lock required or held by another user",
+            409);
+      }
+      log.error("Failed to save content-type associations: {}", e.getMessage(), e);
+      throw new IllegalStateException("Failed to save content-type associations", e);
+    }
+  }
+
+  private static boolean containsGuid(List<IPSGuid> guids, IPSGuid want) {
+    for (IPSGuid g : guids) {
+      if (sameTemplate(g, want)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Template identity: {@link IPSGuid#equals} (Workbench save path), then {@code longValue}, then
+   * UUID. Host-0 longValue is UUID-only while equals uses packed m_guid.
+   */
+  private static boolean sameTemplate(IPSGuid a, IPSGuid b) {
+    if (a == null || b == null) {
+      return false;
+    }
+    if (a.equals(b)) {
+      return true;
+    }
+    if (a.longValue() == b.longValue()) {
+      return true;
+    }
+    return a.getUUID() == b.getUUID();
+  }
+
+  private IPSCatalogSummary resolveContentTypeSummary(NamedObjectRef ref, String field) {
+    Map<Integer, IPSCatalogSummary> byUuid = contentTypeSummariesByUuid();
+    if (ref.getGuid() != null) {
+      int uuid = contentTypeUuidFromRestGuid(ref.getGuid());
+      if (uuid > 0) {
+        IPSCatalogSummary sum = byUuid.get(uuid);
+        if (sum != null) {
+          return sum;
+        }
+        throw new IllegalArgumentException(field + " content type not found: " + uuid);
+      }
+    }
+    if (StringUtils.isNotBlank(ref.getName())) {
+      String want = ref.getName().trim();
+      if (want.contains("*")) {
+        throw new IllegalArgumentException(field + " must not contain wildcards");
+      }
+      for (IPSCatalogSummary sum : byUuid.values()) {
+        if (sum == null) {
+          continue;
+        }
+        String wire = catalogWireName(sum.getName());
+        if (want.equalsIgnoreCase(StringUtils.defaultString(wire))
+            || want.equalsIgnoreCase(StringUtils.defaultString(sum.getName()))
+            || want.equalsIgnoreCase(StringUtils.defaultString(sum.getLabel()))) {
+          return sum;
+        }
+      }
+      throw new IllegalArgumentException(field + " content type not found: " + want);
+    }
+    throw new IllegalArgumentException(field + " requires name or guid");
+  }
+
+  private static int contentTypeUuidFromRestGuid(Guid guid) {
+    if (guid == null) {
+      return 0;
+    }
+    if (StringUtils.isNotBlank(guid.getStringValue())) {
+      try {
+        IPSGuid g = ApiUtils.convertGuid(guid);
+        return g != null ? g.getUUID() : 0;
+      } catch (RuntimeException e) {
+        throw new IllegalArgumentException("associatedContentTypes invalid guid", e);
+      }
+    }
+    return guid.getUuid() > 0 ? guid.getUuid() : 0;
   }
 
   /**

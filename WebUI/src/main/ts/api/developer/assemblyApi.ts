@@ -134,6 +134,7 @@ export function wrapTemplateDetailForWire(
       | "mimeType"
       | "bindings"
       | "slots"
+      | "associatedContentTypes"
     >
   >,
 ): Record<string, typeof body> {
@@ -274,18 +275,25 @@ export async function getTemplateDetail(
 }
 
 /**
- * PUT /services/templates/{idOrName} — label, description, source, optional bindings/slots.
- * Admin. Requires a held design-session lock ({@link lockTemplate}); HTTP 409 when unlocked
- * or stolen. Omitted fields are left unchanged server-side; {@code bindings}/{@code slots}
- * when present fully replace the collection (including empty list). Request body is
- * root-wrapped for server UNWRAP_ROOT_VALUE; response is unwrapped the same way as GET.
+ * PUT /services/templates/{idOrName} — label, description, source, optional bindings/slots/
+ * associatedContentTypes. Admin. Requires a held design-session lock ({@link lockTemplate});
+ * HTTP 409 when unlocked or stolen. Omitted fields are left unchanged server-side;
+ * {@code bindings}/{@code slots}/{@code associatedContentTypes} when present fully replace
+ * the collection (including empty list). Request body is root-wrapped for server
+ * UNWRAP_ROOT_VALUE; response is unwrapped the same way as GET.
  */
 export async function updateTemplateDetail(
   idOrName: string,
   body: Partial<
     Pick<
       TemplateDetail,
-      "label" | "description" | "templateSource" | "assembler" | "bindings" | "slots"
+      | "label"
+      | "description"
+      | "templateSource"
+      | "assembler"
+      | "bindings"
+      | "slots"
+      | "associatedContentTypes"
     >
   >,
 ): Promise<TemplateDetail> {

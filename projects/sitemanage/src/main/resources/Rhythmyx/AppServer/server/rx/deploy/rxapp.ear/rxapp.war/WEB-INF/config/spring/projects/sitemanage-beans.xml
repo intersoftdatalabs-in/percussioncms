@@ -168,6 +168,9 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <!-- #4098: PUT display format allowedCommunities:[] must stay empty (all
                  communities), not null/omit, under CXF UNWRAP_ROOT_VALUE. -->
             <ref bean="displayFormatJsonReader" />
+            <!-- #4465: PUT template associatedContentTypes:[] must stay empty (clear),
+                 not null/omit, under CXF UNWRAP_ROOT_VALUE. -->
+            <ref bean="templateDetailJsonReader" />
             <!-- #4028 CD-18: PUT /locales/auto-translations wrap or bare array. -->
             <ref bean="autoTranslationRowsJsonReader" />
             <ref bean="jacksonProvider" />

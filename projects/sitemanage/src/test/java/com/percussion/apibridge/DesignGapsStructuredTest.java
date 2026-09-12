@@ -116,11 +116,12 @@ class DesignGapsStructuredTest {
   }
 
   @Test
-  void templateDesignGaps_areStructured() {
-    assertEquals(1, TemplateAdaptor.TEMPLATE_DESIGN_GAPS.size());
-    DesignGap first = TemplateAdaptor.TEMPLATE_DESIGN_GAPS.get(0);
-    assertEquals("TPL_CONTENT_TYPE_ASSOC", first.getCode());
-    assertTrue(first.getMessage().contains("Content-type"));
+  void templateDesignGaps_dropContentTypeAssocWhenShipped() {
+    assertTrue(
+        TemplateAdaptor.TEMPLATE_DESIGN_GAPS.stream()
+            .noneMatch(g -> "TPL_CONTENT_TYPE_ASSOC".equals(g.getCode())),
+        () -> TemplateAdaptor.TEMPLATE_DESIGN_GAPS.toString());
+    assertEquals(0, TemplateAdaptor.TEMPLATE_DESIGN_GAPS.size());
   }
 
   @Test

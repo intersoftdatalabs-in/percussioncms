@@ -250,9 +250,9 @@ Assembly templates used by the [Design SPA](id:admin-design-templates) are expos
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/services/templates` | List template summaries (label, name, id, description) |
-| `GET` | `/services/templates/{idOrName}` | Design detail (source, bindings, slots, assembler, `designGaps`) |
+| `GET` | `/services/templates/{idOrName}` | Design detail (source, bindings, slots, associated content types, assembler, `designGaps`) |
 | `GET` | `/services/templates/{idOrName}/export` | **Admin.** AS-08 export: Workbench-equivalent design XML (no lock steal). Import is not on this path |
-| `PUT` | `/services/templates/{idOrName}` | **Admin.** Update label, description, templateSource, assembler, bindings, and/or slots. Requires a held design-session lock |
+| `PUT` | `/services/templates/{idOrName}` | **Admin.** Update label, description, templateSource, assembler, bindings, slots, and/or associated content types. Requires a held design-session lock |
 | `POST` | `/services/templates/{idOrName}/lock` | **Admin.** Acquire a self-only design-session lock (does not save; does not steal) |
 | `POST` | `/services/templates/{idOrName}/unlock` | **Admin.** Release a lock owned by this session (does not save; does not steal) |
 | `POST` | `/services/templates` | Create a modern assembly template (**when installed**) — no Widget XML |
@@ -264,8 +264,15 @@ Assembly templates used by the [Design SPA](id:admin-design-templates) are expos
 the template is removed and **404** when it is not found. `PUT` requires a lock
 already held by the current Admin session (`POST .../lock`); unlocked or stolen
 locks are **409**. Non-Admin callers are **403**. Save does not release the lock
-(`POST .../unlock`). Content-type associations remain out of scope on this payload
-(`designGaps` code `TPL_CONTENT_TYPE_ASSOC`).
+(`POST .../unlock`). `associatedContentTypes` on GET lists name + guid. PUT: a present
+list replaces associations (empty clears); omit preserves. Remove+save must send the
+remaining list (or `[]`); omitting the field after a UI remove leaves the association
+in place. Unknown content-type id/name
+is **400** and does **not** persist other PUT fields (associations are validated
+before template save). Guid-only refs may omit `name`. GET may include runtime
+`designGaps` code `TPL_CT_ASSOC_LOAD` when association load fails (empty list is
+then incomplete, not “none”). The former `designGaps` code `TPL_CONTENT_TYPE_ASSOC`
+is no longer emitted.
 Create (`POST /services/templates`) is the Design **Create template** contract when that
 slice is on the server; otherwise create stays on residual classic hosts.
 
@@ -1494,10 +1501,10 @@ Create uses the modern package/manifest model — **no Widget definition XML**.
 |--------|------|---------|
 | `GET` | `/services/templates` | List template summaries (design catalog) |
 | `POST` | `/services/templates/summaries-by-filter` | Filter summaries (for example by content id) |
-| `GET` | `/services/templates/{idOrName}` | Load design detail (source, bindings, slots, assembler) |
+| `GET` | `/services/templates/{idOrName}` | Load design detail (source, bindings, slots, associated content types, assembler) |
 | `GET` | `/services/templates/{idOrName}/export` | **Admin.** AS-08 export of Workbench-equivalent design XML |
 | `POST` | `/services/templates/import` | **Admin.** AS-08 import of one Workbench-equivalent `assembly-template` XML |
-| `PUT` | `/services/templates/{idOrName}` | **Admin.** Update label, description, source, assembler, bindings, slots (held lock required) |
+| `PUT` | `/services/templates/{idOrName}` | **Admin.** Update label, description, source, assembler, bindings, slots, associated content types (held lock required) |
 | `POST` | `/services/templates/{idOrName}/lock` | **Admin.** Self-only design-session lock |
 | `POST` | `/services/templates/{idOrName}/unlock` | **Admin.** Release a lock owned by this session |
 | `POST` | `/services/templates` | Create a modern assembly template (`name` required, unique, no spaces) |
@@ -1540,8 +1547,16 @@ session. Neither call saves the template or steals another user's lock.
 | `404` | Unknown id or name |
 | `409` | Unlocked PUT, or lock owned by another user |
 
-Content-type associations remain out of scope on this payload (`designGaps` code
-`TPL_CONTENT_TYPE_ASSOC`).
+`associatedContentTypes` is an array of named object refs (`name`, `label`, `guid`). GET
+always includes it (empty when none). PUT replaces the set when the field is present;
+empty \[]\ clears (bound before CXF UNWRAP_ROOT_VALUE so it is not treated as omit); omit preserves. A Developer Templates **Remove** then **Save** must PUT
+the remaining array (including `[]`); the server keys replace by content-type UUID and
+locks each content type with its **catalog** GUID from `findContentTypes` (never a
+host-0 rebuild of the association descriptor, which made add persist and remove no-op).
+Unknown content-type name or guid is **400** and does not persist other PUT
+fields. Guid-only refs may omit `name`. GET may emit `TPL_CT_ASSOC_LOAD` when
+association load fails. Template detail `designGaps` no longer includes
+`TPL_CONTENT_TYPE_ASSOC`.
 
 ### Template design XML export (AS-08)
 

@@ -583,4 +583,172 @@ describe("TemplateDetailPanel", () => {
     });
     expect(downloadXmlFile).not.toHaveBeenCalled();
   });
+
+  it("lists associated content types with name and guid (#4461)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      associatedContentTypes: [
+        {
+          name: "percPage",
+          label: "Page",
+          guid: { stringValue: "0-6-311", uuid: 311 },
+        },
+      ],
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-ct-assoc")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-tpl-ct-table")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-ct-name-0").textContent).toContain("percPage");
+    expect(screen.getByTestId("developer-tpl-ct-guid-0").textContent).toContain("0-6-311");
+    expect((screen.getByTestId("developer-tpl-ct-add") as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByTestId("developer-tpl-ct-remove-0") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+  });
+
+  it("locks then add/remove content types and save keeps lock (#4461)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      associatedContentTypes: [
+        { name: "percPage", label: "Page", guid: { stringValue: "0-6-311", uuid: 311 } },
+      ],
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-ct-assoc")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    fireEvent.change(screen.getByTestId("developer-tpl-ct-input"), {
+      target: { value: "percImage" },
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-ct-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-ct-name-1").textContent).toContain("percImage");
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-ct-remove-0"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-tpl-ct-name-1")).toBeNull();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-save"));
+    await waitFor(() => {
+      expect(updateTemplateDetailMock).toHaveBeenCalled();
+    });
+    const body = updateTemplateDetailMock.mock.calls.at(-1)?.[1] as {
+      associatedContentTypes?: { name?: string }[];
+    };
+    expect(body.associatedContentTypes).toEqual([{ name: "percImage" }]);
+    expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+  });
+
+  it("remove after add+save PUTs remaining associatedContentTypes without removed type (#4465)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      associatedContentTypes: [
+        { name: "percPage", label: "Page", guid: { stringValue: "0-6-311", uuid: 311 } },
+      ],
+    });
+    updateTemplateDetailMock.mockImplementation(async (_id, body) => ({
+      ...sampleDetail,
+      ...body,
+      associatedContentTypes: (body.associatedContentTypes || []).map((r: { name?: string }) => ({
+        name: r.name,
+        label: r.name,
+        guid: r.name === "percPage" ? { stringValue: "0-6-311", uuid: 311 } : { stringValue: "0-6-312", uuid: 312 },
+      })),
+    }));
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-ct-assoc")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    fireEvent.change(screen.getByTestId("developer-tpl-ct-input"), {
+      target: { value: "percImageAsset" },
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-ct-add"));
+    fireEvent.click(screen.getByTestId("developer-tpl-save"));
+    await waitFor(() => {
+      expect(updateTemplateDetailMock).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-ct-name-1").textContent).toContain("percImageAsset");
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-ct-remove-1"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-tpl-ct-name-1")).toBeNull();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-save"));
+    await waitFor(() => {
+      expect(updateTemplateDetailMock.mock.calls.length).toBeGreaterThanOrEqual(2);
+    });
+    const body = updateTemplateDetailMock.mock.calls.at(-1)?.[1] as {
+      associatedContentTypes?: { name?: string }[];
+    };
+    expect(body.associatedContentTypes).toBeDefined();
+    expect(body.associatedContentTypes?.map((r) => r.name)).toEqual(["percPage"]);
+  });
+
+  it("remove last content type PUTs empty associatedContentTypes (#4465)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      associatedContentTypes: [
+        { name: "percPage", label: "Page", guid: { stringValue: "0-6-311", uuid: 311 } },
+      ],
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-ct-assoc")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-ct-remove-0"));
+    fireEvent.click(screen.getByTestId("developer-tpl-save"));
+    await waitFor(() => {
+      expect(updateTemplateDetailMock).toHaveBeenCalled();
+    });
+    const body = updateTemplateDetailMock.mock.calls.at(-1)?.[1] as {
+      associatedContentTypes?: { name?: string }[];
+    };
+    expect(body.associatedContentTypes).toEqual([]);
+  });
+
+  it("guid-only add omits name from PUT payload (#4464)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      associatedContentTypes: [],
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-ct-assoc")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    fireEvent.change(screen.getByTestId("developer-tpl-ct-input"), {
+      target: { value: "0-6-312" },
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-ct-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-ct-guid-0").textContent).toContain("0-6-312");
+    });
+    expect(screen.getByTestId("developer-tpl-ct-name-0").textContent).toBe("—");
+    fireEvent.click(screen.getByTestId("developer-tpl-save"));
+    await waitFor(() => {
+      expect(updateTemplateDetailMock).toHaveBeenCalled();
+    });
+    const body = updateTemplateDetailMock.mock.calls.at(-1)?.[1] as {
+      associatedContentTypes?: { name?: string; guid?: { stringValue?: string } }[];
+    };
+    expect(body.associatedContentTypes).toEqual([{ guid: { stringValue: "0-6-312" } }]);
+  });
 });
