@@ -292,7 +292,7 @@
              Product has no junrar API usage (issue #1672): exclude junrar from
              tika-parsers-standard-package in dependencyManagement; archive handling
              uses commons-compress (${commons.compress.version}). -->
-        <tika.version>3.3.1</tika.version>
+        <tika.version>4.0.0</tika.version>
         <!-- TinyMCE 6.8.x is the last series under the MIT license. -->
         <!-- TinyMCE 7+ switched to GPL-2.0-or-later, which is incompatible -->
         <!-- with this project's Apache 2.0 license for distribution. -->
