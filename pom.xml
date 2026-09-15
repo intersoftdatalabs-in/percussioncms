@@ -267,7 +267,7 @@
         <skin.last.release.version>1.3.1</skin.last.release.version>
         <skipITs>true</skipITs>
         <skipTests>false</skipTests>
-        <slf4j.version>2.0.18</slf4j.version>
+        <slf4j.version>2.0.19</slf4j.version>
         <snakeyaml.version>2.5</snakeyaml.version>
         <!-- SolrJ 10 (#1997 cutover + #1998 packaging / parent #1788):
              Product HTTP path uses HttpJdkSolrClient from solr-solrj core (JDK java.net.http).
