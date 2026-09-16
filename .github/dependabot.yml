@@ -20,6 +20,13 @@ updates:
       - dependency-name: "org.apache.solr:*"
         update-types:
           - "version-update:semver-major"
+      # Tika 4.x is a breaking migration (JSON config, Parser SPI, Markdown
+      # default, tika-parsers-standard-package is a POM not a JAR). Stay on
+      # 3.x until a dedicated epic. Reverted #4474 (3.3.1 → 4.0.0) which
+      # broke Maven resolution. Patch/minor within 3.x remain allowed.
+      - dependency-name: "org.apache.tika:*"
+        update-types:
+          - "version-update:semver-major"
 
   # npm / frontend packages (lockfiles present). Dual WebUI roots stay in lockstep:
   # WebUI/package.json and WebUI/src/main/frontend (Maven frontend-maven-plugin).

@@ -288,11 +288,18 @@
         <surefireArgLine/>
         <swagger.ui.version>5.32.11</swagger.ui.version>
         <swagger.version>2.2.52</swagger.version>
-        <!-- Tika 3.3.1 would pull junrar 7.6.0 via tika-parser-pkg-module.
-             Product has no junrar API usage (issue #1672): exclude junrar from
-             tika-parsers-standard-package in dependencyManagement; archive handling
-             uses commons-compress (${commons.compress.version}). -->
-        <tika.version>4.0.0</tika.version>
+        <!-- Stay on Tika 3.x. Tika 4.0 (Dependabot #4474) is not a drop-in:
+             parsers-standard-package is a POM not a JAR (TIKA-4712), TikaConfig
+             is replaced by TikaLoader, config is JSON not XML, Parser SPI takes
+             TikaInputStream, default extract is Markdown, metadata keys renamed.
+             3.3.2 is the current 3.x maintenance line. Dependabot majors for
+             org.apache.tika:* are frozen in .github/dependabot.yml until a
+             dedicated 4.x epic. Tika 3.3.x would pull junrar via
+             tika-parser-pkg-module; product has no junrar API usage (issue
+             #1672): exclude junrar from tika-parsers-standard-package in
+             dependencyManagement; archive handling uses commons-compress
+             (${commons.compress.version}). -->
+        <tika.version>3.3.2</tika.version>
         <!-- TinyMCE 6.8.x is the last series under the MIT license. -->
         <!-- TinyMCE 7+ switched to GPL-2.0-or-later, which is incompatible -->
         <!-- with this project's Apache 2.0 license for distribution. -->
