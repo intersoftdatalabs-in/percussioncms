@@ -118,7 +118,7 @@
         <derby.version>10.17.1.0</derby.version>
         <duplicate.finder.maven.plugin.version>1.4.0</duplicate.finder.maven.plugin.version>
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
-        <ehcache.version>3.10.8</ehcache.version>
+        <ehcache.version>3.12.0</ehcache.version>
         <esapi.encoder.version>1.4.0</esapi.encoder.version>
         <!-- full org.owasp.esapi removed (issue #1675); OWASP Java Encoder only -->
         <failsafeArgLine/>
