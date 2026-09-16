@@ -1144,11 +1144,23 @@ export interface ExtensionDef {
   designGaps?: string[];
 }
 
+/** One condition clause on a relationship-type effect. */
+export interface RelationshipTypeEffectCondition {
+  variable?: string;
+  operator?: string;
+  value?: string;
+  booleanOperator?: string;
+}
+
 /** Effect row on a relationship type. */
 export interface RelationshipTypeEffectSummary {
   name?: string;
   extensionRef?: string;
   activationEndPoint?: string;
+  conditions?: RelationshipTypeEffectCondition[];
+  executionContexts?: string[];
+  clearConditions?: boolean;
+  clearExecutionContexts?: boolean;
 }
 
 /** Property row on a relationship type. */

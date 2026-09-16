@@ -109,6 +109,8 @@ describe("RelationshipTypeDetailPanel", () => {
     expect(screen.getByTestId("developer-rt-sysprops-table")).toBeTruthy();
     expect(screen.getByTestId("developer-rt-userprops-table")).toBeTruthy();
     expect(screen.getByTestId("developer-rt-gaps").textContent).toContain("gap-a");
+    expect(screen.getByTestId("developer-rt-effect-cond-empty-0")).toBeTruthy();
+    expect(screen.queryByTestId("developer-rt-effect-cond-add-0")).toBeNull();
     expect(screen.getByTestId("developer-rt-clone-overrides")).toBeTruthy();
     expect(screen.getByTestId("developer-rt-clone-empty")).toBeTruthy();
     expect(screen.queryByTestId("developer-rt-clone-add")).toBeNull();
@@ -214,6 +216,83 @@ describe("RelationshipTypeDetailPanel", () => {
       expect(deleteRelationshipType).toHaveBeenCalledWith("MyUserRel");
     });
     expect(onDeleted).toHaveBeenCalled();
+  });
+
+  it("saves effect conditions and execution contexts on a user type", async () => {
+    const withEffect = {
+      ...sampleUserDetail,
+      effects: [
+        {
+          name: "sys_Literal",
+          extensionRef: "Java/global/percussion/generic/sys_Literal",
+          activationEndPoint: "owner",
+          conditions: [],
+          executionContexts: [],
+        },
+      ],
+    };
+    getRelationshipTypeDetail.mockResolvedValue(withEffect);
+    updateRelationshipType.mockResolvedValue({
+      ...withEffect,
+      effects: [
+        {
+          ...withEffect.effects[0],
+          conditions: [{ variable: "sys_title", operator: "=", value: "yes" }],
+          executionContexts: ["PreConstruction"],
+        },
+      ],
+    });
+    render(<RelationshipTypeDetailPanel idOrName="MyUserRel" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-rt-effect-cond-add-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-rt-effect-cond-add-0"));
+    fireEvent.change(screen.getByTestId("developer-rt-effect-cond-var-0-0"), {
+      target: { value: "sys_title" },
+    });
+    fireEvent.change(screen.getByTestId("developer-rt-effect-cond-value-0-0"), {
+      target: { value: "yes" },
+    });
+    fireEvent.click(screen.getByTestId("developer-rt-effect-ctx-0-PreConstruction"));
+    fireEvent.click(screen.getByTestId("developer-rt-save"));
+    await waitFor(() => {
+      expect(updateRelationshipType).toHaveBeenCalled();
+    });
+    const body = updateRelationshipType.mock.calls[0][1] as {
+      effects?: Array<{
+        conditions?: Array<{ variable?: string; value?: string }>;
+        executionContexts?: string[];
+      }>;
+    };
+    expect(body.effects?.[0]?.conditions?.[0]?.variable).toBe("sys_title");
+    expect(body.effects?.[0]?.conditions?.[0]?.value).toBe("yes");
+    expect(body.effects?.[0]?.executionContexts).toContain("PreConstruction");
+  });
+
+  it("blocks save when an effect condition is incomplete", async () => {
+    const withEffect = {
+      ...sampleUserDetail,
+      effects: [
+        {
+          name: "sys_Literal",
+          extensionRef: "Java/global/percussion/generic/sys_Literal",
+          activationEndPoint: "owner",
+          conditions: [],
+          executionContexts: [],
+        },
+      ],
+    };
+    getRelationshipTypeDetail.mockResolvedValue(withEffect);
+    render(<RelationshipTypeDetailPanel idOrName="MyUserRel" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-rt-effect-cond-add-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-rt-effect-cond-add-0"));
+    fireEvent.change(screen.getByTestId("developer-rt-effect-cond-value-0-0"), {
+      target: { value: "yes" },
+    });
+    expect(screen.getByTestId("developer-rt-effect-incomplete")).toBeTruthy();
+    expect(screen.getByTestId("developer-rt-save")).toBeDisabled();
   });
 
   it("shows empty effects/props sections when detail has none", async () => {

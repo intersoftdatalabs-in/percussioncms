@@ -25,7 +25,7 @@ describe("REST-GAPS-02 SPA designGaps fallbacks", () => {
   it("exposes non-empty catalog constants for server-omitted list gaps", () => {
     expect(SERVER_CONFIG_DESIGN_GAPS.length).toBeGreaterThan(0);
     expect(CONTROL_DESIGN_GAPS.length).toBeGreaterThan(0);
-    expect(RELATIONSHIP_TYPE_DESIGN_GAPS.length).toBeGreaterThan(0);
+    expect(RELATIONSHIP_TYPE_DESIGN_GAPS.length).toBe(0);
   });
 
   it("getServerConfigDetail fills designGaps when wire omits them", async () => {

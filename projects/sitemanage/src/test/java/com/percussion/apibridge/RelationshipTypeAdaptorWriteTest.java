@@ -33,9 +33,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.percussion.design.objectstore.PSConditionalEffect;
+import com.percussion.design.objectstore.PSExtensionCall;
+import com.percussion.design.objectstore.PSExtensionParamValue;
 import com.percussion.design.objectstore.PSRelationshipConfig;
+import com.percussion.extension.PSExtensionRef;
 import com.percussion.rest.relationshiptypes.RelationshipType;
 import com.percussion.rest.relationshiptypes.RelationshipTypeCloneOverride;
+import com.percussion.rest.relationshiptypes.RelationshipTypeEffect;
+import com.percussion.rest.relationshiptypes.RelationshipTypeEffectCondition;
 import com.percussion.rest.relationshiptypes.RelationshipTypeProperty;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.data.PSObjectSummary;
@@ -216,6 +222,10 @@ class RelationshipTypeAdaptorWriteTest {
     system.setId(1);
     system.setLabel("Active Assembly");
     system.setDescription("system desc");
+    PSExtensionRef ref = new PSExtensionRef("Java/global/percussion/generic/sys_Literal");
+    system.setEffects(
+        List.of(new PSConditionalEffect(new PSExtensionCall(ref, new PSExtensionParamValue[0])))
+            .iterator());
     store.put(system.getName().toLowerCase(), system);
 
     RelationshipType body = new RelationshipType();
@@ -414,6 +424,110 @@ class RelationshipTypeAdaptorWriteTest {
   }
 
   @Test
+  void update_effectConditionsAndExecutionContextsRoundTripAndClear() {
+    seedUserWithEffect("MyUserRel");
+    RelationshipType body = new RelationshipType();
+    RelationshipTypeEffect effect = new RelationshipTypeEffect();
+    effect.setExtensionRef("Java/global/percussion/generic/sys_Literal");
+    RelationshipTypeEffectCondition cond = new RelationshipTypeEffectCondition();
+    cond.setVariable("sys_title");
+    cond.setOperator("=");
+    cond.setValue("yes");
+    effect.setConditions(List.of(cond));
+    effect.setExecutionContexts(List.of("PreConstruction", "PostWorkflow"));
+    body.setEffects(List.of(effect));
+
+    RelationshipType out = adaptor.updateRelationshipType("MyUserRel", body);
+    assertEquals(1, out.getEffects().size());
+    assertEquals(1, out.getEffects().get(0).getConditions().size());
+    assertEquals("sys_title", out.getEffects().get(0).getConditions().get(0).getVariable());
+    assertEquals("yes", out.getEffects().get(0).getConditions().get(0).getValue());
+    assertEquals(
+        List.of("PreConstruction", "PostWorkflow"),
+        out.getEffects().get(0).getExecutionContexts());
+    assertTrue(out.getDesignGaps() == null || out.getDesignGaps().isEmpty());
+
+    RelationshipType fetched = adaptor.findRelationshipType("MyUserRel");
+    assertEquals(1, fetched.getEffects().get(0).getConditions().size());
+    assertEquals(
+        List.of("PreConstruction", "PostWorkflow"),
+        fetched.getEffects().get(0).getExecutionContexts());
+
+    RelationshipType leave = new RelationshipType();
+    leave.setLabel("still there");
+    RelationshipType left = adaptor.updateRelationshipType("MyUserRel", leave);
+    assertEquals(1, left.getEffects().get(0).getConditions().size());
+
+    RelationshipType clear = new RelationshipType();
+    RelationshipTypeEffect clearFx = new RelationshipTypeEffect();
+    clearFx.setExtensionRef("Java/global/percussion/generic/sys_Literal");
+    clearFx.setClearConditions(true);
+    clearFx.setClearExecutionContexts(true);
+    clear.setEffects(List.of(clearFx));
+    RelationshipType cleared = adaptor.updateRelationshipType("MyUserRel", clear);
+    assertTrue(cleared.getEffects().get(0).getConditions().isEmpty());
+    assertTrue(cleared.getEffects().get(0).getExecutionContexts().isEmpty());
+  }
+
+  @Test
+  void update_unknownEffectMatchIs400() {
+    seedUserWithEffect("MyUserRel");
+    RelationshipType body = new RelationshipType();
+    RelationshipTypeEffect effect = new RelationshipTypeEffect();
+    effect.setExtensionRef("Java/global/percussion/generic/does_not_exist");
+    effect.setExecutionContexts(List.of("PreConstruction"));
+    body.setEffects(List.of(effect));
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.updateRelationshipType("MyUserRel", body));
+    assertTrue(ex.getMessage().toLowerCase().contains("match not found"));
+  }
+
+  @Test
+  void update_effectConditionsInvalidIs400() {
+    seedUserWithEffect("MyUserRel");
+    RelationshipType missingVar = new RelationshipType();
+    RelationshipTypeEffect effect = new RelationshipTypeEffect();
+    effect.setExtensionRef("Java/global/percussion/generic/sys_Literal");
+    RelationshipTypeEffectCondition cond = new RelationshipTypeEffectCondition();
+    cond.setOperator("=");
+    cond.setValue("x");
+    effect.setConditions(List.of(cond));
+    missingVar.setEffects(List.of(effect));
+    IllegalArgumentException missing =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.updateRelationshipType("MyUserRel", missingVar));
+    assertTrue(missing.getMessage().contains("variable"));
+
+    RelationshipType badCtx = new RelationshipType();
+    RelationshipTypeEffect fx = new RelationshipTypeEffect();
+    fx.setExtensionRef("Java/global/percussion/generic/sys_Literal");
+    fx.setExecutionContexts(List.of("NotAContext"));
+    badCtx.setEffects(List.of(fx));
+    IllegalArgumentException invalid =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.updateRelationshipType("MyUserRel", badCtx));
+    assertTrue(invalid.getMessage().toLowerCase().contains("executioncontexts"));
+  }
+
+  @Test
+  void update_effectConditionsNonAdminIs403() {
+    seedUserWithEffect("MyUserRel");
+    RelationshipTypeAdaptor denied = new RelationshipTypeAdaptor(designWs, () -> false);
+    RelationshipType body = new RelationshipType();
+    RelationshipTypeEffect effect = new RelationshipTypeEffect();
+    effect.setExtensionRef("Java/global/percussion/generic/sys_Literal");
+    effect.setExecutionContexts(List.of("PreConstruction"));
+    body.setEffects(List.of(effect));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> denied.updateRelationshipType("MyUserRel", body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
   void update_unknownReturnsNull() {
     RelationshipType body = new RelationshipType();
     body.setLabel("x");
@@ -469,6 +583,15 @@ class RelationshipTypeAdaptorWriteTest {
     cfg.setId(nextId.getAndIncrement());
     cfg.setLabel(name);
     store.put(cfg.getName().toLowerCase(), cfg);
+  }
+
+  private void seedUserWithEffect(String name) {
+    seedUser(name);
+    PSRelationshipConfig cfg = store.get(name.toLowerCase());
+    PSExtensionRef ref = new PSExtensionRef("Java/global/percussion/generic/sys_Literal");
+    PSConditionalEffect effect =
+        new PSConditionalEffect(new PSExtensionCall(ref, new PSExtensionParamValue[0]));
+    cfg.setEffects(List.of(effect).iterator());
   }
 
   private static RelationshipType userBody(String name) {

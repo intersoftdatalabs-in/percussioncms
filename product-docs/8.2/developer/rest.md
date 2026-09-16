@@ -2593,15 +2593,21 @@ appears on `GET /services/relationshiptypes`.
 
 Update (`PUT /services/relationshiptypes/{idOrName}`) updates mutable fields of a **user** type
 (label, description, category, `allowCloning` / revision flags, user properties,
-`cloneOverrides`). Identity (`name`) is not renamed on PUT — round-trip GET then PUT for
+`cloneOverrides`, `effects`). Identity (`name`) is not renamed on PUT — round-trip GET then PUT for
 boolean flags. When `cloneOverrides` is present, the **full** cloning field-override list is
 replaced (`fieldName` + `extensionRef` + optional `extensionParams`); an empty array
 **clears** overrides. Omit the property to leave existing overrides unchanged. When a
 JAX-RS provider drops `cloneOverrides: []`, send `clearCloneOverrides: true` (same
 intent as an empty list). Missing
 `fieldName` / `extensionRef` or an unparseable extension ref is **400**. Duplicate
-`fieldName` values are **400**. Effect condition/execution-context editing is not supported
-via this API (see `designGaps` on detail). Unknown key is **404**. A **system** type is
+`fieldName` values are **400**. When `effects` is present, each entry is matched to an
+**existing** effect by `extensionRef` (preferred) or `name`. Matched effects update
+`conditions` (`variable`, `operator`, `value`, optional `booleanOperator`) and
+`executionContexts` (XML type names such as `PreConstruction`, `PostWorkflow`). Empty
+`conditions` / `executionContexts` **clear** those lists; `clearConditions` /
+`clearExecutionContexts` are companions when a provider drops `[]`. Unknown effect match
+or invalid execution context / missing condition variable is **400**. This API does not
+add or delete effect extensions. Unknown key is **404**. A **system** type is
 **409**. Non-Admin is **403**. Lock conflicts are **409**.
 
 Example cloning field-override fragment on PUT (wrap under `RelationshipType` as for other
@@ -2614,6 +2620,22 @@ writes):
       "fieldName": "sys_title",
       "extensionRef": "Java/global/percussion/generic/sys_Literal",
       "extensionParams": ["cloned"]
+    }
+  ]
+}
+```
+
+Example effect condition / execution-context fragment on PUT:
+
+```json
+{
+  "effects": [
+    {
+      "extensionRef": "Java/global/percussion/generic/sys_Literal",
+      "conditions": [
+        { "variable": "sys_title", "operator": "=", "value": "yes" }
+      ],
+      "executionContexts": ["PreConstruction", "PostWorkflow"]
     }
   ]
 }
@@ -2654,7 +2676,7 @@ Example copy-from-system body:
 |--------|-----------------|
 | `200` | List / get / create / update success |
 | `204` | Delete success |
-| `400` | Invalid input (missing name/category, whitespace/wildcard name, unknown copyFrom, invalid cloneOverrides) |
+| `400` | Invalid input (missing name/category, whitespace/wildcard name, unknown copyFrom, invalid cloneOverrides or effect conditions/contexts) |
 | `403` | Caller is not Admin |
 | `404` | User relationship type not found |
 | `409` | Duplicate name, system type immutable, or design lock conflict |

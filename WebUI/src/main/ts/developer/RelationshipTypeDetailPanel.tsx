@@ -20,6 +20,7 @@ import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { isApiError } from "../api/client";
 import {
   RELATIONSHIP_TYPE_CATEGORIES,
+  RELATIONSHIP_TYPE_EXECUTION_CONTEXTS,
   createRelationshipType,
   deleteRelationshipType,
   getRelationshipTypeDetail,
@@ -33,6 +34,8 @@ import {
 import type {
   RelationshipTypeCloneOverride,
   RelationshipTypeDef,
+  RelationshipTypeEffectCondition,
+  RelationshipTypeEffectSummary,
 } from "../api/developer/types";
 import {
   backButton,
@@ -126,6 +129,102 @@ function cloneRowsIncomplete(rows: CloneOverrideRow[]): boolean {
   );
 }
 
+type EffectEditorRow = {
+  name: string;
+  extensionRef: string;
+  activationEndPoint: string;
+  conditions: { variable: string; operator: string; value: string }[];
+  executionContexts: string[];
+};
+
+function conditionsFromDetail(
+  conditions: RelationshipTypeEffectCondition[] | undefined,
+): { variable: string; operator: string; value: string }[] {
+  if (conditions == null) return [];
+  const list = Array.isArray(conditions) ? conditions : [conditions];
+  return list
+    .filter((c) => c != null && typeof c === "object")
+    .map((c) => ({
+      variable: c.variable || "",
+      operator: c.operator || "=",
+      value: c.value || "",
+    }))
+    .filter((c) => c.variable.trim() || c.operator.trim() || c.value.trim());
+}
+
+function effectRowsFromDetail(
+  effects: RelationshipTypeEffectSummary[] | undefined,
+): EffectEditorRow[] {
+  if (effects == null) return [];
+  const list = Array.isArray(effects) ? effects : [effects];
+  return list
+    .filter(
+      (e) =>
+        e != null &&
+        typeof e === "object" &&
+        ((e.name || "").trim().length > 0 || (e.extensionRef || "").trim().length > 0),
+    )
+    .map((e) => ({
+      name: e.name || "",
+      extensionRef: e.extensionRef || "",
+      activationEndPoint: e.activationEndPoint || "",
+      conditions: conditionsFromDetail(e.conditions),
+      executionContexts: Array.isArray(e.executionContexts)
+        ? e.executionContexts.filter((x) => (x || "").trim().length > 0)
+        : e.executionContexts
+          ? [String(e.executionContexts)]
+          : [],
+    }));
+}
+
+function serializeEffectRows(rows: EffectEditorRow[]): string {
+  return JSON.stringify(
+    rows.map((r) => ({
+      name: r.name.trim(),
+      extensionRef: r.extensionRef.trim(),
+      activationEndPoint: r.activationEndPoint.trim(),
+      conditions: r.conditions.map((c) => ({
+        variable: c.variable.trim(),
+        operator: c.operator.trim(),
+        value: c.value.trim(),
+      })),
+      executionContexts: [...r.executionContexts].sort(),
+    })),
+  );
+}
+
+function completeEffectRows(rows: EffectEditorRow[]): RelationshipTypeEffectSummary[] {
+  return rows.map((r) => {
+    const conditions = r.conditions
+      .filter((c) => c.variable.trim() || c.operator.trim() || c.value.trim())
+      .map((c, i, arr) => ({
+        variable: c.variable.trim(),
+        operator: c.operator.trim() || "=",
+        value: c.value.trim(),
+        booleanOperator: i < arr.length - 1 ? "AND" : undefined,
+      }));
+    return {
+      name: r.name.trim() || undefined,
+      extensionRef: r.extensionRef.trim() || undefined,
+      activationEndPoint: r.activationEndPoint.trim() || undefined,
+      conditions,
+      executionContexts: r.executionContexts,
+      clearConditions: conditions.length === 0,
+      clearExecutionContexts: r.executionContexts.length === 0,
+    };
+  });
+}
+
+function effectRowsIncomplete(rows: EffectEditorRow[]): boolean {
+  return rows.some((r) =>
+    r.conditions.some(
+      (c) =>
+        (c.variable.trim() || c.operator.trim() || c.value.trim()) &&
+        (!c.variable.trim() || !c.operator.trim()),
+    ),
+  );
+}
+
 function writeErrorFallback(err: unknown, isNew: boolean): string {
   if (isApiError(err)) {
     if (err.status === 409) {
@@ -186,6 +285,7 @@ export function RelationshipTypeDetailPanel({
   const [useOwnerRevision, setUseOwnerRevision] = useState(false);
   const [useDependentRevision, setUseDependentRevision] = useState(false);
   const [cloneRows, setCloneRows] = useState<CloneOverrideRow[]>([]);
+  const [effectRows, setEffectRows] = useState<EffectEditorRow[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -217,6 +317,7 @@ export function RelationshipTypeDetailPanel({
         setUseOwnerRevision(Boolean(d.useOwnerRevision));
         setUseDependentRevision(Boolean(d.useDependentRevision));
         setCloneRows(rowsFromDetail(d.cloneOverrides));
+        setEffectRows(effectRowsFromDetail(d.effects));
         setLoading(false);
       })
       .catch((err: unknown) => {
@@ -240,7 +341,9 @@ export function RelationshipTypeDetailPanel({
   const loadedUseOwnerRevision = Boolean(detail?.useOwnerRevision);
   const loadedUseDependentRevision = Boolean(detail?.useDependentRevision);
   const loadedCloneSerialized = serializeRows(rowsFromDetail(detail?.cloneOverrides));
+  const loadedEffectsSerialized = serializeEffectRows(effectRowsFromDetail(detail?.effects));
   const cloneIncomplete = cloneRowsIncomplete(cloneRows);
+  const effectsIncomplete = effectRowsIncomplete(effectRows);
   const dirty =
     isNew ||
     label !== loadedLabel ||
@@ -249,13 +352,15 @@ export function RelationshipTypeDetailPanel({
     allowCloning !== loadedAllowCloning ||
     useOwnerRevision !== loadedUseOwnerRevision ||
     useDependentRevision !== loadedUseDependentRevision ||
-    serializeRows(cloneRows) !== loadedCloneSerialized;
+    serializeRows(cloneRows) !== loadedCloneSerialized ||
+    serializeEffectRows(effectRows) !== loadedEffectsSerialized;
 
   const canSave =
     userWritable &&
     !busy &&
     dirty &&
     !cloneIncomplete &&
+    !effectsIncomplete &&
     isRelationshipTypeWriteReady({
       isNew,
       name,
@@ -288,6 +393,9 @@ export function RelationshipTypeDetailPanel({
     }
     if (!isNew && overrides.length === 0) {
       body.clearCloneOverrides = true;
+    }
+    if (!isNew) {
+      body.effects = completeEffectRows(effectRows);
     }
     if (isNew) {
       body.name = normalizeRelationshipTypeName(name);
@@ -332,6 +440,7 @@ export function RelationshipTypeDetailPanel({
       setUseOwnerRevision(Boolean(saved.useOwnerRevision));
       setUseDependentRevision(Boolean(saved.useDependentRevision));
       setCloneRows(rowsFromDetail(saved.cloneOverrides));
+      setEffectRows(effectRowsFromDetail(saved.effects));
       setNotice(DEV_MSG.RT_SAVED);
       await onSaved?.(saved);
     } catch (err: unknown) {
@@ -371,15 +480,13 @@ export function RelationshipTypeDetailPanel({
     }
   }
 
-  const effects = detail != null && Array.isArray(detail.effects) ? detail.effects : [];
+  const effects = effectRows;
   const sysProps =
     detail != null && Array.isArray(detail.systemProperties) ? detail.systemProperties : [];
   const userProps =
     detail != null && Array.isArray(detail.userProperties) ? detail.userProperties : [];
   const gaps =
-    detail != null && Array.isArray(detail.designGaps) && detail.designGaps.length
-      ? detail.designGaps
-      : [DEV_MSG.RT_GAP_EFFECTS];
+    detail != null && Array.isArray(detail.designGaps) ? detail.designGaps : [];
 
   const title = isNew
     ? DEV_MSG.RT_NEW
@@ -777,6 +884,14 @@ export function RelationshipTypeDetailPanel({
             <>
               <section data-testid="developer-rt-effects">
                 <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.RT_EFFECTS}</h3>
+                <p style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
+                  {DEV_MSG.RT_EFFECT_COND_HINT}
+                </p>
+                {effectsIncomplete ? (
+                  <p data-testid="developer-rt-effect-incomplete" style={errorAlert}>
+                    {DEV_MSG.RT_EFFECT_COND_INCOMPLETE}
+                  </p>
+                ) : null}
                 {effects.length === 0 ? (
                   <p style={{ color: catalogColors.empty }}>{DEV_MSG.RT_NONE}</p>
                 ) : (
@@ -790,17 +905,154 @@ export function RelationshipTypeDetailPanel({
                           <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_EFFECT}</th>
                           <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_ENDPOINT}</th>
                           <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_EXTREF}</th>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_CONDITIONS}</th>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.RT_COL_EXECCONTEXT}</th>
                         </tr>
                       </thead>
                       <tbody>
                         {effects.map((e, i) => (
-                          <tr key={`${e.name ?? "e"}-${i}`} style={tableRow}>
+                          <tr key={`${e.name || e.extensionRef || "e"}-${i}`} style={tableRow}>
                             <td style={{ padding: "8px", fontFamily: "monospace" }}>
                               {e.name || "—"}
                             </td>
                             <td style={{ padding: "8px" }}>{e.activationEndPoint || "—"}</td>
                             <td style={{ padding: "8px", ...monoCell, fontSize: "0.85rem" }}>
                               {e.extensionRef || "—"}
+                            </td>
+                            <td style={{ padding: "8px", verticalAlign: "top" }}>
+                              {e.conditions.length === 0 ? (
+                                <p
+                                  data-testid={`developer-rt-effect-cond-empty-${i}`}
+                                  style={{ color: catalogColors.empty, margin: 0 }}
+                                >
+                                  {DEV_MSG.RT_EFFECT_COND_EMPTY}
+                                </p>
+                              ) : (
+                                e.conditions.map((c, ci) => (
+                                  <div
+                                    key={ci}
+                                    data-testid={`developer-rt-effect-cond-${i}-${ci}`}
+                                    style={{ display: "flex", gap: "4px", marginBottom: "4px" }}
+                                  >
+                                    <input
+                                      data-testid={`developer-rt-effect-cond-var-${i}-${ci}`}
+                                      value={c.variable}
+                                      disabled={fieldsDisabled}
+                                      aria-label={DEV_MSG.RT_EFFECT_COND_VAR}
+                                      onChange={(ev) => {
+                                        const next = [...effectRows];
+                                        const conds = [...next[i].conditions];
+                                        conds[ci] = { ...conds[ci], variable: ev.target.value };
+                                        next[i] = { ...next[i], conditions: conds };
+                                        setEffectRows(next);
+                                      }}
+                                      style={{ ...inputStyle, width: "7rem" }}
+                                    />
+                                    <input
+                                      data-testid={`developer-rt-effect-cond-op-${i}-${ci}`}
+                                      value={c.operator}
+                                      disabled={fieldsDisabled}
+                                      aria-label={DEV_MSG.RT_EFFECT_COND_OP}
+                                      onChange={(ev) => {
+                                        const next = [...effectRows];
+                                        const conds = [...next[i].conditions];
+                                        conds[ci] = { ...conds[ci], operator: ev.target.value };
+                                        next[i] = { ...next[i], conditions: conds };
+                                        setEffectRows(next);
+                                      }}
+                                      style={{ ...inputStyle, width: "4rem" }}
+                                    />
+                                    <input
+                                      data-testid={`developer-rt-effect-cond-value-${i}-${ci}`}
+                                      value={c.value}
+                                      disabled={fieldsDisabled}
+                                      aria-label={DEV_MSG.RT_EFFECT_COND_VALUE}
+                                      onChange={(ev) => {
+                                        const next = [...effectRows];
+                                        const conds = [...next[i].conditions];
+                                        conds[ci] = { ...conds[ci], value: ev.target.value };
+                                        next[i] = { ...next[i], conditions: conds };
+                                        setEffectRows(next);
+                                      }}
+                                      style={{ ...inputStyle, width: "7rem" }}
+                                    />
+                                    {userWritable ? (
+                                      <button
+                                        type="button"
+                                        data-testid={`developer-rt-effect-cond-remove-${i}-${ci}`}
+                                        disabled={busy}
+                                        onClick={() => {
+                                          const next = [...effectRows];
+                                          next[i] = {
+                                            ...next[i],
+                                            conditions: next[i].conditions.filter(
+                                              (_, idx) => idx !== ci,
+                                            ),
+                                          };
+                                          setEffectRows(next);
+                                        }}
+                                      >
+                                        {DEV_MSG.RT_EFFECT_COND_REMOVE}
+                                      </button>
+                                    ) : null}
+                                  </div>
+                                ))
+                              )}
+                              {userWritable ? (
+                                <button
+                                  type="button"
+                                  data-testid={`developer-rt-effect-cond-add-${i}`}
+                                  disabled={busy}
+                                  onClick={() => {
+                                    const next = [...effectRows];
+                                    next[i] = {
+                                      ...next[i],
+                                      conditions: [
+                                        ...next[i].conditions,
+                                        { variable: "", operator: "=", value: "" },
+                                      ],
+                                    };
+                                    setEffectRows(next);
+                                  }}
+                                >
+                                  {DEV_MSG.RT_EFFECT_COND_ADD}
+                                </button>
+                              ) : null}
+                            </td>
+                            <td style={{ padding: "8px", verticalAlign: "top" }}>
+                              <div data-testid={`developer-rt-effect-ctx-${i}`}>
+                                {RELATIONSHIP_TYPE_EXECUTION_CONTEXTS.map((ctx) => {
+                                  const checked = e.executionContexts.includes(ctx);
+                                  return (
+                                    <label
+                                      key={ctx}
+                                      style={{ display: "block", fontSize: "0.8rem" }}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        data-testid={`developer-rt-effect-ctx-${i}-${ctx}`}
+                                        disabled={fieldsDisabled}
+                                        checked={checked}
+                                        onChange={(ev) => {
+                                          const next = [...effectRows];
+                                          const set = new Set(next[i].executionContexts);
+                                          if (ev.target.checked) {
+                                            set.add(ctx);
+                                          } else {
+                                            set.delete(ctx);
+                                          }
+                                          next[i] = {
+                                            ...next[i],
+                                            executionContexts: Array.from(set),
+                                          };
+                                          setEffectRows(next);
+                                        }}
+                                      />{" "}
+                                      {ctx}
+                                    </label>
+                                  );
+                                })}
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -872,6 +1124,7 @@ export function RelationshipTypeDetailPanel({
                 )}
               </section>
 
+              {gaps.length > 0 ? (
               <section style={{ marginTop: "16px" }} data-testid="developer-rt-gaps">
                 <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.RT_GAPS}</h3>
                 <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
@@ -880,6 +1133,7 @@ export function RelationshipTypeDetailPanel({
                   ))}
                 </ul>
               </section>
+              ) : null}
             </>
           ) : null}
         </>

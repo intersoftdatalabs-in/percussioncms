@@ -260,9 +260,7 @@ test.describe("Developer relationship type editor (#4253 / SY-03 H2)", () => {
     await expect(page.locator('[data-testid="developer-rt-clone-ext-0"]')).toHaveValue(
       "Java/global/percussion/generic/sys_Literal",
     );
-    await expect(page.locator('[data-testid="developer-rt-gaps"]')).not.toContainText(
-      /Cloning field override editor/i,
-    );
+    await expect(page.locator('[data-testid="developer-rt-gaps"]')).toHaveCount(0);
 
     await page.locator('[data-testid="developer-rt-back"]').click();
     await rtOpen(page, name).click();
@@ -288,6 +286,98 @@ test.describe("Developer relationship type editor (#4253 / SY-03 H2)", () => {
     await rtOpen(page, name).click();
     await expect(page.locator('[data-testid="developer-rt-clone-empty"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-rt-clone-field-0"]')).toHaveCount(0);
+
+    await deleteCurrentUserType(page);
+    await expect(rtOpen(page, name)).toHaveCount(0);
+    assertConsoleClean(pageErrors, consoleErrors);
+  });
+
+  test("Admin can add, round-trip, and clear effect conditions and execution contexts", async ({
+    page,
+  }) => {
+    test.setTimeout(180_000);
+    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+    await loginAsAdmin(page);
+    await openRtCatalog(page);
+
+    const name = uniqueRtName("QaFx");
+    const label = `QA effect ${name}`;
+
+    await createUserRelationshipType(page, {
+      name,
+      label,
+      // ActiveAssembly has no packaged effects. NewCopy/PromotableVersion copy-from
+      // clones override PSCollection and InternalError on this cell. AA-Mandatory
+      // ships sys_PublishMandatory / sys_UnpublishMandatory without clone overrides.
+      copyFrom: "ActiveAssembly-Mandatory",
+    });
+
+    const addCond = page.locator('[data-testid="developer-rt-effect-cond-add-0"]');
+    const effectsNone = page.locator('[data-testid="developer-rt-effects"]');
+    await expect(addCond.or(effectsNone).first()).toBeVisible({ timeout: 20_000 });
+    if (!(await addCond.isVisible())) {
+      throw new Error(
+        `Copied type has no editable effects (need a system type that ships effects, e.g. NewCopy): ${(await effectsNone.innerText()).trim()}`,
+      );
+    }
+    // Copied system types may already have condition rows — start from empty.
+    while ((await page.locator('[data-testid="developer-rt-effect-cond-remove-0-0"]').count()) > 0) {
+      await page.locator('[data-testid="developer-rt-effect-cond-remove-0-0"]').click();
+    }
+    const ctxBoxes = page.locator('[data-testid^="developer-rt-effect-ctx-0-"]');
+    const ctxCount = await ctxBoxes.count();
+    for (let i = 0; i < ctxCount; i++) {
+      if (await ctxBoxes.nth(i).isChecked()) {
+        await ctxBoxes.nth(i).uncheck();
+      }
+    }
+    if (await page.locator('[data-testid="developer-rt-save"]').isEnabled()) {
+      await page.locator('[data-testid="developer-rt-save"]').click();
+      const resetNotice = page.locator('[data-testid="developer-rt-editor-notice"]');
+      const resetError = page.locator('[data-testid="developer-rt-detail-error"]');
+      await expect(resetNotice.or(resetError).first()).toBeVisible({ timeout: 30_000 });
+      if (await resetError.isVisible()) {
+        throw new Error(
+          `Effect condition reset failed: ${(await resetError.innerText()).trim()}`,
+        );
+      }
+    }
+
+    await addCond.click();
+    await page.locator('[data-testid="developer-rt-effect-cond-var-0-0"]').fill("sys_title");
+    await page.locator('[data-testid="developer-rt-effect-cond-op-0-0"]').fill("=");
+    await page.locator('[data-testid="developer-rt-effect-cond-value-0-0"]').fill("yes");
+    await page.locator('[data-testid="developer-rt-effect-ctx-0-PreConstruction"]').check();
+    await expect(page.locator('[data-testid="developer-rt-save"]')).toBeEnabled();
+    await page.locator('[data-testid="developer-rt-save"]').click();
+
+    const notice = page.locator('[data-testid="developer-rt-editor-notice"]');
+    const saveError = page.locator('[data-testid="developer-rt-detail-error"]');
+    await expect(notice.or(saveError).first()).toBeVisible({ timeout: 30_000 });
+    if (await saveError.isVisible()) {
+      throw new Error(`Effect condition save failed: ${(await saveError.innerText()).trim()}`);
+    }
+    await expect(page.locator('[data-testid="developer-rt-effect-cond-var-0-0"]')).toHaveValue(
+      "sys_title",
+    );
+    await expect(page.locator('[data-testid="developer-rt-gaps"]')).toHaveCount(0);
+
+    await page.locator('[data-testid="developer-rt-back"]').click();
+    await rtOpen(page, name).click();
+    await expect(page.locator('[data-testid="developer-rt-effect-cond-var-0-0"]')).toHaveValue(
+      "sys_title",
+    );
+    await expect(page.locator('[data-testid="developer-rt-effect-ctx-0-PreConstruction"]')).toBeChecked();
+
+    await page.locator('[data-testid="developer-rt-effect-cond-remove-0-0"]').click();
+    await page.locator('[data-testid="developer-rt-effect-ctx-0-PreConstruction"]').uncheck();
+    await expect(page.locator('[data-testid="developer-rt-save"]')).toBeEnabled();
+    await page.locator('[data-testid="developer-rt-save"]').click();
+    await expect(notice.or(saveError).first()).toBeVisible({ timeout: 30_000 });
+    if (await saveError.isVisible()) {
+      throw new Error(`Effect condition clear failed: ${(await saveError.innerText()).trim()}`);
+    }
+    await expect(page.locator('[data-testid="developer-rt-effect-cond-empty-0"]')).toBeVisible();
 
     await deleteCurrentUserType(page);
     await expect(rtOpen(page, name)).toHaveCount(0);
