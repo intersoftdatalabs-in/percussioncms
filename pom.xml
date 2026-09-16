@@ -251,7 +251,7 @@
         <pdfbox.version>3.0.6</pdfbox.version>
         <plexus.component.metadata.version>2.2.0</plexus.component.metadata.version>
         <!-- minify-maven-plugin and other plugins; Dependabot #213 -->
-        <plexus.utils.version>4.0.3</plexus.utils.version>
+        <plexus.utils.version>4.1.0</plexus.utils.version>
         <poi.version>5.4.0</poi.version>
         <!-- #1500 external PostgreSQL repository backend (org.postgresql:postgresql, Java 21) -->
         <postgresql.version>42.7.13</postgresql.version>
