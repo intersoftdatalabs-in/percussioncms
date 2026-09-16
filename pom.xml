@@ -253,7 +253,7 @@
         <mssql.version>13.6.0.jre11</mssql.version>
         <mysql.connector.version>26.7.0</mysql.connector.version>
         <!-- Artemis modular Netty (not netty-all); Dependabot needs ≥4.1.136.Final -->
-        <netty.version>4.1.136.Final</netty.version>
+        <netty.version>4.2.18.Final</netty.version>
         <ojdbc17.version>23.26.0.0.0</ojdbc17.version>
         <opencsv.version>5.12.0</opencsv.version>
         <oracle.version>12.1.0.1</oracle.version>
