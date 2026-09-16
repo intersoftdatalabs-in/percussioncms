@@ -144,6 +144,9 @@ public class RelationshipTypeJsonReader implements MessageBodyReader<Relationshi
       return out;
     }
     if (raw.isObject()) {
+      if (raw.isEmpty()) {
+        return out;
+      }
       JsonNode wrapped = raw.get("RelationshipTypeCloneOverride");
       if (wrapped == null) {
         wrapped = raw.get("relationshipTypeCloneOverride");
@@ -160,12 +163,15 @@ public class RelationshipTypeJsonReader implements MessageBodyReader<Relationshi
   }
 
   private static RelationshipTypeCloneOverride overrideFromNode(JsonNode n) {
-    if (n == null || n.isNull() || !n.isObject()) {
+    if (n == null || n.isNull() || !n.isObject() || n.isEmpty()) {
       return null;
     }
     RelationshipTypeCloneOverride row = new RelationshipTypeCloneOverride();
     row.setFieldName(textField(n, "fieldName"));
     row.setExtensionRef(textField(n, "extensionRef"));
+    if (row.getFieldName() == null && row.getExtensionRef() == null) {
+      return null;
+    }
     JsonNode params = n.get("extensionParams");
     if (params != null && !params.isNull()) {
       List<String> values = new ArrayList<>();

@@ -356,6 +356,24 @@ class RelationshipTypeAdaptorWriteTest {
   }
 
   @Test
+  void update_clearCloneOverridesFlagClearsWhenListOmitted() {
+    seedUser("MyUserRel");
+    RelationshipType body = new RelationshipType();
+    RelationshipTypeCloneOverride row = new RelationshipTypeCloneOverride();
+    row.setFieldName("sys_title");
+    row.setExtensionRef("Java/global/percussion/generic/sys_Literal");
+    body.setCloneOverrides(List.of(row));
+    adaptor.updateRelationshipType("MyUserRel", body);
+    assertEquals(1, adaptor.findRelationshipType("MyUserRel").getCloneOverrides().size());
+
+    RelationshipType flag = new RelationshipType();
+    flag.setClearCloneOverrides(true);
+    RelationshipType cleared = adaptor.updateRelationshipType("MyUserRel", flag);
+    assertTrue(cleared.getCloneOverrides().isEmpty());
+    assertTrue(adaptor.findRelationshipType("MyUserRel").getCloneOverrides().isEmpty());
+  }
+
+  @Test
   void update_cloneOverridesInvalidIs400() {
     seedUser("MyUserRel");
     RelationshipType missingName = new RelationshipType();

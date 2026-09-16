@@ -329,4 +329,40 @@ describe("RelationshipTypeDetailPanel", () => {
       );
     });
   });
+
+  it("clears cloning field overrides with cloneOverrides:[] and ignores JAXB empty bean (#4527)", async () => {
+    getRelationshipTypeDetail.mockResolvedValue({
+      ...sampleUserDetail,
+      cloneOverrides: [
+        {
+          fieldName: "sys_title",
+          extensionRef: "Java/global/percussion/generic/sys_Literal",
+          extensionParams: ["cloned"],
+        },
+      ],
+    });
+    updateRelationshipType.mockResolvedValue({
+      ...sampleUserDetail,
+      // JAXB empty collection must not rehydrate a phantom row after clear-save.
+      cloneOverrides: {},
+    });
+    render(<RelationshipTypeDetailPanel idOrName="MyUserRel" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-rt-clone-field-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-rt-clone-remove-0"));
+    expect(screen.getByTestId("developer-rt-clone-empty")).toBeTruthy();
+    expect(screen.getByTestId("developer-rt-save")).not.toBeDisabled();
+    fireEvent.click(screen.getByTestId("developer-rt-save"));
+    await waitFor(() => {
+      expect(updateRelationshipType).toHaveBeenCalledWith(
+        "MyUserRel",
+        expect.objectContaining({ cloneOverrides: [], clearCloneOverrides: true }),
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-rt-clone-empty")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-rt-clone-field-0")).toBeNull();
+  });
 });

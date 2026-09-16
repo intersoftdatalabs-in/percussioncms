@@ -405,7 +405,9 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
     if (body.getUserProperties() != null && !body.getUserProperties().isEmpty()) {
       applyUserProperties(config, body.getUserProperties());
     }
-    if (body.getCloneOverrides() != null) {
+    if (shouldClearCloneOverrides(body)) {
+      applyCloneOverrides(config, List.of());
+    } else if (body.getCloneOverrides() != null) {
       applyCloneOverrides(config, body.getCloneOverrides());
     }
   }
@@ -432,9 +434,22 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
     if (body.getUserProperties() != null) {
       applyUserProperties(config, body.getUserProperties());
     }
-    if (body.getCloneOverrides() != null) {
+    if (shouldClearCloneOverrides(body)) {
+      applyCloneOverrides(config, List.of());
+    } else if (body.getCloneOverrides() != null) {
       applyCloneOverrides(config, body.getCloneOverrides());
     }
+  }
+
+  /** Empty list or {@code clearCloneOverrides: true} — Jackson may drop {@code []}. */
+  private static boolean shouldClearCloneOverrides(RelationshipType body) {
+    if (body == null) {
+      return false;
+    }
+    if (Boolean.TRUE.equals(body.getClearCloneOverrides())) {
+      return true;
+    }
+    return body.getCloneOverrides() != null && body.getCloneOverrides().isEmpty();
   }
 
   private static void copyMutableFromSource(
@@ -569,7 +584,11 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
     }
     for (Object o : list) {
       if (o instanceof PSCloneOverrideField field) {
-        out.add(copyCloneOverride(field));
+        RelationshipTypeCloneOverride dto = copyCloneOverride(field);
+        if (StringUtils.isNotBlank(dto.getFieldName())
+            || StringUtils.isNotBlank(dto.getExtensionRef())) {
+          out.add(dto);
+        }
       }
     }
     return out;

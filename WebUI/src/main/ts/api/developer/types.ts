@@ -1185,6 +1185,8 @@ export interface RelationshipTypeDef {
   userProperties?: RelationshipTypePropertySummary[];
   /** Cloning field overrides; PUT replaces the list when present. */
   cloneOverrides?: RelationshipTypeCloneOverride[];
+  /** When true, clears overrides (companion to cloneOverrides: [] when providers drop empty arrays). */
+  clearCloneOverrides?: boolean;
   designGaps?: string[];
 }
 

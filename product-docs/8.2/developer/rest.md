@@ -2596,7 +2596,9 @@ Update (`PUT /services/relationshiptypes/{idOrName}`) updates mutable fields of 
 `cloneOverrides`). Identity (`name`) is not renamed on PUT — round-trip GET then PUT for
 boolean flags. When `cloneOverrides` is present, the **full** cloning field-override list is
 replaced (`fieldName` + `extensionRef` + optional `extensionParams`); an empty array
-**clears** overrides. Omit the property to leave existing overrides unchanged. Missing
+**clears** overrides. Omit the property to leave existing overrides unchanged. When a
+JAX-RS provider drops `cloneOverrides: []`, send `clearCloneOverrides: true` (same
+intent as an empty list). Missing
 `fieldName` / `extensionRef` or an unparseable extension ref is **400**. Duplicate
 `fieldName` values are **400**. Effect condition/execution-context editing is not supported
 via this API (see `designGaps` on detail). Unknown key is **404**. A **system** type is

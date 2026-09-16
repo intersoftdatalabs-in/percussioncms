@@ -66,4 +66,40 @@ class RelationshipTypeJsonReaderTest {
     assertEquals(1, t.getCloneOverrides().size());
     assertEquals(java.util.List.of("a", "b"), t.getCloneOverrides().get(0).getExtensionParams());
   }
+
+  @Test
+  void parse_emptyObjectCloneOverridesIsEmptyListNotPhantom() {
+    RelationshipType t =
+        RelationshipTypeJsonReader.parse(
+            "{\"RelationshipType\":{\"label\":\"Cleared\",\"cloneOverrides\":{}}}");
+    assertNotNull(t.getCloneOverrides());
+    assertTrue(t.getCloneOverrides().isEmpty());
+  }
+
+  @Test
+  void parse_jaxbWrapperEmptyArrayIsEmptyList() {
+    RelationshipType t =
+        RelationshipTypeJsonReader.parse(
+            "{\"RelationshipType\":{\"cloneOverrides\":{\"RelationshipTypeCloneOverride\":[]}}}");
+    assertNotNull(t.getCloneOverrides());
+    assertTrue(t.getCloneOverrides().isEmpty());
+  }
+
+  @Test
+  void parse_clearCloneOverridesFlagBindsTrue() {
+    RelationshipType t =
+        RelationshipTypeJsonReader.parse(
+            "{\"RelationshipType\":{\"label\":\"Cleared\",\"clearCloneOverrides\":true}}");
+    assertEquals(Boolean.TRUE, t.getClearCloneOverrides());
+    assertNull(t.getCloneOverrides());
+  }
+
+  @Test
+  void parse_jaxbWrapperEmptyObjectIsEmptyList() {
+    RelationshipType t =
+        RelationshipTypeJsonReader.parse(
+            "{\"RelationshipType\":{\"cloneOverrides\":{\"RelationshipTypeCloneOverride\":{}}}}");
+    assertNotNull(t.getCloneOverrides());
+    assertTrue(t.getCloneOverrides().isEmpty());
+  }
 }
