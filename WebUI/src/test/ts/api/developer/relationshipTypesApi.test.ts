@@ -82,9 +82,11 @@ describe("relationshipTypesApi helpers", () => {
     expect(isSystemRelationshipType(null)).toBe(false);
   });
 
-  it("omits create/update/delete from remaining design gaps constant", () => {
+  it("omits create/update/delete and cloning-override from remaining design gaps constant", () => {
     expect(RELATIONSHIP_TYPE_DESIGN_GAPS.join(" ")).not.toMatch(/create|update|delete/i);
+    expect(RELATIONSHIP_TYPE_DESIGN_GAPS.join(" ")).not.toMatch(/cloning field override/i);
     expect(RELATIONSHIP_TYPE_DESIGN_GAPS.length).toBeGreaterThan(0);
+    expect(RELATIONSHIP_TYPE_DESIGN_GAPS.join(" ")).toMatch(/effect condition/i);
   });
 });
 

@@ -25,7 +25,6 @@ import type { RelationshipTypeDef } from "./types";
  * Create/update/delete of user types is supported — not listed.
  */
 export const RELATIONSHIP_TYPE_DESIGN_GAPS: string[] = [
-  "Cloning field override editor not supported via this API",
   "Effect condition and execution-context edit not supported via this API",
 ];
 
@@ -55,6 +54,7 @@ export type RelationshipTypeWriteBody = Pick<
   | "allowCloning"
   | "useOwnerRevision"
   | "useDependentRevision"
+  | "cloneOverrides"
 >;
 
 /** Jackson / JAXB root for RelationshipType (UNWRAP_ROOT_VALUE on POST/PUT). */

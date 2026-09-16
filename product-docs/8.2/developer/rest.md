@@ -2551,7 +2551,8 @@ Example create body:
 
 Server **relationship type** definitions (Workbench / Developer **System Design → Relationship
 Types**, SY-03) are exposed under `/services/relationshiptypes`. List and detail include
-**system** and **user** types with category, cloning/revision flags, properties, and effects.
+**system** and **user** types with category, cloning/revision flags, cloning field
+overrides (`cloneOverrides`), properties, and effects.
 Backing is `IPSSystemDesignWs` (`findRelationshipTypes` / `loadRelationshipTypes` /
 `createRelationshipTypes` / `saveRelationshipTypes` / `deleteRelationshipTypes`) — the same
 design web service SOAP uses. There is no new SOAP surface.
@@ -2591,11 +2592,30 @@ Non-Admin is **403**. The new type is then `GET /services/relationshiptypes/{nam
 appears on `GET /services/relationshiptypes`.
 
 Update (`PUT /services/relationshiptypes/{idOrName}`) updates mutable fields of a **user** type
-(label, description, category, `allowCloning` / revision flags, user properties). Identity
-(`name`) is not renamed on PUT — round-trip GET then PUT for boolean flags. Effect
-condition/execution-context editing and cloning field-override editor are not supported via
-this API (see `designGaps` on detail). Unknown key is **404**. A **system** type is **409**.
-Non-Admin is **403**. Lock conflicts are **409**.
+(label, description, category, `allowCloning` / revision flags, user properties,
+`cloneOverrides`). Identity (`name`) is not renamed on PUT — round-trip GET then PUT for
+boolean flags. When `cloneOverrides` is present, the **full** cloning field-override list is
+replaced (`fieldName` + `extensionRef` + optional `extensionParams`); an empty array
+**clears** overrides. Omit the property to leave existing overrides unchanged. Missing
+`fieldName` / `extensionRef` or an unparseable extension ref is **400**. Duplicate
+`fieldName` values are **400**. Effect condition/execution-context editing is not supported
+via this API (see `designGaps` on detail). Unknown key is **404**. A **system** type is
+**409**. Non-Admin is **403**. Lock conflicts are **409**.
+
+Example cloning field-override fragment on PUT (wrap under `RelationshipType` as for other
+writes):
+
+```json
+{
+  "cloneOverrides": [
+    {
+      "fieldName": "sys_title",
+      "extensionRef": "Java/global/percussion/generic/sys_Literal",
+      "extensionParams": ["cloned"]
+    }
+  ]
+}
+```
 
 Delete (`DELETE /services/relationshiptypes/{idOrName}`) returns **204** when a user type is
 removed; a following `GET` is **404**. Unknown key is **404**. A **system** type is **409**
@@ -2632,7 +2652,7 @@ Example copy-from-system body:
 |--------|-----------------|
 | `200` | List / get / create / update success |
 | `204` | Delete success |
-| `400` | Invalid input (missing name/category, whitespace/wildcard name, unknown copyFrom) |
+| `400` | Invalid input (missing name/category, whitespace/wildcard name, unknown copyFrom, invalid cloneOverrides) |
 | `403` | Caller is not Admin |
 | `404` | User relationship type not found |
 | `409` | Duplicate name, system type immutable, or design lock conflict |

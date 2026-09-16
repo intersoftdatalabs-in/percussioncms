@@ -83,6 +83,12 @@ public class RelationshipType {
 
   @Schema(
       description =
+          "Cloning field overrides (field name + UDF). PUT replaces the full list when present;"
+              + " empty list clears. Null (omitted) leaves existing overrides unchanged.")
+  private List<RelationshipTypeCloneOverride> cloneOverrides;
+
+  @Schema(
+      description =
           "Honest design gaps for this surface. Present on detail GET; typically omitted on"
               + " list rows to avoid repeating the same catalog-level array (REST-GAPS-02)")
   private List<String> designGaps = new ArrayList<>();
@@ -215,6 +221,14 @@ public class RelationshipType {
 
   public void setUserProperties(List<RelationshipTypeProperty> userProperties) {
     this.userProperties = userProperties;
+  }
+
+  public List<RelationshipTypeCloneOverride> getCloneOverrides() {
+    return cloneOverrides;
+  }
+
+  public void setCloneOverrides(List<RelationshipTypeCloneOverride> cloneOverrides) {
+    this.cloneOverrides = cloneOverrides;
   }
 
   public List<String> getDesignGaps() {

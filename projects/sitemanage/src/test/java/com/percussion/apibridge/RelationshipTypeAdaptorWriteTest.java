@@ -35,6 +35,7 @@ import static org.mockito.Mockito.when;
 
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.rest.relationshiptypes.RelationshipType;
+import com.percussion.rest.relationshiptypes.RelationshipTypeCloneOverride;
 import com.percussion.rest.relationshiptypes.RelationshipTypeProperty;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.data.PSObjectSummary;
@@ -314,6 +315,84 @@ class RelationshipTypeAdaptorWriteTest {
             () -> adaptor.updateRelationshipType("ActiveAssembly", body));
     assertEquals(409, ex.getResponse().getStatus());
     verify(designWs, never()).saveRelationshipTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_cloneOverridesRoundTripAndClear() {
+    seedUser("MyUserRel");
+    RelationshipType body = new RelationshipType();
+    body.setLabel("With overrides");
+    RelationshipTypeCloneOverride row = new RelationshipTypeCloneOverride();
+    row.setFieldName("sys_title");
+    row.setExtensionRef("Java/global/percussion/generic/sys_Literal");
+    row.setExtensionParams(List.of("cloned"));
+    body.setCloneOverrides(List.of(row));
+
+    RelationshipType out = adaptor.updateRelationshipType("MyUserRel", body);
+    assertEquals(1, out.getCloneOverrides().size());
+    assertEquals("sys_title", out.getCloneOverrides().get(0).getFieldName());
+    assertEquals(
+        "Java/global/percussion/generic/sys_Literal",
+        out.getCloneOverrides().get(0).getExtensionRef());
+    assertEquals(List.of("cloned"), out.getCloneOverrides().get(0).getExtensionParams());
+
+    RelationshipType fetched = adaptor.findRelationshipType("MyUserRel");
+    assertEquals(1, fetched.getCloneOverrides().size());
+    assertEquals("sys_title", fetched.getCloneOverrides().get(0).getFieldName());
+    assertFalse(
+        fetched.getDesignGaps().stream().anyMatch(g -> g.toLowerCase().contains("cloning field")));
+
+    RelationshipType leave = new RelationshipType();
+    leave.setLabel("still there");
+    RelationshipType left = adaptor.updateRelationshipType("MyUserRel", leave);
+    assertEquals(1, left.getCloneOverrides().size());
+    assertEquals("sys_title", left.getCloneOverrides().get(0).getFieldName());
+
+    RelationshipType clear = new RelationshipType();
+    clear.setCloneOverrides(List.of());
+    RelationshipType cleared = adaptor.updateRelationshipType("MyUserRel", clear);
+    assertTrue(cleared.getCloneOverrides().isEmpty());
+    assertTrue(adaptor.findRelationshipType("MyUserRel").getCloneOverrides().isEmpty());
+  }
+
+  @Test
+  void update_cloneOverridesInvalidIs400() {
+    seedUser("MyUserRel");
+    RelationshipType missingName = new RelationshipType();
+    RelationshipTypeCloneOverride row = new RelationshipTypeCloneOverride();
+    row.setExtensionRef("Java/global/percussion/generic/sys_Literal");
+    missingName.setCloneOverrides(List.of(row));
+    IllegalArgumentException missing =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.updateRelationshipType("MyUserRel", missingName));
+    assertTrue(missing.getMessage().contains("fieldName"));
+
+    RelationshipType badRef = new RelationshipType();
+    RelationshipTypeCloneOverride bad = new RelationshipTypeCloneOverride();
+    bad.setFieldName("sys_title");
+    bad.setExtensionRef("not-a-ref");
+    badRef.setCloneOverrides(List.of(bad));
+    IllegalArgumentException invalid =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.updateRelationshipType("MyUserRel", badRef));
+    assertTrue(invalid.getMessage().toLowerCase().contains("extensionref"));
+  }
+
+  @Test
+  void update_cloneOverridesNonAdminIs403() {
+    seedUser("MyUserRel");
+    RelationshipTypeAdaptor denied = new RelationshipTypeAdaptor(designWs, () -> false);
+    RelationshipType body = new RelationshipType();
+    RelationshipTypeCloneOverride row = new RelationshipTypeCloneOverride();
+    row.setFieldName("sys_title");
+    row.setExtensionRef("Java/global/percussion/generic/sys_Literal");
+    body.setCloneOverrides(List.of(row));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> denied.updateRelationshipType("MyUserRel", body));
+    assertEquals(403, ex.getResponse().getStatus());
   }
 
   @Test

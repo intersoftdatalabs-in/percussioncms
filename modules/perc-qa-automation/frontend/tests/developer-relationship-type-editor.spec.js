@@ -221,6 +221,73 @@ test.describe("Developer relationship type editor (#4253 / SY-03 H2)", () => {
     assertConsoleClean(pageErrors, consoleErrors);
   });
 
+  test("Admin can add, round-trip, and clear cloning field overrides", async ({ page }) => {
+    test.setTimeout(180_000);
+    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+    await loginAsAdmin(page);
+    await openRtCatalog(page);
+
+    const name = uniqueRtName("QaCl");
+    const label = `QA clone ${name}`;
+
+    await createUserRelationshipType(page, {
+      name,
+      label,
+      category: "rs_generic",
+      allowCloning: true,
+    });
+
+    await expect(page.locator('[data-testid="developer-rt-clone-overrides"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-rt-clone-empty"]')).toBeVisible();
+    await page.locator('[data-testid="developer-rt-clone-add"]').click();
+    await page.locator('[data-testid="developer-rt-clone-field-0"]').fill("sys_title");
+    await page
+      .locator('[data-testid="developer-rt-clone-ext-0"]')
+      .fill("Java/global/percussion/generic/sys_Literal");
+    await page.locator('[data-testid="developer-rt-clone-params-0"]').fill("cloned");
+    await expect(page.locator('[data-testid="developer-rt-save"]')).toBeEnabled();
+    await page.locator('[data-testid="developer-rt-save"]').click();
+
+    const notice = page.locator('[data-testid="developer-rt-editor-notice"]');
+    const saveError = page.locator('[data-testid="developer-rt-detail-error"]');
+    await expect(notice.or(saveError).first()).toBeVisible({ timeout: 30_000 });
+    if (await saveError.isVisible()) {
+      throw new Error(`Clone override save failed: ${(await saveError.innerText()).trim()}`);
+    }
+    await expect(page.locator('[data-testid="developer-rt-clone-field-0"]')).toHaveValue(
+      "sys_title",
+    );
+    await expect(page.locator('[data-testid="developer-rt-clone-ext-0"]')).toHaveValue(
+      "Java/global/percussion/generic/sys_Literal",
+    );
+    await expect(page.locator('[data-testid="developer-rt-gaps"]')).not.toContainText(
+      /Cloning field override editor/i,
+    );
+
+    await page.locator('[data-testid="developer-rt-back"]').click();
+    await rtOpen(page, name).click();
+    await expect(page.locator('[data-testid="developer-rt-clone-field-0"]')).toHaveValue(
+      "sys_title",
+    );
+    await expect(page.locator('[data-testid="developer-rt-clone-params-0"]')).toHaveValue(
+      /cloned/,
+    );
+
+    await page.locator('[data-testid="developer-rt-clone-remove-0"]').click();
+    await expect(page.locator('[data-testid="developer-rt-clone-empty"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-rt-save"]')).toBeEnabled();
+    await page.locator('[data-testid="developer-rt-save"]').click();
+    await expect(notice.or(saveError).first()).toBeVisible({ timeout: 30_000 });
+    if (await saveError.isVisible()) {
+      throw new Error(`Clone override clear failed: ${(await saveError.innerText()).trim()}`);
+    }
+    await expect(page.locator('[data-testid="developer-rt-clone-empty"]')).toBeVisible();
+
+    await deleteCurrentUserType(page);
+    await expect(rtOpen(page, name)).toHaveCount(0);
+    assertConsoleClean(pageErrors, consoleErrors);
+  });
+
   test("Admin can create a user type by copying a system type", async ({ page }) => {
     test.setTimeout(150_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);

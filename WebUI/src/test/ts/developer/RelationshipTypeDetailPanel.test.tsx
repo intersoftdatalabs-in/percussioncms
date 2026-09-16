@@ -76,6 +76,7 @@ const sampleUserDetail = {
   effects: [],
   systemProperties: [],
   userProperties: [],
+  cloneOverrides: [],
   designGaps: ["gap-user"],
 };
 
@@ -108,6 +109,9 @@ describe("RelationshipTypeDetailPanel", () => {
     expect(screen.getByTestId("developer-rt-sysprops-table")).toBeTruthy();
     expect(screen.getByTestId("developer-rt-userprops-table")).toBeTruthy();
     expect(screen.getByTestId("developer-rt-gaps").textContent).toContain("gap-a");
+    expect(screen.getByTestId("developer-rt-clone-overrides")).toBeTruthy();
+    expect(screen.getByTestId("developer-rt-clone-empty")).toBeTruthy();
+    expect(screen.queryByTestId("developer-rt-clone-add")).toBeNull();
     expect(getRelationshipTypeDetail).toHaveBeenCalledWith("ActiveAssembly");
     fireEvent.click(screen.getByTestId("developer-rt-back"));
     expect(onBack).toHaveBeenCalled();
@@ -280,5 +284,49 @@ describe("RelationshipTypeDetailPanel", () => {
     expect(screen.getByTestId("developer-rt-detail-error").textContent).toBe(
       DEV_MSG.RT_DETAIL_ERROR,
     );
+  });
+
+  it("saves cloning field overrides on a user type", async () => {
+    getRelationshipTypeDetail.mockResolvedValue(sampleUserDetail);
+    updateRelationshipType.mockResolvedValue({
+      ...sampleUserDetail,
+      cloneOverrides: [
+        {
+          fieldName: "sys_title",
+          extensionRef: "Java/global/percussion/generic/sys_Literal",
+          extensionParams: ["cloned"],
+        },
+      ],
+    });
+    render(<RelationshipTypeDetailPanel idOrName="MyUserRel" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-rt-clone-add")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-rt-clone-add"));
+    fireEvent.change(screen.getByTestId("developer-rt-clone-field-0"), {
+      target: { value: "sys_title" },
+    });
+    fireEvent.change(screen.getByTestId("developer-rt-clone-ext-0"), {
+      target: { value: "Java/global/percussion/generic/sys_Literal" },
+    });
+    fireEvent.change(screen.getByTestId("developer-rt-clone-params-0"), {
+      target: { value: "cloned" },
+    });
+    expect(screen.getByTestId("developer-rt-save")).not.toBeDisabled();
+    fireEvent.click(screen.getByTestId("developer-rt-save"));
+    await waitFor(() => {
+      expect(updateRelationshipType).toHaveBeenCalledWith(
+        "MyUserRel",
+        expect.objectContaining({
+          cloneOverrides: [
+            {
+              fieldName: "sys_title",
+              extensionRef: "Java/global/percussion/generic/sys_Literal",
+              extensionParams: ["cloned"],
+            },
+          ],
+        }),
+      );
+    });
   });
 });

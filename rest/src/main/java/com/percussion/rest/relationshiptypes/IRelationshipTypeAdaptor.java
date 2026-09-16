@@ -52,7 +52,8 @@ public interface IRelationshipTypeAdaptor {
   RelationshipType createRelationshipType(RelationshipType body);
 
   /**
-   * Admin. Update mutable fields of a user relationship type. Does not mutate system types.
+   * Admin. Update mutable fields of a user relationship type (including cloning field overrides).
+   * Does not mutate system types.
    *
    * @param idOrName name or GUID string (same rules as {@link #findRelationshipType})
    * @param body required writable fields
