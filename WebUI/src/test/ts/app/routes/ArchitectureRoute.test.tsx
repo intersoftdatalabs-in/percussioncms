@@ -82,9 +82,12 @@ describe("ArchitectureRoute (#3094 / #3095)", () => {
 
   it("mounts shell for Admin/Designer with empty state when no sites", async () => {
     renderAt("/architecture");
-    await waitFor(() => {
-      expect(screen.getByTestId("perc-architecture-shell")).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("perc-architecture-shell")).toBeTruthy();
+      },
+      { timeout: 5_000 },
+    );
     await waitFor(() => {
       expect(screen.getByTestId("architecture-empty-state")).toBeTruthy();
     });

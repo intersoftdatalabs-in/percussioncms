@@ -57,7 +57,7 @@ const sampleDetail = {
   ],
   systemProperties: [{ name: "rs_allowcloning", value: "yes" }],
   userProperties: [],
-  designGaps: ["Cloning field override editor not supported via this API"],
+  designGaps: ["Effect condition and execution-context edit not supported via this API"],
 };
 
 describe("RelationshipTypesPanel", () => {

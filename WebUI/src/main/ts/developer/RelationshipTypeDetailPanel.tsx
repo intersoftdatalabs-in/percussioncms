@@ -30,7 +30,10 @@ import {
   updateRelationshipType,
   type RelationshipTypeWriteBody,
 } from "../api/developer/relationshipTypesApi";
-import type { RelationshipTypeDef } from "../api/developer/types";
+import type {
+  RelationshipTypeCloneOverride,
+  RelationshipTypeDef,
+} from "../api/developer/types";
 import {
   backButton,
   catalogColors,
@@ -56,6 +59,64 @@ const inputStyle: React.CSSProperties = {
   borderRadius: "4px",
   font: "inherit",
 };
+
+type CloneOverrideRow = {
+  fieldName: string;
+  extensionRef: string;
+  paramsText: string;
+};
+
+function parseParamsText(text: string): string[] {
+  return text
+    .split(",")
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0);
+}
+
+function paramsToText(params: string[] | string | undefined): string {
+  if (params == null || (Array.isArray(params) && params.length === 0)) return "";
+  if (typeof params === "string") return params;
+  return params.join(", ");
+}
+
+function rowsFromDetail(
+  overrides: RelationshipTypeCloneOverride[] | RelationshipTypeCloneOverride | undefined,
+): CloneOverrideRow[] {
+  if (overrides == null) return [];
+  const list = Array.isArray(overrides) ? overrides : [overrides];
+  if (list.length === 0) return [];
+  return list.map((o) => ({
+    fieldName: o.fieldName || "",
+    extensionRef: o.extensionRef || "",
+    paramsText: paramsToText(o.extensionParams),
+  }));
+}
+
+function serializeRows(rows: CloneOverrideRow[]): string {
+  return JSON.stringify(
+    rows.map((r) => ({
+      fieldName: r.fieldName.trim(),
+      extensionRef: r.extensionRef.trim(),
+      extensionParams: parseParamsText(r.paramsText),
+    })),
+  );
+}
+
+function completeCloneRows(rows: CloneOverrideRow[]): RelationshipTypeCloneOverride[] {
+  return rows
+    .filter((r) => r.fieldName.trim() || r.extensionRef.trim() || r.paramsText.trim())
+    .map((r) => ({
+      fieldName: r.fieldName.trim(),
+      extensionRef: r.extensionRef.trim(),
+      extensionParams: parseParamsText(r.paramsText),
+    }));
+}
+
+function cloneRowsIncomplete(rows: CloneOverrideRow[]): boolean {
+  return completeCloneRows(rows).some(
+    (r) => !(r.fieldName || "").trim() || !(r.extensionRef || "").trim(),
+  );
+}
 
 function writeErrorFallback(err: unknown, isNew: boolean): string {
   if (isApiError(err)) {
@@ -116,6 +177,7 @@ export function RelationshipTypeDetailPanel({
   const [allowCloning, setAllowCloning] = useState(false);
   const [useOwnerRevision, setUseOwnerRevision] = useState(false);
   const [useDependentRevision, setUseDependentRevision] = useState(false);
+  const [cloneRows, setCloneRows] = useState<CloneOverrideRow[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -146,6 +208,7 @@ export function RelationshipTypeDetailPanel({
         setAllowCloning(Boolean(d.allowCloning));
         setUseOwnerRevision(Boolean(d.useOwnerRevision));
         setUseDependentRevision(Boolean(d.useDependentRevision));
+        setCloneRows(rowsFromDetail(d.cloneOverrides));
         setLoading(false);
       })
       .catch((err: unknown) => {
@@ -168,6 +231,8 @@ export function RelationshipTypeDetailPanel({
   const loadedAllowCloning = Boolean(detail?.allowCloning);
   const loadedUseOwnerRevision = Boolean(detail?.useOwnerRevision);
   const loadedUseDependentRevision = Boolean(detail?.useDependentRevision);
+  const loadedCloneSerialized = serializeRows(rowsFromDetail(detail?.cloneOverrides));
+  const cloneIncomplete = cloneRowsIncomplete(cloneRows);
   const dirty =
     isNew ||
     label !== loadedLabel ||
@@ -175,12 +240,14 @@ export function RelationshipTypeDetailPanel({
     category !== loadedCategory ||
     allowCloning !== loadedAllowCloning ||
     useOwnerRevision !== loadedUseOwnerRevision ||
-    useDependentRevision !== loadedUseDependentRevision;
+    useDependentRevision !== loadedUseDependentRevision ||
+    serializeRows(cloneRows) !== loadedCloneSerialized;
 
   const canSave =
     userWritable &&
     !busy &&
     dirty &&
+    !cloneIncomplete &&
     isRelationshipTypeWriteReady({
       isNew,
       name,
@@ -205,6 +272,10 @@ export function RelationshipTypeDetailPanel({
       useOwnerRevision,
       useDependentRevision,
     };
+    const overrides = completeCloneRows(cloneRows);
+    if (!isNew || overrides.length > 0) {
+      body.cloneOverrides = overrides;
+    }
     if (isNew) {
       body.name = normalizeRelationshipTypeName(name);
       const cf = normalizeRelationshipTypeName(copyFrom);
@@ -247,6 +318,7 @@ export function RelationshipTypeDetailPanel({
       setAllowCloning(Boolean(saved.allowCloning));
       setUseOwnerRevision(Boolean(saved.useOwnerRevision));
       setUseDependentRevision(Boolean(saved.useDependentRevision));
+      setCloneRows(rowsFromDetail(saved.cloneOverrides));
       setNotice(DEV_MSG.RT_SAVED);
       await onSaved?.(saved);
     } catch (err: unknown) {
@@ -292,9 +364,9 @@ export function RelationshipTypeDetailPanel({
   const userProps =
     detail != null && Array.isArray(detail.userProperties) ? detail.userProperties : [];
   const gaps =
-    detail != null && detail.designGaps && detail.designGaps.length
+    detail != null && Array.isArray(detail.designGaps) && detail.designGaps.length
       ? detail.designGaps
-      : [DEV_MSG.RT_GAP_CLONE, DEV_MSG.RT_GAP_EFFECTS];
+      : [DEV_MSG.RT_GAP_EFFECTS];
 
   const title = isNew
     ? DEV_MSG.RT_NEW
@@ -498,6 +570,138 @@ export function RelationshipTypeDetailPanel({
               </label>
             </div>
           ) : null}
+
+          <section data-testid="developer-rt-clone-overrides" style={{ marginBottom: "16px" }}>
+            <h3 style={{ fontSize: "1rem", margin: "0 0 4px" }}>{DEV_MSG.RT_CLONE_OVERRIDES}</h3>
+            <p style={{ color: catalogColors.muted, fontSize: "0.85rem", margin: "0 0 8px" }}>
+              {DEV_MSG.RT_CLONE_HINT}
+            </p>
+            {cloneRows.length === 0 ? (
+              <p
+                data-testid="developer-rt-clone-empty"
+                style={{ color: catalogColors.empty, margin: "0 0 8px" }}
+              >
+                {DEV_MSG.RT_CLONE_EMPTY}
+              </p>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table
+                  data-testid="developer-rt-clone-table"
+                  style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
+                >
+                  <thead>
+                    <tr style={tableHeaderRow}>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.RT_CLONE_FIELD}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.RT_CLONE_EXT}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.RT_CLONE_PARAMS}</th>
+                      {userWritable ? <th style={{ padding: "8px" }} /> : null}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cloneRows.map((row, i) => (
+                      <tr key={`clone-${i}`} style={tableRow}>
+                        <td style={{ padding: "8px" }}>
+                          <input
+                            data-testid={`developer-rt-clone-field-${i}`}
+                            aria-label={DEV_MSG.RT_CLONE_FIELD}
+                            style={{ ...inputStyle, fontFamily: "monospace", width: "100%" }}
+                            value={row.fieldName}
+                            disabled={fieldsDisabled}
+                            onChange={(e) => {
+                              const next = [...cloneRows];
+                              next[i] = { ...next[i], fieldName: e.target.value };
+                              setCloneRows(next);
+                            }}
+                          />
+                        </td>
+                        <td style={{ padding: "8px" }}>
+                          <input
+                            data-testid={`developer-rt-clone-ext-${i}`}
+                            aria-label={DEV_MSG.RT_CLONE_EXT}
+                            style={{ ...inputStyle, fontFamily: "monospace", width: "100%" }}
+                            value={row.extensionRef}
+                            disabled={fieldsDisabled}
+                            onChange={(e) => {
+                              const next = [...cloneRows];
+                              next[i] = { ...next[i], extensionRef: e.target.value };
+                              setCloneRows(next);
+                            }}
+                          />
+                        </td>
+                        <td style={{ padding: "8px" }}>
+                          <input
+                            data-testid={`developer-rt-clone-params-${i}`}
+                            aria-label={DEV_MSG.RT_CLONE_PARAMS}
+                            style={{ ...inputStyle, fontFamily: "monospace", width: "100%" }}
+                            value={row.paramsText}
+                            disabled={fieldsDisabled}
+                            onChange={(e) => {
+                              const next = [...cloneRows];
+                              next[i] = { ...next[i], paramsText: e.target.value };
+                              setCloneRows(next);
+                            }}
+                          />
+                        </td>
+                        {userWritable ? (
+                          <td style={{ padding: "8px" }}>
+                            <button
+                              type="button"
+                              data-testid={`developer-rt-clone-remove-${i}`}
+                              aria-label={DEV_MSG.RT_CLONE_REMOVE}
+                              disabled={fieldsDisabled}
+                              onClick={() =>
+                                setCloneRows(cloneRows.filter((_, idx) => idx !== i))
+                              }
+                              style={{
+                                padding: "6px 10px",
+                                background: "transparent",
+                                border: `1px solid ${catalogColors.softBorder}`,
+                                borderRadius: "4px",
+                                cursor: fieldsDisabled ? "not-allowed" : "pointer",
+                              }}
+                            >
+                              {DEV_MSG.RT_CLONE_REMOVE}
+                            </button>
+                          </td>
+                        ) : null}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {userWritable ? (
+              <button
+                type="button"
+                data-testid="developer-rt-clone-add"
+                disabled={fieldsDisabled}
+                onClick={() =>
+                  setCloneRows([
+                    ...cloneRows,
+                    { fieldName: "", extensionRef: "", paramsText: "" },
+                  ])
+                }
+                style={{
+                  marginTop: "8px",
+                  padding: "6px 12px",
+                  background: "transparent",
+                  border: `1px solid ${catalogColors.softBorder}`,
+                  borderRadius: "4px",
+                  cursor: fieldsDisabled ? "not-allowed" : "pointer",
+                }}
+              >
+                {DEV_MSG.RT_CLONE_ADD}
+              </button>
+            ) : null}
+            {cloneIncomplete ? (
+              <p
+                data-testid="developer-rt-clone-incomplete"
+                style={{ color: "#c53030", fontSize: "0.85rem", margin: "8px 0 0" }}
+              >
+                {DEV_MSG.RT_CLONE_INCOMPLETE}
+              </p>
+            ) : null}
+          </section>
 
           {userWritable ? (
             <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>

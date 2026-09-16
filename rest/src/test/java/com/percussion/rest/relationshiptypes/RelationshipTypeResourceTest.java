@@ -199,6 +199,32 @@ public class RelationshipTypeResourceTest {
   }
 
   @Test
+  public void updateRelationshipTypeCloneOverrideInvalidIs400() {
+    when(adaptor.updateRelationshipType(eq("MyUserRel"), any()))
+        .thenThrow(new IllegalArgumentException("cloneOverrides.fieldName is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateRelationshipType("MyUserRel", userBody("MyUserRel")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getRelationshipTypeIncludesCloneOverrides() {
+    RelationshipType t = userBody("MyUserRel");
+    RelationshipTypeCloneOverride row = new RelationshipTypeCloneOverride();
+    row.setFieldName("sys_title");
+    row.setExtensionRef("Java/global/percussion/generic/sys_Literal");
+    row.setExtensionParams(List.of("cloned"));
+    t.setCloneOverrides(List.of(row));
+    when(adaptor.findRelationshipType(eq("MyUserRel"))).thenReturn(t);
+
+    RelationshipType out = resource.getRelationshipType("MyUserRel");
+    assertEquals(1, out.getCloneOverrides().size());
+    assertEquals("sys_title", out.getCloneOverrides().get(0).getFieldName());
+  }
+
+  @Test
   public void updateRelationshipTypeUnknownIs404() {
     when(adaptor.updateRelationshipType(eq("missing"), any())).thenReturn(null);
     WebApplicationException ex =

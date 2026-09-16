@@ -1675,6 +1675,17 @@ export const DEV_MSG_KEYS = {
   RT_FORM_ALLOW_CLONE: "perc.ui.developer@Allow cloning",
   RT_FORM_OWNER_REV: "perc.ui.developer@Use owner revision",
   RT_FORM_DEP_REV: "perc.ui.developer@Use dependent revision",
+  RT_CLONE_OVERRIDES: "perc.ui.developer@Cloning field overrides",
+  RT_CLONE_HINT:
+    "perc.ui.developer@Override content-editor field values when this type clones an item. Field name plus a UDF (for example Java/global/percussion/generic/sys_Literal). Empty list clears on save.",
+  RT_CLONE_FIELD: "perc.ui.developer@Field name",
+  RT_CLONE_EXT: "perc.ui.developer@Extension ref",
+  RT_CLONE_PARAMS: "perc.ui.developer@UDF params (comma-separated)",
+  RT_CLONE_ADD: "perc.ui.developer@Add override",
+  RT_CLONE_REMOVE: "perc.ui.developer@Remove",
+  RT_CLONE_EMPTY: "perc.ui.developer@No cloning field overrides.",
+  RT_CLONE_INCOMPLETE:
+    "perc.ui.developer@Each override needs a field name and extension ref (or remove the row).",
   RT_NAME_HINT:
     "perc.ui.developer@Required on create. No spaces or wildcards. Cannot be renamed later.",
   RT_NAME_READONLY: "perc.ui.developer@Name cannot be changed after create.",
@@ -1704,8 +1715,6 @@ export const DEV_MSG_KEYS = {
   RT_USER_PROPS: "perc.ui.developer@User properties",
   RT_NONE: "perc.ui.developer@None",
   RT_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
-  RT_GAP_CLONE:
-    "perc.ui.developer@Cloning field override editor not supported via this API",
   RT_GAP_EFFECTS:
     "perc.ui.developer@Effect condition and execution-context edit not supported via this API",
   RT_COPY_NONE: "perc.ui.developer@(none — choose category)",

@@ -106,6 +106,9 @@ class CatalogRestJaxrsRegistrationTest {
   /** #4465 template associatedContentTypes:[] clear vs omit — must precede jacksonProvider. */
   private static final String TEMPLATE_DETAIL_JSON_READER = "templateDetailJsonReader";
 
+  /** #4470 relationship-type cloneOverrides:[] clear vs omit — must precede jacksonProvider. */
+  private static final String RELATIONSHIP_TYPE_JSON_READER = "relationshipTypeJsonReader";
+
   @Test
   void restJaxRsServiceBeansIncludeDeveloperCatalogResources() throws Exception {
     Path root = resolveRepoRoot();
@@ -166,6 +169,8 @@ class CatalogRestJaxrsRegistrationTest {
         providerBlock.indexOf("bean=\"" + DISPLAY_FORMAT_JSON_READER + "\"");
     int templateDetailReader =
         providerBlock.indexOf("bean=\"" + TEMPLATE_DETAIL_JSON_READER + "\"");
+    int relationshipTypeReader =
+        providerBlock.indexOf("bean=\"" + RELATIONSHIP_TYPE_JSON_READER + "\"");
     int jackson = providerBlock.indexOf("bean=\"jacksonProvider\"");
     assertTrue(
         reader >= 0,
@@ -227,6 +232,11 @@ class CatalogRestJaxrsRegistrationTest {
         "rest-jax-rs providers must ref "
             + TEMPLATE_DETAIL_JSON_READER
             + " (missing → template PUT associatedContentTypes:[] treated as omit)");
+    assertTrue(
+        relationshipTypeReader >= 0,
+        "rest-jax-rs providers must ref "
+            + RELATIONSHIP_TYPE_JSON_READER
+            + " (missing → relationship-type PUT cloneOverrides:[] treated as omit)");
     assertTrue(jackson >= 0, "rest-jax-rs providers must still ref jacksonProvider");
     assertTrue(
         reader < jackson,
@@ -264,6 +274,9 @@ class CatalogRestJaxrsRegistrationTest {
     assertTrue(
         templateDetailReader < jackson,
         TEMPLATE_DETAIL_JSON_READER + " must be listed before jacksonProvider");
+    assertTrue(
+        relationshipTypeReader < jackson,
+        RELATIONSHIP_TYPE_JSON_READER + " must be listed before jacksonProvider");
     assertTrue(
         restBlock.contains("skip.default.json.provider.registration\" value=\"true\""),
         "rest-jax-rs must skip Jettison JSONProvider with value=\"true\" (POST /actions JAXB "

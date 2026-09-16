@@ -10,11 +10,12 @@ tags: [admin, developer, relationship-types]
 # Developer Relationship Types
 
 **Developer → Relationship Types** lists system and user relationship type
-definitions (name, label, category, cloning flags, effects, and properties).
+definitions (name, label, category, cloning flags, cloning field overrides,
+effects, and properties).
 Admins can **create**, **save**, and **delete** **user** relationship types
 from this chrome. Packaged **system** types remain **read-only** — open them
-to inspect effects and properties, then create a user type (optionally
-**Copy from** a system type) to customize.
+to inspect effects, properties, and cloning field overrides, then create a
+user type (optionally **Copy from** a system type) to customize.
 
 ## Product path — create, save, delete
 
@@ -30,7 +31,13 @@ to inspect effects and properties, then create a user type (optionally
    create, the name field is read-only and the type appears in the catalog.
 5. Open a **user** type, change the label (or category / flags), and **Save**
    again.
-6. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
+6. **Cloning field overrides:** on a user type, **Add override**, enter a
+   content-editor **field name** (for example `sys_title`), a UDF **extension
+   ref** (for example `Java/global/percussion/generic/sys_Literal`), and
+   optional comma-separated UDF params. **Save** persists the full list.
+   Remove every row and **Save** to **clear** overrides. System types show the
+   list read-only.
+7. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
    The catalog no longer lists that type. Delete of a missing type is **404**.
    A **system** type cannot be deleted (**409**); the editor hides Save/Delete
    for system types.
@@ -39,8 +46,9 @@ to inspect effects and properties, then create a user type (optionally
 
 - System relationship types are immutable in this chrome (and via REST).
 - Name is immutable after create.
-- Cloning field-override editor and effect condition / execution-context edit
-  are not in this chrome (see `designGaps` on detail).
+- Cloning field-override **conditions** (rule lists on each override) and
+  effect condition / execution-context edit are not in this chrome (see
+  `designGaps` on detail).
 - Deep effect/function property dialogs remain Workbench parity debt.
 
 ## REST
