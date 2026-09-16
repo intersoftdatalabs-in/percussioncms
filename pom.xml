@@ -220,7 +220,7 @@
         <maven.enforcer.plugin.version>3.6.2</maven.enforcer.plugin.version>
         <maven.exec.plugin.version>3.5.0</maven.exec.plugin.version>
         <maven.execmaven.plugin.version>3.6.3</maven.execmaven.plugin.version>
-        <maven.failsafe.plugin.version>3.5.4</maven.failsafe.plugin.version>
+        <maven.failsafe.plugin.version>3.6.0</maven.failsafe.plugin.version>
         <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
         <maven.install.plugin.version>3.2.0</maven.install.plugin.version>
         <maven.jar.plugin.version>3.5.0</maven.jar.plugin.version>
@@ -232,9 +232,9 @@
         <maven.resources.plugin.version>3.5.0</maven.resources.plugin.version>
         <maven.scm.plugin.version>2.2.1</maven.scm.plugin.version>
         <maven.shade.plugin.version>3.6.1</maven.shade.plugin.version>
-        <maven.site.plugin.version>3.21.0</maven.site.plugin.version>
+        <maven.site.plugin.version>3.22.0</maven.site.plugin.version>
         <maven.source.jar.plugin.version>3.4.0</maven.source.jar.plugin.version>
-        <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
+        <maven.surefire.plugin.version>3.6.0</maven.surefire.plugin.version>
         <maven.toolchains.plugin.version>3.3.0</maven.toolchains.plugin.version>
         <maven.version>[3.6,)</maven.version>
         <maven.war.plugin.version>3.5.1</maven.war.plugin.version>
@@ -248,10 +248,10 @@
         <oracle.version>12.1.0.1</oracle.version>
         <owasp.csrfguard.version>4.5.0-jakarta</owasp.csrfguard.version>
         <owl.version>5.5.1</owl.version>
-        <pdfbox.version>3.0.6</pdfbox.version>
+        <pdfbox.version>3.0.8</pdfbox.version>
         <plexus.component.metadata.version>2.2.0</plexus.component.metadata.version>
         <!-- minify-maven-plugin and other plugins; Dependabot #213 -->
-        <plexus.utils.version>4.0.3</plexus.utils.version>
+        <plexus.utils.version>4.1.0</plexus.utils.version>
         <poi.version>5.4.0</poi.version>
         <!-- #1500 external PostgreSQL repository backend (org.postgresql:postgresql, Java 21) -->
         <postgresql.version>42.7.13</postgresql.version>
@@ -287,7 +287,7 @@
         <stax.version>1.0.1</stax.version>
         <surefireArgLine/>
         <swagger.ui.version>5.32.11</swagger.ui.version>
-        <swagger.version>2.2.52</swagger.version>
+        <swagger.version>2.2.55</swagger.version>
         <!-- Stay on Tika 3.x. Tika 4.0 (Dependabot #4474) is not a drop-in:
              parsers-standard-package is a POM not a JAR (TIKA-4712), TikaConfig
              is replaced by TikaLoader, config is JSON not XML, Parser SPI takes
@@ -309,7 +309,7 @@
         <velocity.tools.version>3.1</velocity.tools.version>
         <velocity.version>2.4.1</velocity.version>
         <versionString>INTERNAL</versionString>
-        <versions.maven.plugin.version>2.21.0</versions.maven.plugin.version>
+        <versions.maven.plugin.version>2.22.0</versions.maven.plugin.version>
         <xerces.version>2.12.2</xerces.version>
         <xmlgraphics.common.version>2.11</xmlgraphics.common.version>
         <xmlresolver.version>1.2</xmlresolver.version>
@@ -464,7 +464,7 @@
             <dependency>
                 <groupId>org.gwtproject</groupId>
                 <artifactId>gwt-servlet</artifactId>
-                <version>2.10.0</version>
+                <version>2.13.1</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>
@@ -1158,7 +1158,7 @@
             <dependency>
                 <groupId>commons-net</groupId>
                 <artifactId>commons-net</artifactId>
-                <version>3.12.0</version>
+                <version>3.13.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tika</groupId>
@@ -1965,7 +1965,7 @@
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
-                <version>1.18.42</version>
+                <version>1.18.48</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>

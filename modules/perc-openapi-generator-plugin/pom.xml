@@ -28,7 +28,7 @@
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.13.1</version>
+            <version>3.16.0</version>
             <scope>provided</scope>
         </dependency>
         <!-- CXF for OpenAPI scanning -->
@@ -90,7 +90,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.14.0</version>
+                <version>3.22.0</version>
                 <configuration>
                     <siteDirectory>${basedir}/src/site</siteDirectory>
                 </configuration>
@@ -129,7 +129,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>3.2.5</version>
+                <version>3.6.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
