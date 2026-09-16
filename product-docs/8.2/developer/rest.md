@@ -2583,8 +2583,8 @@ no wildcards). Provide either:
 * `category` — category **code** (`rs_activeassembly`, `rs_copy`, `rs_promotable`,
   `rs_translation`, …) or **label** (`Active Assembly`, `New Copy`, …), or
 * `copyFrom` — name or GUID of an existing type whose mutable fields (label, description,
-  cloning/revision flags, user properties, effects) are copied onto the new **user** type
-  (Workbench copy-from-system).
+  cloning/revision flags, user properties, cloning field overrides, effects) are copied
+  onto the new **user** type (Workbench copy-from-system).
 
 `label` defaults to `name` when omitted. Duplicate name is **409**. Blank / invalid name or
 missing category (when `copyFrom` is absent) is **400**. Unknown `copyFrom` is **400**.
