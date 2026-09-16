@@ -322,7 +322,7 @@
              CloudSolrClient+ZK is re-enabled: remove bans/exclusions and re-add the
              optional module. Dependabot may still list 3.9.5 in residual advisory ranges
              with no newer patched artifact; empty tree is the mitigation. -->
-        <zookeeper.version>3.9.5</zookeeper.version>
+        <zookeeper.version>3.9.6</zookeeper.version>
     </properties>
     <dependencyManagement>
         <dependencies>
