@@ -73,16 +73,19 @@ function parseParamsText(text: string): string[] {
     .filter((p) => p.length > 0);
 }
 
-function paramsToText(params: string[] | undefined): string {
-  if (!params || params.length === 0) return "";
+function paramsToText(params: string[] | string | undefined): string {
+  if (params == null || (Array.isArray(params) && params.length === 0)) return "";
+  if (typeof params === "string") return params;
   return params.join(", ");
 }
 
 function rowsFromDetail(
-  overrides: RelationshipTypeCloneOverride[] | undefined,
+  overrides: RelationshipTypeCloneOverride[] | RelationshipTypeCloneOverride | undefined,
 ): CloneOverrideRow[] {
-  if (!overrides || overrides.length === 0) return [];
-  return overrides.map((o) => ({
+  if (overrides == null) return [];
+  const list = Array.isArray(overrides) ? overrides : [overrides];
+  if (list.length === 0) return [];
+  return list.map((o) => ({
     fieldName: o.fieldName || "",
     extensionRef: o.extensionRef || "",
     paramsText: paramsToText(o.extensionParams),
@@ -361,7 +364,7 @@ export function RelationshipTypeDetailPanel({
   const userProps =
     detail != null && Array.isArray(detail.userProperties) ? detail.userProperties : [];
   const gaps =
-    detail != null && detail.designGaps && detail.designGaps.length
+    detail != null && Array.isArray(detail.designGaps) && detail.designGaps.length
       ? detail.designGaps
       : [DEV_MSG.RT_GAP_EFFECTS];
 

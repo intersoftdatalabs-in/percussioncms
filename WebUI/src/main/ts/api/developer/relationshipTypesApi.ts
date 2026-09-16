@@ -17,7 +17,10 @@
 
 import { del, get, post, put } from "../client";
 import { PATHS } from "../paths";
-import type { RelationshipTypeDef } from "./types";
+import type {
+  RelationshipTypeCloneOverride,
+  RelationshipTypeDef,
+} from "./types";
 
 /**
  * Catalog-level design gaps remaining after Admin write (REST-GAPS-02).
@@ -96,14 +99,56 @@ function asArray<T>(payload: unknown): T[] {
   return [];
 }
 
-function withGaps(t: RelationshipTypeDef): RelationshipTypeDef {
+/** CXF/JAXB JSON emits a 1-element List as a scalar, not `[item]`. */
+export function coerceStringList(value: unknown): string[] {
+  if (value == null) return [];
+  if (Array.isArray(value)) {
+    return value.filter((x): x is string => typeof x === "string");
+  }
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed ? [trimmed] : [];
+  }
+  return [];
+}
+
+/** CXF/JAXB JSON emits a 1-element object List as a bare object. */
+export function coerceObjectList<T extends object>(value: unknown): T[] {
+  if (value == null) return [];
+  if (Array.isArray(value)) {
+    return value.filter((x): x is T => x != null && typeof x === "object");
+  }
+  if (typeof value === "object") {
+    return [value as T];
+  }
+  return [];
+}
+
+function normalizeWireRow(t: RelationshipTypeDef, fillGaps: boolean): RelationshipTypeDef {
+  const designGaps = coerceStringList(t.designGaps);
   return {
     ...t,
-    designGaps:
-      t.designGaps && t.designGaps.length > 0
+    effects: coerceObjectList(t.effects),
+    systemProperties: coerceObjectList(t.systemProperties),
+    userProperties: coerceObjectList(t.userProperties),
+    cloneOverrides: coerceObjectList<RelationshipTypeCloneOverride>(t.cloneOverrides).map(
+      (o) => ({
+        ...o,
+        extensionParams: coerceStringList(o.extensionParams),
+      }),
+    ),
+    designGaps: fillGaps
+      ? designGaps.length > 0
+        ? designGaps
+        : [...RELATIONSHIP_TYPE_DESIGN_GAPS]
+      : t.designGaps == null
         ? t.designGaps
-        : [...RELATIONSHIP_TYPE_DESIGN_GAPS],
+        : designGaps,
   };
+}
+
+function withGaps(t: RelationshipTypeDef): RelationshipTypeDef {
+  return normalizeWireRow(t, true);
 }
 
 /** Trim; reject blank, whitespace inside, wildcards, path separators. */
@@ -162,7 +207,7 @@ export function isSystemRelationshipType(
 /** GET /services/relationshiptypes — list omits designGaps on the wire (REST-GAPS-02). */
 export async function listRelationshipTypes(): Promise<RelationshipTypeDef[]> {
   const payload = await get<unknown>(PATHS.RELATIONSHIP_TYPES);
-  return asArray<RelationshipTypeDef>(payload);
+  return asArray<RelationshipTypeDef>(payload).map((t) => normalizeWireRow(t, false));
 }
 
 /** GET /services/relationshiptypes/{idOrName} */

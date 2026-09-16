@@ -7,6 +7,8 @@ import * as client from "../../../../main/ts/api/client";
 import {
   RELATIONSHIP_TYPE_DESIGN_GAPS,
   RELATIONSHIP_TYPE_ROOT,
+  coerceObjectList,
+  coerceStringList,
   createRelationshipType,
   deleteRelationshipType,
   getRelationshipTypeDetail,
@@ -107,6 +109,39 @@ describe("relationshipTypesApi REST", () => {
     const detail = await getRelationshipTypeDetail("rs_folder");
     expect(detail.name).toBe("rs_folder");
     expect(detail.designGaps).toEqual(RELATIONSHIP_TYPE_DESIGN_GAPS);
+    spy.mockRestore();
+  });
+
+  it("coerces a JAXB single designGaps string and cloneOverrides object", async () => {
+    expect(coerceStringList("Effect condition only")).toEqual(["Effect condition only"]);
+    expect(
+      coerceObjectList({ fieldName: "sys_title", extensionRef: "Java/x" }),
+    ).toEqual([{ fieldName: "sys_title", extensionRef: "Java/x" }]);
+    const spy = vi.spyOn(client, "get").mockResolvedValue({
+      RelationshipType: {
+        name: "ActiveAssembly",
+        designGaps:
+          "Effect condition and execution-context edit not supported via this API",
+        cloneOverrides: {
+          fieldName: "sys_title",
+          extensionRef: "Java/global/percussion/generic/sys_Literal",
+        },
+        effects: { name: "rs_touchparent" },
+      },
+    });
+    const detail = await getRelationshipTypeDetail("ActiveAssembly");
+    expect(detail.designGaps).toEqual([
+      "Effect condition and execution-context edit not supported via this API",
+    ]);
+    expect(Array.isArray(detail.designGaps) && detail.designGaps.map).toBeTypeOf("function");
+    expect(detail.cloneOverrides).toEqual([
+      {
+        fieldName: "sys_title",
+        extensionRef: "Java/global/percussion/generic/sys_Literal",
+        extensionParams: [],
+      },
+    ]);
+    expect(detail.effects).toEqual([{ name: "rs_touchparent" }]);
     spy.mockRestore();
   });
 

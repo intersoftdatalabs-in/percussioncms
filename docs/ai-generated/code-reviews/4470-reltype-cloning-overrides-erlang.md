@@ -25,11 +25,17 @@ Admin GET/PUT of relationship-type cloning field overrides (`cloneOverrides`: fi
 
 ## Issues
 
-None blocking.
+### bug (fixed in follow-up)
+
+- Dropping the cloning-override `designGaps` entry left a **single** `List<String>` on detail GET. CXF/JAXB JSON serializes that as a **bare string**. SPA `gaps.map` then throws, ErrorBoundary replaces the catalog, Playwright cannot open/save types. Fix: coerce JAXB scalars to arrays on unwrap (`coerceStringList` / `coerceObjectList`) and guard `Array.isArray` in the detail panel.
 
 ### nit (non-blocking)
 
 - `product-docs/8.2/developer/rest.md` copyFrom bullet lists copied mutable fields but omits `cloneOverrides`, which `copyMutableFromSource` does copy. Integrators may miss that copy-from includes overrides.
+
+## Re-review
+
+JAXB single-element list crash addressed in SPA unwrap + panel guards. Remaining nits unchanged. Gate: **May commit/push: yes** after WebUI tests + Playwright re-run.
 
 ## Cross-platform path checklist
 
