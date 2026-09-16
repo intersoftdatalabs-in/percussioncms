@@ -21,7 +21,6 @@ import com.percussion.cx.objectstore.PSNode;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.guitools.PSDialog;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import java.applet.Applet;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -171,12 +170,12 @@ public final class PSCxUtil {
     Container root = null;
 
     if (c2 != null) {
-      if (c2 instanceof Window || c2 instanceof Applet) {
+      if (c2 instanceof Window || c2 instanceof PSJApplet) {
         root = (Container) c2;
       } else {
         Container parent;
         for (parent = c2.getParent(); parent != null; parent = parent.getParent()) {
-          if (parent instanceof Window || parent instanceof Applet) {
+          if (parent instanceof Window || parent instanceof PSJApplet) {
             root = parent;
             break;
           }
