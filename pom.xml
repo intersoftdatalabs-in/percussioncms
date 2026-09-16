@@ -268,7 +268,7 @@
         <skipITs>true</skipITs>
         <skipTests>false</skipTests>
         <slf4j.version>2.0.19</slf4j.version>
-        <snakeyaml.version>2.5</snakeyaml.version>
+        <snakeyaml.version>2.7</snakeyaml.version>
         <!-- SolrJ 10 (#1997 cutover + #1998 packaging / parent #1788):
              Product HTTP path uses HttpJdkSolrClient from solr-solrj core (JDK java.net.http).
              Optional modules solr-solrj-jetty and solr-solrj-zookeeper are NON-TRANSITIVE in
