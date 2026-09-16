@@ -248,7 +248,7 @@
         <oracle.version>12.1.0.1</oracle.version>
         <owasp.csrfguard.version>4.5.0-jakarta</owasp.csrfguard.version>
         <owl.version>5.5.1</owl.version>
-        <pdfbox.version>3.0.6</pdfbox.version>
+        <pdfbox.version>3.0.8</pdfbox.version>
         <plexus.component.metadata.version>2.2.0</plexus.component.metadata.version>
         <!-- minify-maven-plugin and other plugins; Dependabot #213 -->
         <plexus.utils.version>4.1.0</plexus.utils.version>
