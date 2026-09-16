@@ -30,7 +30,7 @@
         <commons-collections.version>3.2.2</commons-collections.version>
         <disruptor.version>4.0.0</disruptor.version>
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
-        <ehcache-core.version>3.10.8</ehcache-core.version>
+        <ehcache-core.version>3.12.0</ehcache-core.version>
         <javadocs.skip>false</javadocs.skip>
         <jaxb-runtime.version>4.0.6</jaxb-runtime.version>
         <jdt.version>3.18.0</jdt.version>
@@ -48,10 +48,10 @@
         <!-- Align with spring-security-ldap 7.1.x (declares spring-ldap-core 4.1.0) -->
         <spring.ldap.version>4.1.0</spring.ldap.version>
         <spring.security.version>7.1.0</spring.security.version>
-        <sqlserver.version>13.3.1.jre11-preview</sqlserver.version>
+        <sqlserver.version>13.6.0.jre11</sqlserver.version>
         <supercsv.version>2.4.0</supercsv.version>
         <timestamp>${maven.build.timestamp}</timestamp>
-        <tomcat.version>11.0.25</tomcat.version>
+        <tomcat.version>11.0.26</tomcat.version>
         <xml.apis.version>2.0.2</xml.apis.version>
     </properties>
     <dependencyManagement>
