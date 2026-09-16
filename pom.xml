@@ -192,7 +192,7 @@
         <jetty.maven.plugin.version>${jetty.version}</jetty.maven.plugin.version>
         <jetty.version>12.1.11</jetty.version>
         <jfx.version>11.0.2</jfx.version>
-        <json.version>20251224</json.version>
+        <json.version>20260814</json.version>
         <jsoup.version>1.23.1</jsoup.version>
         <jtds.version>1.3.1</jtds.version>
         <junit4.version>4.13.2</junit4.version>
