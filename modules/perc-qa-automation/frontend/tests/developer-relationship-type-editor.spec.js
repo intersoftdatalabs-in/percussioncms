@@ -282,6 +282,12 @@ test.describe("Developer relationship type editor (#4253 / SY-03 H2)", () => {
       throw new Error(`Clone override clear failed: ${(await saveError.innerText()).trim()}`);
     }
     await expect(page.locator('[data-testid="developer-rt-clone-empty"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-rt-clone-field-0"]')).toHaveCount(0);
+
+    await page.locator('[data-testid="developer-rt-back"]').click();
+    await rtOpen(page, name).click();
+    await expect(page.locator('[data-testid="developer-rt-clone-empty"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-rt-clone-field-0"]')).toHaveCount(0);
 
     await deleteCurrentUserType(page);
     await expect(rtOpen(page, name)).toHaveCount(0);

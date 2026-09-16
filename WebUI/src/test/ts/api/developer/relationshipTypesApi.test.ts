@@ -7,6 +7,7 @@ import * as client from "../../../../main/ts/api/client";
 import {
   RELATIONSHIP_TYPE_DESIGN_GAPS,
   RELATIONSHIP_TYPE_ROOT,
+  coerceCloneOverrides,
   coerceObjectList,
   coerceStringList,
   createRelationshipType,
@@ -143,6 +144,35 @@ describe("relationshipTypesApi REST", () => {
     ]);
     expect(detail.effects).toEqual([{ name: "rs_touchparent" }]);
     spy.mockRestore();
+  });
+
+  it("does not invent a phantom cloneOverrides row from JAXB empty collections (#4527)", async () => {
+    expect(coerceCloneOverrides({})).toEqual([]);
+    expect(coerceCloneOverrides({ empty: true })).toEqual([]);
+    expect(coerceCloneOverrides({ RelationshipTypeCloneOverride: [] })).toEqual([]);
+    expect(coerceCloneOverrides({ RelationshipTypeCloneOverride: {} })).toEqual([]);
+    expect(coerceCloneOverrides({ relationshipTypeCloneOverride: {} })).toEqual([]);
+    expect(coerceObjectList({})).toEqual([]);
+    const spy = vi.spyOn(client, "get").mockResolvedValue({
+      RelationshipType: {
+        name: "MyUserRel",
+        cloneOverrides: { RelationshipTypeCloneOverride: [] },
+      },
+    });
+    const detail = await getRelationshipTypeDetail("MyUserRel");
+    expect(detail.cloneOverrides).toEqual([]);
+    spy.mockRestore();
+  });
+
+  it("preserves cloneOverrides:[] on wrapped PUT body (#4527)", () => {
+    expect(
+      wrapRelationshipTypeForWire({
+        name: "MyUserRel",
+        cloneOverrides: [],
+      }),
+    ).toEqual({
+      [RELATIONSHIP_TYPE_ROOT]: { name: "MyUserRel", cloneOverrides: [] },
+    });
   });
 
   it("createRelationshipType posts wrapped body", async () => {

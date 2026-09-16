@@ -84,12 +84,20 @@ function rowsFromDetail(
 ): CloneOverrideRow[] {
   if (overrides == null) return [];
   const list = Array.isArray(overrides) ? overrides : [overrides];
-  if (list.length === 0) return [];
-  return list.map((o) => ({
-    fieldName: o.fieldName || "",
-    extensionRef: o.extensionRef || "",
-    paramsText: paramsToText(o.extensionParams),
-  }));
+  return list
+    .filter(
+      (o) =>
+        o != null &&
+        typeof o === "object" &&
+        ((o.fieldName || "").trim().length > 0 ||
+          (o.extensionRef || "").trim().length > 0 ||
+          paramsToText(o.extensionParams).trim().length > 0),
+    )
+    .map((o) => ({
+      fieldName: o.fieldName || "",
+      extensionRef: o.extensionRef || "",
+      paramsText: paramsToText(o.extensionParams),
+    }));
 }
 
 function serializeRows(rows: CloneOverrideRow[]): string {
@@ -273,8 +281,13 @@ export function RelationshipTypeDetailPanel({
       useDependentRevision,
     };
     const overrides = completeCloneRows(cloneRows);
+    // Edit PUT: always send the list (including []). Empty + clearCloneOverrides
+    // clears when JAX-RS/Jackson drops cloneOverrides:[] (same pattern as item-filter clearRules).
     if (!isNew || overrides.length > 0) {
       body.cloneOverrides = overrides;
+    }
+    if (!isNew && overrides.length === 0) {
+      body.clearCloneOverrides = true;
     }
     if (isNew) {
       body.name = normalizeRelationshipTypeName(name);

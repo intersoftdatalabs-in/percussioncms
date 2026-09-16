@@ -17,6 +17,7 @@
 
 import { del, get, post, put } from "../client";
 import { PATHS } from "../paths";
+import { asJacksonArray } from "./slotLists";
 import type {
   RelationshipTypeCloneOverride,
   RelationshipTypeDef,
@@ -58,6 +59,7 @@ export type RelationshipTypeWriteBody = Pick<
   | "useOwnerRevision"
   | "useDependentRevision"
   | "cloneOverrides"
+  | "clearCloneOverrides"
 >;
 
 /** Jackson / JAXB root for RelationshipType (UNWRAP_ROOT_VALUE on POST/PUT). */
@@ -112,16 +114,55 @@ export function coerceStringList(value: unknown): string[] {
   return [];
 }
 
-/** CXF/JAXB JSON emits a 1-element object List as a bare object. */
+/** CXF/JAXB JSON emits a 1-element object List as a bare object. Empty `{}` is not a row. */
 export function coerceObjectList<T extends object>(value: unknown): T[] {
   if (value == null) return [];
   if (Array.isArray(value)) {
-    return value.filter((x): x is T => x != null && typeof x === "object");
+    return value.filter(
+      (x): x is T =>
+        x != null && typeof x === "object" && !isEmptyJaxbCollectionBean(x),
+    );
   }
-  if (typeof value === "object") {
-    return [value as T];
+  if (typeof value !== "object") {
+    return [];
   }
-  return [];
+  if (isEmptyJaxbCollectionBean(value)) {
+    return [];
+  }
+  return [value as T];
+}
+
+function isEmptyJaxbCollectionBean(value: object): boolean {
+  const keys = Object.keys(value as Record<string, unknown>);
+  if (keys.length === 0) {
+    return true;
+  }
+  const obj = value as Record<string, unknown>;
+  if ("empty" in obj && typeof obj.empty === "boolean") {
+    return keys.every((k) => k === "empty");
+  }
+  return false;
+}
+
+/** GET/PUT cloneOverrides: array, JAXB wrapper, singleton, or empty collection bean — never a phantom row. */
+export function coerceCloneOverrides(
+  value: unknown,
+): RelationshipTypeCloneOverride[] {
+  return asJacksonArray<RelationshipTypeCloneOverride>(
+    value,
+    ["RelationshipTypeCloneOverride", "relationshipTypeCloneOverride"],
+    (o) => "fieldName" in o || "extensionRef" in o || "extensionParams" in o,
+  )
+    .filter((o) => o != null && typeof o === "object")
+    .map((o) => ({
+      ...o,
+      extensionParams: coerceStringList(o.extensionParams),
+    }))
+    .filter(
+      (o) =>
+        (o.fieldName || "").trim().length > 0 ||
+        (o.extensionRef || "").trim().length > 0,
+    );
 }
 
 function normalizeWireRow(t: RelationshipTypeDef, fillGaps: boolean): RelationshipTypeDef {
@@ -131,12 +172,7 @@ function normalizeWireRow(t: RelationshipTypeDef, fillGaps: boolean): Relationsh
     effects: coerceObjectList(t.effects),
     systemProperties: coerceObjectList(t.systemProperties),
     userProperties: coerceObjectList(t.userProperties),
-    cloneOverrides: coerceObjectList<RelationshipTypeCloneOverride>(t.cloneOverrides).map(
-      (o) => ({
-        ...o,
-        extensionParams: coerceStringList(o.extensionParams),
-      }),
-    ),
+    cloneOverrides: coerceCloneOverrides(t.cloneOverrides),
     designGaps: fillGaps
       ? designGaps.length > 0
         ? designGaps

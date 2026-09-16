@@ -89,6 +89,12 @@ public class RelationshipType {
 
   @Schema(
       description =
+          "When true, clears cloning field overrides (same intent as cloneOverrides: [])."
+              + " Use when a JAX-RS/Jackson path drops empty arrays before the adaptor.")
+  private Boolean clearCloneOverrides;
+
+  @Schema(
+      description =
           "Honest design gaps for this surface. Present on detail GET; typically omitted on"
               + " list rows to avoid repeating the same catalog-level array (REST-GAPS-02)")
   private List<String> designGaps = new ArrayList<>();
@@ -229,6 +235,14 @@ public class RelationshipType {
 
   public void setCloneOverrides(List<RelationshipTypeCloneOverride> cloneOverrides) {
     this.cloneOverrides = cloneOverrides;
+  }
+
+  public Boolean getClearCloneOverrides() {
+    return clearCloneOverrides;
+  }
+
+  public void setClearCloneOverrides(Boolean clearCloneOverrides) {
+    this.clearCloneOverrides = clearCloneOverrides;
   }
 
   public List<String> getDesignGaps() {
