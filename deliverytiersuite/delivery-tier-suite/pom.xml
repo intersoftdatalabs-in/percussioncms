@@ -32,7 +32,8 @@
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
         <ehcache-core.version>3.12.0</ehcache-core.version>
         <javadocs.skip>false</javadocs.skip>
-        <jaxb-runtime.version>4.0.6</jaxb-runtime.version>
+        <!-- Inherit parent pin (hibernate-core 7.4.8.Final → jaxb-runtime 4.0.7). -->
+        <jaxb-runtime.version>${jaxb.runtime.version}</jaxb-runtime.version>
         <jdt.version>3.18.0</jdt.version>
         <!-- Jersey 4.x implements JAX-RS 4.0 / Jakarta EE 11 (issue #667). -->
         <jersey.version>4.0.2</jersey.version>

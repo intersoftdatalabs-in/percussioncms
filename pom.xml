@@ -86,6 +86,8 @@
         <aws.sdk.v2.version>2.50.2</aws.sdk.v2.version>
         <batik.version>1.19</batik.version>
         <bc.version>1.84</bc.version>
+        <!-- RequireUpperBoundDeps: hibernate-core 7.4.8.Final pulls byte-buddy 1.18.8. -->
+        <byte.buddy.version>1.18.8</byte.buddy.version>
         <build.helper.maven.plugin.version>3.6.2</build.helper.maven.plugin.version>
         <build.profile.id>dev</build.profile.id>
         <buildNumber>${maven.build.timestamp}</buildNumber>
@@ -127,10 +129,17 @@
         <google.java.format.version>1.36.1</google.java.format.version>
         <gson.version>2.14.0</gson.version>
         <guava.version>33.7.1-jre</guava.version>
-        <!-- RequireUpperBoundDeps: gson 2.14.0 pulls error_prone_annotations 2.48.0;
-             guava 33.5.0-jre pulls 2.41.0. Manage the higher version monorepo-wide
-             so delivery-tier-distribution (and peers) converge after #1881. -->
-        <error.prone.annotations.version>2.48.0</error.prone.annotations.version>
+        <!-- RequireUpperBoundDeps: guava 33.7.1-jre pulls error_prone_annotations 2.50.0;
+             gson 2.14.0 pulls 2.48.0. Manage the higher version monorepo-wide so
+             perc-metadata-services, delivery-tier-distribution, and peers converge. -->
+        <error.prone.annotations.version>2.50.0</error.prone.annotations.version>
+        <!-- RequireUpperBoundDeps / DependencyConvergence: Spring Framework 7.0.x
+             (spring-core) pulls jspecify 1.0.0; Micrometer 1.16.x
+             (micrometer-observation / micrometer-commons, via spring-context)
+             pulls 1.0.1. Manage the higher version monorepo-wide so
+             perc-tomcat-common (and peers) converge. 1.0.1 is documentation /
+             jar-layout only; no semantic annotation change vs 1.0.0. -->
+        <jspecify.version>1.0.1</jspecify.version>
         <gwt.maven.plugin.version>2.10.0</gwt.maven.plugin.version>
         <!-- #548 default embedded replacement (bake-off primary); Derby retained for migration window -->
         <h2.version>2.4.240</h2.version>
@@ -183,7 +192,9 @@
         <javafx.version>26.0.2</javafx.version>
         <javassist.version>3.33.0-GA</javassist.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
-        <jaxb.runtime.version>4.0.6</jaxb.runtime.version>
+        <!-- RequireUpperBoundDeps: hibernate-core 7.4.8.Final pulls jaxb-runtime 4.0.7
+             (ehcache 3.12.0:jakarta still requests [2.2,3); managed to this pin). -->
+        <jaxb.runtime.version>4.0.7</jaxb.runtime.version>
         <jbig2.version>3.0.2</jbig2.version>
         <jdeps.fail.build>false</jdeps.fail.build>
         <jdk.version>21</jdk.version>
@@ -258,6 +269,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quartz.version>2.5.2</quartz.version>
+        <!-- RDF4J 4.x only. Semargl 0.7 RDFa is binary-incompatible with RDF4J 5
+             (RDFaParserSettings → NoSuchFieldError). RDF4J 6.x requires Java 25;
+             product baseline is Java 21. Dependabot #4493/#4504 (4.3.16 → 6.1.0)
+             broke maven-plugin-plugin descriptor generation (class file major 69)
+             and would fail at runtime on JDK 21. Stay on 4.3.x; majors frozen in
+             .github/dependabot.yml. 4.3.16 is the last 4.x line. -->
+        <rdf4j.version>4.3.16</rdf4j.version>
         <rome.version>2.1.0</rome.version>
         <saxon.version>6.5.3</saxon.version>
         <servlet.spec>6.1.0</servlet.spec>
@@ -495,7 +513,7 @@
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
-                <version>1.17.8</version>
+                <version>${byte.buddy.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.googlecode.htmlcompressor</groupId>
@@ -966,6 +984,11 @@
                 <version>${error.prone.annotations.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.jspecify</groupId>
+                <artifactId>jspecify</artifactId>
+                <version>${jspecify.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.jackrabbit</groupId>
                 <artifactId>jackrabbit-jcr-commons</artifactId>
                 <version>2.22.3</version>
@@ -1186,6 +1209,16 @@
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
                 <version>${gson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.rdf4j</groupId>
+                <artifactId>rdf4j-rio-api</artifactId>
+                <version>${rdf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.rdf4j</groupId>
+                <artifactId>rdf4j-model-api</artifactId>
+                <version>${rdf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tika</groupId>

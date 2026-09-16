@@ -27,6 +27,13 @@ updates:
       - dependency-name: "org.apache.tika:*"
         update-types:
           - "version-update:semver-major"
+      # RDF4J 5.x breaks Semargl 0.7 RDFa (RDFaParserSettings). RDF4J 6.x requires
+      # Java 25; product baseline is Java 21. Reverted #4493/#4504 (4.3.16 → 6.1.0)
+      # which failed maven-plugin-plugin:descriptor (class file major 69) and would
+      # fail at runtime on JDK 21. Patch/minor within 4.x remain allowed.
+      - dependency-name: "org.eclipse.rdf4j:*"
+        update-types:
+          - "version-update:semver-major"
 
   # npm / frontend packages (lockfiles present). Dual WebUI roots stay in lockstep:
   # WebUI/package.json and WebUI/src/main/frontend (Maven frontend-maven-plugin).
