@@ -115,6 +115,13 @@ The plugin depends on:
 
 ## Troubleshooting
 
+### `Unsupported class file major version 69` during `maven-plugin-plugin:descriptor`
+
+The descriptor goal scans every `.class` on this module's compile classpath, including `META-INF/versions/N` entries in multi-release JARs. Class-file major 69 is Java 25 bytecode.
+
+- Keep `maven-plugin-plugin` and `maven-plugin-annotations` on the same `maven-plugin-tools` release (**3.16.0** or newer). 3.13.1 bundled ASM 9.7, which cannot read Java 25 classes.
+- Do not take RDF4J 6.x (or other Java 25-only libraries) as compile dependencies of `rest` / `perc-system`. RDF4J stays on 4.3.x (`${rdf4j.version}`) because the product baseline is Java 21 and Semargl 0.7 is incompatible with RDF4J 5+.
+
 ### OpenAPI Specification Not Generated
 
 1. **Check plugin configuration**: Ensure the plugin is properly configured in the `pom.xml`.
