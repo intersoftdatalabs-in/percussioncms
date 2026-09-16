@@ -135,7 +135,7 @@
         <!-- #548 default embedded replacement (bake-off primary); Derby retained for migration window -->
         <h2.version>2.4.240</h2.version>
         <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
-        <hibernate.version>7.2.6.Final</hibernate.version>
+        <hibernate.version>7.4.8.Final</hibernate.version>
         <hikaricp.version>7.0.2</hikaricp.version>
         <!-- HC5: upper-bound pin for enforcer (AntiSamy 1.7.8 pulls 5.4.4/5.3.4;
              AWS SDK apache5-client ${aws.sdk.v2.version} pulls 5.6.2/5.4.3). -->
