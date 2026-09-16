@@ -16,7 +16,6 @@
  */
 package com.percussion.guitools;
 
-import java.applet.AppletContext;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -237,14 +236,14 @@ public class PSAboutDialog extends JDialog implements Serializable {
   }
 
   /**
-   * Set the applet context.
+   * Previously accepted {@code java.applet.AppletContext}. The company URL is opened with {@link
+   * Desktop#browse(URI)} instead; this method is retained so callers can still pass a host context
+   * without depending on the JDK applet API removed in JDK 24+.
    *
-   * @param appletContext The current applet context, it may not be <code>null</code>.
+   * @param appletContext the current host context, may not be <code>null</code>
    */
-  public void setAppletContext(AppletContext appletContext) {
+  public void setAppletContext(Object appletContext) {
     if (appletContext == null) throw new IllegalArgumentException("appletContext may not be null");
-
-    m_appContext = appletContext;
   }
 
   /**
@@ -295,13 +294,6 @@ public class PSAboutDialog extends JDialog implements Serializable {
       }
     }
   }
-
-  /**
-   * The applet context of the owner applet, it is <code>null</code> if the owner is not an applet.
-   * Default to <code>null</code>, but can be set by setAppletContext(), never modified after that.
-   * Used to launch new browser window for company url.
-   */
-  private AppletContext m_appContext = null;
 
   /**
    * The label for URL of Percussion website, initialized in <code>initDialog

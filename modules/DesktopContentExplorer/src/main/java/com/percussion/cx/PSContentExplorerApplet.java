@@ -97,8 +97,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /** The main class for 'Content Explorer Applet'. */
-@SuppressWarnings("removal") // still extends javax.swing.JApplet for legacy desktop embed
-public class PSContentExplorerApplet extends JApplet implements IPSActionListener {
+public class PSContentExplorerApplet extends PSJApplet implements IPSActionListener {
 
   private static final String RESOURCE_NAME = "com.percussion.cx.PSContentExplorerResources";
 

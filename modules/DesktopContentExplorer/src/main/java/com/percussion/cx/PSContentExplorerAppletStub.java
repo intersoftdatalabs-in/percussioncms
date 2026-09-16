@@ -17,26 +17,21 @@
 
 package com.percussion.cx;
 
-import java.applet.Applet;
-import java.applet.AppletContext;
-import java.applet.AppletStub;
-import java.applet.AudioClip;
 import java.awt.Image;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 /**
- * A minimal implementation of both {@link AppletStub} and {@link AppletContext} used to host the
- * {@link PSContentExplorerApplet} when it is not loaded by a browser, for example when running as a
- * desktop application. It supplies parameter storage and stub behavior required by the applet's
- * lifecycle.
+ * A minimal implementation of both {@link PSAppletStub} and {@link PSAppletContext} used to host
+ * the {@link PSContentExplorerApplet} when it is not loaded by a browser, for example when running
+ * as a desktop application. It supplies parameter storage and stub behavior required by the
+ * applet's lifecycle.
  */
-public class PSContentExplorerAppletStub implements AppletStub, AppletContext {
+public class PSContentExplorerAppletStub implements PSAppletStub, PSAppletContext {
 
   /**
    * Constructs an empty stub with no parameters. Parameters are supplied later through {@link
@@ -51,19 +46,23 @@ public class PSContentExplorerAppletStub implements AppletStub, AppletContext {
   /** hashmap containing all parameters needed for the applet */
   Map<String, String> parameters = new HashMap<String, String>();
 
-  /** Minimal implementation for AppletStub. */
+  /** Minimal implementation for {@link PSAppletStub}. */
+  @Override
   public boolean isActive() {
     return false;
   }
 
+  @Override
   public URL getDocumentBase() {
     return null;
   }
 
+  @Override
   public URL getCodeBase() {
     return helper.getCodeBase();
   }
 
+  @Override
   public String getParameter(String key) {
     return parameters.get(key);
   }
@@ -96,38 +95,26 @@ public class PSContentExplorerAppletStub implements AppletStub, AppletContext {
     this.parameters = map;
   }
 
-  public AppletContext getAppletContext() {
+  @Override
+  public PSAppletContext getAppletContext() {
     return this;
   }
 
-  /** Minimal implementation for AppletContext. */
-  public AudioClip getAudioClip(URL url) {
-    return null;
-  }
-
+  @Override
   public Image getImage(URL url) {
     return null;
   }
 
-  public Applet getApplet(String name) {
-    return null;
-  }
-
-  public Enumeration getApplets() {
-    return null;
-  }
-
+  @Override
   public void showDocument(URL url) {}
 
+  @Override
   public void showDocument(URL url, String taget) {}
 
+  @Override
   public void showStatus(String status) {}
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see java.applet.AppletContext#getStream(java.lang.String)
-   */
+  @Override
   public InputStream getStream(String key) {
     // TODO - Implement for JDK 1.4
     throw new UnsupportedOperationException("This method is not yet implemented");

@@ -26,10 +26,6 @@ import com.percussion.guitools.PSDialog;
 import com.percussion.webservices.security.data.PSCommunity;
 import com.percussion.webservices.security.data.PSLogin;
 import com.percussion.webservices.security.data.PSRole;
-import java.applet.Applet;
-import java.applet.AppletContext;
-import java.applet.AppletStub;
-import java.applet.AudioClip;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Image;
@@ -45,8 +41,6 @@ import java.net.CookiePolicy;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -67,10 +61,11 @@ import org.apache.logging.log4j.Logger;
  *
  * <p>Declared {@code final} so Swing initialization from the constructor cannot observe a
  * partially constructed subclass (javac {@code this-escape}). Session-only collaborators are
- * {@code transient}. Does not remove the legacy {@code java.applet} stub/context surfaces.
+ * {@code transient}. Hosts {@link PSContentExplorerApplet} via {@link PSAppletStub} / {@link
+ * PSAppletContext} rather than the JDK applet API removed in JDK 24+.
  */
 public final class PSContentExplorerFrame extends PSDesktopExplorerWindow
-    implements AppletStub, AppletContext {
+    implements PSAppletStub, PSAppletContext {
 
   private static final long serialVersionUID = 1L;
 
@@ -339,19 +334,23 @@ public final class PSContentExplorerFrame extends PSDesktopExplorerWindow
         bounds.y + ((bounds.height - size.height) / 2));
   }
 
-  /** Minimal implementation for AppletStub. */
+  /** Minimal implementation for {@link PSAppletStub}. */
+  @Override
   public boolean isActive() {
     return false;
   }
 
+  @Override
   public URL getDocumentBase() {
     return null;
   }
 
+  @Override
   public URL getCodeBase() {
     return helper.getCodeBase();
   }
 
+  @Override
   public String getParameter(String key) {
 
     String returnValue = "";
@@ -389,40 +388,29 @@ public final class PSContentExplorerFrame extends PSDesktopExplorerWindow
     this.parameters = paremeters;
   }
 
-  public AppletContext getAppletContext() {
+  @Override
+  public PSAppletContext getAppletContext() {
     return this;
   }
 
+  @Override
   public void appletResize(int width, int height) {}
 
-  /** Minimal implementation for AppletContext. */
-  public AudioClip getAudioClip(URL url) {
-    return null;
-  }
-
+  @Override
   public Image getImage(URL url) {
     return null;
   }
 
-  public Applet getApplet(String name) {
-    return this.applet;
-  }
-
-  public Enumeration getApplets() {
-    return Collections.enumeration(Collections.singletonList(this.applet));
-  }
-
+  @Override
   public void showDocument(URL url) {}
 
+  @Override
   public void showDocument(URL url, String taget) {}
 
+  @Override
   public void showStatus(String status) {}
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see java.applet.AppletContext#getStream(java.lang.String)
-   */
+  @Override
   public InputStream getStream(String key) {
     // TODO - Implement for JDK 1.4
     throw new UnsupportedOperationException("This method is not yet implemented");
