@@ -15,16 +15,21 @@
  * limitations under the License.
  */
 
-export { PublishingShell } from "./PublishingShell";
-export type { PublishingShellProps } from "./PublishingShell";
-export {
-  isAllowlistedSection,
-  mapIdParam,
-  mapSectionParam,
-} from "./deepLinkMap";
-export {
-  itemHistoryShellHref,
+import { get } from "../client";
+import {
   itemPubHistoryUrl,
-  spaItemHistoryHref,
-} from "./itemHistory";
-export type { PublishSection } from "./types";
+  normalizeItemPublishingHistory,
+  type ItemPublishingHistory,
+} from "../../publishing/itemHistory";
+
+/** Existing sitemanage itemmanagement pubhistory (jQuery PercPublishingHistoryDialog). */
+export async function fetchItemPublishingHistory(
+  itemId: string,
+): Promise<ItemPublishingHistory[]> {
+  const id = itemId.trim();
+  if (!id) {
+    return [];
+  }
+  const data = await get<unknown>(itemPubHistoryUrl(id));
+  return normalizeItemPublishingHistory(data);
+}

@@ -35,7 +35,8 @@ import {
   type StatusSortKey,
   type StatusSortState,
 } from "../statusSort";
-import type { PublishingJob } from "../types";
+import { ItemPublishingHistoryPanel } from "../components/ItemPublishingHistoryPanel";
+import type { PublishSection, PublishingJob } from "../types";
 
 /** Minuet-comparable default poll interval (ms). */
 export const STATUS_POLL_INTERVAL_MS = 5000;
@@ -45,7 +46,17 @@ const DEFAULT_SORT: StatusSortState = {
   direction: "asc",
 };
 
-export function StatusSection(): React.ReactElement {
+export interface StatusSectionProps {
+  itemId?: string;
+  onItemIdChange?: (itemId: string) => void;
+  onOpenSection?: (section: PublishSection) => void;
+}
+
+export function StatusSection({
+  itemId,
+  onItemIdChange,
+  onOpenSection,
+}: StatusSectionProps = {}): React.ReactElement {
   const [jobs, setJobs] = useState<PublishingJob[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -116,6 +127,12 @@ export function StatusSection(): React.ReactElement {
 
   return (
     <div data-testid="publish-section-status">
+      <ItemPublishingHistoryPanel
+        itemId={itemId}
+        currentSection="status"
+        onItemIdChange={onItemIdChange}
+        onOpenSection={onOpenSection}
+      />
       {loading && <p>{message(MSG.PUBLISH_LOADING)}</p>}
       {error && (
         <p style={errorStyle} role="alert">

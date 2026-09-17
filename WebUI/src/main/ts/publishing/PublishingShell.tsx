@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { message, MSG } from "../i18n/message";
 import { mapIdParam, mapSectionParam } from "./deepLinkMap";
 import { DirtyFormProvider, useDirtyForm } from "./dirtyFormContext";
@@ -40,6 +40,8 @@ export interface PublishingShellProps {
   siteId?: string;
   /** Preselect server in site workspace */
   serverId?: string;
+  /** Item id for publishing-history lookup (query itemId). */
+  itemId?: string;
   /**
    * When false, hide Design section (role-aware progressive disclosure).
    * Default true — server does not yet expose a dedicated design role to the shell.
@@ -73,6 +75,7 @@ function PublishingShellInner({
   section,
   siteId,
   serverId,
+  itemId,
   showDesign = true,
 }: PublishingShellProps): React.ReactElement {
   const start = useMemo(() => {
@@ -84,8 +87,13 @@ function PublishingShellInner({
   }, [section, showDesign]);
   const safeSiteId = useMemo(() => mapIdParam(siteId), [siteId]);
   const safeServerId = useMemo(() => mapIdParam(serverId), [serverId]);
+  const [historyItemId, setHistoryItemId] = useState(() => mapIdParam(itemId));
   const [active, setActive] = useState<PublishSection>(start);
   const { confirmIfDirty } = useDirtyForm();
+
+  useEffect(() => {
+    setHistoryItemId(mapIdParam(itemId));
+  }, [itemId]);
 
   const sections = useMemo(() => {
     const advanced = showDesign
@@ -139,8 +147,20 @@ function PublishingShellInner({
             initialServerId={safeServerId}
           />
         )}
-        {active === "status" && <StatusSection />}
-        {active === "logs" && <LogsSection />}
+        {active === "status" && (
+          <StatusSection
+            itemId={historyItemId}
+            onItemIdChange={setHistoryItemId}
+            onOpenSection={navigate}
+          />
+        )}
+        {active === "logs" && (
+          <LogsSection
+            itemId={historyItemId}
+            onItemIdChange={setHistoryItemId}
+            onOpenSection={navigate}
+          />
+        )}
         {active === "design" && showDesign && <DesignSection />}
         {active === "runtime" && <RuntimeSection />}
       </main>

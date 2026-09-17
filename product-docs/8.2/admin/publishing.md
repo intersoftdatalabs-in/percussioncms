@@ -152,6 +152,25 @@ For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites suc
 
 See [Virtual Sites](id:developer-virtual-sites) and [Build product docs](id:developer-build-source#product-docs-build).
 
+## Item publishing history
+
+From **Publish** (`spa.jsp?entry=publish`), open **Status** or **Logs**. The **Item publishing history** panel looks up a page or asset by item id using the existing item-management API (`GET /services/itemmanagement/item/pubhistory/{id}`). It replaces the classic jQuery publishing-history dialog for this shell.
+
+1. Sign in as an operator who can open Publish.
+2. Open **Publish → Status** or **Publish → Logs**.
+3. Enter the item id (content GUID such as `16777215-101-9`) and choose **View History**.
+4. Rows show server, location, revision, date, operation, and status (newest first). A **FAILURE** row keeps the server error on the status cell title.
+
+**Empty and error states:** If the item has never been published, the panel says there is no publishing history. A failed lookup (HTTP error or unexpected server message) is shown as an error in the panel — it is not treated as success.
+
+**Deep links** (same panel on Status or Logs):
+
+- `spa.jsp?entry=publish&section=status&itemId={id}`
+- `spa.jsp?entry=publish&section=logs&itemId={id}`
+- Path form: `/cm/app/publish/status?itemId={id}` and `/cm/app/publish/logs?itemId={id}`
+
+Use **Open Logs** / **Open Status** in the panel to switch those sections without leaving the lookup. Site-level job status and publish logs stay on the same tabs. Schedule dates and site-workspace takedown are separate Publishing steps.
+
 ## Failure modes to watch
 
 - Missing template/variant or broken relationship links

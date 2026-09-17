@@ -34,6 +34,7 @@ export function PublishRoute(): React.ReactElement {
   const { isAdmin, isDesigner } = useSpaBootstrap();
   const siteId = search.get("siteId") ?? undefined;
   const serverId = search.get("serverId") ?? undefined;
+  const itemId = search.get("itemId") ?? undefined;
   // Design section for Admin/Designer (product progressive disclosure)
   const showDesign = isAdmin || isDesigner;
 
@@ -51,6 +52,7 @@ export function PublishRoute(): React.ReactElement {
         section={section}
         siteId={siteId}
         serverId={serverId}
+        itemId={itemId}
         showDesign={showDesign}
       />
     </LazyRouteFrame>

@@ -42,6 +42,26 @@ describe("parseEntryQuery", () => {
     expect(p.serverId).toBe("srv2");
   });
 
+  it("forwards publish itemId for history deep links", () => {
+    const p = parseEntryQuery(
+      "?entry=publish&section=status&itemId=16777215-101-9",
+    );
+    expect(p.itemId).toBe("16777215-101-9");
+    expect(p.clientPath).toContain("/publish/status");
+    expect(p.clientPath).toContain("itemId=16777215-101-9");
+    expect(
+      parseClientPath("/publish/logs", "?itemId=42").itemId,
+    ).toBe("42");
+    expect(
+      toSpaEntryUrl({
+        entry: "publish",
+        section: "logs",
+        itemId: "42",
+        clientPath: "/publish/logs?itemId=42",
+      }),
+    ).toContain("itemId=42");
+  });
+
   it("rejects bad ids", () => {
     const p = parseEntryQuery("?entry=publish&siteId=bad/id");
     expect(p.siteId).toBeUndefined();

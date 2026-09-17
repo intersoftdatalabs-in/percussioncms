@@ -20,4 +20,5 @@ export * from "./statusApi";
 export * from "./serversApi";
 export * from "./designApi";
 export * from "./runtimeApi";
+export * from "./itemHistoryApi";
 export type * from "./types";

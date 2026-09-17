@@ -41,6 +41,8 @@ export interface ParsedSpaEntry {
   tab?: string;
   siteId?: string;
   serverId?: string;
+  /** Item publishing history lookup (Publish Status/Logs). */
+  itemId?: string;
   path?: string;
   /** Architecture site name (path or query; #3094). */
   site?: string;
@@ -76,6 +78,7 @@ export function parseEntryQuery(
   const tabParam = params.get("tab");
   const siteId = normalizeId(params.get("siteId"));
   const serverId = normalizeId(params.get("serverId"));
+  const itemId = normalizeId(params.get("itemId"));
   const path = normalizeExplorerPath(params.get("path"));
   const site = normalizeArchitectureSite(params.get("site"));
 
@@ -94,9 +97,10 @@ export function parseEntryQuery(
       const qs = new URLSearchParams();
       if (siteId) qs.set("siteId", siteId);
       if (serverId) qs.set("serverId", serverId);
+      if (itemId) qs.set("itemId", itemId);
       const qstr = qs.toString();
       if (qstr) clientPath += `?${qstr}`;
-      return { entry, section, siteId, serverId, clientPath };
+      return { entry, section, siteId, serverId, itemId, clientPath };
     }
     case "workflow": {
       // #3088: fold legacy workflow entry into unified Admin shell paths
@@ -199,6 +203,7 @@ export function toSpaEntryUrl(parsed: ParsedSpaEntry): string {
   if (parsed.tab) params.set("tab", parsed.tab);
   if (parsed.siteId) params.set("siteId", parsed.siteId);
   if (parsed.serverId) params.set("serverId", parsed.serverId);
+  if (parsed.itemId) params.set("itemId", parsed.itemId);
   if (parsed.path) params.set("path", parsed.path);
   if (parsed.site) params.set("site", parsed.site);
   if (parsed.contentId) params.set("contentId", parsed.contentId);
@@ -223,6 +228,7 @@ export function parseClientPath(
   const params = new URLSearchParams(q);
   const siteId = normalizeId(params.get("siteId"));
   const serverId = normalizeId(params.get("serverId"));
+  const itemId = normalizeId(params.get("itemId"));
   const explorerPath = normalizeExplorerPath(params.get("path"));
 
   let pathOnly = clientPath || "/home";
@@ -259,9 +265,10 @@ export function parseClientPath(
       const qs = new URLSearchParams();
       if (siteId) qs.set("siteId", siteId);
       if (serverId) qs.set("serverId", serverId);
+      if (itemId) qs.set("itemId", itemId);
       const qstr = qs.toString();
       if (qstr) cp += `?${qstr}`;
-      return { entry, section, siteId, serverId, clientPath: cp };
+      return { entry, section, siteId, serverId, itemId, clientPath: cp };
     }
     case "workflow": {
       // Legacy path prefix still parseable; client path is Admin (#3088)
