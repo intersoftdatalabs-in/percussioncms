@@ -68,10 +68,12 @@ import org.w3c.dom.NodeList;
  * (#3115 / #3239 / #4070 / #4235). Loads designs via {@link IPSUiDesignWs#findViews} / {@link
  * IPSUiDesignWs#loadViews} — not the search catalog. Admin create/save/delete persist through
  * {@link IPSUiDesignWs} — the same design web service SOAP uses. Execute is not invoked on write.
- * Standard views use the design search runner; Inbox-family custom URLs invoke {@code
- * sys_cxViews/*} and map {@code Item} rows to Explorer items. Admin may persist <em>user</em>
- * custom URL views ({@code url} + {@code customView}); Inbox-family / packaged {@code
- * sys_cxViews} catalog keys stay conflict on mutate/delete.
+ * Standard views use the design search runner; custom URL views invoke a path-safe classic
+ * application resource and map {@code Item} rows to Explorer items. Inbox-family {@code
+ * sys_cxViews/*} pages stay executable for any authenticated operator. User custom URL views
+ * (non-packaged names) require Admin on execute. Admin may persist <em>user</em> custom URL
+ * views ({@code url} + {@code customView}); Inbox-family / packaged {@code sys_cxViews}
+ * catalog keys stay conflict on mutate/delete.
  */
 @PSSiteManageBean
 @Lazy
@@ -80,6 +82,9 @@ public class ViewAdaptor implements IViewAdaptor {
   private static final Logger log = LogManager.getLogger(ViewAdaptor.class);
 
   static final String ADMIN_REQUIRED = "Admin role required to create, update, or delete views";
+
+  static final String ADMIN_REQUIRED_EXECUTE =
+      "Admin role required to execute user custom URL views";
 
   static final String PROTECTED_VIEW_WRITE =
       "Inbox-family and packaged sys_cxViews views cannot be updated or deleted via this API";
@@ -94,8 +99,8 @@ public class ViewAdaptor implements IViewAdaptor {
   static final int DEFAULT_PAGE_SIZE = 25;
 
   /**
-   * Classic CX custom-view pages that this runner will invoke. Other custom URLs stay an explicit
-   * 400 (never a silent empty list or 500).
+   * Classic CX Inbox-family pages. These remain executable without Admin (Explorer). Other
+   * custom URLs use the same path-safe resolver and require Admin.
    */
   static final Set<String> SUPPORTED_CX_VIEW_PAGES =
       Set.of("inbox", "outbox", "recent", "session", "checkedoutbyme", "duplicatefolderpaths");
@@ -108,12 +113,6 @@ public class ViewAdaptor implements IViewAdaptor {
 
   /** DCE path form operators may use as a catalog key. */
   static final String INBOX_DCE_PATH = "//Views//MyContent/Inbox";
-
-  /** Explicit 400 when a custom-view URL is blank or not a supported {@code sys_cxViews} page. */
-  static final String CUSTOM_VIEW_URL_UNSUPPORTED =
-      "Unsupported custom URL view. Supported classic resources are sys_cxViews/inbox,"
-          + " sys_cxViews/outbox, sys_cxViews/recent, sys_cxViews/session,"
-          + " sys_cxViews/checkedoutbyme, and sys_cxViews/duplicatefolderpaths.";
 
   /**
    * Packaged CX custom-view internal names (sys_cxViews). PUT/DELETE of these keys is 409;
@@ -133,7 +132,6 @@ public class ViewAdaptor implements IViewAdaptor {
       List.of(
           "View rename is not supported on PUT (name is the catalog key)",
           "Inbox-family and packaged sys_cxViews views cannot be updated or deleted via this API",
-          "Custom URL views outside the sys_cxViews Inbox family cannot be executed via this API",
           "Searches are a separate catalog (Developer Searches / UI-06)");
 
   /**
@@ -380,6 +378,9 @@ public class ViewAdaptor implements IViewAdaptor {
       if (design == null) {
         return null;
       }
+      if (design.isCustomView() && !isPackagedCxViewName(design.getName())) {
+        requireAdmin(ADMIN_REQUIRED_EXECUTE);
+      }
       List<ViewResultItem> allItems;
       if (design.isCustomView()) {
         allItems = runCustomUrlView(design, effective);
@@ -492,8 +493,8 @@ public class ViewAdaptor implements IViewAdaptor {
   }
 
   /**
-   * Execute an Inbox-family custom URL view by invoking the classic {@code sys_cxViews} resource
-   * and mapping {@code Item/@sys_contentid} rows to Explorer items. Package-visible for spies.
+   * Execute a custom URL view by invoking the path-safe classic application resource and mapping
+   * {@code Item/@sys_contentid} rows to Explorer items. Package-visible for spies.
    */
   List<ViewResultItem> runCustomUrlView(PSSearch design, ViewExecuteRequest request)
       throws Exception {
@@ -518,22 +519,22 @@ public class ViewAdaptor implements IViewAdaptor {
   }
 
   /**
-   * Normalize a custom-view URL (typical {@code ../sys_cxViews/inbox.xml}) to an internal request
-   * resource ({@code sys_cxViews/inbox}). Rejects blank, traversal, and non-whitelisted apps/pages.
+   * Normalize a custom-view URL (typical {@code ../sys_cxViews/inbox.xml} or {@code
+   * ../myApp/page.xml}) to an internal request resource ({@code app/page}). Rejects blank,
+   * external/scheme, traversal, backslash, and non {@code app/resource} shapes. Classic
+   * {@code sys_cxViews} Inbox-family pages keep canonical casing.
    */
   static String resolveCustomViewResource(String rawUrl) {
     if (StringUtils.isBlank(rawUrl)) {
-      throw new IllegalArgumentException(CUSTOM_VIEW_URL_UNSUPPORTED);
+      throw new IllegalArgumentException(CUSTOM_VIEW_URL_REQUIRED);
     }
     String url = rawUrl.trim();
     int query = url.indexOf('?');
     if (query >= 0) {
       url = url.substring(0, query);
     }
-    if (url.indexOf('\\') >= 0 || url.indexOf('\0') >= 0) {
-      throw new IllegalArgumentException(CUSTOM_VIEW_URL_UNSUPPORTED);
-    }
-    while (url.startsWith("../")) {
+    requireValidCustomViewUrl(url);
+    if (url.startsWith("../")) {
       url = url.substring(3);
     }
     if (url.startsWith("./")) {
@@ -549,19 +550,47 @@ public class ViewAdaptor implements IViewAdaptor {
     }
     if (lower.endsWith(".xml")) {
       url = url.substring(0, url.length() - 4);
+      lower = url.toLowerCase(Locale.ROOT);
     }
-    if (url.contains("..") || url.indexOf('\0') >= 0) {
-      throw new IllegalArgumentException(CUSTOM_VIEW_URL_UNSUPPORTED);
+    if (url.isEmpty() || url.contains("..") || url.indexOf('\\') >= 0 || url.indexOf('\0') >= 0) {
+      throw new IllegalArgumentException(CUSTOM_VIEW_URL_INVALID);
     }
     String[] parts = url.split("/");
-    if (parts.length != 2 || !"sys_cxviews".equals(parts[0].toLowerCase(Locale.ROOT))) {
-      throw new IllegalArgumentException(CUSTOM_VIEW_URL_UNSUPPORTED);
+    if (parts.length != 2
+        || !isSafeAppResourceSegment(parts[0])
+        || !isSafeAppResourceSegment(parts[1])) {
+      throw new IllegalArgumentException(CUSTOM_VIEW_URL_INVALID);
     }
-    String page = parts[1].toLowerCase(Locale.ROOT);
-    if (!SUPPORTED_CX_VIEW_PAGES.contains(page)) {
-      throw new IllegalArgumentException(CUSTOM_VIEW_URL_UNSUPPORTED);
+    String app = parts[0];
+    String page = parts[1];
+    if ("sys_cxviews".equals(app.toLowerCase(Locale.ROOT))) {
+      String pageLower = page.toLowerCase(Locale.ROOT);
+      if (SUPPORTED_CX_VIEW_PAGES.contains(pageLower)) {
+        return "sys_cxViews/" + pageLower;
+      }
+      return "sys_cxViews/" + page;
     }
-    return "sys_cxViews/" + page;
+    return app + "/" + page;
+  }
+
+  /** True when a classic application or resource name is a safe internal-request segment. */
+  static boolean isSafeAppResourceSegment(String segment) {
+    if (StringUtils.isBlank(segment)) {
+      return false;
+    }
+    for (int i = 0; i < segment.length(); i++) {
+      char c = segment.charAt(i);
+      if ((c >= 'a' && c <= 'z')
+          || (c >= 'A' && c <= 'Z')
+          || (c >= '0' && c <= '9')
+          || c == '_'
+          || c == '-'
+          || c == '.') {
+        continue;
+      }
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -1451,6 +1480,10 @@ public class ViewAdaptor implements IViewAdaptor {
   }
 
   private void requireAdmin() {
+    requireAdmin(ADMIN_REQUIRED);
+  }
+
+  private void requireAdmin(String message) {
     boolean allowed;
     try {
       allowed = adminChecker.getAsBoolean();
@@ -1458,10 +1491,10 @@ public class ViewAdaptor implements IViewAdaptor {
       throw e;
     } catch (RuntimeException e) {
       log.debug("Admin check failed: {}", e.getMessage());
-      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+      throw new WebApplicationException(message, Response.Status.FORBIDDEN);
     }
     if (!allowed) {
-      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+      throw new WebApplicationException(message, Response.Status.FORBIDDEN);
     }
   }
 

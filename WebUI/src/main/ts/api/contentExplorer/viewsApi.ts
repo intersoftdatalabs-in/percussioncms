@@ -21,8 +21,9 @@
  * <p>List reuses {@link listViews} from the Developer catalog client
  * ({@code GET /services/views}). Execute is the product contract from
  * #3115: {@code POST /services/views/{idOrName}/execute}. The Inbox
- * custom-URL leaf uses the same execute contract (C1 / #3239). Other
- * custom-URL views stay listed but unsupported in Explorer (#3240).</p>
+ * custom-URL leaf uses the same execute contract (C1 / #3239). User custom
+ * URL views execute from Developer Views (#4472); Explorer listing of other
+ * custom-URL leaves is unchanged (#3240).</p>
  */
 
 import { post } from "../client";

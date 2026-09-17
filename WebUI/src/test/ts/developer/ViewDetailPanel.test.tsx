@@ -19,6 +19,7 @@ vi.mock("../../../main/ts/api/developer/viewsApi", async (importOriginal) => {
     createView: vi.fn(),
     saveView: vi.fn(),
     deleteView: vi.fn(),
+    executeView: vi.fn(),
   };
 });
 
@@ -40,6 +41,7 @@ const getViewDetail = viewsApi.getViewDetail as ReturnType<typeof vi.fn>;
 const createView = viewsApi.createView as ReturnType<typeof vi.fn>;
 const saveView = viewsApi.saveView as ReturnType<typeof vi.fn>;
 const deleteView = viewsApi.deleteView as ReturnType<typeof vi.fn>;
+const executeView = viewsApi.executeView as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   name: "My View",
@@ -63,6 +65,7 @@ describe("ViewDetailPanel", () => {
     createView.mockReset();
     saveView.mockReset();
     deleteView.mockReset();
+    executeView.mockReset();
   });
 
   it("loads detail on success and supports back", async () => {
@@ -268,6 +271,7 @@ describe("ViewDetailPanel", () => {
     );
     expect(screen.getByTestId("developer-vw-fields-custom-url")).toBeTruthy();
     expect(screen.queryByTestId("developer-vw-field-editor")).toBeNull();
+    expect(screen.getByTestId("developer-vw-execute")).toBeTruthy();
     expect(onSaved).toHaveBeenCalled();
   });
 
@@ -340,6 +344,93 @@ describe("ViewDetailPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-vw-editor-notice").textContent).toBe(DEV_MSG.VW_SAVED);
     });
+  });
+
+  it("executes a user custom URL view and shows result rows", async () => {
+    getViewDetail.mockResolvedValue({
+      name: "MyCustom",
+      label: "My Custom",
+      type: "CustomView",
+      customView: true,
+      url: "../myApp/page.xml",
+      guid: { stringValue: "0-18-88" },
+      fields: [],
+    });
+    executeView.mockResolvedValue({
+      viewName: "MyCustom",
+      startIndex: 1,
+      totalCount: 1,
+      children: [{ id: "g1", title: "Assignment", type: "Page", folderPath: "//Sites/Demo" }],
+    });
+    render(<ViewDetailPanel idOrName="MyCustom" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-execute")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-execute"));
+    await waitFor(() => {
+      expect(executeView).toHaveBeenCalledWith("0-18-88", { startIndex: 1, maxResults: 25 });
+    });
+    expect(screen.getByTestId("developer-vw-execute-results")).toBeTruthy();
+    expect(screen.getByTestId("developer-vw-execute-row-0").textContent).toContain("Assignment");
+  });
+
+  it("surfaces execute 400 as invalid URL and 503 as unavailable", async () => {
+    getViewDetail.mockResolvedValue({
+      name: "MyCustom",
+      customView: true,
+      url: "../myApp/page.xml",
+      guid: { stringValue: "0-18-88" },
+      fields: [],
+    });
+    executeView.mockRejectedValueOnce({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Invalid custom view URL" },
+    });
+    render(<ViewDetailPanel idOrName="MyCustom" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-execute")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-execute"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
+        DEV_MSG.VW_EXECUTE_INVALID_URL,
+      );
+    });
+  });
+
+  it("surfaces execute 403 as forbidden", async () => {
+    getViewDetail.mockResolvedValue({
+      name: "MyCustom",
+      customView: true,
+      url: "../myApp/page.xml",
+      guid: { stringValue: "0-18-88" },
+      fields: [],
+    });
+    executeView.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: { message: "Admin role required" },
+    });
+    render(<ViewDetailPanel idOrName="MyCustom" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-execute")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-execute"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
+        DEV_MSG.VW_EXECUTE_FORBIDDEN,
+      );
+    });
+  });
+
+  it("does not show Execute on a standard view", async () => {
+    getViewDetail.mockResolvedValue(sampleDetail);
+    render(<ViewDetailPanel idOrName="My View" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-detail-title")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-vw-execute")).toBeNull();
   });
 
   it("keeps name read-only on edit", async () => {

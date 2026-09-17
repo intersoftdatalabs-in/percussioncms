@@ -18,7 +18,7 @@
 import { del, get, post, put } from "../client";
 import { normalizeDesignObjectGuid, resolveViewObjectGuid } from "../displayFormatGuid";
 import { PATHS } from "../paths";
-import type { ViewDef } from "./types";
+import type { ViewDef, ViewExecuteRequest, ViewExecuteResult } from "./types";
 
 export { resolveViewObjectGuid };
 
@@ -71,14 +71,70 @@ export const PACKAGED_CX_VIEW_NAMES = new Set([
  * Catalog-level design gaps (REST-GAPS-02). Server omits these on list rows;
  * detail re-attaches or SPA falls back via this constant.
  *
- * <p>Create / save / delete, field-criterion write, and user custom URL write are
- * supported (UI-07). Inbox-family / packaged {@code sys_cxViews} mutate remains
- * REST-protected.</p>
+ * <p>Create / save / delete, field-criterion write, user custom URL write, and
+ * user custom URL execute are supported (UI-07). Inbox-family / packaged
+ * {@code sys_cxViews} mutate remains REST-protected.</p>
  */
 export const VIEW_DESIGN_GAPS: string[] = [
   "Inbox-family and packaged sys_cxViews views cannot be updated or deleted via this API",
   "Searches are a separate catalog (Developer Searches / UI-06)",
 ];
+
+/** Jackson / JAXB root for {@link ViewExecuteRequest}. */
+export const VIEW_EXECUTE_REQUEST_ROOT = "ViewExecuteRequest";
+
+export type ViewExecuteRequestEnvelope = {
+  ViewExecuteRequest: ViewExecuteRequest;
+};
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (value != null && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return null;
+}
+
+/** Wrap execute overrides under {@link VIEW_EXECUTE_REQUEST_ROOT}. */
+export function wrapViewExecuteRequest(
+  request?: ViewExecuteRequest | ViewExecuteRequestEnvelope | null,
+): ViewExecuteRequestEnvelope {
+  const rec = asRecord(request);
+  if (rec != null) {
+    const nested = rec[VIEW_EXECUTE_REQUEST_ROOT];
+    if (asRecord(nested) != null) {
+      return { ViewExecuteRequest: nested as ViewExecuteRequest };
+    }
+  }
+  return { ViewExecuteRequest: (request as ViewExecuteRequest) ?? {} };
+}
+
+/** Unwrap Jackson root-name wrapping for {@link ViewExecuteResult}. */
+export function unwrapViewExecuteResult(payload: unknown): ViewExecuteResult {
+  if (payload == null || typeof payload !== "object") {
+    return { children: [], totalCount: 0, startIndex: 1 };
+  }
+  const root = payload as Record<string, unknown>;
+  const nested =
+    root.ViewExecuteResult ??
+    root.viewExecuteResult ??
+    (Array.isArray(root.children) ||
+    typeof root.totalCount === "number" ||
+    typeof root.startIndex === "number"
+      ? root
+      : null);
+  if (nested == null || typeof nested !== "object") {
+    return { children: [], totalCount: 0, startIndex: 1 };
+  }
+  const body = nested as ViewExecuteResult;
+  const children = Array.isArray(body.children) ? body.children : [];
+  return {
+    children,
+    totalCount: typeof body.totalCount === "number" ? body.totalCount : children.length,
+    startIndex: typeof body.startIndex === "number" ? body.startIndex : 1,
+    viewName: body.viewName,
+    displayFormatId: body.displayFormatId,
+  };
+}
 
 function asArray<T>(payload: unknown): T[] {
   if (payload == null) return [];
@@ -280,6 +336,7 @@ const STALE_WRITE_GAPS = new Set([
   "View create / update / delete not supported via this API",
   "View field criterion editing not supported via this API",
   "Inbox-family and custom URL views cannot be updated or deleted via this API",
+  "Custom URL views outside the sys_cxViews Inbox family cannot be executed via this API",
 ]);
 
 /** Drop the pre-UI-07 write gap when REST still attaches it on GET detail. */
@@ -327,4 +384,24 @@ export async function saveView(idOrName: string, body: ViewWriteBody): Promise<V
 /** DELETE /services/views/{idOrName} — Admin. 204 on success; missing is 404. */
 export async function deleteView(idOrName: string): Promise<void> {
   await del(`${PATHS.VIEWS}/${encodeURIComponent(idOrName)}`);
+}
+
+/**
+ * POST /services/views/{idOrName}/execute — run a CX view (standard or custom URL).
+ * User custom URL views require Admin. Empty {@code idOrName} rejects client-side.
+ */
+export async function executeView(
+  idOrName: string,
+  request?: ViewExecuteRequest | null,
+): Promise<ViewExecuteResult> {
+  const key = (idOrName ?? "").trim();
+  if (!key) {
+    throw new Error("View id or name is required");
+  }
+  const pathKey = encodeURIComponent(key);
+  const payload = await post<unknown>(
+    `${PATHS.VIEWS}/${pathKey}/execute`,
+    wrapViewExecuteRequest(request),
+  );
+  return unwrapViewExecuteResult(payload);
 }

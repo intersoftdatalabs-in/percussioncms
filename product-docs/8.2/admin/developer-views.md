@@ -1,7 +1,7 @@
 ---
 id: admin-developer-views
 title: Developer Views
-description: Create, delete, and edit field criteria or custom URLs on Content Explorer views from Developer Views chrome
+description: Create, delete, edit field criteria or custom URLs, and execute user custom URL views from Developer Views chrome
 version: "8.2"
 order: 47
 tags: [admin, developer, views]
@@ -13,8 +13,8 @@ tags: [admin, developer, views]
 **View** editor: unique name, label, type, display format, field criteria, or
 a classic custom URL). Admins can **create** a standard (field-criteria) view
 or a **user custom URL** view (`CustomView`), **delete** a user view, **edit
-field criteria** on a user/standard view, and **update the URL** on a user
-custom URL view from this chrome. The **name** is required, must be unique
+field criteria** on a user/standard view, **update the URL** on a user
+custom URL view, and **execute** a user custom URL view from this chrome. The **name** is required, must be unique
 across views **and** searches (case-insensitive), and must not contain
 spaces, wildcards (`*` / `%`), or path characters. Name cannot be renamed
 after create. Searches stay on **Developer → Searches**. Inbox-family and
@@ -76,6 +76,24 @@ editor and collect a **URL** instead.
 Existing **execute** of standard views and Inbox-family custom URL views
 (Explorer Views tree) is unchanged.
 
+## Product path — execute a custom URL view
+
+1. Sign in as **Admin**.
+2. Open **Developer → Views** and open a **user custom URL** view (not a
+   packaged Inbox-family catalog key, unless you only need to inspect it).
+3. Confirm the **URL** is a classic relative application path (for example
+   `../myApp/page.xml`). Absolute, scheme, backslash, and multi-segment
+   `../` traversal URLs are rejected.
+4. Click **Execute**. The chrome POSTs
+   `/services/views/{idOrName}/execute` and shows result rows (title, type,
+   path) or **No rows returned**.
+5. If the application resource is missing, the editor shows that the custom
+   view resource is not available (**503**). An unsafe URL is **400**. A
+   non-Admin session is **403**. A missing view is **404**.
+
+Inbox-family packaged views remain executable from Explorer without Admin.
+User custom URL execute from this chrome requires Admin.
+
 ## Limits
 
 - Name is immutable after create.
@@ -84,7 +102,8 @@ Existing **execute** of standard views and Inbox-family custom URL views
 - Searches are a separate Developer catalog (UI-06); search field-selection
   is not this chrome.
 - User custom URL views collect and persist `url` (+ `customView`) from this
-  chrome; field criteria are not used on those rows.
+  chrome; field criteria are not used on those rows. **Execute** runs the
+  stored URL through the path-safe classic application resource.
 - Inbox-family and packaged `sys_cxViews` views cannot be updated, deleted, or
   field-edited here.
 
@@ -99,6 +118,7 @@ The chrome calls:
 | Create | `POST /services/views` (`name` required; unique, no spaces; CustomView requires `url`) |
 | Save | `PUT /services/views/{idOrName}` (label, description, type, display format, `url` for user custom URL views; optional `fields`) |
 | Delete | `DELETE /services/views/{idOrName}` (`204` on success) |
+| Execute | `POST /services/views/{idOrName}/execute` (**Admin** for user custom URL views; Inbox-family stays operator-executable) |
 
 Omitted `fields` on PUT leave existing criteria unchanged. An empty `fields`
 array clears them. Writes lock the view for the request and release it on

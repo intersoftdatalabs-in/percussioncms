@@ -181,13 +181,26 @@ public class ViewResourceTest {
   @Test
   public void executeViewMapsIllegalArgumentTo400() {
     when(adaptor.executeView(eq("Custom"), any()))
-        .thenThrow(new IllegalArgumentException("Unsupported custom URL view"));
+        .thenThrow(new IllegalArgumentException("Invalid custom view URL"));
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class,
             () -> resource.executeView("Custom", new ViewExecuteRequest()));
     assertEquals(400, ex.getResponse().getStatus());
-    assertTrue(ex.getMessage().contains("Unsupported custom URL"));
+    assertTrue(ex.getMessage().contains("Invalid custom view URL"));
+  }
+
+  @Test
+  public void executeViewRethrowsForbidden() {
+    WebApplicationException mapped =
+        new WebApplicationException("Admin role required to create, update, or delete views", 403);
+    when(adaptor.executeView(eq("Custom"), any())).thenThrow(mapped);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.executeView("Custom", new ViewExecuteRequest()));
+    assertSame(mapped, ex);
+    assertEquals(403, ex.getResponse().getStatus());
   }
 
   @Test

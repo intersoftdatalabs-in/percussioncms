@@ -22,6 +22,7 @@ import {
   VIEW_TYPE_STANDARD,
   createView,
   deleteView,
+  executeView,
   getViewDetail,
   isCustomViewType,
   isInboxViewName,
@@ -35,8 +36,10 @@ import {
   saveView,
   unwrapViewDef,
   unwrapViewDefList,
+  unwrapViewExecuteResult,
   withoutStaleViewWriteGap,
   wrapViewDefForWire,
+  wrapViewExecuteRequest,
 } from "../../../../main/ts/api/developer/viewsApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -220,6 +223,7 @@ describe("view wire wrap", () => {
     expect(VIEW_DESIGN_GAPS.some((g) => /field criterion/i.test(g))).toBe(false);
     expect(VIEW_DESIGN_GAPS.some((g) => /Inbox-family/i.test(g))).toBe(true);
     expect(VIEW_DESIGN_GAPS.some((g) => /packaged sys_cxViews/i.test(g))).toBe(true);
+    expect(VIEW_DESIGN_GAPS.some((g) => /cannot be executed/i.test(g))).toBe(false);
   });
 
   it("filters a stale REST write, field-criterion, and pre-UI-07 custom URL gap on GET detail", () => {
@@ -228,6 +232,7 @@ describe("view wire wrap", () => {
         "View create / update / delete not supported via this API",
         "View field criterion editing not supported via this API",
         "Inbox-family and custom URL views cannot be updated or deleted via this API",
+        "Custom URL views outside the sys_cxViews Inbox family cannot be executed via this API",
         "Inbox-family and packaged sys_cxViews views cannot be updated or deleted via this API",
       ]),
     ).toEqual([
@@ -351,6 +356,44 @@ describe("viewsApi write paths", () => {
     const init = fetchMock.mock.calls[0][1] as RequestInit;
     expect(init.method).toBe("DELETE");
     expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.VIEWS}/MyView`);
+  });
+
+  it("POSTs execute body to /services/views/{idOrName}/execute", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ViewExecuteResult: {
+          viewName: "MyCustom",
+          totalCount: 1,
+          startIndex: 1,
+          children: [{ id: "g1", title: "Row" }],
+        },
+      }),
+    );
+    const result = await executeView("MyCustom", { startIndex: 1, maxResults: 25 });
+    expect(result.viewName).toBe("MyCustom");
+    expect(result.children).toHaveLength(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.VIEWS}/MyCustom/execute`);
+    expect(JSON.parse(String(init.body))).toEqual({
+      ViewExecuteRequest: { startIndex: 1, maxResults: 25 },
+    });
+  });
+
+  it("rejects blank execute keys client-side", async () => {
+    await expect(executeView("   ")).rejects.toThrow(/required/i);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("wraps and unwraps execute envelopes", () => {
+    expect(wrapViewExecuteRequest({ startIndex: 2 })).toEqual({
+      ViewExecuteRequest: { startIndex: 2 },
+    });
+    expect(
+      unwrapViewExecuteResult({
+        ViewExecuteResult: { children: [{ title: "A" }], totalCount: 1 },
+      }).children?.[0]?.title,
+    ).toBe("A");
   });
 
   it("unwraps GET /services/views/{idOrName} Jackson root", async () => {
