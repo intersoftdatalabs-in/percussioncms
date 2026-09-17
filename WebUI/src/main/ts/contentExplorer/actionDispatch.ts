@@ -33,7 +33,13 @@ import {
 } from "../api/contentExplorer/itemCopyApi";
 import { del } from "../api/client";
 import { PATHS } from "../api/paths";
-import { publishSelectedItem } from "./itemPublish";
+import {
+  formatTakedownConfirmBody,
+  isTakedownActionName,
+  loadLinkedPagesForTakedown,
+  publishSelectedItem,
+  takedownSelectedItem,
+} from "./itemPublish";
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
 import { classifyUrl, safeNavigate } from "../util/safeNavigate";
 import {
@@ -189,6 +195,7 @@ export interface ActionDispatchContext {
     types: ContentTypeChoice[],
   ) => Promise<string | null>;
   onPublish?: (item: PSPathItem) => Promise<void>;
+  onTakedown?: (item: PSPathItem) => Promise<void>;
   /** Parent menu name when the user activated a child (AA vs Preview). */
   parentName?: string;
   writeClipboard?: (text: string) => Promise<void>;
@@ -290,7 +297,7 @@ export function classifyAction(action: MenuAction): ActionKind {
   if (isAssemblerPreviewUrl(action.url) || PREVIEW_PARENT_NAMES.has(name)) {
     return "rest";
   }
-  if (name === "purge" || name === "publish_now") {
+  if (name === "purge" || name === "publish_now" || isTakedownActionName(name)) {
     return "rest";
   }
   if (
@@ -752,6 +759,28 @@ export async function dispatchAction(
     }
     const published = await publishSelectedItem(item);
     if (!published) {
+      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    return { kind: "rest", refresh: true };
+  }
+
+  if (isTakedownActionName(name)) {
+    if (!item || isFolder(item)) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    const linked = await loadLinkedPagesForTakedown(item.id ?? "");
+    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+      formatTakedownConfirmBody(linked),
+    );
+    if (!ok) {
+      return { kind: "rest" };
+    }
+    if (ctx.onTakedown) {
+      await ctx.onTakedown(item);
+      return { kind: "rest", refresh: true };
+    }
+    const takenDown = await takedownSelectedItem(item, linked);
+    if (!takenDown) {
       return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
     }
     return { kind: "rest", refresh: true };

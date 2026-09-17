@@ -27,6 +27,7 @@ import {
   unwrapMenuActionChildren,
   isActionAllowedOnSurface,
   isToolbarPublishNowHidden,
+  isToolbarTakedownHidden,
   isToolbarEditorActionHidden,
   isClientHandledAction,
   isDesktopOnlyActionUrl,
@@ -217,7 +218,7 @@ describe("filterEnabledMenuActions", () => {
       category: "page",
       leaf: true,
     });
-    expect(withPage.map((a) => a.name)).toEqual(["View", "Open"]);
+    expect(withPage.map((a) => a.name)).toEqual(["View", "Open", "Take_Down"]);
     expect(withPage[0]?.children?.map((c) => c.name)).toEqual([
       "View_Properties",
       "Flush_Cache",
@@ -309,7 +310,7 @@ describe("filterEnabledMenuActions", () => {
         category: "page",
         leaf: true,
       }).map((a) => a.name),
-    ).toEqual(["open", "Publish_Now"]);
+    ).toEqual(["open", "Publish_Now", "Take_Down"]);
     expect(
       isToolbarPublishNowHidden(leaf({ name: "Publish_Now" }), null),
     ).toBe(true);
@@ -339,7 +340,68 @@ describe("filterEnabledMenuActions", () => {
     ).toEqual(["open"]);
     expect(
       filterContextMenuActions(actions, BASE, page).map((a) => a.name),
-    ).toEqual(["open", "Publish_Now"]);
+    ).toEqual(["open", "Publish_Now", "Take_Down"]);
+  });
+
+  it("injects Take Down for a page and hides it for folders (#4533)", () => {
+    const actions: MenuAction[] = [
+      leaf({ name: "open" }),
+      leaf({ name: "Publish_Now", label: "Publish Now" }),
+    ];
+    expect(
+      filterToolbarActions(actions, BASE, null).map((a) => a.name),
+    ).toEqual(["open"]);
+    expect(
+      filterToolbarActions(actions, BASE, {
+        id: "1",
+        name: "Sites",
+        path: "/Sites",
+        type: "folder",
+      }).map((a) => a.name),
+    ).toEqual(["open"]);
+    expect(
+      filterToolbarActions(actions, BASE, {
+        id: "42",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+        category: "page",
+        leaf: true,
+      }).map((a) => a.name),
+    ).toEqual(["open", "Publish_Now", "Take_Down"]);
+    expect(
+      isToolbarTakedownHidden(leaf({ name: "Take_Down" }), null),
+    ).toBe(true);
+    expect(
+      isToolbarTakedownHidden(
+        leaf({ name: "Take_Down" }),
+        {
+          id: "42",
+          name: "Home",
+          path: "/Sites/Demo/Home",
+          type: "percPage",
+          category: "page",
+          leaf: true,
+        },
+      ),
+    ).toBe(false);
+  });
+
+  it("does not duplicate Take Down when the catalog already has it", () => {
+    const actions: MenuAction[] = [
+      leaf({ name: "Take_Down", label: "Take Down" }),
+    ];
+    const page = {
+      id: "42",
+      name: "Home",
+      path: "/Sites/Demo/Home",
+      type: "percPage",
+      category: "page",
+      leaf: true,
+    };
+    expect(
+      filterToolbarActions(actions, BASE, page).map((a) => a.name),
+    ).toEqual(["Take_Down"]);
   });
 
   it("unwraps envelope children and collapses dumped descendants on the context menu (#3629)", () => {
@@ -376,7 +438,7 @@ describe("filterEnabledMenuActions", () => {
       "Open",
     ]);
     const filtered = filterContextMenuActions(actions, BASE, page);
-    expect(filtered.map((a) => a.name)).toEqual(["View", "Open"]);
+    expect(filtered.map((a) => a.name)).toEqual(["View", "Open", "Take_Down"]);
     expect(filtered[0]?.children?.map((c) => c.name)).toEqual([
       "View_Properties",
     ]);
@@ -415,7 +477,7 @@ describe("filterEnabledMenuActions", () => {
         category: "page",
         leaf: true,
       }).map((a) => a.name),
-    ).toEqual(["open", "Edit", "Quick_Edit"]);
+    ).toEqual(["open", "Edit", "Quick_Edit", "Take_Down"]);
     expect(isToolbarEditorActionHidden(leaf({ name: "Edit" }), null)).toBe(true);
     expect(
       isToolbarEditorActionHidden(leaf({ name: "open" }), {

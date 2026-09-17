@@ -16,14 +16,17 @@
  */
 
 /**
- * Explorer Publish Now — existing sitemanage publish-now GET, not the
- * demandpublishing servlet page (that 404s from the SPA).
+ * Explorer Publish Now / Take Down — existing sitemanage GETs (and PUT
+ * takedown when linked pages exist), not the demandpublishing servlet.
  */
 
-import { get } from "../api/client";
+import { get, put } from "../api/client";
 import type { PSPathItem } from "../api/contentExplorer/types";
+import { asObjectArray } from "../api/jsonList";
 import { itemPublishPaths } from "../publishing/itemPublishPaths";
 import { mapPublishResponse } from "../publishing/publishActions";
+import { message } from "../i18n/message";
+import { EXPLORER_MSG } from "./messages";
 import { normalizeCmsPath } from "./previewItem";
 import { isFolder } from "./selection";
 
@@ -69,6 +72,99 @@ export function resolvePublishKind(
   return "none";
 }
 
+const TAKEDOWN_ACTION_KEYS: ReadonlySet<string> = new Set([
+  "take_down",
+  "takedown",
+  "unpublish",
+]);
+
+/** Catalog / toolbar names for Explorer Take Down (Finder “Take Down”). */
+export function isTakedownActionName(
+  name: string | undefined | null,
+): boolean {
+  const key = (name ?? "").replace(/[\s-]/g, "_").toLowerCase();
+  return TAKEDOWN_ACTION_KEYS.has(key);
+}
+
+/** Pages that link to the item — listed on the takedown confirm. */
+export interface LinkedPageForTakedown {
+  id?: string;
+  pagePath?: string;
+  relationshipId?: string;
+}
+
+function asLinkedPage(row: unknown): LinkedPageForTakedown | null {
+  if (row == null || typeof row !== "object") {
+    return null;
+  }
+  const rec = row as Record<string, unknown>;
+  const inner =
+    rec.PageLinkedToItem != null && typeof rec.PageLinkedToItem === "object"
+      ? (rec.PageLinkedToItem as Record<string, unknown>)
+      : rec;
+  const pagePath =
+    typeof inner.pagePath === "string" ? inner.pagePath.trim() : "";
+  const id = typeof inner.id === "string" ? inner.id.trim() : "";
+  const relationshipId =
+    typeof inner.relationshipId === "string"
+      ? inner.relationshipId.trim()
+      : "";
+  if (!pagePath && !id && !relationshipId) {
+    return null;
+  }
+  return {
+    id: id || undefined,
+    pagePath: pagePath || undefined,
+    relationshipId: relationshipId || undefined,
+  };
+}
+
+export function parseLinkedPagesForTakedown(
+  body: unknown,
+): LinkedPageForTakedown[] {
+  return asObjectArray(body)
+    .map(asLinkedPage)
+    .filter((row): row is LinkedPageForTakedown => row != null);
+}
+
+/**
+ * Load pages that link to this item. Linked-list failures must not block
+ * takedown (classic Finder proceeds without the extra confirm).
+ */
+export async function loadLinkedPagesForTakedown(
+  itemId: string,
+): Promise<LinkedPageForTakedown[]> {
+  const id = itemId.trim();
+  if (!id) {
+    return [];
+  }
+  try {
+    const body = await get<unknown>(
+      `${itemPublishPaths().linkedItems}/${encodeURIComponent(id)}`,
+    );
+    return parseLinkedPagesForTakedown(body);
+  } catch {
+    return [];
+  }
+}
+
+const LINKED_PATH_CONFIRM_LIMIT = 10;
+
+/** Confirm copy for Take Down, including linked page paths when present. */
+export function formatTakedownConfirmBody(
+  linked: LinkedPageForTakedown[],
+): string {
+  const intro = message(EXPLORER_MSG.CONFIRM_TAKEDOWN);
+  const paths = linked
+    .map((row) => (row.pagePath ?? "").trim())
+    .filter((path) => path.length > 0)
+    .slice(0, LINKED_PATH_CONFIRM_LIMIT);
+  if (paths.length === 0) {
+    return intro;
+  }
+  return `${intro}\n\n${message(EXPLORER_MSG.CONFIRM_TAKEDOWN_LINKED)}\n${paths.join("\n")}`;
+}
+
 /**
  * Demand-publish a page or asset. Other types return false so the
  * dispatcher can show that the action is not available.
@@ -102,5 +198,56 @@ async function demandPublish(url: string): Promise<void> {
   const preflight = mapPublishResponse(body);
   if (preflight) {
     throw new Error(preflight.message || preflight.token || "Publish failed");
+  }
+}
+
+/**
+ * Take down (unpublish) a page or asset. Other types return false so the
+ * dispatcher can show that the action is not available.
+ *
+ * <p>HTTP 200 with application-level preflight status
+ * ({@code FORBIDDEN}, {@code BADCONFIG}, {@code NOSTAGING_SERVERS},
+ * {@code INVALID}, …) is a failure — same as classic Finder and
+ * {@code mapPublishResponse}. Linked pages trigger PUT of the list (same
+ * as {@code PercItemPublisherService.takeDownItem}); otherwise GET.</p>
+ */
+export async function takedownSelectedItem(
+  item: PSPathItem,
+  linked: LinkedPageForTakedown[] = [],
+): Promise<boolean> {
+  const id = (item.id ?? "").trim();
+  if (!id) {
+    return false;
+  }
+  const kind = resolvePublishKind(item);
+  const paths = itemPublishPaths();
+  if (kind === "page") {
+    await demandTakedown(
+      `${paths.pageTakedown}/${encodeURIComponent(id)}`,
+      linked,
+    );
+    return true;
+  }
+  if (kind === "asset") {
+    await demandTakedown(
+      `${paths.resourceTakedown}/${encodeURIComponent(id)}`,
+      linked,
+    );
+    return true;
+  }
+  return false;
+}
+
+async function demandTakedown(
+  url: string,
+  linked: LinkedPageForTakedown[],
+): Promise<void> {
+  const body =
+    linked.length > 0
+      ? await put<unknown>(url, linked)
+      : await get<unknown>(url);
+  const preflight = mapPublishResponse(body);
+  if (preflight) {
+    throw new Error(preflight.message || preflight.token || "Takedown failed");
   }
 }

@@ -374,6 +374,10 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Permanently delete this item from the system?",
   CONFIRM_PUBLISH_NOW:
     "perc.ui.explorer@Publish this item now?",
+  CONFIRM_TAKEDOWN:
+    "perc.ui.explorer@Take down (unpublish) this item from its site?",
+  CONFIRM_TAKEDOWN_LINKED:
+    "perc.ui.explorer@These pages link to this item:",
   ACTION_COPY_URL_SUCCESS: "perc.ui.explorer@Item URL copied to the clipboard",
   ACTION_COPY_URL_FAILED: "perc.ui.explorer@Could not copy the item URL",
   ACTION_COPY_URL_EMPTY: "perc.ui.explorer@No URL is available for this item",

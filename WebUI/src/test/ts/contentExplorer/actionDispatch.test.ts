@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { MenuAction, PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import {
   classifyAction,
@@ -48,6 +48,10 @@ function action(overrides: Partial<MenuAction> = {}): MenuAction {
 }
 
 describe("actionDispatch", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("classifies Data Flow URLs as non-navigable", () => {
     expect(isDataFlowActionUrl("../sys_cxSupport/previewslotvariant.html")).toBe(
       true,
@@ -794,6 +798,88 @@ describe("actionDispatch", () => {
     expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
     expect(result.refresh).toBeUndefined();
     expect(onPublish).not.toHaveBeenCalled();
+  });
+
+  it("classifies Take Down as rest", () => {
+    expect(classifyAction(action({ name: "Take_Down" }))).toBe("rest");
+    expect(classifyAction(action({ name: "unpublish" }))).toBe("rest");
+  });
+
+  it("Take Down confirms then unpublishes", async () => {
+    const onTakedown = vi.fn().mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ ArrayList: [] }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const result = await dispatchAction(action({ name: "Take_Down" }), {
+      item: item(),
+      onTakedown,
+      confirm,
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(confirm).toHaveBeenCalled();
+    expect(String(confirm.mock.calls[0]?.[0] ?? "")).toMatch(/Take down/i);
+    expect(onTakedown).toHaveBeenCalled();
+  });
+
+  it("Take Down cancel does not unpublish", async () => {
+    const onTakedown = vi.fn();
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response("[]", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const result = await dispatchAction(action({ name: "Take_Down" }), {
+      item: item(),
+      onTakedown,
+      confirm: () => false,
+    });
+    expect(onTakedown).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("Take Down on a Sites folder asks for a content item", async () => {
+    const onTakedown = vi.fn();
+    const result = await dispatchAction(action({ name: "Take_Down" }), {
+      item: item({
+        id: "1",
+        name: "Sites",
+        path: "/Sites",
+        type: "folder",
+        leaf: false,
+      }),
+      onTakedown,
+      confirm: () => true,
+    });
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+    expect(onTakedown).not.toHaveBeenCalled();
+  });
+
+  it("Take Down confirm lists linked page paths", async () => {
+    const onTakedown = vi.fn().mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          ArrayList: [{ pagePath: "/Sites/Demo/Home" }],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    await dispatchAction(action({ name: "Take_Down" }), {
+      item: item(),
+      onTakedown,
+      confirm,
+    });
+    expect(String(confirm.mock.calls[0]?.[0] ?? "")).toContain(
+      "/Sites/Demo/Home",
+    );
+    expect(onTakedown).toHaveBeenCalled();
   });
 
   it("dispatch workflow-transition runs the trigger", async () => {
