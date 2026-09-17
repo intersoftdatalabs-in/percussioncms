@@ -25,8 +25,10 @@
  * toolbar / context-menu affordances. These pure helpers filter
  * {@link MenuAction} trees after mapping from wire {@code ActionMenu}
  * DTOs. Toolbar / context-menu filtering also injects Explorer
- * <strong>Take Down</strong> when a page or asset is selected (CX catalogs
- * expose Publish Now; Finder publishing dropdown is not a CX action).</p>
+ * <strong>Take Down</strong>, <strong>Stage</strong>, and
+ * <strong>Remove from Staging</strong> when a page or asset is selected
+ * (CX catalogs expose Publish Now; Finder publishing dropdown is not a
+ * CX action).</p>
  *
  * <p>Rules (FR-011: hide unauthorized / non-applicable):</p>
  * <ul>
@@ -45,7 +47,12 @@ import { collapseFlattenedMenuActionRoots } from "../api/contentExplorer/actionM
 import { parseExplorerContentId } from "../api/contentExplorer/pathItemId";
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
 import { classifyUrl } from "../util/safeNavigate";
-import { isTakedownActionName, resolvePublishKind } from "./itemPublish";
+import {
+  isRemoveFromStagingActionName,
+  isStageActionName,
+  isTakedownActionName,
+  resolvePublishKind,
+} from "./itemPublish";
 import { isFolder } from "./selection";
 
 /** Where the filtered menu will be rendered. */
@@ -61,7 +68,8 @@ export interface ActionEnablementContext {
    * Currently selected detail-list item, or {@code null} when only a folder
    * is active. Toolbar and context-menu Publish Now are hidden until a
    * page/asset is selected so a Sites-folder click cannot claim published
-   * (#3467). Take Down follows the same kind rules (#4533).
+   * (#3467). Take Down, Stage, and Remove from Staging follow the same
+   * kind rules (#4533 / #4546).
    */
   selectionItem?: PSPathItem | null;
   /**
@@ -271,6 +279,22 @@ export function isToolbarTakedownHidden(
   return resolvePublishKind(selectionItem ?? null) === "none";
 }
 
+/**
+ * Stage / Remove from Staging are item-scoped like Publish Now.
+ */
+export function isToolbarStageHidden(
+  action: MenuAction,
+  selectionItem: PSPathItem | null | undefined,
+): boolean {
+  if (
+    !isStageActionName(action.name) &&
+    !isRemoveFromStagingActionName(action.name)
+  ) {
+    return false;
+  }
+  return resolvePublishKind(selectionItem ?? null) === "none";
+}
+
 /** Injected when CX catalog has no Take Down leaf for a page/asset. */
 export const EXPLORER_TAKEDOWN_ACTION: MenuAction = {
   name: "Take_Down",
@@ -279,16 +303,50 @@ export const EXPLORER_TAKEDOWN_ACTION: MenuAction = {
   menuType: "MENUITEM",
 };
 
-function menuHasTakedownAction(actions: MenuAction[]): boolean {
+/** Injected when CX catalog has no Stage leaf for a page/asset. */
+export const EXPLORER_STAGE_ACTION: MenuAction = {
+  name: "Stage",
+  label: "Stage",
+  sortRank: 10_010,
+  menuType: "MENUITEM",
+};
+
+/** Injected when CX catalog has no Remove from Staging leaf. */
+export const EXPLORER_REMOVE_FROM_STAGING_ACTION: MenuAction = {
+  name: "Remove_from_Staging",
+  label: "Remove from Staging",
+  sortRank: 10_020,
+  menuType: "MENUITEM",
+};
+
+function menuHasMatchingAction(
+  actions: MenuAction[],
+  match: (name: string | undefined) => boolean,
+): boolean {
   for (const action of actions) {
-    if (isTakedownActionName(action.name)) {
+    if (match(action.name)) {
       return true;
     }
-    if (action.children && menuHasTakedownAction(action.children)) {
+    if (action.children && menuHasMatchingAction(action.children, match)) {
       return true;
     }
   }
   return false;
+}
+
+function injectPublishItemAction(
+  actions: MenuAction[],
+  selectionItem: PSPathItem | null | undefined,
+  match: (name: string | undefined) => boolean,
+  injected: MenuAction,
+): MenuAction[] {
+  if (resolvePublishKind(selectionItem ?? null) === "none") {
+    return actions;
+  }
+  if (menuHasMatchingAction(actions, match)) {
+    return actions;
+  }
+  return [...actions, { ...injected }];
 }
 
 /**
@@ -299,13 +357,33 @@ export function withExplorerTakedownAction(
   actions: MenuAction[],
   selectionItem: PSPathItem | null | undefined,
 ): MenuAction[] {
-  if (resolvePublishKind(selectionItem ?? null) === "none") {
-    return actions;
-  }
-  if (menuHasTakedownAction(actions)) {
-    return actions;
-  }
-  return [...actions, { ...EXPLORER_TAKEDOWN_ACTION }];
+  return injectPublishItemAction(
+    actions,
+    selectionItem,
+    isTakedownActionName,
+    EXPLORER_TAKEDOWN_ACTION,
+  );
+}
+
+/**
+ * CX catalogs omit Finder Stage / Remove from Staging. Inject both when
+ * the selection is a page or asset.
+ */
+export function withExplorerStagingActions(
+  actions: MenuAction[],
+  selectionItem: PSPathItem | null | undefined,
+): MenuAction[] {
+  return injectPublishItemAction(
+    injectPublishItemAction(
+      actions,
+      selectionItem,
+      isStageActionName,
+      EXPLORER_STAGE_ACTION,
+    ),
+    selectionItem,
+    isRemoveFromStagingActionName,
+    EXPLORER_REMOVE_FROM_STAGING_ACTION,
+  );
 }
 
 /**
@@ -406,6 +484,9 @@ export function filterEnabledMenuActions(
     if (isToolbarTakedownHidden(action, ctx.selectionItem)) {
       continue;
     }
+    if (isToolbarStageHidden(action, ctx.selectionItem)) {
+      continue;
+    }
     if (isToolbarEditorActionHidden(action, ctx.selectionItem)) {
       continue;
     }
@@ -423,12 +504,15 @@ export function filterToolbarActions(
   selectionItem?: PSPathItem | null,
 ): MenuAction[] {
   return prepareToolbarActions(
-    withExplorerTakedownAction(
-      filterEnabledMenuActions(actions, {
-        surface: "toolbar",
-        baseHref,
+    withExplorerStagingActions(
+      withExplorerTakedownAction(
+        filterEnabledMenuActions(actions, {
+          surface: "toolbar",
+          baseHref,
+          selectionItem,
+        }),
         selectionItem,
-      }),
+      ),
       selectionItem,
     ),
   );
@@ -445,12 +529,15 @@ export function filterContextMenuActions(
   selectionItem?: PSPathItem | null,
 ): MenuAction[] {
   return prepareMenuActionTree(
-    withExplorerTakedownAction(
-      filterEnabledMenuActions(actions, {
-        surface: "contextmenu",
-        baseHref,
+    withExplorerStagingActions(
+      withExplorerTakedownAction(
+        filterEnabledMenuActions(actions, {
+          surface: "contextmenu",
+          baseHref,
+          selectionItem,
+        }),
         selectionItem,
-      }),
+      ),
       selectionItem,
     ),
   );

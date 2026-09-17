@@ -26,6 +26,10 @@ export function itemPublishPaths(root = SERVICES_ROOT): {
   resourcePublish: string;
   pageTakedown: string;
   resourceTakedown: string;
+  pageStaging: string;
+  resourceStaging: string;
+  pageStagingTakedown: string;
+  resourceStagingTakedown: string;
   publishingActions: string;
   sitePublish: string;
   /** Pages that link to an item — classic Finder takedown confirm. */
@@ -37,6 +41,10 @@ export function itemPublishPaths(root = SERVICES_ROOT): {
     resourcePublish: `${base}/resource`,
     pageTakedown: `${base}/takedown/page`,
     resourceTakedown: `${base}/takedown/resource`,
+    pageStaging: `${base}/page/staging`,
+    resourceStaging: `${base}/resource/staging`,
+    pageStagingTakedown: `${base}/takedown/page/staging`,
+    resourceStagingTakedown: `${base}/takedown/resource/staging`,
     publishingActions: `${base}/publishingActions`,
     sitePublish: base,
     linkedItems: `${root}/itemmanagement/item/findLinkedItems`,

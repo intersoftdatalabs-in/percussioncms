@@ -882,6 +882,123 @@ describe("actionDispatch", () => {
     expect(onTakedown).toHaveBeenCalled();
   });
 
+  it("classifies Stage and Remove from Staging as rest", () => {
+    expect(classifyAction(action({ name: "Stage" }))).toBe("rest");
+    expect(classifyAction(action({ name: "Remove_from_Staging" }))).toBe(
+      "rest",
+    );
+    expect(classifyAction(action({ name: "unstage" }))).toBe("rest");
+  });
+
+  it("Stage confirms then stages", async () => {
+    const onStage = vi.fn().mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item(),
+      onStage,
+      confirm,
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(confirm).toHaveBeenCalledWith(EXPLORER_MSG.CONFIRM_STAGE);
+    expect(onStage).toHaveBeenCalled();
+  });
+
+  it("Stage cancel does not stage", async () => {
+    const onStage = vi.fn();
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item(),
+      onStage,
+      confirm: () => false,
+    });
+    expect(onStage).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("Stage on a Sites folder asks for a content item", async () => {
+    const onStage = vi.fn();
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item({
+        id: "1",
+        name: "Sites",
+        path: "/Sites",
+        type: "folder",
+        leaf: false,
+      }),
+      onStage,
+      confirm: () => true,
+    });
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+    expect(onStage).not.toHaveBeenCalled();
+  });
+
+  it("Stage on a template stays unavailable", async () => {
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item({
+        path: "/Design/Templates/base",
+        type: "percTemplate",
+        category: "template",
+        id: "77",
+      }),
+      confirm: () => true,
+    });
+    expect(result.kind).toBe("unavailable");
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_UNAVAILABLE);
+  });
+
+  it("Remove from Staging confirms then unstages", async () => {
+    const onRemoveFromStaging = vi.fn().mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
+    const result = await dispatchAction(
+      action({ name: "Remove_from_Staging" }),
+      {
+        item: item(),
+        onRemoveFromStaging,
+        confirm,
+      },
+    );
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(confirm).toHaveBeenCalledWith(
+      EXPLORER_MSG.CONFIRM_REMOVE_FROM_STAGING,
+    );
+    expect(onRemoveFromStaging).toHaveBeenCalled();
+  });
+
+  it("Remove from Staging cancel does not unstage", async () => {
+    const onRemoveFromStaging = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "Remove_from_Staging" }),
+      {
+        item: item(),
+        onRemoveFromStaging,
+        confirm: () => false,
+      },
+    );
+    expect(onRemoveFromStaging).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("Remove from Staging on a Sites folder asks for a content item", async () => {
+    const onRemoveFromStaging = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "Remove_from_Staging" }),
+      {
+        item: item({
+          id: "1",
+          name: "Sites",
+          path: "/Sites",
+          type: "folder",
+          leaf: false,
+        }),
+        onRemoveFromStaging,
+        confirm: () => true,
+      },
+    );
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+    expect(onRemoveFromStaging).not.toHaveBeenCalled();
+  });
+
   it("dispatch workflow-transition runs the trigger", async () => {
     const runWorkflow = vi.fn().mockResolvedValue(undefined);
     const result = await dispatchAction(
