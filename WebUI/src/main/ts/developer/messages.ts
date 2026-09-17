@@ -1686,6 +1686,19 @@ export const DEV_MSG_KEYS = {
   RT_CLONE_EMPTY: "perc.ui.developer@No cloning field overrides.",
   RT_CLONE_INCOMPLETE:
     "perc.ui.developer@Each override needs a field name and extension ref (or remove the row).",
+  RT_COL_CONDITIONS: "perc.ui.developer@Conditions",
+  RT_COL_EXECCONTEXT: "perc.ui.developer@Execution contexts",
+  RT_EFFECT_COND_HINT:
+    "perc.ui.developer@When this effect runs: optional condition clauses (variable, operator, value) and execution contexts. Empty conditions or contexts clear on save.",
+  RT_EFFECT_COND_VAR: "perc.ui.developer@Variable",
+  RT_EFFECT_COND_OP: "perc.ui.developer@Operator",
+  RT_EFFECT_COND_VALUE: "perc.ui.developer@Value",
+  RT_EFFECT_COND_ADD: "perc.ui.developer@Add condition",
+  RT_EFFECT_COND_REMOVE: "perc.ui.developer@Remove",
+  RT_EFFECT_COND_EMPTY: "perc.ui.developer@No conditions (always eligible).",
+  RT_EFFECT_COND_INCOMPLETE:
+    "perc.ui.developer@Each condition needs a variable and operator (or remove the row).",
+  RT_EFFECT_CTX_EMPTY: "perc.ui.developer@No execution contexts (all contexts).",
   RT_NAME_HINT:
     "perc.ui.developer@Required on create. No spaces or wildcards. Cannot be renamed later.",
   RT_NAME_READONLY: "perc.ui.developer@Name cannot be changed after create.",
@@ -1715,8 +1728,6 @@ export const DEV_MSG_KEYS = {
   RT_USER_PROPS: "perc.ui.developer@User properties",
   RT_NONE: "perc.ui.developer@None",
   RT_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
-  RT_GAP_EFFECTS:
-    "perc.ui.developer@Effect condition and execution-context edit not supported via this API",
   RT_COPY_NONE: "perc.ui.developer@(none — choose category)",
   WF_LOADING: "perc.ui.developer@Loading workflows...",
   WF_EMPTY: "perc.ui.developer@No workflows returned.",

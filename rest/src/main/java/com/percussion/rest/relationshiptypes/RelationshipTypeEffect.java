@@ -20,11 +20,12 @@ package com.percussion.rest.relationshiptypes;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
-/** Read-only projection of a relationship conditional effect. */
+/** Projection of a relationship conditional effect, including conditions and execution contexts. */
 @XmlRootElement(name = "RelationshipTypeEffect")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Relationship type effect (extension call)")
+@Schema(description = "Relationship type effect (extension call, conditions, execution contexts)")
 public class RelationshipTypeEffect {
 
   @Schema(description = "Effect extension name")
@@ -35,6 +36,29 @@ public class RelationshipTypeEffect {
 
   @Schema(description = "Activation end point (owner/dependent/either)")
   private String activationEndPoint;
+
+  @Schema(
+      description =
+          "Effect conditions. PUT replaces this list when present; empty list clears."
+              + " Null (omitted) leaves existing conditions unchanged.")
+  private List<RelationshipTypeEffectCondition> conditions;
+
+  @Schema(
+      description =
+          "Execution context names (e.g. PreConstruction, PostWorkflow). PUT replaces when"
+              + " present; empty list clears. Null leaves existing contexts unchanged.")
+  private List<String> executionContexts;
+
+  @Schema(
+      description =
+          "When true, clears effect conditions (same intent as conditions: [])."
+              + " Use when a JAX-RS/Jackson path drops empty arrays.")
+  private Boolean clearConditions;
+
+  @Schema(
+      description =
+          "When true, clears execution contexts (same intent as executionContexts: []).")
+  private Boolean clearExecutionContexts;
 
   public RelationshipTypeEffect() {}
 
@@ -60,5 +84,37 @@ public class RelationshipTypeEffect {
 
   public void setActivationEndPoint(String activationEndPoint) {
     this.activationEndPoint = activationEndPoint;
+  }
+
+  public List<RelationshipTypeEffectCondition> getConditions() {
+    return conditions;
+  }
+
+  public void setConditions(List<RelationshipTypeEffectCondition> conditions) {
+    this.conditions = conditions;
+  }
+
+  public List<String> getExecutionContexts() {
+    return executionContexts;
+  }
+
+  public void setExecutionContexts(List<String> executionContexts) {
+    this.executionContexts = executionContexts;
+  }
+
+  public Boolean getClearConditions() {
+    return clearConditions;
+  }
+
+  public void setClearConditions(Boolean clearConditions) {
+    this.clearConditions = clearConditions;
+  }
+
+  public Boolean getClearExecutionContexts() {
+    return clearExecutionContexts;
+  }
+
+  public void setClearExecutionContexts(Boolean clearExecutionContexts) {
+    this.clearExecutionContexts = clearExecutionContexts;
   }
 }

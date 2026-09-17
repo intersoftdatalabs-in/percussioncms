@@ -210,6 +210,48 @@ public class RelationshipTypeResourceTest {
   }
 
   @Test
+  public void updateRelationshipTypeEffectConditionInvalidIs400() {
+    when(adaptor.updateRelationshipType(eq("MyUserRel"), any()))
+        .thenThrow(new IllegalArgumentException("effects.conditions[0].variable is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateRelationshipType("MyUserRel", userBody("MyUserRel")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateRelationshipTypeEffectNonAdminIs403() {
+    when(adaptor.updateRelationshipType(eq("MyUserRel"), any()))
+        .thenThrow(new WebApplicationException("Admin role required", Response.Status.FORBIDDEN));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateRelationshipType("MyUserRel", userBody("MyUserRel")));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getRelationshipTypeIncludesEffectConditions() {
+    RelationshipType t = userBody("MyUserRel");
+    RelationshipTypeEffect effect = new RelationshipTypeEffect();
+    effect.setExtensionRef("Java/global/percussion/generic/sys_Literal");
+    RelationshipTypeEffectCondition cond = new RelationshipTypeEffectCondition();
+    cond.setVariable("sys_title");
+    cond.setOperator("=");
+    cond.setValue("yes");
+    effect.setConditions(List.of(cond));
+    effect.setExecutionContexts(List.of("PreConstruction"));
+    t.setEffects(List.of(effect));
+    when(adaptor.findRelationshipType(eq("MyUserRel"))).thenReturn(t);
+
+    RelationshipType out = resource.getRelationshipType("MyUserRel");
+    assertEquals(1, out.getEffects().size());
+    assertEquals("sys_title", out.getEffects().get(0).getConditions().get(0).getVariable());
+    assertEquals(List.of("PreConstruction"), out.getEffects().get(0).getExecutionContexts());
+  }
+
+  @Test
   public void getRelationshipTypeIncludesCloneOverrides() {
     RelationshipType t = userBody("MyUserRel");
     RelationshipTypeCloneOverride row = new RelationshipTypeCloneOverride();

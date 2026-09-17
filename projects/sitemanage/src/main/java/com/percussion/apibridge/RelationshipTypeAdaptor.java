@@ -17,8 +17,10 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.design.objectstore.PSCloneOverrideField;
 import com.percussion.design.objectstore.PSCloneOverrideFieldList;
+import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSConditionalEffect;
 import com.percussion.design.objectstore.PSEntry;
 import com.percussion.design.objectstore.PSExtensionCall;
@@ -26,13 +28,16 @@ import com.percussion.design.objectstore.PSExtensionParamValue;
 import com.percussion.design.objectstore.PSProperty;
 import com.percussion.design.objectstore.PSPropertySet;
 import com.percussion.design.objectstore.PSRelationshipConfig;
+import com.percussion.design.objectstore.PSRule;
 import com.percussion.design.objectstore.PSTextLiteral;
+import com.percussion.util.PSCollection;
 import com.percussion.extension.PSExtensionRef;
 import com.percussion.rest.Guid;
 import com.percussion.rest.relationshiptypes.IRelationshipTypeAdaptor;
 import com.percussion.rest.relationshiptypes.RelationshipType;
 import com.percussion.rest.relationshiptypes.RelationshipTypeCloneOverride;
 import com.percussion.rest.relationshiptypes.RelationshipTypeEffect;
+import com.percussion.rest.relationshiptypes.RelationshipTypeEffectCondition;
 import com.percussion.rest.relationshiptypes.RelationshipTypeProperty;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.share.service.exception.PSDataServiceException;
@@ -79,9 +84,11 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
 
   static final String IMMUTABLE_TYPE = "System relationship types cannot be updated or deleted";
 
-  /** Catalog-level capability notes. Attached on detail only (REST-GAPS-02 list dedup). */
-  static final List<String> DESIGN_GAPS =
-      List.of("Effect condition and execution-context edit not supported via this API");
+  /**
+   * Catalog-level capability notes. Attached on detail only (REST-GAPS-02 list dedup). Empty after
+   * effect condition / execution-context write shipped.
+   */
+  static final List<String> DESIGN_GAPS = List.of();
 
   private final IPSSystemDesignWs designWs;
   private final BooleanSupplier adminChecker;
@@ -410,6 +417,9 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
     } else if (body.getCloneOverrides() != null) {
       applyCloneOverrides(config, body.getCloneOverrides());
     }
+    if (body.getEffects() != null) {
+      applyEffectEdits(config, body.getEffects());
+    }
   }
 
   private void applyUpdateFields(PSRelationshipConfig config, RelationshipType body) {
@@ -438,6 +448,9 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
       applyCloneOverrides(config, List.of());
     } else if (body.getCloneOverrides() != null) {
       applyCloneOverrides(config, body.getCloneOverrides());
+    }
+    if (body.getEffects() != null) {
+      applyEffectEdits(config, body.getEffects());
     }
   }
 
@@ -540,6 +553,210 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
       }
     }
     config.setCloneOverrideFieldList(list);
+  }
+
+  /**
+   * Update conditions and execution contexts on existing effects matched by extensionRef or name.
+   * Does not add or remove effect extensions. Unknown match is {@link IllegalArgumentException}
+   * (HTTP 400).
+   */
+  static void applyEffectEdits(PSRelationshipConfig config, List<RelationshipTypeEffect> edits) {
+    if (config == null || edits == null) {
+      return;
+    }
+    List<PSConditionalEffect> current = new ArrayList<>();
+    Iterator<?> it = config.getEffects();
+    while (it.hasNext()) {
+      Object o = it.next();
+      if (o instanceof PSConditionalEffect ce) {
+        current.add(ce);
+      }
+    }
+    for (RelationshipTypeEffect dto : edits) {
+      if (dto == null) {
+        throw new IllegalArgumentException("effects entry is required");
+      }
+      PSConditionalEffect match = findEffect(current, dto);
+      if (match == null) {
+        throw new IllegalArgumentException(
+            "effects match not found (extensionRef or name required): "
+                + StringUtils.defaultString(dto.getExtensionRef(), dto.getName()));
+      }
+      if (shouldClearEffectConditions(dto)) {
+        match.setConditions(Collections.emptyIterator());
+      } else if (dto.getConditions() != null) {
+        match.setConditions(toConditionRules(dto.getConditions()).iterator());
+      }
+      if (shouldClearExecutionContexts(dto)) {
+        match.setExecutionContexts(List.of());
+      } else if (dto.getExecutionContexts() != null) {
+        match.setExecutionContexts(toExecutionContextIds(dto.getExecutionContexts()));
+      }
+    }
+    config.setEffects(current.iterator());
+  }
+
+  private static boolean shouldClearEffectConditions(RelationshipTypeEffect dto) {
+    if (Boolean.TRUE.equals(dto.getClearConditions())) {
+      return true;
+    }
+    return dto.getConditions() != null && dto.getConditions().isEmpty();
+  }
+
+  private static boolean shouldClearExecutionContexts(RelationshipTypeEffect dto) {
+    if (Boolean.TRUE.equals(dto.getClearExecutionContexts())) {
+      return true;
+    }
+    return dto.getExecutionContexts() != null && dto.getExecutionContexts().isEmpty();
+  }
+
+  private static PSConditionalEffect findEffect(
+      List<PSConditionalEffect> current, RelationshipTypeEffect dto) {
+    String ref = StringUtils.trimToNull(dto.getExtensionRef());
+    String name = StringUtils.trimToNull(dto.getName());
+    if (ref != null) {
+      for (PSConditionalEffect ce : current) {
+        PSExtensionCall call = ce.getEffect();
+        if (call != null
+            && call.getExtensionRef() != null
+            && ref.equalsIgnoreCase(call.getExtensionRef().toString())) {
+          return ce;
+        }
+      }
+    }
+    if (name != null) {
+      for (PSConditionalEffect ce : current) {
+        PSExtensionCall call = ce.getEffect();
+        if (call != null && name.equalsIgnoreCase(call.getName())) {
+          return ce;
+        }
+      }
+    }
+    return null;
+  }
+
+  static List<PSRule> toConditionRules(List<RelationshipTypeEffectCondition> conditions) {
+    if (conditions == null || conditions.isEmpty()) {
+      return List.of();
+    }
+    PSCollection<PSConditional> conds = new PSCollection<>(PSConditional.class);
+    int i = 0;
+    for (RelationshipTypeEffectCondition row : conditions) {
+      if (row == null) {
+        throw new IllegalArgumentException("effects.conditions[" + i + "] is required");
+      }
+      conds.add(toPsConditional(row, "effects.conditions[" + i + "]"));
+      i++;
+    }
+    return List.of(new PSRule(conds));
+  }
+
+  static PSConditional toPsConditional(RelationshipTypeEffectCondition item, String field) {
+    if (StringUtils.isBlank(item.getVariable())) {
+      throw new IllegalArgumentException(field + ".variable is required");
+    }
+    if (StringUtils.isBlank(item.getOperator())) {
+      throw new IllegalArgumentException(field + ".operator is required");
+    }
+    String op = item.getOperator().trim();
+    if ("!=".equals(op)) {
+      op = PSConditional.OPTYPE_NOTEQUALS;
+    } else if ("==".equals(op)) {
+      op = PSConditional.OPTYPE_EQUALS;
+    }
+    boolean nullOp =
+        PSConditional.OPTYPE_ISNULL.equalsIgnoreCase(op)
+            || PSConditional.OPTYPE_ISNOTNULL.equalsIgnoreCase(op);
+    IPSReplacementValue value =
+        item.getValue() != null
+            ? new PSTextLiteral(item.getValue())
+            : (nullOp ? null : new PSTextLiteral(""));
+    try {
+      return new PSConditional(
+          new PSTextLiteral(item.getVariable().trim()),
+          op,
+          value,
+          StringUtils.trimToNull(item.getBooleanOperator()));
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(field + " invalid conditional: " + e.getMessage(), e);
+    }
+  }
+
+  static List<Integer> toExecutionContextIds(List<String> names) {
+    List<Integer> ids = new ArrayList<>();
+    if (names == null) {
+      return ids;
+    }
+    Set<Integer> seen = new HashSet<>();
+    int i = 0;
+    for (String raw : names) {
+      String name = StringUtils.trimToNull(raw);
+      if (name == null) {
+        throw new IllegalArgumentException("effects.executionContexts[" + i + "] is required");
+      }
+      Integer id = PSConditionalEffect.getExecutionContextValueForName(name);
+      if (id == null) {
+        throw new IllegalArgumentException(
+            "effects.executionContexts[" + i + "] is invalid: " + name);
+      }
+      if (seen.add(id)) {
+        ids.add(id);
+      }
+      i++;
+    }
+    return ids;
+  }
+
+  static List<RelationshipTypeEffectCondition> copyConditions(PSConditionalEffect ce) {
+    List<RelationshipTypeEffectCondition> out = new ArrayList<>();
+    if (ce == null) {
+      return out;
+    }
+    Iterator<?> rules = ce.getConditions();
+    while (rules.hasNext()) {
+      Object o = rules.next();
+      if (!(o instanceof PSRule rule) || rule.isExtensionSetRule()) {
+        continue;
+      }
+      for (Iterator<?> condIt = rule.getConditionalRules(); condIt.hasNext(); ) {
+        Object c = condIt.next();
+        if (c instanceof PSConditional conditional) {
+          RelationshipTypeEffectCondition dto = new RelationshipTypeEffectCondition();
+          dto.setVariable(replacementText(conditional.getVariable()));
+          dto.setOperator(conditional.getOperator());
+          dto.setValue(replacementText(conditional.getValue()));
+          dto.setBooleanOperator(conditional.getBoolean());
+          out.add(dto);
+        }
+      }
+    }
+    return out;
+  }
+
+  static List<String> copyExecutionContexts(PSConditionalEffect ce) {
+    List<String> out = new ArrayList<>();
+    if (ce == null || ce.getExecutionContexts() == null) {
+      return out;
+    }
+    for (Integer id : ce.getExecutionContexts()) {
+      String name = PSConditionalEffect.getExecutionContextNameForValue(id, false);
+      if (StringUtils.isNotBlank(name)) {
+        out.add(name);
+      }
+    }
+    return out;
+  }
+
+  private static String replacementText(IPSReplacementValue value) {
+    if (value == null) {
+      return null;
+    }
+    String text = value.getValueText();
+    if (StringUtils.isNotBlank(text)) {
+      return text;
+    }
+    String display = value.getValueDisplayText();
+    return StringUtils.isNotBlank(display) ? display : null;
   }
 
   static PSCloneOverrideField toCloneOverrideField(RelationshipTypeCloneOverride row) {
@@ -857,6 +1074,8 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
         e.setExtensionRef(call.getExtensionRef().toString());
       }
     }
+    e.setConditions(copyConditions(ce));
+    e.setExecutionContexts(copyExecutionContexts(ce));
     return e;
   }
 

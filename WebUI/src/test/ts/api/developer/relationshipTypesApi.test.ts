@@ -85,11 +85,11 @@ describe("relationshipTypesApi helpers", () => {
     expect(isSystemRelationshipType(null)).toBe(false);
   });
 
-  it("omits create/update/delete and cloning-override from remaining design gaps constant", () => {
+  it("omits create/update/delete, cloning-override, and effect-condition from remaining design gaps", () => {
     expect(RELATIONSHIP_TYPE_DESIGN_GAPS.join(" ")).not.toMatch(/create|update|delete/i);
     expect(RELATIONSHIP_TYPE_DESIGN_GAPS.join(" ")).not.toMatch(/cloning field override/i);
-    expect(RELATIONSHIP_TYPE_DESIGN_GAPS.length).toBeGreaterThan(0);
-    expect(RELATIONSHIP_TYPE_DESIGN_GAPS.join(" ")).toMatch(/effect condition/i);
+    expect(RELATIONSHIP_TYPE_DESIGN_GAPS.join(" ")).not.toMatch(/effect condition/i);
+    expect(RELATIONSHIP_TYPE_DESIGN_GAPS).toEqual([]);
   });
 });
 
@@ -142,7 +142,9 @@ describe("relationshipTypesApi REST", () => {
         extensionParams: [],
       },
     ]);
-    expect(detail.effects).toEqual([{ name: "rs_touchparent" }]);
+    expect(detail.effects).toEqual([
+      { name: "rs_touchparent", conditions: [], executionContexts: [] },
+    ]);
     spy.mockRestore();
   });
 

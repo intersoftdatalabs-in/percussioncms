@@ -88,7 +88,7 @@ class DesignGapsListDedupTest {
 
     RelationshipType detail = RelationshipTypeAdaptor.withDesignGaps(listRow);
     assertNotNull(detail.getDesignGaps());
-    assertFalse(detail.getDesignGaps().isEmpty());
+    assertTrue(detail.getDesignGaps().isEmpty());
     assertTrue(detail.getDesignGaps().containsAll(RelationshipTypeAdaptor.DESIGN_GAPS));
   }
 

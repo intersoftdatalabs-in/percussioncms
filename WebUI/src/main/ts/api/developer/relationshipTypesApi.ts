@@ -21,6 +21,8 @@ import { asJacksonArray } from "./slotLists";
 import type {
   RelationshipTypeCloneOverride,
   RelationshipTypeDef,
+  RelationshipTypeEffectCondition,
+  RelationshipTypeEffectSummary,
 } from "./types";
 
 /**
@@ -28,8 +30,18 @@ import type {
  * Server omits these on list rows; detail re-attaches or SPA falls back here.
  * Create/update/delete of user types is supported — not listed.
  */
-export const RELATIONSHIP_TYPE_DESIGN_GAPS: string[] = [
-  "Effect condition and execution-context edit not supported via this API",
+export const RELATIONSHIP_TYPE_DESIGN_GAPS: string[] = [];
+
+/** Execution context names aligned with PSConditionalEffect RS_* XML types. */
+export const RELATIONSHIP_TYPE_EXECUTION_CONTEXTS: readonly string[] = [
+  "PreConstruction",
+  "PreDestruction",
+  "PreWorkflow",
+  "PostWorkflow",
+  "PreClone",
+  "PreCheckin",
+  "PreCheckout",
+  "PreUpdate",
 ];
 
 /** Category codes/labels aligned with PSRelationshipConfig.CATEGORY_ENUM. */
@@ -60,6 +72,7 @@ export type RelationshipTypeWriteBody = Pick<
   | "useDependentRevision"
   | "cloneOverrides"
   | "clearCloneOverrides"
+  | "effects"
 >;
 
 /** Jackson / JAXB root for RelationshipType (UNWRAP_ROOT_VALUE on POST/PUT). */
@@ -165,11 +178,36 @@ export function coerceCloneOverrides(
     );
 }
 
+export function coerceEffectConditions(
+  value: unknown,
+): RelationshipTypeEffectCondition[] {
+  return coerceObjectList<RelationshipTypeEffectCondition>(value).filter(
+    (c) =>
+      (c.variable || "").trim().length > 0 ||
+      (c.operator || "").trim().length > 0 ||
+      (c.value || "").trim().length > 0,
+  );
+}
+
+export function coerceEffects(value: unknown): RelationshipTypeEffectSummary[] {
+  return coerceObjectList<RelationshipTypeEffectSummary>(value)
+    .filter(
+      (e) =>
+        (e.name || "").trim().length > 0 ||
+        (e.extensionRef || "").trim().length > 0,
+    )
+    .map((e) => ({
+      ...e,
+      conditions: coerceEffectConditions(e.conditions),
+      executionContexts: coerceStringList(e.executionContexts),
+    }));
+}
+
 function normalizeWireRow(t: RelationshipTypeDef, fillGaps: boolean): RelationshipTypeDef {
   const designGaps = coerceStringList(t.designGaps);
   return {
     ...t,
-    effects: coerceObjectList(t.effects),
+    effects: coerceEffects(t.effects),
     systemProperties: coerceObjectList(t.systemProperties),
     userProperties: coerceObjectList(t.userProperties),
     cloneOverrides: coerceCloneOverrides(t.cloneOverrides),
