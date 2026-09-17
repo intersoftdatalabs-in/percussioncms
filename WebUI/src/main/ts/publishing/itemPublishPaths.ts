@@ -28,6 +28,8 @@ export function itemPublishPaths(root = SERVICES_ROOT): {
   resourceTakedown: string;
   publishingActions: string;
   sitePublish: string;
+  /** Pages that link to an item — classic Finder takedown confirm. */
+  linkedItems: string;
 } {
   const base = `${root}/sitemanage/publish`;
   return {
@@ -37,6 +39,7 @@ export function itemPublishPaths(root = SERVICES_ROOT): {
     resourceTakedown: `${base}/takedown/resource`,
     publishingActions: `${base}/publishingActions`,
     sitePublish: base,
+    linkedItems: `${root}/itemmanagement/item/findLinkedItems`,
   };
 }
 

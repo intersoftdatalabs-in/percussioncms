@@ -27,7 +27,11 @@ describe("itemPublishPaths", () => {
     expect(p.pagePublish).toBe("/services/sitemanage/publish/page");
     expect(p.resourcePublish).toContain("/publish/resource");
     expect(p.pageTakedown).toContain("/takedown/page");
+    expect(p.resourceTakedown).toContain("/takedown/resource");
     expect(p.publishingActions).toContain("publishingActions");
+    expect(p.linkedItems).toBe(
+      "/services/itemmanagement/item/findLinkedItems",
+    );
   });
 });
 

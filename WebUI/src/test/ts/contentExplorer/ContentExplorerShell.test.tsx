@@ -519,6 +519,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(
       screen.queryByTestId("action-toolbar-item-Publish_Now"),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("action-toolbar-item-Take_Down"),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId("content-explorer-shell")).toHaveAttribute(
       "data-selected-item-id",
       "",
@@ -533,7 +536,108 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       expect(
         screen.getByTestId("action-toolbar-item-Publish_Now"),
       ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("action-toolbar-item-Take_Down"),
+      ).toBeInTheDocument();
     });
+  });
+
+  it("Take Down HTTP 200 FORBIDDEN mounts server-actions error (#4533)", async () => {
+    const fetchSpy = mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("findLinkedItems")) {
+        return new Response(JSON.stringify({ ArrayList: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (url.includes("sitemanage/publish/takedown/")) {
+        return new Response(
+          JSON.stringify({
+            status: "FORBIDDEN",
+            warningMessage:
+              "Publication stopped because of licensing issues",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "page",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => [
+          {
+            name: "Publish_Now",
+            label: "Publish Now",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ]}
+        loadWorkflowMenuActions={async () => null}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-42"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("action-toolbar-item-Take_Down"),
+      ).toBeInTheDocument();
+    });
+
+    const folderLoadsBefore = fetchSpy.mock.calls.filter((call) => {
+      const url = String(call[0] ?? "");
+      return url.includes("paginatedFolder") || url.includes("/folder/");
+    }).length;
+
+    fireEvent.click(screen.getByTestId("action-toolbar-item-Take_Down"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-server-actions-error"),
+      ).toHaveTextContent(/FORBIDDEN|licensing|Publication stopped/i);
+    });
+    expect(
+      fetchSpy.mock.calls.some((call) =>
+        String(call[0] ?? "").includes("sitemanage/publish/takedown/"),
+      ),
+    ).toBe(true);
+    const folderLoadsAfter = fetchSpy.mock.calls.filter((call) => {
+      const url = String(call[0] ?? "");
+      return url.includes("paginatedFolder") || url.includes("/folder/");
+    }).length;
+    expect(folderLoadsAfter).toBe(folderLoadsBefore);
+    await renderA11yGate(container);
   });
 
   it("discards stale context-menu loads when right-clicking rows rapidly (#2732 race)", async () => {

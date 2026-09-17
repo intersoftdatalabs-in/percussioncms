@@ -24,7 +24,9 @@
  * desktop CX understands). The product SPA must not surface those as
  * toolbar / context-menu affordances. These pure helpers filter
  * {@link MenuAction} trees after mapping from wire {@code ActionMenu}
- * DTOs — they do not invent new action types and do not execute actions.</p>
+ * DTOs. Toolbar / context-menu filtering also injects Explorer
+ * <strong>Take Down</strong> when a page or asset is selected (CX catalogs
+ * expose Publish Now; Finder publishing dropdown is not a CX action).</p>
  *
  * <p>Rules (FR-011: hide unauthorized / non-applicable):</p>
  * <ul>
@@ -43,7 +45,7 @@ import { collapseFlattenedMenuActionRoots } from "../api/contentExplorer/actionM
 import { parseExplorerContentId } from "../api/contentExplorer/pathItemId";
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
 import { classifyUrl } from "../util/safeNavigate";
-import { resolvePublishKind } from "./itemPublish";
+import { isTakedownActionName, resolvePublishKind } from "./itemPublish";
 import { isFolder } from "./selection";
 
 /** Where the filtered menu will be rendered. */
@@ -59,7 +61,7 @@ export interface ActionEnablementContext {
    * Currently selected detail-list item, or {@code null} when only a folder
    * is active. Toolbar and context-menu Publish Now are hidden until a
    * page/asset is selected so a Sites-folder click cannot claim published
-   * (#3467).
+   * (#3467). Take Down follows the same kind rules (#4533).
    */
   selectionItem?: PSPathItem | null;
   /**
@@ -256,6 +258,57 @@ export function isToolbarPublishNowHidden(
 }
 
 /**
+ * Take Down is item-scoped like Publish Now. Folder catalogs must not
+ * look unpublishable-from-Sites (#4533).
+ */
+export function isToolbarTakedownHidden(
+  action: MenuAction,
+  selectionItem: PSPathItem | null | undefined,
+): boolean {
+  if (!isTakedownActionName(action.name)) {
+    return false;
+  }
+  return resolvePublishKind(selectionItem ?? null) === "none";
+}
+
+/** Injected when CX catalog has no Take Down leaf for a page/asset. */
+export const EXPLORER_TAKEDOWN_ACTION: MenuAction = {
+  name: "Take_Down",
+  label: "Take Down",
+  sortRank: 10_000,
+  menuType: "MENUITEM",
+};
+
+function menuHasTakedownAction(actions: MenuAction[]): boolean {
+  for (const action of actions) {
+    if (isTakedownActionName(action.name)) {
+      return true;
+    }
+    if (action.children && menuHasTakedownAction(action.children)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * CX {@code /actions/find} lists Publish Now, not Finder Take Down.
+ * Inject a client-handled leaf when the selection is a page or asset.
+ */
+export function withExplorerTakedownAction(
+  actions: MenuAction[],
+  selectionItem: PSPathItem | null | undefined,
+): MenuAction[] {
+  if (resolvePublishKind(selectionItem ?? null) === "none") {
+    return actions;
+  }
+  if (menuHasTakedownAction(actions)) {
+    return actions;
+  }
+  return [...actions, { ...EXPLORER_TAKEDOWN_ACTION }];
+}
+
+/**
  * Edit / Quick Edit / View content need a selected page or asset.
  * Folder-only catalogs still include those leaves; hiding them keeps
  * Sites non-editable (#3638). Toolbar {@code Open} stays — folders
@@ -350,6 +403,9 @@ export function filterEnabledMenuActions(
     if (isToolbarPublishNowHidden(action, ctx.selectionItem)) {
       continue;
     }
+    if (isToolbarTakedownHidden(action, ctx.selectionItem)) {
+      continue;
+    }
     if (isToolbarEditorActionHidden(action, ctx.selectionItem)) {
       continue;
     }
@@ -367,11 +423,14 @@ export function filterToolbarActions(
   selectionItem?: PSPathItem | null,
 ): MenuAction[] {
   return prepareToolbarActions(
-    filterEnabledMenuActions(actions, {
-      surface: "toolbar",
-      baseHref,
+    withExplorerTakedownAction(
+      filterEnabledMenuActions(actions, {
+        surface: "toolbar",
+        baseHref,
+        selectionItem,
+      }),
       selectionItem,
-    }),
+    ),
   );
 }
 
@@ -386,10 +445,13 @@ export function filterContextMenuActions(
   selectionItem?: PSPathItem | null,
 ): MenuAction[] {
   return prepareMenuActionTree(
-    filterEnabledMenuActions(actions, {
-      surface: "contextmenu",
-      baseHref,
+    withExplorerTakedownAction(
+      filterEnabledMenuActions(actions, {
+        surface: "contextmenu",
+        baseHref,
+        selectionItem,
+      }),
       selectionItem,
-    }),
+    ),
   );
 }
