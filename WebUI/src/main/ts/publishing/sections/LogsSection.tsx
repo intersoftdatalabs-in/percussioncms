@@ -41,7 +41,12 @@ import {
   thStyle,
   toolbarStyle,
 } from "../publishing.styles";
-import type { PublishSiteSummary, PublishingLogEntry } from "../types";
+import { ItemPublishingHistoryPanel } from "../components/ItemPublishingHistoryPanel";
+import type {
+  PublishSection,
+  PublishSiteSummary,
+  PublishingLogEntry,
+} from "../types";
 
 /**
  * Confirm gate for purge — pure helper for tests and UI.
@@ -50,7 +55,17 @@ export function canPurge(selectedIds: Array<string | number>): boolean {
   return selectedIds.length > 0;
 }
 
-export function LogsSection(): React.ReactElement {
+export interface LogsSectionProps {
+  itemId?: string;
+  onItemIdChange?: (itemId: string) => void;
+  onOpenSection?: (section: PublishSection) => void;
+}
+
+export function LogsSection({
+  itemId,
+  onItemIdChange,
+  onOpenSection,
+}: LogsSectionProps = {}): React.ReactElement {
   const [logs, setLogs] = useState<PublishingLogEntry[]>([]);
   const [sites, setSites] = useState<PublishSiteSummary[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -142,6 +157,12 @@ export function LogsSection(): React.ReactElement {
 
   return (
     <div data-testid="publish-section-logs">
+      <ItemPublishingHistoryPanel
+        itemId={itemId}
+        currentSection="logs"
+        onItemIdChange={onItemIdChange}
+        onOpenSection={onOpenSection}
+      />
       <div
         style={{
           display: "flex",

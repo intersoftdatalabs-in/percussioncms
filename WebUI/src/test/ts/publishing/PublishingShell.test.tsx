@@ -34,6 +34,10 @@ vi.mock("@/api/publishing/statusApi", () => ({
   purgePublishingLogs: vi.fn().mockResolvedValue({}),
 }));
 
+vi.mock("@/api/publishing/itemHistoryApi", () => ({
+  fetchItemPublishingHistory: vi.fn().mockResolvedValue([]),
+}));
+
 describe("PublishingShell", () => {
   it("defaults landing to sites (ops first, not Design)", () => {
     expect(defaultLandingSection()).toBe("sites");
@@ -46,6 +50,22 @@ describe("PublishingShell", () => {
   it("opens status section from prop", () => {
     render(<PublishingShell section="status" />);
     expect(screen.getByTestId("publish-section-status")).toBeTruthy();
+    expect(screen.getByTestId("item-publishing-history")).toBeTruthy();
+  });
+
+  it("opens logs with item publishing history from itemId", () => {
+    const { rerender } = render(
+      <PublishingShell section="logs" itemId="42" />,
+    );
+    expect(screen.getByTestId("publish-section-logs")).toBeTruthy();
+    expect(screen.getByTestId("item-publishing-history")).toBeTruthy();
+    expect(
+      (screen.getByTestId("item-history-id") as HTMLInputElement).value,
+    ).toBe("42");
+    rerender(<PublishingShell section="logs" itemId="99" />);
+    expect(
+      (screen.getByTestId("item-history-id") as HTMLInputElement).value,
+    ).toBe("99");
   });
 
   it("can hide Design when showDesign is false", () => {
