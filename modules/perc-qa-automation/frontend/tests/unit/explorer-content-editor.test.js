@@ -166,3 +166,49 @@ describe("explorer-content-editor helpers (#3968)", () => {
     );
   });
 });
+
+const editorWorkflow = require("../helpers/editor-host-workflow");
+
+describe("editor-host-workflow helpers (#4539)", () => {
+  it("builds editor SPA URL and parses transitionWithComments", () => {
+    assert.equal(
+      editorWorkflow.editorSpaUrl("http://127.0.0.1:9992/", "contentId=42&mode=edit"),
+      "http://127.0.0.1:9992/Rhythmyx/cm/app/spa.jsp?contentId=42&mode=edit&entry=editor",
+    );
+    assert.equal(
+      editorWorkflow.triggerTestId("Reject"),
+      "editor-workflow-trigger-Reject",
+    );
+    const parsed = editorWorkflow.parseTransitionWithCommentsUrl(
+      "http://cms/Rhythmyx/services/itemmanagement/workflow/transitionWithComments/42/Reject?comment=needs%20work",
+    );
+    assert.equal(parsed.itemId, "42");
+    assert.equal(parsed.trigger, "Reject");
+    assert.equal(parsed.comment, "needs work");
+    assert.equal(
+      editorWorkflow.isGetTransitionsUrl(
+        "/Rhythmyx/services/itemmanagement/workflow/getTransitions/42",
+      ),
+      true,
+    );
+    assert.equal(
+      editorWorkflow.isTransitionWithCommentsUrl(
+        "/Rhythmyx/services/itemmanagement/workflow/transitionWithComments/42/Submit",
+      ),
+      true,
+    );
+  });
+
+  it("spec covers comment-required block and view-mode read-only", () => {
+    const specPath = path.join(
+      __dirname,
+      "..",
+      "editor-host-workflow-transitions.spec.js",
+    );
+    const src = fs.readFileSync(specPath, "utf8");
+    assert.match(src, /Enter a comment/);
+    assert.match(src, /mode=view/);
+    assert.match(src, /triggerTestId\("Reject"\)/);
+    assert.match(src, /#4539/);
+  });
+});

@@ -49,4 +49,14 @@ export const EDITOR_MSG = {
   PROMOTE_FAILED: "perc.ui.editor@Could not promote this revision.",
   PROMOTED: "perc.ui.editor@Revision promoted.",
   PROMOTE_NONE: "perc.ui.editor@No revisions are available to promote.",
+  WORKFLOW_LABEL: "perc.ui.editor@Workflow",
+  WORKFLOW_STATE: "perc.ui.editor@State",
+  WORKFLOW_EMPTY: "perc.ui.editor@No workflow transitions are available.",
+  WORKFLOW_COMMENT: "perc.ui.editor@Transition comment",
+  WORKFLOW_UNAUTHORIZED:
+    "perc.ui.editor@That workflow transition is not allowed for this item.",
+  WORKFLOW_COMMENT_REQUIRED:
+    "perc.ui.editor@Enter a comment before running this transition.",
+  WORKFLOW_FAILED: "perc.ui.editor@Could not run this workflow transition.",
+  WORKFLOW_DONE: "perc.ui.editor@Workflow transition completed.",
 };
