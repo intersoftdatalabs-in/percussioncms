@@ -18,8 +18,8 @@
 /**
  * Explorer schedule publish dates — classic PercItemPublisherService
  * get/setScheduleDates (GET getitemdates/{id}, POST setitemdates with
- * {@code ItemDates} envelope). Paths stay here so PublishingShell
- * {@code itemPublishPaths} is not shared with #4537.
+ * {@code ItemDates} envelope). PublishingShell uses
+ * {@code itemPublishPaths} + {@code itemScheduleDatesApi} (#4537).
  */
 
 import { get, post } from "../api/client";

@@ -27,4 +27,8 @@ export {
   itemPubHistoryUrl,
   spaItemHistoryHref,
 } from "./itemHistory";
+export {
+  itemScheduleShellHref,
+  spaItemScheduleHref,
+} from "./itemScheduleDates";
 export type { PublishSection } from "./types";

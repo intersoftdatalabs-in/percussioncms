@@ -128,6 +128,16 @@ vi.mock("../../../main/ts/api/publishing/itemHistoryApi", () => ({
   fetchItemPublishingHistory: vi.fn().mockResolvedValue([]),
 }));
 
+vi.mock("../../../main/ts/api/publishing/itemScheduleDatesApi", () => ({
+  fetchItemScheduleDates: vi.fn().mockResolvedValue({
+    itemId: "",
+    startDate: "",
+    endDate: "",
+    comments: "",
+  }),
+  saveItemScheduleDates: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   listTemplates: vi.fn().mockResolvedValue([]),
   getTemplateDetail: vi.fn().mockResolvedValue({ templateName: "x" }),

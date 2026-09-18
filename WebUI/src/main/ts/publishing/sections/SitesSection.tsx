@@ -37,6 +37,9 @@ export interface SitesSectionProps {
   /** Preselect site from deep link */
   initialSiteId?: string;
   initialServerId?: string;
+  /** Item id for schedule dates on the site workspace. */
+  itemId?: string;
+  onItemIdChange?: (itemId: string) => void;
 }
 
 function toPublishSite(s: SiteSummary): PublishSiteSummary {
@@ -50,6 +53,8 @@ function toPublishSite(s: SiteSummary): PublishSiteSummary {
 export function SitesSection({
   initialSiteId = "",
   initialServerId = "",
+  itemId,
+  onItemIdChange,
 }: SitesSectionProps): React.ReactElement {
   const [sites, setSites] = useState<PublishSiteSummary[]>([]);
   const [filter, setFilter] = useState("");
@@ -99,6 +104,8 @@ export function SitesSection({
       <SiteWorkspace
         site={selectedSite}
         initialServerId={initialServerId}
+        itemId={itemId}
+        onItemIdChange={onItemIdChange}
         onBack={() => setSelectedKey("")}
       />
     );
