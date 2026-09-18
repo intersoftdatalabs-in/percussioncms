@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 import com.percussion.design.objectstore.server.PSApplicationSummary;
 import com.percussion.rest.applicationfiles.ApplicationFileSummary;
 import com.percussion.security.PSSecurityToken;
+import com.percussion.utils.io.PathUtils;
 import jakarta.ws.rs.WebApplicationException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -44,9 +45,11 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * SY-05 path-safe application CMS/resource list/get/put. Catalog allow-list + relative-path
@@ -59,6 +62,13 @@ class ApplicationFileAdaptorTest {
   private PSSecurityToken token;
   private ApplicationFileAdaptor adaptor;
   private final AtomicReference<String> savedContent = new AtomicReference<>();
+
+  @TempDir Path rxTmp;
+
+  @AfterEach
+  void clearThreadRxDir() {
+    PathUtils.unsetThreadOnlyRxDir(rxTmp.toFile());
+  }
 
   @BeforeEach
   void setUp() throws Exception {
@@ -489,5 +499,61 @@ class ApplicationFileAdaptorTest {
     assertTrue(Files.exists(child));
     ApplicationFileAdaptor.deleteRecursively(root);
     assertFalse(Files.exists(root));
+  }
+
+  @Test
+  void objectStore_existsIsDirectoryDeleteRenameStayUnderRxDir() throws Exception {
+    PathUtils.setThreadOnlyRxDir(rxTmp.toFile());
+    Path appFiles = rxTmp.resolve("sys_resources").resolve("ApplicationFiles");
+    Files.createDirectories(appFiles);
+    Path css = appFiles.resolve("a.css");
+    Files.writeString(css, "body{}");
+
+    ApplicationFileAdaptor.ObjectStoreApplicationFileStore store =
+        new ApplicationFileAdaptor.ObjectStoreApplicationFileStore();
+    File rel = Path.of("ApplicationFiles", "a.css").toFile();
+
+    assertTrue(store.exists("sys_resources", rel));
+    assertFalse(store.isDirectory("sys_resources", "sys_resources", rel));
+
+    File destRel = Path.of("ApplicationFiles", "renamed.css").toFile();
+    assertTrue(store.rename("sys_resources", "sys_resources", rel, destRel, token));
+    assertTrue(Files.exists(appFiles.resolve("renamed.css")));
+    assertTrue(Files.notExists(css));
+
+    assertTrue(store.delete("sys_resources", "sys_resources", destRel, token));
+    assertTrue(Files.notExists(appFiles.resolve("renamed.css")));
+  }
+
+  @Test
+  void objectStore_existsRejectsTraversalBeforeIo() {
+    PathUtils.setThreadOnlyRxDir(rxTmp.toFile());
+    ApplicationFileAdaptor.ObjectStoreApplicationFileStore store =
+        new ApplicationFileAdaptor.ObjectStoreApplicationFileStore();
+    File escape = Path.of("..", "escape").toFile();
+    Path outside = rxTmp.getParent().resolve("escape");
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> store.exists("sys_resources", escape));
+    assertEquals(ApplicationFileAdaptor.INVALID_PATH, ex.getMessage());
+    assertTrue(Files.notExists(outside));
+  }
+
+  @Test
+  void objectStore_renameRejectsEscapeDestination() throws Exception {
+    PathUtils.setThreadOnlyRxDir(rxTmp.toFile());
+    Path appFiles = rxTmp.resolve("sys_resources").resolve("ApplicationFiles");
+    Files.createDirectories(appFiles);
+    Files.writeString(appFiles.resolve("a.css"), "body{}");
+
+    ApplicationFileAdaptor.ObjectStoreApplicationFileStore store =
+        new ApplicationFileAdaptor.ObjectStoreApplicationFileStore();
+    File from = Path.of("ApplicationFiles", "a.css").toFile();
+    File to = Path.of("..", "escape.css").toFile();
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> store.rename("sys_resources", "sys_resources", from, to, token));
+    assertEquals(ApplicationFileAdaptor.INVALID_PATH, ex.getMessage());
+    assertTrue(Files.exists(appFiles.resolve("a.css")));
   }
 }

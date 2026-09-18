@@ -682,7 +682,7 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
     boolean exists(String appRoot, File relativeFile) throws Exception;
   }
 
-  private static final class ObjectStoreApplicationFileStore implements ApplicationFileStore {
+  static final class ObjectStoreApplicationFileStore implements ApplicationFileStore {
     @Override
     public Iterator<File> listFiles(String trustedAppName, String appRoot) throws Exception {
       File appDir = resolveAppRootDir(appRoot);
