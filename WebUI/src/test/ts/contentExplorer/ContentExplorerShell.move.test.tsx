@@ -21,7 +21,7 @@ import { BootstrapProvider } from "../../../main/ts/app/bootstrap/BootstrapConte
 import type { SpaBootstrap } from "../../../main/ts/app/bootstrap/types";
 import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentExplorerShell";
 import { renderA11yGate } from "./a11y";
-import { mockFetch } from "./setup";
+import { EXPLORER_SHELL_TEST_TIMEOUT, mockFetch } from "./setup";
 
 const adminBootstrap: SpaBootstrap = {
   userName: "Admin",
@@ -63,7 +63,9 @@ const MOVED = {
   folderPath: "/Assets/qa3655_dst",
 };
 
-describe("ContentExplorerShell move folder (#3655)", () => {
+describe("ContentExplorerShell move folder (#3655)", {
+  timeout: EXPLORER_SHELL_TEST_TIMEOUT,
+}, () => {
   it("POSTs moveItem then opens dest and refreshes list and tree", async () => {
     let moved = false;
     const moveUrls: string[] = [];
@@ -109,29 +111,44 @@ describe("ContentExplorerShell move folder (#3655)", () => {
         loadDisplayFormats={async () => []}
         loadMenuActions={async () => []}
         loadWorkflowMenuActions={async () => null}
+        listViews={async () => []}
         actionHandlers={{
           prompt: () => "/Assets/qa3655_dst",
         }}
       />,
     );
 
-    const sourceRow = await screen.findByTestId("detail-row-f-3655-src");
+    const sourceRow = await screen.findByTestId(
+      "detail-row-f-3655-src",
+      {},
+      { timeout: 8_000 },
+    );
     fireEvent.click(sourceRow);
-    const moveBtn = await screen.findByTestId("action-move");
+    const moveBtn = await screen.findByTestId(
+      "action-move",
+      {},
+      { timeout: 8_000 },
+    );
     expect(moveBtn).toBeEnabled();
     fireEvent.click(moveBtn);
 
-    await waitFor(() => {
-      expect(moved).toBe(true);
-      expect(moveUrls.some((u) => u.includes("/pathmanagement/path/moveItem"))).toBe(
-        true,
-      );
-      expect(screen.getByTestId("detail-row-f-3655-src")).toBeInTheDocument();
-      expect(screen.getByText("qa3655_src")).toBeInTheDocument();
-    });
-    await waitFor(() => {
-      expect(screen.getByTestId("tree-node-/Assets/qa3655_dst")).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(moved).toBe(true);
+        expect(moveUrls.some((u) => u.includes("/pathmanagement/path/moveItem"))).toBe(
+          true,
+        );
+        expect(screen.getByTestId("detail-row-f-3655-src")).toBeInTheDocument();
+        expect(screen.getByText("qa3655_src")).toBeInTheDocument();
+      },
+      { timeout: 8_000 },
+    );
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("tree-node-/Assets/qa3655_dst")).toBeInTheDocument();
+      },
+      { timeout: 8_000 },
+    );
     expect(
       screen.queryByTestId("tree-node-/Assets/qa3655_src"),
     ).not.toBeInTheDocument();

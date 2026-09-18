@@ -22,7 +22,7 @@ import { BootstrapProvider } from "../../../main/ts/app/bootstrap/BootstrapConte
 import type { SpaBootstrap } from "../../../main/ts/app/bootstrap/types";
 import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentExplorerShell";
 import { renderA11yGate } from "./a11y";
-import { mockFetch } from "./setup";
+import { EXPLORER_SHELL_TEST_TIMEOUT, mockFetch } from "./setup";
 
 const adminBootstrap: SpaBootstrap = {
   userName: "Admin",
@@ -58,7 +58,9 @@ const COPIED = {
   folderPath: "/Assets",
 };
 
-describe("ContentExplorerShell copy folder (#3647)", () => {
+describe("ContentExplorerShell copy folder (#3647)", {
+  timeout: EXPLORER_SHELL_TEST_TIMEOUT,
+}, () => {
   it("refreshes destination list and tree after Copy succeeds", async () => {
     let copied = false;
     mockFetch(async (input) => {
@@ -97,22 +99,34 @@ describe("ContentExplorerShell copy folder (#3647)", () => {
         loadDisplayFormats={async () => []}
         loadMenuActions={async () => []}
         loadWorkflowMenuActions={async () => null}
+        listViews={async () => []}
         actionHandlers={{
           prompt: () => "/Assets",
         }}
       />,
     );
 
-    const sourceRow = await screen.findByTestId("detail-row-f-3647-src");
+    const sourceRow = await screen.findByTestId(
+      "detail-row-f-3647-src",
+      {},
+      { timeout: 8_000 },
+    );
     fireEvent.click(sourceRow);
-    const copyBtn = await screen.findByTestId("action-copy");
+    const copyBtn = await screen.findByTestId(
+      "action-copy",
+      {},
+      { timeout: 8_000 },
+    );
     expect(copyBtn).toBeEnabled();
     fireEvent.click(copyBtn);
 
-    await waitFor(() => {
-      expect(copied).toBe(true);
-      expect(screen.getByTestId("detail-row-f-3647-copy")).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(copied).toBe(true);
+        expect(screen.getByTestId("detail-row-f-3647-copy")).toBeInTheDocument();
+      },
+      { timeout: 8_000 },
+    );
     expect(screen.getByTestId("tree-node-/Assets/qa3647_src-2")).toBeInTheDocument();
     await renderA11yGate(container);
   });

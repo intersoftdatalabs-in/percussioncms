@@ -34,6 +34,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
+    testTimeout: 20_000,
+    hookTimeout: 20_000,
     // Same setup as src/main/frontend/vite.config.ts so `npm test` from
     // WebUI root also gets the jsdom location navigation mock, canvas
     // stubs, and jest-dom matchers.

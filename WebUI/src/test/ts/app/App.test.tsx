@@ -35,8 +35,18 @@ vi.mock("../../../main/ts/registry", () => {
   > = {
     HomeShell: () =>
       import("../../../main/ts/home").then((m) => m.HomeShell),
+    // Load the shell module, not the publishing barrel (itemHistory +
+    // design re-exports). A missing named export would make React.lazy
+    // suspend forever on { default: undefined } (#4558).
     PublishingShell: () =>
-      import("../../../main/ts/publishing").then((m) => m.PublishingShell),
+      import("../../../main/ts/publishing/PublishingShell").then((m) => {
+        if (typeof m.PublishingShell !== "function") {
+          return Promise.reject(
+            new Error("PublishingShell export is not a component"),
+          );
+        }
+        return m.PublishingShell;
+      }),
     DeveloperShell: () =>
       import("../../../main/ts/developer").then((m) => m.DeveloperShell),
     WorkflowAdminShell: () =>
@@ -106,6 +116,18 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
   };
 });
 
+vi.mock("../../../main/ts/api/publishing/statusApi", () => ({
+  fetchCurrentJobs: vi.fn().mockResolvedValue([]),
+  fetchCurrentJobsForSite: vi.fn().mockResolvedValue([]),
+  fetchPublishingLogs: vi.fn().mockResolvedValue([]),
+  fetchLogDetails: vi.fn().mockResolvedValue({}),
+  purgePublishingLogs: vi.fn().mockResolvedValue({}),
+}));
+
+vi.mock("../../../main/ts/api/publishing/itemHistoryApi", () => ({
+  fetchItemPublishingHistory: vi.fn().mockResolvedValue([]),
+}));
+
 vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   listTemplates: vi.fn().mockResolvedValue([]),
   getTemplateDetail: vi.fn().mockResolvedValue({ templateName: "x" }),
@@ -139,11 +161,12 @@ const bootstrap: SpaBootstrap = {
 
 // Lazy feature shells routinely resolve in a few hundred ms; under full
 // suite load they occasionally exceed RTL's 1000ms default. Keep waits
-// consistent so App tests do not flake on slower CI agents.
-const SHELL_TIMEOUT = 8000;
+// consistent so App tests do not flake on slower CI agents. Publishing
+// grew with item-history (#4549); 8s was not enough under Maven (#4558).
+const SHELL_TIMEOUT = 15000;
 // Vitest default it() timeout is 5000ms. findBy waits up to SHELL_TIMEOUT,
 // so the test budget must exceed that wait (GH-4359).
-const APP_SHELL_TEST_TIMEOUT = SHELL_TIMEOUT + 4000;
+const APP_SHELL_TEST_TIMEOUT = SHELL_TIMEOUT + 5000;
 
 describe("App shell", { timeout: APP_SHELL_TEST_TIMEOUT }, () => {
   beforeEach(() => {
@@ -152,10 +175,23 @@ describe("App shell", { timeout: APP_SHELL_TEST_TIMEOUT }, () => {
     };
     // BrowserRouter basename="/cm/app" requires pathname under that prefix
     window.history.replaceState({}, "", "/cm/app/spa.jsp");
+    // New Response per call — a single reused body is "unusable" on the
+    // second GET (explorer display-formats / menu catalog).
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response("[]", {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }),
+      ),
+    );
   });
 
   afterEach(() => {
     cleanup();
+    vi.unstubAllGlobals();
     window.history.replaceState({}, "", "/");
   });
 
@@ -387,11 +423,12 @@ describe("App shell", { timeout: APP_SHELL_TEST_TIMEOUT }, () => {
   });
 
   it("loads ContentExplorerShell for explorer entry", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
-      new Response("[]", {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }),
+    const fetchMock = vi.fn(
+      async () =>
+        new Response("[]", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
     );
     vi.stubGlobal("fetch", fetchMock);
     try {

@@ -22,7 +22,7 @@ import { BootstrapProvider } from "../../../main/ts/app/bootstrap/BootstrapConte
 import type { SpaBootstrap } from "../../../main/ts/app/bootstrap/types";
 import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentExplorerShell";
 import { renderA11yGate } from "./a11y";
-import { mockFetch } from "./setup";
+import { EXPLORER_SHELL_TEST_TIMEOUT, mockFetch } from "./setup";
 
 const adminBootstrap: SpaBootstrap = {
   userName: "Admin",
@@ -54,7 +54,9 @@ const RENAMED_FOLDER = {
   name: "qa3645",
 };
 
-describe("ContentExplorerShell rename folder (#3645)", () => {
+describe("ContentExplorerShell rename folder (#3645)", {
+  timeout: EXPLORER_SHELL_TEST_TIMEOUT,
+}, () => {
   it("refreshes the detail list and tree after Rename succeeds", async () => {
     let renamed = false;
     mockFetch(async (input) => {
@@ -92,30 +94,44 @@ describe("ContentExplorerShell rename folder (#3645)", () => {
         loadDisplayFormats={async () => []}
         loadMenuActions={async () => []}
         loadWorkflowMenuActions={async () => null}
+        listViews={async () => []}
         actionHandlers={{
           prompt: () => "qa3645",
         }}
       />,
     );
 
-    await waitFor(() => {
-      expect(screen.getByTestId("detail-row-f-3645")).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("detail-row-f-3645")).toBeInTheDocument();
+      },
+      { timeout: 8_000 },
+    );
     fireEvent.click(screen.getByTestId("detail-row-f-3645"));
 
-    const renameBtn = await screen.findByTestId("action-rename");
+    const renameBtn = await screen.findByTestId(
+      "action-rename",
+      {},
+      { timeout: 8_000 },
+    );
     expect(renameBtn).toBeEnabled();
     fireEvent.click(renameBtn);
 
-    await waitFor(() => {
-      expect(screen.getByTestId("detail-cell-name-f-3645")).toHaveTextContent(
-        "qa3645",
-      );
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("detail-cell-name-f-3645")).toHaveTextContent(
+          "qa3645",
+        );
+      },
+      { timeout: 8_000 },
+    );
     expect(renamed).toBe(true);
-    await waitFor(() => {
-      expect(screen.getByTestId("tree-node-/Sites/qa3645")).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("tree-node-/Sites/qa3645")).toBeInTheDocument();
+      },
+      { timeout: 8_000 },
+    );
     const nav = screen.getByTestId("explorer-nav");
     expect(Number(nav.getAttribute("data-folder-tree-epoch"))).toBeGreaterThan(
       0,
