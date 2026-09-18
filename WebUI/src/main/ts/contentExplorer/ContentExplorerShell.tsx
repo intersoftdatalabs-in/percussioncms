@@ -121,6 +121,13 @@ import { ContextMenu } from "./ContextMenu";
 import { clampContextMenuPosition } from "./contextMenuPosition";
 import { TemplatePickerDialog } from "./TemplatePickerDialog";
 import { ContentTypePickerDialog } from "./ContentTypePickerDialog";
+import { ScheduleDatesDialog } from "./ScheduleDatesDialog";
+import type { ItemScheduleDates } from "./itemScheduleDates";
+import {
+  replaceSchedulePickerSession,
+  settleSchedulePickerSession,
+  type SchedulePickerSession,
+} from "./schedulePickerSession";
 import type { PageTemplateChoice } from "../editor/pageTemplates";
 import {
   replaceTemplatePickerSession,
@@ -576,6 +583,9 @@ function ContentExplorerShellInner({
   const [templatePicker, setTemplatePicker] =
     useState<TemplatePickerSession | null>(null);
   const templatePickerRef = useRef<TemplatePickerSession | null>(null);
+  const [schedulePicker, setSchedulePicker] =
+    useState<SchedulePickerSession | null>(null);
+  const schedulePickerRef = useRef<SchedulePickerSession | null>(null);
   /**
    * Monotonic generation for context-menu loads. Rapid right-clicks on
    * different rows race two async IIFEs; only the latest generation may
@@ -1011,6 +1021,27 @@ function ContentExplorerShellInner({
     settleTemplatePickerSession(current, id);
   }, []);
 
+  const pickScheduleDates = useCallback(
+    (_item: PSPathItem, current: ItemScheduleDates) => {
+      return new Promise<ItemScheduleDates | null>((resolve) => {
+        const session = { current, resolve };
+        schedulePickerRef.current = replaceSchedulePickerSession(
+          schedulePickerRef.current,
+          session,
+        );
+        setSchedulePicker(session);
+      });
+    },
+    [],
+  );
+
+  const finishSchedulePicker = useCallback((dates: ItemScheduleDates | null) => {
+    const current = schedulePickerRef.current;
+    schedulePickerRef.current = null;
+    setSchedulePicker(null);
+    settleSchedulePickerSession(current, dates);
+  }, []);
+
   useEffect(() => {
     return () => {
       const typeCurrent = contentTypePickerRef.current;
@@ -1028,6 +1059,9 @@ function ContentExplorerShellInner({
       const changeCurrent = slotTemplatePickerRef.current;
       slotTemplatePickerRef.current = null;
       settleSlotTemplateSlotPickerSession(changeCurrent, null);
+      const scheduleCurrent = schedulePickerRef.current;
+      schedulePickerRef.current = null;
+      settleSchedulePickerSession(scheduleCurrent, null);
     };
   }, []);
 
@@ -1136,6 +1170,7 @@ function ContentExplorerShellInner({
             },
             pickPageTemplate,
             pickContentType,
+            pickScheduleDates,
             loadContentTypes,
             slot,
             addToSlot,
@@ -1184,6 +1219,7 @@ function ContentExplorerShellInner({
       contextMenu,
       pickPageTemplate,
       pickContentType,
+      pickScheduleDates,
       loadContentTypes,
       slot,
       addToSlot,
@@ -1985,6 +2021,13 @@ function ContentExplorerShellInner({
           templates={templatePicker.templates}
           onPick={(id) => finishTemplatePicker(id)}
           onCancel={() => finishTemplatePicker(null)}
+        />
+      ) : null}
+      {schedulePicker ? (
+        <ScheduleDatesDialog
+          current={schedulePicker.current}
+          onSave={(dates) => finishSchedulePicker(dates)}
+          onCancel={() => finishSchedulePicker(null)}
         />
       ) : null}
       {slotPickerOpen ? (

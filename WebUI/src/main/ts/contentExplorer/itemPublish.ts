@@ -20,7 +20,8 @@
  * (and PUT takedown when linked pages exist), not the demandpublishing
  * servlet. Staging uses {@code …/page|resource/staging/{id}} and
  * {@code …/takedown/page|resource/staging/{id}} (classic
- * PercItemPublisherService).
+ * PercItemPublisherService). Schedule dates live in
+ * {@code itemScheduleDates} (getitemdates / setitemdates).
  */
 
 import { get, put } from "../api/client";

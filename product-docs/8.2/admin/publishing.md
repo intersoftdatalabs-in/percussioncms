@@ -31,7 +31,7 @@ channels (static files, FTP, database, custom locations).
 
 ### Item Publish Now and Take Down (Content Explorer)
 
-From **Content Explorer** (`spa.jsp?entry=explorer`), select a **page** or **asset** (not a folder). **Publish Now** demand-publishes the item; **Take Down** unpublishes it from its site. Both confirm first. Application-level `FORBIDDEN` / `BADCONFIG` responses are failures (the Server actions error region), not success. See [Content Explorer](id:admin-content-explorer) for the exact URLs and linked-page confirm. Stage / schedule from Explorer are separate actions.
+From **Content Explorer** (`spa.jsp?entry=explorer`), select a **page** or **asset** (not a folder). **Publish Now** demand-publishes the item; **Take Down** unpublishes it from its site. **Schedule** sets or clears item publish and removal dates (`GET …/getitemdates/{id}`, `POST …/setitemdates`). All confirm first. Application-level `FORBIDDEN` / `BADCONFIG` / `INVALID` responses are failures (the Server actions error region), not success. See [Content Explorer](id:admin-content-explorer) for the exact URLs, linked-page confirm, and schedule fields. Stage from Explorer is a separate action.
 
 ## Virtual Sites and docs builds
 

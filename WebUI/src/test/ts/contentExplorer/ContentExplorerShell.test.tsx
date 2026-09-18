@@ -528,6 +528,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(
       screen.queryByTestId("action-toolbar-item-Remove_from_Staging"),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("action-toolbar-item-Schedule"),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId("content-explorer-shell")).toHaveAttribute(
       "data-selected-item-id",
       "",
@@ -550,6 +553,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       ).toBeInTheDocument();
       expect(
         screen.getByTestId("action-toolbar-item-Remove_from_Staging"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("action-toolbar-item-Schedule"),
       ).toBeInTheDocument();
     });
   });
@@ -822,6 +828,104 @@ describe("ContentExplorerShell product composition (#2400)", () => {
         String(call[0] ?? "").includes(
           "sitemanage/publish/takedown/page/staging/",
         ),
+      ),
+    ).toBe(true);
+    const folderLoadsAfter = fetchSpy.mock.calls.filter((call) => {
+      const url = String(call[0] ?? "");
+      return url.includes("paginatedFolder") || url.includes("/folder/");
+    }).length;
+    expect(folderLoadsAfter).toBe(folderLoadsBefore);
+    await renderA11yGate(container);
+  });
+
+  it("Schedule HTTP 200 FORBIDDEN mounts server-actions error (#4547)", async () => {
+    const fetchSpy = mockFetch(async (input, init) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      const method = String(
+        (init as RequestInit | undefined)?.method ?? "GET",
+      ).toUpperCase();
+      if (url.includes("getitemdates")) {
+        return new Response(
+          JSON.stringify({
+            ItemDates: { itemId: "42", startDate: "", endDate: "" },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("setitemdates") && method === "POST") {
+        return new Response(
+          JSON.stringify({
+            status: "FORBIDDEN",
+            warningMessage:
+              "Publication stopped because of licensing issues",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "page",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        loadWorkflowMenuActions={async () => null}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-42"));
+    await waitFor(() => {
+      expect(screen.getByTestId("action-toolbar-item-Schedule")).toBeInTheDocument();
+    });
+
+    const folderLoadsBefore = fetchSpy.mock.calls.filter((call) => {
+      const url = String(call[0] ?? "");
+      return url.includes("paginatedFolder") || url.includes("/folder/");
+    }).length;
+
+    fireEvent.click(screen.getByTestId("action-toolbar-item-Schedule"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-schedule-dialog")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("explorer-schedule-save"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-server-actions-error"),
+      ).toHaveTextContent(/FORBIDDEN|licensing|Publication stopped/i);
+    });
+    expect(
+      fetchSpy.mock.calls.some((call) =>
+        String(call[0] ?? "").includes("itemmanagement/item/setitemdates"),
       ),
     ).toBe(true);
     const folderLoadsAfter = fetchSpy.mock.calls.filter((call) => {

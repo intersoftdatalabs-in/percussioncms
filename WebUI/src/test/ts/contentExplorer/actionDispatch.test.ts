@@ -999,6 +999,113 @@ describe("actionDispatch", () => {
     expect(onRemoveFromStaging).not.toHaveBeenCalled();
   });
 
+  it("classifies Schedule as rest", () => {
+    expect(classifyAction(action({ name: "Schedule" }))).toBe("rest");
+    expect(classifyAction(action({ name: "schedule_dates" }))).toBe("rest");
+  });
+
+  it("Schedule confirms then saves dates", async () => {
+    const onSchedule = vi.fn().mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
+    const pickScheduleDates = vi.fn().mockResolvedValue({
+      itemId: "42",
+      startDate: "09/18/2026 09:00 am",
+      endDate: "",
+      comments: "ok",
+    });
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          ItemDates: { itemId: "42", startDate: "", endDate: "" },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const result = await dispatchAction(action({ name: "Schedule" }), {
+      item: item(),
+      onSchedule,
+      pickScheduleDates,
+      confirm,
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(pickScheduleDates).toHaveBeenCalled();
+    expect(confirm).toHaveBeenCalledWith(EXPLORER_MSG.CONFIRM_SCHEDULE);
+    expect(onSchedule).toHaveBeenCalled();
+  });
+
+  it("Schedule cancel from picker does not save", async () => {
+    const onSchedule = vi.fn();
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({ ItemDates: { itemId: "42" } }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const result = await dispatchAction(action({ name: "Schedule" }), {
+      item: item(),
+      onSchedule,
+      pickScheduleDates: async () => null,
+      confirm: () => true,
+    });
+    expect(onSchedule).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("Schedule confirm cancel does not save", async () => {
+    const onSchedule = vi.fn();
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const result = await dispatchAction(action({ name: "Schedule" }), {
+      item: item(),
+      onSchedule,
+      pickScheduleDates: async () => ({
+        itemId: "42",
+        startDate: "",
+        endDate: "",
+        comments: "",
+      }),
+      confirm: () => false,
+    });
+    expect(onSchedule).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("Schedule on a Sites folder asks for a content item", async () => {
+    const onSchedule = vi.fn();
+    const result = await dispatchAction(action({ name: "Schedule" }), {
+      item: item({
+        id: "1",
+        name: "Sites",
+        path: "/Sites",
+        type: "folder",
+        leaf: false,
+      }),
+      onSchedule,
+      confirm: () => true,
+    });
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+    expect(onSchedule).not.toHaveBeenCalled();
+  });
+
+  it("Schedule on a template stays unavailable", async () => {
+    const result = await dispatchAction(action({ name: "Schedule" }), {
+      item: item({
+        path: "/Design/Templates/base",
+        type: "percTemplate",
+        category: "template",
+        id: "77",
+      }),
+      confirm: () => true,
+    });
+    expect(result.kind).toBe("unavailable");
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_UNAVAILABLE);
+  });
+
   it("dispatch workflow-transition runs the trigger", async () => {
     const runWorkflow = vi.fn().mockResolvedValue(undefined);
     const result = await dispatchAction(
