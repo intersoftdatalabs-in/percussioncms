@@ -522,6 +522,12 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(
       screen.queryByTestId("action-toolbar-item-Take_Down"),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("action-toolbar-item-Stage"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("action-toolbar-item-Remove_from_Staging"),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId("content-explorer-shell")).toHaveAttribute(
       "data-selected-item-id",
       "",
@@ -538,6 +544,12 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       ).toBeInTheDocument();
       expect(
         screen.getByTestId("action-toolbar-item-Take_Down"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("action-toolbar-item-Stage"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("action-toolbar-item-Remove_from_Staging"),
       ).toBeInTheDocument();
     });
   });
@@ -630,6 +642,186 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(
       fetchSpy.mock.calls.some((call) =>
         String(call[0] ?? "").includes("sitemanage/publish/takedown/"),
+      ),
+    ).toBe(true);
+    const folderLoadsAfter = fetchSpy.mock.calls.filter((call) => {
+      const url = String(call[0] ?? "");
+      return url.includes("paginatedFolder") || url.includes("/folder/");
+    }).length;
+    expect(folderLoadsAfter).toBe(folderLoadsBefore);
+    await renderA11yGate(container);
+  });
+
+  it("Stage HTTP 200 FORBIDDEN mounts server-actions error (#4546)", async () => {
+    const fetchSpy = mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("/publish/page/staging/") || url.includes("/publish/resource/staging/")) {
+        return new Response(
+          JSON.stringify({
+            status: "FORBIDDEN",
+            warningMessage:
+              "Publication stopped because of licensing issues",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "page",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => [
+          {
+            name: "Publish_Now",
+            label: "Publish Now",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ]}
+        loadWorkflowMenuActions={async () => null}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-42"));
+    await waitFor(() => {
+      expect(screen.getByTestId("action-toolbar-item-Stage")).toBeInTheDocument();
+    });
+
+    const folderLoadsBefore = fetchSpy.mock.calls.filter((call) => {
+      const url = String(call[0] ?? "");
+      return url.includes("paginatedFolder") || url.includes("/folder/");
+    }).length;
+
+    fireEvent.click(screen.getByTestId("action-toolbar-item-Stage"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-server-actions-error"),
+      ).toHaveTextContent(/FORBIDDEN|licensing|Publication stopped/i);
+    });
+    expect(
+      fetchSpy.mock.calls.some((call) =>
+        String(call[0] ?? "").includes("sitemanage/publish/page/staging/"),
+      ),
+    ).toBe(true);
+    const folderLoadsAfter = fetchSpy.mock.calls.filter((call) => {
+      const url = String(call[0] ?? "");
+      return url.includes("paginatedFolder") || url.includes("/folder/");
+    }).length;
+    expect(folderLoadsAfter).toBe(folderLoadsBefore);
+    await renderA11yGate(container);
+  });
+
+  it("Remove from Staging HTTP 200 NOSTAGING_SERVERS mounts server-actions error (#4546)", async () => {
+    const fetchSpy = mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("/takedown/page/staging/") || url.includes("/takedown/resource/staging/")) {
+        return new Response(
+          JSON.stringify({
+            SitePublishResponse: {
+              status: "NOSTAGING_SERVERS",
+              warningMessage: "No staging servers are configured.",
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "page",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        loadWorkflowMenuActions={async () => null}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-42"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("action-toolbar-item-Remove_from_Staging"),
+      ).toBeInTheDocument();
+    });
+
+    const folderLoadsBefore = fetchSpy.mock.calls.filter((call) => {
+      const url = String(call[0] ?? "");
+      return url.includes("paginatedFolder") || url.includes("/folder/");
+    }).length;
+
+    fireEvent.click(
+      screen.getByTestId("action-toolbar-item-Remove_from_Staging"),
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-server-actions-error"),
+      ).toHaveTextContent(/No staging servers|NOSTAGING_SERVERS/i);
+    });
+    expect(
+      fetchSpy.mock.calls.some((call) =>
+        String(call[0] ?? "").includes(
+          "sitemanage/publish/takedown/page/staging/",
+        ),
       ),
     ).toBe(true);
     const folderLoadsAfter = fetchSpy.mock.calls.filter((call) => {

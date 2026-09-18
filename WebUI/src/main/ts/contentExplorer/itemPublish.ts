@@ -16,8 +16,11 @@
  */
 
 /**
- * Explorer Publish Now / Take Down — existing sitemanage GETs (and PUT
- * takedown when linked pages exist), not the demandpublishing servlet.
+ * Explorer Publish Now / Take Down / Stage — existing sitemanage GETs
+ * (and PUT takedown when linked pages exist), not the demandpublishing
+ * servlet. Staging uses {@code …/page|resource/staging/{id}} and
+ * {@code …/takedown/page|resource/staging/{id}} (classic
+ * PercItemPublisherService).
  */
 
 import { get, put } from "../api/client";
@@ -78,12 +81,37 @@ const TAKEDOWN_ACTION_KEYS: ReadonlySet<string> = new Set([
   "unpublish",
 ]);
 
+const STAGE_ACTION_KEYS: ReadonlySet<string> = new Set(["stage"]);
+
+const REMOVE_FROM_STAGING_ACTION_KEYS: ReadonlySet<string> = new Set([
+  "remove_from_staging",
+  "unstage",
+]);
+
+function actionNameKey(name: string | undefined | null): string {
+  return (name ?? "").replace(/[\s-]/g, "_").toLowerCase();
+}
+
 /** Catalog / toolbar names for Explorer Take Down (Finder “Take Down”). */
 export function isTakedownActionName(
   name: string | undefined | null,
 ): boolean {
-  const key = (name ?? "").replace(/[\s-]/g, "_").toLowerCase();
-  return TAKEDOWN_ACTION_KEYS.has(key);
+  return TAKEDOWN_ACTION_KEYS.has(actionNameKey(name));
+}
+
+/** Catalog / toolbar names for Explorer Stage (Finder “Stage”). */
+export function isStageActionName(name: string | undefined | null): boolean {
+  return STAGE_ACTION_KEYS.has(actionNameKey(name));
+}
+
+/**
+ * Catalog / toolbar names for Explorer Remove from Staging (Finder
+ * “Remove from Staging”).
+ */
+export function isRemoveFromStagingActionName(
+  name: string | undefined | null,
+): boolean {
+  return REMOVE_FROM_STAGING_ACTION_KEYS.has(actionNameKey(name));
 }
 
 /** Pages that link to the item — listed on the takedown confirm. */
@@ -250,4 +278,62 @@ async function demandTakedown(
   if (preflight) {
     throw new Error(preflight.message || preflight.token || "Takedown failed");
   }
+}
+
+/**
+ * Stage a page or asset. Other types return false so the dispatcher can
+ * show that the action is not available.
+ *
+ * <p>HTTP 200 with application-level preflight status
+ * ({@code FORBIDDEN}, {@code BADCONFIG}, {@code NOSTAGING_SERVERS},
+ * {@code INVALID}, …) is a failure — same as classic Finder.</p>
+ */
+export async function stageSelectedItem(item: PSPathItem): Promise<boolean> {
+  const id = (item.id ?? "").trim();
+  if (!id) {
+    return false;
+  }
+  const kind = resolvePublishKind(item);
+  const paths = itemPublishPaths();
+  if (kind === "page") {
+    await demandPublish(`${paths.pageStaging}/${encodeURIComponent(id)}`);
+    return true;
+  }
+  if (kind === "asset") {
+    await demandPublish(`${paths.resourceStaging}/${encodeURIComponent(id)}`);
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Remove a page or asset from staging. Other types return false so the
+ * dispatcher can show that the action is not available.
+ *
+ * <p>HTTP 200 with application-level preflight status
+ * ({@code FORBIDDEN}, {@code BADCONFIG}, {@code NOSTAGING_SERVERS},
+ * {@code INVALID}, …) is a failure — same as classic Finder.</p>
+ */
+export async function removeFromStagingSelectedItem(
+  item: PSPathItem,
+): Promise<boolean> {
+  const id = (item.id ?? "").trim();
+  if (!id) {
+    return false;
+  }
+  const kind = resolvePublishKind(item);
+  const paths = itemPublishPaths();
+  if (kind === "page") {
+    await demandPublish(
+      `${paths.pageStagingTakedown}/${encodeURIComponent(id)}`,
+    );
+    return true;
+  }
+  if (kind === "asset") {
+    await demandPublish(
+      `${paths.resourceStagingTakedown}/${encodeURIComponent(id)}`,
+    );
+    return true;
+  }
+  return false;
 }

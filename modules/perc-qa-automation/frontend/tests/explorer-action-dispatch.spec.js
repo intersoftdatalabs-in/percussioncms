@@ -260,4 +260,209 @@ test.describe("modern React Content Explorer — action dispatch", () => {
       );
     },
   );
+
+  test(
+    "Stage HTTP 200 FORBIDDEN shows an error and does not treat it as staged",
+    { tag: ["@explorer-action-dispatch", "@explorer", "@explorer-staging"] },
+    async ({ page }) => {
+      test.setTimeout(90_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => {
+        pageErrors.push(String(err));
+      });
+      page.on("dialog", (dialog) => {
+        void dialog.accept();
+      });
+      await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "percPage",
+                  category: "page",
+                  accessLevel: "WRITE",
+                  leaf: true,
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+          }),
+        });
+      });
+      await page.route("**/services/sitemanage/publish/page/staging/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            status: "FORBIDDEN",
+            warningMessage: "Publication stopped because of licensing issues",
+          }),
+        });
+      });
+      await page.route(
+        "**/services/sitemanage/publish/resource/staging/**",
+        async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              status: "FORBIDDEN",
+              warningMessage: "Publication stopped because of licensing issues",
+            }),
+          });
+        },
+      );
+
+      await page.goto(explorerSpaUrl(BASE_URL));
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator('[data-testid="content-explorer-shell"]')).toBeVisible({
+        timeout: 20_000,
+      });
+
+      await expect(page.locator('[data-testid="action-toolbar-item-Stage"]')).toHaveCount(
+        0,
+      );
+
+      const itemRow = page.locator(
+        '[data-testid="detail-row-42"][data-row-kind="item"]',
+      );
+      await expect(itemRow).toBeVisible({ timeout: 20_000 });
+      await itemRow.click();
+      await expect(
+        page.locator(
+          '[data-testid="content-explorer-shell"][data-selected-item-id="42"]',
+        ),
+      ).toBeVisible({ timeout: 10_000 });
+
+      const stage = page.locator('[data-testid="action-toolbar-item-Stage"]');
+      await expect(stage).toBeVisible({ timeout: 15_000 });
+      await stage.click();
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toBeVisible({ timeout: 10_000 });
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toContainText(/FORBIDDEN|licensing|Publication stopped/i);
+      await expect(
+        page.getByRole("alert").filter({ hasText: /Select a content item first/i }),
+      ).toHaveCount(0);
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
+    },
+  );
+
+  test(
+    "Remove from Staging HTTP 200 NOSTAGING_SERVERS shows an error and does not treat it as unstaged",
+    { tag: ["@explorer-action-dispatch", "@explorer", "@explorer-staging"] },
+    async ({ page }) => {
+      test.setTimeout(90_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => {
+        pageErrors.push(String(err));
+      });
+      page.on("dialog", (dialog) => {
+        void dialog.accept();
+      });
+      await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "percPage",
+                  category: "page",
+                  accessLevel: "WRITE",
+                  leaf: true,
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+          }),
+        });
+      });
+      await page.route(
+        "**/services/sitemanage/publish/takedown/page/staging/**",
+        async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              SitePublishResponse: {
+                status: "NOSTAGING_SERVERS",
+                warningMessage: "No staging servers are configured.",
+              },
+            }),
+          });
+        },
+      );
+      await page.route(
+        "**/services/sitemanage/publish/takedown/resource/staging/**",
+        async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              SitePublishResponse: {
+                status: "NOSTAGING_SERVERS",
+                warningMessage: "No staging servers are configured.",
+              },
+            }),
+          });
+        },
+      );
+
+      await page.goto(explorerSpaUrl(BASE_URL));
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator('[data-testid="content-explorer-shell"]')).toBeVisible({
+        timeout: 20_000,
+      });
+
+      await expect(
+        page.locator('[data-testid="action-toolbar-item-Remove_from_Staging"]'),
+      ).toHaveCount(0);
+
+      const itemRow = page.locator(
+        '[data-testid="detail-row-42"][data-row-kind="item"]',
+      );
+      await expect(itemRow).toBeVisible({ timeout: 20_000 });
+      await itemRow.click();
+      await expect(
+        page.locator(
+          '[data-testid="content-explorer-shell"][data-selected-item-id="42"]',
+        ),
+      ).toBeVisible({ timeout: 10_000 });
+
+      const unstage = page.locator(
+        '[data-testid="action-toolbar-item-Remove_from_Staging"]',
+      );
+      await expect(unstage).toBeVisible({ timeout: 15_000 });
+      await unstage.click();
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toBeVisible({ timeout: 10_000 });
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toContainText(/No staging servers|NOSTAGING_SERVERS/i);
+      await expect(
+        page.getByRole("alert").filter({ hasText: /Select a content item first/i }),
+      ).toHaveCount(0);
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
+    },
+  );
 });

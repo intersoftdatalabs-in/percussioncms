@@ -35,9 +35,13 @@ import { del } from "../api/client";
 import { PATHS } from "../api/paths";
 import {
   formatTakedownConfirmBody,
+  isRemoveFromStagingActionName,
+  isStageActionName,
   isTakedownActionName,
   loadLinkedPagesForTakedown,
   publishSelectedItem,
+  removeFromStagingSelectedItem,
+  stageSelectedItem,
   takedownSelectedItem,
 } from "./itemPublish";
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
@@ -196,6 +200,8 @@ export interface ActionDispatchContext {
   ) => Promise<string | null>;
   onPublish?: (item: PSPathItem) => Promise<void>;
   onTakedown?: (item: PSPathItem) => Promise<void>;
+  onStage?: (item: PSPathItem) => Promise<void>;
+  onRemoveFromStaging?: (item: PSPathItem) => Promise<void>;
   /** Parent menu name when the user activated a child (AA vs Preview). */
   parentName?: string;
   writeClipboard?: (text: string) => Promise<void>;
@@ -297,7 +303,13 @@ export function classifyAction(action: MenuAction): ActionKind {
   if (isAssemblerPreviewUrl(action.url) || PREVIEW_PARENT_NAMES.has(name)) {
     return "rest";
   }
-  if (name === "purge" || name === "publish_now" || isTakedownActionName(name)) {
+  if (
+    name === "purge" ||
+    name === "publish_now" ||
+    isTakedownActionName(name) ||
+    isStageActionName(name) ||
+    isRemoveFromStagingActionName(name)
+  ) {
     return "rest";
   }
   if (
@@ -781,6 +793,48 @@ export async function dispatchAction(
     }
     const takenDown = await takedownSelectedItem(item, linked);
     if (!takenDown) {
+      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    return { kind: "rest", refresh: true };
+  }
+
+  if (isStageActionName(name)) {
+    if (!item || isFolder(item)) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+      EXPLORER_MSG.CONFIRM_STAGE,
+    );
+    if (!ok) {
+      return { kind: "rest" };
+    }
+    if (ctx.onStage) {
+      await ctx.onStage(item);
+      return { kind: "rest", refresh: true };
+    }
+    const staged = await stageSelectedItem(item);
+    if (!staged) {
+      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    return { kind: "rest", refresh: true };
+  }
+
+  if (isRemoveFromStagingActionName(name)) {
+    if (!item || isFolder(item)) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+      EXPLORER_MSG.CONFIRM_REMOVE_FROM_STAGING,
+    );
+    if (!ok) {
+      return { kind: "rest" };
+    }
+    if (ctx.onRemoveFromStaging) {
+      await ctx.onRemoveFromStaging(item);
+      return { kind: "rest", refresh: true };
+    }
+    const removed = await removeFromStagingSelectedItem(item);
+    if (!removed) {
       return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
     }
     return { kind: "rest", refresh: true };

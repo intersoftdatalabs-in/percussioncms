@@ -19,11 +19,15 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import {
   formatTakedownConfirmBody,
+  isRemoveFromStagingActionName,
+  isStageActionName,
   isTakedownActionName,
   loadLinkedPagesForTakedown,
   parseLinkedPagesForTakedown,
   publishSelectedItem,
+  removeFromStagingSelectedItem,
   resolvePublishKind,
+  stageSelectedItem,
   takedownSelectedItem,
 } from "../../../main/ts/contentExplorer/itemPublish";
 
@@ -301,5 +305,199 @@ describe("linked pages for takedown", () => {
     expect(isTakedownActionName("Take Down")).toBe(true);
     expect(isTakedownActionName("unpublish")).toBe(true);
     expect(isTakedownActionName("Publish_Now")).toBe(false);
+    expect(isTakedownActionName("Stage")).toBe(false);
+  });
+});
+
+describe("stageSelectedItem", () => {
+  it("GETs sitemanage publish/page/staging for a page", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    expect(await stageSelectedItem(item())).toBe(true);
+    expect(String(global.fetch.mock.calls[0]?.[0] ?? "")).toContain(
+      "sitemanage/publish/page/staging/42",
+    );
+  });
+
+  it("GETs sitemanage publish/resource/staging for an asset", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    expect(
+      await stageSelectedItem(
+        item({ path: "/Assets/img.png", type: "percImageAsset", id: "99" }),
+      ),
+    ).toBe(true);
+    expect(String(global.fetch.mock.calls[0]?.[0] ?? "")).toContain(
+      "sitemanage/publish/resource/staging/99",
+    );
+  });
+
+  it("returns false for folders and non-page types", async () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+    expect(
+      await stageSelectedItem(
+        item({
+          id: "1",
+          name: "Sites",
+          path: "/Sites",
+          type: "folder",
+          leaf: false,
+        }),
+      ),
+    ).toBe(false);
+    expect(
+      await stageSelectedItem(
+        item({
+          path: "/Design/Templates/base",
+          type: "percTemplate",
+          category: "template",
+          id: "77",
+        }),
+      ),
+    ).toBe(false);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("throws on HTTP 200 unwrapped FORBIDDEN instead of returning true", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ status: "FORBIDDEN" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(stageSelectedItem(item())).rejects.toThrow("FORBIDDEN");
+  });
+
+  it("throws on wrapped NOSTAGING_SERVERS instead of returning true", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          SitePublishResponse: {
+            status: "NOSTAGING_SERVERS",
+            warningMessage: "No staging servers are configured.",
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
+    await expect(stageSelectedItem(item())).rejects.toThrow(
+      /No staging servers|NOSTAGING_SERVERS/,
+    );
+  });
+
+  it("throws when the stage GET returns 403", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response("denied", { status: 403, statusText: "Forbidden" }),
+    );
+    await expect(stageSelectedItem(item())).rejects.toMatchObject({
+      status: 403,
+    });
+  });
+
+  it("recognizes Stage action name variants", () => {
+    expect(isStageActionName("Stage")).toBe(true);
+    expect(isStageActionName("stage")).toBe(true);
+    expect(isStageActionName("Take_Down")).toBe(false);
+    expect(isStageActionName("Publish_Now")).toBe(false);
+  });
+});
+
+describe("removeFromStagingSelectedItem", () => {
+  it("GETs sitemanage takedown/page/staging for a page", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    expect(await removeFromStagingSelectedItem(item())).toBe(true);
+    expect(String(global.fetch.mock.calls[0]?.[0] ?? "")).toContain(
+      "sitemanage/publish/takedown/page/staging/42",
+    );
+  });
+
+  it("GETs sitemanage takedown/resource/staging for an asset", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    expect(
+      await removeFromStagingSelectedItem(
+        item({ path: "/Assets/img.png", type: "percImageAsset", id: "99" }),
+      ),
+    ).toBe(true);
+    expect(String(global.fetch.mock.calls[0]?.[0] ?? "")).toContain(
+      "sitemanage/publish/takedown/resource/staging/99",
+    );
+  });
+
+  it("returns false for folders", async () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+    expect(
+      await removeFromStagingSelectedItem(
+        item({
+          id: "1",
+          name: "Sites",
+          path: "/Sites",
+          type: "folder",
+          leaf: false,
+        }),
+      ),
+    ).toBe(false);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("throws on HTTP 200 FORBIDDEN instead of returning true", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ status: "FORBIDDEN" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(removeFromStagingSelectedItem(item())).rejects.toThrow(
+      "FORBIDDEN",
+    );
+  });
+
+  it("throws on wrapped BADCONFIG warning", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          SitePublishResponse: {
+            status: "BADCONFIG",
+            warningMessage:
+              "Could not connect to publishing server, please check publishing server configuration.",
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
+    await expect(removeFromStagingSelectedItem(item())).rejects.toThrow(
+      "Could not connect to publishing server",
+    );
+  });
+
+  it("recognizes Remove from Staging action name variants", () => {
+    expect(isRemoveFromStagingActionName("Remove_from_Staging")).toBe(true);
+    expect(isRemoveFromStagingActionName("Remove from Staging")).toBe(true);
+    expect(isRemoveFromStagingActionName("unstage")).toBe(true);
+    expect(isRemoveFromStagingActionName("Stage")).toBe(false);
+    expect(isRemoveFromStagingActionName("Take_Down")).toBe(false);
   });
 });

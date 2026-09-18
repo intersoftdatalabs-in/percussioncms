@@ -28,6 +28,14 @@ describe("itemPublishPaths", () => {
     expect(p.resourcePublish).toContain("/publish/resource");
     expect(p.pageTakedown).toContain("/takedown/page");
     expect(p.resourceTakedown).toContain("/takedown/resource");
+    expect(p.pageStaging).toBe("/services/sitemanage/publish/page/staging");
+    expect(p.resourceStaging).toContain("/publish/resource/staging");
+    expect(p.pageStagingTakedown).toBe(
+      "/services/sitemanage/publish/takedown/page/staging",
+    );
+    expect(p.resourceStagingTakedown).toContain(
+      "/takedown/resource/staging",
+    );
     expect(p.publishingActions).toContain("publishingActions");
     expect(p.linkedItems).toBe(
       "/services/itemmanagement/item/findLinkedItems",

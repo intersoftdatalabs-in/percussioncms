@@ -378,6 +378,10 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Take down (unpublish) this item from its site?",
   CONFIRM_TAKEDOWN_LINKED:
     "perc.ui.explorer@These pages link to this item:",
+  CONFIRM_STAGE:
+    "perc.ui.explorer@Stage this item to the staging server?",
+  CONFIRM_REMOVE_FROM_STAGING:
+    "perc.ui.explorer@Remove this item from staging?",
   ACTION_COPY_URL_SUCCESS: "perc.ui.explorer@Item URL copied to the clipboard",
   ACTION_COPY_URL_FAILED: "perc.ui.explorer@Could not copy the item URL",
   ACTION_COPY_URL_EMPTY: "perc.ui.explorer@No URL is available for this item",
