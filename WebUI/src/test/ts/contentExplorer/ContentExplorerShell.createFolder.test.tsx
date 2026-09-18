@@ -22,7 +22,7 @@ import { BootstrapProvider } from "../../../main/ts/app/bootstrap/BootstrapConte
 import type { SpaBootstrap } from "../../../main/ts/app/bootstrap/types";
 import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentExplorerShell";
 import { renderA11yGate } from "./a11y";
-import { mockFetch } from "./setup";
+import { EXPLORER_SHELL_TEST_TIMEOUT, mockFetch } from "./setup";
 
 const adminBootstrap: SpaBootstrap = {
   userName: "Admin",
@@ -48,7 +48,9 @@ const CREATED = {
   accessLevel: "WRITE",
 };
 
-describe("ContentExplorerShell create folder (#3640)", () => {
+describe("ContentExplorerShell create folder (#3640)", {
+  timeout: EXPLORER_SHELL_TEST_TIMEOUT,
+}, () => {
   it("refreshes the detail list after Create Folder succeeds", async () => {
     let created = false;
     mockFetch(async (input) => {
@@ -100,19 +102,27 @@ describe("ContentExplorerShell create folder (#3640)", () => {
         loadDisplayFormats={async () => []}
         loadMenuActions={async () => []}
         loadWorkflowMenuActions={async () => null}
+        listViews={async () => []}
         actionHandlers={{
           prompt: () => "qa3640",
         }}
       />,
     );
 
-    const createBtn = await screen.findByTestId("action-create-folder");
+    const createBtn = await screen.findByTestId(
+      "action-create-folder",
+      {},
+      { timeout: 8_000 },
+    );
     expect(createBtn).toBeEnabled();
     fireEvent.click(createBtn);
 
-    await waitFor(() => {
-      expect(screen.getByTestId("detail-row-n-3640")).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("detail-row-n-3640")).toBeInTheDocument();
+      },
+      { timeout: 8_000 },
+    );
     expect(screen.getByTestId("tree-node-/Sites/qa3640")).toBeInTheDocument();
     const nav = screen.getByTestId("explorer-nav");
     expect(Number(nav.getAttribute("data-folder-tree-epoch"))).toBeGreaterThan(

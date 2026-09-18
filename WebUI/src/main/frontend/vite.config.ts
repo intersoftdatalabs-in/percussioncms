@@ -85,6 +85,12 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
+    // Full-suite Maven (`cd WebUI && ../mvnw clean install`) contends CPU
+    // across 4k+ jsdom files. Default 5s it() budget flakes App/Explorer
+    // shells and axe-core gates (#4359 / #4558). Per-test waits still cap
+    // RTL findBy; this is the Vitest ceiling.
+    testTimeout: 20_000,
+    hookTimeout: 20_000,
     setupFiles: [resolve(__dirname, "vitest.setup.ts")],
     include: [
       "src/test/ts/**/*.{test,spec}.{ts,tsx}",

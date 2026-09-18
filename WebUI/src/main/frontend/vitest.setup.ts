@@ -7,7 +7,11 @@
 
 import "@testing-library/jest-dom";
 import { afterEach } from "vitest";
-import { cleanup } from "@testing-library/react";
+import { cleanup, configure } from "@testing-library/react";
+
+// Default RTL findBy/waitFor is 1000ms — too tight under Maven full-suite
+// jsdom contention (App PublishingShell lazy load, Explorer axe, #4558).
+configure({ asyncUtilTimeout: 5_000 });
 
 // Cleanup after each test
 afterEach(() => {
