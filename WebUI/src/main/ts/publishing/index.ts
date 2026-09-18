@@ -45,4 +45,12 @@ export {
   spaItemPublishNowHref,
 } from "./itemPublishNow";
 export type { PublishNowKind } from "./itemPublishNow";
+export {
+  itemStageShellHref,
+  mapStageAction,
+  mapStageKind,
+  pathItemForStage,
+  spaItemStageHref,
+} from "./itemStage";
+export type { StageAction, StageKind } from "./itemStage";
 export type { PublishSection } from "./types";
