@@ -77,6 +77,71 @@ dist/
 .grok/**/active_sessions.json
 .grok/**/models_cache.json
 
+# --- OpenCode (.opencode): track shareable config (commands/agents/plugins/rules/skills)
+# Ignore all runtime state, then re-include shareables.
+# Mirror of the .grok ignore pattern above (last-match wins).
+.opencode/*
+# Re-include the shareable top-level dirs (singular + plural, both are accepted by opencode).
+!.opencode/commands/
+!.opencode/command/
+!.opencode/agents/
+!.opencode/agent/
+!.opencode/plugins/
+!.opencode/plugin/
+!.opencode/rules/
+!.opencode/skills/
+!.opencode/skill/
+!.opencode/README.md
+# Ignore everything inside the shareable dirs, then narrow to specific content types.
+.opencode/commands/**
+.opencode/command/**
+.opencode/agents/**
+.opencode/agent/**
+.opencode/plugins/**
+.opencode/plugin/**
+.opencode/rules/**
+.opencode/skills/**
+.opencode/skill/**
+!.opencode/commands/**/
+!.opencode/command/**/
+!.opencode/agents/**/
+!.opencode/agent/**/
+!.opencode/plugins/**/
+!.opencode/plugin/**/
+!.opencode/rules/**/
+!.opencode/skills/**/
+!.opencode/skill/**/
+# Commands, agents, rules: markdown only.
+!.opencode/commands/**/*.md
+!.opencode/command/**/*.md
+!.opencode/agents/**/*.md
+!.opencode/agent/**/*.md
+!.opencode/rules/**/*.md
+# Plugins: TypeScript / JavaScript source only.
+!.opencode/plugins/**/*.ts
+!.opencode/plugins/**/*.js
+!.opencode/plugin/**/*.ts
+!.opencode/plugin/**/*.js
+# Skills: SKILL.md per folder + nested README.md (frontmatter index / supporting docs).
+!.opencode/skills/**/SKILL.md
+!.opencode/skill/**/SKILL.md
+!.opencode/skills/**/README.md
+!.opencode/skill/**/README.md
+!.opencode/commands/**/README.md
+!.opencode/command/**/README.md
+!.opencode/agents/**/README.md
+!.opencode/agent/**/README.md
+# Belt-and-suspenders: never track opencode runtime state (even if layout drifts).
+.opencode/worktrees/
+.opencode/sessions/
+.opencode/logs/
+.opencode/cache/
+.opencode/.local/
+.opencode/.tmp/
+.opencode/**/auth.json
+.opencode/**/*.local.*
+.opencode/**/*.lock
+
 docker/dev-data
 .env.compose
 .env.compose.local

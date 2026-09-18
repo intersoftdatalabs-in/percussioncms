@@ -23,7 +23,7 @@ This repository is a large mono-repo with many modules.  This code base has a lo
 | Root / module agent guides                 | `AGENTS.md`, `AGENTS.local.md`, `Claude.md`, module `AGENTS.md`                             |
 | AI skills, agents, prompts                 | `modules/ai-shared-develop/src/main/resources/skills/**`, `.../agents/**`, `.../prompts/**` |
 | Review pattern memory                      | `.../skills/erlang-review/patterns.md`                                                      |
-| Tool-host project rules / workflows        | `.kilocode/**`, `.grok/**` project rules, agent workflows that dictate agent behavior       |
+| Tool-host project rules / workflows        | `.kilocode/**`, `.grok/**`, `.opencode/**` project rules, agent workflows that dictate agent behavior |
 | Agent-facing process docs that bind agents | sections in `REVIEW.md` / similar that prescribe agent gates                                |
 
 **Required agent behavior:**
@@ -76,8 +76,8 @@ This gate is **stricter than Erlang**: even a clean code review does not authori
 ### AGENTS.local.md across git worktrees (HARD GATE)
 
 Root `AGENTS.local.md` is **gitignored** and is **not** copied into agent git
-worktrees (`.kilo/worktrees/`, `.worktrees/`, `~/.grok/worktrees/`, overnight
-workflow worktrees, etc.).
+worktrees (`.kilo/worktrees/`, `.worktrees/`, `~/.grok/worktrees/`,
+`.opencode/worktrees/`, overnight workflow worktrees, etc.).
 
 **At session start**, every agent (Kilo, Grok, others) **must**:
 
