@@ -534,3 +534,174 @@ describe("EditorHost workflow transitions (#4539)", () => {
     expect(loadTransitions).not.toHaveBeenCalled();
   });
 });
+
+describe("EditorHost publish now (#4540)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function titleType() {
+    return { fields: [{ name: "sys_title", label: "Title", readOnly: false }] };
+  }
+
+  it("confirms then demand-publishes a percPage in edit mode", async () => {
+    const publishItem = vi.fn().mockResolvedValue(true);
+    const confirmPublish = vi.fn().mockReturnValue(true);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                publishItem={publishItem}
+                confirmPublish={confirmPublish}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-publish-now")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-publish-now"));
+    await waitFor(() => {
+      expect(confirmPublish).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(publishItem).toHaveBeenCalledWith("42", "page");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-publish-done")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-publish-error")).toBeNull();
+  });
+
+  it("does not publish when the confirm is cancelled", async () => {
+    const publishItem = vi.fn().mockResolvedValue(true);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                publishItem={publishItem}
+                confirmPublish={() => false}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-publish-now")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-publish-now"));
+    await waitFor(() => {
+      expect(publishItem).not.toHaveBeenCalled();
+    });
+    expect(screen.queryByTestId("editor-publish-done")).toBeNull();
+  });
+
+  it("surfaces FORBIDDEN as failure, not success", async () => {
+    const publishItem = vi.fn().mockRejectedValue(new Error("FORBIDDEN"));
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                publishItem={publishItem}
+                confirmPublish={() => true}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-publish-now")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-publish-now"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-publish-error").textContent).toMatch(
+        /FORBIDDEN/,
+      );
+    });
+    expect(screen.queryByTestId("editor-publish-done")).toBeNull();
+  });
+
+  it("hides Publish now in view mode", async () => {
+    const publishItem = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                publishItem={publishItem}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-publish-now")).toBeNull();
+    expect(publishItem).not.toHaveBeenCalled();
+  });
+
+  it("demand-publishes percRichText as an asset", async () => {
+    const publishItem = vi.fn().mockResolvedValue(true);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=99&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue({
+                  contentId: "99",
+                  contentType: "percRichText",
+                  name: "Intro",
+                  checkoutUser: "admin",
+                  fields: [{ name: "sys_title", value: "Intro" }],
+                })}
+                loadType={async () => titleType()}
+                publishItem={publishItem}
+                confirmPublish={() => true}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-publish-now")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-publish-now"));
+    await waitFor(() => {
+      expect(publishItem).toHaveBeenCalledWith("99", "asset");
+    });
+  });
+});

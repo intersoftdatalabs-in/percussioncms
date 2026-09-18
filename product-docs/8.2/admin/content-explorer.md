@@ -188,9 +188,17 @@ loaded allowlist are not shown and cannot run. **Reject**, **Return**, **Disappr
 **Decline**, and **Send Back** require a comment — the host blocks the request until
 the comment field is filled. **View** mode does not load or run transitions.
 
+In **Edit** mode the host also shows **Publish now** for the already-open **page** or
+**asset** so authors do not need to bounce to Explorer solely to publish. Confirm
+**Publish this item now?** then demand-publish (`GET /services/sitemanage/publish/page/{id}`
+or `/resource/{id}` — same URLs as Explorer **Publish Now**). HTTP 200 with
+application-level `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` is a
+failure: the host shows the server warning and does not treat the job as started.
+**View** and **Promote** stay read-only (no Publish now). Templates and other
+non-page/non-asset types stay unavailable. Does not open the demand-publish servlet.
+
 The host does not request leftover Content Editor HTML (`checkoutedit.xml`,
-`contenteditorurls.html`, `?view=editor`). Publish now from the editor host is a
-separate increment.
+`contenteditorurls.html`, `?view=editor`).
 
 ## Sites list and Create Site
 

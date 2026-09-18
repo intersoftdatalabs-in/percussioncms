@@ -33,6 +33,8 @@ channels (static files, FTP, database, custom locations).
 
 From **Content Explorer** (`spa.jsp?entry=explorer`), select a **page** or **asset** (not a folder). **Publish Now** demand-publishes the item; **Take Down** unpublishes it from its site. **Schedule** sets or clears item publish and removal dates (`GET …/getitemdates/{id}`, `POST …/setitemdates`). All confirm first. Application-level `FORBIDDEN` / `BADCONFIG` / `INVALID` responses are failures (the Server actions error region), not success. See [Content Explorer](id:admin-content-explorer) for the exact URLs, linked-page confirm, and schedule fields. Stage from Explorer is a separate action.
 
+From the **React Content Editor** (`spa.jsp?entry=editor`) in **Edit** mode, **Publish now** demand-publishes the already-open page or asset after confirm (same sitemanage `publish/page/{id}` or `publish/resource/{id}` GETs). **View** mode stays read-only. `FORBIDDEN` / `BADCONFIG` is a failure on the editor host, not success.
+
 ## Virtual Sites and docs builds
 
 For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites such as product documentation:
