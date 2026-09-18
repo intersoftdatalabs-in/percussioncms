@@ -416,6 +416,26 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 
 Peer: `editor-rich-controls.spec.js`, `explorer-workflow-transitions.spec.js`.
 
+### Editor host date / calendar fields (#4569 / parent #4532)
+
+H2 operator proof that `sys_CalendarSimple` and datetime content-type controls
+render native date / datetime-local widgets on `spa.jsp?entry=editor`, persist
+through `PUT /services/itemmanagement/item/fields/{id}`, and stay read-only in
+**View** mode.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/editor-host-date-fields.spec.js` |
+| Tags | `@explorer-content-editor` `@editor` |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/editor-host-date-fields.spec.js
+```
+
 ### Architecture Create section no-skip (#3589 / #3661 / #3672 / parent #3092)
 
 H2 operator proof that **Create section** is enabled on

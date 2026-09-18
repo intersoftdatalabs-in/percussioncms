@@ -39,9 +39,11 @@ import { parsePositiveInt } from "../assembly/assemblyHostUrl";
 import { message } from "../i18n/message";
 import { mergeEditorRows, type EditorFieldRow } from "./controlKinds";
 import {
+  collectInvalidDateFieldErrors,
   collectRequiredFieldErrors,
   mapSaveApiErrorToFieldErrors,
 } from "./editorFieldErrors";
+import { DateFieldWidget } from "./widgets/DateFieldWidget";
 import {
   canPreviewFromEditor,
   editorDraftIsDirty,
@@ -204,6 +206,19 @@ function EditorFieldControl({
         value={row.value}
         readOnly={locked}
         loadCommunities={loadCommunities}
+        onChange={(value) => onChange(row.name, value)}
+      />
+    );
+  }
+  if (row.kind === "date" || row.kind === "datetime") {
+    return (
+      <DateFieldWidget
+        name={row.name}
+        value={fieldValueAsString(row.value)}
+        kind={row.kind}
+        readOnly={locked}
+        invalid={invalid}
+        required={row.required}
         onChange={(value) => onChange(row.name, value)}
       />
     );
@@ -435,9 +450,24 @@ export function EditorHost({
     setSaveErrorKey(null);
     setSaveErrorDetail("");
     const missing = requiredErrorsForDraft();
+    const invalidDates = collectInvalidDateFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        required: row.required,
+        value: fieldValueAsString(draft[row.name] ?? row.value),
+      })),
+      message(EDITOR_MSG.FIELD_INVALID_DATE),
+    );
     if (Object.keys(missing).length > 0) {
-      setFieldErrors(missing);
+      setFieldErrors({ ...invalidDates, ...missing });
       setSaveErrorKey(EDITOR_MSG.REQUIRED_SAVE);
+      setSaving(false);
+      return;
+    }
+    if (Object.keys(invalidDates).length > 0) {
+      setFieldErrors(invalidDates);
+      setSaveErrorKey(EDITOR_MSG.INVALID_DATE_SAVE);
       setSaving(false);
       return;
     }

@@ -179,6 +179,14 @@ content-type **Control** names from `GET /services/contenttypes/{type}` onto wid
 | `sys_communityid` | Community picker | Same fields API |
 | `sys_File` / file asset fields | File upload | `PUT /services/itemmanagement/item/binary/{id}/{field}` |
 | Image controls (`sys_webImageFX`, `img`) | Image upload with local preview | Same binary API |
+| `sys_CalendarSimple` and other date controls | Date picker (`type=date`) | Same fields API — `yyyy-MM-dd` |
+| Datetime / timestamp controls (`dataType` datetime) | Date-time picker (`type=datetime-local`) | Same fields API — `yyyy-MM-dd HH:mm:ss` |
+
+Date and datetime widgets are **not** free-text boxes. Empty optional dates save as
+blank. A value the host cannot parse is blocked before PUT and shown on that row
+(`Enter a valid date.`). HTTP **400** from
+`PUT /services/itemmanagement/item/fields/{id}` for an invalid date is mapped onto
+the named field. In **View** mode the pickers are read-only (disabled); Save is hidden.
 
 Save and **Check In** stay on itemmanagement. **Required** fields (content-type
 `required` flag or occurrence `required` / `oneOrMore` from
