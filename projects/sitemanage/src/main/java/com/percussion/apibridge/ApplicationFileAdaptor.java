@@ -682,7 +682,6 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
     boolean exists(String appRoot, File relativeFile) throws Exception;
   }
 
-  /** Package-visible for path-injection tests (CodeQL #2063–#2073). */
   static final class ObjectStoreApplicationFileStore implements ApplicationFileStore {
     @Override
     public Iterator<File> listFiles(String trustedAppName, String appRoot) throws Exception {
