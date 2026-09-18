@@ -57,7 +57,19 @@ describe("actionDispatch", () => {
       true,
     );
     expect(isDataFlowActionUrl("../sys_action/checkoutedit.xml")).toBe(true);
+    expect(isDataFlowActionUrl("../sys_Compare/compare.html")).toBe(true);
     expect(isDataFlowActionUrl("/assembler/render?sys_template=1")).toBe(false);
+  });
+
+  it("keeps DCE sys_compare as unavailable (React compare is RevisionsPanel)", () => {
+    expect(
+      classifyAction(
+        action({
+          name: "Compare",
+          url: "../sys_Compare/compare.html",
+        }),
+      ),
+    ).toBe("unavailable");
   });
 
   it("classifies Edit as editor (not CM1 editor navigation)", () => {

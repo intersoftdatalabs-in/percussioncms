@@ -43,6 +43,7 @@ import com.percussion.itemmanagement.data.PSItemCreateRequest;
 import com.percussion.itemmanagement.data.PSItemCreateResult;
 import com.percussion.itemmanagement.data.PSItemEditorBinaryMeta;
 import com.percussion.itemmanagement.data.PSItemEditorFields;
+import com.percussion.itemmanagement.data.PSItemRevisionCompareResult;
 import com.percussion.itemmanagement.data.PSPageLinkedToItem;
 import com.percussion.itemmanagement.data.PSRevision;
 import com.percussion.itemmanagement.data.PSRevisionsSummary;
@@ -119,6 +120,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.InputStream;
@@ -303,6 +305,61 @@ public class PSItemService implements IPSItemService {
     } catch (PSValidationException e) {
       throw new WebApplicationException(e);
     }
+  }
+
+  @GET
+  @Path("compare/{id}/{rev1}/{rev2}")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Override
+  public PSItemRevisionCompareResult compareRevisions(
+      @PathParam("id") String id, @PathParam("rev1") int rev1, @PathParam("rev2") int rev2)
+      throws PSItemServiceException {
+    if (StringUtils.isBlank(id) || rev1 <= 0 || rev2 <= 0) {
+      throw new WebApplicationException("Revision not found.", Response.Status.NOT_FOUND);
+    }
+    try {
+      String guid = PSLegacyExtensionUtils.getGUID(id);
+      try {
+        workflowHelper.getComponentSummary(guid);
+      } catch (Exception e) {
+        throw new WebApplicationException("Item not found.", Response.Status.NOT_FOUND);
+      }
+      try {
+        List<PSAssignmentTypeEnum> atypes =
+            systemService.getContentAssignmentTypes(asList(idMapper.getGuid(guid)));
+        PSAssignmentTypeEnum asmt =
+            atypes == null || atypes.isEmpty() ? PSAssignmentTypeEnum.NONE : atypes.get(0);
+        if (asmt == PSAssignmentTypeEnum.NONE) {
+          throw new WebApplicationException(
+              "Not authorized to compare this item.", Response.Status.FORBIDDEN);
+        }
+      } catch (WebApplicationException e) {
+        throw e;
+      } catch (Exception e) {
+        throw new WebApplicationException(
+            "Not authorized to compare this item.", Response.Status.FORBIDDEN);
+      }
+      PSContentItem leftItem = loadRevisionItem(guid, rev1);
+      PSContentItem rightItem = loadRevisionItem(guid, rev2);
+      if (leftItem == null || rightItem == null) {
+        throw new WebApplicationException("Revision not found.", Response.Status.NOT_FOUND);
+      }
+      return PSItemRevisionCompare.diff(
+          guid,
+          rev1,
+          rev2,
+          PSItemEditorFieldsMapper.fromContentItem(leftItem, ""),
+          PSItemEditorFieldsMapper.fromContentItem(rightItem, ""));
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSDataServiceException e) {
+      throw new WebApplicationException("Revision not found.", Response.Status.NOT_FOUND);
+    }
+  }
+
+  private PSContentItem loadRevisionItem(String itemId, int revId) throws PSDataServiceException {
+    String revGuid = PSItemRevisionCompare.revisionGuid(itemId, revId);
+    return contentItemDao.find(revGuid, false);
   }
 
   @GET

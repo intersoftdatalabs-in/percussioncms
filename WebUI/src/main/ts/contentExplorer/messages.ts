@@ -419,6 +419,24 @@ export const EXPLORER_MSG = {
   REVISIONS_COL_COMMENT: "perc.ui.explorer@Comment",
   REVISIONS_RESTORE: "perc.ui.explorer@Restore",
   REVISIONS_RESTORE_ERROR: "perc.ui.explorer@Could not restore that revision",
+  REVISIONS_COMPARE: "perc.ui.explorer@Compare",
+  REVISIONS_COMPARE_FROM: "perc.ui.explorer@Compare from",
+  REVISIONS_COMPARE_TO: "perc.ui.explorer@Compare to",
+  REVISIONS_COMPARE_NEED_TWO:
+    "perc.ui.explorer@Select two revisions to compare",
+  REVISIONS_COMPARE_LOADING: "perc.ui.explorer@Comparing revisions…",
+  REVISIONS_COMPARE_ERROR: "perc.ui.explorer@Could not compare those revisions",
+  REVISIONS_COMPARE_NOT_FOUND:
+    "perc.ui.explorer@That revision was not found (HTTP 404)",
+  REVISIONS_COMPARE_FORBIDDEN:
+    "perc.ui.explorer@You are not allowed to compare this item (HTTP 403)",
+  REVISIONS_COMPARE_EMPTY:
+    "perc.ui.explorer@No field differences are recorded for these revisions",
+  REVISIONS_COMPARE_COL_FIELD: "perc.ui.explorer@Field",
+  REVISIONS_COMPARE_COL_LEFT: "perc.ui.explorer@Revision A",
+  REVISIONS_COMPARE_COL_RIGHT: "perc.ui.explorer@Revision B",
+  REVISIONS_COMPARE_CHANGED: "perc.ui.explorer@Changed",
+  REVISIONS_COMPARE_SAME: "perc.ui.explorer@Same",
   CONFIRM_RESTORE_REVISION:
     "perc.ui.explorer@Restore this prior revision as the current revision?",
   CONFIRM_FLUSH_CACHE:
