@@ -564,4 +564,137 @@ test.describe("modern React Content Explorer — action dispatch", () => {
       );
     },
   );
+
+  test(
+    "Publishing History shows rows or empty; HTTP 404 and 403 are errors",
+    { tag: ["@explorer-action-dispatch", "@explorer", "@explorer-publishing-history"] },
+    async ({ page }) => {
+      test.setTimeout(90_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => {
+        pageErrors.push(String(err));
+      });
+      await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "percPage",
+                  category: "page",
+                  accessLevel: "WRITE",
+                  leaf: true,
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+          }),
+        });
+      });
+      await page.route("**/itemmanagement/item/pubhistory/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ItemPublishingHistory: [
+              {
+                server: "prod",
+                location: "/index.html",
+                revisionId: 3,
+                publishedDate: Date.now(),
+                operation: "publish",
+                status: "SUCCESS",
+                contentId: 42,
+              },
+            ],
+          }),
+        });
+      });
+
+      await page.goto(explorerSpaUrl(BASE_URL));
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator('[data-testid="content-explorer-shell"]')).toBeVisible({
+        timeout: 20_000,
+      });
+
+      await expect(
+        page.locator('[data-testid="action-toolbar-item-Publishing_History"]'),
+      ).toHaveCount(0);
+
+      const itemRow = page.locator(
+        '[data-testid="detail-row-42"][data-row-kind="item"]',
+      );
+      await expect(itemRow).toBeVisible({ timeout: 20_000 });
+      await itemRow.click();
+      await expect(
+        page.locator(
+          '[data-testid="content-explorer-shell"][data-selected-item-id="42"]',
+        ),
+      ).toBeVisible({ timeout: 10_000 });
+
+      const history = page.locator(
+        '[data-testid="action-toolbar-item-Publishing_History"]',
+      );
+      await expect(history).toBeVisible({ timeout: 15_000 });
+      await history.click();
+      await expect(
+        page.locator('[data-testid="explorer-publishing-history-dialog"]'),
+      ).toBeVisible({ timeout: 10_000 });
+      await expect(page.locator('[data-testid="item-history-table"]')).toBeVisible({
+        timeout: 10_000,
+      });
+      await expect(page.locator('[data-testid="item-history-row"]')).toContainText(
+        "prod",
+      );
+
+      await page.unroute("**/itemmanagement/item/pubhistory/**");
+      await page.route("**/itemmanagement/item/pubhistory/**", async (route) => {
+        await route.fulfill({
+          status: 404,
+          contentType: "application/json",
+          body: JSON.stringify({ message: "unknown item" }),
+        });
+      });
+      await page.locator('[data-testid="item-history-id"]').fill("99");
+      await page.locator('[data-testid="item-history-lookup"]').click();
+      await expect(page.locator('[data-testid="item-history-error"]')).toBeVisible({
+        timeout: 10_000,
+      });
+      await expect(page.locator('[data-testid="item-history-error"]')).toContainText(
+        /unknown item|HTTP 404/i,
+      );
+      await expect(page.locator('[data-testid="item-history-empty"]')).toHaveCount(0);
+
+      await page.unroute("**/itemmanagement/item/pubhistory/**");
+      await page.route("**/itemmanagement/item/pubhistory/**", async (route) => {
+        await route.fulfill({
+          status: 403,
+          contentType: "application/json",
+          body: JSON.stringify({ message: "forbidden" }),
+        });
+      });
+      await page.locator('[data-testid="item-history-id"]').fill("7");
+      await page.locator('[data-testid="item-history-lookup"]').click();
+      await expect(page.locator('[data-testid="item-history-error"]')).toBeVisible({
+        timeout: 10_000,
+      });
+      await expect(page.locator('[data-testid="item-history-error"]')).toContainText(
+        /forbidden|HTTP 403/i,
+      );
+      await expect(page.locator('[data-testid="item-history-empty"]')).toHaveCount(0);
+
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="explorer-publishing-history-dialog"]',
+      });
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
+    },
+  );
 });

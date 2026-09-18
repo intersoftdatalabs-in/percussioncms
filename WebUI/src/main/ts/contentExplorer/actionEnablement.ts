@@ -26,9 +26,10 @@
  * {@link MenuAction} trees after mapping from wire {@code ActionMenu}
  * DTOs. Toolbar / context-menu filtering also injects Explorer
  * <strong>Take Down</strong>, <strong>Stage</strong>,
- * <strong>Remove from Staging</strong>, and <strong>Schedule</strong>
- * when a page or asset is selected (CX catalogs expose Publish Now;
- * Finder publishing dropdown is not a CX action).</p>
+ * <strong>Remove from Staging</strong>, <strong>Schedule</strong>, and
+ * <strong>Publishing History</strong> when a page or asset is selected
+ * (CX catalogs expose Publish Now; Finder publishing dropdown is not a
+ * CX action).</p>
  *
  * <p>Rules (FR-011: hide unauthorized / non-applicable):</p>
  * <ul>
@@ -48,6 +49,7 @@ import { parseExplorerContentId } from "../api/contentExplorer/pathItemId";
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
 import { classifyUrl } from "../util/safeNavigate";
 import {
+  isPublishingHistoryActionName,
   isRemoveFromStagingActionName,
   isStageActionName,
   isTakedownActionName,
@@ -69,8 +71,9 @@ export interface ActionEnablementContext {
    * Currently selected detail-list item, or {@code null} when only a folder
    * is active. Toolbar and context-menu Publish Now are hidden until a
    * page/asset is selected so a Sites-folder click cannot claim published
-   * (#3467). Take Down, Stage, Remove from Staging, and Schedule follow
-   * the same kind rules (#4533 / #4546 / #4547).
+   * (#3467). Take Down, Stage, Remove from Staging, Schedule, and
+   * Publishing History follow the same kind rules (#4533 / #4546 /
+   * #4547 / #4559).
    */
   selectionItem?: PSPathItem | null;
   /**
@@ -309,6 +312,19 @@ export function isToolbarScheduleHidden(
   return resolvePublishKind(selectionItem ?? null) === "none";
 }
 
+/**
+ * Publishing History is item-scoped like Publish Now.
+ */
+export function isToolbarPublishingHistoryHidden(
+  action: MenuAction,
+  selectionItem: PSPathItem | null | undefined,
+): boolean {
+  if (!isPublishingHistoryActionName(action.name)) {
+    return false;
+  }
+  return resolvePublishKind(selectionItem ?? null) === "none";
+}
+
 /** Injected when CX catalog has no Take Down leaf for a page/asset. */
 export const EXPLORER_TAKEDOWN_ACTION: MenuAction = {
   name: "Take_Down",
@@ -338,6 +354,14 @@ export const EXPLORER_SCHEDULE_ACTION: MenuAction = {
   name: "Schedule",
   label: "Schedule",
   sortRank: 10_030,
+  menuType: "MENUITEM",
+};
+
+/** Injected when CX catalog has no Publishing History leaf. */
+export const EXPLORER_PUBLISHING_HISTORY_ACTION: MenuAction = {
+  name: "Publishing_History",
+  label: "Publishing History",
+  sortRank: 10_040,
   menuType: "MENUITEM",
 };
 
@@ -421,6 +445,22 @@ export function withExplorerScheduleAction(
     selectionItem,
     isScheduleActionName,
     EXPLORER_SCHEDULE_ACTION,
+  );
+}
+
+/**
+ * CX catalogs omit Finder Publishing History. Inject when the selection
+ * is a page or asset.
+ */
+export function withExplorerPublishingHistoryAction(
+  actions: MenuAction[],
+  selectionItem: PSPathItem | null | undefined,
+): MenuAction[] {
+  return injectPublishItemAction(
+    actions,
+    selectionItem,
+    isPublishingHistoryActionName,
+    EXPLORER_PUBLISHING_HISTORY_ACTION,
   );
 }
 
@@ -528,6 +568,9 @@ export function filterEnabledMenuActions(
     if (isToolbarScheduleHidden(action, ctx.selectionItem)) {
       continue;
     }
+    if (isToolbarPublishingHistoryHidden(action, ctx.selectionItem)) {
+      continue;
+    }
     if (isToolbarEditorActionHidden(action, ctx.selectionItem)) {
       continue;
     }
@@ -545,14 +588,17 @@ export function filterToolbarActions(
   selectionItem?: PSPathItem | null,
 ): MenuAction[] {
   return prepareToolbarActions(
-    withExplorerScheduleAction(
-      withExplorerStagingActions(
-        withExplorerTakedownAction(
-          filterEnabledMenuActions(actions, {
-            surface: "toolbar",
-            baseHref,
+    withExplorerPublishingHistoryAction(
+      withExplorerScheduleAction(
+        withExplorerStagingActions(
+          withExplorerTakedownAction(
+            filterEnabledMenuActions(actions, {
+              surface: "toolbar",
+              baseHref,
+              selectionItem,
+            }),
             selectionItem,
-          }),
+          ),
           selectionItem,
         ),
         selectionItem,
@@ -573,14 +619,17 @@ export function filterContextMenuActions(
   selectionItem?: PSPathItem | null,
 ): MenuAction[] {
   return prepareMenuActionTree(
-    withExplorerScheduleAction(
-      withExplorerStagingActions(
-        withExplorerTakedownAction(
-          filterEnabledMenuActions(actions, {
-            surface: "contextmenu",
-            baseHref,
+    withExplorerPublishingHistoryAction(
+      withExplorerScheduleAction(
+        withExplorerStagingActions(
+          withExplorerTakedownAction(
+            filterEnabledMenuActions(actions, {
+              surface: "contextmenu",
+              baseHref,
+              selectionItem,
+            }),
             selectionItem,
-          }),
+          ),
           selectionItem,
         ),
         selectionItem,

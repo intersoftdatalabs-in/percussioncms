@@ -30,6 +30,7 @@ import {
   isToolbarTakedownHidden,
   isToolbarStageHidden,
   isToolbarScheduleHidden,
+  isToolbarPublishingHistoryHidden,
   isToolbarEditorActionHidden,
   isClientHandledAction,
   isDesktopOnlyActionUrl,
@@ -227,6 +228,7 @@ describe("filterEnabledMenuActions", () => {
       "Stage",
       "Remove_from_Staging",
       "Schedule",
+      "Publishing_History",
     ]);
     expect(withPage[0]?.children?.map((c) => c.name)).toEqual([
       "View_Properties",
@@ -326,6 +328,7 @@ describe("filterEnabledMenuActions", () => {
       "Stage",
       "Remove_from_Staging",
       "Schedule",
+      "Publishing_History",
     ]);
     expect(
       isToolbarPublishNowHidden(leaf({ name: "Publish_Now" }), null),
@@ -363,6 +366,7 @@ describe("filterEnabledMenuActions", () => {
       "Stage",
       "Remove_from_Staging",
       "Schedule",
+      "Publishing_History",
     ]);
   });
 
@@ -398,6 +402,7 @@ describe("filterEnabledMenuActions", () => {
       "Stage",
       "Remove_from_Staging",
       "Schedule",
+      "Publishing_History",
     ]);
     expect(
       isToolbarTakedownHidden(leaf({ name: "Take_Down" }), null),
@@ -431,7 +436,13 @@ describe("filterEnabledMenuActions", () => {
     };
     expect(
       filterToolbarActions(actions, BASE, page).map((a) => a.name),
-    ).toEqual(["Take_Down", "Stage", "Remove_from_Staging", "Schedule"]);
+    ).toEqual([
+      "Take_Down",
+      "Stage",
+      "Remove_from_Staging",
+      "Schedule",
+      "Publishing_History",
+    ]);
   });
 
   it("injects Stage and Remove from Staging for a page and hides them for folders (#4546)", () => {
@@ -466,6 +477,7 @@ describe("filterEnabledMenuActions", () => {
       "Stage",
       "Remove_from_Staging",
       "Schedule",
+      "Publishing_History",
     ]);
     expect(isToolbarStageHidden(leaf({ name: "Stage" }), null)).toBe(true);
     expect(
@@ -503,7 +515,13 @@ describe("filterEnabledMenuActions", () => {
     };
     expect(
       filterToolbarActions(actions, BASE, page).map((a) => a.name),
-    ).toEqual(["Stage", "Remove_from_Staging", "Take_Down", "Schedule"]);
+    ).toEqual([
+      "Stage",
+      "Remove_from_Staging",
+      "Take_Down",
+      "Schedule",
+      "Publishing_History",
+    ]);
   });
 
   it("injects Schedule for a page and hides it for folders (#4547)", () => {
@@ -538,6 +556,7 @@ describe("filterEnabledMenuActions", () => {
       "Stage",
       "Remove_from_Staging",
       "Schedule",
+      "Publishing_History",
     ]);
     expect(isToolbarScheduleHidden(leaf({ name: "Schedule" }), null)).toBe(
       true,
@@ -568,7 +587,77 @@ describe("filterEnabledMenuActions", () => {
     };
     expect(
       filterToolbarActions(actions, BASE, page).map((a) => a.name),
-    ).toEqual(["Schedule", "Take_Down", "Stage", "Remove_from_Staging"]);
+    ).toEqual([
+      "Schedule",
+      "Take_Down",
+      "Stage",
+      "Remove_from_Staging",
+      "Publishing_History",
+    ]);
+  });
+
+  it("injects Publishing History for a page and hides it for folders (#4559)", () => {
+    const actions: MenuAction[] = [
+      leaf({ name: "open" }),
+      leaf({ name: "Publish_Now", label: "Publish Now" }),
+    ];
+    expect(
+      filterToolbarActions(actions, BASE, null).map((a) => a.name),
+    ).toEqual(["open"]);
+    const page = {
+      id: "42",
+      name: "Home",
+      path: "/Sites/Demo/Home",
+      type: "percPage",
+      category: "page",
+      leaf: true,
+    };
+    expect(filterToolbarActions(actions, BASE, page).map((a) => a.name)).toEqual(
+      [
+        "open",
+        "Publish_Now",
+        "Take_Down",
+        "Stage",
+        "Remove_from_Staging",
+        "Schedule",
+        "Publishing_History",
+      ],
+    );
+    expect(
+      isToolbarPublishingHistoryHidden(
+        leaf({ name: "Publishing_History" }),
+        null,
+      ),
+    ).toBe(true);
+    expect(
+      isToolbarPublishingHistoryHidden(
+        leaf({ name: "Publishing_History" }),
+        page,
+      ),
+    ).toBe(false);
+  });
+
+  it("does not duplicate Publishing History when the catalog already has it", () => {
+    const actions: MenuAction[] = [
+      leaf({ name: "Publishing_History", label: "Publishing History" }),
+    ];
+    const page = {
+      id: "42",
+      name: "Home",
+      path: "/Sites/Demo/Home",
+      type: "percPage",
+      category: "page",
+      leaf: true,
+    };
+    expect(
+      filterToolbarActions(actions, BASE, page).map((a) => a.name),
+    ).toEqual([
+      "Publishing_History",
+      "Take_Down",
+      "Stage",
+      "Remove_from_Staging",
+      "Schedule",
+    ]);
   });
 
   it("unwraps envelope children and collapses dumped descendants on the context menu (#3629)", () => {
@@ -612,6 +701,7 @@ describe("filterEnabledMenuActions", () => {
       "Stage",
       "Remove_from_Staging",
       "Schedule",
+      "Publishing_History",
     ]);
     expect(filtered[0]?.children?.map((c) => c.name)).toEqual([
       "View_Properties",
@@ -659,6 +749,7 @@ describe("filterEnabledMenuActions", () => {
       "Stage",
       "Remove_from_Staging",
       "Schedule",
+      "Publishing_History",
     ]);
     expect(isToolbarEditorActionHidden(leaf({ name: "Edit" }), null)).toBe(true);
     expect(

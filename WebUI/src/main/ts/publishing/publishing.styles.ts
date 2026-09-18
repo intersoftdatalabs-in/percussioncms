@@ -111,8 +111,8 @@ export const buttonStyle: CSSProperties = {
 
 export const primaryButtonStyle: CSSProperties = {
   ...buttonStyle,
-  background: "#0b6",
-  borderColor: "#0a5",
+  background: "#146c43",
+  borderColor: "#0f5132",
   color: "#fff",
   fontWeight: 600,
 };

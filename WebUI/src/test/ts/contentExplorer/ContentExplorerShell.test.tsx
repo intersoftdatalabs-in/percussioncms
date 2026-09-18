@@ -531,6 +531,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(
       screen.queryByTestId("action-toolbar-item-Schedule"),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("action-toolbar-item-Publishing_History"),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId("content-explorer-shell")).toHaveAttribute(
       "data-selected-item-id",
       "",
@@ -556,6 +559,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       ).toBeInTheDocument();
       expect(
         screen.getByTestId("action-toolbar-item-Schedule"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("action-toolbar-item-Publishing_History"),
       ).toBeInTheDocument();
     });
   });
@@ -933,6 +939,79 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       return url.includes("paginatedFolder") || url.includes("/folder/");
     }).length;
     expect(folderLoadsAfter).toBe(folderLoadsBefore);
+    await renderA11yGate(container);
+  });
+
+  it("Publishing History opens the panel; HTTP 404 is an error not success (#4559)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("item/pubhistory/")) {
+        return new Response(JSON.stringify({ message: "unknown item" }), {
+          status: 404,
+          statusText: "Not Found",
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "page",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        loadWorkflowMenuActions={async () => null}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-42"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("action-toolbar-item-Publishing_History"),
+      ).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("action-toolbar-item-Publishing_History"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-publishing-history-dialog"),
+      ).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("item-history-error")).toHaveTextContent(
+        /unknown item|HTTP 404/i,
+      );
+    });
+    expect(screen.queryByTestId("item-history-empty")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("explorer-server-actions-error"),
+    ).not.toBeInTheDocument();
     await renderA11yGate(container);
   });
 

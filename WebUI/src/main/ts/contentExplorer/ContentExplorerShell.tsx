@@ -121,6 +121,7 @@ import { ContextMenu } from "./ContextMenu";
 import { clampContextMenuPosition } from "./contextMenuPosition";
 import { TemplatePickerDialog } from "./TemplatePickerDialog";
 import { ContentTypePickerDialog } from "./ContentTypePickerDialog";
+import { PublishingHistoryDialog } from "./PublishingHistoryDialog";
 import { ScheduleDatesDialog } from "./ScheduleDatesDialog";
 import type { ItemScheduleDates } from "./itemScheduleDates";
 import {
@@ -586,6 +587,8 @@ function ContentExplorerShellInner({
   const [schedulePicker, setSchedulePicker] =
     useState<SchedulePickerSession | null>(null);
   const schedulePickerRef = useRef<SchedulePickerSession | null>(null);
+  const [publishingHistoryItem, setPublishingHistoryItem] =
+    useState<PSPathItem | null>(null);
   /**
    * Monotonic generation for context-menu loads. Rapid right-clicks on
    * different rows race two async IIFEs; only the latest generation may
@@ -1167,6 +1170,9 @@ function ContentExplorerShellInner({
             onShowRevisions: (tab) => {
               setRevisionsTab(tab);
               setShowRevisions(true);
+            },
+            onShowPublishingHistory: (item) => {
+              setPublishingHistoryItem(item);
             },
             pickPageTemplate,
             pickContentType,
@@ -2028,6 +2034,12 @@ function ContentExplorerShellInner({
           current={schedulePicker.current}
           onSave={(dates) => finishSchedulePicker(dates)}
           onCancel={() => finishSchedulePicker(null)}
+        />
+      ) : null}
+      {publishingHistoryItem ? (
+        <PublishingHistoryDialog
+          itemId={String(publishingHistoryItem.id ?? "").trim()}
+          onClose={() => setPublishingHistoryItem(null)}
         />
       ) : null}
       {slotPickerOpen ? (

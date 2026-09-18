@@ -35,6 +35,7 @@ import { del } from "../api/client";
 import { PATHS } from "../api/paths";
 import {
   formatTakedownConfirmBody,
+  isPublishingHistoryActionName,
   isRemoveFromStagingActionName,
   isStageActionName,
   isTakedownActionName,
@@ -147,6 +148,10 @@ const P1_PANEL_NAMES = new Set([
   "item_viewdependents",
   "workflow_revisions",
   "workflow_audittrail",
+  "publishing_history",
+  "item_publishing_history",
+  "pubhistory",
+  "publish_history",
 ]);
 
 const P1_REST_NAMES = new Set([
@@ -192,6 +197,7 @@ export interface ActionDispatchContext {
   onShowTranslations?: () => void;
   onShowDependencies?: () => void;
   onShowRevisions?: (tab: "revisions" | "audit") => void;
+  onShowPublishingHistory?: (item: PSPathItem) => void;
   flushCache?: () => Promise<void>;
   resetNav?: () => Promise<void>;
   createCopy?: (itemId: string) => Promise<void>;
@@ -653,6 +659,17 @@ export async function dispatchAction(
     if (!item || isFolder(item) || parseExplorerContentId(item.id) == null) {
       return { kind: "client", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
+    return { kind: "client" };
+  }
+
+  if (isPublishingHistoryActionName(name)) {
+    if (!item || isFolder(item)) {
+      return { kind: "client", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    if (resolvePublishKind(item) === "none") {
+      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    ctx.onShowPublishingHistory?.(item);
     return { kind: "client" };
   }
 

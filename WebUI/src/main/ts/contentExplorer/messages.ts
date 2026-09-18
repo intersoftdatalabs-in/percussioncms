@@ -384,6 +384,7 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Remove this item from staging?",
   CONFIRM_SCHEDULE:
     "perc.ui.explorer@Save schedule publish dates for this item?",
+  PUBLISHING_HISTORY_TITLE: "perc.ui.explorer@Publishing History",
   SCHEDULE_TITLE: "perc.ui.explorer@Schedule",
   SCHEDULE_PUBLISH_DATE: "perc.ui.explorer@Publish date",
   SCHEDULE_REMOVAL_DATE: "perc.ui.explorer@Removal date",
