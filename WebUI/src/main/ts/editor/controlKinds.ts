@@ -25,7 +25,9 @@ export type EditorWidgetKind =
   | "file"
   | "image"
   | "keyword"
-  | "community";
+  | "community"
+  | "date"
+  | "datetime";
 
 export interface EditorFieldRow extends ItemEditorField {
   label: string;
@@ -95,6 +97,21 @@ export function classifyEditorControl(
     return "file";
   }
   if (
+    control.includes("datetime") ||
+    dataType === "datetime" ||
+    dataType.includes("timestamp")
+  ) {
+    return "datetime";
+  }
+  if (
+    control.includes("calendar") ||
+    control.includes("sys_date") ||
+    (control.includes("date") && !control.includes("update")) ||
+    dataType === "date"
+  ) {
+    return "date";
+  }
+  if (
     control.includes("tinymce") ||
     control.includes("editlive") ||
     control.includes("html") ||
@@ -118,7 +135,9 @@ export function isSchemaInjectedKind(kind: EditorWidgetKind): boolean {
     kind === "image" ||
     kind === "community" ||
     kind === "keyword" ||
-    kind === "html"
+    kind === "html" ||
+    kind === "date" ||
+    kind === "datetime"
   );
 }
 

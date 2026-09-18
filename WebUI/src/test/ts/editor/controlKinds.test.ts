@@ -37,6 +37,12 @@ describe("classifyEditorControl", () => {
       "community",
     );
     expect(classifyEditorControl({ control: "sys_EditBox" }, "sys_title")).toBe("text");
+    expect(classifyEditorControl({ control: "sys_CalendarSimple" }, "sys_contentstartdate")).toBe(
+      "date",
+    );
+    expect(
+      classifyEditorControl({ control: "sys_CalendarSimple", dataType: "datetime" }, "event_at"),
+    ).toBe("datetime");
     expect(classifyEditorControl({ control: "sys_TextArea" }, "description")).toBe(
       "longtext",
     );

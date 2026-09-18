@@ -17,6 +17,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  collectInvalidDateFieldErrors,
   collectRequiredFieldErrors,
   isEmptyEditorFieldValue,
   mapSaveApiErrorToFieldErrors,
@@ -47,6 +48,26 @@ describe("collectRequiredFieldErrors", () => {
       "This field is required.",
     );
     expect(errors).toEqual({ sys_title: "This field is required." });
+  });
+});
+
+describe("collectInvalidDateFieldErrors", () => {
+  it("flags unparseable date values and skips empty optional dates", () => {
+    const errors = collectInvalidDateFieldErrors(
+      [
+        { name: "sys_contentstartdate", kind: "date", required: false, value: "not-a-date" },
+        { name: "event_at", kind: "datetime", required: false, value: "2026-13-40 99:99" },
+        { name: "ok", kind: "date", required: false, value: "2026-09-18" },
+        { name: "empty", kind: "date", required: false, value: "" },
+        { name: "title", kind: "text", required: false, value: "x" },
+      ],
+      "Enter a valid date.",
+    );
+    expect(errors.sys_contentstartdate).toBe("Enter a valid date.");
+    expect(errors.event_at).toBe("Enter a valid date.");
+    expect(errors.ok).toBeUndefined();
+    expect(errors.empty).toBeUndefined();
+    expect(errors.title).toBeUndefined();
   });
 });
 

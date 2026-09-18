@@ -26,6 +26,7 @@ import {
   isSessionRedirectError,
 } from "../api/client";
 import type { EditorWidgetKind } from "./controlKinds";
+import { isInvalidEditorDate, type EditorDateKind } from "./dateField";
 
 export interface EditorRequiredRow {
   name: string;
@@ -83,6 +84,26 @@ export function collectRequiredFieldErrors(
     }
     if (isEmptyEditorFieldValue(row.kind, row.value, pendingFiles[row.name])) {
       out[row.name] = requiredMessage;
+    }
+  }
+  return out;
+}
+
+function isDateKind(kind: EditorWidgetKind): kind is EditorDateKind {
+  return kind === "date" || kind === "datetime";
+}
+
+export function collectInvalidDateFieldErrors(
+  rows: readonly EditorRequiredRow[],
+  invalidMessage: string,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const row of rows) {
+    if (!isDateKind(row.kind)) {
+      continue;
+    }
+    if (isInvalidEditorDate(row.kind, row.value)) {
+      out[row.name] = invalidMessage;
     }
   }
   return out;

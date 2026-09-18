@@ -396,6 +396,122 @@ describe("EditorHost rich controls", () => {
   });
 });
 
+describe("EditorHost date calendar fields (#4569)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  it("renders a date widget, persists yyyy-MM-dd, and maps 400 onto the field", async () => {
+    const checkout = vi.fn().mockResolvedValue(undefined);
+    const loadFields = vi.fn().mockResolvedValue({
+      contentId: "42",
+      contentType: "percEvent",
+      name: "Event",
+      checkoutUser: "admin",
+      fields: [
+        { name: "sys_title", value: "Event" },
+        { name: "sys_contentstartdate", value: "2026-01-01" },
+      ],
+    });
+    const saveFields = vi.fn().mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: {
+        Error: {
+          message: "sys_contentstartdate is not a valid date",
+          errorData: "sys_contentstartdate",
+        },
+      },
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                loadFields={loadFields}
+                saveFields={saveFields}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox" },
+                    {
+                      name: "sys_contentstartdate",
+                      label: "Start",
+                      control: "sys_CalendarSimple",
+                    },
+                  ],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    const input = screen.getByTestId("editor-field-sys_contentstartdate") as HTMLInputElement;
+    expect(input.getAttribute("data-editor-kind")).toBe("date");
+    expect(input.type).toBe("date");
+    fireEvent.change(input, { target: { value: "2026-09-18" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "sys_contentstartdate")?.value).toBe(
+      "2026-09-18",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-sys_contentstartdate")).toBeTruthy();
+    });
+  });
+
+  it("keeps date widgets read-only in view mode", async () => {
+    const checkout = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percEvent",
+                  name: "Event",
+                  checkoutUser: "",
+                  fields: [{ name: "sys_contentstartdate", value: "2026-09-18" }],
+                })}
+                loadType={async () => ({
+                  fields: [
+                    {
+                      name: "sys_contentstartdate",
+                      label: "Start",
+                      control: "sys_CalendarSimple",
+                    },
+                  ],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    const input = screen.getByTestId("editor-field-sys_contentstartdate") as HTMLInputElement;
+    expect(input.readOnly || input.disabled).toBe(true);
+    expect(checkout).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-save")).toBeNull();
+  });
+});
+
 describe("EditorHost workflow transitions (#4539)", () => {
   afterEach(() => {
     cleanup();
