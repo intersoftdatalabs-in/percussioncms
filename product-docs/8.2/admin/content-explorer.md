@@ -228,6 +228,15 @@ unchanged and does not open a window. HTTP **403** (forbidden) and **404**
 as opened. **Promote** does not show Preview. Does not open leftover Content
 Editor HTML or an Active Assembly overlay.
 
+In **Edit** mode the host also shows **New copy** and **Promotable version** for the
+already-open item (same REST as Explorer **New Copy** / **Promotable Version**).
+Confirm, then `POST /services/itemmanagement/item/newCopy/{id}` or
+`…/promotableVersion/{id}`. After a successful `ItemCopyResult` the host opens the
+new `itemId` in this editor (edit mode). HTTP **403** (forbidden) and **404**
+(unknown id) are errors on the host — they are not treated as success and do not
+change the open item. Cancel confirm does not POST. **View** and **Promote** do
+not show these actions.
+
 The host does not request leftover Content Editor HTML (`checkoutedit.xml`,
 `contenteditorurls.html`, `?view=editor`).
 

@@ -1159,3 +1159,214 @@ describe("EditorHost preview assembled item (#4568)", () => {
     });
   });
 });
+
+describe("EditorHost new copy / promotable version (#4570)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function titleType() {
+    return {
+      fields: [{ name: "sys_title", label: "Title", readOnly: false }],
+    };
+  }
+
+  it("lands on the new item id after new copy", async () => {
+    const copyItem = vi.fn().mockResolvedValue({
+      itemId: "99",
+      folderPath: "//Sites/Demo",
+      promotable: false,
+    });
+    const copyPromotable = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                copyItem={copyItem}
+                copyPromotable={copyPromotable}
+                confirmCopy={() => true}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-new-copy")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-new-copy"));
+    await waitFor(() => {
+      expect(copyItem).toHaveBeenCalledWith("42");
+    });
+    expect(copyPromotable).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-content-id").textContent).toMatch(/99/);
+    });
+  });
+
+  it("lands on the promotable version id", async () => {
+    const copyPromotable = vi.fn().mockResolvedValue({
+      itemId: "1-101-77",
+      folderPath: "//Sites/Demo",
+      promotable: true,
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                copyPromotable={copyPromotable}
+                confirmCopy={() => true}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-promotable-version")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-promotable-version"));
+    await waitFor(() => {
+      expect(copyPromotable).toHaveBeenCalledWith("42");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-content-id").textContent).toMatch(/77/);
+    });
+  });
+
+  it("does not copy when confirm is cancelled", async () => {
+    const copyItem = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                copyItem={copyItem}
+                confirmCopy={() => false}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-new-copy")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-new-copy"));
+    await waitFor(() => {
+      expect(copyItem).not.toHaveBeenCalled();
+    });
+  });
+
+  it("surfaces HTTP 403 as forbidden, not success", async () => {
+    const copyItem = vi.fn().mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: {},
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                copyItem={copyItem}
+                confirmCopy={() => true}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-new-copy")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-new-copy"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-copy-error").textContent).toMatch(
+        /not allowed to copy/i,
+      );
+    });
+    expect(screen.getByTestId("editor-content-id").textContent).toMatch(/42/);
+  });
+
+  it("surfaces HTTP 404 as not found, not success", async () => {
+    const copyItem = vi.fn().mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: {},
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                copyItem={copyItem}
+                confirmCopy={() => true}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-new-copy")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-new-copy"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-copy-error").textContent).toMatch(/not found/i);
+    });
+    expect(screen.getByTestId("editor-content-id").textContent).toMatch(/42/);
+  });
+
+  it("hides copy actions in view mode", async () => {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-new-copy")).toBeNull();
+    expect(screen.queryByTestId("editor-promotable-version")).toBeNull();
+  });
+});

@@ -30,6 +30,11 @@ import type {
 } from "../api/developer/types";
 import type { ItemEditorBinaryMeta } from "./itemBinaryApi";
 import {
+  createNewCopy,
+  createPromotableVersion,
+  type ItemCopyResult,
+} from "../api/contentExplorer/itemCopyApi";
+import {
   getItemWorkflowTransitions,
   transitionItem,
   type ItemStateTransition,
@@ -44,6 +49,12 @@ import {
   mapSaveApiErrorToFieldErrors,
 } from "./editorFieldErrors";
 import { DateFieldWidget } from "./widgets/DateFieldWidget";
+import {
+  canCopyFromEditor,
+  editorCopyErrorReason,
+  parseCopyLandingContentId,
+  type EditorCopyKind,
+} from "./editorCopy";
 import {
   canPreviewFromEditor,
   editorDraftIsDirty,
@@ -123,6 +134,12 @@ export interface EditorHostProps {
   previewItem?: (itemId: string, kind: EditorPublishKind) => Promise<void>;
   /** Test seam: confirm unsaved preview (defaults to {@code window.confirm}). */
   confirmUnsavedPreview?: (body: string) => boolean;
+  /** Test seam: itemmanagement {@code newCopy}. */
+  copyItem?: (itemId: string) => Promise<ItemCopyResult>;
+  /** Test seam: itemmanagement {@code promotableVersion}. */
+  copyPromotable?: (itemId: string) => Promise<ItemCopyResult>;
+  /** Test seam: confirm new copy / promotable (defaults to {@code window.confirm}). */
+  confirmCopy?: (body: string) => boolean;
 }
 
 function badgeKey(mode: EditorHostMode): string {
@@ -270,8 +287,11 @@ export function EditorHost({
   confirmPublish,
   previewItem = previewEditorItem,
   confirmUnsavedPreview,
+  copyItem = createNewCopy,
+  copyPromotable = createPromotableVersion,
+  confirmCopy,
 }: EditorHostProps = {}): React.ReactElement {
-  const [params] = useSearchParams();
+  const [params, setSearchParams] = useSearchParams();
   const contentId = parsePositiveInt(params.get("contentId"));
   const mode: EditorHostMode = normalizeEditorMode(params.get("mode"));
   const linkbackWarning = (params.get("warningMessage") ?? "").trim();
@@ -310,6 +330,9 @@ export function EditorHost({
   const [previewDone, setPreviewDone] = useState(false);
   const [previewErrorKey, setPreviewErrorKey] = useState<string | null>(null);
   const [previewErrorDetail, setPreviewErrorDetail] = useState("");
+  const [copyBusy, setCopyBusy] = useState(false);
+  const [copyErrorKey, setCopyErrorKey] = useState<string | null>(null);
+  const [copyErrorDetail, setCopyErrorDetail] = useState("");
 
   useEffect(() => {
     document.title = message(EDITOR_MSG.TITLE);
@@ -651,6 +674,67 @@ export function EditorHost({
     }
   }
 
+  function copyErrorKeyFor(reason: ReturnType<typeof editorCopyErrorReason>): string {
+    if (reason === "forbidden") {
+      return EDITOR_MSG.COPY_FORBIDDEN;
+    }
+    if (reason === "not_found") {
+      return EDITOR_MSG.COPY_NOT_FOUND;
+    }
+    return EDITOR_MSG.COPY_FAILED;
+  }
+
+  async function handleCopy(kind: EditorCopyKind): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    if (!canCopyFromEditor(mode)) {
+      setCopyErrorDetail("");
+      setCopyErrorKey(EDITOR_MSG.COPY_UNAVAILABLE);
+      return;
+    }
+    const confirmFn =
+      confirmCopy ??
+      ((body: string) =>
+        typeof window !== "undefined" ? window.confirm(body) : false);
+    const confirmKey =
+      kind === "promotable"
+        ? EDITOR_MSG.CONFIRM_PROMOTABLE
+        : EDITOR_MSG.CONFIRM_NEW_COPY;
+    if (!confirmFn(message(confirmKey))) {
+      return;
+    }
+    setCopyBusy(true);
+    setCopyErrorKey(null);
+    setCopyErrorDetail("");
+    const itemId = String(contentId);
+    try {
+      const result =
+        kind === "promotable"
+          ? await copyPromotable(itemId)
+          : await copyItem(itemId);
+      const nextId = parseCopyLandingContentId(result.itemId);
+      if (nextId == null) {
+        setCopyErrorKey(EDITOR_MSG.COPY_FAILED);
+        setCopyErrorDetail("Copy result was missing item id");
+        return;
+      }
+      const next = new URLSearchParams(params);
+      next.set("contentId", String(nextId));
+      next.set("mode", "edit");
+      setSearchParams(next);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      const reason = editorCopyErrorReason(err);
+      setCopyErrorKey(copyErrorKeyFor(reason));
+      setCopyErrorDetail(formatApiError(err, message(copyErrorKeyFor(reason))));
+    } finally {
+      setCopyBusy(false);
+    }
+  }
+
   async function handleCheckin(): Promise<void> {
     if (contentId == null) {
       return;
@@ -683,6 +767,7 @@ export function EditorHost({
   });
   const showPublish = canPublishFromEditor(mode, publishKind);
   const showPreview = canPreviewFromEditor(mode, publishKind);
+  const showCopy = canCopyFromEditor(mode) && contentId != null;
 
   return (
     <div className={styles.root} data-testid="editor-host">
@@ -741,6 +826,28 @@ export function EditorHost({
               onClick={() => void handlePublish()}
             >
               {message(publishBusy ? EDITOR_MSG.PUBLISHING : EDITOR_MSG.PUBLISH_NOW)}
+            </button>
+          ) : null}
+          {showCopy ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-new-copy"
+              disabled={copyBusy || loading || payload == null || saving}
+              onClick={() => void handleCopy("copy")}
+            >
+              {message(copyBusy ? EDITOR_MSG.COPYING : EDITOR_MSG.NEW_COPY)}
+            </button>
+          ) : null}
+          {showCopy ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-promotable-version"
+              disabled={copyBusy || loading || payload == null || saving}
+              onClick={() => void handleCopy("promotable")}
+            >
+              {message(EDITOR_MSG.PROMOTABLE_VERSION)}
             </button>
           ) : null}
           {canEdit ? (
@@ -820,6 +927,16 @@ export function EditorHost({
               >
                 {message(previewErrorKey)}
                 {previewErrorDetail ? ` ${previewErrorDetail}` : ""}
+              </div>
+            ) : null}
+            {copyErrorKey ? (
+              <div
+                className={styles.status}
+                role="alert"
+                data-testid="editor-copy-error"
+              >
+                {message(copyErrorKey)}
+                {copyErrorDetail ? ` ${copyErrorDetail}` : ""}
               </div>
             ) : null}
             {canEdit ? (
