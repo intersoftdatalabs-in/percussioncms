@@ -34,9 +34,16 @@ import {
   transitionItem,
   type ItemStateTransition,
 } from "../api/contentExplorer/itemWorkflowApi";
+import { formatApiError } from "../api/client";
 import { parsePositiveInt } from "../assembly/assemblyHostUrl";
 import { message } from "../i18n/message";
 import { mergeEditorRows, type EditorFieldRow } from "./controlKinds";
+import {
+  canPublishFromEditor,
+  publishEditorItem,
+  resolveEditorPublishKind,
+  type EditorPublishKind,
+} from "./editorPublish";
 import {
   canRunEditorTransition,
   uniqueTransitionTriggers,
@@ -75,7 +82,10 @@ export interface EditorHostProps {
   ) => Promise<ItemEditorFields>;
   checkout?: (itemId: string) => Promise<void>;
   checkin?: (itemId: string) => Promise<void>;
-  loadType?: (typeName: string) => Promise<{ fields?: ContentTypeFieldSummary[] }>;
+  loadType?: (typeName: string) => Promise<{
+    fields?: ContentTypeFieldSummary[];
+    allowedTemplates?: unknown[];
+  }>;
   uploadBinary?: (
     itemId: string,
     field: string,
@@ -94,6 +104,10 @@ export interface EditorHostProps {
   ) => Promise<unknown>;
   /** Extra / override names that require a comment (tests). */
   commentRequiredTriggers?: readonly string[];
+  /** Test seam: sitemanage demand-publish ({@code publish/page|resource/{id}}). */
+  publishItem?: (itemId: string, kind: EditorPublishKind) => Promise<boolean>;
+  /** Test seam: confirm before Publish now (defaults to {@code window.confirm}). */
+  confirmPublish?: (body: string) => boolean;
 }
 
 function badgeKey(mode: EditorHostMode): string {
@@ -218,6 +232,8 @@ export function EditorHost({
   loadTransitions = getItemWorkflowTransitions,
   runTransition = transitionItem,
   commentRequiredTriggers,
+  publishItem = publishEditorItem,
+  confirmPublish,
 }: EditorHostProps = {}): React.ReactElement {
   const [params] = useSearchParams();
   const contentId = parsePositiveInt(params.get("contentId"));
@@ -228,6 +244,7 @@ export function EditorHost({
 
   const [payload, setPayload] = useState<ItemEditorFields | null>(null);
   const [schema, setSchema] = useState<ContentTypeFieldSummary[]>([]);
+  const [allowedTemplateCount, setAllowedTemplateCount] = useState(0);
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [pendingFiles, setPendingFiles] = useState<Record<string, File>>({});
   const [errorKey, setErrorKey] = useState<string | null>(
@@ -246,6 +263,10 @@ export function EditorHost({
   const [workflowErrorDetail, setWorkflowErrorDetail] = useState("");
   const [workflowBusy, setWorkflowBusy] = useState(false);
   const [workflowDone, setWorkflowDone] = useState(false);
+  const [publishBusy, setPublishBusy] = useState(false);
+  const [publishDone, setPublishDone] = useState(false);
+  const [publishErrorKey, setPublishErrorKey] = useState<string | null>(null);
+  const [publishErrorDetail, setPublishErrorDetail] = useState("");
 
   useEffect(() => {
     document.title = message(EDITOR_MSG.TITLE);
@@ -280,10 +301,12 @@ export function EditorHost({
             const detail = await loadType(fields.contentType);
             if (!cancelled) {
               setSchema(detail.fields ?? []);
+              setAllowedTemplateCount(detail.allowedTemplates?.length ?? 0);
             }
           } catch {
             if (!cancelled) {
               setSchema([]);
+              setAllowedTemplateCount(0);
             }
           }
         }
@@ -446,6 +469,47 @@ export function EditorHost({
     }
   }
 
+  async function handlePublish(): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    const itemId = String(contentId);
+    const kind = resolveEditorPublishKind(payload?.contentType, {
+      id: itemId,
+      allowedTemplateCount,
+    });
+    if (!canPublishFromEditor(mode, kind)) {
+      setPublishDone(false);
+      setPublishErrorDetail("");
+      setPublishErrorKey(EDITOR_MSG.PUBLISH_UNAVAILABLE);
+      return;
+    }
+    const confirmFn =
+      confirmPublish ??
+      ((body: string) =>
+        typeof window !== "undefined" ? window.confirm(body) : false);
+    if (!confirmFn(message(EDITOR_MSG.CONFIRM_PUBLISH_NOW))) {
+      return;
+    }
+    setPublishBusy(true);
+    setPublishDone(false);
+    setPublishErrorKey(null);
+    setPublishErrorDetail("");
+    try {
+      const published = await publishItem(itemId, kind);
+      if (!published) {
+        setPublishErrorKey(EDITOR_MSG.PUBLISH_UNAVAILABLE);
+        return;
+      }
+      setPublishDone(true);
+    } catch (err) {
+      setPublishErrorDetail(formatApiError(err, message(EDITOR_MSG.PUBLISH_FAILED)));
+      setPublishErrorKey(EDITOR_MSG.PUBLISH_FAILED);
+    } finally {
+      setPublishBusy(false);
+    }
+  }
+
   async function handleCheckin(): Promise<void> {
     if (contentId == null) {
       return;
@@ -462,6 +526,11 @@ export function EditorHost({
   }
 
   const canEdit = !readOnly && !promote;
+  const publishKind = resolveEditorPublishKind(payload?.contentType, {
+    id: contentId != null ? String(contentId) : "",
+    allowedTemplateCount,
+  });
+  const showPublish = canPublishFromEditor(mode, publishKind);
 
   return (
     <div className={styles.root} data-testid="editor-host">
@@ -490,6 +559,11 @@ export function EditorHost({
               {message(EDITOR_MSG.WORKFLOW_DONE)}
             </span>
           ) : null}
+          {publishDone ? (
+            <span className={styles.meta} data-testid="editor-publish-done">
+              {message(EDITOR_MSG.PUBLISH_DONE)}
+            </span>
+          ) : null}
           {canEdit ? (
             <button
               type="button"
@@ -499,6 +573,17 @@ export function EditorHost({
               onClick={() => void handleSave()}
             >
               {message(saving ? EDITOR_MSG.SAVING : EDITOR_MSG.SAVE)}
+            </button>
+          ) : null}
+          {showPublish ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-publish-now"
+              disabled={publishBusy || loading || payload == null || saving}
+              onClick={() => void handlePublish()}
+            >
+              {message(publishBusy ? EDITOR_MSG.PUBLISHING : EDITOR_MSG.PUBLISH_NOW)}
             </button>
           ) : null}
           {canEdit ? (
@@ -539,6 +624,16 @@ export function EditorHost({
           </div>
         ) : (
           <>
+            {publishErrorKey ? (
+              <div
+                className={styles.status}
+                role="alert"
+                data-testid="editor-publish-error"
+              >
+                {message(publishErrorKey)}
+                {publishErrorDetail ? ` ${publishErrorDetail}` : ""}
+              </div>
+            ) : null}
             {canEdit ? (
               <EditorWorkflowPanel
                 stateName={workflowState}

@@ -59,4 +59,11 @@ export const EDITOR_MSG = {
     "perc.ui.editor@Enter a comment before running this transition.",
   WORKFLOW_FAILED: "perc.ui.editor@Could not run this workflow transition.",
   WORKFLOW_DONE: "perc.ui.editor@Workflow transition completed.",
+  PUBLISH_NOW: "perc.ui.editor@Publish now",
+  PUBLISHING: "perc.ui.editor@Publishing…",
+  CONFIRM_PUBLISH_NOW: "perc.ui.editor@Publish this item now?",
+  PUBLISH_DONE: "perc.ui.editor@Publish started.",
+  PUBLISH_FAILED: "perc.ui.editor@Could not publish this item.",
+  PUBLISH_UNAVAILABLE:
+    "perc.ui.editor@Publish now is only available for pages and assets.",
 };

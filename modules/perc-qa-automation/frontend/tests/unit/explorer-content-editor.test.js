@@ -212,3 +212,46 @@ describe("editor-host-workflow helpers (#4539)", () => {
     assert.match(src, /#4539/);
   });
 });
+
+const editorPublish = require("../helpers/editor-host-publish");
+
+describe("editor-host-publish helpers (#4540)", () => {
+  it("classifies page vs resource demand-publish URLs", () => {
+    assert.equal(
+      editorPublish.isPagePublishUrl(
+        "/Rhythmyx/services/sitemanage/publish/page/42",
+      ),
+      true,
+    );
+    assert.equal(
+      editorPublish.isPagePublishUrl(
+        "/Rhythmyx/services/sitemanage/publish/page/staging/42",
+      ),
+      false,
+    );
+    assert.equal(
+      editorPublish.isResourcePublishUrl(
+        "/Rhythmyx/services/sitemanage/publish/resource/99",
+      ),
+      true,
+    );
+    const parsed = editorPublish.parsePublishUrl(
+      "http://cms/Rhythmyx/services/sitemanage/publish/page/42",
+    );
+    assert.equal(parsed.kind, "page");
+    assert.equal(parsed.itemId, "42");
+  });
+
+  it("spec covers confirm, FORBIDDEN failure, and view-mode read-only", () => {
+    const specPath = path.join(
+      __dirname,
+      "..",
+      "editor-host-publish-now.spec.js",
+    );
+    const src = fs.readFileSync(specPath, "utf8");
+    assert.match(src, /FORBIDDEN/);
+    assert.match(src, /mode=view/);
+    assert.match(src, /#4540/);
+    assert.match(src, /publish\/resource/);
+  });
+});
