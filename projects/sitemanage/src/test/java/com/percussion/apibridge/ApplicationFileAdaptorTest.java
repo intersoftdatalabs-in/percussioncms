@@ -459,6 +459,28 @@ class ApplicationFileAdaptorTest {
   }
 
   @Test
+  void resolveUnderAppRoot_rejectsTraversalFileBeforeRxDirIo() {
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                ApplicationFileAdaptor.resolveUnderAppRoot(
+                    "sys_resources", new File(".." + File.separator + "escape")));
+    assertEquals(ApplicationFileAdaptor.INVALID_PATH, ex.getMessage());
+  }
+
+  @Test
+  void resolveUnderAppRoot_rejectsAbsoluteFile() {
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                ApplicationFileAdaptor.resolveUnderAppRoot(
+                    "sys_resources", new File(File.separator + "etc" + File.separator + "passwd")));
+    assertEquals(ApplicationFileAdaptor.INVALID_PATH, ex.getMessage());
+  }
+
+  @Test
   void deleteRecursively_removesTreeUnderTempDir() throws Exception {
     Path root = Files.createTempDirectory("appfile-qa");
     Path child = root.resolve("sub").resolve("f.txt");
