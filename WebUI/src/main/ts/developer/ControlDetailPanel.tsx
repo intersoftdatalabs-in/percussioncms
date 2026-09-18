@@ -79,6 +79,9 @@ function writeErrorFallback(err: unknown): string {
     if (err.status === 403) {
       return DEV_MSG.CTL_FORBIDDEN;
     }
+    if (err.status === 400) {
+      return DEV_MSG.CTL_INVALID_XSL;
+    }
   }
   return DEV_MSG.CTL_SAVE_ERROR;
 }
@@ -237,7 +240,7 @@ export function ControlDetailPanel({
   const gaps =
     detail != null && detail.designGaps && detail.designGaps.length
       ? detail.designGaps
-      : [DEV_MSG.CTL_GAP_XSL, DEV_MSG.CTL_GAP_SYS];
+      : [DEV_MSG.CTL_GAP_SYS];
 
   return (
     <div data-testid="developer-ctl-detail">
@@ -307,6 +310,20 @@ export function ControlDetailPanel({
             </dl>
           </header>
 
+          {system && (detail.xslSource || xslSource) ? (
+            <div style={fieldStyle}>
+              <label htmlFor="ctl-view-xsl">{DEV_MSG.CTL_XSL_READONLY}</label>
+              <textarea
+                id="ctl-view-xsl"
+                data-testid="developer-ctl-view-xsl"
+                style={{ ...inputStyle, fontFamily: "monospace", minHeight: "160px" }}
+                value={detail.xslSource || xslSource}
+                readOnly
+                spellCheck={false}
+              />
+            </div>
+          ) : null}
+
           {userWritable ? (
             <>
               <div style={fieldStyle}>
@@ -372,11 +389,12 @@ export function ControlDetailPanel({
                 <textarea
                   id="ctl-edit-xsl"
                   data-testid="developer-ctl-edit-xsl"
-                  style={{ ...inputStyle, fontFamily: "monospace", minHeight: "96px" }}
+                  style={{ ...inputStyle, fontFamily: "monospace", minHeight: "240px" }}
                   value={xslSource}
                   disabled={busy}
                   onChange={(e) => setXslSource(e.target.value)}
                   spellCheck={false}
+                  aria-label={DEV_MSG.CTL_FORM_XSL}
                 />
                 <span style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
                   {DEV_MSG.CTL_XSL_HINT}

@@ -307,7 +307,65 @@ describe("ControlDetailPanel", () => {
     expect((screen.getByTestId("developer-ctl-edit-xsl") as HTMLTextAreaElement).value).toBe("");
   });
 
-  it("surfaces PUT 403, 404, and system 409 on save", async () => {
+  it("saves populated user-control XSL source on PUT", async () => {
+    const xsl = "<xsl:stylesheet version=\"1.1\"><psxctl:ControlMeta name=\"qaCtl\"/></xsl:stylesheet>";
+    getControlDetail.mockResolvedValue({
+      ...sampleDetail,
+      name: "qaCtl",
+      displayName: "QA",
+      scope: "user",
+      xslSource: xsl,
+    });
+    updateControl.mockResolvedValue({
+      name: "qaCtl",
+      displayName: "QA",
+      scope: "user",
+      xslSource: xsl,
+    });
+    render(<ControlDetailPanel name="qaCtl" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-edit-xsl")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-ctl-edit-xsl") as HTMLTextAreaElement).value).toBe(xsl);
+    fireEvent.click(screen.getByTestId("developer-ctl-save"));
+    await waitFor(() => {
+      expect(updateControl).toHaveBeenCalled();
+    });
+    expect(updateControl.mock.calls[0][1].xslSource).toBe(xsl);
+  });
+
+  it("shows read-only XSL for system controls and no save chrome", async () => {
+    getControlDetail.mockResolvedValue({
+      ...sampleDetail,
+      xslSource: "<xsl:stylesheet/>",
+    });
+    render(<ControlDetailPanel name="sys_EditBox" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-view-xsl")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-ctl-view-xsl") as HTMLTextAreaElement).readOnly).toBe(
+      true,
+    );
+    expect(screen.queryByTestId("developer-ctl-edit-xsl")).toBeNull();
+    expect(screen.queryByTestId("developer-ctl-save")).toBeNull();
+  });
+
+  it("falls back to system-control honesty gap without XSL-editor gap", async () => {
+    getControlDetail.mockResolvedValue({
+      ...sampleDetail,
+      name: "qaCtl",
+      scope: "user",
+      designGaps: [],
+    });
+    render(<ControlDetailPanel name="qaCtl" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-gaps")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ctl-gaps").textContent).toContain(DEV_MSG.CTL_GAP_SYS);
+    expect(screen.getByTestId("developer-ctl-gaps").textContent).not.toContain(DEV_MSG.CTL_GAP_XSL);
+  });
+
+  it("surfaces PUT 403, 404, 400, and system 409 on save", async () => {
     getControlDetail.mockResolvedValue({
       ...sampleDetail,
       name: "qaCtl",
@@ -318,6 +376,7 @@ describe("ControlDetailPanel", () => {
       { status: 403, fallback: DEV_MSG.CTL_FORBIDDEN },
       { status: 404, fallback: DEV_MSG.CTL_NOT_FOUND },
       { status: 409, fallback: DEV_MSG.CTL_SYSTEM_CONFLICT },
+      { status: 400, fallback: DEV_MSG.CTL_INVALID_XSL },
     ];
     for (const c of cases) {
       updateControl.mockRejectedValueOnce({

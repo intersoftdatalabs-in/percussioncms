@@ -1951,11 +1951,14 @@ export const DEV_MSG_KEYS = {
   CTL_FORM_DESCRIPTION: "perc.ui.developer@Description",
   CTL_FORM_DIMENSION: "perc.ui.developer@Dimension",
   CTL_FORM_CHOICESET: "perc.ui.developer@Choice set",
-  CTL_FORM_XSL: "perc.ui.developer@XSL source (optional)",
+  CTL_FORM_XSL: "perc.ui.developer@XSL source",
   CTL_XSL_HINT:
-    "perc.ui.developer@Leave blank to use the server default stylesheet. This is not a full XSL editor.",
+    "perc.ui.developer@User-control stylesheet. GET loads the persisted file; Save writes it. Leave blank to regenerate the server default. System controls are read-only.",
+  CTL_XSL_READONLY: "perc.ui.developer@System control stylesheet (read-only).",
+  CTL_INVALID_XSL:
+    "perc.ui.developer@XSL source is invalid (must be a stylesheet with one matching control).",
   CTL_SAVE_HINT:
-    "perc.ui.developer@Save sends display name, description, dimension, and choice set as shown. A blank description is cleared. Blank dimension or choice set uses single / none. Leave XSL blank to regenerate the server default stylesheet.",
+    "perc.ui.developer@Save sends display name, description, dimension, choice set, and XSL source as shown. A blank description is cleared. Blank dimension or choice set uses single / none. Leave XSL blank to regenerate the server default stylesheet.",
   CTL_DIM_DEFAULT: "perc.ui.developer@Server default (single)",
   CTL_CHOICE_DEFAULT: "perc.ui.developer@Server default (none)",
   CTL_CREATE_SAVE: "perc.ui.developer@Create user control",

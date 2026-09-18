@@ -10,6 +10,7 @@ import {
   CONTROL_DESIGN_GAPS,
   createControl,
   deleteControl,
+  getControlDetail,
   isControlCreateReady,
   isControlSaveReady,
   isSystemControl,
@@ -87,6 +88,10 @@ describe("unwrapControlDef / wrapControlCreateForWire", () => {
 });
 
 describe("withoutStaleControlWriteGap", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("drops pre-write catalog gap strings", () => {
     expect(
       withoutStaleControlWriteGap([
@@ -95,6 +100,42 @@ describe("withoutStaleControlWriteGap", () => {
         "System controls are read-only packaged defaults",
       ]),
     ).toEqual(["System controls are read-only packaged defaults"]);
+  });
+
+  it("coerces a JAXB-unwrapped single designGaps string", async () => {
+    expect(
+      withoutStaleControlWriteGap("System controls are read-only packaged defaults"),
+    ).toEqual(["System controls are read-only packaged defaults"]);
+    vi.spyOn(client, "get").mockResolvedValue({
+      name: "qaCtl",
+      scope: "user",
+      designGaps: "System controls are read-only packaged defaults",
+    });
+    const detail = await getControlDetail("qaCtl");
+    expect(detail.designGaps).toEqual(CONTROL_DESIGN_GAPS);
+  });
+});
+
+describe("CONTROL_DESIGN_GAPS", () => {
+  it("keeps system-control honesty and drops the XSL editor gap", () => {
+    expect(CONTROL_DESIGN_GAPS).toEqual(["System controls are read-only packaged defaults"]);
+    expect(CONTROL_DESIGN_GAPS.join(" ")).not.toMatch(/XSL source editing/i);
+  });
+});
+
+describe("getControlDetail", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("round-trips user-control xslSource from GET", async () => {
+    const xsl = "<xsl:stylesheet version=\"1.1\"/>";
+    vi.spyOn(client, "get").mockResolvedValue({
+      ControlDef: { name: "qaCtl", scope: "user", xslSource: xsl },
+    });
+    const detail = await getControlDetail("qaCtl");
+    expect(detail.xslSource).toBe(xsl);
+    expect(detail.designGaps).toEqual(CONTROL_DESIGN_GAPS);
   });
 });
 

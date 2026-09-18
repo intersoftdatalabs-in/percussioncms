@@ -1,7 +1,7 @@
 ---
 id: admin-developer-ce-controls
 title: Developer CE Controls
-description: Create, update, and delete a user content-editor control from Developer CE Controls chrome
+description: Create, update, delete, and edit user content-editor control XSL from Developer CE Controls chrome
 version: "8.2"
 order: 49
 tags: [admin, developer, controls]
@@ -11,18 +11,18 @@ tags: [admin, developer, controls]
 
 **Developer → CE Controls** lists content editor control definitions
 (Workbench **Controls**: packaged system controls and custom user controls).
-Admins can **create**, **save**, and **delete** a user control from this chrome.
-The **name** is required, must be unique across system **and** user controls
-(case-insensitive), and must not contain spaces or wildcards (`*` / `%`).
-Name cannot be renamed after create.
+Admins can **create**, **save**, **delete**, and **edit XSL source** for a user
+control from this chrome. The **name** is required, must be unique across
+system **and** user controls (case-insensitive), and must not contain spaces or
+wildcards (`*` / `%`). Name cannot be renamed after create.
 
 **System** controls (packaged defaults such as `sys_EditBox`) are listed but
 **cannot** be created, edited, or deleted from this catalog. A write that
-targets a system control is **409**.
+targets a system control is **409** (packaged files are not mutated).
 
-This is **not** the Workbench XSL source editor. Create and save may include
-optional `xslSource`; when omitted the server writes (or regenerates) a default
-user-control stylesheet from the metadata.
+`GET /services/cecontrols/{name}` **round-trips** `xslSource` for **user**
+controls. Create and save may include `xslSource`; when omitted the server
+writes (or regenerates) a default user-control stylesheet from the metadata.
 
 ## Product path — create
 
@@ -44,22 +44,25 @@ user-control stylesheet from the metadata.
 ## Product path — update and delete
 
 1. Open a **user** control row. Display name, description, dimension, choice
-   set, and optional XSL source are editable. Name stays read-only.
-2. Click **Save user control**. The chrome sends metadata on
-   `PUT /services/cecontrols/{name}`. Leave XSL blank to regenerate the server
-   default stylesheet (send XSL to keep a custom stylesheet). **403**, **404**,
-   and system **409** appear in the detail error region.
+   set, and **XSL source** are editable. Name stays read-only. GET loads the
+   persisted stylesheet into the source editor.
+2. Click **Save user control**. The chrome sends metadata and the current XSL
+   on `PUT /services/cecontrols/{name}`. Leave XSL blank to regenerate the
+   server default stylesheet. Invalid XSL is **400**. **403**, **404**, and
+   system **409** appear in the detail error region.
 3. Click **Delete user control**. Confirm in the in-app dialog (not the
    browser `window.confirm` prompt). A successful delete is **204**; a following
    GET is **404** and the catalog no longer lists the row.
-4. Open a **system** row to view parameters. The detail is read-only; there is
-   no create, save, or delete chrome on a system control.
+4. Open a **system** row to view parameters (and read-only source when the
+   API returns it). The detail is read-only; there is no create, save, or
+   delete chrome on a system control.
 
 ## Limits
 
 - Name is immutable after create.
 - System controls cannot be created, edited, or deleted here.
-- Optional XSL source is a text field, not a full IDE.
+- User-control XSL is a monospace source editor (not a full IDE). Invalid
+  stylesheets (not exactly one matching `psxctl:ControlMeta`) are **400**.
 
 ## REST
 
@@ -68,9 +71,9 @@ The chrome calls:
 | Action | Request |
 |--------|---------|
 | List | `GET /services/cecontrols` |
-| Load | `GET /services/cecontrols/{name}` |
+| Load | `GET /services/cecontrols/{name}` (user-control `xslSource` round-trip) |
 | Create | `POST /services/cecontrols` (`name` required; unique, no spaces or wildcards) |
-| Update | `PUT /services/cecontrols/{name}` (user controls; omitted `xslSource` regenerates the default stylesheet) |
+| Update | `PUT /services/cecontrols/{name}` (user controls; send `xslSource` to persist; omitted regenerates the default stylesheet) |
 | Delete | `DELETE /services/cecontrols/{name}` (**204**; following GET is **404**) |
 
 Integrator notes: [REST API — Content editor controls](id:developer-rest).

@@ -2483,15 +2483,16 @@ no SOAP design twin and this API does not invent one.
 Admin **write** persists **user** controls as an XSL file under
 `rx_resources/stylesheets/controls` plus the custom-control import list
 (`PSCustomControlManager.writeImports`). Packaged **system** controls are read-only.
-**Developer → CE Controls** SPA chrome **creates**, **saves**, and **deletes** user
-controls (`POST` / `PUT` / `DELETE` `/services/cecontrols`). Full XSL source-editor UX is
-not provided by this API — create and save may send optional `xslSource`, or omit it for
-the server default stylesheet.
+**Developer → CE Controls** SPA chrome **creates**, **saves**, **deletes**, and **edits
+XSL source** for user controls (`POST` / `PUT` / `DELETE` `/services/cecontrols`).
+`GET /services/cecontrols/{name}` **round-trips** `xslSource` for user controls (list
+rows omit it). Create and save may send `xslSource`, or omit it for the server default
+stylesheet. Packaged **system** controls stay read-only (**409**, no file mutation).
 
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/services/cecontrols` | List system and user CE controls |
-| `GET` | `/services/cecontrols/{name}` | Load one control by name |
+| `GET` | `/services/cecontrols/{name}` | Load one control by name (user-control `xslSource` round-trip) |
 | `POST` | `/services/cecontrols` | **Admin.** Create a user control (XSL file + import list) |
 | `PUT` | `/services/cecontrols/{name}` | **Admin.** Update a user control (metadata and/or optional `xslSource`) |
 | `DELETE` | `/services/cecontrols/{name}` | **Admin.** Delete a user control (removes the user XSL file and refreshes imports) |
@@ -2512,9 +2513,10 @@ Non-Admin is **403**. The new control is then `GET /services/cecontrols/{name}` 
 appears on `GET /services/cecontrols`.
 
 Update (`PUT /services/cecontrols/{name}`) updates a **user** control. Name is the catalog
-key and is not renamed on PUT. Developer chrome always sends `displayName`, `dimension`, and `choiceSet` (blank dimension/choice set send `single` / `none`). Blank `description` and `xslSource` are omitted on the wire. Omitted `xslSource` regenerates a
-default stylesheet from metadata (send `xslSource` to keep a custom stylesheet). Unknown
-name is **404**. A **system** control is **409** (packaged files are not mutated).
+key and is not renamed on PUT. Developer chrome always sends `displayName`, `dimension`, and `choiceSet` (blank dimension/choice set send `single` / `none`). Blank `description` and `xslSource` are omitted on the wire. The source editor sends the current
+stylesheet when it is non-blank. Omitted `xslSource` regenerates a default stylesheet from
+metadata (send `xslSource` to keep a custom stylesheet). Invalid `xslSource` is **400**.
+Unknown name is **404**. A **system** control is **409** (packaged files are not mutated).
 Non-Admin is **403**.
 
 Delete (`DELETE /services/cecontrols/{name}`) returns **204** when a user control is
@@ -2525,9 +2527,10 @@ removed; a following `GET` is **404**. Unknown name is **404**. A **system** con
 Name is required, unique, and cannot contain whitespace or wildcards; it is read-only after
 create. Duplicate name is **409**. Invalid name is **400**. Open a user control to **Save**
 (`PUT`) or **Delete** (`DELETE` **204**, following GET **404**, catalog omits the row).
-Omitted `xslSource` on PUT uses the server default stylesheet. Packaged **system**
-controls stay non-creatable / non-editable / non-deletable (POST/PUT/DELETE that uses a
-system name is **409**). See [Developer CE Controls](id:admin-developer-ce-controls).
+Omitted `xslSource` on PUT uses the server default stylesheet. User-control GET includes
+the persisted stylesheet so the Developer source editor can round-trip it. Packaged
+**system** controls stay non-creatable / non-editable / non-deletable (POST/PUT/DELETE
+that uses a system name is **409**). See [Developer CE Controls](id:admin-developer-ce-controls).
 
 Example create body:
 

@@ -10,11 +10,11 @@ import type { ControlDef } from "./types";
  * Catalog-level design gaps (REST-GAPS-02). Server omits these on list rows;
  * detail re-attaches or SPA falls back via this constant.
  *
- * <p>Create / save / delete of user controls is SPA chrome (UI-01). Full XSL
- * IDE and system-control mutation remain out of scope.
+ * <p>Create / save / delete of user controls is SPA chrome (UI-01). User-control
+ * XSL source is editable on detail GET/PUT. System-control mutation remains out
+ * of scope.
  */
 export const CONTROL_DESIGN_GAPS: string[] = [
-  "Control XSL source editing not supported via this API",
   "System controls are read-only packaged defaults",
 ];
 
@@ -42,7 +42,8 @@ export const CONTROL_NAME_PATTERN = /^[A-Za-z0-9_.-]+$/;
  * <p>Create and save chrome omit blank {@code description} and {@code xslSource}
  * (same rule). Save always sends {@code displayName} plus {@code dimension}/
  * {@code choiceSet} ({@code single}/{@code none} when the selects are empty).
- * Omitted {@code xslSource} regenerates the default stylesheet.
+ * Detail GET round-trips user-control {@code xslSource}; save sends the editor
+ * text when non-blank. Omitted {@code xslSource} regenerates the default stylesheet.
  */
 export type ControlCreateBody = {
   name: string;
@@ -67,6 +68,23 @@ const LIST_WRAPPER_KEYS = [
 
 /** Drop pre-write catalog strings now that create/save/delete ship. */
 const STALE_WRITE_GAP = /(?:create\s*\/\s*)?edit\s*\/\s*delete/i;
+
+/**
+ * JAXB/Jackson may unwrap a one-element designGaps list to a string on the
+ * wire. Coerce before {@code Array.filter}.
+ */
+export function asControlGapList(gaps: unknown): string[] {
+  if (gaps == null) {
+    return [];
+  }
+  if (Array.isArray(gaps)) {
+    return gaps.filter((g): g is string => typeof g === "string");
+  }
+  if (typeof gaps === "string") {
+    return gaps.trim() ? [gaps] : [];
+  }
+  return [];
+}
 
 function isControlDefShape(raw: unknown): raw is ControlDef {
   return (
@@ -96,9 +114,10 @@ function parseControlList(payload: unknown): ControlDef[] {
 }
 
 /** Drop stale REST write-gap strings now that UI-01 create/save/delete ship. */
-export function withoutStaleControlWriteGap(gaps: string[] | undefined | null): string[] {
-  if (gaps == null || gaps.length === 0) return [];
-  return gaps.filter((g) => !STALE_WRITE_GAP.test(g));
+export function withoutStaleControlWriteGap(gaps: unknown): string[] {
+  const list = asControlGapList(gaps);
+  if (list.length === 0) return [];
+  return list.filter((g) => !STALE_WRITE_GAP.test(g));
 }
 
 function withGaps(c: ControlDef): ControlDef {
@@ -221,7 +240,7 @@ export async function listControls(): Promise<ControlDef[]> {
   return parseControlList(payload);
 }
 
-/** GET /services/cecontrols/{name} */
+/** GET /services/cecontrols/{name} — user-control detail includes xslSource. */
 export async function getControlDetail(name: string): Promise<ControlDef> {
   const key = encodeURIComponent(name);
   const detail = await get<unknown>(`${PATHS.CE_CONTROLS}/${key}`);
