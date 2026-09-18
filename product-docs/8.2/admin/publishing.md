@@ -225,6 +225,22 @@ From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, th
 
 Item publishing history stays on Status / Logs. Schedule dates stay on the same site workspace.
 
+## Stage and Remove from Staging (Publishing site workspace)
+
+From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, then a site). The **Stage / Remove From Staging** panel stages or removes-from-staging a selected **page** or **asset** using the same sitemanage paths as Content Explorer and classic Finder (`GET /services/sitemanage/publish/page/staging/{id}` or `/resource/staging/{id}` to stage; `GET /services/sitemanage/publish/takedown/page/staging/{id}` or `/takedown/resource/staging/{id}` to remove from staging). It replaces the classic jQuery `PercItemPublisherService.stageItem` / `removeItemFromStaging` actions for this shell. Explorer still has its own **Stage** and **Remove from Staging** actions for a Finder row.
+
+1. Sign in as an **Admin** (or an operator who can stage).
+2. Open **Publish → Sites** and select a site (or deep-link `section=sites` with `siteId`).
+3. Enter the item id (content GUID such as `16777215-101-9`), choose **Page** or **Asset**, choose **Stage** or **Remove from staging**, and choose **Review stage**.
+4. Confirm then submit. The site workspace job list refreshes after a successful stage / unstage.
+
+**Empty and error states:** Blank or invalid item id is not a stage. HTTP **403** (non-Admin or locked item) and HTTP **400** (validation) are shown in the panel — they are **not** treated as success. HTTP **404** (unknown id) shows **Item not found**. HTTP 200 with application-level `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` is also a failure (same as Explorer and classic Finder). Take down and publish-now are separate panels on the same workspace.
+
+**Deep links:**
+
+- `spa.jsp?entry=publish&section=sites&siteId={siteId}&itemId={id}&action={stage|unstage}`
+- Path form: `/cm/app/publish/sites?siteId={siteId}&itemId={id}&action={stage|unstage}`
+
 ## Failure modes to watch
 
 - Missing template/variant or broken relationship links

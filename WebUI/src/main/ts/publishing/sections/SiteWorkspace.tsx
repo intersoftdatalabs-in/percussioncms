@@ -37,6 +37,7 @@ import { fetchCurrentJobsForSite } from "../../api/publishing/statusApi";
 import { message, MSG } from "../../i18n/message";
 import { ItemPublishNowPanel } from "../components/ItemPublishNowPanel";
 import { ItemScheduleDatesPanel } from "../components/ItemScheduleDatesPanel";
+import { ItemStagePanel } from "../components/ItemStagePanel";
 import { ItemTakedownPanel } from "../components/ItemTakedownPanel";
 import { ServerEditor } from "../components/ServerEditor";
 import { ServerList } from "../components/ServerList";
@@ -450,6 +451,7 @@ export function SiteWorkspace({
         onItemIdChange={onItemIdChange}
         onPublished={refreshJobs}
       />
+      <ItemStagePanel itemId={itemId} onItemIdChange={onItemIdChange} />
       <ItemTakedownPanel itemId={itemId} onItemIdChange={onItemIdChange} />
 
       {loadingServers && <p>{message(MSG.PUBLISH_LOADING)}</p>}
