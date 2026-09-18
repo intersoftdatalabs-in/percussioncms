@@ -1840,7 +1840,7 @@ created name (durable persist; a second POST of that name is **409**).
 | `POST` | `/services/views` | **Admin.** Create a standard (field-criteria) view or a **user** custom URL view (`createViews` then `saveViews`) |
 | `PUT` | `/services/views/{idOrName}` | **Admin.** Update label, description, type, display format, `url` (user custom URL views), and/or `fields` (omit to leave criteria unchanged; empty array clears; unknown field is 400) |
 | `DELETE` | `/services/views/{idOrName}` | **Admin.** Delete a user/standard view (`deleteViews`, `ignoreDependencies=false`) |
-| `POST` | `/services/views/{idOrName}/execute` | Execute a **standard** (field-criteria) view or an Inbox-family **custom URL** view |
+| `POST` | `/services/views/{idOrName}/execute` | Execute a **standard** (field-criteria) view or a **custom URL** view (path-safe classic `app/page`; **Admin** required for user custom URL views; Inbox-family stays operator-executable) |
 
 ### Execute request / response
 
@@ -1879,19 +1879,22 @@ Successful response is a paged envelope: `children[]` (Explorer-ready rows with 
 |--------|-----------------|
 | `200` | List / get / create / update / execute success |
 | `204` | Delete success |
-| `400` | Invalid input (missing name, whitespace/wildcard name, invalid or search type, **blank/invalid `url`** on custom URL write, **unknown field** on PUT `fields`), invalid execute body, or an **unsupported** custom URL view on execute |
+| `400` | Invalid input (missing name, whitespace/wildcard name, invalid or search type, **blank/invalid `url`** on custom URL write, **unknown field** on PUT `fields`), invalid execute body, or an **unsafe/external/traversal** custom URL on execute |
 | `403` | Caller is not Admin, or the request has no session/user for the design session |
 | `404` | View not found or unsafe key (blank, path separators, `..`) |
 | `409` | Duplicate name, design lock held by another user, dependents, or Inbox-family / packaged `sys_cxViews` write |
 | `500` | Design or execute engine failure (standard views) |
 | `503` | Views adaptor not configured, or custom-view backend unavailable |
 
-### Custom URL views (Inbox family)
+### Custom URL views
 
 Views flagged as **custom** (`customView`) store a classic application URL instead of field
-criteria. `POST /services/views/{idOrName}/execute` **runs** the documented Inbox family by
-invoking the classic resource and mapping `Item` rows to Explorer items (`id`, `name`, `title`,
-`folderPath`, `type`):
+criteria. `POST /services/views/{idOrName}/execute` **runs** the stored URL by invoking a
+path-safe classic resource (`app/page`, typical `../myApp/page.xml`) and mapping `Item` rows
+to Explorer items (`id`, `name`, `title`, `folderPath`, `type`).
+
+Inbox-family packaged catalog keys stay executable for any authenticated operator (Explorer
+**Views → My Content → Inbox**):
 
 | View (typical name) | Classic resource |
 |---------------------|------------------|
@@ -1902,10 +1905,13 @@ invoking the classic resource and mapping `Item` rows to Explorer items (`id`, `
 | Checked out by me | `sys_cxViews/checkedoutbyme` |
 | Duplicate folder paths | `sys_cxViews/duplicatefolderpaths` |
 
-An empty Inbox is a **`200`** with `children: []` — not an error. Custom URLs **outside** that
-allow-list (blank URL, another application, unknown page, path traversal) return **`400`** with a
-clear message. Missing or unsafe view keys remain **`404`**. A missing request context or
-unavailable `sys_cxViews` resource returns **`503`**, not **`500`**.
+**User** custom URL views (any other catalog name) require **Admin** on execute (**403**
+otherwise). **Developer → Views** exposes **Execute** on those rows.
+
+An empty result is a **`200`** with `children: []` — not an error. Blank, placeholder,
+absolute/scheme, backslash, or traversal URLs return **`400`**. Missing or unsafe view keys
+remain **`404`**. A missing request context or unavailable application resource returns
+**`503`**, not **`500`**.
 
 Standard field-criteria views (`standardView`) still execute with the same design operators,
 display format, max results, and case sensitivity stored on the view design.
@@ -1945,7 +1951,8 @@ Dependents or a lock held by another user are **409**. Non-Admin is **403**.
 
 Create/update load or create the view with a **held design lock** and release it on
 save. There is no separate lock/unlock REST pair on this catalog. Field criterion
-editing is not supported on write. Execute (`POST …/execute`) is unchanged.
+editing is not supported on write. Execute (`POST …/execute`) runs standard views and
+path-safe custom URL views as described above.
 
 JSON objects use the `ViewDef` wire type. POST/PUT JSON is wrapped under a `ViewDef`
 root (JAXB/Jackson UNWRAP_ROOT_VALUE). Prefer the generated OpenAPI schema as the

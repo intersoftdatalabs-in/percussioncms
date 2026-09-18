@@ -25,6 +25,7 @@ import {
   canonicalViewType,
   createView,
   deleteView,
+  executeView,
   getViewDetail,
   isCustomViewType,
   isProtectedViewWrite,
@@ -35,7 +36,7 @@ import {
   saveView,
   type ViewWriteBody,
 } from "../api/developer/viewsApi";
-import type { ViewDef, ViewFieldSummary } from "../api/developer/types";
+import type { ViewDef, ViewExecuteResult, ViewFieldSummary } from "../api/developer/types";
 import {
   addViewFieldCriterion,
   catalogViewFieldsNotInUse,
@@ -130,6 +131,8 @@ export function ViewDetailPanel({
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(idOrName != null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [executeResult, setExecuteResult] = useState<ViewExecuteResult | null>(null);
+  const [executing, setExecuting] = useState(false);
   const [draftFields, setDraftFields] = useState<ViewFieldSummary[]>([]);
   const [addFieldName, setAddFieldName] = useState("");
   const [addOperator, setAddOperator] = useState("equal");
@@ -152,6 +155,8 @@ export function ViewDetailPanel({
       .then((d) => {
         if (cancelled) return;
         setDetail(d);
+        setExecuteResult(null);
+        setExecuting(false);
         setName(d.name || idOrName);
         setLabel(d.label || "");
         setDescription(d.description || "");
@@ -209,6 +214,7 @@ export function ViewDetailPanel({
   const availableFields = catalogViewFieldsNotInUse(draftFields);
   const fieldsDirty = fieldsEditable && !viewFieldsEqual(draftFields, loadedFields);
   const canSaveFields = !busy && fieldsDirty;
+  const canExecute = !isNew && Boolean(writeKey) && customUrl && !busy && !loading;
 
   function writeBody(): ViewWriteBody {
     const df = displayFormatId == null ? "" : String(displayFormatId);
@@ -389,6 +395,34 @@ export function ViewDetailPanel({
       setError(panelErrMsg(err, fallback));
     } finally {
       inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  function executeFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return DEV_MSG.VW_EXECUTE_INVALID_URL;
+    if (isApiError(err) && err.status === 403) return DEV_MSG.VW_EXECUTE_FORBIDDEN;
+    if (isApiError(err) && err.status === 404) return DEV_MSG.VW_EXECUTE_NOT_FOUND;
+    if (isApiError(err) && err.status === 503) return DEV_MSG.VW_EXECUTE_UNAVAILABLE;
+    return DEV_MSG.VW_EXECUTE_ERROR;
+  }
+
+  async function handleExecute(): Promise<void> {
+    if (!canExecute || inflight.current || !writeKey) return;
+    inflight.current = true;
+    setBusy(true);
+    setExecuting(true);
+    setError(null);
+    setNotice(null);
+    setExecuteResult(null);
+    try {
+      const result = await executeView(writeKey, { startIndex: 1, maxResults: 25 });
+      setExecuteResult(result);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, executeFallback(err)));
+    } finally {
+      inflight.current = false;
+      setExecuting(false);
       setBusy(false);
     }
   }
@@ -574,6 +608,25 @@ export function ViewDetailPanel({
             >
               {DEV_MSG.VW_SAVE}
             </button>
+            {customUrl && !isNew ? (
+              <button
+                type="button"
+                data-testid="developer-vw-execute"
+                aria-label={DEV_MSG.VW_EXECUTE}
+                disabled={!canExecute}
+                onClick={() => void handleExecute()}
+                style={{
+                  padding: "8px 16px",
+                  background: canExecute ? catalogColors.accent : catalogColors.disabled,
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: canExecute ? "pointer" : "not-allowed",
+                }}
+              >
+                {executing ? DEV_MSG.VW_EXECUTING : DEV_MSG.VW_EXECUTE}
+              </button>
+            ) : null}
             <button
               type="button"
               data-testid="developer-vw-cancel"
@@ -881,6 +934,52 @@ export function ViewDetailPanel({
                   </div>
                 ) : null}
               </section>
+
+              {customUrl && !isNew ? (
+                <section data-testid="developer-vw-execute-panel" style={{ marginBottom: "16px" }}>
+                  <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.VW_EXECUTE_RESULTS}</h3>
+                  {executeResult == null ? (
+                    <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+                      {DEV_MSG.VW_URL_HINT}
+                    </p>
+                  ) : (executeResult.children ?? []).length === 0 ? (
+                    <p
+                      style={{ color: catalogColors.empty }}
+                      data-testid="developer-vw-execute-empty"
+                    >
+                      {DEV_MSG.VW_EXECUTE_EMPTY}
+                    </p>
+                  ) : (
+                    <div style={{ overflowX: "auto" }}>
+                      <table
+                        data-testid="developer-vw-execute-results"
+                        style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
+                      >
+                        <thead>
+                          <tr style={tableHeaderRow}>
+                            <th style={{ padding: "8px" }}>{DEV_MSG.VW_COL_RESULT_TITLE}</th>
+                            <th style={{ padding: "8px" }}>{DEV_MSG.VW_COL_RESULT_TYPE}</th>
+                            <th style={{ padding: "8px" }}>{DEV_MSG.VW_COL_RESULT_PATH}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(executeResult.children ?? []).map((row, i) => (
+                            <tr
+                              key={`${row.id ?? "r"}-${i}`}
+                              data-testid={`developer-vw-execute-row-${i}`}
+                              style={tableRow}
+                            >
+                              <td style={{ padding: "8px" }}>{row.title || row.name || "—"}</td>
+                              <td style={{ padding: "8px" }}>{row.type || "—"}</td>
+                              <td style={monoCell}>{row.folderPath || "—"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </section>
+              ) : null}
 
               <ObjectAclSection
                 objectGuid={objectGuid}

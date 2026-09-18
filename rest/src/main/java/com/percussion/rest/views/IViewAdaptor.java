@@ -25,13 +25,16 @@ public interface IViewAdaptor {
    * views) — not the search catalog.
    *
    * <p>Standard (field-criteria) views run through the design search engine. Custom-URL views
-   * in the Inbox family ({@code sys_cxViews/inbox}, outbox, recent, session, checkedoutbyme,
-   * duplicatefolderpaths) invoke the classic app resource and map rows to Explorer items.
+   * invoke a path-safe classic application resource and map rows to Explorer items.
+   * Inbox-family {@code sys_cxViews} catalog keys stay executable for any operator. User
+   * custom URL views require Admin.
    *
    * @param idOrName view key (same rules as {@link #findViewByKey})
    * @param request optional overrides; {@code null} treated as empty defaults by implementations
    * @return paged results, or {@code null} when the view is missing/unsafe
-   * @throws IllegalArgumentException when the body is invalid or the custom URL is unsupported
+   * @throws IllegalArgumentException when the body is invalid or the custom URL is unsafe
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when a non-Admin executes a user
+   *     custom URL view
    */
   ViewExecuteResult executeView(String idOrName, ViewExecuteRequest request);
 

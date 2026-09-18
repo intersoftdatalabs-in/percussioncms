@@ -31,10 +31,12 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * <p>Searches (UI-06) remain a separate catalog. Admin POST/PUT/DELETE persist through {@link
  * IViewAdaptor} ({@code IPSUiDesignWs} create/save/delete views). Execute is a separate façade
- * and is not invoked from write. Inbox-family custom-URL views ({@code sys_cxViews/inbox} and
- * documented peers) are executed on this same path; other custom URLs return 400 on execute.
- * Admin may POST/PUT a <em>user</em> custom URL view ({@code url} required). Inbox-family and
- * packaged {@code sys_cxViews} catalog keys cannot be updated or deleted here.
+ * and is not invoked from write. Custom-URL views invoke a path-safe classic application
+ * resource; Inbox-family {@code sys_cxViews} pages stay executable for any operator. User
+ * custom URL views require Admin on execute (403 otherwise). Unsafe/external/traversal URLs
+ * return 400. Admin may POST/PUT a <em>user</em> custom URL view ({@code url} required).
+ * Inbox-family and packaged {@code sys_cxViews} catalog keys cannot be updated or deleted
+ * here.
  */
 @PSSiteManageBean(value = "restViewResource")
 @Path("/views")
@@ -125,18 +127,19 @@ public class ViewResource {
       description =
           "Loads the CX view design by name, GUID, or id from the views catalog (not searches)"
               + " and executes it server-side. Standard views use design field operators, display"
-              + " format, max results, and case sensitivity. Custom URL views in the Inbox family"
-              + " (sys_cxViews/inbox, outbox, recent, session, checkedoutbyme,"
-              + " duplicatefolderpaths) invoke the classic app resource and return Explorer rows."
-              + " Optional body may override folder scope (standard views), paging, and sort"
-              + " as a ViewExecuteRequest envelope or a flat startIndex/maxResults object."
-              + " Unsupported custom URLs return 400.",
+              + " format, max results, and case sensitivity. Custom URL views invoke a path-safe"
+              + " classic application resource (app/page) and return Explorer rows. Inbox-family"
+              + " sys_cxViews pages stay executable for any operator. User custom URL views"
+              + " (non-packaged names) require Admin. Optional body may override folder scope"
+              + " (standard views), paging, and sort as a ViewExecuteRequest envelope or a flat"
+              + " startIndex/maxResults object. Blank, external, or traversal URLs return 400.",
       responses = {
         @ApiResponse(
             responseCode = "200",
             description = "OK",
             content = @Content(schema = @Schema(implementation = ViewExecuteResult.class))),
-        @ApiResponse(responseCode = "400", description = "Invalid body or unsupported view type"),
+        @ApiResponse(responseCode = "400", description = "Invalid body or invalid custom view URL"),
+        @ApiResponse(responseCode = "403", description = "Admin role required for user custom URL execute"),
         @ApiResponse(responseCode = "404", description = "View not found"),
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")

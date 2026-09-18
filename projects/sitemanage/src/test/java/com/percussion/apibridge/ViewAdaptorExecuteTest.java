@@ -45,6 +45,7 @@ import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.ui.IPSUiDesignWs;
+import jakarta.ws.rs.WebApplicationException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -243,21 +244,74 @@ class ViewAdaptorExecuteTest {
   }
 
   @Test
-  void executeView_customUrlUnsupportedThrows400Style() throws Exception {
+  void executeView_userCustomUrlForbiddenWhenNotAdmin() throws Exception {
     PSSearch custom = mockView("MyAppView", true, false);
     when(custom.getUrl()).thenReturn("../my_custom_app/foo.xml");
+    stubLoadedViews(List.of(custom));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.executeView("MyAppView", new ViewExecuteRequest()));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains("Admin"));
+    verify(adaptor, never()).runCustomUrlView(any(), any());
+  }
+
+  @Test
+  void executeView_userCustomUrlRunsWhenAdmin() throws Exception {
+    ViewAdaptor adminAdaptor =
+        spy(new ViewAdaptor(designWs, folderHelper, idMapper, () -> true));
+    PSSearch custom = mockView("MyAppView", true, false);
+    when(custom.getUrl()).thenReturn("../my_custom_app/foo.xml");
+    stubLoadedViews(List.of(custom));
+
+    ViewResultItem row = item("guid-9", "Custom row");
+    doReturn(List.of(row)).when(adminAdaptor).runCustomUrlView(any(PSSearch.class), any());
+
+    ViewExecuteResult result = adminAdaptor.executeView("MyAppView", new ViewExecuteRequest());
+    assertNotNull(result);
+    assertEquals("MyAppView", result.getViewName());
+    assertEquals(1, result.getChildren().size());
+    assertEquals("Custom row", result.getChildren().get(0).getTitle());
+    verify(adminAdaptor).runCustomUrlView(any(PSSearch.class), any());
+    verify(adminAdaptor, never()).runDesignView(any());
+  }
+
+  @Test
+  void executeView_userCustomUrlExternalThrows400() throws Exception {
+    ViewAdaptor adminAdaptor =
+        spy(new ViewAdaptor(designWs, folderHelper, idMapper, () -> true));
+    PSSearch custom = mockView("MyAppView", true, false);
+    when(custom.getUrl()).thenReturn("https://evil.example/x");
     stubLoadedViews(List.of(custom));
 
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> adaptor.executeView("MyAppView", new ViewExecuteRequest()));
-    assertTrue(ex.getMessage().toLowerCase().contains("unsupported"));
-    assertTrue(ex.getMessage().contains("sys_cxViews"));
+            () -> adminAdaptor.executeView("MyAppView", new ViewExecuteRequest()));
+    assertTrue(ex.getMessage().toLowerCase().contains("invalid"));
+  }
+
+  @Test
+  void executeView_userCustomUrlTraversalThrows400() throws Exception {
+    ViewAdaptor adminAdaptor =
+        spy(new ViewAdaptor(designWs, folderHelper, idMapper, () -> true));
+    PSSearch custom = mockView("MyAppView", true, false);
+    when(custom.getUrl()).thenReturn("../myApp/../../etc/passwd");
+    stubLoadedViews(List.of(custom));
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adminAdaptor.executeView("MyAppView", new ViewExecuteRequest()));
+    assertTrue(ex.getMessage().toLowerCase().contains("invalid"));
   }
 
   @Test
   void executeView_customUrlBlankThrows400Style() throws Exception {
+    ViewAdaptor adminAdaptor =
+        spy(new ViewAdaptor(designWs, folderHelper, idMapper, () -> true));
     PSSearch custom = mockView("Broken", true, false);
     when(custom.getUrl()).thenReturn("  ");
     stubLoadedViews(List.of(custom));
@@ -265,8 +319,8 @@ class ViewAdaptorExecuteTest {
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> adaptor.executeView("Broken", new ViewExecuteRequest()));
-    assertTrue(ex.getMessage().contains("Unsupported custom URL"));
+            () -> adminAdaptor.executeView("Broken", new ViewExecuteRequest()));
+    assertTrue(ex.getMessage().contains("requires a non-blank url"));
   }
 
   @Test
@@ -395,21 +449,56 @@ class ViewAdaptorExecuteTest {
   }
 
   @Test
+  void resolveCustomViewResource_normalizesUserAppUrls() {
+    assertEquals(
+        "my_custom_app/foo", ViewAdaptor.resolveCustomViewResource("../my_custom_app/foo.xml"));
+    assertEquals("myApp/page", ViewAdaptor.resolveCustomViewResource("myApp/page.xml"));
+    assertEquals(
+        "sys_cxViews/notapage", ViewAdaptor.resolveCustomViewResource("sys_cxViews/notapage"));
+  }
+
+  @Test
   void resolveCustomViewResource_rejectsUnsafeAndUnknown() {
     assertThrows(IllegalArgumentException.class, () -> ViewAdaptor.resolveCustomViewResource(null));
     assertThrows(IllegalArgumentException.class, () -> ViewAdaptor.resolveCustomViewResource(""));
     assertThrows(
         IllegalArgumentException.class,
-        () -> ViewAdaptor.resolveCustomViewResource("../other_app/inbox.xml"));
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> ViewAdaptor.resolveCustomViewResource("sys_cxViews/notapage"));
+        () -> ViewAdaptor.resolveCustomViewResource("https://evil.example/x"));
     assertThrows(
         IllegalArgumentException.class,
         () -> ViewAdaptor.resolveCustomViewResource("sys_cxViews/inbox/../../../etc/passwd"));
     assertThrows(
         IllegalArgumentException.class,
+        () -> ViewAdaptor.resolveCustomViewResource("../myApp/../../etc/passwd"));
+    assertThrows(
+        IllegalArgumentException.class,
         () -> ViewAdaptor.resolveCustomViewResource("sys_cxViews\\inbox"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ViewAdaptor.resolveCustomViewResource("app/page/extra"));
+  }
+
+  @Test
+  void runCustomUrlView_userAppUsesResolvedResource() throws Exception {
+    ViewAdaptor adminAdaptor =
+        spy(new ViewAdaptor(designWs, folderHelper, idMapper, () -> true));
+    PSSearch design = mockView("MyAppView", true, false);
+    when(design.getUrl()).thenReturn("../my_custom_app/foo.xml");
+    when(design.getMaximumResultSize()).thenReturn(25);
+    Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+    doReturn(doc).when(adminAdaptor).fetchCustomViewDocument("my_custom_app/foo");
+    doReturn(List.of(item("1", "A"))).when(adminAdaptor).mapCustomViewDocument(doc);
+
+    List<ViewResultItem> out = adminAdaptor.runCustomUrlView(design, new ViewExecuteRequest());
+    assertEquals(1, out.size());
+    verify(adminAdaptor).fetchCustomViewDocument("my_custom_app/foo");
+  }
+
+  @Test
+  void designGaps_omitCustomUrlExecuteClaim() {
+    assertFalse(
+        ViewAdaptor.DESIGN_GAPS.stream()
+            .anyMatch(g -> g.toLowerCase().contains("cannot be executed")));
   }
 
   @Test
