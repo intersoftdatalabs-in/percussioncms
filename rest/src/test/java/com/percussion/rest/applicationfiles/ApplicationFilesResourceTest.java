@@ -27,6 +27,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.percussion.rest.ObjectLockSummary;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
@@ -328,5 +329,65 @@ public class ApplicationFilesResourceTest {
         assertThrows(
             WebApplicationException.class, () -> bare.createFolder("any", "ApplicationFiles/x"));
     assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void lockFileDelegates() {
+    ObjectLockSummary summary = new ObjectLockSummary();
+    summary.setLocker("Admin");
+    when(adaptor.lockFile(eq("sys_resources"), eq("ApplicationFiles/a.txt"))).thenReturn(summary);
+    ObjectLockSummary out = resource.lockFile("sys_resources", "ApplicationFiles/a.txt");
+    assertEquals("Admin", out.getLocker());
+    verify(adaptor).lockFile("sys_resources", "ApplicationFiles/a.txt");
+  }
+
+  @Test
+  public void lockFileBlankPathIs400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.lockFile("sys_resources", "  "));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).lockFile(eq("sys_resources"), eq("  "));
+  }
+
+  @Test
+  public void lockFileUnknownIs404() {
+    when(adaptor.lockFile(eq("sys_resources"), eq("missing.txt"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.lockFile("sys_resources", "missing.txt"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void unlockFileDelegates204() {
+    when(adaptor.unlockFile(eq("sys_resources"), eq("ApplicationFiles/a.txt")))
+        .thenReturn(Boolean.TRUE);
+    Response out = resource.unlockFile("sys_resources", "ApplicationFiles/a.txt");
+    assertEquals(204, out.getStatus());
+  }
+
+  @Test
+  public void unlockFileUnknownIs404() {
+    when(adaptor.unlockFile(eq("sys_resources"), eq("missing.txt"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.unlockFile("sys_resources", "missing.txt"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void putFileRethrowsAdaptor409() {
+    ApplicationFileSummary body = new ApplicationFileSummary();
+    body.setContent("x");
+    WebApplicationException mapped = new WebApplicationException("Design lock required", 409);
+    when(adaptor.putFile(eq("sys_resources"), eq("a.txt"), eq(body))).thenThrow(mapped);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.putFile("sys_resources", "a.txt", body));
+    assertSame(mapped, ex);
+    assertEquals(409, ex.getResponse().getStatus());
   }
 }

@@ -8,6 +8,8 @@ import { isApiError } from "../api/client";
 import {
   APPLICATION_FILE_DESIGN_GAPS,
   getApplicationFileDetail,
+  lockApplicationFile,
+  unlockApplicationFile,
   updateApplicationFile,
 } from "../api/developer/applicationFilesApi";
 import type { ApplicationFileSummary } from "../api/developer/types";
@@ -174,7 +176,9 @@ export function ApplicationFileDetailPanel({
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [tooLarge, setTooLarge] = useState(false);
+  const [heldLock, setHeldLock] = useState(false);
   const inflight = useRef(false);
+  const heldLockRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -183,6 +187,8 @@ export function ApplicationFileDetailPanel({
     setError(null);
     setNotice(null);
     setTooLarge(false);
+    setHeldLock(false);
+    heldLockRef.current = false;
     setLoading(true);
     getApplicationFileDetail(applicationName, path)
       .then((d) => {
@@ -217,7 +223,13 @@ export function ApplicationFileDetailPanel({
 
   const dirty = detail != null && !tooLarge && content !== (detail.content ?? "");
   const canSave =
-    Boolean(isAdmin) && !busy && !loading && !tooLarge && detail != null && dirty;
+    Boolean(isAdmin) &&
+    heldLock &&
+    !busy &&
+    !loading &&
+    !tooLarge &&
+    detail != null &&
+    dirty;
 
   function confirmLeaveIfDirty(): boolean {
     if (!dirty) {
@@ -229,14 +241,67 @@ export function ApplicationFileDetailPanel({
     return true;
   }
 
-  function handleBack(): void {
+  async function handleBack(): Promise<void> {
     if (!confirmLeaveIfDirty()) {
       return;
+    }
+    if (heldLockRef.current) {
+      try {
+        await unlockApplicationFile(applicationName, path);
+      } catch {
+        // Best-effort release so Back cannot trap the operator on a stale lock.
+      }
+      heldLockRef.current = false;
+      setHeldLock(false);
     }
     onBack();
   }
 
+  async function handleLock(): Promise<void> {
+    if (inflight.current) return;
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await lockApplicationFile(applicationName, path);
+      heldLockRef.current = true;
+      setHeldLock(true);
+      setNotice(DEV_MSG.APPFILE_LOCKED_NOTICE);
+    } catch (err: unknown) {
+      heldLockRef.current = false;
+      setHeldLock(false);
+      setError(panelErrMsg(err, DEV_MSG.APPFILE_LOCK_ERROR));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  async function handleUnlock(): Promise<void> {
+    if (inflight.current) return;
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await unlockApplicationFile(applicationName, path);
+      heldLockRef.current = false;
+      setHeldLock(false);
+      setNotice(DEV_MSG.APPFILE_UNLOCKED_NOTICE);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, DEV_MSG.APPFILE_UNLOCK_ERROR));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
   async function handleSave(): Promise<void> {
+    if (!heldLock) {
+      setError(DEV_MSG.APPFILE_LOCK_REQUIRED);
+      return;
+    }
     if (!canSave || inflight.current) return;
     if (looksLikeXmlPath(path) && hasXmlParseError(content)) {
       if (typeof window !== "undefined" && typeof window.confirm === "function") {
@@ -263,9 +328,11 @@ export function ApplicationFileDetailPanel({
       const fallback =
         isApiError(err) && err.status === 403
           ? DEV_MSG.APPFILE_FORBIDDEN
-          : isApiError(err) && err.status === 404
-            ? DEV_MSG.APPFILE_NOT_FOUND
-            : DEV_MSG.APPFILE_SAVE_ERROR;
+          : isApiError(err) && err.status === 409
+            ? DEV_MSG.APPFILE_LOCK_CONFLICT
+            : isApiError(err) && err.status === 404
+              ? DEV_MSG.APPFILE_NOT_FOUND
+              : DEV_MSG.APPFILE_SAVE_ERROR;
       setError(panelErrMsg(err, fallback));
     } finally {
       inflight.current = false;
@@ -341,7 +408,7 @@ export function ApplicationFileDetailPanel({
                 aria-label={DEV_MSG.APPFILE_CONTENT}
                 style={textareaStyle}
                 value={content}
-                disabled={busy || !isAdmin}
+                disabled={busy || !isAdmin || !heldLock}
                 onChange={(e) => setContent(e.target.value)}
                 spellCheck={false}
               />
@@ -351,7 +418,40 @@ export function ApplicationFileDetailPanel({
             </section>
           ) : null}
 
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
+          <div
+            role="toolbar"
+            aria-label={DEV_MSG.APPFILE_LOCK_TOOLBAR}
+            data-testid="developer-appfile-lock-toolbar"
+            style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px", alignItems: "center" }}
+          >
+            <p style={{ margin: 0, width: "100%", color: catalogColors.muted, fontSize: "0.9rem" }}>
+              {DEV_MSG.APPFILE_LOCK_HINT}
+            </p>
+            <div
+              role="status"
+              aria-live="polite"
+              data-testid="developer-appfile-lock-status"
+              style={{ marginRight: "8px", fontSize: "0.9rem" }}
+            >
+              {heldLock ? DEV_MSG.APPFILE_LOCKED : DEV_MSG.APPFILE_UNLOCKED}
+            </div>
+            <button
+              type="button"
+              data-testid="developer-appfile-lock"
+              aria-label={DEV_MSG.APPFILE_LOCK}
+              disabled={busy || heldLock || !isAdmin}
+              onClick={() => void handleLock()}
+              style={{
+                padding: "8px 16px",
+                background: heldLock || !isAdmin ? catalogColors.disabled : catalogColors.accent,
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: busy || heldLock || !isAdmin ? "not-allowed" : "pointer",
+              }}
+            >
+              {DEV_MSG.APPFILE_LOCK}
+            </button>
             <button
               type="button"
               data-testid="developer-appfile-save"
@@ -372,9 +472,26 @@ export function ApplicationFileDetailPanel({
             </button>
             <button
               type="button"
+              data-testid="developer-appfile-unlock"
+              aria-label={DEV_MSG.APPFILE_UNLOCK}
+              disabled={busy || !heldLock}
+              onClick={() => void handleUnlock()}
+              style={{
+                padding: "8px 16px",
+                background: "transparent",
+                color: catalogColors.text,
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: "4px",
+                cursor: busy || !heldLock ? "not-allowed" : "pointer",
+              }}
+            >
+              {DEV_MSG.APPFILE_UNLOCK}
+            </button>
+            <button
+              type="button"
               data-testid="developer-appfile-cancel"
               disabled={busy}
-              onClick={handleBack}
+              onClick={() => void handleBack()}
               style={{
                 padding: "8px 16px",
                 background: "transparent",

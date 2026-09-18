@@ -35,7 +35,9 @@ vi.mock("../../../main/ts/api/developer/applicationFilesApi", () => ({
   createApplicationFolder: vi.fn(),
   deleteApplicationPath: vi.fn(),
   moveApplicationPath: vi.fn(),
-  APPLICATION_FILE_DESIGN_GAPS: ["gap-lock"],
+  lockApplicationFile: vi.fn(),
+  unlockApplicationFile: vi.fn(),
+  APPLICATION_FILE_DESIGN_GAPS: ["gap-binary"],
 }));
 
 const listApplications = pipelinesApi.listApplications as ReturnType<typeof vi.fn>;
@@ -47,6 +49,8 @@ const updateApplicationFile = appFilesApi.updateApplicationFile as ReturnType<ty
 const createApplicationFolder = appFilesApi.createApplicationFolder as ReturnType<typeof vi.fn>;
 const deleteApplicationPath = appFilesApi.deleteApplicationPath as ReturnType<typeof vi.fn>;
 const moveApplicationPath = appFilesApi.moveApplicationPath as ReturnType<typeof vi.fn>;
+const lockApplicationFile = appFilesApi.lockApplicationFile as ReturnType<typeof vi.fn>;
+const unlockApplicationFile = appFilesApi.unlockApplicationFile as ReturnType<typeof vi.fn>;
 
 describe("isSafeApplicationFileApiPath", () => {
   it("accepts relative API paths and rejects traversal", () => {
@@ -70,6 +74,10 @@ describe("ApplicationFilesPanel", () => {
     createApplicationFolder.mockReset();
     deleteApplicationPath.mockReset();
     moveApplicationPath.mockReset();
+    lockApplicationFile.mockReset();
+    unlockApplicationFile.mockReset();
+    lockApplicationFile.mockResolvedValue({ locker: "Admin" });
+    unlockApplicationFile.mockResolvedValue(undefined);
   });
 
   it("lists apps, files, opens editor, and saves content", async () => {
@@ -120,6 +128,10 @@ describe("ApplicationFilesPanel", () => {
       "developer-appfile-content-editor",
     ) as HTMLTextAreaElement;
     expect(editor.value).toContain("body{}");
+    fireEvent.click(screen.getByTestId("developer-appfile-lock"));
+    await waitFor(() => {
+      expect(lockApplicationFile).toHaveBeenCalled();
+    });
     fireEvent.change(editor, { target: { value: "body{color:red}" } });
     fireEvent.click(screen.getByTestId("developer-appfile-save"));
     await waitFor(() => {

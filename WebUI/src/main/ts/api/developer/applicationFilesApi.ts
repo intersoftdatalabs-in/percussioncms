@@ -17,6 +17,7 @@
 
 import { del, get, post, put } from "../client";
 import { PATHS } from "../paths";
+import { unwrapObjectLockSummary, type ContentTypeLockSummary } from "./contentTypesApi";
 import type { ApplicationFileSummary } from "./types";
 
 /**
@@ -24,7 +25,6 @@ import type { ApplicationFileSummary } from "./types";
  * still attach them on detail; SPA falls back when the wire array is missing/empty.
  */
 export const APPLICATION_FILE_DESIGN_GAPS: string[] = [
-  "Design locking / concurrent edit are not exposed on this Developer surface",
   "Binary files may not round-trip as UTF-8 text",
   "Admin PUT may create a new file when the relative path does not yet exist under the application root",
   "Distinct from /serverconfigs (SY-02 fixed server configuration allow-list)",
@@ -106,6 +106,12 @@ function contentUrl(app: string, relativePath: string): string {
   const params = new URLSearchParams();
   params.set("path", relativePath);
   return `${PATHS.APPLICATION_FILES}/${appKey(app)}/content?${params.toString()}`;
+}
+
+function lockUrl(app: string, relativePath: string, action: "lock" | "unlock"): string {
+  const params = new URLSearchParams();
+  params.set("path", relativePath);
+  return `${PATHS.APPLICATION_FILES}/${appKey(app)}/${action}?${params.toString()}`;
 }
 
 function folderUrl(app: string, relativePath: string): string {
@@ -260,4 +266,36 @@ export async function moveApplicationPath(
     wrapApplicationFileMoveForWire({ fromPath: from, toPath: to }),
   );
   return unwrapApplicationFile(payload);
+}
+
+/** POST /services/applicationfiles/{app}/lock?path= — Admin self-only design-session lock. */
+export async function lockApplicationFile(
+  app: string,
+  relativePath: string,
+): Promise<ContentTypeLockSummary> {
+  const name = (app || "").trim();
+  const path = (relativePath || "").trim();
+  if (!name) {
+    throw new Error("application name is required");
+  }
+  if (!path) {
+    throw new Error("path is required");
+  }
+  return unwrapObjectLockSummary(await post<unknown>(lockUrl(name, path, "lock")));
+}
+
+/** POST /services/applicationfiles/{app}/unlock?path= — release a lock owned by this session. */
+export async function unlockApplicationFile(
+  app: string,
+  relativePath: string,
+): Promise<void> {
+  const name = (app || "").trim();
+  const path = (relativePath || "").trim();
+  if (!name) {
+    throw new Error("application name is required");
+  }
+  if (!path) {
+    throw new Error("path is required");
+  }
+  await post(lockUrl(name, path, "unlock"));
 }

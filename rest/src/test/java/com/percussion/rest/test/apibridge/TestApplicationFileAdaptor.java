@@ -17,6 +17,7 @@
 
 package com.percussion.rest.test.apibridge;
 
+import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.applicationfiles.ApplicationFileSummary;
 import com.percussion.rest.applicationfiles.IApplicationFileAdaptor;
 import java.util.List;
@@ -56,6 +57,16 @@ public class TestApplicationFileAdaptor implements IApplicationFileAdaptor {
 
   @Override
   public ApplicationFileSummary movePath(String appName, String fromPath, String toPath) {
+    return null;
+  }
+
+  @Override
+  public ObjectLockSummary lockFile(String appName, String relativePath) {
+    return null;
+  }
+
+  @Override
+  public Boolean unlockFile(String appName, String relativePath) {
     return null;
   }
 }

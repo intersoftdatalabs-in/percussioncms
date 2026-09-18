@@ -19,6 +19,7 @@ package com.percussion.rest.applicationfiles;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
+import com.percussion.rest.ObjectLockSummary;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -52,6 +53,9 @@ public class ApplicationFileSummary {
   private String characterEncoding;
   private Long contentLength;
   private List<String> designGaps = new ArrayList<>();
+
+  /** Present on detail GET when a design lock is held; omitted when unlocked. */
+  private ObjectLockSummary lock;
 
   public ApplicationFileSummary() {}
 
@@ -133,5 +137,14 @@ public class ApplicationFileSummary {
 
   public void setDesignGaps(List<String> designGaps) {
     this.designGaps = designGaps;
+  }
+
+  @Schema(description = "Design-session lock owner when held; omitted when the file is unlocked")
+  public ObjectLockSummary getLock() {
+    return lock;
+  }
+
+  public void setLock(ObjectLockSummary lock) {
+    this.lock = lock;
   }
 }

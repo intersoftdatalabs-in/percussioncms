@@ -106,7 +106,13 @@ class ApplicationFileAdaptorTest {
               return null;
             })
         .when(fileStore)
-        .write(eq("sys_resources"), any(File.class), any(InputStream.class), anyBoolean(), eq(token));
+        .write(
+            eq("sys_resources"),
+            any(File.class),
+            any(InputStream.class),
+            anyBoolean(),
+            eq(token),
+            any());
   }
 
   @Test
@@ -154,6 +160,7 @@ class ApplicationFileAdaptorTest {
     // Body path must not drive persistence
     body.setPath("../../evil.css");
 
+    adaptor.lockFile("sys_resources", "ApplicationFiles/a.css");
     ApplicationFileSummary out =
         adaptor.putFile("sys_resources", "ApplicationFiles/a.css", body);
 
@@ -161,13 +168,114 @@ class ApplicationFileAdaptorTest {
     assertEquals("body{color:red}", out.getContent());
     assertEquals("body{color:red}", savedContent.get());
     assertEquals("ApplicationFiles/a.css", out.getPath());
+    assertNotNull(out.getLock());
+    assertEquals("Admin", out.getLock().getLocker());
     verify(fileStore)
         .write(
             eq("sys_resources"),
             any(File.class),
             any(InputStream.class),
             eq(true),
-            eq(token));
+            eq(token),
+            any());
+  }
+
+  @Test
+  void put_withoutLockIs409() throws Exception {
+    ApplicationFileSummary body = new ApplicationFileSummary();
+    body.setContent("x");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.putFile("sys_resources", "ApplicationFiles/a.css", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(fileStore, never()).write(any(), any(), any(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void lock_unlock_roundTripsOwnerOnGet() {
+    assertNull(adaptor.getFile("sys_resources", "ApplicationFiles/a.css").getLock());
+    var summary = adaptor.lockFile("sys_resources", "ApplicationFiles/a.css");
+    assertEquals("Admin", summary.getLocker());
+    assertEquals("test-session", summary.getSession());
+    assertEquals("Admin", adaptor.getFile("sys_resources", "ApplicationFiles/a.css").getLock().getLocker());
+    assertTrue(adaptor.unlockFile("sys_resources", "ApplicationFiles/a.css"));
+    assertNull(adaptor.getFile("sys_resources", "ApplicationFiles/a.css").getLock());
+  }
+
+  @Test
+  void lock_unknownAppIsNull() {
+    assertNull(adaptor.lockFile("no_such_app", "ApplicationFiles/a.css"));
+    assertNull(adaptor.lockFile("sys_resources", "../escape.css"));
+  }
+
+  @Test
+  void lock_otherUserIs409AndPutIs409() {
+    ApplicationFileAdaptor.ApplicationDesignLockStore shared =
+        new ApplicationFileAdaptor.InMemoryApplicationDesignLockStore();
+    ApplicationFileAdaptor other =
+        new ApplicationFileAdaptor(
+            tok -> {
+              PSApplicationSummary sum = mock(PSApplicationSummary.class);
+              when(sum.getName()).thenReturn("sys_resources");
+              when(sum.getId()).thenReturn(42);
+              when(sum.getAppRoot()).thenReturn("sys_resources");
+              return new PSApplicationSummary[] {sum};
+            },
+            fileStore,
+            () -> true,
+            () -> token,
+            shared,
+            () -> "other-session",
+            () -> "editor");
+    adaptor =
+        new ApplicationFileAdaptor(
+            tok -> {
+              PSApplicationSummary sum = mock(PSApplicationSummary.class);
+              when(sum.getName()).thenReturn("sys_resources");
+              when(sum.getId()).thenReturn(42);
+              when(sum.getAppRoot()).thenReturn("sys_resources");
+              return new PSApplicationSummary[] {sum};
+            },
+            fileStore,
+            () -> true,
+            () -> token,
+            shared,
+            () -> "test-session",
+            () -> "Admin");
+    adaptor.lockFile("sys_resources", "ApplicationFiles/a.css");
+    WebApplicationException lockEx =
+        assertThrows(
+            WebApplicationException.class,
+            () -> other.lockFile("sys_resources", "ApplicationFiles/a.css"));
+    assertEquals(409, lockEx.getResponse().getStatus());
+    ApplicationFileSummary body = new ApplicationFileSummary();
+    body.setContent("stolen");
+    WebApplicationException putEx =
+        assertThrows(
+            WebApplicationException.class,
+            () -> other.putFile("sys_resources", "ApplicationFiles/a.css", body));
+    assertEquals(409, putEx.getResponse().getStatus());
+  }
+
+  @Test
+  void lock_nonAdminIs403() {
+    adaptor =
+        new ApplicationFileAdaptor(
+            tok -> {
+              PSApplicationSummary sum = mock(PSApplicationSummary.class);
+              when(sum.getName()).thenReturn("sys_resources");
+              when(sum.getId()).thenReturn(42);
+              return new PSApplicationSummary[] {sum};
+            },
+            fileStore,
+            () -> false,
+            () -> token);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.lockFile("sys_resources", "ApplicationFiles/a.css"));
+    assertEquals(403, ex.getResponse().getStatus());
   }
 
   @Test
@@ -177,7 +285,7 @@ class ApplicationFileAdaptorTest {
     assertNull(adaptor.putFile("sys_resources", "../escape.txt", body));
     assertNull(adaptor.putFile("sys_resources", "a\\..\\b.txt", body));
     assertNull(adaptor.putFile("nope", "ApplicationFiles/a.css", body));
-    verify(fileStore, never()).write(any(), any(), any(), anyBoolean(), any());
+    verify(fileStore, never()).write(any(), any(), any(), anyBoolean(), any(), any());
   }
 
   @Test
@@ -189,7 +297,7 @@ class ApplicationFileAdaptorTest {
                 adaptor.putFile(
                     "sys_resources", "ApplicationFiles/a.css", new ApplicationFileSummary()));
     assertTrue(ex.getMessage().contains("content is required"));
-    verify(fileStore, never()).write(any(), any(), any(), anyBoolean(), any());
+    verify(fileStore, never()).write(any(), any(), any(), anyBoolean(), any(), any());
   }
 
   @Test
@@ -214,7 +322,7 @@ class ApplicationFileAdaptorTest {
             () -> adaptor.putFile("sys_resources", "ApplicationFiles/a.css", body));
     assertEquals(403, ex.getResponse().getStatus());
     assertEquals(ApplicationFileAdaptor.ADMIN_REQUIRED, ex.getMessage());
-    verify(fileStore, never()).write(any(), any(), any(), anyBoolean(), any());
+    verify(fileStore, never()).write(any(), any(), any(), anyBoolean(), any(), any());
   }
 
   @Test
@@ -239,7 +347,7 @@ class ApplicationFileAdaptorTest {
             WebApplicationException.class,
             () -> adaptor.putFile("sys_resources", "ApplicationFiles/a.css", body));
     assertEquals(403, ex.getResponse().getStatus());
-    verify(fileStore, never()).write(any(), any(), any(), anyBoolean(), any());
+    verify(fileStore, never()).write(any(), any(), any(), anyBoolean(), any(), any());
   }
 
   @Test

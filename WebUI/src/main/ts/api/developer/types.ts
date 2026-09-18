@@ -1264,6 +1264,7 @@ export interface ApplicationFileSummary {
   characterEncoding?: string;
   contentLength?: number;
   designGaps?: string[];
+  lock?: { session?: string; locker?: string; remainingTime?: number };
 }
 
 /** CE control parameter from GET /services/cecontrols. */

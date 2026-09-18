@@ -1869,6 +1869,20 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Content may not be well-formed XML. Fix the markup before saving.",
   APPFILE_SAVE_ADMIN_ONLY:
     "perc.ui.developer@Admin role required. Save is disabled for this session.",
+  APPFILE_LOCK: "perc.ui.developer@Lock",
+  APPFILE_UNLOCK: "perc.ui.developer@Unlock",
+  APPFILE_LOCK_TOOLBAR: "perc.ui.developer@Application file lock",
+  APPFILE_LOCK_HINT:
+    "perc.ui.developer@Lock the file before saving. Save stays disabled until you hold the lock.",
+  APPFILE_LOCKED: "perc.ui.developer@Locked",
+  APPFILE_UNLOCKED: "perc.ui.developer@Unlocked",
+  APPFILE_LOCKED_NOTICE: "perc.ui.developer@Application file locked.",
+  APPFILE_UNLOCKED_NOTICE: "perc.ui.developer@Application file unlocked.",
+  APPFILE_LOCK_ERROR: "perc.ui.developer@Could not lock application file.",
+  APPFILE_UNLOCK_ERROR: "perc.ui.developer@Could not unlock application file.",
+  APPFILE_LOCK_REQUIRED: "perc.ui.developer@Lock the file before saving.",
+  APPFILE_LOCK_CONFLICT:
+    "perc.ui.developer@Could not save: design lock required or held by another user.",
   APPFILE_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   APPFILE_COL_ACTIONS: "perc.ui.developer@Actions",
   APPFILE_NEW_FOLDER: "perc.ui.developer@Create folder",

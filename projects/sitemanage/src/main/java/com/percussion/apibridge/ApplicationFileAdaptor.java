@@ -17,9 +17,14 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.design.objectstore.PSLockedException;
+import com.percussion.design.objectstore.server.IPSLockerId;
 import com.percussion.design.objectstore.server.PSApplicationSummary;
 import com.percussion.design.objectstore.server.PSServerXmlObjectStore;
+import com.percussion.design.objectstore.server.PSXmlObjectStoreLockerId;
+import com.percussion.error.PSNotLockedException;
 import com.percussion.error.PSNotFoundException;
+import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.applicationfiles.ApplicationFileSummary;
 import com.percussion.rest.applicationfiles.IApplicationFileAdaptor;
 import com.percussion.security.PSAuthorizationException;
@@ -33,6 +38,7 @@ import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
 import com.percussion.util.IOTools;
+import com.percussion.utils.request.PSRequestInfo;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -47,6 +53,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -79,9 +88,14 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
 
   static final String NESTED_MOVE = "Cannot move a folder into itself";
 
+  static final String LOCK_REQUIRED = "Design lock required, or locked by another user";
+
+  static final String LOCK_HELD_BY_OTHER = "Could not acquire design lock; locked by another user";
+
+  static final String SESSION_REQUIRED = "session and user are required for design lock";
+
   private static final List<String> DESIGN_GAPS =
       List.of(
-          "Design locking / concurrent edit are not exposed on this Developer surface",
           "Binary files may not round-trip as UTF-8 text",
           "Admin PUT may create a new file when the relative path does not yet exist under the application root",
           "Distinct from /serverconfigs (SY-02 fixed server configuration allow-list)");
@@ -90,6 +104,9 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
   private final ApplicationFileStore fileStore;
   private final BooleanSupplier adminChecker;
   private final Supplier<PSSecurityToken> tokenSupplier;
+  private final ApplicationDesignLockStore lockStore;
+  private final Supplier<String> sessionSupplier;
+  private final Supplier<String> userSupplier;
 
   /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
   @Autowired(required = false)
@@ -100,7 +117,26 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
         tok -> PSServerXmlObjectStore.getInstance().getApplicationSummaryObjects(tok, false),
         new ObjectStoreApplicationFileStore(),
         null,
-        ApplicationFileAdaptor::tokenFromCurrentRequest);
+        ApplicationFileAdaptor::tokenFromCurrentRequest,
+        new ObjectStoreApplicationDesignLockStore(),
+        ApplicationFileAdaptor::currentSession,
+        ApplicationFileAdaptor::currentUser);
+  }
+
+  /** Package-visible for tests (in-memory design lock). */
+  ApplicationFileAdaptor(
+      Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader,
+      ApplicationFileStore fileStore,
+      BooleanSupplier adminChecker,
+      Supplier<PSSecurityToken> tokenSupplier) {
+    this(
+        summaryLoader,
+        fileStore,
+        adminChecker,
+        tokenSupplier,
+        new InMemoryApplicationDesignLockStore(),
+        () -> "test-session",
+        () -> "Admin");
   }
 
   /** Package-visible for tests. */
@@ -108,12 +144,19 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
       Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader,
       ApplicationFileStore fileStore,
       BooleanSupplier adminChecker,
-      Supplier<PSSecurityToken> tokenSupplier) {
+      Supplier<PSSecurityToken> tokenSupplier,
+      ApplicationDesignLockStore lockStore,
+      Supplier<String> sessionSupplier,
+      Supplier<String> userSupplier) {
     this.summaryLoader = summaryLoader;
     this.fileStore = fileStore;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
     this.tokenSupplier =
         tokenSupplier != null ? tokenSupplier : ApplicationFileAdaptor::tokenFromCurrentRequest;
+    this.lockStore = lockStore != null ? lockStore : new InMemoryApplicationDesignLockStore();
+    this.sessionSupplier =
+        sessionSupplier != null ? sessionSupplier : ApplicationFileAdaptor::currentSession;
+    this.userSupplier = userSupplier != null ? userSupplier : ApplicationFileAdaptor::currentUser;
   }
 
   @Override
@@ -165,7 +208,7 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
         return null;
       }
       String text = IOTools.getContent(in);
-      return toDetail(resolved.trustedName(), safePath, text);
+      return toDetail(resolved.trustedName(), safePath, text, currentLockSummary(resolved, safePath));
     } catch (PSNotFoundException e) {
       log.debug("Application file not found {}:{} — {}", resolved.trustedName(), safePath, e.toString());
       return null;
@@ -203,11 +246,17 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
     if (safePath == null) {
       return null;
     }
+    requireHeldLock(resolved, safePath);
     PSSecurityToken tok = currentToken();
     byte[] bytes = body.getContent().getBytes(StandardCharsets.UTF_8);
     try (InputStream in = new ByteArrayInputStream(bytes)) {
       fileStore.write(
-          resolved.trustedName(), new File(toOsRelativePath(safePath)), in, true, tok);
+          resolved.trustedName(),
+          new File(toOsRelativePath(safePath)),
+          in,
+          true,
+          tok,
+          currentLockerId());
     } catch (PSNotFoundException e) {
       log.debug(
           "Application not found for write {}:{} — {}",
@@ -218,6 +267,8 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
     } catch (PSAuthorizationException e) {
       throw new WebApplicationException(
           "Not authorized to update application file", Response.Status.FORBIDDEN);
+    } catch (PSNotLockedException | PSLockedException e) {
+      throw new WebApplicationException(LOCK_REQUIRED, Response.Status.CONFLICT);
     } catch (RuntimeException e) {
       // Must precede catch (Exception): otherwise RuntimeException is remapped to HTTP 500.
       throw e;
@@ -232,7 +283,65 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
           e,
           Response.Status.INTERNAL_SERVER_ERROR);
     }
-    return toDetail(resolved.trustedName(), safePath, body.getContent());
+    return toDetail(
+        resolved.trustedName(), safePath, body.getContent(), currentLockSummary(resolved, safePath));
+  }
+
+  @Override
+  public ObjectLockSummary lockFile(String appName, String relativePath) {
+    requireAdmin();
+    requireSessionUser();
+    ResolvedApp resolved = resolveApp(appName);
+    if (resolved == null) {
+      return null;
+    }
+    String safePath = normalizeSafeRelativePath(relativePath);
+    if (safePath == null) {
+      return null;
+    }
+    String lockName = designLockName(resolved.trustedName(), safePath);
+    try {
+      lockStore.acquire(lockName, userName(), sessionId(), 30);
+      return currentLockSummary(resolved, safePath);
+    } catch (PSLockedException e) {
+      throw new WebApplicationException(LOCK_HELD_BY_OTHER, Response.Status.CONFLICT);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Failed to lock application file {}:{}", resolved.trustedName(), safePath, e);
+      throw new IllegalStateException("Failed to lock application file", e);
+    }
+  }
+
+  @Override
+  public Boolean unlockFile(String appName, String relativePath) {
+    requireAdmin();
+    requireSessionUser();
+    ResolvedApp resolved = resolveApp(appName);
+    if (resolved == null) {
+      return null;
+    }
+    String safePath = normalizeSafeRelativePath(relativePath);
+    if (safePath == null) {
+      return null;
+    }
+    String lockName = designLockName(resolved.trustedName(), safePath);
+    try {
+      if (lockStore.heldByOther(lockName, userName(), sessionId())) {
+        throw new WebApplicationException(LOCK_HELD_BY_OTHER, Response.Status.CONFLICT);
+      }
+      lockStore.release(lockName, userName(), sessionId());
+      return Boolean.TRUE;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Failed to unlock application file {}:{}", resolved.trustedName(), safePath, e);
+      throw new IllegalStateException("Failed to unlock application file", e);
+    }
   }
 
   @Override
@@ -445,6 +554,74 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
     return req.getSecurityToken();
   }
 
+  private void requireSessionUser() {
+    if (StringUtils.isBlank(sessionId()) || StringUtils.isBlank(userName())) {
+      throw new WebApplicationException(SESSION_REQUIRED, Response.Status.CONFLICT);
+    }
+  }
+
+  private String sessionId() {
+    String s = sessionSupplier.get();
+    return s != null ? s : "";
+  }
+
+  private String userName() {
+    String u = userSupplier.get();
+    return u != null ? u : "";
+  }
+
+  static String currentSession() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+  }
+
+  static String currentUser() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+  }
+
+  static String designLockName(String trustedApp, String apiPath) {
+    return trustedApp + "-" + leafName(apiPath);
+  }
+
+  private IPSLockerId currentLockerId() {
+    return new PSXmlObjectStoreLockerId(userName(), true, sessionId());
+  }
+
+  private void requireHeldLock(ResolvedApp resolved, String safePath) {
+    requireSessionUser();
+    String lockName = designLockName(resolved.trustedName(), safePath);
+    try {
+      if (lockStore.heldByOther(lockName, userName(), sessionId())) {
+        throw new WebApplicationException(LOCK_REQUIRED, Response.Status.CONFLICT);
+      }
+      if (!lockStore.heldBy(lockName, userName(), sessionId())) {
+        throw new WebApplicationException(LOCK_REQUIRED, Response.Status.CONFLICT);
+      }
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(LOCK_REQUIRED, Response.Status.CONFLICT);
+    }
+  }
+
+  private ObjectLockSummary currentLockSummary(ResolvedApp resolved, String safePath) {
+    try {
+      Properties info =
+          lockStore.info(designLockName(resolved.trustedName(), safePath), userName(), sessionId());
+      if (info == null || StringUtils.isBlank(info.getProperty("lockerName"))) {
+        return null;
+      }
+      ObjectLockSummary summary = new ObjectLockSummary();
+      summary.setLocker(info.getProperty("lockerName"));
+      summary.setSession(info.getProperty("lockerSession"));
+      summary.setRemainingTime(30L);
+      return summary;
+    } catch (RuntimeException e) {
+      return null;
+    }
+  }
+
   private void requireAdmin() {
     boolean allowed;
     try {
@@ -602,6 +779,11 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
   }
 
   static ApplicationFileSummary toDetail(String appName, String apiPath, String content) {
+    return toDetail(appName, apiPath, content, null);
+  }
+
+  static ApplicationFileSummary toDetail(
+      String appName, String apiPath, String content, ObjectLockSummary lock) {
     ApplicationFileSummary s = toListSummary(appName, apiPath, false);
     s.setContent(content);
     s.setCharacterEncoding(StandardCharsets.UTF_8.name());
@@ -610,6 +792,7 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
       s.setContentLength((long) content.getBytes(StandardCharsets.UTF_8).length);
     }
     s.setDesignGaps(new ArrayList<>(DESIGN_GAPS));
+    s.setLock(lock);
     return s;
   }
 
@@ -661,7 +844,8 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
         File relativeFile,
         InputStream in,
         boolean overwrite,
-        PSSecurityToken tok)
+        PSSecurityToken tok,
+        IPSLockerId lockId)
         throws Exception;
 
     void mkdir(String trustedAppName, File relativeDir, PSSecurityToken tok) throws Exception;
@@ -717,12 +901,17 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
         File relativeFile,
         InputStream in,
         boolean overwrite,
-        PSSecurityToken tok)
+        PSSecurityToken tok,
+        IPSLockerId lockId)
         throws Exception {
-      // Admin REST does not expose design locks (design gap) — same pattern as SY-02 config save.
+      if (lockId == null) {
+        throw new PSNotLockedException(
+            com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes.LOCK_NOT_HELD
+                .numericCode(),
+            trustedAppName);
+      }
       PSServerXmlObjectStore.getInstance()
-          .saveApplicationFileWithoutLocking(
-              trustedAppName, relativeFile, in, overwrite, tok, false);
+          .saveApplicationFile(trustedAppName, relativeFile, in, overwrite, lockId, tok, false);
     }
 
     @Override
@@ -836,6 +1025,121 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
       for (Path p : paths) {
         Files.deleteIfExists(p); // codeql[java/path-injection]
       }
+    }
+  }
+
+  /** Object-store design lock seam for unit tests. */
+  interface ApplicationDesignLockStore {
+    void acquire(String lockName, String user, String session, int minutes) throws Exception;
+
+    void release(String lockName, String user, String session) throws Exception;
+
+    boolean heldBy(String lockName, String user, String session) throws Exception;
+
+    boolean heldByOther(String lockName, String user, String session) throws Exception;
+
+    Properties info(String lockName, String user, String session);
+  }
+
+  private record HeldLock(String user, String session) {}
+
+  /** In-memory lock map for adaptor unit tests. */
+  static final class InMemoryApplicationDesignLockStore implements ApplicationDesignLockStore {
+    private final Map<String, HeldLock> held = new ConcurrentHashMap<>();
+
+    @Override
+    public void acquire(String lockName, String user, String session, int minutes)
+        throws Exception {
+      HeldLock existing = held.get(lockName);
+      if (existing != null && (!existing.user().equals(user) || !existing.session().equals(session))) {
+        throw new PSLockedException(0, lockName);
+      }
+      held.put(lockName, new HeldLock(user, session));
+    }
+
+    @Override
+    public void release(String lockName, String user, String session) {
+      HeldLock existing = held.get(lockName);
+      if (existing != null && existing.user().equals(user) && existing.session().equals(session)) {
+        held.remove(lockName);
+      }
+    }
+
+    @Override
+    public boolean heldBy(String lockName, String user, String session) {
+      HeldLock existing = held.get(lockName);
+      return existing != null && existing.user().equals(user) && existing.session().equals(session);
+    }
+
+    @Override
+    public boolean heldByOther(String lockName, String user, String session) {
+      HeldLock existing = held.get(lockName);
+      return existing != null
+          && (!existing.user().equals(user) || !existing.session().equals(session));
+    }
+
+    @Override
+    public Properties info(String lockName, String user, String session) {
+      HeldLock existing = held.get(lockName);
+      if (existing == null) {
+        return null;
+      }
+      Properties p = new Properties();
+      p.setProperty("lockerName", existing.user());
+      p.setProperty("lockerSession", existing.session());
+      return p;
+    }
+  }
+
+  private static final class ObjectStoreApplicationDesignLockStore
+      implements ApplicationDesignLockStore {
+    @Override
+    public void acquire(String lockName, String user, String session, int minutes)
+        throws Exception {
+      IPSLockerId id = new PSXmlObjectStoreLockerId(user, true, session);
+      PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
+      if (os.isApplicationLocked(id, lockName)) {
+        os.getApplicationLock(id, lockName, minutes);
+        return;
+      }
+      Properties info = os.getApplicationLockInfo(id, lockName);
+      if (info != null && StringUtils.isNotBlank(info.getProperty("lockerName"))) {
+        String locker = info.getProperty("lockerName");
+        String lockerSession = info.getProperty("lockerSession");
+        if (!user.equals(locker) || (lockerSession != null && !session.equals(lockerSession))) {
+          throw new PSLockedException(0, lockName);
+        }
+      }
+      os.getApplicationLock(id, lockName, minutes);
+    }
+
+    @Override
+    public void release(String lockName, String user, String session) throws Exception {
+      IPSLockerId id = new PSXmlObjectStoreLockerId(user, true, session);
+      PSServerXmlObjectStore.getInstance().releaseApplicationLock(id, lockName);
+    }
+
+    @Override
+    public boolean heldBy(String lockName, String user, String session) throws Exception {
+      IPSLockerId id = new PSXmlObjectStoreLockerId(user, true, session);
+      return PSServerXmlObjectStore.getInstance().isApplicationLocked(id, lockName);
+    }
+
+    @Override
+    public boolean heldByOther(String lockName, String user, String session) throws Exception {
+      IPSLockerId id = new PSXmlObjectStoreLockerId(user, true, session);
+      PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
+      if (os.isApplicationLocked(id, lockName)) {
+        return false;
+      }
+      Properties info = os.getApplicationLockInfo(id, lockName);
+      return info != null && StringUtils.isNotBlank(info.getProperty("lockerName"));
+    }
+
+    @Override
+    public Properties info(String lockName, String user, String session) {
+      IPSLockerId id = new PSXmlObjectStoreLockerId(user, true, session);
+      return PSServerXmlObjectStore.getInstance().getApplicationLockInfo(id, lockName);
     }
   }
 }
