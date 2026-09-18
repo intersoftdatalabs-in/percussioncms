@@ -76,7 +76,7 @@ preference):
 Operators using **Developer → Pipelines** browse, Admin start/stop, pipe IR, and OpenAPI chrome:
 [Developer Pipelines](id:admin-developer-pipelines).
 
-Operators using **Developer → Application Files** browse/save chrome (XML
+Operators using **Developer → Application Files** browse/save/folder chrome (XML
 application CMS/resource files; distinct from Server Configs):
 [Developer Application Files](id:admin-developer-application-files).
 
@@ -84,7 +84,8 @@ application CMS/resource files; distinct from Server Configs):
 
 Destructive **Delete** on Developer catalog editors (Searches, Views, Display
 Formats, Item Filters, Locales, Slots, Communities, Shared Fields, Keywords,
-System definition fields, Content Types, Action Menus, and CE Controls) uses an
+System definition fields, Content Types, Action Menus, CE Controls, and
+Application Files) uses an
 **in-app confirm dialog**, not the browser `window.confirm` prompt. The dialog is a
 modal with a title, message, **Cancel**, and **Delete**. Screen readers can
 announce it; Escape cancels when the delete is not in progress.

@@ -45,4 +45,25 @@ public interface IApplicationFileAdaptor {
    * @return updated detail, or {@code null} if app/path unknown or unsafe
    */
   ApplicationFileSummary putFile(String appName, String relativePath, ApplicationFileSummary body);
+
+  /**
+   * Admin. Create a folder at a relative path under the application root.
+   *
+   * @return folder summary, or {@code null} if the application is unknown
+   */
+  ApplicationFileSummary createFolder(String appName, String relativePath);
+
+  /**
+   * Admin. Delete a relative file or folder (folders are removed recursively).
+   *
+   * @return {@code Boolean.TRUE} when deleted, or {@code null} if the application or path is unknown
+   */
+  Boolean deletePath(String appName, String relativePath);
+
+  /**
+   * Admin. Rename or move a relative file or folder under the application root.
+   *
+   * @return destination summary, or {@code null} if the application or source path is unknown
+   */
+  ApplicationFileSummary movePath(String appName, String fromPath, String toPath);
 }

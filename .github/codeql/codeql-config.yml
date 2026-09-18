@@ -510,3 +510,25 @@ query-filters:
         // codeql[java/path-injection] on residual File API. Tests:
         PSConfigServicePathInjectionTest. GHA does not load local packs.
         Do not re-edit annotated sinks to chase IDs.
+  # --- CodeQL #2063–#2073 Developer Application Files folder CUD ---
+  # Runtime: requireSafeRelativePath (segment requireSafeFileName, reject .. /
+  # absolute / NUL) then resolveUnderAppRoot → requireUnderBase(RxDir/appDir).
+  # Same-line // codeql[java/path-injection] already on File/NIO sinks.
+  # GHA does not load local packs; query-filters do not always filter PR
+  # review comments. Do not re-edit annotated sinks to chase IDs.
+  - exclude:
+      id: java/path-injection
+      paths:
+        - "projects/sitemanage/src/main/java/com/percussion/apibridge/ApplicationFileAdaptor.java"
+        - "**/apibridge/ApplicationFileAdaptor.java"
+      reason: >-
+        Alerts #2063–#2073 (PR #4571): File.exists/isDirectory, Files.exists,
+        createDirectories, move, deleteIfExists after resolveUnderAppRoot.
+        Runtime requireSafeFileName per segment + requireUnderBase(RxDir)
+        then requireUnderBase(appDir, relative). Same-line
+        // codeql[java/path-injection] on residual File/NIO API. Model pack
+        ReturnValue barriers for resolveAppRootDir / resolveUnderAppRoot /
+        requireSafeRelativePath / normalizeSafeRelativePath (GHA may not
+        load local packs). Tests: ApplicationFileAdaptorTest
+        (createFolder/delete/move traversal 400; resolveUnderAppRoot
+        rejects File("../escape")). Do not re-edit annotated sinks.

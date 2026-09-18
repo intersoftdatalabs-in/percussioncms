@@ -43,4 +43,19 @@ public class TestApplicationFileAdaptor implements IApplicationFileAdaptor {
       String appName, String relativePath, ApplicationFileSummary body) {
     return null;
   }
+
+  @Override
+  public ApplicationFileSummary createFolder(String appName, String relativePath) {
+    return null;
+  }
+
+  @Override
+  public Boolean deletePath(String appName, String relativePath) {
+    return null;
+  }
+
+  @Override
+  public ApplicationFileSummary movePath(String appName, String fromPath, String toPath) {
+    return null;
+  }
 }

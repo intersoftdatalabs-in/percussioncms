@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { get, put } from "../client";
+import { del, get, post, put } from "../client";
 import { PATHS } from "../paths";
 import type { ApplicationFileSummary } from "./types";
 
@@ -26,7 +26,6 @@ import type { ApplicationFileSummary } from "./types";
 export const APPLICATION_FILE_DESIGN_GAPS: string[] = [
   "Design locking / concurrent edit are not exposed on this Developer surface",
   "Binary files may not round-trip as UTF-8 text",
-  "Create/delete folder and rename/move are not supported via this API",
   "Admin PUT may create a new file when the relative path does not yet exist under the application root",
   "Distinct from /serverconfigs (SY-02 fixed server configuration allow-list)",
 ];
@@ -109,6 +108,46 @@ function contentUrl(app: string, relativePath: string): string {
   return `${PATHS.APPLICATION_FILES}/${appKey(app)}/content?${params.toString()}`;
 }
 
+function folderUrl(app: string, relativePath: string): string {
+  const params = new URLSearchParams();
+  params.set("path", relativePath);
+  return `${PATHS.APPLICATION_FILES}/${appKey(app)}/folders?${params.toString()}`;
+}
+
+function moveUrl(app: string): string {
+  return `${PATHS.APPLICATION_FILES}/${appKey(app)}/move`;
+}
+
+/** Jackson / JAXB root for ApplicationFileMove (UNWRAP_ROOT_VALUE on POST). */
+export const APPLICATION_FILE_MOVE_ROOT = "ApplicationFileMove";
+
+export type ApplicationFileMoveBody = {
+  fromPath: string;
+  toPath: string;
+};
+
+export function wrapApplicationFileMoveForWire(body: ApplicationFileMoveBody): {
+  ApplicationFileMove: ApplicationFileMoveBody;
+} {
+  return { [APPLICATION_FILE_MOVE_ROOT]: body };
+}
+
+/**
+ * Join a parent API path with a single segment. Uses REST {@code /} separators
+ * (not OS filesystem separators). Rejects traversal and absolute segments.
+ */
+export function joinApplicationFilePath(parent: string, name: string): string {
+  const p = (parent || "").trim().replace(/\\/g, "/").replace(/\/+$/, "");
+  const n = (name || "").trim().replace(/\\/g, "/");
+  if (!n) {
+    throw new Error("name is required");
+  }
+  if (n.includes("..") || n.startsWith("/") || n.includes("\\") || n.includes("/")) {
+    throw new Error("name must be a single relative path segment");
+  }
+  return p ? `${p}/${n}` : n;
+}
+
 /** GET /services/applicationfiles/{app} — list omits designGaps on the wire. */
 export async function listApplicationFiles(
   app: string,
@@ -161,4 +200,64 @@ export async function updateApplicationFile(
     wrapApplicationFileForWire({ content: body.content }),
   );
   return withGaps(unwrapApplicationFile(payload));
+}
+
+/** POST /services/applicationfiles/{app}/folders?path= — Admin. */
+export async function createApplicationFolder(
+  app: string,
+  relativePath: string,
+): Promise<ApplicationFileSummary> {
+  const name = (app || "").trim();
+  const path = (relativePath || "").trim();
+  if (!name) {
+    throw new Error("application name is required");
+  }
+  if (!path) {
+    throw new Error("path is required");
+  }
+  return unwrapApplicationFile(await post<unknown>(folderUrl(name, path), {}));
+}
+
+/** DELETE /services/applicationfiles/{app}/content?path= — Admin. */
+export async function deleteApplicationPath(
+  app: string,
+  relativePath: string,
+): Promise<void> {
+  const name = (app || "").trim();
+  const path = (relativePath || "").trim();
+  if (!name) {
+    throw new Error("application name is required");
+  }
+  if (!path) {
+    throw new Error("path is required");
+  }
+  await del(contentUrl(name, path));
+}
+
+/**
+ * POST /services/applicationfiles/{app}/move — Admin.
+ * Body paths select source and destination; query is unused.
+ */
+export async function moveApplicationPath(
+  app: string,
+  fromPath: string,
+  toPath: string,
+): Promise<ApplicationFileSummary> {
+  const name = (app || "").trim();
+  const from = (fromPath || "").trim();
+  const to = (toPath || "").trim();
+  if (!name) {
+    throw new Error("application name is required");
+  }
+  if (!from) {
+    throw new Error("fromPath is required");
+  }
+  if (!to) {
+    throw new Error("toPath is required");
+  }
+  const payload = await post<unknown>(
+    moveUrl(name),
+    wrapApplicationFileMoveForWire({ fromPath: from, toPath: to }),
+  );
+  return unwrapApplicationFile(payload);
 }

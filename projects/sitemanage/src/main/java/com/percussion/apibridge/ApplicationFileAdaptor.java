@@ -26,6 +26,7 @@ import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.server.PSRequest;
+import com.percussion.server.PSServer;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
@@ -38,6 +39,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -68,11 +71,18 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
 
   static final String ADMIN_REQUIRED = "Admin role required to update application CMS/resource files";
 
+  static final String INVALID_PATH = "Invalid path";
+
+  static final String TARGET_EXISTS = "Destination already exists";
+
+  static final String SOURCE_IS_DESTINATION = "fromPath and toPath must differ";
+
+  static final String NESTED_MOVE = "Cannot move a folder into itself";
+
   private static final List<String> DESIGN_GAPS =
       List.of(
           "Design locking / concurrent edit are not exposed on this Developer surface",
           "Binary files may not round-trip as UTF-8 text",
-          "Create/delete folder and rename/move are not supported via this API",
           "Admin PUT may create a new file when the relative path does not yet exist under the application root",
           "Distinct from /serverconfigs (SY-02 fixed server configuration allow-list)");
 
@@ -114,7 +124,7 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
     }
     try {
       List<ApplicationFileSummary> out = new ArrayList<>();
-      Iterator<File> files = fileStore.listFiles(resolved.trustedName());
+      Iterator<File> files = fileStore.listFiles(resolved.trustedName(), resolved.appRoot());
       while (files != null && files.hasNext()) {
         File f = files.next();
         if (f == null) {
@@ -225,16 +235,198 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
     return toDetail(resolved.trustedName(), safePath, body.getContent());
   }
 
+  @Override
+  public ApplicationFileSummary createFolder(String appName, String relativePath) {
+    requireAdmin();
+    String safePath = requireSafeRelativePath(relativePath);
+    ResolvedApp resolved = resolveApp(appName);
+    if (resolved == null) {
+      return null;
+    }
+    PSSecurityToken tok = currentToken();
+    File rel = new File(toOsRelativePath(safePath));
+    try {
+      if (fileStore.exists(resolved.appRoot(), rel)
+          && !fileStore.isDirectory(resolved.trustedName(), resolved.appRoot(), rel)) {
+        throw new FileAlreadyExistsException(safePath);
+      }
+      fileStore.mkdir(resolved.trustedName(), rel, tok);
+    } catch (PSNotFoundException e) {
+      log.debug(
+          "Application not found for mkdir {}:{} — {}",
+          resolved.trustedName(),
+          safePath,
+          e.toString());
+      return null;
+    } catch (PSAuthorizationException e) {
+      throw new WebApplicationException(
+          "Not authorized to create application folder", Response.Status.FORBIDDEN);
+    } catch (FileAlreadyExistsException e) {
+      throw new WebApplicationException(TARGET_EXISTS, Response.Status.CONFLICT);
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to create application folder {}:{}: {}",
+          resolved.trustedName(),
+          safePath,
+          e.getMessage());
+      throw new WebApplicationException(
+          "Failed to create application folder: " + e.getMessage(),
+          e,
+          Response.Status.INTERNAL_SERVER_ERROR);
+    }
+    return toListSummary(resolved.trustedName(), safePath, true);
+  }
+
+  @Override
+  public Boolean deletePath(String appName, String relativePath) {
+    requireAdmin();
+    String safePath = requireSafeRelativePath(relativePath);
+    ResolvedApp resolved = resolveApp(appName);
+    if (resolved == null) {
+      return null;
+    }
+    PSSecurityToken tok = currentToken();
+    try {
+      boolean deleted =
+          fileStore.delete(
+              resolved.trustedName(),
+              resolved.appRoot(),
+              new File(toOsRelativePath(safePath)),
+              tok);
+      return deleted ? Boolean.TRUE : null;
+    } catch (PSNotFoundException e) {
+      log.debug(
+          "Application file not found for delete {}:{} — {}",
+          resolved.trustedName(),
+          safePath,
+          e.toString());
+      return null;
+    } catch (PSAuthorizationException e) {
+      throw new WebApplicationException(
+          "Not authorized to delete application file", Response.Status.FORBIDDEN);
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to delete application path {}:{}: {}",
+          resolved.trustedName(),
+          safePath,
+          e.getMessage());
+      throw new WebApplicationException(
+          "Failed to delete application path: " + e.getMessage(),
+          e,
+          Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Override
+  public ApplicationFileSummary movePath(String appName, String fromPath, String toPath) {
+    requireAdmin();
+    String safeFrom = requireSafeRelativePath(fromPath);
+    String safeTo = requireSafeRelativePath(toPath);
+    if (safeFrom.equals(safeTo)) {
+      throw new IllegalArgumentException(SOURCE_IS_DESTINATION);
+    }
+    if (isNestedDestination(safeFrom, safeTo)) {
+      throw new IllegalArgumentException(NESTED_MOVE);
+    }
+    ResolvedApp resolved = resolveApp(appName);
+    if (resolved == null) {
+      return null;
+    }
+    PSSecurityToken tok = currentToken();
+    try {
+      boolean moved =
+          fileStore.rename(
+              resolved.trustedName(),
+              resolved.appRoot(),
+              new File(toOsRelativePath(safeFrom)),
+              new File(toOsRelativePath(safeTo)),
+              tok);
+      if (!moved) {
+        return null;
+      }
+    } catch (PSNotFoundException e) {
+      log.debug(
+          "Application path not found for move {}:{} — {}",
+          resolved.trustedName(),
+          safeFrom,
+          e.toString());
+      return null;
+    } catch (PSAuthorizationException e) {
+      throw new WebApplicationException(
+          "Not authorized to move application file", Response.Status.FORBIDDEN);
+    } catch (FileAlreadyExistsException e) {
+      throw new WebApplicationException(TARGET_EXISTS, Response.Status.CONFLICT);
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to move application path {}:{} -> {}: {}",
+          resolved.trustedName(),
+          safeFrom,
+          safeTo,
+          e.getMessage());
+      throw new WebApplicationException(
+          "Failed to move application path: " + e.getMessage(),
+          e,
+          Response.Status.INTERNAL_SERVER_ERROR);
+    }
+    boolean directory = false;
+    try {
+      directory =
+          fileStore.isDirectory(
+              resolved.trustedName(),
+              resolved.appRoot(),
+              new File(toOsRelativePath(safeTo)));
+    } catch (Exception e) {
+      log.debug("Could not stat moved path {}:{}", resolved.trustedName(), safeTo, e);
+    }
+    return toListSummary(resolved.trustedName(), safeTo, directory);
+  }
+
+  /**
+   * True when {@code toPath} is the same as {@code fromPath} or a descendant (folder moved into
+   * itself).
+   */
+  static boolean isNestedDestination(String fromPath, String toPath) {
+    if (fromPath == null || toPath == null) {
+      return false;
+    }
+    return toPath.startsWith(fromPath + "/");
+  }
+
+  /** Unsafe relative paths are 400 for folder create/delete/move (not 404). */
+  static String requireSafeRelativePath(String relativePath) {
+    String safe = normalizeSafeRelativePath(relativePath);
+    if (safe == null) {
+      throw new IllegalArgumentException(INVALID_PATH);
+    }
+    return safe;
+  }
+
   private ResolvedApp resolveApp(String appName) {
     if (StringUtils.isBlank(appName) || !isSafeApplicationName(appName.trim())) {
       return null;
     }
     PSSecurityToken tok = currentToken();
-    String trusted = resolveApplicationName(appName.trim(), summaryLoader.apply(tok));
+    PSApplicationSummary[] sums = summaryLoader.apply(tok);
+    String trusted = resolveApplicationName(appName.trim(), sums);
     if (trusted == null) {
       return null;
     }
-    return new ResolvedApp(trusted);
+    String appRoot = trusted;
+    if (sums != null) {
+      for (PSApplicationSummary sum : sums) {
+        if (sum != null && trusted.equals(sum.getName()) && StringUtils.isNotBlank(sum.getAppRoot())) {
+          appRoot = sum.getAppRoot();
+          break;
+        }
+      }
+    }
+    return new ResolvedApp(trusted, appRoot);
   }
 
   private PSSecurityToken currentToken() {
@@ -455,11 +647,11 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
     return "text/plain";
   }
 
-  private record ResolvedApp(String trustedName) {}
+  private record ResolvedApp(String trustedName, String appRoot) {}
 
   /** Object-store I/O seam for unit tests. */
   interface ApplicationFileStore {
-    Iterator<File> listFiles(String trustedAppName) throws Exception;
+    Iterator<File> listFiles(String trustedAppName, String appRoot) throws Exception;
 
     InputStream read(String trustedAppName, File relativeFile, PSSecurityToken tok)
         throws Exception;
@@ -471,12 +663,45 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
         boolean overwrite,
         PSSecurityToken tok)
         throws Exception;
+
+    void mkdir(String trustedAppName, File relativeDir, PSSecurityToken tok) throws Exception;
+
+    boolean delete(String trustedAppName, String appRoot, File relativeFile, PSSecurityToken tok)
+        throws Exception;
+
+    boolean rename(
+        String trustedAppName,
+        String appRoot,
+        File fromFile,
+        File toFile,
+        PSSecurityToken tok)
+        throws Exception;
+
+    boolean isDirectory(String trustedAppName, String appRoot, File relativeFile) throws Exception;
+
+    boolean exists(String appRoot, File relativeFile) throws Exception;
   }
 
   private static final class ObjectStoreApplicationFileStore implements ApplicationFileStore {
     @Override
-    public Iterator<File> listFiles(String trustedAppName) throws Exception {
-      return PSServerXmlObjectStore.getInstance().getApplicationFiles(trustedAppName);
+    public Iterator<File> listFiles(String trustedAppName, String appRoot) throws Exception {
+      File appDir = resolveAppRootDir(appRoot);
+      if (appDir == null || !appDir.isDirectory()) { // codeql[java/path-injection]
+        return PSServerXmlObjectStore.getInstance().getApplicationFiles(trustedAppName);
+      }
+      List<File> out = new ArrayList<>();
+      Path base = appDir.toPath();
+      try (var walk = Files.walk(base)) { // codeql[java/path-injection]
+        walk.filter(p -> !p.equals(base))
+            .forEach(
+                p -> {
+                  Path rel = base.relativize(p);
+                  if (rel.getNameCount() > 0) {
+                    out.add(rel.toFile());
+                  }
+                });
+      }
+      return out.iterator();
     }
 
     @Override
@@ -498,6 +723,119 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
       PSServerXmlObjectStore.getInstance()
           .saveApplicationFileWithoutLocking(
               trustedAppName, relativeFile, in, overwrite, tok, false);
+    }
+
+    @Override
+    public void mkdir(String trustedAppName, File relativeDir, PSSecurityToken tok)
+        throws Exception {
+      PSServerXmlObjectStore.getInstance()
+          .saveApplicationFileWithoutLocking(trustedAppName, relativeDir, null, true, tok, true);
+    }
+
+    @Override
+    public boolean delete(
+        String trustedAppName, String appRoot, File relativeFile, PSSecurityToken tok)
+        throws Exception {
+      File target = resolveUnderAppRoot(appRoot, relativeFile);
+      if (target == null || !target.exists()) { // codeql[java/path-injection]
+        return false;
+      }
+      deleteRecursively(target.toPath());
+      return true;
+    }
+
+    @Override
+    public boolean rename(
+        String trustedAppName,
+        String appRoot,
+        File fromFile,
+        File toFile,
+        PSSecurityToken tok)
+        throws Exception {
+      File from = resolveUnderAppRoot(appRoot, fromFile);
+      File to = resolveUnderAppRoot(appRoot, toFile);
+      if (from == null || !from.exists()) { // codeql[java/path-injection]
+        return false;
+      }
+      if (to == null) {
+        return false;
+      }
+      if (to.exists()) { // codeql[java/path-injection]
+        throw new FileAlreadyExistsException(to.getPath());
+      }
+      Path toPath = to.toPath();
+      Path parent = toPath.getParent();
+      if (parent != null && !Files.exists(parent)) { // codeql[java/path-injection]
+        Files.createDirectories(parent); // codeql[java/path-injection]
+      }
+      Files.move(from.toPath(), toPath); // codeql[java/path-injection]
+      return true;
+    }
+
+    @Override
+    public boolean isDirectory(String trustedAppName, String appRoot, File relativeFile)
+        throws Exception {
+      File target = resolveUnderAppRoot(appRoot, relativeFile);
+      return target != null && target.isDirectory(); // codeql[java/path-injection]
+    }
+
+    @Override
+    public boolean exists(String appRoot, File relativeFile) throws Exception {
+      File target = resolveUnderAppRoot(appRoot, relativeFile);
+      return target != null && target.exists(); // codeql[java/path-injection]
+    }
+  }
+
+  /**
+   * Resolve a relative application file under the catalog app root. Uses NIO {@link Path#resolve}
+   * per segment and {@link PSPathInjectionGuard#requireUnderBase} so traversal cannot escape RxDir.
+   */
+  static File resolveAppRootDir(String appRoot) {
+    if (StringUtils.isBlank(appRoot)) {
+      return null;
+    }
+    File rxDir = PSServer.getRxDir();
+    if (rxDir == null) {
+      return null;
+    }
+    return PSPathInjectionGuard.requireUnderBase(rxDir, appRoot);
+  }
+
+  static File resolveUnderAppRoot(String appRoot, File relativeFile) {
+    if (relativeFile == null) {
+      return null;
+    }
+    File appDir = resolveAppRootDir(appRoot);
+    if (appDir == null) {
+      return null;
+    }
+    String rel = toApiRelativePath(relativeFile.getPath());
+    if (rel == null || normalizeSafeRelativePath(rel) == null) {
+      throw new IllegalArgumentException(INVALID_PATH);
+    }
+    Path nioRel = nioRelativePath(rel);
+    return PSPathInjectionGuard.requireUnderBase(appDir, nioRel.toString());
+  }
+
+  /** Build a relative NIO path from API {@code /}-separated segments (portable). */
+  static Path nioRelativePath(String apiRelativePath) {
+    String[] segs = apiRelativePath.split("/");
+    Path p = Path.of(segs[0]);
+    for (int i = 1; i < segs.length; i++) {
+      p = p.resolve(segs[i]);
+    }
+    return p;
+  }
+
+  static void deleteRecursively(Path target) throws Exception {
+    if (target == null || !Files.exists(target)) { // codeql[java/path-injection]
+      return;
+    }
+    try (var walk = Files.walk(target)) { // codeql[java/path-injection]
+      List<Path> paths = walk.sorted(Comparator.reverseOrder()).toList();
+      for (Path p : paths) {
+        Files.deleteIfExists(p); // codeql[java/path-injection]
+      }
     }
   }
 }

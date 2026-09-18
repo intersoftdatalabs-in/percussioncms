@@ -293,3 +293,50 @@ extensions:
           "path-injection",
           "manual",
         ]
+      # Developer Application Files folder CUD (CodeQL #2063–#2073 / PR #4571).
+      # Runtime: catalog appRoot + requireSafeFileName per segment, then
+      # requireUnderBase(RxDir) and requireUnderBase(appDir, relative).
+      - [
+          "com.percussion.apibridge",
+          "ApplicationFileAdaptor",
+          false,
+          "resolveAppRootDir",
+          "(String)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.apibridge",
+          "ApplicationFileAdaptor",
+          false,
+          "resolveUnderAppRoot",
+          "(String,File)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.apibridge",
+          "ApplicationFileAdaptor",
+          false,
+          "requireSafeRelativePath",
+          "(String)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.apibridge",
+          "ApplicationFileAdaptor",
+          false,
+          "normalizeSafeRelativePath",
+          "(String)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
