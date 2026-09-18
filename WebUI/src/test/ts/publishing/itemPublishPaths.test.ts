@@ -40,6 +40,12 @@ describe("itemPublishPaths", () => {
     expect(p.linkedItems).toBe(
       "/services/itemmanagement/item/findLinkedItems",
     );
+    expect(p.getItemDates).toBe(
+      "/services/itemmanagement/item/getitemdates",
+    );
+    expect(p.setItemDates).toBe(
+      "/services/itemmanagement/item/setitemdates",
+    );
   });
 });
 

@@ -51,6 +51,16 @@ vi.mock("@/api/publishing/statusApi", () => ({
   fetchCurrentJobsForSite: vi.fn().mockResolvedValue([]),
 }));
 
+vi.mock("@/api/publishing/itemScheduleDatesApi", () => ({
+  fetchItemScheduleDates: vi.fn().mockResolvedValue({
+    itemId: "",
+    startDate: "",
+    endDate: "",
+    comments: "",
+  }),
+  saveItemScheduleDates: vi.fn().mockResolvedValue(undefined),
+}));
+
 const publishApi = await import("@/api/publishing/publishApi");
 
 function renderWorkspace(): void {
@@ -70,6 +80,13 @@ describe("SiteWorkspace full publish (issue #936)", () => {
     vi.mocked(publishApi.publishSite).mockReset();
     vi.mocked(publishApi.incrementalPublishSite).mockReset();
     vi.mocked(publishApi.publishIncrementalWithApproval).mockReset();
+  });
+
+  it("shows the item schedule dates panel on the site workspace", async () => {
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-dates")).toBeTruthy();
+    });
   });
 
   it("renders the FTP BADCONFIG warning when connectivity fails", async () => {

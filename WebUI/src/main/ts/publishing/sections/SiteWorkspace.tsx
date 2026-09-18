@@ -35,6 +35,7 @@ import {
 } from "../../api/publishing/serversApi";
 import { fetchCurrentJobsForSite } from "../../api/publishing/statusApi";
 import { message, MSG } from "../../i18n/message";
+import { ItemScheduleDatesPanel } from "../components/ItemScheduleDatesPanel";
 import { ServerEditor } from "../components/ServerEditor";
 import { ServerList } from "../components/ServerList";
 import { useDirtyForm } from "../dirtyFormContext";
@@ -76,6 +77,8 @@ import type {
 export interface SiteWorkspaceProps {
   site: PublishSiteSummary;
   initialServerId?: string;
+  itemId?: string;
+  onItemIdChange?: (itemId: string) => void;
   onBack: () => void;
 }
 
@@ -120,6 +123,8 @@ function preflightErrorMessage(result: PublishActionResult): string {
 export function SiteWorkspace({
   site,
   initialServerId = "",
+  itemId,
+  onItemIdChange,
   onBack,
 }: SiteWorkspaceProps): React.ReactElement {
   const siteName = site.name;
@@ -433,6 +438,11 @@ export function SiteWorkspace({
         </button>
         <h2 style={{ margin: 0, fontSize: "1.1rem" }}>{siteName}</h2>
       </div>
+
+      <ItemScheduleDatesPanel
+        itemId={itemId}
+        onItemIdChange={onItemIdChange}
+      />
 
       {loadingServers && <p>{message(MSG.PUBLISH_LOADING)}</p>}
       {noServers && (

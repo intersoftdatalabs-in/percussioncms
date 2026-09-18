@@ -40,7 +40,7 @@ export interface PublishingShellProps {
   siteId?: string;
   /** Preselect server in site workspace */
   serverId?: string;
-  /** Item id for publishing-history lookup (query itemId). */
+  /** Item id for publishing-history and schedule-dates lookup (query itemId). */
   itemId?: string;
   /**
    * When false, hide Design section (role-aware progressive disclosure).
@@ -145,6 +145,8 @@ function PublishingShellInner({
           <SitesSection
             initialSiteId={safeSiteId}
             initialServerId={safeServerId}
+            itemId={historyItemId}
+            onItemIdChange={setHistoryItemId}
           />
         )}
         {active === "status" && (

@@ -171,7 +171,25 @@ From **Publish** (`spa.jsp?entry=publish`), open **Status** or **Logs**. The **I
 - `spa.jsp?entry=publish&section=logs&itemId={id}`
 - Path form: `/cm/app/publish/status?itemId={id}` and `/cm/app/publish/logs?itemId={id}`
 
-Use **Open Logs** / **Open Status** in the panel to switch those sections without leaving the lookup. Site-level job status and publish logs stay on the same tabs. Schedule dates and site-workspace takedown are separate Publishing steps.
+Use **Open Logs** / **Open Status** in the panel to switch those sections without leaving the lookup. Site-level job status and publish logs stay on the same tabs. Schedule dates (below) and site-workspace takedown are separate Publishing steps.
+
+## Schedule publish dates (Publishing site workspace)
+
+From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, then a site). The **Schedule** panel gets and sets item publish and removal dates using the existing item-management APIs (`GET /services/itemmanagement/item/getitemdates/{id}`, `POST /services/itemmanagement/item/setitemdates`). It replaces the classic jQuery `PercScheduleDialog` for this shell. Explorer still has its own Schedule action for a selected page or asset.
+
+1. Sign in as an operator who can open Publish.
+2. Open **Publish → Sites** and select a site (or deep-link `section=sites` with `siteId`).
+3. Enter the item id (content GUID such as `16777215-101-9`) and choose **Load dates**.
+4. Set or clear **Publish date** and **Removal date** (optional comments, 500 characters). Removal must be after publish when both are set. **Save dates** posts the `ItemDates` envelope.
+
+**Empty and error states:** Blank item id is not a lookup. Invalid dates return **HTTP 400** (the panel shows the server validation message — past dates, unparseable values, or removal before publish). Forbidden updates return **HTTP 403** (or an application-level `FORBIDDEN` body) — the panel shows that error and does **not** treat the save as success. Clearing both dates and saving removes the schedule.
+
+**Deep links:**
+
+- `spa.jsp?entry=publish&section=sites&siteId={siteId}&itemId={id}`
+- Path form: `/cm/app/publish/sites?siteId={siteId}&itemId={id}`
+
+Item publishing history stays on Status / Logs. Site-workspace takedown is a separate Publishing step.
 
 ## Failure modes to watch
 

@@ -38,6 +38,16 @@ vi.mock("@/api/publishing/itemHistoryApi", () => ({
   fetchItemPublishingHistory: vi.fn().mockResolvedValue([]),
 }));
 
+vi.mock("@/api/publishing/itemScheduleDatesApi", () => ({
+  fetchItemScheduleDates: vi.fn().mockResolvedValue({
+    itemId: "",
+    startDate: "",
+    endDate: "",
+    comments: "",
+  }),
+  saveItemScheduleDates: vi.fn().mockResolvedValue(undefined),
+}));
+
 describe("PublishingShell", () => {
   it("defaults landing to sites (ops first, not Design)", () => {
     expect(defaultLandingSection()).toBe("sites");

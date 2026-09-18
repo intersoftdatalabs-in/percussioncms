@@ -34,8 +34,13 @@ export function itemPublishPaths(root = SERVICES_ROOT): {
   sitePublish: string;
   /** Pages that link to an item — classic Finder takedown confirm. */
   linkedItems: string;
+  /** GET …/getitemdates/{id} — classic PercScheduleDialog. */
+  getItemDates: string;
+  /** POST …/setitemdates — ItemDates envelope. */
+  setItemDates: string;
 } {
   const base = `${root}/sitemanage/publish`;
+  const itemBase = `${root}/itemmanagement/item`;
   return {
     pagePublish: `${base}/page`,
     resourcePublish: `${base}/resource`,
@@ -47,7 +52,9 @@ export function itemPublishPaths(root = SERVICES_ROOT): {
     resourceStagingTakedown: `${base}/takedown/resource/staging`,
     publishingActions: `${base}/publishingActions`,
     sitePublish: base,
-    linkedItems: `${root}/itemmanagement/item/findLinkedItems`,
+    linkedItems: `${itemBase}/findLinkedItems`,
+    getItemDates: `${itemBase}/getitemdates`,
+    setItemDates: `${itemBase}/setitemdates`,
   };
 }
 
