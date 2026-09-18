@@ -12,6 +12,50 @@ Out of scope for spec 994 (must NOT be touched):
 
 ## Scripts
 
+### `opencode-night-issue-prs.py`
+
+Launcher for the opencode `night-issue-prs` overnight workflow (mirrors
+`.grok/workflows/night-issue-prs.rhai` v2.0.6 for opencode runners). Resolves
+the dedicated worktree, sets the `NIGHT_*` env vars that
+`.opencode/plugin/night.ts` reads, and invokes `opencode run --agent night-worker`.
+
+- **Purpose**: Unattended overnight issue burn-down + PR follow-up. Phase list,
+  skip matrix, and hard bans live in `.opencode/command/night-issue-prs.md`,
+  `.opencode/agent/night-worker.md`, and the canonical
+  `.grok/workflows/README.md`.
+- **Defaults**: `max_issues=3`, `base_branch=main`,
+  `worktree=<home>/.opencode/worktrees/intersoft-workspace-percussioncms/night-issue-prs`,
+  `report=<worktree>/scratch/night-report.md`.
+- **Usage**:
+
+  ```bash
+  python3 scripts/opencode-night-issue-prs.py --max-issues 3
+  python3 scripts/opencode-night-issue-prs.py --dry-run --max-issues 5
+  python3 scripts/opencode-night-issue-prs.py --max-issues 1 --max-prs 8
+  ```
+
+- **Cron wiring**:
+
+  ```cron
+  # /etc/cron.d/percussioncms-night-issue-prs
+  0 1 * * * cd /path/to/percussioncms && /usr/bin/env python3 scripts/opencode-night-issue-prs.py --max-issues 3 >> /var/log/percussioncms-night.log 2>&1
+  ```
+
+- **Windows Task Scheduler**:
+
+  ```bat
+  schtasks /create /tn "percussioncms-night" /tr "cmd /c cd /d C:\path\to\percussioncms && python scripts\opencode-night-issue-prs.py --max-issues 3" /sc daily /st 01:00
+  ```
+
+- **Prereqs**: Python 3.9+, `opencode` on `PATH`, repo-root access (the script
+  derives `repo_root` from its own path), outbound network once per run for
+  `git fetch origin <base_branch>`.
+- **Worktree hygiene**: see `.opencode/rules/worktree-hygiene.md` for the
+  cleanup contract; the script does **not** auto-remove the worktree.
+- **Note**: This is an **operational** script, not part of spec 994. Spec 994
+  cross-platform-Python conventions are followed voluntarily (no `shell=True`,
+  no hardcoded separators, stdlib-only at runtime, scratch under `./tmp`-equivalent).
+
 ### `build-cms-docs.bat` / `build-cms-docs.sh`
 
 Build the **product documentation Virtual Site** (`product-docs/`) to static HTML using the
