@@ -164,10 +164,31 @@ async function openFileRow(page, preferredPath) {
   }
   await expect(page.locator('[data-testid="developer-appfile-content-editor"]')).toBeVisible();
   await expect(page.locator('[data-testid="developer-appfile-save"]')).toBeVisible();
+  await expect(page.locator('[data-testid="developer-appfile-lock-toolbar"]')).toBeVisible();
+}
+
+async function lockFileForEdit(page) {
+  const lockBtn = page.locator('[data-testid="developer-appfile-lock"]');
+  const status = page.locator('[data-testid="developer-appfile-lock-status"]');
+  await expect(lockBtn).toBeEnabled({ timeout: 20_000 });
+  const lockWait = page.waitForResponse(
+    (r) =>
+      /\/services\/applicationfiles\/[^/?#]+\/lock/i.test(r.url()) &&
+      r.request().method() === "POST",
+    { timeout: 30_000 },
+  );
+  await lockBtn.click();
+  const lockResp = await lockWait;
+  expect(lockResp.status(), `lock status`).toBe(200);
+  await expect(status).toContainText(/Locked/i);
 }
 
 async function saveFileContent(page, content) {
   const editor = page.locator('[data-testid="developer-appfile-content-editor"]');
+  const status = page.locator('[data-testid="developer-appfile-lock-status"]');
+  if (!(await status.innerText()).match(/Locked/i)) {
+    await lockFileForEdit(page);
+  }
   await editor.fill(content);
   const saveBtn = page.locator('[data-testid="developer-appfile-save"]');
   await expect(saveBtn).toBeEnabled();
@@ -223,6 +244,13 @@ test.describe("Developer application files write (#4289 / SY-05)", () => {
     // Restore original body so the H2 cell stays clean for later runs.
     await saveFileContent(page, original);
     await expect(editor).toHaveValue(original);
+
+    const unlockBtn = page.locator('[data-testid="developer-appfile-unlock"]');
+    await expect(unlockBtn).toBeEnabled();
+    await unlockBtn.click();
+    await expect(page.locator('[data-testid="developer-appfile-lock-status"]')).toContainText(
+      /Unlocked/i,
+    );
 
     assertConsoleClean(pageErrors, consoleErrors);
   });

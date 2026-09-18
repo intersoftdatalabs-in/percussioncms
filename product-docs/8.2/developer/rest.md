@@ -2795,8 +2795,10 @@ writes those server configuration keys — only files under a resolved XML appli
 Admin **write** updates UTF-8 text for a relative path under a catalog application. Path traversal,
 absolute paths, and unknown applications on GET/PUT are **404** (no arbitrary filesystem write).
 Admin **folder create**, **delete**, and **rename/move** use the same relative keys; traversal is
-**400**, unknown app/path is **404**, and non-Admin is **403**. Design **locking** and **binary**
-round-trip remain design gaps.
+**400**, unknown app/path is **404**, and non-Admin is **403**. Admin **lock / unlock** uses
+object-store application file locks (`POST …/lock?path=` and `POST …/unlock?path=`). PUT
+requires a lock held by the current session; stale lock is **409**. **Binary** round-trip
+remains a design gap.
 **Developer → Application Files** SPA chrome browses, saves, and manages folders against this API
 ([Developer Application Files](id:admin-developer-application-files)). Integrators may also call
 the endpoints directly.
@@ -2805,7 +2807,9 @@ the endpoints directly.
 |--------|------|---------|
 | `GET` | `/services/applicationfiles/{app}` | List relative file paths under a catalog application (no file body) |
 | `GET` | `/services/applicationfiles/{app}/content?path=` | Load one relative file including `content` when available |
-| `PUT` | `/services/applicationfiles/{app}/content?path=` | **Admin.** Replace UTF-8 text for a relative path under that application |
+| `PUT` | `/services/applicationfiles/{app}/content?path=` | **Admin.** Replace UTF-8 text while holding a design lock |
+| `POST` | `/services/applicationfiles/{app}/lock?path=` | **Admin.** Acquire a self-only design-session lock |
+| `POST` | `/services/applicationfiles/{app}/unlock?path=` | **Admin.** Release a lock owned by this session |
 | `POST` | `/services/applicationfiles/{app}/folders?path=` | **Admin.** Create a relative folder |
 | `DELETE` | `/services/applicationfiles/{app}/content?path=` | **Admin.** Delete a relative file or folder (recursive) |
 | `POST` | `/services/applicationfiles/{app}/move` | **Admin.** Rename or move a relative file or folder |
@@ -2824,8 +2828,10 @@ numeric id also accepted). `path` must be a **relative** path under that applica
 separators; no `..`, no absolute / drive / UNC form). The JSON body must include `content` (file
 text; empty string is allowed). A `path` field on the body is **ignored for persistence** — only
 the query `path` selects the file. Unknown or unsafe app/path values are **404** and never call
-save. Missing body or missing `content` is **400**. Non-Admin is **403**. On success the response
-is the updated detail (same shape as GET), including reloaded `content`.
+save. Missing body or missing `content` is **400**. Non-Admin is **403**. PUT without a lock held
+by this session, or when another user holds the lock, is **409**. GET includes `lock` (owner /
+session) when a design lock is held. On success the response is the updated detail (same shape as
+GET), including reloaded `content`. The lock remains held until `POST …/unlock`.
 
 Folder create (`POST …/folders?path=`), delete (`DELETE …/content?path=`), and rename/move
 (`POST …/move` with `{ "ApplicationFileMove": { "fromPath", "toPath" } }`) require Admin.
@@ -2835,12 +2841,12 @@ file already lives, is **409**. Moving a folder into itself is **400**.
 
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | List / get / update / folder create / move success |
-| `204` | Delete success |
+| `200` | List / get / update / folder create / move / lock success |
+| `204` | Delete or unlock success |
 | `400` | Missing body, missing `content`/`path`, or unsafe path on folder/delete/move |
 | `403` | Caller is not Admin |
 | `404` | Unknown application, unsafe GET/PUT path, or missing file |
-| `409` | Destination exists (move) or a non-folder occupies the create path |
+| `409` | Destination exists (move), a non-folder occupies the create path, or design lock required / held by another user |
 | `500` | Object-store I/O failure |
 | `503` | Application file adaptor not configured |
 

@@ -17,6 +17,7 @@
 
 package com.percussion.rest.applicationfiles;
 
+import com.percussion.rest.ObjectLockSummary;
 import java.util.List;
 
 /**
@@ -66,4 +67,20 @@ public interface IApplicationFileAdaptor {
    * @return destination summary, or {@code null} if the application or source path is unknown
    */
   ApplicationFileSummary movePath(String appName, String fromPath, String toPath);
+
+  /**
+   * Admin. Acquire a design-session lock for one relative file (object-store application file
+   * lock). Re-lock by the same session user extends the lock. Does not steal another user's lock.
+   *
+   * @return lock summary, or {@code null} if the application or path is unknown / unsafe
+   */
+  ObjectLockSummary lockFile(String appName, String relativePath);
+
+  /**
+   * Admin. Release a design-session lock owned by the current user/session.
+   *
+   * @return {@code Boolean.TRUE} when released, or {@code null} if the application or path is
+   *     unknown / unsafe
+   */
+  Boolean unlockFile(String appName, String relativePath);
 }

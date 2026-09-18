@@ -18,13 +18,17 @@ import { DEV_MSG } from "../../../main/ts/developer/messages";
 vi.mock("../../../main/ts/api/developer/applicationFilesApi", () => ({
   getApplicationFileDetail: vi.fn(),
   updateApplicationFile: vi.fn(),
-  APPLICATION_FILE_DESIGN_GAPS: ["gap-lock"],
+  lockApplicationFile: vi.fn(),
+  unlockApplicationFile: vi.fn(),
+  APPLICATION_FILE_DESIGN_GAPS: ["gap-binary"],
 }));
 
 const getApplicationFileDetail = appFilesApi.getApplicationFileDetail as ReturnType<
   typeof vi.fn
 >;
 const updateApplicationFile = appFilesApi.updateApplicationFile as ReturnType<typeof vi.fn>;
+const lockApplicationFile = appFilesApi.lockApplicationFile as ReturnType<typeof vi.fn>;
+const unlockApplicationFile = appFilesApi.unlockApplicationFile as ReturnType<typeof vi.fn>;
 
 function renderDetail(isAdmin: boolean, path = "ApplicationFiles/a.css") {
   return render(
@@ -89,6 +93,10 @@ describe("ApplicationFileDetailPanel", () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     getApplicationFileDetail.mockReset();
     updateApplicationFile.mockReset();
+    lockApplicationFile.mockReset();
+    unlockApplicationFile.mockReset();
+    lockApplicationFile.mockResolvedValue({ locker: "Admin", session: "s1" });
+    unlockApplicationFile.mockResolvedValue(undefined);
   });
 
   it("shows detail load 404 via APPFILE_DETAIL_ERROR path", async () => {
@@ -137,6 +145,12 @@ describe("ApplicationFileDetailPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-appfile-content-editor")).toBeTruthy();
     });
+    fireEvent.click(screen.getByTestId("developer-appfile-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-lock-status").textContent).toContain(
+        DEV_MSG.APPFILE_LOCKED,
+      );
+    });
     fireEvent.change(screen.getByTestId("developer-appfile-content-editor"), {
       target: { value: "body{color:red}" },
     });
@@ -164,6 +178,12 @@ describe("ApplicationFileDetailPanel", () => {
     renderDetail(true);
     await waitFor(() => {
       expect(screen.getByTestId("developer-appfile-content-editor")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-appfile-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-lock-status").textContent).toContain(
+        DEV_MSG.APPFILE_LOCKED,
+      );
     });
     fireEvent.change(screen.getByTestId("developer-appfile-content-editor"), {
       target: { value: "body{color:red}" },
@@ -233,6 +253,12 @@ describe("ApplicationFileDetailPanel", () => {
       await waitFor(() => {
         expect(screen.getByTestId("developer-appfile-content-editor")).toBeTruthy();
       });
+      fireEvent.click(screen.getByTestId("developer-appfile-lock"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-appfile-lock-status").textContent).toContain(
+          DEV_MSG.APPFILE_LOCKED,
+        );
+      });
       fireEvent.change(screen.getByTestId("developer-appfile-content-editor"), {
         target: { value: "<root><unclosed>" },
       });
@@ -248,5 +274,47 @@ describe("ApplicationFileDetailPanel", () => {
         Object.defineProperty(window, "confirm", confirmDesc);
       }
     }
+  });
+
+  it("disables save until lock is held then unlocks", async () => {
+    getApplicationFileDetail.mockResolvedValue({
+      applicationName: "sys_resources",
+      path: "ApplicationFiles/a.css",
+      name: "a.css",
+      content: "body{}",
+      designGaps: ["gap-binary"],
+    });
+    updateApplicationFile.mockResolvedValue({
+      applicationName: "sys_resources",
+      path: "ApplicationFiles/a.css",
+      name: "a.css",
+      content: "body{color:red}",
+      designGaps: ["gap-binary"],
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-save")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-appfile-save") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    fireEvent.click(screen.getByTestId("developer-appfile-lock"));
+    await waitFor(() => {
+      expect(lockApplicationFile).toHaveBeenCalledWith(
+        "sys_resources",
+        "ApplicationFiles/a.css",
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-appfile-content-editor"), {
+      target: { value: "body{color:red}" },
+    });
+    fireEvent.click(screen.getByTestId("developer-appfile-save"));
+    await waitFor(() => {
+      expect(updateApplicationFile).toHaveBeenCalled();
+    });
+    fireEvent.click(screen.getByTestId("developer-appfile-unlock"));
+    await waitFor(() => {
+      expect(unlockApplicationFile).toHaveBeenCalled();
+    });
   });
 });

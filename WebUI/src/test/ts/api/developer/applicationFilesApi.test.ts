@@ -12,7 +12,9 @@ import {
   getApplicationFileDetail,
   joinApplicationFilePath,
   listApplicationFiles,
+  lockApplicationFile,
   moveApplicationPath,
+  unlockApplicationFile,
   updateApplicationFile,
   unwrapApplicationFile,
   wrapApplicationFileForWire,
@@ -167,5 +169,22 @@ describe("applicationFilesApi", () => {
   it("createApplicationFolder rejects blank path", async () => {
     await expect(createApplicationFolder("sys_resources", "  ")).rejects.toThrow(/path is required/i);
     expect(post).not.toHaveBeenCalled();
+  });
+
+  it("lockApplicationFile POSTs lock?path=", async () => {
+    post.mockResolvedValue({ ObjectLockSummary: { locker: "Admin", session: "s1" } });
+    const summary = await lockApplicationFile("sys_resources", "ApplicationFiles/a.txt");
+    expect(summary.locker).toBe("Admin");
+    expect(post.mock.calls[0][0]).toBe(
+      `${PATHS.APPLICATION_FILES}/sys_resources/lock?path=ApplicationFiles%2Fa.txt`,
+    );
+  });
+
+  it("unlockApplicationFile POSTs unlock?path=", async () => {
+    post.mockResolvedValue(undefined);
+    await unlockApplicationFile("sys_resources", "ApplicationFiles/a.txt");
+    expect(post.mock.calls[0][0]).toBe(
+      `${PATHS.APPLICATION_FILES}/sys_resources/unlock?path=ApplicationFiles%2Fa.txt`,
+    );
   });
 });

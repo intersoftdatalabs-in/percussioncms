@@ -11,17 +11,17 @@ tags: [admin, developer, application-files]
 
 **Developer → Application Files** browses **CMS/resource files under a catalog XML
 application** (Workbench System Design → CMS / Resource File tree). Admins can
-**pick an application**, **open a relative file**, **edit the UTF-8 body**, **Save
-file**, **create/delete folders**, and **rename/move** files or folders. Paths are
-always relative under the application root — clients never supply an absolute
-filesystem path.
+**pick an application**, **open a relative file**, **Lock**, **edit the UTF-8
+body**, **Save file**, **Unlock**, **create/delete folders**, and **rename/move**
+files or folders. Paths are always relative under the application root — clients
+never supply an absolute filesystem path.
 
 This surface is **distinct from Developer → Server Configs** (SY-02), which edits a
 fixed allow-list of named server configuration descriptors (`LOG_CONFIG`,
 `NAV_CONFIG`, and peers). Application Files never writes those keys.
 
-**Design locking / concurrent edit** and **binary round-trip** remain design gaps
-on this surface. **Admin PUT** can also **create a new file** when the relative
+**Binary round-trip** remains a design gap on this surface. **Admin PUT** can also
+**create a new file** when the relative
 path does not yet exist under the application root (overwrite semantics). Listing
 marks folders with `directory=true`. Admins use the file list to create a
 relative folder, rename/move a path, or delete a file or folder (recursive).
@@ -38,11 +38,14 @@ relative folder, rename/move a path, or delete a file or folder (recursive).
    (application, relative path, MIME type, encoding) is shown read-only. The
    **Content** editor shows the current UTF-8 text (empty is allowed). Files
    larger than **2 MB** are blocked from in-browser edit.
-5. Edit the content and click **Save file**. The chrome sends
+5. Click **Lock** (Admin). Save stays disabled until the lock is held. Edit the
+   content and click **Save file**. The chrome sends
    `PUT /services/applicationfiles/{app}/content?path=` with
-   `{ "ApplicationFile": { "content": "…" } }`. On success the detail refreshes
-   from the server response and shows a saved notice. Saving to a path that does
-   not yet exist under the application root **creates** that file (Admin only).
+   `{ "ApplicationFile": { "content": "…" } }` while the lock is held. On success
+   the detail refreshes from the server response and shows a saved notice. Saving
+   to a path that does not yet exist under the application root **creates** that
+   file (Admin only). Click **Unlock** to release the design session (or **Back**,
+   which best-effort unlocks). A stale or missing lock on PUT is **409**.
 6. From the file list, Admins can enter a relative folder path and click **Create
    folder**, **Rename / move** a row to a new relative path, or **Delete** a file
    or folder (confirm dialog). The list refreshes after each action.
@@ -60,7 +63,7 @@ relative folder, rename/move a path, or delete a file or folder (recursive).
   unknown app/path is **404**.
 - Binary-safe round-trip is not exposed here.
 - Admin PUT may create a new relative file path under the application root.
-- Locking and concurrent-edit controls are not exposed.
+- Save requires a held design lock (POST lock). Stale lock is **409**.
 - Browser editor refuses bodies larger than 2 MB.
 
 ## REST
@@ -72,7 +75,9 @@ The chrome calls:
 | List apps | `GET /services/pipelines` (application picker) |
 | List files | `GET /services/applicationfiles/{app}` |
 | Load | `GET /services/applicationfiles/{app}/content?path=` |
-| Update | `PUT /services/applicationfiles/{app}/content?path=` (**Admin**; body must include `content`) |
+| Lock | `POST /services/applicationfiles/{app}/lock?path=` (**Admin**) |
+| Update | `PUT /services/applicationfiles/{app}/content?path=` (**Admin**; requires held lock; body must include `content`) |
+| Unlock | `POST /services/applicationfiles/{app}/unlock?path=` (**Admin**) |
 | Create folder | `POST /services/applicationfiles/{app}/folders?path=` (**Admin**) |
 | Delete file or folder | `DELETE /services/applicationfiles/{app}/content?path=` (**Admin**; folders are recursive) |
 | Rename / move | `POST /services/applicationfiles/{app}/move` (**Admin**; body `{ "ApplicationFileMove": { "fromPath": "…", "toPath": "…" } }`) |

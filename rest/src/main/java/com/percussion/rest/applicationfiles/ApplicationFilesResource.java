@@ -17,6 +17,7 @@
 
 package com.percussion.rest.applicationfiles;
 
+import com.percussion.rest.ObjectLockSummary;
 import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -45,15 +46,17 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * <p>Distinct from {@code /serverconfigs} (SY-02 fixed server configuration allow-list). Paths are
  * relative under a catalog application root; traversal and absolute paths are rejected. Admin PUT
- * updates UTF-8 file bodies. Admin folder create/delete and rename/move use the same path-safe
- * keys (traversal is 400; unknown app/path is 404; non-Admin is 403).
+ * updates UTF-8 file bodies while a design lock is held (POST .../lock). Admin folder
+ * create/delete and rename/move use the same path-safe keys (traversal is 400; unknown app/path is
+ * 404; non-Admin is 403).
  */
 @PSSiteManageBean(value = "restApplicationFilesResource")
 @Path("/applicationfiles")
 @XmlRootElement
 @Tag(
     name = "Application Files",
-    description = "XML application CMS/resource files (path-safe list/get/put/folder/move)")
+    description =
+        "XML application CMS/resource files (path-safe list/get/put/folder/move/lock)")
 public class ApplicationFilesResource {
 
   static final String PATH_REQUIRED = "path is required";
@@ -159,16 +162,20 @@ public class ApplicationFilesResource {
           "Admin. Replaces UTF-8 text content for a relative path under a catalog application"
               + " root. Query path is not taken from the body path field for persistence. Absolute"
               + " paths, parent traversal, and unknown apps are 404 — no arbitrary filesystem"
-              + " write. Distinct from PUT /serverconfigs/{name} (SY-02). Locking and binary"
-              + " round-trip remain design gaps.",
+              + " write. Distinct from PUT /serverconfigs/{name} (SY-02). Requires a held"
+              + " design-session lock (POST .../lock). Unlocked or stolen lock is 409. Binary"
+              + " round-trip remains a design gap.",
       responses = {
         @ApiResponse(
             responseCode = "200",
-            description = "Updated",
+            description = "Updated (lock is still held)",
             content = @Content(schema = @Schema(implementation = ApplicationFileSummary.class))),
         @ApiResponse(responseCode = "400", description = "Invalid input (missing body/content/path)"),
         @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(responseCode = "404", description = "Application or path not found / not allow-listed"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock required, or locked by another user"),
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
@@ -309,6 +316,79 @@ public class ApplicationFilesResource {
         throw new WebApplicationException(FILE_NOT_FOUND, 404);
       }
       return moved;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @POST
+  @Path("/{app}/lock")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Lock application CMS/resource file",
+      description =
+          "Admin. Acquires a self-only design-session lock for a relative file under a catalog"
+              + " application (object-store application file lock). Query path uses / separators."
+              + " Does not save. Does not steal another user's lock. Re-lock by the same session"
+              + " user extends the lock.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Locked",
+            content = @Content(schema = @Schema(implementation = ObjectLockSummary.class))),
+        @ApiResponse(responseCode = "400", description = "Missing or unsafe path"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application or file not found"),
+        @ApiResponse(responseCode = "409", description = "Locked by another user"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ObjectLockSummary lockFile(@PathParam("app") String app, @QueryParam("path") String path) {
+    try {
+      if (path == null || path.isBlank()) {
+        throw new IllegalArgumentException(PATH_REQUIRED);
+      }
+      ObjectLockSummary summary = requireAdaptor().lockFile(app, path);
+      if (summary == null) {
+        throw new WebApplicationException(FILE_NOT_FOUND, 404);
+      }
+      return summary;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @POST
+  @Path("/{app}/unlock")
+  @Operation(
+      summary = "Unlock application CMS/resource file",
+      description =
+          "Admin. Releases a design-session lock owned by the current user/session. Query path"
+              + " uses / separators. Does not save. Locks held by another user are not stolen"
+              + " (409).",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Unlocked"),
+        @ApiResponse(responseCode = "400", description = "Missing or unsafe path"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application or file not found"),
+        @ApiResponse(responseCode = "409", description = "Locked by another user"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response unlockFile(@PathParam("app") String app, @QueryParam("path") String path) {
+    try {
+      if (path == null || path.isBlank()) {
+        throw new IllegalArgumentException(PATH_REQUIRED);
+      }
+      Boolean released = requireAdaptor().unlockFile(app, path);
+      if (released == null || !released) {
+        throw new WebApplicationException(FILE_NOT_FOUND, 404);
+      }
+      return Response.noContent().build();
     } catch (RuntimeException e) {
       throw mapWriteFailure(e);
     } catch (Exception e) {
