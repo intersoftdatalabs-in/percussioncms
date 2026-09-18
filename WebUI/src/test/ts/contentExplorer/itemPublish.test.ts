@@ -23,6 +23,7 @@ import {
   isRemoveFromStagingActionName,
   isStageActionName,
   isTakedownActionName,
+  linkedPagePathsForConfirm,
   loadLinkedPagesForTakedown,
   parseLinkedPagesForTakedown,
   publishSelectedItem,
@@ -292,6 +293,14 @@ describe("linked pages for takedown", () => {
     expect(formatTakedownConfirmBody(linked)).toContain("/Sites/Demo/Home");
     expect(formatTakedownConfirmBody([])).toMatch(/Take down/i);
     expect(formatTakedownConfirmBody([])).not.toContain("/Sites");
+    expect(linkedPagePathsForConfirm(linked)).toEqual([
+      "/Sites/Demo/Home",
+      "/Sites/Demo/About",
+    ]);
+    const eleven = Array.from({ length: 11 }, (_, i) => ({
+      pagePath: `/Sites/Demo/p${i}`,
+    }));
+    expect(linkedPagePathsForConfirm(eleven)).toHaveLength(10);
   });
 
   it("returns [] when findLinkedItems fails", async () => {

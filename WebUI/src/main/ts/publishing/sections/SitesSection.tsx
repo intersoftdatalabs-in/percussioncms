@@ -37,7 +37,7 @@ export interface SitesSectionProps {
   /** Preselect site from deep link */
   initialSiteId?: string;
   initialServerId?: string;
-  /** Item id for schedule dates on the site workspace. */
+  /** Item id for schedule dates and takedown on the site workspace. */
   itemId?: string;
   onItemIdChange?: (itemId: string) => void;
 }

@@ -36,6 +36,7 @@ import {
 import { fetchCurrentJobsForSite } from "../../api/publishing/statusApi";
 import { message, MSG } from "../../i18n/message";
 import { ItemScheduleDatesPanel } from "../components/ItemScheduleDatesPanel";
+import { ItemTakedownPanel } from "../components/ItemTakedownPanel";
 import { ServerEditor } from "../components/ServerEditor";
 import { ServerList } from "../components/ServerList";
 import { useDirtyForm } from "../dirtyFormContext";
@@ -443,6 +444,7 @@ export function SiteWorkspace({
         itemId={itemId}
         onItemIdChange={onItemIdChange}
       />
+      <ItemTakedownPanel itemId={itemId} onItemIdChange={onItemIdChange} />
 
       {loadingServers && <p>{message(MSG.PUBLISH_LOADING)}</p>}
       {noServers && (
