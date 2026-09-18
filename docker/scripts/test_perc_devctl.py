@@ -867,13 +867,29 @@ class TestQaHelpers(unittest.TestCase):
         ), unittest.mock.patch.object(
             pdc, "_run_logged", return_value=(pdc.EXIT_OK, fake_log),
         ), unittest.mock.patch.object(
-            pdc, "_qa_fetch_admin_password", return_value="ADMIN_PASSWORD=demo",
+            pdc,
+            "_qa_fetch_generated_password_env_lines",
+            return_value=["ADMIN_PASSWORD=demo", "EDITOR_PASSWORD=ed"],
         ):
             rc = pdc.main([
                 "--repo-root", str(self.repo_root),
                 "qa-up", "--skip-image-build", "--timeout-seconds", "120",
             ])
         self.assertEqual(rc, pdc.EXIT_OK)
+
+    def test_parse_generated_password_env_lines_includes_editor(self):
+        """qa-up must emit EDITOR_PASSWORD (distinct from Admin) (#4585)."""
+        lines = pdc._qa_parse_generated_password_env_lines(
+            "Admin=admin-secret\nEditor=editor-secret\nContributor=c-secret\n"
+        )
+        self.assertEqual(
+            lines,
+            [
+                "ADMIN_PASSWORD=admin-secret",
+                "EDITOR_PASSWORD=editor-secret",
+                "CONTRIBUTOR_PASSWORD=c-secret",
+            ],
+        )
 
     def test_qa_preferred_port_and_container_constants(self):
         """Preferred baseline aligns with matrix-install-smoke CMS host port."""

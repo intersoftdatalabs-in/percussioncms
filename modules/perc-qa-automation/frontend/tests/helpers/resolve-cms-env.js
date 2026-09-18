@@ -132,27 +132,79 @@ function resolveCmsBaseUrl(env = process.env, options = {}) {
 }
 
 /**
- * Resolve a role password: explicit env key wins; then install map; else null.
+ * Parse installer {@code var/config/generated/passwords} text (Java Properties
+ * shape: {@code User=value} lines). Does not log values.
  *
- * QA mode: set ADMIN_PASSWORD (etc.) from qa-up output / docker exec.
+ * @param {string | undefined | null} text
+ * @returns {Record<string, string>}
+ */
+function parseGeneratedPasswordsText(text) {
+  const map = {};
+  if (text == null) {
+    return map;
+  }
+  const lines = String(text).split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line || line.startsWith("#")) {
+      continue;
+    }
+    const eq = line.indexOf("=");
+    if (eq <= 0) {
+      continue;
+    }
+    const key = line.slice(0, eq).trim();
+    const value = line.slice(eq + 1).trim();
+    if (key && value) {
+      map[key] = value;
+    }
+  }
+  return map;
+}
+
+/**
+ * Resolve a role password.
+ *
+ * Precedence:
+ *   1. Explicit {@code ROLE_PASSWORD} env (always wins for Admin).
+ *   2. QA H2 cell map (generated passwords) for Editor / Contributor when
+ *      {@code hasQaModeUrlEnv} — those accounts get distinct random secrets
+ *      from Admin; a stale {@code EDITOR_PASSWORD} in .env is ignored when
+ *      the cell map is present (#4585).
+ *   3. Host-install map.
+ *   4. Missing.
+ *
  * Never commit secrets. Dev mode may still discover from install passwords file.
  *
  * @param {string} roleUserName e.g. "Admin"
  * @param {NodeJS.ProcessEnv | Record<string, string | undefined>} [env]
  * @param {Record<string, string>} [installPasswords] map of user → password
+ * @param {Record<string, string>} [qaCellPasswords] map from generated passwords
  * @returns {{ password: string | null, source: string }}
  */
 function resolveRolePassword(
   roleUserName,
   env = process.env,
   installPasswords = {},
+  qaCellPasswords = {},
 ) {
-  const envKey = `${String(roleUserName).toUpperCase()}_PASSWORD`;
+  const role = String(roleUserName);
+  const envKey = `${role.toUpperCase()}_PASSWORD`;
   const fromEnv = trimNonEmpty(env[envKey]);
+  const fromCell = trimNonEmpty(qaCellPasswords[role]);
+  const qaMode = hasQaModeUrlEnv(env);
+  const nonAdminQa = qaMode && role !== "Admin" && fromCell;
+
+  if (nonAdminQa) {
+    return { password: fromCell, source: "qa-cell" };
+  }
   if (fromEnv) {
     return { password: fromEnv, source: envKey };
   }
-  const fromInstall = trimNonEmpty(installPasswords[roleUserName]);
+  if (fromCell) {
+    return { password: fromCell, source: "qa-cell" };
+  }
+  const fromInstall = trimNonEmpty(installPasswords[role]);
   if (fromInstall) {
     return { password: fromInstall, source: "install" };
   }
@@ -180,6 +232,7 @@ module.exports = {
   DEV_FALLBACK_URL,
   resolveCmsBaseUrl,
   resolveRolePassword,
+  parseGeneratedPasswordsText,
   hasQaModeUrlEnv,
   stripTrailingSlash,
   firstEnv,

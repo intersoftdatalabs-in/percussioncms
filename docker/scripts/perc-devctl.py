@@ -1699,6 +1699,7 @@ def _qa_print_endpoint_banner(
     host_port: int,
     *,
     admin_password_line: Optional[str] = None,
+    password_lines: Optional[List[str]] = None,
 ) -> None:
     """Emit agent-parseable endpoint + credential guidance after qa-up.
 
@@ -1714,25 +1715,52 @@ def _qa_print_endpoint_banner(
     print(f"TEST_PRODUCT={QA_CMS_PRODUCT}")
     print(f"QA_CONTAINER:{QA_CMS_CONTAINER}")
     print(f"ADMIN_USERNAME={QA_ADMIN_USERNAME}")
-    if admin_password_line:
+    emitted = False
+    if password_lines:
+        for line in password_lines:
+            if line:
+                print(line)
+                emitted = True
+    elif admin_password_line:
         print(admin_password_line)
-    else:
+        emitted = True
+    if not emitted:
         # URL path inside container always uses '/'; not a host filesystem path.
         pwd_path = f"{QA_INSTALL_ROOT}/{QA_PASSWORDS_REL}"
         print(
             "ADMIN_PASSWORD: fetch with "
             f"docker exec {QA_CMS_CONTAINER} cat {pwd_path} "
-            f"(look for {QA_ADMIN_USERNAME}=…)"
+            f"(look for {QA_ADMIN_USERNAME}=…; Editor= and Contributor= too)"
         )
 
 
-def _qa_fetch_admin_password(container_name: str) -> Optional[str]:
-    """Best-effort read of Admin=… from generated passwords in the QA cell.
+def _qa_parse_generated_password_env_lines(text: str) -> List[str]:
+    """Map generated ``User=secret`` lines to Playwright env KEY=value.
 
-    Returns a line ``ADMIN_PASSWORD=<value>`` or None if unavailable.
-    Never raises; callers treat missing passwords as non-fatal (URL is enough
-    for health; Playwright login may need env set separately).
+    Editor and Contributor are distinct from Admin on silent H2 installs.
     """
+    wanted = {
+        QA_ADMIN_USERNAME: "ADMIN_PASSWORD",
+        "Editor": "EDITOR_PASSWORD",
+        "Contributor": "CONTRIBUTOR_PASSWORD",
+    }
+    found: dict[str, str] = {}
+    for raw in (text or "").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip()
+        env_key = wanted.get(key)
+        if env_key and value:
+            found[env_key] = value
+    order = ("ADMIN_PASSWORD", "EDITOR_PASSWORD", "CONTRIBUTOR_PASSWORD")
+    return [f"{k}={found[k]}" for k in order if k in found]
+
+
+def _qa_fetch_generated_password_env_lines(container_name: str) -> List[str]:
+    """Best-effort docker exec of generated passwords → env lines."""
     pwd_path = f"{QA_INSTALL_ROOT}/{QA_PASSWORDS_REL}"
     try:
         completed = subprocess.run(
@@ -1744,16 +1772,22 @@ def _qa_fetch_admin_password(container_name: str) -> Optional[str]:
             timeout=30,
         )
     except (OSError, subprocess.TimeoutExpired):
-        return None
+        return []
     if completed.returncode != 0:
-        return None
-    text = completed.stdout or ""
-    for line in text.splitlines():
-        line = line.strip()
-        if line.startswith(f"{QA_ADMIN_USERNAME}="):
-            value = line.split("=", 1)[1].strip()
-            if value:
-                return f"ADMIN_PASSWORD={value}"
+        return []
+    return _qa_parse_generated_password_env_lines(completed.stdout or "")
+
+
+def _qa_fetch_admin_password(container_name: str) -> Optional[str]:
+    """Best-effort read of Admin=… from generated passwords in the QA cell.
+
+    Returns a line ``ADMIN_PASSWORD=<value>`` or None if unavailable.
+    Never raises; callers treat missing passwords as non-fatal (URL is enough
+    for health; Playwright login may need env set separately).
+    """
+    for line in _qa_fetch_generated_password_env_lines(container_name):
+        if line.startswith("ADMIN_PASSWORD="):
+            return line
     return None
 
 
@@ -1865,8 +1899,16 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
             )
         return rc
 
-    admin_line = _qa_fetch_admin_password(QA_CMS_CONTAINER)
-    _qa_print_endpoint_banner(host_port, admin_password_line=admin_line)
+    pwd_lines = _qa_fetch_generated_password_env_lines(QA_CMS_CONTAINER)
+    admin_line = next(
+        (ln for ln in pwd_lines if ln.startswith("ADMIN_PASSWORD=")),
+        None,
+    )
+    _qa_print_endpoint_banner(
+        host_port,
+        admin_password_line=admin_line,
+        password_lines=pwd_lines,
+    )
     rc = EXIT_OK
     if deploy_webui:
         rc = cmd_qa_deploy_webui(
