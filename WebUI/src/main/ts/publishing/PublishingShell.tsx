@@ -40,7 +40,7 @@ export interface PublishingShellProps {
   siteId?: string;
   /** Preselect server in site workspace */
   serverId?: string;
-  /** Item id for publishing-history and schedule-dates lookup (query itemId). */
+  /** Item id for history, schedule dates, and site-workspace takedown. */
   itemId?: string;
   /**
    * When false, hide Design section (role-aware progressive disclosure).

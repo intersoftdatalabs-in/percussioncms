@@ -237,6 +237,16 @@ export const MSG = {
   PUBLISH_SCHEDULE_INVALID: "perc.ui.publish.modern@Invalid schedule dates",
   PUBLISH_SCHEDULE_FORBIDDEN: "perc.ui.publish.modern@Publish Forbidden",
   PUBLISH_SCHEDULE_SAVED: "perc.ui.publish.modern@Schedule dates saved",
+  PUBLISH_TAKEDOWN: "perc.ui.publish.title@Remove From Site",
+  PUBLISH_TAKEDOWN_HINT:
+    "perc.ui.publish.modern@Take down (unpublish) a page or asset from this site workspace.",
+  PUBLISH_TAKEDOWN_KIND: "perc.ui.publish.modern@Item type",
+  PUBLISH_TAKEDOWN_KIND_PAGE: "perc.ui.publish.modern@Page",
+  PUBLISH_TAKEDOWN_KIND_RESOURCE: "perc.ui.publish.modern@Asset",
+  PUBLISH_TAKEDOWN_LOAD: "perc.ui.publish.modern@Review take down",
+  PUBLISH_TAKEDOWN_SUBMIT: "perc.ui.publish.modern@Take down",
+  PUBLISH_TAKEDOWN_SUCCESS: "perc.ui.publish.modern@Take down started.",
+  PUBLISH_TAKEDOWN_NONE: "perc.ui.publish.modern@No linked pages.",
   // SPA top navigation (shell chrome)
   NAV_HOME: "perc.ui.navMenu.home@Home",
   NAV_DASHBOARD: "perc.ui.navMenu.dashboard@Dashboard",

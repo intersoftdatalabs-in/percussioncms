@@ -89,6 +89,13 @@ describe("SiteWorkspace full publish (issue #936)", () => {
     });
   });
 
+  it("shows the item takedown panel on the site workspace", async () => {
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown")).toBeTruthy();
+    });
+  });
+
   it("renders the FTP BADCONFIG warning when connectivity fails", async () => {
     vi.mocked(publishApi.publishSite).mockResolvedValue({
       SitePublishResponse: {

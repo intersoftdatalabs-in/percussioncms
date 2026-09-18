@@ -23,7 +23,9 @@
  * PercItemPublisherService). Schedule dates live in
  * {@code itemScheduleDates} (getitemdates / setitemdates). Item
  * publishing history is {@code GET …/item/pubhistory/{id}} (classic
- * PercPublishingHistoryDialog / PublishingShell #4536).
+ * PercPublishingHistoryDialog / PublishingShell #4536). PublishingShell
+ * site-workspace takedown (#4538) reuses {@link takedownSelectedItem} and
+ * {@link loadLinkedPagesForTakedown} — do not invent a second contract.
  */
 
 import { get, put } from "../api/client";
@@ -196,17 +198,25 @@ export async function loadLinkedPagesForTakedown(
   }
 }
 
-const LINKED_PATH_CONFIRM_LIMIT = 10;
+/** Classic Finder confirm lists at most ten linked page paths. */
+export const TAKEDOWN_LINKED_PATH_CONFIRM_LIMIT = 10;
+
+/** Linked page paths shown on the takedown confirm (max ten). */
+export function linkedPagePathsForConfirm(
+  linked: LinkedPageForTakedown[],
+): string[] {
+  return linked
+    .map((row) => (row.pagePath ?? "").trim())
+    .filter((path) => path.length > 0)
+    .slice(0, TAKEDOWN_LINKED_PATH_CONFIRM_LIMIT);
+}
 
 /** Confirm copy for Take Down, including linked page paths when present. */
 export function formatTakedownConfirmBody(
   linked: LinkedPageForTakedown[],
 ): string {
   const intro = message(EXPLORER_MSG.CONFIRM_TAKEDOWN);
-  const paths = linked
-    .map((row) => (row.pagePath ?? "").trim())
-    .filter((path) => path.length > 0)
-    .slice(0, LINKED_PATH_CONFIRM_LIMIT);
+  const paths = linkedPagePathsForConfirm(linked);
   if (paths.length === 0) {
     return intro;
   }

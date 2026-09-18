@@ -31,4 +31,11 @@ export {
   itemScheduleShellHref,
   spaItemScheduleHref,
 } from "./itemScheduleDates";
+export {
+  itemTakedownShellHref,
+  mapTakedownKind,
+  pathItemForTakedown,
+  spaItemTakedownHref,
+} from "./itemTakedown";
+export type { TakedownKind } from "./itemTakedown";
 export type { PublishSection } from "./types";
