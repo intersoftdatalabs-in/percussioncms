@@ -173,6 +173,54 @@ describe("ExtensionDetailPanel", () => {
     expect(screen.getByTestId("developer-ex-editor-notice").textContent).toBe(DEV_MSG.EX_SAVED);
   });
 
+  it("adds a method map entry and includes it on save", async () => {
+    getExtensionDetailMock.mockResolvedValue(sampleUserDetail);
+    saveExtensionMock.mockResolvedValue({
+      ...sampleUserDetail,
+      methods: {
+        productVersion: {
+          name: "productVersion",
+          returnType: "java.lang.String",
+          description: "ver",
+          parameters: [],
+        },
+      },
+    });
+    const onSaved = vi.fn();
+    render(
+      <ExtensionDetailPanel idOrName="my_user_ext" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ex-method-add")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ex-method-add"));
+    fireEvent.change(screen.getByTestId("developer-ex-method-name-0"), {
+      target: { value: "productVersion" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ex-method-return-0"), {
+      target: { value: "java.lang.String" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ex-method-desc-0"), {
+      target: { value: "ver" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ex-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(saveExtensionMock).toHaveBeenCalledWith(
+      "my_user_ext",
+      expect.objectContaining({
+        methods: {
+          productVersion: expect.objectContaining({
+            name: "productVersion",
+            returnType: "java.lang.String",
+            description: "ver",
+          }),
+        },
+      }),
+    );
+  });
+
   it("saves an existing user extension", async () => {
     getExtensionDetailMock.mockResolvedValue(sampleUserDetail);
     saveExtensionMock.mockResolvedValue({ ...sampleUserDetail, deprecated: true });

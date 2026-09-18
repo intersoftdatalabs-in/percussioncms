@@ -35,7 +35,14 @@ import {
   withoutStaleExtensionWriteGap,
   type ExtensionWriteBody,
 } from "../api/developer/extensionsApi";
-import type { ExtensionDef } from "../api/developer/types";
+import {
+  emptyMethod,
+  emptyMethodParam,
+  methodsFingerprint,
+  methodsToRows,
+  rowsToMethods,
+} from "../api/developer/extensionMethods";
+import type { ExtensionDef, ExtensionMethodDef } from "../api/developer/types";
 import {
   catalogColors,
   backButton,
@@ -82,6 +89,7 @@ export function ExtensionDetailPanel({
   const [handlerName, setHandlerName] = useState(DEFAULT_EXTENSION_HANDLER);
   const [interfacesText, setInterfacesText] = useState("");
   const [className, setClassName] = useState("");
+  const [methodRows, setMethodRows] = useState<ExtensionMethodDef[]>([]);
   const [deprecated, setDeprecated] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -107,6 +115,7 @@ export function ExtensionDetailPanel({
         setHandlerName(d.handlerName || DEFAULT_EXTENSION_HANDLER);
         setInterfacesText(formatExtensionInterfaces(d.supportedInterfaces));
         setClassName(extensionClassName(d.initParameters));
+        setMethodRows(methodsToRows(d.methods));
         setDeprecated(Boolean(d.deprecated));
         setLoading(false);
       })
@@ -128,6 +137,7 @@ export function ExtensionDetailPanel({
   const loadedInterfaces = formatExtensionInterfaces(detail?.supportedInterfaces);
   const loadedClassName = extensionClassName(detail?.initParameters);
   const loadedDeprecated = Boolean(detail?.deprecated);
+  const loadedMethodsFp = methodsFingerprint(methodsToRows(detail?.methods));
   // Compare normalized forms so server trim / Jackson map round-trips do not mark dirty on load.
   const dirty =
     isNew ||
@@ -135,7 +145,8 @@ export function ExtensionDetailPanel({
     handlerName.trim() !== loadedHandler.trim() ||
     formatExtensionInterfaces(interfaces) !== loadedInterfaces ||
     className.trim() !== loadedClassName.trim() ||
-    deprecated !== loadedDeprecated;
+    deprecated !== loadedDeprecated ||
+    methodsFingerprint(methodRows) !== loadedMethodsFp;
   const canSave =
     !busy &&
     dirty &&
@@ -149,6 +160,50 @@ export function ExtensionDetailPanel({
     });
   const writeKey = idOrName || createdKey || normalizeExtensionName(name);
   const canDelete = !isNew && Boolean(writeKey) && !immutable && !busy;
+
+  function updateMethodRow(index: number, patch: Partial<ExtensionMethodDef>): void {
+    setMethodRows((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+  }
+
+  function removeMethodRow(index: number): void {
+    setMethodRows((rows) => rows.filter((_, i) => i !== index));
+  }
+
+  function addMethodParam(methodIndex: number): void {
+    setMethodRows((rows) =>
+      rows.map((row, i) =>
+        i === methodIndex
+          ? { ...row, parameters: [...(row.parameters ?? []), emptyMethodParam()] }
+          : row,
+      ),
+    );
+  }
+
+  function updateMethodParam(
+    methodIndex: number,
+    paramIndex: number,
+    patch: Partial<NonNullable<ExtensionMethodDef["parameters"]>[number]>,
+  ): void {
+    setMethodRows((rows) =>
+      rows.map((row, i) => {
+        if (i !== methodIndex) return row;
+        const parameters = (row.parameters ?? []).map((p, j) =>
+          j === paramIndex ? { ...p, ...patch } : p,
+        );
+        return { ...row, parameters };
+      }),
+    );
+  }
+
+  function removeMethodParam(methodIndex: number, paramIndex: number): void {
+    setMethodRows((rows) =>
+      rows.map((row, i) =>
+        i === methodIndex
+          ? { ...row, parameters: (row.parameters ?? []).filter((_, j) => j !== paramIndex) }
+          : row,
+      ),
+    );
+  }
 
   /**
    * PUT writes the full initParameters map (round-trip from GET). Only className,
@@ -176,6 +231,7 @@ export function ExtensionDetailPanel({
       restoreRequestParamsOnError: Boolean(detail?.restoreRequestParamsOnError),
       version: detail?.version,
       runtimeParameters: detail?.runtimeParameters,
+      methods: rowsToMethods(methodRows),
     };
     return body;
   }
@@ -223,6 +279,7 @@ export function ExtensionDetailPanel({
       setHandlerName(saved.handlerName || DEFAULT_EXTENSION_HANDLER);
       setInterfacesText(formatExtensionInterfaces(saved.supportedInterfaces));
       setClassName(extensionClassName(saved.initParameters));
+      setMethodRows(methodsToRows(saved.methods));
       setDeprecated(Boolean(saved.deprecated));
       setNotice(DEV_MSG.EX_SAVED);
       onSaved?.(saved);
@@ -283,7 +340,7 @@ export function ExtensionDetailPanel({
       ? withoutStaleExtensionWriteGap(detail.designGaps)
       : EXTENSION_DESIGN_GAPS.length > 0
         ? EXTENSION_DESIGN_GAPS
-        : [DEV_MSG.EX_GAP_METHODS, DEV_MSG.EX_GAP_WORKBENCH];
+        : [DEV_MSG.EX_GAP_WORKBENCH];
 
   return (
     <div data-testid="developer-ex-detail">
@@ -476,6 +533,160 @@ export function ExtensionDetailPanel({
               </button>
             ) : null}
           </div>
+
+          <section data-testid="developer-ex-methods" style={{ marginBottom: "16px" }}>
+            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.EX_METHODS}</h3>
+            <p style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
+              {DEV_MSG.EX_METHOD_HINT}
+            </p>
+            {methodRows.length === 0 ? (
+              <p style={{ color: catalogColors.empty }} data-testid="developer-ex-methods-empty">
+                {DEV_MSG.EX_METHOD_EMPTY}
+              </p>
+            ) : (
+              methodRows.map((row, i) => (
+                <div
+                  key={`method-${i}`}
+                  data-testid={`developer-ex-method-row-${i}`}
+                  style={{
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    padding: "12px",
+                    marginBottom: "8px",
+                  }}
+                >
+                  <div style={fieldStyle}>
+                    <label htmlFor={`ex-method-name-${i}`}>{DEV_MSG.EX_METHOD_NAME}</label>
+                    <input
+                      id={`ex-method-name-${i}`}
+                      data-testid={`developer-ex-method-name-${i}`}
+                      style={{ ...inputStyle, fontFamily: "monospace" }}
+                      value={row.name ?? ""}
+                      disabled={readOnly}
+                      onChange={(e) => updateMethodRow(i, { name: e.target.value })}
+                      autoComplete="off"
+                    />
+                  </div>
+                  <div style={fieldStyle}>
+                    <label htmlFor={`ex-method-return-${i}`}>{DEV_MSG.EX_METHOD_RETURN}</label>
+                    <input
+                      id={`ex-method-return-${i}`}
+                      data-testid={`developer-ex-method-return-${i}`}
+                      style={{ ...inputStyle, fontFamily: "monospace" }}
+                      value={row.returnType ?? ""}
+                      disabled={readOnly}
+                      onChange={(e) => updateMethodRow(i, { returnType: e.target.value })}
+                      autoComplete="off"
+                    />
+                  </div>
+                  <div style={fieldStyle}>
+                    <label htmlFor={`ex-method-desc-${i}`}>{DEV_MSG.EX_METHOD_DESC}</label>
+                    <input
+                      id={`ex-method-desc-${i}`}
+                      data-testid={`developer-ex-method-desc-${i}`}
+                      style={inputStyle}
+                      value={row.description ?? ""}
+                      disabled={readOnly}
+                      onChange={(e) => updateMethodRow(i, { description: e.target.value })}
+                      autoComplete="off"
+                    />
+                  </div>
+                  <div style={{ marginBottom: "8px" }}>
+                    <div style={{ fontSize: "0.85rem", marginBottom: "4px" }}>
+                      {DEV_MSG.EX_METHOD_PARAMS}
+                    </div>
+                    {(row.parameters ?? []).map((p, j) => (
+                      <div
+                        key={`param-${i}-${j}`}
+                        style={{ display: "flex", gap: "8px", marginBottom: "4px", flexWrap: "wrap" }}
+                      >
+                        <input
+                          data-testid={`developer-ex-method-param-name-${i}-${j}`}
+                          aria-label={DEV_MSG.EX_COL_PARAM}
+                          style={{ ...inputStyle, fontFamily: "monospace", flex: "1 1 8rem" }}
+                          value={p.name ?? ""}
+                          disabled={readOnly}
+                          onChange={(e) => updateMethodParam(i, j, { name: e.target.value })}
+                          autoComplete="off"
+                        />
+                        <input
+                          data-testid={`developer-ex-method-param-type-${i}-${j}`}
+                          aria-label={DEV_MSG.EX_COL_TYPE}
+                          style={{ ...inputStyle, fontFamily: "monospace", flex: "1 1 8rem" }}
+                          value={p.dataType ?? ""}
+                          disabled={readOnly}
+                          onChange={(e) => updateMethodParam(i, j, { dataType: e.target.value })}
+                          autoComplete="off"
+                        />
+                        <button
+                          type="button"
+                          data-testid={`developer-ex-method-param-remove-${i}-${j}`}
+                          disabled={readOnly}
+                          onClick={() => removeMethodParam(i, j)}
+                          style={{
+                            padding: "8px",
+                            border: `1px solid ${catalogColors.softBorder}`,
+                            borderRadius: "4px",
+                            background: "transparent",
+                            cursor: readOnly ? "not-allowed" : "pointer",
+                          }}
+                        >
+                          {DEV_MSG.EX_METHOD_PARAM_REMOVE}
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      data-testid={`developer-ex-method-param-add-${i}`}
+                      disabled={readOnly}
+                      onClick={() => addMethodParam(i)}
+                      style={{
+                        padding: "6px 12px",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        background: "transparent",
+                        cursor: readOnly ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      {DEV_MSG.EX_METHOD_PARAM_ADD}
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    data-testid={`developer-ex-method-remove-${i}`}
+                    disabled={readOnly}
+                    onClick={() => removeMethodRow(i)}
+                    style={{
+                      padding: "6px 12px",
+                      background: readOnly ? catalogColors.disabled : "#c53030",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: readOnly ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    {DEV_MSG.EX_METHOD_REMOVE}
+                  </button>
+                </div>
+              ))
+            )}
+            <button
+              type="button"
+              data-testid="developer-ex-method-add"
+              disabled={readOnly}
+              onClick={() => setMethodRows((rows) => [...rows, emptyMethod()])}
+              style={{
+                padding: "8px 16px",
+                background: readOnly ? catalogColors.disabled : catalogColors.accent,
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: readOnly ? "not-allowed" : "pointer",
+              }}
+            >
+              {DEV_MSG.EX_METHOD_ADD}
+            </button>
+          </section>
 
           {detail ? (
             <>

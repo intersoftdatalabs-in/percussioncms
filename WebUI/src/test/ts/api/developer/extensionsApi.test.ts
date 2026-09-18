@@ -220,6 +220,57 @@ describe("extension wire wrap", () => {
       ]),
     ).toEqual(["Workbench parameter dialog parity beyond fields on the wire DTO"]);
     expect(EXTENSION_DESIGN_GAPS.some((g) => /install/i.test(g))).toBe(false);
+    expect(
+      withoutStaleExtensionWriteGap([
+        "Extension method map editing not supported via this chrome",
+        "Workbench parameter dialog parity beyond fields on the wire DTO",
+      ]),
+    ).toEqual(["Workbench parameter dialog parity beyond fields on the wire DTO"]);
+    expect(EXTENSION_DESIGN_GAPS.some((g) => /method map/i.test(g))).toBe(false);
+  });
+
+  it("wraps method map as a JSON array", () => {
+    expect(
+      wrapExtensionForWire({
+        extensionName: "my_user_ext",
+        supportedInterfaces: ["com.percussion.extension.IPSUdfProcessor"],
+        methods: {
+          productVersion: {
+            name: "productVersion",
+            returnType: "java.lang.String",
+            description: "ver",
+            parameters: [],
+          },
+        },
+      }),
+    ).toEqual({
+      Extension: {
+        extensionName: "my_user_ext",
+        supportedInterfaces: ["com.percussion.extension.IPSUdfProcessor"],
+        methods: [
+          {
+            name: "productVersion",
+            returnType: "java.lang.String",
+            description: "ver",
+            parameters: [],
+          },
+        ],
+      },
+    });
+  });
+
+  it("sends a blank-name row so JAXB can clear an empty method map", () => {
+    expect(
+      wrapExtensionForWire({
+        extensionName: "my_user_ext",
+        supportedInterfaces: ["com.percussion.extension.IPSUdfProcessor"],
+        methods: {},
+      }).Extension,
+    ).toEqual(
+      expect.objectContaining({
+        methods: [{ name: "" }],
+      }),
+    );
   });
 });
 

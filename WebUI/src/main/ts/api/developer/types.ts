@@ -1125,6 +1125,21 @@ export interface ViewExecuteResult {
   displayFormatId?: string;
 }
 
+/** One parameter on an extension method map entry. */
+export interface ExtensionMethodParam {
+  name?: string;
+  dataType?: string;
+  description?: string;
+}
+
+/** One method on GET/PUT Extension.methods. */
+export interface ExtensionMethodDef {
+  name?: string;
+  description?: string;
+  returnType?: string;
+  parameters?: ExtensionMethodParam[];
+}
+
 /** Server extension from GET /services/extensions/catalog. */
 export interface ExtensionDef {
   handlerName?: string;
@@ -1139,7 +1154,7 @@ export interface ExtensionDef {
   supportedInterfaces?: string[];
   runtimeParameters?: { name?: string; dataType?: string; description?: string }[];
   initParameters?: Record<string, string>;
-  methods?: Record<string, { name?: string; description?: string }>;
+  methods?: Record<string, ExtensionMethodDef> | ExtensionMethodDef[];
   /** Developer surface honesty; defaults filled by extensionsApi when absent. */
   designGaps?: string[];
 }

@@ -40,6 +40,13 @@ public class ExtensionMethod {
   @Schema(name = "description", description = "The description of the Extension method")
   private String description;
 
+  @Schema(
+      name = "returnType",
+      description =
+          "Java return type of the method. Required by the extension def; defaults to"
+              + " java.lang.Object when omitted on write.")
+  private String returnType;
+
   @ArraySchema(schema = @Schema(implementation = ExtensionParameter.class))
   private List<ExtensionParameter> parameters;
 
@@ -61,6 +68,14 @@ public class ExtensionMethod {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public String getReturnType() {
+    return returnType;
+  }
+
+  public void setReturnType(String returnType) {
+    this.returnType = returnType;
   }
 
   public List<ExtensionParameter> getParameters() {

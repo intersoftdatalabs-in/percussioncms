@@ -24,6 +24,8 @@ import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSExtensionHandler;
 import com.percussion.extension.PSExtensionDef;
 import com.percussion.extension.PSExtensionException;
+import com.percussion.extension.PSExtensionMethod;
+import com.percussion.extension.PSExtensionMethodParam;
 import com.percussion.extension.PSExtensionRef;
 import com.percussion.extensions.IPSExtensionService;
 import com.percussion.rest.extensions.Extension;
@@ -43,11 +45,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -74,6 +79,9 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
   static final String USER_CONTEXT = "user/";
 
   static final String DEFAULT_HANDLER = "Java";
+
+  /** Default method return type when the wire omits {@code returnType}. */
+  static final String DEFAULT_METHOD_RETURN_TYPE = "java.lang.Object";
 
   private final IPSExtensionService extensionService;
   private final BooleanSupplier adminChecker;
@@ -120,30 +128,7 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
           .forEachRemaining(name -> initParams.put(name, def.getInitParameter(name)));
       ret.setInitParameters(initParams);
 
-      // Methods
-      var methods = new HashMap<String, ExtensionMethod>();
-      def.getMethods()
-          .forEachRemaining(
-              defMethod -> {
-                var meth = new ExtensionMethod();
-                meth.setName(defMethod.getName());
-                meth.setDescription(defMethod.getDescription());
-
-                var methParams = new ArrayList<ExtensionParameter>();
-                defMethod
-                    .getParameters()
-                    .forEachRemaining(
-                        emp -> {
-                          var ep = new ExtensionParameter();
-                          ep.setDataType(emp.getType());
-                          ep.setDescription(emp.getDescription());
-                          ep.setName(emp.getName());
-                          methParams.add(ep);
-                        });
-                meth.setParameters(methParams);
-                methods.put(defMethod.getName(), meth);
-              });
-      ret.setMethods(methods);
+      ret.setMethods(copyMethodList(def));
 
       // Required applications
       var apps = new ArrayList<String>();
@@ -302,6 +287,7 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
             body.getResourceLocations(),
             body.getSuppliedResources(),
             body.getRequiredApplications(),
+            requireMethods(body.getMethods()),
             body.isDeprecated(),
             body.isRestoreRequestParamsOnError(),
             body.getVersion());
@@ -378,6 +364,8 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
         body.getRequiredApplications() != null
             ? body.getRequiredApplications()
             : copyRequiredApps(current);
+    Map<String, ExtensionMethod> methods =
+        body.getMethods() != null ? requireMethods(body.getMethods()) : copyMethods(current);
 
     // Wire booleans/version are primitives — clients should round-trip GET then PUT.
     // version<=0 means "omit / keep current" (Jackson cannot distinguish omitted from 0).
@@ -394,6 +382,7 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
             resourceLocations,
             suppliedResources,
             requiredApps,
+            methods,
             deprecated,
             restoreOnError,
             version);
@@ -443,6 +432,7 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
       List<String> resourceLocations,
       List<String> suppliedResources,
       List<String> requiredApplications,
+      Map<String, ExtensionMethod> methods,
       boolean deprecated,
       boolean restoreRequestParamsOnError,
       long version) {
@@ -503,6 +493,7 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
       }
       def.setRequiredApplications(apps.iterator());
     }
+    applyMethods(def, methods);
     return def;
   }
 
@@ -694,6 +685,136 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
     List<String> out = new ArrayList<>();
     def.getRequiredApplications().forEachRemaining(app -> out.add(app.toString()));
     return out;
+  }
+
+  static Map<String, ExtensionMethod> copyMethods(IPSExtensionDef def) {
+    Map<String, ExtensionMethod> methods = new LinkedHashMap<>();
+    if (def == null) {
+      return methods;
+    }
+    def.getMethods()
+        .forEachRemaining(
+            defMethod -> {
+              if (defMethod == null || StringUtils.isBlank(defMethod.getName())) {
+                return;
+              }
+              methods.put(defMethod.getName(), toWireMethod(defMethod));
+            });
+    return methods;
+  }
+
+  static List<ExtensionMethod> copyMethodList(IPSExtensionDef def) {
+    return new ArrayList<>(copyMethods(def).values());
+  }
+
+  static ExtensionMethod toWireMethod(PSExtensionMethod defMethod) {
+    var meth = new ExtensionMethod();
+    meth.setName(defMethod.getName());
+    meth.setDescription(defMethod.getDescription());
+    meth.setReturnType(
+        StringUtils.defaultIfBlank(defMethod.getReturnType(), DEFAULT_METHOD_RETURN_TYPE));
+    var methParams = new ArrayList<ExtensionParameter>();
+    defMethod
+        .getParameters()
+        .forEachRemaining(
+            emp -> {
+              var ep = new ExtensionParameter();
+              ep.setDataType(emp.getType());
+              ep.setDescription(emp.getDescription());
+              ep.setName(emp.getName());
+              methParams.add(ep);
+            });
+    meth.setParameters(methParams);
+    return meth;
+  }
+
+  /**
+   * Normalize a write payload method list. {@code null} means omit (caller keeps current). Empty
+   * list is a valid clear. Blank names and duplicate names (case-insensitive) are 400.
+   */
+  static Map<String, ExtensionMethod> requireMethods(List<ExtensionMethod> raw) {
+    if (raw == null) {
+      return null;
+    }
+    Map<String, ExtensionMethod> out = new LinkedHashMap<>();
+    Set<String> seen = new HashSet<>();
+    for (ExtensionMethod src : raw) {
+      String name = src != null ? src.getName() : null;
+      if (StringUtils.isBlank(name)) {
+        // Allow [{name:""}] as a JAXB-friendly clear (empty [] is dropped on the wire).
+        continue;
+      }
+      name = name.trim();
+      if (!seen.add(name.toLowerCase(Locale.ROOT))) {
+        throw new IllegalArgumentException("duplicate method name: " + name);
+      }
+      ExtensionMethod dest = new ExtensionMethod();
+      dest.setName(name);
+      dest.setDescription(src.getDescription());
+      dest.setReturnType(
+          StringUtils.defaultIfBlank(src.getReturnType(), DEFAULT_METHOD_RETURN_TYPE));
+      dest.setParameters(sanitizeMethodParams(src.getParameters()));
+      out.put(name, dest);
+    }
+    return out;
+  }
+
+  static List<ExtensionParameter> sanitizeMethodParams(List<ExtensionParameter> raw) {
+    if (raw == null || raw.isEmpty()) {
+      return List.of();
+    }
+    List<ExtensionParameter> out = new ArrayList<>();
+    Set<String> seen = new HashSet<>();
+    for (ExtensionParameter p : raw) {
+      if (p == null || StringUtils.isBlank(p.getName())) {
+        continue;
+      }
+      String pname = p.getName().trim();
+      if (!seen.add(pname.toLowerCase(Locale.ROOT))) {
+        throw new IllegalArgumentException("duplicate method parameter name: " + pname);
+      }
+      ExtensionParameter ep = new ExtensionParameter();
+      ep.setName(pname);
+      ep.setDescription(p.getDescription());
+      ep.setDataType(StringUtils.defaultIfBlank(p.getDataType(), "java.lang.String"));
+      out.add(ep);
+    }
+    return out;
+  }
+
+  static void applyMethods(PSExtensionDef def, Map<String, ExtensionMethod> methods) {
+    if (def == null || methods == null || methods.isEmpty()) {
+      return;
+    }
+    for (ExtensionMethod meth : methods.values()) {
+      if (meth == null || StringUtils.isBlank(meth.getName())) {
+        continue;
+      }
+      String returnType =
+          StringUtils.defaultIfBlank(meth.getReturnType(), DEFAULT_METHOD_RETURN_TYPE);
+      PSExtensionMethod ps =
+          new PSExtensionMethod(meth.getName().trim(), returnType, meth.getDescription());
+      if (meth.getParameters() != null) {
+        for (ExtensionParameter p : meth.getParameters()) {
+          if (p == null || StringUtils.isBlank(p.getName())) {
+            continue;
+          }
+          ps.addParameter(
+              new PSExtensionMethodParam(
+                  p.getName().trim(),
+                  StringUtils.defaultIfBlank(p.getDataType(), "java.lang.String"),
+                  p.getDescription()));
+        }
+      }
+      def.addExtensionMethod(ps);
+    }
+  }
+
+  private static String firstNonBlank(String a, String b) {
+    if (StringUtils.isNotBlank(a)) {
+      return a;
+    }
+    return b;
   }
 
   private static List<URL> toUrls(List<String> locations, String field) {

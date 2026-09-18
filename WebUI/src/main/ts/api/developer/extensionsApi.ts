@@ -16,7 +16,8 @@
 
 import { del, get, post, put } from "../client";
 import { PATHS } from "../paths";
-import type { ExtensionDef } from "./types";
+import { normalizeMethods } from "./extensionMethods";
+import type { ExtensionDef, ExtensionMethodDef } from "./types";
 
 /** Jackson/JAXB root for Extension wire payloads. */
 export const EXTENSION_ROOT = "Extension";
@@ -33,14 +34,13 @@ export const EXTENSION_CLASSNAME_PARAM = "className";
 /** Handler name for handler-owned (immutable) extensions. */
 export const EXTENSION_HANDLER_NAME = "ExtensionHandler";
 
-/** Remaining honesty gaps after SY-01 SPA write ships. */
+/** Remaining honesty gaps after SY-01 SPA write and method-map edit ship. */
 export const EXTENSION_DESIGN_GAPS: string[] = [
   "Workbench parameter dialog parity beyond fields on the wire DTO",
-  "Extension method map editing not supported via this chrome",
 ];
 
 const STALE_WRITE_GAP =
-  /extension\s+(install|remove|create|update|delete|register)|parameter and method edit/i;
+  /extension\s+(install|remove|create|update|delete|register)|parameter and method edit|extension method map editing/i;
 
 export type ExtensionWriteBody = {
   extensionName: string;
@@ -50,6 +50,7 @@ export type ExtensionWriteBody = {
   supportedInterfaces: string[];
   initParameters?: Record<string, string>;
   runtimeParameters?: ExtensionDef["runtimeParameters"];
+  methods?: Record<string, ExtensionMethodDef> | ExtensionMethodDef[];
   deprecated?: boolean;
   restoreRequestParamsOnError?: boolean;
   version?: number;
@@ -240,11 +241,16 @@ export function toJacksonStringMapWire(
 export function wrapExtensionForWire(
   body: ExtensionWriteBody,
 ): Record<string, unknown> {
-  const { initParameters, ...rest } = body;
+  const { initParameters, methods, ...rest } = body;
   const wire: Record<string, unknown> = { ...rest };
   const mapped = toJacksonStringMapWire(initParameters);
   if (mapped) {
     wire.initParameters = mapped;
+  }
+  if (methods !== undefined) {
+    const list = Array.isArray(methods) ? methods : Object.values(methods);
+    // JAXB drops empty arrays; a blank-name row is skipped server-side and clears.
+    wire.methods = list.length > 0 ? list : [{ name: "" }];
   }
   return { [EXTENSION_ROOT]: wire };
 }
@@ -258,12 +264,14 @@ export function withoutStaleExtensionWriteGap(gaps: string[] | undefined | null)
 function withGaps(ext: ExtensionDef): ExtensionDef {
   const fromServer = withoutStaleExtensionWriteGap(ext.designGaps);
   const initParameters = normalizeInitParameters(ext.initParameters);
+  const methods = normalizeMethods(ext.methods);
   return {
     ...ext,
     supportedInterfaces: normalizeSupportedInterfaces(
       ext.supportedInterfaces as string[] | string | undefined | null,
     ),
     ...(initParameters ? { initParameters } : {}),
+    methods,
     designGaps: fromServer.length > 0 ? fromServer : EXTENSION_DESIGN_GAPS,
   };
 }

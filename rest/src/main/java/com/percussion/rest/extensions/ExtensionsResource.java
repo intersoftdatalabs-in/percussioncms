@@ -161,9 +161,10 @@ public class ExtensionsResource {
           "Admin. Registers (installs) a user extension via IPSExtensionService under context"
               + " user/. extensionName and at least one supportedInterfaces entry are required."
               + " handlerName defaults to Java. Duplicate FQN is 409. System/handler contexts"
-              + " cannot be registered (409). Developer → Extensions SPA also uses this"
-              + " endpoint for user-extension create. Success is HTTP 200 (same as other Admin"
-              + " write resources in this module; not 201).",
+              + " cannot be registered (409). Optional methods map is persisted (empty or omitted"
+              + " means no methods). Developer → Extensions SPA also uses this endpoint for"
+              + " user-extension create. Success is HTTP 200 (same as other Admin write resources"
+              + " in this module; not 201).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -199,11 +200,13 @@ public class ExtensionsResource {
       summary = "Update user extension",
       description =
           "Admin. Updates mutable fields of a user extension by FQN or extension name (query"
-              + " param key). Identity (handler/context/name) is not renamed on PUT. System and"
-              + " handler-owned extensions are 409. Unknown key is 404. Developer → Extensions"
-              + " SPA also uses this endpoint for user-extension edit. Round-trip GET then PUT:"
-              + " omit supportedInterfaces to keep current (explicit [] is 400); initParameters"
-              + " null values delete keys; version<=0 keeps the current version.",
+              + " param key), including the method map. Identity (handler/context/name) is not"
+              + " renamed on PUT. System and handler-owned extensions are 409. Unknown key is"
+              + " 404. Developer → Extensions SPA also uses this endpoint for user-extension"
+              + " edit. Round-trip GET then PUT: omit supportedInterfaces to keep current"
+              + " (explicit [] is 400); initParameters null values delete keys; version<=0 keeps"
+              + " the current version; methods null keeps the current map, methods {} clears,"
+              + " named entries add/replace. Blank method names or duplicate names are 400.",
       responses = {
         @ApiResponse(
             responseCode = "200",
