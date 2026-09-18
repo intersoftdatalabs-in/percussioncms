@@ -444,7 +444,8 @@ query-filters:
         - "**/objectstore/server/PSServerXmlObjectStore.java"
       reason: >-
         Alerts #2001/#1988-#2000 and PR residual #2011-#2023/#2026-#2030
-        plus saveApplicationFileWithoutLocking #2046–#2050:
+        plus saveApplicationFileWithoutLocking #2046–#2050 / #2058–#2062
+        and re-fingerprint #2074–#2075:
         RecoverableFile, deleteFile, mkdir, getAppRootDir, and save File API.
         Runtime getAppRootDir / RecoverableFile ctor / deleteFile call
         requireUnderBase against PSServer.getRxDir() then operate on the
