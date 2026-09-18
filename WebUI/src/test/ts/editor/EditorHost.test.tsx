@@ -838,3 +838,208 @@ describe("EditorHost required field save errors (#4541)", () => {
     expect(checkin).not.toHaveBeenCalled();
   });
 });
+
+describe("EditorHost preview assembled item (#4568)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function titleType() {
+    return { fields: [{ name: "sys_title", label: "Title", readOnly: false }] };
+  }
+
+  it("previews in view mode without a dirty confirm", async () => {
+    const previewItem = vi.fn().mockResolvedValue(undefined);
+    const confirmUnsavedPreview = vi.fn().mockReturnValue(false);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                previewItem={previewItem}
+                confirmUnsavedPreview={confirmUnsavedPreview}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-preview")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-preview"));
+    await waitFor(() => {
+      expect(previewItem).toHaveBeenCalledWith("42", "page");
+    });
+    expect(confirmUnsavedPreview).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-preview-done")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-preview-error")).toBeNull();
+  });
+
+  it("confirms unsaved edits then previews the last saved revision", async () => {
+    const previewItem = vi.fn().mockResolvedValue(undefined);
+    const confirmUnsavedPreview = vi.fn().mockReturnValue(true);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                previewItem={previewItem}
+                confirmUnsavedPreview={confirmUnsavedPreview}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-sys_title")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-sys_title"), {
+      target: { value: "Draft title" },
+    });
+    fireEvent.click(screen.getByTestId("editor-preview"));
+    await waitFor(() => {
+      expect(confirmUnsavedPreview).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(previewItem).toHaveBeenCalledWith("42", "page");
+    });
+  });
+
+  it("does not preview when the unsaved confirm is cancelled", async () => {
+    const previewItem = vi.fn().mockResolvedValue(undefined);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                previewItem={previewItem}
+                confirmUnsavedPreview={() => false}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-sys_title")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-sys_title"), {
+      target: { value: "Draft title" },
+    });
+    fireEvent.click(screen.getByTestId("editor-preview"));
+    await waitFor(() => {
+      expect(previewItem).not.toHaveBeenCalled();
+    });
+    expect(screen.queryByTestId("editor-preview-done")).toBeNull();
+  });
+
+  it("surfaces FORBIDDEN as failure, not success", async () => {
+    const previewItem = vi.fn().mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: { Error: { message: "FORBIDDEN" } },
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                previewItem={previewItem}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-preview")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-preview"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-preview-error").textContent).toMatch(
+        /FORBIDDEN/,
+      );
+    });
+    expect(screen.queryByTestId("editor-preview-done")).toBeNull();
+  });
+
+  it("hides Preview in promote mode", async () => {
+    const previewItem = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=promote"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost checkout={vi.fn()} loadFields={vi.fn()} previewItem={previewItem} />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-promote-form")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-preview")).toBeNull();
+    expect(previewItem).not.toHaveBeenCalled();
+  });
+
+  it("previews percRichText as an asset", async () => {
+    const previewItem = vi.fn().mockResolvedValue(undefined);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=99&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={vi.fn().mockResolvedValue({
+                  contentId: "99",
+                  contentType: "percRichText",
+                  name: "Intro",
+                  checkoutUser: "admin",
+                  fields: [{ name: "sys_title", value: "Intro" }],
+                })}
+                loadType={async () => titleType()}
+                previewItem={previewItem}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-preview")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-preview"));
+    await waitFor(() => {
+      expect(previewItem).toHaveBeenCalledWith("99", "asset");
+    });
+  });
+});

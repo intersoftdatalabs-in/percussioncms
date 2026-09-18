@@ -71,4 +71,12 @@ export const EDITOR_MSG = {
   PUBLISH_FAILED: "perc.ui.editor@Could not publish this item.",
   PUBLISH_UNAVAILABLE:
     "perc.ui.editor@Publish now is only available for pages and assets.",
+  PREVIEW: "perc.ui.editor@Preview",
+  PREVIEWING: "perc.ui.editor@Opening preview…",
+  PREVIEW_DONE: "perc.ui.editor@Preview opened.",
+  PREVIEW_FAILED: "perc.ui.editor@Could not preview this item.",
+  PREVIEW_UNAVAILABLE:
+    "perc.ui.editor@Preview is only available for pages and assets.",
+  CONFIRM_PREVIEW_UNSAVED:
+    "perc.ui.editor@Preview the last saved revision? Unsaved edits are not included.",
 };

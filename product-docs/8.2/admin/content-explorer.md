@@ -206,6 +206,19 @@ failure: the host shows the server warning and does not treat the job as started
 **View** and **Promote** stay read-only (no Publish now). Templates and other
 non-page/non-asset types stay unavailable. Does not open the demand-publish servlet.
 
+**Preview** is available in **View** and **Edit** for the already-open **page**
+or **asset** so authors do not need to bounce to Explorer solely to preview.
+It uses the same assembled preview as Explorer **Preview**: pages open Page
+Management render (`GET /services/pagemanagement/render/page/{id}`); assets
+open the asset view URL (`GET /services/assetmanagement/asset/assetViewUrl/{id}`)
+and then that URL. Preview is always the **last saved revision**. Unsaved field
+edits are not assembled — if the form is dirty, the host confirms **Preview the
+last saved revision? Unsaved edits are not included.** Cancel leaves the editor
+unchanged and does not open a window. HTTP **403** (forbidden) and **404**
+(unknown id) are failures: the host shows the error and does not treat preview
+as opened. **Promote** does not show Preview. Does not open leftover Content
+Editor HTML or an Active Assembly overlay.
+
 The host does not request leftover Content Editor HTML (`checkoutedit.xml`,
 `contenteditorurls.html`, `?view=editor`).
 

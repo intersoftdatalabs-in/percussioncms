@@ -43,6 +43,11 @@ import {
   mapSaveApiErrorToFieldErrors,
 } from "./editorFieldErrors";
 import {
+  canPreviewFromEditor,
+  editorDraftIsDirty,
+  previewEditorItem,
+} from "./editorPreview";
+import {
   canPublishFromEditor,
   publishEditorItem,
   resolveEditorPublishKind,
@@ -112,6 +117,10 @@ export interface EditorHostProps {
   publishItem?: (itemId: string, kind: EditorPublishKind) => Promise<boolean>;
   /** Test seam: confirm before Publish now (defaults to {@code window.confirm}). */
   confirmPublish?: (body: string) => boolean;
+  /** Test seam: Explorer {@code openPreviewItem} wrapper. */
+  previewItem?: (itemId: string, kind: EditorPublishKind) => Promise<void>;
+  /** Test seam: confirm unsaved preview (defaults to {@code window.confirm}). */
+  confirmUnsavedPreview?: (body: string) => boolean;
 }
 
 function badgeKey(mode: EditorHostMode): string {
@@ -244,6 +253,8 @@ export function EditorHost({
   commentRequiredTriggers,
   publishItem = publishEditorItem,
   confirmPublish,
+  previewItem = previewEditorItem,
+  confirmUnsavedPreview,
 }: EditorHostProps = {}): React.ReactElement {
   const [params] = useSearchParams();
   const contentId = parsePositiveInt(params.get("contentId"));
@@ -280,6 +291,10 @@ export function EditorHost({
   const [publishDone, setPublishDone] = useState(false);
   const [publishErrorKey, setPublishErrorKey] = useState<string | null>(null);
   const [publishErrorDetail, setPublishErrorDetail] = useState("");
+  const [previewBusy, setPreviewBusy] = useState(false);
+  const [previewDone, setPreviewDone] = useState(false);
+  const [previewErrorKey, setPreviewErrorKey] = useState<string | null>(null);
+  const [previewErrorDetail, setPreviewErrorDetail] = useState("");
 
   useEffect(() => {
     document.title = message(EDITOR_MSG.TITLE);
@@ -564,6 +579,48 @@ export function EditorHost({
     }
   }
 
+  async function handlePreview(): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    const itemId = String(contentId);
+    const kind = resolveEditorPublishKind(payload?.contentType, {
+      id: itemId,
+      allowedTemplateCount,
+    });
+    if (!canPreviewFromEditor(mode, kind)) {
+      setPreviewDone(false);
+      setPreviewErrorDetail("");
+      setPreviewErrorKey(EDITOR_MSG.PREVIEW_UNAVAILABLE);
+      return;
+    }
+    if (editorDraftIsDirty(payload?.fields, draft, pendingFiles)) {
+      const confirmFn =
+        confirmUnsavedPreview ??
+        ((body: string) =>
+          typeof window !== "undefined" ? window.confirm(body) : false);
+      if (!confirmFn(message(EDITOR_MSG.CONFIRM_PREVIEW_UNSAVED))) {
+        return;
+      }
+    }
+    setPreviewBusy(true);
+    setPreviewDone(false);
+    setPreviewErrorKey(null);
+    setPreviewErrorDetail("");
+    try {
+      await previewItem(itemId, kind);
+      setPreviewDone(true);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setPreviewErrorDetail(formatApiError(err, message(EDITOR_MSG.PREVIEW_FAILED)));
+      setPreviewErrorKey(EDITOR_MSG.PREVIEW_FAILED);
+    } finally {
+      setPreviewBusy(false);
+    }
+  }
+
   async function handleCheckin(): Promise<void> {
     if (contentId == null) {
       return;
@@ -595,6 +652,7 @@ export function EditorHost({
     allowedTemplateCount,
   });
   const showPublish = canPublishFromEditor(mode, publishKind);
+  const showPreview = canPreviewFromEditor(mode, publishKind);
 
   return (
     <div className={styles.root} data-testid="editor-host">
@@ -628,6 +686,11 @@ export function EditorHost({
               {message(EDITOR_MSG.PUBLISH_DONE)}
             </span>
           ) : null}
+          {previewDone ? (
+            <span className={styles.meta} data-testid="editor-preview-done">
+              {message(EDITOR_MSG.PREVIEW_DONE)}
+            </span>
+          ) : null}
           {canEdit ? (
             <button
               type="button"
@@ -658,6 +721,17 @@ export function EditorHost({
               onClick={() => void handleCheckin()}
             >
               {message(EDITOR_MSG.CHECKIN)}
+            </button>
+          ) : null}
+          {showPreview ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-preview"
+              disabled={previewBusy || loading || payload == null}
+              onClick={() => void handlePreview()}
+            >
+              {message(previewBusy ? EDITOR_MSG.PREVIEWING : EDITOR_MSG.PREVIEW)}
             </button>
           ) : null}
           <button
@@ -706,6 +780,16 @@ export function EditorHost({
               >
                 {message(publishErrorKey)}
                 {publishErrorDetail ? ` ${publishErrorDetail}` : ""}
+              </div>
+            ) : null}
+            {previewErrorKey ? (
+              <div
+                className={styles.status}
+                role="alert"
+                data-testid="editor-preview-error"
+              >
+                {message(previewErrorKey)}
+                {previewErrorDetail ? ` ${previewErrorDetail}` : ""}
               </div>
             ) : null}
             {canEdit ? (
