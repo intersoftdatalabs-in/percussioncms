@@ -1274,9 +1274,9 @@ export interface ControlDef {
   parameters?: ControlParameterSummary[];
   designGaps?: string[];
   /**
-   * Optional full XSL stylesheet on write. Omitted on list/detail unless the
-   * client supplied it. When absent on POST/PUT the server writes a default
-   * user-control stylesheet from metadata.
+   * User-control XSL stylesheet. Detail GET round-trips the persisted file.
+   * Omitted on list rows. POST/PUT replace it; omitted on write regenerates
+   * the default stylesheet. System controls are not mutated.
    */
   xslSource?: string;
 }

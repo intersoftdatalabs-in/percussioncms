@@ -270,6 +270,70 @@ class ControlAdaptorWriteTest {
     assertFalse(xsl.contains("rx_resources"));
   }
 
+  @Test
+  void find_userControl_roundTripsXslSource_listOmitsIt() {
+    String xsl =
+        ControlAdaptor.generateDefaultXsl(
+            "myUserControl", "Label", "slice16-marker", "single", "none");
+    ControlDef body = new ControlDef();
+    body.setName("myUserControl");
+    body.setXslSource(xsl);
+    adaptor.createControl(body);
+
+    ControlDef fetched = adaptor.findControlByName("myUserControl");
+    assertNotNull(fetched);
+    assertEquals("user", fetched.getScope());
+    assertEquals(xsl, fetched.getXslSource());
+    assertTrue(fetched.getXslSource().contains("slice16-marker"));
+
+    ControlDef listRow =
+        adaptor.listControls().stream()
+            .filter(c -> "myUserControl".equals(c.getName()))
+            .findFirst()
+            .orElseThrow();
+    assertNull(listRow.getXslSource());
+  }
+
+  @Test
+  void save_xslSource_roundTripsOnGet() {
+    ControlDef created = new ControlDef();
+    created.setName("myUserControl");
+    adaptor.createControl(created);
+
+    String xsl =
+        ControlAdaptor.generateDefaultXsl(
+            "myUserControl", "Updated", "saved xsl", "single", "none");
+    ControlDef body = new ControlDef();
+    body.setDisplayName("Updated");
+    body.setXslSource(xsl);
+    ControlDef out = adaptor.saveControl("myUserControl", body);
+    assertNotNull(out);
+    assertEquals(xsl, out.getXslSource());
+
+    ControlDef fetched = adaptor.findControlByName("myUserControl");
+    assertNotNull(fetched);
+    assertEquals(xsl, fetched.getXslSource());
+  }
+
+  @Test
+  void find_systemControl_doesNotAttachUserXslOrWriteFile() {
+    io.system.add(controlMeta("sys_EditBox"));
+    ControlDef fetched = adaptor.findControlByName("sys_EditBox");
+    assertNotNull(fetched);
+    assertEquals("system", fetched.getScope());
+    assertNull(fetched.getXslSource());
+    assertFalse(Files.exists(io.dir.resolve("sys_EditBox.xsl")));
+  }
+
+  @Test
+  void designGaps_keepSystemHonesty_dropXslEditorGap() {
+    assertEquals(1, ControlAdaptor.DESIGN_GAPS.size());
+    assertEquals("System controls are read-only packaged defaults", ControlAdaptor.DESIGN_GAPS.get(0));
+    for (String gap : ControlAdaptor.DESIGN_GAPS) {
+      assertFalse(gap.toLowerCase().contains("xsl source editor"));
+    }
+  }
+
   static final class TestUserControlIo implements UserControlIo {
     final Path dir;
     final List<PSControlMeta> system = new ArrayList<>();

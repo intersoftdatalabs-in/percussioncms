@@ -31,8 +31,9 @@ public class ControlDef {
   private List<String> designGaps = new ArrayList<>();
 
   /**
-   * Optional full XSL stylesheet on write. Omitted on list/detail unless the client supplied it.
-   * When absent on POST/PUT the server generates a default user-control stylesheet from metadata.
+   * Full XSL stylesheet. Detail GET round-trips this for <strong>user</strong> controls. List
+   * rows omit it. POST/PUT replace the user-control file; omitted on write regenerates a default
+   * stylesheet from metadata. System controls stay read-only (PUT/DELETE 409).
    */
   private String xslSource;
 
@@ -128,9 +129,9 @@ public class ControlDef {
 
   @Schema(
       description =
-          "Optional full XSL stylesheet for POST/PUT. When omitted the server writes a default"
-              + " user-control stylesheet from name/displayName/description/dimension/choiceSet."
-              + " Not a Developer SPA source editor.")
+          "User-control XSL stylesheet. Detail GET round-trips the persisted file. POST/PUT"
+              + " replace it; omitted on write regenerates a default stylesheet from metadata."
+              + " Omitted on list rows. System controls are not mutated.")
   public String getXslSource() {
     return xslSource;
   }

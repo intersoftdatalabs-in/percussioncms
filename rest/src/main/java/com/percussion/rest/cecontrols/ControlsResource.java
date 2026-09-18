@@ -90,8 +90,9 @@ public class ControlsResource {
   @Operation(
       summary = "Get content editor control detail",
       description =
-          "Loads one CE control by name. Admin write of user controls is POST/PUT/DELETE on"
-              + " this resource. System controls cannot be mutated.",
+          "Loads one CE control by name. User-control detail includes xslSource (round-trip of"
+              + " the persisted stylesheet). Admin write of user controls is POST/PUT/DELETE on"
+              + " this resource. System controls cannot be mutated (PUT/DELETE 409).",
       responses = {
         @ApiResponse(
             responseCode = "200",

@@ -72,6 +72,17 @@ public class ControlsResourceTest {
   }
 
   @Test
+  public void getControlRoundTripsUserXslSource() {
+    ControlDef c = new ControlDef();
+    c.setName("myUserControl");
+    c.setScope("user");
+    c.setXslSource("<xsl:stylesheet version=\"1.1\"/>");
+    when(adaptor.findControlByName(eq("myUserControl"))).thenReturn(c);
+    ControlDef out = resource.getControl("myUserControl");
+    assertEquals("<xsl:stylesheet version=\"1.1\"/>", out.getXslSource());
+  }
+
+  @Test
   public void getControlNotFoundIsGeneric404() {
     when(adaptor.findControlByName(eq("missing"))).thenReturn(null);
     WebApplicationException ex =

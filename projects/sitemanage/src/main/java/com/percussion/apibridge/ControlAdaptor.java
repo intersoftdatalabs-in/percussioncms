@@ -39,8 +39,8 @@ import org.w3c.dom.NodeList;
 /**
  * CE control catalog adaptor (UI-01 read/write) over system + custom control managers. Admin
  * create/save/delete persist user controls as XSL files under {@code
- * rx_resources/stylesheets/controls} plus {@code PSCustomControlManager.writeImports}. System
- * controls are never mutated.
+ * rx_resources/stylesheets/controls} plus {@code PSCustomControlManager.writeImports}. Detail
+ * GET round-trips user-control {@code xslSource}. System controls are never mutated.
  */
 @PSSiteManageBean
 @Lazy
@@ -57,9 +57,7 @@ public class ControlAdaptor implements IControlAdaptor {
 
   /** Catalog-level capability notes (same for every control). Exposed on detail only. */
   static final List<String> DESIGN_GAPS =
-      List.of(
-          "Full XSL source editor UX is not provided by this API; optional xslSource may be supplied on write",
-          "System controls are read-only packaged defaults");
+      List.of("System controls are read-only packaged defaults");
 
   private static final List<String> DIMENSIONS = List.of("single", "array", "table");
   private static final List<String> CHOICE_SETS = List.of("none", "required", "optional");
@@ -96,6 +94,7 @@ public class ControlAdaptor implements IControlAdaptor {
     String key = name.trim();
     for (ControlDef c : loadCatalog(true)) {
       if (c != null && key.equalsIgnoreCase(c.getName())) {
+        attachUserXslSource(c);
         return c;
       }
     }
@@ -279,6 +278,25 @@ public class ControlAdaptor implements IControlAdaptor {
       throw new IllegalStateException("Failed to write user control file", e);
     }
     io.writeImports();
+  }
+
+  /**
+   * Detail GET round-trips the user-control stylesheet. List rows leave {@code xslSource} null
+   * (NON_NULL omits it). System packaged files are not read or written here.
+   */
+  private void attachUserXslSource(ControlDef def) {
+    if (def == null || def.getName() == null || !"user".equalsIgnoreCase(def.getScope())) {
+      return;
+    }
+    Path file = findContainedUserFile(def.getName());
+    if (file == null || !Files.isRegularFile(file)) {
+      return;
+    }
+    try {
+      def.setXslSource(Files.readString(file, StandardCharsets.UTF_8));
+    } catch (IOException e) {
+      log.debug("Unable to read user control XSL {}: {}", def.getName(), e.getMessage());
+    }
   }
 
   private Path findContainedUserFile(String name) {

@@ -15,8 +15,9 @@
  */
 
 /**
- * Developer CE Controls user update/delete chrome (#4214 UI-01 / parent #1690).
- * PUT omits blank description/xslSource (same as POST create). After DELETE,
+ * Developer CE Controls user update/delete chrome (#4214 UI-01 / #4542 slice 16 /
+ * parent #1690). PUT omits blank description/xslSource (same as POST create).
+ * GET round-trips user-control xslSource into the source editor. After DELETE,
  * the catalog parent lands via onDeleted (onBack if the parent omits it).
  *
  * Surface-filtered QA:
@@ -134,6 +135,7 @@ test.describe("Developer CE control update/delete (#4214 / UI-01)", () => {
     await expect(page.locator('[data-testid="developer-ctl-system-readonly"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-ctl-save"]')).toHaveCount(0);
     await expect(page.locator('[data-testid="developer-ctl-delete"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-ctl-edit-xsl"]')).toHaveCount(0);
 
     assertConsoleClean(pageErrors, consoleErrors);
   });
@@ -171,6 +173,66 @@ test.describe("Developer CE control update/delete (#4214 / UI-01)", () => {
     await expect(
       page.locator(catalogOpenByExactName("developer-ctl-open", "data-ctl-name", controlName)),
     ).toHaveCount(0);
+
+    assertConsoleClean(pageErrors, consoleErrors);
+  });
+
+  test("Admin GET/PUT round-trips user-control XSL source", async ({ page }) => {
+    test.setTimeout(180_000);
+    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+    await loginAsAdmin(page);
+    await openControlsCatalog(page);
+
+    const controlName = uniqueControlName("qa4542");
+    await createUserControl(page, controlName);
+
+    const xslBox = page.locator('[data-testid="developer-ctl-edit-xsl"]');
+    await expect(xslBox).toBeVisible();
+    const original = await xslBox.inputValue();
+    expect(original, "GET should populate user-control XSL").toMatch(/xsl:stylesheet/i);
+    const marker = `<!-- qa4542-${controlName} -->`;
+    const updated = original.includes("?>")
+      ? original.replace("?>", `?>\n${marker}`)
+      : `${marker}\n${original}`;
+    await xslBox.fill(updated);
+    await page.locator('[data-testid="developer-ctl-save"]').click();
+
+    const saveError = page.locator('[data-testid="developer-ctl-detail-error"]');
+    const notice = page.locator('[data-testid="developer-ctl-detail-notice"]');
+    await expect(notice.or(saveError).first()).toBeVisible({ timeout: 20_000 });
+    if (await saveError.isVisible()) {
+      throw new Error(`XSL save failed: ${(await saveError.innerText()).trim()}`);
+    }
+    await expect(notice).toContainText(/saved/i);
+
+    await page.locator('[data-testid="developer-ctl-back"]').click();
+    await expect(page.locator('[data-testid="developer-ctl-panel"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await page
+      .locator(catalogOpenByExactName("developer-ctl-open", "data-ctl-name", controlName))
+      .click();
+    const reopened = page.locator('[data-testid="developer-ctl-edit-xsl"]');
+    await expect(reopened).toBeVisible({
+      timeout: 20_000,
+    });
+    expect(await reopened.inputValue()).toContain(marker);
+
+    await page.locator('[data-testid="developer-ctl-edit-xsl"]').fill("<not-a-control/>");
+    await page.locator('[data-testid="developer-ctl-save"]').click();
+    await expect(page.locator('[data-testid="developer-ctl-detail-error"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-ctl-detail-error"]')).toContainText(
+      /invalid/i,
+    );
+
+    await page.locator('[data-testid="developer-ctl-delete"]').click();
+    await expect(page.locator('[data-testid="developer-catalog-confirm-dialog"]')).toBeVisible();
+    await page.locator('[data-testid="developer-catalog-confirm-submit"]').click();
+    await expect(page.locator('[data-testid="developer-ctl-panel"]')).toBeVisible({
+      timeout: 20_000,
+    });
 
     assertConsoleClean(pageErrors, consoleErrors);
   });
