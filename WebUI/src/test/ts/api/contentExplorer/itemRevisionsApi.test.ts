@@ -17,8 +17,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildRestoreRevisionId,
+  fetchItemRevisionCompare,
   fetchItemRevisions,
   restoreItemRevision,
+  unwrapItemRevisionCompare,
   unwrapRevisionsSummary,
 } from "../../../../main/ts/api/contentExplorer/itemRevisionsApi";
 
@@ -117,6 +119,55 @@ describe("itemRevisionsApi", () => {
     await restoreItemRevision("1-101-42", 2);
     expect(String(global.fetch.mock.calls[0]?.[0] ?? "")).toContain(
       "itemmanagement/item/restoreRevision/2-101-42",
+    );
+  });
+
+  it("unwraps a JAXB-wrapped compare payload", () => {
+    const cmp = unwrapItemRevisionCompare({
+      ItemRevisionCompare: {
+        itemId: "1-101-42",
+        rev1: 1,
+        rev2: 2,
+        fields: {
+          ItemRevisionFieldDiff: {
+            name: "sys_title",
+            leftValue: "a",
+            rightValue: "b",
+            changed: true,
+          },
+        },
+      },
+    });
+    expect(cmp.rev1).toBe(1);
+    expect(cmp.rev2).toBe(2);
+    expect(cmp.fields).toHaveLength(1);
+    expect(cmp.fields[0]?.name).toBe("sys_title");
+    expect(cmp.fields[0]?.changed).toBe(true);
+  });
+
+  it("does not treat the string false as a changed field", () => {
+    const cmp = unwrapItemRevisionCompare({
+      fields: [{ name: "sys_title", leftValue: "a", rightValue: "a", changed: "false" }],
+    });
+    expect(cmp.fields[0]?.changed).toBe(false);
+  });
+
+  it("fetchItemRevisionCompare GETs compare/{id}/{rev1}/{rev2}", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          itemId: "1-101-42",
+          rev1: 1,
+          rev2: 2,
+          fields: [],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const cmp = await fetchItemRevisionCompare("1-101-42", 1, 2);
+    expect(cmp.rev2).toBe(2);
+    expect(String(global.fetch.mock.calls[0]?.[0] ?? "")).toContain(
+      "itemmanagement/item/compare/1-101-42/1/2",
     );
   });
 });

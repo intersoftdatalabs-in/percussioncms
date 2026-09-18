@@ -23,6 +23,7 @@ import com.percussion.itemmanagement.data.PSItemCreateRequest;
 import com.percussion.itemmanagement.data.PSItemCreateResult;
 import com.percussion.itemmanagement.data.PSItemEditorBinaryMeta;
 import com.percussion.itemmanagement.data.PSItemEditorFields;
+import com.percussion.itemmanagement.data.PSItemRevisionCompareResult;
 import com.percussion.itemmanagement.data.PSRevisionsSummary;
 import com.percussion.itemmanagement.data.PSSoProMetadata;
 import com.percussion.services.useritems.data.PSUserItem;
@@ -84,6 +85,17 @@ public interface IPSItemService {
    * @throws PSItemServiceException if an error occurs
    */
   PSRevisionsSummary getRevisions(String id) throws PSItemServiceException;
+
+  /**
+   * Field-level compare of two revisions of a page or asset. Missing item or revision is HTTP 404;
+   * no read assignment is HTTP 403.
+   *
+   * @param id content id or GUID, must not be blank
+   * @param rev1 first revision number, must be positive
+   * @param rev2 second revision number, must be positive
+   */
+  PSItemRevisionCompareResult compareRevisions(String id, int rev1, int rev2)
+      throws PSItemServiceException;
 
   /**
    * Retrieves the start and end date for a given page or asset resource. Returned dates are in the

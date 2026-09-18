@@ -16,15 +16,17 @@
 
 /**
  * Explorer Revisions / Audit Trail panel. Loads GET itemmanagement
- * revisions (revision rows + transition comments) and optionally restores
- * a prior revision.
+ * revisions (revision rows + transition comments), optionally restores a
+ * prior revision, and compares two revision field payloads.
  */
 
 import React, { useCallback, useEffect, useState } from "react";
-import { formatApiError } from "../api/client";
+import { formatApiError, isApiError } from "../api/client";
 import {
   fetchItemRevisions,
+  fetchItemRevisionCompare,
   restoreItemRevision,
+  type ItemRevisionCompare,
   type ItemRevisionsSummary,
 } from "../api/contentExplorer/itemRevisionsApi";
 import { message } from "../i18n/message";
@@ -38,6 +40,11 @@ export interface RevisionsPanelProps {
   initialTab?: RevisionsPanelTab;
   loadSummary?: (itemId: string) => Promise<ItemRevisionsSummary>;
   restoreRevision?: (itemId: string, revId: number) => Promise<void>;
+  compareRevisions?: (
+    itemId: string,
+    rev1: number,
+    rev2: number,
+  ) => Promise<ItemRevisionCompare>;
   onRestored?: (revId: number) => void;
   confirm?: (body: string) => boolean;
   ariaLabel?: string;
@@ -57,6 +64,24 @@ async function defaultRestore(itemId: string, revId: number): Promise<void> {
   await restoreItemRevision(itemId, revId);
 }
 
+async function defaultCompare(
+  itemId: string,
+  rev1: number,
+  rev2: number,
+): Promise<ItemRevisionCompare> {
+  return fetchItemRevisionCompare(itemId, rev1, rev2);
+}
+
+function compareErrorMessage(err: unknown): string {
+  if (isApiError(err) && err.status === 404) {
+    return message(EXPLORER_MSG.REVISIONS_COMPARE_NOT_FOUND);
+  }
+  if (isApiError(err) && err.status === 403) {
+    return message(EXPLORER_MSG.REVISIONS_COMPARE_FORBIDDEN);
+  }
+  return formatApiError(err, message(EXPLORER_MSG.REVISIONS_COMPARE_ERROR));
+}
+
 export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
   const {
     itemId,
@@ -64,6 +89,7 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
     initialTab = "revisions",
     loadSummary = defaultLoad,
     restoreRevision = defaultRestore,
+    compareRevisions = defaultCompare,
     onRestored,
     confirm,
     ariaLabel,
@@ -75,6 +101,13 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
   const [restoreError, setRestoreError] = useState<string | null>(null);
   const [restoringRev, setRestoringRev] = useState<number | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
+  const [leftRev, setLeftRev] = useState<number | null>(null);
+  const [rightRev, setRightRev] = useState<number | null>(null);
+  const [compareError, setCompareError] = useState<string | null>(null);
+  const [compareBusy, setCompareBusy] = useState(false);
+  const [compareResult, setCompareResult] = useState<ItemRevisionCompare | null>(
+    null,
+  );
 
   useEffect(() => {
     setTab(initialTab);
@@ -91,10 +124,22 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
     }
     setState({ kind: "loading" });
     setRestoreError(null);
+    setCompareError(null);
+    setCompareResult(null);
+    setLeftRev(null);
+    setRightRev(null);
     loadSummary(itemId)
       .then((data) => {
         if (!alive) return;
         setState({ kind: "ok", data });
+        const ids = data.revisions.map((r) => r.revId).sort((a, b) => a - b);
+        if (ids.length >= 2) {
+          setLeftRev(ids[0] ?? null);
+          setRightRev(ids[ids.length - 1] ?? null);
+        } else if (ids.length === 1) {
+          setLeftRev(ids[0] ?? null);
+          setRightRev(ids[0] ?? null);
+        }
       })
       .catch((err: unknown) => {
         if (!alive) return;
@@ -132,6 +177,24 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
     },
     [confirm, itemId, onRestored, restoreRevision],
   );
+
+  const handleCompare = useCallback(async () => {
+    if (leftRev == null || rightRev == null || leftRev === rightRev) {
+      setCompareError(message(EXPLORER_MSG.REVISIONS_COMPARE_NEED_TWO));
+      return;
+    }
+    setCompareBusy(true);
+    setCompareError(null);
+    try {
+      const result = await compareRevisions(itemId, leftRev, rightRev);
+      setCompareResult(result);
+    } catch (err: unknown) {
+      setCompareResult(null);
+      setCompareError(compareErrorMessage(err));
+    } finally {
+      setCompareBusy(false);
+    }
+  }, [compareRevisions, itemId, leftRev, rightRev]);
 
   const regionLabel = ariaLabel ?? message(EXPLORER_MSG.REVISIONS_TITLE);
   const panelStyle: React.CSSProperties = {
@@ -234,6 +297,7 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
             {message(EXPLORER_MSG.REVISIONS_EMPTY)}
           </p>
         ) : (
+          <>
           <table data-testid="revisions-table" style={{ width: "100%" }}>
             <thead>
               <tr>
@@ -278,6 +342,120 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
               })}
             </tbody>
           </table>
+          <div
+            data-testid="revisions-compare"
+            style={{ marginTop: 12 }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 8,
+                alignItems: "center",
+              }}
+            >
+              <label htmlFor="revisions-compare-left">
+                {message(EXPLORER_MSG.REVISIONS_COMPARE_FROM)}
+              </label>
+              <select
+                id="revisions-compare-left"
+                data-testid="revisions-compare-left"
+                value={leftRev ?? ""}
+                onChange={(ev) => {
+                  const n = Number(ev.target.value);
+                  setLeftRev(Number.isFinite(n) ? n : null);
+                }}
+              >
+                {data.revisions.map((rev) => (
+                  <option key={`l-${rev.revId}`} value={rev.revId}>
+                    {rev.revId}
+                  </option>
+                ))}
+              </select>
+              <label htmlFor="revisions-compare-right">
+                {message(EXPLORER_MSG.REVISIONS_COMPARE_TO)}
+              </label>
+              <select
+                id="revisions-compare-right"
+                data-testid="revisions-compare-right"
+                value={rightRev ?? ""}
+                onChange={(ev) => {
+                  const n = Number(ev.target.value);
+                  setRightRev(Number.isFinite(n) ? n : null);
+                }}
+              >
+                {data.revisions.map((rev) => (
+                  <option key={`r-${rev.revId}`} value={rev.revId}>
+                    {rev.revId}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                data-testid="revisions-compare-run"
+                disabled={
+                  compareBusy ||
+                  leftRev == null ||
+                  rightRev == null ||
+                  leftRev === rightRev
+                }
+                onClick={() => {
+                  void handleCompare();
+                }}
+              >
+                {message(EXPLORER_MSG.REVISIONS_COMPARE)}
+              </button>
+            </div>
+            {compareBusy ? (
+              <p aria-live="polite" data-testid="revisions-compare-loading">
+                {message(EXPLORER_MSG.REVISIONS_COMPARE_LOADING)}
+              </p>
+            ) : null}
+            {compareError ? (
+              <p role="alert" data-testid="revisions-compare-error">
+                {compareError}
+              </p>
+            ) : null}
+            {compareResult && compareResult.fields.length === 0 ? (
+              <p data-testid="revisions-compare-empty">
+                {message(EXPLORER_MSG.REVISIONS_COMPARE_EMPTY)}
+              </p>
+            ) : null}
+            {compareResult && compareResult.fields.length > 0 ? (
+              <table
+                data-testid="revisions-compare-table"
+                style={{ width: "100%", marginTop: 8 }}
+              >
+                <thead>
+                  <tr>
+                    <th>{message(EXPLORER_MSG.REVISIONS_COMPARE_COL_FIELD)}</th>
+                    <th>{message(EXPLORER_MSG.REVISIONS_COMPARE_COL_LEFT)}</th>
+                    <th>{message(EXPLORER_MSG.REVISIONS_COMPARE_COL_RIGHT)}</th>
+                    <th>{message(EXPLORER_MSG.REVISIONS_COL_STATUS)}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {compareResult.fields.map((field) => (
+                    <tr
+                      key={field.name}
+                      data-testid={`revisions-compare-row-${field.name}`}
+                      data-testid-changed={field.changed ? "true" : "false"}
+                    >
+                      <td>{field.name}</td>
+                      <td>{field.leftValue}</td>
+                      <td>{field.rightValue}</td>
+                      <td>
+                        {field.changed
+                          ? message(EXPLORER_MSG.REVISIONS_COMPARE_CHANGED)
+                          : message(EXPLORER_MSG.REVISIONS_COMPARE_SAME)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : null}
+          </div>
+          </>
         )
       ) : data.comments.length === 0 ? (
         <p data-testid="revisions-audit-empty">

@@ -122,6 +122,88 @@ describe("RevisionsPanel", () => {
     );
   });
 
+  it("compares two selected revisions and shows field diffs", async () => {
+    const compare = vi.fn().mockResolvedValue({
+      itemId: "42",
+      rev1: 1,
+      rev2: 2,
+      fields: [
+        {
+          name: "displaytitle",
+          leftValue: "old",
+          rightValue: "new",
+          changed: true,
+        },
+      ],
+    });
+    render(
+      <RevisionsPanel
+        itemId="42"
+        loadSummary={async () => SAMPLE}
+        compareRevisions={compare}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-compare-run")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("revisions-compare-run"));
+    await waitFor(() =>
+      expect(compare).toHaveBeenCalledWith("42", 1, 2),
+    );
+    expect(screen.getByTestId("revisions-compare-row-displaytitle")).toHaveAttribute(
+      "data-testid-changed",
+      "true",
+    );
+  });
+
+  it("shows 404 and 403 compare errors without treating them as empty", async () => {
+    const compare404 = vi.fn().mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: {},
+    });
+    const { rerender } = render(
+      <RevisionsPanel
+        itemId="42"
+        loadSummary={async () => SAMPLE}
+        compareRevisions={compare404}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-compare-run")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("revisions-compare-run"));
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-compare-error")).toBeTruthy(),
+    );
+    expect(screen.getByTestId("revisions-compare-error").textContent).toMatch(
+      /404/,
+    );
+    expect(screen.queryByTestId("revisions-compare-table")).toBeNull();
+
+    const compare403 = vi.fn().mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: {},
+    });
+    rerender(
+      <RevisionsPanel
+        itemId="42"
+        loadSummary={async () => SAMPLE}
+        compareRevisions={compare403}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-compare-run")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("revisions-compare-run"));
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-compare-error").textContent).toMatch(
+        /403/,
+      ),
+    );
+  });
+
   it("passes the a11y gate on the loaded revisions table", async () => {
     const { container } = render(
       <RevisionsPanel itemId="42" loadSummary={async () => SAMPLE} />,

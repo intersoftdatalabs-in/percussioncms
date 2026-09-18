@@ -182,3 +182,88 @@ export async function restoreItemRevision(
     `${PATHS.ITEM_RESTORE_REVISION}/${encodeURIComponent(guid)}`,
   );
 }
+
+export interface ItemRevisionFieldDiff {
+  name: string;
+  leftValue: string;
+  rightValue: string;
+  changed: boolean;
+}
+
+export interface ItemRevisionCompare {
+  itemId: string;
+  rev1: number;
+  rev2: number;
+  fields: ItemRevisionFieldDiff[];
+}
+
+function parseFieldDiff(raw: unknown): ItemRevisionFieldDiff | null {
+  const o = asRecord(raw);
+  if (o == null) {
+    return null;
+  }
+  const name = asString(o.name ?? o.Name);
+  if (!name) {
+    return null;
+  }
+  const changedRaw = o.changed ?? o.Changed;
+  const changed =
+    changedRaw === true ||
+    changedRaw === 1 ||
+    (typeof changedRaw === "string" && changedRaw.toLowerCase() === "true");
+  return {
+    name,
+    leftValue: asString(o.leftValue ?? o.LeftValue),
+    rightValue: asString(o.rightValue ?? o.RightValue),
+    changed,
+  };
+}
+
+function unwrapCompareRoot(payload: unknown): Record<string, unknown> | null {
+  const obj = asRecord(payload);
+  if (obj == null) {
+    return null;
+  }
+  const inner = obj.ItemRevisionCompare;
+  if (inner && typeof inner === "object" && !Array.isArray(inner)) {
+    return inner as Record<string, unknown>;
+  }
+  return obj;
+}
+
+export function unwrapItemRevisionCompare(
+  payload: unknown,
+): ItemRevisionCompare {
+  const inner = unwrapCompareRoot(payload);
+  if (inner == null) {
+    return { itemId: "", rev1: 0, rev2: 0, fields: [] };
+  }
+  const fieldRaw = inner.fields ?? inner.Fields;
+  const nested = asRecord(fieldRaw);
+  const listRaw =
+    nested?.ItemRevisionFieldDiff ?? nested?.itemRevisionFieldDiff ?? fieldRaw;
+  const fields = asItemList(listRaw)
+    .map(parseFieldDiff)
+    .filter((f): f is ItemRevisionFieldDiff => f != null);
+  return {
+    itemId: asString(inner.itemId ?? inner.ItemId),
+    rev1: Number(inner.rev1 ?? inner.Rev1) || 0,
+    rev2: Number(inner.rev2 ?? inner.Rev2) || 0,
+    fields,
+  };
+}
+
+export async function fetchItemRevisionCompare(
+  itemId: string,
+  rev1: number,
+  rev2: number,
+): Promise<ItemRevisionCompare> {
+  const id = encodeURIComponent(String(itemId).trim());
+  if (!id || !Number.isFinite(rev1) || !Number.isFinite(rev2)) {
+    throw new Error("item id and two revisions are required");
+  }
+  const res = await get<unknown>(
+    `${PATHS.ITEM_REVISION_COMPARE}/${id}/${rev1}/${rev2}`,
+  );
+  return unwrapItemRevisionCompare(res);
+}

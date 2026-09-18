@@ -475,6 +475,13 @@ export const PATHS = {
   get ITEM_RESTORE_REVISION() {
     return `${SERVICES_ROOT}/itemmanagement/item/restoreRevision`;
   },
+  /**
+   * GET field-level compare of two revisions.
+   * Append {@code /{id}/{rev1}/{rev2}}.
+   */
+  get ITEM_REVISION_COMPARE() {
+    return `${SERVICES_ROOT}/itemmanagement/item/compare`;
+  },
   /** POST new copy in the item's folder. Append {@code /{id}}. */
   get ITEM_NEW_COPY() {
     return `${SERVICES_ROOT}/itemmanagement/item/newCopy`;
