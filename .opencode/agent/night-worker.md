@@ -52,6 +52,12 @@ matching `.opencode/agent/<name>.md` subagent. The host prompt is the
 **only** place that knows the full phase ordering; sub-agents receive just
 their phase and the args slice they need.
 
+When a specialist is unavailable, **execute the phase inline** rather than
+silently skipping it (see "Specialist availability" below). The phase
+contract is unchanged; only the executor is different.
+
+## Sub-agent dispatch model
+
 | Sub-agent | Purpose |
 |-----------|---------|
 | `preflight` | Compact issue inventory, CodeQL alert count, peer-PR eligibility, owned PR blockers. Writes a structured `signals.json` the host reads. |
@@ -69,6 +75,29 @@ their phase and the args slice they need.
 JSON to `${NIGHT_WORKTREE_PATH}/scratch/<phase>.json` so a re-launch can pick
 up where a previous run died. The host reads these files when resuming after
 an interrupted `opencode run`.
+
+### Specialist availability (HARD — 2026-09-18)
+
+**Specialist sub-agents are an optimization, not a requirement.** The
+rhai workflow encodes every phase inline in a single runtime; opencode
+allows the same.
+
+For each phase:
+
+1. **Try `task` dispatch** with the matching subagent_type. If a
+   `.opencode/agent/<name>.md` exists for that sub-agent and the call
+   succeeds, use its result.
+2. **Fall back to inline execution.** When the sub-agent file is missing
+   or `task` fails (subagent_type not registered, model refusal, etc.),
+   execute the phase directly using your own tools (`gh`, `git`,
+   `mvnw`, `npm`, `docker`). The phase contract is the same — only the
+   executor differs.
+3. **Always record the executor** in the phase status table:
+   `executor: sub-agent:<name>` or `executor: inline`.
+
+Empty phases do not pay a full sub-agent: skip rows in the triage queue
+do not spawn `work`, missing preflight data does not block the run, and
+"nothing to do" is a valid phase outcome.
 
 ## Parallelism
 
