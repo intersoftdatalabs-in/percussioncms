@@ -108,6 +108,16 @@
   color: #334155;
 }
 
+.requiredMark {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.fieldError {
+  color: #b91c1c;
+  font-size: 12px;
+}
+
 .input,
 .textarea {
   width: 100%;

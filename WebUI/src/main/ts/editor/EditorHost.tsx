@@ -34,10 +34,14 @@ import {
   transitionItem,
   type ItemStateTransition,
 } from "../api/contentExplorer/itemWorkflowApi";
-import { formatApiError } from "../api/client";
+import { formatApiError, isSessionRedirectError } from "../api/client";
 import { parsePositiveInt } from "../assembly/assemblyHostUrl";
 import { message } from "../i18n/message";
 import { mergeEditorRows, type EditorFieldRow } from "./controlKinds";
+import {
+  collectRequiredFieldErrors,
+  mapSaveApiErrorToFieldErrors,
+} from "./editorFieldErrors";
 import {
   canPublishFromEditor,
   publishEditorItem,
@@ -124,6 +128,7 @@ function EditorFieldControl({
   row,
   itemId,
   locked,
+  invalid,
   onChange,
   onFile,
   loadKeywords,
@@ -133,6 +138,7 @@ function EditorFieldControl({
   row: EditorFieldRow;
   itemId: string;
   locked: boolean;
+  invalid?: boolean;
   onChange: (name: string, value: string) => void;
   onFile: (name: string, file: File | null) => void;
   loadKeywords?: () => Promise<KeywordSummary[]>;
@@ -202,6 +208,8 @@ function EditorFieldControl({
         name={row.name}
         value={row.value}
         readOnly={locked}
+        aria-invalid={invalid ? true : undefined}
+        aria-required={row.required ? true : undefined}
         onChange={(e) => onChange(row.name, e.target.value)}
       />
     );
@@ -214,6 +222,8 @@ function EditorFieldControl({
       name={row.name}
       value={row.value}
       readOnly={locked}
+      aria-invalid={invalid ? true : undefined}
+      aria-required={row.required ? true : undefined}
       onChange={(e) => onChange(row.name, e.target.value)}
     />
   );
@@ -256,6 +266,9 @@ export function EditorHost({
   const [loading, setLoading] = useState(contentId != null && !promote);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveErrorKey, setSaveErrorKey] = useState<string | null>(null);
+  const [saveErrorDetail, setSaveErrorDetail] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [workflowTriggers, setWorkflowTriggers] = useState<string[]>([]);
   const [workflowState, setWorkflowState] = useState<string>("");
   const [workflowComment, setWorkflowComment] = useState("");
@@ -363,6 +376,14 @@ export function EditorHost({
 
   function setField(name: string, value: string): void {
     setDraft((prev) => ({ ...prev, [name]: value }));
+    setFieldErrors((prev) => {
+      if (!(name in prev)) {
+        return prev;
+      }
+      const next = { ...prev };
+      delete next[name];
+      return next;
+    });
   }
 
   function setFile(name: string, file: File | null): void {
@@ -377,13 +398,35 @@ export function EditorHost({
     });
   }
 
+  function requiredErrorsForDraft(): Record<string, string> {
+    return collectRequiredFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        required: row.required,
+        value: fieldValueAsString(draft[row.name] ?? row.value),
+      })),
+      pendingFiles,
+      message(EDITOR_MSG.FIELD_REQUIRED),
+    );
+  }
+
   async function handleSave(): Promise<void> {
     if (contentId == null || payload == null) {
       return;
     }
     setSaving(true);
     setSaved(false);
-    setErrorKey(null);
+    setSaveErrorKey(null);
+    setSaveErrorDetail("");
+    const missing = requiredErrorsForDraft();
+    if (Object.keys(missing).length > 0) {
+      setFieldErrors(missing);
+      setSaveErrorKey(EDITOR_MSG.REQUIRED_SAVE);
+      setSaving(false);
+      return;
+    }
+    setFieldErrors({});
     try {
       const itemId = String(contentId);
       const next: ItemEditorFields = {
@@ -407,8 +450,19 @@ export function EditorHost({
         ),
       );
       setSaved(true);
-    } catch {
-      setErrorKey(EDITOR_MSG.SAVE_FAILED);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      const fallback = message(EDITOR_MSG.SAVE_FAILED);
+      const mapped = mapSaveApiErrorToFieldErrors(
+        err,
+        rows.map((row) => row.name),
+        fallback,
+      );
+      setFieldErrors(mapped.fieldErrors);
+      setSaveErrorKey(EDITOR_MSG.SAVE_FAILED);
+      setSaveErrorDetail(mapped.banner === fallback ? "" : mapped.banner);
     } finally {
       setSaving(false);
     }
@@ -514,14 +568,24 @@ export function EditorHost({
     if (contentId == null) {
       return;
     }
+    const missing = requiredErrorsForDraft();
+    if (Object.keys(missing).length > 0) {
+      setFieldErrors(missing);
+      setSaveErrorKey(EDITOR_MSG.REQUIRED_CHECKIN);
+      setSaveErrorDetail("");
+      return;
+    }
     try {
       await checkin(String(contentId));
       if (typeof window !== "undefined") {
         window.close();
       }
     } catch (err) {
-      setErrorDetail(err instanceof Error ? err.message : String(err));
-      setErrorKey(EDITOR_MSG.SAVE_FAILED);
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setSaveErrorDetail(formatApiError(err, message(EDITOR_MSG.SAVE_FAILED)));
+      setSaveErrorKey(EDITOR_MSG.SAVE_FAILED);
     }
   }
 
@@ -624,6 +688,16 @@ export function EditorHost({
           </div>
         ) : (
           <>
+            {saveErrorKey ? (
+              <div
+                className={styles.status}
+                role="alert"
+                data-testid="editor-save-error"
+              >
+                {message(saveErrorKey)}
+                {saveErrorDetail ? ` ${saveErrorDetail}` : ""}
+              </div>
+            ) : null}
             {publishErrorKey ? (
               <div
                 className={styles.status}
@@ -663,18 +737,41 @@ export function EditorHost({
                 }}
               >
                 {rows.map((row) => (
-                  <label key={row.name} className={styles.field}>
-                    <span className={styles.label}>{row.label}</span>
+                  <label
+                    key={row.name}
+                    className={styles.field}
+                    data-testid={`editor-field-row-${row.name}`}
+                    data-required={row.required ? "true" : "false"}
+                  >
+                    <span className={styles.label}>
+                      {row.label}
+                      {row.required ? (
+                        <span className={styles.requiredMark} aria-hidden="true">
+                          {" "}
+                          *
+                        </span>
+                      ) : null}
+                    </span>
                     <EditorFieldControl
                       row={row}
                       itemId={String(contentId)}
                       locked={readOnly || row.readOnly}
+                      invalid={Boolean(fieldErrors[row.name])}
                       onChange={setField}
                       onFile={setFile}
                       loadKeywords={loadKeywords}
                       loadCommunities={loadCommunities}
                       loadBinaryMeta={loadBinaryMeta}
                     />
+                    {fieldErrors[row.name] ? (
+                      <span
+                        className={styles.fieldError}
+                        role="alert"
+                        data-testid={`editor-field-error-${row.name}`}
+                      >
+                        {fieldErrors[row.name]}
+                      </span>
+                    ) : null}
                   </label>
                 ))}
               </form>
