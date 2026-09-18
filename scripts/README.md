@@ -24,14 +24,20 @@ the dedicated worktree, sets the `NIGHT_*` env vars that
   `.opencode/agent/night-worker.md`, and the canonical
   `.grok/workflows/README.md`.
 - **Defaults**: `max_issues=3`, `base_branch=main`,
-  `worktree=<home>/.opencode/worktrees/intersoft-workspace-percussioncms/night-issue-prs`,
+  `command=night-issue-prs`, `worktree=<home>/.opencode/worktrees/intersoft-workspace-percussioncms/night-issue-prs`,
   `report=<worktree>/scratch/night-report.md`.
 - **Usage**:
 
   ```bash
   python3 scripts/opencode-night-issue-prs.py --max-issues 3
   python3 scripts/opencode-night-issue-prs.py --dry-run --max-issues 5
-  python3 scripts/opencode-night-issue-prs.py --max-issues 1 --max-prs 8
+  python3 scripts/opencode-night-issue-prs.py --max-issues 1 --max-prs 8 --no-include-pr-followup
+  # Dev: sync worktree to local main instead of origin/main (no push required)
+  python3 scripts/opencode-night-issue-prs.py --sync-from-local --max-issues 1
+  # Verbose
+  python3 scripts/opencode-night-issue-prs.py -v --dry-run
+  # Override command template with a custom prompt
+  python3 scripts/opencode-night-issue-prs.py --prompt "echo hello"
   ```
 
 - **Cron wiring**:

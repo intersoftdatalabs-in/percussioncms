@@ -26,19 +26,31 @@ hard gates.
 
     python3 scripts/opencode-night-issue-prs.py [--max-issues N] [--base-branch BR]
                                                 [--worktree PATH] [--report-path PATH]
-                                                [--dry-run]
+                                                [--max-prs N] [--include-pr-followup | --no-include-pr-followup]
+                                                [--model MODEL] [--command NAME | --prompt TEXT]
+                                                [--sync-from-local] [--no-worktree-create]
+                                                [--dry-run] [-v]
 
 ## Examples
 
-    # Live overnight: 3 unassigned issues, default worktree
+    # Live overnight: 3 unassigned issues, default worktree, default command
     python3 scripts/opencode-night-issue-prs.py --max-issues 3
 
     # PR-followup-only night (no new work)
     python3 scripts/opencode-night-issue-prs.py --max-issues 1 \\
-        --max-prs 8 --include-pr-followup true
+        --max-prs 8 --no-include-pr-followup
 
     # Dry run (cron validation)
     python3 scripts/opencode-night-issue-prs.py --dry-run --max-issues 5
+
+    # Dev testing without pushing local commits first
+    python3 scripts/opencode-night-issue-prs.py --sync-from-local --max-issues 1
+
+    # Verbose logging via short flag
+    python3 scripts/opencode-night-issue-prs.py -v --dry-run
+
+    # Override the command template with a custom prompt (debugging)
+    python3 scripts/opencode-night-issue-prs.py --prompt "echo hello"
 
 ## Cron wiring (Linux / macOS)
 
@@ -57,6 +69,7 @@ hard gates.
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import os
 import shlex
@@ -106,39 +119,54 @@ def worktree_exists(worktree: Path) -> bool:
     return (worktree / ".git").exists()
 
 
-def ensure_worktree(worktree: Path, base_branch: str, repo_root: Path) -> None:
-    """Create night-issue-prs-main + worktree if missing.
+def ensure_worktree(worktree: Path, base_branch: str, repo_root: Path, sync_from_local: bool = False) -> None:
+    """Sync the worktree to the configured base branch ref.
 
-    No-op when both already exist. Caller is responsible for the worktree
-    being clean; this function does not reset or pull.
+    Always fetches the latest remote (when syncing from origin), then:
+
+    - **First run** (worktree missing): `git worktree add -B <branch> <ref>`
+      creates the branch and the worktree atomically.
+    - **Subsequent runs** (worktree exists): `git -C <worktree> reset --hard
+      <ref>` moves the worktree's HEAD and the underlying branch together.
+      We do NOT use `git branch -f` because git refuses to force-update a
+      branch that is currently checked out by a worktree.
+
+    The `--hard` reset discards uncommitted state from a crashed prior run.
+
+    Default sync ref is `origin/<base_branch>` (production-safe). Pass
+    `sync_from_local=True` to sync to local `<base_branch>` instead — for
+    dev testing without pushing commits first.
+
+    No-op when the worktree is missing AND `--no-worktree-create` is set
+    (handled by the caller).
     """
+    sync_ref = base_branch if sync_from_local else f"origin/{base_branch}"
+
+    if not sync_from_local:
+        fetch_cmd = ["git", "fetch", "origin", base_branch]
+        LOGGER.info("fetching base branch: %s", shlex.join(fetch_cmd))
+        subprocess.run(
+            fetch_cmd,
+            cwd=repo_root,
+            shell=False,
+            check=True,
+            timeout=120,
+        )
+
     if worktree_exists(worktree):
-        LOGGER.info("worktree already exists at %s", worktree)
+        reset_cmd = ["git", "reset", "--hard", sync_ref]
+        LOGGER.info("syncing worktree to %s: %s", sync_ref, shlex.join(reset_cmd))
+        subprocess.run(
+            reset_cmd,
+            cwd=worktree,
+            shell=False,
+            check=True,
+            timeout=60,
+        )
         return
 
     worktree.parent.mkdir(parents=True, exist_ok=True)
-
-    fetch_cmd = ["git", "fetch", "origin", base_branch]
-    LOGGER.info("fetching base branch: %s", shlex.join(fetch_cmd))
-    subprocess.run(
-        fetch_cmd,
-        cwd=repo_root,
-        shell=False,
-        check=True,
-        timeout=120,
-    )
-
-    branch_cmd = ["git", "branch", "-f", COMPONENT, f"origin/{base_branch}"]
-    LOGGER.info("resetting sync branch: %s", shlex.join(branch_cmd))
-    subprocess.run(
-        branch_cmd,
-        cwd=repo_root,
-        shell=False,
-        check=True,
-        timeout=30,
-    )
-
-    add_cmd = ["git", "worktree", "add", str(worktree), COMPONENT]
+    add_cmd = ["git", "worktree", "add", "-B", COMPONENT, str(worktree), sync_ref]
     LOGGER.info("adding worktree: %s", shlex.join(add_cmd))
     subprocess.run(
         add_cmd,
@@ -149,25 +177,47 @@ def ensure_worktree(worktree: Path, base_branch: str, repo_root: Path) -> None:
     )
 
 
+def build_workflow_args(args: argparse.Namespace) -> str:
+    """Serialize workflow args as a JSON object for the agent to parse.
+
+    The agent prompt template (`night-issue-prs.md`) reads these from
+    `$ARGUMENTS` and parses either JSON or positional text.
+    """
+    payload = {
+        "max_issues": args.max_issues,
+        "base_branch": args.base_branch,
+        "max_prs": args.max_prs,
+        "include_pr_followup": bool(args.include_pr_followup),
+    }
+    return json.dumps(payload)
+
+
 def build_opencode_command(args: argparse.Namespace) -> list[str]:
     """Build the `opencode run` command.
 
-    `opencode run` takes the prompt as a **variadic positional** (`message..`),
-    not as a `--prompt` flag — `--prompt` is a top-level opencode option that
-    the `run` subcommand does not consume. Passing `--prompt` to `run` causes
-    the subcommand to receive no message and print its help.
+    Two modes:
+
+    1. **Default** — invoke the `night-issue-prs` command template.
+       `opencode run --command night-issue-prs --auto '<json-args>'`.
+       The command's `agent: night-worker` frontmatter drives agent
+       selection; the message fills `$ARGUMENTS` in the template body.
+    2. **Override** — if `--prompt` is set, bypass the command template
+       and send the prompt directly as the message positional. Specify
+       `--agent` explicitly because no command frontmatter is in play.
+
+    `--prompt` is a top-level opencode option that the `run` subcommand
+    does not consume, so it is NOT used here even in override mode.
     """
-    cmd = [
-        "opencode",
-        "run",
-        "--agent",
-        AGENT_NAME,
-        "--auto",
-    ]
+    cmd = ["opencode", "run", "--auto"]
     if args.model:
         cmd.extend(["--model", args.model])
+
     if args.prompt:
+        cmd.extend(["--agent", AGENT_NAME])
         cmd.append(args.prompt)
+    else:
+        cmd.extend(["--command", args.command])
+        cmd.append(build_workflow_args(args))
     return cmd
 
 
@@ -178,6 +228,12 @@ def build_env(args: argparse.Namespace, worktree: Path, base_branch: str, report
     env["NIGHT_REPORT_PATH"] = str(report)
     env["NIGHT_OPERATOR"] = "opencode"
     env.setdefault("NIGHT_CODING_TOOL", "OpenCode")
+    # Keep PWD in sync with cwd so subprocess shells (and opencode's bash
+    # tool) resolve relative paths from the worktree, not from wherever
+    # this launcher was invoked. Windows MSYS / Git-Bash may re-derive
+    # PWD from the actual cwd on each bash invocation, so this is a
+    # best-effort sync for POSIX shells and most modern Windows tools.
+    env["PWD"] = str(worktree)
     return env
 
 
@@ -199,17 +255,29 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--model", default="", help="Override model (provider/model-id format). Empty = project default.")
     parser.add_argument(
+        "--command",
+        default="night-issue-prs",
+        help="OpenCode command template to invoke (default: night-issue-prs).",
+    )
+    parser.add_argument(
         "--prompt",
-        default=(
-            "Run the night-issue-prs workflow with args from $ARGUMENTS. "
-            "Parse --max-issues, --base-branch, --max-prs, --include-pr-followup "
-            "from the surrounding shell and proceed phase by phase. "
-            "Write the report to $NIGHT_REPORT_PATH."
+        default="",
+        help=(
+            "Override: skip the command template and send this text directly "
+            "as the opencode run message. Useful for ad-hoc debugging."
         ),
-        help="Prompt body for opencode run. Overrides default workflow prompt.",
     )
     parser.add_argument("--dry-run", action="store_true", help="Print the resolved command and exit without invoking opencode.")
     parser.add_argument("--no-worktree-create", action="store_true", help="Skip worktree creation; fail if missing.")
+    parser.add_argument(
+        "--sync-from-local",
+        action="store_true",
+        help=(
+            "Sync the worktree to the local <base_branch> instead of "
+            "origin/<base_branch>. Useful for dev testing without pushing "
+            "commits first. Production runs should leave this off."
+        ),
+    )
     parser.add_argument(
         "--log-level",
         default="INFO",
@@ -256,7 +324,7 @@ def main(argv: list[str] | None = None) -> int:
             LOGGER.error("worktree missing at %s and --no-worktree-create set", worktree)
             return 2
     else:
-        ensure_worktree(worktree, base_branch, repo_root)
+        ensure_worktree(worktree, base_branch, repo_root, sync_from_local=args.sync_from_local)
 
     report.parent.mkdir(parents=True, exist_ok=True)
 
