@@ -443,6 +443,12 @@ describe("filterEnabledMenuActions", () => {
       "Schedule",
       "Publishing_History",
     ]);
+    expect(
+      filterToolbarActions(actions, BASE, page, true).map((a) => a.name),
+    ).toContain("Force_Checkin");
+    expect(
+      filterToolbarActions(actions, BASE, page, false).map((a) => a.name),
+    ).not.toContain("Force_Checkin");
   });
 
   it("injects Stage and Remove from Staging for a page and hides them for folders (#4546)", () => {

@@ -100,6 +100,11 @@ const PUBLISHING_HISTORY_ACTION_KEYS: ReadonlySet<string> = new Set([
   "publish_history",
 ]);
 
+const FORCE_CHECKIN_ACTION_KEYS: ReadonlySet<string> = new Set([
+  "force_checkin",
+  "forcecheckin",
+]);
+
 function actionNameKey(name: string | undefined | null): string {
   return (name ?? "").replace(/[\s-]/g, "_").toLowerCase();
 }
@@ -124,6 +129,13 @@ export function isRemoveFromStagingActionName(
   name: string | undefined | null,
 ): boolean {
   return REMOVE_FROM_STAGING_ACTION_KEYS.has(actionNameKey(name));
+}
+
+/** Catalog / toolbar names for Explorer Admin force check-in (#4561). */
+export function isForceCheckinActionName(
+  name: string | undefined | null,
+): boolean {
+  return FORCE_CHECKIN_ACTION_KEYS.has(actionNameKey(name));
 }
 
 /**

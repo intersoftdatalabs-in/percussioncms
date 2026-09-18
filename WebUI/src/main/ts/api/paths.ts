@@ -774,6 +774,9 @@ export const PATHS = {
   get ITEM_WORKFLOW_FORCE_CHECKOUT() {
     return `${SERVICES_ROOT}/itemmanagement/workflow/forceCheckOut/`;
   },
+  get ITEM_WORKFLOW_FORCE_CHECKIN() {
+    return `${SERVICES_ROOT}/itemmanagement/workflow/forceCheckIn/`;
+  },
   get ITEM_WORKFLOW_TRANSITION() {
     return `${SERVICES_ROOT}/itemmanagement/workflow/transition/`;
   },

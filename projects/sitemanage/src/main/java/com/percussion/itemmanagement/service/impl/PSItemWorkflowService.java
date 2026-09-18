@@ -96,6 +96,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -601,6 +602,51 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
       checkIn(id, true);
       return checkOut(id);
     } catch (PSItemWorkflowServiceException | PSDataServiceException e) {
+      throw new WebApplicationException(e.getMessage());
+    }
+  }
+
+  @Override
+  @GET
+  @Path("forceCheckIn/{id}")
+  public PSNoContent forceCheckIn(@PathParam("id") String id) {
+    try {
+      rejectIfBlank("forceCheckIn", "id", id);
+
+      PSDataItemSummary sum;
+      try {
+        sum = dataItemSummaryService.find(id);
+      } catch (PSDataServiceException e) {
+        if (isUndeterminedGuidType(e)) {
+          throw new WebApplicationException(
+              "Item not found: " + id, Response.Status.NOT_FOUND);
+        }
+        throw e;
+      }
+      if (sum == null) {
+        throw new WebApplicationException("Item not found: " + id, Response.Status.NOT_FOUND);
+      }
+
+      PSAssignmentTypeEnum assignment = getAssignmentType(id);
+      if (assignment != PSAssignmentTypeEnum.ADMIN) {
+        throw new WebApplicationException(
+            "Admin assignment is required to force check-in", Response.Status.FORBIDDEN);
+      }
+
+      PSComponentSummary component = workflowHelper.getComponentSummary(id);
+      if (component == null
+          || StringUtils.isBlank(component.getCheckoutUserName())) {
+        throw new WebApplicationException(
+            "Item is not checked out", Response.Status.CONFLICT);
+      }
+
+      return checkIn(id, true);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSItemWorkflowServiceException | PSDataServiceException e) {
+      if (isUndeterminedGuidType(e)) {
+        throw new WebApplicationException("Item not found: " + id, Response.Status.NOT_FOUND);
+      }
       throw new WebApplicationException(e.getMessage());
     }
   }

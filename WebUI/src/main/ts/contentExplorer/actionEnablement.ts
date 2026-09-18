@@ -49,6 +49,7 @@ import { parseExplorerContentId } from "../api/contentExplorer/pathItemId";
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
 import { classifyUrl } from "../util/safeNavigate";
 import {
+  isForceCheckinActionName,
   isPublishingHistoryActionName,
   isRemoveFromStagingActionName,
   isStageActionName,
@@ -76,6 +77,8 @@ export interface ActionEnablementContext {
    * #4547 / #4559).
    */
   selectionItem?: PSPathItem | null;
+  /** Admin sessions may inject force check-in (#4561). */
+  isAdmin?: boolean;
   /**
    * Synthetic base URL for {@link classifyUrl} (tests pass an absolute
    * origin; production callers may omit and use {@code window.location}).
@@ -325,6 +328,16 @@ export function isToolbarPublishingHistoryHidden(
   return resolvePublishKind(selectionItem ?? null) === "none";
 }
 
+export function isToolbarForceCheckinHidden(
+  action: MenuAction,
+  selectionItem: PSPathItem | null | undefined,
+): boolean {
+  if (!isForceCheckinActionName(action.name)) {
+    return false;
+  }
+  return resolvePublishKind(selectionItem ?? null) === "none";
+}
+
 /** Injected when CX catalog has no Take Down leaf for a page/asset. */
 export const EXPLORER_TAKEDOWN_ACTION: MenuAction = {
   name: "Take_Down",
@@ -362,6 +375,14 @@ export const EXPLORER_PUBLISHING_HISTORY_ACTION: MenuAction = {
   name: "Publishing_History",
   label: "Publishing History",
   sortRank: 10_040,
+  menuType: "MENUITEM",
+};
+
+/** Injected for Admin sessions when a page/asset is selected (#4561). */
+export const EXPLORER_FORCE_CHECKIN_ACTION: MenuAction = {
+  name: "Force_Checkin",
+  label: "Force Check-in",
+  sortRank: 10_050,
   menuType: "MENUITEM",
 };
 
@@ -461,6 +482,26 @@ export function withExplorerPublishingHistoryAction(
     selectionItem,
     isPublishingHistoryActionName,
     EXPLORER_PUBLISHING_HISTORY_ACTION,
+  );
+}
+
+/**
+ * Admin force check-in — only when the session is Admin and a page/asset
+ * is selected. Non-Admin catalogs stay unchanged.
+ */
+export function withExplorerForceCheckinAction(
+  actions: MenuAction[],
+  selectionItem: PSPathItem | null | undefined,
+  isAdmin?: boolean,
+): MenuAction[] {
+  if (!isAdmin) {
+    return actions;
+  }
+  return injectPublishItemAction(
+    actions,
+    selectionItem,
+    isForceCheckinActionName,
+    EXPLORER_FORCE_CHECKIN_ACTION,
   );
 }
 
@@ -571,6 +612,9 @@ export function filterEnabledMenuActions(
     if (isToolbarPublishingHistoryHidden(action, ctx.selectionItem)) {
       continue;
     }
+    if (isToolbarForceCheckinHidden(action, ctx.selectionItem)) {
+      continue;
+    }
     if (isToolbarEditorActionHidden(action, ctx.selectionItem)) {
       continue;
     }
@@ -586,17 +630,22 @@ export function filterToolbarActions(
   actions: MenuAction[] | null | undefined,
   baseHref?: string,
   selectionItem?: PSPathItem | null,
+  isAdmin?: boolean,
 ): MenuAction[] {
   return prepareToolbarActions(
-    withExplorerPublishingHistoryAction(
-      withExplorerScheduleAction(
-        withExplorerStagingActions(
-          withExplorerTakedownAction(
-            filterEnabledMenuActions(actions, {
-              surface: "toolbar",
-              baseHref,
+    withExplorerForceCheckinAction(
+      withExplorerPublishingHistoryAction(
+        withExplorerScheduleAction(
+          withExplorerStagingActions(
+            withExplorerTakedownAction(
+              filterEnabledMenuActions(actions, {
+                surface: "toolbar",
+                baseHref,
+                selectionItem,
+                isAdmin,
+              }),
               selectionItem,
-            }),
+            ),
             selectionItem,
           ),
           selectionItem,
@@ -604,6 +653,7 @@ export function filterToolbarActions(
         selectionItem,
       ),
       selectionItem,
+      isAdmin,
     ),
   );
 }
@@ -617,17 +667,22 @@ export function filterContextMenuActions(
   actions: MenuAction[] | null | undefined,
   baseHref?: string,
   selectionItem?: PSPathItem | null,
+  isAdmin?: boolean,
 ): MenuAction[] {
   return prepareMenuActionTree(
-    withExplorerPublishingHistoryAction(
-      withExplorerScheduleAction(
-        withExplorerStagingActions(
-          withExplorerTakedownAction(
-            filterEnabledMenuActions(actions, {
-              surface: "contextmenu",
-              baseHref,
+    withExplorerForceCheckinAction(
+      withExplorerPublishingHistoryAction(
+        withExplorerScheduleAction(
+          withExplorerStagingActions(
+            withExplorerTakedownAction(
+              filterEnabledMenuActions(actions, {
+                surface: "contextmenu",
+                baseHref,
+                selectionItem,
+                isAdmin,
+              }),
               selectionItem,
-            }),
+            ),
             selectionItem,
           ),
           selectionItem,
@@ -635,6 +690,7 @@ export function filterContextMenuActions(
         selectionItem,
       ),
       selectionItem,
+      isAdmin,
     ),
   );
 }
