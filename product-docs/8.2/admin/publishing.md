@@ -189,7 +189,23 @@ From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, th
 - `spa.jsp?entry=publish&section=sites&siteId={siteId}&itemId={id}`
 - Path form: `/cm/app/publish/sites?siteId={siteId}&itemId={id}`
 
-Item publishing history stays on Status / Logs. Site-workspace takedown is below.
+Item publishing history stays on Status / Logs. Site-workspace **Publish now** and takedown are below.
+
+## Publish now from the Publishing site workspace
+
+From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, then a site). The **Publish Now** panel demand-publishes a selected **page** or **asset** using the same sitemanage paths as Content Explorer and the React editor (`GET /services/sitemanage/publish/page/{id}` or `/resource/{id}`). It replaces the classic jQuery `PercItemPublisherService.publishItem` action for this shell. Explorer still has its own **Publish Now** action for a Finder row.
+
+1. Sign in as an **Admin** (or an operator who can demand-publish).
+2. Open **Publish → Sites** and select a site (or deep-link `section=sites` with `siteId`).
+3. Enter the item id (content GUID such as `16777215-101-9`), choose **Page** or **Asset**, and choose **Review publish now**.
+4. Confirm **Publish this item now?** then **Publish Now**. The site workspace job list refreshes after a successful start.
+
+**Empty and error states:** Blank or invalid item id is not a publish. HTTP **403** (non-Admin or locked/forbidden item) and HTTP **400** (validation) are shown in the panel — they are **not** treated as success. HTTP **404** (unknown id) shows **Item not found**. HTTP 200 with application-level `FORBIDDEN` or `BADCONFIG` is also a failure (same as Explorer). Stage / unstage and the publishing-actions menu are separate slices.
+
+**Deep links:**
+
+- `spa.jsp?entry=publish&section=sites&siteId={siteId}&itemId={id}`
+- Path form: `/cm/app/publish/sites?siteId={siteId}&itemId={id}`
 
 ## Take down from the Publishing site workspace
 

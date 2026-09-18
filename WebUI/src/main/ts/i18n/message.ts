@@ -237,6 +237,14 @@ export const MSG = {
   PUBLISH_SCHEDULE_INVALID: "perc.ui.publish.modern@Invalid schedule dates",
   PUBLISH_SCHEDULE_FORBIDDEN: "perc.ui.publish.modern@Publish Forbidden",
   PUBLISH_SCHEDULE_SAVED: "perc.ui.publish.modern@Schedule dates saved",
+  PUBLISH_NOW: "perc.ui.publish.title@Publish Now",
+  PUBLISH_NOW_HINT:
+    "perc.ui.publish.modern@Publish a selected page or asset now from this site workspace.",
+  PUBLISH_NOW_REVIEW: "perc.ui.publish.modern@Review publish now",
+  PUBLISH_NOW_CONFIRM: "perc.ui.editor@Publish this item now?",
+  PUBLISH_NOW_SUBMIT: "perc.ui.publish.title@Publish Now",
+  PUBLISH_NOW_SUCCESS: "perc.ui.publish.modern@Publish now started.",
+  PUBLISH_NOW_NOT_FOUND: "perc.ui.publish.modern@Item not found",
   PUBLISH_TAKEDOWN: "perc.ui.publish.title@Remove From Site",
   PUBLISH_TAKEDOWN_HINT:
     "perc.ui.publish.modern@Take down (unpublish) a page or asset from this site workspace.",

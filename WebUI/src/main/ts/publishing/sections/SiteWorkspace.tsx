@@ -35,6 +35,7 @@ import {
 } from "../../api/publishing/serversApi";
 import { fetchCurrentJobsForSite } from "../../api/publishing/statusApi";
 import { message, MSG } from "../../i18n/message";
+import { ItemPublishNowPanel } from "../components/ItemPublishNowPanel";
 import { ItemScheduleDatesPanel } from "../components/ItemScheduleDatesPanel";
 import { ItemTakedownPanel } from "../components/ItemTakedownPanel";
 import { ServerEditor } from "../components/ServerEditor";
@@ -443,6 +444,11 @@ export function SiteWorkspace({
       <ItemScheduleDatesPanel
         itemId={itemId}
         onItemIdChange={onItemIdChange}
+      />
+      <ItemPublishNowPanel
+        itemId={itemId}
+        onItemIdChange={onItemIdChange}
+        onPublished={refreshJobs}
       />
       <ItemTakedownPanel itemId={itemId} onItemIdChange={onItemIdChange} />
 
