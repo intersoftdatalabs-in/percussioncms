@@ -113,6 +113,31 @@ describe("ItemPublishingHistoryPanel", () => {
     expect(onOpen).toHaveBeenCalledWith("logs");
   });
 
+  it("treats HTTP 404 and 403 as errors, not empty success", async () => {
+    fetchHistory.mockRejectedValue({ status: 404, statusText: "Not Found" });
+    const { rerender } = render(
+      <ItemPublishingHistoryPanel currentSection="logs" itemId="missing" />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("item-history-error")).toHaveTextContent(
+        /HTTP 404/i,
+      );
+    });
+    expect(screen.queryByTestId("item-history-empty")).toBeNull();
+    expect(screen.queryByTestId("item-history-table")).toBeNull();
+
+    fetchHistory.mockRejectedValue({ status: 403, statusText: "Forbidden" });
+    rerender(
+      <ItemPublishingHistoryPanel currentSection="logs" itemId="denied" />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("item-history-error")).toHaveTextContent(
+        /HTTP 403/i,
+      );
+    });
+    expect(screen.queryByTestId("item-history-empty")).toBeNull();
+  });
+
   it("rejects unsafe item ids without calling the API", async () => {
     render(<ItemPublishingHistoryPanel currentSection="logs" />);
     fireEvent.change(screen.getByTestId("item-history-id"), {

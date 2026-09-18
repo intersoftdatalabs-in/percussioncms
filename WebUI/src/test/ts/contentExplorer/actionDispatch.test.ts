@@ -1106,6 +1106,59 @@ describe("actionDispatch", () => {
     expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_UNAVAILABLE);
   });
 
+  it("classifies Publishing History as client", () => {
+    expect(classifyAction(action({ name: "Publishing_History" }))).toBe(
+      "client",
+    );
+  });
+
+  it("Publishing History opens the history dialog", async () => {
+    const onShowPublishingHistory = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "Publishing_History" }),
+      { item: item(), onShowPublishingHistory },
+    );
+    expect(result.kind).toBe("client");
+    expect(onShowPublishingHistory).toHaveBeenCalled();
+  });
+
+  it("Publishing History on a Sites folder asks for a content item", async () => {
+    const onShowPublishingHistory = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "Publishing History" }),
+      {
+        item: item({
+          path: "/Sites",
+          type: "site",
+          category: "SITE",
+          id: "1",
+        }),
+        onShowPublishingHistory,
+      },
+    );
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+    expect(onShowPublishingHistory).not.toHaveBeenCalled();
+  });
+
+  it("Publishing History on a template stays unavailable", async () => {
+    const onShowPublishingHistory = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "pubhistory" }),
+      {
+        item: item({
+          path: "/Design/Templates/base",
+          type: "percTemplate",
+          category: "template",
+          id: "77",
+        }),
+        onShowPublishingHistory,
+      },
+    );
+    expect(result.kind).toBe("unavailable");
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_UNAVAILABLE);
+    expect(onShowPublishingHistory).not.toHaveBeenCalled();
+  });
+
   it("dispatch workflow-transition runs the trigger", async () => {
     const runWorkflow = vi.fn().mockResolvedValue(undefined);
     const result = await dispatchAction(

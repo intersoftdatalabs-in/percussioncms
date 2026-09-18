@@ -52,4 +52,15 @@ describe("fetchItemPublishingHistory", () => {
     expect(rows).toHaveLength(1);
     expect(rows[0].server).toBe("prod");
   });
+
+  it("rejects HTTP 404 and 403 instead of an empty success list", async () => {
+    getMock.mockRejectedValueOnce({ status: 404, statusText: "Not Found" });
+    await expect(fetchItemPublishingHistory("99")).rejects.toMatchObject({
+      status: 404,
+    });
+    getMock.mockRejectedValueOnce({ status: 403, statusText: "Forbidden" });
+    await expect(fetchItemPublishingHistory("7")).rejects.toMatchObject({
+      status: 403,
+    });
+  });
 });

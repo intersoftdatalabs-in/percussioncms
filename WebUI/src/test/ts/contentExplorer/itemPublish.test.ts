@@ -19,6 +19,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import {
   formatTakedownConfirmBody,
+  isPublishingHistoryActionName,
   isRemoveFromStagingActionName,
   isStageActionName,
   isTakedownActionName,
@@ -306,6 +307,13 @@ describe("linked pages for takedown", () => {
     expect(isTakedownActionName("unpublish")).toBe(true);
     expect(isTakedownActionName("Publish_Now")).toBe(false);
     expect(isTakedownActionName("Stage")).toBe(false);
+  });
+
+  it("recognizes Publishing History action name variants", () => {
+    expect(isPublishingHistoryActionName("Publishing_History")).toBe(true);
+    expect(isPublishingHistoryActionName("Publishing History")).toBe(true);
+    expect(isPublishingHistoryActionName("pubhistory")).toBe(true);
+    expect(isPublishingHistoryActionName("Publish_Now")).toBe(false);
   });
 });
 

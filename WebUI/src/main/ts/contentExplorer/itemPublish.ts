@@ -21,7 +21,9 @@
  * servlet. Staging uses {@code …/page|resource/staging/{id}} and
  * {@code …/takedown/page|resource/staging/{id}} (classic
  * PercItemPublisherService). Schedule dates live in
- * {@code itemScheduleDates} (getitemdates / setitemdates).
+ * {@code itemScheduleDates} (getitemdates / setitemdates). Item
+ * publishing history is {@code GET …/item/pubhistory/{id}} (classic
+ * PercPublishingHistoryDialog / PublishingShell #4536).
  */
 
 import { get, put } from "../api/client";
@@ -89,6 +91,13 @@ const REMOVE_FROM_STAGING_ACTION_KEYS: ReadonlySet<string> = new Set([
   "unstage",
 ]);
 
+const PUBLISHING_HISTORY_ACTION_KEYS: ReadonlySet<string> = new Set([
+  "publishing_history",
+  "item_publishing_history",
+  "pubhistory",
+  "publish_history",
+]);
+
 function actionNameKey(name: string | undefined | null): string {
   return (name ?? "").replace(/[\s-]/g, "_").toLowerCase();
 }
@@ -113,6 +122,16 @@ export function isRemoveFromStagingActionName(
   name: string | undefined | null,
 ): boolean {
   return REMOVE_FROM_STAGING_ACTION_KEYS.has(actionNameKey(name));
+}
+
+/**
+ * Catalog / toolbar names for Explorer Publishing History (Finder
+ * {@code perc-pubhistory-button}).
+ */
+export function isPublishingHistoryActionName(
+  name: string | undefined | null,
+): boolean {
+  return PUBLISHING_HISTORY_ACTION_KEYS.has(actionNameKey(name));
 }
 
 /** Pages that link to the item — listed on the takedown confirm. */

@@ -31,7 +31,7 @@ channels (static files, FTP, database, custom locations).
 
 ### Item Publish Now and Take Down (Content Explorer)
 
-From **Content Explorer** (`spa.jsp?entry=explorer`), select a **page** or **asset** (not a folder). **Publish Now** demand-publishes the item; **Take Down** unpublishes it from its site. **Schedule** sets or clears item publish and removal dates (`GET …/getitemdates/{id}`, `POST …/setitemdates`). All confirm first. Application-level `FORBIDDEN` / `BADCONFIG` / `INVALID` responses are failures (the Server actions error region), not success. See [Content Explorer](id:admin-content-explorer) for the exact URLs, linked-page confirm, and schedule fields. Stage from Explorer is a separate action.
+From **Content Explorer** (`spa.jsp?entry=explorer`), select a **page** or **asset** (not a folder). **Publish Now** demand-publishes the item; **Take Down** unpublishes it from its site. **Schedule** sets or clears item publish and removal dates (`GET …/getitemdates/{id}`, `POST …/setitemdates`). **Publishing History** shows item-level publish/takedown rows (`GET …/item/pubhistory/{id}`). Publish Now, Take Down, Stage, and Schedule confirm first. Application-level `FORBIDDEN` / `BADCONFIG` / `INVALID` responses are failures (the Server actions error region), not success. HTTP **404** / **403** on publishing history are errors in the history dialog, not empty success. See [Content Explorer](id:admin-content-explorer) for the exact URLs, linked-page confirm, schedule fields, and history dialog. Stage from Explorer is a separate action.
 
 From the **React Content Editor** (`spa.jsp?entry=editor`) in **Edit** mode, **Publish now** demand-publishes the already-open page or asset after confirm (same sitemanage `publish/page/{id}` or `publish/resource/{id}` GETs). **View** mode stays read-only. `FORBIDDEN` / `BADCONFIG` is a failure on the editor host, not success.
 
@@ -156,14 +156,14 @@ See [Virtual Sites](id:developer-virtual-sites) and [Build product docs](id:deve
 
 ## Item publishing history
 
-From **Publish** (`spa.jsp?entry=publish`), open **Status** or **Logs**. The **Item publishing history** panel looks up a page or asset by item id using the existing item-management API (`GET /services/itemmanagement/item/pubhistory/{id}`). It replaces the classic jQuery publishing-history dialog for this shell.
+From **Publish** (`spa.jsp?entry=publish`), open **Status** or **Logs**. The **Item publishing history** panel looks up a page or asset by item id using the existing item-management API (`GET /services/itemmanagement/item/pubhistory/{id}`). It replaces the classic jQuery publishing-history dialog for this shell. **Content Explorer** uses the same API and panel: select a page or asset and choose **Publishing History**.
 
 1. Sign in as an operator who can open Publish.
 2. Open **Publish → Status** or **Publish → Logs**.
 3. Enter the item id (content GUID such as `16777215-101-9`) and choose **View History**.
 4. Rows show server, location, revision, date, operation, and status (newest first). A **FAILURE** row keeps the server error on the status cell title.
 
-**Empty and error states:** If the item has never been published, the panel says there is no publishing history. A failed lookup (HTTP error or unexpected server message) is shown as an error in the panel — it is not treated as success.
+**Empty and error states:** If the item has never been published, the panel says there is no publishing history. A failed lookup (HTTP **404** unknown id, HTTP **403** forbidden, or another HTTP error / unexpected server message) is shown as an error in the panel — it is not treated as success or as empty history.
 
 **Deep links** (same panel on Status or Logs):
 
