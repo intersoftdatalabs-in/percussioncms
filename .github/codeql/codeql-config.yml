@@ -445,7 +445,8 @@ query-filters:
       reason: >-
         Alerts #2001/#1988-#2000 and PR residual #2011-#2023/#2026-#2030
         plus saveApplicationFileWithoutLocking #2046–#2050 / #2058–#2062
-        and re-fingerprint #2074–#2075:
+        and re-fingerprint #2074–#2075 / #2077–#2081 (locked saveApplicationFile
+        lines 730/731/741/742):
         RecoverableFile, deleteFile, mkdir, getAppRootDir, and save File API.
         Runtime getAppRootDir / RecoverableFile ctor / deleteFile call
         requireUnderBase against PSServer.getRxDir() then operate on the
@@ -523,8 +524,10 @@ query-filters:
         - "projects/sitemanage/src/main/java/com/percussion/apibridge/ApplicationFileAdaptor.java"
         - "**/apibridge/ApplicationFileAdaptor.java"
       reason: >-
-        Alerts #2063–#2073 (PR #4571): File.exists/isDirectory, Files.exists,
-        createDirectories, move, deleteIfExists after resolveUnderAppRoot.
+        Alerts #2063–#2073 (PR #4571) plus re-fingerprint #2076
+        (deleteRecursively Files.deleteIfExists walker line 1026):
+        File.exists/isDirectory, Files.exists, createDirectories, move,
+        deleteIfExists after resolveUnderAppRoot.
         Runtime requireSafeFileName per segment + requireUnderBase(RxDir)
         then requireUnderBase(appDir, relative). Same-line
         // codeql[java/path-injection] on residual File/NIO API. Model pack
@@ -532,4 +535,5 @@ query-filters:
         requireSafeRelativePath / normalizeSafeRelativePath (GHA may not
         load local packs). Tests: ApplicationFileAdaptorTest
         (createFolder/delete/move traversal 400; resolveUnderAppRoot
-        rejects File("../escape")). Do not re-edit annotated sinks.
+        rejects File("../escape"); deleteRecursively_removesTreeUnderTempDir).
+        Do not re-edit annotated sinks.
