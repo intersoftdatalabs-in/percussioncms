@@ -29,9 +29,18 @@ import type {
   KeywordSummary,
 } from "../api/developer/types";
 import type { ItemEditorBinaryMeta } from "./itemBinaryApi";
+import {
+  getItemWorkflowTransitions,
+  transitionItem,
+  type ItemStateTransition,
+} from "../api/contentExplorer/itemWorkflowApi";
 import { parsePositiveInt } from "../assembly/assemblyHostUrl";
 import { message } from "../i18n/message";
 import { mergeEditorRows, type EditorFieldRow } from "./controlKinds";
+import {
+  canRunEditorTransition,
+  uniqueTransitionTriggers,
+} from "./editorWorkflow";
 import {
   checkinEditorItem,
   checkoutEditorItem,
@@ -42,6 +51,7 @@ import {
 import { uploadItemEditorBinary } from "./itemBinaryApi";
 import styles from "./EditorHost.module.css";
 import { normalizeEditorMode, type EditorHostMode } from "./editorHostUrl";
+import { EditorWorkflowPanel } from "./EditorWorkflowPanel";
 import { EDITOR_MSG } from "./messages";
 import { CommunityFieldWidget } from "./widgets/CommunityFieldWidget";
 import { FileFieldWidget } from "./widgets/FileFieldWidget";
@@ -74,6 +84,16 @@ export interface EditorHostProps {
   loadKeywords?: () => Promise<KeywordSummary[]>;
   loadCommunities?: () => Promise<CommunitySummary[]>;
   loadBinaryMeta?: (itemId: string, field: string) => Promise<ItemEditorBinaryMeta>;
+  /** Test seam: allowed transitions ({@code getTransitions}). */
+  loadTransitions?: (itemId: string) => Promise<ItemStateTransition>;
+  /** Test seam: {@code transitionWithComments}. */
+  runTransition?: (
+    itemId: string,
+    trigger: string,
+    comment?: string,
+  ) => Promise<unknown>;
+  /** Extra / override names that require a comment (tests). */
+  commentRequiredTriggers?: readonly string[];
 }
 
 function badgeKey(mode: EditorHostMode): string {
@@ -195,6 +215,9 @@ export function EditorHost({
   loadKeywords,
   loadCommunities,
   loadBinaryMeta,
+  loadTransitions = getItemWorkflowTransitions,
+  runTransition = transitionItem,
+  commentRequiredTriggers,
 }: EditorHostProps = {}): React.ReactElement {
   const [params] = useSearchParams();
   const contentId = parsePositiveInt(params.get("contentId"));
@@ -216,6 +239,13 @@ export function EditorHost({
   const [loading, setLoading] = useState(contentId != null && !promote);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [workflowTriggers, setWorkflowTriggers] = useState<string[]>([]);
+  const [workflowState, setWorkflowState] = useState<string>("");
+  const [workflowComment, setWorkflowComment] = useState("");
+  const [workflowErrorKey, setWorkflowErrorKey] = useState<string | null>(null);
+  const [workflowErrorDetail, setWorkflowErrorDetail] = useState("");
+  const [workflowBusy, setWorkflowBusy] = useState(false);
+  const [workflowDone, setWorkflowDone] = useState(false);
 
   useEffect(() => {
     document.title = message(EDITOR_MSG.TITLE);
@@ -257,6 +287,22 @@ export function EditorHost({
             }
           }
         }
+        if (!readOnly) {
+          try {
+            const trans = await loadTransitions(itemId);
+            if (!cancelled) {
+              setWorkflowTriggers(
+                uniqueTransitionTriggers(trans.transitionTriggers),
+              );
+              setWorkflowState(trans.stateName ?? "");
+            }
+          } catch {
+            if (!cancelled) {
+              setWorkflowTriggers([]);
+              setWorkflowState("");
+            }
+          }
+        }
       } catch (err) {
         if (!cancelled) {
           setErrorDetail(err instanceof Error ? err.message : String(err));
@@ -271,7 +317,7 @@ export function EditorHost({
     return () => {
       cancelled = true;
     };
-  }, [contentId, readOnly, promote, checkout, loadFields, loadType]);
+  }, [contentId, readOnly, promote, checkout, loadFields, loadType, loadTransitions]);
 
   const rows = useMemo(() => {
     if (!payload) {
@@ -345,6 +391,61 @@ export function EditorHost({
     }
   }
 
+  function workflowErrorFor(reason: string): string {
+    if (reason === "unauthorized") {
+      return EDITOR_MSG.WORKFLOW_UNAUTHORIZED;
+    }
+    if (reason === "comment") {
+      return EDITOR_MSG.WORKFLOW_COMMENT_REQUIRED;
+    }
+    return EDITOR_MSG.WORKFLOW_FAILED;
+  }
+
+  async function handleTransition(trigger: string): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    const gate = canRunEditorTransition({
+      mode,
+      trigger,
+      allowed: workflowTriggers,
+      comment: workflowComment,
+      commentRequiredTriggers,
+    });
+    if (!gate.ok) {
+      setWorkflowDone(false);
+      setWorkflowErrorDetail("");
+      setWorkflowErrorKey(workflowErrorFor(gate.reason));
+      return;
+    }
+    setWorkflowBusy(true);
+    setWorkflowDone(false);
+    setWorkflowErrorKey(null);
+    setWorkflowErrorDetail("");
+    const itemId = String(contentId);
+    const comment = workflowComment.trim();
+    try {
+      await runTransition(itemId, trigger, comment.length > 0 ? comment : undefined);
+      setWorkflowComment("");
+      if (!readOnly) {
+        try {
+          await checkout(itemId);
+        } catch {
+          // Transition already succeeded; stay on the host without a second checkout.
+        }
+        const trans = await loadTransitions(itemId);
+        setWorkflowTriggers(uniqueTransitionTriggers(trans.transitionTriggers));
+        setWorkflowState(trans.stateName ?? "");
+      }
+      setWorkflowDone(true);
+    } catch (err) {
+      setWorkflowErrorDetail(err instanceof Error ? err.message : String(err));
+      setWorkflowErrorKey(EDITOR_MSG.WORKFLOW_FAILED);
+    } finally {
+      setWorkflowBusy(false);
+    }
+  }
+
   async function handleCheckin(): Promise<void> {
     if (contentId == null) {
       return;
@@ -384,6 +485,11 @@ export function EditorHost({
         ) : null}
         <div className={styles.actions}>
           {saved ? <span className={styles.meta}>{message(EDITOR_MSG.SAVED)}</span> : null}
+          {workflowDone ? (
+            <span className={styles.meta} data-testid="editor-workflow-done">
+              {message(EDITOR_MSG.WORKFLOW_DONE)}
+            </span>
+          ) : null}
           {canEdit ? (
             <button
               type="button"
@@ -431,37 +537,54 @@ export function EditorHost({
           <div className={styles.status} role="status" data-testid="editor-loading">
             {message(EDITOR_MSG.LOADING)}
           </div>
-        ) : rows.length === 0 ? (
-          <div className={styles.status} data-testid="editor-empty">
-            {message(EDITOR_MSG.EMPTY)}
-          </div>
         ) : (
-          <form
-            className={styles.form}
-            data-testid="editor-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (canEdit) {
-                void handleSave();
-              }
-            }}
-          >
-            {rows.map((row) => (
-              <label key={row.name} className={styles.field}>
-                <span className={styles.label}>{row.label}</span>
-                <EditorFieldControl
-                  row={row}
-                  itemId={String(contentId)}
-                  locked={readOnly || row.readOnly}
-                  onChange={setField}
-                  onFile={setFile}
-                  loadKeywords={loadKeywords}
-                  loadCommunities={loadCommunities}
-                  loadBinaryMeta={loadBinaryMeta}
-                />
-              </label>
-            ))}
-          </form>
+          <>
+            {canEdit ? (
+              <EditorWorkflowPanel
+                stateName={workflowState}
+                triggers={workflowTriggers}
+                comment={workflowComment}
+                onCommentChange={setWorkflowComment}
+                onTransition={(t) => void handleTransition(t)}
+                busy={workflowBusy || saving}
+                errorKey={workflowErrorKey}
+                errorDetail={workflowErrorDetail}
+                commentRequiredTriggers={commentRequiredTriggers}
+              />
+            ) : null}
+            {rows.length === 0 ? (
+              <div className={styles.status} data-testid="editor-empty">
+                {message(EDITOR_MSG.EMPTY)}
+              </div>
+            ) : (
+              <form
+                className={styles.form}
+                data-testid="editor-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (canEdit) {
+                    void handleSave();
+                  }
+                }}
+              >
+                {rows.map((row) => (
+                  <label key={row.name} className={styles.field}>
+                    <span className={styles.label}>{row.label}</span>
+                    <EditorFieldControl
+                      row={row}
+                      itemId={String(contentId)}
+                      locked={readOnly || row.readOnly}
+                      onChange={setField}
+                      onFile={setFile}
+                      loadKeywords={loadKeywords}
+                      loadCommunities={loadCommunities}
+                      loadBinaryMeta={loadBinaryMeta}
+                    />
+                  </label>
+                ))}
+              </form>
+            )}
+          </>
         )}
       </div>
     </div>

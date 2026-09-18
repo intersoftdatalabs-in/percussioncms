@@ -162,3 +162,32 @@
   color: #334155;
   font-size: 14px;
 }
+
+.workflow {
+  margin: 0 0 1.25rem;
+  padding: 0.9rem 1rem 1rem;
+  max-width: 48rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.workflowHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 14px;
+}
+
+.workflowState {
+  color: #334155;
+  font-size: 13px;
+}
+
+.workflowActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

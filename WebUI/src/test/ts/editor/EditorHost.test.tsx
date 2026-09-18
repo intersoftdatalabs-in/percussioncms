@@ -395,3 +395,142 @@ describe("EditorHost rich controls", () => {
     expect(screen.queryByTestId("editor-error")).toBeNull();
   });
 });
+
+describe("EditorHost workflow transitions (#4539)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function titleType() {
+    return { fields: [{ name: "sys_title", label: "Title", readOnly: false }] };
+  }
+
+  function renderEdit(extra: Partial<React.ComponentProps<typeof EditorHost>> = {}) {
+    const checkout = extra.checkout ?? vi.fn().mockResolvedValue(undefined);
+    const loadFields = extra.loadFields ?? vi.fn().mockResolvedValue(fields);
+    return render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                loadFields={loadFields}
+                loadType={extra.loadType ?? (async () => titleType())}
+                loadTransitions={
+                  extra.loadTransitions ??
+                  (async () => ({
+                    stateName: "Draft",
+                    transitionTriggers: ["Submit", "Reject"],
+                  }))
+                }
+                runTransition={extra.runTransition}
+                commentRequiredTriggers={extra.commentRequiredTriggers}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+
+  it("lists allowed triggers in edit mode and runs Submit with a comment", async () => {
+    const runTransition = vi.fn().mockResolvedValue({});
+    const loadTransitions = vi
+      .fn()
+      .mockResolvedValueOnce({
+        stateName: "Draft",
+        transitionTriggers: ["Submit", "Reject"],
+      })
+      .mockResolvedValue({
+        stateName: "Review",
+        transitionTriggers: ["Approve"],
+      });
+    renderEdit({ runTransition, loadTransitions });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Draft/);
+    expect(screen.getByTestId("editor-workflow-trigger-Submit")).toBeTruthy();
+    expect(screen.getByTestId("editor-workflow-trigger-Reject")).toBeTruthy();
+    expect(screen.queryByTestId("editor-workflow-trigger-Approve")).toBeNull();
+    fireEvent.change(screen.getByTestId("editor-workflow-comment"), {
+      target: { value: "ready" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+    await waitFor(() => {
+      expect(runTransition).toHaveBeenCalledWith("42", "Submit", "ready");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-done")).toBeTruthy();
+    });
+  });
+
+  it("blocks comment-required Reject until a comment is present", async () => {
+    const runTransition = vi.fn().mockResolvedValue({});
+    renderEdit({ runTransition });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-trigger-Reject")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Reject"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-error").textContent).toMatch(
+        /Enter a comment/i,
+      );
+    });
+    expect(runTransition).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId("editor-workflow-comment"), {
+      target: { value: "needs work" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Reject"));
+    await waitFor(() => {
+      expect(runTransition).toHaveBeenCalledWith("42", "Reject", "needs work");
+    });
+  });
+
+  it("does not run a trigger that is not in the allowlist", async () => {
+    const runTransition = vi.fn().mockResolvedValue({});
+    renderEdit({
+      runTransition,
+      loadTransitions: async () => ({
+        stateName: "Draft",
+        transitionTriggers: ["Submit"],
+      }),
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-trigger-Submit")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-workflow-trigger-Approve")).toBeNull();
+    expect(runTransition).not.toHaveBeenCalled();
+  });
+
+  it("hides workflow controls in view mode", async () => {
+    const loadTransitions = vi.fn();
+    const runTransition = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                loadTransitions={loadTransitions}
+                runTransition={runTransition}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-workflow")).toBeNull();
+    expect(loadTransitions).not.toHaveBeenCalled();
+  });
+});

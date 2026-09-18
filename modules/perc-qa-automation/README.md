@@ -393,6 +393,29 @@ Peer: `explorer-preview-view` (Sites → Pages walk). Product: Hibernate
 `PSTransitionsContext` first-row cursor (#3668) + `itemWorkflowApi` unwrap.
 Parent operator issues #2732 / #2400. QA fail: #2743.
 
+### Editor host workflow transitions (#4539 / parent #4532)
+
+H2 operator proof that the React Content Editor (`spa.jsp?entry=editor`) lists
+allowed itemmanagement transitions in **edit** mode, blocks comment-required
+**Reject** until a comment is present, then calls `transitionWithComments`.
+**View** mode stays read-only (no workflow chrome, no getTransitions).
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/editor-host-workflow-transitions.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/editor-host-workflow.js`, covered from `tests/unit/explorer-content-editor.test.js` |
+| Tags | `@explorer-content-editor` `@editor` `@workflow` |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/editor-host-workflow-transitions.spec.js
+```
+
+Peer: `editor-rich-controls.spec.js`, `explorer-workflow-transitions.spec.js`.
+
 ### Architecture Create section no-skip (#3589 / #3661 / #3672 / parent #3092)
 
 H2 operator proof that **Create section** is enabled on
