@@ -134,7 +134,29 @@ def test_build_opencode_command_with_model_and_prompt():
     args = type("Args", (), {"model": "anthropic/claude-sonnet-4-6", "prompt": "do the thing"})()
     cmd = mod.build_opencode_command(args)
     assert "--model" in cmd and "anthropic/claude-sonnet-4-6" in cmd
-    assert "--prompt" in cmd and "do the thing" in cmd
+    # Prompt is a positional argument on `opencode run`, NOT a `--prompt` flag.
+    # `--prompt` is a top-level opencode option that `run` does not consume.
+    assert cmd[-1] == "do the thing"
+    assert "--prompt" not in cmd
+
+
+def test_build_opencode_command_prompt_is_positional():
+    mod = _load_module()
+    args = type("Args", (), {"model": "", "prompt": "hello world"})()
+    cmd = mod.build_opencode_command(args)
+    assert cmd[-1] == "hello world", f"prompt should be the last positional arg, got: {cmd}"
+
+
+def test_minus_v_shortcut_sets_debug_log_level():
+    mod = _load_module()
+    args = mod.parse_args(["-v"])
+    assert args.log_level == "DEBUG"
+
+
+def test_minus_v_overrides_explicit_log_level():
+    mod = _load_module()
+    args = mod.parse_args(["--log-level", "WARNING", "-v"])
+    assert args.log_level == "DEBUG", "last flag wins; -v should override --log-level WARNING"
 
 
 def test_build_opencode_command_model_only_skips_prompt_when_empty():

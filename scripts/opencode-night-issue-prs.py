@@ -150,6 +150,13 @@ def ensure_worktree(worktree: Path, base_branch: str, repo_root: Path) -> None:
 
 
 def build_opencode_command(args: argparse.Namespace) -> list[str]:
+    """Build the `opencode run` command.
+
+    `opencode run` takes the prompt as a **variadic positional** (`message..`),
+    not as a `--prompt` flag — `--prompt` is a top-level opencode option that
+    the `run` subcommand does not consume. Passing `--prompt` to `run` causes
+    the subcommand to receive no message and print its help.
+    """
     cmd = [
         "opencode",
         "run",
@@ -160,7 +167,7 @@ def build_opencode_command(args: argparse.Namespace) -> list[str]:
     if args.model:
         cmd.extend(["--model", args.model])
     if args.prompt:
-        cmd.extend(["--prompt", args.prompt])
+        cmd.append(args.prompt)
     return cmd
 
 
@@ -203,7 +210,19 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--dry-run", action="store_true", help="Print the resolved command and exit without invoking opencode.")
     parser.add_argument("--no-worktree-create", action="store_true", help="Skip worktree creation; fail if missing.")
-    parser.add_argument("--log-level", default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"], help="Logging level (default: INFO).")
+    parser.add_argument(
+        "--log-level",
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        help="Logging level (default: INFO).",
+    )
+    parser.add_argument(
+        "-v",
+        action="store_const",
+        const="DEBUG",
+        dest="log_level",
+        help="Shortcut for --log-level DEBUG.",
+    )
     return parser.parse_args(argv)
 
 
