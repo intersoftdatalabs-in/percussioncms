@@ -3383,6 +3383,9 @@ itemmanagement REST (sitemanage `PSItemService`), not Content Editor HTML.
 
 Copy / promotable response JSON (`ItemCopyResult`): `{ itemId, folderPath, promotable }`. Those
 POSTs fail if the item has no folder path (`Item has no folder path and cannot be copied.`).
+The React Content Editor host **New copy** / **Promotable version** actions call the same
+POSTs and then open `spa.jsp?entry=editor` for the returned `itemId`. HTTP **403** and
+**404** are failures (the open item does not change).
 
 ## Item publish now (Explorer)
 

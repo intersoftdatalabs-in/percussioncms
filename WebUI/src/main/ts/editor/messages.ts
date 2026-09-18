@@ -82,4 +82,14 @@ export const EDITOR_MSG = {
     "perc.ui.editor@Preview is only available for pages and assets.",
   CONFIRM_PREVIEW_UNSAVED:
     "perc.ui.editor@Preview the last saved revision? Unsaved edits are not included.",
+  NEW_COPY: "perc.ui.editor@New copy",
+  PROMOTABLE_VERSION: "perc.ui.editor@Promotable version",
+  COPYING: "perc.ui.editor@Creating copy…",
+  CONFIRM_NEW_COPY: "perc.ui.editor@Create a new copy of this item in the same folder?",
+  CONFIRM_PROMOTABLE:
+    "perc.ui.editor@Create a promotable version of this item in the same folder?",
+  COPY_FAILED: "perc.ui.editor@Could not create a copy of this item.",
+  COPY_FORBIDDEN: "perc.ui.editor@You are not allowed to copy this item.",
+  COPY_NOT_FOUND: "perc.ui.editor@This item was not found.",
+  COPY_UNAVAILABLE: "perc.ui.editor@Copy is only available while editing an item.",
 };
