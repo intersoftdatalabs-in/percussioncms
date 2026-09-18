@@ -370,11 +370,13 @@ describe("ViewDetailPanel", () => {
     await waitFor(() => {
       expect(executeView).toHaveBeenCalledWith("0-18-88", { startIndex: 1, maxResults: 25 });
     });
-    expect(screen.getByTestId("developer-vw-execute-results")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-execute-results")).toBeTruthy();
+    });
     expect(screen.getByTestId("developer-vw-execute-row-0").textContent).toContain("Assignment");
   });
 
-  it("surfaces execute 400 as invalid URL and 503 as unavailable", async () => {
+  it("surfaces execute 400 as invalid URL", async () => {
     getViewDetail.mockResolvedValue({
       name: "MyCustom",
       customView: true,
@@ -395,6 +397,56 @@ describe("ViewDetailPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
         DEV_MSG.VW_EXECUTE_INVALID_URL,
+      );
+    });
+  });
+
+  it("surfaces execute 404 as not found", async () => {
+    getViewDetail.mockResolvedValue({
+      name: "MyCustom",
+      customView: true,
+      url: "../myApp/page.xml",
+      guid: { stringValue: "0-18-88" },
+      fields: [],
+    });
+    executeView.mockRejectedValueOnce({
+      status: 404,
+      statusText: "Not Found",
+      body: { message: "View not found" },
+    });
+    render(<ViewDetailPanel idOrName="MyCustom" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-execute")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-execute"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
+        DEV_MSG.VW_EXECUTE_NOT_FOUND,
+      );
+    });
+  });
+
+  it("surfaces execute 503 as unavailable", async () => {
+    getViewDetail.mockResolvedValue({
+      name: "MyCustom",
+      customView: true,
+      url: "../myApp/page.xml",
+      guid: { stringValue: "0-18-88" },
+      fields: [],
+    });
+    executeView.mockRejectedValueOnce({
+      status: 503,
+      statusText: "Service Unavailable",
+      body: { message: "View execute backend unavailable" },
+    });
+    render(<ViewDetailPanel idOrName="MyCustom" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-execute")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-vw-execute"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-detail-error").textContent).toContain(
+        DEV_MSG.VW_EXECUTE_UNAVAILABLE,
       );
     });
   });

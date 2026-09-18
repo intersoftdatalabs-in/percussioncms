@@ -193,7 +193,7 @@ public class ViewResourceTest {
   @Test
   public void executeViewRethrowsForbidden() {
     WebApplicationException mapped =
-        new WebApplicationException("Admin role required to create, update, or delete views", 403);
+        new WebApplicationException("Admin role required to execute user custom URL views", 403);
     when(adaptor.executeView(eq("Custom"), any())).thenThrow(mapped);
     WebApplicationException ex =
         assertThrows(

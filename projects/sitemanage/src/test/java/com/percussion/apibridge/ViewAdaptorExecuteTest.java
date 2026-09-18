@@ -265,7 +265,6 @@ class ViewAdaptorExecuteTest {
     PSSearch custom = mockView("MyAppView", true, false);
     when(custom.getUrl()).thenReturn("../my_custom_app/foo.xml");
     stubLoadedViews(List.of(custom));
-    adaptor = adminAdaptor;
 
     ViewResultItem row = item("guid-9", "Custom row");
     doReturn(List.of(row)).when(adminAdaptor).runCustomUrlView(any(PSSearch.class), any());
