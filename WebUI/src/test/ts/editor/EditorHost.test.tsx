@@ -705,3 +705,136 @@ describe("EditorHost publish now (#4540)", () => {
     });
   });
 });
+
+describe("EditorHost required field save errors (#4541)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  const requiredType = {
+    fields: [
+      { name: "sys_title", label: "Title", readOnly: false, required: true },
+      { name: "displaytitle", label: "Display title", readOnly: false, required: true },
+    ],
+  };
+
+  it("shows inline required errors on save and does not PUT", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue({
+                  ...fields,
+                  fields: [
+                    { name: "sys_title", value: "Home" },
+                    { name: "displaytitle", value: "" },
+                  ],
+                })}
+                saveFields={saveFields}
+                loadType={async () => requiredType}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-displaytitle")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /required fields before saving/i,
+    );
+    expect(screen.getByTestId("editor-form")).toBeTruthy();
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("maps a save 400 onto the named field and keeps the form", async () => {
+    const saveFields = vi.fn().mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: {
+        Error: {
+          message: "displaytitle is invalid",
+          errorData: "displaytitle",
+        },
+      },
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                saveFields={saveFields}
+                loadType={async () => requiredType}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-displaytitle").textContent).toMatch(
+        /displaytitle/i,
+      );
+    });
+    expect(screen.getByTestId("editor-save-error")).toBeTruthy();
+    expect(screen.getByTestId("editor-form")).toBeTruthy();
+    expect(screen.queryByTestId("editor-error")).toBeNull();
+  });
+
+  it("blocks check-in when a required field is empty", async () => {
+    const checkin = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue({
+                  ...fields,
+                  fields: [
+                    { name: "sys_title", value: "Home" },
+                    { name: "displaytitle", value: "  " },
+                  ],
+                })}
+                checkin={checkin}
+                loadType={async () => requiredType}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-checkin")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-checkin"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-displaytitle")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /required fields before checking in/i,
+    );
+    expect(checkin).not.toHaveBeenCalled();
+  });
+});

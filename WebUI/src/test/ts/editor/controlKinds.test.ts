@@ -18,6 +18,7 @@
 import { describe, expect, it } from "vitest";
 import {
   classifyEditorControl,
+  isEditorFieldRequired,
   mergeEditorRows,
 } from "../../../main/ts/editor/controlKinds";
 import type { ItemEditorFields } from "../../../main/ts/editor/itemFieldsApi";
@@ -64,5 +65,19 @@ describe("mergeEditorRows", () => {
     expect(rows.find((r) => r.name === "img")?.kind).toBe("image");
     expect(rows.find((r) => r.name === "keywords")?.kind).toBe("keyword");
     expect(rows.find((r) => r.name === "sys_communityid")?.kind).toBe("community");
+  });
+
+  it("copies required from the catalog flag or occurrence", () => {
+    const rows = mergeEditorRows(payload, [
+      { name: "sys_title", label: "Title", required: true },
+      { name: "text", label: "Body", control: "sys_tinymce", occurrence: "required" },
+    ]);
+    expect(isEditorFieldRequired({ required: true })).toBe(true);
+    expect(isEditorFieldRequired({ occurrence: "oneOrMore" })).toBe(true);
+    expect(isEditorFieldRequired({ required: false, occurrence: "optional" })).toBe(
+      false,
+    );
+    expect(rows.find((r) => r.name === "sys_title")?.required).toBe(true);
+    expect(rows.find((r) => r.name === "text")?.required).toBe(true);
   });
 });

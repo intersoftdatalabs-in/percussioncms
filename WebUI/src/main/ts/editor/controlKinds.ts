@@ -31,10 +31,25 @@ export interface EditorFieldRow extends ItemEditorField {
   label: string;
   readOnly: boolean;
   kind: EditorWidgetKind;
+  required: boolean;
 }
 
 function norm(value: string | undefined | null): string {
   return (value ?? "").trim().toLowerCase();
+}
+
+/** Content-type catalog: {@code required: true} or occurrence required / oneOrMore. */
+export function isEditorFieldRequired(
+  schema: ContentTypeFieldSummary | undefined | null,
+): boolean {
+  if (!schema) {
+    return false;
+  }
+  if (schema.required === true) {
+    return true;
+  }
+  const occurrence = (schema.occurrence ?? "").trim().toLowerCase();
+  return occurrence === "required" || occurrence === "oneormore";
 }
 
 /**
@@ -128,6 +143,7 @@ export function mergeEditorRows(
       ...field,
       label: schema?.label || field.name,
       readOnly: schema?.readOnly === true,
+      required: isEditorFieldRequired(schema),
       kind,
     });
   }
@@ -146,6 +162,7 @@ export function mergeEditorRows(
       value: "",
       label: schema.label || name,
       readOnly: schema.readOnly === true,
+      required: isEditorFieldRequired(schema),
       kind,
     });
   }

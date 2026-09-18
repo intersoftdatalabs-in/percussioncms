@@ -30,6 +30,11 @@ export const EDITOR_MSG = {
   SAVING: "perc.ui.editor@Saving…",
   SAVE_FAILED: "perc.ui.editor@Could not save the item.",
   SAVED: "perc.ui.editor@Saved",
+  FIELD_REQUIRED: "perc.ui.editor@This field is required.",
+  REQUIRED_SAVE:
+    "perc.ui.editor@Fill in the required fields before saving.",
+  REQUIRED_CHECKIN:
+    "perc.ui.editor@Fill in the required fields before checking in.",
   CHECKIN: "perc.ui.editor@Check In",
   CLOSE: "perc.ui.editor@Close",
   EMPTY: "perc.ui.editor@This content type has no editable text fields.",
