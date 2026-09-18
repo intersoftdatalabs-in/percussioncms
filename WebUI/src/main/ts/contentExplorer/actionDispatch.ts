@@ -41,9 +41,16 @@ import {
   loadLinkedPagesForTakedown,
   publishSelectedItem,
   removeFromStagingSelectedItem,
+  resolvePublishKind,
   stageSelectedItem,
   takedownSelectedItem,
 } from "./itemPublish";
+import {
+  getItemScheduleDates,
+  isScheduleActionName,
+  scheduleSelectedItem,
+  type ItemScheduleDates,
+} from "./itemScheduleDates";
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
 import { classifyUrl, safeNavigate } from "../util/safeNavigate";
 import {
@@ -202,6 +209,11 @@ export interface ActionDispatchContext {
   onTakedown?: (item: PSPathItem) => Promise<void>;
   onStage?: (item: PSPathItem) => Promise<void>;
   onRemoveFromStaging?: (item: PSPathItem) => Promise<void>;
+  onSchedule?: (item: PSPathItem, dates: ItemScheduleDates) => Promise<void>;
+  pickScheduleDates?: (
+    item: PSPathItem,
+    current: ItemScheduleDates,
+  ) => Promise<ItemScheduleDates | null>;
   /** Parent menu name when the user activated a child (AA vs Preview). */
   parentName?: string;
   writeClipboard?: (text: string) => Promise<void>;
@@ -308,7 +320,8 @@ export function classifyAction(action: MenuAction): ActionKind {
     name === "publish_now" ||
     isTakedownActionName(name) ||
     isStageActionName(name) ||
-    isRemoveFromStagingActionName(name)
+    isRemoveFromStagingActionName(name) ||
+    isScheduleActionName(name)
   ) {
     return "rest";
   }
@@ -835,6 +848,38 @@ export async function dispatchAction(
     }
     const removed = await removeFromStagingSelectedItem(item);
     if (!removed) {
+      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    return { kind: "rest", refresh: true };
+  }
+
+  if (isScheduleActionName(name)) {
+    if (!item || isFolder(item)) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    if (resolvePublishKind(item) === "none") {
+      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    const current = await getItemScheduleDates(item.id ?? "");
+    let picked: ItemScheduleDates | null = current;
+    if (ctx.pickScheduleDates) {
+      picked = await ctx.pickScheduleDates(item, current);
+      if (!picked) {
+        return { kind: "rest" };
+      }
+    }
+    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+      EXPLORER_MSG.CONFIRM_SCHEDULE,
+    );
+    if (!ok) {
+      return { kind: "rest" };
+    }
+    if (ctx.onSchedule) {
+      await ctx.onSchedule(item, picked);
+      return { kind: "rest", refresh: true };
+    }
+    const saved = await scheduleSelectedItem(item, picked);
+    if (!saved) {
       return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
     }
     return { kind: "rest", refresh: true };

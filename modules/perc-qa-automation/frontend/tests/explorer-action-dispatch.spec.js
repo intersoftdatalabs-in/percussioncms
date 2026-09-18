@@ -465,4 +465,103 @@ test.describe("modern React Content Explorer — action dispatch", () => {
       );
     },
   );
+
+  test(
+    "Schedule HTTP 200 FORBIDDEN shows an error and does not treat it as saved",
+    { tag: ["@explorer-action-dispatch", "@explorer", "@explorer-schedule"] },
+    async ({ page }) => {
+      test.setTimeout(90_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => {
+        pageErrors.push(String(err));
+      });
+      page.on("dialog", (dialog) => {
+        void dialog.accept();
+      });
+      await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "percPage",
+                  category: "page",
+                  accessLevel: "WRITE",
+                  leaf: true,
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+          }),
+        });
+      });
+      await page.route("**/itemmanagement/item/getitemdates/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ItemDates: { itemId: "42", startDate: "", endDate: "", comments: "" },
+          }),
+        });
+      });
+      await page.route("**/itemmanagement/item/setitemdates**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            status: "FORBIDDEN",
+            warningMessage: "Publication stopped because of licensing issues",
+          }),
+        });
+      });
+
+      await page.goto(explorerSpaUrl(BASE_URL));
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator('[data-testid="content-explorer-shell"]')).toBeVisible({
+        timeout: 20_000,
+      });
+
+      await expect(page.locator('[data-testid="action-toolbar-item-Schedule"]')).toHaveCount(
+        0,
+      );
+
+      const itemRow = page.locator(
+        '[data-testid="detail-row-42"][data-row-kind="item"]',
+      );
+      await expect(itemRow).toBeVisible({ timeout: 20_000 });
+      await itemRow.click();
+      await expect(
+        page.locator(
+          '[data-testid="content-explorer-shell"][data-selected-item-id="42"]',
+        ),
+      ).toBeVisible({ timeout: 10_000 });
+
+      const schedule = page.locator('[data-testid="action-toolbar-item-Schedule"]');
+      await expect(schedule).toBeVisible({ timeout: 15_000 });
+      await schedule.click();
+      await expect(page.locator('[data-testid="explorer-schedule-dialog"]')).toBeVisible({
+        timeout: 10_000,
+      });
+      await page.locator('[data-testid="explorer-schedule-clear"]').click();
+      await page.locator('[data-testid="explorer-schedule-save"]').click();
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toBeVisible({ timeout: 10_000 });
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toContainText(/FORBIDDEN|licensing|Publication stopped/i);
+      await expect(
+        page.getByRole("alert").filter({ hasText: /Select a content item first/i }),
+      ).toHaveCount(0);
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
+    },
+  );
 });

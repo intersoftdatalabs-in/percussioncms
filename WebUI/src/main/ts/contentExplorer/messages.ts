@@ -382,6 +382,17 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Stage this item to the staging server?",
   CONFIRM_REMOVE_FROM_STAGING:
     "perc.ui.explorer@Remove this item from staging?",
+  CONFIRM_SCHEDULE:
+    "perc.ui.explorer@Save schedule publish dates for this item?",
+  SCHEDULE_TITLE: "perc.ui.explorer@Schedule",
+  SCHEDULE_PUBLISH_DATE: "perc.ui.explorer@Publish date",
+  SCHEDULE_REMOVAL_DATE: "perc.ui.explorer@Removal date",
+  SCHEDULE_COMMENTS: "perc.ui.explorer@Comments",
+  SCHEDULE_CLEAR: "perc.ui.explorer@Clear dates",
+  SCHEDULE_DATES_SAME:
+    "perc.ui.explorer@Publish and removal dates cannot be the same",
+  SCHEDULE_DATE_RANGE:
+    "perc.ui.explorer@Enter a valid date range. Removal must be after publish.",
   ACTION_COPY_URL_SUCCESS: "perc.ui.explorer@Item URL copied to the clipboard",
   ACTION_COPY_URL_FAILED: "perc.ui.explorer@Could not copy the item URL",
   ACTION_COPY_URL_EMPTY: "perc.ui.explorer@No URL is available for this item",

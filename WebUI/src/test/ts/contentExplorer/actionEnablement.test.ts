@@ -29,6 +29,7 @@ import {
   isToolbarPublishNowHidden,
   isToolbarTakedownHidden,
   isToolbarStageHidden,
+  isToolbarScheduleHidden,
   isToolbarEditorActionHidden,
   isClientHandledAction,
   isDesktopOnlyActionUrl,
@@ -225,6 +226,7 @@ describe("filterEnabledMenuActions", () => {
       "Take_Down",
       "Stage",
       "Remove_from_Staging",
+      "Schedule",
     ]);
     expect(withPage[0]?.children?.map((c) => c.name)).toEqual([
       "View_Properties",
@@ -323,6 +325,7 @@ describe("filterEnabledMenuActions", () => {
       "Take_Down",
       "Stage",
       "Remove_from_Staging",
+      "Schedule",
     ]);
     expect(
       isToolbarPublishNowHidden(leaf({ name: "Publish_Now" }), null),
@@ -359,6 +362,7 @@ describe("filterEnabledMenuActions", () => {
       "Take_Down",
       "Stage",
       "Remove_from_Staging",
+      "Schedule",
     ]);
   });
 
@@ -393,6 +397,7 @@ describe("filterEnabledMenuActions", () => {
       "Take_Down",
       "Stage",
       "Remove_from_Staging",
+      "Schedule",
     ]);
     expect(
       isToolbarTakedownHidden(leaf({ name: "Take_Down" }), null),
@@ -426,7 +431,7 @@ describe("filterEnabledMenuActions", () => {
     };
     expect(
       filterToolbarActions(actions, BASE, page).map((a) => a.name),
-    ).toEqual(["Take_Down", "Stage", "Remove_from_Staging"]);
+    ).toEqual(["Take_Down", "Stage", "Remove_from_Staging", "Schedule"]);
   });
 
   it("injects Stage and Remove from Staging for a page and hides them for folders (#4546)", () => {
@@ -460,6 +465,7 @@ describe("filterEnabledMenuActions", () => {
       "Take_Down",
       "Stage",
       "Remove_from_Staging",
+      "Schedule",
     ]);
     expect(isToolbarStageHidden(leaf({ name: "Stage" }), null)).toBe(true);
     expect(
@@ -497,7 +503,72 @@ describe("filterEnabledMenuActions", () => {
     };
     expect(
       filterToolbarActions(actions, BASE, page).map((a) => a.name),
-    ).toEqual(["Stage", "Remove_from_Staging", "Take_Down"]);
+    ).toEqual(["Stage", "Remove_from_Staging", "Take_Down", "Schedule"]);
+  });
+
+  it("injects Schedule for a page and hides it for folders (#4547)", () => {
+    const actions: MenuAction[] = [
+      leaf({ name: "open" }),
+      leaf({ name: "Publish_Now", label: "Publish Now" }),
+    ];
+    expect(
+      filterToolbarActions(actions, BASE, null).map((a) => a.name),
+    ).toEqual(["open"]);
+    expect(
+      filterToolbarActions(actions, BASE, {
+        id: "1",
+        name: "Sites",
+        path: "/Sites",
+        type: "folder",
+      }).map((a) => a.name),
+    ).toEqual(["open"]);
+    expect(
+      filterToolbarActions(actions, BASE, {
+        id: "42",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+        category: "page",
+        leaf: true,
+      }).map((a) => a.name),
+    ).toEqual([
+      "open",
+      "Publish_Now",
+      "Take_Down",
+      "Stage",
+      "Remove_from_Staging",
+      "Schedule",
+    ]);
+    expect(isToolbarScheduleHidden(leaf({ name: "Schedule" }), null)).toBe(
+      true,
+    );
+    expect(
+      isToolbarScheduleHidden(leaf({ name: "Schedule" }), {
+        id: "42",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+        category: "page",
+        leaf: true,
+      }),
+    ).toBe(false);
+  });
+
+  it("does not duplicate Schedule when the catalog already has it", () => {
+    const actions: MenuAction[] = [
+      leaf({ name: "Schedule", label: "Schedule" }),
+    ];
+    const page = {
+      id: "42",
+      name: "Home",
+      path: "/Sites/Demo/Home",
+      type: "percPage",
+      category: "page",
+      leaf: true,
+    };
+    expect(
+      filterToolbarActions(actions, BASE, page).map((a) => a.name),
+    ).toEqual(["Schedule", "Take_Down", "Stage", "Remove_from_Staging"]);
   });
 
   it("unwraps envelope children and collapses dumped descendants on the context menu (#3629)", () => {
@@ -540,6 +611,7 @@ describe("filterEnabledMenuActions", () => {
       "Take_Down",
       "Stage",
       "Remove_from_Staging",
+      "Schedule",
     ]);
     expect(filtered[0]?.children?.map((c) => c.name)).toEqual([
       "View_Properties",
@@ -586,6 +658,7 @@ describe("filterEnabledMenuActions", () => {
       "Take_Down",
       "Stage",
       "Remove_from_Staging",
+      "Schedule",
     ]);
     expect(isToolbarEditorActionHidden(leaf({ name: "Edit" }), null)).toBe(true);
     expect(
