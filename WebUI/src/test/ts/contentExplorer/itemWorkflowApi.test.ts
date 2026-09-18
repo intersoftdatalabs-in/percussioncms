@@ -17,6 +17,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   coerceTransitionTriggers,
+  forceCheckInItem,
   getItemWorkflowTransitions,
   transitionItem,
   unwrapItemStateTransition,
@@ -117,6 +118,19 @@ describe("itemWorkflowApi (#2732)", () => {
   it("transitionItem rejects missing id or trigger", async () => {
     await expect(transitionItem("", "Submit")).rejects.toThrow(/requires/);
     await expect(transitionItem("1", "")).rejects.toThrow(/requires/);
+    expect(client.get).not.toHaveBeenCalled();
+  });
+
+  it("forceCheckInItem calls forceCheckIn path with encoded id", async () => {
+    vi.mocked(client.get).mockResolvedValue({ operation: "checkIn" });
+    await forceCheckInItem("42");
+    expect(client.get).toHaveBeenCalledWith(
+      `${PATHS.ITEM_WORKFLOW_FORCE_CHECKIN}${encodeURIComponent("42")}`,
+    );
+  });
+
+  it("forceCheckInItem rejects blank id", async () => {
+    await expect(forceCheckInItem("  ")).rejects.toThrow(/requires/);
     expect(client.get).not.toHaveBeenCalled();
   });
 });

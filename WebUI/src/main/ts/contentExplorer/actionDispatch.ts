@@ -31,10 +31,12 @@ import {
   createNewCopy,
   createPromotableVersion,
 } from "../api/contentExplorer/itemCopyApi";
-import { del } from "../api/client";
+import { del, isApiError } from "../api/client";
 import { PATHS } from "../api/paths";
+import { forceCheckInItem } from "../api/contentExplorer/itemWorkflowApi";
 import {
   formatTakedownConfirmBody,
+  isForceCheckinActionName,
   isPublishingHistoryActionName,
   isRemoveFromStagingActionName,
   isStageActionName,
@@ -216,6 +218,7 @@ export interface ActionDispatchContext {
   onStage?: (item: PSPathItem) => Promise<void>;
   onRemoveFromStaging?: (item: PSPathItem) => Promise<void>;
   onSchedule?: (item: PSPathItem, dates: ItemScheduleDates) => Promise<void>;
+  onForceCheckin?: (item: PSPathItem) => Promise<void>;
   pickScheduleDates?: (
     item: PSPathItem,
     current: ItemScheduleDates,
@@ -327,7 +330,8 @@ export function classifyAction(action: MenuAction): ActionKind {
     isTakedownActionName(name) ||
     isStageActionName(name) ||
     isRemoveFromStagingActionName(name) ||
-    isScheduleActionName(name)
+    isScheduleActionName(name) ||
+    isForceCheckinActionName(name)
   ) {
     return "rest";
   }
@@ -898,6 +902,45 @@ export async function dispatchAction(
     const saved = await scheduleSelectedItem(item, picked);
     if (!saved) {
       return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    return { kind: "rest", refresh: true };
+  }
+
+  if (isForceCheckinActionName(name)) {
+    if (!item || isFolder(item) || !item.id) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    if (resolvePublishKind(item) === "none") {
+      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+      EXPLORER_MSG.CONFIRM_FORCE_CHECKIN,
+    );
+    if (!ok) {
+      return { kind: "rest" };
+    }
+    try {
+      if (ctx.onForceCheckin) {
+        await ctx.onForceCheckin(item);
+      } else {
+        await forceCheckInItem(String(item.id));
+      }
+    } catch (err: unknown) {
+      if (isApiError(err)) {
+        if (err.status === 403) {
+          return { kind: "rest", messageKey: EXPLORER_MSG.FORCE_CHECKIN_FORBIDDEN };
+        }
+        if (err.status === 404) {
+          return { kind: "rest", messageKey: EXPLORER_MSG.FORCE_CHECKIN_NOT_FOUND };
+        }
+        if (err.status === 409 || err.status === 400) {
+          return {
+            kind: "rest",
+            messageKey: EXPLORER_MSG.FORCE_CHECKIN_NOT_CHECKED_OUT,
+          };
+        }
+      }
+      throw err;
     }
     return { kind: "rest", refresh: true };
   }

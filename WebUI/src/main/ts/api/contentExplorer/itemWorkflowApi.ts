@@ -180,3 +180,15 @@ export async function transitionItem(
   }
   return get<ItemTransitionResults>(url);
 }
+
+/**
+ * Admin force check-in ({@code GET …/workflow/forceCheckIn/{id}}).
+ * HTTP 403 non-Admin, 404 unknown id, 409 not checked out.
+ */
+export async function forceCheckInItem(itemId: string): Promise<void> {
+  const id = String(itemId ?? "").trim();
+  if (!id) {
+    throw new Error("forceCheckInItem requires itemId");
+  }
+  await get(`${PATHS.ITEM_WORKFLOW_FORCE_CHECKIN}${encodeURIComponent(id)}`);
+}

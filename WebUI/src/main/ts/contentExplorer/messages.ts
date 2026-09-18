@@ -374,6 +374,14 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Permanently delete this item from the system?",
   CONFIRM_PUBLISH_NOW:
     "perc.ui.explorer@Publish this item now?",
+  CONFIRM_FORCE_CHECKIN:
+    "perc.ui.explorer@Force check-in this item? Other users will lose their checkout.",
+  FORCE_CHECKIN_FORBIDDEN:
+    "perc.ui.explorer@Admin assignment is required to force check-in",
+  FORCE_CHECKIN_NOT_FOUND:
+    "perc.ui.explorer@Item not found",
+  FORCE_CHECKIN_NOT_CHECKED_OUT:
+    "perc.ui.explorer@Item is not checked out",
   CONFIRM_TAKEDOWN:
     "perc.ui.explorer@Take down (unpublish) this item from its site?",
   CONFIRM_TAKEDOWN_LINKED:

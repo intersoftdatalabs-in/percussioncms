@@ -85,6 +85,17 @@ public interface IPSItemWorkflowService {
   PSItemUserInfo forceCheckOut(String id) throws PSItemWorkflowServiceException;
 
   /**
+   * Admin force check-in of an item checked out by another user (Content Explorer).
+   *
+   * <p>HTTP 403 when the current user is not assignment-type Admin, 404 when the id is
+   * unknown, and a client error when the item is not checked out.
+   *
+   * @param id never blank
+   * @return a no-content response
+   */
+  PSNoContent forceCheckIn(String id);
+
+  /**
    * Gets all possible workflow transitions for the specified item.
    *
    * @param id the ID of the item in question, not blank

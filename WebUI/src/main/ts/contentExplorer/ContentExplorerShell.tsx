@@ -768,7 +768,12 @@ function ContentExplorerShellInner({
         // Toolbar surface: drop desktop-only URLs and CONTEXTMENU roots (#2849).
         const merged = mergeWorkflowMenuActions(base ?? [], workflow);
         setMenuActions(
-          filterToolbarActions(merged, undefined, selection.item),
+          filterToolbarActions(
+            merged,
+            undefined,
+            selection.item,
+            bootstrap.isAdmin === true,
+          ),
         );
         setMenuLoadError(null);
       } catch (err: unknown) {
@@ -790,7 +795,13 @@ function ContentExplorerShellInner({
     return () => {
       cancelled = true;
     };
-  }, [selection.item, loadMenuActions, loadWorkflowMenuActions, listEpoch]);
+  }, [
+    selection.item,
+    loadMenuActions,
+    loadWorkflowMenuActions,
+    listEpoch,
+    bootstrap.isAdmin,
+  ]);
 
   const selectedFormat = useMemo(() => {
     if (!selectedFormatKey) return null;
@@ -967,7 +978,12 @@ function ContentExplorerShellInner({
             height: window.innerHeight,
           });
           setContextMenu({
-            actions: filterContextMenuActions(merged, undefined, item),
+            actions: filterContextMenuActions(
+              merged,
+              undefined,
+              item,
+              bootstrap.isAdmin === true,
+            ),
             x: pos.x,
             y: pos.y,
           });
@@ -985,7 +1001,7 @@ function ContentExplorerShellInner({
         }
       })();
     },
-    [loadMenuActions, loadWorkflowMenuActions],
+    [loadMenuActions, loadWorkflowMenuActions, bootstrap.isAdmin],
   );
 
   const pickContentType = useCallback((types: ContentTypeChoice[]) => {

@@ -812,6 +812,78 @@ describe("actionDispatch", () => {
     expect(onPublish).not.toHaveBeenCalled();
   });
 
+  it("classifies Force Check-in as rest", () => {
+    expect(classifyAction(action({ name: "Force_Checkin" }))).toBe("rest");
+  });
+
+  it("Force Check-in confirms then refreshes", async () => {
+    const onForceCheckin = vi.fn().mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
+    const result = await dispatchAction(action({ name: "Force_Checkin" }), {
+      item: item(),
+      onForceCheckin,
+      confirm,
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(confirm).toHaveBeenCalled();
+    expect(onForceCheckin).toHaveBeenCalled();
+  });
+
+  it("Force Check-in cancel does not call REST", async () => {
+    const onForceCheckin = vi.fn();
+    const result = await dispatchAction(action({ name: "Force_Checkin" }), {
+      item: item(),
+      onForceCheckin,
+      confirm: () => false,
+    });
+    expect(onForceCheckin).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("Force Check-in on a folder asks for a content item", async () => {
+    const onForceCheckin = vi.fn();
+    const result = await dispatchAction(action({ name: "Force_Checkin" }), {
+      item: item({
+        id: "1",
+        name: "Sites",
+        path: "/Sites",
+        type: "folder",
+        leaf: false,
+      }),
+      onForceCheckin,
+      confirm: () => true,
+    });
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+    expect(onForceCheckin).not.toHaveBeenCalled();
+  });
+
+  it("Force Check-in maps HTTP 403/404/409", async () => {
+    const onForceCheckin = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 403, statusText: "Forbidden", body: {} })
+      .mockRejectedValueOnce({ status: 404, statusText: "Not Found", body: {} })
+      .mockRejectedValueOnce({ status: 409, statusText: "Conflict", body: {} });
+    const forbidden = await dispatchAction(action({ name: "Force_Checkin" }), {
+      item: item(),
+      onForceCheckin,
+      confirm: () => true,
+    });
+    expect(forbidden.messageKey).toBe(EXPLORER_MSG.FORCE_CHECKIN_FORBIDDEN);
+    const missing = await dispatchAction(action({ name: "Force_Checkin" }), {
+      item: item(),
+      onForceCheckin,
+      confirm: () => true,
+    });
+    expect(missing.messageKey).toBe(EXPLORER_MSG.FORCE_CHECKIN_NOT_FOUND);
+    const notOut = await dispatchAction(action({ name: "Force_Checkin" }), {
+      item: item(),
+      onForceCheckin,
+      confirm: () => true,
+    });
+    expect(notOut.messageKey).toBe(EXPLORER_MSG.FORCE_CHECKIN_NOT_CHECKED_OUT);
+  });
+
   it("classifies Take Down as rest", () => {
     expect(classifyAction(action({ name: "Take_Down" }))).toBe("rest");
     expect(classifyAction(action({ name: "unpublish" }))).toBe("rest");
