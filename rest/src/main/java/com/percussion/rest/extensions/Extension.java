@@ -97,8 +97,14 @@ public class Extension {
           "A list of Extension names that this Extension depends on to function correctly")
   private List<String> requiredApplications;
 
-  @Schema(name = "methods", description = "A map of ExtensionMethods provided by this extension")
-  private Map<String, ExtensionMethod> methods;
+  @Schema(
+      name = "methods",
+      description =
+          "Method list for this extension. Admin POST/PUT of user extensions persist this"
+              + " list. Null on PUT keeps the current methods; an empty list clears all methods."
+              + " GET round-trips name, description, returnType, and parameters. Duplicate names"
+              + " are 400.")
+  private List<ExtensionMethod> methods;
 
   public Extension() {
     // Default constructor
@@ -224,11 +230,11 @@ public class Extension {
     this.requiredApplications = requiredApplications;
   }
 
-  public Map<String, ExtensionMethod> getMethods() {
+  public List<ExtensionMethod> getMethods() {
     return methods;
   }
 
-  public void setMethods(Map<String, ExtensionMethod> methods) {
+  public void setMethods(List<ExtensionMethod> methods) {
     this.methods = methods;
   }
 }

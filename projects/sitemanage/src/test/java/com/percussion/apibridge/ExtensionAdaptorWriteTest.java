@@ -39,6 +39,8 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionRef;
 import com.percussion.extensions.IPSExtensionService;
 import com.percussion.rest.extensions.Extension;
+import com.percussion.rest.extensions.ExtensionMethod;
+import com.percussion.rest.extensions.ExtensionParameter;
 import jakarta.ws.rs.WebApplicationException;
 import java.net.URI;
 import java.util.Collections;
@@ -259,6 +261,92 @@ class ExtensionAdaptorWriteTest {
   }
 
   @Test
+  void register_persistsMethodMapRoundTrip() {
+    Extension body = userBody("my_user_ext");
+    body.setMethods(List.of(method("productVersion", "java.lang.String", "ver")));
+
+    Extension created = adaptor.registerExtension(BASE, body);
+    Extension fetched = adaptor.findExtensionByKey(BASE, created.getFqn());
+
+    assertNotNull(fetched.getMethods());
+    assertEquals(1, fetched.getMethods().size());
+    ExtensionMethod meth = fetched.getMethods().get(0);
+    assertNotNull(meth);
+    assertEquals("productVersion", meth.getName());
+    assertEquals("java.lang.String", meth.getReturnType());
+    assertEquals("ver", meth.getDescription());
+  }
+
+  @Test
+  void update_replacesAndClearsMethodMap() {
+    Extension body = userBody("my_user_ext");
+    body.setMethods(List.of(method("oldMethod", "java.lang.Object", "old")));
+    adaptor.registerExtension(BASE, body);
+
+    Extension replace = userBody("my_user_ext");
+    ExtensionMethod next = method("newMethod", "java.lang.Integer", "n");
+    ExtensionParameter p = new ExtensionParameter();
+    p.setName("n");
+    p.setDataType("int");
+    next.setParameters(List.of(p));
+    replace.setMethods(List.of(next));
+    Extension updated = adaptor.updateExtension(BASE, "my_user_ext", replace);
+    assertEquals(1, updated.getMethods().size());
+    assertEquals("newMethod", updated.getMethods().get(0).getName());
+    assertEquals("java.lang.Integer", updated.getMethods().get(0).getReturnType());
+    assertEquals(1, updated.getMethods().get(0).getParameters().size());
+    assertEquals("n", updated.getMethods().get(0).getParameters().get(0).getName());
+
+    Extension omit = userBody("my_user_ext");
+    omit.setMethods(null);
+    Extension kept = adaptor.updateExtension(BASE, "my_user_ext", omit);
+    assertEquals("newMethod", kept.getMethods().get(0).getName());
+
+    Extension clear = userBody("my_user_ext");
+    clear.setMethods(List.of());
+    Extension cleared = adaptor.updateExtension(BASE, "my_user_ext", clear);
+    assertTrue(cleared.getMethods() == null || cleared.getMethods().isEmpty());
+  }
+
+  @Test
+  void update_blankMethodNameClears() {
+    adaptor.registerExtension(BASE, userBody("my_user_ext"));
+    Extension body = userBody("my_user_ext");
+    body.setMethods(List.of(method(" ", "java.lang.Object", "")));
+    Extension clearedBlanks = adaptor.updateExtension(BASE, "my_user_ext", body);
+    assertTrue(clearedBlanks.getMethods() == null || clearedBlanks.getMethods().isEmpty());
+  }
+
+  @Test
+  void update_duplicateMethodNameIs400() {
+    List<ExtensionMethod> dup =
+        List.of(
+            method("productVersion", "java.lang.String", ""),
+            method("productVersion", "java.lang.String", ""));
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> ExtensionAdaptor.requireMethods(dup));
+    assertTrue(ex.getMessage().contains("duplicate method name"));
+  }
+
+  @Test
+  void update_systemMethodMapIs409() throws Exception {
+    seedSystemExtension();
+    Extension body = userBody("sys_add");
+    body.setMethods(List.of(method("x", "java.lang.Object", "")));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.updateExtension(BASE, "sys_add", body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void requireMethods_defaultsReturnType() {
+    Map<String, ExtensionMethod> out =
+        ExtensionAdaptor.requireMethods(List.of(method("m", null, "d")));
+    assertEquals(ExtensionAdaptor.DEFAULT_METHOD_RETURN_TYPE, out.get("m").getReturnType());
+  }
+
+  @Test
   void delete_removesUserExtension() {
     adaptor.registerExtension(BASE, userBody("my_user_ext"));
     assertTrue(adaptor.deleteExtension(BASE, "my_user_ext"));
@@ -375,5 +463,13 @@ class ExtensionAdaptorWriteTest {
     e.setSupportedInterfaces(List.of("com.percussion.extension.IPSUdfProcessor"));
     e.setInitParameters(Map.of(IPSExtensionDef.INIT_PARAM_CLASSNAME, "com.example.MyExt"));
     return e;
+  }
+
+  private static ExtensionMethod method(String name, String returnType, String description) {
+    ExtensionMethod m = new ExtensionMethod();
+    m.setName(name);
+    m.setReturnType(returnType);
+    m.setDescription(description);
+    return m;
   }
 }

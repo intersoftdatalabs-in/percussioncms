@@ -109,6 +109,31 @@ public class PSExtensionDefFactoryTest {
     assertTrue(def.equals(def2), "Full def failed comparison");
   }
 
+  @Test
+  public void testExcludeMethodsOmitsMethodsElement() throws Exception {
+    PSExtensionRef ref = new PSExtensionRef("Handler1", "context1", "ext1");
+    ArrayList ifaces = new ArrayList();
+    ifaces.add("com.percussion.extension.IPSUdfProcessor");
+    Properties init = new Properties();
+    init.setProperty("className", "com.example.MyExt");
+    PSExtensionDef def = new PSExtensionDef(ref, ifaces.iterator(), null, init, null);
+    def.addExtensionMethod(new PSExtensionMethod("productVersion", String.class.getName(), "ver"));
+    PSExtensionDefFactory factory = new PSExtensionDefFactory();
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "root");
+    Element included = factory.toXml(root, def, false);
+    assertTrue(
+        included.getElementsByTagName("Methods").getLength() > 0,
+        "storeConfig(..., false) must persist the method map");
+    Document doc2 = PSXmlDocumentBuilder.createXmlDocument();
+    Element root2 = PSXmlDocumentBuilder.createRoot(doc2, "root2");
+    Element excluded = factory.toXml(root2, def, true);
+    assertEquals(
+        0,
+        excluded.getElementsByTagName("Methods").getLength(),
+        "excludeMethods=true must omit Methods");
+  }
+
   /** Does a round trip test, using a def that has no URLs and no runtime parameters defined.. */
   @Test
   public void testNoUrlsNoRuntimeParams() throws Exception {

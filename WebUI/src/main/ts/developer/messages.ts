@@ -1601,7 +1601,7 @@ export const DEV_MSG_KEYS = {
   EX_EMPTY: "perc.ui.developer@No extensions returned.",
   EX_ERROR: "perc.ui.developer@Could not load extensions.",
   EX_HINT:
-    "perc.ui.developer@Create, save, or delete user extensions (Java identifier name, at least one interface, className for Java). System and handler-owned extensions are read-only.",
+    "perc.ui.developer@Create, save, or delete user extensions (Java identifier name, at least one interface, className for Java). Admins can edit the method map. System and handler-owned extensions are read-only.",
   EX_COL_NAME: "perc.ui.developer@Name",
   EX_COL_HANDLER: "perc.ui.developer@Handler",
   EX_COL_CONTEXT: "perc.ui.developer@Context",
@@ -1620,6 +1620,18 @@ export const DEV_MSG_KEYS = {
   EX_NONE: "perc.ui.developer@None",
   EX_COL_PARAM: "perc.ui.developer@Parameter",
   EX_COL_TYPE: "perc.ui.developer@Type",
+  EX_METHODS: "perc.ui.developer@Method map",
+  EX_METHOD_HINT:
+    "perc.ui.developer@Add, update, or clear methods. Save writes the map; an empty list clears. GET then Save round-trips name, return type, description, and parameters.",
+  EX_METHOD_ADD: "perc.ui.developer@Add method",
+  EX_METHOD_REMOVE: "perc.ui.developer@Remove method",
+  EX_METHOD_NAME: "perc.ui.developer@Method name",
+  EX_METHOD_RETURN: "perc.ui.developer@Return type",
+  EX_METHOD_DESC: "perc.ui.developer@Description",
+  EX_METHOD_PARAMS: "perc.ui.developer@Method parameters",
+  EX_METHOD_PARAM_ADD: "perc.ui.developer@Add parameter",
+  EX_METHOD_PARAM_REMOVE: "perc.ui.developer@Remove parameter",
+  EX_METHOD_EMPTY: "perc.ui.developer@No methods. Add a method or save to clear the map.",
   EX_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   EX_GAP_METHODS: "perc.ui.developer@Extension method map editing not supported via this chrome",
   EX_GAP_WORKBENCH:

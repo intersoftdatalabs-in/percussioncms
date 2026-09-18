@@ -807,8 +807,10 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
    */
   private void storeConfig() throws PSExtensionException {
     try {
-      // store the config in the proper file, don't store the JEXL methods
-      m_config.store(m_configFile, true);
+      // Persist method maps in Extensions.xml so Admin REST/SPA can round-trip
+      // user-edited methods (#4543). JEXL annotation methods are still reloaded
+      // in initializeConfig (same-name annotations overlay XML).
+      m_config.store(m_configFile, false);
 
       // reinitialize from the just stored file to load all JEXL methods
       initializeConfig(m_configFile);

@@ -56,8 +56,8 @@ public interface IExtensionAdaptor {
   Extension registerExtension(URI baseURI, Extension body);
 
   /**
-   * Admin. Update mutable fields of a user extension identified by FQN or short name. Does not
-   * mutate system or handler-owned extensions.
+   * Admin. Update mutable fields of a user extension identified by FQN or short name, including
+   * the method map. Does not mutate system or handler-owned extensions.
    *
    * @param baseURI Base URI for the request
    * @param idOrName FQN or extension name (same rules as {@link #findExtensionByKey})

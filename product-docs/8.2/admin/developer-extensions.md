@@ -22,8 +22,9 @@ deleted here. Save and Delete stay **disabled** on those rows; a mutate or
 delete attempt against REST is **409**.
 
 This chrome uses the fields already on the REST `Extension` wire DTO (name,
-handler, interfaces, `initParameters.className`, deprecated). Full Workbench
-parameter-dialog parity and method-map editing are later slices.
+handler, interfaces, `initParameters.className`, deprecated, and the **method
+map**). Full Workbench parameter-dialog parity beyond those fields is a later
+slice.
 
 ## Product path — create, save, delete
 
@@ -40,7 +41,13 @@ parameter-dialog parity and method-map editing are later slices.
    lists the new extension (`GET /services/extensions/catalog` and GET by key).
 5. Optional: change interfaces, class name, or deprecated and **Save** again.
    Identity (handler / context / name) is not renamed on update.
-6. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
+6. Under **Method map**, **Add method**. Enter a **method name**, optional
+   **return type** (defaults to `java.lang.Object`), description, and parameter
+   rows (name + type). **Save** writes the map. GET then Save round-trips those
+   fields. Removing every method and **Save** **clears** the map. Blank method
+   names are dropped client-side; a REST payload with a blank or duplicate
+   method name is **400**. System and handler-owned rows stay read-only.
+7. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
    The catalog returns with a green **Extension deleted** notice. Delete of a
    missing extension is **404**. Delete of a **system** or **handler-owned**
    extension is blocked in the UI and would be **409** on REST.
@@ -50,7 +57,6 @@ parameter-dialog parity and method-map editing are later slices.
 - Name and handler are immutable after create.
 - System and handler-owned extensions cannot be updated or deleted here.
 - Workbench parameter dialog parity beyond the wire DTO is not in this chrome.
-- Extension method map editing is not in this chrome.
 
 ## REST
 
@@ -61,7 +67,7 @@ The chrome calls:
 | List | `GET /services/extensions/catalog` |
 | Load | `GET /services/extensions/catalog/item?key=` |
 | Create | `POST /services/extensions` (`extensionName` + interfaces; Java needs `className`) |
-| Save | `PUT /services/extensions/catalog/item?key=` (mutable fields; identity not renamed) |
+| Save | `PUT /services/extensions/catalog/item?key=` (mutable fields including `methods[]`; identity not renamed). `methods` omitted keeps the current list; `[]` clears. |
 | Delete | `DELETE /services/extensions/catalog/item?key=` (`204` on success) |
 
 JSON bodies wrap under an `Extension` root. Detail and write keys use a **query**

@@ -220,6 +220,17 @@ public class ExtensionsResourceTest {
   }
 
   @Test
+  public void updateExtensionInvalidMethodMapIs400() {
+    when(adaptor.updateExtension(any(), eq("my_user_ext"), any()))
+        .thenThrow(new IllegalArgumentException("methods entries require a name"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateExtension("my_user_ext", userBody("my_user_ext")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void deleteExtensionNoContent() {
     when(adaptor.deleteExtension(any(), eq("my_user_ext"))).thenReturn(true);
 
